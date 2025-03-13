@@ -15,7 +15,7 @@ spring:
     name: booklore-api
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://mariadb:3306/booklore?createDatabaseIfNotExist=true
+    url: jdbc:mariadb://${DB_HOST:mariadb}:3306/booklore?createDatabaseIfNotExist=true
     username: root
     password: ${MYSQL_ROOT_PASSWORD}
   jpa:
