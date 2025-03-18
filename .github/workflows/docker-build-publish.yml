@@ -2,9 +2,6 @@ name: Build, Tag, Push, and Release to GitHub Container Registry
 
 on:
   push:
-    branches:
-      - master
-      - develop
 
 jobs:
   build-and-push:
@@ -23,37 +20,43 @@ jobs:
       - name: Log in to GitHub Container Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Get Latest Tag
+      - name: Get Latest Master Version
         id: get_version
         run: |
-          branch="${GITHUB_REF#refs/heads/}"
-          if [[ "$branch" == "master" ]]; then
-            latest_tag=$(git tag --list "v*" --sort=-v:refname | head -n 1)
-          else
-            latest_tag=$(git tag --list "develop-v*" --sort=-v:refname | head -n 1)
-          fi
+          latest_tag=$(git tag --list "v*" --sort=-v:refname | head -n 1)
           latest_tag=${latest_tag:-"v0.0.0"}
           echo "latest_tag=$latest_tag" >> $GITHUB_ENV
-          echo "Latest tag: $latest_tag"
+          echo "Latest master tag: $latest_tag"
 
-      - name: Auto-Increment Version
+      - name: Auto-Increment Version (Only for Master)
+        if: github.ref == 'refs/heads/master'
         id: bump_version
         run: |
           old_version=${{ env.latest_tag }}
           IFS='.' read -r -a parts <<< "${old_version//[!0-9.]/}"
           new_version="${parts[0]}.${parts[1]}.$((parts[2] + 1))"
-          
-          branch="${GITHUB_REF#refs/heads/}"
-          if [[ "$branch" == "master" ]]; then
-            new_tag="v${new_version}"
-          else
-            new_tag="develop-v${new_version}"
-          fi
-          
+          new_tag="v${new_version}"
           echo "new_tag=$new_tag" >> $GITHUB_ENV
           echo "New version: $new_tag"
 
-      - name: Create Git Tag
+      - name: Generate Image Tag
+        id: set_image_tag
+        run: |
+          branch="${GITHUB_REF#refs/heads/}"
+          if [[ "$branch" == "master" ]]; then
+            image_tag="${{ env.new_tag }}"
+          elif [[ "$branch" == "develop" ]]; then
+            short_sha=$(git rev-parse --short HEAD)
+            image_tag="${{ env.latest_tag }}-develop-${short_sha}"
+          else
+            short_sha=$(git rev-parse --short HEAD)
+            image_tag="${short_sha}"
+          fi
+          echo "image_tag=$image_tag" >> $GITHUB_ENV
+          echo "Image tag: $image_tag"
+
+      - name: Create Git Tag (Only for Master)
+        if: github.ref == 'refs/heads/master'
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
@@ -62,19 +65,20 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t ghcr.io/${{ github.actor }}/booklore-app:${{ env.new_tag }} .
+          docker build -t ghcr.io/${{ github.actor }}/booklore-app:${{ env.image_tag }} .
 
       - name: Push Docker Image to GHCR
         run: |
-          docker push ghcr.io/${{ github.actor }}/booklore-app:${{ env.new_tag }}
+          docker push ghcr.io/${{ github.actor }}/booklore-app:${{ env.image_tag }}
 
-      - name: Push Latest Tag (only for master)
+      - name: Push Latest Tag (Only for Master)
         if: github.ref == 'refs/heads/master'
         run: |
           docker tag ghcr.io/${{ github.actor }}/booklore-app:${{ env.new_tag }} ghcr.io/${{ github.actor }}/booklore-app:latest
           docker push ghcr.io/${{ github.actor }}/booklore-app:latest
 
-      - name: Create GitHub Release
+      - name: Create GitHub Release (Only for Master)
+        if: github.ref == 'refs/heads/master'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

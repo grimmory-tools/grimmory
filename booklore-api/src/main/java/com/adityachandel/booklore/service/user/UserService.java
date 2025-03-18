@@ -103,8 +103,8 @@ public class UserService {
             throw ApiError.PASSWORD_SAME_AS_CURRENT.createException();
         }
 
-        if (!isPasswordStrong(changePasswordRequest.getNewPassword())) {
-            throw ApiError.PASSWORD_WEAK.createException();
+        if (!isValidPassword(changePasswordRequest.getNewPassword())) {
+            throw ApiError.PASSWORD_TOO_SHORT.createException();
         }
 
         bookLoreUserEntity.setDefaultPassword(false);
@@ -114,15 +114,14 @@ public class UserService {
 
     public void changeUserPassword(ChangeUserPasswordRequest request) {
         BookLoreUserEntity userEntity = userRepository.findById(request.getUserId()).orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(request.getUserId()));
-        if (!isPasswordStrong(request.getNewPassword())) {
-            throw ApiError.PASSWORD_WEAK.createException();
+        if (!isValidPassword(request.getNewPassword())) {
+            throw ApiError.PASSWORD_TOO_SHORT.createException();
         }
         userEntity.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(userEntity);
     }
 
-    private boolean isPasswordStrong(String password) {
-        String passwordPattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
-        return password.matches(passwordPattern);
+    private boolean isValidPassword(String password) {
+        return password != null && password.length() >= 6;
     }
 }
