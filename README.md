@@ -48,6 +48,7 @@ services:
       - PUID=1000 # User ID to ensure correct file permissions
       - PGID=1000 # Group ID to ensure correct file permissions
       - TZ=Etc/UTC # Set the timezone for logs and system operations
+      - MYSQL_ROOT_PASSWORD=your_secure_password # Replace with a strong password for the database (must be same as in mariadb container)
     depends_on:
       mariadb:
         condition: service_healthy
@@ -65,7 +66,7 @@ services:
       - PUID=1000 # Ensure correct file ownership for database files
       - PGID=1000 # Ensure correct file ownership for database files
       - TZ=Etc/UTC # Set the timezone for logs and database operations
-      - MYSQL_ROOT_PASSWORD=your_secure_password # Replace with a strong password for the database
+      - MYSQL_ROOT_PASSWORD=your_secure_password # Replace with a strong password for the database (must be same as in mariadb booklore)
     volumes:
       - /your/local/path/to/mariadb/config:/config # Replace the left side before colon with your system path, keep the right side unchanged
     restart: unless-stopped
