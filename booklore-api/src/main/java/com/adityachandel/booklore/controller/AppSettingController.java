@@ -3,6 +3,7 @@ package com.adityachandel.booklore.controller;
 import com.adityachandel.booklore.model.dto.settings.AppSettings;
 import com.adityachandel.booklore.model.dto.settings.SettingRequest;
 import com.adityachandel.booklore.service.AppSettingService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +22,7 @@ public class AppSettingController {
     }
 
     @PutMapping
-    public void updateSettings(@RequestBody List<SettingRequest> settingRequests) {
+    public void updateSettings(@RequestBody List<SettingRequest> settingRequests) throws JsonProcessingException {
         for (SettingRequest settingRequest : settingRequests) {
             appSettingService.updateSetting(settingRequest.getName(), settingRequest.getValue());
         }

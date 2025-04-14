@@ -43,13 +43,16 @@ public class AppSettingService {
     }
 
     @Transactional
-    public void updateSetting(String name, Object val) {
+    public void updateSetting(String name, Object val) throws JsonProcessingException {
         AppSettingEntity setting = appSettingsRepository.findByName(name);
         if (setting == null) {
             throw new IllegalArgumentException("Setting not found for name: " + name);
         }
-
-        setting.setVal(val.toString());
+        if (name.equals(QUICK_BOOK_MATCH)) {
+            setting.setVal(objectMapper.writeValueAsString(val));
+        } else {
+            setting.setVal(val.toString());
+        }
         appSettingsRepository.save(setting);
         refreshCache();
     }
