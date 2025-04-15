@@ -1,8 +1,8 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.4.3'
+    id 'org.springframework.boot' version '3.4.4'
     id 'io.spring.dependency-management' version '1.1.7'
-    id 'org.hibernate.orm' version '6.6.10.Final'
+    id 'org.hibernate.orm' version '6.6.13.Final'
 }
 
 group = 'com.adityachandel'
@@ -37,8 +37,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-mail'
 
     // --- Database & Migration ---
-    implementation 'org.mariadb.jdbc:mariadb-java-client:3.5.2'
-    implementation 'org.flywaydb:flyway-mysql:11.3.4'
+    implementation 'org.mariadb.jdbc:mariadb-java-client:3.5.3'
+    implementation 'org.flywaydb:flyway-mysql:11.7.1'
 
     // --- Security & Authentication ---
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
@@ -46,8 +46,8 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
 
     // --- Lombok (For Clean Code) ---
-    compileOnly 'org.projectlombok:lombok:1.18.36'
-    annotationProcessor 'org.projectlombok:lombok:1.18.36'
+    compileOnly 'org.projectlombok:lombok:1.18.38'
+    annotationProcessor 'org.projectlombok:lombok:1.18.38'
 
     // --- Book & Image Processing ---
     implementation 'org.apache.pdfbox:pdfbox:3.0.4'
@@ -65,7 +65,7 @@ dependencies {
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
 
     // --- API Documentation ---
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
 }
 
 hibernate {

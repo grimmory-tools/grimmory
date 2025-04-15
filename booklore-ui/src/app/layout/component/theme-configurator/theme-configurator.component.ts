@@ -178,7 +178,7 @@ export class ThemeConfiguratorComponent implements OnInit {
   selectedSurfaceColor = computed(() => this.configService.appState().surface);
 
   primaryColors = computed<Palette[]>(() => {
-    const presetPalette = Aura.primitive ?? {};
+    const presetPalette = (Aura.primitive ?? {}) as Partial<Record<string, Palette>>;
     const colors = ['emerald', 'green', 'lime', 'orange', 'amber', 'yellow', 'teal', 'cyan', 'sky', 'blue', 'indigo', 'violet', 'purple', 'fuchsia', 'pink', 'rose'];
     return [{ name: 'noir', palette: {} }].concat(
       colors.map((color) => ({
