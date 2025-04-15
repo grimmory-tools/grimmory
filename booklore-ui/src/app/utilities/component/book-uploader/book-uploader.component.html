@@ -69,25 +69,24 @@
                             (click)="onRemoveTemplatingFile($event, uploadFile.file, removeFileCallback, i)"
                             severity="danger"
                             [text]="true"/>
-                  <p-button *ngSwitchCase="'Uploading'"
-                            icon="pi pi-spin pi-spinner"
-                            severity="info"
-                            [text]="true"
-                            [disabled]="true"/>
-                  <p-button *ngSwitchCase="'Uploaded'"
-                            icon="pi pi-check"
-                            severity="success"
-                            [text]="true"
-                            pTooltip="File uploaded"
-                            tooltipPosition="top"
-                            [disabled]="true"/>
-                  <p-button *ngSwitchCase="'Failed'"
-                            icon="pi pi-exclamation-triangle"
-                            severity="danger"
-                            [text]="true"
-                            [disabled]="true"
-                            pTooltip="{{ uploadFile.errorMessage || 'Upload failed' }}"
-                            tooltipPosition="top"/>
+                  <i *ngSwitchCase="'Uploading'"
+                     class="pi pi-spin pi-spinner p-3"
+                     style="color: slateblue"
+                     pTooltip="Uploading"
+                     tooltipPosition="top">
+                  </i>
+                  <i *ngSwitchCase="'Uploaded'"
+                     class="pi pi-check p-3"
+                     style="color: green"
+                     pTooltip="Uploaded"
+                     tooltipPosition="top">
+                  </i>
+                  <i *ngSwitchCase="'Failed'"
+                     class="pi pi-exclamation-triangle p-3"
+                     style="color: darkred"
+                     pTooltip="{{ uploadFile.errorMessage || 'Upload failed' }}"
+                     tooltipPosition="top">
+                  </i>
                 </ng-container>
               </div>
             </div>
