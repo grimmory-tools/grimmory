@@ -1,93 +1,165 @@
 import {Component, inject} from '@angular/core';
-import {FileProgressEvent, FileSendEvent, FileUpload, FileUploadErrorEvent, FileUploadEvent} from 'primeng/fileupload';
+import {FileSelectEvent, FileUpload, FileUploadHandlerEvent} from 'primeng/fileupload';
 import {Button} from 'primeng/button';
-import {LibraryService} from '../../../book/service/library.service';
-import {Observable} from 'rxjs';
-import {LibraryState} from '../../../book/model/state/library-state.model';
-import {AsyncPipe, NgIf} from '@angular/common';
+import {AsyncPipe, NgForOf, NgIf, NgSwitch, NgSwitchCase} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {Library, LibraryPath} from '../../../book/model/library.model';
 import {MessageService} from 'primeng/api';
-import {DynamicDialogRef} from 'primeng/dynamicdialog';
 import {Select} from 'primeng/select';
+import {Badge} from 'primeng/badge';
+import {LibraryService} from '../../../book/service/library.service';
+import {Library, LibraryPath} from '../../../book/model/library.model';
+import {LibraryState} from '../../../book/model/state/library-state.model';
+import {Observable} from 'rxjs';
 import {API_CONFIG} from '../../../config/api-config';
+import {Book} from '../../../book/model/book.model';
+import {HttpClient} from '@angular/common/http';
+import {Tooltip} from 'primeng/tooltip';
+
+interface UploadingFile {
+  file: File;
+  status: 'Pending' | 'Uploading' | 'Uploaded' | 'Failed';
+  errorMessage?: string;
+}
 
 @Component({
   selector: 'app-book-uploader',
+  standalone: true,
   imports: [
     FileUpload,
     Button,
     AsyncPipe,
     FormsModule,
     NgIf,
-    Select
+    Select,
+    Badge,
+    NgForOf,
+    NgSwitchCase,
+    NgSwitch,
+    Tooltip
   ],
   templateUrl: './book-uploader.component.html',
-  standalone: true,
   styleUrl: './book-uploader.component.scss'
 })
 export class BookUploaderComponent {
-
-  private uploadUrl = `${API_CONFIG.BASE_URL}/api/v1/files/upload`;
-
-  private libraryService = inject(LibraryService);
-  private messageService = inject(MessageService);
-  private dynamicDialogRef = inject(DynamicDialogRef);
-
-  libraryState$: Observable<LibraryState> = this.libraryService.libraryState$;
-
+  files: UploadingFile[] = [];
+  isUploading: boolean = false;
   selectedLibrary: Library | null = null;
   selectedPath: LibraryPath | null = null;
-  isUploading = false;
-  progressPercent = 0;
-  errorMessage: string | null = null;
 
-  getUploadUrl() {
-    return `${this.uploadUrl}?libraryId=${this.selectedLibrary?.id}&pathId=${this.selectedPath?.id}`;
+  private readonly libraryService = inject(LibraryService);
+  private readonly messageService = inject(MessageService);
+  private readonly http = inject(HttpClient);
+
+  readonly libraryState$: Observable<LibraryState> = this.libraryService.libraryState$;
+
+  hasPendingFiles(): boolean {
+    return this.files.some(f => f.status === 'Pending');
   }
 
-  onSelect() {
-    this.errorMessage = null;
+  filesPresent(): boolean {
+    return this.files.length > 0;
   }
 
-  onClear($event: Event) {
-    this.errorMessage = null;
+  choose(_event: any, chooseCallback: () => void): void {
+    chooseCallback();
   }
 
-  onSend($event: FileSendEvent) {
-    this.errorMessage = null;
-    this.isUploading = true;
+  onClear(clearCallback: () => void): void {
+    clearCallback();
+    this.files = [];
   }
 
-  onProgress($event: FileProgressEvent) {
-    this.progressPercent = $event.progress;
+  onFilesSelect(event: FileSelectEvent): void {
+    const newFiles = event.currentFiles;
+    for (const file of newFiles) {
+      const exists = this.files.some(f => f.file.name === file.name && f.file.size === file.size);
+      if (!exists) {
+        this.files.unshift({file, status: 'Pending'});
+      }
+    }
   }
 
-  onUpload($event: FileUploadEvent) {
-    this.dynamicDialogRef.close();
-    this.messageService.add({severity: 'success', summary: 'Success', detail: 'Book successfully uploaded'});
-    this.isUploading = false;
-    this.progressPercent = 0;
+  onRemoveTemplatingFile(_event: any, _file: File, removeFileCallback: (event: any, index: number) => void, index: number): void {
+    removeFileCallback(_event, index);
   }
 
-  onError($event: FileUploadErrorEvent) {
-    let error: any = $event.error;
-    if (error?.status === 409) {
-      this.errorMessage = 'File already exists';
+  uploadEvent(uploadCallback: () => void): void {
+    uploadCallback();
+  }
+
+  uploadFiles(event: FileUploadHandlerEvent): void {
+    if (!this.selectedLibrary || !this.selectedPath) {
       this.messageService.add({
-        severity: 'error',
-        summary: 'Upload Failed',
-        detail: 'The file already exists.'
+        severity: 'warn',
+        summary: 'Missing Data',
+        detail: 'Please select a library and path before uploading.',
+        life: 4000
       });
-    } else {
-      this.errorMessage = 'Upload failed';
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Upload Failed',
-        detail: 'There was an error uploading the file.'
+      return;
+    }
+
+    const libraryId = this.selectedLibrary.id!.toString();
+    const pathId = this.selectedPath.id!.toString();
+    const filesToUpload = this.files.filter(f => f.status === 'Pending');
+
+    if (filesToUpload.length === 0) return;
+
+    this.isUploading = true;
+    let pending = filesToUpload.length;
+
+    for (const uploadFile of filesToUpload) {
+      uploadFile.status = 'Uploading';
+
+      const formData = new FormData();
+      formData.append('file', uploadFile.file);
+      formData.append('libraryId', libraryId);
+      formData.append('pathId', pathId);
+
+      this.http.post<Book>(`${API_CONFIG.BASE_URL}/api/v1/files/upload`, formData).subscribe({
+        next: () => {
+          uploadFile.status = 'Uploaded';
+          if (--pending === 0) this.isUploading = false;
+        },
+        error: (err) => {
+          uploadFile.status = 'Failed';
+          uploadFile.errorMessage = err?.error?.message || 'Upload failed due to unknown error.';
+          console.error('Upload failed for', uploadFile.file.name, err);
+          if (--pending === 0) {
+            this.isUploading = false;
+          }
+        }
       });
     }
-    this.isUploading = false;
-    this.progressPercent = 0;
+  }
+
+  isChooseDisabled(): boolean {
+    return !this.selectedLibrary || !this.selectedPath || this.isUploading;
+  }
+
+  isUploadDisabled(): boolean {
+    return this.isChooseDisabled() || !this.filesPresent() || !this.hasPendingFiles;
+  }
+
+  formatSize(bytes: number): string {
+    const k = 1024;
+    const dm = 2;
+    if (bytes < k) return `${bytes} B`;
+    if (bytes < k * k) return `${(bytes / k).toFixed(dm)} KB`;
+    return `${(bytes / (k * k)).toFixed(dm)} MB`;
+  }
+
+  getBadgeSeverity(status: UploadingFile['status']): 'info' | 'warn' | 'success' | 'danger' {
+    switch (status) {
+      case 'Pending':
+        return 'warn';
+      case 'Uploading':
+        return 'info';
+      case 'Uploaded':
+        return 'success';
+      case 'Failed':
+        return 'danger';
+      default:
+        return 'info';
+    }
   }
 }

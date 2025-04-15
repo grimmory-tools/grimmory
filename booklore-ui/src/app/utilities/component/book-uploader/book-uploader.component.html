@@ -1,6 +1,6 @@
 <div
   *ngIf="(libraryState$ | async)?.libraries as libraries"
-  class="flex flex-col gap-10 p-4 items-center justify-center min-w-[400px] max-w-[600px] w-full">
+  class="flex flex-col gap-10 p-4 items-center justify-center min-w-[500px] max-w-[700px] w-full">
 
   <p-select
     [options]="libraries"
@@ -17,44 +17,94 @@
     [disabled]="!selectedLibrary"
     class="w-full"></p-select>
 
-  <p-fileupload
-    #fu
-    mode="basic"
-    chooseLabel="Choose"
-    chooseIcon="pi pi-file"
-    uploadIcon="pi pi-file"
-    name="file"
-    [url]="getUploadUrl()"
-    accept=".pdf,.epub"
-    maxFileSize="104857600"
-    (onSelect)="onSelect()"
-    (onClear)="onClear($event)"
-    (onUpload)="onUpload($event)"
-    (onProgress)="onProgress($event)"
-    (onSend)="onSend($event)"
-    (onError)="onError($event)"
-    [disabled]="!selectedLibrary || !selectedPath || isUploading"
-    class="w-full">
+  <p-fileupload class="w-full" name="file"
+                maxFileSize="104857600"
+                [customUpload]="true"
+                [multiple]="true" accept=".pdf,.epub"
+                (onSelect)="onFilesSelect($event)"
+                (uploadHandler)="uploadFiles($event)"
+                [disabled]="!selectedLibrary || !selectedPath">
+    <ng-template #header let-files let-chooseCallback="chooseCallback" let-clearCallback="clearCallback" let-uploadCallback="uploadCallback">
+      <div class="flex flex-wrap items-center justify-center flex-1 gap-4">
+        <div class="flex gap-4">
+          <p-button (onClick)="choose($event, chooseCallback)"
+                    icon="pi pi-images"
+                    [rounded]="true"
+                    [outlined]="true"
+                    [disabled]="isChooseDisabled()"/>
+
+          <p-button (onClick)="uploadEvent(uploadCallback)"
+                    icon="pi pi-cloud-upload"
+                    [rounded]="true"
+                    [outlined]="true"
+                    severity="success"
+                    [disabled]="isUploadDisabled()"/>
+
+          <p-button (onClick)="onClear(clearCallback)"
+                    icon="pi pi-times"
+                    [rounded]="true"
+                    [outlined]="true"
+                    severity="danger"
+                    [disabled]="!filesPresent() || isUploading"/>
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template #content let-files let-removeFileCallback="removeFileCallback">
+      <div class="flex flex-col gap-8 px-4">
+        <div *ngIf="files?.length > 0">
+          <div class="max-h-96 overflow-y-auto pr-2">
+            <div class="flex flex-wrap">
+              <div *ngFor="let uploadFile of this.files; let i = index" class="flex justify-between items-center w-full gap-4">
+                <div class="flex items-center gap-4 overflow-hidden flex-1">
+                  <p-badge [value]="uploadFile.status" [severity]="getBadgeSeverity(uploadFile.status)" class="shrink-0"/>
+                  <span class="font-semibold text-ellipsis whitespace-nowrap overflow-hidden flex-1">
+                    {{ uploadFile.file.name }}
+                  </span>
+                  <div class="shrink-0">{{ formatSize(uploadFile.file.size) }}</div>
+                </div>
+                <ng-container [ngSwitch]="uploadFile.status">
+                  <p-button *ngSwitchCase="'Pending'"
+                            icon="pi pi-times"
+                            (click)="onRemoveTemplatingFile($event, uploadFile.file, removeFileCallback, i)"
+                            severity="danger"
+                            [text]="true"/>
+                  <p-button *ngSwitchCase="'Uploading'"
+                            icon="pi pi-spin pi-spinner"
+                            severity="info"
+                            [text]="true"
+                            [disabled]="true"/>
+                  <p-button *ngSwitchCase="'Uploaded'"
+                            icon="pi pi-check"
+                            severity="success"
+                            [text]="true"
+                            pTooltip="File uploaded"
+                            tooltipPosition="top"
+                            [disabled]="true"/>
+                  <p-button *ngSwitchCase="'Failed'"
+                            icon="pi pi-exclamation-triangle"
+                            severity="danger"
+                            [text]="true"
+                            [disabled]="true"
+                            pTooltip="{{ uploadFile.errorMessage || 'Upload failed' }}"
+                            tooltipPosition="top"/>
+                </ng-container>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template #file></ng-template>
+
+    <ng-template #empty>
+      <div class="flex items-center justify-center flex-col text-center">
+        <i class="pi pi-cloud-upload !border-2 !rounded-full !p-8 !text-4xl !text-muted-color"></i>
+        <p class="mt-6 mb-2">Drag and drop files here to upload.</p>
+        <p class="mt-2 mb-2">Only <strong>.epub</strong> and <strong>.pdf</strong> files are supported (max size: 100 MB per file).</p>
+      </div>
+    </ng-template>
   </p-fileupload>
 
-  <div class="flex flex-row items-center justify-between w-full">
-
-    <div class="flex flex-row items-center gap-4">
-      <p-button
-        icon="pi pi-upload"
-        label="Upload"
-        (onClick)="fu.upload()"
-        severity="info"
-        [disabled]="!fu.files.length || isUploading"/>
-      <p *ngIf="isUploading" class="text-base">Progress: {{ progressPercent }}%</p>
-      <p *ngIf="errorMessage" class="text-base text-red-600">{{ errorMessage }}</p>
-    </div>
-
-    <p-button
-      icon="pi pi-times"
-      label="Clear"
-      (click)="fu.clear()"
-      severity="warn"
-      [hidden]="!fu.files.length || isUploading"/>
-  </div>
 </div>

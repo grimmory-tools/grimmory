@@ -102,7 +102,7 @@ export class AppTopBarComponent implements OnDestroy {
       closable: true,
       style: {
         position: 'absolute',
-        top: '15%',
+        top: '10%',
       }
     });
   }
