@@ -193,7 +193,7 @@ public class AmazonBookParser implements BookParser {
         if (subtitleElement != null) {
             return subtitleElement.text();
         }
-        log.warn("Error fetching subtitle: Element not found.");
+        log.debug("Error fetching subtitle: Element not found.");
         return null;
     }
 
@@ -235,9 +235,9 @@ public class AmazonBookParser implements BookParser {
             if (isbn10Element != null) {
                 return isbn10Element.text();
             }
-            log.warn("Error fetching ISBN-10: Element not found.");
+            log.debug("Error fetching ISBN-10: Element not found.");
         } catch (Exception e) {
-            log.warn("Error fetching ISBN-10: {}", e.getMessage());
+            log.debug("Error fetching ISBN-10: {}", e.getMessage());
         }
         return null;
     }
@@ -248,9 +248,9 @@ public class AmazonBookParser implements BookParser {
             if (isbn13Element != null) {
                 return isbn13Element.text();
             }
-            log.warn("Error fetching ISBN-13: Element not found.");
+            log.debug("Error fetching ISBN-13: Element not found.");
         } catch (Exception e) {
-            log.warn("Error fetching ISBN-13: {}", e.getMessage());
+            log.debug("Error fetching ISBN-13: {}", e.getMessage());
         }
         return null;
     }
@@ -298,10 +298,10 @@ public class AmazonBookParser implements BookParser {
             if (seriesNameElement != null) {
                 return seriesNameElement.text();
             } else {
-                log.warn("Error fetching series name: Element not found.");
+                log.debug("Error fetching series name: Element not found.");
             }
         } catch (Exception e) {
-            log.warn("Error fetching series name: {}", e.getMessage());
+            log.debug("Error fetching series name: {}", e.getMessage());
         }
         return null;
     }
@@ -316,10 +316,10 @@ public class AmazonBookParser implements BookParser {
                     return Integer.parseInt(parts[1]);
                 }
             } else {
-                log.warn("Error fetching series number: Element not found.");
+                log.debug("Error fetching series number: Element not found.");
             }
         } catch (Exception e) {
-            log.warn("Error fetching series number: {}", e.getMessage());
+            log.debug("Error fetching series number: {}", e.getMessage());
         }
         return null;
     }
@@ -334,10 +334,10 @@ public class AmazonBookParser implements BookParser {
                     return Integer.parseInt(parts[3]);
                 }
             } else {
-                log.warn("Error fetching series total: Element not found.");
+                log.debug("Error fetching series total: Element not found.");
             }
         } catch (Exception e) {
-            log.warn("Error fetching series total: {}", e.getMessage());
+            log.debug("Error fetching series total: {}", e.getMessage());
         }
         return null;
     }
