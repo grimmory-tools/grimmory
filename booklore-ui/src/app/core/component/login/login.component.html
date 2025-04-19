@@ -5,7 +5,7 @@
       <ng-template pTemplate="title">Login</ng-template>
 
       <ng-template pTemplate="content">
-        <form #loginForm="ngForm">
+        <form #loginForm="ngForm" (ngSubmit)="login()">
           <div class="p-field">
             <label for="username">Username</label>
             <input pInputText id="username" [(ngModel)]="username" name="username" required fluid/>
@@ -17,7 +17,7 @@
           </div>
 
           <div class="p-mt-3">
-            <p-button label="Login" icon="pi pi-sign-in" (click)="login()" class="p-fluid"></p-button>
+            <p-button type="submit" label="Login" icon="pi pi-sign-in" class="p-fluid"></p-button>
           </div>
 
           <p-message *ngIf="errorMessage" severity="error" text="{{ errorMessage }}"></p-message>
