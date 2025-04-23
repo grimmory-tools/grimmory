@@ -250,7 +250,7 @@
             <p-tabpanels>
               <p-tabpanel value="editor">
                 <form [formGroup]="metadataForm">
-                  <p-editor #quillEditor formControlName="description" [style]="{ height: '230px' }">
+                  <p-editor #quillEditor formControlName="description" [readonly]="quillDisabled()" [style]="{ height: '230px' }">
                     <ng-template #header>
                       <span class="ql-formats">
                         <button class="ql-bold" aria-label="Bold"></button>
@@ -285,6 +285,7 @@
                 <textarea
                   class="w-full p-2"
                   rows="11.5"
+                  [disabled]="quillDisabled()"
                   [ngModel]="htmlTextarea"
                   (ngModelChange)="onHtmlTextareaChange($event)"
                   [ngModelOptions]="{ standalone: true }"

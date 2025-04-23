@@ -59,17 +59,6 @@ export class MetadataEditorComponent implements OnInit {
   isLoading = false;
   htmlTextarea = '';
 
-  onHtmlTextareaChange(value: string): void {
-    this.htmlTextarea = value;
-    const control = this.metadataForm.get('description');
-    if (control?.value !== value) {
-      control?.patchValue(value, { emitEvent: false });
-      if (this.quillEditor && this.quillEditor.quill) {
-        this.quillEditor.quill.root.innerHTML = value;
-      }
-    }
-  }
-
   constructor() {
     this.metadataForm = new FormGroup({
       title: new FormControl(''),
@@ -124,6 +113,7 @@ export class MetadataEditorComponent implements OnInit {
 
         if (this.quillEditor && this.quillEditor.quill) {
           this.quillEditor.quill.root.innerHTML = metadata.description;
+          this.quillDisabled();
         }
 
         this.metadataForm.patchValue({
@@ -247,6 +237,21 @@ export class MetadataEditorComponent implements OnInit {
       }
     });
     this.updateMetadata(false);
+  }
+
+  quillDisabled(): boolean {
+    return this.metadataForm.get('descriptionLocked')?.value === true;
+  }
+
+  onHtmlTextareaChange(value: string): void {
+    this.htmlTextarea = value;
+    const control = this.metadataForm.get('description');
+    if (control?.value !== value) {
+      control?.patchValue(value, { emitEvent: false });
+      if (this.quillEditor && this.quillEditor.quill) {
+        this.quillEditor.quill.root.innerHTML = value;
+      }
+    }
   }
 
   private buildMetadata(shouldLockAllFields: boolean | undefined) {
