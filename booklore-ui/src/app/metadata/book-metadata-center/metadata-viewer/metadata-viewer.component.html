@@ -30,18 +30,33 @@
           <div class="flex items-center gap-2 pt-2">
             <ng-container *ngIf="metadata.amazonRating || metadata.goodreadsRating; else legacyRating">
               <p *ngIf="metadata.amazonRating" class="font-semibold">Amazon: {{ metadata.amazonRating }}</p>
-              <p-rating *ngIf="metadata.amazonRating" [(ngModel)]="metadata.amazonRating" readonly stars="5"></p-rating>
+              <p-rating
+                [(ngModel)]="metadata.amazonRating"
+                readonly
+                stars="5"
+                [style.--p-rating-icon-active-color]="getStarColor(metadata.amazonRating)">
+              </p-rating>
               <p *ngIf="metadata.amazonRating" class="font-semibold"> ({{ metadata.amazonReviewCount | number:'1.0-0' }})</p>
 
               <p *ngIf="metadata.amazonRating && metadata.goodreadsRating">|</p>
 
               <p *ngIf="metadata.goodreadsRating" class="font-semibold">Goodreads: {{ metadata.goodreadsRating }}</p>
-              <p-rating *ngIf="metadata.goodreadsRating" [(ngModel)]="metadata.goodreadsRating" readonly stars="5"></p-rating>
+              <p-rating
+                [(ngModel)]="metadata.goodreadsRating"
+                readonly
+                stars="5"
+                [style.--p-rating-icon-active-color]="getStarColor(metadata.goodreadsRating)">
+              </p-rating>
               <p *ngIf="metadata.goodreadsRating" class="font-semibold"> ({{ metadata.goodreadsReviewCount | number:'1.0-0' }})</p>
             </ng-container>
 
             <ng-template #legacyRating>
-              <p-rating [(ngModel)]="metadata.rating" readonly stars="5"></p-rating>
+              <p-rating
+                [(ngModel)]="metadata.rating"
+                readonly
+                stars="5"
+                [style.--p-rating-icon-active-color]="getStarColor(metadata.rating)">
+              </p-rating>
               <p class="font-semibold">
                 {{ metadata?.reviewCount ? '(' + (metadata?.reviewCount | number:'1.0-0') + ' Ratings)' : 'No Ratings' }}
               </p>

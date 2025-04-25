@@ -163,4 +163,20 @@ export class MetadataViewerComponent implements OnInit {
     }
     return '-';
   }
+
+  getStarColor(rating?: number | null): string {
+    if (rating == null) {
+      return 'rgb(203, 213, 225)';
+    } else if (rating >= 4.5) {
+      return 'rgb(34, 197, 94)';
+    } else if (rating >= 4) {
+      return 'rgb(52, 211, 153)';
+    } else if (rating >= 3.5) {
+      return 'rgb(234, 179, 8)';
+    } else if (rating >= 2.5) {
+      return 'rgb(249, 115, 22)';
+    } else {
+      return 'rgb(239, 68, 68)';
+    }
+  }
 }
