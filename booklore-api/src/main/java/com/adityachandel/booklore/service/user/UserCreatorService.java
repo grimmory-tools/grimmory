@@ -1,5 +1,6 @@
 package com.adityachandel.booklore.service.user;
 
+import com.adityachandel.booklore.config.AppProperties;
 import com.adityachandel.booklore.exception.ApiError;
 import com.adityachandel.booklore.model.dto.settings.BookPreferences;
 import com.adityachandel.booklore.model.dto.UserCreateRequest;
@@ -13,10 +14,12 @@ import com.adityachandel.booklore.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +28,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class UserCreatorService {
 
+    private final AppProperties appProperties;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final LibraryRepository libraryRepository;
@@ -59,15 +63,48 @@ public class UserCreatorService {
             user.setLibraries(new ArrayList<>(libraries));
         }
 
-        ShelfEntity shelfEntity = ShelfEntity.builder()
-                .user(user)
-                .name("Favorites")
-                .icon("heart")
-                .build();
-        userRepository.save(user);
-        shelfRepository.save(shelfEntity);
+        createUser(user);
     }
 
+    @Transactional
+    public BookLoreUserEntity createRemoteUser(String name, String username, String email, String groups) {
+        boolean isAdmin = false;
+        if (groups != null && appProperties.getRemoteAuth().getAdminGroup() != null) {
+            String groupsContent = groups.trim();
+            if (groupsContent.startsWith("[") && groupsContent.endsWith("]")) {
+                groupsContent = groupsContent.substring(1, groupsContent.length() - 1);
+            }
+            List<String> groupsList = Arrays.asList(groupsContent.split("\\s+"));
+            isAdmin = groupsList.contains(appProperties.getRemoteAuth().getAdminGroup());
+            log.debug("Remote-Auth: user {} will be admin: {}", username, isAdmin);
+        }
+
+        BookLoreUserEntity user = new BookLoreUserEntity();
+        user.setUsername(username);
+        user.setName(name != null ? name : username);
+        user.setEmail(email);
+        user.setDefaultPassword(false);
+        user.setPasswordHash(passwordEncoder.encode(RandomStringUtils.secure().nextAlphanumeric(32)));
+
+        UserPermissionsEntity permissions = new UserPermissionsEntity();
+        permissions.setUser(user);
+        permissions.setPermissionUpload(true);
+        permissions.setPermissionDownload(true);
+        permissions.setPermissionEditMetadata(true);
+        permissions.setPermissionEmailBook(true);
+        permissions.setPermissionAdmin(isAdmin);
+        user.setPermissions(permissions);
+
+        if (isAdmin) {
+            List<LibraryEntity> libraries = libraryRepository.findAll();
+            user.setLibraries(new ArrayList<>(libraries));
+        }
+
+        user.setBookPreferences(buildDefaultBookPreferences());
+        return createUser(user);
+    }
+
+    @Transactional
     public void createAdminUser() {
         BookLoreUserEntity user = new BookLoreUserEntity();
         user.setUsername("admin");
@@ -88,16 +125,20 @@ public class UserCreatorService {
         user.setPermissions(permissions);
         user.setBookPreferences(buildDefaultBookPreferences());
 
+        createUser(user);
+        log.info("Created admin user {}", user.getUsername());
+    }
+
+    @Transactional
+    BookLoreUserEntity createUser(BookLoreUserEntity user) {
         ShelfEntity shelfEntity = ShelfEntity.builder()
                 .user(user)
                 .name("Favorites")
                 .icon("heart")
                 .build();
-
-        userRepository.save(user);
+        user = userRepository.save(user);
         shelfRepository.save(shelfEntity);
-
-        log.info("Created admin user {}", user.getUsername());
+        return user;
     }
 
     public boolean doesAdminUserExist() {

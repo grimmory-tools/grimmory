@@ -186,16 +186,14 @@
             <label for="reviewCount">Rating Count (Legacy)</label>
             <div class="flex justify-between items-center gap-2">
               <input [disabled]="true" pInputText id="reviewCount" formControlName="reviewCount" class="w-full"/>
-              <p-button disabled *ngIf="!metadata['reviewCountLocked']" icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('reviewCount')" severity="success"></p-button>
-              <p-button disabled *ngIf="metadata['reviewCountLocked']" icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('reviewCount')" severity="warn"></p-button>
+              <p-button disabled icon="pi pi-lock" [outlined]="true" severity="warn"></p-button>
             </div>
           </div>
           <div class="flex flex-col gap-1 w-1/4">
             <label for="rating">Rating (Legacy)</label>
             <div class="flex justify-between items-center gap-2">
               <input [disabled]="true" pInputText id="rating" formControlName="rating" class="w-full"/>
-              <p-button disabled *ngIf="!metadata['ratingLocked']" icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('rating')" severity="success"></p-button>
-              <p-button disabled *ngIf="metadata['ratingLocked']" icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('rating')" severity="warn"></p-button>
+              <p-button disabled icon="pi pi-lock" [outlined]="true" severity="warn"></p-button>
             </div>
           </div>
         </div>
@@ -241,9 +239,59 @@
 
     <div class="flex flex-row w-full pb-1">
       <div class="flex flex-col gap-1 w-full">
-        <label for="description">Description</label>
         <div class="flex justify-between items-center gap-2">
-          <textarea rows="14" pTextarea id="description" formControlName="description" class="w-full"></textarea>
+          <p-tabs value="editor" class="w-full">
+            <p-tablist>
+              <p-tab value="editor">WYSIWYG Editor</p-tab>
+              <p-tab value="html">HTML Editor</p-tab>
+            </p-tablist>
+            <p-tabpanels>
+              <p-tabpanel value="editor">
+                <form [formGroup]="metadataForm">
+                  <p-editor #quillEditor formControlName="description" [readonly]="quillDisabled()" [style]="{ height: '215px' }">
+                    <ng-template #header>
+                      <span class="ql-formats">
+                        <button class="ql-bold" aria-label="Bold"></button>
+                        <button class="ql-italic" aria-label="Italic"></button>
+                        <button class="ql-underline" aria-label="Underline"></button>
+                        <button class="ql-strike" aria-label="Strikethrough"></button>
+                      </span>
+                      <span class="ql-formats">
+                        <select class="ql-size" aria-label="Font Size">
+                          <option value="small">Small</option>
+                          <option selected>Normal</option>
+                          <option value="large">Large</option>
+                          <option value="huge">Huge</option>
+                        </select>
+                      </span>
+                      <span class="ql-formats">
+                        <button class="ql-list" value="ordered" aria-label="Numbered List"></button>
+                        <button class="ql-list" value="bullet" aria-label="Bullet List"></button>
+                      </span>
+                      <span class="ql-formats">
+                        <select class="ql-color" aria-label="Text Color"></select>
+                        <select class="ql-background" aria-label="Background Color"></select>
+                      </span>
+                      <span class="ql-formats">
+                        <button class="ql-clean" aria-label="Remove Formatting"></button>
+                      </span>
+                    </ng-template>
+                  </p-editor>
+                </form>
+              </p-tabpanel>
+              <p-tabpanel value="html" class="w-full">
+                <textarea
+                  class="w-full p-4"
+                  rows="10"
+                  [disabled]="quillDisabled()"
+                  [ngModel]="htmlTextarea"
+                  (ngModelChange)="onHtmlTextareaChange($event)"
+                  [ngModelOptions]="{ standalone: true }"
+                  placeholder="Edit raw HTML here">
+                </textarea>
+              </p-tabpanel>
+            </p-tabpanels>
+          </p-tabs>
           <p-button *ngIf="!metadata['descriptionLocked']" icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('description')" severity="success"></p-button>
           <p-button *ngIf="metadata['descriptionLocked']" icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('description')" severity="warn"></p-button>
         </div>

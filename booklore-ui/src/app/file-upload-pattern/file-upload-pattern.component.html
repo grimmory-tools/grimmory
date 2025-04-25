@@ -1,0 +1,71 @@
+<div class="flex flex-col space-y-6 p-4 m-4 custom-border">
+  <div>
+    <h2 class="mb-3 text-lg">Enter Custom File Naming Pattern:</h2>
+    <div class="flex gap-4 items-center">
+      <input
+        type="text"
+        [(ngModel)]="uploadPattern"
+        class="p-inputtext w-[500px]"
+        placeholder="e.g., {title} - {authors}"
+        (input)="onPatternChange(uploadPattern)"
+      />
+      <p-button label="Save" icon="pi pi-check" (onClick)="savePattern()" [disabled]="!!errorMessage"></p-button>
+    </div>
+  </div>
+
+  <div>
+    <h3 class="mb-2">Preview:</h3>
+    <p class="text-lg text-green-500">{{ generatePreview() }}</p>
+  </div>
+
+  <div class="text-gray-400">
+    <h3 class="mb-1 font-bold">Example Patterns:</h3>
+    <div class="overflow-x-auto">
+      <table class=" table-auto">
+        <colgroup>
+          <col style="width: auto;"/>
+          <col style="width: 20px;"/>
+          <col/>
+        </colgroup>
+        <tbody>
+        <tr>
+          <td class="pr-2 break-words text-left">&#123;title&#125; - &#123;authors&#125;/filename.pdf</td>
+          <td class="text-gray-300 text-center">→</td>
+          <td class="pl-2 break-words text-left">/The Book Thief - Markus Zusak/filename.pdf</td>
+        </tr>
+        <tr>
+          <td class="pr-2 break-words text-left">&#123;title&#125;/&#123;authors&#125;/filename.pdf</td>
+          <td class="text-gray-300 text-center">→</td>
+          <td class="pl-2 break-words text-left">/The Book Thief/Markus Zusak/filename.pdf</td>
+        </tr>
+        <tr>
+          <td class="pr-2 break-words text-left">&#123;title&#125; (&#123;authors&#125;)/filename.pdf</td>
+          <td class="text-gray-300 text-center">→</td>
+          <td class="pl-2 break-words text-left">/The Book Thief (Markus Zusak)/filename.pdf</td>
+        </tr>
+        <tr>
+          <td class="pr-2 break-words text-left">&#123;title&#125;/filename.pdf</td>
+          <td class="text-gray-300 text-center">→</td>
+          <td class="pl-2 break-words text-left">/The Book Thief/filename.pdf</td>
+        </tr>
+        <tr>
+          <td class="pr-2 break-words text-left">EMPTY</td>
+          <td class="text-gray-300 text-center">→</td>
+          <td class="pl-2 break-words text-left">/filename.pdf</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="text text-gray-400">
+    <strong>Note:</strong>
+    <ul class="list-disc pl-6">
+      <li>Only the placeholders &#123;title&#125; and &#123;authors&#125; are supported. These values will be extracted from the metadata of the uploaded PDF or EPUB file.</li>
+      <li>Multiple authors will be joined using commas.</li>
+      <li>If <code>&#123;bookname&#125;</code> is used but missing, the path defaults to <code>/filename.pdf</code>.</li>
+      <li>If <code>&#123;authors&#125;</code> is used but missing, it falls back to <code>&#123;bookname&#125;/filename.pdf</code> if the title exists, otherwise <code>/filename.pdf</code>.
+      </li>
+    </ul>
+  </div>
+</div>

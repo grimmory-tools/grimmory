@@ -2,6 +2,15 @@ app:
   path-config: '/app/data'
   version: 'v0.0.40'
 
+  remote-auth:
+    enabled: ${REMOTE_AUTH_ENABLED:false}
+    create-new-users: ${REMOTE_AUTH_CREATE_NEW_USERS:true}
+    header-name: ${REMOTE_AUTH_HEADER_NAME:Remote-Name}
+    header-user: ${REMOTE_AUTH_HEADER_USER:Remote-User}
+    header-email: ${REMOTE_AUTH_HEADER_EMAIL:Remote-Email}
+    header-groups: ${REMOTE_AUTH_HEADER_GROUPS:Remote-Groups}
+    admin-group: ${REMOTE_AUTH_ADMIN_GROUP}
+
 spring:
   servlet:
     multipart:
@@ -39,6 +48,7 @@ spring:
 
 logging:
   level:
-    root: INFO
+    root: ${ROOT_LOG_LEVEL:INFO}
+    com.adityachandel.booklore: ${LOG_LEVEL:INFO}
     org.apache.fontbox: ERROR
     org.apache.pdfbox: ERROR

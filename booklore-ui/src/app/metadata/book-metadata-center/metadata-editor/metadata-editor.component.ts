@@ -1,6 +1,5 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, inject, OnInit, ViewChild} from '@angular/core';
 import {InputText} from 'primeng/inputtext';
-import {Textarea} from 'primeng/textarea';
 import {Button} from 'primeng/button';
 import {Divider} from 'primeng/divider';
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -15,6 +14,9 @@ import {HttpResponse} from '@angular/common/http';
 import {BookService} from '../../../book/service/book.service';
 import {ProgressSpinner} from 'primeng/progressspinner';
 import {Tooltip} from 'primeng/tooltip';
+import {Editor} from 'primeng/editor';
+import {debounceTime} from 'rxjs/operators';
+import {Tab, TabList, TabPanel, TabPanels, Tabs} from 'primeng/tabs';
 
 @Component({
   selector: 'app-metadata-editor',
@@ -23,7 +25,6 @@ import {Tooltip} from 'primeng/tooltip';
   styleUrls: ['./metadata-editor.component.scss'],
   imports: [
     InputText,
-    Textarea,
     Button,
     Divider,
     FormsModule,
@@ -33,10 +34,18 @@ import {Tooltip} from 'primeng/tooltip';
     FileUpload,
     ProgressSpinner,
     NgClass,
-    Tooltip
+    Tooltip,
+    Editor,
+    Tabs,
+    TabList,
+    Tab,
+    TabPanels,
+    TabPanel
   ]
 })
 export class MetadataEditorComponent implements OnInit {
+
+  @ViewChild(Editor) quillEditor!: Editor;
 
   private metadataCenterService = inject(BookMetadataCenterService);
   private messageService = inject(MessageService);
@@ -48,6 +57,7 @@ export class MetadataEditorComponent implements OnInit {
   currentBookId!: number;
   isUploading = false;
   isLoading = false;
+  htmlTextarea = '';
 
   constructor() {
     this.metadataForm = new FormGroup({
@@ -101,6 +111,11 @@ export class MetadataEditorComponent implements OnInit {
       if (metadata) {
         this.currentBookId = metadata.bookId;
 
+        if (this.quillEditor && this.quillEditor.quill) {
+          this.quillEditor.quill.root.innerHTML = metadata.description;
+          this.quillDisabled();
+        }
+
         this.metadataForm.patchValue({
           title: metadata.title || null,
           subtitle: metadata.subtitle || null,
@@ -146,27 +161,46 @@ export class MetadataEditorComponent implements OnInit {
           thumbnailUrlLocked: metadata.coverLocked || false,
         });
 
-        if (metadata.titleLocked) this.metadataForm.get('title')?.disable();
-        if (metadata.subtitleLocked) this.metadataForm.get('subtitle')?.disable();
-        if (metadata.authorsLocked) this.metadataForm.get('authors')?.disable();
-        if (metadata.categoriesLocked) this.metadataForm.get('categories')?.disable();
-        if (metadata.publisherLocked) this.metadataForm.get('publisher')?.disable();
-        if (metadata.publishedDateLocked) this.metadataForm.get('publishedDate')?.disable();
-        if (metadata.languageLocked) this.metadataForm.get('language')?.disable();
-        if (metadata.isbn10Locked) this.metadataForm.get('isbn10')?.disable();
-        if (metadata.isbn13Locked) this.metadataForm.get('isbn13')?.disable();
+        const lockableFields: { key: keyof BookMetadata, control: string }[] = [
+          { key: 'titleLocked', control: 'title' },
+          { key: 'subtitleLocked', control: 'subtitle' },
+          { key: 'authorsLocked', control: 'authors' },
+          { key: 'categoriesLocked', control: 'categories' },
+          { key: 'publisherLocked', control: 'publisher' },
+          { key: 'publishedDateLocked', control: 'publishedDate' },
+          { key: 'languageLocked', control: 'language' },
+          { key: 'isbn10Locked', control: 'isbn10' },
+          { key: 'isbn13Locked', control: 'isbn13' },
+          { key: 'amazonReviewCountLocked', control: 'amazonReviewCount' },
+          { key: 'amazonRatingLocked', control: 'amazonRating' },
+          { key: 'goodreadsReviewCountLocked', control: 'goodreadsReviewCount' },
+          { key: 'goodreadsRatingLocked', control: 'goodreadsRating' },
+          { key: 'pageCountLocked', control: 'pageCount' },
+          { key: 'descriptionLocked', control: 'description' },
+          { key: 'seriesNameLocked', control: 'seriesName' },
+          { key: 'seriesNumberLocked', control: 'seriesNumber' },
+          { key: 'seriesTotalLocked', control: 'seriesTotal' }
+        ];
+
+        lockableFields.forEach(({ key, control }) => {
+          const isLocked = metadata[key] === true;
+          const formControl = this.metadataForm.get(control);
+          if (formControl) {
+            isLocked ? formControl.disable() : formControl.enable();
+          }
+        });
+
         this.metadataForm.get('reviewCount')?.disable();
         this.metadataForm.get('rating')?.disable();
-        if (metadata.amazonReviewCountLocked) this.metadataForm.get('amazonReviewCount')?.disable();
-        if (metadata.amazonRatingLocked) this.metadataForm.get('amazonRating')?.disable();
-        if (metadata.goodreadsReviewCountLocked) this.metadataForm.get('goodreadsReviewCount')?.disable();
-        if (metadata.goodreadsRatingLocked) this.metadataForm.get('goodreadsRating')?.disable();
-        if (metadata.pageCountLocked) this.metadataForm.get('pageCount')?.disable();
-        if (metadata.descriptionLocked) this.metadataForm.get('description')?.disable();
-        if (metadata.seriesNameLocked) this.metadataForm.get('seriesName')?.disable();
-        if (metadata.seriesNumberLocked) this.metadataForm.get('seriesNumber')?.disable();
-        if (metadata.seriesTotalLocked) this.metadataForm.get('seriesTotal')?.disable();
       }
+
+      this.metadataForm.get('description')?.valueChanges
+        .pipe(debounceTime(100))
+        .subscribe(value => {
+          if (this.htmlTextarea !== value) {
+            this.htmlTextarea = value;
+          }
+        });
     });
   }
 
@@ -214,6 +248,21 @@ export class MetadataEditorComponent implements OnInit {
       }
     });
     this.updateMetadata(false);
+  }
+
+  quillDisabled(): boolean {
+    return this.metadataForm.get('descriptionLocked')?.value === true;
+  }
+
+  onHtmlTextareaChange(value: string): void {
+    this.htmlTextarea = value;
+    const control = this.metadataForm.get('description');
+    if (control?.value !== value) {
+      control?.patchValue(value, { emitEvent: false });
+      if (this.quillEditor && this.quillEditor.quill) {
+        this.quillEditor.quill.root.innerHTML = value;
+      }
+    }
   }
 
   private buildMetadata(shouldLockAllFields: boolean | undefined) {

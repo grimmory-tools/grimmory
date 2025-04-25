@@ -1,17 +1,22 @@
-::ng-deep .ql-toolbar.ql-snow {
-  padding: 0 !important;
+::ng-deep .readonly-editor .p-editor {
+  .p-editor-toolbar.ql-snow {
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .p-editor-content.ql-snow {
+    border: none !important;
+    border-end-end-radius: 0 !important;
+    border-end-start-radius: 0 !important;
+  }
+
+  .ql-editor {
+    padding: 0 !important;
+  }
 }
 
-::ng-deep .p-editor .p-editor-toolbar.ql-snow {
-  border: 0.5px solid var(--p-editor-toolbar-border-color) !important;
-}
-
-::ng-deep .p-editor .p-editor-content {
-  border-end-end-radius: 0 !important;
-  border-end-start-radius: 0 !important;
-}
-
-::ng-deep .ql-container {
+::ng-deep .readonly-editor .ql-container {
   font-size: 14px !important;
 }
 

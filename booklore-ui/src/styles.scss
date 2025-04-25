@@ -1,5 +1,6 @@
 @use "sass:meta";
 @import "../node_modules/primeicons/primeicons.css";
+
 @include meta.load-css("assets/layout/styles/global.scss");
 
 @tailwind base;
@@ -9,4 +10,8 @@
 html {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
   Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+.p-toast {
+  top: 4rem !important;
 }

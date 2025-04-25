@@ -26,6 +26,17 @@ export class AuthService {
     );
   }
 
+  remoteLogin(): Observable<any> {
+    return this.http.get<{ accessToken: string; refreshToken: string }>(`${this.apiUrl}/remote`).pipe(
+      tap((response) => {
+        if (response.accessToken && response.refreshToken) {
+          this.saveTokens(response.accessToken, response.refreshToken);
+          this.getRxStompService().activate();
+        }
+      })
+    );
+  }
+
   refreshToken(): Observable<{ accessToken: string; refreshToken: string }> {
     const refreshToken = this.getRefreshToken();
     return this.http.post<{ accessToken: string; refreshToken: string }>(`${this.apiUrl}/refresh`, {refreshToken}).pipe(

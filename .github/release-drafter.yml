@@ -1,4 +1,4 @@
-name-template: 'v$NEXT_PATCH_VERSION'
+name-template: 'v$NEXT_PATCH_VERSION 🌟'
 tag-template: 'v$NEXT_PATCH_VERSION'
 
 categories:
@@ -23,31 +23,9 @@ categories:
       - 'ci'
       - 'cd'
       - 'workflow'
-  - title: '🗂️ Other'
-    labels:
-      - 'other'
-      - 'misc'
-      - '*'
 
 change-template: '- $TITLE (#$NUMBER) by @$AUTHOR'
 
 template: |
-  ## Release Notes:
-  
-  ### 🚀 Features:
-  $FEATURES
-
-  ### 🐛 Bug Fixes:
-  $BUGS
-
-  ### 🛠️ Refactoring:
-  $REFACTOR
-
-  ### 📖 Documentation:
-  $DOCS
-
-  ### ⚙️ CI/CD:
-  $CICD
-
-  ### 🗂️ Other:
-  $OTHER
+  ## 🌟 Changes in this release:
+  $CHANGES

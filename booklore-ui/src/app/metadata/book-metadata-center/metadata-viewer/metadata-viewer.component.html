@@ -75,9 +75,13 @@
   <p-divider></p-divider>
 
   <div *ngIf="metadata$ | async as metadata" class="flex-1 overflow-auto space-y-2 px-2">
-    <div [ngClass]="{ 'line-clamp-5': !isExpanded, 'line-clamp-none': isExpanded }"
-         class="transition-all duration-300 overflow-hidden description-container">
-      <div class="description-content" [innerHTML]="metadata.description || 'No description available.'"></div>
+    <div [ngClass]="{ 'line-clamp-5': !isExpanded, 'line-clamp-none': isExpanded }" class="transition-all duration-300 overflow-hidden description-container">
+      <div class="readonly-editor px-2">
+        <p-editor #quillEditor [readonly]="true" [style]="{height: '260px'}" [(ngModel)]="metadata.description">
+          <ng-template #header>
+          </ng-template>
+        </p-editor>
+      </div>
     </div>
 
     <div *ngIf="metadata.description && metadata.description.length > 100" class="text-left">

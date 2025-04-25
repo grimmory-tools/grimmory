@@ -26,6 +26,7 @@ public class AppSettingService {
     public static final String AUTO_BOOK_SEARCH = "auto_book_search";
     public static final String COVER_IMAGE_RESOLUTION = "cover_image_resolution";
     public static final String SIMILAR_BOOK_RECOMMENDATION = "similar_book_recommendation";
+    public static final String UPLOAD_FILE_PATTERN = "upload_file_pattern";
 
     private volatile AppSettings appSettings;
     private final ReentrantLock lock = new ReentrantLock();
@@ -44,21 +45,19 @@ public class AppSettingService {
         return appSettings;
     }
 
-    public boolean isSimilarBookRecommendationEnabled() {
-        return getAppSettings().isSimilarBookRecommendation();
-    }
-
     @Transactional
     public void updateSetting(String name, Object val) throws JsonProcessingException {
         AppSettingEntity setting = appSettingsRepository.findByName(name);
         if (setting == null) {
             throw new IllegalArgumentException("Setting not found for name: " + name);
         }
-        if (name.equals(QUICK_BOOK_MATCH)) {
+
+        if (QUICK_BOOK_MATCH.equals(name)) {
             setting.setVal(objectMapper.writeValueAsString(val));
         } else {
             setting.setVal(val.toString());
         }
+
         appSettingsRepository.save(setting);
         refreshCache();
     }
@@ -75,7 +74,6 @@ public class AppSettingService {
     private AppSettings buildAppSettings() {
         List<AppSettingEntity> settings = appSettingsRepository.findAll();
         Map<String, String> settingsMap = settings.stream().collect(Collectors.toMap(AppSettingEntity::getName, AppSettingEntity::getVal));
-
         AppSettings.AppSettingsBuilder builder = AppSettings.builder();
 
         if (settingsMap.containsKey(QUICK_BOOK_MATCH)) {
@@ -83,36 +81,26 @@ public class AppSettingService {
                 MetadataRefreshOptions options = objectMapper.readValue(settingsMap.get(QUICK_BOOK_MATCH), MetadataRefreshOptions.class);
                 builder.metadataRefreshOptions(options);
             } catch (JsonProcessingException e) {
-                throw new RuntimeException("Failed to parse setting 'quick_book_match'", e);
+                throw new RuntimeException("Failed to parse setting: " + QUICK_BOOK_MATCH, e);
             }
         }
 
-        if (settingsMap.containsKey(COVER_IMAGE_RESOLUTION)) {
-            builder.coverSettings(AppSettings.CoverSettings.builder()
-                    .resolution(settingsMap.get(COVER_IMAGE_RESOLUTION))
-                    .build());
-        }
-
-        if (settingsMap.containsKey(AUTO_BOOK_SEARCH)) {
-            builder.autoBookSearch(Boolean.parseBoolean(settingsMap.get(AUTO_BOOK_SEARCH)));
-        } else {
-            AppSettingEntity setting = new AppSettingEntity();
-            setting.setName(AUTO_BOOK_SEARCH);
-            setting.setVal("true");
-            appSettingsRepository.save(setting);
-            builder.autoBookSearch(true);
-        }
-
-        if (settingsMap.containsKey(SIMILAR_BOOK_RECOMMENDATION)) {
-            builder.similarBookRecommendation(Boolean.parseBoolean(settingsMap.get(SIMILAR_BOOK_RECOMMENDATION)));
-        } else {
-            AppSettingEntity setting = new AppSettingEntity();
-            setting.setName(SIMILAR_BOOK_RECOMMENDATION);
-            setting.setVal("true");
-            appSettingsRepository.save(setting);
-            builder.similarBookRecommendation(true);
-        }
-
+        builder.coverResolution(getOrCreateSetting(COVER_IMAGE_RESOLUTION, "250x350"));
+        builder.autoBookSearch(Boolean.parseBoolean(getOrCreateSetting(AUTO_BOOK_SEARCH, "true")));
+        builder.uploadPattern(getOrCreateSetting(UPLOAD_FILE_PATTERN, ""));
+        builder.similarBookRecommendation(Boolean.parseBoolean(getOrCreateSetting(SIMILAR_BOOK_RECOMMENDATION, "true")));
         return builder.build();
+    }
+
+    private String getOrCreateSetting(String name, String defaultValue) {
+        AppSettingEntity existing = appSettingsRepository.findByName(name);
+        if (existing != null) {
+            return existing.getVal();
+        }
+        AppSettingEntity newSetting = new AppSettingEntity();
+        newSetting.setName(name);
+        newSetting.setVal(defaultValue);
+        appSettingsRepository.save(newSetting);
+        return defaultValue;
     }
 }

@@ -31,6 +31,11 @@ export class LoginComponent {
   errorMessage = '';
 
   constructor(private authService: AuthService, private router: Router) {
+    this.authService.remoteLogin().subscribe({
+      next: () => {
+        this.router.navigate(['/dashboard']);
+      },
+    });
   }
 
   login(): void {

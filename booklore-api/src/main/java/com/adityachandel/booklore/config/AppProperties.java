@@ -11,4 +11,19 @@ import org.springframework.stereotype.Component;
 @Setter
 public class AppProperties {
     private String pathConfig;
+    private String version;
+
+    private RemoteAuth remoteAuth;
+
+    @Getter
+    @Setter
+    public static class RemoteAuth {
+        private boolean enabled;
+        private boolean createNewUsers;
+        private String headerName;
+        private String headerUser;
+        private String headerEmail;
+        private String headerGroups;
+        private String adminGroup;
+    }
 }

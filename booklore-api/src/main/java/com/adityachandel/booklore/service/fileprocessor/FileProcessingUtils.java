@@ -34,7 +34,7 @@ public class FileProcessingUtils {
     }
 
     public boolean saveCoverImage(BufferedImage coverImage, long bookId) throws IOException {
-        String resolution = appSettingService.getAppSettings().getCoverSettings().getResolution();
+        String resolution = appSettingService.getAppSettings().getCoverResolution();
         String[] split = resolution.split("x");
         int x = Integer.parseInt(split[0]);
         int y = Integer.parseInt(split[1]);

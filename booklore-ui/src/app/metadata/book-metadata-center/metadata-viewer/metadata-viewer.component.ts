@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, Input, OnInit} from '@angular/core';
+import {Component, DestroyRef, inject, Input, OnInit, ViewChild} from '@angular/core';
 import {Button, ButtonDirective} from 'primeng/button';
 import {AsyncPipe, DecimalPipe, NgClass, NgForOf, NgIf} from '@angular/common';
 import {first, Observable} from 'rxjs';
@@ -21,18 +21,21 @@ import {Tooltip} from 'primeng/tooltip';
 import {InfiniteScrollDirective} from 'ngx-infinite-scroll';
 import {BookCardComponent} from '../../../book/components/book-browser/book-card/book-card.component';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {Editor} from 'primeng/editor';
 
 @Component({
   selector: 'app-metadata-viewer',
   standalone: true,
   templateUrl: './metadata-viewer.component.html',
   styleUrl: './metadata-viewer.component.scss',
-  imports: [Button, NgForOf, NgIf, AsyncPipe, Rating, FormsModule, Tag, Divider, SplitButton, NgClass, Tooltip, DecimalPipe, InfiniteScrollDirective, BookCardComponent, ButtonDirective]
+  imports: [Button, NgForOf, NgIf, AsyncPipe, Rating, FormsModule, Tag, Divider, SplitButton, NgClass, Tooltip, DecimalPipe, InfiniteScrollDirective, BookCardComponent, ButtonDirective, Editor]
 })
 export class MetadataViewerComponent implements OnInit {
 
   @Input() book: Book | undefined;
   @Input() recommendedBooks: BookRecommendation[] = [];
+
+  @ViewChild(Editor) quillEditor!: Editor;
 
   private dialogService = inject(DialogService);
   private emailService = inject(EmailService);
@@ -78,6 +81,9 @@ export class MetadataViewerComponent implements OnInit {
       .subscribe((metadata) => {
         if (metadata) {
           this.getBooksInSeries(metadata.bookId);
+          if (this.quillEditor && this.quillEditor.quill) {
+            this.quillEditor.quill.root.innerHTML = metadata.description;
+          }
         }
       });
   }
@@ -142,8 +148,10 @@ export class MetadataViewerComponent implements OnInit {
   }
 
   isMetadataFullyLocked(metadata: BookMetadata): boolean {
-    return Object.keys(metadata)
-      .filter(key => key.endsWith('Locked'))
-      .every(key => metadata[key] === true);
+    const lockedKeys = Object.keys(metadata).filter(key => key.endsWith('Locked'));
+    if (lockedKeys.length === 0) {
+      return false;
+    }
+    return lockedKeys.every(key => metadata[key] === true);
   }
 }

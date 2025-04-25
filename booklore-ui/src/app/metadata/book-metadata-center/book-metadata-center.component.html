@@ -2,8 +2,8 @@
   <p-tabs [value]="tab" lazy="true">
     <p-tablist>
       <p-tab value="view">Book Details</p-tab>
-      <p-tab *ngIf="canEditMetadata" value="edit">Edit Details</p-tab>
-      <p-tab *ngIf="canEditMetadata" value="match">Match Book</p-tab>
+      <p-tab *ngIf="canEditMetadata" value="edit">Edit Metadata</p-tab>
+      <p-tab *ngIf="canEditMetadata" value="match">Search Metadata</p-tab>
     </p-tablist>
     <p-tabpanels class="h-[calc(100vh-10rem)]">
       <p-tabpanel value="view">

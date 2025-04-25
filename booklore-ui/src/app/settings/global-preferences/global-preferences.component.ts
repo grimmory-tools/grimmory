@@ -16,6 +16,7 @@ import {AppSettings} from '../../core/model/app-settings.model';
 import {MetadataRefreshOptions} from '../../metadata/model/request/metadata-refresh-options.model';
 import {MetadataAdvancedFetchOptionsComponent} from '../../metadata/metadata-options-dialog/metadata-advanced-fetch-options/metadata-advanced-fetch-options.component';
 import {filter, take} from 'rxjs/operators';
+import {FileUploadPatternComponent} from '../../file-upload-pattern/file-upload-pattern.component';
 
 @Component({
   selector: 'app-global-preferences',
@@ -28,7 +29,8 @@ import {filter, take} from 'rxjs/operators';
     Tooltip,
     ToggleSwitch,
     FormsModule,
-    MetadataAdvancedFetchOptionsComponent
+    MetadataAdvancedFetchOptionsComponent,
+    FileUploadPatternComponent
   ],
   templateUrl: './global-preferences.component.html',
   styleUrl: './global-preferences.component.scss'
@@ -58,8 +60,8 @@ export class GlobalPreferencesComponent implements OnInit {
       filter(settings => settings != null),
       take(1)
     ).subscribe(settings => {
-      if (settings.coverSettings) {
-        this.selectedResolution = settings.coverSettings.resolution;
+      if (settings?.coverResolution) {
+        this.selectedResolution = settings.coverResolution;
       }
       if (settings.metadataRefreshOptions) {
         this.currentMetadataOptions = settings.metadataRefreshOptions;
