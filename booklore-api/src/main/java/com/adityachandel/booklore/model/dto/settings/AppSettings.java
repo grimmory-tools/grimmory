@@ -11,16 +11,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AppSettings {
-    private CoverSettings coverSettings;
+    private String coverResolution;
     private MetadataRefreshOptions metadataRefreshOptions;
     private boolean autoBookSearch;
     private boolean similarBookRecommendation;
-
-    @Data
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class CoverSettings {
-        private String resolution;
-    }
+    private String uploadPattern;
 }

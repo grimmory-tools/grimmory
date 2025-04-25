@@ -4,11 +4,16 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import com.adityachandel.booklore.model.entity.BookLoreUserEntity;
 import com.adityachandel.booklore.service.JwtSecretService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.nio.charset.StandardCharsets;
 
+@Slf4j
+@Service
 @Component
 public class JwtUtils {
 
@@ -52,9 +57,9 @@ public class JwtUtils {
             extractClaims(token);
             return true;
         } catch (ExpiredJwtException e) {
-            System.out.println("Token expired: " + e.getMessage());
+            log.debug("Token expired: {}", e.getMessage());
         } catch (JwtException e) {
-            System.out.println("Invalid token: " + e.getMessage());
+            log.debug("Invalid token: {}", e.getMessage());
         }
         return false;
     }

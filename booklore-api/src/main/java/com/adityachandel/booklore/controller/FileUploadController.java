@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/v1/files")
@@ -20,7 +22,7 @@ public class FileUploadController {
 
     @PreAuthorize("@securityUtil.canUpload()")
     @PostMapping(value = "/upload", consumes = "multipart/form-data")
-    public ResponseEntity<Book> uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("libraryId") long libraryId, @RequestParam("pathId") long pathId) {
+    public ResponseEntity<Book> uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("libraryId") long libraryId, @RequestParam("pathId") long pathId) throws IOException {
         if (file.isEmpty()) {
             throw new IllegalArgumentException("Uploaded file is missing.");
         }
