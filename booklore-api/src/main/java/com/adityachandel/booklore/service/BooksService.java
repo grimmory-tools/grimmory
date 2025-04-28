@@ -7,10 +7,7 @@ import com.adityachandel.booklore.model.dto.*;
 import com.adityachandel.booklore.model.dto.request.ReadProgressRequest;
 import com.adityachandel.booklore.model.entity.*;
 import com.adityachandel.booklore.model.enums.BookFileType;
-import com.adityachandel.booklore.model.websocket.Topic;
 import com.adityachandel.booklore.repository.*;
-import com.adityachandel.booklore.service.fileprocessor.EpubProcessor;
-import com.adityachandel.booklore.service.fileprocessor.PdfProcessor;
 import com.adityachandel.booklore.util.FileService;
 import com.adityachandel.booklore.util.FileUtils;
 import lombok.AllArgsConstructor;
@@ -18,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -32,11 +28,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static com.adityachandel.booklore.model.websocket.LogNotification.createLogNotification;
 
 @Slf4j
 @AllArgsConstructor
@@ -124,21 +117,26 @@ public class BooksService {
     public Book getBook(long bookId, boolean withDescription) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         BookEntity bookEntity = bookRepository.findById(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
+
         UserBookProgressEntity userProgress = userBookProgressRepository.findByUserIdAndBookId(user.getId(), bookId).orElse(new UserBookProgressEntity());
+
         Book book = bookMapper.toBook(bookEntity);
         book.setLastReadTime(userProgress.getLastReadTime());
         book.setPdfProgress(userProgress.getPdfProgress());
         book.setEpubProgress(userProgress.getEpubProgress());
-        book.setFilePath(bookEntity.getLibraryPath().getPath() + "/" + bookEntity.getFileSubPath() + "/" + bookEntity.getFileName());
+        book.setFilePath(FileUtils.getBookFullPath(bookEntity));
+
         if (!withDescription) {
             book.getMetadata().setDescription(null);
         }
+
         return book;
     }
 
     public List<Book> getBooks(boolean withDescription) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
-        BookLoreUserEntity userEntity = userRepository.findById(user.getId()).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        BookLoreUserEntity userEntity = userRepository.findById(user.getId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         List<BookEntity> books;
         if (userEntity.getPermissions().isPermissionAdmin()) {
@@ -152,12 +150,14 @@ public class BooksService {
 
         return books.stream()
                 .map(bookEntity -> {
-                    UserBookProgressEntity userProgress = userBookProgressRepository.findByUserIdAndBookId(user.getId(), bookEntity.getId())
+                    UserBookProgressEntity userProgress = userBookProgressRepository
+                            .findByUserIdAndBookId(user.getId(), bookEntity.getId())
                             .orElse(new UserBookProgressEntity());
                     Book book = bookMapper.toBookWithDescription(bookEntity, withDescription);
                     book.setLastReadTime(userProgress.getLastReadTime());
                     book.setPdfProgress(userProgress.getPdfProgress());
                     book.setEpubProgress(userProgress.getEpubProgress());
+                    book.setFilePath(FileUtils.getBookFullPath(bookEntity));
                     return book;
                 })
                 .collect(Collectors.toList());

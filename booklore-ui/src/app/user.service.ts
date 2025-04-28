@@ -1,8 +1,7 @@
 import {inject, Injectable, Injector} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {BehaviorSubject, Observable, of, throwError} from 'rxjs';
+import {BehaviorSubject, Observable, tap, throwError} from 'rxjs';
 import {API_CONFIG} from './config/api-config';
-import {jwtDecode} from 'jwt-decode';
 import {RxStompService} from './shared/websocket/rx-stomp.service';
 import {Library} from './book/model/library.model';
 import {catchError} from 'rxjs/operators';
@@ -39,11 +38,6 @@ export interface UserBookPreferences {
     font: string;
     fontSize: number;
   };
-}
-
-interface JwtPayload {
-  sub: string;
-  userId: number;
 }
 
 @Injectable({
@@ -84,8 +78,12 @@ export class UserService {
     return this.http.get<User[]>(this.userUrl);
   }
 
-  updateUser(userId: number, updateData: Partial<User>): Observable<{ message: string }> {
-    return this.http.put<{ message: string }>(`${this.userUrl}/${userId}`, updateData);
+  updateUser(userId: number, updateData: Partial<User>): Observable<User> {
+    return this.http.put<User>(`${this.userUrl}/${userId}`, updateData).pipe(
+      tap(user => {
+        this.userDataSubject.next(user);
+      })
+    );
   }
 
   deleteUser(userId: number): Observable<void> {

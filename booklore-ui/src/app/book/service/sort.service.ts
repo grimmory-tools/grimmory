@@ -24,7 +24,8 @@ export class SortService {
         .filter((key) => key.endsWith('Locked'))
         .every((key) => book.metadata?.[key] === true),
     lastReadTime: (book) => book.lastReadTime ? new Date(book.lastReadTime).getTime() : null,
-    addedOn: (book) => book.addedOn ? new Date(book.addedOn).getTime() : null
+    addedOn: (book) => book.addedOn ? new Date(book.addedOn).getTime() : null,
+    fileSizeKb: (book) => book.fileSizeKb || null
   };
 
   applySort(books: Book[], selectedSort: SortOption | null): Book[] {

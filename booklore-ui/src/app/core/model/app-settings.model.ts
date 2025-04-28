@@ -6,4 +6,5 @@ export interface AppSettings {
   metadataRefreshOptions: MetadataRefreshOptions;
   coverResolution: string;
   uploadPattern: string;
+  opdsServerEnabled: boolean;
 }

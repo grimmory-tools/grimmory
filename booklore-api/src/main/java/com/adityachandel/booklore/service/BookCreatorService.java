@@ -4,15 +4,20 @@ import com.adityachandel.booklore.model.dto.settings.LibraryFile;
 import com.adityachandel.booklore.model.entity.*;
 import com.adityachandel.booklore.model.enums.BookFileType;
 import com.adityachandel.booklore.repository.*;
+import com.adityachandel.booklore.util.FileUtils;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class BookCreatorService {
@@ -23,19 +28,19 @@ public class BookCreatorService {
     private final BookMetadataRepository bookMetadataRepository;
 
     public BookEntity createShellBook(LibraryFile libraryFile, BookFileType bookFileType) {
+        long fileSizeKb = FileUtils.getFileSizeInKb(libraryFile.getFullPath());
         BookEntity bookEntity = BookEntity.builder()
                 .library(libraryFile.getLibraryEntity())
                 .libraryPath(libraryFile.getLibraryPathEntity())
                 .fileName(libraryFile.getFileName())
                 .fileSubPath(libraryFile.getFileSubPath())
                 .bookType(bookFileType)
+                .fileSizeKb(fileSizeKb)
                 .addedOn(Instant.now())
                 .build();
         BookMetadataEntity bookMetadataEntity = BookMetadataEntity.builder().build();
         bookEntity.setMetadata(bookMetadataEntity);
-        bookEntity = bookRepository.saveAndFlush(bookEntity);
-
-        return bookEntity;
+        return bookRepository.saveAndFlush(bookEntity);
     }
 
     public void addCategoriesToBook(List<String> categories, BookEntity bookEntity) {

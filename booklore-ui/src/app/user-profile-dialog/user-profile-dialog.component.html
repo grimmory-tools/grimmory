@@ -1,0 +1,81 @@
+<p-divider></p-divider>
+
+<div class="min-w-[300px] md:min-w-[500px]">
+
+  <section>
+    <div class="flex flex-col gap-4">
+      <h2 class="text-xl font-semibold">User Profile</h2>
+      <div class="px-4 py-2">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium mb-1">Username</label>
+            <p *ngIf="!isEditing" class="text-lg">{{ currentUser?.username || 'N/A' }}</p>
+            <input *ngIf="isEditing" disabled id="username" type="text" pInputText [(ngModel)]="editUserData.username" class="w-full"/>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-1">Full Name</label>
+            <p *ngIf="!isEditing" class="text-lg">{{ currentUser?.name || 'N/A' }}</p>
+            <input *ngIf="isEditing" id="fullname" type="text" pInputText [(ngModel)]="editUserData.name" class="w-full"/>
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium mb-1">Email</label>
+            <p *ngIf="!isEditing" class="text-lg">{{ currentUser?.email || 'N/A' }}</p>
+            <input *ngIf="isEditing" id="email" type="email" pInputText [(ngModel)]="editUserData.email" class="w-full"/>
+          </div>
+        </div>
+
+        <div class="flex justify-start mt-6">
+          <div *ngIf="!isEditing">
+            <p-button label="Edit" severity="info" icon="pi pi-pencil" (onClick)="toggleEdit()"></p-button>
+          </div>
+          <div *ngIf="isEditing" class="flex gap-2">
+            <p-button label="Cancel" severity="secondary" icon="pi pi-times" (onClick)="toggleEdit()"></p-button>
+            <p-button label="Save" severity="success" icon="pi pi-check" (onClick)="updateProfile()"></p-button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <p-divider></p-divider>
+
+  <section class="space-y-6 pt-4">
+    <div class="flex flex-col gap-4">
+      <h2 class="text-xl font-semibold">Change Password</h2>
+      <div class="change-password-wrapper">
+        <div class="px-4 py-2">
+          <form [formGroup]="changePasswordForm" (ngSubmit)="submitPasswordChange()">
+            <div class="p-field mb-4">
+              <label for="currentPassword">Current Password</label>
+              <p-password id="currentPassword" formControlName="currentPassword" [feedback]="false" fluid></p-password>
+              <p-message *ngIf="changePasswordForm.get('currentPassword')?.invalid && changePasswordForm.get('currentPassword')?.touched" severity="error" text="Current password is required."></p-message>
+            </div>
+
+            <div class="p-field mb-4">
+              <label for="newPassword">New Password (at least 6 characters)</label>
+              <p-password id="newPassword" formControlName="newPassword" [feedback]="false" fluid></p-password>
+              <p-message *ngIf="changePasswordForm.get('newPassword')?.errors?.['minlength'] && changePasswordForm.get('newPassword')?.touched" severity="error" text="Password must be at least 6 characters long."></p-message>
+            </div>
+
+            <div class="p-field mb-4">
+              <label for="confirmNewPassword">Confirm New Password</label>
+              <p-password id="confirmNewPassword" formControlName="confirmNewPassword" [feedback]="false" fluid></p-password>
+              <p-message *ngIf="passwordsMismatch" severity="error" text="Passwords do not match."></p-message>
+            </div>
+
+            <div class="flex justify-start pt-4">
+              <p-button type="submit" severity="info" label="Change Password" icon="pi pi-key" [disabled]="changePasswordForm.invalid" class="p-fluid"></p-button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div *ngIf="!currentUser" class="flex items-center justify-center min-h-[50vh] text-lg">
+  Loading user data...
+</div>

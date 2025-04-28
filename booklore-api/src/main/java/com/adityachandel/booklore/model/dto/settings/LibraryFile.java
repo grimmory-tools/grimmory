@@ -7,6 +7,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 @Builder
 @Data
 @AllArgsConstructor
@@ -16,4 +19,8 @@ public class LibraryFile {
     private String fileSubPath;
     private String fileName;
     private BookFileType bookFileType;
+
+    public Path getFullPath() {
+        return Paths.get(libraryPathEntity.getPath(), fileSubPath, fileName);
+    }
 }

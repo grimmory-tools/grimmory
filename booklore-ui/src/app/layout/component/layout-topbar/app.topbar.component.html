@@ -56,25 +56,31 @@
       </li>
 
       <p-divider layout="vertical"/>
-      <li class="relative">
-        <button type="button"
-                class="topbar-item config-item"
-                enterActiveClass="animate-scalein"
-                enterFromClass="hidden"
-                leaveActiveClass="animate-fadeout"
-                leaveToClass="hidden"
-                pStyleClass="@next" [hideOnOutsideClick]="true">
-          <i class="pi pi-palette"></i>
-        </button>
-        <app-theme-configurator></app-theme-configurator>
-      </li>
 
-      <p-divider layout="vertical"/>
-      <li>
-        <button class="topbar-item" (click)="logout()" pTooltip="Logout" tooltipPosition="top">
-          <i class="pi pi-sign-out text-surface-700 dark:text-surface-100"></i>
-        </button>
-      </li>
+      <div class="flex gap-6">
+        <li class="relative">
+          <button type="button"
+                  class="topbar-item config-item"
+                  enterActiveClass="animate-scalein"
+                  enterFromClass="hidden"
+                  leaveActiveClass="animate-fadeout"
+                  leaveToClass="hidden"
+                  pStyleClass="@next" [hideOnOutsideClick]="true">
+            <i class="pi pi-palette"></i>
+          </button>
+          <app-theme-configurator></app-theme-configurator>
+        </li>
+        <li>
+          <button class="topbar-item" (click)="openUserProfileDialog()" pTooltip="Profile" tooltipPosition="top">
+            <i class="pi pi-user text-surface-700 dark:text-surface-100"></i>
+          </button>
+        </li>
+        <li>
+          <button class="topbar-item" (click)="logout()" pTooltip="Logout" tooltipPosition="top">
+            <i class="pi pi-sign-out text-surface-700 dark:text-surface-100"></i>
+          </button>
+        </li>
+      </div>
     </ul>
   </div>
 

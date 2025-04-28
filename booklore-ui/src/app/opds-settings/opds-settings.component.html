@@ -1,0 +1,158 @@
+<p class="text-xl pb-2 pt-6 flex items-center gap-2">
+  OPDS Server Settings
+  <i
+    class="pi pi-info-circle text-sky-600"
+    pTooltip="OPDS allows your book collection to be accessed by compatible reading apps through your private server."
+    tooltipPosition="right"
+    style="cursor: pointer;">
+  </i>
+</p>
+<div class="flex flex-col space-y-6 p-4 m-4 custom-border">
+
+  <div class="flex items-center gap-4">
+    <p class="text-lg py-1">OPDS Server Enabled:</p>
+    <p-toggleButton
+      [(ngModel)]="opdsEnabled"
+      onLabel="OPDS ON"
+      offLabel="OPDS OFF"
+      (onChange)="toggleOpdsServer()"
+      style="width: 150px;">
+    </p-toggleButton>
+  </div>
+
+  <div *ngIf="opdsEnabled" class="mt-6">
+    <p-button
+      label="Create New User"
+      icon="pi pi-plus"
+      outlined="true"
+      severity="primary"
+      (onClick)="openCreateUserDialog()">
+    </p-button>
+
+    <div class="mt-3">
+      <p-table [value]="users" [responsiveLayout]="'scroll'">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Username</th>
+            <th>Password</th>
+            <th>Reset Password</th>
+            <th>Delete</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-user>
+          <tr>
+            <td>{{ user.username }}</td>
+            <td class="flex items-center gap-2">
+              <p-password
+                [(ngModel)]="user.password"
+                [disabled]="true">
+              </p-password>
+              <i
+                class="pi pi-info-circle text-sky-600"
+                pTooltip="The password is hidden for security reasons and is only visible once during creation. You can reset the password if needed."
+                tooltipPosition="right"
+                style="cursor: pointer;">
+              </i>
+            </td>
+            <td>
+              <p-button
+                icon="pi pi-key"
+                severity="warn"
+                size="small"
+                outlined="true"
+                (onClick)="openResetPasswordDialog(user)">
+              </p-button>
+            </td>
+            <td>
+              <p-button
+                icon="pi pi-trash"
+                severity="danger"
+                size="small"
+                outlined="true"
+                (onClick)="deleteUser(user.id)">
+              </p-button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>
+
+<p-dialog
+  header="Create New OPDS User"
+  [(visible)]="createUserDialogVisible"
+  [modal]="true"
+  [style]="{ width: '400px' }">
+  <div>
+    <div>
+      <label for="username">Username</label>
+      <input id="username" type="text" pInputText [(ngModel)]="newUser.username" class="w-full"/>
+    </div>
+
+    <div class="mt-4">
+      <div class="flex items-center gap-2">
+        <label for="password">Password</label>
+        <i
+          class="pi pi-info-circle text-yellow-500"
+          pTooltip="Password can only be seen now. It won’t be retrievable later. Please save it securely."
+          tooltipPosition="right"
+          style="cursor: pointer;">
+        </i>
+      </div>
+      <input id="password" pInputText [(ngModel)]="newUser.password" class="w-full"/>
+    </div>
+
+    <div class="flex justify-end mt-6 gap-4">
+      <p-button
+        label="Cancel"
+        icon="pi pi-times"
+        severity="secondary"
+        (onClick)="cancelCreateUser()">
+      </p-button>
+      <p-button
+        label="Save"
+        icon="pi pi-check"
+        severity="success"
+        (onClick)="saveNewUser()">
+      </p-button>
+    </div>
+  </div>
+</p-dialog>
+
+<p-dialog
+  header="Reset User Password"
+  [(visible)]="resetPasswordDialogVisible"
+  [modal]="true"
+  [style]="{ width: '400px' }">
+  <div>
+    <p class="mb-6 mt-2">Reset password for: <b>{{ selectedUser?.username }}</b></p>
+    <div>
+      <div class="flex items-center">
+        <label for="newPassword">New Password</label>
+        <i
+          class="pi pi-info-circle text-yellow-500 ml-2"
+          pTooltip="Password can only be seen now. It won’t be retrievable later. Please save it securely."
+          tooltipPosition="right"
+          style="cursor: pointer;">
+        </i>
+      </div>
+      <input id="newPassword" pInputText [(ngModel)]="newPassword" class="w-full"/>
+    </div>
+
+    <div class="flex justify-end mt-4 gap-4">
+      <p-button
+        label="Cancel"
+        icon="pi pi-times"
+        severity="secondary"
+        (onClick)="cancelResetPassword()">
+      </p-button>
+      <p-button
+        label="Save"
+        icon="pi pi-check"
+        severity="success"
+        (onClick)="confirmResetPassword()">
+      </p-button>
+    </div>
+  </div>
+</p-dialog>

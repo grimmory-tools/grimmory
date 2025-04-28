@@ -15,6 +15,7 @@ public class Book {
     private Long libraryId;
     private String fileName;
     private String filePath;
+    private Long fileSizeKb;
     private String title;
     private Instant lastReadTime;
     private Instant addedOn;

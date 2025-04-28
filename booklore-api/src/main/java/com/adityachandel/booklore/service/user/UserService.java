@@ -40,16 +40,19 @@ public class UserService {
 
     public BookLoreUser updateUser(Long id, UserUpdateRequest updateRequest) {
         BookLoreUserEntity user = userRepository.findById(id).orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(id));
-
         user.setName(updateRequest.getName());
         user.setEmail(updateRequest.getEmail());
-        user.getPermissions().setPermissionUpload(updateRequest.getPermissions().isCanUpload());
-        user.getPermissions().setPermissionDownload(updateRequest.getPermissions().isCanDownload());
-        user.getPermissions().setPermissionEditMetadata(updateRequest.getPermissions().isCanEditMetadata());
-        user.getPermissions().setPermissionEmailBook(updateRequest.getPermissions().isCanEmailBook());
 
-        List<Long> libraryIds = updateRequest.getAssignedLibraries();
-        if (libraryIds != null) {
+        // only admins can update permissions and assigned libraries
+        if (updateRequest.getPermissions() != null && getMyself().getPermissions().isAdmin()) {
+            user.getPermissions().setPermissionUpload(updateRequest.getPermissions().isCanUpload());
+            user.getPermissions().setPermissionDownload(updateRequest.getPermissions().isCanDownload());
+            user.getPermissions().setPermissionEditMetadata(updateRequest.getPermissions().isCanEditMetadata());
+            user.getPermissions().setPermissionEmailBook(updateRequest.getPermissions().isCanEmailBook());
+        }
+
+        if (updateRequest.getAssignedLibraries() != null && getMyself().getPermissions().isAdmin()) {
+            List<Long> libraryIds = updateRequest.getAssignedLibraries();
             List<LibraryEntity> updatedLibraries = libraryRepository.findAllById(libraryIds);
             user.setLibraries(updatedLibraries);
         }
@@ -104,7 +107,7 @@ public class UserService {
             throw ApiError.PASSWORD_SAME_AS_CURRENT.createException();
         }
 
-        if (!isValidPassword(changePasswordRequest.getNewPassword())) {
+        if (!meetsMinimumPasswordRequirements(changePasswordRequest.getNewPassword())) {
             throw ApiError.PASSWORD_TOO_SHORT.createException();
         }
 
@@ -115,14 +118,14 @@ public class UserService {
 
     public void changeUserPassword(ChangeUserPasswordRequest request) {
         BookLoreUserEntity userEntity = userRepository.findById(request.getUserId()).orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(request.getUserId()));
-        if (!isValidPassword(request.getNewPassword())) {
+        if (!meetsMinimumPasswordRequirements(request.getNewPassword())) {
             throw ApiError.PASSWORD_TOO_SHORT.createException();
         }
         userEntity.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(userEntity);
     }
 
-    private boolean isValidPassword(String password) {
+    private boolean meetsMinimumPasswordRequirements(String password) {
         return password != null && password.length() >= 6;
     }
 }

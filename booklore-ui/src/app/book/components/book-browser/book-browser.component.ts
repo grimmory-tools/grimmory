@@ -117,6 +117,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit {
     {label: 'Author', icon: '', field: 'author', command: () => this.sortBooks('author')},
     {label: 'Last Read', field: 'lastReadTime', command: () => this.sortBooks('lastReadTime')},
     {label: 'Added On', field: 'addedOn', command: () => this.sortBooks('addedOn')},
+    {label: 'File Size', icon: '', field: 'fileSizeKb', command: () => this.sortBooks('fileSizeKb')},
     {label: 'Locked', icon: '', field: 'locked', command: () => this.sortBooks('locked')},
     {label: 'Publisher', icon: '', field: 'publisher', command: () => this.sortBooks('publisher')},
     {label: 'Published Date', icon: '', field: 'publishedDate', command: () => this.sortBooks('publishedDate')},

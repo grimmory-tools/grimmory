@@ -15,5 +15,6 @@ public class AppSettings {
     private MetadataRefreshOptions metadataRefreshOptions;
     private boolean autoBookSearch;
     private boolean similarBookRecommendation;
+    private boolean opdsServerEnabled;
     private String uploadPattern;
 }

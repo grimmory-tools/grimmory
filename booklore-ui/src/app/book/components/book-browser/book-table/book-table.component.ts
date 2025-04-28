@@ -106,6 +106,12 @@ export class BookTableComponent implements OnChanges {
       .every(key => metadata[key] === true);
   }
 
+  formatFileSize(kb?: number): string {
+    if (kb == null || isNaN(kb)) return '-';
+    const mb = kb / 1024;
+    return mb >= 1 ? `${mb.toFixed(1)} MB` : `${mb.toFixed(2)} MB`;
+  }
+
   toggleMetadataLock(metadata: BookMetadata): void {
     const lockKeys = Object.keys(metadata).filter(key => key.endsWith('Locked'));
     const allLocked = lockKeys.every(key => metadata[key] === true);

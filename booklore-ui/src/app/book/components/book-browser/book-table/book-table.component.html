@@ -25,6 +25,7 @@
       <th>Published</th>
       <th>Last Read</th>
       <th>Added</th>
+      <th>File Size</th>
       <th>Lang</th>
       <th>Pages</th>
       <th>Amazon</th>
@@ -66,6 +67,10 @@
       </td>
       <td class="min-w-[9rem] max-w-[9rem] overflow-hidden truncate text-right">
         {{ book.addedOn ? (book.addedOn | date: 'dd-MMM-yyyy') : '' }}
+      </td>
+      <td class="min-w-[7rem] max-w-[9rem] overflow-hidden truncate"
+          [title]="book.fileSizeKb + ' KB'">
+        {{ formatFileSize(book.fileSizeKb) }}
       </td>
       <td class="min-w-[6rem] max-w-[6rem] overflow-hidden truncate">{{ metadata.language }}</td>
       <td class="min-w-[4rem] max-w-[5rem] overflow-hidden truncate">{{ metadata.pageCount }}</td>

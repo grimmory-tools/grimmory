@@ -34,7 +34,7 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
             List<String> authHeaders = accessor.getNativeHeader("Authorization");
 
             if (authHeaders == null || authHeaders.isEmpty()) {
-                log.warn("WebSocket connection rejected: No Authorization header");
+                log.debug("WebSocket connection rejected: No Authorization header");
                 throw new IllegalArgumentException("Missing Authorization header");
             }
 
@@ -42,7 +42,7 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
             Authentication auth = authenticateToken(token);
 
             if (auth == null) {
-                log.warn("WebSocket connection rejected: Invalid token");
+                log.debug("WebSocket connection rejected: Invalid token");
                 throw new IllegalArgumentException("Invalid Authorization token");
             }
 

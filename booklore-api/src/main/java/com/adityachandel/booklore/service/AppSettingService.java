@@ -27,6 +27,7 @@ public class AppSettingService {
     public static final String COVER_IMAGE_RESOLUTION = "cover_image_resolution";
     public static final String SIMILAR_BOOK_RECOMMENDATION = "similar_book_recommendation";
     public static final String UPLOAD_FILE_PATTERN = "upload_file_pattern";
+    public static final String OPDS_SERVER_ENABLED = "opds_server_enabled";
 
     private volatile AppSettings appSettings;
     private final ReentrantLock lock = new ReentrantLock();
@@ -89,6 +90,7 @@ public class AppSettingService {
         builder.autoBookSearch(Boolean.parseBoolean(getOrCreateSetting(AUTO_BOOK_SEARCH, "true")));
         builder.uploadPattern(getOrCreateSetting(UPLOAD_FILE_PATTERN, ""));
         builder.similarBookRecommendation(Boolean.parseBoolean(getOrCreateSetting(SIMILAR_BOOK_RECOMMENDATION, "true")));
+        builder.opdsServerEnabled(Boolean.parseBoolean(getOrCreateSetting(OPDS_SERVER_ENABLED, "false")));
         return builder.build();
     }
 

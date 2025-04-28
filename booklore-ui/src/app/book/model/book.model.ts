@@ -13,6 +13,7 @@ export interface Book {
   epubProgress?: string;
   pdfProgress?: number;
   filePath?: string;
+  fileSizeKb?: number;
 }
 
 export interface BookMetadata {

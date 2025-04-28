@@ -38,9 +38,8 @@ public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpec
     @Query("DELETE FROM BookEntity b WHERE b.id IN (:ids)")
     void deleteByIdIn(Collection<Long> ids);
 
-    @Query("SELECT b FROM BookEntity b WHERE b.library IN (SELECT l FROM LibraryEntity l WHERE l IN :userLibraries)")
-    List<BookEntity> findBooksByUserLibraries(@Param("userLibraries") List<LibraryEntity> userLibraries);
-
     List<BookEntity> findByLibraryIdIn(Set<Long> userLibraryIds);
+
+    List<BookEntity> findByFileSizeKbIsNull();
 }
 

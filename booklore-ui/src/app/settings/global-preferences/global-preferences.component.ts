@@ -17,6 +17,7 @@ import {MetadataRefreshOptions} from '../../metadata/model/request/metadata-refr
 import {MetadataAdvancedFetchOptionsComponent} from '../../metadata/metadata-options-dialog/metadata-advanced-fetch-options/metadata-advanced-fetch-options.component';
 import {filter, take} from 'rxjs/operators';
 import {FileUploadPatternComponent} from '../../file-upload-pattern/file-upload-pattern.component';
+import {OpdsSettingsComponent} from '../../opds-settings/opds-settings.component';
 
 @Component({
   selector: 'app-global-preferences',
@@ -30,7 +31,8 @@ import {FileUploadPatternComponent} from '../../file-upload-pattern/file-upload-
     ToggleSwitch,
     FormsModule,
     MetadataAdvancedFetchOptionsComponent,
-    FileUploadPatternComponent
+    FileUploadPatternComponent,
+    OpdsSettingsComponent
   ],
   templateUrl: './global-preferences.component.html',
   styleUrl: './global-preferences.component.scss'

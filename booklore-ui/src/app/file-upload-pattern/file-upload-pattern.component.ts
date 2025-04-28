@@ -6,12 +6,13 @@ import {AppSettingsService} from '../core/service/app-settings.service';
 import {Observable} from 'rxjs';
 import {AppSettings} from '../core/model/app-settings.model';
 import {filter, take} from 'rxjs/operators';
+import {Tooltip} from 'primeng/tooltip';
 
 @Component({
   selector: 'app-file-upload-pattern',
   templateUrl: './file-upload-pattern.component.html',
   standalone: true,
-  imports: [FormsModule, Button],
+  imports: [FormsModule, Button, Tooltip],
   styleUrls: ['./file-upload-pattern.component.scss']
 })
 export class FileUploadPatternComponent implements OnInit {
