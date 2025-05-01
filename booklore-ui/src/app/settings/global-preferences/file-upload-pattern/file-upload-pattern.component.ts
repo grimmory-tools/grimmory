@@ -2,9 +2,9 @@ import {Component, inject, OnInit} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {Button} from 'primeng/button';
 import {MessageService} from 'primeng/api';
-import {AppSettingsService} from '../core/service/app-settings.service';
+import {AppSettingsService} from '../../../core/service/app-settings.service';
 import {Observable} from 'rxjs';
-import {AppSettings} from '../core/model/app-settings.model';
+import {AppSettings} from '../../../core/model/app-settings.model';
 import {filter, take} from 'rxjs/operators';
 import {Tooltip} from 'primeng/tooltip';
 

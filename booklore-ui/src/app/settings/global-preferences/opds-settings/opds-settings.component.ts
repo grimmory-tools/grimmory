@@ -6,15 +6,15 @@ import {Button} from 'primeng/button';
 import {InputText} from 'primeng/inputtext';
 import {Dialog} from 'primeng/dialog';
 import {Tooltip} from 'primeng/tooltip';
-import {ToggleButton} from 'primeng/togglebutton';
 import {MessageService} from 'primeng/api';
 import {filter, take} from 'rxjs/operators';
 
-import {OpdsUser, OpdsUserService} from '../opds-user.service';
-import {AppSettingsService} from '../core/service/app-settings.service';
-import {AppSettings} from '../core/model/app-settings.model';
+import {OpdsUser, OpdsUserService} from './opds-user.service';
+import {AppSettingsService} from '../../../core/service/app-settings.service';
+import {AppSettings} from '../../../core/model/app-settings.model';
 import {Password} from 'primeng/password';
-import {API_CONFIG} from '../config/api-config';
+import {API_CONFIG} from '../../../config/api-config';
+import {ToggleSwitch} from 'primeng/toggleswitch';
 
 @Component({
   selector: 'app-opds-settings',
@@ -27,8 +27,8 @@ import {API_CONFIG} from '../config/api-config';
     InputText,
     Dialog,
     Tooltip,
-    ToggleButton,
-    Password
+    Password,
+    ToggleSwitch
   ],
   templateUrl: './opds-settings.component.html',
   styleUrl: './opds-settings.component.scss'

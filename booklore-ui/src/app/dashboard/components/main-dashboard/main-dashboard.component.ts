@@ -11,7 +11,7 @@ import {BookService} from '../../../book/service/book.service';
 import {BookState} from '../../../book/model/state/book-state.model';
 import {Book} from '../../../book/model/book.model';
 import {Divider} from 'primeng/divider';
-import {UserService} from '../../../user.service';
+import {UserService} from '../../../settings/user-management/user.service';
 import {ProgressSpinner} from 'primeng/progressspinner';
 
 @Component({

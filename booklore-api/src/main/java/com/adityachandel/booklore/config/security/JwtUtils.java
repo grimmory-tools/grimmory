@@ -1,31 +1,33 @@
 package com.adityachandel.booklore.config.security;
 
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
 import com.adityachandel.booklore.model.entity.BookLoreUserEntity;
 import com.adityachandel.booklore.service.JwtSecretService;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.util.Date;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 
 @Slf4j
 @Service
 @Component
+@RequiredArgsConstructor
 public class JwtUtils {
 
     private final JwtSecretService jwtSecretService;
-    private final long accessTokenExpirationMs;
-    private final long refreshTokenExpirationMs;
-
-    public JwtUtils(JwtSecretService jwtSecretService) {
-        this.jwtSecretService = jwtSecretService;
-        this.accessTokenExpirationMs = 36000000;  // 10 hours
-        this.refreshTokenExpirationMs = 604800000; // 7 days
-    }
+    @Getter
+    public final long accessTokenExpirationMs = 1000L * 60 * 60 * 10;  // 10 hours
+    @Getter
+    public final long refreshTokenExpirationMs = 1000L * 60 * 60 * 24 * 30; // 30 days
 
     private SecretKey getSigningKey() {
         String secretKey = jwtSecretService.getSecret();
@@ -82,9 +84,5 @@ public class JwtUtils {
             return ((Number) userIdClaim).longValue();
         }
         throw new IllegalArgumentException("Invalid userId claim type");
-    }
-
-    public boolean isTokenExpired(String token) {
-        return extractClaims(token).getExpiration().before(new Date());
     }
 }

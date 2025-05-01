@@ -13,7 +13,7 @@ import {MetadataRefreshType} from '../../../../metadata/model/request/metadata-r
 import {MetadataRefreshRequest} from '../../../../metadata/model/request/metadata-refresh-request.model';
 import {UrlHelperService} from '../../../../utilities/service/url-helper.service';
 import {NgClass, NgIf} from '@angular/common';
-import {UserService} from '../../../../user.service';
+import {UserService} from '../../../../settings/user-management/user.service';
 import {filter} from 'rxjs';
 import {EmailService} from '../../../../settings/email/email.service';
 import {TieredMenu} from 'primeng/tieredmenu';

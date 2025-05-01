@@ -6,7 +6,7 @@ import {MultiSelectModule} from 'primeng/multiselect';
 import {Library} from '../../../book/model/library.model';
 import {Button} from 'primeng/button';
 import {LibraryService} from '../../../book/service/library.service';
-import {UserService} from '../../../user.service';
+import {UserService} from '../user.service';
 import {MessageService} from 'primeng/api';
 import {DynamicDialogRef} from 'primeng/dynamicdialog';
 import {NgIf} from '@angular/common';

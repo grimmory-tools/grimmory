@@ -9,7 +9,7 @@ import {Ripple} from 'primeng/ripple';
 import {Button} from 'primeng/button';
 import {Menu} from 'primeng/menu';
 import {MenuItem} from 'primeng/api';
-import {UserService} from '../../../user.service';
+import {UserService} from '../../../settings/user-management/user.service';
 
 @Component({
   selector: '[app-menuitem]',

@@ -1,9 +1,9 @@
 import {inject, Injectable, Injector} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BehaviorSubject, Observable, tap, throwError} from 'rxjs';
-import {API_CONFIG} from './config/api-config';
-import {RxStompService} from './shared/websocket/rx-stomp.service';
-import {Library} from './book/model/library.model';
+import {API_CONFIG} from '../../config/api-config';
+import {RxStompService} from '../../shared/websocket/rx-stomp.service';
+import {Library} from '../../book/model/library.model';
 import {catchError} from 'rxjs/operators';
 
 export interface User {

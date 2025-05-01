@@ -1,5 +1,11 @@
-<div class="p-4">
-  <p-button outlined="true" label="Create User" (onClick)="openCreateUserDialog()"></p-button>
+<div class="w-full h-[calc(100vh-12.1rem)] overflow-y-auto border rounded-lg p-4 enclosing-container">
+
+  <div class="flex justify-between items-center pb-2 pt-4">
+    <h2 class="text-xl flex items-center gap-2">
+      Current Booklore Users
+    </h2>
+    <p-button outlined="true" label="Create BookLore User" icon="pi pi-plus" (onClick)="openCreateUserDialog()"></p-button>
+  </div>
 
   <p-table [value]="users" class="mt-4">
     <ng-template pTemplate="header">
@@ -88,8 +94,8 @@
 
   <p-dialog header="Change Password" [(visible)]="isPasswordDialogVisible" [modal]="true" [closable]="false" [style]="{width: '20vw'}">
     <div class="flex flex-col gap-8 items-center">
-        <p-password [(ngModel)]="newPassword" placeholder="New Password" [feedback]="false" class="w-full" fluid></p-password>
-        <p-password [(ngModel)]="confirmNewPassword" placeholder="Confirm Password" [feedback]="false" class="w-full" fluid></p-password>
+      <p-password [(ngModel)]="newPassword" placeholder="New Password" [feedback]="false" class="w-full" fluid></p-password>
+      <p-password [(ngModel)]="confirmNewPassword" placeholder="Confirm Password" [feedback]="false" class="w-full" fluid></p-password>
       <p *ngIf="passwordError" class="p-error text-red-500 w-full text-left">{{ passwordError }}</p>
       <div class="flex gap-4 w-full justify-end">
         <p-button label="Cancel" icon="pi pi-times" severity="secondary" (onClick)="isPasswordDialogVisible = false"></p-button>

@@ -1,29 +1,31 @@
-<div class="card" *ngIf="userService.userData$ | async as userData">
-  <p-tabs [(value)]="activeTab">
-    <p-tablist>
-      <p-tab [value]="SettingsTab.BookReader">Book Reader</p-tab>
-      <ng-container *ngIf="userData.permissions.admin">
-        <p-tab [value]="SettingsTab.UserManagement">User Management</p-tab>
-        <p-tab [value]="SettingsTab.Email">Email</p-tab>
-        <p-tab [value]="SettingsTab.GlobalSettings">Global Settings</p-tab>
-      </ng-container>
-    </p-tablist>
+<div *ngIf="userService.userData$ | async as userData">
+  <div class="rounded-xl overflow-hidden">
+    <p-tabs [(value)]="activeTab">
+      <p-tablist>
+        <p-tab [value]="SettingsTab.BookReader">Book Reader</p-tab>
+        <ng-container *ngIf="userData.permissions.admin">
+          <p-tab [value]="SettingsTab.UserManagement">User Management</p-tab>
+          <p-tab [value]="SettingsTab.Email">Email Setting</p-tab>
+          <p-tab [value]="SettingsTab.GlobalSettings">Other Settings</p-tab>
+        </ng-container>
+      </p-tablist>
 
-    <p-tabpanels>
-      <p-tabpanel [value]="SettingsTab.BookReader">
-        <app-book-preferences></app-book-preferences>
-      </p-tabpanel>
-      <ng-container *ngIf="userData.permissions.admin">
-        <p-tabpanel [value]="SettingsTab.UserManagement">
-          <app-admin></app-admin>
+      <p-tabpanels>
+        <p-tabpanel [value]="SettingsTab.BookReader">
+          <app-book-preferences></app-book-preferences>
         </p-tabpanel>
-        <p-tabpanel [value]="SettingsTab.Email">
-          <app-email></app-email>
-        </p-tabpanel>
-        <p-tabpanel [value]="SettingsTab.GlobalSettings">
-          <app-global-preferences></app-global-preferences>
-        </p-tabpanel>
-      </ng-container>
-    </p-tabpanels>
-  </p-tabs>
+        <ng-container *ngIf="userData.permissions.admin">
+          <p-tabpanel [value]="SettingsTab.UserManagement">
+            <app-user-management></app-user-management>
+          </p-tabpanel>
+          <p-tabpanel [value]="SettingsTab.Email">
+            <app-email></app-email>
+          </p-tabpanel>
+          <p-tabpanel [value]="SettingsTab.GlobalSettings">
+            <app-global-preferences></app-global-preferences>
+          </p-tabpanel>
+        </ng-container>
+      </p-tabpanels>
+    </p-tabs>
+  </div>
 </div>

@@ -10,7 +10,7 @@ import {Book, BookSetting} from '../../../model/book.model';
 import {BookService} from '../../../service/book.service';
 import {forkJoin} from 'rxjs';
 import {Select} from 'primeng/select';
-import {UserService} from '../../../../user.service';
+import {UserService} from '../../../../settings/user-management/user.service';
 import {ProgressSpinner} from 'primeng/progressspinner';
 import {MessageService} from 'primeng/api';
 

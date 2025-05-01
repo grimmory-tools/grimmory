@@ -1,7 +1,7 @@
 import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {BookMetadataCenterService} from './book-metadata-center.service';
-import {UserService} from '../../user.service';
+import {UserService} from '../../settings/user-management/user.service';
 import {Book, BookRecommendation} from '../../book/model/book.model';
 import {Subscription} from 'rxjs';
 import {distinctUntilChanged, filter, map, switchMap, take} from 'rxjs/operators';

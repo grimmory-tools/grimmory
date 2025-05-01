@@ -16,8 +16,8 @@ import {AppSettings} from '../../core/model/app-settings.model';
 import {MetadataRefreshOptions} from '../../metadata/model/request/metadata-refresh-options.model';
 import {MetadataAdvancedFetchOptionsComponent} from '../../metadata/metadata-options-dialog/metadata-advanced-fetch-options/metadata-advanced-fetch-options.component';
 import {filter, take} from 'rxjs/operators';
-import {FileUploadPatternComponent} from '../../file-upload-pattern/file-upload-pattern.component';
-import {OpdsSettingsComponent} from '../../opds-settings/opds-settings.component';
+import {FileUploadPatternComponent} from './file-upload-pattern/file-upload-pattern.component';
+import {OpdsSettingsComponent} from './opds-settings/opds-settings.component';
 
 @Component({
   selector: 'app-global-preferences',

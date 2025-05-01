@@ -10,7 +10,7 @@ import {Tag} from 'primeng/tag';
 import {Book, BookMetadata, BookRecommendation} from '../../../book/model/book.model';
 import {Divider} from 'primeng/divider';
 import {UrlHelperService} from '../../../utilities/service/url-helper.service';
-import {UserService} from '../../../user.service';
+import {UserService} from '../../../settings/user-management/user.service';
 import {SplitButton} from 'primeng/splitbutton';
 import {MenuItem, MessageService} from 'primeng/api';
 import {BookSenderComponent} from '../../../book/components/book-sender/book-sender.component';

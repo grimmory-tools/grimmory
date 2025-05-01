@@ -1,38 +1,54 @@
-<div class="w-full h-[calc(100vh-12.1rem)] overflow-y-auto border rounded-lg p-4 enclosing-container">
+<div class="w-full h-[calc(100vh-12.1rem)] overflow-y-auto border rounded-lg enclosing-container">
 
-  <p class="text-xl pb-4 pt-6">Book Cover Image</p>
-  <div class="grid grid-cols-[auto,1fr] pl-6 gap-y-4 gap-x-4 items-center">
-    <p class="text-lg py-1">Resolution:
+  <div class="p-4">
+    <div class="flex items-center gap-2 pb-4 pt-6">
+      <p class="text-xl">Book Cover Image</p>
       <i class="pi pi-info-circle text-sky-600"
-         pTooltip="Specifies the resolution of the generated cover image. Higher resolutions result in sharper images but may increase file size. This setting will apply to future books, or else use 'Regenerate' button."
+         pTooltip="Settings related to book cover images, such as resolution and regeneration options."
          tooltipPosition="right"
          style="cursor: pointer;">
       </i>
-    </p>
-    <div class="flex gap-4 justify-start">
-      <p-select
-        [options]="resolutionOptions"
-        [(ngModel)]="selectedResolution"
-        (ngModelChange)="onResolutionChange()"
-        placeholder="Select Resolution">
-      </p-select>
     </div>
 
-    <p class="text-lg py-1">Regenerate Covers?
-      <i class="pi pi-info-circle text-sky-600"
-         pTooltip="This option will regenerate the covers for all EPUB and PDF books (except locked ones) using the selected resolution."
-         tooltipPosition="right"
-         style="cursor: pointer;">
-      </i>
-    </p>
-    <p-button label="Regenerate" icon="pi pi-refresh" (onClick)="regenerateCovers()"></p-button>
+    <div class="grid grid-cols-[auto,1fr] pl-6 gap-y-4 gap-x-4 items-center">
+      <p class="text-lg py-1">Resolution:
+        <i class="pi pi-info-circle text-sky-600"
+           pTooltip="Specifies the resolution of the generated cover image. Higher resolutions result in sharper images but may increase file size. This setting will apply to future books, or else use 'Regenerate' button."
+           tooltipPosition="right"
+           style="cursor: pointer;">
+        </i>
+      </p>
+      <div class="flex gap-4 justify-start">
+        <p-select
+          [options]="resolutionOptions"
+          [(ngModel)]="selectedResolution"
+          (ngModelChange)="onResolutionChange()"
+          placeholder="Select Resolution">
+        </p-select>
+      </div>
+
+      <p class="text-lg py-1">Regenerate Covers?
+        <i class="pi pi-info-circle text-sky-600"
+           pTooltip="This option will regenerate the covers for all EPUB and PDF books (except locked ones) using the selected resolution."
+           tooltipPosition="right"
+           style="cursor: pointer;">
+        </i>
+      </p>
+      <p-button
+        label="Regenerate"
+        icon="pi pi-refresh"
+        outlined="true"
+        (onClick)="regenerateCovers()"></p-button>
+    </div>
   </div>
 
-  <p-divider></p-divider>
+  <div class="pt-2 pb-6">
+    <p-divider></p-divider>
+  </div>
 
-  <div class="flex flex-row gap-11">
+  <div class="flex flex-row gap-11 p-4">
     <div>
-      <p class="text-xl pb-4 pt-8">Auto Book Search
+      <p class="text-xl pb-4">Auto Book Search
         <i class="pi pi-info-circle text-sky-600"
            pTooltip="If enabled, Booklore will automatically perform a metadata match/search when the book information tab is opened."
            tooltipPosition="right"
@@ -50,7 +66,7 @@
       </div>
     </div>
     <div>
-      <p class="text-xl pb-4 pt-8">Similar Book Recommendation
+      <p class="text-xl pb-4">Similar Book Recommendation
         <i class="pi pi-info-circle text-sky-600"
            pTooltip="Enable or disable similar book recommendations entirely."
            tooltipPosition="right"
@@ -69,24 +85,36 @@
     </div>
   </div>
 
-  <p-divider></p-divider>
+  <div class="pt-2 pb-6">
+    <p-divider></p-divider>
+  </div>
 
-  <app-opds-settings></app-opds-settings>
+  <div class="p-4">
+    <app-opds-settings></app-opds-settings>
+  </div>
 
-  <p-divider></p-divider>
+  <div class="pt-2 pb-6">
+    <p-divider></p-divider>
+  </div>
 
-  <app-file-upload-pattern></app-file-upload-pattern>
+  <div class="p-4">
+    <app-file-upload-pattern></app-file-upload-pattern>
+  </div>
 
-  <p-divider></p-divider>
+  <div class="pt-2 pb-6">
+    <p-divider></p-divider>
+  </div>
 
-  <p class="text-xl pb-4 pt-8">
-    Quick Book Match Preferences
-    <i class="pi pi-info-circle text-sky-600"
-       pTooltip="Choose how metadata fields (title, description, authors, categories, cover) are retrieved by setting priority providers. You can apply the same provider settings to all fields or customize them individually. Enable ‘Refresh Covers’ to update book covers, and ‘Merge Categories’ to consolidate categories/genres from all sources while preserving the existing categories/genres in the book."
-       tooltipPosition="right"
-       style="cursor: pointer;">
-    </i>
-  </p>
-  <app-metadata-advanced-fetch-options (metadataOptionsSubmitted)="onMetadataSubmit($event)" [currentMetadataOptions]="currentMetadataOptions"></app-metadata-advanced-fetch-options>
+  <div class="p-4">
+    <p class="text-xl">
+      Quick Book Match Preferences
+      <i class="pi pi-info-circle text-sky-600"
+         pTooltip="Choose how metadata fields (title, description, authors, categories, cover) are retrieved by setting priority providers. You can apply the same provider settings to all fields or customize them individually. Enable ‘Refresh Covers’ to update book covers, and ‘Merge Categories’ to consolidate categories/genres from all sources while preserving the existing categories/genres in the book."
+         tooltipPosition="right"
+         style="cursor: pointer;">
+      </i>
+    </p>
+    <app-metadata-advanced-fetch-options (metadataOptionsSubmitted)="onMetadataSubmit($event)" [currentMetadataOptions]="currentMetadataOptions"></app-metadata-advanced-fetch-options>
+  </div>
 
 </div>

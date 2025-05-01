@@ -1,4 +1,4 @@
-<p class="text-xl pb-2 pt-6 flex items-center gap-2">
+<p class="text-xl flex items-center gap-2">
   OPDS Server Settings
   <i
     class="pi pi-info-circle text-sky-600"
@@ -11,16 +11,13 @@
 
   <div class="flex items-center gap-4">
     <p class="text-lg py-1">OPDS Server Enabled:</p>
-    <p-toggleButton
+    <p-toggleswitch
       [(ngModel)]="opdsEnabled"
-      onLabel="OPDS ON"
-      offLabel="OPDS OFF"
-      (onChange)="toggleOpdsServer()"
-      style="width: 150px;">
-    </p-toggleButton>
+      (onChange)="toggleOpdsServer()">
+    </p-toggleswitch>
   </div>
 
-  <div *ngIf="opdsEnabled" class="flex flex-col gap-2 mt-4 rounded-lg">
+  <div *ngIf="opdsEnabled" class="flex items-center gap-2 mt-4">
     <p class="text-lg py-1">OPDS Endpoint:</p>
     <div class="flex items-center gap-4">
       <input
@@ -40,13 +37,19 @@
   </div>
 
   <div *ngIf="opdsEnabled" class="mt-6">
-    <p-button
-      label="Create New User"
-      icon="pi pi-plus"
-      outlined="true"
-      severity="primary"
-      (onClick)="openCreateUserDialog()">
-    </p-button>
+
+
+    <div class="flex justify-between items-center">
+      <h2 class="text-lg flex items-center gap-2">
+        Current OPDS Users:
+      </h2>
+      <p-button
+        label="Create OPDS User"
+        icon="pi pi-plus"
+        outlined="true"
+        (onClick)="openCreateUserDialog()">
+      </p-button>
+    </div>
 
     <div class="mt-3">
       <p-table [value]="users" [responsiveLayout]="'scroll'">

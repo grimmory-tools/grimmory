@@ -1,4 +1,4 @@
-<p class="text-xl pb-2 pt-8">
+<p class="text-xl">
   Uploaded Files Pattern
   <i class="pi pi-info-circle text-sky-600"
      pTooltip="Define a naming pattern for future uploads using available metadata. Existing files will remain unchanged."
@@ -17,7 +17,14 @@
         placeholder="e.g., {title} - {authors}"
         (input)="onPatternChange(uploadPattern)"
       />
-      <p-button label="Save" icon="pi pi-check" (onClick)="savePattern()" [disabled]="!!errorMessage"></p-button>
+      <p-button
+        label="Save"
+        icon="pi pi-check"
+        (onClick)="savePattern()"
+        severity="primary"
+        outlined="true"
+        [disabled]="!!errorMessage">
+      </p-button>
     </div>
   </div>
 
@@ -71,8 +78,8 @@
     <ul class="list-disc pl-6">
       <li>Only the placeholders &#123;title&#125; and &#123;authors&#125; are supported. These values will be extracted from the metadata of the uploaded PDF or EPUB file.</li>
       <li>Multiple authors will be joined using commas.</li>
-      <li>If <code>&#123;bookname&#125;</code> is used but missing, the path defaults to <code>/filename.pdf</code>.</li>
-      <li>If <code>&#123;authors&#125;</code> is used but missing, it falls back to <code>&#123;bookname&#125;/filename.pdf</code> if the title exists, otherwise <code>/filename.pdf</code>.
+      <li>If <code>&#123;title&#125;</code> is used but is missing in uploaded book's metadata, the path will fall back to <code>/filename.pdf</code>.</li>
+      <li>If <code>&#123;authors&#125;</code> is used but is missing in uploaded book's metadata, the path will fall back to <code>&#123;title&#125;/filename.pdf</code> if the title exists, otherwise <code>/filename.pdf</code>.
       </li>
     </ul>
   </div>

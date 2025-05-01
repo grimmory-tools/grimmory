@@ -4,7 +4,7 @@ import {NgxExtendedPdfViewerModule} from 'ngx-extended-pdf-viewer';
 import {BookService} from '../../service/book.service';
 import {forkJoin, Subscription} from 'rxjs';
 import {BookSetting} from '../../model/book.model';
-import {UserService} from '../../../user.service';
+import {UserService} from '../../../settings/user-management/user.service';
 import {NgIf} from '@angular/common';
 import {ProgressSpinner} from 'primeng/progressspinner';
 import {MessageService} from 'primeng/api';

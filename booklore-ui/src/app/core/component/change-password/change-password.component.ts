@@ -6,7 +6,7 @@ import {Message} from 'primeng/message';
 import {NgIf} from '@angular/common';
 import {Password} from 'primeng/password';
 import {MessageService, PrimeTemplate} from 'primeng/api';
-import {UserService} from '../../../user.service';
+import {UserService} from '../../../settings/user-management/user.service';
 import {AuthService} from '../../service/auth.service';
 
 @Component({

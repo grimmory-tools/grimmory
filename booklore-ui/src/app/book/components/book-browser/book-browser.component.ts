@@ -30,7 +30,7 @@ import {FormsModule} from '@angular/forms';
 import {BookFilterComponent} from './book-filter/book-filter.component';
 import {Tooltip} from 'primeng/tooltip';
 import {Fluid} from 'primeng/fluid';
-import {UserService} from '../../../user.service';
+import {UserService} from '../../../settings/user-management/user.service';
 import {LockUnlockMetadataDialogComponent} from './lock-unlock-metadata-dialog/lock-unlock-metadata-dialog.component';
 
 export enum EntityType {

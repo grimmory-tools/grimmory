@@ -5,6 +5,8 @@ import com.adityachandel.booklore.exception.ApiError;
 import com.adityachandel.booklore.model.dto.BookLoreUser;
 import com.adityachandel.booklore.model.dto.request.UserLoginRequest;
 import com.adityachandel.booklore.model.entity.BookLoreUserEntity;
+import com.adityachandel.booklore.model.entity.RefreshTokenEntity;
+import com.adityachandel.booklore.repository.RefreshTokenRepository;
 import com.adityachandel.booklore.repository.UserRepository;
 import com.adityachandel.booklore.service.user.UserCreatorService;
 import lombok.AllArgsConstructor;
@@ -14,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 
@@ -23,6 +26,7 @@ public class AuthenticationService {
 
     private final AppProperties appProperties;
     private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final UserCreatorService userCreatorService;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
@@ -33,7 +37,8 @@ public class AuthenticationService {
     }
 
     public ResponseEntity<Map<String, String>> loginUser(UserLoginRequest loginRequest) {
-        BookLoreUserEntity user = userRepository.findByUsername(loginRequest.getUsername()).orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(loginRequest.getUsername()));
+        BookLoreUserEntity user = userRepository.findByUsername(loginRequest.getUsername())
+                .orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(loginRequest.getUsername()));
 
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPasswordHash())) {
             throw ApiError.INVALID_CREDENTIALS.createException();
@@ -63,24 +68,48 @@ public class AuthenticationService {
         String accessToken = jwtUtils.generateAccessToken(user);
         String refreshToken = jwtUtils.generateRefreshToken(user);
 
+        RefreshTokenEntity refreshTokenEntity = RefreshTokenEntity.builder()
+                .user(user)
+                .token(refreshToken)
+                .expiryDate(new Date(System.currentTimeMillis() + jwtUtils.getRefreshTokenExpirationMs()))
+                .revoked(false)
+                .build();
+
+        refreshTokenRepository.save(refreshTokenEntity);
+
         return ResponseEntity.ok(Map.of(
                 "accessToken", accessToken,
-                "refreshToken", refreshToken,
+                "refreshToken", refreshTokenEntity.getToken(),
                 "isDefaultPassword", String.valueOf(user.isDefaultPassword())
         ));
     }
 
-    public ResponseEntity<Map<String, String>> refreshToken(String refreshToken) {
-        if (!jwtUtils.validateToken(refreshToken)) {
-            throw ApiError.INVALID_CREDENTIALS.createException();
+    public ResponseEntity<Map<String, String>> refreshToken(String token) {
+        RefreshTokenEntity storedToken = refreshTokenRepository.findByToken(token).orElseThrow(() -> ApiError.INVALID_CREDENTIALS.createException("Refresh token not found"));
+
+        if (storedToken.isRevoked() || storedToken.getExpiryDate().before(new Date()) || !jwtUtils.validateToken(token)) {
+            throw ApiError.INVALID_CREDENTIALS.createException("Invalid or expired refresh token");
         }
 
-        String username = jwtUtils.extractUsername(refreshToken);
-        BookLoreUserEntity user = userRepository.findByUsername(username).orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(username));
+        BookLoreUserEntity user = storedToken.getUser();
 
-        String newAccessToken = jwtUtils.generateAccessToken(user);
+        storedToken.setRevoked(true);
+        storedToken.setRevocationDate(new Date());
+        refreshTokenRepository.save(storedToken);
+
         String newRefreshToken = jwtUtils.generateRefreshToken(user);
+        RefreshTokenEntity newRefreshTokenEntity = RefreshTokenEntity.builder()
+                .user(user)
+                .token(newRefreshToken)
+                .expiryDate(new Date(System.currentTimeMillis() + jwtUtils.getRefreshTokenExpirationMs()))
+                .revoked(false)
+                .build();
 
-        return ResponseEntity.ok(Map.of("accessToken", newAccessToken, "refreshToken", newRefreshToken));
+        refreshTokenRepository.save(newRefreshTokenEntity);
+
+        return ResponseEntity.ok(Map.of(
+                "accessToken", jwtUtils.generateAccessToken(user),
+                "refreshToken", newRefreshToken
+        ));
     }
 }

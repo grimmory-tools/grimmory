@@ -17,8 +17,8 @@ import {ThemeConfiguratorComponent} from '../theme-configurator/theme-configurat
 import {LiveNotificationBoxComponent} from '../../../core/component/live-notification-box/live-notification-box.component';
 import {BookUploaderComponent} from '../../../utilities/component/book-uploader/book-uploader.component';
 import {AuthService} from '../../../core/service/auth.service';
-import {UserService} from '../../../user.service';
-import {UserProfileDialogComponent} from '../../../user-profile-dialog/user-profile-dialog.component';
+import {UserService} from '../../../settings/user-management/user.service';
+import {UserProfileDialogComponent} from '../../../settings/global-preferences/user-profile-dialog/user-profile-dialog.component';
 
 @Component({
   selector: 'app-topbar',

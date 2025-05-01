@@ -7,7 +7,7 @@ import {RadioButton} from 'primeng/radiobutton';
 import {Divider} from 'primeng/divider';
 import {Button} from 'primeng/button';
 import {Tooltip} from 'primeng/tooltip';
-import {User, UserBookPreferences, UserService} from '../../user.service';
+import {User, UserBookPreferences, UserService} from '../user-management/user.service';
 
 @Component({
   selector: 'app-book-preferences',
