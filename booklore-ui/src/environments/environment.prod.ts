@@ -1,7 +1,10 @@
 export const environment = {
   production: true,
   API_CONFIG: {
-    BASE_URL: `${window.location.protocol}//${window.location.hostname}:${window.location.port}`,
-    BROKER_URL: `ws://${window.location.hostname}:${window.location.port}/ws`,
+    BASE_URL: window.location.origin,
+    BROKER_URL:
+      window.location.protocol === 'https:'
+        ? `wss://${window.location.host}/ws`
+        : `ws://${window.location.host}/ws`,
   },
 };
