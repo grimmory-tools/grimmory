@@ -12,11 +12,22 @@ import {AppComponent} from './app/app.component';
 import Aura from '@primeng/themes/aura';
 import {routes} from './app/app.routes';
 import {AuthInterceptorService} from './app/auth-interceptor.service';
-import {AuthService} from './app/core/service/auth.service';
+import {AuthService, websocketInitializer} from './app/core/service/auth.service';
+import {provideOAuthClient} from 'angular-oauth2-oidc';
+import {APP_INITIALIZER, provideAppInitializer} from '@angular/core';
+import {initializeAuthFactory} from './app/auth-initializer';
 
 bootstrapApplication(AppComponent, {
   providers: [
+    {
+      provide: APP_INITIALIZER,
+      useFactory: websocketInitializer,
+      deps: [AuthService],
+      multi: true
+    },
     provideHttpClient(withInterceptors([AuthInterceptorService])),
+    provideOAuthClient(),
+    provideAppInitializer(initializeAuthFactory()),
     provideRouter(routes),
     DialogService,
     MessageService,
@@ -33,10 +44,7 @@ bootstrapApplication(AppComponent, {
     provideAnimationsAsync(),
     providePrimeNG({
       theme: {
-        preset: Aura,
-        options: {
-          darkModeSelector: '.p-dark'
-        }
+        preset: Aura
       }
     })
   ]

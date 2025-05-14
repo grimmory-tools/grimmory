@@ -8,12 +8,14 @@ import {GlobalPreferencesComponent} from './global-preferences/global-preference
 import {ActivatedRoute, Router} from '@angular/router';
 import {Subscription} from 'rxjs';
 import {UserManagementComponent} from './user-management/user-management.component';
+import {AuthenticationSettingsComponent} from '../oauth2-management/authentication-settings.component';
 
 export enum SettingsTab {
   BookReader = 'book-reader',
   UserManagement = 'user-management',
   Email = 'email',
-  GlobalSettings = 'global-settings'
+  GlobalSettings = 'global-settings',
+  AuthenticationSettings = 'auth-settings'
 }
 
 @Component({
@@ -29,7 +31,8 @@ export enum SettingsTab {
     AsyncPipe,
     EmailComponent,
     GlobalPreferencesComponent,
-    UserManagementComponent
+    UserManagementComponent,
+    AuthenticationSettingsComponent
   ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss'

@@ -10,6 +10,7 @@
   <p-table [value]="users" class="mt-4">
     <ng-template pTemplate="header">
       <tr>
+        <th>Provisioning</th>
         <th>Username</th>
         <th>Full Name</th>
         <th>Email</th>
@@ -26,6 +27,9 @@
 
     <ng-template pTemplate="body" let-user>
       <tr>
+        <td>
+          {{ (user.provisioningMethod || 'LOCAL') | lowercase | titlecase }}
+        </td>
         <td>{{ user.username }}</td>
         <td>
           <input *ngIf="user.isEditing" type="text" [(ngModel)]="user.name" class="p-inputtext w-full"/>

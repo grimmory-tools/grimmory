@@ -2,11 +2,12 @@
   <div class="rounded-xl overflow-hidden">
     <p-tabs [(value)]="activeTab">
       <p-tablist>
-        <p-tab [value]="SettingsTab.BookReader">Book Reader</p-tab>
+        <p-tab [value]="SettingsTab.BookReader">Reader Settings</p-tab>
         <ng-container *ngIf="userData.permissions.admin">
           <p-tab [value]="SettingsTab.UserManagement">User Management</p-tab>
           <p-tab [value]="SettingsTab.Email">Email Setting</p-tab>
-          <p-tab [value]="SettingsTab.GlobalSettings">Other Settings</p-tab>
+          <p-tab [value]="SettingsTab.GlobalSettings">Admin Settings</p-tab>
+          <p-tab [value]="SettingsTab.AuthenticationSettings">Authentication Settings</p-tab>
         </ng-container>
       </p-tablist>
 
@@ -23,6 +24,9 @@
           </p-tabpanel>
           <p-tabpanel [value]="SettingsTab.GlobalSettings">
             <app-global-preferences></app-global-preferences>
+          </p-tabpanel>
+          <p-tabpanel [value]="SettingsTab.AuthenticationSettings">
+            <app-authentication-settings></app-authentication-settings>
           </p-tabpanel>
         </ng-container>
       </p-tabpanels>

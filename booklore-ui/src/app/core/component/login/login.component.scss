@@ -1,28 +1,25 @@
 .login-container {
-  @apply flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-900 via-cyan-600 to-blue-400 relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #1e3a8a, #06b6d4, #3b82f6);
+  position: relative;
 }
 
 .login-wrapper {
-  @apply flex flex-col items-center gap-6 absolute top-1/4 transform -translate-y-1/4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  position: absolute;
+  top: 25%;
+  transform: translateY(-25%);
 }
 
 .app-title {
-  @apply text-5xl font-extrabold text-white drop-shadow-lg;
+  font-size: 3rem;
+  font-weight: 800;
+  color: white;
   text-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
-}
-
-.login-card {
-  @apply w-96 shadow-lg rounded-xl bg-opacity-90 backdrop-blur-lg;
-}
-
-form {
-  @apply flex flex-col gap-4;
-}
-
-.p-field {
-  @apply flex flex-col gap-2;
-}
-
-p-button {
-  @apply mt-4;
 }

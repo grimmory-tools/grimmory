@@ -101,7 +101,7 @@
         </div>
         <div class="no-books-container" *ngIf="!bookState?.error && bookState?.loaded && bookState?.books?.length === 0">
           <p class="no-books-text">
-            {{ entityType === EntityType.LIBRARY ? "This library has no books!" : "This shelf has no books!" }}
+            This collection has no books!
           </p>
         </div>
 

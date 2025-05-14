@@ -4,7 +4,7 @@ import {Button} from 'primeng/button';
 import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
 import {CreateUserDialogComponent} from './create-user-dialog/create-user-dialog.component';
 import {TableModule} from 'primeng/table';
-import {NgIf, NgStyle} from '@angular/common';
+import {LowerCasePipe, NgIf, NgStyle, TitleCasePipe} from '@angular/common';
 import {User, UserService} from './user.service';
 import {MessageService} from 'primeng/api';
 import {Checkbox} from 'primeng/checkbox';
@@ -25,7 +25,9 @@ import {Password} from 'primeng/password';
     NgStyle,
     MultiSelect,
     Dialog,
-    Password
+    Password,
+    LowerCasePipe,
+    TitleCasePipe
   ],
   templateUrl: './user-management.component.html',
   styleUrls: ['./user-management.component.scss'],

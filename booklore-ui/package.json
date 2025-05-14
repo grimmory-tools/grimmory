@@ -25,6 +25,7 @@
     "@stomp/rx-stomp": "2.0.1",
     "@stomp/stompjs": "7.1.1",
     "@tailwindcss/postcss": "^4.1.4",
+    "angular-oauth2-oidc": "^19.0.0",
     "epubjs": "0.3.93",
     "jwt-decode": "4.0.0",
     "ng-lazyload-image": "9.1.3",

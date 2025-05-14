@@ -1,0 +1,12 @@
+.setup-container {
+  @apply flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-900 via-cyan-600 to-blue-400 relative;
+}
+
+.setup-wrapper {
+  @apply flex flex-col items-center gap-6 absolute top-1/4 transform -translate-y-1/4;
+}
+
+.app-title {
+  @apply text-5xl font-extrabold text-white drop-shadow-lg;
+  text-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+}

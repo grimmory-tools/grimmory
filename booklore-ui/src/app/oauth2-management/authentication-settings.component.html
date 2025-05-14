@@ -1,0 +1,200 @@
+<div class="w-full h-[calc(100vh-12.1rem)] overflow-y-auto border rounded-lg enclosing-container">
+
+  <div class="p-4">
+    <p class="text-xl gap-2 pb-4 pt-6">Internal Authentication:</p>
+    <div class="flex items-center gap-4 pl-6">
+      <label class="text-lg">Enabled</label>
+      <p-checkbox
+        [(ngModel)]="internalAuthEnabled"
+        [binary]="true"
+        [disabled]="true">
+      </p-checkbox>
+      <div class="flex items-center gap-2 pl-4 text-sm text-gray-400">
+        <i class="pi pi-info-circle text-blue-500"></i>
+        <span>
+          Internal authentication is always enabled and cannot be disabled. However, OIDC can be used alongside internal authentication if OIDC is enabled.
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <p-divider></p-divider>
+
+  <div class="p-4">
+    <p class="text-xl pb-4 pt-2">OIDC Authentication (Experimental):</p>
+    <div class="flex items-center gap-4">
+      <label class="text-lg pl-6">Enabled</label>
+      <p-toggleswitch
+        [(ngModel)]="oidcEnabled"
+        [disabled]="!isOidcFormComplete()"
+        (onChange)="toggleOidcEnabled()">
+      </p-toggleswitch>
+      <div *ngIf="!isOidcFormComplete()" class="text-sm text-gray-400">
+        (Fill all required fields to enable)
+      </div>
+    </div>
+
+    <p class="text-lg pt-8">OIDC Provider Settings:</p>
+    <div class="pl-6 space-y-6 p-4 m-4 custom-border">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
+        <div>
+          <label for="providerName" class="mb-1">Provider Name</label>
+          <input
+            pInputText
+            id="providerName"
+            [(ngModel)]="oidcProvider.providerName"
+            placeholder="e.g. Authentik"
+            class="w-full"/>
+        </div>
+        <div>
+          <label for="clientId" class="mb-1">Client ID</label>
+          <input
+            pInputText
+            id="clientId"
+            [(ngModel)]="oidcProvider.clientId"
+            placeholder="e.g. my-client-id"
+            class="w-full"/>
+        </div>
+        <div class="md:col-span-2 items-center">
+          <label for="scope" class="mb-1">Scope</label>
+          <input
+            pInputText
+            id="scope"
+            class="w-full"
+            [readonly]="true"
+            disabled="disabled"
+            value="openid profile email offline_access"/>
+          <div class="flex items-center gap-2 text-sm text-gray-400 mt-2 pl-1">
+            <i class="pi pi-info-circle text-blue-500 mt-1"></i>
+            <span>
+              Required scopes for OIDC login and token exchange. Must be supported and advertised in the provider’s discovery metadata.
+            </span>
+          </div>
+        </div>
+        <div class="md:col-span-2">
+          <label for="issuerUri" class="mb-1">Issuer URI</label>
+          <input
+            pInputText
+            id="issuerUri"
+            [(ngModel)]="oidcProvider.issuerUri"
+            placeholder="e.g. https://auth.example.com/realms/myrealm"
+            class="w-full"/>
+        </div>
+        <div class="md:col-span-2">
+          <label for="jwksUrl" class="mb-1">JWKS URL</label>
+          <input
+            pInputText
+            id="jwksUrl"
+            [(ngModel)]="oidcProvider.jwksUrl"
+            placeholder="e.g. https://auth.example.com/realms/myrealm/protocol/openid-connect/certs"
+            class="w-full"/>
+        </div>
+        <div class="md:col-span-2">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label for="claimUsername" class="mb-1">Username Claim</label>
+              <input
+                pInputText
+                id="claimUsername"
+                [(ngModel)]="oidcProvider.claimMapping.username"
+                placeholder="e.g. preferred_username"
+                class="w-full"/>
+            </div>
+            <div>
+              <label for="claimEmail" class="mb-1">Email Claim</label>
+              <input
+                pInputText
+                id="claimEmail"
+                [(ngModel)]="oidcProvider.claimMapping.email"
+                placeholder="e.g. email"
+                class="w-full"/>
+            </div>
+            <div>
+              <label for="claimName" class="mb-1">Display Name Claim</label>
+              <input
+                pInputText
+                id="claimName"
+                [(ngModel)]="oidcProvider.claimMapping.name"
+                placeholder="e.g. name or given_name"
+                class="w-full"/>
+            </div>
+          </div>
+          <div class="flex items-start gap-2 text-sm text-gray-400 mt-2 pl-1">
+            <i class="pi pi-info-circle text-blue-500 mt-1"></i>
+            <span>
+              These claims are used by Booklore to provision new OIDC users with their name, username, and email. Ensure they match the claims provided by your OIDC provider.
+            </span>
+          </div>
+        </div>
+        <p-button
+          [outlined]="true"
+          type="button"
+          label="Save Settings"
+          class="p-button-primary w-full sm:w-auto"
+          (click)="saveOidcProvider()"
+          [disabled]="!isOidcFormComplete()">
+        </p-button>
+      </div>
+    </div>
+
+    <div *ngIf="oidcEnabled">
+      <p class="text-lg pt-6">OIDC User Provisioning:</p>
+      <div class="pl-6 space-y-6 p-4 m-4 custom-border">
+        <div>
+          <p class="text-xl pb-3">Automatic user provisioning:</p>
+          <div class="flex items-center gap-4 pl-6">
+            <label class="text-lg">Enabled</label>
+            <p-toggleswitch
+              [(ngModel)]="autoUserProvisioningEnabled"
+              inputId="autoProvision"
+              (onChange)="saveAutoProvision()">
+            </p-toggleswitch>
+            <div class="flex items-center gap-2 text-sm text-gray-400">
+              <i class="pi pi-info-circle text-blue-500"></i>
+              <span>
+                Enabling auto-provisioning ensures that new users are automatically created with the selected default permissions. If turned off, users must be manually created in Booklore before they can log in.
+              </span>
+            </div>
+          </div>
+
+          <div *ngIf="autoUserProvisioningEnabled">
+            <p class="text-lg pt-8">Default permissions for auto-provisioned users:</p>
+            <div class="flex items-center gap-2 pl-6 pt-2">
+              <p-checkbox
+                [binary]="true"
+                [disabled]="true"
+                [ngModel]="true"
+                inputId="permissionRead">
+              </p-checkbox>
+              <label class="text-sm">Read Books</label>
+            </div>
+
+            <div *ngFor="let perm of availablePermissions" class="flex items-center gap-2 pl-6">
+              <p-checkbox
+                [(ngModel)]="perm.selected"
+                [binary]="true"
+                [inputId]="perm.value">
+              </p-checkbox>
+              <label [for]="perm.value" class="text-sm">{{ perm.label }}</label>
+            </div>
+
+            <p class="text-lg pb-3 pt-6">Default libraries for auto-provisioned users:</p>
+            <div class="pl-6">
+              <p-multiSelect
+                [options]="allLibraries"
+                optionLabel="name"
+                optionValue="id"
+                [(ngModel)]="editingLibraryIds"
+                placeholder="Select Libraries"
+                appendTo="body">
+              </p-multiSelect>
+            </div>
+            <div class="mt-8">
+              <p-button label="Save Settings" [outlined]="true" (click)="saveAutoProvisioningSettings()"></p-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

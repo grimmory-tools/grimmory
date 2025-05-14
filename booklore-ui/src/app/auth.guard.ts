@@ -1,21 +1,35 @@
-import {inject} from '@angular/core';
-import {CanActivateFn, Router} from '@angular/router';
+import { inject } from '@angular/core';
+import { CanActivateFn } from '@angular/router';
+import { Router } from '@angular/router';
+import { OAuthService } from 'angular-oauth2-oidc';
 
 export const AuthGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
-  const token = localStorage.getItem('accessToken');
 
-  if (!token) {
-    router.navigate(['/login']);
-    return false;
+  const legacyToken = localStorage.getItem('accessToken_Internal');
+
+  if (legacyToken) {
+    try {
+      const payload = JSON.parse(atob(legacyToken.split('.')[1]));
+      if (payload.isDefaultPassword) {
+        router.navigate(['/change-password']);
+        return false;
+      }
+      return true;
+    } catch (e) {
+      console.error('Invalid legacy token:', e);
+      localStorage.removeItem('accessToken');
+      router.navigate(['/login']);
+      return false;
+    }
   }
 
-  const payload = JSON.parse(atob(token.split('.')[1]));
+  const oidcToken = localStorage.getItem('accessToken_OIDC');
 
-  if (payload.isDefaultPassword) {
-    router.navigate(['/change-password']);
-    return false;
+  if (oidcToken) {
+    return true;
   }
 
-  return true;
+  router.navigate(['/login']);
+  return false;
 };

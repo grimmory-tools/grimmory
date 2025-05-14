@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {AuthService} from '../../service/auth.service';
 import {Router} from '@angular/router';
 import {FormsModule} from '@angular/forms';
@@ -9,6 +9,12 @@ import {Button} from 'primeng/button';
 import {Message} from 'primeng/message';
 import {PrimeTemplate} from 'primeng/api';
 import {InputText} from 'primeng/inputtext';
+import {OAuthService} from 'angular-oauth2-oidc';
+import {Divider} from 'primeng/divider';
+import {AppSettingsService} from '../../service/app-settings.service';
+import {AppSettings} from '../../model/app-settings.model';
+import {Observable} from 'rxjs';
+import {filter, take} from 'rxjs/operators';
 
 @Component({
   selector: 'app-login',
@@ -20,26 +26,38 @@ import {InputText} from 'primeng/inputtext';
     Button,
     Message,
     PrimeTemplate,
-    InputText
+    InputText,
+    Divider
   ],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss'
+  styleUrls: ['./login.component.scss']
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   username = '';
   password = '';
   errorMessage = '';
+  oidcEnabled = false;
 
-  constructor(private authService: AuthService, private router: Router) {
-    this.authService.remoteLogin().subscribe({
-      next: () => {
-        this.router.navigate(['/dashboard']);
-      },
-    });
+  private authService = inject(AuthService);
+  private oAuthService = inject(OAuthService);
+  private appSettingsService = inject(AppSettingsService);
+  private router = inject(Router);
+
+  appSettings$: Observable<AppSettings | null> = this.appSettingsService.appSettings$;
+
+  ngOnInit(): void {
+    this.appSettings$
+      .pipe(
+        filter(settings => settings != null),
+        take(1)
+      )
+      .subscribe(settings => {
+        this.oidcEnabled = settings?.oidcEnabled;
+      });
   }
 
   login(): void {
-    this.authService.login({username: this.username, password: this.password}).subscribe({
+    this.authService.internalLogin({username: this.username, password: this.password}).subscribe({
       next: (response) => {
         if (response.isDefaultPassword === 'true') {
           this.router.navigate(['/change-password']);
@@ -55,5 +73,9 @@ export class LoginComponent {
         }
       }
     });
+  }
+
+  loginWithOidc(): void {
+    this.oAuthService.initImplicitFlow();
   }
 }

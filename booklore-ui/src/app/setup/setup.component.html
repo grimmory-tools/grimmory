@@ -1,0 +1,56 @@
+<div class="setup-container">
+  <div class="setup-wrapper">
+    <h1 class="app-title">BookLore</h1>
+    <p-card class="w-96">
+      <ng-template pTemplate="title">
+        <div class="text-center pb-2">Initial Admin Setup</div>
+      </ng-template>
+      <ng-template pTemplate="content">
+        <form class="flex flex-col gap-4" [formGroup]="setupForm" (ngSubmit)="onSubmit()">
+
+          <div class="flex flex-col gap-2">
+            <label for="name">Username</label>
+            <input pInputText id="name" type="text" formControlName="username" required />
+            <small class="text-red-500" *ngIf="setupForm.get('username')?.invalid && setupForm.get('username')?.touched">
+              Username is required.
+            </small>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label for="name">Name</label>
+            <input pInputText id="name" type="text" formControlName="name" required />
+            <small class="text-red-500" *ngIf="setupForm.get('name')?.invalid && setupForm.get('name')?.touched">
+              Name is required.
+            </small>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label for="email">Email</label>
+            <input pInputText id="email" type="email" formControlName="email" required />
+            <small class="text-red-500" *ngIf="setupForm.get('email')?.invalid && setupForm.get('email')?.touched">
+              Valid email is required.
+            </small>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label for="password">Password</label>
+            <p-password fluid id="password" formControlName="password" [feedback]="false" required></p-password>
+            <small class="text-red-500" *ngIf="setupForm.get('password')?.invalid && setupForm.get('password')?.touched">
+              Minimum 6 characters required.
+            </small>
+          </div>
+
+          <div class="flex flex-col gap-3 mt-4">
+            <p-button fluid severity="success" type="submit"
+                      [label]="loading ? 'Creating…' : 'Create Admin Account'"
+                      [disabled]="loading || setupForm.invalid"
+                      icon="pi pi-user-plus">
+            </p-button>
+            <p-message *ngIf="error" severity="error" text="{{ error }}"></p-message>
+            <p-message *ngIf="success" severity="success" text="Admin account created! Redirecting…"></p-message>
+          </div>
+        </form>
+      </ng-template>
+    </p-card>
+  </div>
+</div>

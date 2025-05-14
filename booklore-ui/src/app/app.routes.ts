@@ -9,13 +9,26 @@ import {PdfViewerComponent} from './book/components/pdf-viewer/pdf-viewer.compon
 import {EpubViewerComponent} from './book/components/epub-viewer/component/epub-viewer.component';
 import {ChangePasswordComponent} from './core/component/change-password/change-password.component';
 import {BookMetadataCenterComponent} from './metadata/book-metadata-center/book-metadata-center.component';
+import {SetupComponent} from './setup/setup.component';
+import {SetupGuard} from './setup/setup.guard';
+import {SetupRedirectGuard} from './setup/setup-redirect.guard';
+import {EmptyComponent} from './empty/empty.component';
+import {LoginGuard} from './setup/ login.guard';
+import {OidcCallbackComponent} from './oidc-callback/oidc-callback.component';
 
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'dashboard',
-    pathMatch: 'full'
+    canActivate: [SetupRedirectGuard],
+    pathMatch: 'full',
+    component: EmptyComponent
   },
+  {
+    path: 'setup',
+    component: SetupComponent,
+    canActivate: [SetupGuard]
+  },
+  {path: 'oauth2-callback', component: OidcCallbackComponent},
   {
     path: '',
     component: AppLayoutComponent,
@@ -38,7 +51,19 @@ export const routes: Routes = [
     component: EpubViewerComponent,
     canActivate: [AuthGuard]
   },
-  {path: 'login', component: LoginComponent},
-  {path: 'change-password', component: ChangePasswordComponent},
-  {path: '**', redirectTo: 'login', pathMatch: 'full'}
+  {
+    path: 'login',
+    component: LoginComponent,
+    canActivate: [LoginGuard]
+  },
+  {
+    path: 'change-password',
+    component: ChangePasswordComponent,
+    canActivate: [SetupGuard]
+  },
+  {
+    path: '**',
+    redirectTo: 'login',
+    pathMatch: 'full'
+  }
 ];

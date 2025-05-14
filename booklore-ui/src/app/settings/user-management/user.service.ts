@@ -21,6 +21,7 @@ export interface User {
     canManipulateLibrary: boolean;
   };
   bookPreferences: UserBookPreferences;
+  provisioningMethod?: 'LOCAL' | 'OIDC' | 'REMOTE';
 }
 
 export interface UserBookPreferences {

@@ -1,26 +1,35 @@
-<div class="login-container">
+<div class="login-container" >
   <div class="login-wrapper">
     <h1 class="app-title">BookLore</h1>
-    <p-card class="login-card p-fluid">
-      <ng-template pTemplate="title">Login</ng-template>
-
+    <p-card class="w-96">
+      <ng-template pTemplate="title">
+        <div class="text-center pb-2">Login</div>
+      </ng-template>
       <ng-template pTemplate="content">
-        <form #loginForm="ngForm" (ngSubmit)="login()">
-          <div class="p-field">
+        <form class="flex flex-col gap-4" #loginForm="ngForm" (ngSubmit)="login()">
+          <div class="flex flex-col gap-2">
             <label for="username">Username</label>
-            <input pInputText id="username" [(ngModel)]="username" name="username" required fluid/>
+            <input fluid pInputText id="username" [(ngModel)]="username" name="username" required/>
           </div>
-
-          <div class="p-field">
+          <div class="flex flex-col gap-2">
             <label for="password">Password</label>
-            <p-password id="password" [(ngModel)]="password" name="password" [feedback]="false" fluid required></p-password>
+            <p-password fluid id="password" [(ngModel)]="password" name="password" [feedback]="false" required></p-password>
           </div>
-
-          <div class="p-mt-3">
-            <p-button type="submit" label="Login" icon="pi pi-sign-in" class="p-fluid"></p-button>
+          <div class="flex flex-col gap-3 mt-4">
+            <p-button
+              fluid
+              severity="primary"
+              type="submit"
+              label="Login"
+              icon="pi pi-sign-in"
+              [disabled]="!loginForm.valid || !username || !password">
+            </p-button>
+            <p-message *ngIf="errorMessage" severity="error" text="{{ errorMessage }}"></p-message>
+            <div *ngIf="oidcEnabled">
+              <p-divider></p-divider>
+              <p-button fluid severity="info" type="button" label="Login with OIDC" icon="pi pi-id-card" (click)="loginWithOidc()"></p-button>
+            </div>
           </div>
-
-          <p-message *ngIf="errorMessage" severity="error" text="{{ errorMessage }}"></p-message>
         </form>
       </ng-template>
     </p-card>

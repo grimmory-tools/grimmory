@@ -25,7 +25,7 @@
       </div>
     </div>
 
-    <p class="text-lg  py-1">Epub:</p>
+    <p class="text-lg py-1">Epub:</p>
     <div class="flex gap-4 justify-start">
       <div *ngFor="let item of individualOrGlobal" class="flex items-center gap-2">
         <p-radiobutton
@@ -120,9 +120,9 @@
 
     <p class="text-lg py-1">Font Size:</p>
     <div class="flex gap-4 justify-start items-center">
-      <p-button icon="pi pi-minus" rounded="true" (click)="decreaseFontSize()"></p-button>
+      <p-button icon="pi pi-minus" rounded="true" size="small" (click)="decreaseFontSize()"></p-button>
       <p>{{ fontSize }}%</p>
-      <p-button icon="pi pi-plus" rounded="true" (click)="increaseFontSize()"></p-button>
+      <p-button icon="pi pi-plus" rounded="true" size="small" (click)="increaseFontSize()"></p-button>
     </div>
   </div>
 </div>

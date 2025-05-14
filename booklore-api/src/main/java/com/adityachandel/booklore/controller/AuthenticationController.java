@@ -6,7 +6,7 @@ import com.adityachandel.booklore.exception.ApiError;
 import com.adityachandel.booklore.model.dto.UserCreateRequest;
 import com.adityachandel.booklore.model.dto.request.RefreshTokenRequest;
 import com.adityachandel.booklore.model.dto.request.UserLoginRequest;
-import com.adityachandel.booklore.service.user.UserCreatorService;
+import com.adityachandel.booklore.service.user.UserProvisioningService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,13 +24,13 @@ import java.util.Map;
 public class AuthenticationController {
 
     private final AppProperties appProperties;
-    private final UserCreatorService userCreatorService;
+    private final UserProvisioningService userProvisioningService;
     private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
     @PreAuthorize("@securityUtil.isAdmin()")
     public ResponseEntity<?> registerUser(@RequestBody @Valid UserCreateRequest userCreateRequest) {
-        userCreatorService.registerUser(userCreateRequest);
+        userProvisioningService.provisionInternalUser(userCreateRequest);
         return ResponseEntity.noContent().build();
     }
 

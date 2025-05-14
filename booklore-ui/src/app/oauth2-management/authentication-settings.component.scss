@@ -1,0 +1,8 @@
+.enclosing-container {
+  border-color: var(--p-content-border-color);
+}
+
+.custom-border {
+  border: 1px solid var(--border-color);
+  border-radius: var(--card-border);
+}

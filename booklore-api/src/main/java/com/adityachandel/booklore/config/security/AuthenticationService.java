@@ -8,7 +8,7 @@ import com.adityachandel.booklore.model.entity.BookLoreUserEntity;
 import com.adityachandel.booklore.model.entity.RefreshTokenEntity;
 import com.adityachandel.booklore.repository.RefreshTokenRepository;
 import com.adityachandel.booklore.repository.UserRepository;
-import com.adityachandel.booklore.service.user.UserCreatorService;
+import com.adityachandel.booklore.service.user.UserProvisioningService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -27,7 +27,7 @@ public class AuthenticationService {
     private final AppProperties appProperties;
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final UserCreatorService userCreatorService;
+    private final UserProvisioningService userProvisioningService;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
 
@@ -54,7 +54,7 @@ public class AuthenticationService {
 
         Optional<BookLoreUserEntity> user = userRepository.findByUsername(username);
         if (user.isEmpty() && appProperties.getRemoteAuth().isCreateNewUsers()) {
-            user = Optional.of(userCreatorService.createRemoteUser(name, username, email, groups));
+            user = Optional.of(userProvisioningService.provisionRemoteUser(name, username, email, groups));
         }
 
         if (user.isEmpty()) {

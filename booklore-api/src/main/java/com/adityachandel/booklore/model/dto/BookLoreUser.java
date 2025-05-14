@@ -1,6 +1,7 @@
 package com.adityachandel.booklore.model.dto;
 
 import com.adityachandel.booklore.model.dto.settings.BookPreferences;
+import com.adityachandel.booklore.model.enums.ProvisioningMethod;
 import lombok.Data;
 
 import java.util.List;
@@ -12,6 +13,7 @@ public class BookLoreUser {
     private boolean isDefaultPassword;
     private String name;
     private String email;
+    private ProvisioningMethod provisioningMethod;
     private List<Library> assignedLibraries;
     private UserPermissions permissions;
     private BookPreferences bookPreferences;

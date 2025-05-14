@@ -2,6 +2,7 @@ package com.adityachandel.booklore.model.entity;
 
 import com.adityachandel.booklore.convertor.BookPreferencesConverter;
 import com.adityachandel.booklore.model.dto.settings.BookPreferences;
+import com.adityachandel.booklore.model.enums.ProvisioningMethod;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -37,6 +38,10 @@ public class BookLoreUserEntity {
 
     @Column(unique = true)
     private String email;
+
+    @Column(name = "provisioning_method")
+    @Enumerated(EnumType.STRING)
+    private ProvisioningMethod provisioningMethod;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
