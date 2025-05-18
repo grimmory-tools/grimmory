@@ -23,6 +23,14 @@
       class="select-checkbox"
       (ngModelChange)="toggleSelection(isSelected || false)">
     </p-checkbox>
+
+    <p-progressBar
+      *ngIf="progressPercentage !== null"
+      [value]="progressPercentage"
+      [showValue]="false"
+      class="cover-progress-bar"
+      [ngClass]="{ 'progress-complete': progressPercentage === 100, 'progress-incomplete': progressPercentage < 100 }">
+    </p-progressBar>
   </div>
 
   <div [hidden]="bottomBarHidden">

@@ -13,6 +13,7 @@ import {Select} from 'primeng/select';
 import {UserService} from '../../../../settings/user-management/user.service';
 import {ProgressSpinner} from 'primeng/progressspinner';
 import {MessageService} from 'primeng/api';
+import {Tooltip} from 'primeng/tooltip';
 
 const FALLBACK_EPUB_SETTINGS = {
   fontSize: 150,
@@ -27,10 +28,21 @@ function flatten(chapters: any) {
   return [].concat.apply([], chapters.map((chapter: any) => [].concat.apply([chapter], flatten(chapter.subitems))));
 }
 
-export function getCfiFromHref(book: any, href: string): string {
+export function getCfiFromHref(book: any, href: string): string | null {
   const [_, id] = href.split('#');
   const section = book.spine.get(href);
-  const el = (id ? section.document.getElementById(id) : section.document.body) as Element;
+
+  if (!section || !section.document) {
+    console.warn('Section or section.document is undefined for href:', href);
+    return null;
+  }
+
+  const el = id ? section.document.getElementById(id) : section.document.body;
+  if (!el) {
+    console.warn('Element not found in section.document for href:', href);
+    return null;
+  }
+
   return section.cfiFromElement(el);
 }
 
@@ -41,7 +53,11 @@ export function getChapter(book: any, location: any) {
       return book.canonical(chapter.href).includes(book.canonical(locationHref));
     })
     .reduce((result: any | null, chapter: any) => {
-      const locationAfterChapter = EpubCFI.prototype.compare(location.start.cfi, getCfiFromHref(book, chapter.href)) > 0;
+      const chapterCfi = getCfiFromHref(book, chapter.href);
+      if (!chapterCfi) {
+        return result;
+      }
+      const locationAfterChapter = EpubCFI.prototype.compare(location.start.cfi, chapterCfi) > 0;
       return locationAfterChapter ? chapter : result;
     }, null);
 }
@@ -50,7 +66,7 @@ export function getChapter(book: any, location: any) {
   selector: 'app-epub-viewer',
   templateUrl: './epub-viewer.component.html',
   styleUrls: ['./epub-viewer.component.scss'],
-  imports: [Drawer, Button, NgForOf, FormsModule, Divider, Select, ProgressSpinner, NgIf],
+  imports: [Drawer, Button, NgForOf, FormsModule, Divider, Select, ProgressSpinner, NgIf, Tooltip],
   standalone: true
 })
 export class EpubViewerComponent implements OnInit, OnDestroy {
@@ -61,6 +77,10 @@ export class EpubViewerComponent implements OnInit, OnDestroy {
   currentChapter = '';
   isDrawerVisible = false;
   isSettingsDrawerVisible = false;
+
+  public locationsReady = false;
+  public approxProgress = 0;
+  public exactProgress = 0;
 
   private book: any;
   private rendition: any;
@@ -143,11 +163,9 @@ export class EpubViewerComponent implements OnInit, OnDestroy {
               allowScriptedContent: true,
             });
 
-            if (this.epub?.epubProgress) {
-              this.rendition.display(this.epub.epubProgress);
-            } else {
-              this.rendition.display();
-            }
+            const displayPromise = this.epub?.epubProgress?.cfi
+              ? this.rendition.display(this.epub.epubProgress.cfi)
+              : this.rendition.display();
 
             this.themesMap.forEach((theme, name) => {
               this.rendition.themes.register(name, theme);
@@ -169,9 +187,11 @@ export class EpubViewerComponent implements OnInit, OnDestroy {
             this.rendition.themes.fontSize(`${this.fontSize}%`);
             this.rendition.themes.font(this.selectedFontType);
 
-            this.setupKeyListener();
-            this.trackProgress();
-            this.isLoading = false;
+            displayPromise.then(() => {
+              this.setupKeyListener();
+              this.trackProgress();
+              this.isLoading = false;
+            });
           };
 
           fileReader.readAsArrayBuffer(epubData);
@@ -204,7 +224,6 @@ export class EpubViewerComponent implements OnInit, OnDestroy {
     this.rendition.themes.fontSize(`${this.fontSize}%`);
 
     this.setupKeyListener();
-    this.trackProgress();
     this.rendition.display(cfi || undefined);
     this.updateViewerSetting();
   }
@@ -300,22 +319,36 @@ export class EpubViewerComponent implements OnInit, OnDestroy {
   }
 
   private trackProgress(): void {
-    if (this.rendition) {
-      this.rendition.on('relocated', (location: any) => {
-        const currentChapter = getChapter(this.book, location);
-        this.currentChapter = currentChapter?.label;
-        this.bookService.saveEpubProgress(this.epub.id, location.start.cfi).subscribe();
-      });
-    }
+    if (!this.book || !this.rendition) return;
+    this.rendition.on('relocated', (location: any) => {
+      const cfi = location.start.cfi;
+      const currentIndex = location.start.index;
+      const totalSpineItems = this.book.spine.items.length;
+      let percentage: number;
+      if (this.locationsReady) {
+        percentage = this.book.locations.percentageFromCfi(cfi);
+        this.exactProgress = Math.round(percentage * 1000) / 10;
+      } else {
+        if (totalSpineItems > 0) {
+          percentage = currentIndex / totalSpineItems;
+        } else {
+          percentage = 0;
+        }
+        this.approxProgress = Math.round(percentage * 1000) / 10;
+      }
+      this.currentChapter = getChapter(this.book, location)?.label;
+      this.bookService.saveEpubProgress(this.epub.id, cfi, Math.round(percentage * 1000) / 10).subscribe();
+    });
+    this.book.ready.then(() => this.book.locations.generate(10000)).then(() => {
+      this.locationsReady = true;
+    });
   }
-
 
   ngOnDestroy(): void {
     if (this.rendition) {
       this.rendition.off('keyup', this.keyListener);
     }
     document.removeEventListener('keyup', this.keyListener);
-    this.trackProgress();
   }
 
   themesMap = new Map<string, any>([

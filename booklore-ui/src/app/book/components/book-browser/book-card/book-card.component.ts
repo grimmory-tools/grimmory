@@ -19,12 +19,13 @@ import {EmailService} from '../../../../settings/email/email.service';
 import {TieredMenu} from 'primeng/tieredmenu';
 import {BookSenderComponent} from '../../book-sender/book-sender.component';
 import {Router} from '@angular/router';
+import {ProgressBar} from 'primeng/progressbar';
 
 @Component({
   selector: 'app-book-card',
   templateUrl: './book-card.component.html',
   styleUrls: ['./book-card.component.scss'],
-  imports: [Button, MenuModule, CheckboxModule, FormsModule, NgIf, NgClass, TieredMenu],
+  imports: [Button, MenuModule, CheckboxModule, FormsModule, NgIf, NgClass, TieredMenu, ProgressBar],
   standalone: true
 })
 export class BookCardComponent implements OnInit {
@@ -57,6 +58,16 @@ export class BookCardComponent implements OnInit {
         this.userPermissions = userData.permissions;
         this.initMenu();
       });
+  }
+
+  get progressPercentage(): number | null {
+    if (this.book.epubProgress?.percentage != null) {
+      return this.book.epubProgress.percentage;
+    }
+    if (this.book.pdfProgress?.percentage != null) {
+      return this.book.pdfProgress.percentage;
+    }
+    return null;
   }
 
   onImageLoad(): void {

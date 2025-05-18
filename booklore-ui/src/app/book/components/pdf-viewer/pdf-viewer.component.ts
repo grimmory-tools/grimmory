@@ -17,6 +17,7 @@ import {MessageService} from 'primeng/api';
 })
 export class PdfViewerComponent implements OnInit, OnDestroy {
   isLoading = true;
+  totalPages: number = 0;
 
   handTool = true;
   rotation: 0 | 90 | 180 | 270 = 0;
@@ -59,7 +60,7 @@ export class PdfViewerComponent implements OnInit, OnDestroy {
             this.zoom = pdfPrefs.pdfSettings?.zoom || myself.userSettings.pdfReaderSetting.pageZoom || 'page-fit';
             this.spread = pdfPrefs.pdfSettings?.spread || myself.userSettings.pdfReaderSetting.pageSpread || 'odd';
           }
-          this.page = pdfMeta.pdfProgress || 1;
+          this.page = pdfMeta.pdfProgress?.page || 1;
           this.bookData = pdfData;
           this.isLoading = false;
         },
@@ -102,8 +103,17 @@ export class PdfViewerComponent implements OnInit, OnDestroy {
     this.bookService.updateViewerSetting(bookSetting, this.bookId).subscribe();
   }
 
-  updateProgress() {
-    this.bookService.savePdfProgress(this.bookId, this.page).subscribe();
+  updateProgress(): void {
+    const percentage = this.totalPages > 0
+      ? Math.round((this.page / this.totalPages) * 1000) / 10
+      : 0;
+
+    this.bookService.savePdfProgress(this.bookId, this.page, percentage).subscribe();
+  }
+
+  onPdfPagesLoaded(event: any): void {
+    this.totalPages = event.pagesCount;
+    console.log('Total pages loaded:', this.totalPages);
   }
 
   ngOnDestroy(): void {

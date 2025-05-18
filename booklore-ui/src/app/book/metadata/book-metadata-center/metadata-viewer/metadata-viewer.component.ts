@@ -22,13 +22,14 @@ import {InfiniteScrollDirective} from 'ngx-infinite-scroll';
 import {BookCardComponent} from '../../../components/book-browser/book-card/book-card.component';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Editor} from 'primeng/editor';
+import {ProgressBar} from 'primeng/progressbar';
 
 @Component({
   selector: 'app-metadata-viewer',
   standalone: true,
   templateUrl: './metadata-viewer.component.html',
   styleUrl: './metadata-viewer.component.scss',
-  imports: [Button, NgForOf, NgIf, AsyncPipe, Rating, FormsModule, Tag, Divider, SplitButton, NgClass, Tooltip, DecimalPipe, InfiniteScrollDirective, BookCardComponent, ButtonDirective, Editor]
+  imports: [Button, NgForOf, NgIf, AsyncPipe, Rating, FormsModule, Tag, Divider, SplitButton, NgClass, Tooltip, DecimalPipe, InfiniteScrollDirective, BookCardComponent, ButtonDirective, Editor, ProgressBar]
 })
 export class MetadataViewerComponent implements OnInit {
 
@@ -162,6 +163,14 @@ export class MetadataViewerComponent implements OnInit {
       return `${sizeMb.toFixed(2)} MB`;
     }
     return '-';
+  }
+
+  getProgressPercent(): number | undefined {
+    if (this.book?.bookType === 'PDF') {
+      return this.book.pdfProgress?.percentage;
+    } else {
+      return this.book?.epubProgress?.percentage;
+    }
   }
 
   getStarColor(rating?: number | null): string {

@@ -18,29 +18,35 @@
       <p>{{ currentChapter }}</p>
 
       <div>
-        <p-button size="small" class="settings-toggle-button" (click)="toggleSettingsDrawer()" icon="pi pi-cog" severity="secondary"></p-button>
-        <p-drawer [(visible)]="isSettingsDrawerVisible" [modal]="false" [position]="'right'" header="Settings">
-          <div class="flex flex-col">
-            <div class="settings-content">
-              <p>Font Size: {{ fontSize }}%</p>
-              <div class="flex flex-row gap-4">
-                <p-button icon="pi pi-minus" (click)="decreaseFontSize()" severity="info"></p-button>
-                <p-button icon="pi pi-plus" (click)="increaseFontSize()" severity="info"></p-button>
-              </div>
-              <p-divider></p-divider>
-              <label for="font-type">Font Type:</label>
-              <p-select id="font-type" [options]="fontTypes" [(ngModel)]="selectedFontType" (onChange)="changeFontType()"></p-select>
-              <p-divider></p-divider>
-              <label for="theme">Theme:</label>
-              <p-select id="theme" [options]="themes" [(ngModel)]="selectedTheme" (onChange)="changeThemes()"></p-select>
-              <p-divider></p-divider>
-              <label for="flow">Flow:</label>
-              <p-select id="flow" [options]="flows" [(ngModel)]="selectedFlow" (onChange)="changeScrollMode()"></p-select>
-            </div>
+        <div class="flex gap-4">
+          <div *ngIf="!locationsReady" class="location-indicator" pTooltip="Saving progress not ready yet">
+            <span class="dot"></span>
           </div>
-        </p-drawer>
+          <div>
+            <p-button size="small" class="settings-toggle-button" (click)="toggleSettingsDrawer()" icon="pi pi-cog" severity="secondary"></p-button>
+            <p-drawer [(visible)]="isSettingsDrawerVisible" [modal]="false" [position]="'right'" header="Settings">
+              <div class="flex flex-col">
+                <div class="settings-content">
+                  <p>Font Size: {{ fontSize }}%</p>
+                  <div class="flex flex-row gap-4">
+                    <p-button icon="pi pi-minus" (click)="decreaseFontSize()" severity="info"></p-button>
+                    <p-button icon="pi pi-plus" (click)="increaseFontSize()" severity="info"></p-button>
+                  </div>
+                  <p-divider></p-divider>
+                  <label for="font-type">Font Type:</label>
+                  <p-select id="font-type" [options]="fontTypes" [(ngModel)]="selectedFontType" (onChange)="changeFontType()"></p-select>
+                  <p-divider></p-divider>
+                  <label for="theme">Theme:</label>
+                  <p-select id="theme" [options]="themes" [(ngModel)]="selectedTheme" (onChange)="changeThemes()"></p-select>
+                  <p-divider></p-divider>
+                  <label for="flow">Flow:</label>
+                  <p-select id="flow" [options]="flows" [(ngModel)]="selectedFlow" (onChange)="changeScrollMode()"></p-select>
+                </div>
+              </div>
+            </p-drawer>
+          </div>
+        </div>
       </div>
-
     </div>
 
     <div id="epubContainer" #epubContainer></div>

@@ -185,12 +185,26 @@ export class BookService {
     window.URL.revokeObjectURL(url);
   }
 
-  savePdfProgress(bookId: number, progress: number): Observable<void> {
-    return this.http.post<void>(`${this.url}/progress`, {bookId: bookId, pdfProgress: progress});
+  savePdfProgress(bookId: number, page: number, percentage: number): Observable<void> {
+    const body = {
+      bookId: bookId,
+      pdfProgress: {
+        page: page,
+        percentage: percentage
+      }
+    }
+    return this.http.post<void>(`${this.url}/progress`, body);
   }
 
-  saveEpubProgress(bookId: number, progress: string): Observable<void> {
-    return this.http.post<void>(`${this.url}/progress`, {bookId: bookId, epubProgress: progress});
+  saveEpubProgress(bookId: number, cfi: string, percentage: number): Observable<void> {
+    const body = {
+      bookId: bookId,
+      epubProgress: {
+        cfi: cfi,
+        percentage: percentage
+      }
+    };
+    return this.http.post<void>(`${this.url}/progress`, body);
   }
 
   regenerateCovers(): Observable<void> {
@@ -276,7 +290,7 @@ export class BookService {
 
   getBookRecommendations(bookId: number, limit: number = 20): Observable<BookRecommendation[]> {
     return this.http.get<BookRecommendation[]>(`${this.url}/${bookId}/recommendations`, {
-      params: { limit: limit.toString() }
+      params: {limit: limit.toString()}
     });
   }
 

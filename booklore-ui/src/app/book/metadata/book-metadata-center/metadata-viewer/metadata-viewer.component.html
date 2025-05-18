@@ -1,11 +1,22 @@
 <div class="pt-2 flex flex-col h-full overflow-hidden">
   <div *ngIf="metadata$ | async as metadata">
     <div class="flex flex-row">
-      <img [attr.src]="urlHelper.getCoverUrl(metadata.bookId, metadata?.coverUpdatedOn)"
-           class="book-cover placeholder"
-           alt="Cover of {{ metadata.title }}"
-           loading="lazy"
-           width="225"/>
+      <div class="cover-wrapper relative">
+        <img
+          [attr.src]="urlHelper.getCoverUrl(metadata.bookId, metadata?.coverUpdatedOn)"
+          class="book-cover placeholder"
+          alt="Cover of {{ metadata.title }}"
+          loading="lazy"
+          width="225"/>
+
+        <p-progressBar
+          *ngIf="getProgressPercent() !== null"
+          [value]="getProgressPercent()"
+          [showValue]="true"
+          [ngClass]="{ 'progress-complete': getProgressPercent() === 100, 'progress-incomplete': getProgressPercent()! < 100 }"
+          [style]="{ height: '10px' }">
+        </p-progressBar>
+      </div>
 
       <div class="flex flex-col justify-between">
         <div class="pl-6 flex flex-col w-full">
@@ -75,6 +86,7 @@
             <p class="whitespace-nowrap"><span class="font-bold">ISBN 13:</span> {{ metadata.isbn13 || '-' }}</p>
             <p class="whitespace-nowrap"><span class="font-bold">Page Count:</span> {{ metadata.pageCount || '-' }}</p>
             <p class="whitespace-nowrap"><span class="font-bold">File Size:</span> {{ getFileSizeInMB() }}</p>
+            <p class="whitespace-nowrap"><span class="font-bold">Progress:</span> {{ getProgressPercent() !== null ? getProgressPercent() + '%' : '-' }}</p>
           </div>
 
           <p class="pt-2"><span class="font-bold">File Path:</span> {{ book?.filePath }}</p>
@@ -95,7 +107,7 @@
   <div *ngIf="metadata$ | async as metadata" class="flex-1 overflow-auto space-y-2 px-2">
     <div [ngClass]="{ 'line-clamp-5': !isExpanded, 'line-clamp-none': isExpanded }" class="transition-all duration-300 overflow-hidden description-container">
       <div class="readonly-editor px-2">
-        <p-editor #quillEditor [readonly]="true" [style]="{height: '260px'}" [(ngModel)]="metadata.description">
+        <p-editor #quillEditor [readonly]="true" [style]="{height: '250px'}" [(ngModel)]="metadata.description">
           <ng-template #header>
           </ng-template>
         </p-editor>

@@ -1,5 +1,7 @@
 package com.adityachandel.booklore.model.dto.request;
 
+import com.adityachandel.booklore.model.dto.EpubProgress;
+import com.adityachandel.booklore.model.dto.PdfProgress;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -8,8 +10,8 @@ import lombok.Data;
 public class ReadProgressRequest {
     @NotNull
     private Long bookId;
-    private String epubProgress;
-    private Integer pdfProgress;
+    private EpubProgress epubProgress;
+    private PdfProgress pdfProgress;
 
     @AssertTrue(message = "Either epubProgress or pdfProgress must be provided")
     public boolean isProgressValid() {

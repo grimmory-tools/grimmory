@@ -1,6 +1,6 @@
 .book-card {
   background-color: var(--card-background);
-  border-radius: 8px;
+  border-radius: 0 0 8px 8px;
   position: relative;
   overflow: hidden;
   transition: border 0.2s;
@@ -13,7 +13,6 @@
 .cover-container {
   position: relative;
   width: 100%;
-  border-radius: 8px;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -39,7 +38,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: 8px 8px 0 0;
   transition: opacity 0.3s ease-in;
   opacity: 0;
 }
@@ -125,4 +124,26 @@
 .book-card.selected .select-checkbox {
   opacity: 1;
   visibility: visible;
+}
+
+.cover-progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 1;
+  opacity: 0.8;
+}
+
+::ng-deep .progress-incomplete .p-progressbar-value {
+  background-color: #3b82f6;
+}
+
+::ng-deep .progress-complete .p-progressbar-value {
+  background-color: #22c55e;
+}
+
+::ng-deep p-progressbar {
+  --p-progressbar-border-radius: 0 !important;
 }

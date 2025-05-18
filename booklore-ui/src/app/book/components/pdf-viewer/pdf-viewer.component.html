@@ -13,6 +13,7 @@
   [zoom]="zoom"
   [spread]="spread"
   [showBookModeButton]="false"
+  (pagesLoaded)="onPdfPagesLoaded($event)"
   (pageChange)="onPageChange($event)"
   (zoomChange)="onZoomChange($event)"
   (spreadChange)="onSpreadChange($event)">

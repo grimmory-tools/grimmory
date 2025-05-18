@@ -124,8 +124,19 @@ public class BooksService {
 
         Book book = bookMapper.toBook(bookEntity);
         book.setLastReadTime(userProgress.getLastReadTime());
-        book.setPdfProgress(userProgress.getPdfProgress());
-        book.setEpubProgress(userProgress.getEpubProgress());
+
+        if (bookEntity.getBookType() == BookFileType.PDF) {
+            book.setPdfProgress(PdfProgress.builder()
+                    .page(userProgress.getPdfProgress())
+                    .percentage(userProgress.getPdfProgressPercent())
+                    .build());
+        }
+        if (bookEntity.getBookType() == BookFileType.EPUB) {
+            book.setEpubProgress(EpubProgress.builder()
+                    .cfi(userProgress.getEpubProgress())
+                    .percentage(userProgress.getEpubProgressPercent())
+                    .build());
+        }
         book.setFilePath(FileUtils.getBookFullPath(bookEntity));
 
         if (!withDescription) {
@@ -157,8 +168,18 @@ public class BooksService {
                             .orElse(new UserBookProgressEntity());
                     Book book = bookMapper.toBookWithDescription(bookEntity, withDescription);
                     book.setLastReadTime(userProgress.getLastReadTime());
-                    book.setPdfProgress(userProgress.getPdfProgress());
-                    book.setEpubProgress(userProgress.getEpubProgress());
+                    if (bookEntity.getBookType() == BookFileType.EPUB) {
+                        book.setEpubProgress(EpubProgress.builder()
+                                .cfi(userProgress.getEpubProgress())
+                                .percentage(userProgress.getEpubProgressPercent())
+                                .build());
+                    }
+                    if (bookEntity.getBookType() == BookFileType.PDF) {
+                        book.setPdfProgress(PdfProgress.builder()
+                                .page(userProgress.getPdfProgress())
+                                .percentage(userProgress.getPdfProgressPercent())
+                                .build());
+                    }
                     book.setFilePath(FileUtils.getBookFullPath(bookEntity));
                     return book;
                 })
@@ -210,9 +231,11 @@ public class BooksService {
         userBookProgress.setBook(book);
         userBookProgress.setLastReadTime(Instant.now());
         if (book.getBookType() == BookFileType.EPUB && request.getEpubProgress() != null) {
-            userBookProgress.setEpubProgress(request.getEpubProgress());
+            userBookProgress.setEpubProgress(request.getEpubProgress().getCfi());
+            userBookProgress.setEpubProgressPercent(request.getEpubProgress().getPercentage());
         } else if (book.getBookType() == BookFileType.PDF && request.getPdfProgress() != null) {
-            userBookProgress.setPdfProgress(request.getPdfProgress());
+            userBookProgress.setPdfProgress(request.getPdfProgress().getPage());
+            userBookProgress.setPdfProgressPercent(request.getPdfProgress().getPercentage());
         }
         userBookProgressRepository.save(userBookProgress);
     }

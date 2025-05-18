@@ -110,3 +110,17 @@
   width: 100%;
   margin-top: 5px;
 }
+
+.location-indicator {
+  display: flex;
+  align-items: center;
+  margin-left: 0.5rem;
+  .dot {
+    height: 10px;
+    width: 10px;
+    background-color: red;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 4px #bbb;
+  }
+}

@@ -10,10 +10,20 @@ export interface Book {
   shelves?: Shelf[];
   lastReadTime?: string;
   addedOn?: string;
-  epubProgress?: string;
-  pdfProgress?: number;
+  epubProgress?: EpubProgress;
+  pdfProgress?: PdfProgress;
   filePath?: string;
   fileSizeKb?: number;
+}
+
+export interface EpubProgress {
+  cfi: string;
+  percentage: number;
+}
+
+export interface PdfProgress {
+  page: number;
+  percentage: number;
 }
 
 export interface BookMetadata {
