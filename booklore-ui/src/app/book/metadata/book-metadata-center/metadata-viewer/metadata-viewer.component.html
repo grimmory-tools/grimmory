@@ -83,8 +83,8 @@
         <div *ngIf="userService.userData$ | async as userData" class="pl-6 pt-4 flex flex-row w-full gap-4">
           <p-button label="Read" icon="pi pi-book" severity="info" (onClick)="read(metadata.bookId)"></p-button>
           <p-button label="Assign Shelf" icon="pi pi-folder" severity="info" outlined (onClick)="assignShelf(metadata.bookId)"></p-button>
-          <p-button *ngIf="userData.permissions.canDownload" label="Download" icon="pi pi-download" severity="info" outlined (onClick)="download(metadata.bookId)"></p-button>
-          <p-splitbutton *ngIf="userData.permissions.canEmailBook" label="Quick Send" icon="pi pi-send" [model]="items" (onClick)="quickSend(metadata.bookId)" outlined severity="info"/>
+          <p-button *ngIf="userData.permissions.canDownload || userData.permissions.admin" label="Download" icon="pi pi-download" severity="info" outlined (onClick)="download(metadata.bookId)"></p-button>
+          <p-splitbutton *ngIf="userData.permissions.canEmailBook || userData.permissions.admin" label="Quick Send" icon="pi pi-send" [model]="items" (onClick)="quickSend(metadata.bookId)" outlined severity="info"/>
         </div>
       </div>
     </div>

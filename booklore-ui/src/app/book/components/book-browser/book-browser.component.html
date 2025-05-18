@@ -13,7 +13,7 @@
             Unshelved Books
           </p>
           <div *ngIf="userService.userData$ | async as userData">
-            <div *ngIf="entityType !== EntityType.ALL_BOOKS && entityType !== EntityType.UNSHELVED && userData.permissions.canManipulateLibrary">
+            <div *ngIf="entityType !== EntityType.ALL_BOOKS && entityType !== EntityType.UNSHELVED && (userData.permissions.admin || userData.permissions.canManipulateLibrary) ">
               <p-button icon="pi pi-ellipsis-v" [rounded]="true" [text]="true" severity="info" (click)="entitymenu.toggle($event)"></p-button>
               <p-menu #entitymenu [model]="entityOptions" [popup]="true" appendTo="body"></p-menu>
             </div>

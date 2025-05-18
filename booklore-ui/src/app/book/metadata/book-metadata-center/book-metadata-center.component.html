@@ -2,17 +2,17 @@
   <p-tabs [value]="tab" lazy="true">
     <p-tablist>
       <p-tab value="view">Book Details</p-tab>
-      <p-tab *ngIf="canEditMetadata" value="edit">Edit Metadata</p-tab>
-      <p-tab *ngIf="canEditMetadata" value="match">Search Metadata</p-tab>
+      <p-tab *ngIf="admin || canEditMetadata" value="edit">Edit Metadata</p-tab>
+      <p-tab *ngIf="admin || canEditMetadata" value="match">Search Metadata</p-tab>
     </p-tablist>
     <p-tabpanels class="h-[calc(100vh-10rem)]">
       <p-tabpanel value="view">
         <app-metadata-viewer [book]="book" [recommendedBooks]="recommendedBooks"></app-metadata-viewer>
       </p-tabpanel>
-      <p-tabpanel *ngIf="canEditMetadata" value="edit">
+      <p-tabpanel *ngIf="admin || canEditMetadata" value="edit">
         <app-metadata-editor></app-metadata-editor>
       </p-tabpanel>
-      <p-tabpanel *ngIf="canEditMetadata" value="match">
+      <p-tabpanel *ngIf="admin || canEditMetadata" value="match">
         <app-metadata-searcher></app-metadata-searcher>
       </p-tabpanel>
     </p-tabpanels>

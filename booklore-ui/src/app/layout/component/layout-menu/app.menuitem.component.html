@@ -30,7 +30,7 @@
     <span *ngIf="(item.routerLink && !item.items) && item.visible !== false">
   <ng-container *ngIf="item.type === 'Library' || item.type === 'Shelf'">
     <p-button
-      *ngIf="(item.type !== 'Library' || canManipulateLibrary) && item.label !== 'Unshelved'"
+      *ngIf="(item.type !== 'Library' || (admin || canManipulateLibrary)) && item.label !== 'Unshelved'"
       (click)="entitymenu.toggle($event)"
       (mouseover)="hovered = true"
       (mouseleave)="hovered = false"
@@ -46,7 +46,7 @@
     <p-menu #entitymenu [model]="item.menu" [popup]="true" appendTo="body"></p-menu>
   </ng-container>
 
-  <ng-container *ngIf="item.type === 'Library' && !canManipulateLibrary || item.type === 'All Books' || item.label === 'Unshelved'">
+  <ng-container *ngIf="item.type === 'Library' && (!admin && !canManipulateLibrary) || item.type === 'All Books' || item.label === 'Unshelved'">
     <p class="text-[var(--primary-color)] pr-1">
       {{ (item.bookCount$ | async)?.toString() || '0' }}
     </p>

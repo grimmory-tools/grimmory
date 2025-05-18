@@ -13,9 +13,11 @@ public class UserUpdateRequest {
 
     @Data
     public static class Permissions {
+        private boolean isAdmin;
         private boolean canUpload;
         private boolean canDownload;
         private boolean canEditMetadata;
+        private boolean canManipulateLibrary;
         private boolean canEmailBook;
     }
 }

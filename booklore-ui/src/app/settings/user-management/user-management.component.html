@@ -15,12 +15,13 @@
         <th>Full Name</th>
         <th>Email</th>
         <th>Assigned Libraries</th>
-        <th style="width: 80px;">Is Admin</th>
-        <th style="width: 80px;">Can Upload</th>
-        <th style="width: 80px;">Can Download</th>
-        <th style="width: 80px;">Can Edit Metadata</th>
-        <th style="width: 80px;">Can Email Books</th>
-        <th style="width: 100px;">Edit</th>
+        <th style="width: 60px;">Admin</th>
+        <th style="width: 60px;">Upload</th>
+        <th style="width: 60px;">Download</th>
+        <th style="width: 80px;">Edit Metadata</th>
+        <th style="width: 80px;">Manage Library</th>
+        <th style="width: 80px;">Email Books</th>
+        <th style="width: 120px;">Edit</th>
         <th style="width: 80px;">Change Password</th>
         <th style="width: 80px;">Delete</th>
       </tr>
@@ -69,6 +70,10 @@
         <td class="text-center">
           <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canEditMetadata" *ngIf="user.isEditing"></p-checkbox>
           <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canEditMetadata" disabled *ngIf="!user.isEditing"></p-checkbox>
+        </td>
+        <td class="text-center">
+          <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canManipulateLibrary" *ngIf="user.isEditing"></p-checkbox>
+          <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canManipulateLibrary" disabled *ngIf="!user.isEditing"></p-checkbox>
         </td>
         <td class="text-center">
           <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canEmailBook" *ngIf="user.isEditing"></p-checkbox>

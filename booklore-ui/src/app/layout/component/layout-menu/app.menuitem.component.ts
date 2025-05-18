@@ -49,6 +49,7 @@ export class AppMenuitemComponent implements OnInit, OnDestroy {
   key: string = "";
 
   canManipulateLibrary: boolean = false;
+  admin: boolean = false;
 
   menuSourceSubscription: Subscription;
   menuResetSubscription: Subscription;
@@ -57,6 +58,7 @@ export class AppMenuitemComponent implements OnInit, OnDestroy {
     this.userService.userData$.subscribe(userData => {
       if (userData) {
         this.canManipulateLibrary = userData.permissions.canManipulateLibrary;
+        this.admin = userData.permissions.admin;
       }
     });
     this.menuSourceSubscription = this.menuService.menuSource$.subscribe(value => {

@@ -42,6 +42,7 @@ export class BookMetadataCenterComponent implements OnInit, OnDestroy {
   recommendedBooks: BookRecommendation[] = [];
   tab: string = 'view';
   canEditMetadata: boolean = false;
+  admin: boolean = false;
 
   private userSubscription: Subscription = Subscription.EMPTY;
   private routeSubscription: Subscription = Subscription.EMPTY;
@@ -79,6 +80,7 @@ export class BookMetadataCenterComponent implements OnInit, OnDestroy {
     this.userSubscription = this.userService.userData$.subscribe(userData => {
       const userPermissions = userData?.permissions;
       this.canEditMetadata = userPermissions?.canEditMetadata ?? false;
+      this.admin = userPermissions?.admin ?? false;
     });
   }
 
