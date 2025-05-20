@@ -113,18 +113,17 @@ While the integration has been tested with **Authentik**, it should work with ot
 For detailed instructions on setting up OIDC authentication with **Authentik**, refer to the [YouTube guide on configuring OIDC in BookLore](https://www.youtube.com/watch?v=r6Ufh9ldF9M), which provides step-by-step walkthroughs.
 
 
-## 🔧 Configuration
+## 🔐 Remote Authentication (Trusted Header SSO, Forward Auth)
 
-The following environment variables can be configured:
+If you run BookLore behind a reverse proxy with remote authentication (middleware),
+you can enable automatic login by setting `REMOTE_AUTH_ENABLED` to `true`.
+
+This allows you to use your existing authentication system (e.g., OAuth, SAML) to log in to BookLore.
+
+The following remote auth environment variables can be configured:
 
 | Variable Name                | Description                             | Default Value                                                       |
 |------------------------------|-----------------------------------------|---------------------------------------------------------------------|
-| DATABASE_URL                 | JDBC connection URL                     | `jdbc:mariadb://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}` |
-| DATABASE_HOST                | Database hostname                       | `mariadb`                                                           |
-| DATABASE_PORT                | Database port                           | `3306`                                                              |
-| DATABASE_NAME                | Database name                           | `booklore`                                                          |
-| DATABASE_USERNAME            | Database username for app               | `root`                                                              |
-| DATABASE_PASSWORD            | Database password for app               | **required**                                                        |
 | REMOTE_AUTH_ENABLED          | Enable remote authentication            | `false`                                                             |
 | REMOTE_AUTH_CREATE_NEW_USERS | Auto-create users from remote auth      | `true`                                                              |
 | REMOTE_AUTH_HEADER_NAME      | HTTP header containing user's name      | `Remote-Name`                                                       |
@@ -132,15 +131,6 @@ The following environment variables can be configured:
 | REMOTE_AUTH_HEADER_EMAIL     | HTTP header containing user's email     | `Remote-Email`                                                      |
 | REMOTE_AUTH_HEADER_GROUPS    | HTTP header containing user's groups    | `Remote-Groups`                                                     |
 | REMOTE_AUTH_ADMIN_GROUP      | Group name that grants admin privileges | -                                                                   |
-| LOG_LEVEL                    | Log level for the application           | `INFO`                                                              |
-| ROOT_LOG_LEVEL               | If you want to see all Spring logs      | `INFO`                                                              |
-
-### Remote Authentication (Trusted Header SSO, Forward Auth)
-
-If you run BookLore behind a reverse proxy with remote authentication (middleware),
-you can enable automatic login by setting `REMOTE_AUTH_ENABLED` to `true`.
-
-This allows you to use your existing authentication system (e.g., OAuth, SAML) to log in to BookLore.
 
 Example implementations:
 - https://www.authelia.com/integration/trusted-header-sso/introduction/

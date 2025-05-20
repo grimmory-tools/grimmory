@@ -41,7 +41,7 @@ export class BookSenderComponent implements OnInit {
     this.emailProviderService.getEmailProviders().subscribe({
       next: (emailProviders: EmailProvider[]) => {
         this.emailProviders = emailProviders.map(provider => ({
-          label: `${provider.name} | ${provider.host}`,
+          label: `${provider.name} | ${provider.fromAddress || provider.host}`,
           value: provider
         }));
       }

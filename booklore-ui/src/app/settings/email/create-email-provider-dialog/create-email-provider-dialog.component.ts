@@ -35,6 +35,7 @@ export class CreateEmailProviderDialogComponent implements OnInit {
       port: [null, [Validators.required, Validators.min(1)]],
       username: [''],
       password: [''],
+      fromAddress: ['', [Validators.email]],
       auth: [false],
       startTls: [false]
     });

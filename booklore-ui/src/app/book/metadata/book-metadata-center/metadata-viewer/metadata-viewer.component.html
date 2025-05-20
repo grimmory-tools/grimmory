@@ -42,6 +42,7 @@
             <ng-container *ngIf="metadata.amazonRating || metadata.goodreadsRating; else legacyRating">
               <p *ngIf="metadata.amazonRating" class="font-semibold">Amazon: {{ metadata.amazonRating }}</p>
               <p-rating
+                *ngIf="metadata.amazonRating"
                 [(ngModel)]="metadata.amazonRating"
                 readonly
                 stars="5"
@@ -53,6 +54,7 @@
 
               <p *ngIf="metadata.goodreadsRating" class="font-semibold">Goodreads: {{ metadata.goodreadsRating }}</p>
               <p-rating
+                *ngIf="metadata.goodreadsRating"
                 [(ngModel)]="metadata.goodreadsRating"
                 readonly
                 stars="5"

@@ -31,6 +31,9 @@ public class EmailProviderEntity {
     @Column(name = "password", nullable = false)
     private String password;
 
+    @Column(name = "from_address")
+    private String fromAddress;
+
     @Column(name = "auth", nullable = false)
     private boolean auth;
 

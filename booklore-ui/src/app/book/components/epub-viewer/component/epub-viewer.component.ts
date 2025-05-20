@@ -321,7 +321,7 @@ export class EpubViewerComponent implements OnInit, OnDestroy {
   private trackProgress(): void {
     if (!this.book || !this.rendition) return;
     this.rendition.on('relocated', (location: any) => {
-      const cfi = location.start.cfi;
+      const cfi = location.end.cfi;
       const currentIndex = location.start.index;
       const totalSpineItems = this.book.spine.items.length;
       let percentage: number;

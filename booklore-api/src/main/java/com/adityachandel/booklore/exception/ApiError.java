@@ -33,7 +33,7 @@ public enum ApiError {
     USERNAME_ALREADY_TAKEN(HttpStatus.BAD_REQUEST, "Username already taken: %s"),
     USER_NOT_FOUND(HttpStatus.BAD_REQUEST, "User not found: %s"),
     CANNOT_DELETE_ADMIN(HttpStatus.FORBIDDEN, "Admin user cannot be deleted"),
-    UNAUTHORIZED(HttpStatus.FORBIDDEN, "%s"),
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "%s"),
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "%s"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "%s"),
     PASSWORD_INCORRECT(HttpStatus.BAD_REQUEST, "Incorrect current password"),

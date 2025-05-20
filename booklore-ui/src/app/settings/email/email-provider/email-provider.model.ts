@@ -6,6 +6,7 @@ export interface EmailProvider {
   port: number;
   username: string;
   password: string;
+  fromAddress: string;
   auth: boolean;
   startTls: boolean;
   defaultProvider: boolean;

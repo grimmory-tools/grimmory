@@ -60,6 +60,14 @@ public class DualJwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         String token = extractToken(request);
+
+        String path = request.getRequestURI();
+
+        if (path.equals("/api/v1/auth/refresh")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         if (token == null) {
             chain.doFilter(request, response);
             return;
@@ -70,11 +78,14 @@ public class DualJwtAuthenticationFilter extends OncePerRequestFilter {
             } else if (appSettingService.getAppSettings().isOidcEnabled()) {
                 authenticateOidcUser(token, request);
             } else {
-                log.debug("OIDC is disabled. Skipping OIDC authentication.");
+                log.debug("OIDC is disabled and token is invalid. Rejecting request.");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
             }
         } catch (Exception ex) {
             log.error("Authentication error: {}", ex.getMessage(), ex);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
         }
         chain.doFilter(request, response);
     }
