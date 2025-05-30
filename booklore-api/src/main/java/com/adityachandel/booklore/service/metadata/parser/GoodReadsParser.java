@@ -341,10 +341,17 @@ public class GoodReadsParser implements BookParser {
                 String queryAuthor = request.getAuthor();
                 for (Element previewBook : previewBooks) {
                     List<String> authors = extractAuthorsPreview(previewBook);
-                    if (queryAuthor != null && !queryAuthor.isEmpty()) {
-                        boolean matches = authors.stream().anyMatch(author ->
-                            (double) fuzzyScore.fuzzyScore(author, queryAuthor) / Math.max(author.length(), queryAuthor.length()) >= 0.8
-                        );
+                    if (queryAuthor != null && !queryAuthor.isBlank()) {
+                        List<String> queryAuthorTokens = List.of(queryAuthor.toLowerCase().split("\\s+"));
+                        boolean matches = authors.stream().flatMap(a -> Arrays.stream(a.toLowerCase().split("\\s+"))).anyMatch(actual -> {
+                            for (String query : queryAuthorTokens) {
+                                int score = fuzzyScore.fuzzyScore(actual, query);
+                                int maxScore = Math.max(fuzzyScore.fuzzyScore(query, query), fuzzyScore.fuzzyScore(actual, actual));
+                                double similarity = maxScore > 0 ? (double) score / maxScore : 0;
+                                if (similarity >= 0.5) return true;
+                            }
+                            return false;
+                        });
                         if (!matches) {
                             continue;
                         }

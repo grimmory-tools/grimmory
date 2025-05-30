@@ -51,7 +51,13 @@ public class AmazonBookParser implements BookParser {
         }
         List<BookMetadata> fetchedBookMetadata = new ArrayList<>();
         for (String amazonBookId : amazonBookIds) {
-            fetchedBookMetadata.add(getBookMetadata(amazonBookId));
+            BookMetadata metadata = getBookMetadata(amazonBookId);
+            if (metadata.getTitle() == null || metadata.getTitle().isBlank() ||
+                metadata.getAuthors() == null || metadata.getAuthors().isEmpty()) {
+                log.debug("Skipping metadata with missing title or author for ID: {}", amazonBookId);
+                continue;
+            }
+            fetchedBookMetadata.add(metadata);
         }
         return fetchedBookMetadata;
     }
@@ -81,10 +87,26 @@ public class AmazonBookParser implements BookParser {
                         continue;
                     }
                     Element titleDiv = item.selectFirst("div[data-cy=title-recipe]");
-                    if (titleDiv != null) {
-                        String titleText = titleDiv.text();
-                        if (titleText.contains("Books Set")) {
-                            log.debug("Skipping box set item (Books Set in title): {}", extractAmazonBookId(item));
+                    if (titleDiv == null) {
+                        log.debug("Skipping item with missing title div: {}", extractAmazonBookId(item));
+                        continue;
+                    }
+
+                    String titleText = titleDiv.text().trim();
+                    if (titleText.isEmpty()) {
+                        log.debug("Skipping item with empty title: {}", extractAmazonBookId(item));
+                        continue;
+                    }
+
+                    String lowerTitle = titleText.toLowerCase();
+                    if (lowerTitle.contains("books set") || lowerTitle.contains("box set") || lowerTitle.contains("collection set") || lowerTitle.contains("summary & study guide")) {
+                        log.debug("Skipping box set item (matched filtered phrase) in title: {}", extractAmazonBookId(item));
+                        continue;
+                    }
+                    if (request.getAuthor() != null && !request.getAuthor().isBlank()) {
+                        String itemText = item.text().toLowerCase();
+                        if (!itemText.contains(request.getAuthor().toLowerCase())) {
+                            log.debug("Skipping item as author '{}' not found in item text: {}", request.getAuthor(), extractAmazonBookId(item));
                             continue;
                         }
                     }

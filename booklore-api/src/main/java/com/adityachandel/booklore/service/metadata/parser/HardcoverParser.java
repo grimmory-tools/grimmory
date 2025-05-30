@@ -34,13 +34,22 @@ public class HardcoverParser implements BookParser {
         String searchAuthor = fetchMetadataRequest.getAuthor() != null ? fetchMetadataRequest.getAuthor() : "";
 
         return hits.stream()
-            .filter(hit -> {
-                String author = String.join(" ", hit.getDocument().getAuthorNames());
-                int score = fuzzyScore.fuzzyScore(author, searchAuthor);
-                int maxScore = Math.max(fuzzyScore.fuzzyScore(searchAuthor, searchAuthor), fuzzyScore.fuzzyScore(author, author));
-                double similarity = maxScore > 0 ? (double) score / maxScore : 0;
-                return similarity >= 0.8;
-            })
+                .filter(hit -> {
+                    if (searchAuthor.isBlank()) return true;
+                    List<String> actualAuthorTokens = hit.getDocument().getAuthorNames().stream()
+                            .flatMap(name -> List.of(name.toLowerCase().split("\\s+")).stream())
+                            .toList();
+                    List<String> searchAuthorTokens = List.of(searchAuthor.toLowerCase().split("\\s+"));
+                    for (String actual : actualAuthorTokens) {
+                        for (String query : searchAuthorTokens) {
+                            int score = fuzzyScore.fuzzyScore(actual, query);
+                            int maxScore = Math.max(fuzzyScore.fuzzyScore(query, query), fuzzyScore.fuzzyScore(actual, actual));
+                            double similarity = maxScore > 0 ? (double) score / maxScore : 0;
+                            if (similarity >= 0.5) return true;
+                        }
+                    }
+                    return false;
+                })
             .map(hit -> {
                 GraphQLResponse.Document doc = hit.getDocument();
                 BookMetadata metadata = new BookMetadata();
