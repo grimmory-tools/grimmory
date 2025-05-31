@@ -103,13 +103,6 @@ public class AmazonBookParser implements BookParser {
                         log.debug("Skipping box set item (matched filtered phrase) in title: {}", extractAmazonBookId(item));
                         continue;
                     }
-                    if (request.getAuthor() != null && !request.getAuthor().isBlank()) {
-                        String itemText = item.text().toLowerCase();
-                        if (!itemText.contains(request.getAuthor().toLowerCase())) {
-                            log.debug("Skipping item as author '{}' not found in item text: {}", request.getAuthor(), extractAmazonBookId(item));
-                            continue;
-                        }
-                    }
                     bookIds.add(extractAmazonBookId(item));
                 }
             }
@@ -177,11 +170,19 @@ public class AmazonBookParser implements BookParser {
 
         String title = fetchMetadataRequest.getTitle();
         if (title != null && !title.isEmpty()) {
-            searchTerm.append(title.trim());
+            String cleanedTitle = Arrays.stream(title.split(" "))
+                    .map(word -> word.replaceAll("[^a-zA-Z0-9]", "").trim())
+                    .filter(word -> !word.isEmpty())
+                    .collect(Collectors.joining(" "));
+            searchTerm.append(cleanedTitle);
         } else {
             String filename = BookUtils.cleanAndTruncateSearchTerm(BookUtils.cleanFileName(book.getFileName()));
             if (!filename.isEmpty()) {
-                searchTerm.append(filename.trim());
+                String cleanedFilename = Arrays.stream(filename.split(" "))
+                        .map(word -> word.replaceAll("[^a-zA-Z0-9]", "").trim())
+                        .filter(word -> !word.isEmpty())
+                        .collect(Collectors.joining(" "));
+                searchTerm.append(cleanedFilename);
             }
         }
 
@@ -190,7 +191,11 @@ public class AmazonBookParser implements BookParser {
             if (!searchTerm.isEmpty()) {
                 searchTerm.append(" ");
             }
-            searchTerm.append(author.trim());
+            String cleanedAuthor = Arrays.stream(author.split(" "))
+                    .map(word -> word.replaceAll("[^a-zA-Z0-9]", "").trim())
+                    .filter(word -> !word.isEmpty())
+                    .collect(Collectors.joining(" "));
+            searchTerm.append(cleanedAuthor);
         }
 
         if (searchTerm.isEmpty()) {

@@ -370,6 +370,7 @@ public class GoodReadsParser implements BookParser {
                 return Collections.emptyList();
             }
         }
+        log.info("GoodReads: No metadata previews found for title '{}'!", request.getTitle());
         return Collections.emptyList();
     }
 

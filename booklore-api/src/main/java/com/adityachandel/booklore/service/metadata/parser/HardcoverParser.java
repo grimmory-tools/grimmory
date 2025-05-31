@@ -29,6 +29,10 @@ public class HardcoverParser implements BookParser {
         log.info("Hardcover: Fetching metadata for book {}", fetchMetadataRequest.getTitle());
 
         List<GraphQLResponse.Hit> hits = hardcoverBookSearchService.searchBooks(fetchMetadataRequest.getTitle());
+        if (hits == null || hits.isEmpty()) {
+            log.info("Hardcover: No results found for title '{}'", fetchMetadataRequest.getTitle());
+            return List.of();
+        }
 
         FuzzyScore fuzzyScore = new FuzzyScore(Locale.ENGLISH);
         String searchAuthor = fetchMetadataRequest.getAuthor() != null ? fetchMetadataRequest.getAuthor() : "";
