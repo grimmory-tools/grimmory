@@ -26,8 +26,17 @@ public class MetadataRefreshOptions {
     @AllArgsConstructor
     public static class FieldOptions {
         private FieldProvider title;
+        private FieldProvider subtitle;
         private FieldProvider description;
         private FieldProvider authors;
+        private FieldProvider publisher;
+        private FieldProvider publishedDate;
+        private FieldProvider seriesName;
+        private FieldProvider seriesNumber;
+        private FieldProvider seriesTotal;
+        private FieldProvider isbn13;
+        private FieldProvider isbn10;
+        private FieldProvider language;
         private FieldProvider categories;
         private FieldProvider cover;
     }

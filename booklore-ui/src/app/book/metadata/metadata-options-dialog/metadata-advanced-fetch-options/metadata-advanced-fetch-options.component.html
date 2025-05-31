@@ -15,43 +15,43 @@
       <td class="px-4 py-2">
         <p-select [options]="providers" [(ngModel)]="allP3.value"
                   (onChange)="syncProvider($event, 'p3')"
-                  placeholder="Select All"
+                  placeholder="Select All" appendTo="body"
                   class="w-full">
         </p-select>
       </td>
       <td class="px-4 py-2">
         <p-select [options]="providers" [(ngModel)]="allP2.value"
                   (onChange)="syncProvider($event, 'p2')"
-                  placeholder="Select All"
+                  placeholder="Select All" appendTo="body"
                   class="w-full">
         </p-select>
       </td>
       <td class="px-4 py-2">
         <p-select [options]="providers" [(ngModel)]="allP1.value"
                   (onChange)="syncProvider($event, 'p1')"
-                  placeholder="Select All"
+                  placeholder="Select All" appendTo="body"
                   class="w-full">
         </p-select>
       </td>
     </tr>
 
     <tr *ngFor="let field of fields" [hidden]="field === 'cover' && !refreshCovers">
-      <td class="px-4 py-2 text-gray-300">{{ field | titlecase }}</td>
+      <td class="px-4 py-2 text-gray-300">{{formatLabel(field) }}</td>
       <td class="px-4 py-2">
         <p-select [options]="providers" [(ngModel)]="fieldOptions[field].p3"
-                  placeholder="Unset"
+                  placeholder="Unset" appendTo="body"
                   class="w-full">
         </p-select>
       </td>
       <td class="px-4 py-2">
         <p-select [options]="providers" [(ngModel)]="fieldOptions[field].p2"
-                  placeholder="Unset"
+                  placeholder="Unset" appendTo="body"
                   class="w-full">
         </p-select>
       </td>
       <td class="px-4 py-2">
         <p-select [options]="providers" [(ngModel)]="fieldOptions[field].p1"
-                  placeholder="Unset"
+                  placeholder="Unset" appendTo="body"
                   class="w-full">
         </p-select>
       </td>

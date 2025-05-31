@@ -19,4 +19,13 @@ export interface FieldOptions {
   authors: FieldProvider;
   categories: FieldProvider;
   cover: FieldProvider;
+  subtitle: FieldProvider;
+  publisher: FieldProvider;
+  publishedDate: FieldProvider;
+  seriesName: FieldProvider;
+  seriesNumber: FieldProvider;
+  seriesTotal: FieldProvider;
+  isbn13: FieldProvider;
+  isbn10: FieldProvider;
+  language: FieldProvider;
 }
