@@ -625,8 +625,5 @@ export class BookBrowserComponent implements OnInit, AfterViewInit {
         bookIds: Array.from(this.selectedBooks)
       }
     });
-    this.dynamicDialogRef.onClose.subscribe(() => {
-      this.deselectAllBooks();
-    });
   }
 }
