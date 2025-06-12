@@ -11,7 +11,8 @@ public enum UserSettingKey {
     CBX_READER_SETTING("cbxReaderSetting", true),
     SIDEBAR_LIBRARY_SORTING("sidebarLibrarySorting", true),
     SIDEBAR_SHELF_SORTING("sidebarShelfSorting", true),
-    ENTITY_VIEW_PREFERENCES("entityViewPreferences", true);
+    ENTITY_VIEW_PREFERENCES("entityViewPreferences", true),
+    FILTER_SORTING_MODE("filterSortingMode", false);
 
     private final String dbKey;
     private final boolean isJson;

@@ -159,10 +159,6 @@ export class MetadataViewerComponent implements OnInit, OnChanges {
     this.bookService.readBook(bookId!, reader);
   }
 
-  getAuthorNames(authors: string[]): string {
-    return authors.join(', ');
-  }
-
   download(bookId: number) {
     this.bookService.downloadFile(bookId);
   }

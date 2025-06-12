@@ -31,7 +31,7 @@ public class UserSettingEntity {
     @Column(name = "setting_key", nullable = false, length = 100)
     private String settingKey;
 
-    @Column(name = "setting_value", columnDefinition = "json", nullable = false)
+    @Column(name = "setting_value", nullable = false)
     private String settingValue;
 
     @CreationTimestamp

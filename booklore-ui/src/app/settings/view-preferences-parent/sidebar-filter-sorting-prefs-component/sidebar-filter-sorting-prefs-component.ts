@@ -1,32 +1,29 @@
 import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {Select} from 'primeng/select';
 import {Tooltip} from 'primeng/tooltip';
-import {SidebarLibrarySorting, SidebarShelfSorting, User, UserService, UserSettings} from '../../user-management/user.service';
+import {User, UserService, UserSettings} from '../../user-management/user.service';
 import {MessageService} from 'primeng/api';
 import {Observable, Subscription} from 'rxjs';
 import {FormsModule} from '@angular/forms';
 
 @Component({
-  selector: 'app-sidebar-sorting-preferences',
+  selector: 'app-sidebar-filter-sorting-prefs-component',
   imports: [
     Select,
     Tooltip,
     FormsModule
   ],
-  templateUrl: './sidebar-sorting-preferences.component.html',
-  styleUrl: './sidebar-sorting-preferences.component.scss'
+  templateUrl: './sidebar-filter-sorting-prefs-component.html',
+  styleUrl: './sidebar-filter-sorting-prefs-component.scss'
 })
-export class SidebarSortingPreferencesComponent implements OnInit, OnDestroy {
+export class SidebarFilterSortingPrefsComponent implements OnInit, OnDestroy {
 
-  readonly sortingOptions = [
-    {label: 'Name | Ascending', value: {field: 'name', order: 'asc'}},
-    {label: 'Name | Descending', value: {field: 'name', order: 'desc'}},
-    {label: 'Creation Date | Ascending', value: {field: 'id', order: 'asc'}},
-    {label: 'Creation Date | Descending', value: {field: 'id', order: 'desc'}},
+  readonly filterSortingOptions = [
+    {label: 'Alphabetical (A–Z)', value: 'alphabetical'},
+    {label: 'Book Count (High to Low)', value: 'count'}
   ];
 
-  selectedLibrarySorting: SidebarLibrarySorting = {field: 'id', order: 'asc'};
-  selectedShelfSorting: SidebarShelfSorting = {field: 'id', order: 'asc'};
+  selectedFilterSorting: 'alphabetical' | 'count' = 'count';
 
   private readonly userService = inject(UserService);
   private readonly messageService = inject(MessageService);
@@ -49,8 +46,8 @@ export class SidebarSortingPreferencesComponent implements OnInit, OnDestroy {
   }
 
   private loadPreferences(settings: UserSettings): void {
-    this.selectedLibrarySorting = settings.sidebarLibrarySorting;
-    this.selectedShelfSorting = settings.sidebarShelfSorting;
+    console.log(settings.filterSortingMode)
+    this.selectedFilterSorting = settings.filterSortingMode;
   }
 
   private updatePreference(path: string[], value: any): void {
@@ -72,11 +69,7 @@ export class SidebarSortingPreferencesComponent implements OnInit, OnDestroy {
     });
   }
 
-  onLibrarySortingChange() {
-    this.updatePreference(['sidebarLibrarySorting'], this.selectedLibrarySorting);
-  }
-
-  onShelfSortingChange() {
-    this.updatePreference(['sidebarShelfSorting'], this.selectedShelfSorting);
+  onFilterSortingChange(): void {
+    this.updatePreference(['filterSortingMode'], this.selectedFilterSorting);
   }
 }

@@ -1,0 +1,29 @@
+<div class="p-4">
+  <div class="flex items-center gap-2 pb-6 pt-4">
+    <p class="text-lg">Sidebar Filter Sorting:</p>
+    <i class="pi pi-info-circle text-sky-600"
+       pTooltip="This setting controls the order in which filter values (like authors, categories, etc.) appear in the sidebar."
+       tooltipPosition="right"
+       style="cursor: pointer;">
+    </i>
+  </div>
+
+  <div class="grid grid-cols-[auto,1fr] pl-6 gap-y-4 gap-x-4 items-center">
+    <p class="py-1">Sorting Mode:
+      <i class="pi pi-info-circle text-sky-600"
+         pTooltip="You can sort filter options alphabetically (A–Z) or by the number of books that match each filter value. For example, categories with more books can appear at the top."
+         tooltipPosition="right"
+         style="cursor: pointer;">
+      </i>
+    </p>
+    <div class="flex gap-4 justify-start">
+      <p-select
+        size="small"
+        [options]="filterSortingOptions"
+        [(ngModel)]="selectedFilterSorting"
+        (ngModelChange)="onFilterSortingChange()"
+        placeholder="Select Sorting">
+      </p-select>
+    </div>
+  </div>
+</div>

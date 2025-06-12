@@ -42,46 +42,26 @@ public class BookLoreUserTransformer {
 
         for (UserSettingEntity settingEntity : userEntity.getSettings()) {
             String key = settingEntity.getSettingKey();
-            String jsonValue = settingEntity.getSettingValue();
+            String value = settingEntity.getSettingValue();
 
             try {
                 UserSettingKey settingKey = UserSettingKey.fromDbKey(key);
-
-                switch (settingKey) {
-                    case PER_BOOK_SETTING -> {
-                        var value = objectMapper.readValue(jsonValue, BookLoreUser.UserSettings.PerBookSetting.class);
-                        userSettings.setPerBookSetting(value);
+                if (settingKey.isJson()) {
+                    switch (settingKey) {
+                        case PER_BOOK_SETTING -> userSettings.setPerBookSetting(objectMapper.readValue(value, BookLoreUser.UserSettings.PerBookSetting.class));
+                        case PDF_READER_SETTING -> userSettings.setPdfReaderSetting(objectMapper.readValue(value, BookLoreUser.UserSettings.PdfReaderSetting.class));
+                        case EPUB_READER_SETTING -> userSettings.setEpubReaderSetting(objectMapper.readValue(value, BookLoreUser.UserSettings.EpubReaderSetting.class));
+                        case CBX_READER_SETTING -> userSettings.setCbxReaderSetting(objectMapper.readValue(value, BookLoreUser.UserSettings.CbxReaderSetting.class));
+                        case NEW_PDF_READER_SETTING -> userSettings.setNewPdfReaderSetting(objectMapper.readValue(value, BookLoreUser.UserSettings.NewPdfReaderSetting.class));
+                        case SIDEBAR_LIBRARY_SORTING -> userSettings.setSidebarLibrarySorting(objectMapper.readValue(value, SidebarSortOption.class));
+                        case SIDEBAR_SHELF_SORTING -> userSettings.setSidebarShelfSorting(objectMapper.readValue(value, SidebarSortOption.class));
+                        case ENTITY_VIEW_PREFERENCES -> userSettings.setEntityViewPreferences(objectMapper.readValue(value, BookLoreUser.UserSettings.EntityViewPreferences.class));
                     }
-                    case PDF_READER_SETTING -> {
-                        var value = objectMapper.readValue(jsonValue, BookLoreUser.UserSettings.PdfReaderSetting.class);
-                        userSettings.setPdfReaderSetting(value);
-                    }
-                    case EPUB_READER_SETTING -> {
-                        var value = objectMapper.readValue(jsonValue, BookLoreUser.UserSettings.EpubReaderSetting.class);
-                        userSettings.setEpubReaderSetting(value);
-                    }
-                    case CBX_READER_SETTING -> {
-                        var value = objectMapper.readValue(jsonValue, BookLoreUser.UserSettings.CbxReaderSetting.class);
-                        userSettings.setCbxReaderSetting(value);
-                    }
-                    case NEW_PDF_READER_SETTING -> {
-                        var value = objectMapper.readValue(jsonValue, BookLoreUser.UserSettings.NewPdfReaderSetting.class);
-                        userSettings.setNewPdfReaderSetting(value);
-                    }
-                    case SIDEBAR_LIBRARY_SORTING -> {
-                        var value = objectMapper.readValue(jsonValue, SidebarSortOption.class);
-                        userSettings.setSidebarLibrarySorting(value);
-                    }
-                    case SIDEBAR_SHELF_SORTING -> {
-                        var value = objectMapper.readValue(jsonValue, SidebarSortOption.class);
-                        userSettings.setSidebarShelfSorting(value);
-                    }
-                    case ENTITY_VIEW_PREFERENCES -> {
-                        var value = objectMapper.readValue(jsonValue, BookLoreUser.UserSettings.EntityViewPreferences.class);
-                        userSettings.setEntityViewPreferences(value);
+                } else {
+                    if (settingKey == UserSettingKey.FILTER_SORTING_MODE) {
+                        userSettings.setFilterSortingMode(value);
                     }
                 }
-
             } catch (IllegalArgumentException e) {
                 log.warn("Unknown setting key encountered: {}", key);
             } catch (Exception e) {

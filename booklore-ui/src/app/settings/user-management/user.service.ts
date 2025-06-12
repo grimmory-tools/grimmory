@@ -75,6 +75,7 @@ export interface UserSettings {
   newPdfReaderSetting: NewPdfReaderSetting;
   sidebarLibrarySorting: SidebarLibrarySorting;
   sidebarShelfSorting: SidebarShelfSorting;
+  filterSortingMode: 'alphabetical' | 'count';
   entityViewPreferences: EntityViewPreferences;
 }
 

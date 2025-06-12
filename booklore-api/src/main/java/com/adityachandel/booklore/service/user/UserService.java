@@ -8,6 +8,7 @@ import com.adityachandel.booklore.model.dto.request.ChangePasswordRequest;
 import com.adityachandel.booklore.model.dto.request.ChangeUserPasswordRequest;
 import com.adityachandel.booklore.model.dto.request.UpdateUserSettingRequest;
 import com.adityachandel.booklore.model.dto.request.UserUpdateRequest;
+import com.adityachandel.booklore.model.dto.settings.UserSettingKey;
 import com.adityachandel.booklore.model.entity.BookLoreUserEntity;
 import com.adityachandel.booklore.model.entity.LibraryEntity;
 import com.adityachandel.booklore.model.entity.UserSettingEntity;
@@ -121,7 +122,8 @@ public class UserService {
     }
 
     public void updateUserSetting(Long userId, UpdateUserSettingRequest request) {
-        BookLoreUserEntity user = userRepository.findById(userId).orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(userId));
+        BookLoreUserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(userId));
 
         String key = request.getKey();
         Object value = request.getValue();
@@ -130,7 +132,12 @@ public class UserService {
             throw ApiError.INVALID_INPUT.createException("Setting key cannot be null or blank.");
         }
 
-        JsonNode valueNode = objectMapper.valueToTree(value);
+        UserSettingKey settingKey;
+        try {
+            settingKey = UserSettingKey.fromDbKey(key);
+        } catch (IllegalArgumentException e) {
+            throw ApiError.INVALID_INPUT.createException("Unknown setting key: " + key);
+        }
 
         UserSettingEntity setting = user.getSettings().stream()
                 .filter(s -> s.getSettingKey().equals(key))
@@ -144,8 +151,14 @@ public class UserService {
                 });
 
         try {
-            setting.setSettingValue(objectMapper.writeValueAsString(valueNode));
-        } catch (JsonProcessingException e) {
+            String serializedValue;
+            if (settingKey.isJson()) {
+                serializedValue = objectMapper.writeValueAsString(value);
+            } else {
+                serializedValue = value.toString();
+            }
+            setting.setSettingValue(serializedValue);
+        } catch (Exception e) {
             throw ApiError.INVALID_INPUT.createException("Could not serialize setting value.");
         }
 

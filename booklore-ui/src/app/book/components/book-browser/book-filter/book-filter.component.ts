@@ -1,6 +1,6 @@
 import {Component, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
 import {combineLatest, Observable, of, Subject} from 'rxjs';
-import {map} from 'rxjs/operators';
+import {filter, map, take} from 'rxjs/operators';
 import {BookService} from '../../../service/book.service';
 import {Library} from '../../../model/library.model';
 import {Shelf} from '../../../model/shelf.model';
@@ -11,6 +11,7 @@ import {AsyncPipe, NgClass, TitleCasePipe} from '@angular/common';
 import {Badge} from 'primeng/badge';
 import {FormsModule} from '@angular/forms';
 import {SelectButton} from 'primeng/selectbutton';
+import {UserService} from '../../../../settings/user-management/user.service';
 
 type Filter<T> = { value: T; bookCount: number };
 
@@ -148,41 +149,54 @@ export class BookFilterComponent implements OnInit {
   };
 
   bookService = inject(BookService);
+  userService = inject(UserService);
 
   ngOnInit(): void {
-    if (this.entity$ && this.entityType$) {
+    combineLatest([
+      this.userService.userState$.pipe(
+        filter((u): u is NonNullable<typeof u> => !!u),
+        take(1)
+      ),
+      this.entity$ ?? of(null),
+      this.entityType$ ?? of(EntityType.ALL_BOOKS)
+    ]).subscribe(([user]) => {
+      const sortMode = user.userSettings?.filterSortingMode ?? 'count';
       this.filterStreams = {
-        author: this.getFilterStream((book: Book) => book.metadata?.authors.map(name => ({id: name, name})) || [], 'id', 'name'),
-        category: this.getFilterStream((book: Book) => book.metadata?.categories.map(name => ({id: name, name})) || [], 'id', 'name'),
-        series: this.getFilterStream((book) => (book.metadata?.seriesName ? [{id: book.metadata.seriesName, name: book.metadata.seriesName}] : []), 'id', 'name'),
-        matchScore: this.getFilterStream((book: Book) => getMatchScoreRangeFilters(book.metadataMatchScore), 'id', 'name', true),
-        publisher: this.getFilterStream((book) => (book.metadata?.publisher ? [{id: book.metadata.publisher, name: book.metadata.publisher}] : []), 'id', 'name'),
-        shelfStatus: this.getFilterStream(getShelfStatusFilter, 'id', 'name'),
-        publishedDate: this.getFilterStream(extractPublishedYearFilter, 'id', 'name'),
-        language: this.getFilterStream(getLanguageFilter, 'id', 'name'),
-        fileSize: this.getFilterStream((book: Book) => getFileSizeRangeFilters(book.fileSizeKb), 'id', 'name'),
-        amazonRating: this.getFilterStream((book: Book) => getRatingRangeFilters(book.metadata?.amazonRating!), 'id', 'name'),
-        goodreadsRating: this.getFilterStream((book: Book) => getRatingRangeFilters(book.metadata?.goodreadsRating!), 'id', 'name'),
-        hardcoverRating: this.getFilterStream((book: Book) => getRatingRangeFilters(book.metadata?.hardcoverRating!), 'id', 'name'),
-        pageCount: this.getFilterStream((book: Book) => getPageCountRangeFilters(book.metadata?.pageCount!), 'id', 'name'),
+        author: this.getFilterStream((book: Book) => book.metadata?.authors.map(name => ({id: name, name})) || [], 'id', 'name', sortMode),
+        category: this.getFilterStream((book: Book) => book.metadata?.categories.map(name => ({id: name, name})) || [], 'id', 'name', sortMode),
+        series: this.getFilterStream((book) => (book.metadata?.seriesName ? [{id: book.metadata.seriesName, name: book.metadata.seriesName}] : []), 'id', 'name', sortMode),
+        matchScore: this.getFilterStream((book: Book) => getMatchScoreRangeFilters(book.metadataMatchScore), 'id', 'name', 'sortIndex'),
+        publisher: this.getFilterStream((book) => (book.metadata?.publisher ? [{id: book.metadata.publisher, name: book.metadata.publisher}] : []), 'id', 'name', sortMode),
+        shelfStatus: this.getFilterStream(getShelfStatusFilter, 'id', 'name', sortMode),
+        publishedDate: this.getFilterStream(extractPublishedYearFilter, 'id', 'name', sortMode),
+        language: this.getFilterStream(getLanguageFilter, 'id', 'name', sortMode),
+        fileSize: this.getFilterStream((book: Book) => getFileSizeRangeFilters(book.fileSizeKb), 'id', 'name', sortMode),
+        amazonRating: this.getFilterStream((book: Book) => getRatingRangeFilters(book.metadata?.amazonRating!), 'id', 'name', sortMode),
+        goodreadsRating: this.getFilterStream((book: Book) => getRatingRangeFilters(book.metadata?.goodreadsRating!), 'id', 'name', sortMode),
+        hardcoverRating: this.getFilterStream((book: Book) => getRatingRangeFilters(book.metadata?.hardcoverRating!), 'id', 'name', sortMode),
+        pageCount: this.getFilterStream((book: Book) => getPageCountRangeFilters(book.metadata?.pageCount!), 'id', 'name', sortMode),
       };
+
       this.filterTypes = Object.keys(this.filterStreams);
-    }
+      this.setExpandedPanels();
+    });
 
     if (this.resetFilter$) {
       this.resetFilter$.subscribe(() => this.clearActiveFilter());
     }
-
-    this.setExpandedPanels();
   }
 
   private getFilterStream<T>(
     extractor: (book: Book) => T[] | undefined,
     idKey: keyof T,
     nameKey: keyof T,
-    sortByIndex = false
+    sortMode: 'count' | 'alphabetical' | 'sortIndex' = 'count'
   ): Observable<Filter<T[keyof T]>[]> {
-    return combineLatest([this.bookService.bookState$, this.entity$ ?? of(null), this.entityType$ ?? of(EntityType.ALL_BOOKS)]).pipe(
+    return combineLatest([
+      this.bookService.bookState$,
+      this.entity$ ?? of(null),
+      this.entityType$ ?? of(EntityType.ALL_BOOKS)
+    ]).pipe(
       map(([state, entity, entityType]) => {
         const filteredBooks = this.filterBooksByEntityType(state.books || [], entity, entityType);
         const filterMap = new Map<any, Filter<any>>();
@@ -200,14 +214,16 @@ export class BookFilterComponent implements OnInit {
         const result = Array.from(filterMap.values());
 
         return result.sort((a, b) => {
-          if (sortByIndex) {
+          if (sortMode === 'sortIndex') {
             return (a.value.sortIndex ?? 999) - (b.value.sortIndex ?? 999);
-          } else {
-            return (
-              b.bookCount - a.bookCount ||
-              a.value[nameKey].toString().localeCompare(b.value[nameKey].toString())
-            );
           }
+          if (sortMode === 'alphabetical') {
+            return a.value[nameKey].toString().localeCompare(b.value[nameKey].toString());
+          }
+          return (
+            b.bookCount - a.bookCount ||
+            a.value[nameKey].toString().localeCompare(b.value[nameKey].toString())
+          );
         });
       })
     );
