@@ -3,6 +3,7 @@ package com.adityachandel.booklore.model.entity;
 import com.adityachandel.booklore.convertor.BookRecommendationIdsListConverter;
 import com.adityachandel.booklore.model.dto.BookRecommendationLite;
 import com.adityachandel.booklore.model.enums.BookFileType;
+import com.adityachandel.booklore.model.enums.ReadStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -39,6 +40,10 @@ public class BookEntity {
 
     @Column(name = "metadata_match_score")
     private Float metadataMatchScore;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "read_status")
+    private ReadStatus readStatus;
 
     @OneToOne(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private BookMetadataEntity metadata;

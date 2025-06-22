@@ -5,6 +5,7 @@ import com.adityachandel.booklore.model.dto.Book;
 import com.adityachandel.booklore.model.dto.BookRecommendation;
 import com.adityachandel.booklore.model.dto.BookViewerSettings;
 import com.adityachandel.booklore.model.dto.request.ReadProgressRequest;
+import com.adityachandel.booklore.model.dto.request.ReadStatusUpdateRequest;
 import com.adityachandel.booklore.model.dto.request.ShelvesAssignmentRequest;
 import com.adityachandel.booklore.model.dto.response.BookDeletionResponse;
 import com.adityachandel.booklore.service.metadata.MetadataBackupRestoreService;
@@ -111,5 +112,12 @@ public class BookController {
     @CheckBookAccess(bookIdParam = "id")
     public ResponseEntity<List<BookRecommendation>> getRecommendations(@PathVariable Long id, @RequestParam(defaultValue = "25") @Max(25) @Min(1) int limit) {
         return ResponseEntity.ok(bookRecommendationService.getRecommendations(id, limit));
+    }
+
+    @PutMapping("/{bookId}/read-status")
+    @CheckBookAccess(bookIdParam = "bookId")
+    public ResponseEntity<Void> updateReadStatus(@PathVariable long bookId, @RequestBody @Valid ReadStatusUpdateRequest request) {
+        bookService.updateReadStatus(bookId, request.status());
+        return ResponseEntity.noContent().build();
     }
 }

@@ -27,4 +27,5 @@ public class Book {
     private EpubProgress epubProgress;
     private CbxProgress cbxProgress;
     private Set<Shelf> shelves;
+    private String readStatus;
 }

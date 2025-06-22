@@ -2,7 +2,7 @@ import {inject, Injectable} from '@angular/core';
 import {BehaviorSubject, first, Observable, of, throwError} from 'rxjs';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {catchError, filter, map, tap} from 'rxjs/operators';
-import {Book, BookDeletionResponse, BookMetadata, BookRecommendation, BookSetting, BulkMetadataUpdateRequest} from '../model/book.model';
+import {Book, BookDeletionResponse, BookMetadata, BookRecommendation, BookSetting, BulkMetadataUpdateRequest, ReadStatus} from '../model/book.model';
 import {BookState} from '../model/state/book-state.model';
 import {API_CONFIG} from '../../config/api-config';
 import {FetchMetadataRequest} from '../metadata/model/request/fetch-metadata-request.model';
@@ -180,7 +180,7 @@ export class BookService {
     const idList = Array.from(ids);
     const params = new HttpParams().set('ids', idList.join(','));
 
-    return this.http.delete<BookDeletionResponse>(this.url, { params }).pipe(
+    return this.http.delete<BookDeletionResponse>(this.url, {params}).pipe(
       tap(response => {
         const currentState = this.bookStateSubject.value;
         const remainingBooks = (currentState.books || []).filter(
@@ -486,5 +486,9 @@ export class BookService {
 
   getBackupMetadata(bookId: number) {
     return this.http.get<any>(`${this.url}/${bookId}/metadata/restore`);
+  }
+
+  updateBookReadStatus(id: number, status: ReadStatus): Observable<void> {
+    return this.http.put<void>(`${this.url}/${id}/read-status`, {status});
   }
 }

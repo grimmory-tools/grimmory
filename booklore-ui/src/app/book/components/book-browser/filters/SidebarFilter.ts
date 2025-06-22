@@ -70,6 +70,8 @@ export class SideBarFilter implements BookFilter {
                 return mode === 'and'
                   ? filterValues.every(val => book.metadata?.seriesName === val)
                   : filterValues.some(val => book.metadata?.seriesName === val);
+              case 'readStatus':
+                return filterValues.some(val => book.readStatus === val);
               case 'amazonRating':
                 return filterValues.some(range => isRatingInRange(book.metadata?.amazonRating, range));
               case 'goodreadsRating':

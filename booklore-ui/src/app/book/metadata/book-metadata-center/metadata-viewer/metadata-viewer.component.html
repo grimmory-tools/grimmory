@@ -168,23 +168,37 @@
               }
             </div>
             <div class="grid gap-x-20 gap-y-2 pt-6" style="grid-template-columns: repeat(5, max-content);">
-              <p class="whitespace-nowrap flex items-center gap-2">
-                <span class="font-bold">File Type:</span>
-                <span
-                  class="inline-block px-2 py-0.5 rounded-full text-xs font-bold text-white"
-                  [ngClass]="getFileTypeColorClass(getFileExtension(book?.filePath))">
-                  {{ getFileExtension(book?.filePath) || '-' }}
-                </span>
-              </p>
+              <div>
+                <p class="whitespace-nowrap flex items-center gap-2">
+                  <span class="font-bold">Read Status:</span>
+                  <p-tag
+                    class="cursor-pointer text-white"
+                    [severity]="getStatusSeverity(selectedReadStatus)"
+                    (click)="menu.toggle($event)">
+                    {{ getStatusLabel(selectedReadStatus) }}
+                  </p-tag>
+                  <p-menu #menu [popup]="true" [model]="readStatusMenuItems"></p-menu>
+                </p>
+              </div>
               <p class="whitespace-nowrap"><span class="font-bold">Publisher:</span> {{ book?.metadata!.publisher || '-' }}</p>
               <p class="whitespace-nowrap"><span class="font-bold">Published:</span> {{ book?.metadata!.publishedDate || '-' }}</p>
               <p class="whitespace-nowrap"><span class="font-bold">Language:</span> {{ book?.metadata!.language || '-' }}</p>
               <p class="whitespace-nowrap"><span class="font-bold">ISBN 10:</span> {{ book?.metadata!.isbn10 || '-' }}</p>
+
+              <p class="whitespace-nowrap flex items-center gap-2">
+                <span class="font-bold">File Type:</span>
+                <span
+                  class="inline-block px-2 py-0.5 rounded-lg text-xs font-bold text-gray-200"
+                  [ngClass]="getFileTypeColorClass(getFileExtension(book?.filePath))">
+                  {{ getFileExtension(book?.filePath) || '-' }}
+                </span>
+              </p>
+
               <p class="whitespace-nowrap flex items-center gap-2">
                 <span class="font-bold">Metadata Score:</span>
                 @if (book?.metadataMatchScore != null) {
                   <span
-                    class="inline-block px-2 py-0.5 rounded-full text-xs font-bold text-white border"
+                    class="inline-block px-2 py-0.5 rounded-lg text-xs font-bold text-gray-200 border"
                     [ngClass]="getMatchScoreColorClass(book?.metadataMatchScore!)">
                     {{ (book?.metadataMatchScore! * 100) | number:'1.0-0' }}%
                   </span>
@@ -192,8 +206,6 @@
                   <span>-</span>
                 }
               </p>
-              <p class="whitespace-nowrap"><span class="font-bold">Page Count:</span> {{ book?.metadata!.pageCount || '-' }}</p>
-              <p class="whitespace-nowrap"><span class="font-bold">File Size:</span> {{ getFileSizeInMB(book) }}</p>
               <p class="whitespace-nowrap flex items-center gap-2">
                 <span class="font-bold">Progress:</span>
                 <span
@@ -202,6 +214,7 @@
                   {{ getProgressPercent(book) !== null ? getProgressPercent(book) + '%' : 'N/A' }}
                 </span>
               </p>
+              <p class="whitespace-nowrap"><span class="font-bold">File Size:</span> {{ getFileSizeInMB(book) }}</p>
               <p class="whitespace-nowrap"><span class="font-bold">ISBN 13:</span> {{ book?.metadata!.isbn13 || '-' }}</p>
             </div>
             <div class="pt-2 flex items-center gap-2 w-full">

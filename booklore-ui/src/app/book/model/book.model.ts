@@ -18,6 +18,7 @@ export interface Book {
   fileSizeKb?: number;
   seriesCount?: number | null;
   metadataMatchScore?: number | null;
+  readStatus?: ReadStatus;
 }
 
 export interface EpubProgress {
@@ -164,4 +165,15 @@ export interface BulkMetadataUpdateRequest {
 export interface BookDeletionResponse {
   deleted: number[];
   failedFileDeletions: number[];
+}
+
+export enum ReadStatus {
+  UNREAD = 'UNREAD',
+  READING = 'READING',
+  RE_READING = 'RE_READING',
+  READ = 'READ',
+  PARTIALLY_READ = 'PARTIALLY_READ',
+  PAUSED = 'PAUSED',
+  WONT_READ = 'WONT_READ',
+  ABANDONED = 'ABANDONED'
 }

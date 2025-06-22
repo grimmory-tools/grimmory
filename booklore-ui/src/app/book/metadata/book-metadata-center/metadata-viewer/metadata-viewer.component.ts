@@ -6,7 +6,7 @@ import {BookService} from '../../../service/book.service';
 import {Rating, RatingRateEvent} from 'primeng/rating';
 import {FormsModule} from '@angular/forms';
 import {Tag} from 'primeng/tag';
-import {Book, BookMetadata, BookRecommendation} from '../../../model/book.model';
+import {Book, BookMetadata, BookRecommendation, ReadStatus} from '../../../model/book.model';
 import {Divider} from 'primeng/divider';
 import {UrlHelperService} from '../../../../utilities/service/url-helper.service';
 import {UserService} from '../../../../settings/user-management/user.service';
@@ -64,6 +64,18 @@ export class MetadataViewerComponent implements OnInit, OnChanges {
   showFilePath = false;
   isAutoFetching = false;
 
+  readStatusOptions = [
+    {label: 'Unread', value: ReadStatus.UNREAD},
+    {label: 'Reading', value: ReadStatus.READING},
+    {label: 'Re-reading', value: ReadStatus.RE_READING},
+    {label: 'Partially Read', value: ReadStatus.PARTIALLY_READ},
+    {label: 'Paused', value: ReadStatus.PAUSED},
+    {label: 'Read', value: ReadStatus.READ},
+    {label: 'Won’t Read', value: ReadStatus.WONT_READ},
+    {label: 'Abandoned', value: ReadStatus.ABANDONED}
+  ];
+
+  selectedReadStatus: ReadStatus = ReadStatus.UNREAD;
 
   ngOnInit(): void {
     this.emailMenuItems$ = this.book$.pipe(
@@ -148,15 +160,16 @@ export class MetadataViewerComponent implements OnInit, OnChanges {
     this.book$
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        map(book => book?.metadata),
-        filter((metadata): metadata is BookMetadata => metadata != null)
+        filter((book): book is Book => book != null && book.metadata != null)
       )
-      .subscribe(metadata => {
+      .subscribe(book => {
+        const metadata = book.metadata;
         this.isAutoFetching = false;
-        this.loadBooksInSeriesAndFilterRecommended(metadata.bookId);
+        this.loadBooksInSeriesAndFilterRecommended(metadata!.bookId);
         if (this.quillEditor?.quill) {
-          this.quillEditor.quill.root.innerHTML = metadata.description;
+          this.quillEditor.quill.root.innerHTML = metadata!.description;
         }
+        this.selectedReadStatus = book.readStatus ?? ReadStatus.UNREAD;
       });
   }
 
@@ -325,6 +338,58 @@ export class MetadataViewerComponent implements OnInit, OnChanges {
       },
       error: (err) => {
       }
+    });
+  }
+
+  getStatusSeverity(status: string): 'success' | 'secondary' | 'info' | 'warn' | 'danger' | undefined {
+    const normalized = status?.toUpperCase();
+    if (['UNREAD', 'PAUSED'].includes(normalized)) return 'secondary';
+    if (['READING', 'RE_READING'].includes(normalized)) return 'info';
+    if (['READ'].includes(normalized)) return 'success';
+    if (['PARTIALLY_READ'].includes(normalized)) return 'warn';
+    if (['WONT_READ', 'ABANDONED'].includes(normalized)) return 'danger';
+    return undefined;
+  }
+
+  readStatusMenuItems = this.readStatusOptions.map(option => ({
+    label: option.label,
+    command: () => this.updateReadStatus(option.value)
+  }));
+
+  getStatusLabel(value: string): string {
+    return this.readStatusOptions.find(o => o.value === value)?.label ?? 'Unknown';
+  }
+
+  updateReadStatus(status: ReadStatus): void {
+    if (!status) {
+      return;
+    }
+
+    this.book$.pipe(take(1)).subscribe(book => {
+      if (!book || !book.id) {
+        return;
+      }
+
+      this.bookService.updateBookReadStatus(book.id, status).subscribe({
+        next: () => {
+          this.selectedReadStatus = status;
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Read Status Updated',
+            detail: `Marked as "${this.getStatusLabel(status)}"`,
+            life: 2000
+          });
+        },
+        error: (err) => {
+          console.error('Failed to update read status:', err);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Update Failed',
+            detail: 'Could not update read status.',
+            life: 3000
+          });
+        }
+      });
     });
   }
 }

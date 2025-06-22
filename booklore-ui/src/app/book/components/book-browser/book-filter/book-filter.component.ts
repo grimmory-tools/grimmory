@@ -5,7 +5,7 @@ import {BookService} from '../../../service/book.service';
 import {Library} from '../../../model/library.model';
 import {Shelf} from '../../../model/shelf.model';
 import {EntityType} from '../book-browser.component';
-import {Book} from '../../../model/book.model';
+import {Book, ReadStatus} from '../../../model/book.model';
 import {Accordion, AccordionContent, AccordionHeader, AccordionPanel} from 'primeng/accordion';
 import {AsyncPipe, NgClass, TitleCasePipe} from '@angular/common';
 import {Badge} from 'primeng/badge';
@@ -116,6 +116,21 @@ function getMatchScoreRangeFilters(score?: number | null): { id: string; name: s
   return match ? [{id: match.id, name: match.label, sortIndex: match.sortIndex}] : [];
 }
 
+const readStatusLabels: Record<ReadStatus, string> = {
+  [ReadStatus.UNREAD]: 'Unread',
+  [ReadStatus.READING]: 'Reading',
+  [ReadStatus.RE_READING]: 'Re-reading',
+  [ReadStatus.PARTIALLY_READ]: 'Partially Read',
+  [ReadStatus.PAUSED]: 'Paused',
+  [ReadStatus.READ]: 'Read',
+  [ReadStatus.WONT_READ]: 'Won’t Read',
+  [ReadStatus.ABANDONED]: 'Abandoned',
+};
+
+function getReadStatusName(status?: ReadStatus | null): string {
+  return status != null ? readStatusLabels[status] ?? 'Unknown' : 'Unknown';
+}
+
 @Component({
   selector: 'app-book-filter',
   templateUrl: './book-filter.component.html',
@@ -157,6 +172,7 @@ export class BookFilterComponent implements OnInit, OnDestroy {
     category: 'Category',
     series: 'Series',
     publisher: 'Publisher',
+    readStatus: 'Read Status',
     personalRating: 'Personal Rating',
     matchScore: 'Metadata Match Score',
     amazonRating: 'Amazon Rating',
@@ -188,6 +204,7 @@ export class BookFilterComponent implements OnInit, OnDestroy {
           category: this.getFilterStream((book: Book) => book.metadata?.categories.map(name => ({id: name, name})) || [], 'id', 'name', sortMode),
           series: this.getFilterStream((book) => (book.metadata?.seriesName ? [{id: book.metadata.seriesName, name: book.metadata.seriesName}] : []), 'id', 'name', sortMode),
           publisher: this.getFilterStream((book) => (book.metadata?.publisher ? [{id: book.metadata.publisher, name: book.metadata.publisher}] : []), 'id', 'name', sortMode),
+          readStatus: this.getFilterStream((book: Book) => [{id: book.readStatus ?? ReadStatus.UNREAD, name: getReadStatusName(book.readStatus)}], 'id', 'name', sortMode),
           matchScore: this.getFilterStream((book: Book) => getMatchScoreRangeFilters(book.metadataMatchScore), 'id', 'name', 'sortIndex'),
           personalRating: this.getFilterStream((book: Book) => getRatingRangeFilters10(book.metadata?.personalRating!), 'id', 'name', 'sortIndex'),
           amazonRating: this.getFilterStream((book: Book) => getRatingRangeFilters(book.metadata?.amazonRating!), 'id', 'name', 'sortIndex'),
