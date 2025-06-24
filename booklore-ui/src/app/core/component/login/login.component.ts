@@ -36,6 +36,7 @@ export class LoginComponent implements OnInit {
   password = '';
   errorMessage = '';
   oidcEnabled = false;
+  oidcName = 'OIDC';
 
   private authService = inject(AuthService);
   private oAuthService = inject(OAuthService);
@@ -51,7 +52,8 @@ export class LoginComponent implements OnInit {
         take(1)
       )
       .subscribe(settings => {
-        this.oidcEnabled = settings?.oidcEnabled;
+        this.oidcEnabled = settings!.oidcEnabled;
+        this.oidcName = settings!.oidcProviderDetails?.providerName || 'OIDC';
       });
   }
 

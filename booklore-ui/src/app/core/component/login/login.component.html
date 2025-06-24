@@ -30,7 +30,7 @@
             @if (oidcEnabled) {
               <div>
                 <p-divider></p-divider>
-                <p-button fluid severity="info" type="button" label="Login with OIDC" icon="pi pi-id-card" (click)="loginWithOidc()"></p-button>
+                <p-button fluid severity="info" type="button" label="Login with {{oidcName}}" icon="pi pi-id-card" (click)="loginWithOidc()"></p-button>
               </div>
             }
           </div>
