@@ -29,7 +29,7 @@
         [queryParams]="item.queryParams"
         [attr.target]="item.target" tabindex="0" pRipple>
         <i [ngClass]="item.icon" class="layout-menuitem-icon"></i>
-        <span class="layout-menuitem-text w-full">
+        <span class="layout-menuitem-text w-full truncate">
           {{ item.label }}
         </span>
         @if (item.items) {
@@ -50,7 +50,6 @@
               [rounded]="true"
               [label]="hovered ? '' : (item.bookCount$ | async)?.toString() || ''"
               [icon]="hovered ? 'pi pi-ellipsis-v' : ''"
-              [style.width]="'30px'"
               [style.height]="'30px'"
               [style.display]="'flex'">
             </p-button>
@@ -58,7 +57,7 @@
           <p-menu #entitymenu [model]="item.menu" [popup]="true" appendTo="body"></p-menu>
         }
         @if (item.type === 'Library' && (!admin && !canManipulateLibrary) || item.type === 'All Books' || item.label === 'Unshelved') {
-          <p class="text-[var(--primary-color)] pr-1">
+          <p class="text-[var(--primary-color)] pr-3">
             {{ (item.bookCount$ | async)?.toString() || '0' }}
           </p>
         }
