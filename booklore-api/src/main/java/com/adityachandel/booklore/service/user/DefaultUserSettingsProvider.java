@@ -62,8 +62,10 @@ public class DefaultUserSettingsProvider {
     private BookLoreUser.UserSettings.EpubReaderSetting buildDefaultEpubReaderSetting() {
         return BookLoreUser.UserSettings.EpubReaderSetting.builder()
                 .theme("white")
-                .font("serif")
-                .fontSize(150)
+                .font(null)
+                .fontSize(100)
+                .letterSpacing(null)
+                .lineHeight(null)
                 .flow("paginated")
                 .build();
     }

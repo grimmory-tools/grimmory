@@ -1,0 +1,41 @@
+<div class="p-4 pb-12">
+  <p class="text-lg pb-6 pt-4 ">
+    CBX Reader: Global Preferences
+    <i class="pi pi-info-circle text-sky-600"
+       pTooltip="Configure global PDF reading options such as page spread, zoom level, and sidebar visibility that apply to all PDFs."
+       tooltipPosition="right"
+       style="cursor: pointer;"></i>
+  </p>
+
+  <div class="grid grid-cols-[auto,1fr] pl-6 gap-y-4 gap-x-4 items-center">
+    <p class="py-1">Page Spread:</p>
+    <div class="flex gap-4 justify-start">
+      @for (spread of cbxSpreads; track spread) {
+        <div class="flex items-center gap-2">
+          <p-radiobutton
+            [inputId]="spread.key"
+            name="spread"
+            [value]="spread.key"
+            [(ngModel)]="selectedCbxSpread">
+          </p-radiobutton>
+          <label [for]="spread.key">{{ spread.name }}</label>
+        </div>
+      }
+    </div>
+
+    <p class="py-1">Page Zoom:</p>
+    <div class="flex gap-4 justify-start">
+      @for (mode of cbxViewModes; track mode) {
+        <div class="flex items-center gap-2">
+          <p-radiobutton
+            [inputId]="mode.key"
+            name="zoom"
+            [value]="mode.key"
+            [(ngModel)]="selectedCbxViewMode">
+          </p-radiobutton>
+          <label [for]="mode.key">{{ mode.name }}</label>
+        </div>
+      }
+    </div>
+  </div>
+</div>

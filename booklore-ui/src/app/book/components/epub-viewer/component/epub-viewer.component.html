@@ -30,23 +30,106 @@
             <div>
               <p-button size="small" class="settings-toggle-button" (click)="toggleSettingsDrawer()" icon="pi pi-cog" severity="secondary"></p-button>
               <p-drawer [(visible)]="isSettingsDrawerVisible" [modal]="false" [position]="'right'" header="Settings">
-                <div class="flex flex-col">
-                  <div class="settings-content">
-                    <p>Font Size: {{ fontSize }}%</p>
-                    <div class="flex flex-row gap-4">
-                      <p-button icon="pi pi-minus" (click)="decreaseFontSize()" severity="info"></p-button>
-                      <p-button icon="pi pi-plus" (click)="increaseFontSize()" severity="info"></p-button>
+                <div class="flex flex-col gap-4 max-w-md mx-auto">
+
+                  <div class="flex items-center gap-4">
+                    <span class="font-semibold text-gray-700 dark:text-gray-200">Font Size:</span>
+                    <div class="flex items-center gap-2">
+                      <p-button size="small" icon="pi pi-minus" (click)="decreaseFontSize()" severity="info"></p-button>
+                      <span class="text-gray-800 dark:text-gray-100">{{ fontSize }}%</span>
+                      <p-button size="small" icon="pi pi-plus" (click)="increaseFontSize()" severity="info"></p-button>
                     </div>
-                    <p-divider></p-divider>
-                    <label for="font-type">Font Type:</label>
-                    <p-select id="font-type" [options]="fontTypes" [(ngModel)]="selectedFontType" (onChange)="changeFontType()"></p-select>
-                    <p-divider></p-divider>
-                    <label for="theme">Theme:</label>
-                    <p-select id="theme" [options]="themes" [(ngModel)]="selectedTheme" (onChange)="changeThemes()"></p-select>
-                    <p-divider></p-divider>
-                    <label for="flow">Flow:</label>
-                    <p-select id="flow" [options]="flows" [(ngModel)]="selectedFlow" (onChange)="changeScrollMode()"></p-select>
                   </div>
+
+                  <p-divider></p-divider>
+
+                  <div class="flex items-center gap-2">
+                    <label for="font-type" class="block font-semibold text-gray-700 dark:text-gray-200">Font:</label>
+                    <p-select
+                      id="font-type"
+                      [options]="fontTypes"
+                      [(ngModel)]="selectedFontType"
+                      (onChange)="changeFontType()"
+                      class="w-full"
+                      placeholder="Select font type">
+                    </p-select>
+                  </div>
+
+                  <p-divider></p-divider>
+
+                  <div class="flex gap-2 items-center">
+                    <label class="block font-semibold text-gray-700 dark:text-gray-200">Theme:</label>
+                    <div class="flex gap-3 mt-1" role="radiogroup" aria-label="Theme selection">
+                      @for (theme of themes; track theme) {
+                        <button
+                          type="button"
+                          class="w-8 h-8 rounded-full border-2 transition-all"
+                          [class.border-blue-600]="selectedTheme === theme.value"
+                          [style.background-color]="getThemeColor(theme.value)"
+                          (click)="selectTheme(theme.value)"
+                          [attr.aria-pressed]="selectedTheme === theme.value"
+                          [attr.aria-label]="theme.label">
+                        </button>
+                      }
+                    </div>
+                  </div>
+
+                  <p-divider></p-divider>
+
+                  <div class="flex items-center gap-2">
+                    <label id="flow-label" class="block font-semibold text-gray-700 dark:text-gray-200">Flow:</label>
+                    <div class="flex gap-4" role="radiogroup" aria-labelledby="flow-label">
+                      <div class="flex items-center gap-1.5">
+                        <p-radioButton
+                          name="flow"
+                          [value]="'paginated'"
+                          [(ngModel)]="selectedFlow"
+                          (onClick)="changeScrollMode()"
+                          inputId="flow-paginated">
+                        </p-radioButton>
+                        <label for="flow-paginated" class="cursor-pointer select-none text-gray-700 dark:text-gray-200">Paginated</label>
+                      </div>
+                      <div class="flex items-center gap-1.5">
+                        <p-radioButton
+                          name="flow"
+                          [value]="'scrolled'"
+                          [(ngModel)]="selectedFlow"
+                          (onClick)="changeScrollMode()"
+                          inputId="flow-scrolled">
+                        </p-radioButton>
+                        <label for="flow-scrolled" class="cursor-pointer select-none text-gray-700 dark:text-gray-200">Scrolled</label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p-divider></p-divider>
+
+                  <div>
+                    <label class="block mb-1 font-semibold text-gray-700 dark:text-gray-200 pb-2">Line Height: {{ lineHeight }}</label>
+                    <p-slider
+                      [(ngModel)]="lineHeight"
+                      [min]="1"
+                      [max]="2.5"
+                      [step]="0.1"
+                      (onSlideEnd)="updateThemeStyle()"
+                      class="w-full"
+                      aria-label="Line Height">
+                    </p-slider>
+                  </div>
+
+                  <div>
+                    <label class="block mb-1 font-semibold text-gray-700 dark:text-gray-200 pb-2 pt-2">Letter Spacing: {{ letterSpacing }}em</label>
+                    <p-slider
+                      [(ngModel)]="letterSpacing"
+                      [min]="0"
+                      [max]="0.2"
+                      [step]="0.01"
+                      (onSlideEnd)="updateThemeStyle()"
+                      class="w-full"
+                      aria-label="Letter Spacing">
+                    </p-slider>
+                  </div>
+
                 </div>
               </p-drawer>
             </div>

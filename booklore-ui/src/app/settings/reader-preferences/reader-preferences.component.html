@@ -1,13 +1,11 @@
 <div class="w-full h-[calc(100vh-12.1rem)] overflow-y-auto border rounded-lg enclosing-container">
-
-
   <div class="p-4">
     <p class="text-lg pb-4 pt-4 ">
       Book Reader Settings: Global or Per-Book
       <i class="pi pi-info-circle text-sky-600"
-        pTooltip="Select whether to apply the same reader settings (font, theme, spread, zoom, etc.) globally for all books or individually per book."
-        tooltipPosition="right"
-        style="cursor: pointer;">
+         pTooltip="Select whether to apply the same reader settings (font, theme, spread, zoom, etc.) globally for all books or individually per book."
+         tooltipPosition="right"
+         style="cursor: pointer;">
       </i>
     </p>
     <div class="grid grid-cols-[auto,1fr] pl-6 gap-y-4 gap-x-4 items-center">
@@ -26,7 +24,6 @@
           </div>
         }
       </div>
-
       <p class="py-1">Epub:</p>
       <div class="flex gap-4 justify-start">
         @for (item of scopeOptions; track item) {
@@ -42,7 +39,6 @@
           </div>
         }
       </div>
-
       <p class="py-1">CBX:</p>
       <div class="flex gap-4 justify-start">
         @for (item of scopeOptions; track item) {
@@ -60,159 +56,22 @@
       </div>
     </div>
   </div>
+  <p-divider></p-divider>
+
+  <app-epub-reader-preferences-component
+    [userSettings]="userSettings">
+  </app-epub-reader-preferences-component>
 
   <p-divider></p-divider>
 
-  <div class="p-4">
-    <p class="text-lg pb-6 pt-4 ">
-      PDF Reader: Global Preferences
-      <i class="pi pi-info-circle text-sky-600"
-        pTooltip="Configure global PDF reading options such as page spread, zoom level, and sidebar visibility that apply to all PDFs."
-        tooltipPosition="right"
-      style="cursor: pointer;"></i>
-    </p>
-
-    <div class="grid grid-cols-[auto,1fr] pl-6 gap-y-4 gap-x-4 items-center">
-      <p class="py-1">Page Spread:</p>
-      <div class="flex gap-4 justify-start">
-        @for (spread of spreads; track spread) {
-          <div class="flex items-center gap-2">
-            <p-radiobutton
-              [inputId]="spread.key"
-              name="spread"
-              [value]="spread.key"
-              [(ngModel)]="selectedSpread"
-              (ngModelChange)="onSpreadChange()">
-            </p-radiobutton>
-            <label [for]="spread.key">{{ spread.name }}</label>
-          </div>
-        }
-      </div>
-
-      <p class="py-1">Page Zoom:</p>
-      <div class="flex gap-4 justify-start">
-        @for (zoom of zooms; track zoom) {
-          <div class="flex items-center gap-2">
-            <p-radiobutton
-              [inputId]="zoom.key"
-              name="zoom"
-              [value]="zoom.key"
-              [(ngModel)]="selectedZoom"
-              (ngModelChange)="onZoomChange()">
-            </p-radiobutton>
-            <label [for]="zoom.key">{{ zoom.name }}</label>
-          </div>
-        }
-      </div>
-    </div>
-  </div>
+  <app-pdf-reader-preferences-component
+    [userSettings]="userSettings">
+  </app-pdf-reader-preferences-component>
 
   <p-divider></p-divider>
 
-  <div class="p-4">
-    <p class="text-lg pb-6 pt-4 ">
-      Epub Reader: Global Preferences
-      <i class="pi pi-info-circle text-sky-600"
-        pTooltip="Set global EPUB reader options such as themes, font families, and font sizes applied to all EPUBs."
-        tooltipPosition="right"
-      style="cursor: pointer;"></i></p>
+  <app-cbx-reader-preferences-component
+    [userSettings]="userSettings">
+  </app-cbx-reader-preferences-component>
 
-      <div class="grid grid-cols-[auto,1fr] pl-6 gap-y-4 gap-x-4 items-center">
-        <p>Theme:</p>
-        <div class="flex gap-4 justify-start">
-          <p-select
-            size="small"
-            [options]="themes"
-            [(ngModel)]="selectedTheme"
-            optionLabel="name"
-            optionValue="key"
-            placeholder="Select a Theme"
-            class="w-full md:w-32"
-            (ngModelChange)="onThemeChange()">
-          </p-select>
-        </div>
-
-        <p>Font:</p>
-        <div class="flex gap-4 justify-start">
-          <p-select
-            size="small"
-            [options]="fonts"
-            [(ngModel)]="selectedFont"
-            optionLabel="name"
-            optionValue="key"
-            placeholder="Select a Font"
-            class="w-full md:w-32"
-            (ngModelChange)="onFontChange()">
-          </p-select>
-        </div>
-
-        <p>Flow:</p>
-        <div class="flex gap-4 justify-start">
-          <p-select
-            size="small"
-            [options]="flowOptions"
-            [(ngModel)]="selectedFlow"
-            optionLabel="name"
-            optionValue="key"
-            placeholder="Select a Flow"
-            class="w-full md:w-32"
-            (ngModelChange)="onFlowChange()">
-          </p-select>
-        </div>
-
-        <p class="py-1">Font Size:</p>
-        <div class="flex gap-4 justify-start items-center">
-          <p-button icon="pi pi-minus" size="small"  (click)="decreaseFontSize()"></p-button>
-          <p>{{ fontSize }}%</p>
-          <p-button icon="pi pi-plus" size="small" (click)="increaseFontSize()"></p-button>
-        </div>
-      </div>
-    </div>
-
-    <p-divider></p-divider>
-
-    <div class="p-4">
-      <p class="text-lg pb-6 pt-4 ">
-        CBX Reader: Global Preferences
-        <i class="pi pi-info-circle text-sky-600"
-          pTooltip="Configure global PDF reading options such as page spread, zoom level, and sidebar visibility that apply to all PDFs."
-          tooltipPosition="right"
-        style="cursor: pointer;"></i>
-      </p>
-
-      <div class="grid grid-cols-[auto,1fr] pl-6 gap-y-4 gap-x-4 items-center">
-        <p class="py-1">Page Spread:</p>
-        <div class="flex gap-4 justify-start">
-          @for (spread of cbxSpreads; track spread) {
-            <div class="flex items-center gap-2">
-              <p-radiobutton
-                [inputId]="spread.key"
-                name="spread"
-                [value]="spread.key"
-                [(ngModel)]="selectedCbxSpread"
-                (ngModelChange)="onCbxSpreadChange()">
-              </p-radiobutton>
-              <label [for]="spread.key">{{ spread.name }}</label>
-            </div>
-          }
-        </div>
-
-        <p class="py-1">Page Zoom:</p>
-        <div class="flex gap-4 justify-start">
-          @for (mode of cbxViewModes; track mode) {
-            <div class="flex items-center gap-2">
-              <p-radiobutton
-                [inputId]="mode.key"
-                name="zoom"
-                [value]="mode.key"
-                [(ngModel)]="selectedCbxViewMode"
-                (ngModelChange)="onCbxViewModeChange()">
-              </p-radiobutton>
-              <label [for]="mode.key">{{ mode.name }}</label>
-            </div>
-          }
-        </div>
-      </div>
-    </div>
-
-  </div>
+</div>

@@ -55,6 +55,9 @@ export interface EpubReaderSetting {
   font: string;
   fontSize: number;
   flow: string;
+  lineHeight: number;
+  margin: number;
+  letterSpacing: number;
 }
 
 export interface CbxReaderSetting {

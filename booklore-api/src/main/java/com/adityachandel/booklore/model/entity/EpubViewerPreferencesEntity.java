@@ -33,6 +33,12 @@ public class EpubViewerPreferencesEntity {
     @Column(name = "font_size")
     private Integer fontSize;
 
+    @Column(name = "letter_spacing")
+    private Float letterSpacing;
+
+    @Column(name = "line_height")
+    private Float lineHeight;
+
     @Column(name = "flow")
     private String flow;
 }

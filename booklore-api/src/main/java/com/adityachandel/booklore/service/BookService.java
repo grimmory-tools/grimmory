@@ -138,6 +138,8 @@ public class BookService {
                             .fontSize(epubPref.getFontSize())
                             .theme(epubPref.getTheme())
                             .flow(epubPref.getFlow())
+                            .letterSpacing(epubPref.getLetterSpacing())
+                            .lineHeight(epubPref.getLineHeight())
                             .build()));
         } else if (bookEntity.getBookType() == BookFileType.PDF) {
             pdfViewerPreferencesRepository.findByBookIdAndUserId(bookId, user.getId())
@@ -215,6 +217,8 @@ public class BookService {
             epubPrefs.setFontSize(epubSettings.getFontSize());
             epubPrefs.setTheme(epubSettings.getTheme());
             epubPrefs.setFlow(epubSettings.getFlow());
+            epubPrefs.setLetterSpacing(epubSettings.getLetterSpacing());
+            epubPrefs.setLineHeight(epubSettings.getLineHeight());
             epubViewerPreferencesRepository.save(epubPrefs);
 
         } else if (bookEntity.getBookType() == BookFileType.CBX) {

@@ -93,7 +93,9 @@ public class BookLoreUser {
         public static class EpubReaderSetting {
             private String theme;
             private String font;
-            private int fontSize;
+            private Integer fontSize;
+            private Float letterSpacing;
+            private Float lineHeight;
             private String flow;
         }
 

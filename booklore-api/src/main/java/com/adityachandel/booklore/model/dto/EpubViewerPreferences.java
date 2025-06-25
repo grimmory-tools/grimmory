@@ -11,4 +11,6 @@ public class EpubViewerPreferences {
     private String font;
     private String flow;
     private Integer fontSize;
+    private Float letterSpacing;
+    private Float lineHeight;
 }

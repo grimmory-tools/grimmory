@@ -95,26 +95,11 @@
   background-color: var(--card-background);
 }
 
-.settings-content {
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.settings-content label {
-  font-size: 14px;
-}
-
-.settings-content input[type="range"] {
-  width: 100%;
-  margin-top: 5px;
-}
-
 .location-indicator {
   display: flex;
   align-items: center;
   margin-left: 0.5rem;
+
   .dot {
     height: 10px;
     width: 10px;
@@ -135,4 +120,8 @@
   top: 0;
   left: 0;
   z-index: 999;
+}
+
+::ng-deep .p-divider.p-divider-horizontal {
+  margin: 0.25rem 0 0.5rem 0 !important;
 }

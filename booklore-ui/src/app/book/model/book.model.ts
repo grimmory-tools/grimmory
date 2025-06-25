@@ -110,6 +110,8 @@ export interface EpubViewerSetting {
   font: string;
   fontSize: number;
   flow: string;
+  lineHeight: number;
+  letterSpacing: number;
 }
 
 export interface CbxViewerSetting {

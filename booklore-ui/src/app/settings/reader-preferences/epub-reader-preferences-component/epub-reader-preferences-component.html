@@ -1,0 +1,58 @@
+<div class="p-4">
+  <p class="text-lg pb-6 pt-4">
+    Epub Reader: Global Preferences
+    <i class="pi pi-info-circle text-sky-600"
+       pTooltip="Set global EPUB reader options such as themes, font families, font sizes, and spacing applied to all EPUBs."
+       tooltipPosition="right"
+       style="cursor: pointer;"></i>
+  </p>
+
+  <div class="grid grid-cols-[auto,1fr] pl-6 gap-y-4 gap-x-4 items-center">
+
+    <p>Theme:</p>
+    <div class="flex gap-4 justify-start">
+      <p-select
+        size="small"
+        [options]="themes"
+        [(ngModel)]="selectedTheme"
+        optionLabel="name"
+        optionValue="key"
+        placeholder="Select a Theme"
+        class="w-full md:w-44">
+      </p-select>
+    </div>
+
+    <p>Font:</p>
+    <div class="flex gap-4 justify-start">
+      <p-select
+        size="small"
+        [options]="fonts"
+        [(ngModel)]="selectedFont"
+        optionLabel="name"
+        optionValue="key"
+        placeholder="Select a Font"
+        class="w-full md:w-44">
+      </p-select>
+    </div>
+
+    <p>Flow:</p>
+    <div class="flex gap-4 justify-start">
+      <p-select
+        size="small"
+        [options]="flowOptions"
+        [(ngModel)]="selectedFlow"
+        optionLabel="name"
+        optionValue="key"
+        placeholder="Select a Flow"
+        class="w-full md:w-44">
+      </p-select>
+    </div>
+
+    <p class="py-1">Font Size:</p>
+    <div class="flex gap-4 justify-start items-center">
+      <p-button icon="pi pi-minus" size="small" (click)="decreaseFontSize()"></p-button>
+      <p>{{ fontSize }}%</p>
+      <p-button icon="pi pi-plus" size="small" (click)="increaseFontSize()"></p-button>
+    </div>
+  </div>
+</div>
