@@ -40,7 +40,7 @@ public class BookCreatorService {
         return bookRepository.saveAndFlush(bookEntity);
     }
 
-    public void addCategoriesToBook(List<String> categories, BookEntity bookEntity) {
+    public void addCategoriesToBook(Set<String> categories, BookEntity bookEntity) {
         if (bookEntity.getMetadata().getCategories() == null) {
             bookEntity.getMetadata().setCategories(new HashSet<>());
         }

@@ -1,6 +1,6 @@
-import {Component, EventEmitter, inject, Input, OnChanges, Output} from '@angular/core';
+import {Component, EventEmitter, inject, Input, OnChanges, OnInit, Output} from '@angular/core';
 import {TableModule} from 'primeng/table';
-import { DatePipe } from '@angular/common';
+import {DatePipe} from '@angular/common';
 import {Rating} from 'primeng/rating';
 import {FormsModule} from '@angular/forms';
 import {Book, BookMetadata} from '../../../model/book.model';
@@ -10,6 +10,10 @@ import {Button} from 'primeng/button';
 import {BookService} from '../../../service/book.service';
 import {MessageService} from 'primeng/api';
 import {Router} from '@angular/router';
+import {filter} from 'rxjs';
+import {UserService} from '../../../../settings/user-management/user.service';
+import {BookMetadataCenterComponent} from '../../../metadata/book-metadata-center/book-metadata-center.component';
+import {DialogService} from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'app-book-table',
@@ -21,10 +25,10 @@ import {Router} from '@angular/router';
     FormsModule,
     Button,
     DatePipe
-],
+  ],
   styleUrl: './book-table.component.scss'
 })
-export class BookTableComponent implements OnChanges {
+export class BookTableComponent implements OnInit, OnChanges {
   selectedBooks: Book[] = [];
   selectedBookIds = new Set<number>();
 
@@ -35,7 +39,19 @@ export class BookTableComponent implements OnChanges {
   protected urlHelper = inject(UrlHelperService);
   private bookService = inject(BookService);
   private messageService = inject(MessageService);
+  private userService = inject(UserService);
+  private dialogService = inject(DialogService);
   private router = inject(Router);
+
+  private metadataCenterViewMode: 'route' | 'dialog' = 'route';
+
+  ngOnInit(): void {
+    this.userService.userState$
+      .pipe(filter(user => !!user))
+      .subscribe((user) => {
+        this.metadataCenterViewMode = user?.userSettings.metadataCenterViewMode ?? 'route';
+      });
+  }
 
   // Hack to set virtual-scroller height
   ngOnChanges() {
@@ -78,9 +94,19 @@ export class BookTableComponent implements OnChanges {
   }
 
   openMetadataCenter(id: number): void {
-    this.router.navigate(['/book', id], {
-      queryParams: {tab: 'view'}
-    });
+    if (this.metadataCenterViewMode === 'route') {
+      this.router.navigate(['/book', id], {
+        queryParams: {tab: 'view'}
+      });
+    } else {
+      this.dialogService.open(BookMetadataCenterComponent, {
+        width: '95%',
+        data: {bookId: id},
+        modal: true,
+        dismissableMask: true,
+        showHeader: false
+      });
+    }
   }
 
   getStarColor(rating: number): string {
@@ -103,6 +129,10 @@ export class BookTableComponent implements OnChanges {
 
   getGenres(genres: string[]) {
     return genres?.join(', ') || '';
+  }
+
+  trackByBookId(index: number, book: Book): number {
+    return book.id;
   }
 
   isMetadataFullyLocked(metadata: BookMetadata): boolean {

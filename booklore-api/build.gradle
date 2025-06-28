@@ -55,6 +55,7 @@ dependencies {
     // --- Book & Image Processing ---
     implementation 'org.apache.pdfbox:pdfbox:3.0.5'
     implementation 'org.apache.pdfbox:jbig2-imageio:3.0.4'
+    implementation 'org.apache.pdfbox:xmpbox:3.0.5'
     implementation 'com.github.jai-imageio:jai-imageio-core:1.4.0'
     implementation 'com.github.jai-imageio:jai-imageio-jpeg2000:1.4.0'
     implementation 'io.documentnode:epub4j-core:4.2.2'

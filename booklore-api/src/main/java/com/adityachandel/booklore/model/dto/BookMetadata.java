@@ -30,10 +30,6 @@ public class BookMetadata {
     private Integer pageCount;
     private String language;
     private Double rating;
-    @Deprecated
-    private Integer ratingCount;
-    @Deprecated
-    private Integer reviewCount;
     private String asin;
     private Double amazonRating;
     private Integer amazonReviewCount;
@@ -45,11 +41,9 @@ public class BookMetadata {
     private Integer hardcoverReviewCount;
     private Double personalRating;
     private String googleId;
-
     private Instant coverUpdatedOn;
     private Set<String> authors;
     private Set<String> categories;
-
     private MetadataProvider provider;
     private String thumbnailUrl;
 
@@ -64,12 +58,12 @@ public class BookMetadata {
     private Boolean isbn13Locked;
     private Boolean isbn10Locked;
     private Boolean asinLocked;
-    private Boolean amazonIdLocked;
     private Boolean goodreadsIdLocked;
     private Boolean hardcoverIdLocked;
     private Boolean googleIdLocked;
     private Boolean pageCountLocked;
     private Boolean languageLocked;
+    private Boolean personalRatingLocked;
     private Boolean amazonRatingLocked;
     private Boolean amazonReviewCountLocked;
     private Boolean goodreadsRatingLocked;

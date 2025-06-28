@@ -1,0 +1,39 @@
+<div class="px-4">
+  <div class="flex items-center gap-2 pb-6 pt-4">
+    <p class="text-lg font-medium">Open Metadata Center</p>
+    <i class="pi pi-info-circle text-sky-600"
+       pTooltip="Decide how you want to view book details — inline as a full page or in a pop-up dialog."
+       tooltipPosition="right"
+       style="cursor: pointer;">
+    </i>
+  </div>
+
+  <div class="grid grid-cols-[auto,1fr] pl-6 gap-y-4 gap-x-4 items-center">
+    <p class="py-1">Display Mode:
+      <i class="pi pi-info-circle text-sky-600"
+         pTooltip="Choose whether to open the Metadata Center in the current page or as a popup dialog window."
+         tooltipPosition="right"
+         style="cursor: pointer;">
+      </i>
+    </p>
+
+    <div class="flex gap-4 justify-start">
+      <div class="flex items-center gap-2">
+        <p-radioButton name="viewMode"
+                       [value]="'route'"
+                       [(ngModel)]="viewMode"
+                       inputId="viewModeRoute"
+                       (onClick)="onViewModeChange('route')"></p-radioButton>
+        <label for="viewModeRoute">Route</label>
+      </div>
+      <div class="flex items-center gap-2">
+        <p-radioButton name="viewMode"
+                       [value]="'dialog'"
+                       [(ngModel)]="viewMode"
+                       inputId="viewModeDialog"
+                       (onClick)="onViewModeChange('dialog')"></p-radioButton>
+        <label for="viewModeDialog">Dialog</label>
+      </div>
+    </div>
+  </div>
+</div>

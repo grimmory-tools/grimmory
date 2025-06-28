@@ -1,6 +1,7 @@
-package com.adityachandel.booklore.service.metadata;
+package com.adityachandel.booklore.service.metadata.backuprestore;
 
-import com.adityachandel.booklore.model.dto.EpubMetadata;
+import com.adityachandel.booklore.model.MetadataClearFlags;
+import com.adityachandel.booklore.model.dto.BookMetadata;
 import com.adityachandel.booklore.model.entity.AuthorEntity;
 import com.adityachandel.booklore.model.entity.BookEntity;
 import com.adityachandel.booklore.model.entity.BookMetadataEntity;
@@ -9,12 +10,16 @@ import com.adityachandel.booklore.repository.AuthorRepository;
 import com.adityachandel.booklore.repository.BookMetadataRepository;
 import com.adityachandel.booklore.repository.BookRepository;
 import com.adityachandel.booklore.repository.CategoryRepository;
+import com.adityachandel.booklore.service.appsettings.AppSettingService;
+import com.adityachandel.booklore.service.metadata.MetadataMatchService;
+import com.adityachandel.booklore.service.metadata.writer.MetadataWriterFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,10 +33,11 @@ public class BookMetadataRestorer {
     private final BookMetadataRepository bookMetadataRepository;
     private final BookRepository bookRepository;
     private final MetadataMatchService metadataMatchService;
-    private final EpubMetadataWriter epubMetadataWriter;
+    private final AppSettingService appSettingService;
+    private final MetadataWriterFactory metadataWriterFactory;
 
     @Transactional
-    public void restoreMetadata(BookEntity bookEntity, EpubMetadata backup) {
+    public void restoreMetadata(BookEntity bookEntity, BookMetadata backup, String coverPath) {
         BookMetadataEntity metadata = bookEntity.getMetadata();
 
         if (!isLocked(metadata.getTitleLocked())) metadata.setTitle(backup.getTitle());
@@ -54,7 +60,7 @@ public class BookMetadataRestorer {
         if (!isLocked(metadata.getGoogleIdLocked())) metadata.setGoogleId(backup.getGoogleId());
 
         if (!isLocked(metadata.getAuthorsLocked())) {
-            Set<AuthorEntity> authors = Set.of();
+            Set<AuthorEntity> authors = new HashSet<>();
             if (backup.getAuthors() != null) {
                 authors = backup.getAuthors().stream()
                         .map(name -> authorRepository.findByName(name)
@@ -65,7 +71,7 @@ public class BookMetadataRestorer {
         }
 
         if (!isLocked(metadata.getCategoriesLocked())) {
-            Set<CategoryEntity> categories = Set.of();
+            Set<CategoryEntity> categories = new HashSet<>();
             if (backup.getCategories() != null) {
                 categories = backup.getCategories().stream()
                         .map(name -> categoryRepository.findByName(name)
@@ -75,6 +81,7 @@ public class BookMetadataRestorer {
             metadata.setCategories(categories);
         }
 
+        if (!isLocked(metadata.getPersonalRatingLocked())) metadata.setPersonalRating(backup.getPersonalRating());
         if (!isLocked(metadata.getAmazonRatingLocked())) metadata.setAmazonRating(backup.getAmazonRating());
         if (!isLocked(metadata.getAmazonReviewCountLocked())) metadata.setAmazonReviewCount(backup.getAmazonReviewCount());
 
@@ -95,11 +102,20 @@ public class BookMetadataRestorer {
         }
 
         try {
-            File bookFile = new File(bookEntity.getFullFilePath().toUri());
-            epubMetadataWriter.writeMetadataToFile(bookFile, metadata, metadata.getThumbnail());
-            log.info("Embedded metadata written to EPUB for book ID {}", bookEntity.getId());
+            boolean saveToOriginal = appSettingService.getAppSettings().getMetadataPersistenceSettings().isSaveToOriginalFile();
+            if (saveToOriginal) {
+                metadataWriterFactory.getWriter(bookEntity.getBookType()).ifPresent(writer -> {
+                    try {
+                        File file = new File(bookEntity.getFullFilePath().toUri());
+                        writer.writeMetadataToFile(file, metadata, coverPath, true, new MetadataClearFlags());
+                        log.info("Embedded metadata written to file for book ID {}", bookEntity.getId());
+                    } catch (Exception e) {
+                        log.warn("Failed to write metadata to file for book ID {}: {}", bookEntity.getId(), e.getMessage());
+                    }
+                });
+            }
         } catch (Exception e) {
-            log.warn("Failed to write metadata to EPUB for book ID {}: {}", bookEntity.getId(), e.getMessage());
+            log.warn("Error during embedded metadata write: {}", e.getMessage());
         }
 
         log.info("Metadata fully restored from backup for book ID {}", bookEntity.getId());

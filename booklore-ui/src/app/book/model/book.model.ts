@@ -38,7 +38,7 @@ export interface CbxProgress {
 
 export interface BookMetadata {
   bookId: number;
-  title: string;
+  title?: string;
   subtitle?: string;
   publisher?: string;
   publishedDate?: string;
@@ -64,8 +64,8 @@ export interface BookMetadata {
   hardcoverReviewCount?: number | null;
   personalRating?: number | null;
   coverUpdatedOn?: string;
-  authors: string[];
-  categories: string[];
+  authors?: string[];
+  categories?: string[];
   provider?: string;
   providerBookId?: string;
   thumbnailUrl?: string | null;
@@ -86,6 +86,7 @@ export interface BookMetadata {
   googleIdLocked?: boolean;
   pageCountLocked?: boolean;
   languageLocked?: boolean;
+  personalRatingLocked?: boolean;
   amazonRatingLocked?: boolean;
   amazonReviewCountLocked?: boolean;
   goodreadsRatingLocked?: boolean;
@@ -98,6 +99,40 @@ export interface BookMetadata {
   coverLocked?: boolean;
 
   [key: string]: any;
+}
+
+export interface MetadataClearFlags {
+  title?: boolean;
+  subtitle?: boolean;
+  publisher?: boolean;
+  publishedDate?: boolean;
+  description?: boolean;
+  seriesName?: boolean;
+  seriesNumber?: boolean;
+  seriesTotal?: boolean;
+  isbn13?: boolean;
+  isbn10?: boolean;
+  asin?: boolean;
+  goodreadsId?: boolean;
+  hardcoverId?: boolean;
+  googleId?: boolean;
+  pageCount?: boolean;
+  language?: boolean;
+  amazonRating?: boolean;
+  amazonReviewCount?: boolean;
+  goodreadsRating?: boolean;
+  goodreadsReviewCount?: boolean;
+  hardcoverRating?: boolean;
+  hardcoverReviewCount?: boolean;
+  personalRating?: boolean;
+  authors?: boolean;
+  categories?: boolean;
+  cover?: boolean;
+}
+
+export interface MetadataUpdateWrapper {
+  metadata: BookMetadata;
+  clearFlags: MetadataClearFlags;
 }
 
 export interface PdfViewerSetting {
@@ -156,12 +191,19 @@ export const enum PdfPageSpread {
 export interface BulkMetadataUpdateRequest {
   bookIds: number[];
   authors?: string[];
+  clearAuthors?: boolean;
   publisher?: string;
+  clearPublisher?: boolean;
   language?: string;
+  clearLanguage?: boolean;
   seriesName?: string;
-  seriesTotal?: number;
-  publishedDate?: string;
+  clearSeriesName?: boolean;
+  seriesTotal?: number | null;
+  clearSeriesTotal?: boolean;
+  publishedDate?: string | null;
+  clearPublishedDate?: boolean;
   genres?: string[];
+  clearGenres?: boolean;
 }
 
 export interface BookDeletionResponse {

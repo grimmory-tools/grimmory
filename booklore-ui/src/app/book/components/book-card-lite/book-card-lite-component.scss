@@ -1,0 +1,28 @@
+.book-cover-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  height: auto;
+
+  .book-cover {
+    width: 100%;
+    display: block;
+    border-radius: 0.5rem;
+  }
+
+  .info-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease-in-out;
+    z-index: 2;
+
+    &.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+}

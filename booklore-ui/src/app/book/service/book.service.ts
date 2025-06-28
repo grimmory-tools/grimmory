@@ -2,7 +2,7 @@ import {inject, Injectable} from '@angular/core';
 import {BehaviorSubject, first, Observable, of, throwError} from 'rxjs';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {catchError, filter, map, tap} from 'rxjs/operators';
-import {Book, BookDeletionResponse, BookMetadata, BookRecommendation, BookSetting, BulkMetadataUpdateRequest, ReadStatus} from '../model/book.model';
+import {Book, BookDeletionResponse, BookMetadata, BookRecommendation, BookSetting, BulkMetadataUpdateRequest, MetadataUpdateWrapper, ReadStatus} from '../model/book.model';
 import {BookState} from '../model/state/book-state.model';
 import {API_CONFIG} from '../../config/api-config';
 import {FetchMetadataRequest} from '../metadata/model/request/fetch-metadata-request.model';
@@ -160,7 +160,7 @@ export class BookService {
     const state = this.bookStateSubject.value;
     return (state.books || []).filter(book =>
       book.metadata?.title?.toLowerCase().includes(query.toLowerCase()) ||
-      book.metadata?.authors.some(author => author.toLowerCase().includes(query.toLowerCase()))
+      book.metadata?.authors?.some(author => author.toLowerCase().includes(query.toLowerCase()))
     );
   }
 
@@ -292,9 +292,9 @@ export class BookService {
     return this.http.post<BookMetadata[]>(`${this.url}/${bookId}/metadata/prospective`, request);
   }
 
-  updateBookMetadata(bookId: number | undefined, bookMetadata: BookMetadata, mergeCategories: boolean): Observable<BookMetadata> {
+  updateBookMetadata(bookId: number | undefined, wrapper: MetadataUpdateWrapper, mergeCategories: boolean): Observable<BookMetadata> {
     const params = new HttpParams().set('mergeCategories', mergeCategories.toString());
-    return this.http.put<BookMetadata>(`${this.url}/${bookId}/metadata`, bookMetadata, {params}).pipe(
+    return this.http.put<BookMetadata>(`${this.url}/${bookId}/metadata`, wrapper, {params}).pipe(
       map(updatedMetadata => {
         this.handleBookMetadataUpdate(bookId!, updatedMetadata);
         return updatedMetadata;

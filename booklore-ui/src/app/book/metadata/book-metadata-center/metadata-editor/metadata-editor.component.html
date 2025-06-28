@@ -6,7 +6,7 @@
     @if (isLoading) {
       <p-progressSpinner [style]="{position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)'}"></p-progressSpinner>
     }
-    <div class="flex-grow overflow-auto p-4">
+    <div class="flex-grow overflow-auto py-2 px-2">
       <div class="flex flex-row w-full gap-4">
         <div class="flex flex-col items-center gap-2 relative">
           <img
@@ -412,7 +412,7 @@
     </div>
     <div class="mt-auto">
       <p-divider></p-divider>
-      <div class="flex justify-between px-2 pt-1 pb-4 bg-gray-900 z-10">
+      <div class="flex justify-between px-2 pt-1 pb-4 z-10">
         @if (showNavigationButtons) {
           <div class="flex gap-x-4">
             <p-button label="Close" icon="pi pi-times" [outlined]="true" severity="danger" (onClick)="closeDialog()"></p-button>
@@ -432,8 +432,10 @@
             pTooltip="Automatically fetch metadata using default sources"
             tooltipPosition="top">
           </p-button>
-          <p-button label="Restore" icon="pi pi-refresh" [outlined]="true" severity="danger" (onClick)="restoreMetadata()" pTooltip="Revert all changes to original metadata" tooltipPosition="top"></p-button>
-          <p-divider layout="vertical"/>
+          @if (book.bookType === 'PDF' || book.bookType === 'EPUB') {
+            <p-button label="Restore" icon="pi pi-refresh" [outlined]="true" severity="danger" (onClick)="restoreMetadata()" pTooltip="Revert all changes to original metadata" tooltipPosition="top"></p-button>
+            <p-divider layout="vertical"/>
+          }
           <p-button label="Unlock All" icon="pi pi-lock-open" [outlined]="true" severity="success" (onClick)="unlockAll()" pTooltip="Unlock all metadata fields for editing" tooltipPosition="top"></p-button>
           <p-button label="Lock All" icon="pi pi-lock" [outlined]="true" severity="warn" (onClick)="lockAll()" pTooltip="Lock all metadata fields to prevent changes" tooltipPosition="top"></p-button>
           <p-divider layout="vertical"/>

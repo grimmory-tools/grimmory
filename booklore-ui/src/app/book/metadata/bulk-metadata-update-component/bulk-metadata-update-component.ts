@@ -8,7 +8,6 @@ import {Chips} from 'primeng/chips';
 import {DatePicker} from 'primeng/datepicker';
 import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
 import {MessageService} from 'primeng/api';
-
 import {BookService} from '../../service/book.service';
 import {Book, BulkMetadataUpdateRequest} from '../../model/book.model';
 import {Checkbox} from 'primeng/checkbox';
@@ -20,12 +19,12 @@ import {ProgressSpinner} from 'primeng/progressspinner';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     InputText,
     Button,
     Tooltip,
     Chips,
     DatePicker,
-    FormsModule,
     Checkbox,
     ProgressSpinner
   ],
@@ -40,6 +39,16 @@ export class BulkMetadataUpdateComponent implements OnInit {
   showBookList = true;
   mergeCategories = true;
   loading = false;
+
+  clearFields = {
+    authors: false,
+    publisher: false,
+    language: false,
+    seriesName: false,
+    seriesTotal: false,
+    publishedDate: false,
+    genres: false,
+  };
 
   private readonly config = inject(DynamicDialogConfig);
   private readonly ref = inject(DynamicDialogRef);
@@ -62,43 +71,70 @@ export class BulkMetadataUpdateComponent implements OnInit {
     });
   }
 
-  onSubmit(): void {
-    if (this.metadataForm.valid) {
-      const formValue = this.metadataForm.value;
+  onFieldClearToggle(field: keyof typeof this.clearFields): void {
+    const control = this.metadataForm.get(field);
+    if (!control) return;
 
-      const payload: BulkMetadataUpdateRequest = {
-        bookIds: this.bookIds,
-        authors: formValue.authors?.length ? formValue.authors : undefined,
-        publisher: formValue.publisher?.trim() || undefined,
-        language: formValue.language?.trim() || undefined,
-        seriesName: formValue.seriesName?.trim() || undefined,
-        seriesTotal: formValue.seriesTotal || undefined,
-        publishedDate: formValue.publishedDate
-          ? new Date(formValue.publishedDate).toISOString().split('T')[0]
-          : undefined,
-        genres: formValue.genres?.length ? formValue.genres : undefined
-      };
-      this.loading = true;
-      this.bookService.updateBooksMetadata(payload, this.mergeCategories).subscribe({
-        next: (updatedBooks) => {
-          this.loading = false;
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Metadata Updated',
-            detail: `${updatedBooks.length} book${updatedBooks.length > 1 ? 's' : ''} updated successfully`,
-          });
-          this.ref.close(true);
-        },
-        error: (error) => {
-          console.error('Bulk metadata update failed:', error);
-          this.loading = false;
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Update Failed',
-            detail: 'An error occurred while updating book metadata',
-          });
-        }
-      });
+    if (this.clearFields[field]) {
+      control.disable();
+      control.setValue(null);
+    } else {
+      control.enable();
     }
+  }
+
+  onSubmit(): void {
+    if (!this.metadataForm.valid) return;
+
+    const formValue = this.metadataForm.value;
+
+    const payload: BulkMetadataUpdateRequest = {
+      bookIds: this.bookIds,
+
+      authors: this.clearFields.authors ? [] : (formValue.authors?.length ? formValue.authors : undefined),
+      clearAuthors: this.clearFields.authors,
+
+      publisher: this.clearFields.publisher ? '' : (formValue.publisher?.trim() || undefined),
+      clearPublisher: this.clearFields.publisher,
+
+      language: this.clearFields.language ? '' : (formValue.language?.trim() || undefined),
+      clearLanguage: this.clearFields.language,
+
+      seriesName: this.clearFields.seriesName ? '' : (formValue.seriesName?.trim() || undefined),
+      clearSeriesName: this.clearFields.seriesName,
+
+      seriesTotal: this.clearFields.seriesTotal ? null : (formValue.seriesTotal || undefined),
+      clearSeriesTotal: this.clearFields.seriesTotal,
+
+      publishedDate: this.clearFields.publishedDate
+        ? null
+        : (formValue.publishedDate ? new Date(formValue.publishedDate).toISOString().split('T')[0] : undefined),
+      clearPublishedDate: this.clearFields.publishedDate,
+
+      genres: this.clearFields.genres ? [] : (formValue.genres?.length ? formValue.genres : undefined),
+      clearGenres: this.clearFields.genres
+    };
+
+    this.loading = true;
+    this.bookService.updateBooksMetadata(payload, this.mergeCategories).subscribe({
+      next: updatedBooks => {
+        this.loading = false;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Metadata Updated',
+          detail: `${updatedBooks.length} book${updatedBooks.length > 1 ? 's' : ''} updated successfully`
+        });
+        this.ref.close(true);
+      },
+      error: err => {
+        console.error('Bulk metadata update failed:', err);
+        this.loading = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Update Failed',
+          detail: 'An error occurred while updating book metadata'
+        });
+      }
+    });
   }
 }

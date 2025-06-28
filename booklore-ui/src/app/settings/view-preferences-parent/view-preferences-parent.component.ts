@@ -5,6 +5,7 @@ import {TableModule} from 'primeng/table';
 import {ToastModule} from 'primeng/toast';
 import {ViewPreferencesComponent} from './view-preferences/view-preferences.component';
 import {SidebarSortingPreferencesComponent} from './sidebar-sorting-preferences/sidebar-sorting-preferences.component';
+import {MetaCenterViewModeComponent} from './meta-center-view-mode-component/meta-center-view-mode-component';
 
 @Component({
   selector: 'app-view-preferences-parent',
@@ -15,7 +16,8 @@ import {SidebarSortingPreferencesComponent} from './sidebar-sorting-preferences/
     TableModule,
     ToastModule,
     ViewPreferencesComponent,
-    SidebarSortingPreferencesComponent
+    SidebarSortingPreferencesComponent,
+    MetaCenterViewModeComponent
   ],
   templateUrl: './view-preferences-parent.component.html',
   styleUrl: './view-preferences-parent.component.scss'

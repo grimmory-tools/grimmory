@@ -1,4 +1,4 @@
-package com.adityachandel.booklore.service.metadata.extractor;
+package com.adityachandel.booklore.service.metadata.upload.extractor;
 
 import com.adityachandel.booklore.model.UploadedFileMetadata;
 

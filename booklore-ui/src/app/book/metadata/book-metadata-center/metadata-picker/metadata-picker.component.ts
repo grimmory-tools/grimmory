@@ -1,5 +1,5 @@
 import {Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
-import {Book, BookMetadata} from '../../../model/book.model';
+import {Book, BookMetadata, MetadataClearFlags, MetadataUpdateWrapper} from '../../../model/book.model';
 import {MessageService} from 'primeng/api';
 import {Button} from 'primeng/button';
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -127,6 +127,7 @@ export class MetadataPickerComponent implements OnInit {
       pageCountLocked: new FormControl(false),
       languageLocked: new FormControl(false),
       asinLocked: new FormControl(false),
+      personalRatingLocked: new FormControl(false),
       amazonRatingLocked: new FormControl(false),
       amazonReviewCountLocked: new FormControl(false),
       goodreadsIdLocked: new FormControl(false),
@@ -193,6 +194,7 @@ export class MetadataPickerComponent implements OnInit {
           pageCountLocked: metadata.pageCountLocked || false,
           languageLocked: metadata.languageLocked || false,
           asinLocked: metadata.asinLocked || false,
+          personalRatingLocked: metadata.personalRatingLocked || false,
           amazonRatingLocked: metadata.amazonRatingLocked || false,
           amazonReviewCountLocked: metadata.amazonReviewCountLocked || false,
           goodreadsIdLocked: metadata.goodreadsIdLocked || false,
@@ -218,6 +220,7 @@ export class MetadataPickerComponent implements OnInit {
         if (metadata.isbn10Locked) this.metadataForm.get('isbn10')?.disable();
         if (metadata.isbn13Locked) this.metadataForm.get('isbn13')?.disable();
         if (metadata.asinLocked) this.metadataForm.get('asin')?.disable();
+        if (metadata.personalRatingLocked) this.metadataForm.get('personalRating')?.disable();
         if (metadata.amazonReviewCountLocked) this.metadataForm.get('amazonReviewCount')?.disable();
         if (metadata.amazonRatingLocked) this.metadataForm.get('amazonRating')?.disable();
         if (metadata.googleIdLocked) this.metadataForm.get('googleIdCount')?.disable();
@@ -238,7 +241,7 @@ export class MetadataPickerComponent implements OnInit {
 
   onSave(): void {
     this.isSaving = true;
-    const updatedBookMetadata = this.buildMetadata(undefined);
+    const updatedBookMetadata = this.buildMetadataWrapper(undefined);
     this.bookService.updateBookMetadata(this.currentBookId, updatedBookMetadata, false).subscribe({
       next: (bookMetadata) => {
         this.isSaving = false;
@@ -256,7 +259,7 @@ export class MetadataPickerComponent implements OnInit {
     });
   }
 
-  private buildMetadata(shouldLockAllFields: boolean | undefined) {
+  private buildMetadataWrapper(shouldLockAllFields: boolean | undefined): MetadataUpdateWrapper {
     const updatedBookMetadata: BookMetadata = {
       bookId: this.currentBookId,
       title: this.metadataForm.get('title')?.value || this.copiedFields['title'] ? this.getValueOrCopied('title') : '',
@@ -271,6 +274,7 @@ export class MetadataPickerComponent implements OnInit {
       pageCount: this.metadataForm.get('pageCount')?.value || this.copiedFields['pageCount'] ? this.getPageCountOrCopied() : null,
       language: this.metadataForm.get('language')?.value || this.copiedFields['language'] ? this.getValueOrCopied('language') : '',
       asin: this.metadataForm.get('asin')?.value || this.copiedFields['asin'] ? this.getValueOrCopied('asin') : '',
+      personalRating: this.metadataForm.get('personalRating')?.value || this.copiedFields['personalRating'] ? this.getNumberOrCopied('personalRating') : null,
       amazonRating: this.metadataForm.get('amazonRating')?.value || this.copiedFields['amazonRating'] ? this.getNumberOrCopied('amazonRating') : null,
       amazonReviewCount: this.metadataForm.get('amazonReviewCount')?.value || this.copiedFields['amazonReviewCount'] ? this.getNumberOrCopied('amazonReviewCount') : null,
       goodreadsId: this.metadataForm.get('goodreadsId')?.value || this.copiedFields['goodreadsId'] ? this.getValueOrCopied('goodreadsId') : '',
@@ -297,6 +301,7 @@ export class MetadataPickerComponent implements OnInit {
       pageCountLocked: this.metadataForm.get('pageCountLocked')?.value,
       languageLocked: this.metadataForm.get('languageLocked')?.value,
       asinLocked: this.metadataForm.get('asinLocked')?.value,
+      personalRatingLocked: this.metadataForm.get('personalRatingLocked')?.value,
       amazonRatingLocked: this.metadataForm.get('amazonRatingLocked')?.value,
       amazonReviewCountLocked: this.metadataForm.get('amazonReviewCountLocked')?.value,
       goodreadsIdLocked: this.metadataForm.get('goodreadsIdLocked')?.value,
@@ -313,7 +318,44 @@ export class MetadataPickerComponent implements OnInit {
 
       ...(shouldLockAllFields !== undefined && {allFieldsLocked: shouldLockAllFields}),
     };
-    return updatedBookMetadata;
+
+    const clearFlags: MetadataClearFlags = this.inferClearFlags(updatedBookMetadata, this.originalMetadata);
+
+    return {
+      metadata: updatedBookMetadata,
+      clearFlags: clearFlags
+    };
+  }
+
+  private inferClearFlags(current: BookMetadata, original: BookMetadata): MetadataClearFlags {
+    return {
+      title: !current.title && !!original.title,
+      subtitle: !current.subtitle && !!original.subtitle,
+      authors: current.authors?.length === 0 && original.authors?.length! > 0,
+      categories: current.categories?.length === 0 && original.categories?.length! > 0,
+      publisher: !current.publisher && !!original.publisher,
+      publishedDate: !current.publishedDate && !!original.publishedDate,
+      isbn10: !current.isbn10 && !!original.isbn10,
+      isbn13: !current.isbn13 && !!original.isbn13,
+      description: !current.description && !!original.description,
+      pageCount: current.pageCount === null && original.pageCount !== null,
+      language: !current.language && !!original.language,
+      asin: !current.asin && !!original.asin,
+      amazonRating: current.amazonRating === null && original.amazonRating !== null,
+      amazonReviewCount: current.amazonReviewCount === null && original.amazonReviewCount !== null,
+      goodreadsId: !current.goodreadsId && !!original.goodreadsId,
+      goodreadsRating: current.goodreadsRating === null && original.goodreadsRating !== null,
+      goodreadsReviewCount: current.goodreadsReviewCount === null && original.goodreadsReviewCount !== null,
+      hardcoverId: !current.hardcoverId && !!original.hardcoverId,
+      hardcoverRating: current.hardcoverRating === null && original.hardcoverRating !== null,
+      hardcoverReviewCount: current.hardcoverReviewCount === null && original.hardcoverReviewCount !== null,
+      googleId: !current.googleId && !!original.googleId,
+      seriesName: !current.seriesName && !!original.seriesName,
+      seriesNumber: current.seriesNumber === null && original.seriesNumber !== null,
+      seriesTotal: current.seriesTotal === null && original.seriesTotal !== null,
+      cover: !current.thumbnailUrl && !!original.thumbnailUrl,
+      personalRating: current.personalRating === null && original.personalRating !== null,
+    };
   }
 
   getThumbnail() {
@@ -325,7 +367,7 @@ export class MetadataPickerComponent implements OnInit {
   }
 
   private updateMetadata(shouldLockAllFields: boolean | undefined): void {
-    this.bookService.updateBookMetadata(this.currentBookId, this.buildMetadata(shouldLockAllFields), false).subscribe({
+    this.bookService.updateBookMetadata(this.currentBookId, this.buildMetadataWrapper(shouldLockAllFields), false).subscribe({
       next: (response) => {
         if (shouldLockAllFields !== undefined) {
           this.messageService.add({

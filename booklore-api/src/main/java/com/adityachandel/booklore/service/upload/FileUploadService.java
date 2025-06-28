@@ -14,8 +14,8 @@ import com.adityachandel.booklore.service.NotificationService;
 import com.adityachandel.booklore.service.fileprocessor.CbxProcessor;
 import com.adityachandel.booklore.service.fileprocessor.EpubProcessor;
 import com.adityachandel.booklore.service.fileprocessor.PdfProcessor;
-import com.adityachandel.booklore.service.metadata.extractor.EpubMetadataExtractor;
-import com.adityachandel.booklore.service.metadata.extractor.PdfMetadataExtractor;
+import com.adityachandel.booklore.service.metadata.upload.extractor.UploadedEpubMetadataExtractor;
+import com.adityachandel.booklore.service.metadata.upload.extractor.UploadedPdfMetadataExtractor;
 import com.adityachandel.booklore.util.FileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,8 +53,8 @@ public class FileUploadService {
     private final CbxProcessor cbxProcessor;
     private final NotificationService notificationService;
     private final AppSettingService appSettingService;
-    private final PdfMetadataExtractor pdfMetadataExtractor;
-    private final EpubMetadataExtractor epubMetadataExtractor;
+    private final UploadedPdfMetadataExtractor uploadedPdfMetadataExtractor;
+    private final UploadedEpubMetadataExtractor uploadedEpubMetadataExtractor;
 
     public Book uploadFile(MultipartFile file, long libraryId, long pathId) throws IOException {
         validateFile(file);
@@ -109,8 +109,8 @@ public class FileUploadService {
             throw ApiError.INVALID_FILE_FORMAT.createException("Content type is null.");
         }
         return switch (contentType.toLowerCase()) {
-            case PDF_MIME_TYPE -> pdfMetadataExtractor.extractMetadata(tempPath.toString());
-            case EPUB_MIME_TYPE -> epubMetadataExtractor.extractMetadata(tempPath.toString());
+            case PDF_MIME_TYPE -> uploadedPdfMetadataExtractor.extractMetadata(tempPath.toString());
+            case EPUB_MIME_TYPE -> uploadedEpubMetadataExtractor.extractMetadata(tempPath.toString());
             case CBZ_MIME_TYPE, CBR_MIME_TYPE, CB7_MIME_TYPE, "application/octet-stream" -> new UploadedFileMetadata();
             default -> throw ApiError.INVALID_FILE_FORMAT.createException("Unsupported file type.");
         };

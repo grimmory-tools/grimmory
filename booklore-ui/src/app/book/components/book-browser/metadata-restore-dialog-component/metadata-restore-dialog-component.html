@@ -26,8 +26,8 @@
             @if (backupMetadata.subtitle) {
               <div><strong>Subtitle:</strong> {{ backupMetadata.subtitle }}</div>
             }
-            @if (backupMetadata.authors.length) {
-              <div><strong>Authors:</strong> {{ backupMetadata.authors.join(', ') }}</div>
+            @if (backupMetadata.authors!.length) {
+              <div><strong>Authors:</strong> {{ backupMetadata.authors!.join(', ') }}</div>
             }
             @if (backupMetadata.publisher) {
               <div><strong>Publisher:</strong> {{ backupMetadata.publisher }}</div>
@@ -86,7 +86,7 @@
             @if (backupMetadata.googleId) {
               <div><strong>Google Books ID:</strong> {{ backupMetadata.googleId }}</div>
             }
-            @if (backupMetadata.categories.length) {
+            @if (backupMetadata.categories && backupMetadata.categories.length) {
               <div><strong>Categories:</strong> {{ backupMetadata.categories.join(', ') }}</div>
             }
           </div>

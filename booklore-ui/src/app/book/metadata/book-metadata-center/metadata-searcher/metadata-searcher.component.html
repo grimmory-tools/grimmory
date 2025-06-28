@@ -39,7 +39,7 @@
               <img [src]="metadata.thumbnailUrl || 'assets/images/missing-cover.jpg'" alt="Image" class="img-fixed-dimensions pr-2"/>
               <div class=" flex flex-col w-full m-2">
                 <div class="flex flex-row gap-4 justify-between">
-                  <p class="font-bold">{{ truncateText(metadata['title'], 90) }}</p>
+                  <p class="font-bold">{{ truncateText(metadata['title']!, 90) }}</p>
                   <div class="flex gap-2">
                     <p>ISBN: {{ metadata['isbn10'] || metadata['asin'] }}</p>
                     <p> | </p>
@@ -47,7 +47,7 @@
                   </div>
                 </div>
                 <div class="flex gap-2">
-                  <p>by {{ truncateText(metadata['authors'].join(', '), 70) }}</p>
+                  <p>by {{ truncateText(metadata['authors']!.join(', '), 70) }}</p>
                   <p> | </p>
                   <p>Source: <span [innerHTML]="buildProviderLink(metadata)"></span></p>
                 </div>

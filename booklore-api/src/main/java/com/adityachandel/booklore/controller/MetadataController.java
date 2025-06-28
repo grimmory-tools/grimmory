@@ -3,6 +3,7 @@ package com.adityachandel.booklore.controller;
 import com.adityachandel.booklore.config.security.annotation.CheckBookAccess;
 import com.adityachandel.booklore.exception.ApiError;
 import com.adityachandel.booklore.mapper.BookMetadataMapper;
+import com.adityachandel.booklore.model.MetadataUpdateWrapper;
 import com.adityachandel.booklore.model.dto.BookMetadata;
 import com.adityachandel.booklore.model.dto.EpubMetadata;
 import com.adityachandel.booklore.model.dto.request.*;
@@ -46,9 +47,9 @@ public class MetadataController {
     @PutMapping("/{bookId}/metadata")
     @PreAuthorize("@securityUtil.canEditMetadata() or @securityUtil.isAdmin()")
     @CheckBookAccess(bookIdParam = "bookId")
-    public ResponseEntity<BookMetadata> updateMetadata(@RequestBody BookMetadata setMetadataRequest, @PathVariable long bookId, @RequestParam(defaultValue = "true") boolean mergeCategories) {
+    public ResponseEntity<BookMetadata> updateMetadata(@RequestBody MetadataUpdateWrapper metadataUpdateWrapper, @PathVariable long bookId, @RequestParam(defaultValue = "true") boolean mergeCategories) {
         BookEntity bookEntity = bookRepository.findById(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
-        bookMetadataUpdater.setBookMetadata(bookEntity, setMetadataRequest, true, mergeCategories);
+        bookMetadataUpdater.setBookMetadata(bookEntity, metadataUpdateWrapper, true, mergeCategories);
         bookRepository.save(bookEntity);
         BookMetadata bookMetadata = bookMetadataMapper.toBookMetadata(bookEntity.getMetadata(), true);
         return ResponseEntity.ok(bookMetadata);
@@ -111,8 +112,8 @@ public class MetadataController {
     @GetMapping("/{bookId}/metadata/restore")
     @PreAuthorize("@securityUtil.canEditMetadata() or @securityUtil.isAdmin()")
     @CheckBookAccess(bookIdParam = "bookId")
-    public ResponseEntity<EpubMetadata> getBackedUpMetadata(@PathVariable Long bookId) {
-        EpubMetadata restoredMetadata = bookMetadataService.getBackedUpMetadata(bookId);
+    public ResponseEntity<BookMetadata> getBackedUpMetadata(@PathVariable Long bookId) {
+        BookMetadata restoredMetadata = bookMetadataService.getBackedUpMetadata(bookId);
         return ResponseEntity.ok(restoredMetadata);
     }
 

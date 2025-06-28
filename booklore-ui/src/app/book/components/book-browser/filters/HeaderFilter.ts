@@ -15,7 +15,7 @@ export class HeaderFilter implements BookFilter {
           const filteredBooks = bookState.books?.filter(book => {
             const matchesTitle = book.metadata?.title?.toLowerCase().includes(term.toLowerCase());
             const matchesSeries = book.metadata?.seriesName?.toLowerCase().includes(term.toLowerCase());
-            const matchesAuthor = book.metadata?.authors.some(author =>
+            const matchesAuthor = book.metadata?.authors?.some(author =>
               author.toLowerCase().includes(term.toLowerCase())
             );
             return matchesTitle || matchesSeries || matchesAuthor;

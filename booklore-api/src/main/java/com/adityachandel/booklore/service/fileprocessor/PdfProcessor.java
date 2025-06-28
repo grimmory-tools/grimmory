@@ -1,17 +1,20 @@
 package com.adityachandel.booklore.service.fileprocessor;
 
 import com.adityachandel.booklore.mapper.BookMapper;
-import com.adityachandel.booklore.model.dto.settings.LibraryFile;
 import com.adityachandel.booklore.model.dto.Book;
+import com.adityachandel.booklore.model.dto.BookMetadata;
+import com.adityachandel.booklore.model.dto.settings.LibraryFile;
 import com.adityachandel.booklore.model.entity.BookEntity;
 import com.adityachandel.booklore.model.enums.BookFileType;
 import com.adityachandel.booklore.repository.BookMetadataRepository;
 import com.adityachandel.booklore.repository.BookRepository;
 import com.adityachandel.booklore.service.BookCreatorService;
+import com.adityachandel.booklore.service.metadata.extractor.PdfMetadataExtractor;
 import com.adityachandel.booklore.service.metadata.MetadataMatchService;
 import com.adityachandel.booklore.util.FileUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
@@ -24,11 +27,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -41,6 +40,7 @@ public class PdfProcessor implements FileProcessor {
     private final FileProcessingUtils fileProcessingUtils;
     private final BookMetadataRepository bookMetadataRepository;
     private final MetadataMatchService metadataMatchService;
+    private final PdfMetadataExtractor pdfMetadataExtractor;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
@@ -85,34 +85,59 @@ public class PdfProcessor implements FileProcessor {
     }
 
     private void setMetadata(BookEntity bookEntity) {
-        try (PDDocument pdf = Loader.loadPDF(new File(FileUtils.getBookFullPath(bookEntity)))) {
-            if (pdf.getDocumentInformation() == null) {
-                log.warn("No document information found");
-            } else {
-                if (pdf.getDocumentInformation().getTitle() != null) {
-                    bookEntity.getMetadata().setTitle(truncate(pdf.getDocumentInformation().getTitle(), 1000));
-                }
-                if (pdf.getDocumentInformation().getAuthor() != null) {
-                    Set<String> authors = getAuthors(pdf);
-                    bookCreatorService.addAuthorsToBook(authors, bookEntity);
-                }
+        try {
+            BookMetadata extracted = pdfMetadataExtractor.extractMetadata(new File(FileUtils.getBookFullPath(bookEntity)));
+            if (StringUtils.isNotBlank(extracted.getTitle())) {
+                bookEntity.getMetadata().setTitle(truncate(extracted.getTitle(), 1000));
+            }
+            if (StringUtils.isNotBlank(extracted.getSeriesName())) {
+                bookEntity.getMetadata().setSeriesName(truncate(extracted.getSeriesName(), 1000));
+            }
+            if (extracted.getSeriesNumber() != null) {
+                bookEntity.getMetadata().setSeriesNumber(extracted.getSeriesNumber());
+            }
+            if (extracted.getAuthors() != null) {
+                bookCreatorService.addAuthorsToBook(extracted.getAuthors(), bookEntity);
+            }
+            if (StringUtils.isNotBlank(extracted.getPublisher())) {
+                bookEntity.getMetadata().setPublisher(extracted.getPublisher());
+            }
+            if (StringUtils.isNotBlank(extracted.getDescription())) {
+                bookEntity.getMetadata().setDescription(truncate(extracted.getDescription(), 5000));
+            }
+            if (extracted.getPublishedDate() != null) {
+                bookEntity.getMetadata().setPublishedDate(extracted.getPublishedDate());
+            }
+            if (StringUtils.isNotBlank(extracted.getLanguage())) {
+                bookEntity.getMetadata().setLanguage(extracted.getLanguage());
+            }
+            if (StringUtils.isNotBlank(extracted.getAsin())) {
+                bookEntity.getMetadata().setAsin(extracted.getAsin());
+            }
+            if (StringUtils.isNotBlank(extracted.getGoogleId())) {
+                bookEntity.getMetadata().setGoogleId(extracted.getGoogleId());
+            }
+            if (StringUtils.isNotBlank(extracted.getHardcoverId())) {
+                bookEntity.getMetadata().setHardcoverId(extracted.getHardcoverId());
+            }
+            if (StringUtils.isNotBlank(extracted.getGoodreadsId())) {
+                bookEntity.getMetadata().setGoodreadsId(extracted.getGoodreadsId());
+            }
+            if (StringUtils.isNotBlank(extracted.getIsbn10())) {
+                bookEntity.getMetadata().setIsbn10(extracted.getIsbn10());
+            }
+            if (StringUtils.isNotBlank(extracted.getIsbn13())) {
+                bookEntity.getMetadata().setIsbn13(extracted.getIsbn13());
+            }
+            if (extracted.getPersonalRating() != null) {
+                bookEntity.getMetadata().setPersonalRating(extracted.getPersonalRating());
+            }
+            if (extracted.getCategories() != null) {
+                bookCreatorService.addCategoriesToBook(extracted.getCategories(), bookEntity);
             }
         } catch (Exception e) {
-            log.error("Error loading pdf file {}, error: {}", bookEntity.getFileName(), e.getMessage());
+            log.error("Failed to extract advanced PDF metadata for {}: {}", bookEntity.getFileName(), e.getMessage(), e);
         }
-    }
-
-    private Set<String> getAuthors(PDDocument document) {
-        String authorNamesUnsplit = document.getDocumentInformation().getAuthor();
-        Set<String> authorNames = new HashSet<>();
-        if (authorNamesUnsplit.contains("&")) {
-            authorNames.addAll(Arrays.asList(authorNamesUnsplit.split("&")));
-        } else if (authorNamesUnsplit.contains(",")) {
-            authorNames.addAll(Arrays.asList(authorNamesUnsplit.split(",")));
-        } else {
-            authorNames.add(authorNamesUnsplit);
-        }
-        return authorNames.stream().map(String::trim).collect(Collectors.toSet());
     }
 
     private boolean generateCoverImageAndSave(Long bookId, PDDocument document) throws IOException {

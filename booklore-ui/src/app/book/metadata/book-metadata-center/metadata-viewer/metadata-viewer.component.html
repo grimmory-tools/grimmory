@@ -1,4 +1,4 @@
-<div class="pt-2 flex flex-col h-full">
+<div class="pt-2 flex flex-col h-full px-2 w-full">
   @if (book$ | async; as book) {
     <div>
       <div class="flex flex-row">
@@ -26,7 +26,7 @@
           }
         </div>
         <div class="flex flex-col justify-between">
-          <div class="pl-6 flex flex-col w-full">
+          <div class="pl-6 flex flex-col">
             <div class="flex flex-row items-center justify-between">
               <div>
                 @if (book?.metadata!.seriesName) {
@@ -45,17 +45,9 @@
                 </div>
                 <p class="text-lg">
                   @for (author of book?.metadata!.authors; track author; let isLast = $last) {
-                    <a
-                      class="underline hover:opacity-80"
-                      [routerLink]="['/all-books']"
-                      [queryParams]="{
-                        view: 'grid',
-                        sort: 'title',
-                        direction: 'asc',
-                        sidebar: true,
-                        filter: 'author:' + author
-                      }"
-                    >{{ author }}</a>
+                    <a class="underline hover:opacity-80 cursor-pointer" (click)="goToAuthorBooks(author)">
+                      {{ author }}
+                    </a>
                     @if (!isLast) {
                       <span>, </span>
                     }
@@ -63,7 +55,6 @@
                 </p>
               </div>
             </div>
-
             <div class="flex items-center gap-2 pt-2">
               <div class="flex items-center gap-2">
                 <i class="pi pi-thumbs-up-fill"
@@ -150,22 +141,14 @@
                 }
               }
             </div>
-            <div class="flex gap-2 pt-4 overflow-x-auto scrollbar-hide">
-              @for (category of book?.metadata!.categories; track category) {
-                <a
-                  [routerLink]="['/all-books']"
-                  [queryParams]="{
-                    view: 'grid',
-                    sort: 'title',
-                    direction: 'asc',
-                    sidebar: true,
-                    filter: 'category:' + category
-                  }"
-                  class="shrink-0 no-underline"
-                >
-                  <p-tag [value]="category"></p-tag>
-                </a>
-              }
+            <div class="overflow-x-auto pt-4 scrollbar-hide max-w-full w-full">
+              <div class="flex gap-2 w-max max-w-[1150px]">
+                @for (category of book?.metadata!.categories; track category) {
+                  <a (click)="goToCategory(category)" class="shrink-0 no-underline cursor-pointer">
+                    <p-tag [value]="category"></p-tag>
+                  </a>
+                }
+              </div>
             </div>
             <div class="grid gap-x-20 gap-y-2 pt-6" style="grid-template-columns: repeat(5, max-content);">
               <div>
@@ -180,7 +163,7 @@
                   <p-menu #menu [popup]="true" [model]="readStatusMenuItems"></p-menu>
                 </p>
               </div>
-              <p class="whitespace-nowrap"><span class="font-bold">Publisher:</span> {{ book?.metadata!.publisher || '-' }}</p>
+              <p class="whitespace-nowrap max-w-[250px] overflow-hidden text-ellipsis"><span class="font-bold">Publisher:</span> {{ book?.metadata!.publisher || '-' }}</p>
               <p class="whitespace-nowrap"><span class="font-bold">Published:</span> {{ book?.metadata!.publishedDate || '-' }}</p>
               <p class="whitespace-nowrap"><span class="font-bold">Language:</span> {{ book?.metadata!.language || '-' }}</p>
               <p class="whitespace-nowrap"><span class="font-bold">ISBN 10:</span> {{ book?.metadata!.isbn10 || '-' }}</p>
@@ -217,7 +200,7 @@
               <p class="whitespace-nowrap"><span class="font-bold">File Size:</span> {{ getFileSizeInMB(book) }}</p>
               <p class="whitespace-nowrap"><span class="font-bold">ISBN 13:</span> {{ book?.metadata!.isbn13 || '-' }}</p>
             </div>
-            <div class="pt-2 flex items-center gap-2 w-full">
+            <div class="pt-2 flex items-center gap-2">
               <span class="font-semibold flex-shrink-0">File Path:</span>
               <p-toggleButton
                 [(ngModel)]="showFilePath"
@@ -232,7 +215,7 @@
                   class="flex items-center gap-4 flex-grow"
                   style="min-width: 0;">
                   <p
-                    class="font-mono text-sm text-gray-400 overflow-x-auto whitespace-nowrap flex-grow"
+                    class="font-mono text-sm text-gray-400 whitespace-nowrap flex-grow"
                     style="min-width: 0;">
                     {{ book?.filePath }}
                   </p>
@@ -316,7 +299,6 @@
 
     <p-divider></p-divider>
 
-
     <div class="flex-1 space-y-2 px-2">
       <div [ngClass]="{ 'line-clamp-5': !isExpanded, 'line-clamp-none': isExpanded }" class="transition-all duration-300 overflow-hidden description-container">
         <div class="readonly-editor px-2">
@@ -329,12 +311,12 @@
       @if (book.metadata!.description && book.metadata!.description.length > 100) {
         <div class="text-left">
           <button pButton
-                  type="button"
-                  [label]="isExpanded ? 'Show less' : 'Show more'"
-                  [icon]="isExpanded ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
-                  iconPos="right"
-                  class="p-button-text p-button-sm"
-                  (click)="toggleExpand()">
+            type="button"
+            [label]="isExpanded ? 'Show less' : 'Show more'"
+            [icon]="isExpanded ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
+            iconPos="right"
+            class="p-button-text p-button-sm"
+            (click)="toggleExpand()">
           </button>
         </div>
       }
@@ -349,12 +331,9 @@
                [horizontal]="true">
             @for (book of bookInSeries; track book) {
               <div class="dashboard-scroller-card">
-                <app-book-card
+                <app-book-card-lite-component
                   [book]="book"
-                  [isCheckboxEnabled]="false"
-                  [readButtonHidden]="true"
-                  [bottomBarHidden]="true">
-                </app-book-card>
+                ></app-book-card-lite-component>
               </div>
             }
           </div>
@@ -371,12 +350,9 @@
                [horizontal]="true">
             @for (book of recommendedBooks; track book) {
               <div class="dashboard-scroller-card">
-                <app-book-card
+                <app-book-card-lite-component
                   [book]="book.book"
-                  [isCheckboxEnabled]="false"
-                  [readButtonHidden]="true"
-                  [bottomBarHidden]="true">
-                </app-book-card>
+                ></app-book-card-lite-component>
               </div>
             }
           </div>

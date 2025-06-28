@@ -8,22 +8,23 @@ import com.adityachandel.booklore.model.dto.request.ReadProgressRequest;
 import com.adityachandel.booklore.model.dto.request.ReadStatusUpdateRequest;
 import com.adityachandel.booklore.model.dto.request.ShelvesAssignmentRequest;
 import com.adityachandel.booklore.model.dto.response.BookDeletionResponse;
-import com.adityachandel.booklore.service.metadata.MetadataBackupRestoreService;
-import com.adityachandel.booklore.service.recommender.BookRecommendationService;
 import com.adityachandel.booklore.service.BookService;
+import com.adityachandel.booklore.service.metadata.BookMetadataService;
+import com.adityachandel.booklore.service.recommender.BookRecommendationService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 @RequestMapping("/api/v1/books")
@@ -33,7 +34,7 @@ public class BookController {
 
     private final BookService bookService;
     private final BookRecommendationService bookRecommendationService;
-    private final MetadataBackupRestoreService metadataBackupRestoreService;
+    private final BookMetadataService bookMetadataService;
 
     @GetMapping
     public ResponseEntity<List<Book>> getBooks(@RequestParam(required = false, defaultValue = "false") boolean withDescription) {
@@ -64,10 +65,13 @@ public class BookController {
 
     @GetMapping("/{bookId}/backup-cover")
     public ResponseEntity<Resource> getBackupBookCover(@PathVariable long bookId) {
-        Resource file = metadataBackupRestoreService.getBackupCover(bookId);
+        Resource file = bookMetadataService.getBackupCoverForBook(bookId);
+        if (file == null) {
+            return ResponseEntity.noContent().build();
+        }
         return ResponseEntity.ok()
-                .header("Content-Disposition", "inline; filename=cover.jpg")
-                .contentType(org.springframework.http.MediaType.IMAGE_JPEG)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=cover.jpg")
+                .contentType(MediaType.IMAGE_JPEG)
                 .body(file);
     }
 

@@ -194,8 +194,8 @@ export class BookFilterComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(([sortMode]) => {
         this.filterStreams = {
-          author: this.getFilterStream((book: Book) => book.metadata?.authors.map(name => ({id: name, name})) || [], 'id', 'name', sortMode),
-          category: this.getFilterStream((book: Book) => book.metadata?.categories.map(name => ({id: name, name})) || [], 'id', 'name', sortMode),
+          author: this.getFilterStream((book: Book) => book.metadata?.authors!.map(name => ({id: name, name})) || [], 'id', 'name', sortMode),
+          category: this.getFilterStream((book: Book) => book.metadata?.categories!.map(name => ({id: name, name})) || [], 'id', 'name', sortMode),
           series: this.getFilterStream((book) => (book.metadata?.seriesName ? [{id: book.metadata.seriesName, name: book.metadata.seriesName}] : []), 'id', 'name', sortMode),
           publisher: this.getFilterStream((book) => (book.metadata?.publisher ? [{id: book.metadata.publisher, name: book.metadata.publisher}] : []), 'id', 'name', sortMode),
           readStatus: this.getFilterStream((book: Book) => [{id: book.readStatus ?? ReadStatus.UNREAD, name: getReadStatusName(book.readStatus)}], 'id', 'name', sortMode),

@@ -119,8 +119,7 @@ public class UserService {
     }
 
     public void updateUserSetting(Long userId, UpdateUserSettingRequest request) {
-        BookLoreUserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(userId));
+        BookLoreUserEntity user = userRepository.findById(userId).orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(userId));
 
         String key = request.getKey();
         Object value = request.getValue();

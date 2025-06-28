@@ -43,6 +43,7 @@ public class BookLoreUser {
         public SidebarSortOption sidebarShelfSorting;
         public EntityViewPreferences entityViewPreferences;
         public String filterSortingMode;
+        public String metadataCenterViewMode;
 
         @Data
         @Builder

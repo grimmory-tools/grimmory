@@ -107,7 +107,6 @@ export class MetadataSearcherComponent implements OnInit, OnDestroy {
             .filter(([_, value]) => value.enabled)
             .map(([key]) => key.charAt(0).toUpperCase() + key.slice(1));
 
-          console.log('aditya')
           this.resetFormFromBook(book!);
 
           if (settings!.autoBookSearch) {

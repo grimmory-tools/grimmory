@@ -30,6 +30,7 @@ public class DefaultUserSettingsProvider {
         defaultSettings.put(UserSettingKey.SIDEBAR_SHELF_SORTING, this::buildDefaultSidebarShelfSorting);
         defaultSettings.put(UserSettingKey.ENTITY_VIEW_PREFERENCES, this::buildDefaultEntityViewPreferences);
         defaultSettings.put(UserSettingKey.FILTER_SORTING_MODE, () -> "count");
+        defaultSettings.put(UserSettingKey.METADATA_CENTER_VIEW_MODE, () -> "route");
     }
 
     public Set<UserSettingKey> getAllKeys() {

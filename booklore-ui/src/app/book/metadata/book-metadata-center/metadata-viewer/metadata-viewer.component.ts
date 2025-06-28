@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, Input, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
+import {Component, DestroyRef, inject, Input, OnChanges, OnInit, Optional, SimpleChanges, ViewChild} from '@angular/core';
 import {Button, ButtonDirective} from 'primeng/button';
 import {AsyncPipe, DecimalPipe, NgClass} from '@angular/common';
 import {Observable} from 'rxjs';
@@ -6,19 +6,17 @@ import {BookService} from '../../../service/book.service';
 import {Rating, RatingRateEvent} from 'primeng/rating';
 import {FormsModule} from '@angular/forms';
 import {Tag} from 'primeng/tag';
-import {Book, BookMetadata, BookRecommendation, ReadStatus} from '../../../model/book.model';
+import {Book, BookMetadata, BookRecommendation, MetadataClearFlags, MetadataUpdateWrapper, ReadStatus} from '../../../model/book.model';
 import {Divider} from 'primeng/divider';
 import {UrlHelperService} from '../../../../utilities/service/url-helper.service';
 import {UserService} from '../../../../settings/user-management/user.service';
 import {SplitButton} from 'primeng/splitbutton';
 import {ConfirmationService, MenuItem, MessageService} from 'primeng/api';
 import {BookSenderComponent} from '../../../components/book-sender/book-sender.component';
-import {DialogService} from 'primeng/dynamicdialog';
+import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
 import {EmailService} from '../../../../settings/email/email.service';
 import {ShelfAssignerComponent} from '../../../components/shelf-assigner/shelf-assigner.component';
 import {Tooltip} from 'primeng/tooltip';
-import {InfiniteScrollDirective} from 'ngx-infinite-scroll';
-import {BookCardComponent} from '../../../components/book-browser/book-card/book-card.component';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Editor} from 'primeng/editor';
 import {ProgressBar} from 'primeng/progressbar';
@@ -26,16 +24,18 @@ import {ToggleButton} from 'primeng/togglebutton';
 import {MetadataFetchOptionsComponent} from '../../metadata-options-dialog/metadata-fetch-options/metadata-fetch-options.component';
 import {MetadataRefreshType} from '../../model/request/metadata-refresh-type.enum';
 import {MetadataRefreshRequest} from '../../model/request/metadata-refresh-request.model';
-import {Router, RouterLink} from '@angular/router';
+import {Router} from '@angular/router';
 import {filter, map, take} from 'rxjs/operators';
 import {Menu} from 'primeng/menu';
+import {InfiniteScrollDirective} from 'ngx-infinite-scroll';
+import {BookCardLiteComponent} from '../../../components/book-card-lite/book-card-lite-component';
 
 @Component({
   selector: 'app-metadata-viewer',
   standalone: true,
   templateUrl: './metadata-viewer.component.html',
   styleUrl: './metadata-viewer.component.scss',
-  imports: [Button, AsyncPipe, Rating, FormsModule, Tag, Divider, SplitButton, NgClass, Tooltip, DecimalPipe, InfiniteScrollDirective, BookCardComponent, ButtonDirective, Editor, ProgressBar, ToggleButton, RouterLink, Menu]
+  imports: [Button, AsyncPipe, Rating, FormsModule, Tag, Divider, SplitButton, NgClass, Tooltip, DecimalPipe, ButtonDirective, Editor, ProgressBar, ToggleButton, Menu, InfiniteScrollDirective, BookCardLiteComponent]
 })
 export class MetadataViewerComponent implements OnInit, OnChanges {
 
@@ -54,6 +54,12 @@ export class MetadataViewerComponent implements OnInit, OnChanges {
   private confirmationService = inject(ConfirmationService);
   private router = inject(Router);
 
+  private dialogRef?: DynamicDialogRef;
+
+  constructor(@Optional() dialogRef?: DynamicDialogRef) {
+    this.dialogRef = dialogRef;
+  }
+
   emailMenuItems$!: Observable<MenuItem[]>;
   readMenuItems$!: Observable<MenuItem[]>;
   refreshMenuItems$!: Observable<MenuItem[]>;
@@ -63,6 +69,7 @@ export class MetadataViewerComponent implements OnInit, OnChanges {
   isExpanded = false;
   showFilePath = false;
   isAutoFetching = false;
+  private metadataCenterViewMode: 'route' | 'dialog' = 'route';
 
   readStatusOptions = [
     {label: 'Unread', value: ReadStatus.UNREAD},
@@ -145,7 +152,11 @@ export class MetadataViewerComponent implements OnInit, OnChanges {
               accept: () => {
                 this.bookService.deleteBooks(new Set([book.id])).subscribe({
                   next: () => {
-                    this.router.navigate(['/dashboard']);
+                    if (this.metadataCenterViewMode === 'route') {
+                      this.router.navigate(['/dashboard']);
+                    } else {
+                      this.dialogRef?.close();
+                    }
                   },
                   error: () => {
                   }
@@ -156,6 +167,15 @@ export class MetadataViewerComponent implements OnInit, OnChanges {
         }
       ])
     );
+
+    this.userService.userState$
+      .pipe(
+        filter(user => !!user),
+        take(1)
+      )
+      .subscribe(user => {
+        this.metadataCenterViewMode = user?.userSettings.metadataCenterViewMode ?? 'route';
+      });
 
     this.book$
       .pipe(
@@ -326,17 +346,71 @@ export class MetadataViewerComponent implements OnInit, OnChanges {
     return 'bg-blue-500';
   }
 
-  onPersonalRatingChange(book: Book, event: RatingRateEvent): void {
-    const rating = event.value;
-    if (!book || !book.metadata) return;
-    const updatedMetadata = {
-      ...book.metadata,
-      personalRating: rating
-    };
-    this.bookService.updateBookMetadata(book.id, updatedMetadata, false).subscribe({
+  onPersonalRatingChange(book: Book, { value: personalRating }: RatingRateEvent): void {
+    if (!book?.metadata) return;
+
+    const updatedMetadata = { ...book.metadata, personalRating };
+
+    this.bookService.updateBookMetadata(book.id, {
+      metadata: updatedMetadata,
+      clearFlags: { personalRating: false }
+    }, false).subscribe({
       next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Rating Saved',
+          detail: 'Personal rating updated successfully'
+        });
       },
-      error: (err) => {
+      error: err => {
+        console.error('Failed to update personal rating:', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Update Failed',
+          detail: 'Could not update personal rating'
+        });
+      }
+    });
+  }
+
+  goToAuthorBooks(author: string): void {
+    if (this.metadataCenterViewMode === 'dialog') {
+      this.dialogRef?.close();
+      setTimeout(() => this.navigateToAuthorBooks(author), 200);
+    } else {
+      this.navigateToAuthorBooks(author);
+    }
+  }
+
+  private navigateToAuthorBooks(author: string): void {
+    this.router.navigate(['/all-books'], {
+      queryParams: {
+        view: 'grid',
+        sort: 'title',
+        direction: 'asc',
+        sidebar: true,
+        filter: `author:${author}`
+      }
+    });
+  }
+
+  goToCategory(category: string): void {
+    if (this.metadataCenterViewMode === 'dialog') {
+      this.dialogRef?.close();
+      setTimeout(() => this.navigateToCategory(category), 200);
+    } else {
+      this.navigateToCategory(category);
+    }
+  }
+
+  private navigateToCategory(category: string): void {
+    this.router.navigate(['/all-books'], {
+      queryParams: {
+        view: 'grid',
+        sort: 'title',
+        direction: 'asc',
+        sidebar: true,
+        filter: `category:${category}`
       }
     });
   }

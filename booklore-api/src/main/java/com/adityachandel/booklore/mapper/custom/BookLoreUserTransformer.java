@@ -59,8 +59,9 @@ public class BookLoreUserTransformer {
                         case ENTITY_VIEW_PREFERENCES -> userSettings.setEntityViewPreferences(objectMapper.readValue(value, BookLoreUser.UserSettings.EntityViewPreferences.class));
                     }
                 } else {
-                    if (settingKey == UserSettingKey.FILTER_SORTING_MODE) {
-                        userSettings.setFilterSortingMode(value);
+                    switch (settingKey) {
+                        case FILTER_SORTING_MODE -> userSettings.setFilterSortingMode(value);
+                        case METADATA_CENTER_VIEW_MODE -> userSettings.setMetadataCenterViewMode(value);
                     }
                 }
             } catch (IllegalArgumentException e) {

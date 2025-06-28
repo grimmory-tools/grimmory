@@ -28,11 +28,13 @@
     <p-button [hidden]="readButtonHidden" [rounded]="true" icon="pi pi-book" class="read-btn" (click)="readBook(book)"></p-button>
 
     @if (isCheckboxEnabled) {
-      <input
-        type="checkbox"
+      <p-checkbox
+        [binary]="true"
         class="select-checkbox"
-        [checked]="isSelected"
-        (click)="toggleSelection(!isSelected, $event)">
+        (click)="captureMouseEvent($event)"
+        [ngModel]="isSelected"
+        (onChange)="toggleSelection($event)">
+      </p-checkbox>
     }
 
     @if (progressPercentage !== null) {

@@ -1,6 +1,9 @@
 <p-table
   [value]="books"
+  [dataKey]="'id'"
   [resizableColumns]="true"
+  [metaKeySelection]="true"
+  [rowTrackBy]="trackByBookId"
   showGridlines
   stripedRows
   [scrollable]="true"
@@ -59,9 +62,9 @@
           <img [attr.src]="urlHelper.getCoverUrl(metadata.bookId, metadata?.coverUpdatedOn)" alt="Book Cover" class="size-7"/>
         </td>
         <td class="min-w-[18rem] max-w-[25rem] overflow-hidden truncate" [title]="metadata.title">{{ metadata.title }}</td>
-        <td class="min-w-[10rem] max-w-[15rem] overflow-hidden truncate" [title]="getAuthorNames(metadata.authors)">{{ getAuthorNames(metadata.authors) }}</td>
-        <td class="min-w-[9rem] max-w-[13rem] overflow-hidden truncate" [title]="metadata.publisher">{{ metadata.publisher }}</td>
-        <td class="min-w-[9rem] max-w-[13rem] overflow-hidden truncate" [title]="metadata.seriesName">{{ metadata.seriesName }}</td>
+        <td class="min-w-[10rem] max-w-[20rem] overflow-hidden truncate" [title]="getAuthorNames(metadata.authors)">{{ getAuthorNames(metadata.authors) }}</td>
+        <td class="min-w-[10rem] max-w-[25rem] overflow-hidden truncate" [title]="metadata.publisher">{{ metadata.publisher }}</td>
+        <td class="min-w-[10rem] max-w-[25rem] overflow-hidden truncate" [title]="metadata.seriesName">{{ metadata.seriesName }}</td>
         <td class="min-w-[1rem] max-w-[4rem] overflow-hidden truncate" [title]="metadata.seriesNumber">{{ metadata.seriesNumber }}</td>
         <td class="min-w-[12rem] max-w-[18rem] overflow-hidden truncate" [title]="getGenres(metadata.categories)">{{ getGenres(metadata.categories) }}</td>
         <td class="min-w-[9rem] max-w-[9rem] overflow-hidden truncate">
@@ -74,7 +77,7 @@
           {{ book.addedOn ? (book.addedOn | date: 'dd-MMM-yyyy') : '' }}
         </td>
         <td class="min-w-[7rem] max-w-[9rem] overflow-hidden truncate"
-          [title]="book.fileSizeKb + ' KB'">
+            [title]="book.fileSizeKb + ' KB'">
           {{ formatFileSize(book.fileSizeKb) }}
         </td>
         <td class="min-w-[6rem] max-w-[6rem] overflow-hidden truncate">{{ metadata.language }}</td>

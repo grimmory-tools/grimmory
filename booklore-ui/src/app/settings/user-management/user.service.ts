@@ -79,6 +79,7 @@ export interface UserSettings {
   sidebarLibrarySorting: SidebarLibrarySorting;
   sidebarShelfSorting: SidebarShelfSorting;
   filterSortingMode: 'alphabetical' | 'count';
+  metadataCenterViewMode: 'route' | 'dialog';
   entityViewPreferences: EntityViewPreferences;
 }
 

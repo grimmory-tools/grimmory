@@ -1,13 +1,10 @@
 package com.adityachandel.booklore.service.metadata;
 
-import com.adityachandel.booklore.model.dto.Book;
-import com.adityachandel.booklore.model.dto.BookMetadata;
 import com.adityachandel.booklore.model.dto.settings.AppSettings;
 import com.adityachandel.booklore.model.dto.settings.MetadataMatchWeights;
 import com.adityachandel.booklore.model.entity.BookEntity;
 import com.adityachandel.booklore.model.entity.BookMetadataEntity;
 import com.adityachandel.booklore.service.BookQueryService;
-import com.adityachandel.booklore.service.BookService;
 import com.adityachandel.booklore.service.appsettings.AppSettingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

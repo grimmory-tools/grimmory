@@ -2,7 +2,7 @@ package com.adityachandel.booklore.service.fileprocessor;
 
 import com.adityachandel.booklore.mapper.BookMapper;
 import com.adityachandel.booklore.model.dto.Book;
-import com.adityachandel.booklore.model.dto.EpubMetadata;
+import com.adityachandel.booklore.model.dto.BookMetadata;
 import com.adityachandel.booklore.model.dto.settings.LibraryFile;
 import com.adityachandel.booklore.model.entity.BookEntity;
 import com.adityachandel.booklore.model.entity.BookMetadataEntity;
@@ -10,36 +10,21 @@ import com.adityachandel.booklore.model.enums.BookFileType;
 import com.adityachandel.booklore.repository.BookMetadataRepository;
 import com.adityachandel.booklore.repository.BookRepository;
 import com.adityachandel.booklore.service.BookCreatorService;
-import com.adityachandel.booklore.service.metadata.EpubMetadataReader;
+import com.adityachandel.booklore.service.metadata.extractor.EpubMetadataExtractor;
 import com.adityachandel.booklore.service.metadata.MetadataMatchService;
 import com.adityachandel.booklore.util.FileUtils;
-import io.documentnode.epub4j.domain.Identifier;
 import io.documentnode.epub4j.domain.Resource;
 import io.documentnode.epub4j.epub.EpubReader;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.lingala.zip4j.ZipFile;
-import net.lingala.zip4j.model.FileHeader;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 import javax.imageio.ImageIO;
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeParseException;
-import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -55,7 +40,7 @@ public class EpubProcessor implements FileProcessor {
     private final FileProcessingUtils fileProcessingUtils;
     private final BookMetadataRepository bookMetadataRepository;
     private final MetadataMatchService metadataMatchService;
-    private final EpubMetadataReader epubMetadataReader;
+    private final EpubMetadataExtractor epubMetadataExtractor;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
@@ -119,7 +104,7 @@ public class EpubProcessor implements FileProcessor {
     private void setBookMetadata(BookEntity bookEntity) {
         File bookFile = new File(bookEntity.getFullFilePath().toUri());
 
-        EpubMetadata epubMetadata = epubMetadataReader.readMetadata(bookFile);
+        BookMetadata epubMetadata = epubMetadataExtractor.extractMetadata(bookFile);
         if (epubMetadata == null) return;
 
         BookMetadataEntity bookMetadata = bookEntity.getMetadata();
@@ -139,6 +124,7 @@ public class EpubProcessor implements FileProcessor {
         bookMetadata.setLanguage(truncate((lang == null || lang.equalsIgnoreCase("UND")) ? "en" : lang, 1000));
 
         bookMetadata.setAsin(truncate(epubMetadata.getAsin(), 20));
+        bookMetadata.setPersonalRating(epubMetadata.getPersonalRating());
         bookMetadata.setAmazonRating(epubMetadata.getAmazonRating());
         bookMetadata.setAmazonReviewCount(epubMetadata.getAmazonReviewCount());
         bookMetadata.setGoodreadsId(truncate(epubMetadata.getGoodreadsId(), 100));
@@ -152,9 +138,9 @@ public class EpubProcessor implements FileProcessor {
         bookCreatorService.addAuthorsToBook(epubMetadata.getAuthors(), bookEntity);
 
         if (epubMetadata.getCategories() != null) {
-            List<String> validSubjects = epubMetadata.getCategories().stream()
+            Set<String> validSubjects = epubMetadata.getCategories().stream()
                     .filter(s -> s != null && !s.isBlank() && s.length() <= 100 && !s.contains("\n") && !s.contains("\r") && !s.contains("  "))
-                    .toList();
+                    .collect(Collectors.toSet());
             bookCreatorService.addCategoriesToBook(validSubjects, bookEntity);
         }
     }

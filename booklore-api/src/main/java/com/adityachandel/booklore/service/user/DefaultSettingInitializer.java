@@ -44,15 +44,20 @@ public class DefaultSettingInitializer {
     }
 
     private void addSettingIfMissing(BookLoreUserEntity user, UserSettingKey key, Object value) {
-        boolean exists = user.getSettings().stream().anyMatch(s -> s.getSettingKey().equals(key.getDbKey()));
+        boolean exists = user.getSettings().stream()
+                .anyMatch(s -> s.getSettingKey().equals(key.getDbKey()));
         if (!exists) {
             try {
-                String json = objectMapper.writeValueAsString(value);
+                String serializedValue = key.isJson()
+                        ? objectMapper.writeValueAsString(value)
+                        : value.toString();
+
                 user.getSettings().add(UserSettingEntity.builder()
                         .user(user)
                         .settingKey(key.getDbKey())
-                        .settingValue(json)
+                        .settingValue(serializedValue)
                         .build());
+
                 log.info("Added default {} for user {}", key, user.getUsername());
             } catch (Exception e) {
                 log.error("Failed to add default {} for user {}", key, user.getUsername(), e);
