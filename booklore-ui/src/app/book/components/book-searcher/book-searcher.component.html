@@ -1,45 +1,86 @@
-<div class="ml-5 relative">
-  <div class="w-[400px] relative">
-    <i class="pi pi-search search-icon"></i>
+<div class="ml-2 md:ml-5 relative w-full max-w-[500px]">
+  <!-- Desktop view -->
+  <p-iconfield class="w-full sm:flex">
+    <p-inputicon styleClass="pi pi-search"/>
     <input
-      style="width: 400px;"
       type="text"
       pInputText
       [(ngModel)]="searchQuery"
       (input)="onSearchInputChange()"
       placeholder="Search books by title or author..."
-      class="search-input"
-      />
+      class="w-full pr-10"
+    />
     @if (searchQuery) {
-      <p-button icon="pi pi-times" (click)="clearSearch()" [text]="true" [rounded]="true" class="clear-btn" aria-label="Clear Search"></p-button>
+      <p-button
+        icon="pi pi-times"
+        (click)="clearSearch()"
+        [text]="true"
+        [rounded]="true"
+        class="absolute right-2 top-1/2 -translate-y-1/2 hidden lg:inline-flex"
+        aria-label="Clear Search">
+      </p-button>
     }
+  </p-iconfield>
+
+  <!--<div class="sm:hidden flex items-center">
+    <p-button
+      icon="pi pi-search"
+      (click)="toggleSearchInputDropdown()"
+      [rounded]="true">
+    </p-button>
   </div>
 
-  <div class="search-dropdown layout-menu pt-4" [class.show]="(books.length > 0)">
-    @if (books.length > 0) {
-      @for (book of books; track book) {
-        <div class="search-dropdown-item flex flex-col" (click)="onBookClick(book)">
-          <div class="flex flex-row w-full px-2">
-            <img [attr.src]="urlHelper.getCoverUrl(book.id, book.metadata?.coverUpdatedOn)" alt="Book Cover" class="search-book-cover"/>
-            <div class="search-book-details">
-              <div class="flex items-center">
-                <p class="search-book-name text-lg font-medium truncate">{{ book.metadata?.title | slice:0:70 }}</p>
-              </div>
-              @if (book.metadata?.authors?.length ?? 0 > 0) {
-                <div class="search-book-authors">
-                  <p class="italic">by: {{ getAuthorNames(book.metadata?.authors) }}</p>
+  &lt;!&ndash; Dropdown input for small screens &ndash;&gt;
+  @if (isSearchDropdownOpen) {
+    <div class="absolute z-10 shadow-md rounded-md mt-2 w-56 sm:hidden">
+      <input
+        type="text"
+        pInputText
+        [(ngModel)]="searchQuery"
+        (input)="onSearchInputChange()"
+        (blur)="closeSearchDropdown()"
+        placeholder="Search books..."
+        class="w-full"
+      />
+    </div>
+  }-->
+
+  <!-- Search results below small screen search input -->
+  @if (books.length > 0 || searchQuery) {
+    <div
+      class="search-dropdown layout-menu w-[350px] sm:w-[600px]"
+      [class.show]="(books.length > 0)"
+    >
+      @if (books.length > 0) {
+        @for (book of books; track book) {
+          <div class="search-dropdown-item flex flex-col" (click)="onBookClick(book)">
+            <div class="flex flex-row w-full px-2">
+              <img
+                [attr.src]="urlHelper.getCoverUrl(book.id, book.metadata?.coverUpdatedOn)"
+                alt="Book Cover"
+                class="search-book-cover"
+              />
+              <div class="search-book-details">
+                <div class="flex items-center">
+                  <p class="search-book-name text-lg font-medium truncate">
+                    {{ book.metadata?.title | slice: 0:70 }}
+                  </p>
                 </div>
-              }
+                @if (book.metadata?.authors?.length ?? 0 > 0) {
+                  <div class="search-book-authors">
+                    <p class="italic">by: {{ getAuthorNames(book.metadata?.authors) }}</p>
+                  </div>
+                }
+              </div>
             </div>
+            <p-divider></p-divider>
           </div>
-          <p-divider></p-divider>
+        }
+      } @else {
+        <div class="search-dropdown-item px-4 py-2">
+          <span>No results found</span>
         </div>
       }
-    } @else {
-      <div class="search-dropdown-item">
-        <span>No results found</span>
-      </div>
-    }
-
-  </div>
+    </div>
+  }
 </div>

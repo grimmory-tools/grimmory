@@ -1,5 +1,5 @@
 @if (book$ | async; as book) {
-  <form [formGroup]="metadataForm" (ngSubmit)="onSave()" class="flex flex-col h-full">
+  <form [formGroup]="metadataForm" (ngSubmit)="onSave()" class="flex flex-col h-full w-full">
     <div class="flex-grow overflow-auto p-4">
       <div class="flex justify-center items-center" [ngStyle]="{'padding-bottom': '0.75rem', 'padding-left': '7.6rem'}">
         <p class="ml-3 text-lg">Current Metadata</p>

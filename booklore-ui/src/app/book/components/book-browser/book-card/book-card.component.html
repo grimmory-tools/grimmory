@@ -52,6 +52,7 @@
       <h4 class="book-title m-0 pl-2">{{ book.metadata?.title }}</h4>
       <p-tieredmenu #menu [model]="items" [popup]="true" appendTo="body"></p-tieredmenu>
       <p-button
+        class="custom-button-padding"
         size="small"
         [text]="true"
         (click)="menu.toggle($event)"

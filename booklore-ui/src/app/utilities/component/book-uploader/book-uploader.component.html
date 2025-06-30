@@ -1,6 +1,6 @@
 @if ((libraryState$ | async)?.libraries; as libraries) {
   <div
-    class="flex flex-col gap-10 p-4 items-center justify-center min-w-[500px] max-w-[700px] w-full">
+    class="flex flex-col gap-10 p-4 items-center justify-center w-full max-w-[700px]">
     <p-select
       [options]="libraries"
       optionLabel="name"
@@ -48,7 +48,7 @@
         <div class="flex flex-col gap-8 px-4">
           @if (files?.length > 0) {
             <div>
-              <div class="max-h-96 overflow-y-auto pr-2">
+              <div class="max-h-96 max-w-[22rem] md:max-w-none overflow-y-auto pr-2">
                 <div class="flex flex-wrap">
                   @for (uploadFile of this.files; track uploadFile; let i = $index) {
                     <div class="flex justify-between items-center w-full gap-4">

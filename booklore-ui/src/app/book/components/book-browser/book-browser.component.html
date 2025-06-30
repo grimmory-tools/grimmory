@@ -1,9 +1,10 @@
-<div class="flex flex-row">
-  <div class="flex flex-col flex-grow">
-    <div class="flex justify-between items-center p-2 rounded-t-xl mb-4 bg-[var(--card-background)]">
-      <div class="flex items-center pl-2">
+<div class="relative flex flex-row">
+  <div class="flex flex-col w-full">
+
+    <div class="flex items-center justify-between w-full gap-4 py-2 px-2 md:px-4 rounded-t-xl mb-4 bg-[var(--card-background)]">
+      <div class="flex items-center min-w-0 max-w-full flex-shrink">
         @if (entityType$ | async; as entityType) {
-          <p class="text-2xl whitespace-nowrap overflow-hidden text-ellipsis">
+          <p class="text-xl whitespace-nowrap overflow-hidden text-ellipsis w-full">
             @if (entityType === EntityType.ALL_BOOKS) {
               @if (currentFilterLabel && rawFilterParamFromUrl) {
                 {{ currentFilterLabel }}
@@ -22,17 +23,22 @@
           @if (userService.userState$ | async; as userData) {
             @if (entityType !== EntityType.ALL_BOOKS && entityType !== EntityType.UNSHELVED &&
             (userData.permissions.admin || userData.permissions.canManipulateLibrary)) {
-              <div>
-                <p-button icon="pi pi-ellipsis-v" [rounded]="true" [text]="true" severity="info" (click)="entitymenu.toggle($event)"></p-button>
+              <div class="ml-2 flex-shrink-0">
+                <p-button
+                  icon="pi pi-ellipsis-v"
+                  [rounded]="true"
+                  [text]="true"
+                  severity="info"
+                  (click)="entitymenu.toggle($event)">
+                </p-button>
                 <p-menu #entitymenu [model]="entityOptions" [popup]="true" appendTo="body"></p-menu>
               </div>
             }
           }
         }
       </div>
-
-      <div class="flex items-center gap-8">
-        <div class="flex flex-row items-center gap-6">
+      <div class="flex flex-wrap items-center gap-4 flex-shrink-0">
+        <div class="flex flex-wrap items-center gap-4">
           @if (isFilterActive) {
             <a class="topbar-items topbar-item" (click)="clearFilter()">
               <i
@@ -119,29 +125,62 @@
           </a>
         </div>
 
-        <p-fluid>
-          <div class="relative">
-            <i class="pi pi-search search-icon"></i>
-            <input
-              type="text"
-              pInputText
-              placeholder="Title, Series or Author..."
-              [(ngModel)]="bookTitle"
-              (ngModelChange)="onSearchTermChange($event)"
-              class="search-input"
-            />
-            @if (bookTitle) {
+        <!-- MOBILE SEARCH (only visible below md) -->
+        <div class="relative md:hidden">
+          <button
+            type="button"
+            class="topbar-items topbar-item"
+            (click)="searchDropdown.toggle($event)"
+            pTooltip="Search"
+            tooltipPosition="top"
+          >
+            <i class="pi pi-search"></i>
+          </button>
+
+          <p-overlayPanel #searchDropdown [dismissable]="true" appendTo="body" [style]="{ width: '18rem' }">
+            <div class="relative w-full">
+              <input
+                type="text"
+                pInputText
+                placeholder="Title, Series or Author..."
+                [(ngModel)]="bookTitle"
+                (ngModelChange)="onSearchTermChange($event)"
+                class="w-full"
+              />
               <p-button
                 icon="pi pi-times"
                 [text]="true"
                 size="small"
                 [rounded]="true"
                 class="absolute right-2 top-1/2 -translate-y-1/2"
-                (click)="clearSearch()">
-              </p-button>
-            }
-          </div>
-        </p-fluid>
+                (click)="clearSearch(); searchDropdown.hide()"
+              ></p-button>
+            </div>
+          </p-overlayPanel>
+        </div>
+
+        <div class="hidden md:block relative">
+          <i class="pi pi-search search-icon"></i>
+          <input
+            type="text"
+            pInputText
+            placeholder="Title, Series or Author..."
+            [(ngModel)]="bookTitle"
+            (ngModelChange)="onSearchTermChange($event)"
+            class="search-input"
+          />
+          @if (bookTitle) {
+            <p-button
+              icon="pi pi-times"
+              [text]="true"
+              size="small"
+              [rounded]="true"
+              class="absolute right-2 top-1/2 -translate-y-1/2"
+              (click)="clearSearch()"
+            ></p-button>
+          }
+        </div>
+
 
         <p-button
           class="pr-2"
@@ -312,5 +351,19 @@
     }
   </div>
 
-  <app-book-filter [entity$]="entity$" [entityType$]="entityType$" [resetFilter$]="resetFilterSubject"></app-book-filter>
+  @if (this.showFilter) {
+    <div
+      class="mobile-filter-mask"
+      (click)="this.showFilter = false">
+    </div>
+  }
+
+  <app-book-filter
+    [showFilter]="showFilter"
+    class="filter-overlay-container z-50 flex-shrink-0"
+    [ngClass]="{ 'active': showFilter, 'ml-4': showFilter }"
+    [entity$]="entity$"
+    [entityType$]="entityType$"
+    [resetFilter$]="resetFilterSubject">
+  </app-book-filter>
 </div>

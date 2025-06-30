@@ -1,4 +1,4 @@
-<div class="h-[50rem] flex flex-col">
+<div class="h-[50rem] md:h-[50rem] md:w-[50rem] w-[25rem] flex flex-col">
   <div class="mb-6 flex items-center gap-4">
     <input
       id="disabled-input"
@@ -7,14 +7,14 @@
       [value]="selectedProductName"
       [disabled]="true"
       class="w-full p-2 text-base"
-      />
-    <p-button label="Select" severity="success" class="w-[100px]" (click)="onSelect()"></p-button>
+    />
+    <p-button label="Select" severity="success" (click)="onSelect()"></p-button>
   </div>
-  <p-table [value]="paths" [tableStyle]="{ 'min-width': '50rem' }" class="flex-grow overflow-y-auto">
+  <p-table [value]="paths" styleClass="responsive-table" class="flex-grow overflow-y-auto">
     <ng-template pTemplate="header">
       <tr>
-        <th class="w-[10%]">Type</th>
-        <th class="w-[90%]">Name</th>
+        <th class="w-[1%]"></th>
+        <th class="w-[99%]">Name</th>
       </tr>
     </ng-template>
 

@@ -80,7 +80,7 @@
   </div>
 
   <div class="grid grid-cols-[auto,1fr] pl-6 gap-y-4 gap-x-4 items-center">
-    <p class="text-lg pb-4 ">Max File Upload Size:
+    <p class="text-lg pb-4">Max File Upload Size:
       <i class="pi pi-info-circle text-sky-600"
          pTooltip="Defines the maximum allowed size (in MB) for each uploaded file. Applies to EPUB, PDF, CBZ, CBR, and CB7 formats."
          tooltipPosition="right"
@@ -93,7 +93,7 @@
           type="text"
           pInputText
           [(ngModel)]="maxFileUploadSizeInMb"
-          class="pr-10 w-full"
+          class="pr-10 w-full min-w-24"
           placeholder="Max size"/>
         <span class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm pointer-events-none">MB</span>
       </div>
@@ -118,7 +118,7 @@
           type="text"
           pInputText
           [(ngModel)]="cbxCacheValue"
-          class="pr-10 w-full"
+          class="pr-10 w-full  min-w-24"
           placeholder="Cache size"/>
         <span class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm pointer-events-none">MB</span>
       </div>

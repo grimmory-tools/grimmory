@@ -1,0 +1,8 @@
+.responsive-table {
+  min-width: 50rem;
+
+  @media (max-width: 768px) {
+    min-width: 100% !important;
+    width: 100% !important;
+  }
+}

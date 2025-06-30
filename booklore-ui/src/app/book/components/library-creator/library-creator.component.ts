@@ -8,7 +8,6 @@ import {IconPickerComponent} from '../../../utilities/component/icon-picker/icon
 import {Button} from 'primeng/button';
 import {TableModule} from 'primeng/table';
 import {Step, StepList, StepPanel, StepPanels, Stepper} from 'primeng/stepper';
-import {NgIf} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {InputText} from 'primeng/inputtext';
 import {Library} from '../../model/library.model';
@@ -19,7 +18,7 @@ import {Tooltip} from 'primeng/tooltip';
   selector: 'app-library-creator',
   standalone: true,
   templateUrl: './library-creator.component.html',
-  imports: [Button, TableModule, StepPanel, IconPickerComponent, NgIf, FormsModule, InputText, Stepper, StepList, Step, StepPanels, ToggleSwitch, Tooltip],
+  imports: [Button, TableModule, StepPanel, IconPickerComponent, FormsModule, InputText, Stepper, StepList, Step, StepPanels, ToggleSwitch, Tooltip],
   styleUrl: './library-creator.component.scss'
 })
 export class LibraryCreatorComponent implements OnInit {
@@ -84,6 +83,7 @@ export class LibraryCreatorComponent implements OnInit {
   }
 
   openIconPicker() {
+    console.log('aaa')
     if (this.iconPicker) {
       this.iconPicker.open();
     }

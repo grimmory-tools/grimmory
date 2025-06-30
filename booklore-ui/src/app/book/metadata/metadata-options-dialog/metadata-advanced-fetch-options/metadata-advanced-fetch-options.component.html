@@ -75,17 +75,19 @@
     </tbody>
   </table>
 
-  <div class="flex flex-row items-center justify-between">
-    <div class="flex gap-10">
-      <div class="flex flex-row items-center gap-4 justify-start">
-        <p>Refresh covers: </p>
+  <div class="flex flex-row items-center justify-between gap-4 w-full">
+
+    <div class="flex flex-row gap-10">
+      <div class="flex flex-row items-center gap-4">
+        <p>Refresh covers:</p>
         <p-checkbox [(ngModel)]="refreshCovers" [binary]="true"></p-checkbox>
       </div>
-      <div class="flex flex-row items-center gap-4 justify-start">
-        <p>Merge categories: </p>
+      <div class="flex flex-row items-center gap-4">
+        <p>Merge categories:</p>
         <p-checkbox [(ngModel)]="mergeCategories" [binary]="true"></p-checkbox>
       </div>
     </div>
+
     <div class="flex flex-row gap-6">
       <p-button severity="warn" outlined="true" label="Reset" (onClick)="reset()"></p-button>
       <p-button [label]="submitButtonLabel" outlined="true" (onClick)="submit()"></p-button>

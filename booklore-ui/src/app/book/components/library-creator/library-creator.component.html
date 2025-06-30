@@ -1,82 +1,114 @@
-<p-stepper [value]="1">
-  <p-step-list>
-    <p-step [value]="1">Library Details</p-step>
-    <p-step [value]="2">Select Directory</p-step>
-  </p-step-list>
-  <p-step-panels>
-    <p-step-panel [value]="1">
-      <ng-template #content let-activateCallback="activateCallback">
-        <div class="flex flex-col w-[40rem] h-[25rem]">
-          <div class="flex flex-auto justify-center items-center font-medium border-[var(--border-color)] border-2 border-dashed">
-            <div class="flex flex-col gap-10">
-              <div class="flex items-center gap-8">
-                <p>Library Name: </p>
-                <input type="text" pInputText [(ngModel)]="chosenLibraryName" placeholder="Enter library name..."/>
-              </div>
-              <div class="flex items-center gap-11">
-                <p>Library Icon:</p>
-                <div *ngIf="!selectedIcon">
-                  <p-button label="Select Icon" icon="pi pi-search" (onClick)="openIconPicker()"></p-button>
-                </div>
-                <div *ngIf="selectedIcon">
-                  <i [class]="selectedIcon" class="text-xl mr-3"></i>
-                  <p-button icon="pi pi-times" (onClick)="clearSelectedIcon()" [rounded]="true" [text]="true" [outlined]="true" severity="danger"></p-button>
-                </div>
-              </div>
-              <div class="flex items-center gap-3">
-                <p>Monitor Folders:</p>
-                <p-toggleswitch [(ngModel)]="watch" />
-                <i class="pi pi-info-circle text-sky-600"
-                   pTooltip="Toggle this to enable or disable folder monitoring. When enabled, the system will watch specified folders for file changes. Books are added and removed automatically based on files added or removed in the library folders."
-                   tooltipPosition="right"
-                   style="cursor: pointer;">
-                </i>
-              </div>
-            </div>
-            <app-icon-picker (iconSelected)="onIconSelected($event)"></app-icon-picker>
-          </div>
-          <div class="flex pt-6 justify-end">
-            <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" [disabled]="!isLibraryDetailsValid()" (onClick)="validateLibraryNameAndProceed(activateCallback)" />
-          </div>
-        </div>
-      </ng-template>
-    </p-step-panel>
+<div class="w-full flex justify-center">
+  <p-stepper [value]="1">
+    <p-step-list>
+      <p-step [value]="1">Library Details</p-step>
+      <p-step [value]="2">Select Directories</p-step>
+    </p-step-list>
 
-    <p-step-panel [value]="2">
-      <ng-template #content let-activateCallback="activateCallback">
-        <div class="flex flex-col w-[40rem] h-[25rem]">
-          <div class="flex flex-auto justify-center items-center font-medium border-[var(--border-color)] border-2 border-dashed">
-            <div class="flex flex-col justify-center items-center">
+    <p-step-panels>
+
+      <p-step-panel [value]="1">
+        <ng-template #content let-activateCallback="activateCallback">
+          <div class="flex flex-col justify-between w-full md:w-[40rem] max-w-[50rem] mx-auto">
+
+            <div class="flex-grow flex items-center justify-center">
+              <div class="grid grid-cols-[auto,1fr] gap-x-6 gap-y-10 border border-[var(--border-color)] p-6 rounded-xl w-full">
+
+                <label class="self-center">Library Name</label>
+                <input
+                  pInputText
+                  class="w-full"
+                  [(ngModel)]="chosenLibraryName"
+                  placeholder="Enter library name..." />
+
+                <label class="self-center">Library Icon</label>
+                @if (!selectedIcon) {
+                  <p-button label="Select Icon" icon="pi pi-search" (onClick)="openIconPicker()" />
+                } @else {
+                  <div class="flex items-center gap-2">
+                    <i [class]="selectedIcon" class="text-3xl"></i>
+                    <p-button
+                      icon="pi pi-times"
+                      (onClick)="clearSelectedIcon()"
+                      [rounded]="true"
+                      [text]="true"
+                      [outlined]="true"
+                      severity="danger" />
+                  </div>
+                }
+
+                <label class="self-center">Monitor Folders</label>
+                <div class="flex items-center gap-2">
+                  <p-toggleswitch [(ngModel)]="watch" />
+                  <i
+                    class="pi pi-info-circle text-sky-600 cursor-pointer"
+                    pTooltip="Watches for file changes and auto-adds/removes books."
+                    tooltipPosition="right"></i>
+                </div>
+              </div>
+              <app-icon-picker (iconSelected)="onIconSelected($event)"></app-icon-picker>
+            </div>
+
+            <div class="flex justify-end pt-6">
               <p-button
-                severity="info"
-                label="Add book folders"
-                [outlined]="true"
-                (onClick)="openDirectoryPicker()">
-              </p-button>
-              <p-table [value]="folders" class="mt-4 max-w-[35rem] max-h-[11.5rem] !overflow-scroll">
-                <ng-template pTemplate="body" let-folder let-i="rowIndex">
-                  <tr>
-                    <td class="!p-1 !px-2 !border-0">{{ folder }}</td>
-                    <td class="!p-1 !px-2 !border-0">
-                      <p-button
-                        icon="pi pi-times"
-                        [rounded]="true"
-                        [text]="true"
-                        severity="danger"
-                        (onClick)="removeFolder(i)"
-                      />
-                    </td>
-                  </tr>
-                </ng-template>
-              </p-table>
+                label="Next"
+                icon="pi pi-arrow-right"
+                iconPos="right"
+                (onClick)="validateLibraryNameAndProceed(activateCallback)"
+                [disabled]="!isLibraryDetailsValid()" />
             </div>
           </div>
-          <div class="flex pt-6 justify-between">
-            <p-button label="Back" icon="pi pi-arrow-left" iconPos="right" (onClick)="activateCallback(1)" />
-            <p-button severity="success" label="Save" icon="pi pi-save" [disabled]="!isDirectorySelectionValid()" (onClick)="createOrUpdateLibrary()"></p-button>
+        </ng-template>
+      </p-step-panel>
+
+      <p-step-panel [value]="2">
+        <ng-template #content let-activateCallback="activateCallback">
+          <div class="flex flex-col justify-between w-[24rem] md:w-[40rem] max-w-[50rem] mx-auto">
+
+            <div class="flex-grow flex items-center justify-center">
+              <div class="flex flex-col gap-6 border border-[var(--border-color)] px-2 py-4 md:p-6 rounded-xl w-full">
+
+                <div class="flex justify-center">
+                  <p-button
+                    label="Add Book Folders"
+                    icon="pi pi-folder-open"
+                    [outlined]="true"
+                    severity="info"
+                    (onClick)="openDirectoryPicker()" />
+                </div>
+
+                <div class="flex flex-col gap-2 max-h-70 overflow-y-auto">
+                  @for (folder of folders; track folder) {
+                    <div class="flex items-start justify-between p-1 gap-4">
+                      <div class="flex items-center gap-4 overflow-x-auto whitespace-nowrap flex-1 pr-2" [pTooltip]="folder" tooltipPosition="top">
+                        <i class="pi pi-folder text-yellow-600 text-sm"></i>
+                        <span class="truncate">{{ folder }}</span>
+                      </div>
+
+                      <div class="flex-shrink-0">
+                        <p-button
+                          icon="pi pi-times"
+                          [rounded]="true"
+                          outlined
+                          size="small"
+                          severity="danger"
+                          (onClick)="removeFolder(folders.indexOf(folder))" />
+                      </div>
+                    </div>
+                  }
+                </div>
+
+              </div>
+            </div>
+
+            <div class="flex justify-between pt-6">
+              <p-button label="Back" icon="pi pi-arrow-left" iconPos="left" (onClick)="activateCallback(1)" />
+              <p-button label="Save" icon="pi pi-save" severity="success" [disabled]="!isDirectorySelectionValid()" (onClick)="createOrUpdateLibrary()" />
+            </div>
           </div>
-        </div>
-      </ng-template>
-    </p-step-panel>
-  </p-step-panels>
-</p-stepper>
+        </ng-template>
+      </p-step-panel>
+
+    </p-step-panels>
+  </p-stepper>
+</div>

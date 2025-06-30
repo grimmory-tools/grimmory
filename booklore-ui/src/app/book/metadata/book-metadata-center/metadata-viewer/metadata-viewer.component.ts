@@ -96,7 +96,7 @@ export class MetadataViewerComponent implements OnInit, OnChanges {
               header: 'Send Book to Email',
               modal: true,
               closable: true,
-              style: {position: 'absolute', top: '15%'},
+              style: {position: 'absolute', top: '20%'},
               data: {bookId: metadata.bookId}
             });
           }
