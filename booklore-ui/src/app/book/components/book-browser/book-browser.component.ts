@@ -26,7 +26,6 @@ import {InputText} from 'primeng/inputtext';
 import {FormsModule} from '@angular/forms';
 import {BookFilterComponent} from './book-filter/book-filter.component';
 import {Tooltip} from 'primeng/tooltip';
-import {Fluid} from 'primeng/fluid';
 import {EntityViewPreferences, UserService} from '../../../settings/user-management/user.service';
 import {OverlayPanelModule} from 'primeng/overlaypanel';
 import {SeriesCollapseFilter} from './filters/SeriesCollapseFilter';
@@ -74,7 +73,7 @@ const SORT_DIRECTION = {
   standalone: true,
   templateUrl: './book-browser.component.html',
   styleUrls: ['./book-browser.component.scss'],
-  imports: [Button, VirtualScrollerModule, BookCardComponent, AsyncPipe, ProgressSpinner, Menu, InputText, FormsModule, BookTableComponent, BookFilterComponent, Tooltip, NgClass, Fluid, PrimeTemplate, NgStyle, OverlayPanelModule, DropdownModule, Checkbox, Popover, Slider, Select, Divider],
+  imports: [Button, VirtualScrollerModule, BookCardComponent, AsyncPipe, ProgressSpinner, Menu, InputText, FormsModule, BookTableComponent, BookFilterComponent, Tooltip, NgClass, PrimeTemplate, NgStyle, OverlayPanelModule, DropdownModule, Checkbox, Popover, Slider, Select, Divider],
   providers: [SeriesCollapseFilter],
   animations: [
     trigger('slideInOut', [
@@ -148,6 +147,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit {
   protected metadataMenuItems: MenuItem[] | undefined;
   currentBooks: Book[] = [];
   lastSelectedIndex: number | null = null;
+  showFilter: boolean = false;
 
   get currentCardSize() {
     return this.coverScalePreferenceService.currentCardSize;
@@ -310,7 +310,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit {
           : VIEW_MODES.GRID)
         : (effectivePrefs.view?.toLowerCase() ?? VIEW_MODES.GRID);
 
-      this.bookFilterComponent.showFilters = sidebarParam === 'true' || (sidebarParam === null && this.filterVisibility);
+      //this.showFilter = sidebarParam === 'true' || (sidebarParam === null && this.filterVisibility);
 
       this.bookSorter.updateSortOptions();
 
@@ -323,7 +323,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit {
         [QUERY_PARAMS.VIEW]: this.currentViewMode,
         [QUERY_PARAMS.SORT]: this.bookSorter.selectedSort.field,
         [QUERY_PARAMS.DIRECTION]: this.bookSorter.selectedSort.direction === SortDirection.ASCENDING ? SORT_DIRECTION.ASCENDING : SORT_DIRECTION.DESCENDING,
-        [QUERY_PARAMS.SIDEBAR]: this.bookFilterComponent.showFilters.toString(),
+        [QUERY_PARAMS.SIDEBAR]: this.showFilter.toString(),
         [QUERY_PARAMS.FILTER]: Object.entries(parsedFilters).map(([k, v]) => `${k}:${v.join('|')}`).join(',')
       };
 
@@ -613,10 +613,10 @@ export class BookBrowserComponent implements OnInit, AfterViewInit {
   }
 
   toggleFilterSidebar() {
-    this.bookFilterComponent.showFilters = !this.bookFilterComponent.showFilters;
+    this.showFilter = !this.showFilter;
     this.router.navigate([], {
       queryParams: {
-        [QUERY_PARAMS.SIDEBAR]: this.bookFilterComponent.showFilters.toString()
+        [QUERY_PARAMS.SIDEBAR]: this.showFilter.toString()
       },
       queryParamsHandling: 'merge',
       replaceUrl: true

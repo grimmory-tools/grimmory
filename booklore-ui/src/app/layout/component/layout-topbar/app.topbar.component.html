@@ -1,9 +1,12 @@
 <div class="layout-topbar">
 
-  <a class="layout-topbar-logo pl-5 pr-3 flex gap-2" routerLink="">
+  <a class="layout-topbar-logo pl-5 pr-24 flex gap-2" routerLink="">
     <svg class="w-[1.875rem] h-[1.875rem] half-title" viewBox="0 0 126 126" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-      <path d="M59 4.79297C71.5051 11.5557 80 24.7854 80 40C80 40.5959 79.987 41.1888 79.9609 41.7783C79.8609 44.0406 81.7355 46 84 46C106.091 46 124 63.9086 124 86C124 108.091 106.091 126 84 126H10C4.47715 126 0 121.523 0 116V39.0068L0.0126953 38.9941C0.357624 25.0252 7.86506 12.8347 19 5.95215V63.832C19 64.8345 20.0676 65.4391 20.9121 64.9902L21.0771 64.8867L38.2227 52.3428C38.6819 52.0068 39.3064 52.0068 39.7656 52.3428L56.9229 64.8945L57.0879 64.998C57.9324 65.447 59 64.8423 59 63.8398V4.79297Z"/>
-      <path d="M40 0C43.8745 0 47.6199 0.552381 51.1631 1.58008V50.9697L44.3926 46.0176L44.0879 45.8037C40.9061 43.6679 36.7098 43.7393 33.5957 46.0176L26.8369 50.9619V2.21875C30.9593 0.782634 35.3881 0 40 0Z" fill="white"/>
+      <path
+        d="M59 4.79297C71.5051 11.5557 80 24.7854 80 40C80 40.5959 79.987 41.1888 79.9609 41.7783C79.8609 44.0406 81.7355 46 84 46C106.091 46 124 63.9086 124 86C124 108.091 106.091 126 84 126H10C4.47715 126 0 121.523 0 116V39.0068L0.0126953 38.9941C0.357624 25.0252 7.86506 12.8347 19 5.95215V63.832C19 64.8345 20.0676 65.4391 20.9121 64.9902L21.0771 64.8867L38.2227 52.3428C38.6819 52.0068 39.3064 52.0068 39.7656 52.3428L56.9229 64.8945L57.0879 64.998C57.9324 65.447 59 64.8423 59 63.8398V4.79297Z"/>
+      <path
+        d="M40 0C43.8745 0 47.6199 0.552381 51.1631 1.58008V50.9697L44.3926 46.0176L44.0879 45.8037C40.9061 43.6679 36.7098 43.7393 33.5957 46.0176L26.8369 50.9619V2.21875C30.9593 0.782634 35.3881 0 40 0Z"
+        fill="white"/>
     </svg>
     <span class="flex items-center pt-2">
       <p>Book</p>
@@ -12,18 +15,19 @@
   </a>
 
   <p-button
+    class="layout-menu-button"
     #menubutton
     icon="pi pi-bars"
     [rounded]="true"
     [outlined]="true"
     (click)="toggleMenu()"
     [ngClass]="{ 'rotate-right': !isMenuVisible, 'rotate-left': isMenuVisible }"
-    >
+  >
   </p-button>
 
-  <div class="topbar-right-items">
-    <app-book-searcher></app-book-searcher>
-    <ul class="topbar-items pl-6">
+  <div class="flex items-center w-full gap-4">
+    <app-book-searcher class="md:block flex-grow"></app-book-searcher>
+    <ul class="topbar-items hidden md:flex items-center gap-3 ml-auto pl-4">
       <div class="flex gap-6">
         @if (userService.userState$ | async; as userData) {
           <li>
@@ -53,12 +57,12 @@
       <p-divider layout="vertical"/>
       <li class="relative" (mouseenter)="onHover(true)" (mouseleave)="onHover(false)">
         <button type="button" class="topbar-item"
-          enterActiveClass="animate-scalein"
-          enterFromClass="hidden"
-          leaveActiveClass="animate-fadeout"
-          leaveToClass="hidden"
-          pStyleClass="@next"
-          [hideOnOutsideClick]="true">
+                enterActiveClass="animate-scalein"
+                enterFromClass="hidden"
+                leaveActiveClass="animate-fadeout"
+                leaveToClass="hidden"
+                pStyleClass="@next"
+                [hideOnOutsideClick]="true">
           <i class="pi pi-wave-pulse" style="font-size: 1.5rem" [class.pulsating]="eventHighlight" [class.highlight]="eventHighlight"></i>
         </button>
         @if (isHovered) {
@@ -79,12 +83,12 @@
         </li>
         <li class="relative">
           <button type="button"
-            class="topbar-item config-item"
-            enterActiveClass="animate-scalein"
-            enterFromClass="hidden"
-            leaveActiveClass="animate-fadeout"
-            leaveToClass="hidden"
-            pStyleClass="@next" [hideOnOutsideClick]="true">
+                  class="topbar-item config-item"
+                  enterActiveClass="animate-scalein"
+                  enterFromClass="hidden"
+                  leaveActiveClass="animate-fadeout"
+                  leaveToClass="hidden"
+                  pStyleClass="@next" [hideOnOutsideClick]="true">
             <i class="pi pi-palette"></i>
           </button>
           <app-theme-configurator></app-theme-configurator>
@@ -104,5 +108,75 @@
         </li>
       </div>
     </ul>
+    <!-- Trigger Button -->
+    <div class="md:hidden relative ml-auto">
+      <p-button
+        icon="pi pi-ellipsis-v"
+        outlined
+        (click)="mobileMenu.toggle($event)"
+      />
+      <p-popover #mobileMenu>
+        <ul class="flex flex-col gap-1 w-48">
+          @if (userService.userState$ | async; as userData) {
+            @if (userData.permissions.canManipulateLibrary || userData.permissions.admin) {
+              <li>
+                <button
+                  class="flex items-center gap-2 w-full text-left p-2 hover:bg-surface-200 dark:hover:bg-surface-700 rounded"
+                  (click)="openLibraryCreatorDialog(); mobileMenu.hide()"
+                >
+                  <i class="pi pi-plus-circle text-surface-700 dark:text-surface-100"></i>
+                  Create Library
+                </button>
+              </li>
+              <li>
+                <button
+                  class="flex items-center gap-2 w-full text-left p-2 hover:bg-surface-200 dark:hover:bg-surface-700 rounded"
+                  (click)="openFileUploadDialog(); mobileMenu.hide()"
+                >
+                  <i class="pi pi-upload text-surface-700 dark:text-surface-100"></i>
+                  Upload Book
+                </button>
+              </li>
+            }
+          }
+          <li>
+            <button
+              class="flex items-center gap-2 w-full text-left p-2 hover:bg-surface-200 dark:hover:bg-surface-700 rounded"
+              (click)="navigateToSettings(); mobileMenu.hide()"
+            >
+              <i class="pi pi-cog text-surface-700 dark:text-surface-100"></i>
+              Settings
+            </button>
+          </li>
+          <li>
+            <button
+              class="flex items-center gap-2 w-full text-left p-2 hover:bg-surface-200 dark:hover:bg-surface-700 rounded"
+              (click)="openGithubSupportDialog(); mobileMenu.hide()"
+            >
+              <i class="pi pi-thumbs-up text-surface-700 dark:text-surface-100"></i>
+              Support BookLore
+            </button>
+          </li>
+          <li>
+            <button
+              class="flex items-center gap-2 w-full text-left p-2 hover:bg-surface-200 dark:hover:bg-surface-700 rounded"
+              (click)="openUserProfileDialog(); mobileMenu.hide()"
+            >
+              <i class="pi pi-user text-surface-700 dark:text-surface-100"></i>
+              Profile
+            </button>
+          </li>
+          <li>
+            <button
+              class="flex items-center gap-2 w-full text-left p-2 hover:bg-surface-200 dark:hover:bg-surface-700 rounded"
+              (click)="logout(); mobileMenu.hide()"
+            >
+              <i class="pi pi-sign-out text-surface-700 dark:text-surface-100"></i>
+              Logout
+            </button>
+          </li>
+        </ul>
+      </p-popover>
+    </div>
   </div>
 </div>

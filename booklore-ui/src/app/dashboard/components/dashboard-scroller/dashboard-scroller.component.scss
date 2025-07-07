@@ -30,4 +30,23 @@
   flex-shrink: 0;
   flex-grow: 0;
   flex-basis: 135px;
+  scroll-snap-align: start;
+}
+
+@media (max-width: 767px) {
+  .dashboard-scroller-title {
+    font-size: 1.25rem;
+    padding: 0.25rem;
+  }
+
+  .dashboard-scroller-card {
+    height: 200px;
+    width: 120px;
+    flex-basis: 110px;
+  }
+
+  .dashboard-scroller-infinite {
+    gap: 1rem;
+    padding: 0.25rem 0.5rem;
+  }
 }

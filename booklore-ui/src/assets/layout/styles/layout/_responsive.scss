@@ -1,103 +1,102 @@
 @use "variables";
 
 @media screen and (min-width: 1960px) {
-    .layout-main, .landing-wrapper {
-        width: 100%;
-        margin-left: auto !important;
-        margin-right: auto !important;
-    }
+  .layout-main {
+    width: 100%;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
 
 }
 
 @media (min-width: 992px) {
-    .layout-wrapper {
-        &.layout-overlay {
-            .layout-main-container {
-                margin-left: 0;
-                padding-left: 2rem;
-            }
+  .layout-wrapper {
+    &.layout-overlay {
+      .layout-main-container {
+        margin-left: 0;
+        padding: 5rem 1.1rem 2rem 3.6rem;
+      }
 
-            .layout-sidebar {
-                transform: translateX(-100%);
-                left: 0;
-                top: 0;
-                height: 100vh;
-                border-top-left-radius: 0;
-                border-bottom-left-radius: 0;
-            }
+      .layout-sidebar {
+        transform: translateX(-100%);
+        left: 0;
+        top: 0;
+        height: 100vh;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+      }
 
-            &.layout-overlay-active {
-                .layout-sidebar {
-                    transform: translateX(0);
-                }
-            }
+      &.layout-overlay-active {
+        .layout-sidebar {
+          transform: translateX(0);
         }
-
-        &.layout-static {
-            .layout-main-container {
-                padding-left: 255px;
-                box-sizing: border-box;
-            }
-
-            &.layout-static-inactive {
-                .layout-sidebar {
-                    transform: translateX(-100%);
-                    left: 0;
-                }
-
-                .layout-main-container {
-                    margin-left: 0;
-                    padding-left: 1rem;
-                }
-            }
-        }
-
-        .layout-mask {
-            display: none;
-        }
+      }
     }
+
+    &.layout-static {
+      .layout-main-container {
+        padding-left: 255px;
+        box-sizing: border-box;
+      }
+
+      &.layout-static-inactive {
+        .layout-sidebar {
+          transform: translateX(-100%);
+          left: 0;
+        }
+
+        .layout-main-container {
+          margin-left: 0;
+          padding: 5rem 1rem 2rem 1.5rem;
+        }
+      }
+    }
+
+    .layout-mask {
+      display: none;
+    }
+  }
 }
 
 @media (max-width: 991px) {
-    .blocked-scroll {
-        overflow: hidden;
+  .blocked-scroll {
+    overflow: hidden;
+  }
+
+  .layout-wrapper {
+    .layout-main-container {
+      padding: 4.75rem 0.75rem 0.75rem 0.75rem;
     }
 
-    .layout-wrapper {
-        .layout-main-container {
-            margin-left: 0;
-            padding-left: 2rem;
-        }
-
-        .layout-sidebar {
-            transform: translateX(-100%);
-            left: 0;
-            top: 0;
-            height: 100vh;
-            border-top-left-radius: 0;
-            border-bottom-left-radius: 0;
-        }
-
-        .layout-mask {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 998;
-            width: 100%;
-            height: 100%;
-            background-color: var(--maskbg);
-        }
-
-        &.layout-mobile-active {
-            .layout-sidebar {
-                transform: translateX(0);
-            }
-
-            .layout-mask {
-                display: block;
-                animation: fadein variables.$transitionDuration;
-            }
-        }
+    .layout-sidebar {
+      transform: translateX(-100%);
+      left: 0;
+      top: 0;
+      height: 100vh;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
     }
+
+    .layout-mask {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 998;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+    }
+
+    &.layout-mobile-active {
+      .layout-sidebar {
+        transform: translateX(0);
+      }
+
+      .layout-mask {
+        display: block;
+        animation: fadein variables.$transitionDuration;
+      }
+    }
+  }
 }

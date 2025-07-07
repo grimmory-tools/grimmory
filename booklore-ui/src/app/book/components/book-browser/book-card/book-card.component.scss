@@ -176,3 +176,7 @@
 ::ng-deep p-progressbar {
   --p-progressbar-border-radius: 0 !important;
 }
+
+::ng-deep .custom-button-padding .p-button {
+  padding-block: 0.25rem !important;
+}

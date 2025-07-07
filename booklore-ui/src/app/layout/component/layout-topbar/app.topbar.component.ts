@@ -20,6 +20,7 @@ import {AuthService} from '../../../core/service/auth.service';
 import {UserService} from '../../../settings/user-management/user.service';
 import {UserProfileDialogComponent} from '../../../settings/global-preferences/user-profile-dialog/user-profile-dialog.component';
 import {GithubSupportDialog} from '../../../github-support-dialog/github-support-dialog';
+import {Popover} from 'primeng/popover';
 
 @Component({
   selector: 'app-topbar',
@@ -37,8 +38,9 @@ import {GithubSupportDialog} from '../../../github-support-dialog/github-support
     NgClass,
     Divider,
     LiveNotificationBoxComponent,
-    AsyncPipe
-],
+    AsyncPipe,
+    Popover
+  ],
 })
 export class AppTopBarComponent implements OnDestroy {
   items!: MenuItem[];
@@ -62,6 +64,7 @@ export class AppTopBarComponent implements OnDestroy {
 
   isMenuVisible: boolean = true;
   isHovered: boolean = false;
+  mobileActionsVisible!: boolean;
 
   onHover(hovered: boolean): void {
     this.isHovered = hovered;

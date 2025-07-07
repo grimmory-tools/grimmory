@@ -1,15 +1,10 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { SetupService } from './setup.service';
-
-import { ReactiveFormsModule } from '@angular/forms';
-import { Card } from 'primeng/card';
-import { PrimeTemplate } from 'primeng/api';
-import { InputText } from 'primeng/inputtext';
-import { Password } from 'primeng/password';
-import { Button } from 'primeng/button';
-import { Message } from 'primeng/message';
+import {Component} from '@angular/core';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {Router} from '@angular/router';
+import {SetupService} from './setup.service';
+import {InputText} from 'primeng/inputtext';
+import {Button} from 'primeng/button';
+import {Message} from 'primeng/message';
 
 @Component({
   selector: 'app-setup',
@@ -18,13 +13,10 @@ import { Message } from 'primeng/message';
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    Card,
-    PrimeTemplate,
     InputText,
-    Password,
     Button,
     Message
-]
+  ]
 })
 export class SetupComponent {
   setupForm: FormGroup;

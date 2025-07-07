@@ -147,10 +147,10 @@ export class BookFilterComponent implements OnInit, OnDestroy {
   @Output() filterSelected = new EventEmitter<Record<string, any> | null>();
   @Output() filterModeChanged = new EventEmitter<'and' | 'or'>();
 
-  @Input() showFilters: boolean = true;
   @Input() entity$!: Observable<Library | Shelf | null> | undefined;
   @Input() entityType$!: Observable<EntityType> | undefined;
   @Input() resetFilter$!: Subject<void>;
+  @Input() showFilter: boolean = false;
 
   activeFilters: Record<string, any> = {};
   filterStreams: Record<string, Observable<Filter<any>[]>> = {};

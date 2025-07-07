@@ -65,14 +65,13 @@ export class SeriesCollapseFilter implements BookFilter {
             collapsedBooks.push(book);
           }
         }
-        
+
         for (const [seriesName, group] of seriesMap.entries()) {
           const sortedGroup = group.slice().sort((a, b) => {
             const aNum = a.metadata?.seriesNumber ?? Number.MAX_VALUE;
             const bNum = b.metadata?.seriesNumber ?? Number.MAX_VALUE;
             return aNum - bNum;
           });
-
           const firstBook = sortedGroup[0];
           collapsedBooks.push({
             ...firstBook,
@@ -80,7 +79,7 @@ export class SeriesCollapseFilter implements BookFilter {
           });
         }
 
-        return { ...bookState, books: collapsedBooks };
+        return {...bookState, books: collapsedBooks};
       })
     );
   }
