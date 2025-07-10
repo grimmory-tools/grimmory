@@ -3,6 +3,7 @@ import {map} from 'rxjs/operators';
 import {BookFilter} from './BookFilter';
 import {BookState} from '../../../model/state/book-state.model';
 import {fileSizeRanges, matchScoreRanges, pageCountRanges, ratingRanges} from '../book-filter/book-filter.component';
+import {Book, ReadStatus} from '../../../model/book.model';
 
 export function isRatingInRange(rating: number | undefined | null, rangeId: string): boolean {
   if (rating == null) return false;
@@ -37,6 +38,11 @@ export function isMatchScoreInRange(score: number | undefined | null, rangeId: s
   return score >= range.min && score < range.max;
 }
 
+export function doesBookMatchReadStatus(book: Book, selected: string[]): boolean {
+  const status = book.readStatus ?? ReadStatus.UNSET;
+  return selected.includes(status);
+}
+
 export class SideBarFilter implements BookFilter {
 
   constructor(private selectedFilter$: Observable<any>, private selectedFilterMode$: Observable<'and' | 'or'>) {
@@ -69,7 +75,7 @@ export class SideBarFilter implements BookFilter {
                   ? filterValues.every(val => book.metadata?.seriesName === val)
                   : filterValues.some(val => book.metadata?.seriesName === val);
               case 'readStatus':
-                return filterValues.some(val => book.readStatus === val);
+                return doesBookMatchReadStatus(book, filterValues);
               case 'amazonRating':
                 return filterValues.some(range => isRatingInRange(book.metadata?.amazonRating, range));
               case 'goodreadsRating':

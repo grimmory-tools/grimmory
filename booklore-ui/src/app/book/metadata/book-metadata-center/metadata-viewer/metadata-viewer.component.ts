@@ -466,7 +466,7 @@ export class MetadataViewerComponent implements OnInit, OnChanges {
   }));
 
   getStatusLabel(value: string): string {
-    return this.readStatusOptions.find(o => o.value === value)?.label.toUpperCase() ?? 'N/A';
+    return this.readStatusOptions.find(o => o.value === value)?.label.toUpperCase() ?? 'UNSET';
   }
 
   updateReadStatus(status: ReadStatus): void {

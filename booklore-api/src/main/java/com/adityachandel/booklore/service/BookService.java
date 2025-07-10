@@ -58,23 +58,31 @@ public class BookService {
     public List<Book> getBookDTOs(boolean includeDescription) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         boolean isAdmin = user.getPermissions().isAdmin();
-        List<Book> books;
-        if (isAdmin) {
-            books = bookQueryService.getAllBooks(includeDescription);
-        } else {
-            Set<Long> libraryIds = user.getAssignedLibraries().stream()
-                    .map(Library::getId)
-                    .collect(Collectors.toSet());
-            books = bookQueryService.getAllBooksByLibraryIds(libraryIds, includeDescription);
-        }
-        Map<Long, UserBookProgressEntity> progressMap = userProgressService.fetchUserProgress(user.getId(), books.stream().map(Book::getId).collect(Collectors.toSet()));
+
+        List<Book> books = isAdmin
+                ? bookQueryService.getAllBooks(includeDescription)
+                : bookQueryService.getAllBooksByLibraryIds(
+                user.getAssignedLibraries().stream()
+                        .map(Library::getId)
+                        .collect(Collectors.toSet()),
+                includeDescription
+        );
+
+        Map<Long, UserBookProgressEntity> progressMap =
+                userProgressService.fetchUserProgress(
+                        user.getId(),
+                        books.stream().map(Book::getId).collect(Collectors.toSet())
+                );
+
         books.forEach(book -> {
             UserBookProgressEntity progress = progressMap.get(book.getId());
             if (progress != null) {
                 setBookProgress(book, progress);
                 book.setLastReadTime(progress.getLastReadTime());
+                book.setReadStatus(String.valueOf(progress.getReadStatus()));
             }
         });
+
         return books;
     }
 

@@ -403,6 +403,19 @@ export class BookService {
     );
   }
 
+  updateBookReadStatus(id: number, status: ReadStatus): Observable<void> {
+    return this.http.put<void>(`${this.url}/${id}/read-status`, {status}).pipe(
+      tap(() => {
+        const currentState = this.bookStateSubject.value;
+        if (!currentState.books) return;
+        const updatedBooks = currentState.books.map(book =>
+          book.id === id ? {...book, readStatus: status} : book
+        );
+        this.bookStateSubject.next({...currentState, books: updatedBooks});
+      })
+    );
+  }
+
 
   /*------------------ All the websocket handlers go below ------------------*/
 
@@ -505,9 +518,5 @@ export class BookService {
 
   getBackupMetadata(bookId: number) {
     return this.http.get<any>(`${this.url}/${bookId}/metadata/restore`);
-  }
-
-  updateBookReadStatus(id: number, status: ReadStatus): Observable<void> {
-    return this.http.put<void>(`${this.url}/${id}/read-status`, {status});
   }
 }

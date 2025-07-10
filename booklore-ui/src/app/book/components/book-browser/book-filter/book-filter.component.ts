@@ -1,6 +1,6 @@
 import {Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output} from '@angular/core';
-import {BehaviorSubject, combineLatest, Observable, of, Subject, takeUntil} from 'rxjs';
-import {distinctUntilChanged, filter, map, take} from 'rxjs/operators';
+import {combineLatest, Observable, of, Subject, takeUntil} from 'rxjs';
+import {distinctUntilChanged, map} from 'rxjs/operators';
 import {BookService} from '../../../service/book.service';
 import {Library} from '../../../model/library.model';
 import {Shelf} from '../../../model/shelf.model';
@@ -25,7 +25,7 @@ export const ratingRanges = [
   {id: '4.5plus', label: '4.5+', min: 4.5, max: Infinity, sortIndex: 5}
 ];
 
-export const ratingOptions10 = Array.from({ length: 10 }, (_, i) => ({
+export const ratingOptions10 = Array.from({length: 10}, (_, i) => ({
   id: `${i + 1}`,
   label: `${i + 1}`,
   value: i + 1,
@@ -83,7 +83,7 @@ function getRatingRangeFilters(rating?: number): { id: string; name: string; sor
 function getRatingRangeFilters10(rating?: number): { id: string; name: string; sortIndex?: number }[] {
   if (!rating || rating < 1 || rating > 10) return [];
   const idx = ratingOptions10.find(r => r.value === rating || +r.id === rating);
-  return idx ? [{ id: idx.id, name: idx.label, sortIndex: idx.sortIndex }] : [];
+  return idx ? [{id: idx.id, name: idx.label, sortIndex: idx.sortIndex}] : [];
 }
 
 function extractPublishedYearFilter(book: Book): { id: number; name: string }[] {
@@ -119,10 +119,11 @@ const readStatusLabels: Record<ReadStatus, string> = {
   [ReadStatus.READ]: 'Read',
   [ReadStatus.WONT_READ]: 'Won’t Read',
   [ReadStatus.ABANDONED]: 'Abandoned',
+  [ReadStatus.UNSET]: 'Unset'
 };
 
 function getReadStatusName(status?: ReadStatus | null): string {
-  return status != null ? readStatusLabels[status] ?? 'Unknown' : 'Unknown';
+  return status != null ? readStatusLabels[status] ?? 'Unset' : 'Unset';
 }
 
 @Component({
@@ -198,7 +199,13 @@ export class BookFilterComponent implements OnInit, OnDestroy {
           category: this.getFilterStream((book: Book) => book.metadata?.categories!.map(name => ({id: name, name})) || [], 'id', 'name', sortMode),
           series: this.getFilterStream((book) => (book.metadata?.seriesName ? [{id: book.metadata.seriesName, name: book.metadata.seriesName}] : []), 'id', 'name', sortMode),
           publisher: this.getFilterStream((book) => (book.metadata?.publisher ? [{id: book.metadata.publisher, name: book.metadata.publisher}] : []), 'id', 'name', sortMode),
-          readStatus: this.getFilterStream((book: Book) => [{id: book.readStatus ?? ReadStatus.UNREAD, name: getReadStatusName(book.readStatus)}], 'id', 'name', sortMode),
+          readStatus: this.getFilterStream((book: Book) => {
+            let status = book.readStatus;
+            if (status == null || !(status in readStatusLabels)) {
+              status = ReadStatus.UNSET;
+            }
+            return [{id: status, name: getReadStatusName(status)}];
+          }, 'id', 'name', sortMode),
           matchScore: this.getFilterStream((book: Book) => getMatchScoreRangeFilters(book.metadataMatchScore), 'id', 'name', 'sortIndex'),
           personalRating: this.getFilterStream((book: Book) => getRatingRangeFilters10(book.metadata?.personalRating!), 'id', 'name', 'sortIndex'),
           amazonRating: this.getFilterStream((book: Book) => getRatingRangeFilters(book.metadata?.amazonRating!), 'id', 'name', 'sortIndex'),
