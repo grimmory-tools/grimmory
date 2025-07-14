@@ -9,15 +9,20 @@ export class HeaderFilter implements BookFilter {
   }
 
   filter(bookState: BookState): Observable<BookState> {
+    const normalize = (str: string): string =>
+      str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
     return this.searchTerm$.pipe(
       map(term => {
-        if (term && term.trim() !== '') {
+        const normalizedTerm = normalize(term || '');
+        if (normalizedTerm && normalizedTerm.trim() !== '') {
           const filteredBooks = bookState.books?.filter(book => {
-            const matchesTitle = book.metadata?.title?.toLowerCase().includes(term.toLowerCase());
-            const matchesSeries = book.metadata?.seriesName?.toLowerCase().includes(term.toLowerCase());
-            const matchesAuthor = book.metadata?.authors?.some(author =>
-              author.toLowerCase().includes(term.toLowerCase())
-            );
+            const title = book.metadata?.title || '';
+            const series = book.metadata?.seriesName || '';
+            const authors = book.metadata?.authors || [];
+            const matchesTitle = normalize(title).includes(normalizedTerm);
+            const matchesSeries = normalize(series).includes(normalizedTerm);
+            const matchesAuthor = authors.some(author => normalize(author).includes(normalizedTerm));
             return matchesTitle || matchesSeries || matchesAuthor;
           }) || null;
           return {...bookState, books: filteredBooks};
@@ -26,5 +31,4 @@ export class HeaderFilter implements BookFilter {
       })
     );
   }
-
 }

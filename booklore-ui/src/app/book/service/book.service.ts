@@ -157,11 +157,15 @@ export class BookService {
     if (query.length < 2) {
       return [];
     }
+    const normalize = (str: string): string => str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const normalizedQuery = normalize(query);
     const state = this.bookStateSubject.value;
-    return (state.books || []).filter(book =>
-      book.metadata?.title?.toLowerCase().includes(query.toLowerCase()) ||
-      book.metadata?.authors?.some(author => author.toLowerCase().includes(query.toLowerCase()))
-    );
+    return (state.books || []).filter(book => {
+      const title = book.metadata?.title;
+      const authors = book.metadata?.authors || [];
+      return (title && normalize(title).includes(normalizedQuery)) ||
+        authors.some(author => normalize(author).includes(normalizedQuery));
+    });
   }
 
   getFileContent(bookId: number): Observable<Blob> {

@@ -12,7 +12,7 @@ import {Shelf} from '../../model/shelf.model';
 import {SortService} from '../../service/sort.service';
 import {SortDirection, SortOption} from '../../model/sort.model';
 import {BookState} from '../../model/state/book-state.model';
-import {Book, ReadStatus} from '../../model/book.model';
+import {Book} from '../../model/book.model';
 import {LibraryShelfMenuService} from '../../service/library-shelf-menu.service';
 import {BookTableComponent} from './book-table/book-table.component';
 import {animate, state, style, transition, trigger} from '@angular/animations';
@@ -24,7 +24,7 @@ import {ProgressSpinner} from 'primeng/progressspinner';
 import {Menu} from 'primeng/menu';
 import {InputText} from 'primeng/inputtext';
 import {FormsModule} from '@angular/forms';
-import {BookFilterComponent, readStatusLabels} from './book-filter/book-filter.component';
+import {BookFilterComponent} from './book-filter/book-filter.component';
 import {Tooltip} from 'primeng/tooltip';
 import {EntityViewPreferences, UserService} from '../../../settings/user-management/user.service';
 import {OverlayPanelModule} from 'primeng/overlaypanel';
@@ -156,7 +156,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit {
   currentBooks: Book[] = [];
   lastSelectedIndex: number | null = null;
   showFilter: boolean = false;
-  
+
 
   get currentCardSize() {
     return this.coverScalePreferenceService.currentCardSize;
