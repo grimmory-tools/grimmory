@@ -84,7 +84,7 @@ export class BookTableComponent implements OnInit, OnDestroy, OnChanges {
   ngOnChanges() {
     const wrapperElements: HTMLCollection = document.getElementsByClassName('p-virtualscroller');
     Array.prototype.forEach.call(wrapperElements, function (wrapperElement) {
-      wrapperElement.style["height"] = 'calc(100vh - 160px)';
+      wrapperElement.style["height"] = 'calc(100dvh - 160px)';
     });
   }
 
