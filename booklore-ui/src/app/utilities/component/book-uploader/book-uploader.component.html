@@ -6,42 +6,54 @@
       optionLabel="name"
       placeholder="Select Library"
       [(ngModel)]="selectedLibrary"
-    class="w-full"></p-select>
+      class="w-full"></p-select>
     <p-select
       [options]="selectedLibrary?.paths"
       optionLabel="path"
       placeholder="Select Upload Location"
       [(ngModel)]="selectedPath"
       [disabled]="!selectedLibrary"
-    class="w-full"></p-select>
+      class="w-full"></p-select>
     <p-fileupload class="w-full" name="file"
-      [maxFileSize]="maxFileSizeBytes"
-      [customUpload]="true"
-      [multiple]="true" accept=".pdf,.epub,.cbz,.cbr,.cb7"
-      (onSelect)="onFilesSelect($event)"
-      (uploadHandler)="uploadFiles($event)"
-      [disabled]="!selectedLibrary || !selectedPath">
+                  [maxFileSize]="maxFileSizeBytes"
+                  [customUpload]="true"
+                  [multiple]="true" accept=".pdf,.epub,.cbz,.cbr,.cb7"
+                  (onSelect)="onFilesSelect($event)"
+                  (uploadHandler)="uploadFiles($event)"
+                  [disabled]="!selectedLibrary || !selectedPath">
       <ng-template #header let-files let-chooseCallback="chooseCallback" let-clearCallback="clearCallback" let-uploadCallback="uploadCallback">
-        <div class="flex flex-wrap items-center justify-center flex-1 gap-4">
+        <div class="flex flex-col items-center justify-center flex-1 gap-4">
           <div class="flex gap-4">
-            <p-button (onClick)="choose($event, chooseCallback)"
+            <p-button
+              (onClick)="choose($event, chooseCallback)"
               icon="pi pi-images"
               [rounded]="true"
               [outlined]="true"
-              [disabled]="isChooseDisabled()"/>
-            <p-button (onClick)="uploadEvent(uploadCallback)"
+              [disabled]="isChooseDisabled()"
+              pTooltip="Choose files to upload"
+              tooltipPosition="top"/>
+
+            <p-button
+              (onClick)="uploadEvent(uploadCallback)"
               icon="pi pi-cloud-upload"
               [rounded]="true"
               [outlined]="true"
               severity="success"
-              [disabled]="isUploadDisabled()"/>
-            <p-button (onClick)="onClear(clearCallback)"
+              [disabled]="isUploadDisabled()"
+              pTooltip="Start uploading selected files"
+              tooltipPosition="top"/>
+
+            <p-button
+              (onClick)="onClear(clearCallback)"
               icon="pi pi-times"
               [rounded]="true"
               [outlined]="true"
               severity="danger"
-              [disabled]="!filesPresent() || isUploading"/>
+              [disabled]="!filesPresent() || isUploading"
+              pTooltip="Clear selected files"
+              tooltipPosition="top"/>
           </div>
+          <div>Click the upload icon to upload the files.</div>
         </div>
       </ng-template>
       <ng-template #content let-files let-removeFileCallback="removeFileCallback">
@@ -53,7 +65,8 @@
                   @for (uploadFile of this.files; track uploadFile; let i = $index) {
                     <div class="flex justify-between items-center w-full gap-4">
                       <div class="flex items-center gap-4 overflow-hidden flex-1">
-                        <p-badge [value]="uploadFile.status" [severity]="getBadgeSeverity(uploadFile.status)" class="shrink-0"/>
+                        <p-badge [value]="uploadFile.status === 'Pending' ? 'Ready to Upload' : uploadFile.status" [severity]="getBadgeSeverity(uploadFile.status)"
+                                 class="shrink-0"/>
                         <span class="font-semibold text-ellipsis whitespace-nowrap overflow-hidden flex-1">
                           {{ uploadFile.file.name }}
                         </span>
@@ -106,7 +119,8 @@
           <i class="pi pi-cloud-upload !border-2 !rounded-full !p-8 !text-4xl"></i>
           <p class="mt-6 mb-2">Drag and drop files here to upload.</p>
           <p class="mt-2 mb-2">
-            Only <strong>.pdf</strong>, <strong>.epub</strong>, <strong>.cbz</strong>, <strong>.cbr</strong>, and <strong>.cb7</strong> files are supported (max size: 100 MB per file).
+            Only <strong>.pdf</strong>, <strong>.epub</strong>, <strong>.cbz</strong>, <strong>.cbr</strong>, and <strong>.cb7</strong> files are supported (max size: 100 MB per
+            file).
           </p>
         </div>
       </ng-template>
