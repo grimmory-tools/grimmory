@@ -147,7 +147,7 @@ git checkout -b fix/my-fix
 - Follow code conventions, keep PRs focused and scoped
 - Link the relevant issue in your PR
 - Test your changes
-- Target the `master` branch when opening PRs
+- Target the `develop` branch when opening PRs
 
 ---
 
