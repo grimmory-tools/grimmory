@@ -190,6 +190,11 @@ public class LibraryService {
         return libraryMapper.toLibrary(libraryEntity);
     }
 
+    public List<Library> getAllLibraries() {
+        List<LibraryEntity> libraries = libraryRepository.findAll();
+        return libraries.stream().map(libraryMapper::toLibrary).toList();
+    }
+
     public List<Library> getLibraries() {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         BookLoreUserEntity userEntity = userRepository.findById(user.getId()).orElseThrow(() -> new UsernameNotFoundException("User not found"));

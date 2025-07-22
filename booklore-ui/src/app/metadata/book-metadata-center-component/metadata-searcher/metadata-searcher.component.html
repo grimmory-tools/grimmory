@@ -9,7 +9,7 @@
 } @else {
   <form class="flex flex-col w-full h-full pt-2 min-w-full md:min-w-[60rem] pr-0 md:pr-2 pl-0 md:pl-2" [formGroup]="form" (ngSubmit)="onSubmit()">
 
-    <div class="grid grid-cols-1 md:flex md:flex-row w-full gap-4 md:items-end">
+    <div class="grid grid-cols-1 md:flex md:flex-row w-full gap-2 md:gap-4 md:items-end">
 
       <div class="flex flex-col gap-1 w-full max-w-full md:w-3/12">
         <label for="provider">Providers</label>
@@ -50,40 +50,56 @@
     </div>
 
     @if (loading) {
-      <div class="flex justify-center items-center mt-8">
-        <p-progress-spinner ariaLabel="loading"/>
+      <div class="flex justify-center items-center flex-col gap-4 h-[40dvh] md:h-[70dvh] text-center">
+        <p-progress-spinner ariaLabel="Loading metadata..."/>
+        <p class="text-gray-300">
+          Fetching metadata from your selected sources.<br/>
+          This may take a few moments...
+        </p>
       </div>
     }
 
     @if (!loading) {
-      <div class="mt-4 md:mt-8 flex-1 overflow-y-auto">
-        @for (metadata of allFetchedMetadata; track metadata) {
-          <div class="book-item flex flex-col w-full">
-            <div class="flex flex-row w-full book-item-content cursor-pointer" (click)="onBookClick(metadata)">
-              <img [src]="metadata.thumbnailUrl || 'assets/images/missing-cover.jpg'" alt="Image" class="img-fixed-dimensions pr-0 md:pr-2 md:py-3 self-center md:self-start"/>
-              <div class="flex flex-col w-full m-2">
-                <div class="flex flex-col md:flex-row gap-2 md:gap-4 justify-between">
-                  <p class="font-bold">{{ truncateText(metadata['title']!, 90) }}</p>
-                  <div class="flex flex-wrap gap-2 text-sm">
-                    <p>ISBN: {{ metadata['isbn10'] || metadata['asin'] }}</p>
-                    <span class="hidden md:inline">|</span>
-                    <p>Published: {{ metadata['publishedDate'] }}</p>
+      @if (searchTriggered && allFetchedMetadata.length === 0) {
+        <div class="flex flex-col items-center justify-center h-[50dvh] md:h-[70dvh] text-center">
+          <p class="text-gray-300">No metadata results found.<br/>Try adjusting your search criteria.</p>
+        </div>
+      }
+      @if (!searchTriggered && allFetchedMetadata.length === 0) {
+        <div class="flex flex-col items-center justify-center h-[50dvh] md:h-[70dvh] text-center">
+          <p class="text-gray-300">Start by searching for metadata using the search bar above.</p>
+        </div>
+      }
+      @if (allFetchedMetadata.length > 0) {
+        <div class="mt-4 md:mt-8 flex-1 overflow-y-auto">
+          @for (metadata of allFetchedMetadata; track metadata) {
+            <div class="book-item flex flex-col w-full">
+              <div class="flex flex-row w-full book-item-content cursor-pointer" (click)="onBookClick(metadata)">
+                <img [src]="metadata.thumbnailUrl || 'assets/images/missing-cover.jpg'" alt="Image" class="img-fixed-dimensions pr-0 md:pr-2 md:py-3 self-center md:self-start"/>
+                <div class="flex flex-col w-full m-2">
+                  <div class="flex flex-col md:flex-row gap-2 md:gap-4 justify-between">
+                    <p class="font-bold">{{ truncateText(metadata['title']!, 90) }}</p>
+                    <div class="flex flex-wrap gap-2 text-sm">
+                      <p>ISBN: {{ metadata['isbn10'] || metadata['asin'] }}</p>
+                      <span class="hidden md:inline">|</span>
+                      <p>Published: {{ metadata['publishedDate'] }}</p>
+                    </div>
                   </div>
+                  <div class="flex flex-wrap gap-2 text-sm">
+                    <p>by {{ truncateText(metadata['authors']!.join(', '), 70) }}</p>
+                    <span class="hidden md:inline">|</span>
+                    <p>Source: <span [innerHTML]="buildProviderLink(metadata)"></span></p>
+                  </div>
+                  <p class="mt-4 truncate-text p-secondary">
+                    {{ sanitizeHtml(metadata['description']) }}
+                  </p>
                 </div>
-                <div class="flex flex-wrap gap-2 text-sm">
-                  <p>by {{ truncateText(metadata['authors']!.join(', '), 70) }}</p>
-                  <span class="hidden md:inline">|</span>
-                  <p>Source: <span [innerHTML]="buildProviderLink(metadata)"></span></p>
-                </div>
-                <p class="mt-4 truncate-text p-secondary">
-                  {{ sanitizeHtml(metadata['description']) }}
-                </p>
               </div>
+              <p-divider></p-divider>
             </div>
-            <p-divider></p-divider>
-          </div>
-        }
-      </div>
+          }
+        </div>
+      }
     }
   </form>
 }

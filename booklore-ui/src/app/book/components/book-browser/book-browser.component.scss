@@ -50,6 +50,13 @@
   border-width: 1px 1px 0px 1px;
 }
 
+@media (max-width: 768px) {
+  .book-browser-footer {
+    left: 0%;
+    right: 0%;
+  }
+}
+
 .topbar-item {
   display: inline-flex;
   align-items: center;

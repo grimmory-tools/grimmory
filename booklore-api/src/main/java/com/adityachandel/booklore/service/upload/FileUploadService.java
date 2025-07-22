@@ -22,14 +22,22 @@ import com.adityachandel.booklore.util.FileUtils;
 import com.adityachandel.booklore.util.PathPatternResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.GroupPrincipal;
+import java.nio.file.attribute.PosixFileAttributeView;
+import java.nio.file.attribute.UserPrincipal;
+import java.nio.file.attribute.UserPrincipalLookupService;
 import java.util.Objects;
 
 @RequiredArgsConstructor
@@ -46,6 +54,12 @@ public class FileUploadService {
     private final PdfMetadataExtractor pdfMetadataExtractor;
     private final EpubMetadataExtractor epubMetadataExtractor;
     private final MonitoringService monitoringService;
+
+    @Value("${PUID:0}")
+    private String userId;
+
+    @Value("${GUID:0}")
+    private String groupId;
 
     public Book uploadFile(MultipartFile file, long libraryId, long pathId) throws IOException {
         validateFile(file);
@@ -70,6 +84,8 @@ public class FileUploadService {
 
         try {
             file.transferTo(tempPath);
+            
+            setTemporaryFileOwnership(tempPath);
 
             BookFileExtension fileExt = BookFileExtension.fromFileName(file.getOriginalFilename()).orElseThrow(() -> ApiError.INVALID_FILE_FORMAT.createException("Unsupported file extension"));
 
@@ -135,6 +151,19 @@ public class FileUploadService {
         int maxSizeMb = appSettingService.getAppSettings().getMaxFileUploadSizeInMb();
         if (file.getSize() > maxSizeMb * 1024L * 1024L) {
             throw ApiError.FILE_TOO_LARGE.createException(maxSizeMb);
+        }
+    }
+
+    private void setTemporaryFileOwnership(Path tempPath) throws IOException {
+        UserPrincipalLookupService lookupService = FileSystems.getDefault()
+            .getUserPrincipalLookupService();
+        if (!userId.equals("0")) {
+            UserPrincipal user = lookupService.lookupPrincipalByName(userId);
+            Files.getFileAttributeView(tempPath, PosixFileAttributeView.class, LinkOption.NOFOLLOW_LINKS).setOwner(user);
+        }
+        if (!groupId.equals("0")) {
+            GroupPrincipal group = lookupService.lookupPrincipalByGroupName(groupId);
+            Files.getFileAttributeView(tempPath, PosixFileAttributeView.class, LinkOption.NOFOLLOW_LINKS).setGroup(group);
         }
     }
 

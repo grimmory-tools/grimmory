@@ -187,96 +187,98 @@
             </div>
           }
 
-          <div class="grid md:grid-cols-3 gap-y-2.5 text-sm pt-2 md:pt-4 text-gray-700 dark:text-gray-300 max-w-6xl">
-            <p class="whitespace-nowrap max-w-[250px] overflow-hidden text-ellipsis">
-              <span class="font-bold">Publisher: </span>
-              @if (book?.metadata?.publisher) {
-                <span class="underline hover:opacity-80 cursor-pointer" (click)="goToPublisher(book?.metadata?.publisher!)">
+          <div class="px-1 md:px-0">
+            <div class="grid md:grid-cols-3 gap-y-2.5 text-sm pt-2 md:pt-4 pb-2 text-gray-300 max-w-6xl">
+              <p class="whitespace-nowrap max-w-[250px] overflow-hidden text-ellipsis">
+                <span class="font-bold">Publisher: </span>
+                @if (book?.metadata?.publisher) {
+                  <span class="underline hover:opacity-80 cursor-pointer" (click)="goToPublisher(book?.metadata?.publisher!)">
                     {{ book?.metadata?.publisher }}
                   </span>
-              } @else {
-                <span>-</span>
-              }
-            </p>
-            <p><strong>Published:</strong> {{ book?.metadata!.publishedDate || '-' }}</p>
-            <p><strong>Language:</strong> {{ book?.metadata!.language || '-' }}</p>
-            <p class="whitespace-nowrap flex items-center gap-2">
-              <span class="font-bold">File Type:</span>
-              <span
-                class="inline-block px-2 py-0.5 rounded-lg text-xs font-bold text-gray-200"
-                [ngClass]="getFileTypeColorClass(getFileExtension(book?.filePath))">
+                } @else {
+                  <span>-</span>
+                }
+              </p>
+              <p><strong>Published:</strong> {{ book?.metadata!.publishedDate || '-' }}</p>
+              <p><strong>Language:</strong> {{ book?.metadata!.language || '-' }}</p>
+              <p class="whitespace-nowrap flex items-center gap-2">
+                <span class="font-bold">File Type:</span>
+                <span
+                  class="inline-block px-2 py-0.5 rounded-lg text-xs font-bold text-gray-200"
+                  [ngClass]="getFileTypeColorClass(getFileExtension(book?.filePath))">
                   {{ getFileExtension(book?.filePath) || '-' }}
                 </span>
-            </p>
-            <p><strong>File Size:</strong> {{ getFileSizeInMB(book) }}</p>
-            <p>
-              <strong>ISBN:</strong>
-              @if (book?.metadata?.isbn13 || book?.metadata?.isbn10) {
-                {{ book.metadata!.isbn13 }}
-                @if (book?.metadata?.isbn13 && book?.metadata?.isbn10) {
-                  /
+              </p>
+              <p><strong>File Size:</strong> {{ getFileSizeInMB(book) }}</p>
+              <p>
+                <strong>ISBN:</strong>
+                @if (book?.metadata?.isbn13 || book?.metadata?.isbn10) {
+                  {{ book.metadata!.isbn13 }}
+                  @if (book?.metadata?.isbn13 && book?.metadata?.isbn10) {
+                    /
+                  }
+                  {{ book.metadata!.isbn10 }}
+                } @else {
+                  <span>-</span>
                 }
-                {{ book.metadata!.isbn10 }}
-              } @else {
-                <span>-</span>
-              }
-            </p>
-            <p class="whitespace-nowrap flex items-center gap-2">
-              <span class="font-bold">Read Status:</span>
-              <span
-                class="inline-block px-2 py-0.5 rounded-full text-xs font-bold text-white cursor-pointer"
-                [ngClass]="getStatusSeverityClass(selectedReadStatus)"
-                (click)="menu.toggle($event)">
+              </p>
+              <p class="whitespace-nowrap flex items-center gap-2">
+                <span class="font-bold">Read Status:</span>
+                <span
+                  class="inline-block px-2 py-0.5 rounded-full text-xs font-bold text-white cursor-pointer"
+                  [ngClass]="getStatusSeverityClass(selectedReadStatus)"
+                  (click)="menu.toggle($event)">
                   {{ getStatusLabel(selectedReadStatus) }}
               </span>
-              <p-menu #menu [popup]="true" [model]="readStatusMenuItems"></p-menu>
-            </p>
-            <p class="whitespace-nowrap flex items-center">
-              <span class="font-bold mr-2">Progress:</span>
-              <span class="inline-flex items-center">
+                <p-menu #menu [popup]="true" [model]="readStatusMenuItems"></p-menu>
+              </p>
+              <p class="whitespace-nowrap flex items-center">
+                <span class="font-bold mr-2">Progress:</span>
+                <span class="inline-flex items-center">
                   <span
                     class="inline-block px-2 py-0.5 rounded-full text-xs font-bold text-white"
                     [ngClass]="getProgressColorClass(getProgressPercent(book))">
                     {{ getProgressPercent(book) !== null ? getProgressPercent(book) + '%' : 'N/A' }}
                   </span>
-                @if (getProgressPercent(book) !== null) {
-                  <p-button
-                    pTooltip="Reset progress"
-                    tooltipPosition="bottom"
-                    icon="pi pi-refresh"
-                    size="small"
-                    severity="danger"
-                    text
-                    class="ml-1 custom-button-padding"
-                    (onClick)="resetProgress(book)">
+                  @if (getProgressPercent(book) !== null) {
+                    <p-button
+                      pTooltip="Reset progress"
+                      tooltipPosition="bottom"
+                      icon="pi pi-refresh"
+                      size="small"
+                      severity="danger"
+                      text
+                      class="ml-1 custom-button-padding"
+                      (onClick)="resetProgress(book)">
                     </p-button>
-                }
+                  }
                 </span>
-            </p>
-            <p class="whitespace-nowrap flex items-center gap-2">
-              <span class="font-bold">Metadata Match:</span>
-              @if (book?.metadataMatchScore != null) {
-                <span
-                  class="inline-block px-2 py-0.5 rounded-lg text-xs font-bold text-gray-200 border"
-                  [ngClass]="getMatchScoreColorClass(book?.metadataMatchScore!)">
+              </p>
+              <p class="whitespace-nowrap flex items-center gap-2">
+                <span class="font-bold">Metadata Match:</span>
+                @if (book?.metadataMatchScore != null) {
+                  <span
+                    class="inline-block px-2 py-0.5 rounded-lg text-xs font-bold text-gray-200 border"
+                    [ngClass]="getMatchScoreColorClass(book?.metadataMatchScore!)">
                     {{ (book?.metadataMatchScore! * 100) | number:'1.0-0' }}%
                   </span>
-              } @else {
-                <span>-</span>
-              }
-            </p>
-          </div>
+                } @else {
+                  <span>-</span>
+                }
+              </p>
+            </div>
 
-          <div class="flex items-center gap-2">
-            <span class="font-semibold text-sm">File Path:</span>
-            <i
-              class="pi cursor-pointer text-sm"
-              [ngClass]="showFilePath ? 'pi-eye-slash' : 'pi-eye'"
-              (click)="showFilePath = !showFilePath"
-            ></i>
-            @if (showFilePath) {
-              <code class="text-xs font-mono truncate text-gray-300">{{ book?.filePath }}</code>
-            }
+            <div class="flex items-center gap-2">
+              <span class="font-semibold text-sm">File Path:</span>
+              <i
+                class="pi cursor-pointer text-sm"
+                [ngClass]="showFilePath ? 'pi-eye-slash' : 'pi-eye'"
+                (click)="showFilePath = !showFilePath"
+              ></i>
+              @if (showFilePath) {
+                <code class="text-xs font-mono truncate text-gray-300">{{ book?.filePath }}</code>
+              }
+            </div>
           </div>
         </div>
 

@@ -12,9 +12,8 @@
           <img
             [attr.src]="urlHelper.getCoverUrl(book.id, book.metadata?.coverUpdatedOn)"
             alt="Image"
-            width="250"
             [ngClass]="{ 'brightness-50': isUploading }"
-            class="transition-all duration-300 ease-in-out"/>
+            class="w-[200px] md:w-[250px] transition-all duration-300 ease-in-out"/>
           @if (isUploading) {
             <p-progressSpinner
               class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
@@ -54,7 +53,7 @@
             }
           </div>
         </div>
-        <div class="flex flex-col flex-grow pl-2">
+        <div class="flex flex-col flex-grow md:pl-2">
 
           <div class="flex flex-col md:flex-row w-full gap-4 pb-1">
             <div class="flex flex-col gap-1 md:w-2/3">
@@ -426,7 +425,7 @@
     </div>
     <div class="mt-auto">
       <p-divider></p-divider>
-      <div class="flex flex-col gap-2 px-2 pt-4 md:pb-4 z-10">
+      <div class="flex flex-col gap-2 px-0 md:px-2 pt-4 md:pb-4 z-10">
 
         <!-- Desktop Buttons -->
         <div class="hidden sm:flex justify-between w-full gap-4">
@@ -473,24 +472,57 @@
             </div>
           }
 
-          <div class="flex gap-4 items-center flex-wrap ml-auto">
-            <p-button
-              icon="pi pi-bolt"
-              [outlined]="true"
-              severity="info"
-              (onClick)="autoFetch(book.id)"
-              [disabled]="isAutoFetching"
-              pTooltip="Auto Fetch"
-              tooltipPosition="top">
-            </p-button>
+          <div class="flex justify-between items-center w-full gap-4">
+            <div class="flex gap-4">
+              <p-button
+                icon="pi pi-bolt"
+                [outlined]="true"
+                severity="info"
+                (onClick)="autoFetch(book.id)"
+                [disabled]="isAutoFetching"
+                pTooltip="Auto Fetch"
+                tooltipPosition="top">
+              </p-button>
 
-            @if (book.bookType === 'PDF' || book.bookType === 'EPUB') {
-              <p-button icon="pi pi-refresh" [outlined]="true" severity="danger" (onClick)="restoreMetadata()" pTooltip="Restore" tooltipPosition="top"></p-button>
-            }
-            <p-button icon="pi pi-lock-open" [outlined]="true" severity="success" (onClick)="unlockAll()" pTooltip="Unlock All" tooltipPosition="top"></p-button>
-            <p-button icon="pi pi-lock" [outlined]="true" severity="warn" (onClick)="lockAll()" pTooltip="Lock All" tooltipPosition="top"></p-button>
-            <p-divider layout="vertical" />
-            <p-button label="Save" icon="pi pi-check" [loading]="isSaving" [disabled]="isSaving" type="submit"></p-button>
+              @if (book.bookType === 'PDF' || book.bookType === 'EPUB') {
+                <p-button
+                  icon="pi pi-refresh"
+                  [outlined]="true"
+                  severity="danger"
+                  (onClick)="restoreMetadata()"
+                  pTooltip="Restore"
+                  tooltipPosition="top">
+                </p-button>
+              }
+
+              <p-button
+                icon="pi pi-lock-open"
+                [outlined]="true"
+                severity="success"
+                (onClick)="unlockAll()"
+                pTooltip="Unlock All"
+                tooltipPosition="top">
+              </p-button>
+
+              <p-button
+                icon="pi pi-lock"
+                [outlined]="true"
+                severity="warn"
+                (onClick)="lockAll()"
+                pTooltip="Lock All"
+                tooltipPosition="top">
+              </p-button>
+            </div>
+
+            <div>
+              <p-button
+                label="Save"
+                icon="pi pi-check"
+                [loading]="isSaving"
+                [disabled]="isSaving"
+                type="submit">
+              </p-button>
+            </div>
           </div>
         </div>
 

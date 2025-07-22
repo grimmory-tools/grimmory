@@ -17,7 +17,7 @@ public class LibraryRescanScheduler {
     @Scheduled(cron = "0 0 0 * * *")  // At 00:00 every day
     public void rescanLibraries() {
         log.info("Starting scheduled library rescan at midnight");
-        for (Library library : libraryService.getLibraries()) {
+        for (Library library : libraryService.getAllLibraries()) {
             try {
                 libraryService.rescanLibrary(library.getId());
                 log.info("Rescanned library '{}'", library.getName());

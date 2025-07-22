@@ -32,8 +32,8 @@
         @if (userService.userState$ | async; as userData) {
           <li>
             @if (userData.permissions.canManipulateLibrary || userData.permissions.admin) {
-              <a class="topbar-item" (click)="openLibraryCreatorDialog()" pTooltip="Create New Library" tooltipPosition="top">
-                <i class="pi pi-plus-circle text-surface-700 dark:text-surface-100"></i>
+              <a class="topbar-item" (click)="openLibraryCreatorDialog()" pTooltip="Create New Library" tooltipPosition="bottom">
+                <i class="pi pi-plus-circle text-surface-100"></i>
               </a>
             }
           </li>
@@ -41,50 +41,49 @@
         @if (userService.userState$ | async; as userData) {
           <li>
             @if (userData.permissions.canManipulateLibrary || userData.permissions.admin) {
-              <a class="topbar-item" (click)="openFileUploadDialog()" pTooltip="Upload Book" tooltipPosition="top">
-                <i class="pi pi-upload text-surface-700 dark:text-surface-100"></i>
+              <a class="topbar-item" (click)="openFileUploadDialog()" pTooltip="Upload Book" tooltipPosition="bottom">
+                <i class="pi pi-upload text-surface-100"></i>
               </a>
             }
           </li>
         }
         <li>
-          <a class="topbar-item" (click)="navigateToSettings()" pTooltip="Settings" tooltipPosition="top">
-            <i class="pi pi-cog text-surface-700 dark:text-surface-100"></i>
+          <a class="topbar-item" (click)="navigateToSettings()" pTooltip="Settings" tooltipPosition="bottom">
+            <i class="pi pi-cog text-surface-100"></i>
           </a>
         </li>
       </div>
 
       <p-divider layout="vertical"/>
 
-      <li class="relative">
-        <button
-          type="button"
-          class="topbar-item"
-          (click)="notificationPopover.toggle($event)"
-        >
-          <i
-            class="pi"
-            [ngClass]="iconClass"
-            [ngStyle]="{ color: iconColor }"
-            style="font-size: 1.25rem"
-            [class.pulsating]="iconPulsating"
-            aria-label="Unified Notification Icon"
-          ></i>
-        </button>
-
-        @if (shouldShowNotificationBadge) {
-          <span class="notification-badge">{{ completedTaskCount }}</span>
-        }
-
-        <p-popover #notificationPopover>
-          <app-unified-notification-popover-component></app-unified-notification-popover-component>
-        </p-popover>
-      </li>
-
-      <p-divider layout="vertical"/>
 
       <div class="flex gap-6">
-        <li class="relative group overflow-hidden !border-transparent topbar-item" pTooltip="Love BookLore?" tooltipPosition="top" (click)="openGithubSupportDialog()">
+        <li class="relative">
+          <button
+            type="button"
+            class="topbar-item"
+            (click)="notificationPopover.toggle($event)"
+          >
+            <i
+              class="pi"
+              [ngClass]="iconClass"
+              [ngStyle]="{ color: iconColor }"
+              style="font-size: 1.25rem"
+              [class.pulsating]="iconPulsating"
+              aria-label="Unified Notification Icon"
+            ></i>
+          </button>
+
+          @if (shouldShowNotificationBadge) {
+            <span class="notification-badge">{{ completedTaskCount }}</span>
+          }
+
+          <p-popover #notificationPopover>
+            <app-unified-notification-popover-component></app-unified-notification-popover-component>
+          </p-popover>
+        </li>
+
+        <li class="relative group overflow-hidden !border-transparent topbar-item" pTooltip="Love BookLore?" tooltipPosition="bottom" (click)="openGithubSupportDialog()">
           <span
             style="animation-duration: 2s; background: conic-gradient(from 90deg, #f97316, #f59e0b, #eab308, #84cc16, #22c55e, #10b981, #14a8a6, #06b6d4, #0ea5e9, #3b82f6, #6366f1, #8b5cf6, #a855f7, #d946ef, #ec4899, #f43f5e)"
             class="absolute -top-5 -left-5 w-20 h-20 animate-spin">
@@ -108,13 +107,23 @@
       <p-divider layout="vertical"/>
       <div class="flex gap-6">
         <li>
-          <button class="topbar-item" (click)="openUserProfileDialog()" pTooltip="Profile" tooltipPosition="top">
-            <i class="pi pi-user text-surface-700 dark:text-surface-100"></i>
+          <a class="topbar-item"
+             href="https://adityachandelgit.github.io/booklore-docs/docs/getting-started/"
+             target="_blank"
+             rel="noopener noreferrer"
+             pTooltip="Documentation"
+             tooltipPosition="bottom">
+            <i class="pi pi-info-circle text-surface-100"></i>
+          </a>
+        </li>
+        <li>
+          <button class="topbar-item" (click)="openUserProfileDialog()" pTooltip="Profile" tooltipPosition="bottom">
+            <i class="pi pi-user text-surface-100"></i>
           </button>
         </li>
         <li>
-          <button class="topbar-item" (click)="logout()" pTooltip="Logout" tooltipPosition="top">
-            <i class="pi pi-sign-out text-surface-700 dark:text-surface-100"></i>
+          <button class="topbar-item" (click)="logout()" pTooltip="Logout" tooltipPosition="left">
+            <i class="pi pi-sign-out text-surface-100"></i>
           </button>
         </li>
       </div>
@@ -135,7 +144,7 @@
                   class="flex items-center gap-2 w-full text-left p-2 hover:bg-surface-200 dark:hover:bg-surface-700 rounded"
                   (click)="openLibraryCreatorDialog(); mobileMenu.hide()"
                 >
-                  <i class="pi pi-plus-circle text-surface-700 dark:text-surface-100"></i>
+                  <i class="pi pi-plus-circle text-surface-100"></i>
                   Create Library
                 </button>
               </li>
@@ -144,7 +153,7 @@
                   class="flex items-center gap-2 w-full text-left p-2 hover:bg-surface-200 dark:hover:bg-surface-700 rounded"
                   (click)="openFileUploadDialog(); mobileMenu.hide()"
                 >
-                  <i class="pi pi-upload text-surface-700 dark:text-surface-100"></i>
+                  <i class="pi pi-upload text-surface-100"></i>
                   Upload Book
                 </button>
               </li>
@@ -155,16 +164,26 @@
               class="flex items-center gap-2 w-full text-left p-2 hover:bg-surface-200 dark:hover:bg-surface-700 rounded"
               (click)="navigateToSettings(); mobileMenu.hide()"
             >
-              <i class="pi pi-cog text-surface-700 dark:text-surface-100"></i>
+              <i class="pi pi-cog text-surface-100"></i>
               Settings
             </button>
+          </li>
+          <li>
+            <a
+              class="flex items-center gap-2 w-full text-left p-2 hover:bg-surface-200 dark:hover:bg-surface-700 rounded"
+              href="https://adityachandelgit.github.io/booklore-docs/docs/getting-started/"
+              target="_blank"
+              rel="noopener noreferrer">
+              <i class="pi pi-info-circle text-surface-100"></i>
+              Documentation
+            </a>
           </li>
           <li>
             <button
               class="flex items-center gap-2 w-full text-left p-2 hover:bg-surface-200 dark:hover:bg-surface-700 rounded"
               (click)="openGithubSupportDialog(); mobileMenu.hide()"
             >
-              <i class="pi pi-thumbs-up text-surface-700 dark:text-surface-100"></i>
+              <i class="pi pi-thumbs-up text-surface-100"></i>
               Support BookLore
             </button>
           </li>
@@ -173,7 +192,7 @@
               class="flex items-center gap-2 w-full text-left p-2 hover:bg-surface-200 dark:hover:bg-surface-700 rounded"
               (click)="openUserProfileDialog(); mobileMenu.hide()"
             >
-              <i class="pi pi-user text-surface-700 dark:text-surface-100"></i>
+              <i class="pi pi-user text-surface-100"></i>
               Profile
             </button>
           </li>
@@ -182,7 +201,7 @@
               class="flex items-center gap-2 w-full text-left p-2 hover:bg-surface-200 dark:hover:bg-surface-700 rounded"
               (click)="logout(); mobileMenu.hide()"
             >
-              <i class="pi pi-sign-out text-surface-700 dark:text-surface-100"></i>
+              <i class="pi pi-sign-out text-surface-100"></i>
               Logout
             </button>
           </li>

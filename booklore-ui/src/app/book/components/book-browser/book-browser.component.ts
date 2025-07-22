@@ -275,7 +275,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit {
       this.entityViewPreferences = user.userSettings?.entityViewPreferences;
       const globalPrefs = this.entityViewPreferences?.global;
       const currentEntityTypeStr = this.entityType ? this.entityType.toString().toUpperCase() : undefined;
-      this.coverScalePreferenceService.initScaleValue(user?.userSettings?.entityViewPreferences?.global?.coverSize);
+      this.coverScalePreferenceService.initScaleValue(this.coverScalePreferenceService.scaleFactor);
       this.filterSortPreferenceService.initValue(user?.userSettings?.filterSortingMode);
       this.columnPreferenceService.initPreferences(user.userSettings?.tableColumnPreference);
       this.visibleColumns = this.columnPreferenceService.visibleColumns;

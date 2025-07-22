@@ -20,6 +20,7 @@ import com.adityachandel.booklore.util.FileUtils;
 import com.adityachandel.booklore.util.PathPatternResolver;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.core.io.PathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -105,7 +106,7 @@ public class BookDropService {
             filePattern += "{currentFilename}";
         }
 
-        String relativePath = PathPatternResolver.resolvePattern(metadata, filePattern, bookdropFile.getFilePath());
+        String relativePath = PathPatternResolver.resolvePattern(metadata, filePattern, FilenameUtils.getName(bookdropFile.getFilePath()));
         Path source = Path.of(bookdropFile.getFilePath());
         Path target = Paths.get(path.getPath(), relativePath);
         File targetFile = target.toFile();

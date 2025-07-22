@@ -1,9 +1,9 @@
 .tabpanels-responsive {
-  height: calc(100vh - 9.7rem);
+  height: calc(100dvh - 9.7rem);
 }
 
 @media (max-width: 768px) {
   .tabpanels-responsive {
-    height: calc(100vh - 8.5rem);
+    height: calc(100dvh - 8.5rem);
   }
 }

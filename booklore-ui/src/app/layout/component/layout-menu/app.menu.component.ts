@@ -1,6 +1,6 @@
 import {Component, inject, OnInit} from '@angular/core';
 import {AppMenuitemComponent} from './app.menuitem.component';
-import { AsyncPipe } from '@angular/common';
+import {AsyncPipe} from '@angular/common';
 import {MenuModule} from 'primeng/menu';
 import {LibraryService} from '../../../book/service/library.service';
 import {Observable, of} from 'rxjs';
@@ -141,6 +141,7 @@ export class AppMenuComponent implements OnInit {
   }
 
   openChangelogDialog() {
+    const isMobile = window.innerWidth <= 768;
     this.dynamicDialogRef = this.dialogService.open(VersionChangelogDialogComponent, {
       header: 'What’s New',
       modal: true,
@@ -149,8 +150,9 @@ export class AppMenuComponent implements OnInit {
         position: 'absolute',
         top: '10%',
         bottom: '10%',
-        minWidth: '800px',
-        maxWidth: '800px',
+        width: isMobile ? '90vw' : '800px',
+        maxWidth: isMobile ? '90vw' : '800px',
+        minWidth: isMobile ? '90vw' : '800px',
       },
     });
   }

@@ -40,6 +40,7 @@ export class MetadataSearcherComponent implements OnInit, OnDestroy {
   allFetchedMetadata: BookMetadata[] = [];
   bookId!: number;
   loading: boolean = false;
+  searchTriggered = false;
 
   @Input() book$!: Observable<Book | null>;
 
@@ -120,6 +121,7 @@ export class MetadataSearcherComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
+    this.searchTriggered = true;
     if (this.form.valid) {
       const providerKeys = this.form.get('provider')?.value;
       if (!providerKeys) return;

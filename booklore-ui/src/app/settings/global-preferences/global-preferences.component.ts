@@ -15,7 +15,6 @@ import {BookService} from '../../book/service/book.service';
 import {AppSettingKey, AppSettings} from '../../core/model/app-settings.model';
 import {filter, take} from 'rxjs/operators';
 import {FileUploadPatternComponent} from './file-upload-pattern/file-upload-pattern.component';
-import {OpdsSettingsComponent} from './opds-settings/opds-settings.component';
 import {InputText} from 'primeng/inputtext';
 
 @Component({
@@ -30,7 +29,6 @@ import {InputText} from 'primeng/inputtext';
     ToggleSwitch,
     FormsModule,
     FileUploadPatternComponent,
-    OpdsSettingsComponent,
     InputText
   ],
   templateUrl: './global-preferences.component.html',

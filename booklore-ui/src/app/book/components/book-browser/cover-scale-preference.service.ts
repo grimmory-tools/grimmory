@@ -1,8 +1,8 @@
-import {Injectable, inject} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {Subject} from 'rxjs';
 import {debounceTime} from 'rxjs/operators';
 import {MessageService} from 'primeng/api';
-import {UserService} from '../../../settings/user-management/user.service';
+import {LocalStorageService} from '../../../core/service/local-storage-service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,9 +12,10 @@ export class CoverScalePreferenceService {
   private readonly BASE_WIDTH = 135;
   private readonly BASE_HEIGHT = 220;
   private readonly DEBOUNCE_MS = 1000;
+  private readonly STORAGE_KEY = 'coverScalePreference';
 
   private readonly messageService = inject(MessageService);
-  private readonly userService = inject(UserService);
+  private readonly localStorageService = inject(LocalStorageService);
 
   private readonly scaleChangeSubject = new Subject<number>();
   readonly scaleChange$ = this.scaleChangeSubject.asObservable();
@@ -22,6 +23,8 @@ export class CoverScalePreferenceService {
   scaleFactor = 1.0;
 
   constructor() {
+    this.loadScaleFromStorage();
+
     this.scaleChange$
       .pipe(debounceTime(this.DEBOUNCE_MS))
       .subscribe(scale => this.saveScalePreference(scale));
@@ -48,19 +51,28 @@ export class CoverScalePreferenceService {
   }
 
   private saveScalePreference(scale: number): void {
-    const user = this.userService.getCurrentUser();
-    const prefs = user?.userSettings?.entityViewPreferences;
+    try {
+      this.localStorageService.set(this.STORAGE_KEY, scale);
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Cover Size Saved',
+        detail: `Cover size set to ${scale.toFixed(2)}x.`,
+        life: 1500
+      });
+    } catch (e) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Save Failed',
+        detail: 'Could not save cover size preference locally.',
+        life: 3000
+      });
+    }
+  }
 
-    if (!user || !prefs) return;
-
-    prefs.global = {...prefs.global, coverSize: scale};
-    this.userService.updateUserSetting(user.id, 'entityViewPreferences', prefs);
-
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Cover Size Saved',
-      detail: `Cover size set to ${scale.toFixed(2)}x.`,
-      life: 1500
-    });
+  private loadScaleFromStorage(): void {
+    const saved = this.localStorageService.get<number>(this.STORAGE_KEY);
+    if (saved !== null && !isNaN(saved)) {
+      this.scaleFactor = saved;
+    }
   }
 }

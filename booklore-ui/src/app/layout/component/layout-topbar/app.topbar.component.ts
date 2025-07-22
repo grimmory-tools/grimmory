@@ -140,11 +140,20 @@ export class AppTopBarComponent implements OnDestroy {
   }
 
   private openDialog(component: any, header: string, top: string) {
+    const isMobile = window.innerWidth <= 768;
     this.ref = this.dialogService.open(component, {
       header,
       modal: true,
       closable: true,
-      style: { position: 'absolute', top },
+      style: {
+        position: 'absolute',
+        top,
+        ...(isMobile && {
+          width: '90vw',
+          maxWidth: '90vw',
+          minWidth: '90vw',
+        }),
+      },
     });
   }
 
