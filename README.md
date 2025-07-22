@@ -11,15 +11,17 @@ BookLore is a self-hosted web app for organizing and managing your personal book
 
 ## ✨ Key Features
 
-- 📚 **Organized Book Management** - Categorize books with **Libraries** and **Shelves** for easy discovery and structured organization.
-- 🧠 **Smart Metadata Handling** - Automatically fetch book details from **Goodreads**, **Amazon**, and **Google Books**, or edit them manually with fine-grained control.
-- 👥 **Multi-User Support** - Admins can create accounts, assign libraries, and manage permissions for metadata edits, uploads, and downloads.
-- 📖 **Built-in PDF & ePub Reader** - A fast, feature-rich reader for PDFs and ePubs, with customizable reading settings and a clean UI.
-- 🌐 **OPDS 1.2 Support** - Browse and download books through the **Open Publication Distribution System** – compatible with many reading apps.
-- 🔐 **Optional OIDC Authentication** - Secure access with **OpenID Connect**, supporting both local JWT authentication and external providers like **Authentik**.
-- 📤 **Multi-Book Uploads** - Upload multiple books at once with metadata auto-detection and file organization.
-- 📧 **Send Books via Email** - Share books directly with others by sending them via email – quick and easy.
-- 🚀 **Continuous Improvements** - Frequent updates with new features, performance enhancements, and UI improvements. BookLore is perfect for self-hosters who want complete control over their digital library. Stay tuned for updates!
+- 📚 **Powerful Book Organization**: Keep your library tidy with **Libraries** and **Shelves**. Whether you're sorting by genre, author, or mood, finding the right book is effortless.
+- 🧠 **Intelligent Metadata Management**: Instantly fetch rich metadata from **Goodreads**, **Amazon**, **Google Books**, **Hardcover**, and more, or fine-tune every detail yourself with our advanced editor.
+- 👥 **Multi-User Access with Permissions**: Add users, assign libraries, and control who can edit, upload, or download. Perfect for families, friends, or teams.
+- 📖 **Built-in PDF, ePub, and CBX Reader**: Enjoy a smooth, distraction-free reading experience directly in your browser. Supports themes and adjustable settings.
+- 🌐 **OPDS 1.2 Integration**: Connect BookLore to your favorite reading apps with full **OPDS** support for seamless downloads.
+- 🔐 **Flexible Authentication**: Secure your library with optional **OIDC login** via providers like **Authentik** and **Pocket ID**, or stick with local **JWT**, the choice is yours.
+- 📤 **Smart Batch Upload with BookDrop Folder**: Drop dozens of books into the **BookDrop Folder**, and BookLore will automatically scan, organize, and fetch metadata for all of them, hands-free and efficient.
+- 📧 **Send Books by Email**: Seamlessly share books with friends or your own devices by sending them directly via email from within BookLore. Just one click, and it’s delivered.
+- 📱 **Mobile-Optimized UI**: Sleek, responsive design tailored for phones and tablets. Manage your library from anywhere, effortlessly.
+- 🔄 **Open Source & Self-Hosted**: Take full control of your digital library with BookLore’s open-source, self-hosted design.
+- 🚀 **Active Development**: BookLore is under continuous improvement with regular updates to features, UI, and performance.
 
 ## 🚀 Getting Started with BookLore
 
