@@ -1,7 +1,6 @@
 package com.adityachandel.booklore.service.fileprocessor;
 
 import com.adityachandel.booklore.mapper.BookMapper;
-import com.adityachandel.booklore.model.dto.Book;
 import com.adityachandel.booklore.model.dto.settings.LibraryFile;
 import com.adityachandel.booklore.model.entity.BookEntity;
 import com.adityachandel.booklore.model.enums.BookFileType;
@@ -68,6 +67,11 @@ public class CbxProcessor extends AbstractFileProcessor implements BookFileProce
             log.error("Error generating cover for '{}': {}", bookEntity.getFileName(), e.getMessage());
         }
         return false;
+    }
+
+    @Override
+    public List<BookFileType> getSupportedTypes() {
+        return List.of(BookFileType.CBX);
     }
 
     private Optional<BufferedImage> extractImagesFromArchive(File file) {

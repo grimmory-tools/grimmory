@@ -45,9 +45,7 @@ public class BookDropService {
     private final NotificationService notificationService;
     private final MetadataRefreshService metadataRefreshService;
     private final BookdropNotificationService bookdropNotificationService;
-    private final PdfProcessor pdfProcessor;
-    private final EpubProcessor epubProcessor;
-    private final CbxProcessor cbxProcessor;
+    private final BookFileProcessorRegistry processorRegistry;
     private final AppProperties appProperties;
 
     public BookdropFinalizeResult finalizeImport(BookdropFinalizeRequest request) {
@@ -169,11 +167,8 @@ public class BookDropService {
                 .fileName(fileName)
                 .build();
 
-        return switch (type) {
-            case PDF -> pdfProcessor.processFile(libraryFile);
-            case EPUB -> epubProcessor.processFile(libraryFile);
-            case CBX -> cbxProcessor.processFile(libraryFile);
-        };
+        BookFileProcessor processor = processorRegistry.getProcessorOrThrow(type);
+        return processor.processFile(libraryFile);
     }
 
     public void discardAllFiles() {

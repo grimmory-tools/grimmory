@@ -21,6 +21,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.time.Instant;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -90,6 +91,11 @@ public class EpubProcessor extends AbstractFileProcessor implements BookFileProc
             log.error("Error generating cover for EPUB '{}': {}", bookEntity.getFileName(), e.getMessage(), e);
             return false;
         }
+    }
+
+    @Override
+    public List<BookFileType> getSupportedTypes() {
+        return List.of(BookFileType.EPUB);
     }
 
     private void setBookMetadata(BookEntity bookEntity) {

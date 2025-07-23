@@ -6,12 +6,11 @@ import com.adityachandel.booklore.repository.BookdropFileRepository;
 import com.adityachandel.booklore.repository.LibraryRepository;
 import com.adityachandel.booklore.service.bookdrop.BookDropService;
 import com.adityachandel.booklore.service.bookdrop.BookdropNotificationService;
-import com.adityachandel.booklore.service.fileprocessor.CbxProcessor;
-import com.adityachandel.booklore.service.fileprocessor.EpubProcessor;
-import com.adityachandel.booklore.service.fileprocessor.PdfProcessor;
+import com.adityachandel.booklore.service.fileprocessor.BookFileProcessorRegistry;
 import com.adityachandel.booklore.service.metadata.MetadataRefreshService;
 import com.adityachandel.booklore.service.bookdrop.BookdropMonitoringService;
 import com.adityachandel.booklore.service.monitoring.MonitoringService;
+import com.adityachandel.booklore.service.NotificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.PathResource;
@@ -35,9 +34,6 @@ class BookDropServiceTest {
     private NotificationService notificationService;
     private MetadataRefreshService metadataRefreshService;
     private BookdropNotificationService bookdropNotificationService;
-    private PdfProcessor pdfProcessor;
-    private EpubProcessor epubProcessor;
-    private CbxProcessor cbxProcessor;
     private AppProperties appProperties;
 
     private BookDropService bookDropService;
@@ -52,9 +48,7 @@ class BookDropServiceTest {
         notificationService = mock(NotificationService.class);
         metadataRefreshService = mock(MetadataRefreshService.class);
         bookdropNotificationService = mock(BookdropNotificationService.class);
-        pdfProcessor = mock(PdfProcessor.class);
-        epubProcessor = mock(EpubProcessor.class);
-        cbxProcessor = mock(CbxProcessor.class);
+        BookFileProcessorRegistry processorRegistry = mock(BookFileProcessorRegistry.class);
         appProperties = mock(AppProperties.class);
 
         bookDropService = new BookDropService(
@@ -62,7 +56,7 @@ class BookDropServiceTest {
                 monitoringService, bookdropMonitoringService,
                 notificationService, metadataRefreshService,
                 bookdropNotificationService,
-                pdfProcessor, epubProcessor, cbxProcessor,
+                processorRegistry,
                 appProperties
         );
     }
@@ -110,7 +104,7 @@ class BookDropServiceTest {
         Resource resource = bookDropService.getBookdropCover(bookdropId);
 
         assertThat(resource).isInstanceOf(PathResource.class);
-        assertThat(((PathResource) resource).getFile().getName()).isEqualTo(bookdropId + ".jpg");
+        assertThat(resource.getFilename()).isEqualTo(bookdropId + ".jpg");
 
         coverFile.delete();
     }

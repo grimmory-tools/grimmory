@@ -23,6 +23,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.List;
 
 import static com.adityachandel.booklore.service.fileprocessor.FileProcessingUtils.truncate;
 
@@ -66,6 +67,11 @@ public class PdfProcessor extends AbstractFileProcessor implements BookFileProce
             log.warn("Failed to generate cover for '{}': {}", bookEntity.getFileName(), e.getMessage());
             return false;
         }
+    }
+
+    @Override
+    public List<BookFileType> getSupportedTypes() {
+        return List.of(BookFileType.PDF);
     }
 
     private void extractAndSetMetadata(BookEntity bookEntity) {

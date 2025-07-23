@@ -62,7 +62,7 @@ public class BookFileTransactionalHandler {
                         .orElseThrow(() -> new IllegalArgumentException("Unsupported book file type: " + fileName)))
                 .build();
 
-        libraryProcessingService.processLibraryFiles(List.of(libraryFile));
+        libraryProcessingService.processLibraryFiles(List.of(libraryFile), libraryEntity);
 
         notificationService.sendMessage(Topic.LOG, createLogNotification("Finished processing file: " + filePath));
         log.info("[CREATE] Completed processing for file '{}'", filePath);

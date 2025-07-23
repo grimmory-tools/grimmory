@@ -1,7 +1,6 @@
 package com.adityachandel.booklore.service.library;
 
 import com.adityachandel.booklore.exception.ApiError;
-import com.adityachandel.booklore.model.dto.Book;
 import com.adityachandel.booklore.model.dto.settings.LibraryFile;
 import com.adityachandel.booklore.model.entity.BookEntity;
 import com.adityachandel.booklore.model.entity.LibraryEntity;
@@ -11,9 +10,6 @@ import com.adityachandel.booklore.model.websocket.Topic;
 import com.adityachandel.booklore.repository.BookRepository;
 import com.adityachandel.booklore.repository.LibraryRepository;
 import com.adityachandel.booklore.service.NotificationService;
-import com.adityachandel.booklore.service.fileprocessor.CbxProcessor;
-import com.adityachandel.booklore.service.fileprocessor.EpubProcessor;
-import com.adityachandel.booklore.service.fileprocessor.PdfProcessor;
 import com.adityachandel.booklore.util.FileService;
 import com.adityachandel.booklore.util.FileUtils;
 import lombok.AllArgsConstructor;
@@ -38,18 +34,17 @@ public class LibraryProcessingService {
 
     private final LibraryRepository libraryRepository;
     private final NotificationService notificationService;
-    private final PdfProcessor pdfProcessor;
-    private final EpubProcessor epubProcessor;
-    private final CbxProcessor cbxProcessor;
     private final BookRepository bookRepository;
     private final FileService fileService;
+    private final LibraryFileProcessorRegistry fileProcessorRegistry;
 
     @Transactional
     public void processLibrary(long libraryId) throws IOException {
         LibraryEntity libraryEntity = libraryRepository.findById(libraryId).orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
         notificationService.sendMessage(Topic.LOG, createLogNotification("Started processing library: " + libraryEntity.getName()));
         List<LibraryFile> libraryFiles = getLibraryFiles(libraryEntity);
-        processLibraryFiles(libraryFiles);
+        LibraryFileProcessor processor = fileProcessorRegistry.getProcessor(libraryEntity);
+        processor.processLibraryFiles(libraryFiles, libraryEntity);
         notificationService.sendMessage(Topic.LOG, createLogNotification("Finished processing library: " + libraryEntity.getName()));
     }
 
@@ -57,29 +52,36 @@ public class LibraryProcessingService {
     public void rescanLibrary(long libraryId) throws IOException {
         LibraryEntity libraryEntity = libraryRepository.findById(libraryId).orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
         notificationService.sendMessage(Topic.LOG, createLogNotification("Started refreshing library: " + libraryEntity.getName()));
-        deleteRemovedBooks(detectDeletedBookIds(libraryEntity));
-        processLibraryFiles(detectNewBookPaths(libraryEntity));
+        List<LibraryFile> libraryFiles = getLibraryFiles(libraryEntity);
+        deleteRemovedBooks(detectDeletedBookIds(libraryFiles, libraryEntity));
+        LibraryFileProcessor processor = fileProcessorRegistry.getProcessor(libraryEntity);
+        processor.processLibraryFiles(detectNewBookPaths(libraryFiles, libraryEntity), libraryEntity);
         notificationService.sendMessage(Topic.LOG, createLogNotification("Finished refreshing library: " + libraryEntity.getName()));
     }
 
-    public List<Long> detectDeletedBookIds(LibraryEntity libraryEntity) throws IOException {
-        Set<String> currentFileNames = getLibraryFiles(libraryEntity).stream()
-                .map(LibraryFile::getFileName)
+    public void processLibraryFiles(List<LibraryFile> libraryFiles, LibraryEntity libraryEntity) {
+        LibraryFileProcessor processor = fileProcessorRegistry.getProcessor(libraryEntity);
+        processor.processLibraryFiles(libraryFiles, libraryEntity);
+    }
+
+    public static List<Long> detectDeletedBookIds(List<LibraryFile> libraryFiles, LibraryEntity libraryEntity) {
+        Set<Path> currentFullPaths = libraryFiles.stream()
+                .map(LibraryFile::getFullPath)
                 .collect(Collectors.toSet());
 
         return libraryEntity.getBookEntities().stream()
                 .filter(book -> (book.getDeleted() == null || !book.getDeleted()))
-                .filter(book -> !currentFileNames.contains(book.getFileName()))
+                .filter(book -> !currentFullPaths.contains(book.getFullFilePath()))
                 .map(BookEntity::getId)
                 .collect(Collectors.toList());
     }
 
-    public List<LibraryFile> detectNewBookPaths(LibraryEntity libraryEntity) throws IOException {
-        Set<String> existingFileNames = libraryEntity.getBookEntities().stream()
-                .map(BookEntity::getFileName)
+    public static List<LibraryFile> detectNewBookPaths(List<LibraryFile> libraryFiles, LibraryEntity libraryEntity) {
+        Set<Path> existingFullPaths = libraryEntity.getBookEntities().stream()
+                .map(BookEntity::getFullFilePath)
                 .collect(Collectors.toSet());
-        return getLibraryFiles(libraryEntity).stream()
-                .filter(file -> !existingFileNames.contains(file.getFileName()))
+        return libraryFiles.stream()
+                .filter(file -> !existingFullPaths.contains(file.getFullPath()))
                 .collect(Collectors.toList());
     }
 
@@ -118,27 +120,6 @@ public class LibraryProcessingService {
         }
     }
 
-    @Transactional
-    public void processLibraryFiles(List<LibraryFile> libraryFiles) {
-        for (LibraryFile libraryFile : libraryFiles) {
-            log.info("Processing file: {}", libraryFile.getFileName());
-            Book book = processLibraryFile(libraryFile);
-            if (book != null) {
-                notificationService.sendMessage(Topic.BOOK_ADD, book);
-                notificationService.sendMessage(Topic.LOG, createLogNotification("Book added: " + book.getFileName()));
-                log.info("Processed file: {}", libraryFile.getFileName());
-            }
-        }
-    }
-
-    @Transactional
-    protected Book processLibraryFile(LibraryFile libraryFile) {
-        return switch (libraryFile.getBookFileType()) {
-            case PDF -> pdfProcessor.processFile(libraryFile);
-            case EPUB -> epubProcessor.processFile(libraryFile);
-            case CBX -> cbxProcessor.processFile(libraryFile);
-        };
-    }
 
     private List<LibraryFile> getLibraryFiles(LibraryEntity libraryEntity) throws IOException {
         List<LibraryFile> allFiles = new ArrayList<>();
