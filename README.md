@@ -9,6 +9,15 @@ BookLore is a self-hosted web app for organizing and managing your personal book
 
 ![BookLore Demo](assets/demo.gif)
 
+## 💃 Live Demo
+
+Try it for yourself with the [public live demo](https://demo-booklore.elfhosted.com), sponsored by [ElfHosted](https://elfhosted.com) :heart:, using the following details:
+
+* User: `bookgeek`
+* Pass: `elfhosted`
+
+(*the demo resets every hour, on the hour, no copyrighted content uploads please*)
+
 ## ✨ Key Features
 
 - 📚 **Powerful Book Organization**: Keep your library tidy with **Libraries** and **Shelves**. Whether you're sorting by genre, author, or mood, finding the right book is effortless.
