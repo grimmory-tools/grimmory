@@ -1,8 +1,8 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.5.0'
+    id 'org.springframework.boot' version '3.5.1'
     id 'io.spring.dependency-management' version '1.1.7'
-    id 'org.hibernate.orm' version '7.0.0.Final'
+    id 'org.hibernate.orm' version '7.1.0.Final'
     id 'com.github.ben-manes.versions' version '0.52.0'
 }
 
@@ -39,8 +39,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
     // --- Database & Migration ---
-    implementation 'org.mariadb.jdbc:mariadb-java-client:3.5.3'
-    implementation 'org.flywaydb:flyway-mysql:11.9.0'
+    implementation 'org.mariadb.jdbc:mariadb-java-client:3.5.4'
+    implementation 'org.flywaydb:flyway-mysql:11.11.0'
     implementation 'jakarta.persistence:jakarta.persistence-api:3.2.0'
 
     // --- Security & Authentication ---
@@ -61,22 +61,22 @@ dependencies {
     implementation 'io.documentnode:epub4j-core:4.2.2'
 
     // --- JSON & Web Scraping ---
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.0'
-    implementation 'org.jsoup:jsoup:1.20.1'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.2'
+    implementation 'org.jsoup:jsoup:1.21.1'
 
     // --- Mapping (DTOs & Entities) ---
     implementation 'org.mapstruct:mapstruct:1.6.3'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
 
     // --- API Documentation ---
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'
-    implementation 'org.apache.commons:commons-compress:1.27.1'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
+    implementation 'org.apache.commons:commons-compress:1.28.0'
     implementation 'com.github.junrar:junrar:7.5.5'
-    implementation 'org.apache.commons:commons-text:1.13.1'
+    implementation 'org.apache.commons:commons-text:1.14.0'
 
     // --- Test Dependencies ---
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.assertj:assertj-core:3.26.3'
+    testImplementation 'org.assertj:assertj-core:3.27.3'
     testImplementation "org.mockito:mockito-inline:5.2.0"
 }
 
