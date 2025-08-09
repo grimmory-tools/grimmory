@@ -334,6 +334,13 @@ public class BookService {
             progress.setUser(userEntity);
             progress.setBook(book);
             progress.setReadStatus(readStatus);
+            
+            // Set dateFinished when status is READ, clear it otherwise
+            if (readStatus == ReadStatus.READ) {
+                progress.setDateFinished(Instant.now());
+            } else {
+                progress.setDateFinished(null);
+            }
 
             userBookProgressRepository.save(progress);
         }
