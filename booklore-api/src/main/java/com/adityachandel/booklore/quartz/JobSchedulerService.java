@@ -9,7 +9,9 @@ import org.quartz.*;
 import org.quartz.impl.matchers.KeyMatcher;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 @Slf4j
@@ -20,6 +22,7 @@ public class JobSchedulerService {
     private final Scheduler scheduler;
 
     private final BlockingQueue<RefreshJobWrapper> jobQueue = new LinkedBlockingQueue<>();
+    private final Map<String, String> runningJobs = new ConcurrentHashMap<>();
     private boolean isJobRunning = false;
 
     public synchronized void scheduleMetadataRefresh(MetadataRefreshRequest request, Long userId) {
@@ -47,7 +50,6 @@ public class JobSchedulerService {
             log.info("Processing job from queue. Remaining queue size: {}", jobQueue.size());
             String jobId = generateUniqueJobId(request);
             try {
-                log.info("Scheduling job with ID: {}", jobId);
                 scheduleJob(request, userId, jobId);
             } catch (Exception e) {
                 isJobRunning = false;
@@ -57,11 +59,39 @@ public class JobSchedulerService {
         }
     }
 
+    public synchronized boolean cancelJob(String jobId) {
+        try {
+            String quartzJobId = runningJobs.get(jobId);
+            if (quartzJobId == null) {
+                log.warn("Job with ID {} not found in running jobs", jobId);
+                return false;
+            }
+
+            JobKey jobKey = new JobKey(quartzJobId, "metadataRefreshJobGroup");
+            boolean cancelled = scheduler.interrupt(jobKey);
+
+            if (cancelled) {
+                runningJobs.remove(jobId);
+                isJobRunning = false;
+                log.info("Job {} cancellation scheduled", jobId);
+                processQueue();
+            } else {
+                log.warn("Failed to cancel job {}", jobId);
+            }
+
+            return cancelled;
+        } catch (UnableToInterruptJobException e) {
+            log.error("Job {} cannot be interrupted: {}", jobId, e.getMessage());
+            return false;
+        }
+    }
+
     private void scheduleJob(MetadataRefreshRequest request, Long userId, String jobId) {
         try {
             JobDataMap jobDataMap = new JobDataMap();
             jobDataMap.put("request", request);
             jobDataMap.put("userId", userId);
+            jobDataMap.put("jobId", jobId);
 
             JobDetail jobDetail = JobBuilder.newJob(RefreshMetadataJob.class)
                     .withIdentity(jobId, "metadataRefreshJobGroup")
@@ -73,6 +103,8 @@ public class JobSchedulerService {
                     .withIdentity(jobId, "metadataRefreshJobGroup")
                     .startNow()
                     .build();
+
+            runningJobs.put(jobId, jobId);
 
             scheduler.scheduleJob(jobDetail, trigger);
             log.info("Job scheduled successfully with ID: {}", jobId);
@@ -99,6 +131,7 @@ public class JobSchedulerService {
                     if (jobException != null) {
                         log.error("Job execution encountered an error: {}", jobException.getMessage(), jobException);
                     }
+                    runningJobs.remove(jobId);
                     isJobRunning = false;
                     log.debug("Job completion handled. Processing next job in the queue.");
                     processQueue();

@@ -4,6 +4,7 @@ import {takeUntil} from 'rxjs/operators';
 import {BookdropFileNotification, BookdropFileService} from '../bookdrop-file.service';
 import {DatePipe} from '@angular/common';
 import {Router} from '@angular/router';
+import {Button} from 'primeng/button';
 
 @Component({
   selector: 'app-bookdrop-files-widget-component',
@@ -11,7 +12,8 @@ import {Router} from '@angular/router';
   templateUrl: './bookdrop-files-widget.component.html',
   styleUrl: './bookdrop-files-widget.component.scss',
   imports: [
-    DatePipe
+    DatePipe,
+    Button
   ]
 })
 export class BookdropFilesWidgetComponent implements OnInit, OnDestroy {

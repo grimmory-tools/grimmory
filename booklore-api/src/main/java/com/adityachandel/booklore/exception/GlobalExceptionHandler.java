@@ -85,6 +85,14 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.OK);
     }
 
+    @ExceptionHandler(InterruptedException.class)
+    public ResponseEntity<ErrorResponse> handleInterruptedException(InterruptedException ex) {
+        log.info("Request was interrupted: {}", ex.getMessage() != null ? ex.getMessage() : "Thread interrupted");
+        Thread.currentThread().interrupt();
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.OK.value(), "Request was cancelled.");
+        return new ResponseEntity<>(errorResponse, HttpStatus.OK);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "An unexpected error occurred.");

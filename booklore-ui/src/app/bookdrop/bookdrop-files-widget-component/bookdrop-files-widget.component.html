@@ -1,23 +1,24 @@
-<div class="staging-border p-4 mt-6 rounded">
+<div class="staging-border p-4 rounded">
   <div class="flex justify-between items-center">
 
     <div class="flex flex-col justify-center">
-      <p class="text-sm font-medium text-gray-200">Pending Bookdrop Files</p>
+      <p class="text font-bold text-zinc-300">Pending Bookdrop Files</p>
       <p class="text-lg font-bold text-primary">{{ pendingCount }}</p>
       @if (lastUpdatedAt) {
-        <p class="text-xs text-gray-400 mt-1">
+        <p class="text-xs text-zinc-400 mt-1">
           Last updated: {{ lastUpdatedAt | date: 'short' }}
         </p>
       }
     </div>
 
     <div class="flex items-center">
-      <button
-        type="button"
-        class="p-button p-button-sm p-button-outlined p-button-info"
+      <p-button
+        size="small"
+        outlined
+        severity="info"
         (click)="openReviewDialog()">
         Review
-      </button>
+      </p-button>
     </div>
   </div>
 </div>

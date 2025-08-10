@@ -1,0 +1,43 @@
+<div class="flex flex-col p-4 live-border">
+  @if (tasks$ | async; as tasks) {
+    @if (tasks.length === 0) {
+      <div class="text-center text-zinc-400">
+        <p class="text-sm">No active tasks</p>
+      </div>
+    } @else {
+      @for (task of tasks; track task.taskId; let i = $index) {
+        @if (i > 0) {
+          <div class="border-t border-zinc-700 my-4"></div>
+        }
+        <div class="flex flex-col space-y-1.5">
+          <p class="text-xs text-zinc-400">{{ task.timestamp }}</p>
+
+          <div class="flex flex-col space-y-0.5">
+            <div class="flex justify-between items-center">
+              <div class="flex items-center space-x-1.5">
+              <span class="px-1.5 py-0.5 text-xs rounded-xl font-bold" [class]="getStatusClasses(task.status)">
+                {{ getStatusText(task.status) }}
+              </span>
+                @if (task.title) {
+                  <h4 class="font-bold text-zinc-200">Task: {{ task.title }}</h4>
+                }
+              </div>
+              <div class="flex items-center space-x-1">
+                @if (task.status === TaskStatus.IN_PROGRESS && task.cancellable) {
+                  <p-button
+                    (onClick)="cancelTask(task.taskId)" icon="pi pi-ban" severity="danger" size="small" rounded text>
+                  </p-button>
+                }
+                <p-button
+                  (onClick)="removeTask(task.taskId)" icon="pi pi-times" severity="secondary" size="small" rounded text>
+                </p-button>
+              </div>
+            </div>
+            <p class="font-normal text-zinc-300">{{ task.message }}</p>
+          </div>
+
+        </div>
+      }
+    }
+  }
+</div>

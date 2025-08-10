@@ -23,6 +23,7 @@ import {MetadataBatchProgressNotification} from '../../../core/model/metadata-ba
 import {UnifiedNotificationBoxComponent} from '../../../core/component/unified-notification-popover-component/unified-notification-popover-component';
 import {BookdropFileService} from '../../../bookdrop/bookdrop-file.service';
 import {DialogLauncherService} from '../../../dialog-launcher.service';
+import {TaskEventService} from '../../../shared/websocket/task-event.service';
 
 @Component({
   selector: 'app-topbar',
@@ -77,10 +78,12 @@ export class AppTopBarComponent implements OnDestroy {
     protected userService: UserService,
     private metadataProgressService: MetadataProgressService,
     private bookdropFileService: BookdropFileService,
-    private dialogLauncher: DialogLauncherService
+    private dialogLauncher: DialogLauncherService,
+    private taskEventService: TaskEventService
   ) {
     this.subscribeToMetadataProgress();
     this.subscribeToNotifications();
+    this.subscribeToTaskEvents();
 
     this.metadataProgressService.activeTasks$
       .pipe(takeUntil(this.destroy$))
@@ -150,6 +153,16 @@ export class AppTopBarComponent implements OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.triggerPulseEffect();
+      });
+  }
+
+  private subscribeToTaskEvents() {
+    this.taskEventService.tasks$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((tasks) => {
+        if (tasks.length > 0) {
+          this.triggerPulseEffect();
+        }
       });
   }
 

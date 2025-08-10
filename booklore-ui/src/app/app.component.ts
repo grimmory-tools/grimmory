@@ -3,7 +3,7 @@ import {RxStompService} from './shared/websocket/rx-stomp.service';
 import {Message} from '@stomp/stompjs';
 import {BookService} from './book/service/book.service';
 import {NotificationEventService} from './shared/websocket/notification-event.service';
-import {parseLogNotification} from './shared/websocket/model/log-notification.model';
+import {parseLogNotification, parseTaskMessage, TaskMessage} from './shared/websocket/model/log-notification.model';
 import {ConfirmDialog} from 'primeng/confirmdialog';
 import {Toast} from 'primeng/toast';
 import {RouterOutlet} from '@angular/router';
@@ -12,6 +12,7 @@ import {AppConfigService} from './core/service/app-config.service';
 import {MetadataBatchProgressNotification} from './core/model/metadata-batch-progress.model';
 import {MetadataProgressService} from './core/service/metadata-progress-service';
 import {BookdropFileService, BookdropFileNotification} from './bookdrop/bookdrop-file.service';
+import {TaskEventService} from './shared/websocket/task-event.service';
 
 @Component({
   selector: 'app-root',
@@ -29,6 +30,7 @@ export class AppComponent implements OnInit {
   private notificationEventService = inject(NotificationEventService);
   private metadataProgressService = inject(MetadataProgressService);
   private bookdropFileService = inject(BookdropFileService);
+  private taskEventService = inject(TaskEventService);
   private appConfigService = inject(AppConfigService);
 
   ngOnInit(): void {
@@ -62,6 +64,11 @@ export class AppComponent implements OnInit {
     this.rxStompService.watch('/topic/log').subscribe((message: Message) => {
       const logNotification = parseLogNotification(message.body);
       this.notificationEventService.handleNewNotification(logNotification);
+    });
+
+    this.rxStompService.watch('/topic/task').subscribe((message: Message) => {
+      const taskMessage: TaskMessage = parseTaskMessage(message.body);
+      this.taskEventService.handleTaskMessage(taskMessage);
     });
 
     this.rxStompService.watch('/topic/bookdrop-file').subscribe((message: Message) => {
