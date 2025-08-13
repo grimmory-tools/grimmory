@@ -22,20 +22,20 @@ public class BookReviewController {
     }
 
     @PostMapping("/book/{bookId}/refresh")
-    @PreAuthorize("@securityUtil.canManipulateLibrary() or @securityUtil.isAdmin()")
+    @PreAuthorize("@securityUtil.canEditMetadata() or @securityUtil.isAdmin()")
     public List<BookReview> refreshReviews(@PathVariable Long bookId) {
         return bookReviewService.refreshReviews(bookId);
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("@securityUtil.canManipulateLibrary() or @securityUtil.isAdmin()")
+    @PreAuthorize("@securityUtil.canEditMetadata() or @securityUtil.isAdmin()")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         bookReviewService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/book/{bookId}")
-    @PreAuthorize("@securityUtil.canManipulateLibrary() or @securityUtil.isAdmin()")
+    @PreAuthorize("@securityUtil.canEditMetadata() or @securityUtil.isAdmin()")
     public ResponseEntity<Void> deleteAllByBookId(@PathVariable Long bookId) {
         bookReviewService.deleteAllByBookId(bookId);
         return ResponseEntity.noContent().build();

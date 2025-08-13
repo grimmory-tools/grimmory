@@ -1,19 +1,33 @@
 <div class="dashboard-container">
   @if ((bookState$ | async)?.loaded === false) {
-    <p-progressSpinner styleClass="spinner center-spinner"></p-progressSpinner>
+    <div class="flex items-center justify-center h-full">
+      <p-progressSpinner
+        styleClass="spinner center-spinner"
+        [style]="{'width': '60px', 'height': '60px'}"
+        strokeWidth="3"
+        fill="transparent"
+        animationDuration="1.5s">
+      </p-progressSpinner>
+    </div>
   }
   @if ((bookState$ | async)?.loaded === true) {
     <div class="dashboard">
-      <div>
+      <div class="w-full">
         @if (isLibrariesEmpty$ | async) {
           <div class="dashboard-no-library">
             @if ((userService.userState$ | async)?.user?.permissions; as permissions) {
               <div>
                 @if (permissions.admin || permissions.canManipulateLibrary) {
                   <div>
-                    <h1 class="no-library-header">Looks like you haven't added a library yet. Let's add one!</h1>
+                    <h1 class="no-library-header">
+                      Welcome to BookLore! 📚<br>
+                      Let's create your first library
+                    </h1>
+                    <p class="text-gray-300 text-lg mb-8 max-w-md mx-auto leading-relaxed">
+                      A library is where all your books live. Start building your digital collection today!
+                    </p>
                     <p-button
-                      label="Add a Library"
+                      label="Create Your Library"
                       icon="pi pi-plus"
                       styleClass="p-button-rounded p-button-outlined"
                       (click)="createNewLibrary()">
@@ -27,21 +41,17 @@
           <app-dashboard-scroller
             [books]="lastReadBooks$ | async"
             [bookListType]="'lastRead'"
-            [title]="'Last Read Books'">
+            [title]="'Continue Reading'">
           </app-dashboard-scroller>
-          <div class="mb-6">
-            <p-divider></p-divider>
-          </div>
+
           <app-dashboard-scroller
             [books]="latestAddedBooks$ | async"
-            [title]="'Latest Added Books'">
+            [title]="'Recently Added'">
           </app-dashboard-scroller>
-          <div class="mb-6">
-            <p-divider></p-divider>
-          </div>
+
           <app-dashboard-scroller
             [books]="randomBooks$ | async"
-            [title]="'Discover Random Reads'">
+            [title]="'Discover Something New'">
           </app-dashboard-scroller>
         }
       </div>

@@ -2,15 +2,14 @@ import {Component, inject, OnInit} from '@angular/core';
 import {LibraryCreatorComponent} from '../../../book/components/library-creator/library-creator.component';
 import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
 import {LibraryService} from '../../../book/service/library.service';
-import {filter, Observable, take} from 'rxjs';
+import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {Button} from 'primeng/button';
-import { AsyncPipe } from '@angular/common';
+import {AsyncPipe} from '@angular/common';
 import {DashboardScrollerComponent} from '../dashboard-scroller/dashboard-scroller.component';
 import {BookService} from '../../../book/service/book.service';
 import {BookState} from '../../../book/model/state/book-state.model';
 import {Book} from '../../../book/model/book.model';
-import {Divider} from 'primeng/divider';
 import {UserService} from '../../../settings/user-management/user.service';
 import {ProgressSpinner} from 'primeng/progressspinner';
 
@@ -22,9 +21,8 @@ import {ProgressSpinner} from 'primeng/progressspinner';
     Button,
     DashboardScrollerComponent,
     AsyncPipe,
-    Divider,
     ProgressSpinner
-],
+  ],
   providers: [DialogService],
   standalone: true
 })

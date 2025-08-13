@@ -13,7 +13,7 @@ import {Book} from '../../../book/model/book.model';
     InfiniteScrollDirective,
     BookCardComponent,
     ProgressSpinnerModule
-],
+  ],
   standalone: true
 })
 export class DashboardScrollerComponent {
@@ -23,5 +23,4 @@ export class DashboardScrollerComponent {
   @Input() books!: Book[] | null;
 
   @ViewChild('scrollContainer') scrollContainer!: ElementRef;
-
 }
