@@ -274,38 +274,51 @@ public class BookDropService {
             return failureResult(targetFile.getName(), "File already exists in the library '" + library.getName() + "'");
         }
 
-        Files.createDirectories(target.getParent());
-        Files.move(source, target);
+        try {
+            Files.createDirectories(target.getParent());
+            Files.move(source, target);
 
-        log.info("Moved file id={}, name={} from '{}' to '{}'", bookdropFile.getId(), bookdropFile.getFileName(), source, target);
+            log.info("Moved file id={}, name={} from '{}' to '{}'", bookdropFile.getId(), bookdropFile.getFileName(), source, target);
 
-        Book processedBook = processFile(targetFile.getName(), library, path, targetFile,
-                BookFileExtension.fromFileName(bookdropFile.getFileName())
-                        .orElseThrow(() -> ApiError.INVALID_FILE_FORMAT.createException("Unsupported file extension"))
-                        .getType()
-        );
+            Book processedBook = processFile(targetFile.getName(), library, path, targetFile,
+                    BookFileExtension.fromFileName(bookdropFile.getFileName())
+                            .orElseThrow(() -> ApiError.INVALID_FILE_FORMAT.createException("Unsupported file extension"))
+                            .getType());
 
-        BookEntity bookEntity = bookRepository.findById(processedBook.getId())
-                .orElseThrow(() -> ApiError.FILE_NOT_FOUND.createException("Book ID missing after import"));
+            BookEntity bookEntity = bookRepository.findById(processedBook.getId())
+                    .orElseThrow(() -> ApiError.FILE_NOT_FOUND.createException("Book ID missing after import"));
 
-        notificationService.sendMessage(Topic.BOOK_ADD, processedBook);
-        metadataRefreshService.updateBookMetadata(bookEntity, metadata, metadata.getThumbnailUrl() != null, false);
-        bookdropFileRepository.deleteById(bookdropFile.getId());
-        bookdropNotificationService.sendBookdropFileSummaryNotification();
+            notificationService.sendMessage(Topic.BOOK_ADD, processedBook);
+            metadataRefreshService.updateBookMetadata(bookEntity, metadata, metadata.getThumbnailUrl() != null, false);
+            bookdropFileRepository.deleteById(bookdropFile.getId());
+            bookdropNotificationService.sendBookdropFileSummaryNotification();
 
-        File cachedCover = Paths.get(appProperties.getPathConfig(), "bookdrop_temp", bookdropFile.getId() + ".jpg").toFile();
-        if (cachedCover.exists()) {
-            boolean deleted = cachedCover.delete();
-            log.debug("Deleted cached cover image for bookdropId={}: {}", bookdropFile.getId(), deleted);
+            File cachedCover = Paths.get(appProperties.getPathConfig(), "bookdrop_temp", bookdropFile.getId() + ".jpg").toFile();
+            if (cachedCover.exists()) {
+                boolean deleted = cachedCover.delete();
+                log.debug("Deleted cached cover image for bookdropId={}: {}", bookdropFile.getId(), deleted);
+            }
+
+            log.info("File import completed: id={}, name={}, library={}, path={}", bookdropFile.getId(), targetFile.getName(), library.getName(), path.getPath());
+
+            return BookdropFileResult.builder()
+                    .fileName(targetFile.getName())
+                    .message("File successfully imported into the '" + library.getName() + "' library from the Bookdrop folder")
+                    .success(true)
+                    .build();
+
+        } catch (Exception e) {
+            log.error("Failed to move file id={}, name={} from '{}' to '{}': {}", bookdropFile.getId(), bookdropFile.getFileName(), source, target, e.getMessage(), e);
+            try {
+                if (Files.exists(target)) {
+                    Files.deleteIfExists(target);
+                    log.info("Cleaned up partially created target file: {}", target);
+                }
+            } catch (Exception cleanupException) {
+                log.warn("Failed to cleanup target file after move error: {}", target, cleanupException);
+            }
+            return failureResult(bookdropFile.getFileName(), "Failed to move file: " + e.getMessage());
         }
-
-        log.info("File import completed: id={}, name={}, library={}, path={}", bookdropFile.getId(), targetFile.getName(), library.getName(), path.getPath());
-
-        return BookdropFileResult.builder()
-                .fileName(targetFile.getName())
-                .message("File successfully imported into the '" + library.getName() + "' library from the Bookdrop folder")
-                .success(true)
-                .build();
     }
 
     private BookdropFileResult failureResult(String fileName, String message) {
