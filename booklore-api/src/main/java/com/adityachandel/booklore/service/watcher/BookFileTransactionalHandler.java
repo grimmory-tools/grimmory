@@ -7,6 +7,7 @@ import com.adityachandel.booklore.model.entity.LibraryEntity;
 import com.adityachandel.booklore.model.entity.LibraryPathEntity;
 import com.adityachandel.booklore.model.enums.BookFileExtension;
 import com.adityachandel.booklore.model.enums.BookFileType;
+import com.adityachandel.booklore.model.enums.PermissionType;
 import com.adityachandel.booklore.model.websocket.Topic;
 import com.adityachandel.booklore.repository.LibraryRepository;
 import com.adityachandel.booklore.service.NotificationService;
@@ -20,7 +21,10 @@ import org.springframework.stereotype.Service;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
+import static com.adityachandel.booklore.model.enums.PermissionType.ADMIN;
+import static com.adityachandel.booklore.model.enums.PermissionType.MANIPULATE_LIBRARY;
 import static com.adityachandel.booklore.model.websocket.LogNotification.createLogNotification;
 
 @Slf4j
@@ -48,7 +52,7 @@ public class BookFileTransactionalHandler {
         String fileName = path.getFileName().toString();
         String libraryPath = bookFilePersistenceService.findMatchingLibraryPath(libraryEntity, path);
 
-        notificationService.sendMessage(Topic.LOG, createLogNotification("Started processing file: " + filePath));
+        notificationService.sendMessageToPermissions(Topic.LOG, createLogNotification("Started processing file: " + filePath), Set.of(ADMIN, MANIPULATE_LIBRARY));
 
         LibraryPathEntity libraryPathEntity = bookFilePersistenceService.getLibraryPathEntityForFile(libraryEntity, libraryPath);
 
@@ -64,7 +68,7 @@ public class BookFileTransactionalHandler {
 
         libraryProcessingService.processLibraryFiles(List.of(libraryFile), libraryEntity);
 
-        notificationService.sendMessage(Topic.LOG, createLogNotification("Finished processing file: " + filePath));
+        notificationService.sendMessageToPermissions(Topic.LOG, createLogNotification("Finished processing file: " + filePath), Set.of(ADMIN, MANIPULATE_LIBRARY));
         log.info("[CREATE] Completed processing for file '{}'", filePath);
     }
 }

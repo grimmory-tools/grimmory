@@ -42,6 +42,10 @@ export interface BookdropFileResult {
 }
 
 export interface BookdropFinalizeResult {
+  totalFiles: number;
+  successfullyImported: number;
+  failed: number;
+  processedAt: string;
   results: BookdropFileResult[];
 }
 

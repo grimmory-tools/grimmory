@@ -3,6 +3,7 @@ package com.adityachandel.booklore.service.bookdrop;
 import com.adityachandel.booklore.model.BookDropFileEvent;
 import com.adityachandel.booklore.model.entity.BookdropFileEntity;
 import com.adityachandel.booklore.model.enums.BookFileExtension;
+import com.adityachandel.booklore.model.enums.PermissionType;
 import com.adityachandel.booklore.model.websocket.LogNotification;
 import com.adityachandel.booklore.model.websocket.Topic;
 import com.adityachandel.booklore.repository.BookdropFileRepository;
@@ -19,6 +20,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.time.Instant;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -72,6 +75,7 @@ public class BookdropEventHandlerService {
     public void processFile(BookDropFileEvent event) {
         Path file = event.getFile();
         WatchEvent.Kind<?> kind = event.getKind();
+
         if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
             try {
                 if (!Files.exists(file)) {
@@ -100,7 +104,11 @@ public class BookdropEventHandlerService {
                 log.info("Handling new bookdrop file: {}", file);
 
                 int queueSize = fileQueue.size();
-                notificationService.sendMessage(Topic.LOG, new LogNotification("Processing bookdrop file: " + fileName + " (" + queueSize + " books remaining)"));
+                notificationService.sendMessageToPermissions(
+                        Topic.LOG,
+                        new LogNotification("Processing bookdrop file: " + fileName + " (" + queueSize + " files remaining)"),
+                        Set.of(PermissionType.ADMIN, PermissionType.MANIPULATE_LIBRARY)
+                );
 
                 BookdropFileEntity bookdropFileEntity = BookdropFileEntity.builder()
                         .filePath(filePath)
@@ -118,20 +126,36 @@ public class BookdropEventHandlerService {
                     bookdropMetadataService.attachFetchedMetadata(bookdropFileEntity.getId());
                 } else {
                     bookdropMetadataService.attachInitialMetadata(bookdropFileEntity.getId());
-                    log.info("Metadata download is disabled in settings. Only initial metadata extracted for file: {}", bookdropFileEntity.getFileName());
+                    log.info("Metadata download is disabled. Only initial metadata extracted for file: {}", bookdropFileEntity.getFileName());
                 }
+
                 bookdropNotificationService.sendBookdropFileSummaryNotification();
 
-                notificationService.sendMessage(Topic.LOG, new LogNotification("Finished processing bookdrop file: " + fileName + " (" + queueSize + " books remaining)"));
+                if (fileQueue.isEmpty()) {
+                    notificationService.sendMessageToPermissions(
+                            Topic.LOG,
+                            new LogNotification("All bookdrop files have finished processing"),
+                            Set.of(PermissionType.ADMIN, PermissionType.MANIPULATE_LIBRARY)
+                    );
+                } else {
+                    notificationService.sendMessageToPermissions(
+                            Topic.LOG,
+                            new LogNotification("Finished processing bookdrop file: " + fileName + " (" + fileQueue.size() + " files remaining)"),
+                            Set.of(PermissionType.ADMIN, PermissionType.MANIPULATE_LIBRARY)
+                    );
+                }
+
             } catch (Exception e) {
                 log.error("Error handling bookdrop file: {}", file, e);
             }
+
         } else if (kind == StandardWatchEventKinds.ENTRY_DELETE) {
-            String deletedPath = event.getFile().toAbsolutePath().toString();
+            String deletedPath = file.toAbsolutePath().toString();
             log.info("Detected deletion event: {}", deletedPath);
 
             int deletedCount = bookdropFileRepository.deleteAllByFilePathStartingWith(deletedPath);
             log.info("Deleted {} BookdropFile record(s) from database matching path: {}", deletedCount, deletedPath);
+
             bookdropNotificationService.sendBookdropFileSummaryNotification();
         }
     }

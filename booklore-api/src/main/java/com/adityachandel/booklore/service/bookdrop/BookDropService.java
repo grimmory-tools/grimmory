@@ -92,7 +92,9 @@ public class BookDropService {
         if (monitoringWasActive) monitoringService.pauseMonitoring();
         bookdropMonitoringService.pauseMonitoring();
 
-        BookdropFinalizeResult results = BookdropFinalizeResult.builder().build();
+        BookdropFinalizeResult results = BookdropFinalizeResult.builder()
+                .processedAt(Instant.now())
+                .build();
         Long defaultLibraryId = request.getDefaultLibraryId();
         Long defaultPathId = request.getDefaultPathId();
 
@@ -103,6 +105,7 @@ public class BookDropService {
 
         final int CHUNK_SIZE = 100;
         AtomicInteger failedCount = new AtomicInteger();
+        AtomicInteger totalFilesProcessed = new AtomicInteger();
 
         log.info("Starting finalizeImport: selectAll={}, provided file count={}, defaultLibraryId={}, defaultPathId={}",
                 request.getSelectAll(), metadataById.size(), defaultLibraryId, defaultPathId);
@@ -110,7 +113,7 @@ public class BookDropService {
         if (Boolean.TRUE.equals(request.getSelectAll())) {
             List<Long> excludedIds = Optional.ofNullable(request.getExcludedIds()).orElse(List.of());
 
-            List<Long> allIds = bookdropFileRepository.findAllExcludingIdsFlat(excludedIds); // You need to write this
+            List<Long> allIds = bookdropFileRepository.findAllExcludingIdsFlat(excludedIds);
             log.info("SelectAll: Total files to finalize (after exclusions): {}, Excluded IDs: {}", allIds.size(), excludedIds);
 
             for (int i = 0; i < allIds.size(); i += CHUNK_SIZE) {
@@ -127,9 +130,11 @@ public class BookDropService {
                     if (file == null) {
                         log.warn("File ID {} missing in DB during finalizeImport chunk processing", id);
                         failedCount.incrementAndGet();
+                        totalFilesProcessed.incrementAndGet();
                         continue;
                     }
                     processFile(file, metadataById.get(id), defaultLibraryId, defaultPathId, results, failedCount);
+                    totalFilesProcessed.incrementAndGet();
                 }
             }
         } else {
@@ -156,17 +161,23 @@ public class BookDropService {
                     if (file == null) {
                         log.error("File ID {} not found in DB during finalizeImport chunk processing", id);
                         failedCount.incrementAndGet();
+                        totalFilesProcessed.incrementAndGet();
                         continue;
                     }
                     processFile(file, metadataById.get(id), defaultLibraryId, defaultPathId, results, failedCount);
+                    totalFilesProcessed.incrementAndGet();
                 }
             }
         }
 
+        results.setTotalFiles(totalFilesProcessed.get());
+        results.setFailed(failedCount.get());
+        results.setSuccessfullyImported(totalFilesProcessed.get() - failedCount.get());
+
         log.info("Finalization complete. Success: {}, Failed: {}, Total processed: {}",
-                results.getResults().stream().filter(BookdropFileResult::isSuccess).count(),
-                failedCount.get(),
-                results.getResults().size());
+                results.getSuccessfullyImported(),
+                results.getFailed(),
+                results.getTotalFiles());
 
         if (monitoringWasActive) {
             Thread.startVirtualThread(() -> {

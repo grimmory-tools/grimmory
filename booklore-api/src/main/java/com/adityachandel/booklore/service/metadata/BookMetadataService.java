@@ -13,7 +13,6 @@ import com.adityachandel.booklore.model.dto.request.FetchMetadataRequest;
 import com.adityachandel.booklore.model.dto.request.ToggleAllLockRequest;
 import com.adityachandel.booklore.model.entity.BookEntity;
 import com.adityachandel.booklore.model.entity.BookMetadataEntity;
-import com.adityachandel.booklore.model.enums.BookFileExtension;
 import com.adityachandel.booklore.model.enums.Lock;
 import com.adityachandel.booklore.model.enums.MetadataProvider;
 import com.adityachandel.booklore.model.websocket.Topic;
@@ -21,6 +20,7 @@ import com.adityachandel.booklore.repository.BookMetadataRepository;
 import com.adityachandel.booklore.repository.BookRepository;
 import com.adityachandel.booklore.service.BookQueryService;
 import com.adityachandel.booklore.service.NotificationService;
+import com.adityachandel.booklore.util.SecurityContextVirtualThread;
 import com.adityachandel.booklore.service.appsettings.AppSettingService;
 import com.adityachandel.booklore.service.fileprocessor.BookFileProcessor;
 import com.adityachandel.booklore.service.fileprocessor.BookFileProcessorRegistry;
@@ -170,23 +170,30 @@ public class BookMetadataService {
     }
 
     public void regenerateCovers() {
-        Thread.startVirtualThread(() -> {
-            List<BookEntity> books = bookQueryService.getAllFullBookEntities().stream()
-                    .filter(book -> book.getMetadata().getCoverLocked() == null || !book.getMetadata().getCoverLocked())
-                    .toList();
-            int total = books.size();
-            notificationService.sendMessage(Topic.LOG, createLogNotification("Started regenerating covers for " + total + " books"));
-            int[] current = {1};
-            for (BookEntity book : books) {
-                try {
-                    String progress = "(" + current[0] + "/" + total + ") ";
-                    regenerateCoverForBook(book, progress);
-                } catch (Exception e) {
-                    log.error("Failed to regenerate cover for book ID {}: {}", book.getId(), e.getMessage());
+        SecurityContextVirtualThread.runWithSecurityContext(() -> {
+            try {
+                List<BookEntity> books = bookQueryService.getAllFullBookEntities().stream()
+                        .filter(book -> book.getMetadata().getCoverLocked() == null || !book.getMetadata().getCoverLocked())
+                        .toList();
+                int total = books.size();
+                notificationService.sendMessage(Topic.LOG, createLogNotification("Started regenerating covers for " + total + " books"));
+
+                int[] current = {1};
+                for (BookEntity book : books) {
+                    try {
+                        String progress = "(" + current[0] + "/" + total + ") ";
+                        regenerateCoverForBook(book, progress);
+                    } catch (Exception e) {
+                        log.error("Failed to regenerate cover for book ID {}: {}", book.getId(), e.getMessage());
+                    }
+                    current[0]++;
                 }
-                current[0]++;
+
+                notificationService.sendMessage(Topic.LOG, createLogNotification("Finished regenerating covers"));
+            } catch (Exception e) {
+                log.error("Error during cover regeneration: {}", e.getMessage(), e);
+                notificationService.sendMessage(Topic.LOG, createLogNotification("Error during cover regeneration: " + e.getMessage()));
             }
-            notificationService.sendMessage(Topic.LOG, createLogNotification("Finished regenerating covers"));
         });
     }
 

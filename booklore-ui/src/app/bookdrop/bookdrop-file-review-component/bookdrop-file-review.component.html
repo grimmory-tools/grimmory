@@ -13,7 +13,7 @@
 
     <div class="absolute inset-0 flex items-center justify-center z-50 rounded-xl">
       <div class="flex flex-col items-center space-y-3">
-        <p-progressSpinner styleClass="w-8 h-8" strokeWidth="4"/>
+        <p-progressSpinner class="w-8 h-8" strokeWidth="4"/>
         <span class="text-gray-300">Loading Bookdrop files. Please wait...</span>
       </div>
     </div>
@@ -23,7 +23,7 @@
     <div class="px-6 pb-2">
       @if (saving) {
         <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center z-50 rounded-xl space-y-3">
-          <p-progressSpinner styleClass="w-8 h-8" strokeWidth="4"/>
+          <p-progressSpinner class="w-8 h-8" strokeWidth="4"/>
           <div class="bg-gray-900/90 px-4 py-2 rounded-md">
             <span class="text-sm text-gray-200 text-center">
               Organizing and moving files to their designated libraries. Please wait...
@@ -246,7 +246,6 @@
         }
       </div>
 
-      <!-- Center container: paginator, flex-grow and centered -->
       <div class="flex-grow flex justify-center">
         <p-paginator
           [rows]="pageSize"
@@ -258,7 +257,6 @@
         </p-paginator>
       </div>
 
-      <!-- Right container: fixed width, right aligned -->
       <div class="flex gap-4 items-center min-w-[200px] justify-end">
         <p-button
           [label]="'Delete ' + selectedCount + ' File' + (selectedCount !== 1 ? 's' : '')"

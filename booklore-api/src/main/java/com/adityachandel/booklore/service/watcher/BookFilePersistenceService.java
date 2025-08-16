@@ -5,6 +5,7 @@ import com.adityachandel.booklore.mapper.BookMapper;
 import com.adityachandel.booklore.model.entity.BookEntity;
 import com.adityachandel.booklore.model.entity.LibraryEntity;
 import com.adityachandel.booklore.model.entity.LibraryPathEntity;
+import com.adityachandel.booklore.model.enums.PermissionType;
 import com.adityachandel.booklore.model.websocket.Topic;
 import com.adityachandel.booklore.repository.BookRepository;
 import com.adityachandel.booklore.service.NotificationService;
@@ -19,6 +20,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.*;
+
+import static com.adityachandel.booklore.model.enums.PermissionType.ADMIN;
+import static com.adityachandel.booklore.model.enums.PermissionType.MANIPULATE_LIBRARY;
 
 @Slf4j
 @Service
@@ -48,7 +52,7 @@ public class BookFilePersistenceService {
         } else {
             log.info("[FILE_CREATE] Book with hash '{}' already exists at same path. Skipping update.", currentHash);
         }
-        notificationService.sendMessage(Topic.BOOK_ADD, bookMapper.toBookWithDescription(book, false));
+        notificationService.sendMessageToPermissions(Topic.BOOK_ADD, bookMapper.toBookWithDescription(book, false), Set.of(ADMIN, MANIPULATE_LIBRARY));
     }
 
     @Transactional(readOnly = true)

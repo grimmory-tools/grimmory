@@ -5,6 +5,7 @@ import com.adityachandel.booklore.model.entity.BookEntity;
 import com.adityachandel.booklore.model.entity.LibraryEntity;
 import com.adityachandel.booklore.model.entity.LibraryPathEntity;
 import com.adityachandel.booklore.model.enums.BookFileExtension;
+import com.adityachandel.booklore.model.enums.PermissionType;
 import com.adityachandel.booklore.model.websocket.Topic;
 import com.adityachandel.booklore.repository.LibraryRepository;
 import com.adityachandel.booklore.service.FileFingerprint;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.*;
@@ -108,7 +110,7 @@ public class LibraryFileEventProcessor {
                     .ifPresentOrElse(book -> {
                         book.setDeleted(true);
                         bookFilePersistenceService.save(book);
-                        notificationService.sendMessage(Topic.BOOKS_REMOVE, Set.of(book.getId()));
+                        notificationService.sendMessageToPermissions(Topic.BOOKS_REMOVE, Set.of(book.getId()), Set.of(PermissionType.ADMIN, PermissionType.MANIPULATE_LIBRARY));
                         log.info("[MARKED_DELETED] Book '{}' marked as deleted", fileName);
                     }, () -> log.warn("[NOT_FOUND] Book for deleted path '{}' not found", path));
 

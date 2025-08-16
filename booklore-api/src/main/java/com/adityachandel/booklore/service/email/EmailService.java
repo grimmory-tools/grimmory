@@ -10,6 +10,7 @@ import com.adityachandel.booklore.repository.BookRepository;
 import com.adityachandel.booklore.repository.EmailProviderRepository;
 import com.adityachandel.booklore.repository.EmailRecipientRepository;
 import com.adityachandel.booklore.service.NotificationService;
+import com.adityachandel.booklore.util.SecurityContextVirtualThread;
 import com.adityachandel.booklore.util.FileUtils;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -54,8 +55,7 @@ public class EmailService {
         String logMessage = "Email dispatch initiated for book: " + bookTitle + " to " + recipientEmail;
         notificationService.sendMessage(Topic.LOG, createLogNotification(logMessage));
         log.info(logMessage);
-
-        Thread.startVirtualThread(() -> {
+        SecurityContextVirtualThread.runWithSecurityContext(() -> {
             try {
                 sendEmail(emailProvider, recipientEmail, book);
                 String successMessage = "The book: " + bookTitle + " has been successfully sent to " + recipientEmail;

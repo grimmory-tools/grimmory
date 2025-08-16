@@ -40,7 +40,7 @@ class BookdropNotificationServiceTest {
         bookdropNotificationService.sendBookdropFileSummaryNotification();
 
         ArgumentCaptor<BookdropFileNotification> captor = ArgumentCaptor.forClass(BookdropFileNotification.class);
-        verify(notificationService).sendMessage(eq(Topic.BOOKDROP_FILE), captor.capture());
+        verify(notificationService).sendMessageToPermissions(eq(Topic.BOOKDROP_FILE), captor.capture(), anySet());
 
         BookdropFileNotification sentNotification = captor.getValue();
 
@@ -56,6 +56,6 @@ class BookdropNotificationServiceTest {
 
         bookdropNotificationService.sendBookdropFileSummaryNotification();
 
-        verify(notificationService).sendMessage(eq(Topic.BOOKDROP_FILE), any(BookdropFileNotification.class));
+        verify(notificationService).sendMessageToPermissions(eq(Topic.BOOKDROP_FILE), any(BookdropFileNotification.class), anySet());
     }
 }

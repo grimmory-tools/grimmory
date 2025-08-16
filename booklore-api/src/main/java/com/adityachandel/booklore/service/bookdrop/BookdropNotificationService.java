@@ -2,12 +2,16 @@ package com.adityachandel.booklore.service.bookdrop;
 
 import com.adityachandel.booklore.model.dto.BookdropFileNotification;
 import com.adityachandel.booklore.model.entity.BookdropFileEntity;
+import com.adityachandel.booklore.model.enums.PermissionType;
 import com.adityachandel.booklore.model.websocket.Topic;
 import com.adityachandel.booklore.repository.BookdropFileRepository;
 import com.adityachandel.booklore.service.NotificationService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import java.time.Instant;
+import java.util.List;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -26,6 +30,6 @@ public class BookdropNotificationService {
                 Instant.now().toString()
         );
 
-        notificationService.sendMessage(Topic.BOOKDROP_FILE, summaryNotification);
+        notificationService.sendMessageToPermissions(Topic.BOOKDROP_FILE, summaryNotification, Set.of(PermissionType.ADMIN, PermissionType.MANIPULATE_LIBRARY));
     }
 }

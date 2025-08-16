@@ -48,7 +48,7 @@ public class SecurityConfig {
             "/ws/**",
             "/api/v1/auth/**",
             "/api/v1/public-settings",
-            "/api/v1/setup/status",
+            "/api/v1/setup/**",
             "/api/v1/books/*/cover",
             "/api/v1/books/*/backup-cover",
             "/api/v1/opds/*/cover.jpg",

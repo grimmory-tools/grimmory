@@ -1,26 +1,53 @@
-<ul class="space-y-3">
-  @for (result of results; track result) {
-    <li
-      class="flex items-start gap-3 p-3 rounded-xl border shadow-sm transition-colors"
-      [ngClass]="{
-        'bg-green-800/10 border-green-500/40 text-green-100': result.success,
-        'bg-red-800/10 border-red-500/40 text-red-100': !result.success
-      }"
-    >
-      <i
-        class="pi text-xl mt-1"
-        [ngClass]="{
-           'pi-check-circle text-green-500': result.success,
-            'pi-times-circle text-red-500': !result.success
-        }"
-      ></i>
-
-      <div class="flex flex-col">
-        <span class="font-medium text-sm text-white">
-          {{ result.fileName }}
-        </span>
-        <span class="text-sm text-gray-400">{{ result.message }}</span>
+<div class="max-w-3xl mx-auto">
+  <div class="mb-8">
+    <div class="p-6 bg-zinc-800/50 rounded-xl border border-zinc-500">
+      <div class="grid grid-cols-3 gap-6 mb-6">
+        <div class="text-center p-4 bg-zinc-700/30 rounded-lg">
+          <div class="text-3xl font-bold text-blue-400 mb-1">{{ result.totalFiles }}</div>
+          <div class="text-sm text-gray-400 font-medium">Total Files</div>
+        </div>
+        <div class="text-center p-4 bg-zinc-700/30 rounded-lg">
+          <div class="text-3xl font-bold text-green-400 mb-1">{{ result.successfullyImported }}</div>
+          <div class="text-sm text-gray-400 font-medium">Successfully Imported</div>
+        </div>
+        <div class="text-center p-4 bg-zinc-700/30 rounded-lg">
+          <div class="text-3xl font-bold text-red-400 mb-1">{{ result.failed }}</div>
+          <div class="text-sm text-gray-400 font-medium">Failed</div>
+        </div>
       </div>
-    </li>
-  }
-</ul>
+
+      <div class="text-center pt-4 border-t border-zinc-600">
+        <div class="text-sm text-gray-300 mb-1">Processed at</div>
+        <div class="text-base text-white font-mono">{{ result.processedAt | date:'medium' }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="max-h-[35rem] overflow-y-scroll">
+    <ul class="space-y-3 px-4">
+      @for (r of result.results; track r) {
+        <li
+          class="flex items-start gap-3 p-3 rounded-xl border shadow-sm transition-colors"
+          [ngClass]="{
+          'bg-green-800/10 border-green-500/40 text-green-100': r.success,
+          'bg-red-800/10 border-red-500/40 text-red-100': !r.success
+        }"
+        >
+          <i
+            class="pi text-xl mt-1"
+            [ngClass]="{
+             'pi-check-circle text-green-500': r.success,
+              'pi-times-circle text-red-500': !r.success
+          }"
+          ></i>
+
+          <div class="flex flex-col">
+          <span class="font-medium text-sm text-white">
+            {{ r.fileName }}
+          </span>
+            <span class="text-sm text-gray-400">{{ r.message }}</span>
+          </div>
+        </li>
+      }
+    </ul>
+  </div>
+</div>
