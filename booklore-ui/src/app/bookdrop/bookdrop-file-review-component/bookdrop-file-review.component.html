@@ -1,12 +1,35 @@
 <div class="flex flex-col h-[calc(100dvh-6.1rem)] rounded-xl bg-[var(--card-background)] space-y-4">
 
-  <div class="px-6 pt-6 pb-4">
-    <h2 class="text-xl font-semibold pb-1">Review Bookdrop Files</h2>
-    <p class="text-sm text-gray-400">
-      These files were uploaded to the
-      <strong class="text-[var(--primary-color)]">Bookdrop Folder</strong>.
-      Review their fetched metadata, assign a library and subpath, and finalize where they belong in your collection.
-    </p>
+  <div class="px-6 pt-6 pb-4 flex flex-col md:flex-row md:items-center md:justify-between">
+    <div>
+      <h2 class="text-xl font-semibold pb-1 flex items-center gap-2">
+        Review Bookdrop Files
+        <a href="https://booklore-app.github.io/booklore-docs/docs/bookdrop" target="_blank" rel="noopener noreferrer">
+          <i
+            class="pi pi-external-link text-sky-600 cursor-pointer"
+            style="font-size: 0.9rem"
+            pTooltip="View documentation"
+            tooltipPosition="top"></i>
+        </a>
+      </h2>
+      <p class="text-sm text-gray-400">
+        These files were uploaded to the
+        <strong class="text-[var(--primary-color)]">Bookdrop Folder</strong>.
+        Review their fetched metadata, assign a library and subpath, and finalize where they belong in your collection.
+      </p>
+    </div>
+
+    <div class="mt-4 md:mt-0">
+      <p-button
+        label="Rescan Bookdrop"
+        icon="pi pi-refresh"
+        severity="primary"
+        outlined
+        (click)="rescanBookdrop()"
+        pTooltip="Manually trigger a rescan of the Bookdrop folder"
+        tooltipPosition="top">
+      </p-button>
+    </div>
   </div>
 
   @if (loading) {

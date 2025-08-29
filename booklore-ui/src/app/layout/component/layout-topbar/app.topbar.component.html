@@ -32,13 +32,18 @@
         @if (userService.userState$ | async; as userState) {
           <li>
             @if (userState.user?.permissions?.canManipulateLibrary || userState.user?.permissions?.admin) {
+              <a class="topbar-item" (click)="navigateToBookdrop()" pTooltip="Bookdrop" tooltipPosition="bottom">
+                <i class="pi pi-inbox text-surface-100"></i>
+              </a>
+            }
+          </li>
+          <li>
+            @if (userState.user?.permissions?.canManipulateLibrary || userState.user?.permissions?.admin) {
               <a class="topbar-item" (click)="openLibraryCreatorDialog()" pTooltip="Create New Library" tooltipPosition="bottom">
                 <i class="pi pi-plus-circle text-surface-100"></i>
               </a>
             }
           </li>
-        }
-        @if (userService.userState$ | async; as userState) {
           <li>
             @if (userState.user?.permissions?.canManipulateLibrary || userState.user?.permissions?.admin) {
               <a class="topbar-item" (click)="openFileUploadDialog()" pTooltip="Upload Book" tooltipPosition="bottom">

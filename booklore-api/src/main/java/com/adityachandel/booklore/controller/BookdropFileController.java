@@ -6,6 +6,8 @@ import com.adityachandel.booklore.model.dto.request.BookdropFinalizeRequest;
 import com.adityachandel.booklore.model.dto.request.BookdropSelectionRequest;
 import com.adityachandel.booklore.model.dto.response.BookdropFinalizeResult;
 import com.adityachandel.booklore.service.bookdrop.BookDropService;
+import com.adityachandel.booklore.service.bookdrop.BookdropMonitoringService;
+import com.adityachandel.booklore.service.monitoring.MonitoringService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class BookdropFileController {
 
     private final BookDropService bookDropService;
+    private final BookdropMonitoringService monitoringService;
 
     @GetMapping("/notification")
     public BookdropFileNotification getSummary() {
@@ -39,5 +42,11 @@ public class BookdropFileController {
     public ResponseEntity<BookdropFinalizeResult> finalizeImport(@RequestBody BookdropFinalizeRequest request) {
         BookdropFinalizeResult result = bookDropService.finalizeImport(request);
         return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/rescan")
+    public ResponseEntity<Void> rescanBookdrop() {
+        monitoringService.rescanBookdropFolder();
+        return ResponseEntity.ok().build();
     }
 }
