@@ -36,6 +36,7 @@ class KoreaderControllerTest {
         when(koreaderService.authorizeUser()).thenReturn(ResponseEntity.ok(expected));
         ResponseEntity<Map<String, String>> resp = controller.authorizeUser();
         assertEquals(HttpStatus.OK, resp.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, resp.getHeaders().getContentType());
         assertEquals(expected, resp.getBody());
     }
 
