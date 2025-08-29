@@ -11,25 +11,9 @@
     </div>
 
     <div class="grid grid-cols-[auto,1fr] pl-6 gap-y-4 gap-x-4 items-center">
-      <p class=" py-1">Resolution:
-        <i class="pi pi-info-circle text-sky-600"
-           pTooltip="Sets the resolution for generated cover images. Higher resolutions produce sharper covers but increase file size. Applies only to future books unless covers are regenerated."
-           tooltipPosition="right"
-           style="cursor: pointer;">
-        </i>
-      </p>
-      <div class="flex gap-4 justify-start">
-        <p-select
-          [options]="resolutionOptions"
-          [(ngModel)]="selectedResolution"
-          (ngModelChange)="onResolutionChange()"
-          placeholder="Select Resolution">
-        </p-select>
-      </div>
-
       <p class=" py-1">Regenerate Covers?
         <i class="pi pi-info-circle text-sky-600"
-           pTooltip="Regenerates cover images for all EPUB and PDF books (excluding locked ones) using the selected resolution."
+           pTooltip="Regenerates cover images for all EPUB and PDF books (excluding locked ones) from the embedded covers in the file."
            tooltipPosition="right"
            style="cursor: pointer;">
         </i>

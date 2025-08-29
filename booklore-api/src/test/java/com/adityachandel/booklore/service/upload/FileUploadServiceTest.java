@@ -3,12 +3,15 @@ package com.adityachandel.booklore.service.upload;
 import com.adityachandel.booklore.config.AppProperties;
 import com.adityachandel.booklore.exception.APIException;
 import com.adityachandel.booklore.exception.ApiError;
+import com.adityachandel.booklore.mapper.AdditionalFileMapperImpl;
 import com.adityachandel.booklore.model.dto.Book;
 import com.adityachandel.booklore.model.dto.settings.AppSettings;
 import com.adityachandel.booklore.model.entity.LibraryEntity;
 import com.adityachandel.booklore.model.entity.LibraryPathEntity;
 import com.adityachandel.booklore.model.enums.BookFileType;
 import com.adityachandel.booklore.model.websocket.Topic;
+import com.adityachandel.booklore.repository.BookAdditionalFileRepository;
+import com.adityachandel.booklore.repository.BookRepository;
 import com.adityachandel.booklore.repository.LibraryRepository;
 import com.adityachandel.booklore.service.NotificationService;
 import com.adityachandel.booklore.service.appsettings.AppSettingService;
@@ -45,6 +48,10 @@ class FileUploadServiceTest {
     @Mock
     LibraryRepository libraryRepository;
     @Mock
+    BookRepository bookRepository;
+    @Mock
+    BookAdditionalFileRepository bookAdditionalFileRepository;
+    @Mock
     BookFileProcessorRegistry processorRegistry;
     @Mock
     NotificationService notificationService;
@@ -71,10 +78,13 @@ class FileUploadServiceTest {
         settings.setUploadPattern("{currentFilename}");
         when(appSettingService.getAppSettings()).thenReturn(settings);
 
+        var additionalFilesMapper = new AdditionalFileMapperImpl();
+
         service = new FileUploadService(
-                libraryRepository, processorRegistry, notificationService,
+                libraryRepository, bookRepository, bookAdditionalFileRepository,
+                processorRegistry, notificationService,
                 appSettingService, appProperties, pdfMetadataExtractor,
-                epubMetadataExtractor, monitoringService
+                epubMetadataExtractor, additionalFilesMapper, monitoringService
         );
 
         ReflectionTestUtils.setField(service, "userId", "0");

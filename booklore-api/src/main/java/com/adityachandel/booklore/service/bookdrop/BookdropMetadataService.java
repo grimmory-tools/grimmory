@@ -15,7 +15,6 @@ import com.adityachandel.booklore.service.metadata.extractor.CbxMetadataExtracto
 import com.adityachandel.booklore.service.metadata.extractor.EpubMetadataExtractor;
 import com.adityachandel.booklore.service.metadata.extractor.PdfMetadataExtractor;
 import com.adityachandel.booklore.util.FileService;
-import com.adityachandel.booklore.util.ImageUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
@@ -44,7 +43,6 @@ public class BookdropMetadataService {
     private final PdfMetadataExtractor pdfMetadataExtractor;
     private final CbxMetadataExtractor cbxMetadataExtractor;
     private final MetadataRefreshService metadataRefreshService;
-    private final ImageUtils imageUtils;
     private final FileService fileService;
 
     @Transactional
@@ -119,7 +117,7 @@ public class BookdropMetadataService {
         };
         if (coverBytes != null) {
             try {
-                imageUtils.saveImage(coverBytes, fileService.getTempBookdropCoverImagePath(entity.getId()), 250, 350);
+                fileService.saveImage(coverBytes, fileService.getTempBookdropCoverImagePath(entity.getId()));
             } catch (IOException e) {
                 log.warn("Failed to save extracted cover for file: {}", entity.getFilePath(), e);
             }

@@ -6,7 +6,7 @@ import {BookService} from '../../../book/service/book.service';
 import {Rating, RatingRateEvent} from 'primeng/rating';
 import {FormsModule} from '@angular/forms';
 import {Tag} from 'primeng/tag';
-import {Book, BookMetadata, BookRecommendation, ReadStatus} from '../../../book/model/book.model';
+import {Book, BookMetadata, BookRecommendation, FileInfo, ReadStatus} from '../../../book/model/book.model';
 import {UrlHelperService} from '../../../utilities/service/url-helper.service';
 import {UserService} from '../../../settings/user-management/user.service';
 import {SplitButton} from 'primeng/splitbutton';
@@ -34,12 +34,16 @@ import {BookReviewsComponent} from '../../../book/components/book-reviews/book-r
 import {BookNotesComponent} from '../../../book/components/book-notes-component/book-notes-component';
 import {ProgressSpinner} from 'primeng/progressspinner';
 
+import {TieredMenu} from 'primeng/tieredmenu';
+import {AdditionalFileUploaderComponent} from '../../../book/components/additional-file-uploader/additional-file-uploader.component';
+import {Image} from 'primeng/image';
+
 @Component({
   selector: 'app-metadata-viewer',
   standalone: true,
   templateUrl: './metadata-viewer.component.html',
   styleUrl: './metadata-viewer.component.scss',
-  imports: [Button, AsyncPipe, Rating, FormsModule, Tag, SplitButton, NgClass, Tooltip, DecimalPipe, Editor, ProgressBar, Menu, InfiniteScrollDirective, BookCardLiteComponent, DatePicker, Tab, TabList, TabPanel, TabPanels, Tabs, BookReviewsComponent, BookNotesComponent, ProgressSpinner]
+  imports: [Button, AsyncPipe, Rating, FormsModule, Tag, SplitButton, NgClass, Tooltip, DecimalPipe, Editor, ProgressBar, Menu, InfiniteScrollDirective, BookCardLiteComponent, DatePicker, Tab, TabList, TabPanel, TabPanels, Tabs, BookReviewsComponent, BookNotesComponent, ProgressSpinner, TieredMenu, Image]
 })
 export class MetadataViewerComponent implements OnInit, OnChanges {
   @Input() book$!: Observable<Book | null>;
@@ -62,7 +66,7 @@ export class MetadataViewerComponent implements OnInit, OnChanges {
   readMenuItems$!: Observable<MenuItem[]>;
   refreshMenuItems$!: Observable<MenuItem[]>;
   otherItems$!: Observable<MenuItem[]>;
-
+  downloadMenuItems$!: Observable<MenuItem[]>;
   bookInSeries: Book[] = [];
   isExpanded = false;
   showFilePath = false;
@@ -135,37 +139,140 @@ export class MetadataViewerComponent implements OnInit, OnChanges {
       ])
     );
 
+    this.downloadMenuItems$ = this.book$.pipe(
+      filter((book): book is Book => book !== null &&
+        ((book.alternativeFormats !== undefined && book.alternativeFormats.length > 0) ||
+          (book.supplementaryFiles !== undefined && book.supplementaryFiles.length > 0))),
+      map((book): MenuItem[] => {
+        const items: MenuItem[] = [];
+
+        // Add alternative formats
+        if (book.alternativeFormats && book.alternativeFormats.length > 0) {
+          book.alternativeFormats.forEach(format => {
+            const extension = this.getFileExtension(format.filePath);
+            items.push({
+              label: `${format.fileName} (${this.getFileSizeInMB(format)})`,
+              icon: this.getFileIcon(extension),
+              command: () => this.downloadAdditionalFile(book.id, format.id)
+            });
+          });
+        }
+
+        // Add separator if both types exist
+        if (book.alternativeFormats && book.alternativeFormats.length > 0 &&
+          book.supplementaryFiles && book.supplementaryFiles.length > 0) {
+          items.push({separator: true});
+        }
+
+        // Add supplementary files
+        if (book.supplementaryFiles && book.supplementaryFiles.length > 0) {
+          book.supplementaryFiles.forEach(file => {
+            const extension = this.getFileExtension(file.filePath);
+            items.push({
+              label: `${file.fileName} (${this.getFileSizeInMB(file)})`,
+              icon: this.getFileIcon(extension),
+              command: () => this.downloadAdditionalFile(book.id, file.id)
+            });
+          });
+        }
+
+        return items;
+      })
+    );
+
     this.otherItems$ = this.book$.pipe(
       filter((book): book is Book => book !== null),
-      map((book): MenuItem[] => [
-        {
-          label: 'Delete Book',
-          icon: 'pi pi-trash',
-          command: () => {
-            this.confirmationService.confirm({
-              message: `Are you sure you want to delete "${book.metadata?.title}"?`,
-              header: 'Confirm Deletion',
-              icon: 'pi pi-exclamation-triangle',
-              acceptIcon: 'pi pi-trash',
-              rejectIcon: 'pi pi-times',
-              acceptButtonStyleClass: 'p-button-danger',
-              accept: () => {
-                this.bookService.deleteBooks(new Set([book.id])).subscribe({
-                  next: () => {
-                    if (this.metadataCenterViewMode === 'route') {
-                      this.router.navigate(['/dashboard']);
-                    } else {
-                      this.dialogRef?.close();
-                    }
-                  },
-                  error: () => {
-                  }
-                });
-              }
-            });
+      map((book): MenuItem[] => {
+        const items: MenuItem[] = [
+          {
+            label: 'Upload File',
+            icon: 'pi pi-upload',
+            command: () => {
+              this.dialogService.open(AdditionalFileUploaderComponent, {
+                header: 'Upload Additional File',
+                modal: true,
+                closable: true,
+                style: {
+                  position: 'absolute',
+                  top: '10%',
+                },
+                data: {book}
+              });
+            },
           },
+          {
+            label: 'Delete Book',
+            icon: 'pi pi-trash',
+            command: () => {
+              this.confirmationService.confirm({
+                message: `Are you sure you want to delete "${book.metadata?.title}"?`,
+                header: 'Confirm Deletion',
+                icon: 'pi pi-exclamation-triangle',
+                acceptIcon: 'pi pi-trash',
+                rejectIcon: 'pi pi-times',
+                acceptButtonStyleClass: 'p-button-danger',
+                accept: () => {
+                  this.bookService.deleteBooks(new Set([book.id])).subscribe({
+                    next: () => {
+                      if (this.metadataCenterViewMode === 'route') {
+                        this.router.navigate(['/dashboard']);
+                      } else {
+                        this.dialogRef?.close();
+                      }
+                    },
+                    error: () => {
+                    }
+                  });
+                }
+              });
+            },
+          },
+        ];
+
+        // Add delete additional files menu if there are any additional files
+        if ((book.alternativeFormats && book.alternativeFormats.length > 0) ||
+          (book.supplementaryFiles && book.supplementaryFiles.length > 0)) {
+          const deleteFileItems: MenuItem[] = [];
+
+          // Add alternative formats
+          if (book.alternativeFormats && book.alternativeFormats.length > 0) {
+            book.alternativeFormats.forEach(format => {
+              const extension = this.getFileExtension(format.filePath);
+              deleteFileItems.push({
+                label: `${format.fileName} (${this.getFileSizeInMB(format)})`,
+                icon: this.getFileIcon(extension),
+                command: () => this.deleteAdditionalFile(book.id, format.id, format.fileName || 'file')
+              });
+            });
+          }
+
+          // Add separator if both types exist
+          if (book.alternativeFormats && book.alternativeFormats.length > 0 &&
+            book.supplementaryFiles && book.supplementaryFiles.length > 0) {
+            deleteFileItems.push({separator: true});
+          }
+
+          // Add supplementary files
+          if (book.supplementaryFiles && book.supplementaryFiles.length > 0) {
+            book.supplementaryFiles.forEach(file => {
+              const extension = this.getFileExtension(file.filePath);
+              deleteFileItems.push({
+                label: `${file.fileName} (${this.getFileSizeInMB(file)})`,
+                icon: this.getFileIcon(extension),
+                command: () => this.deleteAdditionalFile(book.id, file.id, file.fileName || 'file')
+              });
+            });
+          }
+
+          items.push({
+            label: 'Delete Additional Files',
+            icon: 'pi pi-trash',
+            items: deleteFileItems
+          });
         }
-      ])
+
+        return items;
+      })
     );
 
     this.userService.userState$
@@ -238,6 +345,39 @@ export class MetadataViewerComponent implements OnInit, OnChanges {
 
   download(bookId: number) {
     this.bookService.downloadFile(bookId);
+  }
+
+  downloadAdditionalFile(bookId: number, fileId: number) {
+    this.bookService.downloadAdditionalFile(bookId, fileId);
+  }
+
+  deleteAdditionalFile(bookId: number, fileId: number, fileName: string) {
+    this.confirmationService.confirm({
+      message: `Are you sure you want to delete the additional file "${fileName}"?`,
+      header: 'Confirm File Deletion',
+      icon: 'pi pi-exclamation-triangle',
+      acceptIcon: 'pi pi-trash',
+      rejectIcon: 'pi pi-times',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        this.bookService.deleteAdditionalFile(bookId, fileId).subscribe({
+          next: () => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: `Additional file "${fileName}" deleted successfully`
+            });
+          },
+          error: (error) => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: `Failed to delete additional file: ${error.message || 'Unknown error'}`
+            });
+          }
+        });
+      }
+    });
   }
 
   quickRefresh(bookId: number) {
@@ -436,8 +576,8 @@ export class MetadataViewerComponent implements OnInit, OnChanges {
     return lockedKeys.length > 0 && lockedKeys.every(k => metadata[k] === true);
   }
 
-  getFileSizeInMB(book: Book | null): string {
-    const sizeKb = book?.fileSizeKb;
+  getFileSizeInMB(fileInfo: FileInfo | null | undefined): string {
+    const sizeKb = fileInfo?.fileSizeKb;
     return sizeKb != null ? `${(sizeKb / 1024).toFixed(2)} MB` : '-';
   }
 
@@ -466,6 +606,24 @@ export class MetadataViewerComponent implements OnInit, OnChanges {
     const parts = filePath.split('.');
     if (parts.length < 2) return null;
     return parts.pop()?.toUpperCase() || null;
+  }
+
+  getFileIcon(fileType: string | null): string {
+    if (!fileType) return 'pi pi-file';
+    switch (fileType.toLowerCase()) {
+      case 'pdf':
+        return 'pi pi-file-pdf';
+      case 'epub':
+      case 'mobi':
+      case 'azw3':
+        return 'pi pi-book';
+      case 'cbz':
+      case 'cbr':
+      case 'cbx':
+        return 'pi pi-image';
+      default:
+        return 'pi pi-file';
+    }
   }
 
   getFileTypeColorClass(fileType: string | null | undefined): string {

@@ -4,10 +4,12 @@ import com.adityachandel.booklore.mapper.BookMapper;
 import com.adityachandel.booklore.model.dto.settings.LibraryFile;
 import com.adityachandel.booklore.model.entity.BookEntity;
 import com.adityachandel.booklore.model.enums.BookFileType;
+import com.adityachandel.booklore.repository.BookAdditionalFileRepository;
 import com.adityachandel.booklore.repository.BookMetadataRepository;
 import com.adityachandel.booklore.repository.BookRepository;
 import com.adityachandel.booklore.service.BookCreatorService;
 import com.adityachandel.booklore.service.metadata.MetadataMatchService;
+import com.adityachandel.booklore.util.FileService;
 import com.adityachandel.booklore.util.FileUtils;
 import com.github.junrar.Archive;
 import com.github.junrar.rarfile.FileHeader;
@@ -24,6 +26,8 @@ import java.io.*;
 import java.time.Instant;
 import java.util.*;
 
+import static com.adityachandel.booklore.util.FileService.truncate;
+
 @Slf4j
 @Service
 public class CbxProcessor extends AbstractFileProcessor implements BookFileProcessor {
@@ -31,12 +35,13 @@ public class CbxProcessor extends AbstractFileProcessor implements BookFileProce
     private final BookMetadataRepository bookMetadataRepository;
 
     public CbxProcessor(BookRepository bookRepository,
+                        BookAdditionalFileRepository bookAdditionalFileRepository,
                         BookCreatorService bookCreatorService,
                         BookMapper bookMapper,
-                        FileProcessingUtils fileProcessingUtils,
+                        FileService fileService,
                         BookMetadataRepository bookMetadataRepository,
                         MetadataMatchService metadataMatchService) {
-        super(bookRepository, bookCreatorService, bookMapper, fileProcessingUtils, bookMetadataRepository, metadataMatchService);
+        super(bookRepository, bookAdditionalFileRepository, bookCreatorService, bookMapper, fileService, metadataMatchService);
         this.bookMetadataRepository = bookMetadataRepository;
     }
 
@@ -44,7 +49,7 @@ public class CbxProcessor extends AbstractFileProcessor implements BookFileProce
     public BookEntity processNewFile(LibraryFile libraryFile) {
         BookEntity bookEntity = bookCreatorService.createShellBook(libraryFile, BookFileType.CBX);
         if (generateCover(bookEntity)) {
-            fileProcessingUtils.setBookCoverPath(bookEntity.getId(), bookEntity.getMetadata());
+            fileService.setBookCoverPath(bookEntity.getMetadata());
         }
         setMetadata(bookEntity);
         return bookEntity;
@@ -56,7 +61,7 @@ public class CbxProcessor extends AbstractFileProcessor implements BookFileProce
         try {
             Optional<BufferedImage> imageOptional = extractImagesFromArchive(file);
             if (imageOptional.isPresent()) {
-                boolean saved = fileProcessingUtils.saveCoverImage(imageOptional.get(), bookEntity.getId());
+                boolean saved = fileService.saveCoverImages(imageOptional.get(), bookEntity.getId());
                 if (saved) {
                     bookEntity.getMetadata().setCoverUpdatedOn(Instant.now());
                     bookMetadataRepository.save(bookEntity.getMetadata());
@@ -168,6 +173,6 @@ public class CbxProcessor extends AbstractFileProcessor implements BookFileProce
                 .replaceAll("(?i)\\.cb[rz7]$", "")
                 .replaceAll("[_\\-]", " ")
                 .trim();
-        bookEntity.getMetadata().setTitle(FileProcessingUtils.truncate(title, 1000));
+        bookEntity.getMetadata().setTitle(truncate(title, 1000));
     }
 }

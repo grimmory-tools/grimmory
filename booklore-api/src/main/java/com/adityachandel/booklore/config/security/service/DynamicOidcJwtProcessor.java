@@ -1,4 +1,4 @@
-package com.adityachandel.booklore.config.security;
+package com.adityachandel.booklore.config.security.service;
 
 import com.adityachandel.booklore.model.dto.settings.OidcProviderDetails;
 import com.adityachandel.booklore.service.appsettings.AppSettingService;

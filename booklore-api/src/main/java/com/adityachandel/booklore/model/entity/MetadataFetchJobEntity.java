@@ -10,7 +10,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "metadata_fetch_jobs")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

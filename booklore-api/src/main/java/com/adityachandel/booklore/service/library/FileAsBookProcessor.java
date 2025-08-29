@@ -18,13 +18,20 @@ import java.util.List;
 
 import static com.adityachandel.booklore.model.websocket.LogNotification.createLogNotification;
 
+import com.adityachandel.booklore.model.enums.LibraryScanMode;
+
 @AllArgsConstructor
 @Component
 @Slf4j
 public class FileAsBookProcessor implements LibraryFileProcessor {
-    
+
     private final NotificationService notificationService;
     private final BookFileProcessorRegistry processorRegistry;
+
+    @Override
+    public LibraryScanMode getScanMode() {
+        return LibraryScanMode.FILE_AS_BOOK;
+    }
 
     @Override
     @Transactional

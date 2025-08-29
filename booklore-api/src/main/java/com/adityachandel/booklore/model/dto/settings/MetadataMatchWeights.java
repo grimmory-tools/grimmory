@@ -31,6 +31,8 @@ public class MetadataMatchWeights {
     private int goodreadsReviewCount;
     private int hardcoverRating;
     private int hardcoverReviewCount;
+    private int doubanRating;
+    private int doubanReviewCount;
     private int coverImage;
 
     public int totalWeight() {
@@ -38,6 +40,6 @@ public class MetadataMatchWeights {
                 seriesName + seriesNumber + seriesTotal + isbn13 + isbn10 + language +
                 pageCount + categories + amazonRating + amazonReviewCount +
                 goodreadsRating + goodreadsReviewCount + hardcoverRating +
-                hardcoverReviewCount + coverImage;
+                hardcoverReviewCount + doubanRating + doubanReviewCount + coverImage;
     }
 }

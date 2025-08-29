@@ -1,6 +1,6 @@
 package com.adityachandel.booklore.quartz;
 
-import com.adityachandel.booklore.config.security.AuthenticationService;
+import com.adityachandel.booklore.config.security.service.AuthenticationService;
 import com.adityachandel.booklore.exception.ApiError;
 import com.adityachandel.booklore.model.dto.BookLoreUser;
 import com.adityachandel.booklore.model.dto.request.MetadataRefreshRequest;

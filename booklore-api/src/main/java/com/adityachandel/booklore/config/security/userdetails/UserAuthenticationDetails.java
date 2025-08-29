@@ -1,4 +1,4 @@
-package com.adityachandel.booklore.config.security;
+package com.adityachandel.booklore.config.security.userdetails;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;

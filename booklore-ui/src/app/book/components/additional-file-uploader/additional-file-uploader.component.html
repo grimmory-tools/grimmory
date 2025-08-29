@@ -1,0 +1,129 @@
+<div class="flex flex-col gap-6 p-4 items-center justify-center w-full max-w-[700px]">
+  <!-- Book Information -->
+  <div class="w-full text-center">
+    <h3 class="text-lg font-semibold mb-2">{{ book.metadata?.title || 'Unknown Title' }}</h3>
+    <p class="text-sm text-gray-600">{{ book.filePath }}</p>
+  </div>
+
+  <!-- File Type Selection -->
+  <p-select
+    [options]="fileTypeOptions"
+    [(ngModel)]="fileType"
+    optionLabel="label"
+    optionValue="value"
+    placeholder="Select file type"
+    class="w-full"
+    [disabled]="isUploading"
+  ></p-select>
+
+  <!-- Description Field -->
+  <div class="w-full">
+    <label for="description" class="block text-sm font-medium mb-2">Description (Optional)</label>
+    <p-textarea
+      [(ngModel)]="description"
+      rows="3"
+      placeholder="Add a description for this file..."
+      class="w-full"
+      [disabled]="isUploading"
+    ></p-textarea>
+  </div>
+
+  <!-- File Upload -->
+  <p-fileupload class="w-full" name="file"
+    [maxFileSize]="maxFileSizeBytes"
+    [customUpload]="true"
+    [multiple]="false"
+    (onSelect)="onFilesSelect($event)"
+    (uploadHandler)="uploadFiles($event)"
+    [disabled]="isUploading">
+    <ng-template #header let-files let-chooseCallback="chooseCallback" let-clearCallback="clearCallback" let-uploadCallback="uploadCallback">
+      <div class="flex flex-wrap items-center justify-center flex-1 gap-4">
+        <div class="flex gap-4">
+          <p-button (onClick)="choose($event, chooseCallback)"
+            icon="pi pi-images"
+            [rounded]="true"
+            [outlined]="true"
+            [disabled]="isChooseDisabled()"/>
+          <p-button (onClick)="uploadEvent(uploadCallback)"
+            icon="pi pi-cloud-upload"
+            [rounded]="true"
+            [outlined]="true"
+            severity="success"
+            [disabled]="isUploadDisabled()"/>
+          <p-button (onClick)="onClear(clearCallback)"
+            icon="pi pi-times"
+            [rounded]="true"
+            [outlined]="true"
+            severity="danger"
+            [disabled]="!filesPresent() || isUploading"/>
+        </div>
+      </div>
+    </ng-template>
+    <ng-template #content let-files let-removeFileCallback="removeFileCallback">
+      <div class="flex flex-col gap-8 px-4">
+        @if (files?.length > 0) {
+          <div>
+            <div class="max-h-96 max-w-[22rem] md:max-w-none overflow-y-auto pr-2">
+              <div class="flex flex-wrap">
+                @for (uploadFile of this.files; track uploadFile; let i = $index) {
+                  <div class="flex justify-between items-center w-full gap-4">
+                    <div class="flex items-center gap-4 overflow-hidden flex-1">
+                      <p-badge [value]="uploadFile.status" [severity]="getBadgeSeverity(uploadFile.status)" class="shrink-0"/>
+                      <span class="font-semibold text-ellipsis whitespace-nowrap overflow-hidden flex-1">
+                        {{ uploadFile.file.name }}
+                      </span>
+                      <div class="shrink-0">{{ formatSize(uploadFile.file.size) }}</div>
+                    </div>
+                    @switch (uploadFile.status) {
+                      @case ('Pending') {
+                        <p-button
+                          icon="pi pi-times"
+                          (click)="onRemoveTemplatingFile($event, uploadFile.file, removeFileCallback, i)"
+                          severity="danger"
+                          [text]="true"/>
+                      }
+                      @case ('Uploading') {
+                        <i
+                          class="pi pi-spin pi-spinner p-3"
+                          style="color: slateblue"
+                          pTooltip="Uploading"
+                          tooltipPosition="top">
+                        </i>
+                      }
+                      @case ('Uploaded') {
+                        <i
+                          class="pi pi-check p-3"
+                          style="color: green"
+                          pTooltip="Uploaded"
+                          tooltipPosition="top">
+                        </i>
+                      }
+                      @case ('Failed') {
+                        <i
+                          class="pi pi-exclamation-triangle p-3"
+                          style="color: darkred"
+                          pTooltip="{{ uploadFile.errorMessage || 'Upload failed' }}"
+                          tooltipPosition="top">
+                        </i>
+                      }
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </ng-template>
+    <ng-template #file></ng-template>
+    <ng-template #empty>
+      <div class="flex items-center justify-center flex-col text-center">
+        <i class="pi pi-cloud-upload !border-2 !rounded-full !p-8 !text-4xl !text-muted-color"></i>
+        <p class="mt-6 mb-2">Drag and drop a file here to upload.</p>
+        <p class="mt-2 mb-2">
+          Upload an additional file for <strong>{{ book.metadata?.title || 'this book' }}</strong>.
+        </p>
+      </div>
+    </ng-template>
+  </p-fileupload>
+</div>

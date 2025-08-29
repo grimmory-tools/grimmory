@@ -4,7 +4,6 @@ import com.adityachandel.booklore.exception.APIException;
 import com.adityachandel.booklore.model.dto.Book;
 import com.adityachandel.booklore.model.dto.BookMetadata;
 import com.adityachandel.booklore.model.dto.settings.AppSettings;
-import com.adityachandel.booklore.model.entity.BookEntity;
 import com.adityachandel.booklore.model.entity.BookdropFileEntity;
 import com.adityachandel.booklore.model.enums.MetadataProvider;
 import com.adityachandel.booklore.repository.BookdropFileRepository;
@@ -15,11 +14,9 @@ import com.adityachandel.booklore.service.metadata.extractor.CbxMetadataExtracto
 import com.adityachandel.booklore.service.metadata.extractor.EpubMetadataExtractor;
 import com.adityachandel.booklore.service.metadata.extractor.PdfMetadataExtractor;
 import com.adityachandel.booklore.util.FileService;
-import com.adityachandel.booklore.util.ImageUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -54,8 +51,6 @@ class BookdropMetadataServiceTest {
     private CbxMetadataExtractor cbxMetadataExtractor;
     @Mock
     private MetadataRefreshService metadataRefreshService;
-    @Mock
-    private ImageUtils imageUtils;
     @Mock
     private FileService fileService;
 
@@ -131,7 +126,7 @@ class BookdropMetadataServiceTest {
         BookdropFileEntity result = bookdropMetadataService.attachInitialMetadata(1L);
 
         assertThat(result.getOriginalMetadata()).contains("No Cover Book");
-        verify(imageUtils, never()).saveImage(any(), any(), anyInt(), anyInt());
+        verify(fileService, never()).saveImage(any(), any());
         verify(bookdropFileRepository).save(result);
     }
 

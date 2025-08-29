@@ -41,17 +41,54 @@ public class GoogleParser implements BookParser {
 
     @Override
     public List<BookMetadata> fetchMetadata(Book book, FetchMetadataRequest fetchMetadataRequest) {
+        // 1. If ISBN exists, prioritize it
+        if (fetchMetadataRequest.getIsbn() != null && !fetchMetadataRequest.getIsbn().isBlank()) {
+            return getMetadataListByIsbn(fetchMetadataRequest.getIsbn());
+        }
+
+        // 2. Otherwise fallback to existing title/author search
         String searchTerm = getSearchTerm(book, fetchMetadataRequest);
         return searchTerm != null ? getMetadataListByTerm(searchTerm) : List.of();
     }
 
+    private List<BookMetadata> getMetadataListByIsbn(String isbn) {
+        try {
+            URI uri = UriComponentsBuilder.fromUriString(GOOGLE_BOOKS_API_URL)
+                    .queryParam("q", "isbn:" + isbn.replace("-", ""))
+                    .build()
+                    .toUri();
+
+            log.info("Google Books API URL (ISBN): {}", uri);
+
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(uri)
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                return parseGoogleBooksApiResponse(response.body());
+            } else {
+                log.error("Failed to fetch metadata from Google Books API with ISBN. Status: {}, Response: {}",
+                        response.statusCode(), response.body());
+                return List.of();
+            }
+        } catch (IOException | InterruptedException e) {
+            log.error("Error occurred while fetching metadata from Google Books API with ISBN", e);
+            return List.of();
+        }
+    }
+
     public List<BookMetadata> getMetadataListByTerm(String term) {
-        log.info("Google Books: Fetching metadata for: {}", term);
         try {
             URI uri = UriComponentsBuilder.fromUriString(GOOGLE_BOOKS_API_URL)
                     .queryParam("q", term)
                     .build()
                     .toUri();
+
+            log.info("Google Books API URLx: {}", uri);
 
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
@@ -87,6 +124,17 @@ public class GoogleParser implements BookParser {
         GoogleBooksApiResponse.Item.VolumeInfo volumeInfo = item.getVolumeInfo();
         Map<String, String> isbns = extractISBNs(volumeInfo.getIndustryIdentifiers());
 
+        String highResCover = Optional.ofNullable(volumeInfo.getImageLinks())
+                .map(links -> {
+                    if (links.getExtraLarge() != null) return links.getExtraLarge();
+                    if (links.getLarge() != null) return links.getLarge();
+                    if (links.getMedium() != null) return links.getMedium();
+                    if (links.getSmall() != null) return links.getSmall();
+                    if (links.getThumbnail() != null) return links.getThumbnail();
+                    return links.getSmallThumbnail();
+                })
+                .orElse(null);
+
         return BookMetadata.builder()
                 .provider(MetadataProvider.Google)
                 .googleId(item.getId())
@@ -100,9 +148,7 @@ public class GoogleParser implements BookParser {
                 .isbn13(isbns.get("ISBN_13"))
                 .isbn10(isbns.get("ISBN_10"))
                 .pageCount(volumeInfo.getPageCount())
-                .thumbnailUrl(Optional.ofNullable(volumeInfo.getImageLinks())
-                        .map(GoogleBooksApiResponse.Item.ImageLinks::getThumbnail)
-                        .orElse(null))
+                .thumbnailUrl(highResCover)
                 .language(volumeInfo.getLanguage())
                 .build();
     }

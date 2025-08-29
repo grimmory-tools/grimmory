@@ -3,11 +3,13 @@ package com.adityachandel.booklore.service.file;
 import com.adityachandel.booklore.mapper.BookMapper;
 import com.adityachandel.booklore.model.dto.Book;
 import com.adityachandel.booklore.model.dto.request.FileMoveRequest;
+import com.adityachandel.booklore.model.entity.BookAdditionalFileEntity;
 import com.adityachandel.booklore.model.entity.BookEntity;
 import com.adityachandel.booklore.model.entity.LibraryEntity;
 import com.adityachandel.booklore.model.entity.LibraryPathEntity;
 import com.adityachandel.booklore.model.entity.BookMetadataEntity;
 import com.adityachandel.booklore.model.websocket.Topic;
+import com.adityachandel.booklore.repository.BookAdditionalFileRepository;
 import com.adityachandel.booklore.repository.BookRepository;
 import com.adityachandel.booklore.service.BookQueryService;
 import com.adityachandel.booklore.service.NotificationService;
@@ -31,6 +33,7 @@ public class FileMoveService {
 
     private final BookQueryService bookQueryService;
     private final BookRepository bookRepository;
+    private final BookAdditionalFileRepository bookAdditionalFileRepository;
     private final BookMapper bookMapper;
     private final NotificationService notificationService;
     private final LibraryService libraryService;
@@ -94,6 +97,11 @@ public class FileMoveService {
 
         try {
             moveFileAndUpdateBook(book, oldFilePath, newFilePath, updatedBooks, libraryIds);
+
+            // Move additional files if present
+            if (book.getAdditionalFiles() != null && !book.getAdditionalFiles().isEmpty()) {
+                moveAdditionalFiles(book, pattern);
+            }
         } catch (IOException e) {
             log.error("Failed to move file for book id {}: {}", book.getId(), e.getMessage(), e);
         }
@@ -206,6 +214,83 @@ public class FileMoveService {
 
     public String generatePathFromPattern(BookEntity book, String pattern) {
         return PathPatternResolver.resolvePattern(book, pattern);
+    }
+
+    private void moveAdditionalFiles(BookEntity book, String pattern) throws IOException {
+        Map<String, Integer> fileNameCounter = new HashMap<>();
+
+        for (BookAdditionalFileEntity additionalFile : book.getAdditionalFiles()) {
+            Path oldAdditionalFilePath = additionalFile.getFullFilePath();
+            if (!Files.exists(oldAdditionalFilePath)) {
+                log.warn("Additional file does not exist for book id {}: {}", book.getId(), oldAdditionalFilePath);
+                continue;
+            }
+
+            String newRelativePathStr = PathPatternResolver.resolvePattern(book.getMetadata(), pattern, additionalFile.getFileName());
+            if (newRelativePathStr.startsWith("/") || newRelativePathStr.startsWith("\\")) {
+                newRelativePathStr = newRelativePathStr.substring(1);
+            }
+
+            Path libraryRoot = Paths.get(book.getLibraryPath().getPath()).toAbsolutePath().normalize();
+            Path newAdditionalFilePath = libraryRoot.resolve(newRelativePathStr).normalize();
+
+            // Check for filename uniqueness and add index if necessary
+            newAdditionalFilePath = ensureUniqueFilePath(newAdditionalFilePath, fileNameCounter);
+
+            if (oldAdditionalFilePath.equals(newAdditionalFilePath)) {
+                log.debug("Source and destination paths are identical for additional file id {}. Skipping.", additionalFile.getId());
+                continue;
+            }
+
+            // Create parent directories if needed
+            if (newAdditionalFilePath.getParent() != null) {
+                Files.createDirectories(newAdditionalFilePath.getParent());
+            }
+
+            log.info("Moving additional file from {} to {}", oldAdditionalFilePath, newAdditionalFilePath);
+            Files.move(oldAdditionalFilePath, newAdditionalFilePath, StandardCopyOption.REPLACE_EXISTING);
+
+            // Update additional file paths
+            updateAdditionalFilePaths(additionalFile, newAdditionalFilePath, libraryRoot);
+            bookAdditionalFileRepository.save(additionalFile);
+
+            log.info("Updated additional file id {} with new path", additionalFile.getId());
+        }
+    }
+
+    private Path ensureUniqueFilePath(Path filePath, Map<String, Integer> fileNameCounter) {
+        String fileName = filePath.getFileName().toString();
+        String baseName = fileName;
+        String extension = "";
+
+        int lastDot = fileName.lastIndexOf(".");
+        if (lastDot >= 0 && lastDot < fileName.length() - 1) {
+            baseName = fileName.substring(0, lastDot);
+            extension = fileName.substring(lastDot);
+        }
+
+        String fileKey = filePath.toString().toLowerCase();
+        Integer count = fileNameCounter.get(fileKey);
+
+        if (count == null) {
+            fileNameCounter.put(fileKey, 1);
+            return filePath;
+        } else {
+            // File name already exists, add index
+            count++;
+            fileNameCounter.put(fileKey, count);
+            String newFileName = baseName + "_" + count + extension;
+            return filePath.getParent().resolve(newFileName);
+        }
+    }
+
+    private void updateAdditionalFilePaths(BookAdditionalFileEntity additionalFile, Path newFilePath, Path libraryRoot) {
+        String newFileName = newFilePath.getFileName().toString();
+        Path newRelativeSubPath = libraryRoot.relativize(newFilePath.getParent());
+        String newFileSubPath = newRelativeSubPath.toString().replace('\\', '/');
+
+        additionalFile.setFileSubPath(newFileSubPath);
+        additionalFile.setFileName(newFileName);
     }
 
     public void deleteEmptyParentDirsUpToLibraryFolders(Path currentDir, Set<Path> libraryRoots) throws IOException {

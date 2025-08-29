@@ -60,23 +60,6 @@ public class BookController {
         return ResponseEntity.ok(bookService.getBooksByIds(ids, withDescription));
     }
 
-    @GetMapping("/{bookId}/cover")
-    public ResponseEntity<Resource> getBookCover(@PathVariable long bookId) {
-        return ResponseEntity.ok(bookService.getBookCover(bookId));
-    }
-
-    @GetMapping("/{bookId}/backup-cover")
-    public ResponseEntity<Resource> getBackupBookCover(@PathVariable long bookId) {
-        Resource file = bookMetadataService.getBackupCoverForBook(bookId);
-        if (file == null) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=cover.jpg")
-                .contentType(MediaType.IMAGE_JPEG)
-                .body(file);
-    }
-
     @GetMapping("/{bookId}/content")
     @CheckBookAccess(bookIdParam = "bookId")
     public ResponseEntity<ByteArrayResource> getBookContent(@PathVariable long bookId) throws IOException {

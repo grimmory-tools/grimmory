@@ -1,13 +1,12 @@
 package com.adityachandel.booklore.controller;
 
-import com.adityachandel.booklore.config.security.annotation.CheckBookAccess;
 import com.adityachandel.booklore.service.reader.CbxReaderService;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -17,15 +16,8 @@ public class CbxReaderController {
 
     private final CbxReaderService cbxReaderService;
 
-
     @GetMapping("/{bookId}/pages")
     public List<Integer> listPages(@PathVariable Long bookId) {
         return cbxReaderService.getAvailablePages(bookId);
-    }
-
-    @GetMapping("/{bookId}/pages/{pageNumber}")
-    public void getPage(@PathVariable Long bookId, @PathVariable int pageNumber, HttpServletResponse response) throws IOException {
-        response.setContentType(MediaType.IMAGE_JPEG_VALUE);
-        cbxReaderService.streamPageImage(bookId, pageNumber, response.getOutputStream());
     }
 }

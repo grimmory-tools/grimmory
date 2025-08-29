@@ -50,9 +50,9 @@ public class OpdsController {
         return bookService.downloadBook(bookId);
     }
 
-    @GetMapping("/{bookId}/cover.jpg")
+    @GetMapping("/{bookId}/cover")
     public ResponseEntity<Resource> getBookCover(@PathVariable long bookId) {
-        Resource coverImage = bookService.getBookCover(bookId);
+        Resource coverImage = bookService.getBookThumbnail(bookId);
         String contentType = "image/jpeg";
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))

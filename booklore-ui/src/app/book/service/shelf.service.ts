@@ -1,14 +1,14 @@
-import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { tap, catchError, map, shareReplay, finalize } from 'rxjs/operators';
+import {inject, Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {BehaviorSubject, Observable, of} from 'rxjs';
+import {tap, catchError, map, shareReplay, finalize} from 'rxjs/operators';
 
-import { Shelf } from '../model/shelf.model';
-import { ShelfState } from '../model/state/shelf-state.model';
-import { BookService } from './book.service';
-import { API_CONFIG } from '../../config/api-config';
+import {Shelf} from '../model/shelf.model';
+import {ShelfState} from '../model/state/shelf-state.model';
+import {BookService} from './book.service';
+import {API_CONFIG} from '../../config/api-config';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class ShelfService {
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/shelves`;
   private http = inject(HttpClient);
@@ -36,13 +36,22 @@ export class ShelfService {
 
   private fetchShelves(): Observable<Shelf[]> {
     return this.http.get<Shelf[]>(this.url).pipe(
-      tap(shelves => this.shelfStateSubject.next({ shelves, loaded: true, error: null })),
+      tap(shelves => this.shelfStateSubject.next({shelves, loaded: true, error: null})),
       catchError(err => {
         const curr = this.shelfStateSubject.value;
-        this.shelfStateSubject.next({ shelves: curr.shelves, loaded: true, error: err.message });
+        this.shelfStateSubject.next({shelves: curr.shelves, loaded: true, error: err.message});
         throw err;
       })
     );
+  }
+
+  public reloadShelves(): void {
+    this.fetchShelves().subscribe({
+      next: () => {
+      },
+      error: () => {
+      }
+    });
   }
 
   createShelf(shelf: Shelf): Observable<Shelf> {
@@ -50,7 +59,7 @@ export class ShelfService {
       map(newShelf => {
         const curr = this.shelfStateSubject.value;
         const updated = curr.shelves ? [...curr.shelves, newShelf] : [newShelf];
-        this.shelfStateSubject.next({ ...curr, shelves: updated });
+        this.shelfStateSubject.next({...curr, shelves: updated});
         return newShelf;
       })
     );
@@ -61,7 +70,7 @@ export class ShelfService {
       map(updated => {
         const curr = this.shelfStateSubject.value;
         const list = curr.shelves?.map(s => (s.id === updated.id ? updated : s)) || [updated];
-        this.shelfStateSubject.next({ ...curr, shelves: list });
+        this.shelfStateSubject.next({...curr, shelves: list});
         return updated;
       })
     );
@@ -73,11 +82,11 @@ export class ShelfService {
         this.bookService.removeBooksFromShelf(id);
         const curr = this.shelfStateSubject.value;
         const filtered = curr.shelves?.filter(s => s.id !== id) || [];
-        this.shelfStateSubject.next({ ...curr, shelves: filtered });
+        this.shelfStateSubject.next({...curr, shelves: filtered});
       }),
       catchError(err => {
         const curr = this.shelfStateSubject.value;
-        this.shelfStateSubject.next({ ...curr, error: err.message });
+        this.shelfStateSubject.next({...curr, error: err.message});
         return of();
       })
     );

@@ -2,15 +2,23 @@ package com.adityachandel.booklore.service.upload;
 
 import com.adityachandel.booklore.config.AppProperties;
 import com.adityachandel.booklore.exception.ApiError;
+import com.adityachandel.booklore.mapper.AdditionalFileMapper;
+import com.adityachandel.booklore.model.dto.AdditionalFile;
 import com.adityachandel.booklore.model.dto.Book;
 import com.adityachandel.booklore.model.dto.BookMetadata;
 import com.adityachandel.booklore.model.dto.settings.LibraryFile;
+import com.adityachandel.booklore.model.entity.BookAdditionalFileEntity;
+import com.adityachandel.booklore.model.entity.BookEntity;
 import com.adityachandel.booklore.model.entity.LibraryEntity;
 import com.adityachandel.booklore.model.entity.LibraryPathEntity;
+import com.adityachandel.booklore.model.enums.AdditionalFileType;
 import com.adityachandel.booklore.model.enums.BookFileExtension;
 import com.adityachandel.booklore.model.enums.BookFileType;
 import com.adityachandel.booklore.model.websocket.Topic;
+import com.adityachandel.booklore.repository.BookAdditionalFileRepository;
+import com.adityachandel.booklore.repository.BookRepository;
 import com.adityachandel.booklore.repository.LibraryRepository;
+import com.adityachandel.booklore.service.FileFingerprint;
 import com.adityachandel.booklore.service.NotificationService;
 import com.adityachandel.booklore.service.appsettings.AppSettingService;
 import com.adityachandel.booklore.service.fileprocessor.BookFileProcessor;
@@ -25,20 +33,19 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.nio.file.attribute.GroupPrincipal;
 import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.UserPrincipal;
 import java.nio.file.attribute.UserPrincipalLookupService;
+import java.time.Instant;
 import java.util.Objects;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -46,12 +53,15 @@ import java.util.Objects;
 public class FileUploadService {
 
     private final LibraryRepository libraryRepository;
+    private final BookRepository bookRepository;
+    private final BookAdditionalFileRepository additionalFileRepository;
     private final BookFileProcessorRegistry processorRegistry;
     private final NotificationService notificationService;
     private final AppSettingService appSettingService;
     private final AppProperties appProperties;
     private final PdfMetadataExtractor pdfMetadataExtractor;
     private final EpubMetadataExtractor epubMetadataExtractor;
+    private final AdditionalFileMapper additionalFileMapper;
     private final MonitoringService monitoringService;
 
     @Value("${PUID:0}")
@@ -108,6 +118,90 @@ public class FileUploadService {
 
             return book;
 
+        } catch (IOException e) {
+            throw ApiError.FILE_READ_ERROR.createException(e.getMessage());
+        } finally {
+            Files.deleteIfExists(tempPath);
+
+            if (wePaused) {
+                Thread.startVirtualThread(() -> {
+                    try {
+                        Thread.sleep(5_000);
+                        monitoringService.resumeMonitoring();
+                        log.info("Monitoring resumed after 5s delay");
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        log.warn("Interrupted while delaying resume of monitoring");
+                    }
+                });
+            }
+        }
+    }
+
+    @Transactional
+    public AdditionalFile uploadAdditionalFile(Long bookId, MultipartFile file, AdditionalFileType additionalFileType, String description) throws IOException {
+        Optional<BookEntity> bookOpt = bookRepository.findById(bookId);
+        if (bookOpt.isEmpty()) {
+            throw new IllegalArgumentException("Book not found with id: " + bookId);
+        }
+
+        BookEntity book = bookOpt.get();
+        String originalFileName = file.getOriginalFilename();
+        if (originalFileName == null) {
+            throw new IllegalArgumentException("File must have a name");
+        }
+
+        Path tempPath = Files.createTempFile("upload-", Objects.requireNonNull(file.getOriginalFilename()));
+
+        boolean wePaused = false;
+        if (!monitoringService.isPaused()) {
+            monitoringService.pauseMonitoring();
+            wePaused = true;
+        }
+
+        try {
+            file.transferTo(tempPath);
+
+            setTemporaryFileOwnership(tempPath);
+
+            // Check for duplicates by hash, but only for alternative formats
+            String fileHash = FileFingerprint.generateHash(tempPath);
+            if (additionalFileType == AdditionalFileType.ALTERNATIVE_FORMAT) {
+                Optional<BookAdditionalFileEntity> existingAltFormat = additionalFileRepository.findByAltFormatCurrentHash(fileHash);
+                if (existingAltFormat.isPresent()) {
+                    throw new IllegalArgumentException("Alternative format file already exists with same content");
+                }
+            }
+
+            // Store file in same directory as the book
+            Path finalPath = Paths.get(book.getLibraryPath().getPath(), book.getFileSubPath(), originalFileName);
+            File finalFile = finalPath.toFile();
+
+            if (finalFile.exists()) {
+                throw ApiError.FILE_ALREADY_EXISTS.createException();
+            }
+
+            Files.createDirectories(finalPath.getParent());
+            Files.move(tempPath, finalPath);
+
+            log.info("Additional file uploaded to final location: {}", finalPath);
+
+            // Create entity
+            BookAdditionalFileEntity entity = BookAdditionalFileEntity.builder()
+                    .book(book)
+                    .fileName(originalFileName)
+                    .fileSubPath(book.getFileSubPath())
+                    .additionalFileType(additionalFileType)
+                    .fileSizeKb(file.getSize() / 1024)
+                    .initialHash(fileHash)
+                    .currentHash(fileHash)
+                    .description(description)
+                    .addedOn(Instant.now())
+                    .build();
+
+            entity = additionalFileRepository.save(entity);
+
+            return additionalFileMapper.toAdditionalFile(entity);
         } catch (IOException e) {
             throw ApiError.FILE_READ_ERROR.createException(e.getMessage());
         } finally {

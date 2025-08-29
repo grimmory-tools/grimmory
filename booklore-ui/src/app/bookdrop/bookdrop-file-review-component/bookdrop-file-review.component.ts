@@ -1,8 +1,8 @@
 import {Component, DestroyRef, inject, OnInit, QueryList, ViewChildren} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {filter, take} from 'rxjs/operators';
+import {filter, startWith, take, tap} from 'rxjs/operators';
 
-import {BookdropFile, BookdropFileTaskService, BookdropFinalizePayload, BookdropFinalizeResult} from '../bookdrop-file-task.service';
+import {BookdropFile, BookdropService, BookdropFinalizePayload, BookdropFinalizeResult} from '../bookdrop.service';
 import {LibraryService} from '../../book/service/library.service';
 import {Library} from '../../book/model/library.model';
 
@@ -15,7 +15,7 @@ import {Divider} from 'primeng/divider';
 import {ConfirmationService, MessageService} from 'primeng/api';
 
 import {BookdropFileMetadataPickerComponent} from '../bookdrop-file-metadata-picker-component/bookdrop-file-metadata-picker.component';
-import {Observable} from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
 
 import {AppSettings} from '../../core/model/app-settings.model';
 import {AppSettingsService} from '../../core/service/app-settings.service';
@@ -26,6 +26,7 @@ import {UrlHelperService} from '../../utilities/service/url-helper.service';
 import {Checkbox} from 'primeng/checkbox';
 import {NgClass, NgStyle} from '@angular/common';
 import {Paginator} from 'primeng/paginator';
+import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
 
 export interface BookdropFileUI {
   file: BookdropFile;
@@ -59,7 +60,7 @@ export interface BookdropFileUI {
   ],
 })
 export class BookdropFileReviewComponent implements OnInit {
-  private readonly bookdropFileService = inject(BookdropFileTaskService);
+  private readonly bookdropService = inject(BookdropService);
   private readonly libraryService = inject(LibraryService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly destroyRef = inject(DestroyRef);
@@ -67,10 +68,12 @@ export class BookdropFileReviewComponent implements OnInit {
   private readonly appSettingsService = inject(AppSettingsService);
   private readonly messageService = inject(MessageService);
   private readonly urlHelper = inject(UrlHelperService);
+  private readonly activatedRoute = inject(ActivatedRoute);
 
   @ViewChildren('metadataPicker') metadataPickers!: QueryList<BookdropFileMetadataPickerComponent>;
 
   appSettings$: Observable<AppSettings | null> = this.appSettingsService.appSettings$;
+  private routerSub!: Subscription;
 
   uploadPattern = '';
   _defaultLibraryId: string | null = null;
@@ -91,8 +94,12 @@ export class BookdropFileReviewComponent implements OnInit {
   excludedFiles = new Set<number>();
 
   ngOnInit(): void {
-    this.loading = true;
-    this.loadPage(0);
+    this.activatedRoute.queryParams
+      .pipe(startWith({}), tap(() => {
+        this.loading = true;
+        this.loadPage(0);
+      }))
+      .subscribe();
 
     this.libraryService.libraryState$
       .pipe(filter(state => !!state?.loaded), take(1))
@@ -162,7 +169,7 @@ export class BookdropFileReviewComponent implements OnInit {
   }
 
   loadPage(page: number): void {
-    this.bookdropFileService.getPendingFiles(page, this.pageSize)
+    this.bookdropService.getPendingFiles(page, this.pageSize)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: response => {
@@ -354,7 +361,7 @@ export class BookdropFileReviewComponent implements OnInit {
             .map(file => file.file.id);
         }
 
-        this.bookdropFileService.discardFiles(payload).subscribe({
+        this.bookdropService.discardFiles(payload).subscribe({
           next: () => {
             this.messageService.add({
               severity: 'success',
@@ -423,7 +430,7 @@ export class BookdropFileReviewComponent implements OnInit {
       const rawMetadata = fileUi.metadataForm.value;
       const metadata = {...rawMetadata};
 
-      if (metadata.thumbnailUrl?.includes('/api/bookdrop/')) {
+      if (metadata.thumbnailUrl?.includes('/api/v1/media/bookdrop')) {
         delete metadata.thumbnailUrl;
       }
 
@@ -443,7 +450,7 @@ export class BookdropFileReviewComponent implements OnInit {
       files,
     };
 
-    this.bookdropFileService.finalizeImport(payload).subscribe({
+    this.bookdropService.finalizeImport(payload).subscribe({
       next: (result: BookdropFinalizeResult) => {
         this.saving = false;
 
@@ -527,5 +534,25 @@ export class BookdropFileReviewComponent implements OnInit {
       copiedFields: {},
       savedFields: {}
     };
+  }
+
+  rescanBookdrop() {
+    this.bookdropService.rescan().subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Rescan Triggered',
+          detail: 'Bookdrop rescan has been started successfully.',
+        });
+      },
+      error: (err) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Rescan Failed',
+          detail: 'Unable to trigger bookdrop rescan. Please try again.',
+        });
+        console.error(err);
+      }
+    });
   }
 }

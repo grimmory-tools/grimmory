@@ -9,44 +9,55 @@
 } @else {
   <form class="flex flex-col w-full h-full pt-2 min-w-full md:min-w-[60rem] pr-0 md:pr-2 pl-0 md:pl-2" [formGroup]="form" (ngSubmit)="onSubmit()">
 
-    <div class="grid grid-cols-1 md:flex md:flex-row w-full gap-2 md:gap-4 md:items-end">
+    <div class="flex flex-col space-y-3">
+      <div class="grid grid-cols-1 md:flex md:flex-row w-full gap-2 md:gap-4 md:items-end">
+        <div class="flex flex-col gap-1 w-full max-w-full md:w-1/3">
+          <label for="provider">Providers</label>
+          <p-multiselect
+            id="provider"
+            class="w-full"
+            [filter]="false"
+            showToggleAll="false"
+            [options]="providers"
+            formControlName="provider"
+            placeholder="Select Providers">
+          </p-multiselect>
+        </div>
 
-      <div class="flex flex-col gap-1 w-full max-w-full md:w-3/12">
-        <label for="provider">Providers</label>
-        <p-multiselect
-          id="provider"
-          class="w-full"
-          [filter]="false"
-          showToggleAll="false"
-          [options]="providers"
-          formControlName="provider"
-          placeholder="Select Providers">
-        </p-multiselect>
-      </div>
+        <div class="flex flex-col gap-1 w-full max-w-full md:w-56">
+          <label for="isbn">ISBN</label>
+          <input pInputText formControlName="isbn" id="isbn" class="w-full" placeholder="ISBN-10 or ISBN-13"/>
+        </div>
 
-      <div class="flex flex-col gap-1 w-full max-w-full md:w-5/12">
-        <label for="title">Title</label>
-        <input pInputText formControlName="title" id="title" class="w-full"/>
-      </div>
+        <div class="flex flex-col gap-1 w-full max-w-full md:w-1/3">
+          <label for="title">Title</label>
+          <input pInputText formControlName="title" id="title" class="w-full"/>
+        </div>
 
-      <div class="flex flex-col gap-1 w-full max-w-full md:w-4/12">
-        <label for="author">Author</label>
-        <input pInputText formControlName="author" id="author" class="w-full"/>
-      </div>
+        <div class="flex flex-col gap-1 w-full max-w-full md:w-1/3">
+          <label for="author">Author</label>
+          <input pInputText formControlName="author" id="author" class="w-full"/>
+        </div>
 
-      <div class="flex flex-col gap-1 w-full sm:w-fit md:w-auto">
-        <label class="invisible md:visible h-0 md:h-auto">Search</label>
-        <div class="flex justify-center md:justify-start">
-          <p-button
-            label="Search"
-            type="submit"
-            outlined="true"
-            [disabled]="!isSearchEnabled || loading"
-            class="w-full sm:w-fit md:w-auto">
-          </p-button>
+        <div class="flex flex-col gap-1 w-full sm:w-fit md:w-auto">
+          <label class="invisible md:visible h-0 md:h-auto">Search</label>
+          <div class="flex justify-center md:justify-start">
+            <p-button
+              label="Search"
+              type="submit"
+              outlined="true"
+              [disabled]="!isSearchEnabled || loading"
+              class="w-full sm:w-fit md:w-auto">
+            </p-button>
+          </div>
         </div>
       </div>
-
+      <div class="text-sm text-gray-400 flex items-start gap-2">
+        <i class="pi pi-info-circle text-sky-600 mt-0.5"></i>
+        <span>
+          When an ISBN is provided, the search will use only the ISBN. If no ISBN is given, the search will fall back to Title and Author.
+        </span>
+      </div>
     </div>
 
     @if (loading) {
@@ -80,8 +91,12 @@
                   <div class="flex flex-col md:flex-row gap-2 md:gap-4 justify-between">
                     <p class="font-bold">{{ truncateText(metadata['title']!, 90) }}</p>
                     <div class="flex flex-wrap gap-2 text-sm">
-                      @if (metadata['isbn10'] || metadata['asin']) {
-                        <p>ISBN: {{ metadata['isbn10'] || metadata['asin'] }}</p>
+                      @if (metadata['isbn10']) {
+                        <p>ISBN10: {{ metadata['isbn10']}}</p>
+                        <span class="hidden md:inline">|</span>
+                      }
+                      @if (metadata['isbn13']) {
+                        <p>ISBN13: {{ metadata['isbn13']}}</p>
                         <span class="hidden md:inline">|</span>
                       }
                       <p>Published: {{ metadata['publishedDate'] }}</p>

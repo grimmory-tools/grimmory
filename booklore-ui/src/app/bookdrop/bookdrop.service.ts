@@ -57,8 +57,8 @@ export interface Page<T> {
 }
 
 @Injectable({providedIn: 'root'})
-export class BookdropFileTaskService {
-  private readonly url = `${API_CONFIG.BASE_URL}/api/bookdrop`;
+export class BookdropService {
+  private readonly url = `${API_CONFIG.BASE_URL}/api/v1/bookdrop`;
   private http = inject(HttpClient);
 
   getPendingFiles(page: number = 0, size: number = 50): Observable<Page<BookdropFile>> {
@@ -71,5 +71,9 @@ export class BookdropFileTaskService {
 
   discardFiles(payload: { selectAll: boolean; excludedIds?: number[]; selectedIds?: number[] }): Observable<void> {
     return this.http.post<void>(`${this.url}/files/discard`, payload);
+  }
+
+  rescan(): Observable<void> {
+    return this.http.post<void>(`${this.url}/rescan`, {});
   }
 }

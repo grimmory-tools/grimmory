@@ -49,7 +49,7 @@
           </p-button>
         </td>
         <td (click)="openMetadataCenter(book.id)" class="cursor-pointer">
-          <img [attr.src]="urlHelper.getCoverUrl(metadata.bookId, metadata.coverUpdatedOn)" alt="Book Cover" class="size-7"/>
+          <img [attr.src]="urlHelper.getThumbnailUrl(metadata.bookId, metadata.coverUpdatedOn)" alt="Book Cover" class="size-7"/>
         </td>
 
         @for (col of visibleColumns; track col.field) {

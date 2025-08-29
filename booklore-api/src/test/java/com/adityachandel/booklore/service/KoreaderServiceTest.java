@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.ArgumentMatchers.isNull;
 
-import com.adityachandel.booklore.config.security.KoreaderUserDetails;
+import com.adityachandel.booklore.config.security.userdetails.KoreaderUserDetails;
 import com.adityachandel.booklore.exception.APIException;
 import com.adityachandel.booklore.model.dto.progress.KoreaderProgress;
 import com.adityachandel.booklore.model.entity.BookEntity;

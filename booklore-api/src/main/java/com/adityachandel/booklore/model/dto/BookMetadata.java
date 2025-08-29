@@ -40,6 +40,9 @@ public class BookMetadata {
     private String hardcoverId;
     private Double hardcoverRating;
     private Integer hardcoverReviewCount;
+    private String doubanId;
+    private Double doubanRating;
+    private Integer doubanReviewCount;
     private Double personalRating;
     private String googleId;
     private Instant coverUpdatedOn;
@@ -63,6 +66,7 @@ public class BookMetadata {
     private Boolean goodreadsIdLocked;
     private Boolean comicvineIdLocked;
     private Boolean hardcoverIdLocked;
+    private Boolean doubanIdLocked;
     private Boolean googleIdLocked;
     private Boolean pageCountLocked;
     private Boolean languageLocked;
@@ -73,6 +77,8 @@ public class BookMetadata {
     private Boolean goodreadsReviewCountLocked;
     private Boolean hardcoverRatingLocked;
     private Boolean hardcoverReviewCountLocked;
+    private Boolean doubanRatingLocked;
+    private Boolean doubanReviewCountLocked;
     private Boolean coverLocked;
     private Boolean authorsLocked;
     private Boolean categoriesLocked;

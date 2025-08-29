@@ -1,6 +1,6 @@
 package com.adityachandel.booklore.service;
 
-import com.adityachandel.booklore.config.security.AuthenticationService;
+import com.adityachandel.booklore.config.security.service.AuthenticationService;
 import com.adityachandel.booklore.model.dto.MagicShelf;
 import com.adityachandel.booklore.model.entity.MagicShelfEntity;
 import com.adityachandel.booklore.repository.MagicShelfRepository;

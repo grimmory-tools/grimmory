@@ -1,24 +1,20 @@
 package com.adityachandel.booklore.controller;
 
-import com.adityachandel.booklore.config.security.AuthenticationService;
+import com.adityachandel.booklore.config.security.service.AuthenticationService;
 import com.adityachandel.booklore.config.security.annotation.CheckBookAccess;
 import com.adityachandel.booklore.exception.ApiError;
 import com.adityachandel.booklore.mapper.BookMetadataMapper;
 import com.adityachandel.booklore.model.MetadataUpdateWrapper;
 import com.adityachandel.booklore.model.dto.BookMetadata;
-import com.adityachandel.booklore.model.dto.EpubMetadata;
+import com.adityachandel.booklore.model.dto.CoverImage;
 import com.adityachandel.booklore.model.dto.request.*;
-import com.adityachandel.booklore.model.dto.settings.MetadataMatchWeights;
 import com.adityachandel.booklore.model.entity.BookEntity;
 import com.adityachandel.booklore.quartz.JobSchedulerService;
 import com.adityachandel.booklore.repository.BookRepository;
-import com.adityachandel.booklore.service.metadata.BookMetadataService;
-import com.adityachandel.booklore.service.metadata.BookMetadataUpdater;
-import com.adityachandel.booklore.service.metadata.MetadataMatchService;
+import com.adityachandel.booklore.service.metadata.*;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,6 +33,7 @@ public class MetadataController {
     private final AuthenticationService authenticationService;
     private final BookMetadataMapper bookMetadataMapper;
     private final MetadataMatchService metadataMatchService;
+    private final DuckDuckGoCoverService duckDuckGoCoverService;
     private final BookRepository bookRepository;
 
     @PostMapping("/{bookId}/metadata/prospective")
@@ -126,5 +123,10 @@ public class MetadataController {
     public ResponseEntity<BookMetadata> restoreMetadata(@PathVariable Long bookId) throws IOException {
         BookMetadata restoredMetadata = bookMetadataService.restoreMetadataFromBackup(bookId);
         return ResponseEntity.ok(restoredMetadata);
+    }
+
+    @PostMapping("/{bookId}/metadata/covers")
+    public ResponseEntity<List<CoverImage>> getImages(@RequestBody CoverFetchRequest request) {
+        return ResponseEntity.ok(duckDuckGoCoverService.getCovers(request));
     }
 }

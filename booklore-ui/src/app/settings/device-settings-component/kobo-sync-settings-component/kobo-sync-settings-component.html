@@ -1,7 +1,7 @@
 <p-confirmDialog></p-confirmDialog>
 
 <p class="text-lg flex items-center gap-2 px-4 pt-4 pb-2">
-  Kobo Integration Token:
+  Kobo Integration Settings:
   <i class="pi pi-info-circle text-sky-600"
      pTooltip="Click to view Kobo setup documentation"
      tooltipPosition="right"
@@ -12,42 +12,53 @@
 
 @if (hasKoboTokenPermission) {
   <form #koboForm="ngForm" class="px-4 py-2">
-    <div class="flex flex-col px-4 py-4 space-y-4">
-      <div class="flex flex-col gap-1 max-w-[33rem]">
-        <label for="koboToken">Kobo Sync Token</label>
-        <div class="flex items-center gap-2">
-          <input
-            pInputText
-            id="koboToken"
-            [(ngModel)]="koboToken"
-            [type]="showToken ? 'text' : 'password'"
-            readonly
-            fluid
-            name="koboToken"
-          />
-          <p-button
-            icon="pi pi-copy"
-            outlined="true"
-            severity="info"
-            (onClick)="copyText(koboToken)">
-          </p-button>
-          <p-button
-            [icon]="showToken ? 'pi pi-eye-slash' : 'pi pi-eye'"
-            outlined="true"
-            severity="info"
-            (onClick)="toggleShowToken()">
-          </p-button>
-        </div>
+    <div class="flex flex-col p-4 space-y-6">
+      <div class="flex gap-2">
+        <p-toggle-switch
+          id="syncEnabled"
+          name="syncEnabled"
+          [(ngModel)]="koboSyncSettings.syncEnabled"
+          (ngModelChange)="onSyncToggle()">
+        </p-toggle-switch>
+        <label for="syncEnabled">Enable Kobo Sync</label>
       </div>
 
-      <p-button
-        icon="pi pi-refresh"
-        outlined="true"
-        severity="warn"
-        label="Regenerate Token"
-        (onClick)="confirmRegenerateToken()"
-        [disabled]="!credentialsSaved">
-      </p-button>
+      @if (koboSyncSettings.syncEnabled) {
+        <div class="flex flex-col gap-1 max-w-[33rem]">
+          <label for="koboToken">Kobo Sync Token</label>
+          <div class="flex items-center gap-2">
+            <input
+              pInputText
+              id="koboToken"
+              [(ngModel)]="koboSyncSettings.token"
+              [type]="showToken ? 'text' : 'password'"
+              readonly
+              fluid
+              name="koboToken"
+            />
+            <p-button
+              icon="pi pi-copy"
+              outlined="true"
+              severity="info"
+              (onClick)="copyText(koboSyncSettings.token)">
+            </p-button>
+            <p-button
+              [icon]="showToken ? 'pi pi-eye-slash' : 'pi pi-eye'"
+              outlined="true"
+              severity="info"
+              (onClick)="toggleShowToken()">
+            </p-button>
+          </div>
+        </div>
+        <p-button
+          icon="pi pi-refresh"
+          outlined="true"
+          severity="warn"
+          label="Regenerate Token"
+          (onClick)="confirmRegenerateToken()"
+          [disabled]="!credentialsSaved">
+        </p-button>
+      }
     </div>
   </form>
 

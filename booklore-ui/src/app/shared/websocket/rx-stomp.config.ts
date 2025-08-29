@@ -7,7 +7,7 @@ export function createRxStompConfig(authService: AuthService): RxStompConfig {
     brokerURL: API_CONFIG.BROKER_URL,
     heartbeatIncoming: 0,
     heartbeatOutgoing: 20000,
-    reconnectDelay: 200,
+    reconnectDelay: 10000,
     beforeConnect: (stomp) => {
       const oidcToken = authService.getOidcAccessToken();
       const internalToken = authService.getInternalAccessToken();

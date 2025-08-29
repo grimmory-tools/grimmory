@@ -1,0 +1,99 @@
+<div class="cover-search-container">
+  <div class="search-section">
+    <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="title">Title *</label>
+          <input
+            pInputText
+            id="title"
+            formControlName="title"
+            placeholder="Enter book title"
+          />
+          @if (searchForm.get('title')?.invalid && searchForm.get('title')?.touched) {
+            <small class="error-message">
+              Title is required
+            </small>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="author">Author</label>
+          <input
+            pInputText
+            id="author"
+            formControlName="author"
+            placeholder="Enter author name"
+          />
+        </div>
+
+        <div class="form-field">
+          <label>&nbsp;</label>
+          <div class="button-group">
+            <p-button
+              type="submit"
+              outlined
+              label="Search Covers"
+              icon="pi pi-search"
+              [loading]="loading"
+              [disabled]="searchForm.invalid">
+            </p-button>
+
+            <p-button
+              type="button"
+              label="Clear"
+              icon="pi pi-times"
+              (click)="onClear()"
+              styleClass="p-button-secondary p-button-outlined">
+            </p-button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  @if (hasSearched) {
+    <div class="results-section">
+      @if (loading) {
+        <div class="loading-container">
+          <p-progressSpinner></p-progressSpinner>
+          <p>Searching for book covers...</p>
+        </div>
+      }
+
+      @if (!loading && coverImages.length === 0) {
+        <div class="no-results">
+          <i class="pi pi-info-circle"></i>
+          <p>No cover images found. Try adjusting your search terms.</p>
+        </div>
+      }
+
+      @if (!loading && coverImages.length > 0) {
+        <div class="covers-grid">
+          @for (cover of coverImages; track cover.url; let i = $index) {
+            <div class="cover-item">
+              <p-image
+                [src]="cover.url"
+                [alt]="'Book cover ' + (i + 1)"
+                appendTo="body"
+                [preview]="true">
+              </p-image>
+              @if (cover.width && cover.height) {
+                <div class="resolution-overlay">
+                  {{cover.width}} x {{cover.height}}
+                </div>
+              }
+              <p-button
+                class="select-button"
+                (click)="selectAndSave(cover)"
+                label="Pick & Save"
+                severity="info"
+                title="Select & Save this cover">
+              </p-button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

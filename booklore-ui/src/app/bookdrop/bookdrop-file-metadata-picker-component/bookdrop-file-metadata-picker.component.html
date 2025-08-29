@@ -42,7 +42,7 @@
         <div class="flex items-center py-1">
           <label class="w-[6.5%]"></label>
           <div class="flex w-full items-center justify-center">
-            <img [src]="metadataForm.get('thumbnailUrl')?.value" alt="Book Thumbnail" class="thumbnail"/>
+            <p-image class="thumbnail" [src]="metadataForm.get('thumbnailUrl')?.value" alt="Image" appendTo="body" lazyLoad [preview]="true"></p-image>
             <input type="hidden" id="thumbnailUrl" formControlName="thumbnailUrl" class="!w-1/2"/>
             <p-button
               [icon]="isValueSaved('thumbnailUrl') ? 'pi pi-check' : (hoveredFields['thumbnailUrl'] && isValueCopied('thumbnailUrl') ? 'pi pi-times' : 'pi pi-arrow-left')"
@@ -57,7 +57,7 @@
               (mouseenter)="onMouseEnter('thumbnailUrl')"
               (mouseleave)="onMouseLeave('thumbnailUrl')"/>
             <input type="hidden" [value]="fetchedMetadata.thumbnailUrl" class="!w-1/2" readonly/>
-            <img [src]="fetchedMetadata.thumbnailUrl ?? null" alt="Fetched Thumbnail" class="thumbnail"/>
+            <p-image class="thumbnail" [src]="fetchedMetadata.thumbnailUrl!" alt="Image" appendTo="body" lazyLoad [preview]="true"></p-image>
           </div>
         </div>
         @for (field of metadataFieldsTop; track field) {

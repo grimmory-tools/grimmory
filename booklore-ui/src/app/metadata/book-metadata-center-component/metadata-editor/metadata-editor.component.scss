@@ -5,3 +5,7 @@
     padding: var(--p-tabs-tabpanel-padding) !important;
   }
 }
+
+::ng-deep .p-autocomplete .p-chip .p-chip-label {
+  font-size: 12px;
+}

@@ -60,6 +60,7 @@ export class MetadataProviderSettingsComponent implements OnInit {
   googleEnabled: boolean = false;
   comicvineEnabled: boolean = false;
   comicvineToken: string = '';
+  doubanEnabled: boolean = false;
 
   private appSettingsService = inject(AppSettingsService);
   private messageService = inject(MessageService);
@@ -83,6 +84,7 @@ export class MetadataProviderSettingsComponent implements OnInit {
         this.hardcoverEnabled = metadataProviderSettings?.hardcover?.enabled ?? false;
         this.comicvineEnabled = metadataProviderSettings?.comicvine?.enabled ?? false;
         this.comicvineToken = metadataProviderSettings?.comicvine?.apiKey ?? '';
+        this.doubanEnabled = metadataProviderSettings?.douban?.enabled ?? false;
       });
   }
 
@@ -121,7 +123,8 @@ export class MetadataProviderSettingsComponent implements OnInit {
           hardcover: {
             enabled: this.hardcoverEnabled,
             apiKey: this.hardcoverToken.trim()
-          }
+          },
+          douban: {enabled: this.doubanEnabled}
         }
       }
     ];

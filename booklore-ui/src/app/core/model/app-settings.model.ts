@@ -21,6 +21,8 @@ export interface MetadataMatchWeights {
   goodreadsReviewCount: number;
   hardcoverRating: number;
   hardcoverReviewCount: number;
+  doubanRating: number;
+  doubanReviewCount: number;
   coverImage: number;
 }
 
@@ -47,6 +49,7 @@ export interface MetadataProviderSettings {
   goodReads: Goodreads;
   hardcover: Hardcover;
   comicvine: Comicvine;
+  douban: Douban;
 }
 
 export interface Amazon {
@@ -71,6 +74,10 @@ export interface Hardcover {
 export interface Comicvine {
   enabled: boolean;
   apiKey: string;
+}
+
+export interface Douban {
+  enabled: boolean;
 }
 
 export interface MetadataPersistenceSettings {
@@ -99,7 +106,6 @@ export interface AppSettings {
   autoBookSearch: boolean;
   similarBookRecommendation: boolean;
   metadataRefreshOptions: MetadataRefreshOptions;
-  coverResolution: string;
   uploadPattern: string;
   opdsServerEnabled: boolean;
   remoteAuthEnabled: boolean;

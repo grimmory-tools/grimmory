@@ -1,6 +1,6 @@
 package com.adityachandel.booklore.service;
 
-import com.adityachandel.booklore.config.security.AuthenticationService;
+import com.adityachandel.booklore.config.security.service.AuthenticationService;
 import com.adityachandel.booklore.exception.ApiError;
 import com.adityachandel.booklore.mapper.BookMapper;
 import com.adityachandel.booklore.model.dto.*;
@@ -20,10 +20,7 @@ import com.adityachandel.booklore.util.FileUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.EnumUtils;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
+import org.springframework.core.io.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -448,9 +446,32 @@ public class BookService {
         }).collect(Collectors.toList());
     }
 
+    public Resource getBookThumbnail(long bookId) {
+        Path thumbnailPath = Paths.get(fileService.getThumbnailFile(bookId));
+        try {
+            if (Files.exists(thumbnailPath)) {
+                return new UrlResource(thumbnailPath.toUri());
+            } else {
+                Path defaultCover = Paths.get("static/images/missing-cover.jpg");
+                return new UrlResource(defaultCover.toUri());
+            }
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Failed to load book cover for bookId=" + bookId, e);
+        }
+    }
+
     public Resource getBookCover(long bookId) {
-        BookEntity bookEntity = bookRepository.findById(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
-        return fileService.getBookCover(bookEntity.getMetadata().getThumbnail());
+        Path coverPath = Paths.get(fileService.getCoverFile(bookId));
+        try {
+            if (Files.exists(coverPath)) {
+                return new UrlResource(coverPath.toUri());
+            } else {
+                Path defaultCover = Paths.get("static/images/missing-cover.jpg");
+                return new UrlResource(defaultCover.toUri());
+            }
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Failed to load book cover for bookId=" + bookId, e);
+        }
     }
 
     public ResponseEntity<Resource> downloadBook(Long bookId) {

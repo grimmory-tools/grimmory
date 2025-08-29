@@ -9,16 +9,17 @@ import {TableModule} from 'primeng/table';
 import {Step, StepList, StepPanel, StepPanels, Stepper} from 'primeng/stepper';
 import {FormsModule} from '@angular/forms';
 import {InputText} from 'primeng/inputtext';
-import {Library} from '../../model/library.model';
+import {Library, LibraryScanMode, BookFileType} from '../../model/library.model';
 import {ToggleSwitch} from 'primeng/toggleswitch';
 import {Tooltip} from 'primeng/tooltip';
-import { IconPickerService } from '../../../utilities/services/icon-picker.service';
+import {IconPickerService} from '../../../utilities/services/icon-picker.service';
+import {Select} from 'primeng/select';
 
 @Component({
   selector: 'app-library-creator',
   standalone: true,
   templateUrl: './library-creator.component.html',
-  imports: [Button, TableModule, StepPanel, FormsModule, InputText, Stepper, StepList, Step, StepPanels, ToggleSwitch, Tooltip],
+  imports: [Button, TableModule, StepPanel, FormsModule, InputText, Stepper, StepList, Step, StepPanels, ToggleSwitch, Tooltip, Select],
   styleUrl: './library-creator.component.scss'
 })
 export class LibraryCreatorComponent implements OnInit {
@@ -31,14 +32,28 @@ export class LibraryCreatorComponent implements OnInit {
   editModeLibraryName: string = '';
   directoryPickerDialogRef!: DynamicDialogRef<DirectoryPickerComponent>;
   watch: boolean = false;
+  scanMode: LibraryScanMode = 'FILE_AS_BOOK';
+  defaultBookFormat: BookFileType | undefined = undefined;
 
-  private dialogService       = inject(DialogService);
-  private dynamicDialogRef    = inject(DynamicDialogRef);
+  readonly scanModeOptions = [
+    {label: 'Each file is a book', value: 'FILE_AS_BOOK'},
+    {label: 'Each folder is a book with extras', value: 'FOLDER_AS_BOOK'}
+  ];
+
+  readonly bookFormatOptions = [
+    {label: 'None', value: undefined},
+    {label: 'EPUB', value: 'EPUB'},
+    {label: 'PDF', value: 'PDF'},
+    {label: 'CBX/CBZ/CBR', value: 'CBX'}
+  ];
+
+  private dialogService = inject(DialogService);
+  private dynamicDialogRef = inject(DynamicDialogRef);
   private dynamicDialogConfig = inject(DynamicDialogConfig);
-  private libraryService      = inject(LibraryService);
-  private messageService      = inject(MessageService);
-  private router              = inject(Router);
-  private iconPicker          = inject(IconPickerService);
+  private libraryService = inject(LibraryService);
+  private messageService = inject(MessageService);
+  private router = inject(Router);
+  private iconPicker = inject(IconPickerService);
 
   ngOnInit(): void {
     const data = this.dynamicDialogConfig?.data;
@@ -46,11 +61,13 @@ export class LibraryCreatorComponent implements OnInit {
       this.mode = data.mode;
       this.library = this.libraryService.findLibraryById(data.libraryId);
       if (this.library) {
-        const {name, icon, paths, watch} = this.library;
+        const {name, icon, paths, watch, scanMode, defaultBookFormat} = this.library;
         this.chosenLibraryName = name;
         this.editModeLibraryName = name;
         this.selectedIcon = `pi pi-${icon}`;
         this.watch = watch;
+        this.scanMode = scanMode || 'FILE_AS_BOOK';
+        this.defaultBookFormat = defaultBookFormat || undefined;
         this.folders = paths.map(path => path.path);
       }
     }
@@ -123,7 +140,9 @@ export class LibraryCreatorComponent implements OnInit {
         name: this.chosenLibraryName,
         icon: this.selectedIcon?.replace('pi pi-', '') || 'heart',
         paths: this.folders.map(folder => ({path: folder})),
-        watch: this.watch
+        watch: this.watch,
+        scanMode: this.scanMode,
+        defaultBookFormat: this.defaultBookFormat
       };
       this.libraryService.updateLibrary(library, this.library?.id).subscribe({
         next: () => {
@@ -140,7 +159,9 @@ export class LibraryCreatorComponent implements OnInit {
         name: this.chosenLibraryName,
         icon: this.selectedIcon?.replace('pi pi-', '') || 'heart',
         paths: this.folders.map(folder => ({path: folder})),
-        watch: this.watch
+        watch: this.watch,
+        scanMode: this.scanMode,
+        defaultBookFormat: this.defaultBookFormat
       };
       this.libraryService.createLibrary(library).subscribe({
         next: (createdLibrary) => {

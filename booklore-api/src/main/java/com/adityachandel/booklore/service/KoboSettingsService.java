@@ -1,8 +1,9 @@
 package com.adityachandel.booklore.service;
 
-import com.adityachandel.booklore.config.security.AuthenticationService;
+import com.adityachandel.booklore.config.security.service.AuthenticationService;
 import com.adityachandel.booklore.model.dto.BookLoreUser;
 import com.adityachandel.booklore.model.dto.KoboSyncSettings;
+import com.adityachandel.booklore.model.dto.Shelf;
 import com.adityachandel.booklore.model.dto.request.ShelfCreateRequest;
 import com.adityachandel.booklore.model.entity.KoboUserSettingsEntity;
 import com.adityachandel.booklore.model.entity.ShelfEntity;
@@ -44,6 +45,7 @@ public class KoboSettingsService {
                 .orElseGet(() -> KoboUserSettingsEntity.builder()
                         .userId(user.getId())
                         .token(newToken)
+                        .syncEnabled(false)
                         .build());
 
         ensureKoboShelfExists(user.getId());
@@ -55,9 +57,15 @@ public class KoboSettingsService {
     @Transactional
     public void setSyncEnabled(boolean enabled) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
-        KoboUserSettingsEntity entity = repository.findByUserId(user.getId())
-                .orElseThrow(() -> new IllegalStateException("Kobo settings not found for user"));
-
+        KoboUserSettingsEntity entity = repository.findByUserId(user.getId()).orElseThrow(() -> new IllegalStateException("Kobo settings not found for user"));
+        Shelf userKoboShelf = shelfService.getUserKoboShelf();
+        if (!enabled) {
+            if (userKoboShelf != null) {
+                shelfService.deleteShelf(userKoboShelf.getId());
+            }
+        } else {
+            ensureKoboShelfExists(user.getId());
+        }
         entity.setSyncEnabled(enabled);
         repository.save(entity);
     }
@@ -66,6 +74,7 @@ public class KoboSettingsService {
         ensureKoboShelfExists(userId);
         KoboUserSettingsEntity entity = KoboUserSettingsEntity.builder()
                 .userId(userId)
+                .syncEnabled(false)
                 .token(generateToken())
                 .build();
         return repository.save(entity);
@@ -75,10 +84,10 @@ public class KoboSettingsService {
         Optional<ShelfEntity> shelf = shelfService.getShelf(userId, ShelfType.KOBO.getName());
         if (shelf.isEmpty()) {
             shelfService.createShelf(
-                ShelfCreateRequest.builder()
-                    .name(ShelfType.KOBO.getName())
-                    .icon(ShelfType.KOBO.getIcon())
-                    .build()
+                    ShelfCreateRequest.builder()
+                            .name(ShelfType.KOBO.getName())
+                            .icon(ShelfType.KOBO.getIcon())
+                            .build()
             );
         }
     }
@@ -92,6 +101,7 @@ public class KoboSettingsService {
         dto.setId(entity.getId());
         dto.setUserId(entity.getUserId().toString());
         dto.setToken(entity.getToken());
+        dto.setSyncEnabled(entity.isSyncEnabled());
         return dto;
     }
 }

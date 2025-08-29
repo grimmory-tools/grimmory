@@ -5,11 +5,13 @@ import com.adityachandel.booklore.model.dto.BookMetadata;
 import com.adityachandel.booklore.model.dto.settings.LibraryFile;
 import com.adityachandel.booklore.model.entity.BookEntity;
 import com.adityachandel.booklore.model.enums.BookFileType;
+import com.adityachandel.booklore.repository.BookAdditionalFileRepository;
 import com.adityachandel.booklore.repository.BookMetadataRepository;
 import com.adityachandel.booklore.repository.BookRepository;
 import com.adityachandel.booklore.service.BookCreatorService;
 import com.adityachandel.booklore.service.metadata.MetadataMatchService;
 import com.adityachandel.booklore.service.metadata.extractor.PdfMetadataExtractor;
+import com.adityachandel.booklore.util.FileService;
 import com.adityachandel.booklore.util.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +27,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 
-import static com.adityachandel.booklore.service.fileprocessor.FileProcessingUtils.truncate;
+import static com.adityachandel.booklore.util.FileService.truncate;
 
 @Slf4j
 @Service
@@ -35,13 +37,14 @@ public class PdfProcessor extends AbstractFileProcessor implements BookFileProce
     private final BookMetadataRepository bookMetadataRepository;
 
     public PdfProcessor(BookRepository bookRepository,
+                        BookAdditionalFileRepository bookAdditionalFileRepository,
                         BookCreatorService bookCreatorService,
                         BookMapper bookMapper,
-                        FileProcessingUtils fileProcessingUtils,
+                        FileService fileService,
                         BookMetadataRepository bookMetadataRepository,
                         MetadataMatchService metadataMatchService,
                         PdfMetadataExtractor pdfMetadataExtractor) {
-        super(bookRepository, bookCreatorService, bookMapper, fileProcessingUtils, bookMetadataRepository, metadataMatchService);
+        super(bookRepository, bookAdditionalFileRepository, bookCreatorService, bookMapper, fileService, metadataMatchService);
         this.pdfMetadataExtractor = pdfMetadataExtractor;
         this.bookMetadataRepository = bookMetadataRepository;
     }
@@ -50,7 +53,7 @@ public class PdfProcessor extends AbstractFileProcessor implements BookFileProce
     public BookEntity processNewFile(LibraryFile libraryFile) {
         BookEntity bookEntity = bookCreatorService.createShellBook(libraryFile, BookFileType.PDF);
         if (generateCover(bookEntity)) {
-            fileProcessingUtils.setBookCoverPath(bookEntity.getId(), bookEntity.getMetadata());
+            fileService.setBookCoverPath(bookEntity.getMetadata());
         }
         extractAndSetMetadata(bookEntity);
         return bookEntity;
@@ -137,6 +140,6 @@ public class PdfProcessor extends AbstractFileProcessor implements BookFileProce
 
     private boolean generateCoverImageAndSave(Long bookId, PDDocument document) throws IOException {
         BufferedImage coverImage = new PDFRenderer(document).renderImageWithDPI(0, 300, ImageType.RGB);
-        return fileProcessingUtils.saveCoverImage(coverImage, bookId);
+        return fileService.saveCoverImages(coverImage, bookId);
     }
 }

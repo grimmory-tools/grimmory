@@ -33,7 +33,7 @@
           <div class="search-dropdown-item flex flex-col" (click)="onBookClick(book)">
             <div class="flex flex-row w-full p-2">
               <img
-                [attr.src]="urlHelper.getCoverUrl(book.id, book.metadata?.coverUpdatedOn)"
+                [attr.src]="urlHelper.getThumbnailUrl(book.id, book.metadata?.coverUpdatedOn)"
                 alt="Book Cover"
                 class="search-book-cover"
               />

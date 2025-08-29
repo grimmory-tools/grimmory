@@ -8,6 +8,8 @@ import {BookMetadata} from '../../book/model/book.model';
 import {UrlHelperService} from '../../utilities/service/url-helper.service';
 import {Textarea} from 'primeng/textarea';
 import {AutoComplete} from 'primeng/autocomplete';
+import {Image} from 'primeng/image';
+import {LazyLoadImageModule} from 'ng-lazyload-image';
 
 @Component({
   selector: 'app-bookdrop-file-metadata-picker-component',
@@ -19,7 +21,9 @@ import {AutoComplete} from 'primeng/autocomplete';
     NgClass,
     FormsModule,
     Textarea,
-    AutoComplete
+    AutoComplete,
+    Image,
+    LazyLoadImageModule
   ],
   templateUrl: './bookdrop-file-metadata-picker.component.html',
   styleUrl: './bookdrop-file-metadata-picker.component.scss'
@@ -130,6 +134,9 @@ export class BookdropFileMetadataPickerComponent {
     this.metadataForm.get(field)?.setValue(this.originalMetadata?.[field]);
     this.copiedFields[field] = false;
     this.hoveredFields[field] = false;
+    if (field === 'thumbnailUrl') {
+      this.metadataForm.get('thumbnailUrl')?.setValue(this.urlHelper.getBookdropCoverUrl(this.bookdropFileId));
+    }
   }
 
   // Handle blur event for AutoComplete to add custom values
@@ -138,7 +145,7 @@ export class BookdropFileMetadataPickerComponent {
     if (inputValue) {
       const currentValue = this.metadataForm.get(fieldName)?.value || [];
       const values = Array.isArray(currentValue) ? currentValue :
-                     typeof currentValue === 'string' && currentValue ? currentValue.split(',').map((v: string) => v.trim()) : [];
+        typeof currentValue === 'string' && currentValue ? currentValue.split(',').map((v: string) => v.trim()) : [];
 
       // Add the new value if it's not already in the array
       if (!values.includes(inputValue)) {

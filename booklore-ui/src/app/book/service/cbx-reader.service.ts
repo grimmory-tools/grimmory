@@ -1,19 +1,30 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {Injectable, inject} from '@angular/core';
 import {API_CONFIG} from '../../config/api-config';
+import {AuthService} from '../../core/service/auth.service';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class CbxReaderService {
 
-  private readonly url = `${API_CONFIG.BASE_URL}/api/v1/cbx`;
+  private readonly pagesUrl = `${API_CONFIG.BASE_URL}/api/v1/cbx`;
+  private readonly imageUrl = `${API_CONFIG.BASE_URL}/api/v1/media/book`;
+  private authService = inject(AuthService);
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
+  private getToken(): string | null {
+    return this.authService.getOidcAccessToken() || this.authService.getInternalAccessToken();
+  }
+
+  private appendToken(url: string): string {
+    const token = this.getToken();
+    return token ? `${url}${url.includes('?') ? '&' : '?'}token=${token}` : url;
+  }
 
   getAvailablePages(bookId: number) {
-    return this.http.get<number[]>(`${this.url}/${bookId}/pages`);
+    return this.http.get<number[]>(this.appendToken(`${this.pagesUrl}/${bookId}/pages`));
   }
 
   getPageImageUrl(bookId: number, page: number): string {
-    return `${this.url}/${bookId}/pages/${page}`;
+    return this.appendToken(`${this.imageUrl}/${bookId}/cbx/pages/${page}`);
   }
 }

@@ -1,6 +1,5 @@
 package com.adityachandel.booklore.controller;
 
-import com.adityachandel.booklore.config.security.annotation.CheckBookAccess;
 import com.adityachandel.booklore.service.reader.PdfReaderService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -23,11 +22,5 @@ public class PdfReaderController {
     @GetMapping("/{bookId}/pages")
     public List<Integer> listPages(@PathVariable Long bookId) throws IOException {
         return pdfReaderService.getAvailablePages(bookId);
-    }
-
-    @GetMapping("/{bookId}/pages/{pageNumber}")
-    public void getPage(@PathVariable Long bookId, @PathVariable int pageNumber, HttpServletResponse response) throws IOException {
-        response.setContentType(MediaType.IMAGE_JPEG_VALUE);
-        pdfReaderService.streamPageImage(bookId, pageNumber, response.getOutputStream());
     }
 }

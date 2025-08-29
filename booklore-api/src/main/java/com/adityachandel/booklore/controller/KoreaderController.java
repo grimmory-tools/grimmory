@@ -22,7 +22,8 @@ public class KoreaderController {
 
     @GetMapping("/users/auth")
     public ResponseEntity<Map<String, String>> authorizeUser() {
-        return koreaderService.authorizeUser();
+        return koreaderService
+            .authorizeUser();
     }
 
     @PostMapping("/users/create")

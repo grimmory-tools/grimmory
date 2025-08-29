@@ -19,11 +19,11 @@
                   pInputText
                   class="w-full"
                   [(ngModel)]="chosenLibraryName"
-                  placeholder="Enter library name..." />
+                  placeholder="Enter library name..."/>
 
                 <label class="self-center">Library Icon</label>
                 @if (!selectedIcon) {
-                  <p-button label="Select Icon" icon="pi pi-search" (onClick)="openIconPicker()" />
+                  <p-button label="Select Icon" icon="pi pi-search" (onClick)="openIconPicker()"/>
                 } @else {
                   <div class="flex items-center gap-2">
                     <i [class]="selectedIcon" class="text-3xl"></i>
@@ -33,13 +33,49 @@
                       [rounded]="true"
                       [text]="true"
                       [outlined]="true"
-                      severity="danger" />
+                      severity="danger"/>
+                  </div>
+                }
+
+                <label class="self-center">Import Mode</label>
+                <div class="flex items-center gap-2">
+                  <p-select
+                    [(ngModel)]="scanMode"
+                    [options]="scanModeOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Choose how to scan books"
+                    class="w-full"/>
+                  <i
+                    class="pi pi-info-circle text-sky-600 cursor-pointer"
+                    pTooltip="Select how BookLore interprets your files during import:
+                              • File as Book: Each file becomes a separate book.
+                              • Folder as Book: Each folder is imported as a single book, including multiple formats or extra files.
+                                If you are unsure, choose 'File as Book'."
+                    tooltipPosition="right"></i>
+                </div>
+
+                @if (scanMode == 'FOLDER_AS_BOOK') {
+                  <label class="self-center">Preferred Format</label>
+                  <div class="flex items-center gap-2">
+                    <p-select
+                      [(ngModel)]="defaultBookFormat"
+                      [options]="bookFormatOptions"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="Select preferred format"
+                      class="w-full"
+                      appendTo="body"/>
+                    <i
+                      class="pi pi-info-circle text-sky-600 cursor-pointer"
+                      pTooltip="If a folder contains books in multiple formats, this setting determines which format BookLore will use as the primary file."
+                      tooltipPosition="right"></i>
                   </div>
                 }
 
                 <label class="self-center">Monitor Folders</label>
                 <div class="flex items-center gap-2">
-                  <p-toggleswitch [(ngModel)]="watch" />
+                  <p-toggleswitch [(ngModel)]="watch"/>
                   <i
                     class="pi pi-info-circle text-sky-600 cursor-pointer"
                     pTooltip="Watches for file changes and auto-adds/removes books."
@@ -54,7 +90,7 @@
                 icon="pi pi-arrow-right"
                 iconPos="right"
                 (onClick)="validateLibraryNameAndProceed(activateCallback)"
-                [disabled]="!isLibraryDetailsValid()" />
+                [disabled]="!isLibraryDetailsValid()"/>
             </div>
           </div>
         </ng-template>
@@ -73,7 +109,7 @@
                     icon="pi pi-folder-open"
                     [outlined]="true"
                     severity="info"
-                    (onClick)="openDirectoryPicker()" />
+                    (onClick)="openDirectoryPicker()"/>
                 </div>
 
                 <div class="flex flex-col gap-2 max-h-70 overflow-y-auto">
@@ -91,7 +127,7 @@
                           outlined
                           size="small"
                           severity="danger"
-                          (onClick)="removeFolder(folders.indexOf(folder))" />
+                          (onClick)="removeFolder(folders.indexOf(folder))"/>
                       </div>
                     </div>
                   }
@@ -101,8 +137,8 @@
             </div>
 
             <div class="flex justify-between pt-6">
-              <p-button label="Back" icon="pi pi-arrow-left" iconPos="left" (onClick)="activateCallback(1)" />
-              <p-button label="Save" icon="pi pi-save" severity="success" [disabled]="!isDirectorySelectionValid()" (onClick)="createOrUpdateLibrary()" />
+              <p-button label="Back" icon="pi pi-arrow-left" iconPos="left" (onClick)="activateCallback(1)"/>
+              <p-button label="Save" icon="pi pi-save" severity="success" [disabled]="!isDirectorySelectionValid()" (onClick)="createOrUpdateLibrary()"/>
             </div>
           </div>
         </ng-template>

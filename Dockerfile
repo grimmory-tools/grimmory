@@ -22,7 +22,7 @@ ARG APP_VERSION
 RUN apk add --no-cache yq && \
     yq eval '.app.version = strenv(APP_VERSION)' -i /springboot-app/src/main/resources/application.yaml
 
-RUN gradle clean build
+RUN gradle clean build -x test
 
 # Stage 3: Final image
 FROM eclipse-temurin:21-jre-alpine

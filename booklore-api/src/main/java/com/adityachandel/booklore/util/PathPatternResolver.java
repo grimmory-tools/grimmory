@@ -3,74 +3,31 @@ package com.adityachandel.booklore.util;
 import com.adityachandel.booklore.model.dto.BookMetadata;
 import com.adityachandel.booklore.model.entity.AuthorEntity;
 import com.adityachandel.booklore.model.entity.BookEntity;
+import com.adityachandel.booklore.model.entity.BookMetadataEntity;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class PathPatternResolver {
 
     public static String resolvePattern(BookEntity book, String pattern) {
         String currentFilename = book.getFileName() != null ? book.getFileName().trim() : "";
-
-        if (pattern == null || pattern.isBlank()) {
-            return currentFilename;
-        }
-
-        String title = sanitize(book.getMetadata() != null && book.getMetadata().getTitle() != null
-                ? book.getMetadata().getTitle()
-                : "Untitled");
-
-        String authors = sanitize(
-                book.getMetadata() != null && book.getMetadata().getAuthors() != null
-                        ? book.getMetadata().getAuthors().stream()
-                        .map(AuthorEntity::getName)
-                        .collect(Collectors.joining(", "))
-                        : ""
-        );
-        String year = sanitize(
-                book.getMetadata() != null && book.getMetadata().getPublishedDate() != null
-                        ? String.valueOf(book.getMetadata().getPublishedDate().getYear())
-                        : ""
-        );
-        String series = sanitize(book.getMetadata() != null ? book.getMetadata().getSeriesName() : "");
-        String seriesIndex = "";
-        if (book.getMetadata() != null && book.getMetadata().getSeriesNumber() != null) {
-            Float seriesNumber = book.getMetadata().getSeriesNumber();
-            seriesIndex = (seriesNumber % 1 == 0)
-                    ? String.valueOf(seriesNumber.intValue())
-                    : seriesNumber.toString();
-            seriesIndex = sanitize(seriesIndex);
-        }
-        String language = sanitize(book.getMetadata() != null ? book.getMetadata().getLanguage() : "");
-        String publisher = sanitize(book.getMetadata() != null ? book.getMetadata().getPublisher() : "");
-        String isbn = sanitize(
-                book.getMetadata() != null
-                        ? (book.getMetadata().getIsbn13() != null
-                        ? book.getMetadata().getIsbn13()
-                        : book.getMetadata().getIsbn10() != null
-                        ? book.getMetadata().getIsbn10()
-                        : "")
-                        : ""
-        );
-
-        Map<String, String> values = new LinkedHashMap<>();
-        values.put("authors", authors);
-        values.put("title", title);
-        values.put("year", year);
-        values.put("series", series);
-        values.put("seriesIndex", seriesIndex);
-        values.put("language", language);
-        values.put("publisher", publisher);
-        values.put("isbn", isbn);
-        values.put("currentFilename", currentFilename);
-
-        return resolvePatternWithValues(pattern, values, currentFilename);
+        return resolvePattern(book.getMetadata(), pattern, currentFilename);
     }
 
     public static String resolvePattern(BookMetadata metadata, String pattern, String filename) {
+        MetadataProvider metadataProvider = MetadataProvider.from(metadata);
+        return resolvePattern(metadataProvider, pattern, filename);
+    }
+
+    public static String resolvePattern(BookMetadataEntity metadata, String pattern, String filename) {
+        MetadataProvider metadataProvider = MetadataProvider.from(metadata);
+        return resolvePattern(metadataProvider, pattern, filename);
+    }
+
+    private static String resolvePattern(MetadataProvider metadata, String pattern, String filename) {
         if (pattern == null || pattern.isBlank()) {
             return filename;
         }
@@ -80,7 +37,7 @@ public class PathPatternResolver {
                 : "Untitled");
 
         String authors = sanitize(
-                metadata != null && metadata.getAuthors() != null
+                metadata != null
                         ? String.join(", ", metadata.getAuthors())
                         : ""
         );
@@ -207,5 +164,154 @@ public class PathPatternResolver {
                 .replaceAll("[\\p{Cntrl}]", "")
                 .replaceAll("\\s+", " ")
                 .trim();
+    }
+
+    private interface MetadataProvider {
+        String getTitle();
+
+        List<String> getAuthors();
+
+        Integer getYear();
+
+        String getSeriesName();
+
+        Float getSeriesNumber();
+
+        String getLanguage();
+
+        String getPublisher();
+
+        String getIsbn13();
+
+        String getIsbn10();
+
+        LocalDate getPublishedDate();
+
+        static BookMetadataProvider from(BookMetadata metadata) {
+            if (metadata == null) {
+                return null;
+            }
+
+            return new BookMetadataProvider(metadata);
+        }
+
+        static BookMetadataEntityProvider from(BookMetadataEntity metadata) {
+            if (metadata == null) {
+                return null;
+            }
+
+            return new BookMetadataEntityProvider(metadata);
+        }
+    }
+
+    private record BookMetadataProvider(BookMetadata metadata) implements MetadataProvider {
+
+        @Override
+        public String getTitle() {
+            return metadata.getTitle();
+        }
+
+        @Override
+        public List<String> getAuthors() {
+            return metadata.getAuthors() != null ? metadata.getAuthors().stream().toList() : Collections.emptyList();
+        }
+
+        @Override
+        public Integer getYear() {
+            return metadata.getPublishedDate() != null ? metadata.getPublishedDate().getYear() : null;
+        }
+
+        @Override
+        public String getSeriesName() {
+            return metadata.getSeriesName();
+        }
+
+        @Override
+        public Float getSeriesNumber() {
+            return metadata.getSeriesNumber();
+        }
+
+        @Override
+        public String getLanguage() {
+            return metadata.getLanguage();
+        }
+
+        @Override
+        public String getPublisher() {
+            return metadata.getPublisher();
+        }
+
+        @Override
+        public String getIsbn13() {
+            return metadata.getIsbn13();
+        }
+
+        @Override
+        public String getIsbn10() {
+            return metadata.getIsbn10();
+        }
+
+        @Override
+        public LocalDate getPublishedDate() {
+            return metadata.getPublishedDate();
+        }
+    }
+
+    private record BookMetadataEntityProvider(BookMetadataEntity metadata) implements MetadataProvider {
+
+        @Override
+        public String getTitle() {
+            return metadata.getTitle();
+        }
+
+        @Override
+        public List<String> getAuthors() {
+            return metadata.getAuthors() != null
+                    ? metadata.getAuthors()
+                    .stream()
+                    .map(AuthorEntity::getName)
+                    .toList()
+                    : Collections.emptyList();
+        }
+
+        @Override
+        public Integer getYear() {
+            return metadata.getPublishedDate() != null ? metadata.getPublishedDate().getYear() : null;
+        }
+
+        @Override
+        public String getSeriesName() {
+            return metadata.getSeriesName();
+        }
+
+        @Override
+        public Float getSeriesNumber() {
+            return metadata.getSeriesNumber();
+        }
+
+        @Override
+        public String getLanguage() {
+            return metadata.getLanguage();
+        }
+
+        @Override
+        public String getPublisher() {
+            return metadata.getPublisher();
+        }
+
+        @Override
+        public String getIsbn13() {
+            return metadata.getIsbn13();
+        }
+
+        @Override
+        public String getIsbn10() {
+            return metadata.getIsbn10();
+        }
+
+        @Override
+        public LocalDate getPublishedDate() {
+            return metadata.getPublishedDate();
+        }
     }
 }

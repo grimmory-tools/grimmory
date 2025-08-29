@@ -1,5 +1,6 @@
-package com.adityachandel.booklore.config.security;
+package com.adityachandel.booklore.config.security.filter;
 
+import com.adityachandel.booklore.config.security.userdetails.KoreaderUserDetails;
 import com.adityachandel.booklore.repository.KoreaderUserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -10,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;

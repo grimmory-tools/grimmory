@@ -16,6 +16,9 @@ export class SidebarFilterTogglePrefService {
   readonly showFilter$ = this.showFilterSubject.asObservable();
 
   constructor() {
+    const isNarrow = window.innerWidth <= 768;
+    this.showFilterSubject = new BehaviorSubject<boolean>(!isNarrow);
+    this.showFilter$ = this.showFilterSubject.asObservable();
     this.loadFromStorage();
   }
 
@@ -48,9 +51,12 @@ export class SidebarFilterTogglePrefService {
   }
 
   private loadFromStorage(): void {
-    const saved = this.localStorageService.get<boolean>(this.STORAGE_KEY);
-    if (saved !== null) {
-      this.showFilterSubject.next(saved);
+    const isNarrow = window.innerWidth <= 768;
+    if (isNarrow) {
+      this.showFilterSubject.next(false);
+    } else {
+      const saved = this.localStorageService.get<boolean>(this.STORAGE_KEY);
+      this.showFilterSubject.next(saved !== null ? saved : true);
     }
   }
 }

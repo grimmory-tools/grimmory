@@ -4,7 +4,7 @@ import {Button} from 'primeng/button';
 import {Divider} from 'primeng/divider';
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {Observable} from 'rxjs';
-import {AsyncPipe, NgClass} from '@angular/common';
+import {AsyncPipe} from '@angular/common';
 import {MessageService} from 'primeng/api';
 import {Book, BookMetadata, MetadataClearFlags, MetadataUpdateWrapper} from '../../../book/model/book.model';
 import {UrlHelperService} from '../../../utilities/service/url-helper.service';
@@ -15,13 +15,17 @@ import {ProgressSpinner} from 'primeng/progressspinner';
 import {Tooltip} from 'primeng/tooltip';
 import {Editor} from 'primeng/editor';
 import {debounceTime} from 'rxjs/operators';
-import {Tab, TabList, TabPanel, TabPanels, Tabs} from 'primeng/tabs';
 import {MetadataRestoreDialogComponent} from '../../../book/components/book-browser/metadata-restore-dialog-component/metadata-restore-dialog-component';
 import {DialogService} from 'primeng/dynamicdialog';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MetadataRefreshRequest} from '../../model/request/metadata-refresh-request.model';
 import {MetadataRefreshType} from '../../model/request/metadata-refresh-type.enum';
 import {AutoComplete} from 'primeng/autocomplete';
+import {Textarea} from 'primeng/textarea';
+import {IftaLabel} from 'primeng/iftalabel';
+import {CoverSearchComponent} from '../../cover-search/cover-search.component';
+import {Image} from 'primeng/image';
+import {LazyLoadImageModule} from 'ng-lazyload-image';
 
 @Component({
   selector: 'app-metadata-editor',
@@ -37,15 +41,12 @@ import {AutoComplete} from 'primeng/autocomplete';
     ReactiveFormsModule,
     FileUpload,
     ProgressSpinner,
-    NgClass,
     Tooltip,
-    Editor,
-    Tabs,
-    TabList,
-    Tab,
-    TabPanels,
-    TabPanel,
-    AutoComplete
+    AutoComplete,
+    Textarea,
+    IftaLabel,
+    Image,
+    LazyLoadImageModule
   ]
 })
 export class MetadataEditorComponent implements OnInit {
@@ -85,7 +86,7 @@ export class MetadataEditorComponent implements OnInit {
     if (inputValue) {
       const currentValue = this.metadataForm.get(fieldName)?.value || [];
       const values = Array.isArray(currentValue) ? currentValue :
-                     typeof currentValue === 'string' && currentValue ? currentValue.split(',').map((v: string) => v.trim()) : [];
+        typeof currentValue === 'string' && currentValue ? currentValue.split(',').map((v: string) => v.trim()) : [];
 
       // Add the new value if it's not already in the array
       if (!values.includes(inputValue)) {
@@ -125,6 +126,7 @@ export class MetadataEditorComponent implements OnInit {
       seriesName: new FormControl(''),
       seriesNumber: new FormControl(''),
       seriesTotal: new FormControl(''),
+      thumbnailUrl: new FormControl(''),
 
       titleLocked: new FormControl(false),
       subtitleLocked: new FormControl(false),
@@ -346,17 +348,6 @@ export class MetadataEditorComponent implements OnInit {
     return this.metadataForm.get('descriptionLocked')?.value === true;
   }
 
-  onHtmlTextareaChange(value: string): void {
-    this.htmlTextarea = value;
-    const control = this.metadataForm.get('description');
-    if (control?.value !== value) {
-      control?.patchValue(value, {emitEvent: false});
-      if (this.quillEditor && this.quillEditor.quill) {
-        this.quillEditor.quill.root.innerHTML = value;
-      }
-    }
-  }
-
   private buildMetadataWrapper(shouldLockAllFields?: boolean): MetadataUpdateWrapper {
     const form = this.metadataForm;
 
@@ -390,6 +381,7 @@ export class MetadataEditorComponent implements OnInit {
       seriesName: form.get('seriesName')?.value,
       seriesNumber: form.get('seriesNumber')?.value,
       seriesTotal: form.get('seriesTotal')?.value,
+      thumbnailUrl: form.get('thumbnailUrl')?.value,
 
       // Locks
       titleLocked: form.get('titleLocked')?.value,
@@ -576,5 +568,29 @@ export class MetadataEditorComponent implements OnInit {
 
   closeDialog() {
     this.closeDialogButtonClicked.emit();
+  }
+
+  openCoverSearch() {
+    const ref = this.dialogService.open(CoverSearchComponent, {
+      header: 'Search Cover',
+      modal: true,
+      closable: true,
+      data: {
+        bookId: [this.currentBookId]
+      },
+      style: {
+        width: '90vw',
+        height: '90vh',
+        maxWidth: '1200px',
+        position: 'absolute'
+      },
+    });
+
+    ref.onClose.subscribe(result => {
+      if (result) {
+        this.metadataForm.get('thumbnailUrl')?.setValue(result);
+        this.onSave();
+      }
+    });
   }
 }

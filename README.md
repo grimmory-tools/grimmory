@@ -21,17 +21,20 @@ BookLore is a self-hosted web app for organizing and managing your personal book
 
 ## ✨ Key Features
 
-- 📚 **Book Organization**: Organize with Libraries and Shelves. Sort by genre, author, or mood.
-- 🧠 **Smart Metadata**: Auto-fetch from Goodreads, Amazon, Google Books, Hardcover, and more.
-- 👥 **Multi-User with Permissions**: Add users, assign libraries, control edit/upload/download access.
-- 📖 **Built-in Reader**: Read PDFs, ePubs, and CBX files in your browser with customizable themes.
-- 🌐 **OPDS 1.2 Support**: Connect to reading apps for seamless downloads.
-- 🔐 **Flexible Auth**: Optional OIDC login (Authentik, Pocket ID) or local JWT.
-- 📤 **BookDrop Auto-Import**: Drop books in a folder for automatic scanning and metadata fetching.
-- 📧 **Email Sharing**: Send books directly via email with one click.
-- 📱 **Mobile-Optimized**: Responsive design for phones and tablets.
-- 🔄 **Open Source & Self-Hosted**: Full control of your digital library.
-- 🚀 **Active Development**: Regular updates to features, UI, and performance.
+- 📚 **Smart Organization**: Build your dream library with custom shelves, smart sorting, and powerful filters to find any book instantly
+- 👥 **Multi-User Management**: Add users with granular permissions for library access and content control
+- 📲 **Kobo Integration**: Seamlessly sync your library with Kobo devices and convert EPUBs to KEPUB automatically
+- ✨ **Magic Shelves**: Create dynamic, rule-based smart collections that auto-update in real time - like smart playlists for your books
+- 🧠 **Auto Metadata**: Fetch rich book details from Goodreads, Amazon, Google Books, and Hardcover
+- 📤 **BookDrop Import**: Drop files in a folder for automatic detection and bulk import
+- 🌐 **OPDS Support**: Connect reading apps directly to your library for wireless downloads
+- 🔑 **Flexible Authentication**: Choose between local accounts or external OIDC providers (Authentik, Pocket ID)
+- 🔄 **KOReader Sync**: Track reading progress across KOReader and BookLore
+- 📧 **One-Click Sharing**: Send books via email directly from the interface
+- 🔐 **Private Notes**: Save personal reading notes visible only to you
+- 🌍 **Community Reviews**: Auto-fetch public reviews to enrich your library
+- 📖 **Built-in Reader**: Read PDFs, EPUBs, and comics with customizable themes
+- 📱 **Mobile Ready**: Fully responsive design optimized for all devices
 
 ## 💖 Support the Project
 
@@ -109,7 +112,7 @@ services:
     ports:
       - "6060:6060" # HostPort:ContainerPort → Keep both numbers the same, and also ensure the container port matches BOOKLORE_PORT, no exceptions. 
                     # All three (host port, container port, BOOKLORE_PORT) must be identical for BookLore to function properly.
-                    # Example: To expose on host port 8080, set BOOKLORE_PORT=8080 and use "8080:8080". 
+                    # Example: To expose on host port 7070, set BOOKLORE_PORT=7070 and use "7070:7070". 
     volumes:
       - /your/local/path/to/booklore/data:/app/data       # Application data (settings, metadata, cache, etc.). Persist this folder to retain your library state across container restarts.
       - /your/local/path/to/booklore/books:/books         # Primary book library folder. Mount your collection here so BookLore can access and organize your books.
@@ -202,7 +205,6 @@ For detailed setup instructions and configuration examples:
 
 - 🐞 Found a bug? [Open an issue](https://github.com/adityachandelgit/BookLore/issues)
 - ✨ Want to contribute? [Check out CONTRIBUTING.md](https://github.com/adityachandelgit/BookLore/blob/master/CONTRIBUTING.md)
-- 💬 Ask questions or share feedback: [Discussions](https://github.com/adityachandelgit/BookLore/discussions)
 - 💬 **Join our Discord**: [Click here to chat with the community](https://discord.gg/Ee5hd458Uz)
 
 ## 👨‍💻 Contributors & Developers
@@ -210,15 +212,6 @@ For detailed setup instructions and configuration examples:
 Thanks to all the amazing people who contribute to Booklore.
 
 [![Contributors List](https://contrib.rocks/image?repo=adityachandelgit/BookLore)](https://github.com/adityachandelgit/BookLore/graphs/contributors)
-
-## 🧰 Tech Stack
-
-<p align="left">
-  <img src="https://img.shields.io/badge/Spring%20Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" alt="Spring Boot" style="margin-right: 10px;"/>
-  <img src="https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white" alt="Angular" style="margin-right: 10px;"/>
-  <img src="https://img.shields.io/badge/MariaDB-003545?style=for-the-badge&logo=mariadb&logoColor=white" alt="MariaDB" style="margin-right: 10px;"/>
-  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" style="margin-right: 10px;"/>
-</p>
 
 ## ⚖️ License
 

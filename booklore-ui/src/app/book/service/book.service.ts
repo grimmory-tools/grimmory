@@ -2,7 +2,7 @@ import {inject, Injectable} from '@angular/core';
 import {BehaviorSubject, first, Observable, of, throwError} from 'rxjs';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {catchError, filter, map, tap, shareReplay, finalize, distinctUntilChanged} from 'rxjs/operators';
-import {Book, BookDeletionResponse, BookMetadata, BookRecommendation, BookSetting, BulkMetadataUpdateRequest, MetadataUpdateWrapper, ReadStatus} from '../model/book.model';
+import {Book, BookDeletionResponse, BookMetadata, BookRecommendation, BookSetting, BulkMetadataUpdateRequest, MetadataUpdateWrapper, ReadStatus, AdditionalFileType, AdditionalFile} from '../model/book.model';
 import {BookState} from '../model/state/book-state.model';
 import {API_CONFIG} from '../../config/api-config';
 import {FetchMetadataRequest} from '../../metadata/model/request/fetch-metadata-request.model';
@@ -86,6 +86,26 @@ export class BookService {
         throw error;
       })
     );
+  }
+
+  refreshBooks(): void {
+    this.http.get<Book[]>(this.url).pipe(
+      tap(books => {
+        this.bookStateSubject.next({
+          books: books || [],
+          loaded: true,
+          error: null,
+        });
+      }),
+      catchError(error => {
+        this.bookStateSubject.next({
+          books: null,
+          loaded: true,
+          error: error.message,
+        });
+        return of(null);
+      })
+    ).subscribe();
   }
 
   getBookByIdFromState(bookId: number): Book | undefined {
@@ -245,6 +265,90 @@ export class BookService {
     );
   }
 
+  deleteAdditionalFile(bookId: number, fileId: number): Observable<void> {
+    const deleteUrl = `${this.url}/${bookId}/files/${fileId}`;
+    return this.http.delete<void>(deleteUrl).pipe(
+      tap(() => {
+        const currentState = this.bookStateSubject.value;
+        const updatedBooks = (currentState.books || []).map(book => {
+          if (book.id === bookId) {
+            return {
+              ...book,
+              alternativeFormats: book.alternativeFormats?.filter(file => file.id !== fileId),
+              supplementaryFiles: book.supplementaryFiles?.filter(file => file.id !== fileId)
+            };
+          }
+          return book;
+        });
+
+        this.bookStateSubject.next({
+          ...currentState,
+          books: updatedBooks
+        });
+
+        this.messageService.add({
+          severity: 'success',
+          summary: 'File Deleted',
+          detail: 'Additional file deleted successfully.'
+        });
+      }),
+      catchError(error => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Delete Failed',
+          detail: error?.error?.message || error?.message || 'An error occurred while deleting the file.'
+        });
+        return throwError(() => error);
+      })
+    );
+  }
+
+  uploadAdditionalFile(bookId: number, file: File, fileType: AdditionalFileType, description?: string): Observable<AdditionalFile> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('additionalFileType', fileType);
+    if (description) {
+      formData.append('description', description);
+    }
+
+    return this.http.post<AdditionalFile>(`${this.url}/${bookId}/files`, formData).pipe(
+      tap((newFile) => {
+        const currentState = this.bookStateSubject.value;
+        const updatedBooks = (currentState.books || []).map(book => {
+          if (book.id === bookId) {
+            const updatedBook = { ...book };
+            if (fileType === AdditionalFileType.ALTERNATIVE_FORMAT) {
+              updatedBook.alternativeFormats = [...(book.alternativeFormats || []), newFile];
+            } else {
+              updatedBook.supplementaryFiles = [...(book.supplementaryFiles || []), newFile];
+            }
+            return updatedBook;
+          }
+          return book;
+        });
+
+        this.bookStateSubject.next({
+          ...currentState,
+          books: updatedBooks
+        });
+
+        this.messageService.add({
+          severity: 'success',
+          summary: 'File Uploaded',
+          detail: 'Additional file uploaded successfully.'
+        });
+      }),
+      catchError(error => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Upload Failed',
+          detail: error?.error?.message || error?.message || 'An error occurred while uploading the file.'
+        });
+        return throwError(() => error);
+      })
+    );
+  }
+
   downloadFile(bookId: number): void {
     const downloadUrl = `${this.url}/${bookId}/download`;
     this.http.get(downloadUrl, {responseType: 'blob', observe: 'response'})
@@ -257,6 +361,21 @@ export class BookService {
           this.saveFile(response.body as Blob, filename);
         },
         error: (err) => console.error('Error downloading file:', err),
+      });
+  }
+
+  downloadAdditionalFile(bookId: number, fileId: number): void {
+    const downloadUrl = `${this.url}/${bookId}/files/${fileId}/download`;
+    this.http.get(downloadUrl, {responseType: 'blob', observe: 'response'})
+      .subscribe({
+        next: (response) => {
+          const contentDisposition = response.headers.get('Content-Disposition');
+          const filename = contentDisposition
+            ? contentDisposition.match(/filename="(.+?)"/)?.[1] || `additional_file_${fileId}`
+            : `additional_file_${fileId}`;
+          this.saveFile(response.body as Blob, filename);
+        },
+        error: (err) => console.error('Error downloading additional file:', err),
       });
   }
 

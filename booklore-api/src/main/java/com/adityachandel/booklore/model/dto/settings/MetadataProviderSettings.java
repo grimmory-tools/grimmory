@@ -9,6 +9,7 @@ public class MetadataProviderSettings {
     private Goodreads goodReads;
     private Hardcover hardcover;
     private Comicvine comicvine;
+    private Douban douban;
 
     @Data
     public static class Amazon {
@@ -32,9 +33,15 @@ public class MetadataProviderSettings {
         private boolean enabled;
         private String apiKey;
     }
+
     @Data
     public static class Comicvine {
         private boolean enabled;
         private String apiKey;
+    }
+
+    @Data
+    public static class Douban {
+        private boolean enabled;
     }
 }

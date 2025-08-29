@@ -132,7 +132,7 @@ public class OpdsService {
                 """.formatted(book.getId(), fileMimeType(book)));
 
         if (book.getMetadata().getCoverUpdatedOn() != null) {
-            String coverPath = "/api/v1/opds/" + book.getId() + "/cover.jpg?" + book.getMetadata().getCoverUpdatedOn();
+            String coverPath = "/api/v1/opds/" + book.getId() + "/cover?" + book.getMetadata().getCoverUpdatedOn();
             feed.append("""
                     <link rel="http://opds-spec.org/image" href="%s" type="image/jpeg"/>
                     <link rel="http://opds-spec.org/image/thumbnail" href="%s" type="image/jpeg"/>

@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -12,7 +11,7 @@ import org.springframework.stereotype.Service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import com.adityachandel.booklore.config.security.KoreaderUserDetails;
+import com.adityachandel.booklore.config.security.userdetails.KoreaderUserDetails;
 import com.adityachandel.booklore.exception.ApiError;
 import com.adityachandel.booklore.model.dto.progress.KoreaderProgress;
 import com.adityachandel.booklore.model.entity.BookEntity;

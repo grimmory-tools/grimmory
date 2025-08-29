@@ -15,6 +15,7 @@ import {Slider} from 'primeng/slider';
 import {AppSettingsService} from '../../../core/service/app-settings.service';
 import {SettingsHelperService} from '../../../core/service/settings-helper.service';
 import {AppSettingKey, KoboSettings} from '../../../core/model/app-settings.model';
+import {ShelfService} from '../../../book/service/shelf.service';
 
 @Component({
   selector: 'app-kobo-sync-setting-component',
@@ -32,13 +33,13 @@ export class KoboSyncSettingsComponent implements OnInit, OnDestroy {
   protected userService = inject(UserService);
   protected appSettingsService = inject(AppSettingsService);
   protected settingsHelperService = inject(SettingsHelperService);
+  private shelfService = inject(ShelfService);
 
   private readonly destroy$ = new Subject<void>();
   private readonly sliderChange$ = new Subject<void>();
 
   hasKoboTokenPermission = false;
   isAdmin = false;
-  koboToken = '';
   credentialsSaved = false;
   showToken = false;
 
@@ -46,6 +47,11 @@ export class KoboSyncSettingsComponent implements OnInit, OnDestroy {
     convertToKepub: false,
     conversionLimitInMb: 100
   };
+
+  koboSyncSettings: KoboSyncSettings = {
+    token: '',
+    syncEnabled: false
+  }
 
   ngOnInit() {
     this.setupSliderDebouncing();
@@ -69,18 +75,19 @@ export class KoboSyncSettingsComponent implements OnInit, OnDestroy {
       this.hasKoboTokenPermission = (userState.user?.permissions.canSyncKobo) ?? false;
       this.isAdmin = userState.user?.permissions.admin ?? false;
       if (this.hasKoboTokenPermission) {
-        this.loadKoboToken();
+        this.loadKoboUserSettings();
       }
       if (this.isAdmin) {
-        this.loadKoboSettings();
+        this.loadKoboAdminSettings();
       }
     });
   }
 
-  private loadKoboToken() {
+  private loadKoboUserSettings() {
     this.koboService.getUser().subscribe({
       next: (settings: KoboSyncSettings) => {
-        this.koboToken = settings.token;
+        this.koboSyncSettings.token = settings.token;
+        this.koboSyncSettings.syncEnabled = settings.syncEnabled;
         this.credentialsSaved = !!settings.token;
       },
       error: () => {
@@ -89,7 +96,7 @@ export class KoboSyncSettingsComponent implements OnInit, OnDestroy {
     });
   }
 
-  private loadKoboSettings() {
+  private loadKoboAdminSettings() {
     this.appSettingsService.appSettings$
       .pipe(
         filter(settings => settings != null),
@@ -122,7 +129,7 @@ export class KoboSyncSettingsComponent implements OnInit, OnDestroy {
   private regenerateToken() {
     this.koboService.createOrUpdateToken().subscribe({
       next: (settings) => {
-        this.koboToken = settings.token;
+        this.koboSyncSettings.token = settings.token;
         this.credentialsSaved = true;
         this.messageService.add({severity: 'success', summary: 'Token regenerated', detail: 'New token generated successfully'});
       },
@@ -138,6 +145,44 @@ export class KoboSyncSettingsComponent implements OnInit, OnDestroy {
 
   onSliderChange() {
     this.sliderChange$.next();
+  }
+
+  onSyncToggle() {
+    if (!this.koboSyncSettings.syncEnabled) {
+      this.confirmationService.confirm({
+        message: 'Disabling Kobo sync will delete your Kobo shelf. Are you sure you want to proceed?',
+        header: 'Confirm Disable',
+        icon: 'pi pi-exclamation-triangle',
+        accept: () => this.performToggle(false),
+        reject: () => {
+          this.koboSyncSettings.syncEnabled = true;
+        }
+      });
+    } else {
+      this.performToggle(true);
+    }
+  }
+
+  private performToggle(enabled: boolean) {
+    this.koboService.toggleSync(enabled).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sync Updated',
+          detail: enabled
+            ? 'Kobo sync enabled'
+            : 'Kobo sync disabled'
+        });
+        this.shelfService.reloadShelves();
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to update sync setting'
+        });
+      }
+    });
   }
 
   saveSettings() {

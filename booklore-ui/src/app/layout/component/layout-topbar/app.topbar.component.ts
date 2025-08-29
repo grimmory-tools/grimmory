@@ -136,6 +136,10 @@ export class AppTopBarComponent implements OnDestroy {
     this.router.navigate(['/settings']);
   }
 
+  navigateToBookdrop() {
+    this.router.navigate(['/bookdrop'], {queryParams: {reload: Date.now()}});
+  }
+
   logout() {
     this.authService.logout();
   }

@@ -1,6 +1,7 @@
-package com.adityachandel.booklore.config.security;
+package com.adityachandel.booklore.config.security.service;
 
 import com.adityachandel.booklore.config.AppProperties;
+import com.adityachandel.booklore.config.security.JwtUtils;
 import com.adityachandel.booklore.exception.ApiError;
 import com.adityachandel.booklore.model.dto.BookLoreUser;
 import com.adityachandel.booklore.model.dto.request.UserLoginRequest;

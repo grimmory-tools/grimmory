@@ -14,6 +14,8 @@ import {Textarea} from 'primeng/textarea';
 import {filter, map} from 'rxjs/operators';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {AutoComplete} from 'primeng/autocomplete';
+import {Image} from 'primeng/image';
+import {LazyLoadImageModule} from 'ng-lazyload-image';
 
 @Component({
   selector: 'app-metadata-picker',
@@ -31,7 +33,9 @@ import {AutoComplete} from 'primeng/autocomplete';
     Tooltip,
     AsyncPipe,
     Textarea,
-    AutoComplete
+    AutoComplete,
+    Image,
+    LazyLoadImageModule
   ]
 })
 export class MetadataPickerComponent implements OnInit {
@@ -183,7 +187,7 @@ export class MetadataPickerComponent implements OnInit {
 
       if (metadata) {
         this.originalMetadata = metadata;
-        this.originalMetadata.thumbnailUrl = this.urlHelper.getCoverUrl(metadata.bookId, metadata.coverUpdatedOn);
+        this.originalMetadata.thumbnailUrl = this.urlHelper.getThumbnailUrl(metadata.bookId, metadata.coverUpdatedOn);
         this.currentBookId = metadata.bookId;
         this.metadataForm.patchValue({
           title: metadata.title || null,

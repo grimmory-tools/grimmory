@@ -1,6 +1,6 @@
 import {Component, OnDestroy} from '@angular/core';
 import {DatePipe, NgClass} from '@angular/common';
-import {BookdropFinalizeResult} from '../bookdrop-file-task.service';
+import {BookdropFinalizeResult} from '../bookdrop.service';
 import {DynamicDialogConfig, DynamicDialogRef} from "primeng/dynamicdialog";
 
 @Component({

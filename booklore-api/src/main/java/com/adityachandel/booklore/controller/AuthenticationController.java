@@ -1,7 +1,7 @@
 package com.adityachandel.booklore.controller;
 
 import com.adityachandel.booklore.config.AppProperties;
-import com.adityachandel.booklore.config.security.AuthenticationService;
+import com.adityachandel.booklore.config.security.service.AuthenticationService;
 import com.adityachandel.booklore.exception.ApiError;
 import com.adityachandel.booklore.model.dto.UserCreateRequest;
 import com.adityachandel.booklore.model.dto.request.RefreshTokenRequest;

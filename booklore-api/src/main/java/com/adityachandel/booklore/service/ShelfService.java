@@ -1,6 +1,6 @@
 package com.adityachandel.booklore.service;
 
-import com.adityachandel.booklore.config.security.AuthenticationService;
+import com.adityachandel.booklore.config.security.service.AuthenticationService;
 import com.adityachandel.booklore.exception.ApiError;
 import com.adityachandel.booklore.mapper.BookMapper;
 import com.adityachandel.booklore.mapper.ShelfMapper;
@@ -64,18 +64,13 @@ public class ShelfService {
     }
 
     public void deleteShelf(Long shelfId) {
-        ShelfEntity shelfEntity = findShelfByIdOrThrow(shelfId);
-        if (shelfEntity.getName().equalsIgnoreCase(ShelfType.KOBO.getName())) {
-            throw ApiError.SHELF_CANNOT_BE_DELETED.createException(ShelfType.KOBO.getName());
-        }
         shelfRepository.deleteById(shelfId);
     }
 
     public Shelf getUserKoboShelf() {
         Long userId = getAuthenticatedUserId();
-        ShelfEntity koboShelf = shelfRepository.findByUserIdAndName(userId, ShelfType.KOBO.getName())
-                .orElseThrow(() -> ApiError.SHELF_NOT_FOUND.createException(ShelfType.KOBO.getName()));
-        return shelfMapper.toShelf(koboShelf);
+        Optional<ShelfEntity> koboShelf = shelfRepository.findByUserIdAndName(userId, ShelfType.KOBO.getName());
+        return koboShelf.map(shelfMapper::toShelf).orElse(null);
     }
 
     public List<Book> getShelfBooks(Long shelfId) {

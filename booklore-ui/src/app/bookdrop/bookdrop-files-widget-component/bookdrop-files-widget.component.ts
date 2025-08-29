@@ -36,7 +36,7 @@ export class BookdropFilesWidgetComponent implements OnInit, OnDestroy {
   }
 
   openReviewDialog(): void {
-    this.router.navigate(['/bookdrop']);
+    this.router.navigate(['/bookdrop'], {queryParams: {reload: Date.now()}});
   }
 
   ngOnDestroy(): void {

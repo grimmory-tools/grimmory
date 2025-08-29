@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -81,44 +80,48 @@ public class SettingPersistenceHelper {
         defaultComicvine.setEnabled(false);
         defaultComicvine.setApiKey(null);
 
+        MetadataProviderSettings.Douban defaultDouban = new MetadataProviderSettings.Douban();
+        defaultDouban.setEnabled(false);
+
         defaultMetadataProviderSettings.setAmazon(defaultAmazon);
         defaultMetadataProviderSettings.setGoogle(defaultGoogle);
         defaultMetadataProviderSettings.setGoodReads(defaultGoodreads);
         defaultMetadataProviderSettings.setHardcover(defaultHardcover);
         defaultMetadataProviderSettings.setComicvine(defaultComicvine);
+        defaultMetadataProviderSettings.setDouban(defaultDouban);
 
         return defaultMetadataProviderSettings;
     }
 
     MetadataRefreshOptions getDefaultMetadataRefreshOptions() {
         MetadataRefreshOptions.FieldProvider titleProviders =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
+                new MetadataRefreshOptions.FieldProvider(MetadataProvider.Douban, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
         MetadataRefreshOptions.FieldProvider subtitleProviders =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
+                new MetadataRefreshOptions.FieldProvider(MetadataProvider.Douban, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
         MetadataRefreshOptions.FieldProvider descriptionProviders =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
+                new MetadataRefreshOptions.FieldProvider(MetadataProvider.Douban, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
         MetadataRefreshOptions.FieldProvider authorsProviders =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
+                new MetadataRefreshOptions.FieldProvider(MetadataProvider.Douban, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
         MetadataRefreshOptions.FieldProvider publisherProviders =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
+                new MetadataRefreshOptions.FieldProvider(MetadataProvider.Douban, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
         MetadataRefreshOptions.FieldProvider publishedDateProviders =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
+                new MetadataRefreshOptions.FieldProvider(MetadataProvider.Douban, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
         MetadataRefreshOptions.FieldProvider seriesNameProviders =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
+                new MetadataRefreshOptions.FieldProvider(MetadataProvider.Douban, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
         MetadataRefreshOptions.FieldProvider seriesNumberProviders =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
+                new MetadataRefreshOptions.FieldProvider(MetadataProvider.Douban, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
         MetadataRefreshOptions.FieldProvider seriesTotalProviders =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
+                new MetadataRefreshOptions.FieldProvider(MetadataProvider.Douban, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
         MetadataRefreshOptions.FieldProvider isbn13Providers =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
+                new MetadataRefreshOptions.FieldProvider(MetadataProvider.Douban, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
         MetadataRefreshOptions.FieldProvider isbn10Providers =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
+                new MetadataRefreshOptions.FieldProvider(MetadataProvider.Douban, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
         MetadataRefreshOptions.FieldProvider languageProviders =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
+                new MetadataRefreshOptions.FieldProvider(MetadataProvider.Douban, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
         MetadataRefreshOptions.FieldProvider categoriesProviders =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
+                new MetadataRefreshOptions.FieldProvider(MetadataProvider.Douban, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
         MetadataRefreshOptions.FieldProvider coverProviders =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
+                new MetadataRefreshOptions.FieldProvider(MetadataProvider.Douban, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
 
         MetadataRefreshOptions.FieldOptions fieldOptions = new MetadataRefreshOptions.FieldOptions(
                 titleProviders,
@@ -141,7 +144,7 @@ public class SettingPersistenceHelper {
                 MetadataProvider.GoodReads,
                 MetadataProvider.Amazon,
                 MetadataProvider.Google,
-                null,
+                MetadataProvider.Douban,
                 false,
                 true,
                 false,
@@ -171,6 +174,8 @@ public class SettingPersistenceHelper {
                 .goodreadsReviewCount(2)
                 .hardcoverRating(2)
                 .hardcoverReviewCount(1)
+                .doubanRating(3)
+                .doubanReviewCount(2)
                 .coverImage(5)
                 .build();
     }
@@ -194,6 +199,11 @@ public class SettingPersistenceHelper {
                                 .build(),
                         MetadataPublicReviewsSettings.ReviewProviderConfig.builder()
                                 .provider(MetadataProvider.GoodReads)
+                                .enabled(false)
+                                .maxReviews(5)
+                                .build(),
+                        MetadataPublicReviewsSettings.ReviewProviderConfig.builder()
+                                .provider(MetadataProvider.Douban)
                                 .enabled(false)
                                 .maxReviews(5)
                                 .build()

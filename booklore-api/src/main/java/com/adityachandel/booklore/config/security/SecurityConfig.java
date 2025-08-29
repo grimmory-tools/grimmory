@@ -1,9 +1,12 @@
 package com.adityachandel.booklore.config.security;
 
 import com.adityachandel.booklore.config.AppProperties;
+import com.adityachandel.booklore.config.security.filter.CoverJwtFilter;
+import com.adityachandel.booklore.config.security.filter.DualJwtAuthenticationFilter;
+import com.adityachandel.booklore.config.security.filter.KoboAuthFilter;
+import com.adityachandel.booklore.config.security.filter.KoreaderAuthFilter;
+import com.adityachandel.booklore.config.security.service.CustomOpdsUserDetailsService;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -36,7 +39,6 @@ public class SecurityConfig {
 
     private final CustomOpdsUserDetailsService customOpdsUserDetailsService;
     private final DualJwtAuthenticationFilter dualJwtAuthenticationFilter;
-    private final KoboAuthFilter koboAuthFilter;
     private final AppProperties appProperties;
 
     private static final String[] SWAGGER_ENDPOINTS = {
@@ -46,17 +48,11 @@ public class SecurityConfig {
     };
 
     private static final String[] COMMON_PUBLIC_ENDPOINTS = {
-            "/ws/**",
-            "/kobo/**",
-            "/api/v1/auth/**",
-            "/api/v1/public-settings",
-            "/api/v1/setup/**",
-            "/api/v1/books/*/cover",
-            "/api/v1/books/*/backup-cover",
-            "/api/v1/opds/*/cover.jpg",
-            "/api/v1/cbx/*/pages/*",
-            "/api/v1/pdf/*/pages/*",
-            "/api/bookdrop/*/cover"
+            "/ws/**",                  // WebSocket connections (auth handled in WebSocketAuthInterceptor)
+            "/kobo/**",                // Kobo API requests (auth handled in KoboAuthFilter)
+            "/api/v1/auth/**",         // Login and token refresh endpoints (must remain public)
+            "/api/v1/public-settings", // Public endpoint for checking OIDC or other app settings
+            "/api/v1/setup/**"         // Setup wizard endpoints (must remain accessible before initial setup)
     };
 
     private static final String[] COMMON_UNAUTHENTICATED_ENDPOINTS = {
@@ -71,7 +67,6 @@ public class SecurityConfig {
     @Bean
     @Order(1)
     public SecurityFilterChain opdsBasicAuthSecurityChain(HttpSecurity http) throws Exception {
-
         List<String> unauthenticatedEndpoints = new ArrayList<>(Arrays.asList(COMMON_UNAUTHENTICATED_ENDPOINTS));
         http
                 .securityMatcher("/api/v1/opds/**")
@@ -118,6 +113,22 @@ public class SecurityConfig {
 
     @Bean
     @Order(4)
+    public SecurityFilterChain coverJwtApiSecurityChain(HttpSecurity http, CoverJwtFilter coverJwtFilter) throws Exception {
+        http
+                .securityMatcher("/api/v1/media/**")
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll()
+                )
+                .addFilterBefore(coverJwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(dualJwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+
+    @Bean
+    @Order(5)
     public SecurityFilterChain jwtApiSecurityChain(HttpSecurity http) throws Exception {
         List<String> publicEndpoints = new ArrayList<>(Arrays.asList(COMMON_PUBLIC_ENDPOINTS));
         if (appProperties.getSwagger().isEnabled()) {

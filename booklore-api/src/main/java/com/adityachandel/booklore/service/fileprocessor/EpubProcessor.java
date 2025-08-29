@@ -6,11 +6,13 @@ import com.adityachandel.booklore.model.dto.settings.LibraryFile;
 import com.adityachandel.booklore.model.entity.BookEntity;
 import com.adityachandel.booklore.model.entity.BookMetadataEntity;
 import com.adityachandel.booklore.model.enums.BookFileType;
+import com.adityachandel.booklore.repository.BookAdditionalFileRepository;
 import com.adityachandel.booklore.repository.BookMetadataRepository;
 import com.adityachandel.booklore.repository.BookRepository;
 import com.adityachandel.booklore.service.BookCreatorService;
 import com.adityachandel.booklore.service.metadata.MetadataMatchService;
 import com.adityachandel.booklore.service.metadata.extractor.EpubMetadataExtractor;
+import com.adityachandel.booklore.util.FileService;
 import com.adityachandel.booklore.util.FileUtils;
 import io.documentnode.epub4j.domain.Resource;
 import io.documentnode.epub4j.epub.EpubReader;
@@ -25,7 +27,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.adityachandel.booklore.service.fileprocessor.FileProcessingUtils.truncate;
+import static com.adityachandel.booklore.util.FileService.truncate;
 
 @Slf4j
 @Service
@@ -35,13 +37,14 @@ public class EpubProcessor extends AbstractFileProcessor implements BookFileProc
     private final BookMetadataRepository bookMetadataRepository;
 
     public EpubProcessor(BookRepository bookRepository,
+                         BookAdditionalFileRepository bookAdditionalFileRepository,
                          BookCreatorService bookCreatorService,
                          BookMapper bookMapper,
-                         FileProcessingUtils fileProcessingUtils,
+                         FileService fileService,
                          BookMetadataRepository bookMetadataRepository,
                          MetadataMatchService metadataMatchService,
                          EpubMetadataExtractor epubMetadataExtractor) {
-        super(bookRepository, bookCreatorService, bookMapper, fileProcessingUtils, bookMetadataRepository, metadataMatchService);
+        super(bookRepository, bookAdditionalFileRepository, bookCreatorService, bookMapper, fileService, metadataMatchService);
         this.epubMetadataExtractor = epubMetadataExtractor;
         this.bookMetadataRepository = bookMetadataRepository;
     }
@@ -51,7 +54,7 @@ public class EpubProcessor extends AbstractFileProcessor implements BookFileProc
         BookEntity bookEntity = bookCreatorService.createShellBook(libraryFile, BookFileType.EPUB);
         setBookMetadata(bookEntity);
         if (generateCover(bookEntity)) {
-            fileProcessingUtils.setBookCoverPath(bookEntity.getId(), bookEntity.getMetadata());
+            fileService.setBookCoverPath(bookEntity.getMetadata());
         }
         return bookEntity;
     }
@@ -145,6 +148,6 @@ public class EpubProcessor extends AbstractFileProcessor implements BookFileProc
 
     private boolean saveCoverImage(Resource coverImage, long bookId) throws IOException {
         BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(coverImage.getData()));
-        return fileProcessingUtils.saveCoverImage(originalImage, bookId);
+        return fileService.saveCoverImages(originalImage, bookId);
     }
 }

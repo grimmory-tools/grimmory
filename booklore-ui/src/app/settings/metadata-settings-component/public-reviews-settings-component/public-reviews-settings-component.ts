@@ -9,10 +9,11 @@ import {filter, take} from 'rxjs/operators';
 
 const DEFAULT_PROVIDERS: readonly ReviewProviderConfig[] = [
   {provider: 'Amazon', enabled: true, maxReviews: 5},
-  {provider: 'GoodReads', enabled: false, maxReviews: 5}
+  {provider: 'GoodReads', enabled: false, maxReviews: 5},
+  {provider: 'Douban', enabled: false, maxReviews: 5}
 ] as const;
 
-const REQUIRED_PROVIDERS = ['Amazon', 'GoodReads'] as const;
+const REQUIRED_PROVIDERS = ['Amazon', 'GoodReads', 'Douban'] as const;
 
 @Component({
   selector: 'app-public-reviews-settings-component',

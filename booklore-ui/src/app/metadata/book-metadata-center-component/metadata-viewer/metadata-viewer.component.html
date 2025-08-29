@@ -4,12 +4,14 @@
 
       <div class="flex justify-center md:justify-start">
         <div class="relative w-[175px] md:w-[250px]">
-          <img
-            [attr.src]="urlHelper.getCoverUrl(book?.metadata!.bookId, book?.metadata!.coverUpdatedOn)"
-            class="rounded-lg w-full object-cover"
-            alt="Cover of {{ book?.metadata!.title }}"
-            loading="lazy"
-          />
+
+          <p-image
+            [src]="urlHelper.getCoverUrl(book.id, book.metadata?.coverUpdatedOn)"
+            alt="Image"
+            width="250"
+            appendTo="body"
+            [preview]="true">
+          </p-image>
 
           @if (book?.metadata!.seriesNumber != null) {
             <div class="absolute top-2 left-2 bg-black/60 text-white px-2 py-0.5 rounded-lg text-xs font-semibold">
@@ -226,7 +228,7 @@
           }
 
           <div class="px-1 md:px-0">
-            <div class="grid md:grid-cols-4 gap-y-2.5 text-sm pt-2 md:pt-4 pb-2 text-gray-300 min-w-[60rem] max-w-[100rem]">
+            <div class="grid md:grid-cols-4 gap-y-2.5 text-sm pt-2 md:pt-4 pb-2 text-gray-300 md:min-w-[60rem] md:max-w-[100rem]">
               <p class="whitespace-nowrap max-w-[250px] overflow-hidden text-ellipsis">
                 <span class="font-bold">Publisher: </span>
                 @if (book?.metadata?.publisher) {
@@ -419,13 +421,25 @@
               (onClick)="assignShelf(book.id)">
             </p-button>
             @if (userState.user!.permissions.canDownload || userState.user!.permissions.admin) {
-              <p-button
-                label="Download"
-                icon="pi pi-download"
-                severity="success"
-                outlined
-                (onClick)="download(book!.id)">
-              </p-button>
+              @if ((book!.alternativeFormats && book!.alternativeFormats.length > 0) || (book!.supplementaryFiles && book!.supplementaryFiles.length > 0)) {
+                @if (downloadMenuItems$ | async; as downloadItems) {
+                  <p-splitbutton
+                    label="Download"
+                    icon="pi pi-download"
+                    [model]="downloadItems"
+                    (onClick)="download(book!.id)"
+                    severity="success"
+                    outlined/>
+                }
+              } @else {
+                <p-button
+                  label="Download"
+                  icon="pi pi-download"
+                  severity="success"
+                  outlined
+                  (onClick)="download(book!.id)">
+                </p-button>
+              }
             }
             @if (userState.user!.permissions.canEmailBook || userState.user!.permissions.admin) {
               @if (emailMenuItems$ | async; as emailItems) {
@@ -457,7 +471,7 @@
             @if (userState.user!.permissions.canDeleteBook || userState.user!.permissions.admin) {
               @if (otherItems$ | async; as otherItems) {
                 <p-button icon="pi pi-ellipsis-v" outlined severity="danger" (click)="entitymenu.toggle($event)"></p-button>
-                <p-menu #entitymenu [model]="otherItems" [popup]="true" appendTo="body"></p-menu>
+                <p-tieredMenu #entitymenu [model]="otherItems" [popup]="true" appendTo="body"></p-tieredMenu>
               }
             }
           </div>
@@ -465,7 +479,7 @@
       </div>
     </div>
 
-    <div class="px-4 pb-2 pt-4 mb-6 mx-2 border border-[var(--border-color)] rounded-xl">
+    <div class="px-4 pb-2 pt-4 mb-4 md:mb-6 md:mx-2 border border-[var(--border-color)] rounded-xl">
       <div [ngClass]="{ 'line-clamp-5': !isExpanded, 'line-clamp-none': isExpanded }" class="transition-all duration-300 overflow-hidden description-container">
         <div class="readonly-editor px-2">
           <p-editor #quillEditor [readonly]="true" [style]="{height: '200px'}" [(ngModel)]="book.metadata!.description">

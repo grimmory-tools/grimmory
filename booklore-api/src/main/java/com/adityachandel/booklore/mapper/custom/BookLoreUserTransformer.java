@@ -73,7 +73,7 @@ public class BookLoreUserTransformer {
                     }
                 }
             } catch (IllegalArgumentException e) {
-                log.warn("Unknown setting key encountered: {}", key);
+                log.debug("Unknown setting key encountered: {}", key);
             } catch (Exception e) {
                 log.error("Failed to deserialize setting '{}': {}", key, e.getMessage(), e);
             }

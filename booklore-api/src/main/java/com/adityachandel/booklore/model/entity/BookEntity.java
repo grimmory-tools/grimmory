@@ -10,6 +10,7 @@ import lombok.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -77,6 +78,9 @@ public class BookEntity {
     @Convert(converter = BookRecommendationIdsListConverter.class)
     @Column(name = "similar_books_json", columnDefinition = "TEXT")
     private Set<BookRecommendationLite> similarBooksJson;
+
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<BookAdditionalFileEntity> additionalFiles;
 
     public Path getFullFilePath() {
         if (libraryPath == null || libraryPath.getPath() == null || fileSubPath == null || fileName == null) {

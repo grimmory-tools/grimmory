@@ -57,9 +57,6 @@ public class BookMetadataEntity {
     @Column(name = "page_count")
     private Integer pageCount;
 
-    @Column(name = "thumbnail", length = 1000)
-    private String thumbnail;
-
     @Column(name = "language", length = 10)
     private String language;
 

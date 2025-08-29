@@ -9,7 +9,7 @@ import {BookdropFileNotification} from './bookdrop-file.service';
 })
 export class BookdropFileApiService {
 
-  private readonly url = `${API_CONFIG.BASE_URL}/api/bookdrop`;
+  private readonly url = `${API_CONFIG.BASE_URL}/api/v1/bookdrop`;
   private http = inject(HttpClient);
 
   getNotification(): Observable<BookdropFileNotification> {

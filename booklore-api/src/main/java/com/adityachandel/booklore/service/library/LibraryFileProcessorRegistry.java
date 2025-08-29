@@ -1,17 +1,25 @@
 package com.adityachandel.booklore.service.library;
 
 import com.adityachandel.booklore.model.entity.LibraryEntity;
-import lombok.AllArgsConstructor;
+import com.adityachandel.booklore.model.enums.LibraryScanMode;
 import org.springframework.stereotype.Component;
 
-// Removed unused imports
-@AllArgsConstructor
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 @Component
 public class LibraryFileProcessorRegistry {
 
-    private final FileAsBookProcessor fileAsBookProcessor;
+    private final Map<LibraryScanMode, LibraryFileProcessor> processorMap;
 
-    public LibraryFileProcessor getProcessor(LibraryEntity library) {
-        return fileAsBookProcessor;
+    public LibraryFileProcessorRegistry(List<LibraryFileProcessor> processors) {
+        this.processorMap = processors.stream()
+                .collect(Collectors.toMap(LibraryFileProcessor::getScanMode, Function.identity()));
+    }
+
+    public LibraryFileProcessor getProcessor(LibraryEntity libraryEntity) {
+        return processorMap.get(libraryEntity.getScanMode());
     }
 }

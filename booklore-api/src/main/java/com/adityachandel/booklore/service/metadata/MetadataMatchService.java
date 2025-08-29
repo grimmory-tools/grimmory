@@ -61,7 +61,6 @@ public class MetadataMatchService {
         if (isPositive(metadata.getGoodreadsReviewCount())) score += weights.getGoodreadsReviewCount();
         if (isPositive(metadata.getHardcoverRating())) score += weights.getHardcoverRating();
         if (isPositive(metadata.getHardcoverReviewCount())) score += weights.getHardcoverReviewCount();
-        if (isPresent(metadata.getThumbnail())) score += weights.getCoverImage();
 
         return (score / totalWeight) * 100f;
     }

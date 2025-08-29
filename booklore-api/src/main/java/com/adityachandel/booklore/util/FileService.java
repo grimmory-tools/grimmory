@@ -2,24 +2,37 @@ package com.adityachandel.booklore.util;
 
 import com.adityachandel.booklore.config.AppProperties;
 import com.adityachandel.booklore.exception.ApiError;
-import com.adityachandel.booklore.service.appsettings.AppSettingService;
+import com.adityachandel.booklore.model.dto.Book;
+import com.adityachandel.booklore.model.dto.settings.LibraryFile;
+import com.adityachandel.booklore.model.entity.BookAdditionalFileEntity;
+import com.adityachandel.booklore.model.entity.BookEntity;
+import com.adityachandel.booklore.model.entity.BookMetadataEntity;
+import com.adityachandel.booklore.repository.BookAdditionalFileRepository;
+import com.adityachandel.booklore.repository.BookRepository;
+import com.adityachandel.booklore.mapper.BookMapper;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
+import java.util.Comparator;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -27,28 +40,133 @@ import java.nio.file.Paths;
 public class FileService {
 
     private final AppProperties appProperties;
-    private final AppSettingService appSettingService;
+
+    // @formatter:off
+    private static final String IMAGES_DIR          = "images";
+    private static final String THUMBNAIL_FILENAME  = "thumbnail.jpg";
+    private static final String COVER_FILENAME      = "cover.jpg";
+    private static final String JPEG_MIME_TYPE      = "image/jpeg";
+    private static final String PNG_MIME_TYPE       = "image/png";
+    private static final long   MAX_FILE_SIZE_BYTES = 5L * 1024 * 1024;
+    private static final int    THUMBNAIL_WIDTH     = 250;
+    private static final int    THUMBNAIL_HEIGHT    = 350;
+    private static final String IMAGE_FORMAT        = "JPEG";
+    // @formatter:on
 
     public void createThumbnailFromFile(long bookId, MultipartFile file) {
         try {
             validateCoverFile(file);
-            String outputFolder = getThumbnailPath(bookId);
-            File folder = new File(outputFolder);
-            if (!folder.exists() && !folder.mkdirs()) {
-                throw ApiError.DIRECTORY_CREATION_FAILED.createException(folder.getAbsolutePath());
-            }
             BufferedImage originalImage = ImageIO.read(file.getInputStream());
             if (originalImage == null) {
                 throw ApiError.IMAGE_NOT_FOUND.createException();
             }
-            BufferedImage resizedImage = resizeImage(originalImage);
-            File outputFile = new File(folder, "f.jpg");
-            ImageIO.write(resizedImage, "JPEG", outputFile);
-            log.info("Thumbnail created and saved at: {}", outputFile.getAbsolutePath());
+            boolean success = saveCoverImages(originalImage, bookId);
+            if (!success) {
+                throw ApiError.FILE_READ_ERROR.createException("Failed to save cover images");
+            }
+            log.info("Cover images created and saved for book ID: {}", bookId);
         } catch (Exception e) {
             log.error("An error occurred while creating the thumbnail: {}", e.getMessage(), e);
             throw ApiError.FILE_READ_ERROR.createException(e.getMessage());
         }
+    }
+
+    public boolean saveCoverImages(BufferedImage coverImage, long bookId) throws IOException {
+        String folderPath = getImagesFolder(bookId);
+        File folder = new File(folderPath);
+        if (!folder.exists() && !folder.mkdirs()) {
+            throw new IOException("Failed to create directory: " + folder.getAbsolutePath());
+        }
+        File originalFile = new File(folder, COVER_FILENAME);
+        boolean originalSaved = ImageIO.write(coverImage, IMAGE_FORMAT, originalFile);
+        BufferedImage thumb = resizeImage(coverImage, THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT);
+        File thumbnailFile = new File(folder, THUMBNAIL_FILENAME);
+        boolean thumbnailSaved = ImageIO.write(thumb, IMAGE_FORMAT, thumbnailFile);
+        return originalSaved && thumbnailSaved;
+    }
+
+    public BufferedImage resizeImage(BufferedImage originalImage, int width, int height) {
+        Image tmp = originalImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        BufferedImage resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = resizedImage.createGraphics();
+        g2d.drawImage(tmp, 0, 0, null);
+        g2d.dispose();
+        return resizedImage;
+    }
+
+    public void saveImage(byte[] imageData, String filePath) throws IOException {
+        BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(imageData));
+        File outputFile = new File(filePath);
+        File parentDir = outputFile.getParentFile();
+        if (!parentDir.exists() && !parentDir.mkdirs()) {
+            throw new IOException("Failed to create directory: " + parentDir);
+        }
+        ImageIO.write(originalImage, IMAGE_FORMAT, outputFile);
+        log.info("Image saved successfully to: {}", filePath);
+    }
+
+    public void setBookCoverPath(BookMetadataEntity bookMetadataEntity) {
+        bookMetadataEntity.setCoverUpdatedOn(Instant.now());
+    }
+
+    public void deleteBookCovers(Set<Long> bookIds) {
+        for (Long bookId : bookIds) {
+            String bookCoverFolder = getImagesFolder(bookId);
+            Path folderPath = Paths.get(bookCoverFolder);
+            try {
+                if (Files.exists(folderPath) && Files.isDirectory(folderPath)) {
+                    try (Stream<Path> walk = Files.walk(folderPath)) {
+                        walk.sorted(Comparator.reverseOrder())
+                                .forEach(path -> {
+                                    try {
+                                        Files.delete(path);
+                                    } catch (IOException e) {
+                                        log.error("Failed to delete file: {} - {}", path, e.getMessage());
+                                    }
+                                });
+                    }
+                }
+            } catch (IOException e) {
+                log.error("Error processing folder: {} - {}", folderPath, e.getMessage());
+            }
+        }
+        log.info("Deleted {} book covers", bookIds.size());
+    }
+
+    @Transactional
+    public Optional<Book> checkForDuplicateAndUpdateMetadataIfNeeded(LibraryFile libraryFile, String hash, BookRepository bookRepository, BookAdditionalFileRepository bookAdditionalFileRepository, BookMapper bookMapper) {
+        if (StringUtils.isBlank(hash)) {
+            log.warn("Skipping file due to missing hash: {}", libraryFile.getFullPath());
+            return Optional.empty();
+        }
+        Optional<BookEntity> existingByHash = bookRepository.findByCurrentHash(hash);
+        if (existingByHash.isPresent()) {
+            BookEntity book = existingByHash.get();
+            String fileName = libraryFile.getFullPath().getFileName().toString();
+            if (!book.getFileName().equals(fileName)) {
+                book.setFileName(fileName);
+            }
+            if (!Objects.equals(book.getLibraryPath().getId(), libraryFile.getLibraryPathEntity().getId())) {
+                book.setLibraryPath(libraryFile.getLibraryPathEntity());
+                book.setFileSubPath(libraryFile.getFileSubPath());
+            }
+            return Optional.of(bookMapper.toBook(book));
+        }
+        Optional<BookAdditionalFileEntity> existingAdditionalFile = bookAdditionalFileRepository.findByAltFormatCurrentHash(hash);
+        if (existingAdditionalFile.isPresent()) {
+            BookAdditionalFileEntity additionalFile = existingAdditionalFile.get();
+            BookEntity book = additionalFile.getBook();
+
+            // Additional file might have a different name or path, so there is no need
+            // to update the file name or library path here
+            return Optional.of(bookMapper.toBook(book));
+        }
+
+        return Optional.empty();
+    }
+
+    public static String truncate(String input, int maxLength) {
+        return input == null ? null : (input.length() <= maxLength ? input : input.substring(0, maxLength));
     }
 
     private void validateCoverFile(MultipartFile file) {
@@ -56,80 +174,25 @@ public class FileService {
             throw new IllegalArgumentException("Uploaded file is empty");
         }
         String contentType = file.getContentType();
-        if (!("image/jpeg".equalsIgnoreCase(contentType) || "image/png".equalsIgnoreCase(contentType))) {
+        if (!(JPEG_MIME_TYPE.equalsIgnoreCase(contentType) || PNG_MIME_TYPE.equalsIgnoreCase(contentType))) {
             throw new IllegalArgumentException("Only JPEG and PNG files are allowed");
         }
-        long maxFileSize = 5 * 1024 * 1024;
-        if (file.getSize() > maxFileSize) {
+        if (file.getSize() > MAX_FILE_SIZE_BYTES) {
             throw new IllegalArgumentException("File size must not exceed 5 MB");
         }
     }
 
-    public Resource getBookCover(String thumbnailPath) {
-        Path thumbPath;
-        if (thumbnailPath == null || thumbnailPath.isEmpty()) {
-            thumbPath = Paths.get(getMissingThumbnailPath());
-        } else {
-            thumbPath = Paths.get(thumbnailPath);
-        }
-        try {
-            Resource resource = new UrlResource(thumbPath.toUri());
-            if (resource.exists() && resource.isReadable()) {
-                return resource;
-            } else {
-                throw ApiError.IMAGE_NOT_FOUND.createException(thumbPath);
-            }
-        } catch (IOException e) {
-            throw ApiError.IMAGE_NOT_FOUND.createException(thumbPath);
-        }
+
+    public String getImagesFolder(long bookId) {
+        return appProperties.getPathConfig() + "/" + IMAGES_DIR + "/" + bookId + "/";
     }
 
-    public String createThumbnail(long bookId, String thumbnailUrl) throws IOException {
-        String newFilename = "f.jpg";
-        resizeAndSaveImage(thumbnailUrl, new File(getThumbnailPath(bookId)), newFilename);
-        return getThumbnailPath(bookId) + newFilename;
+    public String getThumbnailFile(long bookId) {
+        return appProperties.getPathConfig() + "/" + IMAGES_DIR + "/" + bookId + "/" + THUMBNAIL_FILENAME;
     }
 
-    private void resizeAndSaveImage(String imageSource, File outputFolder, String outputFileName) throws IOException {
-        BufferedImage originalImage;
-        File file = new File(imageSource);
-        if (file.exists()) {
-            try (InputStream inputStream = new FileInputStream(file)) {
-                originalImage = ImageIO.read(inputStream);
-            }
-        } else {
-            try (InputStream inputStream = new URL(imageSource).openStream()) {
-                originalImage = ImageIO.read(inputStream);
-            }
-        }
-        if (originalImage == null) {
-            throw new IOException("Failed to read image from: " + imageSource);
-        }
-        BufferedImage resizedImage = resizeImage(originalImage);
-        if (!outputFolder.exists() && !outputFolder.mkdirs()) {
-            throw new IOException("Failed to create output directory: " + outputFolder.getAbsolutePath());
-        }
-        File outputFile = new File(outputFolder, outputFileName);
-        ImageIO.write(resizedImage, "JPEG", outputFile);
-        log.info("Image saved to: {}", outputFile.getAbsolutePath());
-    }
-
-    private BufferedImage resizeImage(BufferedImage originalImage) {
-        String resolution = appSettingService.getAppSettings().getCoverResolution();
-        String[] split = resolution.split("x");
-        int x = Integer.parseInt(split[0]);
-        int y = Integer.parseInt(split[1]);
-
-        BufferedImage resizedImage = new BufferedImage(x, y, BufferedImage.TYPE_INT_RGB);
-        Graphics2D g2d = resizedImage.createGraphics();
-        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        g2d.drawImage(originalImage, 0, 0, x, y, null);
-        g2d.dispose();
-        return resizedImage;
-    }
-
-    public String getThumbnailPath(long bookId) {
-        return appProperties.getPathConfig() + "/thumbs/" + bookId + "/";
+    public String getCoverFile(long bookId) {
+        return appProperties.getPathConfig() + "/" + IMAGES_DIR + "/" + bookId + "/" + COVER_FILENAME;
     }
 
     public String getMetadataBackupPath() {
@@ -148,15 +211,35 @@ public class FileService {
         return appProperties.getPathConfig() + "/pdf_cache";
     }
 
-    public String getMissingThumbnailPath() {
-        return appProperties.getPathConfig() + "/thumbs/missing/m.jpg";
-    }
-
     public String getTempBookdropCoverImagePath(long bookdropFileId) {
         return Paths.get(appProperties.getPathConfig(), "bookdrop_temp", bookdropFileId + ".jpg").toString();
     }
 
-    public String getBookdropPath() {
-        return appProperties.getBookdropFolder();
+    public void createThumbnailFromUrl(long bookId, String imageUrl) {
+        try {
+            BufferedImage originalImage = downloadImageFromUrl(imageUrl);
+            boolean success = saveCoverImages(originalImage, bookId);
+            if (!success) {
+                throw ApiError.FILE_READ_ERROR.createException("Failed to save cover images");
+            }
+            log.info("Cover images created and saved from URL for book ID: {}", bookId);
+        } catch (Exception e) {
+            log.error("An error occurred while creating thumbnail from URL: {}", e.getMessage(), e);
+            throw ApiError.FILE_READ_ERROR.createException(e.getMessage());
+        }
+    }
+
+    private BufferedImage downloadImageFromUrl(String imageUrl) throws IOException {
+        try {
+            URL url = new URL(imageUrl);
+            BufferedImage image = ImageIO.read(url);
+            if (image == null) {
+                throw new IOException("Unable to read image from URL: " + imageUrl);
+            }
+            return image;
+        } catch (Exception e) {
+            log.error("Failed to download image from URL: {} - {}", imageUrl, e.getMessage());
+            throw new IOException("Failed to download image from URL: " + imageUrl, e);
+        }
     }
 }

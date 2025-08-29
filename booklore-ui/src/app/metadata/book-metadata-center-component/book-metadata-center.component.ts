@@ -1,32 +1,17 @@
-import { Component, inject, OnDestroy, OnInit, Optional } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { UserService } from '../../settings/user-management/user.service';
-import { Book, BookRecommendation } from '../../book/model/book.model';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import {
-  distinctUntilChanged,
-  filter,
-  map,
-  shareReplay,
-  switchMap,
-  takeUntil,
-  tap,
-  take,
-} from 'rxjs/operators';
-import { BookService } from '../../book/service/book.service';
-import { AppSettingsService } from '../../core/service/app-settings.service';
-import {
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
-} from 'primeng/tabs';
-import { MetadataViewerComponent } from './metadata-viewer/metadata-viewer.component';
-import { MetadataEditorComponent } from './metadata-editor/metadata-editor.component';
-import { MetadataSearcherComponent } from './metadata-searcher/metadata-searcher.component';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { BookMetadataHostService } from '../../utilities/service/book-metadata-host-service';
+import {Component, inject, OnDestroy, OnInit, Optional} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {UserService} from '../../settings/user-management/user.service';
+import {Book, BookRecommendation} from '../../book/model/book.model';
+import {BehaviorSubject, Observable, Subject} from 'rxjs';
+import {distinctUntilChanged, filter, map, shareReplay, switchMap, take, takeUntil,} from 'rxjs/operators';
+import {BookService} from '../../book/service/book.service';
+import {AppSettingsService} from '../../core/service/app-settings.service';
+import {Tab, TabList, TabPanel, TabPanels, Tabs,} from 'primeng/tabs';
+import {MetadataViewerComponent} from './metadata-viewer/metadata-viewer.component';
+import {MetadataEditorComponent} from './metadata-editor/metadata-editor.component';
+import {MetadataSearcherComponent} from './metadata-searcher/metadata-searcher.component';
+import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
+import {BookMetadataHostService} from '../../utilities/service/book-metadata-host-service';
 
 @Component({
   selector: 'app-book-metadata-center',
@@ -40,7 +25,7 @@ import { BookMetadataHostService } from '../../utilities/service/book-metadata-h
     TabPanel,
     MetadataViewerComponent,
     MetadataEditorComponent,
-    MetadataSearcherComponent,
+    MetadataSearcherComponent
   ],
   styleUrls: ['./book-metadata-center.component.scss'],
 })

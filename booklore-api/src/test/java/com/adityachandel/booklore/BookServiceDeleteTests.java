@@ -1,6 +1,6 @@
 package com.adityachandel.booklore;
 
-import com.adityachandel.booklore.config.security.AuthenticationService;
+import com.adityachandel.booklore.config.security.service.AuthenticationService;
 import com.adityachandel.booklore.mapper.BookMapper;
 import com.adityachandel.booklore.repository.*;
 import com.adityachandel.booklore.service.BookDownloadService;

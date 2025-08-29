@@ -179,6 +179,11 @@ public class BookdropMonitoringService {
         }
     }
 
+    public void rescanBookdropFolder() {
+        log.info("Manual rescan of Bookdrop folder triggered.");
+        scanExistingBookdropFiles();
+    }
+
     private void scanExistingBookdropFiles() {
         try (Stream<Path> files = Files.walk(bookdrop)) {
             files.filter(Files::isRegularFile)

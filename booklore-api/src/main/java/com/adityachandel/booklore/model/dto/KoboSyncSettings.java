@@ -8,5 +8,5 @@ public class KoboSyncSettings {
     private Long id;
     private String userId;
     private String token;
-    private boolean syncEnabled = true;
+    private boolean syncEnabled;
 }

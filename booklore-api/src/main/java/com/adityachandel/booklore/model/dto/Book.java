@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Set;
 
 @Builder
@@ -33,4 +34,6 @@ public class Book {
     private String readStatus;
     private Instant dateFinished;
     private LibraryPath libraryPath;
+    private List<AdditionalFile> alternativeFormats;
+    private List<AdditionalFile> supplementaryFiles;
 }

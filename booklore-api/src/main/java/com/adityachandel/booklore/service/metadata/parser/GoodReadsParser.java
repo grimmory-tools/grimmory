@@ -37,6 +37,7 @@ public class GoodReadsParser implements BookParser {
 
     private static final String BASE_SEARCH_URL = "https://www.goodreads.com/search?q=";
     private static final String BASE_BOOK_URL = "https://www.goodreads.com/book/show/";
+    private static final String BASE_ISBN_URL = "https://www.goodreads.com/book/isbn/";
     private static final int COUNT_DETAILED_METADATA_TO_GET = 3;
     private final AppSettingService appSettingService;
 
@@ -52,6 +53,25 @@ public class GoodReadsParser implements BookParser {
 
     @Override
     public List<BookMetadata> fetchMetadata(Book book, FetchMetadataRequest fetchMetadataRequest) {
+        String isbn = fetchMetadataRequest.getIsbn();
+        if (isbn != null && !isbn.isBlank()) {
+            log.info("Goodreads Query URL (ISBN): " + BASE_ISBN_URL + "{}", isbn);
+            Document doc = fetchDoc(BASE_ISBN_URL + isbn);
+            String ogUrl = Optional.ofNullable(doc.selectFirst("meta[property=og:url]"))
+                    .map(e -> e.attr("content"))
+                    .orElse(null);
+
+            if (ogUrl != null && !ogUrl.isBlank()) {
+                String goodreadsId = ogUrl.substring(ogUrl.lastIndexOf("/") + 1);
+                if (!goodreadsId.isBlank()) {
+                    BookMetadata metadata = parseBookDetails(doc, goodreadsId);
+                    if (metadata != null) {
+                        return List.of(metadata);
+                    }
+                }
+            }
+        }
+
         List<BookMetadata> previews = fetchMetadataPreviews(book, fetchMetadataRequest).stream()
                 .limit(COUNT_DETAILED_METADATA_TO_GET)
                 .toList();
@@ -387,52 +407,69 @@ public class GoodReadsParser implements BookParser {
 
     public String generateSearchUrl(String searchTerm) {
         String encodedSearchTerm = URLEncoder.encode(searchTerm, StandardCharsets.UTF_8);
-        return BASE_SEARCH_URL + encodedSearchTerm;
+        String url = BASE_SEARCH_URL + encodedSearchTerm;
+        log.info("Goodreads Query URL: {}", url);
+        return url;
     }
 
     public List<BookMetadata> fetchMetadataPreviews(Book book, FetchMetadataRequest request) {
         String searchTerm = getSearchTerm(book, request);
-        if (searchTerm != null) {
-            log.info("GoodReads: Fetching metadata previews for: {}", searchTerm);
-            try {
-                String searchUrl = generateSearchUrl(searchTerm);
-                Elements previewBooks = fetchDoc(searchUrl).select("table.tableList").first().select("tr[itemtype=http://schema.org/Book]");
-                List<BookMetadata> metadataPreviews = new ArrayList<>();
-                FuzzyScore fuzzyScore = new FuzzyScore(Locale.ENGLISH);
-                String queryAuthor = request.getAuthor();
-                for (Element previewBook : previewBooks) {
-                    Set<String> authors = extractAuthorsPreview(previewBook);
-                    if (queryAuthor != null && !queryAuthor.isBlank()) {
-                        List<String> queryAuthorTokens = List.of(queryAuthor.toLowerCase().split("\\s+"));
-                        boolean matches = authors.stream().flatMap(a -> Arrays.stream(a.toLowerCase().split("\\s+"))).anyMatch(actual -> {
-                            for (String query : queryAuthorTokens) {
-                                int score = fuzzyScore.fuzzyScore(actual, query);
-                                int maxScore = Math.max(fuzzyScore.fuzzyScore(query, query), fuzzyScore.fuzzyScore(actual, actual));
-                                double similarity = maxScore > 0 ? (double) score / maxScore : 0;
-                                if (similarity >= 0.5) return true;
-                            }
-                            return false;
-                        });
-                        if (!matches) {
-                            continue;
-                        }
-                    }
-                    BookMetadata previewMetadata = BookMetadata.builder()
-                            .goodreadsId(String.valueOf(extractGoodReadsIdPreview(previewBook)))
-                            .title(extractTitlePreview(previewBook))
-                            .authors(authors)
-                            .build();
-                    metadataPreviews.add(previewMetadata);
-                }
-                Thread.sleep(Duration.ofSeconds(1));
-                return metadataPreviews;
-            } catch (Exception e) {
-                log.error("Error fetching metadata previews: {}", e.getMessage());
-                return Collections.emptyList();
-            }
+
+        if (searchTerm == null || searchTerm.isEmpty()) {
+            log.info("GoodReads: No metadata previews found (no ISBN, title, or filename).");
+            return Collections.emptyList();
         }
-        log.info("GoodReads: No metadata previews found for title '{}'!", request.getTitle());
-        return Collections.emptyList();
+
+        try {
+            String searchUrl = generateSearchUrl(searchTerm);
+            Elements previewBooks = fetchDoc(searchUrl)
+                    .select("table.tableList")
+                    .first()
+                    .select("tr[itemtype=http://schema.org/Book]");
+
+            List<BookMetadata> metadataPreviews = new ArrayList<>();
+            FuzzyScore fuzzyScore = new FuzzyScore(Locale.ENGLISH);
+            String queryAuthor = request.getAuthor();
+
+            for (Element previewBook : previewBooks) {
+                Set<String> authors = extractAuthorsPreview(previewBook);
+
+                // Author fuzzy match if author provided
+                if (queryAuthor != null && !queryAuthor.isBlank()) {
+                    List<String> queryAuthorTokens = List.of(queryAuthor.toLowerCase().split("\\s+"));
+                    boolean matches = authors.stream()
+                            .flatMap(a -> Arrays.stream(a.toLowerCase().split("\\s+")))
+                            .anyMatch(actual -> {
+                                for (String query : queryAuthorTokens) {
+                                    int score = fuzzyScore.fuzzyScore(actual, query);
+                                    int maxScore = Math.max(fuzzyScore.fuzzyScore(query, query),
+                                            fuzzyScore.fuzzyScore(actual, actual));
+                                    double similarity = maxScore > 0 ? (double) score / maxScore : 0;
+                                    if (similarity >= 0.5) return true;
+                                }
+                                return false;
+                            });
+
+                    if (!matches) {
+                        continue;
+                    }
+                }
+
+                BookMetadata previewMetadata = BookMetadata.builder()
+                        .goodreadsId(String.valueOf(extractGoodReadsIdPreview(previewBook)))
+                        .title(extractTitlePreview(previewBook))
+                        .authors(authors)
+                        .build();
+                metadataPreviews.add(previewMetadata);
+            }
+
+            Thread.sleep(Duration.ofSeconds(1));
+            return metadataPreviews;
+
+        } catch (Exception e) {
+            log.error("Error fetching metadata previews: {}", e.getMessage());
+            return Collections.emptyList();
+        }
     }
 
     private String getSearchTerm(Book book, FetchMetadataRequest request) {

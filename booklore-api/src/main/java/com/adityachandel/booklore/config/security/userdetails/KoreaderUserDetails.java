@@ -1,4 +1,4 @@
-package com.adityachandel.booklore.config.security;
+package com.adityachandel.booklore.config.security.userdetails;
 
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;

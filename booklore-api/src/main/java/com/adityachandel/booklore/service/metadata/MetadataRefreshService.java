@@ -8,16 +8,11 @@ import com.adityachandel.booklore.model.dto.request.FetchMetadataRequest;
 import com.adityachandel.booklore.model.dto.request.MetadataRefreshOptions;
 import com.adityachandel.booklore.model.dto.request.MetadataRefreshRequest;
 import com.adityachandel.booklore.model.dto.settings.AppSettings;
-import com.adityachandel.booklore.model.dto.settings.MetadataPublicReviewsSettings;
 import com.adityachandel.booklore.model.entity.BookEntity;
 import com.adityachandel.booklore.model.entity.LibraryEntity;
 import com.adityachandel.booklore.model.entity.MetadataFetchJobEntity;
 import com.adityachandel.booklore.model.entity.MetadataFetchProposalEntity;
-import com.adityachandel.booklore.model.enums.FetchedMetadataProposalStatus;
-import com.adityachandel.booklore.model.enums.MetadataFetchTaskStatus;
-import com.adityachandel.booklore.model.enums.MetadataProvider;
-import com.adityachandel.booklore.model.enums.EventTaskType;
-import com.adityachandel.booklore.model.enums.TaskStatus;
+import com.adityachandel.booklore.model.enums.*;
 import com.adityachandel.booklore.model.websocket.Topic;
 import com.adityachandel.booklore.repository.BookRepository;
 import com.adityachandel.booklore.repository.LibraryRepository;
@@ -32,6 +27,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Instant;
@@ -117,7 +114,7 @@ public class MetadataRefreshService {
                         }
                         BookMetadata fetched = buildFetchMetadata(book.getId(), request, metadataMap);
                         if (isReviewMode) {
-                            saveProposal(task.getTaskId(), book.getId(), fetched);
+                            saveProposal(task, book.getId(), fetched);
                         } else {
                             updateBookMetadata(book, fetched, request.getRefreshOptions().isRefreshCovers(), request.getRefreshOptions().isMergeCategories());
                             sendTaskProgressNotification(jobId, finalCompletedCount + 1, bookIds.size(), "Metadata updated: " + book.getMetadata().getTitle());
@@ -272,10 +269,10 @@ public class MetadataRefreshService {
                 ));
     }
 
-    private void saveProposal(String taskId, Long bookId, BookMetadata metadata) throws JsonProcessingException {
-        MetadataFetchJobEntity job = metadataFetchJobRepository.findById(taskId)
-                .orElseThrow(() -> new IllegalArgumentException("Task not found: " + taskId));
-
+    private void saveProposal(MetadataFetchJobEntity job, Long bookId, BookMetadata metadata) throws JsonProcessingException {
+        if (job.getProposals() == null) {
+            job.setProposals(new ArrayList<>());
+        }
         MetadataFetchProposalEntity proposal = MetadataFetchProposalEntity.builder()
                 .job(job)
                 .bookId(bookId)
@@ -283,8 +280,7 @@ public class MetadataRefreshService {
                 .status(FetchedMetadataProposalStatus.FETCHED)
                 .fetchedAt(Instant.now())
                 .build();
-
-        metadataFetchProposalRepository.save(proposal);
+        job.getProposals().add(proposal);
     }
 
 

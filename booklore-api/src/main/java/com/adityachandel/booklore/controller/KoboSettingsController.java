@@ -17,7 +17,6 @@ public class KoboSettingsController {
     private final KoboSettingsService koboService;
 
     @GetMapping
-    @PreAuthorize("@securityUtil.canSyncKobo() or @securityUtil.isAdmin()")
     public ResponseEntity<KoboSyncSettings> getSettings() {
         KoboSyncSettings settings = koboService.getCurrentUserSettings();
         return ResponseEntity.ok(settings);
@@ -30,7 +29,7 @@ public class KoboSettingsController {
         return ResponseEntity.ok(updated);
     }
 
-    @PatchMapping("/sync")
+    @PutMapping("/sync")
     @PreAuthorize("@securityUtil.canSyncKobo() or @securityUtil.isAdmin()")
     public ResponseEntity<Void> toggleSync(@RequestParam boolean enabled) {
         koboService.setSyncEnabled(enabled);

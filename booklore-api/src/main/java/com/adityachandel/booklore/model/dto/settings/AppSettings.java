@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AppSettings {
-    private String coverResolution;
     private MetadataRefreshOptions metadataRefreshOptions;
     private boolean autoBookSearch;
     private boolean similarBookRecommendation;

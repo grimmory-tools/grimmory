@@ -76,7 +76,6 @@ public class AmazonBookParser implements BookParser {
     }
 
     private LinkedList<String> getAmazonBookIds(Book book, FetchMetadataRequest request) {
-        log.info("Amazon: Querying metadata for ISBN: {}, Title: {}, Author: {}, FileName: {}", request.getIsbn(), request.getTitle(), request.getAuthor(), book.getFileName());
         String queryUrl = buildQueryUrl(request, book);
         if (queryUrl == null) {
             log.error("Query URL is null, cannot proceed.");
@@ -194,6 +193,16 @@ public class AmazonBookParser implements BookParser {
     }
 
     private String buildQueryUrl(FetchMetadataRequest fetchMetadataRequest, Book book) {
+        // 1. Prefer ISBN if present
+        if (fetchMetadataRequest.getIsbn() != null && !fetchMetadataRequest.getIsbn().isEmpty()) {
+            String url = "https://www.amazon."
+                    + appSettingService.getAppSettings().getMetadataProviderSettings().getAmazon().getDomain()
+                    + "/s?k=" + fetchMetadataRequest.getIsbn();
+            log.info("Amazon Query URL (ISBN): {}", url);
+            return url;
+        }
+
+        // 2. Otherwise, fall back to title + author + filename
         StringBuilder searchTerm = new StringBuilder();
 
         String title = fetchMetadataRequest.getTitle();
@@ -231,8 +240,10 @@ public class AmazonBookParser implements BookParser {
         }
 
         String encodedSearchTerm = searchTerm.toString().replace(" ", "+");
-        String url = "https://www.amazon." + appSettingService.getAppSettings().getMetadataProviderSettings().getAmazon().getDomain() + "/s?k=" + encodedSearchTerm;
-        log.info("Query URL: {}", url);
+        String url = "https://www.amazon."
+                + appSettingService.getAppSettings().getMetadataProviderSettings().getAmazon().getDomain()
+                + "/s?k=" + encodedSearchTerm;
+        log.info("Amazon Query URL: {}", url);
         return url;
     }
 

@@ -38,7 +38,12 @@ public class GoogleBooksApiResponse {
 
         @Data
         public static class ImageLinks {
+            private String smallThumbnail;
             private String thumbnail;
+            private String small;
+            private String medium;
+            private String large;
+            private String extraLarge;
         }
     }
 }

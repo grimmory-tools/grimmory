@@ -143,7 +143,9 @@ public class KoboController {
     public ResponseEntity<?> deleteBookFromLibrary(@PathVariable String bookId) {
         if (StringUtils.isNumeric(bookId)) {
             Shelf userKoboShelf = shelfService.getUserKoboShelf();
-            bookService.assignShelvesToBooks(Set.of(Long.valueOf(bookId)), Set.of(), Set.of(userKoboShelf.getId()));
+            if (userKoboShelf != null) {
+                bookService.assignShelvesToBooks(Set.of(Long.valueOf(bookId)), Set.of(), Set.of(userKoboShelf.getId()));
+            }
             return ResponseEntity.ok().build();
         } else {
             return koboServerProxy.proxyCurrentRequest(null, false);

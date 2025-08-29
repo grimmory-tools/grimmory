@@ -78,7 +78,7 @@ public class EpubMetadataBackupRestoreService extends AbstractMetadataBackupRest
         BookMetadata backupMetadata = readMetadata(metadataFile, bookEntity.getId());
         bookMetadataRestorer.restoreMetadata(bookEntity, backupMetadata, coverFile.toString());
 
-        updateThumbnailIfNeeded(bookEntity.getId(), coverFile, bookEntity.getMetadata());
+        updateThumbnailIfNeeded(bookEntity.getMetadata(), coverFile, bookEntity.getId());
 
         log.info("Successfully restored embedded metadata for EPUB book ID {}", bookEntity.getId());
     }
@@ -102,13 +102,8 @@ public class EpubMetadataBackupRestoreService extends AbstractMetadataBackupRest
         return BookFileType.EPUB;
     }
 
-    private void updateThumbnailIfNeeded(long bookId, Path coverPath, BookMetadataEntity metadata) {
-        try {
-            String thumbnailPath = fileService.createThumbnail(bookId, coverPath.toString());
-            metadata.setThumbnail(thumbnailPath);
-            metadata.setCoverUpdatedOn(Instant.now());
-        } catch (IOException e) {
-            log.error("Failed to update thumbnail for book ID {}: {}", bookId, e.getMessage(), e);
-        }
+    private void updateThumbnailIfNeeded(BookMetadataEntity metadata, Path coverFile, long bookId) throws IOException {
+        /*String thumbnailPath = fileService.createThumbnailFromFile(bookId, coverFile.toString());*/
+        metadata.setCoverUpdatedOn(Instant.now());
     }
 }
