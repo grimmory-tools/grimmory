@@ -3,7 +3,7 @@ import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
 import {GithubSupportDialog} from './utilities/component/github-support-dialog/github-support-dialog';
 import {LibraryCreatorComponent} from './book/components/library-creator/library-creator.component';
 import {BookUploaderComponent} from './utilities/component/book-uploader/book-uploader.component';
-import {UserProfileDialogComponent} from './settings/global-preferences/user-profile-dialog/user-profile-dialog.component';
+import {UserProfileDialogComponent} from './settings/user-profile-dialog/user-profile-dialog.component';
 import {MagicShelfComponent} from './magic-shelf-component/magic-shelf-component';
 
 @Injectable({

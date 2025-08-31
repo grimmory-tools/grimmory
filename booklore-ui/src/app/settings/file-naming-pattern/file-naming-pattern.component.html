@@ -1,258 +1,263 @@
-<div class="w-full h-[calc(100dvh-10.5rem)] md:h-[calc(100dvh-11.65rem)] overflow-y-auto border rounded-lg enclosing-container">
-  <div class="pt-8 px-4">
-    <p class="text-lg flex items-center gap-2">
+<div class="main-container enclosing-container">
+  <div class="settings-header">
+    <h2 class="settings-title">
+      <i class="pi pi-file"></i>
       File Naming Patterns
-      <i
-        class="pi pi-info-circle text-sky-600"
-        pTooltip="Define custom naming patterns for uploaded files and for moving files within your library. Use metadata placeholders to automate organization."
-        tooltipPosition="right"
-        style="cursor: pointer;">
-      </i>
+    </h2>
+    <p class="settings-description">
+      Define custom naming patterns for uploaded files and for moving files within your library. Use metadata placeholders to automate organization.
     </p>
-    <div class="flex flex-col space-y-6 p-4 m-4 custom-border">
+  </div>
 
-      <div>
-        <h2 class="mb-2 text-lg">Default File Naming Pattern:</h2>
-        <p class="mb-3 text-sm text-gray-400">
+  <div class="settings-content">
+    <div class="preferences-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <i class="pi pi-cog"></i>
+          Default File Naming Pattern
+        </h3>
+        <p class="section-description">
           Define the default naming pattern for files. This pattern applies to all libraries unless overridden.
         </p>
-        <div class="flex gap-4 items-center">
-          <input type="text" [(ngModel)]="defaultPattern" class="p-inputtext w-[700px]" placeholder="e.g., {title} - {authors}" (input)="onDefaultPatternChange(defaultPattern)"/>
-          <p-button label="Save" (onClick)="savePatterns()" severity="primary" outlined="true" [disabled]="!!defaultErrorMessage"></p-button>
-        </div>
-        @if (defaultErrorMessage) {
-          <div class="text-red-500 mt-1">{{ defaultErrorMessage }}</div>
-        }
-
-        <div class="flex gap-2 pt-2">
-          <p class="text-zinc-400">Preview:</p>
-          <p class="text-green-500">{{ generateDefaultPreview() }}</p>
-        </div>
       </div>
 
-      <div>
-        <h2 class="py-2 text-lg">Overrides for Libraries:</h2>
-        <p class="mb-3 text-sm text-gray-400">
+      <div class="settings-card">
+        <div class="form-field">
+          <div class="library-header pb-2">
+            <i [class]="'pi pi-bolt'"></i>
+            <span class="library-name">Default Pattern</span>
+          </div>
+          <div class="pattern-input-group">
+            <input
+              pInputText
+              id="defaultPattern"
+              [(ngModel)]="defaultPattern"
+              placeholder="e.g., {title} - {authors}"
+              (input)="onDefaultPatternChange(defaultPattern)"
+              class="w-full"/>
+            <p-button
+              label="Save"
+              icon="pi pi-save"
+              (onClick)="savePatterns()"
+              severity="success"
+              [outlined]="true"
+              [disabled]="!!defaultErrorMessage">
+            </p-button>
+          </div>
+          @if (defaultErrorMessage) {
+            <div class="error-message">{{ defaultErrorMessage }}</div>
+          }
+        </div>
+
+        <div class="preview-section">
+          <div class="preview-item">
+            <span class="preview-label">Preview:</span>
+            <span class="preview-value">{{ generateDefaultPreview() }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="preferences-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <i class="pi pi-folder"></i>
+          Library-Specific Overrides
+        </h3>
+        <p class="section-description">
           Define custom naming patterns for specific libraries. Leave empty to use the default pattern.
         </p>
-
-        @for (library of libraries; track library.id) {
-          <div class="flex flex-col gap-2 p-3">
-            <div class="flex gap-3 items-center">
-              <i [class]="'pi pi-' + library.icon"></i>
-              <span class="min-w-[100px] font-medium">{{ library.name }}</span>
-              <input
-                type="text"
-                [(ngModel)]="library.fileNamingPattern"
-                class="p-inputtext flex-1"
-                placeholder="Leave empty to use default pattern"
-                (input)="onLibraryPatternChange(library)"/>
-              <p-button
-                label="Clear"
-                (onClick)="clearLibraryPattern(library)"
-                severity="secondary"
-                outlined="true"
-                size="small"
-                [disabled]="!library.fileNamingPattern">
-              </p-button>
-            </div>
-            <div class="ml-8 flex gap-2">
-              <p class="text-sm text-zinc-400">Preview:</p>
-              <p class="text-sm text-green-500">{{ generateLibraryPreview(library) }}</p>
-            </div>
-          </div>
-        }
-
-        <div class="flex justify-end">
-          <p-button label="Save All Library Patterns" (onClick)="saveLibraryPatterns()" severity="primary" outlined="true"></p-button>
-        </div>
       </div>
 
-      <div>
-        <p-divider></p-divider>
+      <div class="settings-card">
+        <div class="library-patterns">
+          @for (library of libraries; track library.id) {
+            <div class="library-pattern-item">
+              <div class="library-header">
+                <i [class]="'pi pi-' + library.icon"></i>
+                <span class="library-name">{{ library.name }}</span>
+              </div>
+              <div class="library-input-group">
+                <input
+                  pInputText
+                  [(ngModel)]="library.fileNamingPattern"
+                  placeholder="Leave empty to use default pattern"
+                  (input)="onLibraryPatternChange(library)"
+                  class="w-full"/>
+                <p-button
+                  label="Clear"
+                  (onClick)="clearLibraryPattern(library)"
+                  severity="secondary"
+                  [outlined]="true"
+                  [disabled]="!library.fileNamingPattern">
+                </p-button>
+              </div>
+              <div class="preview-section">
+                <span class="preview-label">Preview:</span>
+                <span class="preview-value">{{ generateLibraryPreview(library) }}</span>
+              </div>
+            </div>
+          }
+        </div>
 
-        <p class="pt-4">Available Placeholders:</p>
+        <div class="form-actions">
+          <p-button
+            label="Save All Library Patterns"
+            (onClick)="saveLibraryPatterns()"
+            severity="success"
+            icon="pi pi-save"
+            [outlined]="true">
+          </p-button>
+        </div>
+      </div>
+    </div>
 
-        <p class="text-sm text-gray-400 mb-2 mt-2">
+    <div class="preferences-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <i class="pi pi-info-circle"></i>
+          Available Placeholders
+        </h3>
+        <p class="section-description">
           Use placeholders to dynamically insert book metadata into file names and folder paths. These will be replaced with actual values when uploading or moving files.
-          You can also wrap parts of the pattern in <code>{{ '{{<...>}' }}</code> to make them optional, if any placeholder inside is missing, that section will be omitted entirely.
         </p>
+      </div>
 
-        <div class="mt-2">
-          <div class="mx-4 my-2 flex flex-wrap gap-4">
-            <ul class="list-disc pl-4 min-w-[250px] text-gray-300">
-              <li><code class="text-orange-400">{{ '{title}' }}</code> – Book title</li>
-              <li><code class="text-orange-400">{{ '{authors}' }}</code> – Author(s)</li>
-              <li><code class="text-orange-400">{{ '{year}' }}</code> – Full year (e.g. 2025)</li>
-              <li><code class="text-orange-400">{{ '{series}' }}</code> – Series name</li>
-              <li><code class="text-orange-400">{{ '{seriesIndex}' }}</code> – Series index (e.g. 01)</li>
-              <li><code class="text-orange-400">{{ '{language}' }}</code> – Language code (e.g. en)</li>
-              <li><code class="text-orange-400">{{ '{publisher}' }}</code> – Publisher name</li>
-              <li><code class="text-orange-400">{{ '{isbn}' }}</code> – ISBN number</li>
-              <li><code class="text-orange-400">{{ '{currentFilename}' }}</code> Original file name (with extension)</li>
-            </ul>
+      <div class="settings-card">
+        <div class="placeholders-info">
+          <div class="placeholders-grid">
+            <div class="placeholders-list">
+              <h4 class="subsection-title">Available Placeholders</h4>
+              <ul>
+                <li><code class="placeholder-code">{{ '{title}' }}</code> – Book title</li>
+                <li><code class="placeholder-code">{{ '{authors}' }}</code> – Author(s)</li>
+                <li><code class="placeholder-code">{{ '{year}' }}</code> – Full year (e.g. 2025)</li>
+                <li><code class="placeholder-code">{{ '{series}' }}</code> – Series name</li>
+                <li><code class="placeholder-code">{{ '{seriesIndex}' }}</code> – Series index (e.g. 01)</li>
+                <li><code class="placeholder-code">{{ '{language}' }}</code> – Language code (e.g. en)</li>
+                <li><code class="placeholder-code">{{ '{publisher}' }}</code> – Publisher name</li>
+                <li><code class="placeholder-code">{{ '{isbn}' }}</code> – ISBN number</li>
+                <li><code class="placeholder-code">{{ '{currentFilename}' }}</code> Original file name (with extension)</li>
+              </ul>
+            </div>
 
-            <p-divider layout="vertical"></p-divider>
-
-            <div class="text-sm p-3 min-w-[250px]">
-              <p class="mb-1 font-bold text-gray-200 text">Optional blocks</p>
-              <p class="text-gray-300">
+            <div class="optional-blocks-info">
+              <h4 class="subsection-title">Optional blocks</h4>
+              <p>
                 Surround parts of your pattern with angle brackets
-                <code class="text-blue-400">{{ '{<...>}' }}</code>
-                to make them optional. <br> If any placeholder inside the block has no value, the whole block is excluded.
+                <code class="placeholder-code">{{ '{<...>}' }}</code>
+                <br>
+                to make them optional. If any placeholder inside the block has no value, the whole block is excluded.
               </p>
-              <p class="mt-2 font-semibold text-gray-300">Example:</p>
-              <p><code>{{ '{<{seriesIndex} - >{title}' }}</code></p>
-              <p class="pl-4 mt-1 text-gray-300">• <code>01 - Dune</code> (if <code>{{ '{seriesIndex}' }}</code> exists)</p>
-              <p class="pl-4 text-gray-300">• <code>Dune</code> (if <code>{{ '{seriesIndex}' }}</code> is missing)</p>
+              <div class="example-section">
+                <p class="example-label">Example:</p>
+                <p><code class="placeholder-code">{{ '{<{seriesIndex} - >{title}' }}</code></p>
+                <ul class="example-list">
+                  <li><code>01 - Dune</code> (if <code class="placeholder-code">{{ '{seriesIndex}' }}</code> exists)</li>
+                  <li><code>Dune</code> (if <code class="placeholder-code">{{ '{seriesIndex}' }}</code> is missing)</li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
+      </div>
+    </div>
 
-        <p-divider></p-divider>
+    <div class="preferences-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <i class="pi pi-eye"></i>
+          Example Patterns & Output
+        </h3>
+        <p class="section-description">
+          See how different patterns work with sample book metadata and learn best practices for organizing your library.
+        </p>
+      </div>
 
-        <div class="mt-6">
-          <p class="mb-4">Example Patterns & Output:</p>
-
-          <div class="px-4 text-sm space-y-4">
-            <p class="text-base font-semibold text-gray-200 mt-6 mb-2">Examples with Full Metadata</p>
-            <p class="text-gray-400 mb-4">
-              <span class="block">title: <code>Harry Potter and the Sorcerer's Stone</code></span>
-              <span class="block">authors: <code>J.K. Rowling</code></span>
-              <span class="block">series: <code>Harry Potter</code></span>
-              <span class="block">seriesIndex: <code>01</code></span>
-              <span class="block">year: <code>1997</code></span>
-              <span class="block">currentFilename: <code>harry1_original.epub</code></span>
-            </p>
-
-            <div>
-              <p class="mb-1"><strong class="text-gray-300">Basic pattern:</strong><code class="text-gray-400"> {{ '{authors} - {title}' }}</code></p>
-              <p><strong class="text-gray-300">Output:</strong><code class="text-gray-400"> J.K. Rowling - Harry Potter and the Sorcerer's Stone.epub</code></p>
+      <div class="settings-card">
+        <div class="examples-section">
+          <div class="example-category">
+            <h4 class="subsection-title">Examples with Full Metadata</h4>
+            <div class="metadata-sample">
+              <span>title: <code>Harry Potter and the Sorcerer's Stone</code></span>
+              <span>authors: <code>J.K. Rowling</code></span>
+              <span>series: <code>Harry Potter</code></span>
+              <span>seriesIndex: <code>01</code></span>
+              <span>year: <code>1997</code></span>
+              <span>currentFilename: <code>harry1_original.epub</code></span>
             </div>
 
-            <div>
-              <p class="mb-1"><strong class="text-gray-300">Pattern with punctuation:</strong><code class="text-gray-400"> {{ '{title}: {series}' }}</code></p>
-              <p><strong class="text-gray-300">Output:</strong><code class="text-gray-400"> Harry Potter and the Sorcerer's Stone: Harry Potter.epub</code></p>
-            </div>
+            <div class="example-list">
+              <div class="example-item">
+                <p class="example-pattern"><strong>Basic pattern:</strong> <code>{{ '{authors} - {title}' }}</code></p>
+                <p class="example-output"><strong>Output:</strong> <code>J.K. Rowling - Harry Potter and the Sorcerer's Stone.epub</code></p>
+              </div>
 
-            <div>
-              <p class="mb-1"><strong class="text-gray-300">Series in folder path:</strong><code class="text-gray-400"> {{ '{authors}/{series}/{seriesIndex} - {title}' }}</code></p>
-              <p><strong class="text-gray-300">Output:</strong><code class="text-gray-400"> J.K. Rowling/Harry Potter/01 - Harry Potter and the Sorcerer's Stone.epub</code></p>
-            </div>
+              <div class="example-item">
+                <p class="example-pattern"><strong>Pattern with punctuation:</strong> <code>{{ '{title}: {series}' }}</code></p>
+                <p class="example-output"><strong>Output:</strong> <code>Harry Potter and the Sorcerer's Stone: Harry Potter.epub</code></p>
+              </div>
 
-            <div>
-              <p class="mb-1"><strong class="text-gray-300">Folder only:</strong><code class="text-gray-400"> {{ '{title}/' }}</code></p>
-              <p><strong class="text-gray-300">Output:</strong><code class="text-gray-400"> /Harry Potter and the Sorcerer's Stone/harry1_original.epub</code></p>
-            </div>
+              <div class="example-item">
+                <p class="example-pattern"><strong>Series in folder path:</strong> <code>{{ '{authors}/{series}/{seriesIndex} - {title}' }}</code></p>
+                <p class="example-output"><strong>Output:</strong> <code>J.K. Rowling/Harry Potter/01 - Harry Potter and the Sorcerer's Stone.epub</code></p>
+              </div>
 
-            <div>
-              <p class="mb-1"><strong class="text-gray-300">Absolute path:</strong><code class="text-gray-400"> {{ '/{authors}/{title}' }}</code></p>
-              <p><strong class="text-gray-300">Output:</strong><code class="text-gray-400"> /J.K. Rowling/Harry Potter and the Sorcerer's Stone.epub</code></p>
-            </div>
+              <div class="example-item">
+                <p class="example-pattern"><strong>Folder only:</strong> <code>{{ '{title}/' }}</code></p>
+                <p class="example-output"><strong>Output:</strong> <code>/Harry Potter and the Sorcerer's Stone/harry1_original.epub</code></p>
+              </div>
 
-            <div>
-              <p class="mb-1"><strong class="text-gray-300">Reuse original filename in path:</strong><code class="text-gray-400"> {{ '{authors}/{series}/{currentFilename}' }}</code>
-              </p>
-              <p><strong class="text-gray-300">Output:</strong><code class="text-gray-400"> J.K. Rowling/Harry Potter/harry1_original.epub</code></p>
-            </div>
+              <div class="example-item">
+                <p class="example-pattern"><strong>Absolute path:</strong> <code>{{ '/{authors}/{title}' }}</code></p>
+                <p class="example-output"><strong>Output:</strong> <code>/J.K. Rowling/Harry Potter and the Sorcerer's Stone.epub</code></p>
+              </div>
 
-            <div>
-              <p class="mb-1"><strong class="text-gray-300">Preserve original filename only:</strong><code class="text-gray-400"> {{ '{currentFilename}' }}</code></p>
-              <p><strong class="text-gray-300">Output:</strong><code class="text-gray-400"> harry1_original.epub</code></p>
-            </div>
-
-            <div>
-              <p class="mb-1"><strong class="text-gray-300">Empty pattern (defaults to current filename):</strong><code class="text-gray-400"> {{ '' }}</code></p>
-              <p><strong class="text-gray-300">Output:</strong><code class="text-gray-400"> harry1_original.epub</code></p>
+              <div class="example-item">
+                <p class="example-pattern"><strong>Reuse original filename in path:</strong> <code>{{ '{authors}/{series}/{currentFilename}' }}</code></p>
+                <p class="example-output"><strong>Output:</strong> <code>J.K. Rowling/Harry Potter/harry1_original.epub</code></p>
+              </div>
             </div>
           </div>
 
-          <div class="px-4 text-sm space-y-4 mt-10">
-            <p class="text-base font-semibold text-gray-200 mb-2">Examples with Missing Optional Fields</p>
-            <p class="text-gray-400 mb-4">
-              <span class="block">title: <code>Project Hail Mary</code></span>
-              <span class="block">authors: <code>Andy Weir</code></span>
-              <span class="block">year: <code>2021</code></span>
-              <span class="block">series: <code>(not provided)</code></span>
-              <span class="block">seriesIndex: <code>(not provided)</code></span>
-              <span class="block">currentFilename: <code>project_hail_mary_final.epub</code></span>
-            </p>
+          <p-divider></p-divider>
 
-            <div>
-              <p class="mb-1"><strong class="text-gray-300">Pattern with optional blocks:</strong><code
-                class="text-gray-400"> {{ '{authors}/<{series}/><{seriesIndex}. >{title}< ({year})>' }}</code></p>
-              <p><strong class="text-gray-300">Output:</strong><code class="text-gray-400"> Andy Weir/Project Hail Mary (2021).epub</code></p>
+          <div class="example-category">
+            <h4 class="subsection-title">Examples with Missing Optional Fields</h4>
+            <div class="metadata-sample">
+              <span>title: <code>Project Hail Mary</code></span>
+              <span>authors: <code>Andy Weir</code></span>
+              <span>year: <code>2021</code></span>
+              <span>series: <code>(not provided)</code></span>
+              <span>seriesIndex: <code>(not provided)</code></span>
+              <span>currentFilename: <code>project_hail_mary_final.epub</code></span>
             </div>
 
-            <div>
-              <p class="mb-1"><strong class="text-gray-300">Fallback with seriesIndex and dash:</strong><code
-                class="text-gray-400"> {{ '<{seriesIndex}. >{title}< - {authors}>' }}</code></p>
-              <p><strong class="text-gray-300">Output:</strong><code class="text-gray-400"> Project Hail Mary - Andy Weir.epub</code></p>
-            </div>
+            <div class="example-list">
+              <div class="example-item">
+                <p class="example-pattern"><strong>Pattern with optional blocks:</strong> <code>{{ '{authors}/<{series}/><{seriesIndex}. >{title}< ({year})>' }}</code></p>
+                <p class="example-output"><strong>Output:</strong> <code>Andy Weir/Project Hail Mary (2021).epub</code></p>
+              </div>
 
-            <div>
-              <p class="mb-1"><strong class="text-gray-300">Brackets & punctuation fallback:</strong><code class="text-gray-400"> {{ '<[{series}] >{title} - {authors}' }}</code></p>
-              <p><strong class="text-gray-300">Output:</strong><code class="text-gray-400"> Project Hail Mary - Andy Weir.epub</code></p>
-            </div>
+              <div class="example-item">
+                <p class="example-pattern"><strong>Fallback with seriesIndex and dash:</strong> <code>{{ '<{seriesIndex}. >{title}< - {authors}>' }}</code></p>
+                <p class="example-output"><strong>Output:</strong> <code>Project Hail Mary - Andy Weir.epub</code></p>
+              </div>
 
-            <div>
-              <p class="mb-1"><strong class="text-gray-300">Series + punctuation fallback:</strong><code class="text-gray-400"> {{ '<{series}: >{title} by {authors}' }}</code></p>
-              <p><strong class="text-gray-300">Output:</strong><code class="text-gray-400"> Project Hail Mary by Andy Weir.epub</code></p>
-            </div>
+              <div class="example-item">
+                <p class="example-pattern"><strong>Brackets & punctuation fallback:</strong> <code>{{ '<[{series}] >{title} - {authors}' }}</code></p>
+                <p class="example-output"><strong>Output:</strong> <code>Project Hail Mary - Andy Weir.epub</code></p>
+              </div>
 
-            <div>
-              <p class="mb-1"><strong class="text-gray-300">Only folders, no filename:</strong><code class="text-gray-400"> {{ '{authors}/' }}</code></p>
-              <p><strong class="text-gray-300">Output:</strong><code class="text-gray-400"> Andy Weir/project_hail_mary_final.epub</code></p>
-            </div>
+              <div class="example-item">
+                <p class="example-pattern"><strong>Series + punctuation fallback:</strong> <code>{{ '<{series}: >{title} by {authors}' }}</code></p>
+                <p class="example-output"><strong>Output:</strong> <code>Project Hail Mary by Andy Weir.epub</code></p>
+              </div>
 
-            <div>
-              <p class="mb-1"><strong class="text-gray-300">Deep nested folders:</strong><code class="text-gray-400"> {{ '{authors}/books/<{series}/>{title}/' }}</code></p>
-              <p><strong class="text-gray-300">Output:</strong><code class="text-gray-400"> Andy Weir/books/Project Hail Mary/project_hail_mary_final.epub</code></p>
-            </div>
-
-            <div>
-              <p class="mb-1"><strong class="text-gray-300">With static folder prefix:</strong><code class="text-gray-400"> {{ 'Books/<{series}/>{authors} - {title}' }}</code></p>
-              <p><strong class="text-gray-300">Output:</strong><code class="text-gray-400"> Books/Andy Weir - Project Hail Mary.epub</code></p>
-            </div>
-
-            <div>
-              <p class="mb-1"><strong class="text-gray-300">Use original filename in path:</strong><code
-                class="text-gray-400"> {{ '{authors}/books/<{series}/>{currentFilename}' }}</code></p>
-              <p><strong class="text-gray-300">Output:</strong><code class="text-gray-400"> Andy Weir/books/project_hail_mary_final.epub</code></p>
-            </div>
-
-            <div>
-              <p class="mb-1"><strong class="text-gray-300">Prefix current filename manually:</strong><code class="text-gray-400"> {{ '{authors}/final__{currentFilename}' }}</code></p>
-              <p><strong class="text-gray-300">Output:</strong><code class="text-gray-400"> Andy Weir/final__project_hail_mary_final.epub</code></p>
-            </div>
-
-            <div>
-              <p class="mb-1"><strong class="text-gray-300">Filename preserved, renamed folder:</strong><code class="text-gray-400"> {{ '{title}/source/{currentFilename}' }}</code></p>
-              <p><strong class="text-gray-300">Output:</strong><code class="text-gray-400"> Project Hail Mary/source/project_hail_mary_final.epub</code></p>
-            </div>
-
-            <div>
-              <p class="mb-1"><strong class="text-gray-300">Use current filename with year suffix:</strong><code
-                class="text-gray-400"> {{ '{authors}/{year}__{currentFilename}' }}</code></p>
-              <p><strong class="text-gray-300">Output:</strong><code class="text-gray-400"> Andy Weir/2021__project_hail_mary_final.epub</code></p>
-            </div>
-
-            <div>
-              <p class="mb-1"><strong class="text-gray-300">Fallback with optional + extras folder:</strong><code
-                class="text-gray-400"> {{ '<{series}/>{authors}/extras/{currentFilename}' }}</code></p>
-              <p><strong class="text-gray-300">Output:</strong><code class="text-gray-400"> Andy Weir/extras/project_hail_mary_final.epub</code></p>
-            </div>
-
-            <div>
-              <p class="mb-1"><strong class="text-gray-300">Archive structure using original name:</strong><code
-                class="text-gray-400"> {{ 'archive/<{series}/>{year}/{currentFilename}' }}</code></p>
-              <p><strong class="text-gray-300">Output:</strong><code class="text-gray-400"> archive/2021/project_hail_mary_final.epub</code></p>
-            </div>
-
-            <div>
-              <p class="mb-1"><strong class="text-gray-300">Structured folder + renamed file:</strong><code
-                class="text-gray-400"> {{ '{authors}/<{series}/>{title} ({year}) by {authors}' }}</code></p>
-              <p><strong class="text-gray-300">Output:</strong><code class="text-gray-400"> Andy Weir/Project Hail Mary (2021) by Andy Weir.epub</code></p>
+              <div class="example-item">
+                <p class="example-pattern"><strong>Use original filename with year suffix:</strong> <code>{{ '{authors}/{year}__{currentFilename}' }}</code></p>
+                <p class="example-output"><strong>Output:</strong> <code>Andy Weir/2021__project_hail_mary_final.epub</code></p>
+              </div>
             </div>
           </div>
         </div>

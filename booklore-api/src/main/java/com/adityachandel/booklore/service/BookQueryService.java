@@ -52,8 +52,18 @@ public class BookQueryService {
         return bookRepository.findAllFullBooks();
     }
 
-    public List<BookEntity> getBooksContainingMetadata(String text) {
-        return bookRepository.findBooksContainingMetadata(text);
+    public List<Book> searchBooksByMetadata(String text) {
+        List<BookEntity> bookEntities = bookRepository.searchByMetadata(text);
+        return bookEntities.stream()
+                .map(bookMapperV2::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<Book> searchBooksByMetadataInLibraries(String text, Set<Long> libraryIds) {
+        List<BookEntity> bookEntities = bookRepository.searchByMetadataAndLibraryIds(text, libraryIds);
+        return bookEntities.stream()
+                .map(bookMapperV2::toDTO)
+                .collect(Collectors.toList());
     }
 
     public void saveAll(List<BookEntity> books) {

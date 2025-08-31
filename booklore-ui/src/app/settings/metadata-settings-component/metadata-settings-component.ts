@@ -1,9 +1,7 @@
 import {Component, inject, OnInit} from '@angular/core';
-import {Divider} from 'primeng/divider';
 import {MetadataAdvancedFetchOptionsComponent} from '../../metadata/metadata-options-dialog/metadata-advanced-fetch-options/metadata-advanced-fetch-options.component';
 import {MetadataProviderSettingsComponent} from '../global-preferences/metadata-provider-settings/metadata-provider-settings.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {Tooltip} from 'primeng/tooltip';
 import {MetadataRefreshOptions} from '../../metadata/model/request/metadata-refresh-options.model';
 import {AppSettingsService} from '../../core/service/app-settings.service';
 import {SettingsHelperService} from '../../core/service/settings-helper.service';
@@ -19,11 +17,9 @@ import {PublicReviewsSettingsComponent} from './public-reviews-settings-componen
   selector: 'app-metadata-settings-component',
   standalone: true,
   imports: [
-    Divider,
     MetadataAdvancedFetchOptionsComponent,
     MetadataProviderSettingsComponent,
     ReactiveFormsModule,
-    Tooltip,
     FormsModule,
     MetadataMatchWeightsComponent,
     ToggleSwitch,

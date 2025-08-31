@@ -9,5 +9,6 @@ public enum PermissionType {
     DELETE_BOOK,
     SYNC_KOREADER,
     SYNC_KOBO,
+    ACCESS_OPDS,
     ADMIN
 }

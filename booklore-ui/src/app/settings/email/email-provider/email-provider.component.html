@@ -1,127 +1,240 @@
-<div class="flex justify-between items-center pb-2">
-  <h2 class="text-lg  flex items-center gap-2">
-    Email Providers
-    <i class="pi pi-info-circle text-sky-600"
-      pTooltip="Configure email-sending services like Gmail, Outlook, or custom SMTP servers for sending books via email. The default email provider will be used for 'Quick Book Send' located in the Book Card menu"
-      tooltipPosition="right"
-    style="cursor: pointer;"></i>
-  </h2>
-  <p-button outlined="true" icon="pi pi-plus" label="Create New Provider" (onClick)="openCreateProviderDialog()"></p-button>
+<div class="main-container enclosing-container">
+  <div class="settings-header">
+    <h2 class="settings-title">
+      <i class="pi pi-envelope"></i>
+      Email Providers
+    </h2>
+    <p class="settings-description">
+      Configure email-sending services like Gmail, Outlook, or custom SMTP servers for sending books via email. The default email provider will be used for 'Quick Book Send' located in the Book Card menu.
+    </p>
+  </div>
+
+  <div class="settings-content">
+    <div class="preferences-section">
+      <div class="section-header">
+        <div class="section-title-group">
+          <h3 class="section-title">
+            <i class="pi pi-server"></i>
+            Current Providers
+          </h3>
+          <p-button
+            icon="pi pi-plus"
+            label="Create Provider"
+            severity="success"
+            size="small"
+            [outlined]="true"
+            (onClick)="openCreateProviderDialog()">
+          </p-button>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <p-table [value]="emailProviders" [scrollable]="true" scrollHeight="flex">
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width: 6%;">
+                <div class="header-content">
+                  <i class="pi pi-star"></i>
+                  <span>Default</span>
+                </div>
+              </th>
+              <th style="width: 10%;">
+                <div class="header-content">
+                  <i class="pi pi-tag"></i>
+                  <span>Name</span>
+                </div>
+              </th>
+              <th style="width: 15%;">
+                <div class="header-content">
+                  <i class="pi pi-server"></i>
+                  <span>Host</span>
+                </div>
+              </th>
+              <th style="width: 6%;">
+                <div class="header-content">
+                  <i class="pi pi-link"></i>
+                  <span>Port</span>
+                </div>
+              </th>
+              <th style="width: 14%;">
+                <div class="header-content">
+                  <i class="pi pi-user"></i>
+                  <span>Username</span>
+                </div>
+              </th>
+              <th style="width: 12%;">
+                <div class="header-content">
+                  <i class="pi pi-lock"></i>
+                  <span>Password</span>
+                </div>
+              </th>
+              <th style="width: 12%;">
+                <div class="header-content">
+                  <i class="pi pi-envelope"></i>
+                  <span>From Address</span>
+                </div>
+              </th>
+              <th style="width: 5%;" class="permission-header">Auth</th>
+              <th style="width: 5%;" class="permission-header">StartTLS</th>
+              <th style="width: 7%;" class="actions-header">
+                <div class="header-content">
+                  <i class="pi pi-pencil"></i>
+                  <span>Edit</span>
+                </div>
+              </th>
+              <th style="width: 8%;" class="actions-header">
+                <div class="header-content">
+                  <i class="pi pi-trash"></i>
+                  <span>Delete</span>
+                </div>
+              </th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-provider>
+            <tr>
+              <td class="text-center">
+                <p-radioButton
+                  name="defaultProvider"
+                  [value]="provider.id"
+                  [(ngModel)]="defaultProviderId"
+                  (onClick)="setDefaultProvider(provider)">
+                </p-radioButton>
+              </td>
+
+              <td>
+                @if (provider.isEditing) {
+                  <input type="text" [(ngModel)]="provider.name" class="p-inputtext w-full" size="small"/>
+                }
+                @if (!provider.isEditing) {
+                  <span>{{ provider.name }}</span>
+                }
+              </td>
+
+              <td>
+                @if (provider.isEditing) {
+                  <input type="text" [(ngModel)]="provider.host" class="p-inputtext w-full" size="small"/>
+                }
+                @if (!provider.isEditing) {
+                  <span>{{ provider.host }}</span>
+                }
+              </td>
+
+              <td>
+                @if (provider.isEditing) {
+                  <input type="number" [(ngModel)]="provider.port" class="p-inputtext w-full" size="small"/>
+                }
+                @if (!provider.isEditing) {
+                  <span>{{ provider.port }}</span>
+                }
+              </td>
+
+              <td>
+                @if (provider.isEditing) {
+                  <input type="text" [(ngModel)]="provider.username" class="p-inputtext w-full" size="small"/>
+                }
+                @if (!provider.isEditing) {
+                  <span>{{ provider.username }}</span>
+                }
+              </td>
+
+              <td>
+                @if (provider.isEditing) {
+                  <input [(ngModel)]="provider.password" class="p-inputtext w-full" size="small"/>
+                }
+                @if (!provider.isEditing) {
+                  <span class="password-hidden">Hidden</span>
+                }
+              </td>
+
+              <td>
+                @if (provider.isEditing) {
+                  <input type="text" [(ngModel)]="provider.fromAddress" class="p-inputtext w-full" size="small"/>
+                }
+                @if (!provider.isEditing) {
+                  <span>{{ provider.fromAddress }}</span>
+                }
+              </td>
+
+              <td class="text-center">
+                <p-checkbox
+                  [(ngModel)]="provider.auth"
+                  [binary]="true"
+                  [disabled]="!provider.isEditing">
+                </p-checkbox>
+              </td>
+
+              <td class="text-center">
+                <p-checkbox
+                  [(ngModel)]="provider.startTls"
+                  [binary]="true"
+                  [disabled]="!provider.isEditing">
+                </p-checkbox>
+              </td>
+
+              <td class="actions-cell">
+                @if (!provider.isEditing) {
+                  <p-button
+                    icon="pi pi-pencil"
+                    severity="info"
+                    size="small"
+                    [outlined]="true"
+                    [rounded]="true"
+                    (onClick)="toggleEdit(provider)"
+                    pTooltip="Edit provider">
+                  </p-button>
+                }
+                @if (provider.isEditing) {
+                  <div class="flex gap-1">
+                    <p-button
+                      icon="pi pi-check"
+                      severity="success"
+                      size="small"
+                      [outlined]="true"
+                      [rounded]="true"
+                      (onClick)="saveProvider(provider)"
+                      pTooltip="Save changes">
+                    </p-button>
+                    <p-button
+                      icon="pi pi-times"
+                      severity="danger"
+                      size="small"
+                      [outlined]="true"
+                      [rounded]="true"
+                      (onClick)="toggleEdit(provider)"
+                      pTooltip="Cancel">
+                    </p-button>
+                  </div>
+                }
+              </td>
+
+              <td class="actions-cell">
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  size="small"
+                  [outlined]="true"
+                  [rounded]="true"
+                  (onClick)="deleteProvider(provider)"
+                  pTooltip="Delete provider">
+                </p-button>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="11">
+                <div class="empty-message">
+                  <i class="pi pi-envelope"></i>
+                  <p class="empty-title">No email providers found</p>
+                  <p class="empty-subtitle">Create your first email provider to start sending books</p>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </div>
 </div>
-
-<p-table [value]="emailProviders">
-  <ng-template pTemplate="header">
-    <tr>
-      <th style="width: 6%;">Default</th>
-      <th style="width: 10%;">Name</th>
-      <th style="width: 15%;">Host</th>
-      <th style="width: 6%;">Port</th>
-      <th style="width: 14%;">Username</th>
-      <th style="width: 12%;">Password</th>
-      <th style="width: 12%;">From Address</th>
-      <th style="width: 5%;">Auth</th>
-      <th style="width: 5%;">StartTLS</th>
-      <th style="width: 7%;">Edit</th>
-      <th style="width: 8%;">Delete</th>
-    </tr>
-  </ng-template>
-
-  <ng-template pTemplate="body" let-provider>
-    <tr>
-      <td class="text-center">
-        <p-radioButton
-          name="defaultProvider"
-          [value]="provider.id"
-          [(ngModel)]="defaultProviderId"
-          (onClick)="setDefaultProvider(provider)">
-        </p-radioButton>
-      </td>
-
-      <td>
-        @if (provider.isEditing) {
-          <input type="text" [(ngModel)]="provider.name" class="p-inputtext w-full"/>
-        }
-        @if (!provider.isEditing) {
-          <span>{{ provider.name }}</span>
-        }
-      </td>
-
-      <td>
-        @if (provider.isEditing) {
-          <input type="text" [(ngModel)]="provider.host" class="p-inputtext w-full"/>
-        }
-        @if (!provider.isEditing) {
-          <span>{{ provider.host }}</span>
-        }
-      </td>
-
-      <td>
-        @if (provider.isEditing) {
-          <input type="number" [(ngModel)]="provider.port" class="p-inputtext w-full"/>
-        }
-        @if (!provider.isEditing) {
-          <span>{{ provider.port }}</span>
-        }
-      </td>
-
-      <td>
-        @if (provider.isEditing) {
-          <input type="text" [(ngModel)]="provider.username" class="p-inputtext w-full"/>
-        }
-        @if (!provider.isEditing) {
-          <span>{{ provider.username }}</span>
-        }
-      </td>
-
-      <td>
-        @if (provider.isEditing) {
-          <input [(ngModel)]="provider.password" class="p-inputtext w-full"/>
-        }
-        @if (!provider.isEditing) {
-          <span class="text-gray-400 italic">Hidden</span>
-        }
-      </td>
-
-      <td>
-        @if (provider.isEditing) {
-          <input type="text" [(ngModel)]="provider.fromAddress" class="p-inputtext w-full"/>
-        }
-        @if (!provider.isEditing) {
-          <span>{{ provider.fromAddress }}</span>
-        }
-      </td>
-
-      <td class="text-center">
-        <p-checkbox
-          [(ngModel)]="provider.auth"
-          [binary]="true"
-          [disabled]="!provider.isEditing">
-        </p-checkbox>
-      </td>
-
-      <td class="text-center">
-        <p-checkbox
-          [(ngModel)]="provider.startTls"
-          [binary]="true"
-          [disabled]="!provider.isEditing">
-        </p-checkbox>
-      </td>
-
-      <td class="text-center">
-        @if (!provider.isEditing) {
-          <p-button icon="pi pi-pencil" outlined="true" severity="info" (onClick)="toggleEdit(provider)"></p-button>
-        }
-        @if (provider.isEditing) {
-          <p-button icon="pi pi-check" outlined="true" severity="success" (onClick)="saveProvider(provider)"></p-button>
-        }
-        @if (provider.isEditing) {
-          <p-button icon="pi pi-times" outlined="true" severity="danger" (onClick)="toggleEdit(provider)"></p-button>
-        }
-      </td>
-
-      <td class="text-center">
-        <p-button icon="pi pi-trash" outlined="true" severity="danger" (onClick)="deleteProvider(provider)"></p-button>
-      </td>
-    </tr>
-  </ng-template>
-</p-table>

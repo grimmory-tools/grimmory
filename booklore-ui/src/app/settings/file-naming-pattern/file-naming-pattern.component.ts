@@ -6,16 +6,16 @@ import {AppSettingsService} from '../../core/service/app-settings.service';
 import {forkJoin, Observable, of} from 'rxjs';
 import {AppSettingKey, AppSettings} from '../../core/model/app-settings.model';
 import {catchError, filter, take} from 'rxjs/operators';
-import {Divider} from 'primeng/divider';
-import {Tooltip} from 'primeng/tooltip';
 import {Library} from '../../book/model/library.model';
 import {LibraryService} from '../../book/service/library.service';
+import {InputText} from 'primeng/inputtext';
+import {Divider} from 'primeng/divider';
 
 @Component({
   selector: 'app-file-naming-pattern',
   templateUrl: './file-naming-pattern.component.html',
   standalone: true,
-  imports: [FormsModule, Button, Divider, Tooltip],
+  imports: [FormsModule, Button, InputText, Divider],
   styleUrls: ['./file-naming-pattern.component.scss'],
 })
 export class FileNamingPatternComponent implements OnInit {

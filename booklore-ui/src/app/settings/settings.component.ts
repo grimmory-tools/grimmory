@@ -11,9 +11,10 @@ import {AuthenticationSettingsComponent} from '../core/security/oauth2-managemen
 import {ViewPreferencesParentComponent} from './view-preferences-parent/view-preferences-parent.component';
 import {ReaderPreferences} from './reader-preferences/reader-preferences.component';
 import {MetadataSettingsComponent} from './metadata-settings-component/metadata-settings-component';
-import {OpdsSettingsComponent} from './global-preferences/opds-settings/opds-settings.component';
+import {OpdsSettingsComponent} from './opds-settings/opds-settings.component';
 import {DeviceSettingsComponent} from './device-settings-component/device-settings-component';
 import {FileNamingPatternComponent} from './file-naming-pattern/file-naming-pattern.component';
+import {OpdsSettingsV2} from './opds-settings-v2/opds-settings-v2';
 
 export enum SettingsTab {
   ReaderSettings = 'reader',
@@ -25,6 +26,7 @@ export enum SettingsTab {
   MetadataSettings = 'metadata',
   ApplicationSettings = 'application',
   AuthenticationSettings = 'authentication',
+  OpdsV2 = 'opds-v2',
   Opds = 'opds'
 }
 
@@ -46,7 +48,8 @@ export enum SettingsTab {
     MetadataSettingsComponent,
     OpdsSettingsComponent,
     DeviceSettingsComponent,
-    FileNamingPatternComponent
+    FileNamingPatternComponent,
+    OpdsSettingsV2
   ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss'

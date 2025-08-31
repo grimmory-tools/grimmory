@@ -1,192 +1,288 @@
-<div class="w-full h-[calc(100dvh-10.5rem)] md:h-[calc(100dvh-11.65rem)] overflow-y-auto border rounded-lg p-4 enclosing-container">
-
-  <div class="flex justify-between items-center pb-2 pt-2">
-    <h2 class="text-lg  flex items-center gap-2">
-      Current Booklore Users
+<div class="main-container enclosing-container">
+  <div class="settings-header">
+    <h2 class="settings-title">
+      <i class="pi pi-users"></i>
+      User Management
     </h2>
-    <p-button outlined="true" label="Create User" icon="pi pi-plus" (onClick)="openCreateUserDialog()"></p-button>
+    <p class="settings-description">
+      Manage Booklore users, their permissions, and library access. Configure user roles and capabilities for your book collection.
+    </p>
   </div>
 
-  <p-table [value]="users" class="mt-4">
-    <ng-template pTemplate="header">
-      <tr>
-        <th>Type</th>
-        <th>Username</th>
-        <th>Full Name</th>
-        <th>Email</th>
-        <th>Assigned Libraries</th>
-        <th style="width: 60px;">Admin</th>
-        <th style="width: 60px;">Upload</th>
-        <th style="width: 60px;">Download</th>
-        <th style="width: 80px;">Edit Metadata</th>
-        <th style="width: 80px;">Manage Library</th>
-        <th style="width: 80px;">Email Books</th>
-        <th style="width: 80px;">Delete Books</th>
-        <th style="width: 80px;">KOReader Sync</th>
-        <th style="width: 80px;">Kobo Sync</th>
-        <th style="width: 120px;">Edit</th>
-        <th style="width: 80px;">Change Password</th>
-        <th style="width: 80px;">Delete</th>
-      </tr>
-    </ng-template>
-
-    <ng-template pTemplate="body" let-user>
-      <tr>
-        <td class="min-w-16">
-          {{ (user.provisioningMethod || 'LOCAL') | lowercase | titlecase }}
-        </td>
-        <td class="min-w-16 max-w-32">
-          {{ user.username }}
-        </td>
-        <td class="min-w-36 max-w-72">
-          @if (user.isEditing) {
-            <input type="text" [(ngModel)]="user.name" class="p-inputtext w-full"/>
-          }
-          @if (!user.isEditing) {
-            <span>{{ user.name }}</span>
-          }
-        </td>
-        <td>
-          @if (user.isEditing) {
-            <input type="email" [(ngModel)]="user.email" class="p-inputtext w-full"/>
-          }
-          @if (!user.isEditing) {
-            <span>{{ user.email }}</span>
-          }
-        </td>
-        <td>
-          @if (user.isEditing) {
-            <p-multiSelect
-              [options]="allLibraries"
-              optionLabel="name"
-              optionValue="id"
-              [(ngModel)]="editingLibraryIds"
-              placeholder="Select Libraries"
-              appendTo="body">
-            </p-multiSelect>
-          }
-          @if (!user.isEditing) {
-            <span>
-              {{ user.libraryNames }}
-            </span>
-          }
-        </td>
-        <td class="text-center">
-          @if (user.isEditing) {
-            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.admin"></p-checkbox>
-          }
-          @if (!user.isEditing) {
-            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.admin" disabled></p-checkbox>
-          }
-        </td>
-        <td class="text-center">
-          @if (user.isEditing) {
-            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canUpload"></p-checkbox>
-          }
-          @if (!user.isEditing) {
-            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canUpload" disabled></p-checkbox>
-          }
-        </td>
-        <td class="text-center">
-          @if (user.isEditing) {
-            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canDownload"></p-checkbox>
-          }
-          @if (!user.isEditing) {
-            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canDownload" disabled></p-checkbox>
-          }
-        </td>
-        <td class="text-center">
-          @if (user.isEditing) {
-            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canEditMetadata"></p-checkbox>
-          }
-          @if (!user.isEditing) {
-            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canEditMetadata" disabled></p-checkbox>
-          }
-        </td>
-        <td class="text-center">
-          @if (user.isEditing) {
-            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canManipulateLibrary"></p-checkbox>
-          }
-          @if (!user.isEditing) {
-            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canManipulateLibrary" disabled></p-checkbox>
-          }
-        </td>
-        <td class="text-center">
-          @if (user.isEditing) {
-            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canEmailBook"></p-checkbox>
-          }
-          @if (!user.isEditing) {
-            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canEmailBook" disabled></p-checkbox>
-          }
-        </td>
-        <td class="text-center">
-          @if (user.isEditing) {
-            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canDeleteBook"></p-checkbox>
-          }
-          @if (!user.isEditing) {
-            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canDeleteBook" disabled></p-checkbox>
-          }
-        </td>
-        <td class="text-center">
-          @if (user.isEditing) {
-            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canSyncKoReader"></p-checkbox>
-          }
-          @if (!user.isEditing) {
-            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canSyncKoReader" disabled></p-checkbox>
-          }
-        </td>
-        <td class="text-center">
-          @if (user.isEditing) {
-            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canSyncKobo"></p-checkbox>
-          }
-          @if (!user.isEditing) {
-            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canSyncKobo" disabled></p-checkbox>
-          }
-        </td>
-        <td class="flex text-center gap-2">
-          <ng-container>
-            @if (!user.isEditing) {
-              <p-button icon="pi pi-pencil" outlined="true" severity="info" (onClick)="toggleEdit(user)"></p-button>
-            }
-            @if (user.isEditing) {
-              <p-button icon="pi pi-check" outlined="true" severity="success" (onClick)="saveUser(user)"></p-button>
-            }
-            @if (user.isEditing) {
-              <p-button icon="pi pi-times" outlined="true" severity="danger" (onClick)="toggleEdit(user)"></p-button>
-            }
-          </ng-container>
+  <div class="settings-content">
+    <div class="users-section">
+      <div class="section-header">
+        <div class="section-title-group">
+          <h3 class="section-title">
+            <i class="pi pi-user"></i>
+            Current Users
+          </h3>
           <p-button
-            icon="pi pi-pencil"
-            outlined="true"
-            severity="primary"
-            [ngStyle]="{'display': 'none'}">
+            icon="pi pi-plus"
+            label="Create User"
+            severity="success"
+            size="small"
+            outlined
+            (onClick)="openCreateUserDialog()">
           </p-button>
-        </td>
-        <td class="text-center">
-          <ng-container>
-            <p-button icon="pi pi-key" outlined="true" severity="warn" (onClick)="openChangePasswordDialog(user)"></p-button>
-          </ng-container>
-        </td>
-        <td class="text-center">
-          <ng-container>
-            <p-button [disabled]="user.id === currentUser?.id" icon="pi pi-trash" outlined="true" severity="danger" (onClick)="deleteUser(user)"></p-button>
-          </ng-container>
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
+        </div>
+      </div>
 
-  <p-dialog header="Change Password" [(visible)]="isPasswordDialogVisible" [modal]="true" [closable]="false" [style]="{width: '20vw'}">
-    <div class="flex flex-col gap-8 items-center">
-      <p-password [(ngModel)]="newPassword" placeholder="New Password" [feedback]="false" class="w-full" fluid></p-password>
-      <p-password [(ngModel)]="confirmNewPassword" placeholder="Confirm Password" [feedback]="false" class="w-full" fluid></p-password>
-      @if (passwordError) {
-        <p class="p-error text-red-500 w-full text-left">{{ passwordError }}</p>
-      }
-      <div class="flex gap-4 w-full justify-end">
-        <p-button label="Cancel" icon="pi pi-times" severity="secondary" (onClick)="isPasswordDialogVisible = false"></p-button>
-        <p-button label="Change" icon="pi pi-check" severity="success" (onClick)="submitPasswordChange()"></p-button>
+      <div class="table-card">
+        <p-table [value]="users" [scrollable]="true" scrollHeight="flex">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>
+                <div class="header-content">
+                  <i class="pi pi-user"></i>
+                  <span>Username</span>
+                </div>
+              </th>
+              <th>
+                <div class="header-content">
+                  <i class="pi pi-tag"></i>
+                  <span>Type</span>
+                </div>
+              </th>
+              <th class="full-name-column">
+                <div class="header-content">
+                  <i class="pi pi-id-card"></i>
+                  <span>Full Name</span>
+                </div>
+              </th>
+              <th class="email-column">
+                <div class="header-content">
+                  <i class="pi pi-envelope"></i>
+                  <span>Email</span>
+                </div>
+              </th>
+              <th class="libraries-column">
+                <div class="header-content">
+                  <i class="pi pi-book"></i>
+                  <span>Assigned Libraries</span>
+                </div>
+              </th>
+              <th class="permission-header">Admin</th>
+              <th class="permission-header">Upload</th>
+              <th class="permission-header">Download</th>
+              <th class="permission-header">Manage Metadata</th>
+              <th class="permission-header">Manage Library</th>
+              <th class="permission-header">Email Books</th>
+              <th class="permission-header">Delete Books</th>
+              <th class="permission-header">Access OPDS</th>
+              <th class="permission-header">KOReader Sync</th>
+              <th class="permission-header">Kobo Sync</th>
+              <th class="actions-header">
+                <div class="header-content">
+                  <i class="pi pi-cog"></i>
+                  <span>Edit</span>
+                </div>
+              </th>
+              <th class="actions-header">
+                <div class="header-content">
+                  <i class="pi pi-key"></i>
+                  <span>Password</span>
+                </div>
+              </th>
+              <th class="actions-header">
+                <div class="header-content">
+                  <i class="pi pi-trash"></i>
+                  <span>Delete</span>
+                </div>
+              </th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-user>
+            <tr>
+              <td>
+                <div class="user-info">
+                  <div class="user-avatar">
+                    {{ user.username.charAt(0).toUpperCase() }}
+                  </div>
+                  <span class="username">{{ user.username }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="user-type-badge">
+                  {{ (user.provisioningMethod || 'LOCAL') | lowercase | titlecase }}
+                </span>
+              </td>
+              <td class="full-name-column">
+                @if (user.isEditing) {
+                  <input type="text" [(ngModel)]="user.name" class="p-inputtext w-full" size="small"/>
+                }
+                @if (!user.isEditing) {
+                  <span>{{ user.name }}</span>
+                }
+              </td>
+              <td class="email-column">
+                @if (user.isEditing) {
+                  <input type="email" [(ngModel)]="user.email" class="p-inputtext w-full" size="small"/>
+                }
+                @if (!user.isEditing) {
+                  <span>{{ user.email }}</span>
+                }
+              </td>
+              <td class="libraries-column">
+                @if (user.isEditing) {
+                  <p-multiSelect
+                    [options]="allLibraries"
+                    optionLabel="name"
+                    optionValue="id"
+                    [(ngModel)]="editingLibraryIds"
+                    placeholder="Select Libraries"
+                    appendTo="body"
+                    size="small">
+                  </p-multiSelect>
+                }
+                @if (!user.isEditing) {
+                  <span class="library-names">{{ user.libraryNames }}</span>
+                }
+              </td>
+              <td class="text-center">
+                <p-checkbox [binary]="true" [(ngModel)]="user.permissions.admin" [disabled]="!user.isEditing"></p-checkbox>
+              </td>
+              <td class="text-center">
+                <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canUpload" [disabled]="!user.isEditing"></p-checkbox>
+              </td>
+              <td class="text-center">
+                <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canDownload" [disabled]="!user.isEditing"></p-checkbox>
+              </td>
+              <td class="text-center">
+                <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canEditMetadata" [disabled]="!user.isEditing"></p-checkbox>
+              </td>
+              <td class="text-center">
+                <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canManipulateLibrary" [disabled]="!user.isEditing"></p-checkbox>
+              </td>
+              <td class="text-center">
+                <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canEmailBook" [disabled]="!user.isEditing"></p-checkbox>
+              </td>
+              <td class="text-center">
+                <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canDeleteBook" [disabled]="!user.isEditing"></p-checkbox>
+              </td>
+              <td class="text-center">
+                <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canAccessOpds" [disabled]="!user.isEditing"></p-checkbox>
+              </td>
+              <td class="text-center">
+                <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canSyncKoReader" [disabled]="!user.isEditing"></p-checkbox>
+              </td>
+              <td class="text-center">
+                <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canSyncKobo" [disabled]="!user.isEditing"></p-checkbox>
+              </td>
+              <td class="actions-cell">
+                @if (!user.isEditing) {
+                  <p-button
+                    icon="pi pi-pencil"
+                    severity="info"
+                    size="small"
+                    [outlined]="true"
+                    [rounded]="true"
+                    (onClick)="toggleEdit(user)"
+                    pTooltip="Edit user">
+                  </p-button>
+                }
+                @if (user.isEditing) {
+                  <div class="flex gap-1">
+                    <p-button
+                      icon="pi pi-check"
+                      severity="success"
+                      size="small"
+                      [outlined]="true"
+                      [rounded]="true"
+                      (onClick)="saveUser(user)"
+                      pTooltip="Save changes">
+                    </p-button>
+                    <p-button
+                      icon="pi pi-times"
+                      severity="danger"
+                      size="small"
+                      [outlined]="true"
+                      [rounded]="true"
+                      (onClick)="toggleEdit(user)"
+                      pTooltip="Cancel">
+                    </p-button>
+                  </div>
+                }
+              </td>
+              <td class="actions-cell">
+                <p-button
+                  icon="pi pi-key"
+                  severity="warn"
+                  size="small"
+                  [outlined]="true"
+                  [rounded]="true"
+                  (onClick)="openChangePasswordDialog(user)"
+                  pTooltip="Change password">
+                </p-button>
+              </td>
+              <td class="actions-cell">
+                <p-button
+                  [disabled]="user.id === currentUser?.id"
+                  icon="pi pi-trash"
+                  severity="danger"
+                  size="small"
+                  [outlined]="true"
+                  [rounded]="true"
+                  (onClick)="deleteUser(user)"
+                  pTooltip="Delete user">
+                </p-button>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
       </div>
     </div>
+  </div>
+
+  <p-dialog
+    header="Change Password"
+    [(visible)]="isPasswordDialogVisible"
+    [modal]="true"
+    styleClass="user-dialog"
+    [style]="{width: '400px'}">
+    <div class="dialog-form">
+      <div class="form-field">
+        <label for="newPassword">New Password</label>
+        <p-password
+          id="newPassword"
+          [(ngModel)]="newPassword"
+          placeholder="Enter new password"
+          [feedback]="false"
+          fluid>
+        </p-password>
+      </div>
+      <div class="form-field">
+        <label for="confirmPassword">Confirm Password</label>
+        <p-password
+          id="confirmPassword"
+          [(ngModel)]="confirmNewPassword"
+          placeholder="Confirm new password"
+          [feedback]="false"
+          fluid>
+        </p-password>
+      </div>
+      @if (passwordError) {
+        <div class="error-message">
+          <i class="pi pi-exclamation-triangle"></i>
+          <span>{{ passwordError }}</span>
+        </div>
+      }
+    </div>
+    <ng-template pTemplate="footer">
+      <div class="dialog-actions">
+        <p-button
+          label="Cancel"
+          severity="secondary"
+          outlined="true"
+          (onClick)="isPasswordDialogVisible = false">
+        </p-button>
+        <p-button
+          label="Change Password"
+          severity="success"
+          (onClick)="submitPasswordChange()">
+        </p-button>
+      </div>
+    </ng-template>
   </p-dialog>
 </div>

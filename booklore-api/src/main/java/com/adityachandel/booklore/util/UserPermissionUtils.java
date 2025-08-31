@@ -13,6 +13,7 @@ public class UserPermissionUtils {
             case MANIPULATE_LIBRARY -> perms.isPermissionManipulateLibrary();
             case EMAIL_BOOK -> perms.isPermissionEmailBook();
             case DELETE_BOOK -> perms.isPermissionDeleteBook();
+            case ACCESS_OPDS -> perms.isPermissionAccessOpds();
             case SYNC_KOREADER -> perms.isPermissionSyncKoreader();
             case SYNC_KOBO -> perms.isPermissionSyncKobo();
             case ADMIN -> perms.isPermissionAdmin();

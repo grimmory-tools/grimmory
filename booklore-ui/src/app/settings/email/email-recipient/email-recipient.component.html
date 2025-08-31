@@ -1,69 +1,162 @@
-<div class="flex justify-between items-center mb-4">
-  <h2 class="text-lg  flex items-center gap-2">
-    Recipient Emails
-    <i class="pi pi-info-circle text-sky-600"
-      pTooltip="Manage the list of recipients who will receive books via email. The 'Default' recipient will be used for 'Quick Book Send,' located in the Book Card menu."
-      tooltipPosition="right"
-    style="cursor: pointer;"></i>
-  </h2>
-  <p-button outlined="true" icon="pi pi-plus" label="Add New Recipient" (onClick)="openAddRecipientDialog()"></p-button>
+<div class="main-container enclosing-container">
+  <div class="settings-header">
+    <h2 class="settings-title">
+      <i class="pi pi-users"></i>
+      Recipient Emails
+    </h2>
+    <p class="settings-description">
+      Manage the list of recipients who will receive books via email. The 'Default' recipient will be used for 'Quick Book Send,' located in the Book Card menu.
+    </p>
+  </div>
+
+  <div class="settings-content">
+    <div class="preferences-section">
+      <div class="section-header">
+        <div class="section-title-group">
+          <h3 class="section-title">
+            <i class="pi pi-envelope"></i>
+            Current Recipients
+          </h3>
+          <p-button
+            icon="pi pi-plus"
+            label="Create Recipient"
+            severity="success"
+            size="small"
+            [outlined]="true"
+            (onClick)="openAddRecipientDialog()">
+          </p-button>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <p-table [value]="recipientEmails" [scrollable]="true" scrollHeight="flex">
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width: 10%;">
+                <div class="header-content">
+                  <i class="pi pi-star"></i>
+                  <span>Default</span>
+                </div>
+              </th>
+              <th style="width: 45%;">
+                <div class="header-content">
+                  <i class="pi pi-envelope"></i>
+                  <span>Email Address</span>
+                </div>
+              </th>
+              <th style="width: 30%;">
+                <div class="header-content">
+                  <i class="pi pi-user"></i>
+                  <span>Name</span>
+                </div>
+              </th>
+              <th style="width: 8%;" class="actions-header">
+                <div class="header-content">
+                  <i class="pi pi-pencil"></i>
+                  <span>Edit</span>
+                </div>
+              </th>
+              <th style="width: 7%;" class="actions-header">
+                <div class="header-content">
+                  <i class="pi pi-trash"></i>
+                  <span>Delete</span>
+                </div>
+              </th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-recipient>
+            <tr>
+              <td class="text-center">
+                <p-radioButton
+                  name="defaultRecipient"
+                  [value]="recipient.id"
+                  [(ngModel)]="defaultRecipientId"
+                  (onClick)="setDefaultRecipient(recipient)">
+                </p-radioButton>
+              </td>
+
+              <td>
+                @if (recipient.isEditing) {
+                  <input type="email" [(ngModel)]="recipient.email" class="p-inputtext w-full" size="small"/>
+                }
+                @if (!recipient.isEditing) {
+                  <span>{{ recipient.email }}</span>
+                }
+              </td>
+
+              <td>
+                @if (recipient.isEditing) {
+                  <input type="text" [(ngModel)]="recipient.name" class="p-inputtext w-full" size="small"/>
+                }
+                @if (!recipient.isEditing) {
+                  <span>{{ recipient.name }}</span>
+                }
+              </td>
+
+              <td class="actions-cell">
+                @if (!recipient.isEditing) {
+                  <p-button
+                    icon="pi pi-pencil"
+                    severity="info"
+                    size="small"
+                    [outlined]="true"
+                    [rounded]="true"
+                    (onClick)="toggleEditRecipient(recipient)"
+                    pTooltip="Edit recipient">
+                  </p-button>
+                }
+                @if (recipient.isEditing) {
+                  <div class="flex gap-1">
+                    <p-button
+                      icon="pi pi-check"
+                      severity="success"
+                      size="small"
+                      [outlined]="true"
+                      [rounded]="true"
+                      (onClick)="saveRecipient(recipient)"
+                      pTooltip="Save changes">
+                    </p-button>
+                    <p-button
+                      icon="pi pi-times"
+                      severity="danger"
+                      size="small"
+                      [outlined]="true"
+                      [rounded]="true"
+                      (onClick)="toggleEditRecipient(recipient)"
+                      pTooltip="Cancel">
+                    </p-button>
+                  </div>
+                }
+              </td>
+
+              <td class="actions-cell">
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  size="small"
+                  [outlined]="true"
+                  [rounded]="true"
+                  (onClick)="deleteRecipient(recipient)"
+                  pTooltip="Delete recipient">
+                </p-button>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="5">
+                <div class="empty-message">
+                  <i class="pi pi-users"></i>
+                  <p class="empty-title">No recipients found</p>
+                  <p class="empty-subtitle">Add your first email recipient to start sending books</p>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </div>
 </div>
-
-<p-table [value]="recipientEmails">
-  <ng-template pTemplate="header">
-    <tr>
-      <th style="width: 5%;">Default</th>
-      <th style="width: 40%;">Email Address</th>
-      <th style="width: 40%;">Name</th>
-      <th style="width: 15%;">Edit</th>
-      <th style="width: 5%;">Delete</th>
-    </tr>
-  </ng-template>
-
-  <ng-template pTemplate="body" let-recipient>
-    <tr>
-      <td class="text-center">
-        <p-radioButton
-          name="defaultRecipient"
-          [value]="recipient.id"
-          [(ngModel)]="defaultRecipientId"
-          (onClick)="setDefaultRecipient(recipient)">
-        </p-radioButton>
-      </td>
-
-      <td>
-        @if (recipient.isEditing) {
-          <input type="email" [(ngModel)]="recipient.email" class="p-inputtext w-full"/>
-        }
-        @if (!recipient.isEditing) {
-          <span>{{ recipient.email }}</span>
-        }
-      </td>
-
-      <td>
-        @if (recipient.isEditing) {
-          <input type="text" [(ngModel)]="recipient.name" class="p-inputtext w-full"/>
-        }
-        @if (!recipient.isEditing) {
-          <span>{{ recipient.name }}</span>
-        }
-      </td>
-
-      <td class="text-center">
-        @if (!recipient.isEditing) {
-          <p-button icon="pi pi-pencil" outlined="true" severity="info" (onClick)="toggleEditRecipient(recipient)"></p-button>
-        }
-        @if (recipient.isEditing) {
-          <p-button icon="pi pi-check" outlined="true" severity="success" (onClick)="saveRecipient(recipient)"></p-button>
-        }
-        @if (recipient.isEditing) {
-          <p-button icon="pi pi-times" outlined="true" severity="danger" (onClick)="toggleEditRecipient(recipient)"></p-button>
-        }
-      </td>
-
-      <td class="text-center">
-        <p-button icon="pi pi-trash" outlined="true" severity="danger" (onClick)="deleteRecipient(recipient)"></p-button>
-      </td>
-    </tr>
-  </ng-template>
-</p-table>

@@ -1,7 +1,6 @@
 import {Component, inject, Input} from '@angular/core';
 import {RadioButton} from 'primeng/radiobutton';
 import {FormsModule} from '@angular/forms';
-import {Tooltip} from 'primeng/tooltip';
 import {ReaderPreferencesService} from '../reader-preferences-service';
 import {UserSettings} from '../../user-management/user.service';
 
@@ -9,8 +8,7 @@ import {UserSettings} from '../../user-management/user.service';
   selector: 'app-pdf-reader-preferences-component',
   imports: [
     RadioButton,
-    FormsModule,
-    Tooltip
+    FormsModule
   ],
   templateUrl: './pdf-reader-preferences-component.html',
   styleUrl: './pdf-reader-preferences-component.scss'

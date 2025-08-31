@@ -1,10 +1,7 @@
 import {Component, inject, OnInit} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {Observable} from 'rxjs';
-
-import {Divider} from 'primeng/divider';
 import {Button} from 'primeng/button';
-import {Tooltip} from 'primeng/tooltip';
 import {ToggleSwitch} from 'primeng/toggleswitch';
 import {MessageService} from 'primeng/api';
 
@@ -18,9 +15,7 @@ import {InputText} from 'primeng/inputtext';
   selector: 'app-global-preferences',
   standalone: true,
   imports: [
-    Divider,
     Button,
-    Tooltip,
     ToggleSwitch,
     FormsModule,
     InputText

@@ -1,0 +1,205 @@
+<div class="main-container enclosing-container">
+  <div class="settings-header">
+    <h2 class="settings-title">
+      <i class="pi pi-server"></i>
+      OPDS Settings
+    </h2>
+    <p class="settings-description">
+      Manage your OPDS credentials and control how your book collection is shared with reading apps.
+      By default, all libraries you have access to will be included in the OPDS feed.
+    </p>
+  </div>
+
+  @if (hasPermission) {
+    <div class="settings-content">
+      <div class="endpoint-section">
+        <h3 class="section-title">
+          <i class="pi pi-link"></i>
+          OPDS Endpoint
+        </h3>
+        <div class="endpoint-form">
+          <div class="endpoint-field">
+            <input
+              id="endpoint-url"
+              fluid
+              class="endpoint-input"
+              type="text"
+              pInputText
+              [value]="opdsEndpoint"
+              readonly/>
+            <p-button
+              icon="pi pi-copy"
+              severity="info"
+              outlined
+              size="small"
+              (onClick)="copyEndpoint()">
+            </p-button>
+          </div>
+        </div>
+      </div>
+
+      <div class="users-section">
+        <div class="section-header">
+          <div class="section-title-group">
+            <h3 class="section-title">
+              <i class="pi pi-users"></i>
+              OPDS Users
+            </h3>
+            <p-button
+              icon="pi pi-plus"
+              label="Add User"
+              severity="success"
+              size="small"
+              (onClick)="showCreateUserDialog = true">
+            </p-button>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <p-table
+            [value]="users"
+            [paginator]="users.length > 10"
+            [rows]="10"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} users">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>
+                  <div class="header-content">
+                    <i class="pi pi-user"></i>
+                    <span>Username</span>
+                  </div>
+                </th>
+                <th>
+                  <div class="header-content">
+                    <i class="pi pi-key"></i>
+                    <span>Password</span>
+                  </div>
+                </th>
+                <th class="actions-header">
+                  <div class="header-content">
+                    <i class="pi pi-cog"></i>
+                    <span>Actions</span>
+                  </div>
+                </th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-user let-rowIndex="rowIndex">
+              <tr>
+                <td>
+                  <div class="user-info">
+                    <div class="user-avatar">
+                      {{ user.username.charAt(0).toUpperCase() }}
+                    </div>
+                    <span class="username">{{ user.username }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="flex items-center gap-2">
+                    <p-password
+                      fluid
+                      class="w-32 md:w-56"
+                      [(ngModel)]="dummyPassword"
+                      [feedback]="false"
+                      size="small"
+                      [disabled]="true"
+                      [toggleMask]="false">
+                    </p-password>
+                    <i
+                      class="pi pi-info-circle text-gray-400"
+                      pTooltip="Passwords are hidden for security reasons. To change, delete the user and create a new one with a new password."
+                      tooltipPosition="right"
+                      style="cursor: pointer;">
+                    </i>
+                  </div>
+                </td>
+                <td class="actions-cell">
+                  <p-button
+                    icon="pi pi-trash"
+                    severity="danger"
+                    size="small"
+                    [outlined]="true"
+                    [rounded]="true"
+                    (onClick)="confirmDelete(user)"
+                    pTooltip="Delete user">
+                  </p-button>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="3">
+                  <div class="empty-message">
+                    <i class="pi pi-users"></i>
+                    <p class="empty-title">No users found</p>
+                    <p class="empty-subtitle">Create your first OPDS user to get started</p>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </div>
+
+    <p-dialog
+      header="Create User"
+      [(visible)]="showCreateUserDialog"
+      [modal]="true"
+      styleClass="user-dialog"
+      [style]="{width: '400px'}">
+      <div class="dialog-form">
+        <div class="form-field">
+          <label for="username">Username</label>
+          <input
+            id="username"
+            type="text"
+            pInputText
+            [(ngModel)]="newUser.username"
+            placeholder="Enter username"/>
+        </div>
+        <div class="form-field">
+          <label for="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            pInputText
+            [(ngModel)]="newUser.password"
+            placeholder="Enter password"/>
+        </div>
+      </div>
+      <ng-template pTemplate="footer">
+        <div class="dialog-actions">
+          <p-button
+            label="Cancel"
+            severity="secondary"
+            outlined="true"
+            (onClick)="cancelCreateUser()">
+          </p-button>
+          <p-button
+            label="Create"
+            severity="success"
+            [disabled]="!newUser.username || !newUser.password"
+            (onClick)="createUser()">
+          </p-button>
+        </div>
+      </ng-template>
+    </p-dialog>
+
+    <p-confirmDialog></p-confirmDialog>
+  } @else {
+    <div class="settings-content">
+      <div class="access-denied-card">
+        <i class="pi pi-lock"></i>
+        <div class="access-denied-content">
+          <h3>Access Restricted</h3>
+          <p>
+            Access to OPDS is restricted.
+            <br>
+            Please contact your administrator to request permission.
+          </p>
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -181,23 +181,24 @@ jobs:
             --tag ghcr.io/booklore-app/booklore:latest \
             --push .
 
-      - name: Create Git Tag (Only for Master)
+      - name: Update Release Draft (Only for Master)
         if: github.ref == 'refs/heads/master'
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git tag ${{ env.new_tag }}
-          git push origin ${{ env.new_tag }}
+        uses: release-drafter/release-drafter@v6
+        with:
+          tag: ${{ env.new_tag }}
+          name: "Release ${{ env.new_tag }}"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Publish Draft Release (Only for Master)
         if: github.ref == 'refs/heads/master'
         env:
-          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           gh release edit ${{ env.new_tag }} --draft=false
 
       - name: Notify Discord of New Release
-        if: github.ref == 'refs/heads/master'
+        if: false
         continue-on-error: true
         shell: bash
         env:

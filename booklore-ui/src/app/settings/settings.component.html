@@ -29,9 +29,12 @@
               <i class="pi pi-lock"></i> Authentication
             </p-tab>
             <p-tab [value]="SettingsTab.Opds">
-              <i class="pi pi-globe"></i> OPDS
+              <i class="pi pi-globe"></i> OPDS (Deprecated)
             </p-tab>
           }
+          <p-tab [value]="SettingsTab.OpdsV2">
+            <i class="pi pi-globe"></i> OPDS V2
+          </p-tab>
           <p-tab [value]="SettingsTab.DeviceSettings">
             <i class="pi pi-mobile"></i> Devices
           </p-tab>
@@ -66,6 +69,9 @@
               <app-opds-settings></app-opds-settings>
             </p-tabpanel>
           }
+          <p-tabpanel [value]="SettingsTab.OpdsV2">
+            <app-opds-settings-v2></app-opds-settings-v2>
+          </p-tabpanel>
           <p-tabpanel [value]="SettingsTab.DeviceSettings">
             <app-device-settings-component></app-device-settings-component>
           </p-tabpanel>

@@ -1,0 +1,240 @@
+.reviews-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.setting-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem;
+  padding-bottom: 1.5rem;
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+.setting-info {
+  flex: 1;
+  min-width: 0;
+
+  .setting-label {
+    display: block;
+    font-weight: 600;
+    color: var(--p-text-color);
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .setting-label-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+
+    .setting-label {
+      margin-bottom: 0;
+      flex-shrink: 0;
+    }
+  }
+
+  .setting-description {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    color: var(--p-text-muted-color);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin: 0;
+
+    .pi {
+      margin-top: 0.125rem;
+      flex-shrink: 0;
+      color: var(--p-primary-color);
+    }
+  }
+}
+
+.setting-control {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: flex-end;
+
+  @media (max-width: 768px) {
+    align-items: flex-start;
+    width: 100%;
+  }
+}
+
+.review-sources-section {
+  padding-left: 2rem;
+  margin-top: -1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    padding-left: 0;
+  }
+}
+
+.sources-header {
+  .subsection-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--p-text-color);
+    margin-bottom: 0.5rem;
+  }
+
+  .subsection-description {
+    color: var(--p-text-muted-color);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+}
+
+.providers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.provider-item {
+  width: 25rem;
+  border-radius: 6px;
+  padding: 0.75rem;
+  background: var(--p-surface-800);
+
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.provider-setting {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
+
+.provider-label-row {
+  display: flex;
+  align-items: center;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .provider-label {
+    font-weight: 500;
+    width: 6rem;
+    color: var(--p-text-color);
+    flex-shrink: 0;
+
+    @media (max-width: 768px) {
+      width: auto;
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  .provider-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 0;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.75rem;
+    }
+  }
+}
+
+.provider-control {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+}
+
+.provider-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  .provider-label {
+    font-weight: 500;
+    color: var(--p-text-color);
+  }
+}
+
+.max-reviews-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  @media (max-width: 768px) {
+    justify-content: space-between;
+  }
+
+  .max-reviews-label {
+    color: var(--p-text-muted-color);
+    font-size: 0.875rem;
+    white-space: nowrap;
+  }
+
+  .max-reviews-input {
+    width: 4rem;
+    padding: 0.25rem;
+    border-radius: 4px;
+    color: var(--p-text-color);
+    font-size: 0.875rem;
+    text-align: center;
+
+    &:focus {
+      outline: none;
+      border-color: var(--p-primary-color);
+      box-shadow: 0 0 0 2px var(--p-primary-color-alpha-20);
+    }
+  }
+}
+
+.no-providers-message {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--p-text-muted-color);
+  font-size: 0.875rem;
+  font-style: italic;
+  padding: 1rem;
+  background: var(--p-surface-100);
+  border-radius: 6px;
+
+  .pi {
+    color: var(--p-orange-500);
+  }
+}

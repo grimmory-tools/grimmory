@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/opds")
+@RequestMapping({"/api/v1/opds", "/api/v2/opds"})
 @RequiredArgsConstructor
 public class OpdsController {
 

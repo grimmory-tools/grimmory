@@ -10,7 +10,6 @@ import {AppSettingsService} from '../../service/app-settings.service';
 import {Observable} from 'rxjs';
 import {AppSettingKey, AppSettings, OidcProviderDetails} from '../../model/app-settings.model';
 import {filter, take} from 'rxjs/operators';
-import {Divider} from 'primeng/divider';
 import {MultiSelect} from 'primeng/multiselect';
 import {Library} from '../../../book/model/library.model';
 import {LibraryService} from '../../../book/service/library.service';
@@ -24,7 +23,6 @@ import {LibraryService} from '../../../book/service/library.service';
     InputText,
     Checkbox,
     ToggleSwitch,
-    Divider,
     Button,
     MultiSelect,
     ReactiveFormsModule
@@ -40,7 +38,8 @@ export class AuthenticationSettingsComponent implements OnInit {
     {label: 'Email Book', value: 'permissionEmailBook', selected: false},
     {label: 'Delete Book', value: 'permissionDeleteBook', selected: false},
     {label: 'KOReader Sync', value: 'permissionSyncKoreader', selected: false},
-    {label: 'Kobo Sync', value: 'permissionSyncKobo', selected: false}
+    {label: 'Kobo Sync', value: 'permissionSyncKobo', selected: false},
+    {label: 'Access OPDS', value: 'permissionAccessOpds', selected: false}
   ];
 
   internalAuthEnabled = true;

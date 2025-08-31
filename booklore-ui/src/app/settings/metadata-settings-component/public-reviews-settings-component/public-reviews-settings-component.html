@@ -1,59 +1,64 @@
-<div class="p-4 min-w-[50rem]">
-  <p class="text-lg pb-4 pt-2">Public Reviews:</p>
-  <div class="flex flex-col gap-4 pl-6">
-    <div class="flex items-center gap-4">
-      <label>Download Public Reviews</label>
-      <p-toggleswitch
-        [(ngModel)]="publicReviewSettings.downloadEnabled"
-        (onChange)="onPublicReviewsToggle($event.checked)">
-      </p-toggleswitch>
-      <span class="text-sm text-gray-400">
-          Automatically download user reviews from enabled platforms (Amazon, Goodreads, Hardcover) when fetching book metadata. Reviews will be stored with your books for offline access.
-        </span>
-    </div>
-
-    @if (publicReviewSettings.downloadEnabled) {
-      <div class="pl-4 md:pl-6 border-l-2 border-zinc-600">
-        <div class="space-y-4">
-          <div class="space-y-2">
-            <p class="text-md font-medium text-gray-300">Review Sources:</p>
-            <p class="text-sm text-gray-400">Configure which platforms to download reviews from and set limits for each source.</p>
-          </div>
-
-          @for (provider of publicReviewSettings.providers; track provider.provider) {
-            <div class="flex items-center justify-between gap-4 p-2 bg-zinc-800/50 rounded-lg border border-zinc-700 max-w-[22rem]">
-              <div class="flex items-center gap-2 min-w-[8rem]">
-                <p-toggleswitch
-                  [(ngModel)]="provider.enabled"
-                  (onChange)="onProviderToggle(provider.provider, $event.checked)">
-                </p-toggleswitch>
-                <label class="font-medium text-gray-200">{{ provider.provider }}</label>
-              </div>
-
-              @if (provider.enabled) {
-                <div class="flex items-center gap-2">
-                  <label class="text-sm text-gray-400">Max Reviews:</label>
-                  <input
-                    type="number"
-                    class="w-20 px-2 py-1 border border-gray-600 bg-gray-800 text-gray-200 rounded text-sm focus:border-blue-500 focus:outline-none"
-                    min="1"
-                    max="10"
-                    [(ngModel)]="provider.maxReviews"
-                    (blur)="onMaxReviewsChange(provider.provider, provider.maxReviews)"
-                    title="Number of reviews to download (1-10)">
-                </div>
-              }
-            </div>
-          }
-
-          @if (publicReviewSettings.providers.length === 0) {
-            <div class="text-sm text-gray-500 italic">
-              No review sources available. Please ensure metadata providers are configured in the Provider Settings section above.
-            </div>
-          }
-        </div>
+<div class="reviews-settings">
+  <div class="setting-item">
+    <div class="setting-info">
+      <div class="setting-label-row">
+        <label class="setting-label">Download Public Reviews</label>
+        <p-toggleswitch
+          [(ngModel)]="publicReviewSettings.downloadEnabled"
+          (onChange)="onPublicReviewsToggle($event.checked)">
+        </p-toggleswitch>
       </div>
-    }
-
+      <p class="setting-description">
+        <i class="pi pi-info-circle"></i>
+        Automatically download user reviews from enabled platforms (Amazon, Goodreads, Hardcover) when fetching book metadata. Reviews will be stored with your books for offline access.
+      </p>
+    </div>
   </div>
+
+  @if (publicReviewSettings.downloadEnabled) {
+    <div class="review-sources-section">
+      <div class="sources-header">
+        <h4 class="subsection-title">Review Sources</h4>
+        <p class="subsection-description">Configure which platforms to download reviews from and set limits for each source.</p>
+      </div>
+
+      <div class="providers-list">
+        @for (provider of publicReviewSettings.providers; track provider.provider) {
+          <div class="provider-item">
+            <div class="provider-setting">
+              <div class="provider-label-row">
+                <label class="provider-label">{{ provider.provider }}</label>
+                <div class="provider-controls">
+                  <p-toggleswitch
+                    [(ngModel)]="provider.enabled"
+                    (onChange)="onProviderToggle(provider.provider, $event.checked)">
+                  </p-toggleswitch>
+                  @if (provider.enabled) {
+                    <div class="max-reviews-control">
+                      <label class="max-reviews-label">Max Reviews:</label>
+                      <input
+                        type="number"
+                        class="max-reviews-input"
+                        min="1"
+                        max="10"
+                        [(ngModel)]="provider.maxReviews"
+                        (blur)="onMaxReviewsChange(provider.provider, provider.maxReviews)"
+                        title="Number of reviews to download (1-10)">
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+
+        @if (publicReviewSettings.providers.length === 0) {
+          <div class="no-providers-message">
+            <i class="pi pi-exclamation-triangle"></i>
+            <span>No review sources available. Please ensure metadata providers are configured in the Provider Settings section above.</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
 </div>

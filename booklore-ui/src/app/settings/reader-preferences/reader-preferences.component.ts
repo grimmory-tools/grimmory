@@ -4,8 +4,6 @@ import {filter, takeUntil} from 'rxjs/operators';
 
 import {Observable, Subject} from 'rxjs';
 import {RadioButton} from 'primeng/radiobutton';
-import {Divider} from 'primeng/divider';
-import {Tooltip} from 'primeng/tooltip';
 import {UserService, UserSettings, UserState} from '../user-management/user.service';
 import {EpubReaderPreferencesComponent} from './epub-reader-preferences-component/epub-reader-preferences-component';
 import {PdfReaderPreferencesComponent} from './pdf-reader-preferences-component/pdf-reader-preferences-component';
@@ -17,7 +15,7 @@ import {ReaderPreferencesService} from './reader-preferences-service';
   templateUrl: './reader-preferences.component.html',
   standalone: true,
   styleUrls: ['./reader-preferences.component.scss'],
-  imports: [FormsModule, RadioButton, Divider, Tooltip, EpubReaderPreferencesComponent, PdfReaderPreferencesComponent, CbxReaderPreferencesComponent]
+  imports: [FormsModule, RadioButton, EpubReaderPreferencesComponent, PdfReaderPreferencesComponent, CbxReaderPreferencesComponent]
 })
 export class ReaderPreferences implements OnInit, OnDestroy {
   readonly scopeOptions = ['Global', 'Individual'];

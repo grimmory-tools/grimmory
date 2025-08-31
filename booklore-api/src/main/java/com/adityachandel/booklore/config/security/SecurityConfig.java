@@ -5,7 +5,7 @@ import com.adityachandel.booklore.config.security.filter.CoverJwtFilter;
 import com.adityachandel.booklore.config.security.filter.DualJwtAuthenticationFilter;
 import com.adityachandel.booklore.config.security.filter.KoboAuthFilter;
 import com.adityachandel.booklore.config.security.filter.KoreaderAuthFilter;
-import com.adityachandel.booklore.config.security.service.CustomOpdsUserDetailsService;
+import com.adityachandel.booklore.config.security.service.OpdsUserDetailsService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,7 +37,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @Configuration
 public class SecurityConfig {
 
-    private final CustomOpdsUserDetailsService customOpdsUserDetailsService;
+    private final OpdsUserDetailsService opdsUserDetailsService;
     private final DualJwtAuthenticationFilter dualJwtAuthenticationFilter;
     private final AppProperties appProperties;
 
@@ -56,7 +56,8 @@ public class SecurityConfig {
     };
 
     private static final String[] COMMON_UNAUTHENTICATED_ENDPOINTS = {
-            "/api/v1/opds/search.opds"
+            "/api/v1/opds/search.opds",
+            "/api/v2/opds/search.opds"
     };
 
     @Bean
@@ -69,7 +70,7 @@ public class SecurityConfig {
     public SecurityFilterChain opdsBasicAuthSecurityChain(HttpSecurity http) throws Exception {
         List<String> unauthenticatedEndpoints = new ArrayList<>(Arrays.asList(COMMON_UNAUTHENTICATED_ENDPOINTS));
         http
-                .securityMatcher("/api/v1/opds/**")
+                .securityMatcher("/api/v1/opds/**", "/api/v2/opds/**")
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
@@ -84,6 +85,7 @@ public class SecurityConfig {
                             response.getWriter().write("HTTP Status 401 - " + authException.getMessage());
                         })
                 );
+
         return http.build();
     }
 
@@ -157,7 +159,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(customOpdsUserDetailsService);
+        provider.setUserDetailsService(opdsUserDetailsService);
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }

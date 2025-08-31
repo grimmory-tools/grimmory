@@ -2,7 +2,6 @@ package com.adityachandel.booklore.repository;
 
 import com.adityachandel.booklore.model.entity.BookEntity;
 import jakarta.transaction.Transactional;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -76,13 +75,28 @@ public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpec
                 WHERE (b.deleted IS NULL OR b.deleted = false) AND (
                       LOWER(m.title) LIKE LOWER(CONCAT('%', :text, '%'))
                    OR LOWER(m.subtitle) LIKE LOWER(CONCAT('%', :text, '%'))
-                   OR LOWER(m.description) LIKE LOWER(CONCAT('%', :text, '%'))
                    OR LOWER(m.seriesName) LIKE LOWER(CONCAT('%', :text, '%'))
                    OR LOWER(a.name) LIKE LOWER(CONCAT('%', :text, '%'))
                 )
                 ORDER BY m.title ASC
             """)
-    List<BookEntity> findBooksContainingMetadata(@Param("text") String text);
+    List<BookEntity> searchByMetadata(@Param("text") String text);
+
+    @Query("""
+        SELECT DISTINCT b FROM BookEntity b
+        LEFT JOIN FETCH b.metadata m
+        LEFT JOIN FETCH m.authors a
+        LEFT JOIN FETCH m.categories
+        WHERE (b.deleted IS NULL OR b.deleted = false)
+          AND b.library.id IN :libraryIds
+          AND (
+              LOWER(m.title) LIKE LOWER(CONCAT('%', :text, '%'))
+           OR LOWER(m.seriesName) LIKE LOWER(CONCAT('%', :text, '%'))
+           OR LOWER(a.name) LIKE LOWER(CONCAT('%', :text, '%'))
+          )
+        ORDER BY m.title ASC
+        """)
+    List<BookEntity> searchByMetadataAndLibraryIds(@Param("text") String text, @Param("libraryIds") Collection<Long> libraryIds);
 
     @Modifying
     @Transactional

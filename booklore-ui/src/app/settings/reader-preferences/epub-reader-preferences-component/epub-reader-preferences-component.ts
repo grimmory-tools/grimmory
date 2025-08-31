@@ -1,7 +1,6 @@
 import {Component, inject, Input} from '@angular/core';
 import {Button} from 'primeng/button';
 import {Select} from 'primeng/select';
-import {Tooltip} from 'primeng/tooltip';
 import {FormsModule} from '@angular/forms';
 import {ReaderPreferencesService} from '../reader-preferences-service';
 import {UserSettings} from '../../user-management/user.service';
@@ -11,7 +10,6 @@ import {UserSettings} from '../../user-management/user.service';
   imports: [
     Button,
     Select,
-    Tooltip,
     FormsModule
   ],
   templateUrl: './epub-reader-preferences-component.html',

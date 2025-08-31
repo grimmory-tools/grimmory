@@ -1,112 +1,131 @@
-<p class="text-lg flex items-center gap-2">
-  Enabled Metadata Providers:
-  <i
-    class="pi pi-info-circle text-sky-600"
-    pTooltip="Enable or configure third-party metadata sources for enhanced book information."
-    tooltipPosition="right"
-    style="cursor: pointer;">
-  </i>
-</p>
+<div class="metadata-settings">
+  <div class="setting-item">
+    <div class="setting-info">
+      <label class="setting-label">Enabled Metadata Providers</label>
+      <p class="setting-description">
+        <i class="pi pi-info-circle"></i>
+        Enable or configure third-party metadata sources for enhanced book information. Each provider offers different types of data and coverage.
+      </p>
+    </div>
+  </div>
 
-<div class="flex flex-col gap-4 p-4">
+  <div class="providers-list">
+    <div class="provider-item">
+      <div class="provider-control">
+        <div class="provider-info">
+          <p-checkbox [(ngModel)]="amazonEnabled" [binary]="true"></p-checkbox>
+          <label class="provider-label">Amazon</label>
+        </div>
+      </div>
 
-  <div class="flex flex-col gap-2">
-    <div class="flex items-center gap-4">
-      <p-checkbox [(ngModel)]="amazonEnabled" [binary]="true"></p-checkbox>
-      <label class="font-medium">Amazon</label>
+      <div class="provider-config">
+        <div class="config-field">
+          <label class="config-label">Region</label>
+          <p-select
+            [options]="amazonDomains"
+            [(ngModel)]="selectedAmazonDomain"
+            placeholder="Select Domain"
+            class="config-select">
+          </p-select>
+        </div>
+
+        <div class="config-field">
+          <label class="config-label">Cookie (Optional)</label>
+          <p class="config-description">
+            <i class="pi pi-info-circle"></i>
+            Providing your Amazon session cookie allows the app to access richer book metadata and bypass rate limits. Optional but recommended for best results.
+          </p>
+          <input
+            type="text"
+            pInputText
+            placeholder="Paste your Amazon cookie"
+            class="config-input"
+            [(ngModel)]="amazonCookie" />
+        </div>
+      </div>
     </div>
 
-    <div class="flex flex-col gap-2 pl-9 pt-1">
-      <label class="font-medium text-sm">Region</label>
-      <p-select
-        [options]="amazonDomains"
-        [(ngModel)]="selectedAmazonDomain"
-        placeholder="Select Domain"
-        class="w-full max-w-52">
-      </p-select>
+    <div class="provider-item">
+      <div class="provider-control">
+        <div class="provider-info">
+          <p-checkbox [(ngModel)]="goodreadsEnabled" [binary]="true"></p-checkbox>
+          <label class="provider-label">Goodreads</label>
+        </div>
+      </div>
+    </div>
 
-      <label class="font-medium text-sm">Cookie (Optional)</label>
-      <div class="flex items-center gap-2">
-        <input
-          type="text"
-          pInputText
-          placeholder="Paste your Amazon cookie"
-          class="w-full max-w-3xl"
-          [(ngModel)]="amazonCookie" />
-        <i
-          class="pi pi-info-circle text-sky-600"
-          pTooltip="Providing your Amazon session cookie allows the app to access richer book metadata and bypass rate limits. Optional but recommended for best results."
-          tooltipPosition="right"
-          style="cursor: pointer;">
-        </i>
+    <div class="provider-item">
+      <div class="provider-control">
+        <div class="provider-info">
+          <p-checkbox [(ngModel)]="googleEnabled" [binary]="true"></p-checkbox>
+          <label class="provider-label">Google</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="provider-item">
+      <div class="provider-control">
+        <div class="provider-info">
+          <p-checkbox
+            [binary]="true"
+            [(ngModel)]="hardcoverEnabled"
+            [disabled]="!hardcoverToken">
+          </p-checkbox>
+          <label class="provider-label">Hardcover</label>
+        </div>
+      </div>
+
+      <div class="provider-config">
+        <div class="config-field">
+          <label class="config-label">API Token</label>
+          <input
+            type="text"
+            pInputText
+            placeholder="Enter Hardcover API token"
+            class="config-input"
+            [(ngModel)]="hardcoverToken"
+            (ngModelChange)="onTokenChange($event)" />
+        </div>
+      </div>
+    </div>
+
+    <div class="provider-item">
+      <div class="provider-control">
+        <div class="provider-info">
+          <p-checkbox
+            [binary]="true"
+            [(ngModel)]="comicvineEnabled"
+            [disabled]="!comicvineToken">
+          </p-checkbox>
+          <label class="provider-label">Comic Vine</label>
+        </div>
+      </div>
+
+      <div class="provider-config">
+        <div class="config-field">
+          <label class="config-label">API Token</label>
+          <input
+            type="text"
+            pInputText
+            placeholder="Enter Comic Vine API token"
+            class="config-input"
+            [(ngModel)]="comicvineToken"
+            (ngModelChange)="onComicTokenChange($event)" />
+        </div>
+      </div>
+    </div>
+
+    <div class="provider-item">
+      <div class="provider-control">
+        <div class="provider-info">
+          <p-checkbox [(ngModel)]="doubanEnabled" [binary]="true"></p-checkbox>
+          <label class="provider-label">Douban</label>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="flex items-center gap-4">
-    <p-checkbox [(ngModel)]="goodreadsEnabled" [binary]="true"></p-checkbox>
-    <label class="font-medium">Goodreads</label>
+  <div class="setting-actions">
+    <p-button label="Save" icon="pi pi-save" severity="success" [outlined]="true" (click)="saveSettings()"></p-button>
   </div>
-
-  <div class="flex items-center gap-4">
-    <p-checkbox [(ngModel)]="googleEnabled" [binary]="true"></p-checkbox>
-    <label class="font-medium">Google</label>
-  </div>
-  
-
-  <div class="flex flex-col gap-2">
-    <div class="flex items-center gap-4">
-      <p-checkbox
-        [binary]="true"
-        [(ngModel)]="hardcoverEnabled"
-        [disabled]="!hardcoverToken">
-      </p-checkbox>
-      <label class="font-medium">Hardcover</label>
-    </div>
-    <div class="flex flex-col gap-2 pl-9 pt-1">
-      <label class="font-medium text-sm">API Token</label>
-      <input
-        type="text"
-        pInputText
-        placeholder="Enter Hardcover API token"
-        class="w-full max-w-3xl"
-        [(ngModel)]="hardcoverToken"
-        (ngModelChange)="onTokenChange($event)" />
-    </div>
-    
-  
-  </div>
-
-    <div class="flex flex-col gap-2">
-    <div class="flex items-center gap-4">
-      <p-checkbox
-        [binary]="true"
-        [(ngModel)]="comicvineEnabled"
-        [disabled]="!comicvineToken">
-      </p-checkbox>
-      <label class="font-medium">Comic Vine</label>
-    </div>
-    <div class="flex flex-col gap-2 pl-9 pt-1">
-      <label class="font-medium text-sm">API Token</label>
-      <input
-        type="text"
-        pInputText
-        placeholder="Enter Comic Vine API token"
-        class="w-full max-w-3xl"
-        [(ngModel)]="comicvineToken"
-        (ngModelChange)="onComicTokenChange($event)" />
-    </div>
-    
-  
-  </div>
-
-  <div class="flex items-center gap-4">
-    <p-checkbox [(ngModel)]="doubanEnabled" [binary]="true"></p-checkbox>
-    <label class="font-medium">Douban</label>
-  </div>
-
-</div>
-
-<div class="flex justify-start px-4">
-  <p-button label="Save" icon="pi pi-save" [outlined]="true" (click)="saveSettings()"></p-button>
 </div>

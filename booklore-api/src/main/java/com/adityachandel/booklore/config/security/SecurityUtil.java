@@ -69,6 +69,11 @@ public class SecurityUtil {
         var user = getCurrentUser();
         return user != null && user.getPermissions().isCanDeleteBook();
     }
+    public boolean canAccessOpds() {
+        var user = getCurrentUser();
+        return user != null && user.getPermissions().isCanAccessOpds();
+    }
+
 
     public boolean canViewUserProfile(Long userId) {
         var user = getCurrentUser();

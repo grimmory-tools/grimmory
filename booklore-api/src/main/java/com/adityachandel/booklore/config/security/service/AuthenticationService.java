@@ -2,11 +2,14 @@ package com.adityachandel.booklore.config.security.service;
 
 import com.adityachandel.booklore.config.AppProperties;
 import com.adityachandel.booklore.config.security.JwtUtils;
+import com.adityachandel.booklore.config.security.userdetails.OpdsUserDetails;
 import com.adityachandel.booklore.exception.ApiError;
 import com.adityachandel.booklore.model.dto.BookLoreUser;
 import com.adityachandel.booklore.model.dto.request.UserLoginRequest;
 import com.adityachandel.booklore.model.entity.BookLoreUserEntity;
+import com.adityachandel.booklore.model.entity.OpdsUserEntity;
 import com.adityachandel.booklore.model.entity.RefreshTokenEntity;
+import com.adityachandel.booklore.repository.OpdsUserRepository;
 import com.adityachandel.booklore.repository.RefreshTokenRepository;
 import com.adityachandel.booklore.repository.UserRepository;
 import com.adityachandel.booklore.service.user.DefaultSettingInitializer;
@@ -16,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +39,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
     private final DefaultSettingInitializer defaultSettingInitializer;
+    private final OpdsUserRepository opdsUserRepository;
 
     public BookLoreUser getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -44,6 +49,15 @@ public class AuthenticationService {
             return (BookLoreUser) principal;
         }
         throw new IllegalStateException("Authenticated principal is not of type BookLoreUser");
+    }
+
+
+    public OpdsUserDetails getOpdsUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof OpdsUserDetails opdsUser) {
+            return opdsUser;
+        }
+        throw new IllegalStateException("No OPDS user authenticated");
     }
 
     public ResponseEntity<Map<String, String>> loginUser(UserLoginRequest loginRequest) {

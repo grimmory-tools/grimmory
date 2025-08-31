@@ -1,58 +1,77 @@
-<div class="p-4">
-  <p class="text-lg pb-6 pt-4">
-    Epub Reader: Global Preferences
-    <i class="pi pi-info-circle text-sky-600"
-       pTooltip="Set global EPUB reader options such as themes, font families, font sizes, and spacing applied to all EPUBs."
-       tooltipPosition="right"
-       style="cursor: pointer;"></i>
-  </p>
-
-  <div class="grid grid-cols-[auto,1fr] pl-6 gap-y-4 gap-x-4 items-center">
-
-    <p>Theme:</p>
-    <div class="flex gap-4 justify-start">
-      <p-select
-        size="small"
-        [options]="themes"
-        [(ngModel)]="selectedTheme"
-        optionLabel="name"
-        optionValue="key"
-        placeholder="Select a Theme"
-        class="w-full md:w-44">
-      </p-select>
+<div class="epub-preferences-container">
+  <div class="setting-item">
+    <div class="setting-info">
+      <div class="setting-label-row">
+        <label class="setting-label">Theme</label>
+        <p-select
+          size="small"
+          [options]="themes"
+          [(ngModel)]="selectedTheme"
+          optionLabel="name"
+          optionValue="key"
+          placeholder="Select a Theme"
+          class="w-full md:w-60">
+        </p-select>
+      </div>
+      <p class="setting-description">
+        Choose the visual theme for EPUB reading experience.
+      </p>
     </div>
+  </div>
 
-    <p>Font:</p>
-    <div class="flex gap-4 justify-start">
-      <p-select
-        size="small"
-        [options]="fonts"
-        [(ngModel)]="selectedFont"
-        optionLabel="name"
-        optionValue="key"
-        placeholder="Select a Font"
-        class="w-full md:w-44">
-      </p-select>
+  <div class="setting-item">
+    <div class="setting-info">
+      <div class="setting-label-row">
+        <label class="setting-label">Font</label>
+        <p-select
+          size="small"
+          [options]="fonts"
+          [(ngModel)]="selectedFont"
+          optionLabel="name"
+          optionValue="key"
+          placeholder="Select a Font"
+          class="w-full md:w-60">
+        </p-select>
+      </div>
+      <p class="setting-description">
+        Select the font family for text display.
+      </p>
     </div>
+  </div>
 
-    <p>Flow:</p>
-    <div class="flex gap-4 justify-start">
-      <p-select
-        size="small"
-        [options]="flowOptions"
-        [(ngModel)]="selectedFlow"
-        optionLabel="name"
-        optionValue="key"
-        placeholder="Select a Flow"
-        class="w-full md:w-44">
-      </p-select>
+  <div class="setting-item">
+    <div class="setting-info">
+      <div class="setting-label-row">
+        <label class="setting-label">Flow</label>
+        <p-select
+          size="small"
+          [options]="flowOptions"
+          [(ngModel)]="selectedFlow"
+          optionLabel="name"
+          optionValue="key"
+          placeholder="Select a Flow"
+          class="w-full md:w-60">
+        </p-select>
+      </div>
+      <p class="setting-description">
+        Configure text flow and reading direction.
+      </p>
     </div>
+  </div>
 
-    <p class="py-1">Font Size:</p>
-    <div class="flex gap-4 justify-start items-center">
-      <p-button icon="pi pi-minus" size="small" (click)="decreaseFontSize()"></p-button>
-      <p>{{ fontSize }}%</p>
-      <p-button icon="pi pi-plus" size="small" (click)="increaseFontSize()"></p-button>
+  <div class="setting-item">
+    <div class="setting-info">
+      <div class="setting-label-row">
+        <label class="setting-label">Font Size</label>
+        <div class="font-size-controls">
+          <p-button icon="pi pi-minus" size="small" rounded (click)="decreaseFontSize()"></p-button>
+          <span class="font-size-value">{{ fontSize }}%</span>
+          <p-button icon="pi pi-plus" size="small" rounded (click)="increaseFontSize()"></p-button>
+        </div>
+      </div>
+      <p class="setting-description">
+        Adjust the text size for comfortable reading.
+      </p>
     </div>
   </div>
 </div>

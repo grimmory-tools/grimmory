@@ -32,6 +32,7 @@ public class BookLoreUser {
         private boolean canSyncKobo;
         private boolean canEmailBook;
         private boolean canDeleteBook;
+        private boolean canAccessOpds;
     }
 
     @Data

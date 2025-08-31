@@ -1,47 +1,60 @@
-<div class="p-4 min-w-[50rem]">
-  <p class="text-lg pb-4 pt-2">Metadata Persistence:</p>
-  <div class="flex flex-col gap-4 pl-6 ">
+<div class="preferences-section">
+  <div class="section-header">
+    <h3 class="section-title">
+      <i class="pi pi-save"></i>
+      Metadata Persistence
+    </h3>
+  </div>
 
-    <div class="pl-4 md:pl-6 border-l-2 border-zinc-600">
-      <div class="flex flex-col gap-4">
-        <div class="flex items-center gap-4">
-          <label>Write to File</label>
+  <div class="settings-card">
+    <div class="setting-item">
+      <div class="setting-info">
+        <div class="setting-label-row">
+          <label class="setting-label">Write to File</label>
           <p-toggleswitch
             [ngModel]="metadataPersistence.saveToOriginalFile"
             (onChange)="onPersistenceToggle('saveToOriginalFile')">
           </p-toggleswitch>
-          <div class="text-sm text-gray-400 flex items-start gap-2">
-            <i class="pi pi-exclamation-triangle text-yellow-500 mt-0.5"></i>
-            <span>
-              Writes metadata directly into the original file. A backup of the metadata and/or cover is created <b>only if enabled below</b>. Proceed with caution, restoration may fail if the file is moved or renamed.
-            </span>
-          </div>
         </div>
-        <div class="flex items-center gap-4">
-          <label>Backup Metadata</label>
+        <p class="setting-description">
+          <i class="pi pi-exclamation-triangle"></i>
+          Writes metadata directly into the original file. A backup of the metadata and/or cover is created only if enabled below. Proceed with caution, restoration may fail if the file is moved or renamed.
+        </p>
+      </div>
+    </div>
+
+    <div class="setting-item">
+      <div class="setting-info">
+        <div class="setting-label-row">
+          <label class="setting-label">Backup Metadata</label>
           <p-toggleswitch
             [ngModel]="metadataPersistence.backupMetadata"
             (onChange)="onPersistenceToggle('backupMetadata')"
             [disabled]="!metadataPersistence.saveToOriginalFile">
           </p-toggleswitch>
-          <span class="text-sm text-gray-400">
-              Save a JSON copy of the current metadata before writing new data to the file.
-            </span>
         </div>
+        <p class="setting-description">
+          <i class="pi pi-info-circle"></i>
+          Save a JSON copy of the current metadata before writing new data to the file.
+        </p>
+      </div>
+    </div>
 
-        <div class="flex items-center gap-4">
-          <label>Backup Cover</label>
+    <div class="setting-item">
+      <div class="setting-info">
+        <div class="setting-label-row">
+          <label class="setting-label">Backup Cover</label>
           <p-toggleswitch
             [ngModel]="metadataPersistence.backupCover"
             (onChange)="onPersistenceToggle('backupCover')"
             [disabled]="!metadataPersistence.saveToOriginalFile">
           </p-toggleswitch>
-          <span class="text-sm text-gray-400">
-              Save a copy of the existing embedded cover image before it is replaced.
-            </span>
         </div>
+        <p class="setting-description">
+          <i class="pi pi-info-circle"></i>
+          Save a copy of the existing embedded cover image before it is replaced.
+        </p>
       </div>
     </div>
-
   </div>
 </div>

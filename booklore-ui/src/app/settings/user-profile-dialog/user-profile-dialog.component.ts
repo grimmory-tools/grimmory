@@ -5,7 +5,7 @@ import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} fr
 import {InputText} from 'primeng/inputtext';
 
 import {Password} from 'primeng/password';
-import {User, UserService} from '../../user-management/user.service';
+import {User, UserService} from '../user-management/user.service';
 import {MessageService} from 'primeng/api';
 import {Subject} from 'rxjs';
 import {Message} from 'primeng/message';

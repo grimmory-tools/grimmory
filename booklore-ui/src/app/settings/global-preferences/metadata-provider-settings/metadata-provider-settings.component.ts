@@ -1,7 +1,6 @@
 import {Component, inject, OnInit} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {TableModule} from 'primeng/table';
-import {Tooltip} from 'primeng/tooltip';
 import {Checkbox} from 'primeng/checkbox';
 import {InputText} from 'primeng/inputtext';
 import {Button} from 'primeng/button';
@@ -16,7 +15,6 @@ import {Select} from 'primeng/select';
   imports: [
     ReactiveFormsModule,
     TableModule,
-    Tooltip,
     Checkbox,
     InputText,
     Button,
@@ -112,12 +110,12 @@ export class MetadataProviderSettingsComponent implements OnInit {
             cookie: this.amazonCookie,
             domain: this.selectedAmazonDomain
           },
-          
+
           comicvine: {
             enabled: this.comicvineEnabled,
             apiKey: this.comicvineToken.trim()
           },
-          
+
           goodReads: {enabled: this.goodreadsEnabled},
           google: {enabled: this.googleEnabled},
           hardcover: {

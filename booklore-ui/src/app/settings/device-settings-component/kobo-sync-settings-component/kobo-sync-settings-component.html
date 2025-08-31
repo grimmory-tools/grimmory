@@ -1,117 +1,186 @@
 <p-confirmDialog></p-confirmDialog>
 
-<p class="text-lg flex items-center gap-2 px-4 pt-4 pb-2">
-  Kobo Integration Settings:
-  <i class="pi pi-info-circle text-sky-600"
-     pTooltip="Click to view Kobo setup documentation"
-     tooltipPosition="right"
-     (click)="openKoboDocumentation()"
-     style="cursor: pointer;">
-  </i>
-</p>
+<div class="main-container enclosing-container">
+  <div class="settings-header">
+    <h2 class="settings-title">
+      <i class="pi pi-tablet"></i>
+      Kobo Integration Settings
+      <i class="pi pi-external-link external-link-icon"
+         pTooltip="Click to view Kobo setup documentation"
+         tooltipPosition="right"
+         (click)="openKoboDocumentation()"
+         style="cursor: pointer;">
+      </i>
+    </h2>
+    <p class="settings-description">
+      Configure Kobo device integration to sync your library books and reading progress with your Kobo e-reader.
+    </p>
+  </div>
 
-@if (hasKoboTokenPermission) {
-  <form #koboForm="ngForm" class="px-4 py-2">
-    <div class="flex flex-col p-4 space-y-6">
-      <div class="flex gap-2">
-        <p-toggle-switch
-          id="syncEnabled"
-          name="syncEnabled"
-          [(ngModel)]="koboSyncSettings.syncEnabled"
-          (ngModelChange)="onSyncToggle()">
-        </p-toggle-switch>
-        <label for="syncEnabled">Enable Kobo Sync</label>
-      </div>
-
-      @if (koboSyncSettings.syncEnabled) {
-        <div class="flex flex-col gap-1 max-w-[33rem]">
-          <label for="koboToken">Kobo Sync Token</label>
-          <div class="flex items-center gap-2">
-            <input
-              pInputText
-              id="koboToken"
-              [(ngModel)]="koboSyncSettings.token"
-              [type]="showToken ? 'text' : 'password'"
-              readonly
-              fluid
-              name="koboToken"
-            />
-            <p-button
-              icon="pi pi-copy"
-              outlined="true"
-              severity="info"
-              (onClick)="copyText(koboSyncSettings.token)">
-            </p-button>
-            <p-button
-              [icon]="showToken ? 'pi pi-eye-slash' : 'pi pi-eye'"
-              outlined="true"
-              severity="info"
-              (onClick)="toggleShowToken()">
-            </p-button>
-          </div>
-        </div>
-        <p-button
-          icon="pi pi-refresh"
-          outlined="true"
-          severity="warn"
-          label="Regenerate Token"
-          (onClick)="confirmRegenerateToken()"
-          [disabled]="!credentialsSaved">
-        </p-button>
-      }
-    </div>
-  </form>
-
-  @if (isAdmin) {
-    <div class="px-4 py-4">
-      <p class="text-lg mb-4">Kobo Settings (Admin Only):</p>
-      <div class="flex flex-col px-4 py-4 space-y-6 max-w-[75rem]">
-        <div class="flex flex-col gap-2">
-          <div class="flex items-center gap-2">
-            <p-toggle-switch
-              id="convertToKepub"
-              [(ngModel)]="koboSettings.convertToKepub"
-              (ngModelChange)="onToggleChange()">
-            </p-toggle-switch>
-            <label for="convertToKepub" class="font-medium">Convert to KEPUB</label>
-          </div>
-          <p class="text-zinc-400 text-sm">
-            <strong>Pros:</strong> KEPUB format enables enhanced Kobo features like better typography, reading stats, and faster page turns.
-            <br>
-            <strong>Cons:</strong> Conversion takes extra processing time and may occasionally fail for complex layouts.
-            Books over the size limit below will skip conversion automatically.
+  @if (hasKoboTokenPermission) {
+    <div class="settings-content">
+      <div class="preferences-section">
+        <div class="section-header">
+          <h3 class="section-title">
+            <i class="pi pi-sync"></i>
+            Sync Configuration
+          </h3>
+          <p class="section-description">
+            Enable and configure synchronization between your Booklore library and Kobo device.
           </p>
         </div>
 
-        <div class="flex flex-col gap-4">
-          <div class="flex items-center gap-6">
-            <label for="conversionLimit" class="font-medium">Conversion Size Limit: {{ koboSettings.conversionLimitInMb }} MB</label>
+        <div class="settings-card">
+          <form #koboForm="ngForm">
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label-row">
+                  <label class="setting-label">Enable Kobo Sync</label>
+                  <p-toggle-switch
+                    id="syncEnabled"
+                    name="syncEnabled"
+                    [(ngModel)]="koboSyncSettings.syncEnabled"
+                    (ngModelChange)="onSyncToggle()">
+                  </p-toggle-switch>
+                </div>
+                <p class="setting-description">
+                  Turn on synchronization to automatically sync your library books to your Kobo device.
+                </p>
+              </div>
+            </div>
+
+            @if (koboSyncSettings.syncEnabled) {
+              <div class="setting-item">
+                <div class="setting-info">
+                  <label class="setting-label">Kobo Sync Token</label>
+                  <p class="setting-description">
+                    Your unique sync token for authenticating with your Kobo device. Keep this secure.
+                  </p>
+                </div>
+                <div class="setting-control">
+                  <div class="token-input-group">
+                    <input
+                      pInputText
+                      id="koboToken"
+                      [(ngModel)]="koboSyncSettings.token"
+                      [type]="showToken ? 'text' : 'password'"
+                      readonly
+                      name="koboToken"
+                      class="token-input"
+                    />
+                    <p-button
+                      icon="pi pi-copy"
+                      outlined="true"
+                      severity="info"
+                      size="small"
+                      (onClick)="copyText(koboSyncSettings.token)">
+                    </p-button>
+                    <p-button
+                      [icon]="showToken ? 'pi pi-eye-slash' : 'pi pi-eye'"
+                      outlined="true"
+                      severity="info"
+                      size="small"
+                      (onClick)="toggleShowToken()">
+                    </p-button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="setting-item">
+                <div class="setting-info">
+                  <label class="setting-label">Token Management</label>
+                  <p class="setting-description">
+                    Regenerate your sync token if needed. This will invalidate the current token.
+                  </p>
+                </div>
+                <div class="setting-control">
+                  <p-button
+                    icon="pi pi-refresh"
+                    outlined="true"
+                    severity="warn"
+                    size="small"
+                    label="Regenerate Token"
+                    (onClick)="confirmRegenerateToken()"
+                    [disabled]="!credentialsSaved">
+                  </p-button>
+                </div>
+              </div>
+            }
+          </form>
+        </div>
+      </div>
+
+      @if (isAdmin) {
+        <div class="preferences-section">
+          <div class="section-header">
+            <h3 class="section-title">
+              <i class="pi pi-cog"></i>
+              Administrator Settings
+            </h3>
+            <p class="section-description">
+              Configure advanced Kobo sync settings that affect all users on this server.
+            </p>
           </div>
-          <p-slider
-            class="max-w-64"
-            id="conversionLimit"
-            [(ngModel)]="koboSettings.conversionLimitInMb"
-            [min]="1"
-            [max]="250"
-            [step]="1"
-            (ngModelChange)="onSliderChange()">
-          </p-slider>
-          <p class="text-zinc-400 text-sm">
-            Large files (100MB+) can cause conversion timeouts and server strain. Lower limits ensure faster syncing but may skip conversion of larger books.
+
+          <div class="settings-card">
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label-row">
+                  <label class="setting-label">Convert to KEPUB</label>
+                  <p-toggle-switch
+                    id="convertToKepub"
+                    [(ngModel)]="koboSettings.convertToKepub"
+                    (ngModelChange)="onToggleChange()">
+                  </p-toggle-switch>
+                </div>
+                <p class="setting-description">
+                  <strong>Pros:</strong> KEPUB format enables enhanced Kobo features like better typography, reading stats, and faster page turns.
+                  <br>
+                  <strong>Cons:</strong> Conversion takes extra processing time and may occasionally fail for complex layouts.
+                  Books over the size limit below will skip conversion automatically.
+                </p>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label-row">
+                  <label class="setting-label">Conversion Size Limit: {{ koboSettings.conversionLimitInMb }} MB</label>
+                  <div class="slider-container">
+                    <p-slider
+                      id="conversionLimit"
+                      [(ngModel)]="koboSettings.conversionLimitInMb"
+                      [min]="1"
+                      [max]="250"
+                      [step]="1"
+                      (ngModelChange)="onSliderChange()">
+                    </p-slider>
+                  </div>
+                </div>
+                <p class="setting-description">
+                  Large files (100MB+) can cause conversion timeouts and server strain. Lower limits ensure faster syncing but may skip conversion of larger books.
+                  <br>
+                  <strong>Recommended:</strong> 50-100MB for most libraries. Very large books will sync as regular EPUB regardless of this setting.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="settings-content">
+      <div class="access-denied-card">
+        <i class="pi pi-lock"></i>
+        <div class="access-denied-content">
+          <h3>Access Restricted</h3>
+          <p>
+            Access to Kobo sync is restricted.
             <br>
-            <strong>Recommended:</strong> 50-100MB for most libraries. Very large books will sync as regular EPUB regardless of this setting.
+            Please contact your administrator to request permission.
           </p>
         </div>
       </div>
     </div>
   }
-} @else {
-  <div class="px-4 py-4 m-4 rounded-lg bg-red-700/30 border border-red-600 text-red-200 flex items-center gap-2 max-w-lg">
-    <i class="pi pi-lock text-red-400 text-xl"></i>
-    <span>
-      Access to Kobo sync is restricted.
-      <br>
-      Please contact your administrator to request permission.
-    </span>
-  </div>
-}
+</div>

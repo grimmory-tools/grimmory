@@ -1,128 +1,196 @@
 <p-toast position="top-right"></p-toast>
 
-<p class="text-lg flex items-center gap-2 px-4 pt-4 pb-2">
-  KOReader Sync Settings:
-  <i class="pi pi-info-circle text-sky-600"
-     pTooltip="Click to view KOReader setup documentation"
-     tooltipPosition="right"
-     (click)="openKoReaderDocumentation()"
-     style="cursor: pointer;">
-  </i>
-</p>
-
-@if (hasPermission) {
-  <form #koreaderForm="ngForm" class="px-4 py-4">
-
-    <div class="p-field flex items-center px-4 py-2">
-      <p-toggle-switch
-        name="syncEnabled"
-        [(ngModel)]="koReaderSyncEnabled"
-        (ngModelChange)="onToggleEnabled($event)"
-        inputId="syncEnabled"
-        [disabled]="!credentialsSaved">
-      </p-toggle-switch>
-      <label for="syncEnabled" class="ml-2">
-        Enable KOReader Sync
-      </label>
-    </div>
-
-    <div class="flex flex-col px-4 py-4 space-y-4">
-      <!-- API Path -->
-      <div class="flex flex-col gap-1 max-w-[30rem]">
-        <label for="koreaderEndpoint">KOReader API Path</label>
-        <div class="flex items-center gap-2">
-          <input
-            fluid
-            pInputText
-            id="koreaderEndpoint"
-            [value]="koreaderEndpoint"
-            readonly/>
-          <p-button
-            icon="pi pi-copy"
-            outlined="true"
-            severity="info"
-            (onClick)="copyText(koreaderEndpoint)">
-          </p-button>
-        </div>
-      </div>
-
-      <!-- Username -->
-      <div class="flex flex-col gap-1 max-w-[30rem]">
-        <label for="username">KOReader Username</label>
-        <div class="flex items-center gap-2">
-          <input
-            fluid
-            pInputText
-            id="username"
-            name="username"
-            required
-            [(ngModel)]="koReaderUsername"
-            #usernameModel="ngModel"
-            [class.p-invalid]="usernameModel.invalid && usernameModel.touched"
-            [disabled]="editMode"/>
-          <p-button
-            icon="pi pi-copy"
-            outlined="true"
-            severity="info"
-            (onClick)="copyText(koReaderUsername)">
-          </p-button>
-        </div>
-        <small *ngIf="editMode && usernameModel.invalid && usernameModel.touched" class="p-error">
-          Username is required.
-        </small>
-      </div>
-
-      <!-- Password -->
-      <div class="flex flex-col gap-1 max-w-[33rem]">
-        <label for="password">KOReader Password</label>
-        <div class="flex items-center gap-2">
-          <input
-            fluid
-            pInputText
-            id="password"
-            name="password"
-            required
-            minlength="6"
-            [type]="showPassword ? 'text' : 'password'"
-            [(ngModel)]="koReaderPassword"
-            #passwordModel="ngModel"
-            [class.p-invalid]="passwordModel.invalid && passwordModel.touched"
-            [disabled]="editMode"/>
-          <p-button
-            icon="pi pi-copy"
-            outlined="true"
-            severity="info"
-            (onClick)="copyText(koReaderPassword)">
-          </p-button>
-          <p-button
-            [icon]="showPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"
-            outlined="true"
-            severity="info"
-            (onClick)="toggleShowPassword()">
-          </p-button>
-        </div>
-        <small *ngIf="editMode && passwordModel.invalid && passwordModel.touched" class="p-error">
-          Password must be at least 6 characters.
-        </small>
-      </div>
-
-      <p-button
-        [icon]="!editMode ? 'pi pi-save' : 'pi pi-pencil'"
-        outlined="true"
-        [severity]="!editMode ? 'success' : 'warn'"
-        [label]="!editMode ? 'Save' : 'Edit'"
-        (onClick)="onEditSave()"
-        [disabled]="!editMode && !canSave">
-      </p-button>
-    </div>
-  </form>
-} @else {
-  <div class="px-4 py-4 m-4 rounded-lg bg-red-700/30 border border-red-600 text-red-200 flex items-center gap-2 max-w-lg">
-    <i class="pi pi-lock text-red-400 text-xl"></i>
-    <span>
-      Access to KOReader sync is restricted.
-      <br>
-      Please contact your administrator to request permission.
-    </span>
+<div class="main-container enclosing-container">
+  <div class="settings-header">
+    <h2 class="settings-title">
+      <i class="pi pi-mobile"></i>
+      KOReader Sync Settings
+      <i class="pi pi-external-link external-link-icon"
+         pTooltip="Click to view KOReader setup documentation"
+         tooltipPosition="right"
+         (click)="openKoReaderDocumentation()"
+         style="cursor: pointer;">
+      </i>
+    </h2>
+    <p class="settings-description">
+      Configure KOReader integration to sync your reading progress between your device and Booklore library.
+    </p>
   </div>
-}
+
+  @if (hasPermission) {
+    <div class="settings-content">
+      <div class="preferences-section">
+        <div class="section-header">
+          <h3 class="section-title">
+            <i class="pi pi-sync"></i>
+            Sync Configuration
+          </h3>
+          <p class="section-description">
+            Enable and configure synchronization between your Booklore library and KOReader device.
+          </p>
+        </div>
+
+        <div class="settings-card">
+          <form #koreaderForm="ngForm">
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label-row">
+                  <label class="setting-label">Enable KOReader Sync</label>
+                  <p-toggle-switch
+                    name="syncEnabled"
+                    [(ngModel)]="koReaderSyncEnabled"
+                    (ngModelChange)="onToggleEnabled($event)"
+                    inputId="syncEnabled"
+                    [disabled]="!credentialsSaved">
+                  </p-toggle-switch>
+                </div>
+                <p class="setting-description">
+                  Turn on synchronization to automatically sync your reading progress.
+                </p>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label-row">
+                  <label class="setting-label">KOReader API Path</label>
+                  <div class="token-input-group">
+                    <input
+                      pInputText
+                      id="koreaderEndpoint"
+                      [value]="koreaderEndpoint"
+                      readonly
+                      class="token-input"/>
+                    <p-button
+                      icon="pi pi-copy"
+                      outlined="true"
+                      severity="info"
+                      size="small"
+                      (onClick)="copyText(koreaderEndpoint)">
+                    </p-button>
+                  </div>
+                </div>
+                <p class="setting-description">
+                  The API endpoint path for your KOReader sync service.
+                </p>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label-row">
+                  <label class="setting-label">KOReader Username</label>
+                  <div class="token-input-group">
+                    <input
+                      pInputText
+                      id="username"
+                      name="username"
+                      required
+                      [(ngModel)]="koReaderUsername"
+                      #usernameModel="ngModel"
+                      [class.p-invalid]="usernameModel.invalid && usernameModel.touched"
+                      [disabled]="editMode"
+                      class="token-input"/>
+                    <p-button
+                      icon="pi pi-copy"
+                      outlined="true"
+                      severity="info"
+                      size="small"
+                      (onClick)="copyText(koReaderUsername)">
+                    </p-button>
+                  </div>
+                </div>
+                <p class="setting-description">
+                  Your username for authenticating with the KOReader sync service.
+                </p>
+                @if (editMode && usernameModel.invalid && usernameModel.touched) {
+                  <small class="error-message">
+                    Username is required.
+                  </small>
+                }
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label-row">
+                  <label class="setting-label">KOReader Password</label>
+                  <div class="token-input-group">
+                    <input
+                      pInputText
+                      id="password"
+                      name="password"
+                      required
+                      minlength="6"
+                      [type]="showPassword ? 'text' : 'password'"
+                      [(ngModel)]="koReaderPassword"
+                      #passwordModel="ngModel"
+                      [class.p-invalid]="passwordModel.invalid && passwordModel.touched"
+                      [disabled]="editMode"
+                      class="token-input-password"/>
+                    <p-button
+                      icon="pi pi-copy"
+                      outlined="true"
+                      severity="info"
+                      size="small"
+                      (onClick)="copyText(koReaderPassword)">
+                    </p-button>
+                    <p-button
+                      [icon]="showPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"
+                      outlined="true"
+                      severity="info"
+                      size="small"
+                      (onClick)="toggleShowPassword()">
+                    </p-button>
+                  </div>
+                </div>
+                <p class="setting-description">
+                  Your password for authenticating with the KOReader sync service.
+                </p>
+                @if (editMode && passwordModel.invalid && passwordModel.touched) {
+                  <small class="error-message">
+                    Password must be at least 6 characters.
+                  </small>
+                }
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label-row">
+                  <label class="setting-label">Settings Management</label>
+                  <p-button
+                    [icon]="!editMode ? 'pi pi-save' : 'pi pi-pencil'"
+                    outlined="true"
+                    [severity]="!editMode ? 'success' : 'warn'"
+                    [label]="!editMode ? 'Save' : 'Edit'"
+                    size="small"
+                    (onClick)="onEditSave()"
+                    [disabled]="!editMode && !canSave">
+                  </p-button>
+                </div>
+                <p class="setting-description">
+                  Save your credentials or edit existing settings.
+                </p>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="settings-content">
+      <div class="access-denied-card">
+        <i class="pi pi-lock"></i>
+        <div class="access-denied-content">
+          <h3>Access Restricted</h3>
+          <p>
+            Access to KOReader sync is restricted.
+            <br>
+            Please contact your administrator to request permission.
+          </p>
+        </div>
+      </div>
+    </div>
+  }
+</div>

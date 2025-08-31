@@ -1,46 +1,67 @@
-<div class="px-4 pb-2">
-  <div class="flex items-center gap-2 pb-6 pt-4">
-    <p class="text-lg">Sidebar Library and Shelf Sorting Preference</p>
-    <i class="pi pi-info-circle text-sky-600"
-       pTooltip="Configure sorting options for your library and shelves shown in the sidebar."
-       tooltipPosition="right"
-       style="cursor: pointer;">
-    </i>
+<div class="main-container enclosing-container">
+  <div class="settings-header">
+    <h2 class="settings-title">
+      <i class="pi pi-sort-alt"></i>
+      Sidebar Library and Shelf Sorting Preference
+    </h2>
+    <p class="settings-description">
+      Configure sorting options for your library and shelves shown in the sidebar.
+    </p>
   </div>
 
-  <div class="grid grid-cols-[auto,1fr] pl-6 gap-y-4 gap-x-4 items-center">
-    <p class="py-1">Library:
-      <i class="pi pi-info-circle text-sky-600"
-         pTooltip="Choose how books are sorted and displayed in the library sidebar."
-         tooltipPosition="right"
-         style="cursor: pointer;">
-      </i>
-    </p>
-    <div class="flex gap-4 justify-start">
-      <p-select
-        size="small"
-        [options]="sortingOptions"
-        [(ngModel)]="selectedLibrarySorting"
-        (ngModelChange)="onLibrarySortingChange()"
-        placeholder="Select Sorting">
-      </p-select>
-    </div>
+  <div class="settings-content">
+    <div class="preferences-section">
+      <div class="settings-card">
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-label-row">
+              <label class="setting-label">
+                Library
+                <i class="pi pi-info-circle text-sky-600"
+                   pTooltip="Choose how books are sorted and displayed in the library sidebar."
+                   tooltipPosition="right"
+                   style="cursor: pointer;">
+                </i>
+              </label>
+              <p-select
+                size="small"
+                [options]="sortingOptions"
+                [(ngModel)]="selectedLibrarySorting"
+                (ngModelChange)="onLibrarySortingChange()"
+                placeholder="Select Sorting">
+              </p-select>
+            </div>
+            <p class="setting-description">
+              Choose how books are sorted and displayed in the library sidebar.
+            </p>
+          </div>
+        </div>
 
-    <p class="py-4">Shelf:
-      <i class="pi pi-info-circle text-sky-600"
-         pTooltip="Choose how books are sorted and displayed in the shelf sidebar."
-         tooltipPosition="right"
-         style="cursor: pointer;">
-      </i>
-    </p>
-    <div class="flex gap-4 justify-start">
-      <p-select
-        size="small"
-        [options]="sortingOptions"
-        [(ngModel)]="selectedShelfSorting"
-        (ngModelChange)="onShelfSortingChange()"
-        placeholder="Select Sorting">
-      </p-select>
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-label-row">
+              <label class="setting-label">
+                Shelf
+                <i class="pi pi-info-circle text-sky-600"
+                   pTooltip="Choose how books are sorted and displayed in the shelf sidebar."
+                   tooltipPosition="right"
+                   style="cursor: pointer;">
+                </i>
+              </label>
+              <p-select
+                size="small"
+                [options]="sortingOptions"
+                [(ngModel)]="selectedShelfSorting"
+                (ngModelChange)="onShelfSortingChange()"
+                placeholder="Select Sorting">
+              </p-select>
+            </div>
+            <p class="setting-description">
+              Choose how books are sorted and displayed in the shelf sidebar.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

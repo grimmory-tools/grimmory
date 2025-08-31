@@ -4,7 +4,6 @@ import {Button} from 'primeng/button';
 import {MessageService} from 'primeng/api';
 import {Select} from 'primeng/select';
 import {TableModule} from 'primeng/table';
-import {Tooltip} from 'primeng/tooltip';
 import {User, UserService} from '../../user-management/user.service';
 import {LibraryService} from '../../../book/service/library.service';
 import {ShelfService} from '../../../book/service/shelf.service';
@@ -18,7 +17,6 @@ import {filter, take, takeUntil} from 'rxjs/operators';
   standalone: true,
   imports: [
     Select,
-    Tooltip,
     FormsModule,
     Button,
     TableModule,

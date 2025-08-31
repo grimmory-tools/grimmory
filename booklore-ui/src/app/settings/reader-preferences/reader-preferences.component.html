@@ -1,77 +1,156 @@
-<div class="w-full h-[calc(100dvh-10.5rem)] md:h-[calc(100dvh-11.65rem)] overflow-y-auto border rounded-lg enclosing-container">
-  <div class="p-4">
-    <p class="text-lg pb-4 pt-4 ">
-      Book Reader Settings: Global or Per-Book
-      <i class="pi pi-info-circle text-sky-600"
-         pTooltip="Select whether to apply the same reader settings (font, theme, spread, zoom, etc.) globally for all books or individually per book."
-         tooltipPosition="right"
-         style="cursor: pointer;">
-      </i>
+<div class="main-container enclosing-container">
+  <div class="settings-header">
+    <h2 class="settings-title">
+      <i class="pi pi-book"></i>
+      Reader Preferences
+    </h2>
+    <p class="settings-description">
+      Configure reader settings scope and customize reading experience for different book formats including PDF, EPUB, and CBX files.
     </p>
-    <div class="grid grid-cols-[auto,1fr] pl-6 gap-y-4 gap-x-4 items-center">
-      <p class="py-1">PDF:</p>
-      <div class="flex gap-4 justify-start">
-        @for (item of scopeOptions; track item) {
-          <div class="flex items-center gap-2">
-            <p-radiobutton
-              [inputId]="item"
-              name="spread"
-              [value]="item"
-              [(ngModel)]="selectedPdfScope"
-              (ngModelChange)="onPdfScopeChange()">
-            </p-radiobutton>
-            <label [for]="item">{{ item }}</label>
-          </div>
-        }
+  </div>
+
+  <div class="settings-content">
+    <div class="preferences-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <i class="pi pi-cog"></i>
+          Reader Settings Scope
+        </h3>
+        <p class="section-description">
+          Select whether to apply the same reader settings (font, theme, spread, zoom, etc.) globally for all books or individually per book.
+        </p>
       </div>
-      <p class="py-1">Epub:</p>
-      <div class="flex gap-4 justify-start">
-        @for (item of scopeOptions; track item) {
-          <div class="flex items-center gap-2">
-            <p-radiobutton
-              [inputId]="item"
-              name="spread"
-              [value]="item"
-              [(ngModel)]="selectedEpubScope"
-              (ngModelChange)="onEpubScopeChange()">
-            </p-radiobutton>
-            <label [for]="item">{{ item }}</label>
+
+      <div class="settings-card">
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-label-row">
+              <label class="setting-label">PDF Reader Settings</label>
+              <div class="radio-group">
+                @for (item of scopeOptions; track item) {
+                  <div class="radio-option">
+                    <p-radiobutton
+                      [inputId]="'pdf-' + item"
+                      name="pdfScope"
+                      [value]="item"
+                      [(ngModel)]="selectedPdfScope"
+                      (ngModelChange)="onPdfScopeChange()">
+                    </p-radiobutton>
+                    <label [for]="'pdf-' + item">{{ item }}</label>
+                  </div>
+                }
+              </div>
+            </div>
+            <p class="setting-description">
+              Choose how PDF reader settings are applied across your library.
+            </p>
           </div>
-        }
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-label-row">
+              <label class="setting-label">EPUB Reader Settings</label>
+              <div class="radio-group">
+                @for (item of scopeOptions; track item) {
+                  <div class="radio-option">
+                    <p-radiobutton
+                      [inputId]="'epub-' + item"
+                      name="epubScope"
+                      [value]="item"
+                      [(ngModel)]="selectedEpubScope"
+                      (ngModelChange)="onEpubScopeChange()">
+                    </p-radiobutton>
+                    <label [for]="'epub-' + item">{{ item }}</label>
+                  </div>
+                }
+              </div>
+            </div>
+            <p class="setting-description">
+              Choose how EPUB reader settings are applied across your library.
+            </p>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-label-row">
+              <label class="setting-label">CBX Reader Settings</label>
+              <div class="radio-group">
+                @for (item of scopeOptions; track item) {
+                  <div class="radio-option">
+                    <p-radiobutton
+                      [inputId]="'cbx-' + item"
+                      name="cbxScope"
+                      [value]="item"
+                      [(ngModel)]="selectedCbxScope"
+                      (ngModelChange)="onCbxScopeChange()">
+                    </p-radiobutton>
+                    <label [for]="'cbx-' + item">{{ item }}</label>
+                  </div>
+                }
+              </div>
+            </div>
+            <p class="setting-description">
+              Choose how CBX (comic book) reader settings are applied across your library.
+            </p>
+          </div>
+        </div>
       </div>
-      <p class="py-1">CBX:</p>
-      <div class="flex gap-4 justify-start">
-        @for (item of scopeOptions; track item) {
-          <div class="flex items-center gap-2">
-            <p-radiobutton
-              [inputId]="item"
-              name="spread"
-              [value]="item"
-              [(ngModel)]="selectedCbxScope"
-              (ngModelChange)="onCbxScopeChange()">
-            </p-radiobutton>
-            <label [for]="item">{{ item }}</label>
-          </div>
-        }
+    </div>
+
+    <div class="preferences-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <i class="pi pi-book"></i>
+          EPUB Preferences: Global
+        </h3>
+        <p class="section-description">
+          Set default reading options that will apply to all EPUB books in your library, including font, theme, text flow, and layout preferences.
+        </p>
+      </div>
+
+      <div class="settings-card">
+        <app-epub-reader-preferences-component
+          [userSettings]="userSettings">
+        </app-epub-reader-preferences-component>
+      </div>
+    </div>
+
+    <div class="preferences-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <i class="pi pi-file-pdf"></i>
+          PDF Preferences: Global
+        </h3>
+        <p class="section-description">
+          Set default reading options that apply to all PDF books in your library, including zoom level, page layout, and navigation behavior.
+        </p>
+      </div>
+
+      <div class="settings-card">
+        <app-pdf-reader-preferences-component
+          [userSettings]="userSettings">
+        </app-pdf-reader-preferences-component>
+      </div>
+    </div>
+
+    <div class="preferences-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <i class="pi pi-images"></i>
+          CBX Preferences: Global
+        </h3>
+        <p class="section-description">
+          Configure default reading settings for all comic books in your library, including page layout, reading direction, and image scaling.
+        </p>
+      </div>
+
+      <div class="settings-card">
+        <app-cbx-reader-preferences-component
+          [userSettings]="userSettings">
+        </app-cbx-reader-preferences-component>
       </div>
     </div>
   </div>
-  <p-divider></p-divider>
-
-  <app-epub-reader-preferences-component
-    [userSettings]="userSettings">
-  </app-epub-reader-preferences-component>
-
-  <p-divider></p-divider>
-
-  <app-pdf-reader-preferences-component
-    [userSettings]="userSettings">
-  </app-pdf-reader-preferences-component>
-
-  <p-divider></p-divider>
-
-  <app-cbx-reader-preferences-component
-    [userSettings]="userSettings">
-  </app-cbx-reader-preferences-component>
-
 </div>

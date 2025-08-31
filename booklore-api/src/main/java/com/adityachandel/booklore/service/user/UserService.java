@@ -53,6 +53,7 @@ public class UserService {
             user.getPermissions().setPermissionManipulateLibrary(updateRequest.getPermissions().isCanManipulateLibrary());
             user.getPermissions().setPermissionEmailBook(updateRequest.getPermissions().isCanEmailBook());
             user.getPermissions().setPermissionDeleteBook(updateRequest.getPermissions().isCanDeleteBook());
+            user.getPermissions().setPermissionAccessOpds(updateRequest.getPermissions().isCanAccessOpds());
             user.getPermissions().setPermissionSyncKoreader(updateRequest.getPermissions().isCanSyncKoReader());
             user.getPermissions().setPermissionSyncKobo(updateRequest.getPermissions().isCanSyncKobo());
         }

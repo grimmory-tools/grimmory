@@ -1,73 +1,103 @@
-<div class="w-full h-[calc(100dvh-10.5rem)] md:h-[calc(100dvh-11.65rem)] overflow-y-auto border rounded-lg enclosing-container">
+<div class="main-container enclosing-container">
+  <div class="settings-header">
+    <h2 class="settings-title">
+      <i class="pi pi-database"></i>
+      Metadata Settings
+    </h2>
+    <p class="settings-description">
+      Configure how metadata is retrieved, stored, and managed for your books. Set up automatic downloads, persistence options, and provider preferences.
+    </p>
+  </div>
 
-  <div class="p-4 pt-6 min-w-[50rem]">
-    <p class="text-lg pb-4 pt-2">Auto-Download Metadata for Files in BookDrop Folder:</p>
-    <div class="flex flex-col gap-4 pl-6">
-      <div class="flex items-center gap-4">
-        <p-toggleswitch
-          [(ngModel)]="metadataDownloadOnBookdrop"
-          (onChange)="onMetadataDownloadOnBookdropToggle($event.checked)">
-        </p-toggleswitch>
-        <div class="text-sm text-gray-400 flex items-start gap-2">
-          <i class="pi pi-exclamation-triangle text-yellow-500 mt-0.5"></i>
-          <span>
-            Automatically downloads metadata from your configured sources (Amazon, Goodreads, etc.) when files are added to the Bookdrop folder. Use with caution if adding many files at once as metadata fetching can take time.
-          </span>
+  <div class="settings-content">
+    <div class="preferences-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <i class="pi pi-download"></i>
+          Auto-Download Metadata
+        </h3>
+      </div>
+
+      <div class="settings-card">
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-label-row">
+              <label class="setting-label">Auto-Download for BookDrop Files</label>
+              <p-toggleswitch
+                [(ngModel)]="metadataDownloadOnBookdrop"
+                (onChange)="onMetadataDownloadOnBookdropToggle($event.checked)">
+              </p-toggleswitch>
+            </div>
+            <p class="setting-description">
+              <i class="pi pi-exclamation-triangle"></i>
+              Automatically downloads metadata from your configured sources (Amazon, Goodreads, etc.) when files are added to the Bookdrop folder. Use with caution if adding many files at once as metadata fetching can take time.
+            </p>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="pb-4">
-    <p-divider></p-divider>
-  </div>
+    <div class="metadata-persistence-section">
+      <app-metadata-persistence-settings-component></app-metadata-persistence-settings-component>
+    </div>
 
-  <div>
-    <app-metadata-persistence-settings-component></app-metadata-persistence-settings-component>
-  </div>
+    <div class="preferences-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <i class="pi pi-cloud"></i>
+          Metadata Providers
+        </h3>
+      </div>
 
-  <div class="pb-4">
-    <p-divider></p-divider>
-  </div>
+      <div class="settings-card">
+        <app-metadata-provider-settings></app-metadata-provider-settings>
+      </div>
+    </div>
 
-  <div class="p-4">
-    <app-metadata-provider-settings></app-metadata-provider-settings>
-  </div>
+    <div class="preferences-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <i class="pi pi-star"></i>
+          Public Reviews
+        </h3>
+      </div>
 
-  <div class="pb-4">
-    <p-divider></p-divider>
-  </div>
+      <div class="settings-card">
+        <app-public-reviews-settings-component></app-public-reviews-settings-component>
+      </div>
+    </div>
 
-  <div>
-    <app-public-reviews-settings-component></app-public-reviews-settings-component>
-  </div>
+    <div class="preferences-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <i class="pi pi-search"></i>
+          Quick Book Match Preferences
+        </h3>
+        <p class="section-description">
+          Choose how metadata fields (title, description, authors, categories, cover) are retrieved by setting priority providers. You can apply the same provider settings to all fields or customize them individually. Enable 'Refresh Covers' to update book covers, and 'Merge Categories' to consolidate categories/genres from all sources while preserving the existing categories/genres in the book.
+        </p>
+      </div>
 
-  <div class="pb-4">
-    <p-divider></p-divider>
-  </div>
+      <div class="settings-card">
+        <app-metadata-advanced-fetch-options
+          (metadataOptionsSubmitted)="onMetadataSubmit($event)"
+          [currentMetadataOptions]="currentMetadataOptions"
+          [submitButtonLabel]="'Save'">
+        </app-metadata-advanced-fetch-options>
+      </div>
+    </div>
 
-  <div class="p-4">
-    <p class="text-lg ">
-      Quick Book Match Preferences
-      <i class="pi pi-info-circle text-sky-600"
-         pTooltip="Choose how metadata fields (title, description, authors, categories, cover) are retrieved by setting priority providers. You can apply the same provider settings to all fields or customize them individually. Enable 'Refresh Covers' to update book covers, and 'Merge Categories' to consolidate categories/genres from all sources while preserving the existing categories/genres in the book."
-         tooltipPosition="right"
-         style="cursor: pointer;">
-      </i>
-    </p>
-    <app-metadata-advanced-fetch-options
-      (metadataOptionsSubmitted)="onMetadataSubmit($event)"
-      [currentMetadataOptions]="currentMetadataOptions"
-      [submitButtonLabel]="'Save'">
-    </app-metadata-advanced-fetch-options>
-  </div>
+    <div class="preferences-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <i class="pi pi-sliders-h"></i>
+          Metadata Match Weights
+        </h3>
+      </div>
 
-  <div class="pb-4">
-    <p-divider></p-divider>
+      <div class="settings-card">
+        <app-metadata-match-weights-component></app-metadata-match-weights-component>
+      </div>
+    </div>
   </div>
-
-  <div class="p-4 pt-4">
-    <app-metadata-match-weights-component></app-metadata-match-weights-component>
-  </div>
-
 </div>

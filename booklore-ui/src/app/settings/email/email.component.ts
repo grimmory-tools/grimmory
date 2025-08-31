@@ -3,6 +3,7 @@ import {FormsModule} from '@angular/forms';
 import {TableModule} from 'primeng/table';
 import {EmailProviderComponent} from './email-provider/email-provider.component';
 import {EmailRecipientComponent} from './email-recipient/email-recipient.component';
+import {Divider} from 'primeng/divider';
 
 @Component({
   selector: 'app-email',
@@ -10,7 +11,8 @@ import {EmailRecipientComponent} from './email-recipient/email-recipient.compone
     FormsModule,
     TableModule,
     EmailProviderComponent,
-    EmailRecipientComponent
+    EmailRecipientComponent,
+    Divider
   ],
   templateUrl: './email.component.html',
   styleUrls: ['./email.component.scss'],

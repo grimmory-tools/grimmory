@@ -1,6 +1,5 @@
 import {Component, inject, Input} from '@angular/core';
 import {RadioButton} from 'primeng/radiobutton';
-import {Tooltip} from 'primeng/tooltip';
 import {FormsModule} from '@angular/forms';
 import {CbxPageSpread, CbxPageViewMode} from '../../../book/model/book.model';
 import {UserSettings} from '../../user-management/user.service';
@@ -10,7 +9,6 @@ import {ReaderPreferencesService} from '../reader-preferences-service';
   selector: 'app-cbx-reader-preferences-component',
   imports: [
     RadioButton,
-    Tooltip,
     FormsModule
   ],
   templateUrl: './cbx-reader-preferences-component.html',

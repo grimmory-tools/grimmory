@@ -10,10 +10,10 @@ import {MessageService} from 'primeng/api';
 import {filter, take} from 'rxjs/operators';
 
 import {OpdsUser, OpdsUserService} from './opds-user.service';
-import {AppSettingsService} from '../../../core/service/app-settings.service';
-import {AppSettingKey, AppSettings} from '../../../core/model/app-settings.model';
+import {AppSettingsService} from '../../core/service/app-settings.service';
+import {AppSettingKey, AppSettings} from '../../core/model/app-settings.model';
 import {Password} from 'primeng/password';
-import {API_CONFIG} from '../../../config/api-config';
+import {API_CONFIG} from '../../config/api-config';
 import {ToggleSwitch} from 'primeng/toggleswitch';
 
 @Component({

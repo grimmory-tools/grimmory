@@ -4,7 +4,7 @@ import {Button} from 'primeng/button';
 import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
 import {CreateUserDialogComponent} from './create-user-dialog/create-user-dialog.component';
 import {TableModule} from 'primeng/table';
-import {LowerCasePipe, NgStyle, TitleCasePipe} from '@angular/common';
+import {LowerCasePipe, TitleCasePipe} from '@angular/common';
 import {User, UserService} from './user.service';
 import {MessageService} from 'primeng/api';
 import {Checkbox} from 'primeng/checkbox';
@@ -15,6 +15,7 @@ import {Dialog} from 'primeng/dialog';
 import {Password} from 'primeng/password';
 import {filter, take, takeUntil} from 'rxjs/operators';
 import {Subject} from 'rxjs';
+import {Tooltip} from 'primeng/tooltip';
 
 @Component({
   selector: 'app-user-management',
@@ -23,12 +24,12 @@ import {Subject} from 'rxjs';
     Button,
     TableModule,
     Checkbox,
-    NgStyle,
     MultiSelect,
     Dialog,
     Password,
     LowerCasePipe,
-    TitleCasePipe
+    TitleCasePipe,
+    Tooltip
   ],
   templateUrl: './user-management.component.html',
   styleUrls: ['./user-management.component.scss'],

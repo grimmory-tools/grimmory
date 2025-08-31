@@ -114,7 +114,7 @@ export class EmailProviderComponent implements OnInit {
 
   openCreateProviderDialog() {
     this.ref = this.dialogService.open(CreateEmailProviderDialogComponent, {
-      header: 'Create New Email Provider',
+      header: 'Create Email Provider',
       modal: true,
       closable: true,
       style: { position: 'absolute', top: '15%' },

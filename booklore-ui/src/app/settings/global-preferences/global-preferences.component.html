@@ -1,117 +1,148 @@
-<div class="w-full h-[calc(100dvh-10.5rem)] md:h-[calc(100dvh-11.65rem)] overflow-y-auto border rounded-lg enclosing-container">
-
-  <div class="px-4 pt-4 pb-2">
-    <div class="flex items-center gap-2 pb-4 pt-4">
-      <p class="text-lg ">Book Cover Image</p>
-      <i class="pi pi-info-circle text-sky-600"
-         pTooltip="Settings related to book cover images, such as resolution and regeneration options."
-         tooltipPosition="right"
-         style="cursor: pointer;">
-      </i>
-    </div>
-
-    <div class="grid grid-cols-[auto,1fr] pl-6 gap-y-4 gap-x-4 items-center">
-      <p class=" py-1">Regenerate Covers?
-        <i class="pi pi-info-circle text-sky-600"
-           pTooltip="Regenerates cover images for all EPUB and PDF books (excluding locked ones) from the embedded covers in the file."
-           tooltipPosition="right"
-           style="cursor: pointer;">
-        </i>
-      </p>
-      <p-button
-        label="Regenerate"
-        outlined="true"
-        (onClick)="regenerateCovers()"></p-button>
-    </div>
-  </div>
-
-  <div class="pt-2 pb-4">
-    <p-divider></p-divider>
-  </div>
-
-  <div class="grid grid-cols-[auto,1fr] pl-6 gap-y-4 gap-x-4 items-center">
-    <p class="text-lg pb-4">Auto Book Search
-      <i class="pi pi-info-circle text-sky-600"
-         pTooltip="Automatically attempts metadata matching when the book information panel is opened."
-         tooltipPosition="right"
-         style="cursor: pointer;">
-      </i>
+<div class="main-container enclosing-container">
+  <div class="settings-header">
+    <h2 class="settings-title">
+      <i class="pi pi-cog"></i>
+      Global Preferences
+    </h2>
+    <p class="settings-description">
+      Configure global settings for your Booklore instance, including cover image handling, search preferences, and file upload limits.
     </p>
-    <div class="flex gap-4 justify-start">
-      <p-toggleswitch
-        [(ngModel)]="toggles.autoBookSearch"
-        (onChange)="onToggleChange('autoBookSearch', $event.checked)"
-      />
-    </div>
-
-    <p class="text-lg pb-4">Similar Book Recommendation
-      <i class="pi pi-info-circle text-sky-600"
-         pTooltip="Enables or disables similar book recommendations based on your library."
-         tooltipPosition="right"
-         style="cursor: pointer;">
-      </i>
-    </p>
-    <div class="flex gap-2 justify-start">
-      <p-toggleswitch
-        [(ngModel)]="toggles.similarBookRecommendation"
-        (onChange)="onToggleChange('similarBookRecommendation', $event.checked)"
-      />
-    </div>
   </div>
 
-  <div class="pt-2 pb-4">
-    <p-divider></p-divider>
-  </div>
-
-  <div class="grid grid-cols-[auto,1fr] pl-6 gap-y-4 gap-x-4 items-center">
-    <p class="text-lg pb-4">Max File Upload Size:
-      <i class="pi pi-info-circle text-sky-600"
-         pTooltip="Defines the maximum allowed size (in MB) for each uploaded file. Applies to EPUB, PDF, CBZ, CBR, and CB7 formats."
-         tooltipPosition="right"
-         style="cursor: pointer;">
-      </i>
-    </p>
-    <div class="flex gap-4 items-center">
-      <div class="relative w-28">
-        <input
-          type="text"
-          pInputText
-          [(ngModel)]="maxFileUploadSizeInMb"
-          class="pr-10 w-full min-w-24"
-          placeholder="Max size"/>
-        <span class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm pointer-events-none">MB</span>
+  <div class="settings-content">
+    <div class="preferences-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <i class="pi pi-image"></i>
+          Book Cover Image
+        </h3>
       </div>
-      <p-button label="Save" outlined (onClick)="saveFileSize()"></p-button>
-      <div class="text-sm text-gray-400 flex items-start gap-2">
-        <i class="pi pi-exclamation-triangle text-yellow-500 mt-0.5"></i>
-        <span>
-          Changes will take effect after restarting the server
-        </span>
+
+      <div class="settings-card">
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-label-row">
+              <label class="setting-label">Regenerate Covers</label>
+              <p-button
+                label="Regenerate"
+                icon="pi pi-refresh"
+                outlined="true"
+                size="small"
+                severity="info"
+                (onClick)="regenerateCovers()">
+              </p-button>
+            </div>
+            <p class="setting-description">
+              <i class="pi pi-info-circle"></i>
+              Regenerates cover images for all EPUB and PDF books (excluding locked ones) from the embedded covers in the file.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
-    <p class="text-lg pb-4 ">CBX Cache Size:
-      <i class="pi pi-info-circle text-sky-600"
-         pTooltip="Limits the total size (in MB) of the CBX image cache. If exceeded, older cache entries are removed automatically."
-         tooltipPosition="right"
-         style="cursor: pointer;">
-      </i>
-    </p>
-    <div class="flex gap-4 items-center">
-      <div class="relative w-28">
-        <input
-          type="text"
-          pInputText
-          [(ngModel)]="cbxCacheValue"
-          class="pr-10 w-full  min-w-24"
-          placeholder="Cache size"/>
-        <span class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm pointer-events-none">MB</span>
+
+    <div class="preferences-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <i class="pi pi-search"></i>
+          Search & Recommendations
+        </h3>
       </div>
-      <p-button label="Save" outlined (onClick)="saveCacheSize()"></p-button>
+
+      <div class="settings-card">
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-label-row">
+              <label class="setting-label">Auto Book Search</label>
+              <p-toggleswitch
+                [(ngModel)]="toggles.autoBookSearch"
+                (onChange)="onToggleChange('autoBookSearch', $event.checked)">
+              </p-toggleswitch>
+            </div>
+            <p class="setting-description">
+              <i class="pi pi-info-circle"></i>
+              Automatically attempts metadata matching when the book information panel is opened.
+            </p>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-label-row">
+              <label class="setting-label">Similar Book Recommendation</label>
+              <p-toggleswitch
+                [(ngModel)]="toggles.similarBookRecommendation"
+                (onChange)="onToggleChange('similarBookRecommendation', $event.checked)">
+              </p-toggleswitch>
+            </div>
+            <p class="setting-description">
+              <i class="pi pi-info-circle"></i>
+              Enables or disables similar book recommendations based on your library.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="preferences-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <i class="pi pi-upload"></i>
+          File Management
+        </h3>
+      </div>
+
+      <div class="settings-card">
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-label-row">
+              <label class="setting-label">Max File Upload Size</label>
+              <div class="input-group">
+                <div class="input-with-unit">
+                  <input
+                    type="text"
+                    pInputText
+                    [(ngModel)]="maxFileUploadSizeInMb"
+                    placeholder="Max size"/>
+                  <span class="unit">MB</span>
+                </div>
+                <p-button label="Save" outlined severity="success" (onClick)="saveFileSize()"></p-button>
+              </div>
+            </div>
+            <p class="setting-description">
+              <i class="pi pi-info-circle"></i>
+              Defines the maximum allowed size (in MB) for each uploaded file. Applies to EPUB, PDF, CBZ, CBR, and CB7 formats.
+            </p>
+            <div class="warning-message">
+              <i class="pi pi-exclamation-triangle"></i>
+              <span>Changes will take effect after restarting the server</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-label-row">
+              <label class="setting-label">CBX Cache Size</label>
+              <div class="input-group">
+                <div class="input-with-unit">
+                  <input
+                    type="text"
+                    pInputText
+                    [(ngModel)]="cbxCacheValue"
+                    placeholder="Cache size"/>
+                  <span class="unit">MB</span>
+                </div>
+                <p-button label="Save" severity="success" outlined (onClick)="saveCacheSize()"></p-button>
+              </div>
+            </div>
+            <p class="setting-description">
+              <i class="pi pi-info-circle"></i>
+              Limits the total size (in MB) of the CBX image cache. If exceeded, older cache entries are removed automatically.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-
-  <div class="pt-2 pb-4">
-    <p-divider></p-divider>
-  </div>
-
 </div>
