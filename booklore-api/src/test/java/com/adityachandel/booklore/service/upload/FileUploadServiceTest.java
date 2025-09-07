@@ -4,11 +4,13 @@ import com.adityachandel.booklore.config.AppProperties;
 import com.adityachandel.booklore.exception.APIException;
 import com.adityachandel.booklore.exception.ApiError;
 import com.adityachandel.booklore.mapper.AdditionalFileMapperImpl;
+import com.adityachandel.booklore.model.FileProcessResult;
 import com.adityachandel.booklore.model.dto.Book;
 import com.adityachandel.booklore.model.dto.settings.AppSettings;
 import com.adityachandel.booklore.model.entity.LibraryEntity;
 import com.adityachandel.booklore.model.entity.LibraryPathEntity;
 import com.adityachandel.booklore.model.enums.BookFileType;
+import com.adityachandel.booklore.model.enums.FileProcessStatus;
 import com.adityachandel.booklore.model.websocket.Topic;
 import com.adityachandel.booklore.repository.BookAdditionalFileRepository;
 import com.adityachandel.booklore.repository.BookRepository;
@@ -110,11 +112,11 @@ class FileUploadServiceTest {
         Files.write(tempDir.resolve("dup.epub"), new byte[]{1, 2, 3});
 
         assertThatExceptionOfType(APIException.class)
-            .isThrownBy(() -> service.uploadFileBookDrop(file))
-            .satisfies(ex -> {
-                assertThat(ex.getStatus()).isEqualTo(ApiError.FILE_ALREADY_EXISTS.getStatus());
-                assertThat(ex.getMessage()).isEqualTo(ApiError.FILE_ALREADY_EXISTS.getMessage());
-            });
+                .isThrownBy(() -> service.uploadFileBookDrop(file))
+                .satisfies(ex -> {
+                    assertThat(ex.getStatus()).isEqualTo(ApiError.FILE_ALREADY_EXISTS.getStatus());
+                    assertThat(ex.getMessage()).isEqualTo(ApiError.FILE_ALREADY_EXISTS.getMessage());
+                });
     }
 
     @Test
@@ -122,11 +124,11 @@ class FileUploadServiceTest {
         MockMultipartFile file = new MockMultipartFile("file", "bad.txt", "text/plain", "x".getBytes());
 
         assertThatExceptionOfType(APIException.class)
-            .isThrownBy(() -> service.uploadFileBookDrop(file))
-            .satisfies(ex -> {
-                assertThat(ex.getStatus()).isEqualTo(ApiError.INVALID_FILE_FORMAT.getStatus());
-                assertThat(ex.getMessage()).contains("Invalid file format, only pdf and epub are supported");
-            });
+                .isThrownBy(() -> service.uploadFileBookDrop(file))
+                .satisfies(ex -> {
+                    assertThat(ex.getStatus()).isEqualTo(ApiError.INVALID_FILE_FORMAT.getStatus());
+                    assertThat(ex.getMessage()).contains("Invalid file format, only pdf and epub are supported");
+                });
     }
 
     @Test
@@ -138,11 +140,11 @@ class FileUploadServiceTest {
         when(appSettingService.getAppSettings()).thenReturn(small);
 
         assertThatExceptionOfType(APIException.class)
-            .isThrownBy(() -> service.uploadFileBookDrop(file))
-            .satisfies(ex -> {
-                assertThat(ex.getStatus()).isEqualTo(ApiError.FILE_TOO_LARGE.getStatus());
-                assertThat(ex.getMessage()).contains("1");
-            });
+                .isThrownBy(() -> service.uploadFileBookDrop(file))
+                .satisfies(ex -> {
+                    assertThat(ex.getStatus()).isEqualTo(ApiError.FILE_TOO_LARGE.getStatus());
+                    assertThat(ex.getMessage()).contains("1");
+                });
     }
 
     @Test
@@ -151,8 +153,8 @@ class FileUploadServiceTest {
         when(libraryRepository.findById(42L)).thenReturn(Optional.empty());
 
         assertThatExceptionOfType(APIException.class)
-            .isThrownBy(() -> service.uploadFile(file, 42L, 1L))
-            .satisfies(ex -> assertThat(ex.getStatus()).isEqualTo(ApiError.LIBRARY_NOT_FOUND.getStatus()));
+                .isThrownBy(() -> service.uploadFile(file, 42L, 1L))
+                .satisfies(ex -> assertThat(ex.getStatus()).isEqualTo(ApiError.LIBRARY_NOT_FOUND.getStatus()));
     }
 
     @Test
@@ -164,8 +166,8 @@ class FileUploadServiceTest {
         when(libraryRepository.findById(42L)).thenReturn(Optional.of(lib));
 
         assertThatExceptionOfType(APIException.class)
-            .isThrownBy(() -> service.uploadFile(file, 42L, 99L))
-            .satisfies(ex -> assertThat(ex.getStatus()).isEqualTo(ApiError.INVALID_LIBRARY_PATH.getStatus()));
+                .isThrownBy(() -> service.uploadFile(file, 42L, 99L))
+                .satisfies(ex -> assertThat(ex.getStatus()).isEqualTo(ApiError.INVALID_LIBRARY_PATH.getStatus()));
     }
 
     @Test
@@ -185,11 +187,11 @@ class FileUploadServiceTest {
         when(libraryRepository.findById(1L)).thenReturn(Optional.of(lib));
 
         assertThatExceptionOfType(APIException.class)
-            .isThrownBy(() -> service.uploadFile(file, 1L, 1L))
-            .satisfies(ex -> {
-                assertThat(ex.getStatus()).isEqualTo(ApiError.FILE_READ_ERROR.getStatus());
-                assertThat(ex.getMessage()).contains("Error reading files from path");
-            });
+                .isThrownBy(() -> service.uploadFile(file, 1L, 1L))
+                .satisfies(ex -> {
+                    assertThat(ex.getStatus()).isEqualTo(ApiError.FILE_READ_ERROR.getStatus());
+                    assertThat(ex.getMessage()).contains("Error reading files from path");
+                });
     }
 
     @Test
@@ -206,17 +208,20 @@ class FileUploadServiceTest {
         when(libraryRepository.findById(7L)).thenReturn(Optional.of(lib));
 
         BookFileProcessor proc = mock(BookFileProcessor.class);
-        Book stubBook = Book.builder().build();
-        stubBook.setTitle("X");
+        FileProcessResult fileProcessResult = FileProcessResult.builder()
+                .book(Book.builder().build())
+                .status(FileProcessStatus.NEW)
+                .build();
+
         when(processorRegistry.getProcessorOrThrow(BookFileType.CBX)).thenReturn(proc);
-        when(proc.processFile(any())).thenReturn(stubBook);
+        when(proc.processFile(any())).thenReturn(fileProcessResult);
 
         Book result = service.uploadFile(file, 7L, 2L);
 
-        assertThat(result).isSameAs(stubBook);
+        assertThat(result).isSameAs(fileProcessResult.getBook());
         Path moved = tempDir.resolve("book.cbz");
         assertThat(Files.exists(moved)).isTrue();
-        verify(notificationService).sendMessage(eq(Topic.BOOK_ADD), same(stubBook));
+        verify(notificationService).sendMessage(eq(Topic.BOOK_ADD), same(fileProcessResult.getBook()));
         verifyNoInteractions(pdfMetadataExtractor, epubMetadataExtractor);
     }
 }

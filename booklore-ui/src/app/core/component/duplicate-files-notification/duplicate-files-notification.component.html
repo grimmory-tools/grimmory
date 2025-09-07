@@ -1,0 +1,22 @@
+@if (duplicateFilesCount$ | async; as count) {
+  @if (count > 0) {
+    <div class="flex flex-col p-4 space-y-2 live-border">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i class="pi pi-exclamation-triangle text-yellow-500"></i>
+          <span class="font-normal text-zinc-200">{{ count }} duplicate files detected</span>
+        </div>
+        <p-tag [value]="count.toString()" severity="warn" [rounded]="true"></p-tag>
+      </div>
+      <p-button
+        label="View Details"
+        icon="pi pi-list"
+        outlined
+        size="small"
+        severity="info"
+        fluid
+        (click)="openDialog()">
+      </p-button>
+    </div>
+  }
+}

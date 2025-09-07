@@ -3,6 +3,7 @@ package com.adityachandel.booklore.service.bookdrop;
 import com.adityachandel.booklore.config.AppProperties;
 import com.adityachandel.booklore.exception.ApiError;
 import com.adityachandel.booklore.mapper.BookdropFileMapper;
+import com.adityachandel.booklore.model.FileProcessResult;
 import com.adityachandel.booklore.model.dto.Book;
 import com.adityachandel.booklore.model.dto.BookMetadata;
 import com.adityachandel.booklore.model.dto.BookdropFile;
@@ -180,7 +181,7 @@ public class BookDropService {
                         results.getTotalFiles());
 
                 return results;
-                
+
             } finally {
                 bookdropMonitoringService.resumeMonitoring();
             }
@@ -283,15 +284,15 @@ public class BookDropService {
 
                 log.info("Moved file id={}, name={} from '{}' to '{}'", bookdropFile.getId(), bookdropFile.getFileName(), source, target);
 
-                Book processedBook = processFile(targetFile.getName(), library, path, targetFile,
+                FileProcessResult fileProcessResult = processFile(targetFile.getName(), library, path, targetFile,
                         BookFileExtension.fromFileName(bookdropFile.getFileName())
                                 .orElseThrow(() -> ApiError.INVALID_FILE_FORMAT.createException("Unsupported file extension"))
                                 .getType());
 
-                BookEntity bookEntity = bookRepository.findById(processedBook.getId())
+                BookEntity bookEntity = bookRepository.findById(fileProcessResult.getBook().getId())
                         .orElseThrow(() -> ApiError.FILE_NOT_FOUND.createException("Book ID missing after import"));
 
-                notificationService.sendMessage(Topic.BOOK_ADD, processedBook);
+                notificationService.sendMessage(Topic.BOOK_ADD, fileProcessResult.getStatus());
                 metadataRefreshService.updateBookMetadata(bookEntity, metadata, metadata.getThumbnailUrl() != null, false);
                 bookdropFileRepository.deleteById(bookdropFile.getId());
                 bookdropNotificationService.sendBookdropFileSummaryNotification();
@@ -333,7 +334,7 @@ public class BookDropService {
                 .build();
     }
 
-    private Book processFile(String fileName, LibraryEntity library, LibraryPathEntity path, File file, BookFileType type) {
+    private FileProcessResult processFile(String fileName, LibraryEntity library, LibraryPathEntity path, File file, BookFileType type) {
         LibraryFile libraryFile = LibraryFile.builder()
                 .libraryEntity(library)
                 .libraryPathEntity(path)

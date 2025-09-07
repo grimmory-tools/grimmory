@@ -21,13 +21,12 @@ public class BookEventBroadcaster {
     public void broadcastBookAddEvent(Book book) {
         Long libraryId = book.getLibraryId();
         userService.getBookLoreUsers().stream()
-            .filter(u -> u.getPermissions().isAdmin() || u.getAssignedLibraries().stream()
-                            .anyMatch(lib -> lib.getId().equals(libraryId)))
-            .forEach(u -> {
-                String username = u.getUsername();
-                messagingTemplate.convertAndSendToUser(username, Topic.BOOK_ADD.getPath(), book);
-                messagingTemplate.convertAndSendToUser(username, Topic.LOG.getPath(), createLogNotification("Book added: " + book.getFileName()));
-                log.debug("Sent BOOK_ADD and LOG notifications for '{}' to user '{}'", book.getFileName(), username);
-            });
+                .filter(u -> u.getPermissions().isAdmin() || u.getAssignedLibraries().stream()
+                        .anyMatch(lib -> lib.getId().equals(libraryId)))
+                .forEach(u -> {
+                    String username = u.getUsername();
+                    messagingTemplate.convertAndSendToUser(username, Topic.BOOK_ADD.getPath(), book);
+                    messagingTemplate.convertAndSendToUser(username, Topic.LOG.getPath(), createLogNotification("Book added: " + book.getFileName()));
+                });
     }
 }

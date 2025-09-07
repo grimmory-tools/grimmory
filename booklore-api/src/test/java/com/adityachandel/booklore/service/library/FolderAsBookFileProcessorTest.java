@@ -1,10 +1,12 @@
 package com.adityachandel.booklore.service.library;
 
+import com.adityachandel.booklore.model.FileProcessResult;
 import com.adityachandel.booklore.model.dto.Book;
 import com.adityachandel.booklore.model.dto.settings.LibraryFile;
 import com.adityachandel.booklore.model.entity.*;
 import com.adityachandel.booklore.model.enums.AdditionalFileType;
 import com.adityachandel.booklore.model.enums.BookFileType;
+import com.adityachandel.booklore.model.enums.FileProcessStatus;
 import com.adityachandel.booklore.model.enums.LibraryScanMode;
 import com.adityachandel.booklore.service.event.BookEventBroadcaster;
 import com.adityachandel.booklore.service.event.AdminEventBroadcaster;
@@ -118,7 +120,7 @@ class FolderAsBookFileProcessorTest {
         when(bookFileProcessorRegistry.getProcessorOrThrow(BookFileType.PDF))
                 .thenReturn(mockBookFileProcessor);
         when(mockBookFileProcessor.processFile(any(LibraryFile.class)))
-                .thenReturn(createdBook);
+                .thenReturn(new FileProcessResult(createdBook, FileProcessStatus.NEW, null));
         when(bookRepository.getReferenceById(createdBook.getId()))
                 .thenReturn(bookEntity);
         when(bookAdditionalFileRepository.findByLibraryPath_IdAndFileSubPathAndFileName(anyLong(), anyString(), anyString()))
@@ -230,7 +232,7 @@ class FolderAsBookFileProcessorTest {
         when(bookFileProcessorRegistry.getProcessorOrThrow(BookFileType.EPUB))
                 .thenReturn(mockBookFileProcessor);
         when(mockBookFileProcessor.processFile(argThat(file -> file.getFileName().equals("book.epub"))))
-                .thenReturn(createdBook);
+                .thenReturn(new FileProcessResult(createdBook, FileProcessStatus.NEW, null));
         when(bookRepository.getReferenceById(createdBook.getId()))
                 .thenReturn(bookEntity);
         when(bookAdditionalFileRepository.findByLibraryPath_IdAndFileSubPathAndFileName(anyLong(), anyString(), anyString()))
@@ -275,7 +277,7 @@ class FolderAsBookFileProcessorTest {
         when(bookFileProcessorRegistry.getProcessorOrThrow(BookFileType.PDF))
                 .thenReturn(mockBookFileProcessor);
         when(mockBookFileProcessor.processFile(argThat(file -> file.getFileName().equals("book.pdf"))))
-                .thenReturn(createdBook);
+                .thenReturn(new FileProcessResult(createdBook, FileProcessStatus.NEW, null));
         when(bookRepository.getReferenceById(createdBook.getId()))
                 .thenReturn(bookEntity);
         when(bookAdditionalFileRepository.findByLibraryPath_IdAndFileSubPathAndFileName(anyLong(), anyString(), anyString()))

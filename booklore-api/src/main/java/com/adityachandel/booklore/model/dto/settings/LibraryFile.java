@@ -21,6 +21,9 @@ public class LibraryFile {
     private BookFileType bookFileType;
 
     public Path getFullPath() {
+        if (fileSubPath == null || fileSubPath.isEmpty()) {
+            return Paths.get(libraryPathEntity.getPath(), fileName);
+        }
         return Paths.get(libraryPathEntity.getPath(), fileSubPath, fileName);
     }
 }

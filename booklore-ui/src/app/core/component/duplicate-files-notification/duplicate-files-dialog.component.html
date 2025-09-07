@@ -1,0 +1,84 @@
+<div class="dialog-container">
+  <div class="info-message">
+    <i class="pi pi-exclamation-triangle"></i>
+    <p>{{ totalRecords }} duplicate file groups have been detected in your library. To maintain data integrity and ensure optimal performance, please review and remove these duplicate entries from your file system.</p>
+  </div>
+
+  <div class="table-container">
+    <p-table
+      #dataTable
+      [value]="(duplicateFiles$ | async) || []"
+      [scrollable]="true"
+      scrollHeight="100%"
+      [paginator]="false"
+      [rows]="15"
+      [rowHover]="true">
+
+      <ng-template pTemplate="body" let-group>
+        <tr>
+          <td>
+            <div class="hash-group">
+              <div class="hash-header">
+                <i class="pi pi-copy"></i>
+                <span class="hash-label">Hash:</span>
+                <span class="hash-value">{{ group.hash }}</span>
+                <span class="file-count">({{ group.files.length }} files)</span>
+              </div>
+
+              <div class="files-list">
+                @for (file of (group.files || []); track file.fullPath) {
+                  <div class="file-item-compact">
+                    <div class="file-icon">
+                      <i class="pi pi-file"></i>
+                    </div>
+                    <div class="file-details">
+                      <div class="filename">{{ file.fileName }}</div>
+                      <div class="file-path" [title]="file.fullPath">{{ file.fullPath }}</div>
+                      <div class="library-info">
+                        <i class="pi pi-database"></i>
+                        <span>{{ file.libraryName }}</span>
+                        <span class="timestamp">{{ file.timestamp | date:'short' }}</span>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td class="empty-message">
+            <div class="empty-content">
+              <i class="pi pi-info-circle"></i>
+              <span>No duplicate files detected</span>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <div class="bottom-fixed-area">
+    <div class="paginator-container">
+      <p-paginator
+        [first]="first"
+        [rows]="rows"
+        [totalRecords]="totalRecords"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} duplicate file groups"
+        (onPageChange)="onPageChange($event)">
+      </p-paginator>
+    </div>
+
+    <div class="dialog-actions">
+      <p-button
+        label="Acknowledge"
+        icon="pi pi-check"
+        (click)="acknowledgeAndClose()">
+      </p-button>
+    </div>
+  </div>
+</div>

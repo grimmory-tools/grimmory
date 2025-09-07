@@ -1,6 +1,6 @@
 package com.adityachandel.booklore.service.library;
 
-import com.adityachandel.booklore.model.dto.Book;
+import com.adityachandel.booklore.model.FileProcessResult;
 import com.adityachandel.booklore.model.dto.settings.LibraryFile;
 import com.adityachandel.booklore.model.entity.BookAdditionalFileEntity;
 import com.adityachandel.booklore.model.entity.BookEntity;
@@ -47,20 +47,17 @@ public class FolderAsBookFileProcessor implements LibraryFileProcessor {
 
     @Override
     public boolean supportsSupplementaryFiles() {
-        // This processor supports supplementary files, as it processes all files in the folder.
         return true;
     }
 
     @Override
     public void processLibraryFiles(List<LibraryFile> libraryFiles, LibraryEntity libraryEntity) {
-        // Group files by their directory path
         Map<Path, List<LibraryFile>> filesByDirectory = libraryFiles.stream()
                 .collect(Collectors.groupingBy(libraryFile -> libraryFile.getFullPath().getParent()));
 
         log.info("Processing {} directories with {} total files for library: {}",
                 filesByDirectory.size(), libraryFiles.size(), libraryEntity.getName());
 
-        // Process each directory
         var sortedDirectories = filesByDirectory.entrySet()
                 .stream()
                 .sorted(Map.Entry.comparingByKey())
@@ -91,7 +88,6 @@ public class FolderAsBookFileProcessor implements LibraryFileProcessor {
             return new GetOrCreateBookResult(existingBook, filesInDirectory);
         }
 
-        // No existing book, check parent directories
         Optional<BookEntity> parentBook = findBookInParentDirectories(directoryPath, libraryEntity);
         if (parentBook.isPresent()) {
             log.debug("Found parent book for directory {}: {}", directoryPath, parentBook.get().getFileName());
@@ -113,7 +109,6 @@ public class FolderAsBookFileProcessor implements LibraryFileProcessor {
     }
 
     private Optional<BookEntity> findExistingBookInDirectory(Path directoryPath, LibraryEntity libraryEntity) {
-        // Find books in all library paths for this library
         return libraryEntity.getLibraryPaths().stream()
                 .flatMap(libPath -> {
                     String filesSearchPath = Path.of(libPath.getPath())
@@ -157,7 +152,6 @@ public class FolderAsBookFileProcessor implements LibraryFileProcessor {
     }
 
     private Optional<CreateBookResult> createNewBookFromDirectory(Path directoryPath, List<LibraryFile> filesInDirectory, LibraryEntity libraryEntity) {
-        // Find the best candidate for the main book file
         Optional<LibraryFile> mainBookFile = findBestMainBookFile(filesInDirectory, libraryEntity);
 
         if (mainBookFile.isEmpty()) {
@@ -170,20 +164,17 @@ public class FolderAsBookFileProcessor implements LibraryFileProcessor {
         try {
             log.info("Creating new book from file: {}", bookFile.getFileName());
 
-            // Create the main book
             BookFileProcessor processor = bookFileProcessorRegistry.getProcessorOrThrow(bookFile.getBookFileType());
-            Book book = processor.processFile(bookFile);
+            FileProcessResult result = processor.processFile(bookFile);
 
-            if (book != null) {
-                bookEventBroadcaster.broadcastBookAddEvent(book);
+            if (result.getBook() != null) {
+                bookEventBroadcaster.broadcastBookAddEvent(result.getBook());
 
-                // Find the created book entity
-                BookEntity bookEntity = bookRepository.getReferenceById(book.getId());
+                BookEntity bookEntity = bookRepository.getReferenceById(result.getBook().getId());
                 if (bookEntity.getFullFilePath().equals(bookFile.getFullPath())) {
                     log.info("Successfully created new book: {}", bookEntity.getFileName());
                 } else {
-                    log.warn("Found duplicate book with different path: {} vs {}",
-                            bookEntity.getFullFilePath(), bookFile.getFullPath());
+                    log.warn("Found duplicate book with different path: {} vs {}", bookEntity.getFullFilePath(), bookFile.getFullPath());
                 }
 
                 return Optional.of(new CreateBookResult(bookEntity, bookFile));
@@ -206,7 +197,7 @@ public class FolderAsBookFileProcessor implements LibraryFileProcessor {
                 .min(Comparator.comparingInt(f -> {
                     BookFileType bookFileType = f.getBookFileType();
                     return bookFileType == defaultBookFormat
-                            ? -1 // Prefer the default format
+                            ? -1
                             : bookFileType.ordinal();
                 }));
     }
@@ -222,7 +213,6 @@ public class FolderAsBookFileProcessor implements LibraryFileProcessor {
     }
 
     private void createAdditionalFileIfNotExists(BookEntity bookEntity, LibraryFile file, AdditionalFileType fileType) {
-        // Check if an additional file already exists
         Optional<BookAdditionalFileEntity> existingFile = bookAdditionalFileRepository
                 .findByLibraryPath_IdAndFileSubPathAndFileName(
                         file.getLibraryPathEntity().getId(), file.getFileSubPath(), file.getFileName());
@@ -232,7 +222,6 @@ public class FolderAsBookFileProcessor implements LibraryFileProcessor {
             return;
         }
 
-        // Create a new additional file
         String hash = FileFingerprint.generateHash(file.getFullPath());
         BookAdditionalFileEntity additionalFile = BookAdditionalFileEntity.builder()
                 .book(bookEntity)
@@ -251,7 +240,6 @@ public class FolderAsBookFileProcessor implements LibraryFileProcessor {
 
             log.debug("Successfully created additional file: {}", file.getFileName());
         } catch (Exception e) {
-            // Remove an additional file from the book entity if its creation fails
             bookEntity.getAdditionalFiles().removeIf(a -> a.equals(additionalFile));
 
             log.error("Error creating additional file {}: {}", file.getFileName(), e.getMessage(), e);
