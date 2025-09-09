@@ -36,6 +36,7 @@ public class BookController {
 
     private final BookService bookService;
     private final BookRecommendationService bookRecommendationService;
+    private final BookMetadataService bookMetadataService;
 
     @GetMapping
     public ResponseEntity<List<Book>> getBooks(@RequestParam(required = false, defaultValue = "false") boolean withDescription) {
@@ -58,6 +59,12 @@ public class BookController {
     public ResponseEntity<List<Book>> getBooksByIds(@RequestParam Set<Long> ids, @RequestParam(required = false, defaultValue = "false") boolean withDescription) {
         return ResponseEntity.ok(bookService.getBooksByIds(ids, withDescription));
     }
+
+    @GetMapping("/{bookId}/cbx/metadata/comicinfo")
+    public ResponseEntity<?> getComicInfoMetadata(@PathVariable long bookId) {
+        return ResponseEntity.ok(bookMetadataService.getComicInfoMetadata(bookId));
+    }
+
 
     @GetMapping("/{bookId}/content")
     @CheckBookAccess(bookIdParam = "bookId")

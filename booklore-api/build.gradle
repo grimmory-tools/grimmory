@@ -60,6 +60,9 @@ dependencies {
     implementation 'com.github.jai-imageio:jai-imageio-jpeg2000:1.4.0'
     implementation 'io.documentnode:epub4j-core:4.2.2'
 
+    // --- UNRAR Support ---
+    implementation 'com.github.junrar:junrar:7.5.5'
+
     // --- JSON & Web Scraping ---
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.2'
     implementation 'org.jsoup:jsoup:1.21.1'
@@ -71,7 +74,6 @@ dependencies {
     // --- API Documentation ---
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
     implementation 'org.apache.commons:commons-compress:1.28.0'
-    implementation 'com.github.junrar:junrar:7.5.5'
     implementation 'org.apache.commons:commons-text:1.14.0'
 
     // --- Test Dependencies ---

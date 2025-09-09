@@ -452,6 +452,11 @@
               tooltipPosition="top">
             </p-button>
 
+            @if (book.bookType === 'CBX') {
+              <p-button label="Restore ComicInfo" icon="pi pi-info-circle" [outlined]="true" severity="info" (onClick)="restoreCbxMetadata()" pTooltip="Retrieve metadata from ComicInfo.xml file" tooltipPosition="top"></p-button>
+              <p-divider layout="vertical"/>
+            }
+
             @if (book.bookType === 'PDF' || book.bookType === 'EPUB') {
               <p-button label="Restore" icon="pi pi-refresh" [outlined]="true" severity="danger" (onClick)="restoreMetadata()" pTooltip="Revert all changes to original metadata" tooltipPosition="top"></p-button>
               <p-divider layout="vertical"/>
@@ -485,6 +490,17 @@
                 pTooltip="Auto Fetch"
                 tooltipPosition="top">
               </p-button>
+
+              @if (book.bookType === 'CBX') {
+                <p-button
+                  icon="pi pi-info-circle"
+                  [outlined]="true"
+                  severity="warn"
+                  (onClick)="restoreCbxMetadata()"
+                  pTooltip="Restore ComicInfo"
+                  tooltipPosition="top">
+                </p-button>
+              }
 
               @if (book.bookType === 'PDF' || book.bookType === 'EPUB') {
                 <p-button

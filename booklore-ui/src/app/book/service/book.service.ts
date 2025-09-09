@@ -510,6 +510,10 @@ export class BookService {
     );
   }
 
+  getComicInfoMetadata(bookId: number): Observable<BookMetadata> { 
+    return this.http.get<BookMetadata>(`${this.url}/${bookId}/cbx/metadata/comicinfo`); 
+  }
+
   autoRefreshMetadata(metadataRefreshRequest: MetadataRefreshRequest): Observable<any> {
     return this.http.put<void>(`${this.url}/metadata/refresh`, metadataRefreshRequest).pipe(
       map(() => {

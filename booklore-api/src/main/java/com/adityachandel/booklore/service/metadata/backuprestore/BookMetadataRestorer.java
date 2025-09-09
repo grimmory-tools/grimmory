@@ -2,6 +2,8 @@ package com.adityachandel.booklore.service.metadata.backuprestore;
 
 import com.adityachandel.booklore.model.MetadataClearFlags;
 import com.adityachandel.booklore.model.dto.BookMetadata;
+import com.adityachandel.booklore.model.dto.settings.MetadataPersistenceSettings;
+import com.adityachandel.booklore.model.enums.BookFileType;
 import com.adityachandel.booklore.model.entity.AuthorEntity;
 import com.adityachandel.booklore.model.entity.BookEntity;
 import com.adityachandel.booklore.model.entity.BookMetadataEntity;
@@ -103,8 +105,10 @@ public class BookMetadataRestorer {
         }
 
         try {
-            boolean saveToOriginal = appSettingService.getAppSettings().getMetadataPersistenceSettings().isSaveToOriginalFile();
-            if (saveToOriginal) {
+            MetadataPersistenceSettings settings = appSettingService.getAppSettings().getMetadataPersistenceSettings();
+            boolean saveToOriginal = settings.isSaveToOriginalFile();
+            boolean convertCbrCb7ToCbz = settings.isConvertCbrCb7ToCbz();
+            if (saveToOriginal && (bookEntity.getBookType() != BookFileType.CBX || convertCbrCb7ToCbz)) {
                 metadataWriterFactory.getWriter(bookEntity.getBookType()).ifPresent(writer -> {
                     try {
                         File file = new File(bookEntity.getFullFilePath().toUri());

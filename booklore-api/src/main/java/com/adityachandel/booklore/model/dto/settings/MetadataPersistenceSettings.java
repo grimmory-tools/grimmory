@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class MetadataPersistenceSettings {
     private boolean saveToOriginalFile;
+    private boolean convertCbrCb7ToCbz;
     private boolean backupMetadata;
     private boolean backupCover;
 }

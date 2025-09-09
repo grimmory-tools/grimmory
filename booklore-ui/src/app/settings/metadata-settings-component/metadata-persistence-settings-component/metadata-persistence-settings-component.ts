@@ -20,6 +20,7 @@ export class MetadataPersistenceSettingsComponent implements OnInit {
 
   metadataPersistence: MetadataPersistenceSettings = {
     saveToOriginalFile: false,
+    convertCbrCb7ToCbz: false,
     backupMetadata: true,
     backupCover: true
   };
@@ -62,6 +63,7 @@ export class MetadataPersistenceSettingsComponent implements OnInit {
       this.metadataPersistence.saveToOriginalFile = !this.metadataPersistence.saveToOriginalFile;
 
       if (!this.metadataPersistence.saveToOriginalFile) {
+        this.metadataPersistence.convertCbrCb7ToCbz = false;
         this.metadataPersistence.backupMetadata = false;
         this.metadataPersistence.backupCover = false;
       }
