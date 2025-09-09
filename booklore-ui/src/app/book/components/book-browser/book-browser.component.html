@@ -277,15 +277,16 @@
                     <div
                       class="virtual-scroller-item relative"
                       [ngStyle]="{width: currentCardSize.width + 'px', height: currentCardSize.height + 'px'}">
-                      <app-book-card
-                        [index]="i"
-                        [book]="book"
-                        [isCheckboxEnabled]="true"
-                        [onBookSelect]="handleBookSelect.bind(this)"
-                        [isSeriesCollapsed]="seriesCollapseFilter.isSeriesCollapsed"
-                        (checkboxClick)="onCheckboxClicked($event)"
-                        [isSelected]="selectedBooks.has(book.id)">
-                      </app-book-card>
+                        <app-book-card
+                          [index]="i"
+                          [book]="book"
+                          [isCheckboxEnabled]="true"
+                          [readButtonHidden]="book.seriesCount ? true : false"
+                          [onBookSelect]="handleBookSelect.bind(this)"
+                          [isSeriesCollapsed]="seriesCollapseFilter.isSeriesCollapsed"
+                          (checkboxClick)="onCheckboxClicked($event)"
+                          [isSelected]="selectedBooks.has(book.id)">
+                        </app-book-card>
                     </div>
                   }
                 </div>

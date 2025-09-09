@@ -527,9 +527,9 @@
                      [infiniteScrollDistance]="2"
                      [infiniteScrollThrottle]="50"
                      [horizontal]="true">
-                  @for (book of bookInSeries; track book.id) {
+                  @for (bookInSeriesItem of bookInSeries; track bookInSeriesItem) {
                     <div class="dashboard-scroller-card">
-                      <app-book-card-lite-component [book]="book"></app-book-card-lite-component>
+                      <app-book-card-lite-component [book]="bookInSeriesItem" [isActive]="bookInSeriesItem.id === book.id"></app-book-card-lite-component>
                     </div>
                   }
                 </div>
@@ -548,7 +548,7 @@
                      [horizontal]="true">
                   @for (book of recommendedBooks; track book.book.id) {
                     <div class="dashboard-scroller-card">
-                      <app-book-card-lite-component [book]="book.book"></app-book-card-lite-component>
+                      <app-book-card-lite-component [book]="book.book" ></app-book-card-lite-component>
                     </div>
                   }
                 </div>

@@ -157,9 +157,9 @@
   z-index: 3;
 }
 
-.series-count-overlay {
+.series-items-count-overlay {
   position: absolute;
-  bottom: 8px;
+  top: 8px;
   left: 8px;
   background-color: var(--primary-color);
   color: var(--primary-text-color-dark);

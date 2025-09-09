@@ -109,6 +109,11 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
     return null;
   }
 
+  get displayTitle(): string | undefined {
+    return (this.isSeriesCollapsed && this.book.metadata?.seriesName) ? this.book.metadata?.seriesName : this.book.metadata?.title;
+    // return (this.isSeriesCollapsed && this.book.metadata?.seriesName) ? this.book.metadata.seriesName : this.book.metadata?.title;
+  }
+
   onImageLoad(): void {
     this.isImageLoaded = true;
   }
@@ -460,6 +465,15 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
         book: this.book,
       },
     });
+  }
+
+  openSeriesInfo(): void {
+    const seriesName = this.book?.metadata?.seriesName;
+    if (this.isSeriesCollapsed && seriesName) {
+      this.router.navigate(['/series', seriesName]);
+    } else {
+      this.openBookInfo(this.book);
+    }
   }
 
   openBookInfo(book: Book): void {

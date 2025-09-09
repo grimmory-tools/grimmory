@@ -543,7 +543,7 @@ export class MetadataViewerComponent implements OnInit, OnChanges {
   }
 
   goToSeries(seriesName: string): void {
-    this.handleMetadataClick('series', seriesName);
+    this.router.navigate(['/series', seriesName]);
   }
 
   goToPublisher(publisher: string): void {

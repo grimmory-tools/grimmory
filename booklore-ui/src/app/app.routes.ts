@@ -17,6 +17,7 @@ import {OidcCallbackComponent} from './core/security/oidc-callback/oidc-callback
 import {CbxReaderComponent} from './book/components/cbx-reader/cbx-reader.component';
 import {BookdropFileReviewComponent} from './bookdrop/bookdrop-file-review-component/bookdrop-file-review.component';
 import {MainDashboardComponent} from './dashboard/components/main-dashboard/main-dashboard.component';
+import {SeriesPageComponent} from './book/components/series-page/series-page.component';
 import {StatsComponent} from './stats-component/stats-component';
 
 export const routes: Routes = [
@@ -42,6 +43,7 @@ export const routes: Routes = [
       {path: 'library/:libraryId/books', component: BookBrowserComponent, canActivate: [AuthGuard]},
       {path: 'shelf/:shelfId/books', component: BookBrowserComponent, canActivate: [AuthGuard]},
       {path: 'unshelved-books', component: BookBrowserComponent, canActivate: [AuthGuard]},
+      {path: 'series/:seriesName', component: SeriesPageComponent, canActivate: [AuthGuard]},
       { path: 'magic-shelf/:magicShelfId/books', component: BookBrowserComponent, canActivate: [AuthGuard] },
       {path: 'book/:bookId', component: BookMetadataCenterComponent, canActivate: [AuthGuard]},
       {path: 'bookdrop', component: BookdropFileReviewComponent, canActivate: [AuthGuard]},

@@ -1,0 +1,147 @@
+@if (filteredBooks$ | async; as books) {
+  <div class="rounded-xl overflow-hidden series-page">
+    <p-tabs [value]="tab" lazy="true" scrollable>
+      <p-tablist>
+        <p-tab value="view">
+          <i [class]="'pi pi-crown'"></i>
+          Series Details
+        </p-tab>
+      </p-tablist>
+      <p-tabpanels class="tabpanels-responsive overflow-auto">
+        <p-tabpanel value="view">
+
+          <!-- <ng-container *ngIf="filteredBooks$ | async as books"> -->
+
+          <div class="flex flex-col justify-between flex-grow">
+            <div class="space-y-4 ">
+
+              <!-- <div class="flex items-start justify-between"> -->
+              <div class="flex flex-col text-center gap-4 md:text-left w-full">
+
+                <!-- TITLE, AUTHOR -->
+                <div class="flex flex-col items-center md:items-start gap-1">
+                  <div
+                    class="flex items-center gap-2 justify-center md:justify-start flex-wrap text-center md:text-left">
+                    <h2 class="text-2xl md:text-3xl font-extrabold leading-tight">
+                      {{ seriesTitle$ | async }}
+                    </h2>
+                  </div>
+
+                  <p class="text-lg">
+                    @for (author of books[0]?.metadata?.authors; track $index; let isLast = $last) {
+                    <a class="hover:underline dark:text-blue-400 cursor-pointer">
+                      <!--(click)="goToAuthorBooks(author)"-->
+                      {{ author }}
+                    </a>
+                    @if (!isLast) {
+                    <span>, </span>
+                    }
+                    }
+                  </p>
+                  <!-- </div> -->
+                </div>
+
+                <!-- CATEGORIES -->
+                @if (books[0]?.metadata?.categories?.length) {
+                <div class="overflow-x-auto scrollbar-hide max-w-7xl pt-2 md:pt-0">
+                  <div class="flex gap-2 w-max max-w-[1150px]">
+                    @for (category of books[0].metadata!.categories; track category) {
+                    <a class="shrink-0 no-underline cursor-pointer">
+                      <p-tag [value]="category"></p-tag>
+                    </a>
+                    }
+                  </div>
+                </div>
+                }
+
+                <!-- METADATA: Number of books, Publisher, Year, Language -->
+                <div class="px-1 md:px-0">
+                  <div
+                    class="grid md:grid-cols-4 gap-y-2.5 text-sm pt-2 md:pt-4 pb-2 text-gray-300 md:min-w-[60rem] md:max-w-[100rem]">
+                    <p><strong>Number of books:</strong> {{ books.length || 0}}</p>
+                    <p><strong>Publisher:</strong> {{ books[0]?.metadata?.publisher || "-"}}</p>
+                    <p><strong>Year:</strong> {{ books[0]?.metadata?.publishedDate || "-"}}</p>
+                    <p><strong>Language:</strong> {{ books[0]?.metadata?.language || "-"}}</p>
+                  </div>
+                </div>
+
+                <!-- DESCRIPTION -->
+                <!-- TODO: Show first book description (currently showing empty)-->
+                <div class="px-4 pb-2 pt-4 mb-4 md:mb-6 md:mx-2 border border-[var(--border-color)] rounded-xl">
+                  <div [ngClass]="{ 'line-clamp-5': !isExpanded, 'line-clamp-none': isExpanded }"
+                    class="transition-all duration-300 overflow-hidden description-container">
+                    <div class="readonly-editor px-2">
+                      <!-- <p-editor #quillEditor [readonly]="true" [style]="{height: '200px'}"
+                        [ngModel]="books[0]?.metadata!.description || 'No description available.'">
+                        <ng-template #header>
+                        </ng-template>
+                      </p-editor> -->
+                    </div>
+                  </div>
+                  <!-- @if (books[0]?.metadata!.description && books[0]?.metadata!.description.length > 500) {
+                  <p-button [label]="isExpanded ? 'Show less' : 'Show more'"
+                    [icon]="isExpanded ? 'pi pi-chevron-up' : 'pi pi-chevron-down'" iconPos="right" size="small" text
+                    (click)="toggleExpand()">
+                  </p-button>
+                  } -->
+                </div>
+
+                <!-- BOOKS GRID -->
+                <!-- <virtual-scroller class="virtual-scroller" #scroll [items]="books">
+                <div class="grid" #Container
+                  [ngStyle]="{'grid-template-columns': 'repeat(auto-fill, minmax(' + gridColumnMinWidth + ', 1fr))'}">
+                  @for (book of scroll.viewPortItems; let i = $index; track book) {
+                  <div class="virtual-scroller-item relative"
+                    [ngStyle]="{width: currentCardSize.width + 'px', height: currentCardSize.height + 'px'}">
+                    <app-book-card [index]="i" [book]="book" [isCheckboxEnabled]="false" [isSelected]="false"
+                      [isSeriesCollapsed]="false">
+                    </app-book-card>
+                  </div>
+                  }
+                </div>
+              </virtual-scroller> -->
+
+                <!-- <virtual-scroller class="virtual-scroller" #scroll [items]="books">
+                  <div class="grid" #Container
+                    [ngStyle]="{'grid-template-columns': 'repeat(auto-fill, minmax(' + gridColumnMinWidth + ', 1fr))'}">
+                    <div class="grid-item" *ngFor="let book of books; let i = index"
+                      [ngStyle]="{width: currentCardSize.width + 'px', height: currentCardSize.height + 'px'}">
+                      <app-book-card [index]="i" [book]="book" [isCheckboxEnabled]="false" [isSelected]="false"
+                        [isSeriesCollapsed]="false">
+                      </app-book-card>
+                    </div>
+                    <div *ngIf="books.length === 0" class="empty-state">No books found for this series.</div>
+                  </div>
+                </virtual-scroller> -->
+
+                  <div class="grid series-items-grid overflow-y-auto" #Container
+                    [ngStyle]="{'grid-template-columns': 'repeat(auto-fill, minmax(' + gridColumnMinWidth + ', 1fr))'}">
+                    <div class="grid-item" *ngFor="let book of books; let i = index"
+                      [ngStyle]="{width: currentCardSize.width + 'px', height: currentCardSize.height + 'px'}">
+                      <app-book-card [index]="i" [book]="book" [isCheckboxEnabled]="false" [isSelected]="false"
+                        [isSeriesCollapsed]="false">
+                      </app-book-card>
+                    </div>
+                    <div *ngIf="books.length === 0" class="empty-state">No books found for this series.</div>
+                  </div>                
+
+              </div>
+
+            </div>
+          </div>
+
+          <!-- </ng-container> -->
+
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+  </div>
+} @else {
+<div class="flex flex-col justify-center items-center h-full gap-4">
+  <p-progressSpinner strokeWidth="4" fill="transparent" animationDuration=".8s">
+  </p-progressSpinner>
+  <p style="color: var(--primary-color);">
+    Loading series details...
+  </p>
+</div>
+}

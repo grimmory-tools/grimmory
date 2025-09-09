@@ -578,10 +578,7 @@ export class BookService {
         }
 
         const seriesName = currentBook.metadata.seriesName.toLowerCase();
-        return allBooks.filter(b =>
-          b.id !== bookId &&
-          b.metadata?.seriesName?.toLowerCase() === seriesName
-        );
+        return allBooks.filter(b => b.metadata?.seriesName?.toLowerCase() === seriesName);
       })
     );
   }

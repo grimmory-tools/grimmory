@@ -22,6 +22,7 @@ import {TooltipModule} from 'primeng/tooltip';
 })
 export class BookCardLiteComponent implements OnInit, OnDestroy {
   @Input() book!: Book;
+  @Input() isActive: boolean = false;
 
   private router = inject(Router);
   protected urlHelper = inject(UrlHelperService);

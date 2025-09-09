@@ -5,13 +5,15 @@
     alt="Cover of {{ book.metadata?.title }}"
     loading="lazy"/>
 
-  <p-button
-    icon="pi pi-info"
-    class="info-btn"
-    [rounded]="true"
-    [pTooltip]="book.metadata?.title"
-    tooltipPosition="top"
-    [ngClass]="{ 'visible': isHovered }"
-    (onClick)="openBookInfo(book)">
-  </p-button>
+  @if (!this.isActive) {
+    <p-button
+      icon="pi pi-info"
+      class="info-btn"
+      [rounded]="true"
+      [pTooltip]="book.metadata?.title"
+      tooltipPosition="top"
+      [ngClass]="{ 'visible': isHovered }"
+      (onClick)="openBookInfo(book)">
+    </p-button>
+  }
 </div>

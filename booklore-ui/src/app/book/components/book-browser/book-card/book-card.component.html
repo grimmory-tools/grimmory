@@ -14,24 +14,28 @@
         [src]="urlHelper.getThumbnailUrl(book.id, book.metadata?.coverUpdatedOn)"
         class="book-cover"
         [class.loaded]="isImageLoaded"
-        alt="Cover of {{ book.metadata?.title }}"
+        alt="Cover of {{ displayTitle }}"
         loading="lazy"
         (load)="onImageLoad()"/>
     </div>
 
-    @if (book.metadata?.seriesNumber != null) {
+    @if (!book.seriesCount && book.metadata?.seriesNumber != null) {
       <div class="series-number-overlay">
         #{{ book.metadata?.seriesNumber }}
       </div>
     }
 
-    @if (book.seriesCount != null && book.seriesCount! > 1) {
-      <div class="series-count-overlay">
+    @if (book.seriesCount && book.seriesCount! >= 1) {
+      <div class="series-items-count-overlay">
         {{ book.seriesCount }}
       </div>
     }
 
-    <p-button [rounded]="true" icon="pi pi-info" class="info-btn" (click)="openBookInfo(book)"></p-button>
+    @if (book.seriesCount && book.seriesCount! >= 1) {
+      <p-button [rounded]="true" icon="pi pi-info" class="info-btn" (click)="openSeriesInfo()"></p-button>
+    } @else {
+      <p-button [rounded]="true" icon="pi pi-info" class="info-btn" (click)="openBookInfo(book)"></p-button>
+    }
 
     <p-button [hidden]="readButtonHidden" [rounded]="true" icon="pi pi-book" class="read-btn" (click)="readBook(book)"></p-button>
 
@@ -70,8 +74,8 @@
       <h4 class="book-title m-0 pl-2"
           tooltipPosition="bottom"
           tooltipStyleClass="text-xs text-center"
-          [pTooltip]="book.metadata?.title">
-        {{ book.metadata?.title }}
+          [pTooltip]="displayTitle">
+        {{ displayTitle }}
       </h4>
       <p-tieredmenu #menu [model]="items" [popup]="true" appendTo="body"></p-tieredmenu>
       <p-button

@@ -1,0 +1,18 @@
+.tabpanels-responsive {
+  height: calc(100dvh - 9.7rem);
+}
+
+@media (max-width: 768px) {
+  .tabpanels-responsive {
+    height: calc(100dvh - 8.5rem);
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(1px, 1fr));
+  gap: 1.3rem;
+  align-items: start;
+  width: 100%;
+}
+
