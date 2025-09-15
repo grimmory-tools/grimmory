@@ -28,67 +28,6 @@
         </button>
       }
     </div>
-    <div class="surface-alpha-control">
-      <span class="config-panel-label">Transparency: {{ (1 - surfaceAlphaValue).toFixed(2) }}</span>
-      <p-slider
-        [(ngModel)]="surfaceAlphaValue"
-        [min]="0.75"
-        [max]="1"
-        [step]="0.01"
-        (onSlideEnd)="updateSurfaceAlpha($event)"
-        class="alpha-slider">
-      </p-slider>
-    </div>
-  </div>
-
-  <div class="config-panel-colors">
-    <span class="config-panel-label">Background</span>
-    <div class="background-center-wrapper">
-      <div class="background-controls">
-        <div class="background-control">
-          <label>Show: </label>
-          <p-toggleswitch
-            size="small"
-            [(ngModel)]="backgroundVisible">
-          </p-toggleswitch>
-        </div>
-        @if (backgroundVisible) {
-          <div class="background-control">
-            <label for="blurRange">Blur: {{ backgroundBlurValue }}</label>
-            <p-slider
-              [(ngModel)]="backgroundBlurValue"
-              [min]="0"
-              [max]="30"
-              [step]="1"
-              (onSlideEnd)="updateBackgroundBlur($event)"
-              class="blur-slider">
-            </p-slider>
-          </div>
-        }
-      </div>
-      @if (backgroundVisible) {
-        <div class="background-actions-row">
-          <p-button
-            class="upload-bg-btn"
-            size="small"
-            outlined
-            severity="primary"
-            (click)="openUploadDialog()"
-            label="Upload Image"
-            icon="pi pi-upload">
-          </p-button>
-          <p-button
-            class="reset-bg-btn"
-            size="small"
-            outlined
-            severity="secondary"
-            (click)="resetBackground()"
-            label="Reset"
-            icon="pi pi-refresh">
-          </p-button>
-        </div>
-      }
-    </div>
   </div>
 
 </div>

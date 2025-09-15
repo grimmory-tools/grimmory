@@ -1,9 +1,8 @@
 import {DOCUMENT, isPlatformBrowser} from '@angular/common';
 import {effect, inject, Injectable, PLATFORM_ID, signal} from '@angular/core';
-import {$t} from '@primeng/themes';
+import {$t, updatePreset, updateSurfacePalette} from '@primeng/themes';
 import Aura from '@primeng/themes/aura';
 import {AppState} from '../model/app-state.model';
-import {UrlHelperService} from '../../utilities/service/url-helper.service';
 
 type ColorPalette = Record<string, string>;
 
@@ -16,15 +15,10 @@ interface Palette {
   providedIn: 'root',
 })
 export class AppConfigService {
-  public static readonly DEFAULT_BACKGROUND_BLUR = 20;
-  public static readonly DEFAULT_SURFACE_ALPHA = 0.88;
-  public static readonly DEFAULT_PRIMARY_COLOR = 'indigo';
-
   private readonly STORAGE_KEY = 'appConfigState';
   appState = signal<AppState>({});
   document = inject(DOCUMENT);
   platformId = inject(PLATFORM_ID);
-  private readonly urlHelper = inject(UrlHelperService);
   private initialized = false;
 
   readonly surfaces: Palette[] = [
@@ -168,20 +162,17 @@ export class AppConfigService {
 
   constructor() {
     const initialState = this.loadAppState();
-    this.appState.set(initialState);
+    this.appState.set({...initialState});
     this.document.documentElement.classList.add('p-dark');
 
     if (isPlatformBrowser(this.platformId)) {
-      this.setBackendImage();
-      setTimeout(() => {
-        this.onPresetChange();
-        this.initialized = true;
-      }, 0);
+      this.onPresetChange();
     }
 
     effect(() => {
       const state = this.appState();
       if (!this.initialized || !state) {
+        this.initialized = true;
         return;
       }
       this.saveAppState(state);
@@ -189,87 +180,33 @@ export class AppConfigService {
     }, {allowSignalWrites: true});
   }
 
-  private setBackendImage(): void {
-    const backendUrl = this.urlHelper.getBackgroundImageUrl(Date.now());
-    this.appState.update(state => ({
-      ...state,
-      backgroundImage: backendUrl,
-      lastUpdated: Date.now()
-    }));
-  }
-
-  refreshBackgroundImage(): void {
-    const timestamp = Date.now();
-    const backendUrl = this.urlHelper.getBackgroundImageUrl(timestamp);
-    this.appState.update(state => ({
-      ...state,
-      backgroundImage: backendUrl,
-      lastUpdated: timestamp
-    }));
-  }
-
   private loadAppState(): AppState {
-    const defaultState: AppState = {
-      preset: 'Aura',
-      primary: AppConfigService.DEFAULT_PRIMARY_COLOR,
-      surface: 'neutral',
-      backgroundBlur: AppConfigService.DEFAULT_BACKGROUND_BLUR,
-      showBackground: true,
-      surfaceAlpha: AppConfigService.DEFAULT_SURFACE_ALPHA,
-    };
-
     if (isPlatformBrowser(this.platformId)) {
       const storedState = localStorage.getItem(this.STORAGE_KEY);
       if (storedState) {
-        try {
-          const parsed = JSON.parse(storedState);
-          return {
-            preset: parsed.preset || defaultState.preset,
-            primary: parsed.primary || defaultState.primary,
-            surface: parsed.surface || defaultState.surface,
-            backgroundBlur: parsed.backgroundBlur ?? defaultState.backgroundBlur,
-            showBackground: parsed.showBackground ?? defaultState.showBackground,
-            surfaceAlpha: parsed.surfaceAlpha ?? defaultState.surfaceAlpha,
-          };
-        } catch (error) {
-          return defaultState;
-        }
+        return JSON.parse(storedState);
       }
     }
-    return defaultState;
+    return {
+      preset: 'Aura',
+      primary: 'green',
+      surface: 'neutral',
+    };
   }
 
   private saveAppState(state: AppState): void {
     if (isPlatformBrowser(this.platformId)) {
-      const {backgroundImage, lastUpdated, ...stateToSave} = state;
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(stateToSave));
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(state));
     }
   }
 
   private getSurfacePalette(surface: string): ColorPalette {
-    const palette = this.surfaces.find(s => s.name === surface)?.palette ?? {};
-    const alpha = this.appState().surfaceAlpha ?? AppConfigService.DEFAULT_SURFACE_ALPHA;
-    const transparentPalette: ColorPalette = {};
-
-    // Text/content colors that should remain opaque (not transparent)
-    const opaqueKeys = ['0', '50', '100', '200', '300', '400'];
-
-    Object.entries(palette).forEach(([key, hex]) => {
-      if (opaqueKeys.includes(key)) {
-        // Keep text colors opaque
-        transparentPalette[key] = hex;
-      } else {
-        // Apply transparency to background colors (500-950)
-        transparentPalette[key] = this.hexToRgba(hex, alpha);
-      }
-    });
-
-    return transparentPalette;
+    return this.surfaces.find(s => s.name === surface)?.palette ?? {};
   }
 
   getPresetExt(): object {
     const surfacePalette = this.getSurfacePalette(this.appState().surface ?? 'neutral');
-    const primaryName = this.appState().primary ?? AppConfigService.DEFAULT_PRIMARY_COLOR;
+    const primaryName = this.appState().primary ?? 'green';
     const presetPalette = (Aura.primitive ?? {}) as Record<string, ColorPalette>;
     const color = presetPalette[primaryName] ?? {};
 
@@ -311,8 +248,8 @@ export class AppConfigService {
             highlight: {
               background: 'color-mix(in srgb, {primary.400}, transparent 84%)',
               focusBackground: 'color-mix(in srgb, {primary.400}, transparent 76%)',
-              color: 'rgba(255,255,255,.88)',
-              focusColor: 'rgba(255,255,255,.88)'
+              color: 'rgba(255,255,255,.87)',
+              focusColor: 'rgba(255,255,255,.87)'
             }
           }
         }
@@ -320,30 +257,9 @@ export class AppConfigService {
     };
   }
 
-  private hexToRgba(hex: string, alpha: number = AppConfigService.DEFAULT_SURFACE_ALPHA): string {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-  }
-
   onPresetChange(): void {
     const surfacePalette = this.getSurfacePalette(this.appState().surface ?? 'neutral');
     const preset = this.getPresetExt();
     $t().preset(Aura).preset(preset).surfacePalette(surfacePalette).use({useDefaultOptions: true});
-  }
-
-  updateBackgroundBlur(blur: number): void {
-    this.appState.update(state => ({
-      ...state,
-      backgroundBlur: blur
-    }));
-  }
-
-  updateSurfaceAlpha(alpha: number): void {
-    this.appState.update(state => ({
-      ...state,
-      surfaceAlpha: alpha
-    }));
   }
 }

@@ -1,23 +1,14 @@
 @if (loading) {
   <div class="splash-screen">
     <div class="splash-content">
-      <img src="assets/favicon.svg" alt="Booklore logo" class="logo"/>
+      <img src="assets/favicon.svg" alt="Booklore logo" class="logo" />
       <h1>Loading Booklore…</h1>
       <p>Please wait while we get things ready.</p>
       <div class="loader"></div>
     </div>
   </div>
 } @else {
-  <div class="app-background"
-       [style.background-image]="showBackground() ? backgroundStyle() : 'none'">
-    <div class="app-overlay"
-         [style.backdrop-filter]="showBackground() ? blurStyle() : 'none'"
-         [style.-webkit-backdrop-filter]="showBackground() ? blurStyle() : 'none'"
-         [style.display]="showBackground() ? 'block' : 'none'"></div>
-    <div class="app-content">
-      <p-confirmDialog></p-confirmDialog>
-      <p-toast></p-toast>
-      <router-outlet></router-outlet>
-    </div>
-  </div>
+  <p-confirmDialog />
+  <p-toast></p-toast>
+  <router-outlet></router-outlet>
 }
