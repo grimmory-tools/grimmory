@@ -34,40 +34,24 @@ public class KoreaderService {
     private final UserRepository userRepository;
     private final KoreaderUserRepository koreaderUserRepository;
 
-    private KoreaderUserDetails getAuthDetails() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!(principal instanceof KoreaderUserDetails details)) {
-            log.warn("Authentication failed: invalid principal type");
-            throw ApiError.GENERIC_UNAUTHORIZED.createException("User not authenticated");
-        }
-        return details;
-    }
-
     public ResponseEntity<Map<String, String>> authorizeUser() {
-        KoreaderUserDetails details = getAuthDetails();
-        Optional<KoreaderUserEntity> userOpt = koreaderUserRepository.findByUsername(details.getUsername());
-        if (userOpt.isEmpty()) {
-            log.warn("KOReader user '{}' not found", details.getUsername());
-            throw ApiError.GENERIC_NOT_FOUND.createException("KOReader user not found");
-        }
-        KoreaderUserEntity user = userOpt.get();
-        if (user.getPasswordMD5() == null || !user.getPasswordMD5().equalsIgnoreCase(details.getPassword())) {
-            log.warn("Password mismatch for user '{}'", details.getUsername());
-            throw ApiError.GENERIC_UNAUTHORIZED.createException("Invalid credentials");
-        }
-        log.info("User '{}' authorized", details.getUsername());
-        return ResponseEntity.ok(Map.of("username", details.getUsername()));
+        KoreaderUserDetails authDetails = getAuthDetails();
+        KoreaderUserEntity koreaderUser = findKoreaderUser(authDetails.getUsername());
+        validatePassword(koreaderUser, authDetails);
+
+        log.info("User '{}' authorized", authDetails.getUsername());
+        return ResponseEntity.ok(Map.of("username", authDetails.getUsername()));
     }
 
     public KoreaderProgress getProgress(String bookHash) {
-        KoreaderUserDetails details = getAuthDetails();
-        ensureSyncEnabled(details);
-        long userId = details.getBookLoreUserId();
-        BookEntity book = bookRepository.findByCurrentHash(bookHash)
-                .orElseThrow(() -> ApiError.GENERIC_NOT_FOUND.createException("Book not found for hash " + bookHash));
-        UserBookProgressEntity progress = progressRepository.findByUserIdAndBookId(userId, book.getId())
-                .orElseThrow(() -> ApiError.GENERIC_NOT_FOUND.createException("No progress found for user and book"));
-        log.info("getProgress: fetched progress='{}' percentage={} for userId={} bookHash={}", progress.getKoreaderProgress(), progress.getKoreaderProgressPercent(), userId, bookHash);
+        KoreaderUserDetails authDetails = getAuthDetailsWithSyncCheck();
+        BookEntity book = findBookByHash(bookHash);
+        UserBookProgressEntity progress = findUserProgress(authDetails.getBookLoreUserId(), book.getId());
+
+        log.info("getProgress: fetched progress='{}' percentage={} for userId={} bookHash={}",
+                progress.getKoreaderProgress(), progress.getKoreaderProgressPercent(),
+                authDetails.getBookLoreUserId(), bookHash);
+
         return KoreaderProgress.builder()
                 .document(bookHash)
                 .progress(progress.getKoreaderProgress())
@@ -77,30 +61,93 @@ public class KoreaderService {
                 .build();
     }
 
-    public void saveProgress(String bookHash, KoreaderProgress progressDto) {
-        KoreaderUserDetails details = getAuthDetails();
-        ensureSyncEnabled(details);
-        long userId = details.getBookLoreUserId();
-        BookEntity book = bookRepository.findByCurrentHash(bookHash)
-                .orElseThrow(() -> ApiError.GENERIC_NOT_FOUND.createException("Book not found for hash " + bookHash));
-        BookLoreUserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> ApiError.GENERIC_NOT_FOUND.createException("User not found with id " + userId));
-        UserBookProgressEntity progress = progressRepository.findByUserIdAndBookId(userId, book.getId())
-                .orElseGet(() -> {
-                    UserBookProgressEntity p = new UserBookProgressEntity();
-                    p.setUser(user);
-                    p.setBook(book);
-                    return p;
+    public void saveProgress(String bookHash, KoreaderProgress koProgress) {
+        KoreaderUserDetails authDetails = getAuthDetailsWithSyncCheck();
+        BookEntity book = findBookByHash(bookHash);
+        BookLoreUserEntity user = findBookLoreUser(authDetails.getBookLoreUserId());
+
+        UserBookProgressEntity userProgress = getOrCreateUserProgress(user, book);
+        updateProgressData(userProgress, koProgress);
+        progressRepository.save(userProgress);
+
+        log.info("saveProgress: saved progress='{}' percentage={} for userId={} bookHash={}",
+                koProgress.getProgress(), koProgress.getPercentage(),
+                authDetails.getBookLoreUserId(), bookHash);
+    }
+
+    private KoreaderUserDetails getAuthDetails() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!(principal instanceof KoreaderUserDetails details)) {
+            log.warn("Authentication failed: invalid principal type");
+            throw ApiError.GENERIC_UNAUTHORIZED.createException("User not authenticated");
+        }
+        return details;
+    }
+
+    private KoreaderUserDetails getAuthDetailsWithSyncCheck() {
+        KoreaderUserDetails authDetails = getAuthDetails();
+        ensureSyncEnabled(authDetails);
+        return authDetails;
+    }
+
+    private KoreaderUserEntity findKoreaderUser(String username) {
+        return koreaderUserRepository.findByUsername(username)
+                .orElseThrow(() -> {
+                    log.warn("KOReader user '{}' not found", username);
+                    return ApiError.GENERIC_NOT_FOUND.createException("KOReader user not found");
                 });
-        progress.setKoreaderProgress(progressDto.getProgress());
-        progress.setKoreaderProgressPercent(progressDto.getPercentage());
-        progress.setKoreaderDevice(progressDto.getDevice());
-        progress.setKoreaderDeviceId(progressDto.getDevice_id());
-        progress.setKoreaderLastSyncTime(Instant.now());
-        if (progressDto.getPercentage() >= 0.5) progress.setReadStatus(ReadStatus.READING);
-        progress.setLastReadTime(Instant.now());
-        progressRepository.save(progress);
-        log.info("saveProgress: saved progress='{}' percentage={} for userId={} bookHash={}", progressDto.getProgress(), progressDto.getPercentage(), userId, bookHash);
+    }
+
+    private void validatePassword(KoreaderUserEntity koreaderUser, KoreaderUserDetails authDetails) {
+        if (koreaderUser.getPasswordMD5() == null ||
+                !koreaderUser.getPasswordMD5().equalsIgnoreCase(authDetails.getPassword())) {
+            log.warn("Password mismatch for user '{}'", authDetails.getUsername());
+            throw ApiError.GENERIC_UNAUTHORIZED.createException("Invalid credentials");
+        }
+    }
+
+    private BookEntity findBookByHash(String bookHash) {
+        return bookRepository.findByCurrentHash(bookHash)
+                .orElseThrow(() -> ApiError.GENERIC_NOT_FOUND.createException("Book not found for hash " + bookHash));
+    }
+
+    private BookLoreUserEntity findBookLoreUser(long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> ApiError.GENERIC_NOT_FOUND.createException("User not found with id " + userId));
+    }
+
+    private UserBookProgressEntity findUserProgress(long userId, Long bookId) {
+        return progressRepository.findByUserIdAndBookId(userId, bookId)
+                .orElseThrow(() -> ApiError.GENERIC_NOT_FOUND.createException("No progress found for user and book"));
+    }
+
+    private UserBookProgressEntity getOrCreateUserProgress(BookLoreUserEntity user, BookEntity book) {
+        return progressRepository.findByUserIdAndBookId(user.getId(), book.getId())
+                .orElseGet(() -> {
+                    UserBookProgressEntity newProgress = new UserBookProgressEntity();
+                    newProgress.setUser(user);
+                    newProgress.setBook(book);
+                    return newProgress;
+                });
+    }
+
+    private void updateProgressData(UserBookProgressEntity userProgress, KoreaderProgress koProgress) {
+        userProgress.setKoreaderProgress(koProgress.getProgress());
+        userProgress.setKoreaderProgressPercent(koProgress.getPercentage());
+        userProgress.setKoreaderDevice(koProgress.getDevice());
+        userProgress.setKoreaderDeviceId(koProgress.getDevice_id());
+        userProgress.setKoreaderLastSyncTime(Instant.now());
+        userProgress.setLastReadTime(Instant.now());
+
+        updateReadStatus(userProgress, koProgress.getPercentage());
+    }
+
+    private void updateReadStatus(UserBookProgressEntity userProgress, double percentage) {
+        if (percentage >= 99.5) {
+            userProgress.setReadStatus(ReadStatus.READ);
+        } else if (percentage >= 0.5) {
+            userProgress.setReadStatus(ReadStatus.READING);
+        }
     }
 
     private void ensureSyncEnabled(KoreaderUserDetails details) {
