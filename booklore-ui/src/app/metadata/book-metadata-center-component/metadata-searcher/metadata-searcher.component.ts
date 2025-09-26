@@ -107,7 +107,7 @@ export class MetadataSearcherComponent implements OnInit, OnDestroy {
       provider: this.providers,
       title: book.metadata?.title ?? '',
       author: book.metadata?.authors?.[0] ?? '',
-      isbn: book.metadata?.isbn10 ?? book.metadata?.isbn13 ?? ''
+      isbn: book.metadata?.isbn13 ?? book.metadata?.isbn10 ?? ''
     });
   }
 
