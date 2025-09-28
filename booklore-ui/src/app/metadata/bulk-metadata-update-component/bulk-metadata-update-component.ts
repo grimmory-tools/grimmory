@@ -101,6 +101,16 @@ export class BulkMetadataUpdateComponent implements OnInit {
     }
   }
 
+  onFormKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter') {
+      if ((event.target as HTMLElement)?.tagName === 'BUTTON' &&
+          (event.target as HTMLButtonElement)?.type === 'submit') {
+        return;
+      }
+      event.preventDefault();
+    }
+  }
+
   onSubmit(): void {
     if (!this.metadataForm.valid) return;
 
