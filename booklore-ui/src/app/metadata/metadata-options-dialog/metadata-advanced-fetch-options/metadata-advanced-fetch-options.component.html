@@ -2,95 +2,100 @@
   <table class="min-w-full table-auto border-collapse custom-table">
     <thead>
     <tr>
-      <th class="px-4 py-1.5 text-left font-semibold text-gray-300">Book Field</th>
-      <th class="px-4 py-1.5 text-left font-semibold text-gray-300">
+      <th class="px-4 py-1.5 text-left font-semibold text-zinc-300">Skip</th>
+      <th class="px-4 py-1.5 text-left font-semibold text-zinc-300">Metadata Field</th>
+      <th class="px-4 py-1.5 text-left font-semibold text-zinc-300">
         4th Priority
         <i class="pi pi-question-circle ml-1 text-xs"
            pTooltip="Last fallback option - only used if 1st, 2nd, and 3rd priorities fail or are empty"
            tooltipPosition="top"></i>
       </th>
-      <th class="px-4 py-1.5 text-left font-semibold text-gray-300">
+      <th class="px-4 py-1.5 text-left font-semibold text-zinc-300">
         3rd Priority
         <i class="pi pi-question-circle ml-1 text-xs"
            pTooltip="Third choice - used if 1st and 2nd priorities don't have data"
            tooltipPosition="top"></i>
       </th>
-      <th class="px-4 py-1.5 text-left font-semibold text-gray-300">
+      <th class="px-4 py-1.5 text-left font-semibold text-zinc-300">
         2nd Priority
         <i class="pi pi-question-circle ml-1 text-xs"
            pTooltip="Second choice - used if 1st priority doesn't have data"
            tooltipPosition="top"></i>
       </th>
-      <th class="px-4 py-1.5 text-left font-semibold text-gray-300">
+      <th class="px-4 py-1.5 text-left font-semibold text-zinc-300">
         1st Priority
         <i class="pi pi-question-circle ml-1 text-xs"
            pTooltip="First choice - always tried first for this field"
            tooltipPosition="top"></i>
       </th>
     </tr>
-    </thead>
-    <tbody>
-
     <tr>
-      <td class="text-sm px-4 py-1.5 text-gray-300">
-        All Other Fields
-        <i class="pi pi-question-circle ml-1 text-xs"
-           pTooltip="Quick way to set the same provider priority for all fields at once"
-           tooltipPosition="right"></i>
-      </td>
-      <td class="px-4 py-1.5">
-        <p-select [options]="providers" [(ngModel)]="allP4.value"
-                  (onChange)="syncProvider($event, 'p4')"
-                  placeholder="Select All" appendTo="body"
+      <td class="px-4 py-2"></td>
+      <td class="px-4 py-2 text-sm text-zinc-400 italic">Set All:</td>
+      <td class="px-4 py-2">
+        <p-select [options]="providersWithClear" [(ngModel)]="bulkP4"
+                  (ngModelChange)="setBulkProvider('p4', $event)"
+                  placeholder="Set all P4" appendTo="body"
                   class="w-full" size="small">
         </p-select>
       </td>
-      <td class="px-4 py-1.5">
-        <p-select [options]="providers" [(ngModel)]="allP3.value"
-                  (onChange)="syncProvider($event, 'p3')"
-                  placeholder="Select All" appendTo="body"
+      <td class="px-4 py-2">
+        <p-select [options]="providersWithClear" [(ngModel)]="bulkP3"
+                  (ngModelChange)="setBulkProvider('p3', $event)"
+                  placeholder="Set all P3" appendTo="body"
                   class="w-full" size="small">
         </p-select>
       </td>
-      <td class="px-4 py-1.5">
-        <p-select [options]="providers" [(ngModel)]="allP2.value"
-                  (onChange)="syncProvider($event, 'p2')"
-                  placeholder="Select All" appendTo="body"
+      <td class="px-4 py-2">
+        <p-select [options]="providersWithClear" [(ngModel)]="bulkP2"
+                  (ngModelChange)="setBulkProvider('p2', $event)"
+                  placeholder="Set all P2" appendTo="body"
                   class="w-full" size="small">
         </p-select>
       </td>
-      <td class="px-4 py-1.5">
-        <p-select [options]="providers" [(ngModel)]="allP1.value"
-                  (onChange)="syncProvider($event, 'p1')"
-                  placeholder="Select All" appendTo="body"
+      <td class="px-4 py-2">
+        <p-select [options]="providersWithClear" [(ngModel)]="bulkP1"
+                  (ngModelChange)="setBulkProvider('p1', $event)"
+                  placeholder="Set all P1" appendTo="body"
                   class="w-full" size="small">
         </p-select>
       </td>
     </tr>
-
-      @for (field of fields; track field) {
-        <tr [hidden]="field === 'cover' && !refreshCovers">
-          <td class="text-sm px-4 py-1.5 text-gray-300">{{ formatLabel(field) }}</td>
+    </thead>
+    <tbody>
+      @for (field of nonProviderSpecificFields; track field) {
+        <tr [hidden]="field === 'cover' && !refreshCovers"
+            [class.opacity-50]="skipFields[field]">
+          <td class="px-4 py-1.5">
+            <p-checkbox [(ngModel)]="skipFields[field]" [binary]="true"
+                        pTooltip="Skip this field during metadata fetch"
+                        tooltipPosition="top"></p-checkbox>
+          </td>
+          <td class="px-4 py-1.5 text-zinc-200">{{ formatLabel(field) }}</td>
           <td class="px-4 py-1.5">
             <p-select [options]="providers" [(ngModel)]="fieldOptions[field].p4"
+                      [disabled]="skipFields[field]"
                       placeholder="Unset" appendTo="body"
                       class="w-full" size="small">
             </p-select>
           </td>
           <td class="px-4 py-1.5">
             <p-select [options]="providers" [(ngModel)]="fieldOptions[field].p3"
+                      [disabled]="skipFields[field]"
                       placeholder="Unset" appendTo="body"
                       class="w-full" size="small">
             </p-select>
           </td>
           <td class="px-4 py-1.5">
             <p-select [options]="providers" [(ngModel)]="fieldOptions[field].p2"
+                      [disabled]="skipFields[field]"
                       placeholder="Unset" appendTo="body"
                       class="w-full" size="small">
             </p-select>
           </td>
           <td class="px-4 py-1.5">
             <p-select [options]="providers" [(ngModel)]="fieldOptions[field].p1"
+                      [disabled]="skipFields[field]"
                       placeholder="Unset" appendTo="body"
                       class="w-full" size="small">
             </p-select>
@@ -100,6 +105,20 @@
     </tbody>
   </table>
 
+  <div class="space-y-4">
+    <h3 class="text-lg font-semibold text-zinc-300">Provider-Specific Fields</h3>
+    <p class="text-sm text-zinc-400">These fields are unique to specific providers and cannot have custom priority settings. Use the checkboxes to skip fetching these fields entirely.</p>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      @for (field of providerSpecificFields; track field) {
+        <div class="flex items-center space-x-3 p-3 border border-zinc-600 rounded-lg">
+          <p-checkbox [(ngModel)]="skipFields[field]" [binary]="true"
+                      pTooltip="Skip this field during metadata fetch"
+                      tooltipPosition="top"></p-checkbox>
+          <span class="text-sm text-zinc-300">{{ formatLabel(field) }}</span>
+        </div>
+      }
+    </div>
+  </div>
 
   <div class="flex flex-row items-center justify-between gap-4 w-full">
 

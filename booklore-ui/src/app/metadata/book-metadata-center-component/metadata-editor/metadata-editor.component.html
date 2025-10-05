@@ -177,58 +177,56 @@
           </div>
 
           <div class="flex flex-col md:flex-row w-full gap-4 mt-2 pb-1">
-            <div class="flex flex-col md:flex-row w-full gap-4 mt-2 pb-1 md:basis-[50%]">
-              <div class="flex flex-col gap-1 w-full">
-                <label class="text-sm" for="moods">Moods</label>
-                <div class="flex justify-between items-center gap-2">
-                  <div class="w-full">
-                    <p-autoComplete
-                      class="w-full"
-                      formControlName="moods"
-                      [multiple]="true"
-                      [dropdown]="false"
-                      [suggestions]="filteredMoods"
-                      [forceSelection]="false"
-                      [showClear]="true"
-                      (completeMethod)="filterMoods($event)"
-                      (onKeyUp)="onAutoCompleteKeyUp('moods', $event)"
-                      (onSelect)="onAutoCompleteSelect('moods', $event)">
-                    </p-autoComplete>
-                  </div>
-                  @if (!book.metadata!['moodsLocked']) {
-                    <p-button size="small" icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('moods')" severity="success"></p-button>
-                  }
-                  @if (book.metadata!['moodsLocked']) {
-                    <p-button size="small" icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('moods')" severity="warn"></p-button>
-                  }
+            <div class="flex flex-col gap-1 w-full">
+              <label class="text-sm" for="moods">Moods</label>
+              <div class="flex justify-between items-center gap-2">
+                <div class="w-full">
+                  <p-autoComplete
+                    class="w-full"
+                    formControlName="moods"
+                    [multiple]="true"
+                    [dropdown]="false"
+                    [suggestions]="filteredMoods"
+                    [forceSelection]="false"
+                    [showClear]="true"
+                    (completeMethod)="filterMoods($event)"
+                    (onKeyUp)="onAutoCompleteKeyUp('moods', $event)"
+                    (onSelect)="onAutoCompleteSelect('moods', $event)">
+                  </p-autoComplete>
                 </div>
+                @if (!book.metadata!['moodsLocked']) {
+                  <p-button size="small" icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('moods')" severity="success"></p-button>
+                }
+                @if (book.metadata!['moodsLocked']) {
+                  <p-button size="small" icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('moods')" severity="warn"></p-button>
+                }
               </div>
             </div>
-            <div class="flex flex-col md:flex-row w-full gap-4 mt-2 pb-1 md:basis-[50%]">
-              <div class="flex flex-col gap-1 w-full">
-                <label class="text-sm" for="tags">Tags</label>
-                <div class="flex justify-between items-center gap-2">
-                  <div class="w-full">
-                    <p-autoComplete
-                      class="w-full"
-                      formControlName="tags"
-                      [multiple]="true"
-                      [dropdown]="false"
-                      [suggestions]="filteredTags"
-                      [forceSelection]="false"
-                      [showClear]="true"
-                      (completeMethod)="filterTags($event)"
-                      (onKeyUp)="onAutoCompleteKeyUp('tags', $event)"
-                      (onSelect)="onAutoCompleteSelect('tags', $event)">
-                    </p-autoComplete>
-                  </div>
-                  @if (!book.metadata!['tagsLocked']) {
-                    <p-button size="small" icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('tags')" severity="success"></p-button>
-                  }
-                  @if (book.metadata!['tagsLocked']) {
-                    <p-button size="small" icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('tags')" severity="warn"></p-button>
-                  }
+          </div>
+          <div class="flex flex-col md:flex-row w-full gap-4 mt-2 pb-1">
+            <div class="flex flex-col gap-1 w-full">
+              <label class="text-sm" for="tags">Tags</label>
+              <div class="flex justify-between items-center gap-2">
+                <div class="w-full">
+                  <p-autoComplete
+                    class="w-full"
+                    formControlName="tags"
+                    [multiple]="true"
+                    [dropdown]="false"
+                    [suggestions]="filteredTags"
+                    [forceSelection]="false"
+                    [showClear]="true"
+                    (completeMethod)="filterTags($event)"
+                    (onKeyUp)="onAutoCompleteKeyUp('tags', $event)"
+                    (onSelect)="onAutoCompleteSelect('tags', $event)">
+                  </p-autoComplete>
                 </div>
+                @if (!book.metadata!['tagsLocked']) {
+                  <p-button size="small" icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('tags')" severity="success"></p-button>
+                }
+                @if (book.metadata!['tagsLocked']) {
+                  <p-button size="small" icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('tags')" severity="warn"></p-button>
+                }
               </div>
             </div>
           </div>

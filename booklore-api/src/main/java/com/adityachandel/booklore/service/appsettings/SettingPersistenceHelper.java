@@ -110,69 +110,83 @@ public class SettingPersistenceHelper {
     }
 
     MetadataRefreshOptions getDefaultMetadataRefreshOptions() {
-        MetadataRefreshOptions.FieldProvider titleProviders =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
-        MetadataRefreshOptions.FieldProvider subtitleProviders =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
-        MetadataRefreshOptions.FieldProvider descriptionProviders =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
-        MetadataRefreshOptions.FieldProvider authorsProviders =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
-        MetadataRefreshOptions.FieldProvider publisherProviders =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
-        MetadataRefreshOptions.FieldProvider publishedDateProviders =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
-        MetadataRefreshOptions.FieldProvider seriesNameProviders =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
-        MetadataRefreshOptions.FieldProvider seriesNumberProviders =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
-        MetadataRefreshOptions.FieldProvider seriesTotalProviders =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
-        MetadataRefreshOptions.FieldProvider isbn13Providers =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
-        MetadataRefreshOptions.FieldProvider isbn10Providers =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
-        MetadataRefreshOptions.FieldProvider languageProviders =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
-        MetadataRefreshOptions.FieldProvider categoriesProviders =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
-        MetadataRefreshOptions.FieldProvider moodsProviders =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
-        MetadataRefreshOptions.FieldProvider tagsProviders =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
-        MetadataRefreshOptions.FieldProvider coverProviders =
-                new MetadataRefreshOptions.FieldProvider(null, MetadataProvider.Google, MetadataProvider.Amazon, MetadataProvider.GoodReads);
+        MetadataRefreshOptions.FieldProvider amazonProvider = MetadataRefreshOptions.FieldProvider.builder()
+                .p1(MetadataProvider.Amazon)
+                .build();
 
-        MetadataRefreshOptions.FieldOptions fieldOptions = new MetadataRefreshOptions.FieldOptions(
-                titleProviders,
-                subtitleProviders,
-                descriptionProviders,
-                authorsProviders,
-                publisherProviders,
-                publishedDateProviders,
-                seriesNameProviders,
-                seriesNumberProviders,
-                seriesTotalProviders,
-                isbn13Providers,
-                isbn10Providers,
-                languageProviders,
-                categoriesProviders,
-                moodsProviders,
-                tagsProviders,
-                coverProviders
-        );
+        MetadataRefreshOptions.FieldProvider nullProvider = MetadataRefreshOptions.FieldProvider.builder()
+                .build();
 
-        return new MetadataRefreshOptions(
-                null,
-                MetadataProvider.GoodReads,
-                MetadataProvider.Amazon,
-                MetadataProvider.Google,
-                null,
-                false,
-                true,
-                false,
-                fieldOptions
-        );
+        MetadataRefreshOptions.FieldOptions fieldOptions = MetadataRefreshOptions.FieldOptions.builder()
+                .title(amazonProvider)
+                .subtitle(amazonProvider)
+                .description(amazonProvider)
+                .authors(amazonProvider)
+                .publisher(amazonProvider)
+                .publishedDate(amazonProvider)
+                .seriesName(amazonProvider)
+                .seriesNumber(amazonProvider)
+                .seriesTotal(amazonProvider)
+                .isbn13(amazonProvider)
+                .isbn10(amazonProvider)
+                .language(amazonProvider)
+                .categories(amazonProvider)
+                .cover(amazonProvider)
+                .pageCount(amazonProvider)
+                .asin(nullProvider)
+                .goodreadsId(nullProvider)
+                .comicvineId(nullProvider)
+                .hardcoverId(nullProvider)
+                .googleId(nullProvider)
+                .amazonRating(nullProvider)
+                .amazonReviewCount(nullProvider)
+                .goodreadsRating(nullProvider)
+                .goodreadsReviewCount(nullProvider)
+                .hardcoverRating(nullProvider)
+                .hardcoverReviewCount(nullProvider)
+                .moods(nullProvider)
+                .tags(nullProvider)
+                .build();
+
+        MetadataRefreshOptions.SkipFields skipFields = MetadataRefreshOptions.SkipFields.builder()
+                .title(false)
+                .subtitle(false)
+                .description(false)
+                .authors(false)
+                .publisher(false)
+                .publishedDate(false)
+                .seriesName(false)
+                .seriesNumber(false)
+                .seriesTotal(false)
+                .isbn13(false)
+                .isbn10(false)
+                .language(false)
+                .categories(false)
+                .cover(false)
+                .pageCount(false)
+                .asin(false)
+                .goodreadsId(false)
+                .comicvineId(false)
+                .hardcoverId(false)
+                .googleId(false)
+                .amazonRating(false)
+                .amazonReviewCount(false)
+                .goodreadsRating(false)
+                .goodreadsReviewCount(false)
+                .hardcoverRating(false)
+                .hardcoverReviewCount(false)
+                .moods(false)
+                .tags(false)
+                .build();
+
+        return MetadataRefreshOptions.builder()
+                .libraryId(null)
+                .refreshCovers(false)
+                .mergeCategories(true)
+                .reviewBeforeApply(false)
+                .fieldOptions(fieldOptions)
+                .skipFields(skipFields)
+                .build();
     }
 
     public MetadataMatchWeights getDefaultMetadataMatchWeights() {

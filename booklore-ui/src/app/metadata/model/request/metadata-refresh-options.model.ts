@@ -1,13 +1,10 @@
 export interface MetadataRefreshOptions {
   libraryId: number | null;
-  allP4: string | null;
-  allP3: string | null;
-  allP2: string | null;
-  allP1: string | null;
   refreshCovers: boolean;
   mergeCategories: boolean;
   reviewBeforeApply: boolean;
   fieldOptions?: FieldOptions;
+  skipFields?: Record<keyof FieldOptions, boolean>;
 }
 
 export interface FieldProvider {
@@ -32,4 +29,18 @@ export interface FieldOptions {
   isbn13: FieldProvider;
   isbn10: FieldProvider;
   language: FieldProvider;
+  pageCount: FieldProvider;
+  asin: FieldProvider;
+  goodreadsId: FieldProvider;
+  comicvineId: FieldProvider;
+  hardcoverId: FieldProvider;
+  googleId: FieldProvider;
+  amazonRating: FieldProvider;
+  amazonReviewCount: FieldProvider;
+  goodreadsRating: FieldProvider;
+  goodreadsReviewCount: FieldProvider;
+  hardcoverRating: FieldProvider;
+  hardcoverReviewCount: FieldProvider;
+  moods: FieldProvider;
+  tags: FieldProvider;
 }

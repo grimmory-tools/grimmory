@@ -1,17 +1,11 @@
-import {
-  Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges
-} from '@angular/core';
-import {Select, SelectChangeEvent} from 'primeng/select';
+import {Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
+import {Select} from 'primeng/select';
 import {FormsModule} from '@angular/forms';
 
 import {Checkbox} from 'primeng/checkbox';
 import {Button} from 'primeng/button';
 import {MessageService} from 'primeng/api';
-import {
-  FieldOptions,
-  FieldProvider,
-  MetadataRefreshOptions
-} from '../../model/request/metadata-refresh-options.model';
+import {FieldOptions, MetadataRefreshOptions} from '../../model/request/metadata-refresh-options.model';
 import {Tooltip} from 'primeng/tooltip';
 
 @Component({
@@ -30,30 +24,61 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
   fields: (keyof FieldOptions)[] = [
     'title', 'subtitle', 'description', 'authors', 'publisher', 'publishedDate',
     'seriesName', 'seriesNumber', 'seriesTotal', 'isbn13', 'isbn10',
-    'language', 'categories', 'cover'
+    'language', 'categories', 'cover', 'pageCount',
+    'asin', 'goodreadsId', 'comicvineId', 'hardcoverId', 'googleId',
+    'amazonRating', 'amazonReviewCount', 'goodreadsRating', 'goodreadsReviewCount',
+    'hardcoverRating', 'hardcoverReviewCount', 'moods', 'tags'
   ];
+
+  providerSpecificFields: (keyof FieldOptions)[] = [
+    'asin', 'goodreadsId', 'comicvineId', 'hardcoverId', 'googleId',
+    'amazonRating', 'amazonReviewCount', 'goodreadsRating', 'goodreadsReviewCount',
+    'hardcoverRating', 'hardcoverReviewCount', 'moods', 'tags'
+  ];
+
+  nonProviderSpecificFields: (keyof FieldOptions)[] = [
+    'title', 'subtitle', 'description', 'authors', 'publisher', 'publishedDate',
+    'seriesName', 'seriesNumber', 'seriesTotal', 'isbn13', 'isbn10',
+    'language', 'categories', 'cover', 'pageCount',
+  ];
+
   providers: string[] = ['Amazon', 'Google', 'GoodReads', 'Hardcover', 'Comicvine', 'Douban'];
+  providersWithClear: string[] = ['Clear All', 'Amazon', 'Google', 'GoodReads', 'Hardcover', 'Comicvine', 'Douban'];
 
   refreshCovers: boolean = false;
   mergeCategories: boolean = false;
   reviewBeforeApply: boolean = false;
 
-  allP1 = {placeholder: 'Set All', value: null as string | null};
-  allP2 = {placeholder: 'Set All', value: null as string | null};
-  allP3 = {placeholder: 'Set All', value: null as string | null};
-  allP4 = {placeholder: 'Set All', value: null as string | null};
-
   fieldOptions: FieldOptions = this.initializeFieldOptions();
+  skipFields: Record<keyof FieldOptions, boolean> = this.initializeSkipFields();
+
+  bulkP1: string | null = null;
+  bulkP2: string | null = null;
+  bulkP3: string | null = null;
+  bulkP4: string | null = null;
 
   private messageService = inject(MessageService);
 
   private justSubmitted = false;
+
+  private providerSpecificFieldsList = [
+    'asin', 'goodreadsId', 'comicvineId', 'hardcoverId', 'googleId',
+    'amazonRating', 'amazonReviewCount', 'goodreadsRating', 'goodreadsReviewCount',
+    'hardcoverRating', 'hardcoverReviewCount', 'moods', 'tags'
+  ];
 
   private initializeFieldOptions(): FieldOptions {
     return this.fields.reduce((acc, field) => {
       acc[field] = {p1: null, p2: null, p3: null, p4: null};
       return acc;
     }, {} as FieldOptions);
+  }
+
+  private initializeSkipFields(): Record<keyof FieldOptions, boolean> {
+    return this.fields.reduce((acc, field) => {
+      acc[field] = false;
+      return acc;
+    }, {} as Record<keyof FieldOptions, boolean>);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -72,10 +97,11 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
       }
       this.fieldOptions = backendFieldOptions;
 
-      this.allP1 = {placeholder: 'Set All', value: this.currentMetadataOptions.allP1 || null};
-      this.allP2 = {placeholder: 'Set All', value: this.currentMetadataOptions.allP2 || null};
-      this.allP3 = {placeholder: 'Set All', value: this.currentMetadataOptions.allP3 || null};
-      this.allP4 = {placeholder: 'Set All', value: this.currentMetadataOptions.allP4 || null};
+      if (this.currentMetadataOptions.skipFields) {
+        this.skipFields = {...this.skipFields, ...this.currentMetadataOptions.skipFields};
+      } else {
+        this.skipFields = this.initializeSkipFields();
+      }
     }
   }
 
@@ -92,14 +118,10 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
     return cloned;
   }
 
-  syncProvider(event: SelectChangeEvent, providerType: keyof FieldProvider) {
-    for (const field of Object.keys(this.fieldOptions)) {
-      this.fieldOptions[field as keyof FieldOptions][providerType] = event.value;
-    }
-  }
-
   submit() {
-    const allFieldsHaveProvider = Object.values(this.fieldOptions).every(opt =>
+    const allFieldsHaveProvider = Object.entries(this.fieldOptions).every(([field, opt]) =>
+      this.skipFields[field as keyof FieldOptions] ||
+      this.isProviderSpecificField(field as keyof FieldOptions) ||
       opt.p1 !== null || opt.p2 !== null || opt.p3 !== null || opt.p4 !== null
     );
 
@@ -108,14 +130,11 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
 
       const metadataRefreshOptions: MetadataRefreshOptions = {
         libraryId: null,
-        allP1: this.allP1.value,
-        allP2: this.allP2.value,
-        allP3: this.allP3.value,
-        allP4: this.allP4.value,
         refreshCovers: this.refreshCovers,
         mergeCategories: this.mergeCategories,
         reviewBeforeApply: this.reviewBeforeApply,
-        fieldOptions: this.fieldOptions
+        fieldOptions: this.fieldOptions,
+        skipFields: this.skipFields
       };
 
       this.metadataOptionsSubmitted.emit(metadataRefreshOptions);
@@ -127,18 +146,41 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
-        detail: 'At least one provider (P1–P4) must be selected for each book field.',
+        detail: 'At least one provider (P1–P4) must be selected for each non-skipped book field.',
         life: 5000
       });
     }
   }
 
+  setBulkProvider(priority: 'p1' | 'p2' | 'p3' | 'p4', provider: string | null): void {
+    if (!provider) return;
+
+    const value = provider === 'Clear All' ? null : provider;
+
+    for (const field of this.nonProviderSpecificFields) {
+      if (!this.skipFields[field]) {
+        this.fieldOptions[field][priority] = value;
+      }
+    }
+
+    switch (priority) {
+      case 'p1':
+        this.bulkP1 = null;
+        break;
+      case 'p2':
+        this.bulkP2 = null;
+        break;
+      case 'p3':
+        this.bulkP3 = null;
+        break;
+      case 'p4':
+        this.bulkP4 = null;
+        break;
+    }
+  }
+
   reset() {
     this.justSubmitted = false;
-    this.allP1.value = null;
-    this.allP2.value = null;
-    this.allP3.value = null;
-    this.allP4.value = null;
     for (const field of Object.keys(this.fieldOptions)) {
       this.fieldOptions[field as keyof FieldOptions] = {
         p1: null,
@@ -147,9 +189,53 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
         p4: null
       };
     }
+    this.skipFields = this.initializeSkipFields();
+
+    // Reset bulk selectors
+    this.bulkP1 = null;
+    this.bulkP2 = null;
+    this.bulkP3 = null;
+    this.bulkP4 = null;
   }
 
   formatLabel(field: string): string {
-    return field.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).trim();
+    const fieldLabels: Record<string, string> = {
+      'title': 'Title',
+      'subtitle': 'Subtitle',
+      'description': 'Description',
+      'authors': 'Authors',
+      'publisher': 'Publisher',
+      'publishedDate': 'Published Date',
+      'seriesName': 'Series Name',
+      'seriesNumber': 'Series Number',
+      'seriesTotal': 'Series Total',
+      'isbn13': 'ISBN-13',
+      'isbn10': 'ISBN-10',
+      'language': 'Language',
+      'categories': 'Genres',
+      'cover': 'Cover Image',
+      'pageCount': 'Page Count',
+      'rating': 'Rating',
+      'reviewCount': 'Review Count',
+      'asin': 'Amazon ASIN',
+      'goodreadsId': 'Goodreads ID',
+      'comicvineId': 'Comicvine ID',
+      'hardcoverId': 'Hardcover ID',
+      'googleId': 'Google Books ID',
+      'amazonRating': 'Amazon Rating',
+      'amazonReviewCount': 'Amazon Review Count',
+      'goodreadsRating': 'Goodreads Rating',
+      'goodreadsReviewCount': 'Goodreads Review Count',
+      'hardcoverRating': 'Hardcover Rating',
+      'hardcoverReviewCount': 'Hardcover Review Count',
+      'moods': 'Moods (Hardcover)',
+      'tags': 'Tags (Hardcover)'
+    };
+
+    return fieldLabels[field] || field.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).trim();
+  }
+
+  isProviderSpecificField(field: keyof FieldOptions): boolean {
+    return this.providerSpecificFieldsList.includes(field as string);
   }
 }

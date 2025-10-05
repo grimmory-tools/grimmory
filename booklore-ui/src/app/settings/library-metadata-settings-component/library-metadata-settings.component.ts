@@ -184,10 +184,6 @@ export class LibraryMetadataSettingsComponent implements OnInit {
   private getDefaultMetadataOptions(): MetadataRefreshOptions {
     return {
       libraryId: null,
-      allP1: null,
-      allP2: null,
-      allP3: null,
-      allP4: null,
       refreshCovers: false,
       mergeCategories: false,
       reviewBeforeApply: false,
@@ -205,9 +201,22 @@ export class LibraryMetadataSettingsComponent implements OnInit {
         isbn10: {p1: null, p2: null, p3: null, p4: null},
         language: {p1: null, p2: null, p3: null, p4: null},
         categories: {p1: null, p2: null, p3: null, p4: null},
-        cover: {p1: null, p2: null, p3: null, p4: null}
+        cover: {p1: null, p2: null, p3: null, p4: null},
+        pageCount: {p1: null, p2: null, p3: null, p4: null},
+        asin: {p1: null, p2: null, p3: null, p4: null},
+        goodreadsId: {p1: null, p2: null, p3: null, p4: null},
+        comicvineId: {p1: null, p2: null, p3: null, p4: null},
+        hardcoverId: {p1: null, p2: null, p3: null, p4: null},
+        googleId: {p1: null, p2: null, p3: null, p4: null},
+        amazonRating: {p1: null, p2: null, p3: null, p4: null},
+        amazonReviewCount: {p1: null, p2: null, p3: null, p4: null},
+        goodreadsRating: {p1: null, p2: null, p3: null, p4: null},
+        goodreadsReviewCount: {p1: null, p2: null, p3: null, p4: null},
+        hardcoverRating: {p1: null, p2: null, p3: null, p4: null},
+        hardcoverReviewCount: {p1: null, p2: null, p3: null, p4: null},
+        moods: {p1: null, p2: null, p3: null, p4: null},
+        tags: {p1: null, p2: null, p3: null, p4: null}
       }
     };
   }
 }
-
