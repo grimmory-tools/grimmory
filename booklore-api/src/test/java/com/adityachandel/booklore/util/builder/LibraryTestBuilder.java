@@ -13,10 +13,9 @@ import com.adityachandel.booklore.service.FileFingerprint;
 import com.adityachandel.booklore.service.fileprocessor.BookFileProcessor;
 import com.adityachandel.booklore.service.fileprocessor.BookFileProcessorRegistry;
 import com.adityachandel.booklore.util.FileUtils;
+import jakarta.validation.constraints.NotNull;
 import org.apache.commons.io.FilenameUtils;
-import org.jetbrains.annotations.NotNull;
 import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 
 import java.nio.file.Path;
 import java.security.MessageDigest;
@@ -28,8 +27,8 @@ import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.when;
 
 /**
  * Test builder for creating Library-related test objects.

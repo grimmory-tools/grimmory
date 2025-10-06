@@ -14,7 +14,7 @@ COPY ./booklore-ui /angular-app/
 RUN npm run build --configuration=production
 
 # Stage 2: Build the Spring Boot app with Gradle
-FROM gradle:8-jdk21-alpine AS springboot-build
+FROM gradle:9.1-jdk25-alpine AS springboot-build
 
 WORKDIR /springboot-app
 
@@ -29,7 +29,7 @@ RUN apk add --no-cache yq && \
 RUN gradle clean build -x test
 
 # Stage 3: Final image
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:25-jre-alpine
 
 RUN apk update && apk add nginx gettext su-exec
 
