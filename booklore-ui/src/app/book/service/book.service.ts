@@ -10,6 +10,7 @@ import {MetadataRefreshRequest} from '../../metadata/model/request/metadata-refr
 import {MessageService} from 'primeng/api';
 import {ResetProgressType, ResetProgressTypes} from '../../shared/constants/reset-progress-type';
 import {AuthService} from '../../core/service/auth.service';
+import {FileDownloadService} from '../../shared/service/file-download.service';
 
 @Injectable({
   providedIn: 'root',
@@ -21,6 +22,7 @@ export class BookService {
   private http = inject(HttpClient);
   private messageService = inject(MessageService);
   private authService = inject(AuthService);
+  private fileDownloadService = inject(FileDownloadService);
 
   private bookStateSubject = new BehaviorSubject<BookState>({
     books: null,
@@ -355,43 +357,12 @@ export class BookService {
 
   downloadFile(bookId: number): void {
     const downloadUrl = `${this.url}/${bookId}/download`;
-    this.http.get(downloadUrl, {responseType: 'blob', observe: 'response'})
-      .subscribe({
-        next: (response) => {
-          const contentDisposition = response.headers.get('Content-Disposition');
-          const filename = contentDisposition
-            ? contentDisposition.match(/filename="(.+?)"/)?.[1] || `book_${bookId}.pdf`
-            : `book_${bookId}.pdf`;
-          this.saveFile(response.body as Blob, filename);
-        },
-        error: (err) => console.error('Error downloading file:', err),
-      });
+    this.fileDownloadService.downloadFile(downloadUrl, `book_${bookId}`);
   }
 
   downloadAdditionalFile(bookId: number, fileId: number): void {
     const downloadUrl = `${this.url}/${bookId}/files/${fileId}/download`;
-    this.http.get(downloadUrl, {responseType: 'blob', observe: 'response'})
-      .subscribe({
-        next: (response) => {
-          const contentDisposition = response.headers.get('Content-Disposition');
-          const filename = contentDisposition
-            ? contentDisposition.match(/filename="(.+?)"/)?.[1] || `additional_file_${fileId}`
-            : `additional_file_${fileId}`;
-          this.saveFile(response.body as Blob, filename);
-        },
-        error: (err) => console.error('Error downloading additional file:', err),
-      });
-  }
-
-  private saveFile(blob: Blob, filename: string): void {
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
+    this.fileDownloadService.downloadFile(downloadUrl, `additional_file_${fileId}`);
   }
 
   savePdfProgress(bookId: number, page: number, percentage: number): Observable<void> {
@@ -510,8 +481,8 @@ export class BookService {
     );
   }
 
-  getComicInfoMetadata(bookId: number): Observable<BookMetadata> { 
-    return this.http.get<BookMetadata>(`${this.url}/${bookId}/cbx/metadata/comicinfo`); 
+  getComicInfoMetadata(bookId: number): Observable<BookMetadata> {
+    return this.http.get<BookMetadata>(`${this.url}/${bookId}/cbx/metadata/comicinfo`);
   }
 
   autoRefreshMetadata(metadataRefreshRequest: MetadataRefreshRequest): Observable<any> {

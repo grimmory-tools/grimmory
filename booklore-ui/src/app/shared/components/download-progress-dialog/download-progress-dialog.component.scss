@@ -1,0 +1,53 @@
+.download-content {
+  padding: 1rem 0;
+}
+
+.filename {
+  font-weight: 600;
+  margin-bottom: 1rem;
+  word-break: break-word;
+}
+
+.progress-bar-container {
+  margin: 1rem 0;
+}
+
+.progress-bar-background {
+  width: 100%;
+  height: 1rem;
+  background-color: var(--p-surface-400);
+  border-radius: var(--border-radius, 4px);
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--p-primary-500), var(--p-primary-800));
+  transition: width 0.3s ease-out;
+  will-change: width;
+  border-radius: var(--border-radius, 6px);
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.progress-bar-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--p-text-color);
+  z-index: 1;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+}
+
+.download-info {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--p-text-color);
+}

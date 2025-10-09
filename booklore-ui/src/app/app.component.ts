@@ -14,13 +14,14 @@ import {BookdropFileNotification, BookdropFileService} from './bookdrop/bookdrop
 import {DuplicateFileNotification} from './shared/websocket/model/duplicate-file-notification.model';
 import {DuplicateFileService} from './shared/websocket/duplicate-file.service';
 import {Subscription} from 'rxjs';
+import {DownloadProgressDialogComponent} from './shared/components/download-progress-dialog/download-progress-dialog.component';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
   standalone: true,
-  imports: [ConfirmDialog, Toast, RouterOutlet]
+  imports: [ConfirmDialog, Toast, RouterOutlet, DownloadProgressDialogComponent]
 })
 export class AppComponent implements OnInit, OnDestroy {
 

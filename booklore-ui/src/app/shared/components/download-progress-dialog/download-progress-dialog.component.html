@@ -1,0 +1,33 @@
+<p-dialog
+  [visible]="currentProgress.visible"
+  [header]="'Downloading File'"
+  [modal]="true"
+  [closable]="false"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{width: '450px'}">
+
+  <div class="download-content">
+    <div class="filename">{{ currentProgress.filename }}</div>
+
+    <div class="progress-bar-container">
+      <div class="progress-bar-background">
+        <div class="progress-bar-fill" [style.width.%]="currentProgress.progress"></div>
+        <div class="progress-bar-label">{{ currentProgress.progress }}%</div>
+      </div>
+    </div>
+
+    <div class="download-info">
+      <span>{{ formatBytes(currentProgress.loaded) }} / {{ formatBytes(currentProgress.total) }}</span>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cancel"
+      icon="pi pi-times"
+      severity="secondary"
+      (onClick)="cancelDownload()">
+    </p-button>
+  </ng-template>
+</p-dialog>

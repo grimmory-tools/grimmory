@@ -11,8 +11,8 @@ import com.adityachandel.booklore.util.FileUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -41,11 +42,22 @@ public class BookDownloadService {
                     .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
             Path file = Paths.get(FileUtils.getBookFullPath(bookEntity)).toAbsolutePath().normalize();
-            Resource resource = new UrlResource(file.toUri());
+            File bookFile = file.toFile();
+
+            if (!bookFile.exists()) {
+                throw ApiError.FAILED_TO_DOWNLOAD_FILE.createException(bookId);
+            }
+
+            InputStream inputStream = new FileInputStream(bookFile);
+            InputStreamResource resource = new InputStreamResource(inputStream);
 
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .contentLength(bookFile.length())
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFileName() + "\"")
+                    .header(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
+                    .header(HttpHeaders.PRAGMA, "no-cache")
+                    .header(HttpHeaders.EXPIRES, "0")
                     .body(resource);
         } catch (Exception e) {
             log.error("Failed to download book {}: {}", bookId, e.getMessage(), e);
