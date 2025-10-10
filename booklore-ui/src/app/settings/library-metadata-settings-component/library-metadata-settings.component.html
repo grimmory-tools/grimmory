@@ -3,12 +3,7 @@
     <h2 class="settings-title">
       <i class="pi pi-database"></i>
       Library Metadata Configuration
-      <i class="pi pi-external-link external-link-icon"
-         pTooltip="View documentation"
-         tooltipPosition="right"
-         (click)="navigateMetadataDoc()"
-         style="cursor: pointer;">
-      </i>
+      <app-external-doc-link docType="fetchConfig"></app-external-doc-link>
     </h2>
     <p class="settings-description">
       Configure metadata fetch behavior for your libraries. Set global defaults and create library-specific overrides to control how book metadata is retrieved from different providers.

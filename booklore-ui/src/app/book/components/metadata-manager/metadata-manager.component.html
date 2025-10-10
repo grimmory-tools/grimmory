@@ -1,0 +1,364 @@
+<div class="main-container enclosing-container">
+  <div class="settings-header">
+    <h2 class="settings-title">
+      <i class="pi pi-sitemap"></i>
+      Metadata Manager
+      <app-external-doc-link docType="metadataManager"></app-external-doc-link>
+    </h2>
+    <p class="settings-description">
+      Organize, merge, split, rename, and standardize authors, genres, moods, and tags across your library.
+    </p>
+  </div>
+
+  <div class="settings-content">
+    <p-tabs [(value)]="activeTab">
+      <p-tablist>
+        @for (tab of tabConfigs; track tab.type) {
+          <p-tab [value]="tab.type">
+            <i class="pi {{ tab.icon }}"></i> {{ tab.label }}s ({{ getMetadataItems(tab.type).length }})
+          </p-tab>
+        }
+      </p-tablist>
+      <p-tabpanels>
+        @for (tab of tabConfigs; track tab.type) {
+          <p-tabpanel [value]="tab.type">
+            <div class="section-header">
+              <p-iconfield class="search-input">
+                <p-inputicon class="pi pi-search"/>
+                <input
+                  pInputText
+                  type="text"
+                  #tableFilter
+                  (input)="filterGlobal($event, dataTable)"
+                  [placeholder]="tab.placeholder"/>
+              </p-iconfield>
+              <div class="actions">
+                <p-button
+                  label="Clear Selection"
+                  icon="pi pi-times"
+                  [disabled]="getSelectedItems(tab.type).length === 0"
+                  (onClick)="clearSelection(tab.type)"
+                  severity="secondary"
+                  size="small"
+                  outlined></p-button>
+                <p-button
+                  label="Delete Selected"
+                  icon="pi pi-trash"
+                  [disabled]="getSelectedItems(tab.type).length === 0"
+                  (onClick)="openDeleteDialog(tab.type)"
+                  severity="danger"
+                  size="small"
+                  outlined></p-button>
+                <p-button
+                  label="Merge/Split Selected"
+                  icon="pi pi-sitemap"
+                  [disabled]="getSelectedItems(tab.type).length < 2"
+                  (onClick)="openMergeDialog(tab.type)"
+                  severity="success"
+                  size="small"
+                  outlined></p-button>
+              </div>
+            </div>
+
+            <div class="table-card">
+              <p-table
+                #dataTable
+                [value]="getMetadataItems(tab.type)"
+                [loading]="loading"
+                [globalFilterFields]="['value']"
+                [paginator]="true"
+                [rows]="50"
+                [rowsPerPageOptions]="[25, 50, 100]"
+                [scrollable]="true"
+                scrollHeight="flex">
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th style="width: 3rem">
+                      <div class="header-content">
+                        <p-checkbox
+                          [binary]="true"
+                          [ngModel]="getSelectAll(tab.selectAllKey)"
+                          (ngModelChange)="setSelectAll(tab.selectAllKey, $event); toggleAll(tab.type, $event, dataTable.filteredValue || dataTable.value)"></p-checkbox>
+                      </div>
+                    </th>
+                    <th pSortableColumn="value">
+                      <div class="header-content">
+                        <i class="pi {{ tab.icon }}"></i>
+                        <span>{{ tab.label }}</span>
+                        <p-sortIcon field="value"></p-sortIcon>
+                      </div>
+                    </th>
+                    <th pSortableColumn="count">
+                      <div class="header-content">
+                        <i class="pi pi-book"></i>
+                        <span>Books</span>
+                        <p-sortIcon field="count"></p-sortIcon>
+                      </div>
+                    </th>
+                    <th class="actions-header">
+                      <div class="header-content">
+                        <i class="pi pi-cog"></i>
+                        <span>Actions</span>
+                      </div>
+                    </th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-item>
+                  <tr>
+                    <td>
+                      <p-checkbox
+                        [(ngModel)]="item.selected"
+                        [binary]="true"
+                        (ngModelChange)="onRowSelect(tab.type)"></p-checkbox>
+                    </td>
+                    <td>
+                      <span class="clickable-cell" (click)="onMetadataClick(tab.type, item.value)">
+                        {{ item.value }}
+                      </span>
+                    </td>
+                    <td>{{ item.count }}</td>
+                    <td class="actions-cell">
+                      <p-button
+                        icon="pi pi-filter"
+                        severity="info"
+                        size="small"
+                        [outlined]="true"
+                        [rounded]="true"
+                        pTooltip="Select similar"
+                        (onClick)="selectSimilar(tab.type, item.value)"></p-button>
+                      <p-button
+                        icon="pi pi-pencil"
+                        severity="secondary"
+                        size="small"
+                        [outlined]="true"
+                        [rounded]="true"
+                        pTooltip="Rename/Split"
+                        (onClick)="openRenameDialog(tab.type, item)"></p-button>
+                      <p-button
+                        icon="pi pi-trash"
+                        severity="danger"
+                        size="small"
+                        [outlined]="true"
+                        [rounded]="true"
+                        pTooltip="Delete"
+                        (onClick)="openDeleteDialog(tab.type, item)"></p-button>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </p-tabpanel>
+        }
+      </p-tabpanels>
+    </p-tabs>
+  </div>
+
+  <p-dialog
+    header="Merge/Split {{ currentMergeType | titlecase }}"
+    [(visible)]="showMergeDialog"
+    [modal]="true"
+    styleClass="user-dialog"
+    [style]="{width: '50rem'}">
+    <div class="dialog-form">
+      <p>You are merging/splitting {{ getSelectedItems(currentMergeType).length }} {{ currentMergeType }}:</p>
+      <ul class="selected-items">
+        @for (item of getSelectedItems(currentMergeType); track item.value) {
+          <li>
+            • {{ item.value }} <span class="count">({{ item.count }} books)</span>
+          </li>
+        }
+      </ul>
+
+      <div class="form-field">
+        <label for="mergeTarget">Target Value{{ isSingleValueField(currentMergeType) ? '' : '(s)' }}:</label>
+        <input
+          id="mergeTarget"
+          type="text"
+          pInputText
+          [(ngModel)]="mergeTarget"
+          class="w-full"
+          [placeholder]="isSingleValueField(currentMergeType) ? 'e.g., English' : 'e.g., Fiction, Mystery, Thriller'"/>
+        @if (isSingleValueField(currentMergeType)) {
+          <small class="help-text">
+            <strong>How it works:</strong><br/>
+            • Enter the standardized value you want all selected items to merge into<br/>
+            • All books with any of the selected {{ currentMergeType }} will be updated to use this single value<br/>
+            <br/>
+            <strong>Example:</strong> When merging "En", "English", "en-US"<br/>
+            • Enter "English" → All books will have their {{ currentMergeType.slice(0, -1) }} merged to "English"<br/>
+            <br/>
+            <strong>Note:</strong> Each book can only have one {{ currentMergeType.slice(0, -1) }}, so only enter one target value.
+          </small>
+        } @else {
+          <small class="help-text">
+            <strong>How it works:</strong><br/>
+            • Enter a single value to merge all selected {{ currentMergeType }} into one<br/>
+            • Enter multiple values separated by commas to split into multiple {{ currentMergeType }}<br/>
+            <br/>
+            <strong>Example:</strong> When merging/splitting "Sci-Fi", "SciFi", "Science Fiction"<br/>
+            • Merge: Enter "Science Fiction" → All books get one standardized tag<br/>
+            • Split: Enter "Science Fiction, Sci-Fi" → All books get both the formal name and common abbreviation
+          </small>
+        }
+      </div>
+      @if (mergingInProgress) {
+        <div class="processing-note">
+          <i class="pi pi-info-circle"></i>
+          <span>This process may take longer if "Write to file" is enabled in the settings.</span>
+        </div>
+      }
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="dialog-actions">
+        <p-button
+          label="Cancel"
+          icon="pi pi-times"
+          (onClick)="showMergeDialog = false"
+          [disabled]="mergingInProgress"
+          severity="secondary"
+          outlined></p-button>
+        <p-button
+          [label]="mergingInProgress ? 'Processing...' : 'Confirm'"
+          [icon]="mergingInProgress ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
+          [loading]="mergingInProgress"
+          [disabled]="mergingInProgress"
+          (onClick)="confirmMerge()"
+          severity="success"></p-button>
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <p-dialog
+    header="Rename/Split {{ currentMergeType | titlecase }}"
+    [(visible)]="showRenameDialog"
+    [modal]="true"
+    styleClass="user-dialog"
+    [style]="{width: '40rem'}">
+    <div class="dialog-form">
+      <p>You are renaming/splitting:</p>
+      <div class="current-value">
+        <strong>{{ currentRenameItem?.value }}</strong>
+        <span class="count">({{ currentRenameItem?.count }} books)</span>
+      </div>
+
+      <div class="form-field">
+        <label for="renameTarget">New Name(s):</label>
+        <input
+          id="renameTarget"
+          type="text"
+          pInputText
+          [(ngModel)]="renameTarget"
+          class="w-full"
+          [placeholder]="isSingleValueField(currentMergeType) ? 'e.g., Mystery' : 'e.g., Mystery, Detective'"
+          (keyup.enter)="confirmRename()"/>
+        @if (isSingleValueField(currentMergeType)) {
+          <small class="help-text">
+            <strong>How it works:</strong><br/>
+            • Enter a new value to rename this {{ currentMergeType.slice(0, -1) }}<br/>
+            <br/>
+            <strong>Note:</strong> Each book can only have one {{ currentMergeType.slice(0, -1) }}, so splitting into multiple values is not allowed.
+          </small>
+        } @else {
+          <small class="help-text">
+            <strong>How it works:</strong><br/>
+            • Enter a single value to rename the {{ currentMergeType.slice(0, -1) }}<br/>
+            • Enter multiple values separated by commas to split into multiple {{ currentMergeType }}<br/>
+            <br/>
+            <strong>Example:</strong> When renaming/splitting "Mystery & Detective"<br/>
+            • Rename: Enter "Mystery" → Renames to just "Mystery"<br/>
+            • Split: Enter "Mystery, Detective" → Splits into two separate {{ currentMergeType }}
+          </small>
+        }
+      </div>
+      @if (mergingInProgress) {
+        <div class="processing-note">
+          <i class="pi pi-info-circle"></i>
+          <span>This process may take some time if "Write to file" is enabled in settings.</span>
+        </div>
+      }
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="dialog-actions">
+        <p-button
+          label="Cancel"
+          icon="pi pi-times"
+          (onClick)="showRenameDialog = false"
+          [disabled]="mergingInProgress"
+          severity="secondary"
+          outlined></p-button>
+        <p-button
+          [label]="mergingInProgress ? 'Processing...' : 'Confirm'"
+          [icon]="mergingInProgress ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
+          [loading]="mergingInProgress"
+          [disabled]="mergingInProgress"
+          (onClick)="confirmRename()"
+          severity="success"></p-button>
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <p-dialog
+    header="Delete {{ currentMergeType | titlecase }}"
+    [(visible)]="showDeleteDialog"
+    [modal]="true"
+    styleClass="user-dialog"
+    [style]="{width: '40rem'}">
+    <div class="dialog-form">
+      <div class="warning-message">
+        <i class="pi pi-exclamation-triangle"></i>
+        <p>You are about to delete {{ currentDeleteItem ? '1' : getSelectedItems(currentMergeType).length }} {{ currentMergeType }}:</p>
+      </div>
+
+      @if (currentDeleteItem) {
+        <div class="current-value">
+          <strong>{{ currentDeleteItem.value }}</strong>
+          <span class="count">({{ currentDeleteItem.count }} books)</span>
+        </div>
+      } @else {
+        <ul class="selected-items">
+          @for (item of getSelectedItems(currentMergeType); track item.value) {
+            <li>
+              • {{ item.value }} <span class="count">({{ item.count }} books)</span>
+            </li>
+          }
+        </ul>
+      }
+
+      <div class="delete-info">
+        <p><strong>What will happen:</strong></p>
+        <ul>
+          <li>The {{ currentMergeType.slice(0, -1) }} will be removed from all affected books</li>
+          <li>This action cannot be undone</li>
+          <li>Total books affected: <strong>{{ currentDeleteItem ? currentDeleteItem.count : getTotalAffectedBooks(getSelectedItems(currentMergeType)) }}</strong></li>
+        </ul>
+      </div>
+      @if (deletingInProgress) {
+        <div class="processing-note">
+          <i class="pi pi-info-circle"></i>
+          <span>This process may take some time if "Write to file" is enabled in settings.</span>
+        </div>
+      }
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="dialog-actions">
+        <p-button
+          label="Cancel"
+          icon="pi pi-times"
+          (onClick)="showDeleteDialog = false"
+          [disabled]="deletingInProgress"
+          severity="secondary"
+          outlined></p-button>
+        <p-button
+          [label]="deletingInProgress ? 'Deleting...' : 'Delete'"
+          [icon]="deletingInProgress ? 'pi pi-spin pi-spinner' : 'pi pi-trash'"
+          [loading]="deletingInProgress"
+          [disabled]="deletingInProgress"
+          (onClick)="confirmDelete()"
+          severity="danger"></p-button>
+      </div>
+    </ng-template>
+  </p-dialog>
+</div>

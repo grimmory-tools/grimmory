@@ -202,7 +202,7 @@ public class BookMetadataEntity {
     @JsonIgnore
     private BookEntity book;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "book_metadata_author_mapping",
             joinColumns = @JoinColumn(name = "book_id"),
@@ -210,7 +210,7 @@ public class BookMetadataEntity {
     @Fetch(FetchMode.SUBSELECT)
     private Set<AuthorEntity> authors;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "book_metadata_category_mapping",
             joinColumns = @JoinColumn(name = "book_id"),
@@ -219,7 +219,7 @@ public class BookMetadataEntity {
     @Fetch(FetchMode.SUBSELECT)
     private Set<CategoryEntity> categories;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "book_metadata_mood_mapping",
             joinColumns = @JoinColumn(name = "book_id"),
@@ -228,7 +228,7 @@ public class BookMetadataEntity {
     @Fetch(FetchMode.SUBSELECT)
     private Set<MoodEntity> moods;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "book_metadata_tag_mapping",
             joinColumns = @JoinColumn(name = "book_id"),

@@ -10,5 +10,6 @@ import java.util.Optional;
 public interface MoodRepository extends JpaRepository<MoodEntity, Long> {
 
     Optional<MoodEntity> findByName(String moodName);
-}
 
+    Optional<MoodEntity> findByNameIgnoreCase(String moodName);
+}

@@ -19,7 +19,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +35,7 @@ public class MetadataController {
     private final MetadataMatchService metadataMatchService;
     private final DuckDuckGoCoverService duckDuckGoCoverService;
     private final BookRepository bookRepository;
+    private final MetadataManagementService metadataManagementService;
 
     @PostMapping("/{bookId}/metadata/prospective")
     @PreAuthorize("@securityUtil.canEditMetadata() or @securityUtil.isAdmin()")
@@ -121,5 +121,19 @@ public class MetadataController {
     @PostMapping("/{bookId}/metadata/covers")
     public ResponseEntity<List<CoverImage>> getImages(@RequestBody CoverFetchRequest request) {
         return ResponseEntity.ok(duckDuckGoCoverService.getCovers(request));
+    }
+
+    @PostMapping("/metadata/manage/consolidate")
+    @PreAuthorize("@securityUtil.canEditMetadata() or @securityUtil.isAdmin()")
+    public ResponseEntity<Void> mergeMetadata(@Validated @RequestBody MergeMetadataRequest request) {
+        metadataManagementService.consolidateMetadata(request.getMetadataType(), request.getTargetValues(), request.getValuesToMerge());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/metadata/manage/delete")
+    @PreAuthorize("@securityUtil.canEditMetadata() or @securityUtil.isAdmin()")
+    public ResponseEntity<Void> deleteMetadata(@Validated @RequestBody DeleteMetadataRequest request) {
+        metadataManagementService.deleteMetadata(request.getMetadataType(), request.getValuesToDelete());
+        return ResponseEntity.noContent().build();
     }
 }

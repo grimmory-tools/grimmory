@@ -44,7 +44,7 @@ public class EpubMetadataWriter implements MetadataWriter {
     private static final String OPF_NS = "http://www.idpf.org/2007/opf";
 
     @Override
-    public void writeMetadataToFile(File epubFile, BookMetadataEntity metadata, String thumbnailUrl, boolean restoreMode, MetadataClearFlags clear) {
+    public void writeMetadataToFile(File epubFile, BookMetadataEntity metadata, String thumbnailUrl, MetadataClearFlags clear) {
         File backupFile = new File(epubFile.getParentFile(), epubFile.getName() + ".bak");
         try {
             Files.copy(epubFile.toPath(), backupFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -76,13 +76,13 @@ public class EpubMetadataWriter implements MetadataWriter {
             boolean[] hasChanges = {false};
             MetadataCopyHelper helper = new MetadataCopyHelper(metadata);
 
-            helper.copyTitle(restoreMode, clear != null && clear.isTitle(), val -> replaceAndTrackChange(opfDoc, metadataElement, "title", DC_NS, val, hasChanges));
-            helper.copyDescription(restoreMode, clear != null && clear.isDescription(), val -> replaceAndTrackChange(opfDoc, metadataElement, "description", DC_NS, val, hasChanges));
-            helper.copyPublisher(restoreMode, clear != null && clear.isPublisher(), val -> replaceAndTrackChange(opfDoc, metadataElement, "publisher", DC_NS, val, hasChanges));
-            helper.copyPublishedDate(restoreMode, clear != null && clear.isPublishedDate(), val -> replaceAndTrackChange(opfDoc, metadataElement, "date", DC_NS, val != null ? val.toString() : null, hasChanges));
-            helper.copyLanguage(restoreMode, clear != null && clear.isLanguage(), val -> replaceAndTrackChange(opfDoc, metadataElement, "language", DC_NS, val, hasChanges));
+            helper.copyTitle(clear != null && clear.isTitle(), val -> replaceAndTrackChange(opfDoc, metadataElement, "title", DC_NS, val, hasChanges));
+            helper.copyDescription(clear != null && clear.isDescription(), val -> replaceAndTrackChange(opfDoc, metadataElement, "description", DC_NS, val, hasChanges));
+            helper.copyPublisher(clear != null && clear.isPublisher(), val -> replaceAndTrackChange(opfDoc, metadataElement, "publisher", DC_NS, val, hasChanges));
+            helper.copyPublishedDate(clear != null && clear.isPublishedDate(), val -> replaceAndTrackChange(opfDoc, metadataElement, "date", DC_NS, val != null ? val.toString() : null, hasChanges));
+            helper.copyLanguage(clear != null && clear.isLanguage(), val -> replaceAndTrackChange(opfDoc, metadataElement, "language", DC_NS, val, hasChanges));
 
-            helper.copyAuthors(restoreMode, clear != null && clear.isAuthors(), names -> {
+            helper.copyAuthors(clear != null && clear.isAuthors(), names -> {
                 removeElementsByTagNameNS(metadataElement, DC_NS, "creator");
                 if (names != null) {
                     for (String name : names) {
@@ -96,7 +96,7 @@ public class EpubMetadataWriter implements MetadataWriter {
                 hasChanges[0] = true;
             });
 
-            helper.copyCategories(restoreMode, clear != null && clear.isCategories(), categories -> {
+            helper.copyCategories(clear != null && clear.isCategories(), categories -> {
                 removeElementsByTagNameNS(metadataElement, DC_NS, "subject");
                 if (categories != null) {
                     for (String cat : categories.stream().map(String::trim).distinct().toList()) {
@@ -106,16 +106,16 @@ public class EpubMetadataWriter implements MetadataWriter {
                 hasChanges[0] = true;
             });
 
-            helper.copySeriesName(restoreMode, clear != null && clear.isSeriesName(), val -> {
+            helper.copySeriesName(clear != null && clear.isSeriesName(), val -> {
                 replaceMetaElement(metadataElement, opfDoc, "calibre:series", val, hasChanges);
             });
 
-            helper.copySeriesNumber(restoreMode, clear != null && clear.isSeriesNumber(), val -> {
+            helper.copySeriesNumber(clear != null && clear.isSeriesNumber(), val -> {
                 String formatted = val != null ? String.format("%.1f", val) : null;
                 replaceMetaElement(metadataElement, opfDoc, "calibre:series_index", formatted, hasChanges);
             });
 
-            helper.copyPersonalRating(restoreMode, clear != null && clear.isPersonalRating(), val -> {
+            helper.copyPersonalRating(clear != null && clear.isPersonalRating(), val -> {
                 String formatted = val != null ? String.format("%.1f", val) : null;
                 replaceMetaElement(metadataElement, opfDoc, "calibre:rating", formatted, hasChanges);
             });
@@ -135,22 +135,22 @@ public class EpubMetadataWriter implements MetadataWriter {
                 };
 
                 switch (scheme) {
-                    case "AMAZON" -> helper.copyAsin(restoreMode, clearFlag, idValue -> {
+                    case "AMAZON" -> helper.copyAsin(clearFlag, idValue -> {
                         updateIdentifier(metadataElement, opfDoc, scheme, idValue, hasChanges);
                     });
-                    case "GOOGLE" -> helper.copyGoogleId(restoreMode, clearFlag, idValue -> {
+                    case "GOOGLE" -> helper.copyGoogleId(clearFlag, idValue -> {
                         updateIdentifier(metadataElement, opfDoc, scheme, idValue, hasChanges);
                     });
-                    case "GOODREADS" -> helper.copyGoodreadsId(restoreMode, clearFlag, idValue -> {
+                    case "GOODREADS" -> helper.copyGoodreadsId(clearFlag, idValue -> {
                         updateIdentifier(metadataElement, opfDoc, scheme, idValue, hasChanges);
                     });
-                    case "COMICVINE" -> helper.copyComicvineId(restoreMode, clearFlag, idValue -> {
+                    case "COMICVINE" -> helper.copyComicvineId(clearFlag, idValue -> {
                         updateIdentifier(metadataElement, opfDoc, scheme, idValue, hasChanges);
                     });
-                    case "HARDCOVER" -> helper.copyHardcoverId(restoreMode, clearFlag, idValue -> {
+                    case "HARDCOVER" -> helper.copyHardcoverId(clearFlag, idValue -> {
                         updateIdentifier(metadataElement, opfDoc, scheme, idValue, hasChanges);
                     });
-                    case "ISBN" -> helper.copyIsbn13(restoreMode, clearFlag, idValue -> {
+                    case "ISBN" -> helper.copyIsbn13(clearFlag, idValue -> {
                         updateIdentifier(metadataElement, opfDoc, scheme, idValue, hasChanges);
                     });
                 }

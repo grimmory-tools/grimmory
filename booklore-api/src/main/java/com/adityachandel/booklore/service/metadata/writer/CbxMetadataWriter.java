@@ -40,7 +40,7 @@ import java.util.zip.ZipOutputStream;
 public class CbxMetadataWriter implements MetadataWriter {
 
     @Override
-    public void writeMetadataToFile(File file, BookMetadataEntity metadata, String thumbnailUrl, boolean restoreMode, MetadataClearFlags clearFlags) {
+    public void writeMetadataToFile(File file, BookMetadataEntity metadata, String thumbnailUrl, MetadataClearFlags clearFlags) {
         Path backup = null;
         Path tempDir = null;
         Path tempFile = null;
@@ -112,19 +112,19 @@ public class CbxMetadataWriter implements MetadataWriter {
             // Apply metadata to the Document
             Element root = doc.getDocumentElement();
             MetadataCopyHelper helper = new MetadataCopyHelper(metadata);
-            helper.copyTitle(restoreMode, clearFlags != null && clearFlags.isTitle(), val -> setElement(doc, root, "Title", val));
-            helper.copyDescription(restoreMode, clearFlags != null && clearFlags.isDescription(), val -> {
+            helper.copyTitle(clearFlags != null && clearFlags.isTitle(), val -> setElement(doc, root, "Title", val));
+            helper.copyDescription(clearFlags != null && clearFlags.isDescription(), val -> {
                 setElement(doc, root, "Summary", val);
                 removeElement(root, "Description");
             });
-            helper.copyPublisher(restoreMode, clearFlags != null && clearFlags.isPublisher(), val -> setElement(doc, root, "Publisher", val));
-            helper.copySeriesName(restoreMode, clearFlags != null && clearFlags.isSeriesName(), val -> setElement(doc, root, "Series", val));
-            helper.copySeriesNumber(restoreMode, clearFlags != null && clearFlags.isSeriesNumber(), val -> setElement(doc, root, "Number", formatFloat(val)));
-            helper.copySeriesTotal(restoreMode, clearFlags != null && clearFlags.isSeriesTotal(), val -> setElement(doc, root, "Count", val != null ? val.toString() : null));
-            helper.copyPublishedDate(restoreMode, clearFlags != null && clearFlags.isPublishedDate(), date -> setDateElements(doc, root, date));
-            helper.copyPageCount(restoreMode, clearFlags != null && clearFlags.isPageCount(), val -> setElement(doc, root, "PageCount", val != null ? val.toString() : null));
-            helper.copyLanguage(restoreMode, clearFlags != null && clearFlags.isLanguage(), val -> setElement(doc, root, "LanguageISO", val));
-            helper.copyAuthors(restoreMode, clearFlags != null && clearFlags.isAuthors(), set -> {
+            helper.copyPublisher(clearFlags != null && clearFlags.isPublisher(), val -> setElement(doc, root, "Publisher", val));
+            helper.copySeriesName(clearFlags != null && clearFlags.isSeriesName(), val -> setElement(doc, root, "Series", val));
+            helper.copySeriesNumber(clearFlags != null && clearFlags.isSeriesNumber(), val -> setElement(doc, root, "Number", formatFloat(val)));
+            helper.copySeriesTotal(clearFlags != null && clearFlags.isSeriesTotal(), val -> setElement(doc, root, "Count", val != null ? val.toString() : null));
+            helper.copyPublishedDate(clearFlags != null && clearFlags.isPublishedDate(), date -> setDateElements(doc, root, date));
+            helper.copyPageCount(clearFlags != null && clearFlags.isPageCount(), val -> setElement(doc, root, "PageCount", val != null ? val.toString() : null));
+            helper.copyLanguage(clearFlags != null && clearFlags.isLanguage(), val -> setElement(doc, root, "LanguageISO", val));
+            helper.copyAuthors(clearFlags != null && clearFlags.isAuthors(), set -> {
                 setElement(doc, root, "Writer", join(set));
                 removeElement(root, "Penciller");
                 removeElement(root, "Inker");
@@ -132,7 +132,7 @@ public class CbxMetadataWriter implements MetadataWriter {
                 removeElement(root, "Letterer");
                 removeElement(root, "CoverArtist");
             });
-            helper.copyCategories(restoreMode, clearFlags != null && clearFlags.isCategories(), set -> {
+            helper.copyCategories(clearFlags != null && clearFlags.isCategories(), set -> {
                 setElement(doc, root, "Genre", join(set));
                 removeElement(root, "Tags");
             });

@@ -10,7 +10,7 @@ import java.io.File;
 
 public interface MetadataWriter {
 
-    void writeMetadataToFile(File file, BookMetadataEntity metadata, String thumbnailUrl, boolean restoreMode, MetadataClearFlags clearFlags);
+    void writeMetadataToFile(File file, BookMetadataEntity metadata, String thumbnailUrl, MetadataClearFlags clearFlags);
 
     default void replaceCoverImageFromUpload(BookEntity bookEntity, MultipartFile file) {
     }

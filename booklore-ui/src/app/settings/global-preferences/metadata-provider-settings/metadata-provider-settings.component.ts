@@ -9,7 +9,7 @@ import {filter, take} from 'rxjs/operators';
 import {MessageService} from 'primeng/api';
 import {AppSettingKey} from '../../../core/model/app-settings.model';
 import {Select} from 'primeng/select';
-import {Tooltip} from 'primeng/tooltip';
+import {ExternalDocLinkComponent} from '../../../shared/components/external-doc-link/external-doc-link.component';
 
 @Component({
   selector: 'app-metadata-provider-settings',
@@ -21,7 +21,7 @@ import {Tooltip} from 'primeng/tooltip';
     Button,
     FormsModule,
     Select,
-    Tooltip
+    ExternalDocLinkComponent
   ],
   templateUrl: './metadata-provider-settings.component.html',
   styleUrl: './metadata-provider-settings.component.scss'
@@ -143,13 +143,5 @@ export class MetadataProviderSettingsComponent implements OnInit {
           detail: 'Failed to save metadata provider settings.'
         })
     });
-  }
-
-  navigateToAmazonCookieDocumentation() {
-    window.open('https://booklore-app.github.io/booklore-docs/docs/metadata/amazon-cookie', '_blank');
-  }
-
-  navigateToHardcoverTokenDocumentation() {
-    window.open('https://booklore-app.github.io/booklore-docs/docs/metadata/hardcover-token', '_blank');
   }
 }

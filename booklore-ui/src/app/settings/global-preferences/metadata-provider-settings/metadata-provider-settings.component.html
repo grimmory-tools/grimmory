@@ -32,12 +32,7 @@
         <div class="config-field">
           <div class="config-label-row">
             <label class="config-label">Cookie (Optional, but highly recommended)</label>
-            <i class="pi pi-external-link external-link-icon"
-               pTooltip="View documentation"
-               tooltipPosition="right"
-               (click)="navigateToAmazonCookieDocumentation()"
-               style="cursor: pointer;">
-            </i>
+            <app-external-doc-link docType="amazonCookie"></app-external-doc-link>
           </div>
           <p class="config-description">
             <i class="pi pi-info-circle"></i>
@@ -88,12 +83,7 @@
         <div class="config-field">
           <div class="config-label-row">
             <label class="config-label">API Token</label>
-            <i class="pi pi-external-link external-link-icon"
-               pTooltip="View documentation"
-               tooltipPosition="right"
-               (click)="navigateToHardcoverTokenDocumentation()"
-               style="cursor: pointer;">
-            </i>
+            <app-external-doc-link docType="hardcover"></app-external-doc-link>
           </div>
           <input
             type="text"

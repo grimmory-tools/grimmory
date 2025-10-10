@@ -10,5 +10,6 @@ import java.util.Optional;
 public interface TagRepository extends JpaRepository<TagEntity, Long> {
 
     Optional<TagEntity> findByName(String tagName);
-}
 
+    Optional<TagEntity> findByNameIgnoreCase(String tagName);
+}

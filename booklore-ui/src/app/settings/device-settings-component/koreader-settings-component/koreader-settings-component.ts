@@ -10,7 +10,7 @@ import {KoreaderService} from '../koreader.service';
 import {UserService} from '../../user-management/user.service';
 import {filter, takeUntil} from 'rxjs/operators';
 import {Subject} from 'rxjs';
-import {Tooltip} from 'primeng/tooltip';
+import {ExternalDocLinkComponent} from '../../../shared/components/external-doc-link/external-doc-link.component';
 
 @Component({
   standalone: true,
@@ -22,7 +22,7 @@ import {Tooltip} from 'primeng/tooltip';
     ToggleSwitch,
     Button,
     ToastModule,
-    Tooltip
+    ExternalDocLinkComponent
   ],
   providers: [MessageService],
   templateUrl: './koreader-settings-component.html',
@@ -129,9 +129,5 @@ export class KoreaderSettingsComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  openKoReaderDocumentation() {
-    window.open('https://booklore-app.github.io/booklore-docs/docs/integration/koreader', '_blank');
   }
 }

@@ -12,11 +12,12 @@ import {ConfirmationService, MessageService} from 'primeng/api';
 import {OpdsUserV2, OpdsUserV2CreateRequest, OpdsV2Service} from './opds-v2.service';
 import {catchError, filter, take, takeUntil, tap} from 'rxjs/operators';
 import {UserService} from '../user-management/user.service';
-import {of, pipe, Subject} from 'rxjs';
+import {of, Subject} from 'rxjs';
 import {Password} from 'primeng/password';
 import {ToggleSwitch} from 'primeng/toggleswitch';
 import {AppSettingsService} from '../../core/service/app-settings.service';
 import {AppSettingKey} from '../../core/model/app-settings.model';
+import {ExternalDocLinkComponent} from '../../shared/components/external-doc-link/external-doc-link.component';
 
 @Component({
   selector: 'app-opds-settings-v2',
@@ -30,7 +31,8 @@ import {AppSettingKey} from '../../core/model/app-settings.model';
     ConfirmDialog,
     TableModule,
     Password,
-    ToggleSwitch
+    ToggleSwitch,
+    ExternalDocLinkComponent
   ],
   providers: [ConfirmationService],
   templateUrl: './opds-settings-v2.html',
@@ -201,10 +203,6 @@ export class OpdsSettingsV2 implements OnInit, OnDestroy {
 
   private showMessage(severity: string, summary: string, detail: string): void {
     this.messageService.add({severity, summary, detail});
-  }
-
-  navigateToOpdsDoc(): void {
-    window.open('https://booklore-app.github.io/booklore-docs/docs/integration/opds', '_blank');
   }
 
   ngOnDestroy(): void {

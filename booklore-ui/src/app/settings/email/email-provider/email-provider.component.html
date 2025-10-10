@@ -3,12 +3,7 @@
     <h2 class="settings-title">
       <i class="pi pi-envelope"></i>
       Email Providers
-      <i class="pi pi-external-link external-link-icon"
-         pTooltip="View documentation"
-         tooltipPosition="right"
-         (click)="navigateToEmailDocumentation()"
-         style="cursor: pointer;">
-      </i>
+      <app-external-doc-link docType="email"></app-external-doc-link>
     </h2>
     <p class="settings-description">
       Configure email-sending services like Gmail, Outlook, or custom SMTP servers for sending books via email. The default email provider will be used for 'Quick Book Send' located in the Book Card menu.

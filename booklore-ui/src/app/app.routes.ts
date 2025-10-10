@@ -19,6 +19,7 @@ import {BookdropFileReviewComponent} from './bookdrop/bookdrop-file-review-compo
 import {MainDashboardComponent} from './dashboard/components/main-dashboard/main-dashboard.component';
 import {SeriesPageComponent} from './book/components/series-page/series-page.component';
 import {StatsComponent} from './stats-component/stats-component';
+import {MetadataManagerComponent} from './book/components/metadata-manager/metadata-manager.component';
 
 export const routes: Routes = [
   {
@@ -44,9 +45,10 @@ export const routes: Routes = [
       {path: 'shelf/:shelfId/books', component: BookBrowserComponent, canActivate: [AuthGuard]},
       {path: 'unshelved-books', component: BookBrowserComponent, canActivate: [AuthGuard]},
       {path: 'series/:seriesName', component: SeriesPageComponent, canActivate: [AuthGuard]},
-      { path: 'magic-shelf/:magicShelfId/books', component: BookBrowserComponent, canActivate: [AuthGuard] },
+      {path: 'magic-shelf/:magicShelfId/books', component: BookBrowserComponent, canActivate: [AuthGuard]},
       {path: 'book/:bookId', component: BookMetadataCenterComponent, canActivate: [AuthGuard]},
       {path: 'bookdrop', component: BookdropFileReviewComponent, canActivate: [AuthGuard]},
+      {path: 'metadata-manager', component: MetadataManagerComponent, canActivate: [AuthGuard]},
       {path: 'stats', component: StatsComponent, canActivate: [AuthGuard]},
     ]
   },

@@ -11,6 +11,7 @@ import {EmailProvider} from './email-provider.model';
 import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
 import {EmailProviderService} from './email-provider.service';
 import {CreateEmailProviderDialogComponent} from '../create-email-provider-dialog/create-email-provider-dialog.component';
+import {ExternalDocLinkComponent} from '../../../shared/components/external-doc-link/external-doc-link.component';
 
 @Component({
   selector: 'app-email-provider',
@@ -22,7 +23,8 @@ import {CreateEmailProviderDialogComponent} from '../create-email-provider-dialo
     ReactiveFormsModule,
     TableModule,
     Tooltip,
-    FormsModule
+    FormsModule,
+    ExternalDocLinkComponent
   ],
   templateUrl: './email-provider.component.html',
   styleUrl: './email-provider.component.scss'
@@ -135,9 +137,5 @@ export class EmailProviderComponent implements OnInit {
         detail: `${provider.name} is now the default email provider.`
       });
     });
-  }
-
-  navigateToEmailDocumentation() {
-    window.open('https://booklore-app.github.io/booklore-docs/docs/email-setup', '_blank');
   }
 }

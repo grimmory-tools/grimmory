@@ -151,6 +151,10 @@ export class AppTopBarComponent implements OnDestroy {
     this.router.navigate(['/bookdrop']);
   }
 
+  navigateToMetadataManager() {
+    this.router.navigate(['/metadata-manager']);
+  }
+
   navigateToStats() {
     this.router.navigate(['/stats']);
   }

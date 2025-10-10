@@ -90,7 +90,7 @@ class CbxMetadataWriterTest {
         meta.setCategories(cats);
 
         // Execute
-        writer.writeMetadataToFile(cbz, meta, null, false, new MetadataClearFlags());
+        writer.writeMetadataToFile(cbz, meta, null, new MetadataClearFlags());
 
         // Assert ComicInfo.xml exists and contains our fields
         try (ZipFile zip = new ZipFile(cbz)) {
@@ -155,7 +155,7 @@ class CbxMetadataWriterTest {
         meta.setTitle("New Title");
         meta.setDescription("New Summary");
 
-        writer.writeMetadataToFile(out.toFile(), meta, null, false, new MetadataClearFlags());
+        writer.writeMetadataToFile(out.toFile(), meta, null, new MetadataClearFlags());
 
         try (ZipFile zip = new ZipFile(out.toFile())) {
             ZipEntry ci = zip.getEntry("ComicInfo.xml");

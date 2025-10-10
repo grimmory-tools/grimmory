@@ -43,7 +43,7 @@ import java.util.UUID;
 public class PdfMetadataWriter implements MetadataWriter {
 
     @Override
-    public void writeMetadataToFile(File file, BookMetadataEntity metadataEntity, String thumbnailUrl, boolean restoreMode, MetadataClearFlags clear) {
+    public void writeMetadataToFile(File file, BookMetadataEntity metadataEntity, String thumbnailUrl, MetadataClearFlags clear) {
         if (!file.exists() || !file.getName().toLowerCase().endsWith(".pdf")) {
             log.warn("Invalid PDF file: {}", file.getAbsolutePath());
             return;
@@ -65,7 +65,7 @@ public class PdfMetadataWriter implements MetadataWriter {
 
         try (PDDocument pdf = Loader.loadPDF(file)) {
             pdf.setAllSecurityToBeRemoved(true);
-            applyMetadataToDocument(pdf, metadataEntity, restoreMode, clear);
+            applyMetadataToDocument(pdf, metadataEntity, clear);
             tempFile = File.createTempFile("pdfmeta-", ".pdf");
             pdf.save(tempFile);
             Files.move(tempFile.toPath(), filePath, StandardCopyOption.REPLACE_EXISTING);
@@ -99,35 +99,35 @@ public class PdfMetadataWriter implements MetadataWriter {
         return BookFileType.PDF;
     }
 
-    private void applyMetadataToDocument(PDDocument pdf, BookMetadataEntity entity, boolean restoreMode, MetadataClearFlags clear) {
+    private void applyMetadataToDocument(PDDocument pdf, BookMetadataEntity entity, MetadataClearFlags clear) {
         PDDocumentInformation info = pdf.getDocumentInformation();
         MetadataCopyHelper helper = new MetadataCopyHelper(entity);
 
-        helper.copyTitle(restoreMode, clear != null && clear.isTitle(), title -> info.setTitle(title != null ? title : ""));
-        helper.copyPublisher(restoreMode, clear != null && clear.isPublisher(), pub -> info.setProducer(pub != null ? pub : ""));
-        helper.copyAuthors(restoreMode, clear != null && clear.isAuthors(), authors -> info.setAuthor(authors != null ? String.join(", ", authors) : ""));
-        helper.copyCategories(restoreMode, clear != null && clear.isCategories(), cats -> info.setKeywords(cats != null ? String.join(", ", cats) : ""));
+        helper.copyTitle(clear != null && clear.isTitle(), title -> info.setTitle(title != null ? title : ""));
+        helper.copyPublisher(clear != null && clear.isPublisher(), pub -> info.setProducer(pub != null ? pub : ""));
+        helper.copyAuthors(clear != null && clear.isAuthors(), authors -> info.setAuthor(authors != null ? String.join(", ", authors) : ""));
+        helper.copyCategories(clear != null && clear.isCategories(), cats -> info.setKeywords(cats != null ? String.join(", ", cats) : ""));
 
         try {
             XMPMetadata xmp = XMPMetadata.createXMPMetadata();
             DublinCoreSchema dc = xmp.createAndAddDublinCoreSchema();
 
-            helper.copyTitle(restoreMode, clear != null && clear.isTitle(), title -> dc.setTitle(title != null ? title : ""));
-            helper.copyDescription(restoreMode, clear != null && clear.isDescription(), desc -> dc.setDescription(desc != null ? desc : ""));
-            helper.copyPublisher(restoreMode, clear != null && clear.isPublisher(), pub -> dc.addPublisher(pub != null ? pub : ""));
-            helper.copyLanguage(restoreMode, clear != null && clear.isLanguage(), lang -> dc.addLanguage(lang != null ? lang : ""));
-            helper.copyPublishedDate(restoreMode, clear != null && clear.isPublishedDate(), date -> {
+            helper.copyTitle(clear != null && clear.isTitle(), title -> dc.setTitle(title != null ? title : ""));
+            helper.copyDescription(clear != null && clear.isDescription(), desc -> dc.setDescription(desc != null ? desc : ""));
+            helper.copyPublisher(clear != null && clear.isPublisher(), pub -> dc.addPublisher(pub != null ? pub : ""));
+            helper.copyLanguage(clear != null && clear.isLanguage(), lang -> dc.addLanguage(lang != null ? lang : ""));
+            helper.copyPublishedDate(clear != null && clear.isPublishedDate(), date -> {
                 Calendar cal = GregorianCalendar.from(
                         (date != null ? date : ZonedDateTime.now().toLocalDate())
                                 .atStartOfDay(ZoneId.systemDefault()));
                 dc.addDate(cal);
             });
 
-            helper.copyAuthors(restoreMode, clear != null && clear.isAuthors(), authors -> {
+            helper.copyAuthors(clear != null && clear.isAuthors(), authors -> {
                 (authors != null ? authors : List.of("")).forEach(dc::addCreator);
             });
 
-            helper.copyCategories(restoreMode, clear != null && clear.isCategories(), cats -> {
+            helper.copyCategories(clear != null && clear.isCategories(), cats -> {
                 (cats != null ? cats : List.of("")).forEach(dc::addSubject);
             });
 
@@ -135,7 +135,7 @@ public class PdfMetadataWriter implements MetadataWriter {
             new XmpSerializer().serialize(xmp, baos, true);
             byte[] baseXmpBytes = baos.toByteArray();
 
-            byte[] newXmpBytes = addCustomIdentifiersToXmp(baseXmpBytes, entity, helper, restoreMode, clear);
+            byte[] newXmpBytes = addCustomIdentifiersToXmp(baseXmpBytes, entity, helper, clear);
 
             byte[] existingXmpBytes = null;
             PDMetadata existingMetadata = pdf.getDocumentCatalog().getMetadata();
@@ -161,7 +161,7 @@ public class PdfMetadataWriter implements MetadataWriter {
         }
     }
 
-    private byte[] addCustomIdentifiersToXmp(byte[] xmpBytes, BookMetadataEntity metadata, MetadataCopyHelper helper, boolean restoreMode, MetadataClearFlags clear) throws Exception {
+    private byte[] addCustomIdentifiersToXmp(byte[] xmpBytes, BookMetadataEntity metadata, MetadataCopyHelper helper, MetadataClearFlags clear) throws Exception {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);
         DocumentBuilder builder = factory.newDocumentBuilder();
@@ -178,12 +178,12 @@ public class PdfMetadataWriter implements MetadataWriter {
         Element xmpIdentifier = doc.createElementNS("http://ns.adobe.com/xap/1.0/", "xmp:Identifier");
         Element rdfBag = doc.createElementNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:Bag");
 
-        helper.copyGoogleId(restoreMode, clear != null && clear.isGoogleId(), id -> appendIdentifier(doc, rdfBag, "google", id != null ? id : ""));
-        helper.copyGoodreadsId(restoreMode, clear != null && clear.isGoodreadsId(), id -> appendIdentifier(doc, rdfBag, "goodreads", id != null ? id : ""));
-        helper.copyComicvineId(restoreMode, clear != null && clear.isComicvineId(), id -> appendIdentifier(doc, rdfBag, "comicvine", id != null ? id : ""));
-        helper.copyHardcoverId(restoreMode, clear != null && clear.isHardcoverId(), id -> appendIdentifier(doc, rdfBag, "hardcover", id != null ? id : ""));
-        helper.copyAsin(restoreMode, clear != null && clear.isAsin(), id -> appendIdentifier(doc, rdfBag, "amazon", id != null ? id : ""));
-        helper.copyIsbn13(restoreMode, clear != null && clear.isIsbn13(), id -> appendIdentifier(doc, rdfBag, "isbn", id != null ? id : ""));
+        helper.copyGoogleId(clear != null && clear.isGoogleId(), id -> appendIdentifier(doc, rdfBag, "google", id != null ? id : ""));
+        helper.copyGoodreadsId(clear != null && clear.isGoodreadsId(), id -> appendIdentifier(doc, rdfBag, "goodreads", id != null ? id : ""));
+        helper.copyComicvineId(clear != null && clear.isComicvineId(), id -> appendIdentifier(doc, rdfBag, "comicvine", id != null ? id : ""));
+        helper.copyHardcoverId(clear != null && clear.isHardcoverId(), id -> appendIdentifier(doc, rdfBag, "hardcover", id != null ? id : ""));
+        helper.copyAsin(clear != null && clear.isAsin(), id -> appendIdentifier(doc, rdfBag, "amazon", id != null ? id : ""));
+        helper.copyIsbn13(clear != null && clear.isIsbn13(), id -> appendIdentifier(doc, rdfBag, "isbn", id != null ? id : ""));
 
         if (rdfBag.hasChildNodes()) {
             xmpIdentifier.appendChild(rdfBag);
@@ -204,12 +204,12 @@ public class PdfMetadataWriter implements MetadataWriter {
         calibreDescription.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:calibreSI", "http://calibre-ebook.com/xmp-namespace-series-index");
         calibreDescription.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about", "");
 
-        helper.copyPersonalRating(restoreMode, clear != null && clear.isPersonalRating(), rating -> {
+        helper.copyPersonalRating(clear != null && clear.isPersonalRating(), rating -> {
             String value = (rating != null) ? String.valueOf((int) Math.round(rating)) : "";
             calibreDescription.appendChild(createSimpleElement(doc, "calibre:rating", value));
         });
 
-        helper.copySeriesName(restoreMode, clear != null && clear.isSeriesName(), series -> {
+        helper.copySeriesName(clear != null && clear.isSeriesName(), series -> {
             Element seriesElem = doc.createElementNS("http://calibre-ebook.com/xmp-namespace", "calibre:series");
             seriesElem.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:calibreSI", "http://calibre-ebook.com/xmp-namespace-series-index");
             seriesElem.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:parseType", "Resource");
@@ -218,7 +218,7 @@ public class PdfMetadataWriter implements MetadataWriter {
             valueElem.setTextContent(series != null ? series : "");
             seriesElem.appendChild(valueElem);
 
-            helper.copySeriesNumber(restoreMode, clear != null && clear.isSeriesNumber(), index -> {
+            helper.copySeriesNumber(clear != null && clear.isSeriesNumber(), index -> {
                 Element indexElem = doc.createElementNS("http://calibre-ebook.com/xmp-namespace-series-index", "calibreSI:series_index");
                 indexElem.setTextContent(index != null ? String.format("%.2f", index) : "0.00");
                 seriesElem.appendChild(indexElem);

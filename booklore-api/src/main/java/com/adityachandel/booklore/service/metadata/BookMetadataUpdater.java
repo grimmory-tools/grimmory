@@ -106,7 +106,7 @@ public class BookMetadataUpdater {
                         }
 
                         File file = new File(bookEntity.getFullFilePath().toUri());
-                        writer.writeMetadataToFile(file, metadata, thumbnailUrl, false, clearFlags);
+                        writer.writeMetadataToFile(file, metadata, thumbnailUrl, clearFlags);
 
                         String newHash;
 

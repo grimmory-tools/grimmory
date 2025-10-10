@@ -57,6 +57,15 @@
             <i class="pi pi-chart-bar text-surface-100"></i>
           </a>
         </li>
+        @if (userService.userState$ | async; as userState) {
+          <li>
+            @if (userState.user?.permissions?.canManipulateLibrary || userState.user?.permissions?.admin) {
+              <a class="topbar-item" (click)="navigateToMetadataManager()" pTooltip="Metadata Manager" tooltipPosition="bottom">
+                <i class="pi pi-sparkles text-surface-100"></i>
+              </a>
+            }
+          </li>
+        }
         <li>
           <a class="topbar-item" (click)="navigateToSettings()" pTooltip="Settings" tooltipPosition="bottom">
             <i class="pi pi-cog text-surface-100"></i>

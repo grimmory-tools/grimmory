@@ -571,6 +571,24 @@ export class BookService {
     );
   }
 
+  consolidateMetadata(metadataType: 'authors' | 'categories' | 'moods' | 'tags' | 'series' | 'publishers' | 'languages', targetValues: string[], valuesToMerge: string[]): Observable<any> {
+    const payload = {metadataType, targetValues, valuesToMerge};
+    return this.http.post(`${this.url}/metadata/manage/consolidate`, payload).pipe(
+      tap(() => {
+        this.refreshBooks();
+      })
+    );
+  }
+
+  deleteMetadata(metadataType: 'authors' | 'categories' | 'moods' | 'tags' | 'series' | 'publishers' | 'languages', valuesToDelete: string[]): Observable<any> {
+    const payload = {metadataType, valuesToDelete};
+    return this.http.post(`${this.url}/metadata/manage/delete`, payload).pipe(
+      tap(() => {
+        this.refreshBooks();
+      })
+    );
+  }
+
 
   /*------------------ All the websocket handlers go below ------------------*/
 
@@ -660,19 +678,6 @@ export class BookService {
         throw error;
       })
     );
-  }
-
-  restoreMetadata(bookId: number) {
-    return this.http.post<BookMetadata>(`${this.url}/${bookId}/metadata/restore`, null).pipe(
-      map(updatedMetadata => {
-        this.handleBookMetadataUpdate(bookId, updatedMetadata);
-        return updatedMetadata;
-      })
-    );
-  }
-
-  getBackupMetadata(bookId: number) {
-    return this.http.get<any>(`${this.url}/${bookId}/metadata/restore`);
   }
 
 }

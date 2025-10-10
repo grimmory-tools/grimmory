@@ -9,20 +9,20 @@ import {ConfirmDialog} from 'primeng/confirmdialog';
 import {UserService} from '../../user-management/user.service';
 import {Subject} from 'rxjs';
 import {debounceTime, filter, take, takeUntil} from 'rxjs/operators';
-import {Tooltip} from 'primeng/tooltip';
 import {ToggleSwitch} from 'primeng/toggleswitch';
 import {Slider} from 'primeng/slider';
 import {AppSettingsService} from '../../../core/service/app-settings.service';
 import {SettingsHelperService} from '../../../core/service/settings-helper.service';
 import {AppSettingKey, KoboSettings} from '../../../core/model/app-settings.model';
 import {ShelfService} from '../../../book/service/shelf.service';
+import {ExternalDocLinkComponent} from '../../../shared/components/external-doc-link/external-doc-link.component';
 
 @Component({
   selector: 'app-kobo-sync-setting-component',
   standalone: true,
   templateUrl: './kobo-sync-settings-component.html',
   styleUrl: './kobo-sync-settings-component.scss',
-  imports: [FormsModule, Button, InputText, ConfirmDialog, Tooltip, ToggleSwitch, Slider],
+  imports: [FormsModule, Button, InputText, ConfirmDialog, ToggleSwitch, Slider, ExternalDocLinkComponent],
   providers: [MessageService, ConfirmationService]
 })
 export class KoboSyncSettingsComponent implements OnInit, OnDestroy {
@@ -203,10 +203,6 @@ export class KoboSyncSettingsComponent implements OnInit, OnDestroy {
           });
         }
       });
-  }
-
-  openKoboDocumentation(): void {
-    window.open('https://booklore-app.github.io/booklore-docs/docs/integration/kobo', '_blank');
   }
 
   ngOnDestroy(): void {
