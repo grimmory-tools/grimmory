@@ -9,9 +9,9 @@ import {AppSettingsService} from '../../../../shared/service/app-settings.servic
 import {Tab, TabList, TabPanel, TabPanels, Tabs,} from 'primeng/tabs';
 import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
 import {BookMetadataHostService} from '../../../../shared/service/book-metadata-host-service';
-import {MetadataViewerComponent} from './metadata-viewer-component/metadata-viewer.component';
-import {MetadataEditorComponent} from './metadata-editor-component/metadata-editor.component';
-import {MetadataSearcherComponent} from './metadata-searcher-component/metadata-searcher.component';
+import {MetadataViewerComponent} from './metadata-viewer/metadata-viewer.component';
+import {MetadataEditorComponent} from './metadata-editor/metadata-editor.component';
+import {MetadataSearcherComponent} from './metadata-searcher/metadata-searcher.component';
 
 @Component({
   selector: 'app-book-metadata-center',

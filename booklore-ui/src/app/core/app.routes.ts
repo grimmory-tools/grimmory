@@ -5,7 +5,7 @@ import {LoginComponent} from '../shared/components/login/login.component';
 import {AuthGuard} from './auth.guard';
 import {SettingsComponent} from '../features/settings/settings.component';
 import {ChangePasswordComponent} from '../shared/components/change-password/change-password.component';
-import {BookMetadataCenterComponent} from '../features/metadata/component/book-metadata-center-component/book-metadata-center.component';
+import {BookMetadataCenterComponent} from '../features/metadata/component/book-metadata-center/book-metadata-center.component';
 import {SetupComponent} from '../shared/components/setup/setup.component';
 import {SetupGuard} from '../shared/components/setup/setup.guard';
 import {SetupRedirectGuard} from '../shared/components/setup/setup-redirect.guard';
@@ -15,7 +15,7 @@ import {OidcCallbackComponent} from './security/oidc-callback/oidc-callback.comp
 import {CbxReaderComponent} from '../features/readers/cbx-reader/cbx-reader.component';
 import {MainDashboardComponent} from '../features/dashboard/components/main-dashboard/main-dashboard.component';
 import {SeriesPageComponent} from '../features/book/components/series-page/series-page.component';
-import {MetadataManagerComponent} from '../features/metadata-manager/metadata-manager.component';
+import {MetadataManagerComponent} from '../features/metadata/component/metadata-manager/metadata-manager.component';
 import {StatsComponent} from '../features/stats/component/stats-component';
 import {EpubReaderComponent} from '../features/readers/epub-reader/component/epub-reader.component';
 import {PdfReaderComponent} from '../features/readers/pdf-reader/pdf-reader.component';

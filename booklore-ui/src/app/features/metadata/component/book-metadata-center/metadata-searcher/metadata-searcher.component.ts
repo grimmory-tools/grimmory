@@ -16,7 +16,7 @@ import {BehaviorSubject, combineLatest, Observable, Subject, Subscription, takeU
 import {distinctUntilChanged, filter, switchMap} from 'rxjs/operators';
 import {ActivatedRoute} from '@angular/router';
 import {AsyncPipe} from '@angular/common';
-import {MetadataPickerComponent} from '../metadata-picker-component/metadata-picker.component';
+import {MetadataPickerComponent} from '../metadata-picker/metadata-picker.component';
 
 @Component({
   selector: 'app-metadata-searcher',

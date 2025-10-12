@@ -12,7 +12,7 @@ import {MetadataRefreshOptions} from '../../metadata/model/request/metadata-refr
 import {AppSettingKey, AppSettings} from '../../../shared/model/app-settings.model';
 import {AppSettingsService} from '../../../shared/service/app-settings.service';
 import {ExternalDocLinkComponent} from '../../../shared/components/external-doc-link/external-doc-link.component';
-import {MetadataAdvancedFetchOptionsComponent} from '../../metadata/component/metadata-options-dialog/metadata-advanced-fetch-options-component/metadata-advanced-fetch-options.component';
+import {MetadataAdvancedFetchOptionsComponent} from '../../metadata/component/metadata-options-dialog/metadata-advanced-fetch-options/metadata-advanced-fetch-options.component';
 
 @Component({
   selector: 'app-library-metadata-settings-component',

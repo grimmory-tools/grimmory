@@ -8,15 +8,15 @@ import {InputTextModule} from 'primeng/inputtext';
 import {DialogModule} from 'primeng/dialog';
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {ConfirmationService, MessageService} from 'primeng/api';
-import {BookService} from '../book/service/book.service';
-import {Book} from '../book/model/book.model';
+import {BookService} from '../../../book/service/book.service';
+import {Book} from '../../../book/model/book.model';
 import {FormsModule} from '@angular/forms';
 import {Tooltip} from 'primeng/tooltip';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Subscription} from 'rxjs';
-import {ExternalDocLinkComponent} from '../../shared/components/external-doc-link/external-doc-link.component';
+import {ExternalDocLinkComponent} from '../../../../shared/components/external-doc-link/external-doc-link.component';
 
 interface MetadataItem {
   value: string;

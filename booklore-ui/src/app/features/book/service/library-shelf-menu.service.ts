@@ -11,7 +11,7 @@ import {MetadataRefreshType} from '../../metadata/model/request/metadata-refresh
 import {LibraryCreatorComponent} from '../../library-creator/library-creator.component';
 import {ShelfEditDialogComponent} from '../components/shelf-edit-dialog/shelf-edit-dialog.component';
 import {MagicShelf, MagicShelfService} from '../../magic-shelf/service/magic-shelf.service';
-import {MetadataFetchOptionsComponent} from '../../metadata/component/metadata-options-dialog/metadata-fetch-options-component/metadata-fetch-options.component';
+import {MetadataFetchOptionsComponent} from '../../metadata/component/metadata-options-dialog/metadata-fetch-options/metadata-fetch-options.component';
 import {MagicShelfComponent} from '../../magic-shelf/component/magic-shelf-component';
 
 @Injectable({

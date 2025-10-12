@@ -3,9 +3,9 @@ import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
 import {ShelfAssignerComponent} from '../shelf-assigner/shelf-assigner.component';
 import {LockUnlockMetadataDialogComponent} from './lock-unlock-metadata-dialog/lock-unlock-metadata-dialog.component';
 import {MetadataRefreshType} from '../../../metadata/model/request/metadata-refresh-type.enum';
-import {BulkMetadataUpdateComponent} from '../../../metadata/component/bulk-metadata-update-component/bulk-metadata-update-component';
-import {MultiBookMetadataEditorComponent} from '../../../metadata/component/multi-book-metadata-editor-component/multi-book-metadata-editor-component';
-import {MultiBookMetadataFetchComponent} from '../../../metadata/component/multi-book-metadata-fetch-component/multi-book-metadata-fetch-component';
+import {BulkMetadataUpdateComponent} from '../../../metadata/component/bulk-metadata-update/bulk-metadata-update-component';
+import {MultiBookMetadataEditorComponent} from '../../../metadata/component/multi-book-metadata-editor/multi-book-metadata-editor-component';
+import {MultiBookMetadataFetchComponent} from '../../../metadata/component/multi-book-metadata-fetch/multi-book-metadata-fetch-component';
 import {FileMoverComponent} from '../../../../shared/components/file-mover/file-mover-component';
 
 @Injectable({providedIn: 'root'})

@@ -6,7 +6,7 @@ import {MetadataRefreshOptions} from '../../../model/request/metadata-refresh-op
 import {BookService} from '../../../../book/service/book.service';
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
 import {filter, take} from 'rxjs/operators';
-import {MetadataAdvancedFetchOptionsComponent} from '../metadata-advanced-fetch-options-component/metadata-advanced-fetch-options.component';
+import {MetadataAdvancedFetchOptionsComponent} from '../metadata-advanced-fetch-options/metadata-advanced-fetch-options.component';
 
 @Component({
   selector: 'app-metadata-fetch-options',

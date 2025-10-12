@@ -36,7 +36,7 @@ import {AdditionalFileUploaderComponent} from '../../../../book/components/addit
 import {Image} from 'primeng/image';
 import {BookDialogHelperService} from '../../../../book/components/book-browser/BookDialogHelperService';
 import {TagColor, TagComponent} from '../../../../../shared/components/tag/tag.component';
-import {MetadataFetchOptionsComponent} from '../../metadata-options-dialog/metadata-fetch-options-component/metadata-fetch-options.component';
+import {MetadataFetchOptionsComponent} from '../../metadata-options-dialog/metadata-fetch-options/metadata-fetch-options.component';
 import {BookNotesComponent} from '../../../../book/components/book-notes/book-notes-component';
 
 @Component({

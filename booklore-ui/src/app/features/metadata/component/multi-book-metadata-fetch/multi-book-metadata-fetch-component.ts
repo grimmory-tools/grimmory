@@ -9,7 +9,7 @@ import {BookService} from '../../../book/service/book.service';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {Book} from '../../../book/model/book.model';
 import {FormsModule} from '@angular/forms';
-import {MetadataFetchOptionsComponent} from '../metadata-options-dialog/metadata-fetch-options-component/metadata-fetch-options.component';
+import {MetadataFetchOptionsComponent} from '../metadata-options-dialog/metadata-fetch-options/metadata-fetch-options.component';
 
 @Component({
   selector: 'app-multi-book-metadata-fetch-component',

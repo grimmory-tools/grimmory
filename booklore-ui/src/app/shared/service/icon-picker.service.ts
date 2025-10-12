@@ -1,9 +1,9 @@
-import { Injectable, inject } from '@angular/core';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { IconPickerComponent } from '../components/icon-picker-component/icon-picker-component';
-import { Observable } from 'rxjs';
+import {inject, Injectable} from '@angular/core';
+import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
+import {IconPickerComponent} from '../components/icon-picker/icon-picker-component';
+import {Observable} from 'rxjs';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class IconPickerService {
   private dialog = inject(DialogService);
 

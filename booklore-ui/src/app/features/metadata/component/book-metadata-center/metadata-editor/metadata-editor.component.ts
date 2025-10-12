@@ -23,7 +23,7 @@ import {Textarea} from "primeng/textarea";
 import {IftaLabel} from "primeng/iftalabel";
 import {Image} from "primeng/image";
 import {LazyLoadImageModule} from "ng-lazyload-image";
-import {CoverSearchComponent} from '../../cover-search-component/cover-search.component';
+import {CoverSearchComponent} from '../../cover-search/cover-search.component';
 
 @Component({
   selector: "app-metadata-editor",

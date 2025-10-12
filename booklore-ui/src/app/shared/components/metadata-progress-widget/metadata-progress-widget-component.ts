@@ -11,7 +11,7 @@ import {MessageService} from 'primeng/api';
 
 import {MetadataBatchProgressNotification, MetadataBatchStatus, MetadataBatchStatusLabels} from '../../model/metadata-batch-progress.model';
 import {MetadataProgressService} from '../../service/metadata-progress-service';
-import {MetadataReviewDialogComponent} from '../../../features/metadata/component/metadata-review-dialog-component/metadata-review-dialog-component';
+import {MetadataReviewDialogComponent} from '../../../features/metadata/component/metadata-review-dialog/metadata-review-dialog-component';
 import {MetadataTaskService} from '../../../features/book/service/metadata-task';
 import {TaskService} from '../../services/task.service';
 import {Tag} from 'primeng/tag';

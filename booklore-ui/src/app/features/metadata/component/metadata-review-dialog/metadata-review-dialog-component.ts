@@ -13,7 +13,7 @@ import {ProgressBar} from 'primeng/progressbar';
 import {Tooltip} from 'primeng/tooltip';
 import {MetadataProgressService} from '../../../../shared/service/metadata-progress-service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {MetadataPickerComponent} from '../book-metadata-center-component/metadata-picker-component/metadata-picker.component';
+import {MetadataPickerComponent} from '../book-metadata-center/metadata-picker/metadata-picker.component';
 
 @Component({
   selector: 'app-metadata-review-dialog-component',
