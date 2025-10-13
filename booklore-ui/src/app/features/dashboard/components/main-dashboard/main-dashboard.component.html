@@ -2,7 +2,7 @@
   @if ((bookState$ | async)?.loaded === false) {
     <div class="flex items-center justify-center h-full">
       <p-progressSpinner
-        styleClass="spinner center-spinner"
+        class="spinner center-spinner"
         [style]="{'width': '60px', 'height': '60px'}"
         strokeWidth="3"
         fill="transparent"

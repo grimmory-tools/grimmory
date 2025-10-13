@@ -50,7 +50,7 @@
           <label for="clearAuthors" class="text-sm text-gray-300 cursor-pointer">Clear</label>
         </div>
       </label>
-      <p-autoComplete formControlName="authors" [disabled]="clearFields.authors" [multiple]="true" [typeahead]="false" [dropdown]="false" [forceSelection]="false" (onBlur)="onAutoCompleteBlur('authors', $event)" styleClass="w-full"></p-autoComplete>
+      <p-autoComplete formControlName="authors" [disabled]="clearFields.authors" [multiple]="true" [typeahead]="false" [dropdown]="false" [forceSelection]="false" (onBlur)="onAutoCompleteBlur('authors', $event)" class="w-full"></p-autoComplete>
     </div>
 
     <!-- Publisher -->
@@ -139,7 +139,7 @@
           <label for="clearGenres" class="text-sm text-gray-300 cursor-pointer">Clear</label>
         </div>
       </label>
-      <p-autoComplete formControlName="genres" [disabled]="clearFields.genres" [multiple]="true" [typeahead]="false" [dropdown]="false" [forceSelection]="false" (onBlur)="onAutoCompleteBlur('genres', $event)" styleClass="w-full"></p-autoComplete>
+      <p-autoComplete formControlName="genres" [disabled]="clearFields.genres" [multiple]="true" [typeahead]="false" [dropdown]="false" [forceSelection]="false" (onBlur)="onAutoCompleteBlur('genres', $event)" class="w-full"></p-autoComplete>
 
       <div class="flex items-center gap-2 mt-2">
         <p-checkbox
@@ -150,7 +150,71 @@
           binary="true"
         />
         <label for="mergeCategories" class="text-sm text-gray-300 cursor-pointer">
-          Keep existing categories and add new ones (uncheck to remove all existing categories)
+          Keep existing genres and add new ones (uncheck to remove all existing genres)
+        </label>
+      </div>
+    </div>
+
+    <!-- Moods -->
+    <div class="flex flex-col gap-2">
+      <label for="moods" class="flex items-center justify-between gap-2">
+        <span class="flex items-center gap-2">
+          Mood(s)
+          <i class="pi pi-info-circle text-sky-600"
+             pTooltip="Enter multiple moods. Press Enter after typing each mood."
+             tooltipPosition="right"
+             style="cursor: pointer"></i>
+        </span>
+        <div class="flex items-center gap-1">
+          <p-checkbox [(ngModel)]="clearFields.moods" [ngModelOptions]="{standalone: true}"
+                      (onChange)="onFieldClearToggle('moods')" binary="true" inputId="clearMoods"/>
+          <label for="clearMoods" class="text-sm text-gray-300 cursor-pointer">Clear</label>
+        </div>
+      </label>
+      <p-autoComplete formControlName="moods" [disabled]="clearFields.moods" [multiple]="true" [typeahead]="false" [dropdown]="false" [forceSelection]="false" (onBlur)="onAutoCompleteBlur('moods', $event)" class="w-full"></p-autoComplete>
+
+      <div class="flex items-center gap-2 mt-2">
+        <p-checkbox
+          inputId="mergeMoods"
+          name="mergeMoods"
+          [(ngModel)]="mergeMoods"
+          [ngModelOptions]="{ standalone: true }"
+          binary="true"
+        />
+        <label for="mergeMoods" class="text-sm text-gray-300 cursor-pointer">
+          Keep existing moods and add new ones (uncheck to remove all existing moods)
+        </label>
+      </div>
+    </div>
+
+    <!-- Tags -->
+    <div class="flex flex-col gap-2">
+      <label for="tags" class="flex items-center justify-between gap-2">
+        <span class="flex items-center gap-2">
+          Tag(s)
+          <i class="pi pi-info-circle text-sky-600"
+             pTooltip="Enter multiple tags. Press Enter after typing each tag."
+             tooltipPosition="right"
+             style="cursor: pointer"></i>
+        </span>
+        <div class="flex items-center gap-1">
+          <p-checkbox [(ngModel)]="clearFields.tags" [ngModelOptions]="{standalone: true}"
+                      (onChange)="onFieldClearToggle('tags')" binary="true" inputId="clearTags"/>
+          <label for="clearTags" class="text-sm text-gray-300 cursor-pointer">Clear</label>
+        </div>
+      </label>
+      <p-autoComplete formControlName="tags" [disabled]="clearFields.tags" [multiple]="true" [typeahead]="false" [dropdown]="false" [forceSelection]="false" (onBlur)="onAutoCompleteBlur('tags', $event)" class="w-full"></p-autoComplete>
+
+      <div class="flex items-center gap-2 mt-2">
+        <p-checkbox
+          inputId="mergeTags"
+          name="mergeTags"
+          [(ngModel)]="mergeTags"
+          [ngModelOptions]="{ standalone: true }"
+          binary="true"
+        />
+        <label for="mergeTags" class="text-sm text-gray-300 cursor-pointer">
+          Keep existing tags and add new ones (uncheck to remove all existing tags)
         </label>
       </div>
     </div>

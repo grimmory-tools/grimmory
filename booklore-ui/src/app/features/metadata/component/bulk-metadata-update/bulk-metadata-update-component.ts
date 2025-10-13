@@ -38,6 +38,8 @@ export class BulkMetadataUpdateComponent implements OnInit {
   books: Book[] = [];
   showBookList = true;
   mergeCategories = true;
+  mergeMoods = true;
+  mergeTags = true;
   loading = false;
 
   clearFields = {
@@ -48,6 +50,8 @@ export class BulkMetadataUpdateComponent implements OnInit {
     seriesTotal: false,
     publishedDate: false,
     genres: false,
+    moods: false,
+    tags: false,
   };
 
   private readonly config = inject(DynamicDialogConfig);
@@ -67,7 +71,9 @@ export class BulkMetadataUpdateComponent implements OnInit {
       seriesName: [''],
       seriesTotal: [''],
       publishedDate: [null],
-      genres: []
+      genres: [],
+      moods: [],
+      tags: []
     });
   }
 
@@ -140,7 +146,13 @@ export class BulkMetadataUpdateComponent implements OnInit {
       clearPublishedDate: this.clearFields.publishedDate,
 
       genres: this.clearFields.genres ? [] : (formValue.genres?.length ? formValue.genres : undefined),
-      clearGenres: this.clearFields.genres
+      clearGenres: this.clearFields.genres,
+
+      moods: this.clearFields.moods ? [] : (formValue.moods?.length ? formValue.moods : undefined),
+      clearMoods: this.clearFields.moods,
+
+      tags: this.clearFields.tags ? [] : (formValue.tags?.length ? formValue.tags : undefined),
+      clearTags: this.clearFields.tags
     };
 
     this.loading = true;

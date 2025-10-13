@@ -225,6 +225,10 @@ export interface BulkMetadataUpdateRequest {
   clearPublishedDate?: boolean;
   genres?: string[];
   clearGenres?: boolean;
+  moods?: string[];
+  clearMoods?: boolean;
+  tags?: string[];
+  clearTags?: boolean;
 }
 
 export interface BookDeletionResponse {
