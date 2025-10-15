@@ -89,6 +89,7 @@ public class KoreaderService {
         double progressPercent = progressFraction * 100.0;
         if (progressPercent >= 99.5) {
             userProgress.setReadStatus(ReadStatus.READ);
+            userProgress.setDateFinished(Instant.now());
         } else if (progressPercent >= 0.25) {
             userProgress.setReadStatus(ReadStatus.READING);
         } else {
