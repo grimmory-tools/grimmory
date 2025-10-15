@@ -5,13 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Deprecated
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EmailRecipient {
+public class EmailRecipientV2 {
     private Long id;
+    private Long userId;
     private String email;
     private String name;
     private boolean defaultRecipient;

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+@Deprecated
 @Slf4j
 @Service
 @AllArgsConstructor

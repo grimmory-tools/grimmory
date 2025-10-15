@@ -1,0 +1,34 @@
+<div class="w-full h-[calc(100dvh-10.5rem)] md:h-[calc(100dvh-11.65rem)] overflow-y-auto border rounded-lg p-4 enclosing-container">
+  <div class="settings-header">
+    <h2 class="settings-title">
+      <i class="pi pi-envelope"></i>
+      Email Configuration
+      <app-external-doc-link docType="email"></app-external-doc-link>
+    </h2>
+    <p class="settings-description">
+      Configure email settings to send books directly to your devices or recipients. Set up email providers (like Gmail, Outlook, or custom SMTP servers) and manage recipient email addresses. In v2, users with email permission can now set up their own email providers and recipients without interfering with other users' configurations.
+    </p>
+  </div>
+
+  @if (hasPermission) {
+    <div class="pb-8">
+      <app-email-v2-provider></app-email-v2-provider>
+    </div>
+    <p-divider></p-divider>
+    <div class="pt-4">
+      <app-email-v2-recipient></app-email-v2-recipient>
+    </div>
+  } @else {
+    <div class="access-denied-card">
+      <i class="pi pi-lock"></i>
+      <div class="access-denied-content">
+        <h3>Access Restricted</h3>
+        <p>
+          Access to Email Configuration is restricted.
+          <br>
+          Please contact your administrator to request permission.
+        </p>
+      </div>
+    </div>
+  }
+</div>

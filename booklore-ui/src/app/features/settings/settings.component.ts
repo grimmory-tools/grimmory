@@ -16,6 +16,7 @@ import {OpdsSettings} from './opds-settings/opds-settings';
 import {MetadataSettingsComponent} from './metadata-settings/metadata-settings-component';
 import {DeviceSettingsComponent} from './device-settings/device-settings-component';
 import {LibraryMetadataSettingsComponent} from './library-metadata-settings/library-metadata-settings.component';
+import {EmailV2Component} from './email-v2/email-v2.component';
 
 export enum SettingsTab {
   ReaderSettings = 'reader',
@@ -23,6 +24,7 @@ export enum SettingsTab {
   DeviceSettings = 'device',
   UserManagement = 'user',
   EmailSettings = 'email',
+  EmailSettingsV2 = 'email-v2',
   NamingPattern = 'naming-pattern',
   MetadataSettings = 'metadata',
   LibraryMetadataSettings = 'metadata-library',
@@ -52,7 +54,8 @@ export enum SettingsTab {
     FileNamingPatternComponent,
     OpdsSettings,
     LibraryMetadataSettingsComponent,
-    TaskManagementComponent
+    TaskManagementComponent,
+    EmailV2Component
   ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss'

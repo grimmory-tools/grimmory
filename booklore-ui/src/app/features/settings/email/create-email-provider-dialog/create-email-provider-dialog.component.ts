@@ -1,12 +1,12 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { Button } from 'primeng/button';
-import { Checkbox } from 'primeng/checkbox';
-import { InputText } from 'primeng/inputtext';
+import {Component, inject, OnInit} from '@angular/core';
+import {Button} from 'primeng/button';
+import {Checkbox} from 'primeng/checkbox';
+import {InputText} from 'primeng/inputtext';
 
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { EmailProviderService } from '../email-provider/email-provider.service';
-import { MessageService } from 'primeng/api';
-import { DynamicDialogRef } from 'primeng/dynamicdialog';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {MessageService} from 'primeng/api';
+import {DynamicDialogRef} from 'primeng/dynamicdialog';
+import {EmailV2ProviderService} from '../../email-v2/email-v2-provider/email-v2-provider.service';
 
 @Component({
   selector: 'app-create-email-provider-dialog',
@@ -15,7 +15,7 @@ import { DynamicDialogRef } from 'primeng/dynamicdialog';
     Checkbox,
     InputText,
     ReactiveFormsModule
-],
+  ],
   templateUrl: './create-email-provider-dialog.component.html',
   styleUrl: './create-email-provider-dialog.component.scss'
 })
@@ -23,7 +23,7 @@ export class CreateEmailProviderDialogComponent implements OnInit {
   emailProviderForm!: FormGroup;
 
   private fb = inject(FormBuilder);
-  private emailProviderService = inject(EmailProviderService);
+  private emailProviderService = inject(EmailV2ProviderService);
   private messageService = inject(MessageService);
   private ref = inject(DynamicDialogRef);
 

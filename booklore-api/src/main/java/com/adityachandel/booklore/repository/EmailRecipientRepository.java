@@ -9,9 +9,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+@Deprecated
 @Repository
 public interface EmailRecipientRepository extends JpaRepository<EmailRecipientEntity, Long> {
-
 
     Optional<EmailRecipientEntity> findById(long id);
 

@@ -3,19 +3,21 @@ package com.adityachandel.booklore.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Deprecated
 @Entity
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "email_recipient")
-public class EmailRecipientEntity {
+@Table(name = "email_recipient_v2")
+public class EmailRecipientV2Entity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;

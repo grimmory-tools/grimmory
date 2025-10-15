@@ -1,0 +1,63 @@
+.enclosing-container {
+  border-color: var(--p-content-border-color);
+  background: var(--p-content-background);
+}
+
+.settings-header {
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+}
+
+.settings-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--p-text-color);
+  margin: 0 0 0.75rem 0;
+
+  .pi {
+    color: var(--p-primary-color);
+    font-size: 1.25rem;
+  }
+}
+
+.settings-description {
+  color: var(--p-text-muted-color);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.access-denied-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  color: var(--p-red-400);
+  max-width: 500px;
+
+  .pi {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  .access-denied-content {
+    h3 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--p-red-300);
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+  }
+}

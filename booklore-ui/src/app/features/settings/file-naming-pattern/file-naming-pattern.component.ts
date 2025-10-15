@@ -10,12 +10,13 @@ import {Library} from '../../book/model/library.model';
 import {LibraryService} from '../../book/service/library.service';
 import {InputText} from 'primeng/inputtext';
 import {Divider} from 'primeng/divider';
+import {ExternalDocLinkComponent} from '../../../shared/components/external-doc-link/external-doc-link.component';
 
 @Component({
   selector: 'app-file-naming-pattern',
   templateUrl: './file-naming-pattern.component.html',
   standalone: true,
-  imports: [FormsModule, Button, InputText, Divider],
+  imports: [FormsModule, Button, InputText, Divider, ExternalDocLinkComponent],
   styleUrls: ['./file-naming-pattern.component.scss'],
 })
 export class FileNamingPatternComponent implements OnInit {

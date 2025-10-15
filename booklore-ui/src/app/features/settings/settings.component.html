@@ -25,6 +25,12 @@
             <p-tab [value]="SettingsTab.EmailSettings">
               <i class="pi pi-envelope"></i> Email
             </p-tab>
+          }
+          <p-tab [value]="SettingsTab.EmailSettingsV2">
+            <i class="pi pi-envelope"></i> Email v2
+          </p-tab>
+
+          @if (userState.user.permissions.admin) {
             <p-tab [value]="SettingsTab.NamingPattern">
               <i class="pi pi-sitemap"></i> Patterns
             </p-tab>
@@ -65,6 +71,11 @@
             <p-tabpanel [value]="SettingsTab.EmailSettings">
               <app-email></app-email>
             </p-tabpanel>
+          }
+          <p-tabpanel [value]="SettingsTab.EmailSettingsV2">
+            <app-email-v2></app-email-v2>
+          </p-tabpanel>
+          @if (userState.user.permissions.admin) {
             <p-tabpanel [value]="SettingsTab.NamingPattern">
               <app-file-naming-pattern></app-file-naming-pattern>
             </p-tabpanel>

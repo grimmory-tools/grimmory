@@ -3,6 +3,7 @@
     <h2 class="settings-title">
       <i class="pi pi-file"></i>
       File Naming Patterns
+      <app-external-doc-link docType="fileNamePatterns"></app-external-doc-link>
     </h2>
     <p class="settings-description">
       Configure automatic file organization using metadata placeholders. Patterns are applied when uploading files, moving files within your library, and after metadata updates.
@@ -268,7 +269,9 @@
               </div>
 
               <div class="example-item">
-                <p class="example-pattern"><strong>Title + Subtitle fallback:</strong> <code>{{ '{title}<: {subtitle}>' }}</code></p>
+                <p class="example-pattern"><strong>Title + Subtitle fallback:</strong> <code>{{ '{title}
+                  <: {subtitle}>' }}
+                </code></p>
                 <p class="example-output"><strong>Output:</strong> <code>Project Hail Mary.epub</code></p>
               </div>
             </div>

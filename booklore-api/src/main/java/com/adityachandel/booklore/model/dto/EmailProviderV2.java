@@ -5,13 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Deprecated
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EmailProvider {
+public class EmailProviderV2 {
     private Long id;
+    private Long userId;
     private String name;
     private String host;
     private Integer port;

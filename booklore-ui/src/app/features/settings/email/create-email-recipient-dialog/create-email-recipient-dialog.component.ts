@@ -1,12 +1,11 @@
-import { Component, inject } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { MessageService } from 'primeng/api';
-import { DynamicDialogRef } from 'primeng/dynamicdialog';
-import { Checkbox } from 'primeng/checkbox';
-import { Button } from 'primeng/button';
-import { InputText } from 'primeng/inputtext';
-
-import { EmailRecipientService } from '../email-recipient/email-recipient.service';
+import {Component, inject} from '@angular/core';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {MessageService} from 'primeng/api';
+import {DynamicDialogRef} from 'primeng/dynamicdialog';
+import {Checkbox} from 'primeng/checkbox';
+import {Button} from 'primeng/button';
+import {InputText} from 'primeng/inputtext';
+import {EmailV2RecipientService} from '../../email-v2/email-v2-recipient/email-v2-recipient.service';
 
 @Component({
   selector: 'app-create-email-recipient-dialog',
@@ -15,14 +14,14 @@ import { EmailRecipientService } from '../email-recipient/email-recipient.servic
     ReactiveFormsModule,
     Button,
     InputText
-],
+  ],
   templateUrl: './create-email-recipient-dialog.component.html',
   styleUrls: ['./create-email-recipient-dialog.component.scss']
 })
 export class CreateEmailRecipientDialogComponent {
   emailRecipientForm: FormGroup;
   private fb = inject(FormBuilder);
-  private emailRecipientService = inject(EmailRecipientService);
+  private emailRecipientService = inject(EmailV2RecipientService);
   private messageService = inject(MessageService);
   private ref = inject(DynamicDialogRef);
 

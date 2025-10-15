@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Deprecated
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/v1/email/recipients")

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+@Deprecated
 @Repository
 public interface EmailProviderRepository extends JpaRepository<EmailProviderEntity, Long> {
 

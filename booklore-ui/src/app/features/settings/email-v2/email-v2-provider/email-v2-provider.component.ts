@@ -7,13 +7,13 @@ import {RadioButton} from 'primeng/radiobutton';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {TableModule} from 'primeng/table';
 import {Tooltip} from 'primeng/tooltip';
-import {EmailProvider} from './email-provider.model';
 import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {EmailProviderService} from './email-provider.service';
-import {CreateEmailProviderDialogComponent} from '../create-email-provider-dialog/create-email-provider-dialog.component';
+import {EmailV2ProviderService} from './email-v2-provider.service';
+import {CreateEmailProviderDialogComponent} from '../../email/create-email-provider-dialog/create-email-provider-dialog.component';
+import {EmailProvider} from '../../email/email-provider/email-provider.model';
 
 @Component({
-  selector: 'app-email-provider',
+  selector: 'app-email-v2-provider',
   imports: [
     Button,
     Checkbox,
@@ -24,15 +24,15 @@ import {CreateEmailProviderDialogComponent} from '../create-email-provider-dialo
     Tooltip,
     FormsModule
   ],
-  templateUrl: './email-provider.component.html',
-  styleUrl: './email-provider.component.scss'
+  templateUrl: './email-v2-provider.component.html',
+  styleUrl: './email-v2-provider.component.scss'
 })
-export class EmailProviderComponent implements OnInit {
+export class EmailV2ProviderComponent implements OnInit {
   emailProviders: EmailProvider[] = [];
   editingProviderIds: number[] = [];
   ref: DynamicDialogRef | undefined;
   private dialogService = inject(DialogService);
-  private emailProvidersService = inject(EmailProviderService);
+  private emailProvidersService = inject(EmailV2ProviderService);
   private messageService = inject(MessageService);
   defaultProviderId: any;
 

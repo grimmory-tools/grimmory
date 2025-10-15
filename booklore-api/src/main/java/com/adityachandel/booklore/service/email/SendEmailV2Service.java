@@ -1,17 +1,19 @@
 package com.adityachandel.booklore.service.email;
 
+import com.adityachandel.booklore.config.security.service.AuthenticationService;
 import com.adityachandel.booklore.exception.ApiError;
+import com.adityachandel.booklore.model.dto.BookLoreUser;
 import com.adityachandel.booklore.model.dto.request.SendBookByEmailRequest;
 import com.adityachandel.booklore.model.entity.BookEntity;
-import com.adityachandel.booklore.model.entity.EmailProviderEntity;
-import com.adityachandel.booklore.model.entity.EmailRecipientEntity;
+import com.adityachandel.booklore.model.entity.EmailProviderV2Entity;
+import com.adityachandel.booklore.model.entity.EmailRecipientV2Entity;
 import com.adityachandel.booklore.model.websocket.Topic;
 import com.adityachandel.booklore.repository.BookRepository;
-import com.adityachandel.booklore.repository.EmailProviderRepository;
-import com.adityachandel.booklore.repository.EmailRecipientRepository;
+import com.adityachandel.booklore.repository.EmailProviderV2Repository;
+import com.adityachandel.booklore.repository.EmailRecipientV2Repository;
 import com.adityachandel.booklore.service.NotificationService;
-import com.adityachandel.booklore.util.SecurityContextVirtualThread;
 import com.adityachandel.booklore.util.FileUtils;
+import com.adityachandel.booklore.util.SecurityContextVirtualThread;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.AllArgsConstructor;
@@ -26,32 +28,34 @@ import java.util.Properties;
 
 import static com.adityachandel.booklore.model.websocket.LogNotification.createLogNotification;
 
-@Deprecated
 @Slf4j
 @Service
 @AllArgsConstructor
-public class EmailService {
+public class SendEmailV2Service {
 
-    private final EmailProviderRepository emailProviderRepository;
+    private final EmailProviderV2Repository emailProviderRepository;
     private final BookRepository bookRepository;
-    private final EmailRecipientRepository emailRecipientRepository;
+    private final EmailRecipientV2Repository emailRecipientRepository;
     private final NotificationService notificationService;
+    private final AuthenticationService authenticationService;
 
     public void emailBookQuick(Long bookId) {
+        BookLoreUser user = authenticationService.getAuthenticatedUser();
         BookEntity book = bookRepository.findById(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
-        EmailProviderEntity defaultEmailProvider = emailProviderRepository.findDefaultEmailProvider().orElseThrow(ApiError.DEFAULT_EMAIL_PROVIDER_NOT_FOUND::createException);
-        EmailRecipientEntity defaultEmailRecipient = emailRecipientRepository.findDefaultEmailRecipient().orElseThrow(ApiError.DEFAULT_EMAIL_RECIPIENT_NOT_FOUND::createException);
+        EmailProviderV2Entity defaultEmailProvider = emailProviderRepository.findDefaultEmailProvider(user.getId()).orElseThrow(ApiError.DEFAULT_EMAIL_PROVIDER_NOT_FOUND::createException);
+        EmailRecipientV2Entity defaultEmailRecipient = emailRecipientRepository.findDefaultEmailRecipient().orElseThrow(ApiError.DEFAULT_EMAIL_RECIPIENT_NOT_FOUND::createException);
         sendEmailInVirtualThread(defaultEmailProvider, defaultEmailRecipient.getEmail(), book);
     }
 
     public void emailBook(SendBookByEmailRequest request) {
-        EmailProviderEntity emailProvider = emailProviderRepository.findById(request.getProviderId()).orElseThrow(() -> ApiError.EMAIL_PROVIDER_NOT_FOUND.createException(request.getProviderId()));
+        BookLoreUser user = authenticationService.getAuthenticatedUser();
+        EmailProviderV2Entity emailProvider = emailProviderRepository.findByIdAndUserId(request.getProviderId(), user.getId()).orElseThrow(() -> ApiError.EMAIL_PROVIDER_NOT_FOUND.createException(request.getProviderId()));
         BookEntity book = bookRepository.findById(request.getBookId()).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(request.getBookId()));
-        EmailRecipientEntity emailRecipient = emailRecipientRepository.findById(request.getRecipientId()).orElseThrow(() -> ApiError.EMAIL_RECIPIENT_NOT_FOUND.createException(request.getRecipientId()));
+        EmailRecipientV2Entity emailRecipient = emailRecipientRepository.findByIdAndUserId(request.getRecipientId(), user.getId()).orElseThrow(() -> ApiError.EMAIL_RECIPIENT_NOT_FOUND.createException(request.getRecipientId()));
         sendEmailInVirtualThread(emailProvider, emailRecipient.getEmail(), book);
     }
 
-    private void sendEmailInVirtualThread(EmailProviderEntity emailProvider, String recipientEmail, BookEntity book) {
+    private void sendEmailInVirtualThread(EmailProviderV2Entity emailProvider, String recipientEmail, BookEntity book) {
         String bookTitle = book.getMetadata().getTitle();
         String logMessage = "Email dispatch initiated for book: " + bookTitle + " to " + recipientEmail;
         notificationService.sendMessage(Topic.LOG, createLogNotification(logMessage));
@@ -70,7 +74,7 @@ public class EmailService {
         });
     }
 
-    private void sendEmail(EmailProviderEntity emailProvider, String recipientEmail, BookEntity book) throws MessagingException {
+    private void sendEmail(EmailProviderV2Entity emailProvider, String recipientEmail, BookEntity book) throws MessagingException {
         JavaMailSenderImpl dynamicMailSender = setupMailSender(emailProvider);
         MimeMessage message = dynamicMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
@@ -84,7 +88,7 @@ public class EmailService {
         log.info("Book sent successfully to {}", recipientEmail);
     }
 
-    private JavaMailSenderImpl setupMailSender(EmailProviderEntity emailProvider) {
+    private JavaMailSenderImpl setupMailSender(EmailProviderV2Entity emailProvider) {
         JavaMailSenderImpl dynamicMailSender = new JavaMailSenderImpl();
         dynamicMailSender.setHost(emailProvider.getHost());
         dynamicMailSender.setPort(emailProvider.getPort());
@@ -106,7 +110,7 @@ public class EmailService {
         return dynamicMailSender;
     }
 
-    private ConnectionType determineConnectionType(EmailProviderEntity emailProvider) {
+    private ConnectionType determineConnectionType(EmailProviderV2Entity emailProvider) {
         if (emailProvider.getPort() == 465) {
             return ConnectionType.SSL;
         } else if (emailProvider.getPort() == 587 && emailProvider.isStartTls()) {
@@ -118,7 +122,7 @@ public class EmailService {
         }
     }
 
-    private void configureConnectionType(Properties mailProps, ConnectionType connectionType, EmailProviderEntity emailProvider) {
+    private void configureConnectionType(Properties mailProps, ConnectionType connectionType, EmailProviderV2Entity emailProvider) {
         switch (connectionType) {
             case SSL -> {
                 mailProps.put("mail.transport.protocol", "smtps");
@@ -152,18 +156,15 @@ public class EmailService {
         mailProps.put("mail.smtp.connectiontimeout", connectionTimeout);
         mailProps.put("mail.smtp.timeout", socketTimeout);
         mailProps.put("mail.smtp.writetimeout", writeTimeout);
-
-        log.debug("Configured email timeouts: connection={}, socket={}, write={}",
-                connectionTimeout, socketTimeout, writeTimeout);
     }
 
     private String generateEmailBody(String bookTitle) {
         return String.format("""
-                Hey there,
+                Hello,
                 
-                You’ve received a new book from Booklore titled “%s” 📚
+                You have received a book from Booklore. Please find the attached file titled '%s' for your reading pleasure.
                 
-                Grab a comfy spot, maybe a cup of tea ☕, and enjoy the story!
+                Thank you for using Booklore! Hope you enjoy your book.
                 """, bookTitle);
     }
 

@@ -2,14 +2,13 @@ import {Component, inject, OnInit} from '@angular/core';
 import {Button} from 'primeng/button';
 import {Select} from 'primeng/select';
 import {FormsModule} from '@angular/forms';
-import {EmailProviderService} from '../../../settings/email/email-provider/email-provider.service';
-import {EmailRecipientService} from '../../../settings/email/email-recipient/email-recipient.service';
 import {EmailProvider} from '../../../settings/email/email-provider/email-provider.model';
 import {EmailRecipient} from '../../../settings/email/email-recipient/email-recipient.model';
 import {EmailService} from '../../../settings/email/email.service';
 import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {Book} from '../../model/book.model';
 import {MessageService} from 'primeng/api';
+import {EmailV2ProviderService} from '../../../settings/email-v2/email-v2-provider/email-v2-provider.service';
+import {EmailV2RecipientService} from '../../../settings/email-v2/email-v2-recipient/email-v2-recipient.service';
 
 @Component({
   selector: 'app-book-sender',
@@ -23,8 +22,8 @@ import {MessageService} from 'primeng/api';
 })
 export class BookSenderComponent implements OnInit {
 
-  private emailProviderService = inject(EmailProviderService);
-  private emailRecipientService = inject(EmailRecipientService);
+  private emailProviderService = inject(EmailV2ProviderService);
+  private emailRecipientService = inject(EmailV2RecipientService);
   private emailService = inject(EmailService);
   private messageService = inject(MessageService);
   private dynamicDialogRef = inject(DynamicDialogRef);

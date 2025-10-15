@@ -1,46 +1,28 @@
 <div class="main-container enclosing-container">
-  <div class="deprecation-banner" style="background: rgba(220, 38, 38, 0.1); color: #fca5a5; border: 1px solid rgba(220, 38, 38, 0.3); padding: 16px; margin-bottom: 16px; border-radius: 4px;">
-    <div style="display: flex; align-items: center; gap: 12px;">
-      <i class="pi pi-exclamation-triangle" style="font-size: 1.5rem; color: red;"></i>
+  <div class="settings-header">
+    <div class="section-title-group">
       <div>
-        <strong style="font-size: 1.1rem; color: darkorange;">DEPRECATED - NO LONGER FUNCTIONAL</strong>
-        <p style="margin: 8px 0 0 0; font-size: 0.95rem; color: #fca5a5;">
-          This Email feature has been deprecated and is <b>no longer operational</b>. All functionality has been disabled.
-          Please <b>migrate to Email v2 immediately</b> to continue sending emails.
+        <h2 class="settings-title">
+          <i class="pi pi-server"></i>
+          Email Providers
+        </h2>
+        <p class="settings-description">
+          Configure email-sending services like Gmail, Outlook, or custom SMTP servers for sending books via email. The default email provider will be used for 'Quick Book Send' located in the Book Card menu.
         </p>
       </div>
+      <p-button
+        icon="pi pi-plus"
+        label="Create Provider"
+        severity="success"
+        size="small"
+        [outlined]="true"
+        (onClick)="openCreateProviderDialog()">
+      </p-button>
     </div>
-  </div>
-  <div class="settings-header">
-    <h2 class="settings-title">
-      <i class="pi pi-envelope"></i>
-      Email Providers
-    </h2>
-    <p class="settings-description">
-      Configure email-sending services like Gmail, Outlook, or custom SMTP servers for sending books via email. The default email provider will be used for 'Quick Book Send' located in the Book Card menu.
-    </p>
   </div>
 
   <div class="settings-content">
     <div class="preferences-section">
-      <div class="section-header">
-        <div class="section-title-group">
-          <h3 class="section-title">
-            <i class="pi pi-server"></i>
-            Current Providers
-          </h3>
-          <p-button
-            icon="pi pi-plus"
-            label="Create Provider"
-            severity="success"
-            size="small"
-            [outlined]="true"
-            (onClick)="openCreateProviderDialog()"
-            [disabled]="true">
-          </p-button>
-        </div>
-      </div>
-
       <div class="table-card">
         <p-table [value]="emailProviders" [scrollable]="true" scrollHeight="flex">
           <ng-template pTemplate="header">
@@ -111,8 +93,7 @@
                   name="defaultProvider"
                   [value]="provider.id"
                   [(ngModel)]="defaultProviderId"
-                  (onClick)="setDefaultProvider(provider)"
-                  [disabled]="true">
+                  (onClick)="setDefaultProvider(provider)">
                 </p-radioButton>
               </td>
 
@@ -195,8 +176,7 @@
                     [outlined]="true"
                     [rounded]="true"
                     (onClick)="toggleEdit(provider)"
-                    pTooltip="Edit provider"
-                    [disabled]="true">
+                    pTooltip="Edit provider">
                   </p-button>
                 }
                 @if (provider.isEditing) {
@@ -208,8 +188,7 @@
                       [outlined]="true"
                       [rounded]="true"
                       (onClick)="saveProvider(provider)"
-                      pTooltip="Save changes"
-                      [disabled]="true">
+                      pTooltip="Save changes">
                     </p-button>
                     <p-button
                       icon="pi pi-times"
@@ -218,8 +197,7 @@
                       [outlined]="true"
                       [rounded]="true"
                       (onClick)="toggleEdit(provider)"
-                      pTooltip="Cancel"
-                      [disabled]="true">
+                      pTooltip="Cancel">
                     </p-button>
                   </div>
                 }
@@ -233,8 +211,7 @@
                   [outlined]="true"
                   [rounded]="true"
                   (onClick)="deleteProvider(provider)"
-                  pTooltip="Delete provider"
-                  [disabled]="true">
+                  pTooltip="Delete provider">
                 </p-button>
               </td>
             </tr>

@@ -1,14 +1,14 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {EmailProvider} from './email-provider.model';
 import {API_CONFIG} from '../../../../core/config/api-config';
+import {EmailProvider} from '../../email/email-provider/email-provider.model';
 
 @Injectable({
   providedIn: 'root'
 })
-export class EmailProviderService {
-  private readonly url = `${API_CONFIG.BASE_URL}/api/v1/email/providers`;
+export class EmailV2ProviderService {
+  private readonly url = `${API_CONFIG.BASE_URL}/api/v2/email/providers`;
 
   private http = inject(HttpClient);
 

@@ -1,34 +1,28 @@
 <div class="main-container enclosing-container">
   <div class="settings-header">
-    <h2 class="settings-title">
-      <i class="pi pi-users"></i>
-      Recipient Emails
-    </h2>
-    <p class="settings-description">
-      Manage the list of recipients who will receive books via email. The 'Default' recipient will be used for 'Quick Book Send,' located in the Book Card menu.
-    </p>
+    <div class="section-title-group">
+      <div>
+        <h2 class="settings-title">
+          <i class="pi pi-users"></i>
+          Recipient Emails
+        </h2>
+        <p class="settings-description">
+          Manage the list of recipients who will receive books via email. The 'Default' recipient will be used for 'Quick Book Send,' located in the Book Card menu.
+        </p>
+      </div>
+      <p-button
+        icon="pi pi-plus"
+        label="Create Recipient"
+        severity="success"
+        size="small"
+        [outlined]="true"
+        (onClick)="openAddRecipientDialog()">
+      </p-button>
+    </div>
   </div>
 
   <div class="settings-content">
     <div class="preferences-section">
-      <div class="section-header">
-        <div class="section-title-group">
-          <h3 class="section-title">
-            <i class="pi pi-envelope"></i>
-            Current Recipients
-          </h3>
-          <p-button
-            icon="pi pi-plus"
-            label="Create Recipient"
-            severity="success"
-            size="small"
-            [outlined]="true"
-            (onClick)="openAddRecipientDialog()"
-            [disabled]="true">
-          </p-button>
-        </div>
-      </div>
-
       <div class="table-card">
         <p-table [value]="recipientEmails" [scrollable]="true" scrollHeight="flex">
           <ng-template pTemplate="header">
