@@ -30,7 +30,7 @@ export class LibraryCreatorComponent implements OnInit {
   mode!: string;
   library!: Library | undefined;
   editModeLibraryName: string = '';
-  directoryPickerDialogRef!: DynamicDialogRef<DirectoryPickerComponent>;
+  directoryPickerDialogRef!: DynamicDialogRef<DirectoryPickerComponent> | null;
   watch: boolean = false;
   scanMode: LibraryScanMode = 'FILE_AS_BOOK';
   defaultBookFormat: BookFileType | undefined = undefined;
@@ -81,7 +81,7 @@ export class LibraryCreatorComponent implements OnInit {
       contentStyle: {overflow: 'hidden'},
       baseZIndex: 10
     });
-    this.directoryPickerDialogRef.onClose.subscribe((selectedFolders: string[] | null) => {
+    this.directoryPickerDialogRef?.onClose.subscribe((selectedFolders: string[] | null) => {
       if (selectedFolders && selectedFolders.length > 0) {
         selectedFolders.forEach(folder => {
           if (!this.folders.includes(folder)) {

@@ -131,7 +131,7 @@ export class BookBrowserComponent implements OnInit {
   entityOptions: MenuItem[] | undefined;
   selectedBooks = new Set<number>();
   isDrawerVisible = false;
-  dynamicDialogRef: DynamicDialogRef | undefined;
+  dynamicDialogRef: DynamicDialogRef | undefined | null;
   EntityType = EntityType;
   currentFilterLabel: string | null = null;
   rawFilterParamFromUrl: string | null = null;
@@ -542,7 +542,7 @@ export class BookBrowserComponent implements OnInit {
 
   openShelfAssigner(): void {
     this.dynamicDialogRef = this.dialogHelperService.openShelfAssigner(this.selectedBooks);
-    this.dynamicDialogRef.onClose.subscribe(() => {
+    this.dynamicDialogRef?.onClose.subscribe(() => {
       this.selectedBooks = new Set<number>();
     });
   }

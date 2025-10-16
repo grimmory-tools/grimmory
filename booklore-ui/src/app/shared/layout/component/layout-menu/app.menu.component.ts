@@ -27,7 +27,7 @@ export class AppMenuComponent implements OnInit {
   magicShelfMenu$: Observable<any> | undefined;
 
   versionInfo: AppVersion | null = null;
-  dynamicDialogRef: DynamicDialogRef | undefined;
+  dynamicDialogRef: DynamicDialogRef | undefined | null;
 
   private libraryService = inject(LibraryService);
   private shelfService = inject(ShelfService);

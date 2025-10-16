@@ -35,7 +35,7 @@ import {Tooltip} from 'primeng/tooltip';
   styleUrls: ['./user-management.component.scss'],
 })
 export class UserManagementComponent implements OnInit, OnDestroy {
-  ref: DynamicDialogRef | undefined;
+  ref: DynamicDialogRef | undefined | null;
   private dialogService = inject(DialogService);
   private userService = inject(UserService);
   private libraryService = inject(LibraryService);
@@ -111,7 +111,7 @@ export class UserManagementComponent implements OnInit, OnDestroy {
       closable: true,
       style: {position: 'absolute', top: '15%'},
     });
-    this.ref.onClose.subscribe((result) => {
+    this.ref?.onClose.subscribe((result) => {
       if (result) {
         this.loadUsers();
       }

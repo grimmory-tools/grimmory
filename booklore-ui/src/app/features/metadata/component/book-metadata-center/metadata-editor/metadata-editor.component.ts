@@ -676,7 +676,7 @@ export class MetadataEditorComponent implements OnInit {
       },
     });
 
-    ref.onClose.subscribe((result) => {
+    ref?.onClose.subscribe((result) => {
       if (result) {
         this.metadataForm.get("thumbnailUrl")?.setValue(result);
         this.onSave();

@@ -31,7 +31,7 @@ import {UserService} from '../../user-management/user.service';
 export class EmailV2ProviderComponent implements OnInit {
   emailProviders: EmailProvider[] = [];
   editingProviderIds: number[] = [];
-  ref: DynamicDialogRef | undefined;
+  ref: DynamicDialogRef | undefined | null;
   private dialogService = inject(DialogService);
   private emailProvidersService = inject(EmailV2ProviderService);
   private messageService = inject(MessageService);
@@ -130,7 +130,7 @@ export class EmailV2ProviderComponent implements OnInit {
       closable: true,
       style: {position: 'absolute', top: '15%'},
     });
-    this.ref.onClose.subscribe((result) => {
+    this.ref?.onClose.subscribe((result) => {
       if (result) {
         this.loadEmailProviders();
       }

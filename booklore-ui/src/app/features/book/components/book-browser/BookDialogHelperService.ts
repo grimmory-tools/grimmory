@@ -13,7 +13,7 @@ export class BookDialogHelperService {
 
   private dialogService = inject(DialogService);
 
-  openShelfAssigner(bookIds: Set<number>): DynamicDialogRef {
+  openShelfAssigner(bookIds: Set<number>): DynamicDialogRef | null {
     return this.dialogService.open(ShelfAssignerComponent, {
       header: `Update Books' Shelves`,
       modal: true,
@@ -31,7 +31,7 @@ export class BookDialogHelperService {
     });
   }
 
-  openLockUnlockMetadataDialog(bookIds: Set<number>): DynamicDialogRef {
+  openLockUnlockMetadataDialog(bookIds: Set<number>): DynamicDialogRef | null {
     const count = bookIds.size;
     return this.dialogService.open(LockUnlockMetadataDialogComponent, {
       header: `Lock or Unlock Metadata for ${count} Selected Book${count > 1 ? 's' : ''}`,
@@ -43,7 +43,7 @@ export class BookDialogHelperService {
     });
   }
 
-  openMetadataRefreshDialog(bookIds: Set<number>): DynamicDialogRef {
+  openMetadataRefreshDialog(bookIds: Set<number>): DynamicDialogRef | null {
     return this.dialogService.open(MultiBookMetadataFetchComponent, {
       header: 'Metadata Refresh Options',
       modal: true,
@@ -55,7 +55,7 @@ export class BookDialogHelperService {
     });
   }
 
-  openBulkMetadataEditDialog(bookIds: Set<number>): DynamicDialogRef {
+  openBulkMetadataEditDialog(bookIds: Set<number>): DynamicDialogRef | null {
     return this.dialogService.open(BulkMetadataUpdateComponent, {
       header: 'Bulk Edit Metadata',
       modal: true,
@@ -71,7 +71,7 @@ export class BookDialogHelperService {
     });
   }
 
-  openMultibookMetadataEditorDialog(bookIds: Set<number>): DynamicDialogRef {
+  openMultibookMetadataEditorDialog(bookIds: Set<number>): DynamicDialogRef | null {
     return this.dialogService.open(MultiBookMetadataEditorComponent, {
       header: 'Bulk Edit Metadata',
       showHeader: false,

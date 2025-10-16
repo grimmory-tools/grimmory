@@ -23,7 +23,7 @@ export class DuplicateFilesNotificationComponent implements OnDestroy {
   displayDialog = false;
 
   private duplicateFileService = inject(DuplicateFileService);
-  private ref: DynamicDialogRef | undefined;
+  private ref: DynamicDialogRef | undefined | null;
 
   duplicateFiles$ = this.duplicateFileService.duplicateFiles$;
   duplicateFilesCount$: Observable<number> = this.duplicateFiles$.pipe(
@@ -48,7 +48,7 @@ export class DuplicateFilesNotificationComponent implements OnDestroy {
       }
     });
 
-    this.ref.onClose.subscribe((result: any) => {
+    this.ref?.onClose.subscribe((result: any) => {
       if (result) {
         // Handle any result from dialog if needed
       }

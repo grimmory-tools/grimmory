@@ -27,7 +27,7 @@ import {ProgressSpinner} from 'primeng/progressspinner';
   standalone: true
 })
 export class MainDashboardComponent implements OnInit {
-  ref: DynamicDialogRef | undefined;
+  ref: DynamicDialogRef | undefined | null;
 
   private bookService = inject(BookService);
   private dialogService = inject(DialogService);

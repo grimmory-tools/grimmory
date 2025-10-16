@@ -28,7 +28,7 @@ import {CreateEmailRecipientDialogComponent} from '../create-email-recipient-dia
 export class EmailV2RecipientComponent implements OnInit {
   recipientEmails: EmailRecipient[] = [];
   editingRecipientIds: number[] = [];
-  ref: DynamicDialogRef | undefined;
+  ref: DynamicDialogRef | undefined | null;
   private dialogService = inject(DialogService);
   private emailRecipientService = inject(EmailV2RecipientService);
   private messageService = inject(MessageService);
@@ -117,7 +117,7 @@ export class EmailV2RecipientComponent implements OnInit {
       closable: true,
       style: {position: 'absolute', top: '15%'},
     });
-    this.ref.onClose.subscribe((result) => {
+    this.ref?.onClose.subscribe((result) => {
       if (result) {
         this.loadRecipientEmails();
       }

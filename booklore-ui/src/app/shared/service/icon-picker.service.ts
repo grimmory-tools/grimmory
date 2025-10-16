@@ -9,7 +9,7 @@ export class IconPickerService {
 
   open(): Observable<string> {
     const isMobile = window.innerWidth <= 768;
-    const ref: DynamicDialogRef = this.dialog.open(IconPickerComponent, {
+    const ref: DynamicDialogRef | null = this.dialog.open(IconPickerComponent, {
       header: 'Choose an Icon',
       modal: true,
       closable: true,
@@ -22,6 +22,6 @@ export class IconPickerService {
         minWidth: isMobile ? '90vw' : '800px',
       }
     });
-    return ref.onClose as Observable<string>;
+    return ref!.onClose as Observable<string>;
   }
 }
