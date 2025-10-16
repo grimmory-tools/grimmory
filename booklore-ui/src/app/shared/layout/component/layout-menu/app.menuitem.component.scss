@@ -1,0 +1,8 @@
+.plus-icon {
+  color: var(--p-primary-color);
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: var(--p-green-400);
+  }
+}
