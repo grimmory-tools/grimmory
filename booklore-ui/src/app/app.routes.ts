@@ -20,6 +20,7 @@ import {StatsComponent} from './features/stats/component/stats-component';
 import {EpubReaderComponent} from './features/readers/epub-reader/component/epub-reader.component';
 import {PdfReaderComponent} from './features/readers/pdf-reader/pdf-reader.component';
 import {BookdropFileReviewComponent} from './features/bookdrop/component/bookdrop-file-review/bookdrop-file-review.component';
+import {ManageLibraryGuard} from './core/security/guards/manage-library.guard';
 
 export const routes: Routes = [
   {
@@ -47,8 +48,8 @@ export const routes: Routes = [
       {path: 'series/:seriesName', component: SeriesPageComponent, canActivate: [AuthGuard]},
       {path: 'magic-shelf/:magicShelfId/books', component: BookBrowserComponent, canActivate: [AuthGuard]},
       {path: 'book/:bookId', component: BookMetadataCenterComponent, canActivate: [AuthGuard]},
-      {path: 'bookdrop', component: BookdropFileReviewComponent, canActivate: [AuthGuard]},
-      {path: 'metadata-manager', component: MetadataManagerComponent, canActivate: [AuthGuard]},
+      {path: 'bookdrop', component: BookdropFileReviewComponent, canActivate: [ManageLibraryGuard]},
+      {path: 'metadata-manager', component: MetadataManagerComponent, canActivate: [ManageLibraryGuard]},
       {path: 'stats', component: StatsComponent, canActivate: [AuthGuard]},
     ]
   },
