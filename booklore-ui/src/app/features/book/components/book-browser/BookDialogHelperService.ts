@@ -100,10 +100,10 @@ export class BookDialogHelperService {
       closeOnEscape: false,
       dismissableMask: false,
       style: {
-        width: '85vw',
-        height: '80vh',
-        maxHeight: '95vh',
-        maxWidth: '97.5vw'
+        width: '95vw',
+        maxWidth: '97.5vw',
+        height: '90vh',
+        maxHeight: '95vh'
       },
       data: {
         bookIds: selectedBooks

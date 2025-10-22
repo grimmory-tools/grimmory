@@ -4,7 +4,6 @@ import com.adityachandel.booklore.model.entity.*;
 import com.adityachandel.booklore.model.enums.MergeMetadataType;
 import com.adityachandel.booklore.repository.*;
 import com.adityachandel.booklore.service.appsettings.AppSettingService;
-import com.adityachandel.booklore.service.file.UnifiedFileMoveService;
 import com.adityachandel.booklore.service.metadata.writer.MetadataWriterFactory;
 import com.adityachandel.booklore.model.dto.settings.AppSettings;
 import com.adityachandel.booklore.model.dto.settings.MetadataPersistenceSettings;
@@ -44,8 +43,6 @@ class MetadataManagementServiceTest {
     AppSettingService appSettingService;
     @Mock
     MetadataWriterFactory metadataWriterFactory;
-    @Mock
-    UnifiedFileMoveService unifiedFileMoveService;
 
     @InjectMocks
     MetadataManagementService service;

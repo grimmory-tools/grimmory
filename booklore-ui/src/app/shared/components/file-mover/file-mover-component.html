@@ -66,33 +66,50 @@
         size="small"
         appendTo="body"
       ></p-select>
+      @if (defaultAvailableLibraryPaths.length > 0) {
+        <p-select
+          [options]="defaultAvailableLibraryPaths"
+          [(ngModel)]="defaultTargetLibraryPathId"
+          optionLabel="path"
+          optionValue="id"
+          placeholder="Select default path"
+          (onChange)="onDefaultLibraryPathChange()"
+          class="min-w-[250px]"
+          size="small"
+          appendTo="body"
+        ></p-select>
+      }
     </div>
   </div>
 
-  <div class="flex-grow overflow-y-auto">
+  <div class="mb-4" style="height: 500px;">
     <p-table
       [value]="filePreviews"
-      [responsiveLayout]="'scroll'"
-      class="block min-w-full"
+      [scrollable]="true"
+      scrollHeight="500px"
+      [virtualScroll]="true"
+      [virtualScrollItemSize]="46"
+      [rows]="50"
     >
       <ng-template pTemplate="header">
         <tr>
-          <th>ID</th>
+          <th style="max-width:50px;">ID</th>
           <th>Current Path</th>
-          <th>Target Library</th>
+          <th style="max-width:150px;">Target Library</th>
+          <th style="max-width:150px;">Library Sub Path</th>
           <th></th>
           <th>New Path</th>
         </tr>
       </ng-template>
-      <ng-template pTemplate="body" let-preview let-i="rowIndex">
+      <ng-template pTemplate="body" let-preview>
         <tr>
-          <td class="text-center">{{ preview.bookId }}</td>
-          <td class="w-auto">
-            <p>
-              <span class="text-gray-400 select-none">{{ preview.currentLibraryName }}/</span><span class="text-gray-200">{{ preview.relativeOriginalPath }}</span>
-            </p>
+          <td>{{ preview.bookId }}</td>
+          <td>
+            <div class="overflow-hidden text-ellipsis">
+              <span class="text-gray-400">{{ preview.currentLibraryName }}/</span><span class="text-gray-200">{{ preview.relativeOriginalPath }}</span>
+            </div>
           </td>
-          <td class="w-auto">
+          <td style="max-width:150px;">
             <p-select
               [options]="availableLibraries"
               [(ngModel)]="preview.targetLibraryId"
@@ -106,13 +123,31 @@
               size="small"
             ></p-select>
           </td>
-          <td class="w-auto text-[var(--primary-color)] text-center">→</td>
-          <td class="w-auto">
-            <p>
-              <span class="text-gray-400 select-none">{{ preview.targetLibraryName }}/</span><span class="text-gray-200">{{ preview.relativeNewPath }}</span>
-            </p>
+          <td style="max-width:150px;">
+            @if (preview.availableLibraryPaths.length > 0) {
+              <p-select
+                [options]="preview.availableLibraryPaths"
+                [(ngModel)]="preview.targetLibraryPathId"
+                optionLabel="path"
+                optionValue="id"
+                placeholder="Select Path"
+                (onChange)="onLibraryPathChange(preview)"
+                [disabled]="preview.isMoved"
+                class="w-full"
+                appendTo="body"
+                size="small"
+              ></p-select>
+            } @else {
+              <div class="text-xs text-red-400">No paths configured</div>
+            }
           </td>
-          <td class="w-auto text-center">
+          <td class="text-[var(--primary-color)] text-center">→</td>
+          <td>
+            <div class="overflow-hidden text-ellipsis">
+              <span class="text-gray-400">{{ preview.targetLibraryName }}/</span><span class="text-gray-200">{{ preview.relativeNewPath }}</span>
+            </div>
+          </td>
+          <td class="text-center">
             @if (preview.isMoved) {
               <i class="pi pi-check-circle text-green-600"></i>
             }

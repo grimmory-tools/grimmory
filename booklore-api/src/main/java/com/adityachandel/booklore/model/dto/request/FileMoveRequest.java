@@ -14,5 +14,6 @@ public class FileMoveRequest {
     public static class Move {
         private Long bookId;
         private Long targetLibraryId;
+        private Long targetLibraryPathId;
     }
 }

@@ -1,182 +1,155 @@
 package com.adityachandel.booklore.service.file;
 
 import com.adityachandel.booklore.mapper.BookMapper;
-import com.adityachandel.booklore.model.dto.Book;
+import com.adityachandel.booklore.mapper.LibraryMapper;
+import com.adityachandel.booklore.model.dto.FileMoveResult;
 import com.adityachandel.booklore.model.dto.request.FileMoveRequest;
 import com.adityachandel.booklore.model.entity.BookEntity;
+import com.adityachandel.booklore.model.entity.LibraryEntity;
+import com.adityachandel.booklore.model.entity.LibraryPathEntity;
 import com.adityachandel.booklore.model.websocket.Topic;
 import com.adityachandel.booklore.repository.BookRepository;
-import com.adityachandel.booklore.service.BookQueryService;
+import com.adityachandel.booklore.repository.LibraryRepository;
 import com.adityachandel.booklore.service.NotificationService;
-import com.adityachandel.booklore.util.PathPatternResolver;
+import com.adityachandel.booklore.service.monitoring.MonitoringRegistrationService;
+import jakarta.persistence.EntityManager;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.adityachandel.booklore.model.enums.PermissionType.ADMIN;
-import static com.adityachandel.booklore.model.enums.PermissionType.MANIPULATE_LIBRARY;
-
-@Slf4j
-@Service
 @AllArgsConstructor
+@Service
+@Slf4j
 public class FileMoveService {
 
-    private static final int BATCH_SIZE = 100;
-
-    private final BookQueryService bookQueryService;
     private final BookRepository bookRepository;
+    private final LibraryRepository libraryRepository;
+    private final FileMoveHelper fileMoveHelper;
+    private final MonitoringRegistrationService monitoringRegistrationService;
+    private final LibraryMapper libraryMapper;
     private final BookMapper bookMapper;
     private final NotificationService notificationService;
-    private final UnifiedFileMoveService unifiedFileMoveService;
+    private final EntityManager entityManager;
+
 
     @Transactional
-    public void moveFiles(FileMoveRequest request) {
-        List<Long> bookIds = request.getBookIds().stream().toList();
-        List<FileMoveRequest.Move> moves = request.getMoves() != null ? request.getMoves() : List.of();
+    public void bulkMoveFiles(FileMoveRequest request) {
+        List<FileMoveRequest.Move> moves = request.getMoves();
+        Set<Long> targetLibraryIds = moves.stream().map(FileMoveRequest.Move::getTargetLibraryId).collect(Collectors.toSet());
+        Set<Long> sourceLibraryIds = new HashSet<>();
+        monitoringRegistrationService.unregisterLibraries(targetLibraryIds);
 
-        log.info("Moving {} books with {} specific moves in batches of {}", bookIds.size(), moves.size(), BATCH_SIZE);
+        for (FileMoveRequest.Move move : moves) {
+            Long bookId = move.getBookId();
+            Long targetLibraryId = move.getTargetLibraryId();
+            Long targetLibraryPathId = move.getTargetLibraryPathId();
 
-        Map<Long, Long> bookToTargetLibraryMap = moves.stream()
-                .collect(Collectors.toMap(
-                        FileMoveRequest.Move::getBookId,
-                        FileMoveRequest.Move::getTargetLibraryId
-                ));
-
-        Map<Long, List<Book>> libraryRemovals = new HashMap<>();
-        Map<Long, List<Book>> libraryAdditions = new HashMap<>();
-        List<Book> allUpdatedBooks = new ArrayList<>();
-        int totalProcessed = 0;
-        int offset = 0;
-
-        while (offset < bookIds.size()) {
-            log.info("Processing batch {}/{}", (offset / BATCH_SIZE) + 1, (bookIds.size() + BATCH_SIZE - 1) / BATCH_SIZE);
-
-            List<Long> batchBookIds = bookIds.subList(offset, Math.min(offset + BATCH_SIZE, bookIds.size()));
-            Set<Long> batchBookIdSet = new HashSet<>(batchBookIds);
-
-            List<BookEntity> batchBooks = bookQueryService.findWithMetadataByIdsWithPagination(batchBookIdSet, offset, BATCH_SIZE);
-
-            if (batchBooks.isEmpty()) {
-                log.info("No more books at offset {}", offset);
-                break;
-            }
-
-            List<Book> batchUpdatedBooks = processBookChunk(batchBooks, bookToTargetLibraryMap, libraryRemovals, libraryAdditions);
-            allUpdatedBooks.addAll(batchUpdatedBooks);
-
-            totalProcessed += batchBooks.size();
-            offset += BATCH_SIZE;
-
-            log.info("Processed {}/{} books", totalProcessed, bookIds.size());
-        }
-
-        log.info("Move completed: {} books processed, {} updated", totalProcessed, allUpdatedBooks.size());
-        sendUpdateNotifications(allUpdatedBooks);
-        sendCrossLibraryMoveNotifications(libraryRemovals, libraryAdditions);
-
-    }
-
-    public String generatePathFromPattern(BookEntity book, String pattern) {
-        return PathPatternResolver.resolvePattern(book, pattern);
-    }
-
-    private List<Book> processBookChunk(List<BookEntity> books, Map<Long, Long> bookToTargetLibraryMap, Map<Long, List<Book>> libraryRemovals, Map<Long, List<Book>> libraryAdditions) {
-        List<Book> updatedBooks = new ArrayList<>();
-
-        Map<Long, Long> originalLibraryIds = new HashMap<>();
-        for (BookEntity book : books) {
-            if (book.getLibraryPath() != null && book.getLibraryPath().getLibrary() != null) {
-                originalLibraryIds.put(book.getId(), book.getLibraryPath().getLibrary().getId());
-            }
-        }
-
-        unifiedFileMoveService.moveBatchBookFiles(books, bookToTargetLibraryMap, new UnifiedFileMoveService.BatchMoveCallback() {
-            @Override
-            public void onBookMoved(BookEntity book) {
-                Long targetLibraryId = bookToTargetLibraryMap.get(book.getId());
-                Long originalSourceLibraryId = originalLibraryIds.get(book.getId());
-
-                log.debug("Processing moved book {}: targetLibraryId={}, originalSourceLibraryId={}", book.getId(), targetLibraryId, originalSourceLibraryId);
-
-                if (targetLibraryId != null && originalSourceLibraryId != null && !targetLibraryId.equals(originalSourceLibraryId)) {
-                    log.info("Cross-library move detected for book {}: {} -> {}", book.getId(), originalSourceLibraryId, targetLibraryId);
-
-                    Book bookDtoForRemoval = bookMapper.toBookWithDescription(book, false);
-                    bookDtoForRemoval.setLibraryId(originalSourceLibraryId);
-                    libraryRemovals.computeIfAbsent(originalSourceLibraryId, k -> new ArrayList<>()).add(bookDtoForRemoval);
-                    log.debug("Added book {} to removal list for library {}", book.getId(), originalSourceLibraryId);
-
-                    bookRepository.updateLibraryId(book.getId(), targetLibraryId);
-                    log.debug("Updated library_id for book {} to {}", book.getId(), targetLibraryId);
-
-                    BookEntity savedBook = bookRepository.saveAndFlush(book);
-
-                    Book updatedBookDto = bookMapper.toBookWithDescription(savedBook, false);
-                    updatedBookDto.setLibraryId(targetLibraryId);
-                    libraryAdditions.computeIfAbsent(targetLibraryId, k -> new ArrayList<>()).add(updatedBookDto);
-                    log.debug("Added book {} to addition list for library {} with libraryId {}", book.getId(), targetLibraryId, updatedBookDto.getLibraryId());
-
-                    updatedBooks.add(updatedBookDto);
-                } else {
-                    log.debug("Same library move for book {} or no target specified. Target: {}, Original: {}", book.getId(), targetLibraryId, originalSourceLibraryId);
-                    BookEntity savedBook = bookRepository.save(book);
-                    updatedBooks.add(bookMapper.toBook(savedBook));
-                }
-            }
-
-            @Override
-            public void onBookMoveFailed(BookEntity book, Exception error) {
-                log.error("Move failed for book {}: {}", book.getId(), error.getMessage(), error);
-                throw new RuntimeException("File move failed for book id " + book.getId(), error);
-            }
-        });
-
-        log.info("Processed {} books, {} library removals tracked, {} library additions tracked", updatedBooks.size(), libraryRemovals.size(), libraryAdditions.size());
-
-        return updatedBooks;
-    }
-
-    private void sendUpdateNotifications(List<Book> updatedBooks) {
-        if (!updatedBooks.isEmpty()) {
-            notificationService.sendMessage(Topic.BOOK_METADATA_BATCH_UPDATE, updatedBooks);
-        }
-    }
-
-    private void sendCrossLibraryMoveNotifications(Map<Long, List<Book>> libraryRemovals, Map<Long, List<Book>> libraryAdditions) {
-        log.info("Sending cross-library move notifications: {} removals, {} additions",
-                libraryRemovals.size(), libraryAdditions.size());
-
-        for (Map.Entry<Long, List<Book>> entry : libraryRemovals.entrySet()) {
-            List<Long> removedBookIds = entry.getValue().stream()
-                    .map(Book::getId)
-                    .collect(Collectors.toList());
-
-            log.info("Notifying removal of {} books from library {}: {}", removedBookIds.size(), entry.getKey(), removedBookIds);
             try {
-                notificationService.sendMessageToPermissions(Topic.BOOKS_REMOVE, removedBookIds, Set.of(ADMIN, MANIPULATE_LIBRARY));
-                log.info("Successfully sent removal notification for library {}", entry.getKey());
-            } catch (Exception e) {
-                log.error("Failed to send removal notification for library {}: {}", entry.getKey(), e.getMessage(), e);
-            }
-        }
-
-        for (Map.Entry<Long, List<Book>> entry : libraryAdditions.entrySet()) {
-            List<Book> addedBooks = entry.getValue();
-
-            log.info("Notifying addition of {} books to library {}", addedBooks.size(), entry.getKey());
-            try {
-                for (Book book : addedBooks) {
-                    log.debug("Sending BOOK_ADD notification for book {} to library {}", book.getId(), entry.getKey());
-                    notificationService.sendMessageToPermissions(Topic.BOOK_ADD, book, Set.of(ADMIN, MANIPULATE_LIBRARY));
+                Optional<BookEntity> optionalBook = bookRepository.findById(bookId);
+                Optional<LibraryEntity> optionalLibrary = libraryRepository.findById(targetLibraryId);
+                if (optionalBook.isEmpty() || optionalLibrary.isEmpty()) {
+                    continue;
                 }
-                log.info("Successfully sent {} addition notifications for library {}", addedBooks.size(), entry.getKey());
+                BookEntity bookEntity = optionalBook.get();
+                LibraryEntity targetLibrary = optionalLibrary.get();
+
+                Optional<LibraryPathEntity> optionalLibraryPathEntity = targetLibrary.getLibraryPaths().stream().filter(l -> Objects.equals(l.getId(), targetLibraryPathId)).findFirst();
+                if (optionalLibraryPathEntity.isEmpty()) {
+                    continue;
+                }
+                LibraryPathEntity libraryPathEntity = optionalLibraryPathEntity.get();
+
+                LibraryEntity sourceLibrary = bookEntity.getLibrary();
+                if (sourceLibrary.getId().equals(targetLibrary.getId())) {
+                    continue;
+                }
+                if (!sourceLibraryIds.contains(sourceLibrary.getId())) {
+                    monitoringRegistrationService.unregisterLibraries(Collections.singleton(sourceLibrary.getId()));
+                    sourceLibraryIds.add(sourceLibrary.getId());
+                }
+                Path currentFilePath = bookEntity.getFullFilePath();
+                String pattern = fileMoveHelper.getFileNamingPattern(targetLibrary);
+                Path newFilePath = fileMoveHelper.generateNewFilePath(bookEntity, libraryPathEntity, pattern);
+                if (currentFilePath.equals(newFilePath)) {
+                    continue;
+                }
+                fileMoveHelper.moveFile(currentFilePath, newFilePath);
+
+                String newFileName = newFilePath.getFileName().toString();
+                String newFileSubPath = fileMoveHelper.extractSubPath(newFilePath, libraryPathEntity);
+                bookRepository.updateFileAndLibrary(bookEntity.getId(), newFileSubPath, newFileName, targetLibrary.getId(), libraryPathEntity);
+
+                Path libraryRoot = Paths.get(bookEntity.getLibraryPath().getPath()).toAbsolutePath().normalize();
+                fileMoveHelper.deleteEmptyParentDirsUpToLibraryFolders(currentFilePath.getParent(), Set.of(libraryRoot));
+
+                entityManager.clear();
+
+                BookEntity fresh = bookRepository.findById(bookId).orElseThrow();
+
+                notificationService.sendMessage(Topic.BOOK_UPDATE, bookMapper.toBookWithDescription(fresh, false));
+
             } catch (Exception e) {
-                log.error("Failed to send addition notifications for library {}: {}", entry.getKey(), e.getMessage(), e);
+                log.error("Error moving file for book ID {}: {}", bookId, e.getMessage(), e);
             }
         }
+
+        for (Long libraryId : targetLibraryIds) {
+            Optional<LibraryEntity> optionalLibrary = libraryRepository.findById(libraryId);
+            optionalLibrary.ifPresent(library -> {
+                monitoringRegistrationService.registerLibrary(libraryMapper.toLibrary(library));
+            });
+        }
+        for (Long libraryId : sourceLibraryIds) {
+            Optional<LibraryEntity> optionalLibrary = libraryRepository.findById(libraryId);
+            optionalLibrary.ifPresent(library -> {
+                monitoringRegistrationService.registerLibrary(libraryMapper.toLibrary(library));
+            });
+        }
+    }
+
+    @Transactional
+    public FileMoveResult moveSingleFile(BookEntity bookEntity) {
+
+        Long libraryId = bookEntity.getLibraryPath().getLibrary().getId();
+        Path libraryRoot = Paths.get(bookEntity.getLibraryPath().getPath()).toAbsolutePath().normalize();
+
+        try {
+            String pattern = fileMoveHelper.getFileNamingPattern(bookEntity.getLibraryPath().getLibrary());
+            Path currentFilePath = bookEntity.getFullFilePath();
+            Path expectedFilePath = fileMoveHelper.generateNewFilePath(bookEntity, bookEntity.getLibraryPath(), pattern);
+
+            if (currentFilePath.equals(expectedFilePath)) {
+                return FileMoveResult.builder().moved(false).build();
+            }
+
+            log.info("File for book ID {} needs to be moved from {} to {} to match library pattern", bookEntity.getId(), currentFilePath, expectedFilePath);
+
+            fileMoveHelper.unregisterLibrary(libraryId);
+
+            fileMoveHelper.moveFile(currentFilePath, expectedFilePath);
+
+            fileMoveHelper.deleteEmptyParentDirsUpToLibraryFolders(currentFilePath.getParent(), Set.of(libraryRoot));
+
+            String newFileName = expectedFilePath.getFileName().toString();
+            String newFileSubPath = fileMoveHelper.extractSubPath(expectedFilePath, bookEntity.getLibraryPath());
+
+            return FileMoveResult.builder()
+                    .moved(true)
+                    .newFileName(newFileName)
+                    .newFileSubPath(newFileSubPath)
+                    .build();
+        } catch (Exception e) {
+            log.error("Failed to move file for book ID {}: {}", bookEntity.getId(), e.getMessage(), e);
+        } finally {
+            fileMoveHelper.registerLibraryPaths(libraryId, libraryRoot);
+        }
+
+        return FileMoveResult.builder().moved(false).build();
     }
 }

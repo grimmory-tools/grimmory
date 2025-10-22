@@ -515,7 +515,7 @@
     </div>
 
     <div class="px-4 pb-2 pt-4 mb-4 md:mb-6 md:mx-2 border border-[var(--border-color)] rounded-xl">
-      <div [ngClass]="{ 'line-clamp-5': !isExpanded, 'line-clamp-none': isExpanded }" class="transition-all duration-300 overflow-hidden description-container">
+      <div [ngClass]="{ 'line-clamp-7': !isExpanded, 'line-clamp-none': isExpanded }" class="transition-all duration-300 overflow-hidden description-container">
         <div class="readonly-editor px-2">
           <p-editor #quillEditor [readonly]="true" [style]="{height: '200px'}" [(ngModel)]="book.metadata!.description">
             <ng-template #header>

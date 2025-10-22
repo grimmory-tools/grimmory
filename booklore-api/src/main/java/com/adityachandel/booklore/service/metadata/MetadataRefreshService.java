@@ -282,7 +282,7 @@ public class MetadataRefreshService {
                             .build())
                     .updateThumbnail(replaceCover)
                     .mergeCategories(mergeCategories)
-                    .replaceMode(MetadataReplaceMode.REPLACE_ALL)
+                    .replaceMode(MetadataReplaceMode.REPLACE_MISSING)
                     .build();
 
             bookMetadataUpdater.setBookMetadata(context);

@@ -1,11 +1,13 @@
 package com.adityachandel.booklore.repository;
 
 import com.adityachandel.booklore.model.entity.BookEntity;
+import com.adityachandel.booklore.model.entity.LibraryPathEntity;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
@@ -112,39 +114,24 @@ public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpec
                     """)
     Page<BookEntity> searchByMetadata(@Param("text") String text, Pageable pageable);
 
-    @Query(value = """
-            SELECT DISTINCT b FROM BookEntity b
-            LEFT JOIN b.metadata m
-            LEFT JOIN m.authors a
-            WHERE (b.deleted IS NULL OR b.deleted = false)
-              AND b.library.id IN :libraryIds
-              AND (
-                  LOWER(m.title) LIKE LOWER(CONCAT('%', :text, '%'))
-               OR LOWER(m.seriesName) LIKE LOWER(CONCAT('%', :text, '%'))
-               OR LOWER(a.name) LIKE LOWER(CONCAT('%', :text, '%'))
-              )
-            """,
-            countQuery = """
-                    SELECT COUNT(DISTINCT b.id) FROM BookEntity b
-                    LEFT JOIN b.metadata m
-                    LEFT JOIN m.authors a
-                    WHERE (b.deleted IS NULL OR b.deleted = false)
-                      AND b.library.id IN :libraryIds
-                      AND (
-                          LOWER(m.title) LIKE LOWER(CONCAT('%', :text, '%'))
-                       OR LOWER(m.seriesName) LIKE LOWER(CONCAT('%', :text, '%'))
-                       OR LOWER(a.name) LIKE LOWER(CONCAT('%', :text, '%'))
-                      )
-                    """)
-    Page<BookEntity> searchByMetadataAndLibraryIds(@Param("text") String text, @Param("libraryIds") Collection<Long> libraryIds, Pageable pageable);
-
     @Modifying
     @Transactional
     @Query("DELETE FROM BookEntity b WHERE b.deletedAt IS NOT NULL AND b.deletedAt < :cutoff")
     int deleteAllByDeletedAtBefore(Instant cutoff);
 
     @Modifying
-    @Transactional
-    @Query("UPDATE BookEntity b SET b.library.id = :libraryId WHERE b.id = :bookId")
-    void updateLibraryId(@Param("bookId") Long bookId, @Param("libraryId") Long libraryId);
+    @Query("""
+                UPDATE BookEntity b
+                SET b.fileSubPath = :fileSubPath,
+                    b.fileName = :fileName,
+                    b.library.id = :libraryId,
+                    b.libraryPath = :libraryPath
+                WHERE b.id = :bookId
+            """)
+    void updateFileAndLibrary(
+            @Param("bookId") Long bookId,
+            @Param("fileSubPath") String fileSubPath,
+            @Param("fileName") String fileName,
+            @Param("libraryId") Long libraryId,
+            @Param("libraryPath") LibraryPathEntity libraryPath);
 }

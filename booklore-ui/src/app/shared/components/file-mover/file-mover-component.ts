@@ -14,6 +14,7 @@ import {FileMoveRequest, FileOperationsService} from '../../service/file-operati
 import {LibraryService} from "../../../features/book/service/library.service";
 import {AppSettingsService} from '../../service/app-settings.service';
 import {Select} from 'primeng/select';
+import {Library, LibraryPath} from '../../../features/book/model/library.model';
 
 interface FilePreview {
   bookId: number;
@@ -21,8 +22,12 @@ interface FilePreview {
   relativeOriginalPath: string;
   currentLibraryId: number | null;
   currentLibraryName: string;
+  currentLibraryPath: string;
   targetLibraryId: number | null;
   targetLibraryName: string;
+  targetLibraryPath: string;
+  targetLibraryPathId: number | null;
+  availableLibraryPaths: LibraryPath[];
   newPath: string;
   relativeNewPath: string;
   isMoved?: boolean;
@@ -54,13 +59,15 @@ export class FileMoverComponent implements OnDestroy {
   }[] = [];
   defaultMovePattern = '';
   loading = false;
-  patternsCollapsed = false;
+  patternsCollapsed = true;
 
   bookIds: Set<number> = new Set();
   books: Book[] = [];
   availableLibraries: { id: number | null; name: string }[] = [];
   filePreviews: FilePreview[] = [];
   defaultTargetLibraryId: number | null = null;
+  defaultTargetLibraryPathId: number | null = null;
+  defaultAvailableLibraryPaths: LibraryPath[] = [];
 
   constructor() {
     this.bookIds = new Set(this.config.data?.bookIds ?? []);
@@ -152,9 +159,13 @@ export class FileMoverComponent implements OnDestroy {
 
       const currentLibraryId = book.libraryId ?? book.libraryPath?.id ?? (book as any).library?.id ?? null;
       const currentLibraryName = this.getLibraryNameById(currentLibraryId);
+      const currentLibraryPath = this.getLibraryPathById(currentLibraryId);
 
       const targetLibraryId = currentLibraryId;
       const targetLibraryName = currentLibraryName;
+      const availableLibraryPaths = this.getLibraryPathsById(targetLibraryId);
+      const targetLibraryPathId = availableLibraryPaths.length > 0 ? availableLibraryPaths[0].id ?? null : null;
+      const targetLibraryPath = availableLibraryPaths.length > 0 ? availableLibraryPaths[0].path : '';
 
       const preview: FilePreview = {
         bookId: book.id,
@@ -162,8 +173,12 @@ export class FileMoverComponent implements OnDestroy {
         relativeOriginalPath,
         currentLibraryId,
         currentLibraryName,
+        currentLibraryPath,
         targetLibraryId,
         targetLibraryName,
+        targetLibraryPath,
+        targetLibraryPathId,
+        availableLibraryPaths,
         newPath: '',
         relativeNewPath: ''
       };
@@ -174,10 +189,30 @@ export class FileMoverComponent implements OnDestroy {
   }
 
   onDefaultLibraryChange(): void {
+    this.defaultAvailableLibraryPaths = this.getLibraryPathsById(this.defaultTargetLibraryId);
+    this.defaultTargetLibraryPathId = this.defaultAvailableLibraryPaths.length > 0 ? this.defaultAvailableLibraryPaths[0].id ?? null : null;
+
     this.filePreviews.forEach(preview => {
       if (!preview.isMoved) {
         preview.targetLibraryId = this.defaultTargetLibraryId;
         preview.targetLibraryName = this.getLibraryNameById(this.defaultTargetLibraryId);
+        preview.availableLibraryPaths = this.defaultAvailableLibraryPaths;
+        preview.targetLibraryPathId = this.defaultTargetLibraryPathId;
+        preview.targetLibraryPath = this.defaultAvailableLibraryPaths.find(p => p.id === this.defaultTargetLibraryPathId)?.path || '';
+
+        const book = this.books.find(b => b.id === preview.bookId);
+        if (book) {
+          this.updatePreviewPaths(preview, book);
+        }
+      }
+    });
+  }
+
+  onDefaultLibraryPathChange(): void {
+    this.filePreviews.forEach(preview => {
+      if (!preview.isMoved && preview.targetLibraryId === this.defaultTargetLibraryId) {
+        preview.targetLibraryPathId = this.defaultTargetLibraryPathId;
+        preview.targetLibraryPath = this.defaultAvailableLibraryPaths.find(p => p.id === this.defaultTargetLibraryPathId)?.path || '';
 
         const book = this.books.find(b => b.id === preview.bookId);
         if (book) {
@@ -189,6 +224,20 @@ export class FileMoverComponent implements OnDestroy {
 
   onLibraryChange(preview: FilePreview): void {
     preview.targetLibraryName = this.getLibraryNameById(preview.targetLibraryId);
+    preview.availableLibraryPaths = this.getLibraryPathsById(preview.targetLibraryId);
+    preview.targetLibraryPathId = preview.availableLibraryPaths.length > 0 ? preview.availableLibraryPaths[0].id ?? null : null;
+    preview.targetLibraryPath = preview.availableLibraryPaths.length > 0 ? preview.availableLibraryPaths[0].path : '';
+
+    const book = this.books.find(b => b.id === preview.bookId);
+    if (book) {
+      this.updatePreviewPaths(preview, book);
+    }
+  }
+
+  onLibraryPathChange(preview: FilePreview): void {
+    const selectedPath = preview.availableLibraryPaths.find(p => p.id === preview.targetLibraryPathId);
+    preview.targetLibraryPath = selectedPath?.path || '';
+
     const book = this.books.find(b => b.id === preview.bookId);
     if (book) {
       this.updatePreviewPaths(preview, book);
@@ -199,9 +248,7 @@ export class FileMoverComponent implements OnDestroy {
     const meta = book.metadata!;
     const fileName = book.fileName ?? '';
     const extension = fileName.match(/\.[^.]+$/)?.[0] ?? '';
-
-    const libraryPattern = this.libraryPatterns.find(p => p.libraryId === preview.targetLibraryId);
-    const pattern = libraryPattern?.pattern || this.defaultMovePattern;
+    const pattern = this.getPatternForLibrary(preview.targetLibraryId);
 
     const values: Record<string, string> = {
       authors: this.sanitize(meta.authors?.join(', ') || 'Unknown Author'),
@@ -239,13 +286,40 @@ export class FileMoverComponent implements OnDestroy {
     preview.newPath = this.getFullPath(preview.targetLibraryId, newPath);
   }
 
+  private getPatternForLibrary(libraryId: number | null): string {
+    if (libraryId === null) {
+      return this.defaultMovePattern;
+    }
+
+    const libraries = this.libraryService.getLibrariesFromState();
+    const library = libraries.find((lib: Library) => lib.id === libraryId);
+
+    return library?.fileNamingPattern || this.defaultMovePattern;
+  }
+
   private getLibraryNameById(libraryId: number | null): string {
     if (libraryId === null) return 'Unknown Library';
     return this.availableLibraries.find(lib => lib.id === libraryId)?.name || 'Unknown Library';
   }
 
+  private getLibraryPathsById(libraryId: number | null): LibraryPath[] {
+    if (libraryId === null) return [];
+
+    const libraries = this.libraryService.getLibrariesFromState();
+    const library = libraries.find((lib: Library) => lib.id === libraryId);
+    return library?.paths || [];
+  }
+
+  private getLibraryPathById(libraryId: number | null): string {
+    const paths = this.getLibraryPathsById(libraryId);
+    return paths.map((p: LibraryPath) => p.path).join(', ');
+  }
+
   private getFullPath(libraryId: number | null, relativePath: string): string {
-    const libraryPath = libraryId ? this.libraryService.getLibraryPathById(libraryId)?.replace(/\/+$/g, '') : '';
+    if (!libraryId) return relativePath;
+
+    const paths = this.getLibraryPathsById(libraryId);
+    const libraryPath = paths.length > 0 ? paths[0].path.replace(/\/+$/g, '') : '';
     return libraryPath ? `${libraryPath}/${relativePath}`.replace(/\/\/+/g, '/') : relativePath;
   }
 
@@ -282,7 +356,8 @@ export class FileMoverComponent implements OnDestroy {
       bookIds: [...this.bookIds],
       moves: this.filePreviews.map(preview => ({
         bookId: preview.bookId,
-        targetLibraryId: preview.targetLibraryId
+        targetLibraryId: preview.targetLibraryId,
+        targetLibraryPathId: preview.targetLibraryPathId
       }))
     };
 
@@ -317,5 +392,9 @@ export class FileMoverComponent implements OnDestroy {
 
   togglePatternsCollapsed(): void {
     this.patternsCollapsed = !this.patternsCollapsed;
+  }
+
+  trackByBookId(index: number, preview: FilePreview): number {
+    return preview.bookId;
   }
 }

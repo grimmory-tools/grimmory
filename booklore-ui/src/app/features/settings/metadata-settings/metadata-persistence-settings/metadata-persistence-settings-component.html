@@ -17,32 +17,15 @@
     <div class="setting-item">
       <div class="setting-info">
         <div class="setting-label-row">
-          <label class="setting-label">Write to File</label>
+          <label class="setting-label">Write Metadata to File</label>
           <p-toggleswitch
             [ngModel]="metadataPersistence.saveToOriginalFile"
             (onChange)="onPersistenceToggle('saveToOriginalFile')">
           </p-toggleswitch>
         </div>
         <p class="setting-description">
-          <i class="pi pi-exclamation-triangle"></i>
-          Writes metadata directly into the original file. A backup of the metadata and/or cover is created only if enabled below. Proceed with caution, restoration may fail if the file is moved or renamed.
-        </p>
-      </div>
-    </div>
-
-    <div class="setting-item setting-item-indented">
-      <div class="setting-info">
-        <div class="setting-label-row">
-          <label class="setting-label">Convert CBR/CB7 to CBZ</label>
-          <p-toggleswitch
-            [ngModel]="metadataPersistence.convertCbrCb7ToCbz"
-            (onChange)="onPersistenceToggle('convertCbrCb7ToCbz')"
-            [disabled]="!metadataPersistence.saveToOriginalFile">
-          </p-toggleswitch>
-        </div>
-        <p class="setting-description">
           <i class="pi pi-info-circle"></i>
-          Converts CBR and CB7 files to CBZ format when updating metadata. If disabled, edits to CBR/CB7 files will not be written to the original file.
+          Write metadata directly into the original file. (Only Epub and PDF formats are currently supported.)
         </p>
       </div>
     </div>

@@ -1,20 +1,13 @@
 package com.adityachandel.booklore.service.metadata;
 
+import com.adityachandel.booklore.model.dto.FileMoveResult;
 import com.adityachandel.booklore.model.dto.settings.MetadataPersistenceSettings;
-import com.adityachandel.booklore.model.entity.AuthorEntity;
-import com.adityachandel.booklore.model.entity.BookMetadataEntity;
-import com.adityachandel.booklore.model.entity.CategoryEntity;
-import com.adityachandel.booklore.model.entity.MoodEntity;
-import com.adityachandel.booklore.model.entity.TagEntity;
+import com.adityachandel.booklore.model.entity.*;
 import com.adityachandel.booklore.model.enums.BookFileType;
 import com.adityachandel.booklore.model.enums.MergeMetadataType;
-import com.adityachandel.booklore.repository.AuthorRepository;
-import com.adityachandel.booklore.repository.BookMetadataRepository;
-import com.adityachandel.booklore.repository.CategoryRepository;
-import com.adityachandel.booklore.repository.MoodRepository;
-import com.adityachandel.booklore.repository.TagRepository;
+import com.adityachandel.booklore.repository.*;
 import com.adityachandel.booklore.service.appsettings.AppSettingService;
-import com.adityachandel.booklore.service.file.UnifiedFileMoveService;
+import com.adityachandel.booklore.service.file.FileMoveService;
 import com.adityachandel.booklore.service.metadata.writer.MetadataWriter;
 import com.adityachandel.booklore.service.metadata.writer.MetadataWriterFactory;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +31,8 @@ public class MetadataManagementService {
     private final BookMetadataRepository bookMetadataRepository;
     private final AppSettingService appSettingService;
     private final MetadataWriterFactory metadataWriterFactory;
-    private final UnifiedFileMoveService unifiedFileMoveService;
+    private final FileMoveService fileMoveService;
+    private final BookRepository bookRepository;
 
 
     @Transactional
@@ -70,7 +64,13 @@ public class MetadataManagementService {
                 });
 
                 if (moveFile) {
-                    unifiedFileMoveService.moveSingleBookFile(metadata.getBook());
+                    BookEntity book = metadata.getBook();
+                    FileMoveResult result = fileMoveService.moveSingleFile(book);
+                    if (result.isMoved()) {
+                        book.setFileName(result.getNewFileName());
+                        book.setFileSubPath(result.getNewFileSubPath());
+                        bookRepository.saveAndFlush(book);
+                    }
                 }
             }
         }

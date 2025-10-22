@@ -7,6 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum Topic {
     BOOK_ADD("/queue/book-add"),
+    BOOK_UPDATE("/queue/book-update"),
     BOOKS_REMOVE("/queue/books-remove"),
     BOOK_METADATA_UPDATE("/queue/book-metadata-update"),
     BOOK_METADATA_BATCH_UPDATE("/queue/book-metadata-batch-update"),

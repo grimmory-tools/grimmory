@@ -8,6 +8,7 @@ export interface FileMoveRequest {
   moves: {
     bookId: number;
     targetLibraryId: number | null;
+    targetLibraryPathId: number | null;
   }[];
 }
 

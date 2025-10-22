@@ -4,6 +4,7 @@ import com.adityachandel.booklore.model.MetadataClearFlags;
 import com.adityachandel.booklore.model.MetadataUpdateContext;
 import com.adityachandel.booklore.model.MetadataUpdateWrapper;
 import com.adityachandel.booklore.model.dto.BookMetadata;
+import com.adityachandel.booklore.model.dto.FileMoveResult;
 import com.adityachandel.booklore.model.dto.settings.MetadataPersistenceSettings;
 import com.adityachandel.booklore.model.entity.*;
 import com.adityachandel.booklore.model.enums.BookFileType;
@@ -15,7 +16,7 @@ import com.adityachandel.booklore.repository.MoodRepository;
 import com.adityachandel.booklore.repository.TagRepository;
 import com.adityachandel.booklore.service.FileFingerprint;
 import com.adityachandel.booklore.service.appsettings.AppSettingService;
-import com.adityachandel.booklore.service.file.UnifiedFileMoveService;
+import com.adityachandel.booklore.service.file.FileMoveService;
 import com.adityachandel.booklore.service.metadata.writer.MetadataWriterFactory;
 import com.adityachandel.booklore.util.FileService;
 import com.adityachandel.booklore.util.MetadataChangeDetector;
@@ -52,7 +53,7 @@ public class BookMetadataUpdater {
     private final AppSettingService appSettingService;
     private final MetadataWriterFactory metadataWriterFactory;
     private final BookReviewUpdateService bookReviewUpdateService;
-    private final UnifiedFileMoveService unifiedFileMoveService;
+    private final FileMoveService fileMoveService;
 
     @Transactional
     public void setBookMetadata(MetadataUpdateContext context) {
@@ -117,34 +118,13 @@ public class BookMetadataUpdater {
                 metadataWriterFactory.getWriter(bookType).ifPresent(writer -> {
                     try {
                         String thumbnailUrl = updateThumbnail ? newMetadata.getThumbnailUrl() : null;
-
                         if ((StringUtils.hasText(thumbnailUrl) && isLocalOrPrivateUrl(thumbnailUrl) || Boolean.TRUE.equals(metadata.getCoverLocked()))) {
                             log.debug("Blocked local/private thumbnail URL: {}", thumbnailUrl);
                             thumbnailUrl = null;
                         }
-
                         File file = new File(bookEntity.getFullFilePath().toUri());
                         writer.writeMetadataToFile(file, metadata, thumbnailUrl, clearFlags);
-
-                        String newHash;
-
-                        // Special handling: If original file was .cbr or .cb7 and now .cbz exists, update to .cbz
-                        File resultingFile = file;
-                        if (!file.exists()) {
-                            // Replace last extension .cbr or .cb7 (case-insensitive) with .cbz
-                            String cbzName = file.getName().replaceFirst("(?i)\\.(cbr|cb7)$", ".cbz");
-                            File cbzFile = new File(file.getParentFile(), cbzName);
-                            if (cbzFile.exists()) {
-                                bookEntity.setFileName(cbzName);
-                                resultingFile = cbzFile;
-                            }
-                            bookEntity.setFileSizeKb(resultingFile.length() / 1024);
-                            log.info("Converted to CBZ: {} -> {}", file.getAbsolutePath(), resultingFile.getAbsolutePath());
-                            newHash = FileFingerprint.generateHash(resultingFile.toPath());
-                        } else {
-                            newHash = FileFingerprint.generateHash(bookEntity.getFullFilePath());
-                        }
-
+                        String newHash = FileFingerprint.generateHash(bookEntity.getFullFilePath());
                         bookEntity.setCurrentHash(newHash);
                     } catch (Exception e) {
                         log.warn("Failed to write metadata for book ID {}: {}", bookId, e.getMessage());
@@ -156,13 +136,17 @@ public class BookMetadataUpdater {
         boolean moveFilesToLibraryPattern = settings.isMoveFilesToLibraryPattern();
         if (moveFilesToLibraryPattern) {
             try {
-                unifiedFileMoveService.moveSingleBookFile(bookEntity);
+                BookEntity book = metadata.getBook();
+                FileMoveResult result = fileMoveService.moveSingleFile(book);
+                if (result.isMoved()) {
+                    book.setFileName(result.getNewFileName());
+                    book.setFileSubPath(result.getNewFileSubPath());
+                }
             } catch (Exception e) {
                 log.warn("Failed to move files for book ID {} after metadata update: {}", bookId, e.getMessage());
             }
         }
     }
-
 
     private void updateBasicFields(BookMetadata m, BookMetadataEntity e, MetadataClearFlags clear, MetadataReplaceMode replaceMode) {
         handleFieldUpdate(e.getTitleLocked(), clear.isTitle(), m.getTitle(), v -> e.setTitle(nullIfBlank(v)), e::getTitle, replaceMode);

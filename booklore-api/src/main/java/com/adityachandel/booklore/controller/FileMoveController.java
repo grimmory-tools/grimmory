@@ -18,7 +18,7 @@ public class FileMoveController {
 
     @PostMapping("/move")
     public ResponseEntity<?> moveFiles(@RequestBody FileMoveRequest request) {
-        fileMoveService.moveFiles(request);
+        fileMoveService.bulkMoveFiles(request);
         return ResponseEntity.ok().build();
     }
 }
