@@ -9,4 +9,6 @@ public class KoboSyncSettings {
     private String userId;
     private String token;
     private boolean syncEnabled;
+    private Float progressMarkAsReadingThreshold;
+    private Float progressMarkAsFinishedThreshold;
 }

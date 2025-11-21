@@ -1,14 +1,20 @@
 package com.adityachandel.booklore.service.kobo;
 
+import com.adityachandel.booklore.config.security.service.AuthenticationService;
+import com.adityachandel.booklore.mapper.KoboReadingStateMapper;
+import com.adityachandel.booklore.model.dto.BookLoreUser;
 import com.adityachandel.booklore.model.dto.kobo.*;
 import com.adityachandel.booklore.model.dto.settings.KoboSettings;
 import com.adityachandel.booklore.model.entity.AuthorEntity;
 import com.adityachandel.booklore.model.entity.BookEntity;
 import com.adityachandel.booklore.model.entity.BookMetadataEntity;
 import com.adityachandel.booklore.model.entity.CategoryEntity;
+import com.adityachandel.booklore.model.entity.UserBookProgressEntity;
 import com.adityachandel.booklore.model.enums.BookFileType;
 import com.adityachandel.booklore.model.enums.KoboBookFormat;
 import com.adityachandel.booklore.model.enums.KoboReadStatus;
+import com.adityachandel.booklore.repository.KoboReadingStateRepository;
+import com.adityachandel.booklore.repository.UserBookProgressRepository;
 import com.adityachandel.booklore.service.book.BookQueryService;
 import com.adityachandel.booklore.service.appsettings.AppSettingService;
 import com.adityachandel.booklore.util.kobo.KoboUrlBuilder;
@@ -32,6 +38,11 @@ public class KoboEntitlementService {
     private final KoboUrlBuilder koboUrlBuilder;
     private final BookQueryService bookQueryService;
     private final AppSettingService appSettingService;
+    private final UserBookProgressRepository progressRepository;
+    private final KoboReadingStateRepository readingStateRepository;
+    private final KoboReadingStateMapper readingStateMapper;
+    private final AuthenticationService authenticationService;
+    private final KoboReadingStateBuilder readingStateBuilder;
 
     public List<NewEntitlement> generateNewEntitlements(Set<Long> bookIds, String token, boolean removed) {
         List<BookEntity> books = bookQueryService.findAllWithMetadataByIds(bookIds);
@@ -79,9 +90,25 @@ public class KoboEntitlementService {
     private KoboReadingState createInitialReadingState(BookEntity book) {
         OffsetDateTime now = getCurrentUtc();
         OffsetDateTime createdOn = getCreatedOn(book);
+        String entitlementId = String.valueOf(book.getId());
+        
+        KoboReadingState existingState = readingStateRepository.findByEntitlementId(entitlementId)
+                .map(readingStateMapper::toDto)
+                .orElse(null);
+        
+        KoboReadingState.CurrentBookmark bookmark;
+        if (existingState != null && existingState.getCurrentBookmark() != null) {
+            bookmark = existingState.getCurrentBookmark();
+        } else {
+            bookmark = progressRepository
+                    .findByUserIdAndBookId(authenticationService.getAuthenticatedUser().getId(), book.getId())
+                    .filter(progress -> progress.getKoboProgressPercent() != null)
+                    .map(progress -> readingStateBuilder.buildBookmarkFromProgress(progress, now))
+                    .orElseGet(() -> readingStateBuilder.buildEmptyBookmark(now));
+        }
 
         return KoboReadingState.builder()
-                .entitlementId(String.valueOf(book.getId()))
+                .entitlementId(entitlementId)
                 .created(createdOn.toString())
                 .lastModified(now.toString())
                 .statusInfo(KoboReadingState.StatusInfo.builder()
@@ -89,9 +116,7 @@ public class KoboEntitlementService {
                         .status(KoboReadStatus.READY_TO_READ)
                         .timesStartedReading(0)
                         .build())
-                .currentBookmark(KoboReadingState.CurrentBookmark.builder()
-                        .lastModified(now.toString())
-                        .build())
+                .currentBookmark(bookmark)
                 .statistics(KoboReadingState.Statistics.builder()
                         .lastModified(now.toString())
                         .build())

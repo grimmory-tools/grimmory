@@ -47,4 +47,15 @@ public class KoboSettingsController {
         koboService.setSyncEnabled(enabled);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(summary = "Update progress thresholds", description = "Update the progress thresholds for marking books as reading or finished. Requires sync permission or admin.")
+    @ApiResponse(responseCode = "200", description = "Thresholds updated successfully")
+    @PutMapping("/progress-thresholds")
+    @PreAuthorize("@securityUtil.canSyncKobo() or @securityUtil.isAdmin()")
+    public ResponseEntity<KoboSyncSettings> updateProgressThresholds(
+            @Parameter(description = "Progress percentage to mark as reading (0-100)") @RequestParam(required = false) Float readingThreshold,
+            @Parameter(description = "Progress percentage to mark as finished (0-100)") @RequestParam(required = false) Float finishedThreshold) {
+        KoboSyncSettings updated = koboService.updateProgressThresholds(readingThreshold, finishedThreshold);
+        return ResponseEntity.ok(updated);
+    }
 }

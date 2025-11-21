@@ -37,6 +37,7 @@ export interface Book extends FileInfo {
   pdfProgress?: PdfProgress;
   cbxProgress?: CbxProgress;
   koreaderProgress?: KoReaderProgress;
+  koboProgress?: KoboProgress;
   seriesCount?: number | null;
   metadataMatchScore?: number | null;
   readStatus?: ReadStatus;
@@ -62,6 +63,10 @@ export interface CbxProgress {
 }
 
 export interface KoReaderProgress {
+  percentage: number;
+}
+
+export interface KoboProgress {
   percentage: number;
 }
 

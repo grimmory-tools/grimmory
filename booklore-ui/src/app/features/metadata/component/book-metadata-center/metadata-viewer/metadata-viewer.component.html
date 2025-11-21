@@ -364,6 +364,28 @@
                 </span>
                 </p>
               }
+              @if (book?.koboProgress && book.koboProgress?.percentage != null) {
+                <p class="whitespace-nowrap flex items-center">
+                  <span class="font-bold mr-2">Kobo Progress:</span>
+                  <span class="inline-flex items-center">
+                    <app-tag size="3xs" variant="pill" [color]="getKoProgressColor(book.koboProgress?.percentage)">
+                      {{ book.koboProgress?.percentage | number:'1.0-1' }}%
+                    </app-tag>
+                    @if (book.koboProgress?.percentage !== null) {
+                      <p-button
+                        pTooltip="Reset progress"
+                        tooltipPosition="bottom"
+                        icon="pi pi-refresh"
+                        size="small"
+                        severity="danger"
+                        text
+                        class="ml-1 custom-button-padding"
+                        (onClick)="resetProgress(book, ResetProgressTypes.KOBO)">
+                    </p-button>
+                    }
+                </span>
+                </p>
+              }
               @if (selectedReadStatus === ReadStatus.READ) {
                 <div>
                   @if (book?.dateFinished) {

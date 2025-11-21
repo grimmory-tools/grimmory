@@ -31,6 +31,7 @@ public class Book {
     private EpubProgress epubProgress;
     private CbxProgress cbxProgress;
     private KoProgress koreaderProgress;
+    private KoboProgress koboProgress;
     private Set<Shelf> shelves;
     private String readStatus;
     private Instant dateFinished;

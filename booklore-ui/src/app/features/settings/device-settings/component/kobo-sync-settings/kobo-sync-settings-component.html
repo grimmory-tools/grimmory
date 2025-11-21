@@ -100,6 +100,54 @@
                   </p-button>
                 </div>
               </div>
+
+              <div class="setting-item">
+                <div class="setting-info">
+                  <div class="setting-label-row">
+                    <label class="setting-label">Mark as Reading at: {{ koboSyncSettings.progressMarkAsReadingThreshold?.toFixed(0) }}%</label>
+                    <div class="slider-container">
+                      <p-slider
+                        id="markAsReadingThreshold"
+                        name="markAsReadingThreshold"
+                        [(ngModel)]="koboSyncSettings.progressMarkAsReadingThreshold"
+                        [min]="1"
+                        [max]="10"
+                        [step]="1"
+                        (ngModelChange)="onProgressThresholdsChange()">
+                      </p-slider>
+                    </div>
+                  </div>
+                  <p class="setting-description">
+                    Books are marked as "Reading" when progress exceeds this percentage. This helps automatically track which books you've started.
+                    <br>
+                    <strong>Recommended:</strong> 1% (default) - marks as reading after the first page or two.
+                  </p>
+                </div>
+              </div>
+
+              <div class="setting-item">
+                <div class="setting-info">
+                  <div class="setting-label-row">
+                    <label class="setting-label">Mark as Finished at: {{ koboSyncSettings.progressMarkAsFinishedThreshold?.toFixed(0) }}%</label>
+                    <div class="slider-container">
+                      <p-slider
+                        id="markAsFinishedThreshold"
+                        name="markAsFinishedThreshold"
+                        [(ngModel)]="koboSyncSettings.progressMarkAsFinishedThreshold"
+                        [min]="90"
+                        [max]="100"
+                        [step]="1"
+                        (ngModelChange)="onProgressThresholdsChange()">
+                      </p-slider>
+                    </div>
+                  </div>
+                  <p class="setting-description">
+                    Books are marked as "Finished" when progress reaches this percentage. Accounts for books where the last few pages are acknowledgments or index.
+                    <br>
+                    <strong>Recommended:</strong> 99% (default) - marks as finished when nearly complete.
+                  </p>
+                </div>
+              </div>
             }
           </form>
         </div>

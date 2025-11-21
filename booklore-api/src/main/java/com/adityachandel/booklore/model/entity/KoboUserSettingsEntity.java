@@ -24,4 +24,10 @@ public class KoboUserSettingsEntity {
 
     @Column(name = "sync_enabled")
     private boolean syncEnabled = true;
+
+    @Column(name = "progress_mark_as_reading_threshold")
+    private Float progressMarkAsReadingThreshold = 1f;
+
+    @Column(name = "progress_mark_as_finished_threshold")
+    private Float progressMarkAsFinishedThreshold = 99f;
 }

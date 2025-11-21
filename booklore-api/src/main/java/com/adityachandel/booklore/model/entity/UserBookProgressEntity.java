@@ -60,6 +60,18 @@ public class UserBookProgressEntity {
     @Column(name = "koreader_device_id", length = 100)
     private String koreaderDeviceId;
 
+    @Column(name = "kobo_progress_percent")
+    private Float koboProgressPercent;
+
+    @Column(name = "kobo_location", length = 1000)
+    private String koboLocation;
+
+    @Column(name = "kobo_location_type", length = 50)
+    private String koboLocationType;
+
+    @Column(name = "kobo_location_source", length = 50)
+    private String koboLocationSource;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "read_status")
     private ReadStatus readStatus;
@@ -69,4 +81,7 @@ public class UserBookProgressEntity {
 
     @Column(name = "koreader_last_sync_time")
     private Instant koreaderLastSyncTime;
+
+    @Column(name = "kobo_last_sync_time")
+    private Instant koboLastSyncTime;
 }
