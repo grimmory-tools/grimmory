@@ -18,6 +18,7 @@ import {DialogService} from "primeng/dynamicdialog";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {MetadataRefreshType} from "../../../model/request/metadata-refresh-type.enum";
 import {AutoComplete} from "primeng/autocomplete";
+import {DatePicker} from "primeng/datepicker";
 import {Textarea} from "primeng/textarea";
 import {IftaLabel} from "primeng/iftalabel";
 import {Image} from "primeng/image";
@@ -41,6 +42,7 @@ import {TaskHelperService} from '../../../../settings/task-management/task-helpe
     ProgressSpinner,
     Tooltip,
     AutoComplete,
+    DatePicker,
     Textarea,
     IftaLabel,
     Image,

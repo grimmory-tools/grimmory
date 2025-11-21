@@ -91,7 +91,19 @@
             <label for="clearPublishedDate" class="text-sm text-gray-300 cursor-pointer">Clear</label>
           </div>
         </label>
-        <p-datepicker id="publishedDate" formControlName="publishedDate" [disabled]="clearFields.publishedDate" dateFormat="yy-mm-dd" showIcon></p-datepicker>
+        <p-datepicker
+          class="w-full md:min-w-[9rem]"
+          formControlName="publishedDate"
+          inputId="publishedDate"
+          dataType="string"
+          dateFormat="yy-mm-dd"
+          [disabled]="clearFields.publishedDate"
+          [keepInvalid]="true"
+          [showIcon]="true"
+          [iconDisplay]="'input'"
+          fluid="true"
+          appendTo="body">
+        </p-datepicker>
       </div>
 
       <!-- Series Total -->

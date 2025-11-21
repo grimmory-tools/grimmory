@@ -287,7 +287,19 @@
             <div class="flex flex-col gap-1 md:basis-[15%]">
               <label class="text-sm" for="publishedDate">Publish Date</label>
               <div class="flex justify-between items-center gap-2">
-                <input pSize="small" pInputText id="publishedDate" formControlName="publishedDate" placeholder="YYYY-MM-DD" class="w-full min-w-32"/>
+                <p-datepicker
+                  class="w-full md:min-w-[9rem]"
+                  size="small"
+                  formControlName="publishedDate"
+                  inputId="publishedDate"
+                  dataType="string"
+                  dateFormat="yy-mm-dd"
+                  [keepInvalid]="true"
+                  [showIcon]="true"
+                  [iconDisplay]="'input'"
+                  fluid="true"
+                  appendTo="body">
+                </p-datepicker>
                 @if (!book.metadata!['publishedDateLocked']) {
                   <p-button size="small" icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('publishedDate')" severity="success"></p-button>
                 }
