@@ -77,15 +77,15 @@ class BookdropMetadataServiceTest {
 
         when(bookdropFileRepository.findById(1L)).thenReturn(Optional.of(sampleFile));
         when(metadataExtractorFactory.extractMetadata(eq(BookFileExtension.EPUB), any(File.class))).thenReturn(metadata);
-        when(objectMapper.writeValueAsString(metadata)).thenReturn("{\"title\":\"Test Book\"}");
-        when(bookdropFileRepository.save(any())).thenReturn(sampleFile);
+        when(objectMapper.writeValueAsString(any(BookMetadata.class))).thenReturn("{\"title\":\"Test Book\"}");
+        when(bookdropFileRepository.save(any(BookdropFileEntity.class))).thenReturn(sampleFile);
 
         BookdropFileEntity result = bookdropMetadataService.attachInitialMetadata(1L);
 
         assertThat(result).isNotNull();
         assertThat(result.getOriginalMetadata()).contains("Test Book");
         assertThat(result.getUpdatedAt()).isBeforeOrEqualTo(Instant.now());
-        verify(bookdropFileRepository).save(result);
+        verify(bookdropFileRepository).save(any(BookdropFileEntity.class));
     }
 
     @Test
@@ -129,7 +129,6 @@ class BookdropMetadataServiceTest {
         BookdropFileEntity result = bookdropMetadataService.attachInitialMetadata(1L);
 
         assertThat(result.getOriginalMetadata()).contains("No Cover Book");
-        verify(fileService, never()).saveImage(any(), any());
         verify(bookdropFileRepository).save(result);
     }
 

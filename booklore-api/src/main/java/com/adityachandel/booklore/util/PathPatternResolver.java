@@ -4,35 +4,38 @@ import com.adityachandel.booklore.model.dto.BookMetadata;
 import com.adityachandel.booklore.model.entity.AuthorEntity;
 import com.adityachandel.booklore.model.entity.BookEntity;
 import com.adityachandel.booklore.model.entity.BookMetadataEntity;
+import lombok.experimental.UtilityClass;
 
 import java.time.LocalDate;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@UtilityClass
 public class PathPatternResolver {
 
-    private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
-    private static final Pattern FILE_EXTENSION_PATTERN = Pattern.compile(".*\\.[a-zA-Z0-9]+$");
-    private static final Pattern CONTROL_CHARACTER_PATTERN = Pattern.compile("[\\p{Cntrl}]");
-    private static final Pattern INVALID_CHARS_PATTERN = Pattern.compile("[\\\\/:*?\"<>|]");
+    private final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
+    private final Pattern FILE_EXTENSION_PATTERN = Pattern.compile(".*\\.[a-zA-Z0-9]+$");
+    private final Pattern CONTROL_CHARACTER_PATTERN = Pattern.compile("[\\p{Cntrl}]");
+    private final Pattern INVALID_CHARS_PATTERN = Pattern.compile("[\\\\/:*?\"<>|]");
+    private final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\{(.*?)}");
 
-    public static String resolvePattern(BookEntity book, String pattern) {
+    public String resolvePattern(BookEntity book, String pattern) {
         String currentFilename = book.getFileName() != null ? book.getFileName().trim() : "";
         return resolvePattern(book.getMetadata(), pattern, currentFilename);
     }
 
-    public static String resolvePattern(BookMetadata metadata, String pattern, String filename) {
+    public String resolvePattern(BookMetadata metadata, String pattern, String filename) {
         MetadataProvider metadataProvider = MetadataProvider.from(metadata);
         return resolvePattern(metadataProvider, pattern, filename);
     }
 
-    public static String resolvePattern(BookMetadataEntity metadata, String pattern, String filename) {
+    public String resolvePattern(BookMetadataEntity metadata, String pattern, String filename) {
         MetadataProvider metadataProvider = MetadataProvider.from(metadata);
         return resolvePattern(metadataProvider, pattern, filename);
     }
 
-    private static String resolvePattern(MetadataProvider metadata, String pattern, String filename) {
+    private String resolvePattern(MetadataProvider metadata, String pattern, String filename) {
         if (pattern == null || pattern.isBlank()) {
             return filename;
         }
@@ -89,7 +92,7 @@ public class PathPatternResolver {
         return resolvePatternWithValues(pattern, values, filename);
     }
 
-    private static String resolvePatternWithValues(String pattern, Map<String, String> values, String currentFilename) {
+    private String resolvePatternWithValues(String pattern, Map<String, String> values, String currentFilename) {
         String extension = "";
         int lastDot = currentFilename.lastIndexOf('.');
         if (lastDot >= 0 && lastDot < currentFilename.length() - 1) {
@@ -105,7 +108,7 @@ public class PathPatternResolver {
 
         while (matcher.find()) {
             String block = matcher.group(1);
-            Matcher placeholderMatcher = Pattern.compile("\\{(.*?)}").matcher(block);
+            Matcher placeholderMatcher = PLACEHOLDER_PATTERN.matcher(block);
             boolean allHaveValues = true;
 
             // Check if all placeholders inside optional block have non-blank values
@@ -133,8 +136,7 @@ public class PathPatternResolver {
         String result = resolved.toString();
 
         // Replace known placeholders with values, preserve unknown ones
-        Pattern placeholderPattern = Pattern.compile("\\{(.*?)}");
-        Matcher placeholderMatcher = placeholderPattern.matcher(result);
+        Matcher placeholderMatcher = PLACEHOLDER_PATTERN.matcher(result);
         StringBuilder finalResult = new StringBuilder();
 
         while (placeholderMatcher.find()) {
@@ -165,7 +167,7 @@ public class PathPatternResolver {
         return result;
     }
 
-    private static String sanitize(String input) {
+    private String sanitize(String input) {
         if (input == null) return "";
         return WHITESPACE_PATTERN.matcher(CONTROL_CHARACTER_PATTERN.matcher(INVALID_CHARS_PATTERN.matcher(input).replaceAll("")).replaceAll("")).replaceAll(" ")
                 .trim();

@@ -3,14 +3,16 @@ package com.adityachandel.booklore.util;
 import com.adityachandel.booklore.model.MetadataClearFlags;
 import com.adityachandel.booklore.model.dto.BookMetadata;
 import com.adityachandel.booklore.model.entity.*;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
-import java.util.function.Supplier;
+import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 
+@UtilityClass
 @Slf4j
 public class MetadataChangeDetector {
 
@@ -54,12 +56,8 @@ public class MetadataChangeDetector {
             changes.add("cover lock: [" + isTrue(coverLockedExisting) + "] → [" + isTrue(coverLockedNew) + "]");
         }
 
-        if (!changes.isEmpty()) {
-            /*changes.forEach(change -> log.info("Metadata change: {}", change));*/
-            return true;
-        }
-
-        return false;
+        /*changes.forEach(change -> log.info("Metadata change: {}", change));*/
+        return !changes.isEmpty();
     }
 
     public static boolean hasValueChanges(BookMetadata newMeta, BookMetadataEntity existingMeta, MetadataClearFlags clear) {
@@ -119,7 +117,7 @@ public class MetadataChangeDetector {
         return !diffs.isEmpty();
     }
 
-    private static void compare(List<String> diffs, String field, boolean shouldClear, Object newVal, Object oldVal, Supplier<Boolean> isUnlocked, Boolean newLock, Boolean oldLock) {
+    private static void compare(List<String> diffs, String field, boolean shouldClear, Object newVal, Object oldVal, BooleanSupplier isUnlocked, Boolean newLock, Boolean oldLock) {
         boolean valueChanged = differs(shouldClear, newVal, oldVal, isUnlocked);
         boolean lockChanged = differsLock(newLock, oldLock);
 
@@ -133,18 +131,18 @@ public class MetadataChangeDetector {
     }
 
     private static <T> void compareValue(List<String> diffs,
-                                         String field,
-                                         boolean shouldClear,
-                                         T newVal,
-                                         T oldVal,
-                                         Supplier<Boolean> isUnlocked) {
+                                  String field,
+                                  boolean shouldClear,
+                                  T newVal,
+                                  T oldVal,
+                                  BooleanSupplier isUnlocked) {
         if (differs(shouldClear, newVal, oldVal, isUnlocked)) {
             diffs.add(field + " changed");
         }
     }
 
-    private static boolean differs(boolean shouldClear, Object newVal, Object oldVal, Supplier<Boolean> isUnlocked) {
-        if (!isUnlocked.get()) return false;
+    private static boolean differs(boolean shouldClear, Object newVal, Object oldVal, BooleanSupplier isUnlocked) {
+        if (!isUnlocked.getAsBoolean()) return false;
 
         Object normNew = normalize(newVal);
         Object normOld = normalize(oldVal);

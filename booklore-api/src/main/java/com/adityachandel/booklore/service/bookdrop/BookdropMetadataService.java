@@ -4,7 +4,6 @@ import com.adityachandel.booklore.exception.ApiError;
 import com.adityachandel.booklore.model.dto.Book;
 import com.adityachandel.booklore.model.dto.BookMetadata;
 import com.adityachandel.booklore.model.dto.request.MetadataRefreshOptions;
-import com.adityachandel.booklore.model.dto.request.MetadataRefreshRequest;
 import com.adityachandel.booklore.model.dto.settings.AppSettings;
 import com.adityachandel.booklore.model.entity.BookdropFileEntity;
 import com.adityachandel.booklore.model.enums.BookFileExtension;
@@ -106,7 +105,7 @@ public class BookdropMetadataService {
         byte[] coverBytes = metadataExtractorFactory.extractCover(fileExt, file);
         if (coverBytes != null) {
             try {
-                fileService.saveImage(coverBytes, fileService.getTempBookdropCoverImagePath(entity.getId()));
+                FileService.saveImage(coverBytes, fileService.getTempBookdropCoverImagePath(entity.getId()));
             } catch (IOException e) {
                 log.warn("Failed to save extracted cover for file: {}", entity.getFilePath(), e);
             }

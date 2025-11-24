@@ -1,12 +1,14 @@
 package com.adityachandel.booklore.util;
 
+import lombok.experimental.UtilityClass;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+@UtilityClass
 public class SecurityContextVirtualThread {
 
-    public static void runWithSecurityContext(Runnable task) {
+    public void runWithSecurityContext(Runnable task) {
         Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
 
         Thread.startVirtualThread(() -> {
@@ -21,7 +23,7 @@ public class SecurityContextVirtualThread {
         });
     }
 
-    public static void runWithSecurityContext(SecurityContext parentContext, Runnable task) {
+    public void runWithSecurityContext(SecurityContext parentContext, Runnable task) {
         Thread.startVirtualThread(() -> {
             SecurityContext context = SecurityContextHolder.createEmptyContext();
             context.setAuthentication(parentContext.getAuthentication());

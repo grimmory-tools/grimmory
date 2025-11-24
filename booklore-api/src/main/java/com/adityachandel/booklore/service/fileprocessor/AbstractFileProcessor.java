@@ -57,7 +57,7 @@ public abstract class AbstractFileProcessor implements BookFileProcessor {
         String fileName = path.getFileName().toString();
         String hash = FileFingerprint.generateHash(path);
 
-        Optional<Book> duplicate = fileService.checkForDuplicateAndUpdateMetadataIfNeeded(libraryFile, hash, bookRepository, bookAdditionalFileRepository, bookMapper);
+        Optional<Book> duplicate = fileService.checkForDuplicateAndUpdateMetadataIfNeeded(libraryFile, hash);
 
         if (duplicate.isPresent()) {
             return handleDuplicate(duplicate.get(), libraryFile, hash);

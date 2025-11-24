@@ -53,7 +53,7 @@ public class PdfProcessor extends AbstractFileProcessor implements BookFileProce
     public BookEntity processNewFile(LibraryFile libraryFile) {
         BookEntity bookEntity = bookCreatorService.createShellBook(libraryFile, BookFileType.PDF);
         if (generateCover(bookEntity)) {
-            fileService.setBookCoverPath(bookEntity.getMetadata());
+            FileService.setBookCoverPath(bookEntity.getMetadata());
         }
         extractAndSetMetadata(bookEntity);
         return bookEntity;

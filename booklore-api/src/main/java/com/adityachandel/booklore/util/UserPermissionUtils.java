@@ -2,7 +2,9 @@ package com.adityachandel.booklore.util;
 
 import com.adityachandel.booklore.model.entity.UserPermissionsEntity;
 import com.adityachandel.booklore.model.enums.PermissionType;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public class UserPermissionUtils {
 
     public static boolean hasPermission(UserPermissionsEntity perms, PermissionType type) {

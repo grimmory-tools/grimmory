@@ -50,6 +50,9 @@ import java.util.stream.Stream;
 public class FileService {
 
     private final AppProperties appProperties;
+    private final BookRepository bookRepository;
+    private final BookAdditionalFileRepository bookAdditionalFileRepository;
+    private final BookMapper bookMapper;
     private final RestTemplate restTemplate;
 
     // @formatter:off
@@ -92,7 +95,7 @@ public class FileService {
         return getBackgroundsFolder(null);
     }
 
-    public String getBackgroundUrl(String filename, Long userId) {
+    public static String getBackgroundUrl(String filename, Long userId) {
         if (userId != null) {
             return Paths.get("/", BACKGROUNDS_DIR, "user-" + userId, filename).toString().replace("\\", "/");
         }
@@ -123,7 +126,7 @@ public class FileService {
     // VALIDATION
     // ========================================
 
-    private void validateCoverFile(MultipartFile file) {
+    private static void validateCoverFile(MultipartFile file) {
         if (file.isEmpty()) {
             throw new IllegalArgumentException("Uploaded file is empty");
         }
@@ -140,7 +143,7 @@ public class FileService {
     // IMAGE OPERATIONS
     // ========================================
 
-    public BufferedImage resizeImage(BufferedImage originalImage, int width, int height) {
+    public static BufferedImage resizeImage(BufferedImage originalImage, int width, int height) {
         Image tmp = originalImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
         BufferedImage resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = resizedImage.createGraphics();
@@ -149,7 +152,7 @@ public class FileService {
         return resizedImage;
     }
 
-    public void saveImage(byte[] imageData, String filePath) throws IOException {
+    public static void saveImage(byte[] imageData, String filePath) throws IOException {
         BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(imageData));
         File outputFile = new File(filePath);
         File parentDir = outputFile.getParentFile();
@@ -160,7 +163,7 @@ public class FileService {
         log.info("Image saved successfully to: {}", filePath);
     }
 
-    public BufferedImage downloadImageFromUrl(String imageUrl) throws IOException {
+    public static BufferedImage downloadImageFromUrl(String imageUrl) throws IOException {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.set(HttpHeaders.USER_AGENT, "BookLore/1.0 (Metadata Fetcher)");
@@ -257,7 +260,7 @@ public class FileService {
         return originalSaved && thumbnailSaved;
     }
 
-    public void setBookCoverPath(BookMetadataEntity bookMetadataEntity) {
+    public static void setBookCoverPath(BookMetadataEntity bookMetadataEntity) {
         bookMetadataEntity.setCoverUpdatedOn(Instant.now());
     }
 
@@ -372,7 +375,7 @@ public class FileService {
     // ========================================
 
     @Transactional
-    public Optional<Book> checkForDuplicateAndUpdateMetadataIfNeeded(LibraryFile libraryFile, String hash, BookRepository bookRepository, BookAdditionalFileRepository bookAdditionalFileRepository, BookMapper bookMapper) {
+    public Optional<Book> checkForDuplicateAndUpdateMetadataIfNeeded(LibraryFile libraryFile, String hash) {
         if (StringUtils.isBlank(hash)) {
             log.warn("Skipping file due to missing hash: {}", libraryFile.getFullPath());
             return Optional.empty();
@@ -425,6 +428,8 @@ public class FileService {
     }
 
     public static String truncate(String input, int maxLength) {
-        return input == null ? null : (input.length() <= maxLength ? input : input.substring(0, maxLength));
+        if (input == null) return null;
+        if (maxLength <= 0) return "";
+        return input.length() <= maxLength ? input : input.substring(0, maxLength);
     }
 }

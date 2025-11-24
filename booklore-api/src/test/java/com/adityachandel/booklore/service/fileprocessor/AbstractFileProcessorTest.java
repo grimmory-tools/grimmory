@@ -76,10 +76,11 @@ class AbstractFileProcessorTest {
         Book duplicateBook = createMockBook(1L, "file.pdf");
 
         try (MockedStatic<FileFingerprint> fingerprintMock = mockStatic(FileFingerprint.class)) {
+            
             fingerprintMock.when(() -> FileFingerprint.generateHash(any())).thenReturn("hash1");
 
             when(fileService.checkForDuplicateAndUpdateMetadataIfNeeded(
-                    eq(libraryFile), eq("hash1"), eq(bookRepository), eq(bookAdditionalFileRepository), eq(bookMapper)))
+                    any(LibraryFile.class), any(String.class)))
                     .thenReturn(Optional.of(duplicateBook));
 
             BookEntity bookEntity = createMockBookEntity(1L, "file.pdf", "hash1", "sub", libraryFile.getLibraryPathEntity());
@@ -103,9 +104,11 @@ class AbstractFileProcessorTest {
         Book existingBook = createMockBook(2L, "file.pdf");
 
         try (MockedStatic<FileFingerprint> fingerprintMock = mockStatic(FileFingerprint.class)) {
+            
             fingerprintMock.when(() -> FileFingerprint.generateHash(any())).thenReturn("hash2");
 
-            when(fileService.checkForDuplicateAndUpdateMetadataIfNeeded(any(), any(), any(), any(), any()))
+            when(fileService.checkForDuplicateAndUpdateMetadataIfNeeded(
+                    any(LibraryFile.class), any(String.class)))
                     .thenReturn(Optional.empty());
             when(bookRepository.findBookByFileNameAndLibraryId("file.pdf", 1L))
                     .thenReturn(Optional.of(existingEntity));
@@ -129,9 +132,11 @@ class AbstractFileProcessorTest {
         Book newBook = createMockBook(3L, "file.pdf");
 
         try (MockedStatic<FileFingerprint> fingerprintMock = mockStatic(FileFingerprint.class)) {
+            
             fingerprintMock.when(() -> FileFingerprint.generateHash(any())).thenReturn("hash3");
 
-            when(fileService.checkForDuplicateAndUpdateMetadataIfNeeded(any(), any(), any(), any(), any()))
+            when(fileService.checkForDuplicateAndUpdateMetadataIfNeeded(
+                    any(LibraryFile.class), any(String.class)))
                     .thenReturn(Optional.empty());
             when(bookRepository.findBookByFileNameAndLibraryId("file.pdf", 1L))
                     .thenReturn(Optional.empty());
@@ -163,9 +168,11 @@ class AbstractFileProcessorTest {
         Book updatedBook = createMockBook(1L, "file.pdf");
 
         try (MockedStatic<FileFingerprint> fingerprintMock = mockStatic(FileFingerprint.class)) {
+            
             fingerprintMock.when(() -> FileFingerprint.generateHash(any())).thenReturn("hash1");
 
-            when(fileService.checkForDuplicateAndUpdateMetadataIfNeeded(any(), any(), any(), any(), any()))
+            when(fileService.checkForDuplicateAndUpdateMetadataIfNeeded(
+                    any(LibraryFile.class), any(String.class)))
                     .thenReturn(Optional.of(duplicateBook));
             when(bookRepository.findById(1L)).thenReturn(Optional.of(existingEntity));
             when(bookMapper.toBook(existingEntity)).thenReturn(updatedBook);
@@ -193,9 +200,11 @@ class AbstractFileProcessorTest {
         Book updatedBook = createMockBook(1L, "new-file.pdf");
 
         try (MockedStatic<FileFingerprint> fingerprintMock = mockStatic(FileFingerprint.class)) {
+            
             fingerprintMock.when(() -> FileFingerprint.generateHash(any())).thenReturn("hash1");
 
-            when(fileService.checkForDuplicateAndUpdateMetadataIfNeeded(any(), any(), any(), any(), any()))
+            when(fileService.checkForDuplicateAndUpdateMetadataIfNeeded(
+                    any(LibraryFile.class), any(String.class)))
                     .thenReturn(Optional.of(duplicateBook));
             when(bookRepository.findById(1L)).thenReturn(Optional.of(existingEntity));
             when(bookMapper.toBook(existingEntity)).thenReturn(updatedBook);
@@ -236,9 +245,11 @@ class AbstractFileProcessorTest {
         Book updatedBook = createMockBook(1L, "file.pdf");
 
         try (MockedStatic<FileFingerprint> fingerprintMock = mockStatic(FileFingerprint.class)) {
+            
             fingerprintMock.when(() -> FileFingerprint.generateHash(any())).thenReturn("hash1");
 
-            when(fileService.checkForDuplicateAndUpdateMetadataIfNeeded(any(), any(), any(), any(), any()))
+            when(fileService.checkForDuplicateAndUpdateMetadataIfNeeded(
+                    any(LibraryFile.class), any(String.class)))
                     .thenReturn(Optional.of(duplicateBook));
             when(bookRepository.findById(1L)).thenReturn(Optional.of(existingEntity));
             when(bookMapper.toBook(existingEntity)).thenReturn(updatedBook);
@@ -263,9 +274,11 @@ class AbstractFileProcessorTest {
         BookEntity existingEntity = createMockBookEntity(1L, "file.pdf", "hash1", "sub", libraryFile.getLibraryPathEntity());
 
         try (MockedStatic<FileFingerprint> fingerprintMock = mockStatic(FileFingerprint.class)) {
+            
             fingerprintMock.when(() -> FileFingerprint.generateHash(any())).thenReturn("hash1");
 
-            when(fileService.checkForDuplicateAndUpdateMetadataIfNeeded(any(), any(), any(), any(), any()))
+            when(fileService.checkForDuplicateAndUpdateMetadataIfNeeded(
+                    any(LibraryFile.class), any(String.class)))
                     .thenReturn(Optional.of(duplicateBook));
             when(bookRepository.findById(1L)).thenReturn(Optional.of(existingEntity));
 
@@ -288,9 +301,11 @@ class AbstractFileProcessorTest {
         Book duplicateBook = createMockBook(1L, "file.pdf");
 
         try (MockedStatic<FileFingerprint> fingerprintMock = mockStatic(FileFingerprint.class)) {
+            
             fingerprintMock.when(() -> FileFingerprint.generateHash(any())).thenReturn("hash1");
 
-            when(fileService.checkForDuplicateAndUpdateMetadataIfNeeded(any(), any(), any(), any(), any()))
+            when(fileService.checkForDuplicateAndUpdateMetadataIfNeeded(
+                    any(LibraryFile.class), any(String.class)))
                     .thenReturn(Optional.of(duplicateBook));
             when(bookRepository.findById(1L)).thenReturn(Optional.empty());
 
@@ -312,9 +327,11 @@ class AbstractFileProcessorTest {
         BookEntity existingEntity = createMockBookEntity(1L, "file.pdf", "old-hash", "sub", libraryFile.getLibraryPathEntity());
 
         try (MockedStatic<FileFingerprint> fingerprintMock = mockStatic(FileFingerprint.class)) {
+            
             fingerprintMock.when(() -> FileFingerprint.generateHash(any())).thenReturn("new-hash");
 
-            when(fileService.checkForDuplicateAndUpdateMetadataIfNeeded(any(), any(), any(), any(), any()))
+            when(fileService.checkForDuplicateAndUpdateMetadataIfNeeded(
+                    any(LibraryFile.class), any(String.class)))
                     .thenReturn(Optional.of(duplicateBook));
             when(bookRepository.findById(1L)).thenReturn(Optional.of(existingEntity));
             when(bookMapper.toBook(existingEntity)).thenReturn(duplicateBook);
@@ -350,9 +367,11 @@ class AbstractFileProcessorTest {
         Book newBook = createMockBook(3L, "file.pdf");
 
         try (MockedStatic<FileFingerprint> fingerprintMock = mockStatic(FileFingerprint.class)) {
+            
             fingerprintMock.when(() -> FileFingerprint.generateHash(any())).thenReturn("hash3");
 
-            when(fileService.checkForDuplicateAndUpdateMetadataIfNeeded(any(), any(), any(), any(), any()))
+            when(fileService.checkForDuplicateAndUpdateMetadataIfNeeded(
+                    any(LibraryFile.class), any(String.class)))
                     .thenReturn(Optional.empty());
             when(bookRepository.findBookByFileNameAndLibraryId("file.pdf", 1L))
                     .thenReturn(Optional.empty());
@@ -394,9 +413,11 @@ class AbstractFileProcessorTest {
         Book updatedBook = createMockBook(1L, "new-file.pdf");
 
         try (MockedStatic<FileFingerprint> fingerprintMock = mockStatic(FileFingerprint.class)) {
+            
             fingerprintMock.when(() -> FileFingerprint.generateHash(any())).thenReturn("hash1");
 
-            when(fileService.checkForDuplicateAndUpdateMetadataIfNeeded(any(), any(), any(), any(), any()))
+            when(fileService.checkForDuplicateAndUpdateMetadataIfNeeded(
+                    any(LibraryFile.class), any(String.class)))
                     .thenReturn(Optional.of(duplicateBook));
             when(bookRepository.findById(1L)).thenReturn(Optional.of(existingEntity));
             when(bookMapper.toBook(existingEntity)).thenReturn(updatedBook);
@@ -421,9 +442,11 @@ class AbstractFileProcessorTest {
         Book book = createMockBook(1L, "file.pdf");
 
         try (MockedStatic<FileFingerprint> fingerprintMock = mockStatic(FileFingerprint.class)) {
+            
             fingerprintMock.when(() -> FileFingerprint.generateHash(any())).thenReturn("hash1");
 
-            when(fileService.checkForDuplicateAndUpdateMetadataIfNeeded(any(), any(), any(), any(), any()))
+            when(fileService.checkForDuplicateAndUpdateMetadataIfNeeded(
+                    any(LibraryFile.class), any(String.class)))
                     .thenReturn(Optional.of(book));
             when(bookRepository.findById(1L)).thenReturn(Optional.of(
                     createMockBookEntity(1L, "file.pdf", "hash1", "sub", libraryFile.getLibraryPathEntity())));

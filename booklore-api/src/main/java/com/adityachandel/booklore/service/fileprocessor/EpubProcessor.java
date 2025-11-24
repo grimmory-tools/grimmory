@@ -54,7 +54,7 @@ public class EpubProcessor extends AbstractFileProcessor implements BookFileProc
         BookEntity bookEntity = bookCreatorService.createShellBook(libraryFile, BookFileType.EPUB);
         setBookMetadata(bookEntity);
         if (generateCover(bookEntity)) {
-            fileService.setBookCoverPath(bookEntity.getMetadata());
+            FileService.setBookCoverPath(bookEntity.getMetadata());
         }
         return bookEntity;
     }

@@ -50,6 +50,7 @@ public class BookloreSyncTokenGenerator {
     }
 
     public BookloreSyncToken fromRequestHeaders(HttpServletRequest request) {
+        if (request == null) return null;
         String tokenB64 = request.getHeader(KoboHeaders.X_KOBO_SYNCTOKEN);
         return tokenB64 != null ? fromBase64(tokenB64) : null;
     }

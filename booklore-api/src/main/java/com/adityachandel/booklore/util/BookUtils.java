@@ -1,7 +1,10 @@
 package com.adityachandel.booklore.util;
 
+import lombok.experimental.UtilityClass;
+
 import java.util.regex.Pattern;
 
+@UtilityClass
 public class BookUtils {
 
     private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
@@ -23,17 +26,25 @@ public class BookUtils {
     }
 
     public static String cleanAndTruncateSearchTerm(String term) {
+        if (term == null) {
+            return "";
+        }
         String s = term;
         s = SPECIAL_CHARACTERS_PATTERN.matcher(s).replaceAll("").trim();
+        s = WHITESPACE_PATTERN.matcher(s).replaceAll(" ");
         if (s.length() > 60) {
             String[] words = WHITESPACE_PATTERN.split(s);
-            StringBuilder truncated = new StringBuilder();
-            for (String word : words) {
-                if (truncated.length() + word.length() + 1 > 60) break;
-                if (!truncated.isEmpty()) truncated.append(" ");
-                truncated.append(word);
+            if (words.length > 1) {
+                StringBuilder truncated = new StringBuilder();
+                for (String word : words) {
+                    if (truncated.length() + word.length() + 1 > 60) break;
+                    if (!truncated.isEmpty()) truncated.append(" ");
+                    truncated.append(word);
+                }
+                s = truncated.toString();
+            } else {
+                s = s.substring(0, Math.min(60, s.length()));
             }
-            s = truncated.toString();
         }
         return s;
     }

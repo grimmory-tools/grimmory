@@ -2,6 +2,7 @@ package com.adityachandel.booklore.util.kobo;
 
 import com.adityachandel.booklore.util.RequestUtils;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,7 @@ import java.util.regex.Pattern;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class KoboUrlBuilder {
 
     private static final Pattern IP_ADDRESS_PATTERN = Pattern.compile("\\d+\\.\\d+\\.\\d+\\.\\d+");

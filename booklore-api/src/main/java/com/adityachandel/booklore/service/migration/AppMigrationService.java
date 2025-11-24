@@ -150,7 +150,7 @@ public class AppMigrationService {
                                     ImageIO.write(originalImage, "jpg", coverFile.toFile());
 
                                     // Resize and save thumbnail.jpg
-                                    BufferedImage resized = fileService.resizeImage(originalImage, 250, 350);
+                                    BufferedImage resized = FileService.resizeImage(originalImage, 250, 350);
                                     Path thumbnailFile = bookDir.resolve("thumbnail.jpg");
                                     ImageIO.write(resized, "jpg", thumbnailFile.toFile());
 
