@@ -25,5 +25,6 @@ public class KoboSnapshotBookEntity {
     private Long bookId;
 
     @Column(nullable = false)
+    @Builder.Default
     private boolean synced = false;
 }

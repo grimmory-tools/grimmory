@@ -28,12 +28,14 @@ public class KoreaderUserEntity {
     private String passwordMD5;
 
     @Column(name = "created_at", nullable = false, updatable = false)
+    @Builder.Default
     private Instant createdAt = Instant.now();
 
     @Column(name = "updated_at")
     private Instant updatedAt;
 
     @Column(name = "sync_enabled", nullable = false)
+    @Builder.Default
     private boolean syncEnabled = false;
 
     @OneToOne(fetch = FetchType.LAZY)

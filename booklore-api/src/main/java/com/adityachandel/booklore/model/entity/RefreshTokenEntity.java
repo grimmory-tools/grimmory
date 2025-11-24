@@ -29,6 +29,7 @@ public class RefreshTokenEntity {
     private Instant expiryDate;
 
     @Column(nullable = false)
+    @Builder.Default
     private boolean revoked = false;
 
     @Column(name = "revocation_date")

@@ -3,6 +3,7 @@ package com.adityachandel.booklore.service.metadata.extractor;
 import com.adityachandel.booklore.model.dto.BookMetadata;
 import com.adityachandel.booklore.util.FileUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.Loader;
@@ -73,7 +74,7 @@ public class PdfMetadataExtractor implements FileMetadataExtractor {
                 if (StringUtils.isNotBlank(info.getTitle())) {
                     metadataBuilder.title(info.getTitle());
                 } else {
-                    metadataBuilder.title(file.getName());
+                    metadataBuilder.title(FilenameUtils.getBaseName(file.getName()));
                 }
 
                 if (StringUtils.isNotBlank(info.getAuthor())) {

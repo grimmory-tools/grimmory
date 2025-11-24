@@ -37,9 +37,11 @@ public class MagicShelfEntity {
     private boolean isPublic = false;
 
     @Column(name = "created_at", nullable = false, updatable = false)
+    @lombok.Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updated_at", nullable = false)
+    @lombok.Builder.Default
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     @PreUpdate

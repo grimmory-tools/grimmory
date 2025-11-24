@@ -6,6 +6,7 @@ import io.documentnode.epub4j.epub.EpubReader;
 import lombok.extern.slf4j.Slf4j;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.model.FileHeader;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -201,7 +202,15 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
 
                     builderMeta.authors(authors);
                     builderMeta.categories(categories);
-                    return builderMeta.build();
+
+                    BookMetadata extractedMetadata = builderMeta.build();
+                    // Fallback to filename if no title found in EPUB metadata
+                    if (StringUtils.isBlank(extractedMetadata.getTitle())) {
+                        builderMeta.title(FilenameUtils.getBaseName(epubFile.getName()));
+                        extractedMetadata = builderMeta.build();
+                    }
+
+                    return extractedMetadata;
                 }
             }
 
