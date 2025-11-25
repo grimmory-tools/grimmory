@@ -26,13 +26,14 @@ export class TableColumnPreferenceService {
     {field: 'addedOn', header: 'Added'},
     {field: 'fileSizeKb', header: 'File Size'},
     {field: 'language', header: 'Language'},
+    {field: 'isbn', header: 'ISBN'},
     {field: 'pageCount', header: 'Pages'},
     {field: 'amazonRating', header: 'Amazon'},
     {field: 'amazonReviewCount', header: 'AZ #'},
     {field: 'goodreadsRating', header: 'Goodreads'},
     {field: 'goodreadsReviewCount', header: 'GR #'},
     {field: 'hardcoverRating', header: 'Hardcover'},
-    {field: 'hardcoverReviewCount', header: 'HC #'}
+    {field: 'hardcoverReviewCount', header: 'HC #'},
   ];
 
   private readonly fallbackPreferences: TableColumnPreference[] = this.allAvailableColumns.map((col, index) => ({

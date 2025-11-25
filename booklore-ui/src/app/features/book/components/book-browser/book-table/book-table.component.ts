@@ -47,8 +47,6 @@ export class BookTableComponent implements OnInit, OnDestroy, OnChanges {
   private bookService = inject(BookService);
   private messageService = inject(MessageService);
   private userService = inject(UserService);
-  private dialogService = inject(DialogService);
-  private router = inject(Router);
   private datePipe = inject(DatePipe);
   private readStatusHelper = inject(ReadStatusHelper);
 
@@ -68,6 +66,7 @@ export class BookTableComponent implements OnInit, OnDestroy, OnChanges {
     {field: 'addedOn', header: 'Added'},
     {field: 'fileSizeKb', header: 'File Size'},
     {field: 'language', header: 'Language'},
+    {field: 'isbn', header: 'ISBN'},
     {field: 'pageCount', header: 'Pages'},
     {field: 'amazonRating', header: 'Amazon'},
     {field: 'amazonReviewCount', header: 'AZ #'},
@@ -140,22 +139,6 @@ export class BookTableComponent implements OnInit, OnDestroy, OnChanges {
     this.selectedBooksChange.emit(this.selectedBookIds);
   }
 
-  openMetadataCenter(id: number): void {
-    if (this.metadataCenterViewMode === 'route') {
-      this.router.navigate(['/book', id], {
-        queryParams: {tab: 'view'}
-      });
-    } else {
-      this.dialogService.open(BookMetadataCenterComponent, {
-        width: '95%',
-        data: {bookId: id},
-        modal: true,
-        dismissableMask: true,
-        showHeader: false
-      });
-    }
-  }
-
   getStarColor(rating: number): string {
     if (rating >= 4.5) {
       return 'rgb(34, 197, 94)';
@@ -210,20 +193,17 @@ export class BookTableComponent implements OnInit, OnDestroy, OnChanges {
     return this.readStatusHelper.shouldShowStatusIcon(readStatus);
   }
 
-  getAuthors(metadata: BookMetadata): string[] {
-    return metadata.authors ?? []
-  }
-
-  getCellClickableValue(metadata: BookMetadata, book: Book, field: string){
-    const filterKeys:Record<string, string> = {
+  getCellClickableValue(metadata: BookMetadata, book: Book, field: string) {
+    const filterKeys: Record<string, string> = {
       'authors': 'author',
       'publisher': 'publisher',
       'categories': 'category',
       'language': 'language',
-      'title': 'title'
+      'title': 'title',
+      'isbn': 'isbn'
     } as const;
 
-    let data:string[] =[metadata[field]];
+    let data: string[] = [metadata[field]];
 
     switch (field) {
       case 'title':
@@ -245,10 +225,17 @@ export class BookTableComponent implements OnInit, OnDestroy, OnChanges {
       case 'seriesName':
         return [
           {
-            url: this.urlHelper.filterBooksBy('series', metadata.seriesName ?? '' ),
+            url: this.urlHelper.filterBooksBy('series', metadata.seriesName ?? ''),
             anchor: metadata.seriesName
           }
         ]
+      case 'isbn':
+        return [
+          {
+            url: '',
+            anchor: this.getCellValue(metadata, book, 'isbn')
+          }
+        ];
     }
 
     return data.map(item => {
@@ -311,6 +298,9 @@ export class BookTableComponent implements OnInit, OnDestroy, OnChanges {
       case 'goodreadsReviewCount':
       case 'hardcoverReviewCount':
         return metadata[field] ?? '';
+
+      case 'isbn':
+        return metadata.isbn13 || metadata.isbn10 || '';
 
       default:
         return '';
