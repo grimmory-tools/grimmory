@@ -57,39 +57,6 @@ export class LibraryShelfMenuService {
             }
           },
           {
-            label: 'Delete Library',
-            icon: 'pi pi-trash',
-            command: () => {
-              this.confirmationService.confirm({
-                message: `Are you sure you want to delete library: ${entity?.name}?`,
-                header: 'Confirmation',
-                rejectButtonProps: {
-                  label: 'Cancel',
-                  severity: 'secondary',
-                },
-                acceptButtonProps: {
-                  label: 'Yes',
-                  severity: 'success',
-                },
-                accept: () => {
-                  this.libraryService.deleteLibrary(entity?.id!).subscribe({
-                    complete: () => {
-                      this.router.navigate(['/']);
-                      this.messageService.add({severity: 'info', summary: 'Success', detail: 'Library was deleted'});
-                    },
-                    error: () => {
-                      this.messageService.add({
-                        severity: 'error',
-                        summary: 'Failed',
-                        detail: 'Failed to delete library',
-                      });
-                    }
-                  });
-                }
-              });
-            }
-          },
-          {
             label: 'Re-scan Library',
             icon: 'pi pi-refresh',
             command: () => {
@@ -145,6 +112,42 @@ export class LibraryShelfMenuService {
                 libraryId: entity?.id ?? undefined
               }).subscribe();
             }
+          },
+          {
+            separator: true
+          },
+          {
+            label: 'Delete Library',
+            icon: 'pi pi-trash',
+            command: () => {
+              this.confirmationService.confirm({
+                message: `Are you sure you want to delete library: ${entity?.name}?`,
+                header: 'Confirmation',
+                rejectButtonProps: {
+                  label: 'Cancel',
+                  severity: 'secondary',
+                },
+                acceptButtonProps: {
+                  label: 'Yes',
+                  severity: 'danger',
+                },
+                accept: () => {
+                  this.libraryService.deleteLibrary(entity?.id!).subscribe({
+                    complete: () => {
+                      this.router.navigate(['/']);
+                      this.messageService.add({severity: 'info', summary: 'Success', detail: 'Library was deleted'});
+                    },
+                    error: () => {
+                      this.messageService.add({
+                        severity: 'error',
+                        summary: 'Failed',
+                        detail: 'Failed to delete library',
+                      });
+                    }
+                  });
+                }
+              });
+            }
           }
         ]
       }
@@ -175,12 +178,18 @@ export class LibraryShelfMenuService {
             }
           },
           {
+            separator: true
+          },
+          {
             label: 'Delete Shelf',
             icon: 'pi pi-trash',
             command: () => {
               this.confirmationService.confirm({
                 message: `Are you sure you want to delete shelf: ${entity?.name}?`,
                 header: 'Confirmation',
+                acceptButtonProps: {
+                  severity: 'danger'
+                },
                 accept: () => {
                   this.shelfService.deleteShelf(entity?.id!).subscribe({
                     complete: () => {
@@ -229,6 +238,9 @@ export class LibraryShelfMenuService {
             }
           },
           {
+            separator: true
+          },
+          {
             label: 'Delete Magic Shelf',
             icon: 'pi pi-trash',
             disabled: disableOptions,
@@ -236,6 +248,9 @@ export class LibraryShelfMenuService {
               this.confirmationService.confirm({
                 message: `Are you sure you want to delete magic shelf: ${entity?.name}?`,
                 header: 'Confirmation',
+                acceptButtonProps: {
+                  severity: 'danger'
+                },
                 accept: () => {
                   this.magicShelfService.deleteShelf(entity?.id!).subscribe({
                     complete: () => {
