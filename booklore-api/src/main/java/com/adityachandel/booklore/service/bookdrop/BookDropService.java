@@ -405,11 +405,29 @@ public class BookDropService {
 
             Files.createDirectories(target.getParent());
             Files.move(tempPath, target, StandardCopyOption.REPLACE_EXISTING);
-            Files.deleteIfExists(source);
 
             log.info("Moved file id={}, name={} from '{}' to '{}'", bookdropFile.getId(), bookdropFile.getFileName(), source, target);
 
-            return processMovedFile(bookdropFile, target.toFile(), library, path, metadata);
+            BookdropFileResult result;
+            try {
+                result = processMovedFile(bookdropFile, target.toFile(), library, path, metadata);
+            } catch (Exception e) {
+                cleanupTargetFile(target, bookdropFile.getId(), "processing exception");
+                return failureResult(bookdropFile.getFileName(), "Processing failed: " + e.getMessage());
+            }
+
+            if (result.isSuccess()) {
+                try {
+                    Files.delete(source);
+                    log.info("Successfully deleted source file '{}' after successful import for file id={}", source, bookdropFile.getId());
+                } catch (IOException e) {
+                    log.warn("Failed to delete source file '{}' after successful import for file id={}: {}", source, bookdropFile.getId(), e.getMessage());
+                }
+            } else {
+                cleanupTargetFile(target, bookdropFile.getId(), "logical failure");
+            }
+
+            return result;
 
         } catch (Exception e) {
             log.error("Failed to move file id={}, name={} from '{}' to '{}': {}", bookdropFile.getId(), bookdropFile.getFileName(), source, target, e.getMessage(), e);
@@ -463,31 +481,49 @@ public class BookDropService {
         bookdropFileRepository.deleteById(bookdropFile.getId());
         bookdropNotificationService.sendBookdropFileSummaryNotification();
 
-        File cachedCover = Paths.get(appProperties.getPathConfig(), "bookdrop_temp", bookdropFile.getId() + ".jpg").toFile();
-        if (cachedCover.exists()) {
-            boolean deleted = cachedCover.delete();
-            log.debug("Deleted cached cover image for bookdropId={}: {}", bookdropFile.getId(), deleted);
+        Path cachedCoverPath = Paths.get(appProperties.getPathConfig(), "bookdrop_temp", bookdropFile.getId() + ".jpg");
+        if (Files.exists(cachedCoverPath)) {
+            try {
+                Files.delete(cachedCoverPath);
+                log.debug("Deleted cached cover image for bookdropId={}", bookdropFile.getId());
+            } catch (IOException e) {
+                log.warn("Failed to delete cached cover image for bookdropId={}: {}", bookdropFile.getId(), e.getMessage());
+            }
         }
     }
 
     private void cleanupFailedMove(Path target) {
         try {
-            if (Files.exists(target)) {
-                Files.deleteIfExists(target);
+            if (Files.deleteIfExists(target)) {
                 log.info("Cleaned up partially created target file: {}", target);
+            } else {
+                log.debug("No partially created target file to cleanup: {}", target);
             }
-        } catch (Exception cleanupException) {
-            log.warn("Failed to cleanup target file after move error: {}", target, cleanupException);
+        } catch (IOException e) {
+            log.warn("Failed to cleanup partially created target file: {}: {}", target, e.getMessage());
         }
     }
 
     private void cleanupTempFile(Path tempPath) {
         if (tempPath != null) {
             try {
-                Files.deleteIfExists(tempPath);
+                Files.delete(tempPath);
             } catch (Exception e) {
                 log.warn("Failed to cleanup temp file: {}", tempPath, e);
             }
+        }
+    }
+
+    private void cleanupTargetFile(Path target, Long fileId, String reason) {
+        try {
+            if (Files.deleteIfExists(target)) {
+                log.info("Cleaned up target file '{}' after {} for file id={}", target, reason, fileId);
+            } else {
+                log.debug("Target file '{}' not present, nothing to cleanup for file id={}", target, fileId);
+            }
+        } catch (IOException e) {
+            log.warn("Failed to cleanup target file '{}' after {} for file id={}: {}", 
+                    target, reason, fileId, e.getMessage());
         }
     }
 
@@ -520,19 +556,25 @@ public class BookDropService {
 
     private void deleteFilesAndCovers(List<BookdropFileEntity> filesToDelete, AtomicInteger deletedFiles, AtomicInteger deletedCovers) {
         for (BookdropFileEntity entity : filesToDelete) {
-            try {
-                Path filePath = Path.of(entity.getFilePath());
-                if (Files.exists(filePath) && Files.isRegularFile(filePath) && Files.deleteIfExists(filePath)) {
+            Path filePath = Path.of(entity.getFilePath());
+            if (Files.exists(filePath) && Files.isRegularFile(filePath)) {
+                try {
+                    Files.delete(filePath);
                     deletedFiles.incrementAndGet();
                     log.debug("Deleted file from disk: id={}, path={}", entity.getId(), filePath);
+                } catch (IOException e) {
+                    log.warn("Failed to delete file from disk for bookdropId={}: {}", entity.getId(), e.getMessage());
                 }
-                Path coverPath = Paths.get(appProperties.getPathConfig(), "bookdrop_temp", entity.getId() + ".jpg");
-                if (Files.exists(coverPath) && Files.deleteIfExists(coverPath)) {
+            }
+            Path coverPath = Paths.get(appProperties.getPathConfig(), "bookdrop_temp", entity.getId() + ".jpg");
+            if (Files.exists(coverPath)) {
+                try {
+                    Files.delete(coverPath);
                     deletedCovers.incrementAndGet();
                     log.debug("Deleted cover image: id={}, path={}", entity.getId(), coverPath);
+                } catch (IOException e) {
+                    log.warn("Failed to delete cover image for bookdropId={}: {}", entity.getId(), e.getMessage());
                 }
-            } catch (IOException e) {
-                log.warn("Failed to delete file or cover for bookdropId={}: {}", entity.getId(), e.getMessage());
             }
         }
     }
@@ -544,9 +586,13 @@ public class BookDropService {
                     .forEach(p -> {
                         try (Stream<Path> subPaths = Files.list(p)) {
                             if (subPaths.findAny().isEmpty()) {
-                                Files.deleteIfExists(p);
-                                deletedDirs.incrementAndGet();
-                                log.debug("Deleted empty directory: {}", p);
+                                try {
+                                    Files.delete(p);
+                                    deletedDirs.incrementAndGet();
+                                    log.debug("Deleted empty directory: {}", p);
+                                } catch (IOException e) {
+                                    log.warn("Failed to delete empty directory: {}: {}", p, e.getMessage());
+                                }
                             }
                         } catch (IOException e) {
                             log.warn("Failed to delete folder: {}", p, e);
