@@ -141,7 +141,7 @@ public class DualJwtAuthenticationFilter extends OncePerRequestFilter {
 
         } catch (Exception e) {
             log.error("OIDC authentication failed", e);
-            throw ApiError.GENERIC_UNAUTHORIZED.createException("OIDC JWT validation failed");
+            throw ApiError.GENERIC_UNAUTHORIZED.createException("OIDC JWT validation failed: " + e.getMessage());
         }
     }
 

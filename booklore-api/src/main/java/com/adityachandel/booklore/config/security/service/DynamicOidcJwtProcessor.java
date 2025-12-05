@@ -3,19 +3,25 @@ package com.adityachandel.booklore.config.security.service;
 import com.adityachandel.booklore.model.dto.settings.OidcProviderDetails;
 import com.adityachandel.booklore.service.appsettings.AppSettingService;
 import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.jwk.source.DefaultJWKSetCache;
 import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.jwk.source.JWKSourceBuilder;
+import com.nimbusds.jose.jwk.source.RemoteJWKSet;
 import com.nimbusds.jose.proc.JWSKeySelector;
 import com.nimbusds.jose.proc.JWSVerificationKeySelector;
 import com.nimbusds.jose.proc.SecurityContext;
+import com.nimbusds.jose.util.DefaultResourceRetriever;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 
 import java.net.URI;
 import java.time.Duration;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
@@ -42,19 +48,25 @@ public class DynamicOidcJwtProcessor {
             throw new IllegalStateException("OIDC issuer URI is not configured in app settings.");
         }
 
-        String discoveryUri = providerDetails.getIssuerUri() + "/.well-known/openid-configuration";
+        String discoveryUri = providerDetails.getIssuerUri().replaceAll("/$", "") + "/.well-known/openid-configuration";
         log.info("Fetching OIDC discovery document from {}", discoveryUri);
 
         URI jwksUri = fetchJwksUri(discoveryUri);
 
         Duration ttl = Duration.ofHours(6);
         Duration refresh = Duration.ofHours(1);
-        
-        JWKSource<SecurityContext> jwkSource = JWKSourceBuilder.create(jwksUri.toURL())
-                .cache(ttl.toMillis(), refresh.toMillis())
-                .build();
 
-        JWSKeySelector<SecurityContext> keySelector = new JWSVerificationKeySelector<>(JWSAlgorithm.RS256, jwkSource);
+        DefaultResourceRetriever resourceRetriever = new DefaultResourceRetriever(10000, 10000);
+        DefaultJWKSetCache jwkSetCache = new DefaultJWKSetCache(ttl.toMillis(), refresh.toMillis(), TimeUnit.MILLISECONDS);
+
+        JWKSource<SecurityContext> jwkSource = new RemoteJWKSet<>(jwksUri.toURL(), resourceRetriever, jwkSetCache);
+
+        Set<JWSAlgorithm> jwsAlgs = new HashSet<>();
+        jwsAlgs.addAll(JWSAlgorithm.Family.RSA);
+        jwsAlgs.addAll(JWSAlgorithm.Family.EC);
+        jwsAlgs.addAll(JWSAlgorithm.Family.RSA);
+
+        JWSKeySelector<SecurityContext> keySelector = new JWSVerificationKeySelector<>(jwsAlgs, jwkSource);
         ConfigurableJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
         jwtProcessor.setJWSKeySelector(keySelector);
 
@@ -62,7 +74,14 @@ public class DynamicOidcJwtProcessor {
     }
 
     private URI fetchJwksUri(String discoveryUri) throws Exception {
-        var restClient = org.springframework.web.client.RestClient.create();
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(10000);
+        factory.setReadTimeout(10000);
+
+        var restClient = org.springframework.web.client.RestClient.builder()
+                .requestFactory(factory)
+                .build();
+
         var discoveryDoc = restClient.get()
                 .uri(discoveryUri)
                 .retrieve()
