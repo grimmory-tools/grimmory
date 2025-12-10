@@ -32,7 +32,6 @@ public class MagicShelfEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "icon_type", nullable = false)
-
     @Builder.Default
     private IconType iconType = IconType.PRIME_NG;
 

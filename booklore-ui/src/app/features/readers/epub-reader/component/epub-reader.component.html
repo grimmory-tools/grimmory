@@ -12,17 +12,49 @@
           <div class="progress-info">
             <span class="progress-percentage"><span class="progress-label">Progress:  </span>{{ progressPercentage }}%</span>
           </div>
-          <p-drawer [(visible)]="isDrawerVisible" [modal]="true" [position]="'left'" header="Chapters">
-            <ul class="chapter-list">
-              @for (chapter of chapters; track chapter) {
-                <li (click)="navigateToChapter(chapter); $event.stopPropagation()"
-                    class="chapter-item"
-                    [class.current-chapter]="chapter.href === currentChapterHref"
-                    [style.padding-left.rem]="chapter.level * 1.5 + 0.75">
-                  {{ chapter.label }}
-                </li>
+          <p-drawer [(visible)]="isDrawerVisible" [modal]="true" [position]="'left'" header="Table of Contents">
+            <div class="mb-3">
+              <h3 class="text-base font-semibold mb-2">Chapters</h3>
+              <ul class="chapter-list">
+                @for (chapter of chapters; track chapter) {
+                  <li (click)="navigateToChapter(chapter); $event.stopPropagation()"
+                      class="chapter-item"
+                      [class.current-chapter]="chapter.href === currentChapterHref"
+                      [style.padding-left.rem]="chapter.level * 1.5 + 0.75">
+                    {{ chapter.label }}
+                  </li>
+                }
+              </ul>
+            </div>
+
+            <p-divider></p-divider>
+
+            <div class="mt-3">
+              <h3 class="text-base font-semibold mb-2">Bookmarks</h3>
+              @if (bookmarks.length === 0) {
+                <p class="text-sm text-gray-400 italic">No bookmarks yet</p>
+              } @else {
+                <ul class="bookmark-list">
+                  @for (bookmark of bookmarks; track bookmark.id) {
+                    <li class="bookmark-item">
+                      <div class="bookmark-content" (click)="navigateToBookmark(bookmark); $event.stopPropagation()">
+                        <i class="pi pi-bookmark-fill mr-2"></i>
+                        <span>{{ bookmark.title }}</span>
+                      </div>
+                      <p-button
+                        icon="pi pi-trash"
+                        (click)="deleteBookmark(bookmark.id); $event.stopPropagation()"
+                        [rounded]="true"
+                        [text]="true"
+                        severity="danger"
+                        size="small"
+                        pTooltip="Delete bookmark">
+                      </p-button>
+                    </li>
+                  }
+                </ul>
               }
-            </ul>
+            </div>
           </p-drawer>
         </div>
 
@@ -32,6 +64,14 @@
 
         <div class="header-right">
           <div class="flex gap-4">
+            <p-button
+              size="small"
+              [icon]="isBookmarked ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'"
+              (click)="addBookmark()"
+              severity="secondary"
+              [disabled]="!currentCfi || isAddingBookmark"
+              pTooltip="Add bookmark">
+            </p-button>
             @if (!locationsReady) {
               <div class="location-indicator" pTooltip="Saving progress not ready yet">
                 <span class="dot"></span>

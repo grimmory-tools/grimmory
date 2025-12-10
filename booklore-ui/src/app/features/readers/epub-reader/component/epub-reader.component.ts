@@ -1,6 +1,7 @@
 import {Component, ElementRef, inject, OnDestroy, OnInit, ViewChild, NgZone} from '@angular/core';
 import ePub from 'epubjs';
 import {Drawer} from 'primeng/drawer';
+import {Subscription} from 'rxjs';
 import {Button} from 'primeng/button';
 
 import {FormsModule} from '@angular/forms';
@@ -12,6 +13,7 @@ import {Select} from 'primeng/select';
 import {UserService} from '../../../settings/user-management/user.service';
 import {ProgressSpinner} from 'primeng/progressspinner';
 import {MessageService} from 'primeng/api';
+import {BookMarkService, BookMark} from '../../../../shared/service/book-mark.service';
 import {Tooltip} from 'primeng/tooltip';
 import {Slider} from 'primeng/slider';
 import {FALLBACK_EPUB_SETTINGS, getChapter} from '../epub-reader-helper';
@@ -36,6 +38,12 @@ export class EpubReaderComponent implements OnInit, OnDestroy {
   currentChapterHref: string | null = null;
   isDrawerVisible = false;
   isSettingsDrawerVisible = false;
+  bookmarks: BookMark[] = [];
+  currentCfi: string | null = null;
+  isBookmarked = false;
+  isAddingBookmark = false;
+  isDeletingBookmark = false;
+  private routeSubscription?: Subscription;
 
   public locationsReady = false;
   public approxProgress = 0;
@@ -80,11 +88,12 @@ export class EpubReaderComponent implements OnInit, OnDestroy {
   private messageService = inject(MessageService);
   private ngZone = inject(NgZone);
   private pageTitle = inject(PageTitleService);
+  private bookMarkService = inject(BookMarkService);
 
   epub!: Book;
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe((params) => {
+    this.routeSubscription = this.route.paramMap.subscribe((params) => {
       this.isLoading = true;
       const bookId = +params.get('bookId')!;
 
@@ -92,10 +101,13 @@ export class EpubReaderComponent implements OnInit, OnDestroy {
       const epub$ = this.bookService.getBookByIdFromAPI(bookId, false);
       const epubData$ = this.bookService.getFileContent(bookId);
       const bookSetting$ = this.bookService.getBookSetting(bookId);
+      const bookmarks$ = this.bookMarkService.getBookmarksForBook(bookId);
 
-      forkJoin([myself$, epub$, epubData$, bookSetting$]).subscribe({
-        next: ([myself, epub, epubData, bookSetting]) => {
+      forkJoin([myself$, epub$, epubData$, bookSetting$, bookmarks$]).subscribe({
+        next: ([myself, epub, epubData, bookSetting, bookmarks]) => {
           this.epub = epub;
+          this.bookmarks = bookmarks;
+          this.updateBookmarkStatus();
           const individualSetting = bookSetting?.epubSettings;
           const fileReader = new FileReader();
 
@@ -363,6 +375,8 @@ export class EpubReaderComponent implements OnInit, OnDestroy {
     this.rendition.on('relocated', (location: any) => {
       this.updateCurrentChapter(location);
       const cfi = location.end.cfi;
+      this.currentCfi = location.start.cfi;
+      this.updateBookmarkStatus();
       const currentIndex = location.start.index;
       const totalSpineItems = this.book.spine.items.length;
       let percentage: number;
@@ -400,6 +414,8 @@ export class EpubReaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.routeSubscription?.unsubscribe();
+    
     if (this.rendition) {
       this.rendition.off('keyup', this.keyListener);
     }
@@ -471,5 +487,93 @@ export class EpubReaderComponent implements OnInit, OnDestroy {
     }
 
     return chapters;
+  }
+
+  addBookmark(): void {
+    if (!this.currentCfi || this.isAddingBookmark) {
+      return;
+    }
+
+    if (this.isCurrentLocationBookmarked()) {
+      this.messageService.add({
+        severity: 'info',
+        summary: 'Info',
+        detail: 'Bookmark already exists at this location',
+      });
+      return;
+    }
+
+    this.isAddingBookmark = true;
+    const title = this.currentChapter || 'Untitled Bookmark';
+    const request = {
+      bookId: this.epub.id,
+      cfi: this.currentCfi,
+      title: title
+    };
+
+    this.bookMarkService.createBookmark(request).subscribe({
+      next: (bookmark) => {
+        this.bookmarks.push(bookmark);
+        this.updateBookmarkStatus();
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Bookmark created successfully',
+        });
+        this.isAddingBookmark = false;
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to create bookmark',
+        });
+        this.isAddingBookmark = false;
+      },
+    });
+  }
+
+  deleteBookmark(bookmarkId: number): void {
+    if (this.isDeletingBookmark) {
+      return;
+    }
+    this.isDeletingBookmark = true;
+    this.bookMarkService.deleteBookmark(bookmarkId).subscribe({
+      next: () => {
+        this.bookmarks = this.bookmarks.filter(b => b.id !== bookmarkId);
+        this.updateBookmarkStatus();
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Bookmark deleted successfully',
+        });
+        this.isDeletingBookmark = false;
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to delete bookmark',
+        });
+        this.isDeletingBookmark = false;
+      },
+    });
+  }
+
+  navigateToBookmark(bookmark: BookMark): void {
+    if (this.rendition && bookmark.cfi) {
+      this.rendition.display(bookmark.cfi);
+    }
+  }
+
+  isCurrentLocationBookmarked(): boolean {
+    if (!this.currentCfi) return false;
+    return this.bookmarks.some(b => b.cfi === this.currentCfi);
+  }
+
+  private updateBookmarkStatus(): void {
+    this.isBookmarked = this.currentCfi
+      ? this.bookmarks.some(b => b.cfi === this.currentCfi)
+      : false;
   }
 }
