@@ -28,7 +28,6 @@ public class PathPatternResolver {
     private final int SUFFIX_BYTES = TRUNCATION_SUFFIX.getBytes(StandardCharsets.UTF_8).length;
 
     private final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
-    private final Pattern FILE_EXTENSION_PATTERN = Pattern.compile(".*\\.[a-zA-Z0-9]+$");
     private final Pattern CONTROL_CHARACTER_PATTERN = Pattern.compile("\\p{Cntrl}");
     private final Pattern INVALID_CHARS_PATTERN = Pattern.compile("[\\\\/:*?\"<>|]");
     private final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\{(.*?)}");
@@ -178,14 +177,16 @@ public class PathPatternResolver {
 
         result = finalResult.toString();
 
+        boolean usedFallbackFilename = false;
         if (result.isBlank()) {
             result = values.getOrDefault("currentFilename", "untitled");
+            usedFallbackFilename = true;
         }
 
-        boolean hasExtension = FILE_EXTENSION_PATTERN.matcher(result).matches();
-        boolean explicitlySetExtension = pattern.contains("{extension}");
-
-        if (!explicitlySetExtension && !hasExtension && !extension.isBlank()) {
+        boolean patternIncludesExtension = pattern.contains("{extension}");
+        boolean patternIncludesFullFilename = pattern.contains("{currentFilename}");
+        
+        if (!usedFallbackFilename && !patternIncludesExtension && !patternIncludesFullFilename && !extension.isBlank()) {
             result += "." + extension;
         }
 
