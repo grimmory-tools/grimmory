@@ -20,6 +20,7 @@
     <div class="header-actions">
       <p-button
         label="Rescan"
+        size="small"
         icon="pi pi-refresh"
         severity="primary"
         outlined
@@ -56,18 +57,32 @@
       @if (bookdropFileUis.length !== 0) {
         <div class="controls-row">
           <div class="action-buttons">
+            <p-inputgroup class="importmetadata" [ngClass]="!hasSelectedFiles ? 'disabled' : ''">
+              <p-button
+                size="small"
+                outlined
+                severity="info"
+                label="Import&nbsp;Metadata"
+                icon="pi pi-copy"
+                [disabled]="!hasSelectedFiles"
+                (click)="copyMetadata()"
+                pTooltip="Import fetched metadata for selected files"
+                tooltipPosition="top">
+              </p-button>
+              <p-inputgroup-addon pTooltip="Include book covers when importing fetched metadata" tooltipPosition="top">
+                <p-checkbox
+                  inputId="includecovers"
+                  [disabled]="!hasSelectedFiles"
+                  [binary]="true"
+                  [(ngModel)]="includeCoversOnCopy">
+                </p-checkbox>
+                <label for="includecovers"><i class="pi pi-image pl-2"></i></label>
+              </p-inputgroup-addon>
+            </p-inputgroup>
+
             <p-button
               size="small"
-              outlined
-              severity="info"
-              label="Import&nbsp;Metadata"
-              icon="pi pi-copy"
-              (click)="copyAll()"
-              pTooltip="Replace current metadata with fetched metadata on all files"
-              tooltipPosition="top">
-            </p-button>
-            <p-button
-              size="small"
+              class="bulkedit"
               outlined
               severity="help"
               label="Bulk&nbsp;Edit"
@@ -77,28 +92,24 @@
               pTooltip="Edit metadata fields in bulk for selected files"
               tooltipPosition="top">
             </p-button>
+
             <p-button
               size="small"
+              class="extractpattern"
               outlined
               severity="warn"
               label="Extract&nbsp;Pattern"
               icon="pi pi-sliders-h"
               [disabled]="!hasSelectedFiles"
               (click)="openPatternExtractDialog()"
-              pTooltip="Extract metadata from filenames using a pattern"
+              pTooltip="Extract metadata from selected filenames using a pattern"
               tooltipPosition="top">
             </p-button>
-            <span pTooltip="Include book covers when importing fetched metadata"><p-checkbox
-              inputId="includecovers"
-              [binary]="true"
-              [(ngModel)]="includeCoversOnCopy">
-            </p-checkbox>
-            <label for="includecovers" class="text-sm" style="margin-left: 0.5em;">Covers</label></span>
           </div>
           
           <div class="default-controls">
-            <i class="pi pi-copy" 
-              pTooltip="Select library and subpath for all files:" 
+            <i class="pi pi-book" 
+              pTooltip="Specify library and subpath for selected files" 
               tooltipPosition="left"></i>
 
             <p-select
@@ -126,8 +137,8 @@
               icon="pi pi-check"
               severity="info"
               [disabled]="!canApplyDefaults"
-              (click)="applyDefaultsToAll()"
-              pTooltip="Apply selected library and subpath to all files"
+              (click)="applyLibraryDefaults()"
+              pTooltip="Apply library and subpath to selected files"
               tooltipPosition="top">
             </p-button>
           </div>
@@ -253,28 +264,33 @@
   @if (!loading) {
     <p-divider></p-divider>
 
-    <!-- Desktop Buttons -->
     <div class="footer">
 
       <div class="footer-left">
         @if (bookdropFileUis.length > 0) {
-          <p-button
-            label="Select&nbsp;All"
-            icon="pi pi-check-square"
-            severity="info"
-            (click)="selectAll(true)"
-            outlined
-            pTooltip="Select all files across all pages you have navigated"
-            tooltipPosition="top">
-          </p-button>
+          <p-inputgroup class="selectall">
+            <p-inputgroup-addon>
+              <label class="text-sm" pTooltip="Number of files selected" tooltipPosition="top">{{ selectedCount }}</label>
+            </p-inputgroup-addon>
+            <p-button
+              label="Select&nbsp;All"
+              icon="pi pi-check-square"
+              severity="info"
+              (click)="selectAll(true)"
+              outlined
+              pTooltip="Select all files across all pages"
+              tooltipPosition="top">
+            </p-button>
+          </p-inputgroup>
 
           <p-button
             label="Clear"
             icon="pi pi-times-circle"
             severity="warn"
+            [disabled]="!hasSelectedFiles"
             (click)="selectAll(false)"
             outlined
-            pTooltip="Deselect all files across all pages you have navigated"
+            pTooltip="Deselect all files across all pages"
             tooltipPosition="top">
           </p-button>
         } @else {
@@ -299,7 +315,7 @@
 
       <div class="footer-right">
         <p-button
-          [label]="'Reset ' + selectedCount"
+          label="Reset"
           icon="pi pi-refresh"
           severity="warn"
           [disabled]="!hasSelectedFiles"
@@ -309,7 +325,7 @@
           tooltipPosition="top">
         </p-button>
         <p-button
-          [label]="'Delete ' + selectedCount"
+          label="Delete"
           icon="pi pi-times"
           severity="danger"
           [disabled]="!hasSelectedFiles"
@@ -319,89 +335,14 @@
           tooltipPosition="top">
         </p-button>
         <p-button
-          [label]="saving ? ('Finalizing ' + selectedCount + '...') : ('Finalize ' + selectedCount)"
+          label="Finalize"
           [icon]="saving ? 'pi pi-spin pi-spinner' : 'pi pi-save'"
           severity="success"
           outlined
           [disabled]="!canFinalize || saving"
           (click)="confirmFinalize()"
-          pTooltip="Move selected files into the chosen library and subpath">
-        </p-button>
-      </div>
-
-    </div>
-
-    <!-- Mobile Buttons -->
-    <div class="footer-mobile">
-
-      @if (totalRecords > pageSize) {
-        <div class="footer-center">
-          <p-paginator
-            [rows]="pageSize"
-            [totalRecords]="totalRecords"
-            [first]="currentPage * pageSize"
-            (onPageChange)="loadPage($event.page ?? 0)"
-            [showJumpToPageDropdown]="true"
-            [showPageLinks]="false"
-            [showFirstLastIcon]="false"
-            currentPageReportTemplate="Page {currentPage} of {totalPages}">
-          </p-paginator>
-        </div>
-      }
-
-      <div class="footer-left">
-        @if (bookdropFileUis.length > 0) {
-          <p-button
-            icon="pi pi-check-square"
-            severity="info"
-            (click)="selectAll(true)"
-            outlined
-            pTooltip="Select all files across all pages you have navigated"
-            tooltipPosition="top">
-          </p-button>
-
-          <p-button
-            icon="pi pi-times-circle"
-            severity="warn"
-            (click)="selectAll(false)"
-            outlined
-            pTooltip="Deselect all files across all pages you have navigated"
-            tooltipPosition="top">
-          </p-button>
-        } @else {
-          <div class="spacer"></div>
-        }
-      </div>
-
-      <div class="footer-right">
-        @if (selectedCount > 0) {
-          <label class="text-sm">{{ selectedCount }}</label>
-        }
-        <p-button
-          icon="pi pi-refresh"
-          severity="warn"
-          [disabled]="!hasSelectedFiles"
-          outlined
-          (click)="confirmReset()"
-          pTooltip="Discard all changes made to metadata of selected files"
+          pTooltip="Move selected files into the chosen library and subpath"
           tooltipPosition="top">
-        </p-button>
-        <p-button
-          icon="pi pi-times"
-          severity="danger"
-          [disabled]="!hasSelectedFiles"
-          outlined
-          (click)="confirmDelete()"
-          pTooltip="Permanently delete selected Bookdrop files and discard any changes"
-          tooltipPosition="top">
-        </p-button>
-        <p-button
-          [icon]="saving ? 'pi pi-spin pi-spinner' : 'pi pi-save'"
-          severity="success"
-          outlined
-          [disabled]="!canFinalize || saving"
-          (click)="confirmFinalize()"
-          pTooltip="Move selected files into the chosen library and subpath">
         </p-button>
       </div>
 

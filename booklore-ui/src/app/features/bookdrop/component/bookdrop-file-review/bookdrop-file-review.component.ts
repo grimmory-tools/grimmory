@@ -15,7 +15,8 @@ import {Tooltip} from 'primeng/tooltip';
 import {Divider} from 'primeng/divider';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {Observable, Subscription} from 'rxjs';
-
+import {InputGroup} from 'primeng/inputgroup';
+import {InputGroupAddonModule} from 'primeng/inputgroupaddon';
 import {AppSettings} from '../../../../shared/model/app-settings.model';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {BookMetadata} from '../../../book/model/book.model';
@@ -25,7 +26,6 @@ import {NgClass} from '@angular/common';
 import {Paginator} from 'primeng/paginator';
 import {ActivatedRoute} from '@angular/router';
 import {BookdropFileMetadataPickerComponent} from '../bookdrop-file-metadata-picker/bookdrop-file-metadata-picker.component';
-import {BookdropFinalizeResultDialogComponent} from '../bookdrop-finalize-result-dialog/bookdrop-finalize-result-dialog.component';
 import {BookdropBulkEditDialogComponent, BulkEditResult} from '../bookdrop-bulk-edit-dialog/bookdrop-bulk-edit-dialog.component';
 import {BookdropPatternExtractDialogComponent} from '../bookdrop-pattern-extract-dialog/bookdrop-pattern-extract-dialog.component';
 import {DialogLauncherService} from '../../../../shared/services/dialog-launcher.service';
@@ -58,6 +58,8 @@ export interface BookdropFileUI {
     Checkbox,
     NgClass,
     Paginator,
+    InputGroup,
+    InputGroupAddonModule,
   ],
 })
 export class BookdropFileReviewComponent implements OnInit {
@@ -107,7 +109,6 @@ export class BookdropFileReviewComponent implements OnInit {
       .subscribe();
 
     this.libraryService.libraryState$
-      .pipe(filter(state => !!state?.loaded), take(1))
       .subscribe(state => {
         this.libraries = state.libraries ?? [];
       });
@@ -220,44 +221,41 @@ export class BookdropFileReviewComponent implements OnInit {
     this.copiedFlags[fileId] = copied;
   }
 
-  applyDefaultsToAll(): void {
+  applyLibraryDefaults(): void {
     if (!this.defaultLibraryId || !this.libraries) return;
 
     const selectedLib = this.libraries.find(l => String(l.id) === this.defaultLibraryId);
     const selectedPaths = selectedLib?.paths ?? [];
 
-    Object.values(this.fileUiCache).forEach(file => {
-      file.selectedLibraryId = this.defaultLibraryId;
-      file.availablePaths = selectedPaths.map(path => ({id: String(path.id), name: path.path}));
-      file.selectedPathId = this.defaultPathId ?? null;
+    this.getSelectedFiles().map(fileUi => {
+      const cachedfUi = this.fileUiCache[fileUi.file.id];
+      cachedfUi.selectedLibraryId = this.defaultLibraryId;
+      cachedfUi.availablePaths = selectedPaths.map(path => ({id: String(path.id), name: path.path}));
+      cachedfUi.selectedPathId = this.defaultPathId ?? null;
     });
   }
 
-  copyAll(): void {
-    Object.values(this.fileUiCache).forEach(fileUi => {
-      const fetched = fileUi.file.fetchedMetadata;
-      const form = fileUi.metadataForm;
+  copyMetadata(): void {
+    const files = this.getSelectedFiles().map(fileUi => {
+      const cachedfUi = this.fileUiCache[fileUi.file.id];
+      const fetched = cachedfUi.file.fetchedMetadata;
+      const form = cachedfUi.metadataForm;
       if (!fetched) return;
       for (const key of Object.keys(fetched)) {
         if (!this.includeCoversOnCopy && key === 'thumbnailUrl') continue;
         const value = fetched[key as keyof typeof fetched];
         if (value != null) {
           form.get(key)?.setValue(value);
-          fileUi.copiedFields[key] = true;
+          cachedfUi.copiedFields[key] = true;
         }
       }
-      this.onMetadataCopied(fileUi.file.id, true);
+      this.onMetadataCopied(cachedfUi.file.id, true);
     });
   }
 
+
   resetMetadata(): void {
-    const selectedFiles = Object.values(this.fileUiCache).filter(file => {
-      if (this.selectAllAcrossPages) {
-        return !this.excludedFiles.has(file.file.id);
-      } else {
-        return file.selected;
-      }
-    });
+    const selectedFiles = this.getSelectedFiles();
 
     const files = selectedFiles.map(fileUi => {
       const original = fileUi.file.originalMetadata;
@@ -404,12 +402,7 @@ export class BookdropFileReviewComponent implements OnInit {
               detail: 'Selected Bookdrop files were deleted successfully.',
             });
 
-            const toDelete = Object.values(this.fileUiCache).filter(file => {
-              return this.selectAllAcrossPages
-                ? !this.excludedFiles.has(file.file.id)
-                : file.selected;
-            });
-            toDelete.forEach(file => delete this.fileUiCache[file.file.id]);
+            this.getSelectedFiles().forEach(file => delete this.fileUiCache[file.file.id]);
 
             this.selectAllAcrossPages = false;
             this.excludedFiles.clear();
@@ -453,13 +446,7 @@ export class BookdropFileReviewComponent implements OnInit {
   private finalizeImport(): void {
     this.saving = true;
 
-    const selectedFiles = Object.values(this.fileUiCache).filter(file => {
-      if (this.selectAllAcrossPages) {
-        return !this.excludedFiles.has(file.file.id);
-      } else {
-        return file.selected;
-      }
-    });
+    const selectedFiles = this.getSelectedFiles();
 
     const files = selectedFiles.map(fileUi => {
       const rawMetadata = fileUi.metadataForm.value;
