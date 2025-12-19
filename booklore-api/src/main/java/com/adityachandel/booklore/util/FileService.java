@@ -2,7 +2,10 @@ package com.adityachandel.booklore.util;
 
 import com.adityachandel.booklore.config.AppProperties;
 import com.adityachandel.booklore.exception.ApiError;
+import com.adityachandel.booklore.model.dto.settings.CoverCroppingSettings;
 import com.adityachandel.booklore.model.entity.BookMetadataEntity;
+import com.adityachandel.booklore.repository.BookMetadataRepository;
+import com.adityachandel.booklore.service.appsettings.AppSettingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
@@ -38,6 +41,12 @@ public class FileService {
 
     private final AppProperties appProperties;
     private final RestTemplate restTemplate;
+    private final AppSettingService appSettingService;
+    private final BookMetadataRepository bookMetadataRepository;
+
+    private static final double TARGET_COVER_ASPECT_RATIO = 1.5;
+    private static final int SMART_CROP_COLOR_TOLERANCE = 30;
+    private static final double SMART_CROP_MARGIN_PERCENT = 0.02;
 
     // @formatter:off
     private static final String IMAGES_DIR          = "images";
@@ -224,6 +233,27 @@ public class FileService {
         }
     }
 
+    public void createThumbnailFromBytes(long bookId, byte[] imageBytes) {
+        try {
+            BufferedImage originalImage;
+            try (InputStream inputStream = new java.io.ByteArrayInputStream(imageBytes)) {
+                originalImage = ImageIO.read(inputStream);
+            }
+            if (originalImage == null) {
+                throw ApiError.IMAGE_NOT_FOUND.createException();
+            }
+            boolean success = saveCoverImages(originalImage, bookId);
+            if (!success) {
+                throw ApiError.FILE_READ_ERROR.createException("Failed to save cover images");
+            }
+            originalImage.flush();
+            log.info("Cover images created and saved from bytes for book ID: {}", bookId);
+        } catch (Exception e) {
+            log.error("An error occurred while creating thumbnail from bytes: {}", e.getMessage(), e);
+            throw ApiError.FILE_READ_ERROR.createException(e.getMessage());
+        }
+    }
+
     public void createThumbnailFromUrl(long bookId, String imageUrl) {
         try {
             BufferedImage originalImage = downloadImageFromUrl(imageUrl);
@@ -241,6 +271,7 @@ public class FileService {
 
     public boolean saveCoverImages(BufferedImage coverImage, long bookId) throws IOException {
         BufferedImage rgbImage = null;
+        BufferedImage cropped = null;
         BufferedImage resized = null;
         BufferedImage thumb = null;
         try {
@@ -260,6 +291,12 @@ public class FileService {
             g.dispose();
             // Note: coverImage is not flushed here - caller is responsible for its lifecycle
 
+            cropped = applyCoverCropping(rgbImage);
+            if (cropped != rgbImage) {
+                rgbImage.flush();
+                rgbImage = cropped;
+            }
+
             // Resize original image if too large to prevent OOM
             double scale = Math.min(
                     (double) MAX_ORIGINAL_WIDTH / rgbImage.getWidth(),
@@ -278,12 +315,18 @@ public class FileService {
             File thumbnailFile = new File(folder, THUMBNAIL_FILENAME);
             boolean thumbnailSaved = ImageIO.write(thumb, IMAGE_FORMAT, thumbnailFile);
 
+            if (originalSaved && thumbnailSaved) {
+                bookMetadataRepository.updateCoverTimestamp(bookId, Instant.now());
+            }
             return originalSaved && thumbnailSaved;
         } finally {
             // Cleanup resources created within this method
-            // Note: resized may equal rgbImage after reassignment, avoid double-flush
+            // Note: cropped/resized may equal rgbImage after reassignment, avoid double-flush
             if (rgbImage != null) {
                 rgbImage.flush();
+            }
+            if (cropped != null && cropped != rgbImage) {
+                cropped.flush();
             }
             if (resized != null && resized != rgbImage) {
                 resized.flush();
@@ -292,6 +335,110 @@ public class FileService {
                 thumb.flush();
             }
         }
+    }
+
+    private BufferedImage applyCoverCropping(BufferedImage image) {
+        CoverCroppingSettings settings = appSettingService.getAppSettings().getCoverCroppingSettings();
+        if (settings == null) {
+            return image;
+        }
+
+        int width = image.getWidth();
+        int height = image.getHeight();
+        double heightToWidthRatio = (double) height / width;
+        double widthToHeightRatio = (double) width / height;
+        double threshold = settings.getAspectRatioThreshold();
+        boolean smartCrop = settings.isSmartCroppingEnabled();
+
+        boolean isExtremelyTall = settings.isVerticalCroppingEnabled() && heightToWidthRatio > threshold;
+        if (isExtremelyTall) {
+            int croppedHeight = (int) (width * TARGET_COVER_ASPECT_RATIO);
+            log.debug("Cropping tall image: {}x{} (ratio {}) -> {}x{}, smartCrop={}", 
+                    width, height, String.format("%.2f", heightToWidthRatio), width, croppedHeight, smartCrop);
+            return cropFromTop(image, width, croppedHeight, smartCrop);
+        }
+
+        boolean isExtremelyWide = settings.isHorizontalCroppingEnabled() && widthToHeightRatio > threshold;
+        if (isExtremelyWide) {
+            int croppedWidth = (int) (height / TARGET_COVER_ASPECT_RATIO);
+            log.debug("Cropping wide image: {}x{} (ratio {}) -> {}x{}, smartCrop={}", 
+                    width, height, String.format("%.2f", widthToHeightRatio), croppedWidth, height, smartCrop);
+            return cropFromLeft(image, croppedWidth, height, smartCrop);
+        }
+
+        return image;
+    }
+
+    private BufferedImage cropFromTop(BufferedImage image, int targetWidth, int targetHeight, boolean smartCrop) {
+        int startY = 0;
+        if (smartCrop) {
+            int contentStartY = findContentStartY(image);
+            int margin = (int) (targetHeight * SMART_CROP_MARGIN_PERCENT);
+            startY = Math.max(0, contentStartY - margin);
+            
+            int maxStartY = image.getHeight() - targetHeight;
+            startY = Math.min(startY, maxStartY);
+        }
+        return image.getSubimage(0, startY, targetWidth, targetHeight);
+    }
+
+    private BufferedImage cropFromLeft(BufferedImage image, int targetWidth, int targetHeight, boolean smartCrop) {
+        int startX = 0;
+        if (smartCrop) {
+            int contentStartX = findContentStartX(image);
+            int margin = (int) (targetWidth * SMART_CROP_MARGIN_PERCENT);
+            startX = Math.max(0, contentStartX - margin);
+            
+            int maxStartX = image.getWidth() - targetWidth;
+            startX = Math.min(startX, maxStartX);
+        }
+        return image.getSubimage(startX, 0, targetWidth, targetHeight);
+    }
+
+    private int findContentStartY(BufferedImage image) {
+        for (int y = 0; y < image.getHeight(); y++) {
+            if (!isRowUniformColor(image, y)) {
+                return y;
+            }
+        }
+        return 0;
+    }
+
+    private int findContentStartX(BufferedImage image) {
+        for (int x = 0; x < image.getWidth(); x++) {
+            if (!isColumnUniformColor(image, x)) {
+                return x;
+            }
+        }
+        return 0;
+    }
+
+    private boolean isRowUniformColor(BufferedImage image, int y) {
+        int firstPixel = image.getRGB(0, y);
+        for (int x = 1; x < image.getWidth(); x++) {
+            if (!colorsAreSimilar(firstPixel, image.getRGB(x, y))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isColumnUniformColor(BufferedImage image, int x) {
+        int firstPixel = image.getRGB(x, 0);
+        for (int y = 1; y < image.getHeight(); y++) {
+            if (!colorsAreSimilar(firstPixel, image.getRGB(x, y))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean colorsAreSimilar(int rgb1, int rgb2) {
+        int r1 = (rgb1 >> 16) & 0xFF, g1 = (rgb1 >> 8) & 0xFF, b1 = rgb1 & 0xFF;
+        int r2 = (rgb2 >> 16) & 0xFF, g2 = (rgb2 >> 8) & 0xFF, b2 = rgb2 & 0xFF;
+        return Math.abs(r1 - r2) <= SMART_CROP_COLOR_TOLERANCE
+            && Math.abs(g1 - g2) <= SMART_CROP_COLOR_TOLERANCE
+            && Math.abs(b1 - b2) <= SMART_CROP_COLOR_TOLERANCE;
     }
 
     public static void setBookCoverPath(BookMetadataEntity bookMetadataEntity) {

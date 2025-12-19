@@ -70,8 +70,6 @@ public class Fb2Processor extends AbstractFileProcessor implements BookFileProce
             }
 
             boolean saved = saveCoverImage(coverData, bookEntity.getId());
-            bookEntity.getMetadata().setCoverUpdatedOn(Instant.now());
-            bookMetadataRepository.save(bookEntity.getMetadata());
             return saved;
 
         } catch (Exception e) {

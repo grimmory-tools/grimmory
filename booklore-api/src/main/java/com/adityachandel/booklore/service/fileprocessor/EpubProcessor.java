@@ -80,10 +80,6 @@ public class EpubProcessor extends AbstractFileProcessor implements BookFileProc
                 originalImage.flush();
             }
 
-            if (saved) {
-                bookEntity.getMetadata().setCoverUpdatedOn(Instant.now());
-                bookMetadataRepository.save(bookEntity.getMetadata());
-            }
             return saved;
 
         } catch (Exception e) {

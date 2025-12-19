@@ -1,7 +1,11 @@
 package com.adityachandel.booklore.util;
 
 import com.adityachandel.booklore.config.AppProperties;
+import com.adityachandel.booklore.model.dto.settings.AppSettings;
+import com.adityachandel.booklore.model.dto.settings.CoverCroppingSettings;
 import com.adityachandel.booklore.model.entity.BookMetadataEntity;
+import com.adityachandel.booklore.repository.BookMetadataRepository;
+import com.adityachandel.booklore.service.appsettings.AppSettingService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
@@ -41,6 +45,9 @@ class FileServiceTest {
     @Mock
     private AppProperties appProperties;
 
+    @Mock
+    private AppSettingService appSettingService;
+
     private FileService fileService;
 
     @TempDir
@@ -48,7 +55,17 @@ class FileServiceTest {
 
     @BeforeEach
     void setup() {
-        fileService = new FileService(appProperties, mock(RestTemplate.class)); // mock RestTemplate for most tests
+        CoverCroppingSettings coverCroppingSettings = CoverCroppingSettings.builder()
+                .verticalCroppingEnabled(true)
+                .horizontalCroppingEnabled(true)
+                .aspectRatioThreshold(2.5)
+                .build();
+        AppSettings appSettings = AppSettings.builder()
+                .coverCroppingSettings(coverCroppingSettings)
+                .build();
+        lenient().when(appSettingService.getAppSettings()).thenReturn(appSettings);
+        
+        fileService = new FileService(appProperties, mock(RestTemplate.class), appSettingService, mock(BookMetadataRepository.class));
     }
 
     @Nested
@@ -615,6 +632,116 @@ class FileServiceTest {
         }
 
         @Nested
+        @DisplayName("Cover Cropping for Extreme Aspect Ratios")
+        class CoverCroppingTests {
+
+            @Test
+            @DisplayName("extremely tall image is cropped when vertical cropping enabled")
+            void extremelyTallImage_isCropped() throws IOException {
+                // Create an extremely tall image like a web comic page (ratio > 2.5)
+                int width = 940;
+                int height = 11280;  // ratio = 12:1
+
+                BufferedImage tallImage = createTestImage(width, height);
+                boolean result = fileService.saveCoverImages(tallImage, 100L);
+
+                assertTrue(result);
+
+                BufferedImage savedCover = ImageIO.read(
+                    new File(fileService.getCoverFile(100L)));
+
+                assertNotNull(savedCover);
+                
+                // The image should be cropped to approximately 1.5:1 ratio from the top
+                double savedRatio = (double) savedCover.getHeight() / savedCover.getWidth();
+                assertTrue(savedRatio < 3.0, 
+                    "Cropped image should have reasonable aspect ratio, was: " + savedRatio);
+            }
+
+            @Test
+            @DisplayName("extremely wide image is cropped when horizontal cropping enabled")
+            void extremelyWideImage_isCropped() throws IOException {
+                // Create an extremely wide image (ratio > 2.5)
+                int width = 3000;
+                int height = 400;  // width/height ratio = 7.5:1
+
+                BufferedImage wideImage = createTestImage(width, height);
+                boolean result = fileService.saveCoverImages(wideImage, 101L);
+
+                assertTrue(result);
+
+                BufferedImage savedCover = ImageIO.read(
+                    new File(fileService.getCoverFile(101L)));
+
+                assertNotNull(savedCover);
+                
+                // The image should be cropped to a more reasonable aspect ratio
+                double savedRatio = (double) savedCover.getWidth() / savedCover.getHeight();
+                assertTrue(savedRatio < 3.0, 
+                    "Cropped image should have reasonable aspect ratio, was: " + savedRatio);
+            }
+
+            @Test
+            @DisplayName("normal aspect ratio image is not cropped")
+            void normalAspectRatioImage_isNotCropped() throws IOException {
+                // Create a normal book cover sized image (ratio ~1.5:1)
+                int width = 600;
+                int height = 900;  // ratio = 1.5:1
+
+                BufferedImage normalImage = createTestImage(width, height);
+                boolean result = fileService.saveCoverImages(normalImage, 102L);
+
+                assertTrue(result);
+
+                BufferedImage savedCover = ImageIO.read(
+                    new File(fileService.getCoverFile(102L)));
+
+                assertNotNull(savedCover);
+                
+                // The image should maintain its original aspect ratio
+                double originalRatio = (double) height / width;
+                double savedRatio = (double) savedCover.getHeight() / savedCover.getWidth();
+                assertEquals(originalRatio, savedRatio, 0.01, 
+                    "Normal aspect ratio image should not be cropped");
+            }
+
+            @Test
+            @DisplayName("cropping is disabled when settings are off")
+            void croppingDisabled_imageNotCropped() throws IOException {
+                // Reconfigure with cropping disabled
+                CoverCroppingSettings disabledSettings = CoverCroppingSettings.builder()
+                        .verticalCroppingEnabled(false)
+                        .horizontalCroppingEnabled(false)
+                        .aspectRatioThreshold(2.5)
+                        .build();
+                AppSettings appSettings = AppSettings.builder()
+                        .coverCroppingSettings(disabledSettings)
+                        .build();
+                when(appSettingService.getAppSettings()).thenReturn(appSettings);
+
+                // Create an extremely tall image
+                int width = 400;
+                int height = 4000;  // ratio = 10:1
+
+                BufferedImage tallImage = createTestImage(width, height);
+                boolean result = fileService.saveCoverImages(tallImage, 103L);
+
+                assertTrue(result);
+
+                BufferedImage savedCover = ImageIO.read(
+                    new File(fileService.getCoverFile(103L)));
+
+                assertNotNull(savedCover);
+                
+                // Since the image exceeds max dimensions, it will be scaled, but aspect ratio preserved
+                double originalRatio = (double) height / width;
+                double savedRatio = (double) savedCover.getHeight() / savedCover.getWidth();
+                assertEquals(originalRatio, savedRatio, 0.01, 
+                    "Image should not be cropped when cropping is disabled");
+            }
+        }
+
+        @Nested
         @DisplayName("createThumbnailFromFile")
         class CreateThumbnailFromFileTests {
 
@@ -823,12 +950,26 @@ class FileServiceTest {
         @Mock
         private RestTemplate restTemplate;
 
+        @Mock
+        private AppSettingService appSettingServiceForNetwork;
+
         private FileService fileService;
 
         @BeforeEach
         void setup() {
             lenient().when(appProperties.getPathConfig()).thenReturn(tempDir.toString());
-            fileService = new FileService(appProperties, restTemplate);
+            
+            CoverCroppingSettings coverCroppingSettings = CoverCroppingSettings.builder()
+                    .verticalCroppingEnabled(true)
+                    .horizontalCroppingEnabled(true)
+                    .aspectRatioThreshold(2.5)
+                    .build();
+            AppSettings appSettings = AppSettings.builder()
+                    .coverCroppingSettings(coverCroppingSettings)
+                    .build();
+            lenient().when(appSettingServiceForNetwork.getAppSettings()).thenReturn(appSettings);
+            
+            fileService = new FileService(appProperties, restTemplate, appSettingServiceForNetwork, mock(BookMetadataRepository.class));
         }
 
         @Nested
@@ -844,7 +985,8 @@ class FileServiceTest {
                 byte[] imageBytes = imageToBytes(testImage);
 
                 RestTemplate mockRestTemplate = mock(RestTemplate.class);
-                FileService testFileService = new FileService(appProperties, mockRestTemplate);
+                AppSettingService mockAppSettingService = mock(AppSettingService.class);
+                FileService testFileService = new FileService(appProperties, mockRestTemplate, mockAppSettingService, mock(BookMetadataRepository.class));
 
                 ResponseEntity<byte[]> responseEntity = ResponseEntity.ok(imageBytes);
                 when(mockRestTemplate.exchange(

@@ -16,6 +16,7 @@ public enum AppSettingKey {
     METADATA_PERSISTENCE_SETTINGS("metadata_persistence_settings", true, false),
     METADATA_PUBLIC_REVIEWS_SETTINGS("metadata_public_reviews_settings", true, false),
     KOBO_SETTINGS("kobo_settings", true, false),
+    COVER_CROPPING_SETTINGS("cover_cropping_settings", true, false),
 
     AUTO_BOOK_SEARCH("auto_book_search", false, false),
     COVER_IMAGE_RESOLUTION("cover_image_resolution", false, false),

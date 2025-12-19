@@ -22,7 +22,8 @@ export class BookMenuService {
     autoFetchMetadata: () => void,
     fetchMetadata: () => void,
     bulkEditMetadata: () => void,
-    multiBookEditMetadata: () => void): MenuItem[] {
+    multiBookEditMetadata: () => void,
+    regenerateCovers: () => void): MenuItem[] {
     return [
       {
         label: 'Auto Fetch Metadata',
@@ -43,6 +44,11 @@ export class BookMenuService {
         label: 'Multi-Book Metadata Editor',
         icon: 'pi pi-clone',
         command: multiBookEditMetadata
+      },
+      {
+        label: 'Regenerate Covers',
+        icon: 'pi pi-image',
+        command: regenerateCovers
       }
     ];
   }

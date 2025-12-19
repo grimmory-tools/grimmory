@@ -312,6 +312,49 @@
       </div>
     </div>
 
+    <!-- Cover Image Upload Section -->
+    <div class="flex flex-col gap-2 border border-gray-700 rounded-md p-4 bg-gray-900">
+      <label class="flex items-center gap-2 text-base font-semibold">
+        <i class="pi pi-image"></i>
+        Cover Image
+      </label>
+      <p class="text-sm text-gray-400">
+        Upload an image to set as the cover for all selected books.
+      </p>
+      <div class="flex items-center gap-4 mt-2">
+        @if (selectedCoverFile) {
+          <div class="flex items-center gap-2 text-sm text-gray-300">
+            <i class="pi pi-file-image"></i>
+            <span>{{ selectedCoverFile.name }}</span>
+            <p-button
+              icon="pi pi-times"
+              [text]="true"
+              size="small"
+              severity="danger"
+              (onClick)="clearCoverFile()"
+              pTooltip="Remove file"
+              tooltipPosition="top">
+            </p-button>
+          </div>
+        } @else {
+          <input
+            type="file"
+            #coverFileInput
+            accept="image/jpeg,image/png,image/webp"
+            (change)="onCoverFileSelect($event)"
+            class="hidden">
+          <p-button
+            icon="pi pi-upload"
+            label="Select Image"
+            [outlined]="true"
+            size="small"
+            severity="info"
+            (onClick)="coverFileInput.click()">
+          </p-button>
+        }
+      </div>
+    </div>
+
     <div class="flex justify-end mt-4">
       <p-button type="submit" label="Apply to Selected" [disabled]="loading"/>
     </div>

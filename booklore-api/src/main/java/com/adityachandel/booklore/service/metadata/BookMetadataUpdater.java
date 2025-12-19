@@ -357,7 +357,6 @@ public class BookMetadataUpdater {
         if (!set) return;
         if (!StringUtils.hasText(m.getThumbnailUrl()) || isLocalOrPrivateUrl(m.getThumbnailUrl())) return;
         fileService.createThumbnailFromUrl(bookId, m.getThumbnailUrl());
-        e.setCoverUpdatedOn(Instant.now());
     }
 
     private void updateLocks(BookMetadata m, BookMetadataEntity e) {

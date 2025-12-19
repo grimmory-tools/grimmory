@@ -156,6 +156,27 @@ public class MetadataController {
         bookMetadataService.regenerateCover(bookId);
     }
 
+    @Operation(summary = "Regenerate covers for selected books", description = "Regenerate covers for a list of books. Requires metadata edit permission or admin.")
+    @ApiResponse(responseCode = "204", description = "Cover regeneration started successfully")
+    @PostMapping("/bulk-regenerate-covers")
+    @PreAuthorize("@securityUtil.canEditMetadata() or @securityUtil.isAdmin()")
+    public ResponseEntity<Void> regenerateCoversForBooks(
+            @Parameter(description = "List of book IDs") @Validated @RequestBody BulkBookIdsRequest request) {
+        bookMetadataService.regenerateCoversForBooks(request.getBookIds());
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Upload cover image for multiple books", description = "Upload a cover image to apply to multiple books. Requires metadata edit permission or admin.")
+    @ApiResponse(responseCode = "204", description = "Cover upload started successfully")
+    @PostMapping("/bulk-upload-cover")
+    @PreAuthorize("@securityUtil.canEditMetadata() or @securityUtil.isAdmin()")
+    public ResponseEntity<Void> bulkUploadCover(
+            @Parameter(description = "Cover image file") @RequestParam("file") MultipartFile file,
+            @Parameter(description = "Comma-separated book IDs") @RequestParam("bookIds") @jakarta.validation.constraints.NotEmpty java.util.Set<Long> bookIds) {
+        bookMetadataService.updateCoverImageFromFileForBooks(bookIds, file);
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "Recalculate metadata match scores", description = "Recalculate match scores for all metadata. Requires admin.")
     @ApiResponse(responseCode = "204", description = "Match scores recalculated successfully")
     @PostMapping("/metadata/recalculate-match-scores")

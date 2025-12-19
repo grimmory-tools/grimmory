@@ -7,9 +7,10 @@ import {MessageService} from 'primeng/api';
 
 import {AppSettingsService} from '../../../shared/service/app-settings.service';
 import {BookService} from '../../book/service/book.service';
-import {AppSettingKey, AppSettings} from '../../../shared/model/app-settings.model';
+import {AppSettingKey, AppSettings, CoverCroppingSettings} from '../../../shared/model/app-settings.model';
 import {filter, take} from 'rxjs/operators';
 import {InputText} from 'primeng/inputtext';
+import {Slider} from 'primeng/slider';
 
 @Component({
   selector: 'app-global-preferences',
@@ -18,7 +19,8 @@ import {InputText} from 'primeng/inputtext';
     Button,
     ToggleSwitch,
     FormsModule,
-    InputText
+    InputText,
+    Slider
   ],
   templateUrl: './global-preferences.component.html',
   styleUrl: './global-preferences.component.scss'
@@ -28,6 +30,13 @@ export class GlobalPreferencesComponent implements OnInit {
   toggles = {
     autoBookSearch: false,
     similarBookRecommendation: false,
+  };
+
+  coverCroppingSettings: CoverCroppingSettings = {
+    verticalCroppingEnabled: false,
+    horizontalCroppingEnabled: false,
+    aspectRatioThreshold: 2.5,
+    smartCroppingEnabled: false
   };
 
   private appSettingsService = inject(AppSettingsService);
@@ -49,6 +58,9 @@ export class GlobalPreferencesComponent implements OnInit {
       if (settings?.maxFileUploadSizeInMb) {
         this.maxFileUploadSizeInMb = settings.maxFileUploadSizeInMb;
       }
+      if (settings?.coverCroppingSettings) {
+        this.coverCroppingSettings = {...settings.coverCroppingSettings};
+      }
       this.toggles.autoBookSearch = settings.autoBookSearch ?? false;
       this.toggles.similarBookRecommendation = settings.similarBookRecommendation ?? false;
     });
@@ -66,6 +78,10 @@ export class GlobalPreferencesComponent implements OnInit {
     } else {
       console.warn(`Unknown toggle key: ${settingKey}`);
     }
+  }
+
+  onCoverCroppingChange(): void {
+    this.saveSetting(AppSettingKey.COVER_CROPPING_SETTINGS, this.coverCroppingSettings);
   }
 
   saveCacheSize(): void {

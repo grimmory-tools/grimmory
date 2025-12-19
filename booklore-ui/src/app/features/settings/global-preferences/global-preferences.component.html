@@ -34,7 +34,76 @@
             </div>
             <p class="setting-description">
               <i class="pi pi-info-circle"></i>
-              Regenerates cover images for all EPUB and PDF books (excluding locked ones) from the embedded covers in the file.
+              Regenerates cover images for all books from the embedded covers in the file.
+            </p>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-label-row">
+              <label class="setting-label">Vertical Cover Cropping</label>
+              <p-toggleswitch
+                [(ngModel)]="coverCroppingSettings.verticalCroppingEnabled"
+                (onChange)="onCoverCroppingChange()">
+              </p-toggleswitch>
+            </div>
+            <p class="setting-description">
+              <i class="pi pi-info-circle"></i>
+              Automatically crop extremely tall images (like web comics) from the top to create usable cover thumbnails.
+            </p>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-label-row">
+              <label class="setting-label">Horizontal Cover Cropping</label>
+              <p-toggleswitch
+                [(ngModel)]="coverCroppingSettings.horizontalCroppingEnabled"
+                (onChange)="onCoverCroppingChange()">
+              </p-toggleswitch>
+            </div>
+            <p class="setting-description">
+              <i class="pi pi-info-circle"></i>
+              Automatically crop extremely wide images from the left to create usable cover thumbnails.
+            </p>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-label-row">
+              <label class="setting-label">Aspect Ratio Threshold: {{ coverCroppingSettings.aspectRatioThreshold }}</label>
+              <div class="slider-container">
+                <p-slider
+                  [(ngModel)]="coverCroppingSettings.aspectRatioThreshold"
+                  [min]="1.5"
+                  [max]="3"
+                  [step]="0.1"
+                  (onSlideEnd)="onCoverCroppingChange()">
+                </p-slider>
+              </div>
+            </div>
+            <p class="setting-description">
+              <i class="pi pi-info-circle"></i>
+              Images with aspect ratios exceeding this threshold will be cropped. A value of 2.5 means images more than 2.5x taller (or wider) than normal will be cropped.
+            </p>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-label-row">
+              <label class="setting-label">Smart Cropping</label>
+              <p-toggleswitch
+                [(ngModel)]="coverCroppingSettings.smartCroppingEnabled"
+                (onChange)="onCoverCroppingChange()">
+              </p-toggleswitch>
+            </div>
+            <p class="setting-description">
+              <i class="pi pi-info-circle"></i>
+              Skip uniform colour regions when determining where to crop. Focuses the cover image on the most relevant content.
             </p>
           </div>
         </div>

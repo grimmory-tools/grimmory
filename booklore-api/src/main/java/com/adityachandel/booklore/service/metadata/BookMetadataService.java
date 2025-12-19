@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
@@ -56,6 +57,8 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class BookMetadataService {
+
+    private static final int BATCH_SIZE = 100;
 
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
@@ -157,6 +160,76 @@ public class BookMetadataService {
         return updateCover(bookId, (writer, book) -> writer.replaceCoverImageFromUpload(book, file));
     }
 
+    public void updateCoverImageFromFileForBooks(Set<Long> bookIds, MultipartFile file) {
+        validateCoverFile(file);
+        byte[] coverImageBytes = extractBytesFromMultipartFile(file);
+        List<BookCoverInfo> unlockedBooks = getUnlockedBookCoverInfos(bookIds);
+
+        SecurityContextVirtualThread.runWithSecurityContext(() -> 
+            processBulkCoverUpdate(unlockedBooks, coverImageBytes));
+    }
+
+    private void validateCoverFile(MultipartFile file) {
+        if (file.isEmpty()) {
+            throw ApiError.INVALID_INPUT.createException("Uploaded file is empty");
+        }
+        String contentType = file.getContentType();
+        if (contentType == null || (!contentType.toLowerCase().startsWith("image/jpeg") && !contentType.toLowerCase().startsWith("image/png"))) {
+            throw ApiError.INVALID_INPUT.createException("Only JPEG and PNG files are allowed");
+        }
+        long maxFileSize = 5L * 1024 * 1024;
+        if (file.getSize() > maxFileSize) {
+            throw ApiError.FILE_TOO_LARGE.createException(5);
+        }
+    }
+
+    private byte[] extractBytesFromMultipartFile(MultipartFile file) {
+        try {
+            return file.getBytes();
+        } catch (Exception e) {
+            log.error("Failed to read cover file: {}", e.getMessage());
+            throw new RuntimeException("Failed to read cover file", e);
+        }
+    }
+
+    private record BookCoverInfo(Long id, String title) {}
+
+    private List<BookCoverInfo> getUnlockedBookCoverInfos(Set<Long> bookIds) {
+        return bookQueryService.findAllWithMetadataByIds(bookIds).stream()
+                .filter(book -> !isCoverLocked(book))
+                .map(book -> new BookCoverInfo(book.getId(), book.getMetadata().getTitle()))
+                .toList();
+    }
+
+    private boolean isCoverLocked(BookEntity book) {
+        return book.getMetadata().getCoverLocked() != null && book.getMetadata().getCoverLocked();
+    }
+
+    private void processBulkCoverUpdate(List<BookCoverInfo> books, byte[] coverImageBytes) {
+        try {
+            int total = books.size();
+            notificationService.sendMessage(Topic.LOG, LogNotification.info("Started updating covers for " + total + " selected book(s)"));
+
+            int current = 1;
+            for (BookCoverInfo bookInfo : books) {
+                try {
+                    String progress = "(" + current + "/" + total + ") ";
+                    notificationService.sendMessage(Topic.LOG, LogNotification.info(progress + "Updating cover for: " + bookInfo.title()));
+                    fileService.createThumbnailFromBytes(bookInfo.id(), coverImageBytes);
+                    log.info("{}Successfully updated cover for book ID {} ({})", progress, bookInfo.id(), bookInfo.title());
+                } catch (Exception e) {
+                    log.error("Failed to update cover for book ID {}: {}", bookInfo.id(), e.getMessage(), e);
+                }
+                pauseAfterBatchIfNeeded(current, total);
+                current++;
+            }
+            notificationService.sendMessage(Topic.LOG, LogNotification.info("Finished updating covers for selected books"));
+        } catch (Exception e) {
+            log.error("Error during cover update: {}", e.getMessage(), e);
+            notificationService.sendMessage(Topic.LOG, LogNotification.error("Error occurred during cover update"));
+        }
+    }
+
     @Transactional
     public BookMetadata updateCoverImageFromUrl(Long bookId, String url) {
         fileService.createThumbnailFromUrl(bookId, url);
@@ -190,24 +263,83 @@ public class BookMetadataService {
         }
     }
 
+    private record BookRegenerationInfo(Long id, String title, BookFileType bookType) {}
+
+    public void regenerateCoversForBooks(Set<Long> bookIds) {
+        List<BookRegenerationInfo> unlockedBooks = getUnlockedBookRegenerationInfos(bookIds);
+        SecurityContextVirtualThread.runWithSecurityContext(() -> 
+            processBulkCoverRegeneration(unlockedBooks));
+    }
+
+    private List<BookRegenerationInfo> getUnlockedBookRegenerationInfos(Set<Long> bookIds) {
+        return bookQueryService.findAllWithMetadataByIds(bookIds).stream()
+                .filter(book -> !isCoverLocked(book))
+                .map(book -> new BookRegenerationInfo(book.getId(), book.getMetadata().getTitle(), book.getBookType()))
+                .toList();
+    }
+
+    private void processBulkCoverRegeneration(List<BookRegenerationInfo> books) {
+        try {
+            int total = books.size();
+            notificationService.sendMessage(Topic.LOG, LogNotification.info("Started regenerating covers for " + total + " selected book(s)"));
+
+            int current = 1;
+            for (BookRegenerationInfo bookInfo : books) {
+                try {
+                    String progress = "(" + current + "/" + total + ") ";
+                    notificationService.sendMessage(Topic.LOG, LogNotification.info(progress + "Regenerating cover for: " + bookInfo.title()));
+                    regenerateCoverForBookId(bookInfo);
+                    log.info("{}Successfully regenerated cover for book ID {} ({})", progress, bookInfo.id(), bookInfo.title());
+                } catch (Exception e) {
+                    log.error("Failed to regenerate cover for book ID {}: {}", bookInfo.id(), e.getMessage(), e);
+                }
+                pauseAfterBatchIfNeeded(current, total);
+                current++;
+            }
+            notificationService.sendMessage(Topic.LOG, LogNotification.info("Finished regenerating covers for selected books"));
+        } catch (Exception e) {
+            log.error("Error during cover regeneration: {}", e.getMessage(), e);
+            notificationService.sendMessage(Topic.LOG, LogNotification.error("Error occurred during cover regeneration"));
+        }
+    }
+
+    private void pauseAfterBatchIfNeeded(int current, int total) {
+        if (current % BATCH_SIZE == 0 && current < total) {
+            try {
+                log.info("Processed {} items, pausing briefly before next batch...", current);
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                log.warn("Batch pause interrupted");
+            }
+        }
+    }
+
+    private void regenerateCoverForBookId(BookRegenerationInfo bookInfo) {
+        bookRepository.findById(bookInfo.id()).ifPresent(book -> {
+            BookFileProcessor processor = processorRegistry.getProcessorOrThrow(bookInfo.bookType());
+            processor.generateCover(book);
+        });
+    }
+
     public void regenerateCovers() {
         SecurityContextVirtualThread.runWithSecurityContext(() -> {
             try {
                 List<BookEntity> books = bookQueryService.getAllFullBookEntities().stream()
-                        .filter(book -> book.getMetadata().getCoverLocked() == null || !book.getMetadata().getCoverLocked())
+                        .filter(book -> !isCoverLocked(book))
                         .toList();
                 int total = books.size();
                 notificationService.sendMessage(Topic.LOG, LogNotification.info("Started regenerating covers for " + total + " books"));
 
-                int[] current = {1};
+                int current = 1;
                 for (BookEntity book : books) {
                     try {
-                        String progress = "(" + current[0] + "/" + total + ") ";
+                        String progress = "(" + current + "/" + total + ") ";
                         regenerateCoverForBook(book, progress);
                     } catch (Exception e) {
-                        log.error("Failed to regenerate cover for book ID {}: {}", book.getId(), e.getMessage());
+                        log.error("Failed to regenerate cover for book ID {}: {}", book.getId(), e.getMessage(), e);
                     }
-                    current[0]++;
+                    current++;
                 }
                 notificationService.sendMessage(Topic.LOG, LogNotification.info("Finished regenerating covers"));
             } catch (Exception e) {
@@ -219,8 +351,7 @@ public class BookMetadataService {
 
     private void regenerateCoverForBook(BookEntity book, String progress) {
         String title = book.getMetadata().getTitle();
-        String message = progress + "Regenerating cover for: " + title;
-        notificationService.sendMessage(Topic.LOG, LogNotification.info(message));
+        notificationService.sendMessage(Topic.LOG, LogNotification.info(progress + "Regenerating cover for: " + title));
 
         BookFileProcessor processor = processorRegistry.getProcessorOrThrow(book.getBookType());
         processor.generateCover(book);

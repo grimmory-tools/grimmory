@@ -62,10 +62,7 @@ public class PdfProcessor extends AbstractFileProcessor implements BookFileProce
     @Override
     public boolean generateCover(BookEntity bookEntity) {
         try (PDDocument pdf = Loader.loadPDF(new File(FileUtils.getBookFullPath(bookEntity)))) {
-            boolean saved = generateCoverImageAndSave(bookEntity.getId(), pdf);
-            bookEntity.getMetadata().setCoverUpdatedOn(Instant.now());
-            bookMetadataRepository.save(bookEntity.getMetadata());
-            return saved;
+            return generateCoverImageAndSave(bookEntity.getId(), pdf);
         } catch (OutOfMemoryError e) {
             // Note: Catching OOM is generally discouraged, but for batch processing
             // of potentially large/corrupted PDFs, we prefer graceful degradation

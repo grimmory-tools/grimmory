@@ -41,6 +41,7 @@ export class BulkMetadataUpdateComponent implements OnInit {
   mergeMoods = true;
   mergeTags = true;
   loading = false;
+  selectedCoverFile: File | null = null;
 
   clearFields = {
     authors: false,
@@ -257,13 +258,37 @@ export class BulkMetadataUpdateComponent implements OnInit {
     this.loading = true;
     this.bookService.updateBooksMetadata(payload).subscribe({
       next: () => {
-        this.loading = false;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Metadata Updated',
-          detail: 'Books updated successfully'
-        });
-        this.ref.close(true);
+        if (this.selectedCoverFile) {
+          this.bookService.bulkUploadCover(this.bookIds, this.selectedCoverFile).subscribe({
+            next: () => {
+              this.loading = false;
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Metadata & Cover Updated',
+                detail: 'Books updated and cover upload started. Refresh the page when complete.'
+              });
+              this.ref.close(true);
+            },
+            error: err => {
+              console.error('Bulk cover upload failed:', err);
+              this.loading = false;
+              this.messageService.add({
+                severity: 'warn',
+                summary: 'Partial Success',
+                detail: 'Metadata updated but cover upload failed'
+              });
+              this.ref.close(true);
+            }
+          });
+        } else {
+          this.loading = false;
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Metadata Updated',
+            detail: 'Books updated successfully'
+          });
+          this.ref.close(true);
+        }
       },
       error: err => {
         console.error('Bulk metadata update failed:', err);
@@ -275,5 +300,16 @@ export class BulkMetadataUpdateComponent implements OnInit {
         });
       }
     });
+  }
+
+  onCoverFileSelect(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedCoverFile = input.files[0];
+    }
+  }
+
+  clearCoverFile(): void {
+    this.selectedCoverFile = null;
   }
 }

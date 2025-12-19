@@ -55,7 +55,7 @@ public enum ApiError {
     SHELF_CANNOT_BE_DELETED(HttpStatus.FORBIDDEN, "'%s' shelf can't be deleted" ),
     TASK_NOT_FOUND(HttpStatus.NOT_FOUND, "Scheduled task not found: %s"),
     TASK_ALREADY_RUNNING(HttpStatus.CONFLICT, "Task is already running: %s"),
-    ICON_ALREADY_EXISTS(HttpStatus.CONFLICT, "SVG icon with name '%s' already exists"),;
+    ICON_ALREADY_EXISTS(HttpStatus.CONFLICT, "SVG icon with name '%s' already exists");
 
     private final HttpStatus status;
     private final String message;
