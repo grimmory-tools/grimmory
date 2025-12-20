@@ -43,6 +43,7 @@ export class KoboSyncSettingsComponent implements OnInit, OnDestroy {
   isAdmin = false;
   credentialsSaved = false;
   showToken = false;
+  showHardcoverApiKey = false;
 
   koboSettings: KoboSettings = {
     convertToKepub: false,
@@ -58,7 +59,9 @@ export class KoboSyncSettingsComponent implements OnInit, OnDestroy {
     syncEnabled: false,
     progressMarkAsReadingThreshold: 1,
     progressMarkAsFinishedThreshold: 99,
-    autoAddToShelf: true
+    autoAddToShelf: true,
+    hardcoverApiKey: '',
+    hardcoverSyncEnabled: false
   }
 
   ngOnInit() {
@@ -119,6 +122,8 @@ export class KoboSyncSettingsComponent implements OnInit, OnDestroy {
         this.koboSyncSettings.progressMarkAsReadingThreshold = settings.progressMarkAsReadingThreshold ?? 1;
         this.koboSyncSettings.progressMarkAsFinishedThreshold = settings.progressMarkAsFinishedThreshold ?? 99;
         this.koboSyncSettings.autoAddToShelf = settings.autoAddToShelf ?? false;
+        this.koboSyncSettings.hardcoverApiKey = settings.hardcoverApiKey ?? '';
+        this.koboSyncSettings.hardcoverSyncEnabled = settings.hardcoverSyncEnabled ?? false;
         this.credentialsSaved = !!settings.token;
       },
       error: () => {
@@ -165,6 +170,21 @@ export class KoboSyncSettingsComponent implements OnInit, OnDestroy {
 
   toggleShowToken() {
     this.showToken = !this.showToken;
+  }
+
+  toggleShowHardcoverApiKey() {
+    this.showHardcoverApiKey = !this.showHardcoverApiKey;
+  }
+
+  onHardcoverSyncToggle() {
+    const message = this.koboSyncSettings.hardcoverSyncEnabled
+      ? 'Hardcover sync enabled'
+      : 'Hardcover sync disabled';
+    this.updateKoboSettings(message);
+  }
+
+  onHardcoverApiKeyChange() {
+    this.updateKoboSettings('Hardcover API key updated');
   }
 
   confirmRegenerateToken() {

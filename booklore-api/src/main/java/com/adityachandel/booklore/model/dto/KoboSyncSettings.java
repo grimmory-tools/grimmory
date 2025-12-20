@@ -12,4 +12,6 @@ public class KoboSyncSettings {
     private Float progressMarkAsReadingThreshold;
     private Float progressMarkAsFinishedThreshold;
     private boolean autoAddToShelf;
+    private String hardcoverApiKey;
+    private boolean hardcoverSyncEnabled;
 }

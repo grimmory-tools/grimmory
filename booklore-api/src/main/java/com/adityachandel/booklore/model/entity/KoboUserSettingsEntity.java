@@ -37,4 +37,11 @@ public class KoboUserSettingsEntity {
     @Column(name = "auto_add_to_shelf")
     @Builder.Default
     private boolean autoAddToShelf = false;
+
+    @Column(name = "hardcover_api_key", length = 2048)
+    private String hardcoverApiKey;
+
+    @Column(name = "hardcover_sync_enabled")
+    @Builder.Default
+    private boolean hardcoverSyncEnabled = false;
 }

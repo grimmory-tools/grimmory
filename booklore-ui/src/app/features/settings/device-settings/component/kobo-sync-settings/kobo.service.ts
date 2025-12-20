@@ -9,6 +9,8 @@ export interface KoboSyncSettings {
   progressMarkAsReadingThreshold?: number;
   progressMarkAsFinishedThreshold?: number;
   autoAddToShelf: boolean;
+  hardcoverApiKey?: string;
+  hardcoverSyncEnabled?: boolean;
 }
 
 @Injectable({

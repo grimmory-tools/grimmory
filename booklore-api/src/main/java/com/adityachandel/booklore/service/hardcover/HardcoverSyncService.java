@@ -1,13 +1,14 @@
 package com.adityachandel.booklore.service.hardcover;
 
-import com.adityachandel.booklore.model.dto.settings.MetadataProviderSettings;
+import com.adityachandel.booklore.model.dto.KoboSyncSettings;
 import com.adityachandel.booklore.model.entity.BookEntity;
 import com.adityachandel.booklore.model.entity.BookMetadataEntity;
 import com.adityachandel.booklore.repository.BookRepository;
-import com.adityachandel.booklore.service.appsettings.AppSettingService;
+import com.adityachandel.booklore.service.kobo.KoboSettingsService;
 import com.adityachandel.booklore.service.metadata.parser.hardcover.GraphQLRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
@@ -23,8 +24,8 @@ import java.util.Map;
 
 /**
  * Service to sync reading progress to Hardcover.
- * Uses the global Hardcover API token from Metadata Provider Settings.
- * Sync only activates if the token is configured and Hardcover is enabled.
+ * Uses per-user Hardcover API tokens for reading progress sync.
+ * Each user can configure their own Hardcover API key in Kobo settings.
  */
 @Slf4j
 @Service
@@ -35,12 +36,15 @@ public class HardcoverSyncService {
     private static final int STATUS_READ = 3;
 
     private final RestClient restClient;
-    private final AppSettingService appSettingService;
+    private final KoboSettingsService koboSettingsService;
     private final BookRepository bookRepository;
 
+    // Thread-local to hold the current API token for GraphQL requests
+    private final ThreadLocal<String> currentApiToken = new ThreadLocal<>();
+
     @Autowired
-    public HardcoverSyncService(AppSettingService appSettingService, BookRepository bookRepository) {
-        this.appSettingService = appSettingService;
+    public HardcoverSyncService(@Lazy KoboSettingsService koboSettingsService, BookRepository bookRepository) {
+        this.koboSettingsService = koboSettingsService;
         this.bookRepository = bookRepository;
         this.restClient = RestClient.builder()
                 .baseUrl(HARDCOVER_API_URL)
@@ -50,105 +54,116 @@ public class HardcoverSyncService {
     /**
      * Asynchronously sync Kobo reading progress to Hardcover.
      * This method is non-blocking and will not fail the calling process if sync fails.
+     * Uses the user's personal Hardcover API key if configured.
      *
      * @param bookId The book ID to sync progress for
      * @param progressPercent The reading progress as a percentage (0-100)
+     * @param userId The user ID whose reading progress is being synced
      */
     @Async
     @Transactional(readOnly = true)
-    public void syncProgressToHardcover(Long bookId, Float progressPercent) {
+    public void syncProgressToHardcover(Long bookId, Float progressPercent, Long userId) {
         try {
-            if (!isHardcoverSyncEnabled()) {
-                log.trace("Hardcover sync skipped: not enabled or no API token configured");
+            // Get user's Hardcover settings
+            KoboSyncSettings userSettings = koboSettingsService.getSettingsByUserId(userId);
+            
+            if (!isHardcoverSyncEnabledForUser(userSettings)) {
+                log.trace("Hardcover sync skipped for user {}: not enabled or no API token configured", userId);
                 return;
             }
 
-            if (progressPercent == null) {
-                log.debug("Hardcover sync skipped: no progress to sync");
-                return;
-            }
+            // Set the user's API token for this sync operation
+            currentApiToken.set(userSettings.getHardcoverApiKey());
 
-            // Fetch book fresh within the async context to avoid lazy loading issues
-            BookEntity book = bookRepository.findById(bookId).orElse(null);
-            if (book == null) {
-                log.debug("Hardcover sync skipped: book {} not found", bookId);
-                return;
-            }
-
-            BookMetadataEntity metadata = book.getMetadata();
-            if (metadata == null) {
-                log.debug("Hardcover sync skipped: book {} has no metadata", bookId);
-                return;
-            }
-
-            // Find the book on Hardcover - use stored ID if available
-            HardcoverBookInfo hardcoverBook;
-            if (metadata.getHardcoverBookId() != null) {
-                // Use the stored numeric book ID directly
-                hardcoverBook = new HardcoverBookInfo();
-                hardcoverBook.bookId = metadata.getHardcoverBookId();
-                hardcoverBook.pages = metadata.getPageCount();
-                log.debug("Using stored Hardcover book ID: {}", hardcoverBook.bookId);
-            } else {
-                // Search by ISBN
-                hardcoverBook = findHardcoverBook(metadata);
-                if (hardcoverBook == null) {
-                    log.debug("Hardcover sync skipped: book {} not found on Hardcover", bookId);
+            try {
+                if (progressPercent == null) {
+                    log.debug("Hardcover sync skipped: no progress to sync");
                     return;
                 }
-            }
 
-            // Determine the status based on progress
-            int statusId = progressPercent >= 99.0f ? STATUS_READ : STATUS_CURRENTLY_READING;
+                // Fetch book fresh within the async context to avoid lazy loading issues
+                BookEntity book = bookRepository.findById(bookId).orElse(null);
+                if (book == null) {
+                    log.debug("Hardcover sync skipped: book {} not found", bookId);
+                    return;
+                }
 
-            // Calculate progress in pages
-            int progressPages = 0;
-            if (hardcoverBook.pages != null && hardcoverBook.pages > 0) {
-                progressPages = Math.round((progressPercent / 100.0f) * hardcoverBook.pages);
-                progressPages = Math.max(0, Math.min(hardcoverBook.pages, progressPages));
-            }
-            log.info("Progress calculation: progressPercent={}%, totalPages={}, progressPages={}", 
-                    progressPercent, hardcoverBook.pages, progressPages);
+                BookMetadataEntity metadata = book.getMetadata();
+                if (metadata == null) {
+                    log.debug("Hardcover sync skipped: book {} has no metadata", bookId);
+                    return;
+                }
 
-            // Step 1: Add/update the book in user's library
-            Integer userBookId = insertOrGetUserBook(hardcoverBook.bookId, hardcoverBook.editionId, statusId);
-            if (userBookId == null) {
-                log.warn("Hardcover sync failed: could not get user_book_id for book {}", bookId);
-                return;
-            }
+                // Find the book on Hardcover - use stored ID if available
+                HardcoverBookInfo hardcoverBook;
+                if (metadata.getHardcoverBookId() != null) {
+                    // Use the stored numeric book ID directly
+                    hardcoverBook = new HardcoverBookInfo();
+                    hardcoverBook.bookId = metadata.getHardcoverBookId();
+                    hardcoverBook.pages = metadata.getPageCount();
+                    log.debug("Using stored Hardcover book ID: {}", hardcoverBook.bookId);
+                } else {
+                    // Search by ISBN
+                    hardcoverBook = findHardcoverBook(metadata);
+                    if (hardcoverBook == null) {
+                        log.debug("Hardcover sync skipped: book {} not found on Hardcover", bookId);
+                        return;
+                    }
+                }
 
-            // Step 2: Create or update the reading progress
-            boolean success = upsertReadingProgress(userBookId, hardcoverBook.editionId, progressPages);
-            
-            if (success) {
-                log.info("Synced progress to Hardcover: book={}, hardcoverBookId={}, progress={}% ({}pages)", 
-                        bookId, hardcoverBook.bookId, Math.round(progressPercent), progressPages);
+                // Determine the status based on progress
+                int statusId = progressPercent >= 99.0f ? STATUS_READ : STATUS_CURRENTLY_READING;
+
+                // Calculate progress in pages
+                int progressPages = 0;
+                if (hardcoverBook.pages != null && hardcoverBook.pages > 0) {
+                    progressPages = Math.round((progressPercent / 100.0f) * hardcoverBook.pages);
+                    progressPages = Math.max(0, Math.min(hardcoverBook.pages, progressPages));
+                }
+                log.info("Progress calculation: userId={}, progressPercent={}%, totalPages={}, progressPages={}", 
+                        userId, progressPercent, hardcoverBook.pages, progressPages);
+
+                // Step 1: Add/update the book in user's library
+                Integer userBookId = insertOrGetUserBook(hardcoverBook.bookId, hardcoverBook.editionId, statusId);
+                if (userBookId == null) {
+                    log.warn("Hardcover sync failed: could not get user_book_id for book {}", bookId);
+                    return;
+                }
+
+                // Step 2: Create or update the reading progress
+                boolean success = upsertReadingProgress(userBookId, hardcoverBook.editionId, progressPages);
+                
+                if (success) {
+                    log.info("Synced progress to Hardcover: userId={}, book={}, hardcoverBookId={}, progress={}% ({}pages)", 
+                            userId, bookId, hardcoverBook.bookId, Math.round(progressPercent), progressPages);
+                }
+
+            } finally {
+                // Clean up thread-local
+                currentApiToken.remove();
             }
 
         } catch (Exception e) {
-            log.error("Failed to sync progress to Hardcover for book {}: {}", 
-                    bookId, e.getMessage());
+            log.error("Failed to sync progress to Hardcover for book {} (user {}): {}", 
+                    bookId, userId, e.getMessage());
         }
     }
 
-    private boolean isHardcoverSyncEnabled() {
-        MetadataProviderSettings.Hardcover hardcoverSettings = 
-                appSettingService.getAppSettings().getMetadataProviderSettings().getHardcover();
-        
-        if (hardcoverSettings == null) {
+    /**
+     * Check if Hardcover sync is enabled for a specific user.
+     */
+    private boolean isHardcoverSyncEnabledForUser(KoboSyncSettings userSettings) {
+        if (userSettings == null) {
             return false;
         }
 
-        return hardcoverSettings.isEnabled() 
-                && hardcoverSettings.getApiKey() != null 
-                && !hardcoverSettings.getApiKey().isBlank();
+        return userSettings.isHardcoverSyncEnabled() 
+                && userSettings.getHardcoverApiKey() != null 
+                && !userSettings.getHardcoverApiKey().isBlank();
     }
 
     private String getApiToken() {
-        return appSettingService.getAppSettings()
-                .getMetadataProviderSettings()
-                .getHardcover()
-                .getApiKey();
+        return currentApiToken.get();
     }
 
     /**

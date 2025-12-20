@@ -154,6 +154,9 @@ public class KoboReadingStateService {
                 
                 KoboReadingState.CurrentBookmark.Location location = bookmark.getLocation();
                 if (location != null) {
+                    log.debug("Kobo location data: value={}, type={}, source={} (length={})", 
+                            location.getValue(), location.getType(), location.getSource(),
+                            location.getSource() != null ? location.getSource().length() : 0);
                     progress.setKoboLocation(location.getValue());
                     progress.setKoboLocationType(location.getType());
                     progress.setKoboLocationSource(location.getSource());
@@ -171,8 +174,8 @@ public class KoboReadingStateService {
             progressRepository.save(progress);
             log.debug("Synced Kobo progress: bookId={}, progress={}%", bookId, progress.getKoboProgressPercent());
             
-            // Sync progress to Hardcover asynchronously (if enabled)
-            hardcoverSyncService.syncProgressToHardcover(book.getId(), progress.getKoboProgressPercent());
+            // Sync progress to Hardcover asynchronously (if enabled for this user)
+            hardcoverSyncService.syncProgressToHardcover(book.getId(), progress.getKoboProgressPercent(), userId);
         } catch (NumberFormatException e) {
             log.warn("Invalid entitlement ID format: {}", readingState.getEntitlementId());
         }

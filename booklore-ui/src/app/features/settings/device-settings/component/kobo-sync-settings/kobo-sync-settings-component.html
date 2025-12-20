@@ -174,6 +174,82 @@
         </div>
       </div>
 
+      @if (koboSyncSettings.syncEnabled) {
+        <div class="preferences-section">
+          <div class="section-header">
+            <h3 class="section-title">
+              <i class="pi pi-book"></i>
+              Hardcover Integration
+            </h3>
+            <p class="section-description">
+              Sync your Kobo reading progress to your personal Hardcover account.
+            </p>
+          </div>
+
+          <div class="settings-card">
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label-row">
+                  <label class="setting-label">Sync Reading Progress to Hardcover</label>
+                  <p-toggle-switch
+                    id="hardcoverSyncEnabled"
+                    name="hardcoverSyncEnabled"
+                    [(ngModel)]="koboSyncSettings.hardcoverSyncEnabled"
+                    (ngModelChange)="onHardcoverSyncToggle()">
+                  </p-toggle-switch>
+                </div>
+                <p class="setting-description">
+                  When enabled, your reading progress from Kobo will be automatically synced to your Hardcover account.
+                  Each user can configure their own Hardcover account.
+                </p>
+              </div>
+            </div>
+
+            @if (koboSyncSettings.hardcoverSyncEnabled) {
+              <div class="setting-item">
+                <div class="setting-info">
+                  <div class="setting-label-row">
+                    <label class="setting-label">Hardcover API Key</label>
+                    <div class="token-input-group">
+                      <input
+                        pInputText
+                        id="hardcoverApiKey"
+                        [(ngModel)]="koboSyncSettings.hardcoverApiKey"
+                        [type]="showHardcoverApiKey ? 'text' : 'password'"
+                        name="hardcoverApiKey"
+                        class="token-input"
+                        placeholder="Enter your Hardcover API key"
+                        (blur)="onHardcoverApiKeyChange()"
+                      />
+                      <p-button
+                        icon="pi pi-copy"
+                        outlined="true"
+                        severity="info"
+                        size="small"
+                        (onClick)="copyText(koboSyncSettings.hardcoverApiKey ?? '', 'API Key')"
+                        [disabled]="!koboSyncSettings.hardcoverApiKey">
+                      </p-button>
+                      <p-button
+                        [icon]="showHardcoverApiKey ? 'pi pi-eye-slash' : 'pi pi-eye'"
+                        outlined="true"
+                        severity="info"
+                        size="small"
+                        (onClick)="toggleShowHardcoverApiKey()">
+                      </p-button>
+                    </div>
+                  </div>
+                  <p class="setting-description">
+                    Your personal Hardcover API key. Get it from
+                    <a href="https://hardcover.app/account/api" target="_blank" rel="noopener">hardcover.app/account/api</a>.
+                    This key is used only for syncing your reading progress and is not shared with other users.
+                  </p>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
       @if (isAdmin) {
         <div class="preferences-section">
           <div class="section-header">

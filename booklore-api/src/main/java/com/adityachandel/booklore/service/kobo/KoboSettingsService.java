@@ -82,6 +82,10 @@ public class KoboSettingsService {
 
         entity.setAutoAddToShelf(settings.isAutoAddToShelf());
 
+        // Update Hardcover settings
+        entity.setHardcoverApiKey(settings.getHardcoverApiKey());
+        entity.setHardcoverSyncEnabled(settings.isHardcoverSyncEnabled());
+
         repository.save(entity);
         return mapToDto(entity);
     }
@@ -122,6 +126,19 @@ public class KoboSettingsService {
         dto.setProgressMarkAsReadingThreshold(entity.getProgressMarkAsReadingThreshold());
         dto.setProgressMarkAsFinishedThreshold(entity.getProgressMarkAsFinishedThreshold());
         dto.setAutoAddToShelf(entity.isAutoAddToShelf());
+        dto.setHardcoverApiKey(entity.getHardcoverApiKey());
+        dto.setHardcoverSyncEnabled(entity.isHardcoverSyncEnabled());
         return dto;
+    }
+
+    /**
+     * Get Hardcover settings for a specific user by ID.
+     * Used by HardcoverSyncService to get user-specific API key.
+     */
+    @Transactional(readOnly = true)
+    public KoboSyncSettings getSettingsByUserId(Long userId) {
+        return repository.findByUserId(userId)
+                .map(this::mapToDto)
+                .orElse(null);
     }
 }
