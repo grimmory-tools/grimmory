@@ -2,6 +2,7 @@ package com.adityachandel.booklore.repository;
 
 import com.adityachandel.booklore.model.entity.BookEntity;
 import com.adityachandel.booklore.model.entity.LibraryPathEntity;
+import com.adityachandel.booklore.model.enums.BookFileType;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -148,4 +149,10 @@ public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpec
             @Param("libraryPathId") Long libraryPathId,
             @Param("fileSubPath") String fileSubPath,
             @Param("fileName") String fileName);
+
+    @Query("SELECT COUNT(b) FROM BookEntity b WHERE b.bookType = :type AND (b.deleted IS NULL OR b.deleted = false)")
+    long countByBookType(@Param("type") BookFileType type);
+
+    @Query("SELECT COUNT(b) FROM BookEntity b WHERE b.library.id = :libraryId AND (b.deleted IS NULL OR b.deleted = false)")
+    long countByLibraryId(@Param("libraryId") Long libraryId);
 }

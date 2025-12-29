@@ -13,6 +13,7 @@ public class AppMigrationStartup {
 
     @EventListener(ApplicationReadyEvent.class)
     public void runMigrationsOnce() {
+        appMigrationService.generateInstallationId();
         appMigrationService.populateMissingFileSizesOnce();
         appMigrationService.populateMetadataScoresOnce();
         appMigrationService.populateFileHashesOnce();

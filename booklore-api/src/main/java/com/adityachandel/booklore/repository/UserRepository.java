@@ -1,10 +1,11 @@
 package com.adityachandel.booklore.repository;
 
 import com.adityachandel.booklore.model.entity.BookLoreUserEntity;
+import com.adityachandel.booklore.model.enums.ProvisioningMethod;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -14,7 +15,8 @@ public interface UserRepository extends JpaRepository<BookLoreUserEntity, Long> 
 
     Optional<BookLoreUserEntity> findByEmail(String email);
 
-    Optional<BookLoreUserEntity> findById(Long id);
+    Optional<BookLoreUserEntity> findById(@NonNull Long id);
 
-    List<BookLoreUserEntity> findAllByLibraries_Id(Long libraryId);
+    long countByProvisioningMethod(ProvisioningMethod provisioningMethod);
 }
+

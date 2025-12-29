@@ -2,9 +2,11 @@ package com.adityachandel.booklore.service.migration;
 
 import com.adityachandel.booklore.config.AppProperties;
 import com.adityachandel.booklore.model.entity.AppMigrationEntity;
+import com.adityachandel.booklore.model.entity.AppSettingEntity;
 import com.adityachandel.booklore.model.entity.BookEntity;
 import com.adityachandel.booklore.model.entity.BookMetadataEntity;
 import com.adityachandel.booklore.repository.AppMigrationRepository;
+import com.adityachandel.booklore.repository.AppSettingsRepository;
 import com.adityachandel.booklore.repository.BookRepository;
 import com.adityachandel.booklore.service.book.BookQueryService;
 import com.adityachandel.booklore.service.file.FileFingerprint;
@@ -24,25 +26,72 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @AllArgsConstructor
 @Service
 public class AppMigrationService {
 
+    private static final String INSTALLATION_ID_KEY = "installation_id";
+
     private AppMigrationRepository migrationRepository;
+    private AppSettingsRepository appSettingsRepository;
     private BookRepository bookRepository;
     private BookQueryService bookQueryService;
     private MetadataMatchService metadataMatchService;
     private AppProperties appProperties;
     private FileService fileService;
+
+    @Transactional
+    public void generateInstallationId() {
+        if (migrationRepository.existsById("generateInstallationId")) return;
+
+        AppSettingEntity setting = appSettingsRepository.findByName(INSTALLATION_ID_KEY);
+
+        if (setting == null) {
+            LocalDateTime now = LocalDateTime.now();
+            String uuid = UUID.randomUUID().toString();
+            String combined = now + "_" + uuid;
+
+            String installationId = hashToSha256(combined).substring(0, 24);
+
+            setting = new AppSettingEntity();
+            setting.setName(INSTALLATION_ID_KEY);
+            setting.setVal(installationId);
+            appSettingsRepository.save(setting);
+
+            log.info("Generated new installation ID");
+        }
+
+        migrationRepository.save(new AppMigrationEntity("generateInstallationId", LocalDateTime.now(), "Generate unique installation ID using timestamp and UUID"));
+    }
+
+    private String hashToSha256(String input) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("SHA-256 algorithm not found", e);
+        }
+    }
 
     @Transactional
     public void populateSearchTextOnce() {
@@ -51,14 +100,14 @@ public class AppMigrationService {
         int batchSize = 1000;
         int processedCount = 0;
         int offset = 0;
-        
+
         while (true) {
             List<BookEntity> bookBatch = bookRepository.findBooksForMigrationBatch(offset, batchSize);
             if (bookBatch.isEmpty()) break;
-            
+
             List<Long> bookIds = bookBatch.stream().map(BookEntity::getId).toList();
             List<BookEntity> books = bookRepository.findBooksWithMetadataAndAuthors(bookIds);
-            
+
             for (BookEntity book : books) {
                 BookMetadataEntity m = book.getMetadata();
                 if (m != null) {
@@ -69,13 +118,13 @@ public class AppMigrationService {
                     }
                 }
             }
-            
+
             bookRepository.saveAll(books);
             processedCount += books.size();
             offset += batchSize;
-            
+
             log.info("Migration progress: {} books processed", processedCount);
-            
+
             if (bookBatch.size() < batchSize) break;
         }
 

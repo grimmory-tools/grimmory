@@ -15,4 +15,8 @@ public interface KoboUserSettingsRepository extends JpaRepository<KoboUserSettin
     Optional<KoboUserSettingsEntity> findByToken(String token);
 
     List<KoboUserSettingsEntity> findByAutoAddToShelfTrueAndSyncEnabledTrue();
+
+    long countByHardcoverSyncEnabledTrue();
+
+    long countByAutoAddToShelfTrue();
 }
