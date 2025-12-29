@@ -1,6 +1,5 @@
 package com.adityachandel.booklore.service.kobo;
 
-import com.adityachandel.booklore.model.dto.kobo.KoboHeaders;
 import com.adityachandel.booklore.model.dto.BookLoreUser;
 import com.adityachandel.booklore.model.dto.BookloreSyncToken;
 import com.adityachandel.booklore.model.dto.kobo.*;

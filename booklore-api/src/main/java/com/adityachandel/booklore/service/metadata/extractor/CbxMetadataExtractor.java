@@ -21,8 +21,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Collections;
 import java.util.stream.Collectors;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;

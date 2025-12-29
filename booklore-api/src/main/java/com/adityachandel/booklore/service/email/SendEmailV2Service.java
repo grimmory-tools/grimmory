@@ -29,8 +29,6 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.util.Properties;
 
-import static com.adityachandel.booklore.model.websocket.LogNotification.createLogNotification;
-
 @Slf4j
 @Service
 @AllArgsConstructor

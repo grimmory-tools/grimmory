@@ -7,7 +7,6 @@ import com.adityachandel.booklore.model.enums.BookFileExtension;
 import com.adityachandel.booklore.model.enums.PermissionType;
 import com.adityachandel.booklore.model.websocket.Topic;
 import com.adityachandel.booklore.repository.LibraryRepository;
-import com.adityachandel.booklore.service.file.FileFingerprint;
 import com.adityachandel.booklore.service.NotificationService;
 import com.adityachandel.booklore.util.FileUtils;
 import jakarta.annotation.PostConstruct;

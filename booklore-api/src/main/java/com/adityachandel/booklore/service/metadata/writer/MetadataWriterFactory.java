@@ -1,7 +1,6 @@
 package com.adityachandel.booklore.service.metadata.writer;
 
 import com.adityachandel.booklore.model.enums.BookFileType;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

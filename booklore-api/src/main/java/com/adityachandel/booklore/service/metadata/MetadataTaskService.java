@@ -67,18 +67,17 @@ public class MetadataTaskService {
     public boolean updateProposalStatus(String taskId, Long proposalId, String statusStr) {
         Long userId = authenticationService.getAuthenticatedUser().getId();
         Optional<FetchedMetadataProposalStatus> statusOpt = parseStatus(statusStr);
-        if (statusOpt.isEmpty()) return false;
-
-        return proposalRepository.findById(proposalId)
+        return statusOpt.map(fetchedMetadataProposalStatus -> proposalRepository.findById(proposalId)
                 .filter(p -> p.getJob() != null && taskId.equals(p.getJob().getTaskId()))
                 .map(proposal -> {
-                    proposal.setStatus(statusOpt.get());
+                    proposal.setStatus(fetchedMetadataProposalStatus);
                     proposal.setReviewedAt(Instant.now());
                     proposal.setReviewerUserId(userId);
                     proposalRepository.save(proposal);
                     return true;
                 })
-                .orElse(false);
+                .orElse(false)).orElse(false);
+
     }
 
     private Optional<FetchedMetadataProposalStatus> parseStatus(String statusStr) {

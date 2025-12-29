@@ -12,7 +12,6 @@ import com.adityachandel.booklore.model.dto.response.BookdropPatternExtractResul
 import com.adityachandel.booklore.service.bookdrop.BookDropService;
 import com.adityachandel.booklore.service.bookdrop.BookdropBulkEditService;
 import com.adityachandel.booklore.service.bookdrop.BookdropMonitoringService;
-import com.adityachandel.booklore.service.monitoring.MonitoringService;
 import com.adityachandel.booklore.service.bookdrop.FilenamePatternExtractor;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

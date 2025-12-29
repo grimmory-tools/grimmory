@@ -21,7 +21,6 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,7 +32,6 @@ import static com.adityachandel.booklore.util.FileService.truncate;
 public class Fb2Processor extends AbstractFileProcessor implements BookFileProcessor {
 
     private final Fb2MetadataExtractor fb2MetadataExtractor;
-    private final BookMetadataRepository bookMetadataRepository;
 
     public Fb2Processor(BookRepository bookRepository,
                         BookAdditionalFileRepository bookAdditionalFileRepository,
@@ -45,7 +43,6 @@ public class Fb2Processor extends AbstractFileProcessor implements BookFileProce
                         Fb2MetadataExtractor fb2MetadataExtractor) {
         super(bookRepository, bookAdditionalFileRepository, bookCreatorService, bookMapper, fileService, metadataMatchService);
         this.fb2MetadataExtractor = fb2MetadataExtractor;
-        this.bookMetadataRepository = bookMetadataRepository;
     }
 
     @Override

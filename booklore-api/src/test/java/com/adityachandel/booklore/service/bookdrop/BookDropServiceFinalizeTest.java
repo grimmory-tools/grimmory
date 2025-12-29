@@ -2,7 +2,6 @@ package com.adityachandel.booklore.service.bookdrop;
 
 import com.adityachandel.booklore.config.AppProperties;
 import com.adityachandel.booklore.model.dto.request.BookdropFinalizeRequest;
-import com.adityachandel.booklore.model.dto.response.BookdropFinalizeResult;
 import com.adityachandel.booklore.repository.BookdropFileRepository;
 import com.adityachandel.booklore.repository.LibraryRepository;
 import com.adityachandel.booklore.service.NotificationService;

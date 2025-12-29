@@ -5,7 +5,6 @@ import com.adityachandel.booklore.model.dto.request.BookdropBulkEditRequest;
 import com.adityachandel.booklore.model.dto.response.BookdropBulkEditResult;
 import com.adityachandel.booklore.model.entity.BookdropFileEntity;
 import com.adityachandel.booklore.repository.BookdropFileRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,7 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)

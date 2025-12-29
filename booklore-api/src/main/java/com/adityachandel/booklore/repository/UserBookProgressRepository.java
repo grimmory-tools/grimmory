@@ -44,7 +44,7 @@ public interface UserBookProgressRepository extends JpaRepository<UserBookProgre
     );
 
     @Query("""
-            SELECT 
+            SELECT
                 YEAR(COALESCE(ubp.dateFinished, ubp.readStatusModifiedTime, ubp.lastReadTime)) as year,
                 MONTH(COALESCE(ubp.dateFinished, ubp.readStatusModifiedTime, ubp.lastReadTime)) as month,
                 ubp.readStatus as readStatus,

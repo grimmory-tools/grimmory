@@ -2,7 +2,6 @@ package com.adityachandel.booklore.config.security.interceptor;
 
 import com.adityachandel.booklore.config.security.JwtUtils;
 import com.adityachandel.booklore.config.security.service.DynamicOidcJwtProcessor;
-import com.adityachandel.booklore.mapper.custom.BookLoreUserTransformer;
 import com.adityachandel.booklore.model.dto.settings.OidcProviderDetails;
 import com.adityachandel.booklore.service.appsettings.AppSettingService;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -18,10 +17,8 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
 import java.util.List;
 
 @Slf4j

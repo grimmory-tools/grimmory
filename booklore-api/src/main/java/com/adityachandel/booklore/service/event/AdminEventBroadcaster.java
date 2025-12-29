@@ -9,9 +9,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.adityachandel.booklore.model.websocket.LogNotification.createLogNotification;
 
 @AllArgsConstructor
 @Service

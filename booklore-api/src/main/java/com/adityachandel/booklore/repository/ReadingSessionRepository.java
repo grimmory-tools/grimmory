@@ -25,7 +25,7 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
     List<ReadingSessionCountDto> findSessionCountsByUserAndYear(@Param("userId") Long userId, @Param("year") int year);
 
     @Query("""
-            SELECT 
+            SELECT
                 b.id as bookId,
                 b.metadata.title as bookTitle,
                 rs.bookType as bookFileType,
@@ -49,7 +49,7 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
             @Param("week") int week);
 
     @Query("""
-            SELECT 
+            SELECT
                 CAST(rs.createdAt AS LocalDate) as date,
                 AVG(rs.progressDelta / (rs.durationSeconds / 60.0)) as avgProgressPerMinute,
                 COUNT(rs) as totalSessions
@@ -64,7 +64,7 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
     List<ReadingSpeedDto> findReadingSpeedByUserAndYear(@Param("userId") Long userId, @Param("year") int year);
 
     @Query("""
-            SELECT 
+            SELECT
                 HOUR(rs.startTime) as hourOfDay,
                 COUNT(rs) as sessionCount,
                 SUM(rs.durationSeconds) as totalDurationSeconds
@@ -81,7 +81,7 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
             @Param("month") Integer month);
 
     @Query("""
-            SELECT 
+            SELECT
                 DAYOFWEEK(rs.startTime) as dayOfWeek,
                 COUNT(rs) as sessionCount,
                 SUM(rs.durationSeconds) as totalDurationSeconds
@@ -98,7 +98,7 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
             @Param("month") Integer month);
 
     @Query("""
-            SELECT 
+            SELECT
                 c.name as genre,
                 COUNT(DISTINCT b.id) as bookCount,
                 COUNT(rs) as totalSessions,

@@ -29,6 +29,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -180,11 +181,11 @@ public class ReadingSessionService {
     public List<CompletionTimelineResponse> getCompletionTimeline(int year) {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
         Long userId = authenticatedUser.getId();
-        Map<String, Map<ReadStatus, Long>> timelineMap = new HashMap<>();
+        Map<String, EnumMap<ReadStatus, Long>> timelineMap = new HashMap<>();
 
         userBookProgressRepository.findCompletionTimelineByUser(userId, year).forEach(dto -> {
             String key = dto.getYear() + "-" + dto.getMonth();
-            timelineMap.computeIfAbsent(key, k -> new HashMap<>())
+            timelineMap.computeIfAbsent(key, k -> new EnumMap<>(ReadStatus.class))
                     .put(dto.getReadStatus(), dto.getBookCount());
         });
 

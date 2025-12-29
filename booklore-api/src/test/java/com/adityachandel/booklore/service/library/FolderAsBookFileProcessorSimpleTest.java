@@ -3,7 +3,6 @@ package com.adityachandel.booklore.service.library;
 import com.adityachandel.booklore.model.enums.LibraryScanMode;
 import com.adityachandel.booklore.repository.BookAdditionalFileRepository;
 import com.adityachandel.booklore.repository.BookRepository;
-import com.adityachandel.booklore.service.NotificationService;
 import com.adityachandel.booklore.service.event.AdminEventBroadcaster;
 import com.adityachandel.booklore.service.event.BookEventBroadcaster;
 import com.adityachandel.booklore.service.fileprocessor.BookFileProcessorRegistry;

@@ -4,7 +4,6 @@ import com.adityachandel.booklore.model.dto.BookReview;
 import com.adityachandel.booklore.model.entity.BookReviewEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface BookReviewMapper {

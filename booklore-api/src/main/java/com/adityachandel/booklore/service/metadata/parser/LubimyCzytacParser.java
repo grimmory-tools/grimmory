@@ -41,6 +41,7 @@ public class LubimyCzytacParser implements BookParser {
     private static final Pattern SERIES_NUMBER_PATTERN = Pattern.compile("\\(tom\\s+(\\d+)\\)");
     private static final Pattern BOOK_ID_PATTERN = Pattern.compile("/ksiazka/(\\d+)");
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final Pattern WHITESPACE_HYPHEN_PATTERN = Pattern.compile("[\\s-]");
 
     private final AppSettingService appSettingService;
 
@@ -297,11 +298,11 @@ public class LubimyCzytacParser implements BookParser {
 
     private boolean isbnMatches(BookMetadata metadata, String searchIsbn) {
         // Normalize ISBN by removing hyphens and spaces for comparison
-        String normalizedSearch = searchIsbn.replaceAll("[\\s-]", "");
+        String normalizedSearch = WHITESPACE_HYPHEN_PATTERN.matcher(searchIsbn).replaceAll("");
 
         // Check ISBN-13
         if (metadata.getIsbn13() != null) {
-            String normalized13 = metadata.getIsbn13().replaceAll("[\\s-]", "");
+            String normalized13 = WHITESPACE_HYPHEN_PATTERN.matcher(metadata.getIsbn13()).replaceAll("");
             if (normalized13.equals(normalizedSearch)) {
                 return true;
             }
@@ -309,7 +310,7 @@ public class LubimyCzytacParser implements BookParser {
 
         // Check ISBN-10
         if (metadata.getIsbn10() != null) {
-            String normalized10 = metadata.getIsbn10().replaceAll("[\\s-]", "");
+            String normalized10 = WHITESPACE_HYPHEN_PATTERN.matcher(metadata.getIsbn10()).replaceAll("");
             if (normalized10.equals(normalizedSearch)) {
                 return true;
             }

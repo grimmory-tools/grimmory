@@ -26,7 +26,6 @@ import org.springframework.stereotype.Service;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.time.Instant;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -41,7 +40,6 @@ public class CbxProcessor extends AbstractFileProcessor implements BookFileProce
     private static final Pattern IMAGE_EXTENSION_PATTERN = Pattern.compile(".*\\.(jpg|jpeg|png|webp)");
     private static final Pattern IMAGE_EXTENSION_CASE_INSENSITIVE_PATTERN = Pattern.compile("(?i).*\\.(jpg|jpeg|png|webp)");
     private static final Pattern CBX_FILE_EXTENSION_PATTERN = Pattern.compile("(?i)\\.cb[rz7]$");
-    private final BookMetadataRepository bookMetadataRepository;
     private final CbxMetadataExtractor cbxMetadataExtractor;
 
     public CbxProcessor(BookRepository bookRepository,
@@ -53,8 +51,7 @@ public class CbxProcessor extends AbstractFileProcessor implements BookFileProce
                         MetadataMatchService metadataMatchService, 
                         CbxMetadataExtractor cbxMetadataExtractor) {
         super(bookRepository, bookAdditionalFileRepository, bookCreatorService, bookMapper, fileService, metadataMatchService);
-        this.bookMetadataRepository = bookMetadataRepository;
-         this.cbxMetadataExtractor = cbxMetadataExtractor;
+        this.cbxMetadataExtractor = cbxMetadataExtractor;
     }
 
     @Override

@@ -7,7 +7,6 @@ import com.adityachandel.booklore.model.dto.Shelf;
 import com.adityachandel.booklore.model.dto.request.ShelfCreateRequest;
 import com.adityachandel.booklore.model.entity.KoboUserSettingsEntity;
 import com.adityachandel.booklore.model.entity.ShelfEntity;
-import com.adityachandel.booklore.model.enums.IconType;
 import com.adityachandel.booklore.model.enums.ShelfType;
 import com.adityachandel.booklore.repository.KoboUserSettingsRepository;
 import com.adityachandel.booklore.service.ShelfService;
@@ -18,7 +17,6 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;

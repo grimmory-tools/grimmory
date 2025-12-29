@@ -26,6 +26,7 @@ import java.util.regex.PatternSyntaxException;
 @RequiredArgsConstructor
 public class FilenamePatternExtractor {
 
+    private static final Pattern PATTERN = Pattern.compile("[,;&]");
     private final BookdropFileRepository bookdropFileRepository;
     private final BookdropMetadataHelper metadataHelper;
     private final ExecutorService regexExecutor = Executors.newCachedThreadPool(runnable -> {
@@ -426,7 +427,7 @@ public class FilenamePatternExtractor {
     }
 
     private Set<String> parseAuthors(String value) {
-        String[] parts = value.split("[,;&]");
+        String[] parts = PATTERN.split(value);
         Set<String> authors = new LinkedHashSet<>();
         for (String part : parts) {
             String trimmed = part.trim();

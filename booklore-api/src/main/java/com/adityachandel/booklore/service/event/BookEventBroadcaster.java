@@ -9,8 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import static com.adityachandel.booklore.model.websocket.LogNotification.createLogNotification;
-
 @Slf4j
 @AllArgsConstructor
 @Service

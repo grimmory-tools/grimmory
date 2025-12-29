@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.time.Instant;
 import java.util.List;
 
 import static com.adityachandel.booklore.util.FileService.truncate;
@@ -34,7 +33,6 @@ import static com.adityachandel.booklore.util.FileService.truncate;
 public class PdfProcessor extends AbstractFileProcessor implements BookFileProcessor {
 
     private final PdfMetadataExtractor pdfMetadataExtractor;
-    private final BookMetadataRepository bookMetadataRepository;
 
     public PdfProcessor(BookRepository bookRepository,
                         BookAdditionalFileRepository bookAdditionalFileRepository,
@@ -46,7 +44,6 @@ public class PdfProcessor extends AbstractFileProcessor implements BookFileProce
                         PdfMetadataExtractor pdfMetadataExtractor) {
         super(bookRepository, bookAdditionalFileRepository, bookCreatorService, bookMapper, fileService, metadataMatchService);
         this.pdfMetadataExtractor = pdfMetadataExtractor;
-        this.bookMetadataRepository = bookMetadataRepository;
     }
 
     @Override

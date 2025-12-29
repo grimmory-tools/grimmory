@@ -11,6 +11,7 @@ import java.util.Map;
 @Setter
 @Getter
 public class BookloreTelemetry {
+    @Builder.Default
     private int telemetryVersion = 1;
     private String installationId;
     private String appVersion;
