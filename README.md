@@ -257,6 +257,12 @@ services:
       - ./data:/app/data
       - ./books:/books
       - ./bookdrop:/bookdrop
+    healthcheck:
+      test: wget -q -O - http://localhost:${BOOKLORE_PORT}/api/v1/healthcheck
+      interval: 60s
+      retries: 5
+      start_period: 60s
+      timeout: 10s
     restart: unless-stopped
 
   mariadb:

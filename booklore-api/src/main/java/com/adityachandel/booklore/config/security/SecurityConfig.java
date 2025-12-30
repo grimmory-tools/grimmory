@@ -50,7 +50,8 @@ public class SecurityConfig {
             "/kobo/**",                // Kobo API requests (auth handled in KoboAuthFilter)
             "/api/v1/auth/**",         // Login and token refresh endpoints (must remain public)
             "/api/v1/public-settings", // Public endpoint for checking OIDC or other app settings
-            "/api/v1/setup/**"         // Setup wizard endpoints (must remain accessible before initial setup)
+            "/api/v1/setup/**",        // Setup wizard endpoints (must remain accessible before initial setup)
+            "/api/v1/healthcheck/**"   // Healthcheck endpoints (must remain accessible for Docker healthchecks)
     };
 
     private static final String[] COMMON_UNAUTHENTICATED_ENDPOINTS = {
