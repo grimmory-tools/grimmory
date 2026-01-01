@@ -65,6 +65,9 @@ export class EpubReaderComponent implements OnInit, OnDestroy {
   private hideHeaderTimeout?: number;
   private isMouseInTopRegion = false;
   private headerShownByMobileTouch = false;
+  private currentIframe: HTMLIFrameElement | null = null;
+  private iframeTouchHandler: ((event: TouchEvent) => void) | null = null;
+  private iframeClickHandler: ((event: MouseEvent) => void) | null = null;
 
   editingBookmark: BookMark | null = null;
   showEditBookmarkDialog = false;
@@ -388,65 +391,183 @@ export class EpubReaderComponent implements OnInit, OnDestroy {
   }
 
   private setupTouchListener(): void {
-    if (!this.isMobileDevice() || !this.rendition) return;
+    if (!this.isMobileDevice()) return;
+
+    const container = this.epubContainer.nativeElement;
+
+    container.addEventListener('touchend', (event: TouchEvent) => {
+      event.stopPropagation();
+      this.ngZone.run(() => {
+        this.handleTouchEnd(event);
+      });
+    }, { passive: false });
+
+    container.addEventListener('click', (event: MouseEvent) => {
+      event.stopPropagation();
+      this.ngZone.run(() => {
+        this.handleClickAsTap(event);
+      });
+    }, { capture: true });
 
     this.rendition.on('rendered', () => {
       const iframe = this.epubContainer.nativeElement.querySelector('iframe');
-      if (iframe && iframe.contentDocument) {
-        iframe.contentDocument.addEventListener('touchstart', () => {
-          this.ngZone.run(() => {
-            this.onBookTouch();
-          });
-        });
+
+      if (iframe && iframe !== this.currentIframe) {
+        if (this.currentIframe && this.currentIframe.contentDocument) {
+          if (this.iframeTouchHandler) {
+            this.currentIframe.contentDocument.removeEventListener('touchend', this.iframeTouchHandler, true);
+          }
+          if (this.iframeClickHandler) {
+            this.currentIframe.contentDocument.removeEventListener('click', this.iframeClickHandler, true);
+          }
+        }
+
+        this.currentIframe = iframe;
+
+        if (iframe.contentDocument) {
+          this.iframeTouchHandler = (event: TouchEvent) => {
+            event.stopPropagation();
+            event.preventDefault();
+            this.ngZone.run(() => {
+              this.handleTouchEnd(event);
+            });
+          };
+
+          this.iframeClickHandler = (event: MouseEvent) => {
+            event.stopPropagation();
+            event.preventDefault();
+            this.ngZone.run(() => {
+              this.handleClickAsTap(event);
+            });
+          };
+
+          iframe.contentDocument.addEventListener('touchend', this.iframeTouchHandler, { passive: false, capture: true });
+          iframe.contentDocument.addEventListener('click', this.iframeClickHandler, { capture: true });
+        }
       }
     });
   }
 
-  public isMobileDevice(): boolean {
-    return window.innerWidth <= 768;
-  }
+  public handleTouchEnd(event: TouchEvent): void {
+    if (!this.isMobileDevice()) return;
 
-  prevPage(): void {
-    if (this.rendition) {
-      this.rendition.prev().then(() => {
-        const location = this.rendition.currentLocation();
-        this.readingSessionService.updateProgress(
-          location?.start?.cfi,
-          this.progressPercentage
-        );
-      });
+    const touch = event.changedTouches[0];
+    let touchX = touch.clientX;
+    let touchY = touch.clientY;
+
+    if (event.target && (event.target as HTMLElement).ownerDocument !== document) {
+      const iframe = this.currentIframe;
+      if (iframe) {
+        const iframeRect = iframe.getBoundingClientRect();
+        touchX = touch.clientX + iframeRect.left;
+        touchY = touch.clientY + iframeRect.top;
+      }
+    }
+
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+
+    const isTopTouch = touchY < screenHeight * 0.2;
+    const isInTapZoneVertically = touchY >= screenHeight * 0.2;
+
+    if (isTopTouch) {
+      if (!this.showHeader) {
+        this.showHeader = true;
+        this.headerShownByMobileTouch = true;
+        this.clearHeaderTimeout();
+        this.startHeaderAutoHide();
+      } else if (this.headerShownByMobileTouch) {
+        this.showHeader = false;
+        this.headerShownByMobileTouch = false;
+        this.clearHeaderTimeout();
+      }
+      return;
+    }
+
+    if (isInTapZoneVertically) {
+      const leftZoneEnd = screenWidth / 3;
+      const rightZoneStart = screenWidth * (2 / 3);
+
+      if (touchX < leftZoneEnd) {
+        this.prevPage();
+        return;
+      }
+
+      if (touchX > rightZoneStart) {
+        this.nextPage();
+        return;
+      }
+
+      this.showControlsTemporarily();
     }
   }
 
-  nextPage(): void {
-    if (this.rendition) {
-      this.rendition.next().then(() => {
-        const location = this.rendition.currentLocation();
-        this.readingSessionService.updateProgress(
-          location?.start?.cfi,
-          this.progressPercentage
-        );
-      });
+  private handleClickAsTap(event: MouseEvent): void {
+    if (!this.isMobileDevice()) return;
+
+    let clickX = event.clientX;
+    let clickY = event.clientY;
+
+    if (event.target && (event.target as HTMLElement).ownerDocument !== document) {
+      const iframe = this.currentIframe;
+      if (iframe) {
+        const iframeRect = iframe.getBoundingClientRect();
+        clickX = event.clientX + iframeRect.left;
+        clickY = event.clientY + iframeRect.top;
+      }
+    }
+
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+
+    const isTopClick = clickY < screenHeight * 0.2;
+    const isInTapZoneVertically = clickY >= screenHeight * 0.2;
+
+    if (isTopClick) {
+      if (!this.showHeader) {
+        this.showHeader = true;
+        this.headerShownByMobileTouch = true;
+        this.clearHeaderTimeout();
+        this.startHeaderAutoHide();
+      } else if (this.headerShownByMobileTouch) {
+        this.showHeader = false;
+        this.headerShownByMobileTouch = false;
+        this.clearHeaderTimeout();
+      }
+      return;
+    }
+
+    if (isInTapZoneVertically) {
+      const leftZoneEnd = screenWidth / 3;
+      const rightZoneStart = screenWidth * (2 / 3);
+
+      if (clickX < leftZoneEnd) {
+        this.prevPage();
+        return;
+      }
+
+      if (clickX > rightZoneStart) {
+        this.nextPage();
+        return;
+      }
+
+      this.showControlsTemporarily();
     }
   }
 
-  navigateToChapter(chapter: { label: string; href: string; level: number }): void {
-    if (this.book && chapter.href) {
-      this.book.rendition.display(chapter.href).then(() => {
-        const location = this.rendition.currentLocation();
-        this.readingSessionService.updateProgress(
-          location?.start?.cfi,
-          this.progressPercentage
-        );
-      });
+  closeReader(): void {
+    if (this.readingSessionService.isSessionActive()) {
+      this.readingSessionService.endSession(
+        this.currentCfi || undefined,
+        this.progressPercentage
+      );
     }
+    this.location.back();
   }
 
   toggleDrawer(): void {
     this.isDrawerVisible = !this.isDrawerVisible;
     if (this.isDrawerVisible) {
-      this.showHeader = true;
-      this.headerShownByMobileTouch = false;
       this.clearHeaderTimeout();
     } else {
       this.startHeaderAutoHide();
@@ -456,12 +577,38 @@ export class EpubReaderComponent implements OnInit, OnDestroy {
   toggleSettingsDrawer(): void {
     this.isSettingsDrawerVisible = !this.isSettingsDrawerVisible;
     if (this.isSettingsDrawerVisible) {
-      this.showHeader = true;
-      this.headerShownByMobileTouch = false;
       this.clearHeaderTimeout();
     } else {
       this.startHeaderAutoHide();
     }
+  }
+
+  navigateToChapter(chapter: { label: string; href: string; level: number }): void {
+    if (this.rendition) {
+      this.rendition.display(chapter.href).then(() => {
+        const location = this.rendition.currentLocation();
+        this.readingSessionService.updateProgress(
+          location?.start?.cfi,
+          this.progressPercentage
+        );
+      });
+    }
+  }
+
+  prevPage(): void {
+    if (this.rendition) {
+      this.rendition.prev();
+    }
+  }
+
+  nextPage(): void {
+    if (this.rendition) {
+      this.rendition.next();
+    }
+  }
+
+  isMobileDevice(): boolean {
+    return window.innerWidth <= 768;
   }
 
   private trackProgress(): void {
@@ -528,6 +675,15 @@ export class EpubReaderComponent implements OnInit, OnDestroy {
 
     this.routeSubscription?.unsubscribe();
 
+    if (this.currentIframe && this.currentIframe.contentDocument) {
+      if (this.iframeTouchHandler) {
+        this.currentIframe.contentDocument.removeEventListener('touchend', this.iframeTouchHandler, true);
+      }
+      if (this.iframeClickHandler) {
+        this.currentIframe.contentDocument.removeEventListener('click', this.iframeClickHandler, true);
+      }
+    }
+
     if (this.rendition) {
       this.rendition.off('keyup', this.keyListener);
     }
@@ -550,23 +706,14 @@ export class EpubReaderComponent implements OnInit, OnDestroy {
   }
 
   onBookClick(event: MouseEvent): void {
+
+    const clickX = event.clientX;
     const clickY = event.clientY;
+    const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
 
     if (this.isMobileDevice()) {
-      const isTopClick = clickY < screenHeight * 0.2;
-      const isBottomClick = clickY > screenHeight * 0.2;
-
-      if (isTopClick && !this.showHeader) {
-        this.showHeader = true;
-        this.headerShownByMobileTouch = true;
-        this.clearHeaderTimeout();
-        this.startHeaderAutoHide();
-      } else if (isBottomClick && this.showHeader && this.headerShownByMobileTouch) {
-        this.showHeader = false;
-        this.headerShownByMobileTouch = false;
-        this.clearHeaderTimeout();
-      }
+      this.handleClickAsTap(event);
     } else {
       const isTopClick = clickY < screenHeight * 0.1;
       if (isTopClick) {
@@ -615,26 +762,34 @@ export class EpubReaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  onBookTouch(): void {
+  onBookTouch(event?: TouchEvent): void {
     if (this.isMobileDevice()) {
-      this.showControls = true;
-      this.showHeader = true;
-      this.headerShownByMobileTouch = false;
-      this.clearHeaderTimeout();
-
-      if (this.hideControlsTimeout) {
-        window.clearTimeout(this.hideControlsTimeout);
+      if (event) {
+        this.handleTouchEnd(event);
+      } else {
+        this.showControlsTemporarily();
       }
-
-      this.hideControlsTimeout = window.setTimeout(() => {
-        this.ngZone.run(() => {
-          this.showControls = false;
-          if (!this.isDrawerVisible && !this.isSettingsDrawerVisible) {
-            this.showHeader = false;
-          }
-        });
-      }, 2000);
     }
+  }
+
+  private showControlsTemporarily(): void {
+    this.showControls = true;
+    this.showHeader = true;
+    this.headerShownByMobileTouch = false;
+    this.clearHeaderTimeout();
+
+    if (this.hideControlsTimeout) {
+      window.clearTimeout(this.hideControlsTimeout);
+    }
+
+    this.hideControlsTimeout = window.setTimeout(() => {
+      this.ngZone.run(() => {
+        this.showControls = false;
+        if (!this.isDrawerVisible && !this.isSettingsDrawerVisible) {
+          this.showHeader = false;
+        }
+      });
+    }, 2000);
   }
 
   startHeaderAutoHide(): void {
@@ -833,15 +988,5 @@ export class EpubReaderComponent implements OnInit, OnDestroy {
   onBookmarkCancel(): void {
     this.showEditBookmarkDialog = false;
     this.editingBookmark = null;
-  }
-
-  closeReader(): void {
-    if (this.readingSessionService.isSessionActive()) {
-      this.readingSessionService.endSession(
-        this.currentCfi || undefined,
-        this.progressPercentage
-      );
-    }
-    this.location.back();
   }
 }
