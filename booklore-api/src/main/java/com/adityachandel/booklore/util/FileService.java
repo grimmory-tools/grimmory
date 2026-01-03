@@ -563,4 +563,24 @@ public class FileService {
         if (maxLength <= 0) return "";
         return input.length() <= maxLength ? input : input.substring(0, maxLength);
     }
+
+    public void clearCacheDirectory(String cachePath) {
+        Path path = Paths.get(cachePath);
+        if (Files.exists(path) && Files.isDirectory(path)) {
+            try (Stream<Path> walk = Files.walk(path)) {
+                walk.sorted(Comparator.reverseOrder())
+                        .forEach(p -> {
+                            try {
+                                Files.delete(p);
+                            } catch (IOException e) {
+                                log.error("Failed to delete file in cache: {} - {}", p, e.getMessage());
+                            }
+                        });
+                // Recreate the directory after deletion
+                Files.createDirectories(path);
+            } catch (IOException e) {
+                log.error("Failed to clear cache directory: {} - {}", cachePath, e.getMessage());
+            }
+        }
+    }
 }

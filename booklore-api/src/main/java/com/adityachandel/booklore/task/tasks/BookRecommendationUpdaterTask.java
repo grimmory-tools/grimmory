@@ -152,7 +152,9 @@ public class BookRecommendationUpdaterTask implements Task {
 
         sendTaskProgressNotification(taskId, 100, String.format("Updated recommendations for %d books in %d ms", totalBooks, endTime - startTime), TaskStatus.COMPLETED, lastNotificationTime, true);
 
-        return builder.build();
+        return builder
+                .status(TaskStatus.COMPLETED)
+                .build();
     }
 
     private long sendTaskProgressNotification(String taskId, int progress, String message, TaskStatus taskStatus, long lastNotificationTime, boolean force) {

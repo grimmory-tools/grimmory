@@ -45,27 +45,8 @@ public class ClearPdfCacheTask implements Task {
         log.info("{}: Task started", getTaskType());
 
         try {
-            String pdfCachePath = fileService.getPdfCachePath();
-            Path cachePath = Paths.get(pdfCachePath);
-
-            if (Files.exists(cachePath) && Files.isDirectory(cachePath)) {
-                try (Stream<Path> walk = Files.walk(cachePath)) {
-                    walk.sorted(Comparator.reverseOrder())
-                            .forEach(path -> {
-                                try {
-                                    Files.delete(path);
-                                } catch (IOException e) {
-                                    log.error("Failed to delete file: {} - {}", path, e.getMessage());
-                                }
-                            });
-                }
-
-                Files.createDirectories(cachePath);
-                log.info("{}: Cache cleared and directory recreated", getTaskType());
-            } else {
-                log.warn("{}: Cache path does not exist or is not a directory: {}", getTaskType(), pdfCachePath);
-            }
-
+            fileService.clearCacheDirectory(fileService.getPdfCachePath());
+            log.info("{}: Cache cleared", getTaskType());
             builder.status(TaskStatus.COMPLETED);
         } catch (Exception e) {
             log.error("{}: Error clearing cache", getTaskType(), e);

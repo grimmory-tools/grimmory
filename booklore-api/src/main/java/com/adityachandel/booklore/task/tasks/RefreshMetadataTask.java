@@ -24,10 +24,18 @@ public class RefreshMetadataTask implements Task {
     @Override
     public void validatePermissions(BookLoreUser user, TaskCreateRequest request) {
         MetadataRefreshRequest refreshRequest = request.getOptions(MetadataRefreshRequest.class);
-        if (refreshRequest.getBookIds().size() > 1 &&
+
+        if (requiresBulkPermission(refreshRequest) &&
             !CAN_BULK_AUTO_FETCH_METADATA.isGranted(user.getPermissions())) {
             throw PERMISSION_DENIED.createException(CAN_BULK_AUTO_FETCH_METADATA);
         }
+    }
+
+    private boolean requiresBulkPermission(MetadataRefreshRequest request) {
+        if (MetadataRefreshRequest.RefreshType.LIBRARY.equals(request.getRefreshType())) {
+            return true;
+        }
+        return request.getBookIds() != null && request.getBookIds().size() > 1;
     }
 
     @Override
