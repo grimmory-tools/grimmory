@@ -5,15 +5,9 @@
       <th class="px-4 py-1.5 text-left font-semibold text-zinc-300" style="max-width: 70px; width: 70px;">Enabled</th>
       <th class="px-4 py-1.5 text-left font-semibold text-zinc-300" style="max-width: 127px; width: 127px;">Field</th>
       <th class="px-4 py-1.5 text-left font-semibold text-zinc-300">
-        4th Priority
+        1st Priority
         <i class="pi pi-question-circle ml-1 text-xs"
-           pTooltip="Last fallback option - only used if 1st, 2nd, and 3rd priorities fail or are empty"
-           tooltipPosition="top"></i>
-      </th>
-      <th class="px-4 py-1.5 text-left font-semibold text-zinc-300">
-        3rd Priority
-        <i class="pi pi-question-circle ml-1 text-xs"
-           pTooltip="Third choice - used if 1st and 2nd priorities don't have data"
+           pTooltip="First choice - always tried first for this field"
            tooltipPosition="top"></i>
       </th>
       <th class="px-4 py-1.5 text-left font-semibold text-zinc-300">
@@ -23,9 +17,15 @@
            tooltipPosition="top"></i>
       </th>
       <th class="px-4 py-1.5 text-left font-semibold text-zinc-300">
-        1st Priority
+        3rd Priority
         <i class="pi pi-question-circle ml-1 text-xs"
-           pTooltip="First choice - always tried first for this field"
+           pTooltip="Third choice - used if 1st and 2nd priorities don't have data"
+           tooltipPosition="top"></i>
+      </th>
+      <th class="px-4 py-1.5 text-left font-semibold text-zinc-300">
+        4th Priority
+        <i class="pi pi-question-circle ml-1 text-xs"
+           pTooltip="Last fallback option - only used if 1st, 2nd, and 3rd priorities fail or are empty"
            tooltipPosition="top"></i>
       </th>
     </tr>
@@ -33,16 +33,9 @@
       <td class="px-4 py-2" style="max-width: 70px; width: 70px;"></td>
       <td class="px-4 py-2 text-sm text-zinc-400 italic" style="max-width: 127px; width: 127px;">Set All:</td>
       <td class="px-4 py-2">
-        <p-select [options]="providersWithClear" [(ngModel)]="bulkP4"
-                  (ngModelChange)="setBulkProvider('p4', $event)"
-                  placeholder="Set all P4" appendTo="body"
-                  class="w-full" size="small">
-        </p-select>
-      </td>
-      <td class="px-4 py-2">
-        <p-select [options]="providersWithClear" [(ngModel)]="bulkP3"
-                  (ngModelChange)="setBulkProvider('p3', $event)"
-                  placeholder="Set all P3" appendTo="body"
+        <p-select [options]="providersWithClear" [(ngModel)]="bulkP1"
+                  (ngModelChange)="setBulkProvider('p1', $event)"
+                  placeholder="Set all P1" appendTo="body"
                   class="w-full" size="small">
         </p-select>
       </td>
@@ -54,9 +47,16 @@
         </p-select>
       </td>
       <td class="px-4 py-2">
-        <p-select [options]="providersWithClear" [(ngModel)]="bulkP1"
-                  (ngModelChange)="setBulkProvider('p1', $event)"
-                  placeholder="Set all P1" appendTo="body"
+        <p-select [options]="providersWithClear" [(ngModel)]="bulkP3"
+                  (ngModelChange)="setBulkProvider('p3', $event)"
+                  placeholder="Set all P3" appendTo="body"
+                  class="w-full" size="small">
+        </p-select>
+      </td>
+      <td class="px-4 py-2">
+        <p-select [options]="providersWithClear" [(ngModel)]="bulkP4"
+                  (ngModelChange)="setBulkProvider('p4', $event)"
+                  placeholder="Set all P4" appendTo="body"
                   class="w-full" size="small">
         </p-select>
       </td>
@@ -72,14 +72,7 @@
           </td>
           <td class="px-4 py-1.5 text-zinc-200" style="max-width: 127px; width: 127px;">{{ formatLabel(field) }}</td>
           <td class="px-4 py-1.5">
-            <p-select [options]="providers" [(ngModel)]="fieldOptions[field].p4"
-                      [disabled]="!enabledFields[field]"
-                      placeholder="Unset" appendTo="body"
-                      class="w-full" size="small">
-            </p-select>
-          </td>
-          <td class="px-4 py-1.5">
-            <p-select [options]="providers" [(ngModel)]="fieldOptions[field].p3"
+            <p-select [options]="providers" [(ngModel)]="fieldOptions[field].p1"
                       [disabled]="!enabledFields[field]"
                       placeholder="Unset" appendTo="body"
                       class="w-full" size="small">
@@ -93,7 +86,14 @@
             </p-select>
           </td>
           <td class="px-4 py-1.5">
-            <p-select [options]="providers" [(ngModel)]="fieldOptions[field].p1"
+            <p-select [options]="providers" [(ngModel)]="fieldOptions[field].p3"
+                      [disabled]="!enabledFields[field]"
+                      placeholder="Unset" appendTo="body"
+                      class="w-full" size="small">
+            </p-select>
+          </td>
+          <td class="px-4 py-1.5">
+            <p-select [options]="providers" [(ngModel)]="fieldOptions[field].p4"
                       [disabled]="!enabledFields[field]"
                       placeholder="Unset" appendTo="body"
                       class="w-full" size="small">
