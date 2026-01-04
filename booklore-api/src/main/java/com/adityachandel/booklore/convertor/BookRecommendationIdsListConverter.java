@@ -43,8 +43,8 @@ public class BookRecommendationIdsListConverter implements AttributeConverter<Se
         try {
             return objectMapper.readValue(json, SET_TYPE_REF);
         } catch (Exception e) {
-            log.error("Failed to convert JSON string to BookRecommendation set: {}", json, e);
-            throw new RuntimeException("Error converting JSON to BookRecommendation list", e);
+            log.error("Corrupted similar_books_json found in database. Returning empty set. JSON: {}", json, e);
+            return Set.of();
         }
     }
 }
