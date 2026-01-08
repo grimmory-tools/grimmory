@@ -1,31 +1,30 @@
-import { FormsModule } from "@angular/forms";
-import { Button } from "primeng/button";
-import { ActivatedRoute } from "@angular/router";
-import { AsyncPipe, NgClass, NgStyle } from "@angular/common";
-import { map, filter, switchMap, tap } from "rxjs/operators";
-import { Observable, combineLatest, Subscription } from "rxjs";
-import { Book, ReadStatus } from "../../model/book.model";
-import { BookService } from "../../service/book.service";
-import { BookCardComponent } from "../book-browser/book-card/book-card.component";
-import { CoverScalePreferenceService } from "../book-browser/cover-scale-preference.service";
-import { Tab, TabList, TabPanel, TabPanels, Tabs } from "primeng/tabs";
-import { Tag } from "primeng/tag";
-import { VirtualScrollerModule } from "@iharbeck/ngx-virtual-scroller";
-import { ProgressSpinner } from "primeng/progressspinner";
-import { DynamicDialogRef } from "primeng/dynamicdialog";
-import { Router } from "@angular/router";
-import { ConfirmationService, MenuItem, MessageService } from "primeng/api";
-import { UserService } from "../../../settings/user-management/user.service";
-import { BookMenuService } from "../../service/book-menu.service";
-import { LoadingService } from "../../../../core/services/loading.service";
-import { BookDialogHelperService } from "../book-browser/book-dialog-helper.service";
-import { TaskHelperService } from "../../../settings/task-management/task-helper.service";
-import { MetadataRefreshType } from "../../../metadata/model/request/metadata-refresh-type.enum";
-import { TieredMenu } from "primeng/tieredmenu";
-import { Tooltip } from "primeng/tooltip";
-import { Divider } from "primeng/divider";
-import { finalize } from "rxjs/operators";
-import { animate, state, style, transition, trigger } from "@angular/animations";
+import {FormsModule} from "@angular/forms";
+import {Button} from "primeng/button";
+import {ActivatedRoute, Router} from "@angular/router";
+import {AsyncPipe, NgClass, NgStyle} from "@angular/common";
+import {filter, finalize, map, switchMap, tap} from "rxjs/operators";
+import {combineLatest, Observable, Subscription} from "rxjs";
+import {Book, ReadStatus} from "../../model/book.model";
+import {BookService} from "../../service/book.service";
+import {BookCardComponent} from "../book-browser/book-card/book-card.component";
+import {CoverScalePreferenceService} from "../book-browser/cover-scale-preference.service";
+import {Tab, TabList, TabPanel, TabPanels, Tabs} from "primeng/tabs";
+import {Tag} from "primeng/tag";
+import {VirtualScrollerModule} from "@iharbeck/ngx-virtual-scroller";
+import {ProgressSpinner} from "primeng/progressspinner";
+import {DynamicDialogRef} from "primeng/dynamicdialog";
+import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
+import {UserService} from "../../../settings/user-management/user.service";
+import {BookMenuService} from "../../service/book-menu.service";
+import {LoadingService} from "../../../../core/services/loading.service";
+import {BookDialogHelperService} from "../book-browser/book-dialog-helper.service";
+import {TaskHelperService} from "../../../settings/task-management/task-helper.service";
+import {MetadataRefreshType} from "../../../metadata/model/request/metadata-refresh-type.enum";
+import {TieredMenu} from "primeng/tieredmenu";
+import {Tooltip} from "primeng/tooltip";
+import {Divider} from "primeng/divider";
+import {animate, state, style, transition, trigger} from "@angular/animations";
+import {Component, inject, OnDestroy} from '@angular/core';
 
 @Component({
   selector: "app-series-page",
@@ -259,7 +258,7 @@ export class SeriesPageComponent implements OnDestroy {
     this.isExpanded = !this.isExpanded;
   }
 
-   getStatusLabel(value: string | ReadStatus | null | undefined): string {
+  getStatusLabel(value: string | ReadStatus | null | undefined): string {
     const v = (value ?? '').toString().toUpperCase();
     switch (v) {
       case ReadStatus.UNREAD:
