@@ -22,7 +22,7 @@ categories:
       - 'enhancement'
   - title: '🎨 UI Tweaks'
     labels:
-      - 'ui-tweaks'
+      - 'ui tweaks'
   - title: '🐛 Bug Fixes'
     labels:
       - 'bug'
@@ -61,7 +61,7 @@ template: |
 
   $CHANGES
 
-  ### 🐳 Docker Images
+  ## 🐳 Docker Images
 
   - **Docker Hub:** `booklore/booklore:v$RESOLVED_VERSION`
   - **GitHub Container Registry:** `ghcr.io/booklore-app/booklore:v$RESOLVED_VERSION`
