@@ -50,6 +50,13 @@ public class KoreaderController {
                 .body(progress);
     }
 
+    @Operation(summary = "Get book by hash", description = "Retrieve book information by its MD5 hash.")
+    @ApiResponse(responseCode = "200", description = "Book returned successfully")
+    @GetMapping("/books/by-hash/{bookHash}")
+    public ResponseEntity<?> getBookByHash(@Parameter(description = "Book MD5 hash") @PathVariable String bookHash) {
+        return koreaderService.getBookByHash(bookHash);
+    }
+
     @Operation(summary = "Update KoReader progress", description = "Update reading progress for a book.")
     @ApiResponse(responseCode = "200", description = "Progress updated successfully")
     @PutMapping("/syncs/progress")

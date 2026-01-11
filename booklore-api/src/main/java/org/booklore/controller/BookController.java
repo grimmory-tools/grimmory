@@ -99,6 +99,18 @@ public class BookController {
         return ResponseEntity.status(201).body(physicalBookService.createPhysicalBook(request));
     }
 
+    @Operation(summary = "Get book by MD5 hash", description = "Retrieve book details by MD5 hash. Used by KOReader to map local books to Booklore books.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Book found and details returned"),
+            @ApiResponse(responseCode = "404", description = "Book not found with this hash")
+    })
+    @GetMapping("/by-hash/{md5Hash}")
+    public ResponseEntity<Book> getBookByHash(
+            @Parameter(description = "MD5 hash of the book file") @PathVariable String md5Hash,
+            @Parameter(description = "Include book description in the response") @RequestParam(required = false, defaultValue = "false") boolean withDescription) {
+        return ResponseEntity.ok(bookService.getBookByHash(md5Hash, withDescription));
+    }
+
     @Operation(summary = "Delete books", description = "Delete one or more books by their IDs. Requires admin or delete permission.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Books deleted successfully"),

@@ -163,6 +163,23 @@ public class BookService {
         return book;
     }
 
+    public Book getBookByHash(String md5Hash, boolean withDescription) {
+        BookLoreUser user = authenticationService.getAuthenticatedUser();
+
+        // Find book by MD5 hash
+        BookEntity bookEntity = bookRepository.findByCurrentHash(md5Hash)
+                .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException("Book with hash " + md5Hash + " not found"));
+
+        // Check if user has access to this book (via library access)
+        boolean hasAccess = bookEntity.getLibraryPath().getLibrary().getUsers().stream()
+                .anyMatch(u -> u.getId().equals(user.getId()));
+
+        if (!hasAccess) {
+            throw ApiError.BOOK_NOT_FOUND.createException("Book with hash " + md5Hash + " not found");
+        }
+
+        return getBook(bookEntity.getId(), withDescription);
+    }
 
     public BookViewerSettings getBookViewerSetting(long bookId, long bookFileId) {
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
