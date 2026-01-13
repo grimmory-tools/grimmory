@@ -404,7 +404,7 @@ public class MetadataRefreshService {
 
     public BookMetadata buildFetchMetadata(Long bookId, MetadataRefreshOptions refreshOptions, Map<MetadataProvider, BookMetadata> metadataMap) {
         BookMetadata metadata = BookMetadata.builder().bookId(bookId).build();
-        
+
         MetadataRefreshOptions.FieldOptions fieldOptions = refreshOptions.getFieldOptions();
         if (fieldOptions == null) {
             fieldOptions = new MetadataRefreshOptions.FieldOptions();
@@ -521,7 +521,8 @@ public class MetadataRefreshService {
         if (enabledFields.isLubimyczytacRating()) {
             if (metadataMap.containsKey(Lubimyczytac)) {
                 metadata.setLubimyczytacRating(metadataMap.get(Lubimyczytac).getLubimyczytacRating());
-        }      
+            }
+        }
         if (enabledFields.isRanobedbId()) {
             if (metadataMap.containsKey(Ranobedb)) {
                 metadata.setRanobedbId(metadataMap.get(Ranobedb).getRanobedbId());
