@@ -768,63 +768,6 @@ function BookloreSync:sendSessionToServer(session_data)
     end
 end
 
-function BookloreSync:groupPagesIntoSessions(page_records)
-    -- Groups individual page records into reading sessions
-    -- A session continues as long as consecutive pages are within the reading window
-    logger.info("BookloreSync: Grouping", #page_records, "page records into sessions")
-    
-    if #page_records == 0 then
-        return {}
-    end
-    
-    local sessions = {}
-    local current_session = nil
-    
-    for i, page_record in ipairs(page_records) do
-        local should_start_new_session = false
-        
-        if not current_session then
-            -- First page - start new session
-            should_start_new_session = true
-        elseif page_record.book_hash ~= current_session.book_hash then
-            -- Different book - end current session and start new one
-            logger.info("BookloreSync: Book changed from", current_session.book_hash, "to", page_record.book_hash, "- ending session")
-            table.insert(sessions, current_session)
-            should_start_new_session = true
-        else
-            -- Same book - check if page is within reading window
-            local last_page = current_session.pages[#current_session.pages]
-            local last_page_end_time = last_page.start_time + last_page.duration
-            
-            if page_record.start_time > last_page_end_time then
-                -- Gap detected - end current session and start new one
-                local gap_seconds = page_record.start_time - last_page_end_time
-                logger.info("BookloreSync: Gap of", gap_seconds, "seconds detected - ending session")
-                table.insert(sessions, current_session)
-                should_start_new_session = true
-            else
-                -- Within reading window - add to current session
-                table.insert(current_session.pages, page_record)
-            end
-        end
-        
-        if should_start_new_session then
-            current_session = {
-                book_hash = page_record.book_hash,
-                pages = {page_record}
-            }
-        end
-    end
-    
-    -- Add the last session
-    if current_session then
-        table.insert(sessions, current_session)
-    end
-    
-    logger.info("BookloreSync: Grouped into", #sessions, "sessions")
-    return sessions
-end
-
 function BookloreSync:syncHistoricalData()
     UIManager:show(InfoMessage:new{
         text = _("Scanning KOReader statistics database..."),
@@ -833,7 +776,6 @@ function BookloreSync:syncHistoricalData()
     
     logger.info("BookloreSync: Starting historical data sync")
     
-    -- KOReader stores statistics in a SQLite database
     local statistics_db_path = DataStorage:getDataDir() .. "/settings/statistics.sqlite3"
     logger.info("BookloreSync: Statistics DB path:", statistics_db_path)
     
@@ -849,8 +791,7 @@ function BookloreSync:syncHistoricalData()
     end
     file:close()
     
-    -- Query page_stat to get reading history
-    -- Order by book and start_time to enable session grouping
+    -- Query page_stat to get all reading history, ordered by book and time
     local query = [[
 SELECT 
     book.md5,
@@ -966,10 +907,51 @@ ORDER BY book.id, page_stat.start_time ASC
         return
     end
     
-    -- Group pages into sessions
-    local sessions = self:groupPagesIntoSessions(page_records)
+    -- Group pages into sessions using statistics.koplugin approach
+    -- Process records in order, grouping by book and temporal continuity
+    local sessions = {}
+    local current_session = nil
+    local session_timeout = 300  -- 5 minutes gap ends a session (same as statistics plugin)
     
-    logger.info("BookloreSync: Processing", #sessions, "grouped sessions")
+    for i, record in ipairs(page_records) do
+        local should_start_new_session = false
+        
+        if not current_session then
+            -- First record, start new session
+            should_start_new_session = true
+        elseif record.book_hash ~= current_session.book_hash then
+            -- Different book, end current session and start new one
+            table.insert(sessions, current_session)
+            should_start_new_session = true
+        else
+            -- Same book - check if page is within reading window
+            local last_page = current_session.pages[#current_session.pages]
+            local time_gap = record.start_time - (last_page.start_time + last_page.duration)
+            
+            if time_gap > session_timeout then
+                -- Gap too large, end current session and start new one
+                table.insert(sessions, current_session)
+                should_start_new_session = true
+            end
+        end
+        
+        if should_start_new_session then
+            current_session = {
+                book_hash = record.book_hash,
+                pages = {record}
+            }
+        else
+            -- Add to current session
+            table.insert(current_session.pages, record)
+        end
+    end
+    
+    -- Don't forget the last session
+    if current_session then
+        table.insert(sessions, current_session)
+    end
+    
+    logger.info("BookloreSync: Grouped", #page_records, "page records into", #sessions, "sessions")
     
     UIManager:show(InfoMessage:new{
         text = T(_("Found %1 sessions, syncing..."), #sessions),
@@ -996,7 +978,7 @@ ORDER BY book.id, page_stat.start_time ASC
         local start_page = first_page.page
         local end_page = last_page.page
         
-        logger.info("BookloreSync: Session", session_num, "- Hash:", book_hash, "Pages:", #pages, "Duration:", duration_seconds, "s")
+        logger.info("BookloreSync: Session", session_num, "/", #sessions, "- Hash:", book_hash, "Pages:", #pages, "Duration:", duration_seconds, "s")
         
         -- Check if book exists in Booklore
         local book_id = self:getBookIdByHash(book_hash)
