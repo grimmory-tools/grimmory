@@ -102,7 +102,24 @@ public class ComicvineBookParser implements BookParser {
         }
 
         // Fallback to general search
-        return searchGeneral(term);
+        List<BookMetadata> results = searchGeneral(term);
+        if (!results.isEmpty()) {
+            return results;
+        }
+
+        // If general search failed and we had a structured match, try searching with the cleaned/modified term
+        // This helps when the issue number #1 was incorrectly identified or confuses the search engine
+        // e.g. "The Witcher #1 - Volume 1: House of Glass" -> "The Witcher - Volume 1: House of Glass"
+        if (seriesAndIssue.issue() != null && seriesAndIssue.remainder() != null && !seriesAndIssue.remainder().isBlank()) {
+            String modifiedTerm = seriesAndIssue.series() + " " + seriesAndIssue.remainder();
+            if (seriesAndIssue.year() != null) {
+                modifiedTerm += " " + seriesAndIssue.year();
+            }
+            log.info("General search failed, trying modified term: '{}'", modifiedTerm);
+            return searchGeneral(modifiedTerm);
+        }
+
+        return Collections.emptyList();
     }
 
     private List<BookMetadata> searchVolumesAndIssues(String seriesName, String issueNumber, Integer extractedYear) {
@@ -592,10 +609,10 @@ public class ComicvineBookParser implements BookParser {
                 String num = specialMatcher.group(2);
                 // Return series name before the special keyword
                 String series = cleaned.substring(0, specialMatcher.start()).trim();
-                return new SeriesAndIssue(series, num, year, type);
+                return new SeriesAndIssue(series, num, year, type, null);
             } else {
                 // "Batman Annual" without number - search for all annuals
-                return new SeriesAndIssue(cleaned, null, year, "annual");
+                return new SeriesAndIssue(cleaned, null, year, "annual", null);
             }
         }
 
@@ -609,12 +626,14 @@ public class ComicvineBookParser implements BookParser {
                 series = series.substring(0, series.length() - 1).trim();
             }
 
-            log.debug("Extracted - Series: '{}', Issue: '{}'", series, issueNum);
-            return new SeriesAndIssue(series, issueNum, year, null);
+            String remainder = cleaned.substring(matcher.end()).trim();
+
+            log.debug("Extracted - Series: '{}', Issue: '{}', Remainder: '{}'", series, issueNum, remainder);
+            return new SeriesAndIssue(series, issueNum, year, null, remainder);
         }
         
         log.debug("No issue number found in: '{}'", cleaned);
-        return new SeriesAndIssue(cleaned, null, year, null);
+        return new SeriesAndIssue(cleaned, null, year, null, null);
     }
     
     private String normalizeIssueNumber(String issueNumber) {
@@ -683,5 +702,5 @@ public class ComicvineBookParser implements BookParser {
         return apiToken;
     }
 
-    private record SeriesAndIssue(String series, String issue, Integer year, String issueType) {}
+    private record SeriesAndIssue(String series, String issue, Integer year, String issueType, String remainder) {}
 }
