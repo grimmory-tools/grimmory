@@ -7,8 +7,9 @@ Automatically sync your reading sessions from KOReader to your Booklore server.
 - **Automatic Session Tracking**: Records reading time, progress, and location
 - **REST API Integration**: Uses standard Booklore endpoints (no WebDAV needed)
 - **Book Matching**: Automatically matches books using MD5 hash
-- **Configurable Sync**: Control when and how often to sync
-- **Background Sync**: Syncs on document close, suspend, and app exit
+- **Offline Support**: Queues sessions when offline, syncs when connection is available
+- **Configurable Settings**: Control minimum session duration and manage pending syncs
+- **Background Sync**: Syncs on document close and device suspend/resume
 
 ## Installation
 
@@ -22,24 +23,44 @@ Automatically sync your reading sessions from KOReader to your Booklore server.
 ## Configuration
 
 1. Open KOReader
-2. Go to **Menu → Tools → Booklore Sync**
-3. Configure:
+2. Go to **Menu → Tools → More Tools → Booklore Sync**
+3. Configure settings:
+   - **Enable Sync**: Toggle to enable/disable automatic syncing
    - **Server URL**: Your Booklore server address (e.g., `http://192.168.1.100:6060`)
    - **Username**: Your Booklore username
    - **Password**: Your Booklore password
-4. Enable **Enable Sync**
-5. Test connection to verify settings
+   - **Test Connection**: Verify your server settings
+   - **Sync Pending Sessions**: Manually sync queued offline sessions
+   - **Clear Pending Sessions**: Clear the offline sync queue
+   - **View Pending Count**: See how many sessions are queued for sync
+   - **Sync Historical Data**: Sync historical data from koreader to booklore
 
 ## Usage
 
-Once configured, the plugin works automatically:
+Once configured, the plugin works automatically in the background:
 
-- **Reading starts**: Session tracking begins when you open a book
-- **Close book**: Session is synced to server when you close the document or KOReader suspends
-- **Progress tracking**: Tracks page changes and reading duration
-- **Notifications**: Shows confirmation when sessions are synced successfully
+### Session Lifecycle
+- **Book opens**: Session tracking begins; plugin looks up book ID from local cache or queries the server
+- **Reading**: Tracks your current page/location and progress throughout the session
+- **Book closes**: Session ends and syncs to server with duration, progress delta, and location data
+- **Device suspends**: Active session is saved when the e-reader goes to sleep
+- **Device resumes**: Pending sessions are automatically synced when waking from sleep
 
-Sessions shorter than 5 seconds are not recorded to avoid false triggers.
+### Online vs Offline Behavior
+- **Online**: Sessions sync immediately to the server; book IDs are cached locally for faster lookups
+- **Offline**: Sessions are queued locally and will sync automatically when connection is restored
+- **Partial connectivity**: If book ID lookup fails, session is queued with book hash for later resolution
+- **Success notifications**: Visual feedback confirms when sessions sync successfully
+
+### Offline Support
+
+The plugin includes robust offline functionality:
+- Sessions are queued locally when the server is unreachable
+- Automatically attempts to sync pending sessions on device wake and after successful syncs
+- Manual sync available via **Sync Pending Sessions** menu option
+- View pending session count in the menu
+
+**Note**: Sessions shorter than 5 seconds are not recorded to avoid false triggers.
 
 ## Requirements
 
@@ -57,29 +78,44 @@ Each reading session includes:
 - Start/end progress (0.0 to 1.0)
 - Progress delta (pages read)
 - Start/end location (page number or position)
-- Book type (PDF, EPUB, CBX)
+- Book type (PDF, EPUB, etc.)
+
+## Historical Data
+
+Historical data calculates reading sessions just like the original koreader plugin. After that, it attempts to get the bookId from booklore, and sync the session.
+
+**Important**: Right now, the historical data is pushed to the upload date, but shows up in the weekly overview at the correct time/date
 
 ## Troubleshooting
 
-### "Could not find book on server"
-- Ensure the book exists in your Booklore library
-- Check that the partial MD5 hash matches (plugin uses same algorithm as Booklore)
-- The book must have been added to Booklore before tracking sessions
-
-### "Sync failed: 401" or "403"
-- Check username and password in plugin settings
-- Verify you can login to Booklore web interface
-- Ensure KOReader integration is enabled on the server
-
-### "Sync failed: 404"
-- Book ID not found - book may have been deleted from library
-- Re-add the book to Booklore
-
-### No sync happening
-- Check "Enable Sync" is turned on
+### Sessions are queued but not syncing
+- Check that **Enable Sync** is turned on
 - Verify server URL is correct (include `http://` or `https://`)
+- Test connection using **Test Connection** menu option
+- Manually trigger sync with **Sync Pending Sessions**
 - Check network connectivity (WiFi must be enabled)
-- Look at KOReader logs for detailed error messages
+
+### "Could not find book on server" / Book tracking offline
+- The book doesn't exist in your Booklore library yet
+- Session will be queued with the book hash for later resolution
+- Add the book to Booklore, then use **Sync Pending Sessions**
+- The plugin will resolve the book ID and sync the queued sessions
+
+### "Connection failed" errors
+- **401/403**: Check username and password in plugin settings
+- **404**: Verify server URL and that Booklore server is running
+- **Network error**: Check WiFi is enabled and server is reachable
+- Verify you can access the Booklore web interface
+
+### Sessions too short not recording
+- Default minimum duration is 5 seconds
+- This prevents false triggers from quick book opens/closes
+- Sessions shorter than this threshold are automatically discarded
+
+### Viewing debug information
+- Check KOReader logs for detailed error messages
+- Use **View Pending Count** to see queued sessions
+- Connection test will show specific error codes
 
 ## Development
 
@@ -92,9 +128,17 @@ The plugin uses:
 
 ### API Endpoints
 
-- `GET /api/koreader/users/auth` - Authentication check
+- `GET /api/koreader/users/auth` - Authentication check (test connection)
 - `GET /api/koreader/books/by-hash/{md5}` - Book lookup by partial MD5 hash
-- `POST /api/koreader/reading-sessions` - Record reading session
+- `POST /api/v1/reading-sessions` - Record reading session
+
+### Event Handlers
+
+The plugin hooks into KOReader lifecycle events:
+- `onReaderReady()` - Starts session tracking when document opens
+- `onCloseDocument()` - Ends and syncs session when document closes
+- `onSuspend()` - Saves session when device goes to sleep
+- `onResume()` - Syncs pending sessions when device wakes up
 
 ### Hash Algorithm
 
@@ -102,7 +146,3 @@ The plugin uses a partial MD5 algorithm matching Booklore's FileFingerprint:
 - Samples 1KB blocks at positions: `base << (2*i)` for i=-1 to 10
 - Base: 1024 bytes
 - Positions: 512, 2048, 8192, 32768, 131072, 524288, 2097152, 8388608, 33554432, 134217728, 536870912, 2147483648
-
-## License
-
-MIT License - see LICENSE file for details
