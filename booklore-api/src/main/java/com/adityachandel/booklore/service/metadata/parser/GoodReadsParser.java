@@ -27,6 +27,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,14 +41,14 @@ public class GoodReadsParser implements BookParser {
     private static final String BASE_ISBN_URL = "https://www.goodreads.com/book/isbn/";
     private static final int COUNT_DETAILED_METADATA_TO_GET = 3;
     private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
-    // Pattern to extract numeric Goodreads id from book URL like /book/show/12345
     private static final Pattern BOOK_SHOW_ID_PATTERN = Pattern.compile("/book/show/(\\d+)");
+
     private final AppSettingService appSettingService;
+
+    private record TitleInfo(String title, String subtitle) {}
 
     @Override
     public BookMetadata fetchTopMetadata(Book book, FetchMetadataRequest fetchMetadataRequest) {
-        // If book already has a Goodreads ID, use it directly instead of searching
-        // This ensures we fetch ratings for previously matched books
         String existingGoodreadsId = getExistingGoodreadsId(book);
         if (existingGoodreadsId != null) {
             log.info("GoodReads: Using existing Goodreads ID: {}", existingGoodreadsId);
@@ -63,7 +64,6 @@ public class GoodReadsParser implements BookParser {
             }
         }
 
-        // Fall back to search-based approach
         Optional<BookMetadata> preview = fetchMetadataPreviews(book, fetchMetadataRequest).stream().findFirst();
         if (preview.isEmpty()) {
             return null;
@@ -72,10 +72,6 @@ public class GoodReadsParser implements BookParser {
         return fetchedMetadata.isEmpty() ? null : fetchedMetadata.getFirst();
     }
 
-    /**
-     * Extracts existing Goodreads ID from book metadata if available.
-     * Returns null if no valid ID exists.
-     */
     private String getExistingGoodreadsId(Book book) {
         if (book == null || book.getMetadata() == null) {
             return null;
@@ -84,12 +80,10 @@ public class GoodReadsParser implements BookParser {
         if (goodreadsId == null || goodreadsId.isBlank()) {
             return null;
         }
-        // Validate it looks like a Goodreads ID (numeric, possibly with suffix like "11590-salems-lot")
-        // Strip any non-numeric suffix for the URL
         String numericId = goodreadsId.split("-")[0].split("\\.")[0];
         try {
             Long.parseLong(numericId);
-            return goodreadsId; // Return original ID (Goodreads handles both formats)
+            return goodreadsId;
         } catch (NumberFormatException e) {
             log.debug("GoodReads: Invalid Goodreads ID format: {}", goodreadsId);
             return null;
@@ -177,11 +171,9 @@ public class GoodReadsParser implements BookParser {
 
     private void extractContributorDetails(JSONObject apolloStateJson, LinkedHashSet<String> keySet, BookMetadata.BookMetadataBuilder builder) {
         String contributorKey = findKeyByPrefix(keySet, "Contributor:kca");
-        if (contributorKey != null) {
-            String contributorName = getContributorName(apolloStateJson, contributorKey);
-            if (contributorName != null) {
-                builder.authors(Set.of(contributorName));
-            }
+        String contributorName = getJsonStringField(apolloStateJson, contributorKey, "name");
+        if (contributorName != null) {
+            builder.authors(Set.of(contributorName));
         }
     }
 
@@ -258,107 +250,91 @@ public class GoodReadsParser implements BookParser {
 
     private void extractSeriesDetails(JSONObject apolloStateJson, LinkedHashSet<String> keySet, BookMetadata.BookMetadataBuilder builder) {
         String seriesKey = findKeyByPrefix(keySet, "Series:kca");
-        if (seriesKey != null) {
-            String seriesName = getSeriesName(apolloStateJson, seriesKey);
-            if (seriesName != null) {
-                builder.seriesName(seriesName);
-            }
+        String seriesName = getJsonStringField(apolloStateJson, seriesKey, "title");
+        if (seriesName != null) {
+            builder.seriesName(seriesName);
         }
     }
 
     private void extractBookDetails(JSONObject apolloStateJson, LinkedHashSet<String> keySet, BookMetadata.BookMetadataBuilder builder) {
-        JSONObject bookJson = getValidBookJson(apolloStateJson, keySet, "Book:kca:");
-        if (bookJson != null) {
-            builder.title(handleStringNull(extractTitleFromFull(bookJson.optString("title"))))
-                    .subtitle(handleStringNull(extractSubtitleFromFull(bookJson.optString("title"))))
-                    .description(handleStringNull(bookJson.optString("description")))
-                    .thumbnailUrl(handleStringNull(bookJson.optString("imageUrl")))
-                    .categories(extractGenres(bookJson));
+        JSONObject bookJson = getValidBookJson(apolloStateJson, keySet);
+        if (bookJson == null) {
+            return;
+        }
 
-            JSONObject detailsJson = bookJson.optJSONObject("details");
-            if (detailsJson != null) {
-                builder.pageCount(parseInteger(detailsJson.optString("numPages")))
-                        .publishedDate(convertToLocalDate(detailsJson.optString("publicationTime")))
-                        .publisher(handleStringNull(detailsJson.optString("publisher")))
-                        .isbn10(handleStringNull(detailsJson.optString("isbn")))
-                        .isbn13(handleStringNull(detailsJson.optString("isbn13")));
+        TitleInfo titleInfo = parseTitleInfo(bookJson.optString("title"));
+        builder.title(titleInfo.title())
+                .subtitle(titleInfo.subtitle())
+                .description(normalizeNull(bookJson.optString("description")))
+                .thumbnailUrl(normalizeNull(bookJson.optString("imageUrl")))
+                .categories(extractGenres(bookJson));
 
-                JSONObject languageJson = detailsJson.optJSONObject("language");
-                if (languageJson != null) {
-                    builder.language(handleStringNull(languageJson.optString("name")));
-                }
+        JSONObject detailsJson = bookJson.optJSONObject("details");
+        if (detailsJson != null) {
+            builder.pageCount(parseNumber(detailsJson.optString("numPages"), Integer::parseInt))
+                    .publishedDate(convertToLocalDate(detailsJson.optString("publicationTime")))
+                    .publisher(normalizeNull(detailsJson.optString("publisher")))
+                    .isbn10(normalizeNull(detailsJson.optString("isbn")))
+                    .isbn13(normalizeNull(detailsJson.optString("isbn13")));
+
+            JSONObject languageJson = detailsJson.optJSONObject("language");
+            if (languageJson != null) {
+                builder.language(normalizeNull(languageJson.optString("name")));
             }
+        }
 
-            JSONArray bookSeriesJson = bookJson.optJSONArray("bookSeries");
-            if (bookSeriesJson != null && bookSeriesJson.length() > 0) {
-                JSONObject firstElement = bookSeriesJson.optJSONObject(0);
-                if (firstElement != null) {
-                    builder.seriesNumber(parseFloat(firstElement.optString("userPosition")));
-                }
+        JSONArray bookSeriesJson = bookJson.optJSONArray("bookSeries");
+        if (bookSeriesJson != null && bookSeriesJson.length() > 0) {
+            JSONObject firstElement = bookSeriesJson.optJSONObject(0);
+            if (firstElement != null) {
+                builder.seriesNumber(parseNumber(firstElement.optString("userPosition"), Float::parseFloat));
             }
         }
     }
 
     private void extractWorkDetails(JSONObject apolloStateJson, LinkedHashSet<String> keySet, BookMetadata.BookMetadataBuilder builder) {
         String workKey = findKeyByPrefix(keySet, "Work:kca:");
-        if (workKey != null) {
-            JSONObject workJson = apolloStateJson.optJSONObject(workKey);
-            if (workJson != null) {
-                JSONObject statsJson = workJson.optJSONObject("stats");
-                if (statsJson != null) {
-                    builder.goodreadsRating(parseDouble(statsJson.optString("averageRating")))
-                            .goodreadsReviewCount(parseInteger(statsJson.optString("ratingsCount")));
-                }
-            }
+        if (workKey == null) {
+            return;
+        }
+        JSONObject workJson = apolloStateJson.optJSONObject(workKey);
+        if (workJson == null) {
+            return;
+        }
+        JSONObject statsJson = workJson.optJSONObject("stats");
+        if (statsJson != null) {
+            builder.goodreadsRating(parseNumber(statsJson.optString("averageRating"), Double::parseDouble))
+                    .goodreadsReviewCount(parseNumber(statsJson.optString("ratingsCount"), Integer::parseInt));
         }
     }
 
-    private String extractTitleFromFull(String fullTitle) {
-        if (fullTitle == null) return null;
+    private TitleInfo parseTitleInfo(String fullTitle) {
+        if (fullTitle == null || "null".equals(fullTitle)) {
+            return new TitleInfo(null, null);
+        }
         String[] parts = fullTitle.split(":", 2);
-        return parts[0].trim();
+        String title = parts[0].trim();
+        String subtitle = parts.length > 1 ? parts[1].trim() : null;
+        return new TitleInfo(title.isEmpty() ? null : title, subtitle);
     }
 
-    private String extractSubtitleFromFull(String fullTitle) {
-        if (fullTitle == null) return null;
-        String[] parts = fullTitle.split(":", 2);
-        return parts.length > 1 ? parts[1].trim() : null;
-    }
-
-    private Double parseDouble(String value) {
+    private <T extends Number> T parseNumber(String value, Function<String, T> parser) {
+        if (value == null || value.isEmpty() || "null".equals(value)) {
+            return null;
+        }
         try {
-            return value != null ? Double.parseDouble(value) : null;
+            return parser.apply(value);
         } catch (NumberFormatException e) {
-            log.error("Error parsing double: {}, Error: {}", value, e.getMessage());
+            log.warn("Error parsing number: {}", value);
             return null;
         }
     }
 
-    private Float parseFloat(String value) {
-        try {
-            return value != null ? Float.parseFloat(value) : null;
-        } catch (NumberFormatException e) {
-            log.error("Error parsing double: {}, Error: {}", value, e.getMessage());
-            return null;
-        }
+    private String normalizeNull(String s) {
+        return "null".equals(s) || (s != null && s.isEmpty()) ? null : s;
     }
 
-    private Integer parseInteger(String value) {
-        try {
-            return value != null ? Integer.parseInt(value) : null;
-        } catch (NumberFormatException e) {
-            log.error("Error parsing integer: {}, Error: {}", value, e.getMessage());
-            return null;
-        }
-    }
-
-    private String handleStringNull(String s) {
-        if (s != null && "null".equals(s)) {
-            return null;
-        }
-        return s;
-    }
-
+    @SuppressWarnings("unchecked")
     private LinkedHashSet<String> getJsonKeys(JSONObject apolloStateJson) {
         LinkedHashSet<String> keySet = new LinkedHashSet<>();
         Iterator<String> keys = apolloStateJson.keys();
@@ -368,54 +344,40 @@ public class GoodReadsParser implements BookParser {
         return keySet;
     }
 
-    private JSONObject getValidBookJson(JSONObject apolloStateJson, LinkedHashSet<String> keySet, String prefix) {
+    private JSONObject getValidBookJson(JSONObject apolloStateJson, LinkedHashSet<String> keySet) {
         try {
             for (String key : keySet) {
-                if (key.contains(prefix)) {
+                if (key.contains("Book:kca:")) {
                     JSONObject bookJson = apolloStateJson.getJSONObject(key);
-                    String string = bookJson.optString("title");
-                    if (string != null && !string.isEmpty()) {
+                    String title = bookJson.optString("title");
+                    if (title != null && !title.isEmpty()) {
                         return bookJson;
                     }
                 }
             }
         } catch (Exception e) {
-            log.error("Error finding getValidBookJson: {}", e.getMessage());
+            log.error("Error finding valid book JSON: {}", e.getMessage());
         }
         return null;
     }
 
     private String findKeyByPrefix(LinkedHashSet<String> keySet, String prefix) {
-        for (String key : keySet) {
-            if (key.contains(prefix)) {
-                return key;
-            }
-        }
-        return null;
+        return keySet.stream()
+                .filter(key -> key.contains(prefix))
+                .findFirst()
+                .orElse(null);
     }
 
-    private String getSeriesName(JSONObject apolloStateJson, String seriesKey) {
-        try {
-            if (seriesKey != null) {
-                JSONObject seriesJson = apolloStateJson.getJSONObject(seriesKey);
-                return seriesJson.getString("title");
-            }
-        } catch (Exception e) {
-            log.warn("Error fetching series name: {}, Error: {}", seriesKey, e.getMessage());
+    private String getJsonStringField(JSONObject apolloStateJson, String key, String fieldName) {
+        if (key == null) {
+            return null;
         }
-        return null;
-    }
-
-    private String getContributorName(JSONObject apolloStateJson, String contributorKey) {
         try {
-            if (contributorKey != null) {
-                JSONObject contributorJson = apolloStateJson.getJSONObject(contributorKey);
-                return contributorJson.getString("name");
-            }
+            return apolloStateJson.getJSONObject(key).getString(fieldName);
         } catch (Exception e) {
-            log.error("Error fetching contributor name: {}, Error: {}", contributorKey, e.getMessage());
+            log.warn("Error fetching {} from {}: {}", fieldName, key, e.getMessage());
+            return null;
         }
-        return null;
     }
 
     private Set<String> extractGenres(JSONObject bookJson) {
@@ -495,7 +457,6 @@ public class GoodReadsParser implements BookParser {
             for (Element previewBook : previewBooks) {
                 Set<String> authors = extractAuthorsPreview(previewBook);
 
-                // Author fuzzy match if author provided
                 if (queryAuthor != null && !queryAuthor.isBlank()) {
                     List<String> queryAuthorTokens = List.of(WHITESPACE_PATTERN.split(queryAuthor.toLowerCase()));
                     boolean matches = authors.stream()

@@ -2,7 +2,7 @@ import {Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output} from
 import {Book, BookMetadata, MetadataClearFlags, MetadataUpdateWrapper} from '../../../../book/model/book.model';
 import {MessageService} from 'primeng/api';
 import {Button} from 'primeng/button';
-import {FormControl, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {InputText} from 'primeng/inputtext';
 import {AsyncPipe, NgClass} from '@angular/common';
 import {Divider} from 'primeng/divider';
@@ -18,6 +18,7 @@ import {Image} from 'primeng/image';
 import {LazyLoadImageModule} from 'ng-lazyload-image';
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
 import {MetadataProviderSpecificFields} from '../../../../../shared/model/app-settings.model';
+import {ALL_METADATA_FIELDS, getArrayFields, getBottomFields, getTextareaFields, getTopFields, MetadataFieldConfig, MetadataFormBuilder, MetadataUtilsService} from '../../../../../shared/metadata';
 
 @Component({
   selector: 'app-metadata-picker',
@@ -41,170 +42,62 @@ import {MetadataProviderSpecificFields} from '../../../../../shared/model/app-se
 })
 export class MetadataPickerComponent implements OnInit {
 
-  metadataFieldsTop = [
-    {label: 'Title', controlName: 'title', lockedKey: 'titleLocked', fetchedKey: 'title'},
-    {label: 'Subtitle', controlName: 'subtitle', lockedKey: 'subtitleLocked', fetchedKey: 'subtitle'},
-    {label: 'Publisher', controlName: 'publisher', lockedKey: 'publisherLocked', fetchedKey: 'publisher'},
-    {label: 'Published', controlName: 'publishedDate', lockedKey: 'publishedDateLocked', fetchedKey: 'publishedDate'}
-  ];
-
-  metadataChips = [
-    {label: 'Authors', controlName: 'authors', lockedKey: 'authorsLocked', fetchedKey: 'authors'},
-    {label: 'Genres', controlName: 'categories', lockedKey: 'categoriesLocked', fetchedKey: 'categories'},
-    {label: 'Moods', controlName: 'moods', lockedKey: 'moodsLocked', fetchedKey: 'moods'},
-    {label: 'Tags', controlName: 'tags', lockedKey: 'tagsLocked', fetchedKey: 'tags'},
-  ];
-
-  metadataDescription = [
-    {label: 'Description', controlName: 'description', lockedKey: 'descriptionLocked', fetchedKey: 'description'},
-  ];
-
-  metadataFieldsBottom = [
-    {label: 'Series', controlName: 'seriesName', lockedKey: 'seriesNameLocked', fetchedKey: 'seriesName'},
-    {label: 'Book #', controlName: 'seriesNumber', lockedKey: 'seriesNumberLocked', fetchedKey: 'seriesNumber'},
-    {label: 'Total Books', controlName: 'seriesTotal', lockedKey: 'seriesTotalLocked', fetchedKey: 'seriesTotal'},
-    {label: 'Language', controlName: 'language', lockedKey: 'languageLocked', fetchedKey: 'language'},
-    {label: 'ISBN-10', controlName: 'isbn10', lockedKey: 'isbn10Locked', fetchedKey: 'isbn10'},
-    {label: 'ISBN-13', controlName: 'isbn13', lockedKey: 'isbn13Locked', fetchedKey: 'isbn13'},
-    {label: 'Pages', controlName: 'pageCount', lockedKey: 'pageCountLocked', fetchedKey: 'pageCount'},
-    {label: 'Google ID', controlName: 'googleId', lockedKey: 'googleIdLocked', fetchedKey: 'googleId'},
-    {label: 'ASIN', controlName: 'asin', lockedKey: 'asinLocked', fetchedKey: 'asin'},
-    {label: 'Amazon #', controlName: 'amazonReviewCount', lockedKey: 'amazonReviewCountLocked', fetchedKey: 'amazonReviewCount'},
-    {label: 'Amazon ★', controlName: 'amazonRating', lockedKey: 'amazonRatingLocked', fetchedKey: 'amazonRating'},
-    {label: 'Goodreads ID', controlName: 'goodreadsId', lockedKey: 'goodreadsIdLocked', fetchedKey: 'goodreadsId'},
-    {label: 'Goodreads ★', controlName: 'goodreadsReviewCount', lockedKey: 'goodreadsReviewCountLocked', fetchedKey: 'goodreadsReviewCount'},
-    {label: 'Goodreads #', controlName: 'goodreadsRating', lockedKey: 'goodreadsRatingLocked', fetchedKey: 'goodreadsRating'},
-    {label: 'HC Book ID', controlName: 'hardcoverBookId', lockedKey: 'hardcoverBookIdLocked', fetchedKey: 'hardcoverBookId'},
-    {label: 'Hardcover ID', controlName: 'hardcoverId', lockedKey: 'hardcoverIdLocked', fetchedKey: 'hardcoverId'},
-    {label: 'Hardcover #', controlName: 'hardcoverReviewCount', lockedKey: 'hardcoverReviewCountLocked', fetchedKey: 'hardcoverReviewCount'},
-    {label: 'Hardcover ★', controlName: 'hardcoverRating', lockedKey: 'hardcoverRatingLocked', fetchedKey: 'hardcoverRating'},
-    {label: 'Comicvine ID', controlName: 'comicvineId', lockedKey: 'comicvineIdLocked', fetchedKey: 'comicvineId'},
-    {label: 'LB ID', controlName: 'lubimyczytacId', lockedKey: 'lubimyczytacIdLocked', fetchedKey: 'lubimyczytacId'},
-    {label: 'LB ★', controlName: 'lubimyczytacRating', lockedKey: 'lubimyczytacRatingLocked', fetchedKey: 'lubimyczytacRating'},
-    {label: 'Ranobedb ID', controlName: 'ranobedbId', lockedKey: 'ranobedbIdLocked', fetchedKey: 'ranobedbId'},
-    {label: 'Ranobedb ★', controlName: 'ranobedbRating', lockedKey: 'ranobedbRatingLocked', fetchedKey: 'ranobedbRating'}
-  ];
+  // Cached arrays for template binding (avoid getter re-computation)
+  metadataFieldsTop: MetadataFieldConfig[] = [];
+  metadataChips: MetadataFieldConfig[] = [];
+  metadataDescription: MetadataFieldConfig[] = [];
+  metadataFieldsBottom: MetadataFieldConfig[] = [];
 
   @Input() reviewMode!: boolean;
   @Input() fetchedMetadata!: BookMetadata;
   @Input() book$!: Observable<Book | null>;
   @Output() goBack = new EventEmitter<boolean>();
 
-  allAuthors!: string[];
-  allCategories!: string[];
-  allMoods!: string[];
-  allTags!: string[];
-  filteredCategories: string[] = [];
-  filteredAuthors: string[] = [];
-  filteredMoods: string[] = [];
-  filteredTags: string[] = [];
+  private allItems: Record<string, string[]> = {};
+  filteredItems: Record<string, string[]> = {};
 
-  getFiltered(controlName: string): string[] {
-    if (controlName === 'authors') return this.filteredAuthors;
-    if (controlName === 'categories') return this.filteredCategories;
-    if (controlName === 'moods') return this.filteredMoods;
-    if (controlName === 'tags') return this.filteredTags;
-    return [];
-  }
-
-  filterItems(event: { query: string }, controlName: string) {
-    const query = event.query.toLowerCase();
-    if (controlName === 'authors') {
-      this.filteredAuthors = this.allAuthors.filter(a => a.toLowerCase().includes(query));
-    } else if (controlName === 'categories') {
-      this.filteredCategories = this.allCategories.filter(c => c.toLowerCase().includes(query));
-    } else if (controlName === 'moods') {
-      this.filteredMoods = this.allMoods.filter(m => m.toLowerCase().includes(query));
-    } else if (controlName === 'tags') {
-      this.filteredTags = this.allTags.filter(t => t.toLowerCase().includes(query));
-    }
-  }
-
-  metadataForm: FormGroup;
+  metadataForm!: FormGroup;
   currentBookId!: number;
   copiedFields: Record<string, boolean> = {};
   savedFields: Record<string, boolean> = {};
   originalMetadata!: BookMetadata;
   isSaving = false;
+  hoveredFields: Record<string, boolean> = {};
 
   private messageService = inject(MessageService);
   private bookService = inject(BookService);
   protected urlHelper = inject(UrlHelperService);
   private destroyRef = inject(DestroyRef);
   private appSettingsService = inject(AppSettingsService);
+  private formBuilder = inject(MetadataFormBuilder);
+  private metadataUtils = inject(MetadataUtilsService);
 
   private enabledProviderFields: MetadataProviderSpecificFields | null = null;
 
   constructor() {
-    this.metadataForm = new FormGroup({
-      title: new FormControl(''),
-      subtitle: new FormControl(''),
-      authors: new FormControl(''),
-      categories: new FormControl(''),
-      moods: new FormControl(''),
-      tags: new FormControl(''),
-      publisher: new FormControl(''),
-      publishedDate: new FormControl(''),
-      isbn10: new FormControl(''),
-      isbn13: new FormControl(''),
-      description: new FormControl(''),
-      pageCount: new FormControl(''),
-      language: new FormControl(''),
-      asin: new FormControl(''),
-      amazonRating: new FormControl(''),
-      amazonReviewCount: new FormControl(''),
-      goodreadsId: new FormControl(''),
-      comicvineId: new FormControl(''),
-      goodreadsRating: new FormControl(''),
-      goodreadsReviewCount: new FormControl(''),
-      hardcoverId: new FormControl(''),
-      hardcoverBookId: new FormControl(''),
-      hardcoverRating: new FormControl(''),
-      hardcoverReviewCount: new FormControl(''),
-      lubimyczytacId: new FormControl(''),
-      lubimyczytacRating: new FormControl(''),
-      ranobedbId: new FormControl(''),
-      ranobedbRating: new FormControl(''),
-      googleId: new FormControl(''),
-      seriesName: new FormControl(''),
-      seriesNumber: new FormControl(''),
-      seriesTotal: new FormControl(''),
-      thumbnailUrl: new FormControl(''),
+    this.metadataForm = this.formBuilder.buildForm(true);
+    this.initFieldArrays();
+  }
 
-      titleLocked: new FormControl(false),
-      subtitleLocked: new FormControl(false),
-      authorsLocked: new FormControl(false),
-      categoriesLocked: new FormControl(false),
-      moodsLocked: new FormControl(false),
-      tagsLocked: new FormControl(false),
-      publisherLocked: new FormControl(false),
-      publishedDateLocked: new FormControl(false),
-      isbn10Locked: new FormControl(false),
-      isbn13Locked: new FormControl(false),
-      descriptionLocked: new FormControl(false),
-      pageCountLocked: new FormControl(false),
-      languageLocked: new FormControl(false),
-      asinLocked: new FormControl(false),
-      amazonRatingLocked: new FormControl(false),
-      amazonReviewCountLocked: new FormControl(false),
-      goodreadsIdLocked: new FormControl(false),
-      comicvineIdLocked: new FormControl(false),
-      goodreadsRatingLocked: new FormControl(false),
-      goodreadsReviewCountLocked: new FormControl(false),
-      hardcoverIdLocked: new FormControl(false),
-      hardcoverBookIdLocked: new FormControl(false),
-      hardcoverRatingLocked: new FormControl(false),
-      hardcoverReviewCountLocked: new FormControl(false),
-      lubimyczytacIdLocked: new FormControl(false),
-      lubimyczytacRatingLocked: new FormControl(false),
-      ranobedbIdLocked: new FormControl(false),
-      ranobedbRatingLocked: new FormControl(false),
-      googleIdLocked: new FormControl(false),
-      seriesNameLocked: new FormControl(false),
-      seriesNumberLocked: new FormControl(false),
-      seriesTotalLocked: new FormControl(false),
-      coverLocked: new FormControl(false),
-    });
+  private initFieldArrays(): void {
+    this.metadataFieldsTop = getTopFields();
+    this.metadataChips = getArrayFields();
+    this.metadataDescription = getTextareaFields();
+    this.updateBottomFields();
+  }
+
+  private updateBottomFields(): void {
+    this.metadataFieldsBottom = getBottomFields(this.enabledProviderFields);
+  }
+
+  getFiltered(controlName: string): string[] {
+    return this.filteredItems[controlName] ?? [];
+  }
+
+  filterItems(event: { query: string }, controlName: string): void {
+    const query = event.query.toLowerCase();
+    this.filteredItems[controlName] = (this.allItems[controlName] ?? [])
+      .filter(item => item.toLowerCase().includes(query));
   }
 
   ngOnInit(): void {
@@ -216,7 +109,7 @@ export class MetadataPickerComponent implements OnInit {
       .subscribe(settings => {
         if (settings?.metadataProviderSpecificFields) {
           this.enabledProviderFields = settings.metadataProviderSpecificFields;
-          this.filterMetadataFields();
+          this.updateBottomFields();
         }
       });
 
@@ -226,22 +119,23 @@ export class MetadataPickerComponent implements OnInit {
         take(1)
       )
       .subscribe(bookState => {
-        const authors = new Set<string>();
-        const categories = new Set<string>();
-        const moods = new Set<string>();
-        const tags = new Set<string>();
+        const itemSets: Record<string, Set<string>> = {
+          authors: new Set<string>(),
+          categories: new Set<string>(),
+          moods: new Set<string>(),
+          tags: new Set<string>()
+        };
 
         (bookState.books ?? []).forEach(book => {
-          book.metadata?.authors?.forEach(author => authors.add(author));
-          book.metadata?.categories?.forEach(category => categories.add(category));
-          book.metadata?.moods?.forEach(mood => moods.add(mood));
-          book.metadata?.tags?.forEach(tag => tags.add(tag));
+          for (const key of Object.keys(itemSets)) {
+            const values = book.metadata?.[key as keyof BookMetadata] as string[] | undefined;
+            values?.forEach(v => itemSets[key].add(v));
+          }
         });
 
-        this.allAuthors = Array.from(authors);
-        this.allCategories = Array.from(categories);
-        this.allMoods = Array.from(moods);
-        this.allTags = Array.from(tags);
+        for (const key of Object.keys(itemSets)) {
+          this.allItems[key] = Array.from(itemSets[key]);
+        }
       });
 
     this.book$
@@ -250,7 +144,6 @@ export class MetadataPickerComponent implements OnInit {
         map(book => book.metadata),
         takeUntilDestroyed(this.destroyRef)
       ).subscribe((metadata) => {
-
       if (this.reviewMode) {
         this.metadataForm.reset();
         this.copiedFields = {};
@@ -262,145 +155,41 @@ export class MetadataPickerComponent implements OnInit {
         this.originalMetadata = metadata;
         this.originalMetadata.thumbnailUrl = this.urlHelper.getThumbnailUrl(metadata.bookId, metadata.coverUpdatedOn);
         this.currentBookId = metadata.bookId;
-        this.metadataForm.patchValue({
-          title: metadata.title || null,
-          subtitle: metadata.subtitle || null,
-          authors: [...(metadata.authors ?? [])].sort(),
-          categories: [...(metadata.categories ?? [])].sort(),
-          moods: [...(metadata.moods ?? [])].sort(),
-          tags: [...(metadata.tags ?? [])].sort(),
-          publisher: metadata.publisher || null,
-          publishedDate: metadata.publishedDate || null,
-          isbn10: metadata.isbn10 || null,
-          isbn13: metadata.isbn13 || null,
-          description: metadata.description || null,
-          pageCount: metadata.pageCount || null,
-          language: metadata.language || null,
-          asin: metadata.asin || null,
-          amazonRating: metadata.amazonRating || null,
-          amazonReviewCount: metadata.amazonReviewCount || null,
-          goodreadsId: metadata.goodreadsId || null,
-          comicvineId: metadata.comicvineId || null,
-          goodreadsRating: metadata.goodreadsRating || null,
-          goodreadsReviewCount: metadata.goodreadsReviewCount || null,
-          hardcoverId: metadata.hardcoverId || null,
-          hardcoverBookId: metadata.hardcoverBookId || null,
-          hardcoverRating: metadata.hardcoverRating || null,
-          hardcoverReviewCount: metadata.hardcoverReviewCount || null,
-          lubimyczytacId: metadata.lubimyczytacId || null,
-          lubimyczytacRating: metadata.lubimyczytacRating || null,
-          ranobedbId: metadata.ranobedbId || null,
-          ranobedbRating: metadata.ranobedbRating || null,
-          googleId: metadata.googleId || null,
-          seriesName: metadata.seriesName || null,
-          seriesNumber: metadata.seriesNumber || null,
-          seriesTotal: metadata.seriesTotal || null,
-          thumbnailUrl: this.urlHelper.getCoverUrl(metadata.bookId, metadata.coverUpdatedOn),
-
-          titleLocked: metadata.titleLocked || false,
-          subtitleLocked: metadata.subtitleLocked || false,
-          authorsLocked: metadata.authorsLocked || false,
-          categoriesLocked: metadata.categoriesLocked || false,
-          moodsLocked: metadata.moodsLocked || false,
-          tagsLocked: metadata.tagsLocked || false,
-          publisherLocked: metadata.publisherLocked || false,
-          publishedDateLocked: metadata.publishedDateLocked || false,
-          isbn10Locked: metadata.isbn10Locked || false,
-          isbn13Locked: metadata.isbn13Locked || false,
-          descriptionLocked: metadata.descriptionLocked || false,
-          pageCountLocked: metadata.pageCountLocked || false,
-          languageLocked: metadata.languageLocked || false,
-          asinLocked: metadata.asinLocked || false,
-          amazonRatingLocked: metadata.amazonRatingLocked || false,
-          amazonReviewCountLocked: metadata.amazonReviewCountLocked || false,
-          goodreadsIdLocked: metadata.goodreadsIdLocked || false,
-          comicvineIdLocked: metadata.comicvineIdLocked || false,
-          goodreadsRatingLocked: metadata.goodreadsRatingLocked || false,
-          goodreadsReviewCountLocked: metadata.goodreadsReviewCountLocked || false,
-          hardcoverIdLocked: metadata.hardcoverIdLocked || false,
-          hardcoverBookIdLocked: metadata.hardcoverBookIdLocked || false,
-          hardcoverRatingLocked: metadata.hardcoverRatingLocked || false,
-          hardcoverReviewCountLocked: metadata.hardcoverReviewCountLocked || false,
-          lubimyczytacIdLocked: metadata.lubimyczytacIdLocked || false,
-          lubimyczytacRatingLocked: metadata.lubimyczytacRatingLocked || false,
-          ranobedbIdLocked: metadata.ranobedbIdLocked || false,
-          ranobedbRatingLocked: metadata.ranobedbRatingLocked || false,
-          googleIdLocked: metadata.googleIdLocked || false,
-          seriesNameLocked: metadata.seriesNameLocked || false,
-          seriesNumberLocked: metadata.seriesNumberLocked || false,
-          seriesTotalLocked: metadata.seriesTotalLocked || false,
-          coverLocked: metadata.coverLocked || false,
-        });
-
-        Object.keys(this.metadataForm.controls).forEach((key) => {
-          if (!key.endsWith('Locked')) {
-            this.metadataForm.get(key)?.enable({emitEvent: false});
-          }
-        });
-
-        if (metadata.titleLocked) this.metadataForm.get('title')?.disable({emitEvent: false});
-        if (metadata.subtitleLocked) this.metadataForm.get('subtitle')?.disable({emitEvent: false});
-        if (metadata.authorsLocked) this.metadataForm.get('authors')?.disable({emitEvent: false});
-        if (metadata.categoriesLocked) this.metadataForm.get('categories')?.disable({emitEvent: false});
-        if (metadata.moodsLocked) this.metadataForm.get('moods')?.disable({emitEvent: false});
-        if (metadata.tagsLocked) this.metadataForm.get('tags')?.disable({emitEvent: false});
-        if (metadata.publisherLocked) this.metadataForm.get('publisher')?.disable({emitEvent: false});
-        if (metadata.publishedDateLocked) this.metadataForm.get('publishedDate')?.disable({emitEvent: false});
-        if (metadata.languageLocked) this.metadataForm.get('language')?.disable({emitEvent: false});
-        if (metadata.isbn10Locked) this.metadataForm.get('isbn10')?.disable({emitEvent: false});
-        if (metadata.isbn13Locked) this.metadataForm.get('isbn13')?.disable({emitEvent: false});
-        if (metadata.asinLocked) this.metadataForm.get('asin')?.disable({emitEvent: false});
-        if (metadata.amazonReviewCountLocked) this.metadataForm.get('amazonReviewCount')?.disable({emitEvent: false});
-        if (metadata.amazonRatingLocked) this.metadataForm.get('amazonRating')?.disable({emitEvent: false});
-        if (metadata.googleIdLocked) this.metadataForm.get('googleIdCount')?.disable({emitEvent: false});
-        if (metadata.comicvineIdLocked) this.metadataForm.get('comicvineId')?.disable({emitEvent: false});
-        if (metadata.goodreadsIdLocked) this.metadataForm.get('goodreadsId')?.disable({emitEvent: false});
-        if (metadata.goodreadsReviewCountLocked) this.metadataForm.get('goodreadsReviewCount')?.disable({emitEvent: false});
-        if (metadata.goodreadsRatingLocked) this.metadataForm.get('goodreadsRating')?.disable({emitEvent: false});
-        if (metadata.hardcoverIdLocked) this.metadataForm.get('hardcoverId')?.disable({emitEvent: false});
-        if (metadata.hardcoverBookIdLocked) this.metadataForm.get('hardcoverBookId')?.disable({emitEvent: false});
-        if (metadata.hardcoverReviewCountLocked) this.metadataForm.get('hardcoverReviewCount')?.disable({emitEvent: false});
-        if (metadata.hardcoverRatingLocked) this.metadataForm.get('hardcoverRating')?.disable({emitEvent: false});
-        if (metadata.lubimyczytacIdLocked) this.metadataForm.get('lubimyczytacId')?.disable({emitEvent: false});
-        if (metadata.lubimyczytacRatingLocked) this.metadataForm.get('lubimyczytacRating')?.disable({emitEvent: false});
-        if (metadata.ranobedbIdLocked) this.metadataForm.get('ranobedbId')?.disable({emitEvent: false});
-        if (metadata.ranobedbRatingLocked) this.metadataForm.get('ranobedbRating')?.disable({emitEvent: false});
-        if (metadata.googleIdLocked) this.metadataForm.get('googleId')?.disable({emitEvent: false});
-        if (metadata.pageCountLocked) this.metadataForm.get('pageCount')?.disable({emitEvent: false});
-        if (metadata.descriptionLocked) this.metadataForm.get('description')?.disable({emitEvent: false});
-        if (metadata.seriesNameLocked) this.metadataForm.get('seriesName')?.disable({emitEvent: false});
-        if (metadata.seriesNumberLocked) this.metadataForm.get('seriesNumber')?.disable({emitEvent: false});
-        if (metadata.seriesTotalLocked) this.metadataForm.get('seriesTotal')?.disable({emitEvent: false});
+        this.patchMetadataToForm(metadata);
       }
     });
   }
 
-  private filterMetadataFields(): void {
-    if (!this.enabledProviderFields) return;
+  private patchMetadataToForm(metadata: BookMetadata): void {
+    const patchData: Record<string, unknown> = {};
 
-    const providerFieldMap: Record<string, keyof MetadataProviderSpecificFields> = {
-      'asin': 'asin',
-      'amazonRating': 'amazonRating',
-      'amazonReviewCount': 'amazonReviewCount',
-      'googleId': 'googleId',
-      'goodreadsId': 'goodreadsId',
-      'goodreadsRating': 'goodreadsRating',
-      'goodreadsReviewCount': 'goodreadsReviewCount',
-      'hardcoverId': 'hardcoverId',
-      'hardcoverBookId': 'hardcoverId',
-      'hardcoverRating': 'hardcoverRating',
-      'hardcoverReviewCount': 'hardcoverReviewCount',
-      'comicvineId': 'comicvineId',
-      'lubimyczytacId': 'lubimyczytacId',
-      'lubimyczytacRating': 'lubimyczytacRating',
-      'ranobedbId': 'ranobedbId',
-      'ranobedbRating': 'ranobedbRating'
-    };
+    for (const field of ALL_METADATA_FIELDS) {
+      const key = field.controlName as keyof BookMetadata;
+      const lockedKey = field.lockedKey as keyof BookMetadata;
+      const value = metadata[key];
 
-    this.metadataFieldsBottom = this.metadataFieldsBottom.filter(field => {
-      const providerKey = providerFieldMap[field.controlName];
-      return !providerKey || this.enabledProviderFields![providerKey];
-    });
+      if (field.type === 'array') {
+        patchData[field.controlName] = [...(value as string[] ?? [])].sort();
+      } else {
+        patchData[field.controlName] = value ?? null;
+      }
+      patchData[field.lockedKey] = metadata[lockedKey] ?? false;
+    }
+
+    // Handle special fields
+    patchData['thumbnailUrl'] = this.urlHelper.getCoverUrl(metadata.bookId, metadata.coverUpdatedOn);
+    patchData['coverLocked'] = metadata.coverLocked ?? false;
+
+    this.metadataForm.patchValue(patchData);
+    this.applyLockStates(metadata);
+  }
+
+  private applyLockStates(metadata: BookMetadata): void {
+    const lockedFields: Record<string, boolean> = {};
+    for (const field of ALL_METADATA_FIELDS) {
+      lockedFields[field.lockedKey] = !!metadata[field.lockedKey as keyof BookMetadata];
+    }
+    this.formBuilder.applyLockStates(this.metadataForm, lockedFields);
   }
 
   onAutoCompleteSelect(fieldName: string, event: AutoCompleteSelectEvent) {
@@ -429,13 +218,13 @@ export class MetadataPickerComponent implements OnInit {
     this.isSaving = true;
     const updatedBookMetadata = this.buildMetadataWrapper(undefined);
     this.bookService.updateBookMetadata(this.currentBookId, updatedBookMetadata, false).subscribe({
-      next: (bookMetadata) => {
+      next: () => {
         this.isSaving = false;
-        Object.keys(this.copiedFields).forEach((field) => {
+        for (const field of Object.keys(this.copiedFields)) {
           if (this.copiedFields[field]) {
             this.savedFields[field] = true;
           }
-        });
+        }
         this.messageService.add({severity: 'info', summary: 'Success', detail: 'Book metadata updated'});
       },
       error: () => {
@@ -446,136 +235,113 @@ export class MetadataPickerComponent implements OnInit {
   }
 
   private buildMetadataWrapper(shouldLockAllFields: boolean | undefined): MetadataUpdateWrapper {
-    const updatedBookMetadata: BookMetadata = {
-      bookId: this.currentBookId,
-      title: this.metadataForm.get('title')?.value || this.copiedFields['title'] ? this.getValueOrCopied('title') : '',
-      subtitle: this.metadataForm.get('subtitle')?.value || this.copiedFields['subtitle'] ? this.getValueOrCopied('subtitle') : '',
-      authors: this.metadataForm.get('authors')?.value || this.copiedFields['authors'] ? this.getArrayFromFormField('authors', this.fetchedMetadata.authors) : [],
-      categories: this.metadataForm.get('categories')?.value || this.copiedFields['categories'] ? this.getArrayFromFormField('categories', this.fetchedMetadata.categories) : [],
-      moods: this.metadataForm.get('moods')?.value || this.copiedFields['moods'] ? this.getArrayFromFormField('moods', this.fetchedMetadata.moods) : [],
-      tags: this.metadataForm.get('tags')?.value || this.copiedFields['tags'] ? this.getArrayFromFormField('tags', this.fetchedMetadata.tags) : [],
-      publisher: this.metadataForm.get('publisher')?.value || this.copiedFields['publisher'] ? this.getValueOrCopied('publisher') : '',
-      publishedDate: this.metadataForm.get('publishedDate')?.value || this.copiedFields['publishedDate'] ? this.getValueOrCopied('publishedDate') : '',
-      isbn10: this.metadataForm.get('isbn10')?.value || this.copiedFields['isbn10'] ? this.getValueOrCopied('isbn10') : '',
-      isbn13: this.metadataForm.get('isbn13')?.value || this.copiedFields['isbn13'] ? this.getValueOrCopied('isbn13') : '',
-      description: this.metadataForm.get('description')?.value || this.copiedFields['description'] ? this.getValueOrCopied('description') : '',
-      pageCount: this.metadataForm.get('pageCount')?.value || this.copiedFields['pageCount'] ? this.getPageCountOrCopied() : null,
-      language: this.metadataForm.get('language')?.value || this.copiedFields['language'] ? this.getValueOrCopied('language') : '',
-      asin: this.metadataForm.get('asin')?.value || this.copiedFields['asin'] ? this.getValueOrCopied('asin') : '',
-      amazonRating: this.metadataForm.get('amazonRating')?.value || this.copiedFields['amazonRating'] ? this.getNumberOrCopied('amazonRating') : null,
-      amazonReviewCount: this.metadataForm.get('amazonReviewCount')?.value || this.copiedFields['amazonReviewCount'] ? this.getNumberOrCopied('amazonReviewCount') : null,
-      goodreadsId: this.metadataForm.get('goodreadsId')?.value || this.copiedFields['goodreadsId'] ? this.getValueOrCopied('goodreadsId') : '',
-      comicvineId: this.metadataForm.get('comicvineId')?.value || this.copiedFields['comicvineId'] ? this.getValueOrCopied('comicvineId') : '',
-      goodreadsRating: this.metadataForm.get('goodreadsRating')?.value || this.copiedFields['goodreadsRating'] ? this.getNumberOrCopied('goodreadsRating') : null,
-      goodreadsReviewCount: this.metadataForm.get('goodreadsReviewCount')?.value || this.copiedFields['goodreadsReviewCount'] ? this.getNumberOrCopied('goodreadsReviewCount') : null,
-      hardcoverId: this.metadataForm.get('hardcoverId')?.value || this.copiedFields['hardcoverId'] ? this.getValueOrCopied('hardcoverId') : '',
-      hardcoverBookId: this.metadataForm.get('hardcoverBookId')?.value || this.copiedFields['hardcoverBookId'] ? (this.getNumberOrCopied('hardcoverBookId') ?? null) : null,
-      hardcoverRating: this.metadataForm.get('hardcoverRating')?.value || this.copiedFields['hardcoverRating'] ? this.getNumberOrCopied('hardcoverRating') : null,
-      hardcoverReviewCount: this.metadataForm.get('hardcoverReviewCount')?.value || this.copiedFields['hardcoverReviewCount'] ? this.getNumberOrCopied('hardcoverReviewCount') : null,
-      lubimyczytacId: this.metadataForm.get('lubimyczytacId')?.value || this.copiedFields['lubimyczytacId'] ? this.getValueOrCopied('lubimyczytacId') : '',
-      lubimyczytacRating: this.metadataForm.get('lubimyczytacRating')?.value || this.copiedFields['lubimyczytacRating'] ? this.getNumberOrCopied('lubimyczytacRating') : null,
-      ranobedbId: this.metadataForm.get('ranobedbId')?.value || this.copiedFields['ranobedbId'] ? this.getValueOrCopied('ranobedbId') : '',
-      ranobedbRating: this.metadataForm.get('ranobedbRating')?.value || this.copiedFields['ranobedbRating'] ? this.getNumberOrCopied('ranobedbRating') : null,
-      googleId: this.metadataForm.get('googleId')?.value || this.copiedFields['googleId'] ? this.getValueOrCopied('googleId') : '',
-      seriesName: this.metadataForm.get('seriesName')?.value || this.copiedFields['seriesName'] ? this.getValueOrCopied('seriesName') : '',
-      seriesNumber: this.metadataForm.get('seriesNumber')?.value || this.copiedFields['seriesNumber'] ? this.getNumberOrCopied('seriesNumber') : null,
-      seriesTotal: this.metadataForm.get('seriesTotal')?.value || this.copiedFields['seriesTotal'] ? this.getNumberOrCopied('seriesTotal') : null,
-      thumbnailUrl: this.getThumbnail(),
+    const metadata = this.buildMetadataFromForm();
 
-      titleLocked: this.metadataForm.get('titleLocked')?.value,
-      subtitleLocked: this.metadataForm.get('subtitleLocked')?.value,
-      authorsLocked: this.metadataForm.get('authorsLocked')?.value,
-      categoriesLocked: this.metadataForm.get('categoriesLocked')?.value,
-      moodsLocked: this.metadataForm.get('moodsLocked')?.value,
-      tagsLocked: this.metadataForm.get('tagsLocked')?.value,
-      publisherLocked: this.metadataForm.get('publisherLocked')?.value,
-      publishedDateLocked: this.metadataForm.get('publishedDateLocked')?.value,
-      isbn10Locked: this.metadataForm.get('isbn10Locked')?.value,
-      isbn13Locked: this.metadataForm.get('isbn13Locked')?.value,
-      descriptionLocked: this.metadataForm.get('descriptionLocked')?.value,
-      pageCountLocked: this.metadataForm.get('pageCountLocked')?.value,
-      languageLocked: this.metadataForm.get('languageLocked')?.value,
-      asinLocked: this.metadataForm.get('asinLocked')?.value,
-      amazonRatingLocked: this.metadataForm.get('amazonRatingLocked')?.value,
-      amazonReviewCountLocked: this.metadataForm.get('amazonReviewCountLocked')?.value,
-      goodreadsIdLocked: this.metadataForm.get('goodreadsIdLocked')?.value,
-      comicvineIdLocked: this.metadataForm.get('comicvineIdLocked')?.value,
-      goodreadsRatingLocked: this.metadataForm.get('goodreadsRatingLocked')?.value,
-      goodreadsReviewCountLocked: this.metadataForm.get('goodreadsReviewCountLocked')?.value,
-      hardcoverIdLocked: this.metadataForm.get('hardcoverIdLocked')?.value,
-      hardcoverBookIdLocked: this.metadataForm.get('hardcoverBookIdLocked')?.value,
-      hardcoverRatingLocked: this.metadataForm.get('hardcoverRatingLocked')?.value,
-      hardcoverReviewCountLocked: this.metadataForm.get('hardcoverReviewCountLocked')?.value,
-      lubimyczytacIdLocked: this.metadataForm.get('lubimyczytacIdLocked')?.value,
-      lubimyczytacRatingLocked: this.metadataForm.get('lubimyczytacRatingLocked')?.value,
-      ranobedbIdLocked: this.metadataForm.get('ranobedbIdLocked')?.value,
-      ranobedbRatingLocked: this.metadataForm.get('ranobedbRatingLocked')?.value,
-      googleIdLocked: this.metadataForm.get('googleIdLocked')?.value,
-      seriesNameLocked: this.metadataForm.get('seriesNameLocked')?.value,
-      seriesNumberLocked: this.metadataForm.get('seriesNumberLocked')?.value,
-      seriesTotalLocked: this.metadataForm.get('seriesTotalLocked')?.value,
-      coverLocked: this.metadataForm.get('coverLocked')?.value,
+    if (shouldLockAllFields !== undefined) {
+      (metadata as BookMetadata & { allFieldsLocked?: boolean }).allFieldsLocked = shouldLockAllFields;
+    }
 
-      ...(shouldLockAllFields !== undefined && {allFieldsLocked: shouldLockAllFields}),
-    };
-
-    const clearFlags: MetadataClearFlags = this.inferClearFlags(updatedBookMetadata, this.originalMetadata);
+    const clearFlags = this.inferClearFlags(metadata, this.originalMetadata);
 
     return {
-      metadata: updatedBookMetadata,
+      metadata: metadata,
       clearFlags: clearFlags
     };
   }
 
-  private inferClearFlags(current: BookMetadata, original: BookMetadata): MetadataClearFlags {
-    return {
-      title: !current.title && !!original.title,
-      subtitle: !current.subtitle && !!original.subtitle,
-      authors: current.authors?.length === 0 && original.authors?.length! > 0,
-      categories: current.categories?.length === 0 && original.categories?.length! > 0,
-      moods: current.moods?.length === 0 && original.moods?.length! > 0,
-      tags: current.tags?.length === 0 && original.tags?.length! > 0,
-      publisher: !current.publisher && !!original.publisher,
-      publishedDate: !current.publishedDate && !!original.publishedDate,
-      isbn10: !current.isbn10 && !!original.isbn10,
-      isbn13: !current.isbn13 && !!original.isbn13,
-      description: !current.description && !!original.description,
-      pageCount: current.pageCount === null && original.pageCount !== null,
-      language: !current.language && !!original.language,
-      asin: !current.asin && !!original.asin,
-      amazonRating: current.amazonRating === null && original.amazonRating !== null,
-      amazonReviewCount: current.amazonReviewCount === null && original.amazonReviewCount !== null,
-      goodreadsId: !current.goodreadsId && !!original.goodreadsId,
-      comicvineId: !current.comicvineId && !!original.comicvineId,
-      goodreadsRating: current.goodreadsRating === null && original.goodreadsRating !== null,
-      goodreadsReviewCount: current.goodreadsReviewCount === null && original.goodreadsReviewCount !== null,
-      hardcoverId: !current.hardcoverId && !!original.hardcoverId,
-      hardcoverBookId: current.hardcoverBookId === null && original.hardcoverBookId !== null,
-      hardcoverRating: current.hardcoverRating === null && original.hardcoverRating !== null,
-      hardcoverReviewCount: current.hardcoverReviewCount === null && original.hardcoverReviewCount !== null,
-      lubimyczytacId: !current.lubimyczytacId && !!original.lubimyczytacId,
-      lubimyczytacRating: current.lubimyczytacRating === null && original.lubimyczytacRating !== null,
-      ranobedbId: !current.ranobedbId && !!original.ranobedbId,
-      ranobedbRating: current.ranobedbRating === null && original.ranobedbRating !== null,
-      googleId: !current.googleId && !!original.googleId,
-      seriesName: !current.seriesName && !!original.seriesName,
-      seriesNumber: current.seriesNumber === null && original.seriesNumber !== null,
-      seriesTotal: current.seriesTotal === null && original.seriesTotal !== null,
-      cover: !current.thumbnailUrl && !!original.thumbnailUrl,
-    };
+  private buildMetadataFromForm(): BookMetadata {
+    const metadata: Record<string, unknown> = {bookId: this.currentBookId};
+
+    for (const field of ALL_METADATA_FIELDS) {
+      if (field.type === 'array') {
+        metadata[field.controlName] = this.getArrayValue(field.controlName);
+      } else if (field.type === 'number') {
+        metadata[field.controlName] = this.getNumberValue(field.controlName);
+      } else {
+        metadata[field.controlName] = this.getStringValue(field.controlName);
+      }
+
+      metadata[field.lockedKey] = this.metadataForm.get(field.lockedKey)?.value ?? false;
+    }
+
+    metadata['thumbnailUrl'] = this.getThumbnail();
+    metadata['coverLocked'] = this.metadataForm.get('coverLocked')?.value;
+
+    return metadata as BookMetadata;
   }
 
-  getThumbnail() {
+  private getStringValue(field: string): string {
+    const formValue = this.metadataForm.get(field)?.value;
+    if (!formValue || formValue === '') {
+      if (this.copiedFields[field]) {
+        return (this.fetchedMetadata[field as keyof BookMetadata] as string) || '';
+      }
+      return '';
+    }
+    return formValue;
+  }
+
+  private getNumberValue(field: string): number | null {
+    const formValue = this.metadataForm.get(field)?.value;
+    if (formValue === '' || formValue === null || formValue === undefined || isNaN(formValue)) {
+      if (this.copiedFields[field]) {
+        return (this.fetchedMetadata[field as keyof BookMetadata] as number | null) ?? null;
+      }
+      return null;
+    }
+    return Number(formValue);
+  }
+
+  private getArrayValue(field: string): string[] {
+    const fieldValue = this.metadataForm.get(field)?.value;
+    if (!fieldValue || (Array.isArray(fieldValue) && fieldValue.length === 0)) {
+      if (this.copiedFields[field]) {
+        const fallback = this.fetchedMetadata[field as keyof BookMetadata];
+        return Array.isArray(fallback) ? fallback as string[] : [];
+      }
+      return [];
+    }
+    if (typeof fieldValue === 'string') {
+      return fieldValue.split(',').map(item => item.trim());
+    }
+    return Array.isArray(fieldValue) ? fieldValue as string[] : [];
+  }
+
+  private inferClearFlags(current: BookMetadata, original: BookMetadata): MetadataClearFlags {
+    const flags: Record<string, boolean> = {};
+
+    for (const field of ALL_METADATA_FIELDS) {
+      const key = field.controlName as keyof BookMetadata;
+      const curr = current[key];
+      const orig = original[key];
+
+      if (field.type === 'array') {
+        flags[key] = !(curr as string[])?.length && !!(orig as string[])?.length;
+      } else if (field.type === 'number') {
+        flags[key] = curr === null && orig !== null;
+      } else {
+        flags[key] = !curr && !!orig;
+      }
+    }
+
+    flags['cover'] = !current.thumbnailUrl && !!original.thumbnailUrl;
+    return flags as MetadataClearFlags;
+  }
+
+  getThumbnail(): string | null {
     const thumbnailUrl = this.metadataForm.get('thumbnailUrl')?.value;
     if (thumbnailUrl?.includes('api/v1')) {
       return null;
     }
-    return this.copiedFields['thumbnailUrl'] ? this.getValueOrCopied('thumbnailUrl') : null;
+    if (this.copiedFields['thumbnailUrl']) {
+      return (this.fetchedMetadata['thumbnailUrl' as keyof BookMetadata] as string) || null;
+    }
+    return null;
   }
 
   private updateMetadata(shouldLockAllFields: boolean | undefined): void {
     this.bookService.updateBookMetadata(this.currentBookId, this.buildMetadataWrapper(shouldLockAllFields), false).subscribe({
-      next: (response) => {
+      next: () => {
         if (shouldLockAllFields !== undefined) {
           this.messageService.add({
             severity: 'success',
@@ -598,7 +364,7 @@ export class MetadataPickerComponent implements OnInit {
 
   toggleLock(field: string): void {
     if (field === 'thumbnailUrl') {
-      field = 'cover'
+      field = 'cover';
     }
     const isLocked = this.metadataForm.get(field + 'Locked')?.value;
     const updatedLockedState = !isLocked;
@@ -612,31 +378,20 @@ export class MetadataPickerComponent implements OnInit {
   }
 
   copyMissing(): void {
-    Object.keys(this.fetchedMetadata).forEach((field) => {
-      const isLocked = this.metadataForm.get(`${field}Locked`)?.value;
-      const currentValue = this.metadataForm.get(field)?.value;
-      const fetchedValue = this.fetchedMetadata[field];
-
-      const isEmpty = Array.isArray(currentValue)
-        ? currentValue.length === 0
-        : (currentValue === null || currentValue === undefined || currentValue === '');
-
-      const hasFetchedValue = fetchedValue !== null && fetchedValue !== undefined && fetchedValue !== '';
-
-      if (!isLocked && isEmpty && hasFetchedValue) {
-        this.copyFetchedToCurrent(field);
-      }
-    });
+    this.metadataUtils.copyMissingFields(
+      this.fetchedMetadata,
+      this.metadataForm,
+      this.copiedFields,
+      (field) => this.copyFetchedToCurrent(field)
+    );
   }
 
-  copyAll() {
-    Object.keys(this.fetchedMetadata).forEach((field) => {
-      const isLocked = this.metadataForm.get(`${field}Locked`)?.value;
-      const fetchedValue = this.fetchedMetadata[field];
-      if (!isLocked && fetchedValue !== null && fetchedValue !== undefined && fetchedValue !== '' && field !== 'thumbnailUrl') {
-        this.copyFetchedToCurrent(field);
-      }
-    });
+  copyAll(): void {
+    this.metadataUtils.copyAllFields(
+      this.fetchedMetadata,
+      this.metadataForm,
+      (field) => this.copyFetchedToCurrent(field)
+    );
   }
 
   copyFetchedToCurrent(field: string): void {
@@ -655,71 +410,18 @@ export class MetadataPickerComponent implements OnInit {
     if (field === 'cover') {
       field = 'thumbnailUrl';
     }
-    const value = this.fetchedMetadata[field];
-    if (value !== null && value !== undefined && value !== '') {
-      this.metadataForm.get(field)?.setValue(value);
-      this.copiedFields[field] = true;
+    if (this.metadataUtils.copyFieldToForm(field, this.fetchedMetadata, this.metadataForm, this.copiedFields)) {
       this.highlightCopiedInput(field);
     }
   }
 
-  private getNumberOrCopied(field: string): number | null {
-    const formValue = this.metadataForm.get(field)?.value;
-    if (formValue === '' || formValue === null || isNaN(formValue)) {
-      this.copiedFields[field] = true;
-      return (this.fetchedMetadata[field as keyof BookMetadata] as number | null) || null;
-    }
-    return Number(formValue);
-  }
-
-  private getPageCountOrCopied(): number | null {
-    const formValue = this.metadataForm.get('pageCount')?.value;
-    if (formValue === '' || formValue === null || isNaN(formValue)) {
-      this.copiedFields['pageCount'] = true;
-      return (this.fetchedMetadata.pageCount as number | null) || null;
-    }
-    return Number(formValue);
-  }
-
-  private getValueOrCopied(field: string): string {
-    const formValue = this.metadataForm.get(field)?.value;
-    if (!formValue || formValue === '') {
-      this.copiedFields[field] = true;
-      return (this.fetchedMetadata[field as keyof BookMetadata] as string) || '';
-    }
-    return formValue;
-  }
-
-  getArrayFromFormField(field: string, fallbackValue: unknown): string[] {
-    const fieldValue = this.metadataForm.get(field)?.value;
-    if (!fieldValue) {
-      return fallbackValue ? (Array.isArray(fallbackValue) ? fallbackValue as string[] : [fallbackValue as string]) : [];
-    }
-    if (typeof fieldValue === 'string') {
-      return fieldValue.split(',').map(item => item.trim());
-    }
-    return Array.isArray(fieldValue) ? fieldValue as string[] : [];
-  }
-
   lockAll(): void {
-    Object.keys(this.metadataForm.controls).forEach((key) => {
-      if (key.endsWith('Locked')) {
-        this.metadataForm.get(key)?.setValue(true);
-        const fieldName = key.replace('Locked', '');
-        this.metadataForm.get(fieldName)?.disable();
-      }
-    });
+    this.formBuilder.setAllFieldsLocked(this.metadataForm, true);
     this.updateMetadata(true);
   }
 
   unlockAll(): void {
-    Object.keys(this.metadataForm.controls).forEach((key) => {
-      if (key.endsWith('Locked')) {
-        this.metadataForm.get(key)?.setValue(false);
-        const fieldName = key.replace('Locked', '');
-        this.metadataForm.get(fieldName)?.enable();
-      }
-    });
+    this.formBuilder.setAllFieldsLocked(this.metadataForm, false);
     this.updateMetadata(false);
   }
 
@@ -735,11 +437,9 @@ export class MetadataPickerComponent implements OnInit {
     return this.savedFields[field];
   }
 
-  goBackClick() {
+  goBackClick(): void {
     this.goBack.emit(true);
   }
-
-  hoveredFields: Record<string, boolean> = {};
 
   onMouseEnter(controlName: string): void {
     if (this.isValueCopied(controlName) && !this.isValueSaved(controlName)) {
@@ -751,9 +451,7 @@ export class MetadataPickerComponent implements OnInit {
     this.hoveredFields[controlName] = false;
   }
 
-  resetField(field: string) {
-    this.metadataForm.get(field)?.setValue(this.originalMetadata[field]);
-    this.copiedFields[field] = false;
-    this.hoveredFields[field] = false;
+  resetField(field: string): void {
+    this.metadataUtils.resetField(field, this.metadataForm, this.originalMetadata, this.copiedFields, this.hoveredFields);
   }
 }

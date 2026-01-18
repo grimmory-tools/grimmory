@@ -35,14 +35,18 @@ public class AmazonBookParser implements BookParser {
     private static final int COUNT_DETAILED_METADATA_TO_GET = 3;
     private static final String BASE_BOOK_URL_SUFFIX = "/dp/";
     private static final Pattern NON_DIGIT_PATTERN = Pattern.compile("[^\\d]");
-    private static final Pattern SERIES_FORMAT_PATTERN = Pattern.compile("Book \\d+ of \\d+");
-    private static final Pattern SERIES_FORMAT_WITH_DECIMAL_PATTERN = Pattern.compile("Book \\d+(\\.\\d+)? of \\d+");
+    private static final Pattern SERIES_FORMAT_PATTERN = Pattern.compile("Book (\\d+(?:\\.\\d+)?) of (\\d+)");
     private static final Pattern PARENTHESES_WITH_WHITESPACE_PATTERN = Pattern.compile("\\s*\\(.*?\\)");
     private static final Pattern NON_ALPHANUMERIC_PATTERN = Pattern.compile("[^\\p{L}\\p{M}0-9]");
     private static final Pattern DP_SEPARATOR_PATTERN = Pattern.compile("/dp/");
-    // Pattern to extract country and date from strings like "Reviewed in ... on ..." or Japanese format
     private static final Pattern REVIEWED_IN_ON_PATTERN = Pattern.compile("(?i)(?:Reviewed in|Rezension aus|Beoordeeld in|Recensie uit|Commenté en|Recensito in|Revisado en)\\s+(.+?)\\s+(?:on|vom|op|le|il|el)\\s+(.+)");
     private static final Pattern JAPANESE_REVIEW_DATE_PATTERN = Pattern.compile("(\\d{4}年\\d{1,2}月\\d{1,2}日).+");
+    private static final String[] TITLE_SELECTORS = {"#productTitle", "#ebooksProductTitle", "h1#title", "span#productTitle"};
+    private static final String[] DATE_PATTERNS = {
+            "MMMM d, yyyy", "d MMMM yyyy", "d. MMMM yyyy", "MMM d, yyyy",
+            "MMM. d, yyyy", "d MMM yyyy", "d MMM. yyyy", "d. MMM yyyy",
+            "yyyy/M/d", "yyyy/MM/dd", "yyyy年M月d日"
+    };
 
     private static final Map<String, LocaleInfo> DOMAIN_LOCALE_MAP = Map.ofEntries(
             Map.entry("com", new LocaleInfo("en-US,en;q=0.9", Locale.US)),
@@ -69,17 +73,13 @@ public class AmazonBookParser implements BookParser {
             Map.entry("com.be", new LocaleInfo("en-GB,en;q=0.9,fr;q=0.8,nl;q=0.8", new Locale.Builder().setLanguage("fr").setRegion("BE").build()))
     );
 
+    private static final LocaleInfo DEFAULT_LOCALE_INFO = new LocaleInfo("en-US,en;q=0.9", Locale.US);
+
     private final AppSettingService appSettingService;
 
-    private static class LocaleInfo {
-        final String acceptLanguage;
-        final Locale locale;
-
-        LocaleInfo(String acceptLanguage, Locale locale) {
-            this.acceptLanguage = acceptLanguage;
-            this.locale = locale;
-        }
-    }
+    private record LocaleInfo(String acceptLanguage, Locale locale) {}
+    private record TitleInfo(String title, String subtitle) {}
+    private record SeriesInfo(String name, Float number, Integer total) {}
 
     @Override
     public BookMetadata fetchTopMetadata(Book book, FetchMetadataRequest fetchMetadataRequest) {
@@ -214,18 +214,21 @@ public class AmazonBookParser implements BookParser {
     }
 
     private BookMetadata buildBookMetadata(Document doc, String amazonBookId, List<BookReview> reviews) {
+        TitleInfo titleInfo = parseTitleInfo(doc);
+        SeriesInfo seriesInfo = parseSeriesInfo(doc);
+
         return BookMetadata.builder()
                 .provider(MetadataProvider.Amazon)
-                .title(getTitle(doc))
-                .subtitle(getSubtitle(doc))
+                .title(titleInfo.title())
+                .subtitle(titleInfo.subtitle())
                 .authors(new HashSet<>(getAuthors(doc)))
                 .categories(new HashSet<>(getBestSellerCategories(doc)))
                 .description(cleanDescriptionHtml(getDescription(doc)))
-                .seriesName(getSeriesName(doc))
-                .seriesNumber(getSeriesNumber(doc))
-                .seriesTotal(getSeriesTotal(doc))
-                .isbn13(getIsbn13(doc))
-                .isbn10(getIsbn10(doc))
+                .seriesName(seriesInfo.name())
+                .seriesNumber(seriesInfo.number())
+                .seriesTotal(seriesInfo.total())
+                .isbn13(getIsbn(doc, "isbn13"))
+                .isbn10(getIsbn(doc, "isbn10"))
                 .asin(amazonBookId)
                 .publisher(getPublisher(doc))
                 .publishedDate(getPublicationDate(doc))
@@ -251,19 +254,11 @@ public class AmazonBookParser implements BookParser {
 
         String title = fetchMetadataRequest.getTitle();
         if (title != null && !title.isEmpty()) {
-            String cleanedTitle = Arrays.stream(title.split(" "))
-                    .map(word -> NON_ALPHANUMERIC_PATTERN.matcher(word).replaceAll("").trim())
-                    .filter(word -> !word.isEmpty())
-                    .collect(Collectors.joining(" "));
-            searchTerm.append(cleanedTitle);
+            searchTerm.append(cleanSearchTerm(title));
         } else {
             String filename = BookUtils.cleanAndTruncateSearchTerm(BookUtils.cleanFileName(book.getFileName()));
             if (!filename.isEmpty()) {
-                String cleanedFilename = Arrays.stream(filename.split(" "))
-                        .map(word -> NON_ALPHANUMERIC_PATTERN.matcher(word).replaceAll("").trim())
-                        .filter(word -> !word.isEmpty())
-                        .collect(Collectors.joining(" "));
-                searchTerm.append(cleanedFilename);
+                searchTerm.append(cleanSearchTerm(filename));
             }
         }
 
@@ -272,11 +267,7 @@ public class AmazonBookParser implements BookParser {
             if (!searchTerm.isEmpty()) {
                 searchTerm.append(" ");
             }
-            String cleanedAuthor = Arrays.stream(author.split(" "))
-                    .map(word -> NON_ALPHANUMERIC_PATTERN.matcher(word).replaceAll("").trim())
-                    .filter(word -> !word.isEmpty())
-                    .collect(Collectors.joining(" "));
-            searchTerm.append(cleanedAuthor);
+            searchTerm.append(cleanSearchTerm(author));
         }
 
         if (searchTerm.isEmpty()) {
@@ -287,6 +278,13 @@ public class AmazonBookParser implements BookParser {
         String url = "https://www.amazon." + domain + "/s?k=" + encodedSearchTerm;
         log.info("Amazon Query URL: {}", url);
         return url;
+    }
+
+    private String cleanSearchTerm(String text) {
+        return Arrays.stream(text.split(" "))
+                .map(word -> NON_ALPHANUMERIC_PATTERN.matcher(word).replaceAll("").trim())
+                .filter(word -> !word.isEmpty())
+                .collect(Collectors.joining(" "));
     }
 
     private String getTextBySelectors(Document doc, String... selectors) {
@@ -303,47 +301,26 @@ public class AmazonBookParser implements BookParser {
         return null;
     }
 
-    private String getTitle(Document doc) {
-        String title = getTextBySelectors(doc,
-                "#productTitle",
-                "#ebooksProductTitle",
-                "h1#title",
-                "span#productTitle"
-        );
-        if (title != null) {
-            return title.split(":", 2)[0].trim();
+    private TitleInfo parseTitleInfo(Document doc) {
+        String fullTitle = getTextBySelectors(doc, TITLE_SELECTORS);
+        if (fullTitle == null) {
+            log.warn("Failed to parse title: No suitable element found.");
+            return new TitleInfo(null, null);
         }
-        log.warn("Failed to parse title: No suitable element found.");
-        return null;
-    }
-
-    private String getSubtitle(Document doc) {
-        String title = getTextBySelectors(doc,
-                "#productTitle",
-                "#ebooksProductTitle",
-                "h1#title",
-                "span#productTitle"
-        );
-        if (title != null) {
-            String[] parts = title.split(":", 2);
-            if (parts.length > 1) {
-                return parts[1].trim();
-            }
-        }
-        log.warn("Failed to parse subtitle: No suitable element found.");
-        return null;
+        String[] parts = fullTitle.split(":", 2);
+        String title = parts[0].trim();
+        String subtitle = parts.length > 1 ? parts[1].trim() : null;
+        return new TitleInfo(title, subtitle);
     }
 
     private Set<String> getAuthors(Document doc) {
         Set<String> authors = new HashSet<>();
         try {
-            // Primary strategy: #bylineInfo_feature_div .author a
             Element bylineDiv = doc.selectFirst("#bylineInfo_feature_div");
             if (bylineDiv != null) {
                 authors.addAll(bylineDiv.select(".author a").stream().map(Element::text).collect(Collectors.toSet()));
             }
 
-            // Fallback: #bylineInfo .author a
             if (authors.isEmpty()) {
                 Element bylineInfo = doc.selectFirst("#bylineInfo");
                 if (bylineInfo != null) {
@@ -351,7 +328,6 @@ public class AmazonBookParser implements BookParser {
                 }
             }
 
-            // Fallback: simple .author a check (broadest)
             if (authors.isEmpty()) {
                 authors.addAll(doc.select(".author a").stream().map(Element::text).collect(Collectors.toSet()));
             }
@@ -367,7 +343,6 @@ public class AmazonBookParser implements BookParser {
 
     private String getDescription(Document doc) {
         try {
-            // Primary: data-a-expander-name
             Elements descriptionElements = doc.select("[data-a-expander-name=book_description_expander] .a-expander-content");
             if (!descriptionElements.isEmpty()) {
                 String html = descriptionElements.getFirst().html();
@@ -375,13 +350,11 @@ public class AmazonBookParser implements BookParser {
                 return html;
             }
 
-            // Fallback: #bookDescription_feature_div noscript (often contains the clean HTML)
             Element noscriptDesc = doc.selectFirst("#bookDescription_feature_div noscript");
             if (noscriptDesc != null) {
-                return noscriptDesc.html(); // usually clean HTML inside noscript
+                return noscriptDesc.html();
             }
 
-            // Fallback: div.product-description
             Element simpleDesc = doc.selectFirst("div.product-description");
             if (simpleDesc != null) {
                 return simpleDesc.html();
@@ -393,42 +366,23 @@ public class AmazonBookParser implements BookParser {
         return null;
     }
 
-    private String getIsbn10(Document doc) {
-        // Strategy 1: RPI attribute
+    private String getIsbn(Document doc, String type) {
+        String rpiSelector = "#rpi-attribute-book_details-" + type + " .rpi-attribute-value span";
+        String bulletKey = type.equals("isbn10") ? "ISBN-10" : "ISBN-13";
+
         try {
-            Element isbn10Element = doc.select("#rpi-attribute-book_details-isbn10 .rpi-attribute-value span").first();
-            if (isbn10Element != null) {
-                return ParserUtils.cleanIsbn(isbn10Element.text());
+            Element isbnElement = doc.select(rpiSelector).first();
+            if (isbnElement != null) {
+                return ParserUtils.cleanIsbn(isbnElement.text());
             }
         } catch (Exception e) {
-            log.debug("RPI ISBN-10 extraction failed: {}", e.getMessage());
+            log.debug("RPI {} extraction failed: {}", type.toUpperCase(), e.getMessage());
         }
 
-        // Strategy 2: Detail bullets
         try {
-            return extractFromDetailBullets(doc, "ISBN-10");
+            return extractFromDetailBullets(doc, bulletKey);
         } catch (Exception e) {
-            log.warn("DetailBullets ISBN-10 extraction failed: {}", e.getMessage());
-        }
-        return null;
-    }
-
-    private String getIsbn13(Document doc) {
-        // Strategy 1: RPI attribute
-        try {
-            Element isbn13Element = doc.select("#rpi-attribute-book_details-isbn13 .rpi-attribute-value span").first();
-            if (isbn13Element != null) {
-                return ParserUtils.cleanIsbn(isbn13Element.text());
-            }
-        } catch (Exception e) {
-            log.debug("RPI ISBN-13 extraction failed: {}", e.getMessage());
-        }
-
-        // Strategy 2: Detail bullets
-        try {
-            return extractFromDetailBullets(doc, "ISBN-13");
-        } catch (Exception e) {
-            log.warn("DetailBullets ISBN-13 extraction failed: {}", e.getMessage());
+            log.warn("DetailBullets {} extraction failed: {}", type.toUpperCase(), e.getMessage());
         }
         return null;
     }
@@ -442,15 +396,14 @@ public class AmazonBookParser implements BookParser {
                     Element boldText = listItem.selectFirst("span.a-text-bold");
                     if (boldText != null) {
                         String header = boldText.text().toLowerCase();
-                        // Check against known localized "Publisher" labels
-                        if (header.contains("publisher") || 
+                        if (header.contains("publisher") ||
                             header.contains("herausgeber") || 
                             header.contains("éditeur") || 
                             header.contains("editoriale") || 
                             header.contains("editorial") || 
                             header.contains("uitgever") || 
                             header.contains("wydawca") ||
-                            header.contains("出版社") || // Japanese
+                            header.contains("出版社") ||
                             header.contains("editora")) {
                             
                             Element publisherSpan = boldText.nextElementSibling();
@@ -471,38 +424,32 @@ public class AmazonBookParser implements BookParser {
     }
 
     private LocalDate getPublicationDate(Document doc) {
-        // Strategy 1: RPI attribute
         try {
             Element publicationDateElement = doc.select("#rpi-attribute-book_details-publication_date .rpi-attribute-value span").first();
             if (publicationDateElement != null) {
                 String dateText = publicationDateElement.text();
-                LocalDate parsedDate = parseAmazonDate(dateText);
+                LocalDate parsedDate = parseDate(dateText);
                 if (parsedDate != null) return parsedDate;
             }
         } catch (Exception e) {
             log.debug("RPI Publication Date extraction failed: {}", e.getMessage());
         }
 
-        // Strategy 2: Detail bullets (look for specific date patterns in values)
         try {
             Element featureElement = doc.getElementById("detailBullets_feature_div");
             if (featureElement != null) {
                 Elements listItems = featureElement.select("li");
                 for (Element listItem : listItems) {
-                    // We look for any value that parses as a date, as the label varies wildly ("Publication date", "Seitenzahl"?? no, "Erscheinungsdatum", etc.)
-                    // But usually it's associated with "Publisher" line sometimes: "Publisher: XYZ (Jan 1, 2020)"
                     Element boldText = listItem.selectFirst("span.a-text-bold");
                     Element valueSpan = boldText != null ? boldText.nextElementSibling() : null;
                     
                     if (valueSpan != null) {
-                         // Sometimes date is inside the value span, e.g. "January 1, 2020"
-                         LocalDate d = parseAmazonDate(valueSpan.text());
+                         LocalDate d = parseDate(valueSpan.text());
                          if (d != null) return d;
 
-                         // Sometimes it's in parentheses after publisher: "Publisher: Name (January 1, 2020)"
                          Matcher matcher = Pattern.compile("\\((.*?)\\)").matcher(valueSpan.text());
                          while (matcher.find()) {
-                             LocalDate pd = parseAmazonDate(matcher.group(1));
+                             LocalDate pd = parseDate(matcher.group(1));
                              if (pd != null) return pd;
                          }
                     }
@@ -532,54 +479,31 @@ public class AmazonBookParser implements BookParser {
         return null;
     }
 
-    private String getSeriesName(Document doc) {
+    private SeriesInfo parseSeriesInfo(Document doc) {
+        String name = null;
+        Float number = null;
+        Integer total = null;
+
         try {
             Element seriesNameElement = doc.selectFirst("#rpi-attribute-book_details-series .rpi-attribute-value a span");
             if (seriesNameElement != null) {
-                return seriesNameElement.text();
-            } else {
-                log.debug("Failed to parse seriesName: Element not found.");
+                name = seriesNameElement.text();
             }
-        } catch (Exception e) {
-            log.warn("Failed to parse seriesName: {}", e.getMessage());
-        }
-        return null;
-    }
 
-    private Float getSeriesNumber(Document doc) {
-        try {
             Element bookDetailsLabel = doc.selectFirst("#rpi-attribute-book_details-series .rpi-attribute-label span");
             if (bookDetailsLabel != null) {
                 String bookAndTotal = bookDetailsLabel.text();
-                if (SERIES_FORMAT_WITH_DECIMAL_PATTERN.matcher(bookAndTotal).matches()) {
-                    String[] parts = bookAndTotal.split(" ");
-                    return Float.parseFloat(parts[1]);
+                Matcher matcher = SERIES_FORMAT_PATTERN.matcher(bookAndTotal);
+                if (matcher.find()) {
+                    number = Float.parseFloat(matcher.group(1));
+                    total = Integer.parseInt(matcher.group(2));
                 }
-            } else {
-                log.debug("Failed to parse seriesNumber: Element not found.");
             }
         } catch (Exception e) {
-            log.warn("Failed to parse seriesNumber: {}", e.getMessage());
+            log.warn("Failed to parse series info: {}", e.getMessage());
         }
-        return null;
-    }
 
-    private Integer getSeriesTotal(Document doc) {
-        try {
-            Element bookDetailsLabel = doc.selectFirst("#rpi-attribute-book_details-series .rpi-attribute-label span");
-            if (bookDetailsLabel != null) {
-                String bookAndTotal = bookDetailsLabel.text();
-                if (SERIES_FORMAT_PATTERN.matcher(bookAndTotal).matches()) {
-                    String[] parts = bookAndTotal.split(" ");
-                    return Integer.parseInt(parts[3]);
-                }
-            } else {
-                log.debug("Failed to parse seriesTotal: Element not found.");
-            }
-        } catch (Exception e) {
-            log.warn("Failed to parse seriesTotal: {}", e.getMessage());
-        }
-        return null;
+        return new SeriesInfo(name, number, total);
     }
 
     private String getLanguage(Document doc) {
@@ -637,7 +561,6 @@ public class AmazonBookParser implements BookParser {
 
     private List<BookReview> getReviews(Document doc, int maxReviews) {
         List<BookReview> reviews = new ArrayList<>();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
         String domain = appSettingService.getAppSettings().getMetadataProviderSettings().getAmazon().getDomain();
         LocaleInfo localeInfo = getLocaleInfoForDomain(domain);
 
@@ -665,7 +588,6 @@ public class AmazonBookParser implements BookParser {
                 String ratingText = !ratingElements.isEmpty() ? ratingElements.first().text() : "";
                 if (!ratingText.isEmpty()) {
                     try {
-                        // Support both comma and dot as decimal separator
                         Pattern ratingPattern = Pattern.compile("^([0-9]+([.,][0-9]+)?)");
                         Matcher ratingMatcher = ratingPattern.matcher(ratingText);
                         if (ratingMatcher.find()) {
@@ -694,7 +616,6 @@ public class AmazonBookParser implements BookParser {
                             }
                             datePart = matcher.group(2).trim();
                         } else {
-                            // Try Japanese format
                             Matcher japaneseMatcher = JAPANESE_REVIEW_DATE_PATTERN.matcher(fullDateText);
                             if (japaneseMatcher.find()) {
                                 datePart = japaneseMatcher.group(1);
@@ -702,7 +623,7 @@ public class AmazonBookParser implements BookParser {
                             }
                         }
 
-                        LocalDate localDate = parseReviewDate(datePart, localeInfo);
+                        LocalDate localDate = parseDate(datePart, localeInfo);
                         if (localDate != null) {
                             dateInstant = localDate.atStartOfDay(ZoneOffset.UTC).toInstant();
                         }
@@ -847,10 +768,8 @@ public class AmazonBookParser implements BookParser {
     }
 
     private static LocaleInfo getLocaleInfoForDomain(String domain) {
-        return DOMAIN_LOCALE_MAP.getOrDefault(domain,
-                new LocaleInfo("en-US,en;q=0.9", Locale.US));
+        return DOMAIN_LOCALE_MAP.getOrDefault(domain, DEFAULT_LOCALE_INFO);
     }
-
 
     private static LocalDate parseDate(String dateString, LocaleInfo localeInfo) {
         if (dateString == null || dateString.trim().isEmpty()) {
@@ -859,51 +778,29 @@ public class AmazonBookParser implements BookParser {
 
         String trimmedDate = dateString.trim();
 
-        String[] patterns = {
-            "MMMM d, yyyy",
-            "d MMMM yyyy",
-            "d. MMMM yyyy",
-            "MMM d, yyyy",
-            "MMM. d, yyyy",
-            "d MMM yyyy",
-            "d MMM. yyyy",
-            "d. MMM yyyy",
-            // Japanese date patterns
-            "yyyy/M/d",
-            "yyyy/MM/dd",
-            "yyyy年M月d日"
-        };
-
-        for (String pattern : patterns) {
+        for (String pattern : DATE_PATTERNS) {
             try {
                 return LocalDate.parse(trimmedDate, DateTimeFormatter.ofPattern(pattern, Locale.ENGLISH));
-            } catch (DateTimeParseException e) {
-                log.debug("Date '{}' did not match pattern '{}' for locale ENGLISH", trimmedDate, pattern);
+            } catch (DateTimeParseException ignored) {
             }
         }
 
-        if (!"en".equals(localeInfo.locale.getLanguage())) {
-            for (String pattern : patterns) {
+        if (!"en".equals(localeInfo.locale().getLanguage())) {
+            for (String pattern : DATE_PATTERNS) {
                 try {
-                    return LocalDate.parse(trimmedDate, DateTimeFormatter.ofPattern(pattern, localeInfo.locale));
-                } catch (DateTimeParseException e) {
-                    log.debug("Date '{}' did not match pattern '{}' for locale {}", trimmedDate, pattern, localeInfo.locale);
+                    return LocalDate.parse(trimmedDate, DateTimeFormatter.ofPattern(pattern, localeInfo.locale()));
+                } catch (DateTimeParseException ignored) {
                 }
             }
         }
 
-        log.warn("Failed to parse date '{}' with any known format for locale {}", dateString, localeInfo.locale);
+        log.warn("Failed to parse date '{}' with any known format for locale {}", dateString, localeInfo.locale());
         return null;
     }
 
-    private LocalDate parseAmazonDate(String dateString) {
+    private LocalDate parseDate(String dateString) {
         String domain = appSettingService.getAppSettings().getMetadataProviderSettings().getAmazon().getDomain();
-        LocaleInfo localeInfo = getLocaleInfoForDomain(domain);
-        return parseDate(dateString, localeInfo);
-    }
-
-    private static LocalDate parseReviewDate(String dateString, LocaleInfo localeInfo) {
-        return parseDate(dateString, localeInfo);
+        return parseDate(dateString, getLocaleInfoForDomain(domain));
     }
 
     private String cleanDescriptionHtml(String html) {
@@ -932,11 +829,42 @@ public class AmazonBookParser implements BookParser {
             document.select("p").stream()
                     .filter(p -> p.text().trim().isEmpty())
                     .forEach(Element::remove);
-            return document.body().html();
+
+            // Remove excessive line breaks (more than 2 consecutive <br> tags)
+            Elements brTags = document.select("br");
+            for (int i = 0; i < brTags.size(); i++) {
+                Element br = brTags.get(i);
+                int consecutiveBrCount = 1;
+                Element next = br.nextElementSibling();
+
+                // Count consecutive <br> tags
+                while (next != null && "br".equals(next.tagName())) {
+                    consecutiveBrCount++;
+                    Element temp = next;
+                    next = next.nextElementSibling();
+
+                    // Remove extra <br> tags beyond the first two
+                    if (consecutiveBrCount > 2) {
+                        temp.remove();
+                    }
+                }
+            }
+
+            // Clean up any remaining whitespace issues
+            String cleanedHtml = document.body().html();
+
+            // Replace multiple consecutive <br> patterns that might still exist
+            cleanedHtml = cleanedHtml.replaceAll("(<br>\\s*){3,}", "<br><br>");
+            cleanedHtml = cleanedHtml.replaceAll("(<br\\s*/?>\\s*){3,}", "<br><br>");
+
+            // Remove leading/trailing <br> tags
+            cleanedHtml = cleanedHtml.replaceAll("^(\\s*<br\\s*/?>\\s*)+", "");
+            cleanedHtml = cleanedHtml.replaceAll("(\\s*<br\\s*/?>\\s*)+$", "");
+
+            return cleanedHtml;
         } catch (Exception e) {
             log.warn("Error cleaning html description, Error: {}", e.getMessage());
         }
         return html;
     }
 }
-

@@ -22,11 +22,13 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -37,6 +39,8 @@ public class GoogleParser implements BookParser {
     private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
     private static final Pattern SPECIAL_CHARACTERS_PATTERN = Pattern.compile("[.,\\-\\[\\]{}()!@#$%^&*_=+|~`<>?/\";:]");
     private static final long MIN_REQUEST_INTERVAL_MS = 1500;
+    private static final int MAX_SEARCH_TERM_LENGTH = 60;
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final ObjectMapper objectMapper;
     private final AppSettingService appSettingService;
     private final HttpClient httpClient = HttpClient.newHttpClient();
@@ -59,42 +63,19 @@ public class GoogleParser implements BookParser {
     }
 
     private List<BookMetadata> getMetadataListByIsbn(String isbn) {
-        try {
-            waitForRateLimit();
-            
-            URI uri = UriComponentsBuilder.fromUriString(getApiUrl())
-                    .queryParam("q", "isbn:" + isbn.replace("-", ""))
-                    .build()
-                    .toUri();
-
-            log.info("Google Books API URL (ISBN): {}", uri);
-
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(uri)
-                    .GET()
-                    .build();
-
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() == 200) {
-                return parseGoogleBooksApiResponse(response.body());
-            } else {
-                log.error("Failed to fetch metadata from Google Books API with ISBN. Status: {}, Response: {}",
-                        response.statusCode(), response.body());
-                return List.of();
-            }
-        } catch (IOException | InterruptedException e) {
-            log.error("Error occurred while fetching metadata from Google Books API with ISBN", e);
-            return List.of();
-        }
+        return fetchFromApi("isbn:" + isbn.replace("-", ""));
     }
 
     public List<BookMetadata> getMetadataListByTerm(String term) {
+        return fetchFromApi(term);
+    }
+
+    private List<BookMetadata> fetchFromApi(String query) {
         try {
             waitForRateLimit();
-            
+
             URI uri = UriComponentsBuilder.fromUriString(getApiUrl())
-                    .queryParam("q", term)
+                    .queryParam("q", query)
                     .build()
                     .toUri();
 
@@ -109,10 +90,11 @@ public class GoogleParser implements BookParser {
 
             if (response.statusCode() == 200) {
                 return parseGoogleBooksApiResponse(response.body());
-            } else {
-                log.error("Failed to fetch metadata from Google Books API. Status: {}, Response: {}", response.statusCode(), response.body());
-                return List.of();
             }
+
+            log.error("Failed to fetch metadata from Google Books API. Status: {}, Response: {}",
+                    response.statusCode(), response.body());
+            return List.of();
         } catch (IOException | InterruptedException e) {
             log.error("Error occurred while fetching metadata from Google Books API", e);
             return List.of();
@@ -133,17 +115,6 @@ public class GoogleParser implements BookParser {
         GoogleBooksApiResponse.Item.VolumeInfo volumeInfo = item.getVolumeInfo();
         Map<String, String> isbns = extractISBNs(volumeInfo.getIndustryIdentifiers());
 
-        String highResCover = Optional.ofNullable(volumeInfo.getImageLinks())
-                .map(links -> {
-                    if (links.getExtraLarge() != null) return links.getExtraLarge();
-                    if (links.getLarge() != null) return links.getLarge();
-                    if (links.getMedium() != null) return links.getMedium();
-                    if (links.getSmall() != null) return links.getSmall();
-                    if (links.getThumbnail() != null) return links.getThumbnail();
-                    return links.getSmallThumbnail();
-                })
-                .orElse(null);
-
         return BookMetadata.builder()
                 .provider(MetadataProvider.Google)
                 .googleId(item.getId())
@@ -157,9 +128,25 @@ public class GoogleParser implements BookParser {
                 .isbn13(isbns.get("ISBN_13"))
                 .isbn10(isbns.get("ISBN_10"))
                 .pageCount(volumeInfo.getPageCount())
-                .thumbnailUrl(highResCover)
+                .thumbnailUrl(extractBestCoverImage(volumeInfo.getImageLinks()))
                 .language(volumeInfo.getLanguage())
                 .build();
+    }
+
+    private String extractBestCoverImage(GoogleBooksApiResponse.Item.ImageLinks links) {
+        if (links == null) {
+            return null;
+        }
+        return Stream.of(
+                        links.getExtraLarge(),
+                        links.getLarge(),
+                        links.getMedium(),
+                        links.getSmall(),
+                        links.getThumbnail(),
+                        links.getSmallThumbnail())
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
     }
 
     private Map<String, String> extractISBNs(List<GoogleBooksApiResponse.Item.IndustryIdentifier> identifiers) {
@@ -182,38 +169,46 @@ public class GoogleParser implements BookParser {
                         .map(BookUtils::cleanFileName)
                         .orElse(null));
 
-        if (searchTerm != null) {
-            searchTerm = SPECIAL_CHARACTERS_PATTERN.matcher(searchTerm).replaceAll("").trim();
-            searchTerm = "intitle:" + truncateToMaxLength(searchTerm, 60);
+        if (searchTerm == null) {
+            return null;
         }
 
-        if (searchTerm != null && request.getAuthor() != null && !request.getAuthor().isEmpty()) {
+        searchTerm = SPECIAL_CHARACTERS_PATTERN.matcher(searchTerm).replaceAll("").trim();
+        searchTerm = "intitle:" + truncateToMaxWords(searchTerm);
+
+        if (request.getAuthor() != null && !request.getAuthor().isEmpty()) {
             searchTerm += " inauthor:" + request.getAuthor();
         }
 
         return searchTerm;
     }
 
-    private String truncateToMaxLength(String input, int maxLength) {
+    private String truncateToMaxWords(String input) {
         String[] words = WHITESPACE_PATTERN.split(input);
         StringBuilder truncated = new StringBuilder();
 
         for (String word : words) {
-            if (truncated.length() + word.length() + 1 > maxLength) break;
-            if (!truncated.isEmpty()) truncated.append(" ");
+            if (truncated.length() + word.length() + 1 > MAX_SEARCH_TERM_LENGTH) {
+                break;
+            }
+            if (!truncated.isEmpty()) {
+                truncated.append(" ");
+            }
             truncated.append(word);
         }
 
         return truncated.toString();
     }
 
-    public LocalDate parseDate(String input) {
+    private LocalDate parseDate(String input) {
+        if (input == null || input.isEmpty()) {
+            return null;
+        }
         try {
             if (FOUR_DIGIT_YEAR_PATTERN.matcher(input).matches()) {
                 return LocalDate.of(Integer.parseInt(input), 1, 1);
             }
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            return LocalDate.parse(input, formatter);
+            return LocalDate.parse(input, DATE_FORMATTER);
         } catch (Exception e) {
             return null;
         }
