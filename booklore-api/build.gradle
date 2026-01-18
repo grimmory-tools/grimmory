@@ -90,6 +90,9 @@ dependencies {
     // --- Template Engine ---
     implementation 'org.freemarker:freemarker:2.3.34'
 
+    // --- Caching ---
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.2.0'
+
     // --- Test Dependencies ---
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.assertj:assertj-core:3.27.6'

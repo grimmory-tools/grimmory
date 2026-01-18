@@ -12,7 +12,8 @@ describe('KoreaderService', () => {
   const mockUser: KoreaderUser = {
     username: 'testuser',
     password: 'secret',
-    syncEnabled: true
+    syncEnabled: true,
+    syncWithBookloreReader: false
   };
 
   beforeEach(() => {
@@ -118,11 +119,12 @@ describe('KoreaderService - API Contract Tests', () => {
   });
 
   it('should validate all required KoreaderUser fields exist', () => {
-    const requiredFields: (keyof KoreaderUser)[] = ['username', 'password', 'syncEnabled'];
+    const requiredFields: (keyof KoreaderUser)[] = ['username', 'password', 'syncEnabled', 'syncWithBookloreReader'];
     const mockResponse: KoreaderUser = {
       username: 'test',
       password: 'pw',
-      syncEnabled: true
+      syncEnabled: true,
+      syncWithBookloreReader: false
     };
     httpClientMock.get.mockReturnValue(of(mockResponse));
     service.getUser().subscribe(user => {

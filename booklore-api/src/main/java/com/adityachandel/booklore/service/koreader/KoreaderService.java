@@ -1,15 +1,5 @@
 package com.adityachandel.booklore.service.koreader;
 
-import java.time.Instant;
-import java.util.Map;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import com.adityachandel.booklore.config.security.userdetails.KoreaderUserDetails;
 import com.adityachandel.booklore.exception.ApiError;
 import com.adityachandel.booklore.model.dto.progress.KoreaderProgress;
@@ -23,6 +13,17 @@ import com.adityachandel.booklore.repository.KoreaderUserRepository;
 import com.adityachandel.booklore.repository.UserBookProgressRepository;
 import com.adityachandel.booklore.repository.UserRepository;
 import com.adityachandel.booklore.service.hardcover.HardcoverSyncService;
+import com.adityachandel.booklore.util.koreader.EpubCfiService;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.Instant;
+import java.util.Map;
 
 @Slf4j
 @AllArgsConstructor
@@ -34,6 +35,7 @@ public class KoreaderService {
     private final UserRepository userRepository;
     private final KoreaderUserRepository koreaderUserRepository;
     private final HardcoverSyncService hardcoverSyncService;
+    private final EpubCfiService epubCfiService;
 
     public ResponseEntity<Map<String, String>> authorizeUser() {
         KoreaderUserDetails authDetails = getAuthDetails();
@@ -73,7 +75,7 @@ public class KoreaderService {
         BookLoreUserEntity user = findBookLoreUser(authDetails.getBookLoreUserId());
 
         UserBookProgressEntity userProgress = getOrCreateUserProgress(user, book);
-        updateProgressData(userProgress, koProgress);
+        updateProgressData(userProgress, koProgress, authDetails.isSyncWithBookloreReader(), book);
 
         progressRepository.save(userProgress);
 
@@ -83,13 +85,31 @@ public class KoreaderService {
         hardcoverSyncService.syncProgressToHardcover(book.getId(), progressPercent, authDetails.getBookLoreUserId());
     }
 
-    private void updateProgressData(UserBookProgressEntity userProgress, KoreaderProgress koProgress) {
+    private void updateProgressData(UserBookProgressEntity userProgress, KoreaderProgress koProgress, boolean syncWithBookloreReader, BookEntity book) {
         userProgress.setKoreaderProgress(koProgress.getProgress());
         userProgress.setKoreaderProgressPercent(koProgress.getPercentage());
         userProgress.setKoreaderDevice(koProgress.getDevice());
         userProgress.setKoreaderDeviceId(koProgress.getDevice_id());
         userProgress.setKoreaderLastSyncTime(Instant.now());
         userProgress.setLastReadTime(Instant.now());
+        if (syncWithBookloreReader && koProgress.getProgress() != null) {
+            try {
+                String cfi = epubCfiService.convertXPointerToCfi(book.getFullFilePath(), koProgress.getProgress());
+
+                float percent = koProgress.getPercentage() * 100f;
+                float rounded = BigDecimal
+                        .valueOf(percent)
+                        .setScale(1, RoundingMode.HALF_UP)
+                        .floatValue();
+
+                userProgress.setEpubProgress(cfi);
+                userProgress.setEpubProgressPercent(rounded);
+
+                log.info("Converted xpointer to CFI for BookLore reader sync: {}", cfi);
+            } catch (Exception e) {
+                log.warn("Failed to convert xpointer to CFI: {}", e.getMessage());
+            }
+        }
 
         updateReadStatus(userProgress, koProgress.getPercentage());
     }

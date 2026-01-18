@@ -31,6 +31,7 @@ export class KoreaderSettingsComponent implements OnInit, OnDestroy {
   editMode = true;
   showPassword = false;
   koReaderSyncEnabled = false;
+  syncWithBookloreReader = false;
   koReaderUsername = '';
   koReaderPassword = '';
   credentialsSaved = false;
@@ -64,6 +65,7 @@ export class KoreaderSettingsComponent implements OnInit, OnDestroy {
         this.koReaderUsername = koreaderUser.username;
         this.koReaderPassword = koreaderUser.password;
         this.koReaderSyncEnabled = koreaderUser.syncEnabled;
+        this.syncWithBookloreReader = koreaderUser.syncWithBookloreReader ?? false;
         this.credentialsSaved = true;
       },
       error: err => {
@@ -100,6 +102,26 @@ export class KoreaderSettingsComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.messageService.add({severity: 'error', summary: 'Update Failed', detail: 'Unable to update KOReader sync setting. Please try again.'});
+      }
+    });
+  }
+
+  onToggleSyncWithBookloreReader(enabled: boolean) {
+    this.koreaderService.toggleSyncProgressWithBookloreReader(enabled).subscribe({
+      next: () => {
+        this.syncWithBookloreReader = enabled;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sync Updated',
+          detail: `Booklore eBook Reader sync has been ${enabled ? 'enabled' : 'disabled'}.`
+        });
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Update Failed',
+          detail: 'Unable to update Booklore eBook Reader sync setting. Please try again.'
+        });
       }
     });
   }

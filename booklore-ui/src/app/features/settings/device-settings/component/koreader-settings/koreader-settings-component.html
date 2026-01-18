@@ -48,6 +48,24 @@
             <div class="setting-item">
               <div class="setting-info">
                 <div class="setting-label-row">
+                  <label class="setting-label">Sync reading progress with Booklore eBook Reader</label>
+                  <p-toggle-switch
+                    name="syncWithBookloreReader"
+                    [(ngModel)]="syncWithBookloreReader"
+                    (ngModelChange)="onToggleSyncWithBookloreReader($event)"
+                    inputId="syncWithBookloreReader"
+                    [disabled]="!credentialsSaved || !koReaderSyncEnabled">
+                  </p-toggle-switch>
+                </div>
+                <p class="setting-description">
+                  Enable bidirectional sync between Booklore's eBook reader and KOReader. <strong>Note:</strong> Progress sync is approximate and may update by chapter rather than exact page or location.
+                </p>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label-row">
                   <label class="setting-label">KOReader API Path</label>
                   <div class="token-input-group">
                     <input

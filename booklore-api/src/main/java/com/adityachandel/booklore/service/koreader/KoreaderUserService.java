@@ -30,7 +30,7 @@ public class KoreaderUserService {
     public KoreaderUser upsertUser(String username, String rawPassword) {
         Long ownerId = authService.getAuthenticatedUser().getId();
         BookLoreUserEntity owner = userRepository.findById(ownerId)
-            .orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(ownerId));
+                .orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(ownerId));
 
         String md5Password = Md5Util.md5Hex(rawPassword);
         Optional<KoreaderUserEntity> existing = koreaderUserRepository.findByBookLoreUserId(ownerId);
@@ -47,9 +47,9 @@ public class KoreaderUserService {
         KoreaderUserEntity saved = koreaderUserRepository.save(user);
 
         log.info("upsertUser: {} KoreaderUser [id={}, username='{}'] for BookLoreUser='{}'",
-                 isUpdate ? "Updated" : "Created",
-                 saved.getId(), saved.getUsername(),
-                 authService.getAuthenticatedUser().getUsername());
+                isUpdate ? "Updated" : "Created",
+                saved.getId(), saved.getUsername(),
+                authService.getAuthenticatedUser().getUsername());
 
         return koreaderUserMapper.toDto(saved);
     }
@@ -66,6 +66,14 @@ public class KoreaderUserService {
         KoreaderUserEntity user = koreaderUserRepository.findByBookLoreUserId(id)
                 .orElseThrow(() -> ApiError.GENERIC_NOT_FOUND.createException("Koreader user not found for BookLore user ID: " + id));
         user.setSyncEnabled(enabled);
+        koreaderUserRepository.save(user);
+    }
+
+    public void toggleSyncProgressWithBooklore(boolean enabled) {
+        Long id = authService.getAuthenticatedUser().getId();
+        KoreaderUserEntity user = koreaderUserRepository.findByBookLoreUserId(id)
+                .orElseThrow(() -> ApiError.GENERIC_NOT_FOUND.createException("Koreader user not found for BookLore user ID: " + id));
+        user.setSyncWithBookloreReader(enabled);
         koreaderUserRepository.save(user);
     }
 }
