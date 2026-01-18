@@ -1,3 +1,5 @@
+@use '../../shared/styles/panel-shared' as panel;
+
 .library-creator {
   width: 700px;
   max-width: 700px;
@@ -24,129 +26,26 @@
 }
 
 .main-header {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+  @include panel.panel-header;
   padding: 1.75rem 1.75rem 1.25rem 1.75rem;
   background: var(--overlay-background);
   border-bottom: 1px solid var(--border-color);
-  border-radius: 10px 10px 0 0;
   margin-bottom: 1.5rem;
 
-  .main-header-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-    background: var(--primary-color);
-    border-radius: 10px;
+  .header-icon-wrapper {
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
-    flex-shrink: 0;
-
-    i {
-      font-size: 1.5rem;
-      color: var(--primary-contrast-color);
-    }
-  }
-
-  .main-header-content {
-    flex: 1;
-
-    .main-header-title {
-      margin: 0 0 0.25rem 0;
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--text-color);
-    }
-
-    .main-header-subtitle {
-      margin: 0;
-      font-size: 0.875rem;
-      color: var(--text-secondary-color);
-    }
-  }
-
-  ::ng-deep .close-button {
-    position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
   }
 
   @media (max-width: 768px) {
     padding: 1.25rem;
-
-    .main-header-icon {
-      width: 44px;
-      height: 44px;
-
-      i {
-        font-size: 1.375rem;
-      }
-    }
-
-    .main-header-content {
-      .main-header-title {
-        font-size: 1.25rem;
-      }
-
-      .main-header-subtitle {
-        font-size: 0.875rem;
-      }
-    }
   }
 
   @media (max-width: 640px) {
     padding: 1.25rem;
-    gap: 1rem;
-
-    .main-header-icon {
-      width: 42px;
-      height: 42px;
-
-      i {
-        font-size: 1.25rem;
-      }
-    }
-
-    .main-header-content {
-      .main-header-title {
-        font-size: 1.125rem;
-      }
-
-      .main-header-subtitle {
-        font-size: 0.8rem;
-      }
-    }
   }
 
   @media (max-width: 480px) {
     padding: 1rem;
-
-    .main-header-icon {
-      width: 40px;
-      height: 40px;
-
-      i {
-        font-size: 1.25rem;
-      }
-    }
-
-    .main-header-content {
-      .main-header-title {
-        font-size: 1.125rem;
-      }
-
-      .main-header-subtitle {
-        font-size: 0.8rem;
-      }
-    }
-
-    ::ng-deep .close-button {
-      top: 0.5rem;
-      right: 0.5rem;
-    }
   }
 }
 
@@ -267,81 +166,7 @@
 }
 
 .panel-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background: var(--overlay-background);
-  border-radius: 10px 10px 0 0;
-  border: 1px solid var(--border-color);
-
-  .header-icon-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 38px;
-    height: 38px;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-    flex-shrink: 0;
-
-    .header-icon {
-      font-size: 1.375rem;
-      color: dodgerblue;
-    }
-  }
-
-  .header-text {
-    flex: 1;
-
-    .panel-title {
-      margin: 0 0 0.25rem 0;
-      font-size: 1.125rem;
-      font-weight: 600;
-      color: var(--text-color);
-    }
-
-    .panel-description {
-      margin: 0;
-      font-size: 0.875rem;
-      color: var(--text-secondary-color);
-    }
-  }
-
-  @media (max-width: 640px) {
-    flex-direction: column;
-    text-align: center;
-
-    .header-icon-wrapper {
-      width: 42px;
-      height: 42px;
-
-      .header-icon {
-        font-size: 1.25rem;
-      }
-    }
-
-    .header-text .panel-title {
-      font-size: 1.125rem;
-    }
-  }
-
-  @media (max-width: 480px) {
-    padding: 0.5rem;
-
-    .header-icon-wrapper {
-      width: 36px;
-      height: 36px;
-
-      .header-icon {
-        font-size: 1rem;
-      }
-    }
-
-    .header-text .panel-title {
-      font-size: 1rem;
-    }
-  }
+  @include panel.panel-header;
 }
 
 .form-container {
@@ -994,86 +819,13 @@
 }
 
 .panel-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1.25rem 1.5rem;
-  background: var(--card-background);
+  @include panel.dialog-footer;
   border-top: 1px solid var(--border-color);
-  border-radius: 0 0 10px 10px;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+  border-left: none;
+  border-right: none;
   flex-shrink: 0;
-
-  .validation-status {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .footer-right {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex-shrink: 0;
-  }
-
-  @media (max-width: 640px) {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 1rem;
-    gap: 0.75rem;
-
-    .validation-status {
-      width: 100%;
-    }
-
-    .footer-right {
-      width: 100%;
-      flex-direction: row;
-      justify-content: flex-end;
-    }
-  }
-
-  @media (max-width: 480px) {
-    padding: 0.75rem 0.5rem 0;
-    gap: 0.5rem;
-
-    .footer-right {
-      gap: 0.5rem;
-    }
-  }
 }
 
 .validation-message {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.25rem 0.5rem;
-  font-weight: 500;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  width: fit-content;
-  max-width: 100%;
-
-  i {
-    font-size: 0.95rem;
-  }
-
-  &.error {
-    background: rgba(239, 68, 68, 0.1);
-    color: rgb(239, 68, 68);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-  }
-
-  &.success {
-    background: rgba(34, 197, 94, 0.1);
-    color: rgb(34, 197, 94);
-    border: 1px solid rgba(34, 197, 94, 0.3);
-  }
-
-  @media (max-width: 640px) {
-    font-size: 0.8rem;
-    padding: 0.375rem 0.5rem;
-    width: 100%;
-  }
+  @include panel.validation-message;
 }

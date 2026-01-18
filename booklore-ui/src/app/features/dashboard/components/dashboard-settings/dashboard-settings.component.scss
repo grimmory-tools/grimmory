@@ -1,3 +1,5 @@
+@use '../../../../shared/styles/panel-shared' as panel;
+
 .dashboard-settings {
   width: 1000px;
   max-width: 1000px;
@@ -11,81 +13,7 @@
 }
 
 .panel-header {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1.5rem 1.5rem 1.25rem 1.5rem;
-  border-radius: 10px 10px 0 0;
-  border: 1px solid var(--border-color);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-
-  .header-icon-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-    background: var(--primary-color);
-    border-radius: 10px;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
-
-    .header-icon {
-      font-size: 1.5rem;
-      color: var(--primary-contrast-color);
-    }
-  }
-
-  .header-text {
-    flex: 1;
-
-    .panel-title {
-      margin: 0 0 0.25rem 0;
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--text-color);
-    }
-
-    .panel-description {
-      margin: 0;
-      font-size: 0.875rem;
-      color: var(--text-secondary-color);
-    }
-  }
-
-  ::ng-deep .close-button {
-    position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
-  }
-
-  @media (max-width: 480px) {
-    padding: 1rem;
-
-    .header-icon-wrapper {
-      width: 40px;
-      height: 40px;
-
-      .header-icon {
-        font-size: 1.25rem;
-      }
-    }
-
-    .header-text {
-      .panel-title {
-        font-size: 1.125rem;
-      }
-
-      .panel-description {
-        font-size: 0.8rem;
-      }
-    }
-
-    ::ng-deep .close-button {
-      top: 0.5rem;
-      right: 0.5rem;
-    }
-  }
+  @include panel.panel-header;
 }
 
 .settings-controls {
@@ -267,36 +195,17 @@ label {
 }
 
 .dialog-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  padding: 1.25rem 1.5rem;
-  background: var(--card-background);
-  border: 1px solid var(--border-color);
+  @include panel.dialog-footer;
   border-top: none;
-  border-radius: 0 0 10px 10px;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
 
   .footer-left {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    flex: 1;
-  }
-
-  .footer-actions {
-    display: flex;
-    gap: 0.75rem;
   }
 
   @media (max-width: 640px) {
-    flex-direction: column;
-    padding: 1rem;
-    gap: 0.75rem;
-
     .footer-left {
-      width: 100%;
       flex-direction: column;
       gap: 0.5rem;
 
@@ -306,8 +215,6 @@ label {
     }
 
     .footer-actions {
-      width: 100%;
-
       ::ng-deep .p-button {
         flex: 1;
       }

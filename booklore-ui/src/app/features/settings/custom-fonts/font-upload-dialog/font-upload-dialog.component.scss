@@ -1,3 +1,5 @@
+@use '../../../../shared/styles/panel-shared' as panel;
+
 .font-upload-dialog {
   width: 700px;
   max-width: 700px;
@@ -11,86 +13,8 @@
 }
 
 .panel-header {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1.5rem 1.5rem 1.25rem 1.5rem;
-  border-radius: 10px 10px 0 0;
-  border: 1px solid var(--border-color);
+  @include panel.panel-header;
   border-bottom: none;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-
-  .header-icon-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-    background: var(--primary-color);
-    border-radius: 10px;
-
-    .header-icon {
-      font-size: 1.5rem;
-      color: var(--primary-contrast-color);
-    }
-  }
-
-  .header-text {
-    flex: 1;
-
-    .panel-title {
-      margin: 0 0 0.25rem 0;
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--text-color);
-    }
-
-    .panel-description {
-      margin: 0;
-      font-size: 0.875rem;
-      color: var(--text-secondary-color);
-    }
-  }
-
-  .close-button {
-    position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
-  }
-
-  @media (max-width: 480px) {
-    padding: 1rem;
-
-    .header-icon-wrapper {
-      width: 40px;
-      height: 40px;
-
-      .header-icon {
-        font-size: 1.25rem;
-      }
-    }
-
-    .header-text {
-      .panel-title {
-        font-size: 1.125rem;
-      }
-
-      .panel-description {
-        font-size: 0.8rem;
-      }
-    }
-
-    .close-button {
-      top: 0.5rem;
-      right: 0.5rem;
-
-      ::ng-deep .p-button {
-        width: 2rem;
-        height: 2rem;
-      }
-    }
-  }
 }
 
 .upload-container {
@@ -424,20 +348,10 @@
 
 // ==================== Dialog Footer ====================
 .dialog-footer {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: flex-end;
-  padding: 1rem 1.5rem 1.5rem;
+  @include panel.dialog-footer-end;
   border-top: 1px solid var(--border-color);
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-
-    ::ng-deep .p-button {
-      width: 100%;
-    }
-  }
+  border-left: none;
+  border-right: none;
+  border-radius: 0;
+  box-shadow: none;
 }
