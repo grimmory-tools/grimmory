@@ -88,6 +88,28 @@ public class SecurityConfig {
 
     @Bean
     @Order(2)
+    public SecurityFilterChain komgaBasicAuthSecurityChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/komga/api/v1/**", "/komga/api/v2/**")
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().authenticated()
+                )
+                .httpBasic(basic -> basic
+                        .realmName("Booklore Komga API")
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setHeader("WWW-Authenticate", "Basic realm=\"Booklore Komga API\"");
+                            response.getWriter().write("HTTP Status 401 - " + authException.getMessage());
+                        })
+                );
+
+        return http.build();
+    }
+
+    @Bean
+    @Order(3)
     public SecurityFilterChain koreaderSecurityChain(HttpSecurity http, KoreaderAuthFilter koreaderAuthFilter) throws Exception {
         http
                 .securityMatcher("/api/koreader/**")

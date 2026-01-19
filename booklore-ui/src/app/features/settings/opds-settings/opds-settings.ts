@@ -42,7 +42,10 @@ import {Select} from 'primeng/select';
 export class OpdsSettings implements OnInit, OnDestroy {
 
   opdsEndpoint = `${API_CONFIG.BASE_URL}/api/v1/opds`;
+  komgaEndpoint = `${API_CONFIG.BASE_URL}/komga`;
   opdsEnabled = false;
+  komgaApiEnabled = false;
+  komgaGroupUnknown = true;
 
   private opdsService = inject(OpdsService);
   private confirmationService = inject(ConfirmationService);
@@ -102,7 +105,9 @@ export class OpdsSettings implements OnInit, OnDestroy {
       )
       .subscribe(settings => {
         this.opdsEnabled = settings.opdsServerEnabled ?? false;
-        if (this.opdsEnabled) {
+        this.komgaApiEnabled = settings.komgaApiEnabled ?? false;
+        this.komgaGroupUnknown = settings.komgaGroupUnknown ?? true;
+        if (this.opdsEnabled || this.komgaApiEnabled) {
           this.loadUsers();
         } else {
           this.loading = false;
@@ -182,11 +187,40 @@ export class OpdsSettings implements OnInit, OnDestroy {
 
   toggleOpdsServer(): void {
     this.saveSetting(AppSettingKey.OPDS_SERVER_ENABLED, this.opdsEnabled);
-    if (this.opdsEnabled) {
+    if (this.opdsEnabled || this.komgaApiEnabled) {
       this.loadUsers();
     } else {
       this.users = [];
     }
+  }
+
+  toggleKomgaApi(): void {
+    this.saveKomgaSetting(AppSettingKey.KOMGA_API_ENABLED, this.komgaApiEnabled);
+    if (this.opdsEnabled || this.komgaApiEnabled) {
+      this.loadUsers();
+    } else {
+      this.users = [];
+    }
+  }
+
+  copyKomgaEndpoint(): void {
+    navigator.clipboard.writeText(this.komgaEndpoint).then(() => {
+      this.showMessage('success', 'Copied', 'Komga API endpoint copied to clipboard');
+    });
+  }
+
+  toggleKomgaGroupUnknown(): void {
+    this.appSettingsService.saveSettings([{key: AppSettingKey.KOMGA_GROUP_UNKNOWN, newValue: this.komgaGroupUnknown}]).subscribe({
+      next: () => {
+        const successMessage = (this.komgaGroupUnknown === true)
+          ? 'Books without series will be grouped under "Unknown Series".'
+          : 'Books without series will appear as individual series.';
+        this.showMessage('success', 'Settings Saved', successMessage);
+      },
+      error: () => {
+        this.showMessage('error', 'Error', 'There was an error saving the settings.');
+      }
+    });
   }
 
   private saveSetting(key: string, value: unknown): void {
@@ -195,6 +229,20 @@ export class OpdsSettings implements OnInit, OnDestroy {
         const successMessage = (value === true)
           ? 'OPDS Server Enabled.'
           : 'OPDS Server Disabled.';
+        this.showMessage('success', 'Settings Saved', successMessage);
+      },
+      error: () => {
+        this.showMessage('error', 'Error', 'There was an error saving the settings.');
+      }
+    });
+  }
+
+  private saveKomgaSetting(key: string, value: unknown): void {
+    this.appSettingsService.saveSettings([{key, newValue: value}]).subscribe({
+      next: () => {
+        const successMessage = (value === true)
+          ? 'Komga API Enabled.'
+          : 'Komga API Disabled.';
         this.showMessage('success', 'Settings Saved', successMessage);
       },
       error: () => {

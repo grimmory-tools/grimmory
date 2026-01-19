@@ -18,6 +18,8 @@ public class AppSettings {
     private boolean autoBookSearch;
     private boolean similarBookRecommendation;
     private boolean opdsServerEnabled;
+    private boolean komgaApiEnabled;
+    private boolean komgaGroupUnknown;
     private String uploadPattern;
     private Integer pdfCacheSizeInMb;
     private Integer maxFileUploadSizeInMb;

@@ -21,6 +21,8 @@ describe('AppSettingsService', () => {
     libraryMetadataRefreshOptions: [],
     uploadPattern: '',
     opdsServerEnabled: false,
+    komgaApiEnabled: false,
+    komgaGroupUnknown: false,
     remoteAuthEnabled: false,
     oidcEnabled: true,
     oidcProviderDetails: {
@@ -391,6 +393,8 @@ describe('AppSettingsService - API Contract Tests', () => {
         libraryMetadataRefreshOptions: [],
         uploadPattern: '',
         opdsServerEnabled: false,
+        komgaApiEnabled: false,
+        komgaGroupUnknown: false,
         remoteAuthEnabled: false,
         oidcEnabled: true,
         oidcProviderDetails: {

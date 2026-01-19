@@ -79,4 +79,8 @@ public class OpdsUserV2Service {
         user.setSortOrder(request.sortOrder());
         return mapper.toDto(opdsUserV2Repository.save(user));
     }
+
+    public OpdsUserV2Entity findByUsername(String username) {
+        return opdsUserV2Repository.findByUsername(username).orElse(null);
+    }
 }

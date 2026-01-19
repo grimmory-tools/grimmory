@@ -40,6 +40,93 @@
         </div>
       </div>
 
+      <div class="preferences-section">
+        <div class="section-header">
+          <h3 class="section-title">
+            <i class="pi pi-power-off"></i>
+            Komga API
+          </h3>
+        </div>
+
+        <div class="settings-card">
+          <div class="setting-item">
+            <div class="setting-info">
+              <div class="setting-label-row">
+                <label class="setting-label">Komga API Enabled</label>
+                <p-toggleswitch
+                  [(ngModel)]="komgaApiEnabled"
+                  (onChange)="toggleKomgaApi()">
+                </p-toggleswitch>
+              </div>
+              <p class="setting-description">
+                <i class="pi pi-info-circle"></i>
+                Enable the Komga-compatible API to use Komga clients (Tachiyomi, Komelia, etc.) with Booklore. Uses the same OPDS user accounts for authentication.
+              </p>
+            </div>
+          </div>
+          
+          @if (komgaApiEnabled) {
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label-row">
+                  <label class="setting-label">Group Unknown Series</label>
+                  <p-toggleswitch
+                    [(ngModel)]="komgaGroupUnknown"
+                    (onChange)="toggleKomgaGroupUnknown()">
+                  </p-toggleswitch>
+                </div>
+                <p class="setting-description">
+                  <i class="pi pi-info-circle"></i>
+                  When enabled, books without a series will be grouped under "Unknown Series". When disabled, each book without a series will appear as its own individual series.
+                </p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      @if (komgaApiEnabled) {
+        <div class="preferences-section">
+          <div class="section-header">
+            <h3 class="section-title">
+              <i class="pi pi-link"></i>
+              Komga API Endpoint
+            </h3>
+          </div>
+
+          <div class="settings-card">
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label-row">
+                  <label class="setting-label">Komga Base URL</label>
+                  <div class="input-group">
+                    <input
+                      id="komga-endpoint-url"
+                      class="endpoint-input"
+                      fluid
+                      type="text"
+                      pInputText
+                      [value]="komgaEndpoint"
+                      readonly/>
+                    <p-button
+                      icon="pi pi-copy"
+                      severity="info"
+                      outlined
+                      size="small"
+                      (onClick)="copyKomgaEndpoint()">
+                    </p-button>
+                  </div>
+                </div>
+                <p class="setting-description">
+                  <i class="pi pi-info-circle"></i>
+                  Use this URL as the server address in Komga-compatible clients. The API is available at <code>/komga/api/v1/*</code> and uses OPDS user credentials.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
       @if (opdsEnabled) {
         <div class="preferences-section">
           <div class="section-header">
