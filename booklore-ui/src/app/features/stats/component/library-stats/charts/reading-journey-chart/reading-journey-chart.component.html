@@ -1,0 +1,86 @@
+<div class="reading-journey-container">
+  <div class="chart-header">
+    <div class="chart-title">
+      <h3>
+        <i class="pi pi-directions journey-title-icon"></i>
+        Reading Journey
+      </h3>
+      <p class="chart-description">Books added vs finished over time - the gap is your backlog</p>
+    </div>
+    @if (dateRange) {
+      <div class="date-range-badge">
+        {{ dateRange }}
+      </div>
+    }
+  </div>
+
+  @if (totalBooks > 0 && insights) {
+    <div class="chart-wrapper">
+      <canvas baseChart
+              [data]="(chartData$ | async) ?? {labels: [], datasets: []}"
+              [options]="chartOptions"
+              [type]="chartType">
+      </canvas>
+    </div>
+
+    <div class="insights-section">
+      <div class="insights-row">
+        <div class="insight-item backlog">
+          <span class="insight-label">Current Backlog</span>
+          <span class="insight-value">{{ insights.currentBacklog }}</span>
+          <span class="insight-detail">{{ insights.backlogPercent }}% unread</span>
+        </div>
+
+        <div class="insight-item time-to-read">
+          <span class="insight-label">Avg Time to Finish</span>
+          <span class="insight-value">{{ insights.avgTimeToFinishDays }}</span>
+          <span class="insight-detail">days after adding</span>
+        </div>
+
+        <div class="insight-item productive">
+          <span class="insight-label">Best Reading Month</span>
+          <span class="insight-value">{{ insights.mostProductiveCount }}</span>
+          <span class="insight-detail">{{ insights.mostProductiveMonth }}</span>
+        </div>
+
+        <div class="insight-item acquisition">
+          <span class="insight-label">Peak Acquisition</span>
+          <span class="insight-value">{{ insights.busiestAcquisitionCount }}</span>
+          <span class="insight-detail">{{ insights.busiestAcquisitionMonth }}</span>
+        </div>
+
+        <div class="insight-item finish-rate">
+          <span class="insight-label">Finish Rate</span>
+          <span class="insight-value">{{ insights.finishRate }}</span>
+          <span class="insight-detail">books/month avg</span>
+        </div>
+
+        <div class="insight-item streak">
+          <span class="insight-label">Longest Streak</span>
+          <span class="insight-value">{{ insights.longestStreak }}</span>
+          <span class="insight-detail">consecutive months</span>
+        </div>
+
+        <div class="insight-item recent">
+          <span class="insight-label">Last 3 Months</span>
+          <span class="insight-value">{{ insights.recentActivity }}</span>
+          <span class="insight-detail">recently finished</span>
+        </div>
+
+        <div class="insight-item total">
+          <span class="insight-label">Completion</span>
+          <span class="insight-value">{{ insights.totalFinished }}/{{ insights.totalAdded }}</span>
+          <span class="insight-detail">books finished</span>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (totalBooks === 0 || !insights) {
+    <div class="no-data-message">
+      <i class="pi pi-info-circle"></i>
+      <p>No reading journey data available.</p>
+      <small>Books need addedOn or dateFinished dates to appear here.</small>
+    </div>
+  }
+</div>

@@ -1,0 +1,113 @@
+// Shared chart styles for consistency across all chart components
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  .chart-title {
+    flex: 1;
+    min-width: 200px;
+
+    h3 {
+      color: var(--text-color, #ffffff);
+      font-size: 1.25rem;
+      font-weight: 500;
+      margin: 0 0 0.5rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .chart-description {
+      color: var(--text-secondary-color);
+      font-size: 0.9rem;
+      margin: 0;
+      line-height: 1.4;
+    }
+  }
+
+  .stats-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+
+    .badge-value {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .badge-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary-color);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+}
+
+.no-data-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-secondary-color);
+
+  i {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    opacity: 0.5;
+  }
+
+  p {
+    font-size: 0.9rem;
+    margin: 0 0 0.5rem 0;
+    color: var(--text-color, #ffffff);
+  }
+
+  small {
+    font-size: 0.85rem;
+    opacity: 0.7;
+  }
+}
+
+@media (max-width: 768px) {
+  .chart-header {
+    .chart-title {
+      h3 {
+        font-size: 1.1rem;
+      }
+
+      .chart-description {
+        font-size: 0.85rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .chart-header {
+    .chart-title {
+      h3 {
+        font-size: 1rem;
+      }
+
+      .chart-description {
+        font-size: 0.8rem;
+      }
+    }
+
+    .stats-badge {
+      .badge-value {
+        font-size: 1.25rem;
+      }
+    }
+  }
+}

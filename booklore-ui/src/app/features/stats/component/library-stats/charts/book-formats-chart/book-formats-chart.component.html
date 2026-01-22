@@ -1,0 +1,28 @@
+<div class="book-formats-container">
+  <div class="chart-header">
+    <div class="chart-title">
+      <h3>
+        <i class="pi pi-file formats-title-icon"></i>
+        Book Formats
+      </h3>
+      <p class="chart-description">Distribution of file types in your library</p>
+    </div>
+  </div>
+
+  @if (totalBooks > 0) {
+    <div class="chart-wrapper">
+      <canvas baseChart
+              [data]="(chartData$ | async) ?? {labels: [], datasets: []}"
+              [options]="chartOptions"
+              [type]="chartType">
+      </canvas>
+    </div>
+  }
+
+  @if (totalBooks === 0) {
+    <div class="no-data-message">
+      <i class="pi pi-info-circle"></i>
+      <p>No books available.</p>
+    </div>
+  }
+</div>

@@ -1,0 +1,28 @@
+@import '../../../_chart-shared';
+
+.metadata-score-container {
+  width: 100%;
+}
+
+.score-title-icon {
+  font-size: 1.5rem;
+  color: #16A34A;
+}
+
+.chart-wrapper {
+  position: relative;
+  height: 220px;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .chart-wrapper {
+    height: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .chart-wrapper {
+    height: 180px;
+  }
+}

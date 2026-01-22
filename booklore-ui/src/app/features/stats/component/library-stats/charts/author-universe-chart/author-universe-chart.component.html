@@ -1,0 +1,53 @@
+<div class="author-universe-container">
+  <div class="chart-header">
+    <div class="chart-title">
+      <h3>
+        <i class="pi pi-globe author-title-icon"></i>
+        Author Universe
+      </h3>
+      <p class="chart-description">Explore your authors by books, ratings, and reading progress</p>
+    </div>
+    @if (totalAuthors > 0) {
+      <div class="author-count-badge">
+        {{ totalAuthors }} authors
+      </div>
+    }
+  </div>
+
+  @if (totalAuthors > 0) {
+    <div class="chart-legend-info">
+      <span class="legend-note">
+        <i class="pi pi-info-circle"></i>
+        Bubble size = total pages &bull; Position = books vs rating &bull; Color = completion %
+      </span>
+    </div>
+
+    <div class="chart-wrapper">
+      <canvas baseChart
+              [data]="(chartData$ | async) ?? {labels: [], datasets: []}"
+              [options]="chartOptions"
+              [type]="chartType">
+      </canvas>
+    </div>
+
+    @if (insights.length > 0) {
+      <div class="insights-section">
+        <div class="insights-grid">
+          @for (insight of insights; track insight) {
+            <div class="insight-card">
+              <i class="pi pi-star-fill insight-icon"></i>
+              <span class="insight-text">{{ insight }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  }
+
+  @if (totalAuthors === 0) {
+    <div class="no-data-message">
+      <i class="pi pi-info-circle"></i>
+      <p>No author data available. Authors need at least 2 books to appear.</p>
+    </div>
+  }
+</div>

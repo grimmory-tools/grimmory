@@ -1,0 +1,205 @@
+<div class="library-stats-container">
+  <div class="header-card">
+    <div class="filter-section">
+      <div class="library-filter">
+        <div class="select-row">
+          <label for="library-dropdown">Library Statistics</label>
+          <div class="flex w-full gap-2 align-items-center">
+            <p-select
+              fluid
+              id="library-dropdown"
+              [options]="libraryOptions"
+              [(ngModel)]="selectedLibrary"
+              optionLabel="name"
+              size="small"
+              placeholder="Select a library"
+              (onChange)="onLibraryChange()"
+              appendTo="body"
+              [style]="{'min-width': '200px'}"
+              class="library-dropdown">
+            </p-select>
+
+            <p-button
+              outlined
+              size="small"
+              (onClick)="toggleConfigPanel()"
+              icon="pi pi-cog">
+            </p-button>
+          </div>
+        </div>
+
+        <div class="library-totals" role="status" aria-live="polite">
+          <div class="total-item total-books" title="Total books">
+            <i class="pi pi-book"></i>
+            <span class="total-label">Books</span>
+            <span class="total-value">{{ totalBooks$ | async }}</span>
+          </div>
+
+          <div class="total-item total-authors" title="Total authors">
+            <i class="pi pi-users"></i>
+            <span class="total-label">Authors</span>
+            <span class="total-value">{{ totalAuthors$ | async }}</span>
+          </div>
+
+          <div class="total-item total-series" title="Total series">
+            <i class="pi pi-bookmark"></i>
+            <span class="total-label">Series</span>
+            <span class="total-value">{{ totalSeries$ | async }}</span>
+          </div>
+
+          <div class="total-item total-publishers" title="Total publishers">
+            <i class="pi pi-building"></i>
+            <span class="total-label">Publishers</span>
+            <span class="total-value">{{ totalPublishers$ | async }}</span>
+          </div>
+
+          <div class="total-item total-size" title="Total size">
+            <i class="pi pi-file"></i>
+            <span class="total-label">Library Size</span>
+            <span class="total-value">{{ totalSize$ | async }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (showConfigPanel) {
+    <div class="config-modal-overlay" (click)="closeConfigPanel()">
+      <div class="config-modal" (click)="$event.stopPropagation()">
+        <div class="config-modal-header">
+          <h3><i class="pi pi-cog"></i> Chart Configuration</h3>
+          <button type="button" class="close-btn" (click)="closeConfigPanel()" title="Close">
+            <i class="pi pi-times"></i>
+          </button>
+        </div>
+
+        <div class="config-modal-actions">
+          <button type="button" class="config-action-btn enable-all" (click)="enableAllCharts()">
+            <i class="pi pi-check"></i> Enable All
+          </button>
+          <button type="button" class="config-action-btn disable-all" (click)="disableAllCharts()">
+            <i class="pi pi-times"></i> Disable All
+          </button>
+          <button type="button" class="config-action-btn reset-order" (click)="resetChartOrder()">
+            <i class="pi pi-refresh"></i> Reset Order
+          </button>
+        </div>
+
+        <div class="config-modal-content">
+          <div class="config-categories">
+            <div class="config-category">
+              <h4>Small Charts</h4>
+              <div class="chart-toggles">
+                @for (chart of getChartsByCategory('small'); track chart.id) {
+                  <div class="chart-toggle">
+                    <input
+                      type="checkbox"
+                      [id]="'chart-' + chart.id"
+                      [checked]="chart.enabled"
+                      (change)="toggleChart(chart.id)">
+                    <label [for]="'chart-' + chart.id">{{ chart.name }}</label>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <div class="config-category">
+              <h4>Large Charts</h4>
+              <div class="chart-toggles">
+                @for (chart of getChartsByCategory('large'); track chart.id) {
+                  <div class="chart-toggle">
+                    <input
+                      type="checkbox"
+                      [id]="'chart-' + chart.id"
+                      [checked]="chart.enabled"
+                      (change)="toggleChart(chart.id)">
+                    <label [for]="'chart-' + chart.id">{{ chart.name }}</label>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <div class="config-category">
+              <h4>Extra Large Charts</h4>
+              <div class="chart-toggles">
+                @for (chart of getChartsByCategory('xlarge'); track chart.id) {
+                  <div class="chart-toggle">
+                    <input
+                      type="checkbox"
+                      [id]="'chart-' + chart.id"
+                      [checked]="chart.enabled"
+                      (change)="toggleChart(chart.id)">
+                    <label [for]="'chart-' + chart.id">{{ chart.name }}</label>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (!isLoading && hasData) {
+    <div class="charts-grid"
+         cdkDropList
+         (cdkDropListDropped)="onChartReorder($event)"
+         [cdkDropListData]="getEnabledChartsSorted()">
+
+      @for (chartConfig of getEnabledChartsSorted(); track chartConfig.id) {
+        <div class="chart-container"
+             cdkDrag
+             [cdkDragData]="chartConfig"
+             [class]="'chart-section ' + chartConfig.category">
+
+          <div class="drag-handle" cdkDragHandle title="Drag to reorder">
+            <i class="pi pi-bars"></i>
+          </div>
+
+          @switch (chartConfig.id) {
+            @case ('bookFormats') {
+              <app-book-formats-chart></app-book-formats-chart>
+            }
+            @case ('languageDistribution') {
+              <app-language-chart></app-language-chart>
+            }
+            @case ('metadataScore') {
+              <app-metadata-score-chart></app-metadata-score-chart>
+            }
+            @case ('pageCountDistribution') {
+              <app-page-count-chart></app-page-count-chart>
+            }
+            @case ('publicationTimeline') {
+              <app-publication-timeline-chart></app-publication-timeline-chart>
+            }
+            @case ('publicationTrend') {
+              <app-publication-trend-chart></app-publication-trend-chart>
+            }
+            @case ('readingJourney') {
+              <app-reading-journey-chart></app-reading-journey-chart>
+            }
+            @case ('topItems') {
+              <app-top-items-chart></app-top-items-chart>
+            }
+            @case ('authorUniverse') {
+              <app-author-universe-chart></app-author-universe-chart>
+            }
+          }
+        </div>
+      }
+    </div>
+  }
+
+  @if (isLoading) {
+    <div class="loading-message">
+      Loading statistics...
+    </div>
+  }
+
+  @if (!isLoading && !hasData) {
+    <div class="no-data-message">
+      No data available.
+      <small>Make sure your library contains books with metadata.</small>
+    </div>
+  }
+</div>

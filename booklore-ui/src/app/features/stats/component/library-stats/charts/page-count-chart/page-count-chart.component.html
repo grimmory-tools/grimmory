@@ -1,0 +1,28 @@
+<div class="page-count-container">
+  <div class="chart-header">
+    <div class="chart-title">
+      <h3>
+        <i class="pi pi-book page-title-icon"></i>
+        Page Count Distribution
+      </h3>
+      <p class="chart-description">Distribution of book lengths in your library</p>
+    </div>
+  </div>
+
+  @if (totalBooks > 0) {
+    <div class="chart-wrapper">
+      <canvas baseChart
+              [data]="(chartData$ | async) ?? {labels: [], datasets: []}"
+              [options]="chartOptions"
+              [type]="chartType">
+      </canvas>
+    </div>
+  }
+
+  @if (totalBooks === 0) {
+    <div class="no-data-message">
+      <i class="pi pi-info-circle"></i>
+      <p>No page count data available.</p>
+    </div>
+  }
+</div>

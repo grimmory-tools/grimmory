@@ -1,0 +1,74 @@
+<div class="top-items-container">
+  <div class="chart-header">
+    <div class="chart-title">
+      <h3>
+        <i class="pi" [ngClass]="selectedDataType.icon" [style.color]="selectedDataType.color"></i>
+        Top 15 {{ selectedDataType.label }}
+      </h3>
+      <p class="chart-description">Most represented {{ selectedDataType.label.toLowerCase() }} in your library</p>
+    </div>
+    <div class="header-controls">
+      <p-select
+        [options]="dataTypeOptions"
+        [(ngModel)]="selectedDataType"
+        optionLabel="label"
+        (onChange)="onDataTypeChange()"
+        [style]="{'min-width': '140px'}"
+        size="small"
+        appendTo="body">
+        <ng-template pTemplate="selectedItem">
+          @if (selectedDataType) {
+            <div class="select-item">
+              <i class="pi" [ngClass]="selectedDataType.icon"></i>
+              <span>{{ selectedDataType.label }}</span>
+            </div>
+          }
+        </ng-template>
+        <ng-template pTemplate="item" let-option>
+          <div class="select-item">
+            <i class="pi" [ngClass]="option.icon" [style.color]="option.color"></i>
+            <span>{{ option.label }}</span>
+          </div>
+        </ng-template>
+      </p-select>
+      @if (totalItems > 0) {
+        <div class="stats-badge">
+          <span class="badge-value">{{ totalItems }}</span>
+          <span class="badge-label">shown</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (totalItems > 0) {
+    <div class="chart-wrapper">
+      <canvas baseChart
+              [data]="(chartData$ | async) ?? {labels: [], datasets: []}"
+              [options]="chartOptions"
+              [type]="chartType">
+      </canvas>
+    </div>
+
+    @if (insights.length > 0) {
+      <div class="insights-grid">
+        @for (insight of insights; track insight.label) {
+          <div class="insight-card">
+            <i class="pi" [ngClass]="insight.icon" [style.color]="selectedDataType.color"></i>
+            <div class="insight-content">
+              <span class="insight-label">{{ insight.label }}</span>
+              <span class="insight-value">{{ insight.value }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  @if (totalItems === 0) {
+    <div class="no-data-message">
+      <i class="pi pi-info-circle"></i>
+      <p>No {{ selectedDataType.label.toLowerCase() }} data available.</p>
+      <small>Make sure your books have {{ selectedDataType.label.toLowerCase() }} metadata.</small>
+    </div>
+  }
+</div>

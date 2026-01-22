@@ -1,0 +1,28 @@
+<div class="language-chart-container">
+  <div class="chart-header">
+    <div class="chart-title">
+      <h3>
+        <i class="pi pi-globe language-title-icon"></i>
+        Languages
+      </h3>
+      <p class="chart-description">Languages represented in your collection</p>
+    </div>
+  </div>
+
+  @if (booksWithLanguage > 0) {
+    <div class="chart-wrapper">
+      <canvas baseChart
+              [data]="(chartData$ | async) ?? {labels: [], datasets: []}"
+              [options]="chartOptions"
+              [type]="chartType">
+      </canvas>
+    </div>
+  }
+
+  @if (booksWithLanguage === 0) {
+    <div class="no-data-message">
+      <i class="pi pi-info-circle"></i>
+      <p>No language data available.</p>
+    </div>
+  }
+</div>

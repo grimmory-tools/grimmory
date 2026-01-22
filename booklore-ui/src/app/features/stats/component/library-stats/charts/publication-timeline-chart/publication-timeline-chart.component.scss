@@ -1,0 +1,163 @@
+@import '../../../_chart-shared';
+
+.publication-timeline-container {
+  width: 100%;
+}
+
+.timeline-title-icon {
+  font-size: 1.5rem;
+  color: #a78bfa;
+}
+
+.books-count-badge {
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.2), rgba(167, 139, 250, 0.1));
+  border: 1px solid rgba(167, 139, 250, 0.3);
+  border-radius: 20px;
+  padding: 0.4rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #c4b5fd;
+  white-space: nowrap;
+}
+
+.chart-wrapper {
+  position: relative;
+  height: 380px;
+  width: 100%;
+}
+
+.insights-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.insights-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.insight-item {
+  flex: 1;
+  min-width: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  .insight-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary-color);
+    margin-bottom: 0.25rem;
+  }
+
+  .insight-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-color, #ffffff);
+  }
+
+  .insight-detail {
+    font-size: 0.75rem;
+    color: var(--text-secondary-color);
+    margin-top: 0.25rem;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &.oldest {
+    .insight-value {
+      color: #f59e0b;
+    }
+  }
+
+  &.average {
+    .insight-value {
+      color: #a78bfa;
+    }
+  }
+
+  &.newest {
+    .insight-value {
+      color: #22d3ee;
+    }
+  }
+
+  &.timespan {
+    .insight-value {
+      color: #f472b6;
+    }
+  }
+
+  &.peak {
+    .insight-value {
+      color: #4ade80;
+    }
+  }
+
+  &.decades {
+    .insight-value {
+      color: #fb923c;
+    }
+  }
+}
+
+.insights-row.secondary {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .chart-wrapper {
+    height: 320px;
+  }
+
+  .insights-row {
+    gap: 0.75rem;
+  }
+
+  .insight-item {
+    padding: 0.6rem;
+
+    .insight-value {
+      font-size: 1.25rem;
+    }
+
+    .insight-detail {
+      max-width: 100px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .chart-wrapper {
+    height: 280px;
+  }
+
+  .books-count-badge {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.75rem;
+  }
+
+  .insight-item {
+    min-width: 90px;
+    padding: 0.5rem;
+
+    .insight-value {
+      font-size: 1.1rem;
+    }
+
+    .insight-label {
+      font-size: 0.65rem;
+    }
+  }
+}

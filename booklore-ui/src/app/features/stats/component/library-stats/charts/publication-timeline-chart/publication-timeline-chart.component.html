@@ -1,0 +1,81 @@
+<div class="publication-timeline-container">
+  <div class="chart-header">
+    <div class="chart-title">
+      <h3>
+        <i class="pi pi-calendar timeline-title-icon"></i>
+        Publication Timeline
+      </h3>
+      <p class="chart-description">When were your books originally published?</p>
+    </div>
+    @if (totalBooks > 0) {
+      <div class="books-count-badge">
+        {{ totalBooks }} books with dates
+      </div>
+    }
+  </div>
+
+  @if (totalBooks > 0) {
+    <div class="chart-wrapper">
+      <canvas baseChart
+              [data]="(chartData$ | async) ?? {labels: [], datasets: []}"
+              [options]="chartOptions"
+              [type]="chartType">
+      </canvas>
+    </div>
+
+    @if (insights) {
+      <div class="insights-section">
+        <div class="insights-row">
+          @if (insights.oldestBook) {
+            <div class="insight-item oldest">
+              <span class="insight-label">Oldest</span>
+              <span class="insight-value">{{ insights.oldestBook.year }}</span>
+              <span class="insight-detail" [title]="insights.oldestBook.title">{{ insights.oldestBook.title }}</span>
+            </div>
+          }
+
+          <div class="insight-item average">
+            <span class="insight-label">Average Year</span>
+            <span class="insight-value">{{ insights.averageYear }}</span>
+            <span class="insight-detail">Median: {{ insights.medianYear }}</span>
+          </div>
+
+          @if (insights.newestBook) {
+            <div class="insight-item newest">
+              <span class="insight-label">Newest</span>
+              <span class="insight-value">{{ insights.newestBook.year }}</span>
+              <span class="insight-detail" [title]="insights.newestBook.title">{{ insights.newestBook.title }}</span>
+            </div>
+          }
+        </div>
+
+        <div class="insights-row secondary">
+          <div class="insight-item timespan">
+            <span class="insight-label">Time Span</span>
+            <span class="insight-value">{{ insights.timeSpan }}</span>
+            <span class="insight-detail">years of literature</span>
+          </div>
+
+          <div class="insight-item peak">
+            <span class="insight-label">Peak Decade</span>
+            <span class="insight-value">{{ insights.peakDecade }}</span>
+            <span class="insight-detail">{{ insights.peakDecadeCount }} books</span>
+          </div>
+
+          <div class="insight-item decades">
+            <span class="insight-label">Decades Covered</span>
+            <span class="insight-value">{{ insights.decadesCovered }}</span>
+            <span class="insight-detail">different eras</span>
+          </div>
+        </div>
+      </div>
+    }
+  }
+
+  @if (totalBooks === 0) {
+    <div class="no-data-message">
+      <i class="pi pi-info-circle"></i>
+      <p>No publication date data available.</p>
+    </div>
+  }
+</div>

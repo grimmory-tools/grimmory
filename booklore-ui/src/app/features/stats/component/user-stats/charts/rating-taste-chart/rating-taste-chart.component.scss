@@ -1,0 +1,336 @@
+.rating-taste-container {
+  width: 100%;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  .chart-title {
+    flex: 1;
+    min-width: 200px;
+
+    h3 {
+      color: var(--text-color, #ffffff);
+      font-size: 1.25rem;
+      font-weight: 500;
+      margin: 0 0 0.5rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .chart-description {
+      color: var(--text-secondary-color);
+      font-size: 0.9rem;
+      margin: 0;
+      line-height: 1.4;
+    }
+  }
+
+  .stats-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(156, 39, 176, 0.15);
+    border: 1px solid rgba(156, 39, 176, 0.3);
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+
+    .badge-value {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #9c27b0;
+    }
+
+    .badge-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary-color);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+}
+
+.rating-taste-icon {
+  font-size: 1.5rem;
+  color: rgba(156, 39, 176, 1);
+}
+
+.chart-wrapper {
+  position: relative;
+  height: 500px;
+  width: 100%;
+  margin-bottom: 1.5rem;
+
+  .quadrant-labels {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+
+    .quadrant-label {
+      position: absolute;
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.4);
+      font-weight: 500;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.3);
+
+      &.top-left {
+        top: 60px;
+        left: 60px;
+      }
+
+      &.top-right {
+        top: 60px;
+        right: 30px;
+      }
+
+      &.bottom-left {
+        bottom: 60px;
+        left: 60px;
+      }
+
+      &.bottom-right {
+        bottom: 60px;
+        right: 30px;
+      }
+    }
+  }
+}
+
+.taste-insights {
+  margin-top: 1.5rem;
+
+  .insights-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+
+    h4 {
+      color: var(--text-color, #ffffff);
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin: 0;
+    }
+
+    .deviation-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.75rem;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      font-size: 0.85rem;
+
+      .deviation-label {
+        color: var(--text-secondary-color);
+      }
+
+      .deviation-value {
+        color: var(--text-color, #ffffff);
+        font-weight: 600;
+      }
+
+      .deviation-desc {
+        color: var(--text-secondary-color);
+        font-size: 0.8rem;
+      }
+
+      &.unique {
+        background: rgba(156, 39, 176, 0.2);
+        border: 1px solid rgba(156, 39, 176, 0.3);
+
+        .deviation-value {
+          color: #9c27b0;
+        }
+      }
+
+      &.mainstream {
+        background: rgba(76, 175, 80, 0.2);
+        border: 1px solid rgba(76, 175, 80, 0.3);
+
+        .deviation-value {
+          color: #4caf50;
+        }
+      }
+    }
+  }
+
+  .quadrants-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+
+  .quadrant-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 4px solid;
+    position: relative;
+
+    .quadrant-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+
+      .quadrant-icon {
+        font-size: 1.1rem;
+      }
+
+      .quadrant-name {
+        color: var(--text-color, #ffffff);
+        font-weight: 500;
+        font-size: 0.95rem;
+        flex: 1;
+      }
+
+      .quadrant-count {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #ffffff;
+        padding: 0.15rem 0.5rem;
+        border-radius: 12px;
+        min-width: 24px;
+        text-align: center;
+      }
+    }
+
+    .quadrant-description {
+      color: var(--text-secondary-color);
+      font-size: 0.8rem;
+      margin: 0 0 0.75rem 0;
+      line-height: 1.4;
+    }
+
+    .quadrant-bar {
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 0.25rem;
+
+      .bar-fill {
+        height: 100%;
+        border-radius: 2px;
+        transition: width 0.3s ease;
+      }
+    }
+
+    .quadrant-percentage {
+      font-size: 0.75rem;
+      color: var(--text-secondary-color);
+    }
+  }
+}
+
+.no-data-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
+  color: var(--text-secondary-color);
+
+  i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+
+  p {
+    font-size: 1rem;
+    margin: 0 0 0.5rem 0;
+    color: var(--text-color, #ffffff);
+  }
+
+  small {
+    font-size: 0.85rem;
+    opacity: 0.7;
+  }
+}
+
+@media (max-width: 768px) {
+  .chart-wrapper {
+    height: 420px;
+
+    .quadrant-labels {
+      .quadrant-label {
+        font-size: 0.6rem;
+        padding: 0.15rem 0.35rem;
+
+        &.top-left {
+          top: 50px;
+          left: 40px;
+        }
+
+        &.top-right {
+          top: 50px;
+          right: 15px;
+        }
+
+        &.bottom-left {
+          bottom: 50px;
+          left: 40px;
+        }
+
+        &.bottom-right {
+          bottom: 50px;
+          right: 15px;
+        }
+      }
+    }
+  }
+
+  .taste-insights {
+    .quadrants-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .chart-header {
+    .chart-title {
+      h3 {
+        font-size: 1rem;
+      }
+
+      .chart-description {
+        font-size: 0.8rem;
+      }
+    }
+
+    .stats-badge {
+      .badge-value {
+        font-size: 1.25rem;
+      }
+    }
+  }
+
+  .chart-wrapper {
+    height: 350px;
+  }
+
+  .taste-insights {
+    .insights-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+}
