@@ -500,7 +500,7 @@ class HardcoverSyncServiceTest {
         Map<String, Object> bookResponse = new HashMap<>();
         Map<String, Object> bookData = new HashMap<>();
         Map<String, Object> book = new HashMap<>();
-        book.put("default_edition_id", "88");
+        book.put("default_physical_edition_id", "88");
         bookData.put("books", List.of(book));
         bookResponse.put("data", bookData);
 
