@@ -2,8 +2,10 @@ package com.adityachandel.booklore.config.security.service;
 
 import com.adityachandel.booklore.config.AppProperties;
 import com.adityachandel.booklore.config.security.JwtUtils;
+import com.adityachandel.booklore.config.security.userdetails.KoreaderUserDetails;
 import com.adityachandel.booklore.config.security.userdetails.OpdsUserDetails;
 import com.adityachandel.booklore.exception.ApiError;
+import com.adityachandel.booklore.mapper.custom.BookLoreUserTransformer;
 import com.adityachandel.booklore.model.dto.BookLoreUser;
 import com.adityachandel.booklore.model.dto.request.UserLoginRequest;
 import com.adityachandel.booklore.model.entity.BookLoreUserEntity;
@@ -39,6 +41,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
     private final DefaultSettingInitializer defaultSettingInitializer;
+    private final BookLoreUserTransformer bookLoreUserTransformer;
 
     public BookLoreUser getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -52,7 +55,21 @@ public class AuthenticationService {
             }
             return user;
         }
-        throw new IllegalStateException("Authenticated principal is not of type BookLoreUser");
+        // Handle KoreaderUserDetails principal
+        if (principal instanceof KoreaderUserDetails koreaderDetails) {
+            Long bookLoreUserId = koreaderDetails.getBookLoreUserId();
+            if (bookLoreUserId == null) {
+                throw new IllegalStateException("KOReader user is not linked to a BookLore user");
+            }
+            BookLoreUserEntity userEntity = userRepository.findById(bookLoreUserId)
+                    .orElseThrow(() -> new IllegalStateException("BookLore user not found for KOReader user"));
+            BookLoreUser user = bookLoreUserTransformer.toDTO(userEntity);
+            if (user.getId() != null && user.getId() != -1L) {
+                defaultSettingInitializer.ensureDefaultSettings(user);
+            }
+            return user;
+        }
+        throw new IllegalStateException("Authenticated principal is not of type BookLoreUser or KoreaderUserDetails");
     }
 
     public BookLoreUser getSystemUser() {
