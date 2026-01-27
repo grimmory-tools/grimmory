@@ -16,6 +16,7 @@ local SQ3 = require("lua-ljsqlite3/init")
 local UIManager = require("ui/uimanager")
 local WidgetContainer = require("ui/widget/container/widgetcontainer")
 local ConfirmBox = require("ui/widget/confirmbox")
+local Settings = require("settings")
 
 local base_logger = require("logger")
 local log_to_file_flag = false
@@ -64,6 +65,12 @@ function BookloreSync:init()
     self.log_to_file = self.settings:readSetting("log_to_file") or false
     log_to_file_flag = self.log_to_file
     self.historical_sync_ack = self.settings:readSetting("historical_sync_ack") or false
+    
+    -- Sync options
+    self.force_push_session_on_suspend = self.settings:readSetting("force_push_session_on_suspend") or false
+    self.connect_network_on_suspend = self.settings:readSetting("connect_network_on_suspend") or false
+    self.manual_sync_only = self.settings:readSetting("manual_sync_only") or false
+    self.silent_messages = self.settings:readSetting("silent_messages") or false
     
     -- Persistent local database for offline support
     self.local_db = LuaSettings:open(DataStorage:getSettingsDir() .. "/booklore_db.lua")
@@ -120,6 +127,14 @@ function BookloreSync:registerDispatcherActions()
         title = _("Sync Booklore Pending Sessions"),
         general = true,
     })
+
+    -- Register Manual Sync Only toggle action
+    Dispatcher:registerAction("booklore_toggle_manual_sync_only", {
+        category = "none",
+        event = "ToggleBookloreManualSyncOnly",
+        title = _("Toggle Booklore Manual Sync Only"),
+        general = true,
+    })
     
     -- Register Test Connection action
     Dispatcher:registerAction("booklore_test_connection", {
@@ -142,6 +157,29 @@ function BookloreSync:toggleSync()
     UIManager:show(InfoMessage:new{
         text = self.is_enabled and _("Booklore sync enabled") or _("Booklore sync disabled"),
         timeout = 1,
+    })
+end
+
+function BookloreSync:toggleManualSyncOnly()
+    self.manual_sync_only = not self.manual_sync_only
+    self.settings:saveSetting("manual_sync_only", self.manual_sync_only)
+    
+    -- If enabling manual_sync_only, disable force_push
+    if self.manual_sync_only and self.force_push_session_on_suspend then
+        self.force_push_session_on_suspend = false
+        self.settings:saveSetting("force_push_session_on_suspend", false)
+    end
+    
+    self.settings:flush()
+    local message
+    if self.manual_sync_only then
+        message = _("Manual sync only: sessions will be cached until you sync pending sessions manually")
+    else
+        message = _("Manual sync only disabled: automatic syncing restored where enabled")
+    end
+    UIManager:show(InfoMessage:new{
+        text = message,
+        timeout = 2,
     })
 end
 
@@ -170,96 +208,37 @@ function BookloreSync:onTestBookloreConnection()
     return true
 end
 
+function BookloreSync:onToggleBookloreManualSyncOnly()
+    self:toggleManualSyncOnly()
+    return true
+end
+
 function BookloreSync:addToMainMenu(menu_items)
-    menu_items.booklore_sync = {
-        text = _("Booklore Sync"),
-        sorting_hint = "tools",
+    local base_menu = Settings:buildMenu(self)
+    
+    -- Add additional menu sections
+    table.insert(base_menu, {
+        text = _("Session Management"),
         sub_item_table = {
-            {
-                text = _("Enable Sync"),
-                checked_func = function()
-                    return self.is_enabled
-                end,
-                callback = function()
-                    self.is_enabled = not self.is_enabled
-                    self.settings:saveSetting("is_enabled", self.is_enabled)
-                    self.settings:flush()
-                    UIManager:show(InfoMessage:new{
-                        text = self.is_enabled and _("Booklore sync enabled") or _("Booklore sync disabled"),
-                        timeout = 2,
-                    })
-                end,
-            },
-            {
-                text = _("Log to file"),
-                checked_func = function()
-                    return self.log_to_file
-                end,
-                callback = function()
-                    self.log_to_file = not self.log_to_file
-                    self.settings:saveSetting("log_to_file", self.log_to_file)
-                    self.settings:flush()
-                    log_to_file_flag = self.log_to_file
-                    UIManager:show(InfoMessage:new{
-                        text = self.log_to_file and _("File logging enabled") or _("File logging disabled"),
-                        timeout = 2,
-                    })
-                end,
-            },
-            {
-                text = _("Login"),
-                sub_item_table = {
-                    {
-                        text = _("Server URL"),
-                        keep_menu_open = true,
-                        callback = function()
-                            self:configureServerUrl()
-                        end,
-                    },
-                    {
-                        text = _("Username"),
-                        keep_menu_open = true,
-                        callback = function()
-                            self:configureUsername()
-                        end,
-                    },
-                    {
-                        text = _("Password"),
-                        keep_menu_open = true,
-                        callback = function()
-                            self:configurePassword()
-                        end,
-                    },
-                    {
-                        text = _("Test Connection"),
-                        enabled_func = function()
-                            return self.server_url ~= "" and self.username ~= ""
-                        end,
-                        callback = function()
-                            self:testConnection()
-                        end,
-                    },
-                },
-            },
-            {
-                text = _("Session Management"),
-                sub_item_table = {
                     {
                         text = _("Minimum Session Duration"),
+                        help_text = _("Set the minimum number of seconds a reading session must last to be synced. Sessions shorter than this will be discarded. Default is 30 seconds."),
                         keep_menu_open = true,
                         callback = function()
-                            self:configureMinDuration()
+                            Settings:configureMinDuration(self)
                         end,
                     },
                     {
                         text = _("Progress Decimal Places"),
+                        help_text = _("Set the number of decimal places to use when reporting reading progress percentage (0-5). Higher precision may be useful for large books. Default is 2."),
                         keep_menu_open = true,
                         callback = function()
-                            self:configureProgressDecimalPlaces()
+                            Settings:configureProgressDecimalPlaces(self)
                         end,
                     },
                     {
                         text = _("Sync Pending Sessions"),
+                        help_text = _("Manually sync all sessions that failed to upload previously. Sessions are cached locally when the network is unavailable and synced automatically on resume."),
                         enabled_func = function()
                             return #self.pending_sessions > 0
                         end,
@@ -269,6 +248,7 @@ function BookloreSync:addToMainMenu(menu_items)
                     },
                     {
                         text = _("Clear Pending Sessions"),
+                        help_text = _("Delete all locally cached sessions that are waiting to be synced. Use this if you want to discard pending sessions instead of uploading them."),
                         enabled_func = function()
                             return #self.pending_sessions > 0
                         end,
@@ -284,6 +264,7 @@ function BookloreSync:addToMainMenu(menu_items)
                     },
                     {
                         text = _("View Pending Count"),
+                        help_text = _("Display the number of reading sessions currently cached locally and waiting to be synced to the server."),
                         callback = function()
                             UIManager:show(InfoMessage:new{
                                 text = T(_("%1 sessions pending sync"), #self.pending_sessions),
@@ -293,6 +274,7 @@ function BookloreSync:addToMainMenu(menu_items)
                     },
                     {
                         text = _("View Cache Status"),
+                        help_text = _("Display statistics about the local cache: number of book hashes cached, file paths cached, and pending sessions. The cache improves performance by avoiding redundant hash calculations."),
                         callback = function()
                             local hash_count = 0
                             if self.book_cache.book_ids then
@@ -314,6 +296,7 @@ function BookloreSync:addToMainMenu(menu_items)
                     },
                     {
                         text = _("Clear Local Cache"),
+                        help_text = _("Delete all cached book hashes and file path mappings. This will not affect pending sessions. The cache will be rebuilt as you read. Use this if you encounter book identification issues."),
                         enabled_func = function()
                             local hash_count = 0
                             if self.book_cache.book_ids then
@@ -343,208 +326,118 @@ function BookloreSync:addToMainMenu(menu_items)
                         end,
                     },
                 },
-            },
+            })
+    
+    table.insert(base_menu, {
+        text = _("Sync Options"),
+        sub_item_table = {
             {
-                text = _("Sync Historical Data"),
-                enabled_func = function()
-                    return self.server_url ~= "" and self.username ~= "" and self.is_enabled
+                text = _("Only manual syncs"),
+                help_text = _("Cache all sessions and prevent automatic syncing. Use 'Sync Pending Sessions' (menu or gesture) when you want to upload. Mutually exclusive with 'Force push on suspend'."),
+                checked_func = function()
+                    return self.manual_sync_only
                 end,
                 callback = function()
-                    self:syncHistoricalData()
+                    self:toggleManualSyncOnly()
+                end,
+            },
+            {
+                text = _("Force push session on suspend"),
+                help_text = _("Automatically sync the current reading session and all pending sessions when the device suspends. Enables 'Connect network on suspend' option and requires network connectivity. Mutually exclusive with 'Only manual syncs'."),
+                checked_func = function()
+                    return self.force_push_session_on_suspend
+                end,
+                callback = function()
+                    self.force_push_session_on_suspend = not self.force_push_session_on_suspend
+                    self.settings:saveSetting("force_push_session_on_suspend", self.force_push_session_on_suspend)
+                    
+                    -- If enabling force_push, disable manual_sync_only
+                    if self.force_push_session_on_suspend and self.manual_sync_only then
+                        self.manual_sync_only = false
+                        self.settings:saveSetting("manual_sync_only", false)
+                    end
+                    
+                    self.settings:flush()
+                    UIManager:show(InfoMessage:new{
+                        text = self.force_push_session_on_suspend and _("Will force push session on suspend if network available") or _("Force push on suspend disabled"),
+                        timeout = 2,
+                    })
+                end,
+            },
+            {
+                text = _("Connect network on suspend"),
+                help_text = _("Automatically enable WiFi and attempt to connect when the device suspends. Waits up to 15 seconds for connection. Useful for syncing when going offline."),
+                checked_func = function()
+                    return self.connect_network_on_suspend
+                end,
+                callback = function()
+                    self.connect_network_on_suspend = not self.connect_network_on_suspend
+                    self.settings:saveSetting("connect_network_on_suspend", self.connect_network_on_suspend)
+                    self.settings:flush()
+                    UIManager:show(InfoMessage:new{
+                        text = self.connect_network_on_suspend and _("Will enable and scan for network on suspend (15s timeout)") or _("Connect network on suspend disabled"),
+                        timeout = 2,
+                    })
                 end,
             },
         },
+    })
+    
+    table.insert(base_menu, {
+        text = _("Sync Historical Data"),
+        help_text = _("One-time sync of all reading sessions from KOReader's statistics database. This reads from statistics.sqlite3 and uploads historical sessions. Warning: May create duplicate sessions if run multiple times."),
+        enabled_func = function()
+            return self.server_url ~= "" and self.username ~= "" and self.is_enabled
+        end,
+        callback = function()
+            self:syncHistoricalData()
+        end,
+    })
+    
+    menu_items.booklore_sync = {
+        text = _("Booklore Sync"),
+        sorting_hint = "tools",
+        sub_item_table = base_menu,
     }
 end
 
-function BookloreSync:configureServerUrl()
-    local input_dialog
-    input_dialog = InputDialog:new{
-        title = _("Booklore Server URL"),
-        input = self.server_url,
-        input_hint = "http://192.168.1.100:6060",
-        buttons = {
-            {
-                {
-                    text = _("Cancel"),
-                    callback = function()
-                        UIManager:close(input_dialog)
-                    end,
-                },
-                {
-                    text = _("Save"),
-                    is_enter_default = true,
-                    callback = function()
-                        self.server_url = input_dialog:getInputText()
-                        self.settings:saveSetting("server_url", self.server_url)
-                        self.settings:flush()
-                        UIManager:close(input_dialog)
-                        UIManager:show(InfoMessage:new{
-                            text = _("Server URL saved"),
-                            timeout = 1,
-                        })
-                    end,
-                },
-            },
-        },
-    }
-    UIManager:show(input_dialog)
-    input_dialog:onShowKeyboard()
-end
-
-function BookloreSync:configureUsername()
-    local input_dialog
-    input_dialog = InputDialog:new{
-        title = _("KOReader Username"),
-        input = self.username,
-        buttons = {
-            {
-                {
-                    text = _("Cancel"),
-                    callback = function()
-                        UIManager:close(input_dialog)
-                    end,
-                },
-                {
-                    text = _("Save"),
-                    is_enter_default = true,
-                    callback = function()
-                        self.username = input_dialog:getInputText()
-                        self.settings:saveSetting("username", self.username)
-                        self.settings:flush()
-                        UIManager:close(input_dialog)
-                        UIManager:show(InfoMessage:new{
-                            text = _("Username saved"),
-                            timeout = 1,
-                        })
-                    end,
-                },
-            },
-        },
-    }
-    UIManager:show(input_dialog)
-    input_dialog:onShowKeyboard()
-end
-
-function BookloreSync:configurePassword()
-    local input_dialog
-    input_dialog = InputDialog:new{
-        title = _("KOReader Password"),
-        input = self.password,
-        text_type = "password",
-        buttons = {
-            {
-                {
-                    text = _("Cancel"),
-                    callback = function()
-                        UIManager:close(input_dialog)
-                    end,
-                },
-                {
-                    text = _("Save"),
-                    is_enter_default = true,
-                    callback = function()
-                        self.password = input_dialog:getInputText()
-                        self.settings:saveSetting("password", self.password)
-                        self.settings:flush()
-                        UIManager:close(input_dialog)
-                        UIManager:show(InfoMessage:new{
-                            text = _("Password saved"),
-                            timeout = 1,
-                        })
-                    end,
-                },
-            },
-        },
-    }
-    UIManager:show(input_dialog)
-    input_dialog:onShowKeyboard()
-end
-
-function BookloreSync:configureMinDuration()
-    local input_dialog
-    input_dialog = InputDialog:new{
-        title = _("Minimum Session Duration (seconds)"),
-        input = tostring(self.min_duration),
-        input_hint = "30",
-        buttons = {
-            {
-                {
-                    text = _("Cancel"),
-                    callback = function()
-                        UIManager:close(input_dialog)
-                    end,
-                },
-                {
-                    text = _("Save"),
-                    is_enter_default = true,
-                    callback = function()
-                        local input_value = tonumber(input_dialog:getInputText())
-                        if input_value and input_value > 0 then
-                            self.min_duration = input_value
-                            self.settings:saveSetting("min_duration", self.min_duration)
-                            self.settings:flush()
-                            UIManager:close(input_dialog)
-                            UIManager:show(InfoMessage:new{
-                                text = T(_("Minimum duration set to %1 seconds"), tostring(self.min_duration)),
-                                timeout = 2,
-                            })
-                        else
-                            UIManager:show(InfoMessage:new{
-                                text = _("Please enter a valid number greater than 0"),
-                                timeout = 2,
-                            })
-                        end
-                    end,
-                },
-            },
-        },
-    }
-    UIManager:show(input_dialog)
-    input_dialog:onShowKeyboard()
-end
-
-function BookloreSync:configureProgressDecimalPlaces()
-    local input_dialog
-    input_dialog = InputDialog:new{
-        title = _("Progress Decimal Places (0-5)"),
-        input = tostring(self.progress_decimal_places),
-        input_hint = "2",
-        buttons = {
-            {
-                {
-                    text = _("Cancel"),
-                    callback = function()
-                        UIManager:close(input_dialog)
-                    end,
-                },
-                {
-                    text = _("Save"),
-                    is_enter_default = true,
-                    callback = function()
-                        local input_value = tonumber(input_dialog:getInputText())
-                        if input_value and input_value >= 0 and input_value <= 5 and input_value == math.floor(input_value) then
-                            self.progress_decimal_places = input_value
-                            self.settings:saveSetting("progress_decimal_places", self.progress_decimal_places)
-                            self.settings:flush()
-                            UIManager:close(input_dialog)
-                            UIManager:show(InfoMessage:new{
-                                text = T(_("Progress decimal places set to %1"), tostring(self.progress_decimal_places)),
-                                timeout = 2,
-                            })
-                        else
-                            UIManager:show(InfoMessage:new{
-                                text = _("Please enter a valid integer between 0 and 5"),
-                                timeout = 2,
-                            })
-                        end
-                    end,
-                },
-            },
-        },
-    }
-    UIManager:show(input_dialog)
-    input_dialog:onShowKeyboard()
+function BookloreSync:enableAndScanForNetwork()
+    -- Enable WiFi and scan for networks with a 15-second timeout
+    logger.info("BookloreSync: Attempting to enable and connect to network")
+    
+    local NetworkMgr = require("ui/network/manager")
+    
+    -- Check if WiFi is already enabled and connected
+    if NetworkMgr:isConnected() then
+        logger.info("BookloreSync: Network already connected")
+        return true
+    end
+    
+    -- Try to enable WiFi
+    if not NetworkMgr:isWifiOn() then
+        logger.info("BookloreSync: Enabling WiFi")
+        NetworkMgr:turnOnWifi()
+    end
+    
+    -- Wait up to 15 seconds for connection
+    local max_attempts = 15
+    local delay = 1  -- 1 second between attempts
+    
+    for attempt = 1, max_attempts do
+        logger.info("BookloreSync: Waiting for network connection, attempt", attempt, "of", max_attempts)
+        
+        if NetworkMgr:isConnected() then
+            logger.info("BookloreSync: Network connected on attempt", attempt)
+            return true
+        end
+        
+        if attempt < max_attempts then
+            os.execute("sleep " .. tostring(delay))
+        end
+    end
+    
+    logger.warn("BookloreSync: Failed to connect to network after", max_attempts, "seconds")
+    return false
 end
 
 function BookloreSync:isNetworkConnected()
@@ -584,6 +477,8 @@ function BookloreSync:isNetworkConnected()
         return false
     end
 end
+
+
 
 function BookloreSync:testConnection()
     UIManager:show(InfoMessage:new{
@@ -640,9 +535,11 @@ function BookloreSync:onReaderReady()
     logger.info("BookloreSync: Reader ready, starting session tracking")
     
     -- Try to sync pending sessions when reader becomes ready (attempt directly, silently)
-    if #self.pending_sessions > 0 then
+    if not self.manual_sync_only and #self.pending_sessions > 0 then
         logger.info("BookloreSync: Attempting to sync pending sessions on reader ready")
         self:syncPendingSessions(true)  -- silent=true
+    elseif self.manual_sync_only and #self.pending_sessions > 0 then
+        logger.info("BookloreSync: Manual sync only enabled, leaving pending sessions queued")
     end
     
     self:startSession()
@@ -654,7 +551,7 @@ function BookloreSync:onCloseDocument()
     end
     
     logger.info("BookloreSync: Document closing, ending session")
-    self:endSession()
+    self:endSession({ force_queue = self.manual_sync_only })
 end
 
 function BookloreSync:onSuspend()
@@ -663,8 +560,57 @@ function BookloreSync:onSuspend()
     end
     
     logger.info("BookloreSync: Device suspending, ending session")
-    -- On suspend we only want to persist the session locally and stay quiet.
-    self:endSession({ silent = true, force_queue = true })
+
+    -- In manual-only mode, never attempt auto sync on suspend
+    if self.manual_sync_only then
+        logger.info("BookloreSync: Manual sync only enabled, queueing session without syncing")
+        if self.current_session then
+            self:endSession({ silent = true, force_queue = true })
+        end
+        return
+    end
+    
+    -- Determine if we should try to push sessions
+    local should_force_push = self.force_push_session_on_suspend
+    local network_available = false
+    
+    if should_force_push then
+        -- Check if network is already connected
+        network_available = self:isNetworkConnected()
+        
+        -- If not connected but connect_network_on_suspend is enabled, try to connect
+        if not network_available and self.connect_network_on_suspend then
+            logger.info("BookloreSync: Network not connected, attempting to enable and connect")
+            network_available = self:enableAndScanForNetwork()
+        end
+        
+        if network_available then
+            logger.info("BookloreSync: Force push enabled and network available")
+            
+            -- First, try to sync any pending sessions
+            if #self.pending_sessions > 0 then
+                logger.info("BookloreSync: Attempting to sync", #self.pending_sessions, "pending sessions before suspend")
+                self:syncPendingSessions(true)  -- silent=true
+            end
+            
+            -- Then end current session without queueing (try to send immediately)
+            if self.current_session then
+                logger.info("BookloreSync: Ending current session with immediate send")
+                self:endSession({ silent = true, force_queue = false })
+            end
+        else
+            logger.info("BookloreSync: Force push enabled but no network, queuing normally")
+            if self.current_session then
+                self:endSession({ silent = true, force_queue = true })
+            end
+        end
+    else
+        -- Default behavior: persist the session locally
+        logger.info("BookloreSync: Normal suspend, queueing session")
+        if self.current_session then
+            self:endSession({ silent = true, force_queue = true })
+        end
+    end
 end
 
 function BookloreSync:onResume()
@@ -674,14 +620,16 @@ function BookloreSync:onResume()
     
     logger.info("BookloreSync: Device resuming from sleep")
     
-    -- Check network connectivity before attempting to sync
-    if #self.pending_sessions > 0 then
+    -- Quick network check before attempting to sync
+    if not self.manual_sync_only and #self.pending_sessions > 0 then
         if self:isNetworkConnected() then
             logger.info("BookloreSync: Network available, attempting to sync pending sessions on resume")
             self:syncPendingSessions(true)  -- silent=true
         else
             logger.info("BookloreSync: Network unavailable, skipping sync attempt on resume")
         end
+    elseif self.manual_sync_only and #self.pending_sessions > 0 then
+        logger.info("BookloreSync: Manual sync only enabled, skipping auto sync on resume")
     end
     
     -- If a book is currently open, start a new session
@@ -710,9 +658,13 @@ function BookloreSync:startSession()
     logger.info("BookloreSync: Document file path:", file_path)
     
     -- Check if we have a cached hash for this file path
+    logger.info("BookloreSync: Checking cache for file path")
     local book_hash = self.book_cache.file_hashes and self.book_cache.file_hashes[file_path]
     
-    if not book_hash then
+    if book_hash then
+        logger.info("BookloreSync: Found cached hash for file:", book_hash)
+    else
+        logger.info("BookloreSync: Hash not in cache, calculating MD5 for:", file_path)
         -- Hash not in cache, calculate it
         book_hash = self:calculateBookHash(file_path)
         if not book_hash then
@@ -727,9 +679,7 @@ function BookloreSync:startSession()
         self.book_cache.file_hashes[file_path] = book_hash
         self.local_db:saveSetting("book_cache", self.book_cache)
         self.local_db:flush()
-        logger.info("BookloreSync: Calculated and cached hash for file")
-    else
-        logger.info("BookloreSync: Using cached hash for file")
+        logger.info("BookloreSync: Calculated and cached hash for file:", book_hash)
     end
     
     logger.info("BookloreSync: Book MD5 hash:", book_hash)
@@ -909,6 +859,11 @@ function BookloreSync:endSession(options)
     local silent = options.silent or false
     local force_queue = options.force_queue or false
 
+    -- In manual-only mode, always queue sessions until the user initiates sync
+    if self.manual_sync_only then
+        force_queue = true
+    end
+
     if not self.current_session then
         logger.info("BookloreSync: No active session to end")
         return
@@ -993,7 +948,7 @@ function BookloreSync:endSession(options)
         table.insert(self.pending_sessions, session_data)
         self.local_db:saveSetting("pending_sessions", self.pending_sessions)
         self.local_db:flush()
-        if not silent then
+        if not silent and not self.silent_messages then
             UIManager:show(InfoMessage:new{
                 text = T(_("Session saved offline (%1 pending)"), #self.pending_sessions),
                 timeout = 3,
@@ -1090,7 +1045,7 @@ function BookloreSync:sendSessionToServer(session_data, silent)
         
         logger.info("BookloreSync: Session queued for retry (", #self.pending_sessions, " pending)")
         
-        if not silent then
+        if not silent and not self.silent_messages then
             UIManager:show(InfoMessage:new{
                 text = T(_("Session saved offline (%1 pending)"), #self.pending_sessions),
                 timeout = 3,
