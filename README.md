@@ -445,6 +445,12 @@ Join community!
   <img src="https://docs.elfhosted.com/images/logo.svg" alt="ElfHosted" height="40">
 </a>
 
+### Powered by
+
+<a href="https://jb.gg/OpenSource">
+  <img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.svg" alt="JetBrains logo" height="40">
+</a>
+
 *Become a sponsor and get your logo here! [Support us on Open Collective](https://opencollective.com/booklore)*
 
 </div>
