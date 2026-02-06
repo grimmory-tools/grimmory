@@ -1,0 +1,56 @@
+<div class="multi-sort-container">
+  <div class="multi-sort-header">
+    <span class="header-title">Sort Order</span>
+  </div>
+
+  <div
+    class="sort-criteria-list"
+    cdkDropList
+    [cdkDropListData]="sortCriteria"
+    (cdkDropListDropped)="onDrop($event)">
+    @for (criterion of sortCriteria; track criterion.field; let i = $index) {
+      <div class="sort-criterion" cdkDrag>
+        <div class="criterion-drag-handle" cdkDragHandle>
+          <i class="pi pi-bars"></i>
+        </div>
+        <span class="criterion-rank">{{ i + 1 }}.</span>
+        <span class="criterion-label">{{ criterion.label }}</span>
+        <div class="criterion-actions">
+          <button
+            type="button"
+            class="direction-btn"
+            (click)="onToggleDirection(i)"
+            [pTooltip]="getDirectionTooltip(criterion.direction)"
+            tooltipPosition="top">
+            <i [class]="getDirectionIcon(criterion.direction)"></i>
+          </button>
+          <button
+            type="button"
+            class="remove-btn"
+            (click)="onRemove(i)"
+            pTooltip="Remove"
+            tooltipPosition="top"
+            [disabled]="sortCriteria.length === 1">
+            <i class="pi pi-times"></i>
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (unusedOptions.length > 0) {
+    <div class="add-sort-section">
+      <p-select
+        [options]="unusedOptions"
+        [(ngModel)]="selectedField"
+        optionLabel="label"
+        optionValue="field"
+        placeholder="Add sort field..."
+        [style]="{ width: '100%' }"
+        size="small"
+        appendTo="body"
+        (onChange)="onAddField()">
+      </p-select>
+    </div>
+  }
+</div>

@@ -12,9 +12,15 @@ export interface EntityViewPreferences {
   overrides: EntityViewPreferenceOverride[];
 }
 
+export interface SortCriterion {
+  field: string;
+  direction: 'ASC' | 'DESC';
+}
+
 export interface EntityViewPreference {
   sortKey: string;
   sortDir: 'ASC' | 'DESC';
+  sortCriteria?: SortCriterion[];
   view: 'GRID' | 'TABLE';
   coverSize: number;
   seriesCollapsed: boolean;

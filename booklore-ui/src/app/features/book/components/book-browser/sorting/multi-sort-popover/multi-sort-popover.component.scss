@@ -1,76 +1,20 @@
-@use '../../../../shared/styles/settings-shared' as settings;
-
-.settings-card {
-  @include settings.settings-card;
+.multi-sort-container {
+  width: 280px;
+  padding: 0.5rem;
 }
 
-.section-header {
-  @include settings.settings-section-header;
-}
-
-.section-title {
-  @include settings.settings-section-title;
-}
-
-.section-description {
-  @include settings.settings-section-description;
-}
-
-.section-body {
-  @include settings.settings-section-body;
-}
-
-.setting-item {
-  @include settings.settings-item;
-}
-
-.setting-header {
-  @include settings.settings-item-header;
-}
-
-.setting-header-standalone {
-  @include settings.settings-item-header-standalone;
-}
-
-.setting-label {
-  @include settings.settings-label;
-}
-
-.setting-description {
-  @include settings.settings-item-description;
-}
-
-.setting-options {
-  @include settings.settings-options;
-}
-
-.select-group {
-  @include settings.settings-select-group;
-}
-
-.overrides-table {
-  @include settings.settings-table;
-}
-
-.setting-actions {
+.multi-sort-header {
   display: flex;
-  justify-content: flex-end;
-  padding-top: 0.5rem;
-  border-top: 1px solid var(--border-color);
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 0.75rem;
 }
 
-// Multi-sort editor styles
-.multi-sort-editor {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px dashed var(--border-color);
-}
-
-.multi-sort-label {
-  display: block;
-  font-weight: 500;
-  font-size: 0.875rem;
-  margin-bottom: 0.5rem;
+.header-title {
+  font-weight: 600;
+  font-size: 0.9rem;
   color: var(--text-color);
 }
 
@@ -79,14 +23,13 @@
   flex-direction: column;
   gap: 0.5rem;
   min-height: 40px;
-  margin-bottom: 0.75rem;
 }
 
-.sort-criterion-row {
+.sort-criterion {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
+  padding: 0.5rem;
   background-color: var(--overlay-background);
   border: 1px solid var(--border-color);
   border-radius: 6px;
@@ -102,7 +45,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
+  padding: 0.5rem;
   background-color: var(--card-background);
   border: 1px solid var(--primary-color);
   border-radius: 6px;
@@ -117,7 +60,7 @@
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
-.sort-criteria-list.cdk-drop-list-dragging .sort-criterion-row:not(.cdk-drag-placeholder) {
+.sort-criteria-list.cdk-drop-list-dragging .sort-criterion:not(.cdk-drag-placeholder) {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
@@ -140,17 +83,26 @@
 .criterion-rank {
   font-weight: 600;
   color: var(--primary-color);
-  min-width: 1.5rem;
+  min-width: 1.25rem;
 }
 
 .criterion-label {
   flex: 1;
   font-size: 0.875rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: var(--text-color);
 }
 
-.direction-toggle-btn,
-.remove-criterion-btn {
+.criterion-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.direction-btn,
+.remove-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -177,15 +129,16 @@
   }
 }
 
-.direction-toggle-btn {
+.direction-btn {
   color: var(--primary-color);
 }
 
-.remove-criterion-btn {
+.remove-btn {
   color: var(--p-red-500);
 }
 
-.add-sort-row {
-  display: flex;
-  align-items: center;
+.add-sort-section {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-color);
 }

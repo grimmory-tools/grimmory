@@ -175,7 +175,18 @@
   }
 }
 
-// Sort menu item
+// Sort button wrapper
+.sort-button-wrapper {
+  position: relative;
+
+  .sort-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+  }
+}
+
+// Sort menu item (kept for backward compat)
 .sort-menu-item {
   display: flex;
   justify-content: space-between;

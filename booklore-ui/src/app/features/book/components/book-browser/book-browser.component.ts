@@ -1,6 +1,6 @@
 import {AfterViewInit, ApplicationRef, ChangeDetectorRef, Component, HostListener, inject, NgZone, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, NavigationStart, Router} from '@angular/router';
-import {ConfirmationService, MenuItem, MessageService, PrimeTemplate} from 'primeng/api';
+import {ConfirmationService, MenuItem, MessageService} from 'primeng/api';
 import {PageTitleService} from '../../../../shared/service/page-title.service';
 import {BookService} from '../../service/book.service';
 import {debounceTime, filter, map, switchMap, takeUntil} from 'rxjs/operators';
@@ -8,7 +8,7 @@ import {BehaviorSubject, combineLatest, finalize, Observable, of, Subject, Subsc
 import {DynamicDialogRef} from 'primeng/dynamicdialog';
 import {Library} from '../../model/library.model';
 import {Shelf} from '../../model/shelf.model';
-import {SortOption} from '../../model/sort.model';
+import {SortDirection, SortOption} from '../../model/sort.model';
 import {BookState} from '../../model/state/book-state.model';
 import {Book} from '../../model/book.model';
 import {LibraryShelfMenuService} from '../../service/library-shelf-menu.service';
@@ -38,6 +38,7 @@ import {Divider} from 'primeng/divider';
 import {MultiSelect} from 'primeng/multiselect';
 import {TableColumnPreferenceService} from './table-column-preference.service';
 import {TieredMenu} from 'primeng/tieredmenu';
+import {BadgeModule} from 'primeng/badge';
 import {BookMenuService} from '../../service/book-menu.service';
 import {MagicShelf} from '../../../magic-shelf/service/magic-shelf.service';
 import {SidebarFilterTogglePrefService} from './filters/sidebar-filter-toggle-pref.service';
@@ -54,6 +55,9 @@ import {BookBrowserEntityService} from './book-browser-entity.service';
 import {BookFilterOrchestrationService} from './book-filter-orchestration.service';
 import {BookBrowserScrollService} from './book-browser-scroll.service';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
+import {MultiSortPopoverComponent} from './sorting/multi-sort-popover/multi-sort-popover.component';
+import {CdkDragDrop} from '@angular/cdk/drag-drop';
+import {SortService} from '../../service/sort.service';
 
 export enum EntityType {
   LIBRARY = 'Library',
@@ -70,8 +74,8 @@ export enum EntityType {
   styleUrls: ['./book-browser.component.scss'],
   imports: [
     Button, VirtualScrollerModule, BookCardComponent, AsyncPipe, ProgressSpinner, Menu, InputText, FormsModule,
-    BookTableComponent, BookFilterComponent, Tooltip, NgClass, PrimeTemplate, NgStyle, Popover,
-    Checkbox, Slider, Divider, MultiSelect, TieredMenu
+    BookTableComponent, BookFilterComponent, Tooltip, NgClass, NgStyle, Popover,
+    Checkbox, Slider, Divider, MultiSelect, TieredMenu, BadgeModule, MultiSortPopoverComponent
   ],
   providers: [SeriesCollapseFilter],
   animations: [
@@ -141,7 +145,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   visibleColumns: { field: string; header: string }[] = [];
   entityViewPreferences: EntityViewPreferences | undefined;
   currentViewMode: string | undefined;
-  lastAppliedSort: SortOption | null = null;
+  lastAppliedSortCriteria: SortOption[] = [];
   showFilter = false;
   screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
   mobileColumnCount = 3;
@@ -162,8 +166,9 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   private sideBarFilter = new SideBarFilter(this.selectedFilter, this.selectedFilterMode);
   private headerFilter = new HeaderFilter(this.searchTerm$);
   protected bookSorter = new BookSorter(
-    selectedSort => this.onManualSortChange(selectedSort)
+    sortCriteria => this.onMultiSortChange(sortCriteria)
   );
+  private sortService = inject(SortService);
 
   private bookStateSubscription: Subscription | undefined;
 
@@ -444,20 +449,18 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
       this.visibleColumns = this.columnPreferenceService.visibleColumns;
 
 
-      this.bookSorter.selectedSort = parseResult.sortOption;
+      this.bookSorter.setSortCriteria(parseResult.sortCriteria);
       this.currentViewMode = parseResult.viewMode;
-      this.bookSorter.updateSortOptions();
 
-      if (this.lastAppliedSort?.field !== this.bookSorter.selectedSort.field ||
-        this.lastAppliedSort?.direction !== this.bookSorter.selectedSort.direction) {
-        this.lastAppliedSort = {...this.bookSorter.selectedSort};
-        this.applySortOption(this.bookSorter.selectedSort);
+      if (!this.areSortCriteriaEqual(this.lastAppliedSortCriteria, this.bookSorter.selectedSortCriteria)) {
+        this.lastAppliedSortCriteria = [...this.bookSorter.selectedSortCriteria];
+        this.applySortCriteria(this.bookSorter.selectedSortCriteria);
       }
 
 
       this.queryParamsService.syncQueryParams(
         this.currentViewMode!,
-        this.bookSorter.selectedSort,
+        this.bookSorter.selectedSortCriteria,
         this.selectedFilterMode.getValue(),
         this.parsedFilters
       );
@@ -579,26 +582,37 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     this.seriesCollapseFilter.setCollapsed(value);
   }
 
-  onManualSortChange(sortOption: SortOption): void {
-    this.applySortOption(sortOption);
-    this.queryParamsService.updateSort(sortOption);
+  onMultiSortChange(sortCriteria: SortOption[]): void {
+    this.applySortCriteria(sortCriteria);
+    this.queryParamsService.updateMultiSort(sortCriteria);
   }
 
-  applySortOption(sortOption: SortOption): void {
+  // Backward compatibility wrapper
+  onManualSortChange(sortOption: SortOption): void {
+    this.onMultiSortChange([sortOption]);
+  }
+
+  applySortCriteria(sortCriteria: SortOption[]): void {
+    // Use first criterion for API call (backend doesn't support multi-sort)
+    const primarySort = sortCriteria[0] ?? {field: 'addedOn', direction: 'DESCENDING', label: 'Added On'};
+
     if (this.entityType === EntityType.ALL_BOOKS) {
-      this.bookState$ = this.entityService.fetchAllBooks(sortOption).pipe(
+      this.bookState$ = this.entityService.fetchAllBooks(primarySort).pipe(
+        map(bookState => this.applyClientSideMultiSort(bookState, sortCriteria)),
         switchMap(bookState => this.applyBookFilters(bookState))
       );
     } else if (this.entityType === EntityType.UNSHELVED) {
-      this.bookState$ = this.entityService.fetchUnshelvedBooks(sortOption).pipe(
+      this.bookState$ = this.entityService.fetchUnshelvedBooks(primarySort).pipe(
+        map(bookState => this.applyClientSideMultiSort(bookState, sortCriteria)),
         switchMap(bookState => this.applyBookFilters(bookState))
       );
     } else {
       const routeParam$ = this.entityService.getEntityInfoFromRoute(this.activatedRoute);
       this.bookState$ = routeParam$.pipe(
         switchMap(({entityId, entityType}) =>
-          this.entityService.fetchBooksByEntity(entityId, entityType, sortOption)
+          this.entityService.fetchBooksByEntity(entityId, entityType, primarySort)
         ),
+        map(bookState => this.applyClientSideMultiSort(bookState, sortCriteria)),
         switchMap(bookState => this.applyBookFilters(bookState))
       );
     }
@@ -617,6 +631,49 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
         this.bookSelectionService.setCurrentBooks(books);
         this.bookNavigationService.setAvailableBookIds(books.map(book => book.id));
       });
+  }
+
+  private applyClientSideMultiSort(bookState: BookState, sortCriteria: SortOption[]): BookState {
+    if (!bookState.books || sortCriteria.length <= 1) {
+      return bookState;
+    }
+    return {
+      ...bookState,
+      books: this.sortService.applyMultiSort(bookState.books, sortCriteria)
+    };
+  }
+
+  // Backward compatibility wrapper
+  applySortOption(sortOption: SortOption): void {
+    this.applySortCriteria([sortOption]);
+  }
+
+  private areSortCriteriaEqual(a: SortOption[], b: SortOption[]): boolean {
+    if (a.length !== b.length) return false;
+    return a.every((criterion, index) =>
+      criterion.field === b[index].field && criterion.direction === b[index].direction
+    );
+  }
+
+  // Multi-sort popover handlers
+  onAddSortCriterion(field: string): void {
+    this.bookSorter.addSortCriterion(field);
+  }
+
+  onRemoveSortCriterion(index: number): void {
+    this.bookSorter.removeSortCriterion(index);
+  }
+
+  onToggleSortDirection(index: number): void {
+    this.bookSorter.toggleCriterionDirection(index);
+  }
+
+  onReorderSortCriteria(event: CdkDragDrop<SortOption[]>): void {
+    this.bookSorter.reorderCriteria(event);
+  }
+
+  get sortCriteriaCount(): number {
+    return this.bookSorter.selectedSortCriteria.length;
   }
 
   onSearchTermChange(term: string): void {
@@ -869,13 +926,20 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
       this.activatedRoute.snapshot.queryParamMap
     );
 
+    // Use first sort criterion for series collapse filter
+    const primarySort: SortOption = this.bookSorter.selectedSort ?? {
+      field: 'addedOn',
+      direction: SortDirection.DESCENDING,
+      label: 'Added On'
+    };
+
     return this.filterOrchestrationService.applyFilters(
       bookState,
       this.headerFilter,
       this.sideBarFilter,
       this.seriesCollapseFilter,
       forceExpandSeries,
-      this.bookSorter.selectedSort!
+      primarySort
     );
   }
 

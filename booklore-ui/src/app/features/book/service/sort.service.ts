@@ -109,56 +109,67 @@ export class SortService {
 
   applySort(books: Book[], selectedSort: SortOption | null): Book[] {
     if (!selectedSort) return books;
+    return this.applyMultiSort(books, [selectedSort]);
+  }
 
-    const {field, direction} = selectedSort;
-    const extractor = this.fieldExtractors[field];
-
-    if (!extractor) {
-      console.warn(`[SortService] No extractor for field: ${field}`);
-      return books;
-    }
+  applyMultiSort(books: Book[], sortCriteria: SortOption[]): Book[] {
+    if (!sortCriteria || sortCriteria.length === 0) return books;
 
     return books.slice().sort((a, b) => {
-      const aValue = extractor(a);
-      const bValue = extractor(b);
-
-      let result = 0;
-
-      if (Array.isArray(aValue) && Array.isArray(bValue)) {
-        for (let i = 0; i < aValue.length; i++) {
-          const valA = aValue[i];
-          const valB = bValue[i];
-
-          if (typeof valA === 'string' && typeof valB === 'string') {
-            result = this.naturalCompare(valA, valB);
-            if (result !== 0) break;
-          } else if (typeof valA === 'number' && typeof valB === 'number') {
-            result = valA - valB;
-            if (result !== 0) break;
-          } else {
-            if (valA == null && valB != null) {
-              result = 1;
-              break;
-            }
-            if (valA != null && valB == null) {
-              result = -1;
-              break;
-            }
-            result = 0;
-          }
-        }
-      } else if (typeof aValue === 'string' && typeof bValue === 'string') {
-        result = this.naturalCompare(aValue, bValue);
-      } else if (typeof aValue === 'number' && typeof bValue === 'number') {
-        result = aValue - bValue;
-      } else {
-        // Handle nulls or mismatches
-        if (aValue == null && bValue != null) return 1;
-        if (aValue != null && bValue == null) return -1;
-        return 0;
+      for (const criterion of sortCriteria) {
+        const result = this.compareByCriterion(a, b, criterion);
+        if (result !== 0) return result;
       }
-
-      return direction === SortDirection.ASCENDING ? result : -result;
+      return 0;
     });
+  }
+
+  private compareByCriterion(a: Book, b: Book, criterion: SortOption): number {
+    const extractor = this.fieldExtractors[criterion.field];
+
+    if (!extractor) {
+      console.warn(`[SortService] No extractor for field: ${criterion.field}`);
+      return 0;
+    }
+
+    const aValue = extractor(a);
+    const bValue = extractor(b);
+
+    let result = this.compareValues(aValue, bValue);
+
+    return criterion.direction === SortDirection.ASCENDING ? result : -result;
+  }
+
+  private compareValues(aValue: unknown, bValue: unknown): number {
+    if (Array.isArray(aValue) && Array.isArray(bValue)) {
+      return this.compareArrays(aValue, bValue);
+    } else if (typeof aValue === 'string' && typeof bValue === 'string') {
+      return this.naturalCompare(aValue, bValue);
+    } else if (typeof aValue === 'number' && typeof bValue === 'number') {
+      return aValue - bValue;
+    } else {
+      if (aValue == null && bValue != null) return 1;
+      if (aValue != null && bValue == null) return -1;
+      return 0;
+    }
+  }
+
+  private compareArrays(aValue: unknown[], bValue: unknown[]): number {
+    for (let i = 0; i < aValue.length; i++) {
+      const valA = aValue[i];
+      const valB = bValue[i];
+
+      if (typeof valA === 'string' && typeof valB === 'string') {
+        const result = this.naturalCompare(valA, valB);
+        if (result !== 0) return result;
+      } else if (typeof valA === 'number' && typeof valB === 'number') {
+        const result = valA - valB;
+        if (result !== 0) return result;
+      } else {
+        if (valA == null && valB != null) return 1;
+        if (valA != null && valB == null) return -1;
+      }
+    }
+    return 0;
   }
 }

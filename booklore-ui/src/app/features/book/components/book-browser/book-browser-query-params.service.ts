@@ -1,7 +1,7 @@
 import {Injectable, inject} from '@angular/core';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {SortDirection, SortOption} from '../../model/sort.model';
-import {BookFilterMode, EntityViewPreferences} from '../../../settings/user-management/user.service';
+import {BookFilterMode, EntityViewPreference, EntityViewPreferences, SortCriterion} from '../../../settings/user-management/user.service';
 import {EntityType} from './book-browser.component';
 
 export const QUERY_PARAMS = {
@@ -35,6 +35,7 @@ export interface BookBrowserQueryState {
 export interface QueryParseResult {
   viewMode: string;
   sortOption: SortOption;
+  sortCriteria: SortOption[];
   filters: Record<string, string[]>;
   filterMode: BookFilterMode;
   viewModeFromToggle: boolean;
@@ -73,32 +74,71 @@ export class BookBrowserQueryParamsService {
       o.entityId === entityId
     );
 
-    const effectivePrefs = override?.preferences ?? globalPrefs ?? {
+    const effectivePrefs: EntityViewPreference = override?.preferences ?? globalPrefs ?? {
       sortKey: 'addedOn',
       sortDir: 'ASC',
-      view: 'GRID'
+      view: 'GRID',
+      coverSize: 1.0,
+      seriesCollapsed: false,
+      overlayBookType: true
     };
 
-    const userSortKey = effectivePrefs.sortKey;
-    const userSortDir = effectivePrefs.sortDir?.toUpperCase() === 'DESC'
-      ? SortDirection.DESCENDING
-      : SortDirection.ASCENDING;
+    // Parse sort criteria - supports both legacy and new multi-sort format
+    let sortCriteria: SortOption[];
 
-    const effectiveSortKey = sortParam || userSortKey;
-    const effectiveSortDir = directionParam
-      ? (directionParam.toLowerCase() === SORT_DIRECTION.DESCENDING ? SortDirection.DESCENDING : SortDirection.ASCENDING)
-      : userSortDir;
+    if (sortParam) {
+      // Check if it's new multi-sort format (contains colons like "author:asc,title:desc")
+      if (sortParam.includes(':')) {
+        sortCriteria = this.deserializeSort(sortParam, sortOptions);
+      } else {
+        // Legacy format: separate sort and direction params
+        const effectiveSortDir = directionParam
+          ? (directionParam.toLowerCase() === SORT_DIRECTION.DESCENDING ? SortDirection.DESCENDING : SortDirection.ASCENDING)
+          : SortDirection.ASCENDING;
+        const matchedSort = sortOptions.find(opt => opt.field === sortParam);
+        sortCriteria = matchedSort ? [{
+          label: matchedSort.label,
+          field: matchedSort.field,
+          direction: effectiveSortDir
+        }] : [];
+      }
+    } else {
+      // Use user preferences
+      if (effectivePrefs.sortCriteria && effectivePrefs.sortCriteria.length > 0) {
+        sortCriteria = effectivePrefs.sortCriteria.map((c: SortCriterion) => {
+          const matchedSort = sortOptions.find(opt => opt.field === c.field);
+          return {
+            label: matchedSort?.label ?? c.field,
+            field: c.field,
+            direction: c.direction === 'DESC' ? SortDirection.DESCENDING : SortDirection.ASCENDING
+          };
+        });
+      } else {
+        // Fall back to legacy single sort preference
+        const userSortKey = effectivePrefs.sortKey;
+        const userSortDir = effectivePrefs.sortDir?.toUpperCase() === 'DESC'
+          ? SortDirection.DESCENDING
+          : SortDirection.ASCENDING;
+        const matchedSort = sortOptions.find(opt => opt.field === userSortKey);
+        sortCriteria = matchedSort ? [{
+          label: matchedSort.label,
+          field: matchedSort.field,
+          direction: userSortDir
+        }] : [];
+      }
+    }
 
-    const matchedSort = sortOptions.find(opt => opt.field === effectiveSortKey);
-    const sortOption: SortOption = matchedSort ? {
-      label: matchedSort.label,
-      field: matchedSort.field,
-      direction: effectiveSortDir
-    } : {
-      label: 'Added On',
-      field: 'addedOn',
-      direction: SortDirection.DESCENDING
-    };
+    // Ensure we have at least a default sort
+    if (sortCriteria.length === 0) {
+      sortCriteria = [{
+        label: 'Added On',
+        field: 'addedOn',
+        direction: SortDirection.DESCENDING
+      }];
+    }
+
+    // For backward compatibility, expose the first sort as sortOption
+    const sortOption = sortCriteria[0];
 
     // Determine view mode
     const viewModeFromToggle = fromParam === 'toggle';
@@ -111,6 +151,7 @@ export class BookBrowserQueryParamsService {
     return {
       viewMode,
       sortOption,
+      sortCriteria,
       filters,
       filterMode,
       viewModeFromToggle
@@ -129,19 +170,47 @@ export class BookBrowserQueryParamsService {
   }
 
   updateSort(sortOption: SortOption): void {
+    this.updateMultiSort([sortOption]);
+  }
+
+  updateMultiSort(sortCriteria: SortOption[]): void {
     const currentParams = this.activatedRoute.snapshot.queryParams;
     const newParams = {
       ...currentParams,
-      [QUERY_PARAMS.SORT]: sortOption.field,
-      [QUERY_PARAMS.DIRECTION]: sortOption.direction === SortDirection.ASCENDING
-        ? SORT_DIRECTION.ASCENDING
-        : SORT_DIRECTION.DESCENDING
+      [QUERY_PARAMS.SORT]: this.serializeSort(sortCriteria),
+      [QUERY_PARAMS.DIRECTION]: null  // Remove legacy direction param
     };
 
     this.router.navigate([], {
       queryParams: newParams,
       replaceUrl: true
     });
+  }
+
+  serializeSort(criteria: SortOption[]): string {
+    return criteria.map(c =>
+      `${c.field}:${c.direction === SortDirection.ASCENDING ? 'asc' : 'desc'}`
+    ).join(',');
+  }
+
+  deserializeSort(sortParam: string, sortOptions: SortOption[]): SortOption[] {
+    const criteria: SortOption[] = [];
+
+    sortParam.split(',').forEach(part => {
+      const [field, dir] = part.split(':');
+      if (field) {
+        const matchedSort = sortOptions.find(opt => opt.field === field);
+        if (matchedSort) {
+          criteria.push({
+            label: matchedSort.label,
+            field: matchedSort.field,
+            direction: dir?.toLowerCase() === 'desc' ? SortDirection.DESCENDING : SortDirection.ASCENDING
+          });
+        }
+      }
+    });
+
+    return criteria;
   }
 
   updateFilters(filters: Record<string, string[]> | null): void {
@@ -202,16 +271,14 @@ export class BookBrowserQueryParamsService {
 
   syncQueryParams(
     viewMode: string,
-    sortOption: SortOption,
+    sortCriteria: SortOption[],
     filterMode: BookFilterMode,
     filters: Record<string, string[]>
   ): void {
     const queryParams: Record<string, string | number | null | undefined> = {
       [QUERY_PARAMS.VIEW]: viewMode,
-      [QUERY_PARAMS.SORT]: sortOption.field,
-      [QUERY_PARAMS.DIRECTION]: sortOption.direction === SortDirection.ASCENDING
-        ? SORT_DIRECTION.ASCENDING
-        : SORT_DIRECTION.DESCENDING,
+      [QUERY_PARAMS.SORT]: this.serializeSort(sortCriteria),
+      [QUERY_PARAMS.DIRECTION]: null,  // Remove legacy direction param
       [QUERY_PARAMS.FMODE]: filterMode,
     };
 

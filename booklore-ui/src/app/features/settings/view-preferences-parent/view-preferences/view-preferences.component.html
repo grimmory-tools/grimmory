@@ -14,16 +14,63 @@
       <div class="setting-header-standalone">
         <label class="setting-label">Default Preferences</label>
       </div>
-      <p class="setting-description">Configure the default sorting field, direction, and view mode for all libraries and shelves.</p>
+      <p class="setting-description">Configure the default view mode and multi-field sorting for all libraries and shelves. Drag to reorder sort priority.</p>
       <div class="setting-options">
         <div class="select-group">
-          <p-select size="small" [options]="sortOptions" optionLabel="label" optionValue="field"
-                    [(ngModel)]="selectedSort" placeholder="Sort By" appendTo="body"></p-select>
-          <p-select size="small" [options]="sortDirectionOptions" [(ngModel)]="selectedSortDir"
-                    placeholder="Direction" appendTo="body"></p-select>
           <p-select size="small" [options]="viewModeOptions" [(ngModel)]="selectedView"
                     placeholder="View Mode" appendTo="body"></p-select>
         </div>
+      </div>
+
+      <div class="multi-sort-editor">
+        <label class="multi-sort-label">Sort Order (drag to reorder)</label>
+        <div
+          class="sort-criteria-list"
+          cdkDropList
+          [cdkDropListData]="sortCriteria"
+          (cdkDropListDropped)="onSortCriteriaDrop($event)">
+          @for (criterion of sortCriteria; track criterion.field; let i = $index) {
+            <div class="sort-criterion-row" cdkDrag>
+              <div class="criterion-drag-handle" cdkDragHandle>
+                <i class="pi pi-bars"></i>
+              </div>
+              <span class="criterion-rank">{{ i + 1 }}.</span>
+              <span class="criterion-label">{{ getSortLabel(criterion.field) }}</span>
+              <button
+                type="button"
+                class="direction-toggle-btn"
+                (click)="toggleSortDirection(i)"
+                [pTooltip]="criterion.direction === 'ASC' ? 'Ascending' : 'Descending'"
+                tooltipPosition="top">
+                <i [class]="criterion.direction === 'ASC' ? 'pi pi-arrow-up' : 'pi pi-arrow-down'"></i>
+              </button>
+              <button
+                type="button"
+                class="remove-criterion-btn"
+                (click)="removeSortCriterion(i)"
+                [disabled]="sortCriteria.length === 1"
+                pTooltip="Remove"
+                tooltipPosition="top">
+                <i class="pi pi-times"></i>
+              </button>
+            </div>
+          }
+        </div>
+        @if (availableSortFields.length > 0) {
+          <div class="add-sort-row">
+            <p-select
+              size="small"
+              [options]="availableSortFields"
+              [(ngModel)]="selectedAddField"
+              optionLabel="label"
+              optionValue="field"
+              placeholder="Add sort field..."
+              [style]="{ width: '200px' }"
+              appendTo="body"
+              (onChange)="addSortCriterion()">
+            </p-select>
+          </div>
+        }
       </div>
     </div>
 

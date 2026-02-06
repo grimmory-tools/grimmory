@@ -1,7 +1,8 @@
 import {SortDirection, SortOption} from '../../../model/sort.model';
+import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 
 export class BookSorter {
-  selectedSort: SortOption | undefined = undefined;
+  selectedSortCriteria: SortOption[] = [];
 
   sortOptions: SortOption[] = [
     {label: 'Title', field: 'title', direction: SortDirection.ASCENDING},
@@ -29,37 +30,114 @@ export class BookSorter {
     {label: 'Random', field: 'random', direction: SortDirection.ASCENDING},
   ];
 
-  constructor(private applySortOption: (sort: SortOption) => void) {
+  constructor(private onSortChange: (criteria: SortOption[]) => void) {
   }
 
+  // For backward compatibility - get first sort option
+  get selectedSort(): SortOption | undefined {
+    return this.selectedSortCriteria[0];
+  }
+
+  // For backward compatibility - set from single sort option
+  set selectedSort(sort: SortOption | undefined) {
+    if (sort) {
+      this.selectedSortCriteria = [sort];
+    } else {
+      this.selectedSortCriteria = [];
+    }
+  }
+
+  setSortCriteria(criteria: SortOption[]): void {
+    this.selectedSortCriteria = [...criteria];
+    this.updateSortOptions();
+  }
+
+  // Quick sort by field - toggles direction if already selected as primary sort
   sortBooks(field: string): void {
     const existingSort = this.sortOptions.find(opt => opt.field === field);
     if (!existingSort) return;
 
-    if (this.selectedSort?.field === field) {
-      this.selectedSort = {
-        ...this.selectedSort,
-        direction: this.selectedSort.direction === SortDirection.ASCENDING
+    // If this field is the first (primary) sort, toggle its direction
+    if (this.selectedSortCriteria.length > 0 && this.selectedSortCriteria[0].field === field) {
+      this.selectedSortCriteria[0] = {
+        ...this.selectedSortCriteria[0],
+        direction: this.selectedSortCriteria[0].direction === SortDirection.ASCENDING
           ? SortDirection.DESCENDING
           : SortDirection.ASCENDING
       };
     } else {
-      this.selectedSort = {
+      // Set as the only sort criterion (single click behavior)
+      this.selectedSortCriteria = [{
         label: existingSort.label,
         field: existingSort.field,
         direction: SortDirection.ASCENDING
-      };
+      }];
     }
 
     this.updateSortOptions();
-    this.applySortOption(this.selectedSort);
+    this.onSortChange(this.selectedSortCriteria);
   }
 
-  updateSortOptions() {
-    const directionIcon = this.selectedSort!.direction === SortDirection.ASCENDING ? 'pi pi-arrow-up' : 'pi pi-arrow-down';
+  addSortCriterion(field: string): void {
+    // Don't add if already exists
+    if (this.selectedSortCriteria.some(c => c.field === field)) return;
+
+    const option = this.sortOptions.find(opt => opt.field === field);
+    if (!option) return;
+
+    this.selectedSortCriteria.push({
+      label: option.label,
+      field: option.field,
+      direction: SortDirection.ASCENDING
+    });
+
+    this.updateSortOptions();
+    this.onSortChange(this.selectedSortCriteria);
+  }
+
+  removeSortCriterion(index: number): void {
+    if (index < 0 || index >= this.selectedSortCriteria.length) return;
+
+    this.selectedSortCriteria.splice(index, 1);
+    this.updateSortOptions();
+    this.onSortChange(this.selectedSortCriteria);
+  }
+
+  toggleCriterionDirection(index: number): void {
+    if (index < 0 || index >= this.selectedSortCriteria.length) return;
+
+    const criterion = this.selectedSortCriteria[index];
+    this.selectedSortCriteria[index] = {
+      ...criterion,
+      direction: criterion.direction === SortDirection.ASCENDING
+        ? SortDirection.DESCENDING
+        : SortDirection.ASCENDING
+    };
+
+    this.updateSortOptions();
+    this.onSortChange(this.selectedSortCriteria);
+  }
+
+  reorderCriteria(event: CdkDragDrop<SortOption[]>): void {
+    moveItemInArray(this.selectedSortCriteria, event.previousIndex, event.currentIndex);
+    this.updateSortOptions();
+    this.onSortChange(this.selectedSortCriteria);
+  }
+
+  getAvailableSortOptions(): SortOption[] {
+    const usedFields = new Set(this.selectedSortCriteria.map(c => c.field));
+    return this.sortOptions.filter(opt => !usedFields.has(opt.field));
+  }
+
+  updateSortOptions(): void {
+    const primaryField = this.selectedSortCriteria[0]?.field;
+    const primaryDirection = this.selectedSortCriteria[0]?.direction;
+
+    const directionIcon = primaryDirection === SortDirection.ASCENDING ? 'pi pi-arrow-up' : 'pi pi-arrow-down';
+
     this.sortOptions = this.sortOptions.map((option) => ({
       ...option,
-      icon: option.field === this.selectedSort!.field ? directionIcon : '',
+      icon: option.field === primaryField ? directionIcon : '',
     }));
   }
 }

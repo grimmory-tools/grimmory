@@ -163,24 +163,27 @@
             </p-popover>
           </div>
 
-          <div>
-            <a class="topbar-items topbar-item" (click)="sortMenu.toggle($event)">
+          <div class="sort-button-wrapper">
+            <a class="topbar-items topbar-item" (click)="sortPopover.toggle($event)">
               <i
                 class="pi pi-sort"
                 pTooltip="Select sorting"
                 tooltipPosition="top">
               </i>
+              @if (sortCriteriaCount > 1) {
+                <p-badge [value]="sortCriteriaCount.toString()" class="sort-badge"/>
+              }
             </a>
-            <p-menu #sortMenu [popup]="true" [model]="this.bookSorter.sortOptions" appendTo="body">
-              <ng-template pTemplate="item" let-item>
-                <div class="sort-menu-item" (click)="this.bookSorter.sortBooks(item.field)">
-                  <span>{{ item.label }}</span>
-                  @if (item.icon) {
-                    <i [class]="item.icon"></i>
-                  }
-                </div>
-              </ng-template>
-            </p-menu>
+            <p-popover #sortPopover [dismissable]="true" appendTo="body">
+              <app-multi-sort-popover
+                [sortCriteria]="this.bookSorter.selectedSortCriteria"
+                [availableSortOptions]="this.bookSorter.sortOptions"
+                (addCriterion)="onAddSortCriterion($event)"
+                (removeCriterion)="onRemoveSortCriterion($event)"
+                (toggleDirection)="onToggleSortDirection($event)"
+                (reorder)="onReorderSortCriteria($event)">
+              </app-multi-sort-popover>
+            </p-popover>
           </div>
 
           <a class="topbar-items topbar-item" (click)="toggleTableGrid()">

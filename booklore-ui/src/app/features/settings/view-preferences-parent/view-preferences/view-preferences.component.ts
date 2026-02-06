@@ -4,7 +4,7 @@ import {Button} from 'primeng/button';
 import {MessageService} from 'primeng/api';
 import {Select} from 'primeng/select';
 import {TableModule} from 'primeng/table';
-import {User, UserService} from '../../user-management/user.service';
+import {SortCriterion, User, UserService} from '../../user-management/user.service';
 import {LibraryService} from '../../../book/service/library.service';
 import {ShelfService} from '../../../book/service/shelf.service';
 import {MagicShelfService} from '../../../magic-shelf/service/magic-shelf.service';
@@ -14,6 +14,7 @@ import {ToastModule} from 'primeng/toast';
 import {Tooltip} from 'primeng/tooltip';
 import {filter, take, takeUntil} from 'rxjs/operators';
 import {ToggleSwitch} from 'primeng/toggleswitch';
+import {CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, moveItemInArray} from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-view-preferences',
@@ -25,7 +26,10 @@ import {ToggleSwitch} from 'primeng/toggleswitch';
     TableModule,
     ToastModule,
     Tooltip,
-    ToggleSwitch
+    ToggleSwitch,
+    CdkDropList,
+    CdkDrag,
+    CdkDragHandle
   ],
   templateUrl: './view-preferences.component.html',
   styleUrl: './view-preferences.component.scss'
@@ -81,6 +85,8 @@ export class ViewPreferencesComponent implements OnInit, OnDestroy {
   selectedSortDir: 'ASC' | 'DESC' = 'ASC';
   selectedView: 'GRID' | 'TABLE' = 'GRID';
   autoSaveMetadata: boolean = false;
+  sortCriteria: SortCriterion[] = [];
+  selectedAddField: string | null = null;
 
   overrides: {
     entityType: 'LIBRARY' | 'SHELF' | 'MAGIC_SHELF';
@@ -116,6 +122,13 @@ export class ViewPreferencesComponent implements OnInit, OnDestroy {
       this.selectedSortDir = global?.sortDir ?? 'ASC';
       this.selectedView = global?.view ?? 'GRID';
       this.autoSaveMetadata = userState.user?.userSettings?.autoSaveMetadata ?? false;
+
+      // Load multi-sort criteria, falling back to legacy single sort
+      if (global?.sortCriteria && global.sortCriteria.length > 0) {
+        this.sortCriteria = [...global.sortCriteria];
+      } else {
+        this.sortCriteria = [{field: this.selectedSort, direction: this.selectedSortDir}];
+      }
 
       this.overrides = (prefs?.overrides ?? []).map(o => ({
         entityType: o.entityType,
@@ -195,6 +208,50 @@ export class ViewPreferencesComponent implements OnInit, OnDestroy {
     this.overrides.splice(index, 1);
   }
 
+  // Multi-sort criteria methods
+  get availableSortFields(): {label: string; field: string}[] {
+    const usedFields = new Set(this.sortCriteria.map(c => c.field));
+    return this.sortOptions.filter(opt => !usedFields.has(opt.field));
+  }
+
+  getSortLabel(field: string): string {
+    return this.sortOptions.find(opt => opt.field === field)?.label ?? field;
+  }
+
+  addSortCriterion(): void {
+    if (this.selectedAddField) {
+      this.sortCriteria.push({field: this.selectedAddField, direction: 'ASC'});
+      this.selectedAddField = null;
+      this.syncLegacySort();
+    }
+  }
+
+  removeSortCriterion(index: number): void {
+    if (this.sortCriteria.length > 1) {
+      this.sortCriteria.splice(index, 1);
+      this.syncLegacySort();
+    }
+  }
+
+  toggleSortDirection(index: number): void {
+    const criterion = this.sortCriteria[index];
+    criterion.direction = criterion.direction === 'ASC' ? 'DESC' : 'ASC';
+    this.syncLegacySort();
+  }
+
+  onSortCriteriaDrop(event: CdkDragDrop<SortCriterion[]>): void {
+    moveItemInArray(this.sortCriteria, event.previousIndex, event.currentIndex);
+    this.syncLegacySort();
+  }
+
+  private syncLegacySort(): void {
+    // Keep legacy fields in sync with first criterion
+    if (this.sortCriteria.length > 0) {
+      this.selectedSort = this.sortCriteria[0].field;
+      this.selectedSortDir = this.sortCriteria[0].direction;
+    }
+  }
+
   saveSettings(): void {
     if (!this.user) return;
 
@@ -204,6 +261,7 @@ export class ViewPreferencesComponent implements OnInit, OnDestroy {
       ...prefs.global,
       sortKey: this.selectedSort,
       sortDir: this.selectedSortDir,
+      sortCriteria: [...this.sortCriteria],
       view: this.selectedView
     };
 
