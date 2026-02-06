@@ -1,128 +1,30 @@
 import {inject, Injectable} from '@angular/core';
-import {HttpClient, HttpEvent, HttpEventType, HttpResponse} from '@angular/common/http';
-import {MessageService} from 'primeng/api';
-import {DownloadProgressService} from './download-progress.service';
-import {Observable, Subject, throwError} from 'rxjs';
-import {catchError, finalize, takeUntil, tap} from 'rxjs/operators';
+import {HttpClient} from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FileDownloadService {
   private http = inject(HttpClient);
-  private downloadProgressService = inject(DownloadProgressService);
-  private messageService = inject(MessageService);
 
-  downloadFile(url: string, defaultFilename: string): void {
-    const cancelSubject = new Subject<void>();
+  downloadFile(url: string, filename: string): void {
+    this.http.get(url, {responseType: 'blob', observe: 'response'}).subscribe(response => {
+      const blob = response.body;
+      if (!blob) return;
 
-    // Show preparing state immediately
-    this.downloadProgressService.startDownload(defaultFilename, cancelSubject, true);
-
-    this.initiateDownload(url)
-      .pipe(
-        takeUntil(cancelSubject),
-        tap(event => this.handleDownloadProgress(event, defaultFilename, cancelSubject)),
-        finalize(() => this.downloadProgressService.completeDownload()),
-        catchError(error => {
-          this.handleDownloadError(error);
-          return throwError(() => error);
-        })
-      )
-      .subscribe();
-  }
-
-  private initiateDownload(url: string): Observable<HttpEvent<Blob>> {
-    return this.http.get(url, {
-      responseType: 'blob',
-      observe: 'events',
-      reportProgress: true
+      const resolvedFilename = this.extractFilename(response.headers.get('Content-Disposition')) ?? filename;
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = objectUrl;
+      link.download = resolvedFilename;
+      link.click();
+      URL.revokeObjectURL(objectUrl);
     });
   }
 
-  private handleDownloadProgress(
-    event: HttpEvent<Blob>,
-    defaultFilename: string,
-    cancelSubject: Subject<void>
-  ): void {
-    if (event.type === HttpEventType.Response) {
-      this.handleDownloadComplete(event, defaultFilename);
-    } else if (event.type === HttpEventType.DownloadProgress) {
-      this.updateProgress(event, defaultFilename, cancelSubject);
-    }
-  }
-
-  private updateProgress(
-    event: any,
-    defaultFilename: string,
-    cancelSubject: Subject<void>
-  ): void {
-    if (event.total) {
-      // Download already started with preparing state, just update progress
-      this.downloadProgressService.updateProgress(event.loaded, event.total);
-    }
-  }
-
-  private handleDownloadComplete(response: HttpResponse<Blob>, defaultFilename: string): void {
-    const filename = this.extractFilenameFromResponse(response, defaultFilename);
-    const blob = response.body;
-
-    if (!blob) {
-      throw new Error('No file content received');
-    }
-
-    this.triggerBrowserDownload(blob, filename);
-    this.showSuccessMessage(filename);
-  }
-
-  private extractFilenameFromResponse(response: HttpResponse<Blob>, defaultFilename: string): string {
-    const contentDisposition = response.headers.get('Content-Disposition');
-    if (contentDisposition) {
-      const encodedFilename = contentDisposition.match(/filename\*=UTF-8''([\w%\-\.]+)(?:; ?|$)/i)?.[1];
-      return encodedFilename ? decodeURIComponent(encodedFilename) : defaultFilename;
-    }
-    return defaultFilename;
-  }
-
-  private triggerBrowserDownload(blob: Blob, filename: string): void {
-    const objectUrl = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = objectUrl;
-    link.download = filename;
-    link.style.display = 'none';
-
-    document.body.appendChild(link);
-    link.click();
-
-    setTimeout(() => {
-      try {
-        if (link && link.parentNode) {
-          link.parentNode.removeChild(link);
-        }
-      } catch (e) {
-        // Ignore errors during cleanup, may occur if DOM is not available
-      }
-      window.URL.revokeObjectURL(objectUrl);
-    }, 100);
-  }
-
-  private handleDownloadError(error: unknown): void {
-    if ((error as { name?: string })?.name !== 'AbortError') {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Download Failed',
-        detail: 'An error occurred while downloading the file. Please try again.',
-        life: 5000
-      });
-    }
-  }
-
-  private showSuccessMessage(filename: string): void {
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Download Complete',
-      detail: `${filename} has been downloaded successfully.`,
-      life: 3000
-    });
+  private extractFilename(contentDisposition: string | null): string | null {
+    if (!contentDisposition) return null;
+    const match = contentDisposition.match(/filename\*=UTF-8''([\w%\-.]+)/i);
+    return match ? decodeURIComponent(match[1]) : null;
   }
 }

@@ -12,7 +12,6 @@ import {MetadataBatchProgressNotification} from './shared/model/metadata-batch-p
 import {MetadataProgressService} from './shared/service/metadata-progress.service';
 import {BookdropFileNotification, BookdropFileService} from './features/bookdrop/service/bookdrop-file.service';
 import {Subscription} from 'rxjs';
-import {DownloadProgressDialogComponent} from './shared/components/download-progress-dialog/download-progress-dialog.component';
 import {TaskProgressPayload, TaskService} from './features/settings/task-management/task.service';
 import {LibraryService} from './features/book/service/library.service';
 import {LibraryLoadingService} from './features/library-creator/library-loading.service';
@@ -23,7 +22,7 @@ import {scan, withLatestFrom} from 'rxjs/operators';
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
   standalone: true,
-  imports: [ConfirmDialog, Toast, RouterOutlet, DownloadProgressDialogComponent]
+  imports: [ConfirmDialog, Toast, RouterOutlet]
 })
 export class AppComponent implements OnInit, OnDestroy {
 

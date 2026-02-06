@@ -355,10 +355,10 @@ export class BookService {
 
   downloadAllFiles(book: Book): void {
     const downloadUrl = `${this.url}/${book.id}/download-all`;
-    const fileName = book.metadata?.title
+    const filename = book.metadata?.title
       ? `${book.metadata.title.replace(/[^a-zA-Z0-9\-_]/g, '_')}.zip`
       : `book-${book.id}.zip`;
-    this.fileDownloadService.downloadFile(downloadUrl, fileName);
+    this.fileDownloadService.downloadFile(downloadUrl, filename);
   }
 
   deleteAdditionalFile(bookId: number, fileId: number): Observable<void> {
@@ -527,8 +527,8 @@ export class BookService {
       ...(book.alternativeFormats || []),
       ...(book.supplementaryFiles || [])
     ].find((f: AdditionalFile) => f.id === fileId);
-    const downloadUrl = `${this.url}/${book!.id}/files/${fileId}/download`;
-    this.fileDownloadService.downloadFile(downloadUrl, additionalFile!.fileName!);
+    const downloadUrl = `${this.url}/${book.id}/files/${fileId}/download`;
+    this.fileDownloadService.downloadFile(downloadUrl, additionalFile?.fileName ?? 'file');
   }
 
   /*------------------ Progress & Status Tracking ------------------*/
