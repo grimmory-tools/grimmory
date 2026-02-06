@@ -24,6 +24,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
@@ -208,9 +209,15 @@ public class FileMoveService {
                 throw e;
             }
 
-            Path libraryRoot = Paths.get(libraryPathEntity.getPath()).toAbsolutePath().normalize();
+            Set<Path> libraryRoots = targetLibrary.getLibraryPaths().stream()
+                    .map(LibraryPathEntity::getPath)
+                    .map(Paths::get)
+                    .map(Path::toAbsolutePath)
+                    .map(Path::normalize)
+                    .collect(Collectors.toSet());
+            
             for (Path sourceParent : sourceParentsToCleanup) {
-                fileMoveHelper.deleteEmptyParentDirsUpToLibraryFolders(sourceParent, Set.of(libraryRoot));
+                fileMoveHelper.deleteEmptyParentDirsUpToLibraryFolders(sourceParent, libraryRoots);
             }
 
             entityManager.clear();
@@ -355,8 +362,15 @@ public class FileMoveService {
             }
 
             // Clean up empty parent directories
+            Set<Path> libraryRoots = bookWithFiles.getLibraryPath().getLibrary().getLibraryPaths().stream()
+                    .map(LibraryPathEntity::getPath)
+                    .map(Paths::get)
+                    .map(Path::toAbsolutePath)
+                    .map(Path::normalize)
+                    .collect(Collectors.toSet());
+            
             for (Path sourceParent : sourceParentsToCleanup) {
-                fileMoveHelper.deleteEmptyParentDirsUpToLibraryFolders(sourceParent, Set.of(libraryRoot));
+                fileMoveHelper.deleteEmptyParentDirsUpToLibraryFolders(sourceParent, libraryRoots);
             }
 
             if (isLibraryMonitoredWhenCalled) {
