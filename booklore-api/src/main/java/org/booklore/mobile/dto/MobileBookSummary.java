@@ -23,5 +23,5 @@ public class MobileBookSummary {
     private Instant addedOn;
     private Instant lastReadTime;
     private Float readProgress;
-    private Boolean hasAudiobook;
+    private String primaryFileType;
 }

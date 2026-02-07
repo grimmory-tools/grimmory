@@ -95,26 +95,11 @@ export class MetadataViewerComponent implements OnInit, OnChanges {
   navigationState$ = this.bookNavigationService.getNavigationState();
 
   ngOnInit(): void {
-    this.refreshMenuItems$ = this.book$.pipe(
-      filter((book): book is Book => book !== null),
-      map((book): MenuItem[] => [
-        {
-          label: 'Custom Fetch',
-          icon: 'pi pi-sync',
-          command: () => {
-            this.bookDialogHelperService.openMetadataFetchOptionsDialog(book.id);
-          }
-        }
-      ])
-    );
-
     this.readMenuItems$ = this.book$.pipe(
       filter((book): book is Book => book !== null),
       map((book): MenuItem[] => {
         const items: MenuItem[] = [];
         const primaryType = book.primaryFile?.bookType;
-
-        // Add streaming reader option for primary file
         if (primaryType === 'PDF') {
           items.push({
             label: 'Streaming Reader',

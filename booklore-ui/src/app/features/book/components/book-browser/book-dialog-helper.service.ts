@@ -135,17 +135,6 @@ export class BookDialogHelperService {
     });
   }
 
-  openMetadataFetchOptionsDialog(bookId: number): DynamicDialogRef | null {
-    return this.openDialog(MetadataFetchOptionsComponent, {
-      showHeader: false,
-      styleClass: `${DialogSize.SM} ${DialogStyle.MINIMAL}`,
-      data: {
-        bookIds: [bookId],
-        metadataRefreshType: MetadataRefreshType.BOOKS,
-      },
-    });
-  }
-
   openAdditionalFileUploaderDialog(book: Book): DynamicDialogRef | null {
     return this.openDialog(AdditionalFileUploaderComponent, {
       showHeader: false,

@@ -624,20 +624,17 @@
               }
             }
             @if (userState.user!.permissions.canEditMetadata || userState.user!.permissions.admin) {
-              @if (refreshMenuItems$ | async; as refreshItems) {
-                <p-splitbutton
-                  [label]="isAutoFetching ? 'Fetching...' : 'Fetch Metadata'"
-                  [icon]="isAutoFetching ? 'pi pi-spin pi-spinner' : 'pi pi-bolt'"
-                  [outlined]="true"
-                  [model]="refreshItems"
-                  severity="warn"
-                  (onClick)="quickRefresh(book!.id)"
-                  [disabled]="isAutoFetching"
-                  pTooltip="Automatically fetch metadata using default sources"
-                  tooltipPosition="top"
-                  class="mobile-icon-only">
-                </p-splitbutton>
-              }
+              <p-button
+                [label]="isAutoFetching ? 'Fetching...' : 'Fetch Metadata'"
+                [icon]="isAutoFetching ? 'pi pi-spin pi-spinner' : 'pi pi-bolt'"
+                [outlined]="true"
+                severity="warn"
+                (onClick)="quickRefresh(book!.id)"
+                [disabled]="isAutoFetching"
+                pTooltip="Automatically fetch metadata using default sources"
+                tooltipPosition="top"
+                class="mobile-icon-only">
+              </p-button>
             }
             @if (otherItems$ | async; as otherItems) {
               @if (otherItems.length > 0) {
