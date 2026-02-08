@@ -331,6 +331,10 @@ public class BookMetadataEntity {
     @JsonIgnore
     private BookEntity book;
 
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "book_id", referencedColumnName = "book_id", insertable = false, updatable = false)
+    private ComicMetadataEntity comicMetadata;
+
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "book_metadata_author_mapping",

@@ -1,10 +1,10 @@
 package org.booklore.model.entity;
 
+import jakarta.persistence.*;
+import lombok.*;
 import org.booklore.convertor.BookRecommendationIdsListConverter;
 import org.booklore.model.dto.BookRecommendationLite;
 import org.booklore.model.enums.BookFileType;
-import jakarta.persistence.*;
-import lombok.*;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -12,7 +12,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -94,15 +93,6 @@ public class BookEntity {
         }
 
         return Paths.get(libraryPath.getPath(), primaryBookFile.getFileSubPath(), primaryBookFile.getFileName());
-    }
-
-    public List<Path> getFullFilePaths() {
-        if (libraryPath == null || libraryPath.getPath() == null || bookFiles == null || bookFiles.isEmpty()) {
-            return List.of();
-        }
-        return bookFiles.stream()
-                .map(bookFile -> Paths.get(libraryPath.getPath(), bookFile.getFileSubPath(), bookFile.getFileName()))
-                .collect(Collectors.toList());
     }
 
     public BookFileEntity getPrimaryBookFile() {

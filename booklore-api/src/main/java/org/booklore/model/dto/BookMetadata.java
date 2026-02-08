@@ -33,6 +33,7 @@ public class BookMetadata {
     private Boolean abridged;
 
     private AudiobookMetadata audiobookMetadata;
+    private ComicMetadata comicMetadata;
 
     private String asin;
     private Double amazonRating;

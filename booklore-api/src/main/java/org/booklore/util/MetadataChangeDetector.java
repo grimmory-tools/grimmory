@@ -3,6 +3,7 @@ package org.booklore.util;
 import lombok.experimental.UtilityClass;
 import org.booklore.model.MetadataClearFlags;
 import org.booklore.model.dto.BookMetadata;
+import org.booklore.model.dto.ComicMetadata;
 import org.booklore.model.entity.*;
 
 import java.util.*;
@@ -245,6 +246,9 @@ public class MetadataChangeDetector {
                 return true;
             }
         }
+        if (hasComicMetadataChanges(newMeta, existingMeta)) {
+            return true;
+        }
         return differsLock(newMeta.getCoverLocked(), existingMeta.getCoverLocked()) || differsLock(newMeta.getAudiobookCoverLocked(), existingMeta.getAudiobookCoverLocked());
     }
 
@@ -258,6 +262,9 @@ public class MetadataChangeDetector {
             if (hasCollectionValueDifference(field, newMeta, existingMeta, clear)) {
                 return true;
             }
+        }
+        if (hasComicMetadataChanges(newMeta, existingMeta)) {
+            return true;
         }
         return false;
     }
@@ -360,5 +367,91 @@ public class MetadataChangeDetector {
                     default -> e.toString();
                 })
                 .collect(Collectors.toSet());
+    }
+
+    private static boolean hasComicMetadataChanges(BookMetadata newMeta, BookMetadataEntity existingMeta) {
+        ComicMetadata comicDto = newMeta.getComicMetadata();
+        ComicMetadataEntity comicEntity = existingMeta.getComicMetadata();
+
+        // No comic metadata in DTO, no changes
+        if (comicDto == null) {
+            return false;
+        }
+
+        // Comic metadata in DTO but not in entity - this is a change
+        if (comicEntity == null) {
+            return true;
+        }
+
+        // Compare individual fields
+        return !Objects.equals(normalize(comicDto.getIssueNumber()), normalize(comicEntity.getIssueNumber()))
+                || !Objects.equals(normalize(comicDto.getVolumeName()), normalize(comicEntity.getVolumeName()))
+                || !Objects.equals(comicDto.getVolumeNumber(), comicEntity.getVolumeNumber())
+                || !Objects.equals(normalize(comicDto.getStoryArc()), normalize(comicEntity.getStoryArc()))
+                || !Objects.equals(comicDto.getStoryArcNumber(), comicEntity.getStoryArcNumber())
+                || !Objects.equals(normalize(comicDto.getAlternateSeries()), normalize(comicEntity.getAlternateSeries()))
+                || !Objects.equals(normalize(comicDto.getAlternateIssue()), normalize(comicEntity.getAlternateIssue()))
+                || !Objects.equals(normalize(comicDto.getImprint()), normalize(comicEntity.getImprint()))
+                || !Objects.equals(normalize(comicDto.getFormat()), normalize(comicEntity.getFormat()))
+                || !Objects.equals(comicDto.getBlackAndWhite(), comicEntity.getBlackAndWhite())
+                || !Objects.equals(comicDto.getManga(), comicEntity.getManga())
+                || !Objects.equals(normalize(comicDto.getReadingDirection()), normalize(comicEntity.getReadingDirection()))
+                || !Objects.equals(normalize(comicDto.getWebLink()), normalize(comicEntity.getWebLink()))
+                || !Objects.equals(normalize(comicDto.getNotes()), normalize(comicEntity.getNotes()))
+                || !stringSetsEqual(comicDto.getCharacters(), extractCharacterNames(comicEntity.getCharacters()))
+                || !stringSetsEqual(comicDto.getTeams(), extractTeamNames(comicEntity.getTeams()))
+                || !stringSetsEqual(comicDto.getLocations(), extractLocationNames(comicEntity.getLocations()))
+                || hasCreatorChanges(comicDto, comicEntity);
+    }
+
+    private static boolean stringSetsEqual(Set<String> set1, Set<String> set2) {
+        if (set1 == null && (set2 == null || set2.isEmpty())) return true;
+        if (set1 == null || set2 == null) return false;
+        if (set1.isEmpty() && set2.isEmpty()) return true;
+        return set1.equals(set2);
+    }
+
+    private static Set<String> extractCharacterNames(Set<ComicCharacterEntity> entities) {
+        if (entities == null) return Collections.emptySet();
+        return entities.stream().map(ComicCharacterEntity::getName).collect(Collectors.toSet());
+    }
+
+    private static Set<String> extractTeamNames(Set<ComicTeamEntity> entities) {
+        if (entities == null) return Collections.emptySet();
+        return entities.stream().map(ComicTeamEntity::getName).collect(Collectors.toSet());
+    }
+
+    private static Set<String> extractLocationNames(Set<ComicLocationEntity> entities) {
+        if (entities == null) return Collections.emptySet();
+        return entities.stream().map(ComicLocationEntity::getName).collect(Collectors.toSet());
+    }
+
+    private static boolean hasCreatorChanges(ComicMetadata dto, ComicMetadataEntity entity) {
+        // For creators, we do a simplified comparison based on whether there are any creators in DTO
+        boolean dtoHasCreators = (dto.getPencillers() != null && !dto.getPencillers().isEmpty())
+                || (dto.getInkers() != null && !dto.getInkers().isEmpty())
+                || (dto.getColorists() != null && !dto.getColorists().isEmpty())
+                || (dto.getLetterers() != null && !dto.getLetterers().isEmpty())
+                || (dto.getCoverArtists() != null && !dto.getCoverArtists().isEmpty())
+                || (dto.getEditors() != null && !dto.getEditors().isEmpty());
+
+        boolean entityHasCreators = entity.getCreatorMappings() != null && !entity.getCreatorMappings().isEmpty();
+
+        // If both have no creators, no change
+        if (!dtoHasCreators && !entityHasCreators) return false;
+
+        // If one has creators and other doesn't, there's a change
+        if (dtoHasCreators != entityHasCreators) return true;
+
+        // Both have creators - compare counts as a basic check
+        int dtoCount = countNonNull(dto.getPencillers()) + countNonNull(dto.getInkers())
+                + countNonNull(dto.getColorists()) + countNonNull(dto.getLetterers())
+                + countNonNull(dto.getCoverArtists()) + countNonNull(dto.getEditors());
+
+        return dtoCount != entity.getCreatorMappings().size();
+    }
+
+    private static int countNonNull(Set<String> set) {
+        return set == null ? 0 : set.size();
     }
 }

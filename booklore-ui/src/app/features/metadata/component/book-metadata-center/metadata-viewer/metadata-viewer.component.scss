@@ -417,6 +417,38 @@
   flex-wrap: wrap;
 }
 
+.format-tag-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+
+  &.primary-format {
+    .format-badge {
+      display: inline-flex;
+    }
+  }
+}
+
+.format-badge {
+  display: none;
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-left: 0.25rem;
+  padding: 0.1rem 0.3rem;
+  border: 1px solid var(--primary-color);
+  border-radius: 3px;
+  line-height: 1;
+}
+
 .metadata-link {
   color: var(--primary-text-color);
   cursor: pointer;
@@ -474,17 +506,45 @@
   flex: 1;
 }
 
+.action-buttons-container {
+  margin-top: auto;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-color);
+}
+
 .action-buttons {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   align-items: center;
 }
 
-::ng-deep .action-divider {
-  display: none;
+.action-group {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
 
-  @media (min-width: 768px) {
-    display: block;
+  &.navigation-group {
+    padding-right: 0.5rem;
+    border-right: 1px solid var(--border-color);
+    margin-right: 0.25rem;
+
+    @media (max-width: 767px) {
+      display: none;
+    }
+  }
+
+  &.primary-actions {
+    @media (min-width: 768px) {
+      padding-right: 0.5rem;
+      border-right: 1px solid var(--border-color);
+      margin-right: 0.25rem;
+    }
+  }
+
+  &.secondary-actions {
+    display: flex;
+    gap: 0.375rem;
   }
 }
 
@@ -521,39 +581,76 @@
   }
 }
 
-.navigation-buttons-desktop {
-  display: none;
-  align-items: center;
-  gap: 0.5rem;
-}
-
 .navigation-buttons-mobile {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-}
 
-@media (min-width: 768px) {
-  .navigation-buttons-desktop {
-    display: flex;
-  }
-
-  .navigation-buttons-mobile {
+  @media (min-width: 768px) {
     display: none;
   }
 }
 
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.625rem 0.875rem;
+  background: var(--surface-ground);
+  border-bottom: 1px solid var(--border-color);
+  border-radius: 0.75rem 0.75rem 0 0;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--text-color);
+
+  &.clickable {
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s ease;
+
+    &:hover {
+      background: var(--surface-hover);
+    }
+  }
+
+  i:first-child {
+    color: var(--primary-color);
+    margin-right: 0.5rem;
+  }
+}
+
+.section-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  i {
+    font-size: 0.95rem;
+    color: var(--primary-color);
+  }
+}
+
+.section-toggle-icon {
+  font-size: 0.8rem;
+  color: var(--text-color-secondary);
+  transition: transform 0.3s ease;
+}
+
 .description-section {
-  padding: 1rem;
   background: var(--card-background);
   border: 1px solid var(--border-color);
   border-radius: 0.75rem;
+  overflow: hidden;
   transition: box-shadow 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
 }
 
-.description-section:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+.description-body {
+  padding: 0.875rem;
 }
 
 .description-content {
@@ -567,6 +664,31 @@
 
 .description-content:not(.line-clamp-7) {
   max-height: none;
+}
+
+.expand-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  background: transparent;
+  border: none;
+  border-radius: 0.25rem;
+  color: var(--primary-color);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+
+  &:hover {
+    background: var(--surface-hover);
+    color: var(--primary-hover-color);
+  }
+
+  i {
+    font-size: 0.7rem;
+  }
 }
 
 ::ng-deep .readonly-editor .p-editor .p-editor-toolbar.ql-snow {
@@ -598,7 +720,7 @@
 ::ng-deep .readonly-editor .p-editor .ql-container {
   border: none !important;
   height: auto !important;
-  font-size: 0.875rem !important;
+  font-size: 0.9375rem !important;
 }
 
 .loading-state {
@@ -629,4 +751,353 @@
 .navigation-position {
   font-size: 0.875rem;
   color: var(--text-secondary-color);
+}
+
+// Comic Metadata Section Styles
+.comic-metadata-section {
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.comic-metadata-content {
+  padding: 0.875rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: 1000px;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease, opacity 0.3s ease;
+  opacity: 1;
+
+  &.collapsed {
+    max-height: 0;
+    padding: 0 0.875rem;
+    opacity: 0;
+  }
+}
+
+.comic-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+}
+
+.comic-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.comic-info-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-color-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.comic-info-value {
+  font-size: 0.95rem;
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.comic-volume-number,
+.comic-arc-number {
+  color: var(--text-color-secondary);
+  font-weight: 400;
+  margin-left: 0.25rem;
+}
+
+.comic-subsection {
+  border-top: 1px solid var(--border-color);
+  padding-top: 0.75rem;
+}
+
+.comic-subsection-title {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 0.5rem;
+
+  i {
+    font-size: 0.9rem;
+    color: var(--primary-color);
+  }
+}
+
+.comic-creators-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.comic-creator-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.comic-creator-role {
+  flex: 0 0 95px;
+  font-weight: 500;
+  color: var(--text-color-secondary);
+  font-size: 0.85rem;
+}
+
+.comic-creator-names {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.5rem;
+}
+
+.comic-creator-link {
+  color: cornflowerblue;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  font-size: 0.9rem;
+
+  &:hover {
+    color: dodgerblue;
+    text-decoration: underline;
+  }
+
+  &:not(:last-child)::after {
+    content: ',';
+    color: var(--text-color-secondary);
+  }
+}
+
+.comic-tags-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.comic-tag-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.comic-tag-label {
+  flex: 0 0 80px;
+  font-weight: 500;
+  color: var(--text-color-secondary);
+  font-size: 0.85rem;
+  padding-top: 0.125rem;
+}
+
+.comic-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.comic-tag-clickable {
+  cursor: pointer;
+  transition: transform 0.15s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.comic-properties {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.comic-property-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+
+  i {
+    font-size: 0.7rem;
+  }
+
+  &.manga {
+    background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+    color: white;
+  }
+
+  &.bw {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    color: white;
+  }
+
+  &.rtl {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: white;
+  }
+}
+
+.comic-web-link {
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.comic-external-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: var(--primary-color);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.2s ease;
+
+  i {
+    font-size: 0.85rem;
+  }
+
+  &:hover {
+    color: var(--primary-hover-color);
+    text-decoration: underline;
+  }
+}
+
+.comic-notes {
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.comic-notes-label {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 0.375rem;
+
+  i {
+    font-size: 0.9rem;
+    color: var(--primary-color);
+  }
+}
+
+.comic-notes-content {
+  font-size: 0.9rem;
+  color: var(--text-color-secondary);
+  line-height: 1.5;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+// Audiobook Metadata Section Styles
+.audiobook-metadata-section {
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.audiobook-metadata-content {
+  padding: 0.875rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: 500px;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease, opacity 0.3s ease;
+  opacity: 1;
+
+  &.collapsed {
+    max-height: 0;
+    padding: 0 0.875rem;
+    opacity: 0;
+  }
+}
+
+.audiobook-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+}
+
+.audiobook-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.audiobook-info-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-color-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.audiobook-info-value {
+  font-size: 0.95rem;
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.audiobook-link {
+  color: cornflowerblue;
+  cursor: pointer;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: dodgerblue;
+    text-decoration: underline;
+  }
+}
+
+.audiobook-properties {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.audiobook-property-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  i {
+    font-size: 0.75rem;
+  }
+
+  &.unabridged {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+  }
+
+  &.abridged {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+  }
 }

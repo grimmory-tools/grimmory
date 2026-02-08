@@ -1,13 +1,14 @@
 package org.booklore.service.metadata.extractor;
 
-import org.booklore.model.dto.BookMetadata;
-import org.booklore.util.ArchiveUtils;
 import com.github.junrar.Archive;
 import com.github.junrar.rarfile.FileHeader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 import org.apache.commons.io.FilenameUtils;
+import org.booklore.model.dto.BookMetadata;
+import org.booklore.model.dto.ComicMetadata;
+import org.booklore.util.ArchiveUtils;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -80,29 +81,29 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
         }
 
         // CBR path (RAR)
-    if (type == ArchiveUtils.ArchiveType.RAR) {
-        try (Archive archive = new Archive(file)) {
-            try {
-                FileHeader header = findComicInfoHeader(archive);
-                if (header == null) {
+        if (type == ArchiveUtils.ArchiveType.RAR) {
+            try (Archive archive = new Archive(file)) {
+                try {
+                    FileHeader header = findComicInfoHeader(archive);
+                    if (header == null) {
+                        return BookMetadata.builder().title(baseName).build();
+                    }
+                    byte[] xmlBytes = readRarEntryBytes(archive, header);
+                    if (xmlBytes == null) {
+                        return BookMetadata.builder().title(baseName).build();
+                    }
+                    try (InputStream is = new ByteArrayInputStream(xmlBytes)) {
+                        Document document = buildSecureDocument(is);
+                        return mapDocumentToMetadata(document, baseName);
+                    }
+                } catch (Exception e) {
+                    log.warn("Failed to extract metadata from CBR", e);
                     return BookMetadata.builder().title(baseName).build();
                 }
-                byte[] xmlBytes = readRarEntryBytes(archive, header);
-                if (xmlBytes == null) {
-                    return BookMetadata.builder().title(baseName).build();
-                }
-                try (InputStream is = new ByteArrayInputStream(xmlBytes)) {
-                    Document document = buildSecureDocument(is);
-                    return mapDocumentToMetadata(document, baseName);
-                }
-            } catch (Exception e) {
-                log.warn("Failed to extract metadata from CBR", e);
-                return BookMetadata.builder().title(baseName).build();
+            } catch (Exception ignore) {
             }
-        } catch (Exception ignore) {
         }
-    }
-    return BookMetadata.builder().title(baseName).build();
+        return BookMetadata.builder().title(baseName).build();
     }
 
     private ZipEntry findComicInfoEntry(ZipFile zipFile) {
@@ -203,6 +204,137 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
         categories.addAll(splitValues(getTextContent(document, "Tags")));
         if (!categories.isEmpty()) {
             builder.categories(categories);
+        }
+
+        // Extract comic-specific metadata
+        ComicMetadata.ComicMetadataBuilder comicBuilder = ComicMetadata.builder();
+        boolean hasComicFields = false;
+
+        String issueNumber = getTextContent(document, "Number");
+        if (issueNumber != null && !issueNumber.isBlank()) {
+            comicBuilder.issueNumber(issueNumber);
+            hasComicFields = true;
+        }
+
+        String volume = getTextContent(document, "Volume");
+        if (volume != null && !volume.isBlank()) {
+            comicBuilder.volumeName(getTextContent(document, "Series"));
+            comicBuilder.volumeNumber(parseInteger(volume));
+            hasComicFields = true;
+        }
+
+        String storyArc = getTextContent(document, "StoryArc");
+        if (storyArc != null && !storyArc.isBlank()) {
+            comicBuilder.storyArc(storyArc);
+            comicBuilder.storyArcNumber(parseInteger(getTextContent(document, "StoryArcNumber")));
+            hasComicFields = true;
+        }
+
+        String alternateSeries = getTextContent(document, "AlternateSeries");
+        if (alternateSeries != null && !alternateSeries.isBlank()) {
+            comicBuilder.alternateSeries(alternateSeries);
+            comicBuilder.alternateIssue(getTextContent(document, "AlternateNumber"));
+            hasComicFields = true;
+        }
+
+        Set<String> pencillers = splitValues(getTextContent(document, "Penciller"));
+        if (!pencillers.isEmpty()) {
+            comicBuilder.pencillers(pencillers);
+            hasComicFields = true;
+        }
+
+        Set<String> inkers = splitValues(getTextContent(document, "Inker"));
+        if (!inkers.isEmpty()) {
+            comicBuilder.inkers(inkers);
+            hasComicFields = true;
+        }
+
+        Set<String> colorists = splitValues(getTextContent(document, "Colorist"));
+        if (!colorists.isEmpty()) {
+            comicBuilder.colorists(colorists);
+            hasComicFields = true;
+        }
+
+        Set<String> letterers = splitValues(getTextContent(document, "Letterer"));
+        if (!letterers.isEmpty()) {
+            comicBuilder.letterers(letterers);
+            hasComicFields = true;
+        }
+
+        Set<String> coverArtists = splitValues(getTextContent(document, "CoverArtist"));
+        if (!coverArtists.isEmpty()) {
+            comicBuilder.coverArtists(coverArtists);
+            hasComicFields = true;
+        }
+
+        Set<String> editors = splitValues(getTextContent(document, "Editor"));
+        if (!editors.isEmpty()) {
+            comicBuilder.editors(editors);
+            hasComicFields = true;
+        }
+
+        String imprint = getTextContent(document, "Imprint");
+        if (imprint != null && !imprint.isBlank()) {
+            comicBuilder.imprint(imprint);
+            hasComicFields = true;
+        }
+
+        String format = getTextContent(document, "Format");
+        if (format != null && !format.isBlank()) {
+            comicBuilder.format(format);
+            hasComicFields = true;
+        }
+
+        String blackAndWhite = getTextContent(document, "BlackAndWhite");
+        if ("yes".equalsIgnoreCase(blackAndWhite) || "true".equalsIgnoreCase(blackAndWhite)) {
+            comicBuilder.blackAndWhite(Boolean.TRUE);
+            hasComicFields = true;
+        }
+
+        String manga = getTextContent(document, "Manga");
+        if (manga != null && !manga.isBlank()) {
+            boolean isManga = "yes".equalsIgnoreCase(manga) || "true".equalsIgnoreCase(manga) || "yesandrighttoleft".equalsIgnoreCase(manga);
+            comicBuilder.manga(isManga);
+            if ("yesandrighttoleft".equalsIgnoreCase(manga)) {
+                comicBuilder.readingDirection("rtl");
+            } else {
+                comicBuilder.readingDirection("ltr");
+            }
+            hasComicFields = true;
+        }
+
+        Set<String> characters = splitValues(getTextContent(document, "Characters"));
+        if (!characters.isEmpty()) {
+            comicBuilder.characters(characters);
+            hasComicFields = true;
+        }
+
+        Set<String> teams = splitValues(getTextContent(document, "Teams"));
+        if (!teams.isEmpty()) {
+            comicBuilder.teams(teams);
+            hasComicFields = true;
+        }
+
+        Set<String> locations = splitValues(getTextContent(document, "Locations"));
+        if (!locations.isEmpty()) {
+            comicBuilder.locations(locations);
+            hasComicFields = true;
+        }
+
+        String web = getTextContent(document, "Web");
+        if (web != null && !web.isBlank()) {
+            comicBuilder.webLink(web);
+            hasComicFields = true;
+        }
+
+        String notes = getTextContent(document, "Notes");
+        if (notes != null && !notes.isBlank()) {
+            comicBuilder.notes(notes);
+            hasComicFields = true;
+        }
+
+        if (hasComicFields) {
+            builder.comicMetadata(comicBuilder.build());
         }
 
         return builder.build();
@@ -437,62 +569,62 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
         }
 
         // CBR path
-      if (type == ArchiveUtils.ArchiveType.RAR) {
-      try (Archive archive = new Archive(file)) {
-          try {
+        if (type == ArchiveUtils.ArchiveType.RAR) {
+            try (Archive archive = new Archive(file)) {
+                try {
 
-                // Try via ComicInfo.xml first
-                FileHeader comicInfo = findComicInfoHeader(archive);
-                if (comicInfo != null) {
-                    byte[] xmlBytes = readRarEntryBytes(archive, comicInfo);
-                    if (xmlBytes != null) {
-                        try (InputStream is = new ByteArrayInputStream(xmlBytes)) {
-                            Document document = buildSecureDocument(is);
-                            String imageName = findFrontCoverImageName(document);
-                            if (imageName != null) {
-                                FileHeader byName = findRarHeaderByName(archive, imageName);
-                                if (byName != null) {
-                                    byte[] bytes = readRarEntryBytes(archive, byName);
-                                    if (canDecode(bytes)) return bytes;
-                                }
-                                try {
-                                    int index = Integer.parseInt(imageName);
-                                    FileHeader byIndex = findRarImageHeaderByIndex(archive, index);
-                                    if (byIndex != null) {
-                                        byte[] bytes = readRarEntryBytes(archive, byIndex);
+                    // Try via ComicInfo.xml first
+                    FileHeader comicInfo = findComicInfoHeader(archive);
+                    if (comicInfo != null) {
+                        byte[] xmlBytes = readRarEntryBytes(archive, comicInfo);
+                        if (xmlBytes != null) {
+                            try (InputStream is = new ByteArrayInputStream(xmlBytes)) {
+                                Document document = buildSecureDocument(is);
+                                String imageName = findFrontCoverImageName(document);
+                                if (imageName != null) {
+                                    FileHeader byName = findRarHeaderByName(archive, imageName);
+                                    if (byName != null) {
+                                        byte[] bytes = readRarEntryBytes(archive, byName);
                                         if (canDecode(bytes)) return bytes;
                                     }
-                                    if (index > 0) {
-                                        FileHeader offByOne = findRarImageHeaderByIndex(archive, index - 1);
-                                        if (offByOne != null) {
-                                            byte[] bytes = readRarEntryBytes(archive, offByOne);
+                                    try {
+                                        int index = Integer.parseInt(imageName);
+                                        FileHeader byIndex = findRarImageHeaderByIndex(archive, index);
+                                        if (byIndex != null) {
+                                            byte[] bytes = readRarEntryBytes(archive, byIndex);
                                             if (canDecode(bytes)) return bytes;
                                         }
+                                        if (index > 0) {
+                                            FileHeader offByOne = findRarImageHeaderByIndex(archive, index - 1);
+                                            if (offByOne != null) {
+                                                byte[] bytes = readRarEntryBytes(archive, offByOne);
+                                                if (canDecode(bytes)) return bytes;
+                                            }
+                                        }
+                                    } catch (NumberFormatException ignore) {
+                                        // ignore and continue fallback
                                     }
-                                } catch (NumberFormatException ignore) {
-                                    // ignore and continue fallback
                                 }
                             }
                         }
                     }
-                }
 
-                // Fallback: iterate images alphabetically until a decodable one is found
-                FileHeader firstImage = findFirstAlphabeticalImageHeader(archive);
-                if (firstImage != null) {
-                    List<FileHeader> images = listRarImageHeaders(archive);
-                    for (FileHeader fh : images) {
-                        byte[] bytes = readRarEntryBytes(archive, fh);
-                        if (canDecode(bytes)) return bytes;
+                    // Fallback: iterate images alphabetically until a decodable one is found
+                    FileHeader firstImage = findFirstAlphabeticalImageHeader(archive);
+                    if (firstImage != null) {
+                        List<FileHeader> images = listRarImageHeaders(archive);
+                        for (FileHeader fh : images) {
+                            byte[] bytes = readRarEntryBytes(archive, fh);
+                            if (canDecode(bytes)) return bytes;
+                        }
                     }
+                } catch (Exception e) {
+                    log.warn("Failed to extract cover image from CBR", e);
+                    return generatePlaceholderCover(250, 350);
                 }
-            } catch (Exception e) {
-                log.warn("Failed to extract cover image from CBR", e);
-                return generatePlaceholderCover(250, 350);
+            } catch (Exception ignore) {
             }
-        } catch (Exception ignore) {
         }
-    }
 
         return generatePlaceholderCover(250, 350);
     }

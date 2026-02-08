@@ -110,6 +110,40 @@ export interface AudiobookMetadata {
   abridgedLocked?: boolean;
 }
 
+export interface ComicMetadata {
+  issueNumber?: string;
+  volumeName?: string;
+  volumeNumber?: number;
+  storyArc?: string;
+  storyArcNumber?: number;
+  alternateSeries?: string;
+  alternateIssue?: string;
+  pencillers?: string[];
+  inkers?: string[];
+  colorists?: string[];
+  letterers?: string[];
+  coverArtists?: string[];
+  editors?: string[];
+  imprint?: string;
+  format?: string;
+  blackAndWhite?: boolean;
+  manga?: boolean;
+  readingDirection?: string;
+  characters?: string[];
+  teams?: string[];
+  locations?: string[];
+  webLink?: string;
+  notes?: string;
+  issueNumberLocked?: boolean;
+  volumeNameLocked?: boolean;
+  volumeNumberLocked?: boolean;
+  storyArcLocked?: boolean;
+  creatorsLocked?: boolean;
+  charactersLocked?: boolean;
+  teamsLocked?: boolean;
+  locationsLocked?: boolean;
+}
+
 export interface BookMetadata {
   bookId: number;
   title?: string;
@@ -150,6 +184,7 @@ export interface BookMetadata {
   narratorLocked?: boolean;
   abridgedLocked?: boolean;
   audiobookMetadata?: AudiobookMetadata;
+  comicMetadata?: ComicMetadata;
   coverUpdatedOn?: string;
   audiobookCoverUpdatedOn?: string;
   authors?: string[];

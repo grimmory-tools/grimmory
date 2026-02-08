@@ -4,7 +4,7 @@ import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring", uses = {AuthorMapper.class, CategoryMapper.class, MoodMapper.class, TagMapper.class}, unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", uses = {AuthorMapper.class, CategoryMapper.class, MoodMapper.class, TagMapper.class, ComicMetadataMapper.class}, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface BookMetadataMapper {
 
     @AfterMapping

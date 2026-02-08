@@ -5,7 +5,7 @@ import {combineLatest, Observable} from 'rxjs';
 import {BookService} from '../../../../book/service/book.service';
 import {Rating, RatingRateEvent} from 'primeng/rating';
 import {FormsModule} from '@angular/forms';
-import {Book, BookFile, BookMetadata, BookRecommendation, BookType, FileInfo, ReadStatus} from '../../../../book/model/book.model';
+import {Book, BookFile, BookMetadata, BookRecommendation, BookType, ComicMetadata, FileInfo, ReadStatus} from '../../../../book/model/book.model';
 import {UrlHelperService} from '../../../../../shared/service/url-helper.service';
 import {UserService} from '../../../../settings/user-management/user.service';
 import {SplitButton} from 'primeng/splitbutton';
@@ -30,7 +30,6 @@ import {TagColor, TagComponent} from '../../../../../shared/components/tag/tag.c
 import {TaskHelperService} from '../../../../settings/task-management/task-helper.service';
 import {AGE_RATING_OPTIONS, CONTENT_RATING_LABELS, fileSizeRanges, matchScoreRanges, pageCountRanges} from '../../../../book/components/book-browser/book-filter/book-filter.config';
 import {BookNavigationService} from '../../../../book/service/book-navigation.service';
-import {Divider} from 'primeng/divider';
 import {BookMetadataHostService} from '../../../../../shared/service/book-metadata-host.service';
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
 import {DeleteBookFileEvent, DeleteSupplementaryFileEvent, DownloadAdditionalFileEvent, DownloadAllFilesEvent, DownloadEvent, MetadataTabsComponent, ReadEvent} from './metadata-tabs/metadata-tabs.component';
@@ -41,7 +40,7 @@ import {DeleteBookFileEvent, DeleteSupplementaryFileEvent, DownloadAdditionalFil
   standalone: true,
   templateUrl: './metadata-viewer.component.html',
   styleUrl: './metadata-viewer.component.scss',
-  imports: [Button, AsyncPipe, Rating, FormsModule, SplitButton, NgClass, Tooltip, DecimalPipe, Editor, ProgressBar, Menu, DatePicker, ProgressSpinner, TieredMenu, Image, TagComponent, Divider, MetadataTabsComponent]
+  imports: [Button, AsyncPipe, Rating, FormsModule, SplitButton, NgClass, Tooltip, DecimalPipe, Editor, ProgressBar, Menu, DatePicker, ProgressSpinner, TieredMenu, Image, TagComponent, MetadataTabsComponent]
 })
 export class MetadataViewerComponent implements OnInit, OnChanges {
   @Input() book$!: Observable<Book | null>;
@@ -68,6 +67,8 @@ export class MetadataViewerComponent implements OnInit, OnChanges {
   downloadMenuItems$!: Observable<MenuItem[]>;
   bookInSeries: Book[] = [];
   isExpanded = false;
+  isComicSectionExpanded = true;
+  isAudiobookSectionExpanded = true;
   showFilePath = false;
   isAutoFetching = false;
   private metadataCenterViewMode: 'route' | 'dialog' = 'route';
@@ -1245,5 +1246,123 @@ export class MetadataViewerComponent implements OnInit, OnChanges {
     return isAudiobook
       ? this.urlHelper.getAudiobookCoverUrl(book.id, book.metadata?.audiobookCoverUpdatedOn)
       : this.urlHelper.getCoverUrl(book.id, book.metadata?.coverUpdatedOn);
+  }
+
+  // Comic metadata helpers
+  isComicBook(book: Book): boolean {
+    return book?.primaryFile?.bookType === 'CBX';
+  }
+
+  hasComicMetadata(book: Book): boolean {
+    const comic = book?.metadata?.comicMetadata;
+    if (!comic) return false;
+    return !!(
+      comic.issueNumber ||
+      comic.volumeName ||
+      comic.storyArc ||
+      comic.characters?.length ||
+      comic.teams?.length ||
+      comic.locations?.length ||
+      comic.pencillers?.length ||
+      comic.inkers?.length ||
+      comic.colorists?.length ||
+      comic.letterers?.length ||
+      comic.coverArtists?.length ||
+      comic.editors?.length ||
+      comic.manga ||
+      comic.blackAndWhite ||
+      comic.webLink ||
+      comic.notes
+    );
+  }
+
+  hasAnyCreators(comic: ComicMetadata): boolean {
+    return !!(
+      comic.pencillers?.length ||
+      comic.inkers?.length ||
+      comic.colorists?.length ||
+      comic.letterers?.length ||
+      comic.coverArtists?.length ||
+      comic.editors?.length
+    );
+  }
+
+  formatWebLink(url: string): string {
+    if (!url) return '';
+    try {
+      const parsed = new URL(url);
+      const path = parsed.pathname.length > 30
+        ? parsed.pathname.substring(0, 30) + '...'
+        : parsed.pathname;
+      return parsed.hostname + path;
+    } catch {
+      return url.length > 50 ? url.substring(0, 50) + '...' : url;
+    }
+  }
+
+  goToCharacter(character: string): void {
+    this.handleMetadataClick('comicCharacter', character);
+  }
+
+  goToTeam(team: string): void {
+    this.handleMetadataClick('comicTeam', team);
+  }
+
+  goToLocation(location: string): void {
+    this.handleMetadataClick('comicLocation', location);
+  }
+
+  goToCreator(name: string, role: string): void {
+    this.handleMetadataClick('comicCreator', `${name}:${role}`);
+  }
+
+  // Audiobook metadata helpers
+  isAudiobook(book: Book): boolean {
+    return book?.primaryFile?.bookType === 'AUDIOBOOK';
+  }
+
+  hasAudiobookMetadata(book: Book): boolean {
+    const audio = book?.metadata?.audiobookMetadata;
+    if (!audio) return false;
+    return !!(
+      audio.durationSeconds ||
+      audio.bitrate ||
+      audio.sampleRate ||
+      audio.channels ||
+      audio.codec ||
+      audio.chapterCount ||
+      book.metadata?.narrator ||
+      book.metadata?.abridged != null
+    );
+  }
+
+  formatDuration(seconds: number): string {
+    if (!seconds) return '-';
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    }
+    return `${minutes}m`;
+  }
+
+  formatSampleRate(sampleRate: number): string {
+    if (!sampleRate) return '-';
+    return `${(sampleRate / 1000).toFixed(1)} kHz`;
+  }
+
+  getChannelLabel(channels: number): string {
+    switch (channels) {
+      case 1:
+        return 'Mono';
+      case 2:
+        return 'Stereo';
+      default:
+        return `${channels} channels`;
+    }
+  }
+
+  goToNarrator(narrator: string): void {
+    this.handleMetadataClick('narrator', narrator);
   }
 }

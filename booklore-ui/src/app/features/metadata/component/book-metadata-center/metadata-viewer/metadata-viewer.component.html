@@ -363,14 +363,15 @@
               <span class="metadata-key">Formats:</span>
               <span class="metadata-value-group format-tags">
                 @if (getDisplayFormat(book?.primaryFile); as displayFormat) {
-                  <span (click)="goToFileType(book?.primaryFile?.filePath)" style="cursor: pointer;" [pTooltip]="'Primary: ' + (book?.primaryFile?.fileName ?? '')" tooltipPosition="top">
+                  <span class="format-tag-wrapper primary-format" (click)="goToFileType(book?.primaryFile?.filePath)" [pTooltip]="book?.primaryFile?.fileName ?? ''" tooltipPosition="top">
                     <app-tag size="3xs" variant="pill" [customBgColor]="getFileTypeBgColor(displayFormat)" customTextColor="#fff">
                       {{ displayFormat }}
                     </app-tag>
+                    <span class="format-badge">PRIMARY</span>
                   </span>
                 }
                 @for (formatExt of getUniqueAlternativeFormats(book); track formatExt) {
-                  <span (click)="goToFileType('.' + formatExt)" style="cursor: pointer;" [pTooltip]="formatExt" tooltipPosition="top">
+                  <span class="format-tag-wrapper" (click)="goToFileType('.' + formatExt)" [pTooltip]="formatExt" tooltipPosition="top">
                     <app-tag size="3xs" variant="pill" [customBgColor]="getFileTypeBgColor(formatExt)" customTextColor="#fff">
                       {{ formatExt }}
                     </app-tag>
@@ -572,100 +573,405 @@
         </div>
 
         @if (userService.userState$ | async; as userState) {
-          <div class="action-buttons">
-            @if (navigationState$ | async) {
-              <div class="navigation-buttons-desktop">
-                <p-button
-                  icon="pi pi-chevron-left"
-                  [disabled]="!canNavigatePrevious()"
-                  (onClick)="navigatePrevious()"
-                  rounded
-                  outlined
-                  severity="info"
-                  pTooltip="Go to previous book"
-                  tooltipPosition="bottom">
-                </p-button>
-                <span class="navigation-position">
-                  {{ getNavigationPosition() }}
-                </span>
-                <p-button
-                  icon="pi pi-chevron-right"
-                  iconPos="right"
-                  [disabled]="!canNavigateNext()"
-                  (onClick)="navigateNext()"
-                  severity="info"
-                  rounded
-                  outlined
-                  pTooltip="Go to next book"
-                  tooltipPosition="bottom">
-                </p-button>
+          <div class="action-buttons-container">
+            <div class="action-buttons">
+              @if (navigationState$ | async) {
+                <div class="action-group navigation-group">
+                  <p-button
+                    icon="pi pi-chevron-left"
+                    [disabled]="!canNavigatePrevious()"
+                    (onClick)="navigatePrevious()"
+                    rounded
+                    text
+                    severity="secondary"
+                    pTooltip="Go to previous book"
+                    tooltipPosition="bottom">
+                  </p-button>
+                  <span class="navigation-position">
+                    {{ getNavigationPosition() }}
+                  </span>
+                  <p-button
+                    icon="pi pi-chevron-right"
+                    iconPos="right"
+                    [disabled]="!canNavigateNext()"
+                    (onClick)="navigateNext()"
+                    severity="secondary"
+                    rounded
+                    text
+                    pTooltip="Go to next book"
+                    tooltipPosition="bottom">
+                  </p-button>
+                </div>
+              }
+              @if (hasDigitalFile(book)) {
+                <div class="action-group primary-actions">
+                  @if (readMenuItems$ | async; as readItems) {
+                    @if (readItems.length > 0) {
+                      <p-splitbutton [label]="getReadButtonLabel(book)" [icon]="getReadButtonIcon(book)" [model]="readItems" (onClick)="read(book.id)" severity="primary" class="read-button-responsive"/>
+                    } @else {
+                      <p-button [label]="getReadButtonLabel(book)" [icon]="getReadButtonIcon(book)" (onClick)="read(book.id)" severity="primary" class="read-button-responsive"/>
+                    }
+                  } @else {
+                    <p-button [label]="getReadButtonLabel(book)" [icon]="getReadButtonIcon(book)" (onClick)="read(book.id)" severity="primary" class="read-button-responsive"/>
+                  }
+                </div>
+              }
+              <div class="action-group secondary-actions">
+                @if ((userState.user!.permissions.canDownload || userState.user!.permissions.admin) && hasAnyFiles(book)) {
+                  @if ((book!.alternativeFormats && book!.alternativeFormats.length > 0) || (book!.supplementaryFiles && book!.supplementaryFiles.length > 0)) {
+                    @if (downloadMenuItems$ | async; as downloadItems) {
+                      <p-splitbutton [label]="(getDisplayFormat(book.primaryFile) ?? 'File') + ' · ' + formatFileSize(book.primaryFile)" icon="pi pi-download" [model]="downloadItems" (onClick)="download(book)" severity="success" outlined class="mobile-icon-only"/>
+                    }
+                  } @else {
+                    <p-button [label]="(getDisplayFormat(book.primaryFile) ?? 'File') + ' · ' + formatFileSize(book.primaryFile)" icon="pi pi-download" severity="success" outlined (onClick)="download(book)" class="mobile-icon-only"></p-button>
+                  }
+                }
+                @if (userState.user!.permissions.canEditMetadata || userState.user!.permissions.admin) {
+                  <p-button
+                    [label]="isAutoFetching ? 'Fetching...' : 'Fetch Metadata'"
+                    [icon]="isAutoFetching ? 'pi pi-spin pi-spinner' : 'pi pi-bolt'"
+                    [outlined]="true"
+                    severity="warn"
+                    (onClick)="quickRefresh(book!.id)"
+                    [disabled]="isAutoFetching"
+                    pTooltip="Automatically fetch metadata using default sources"
+                    tooltipPosition="top"
+                    class="mobile-icon-only">
+                  </p-button>
+                }
+                @if (otherItems$ | async; as otherItems) {
+                  @if (otherItems.length > 0) {
+                    <p-button icon="pi pi-ellipsis-v" severity="info" outlined (click)="entitymenu.toggle($event)"></p-button>
+                    <p-tieredMenu #entitymenu [model]="otherItems" [popup]="true" appendTo="body"></p-tieredMenu>
+                  }
+                }
               </div>
-              <p-divider layout="vertical" class="action-divider"></p-divider>
-            }
-            @if (hasDigitalFile(book)) {
-              @if (readMenuItems$ | async; as readItems) {
-                @if (readItems.length > 0) {
-                  <p-splitbutton [label]="getReadButtonLabel(book)" [icon]="getReadButtonIcon(book)" [model]="readItems" (onClick)="read(book.id)" outlined severity="primary" class="read-button-responsive"/>
-                } @else {
-                  <p-button [label]="getReadButtonLabel(book)" [icon]="getReadButtonIcon(book)" (onClick)="read(book.id)" outlined severity="primary" class="read-button-responsive"/>
-                }
-              } @else {
-                <p-button [label]="getReadButtonLabel(book)" [icon]="getReadButtonIcon(book)" (onClick)="read(book.id)" outlined severity="primary" class="read-button-responsive"/>
-              }
-              <p-divider layout="vertical"></p-divider>
-            }
-            @if ((userState.user!.permissions.canDownload || userState.user!.permissions.admin) && hasAnyFiles(book)) {
-              @if ((book!.alternativeFormats && book!.alternativeFormats.length > 0) || (book!.supplementaryFiles && book!.supplementaryFiles.length > 0)) {
-                @if (downloadMenuItems$ | async; as downloadItems) {
-                  <p-splitbutton [label]="(getDisplayFormat(book.primaryFile) ?? 'File') + ' · ' + formatFileSize(book.primaryFile)" icon="pi pi-download" [model]="downloadItems" (onClick)="download(book)" severity="success" outlined class="mobile-icon-only"/>
-                }
-              } @else {
-                <p-button [label]="(getDisplayFormat(book.primaryFile) ?? 'File') + ' · ' + formatFileSize(book.primaryFile)" icon="pi pi-download" severity="success" outlined (onClick)="download(book)" class="mobile-icon-only"></p-button>
-              }
-            }
-            @if (userState.user!.permissions.canEditMetadata || userState.user!.permissions.admin) {
-              <p-button
-                [label]="isAutoFetching ? 'Fetching...' : 'Fetch Metadata'"
-                [icon]="isAutoFetching ? 'pi pi-spin pi-spinner' : 'pi pi-bolt'"
-                [outlined]="true"
-                severity="warn"
-                (onClick)="quickRefresh(book!.id)"
-                [disabled]="isAutoFetching"
-                pTooltip="Automatically fetch metadata using default sources"
-                tooltipPosition="top"
-                class="mobile-icon-only">
-              </p-button>
-            }
-            @if (otherItems$ | async; as otherItems) {
-              @if (otherItems.length > 0) {
-                <p-button icon="pi pi-ellipsis-v" outlined severity="info" (click)="entitymenu.toggle($event)"></p-button>
-                <p-tieredMenu #entitymenu [model]="otherItems" [popup]="true" appendTo="body"></p-tieredMenu>
-              }
-            }
+            </div>
           </div>
         }
       </div>
     </div>
 
     <div class="description-section">
-      <div [ngClass]="{ 'line-clamp-7': !isExpanded }" class="description-content">
-        <div class="readonly-editor">
-          <p-editor #quillEditor [readonly]="true" [(ngModel)]="book.metadata!.description">
-            <ng-template #header></ng-template>
-          </p-editor>
+      <div class="section-header">
+        <i class="pi pi-align-left"></i>
+        <span>Synopsis</span>
+      </div>
+      <div class="description-body">
+        <div [ngClass]="{ 'line-clamp-7': !isExpanded }" class="description-content">
+          <div class="readonly-editor">
+            <p-editor #quillEditor [readonly]="true" [(ngModel)]="book.metadata!.description">
+              <ng-template #header></ng-template>
+            </p-editor>
+          </div>
+        </div>
+        @if (book.metadata!.description && book.metadata!.description.length > 500) {
+          <button class="expand-toggle" (click)="toggleExpand()">
+            {{ isExpanded ? 'Show less' : 'Show more' }}
+            <i class="pi" [ngClass]="isExpanded ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (isComicBook(book) && hasComicMetadata(book)) {
+      <div class="comic-metadata-section">
+        <div class="section-header clickable" (click)="isComicSectionExpanded = !isComicSectionExpanded">
+          <div class="section-header-left">
+            <i class="pi pi-images"></i>
+            <span>Comic Details</span>
+          </div>
+          <i class="pi section-toggle-icon" [ngClass]="isComicSectionExpanded ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+        </div>
+
+        <div class="comic-metadata-content" [ngClass]="{'collapsed': !isComicSectionExpanded}">
+          @let comic = book.metadata!.comicMetadata!;
+
+          <div class="comic-info-grid">
+            @if (comic.issueNumber) {
+              <div class="comic-info-item">
+                <span class="comic-info-label">Issue</span>
+                <span class="comic-info-value">#{{ comic.issueNumber }}</span>
+              </div>
+            }
+            @if (comic.volumeName) {
+              <div class="comic-info-item">
+                <span class="comic-info-label">Volume</span>
+                <span class="comic-info-value">
+                  {{ comic.volumeName }}
+                  @if (comic.volumeNumber) {
+                    <span class="comic-volume-number">Vol. {{ comic.volumeNumber }}</span>
+                  }
+                </span>
+              </div>
+            }
+            @if (comic.storyArc) {
+              <div class="comic-info-item">
+                <span class="comic-info-label">Story Arc</span>
+                <span class="comic-info-value">
+                  {{ comic.storyArc }}
+                  @if (comic.storyArcNumber) {
+                    <span class="comic-arc-number">(#{{ comic.storyArcNumber }})</span>
+                  }
+                </span>
+              </div>
+            }
+            @if (comic.alternateSeries) {
+              <div class="comic-info-item">
+                <span class="comic-info-label">Alt. Series</span>
+                <span class="comic-info-value">
+                  {{ comic.alternateSeries }}
+                  @if (comic.alternateIssue) {
+                    #{{ comic.alternateIssue }}
+                  }
+                </span>
+              </div>
+            }
+            @if (comic.format) {
+              <div class="comic-info-item">
+                <span class="comic-info-label">Format</span>
+                <span class="comic-info-value">{{ comic.format }}</span>
+              </div>
+            }
+            @if (comic.imprint) {
+              <div class="comic-info-item">
+                <span class="comic-info-label">Imprint</span>
+                <span class="comic-info-value">{{ comic.imprint }}</span>
+              </div>
+            }
+          </div>
+
+          @if (hasAnyCreators(comic)) {
+            <div class="comic-subsection">
+              <div class="comic-subsection-title">
+                <i class="pi pi-users"></i>
+                <span>Creators</span>
+              </div>
+              <div class="comic-creators-grid">
+                @if (comic.pencillers?.length) {
+                  <div class="comic-creator-row">
+                    <span class="comic-creator-role">Pencillers</span>
+                    <div class="comic-creator-names">
+                      @for (name of comic.pencillers; track name) {
+                        <a class="comic-creator-link" (click)="goToCreator(name, 'penciller')">{{ name }}</a>
+                      }
+                    </div>
+                  </div>
+                }
+                @if (comic.inkers?.length) {
+                  <div class="comic-creator-row">
+                    <span class="comic-creator-role">Inkers</span>
+                    <div class="comic-creator-names">
+                      @for (name of comic.inkers; track name) {
+                        <a class="comic-creator-link" (click)="goToCreator(name, 'inker')">{{ name }}</a>
+                      }
+                    </div>
+                  </div>
+                }
+                @if (comic.colorists?.length) {
+                  <div class="comic-creator-row">
+                    <span class="comic-creator-role">Colorists</span>
+                    <div class="comic-creator-names">
+                      @for (name of comic.colorists; track name) {
+                        <a class="comic-creator-link" (click)="goToCreator(name, 'colorist')">{{ name }}</a>
+                      }
+                    </div>
+                  </div>
+                }
+                @if (comic.letterers?.length) {
+                  <div class="comic-creator-row">
+                    <span class="comic-creator-role">Letterers</span>
+                    <div class="comic-creator-names">
+                      @for (name of comic.letterers; track name) {
+                        <a class="comic-creator-link" (click)="goToCreator(name, 'letterer')">{{ name }}</a>
+                      }
+                    </div>
+                  </div>
+                }
+                @if (comic.coverArtists?.length) {
+                  <div class="comic-creator-row">
+                    <span class="comic-creator-role">Cover Artists</span>
+                    <div class="comic-creator-names">
+                      @for (name of comic.coverArtists; track name) {
+                        <a class="comic-creator-link" (click)="goToCreator(name, 'coverArtist')">{{ name }}</a>
+                      }
+                    </div>
+                  </div>
+                }
+                @if (comic.editors?.length) {
+                  <div class="comic-creator-row">
+                    <span class="comic-creator-role">Editors</span>
+                    <div class="comic-creator-names">
+                      @for (name of comic.editors; track name) {
+                        <a class="comic-creator-link" (click)="goToCreator(name, 'editor')">{{ name }}</a>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          @if (comic.characters?.length || comic.teams?.length || comic.locations?.length) {
+            <div class="comic-subsection">
+              <div class="comic-subsection-title">
+                <i class="pi pi-globe"></i>
+                <span>Universe</span>
+              </div>
+              <div class="comic-tags-container">
+                @if (comic.characters?.length) {
+                  <div class="comic-tag-row">
+                    <span class="comic-tag-label">Characters</span>
+                    <div class="comic-tag-list">
+                      @for (character of comic.characters; track character) {
+                        <a class="comic-tag-clickable" (click)="goToCharacter(character)">
+                          <app-tag color="cyan" size="xs">{{ character }}</app-tag>
+                        </a>
+                      }
+                    </div>
+                  </div>
+                }
+                @if (comic.teams?.length) {
+                  <div class="comic-tag-row">
+                    <span class="comic-tag-label">Teams</span>
+                    <div class="comic-tag-list">
+                      @for (team of comic.teams; track team) {
+                        <a class="comic-tag-clickable" (click)="goToTeam(team)">
+                          <app-tag color="violet" size="xs">{{ team }}</app-tag>
+                        </a>
+                      }
+                    </div>
+                  </div>
+                }
+                @if (comic.locations?.length) {
+                  <div class="comic-tag-row">
+                    <span class="comic-tag-label">Locations</span>
+                    <div class="comic-tag-list">
+                      @for (location of comic.locations; track location) {
+                        <a class="comic-tag-clickable" (click)="goToLocation(location)">
+                          <app-tag color="amber" size="xs">{{ location }}</app-tag>
+                        </a>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          @if (comic.manga || comic.blackAndWhite || comic.readingDirection === 'rtl') {
+            <div class="comic-properties">
+              @if (comic.manga) {
+                <span class="comic-property-badge manga">
+                  <i class="pi pi-book"></i> Manga
+                </span>
+              }
+              @if (comic.blackAndWhite) {
+                <span class="comic-property-badge bw">
+                  <i class="pi pi-palette"></i> B&W
+                </span>
+              }
+              @if (comic.readingDirection === 'rtl') {
+                <span class="comic-property-badge rtl">
+                  <i class="pi pi-arrow-left"></i> RTL
+                </span>
+              }
+            </div>
+          }
+
+          @if (comic.webLink) {
+            <div class="comic-web-link">
+              <a [href]="comic.webLink" target="_blank" rel="noopener noreferrer" class="comic-external-link">
+                <i class="pi pi-external-link"></i>
+                <span>{{ formatWebLink(comic.webLink) }}</span>
+              </a>
+            </div>
+          }
+
+          @if (comic.notes) {
+            <div class="comic-notes">
+              <div class="comic-notes-label">
+                <i class="pi pi-file-edit"></i>
+                <span>Notes</span>
+              </div>
+              <p class="comic-notes-content">{{ comic.notes }}</p>
+            </div>
+          }
         </div>
       </div>
-      @if (book.metadata!.description && book.metadata!.description.length > 500) {
-        <p-button
-          [label]="isExpanded ? 'Show less' : 'Show more'"
-          [icon]="isExpanded ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
-          iconPos="right"
-          size="small"
-          text
-          (click)="toggleExpand()">
-        </p-button>
-      }
-    </div>
+    }
+
+    @if (isAudiobook(book) && hasAudiobookMetadata(book)) {
+      <div class="audiobook-metadata-section">
+        <div class="section-header clickable" (click)="isAudiobookSectionExpanded = !isAudiobookSectionExpanded">
+          <div class="section-header-left">
+            <i class="pi pi-headphones"></i>
+            <span>Audiobook Details</span>
+          </div>
+          <i class="pi section-toggle-icon" [ngClass]="isAudiobookSectionExpanded ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+        </div>
+
+        <div class="audiobook-metadata-content" [ngClass]="{'collapsed': !isAudiobookSectionExpanded}">
+          @let audio = book.metadata!.audiobookMetadata!;
+
+          <div class="audiobook-info-grid">
+            @if (audio.durationSeconds) {
+              <div class="audiobook-info-item">
+                <span class="audiobook-info-label">Duration</span>
+                <span class="audiobook-info-value">{{ formatDuration(audio.durationSeconds) }}</span>
+              </div>
+            }
+            @if (book.metadata?.narrator) {
+              <div class="audiobook-info-item">
+                <span class="audiobook-info-label">Narrator</span>
+                <a class="audiobook-info-value audiobook-link" (click)="goToNarrator(book.metadata!.narrator!)">
+                  {{ book.metadata?.narrator }}
+                </a>
+              </div>
+            }
+            @if (audio.chapterCount) {
+              <div class="audiobook-info-item">
+                <span class="audiobook-info-label">Chapters</span>
+                <span class="audiobook-info-value">{{ audio.chapterCount }}</span>
+              </div>
+            }
+            @if (audio.bitrate) {
+              <div class="audiobook-info-item">
+                <span class="audiobook-info-label">Bitrate</span>
+                <span class="audiobook-info-value">{{ audio.bitrate }} kbps</span>
+              </div>
+            }
+            @if (audio.sampleRate) {
+              <div class="audiobook-info-item">
+                <span class="audiobook-info-label">Sample Rate</span>
+                <span class="audiobook-info-value">{{ formatSampleRate(audio.sampleRate) }}</span>
+              </div>
+            }
+            @if (audio.channels) {
+              <div class="audiobook-info-item">
+                <span class="audiobook-info-label">Channels</span>
+                <span class="audiobook-info-value">{{ getChannelLabel(audio.channels) }}</span>
+              </div>
+            }
+            @if (audio.codec) {
+              <div class="audiobook-info-item">
+                <span class="audiobook-info-label">Codec</span>
+                <span class="audiobook-info-value">{{ audio.codec.toUpperCase() }}</span>
+              </div>
+            }
+          </div>
+
+          @if (book.metadata?.abridged != null) {
+            <div class="audiobook-properties">
+              <span class="audiobook-property-badge" [ngClass]="book.metadata?.abridged ? 'abridged' : 'unabridged'">
+                <i class="pi" [ngClass]="book.metadata?.abridged ? 'pi-minus-circle' : 'pi-check-circle'"></i>
+                {{ book.metadata?.abridged ? 'Abridged' : 'Unabridged' }}
+              </span>
+            </div>
+          }
+        </div>
+      </div>
+    }
 
     <app-metadata-tabs
       [book]="book"

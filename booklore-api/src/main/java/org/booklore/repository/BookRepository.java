@@ -20,7 +20,7 @@ import java.util.Set;
 public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpecificationExecutor<BookEntity> {
     Optional<BookEntity> findBookByIdAndLibraryId(long id, long libraryId);
 
-    @EntityGraph(attributePaths = { "metadata", "shelves", "libraryPath", "bookFiles" })
+    @EntityGraph(attributePaths = { "metadata", "shelves", "libraryPath", "library", "bookFiles" })
     @Query("SELECT b FROM BookEntity b LEFT JOIN FETCH b.bookFiles bf WHERE b.id = :id AND (b.deleted IS NULL OR b.deleted = false)")
     Optional<BookEntity> findByIdWithBookFiles(@Param("id") Long id);
 

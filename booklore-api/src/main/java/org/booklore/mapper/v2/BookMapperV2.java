@@ -1,5 +1,6 @@
 package org.booklore.mapper.v2;
 
+import org.booklore.mapper.ComicMetadataMapper;
 import org.booklore.mapper.ShelfMapper;
 import org.booklore.model.dto.*;
 import org.booklore.model.entity.*;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring", uses = ShelfMapper.class, unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", uses = {ShelfMapper.class, ComicMetadataMapper.class}, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface BookMapperV2 {
 
     @Mapping(source = "library.id", target = "libraryId")

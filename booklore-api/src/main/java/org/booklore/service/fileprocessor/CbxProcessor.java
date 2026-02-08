@@ -2,10 +2,12 @@ package org.booklore.service.fileprocessor;
 
 import org.booklore.mapper.BookMapper;
 import org.booklore.model.dto.BookMetadata;
+import org.booklore.model.dto.ComicMetadata;
 import org.booklore.model.dto.settings.LibraryFile;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.BookMetadataEntity;
+import org.booklore.model.entity.ComicMetadataEntity;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.BookAdditionalFileRepository;
 import org.booklore.repository.BookRepository;
@@ -236,6 +238,9 @@ public class CbxProcessor extends AbstractFileProcessor implements BookFileProce
             if (extracted.getCategories() != null) {
                 bookCreatorService.addCategoriesToBook(extracted.getCategories(), bookEntity);
             }
+            if (extracted.getComicMetadata() != null) {
+                saveComicMetadata(bookEntity, extracted.getComicMetadata());
+            }
         } catch (Exception e) {
             log.warn("Failed to extract ComicInfo metadata for '{}': {}", bookEntity.getPrimaryBookFile().getFileName(), e.getMessage());
             // Fallback to filename-derived title
@@ -251,6 +256,39 @@ public class CbxProcessor extends AbstractFileProcessor implements BookFileProce
         }
         String title = UNDERSCORE_HYPHEN_PATTERN.matcher(baseName).replaceAll(" ").trim();
         bookEntity.getMetadata().setTitle(truncate(title, 1000));
+    }
+
+    private void saveComicMetadata(BookEntity bookEntity, ComicMetadata comicDto) {
+        Long bookId = bookEntity.getId();
+        if (bookId == null) {
+            log.warn("Cannot save comic metadata - book ID is null for '{}'",
+                    bookEntity.getPrimaryBookFile().getFileName());
+            return;
+        }
+
+        ComicMetadataEntity comic = new ComicMetadataEntity();
+        comic.setBookId(bookId);
+        comic.setBookMetadata(bookEntity.getMetadata());
+        comic.setIssueNumber(comicDto.getIssueNumber());
+        comic.setVolumeName(comicDto.getVolumeName());
+        comic.setVolumeNumber(comicDto.getVolumeNumber());
+        comic.setStoryArc(comicDto.getStoryArc());
+        comic.setStoryArcNumber(comicDto.getStoryArcNumber());
+        comic.setAlternateSeries(comicDto.getAlternateSeries());
+        comic.setAlternateIssue(comicDto.getAlternateIssue());
+        comic.setImprint(comicDto.getImprint());
+        comic.setFormat(comicDto.getFormat());
+        comic.setBlackAndWhite(comicDto.getBlackAndWhite() != null ? comicDto.getBlackAndWhite() : Boolean.FALSE);
+        comic.setManga(comicDto.getManga() != null ? comicDto.getManga() : Boolean.FALSE);
+        comic.setReadingDirection(comicDto.getReadingDirection() != null ? comicDto.getReadingDirection() : "ltr");
+        comic.setWebLink(comicDto.getWebLink());
+        comic.setNotes(comicDto.getNotes());
+
+        // Set on parent - relationships will be populated in saveConnections()
+        bookEntity.getMetadata().setComicMetadata(comic);
+
+        // Store the DTO for later processing in saveConnections
+        bookCreatorService.setComicMetadataDto(bookEntity, comicDto);
     }
 }
 
