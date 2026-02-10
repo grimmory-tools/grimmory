@@ -1,7 +1,7 @@
 <ng-container *transloco="let t; prefix: 'dashboard.scroller'">
   <div class="dashboard-scroller-container">
     <h2 class="dashboard-scroller-title">
-      {{ title }}
+      {{ title | transloco }}
       @if (isMagicShelf) {
         <i class="pi pi-sparkles magic-shelf-icon"></i>
       }

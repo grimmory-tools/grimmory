@@ -114,23 +114,21 @@ export class DashboardSettingsComponent implements OnInit {
   }
 
   getScrollerTitle(scroller: ScrollerConfig): string {
-    const t = (key: string) => this.translocoService.translate(`dashboard.settings.scrollerTypes.${key}`);
-
     if (scroller.type === ScrollerType.MAGIC_SHELF && scroller.magicShelfId) {
-      return this.magicShelvesMap.get(scroller.magicShelfId) || t('magicShelf');
+      return this.magicShelvesMap.get(scroller.magicShelfId) || 'dashboard.scroller.magicShelf';
     }
 
     switch (scroller.type) {
       case ScrollerType.LAST_READ:
-        return t('lastRead');
+        return 'dashboard.scroller.continueReading';
       case ScrollerType.LAST_LISTENED:
-        return t('lastListened');
+        return 'dashboard.scroller.continueListening';
       case ScrollerType.LATEST_ADDED:
-        return t('latestAdded');
+        return 'dashboard.scroller.recentlyAdded';
       case ScrollerType.RANDOM:
-        return t('random');
+        return 'dashboard.scroller.discoverNew';
       default:
-        return t('default');
+        return 'dashboard.scroller.default';
     }
   }
 

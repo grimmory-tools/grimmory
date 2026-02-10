@@ -9,7 +9,13 @@
   },
   "scroller": {
     "noBooksFound": "No books found for this scroller.",
-    "loadError": "Failed to load books! Please try refreshing the page."
+    "loadError": "Failed to load books! Please try refreshing the page.",
+    "continueListening": "Continue Listening",
+    "continueReading": "Continue Reading",
+    "recentlyAdded": "Recently Added",
+    "discoverNew": "Discover Something New",
+    "magicShelf": "Magic Shelf",
+    "default": "Scroller"
   },
   "settings": {
     "title": "Dashboard Configuration",

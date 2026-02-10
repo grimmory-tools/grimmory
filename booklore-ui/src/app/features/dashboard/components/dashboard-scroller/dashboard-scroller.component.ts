@@ -7,7 +7,7 @@ import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {Book} from '../../../book/model/book.model';
 import {ScrollerType} from '../../models/dashboard-config.model';
 import { BookCardOverlayPreferenceService } from '../../../book/components/book-browser/book-card-overlay-preference.service';
-import {TranslocoDirective} from '@jsverse/transloco';
+import {TranslocoDirective, TranslocoPipe} from '@jsverse/transloco';
 
 @Component({
   selector: 'app-dashboard-scroller',
@@ -18,7 +18,8 @@ import {TranslocoDirective} from '@jsverse/transloco';
     BookCardComponent,
     ProgressSpinnerModule,
     NgClass,
-    TranslocoDirective
+    TranslocoDirective,
+    TranslocoPipe
   ],
   standalone: true
 })

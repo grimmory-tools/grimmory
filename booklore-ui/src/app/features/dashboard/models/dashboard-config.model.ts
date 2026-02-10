@@ -26,9 +26,9 @@ export interface DashboardConfig {
 
 export const DEFAULT_DASHBOARD_CONFIG: DashboardConfig = {
   scrollers: [
-    {id: '1', type: ScrollerType.LAST_LISTENED, title: 'Continue Listening', enabled: true, order: 1, maxItems: DEFAULT_MAX_ITEMS},
-    {id: '2', type: ScrollerType.LAST_READ, title: 'Continue Reading', enabled: true, order: 2, maxItems: DEFAULT_MAX_ITEMS},
-    {id: '3', type: ScrollerType.LATEST_ADDED, title: 'Recently Added', enabled: true, order: 3, maxItems: DEFAULT_MAX_ITEMS},
-    {id: '4', type: ScrollerType.RANDOM, title: 'Discover Something New', enabled: true, order: 4, maxItems: DEFAULT_MAX_ITEMS}
+    {id: '1', type: ScrollerType.LAST_LISTENED, title: 'dashboard.scroller.continueListening', enabled: true, order: 1, maxItems: DEFAULT_MAX_ITEMS},
+    {id: '2', type: ScrollerType.LAST_READ, title: 'dashboard.scroller.continueReading', enabled: true, order: 2, maxItems: DEFAULT_MAX_ITEMS},
+    {id: '3', type: ScrollerType.LATEST_ADDED, title: 'dashboard.scroller.recentlyAdded', enabled: true, order: 3, maxItems: DEFAULT_MAX_ITEMS},
+    {id: '4', type: ScrollerType.RANDOM, title: 'dashboard.scroller.discoverNew', enabled: true, order: 4, maxItems: DEFAULT_MAX_ITEMS}
   ]
 };

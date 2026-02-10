@@ -9,7 +9,13 @@
   },
   "scroller": {
     "noBooksFound": "No se encontraron libros para este carrusel.",
-    "loadError": "Error al cargar los libros. Por favor, intenta actualizar la pagina."
+    "loadError": "Error al cargar los libros. Por favor, intenta actualizar la pagina.",
+    "continueListening": "Seguir escuchando",
+    "continueReading": "Seguir leyendo",
+    "recentlyAdded": "Añadidos recientemente",
+    "discoverNew": "Descubre algo nuevo",
+    "magicShelf": "Estante mágico",
+    "default": "Carrusel"
   },
   "settings": {
     "title": "Configuración del panel",
