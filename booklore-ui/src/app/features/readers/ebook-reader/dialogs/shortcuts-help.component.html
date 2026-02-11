@@ -1,0 +1,42 @@
+<div class="dialog-overlay" (click)="onOverlayClick($event)">
+  <div class="dialog">
+    <div class="dialog-header">
+      <h2>Keyboard Shortcuts</h2>
+      <button class="close-btn" (click)="onClose()">
+        <app-reader-icon name="close" [size]="18"></app-reader-icon>
+      </button>
+    </div>
+
+    <div class="dialog-body">
+      @for (group of shortcutGroups; track group.title) {
+        <div class="shortcut-group">
+          <h3 class="group-title">{{ group.title }}</h3>
+          <div class="shortcuts-list">
+            @for (shortcut of group.shortcuts; track shortcut.description) {
+              <div class="shortcut-item">
+                <div class="shortcut-keys">
+                  @for (key of shortcut.keys; track key; let last = $last) {
+                    <kbd class="key">{{ key }}</kbd>
+                    @if (!last) {
+                      <span class="key-separator">+</span>
+                    }
+                  }
+                </div>
+                <div class="shortcut-info">
+                  <span class="shortcut-description">{{ shortcut.description }}</span>
+                  @if (isMobile && shortcut.mobileGesture) {
+                    <span class="mobile-gesture">{{ shortcut.mobileGesture }}</span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="dialog-footer">
+      <button class="btn btn-primary" (click)="onClose()">Got it</button>
+    </div>
+  </div>
+</div>

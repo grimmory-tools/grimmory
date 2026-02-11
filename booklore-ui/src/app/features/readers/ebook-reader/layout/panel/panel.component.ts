@@ -128,4 +128,9 @@ export class ReaderLeftSidebarComponent implements OnInit, OnDestroy {
     this.searchQuery = '';
     this.leftSidebarService.clearSearch();
   }
+
+  onCancelSearch(): void {
+    this.searchQuery = '';
+    this.leftSidebarService.clearSearch();
+  }
 }

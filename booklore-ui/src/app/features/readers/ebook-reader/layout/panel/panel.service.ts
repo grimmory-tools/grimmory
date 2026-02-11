@@ -64,6 +64,14 @@ export class ReaderLeftSidebarService {
     this._isOpen.next(false);
   }
 
+  toggle(tab?: LeftSidebarTab): void {
+    if (this._isOpen.value && (!tab || this._activeTab.value === tab)) {
+      this.close();
+    } else {
+      this.open(tab);
+    }
+  }
+
   setActiveTab(tab: LeftSidebarTab): void {
     this._activeTab.next(tab);
   }

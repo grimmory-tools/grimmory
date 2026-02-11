@@ -29,6 +29,7 @@ import {ReaderHeaderFooterVisibilityManager} from './shared/visibility.util';
 import {EpubCustomFontService} from './features/fonts/custom-font.service';
 import {TextSelectionAction, TextSelectionPopupComponent} from './shared/selection-popup.component';
 import {NoteDialogData, NoteDialogResult, ReaderNoteDialogComponent} from './dialogs/note-dialog.component';
+import {EbookShortcutsHelpComponent} from './dialogs/shortcuts-help.component';
 
 @Component({
   selector: 'app-ebook-reader',
@@ -43,7 +44,8 @@ import {NoteDialogData, NoteDialogResult, ReaderNoteDialogComponent} from './dia
     ReaderLeftSidebarComponent,
     ReaderNavbarComponent,
     TextSelectionPopupComponent,
-    ReaderNoteDialogComponent
+    ReaderNoteDialogComponent,
+    EbookShortcutsHelpComponent
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [
@@ -109,6 +111,8 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
 
   showNoteDialog = false;
   noteDialogData: NoteDialogData | null = null;
+  isFullscreen = false;
+  showShortcutsHelp = false;
 
   get currentProgressData(): any {
     return this.progressService.currentProgressData;
@@ -150,6 +154,14 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
     this.headerService.showMetadata$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.showMetadata = true);
+
+    this.headerService.toggleFullscreen$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.toggleFullscreen());
+
+    this.headerService.showShortcutsHelp$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.showShortcutsHelp = true);
 
     this.isLoading = true;
     this.initializeFoliate().pipe(
@@ -312,6 +324,46 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
           case 'text-selected':
             this.selectionService.handleTextSelected(event.detail, event.popupPosition);
             break;
+          case 'toggle-fullscreen':
+            this.toggleFullscreen();
+            break;
+          case 'toggle-shortcuts-help':
+            this.showShortcutsHelp = !this.showShortcutsHelp;
+            break;
+          case 'go-first-section':
+            this.viewManager.goToSection(0).subscribe();
+            break;
+          case 'go-last-section': {
+            const s = this.progressService.currentProgressData?.section;
+            if (s && s.total > 0) {
+              this.viewManager.goToSection(s.total - 1).subscribe();
+            }
+            break;
+          }
+          case 'toggle-toc':
+            this.sidebarService.toggle('chapters');
+            break;
+          case 'toggle-search':
+            this.leftSidebarService.toggle('search');
+            break;
+          case 'toggle-notes':
+            this.leftSidebarService.toggle('notes');
+            break;
+          case 'escape-pressed':
+            if (this.showShortcutsHelp) {
+              this.showShortcutsHelp = false;
+            } else if (this.showNoteDialog) {
+              this.noteService.closeDialog();
+            } else if (this.showControls) {
+              this.showControls = false;
+            } else if (this.showQuickSettings) {
+              this.showQuickSettings = false;
+            } else if (this.showMetadata) {
+              this.showMetadata = false;
+            } else if (this.isFullscreen) {
+              this.exitFullscreen();
+            }
+            break;
         }
       });
   }
@@ -340,6 +392,28 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
         renderer.setAttribute?.('flow', this.stateService.currentState.flow);
       }
     }
+  }
+
+  @HostListener('document:fullscreenchange')
+  onFullscreenChange(): void {
+    this.isFullscreen = !!document.fullscreenElement;
+    this.headerService.setFullscreen(this.isFullscreen);
+  }
+
+  toggleFullscreen(): void {
+    if (document.fullscreenElement) {
+      this.exitFullscreen();
+    } else {
+      this.enterFullscreen();
+    }
+  }
+
+  private enterFullscreen(): void {
+    document.documentElement.requestFullscreen?.();
+  }
+
+  private exitFullscreen(): void {
+    document.exitFullscreen?.();
   }
 
   onProgressChange(fraction: number): void {

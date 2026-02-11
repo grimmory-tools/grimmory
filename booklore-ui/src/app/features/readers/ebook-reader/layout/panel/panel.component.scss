@@ -452,10 +452,36 @@ $transition-normal: 200ms ease;
     }
   }
 
+  .progress-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
   .progress-text {
     font-size: 11px;
     color: $text-muted;
-    text-align: center;
+  }
+
+  .cancel-search-btn {
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    border-radius: 50%;
+    color: $text-muted;
+    cursor: pointer;
+    transition: background $transition-fast, color $transition-fast;
+    flex-shrink: 0;
+
+    &:hover {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+    }
   }
 }
 

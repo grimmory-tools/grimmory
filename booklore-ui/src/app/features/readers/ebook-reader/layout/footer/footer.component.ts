@@ -88,14 +88,6 @@ export class ReaderNavbarComponent {
     return this.formatDuration((this.progressData?.time.section ?? 0) * 60);
   }
 
-  get locationCurrent(): number {
-    return this.progressData?.location.current ?? 0;
-  }
-
-  get locationTotal(): number {
-    return this.progressData?.location.total ?? 0;
-  }
-
   get sectionCurrent(): number {
     return this.progressData?.section.current ?? 0;
   }
@@ -104,8 +96,12 @@ export class ReaderNavbarComponent {
     return this.progressData?.section.total ?? 0;
   }
 
+  get currentChapter(): string {
+    return this.progressData?.tocItem?.label ?? '';
+  }
+
   get currentPage(): string {
-    return this.progressData?.pageItem?.label ?? 'N/A';
+    return this.progressData?.pageItem?.label ?? '';
   }
 
   get navbarVisible(): boolean {
@@ -125,6 +121,13 @@ export class ReaderNavbarComponent {
   onProgressChange(event: Event) {
     const target = event.target as HTMLInputElement;
     const fraction = parseFloat(target.value) / 100;
+    this.progressChange.emit(fraction);
+  }
+
+  onGoToPercentage(value: string): void {
+    const percentage = parseFloat(value);
+    if (isNaN(percentage) || percentage < 0 || percentage > 100) return;
+    const fraction = percentage / 100;
     this.progressChange.emit(fraction);
   }
 

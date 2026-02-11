@@ -19,6 +19,7 @@ export class ReaderHeaderComponent implements OnInit, OnDestroy {
 
   isVisible = false;
   isCurrentCfiBookmarked = false;
+  isFullscreen = false;
 
   get bookTitle(): string {
     return this.headerService.title;
@@ -36,6 +37,10 @@ export class ReaderHeaderComponent implements OnInit, OnDestroy {
     this.headerService.isCurrentCfiBookmarked$
       .pipe(takeUntil(this.destroy$))
       .subscribe(bookmarked => this.isCurrentCfiBookmarked = bookmarked);
+
+    this.headerService.fullscreenState$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(fs => this.isFullscreen = fs);
   }
 
   ngOnDestroy(): void {
@@ -61,6 +66,14 @@ export class ReaderHeaderComponent implements OnInit, OnDestroy {
 
   onShowControls(): void {
     this.headerService.openControls();
+  }
+
+  onToggleFullscreen(): void {
+    this.headerService.toggleFullscreen();
+  }
+
+  onShowHelp(): void {
+    this.headerService.showShortcutsHelp();
   }
 
   onClose(): void {

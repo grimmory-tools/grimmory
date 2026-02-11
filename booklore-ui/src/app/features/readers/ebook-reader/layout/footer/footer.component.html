@@ -31,7 +31,7 @@
 </div>
 
 @if (showLocationPopover) {
-  <div class="location-popover" (mousedown)="$event.preventDefault()">
+  <div class="location-popover">
     <div class="popover-content">
       <div class="time-info">
         <div class="time-section">
@@ -47,40 +47,53 @@
 
       <div class="divider"></div>
 
-      <div class="location-controls">
-        <div class="control-row">
-          <label>Page</label>
-          <span>{{ currentPage }}</span>
+      <div class="book-info">
+        <div class="chapter-info">
+          <span class="label">Chapter</span>
+          <span class="chapter-name">{{ currentChapter }}</span>
         </div>
-        <div class="control-row">
-          <label>Location</label>
-          <input type="number" [value]="locationCurrent"/>
-          <span>/ {{ locationTotal }}</span>
-        </div>
-        <div class="control-row">
-          <label>Section</label>
-          <span>{{ sectionCurrent }} / {{ sectionTotal }}</span>
+        <div class="info-row">
+          <div class="info-column">
+            <span class="label">Section</span>
+            <span class="value">{{ sectionCurrent }} / {{ sectionTotal }}</span>
+          </div>
+          @if (progressData?.pageItem) {
+            <div class="info-separator"></div>
+            <div class="info-column">
+              <span class="label">Page</span>
+              <span class="value">{{ currentPage }}</span>
+            </div>
+          }
         </div>
       </div>
 
       <div class="divider"></div>
 
-      <div class="section-navigation">
+      <div class="nav-section">
+        <div class="goto-row">
+          <label>Go to</label>
+          <input type="number" [value]="currentPercentage" #percentInput
+            (keydown.enter)="onGoToPercentage(percentInput.value)" [min]="0" [max]="100"/>
+          <span>%</span>
+          <button class="go-btn" (click)="onGoToPercentage(percentInput.value)" title="Go to percentage">Go</button>
+        </div>
+        <div class="section-navigation">
         <button class="nav-btn" title="First Section" (click)="onFirstSection()">
-          <app-reader-icon name="chevron-first" [size]="16"></app-reader-icon>
+          <app-reader-icon name="chevron-first" [size]="20"></app-reader-icon>
         </button>
         <button class="nav-btn" title="Previous Section" (click)="onPreviousSection()">
-          <app-reader-icon name="chevron-left" [size]="16"></app-reader-icon>
+          <app-reader-icon name="chevron-left" [size]="20"></app-reader-icon>
         </button>
         <button class="nav-btn" title="Jump To...">
-          <app-reader-icon name="dots-vertical" [size]="16"></app-reader-icon>
+          <app-reader-icon name="dots-vertical" [size]="20"></app-reader-icon>
         </button>
         <button class="nav-btn" title="Next Section" (click)="onNextSection()">
-          <app-reader-icon name="chevron-right" [size]="16"></app-reader-icon>
+          <app-reader-icon name="chevron-right" [size]="20"></app-reader-icon>
         </button>
         <button class="nav-btn" title="Last Section" (click)="onLastSection()">
-          <app-reader-icon name="chevron-last" [size]="16"></app-reader-icon>
+          <app-reader-icon name="chevron-last" [size]="20"></app-reader-icon>
         </button>
+      </div>
       </div>
     </div>
   </div>

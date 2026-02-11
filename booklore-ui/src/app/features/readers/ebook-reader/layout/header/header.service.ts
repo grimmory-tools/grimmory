@@ -28,8 +28,14 @@ export class ReaderHeaderService {
 
   private _showControls = new Subject<void>();
   private _showMetadata = new Subject<void>();
+  private _toggleFullscreen = new Subject<void>();
+  private _showShortcutsHelp = new Subject<void>();
+  private _isFullscreen = new BehaviorSubject<boolean>(false);
   showControls$ = this._showControls.asObservable();
   showMetadata$ = this._showMetadata.asObservable();
+  toggleFullscreen$ = this._toggleFullscreen.asObservable();
+  showShortcutsHelp$ = this._showShortcutsHelp.asObservable();
+  fullscreenState$ = this._isFullscreen.asObservable();
 
   get currentState() {
     return this.stateService.currentState;
@@ -77,6 +83,18 @@ export class ReaderHeaderService {
     this._showMetadata.next();
   }
 
+  toggleFullscreen(): void {
+    this._toggleFullscreen.next();
+  }
+
+  setFullscreen(isFullscreen: boolean): void {
+    this._isFullscreen.next(isFullscreen);
+  }
+
+  showShortcutsHelp(): void {
+    this._showShortcutsHelp.next();
+  }
+
   close(): void {
     this.location.back();
   }
@@ -117,6 +135,7 @@ export class ReaderHeaderService {
   reset(): void {
     this._forceVisible.next(false);
     this._isCurrentCfiBookmarked.next(false);
+    this._isFullscreen.next(false);
     this.bookTitle = '';
   }
 }

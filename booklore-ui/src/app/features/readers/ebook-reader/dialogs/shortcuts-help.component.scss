@@ -1,0 +1,245 @@
+$dialog-bg: #1a1a1a;
+$text-primary: rgba(255, 255, 255, 0.95);
+$text-secondary: rgba(255, 255, 255, 0.6);
+$text-muted: rgba(255, 255, 255, 0.4);
+$border-color: rgba(255, 255, 255, 0.08);
+$hover-bg: rgba(255, 255, 255, 0.08);
+$active-color: #818cf8;
+$transition-fast: 150ms ease;
+$transition-normal: 200ms ease;
+
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 13000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn $transition-normal;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.dialog {
+  background: $dialog-bg;
+  border: 1px solid $border-color;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 480px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: slideUp 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.dialog-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid $border-color;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, transparent 100%);
+
+  h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: $text-primary;
+    letter-spacing: -0.3px;
+  }
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: $text-muted;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  transition: background $transition-fast, color $transition-fast;
+  line-height: 1;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: $hover-bg;
+    color: $text-primary;
+  }
+}
+
+.dialog-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+  }
+}
+
+.shortcut-group {
+  .group-title {
+    margin: 0 0 12px 0;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: $text-muted;
+  }
+}
+
+.shortcuts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.shortcut-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  transition: background $transition-fast;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.shortcut-keys {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 26px;
+  padding: 0 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 5px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  color: $text-primary;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+.key-separator {
+  color: $text-muted;
+  font-size: 12px;
+  margin: 0 2px;
+}
+
+.shortcut-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  text-align: right;
+}
+
+.shortcut-description {
+  font-size: 13px;
+  color: $text-secondary;
+}
+
+.mobile-gesture {
+  font-size: 11px;
+  color: $active-color;
+  font-style: italic;
+}
+
+.dialog-footer {
+  padding: 16px 20px;
+  border-top: 1px solid $border-color;
+  display: flex;
+  justify-content: flex-end;
+  background: linear-gradient(0deg, rgba(255, 255, 255, 0.02) 0%, transparent 100%);
+}
+
+.btn {
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background $transition-fast, transform $transition-fast;
+  border: none;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.btn-primary {
+  background: $active-color;
+  color: white;
+
+  &:hover {
+    background: #9ba3fb;
+  }
+}
+
+@media (max-width: 480px) {
+  .dialog {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .shortcut-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .shortcut-info {
+    align-items: flex-start;
+    text-align: left;
+  }
+}

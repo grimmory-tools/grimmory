@@ -189,7 +189,7 @@ $transition-normal: 200ms ease;
   color: $text-primary;
 
   .popover-content {
-    padding: 20px;
+    padding: 16px 20px;
   }
 
   .time-info {
@@ -197,12 +197,12 @@ $transition-normal: 200ms ease;
     gap: 24px;
     align-items: center;
     justify-content: space-around;
-    padding: 8px 0;
+    padding: 4px 0;
 
     .time-section {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 4px;
       text-align: center;
       flex: 1;
 
@@ -232,49 +232,135 @@ $transition-normal: 200ms ease;
   .divider {
     height: 1px;
     background: $border-color;
-    margin: 16px 0;
+    margin: 12px 0;
   }
 
-  .location-controls {
+  .book-info {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    padding: 4px 0;
 
-    .control-row {
+    .chapter-info {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 16px;
+      gap: 4px;
+      text-align: center;
 
-      label {
-        min-width: 70px;
-        font-size: 13px;
-        font-weight: 500;
-        color: $text-secondary;
+      .label {
+        font-size: 11px;
+        color: $text-muted;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
       }
 
-      input {
-        width: 65px;
-        padding: 6px 10px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid $border-color;
-        border-radius: 6px;
+      .chapter-name {
+        font-size: 14px;
+        font-weight: 500;
         color: $text-primary;
-        font-size: 13px;
-        text-align: right;
-        transition: background $transition-fast, border-color $transition-fast;
-        font-variant-numeric: tabular-nums;
+        line-height: 1.3;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+      }
+    }
 
-        &:focus {
-          outline: none;
-          background: $hover-bg;
-          border-color: $active-color;
+    .info-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+
+      .info-column {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        text-align: center;
+
+        .label {
+          font-size: 11px;
+          color: $text-muted;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          font-weight: 600;
+        }
+
+        .value {
+          font-size: 18px;
+          font-weight: 600;
+          letter-spacing: -0.3px;
+          color: $text-primary;
         }
       }
 
-      span {
-        font-size: 13px;
-        color: $text-secondary;
+      .info-separator {
+        width: 1px;
+        height: 36px;
+        background: $border-color;
+      }
+    }
+  }
+
+  .nav-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .goto-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    label {
+      font-size: 13px;
+      font-weight: 500;
+      color: $text-secondary;
+    }
+
+    input {
+      width: 65px;
+      padding: 6px 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid $border-color;
+      border-radius: 6px;
+      color: $text-primary;
+      font-size: 13px;
+      text-align: right;
+      transition: background $transition-fast, border-color $transition-fast;
+      font-variant-numeric: tabular-nums;
+
+      &:focus {
+        outline: none;
+        background: $hover-bg;
+        border-color: $active-color;
+      }
+    }
+
+    span {
+      font-size: 13px;
+      color: $text-secondary;
+    }
+
+    .go-btn {
+      padding: 7px 18px;
+      background: $active-color;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background $transition-fast;
+      flex-shrink: 0;
+
+      &:hover {
+        background: #9ba3fb;
       }
     }
   }
@@ -294,8 +380,8 @@ $transition-normal: 200ms ease;
       border-radius: 8px;
       cursor: pointer;
       transition: background $transition-fast, color $transition-fast, transform $transition-fast;
-      width: 40px;
-      height: 40px;
+      width: 44px;
+      height: 44px;
       display: flex;
       align-items: center;
       justify-content: center;

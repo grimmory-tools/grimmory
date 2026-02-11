@@ -82,4 +82,8 @@
       (cancel)="onNoteCancel()"
     ></app-reader-note-dialog>
   }
+
+  @if (showShortcutsHelp) {
+    <app-ebook-shortcuts-help (close)="showShortcutsHelp = false"></app-ebook-shortcuts-help>
+  }
 </div>

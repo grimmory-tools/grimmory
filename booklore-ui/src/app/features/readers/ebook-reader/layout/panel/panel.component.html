@@ -63,7 +63,12 @@
                   <div class="progress-bar">
                     <div class="progress-fill" [style.width.%]="searchState.progress * 100"></div>
                   </div>
-                  <span class="progress-text">Searching... {{ (searchState.progress * 100) | number:'1.0-0' }}%</span>
+                  <div class="progress-info">
+                    <span class="progress-text">Searching... {{ (searchState.progress * 100) | number:'1.0-0' }}%</span>
+                    <button class="cancel-search-btn" (click)="onCancelSearch()" title="Cancel search">
+                      <app-reader-icon name="close" [size]="14"></app-reader-icon>
+                    </button>
+                  </div>
                 </div>
               }
 
