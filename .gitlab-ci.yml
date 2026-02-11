@@ -1,0 +1,94 @@
+stages:
+  - test
+  - package-build
+  - mirror
+
+
+# =========================================================
+# BACKEND TESTS (Java 25 + Gradle)
+# =========================================================
+
+backend_tests:
+  stage: test
+  image: eclipse-temurin:25-jdk
+
+  script:
+    - cd booklore-api
+    - ./gradlew test --no-daemon --parallel
+
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "schedule"'
+
+
+# =========================================================
+# FRONTEND TESTS (Node 22 + Angular)
+# =========================================================
+
+frontend_tests:
+  stage: test
+  image: node:22
+
+  script:
+    - cd booklore-ui
+    - npm ci --force
+    - npx ng test --watch=false --browsers=ChromeHeadless
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "schedule"'
+
+
+# =========================================================
+# DOCKER BUILD — ONLY AFTER TEST SUCCESS
+# =========================================================
+
+docker_build_manual:
+  stage: package-build
+  image: docker:27
+  services:
+    - docker:27-dind
+
+  needs:
+    - backend_tests
+    - frontend_tests
+
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+    IMAGE_NAME: "$CI_REGISTRY_IMAGE/booklore"
+
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "schedule" && $CI_COMMIT_BRANCH == "main"'
+      when: manual
+
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login "$CI_REGISTRY" -u "$CI_REGISTRY_USER" --password-stdin
+    - docker buildx create --use
+
+  script:
+    - |
+      docker buildx build \
+        --platform linux/amd64 \
+        --tag $IMAGE_NAME:latest \
+        --tag $IMAGE_NAME:${CI_COMMIT_SHORT_SHA} \
+        --push \
+        .
+
+
+# =========================================================
+# MIRROR JOB — ONLY SYNC DEVELOP
+# =========================================================
+
+mirror_from_github:
+  stage: mirror
+  image: alpine:latest
+
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+
+  before_script:
+    - apk add --no-cache git
+
+  script:
+    - git clone --branch develop --single-branch https://github.com/booklore-app/booklore.git source
+    - cd source
+    - git remote add gitlab https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.theprivateserver.de/WorldTeacher/wt-booklore.git
+    - git push --force gitlab develop
+    - git push --force gitlab --tags
