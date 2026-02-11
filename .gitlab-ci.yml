@@ -1,0 +1,14 @@
+stages:
+  - mirror
+
+mirror_from_github:
+  stage: mirror
+  image: alpine:latest
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  before_script:
+    - apk add --no-cache git
+  script:
+    - git clone --mirror https://github.com/booklore-app/booklore.git
+    - cd booklore
+    - git push --mirror https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.theprivateserver.de/WorldTeacher/wt-booklore.git
