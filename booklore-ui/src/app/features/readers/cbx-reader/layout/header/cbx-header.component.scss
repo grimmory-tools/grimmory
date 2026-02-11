@@ -105,6 +105,58 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
+  .mobile-only {
+    display: none;
+  }
+
+  .overflow-menu {
+    position: relative;
+  }
+
+  .overflow-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+  }
+
+  .overflow-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 4px;
+    background: #2d2d2d;
+    border: 1px solid #404040;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+    min-width: 180px;
+    padding: 4px;
+  }
+
+  .overflow-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px 12px;
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 6px;
+    white-space: nowrap;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    &.active {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.15);
+    }
+  }
 }
 
 @media (max-width: 600px) {
@@ -122,6 +174,14 @@
 
     .book-title {
       font-size: 12px;
+    }
+
+    .desktop-only {
+      display: none;
+    }
+
+    .mobile-only {
+      display: block;
     }
   }
 }

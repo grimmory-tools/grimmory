@@ -15,15 +15,37 @@
   </div>
   <span class="book-title">{{ bookTitle }}</span>
   <div class="header-right">
-    <button class="icon-btn" (click)="onToggleSlideshow()" [title]="state.isSlideshowActive ? 'Stop Slideshow (P)' : 'Start Slideshow (P)'" [class.active]="state.isSlideshowActive">
+    <button class="icon-btn desktop-only" (click)="onToggleSlideshow()" [title]="state.isSlideshowActive ? 'Stop Slideshow (P)' : 'Start Slideshow (P)'" [class.active]="state.isSlideshowActive">
       <app-reader-icon [name]="state.isSlideshowActive ? 'pause' : 'play'" [size]="20" />
     </button>
-    <button class="icon-btn" (click)="onToggleFullscreen()" [title]="state.isFullscreen ? 'Exit Fullscreen (F)' : 'Fullscreen (F)'">
+    <button class="icon-btn desktop-only" (click)="onToggleFullscreen()" [title]="state.isFullscreen ? 'Exit Fullscreen (F)' : 'Fullscreen (F)'">
       <app-reader-icon [name]="state.isFullscreen ? 'fullscreen-exit' : 'fullscreen'" [size]="20" />
     </button>
-    <button class="icon-btn" (click)="onShowShortcutsHelp()" title="Keyboard Shortcuts (?)">
+    <button class="icon-btn desktop-only" (click)="onShowShortcutsHelp()" title="Keyboard Shortcuts (?)">
       <app-reader-icon name="help" [size]="20" />
     </button>
+    <div class="overflow-menu mobile-only">
+      <button class="icon-btn" (click)="overflowOpen = !overflowOpen; $event.stopPropagation()" title="More">
+        <app-reader-icon name="dots-vertical" [size]="20" />
+      </button>
+      @if (overflowOpen) {
+        <div class="overflow-backdrop" (click)="overflowOpen = false"></div>
+        <div class="overflow-dropdown">
+          <button class="overflow-item" (click)="onToggleSlideshow(); overflowOpen = false" [class.active]="state.isSlideshowActive">
+            <app-reader-icon [name]="state.isSlideshowActive ? 'pause' : 'play'" [size]="18" />
+            <span>{{ state.isSlideshowActive ? 'Stop Slideshow' : 'Start Slideshow' }}</span>
+          </button>
+          <button class="overflow-item" (click)="onToggleFullscreen(); overflowOpen = false">
+            <app-reader-icon [name]="state.isFullscreen ? 'fullscreen-exit' : 'fullscreen'" [size]="18" />
+            <span>{{ state.isFullscreen ? 'Exit Fullscreen' : 'Fullscreen' }}</span>
+          </button>
+          <button class="overflow-item" (click)="onShowShortcutsHelp(); overflowOpen = false">
+            <app-reader-icon name="help" [size]="18" />
+            <span>Keyboard Shortcuts</span>
+          </button>
+        </div>
+      }
+    </div>
     <button class="icon-btn" (click)="onOpenSettings()" title="Settings">
       <app-reader-icon name="settings" [size]="20" />
     </button>

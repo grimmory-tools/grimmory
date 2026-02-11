@@ -20,6 +20,7 @@ export class CbxHeaderComponent implements OnInit, OnDestroy {
   @Input() currentPageHasNotes = false;
 
   isVisible = true;
+  overflowOpen = false;
   state: CbxHeaderState = {
     isFullscreen: false,
     isSlideshowActive: false

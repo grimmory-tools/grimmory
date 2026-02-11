@@ -94,6 +94,9 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   noteDialogData: CbxNoteDialogData | null = null;
   private editingNote: BookNoteV2 | null = null;
 
+  // Footer visibility (for slideshow progress bar positioning)
+  isFooterVisible = false;
+
   // Fullscreen state
   isFullscreen = false;
 
@@ -148,6 +151,10 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
       this.headerService.setForceVisible(state.headerVisible);
       this.footerService.setForceVisible(state.footerVisible);
     });
+
+    this.footerService.forceVisible$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(visible => this.isFooterVisible = visible);
 
     this.subscribeToHeaderEvents();
     this.subscribeToSidebarEvents();

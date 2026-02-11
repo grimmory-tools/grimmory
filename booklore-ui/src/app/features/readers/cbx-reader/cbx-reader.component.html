@@ -33,9 +33,7 @@
   }
 
   @if (isSlideshowActive) {
-    <div class="slideshow-indicator">
-      <span class="slideshow-badge">Slideshow</span>
-    </div>
+    <div class="slideshow-progress" [class.above-footer]="isFooterVisible" [style.animation-duration.ms]="slideshowInterval"></div>
   }
 
   <div class="image-container"

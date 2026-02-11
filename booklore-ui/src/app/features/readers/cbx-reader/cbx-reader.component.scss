@@ -28,33 +28,26 @@
     }
   }
 
-  // Slideshow indicator
-  .slideshow-indicator {
+  // Slideshow progress bar
+  .slideshow-progress {
     position: absolute;
-    top: 60px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 11;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: #4a90e2;
+    z-index: 1001;
     pointer-events: none;
+    animation: slideshow-fill linear infinite;
+    transition: bottom 0.3s ease;
 
-    .slideshow-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
-      background: rgba(74, 144, 226, 0.9);
-      border-radius: 16px;
-      font-size: 12px;
-      font-weight: 500;
-      color: white;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-      animation: pulse 2s ease-in-out infinite;
+    &.above-footer {
+      bottom: 52px;
     }
   }
 
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
+  @keyframes slideshow-fill {
+    from { width: 0; }
+    to { width: 100%; }
   }
 
   .bookmark-indicator {
@@ -550,6 +543,10 @@
 
 @media (max-width: 768px) {
   .comic-reader-container {
+    .slideshow-progress.above-footer {
+      bottom: 48px;
+    }
+
     .image-container {
       top: 0;
       bottom: 0;
