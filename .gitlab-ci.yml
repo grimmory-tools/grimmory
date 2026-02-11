@@ -2,7 +2,6 @@ include:
   # Docker template
   - component: "$CI_SERVER_FQDN/to-be-continuous/docker/gitlab-ci-docker@8.0"
     inputs:
-      build-tool: "dind"
       hadolint-disabled: true
       trivy-disabled: true
       sbom-disabled: true
