@@ -81,6 +81,3 @@ mirror_from_github:
 .docker-base:
   tags:
     - buildah
-semantic-release:
-  tags:
-    - universal
