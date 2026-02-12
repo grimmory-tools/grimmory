@@ -32,7 +32,7 @@ frontend_tests:
   script:
     - cd booklore-ui
     - npm install --force --legacy-peer-deps
-    - pnpm exec ng test
+    - npm ng test
   rules:
     - if: '$CI_PIPELINE_SOURCE != "schedule"'
 
