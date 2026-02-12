@@ -32,7 +32,7 @@ include:
 
       # Multi-arch: for dind this relies on the component's build setup (buildx/qemu handling).
       # If your runner can't do multi-arch with dind, switch to buildah and fix userns/privileges instead.
-      build-args: "--plattform linux/amd64 --platform linux/arm64"
+      build-args: "--platform linux/amd64 --platform linux/arm64"
 
       # Optional: publish extra tags for releases (e.g., also tag "latest" on semver tags)
       # release-extra-tags: "latest"
