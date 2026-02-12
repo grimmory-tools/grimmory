@@ -55,7 +55,7 @@ docker_build_manual:
     IMAGE_NAME: "$CI_REGISTRY_IMAGE/booklore"
 
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_PIPELINE_SOURCE != "schedule" && $CI_COMMIT_BRANCH == "main"'
       when: manual
 
   before_script:
