@@ -15,17 +15,19 @@ import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.BookRepository;
 import org.booklore.util.FileUtils;
-import org.booklore.util.SecureXmlUtils;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.apache.pdfbox.io.IOUtils;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -48,12 +50,56 @@ public class EpubReaderService {
     private static final String EPUB_NS = "http://www.idpf.org/2007/ops";
 
     private static final int MAX_CACHE_ENTRIES = 50;
+    private static final int BUFFER_SIZE = 65536; // 64KB buffer for I/O
     private static final Charset[] ENCODINGS_TO_TRY = {
             StandardCharsets.UTF_8,
             StandardCharsets.ISO_8859_1,
             Charset.forName("CP437")
     };
     private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
+
+    private static final Map<String, String> CONTENT_TYPE_MAP = createContentTypeMap();
+
+    private static final ThreadLocal<DocumentBuilder> DOCUMENT_BUILDER = ThreadLocal.withInitial(() -> {
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+            factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            return factory.newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            throw new RuntimeException("Failed to create DocumentBuilder", e);
+        }
+    });
+
+    private static Map<String, String> createContentTypeMap() {
+        Map<String, String> map = new HashMap<>(32);
+        map.put(".xhtml", "application/xhtml+xml");
+        map.put(".html", "application/xhtml+xml");
+        map.put(".htm", "application/xhtml+xml");
+        map.put(".css", "text/css");
+        map.put(".js", "application/javascript");
+        map.put(".jpg", "image/jpeg");
+        map.put(".jpeg", "image/jpeg");
+        map.put(".png", "image/png");
+        map.put(".gif", "image/gif");
+        map.put(".svg", "image/svg+xml");
+        map.put(".webp", "image/webp");
+        map.put(".woff", "font/woff");
+        map.put(".woff2", "font/woff2");
+        map.put(".ttf", "font/ttf");
+        map.put(".otf", "font/otf");
+        map.put(".eot", "application/vnd.ms-fontobject");
+        map.put(".xml", "application/xml");
+        map.put(".ncx", "application/x-dtbncx+xml");
+        map.put(".smil", "application/smil+xml");
+        map.put(".mp3", "audio/mpeg");
+        map.put(".mp4", "video/mp4");
+        map.put(".webm", "video/webm");
+        map.put(".opf", "application/oebps-package+xml");
+        return Collections.unmodifiableMap(map);
+    }
 
     private final BookRepository bookRepository;
     private final Map<String, CachedEpubMetadata> metadataCache = new ConcurrentHashMap<>();
@@ -62,12 +108,33 @@ public class EpubReaderService {
         final EpubBookInfo bookInfo;
         final long lastModified;
         final Charset successfulEncoding;
+        final Set<String> validPaths; // Pre-computed valid paths for O(1) lookup
+        final Map<String, EpubManifestItem> manifestByHref; // O(1) lookup by href
         volatile long lastAccessed;
 
         CachedEpubMetadata(EpubBookInfo bookInfo, long lastModified, Charset encoding) {
             this.bookInfo = bookInfo;
             this.lastModified = lastModified;
             this.successfulEncoding = encoding;
+            this.lastAccessed = System.currentTimeMillis();
+
+            Set<String> paths = new HashSet<>(bookInfo.getManifest().size() + 2);
+            paths.add(CONTAINER_PATH);
+            if (bookInfo.getContainerPath() != null) {
+                paths.add(bookInfo.getContainerPath());
+            }
+
+            Map<String, EpubManifestItem> byHref = new HashMap<>(bookInfo.getManifest().size());
+            for (EpubManifestItem item : bookInfo.getManifest()) {
+                paths.add(item.getHref());
+                byHref.put(item.getHref(), item);
+            }
+
+            this.validPaths = Collections.unmodifiableSet(paths);
+            this.manifestByHref = Collections.unmodifiableMap(byHref);
+        }
+
+        void touch() {
             this.lastAccessed = System.currentTimeMillis();
         }
     }
@@ -103,7 +170,7 @@ public class EpubReaderService {
             actualPath = normalizePath(filePath, metadata.bookInfo.getRootPath());
         }
 
-        if (!isValidPath(actualPath, metadata.bookInfo)) {
+        if (!isValidPath(actualPath, metadata)) {
             throw new FileNotFoundException("File not found in EPUB: " + filePath);
         }
 
@@ -118,13 +185,10 @@ public class EpubReaderService {
         Path epubPath = getBookPath(bookId, bookType);
         try {
             CachedEpubMetadata metadata = getCachedMetadata(epubPath);
+            metadata.touch();
             String normalizedPath = normalizePath(filePath, metadata.bookInfo.getRootPath());
-
-            return metadata.bookInfo.getManifest().stream()
-                    .filter(item -> item.getHref().equals(normalizedPath))
-                    .findFirst()
-                    .map(EpubManifestItem::getMediaType)
-                    .orElse(guessContentType(filePath));
+            EpubManifestItem item = metadata.manifestByHref.get(normalizedPath);
+            return item != null ? item.getMediaType() : guessContentType(filePath);
         } catch (IOException e) {
             return guessContentType(filePath);
         }
@@ -138,13 +202,12 @@ public class EpubReaderService {
         Path epubPath = getBookPath(bookId, bookType);
         try {
             CachedEpubMetadata metadata = getCachedMetadata(epubPath);
+            metadata.touch();
             String normalizedPath = normalizePath(filePath, metadata.bookInfo.getRootPath());
 
-            return metadata.bookInfo.getManifest().stream()
-                    .filter(item -> item.getHref().equals(normalizedPath))
-                    .findFirst()
-                    .map(EpubManifestItem::getSize)
-                    .orElse(0L);
+            // O(1) lookup instead of O(n) stream filter
+            EpubManifestItem item = metadata.manifestByHref.get(normalizedPath);
+            return item != null ? item.getSize() : 0L;
         } catch (IOException e) {
             return 0L;
         }
@@ -583,7 +646,9 @@ public class EpubReaderService {
             throw new FileNotFoundException("Entry not found: " + entryPath);
         }
 
-        DocumentBuilder builder = SecureXmlUtils.createSecureDocumentBuilder(true);
+        // Use thread-local DocumentBuilder instead of creating factory each time
+        DocumentBuilder builder = DOCUMENT_BUILDER.get();
+        builder.reset(); // Reset state for reuse
         try (InputStream is = zipFile.getInputStream(entry)) {
             return builder.parse(is);
         }
@@ -644,16 +709,11 @@ public class EpubReaderService {
         return normalized;
     }
 
-    private boolean isValidPath(String path, EpubBookInfo info) {
+    private boolean isValidPath(String path, CachedEpubMetadata metadata) {
         if (path == null) return false;
-
         if (path.contains("..")) return false;
 
-        if (CONTAINER_PATH.equals(path)) return true;
-        if (info.getContainerPath() != null && info.getContainerPath().equals(path)) return true;
-
-        return info.getManifest().stream()
-                .anyMatch(item -> item.getHref().equals(path));
+        return metadata.validPaths.contains(path);
     }
 
     private void streamEntryFromZip(Path epubPath, String entryName, OutputStream outputStream, Charset cachedEncoding) throws IOException {
@@ -681,7 +741,7 @@ public class EpubReaderService {
                 .get()) {
             ZipArchiveEntry entry = zipFile.getEntry(entryName);
             if (entry != null) {
-                try (InputStream in = zipFile.getInputStream(entry)) {
+                try (InputStream in = new BufferedInputStream(zipFile.getInputStream(entry), BUFFER_SIZE)) {
                     IOUtils.copy(in, outputStream);
                 }
                 return true;
@@ -692,28 +752,11 @@ public class EpubReaderService {
 
     private String guessContentType(String path) {
         if (path == null) return "application/octet-stream";
-        String lower = path.toLowerCase();
-        if (lower.endsWith(".xhtml") || lower.endsWith(".html") || lower.endsWith(".htm")) {
-            return "application/xhtml+xml";
-        }
-        if (lower.endsWith(".css")) return "text/css";
-        if (lower.endsWith(".js")) return "application/javascript";
-        if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "image/jpeg";
-        if (lower.endsWith(".png")) return "image/png";
-        if (lower.endsWith(".gif")) return "image/gif";
-        if (lower.endsWith(".svg")) return "image/svg+xml";
-        if (lower.endsWith(".webp")) return "image/webp";
-        if (lower.endsWith(".woff")) return "font/woff";
-        if (lower.endsWith(".woff2")) return "font/woff2";
-        if (lower.endsWith(".ttf")) return "font/ttf";
-        if (lower.endsWith(".otf")) return "font/otf";
-        if (lower.endsWith(".eot")) return "application/vnd.ms-fontobject";
-        if (lower.endsWith(".xml")) return "application/xml";
-        if (lower.endsWith(".ncx")) return "application/x-dtbncx+xml";
-        if (lower.endsWith(".smil")) return "application/smil+xml";
-        if (lower.endsWith(".mp3")) return "audio/mpeg";
-        if (lower.endsWith(".mp4")) return "video/mp4";
-        if (lower.endsWith(".webm")) return "video/webm";
-        return "application/octet-stream";
+
+        int lastDot = path.lastIndexOf('.');
+        if (lastDot < 0) return "application/octet-stream";
+
+        String extension = path.substring(lastDot).toLowerCase();
+        return CONTENT_TYPE_MAP.getOrDefault(extension, "application/octet-stream");
     }
 }
