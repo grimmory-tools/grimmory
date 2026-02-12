@@ -4,7 +4,7 @@ stages:
   - package-test
   - publish
   - mirror
-
+  - build
 # Only include semrel + docker components for non-scheduled pipelines
 include:
   - component: "$CI_SERVER_FQDN/to-be-continuous/semantic-release/gitlab-ci-semrel@4.0"
