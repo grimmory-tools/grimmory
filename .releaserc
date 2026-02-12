@@ -1,0 +1,27 @@
+plugins:
+  - "@semantic-release/commit-analyzer"
+  - "@semantic-release/release-notes-generator"
+  - "@semantic-release/gitlab"
+  # generates the CHANGELOG.md
+  - "@semantic-release/changelog"
+  # emulates bumpversion (replaces version in pyproject.toml)
+  - - semantic-release-replace-plugin
+    - replacements:
+        - files:
+            - pyproject.toml
+          from:
+            - ^version *= *"\d+\.\d+\.\d+"
+          to: 'version = "${nextRelease.version}"'
+          countMatches: true
+  # git commit/push modified files (CHANGELOG.md & pyproject.toml)
+  - - "@semantic-release/git"
+    - assets:
+        - "*.md"
+        - "*.toml"
+      # the commit MUST trigger a pipeline on tag (to perform publish jobs)
+      # can be skipped on prod branch
+      message: "chore(semantic-release): release ${nextRelease.version} - [skip ci on prod]"
+branches:
+  - main
+  - master
+tagFormat: "${version}"
