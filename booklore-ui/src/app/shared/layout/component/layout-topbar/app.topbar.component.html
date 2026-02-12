@@ -224,24 +224,29 @@
               </li>
             }
           }
-          @if (hasStatsAccess) {
-            <li>
-              <button
-                class="mobile-menu-item"
-                (click)="shouldShowStatsMenu ? statsMenuMobile.toggle($event) : handleStatsButtonClick($event)"
-              >
-                <svg class="multi-color-chart-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect x="1" y="13" width="2.5" height="6" rx="0.5" fill="#ef4444"/>
-                  <rect x="5" y="10" width="2.5" height="9" rx="0.5" fill="#f59e0b"/>
-                  <rect x="9" y="6" width="2.5" height="13" rx="0.5" fill="#10b981"/>
-                  <rect x="13" y="8" width="2.5" height="11" rx="0.5" fill="#3b82f6"/>
-                </svg>
-                {{ t('charts') }}
-              </button>
-              @if (shouldShowStatsMenu) {
-                <p-menu #statsMenuMobile [model]="statsMenuItems" [popup]="true"/>
-              }
-            </li>
+          @if (userService.userState$ | async; as statsUserState) {
+            @if (statsUserState.user?.permissions?.canAccessLibraryStats || statsUserState.user?.permissions?.admin) {
+              <li>
+                <button
+                  class="mobile-menu-item"
+                  (click)="navigateToStats(); mobileMenu.hide()"
+                >
+                  <i class="pi pi-chart-line topbar-icon"></i>
+                  {{ t('libraryStats') }}
+                </button>
+              </li>
+            }
+            @if (statsUserState.user?.permissions?.canAccessUserStats || statsUserState.user?.permissions?.admin) {
+              <li>
+                <button
+                  class="mobile-menu-item"
+                  (click)="navigateToUserStats(); mobileMenu.hide()"
+                >
+                  <i class="pi pi-users topbar-icon"></i>
+                  {{ t('readingStats') }}
+                </button>
+              </li>
+            }
           }
           @if (userService.userState$ | async; as userState) {
             @if (userState.user?.permissions?.canManageLibrary || userState.user?.permissions?.admin) {

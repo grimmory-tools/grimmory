@@ -62,7 +62,6 @@ export class AppTopBarComponent implements OnDestroy {
   @ViewChild('topbarmenubutton') topbarMenuButton!: ElementRef;
   @ViewChild('topbarmenu') menu!: ElementRef;
   @ViewChild('statsMenu') statsMenu: any;
-  @ViewChild('statsMenuMobile') statsMenuMobile: any;
 
   isMenuVisible = true;
   progressHighlight = false;
