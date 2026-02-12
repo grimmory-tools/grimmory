@@ -1,95 +1,94 @@
 stages:
   - test
   - package-build
+  - package-test
+  - publish
   - mirror
 
+# Only include semrel + docker components for non-scheduled pipelines
+include:
+  - component: "$CI_SERVER_FQDN/to-be-continuous/semantic-release/gitlab-ci-semrel@4.0"
+    rules:
+      - if: '$CI_PIPELINE_SOURCE != "schedule"'
+    inputs:
+      changelog-enabled: true
+      auto-release-enabled: true
+
+  - component: "$CI_SERVER_FQDN/to-be-continuous/docker/gitlab-ci-docker@8.0"
+    rules:
+      - if: '$CI_PIPELINE_SOURCE != "schedule"'
+    inputs:
+      trivy-disabled: true
+      cosign-strategy: "onrelease"
+      # IMPORTANT: disable "main"/"master" publish to avoid overwriting a "main" tag image;
+      # releases should be pushed on Git tags only.
+      prod-publish-strategy: "none"
+
+      # Build tool choice:
+      # - default is buildah in v8 (can hit unshare/userns issues on some runners)
+      # - dind requires a privileged runner
+      build-tool: "dind"
+
+      # Multi-arch: for dind this relies on the component's build setup (buildx/qemu handling).
+      # If your runner can't do multi-arch with dind, switch to buildah and fix userns/privileges instead.
+      build-args: "--platform linux/amd64 --platform linux/arm64"
+
+      # Optional: publish extra tags for releases (e.g., also tag "latest" on semver tags)
+      # release-extra-tags: "latest"
 
 # =========================================================
 # BACKEND TESTS (Java 25 + Gradle)
 # =========================================================
-
 backend_tests:
   stage: test
   image: eclipse-temurin:25-jdk
-
   script:
     - cd booklore-api
     - ./gradlew test --no-daemon --parallel
-
   rules:
-    - if: '$CI_PIPELINE_SOURCE != "schedule"'
-
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_TAG'
+      when: never
+    - when: on_success
 
 # =========================================================
 # FRONTEND TESTS (Node 22 + Angular)
 # =========================================================
-
 frontend_tests:
   stage: test
   image: node:22
-
-
   script:
     - cd booklore-ui
     - npm install --force --legacy-peer-deps
     - npx ng test
   rules:
-    - if: '$CI_PIPELINE_SOURCE != "schedule"'
-
-
-# =========================================================
-# DOCKER BUILD — ONLY AFTER TEST SUCCESS
-# =========================================================
-
-docker_build_manual:
-  stage: package-build
-  image: docker:27
-  services:
-    - docker:27-dind
-
-  needs:
-    - backend_tests
-    - frontend_tests
-
-  variables:
-    DOCKER_TLS_CERTDIR: "/certs"
-    IMAGE_NAME: "$CI_REGISTRY_IMAGE/booklore"
-
-  rules:
-    - if: '$CI_PIPELINE_SOURCE != "schedule" && $CI_COMMIT_BRANCH == "main"'
-      when: manual
-
-  before_script:
-    - echo "$CI_REGISTRY_PASSWORD" | docker login "$CI_REGISTRY" -u "$CI_REGISTRY_USER" --password-stdin
-    - docker buildx create --use
-
-  script:
-    - |
-      docker buildx build \
-        --platform linux/amd64 \
-        --tag $IMAGE_NAME:latest \
-        --tag $IMAGE_NAME:${CI_COMMIT_SHORT_SHA} \
-        --push \
-        .
-
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$CI_COMMIT_TAG'
+      when: never
+    - when: on_success
 
 # =========================================================
-# MIRROR JOB — ONLY SYNC DEVELOP
+# MIRROR JOB — ONLY SYNC DEVELOP (scheduled pipelines only)
 # =========================================================
-
 mirror_from_github:
   stage: mirror
   image: alpine:latest
-
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
-
   before_script:
     - apk add --no-cache git
-
   script:
     - git clone --branch develop --single-branch https://github.com/booklore-app/booklore.git source
     - cd source
     - git remote add gitlab https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.theprivateserver.de/WorldTeacher/wt-booklore.git
     - git push --force gitlab develop
     - git push --force gitlab --tags
+
+.docker-base:
+  tags:
+    - buildah
+semantic-release:
+  tags:
+    - universal
