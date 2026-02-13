@@ -33,4 +33,4 @@ plugins:
         - "pyproject.toml"
         - "booklore-ui/package.json"
         - "booklore-api/gradle.properties"
-      message: "chore(release): ${nextRelease.version} [skip ci on prod]"
+      message: "chore(release): ${nextRelease.version}"

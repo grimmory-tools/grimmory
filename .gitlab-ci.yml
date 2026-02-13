@@ -107,14 +107,10 @@ mirror_from_github:
 .semrel-base:
   tags: [universal]
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: never
-    - when: on_success
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "main"'
       when: on_success
     - when: never
   variables:
-    # ensure semrel only considers main (align with your "master should die" repo model)
     SEMREL_BRANCHES_REF: "^main$"
 
 # Make ALL docker component jobs run ONLY on:
@@ -123,14 +119,9 @@ mirror_from_github:
 .docker-base:
   tags: [buildah]
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: never
-    - when: on_success
-    # MR: build/push an MR snapshot image AFTER tests (stage ordering ensures tests must pass)
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: on_success
       variables:
-        # Put MR images somewhere obvious; adjust naming to taste
         DOCKER_SNAPSHOT_IMAGE: "$CI_REGISTRY_IMAGE/mr:$CI_MERGE_REQUEST_IID"
         DOCKER_BUILD_ARGS: >-
           --platform linux/amd64
@@ -138,7 +129,6 @@ mirror_from_github:
           --build-arg APP_VERSION=$CI_MERGE_REQUEST_IID
           --build-arg APP_REVISION=$CI_COMMIT_SHA
 
-    # Tag: build/publish the release image with the tag
     - if: '$CI_COMMIT_TAG'
       when: on_success
       variables:
