@@ -373,9 +373,9 @@
   },
   "sidecar": {
     "title": "Sidecar Metadata",
-    "description": "View and manage sidecar metadata files (.opf) associated with this book. Sidecar files provide portable metadata that travels with the book file.",
+    "description": "View and manage sidecar metadata files (.metadata.json) associated with this book. Sidecar files provide portable metadata that travels with the book file.",
     "exportBtn": "Export to Sidecar",
-    "exportTooltip": "Export current book metadata to a sidecar (.opf) file",
+    "exportTooltip": "Export current book metadata to a sidecar (.metadata.json) file",
     "importBtn": "Import from Sidecar",
     "importTooltip": "Import metadata from the sidecar file into BookLore",
     "noSidecarTitle": "No Sidecar File Found",

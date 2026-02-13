@@ -848,7 +848,7 @@ export class MetadataViewerComponent implements OnInit, OnChanges {
         sort: 'title',
         direction: 'asc',
         sidebar: true,
-        filter: `${filterKey}:${filterValue}`
+        filter: `${filterKey}:${encodeURIComponent(filterValue)}`
       }
     });
   }

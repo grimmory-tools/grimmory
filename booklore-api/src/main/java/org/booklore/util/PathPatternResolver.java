@@ -32,6 +32,7 @@ public class PathPatternResolver {
     private final Pattern CONTROL_CHARACTER_PATTERN = Pattern.compile("\\p{Cntrl}");
     private final Pattern INVALID_CHARS_PATTERN = Pattern.compile("[\\\\/:*?\"<>|]");
     private final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\{(.*?)}");
+    private final Pattern MODIFIER_PLACEHOLDER_PATTERN = Pattern.compile("\\{([^}:]+)(?::([^}]+))?}");
     private final Pattern COMMA_SPACE_PATTERN = Pattern.compile(", ");
     private final Pattern SLASH_PATTERN = Pattern.compile("/");
 
@@ -154,32 +155,27 @@ public class PathPatternResolver {
 
         values.put("extension", extension);
 
-        // Handle optional blocks enclosed in <...>
+        // Handle optional blocks enclosed in <...>, supporting else clause via pipe: <left|right>
         Pattern optionalBlockPattern = Pattern.compile("<([^<>]*)>");
         Matcher matcher = optionalBlockPattern.matcher(pattern);
         StringBuilder resolved = new StringBuilder(1024);
 
         while (matcher.find()) {
-            String block = matcher.group(1);
-            Matcher placeholderMatcher = PLACEHOLDER_PATTERN.matcher(block);
-            boolean allHaveValues = true;
+            String blockContent = matcher.group(1);
 
-            // Check if all placeholders inside optional block have non-blank values
-            while (placeholderMatcher.find()) {
-                String key = placeholderMatcher.group(1);
-                String value = values.getOrDefault(key, "");
-                if (value.isBlank()) {
-                    allHaveValues = false;
-                    break;
-                }
-            }
+            // Split on first unescaped pipe for else clause
+            int pipeIndex = blockContent.indexOf('|');
+            String primaryBlock = pipeIndex >= 0 ? blockContent.substring(0, pipeIndex) : blockContent;
+            String fallbackBlock = pipeIndex >= 0 ? blockContent.substring(pipeIndex + 1) : null;
+
+            boolean allHaveValues = checkAllPlaceholdersHaveValues(primaryBlock, values);
 
             if (allHaveValues) {
-                String resolvedBlock = block;
-                for (Map.Entry<String, String> entry : values.entrySet()) {
-                    resolvedBlock = resolvedBlock.replace("{" + entry.getKey() + "}", entry.getValue());
-                }
+                String resolvedBlock = resolveBlockPlaceholders(primaryBlock, values);
                 matcher.appendReplacement(resolved, Matcher.quoteReplacement(resolvedBlock));
+            } else if (fallbackBlock != null) {
+                String resolvedFallback = resolveBlockPlaceholders(fallbackBlock, values);
+                matcher.appendReplacement(resolved, Matcher.quoteReplacement(resolvedFallback));
             } else {
                 matcher.appendReplacement(resolved, "");
             }
@@ -188,18 +184,22 @@ public class PathPatternResolver {
 
         String result = resolved.toString();
 
-        // Replace known placeholders with values, preserve unknown ones
-        Matcher placeholderMatcher = PLACEHOLDER_PATTERN.matcher(result);
+        // Replace known placeholders (with optional modifiers) with values, preserve unknown ones
+        Matcher placeholderMatcher = MODIFIER_PLACEHOLDER_PATTERN.matcher(result);
         StringBuilder finalResult = new StringBuilder(1024);
 
         while (placeholderMatcher.find()) {
-            String key = placeholderMatcher.group(1);
-            if (values.containsKey(key)) {
-                String replacement = values.get(key);
+            String fieldName = placeholderMatcher.group(1);
+            String modifier = placeholderMatcher.group(2);
+            if (values.containsKey(fieldName)) {
+                String replacement = values.get(fieldName);
+                if (modifier != null && !modifier.isEmpty()) {
+                    replacement = applyModifier(replacement, modifier, fieldName);
+                }
                 placeholderMatcher.appendReplacement(finalResult, Matcher.quoteReplacement(replacement));
             } else {
                 // Preserve unknown placeholders (e.g., {foo})
-                placeholderMatcher.appendReplacement(finalResult, Matcher.quoteReplacement("{" + key + "}"));
+                placeholderMatcher.appendReplacement(finalResult, Matcher.quoteReplacement(placeholderMatcher.group()));
             }
         }
         placeholderMatcher.appendTail(finalResult);
@@ -221,6 +221,67 @@ public class PathPatternResolver {
         }
 
         return validateFinalPath(result, folderBased);
+    }
+
+    private boolean checkAllPlaceholdersHaveValues(String block, Map<String, String> values) {
+        Matcher placeholderMatcher = MODIFIER_PLACEHOLDER_PATTERN.matcher(block);
+        while (placeholderMatcher.find()) {
+            String fieldName = placeholderMatcher.group(1);
+            String value = values.getOrDefault(fieldName, "");
+            if (value.isBlank()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private String resolveBlockPlaceholders(String block, Map<String, String> values) {
+        Matcher m = MODIFIER_PLACEHOLDER_PATTERN.matcher(block);
+        StringBuilder sb = new StringBuilder(256);
+        while (m.find()) {
+            String fieldName = m.group(1);
+            String modifier = m.group(2);
+            String replacement = values.getOrDefault(fieldName, "");
+            if (modifier != null && !modifier.isEmpty()) {
+                replacement = applyModifier(replacement, modifier, fieldName);
+            }
+            m.appendReplacement(sb, Matcher.quoteReplacement(replacement));
+        }
+        m.appendTail(sb);
+        return sb.toString();
+    }
+
+    private String applyModifier(String value, String modifier, String fieldName) {
+        if (value == null || value.isEmpty()) {
+            return value;
+        }
+        return switch (modifier) {
+            case "first" -> {
+                String[] parts = COMMA_SPACE_PATTERN.split(value);
+                yield parts[0].trim();
+            }
+            case "sort" -> {
+                String firstItem = COMMA_SPACE_PATTERN.split(value)[0].trim();
+                int lastSpace = firstItem.lastIndexOf(' ');
+                if (lastSpace > 0) {
+                    yield firstItem.substring(lastSpace + 1) + ", " + firstItem.substring(0, lastSpace);
+                }
+                yield firstItem;
+            }
+            case "initial" -> {
+                String target = value;
+                if ("authors".equals(fieldName)) {
+                    // For authors, use the first letter of the last name of the first author
+                    String firstAuthor = COMMA_SPACE_PATTERN.split(value)[0].trim();
+                    int lastSpace = firstAuthor.lastIndexOf(' ');
+                    target = lastSpace > 0 ? firstAuthor.substring(lastSpace + 1) : firstAuthor;
+                }
+                yield target.substring(0, 1).toUpperCase();
+            }
+            case "upper" -> value.toUpperCase();
+            case "lower" -> value.toLowerCase();
+            default -> value;
+        };
     }
 
     private String sanitize(String input) {

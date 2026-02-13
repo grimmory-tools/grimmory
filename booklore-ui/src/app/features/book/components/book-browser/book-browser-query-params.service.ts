@@ -249,7 +249,7 @@ export class BookBrowserQueryParamsService {
 
   serializeFilters(filters: Record<string, string[]>): string {
     return Object.entries(filters)
-      .map(([k, v]) => `${k}:${v.join('|')}`)
+      .map(([k, v]) => `${k}:${v.map(val => encodeURIComponent(val)).join('|')}`)
       .join(',');
   }
 
@@ -262,7 +262,7 @@ export class BookBrowserQueryParamsService {
       const [key, ...valueParts] = pair.split(':');
       const value = valueParts.join(':');
       if (key && value) {
-        parsedFilters[key] = value.split('|').map(v => v.trim()).filter(Boolean);
+        parsedFilters[key] = value.split('|').map(v => decodeURIComponent(v.trim())).filter(Boolean);
       }
     });
 

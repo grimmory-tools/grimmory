@@ -604,7 +604,7 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
         sort: 'title',
         direction: 'asc',
         sidebar: true,
-        filter: `${filterKey}:${filterValue}`
+        filter: `${filterKey}:${encodeURIComponent(filterValue)}`
       }
     });
   }
