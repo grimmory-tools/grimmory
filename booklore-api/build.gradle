@@ -43,7 +43,7 @@ dependencies {
     // --- Database & Migration ---
     implementation 'org.mariadb.jdbc:mariadb-java-client:3.5.7'
     implementation 'org.springframework.boot:spring-boot-starter-flyway'
-    implementation 'org.flywaydb:flyway-mysql:12.0.0'
+    implementation 'org.flywaydb:flyway-mysql:12.0.1'
 
     // --- Security & Authentication ---
     implementation 'io.jsonwebtoken:jjwt-api:0.13.0'
@@ -91,7 +91,7 @@ dependencies {
     implementation 'org.apache.commons:commons-text:1.15.0'
 
     // --- XML Support (JAXB) ---
-    implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.4'
+    implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.5'
     runtimeOnly 'org.glassfish.jaxb:jaxb-runtime:4.0.6'
 
     // --- Template Engine ---

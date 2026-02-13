@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import org.springframework.web.servlet.HandlerMapping;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -67,6 +68,11 @@ public class EpubReaderController {
 
         response.setHeader("Cache-Control", "public, max-age=3600");
 
-        epubReaderService.streamFile(bookId, bookType, filePath, response.getOutputStream());
+        try {
+            epubReaderService.streamFile(bookId, bookType, filePath, response.getOutputStream());
+        } catch (FileNotFoundException e) {
+            response.reset();
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+        }
     }
 }

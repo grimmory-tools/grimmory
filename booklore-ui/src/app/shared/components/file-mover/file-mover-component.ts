@@ -14,6 +14,7 @@ import {LibraryService} from "../../../features/book/service/library.service";
 import {AppSettingsService} from '../../service/app-settings.service';
 import {Select} from 'primeng/select';
 import {Library, LibraryPath} from '../../../features/book/model/library.model';
+import {replacePlaceholders} from '../../util/pattern-resolver';
 
 interface FilePreview {
   bookId: number;
@@ -267,15 +268,7 @@ export class FileMoverComponent implements OnDestroy {
     if (!pattern?.trim()) {
       newPath = fileName;
     } else {
-      newPath = pattern.replace(/<([^<>]+)>/g, (_, block) => {
-        const placeholders = [...block.matchAll(/{(.*?)}/g)].map(m => m[1]);
-        const allHaveValues = placeholders.every(key => values[key]?.trim());
-        return allHaveValues
-          ? block.replace(/{(.*?)}/g, (_: string, key: string) => values[key] ?? '')
-          : '';
-      });
-
-      newPath = newPath.replace(/{(.*?)}/g, (_, key) => values[key] ?? '');
+      newPath = replacePlaceholders(pattern, values);
 
       if (!newPath.endsWith(extension)) {
         newPath += extension;

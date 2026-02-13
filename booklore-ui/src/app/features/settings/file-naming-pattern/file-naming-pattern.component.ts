@@ -12,6 +12,7 @@ import {InputText} from 'primeng/inputtext';
 import {Tooltip} from 'primeng/tooltip';
 import {ExternalDocLinkComponent} from '../../../shared/components/external-doc-link/external-doc-link.component';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
+import {replacePlaceholders} from '../../../shared/util/pattern-resolver';
 
 @Component({
   selector: 'app-file-naming-pattern',
@@ -58,15 +59,8 @@ export class FileNamingPatternComponent implements OnInit {
       });
   }
 
-  private replacePlaceholders(pattern: string, values: Record<string, string>): string {
-    pattern = pattern.replace(/<([^<>]+)>/g, (_, block) => {
-      const placeholders = [...block.matchAll(/{(.*?)}/g)].map((m) => m[1]);
-      const allHaveValues = placeholders.every((key) => values[key]?.trim());
-      return allHaveValues
-        ? block.replace(/{(.*?)}/g, (_: string, key: string) => values[key] ?? '')
-        : '';
-    });
-    return pattern.replace(/{(.*?)}/g, (_, key) => values[key] ?? '').trim();
+  private resolvePattern(pattern: string, values: Record<string, string>): string {
+    return replacePlaceholders(pattern, values);
   }
 
   private appendExtensionIfMissing(path: string, ext = '.pdf'): string {
@@ -76,7 +70,7 @@ export class FileNamingPatternComponent implements OnInit {
   }
 
   private generatePreview(pattern: string): string {
-    let path = this.replacePlaceholders(pattern || '', this.exampleMetadata);
+    let path = this.resolvePattern(pattern || '', this.exampleMetadata);
 
     if (!path) return '/original_filename.pdf';
     if (path.endsWith('/')) return path + 'original_filename.pdf';
@@ -97,7 +91,7 @@ export class FileNamingPatternComponent implements OnInit {
   }
 
   validatePattern(pattern: string): boolean {
-    const validPatternRegex = /^[\w\s\-{}\[\]\/().<>.,:'"#]*$/;
+    const validPatternRegex = /^[\w\s\-{}\[\]\/().<>.,:'"#|]*$/;
     return validPatternRegex.test(pattern);
   }
 

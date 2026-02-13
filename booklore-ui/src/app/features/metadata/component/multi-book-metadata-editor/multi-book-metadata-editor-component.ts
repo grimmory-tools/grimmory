@@ -76,8 +76,8 @@ export class MultiBookMetadataEditorComponent implements OnInit, OnDestroy {
       switchMap(book =>
         this.bookService.getBookByIdFromAPI(book.id, true)
       ),
-      shareReplay(1),
-      takeUntil(this.destroy$)
+      takeUntil(this.destroy$),
+      shareReplay({bufferSize: 1, refCount: true})
     );
   }
 

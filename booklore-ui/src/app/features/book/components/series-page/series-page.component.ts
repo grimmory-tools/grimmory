@@ -246,7 +246,7 @@ export class SeriesPageComponent implements OnDestroy {
         sort: "title",
         direction: "asc",
         sidebar: true,
-        filter: `${filterKey}:${filterValue}`,
+        filter: `${filterKey}:${encodeURIComponent(filterValue)}`,
       },
     });
   }
