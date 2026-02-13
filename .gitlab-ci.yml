@@ -8,45 +8,44 @@ stages:
 
 workflow:
   rules:
-    # scheduled pipeline: only mirror job should run
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: always
-
-    # tag pipeline (e.g. semantic-release created a tag)
-    - if: '$CI_COMMIT_TAG'
+    - if: "$CI_COMMIT_TAG"
       when: always
-
-    # merge request pipelines
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: always
-
-    # normal branch pushes
     - if: '$CI_PIPELINE_SOURCE == "push"'
       when: always
-
     - when: never
 
-
 include:
-  # semantic-release (only meaningful on main branch pushes)
+  # semantic-release only on main push (never on schedule/MR/tag)
   - component: "$CI_SERVER_FQDN/to-be-continuous/semantic-release/gitlab-ci-semrel@4.0"
+    rules:
+      - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "main"'
+        when: always
+      - when: never
     inputs:
       changelog-enabled: true
       auto-release-enabled: true
 
-  # docker template
+  # docker component only on MR pipelines + tag pipelines (never on schedule, never on normal pushes)
   - component: "$CI_SERVER_FQDN/to-be-continuous/docker/gitlab-ci-docker@8.0"
+    rules:
+      - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+        when: always
+      - if: "$CI_COMMIT_TAG"
+        when: always
+      - when: never
     inputs:
       trivy-disabled: true
       hadolint-disabled: true
       prod-publish-strategy: "none"
       push-args: "--compression-format zstd --compression-level 20"
-      # default snapshot tag (we override for MR via rules below)
       snapshot-image: "$CI_REGISTRY_IMAGE/snapshot:$CI_COMMIT_REF_SLUG"
 
-
 # -----------------------------
-# Tests (run on pushes + MRs)
+# Tests (branch pushes + MRs)
 # -----------------------------
 backend_tests:
   stage: test
@@ -58,7 +57,7 @@ backend_tests:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
-    - if: '$CI_COMMIT_TAG'
+    - if: "$CI_COMMIT_TAG"
       when: never
     - when: on_success
 
@@ -73,10 +72,9 @@ frontend_tests:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
-    - if: '$CI_COMMIT_TAG'
+    - if: "$CI_COMMIT_TAG"
       when: never
     - when: on_success
-
 
 # -----------------------------
 # Mirror (schedule only)
@@ -92,8 +90,8 @@ mirror_from_github:
 
   variables:
     UPSTREAM_BRANCH: "upstream/develop"
-    TARGET_BRANCH: "develop"
     SOURCE_BRANCH: "upstream/develop"
+    TARGET_BRANCH: "develop"
 
   before_script:
     - apk add --no-cache git curl jq
@@ -106,21 +104,47 @@ mirror_from_github:
     - git push --force gitlab develop:refs/heads/${UPSTREAM_BRANCH}
     - git push --force gitlab --tags
 
-    # 2) Create or reuse MR upstream/develop -> develop
+    # 2) Only create/keep MR if upstream/develop is ahead of develop
     - |
       if [ -z "${GITLAB_TOKEN:-}" ]; then
-        echo "ERROR: GITLAB_TOKEN is not set. Create a Project Access Token with api scope and add it as CI/CD variable GITLAB_TOKEN."
+        echo "ERROR: GITLAB_TOKEN is not set. Create a Project Access Token with api scope and set CI/CD variable GITLAB_TOKEN."
         exit 1
       fi
 
-      MR_LIST_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests?state=opened&source_branch=${SOURCE_BRANCH}&target_branch=${TARGET_BRANCH}"
-      EXISTING_IID="$(curl -sf \
+      # Compare target -> source (is source ahead?)
+      COMPARE_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/repository/compare"
+      COMPARE_JSON="$(curl -sf \
         --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
-        "${MR_LIST_URL}" | jq -r '.[0].iid // empty')"
+        --get "${COMPARE_URL}" \
+        --data-urlencode "from=${TARGET_BRANCH}" \
+        --data-urlencode "to=${SOURCE_BRANCH}")"
 
-      if [ -n "$EXISTING_IID" ]; then
-        echo "Found existing MR IID: $EXISTING_IID"
-        MR_IID="$EXISTING_IID"
+      AHEAD_COMMITS="$(echo "$COMPARE_JSON" | jq -r '.commits | length')"
+      echo "Compare ${TARGET_BRANCH}..${SOURCE_BRANCH}: commits ahead = ${AHEAD_COMMITS}"
+
+      MR_LIST_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests?state=opened&source_branch=${SOURCE_BRANCH}&target_branch=${TARGET_BRANCH}"
+      EXISTING_IID="$(curl -sf --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "${MR_LIST_URL}" | jq -r '.[0].iid // empty')"
+
+      if [ "${AHEAD_COMMITS}" = "0" ]; then
+        echo "No upstream changes to merge."
+
+        # Optional: close an existing sync MR if it exists (keeps things tidy)
+        if [ -n "${EXISTING_IID}" ]; then
+          echo "Closing existing sync MR IID ${EXISTING_IID} (nothing to merge)."
+          curl -sf -X PUT \
+            --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
+            --data "state_event=close" \
+            "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests/${EXISTING_IID}" \
+          || true
+        fi
+
+        exit 0
+      fi
+
+      # 3) Create or reuse MR upstream/develop -> develop
+      if [ -n "${EXISTING_IID}" ]; then
+        echo "Found existing MR IID: ${EXISTING_IID}"
+        MR_IID="${EXISTING_IID}"
       else
         echo "Creating MR ${SOURCE_BRANCH} -> ${TARGET_BRANCH}"
         CREATE_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests"
@@ -134,30 +158,23 @@ mirror_from_github:
             --arg desc "Automated mirror from GitHub develop into ${SOURCE_BRANCH}. This MR keeps ${TARGET_BRANCH} up to date." \
             '{source_branch:$sb,target_branch:$tb,title:$title,description:$desc,remove_source_branch:false,squash:false}')" \
           "${CREATE_URL}" | jq -r '.iid')"
-        echo "Created MR IID: $MR_IID"
+        echo "Created MR IID: ${MR_IID}"
       fi
 
-    # 3) Enable auto-merge (merge when pipeline succeeds)
-    - |
+      # 4) Enable auto-merge when pipeline succeeds
       echo "Enabling auto-merge for MR IID: ${MR_IID}"
       MERGE_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests/${MR_IID}/merge"
-      # This will:
-      # - set "merge when pipeline succeeds"
-      # - fail gracefully if it's already set, or if merge isn't currently possible
       curl -sf -X PUT \
         --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
         --data "merge_when_pipeline_succeeds=true" \
         --data "should_remove_source_branch=false" \
         "${MERGE_URL}" \
-      || echo "Could not enable auto-merge (may already be enabled, pipeline missing, conflicts, approvals required, or MR not mergeable yet)."
-
-
+      || echo "Could not enable auto-merge (may require approvals, be unmergeable, have conflicts, or have no MR pipeline)."
 
 # -----------------------------
 # to-be-continuous overrides
 # -----------------------------
 
-# Make semantic-release run ONLY on main branch pushes (not MRs, not tags, not schedule)
 .semrel-base:
   tags: [universal]
   rules:
@@ -167,43 +184,28 @@ mirror_from_github:
   variables:
     SEMREL_BRANCHES_REF: "^main$"
 
-# Make ALL docker component jobs run ONLY on:
-# - merge_request_event (MR snapshot build)
-# - tag pipelines (release image build/publish)
+# Docker jobs should run ONLY in MR pipelines and tag pipelines.
+# Also: no more "push && CI_OPEN_MERGE_REQUESTS" here → Branch pipelines will be "test only".
 .docker-base:
   tags: [buildah]
   rules:
-   # Tag pipeline: release build
-    - if: '$CI_COMMIT_TAG'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: on_success
+      variables:
+        DOCKER_SNAPSHOT_IMAGE: "$CI_REGISTRY_IMAGE/mr:$CI_MERGE_REQUEST_IID"
+        DOCKER_BUILD_ARGS: >-
+          --platform linux/amd64
+          --platform linux/arm64
+          --build-arg APP_VERSION=$CI_MERGE_REQUEST_IID
+          --build-arg APP_REVISION=$CI_COMMIT_SHA
+
+    - if: "$CI_COMMIT_TAG"
       when: on_success
       variables:
         DOCKER_BUILD_ARGS: >-
           --platform linux/amd64
           --platform linux/arm64
           --build-arg APP_VERSION=$CI_COMMIT_TAG
-          --build-arg APP_REVISION=$CI_COMMIT_SHA
-
-    # Branch push that has an open MR: build MR snapshot
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS'
-      when: on_success
-      variables:
-        # No MR IID available in push pipelines → use branch slug or sha
-        DOCKER_SNAPSHOT_IMAGE: "$CI_REGISTRY_IMAGE/mr:$CI_COMMIT_REF_SLUG"
-        DOCKER_BUILD_ARGS: >-
-          --platform linux/amd64
-          --platform linux/arm64
-          --build-arg APP_VERSION=$CI_COMMIT_REF_SLUG
-          --build-arg APP_REVISION=$CI_COMMIT_SHA
-
-    # Optional: also support true merge_request_event pipelines when available
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      when: on_success
-      variables:
-        DOCKER_SNAPSHOT_IMAGE: "$CI_REGISTRY_IMAGE/mr:$CI_COMMIT_REF_SLUG"
-        DOCKER_BUILD_ARGS: >-
-          --platform linux/amd64
-          --platform linux/arm64
-          --build-arg APP_VERSION=$CI_COMMIT_REF_SLUG
           --build-arg APP_REVISION=$CI_COMMIT_SHA
 
     - when: never
