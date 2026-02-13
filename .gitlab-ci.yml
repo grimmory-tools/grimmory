@@ -89,14 +89,68 @@ mirror_from_github:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: on_success
     - when: never
+
+  variables:
+    UPSTREAM_BRANCH: "upstream/develop"
+    TARGET_BRANCH: "develop"
+    SOURCE_BRANCH: "upstream/develop"
+
   before_script:
-    - apk add --no-cache git
+    - apk add --no-cache git curl jq
+
   script:
+    # 1) Mirror GitHub develop -> GitLab upstream/develop
     - git clone --branch develop --single-branch https://github.com/booklore-app/booklore.git source
     - cd source
     - git remote add gitlab https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.theprivateserver.de/WorldTeacher/wt-booklore.git
-    - git push --force gitlab develop
+    - git push --force gitlab develop:refs/heads/${UPSTREAM_BRANCH}
     - git push --force gitlab --tags
+
+    # 2) Create or reuse MR upstream/develop -> develop
+    - |
+      if [ -z "${GITLAB_TOKEN:-}" ]; then
+        echo "ERROR: GITLAB_TOKEN is not set. Create a Project Access Token with api scope and add it as CI/CD variable GITLAB_TOKEN."
+        exit 1
+      fi
+
+      MR_LIST_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests?state=opened&source_branch=${SOURCE_BRANCH}&target_branch=${TARGET_BRANCH}"
+      EXISTING_IID="$(curl -sf \
+        --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
+        "${MR_LIST_URL}" | jq -r '.[0].iid // empty')"
+
+      if [ -n "$EXISTING_IID" ]; then
+        echo "Found existing MR IID: $EXISTING_IID"
+        MR_IID="$EXISTING_IID"
+      else
+        echo "Creating MR ${SOURCE_BRANCH} -> ${TARGET_BRANCH}"
+        CREATE_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests"
+        MR_IID="$(curl -sf -X POST \
+          --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
+          --header "Content-Type: application/json" \
+          --data "$(jq -n \
+            --arg sb "${SOURCE_BRANCH}" \
+            --arg tb "${TARGET_BRANCH}" \
+            --arg title "Sync upstream: ${SOURCE_BRANCH} → ${TARGET_BRANCH}" \
+            --arg desc "Automated mirror from GitHub develop into ${SOURCE_BRANCH}. This MR keeps ${TARGET_BRANCH} up to date." \
+            '{source_branch:$sb,target_branch:$tb,title:$title,description:$desc,remove_source_branch:false,squash:false}')" \
+          "${CREATE_URL}" | jq -r '.iid')"
+        echo "Created MR IID: $MR_IID"
+      fi
+
+    # 3) Enable auto-merge (merge when pipeline succeeds)
+    - |
+      echo "Enabling auto-merge for MR IID: ${MR_IID}"
+      MERGE_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests/${MR_IID}/merge"
+      # This will:
+      # - set "merge when pipeline succeeds"
+      # - fail gracefully if it's already set, or if merge isn't currently possible
+      curl -sf -X PUT \
+        --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
+        --data "merge_when_pipeline_succeeds=true" \
+        --data "should_remove_source_branch=false" \
+        "${MERGE_URL}" \
+      || echo "Could not enable auto-merge (may already be enabled, pipeline missing, conflicts, approvals required, or MR not mergeable yet)."
+
 
 
 # -----------------------------
