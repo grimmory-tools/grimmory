@@ -25,15 +25,6 @@ plugins:
           to: '"version": "${nextRelease.version}"'
           countMatches: true
 
-        # Optional (recommended): bump Gradle version if present (choose the right file)
-        # If you have booklore-api/gradle.properties with version=...
-        - files:
-            - booklore-api/gradle.properties
-          from:
-            - '^version\s*=.*$'
-          to: 'version=${nextRelease.version}'
-          countMatches: false   # set to true only if you're sure the line exists
-
   # Commit back generated/updated files.
   # IMPORTANT: do NOT use [skip ci] here or you may skip tag pipelines.
   - - "@semantic-release/git"
