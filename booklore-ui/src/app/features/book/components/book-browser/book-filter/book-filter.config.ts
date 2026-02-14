@@ -269,6 +269,71 @@ export const FILTER_EXTRACTORS: Readonly<Record<Exclude<FilterType, 'library'>, 
   }
 };
 
+// Translation key for each FilterType — used by UI components to translate filter labels
+export const FILTER_LABEL_KEYS: Readonly<Record<FilterType, string>> = {
+  author: 'book.filter.labels.author',
+  category: 'book.filter.labels.category',
+  series: 'book.filter.labels.series',
+  bookType: 'book.filter.labels.bookType',
+  readStatus: 'book.filter.labels.readStatus',
+  personalRating: 'book.filter.labels.personalRating',
+  publisher: 'book.filter.labels.publisher',
+  matchScore: 'book.filter.labels.matchScore',
+  library: 'book.filter.labels.library',
+  shelf: 'book.filter.labels.shelf',
+  shelfStatus: 'book.filter.labels.shelfStatus',
+  tag: 'book.filter.labels.tag',
+  publishedDate: 'book.filter.labels.publishedDate',
+  fileSize: 'book.filter.labels.fileSize',
+  amazonRating: 'book.filter.labels.amazonRating',
+  goodreadsRating: 'book.filter.labels.goodreadsRating',
+  hardcoverRating: 'book.filter.labels.hardcoverRating',
+  language: 'book.filter.labels.language',
+  pageCount: 'book.filter.labels.pageCount',
+  mood: 'book.filter.labels.mood',
+  ageRating: 'book.filter.labels.ageRating',
+  contentRating: 'book.filter.labels.contentRating',
+  narrator: 'book.filter.labels.narrator',
+  comicCharacter: 'book.filter.labels.comicCharacter',
+  comicTeam: 'book.filter.labels.comicTeam',
+  comicLocation: 'book.filter.labels.comicLocation',
+  comicCreator: 'book.filter.labels.comicCreator'
+};
+
+export const READ_STATUS_LABEL_KEYS: Readonly<Record<ReadStatus, string>> = {
+  [ReadStatus.UNREAD]: 'book.filter.readStatus.unread',
+  [ReadStatus.READING]: 'book.filter.readStatus.reading',
+  [ReadStatus.RE_READING]: 'book.filter.readStatus.reReading',
+  [ReadStatus.PARTIALLY_READ]: 'book.filter.readStatus.partiallyRead',
+  [ReadStatus.PAUSED]: 'book.filter.readStatus.paused',
+  [ReadStatus.READ]: 'book.filter.readStatus.read',
+  [ReadStatus.WONT_READ]: 'book.filter.readStatus.wontRead',
+  [ReadStatus.ABANDONED]: 'book.filter.readStatus.abandoned',
+  [ReadStatus.UNSET]: 'book.filter.readStatus.unset'
+};
+
+export const CONTENT_RATING_LABEL_KEYS: Readonly<Record<string, string>> = {
+  'EVERYONE': 'book.filter.contentRating.everyone',
+  'TEEN': 'book.filter.contentRating.teen',
+  'MATURE': 'book.filter.contentRating.mature',
+  'ADULT': 'book.filter.contentRating.adult',
+  'EXPLICIT': 'book.filter.contentRating.explicit'
+};
+
+export const SHELF_STATUS_LABEL_KEYS: Readonly<Record<string, string>> = {
+  'shelved': 'book.filter.shelfStatus.shelved',
+  'unshelved': 'book.filter.shelfStatus.unshelved'
+};
+
+export const COMIC_ROLE_LABEL_KEYS: Readonly<Record<string, string>> = {
+  penciller: 'book.filter.comicRoles.penciller',
+  inker: 'book.filter.comicRoles.inker',
+  colorist: 'book.filter.comicRoles.colorist',
+  letterer: 'book.filter.comicRoles.letterer',
+  coverArtist: 'book.filter.comicRoles.coverArtist',
+  editor: 'book.filter.comicRoles.editor'
+};
+
 export const FILTER_CONFIGS: Readonly<Record<Exclude<FilterType, 'library'>, Omit<FilterConfig, 'extractor'>>> = {
   author: {label: 'Author', sortMode: 'count'},
   category: {label: 'Genre', sortMode: 'count'},

@@ -3,6 +3,7 @@ import {Observable, of} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import {BookMarkService} from '../../../../../shared/service/book-mark.service';
 import {MessageService} from 'primeng/api';
+import {TranslocoService} from '@jsverse/transloco';
 
 @Injectable()
 export class ReaderBookmarkService {
@@ -11,6 +12,7 @@ export class ReaderBookmarkService {
 
   private bookMarkService = inject(BookMarkService);
   private messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
 
 
   updateCurrentPosition(cfi: string, chapterName?: string): void {
@@ -32,8 +34,8 @@ export class ReaderBookmarkService {
       map(() => {
         this.messageService.add({
           severity: 'success',
-          summary: 'Bookmark Added',
-          detail: 'Your bookmark was added successfully.'
+          summary: this.t.translate('readerEbook.toast.bookmarkAddedSummary'),
+          detail: this.t.translate('readerEbook.toast.bookmarkAddedDetail')
         });
         return true;
       }),
@@ -43,13 +45,13 @@ export class ReaderBookmarkService {
           isDuplicate
             ? {
               severity: 'warn',
-              summary: 'Bookmark Already Exists',
-              detail: 'You already have a bookmark at this location.'
+              summary: this.t.translate('readerEbook.toast.bookmarkExistsSummary'),
+              detail: this.t.translate('readerEbook.toast.bookmarkExistsDetail')
             }
             : {
               severity: 'error',
-              summary: 'Unable to Add Bookmark',
-              detail: 'Something went wrong while adding the bookmark. Please try again.'
+              summary: this.t.translate('readerEbook.toast.bookmarkFailedSummary'),
+              detail: this.t.translate('readerEbook.toast.bookmarkFailedDetail')
             }
         );
         return of(false);

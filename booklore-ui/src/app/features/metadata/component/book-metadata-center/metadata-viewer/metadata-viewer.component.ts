@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, Input, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
+import {Component, DestroyRef, inject, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {Button} from 'primeng/button';
 import {AsyncPipe, DecimalPipe, NgClass} from '@angular/common';
 import {combineLatest, Observable} from 'rxjs';
@@ -14,7 +14,6 @@ import {DynamicDialogRef} from 'primeng/dynamicdialog';
 import {EmailService} from '../../../../settings/email-v2/email.service';
 import {Tooltip} from 'primeng/tooltip';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {Editor} from 'primeng/editor';
 import {ProgressBar} from 'primeng/progressbar';
 import {MetadataRefreshType} from '../../../model/request/metadata-refresh-type.enum';
 import {Router} from '@angular/router';
@@ -42,12 +41,11 @@ import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/tran
   standalone: true,
   templateUrl: './metadata-viewer.component.html',
   styleUrl: './metadata-viewer.component.scss',
-  imports: [Button, AsyncPipe, Rating, FormsModule, SplitButton, NgClass, Tooltip, DecimalPipe, Editor, ProgressBar, Menu, DatePicker, ProgressSpinner, TieredMenu, Image, TagComponent, MetadataTabsComponent, TranslocoDirective, TranslocoPipe]
+  imports: [Button, AsyncPipe, Rating, FormsModule, SplitButton, NgClass, Tooltip, DecimalPipe, ProgressBar, Menu, DatePicker, ProgressSpinner, TieredMenu, Image, TagComponent, MetadataTabsComponent, TranslocoDirective, TranslocoPipe]
 })
 export class MetadataViewerComponent implements OnInit, OnChanges {
   @Input() book$!: Observable<Book | null>;
   @Input() recommendedBooks: BookRecommendation[] = [];
-  @ViewChild(Editor) quillEditor!: Editor;
   private originalRecommendedBooks: BookRecommendation[] = [];
 
   private readonly t = inject(TranslocoService);
@@ -414,12 +412,8 @@ export class MetadataViewerComponent implements OnInit, OnChanges {
         filter((book): book is Book => book != null && book.metadata != null)
       )
       .subscribe(book => {
-        const metadata = book.metadata;
         this.isAutoFetching = false;
-        this.loadBooksInSeriesAndFilterRecommended(metadata!.bookId);
-        if (this.quillEditor?.quill) {
-          this.quillEditor.quill.root.innerHTML = metadata!.description;
-        }
+        this.loadBooksInSeriesAndFilterRecommended(book.metadata!.bookId);
         this.selectedReadStatus = book.readStatus ?? ReadStatus.UNREAD;
       });
 

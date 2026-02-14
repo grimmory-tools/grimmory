@@ -1,67 +1,68 @@
+<ng-container *transloco="let t; prefix: 'readerEbook.metadataDialog'">
 <div class="dialog-overlay" (click)="close.emit()">
   <div class="dialog" (click)="$event.stopPropagation()">
     <div class="dialog-header">
-      <h2>Book Information</h2>
-      <button class="close-btn" (click)="close.emit()">✕</button>
+      <h2>{{ t('title') }}</h2>
+      <button class="close-btn" (click)="close.emit()">&#10005;</button>
     </div>
 
     <div class="dialog-body">
       <div class="metadata-container">
         <div class="cover-section">
           @if (bookCoverUrl) {
-            <img [src]="bookCoverUrl" [alt]="metadata?.title || 'Book cover'" class="book-cover">
+            <img [src]="bookCoverUrl" [alt]="metadata?.title || t('unknown')" class="book-cover">
           } @else {
             <div class="cover-placeholder">
-              <span class="placeholder-icon">📚</span>
+              <span class="placeholder-icon">&#128218;</span>
             </div>
           }
         </div>
 
         <div class="metadata-section">
           <div class="metadata-group">
-            <h3 class="section-title">Basic Information</h3>
+            <h3 class="section-title">{{ t('basicInformation') }}</h3>
 
             <div class="metadata-item">
-              <span class="label">Title</span>
-              <span class="value">{{ metadata?.title || 'Unknown' }}</span>
+              <span class="label">{{ t('titleLabel') }}</span>
+              <span class="value">{{ metadata?.title || t('unknown') }}</span>
             </div>
 
             @if (metadata?.subtitle) {
               <div class="metadata-item">
-                <span class="label">Subtitle</span>
+                <span class="label">{{ t('subtitle') }}</span>
                 <span class="value">{{ metadata?.subtitle }}</span>
               </div>
             }
 
             <div class="metadata-item">
-              <span class="label">Author(s)</span>
+              <span class="label">{{ t('authors') }}</span>
               <span class="value">{{ formatAuthors(metadata?.authors) }}</span>
             </div>
 
             @if (metadata?.publisher) {
               <div class="metadata-item">
-                <span class="label">Publisher</span>
+                <span class="label">{{ t('publisher') }}</span>
                 <span class="value">{{ metadata?.publisher }}</span>
               </div>
             }
 
             @if (metadata?.publishedDate) {
               <div class="metadata-item">
-                <span class="label">Published</span>
+                <span class="label">{{ t('published') }}</span>
                 <span class="value">{{ formatDate(metadata?.publishedDate) }}</span>
               </div>
             }
 
             @if (metadata?.language) {
               <div class="metadata-item">
-                <span class="label">Language</span>
+                <span class="label">{{ t('language') }}</span>
                 <span class="value">{{ metadata?.language }}</span>
               </div>
             }
 
             @if (metadata?.pageCount) {
               <div class="metadata-item">
-                <span class="label">Pages</span>
+                <span class="label">{{ t('pages') }}</span>
                 <span class="value">{{ metadata?.pageCount }}</span>
               </div>
             }
@@ -69,16 +70,16 @@
 
           @if (metadata?.seriesName) {
             <div class="metadata-group">
-              <h3 class="section-title">Series</h3>
+              <h3 class="section-title">{{ t('series') }}</h3>
 
               <div class="metadata-item">
-                <span class="label">Series Name</span>
+                <span class="label">{{ t('seriesName') }}</span>
                 <span class="value">{{ metadata?.seriesName }}</span>
               </div>
 
               @if (metadata?.seriesNumber) {
                 <div class="metadata-item">
-                  <span class="label">Book Number</span>
+                  <span class="label">{{ t('bookNumber') }}</span>
                   <span class="value">
                     {{ metadata?.seriesNumber }}@if (metadata?.seriesTotal) {
                     / {{ metadata?.seriesTotal }}
@@ -91,7 +92,7 @@
 
           @if (metadata?.isbn13 || metadata?.isbn10 || metadata?.asin) {
             <div class="metadata-group">
-              <h3 class="section-title">Identifiers</h3>
+              <h3 class="section-title">{{ t('identifiers') }}</h3>
 
               @if (metadata?.isbn13) {
                 <div class="metadata-item">
@@ -118,15 +119,15 @@
 
           @if (metadata?.rating || metadata?.goodreadsRating || metadata?.amazonRating) {
             <div class="metadata-group">
-              <h3 class="section-title">Ratings</h3>
+              <h3 class="section-title">{{ t('ratings') }}</h3>
 
               @if (metadata?.goodreadsRating) {
                 <div class="metadata-item">
                   <span class="label">Goodreads</span>
                   <span class="value">
-                    ⭐ {{ metadata?.goodreadsRating?.toFixed(2) }}
+                    &#11088; {{ metadata?.goodreadsRating?.toFixed(2) }}
                     @if (metadata?.goodreadsReviewCount) {
-                      <span class="review-count">({{ metadata?.goodreadsReviewCount }} reviews)</span>
+                      <span class="review-count">({{ metadata?.goodreadsReviewCount }} {{ t('reviews') }})</span>
                     }
                   </span>
                 </div>
@@ -136,9 +137,9 @@
                 <div class="metadata-item">
                   <span class="label">Amazon</span>
                   <span class="value">
-                    ⭐ {{ metadata?.amazonRating?.toFixed(2) }}
+                    &#11088; {{ metadata?.amazonRating?.toFixed(2) }}
                     @if (metadata?.amazonReviewCount) {
-                      <span class="review-count">({{ metadata?.amazonReviewCount }} reviews)</span>
+                      <span class="review-count">({{ metadata?.amazonReviewCount }} {{ t('reviews') }})</span>
                     }
                   </span>
                 </div>
@@ -148,7 +149,7 @@
 
           @if (metadata?.categories && metadata?.categories!.length > 0) {
             <div class="metadata-group">
-              <h3 class="section-title">Categories</h3>
+              <h3 class="section-title">{{ t('categories') }}</h3>
               <div class="tags-container">
                 @for (category of metadata?.categories; track category) {
                   <span class="tag">{{ category }}</span>
@@ -159,7 +160,7 @@
 
           @if (metadata?.tags && metadata?.tags!.length > 0) {
             <div class="metadata-group">
-              <h3 class="section-title">Tags</h3>
+              <h3 class="section-title">{{ t('tags') }}</h3>
               <div class="tags-container">
                 @for (tag of metadata?.tags; track tag) {
                   <span class="tag">{{ tag }}</span>
@@ -170,16 +171,16 @@
 
           @if (book?.fileSizeKb) {
             <div class="metadata-group">
-              <h3 class="section-title">File Information</h3>
+              <h3 class="section-title">{{ t('fileInformation') }}</h3>
 
               <div class="metadata-item">
-                <span class="label">File Size</span>
+                <span class="label">{{ t('fileSize') }}</span>
                 <span class="value">{{ formatFileSize(book?.fileSizeKb) }}</span>
               </div>
 
               @if (book?.fileName) {
                 <div class="metadata-item">
-                  <span class="label">File Name</span>
+                  <span class="label">{{ t('fileName') }}</span>
                   <span class="value file-name">{{ book?.fileName }}</span>
                 </div>
               }
@@ -188,7 +189,7 @@
 
           @if (metadata?.description) {
             <div class="metadata-group">
-              <h3 class="section-title">Description</h3>
+              <h3 class="section-title">{{ t('description') }}</h3>
               <p class="description">{{ metadata?.description }}</p>
             </div>
           }
@@ -197,3 +198,4 @@
     </div>
   </div>
 </div>
+</ng-container>

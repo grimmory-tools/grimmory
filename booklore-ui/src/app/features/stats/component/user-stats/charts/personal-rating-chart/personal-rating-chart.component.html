@@ -1,16 +1,17 @@
+<ng-container *transloco="let t; prefix: 'statsUser.personalRating'">
 <div class="personal-rating-container">
   <div class="chart-header">
     <div class="chart-title">
       <h3>
         <i class="pi pi-star-fill personal-rating-icon"></i>
-        Personal Rating Distribution
+        {{ t('title') }}
         <i class="pi pi-question-circle chart-info-icon"
-           pTooltip="Shows how many books you've given each rating from 1 to 10. Helps you see whether you tend to rate generously, harshly, or cluster around a particular score. Only books with a personal rating are included."
+           [pTooltip]="t('tooltip')"
            tooltipPosition="bottom"
            tooltipStyleClass="chart-info-tooltip"
            [appendTo]="'body'"></i>
       </h3>
-      <p class="chart-description">Books by your rating (1–10)</p>
+      <p class="chart-description">{{ t('description') }}</p>
     </div>
   </div>
   <div class="chart-wrapper">
@@ -21,4 +22,4 @@
     </canvas>
   </div>
 </div>
-
+</ng-container>

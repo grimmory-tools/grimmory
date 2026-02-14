@@ -13,6 +13,7 @@ import {Router} from '@angular/router';
 import {BookStateService} from './book-state.service';
 import {BookSocketService} from './book-socket.service';
 import {BookPatchService} from './book-patch.service';
+import {TranslocoService} from '@jsverse/transloco';
 
 export interface BookStatusUpdateResponse {
   bookId: number;
@@ -41,6 +42,7 @@ export class BookService {
   private bookStateService = inject(BookStateService);
   private bookSocketService = inject(BookSocketService);
   private bookPatchService = inject(BookPatchService);
+  private readonly t = inject(TranslocoService);
 
   private loading$: Observable<Book[]> | null = null;
 
@@ -210,22 +212,22 @@ export class BookService {
         if (response.failedFileDeletions?.length > 0) {
           this.messageService.add({
             severity: 'warn',
-            summary: 'Some files could not be deleted',
-            detail: `Books: ${response.failedFileDeletions.join(', ')}`,
+            summary: this.t.translate('book.bookService.toast.someFilesNotDeletedSummary'),
+            detail: this.t.translate('book.bookService.toast.someFilesNotDeletedDetail', {fileNames: response.failedFileDeletions.join(', ')}),
           });
         } else {
           this.messageService.add({
             severity: 'success',
-            summary: 'Books Deleted',
-            detail: `${idList.length} book(s) deleted successfully.`,
+            summary: this.t.translate('book.bookService.toast.booksDeletedSummary'),
+            detail: this.t.translate('book.bookService.toast.booksDeletedDetail', {count: idList.length}),
           });
         }
       }),
       catchError(error => {
         this.messageService.add({
           severity: 'error',
-          summary: 'Delete Failed',
-          detail: error?.error?.message || error?.message || 'An error occurred while deleting books.',
+          summary: this.t.translate('book.bookService.toast.deleteFailedSummary'),
+          detail: error?.error?.message || error?.message || this.t.translate('book.bookService.toast.deleteFailedDetail'),
         });
         return throwError(() => error);
       })
@@ -253,15 +255,15 @@ export class BookService {
         });
         this.messageService.add({
           severity: 'success',
-          summary: 'Physical Book Created',
-          detail: `"${newBook.metadata?.title || 'Book'}" has been added to your library.`
+          summary: this.t.translate('book.bookService.toast.physicalBookCreatedSummary'),
+          detail: this.t.translate('book.bookService.toast.physicalBookCreatedDetail', {title: newBook.metadata?.title || 'Book'})
         });
       }),
       catchError(error => {
         this.messageService.add({
           severity: 'error',
-          summary: 'Creation Failed',
-          detail: error?.error?.message || error?.message || 'An error occurred while creating the physical book.'
+          summary: this.t.translate('book.bookService.toast.creationFailedSummary'),
+          detail: error?.error?.message || error?.message || this.t.translate('book.bookService.toast.creationFailedDetail')
         });
         return throwError(() => error);
       })
@@ -384,15 +386,15 @@ export class BookService {
 
         this.messageService.add({
           severity: 'success',
-          summary: 'File Deleted',
-          detail: 'Additional file deleted successfully.'
+          summary: this.t.translate('book.bookService.toast.fileDeletedSummary'),
+          detail: this.t.translate('book.bookService.toast.additionalFileDeletedDetail')
         });
       }),
       catchError(error => {
         this.messageService.add({
           severity: 'error',
-          summary: 'Delete Failed',
-          detail: error?.error?.message || error?.message || 'An error occurred while deleting the file.'
+          summary: this.t.translate('book.bookService.toast.fileDeleteFailedSummary'),
+          detail: error?.error?.message || error?.message || this.t.translate('book.bookService.toast.fileDeleteFailedDetail')
         });
         return throwError(() => error);
       })
@@ -441,15 +443,15 @@ export class BookService {
 
         this.messageService.add({
           severity: 'success',
-          summary: 'File Deleted',
-          detail: 'Book file deleted successfully.'
+          summary: this.t.translate('book.bookService.toast.fileDeletedSummary'),
+          detail: this.t.translate('book.bookService.toast.bookFileDeletedDetail')
         });
       }),
       catchError(error => {
         this.messageService.add({
           severity: 'error',
-          summary: 'Delete Failed',
-          detail: error?.error?.message || error?.message || 'An error occurred while deleting the file.'
+          summary: this.t.translate('book.bookService.toast.fileDeleteFailedSummary'),
+          detail: error?.error?.message || error?.message || this.t.translate('book.bookService.toast.fileDeleteFailedDetail')
         });
         return throwError(() => error);
       })
@@ -507,15 +509,15 @@ export class BookService {
 
         this.messageService.add({
           severity: 'success',
-          summary: 'File Uploaded',
-          detail: 'Additional file uploaded successfully.'
+          summary: this.t.translate('book.bookService.toast.fileUploadedSummary'),
+          detail: this.t.translate('book.bookService.toast.fileUploadedDetail')
         });
       }),
       catchError(error => {
         this.messageService.add({
           severity: 'error',
-          summary: 'Upload Failed',
-          detail: error?.error?.message || error?.message || 'An error occurred while uploading the file.'
+          summary: this.t.translate('book.bookService.toast.uploadFailedSummary'),
+          detail: error?.error?.message || error?.message || this.t.translate('book.bookService.toast.uploadFailedDetail')
         });
         return throwError(() => error);
       })
@@ -644,8 +646,8 @@ export class BookService {
       catchError(error => {
         this.messageService.add({
           severity: 'error',
-          summary: 'Field Lock Update Failed',
-          detail: 'Failed to update metadata field locks. Please try again.',
+          summary: this.t.translate('book.bookService.toast.fieldLockFailedSummary'),
+          detail: this.t.translate('book.bookService.toast.fieldLockFailedDetail'),
         });
         throw error;
       })
@@ -686,6 +688,10 @@ export class BookService {
 
   regenerateCover(bookId: number): Observable<void> {
     return this.http.post<void>(`${this.url}/${bookId}/regenerate-cover`, {});
+  }
+
+  getFileMetadata(bookId: number): Observable<BookMetadata> {
+    return this.http.get<BookMetadata>(`${this.url}/${bookId}/file-metadata`);
   }
 
   generateCustomCover(bookId: number): Observable<void> {
@@ -789,15 +795,15 @@ export class BookService {
         const fileCount = sourceBookIds.length;
         this.messageService.add({
           severity: 'success',
-          summary: 'Files Attached',
-          detail: `${fileCount} book file${fileCount > 1 ? 's have' : ' has'} been attached successfully.`
+          summary: this.t.translate('book.bookService.toast.filesAttachedSummary'),
+          detail: this.t.translate('book.bookService.toast.filesAttachedDetail', {count: fileCount})
         });
       }),
       catchError(error => {
         this.messageService.add({
           severity: 'error',
-          summary: 'Attachment Failed',
-          detail: error?.error?.message || error?.message || 'An error occurred while attaching the files.'
+          summary: this.t.translate('book.bookService.toast.attachmentFailedSummary'),
+          detail: error?.error?.message || error?.message || this.t.translate('book.bookService.toast.attachmentFailedDetail')
         });
         return throwError(() => error);
       })

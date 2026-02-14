@@ -26,6 +26,7 @@ import {EditMetadataGuard} from './core/security/guards/edit-metdata.guard';
 import {EbookReaderComponent} from './features/readers/ebook-reader';
 import {LibraryStatsComponent} from './features/stats/component/library-stats/library-stats.component';
 import {AudiobookPlayerComponent} from './features/readers/audiobook-player';
+import {NotebookComponent} from './features/notebook/components/notebook/notebook.component';
 
 export const routes: Routes = [
   {
@@ -57,6 +58,7 @@ export const routes: Routes = [
       {path: 'metadata-manager', component: MetadataManagerComponent, canActivate: [EditMetadataGuard]},
       {path: 'library-stats', component: LibraryStatsComponent, canActivate: [LibraryStatsGuard]},
       {path: 'reading-stats', component: UserStatsComponent, canActivate: [UserStatsGuard]},
+      {path: 'notebook', component: NotebookComponent, canActivate: [AuthGuard]},
     ]
   },
   {

@@ -1,21 +1,22 @@
+<ng-container *transloco="let t; prefix: 'statsUser.ratingTaste'">
 <div class="rating-taste-container">
   <div class="chart-header">
     <div class="chart-title">
       <h3>
         <i class="pi pi-chart-scatter rating-taste-icon"></i>
-        Rating Taste Comparison
+        {{ t('title') }}
         <i class="pi pi-question-circle chart-info-icon"
-           pTooltip="Each dot is a book plotted by its external rating (X-axis, e.g. Goodreads/Amazon) versus your personal rating (Y-axis). Books on the diagonal mean you agree with the crowd. Above the line means you rated higher; below means you rated lower. Quadrants show your taste patterns."
+           [pTooltip]="t('tooltip')"
            tooltipPosition="bottom"
            tooltipStyleClass="chart-info-tooltip"
            [appendTo]="'body'"></i>
       </h3>
-      <p class="chart-description">Compare your personal ratings against external ratings (Goodreads, Amazon, etc.)</p>
+      <p class="chart-description">{{ t('description') }}</p>
     </div>
     @if (totalRatedBooks > 0) {
       <div class="stats-badge">
         <span class="badge-value">{{ totalRatedBooks }}</span>
-        <span class="badge-label">books analyzed</span>
+        <span class="badge-label">{{ t('booksAnalyzed') }}</span>
       </div>
     }
   </div>
@@ -27,28 +28,28 @@
             [type]="chartType">
     </canvas>
     <div class="quadrant-labels">
-      <div class="quadrant-label top-left">Hidden Gems 💎</div>
-      <div class="quadrant-label top-right">Popular Favorites ⭐</div>
-      <div class="quadrant-label bottom-left">Agreed Misses 👎</div>
-      <div class="quadrant-label bottom-right">Overrated 📉</div>
+      <div class="quadrant-label top-left">{{ t('quadrantHiddenGems') }} 💎</div>
+      <div class="quadrant-label top-right">{{ t('quadrantPopularFavorites') }} ⭐</div>
+      <div class="quadrant-label bottom-left">{{ t('quadrantAgreedMisses') }} 👎</div>
+      <div class="quadrant-label bottom-right">{{ t('quadrantOverrated') }} 📉</div>
     </div>
   </div>
 
   @if (quadrants.length > 0) {
     <div class="taste-insights">
       <div class="insights-header">
-        <h4>Your Taste Profile</h4>
+        <h4>{{ t('tasteProfile') }}</h4>
         @if (averageDeviation > 0) {
           <div class="deviation-badge" [class.unique]="averageDeviation > 1" [class.mainstream]="averageDeviation <= 0.5">
-            <span class="deviation-label">Avg. deviation:</span>
+            <span class="deviation-label">{{ t('avgDeviation') }}</span>
             <span class="deviation-value">{{ averageDeviation.toFixed(2) }} ★</span>
             <span class="deviation-desc">
               @if (averageDeviation > 1) {
-                (Unique taste)
+                ({{ t('uniqueTaste') }})
               } @else if (averageDeviation <= 0.5) {
-                (Mainstream)
+                ({{ t('mainstream') }})
               } @else {
-                (Balanced)
+                ({{ t('balanced') }})
               }
             </span>
           </div>
@@ -76,3 +77,4 @@
     </div>
   }
 </div>
+</ng-container>

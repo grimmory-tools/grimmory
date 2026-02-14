@@ -1,5 +1,6 @@
 import {Component, EventEmitter, Inject, Input, OnInit, Output, Renderer2} from '@angular/core';
 import {DecimalPipe, DOCUMENT} from '@angular/common';
+import {TranslocoDirective} from '@jsverse/transloco';
 import {ReaderStateService} from '../state/reader-state.service';
 import {ReaderViewManagerService} from '../core/view-manager.service';
 import {BookService} from '../../../book/service/book.service';
@@ -15,7 +16,7 @@ interface AnnotationColor {
 @Component({
   selector: 'app-settings-dialog',
   standalone: true,
-  imports: [DecimalPipe],
+  imports: [DecimalPipe, TranslocoDirective],
   templateUrl: './settings-dialog.component.html',
   styleUrls: ['./settings-dialog.component.scss']
 })

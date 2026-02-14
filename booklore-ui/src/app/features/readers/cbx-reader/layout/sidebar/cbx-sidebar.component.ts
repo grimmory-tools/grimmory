@@ -1,6 +1,7 @@
 import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {CommonModule, DatePipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';
+import {TranslocoPipe} from '@jsverse/transloco';
 import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 import {CbxSidebarService, CbxSidebarTab, SidebarBookInfo} from './cbx-sidebar.service';
@@ -14,7 +15,7 @@ import {ReaderIconComponent} from '../../../ebook-reader';
   standalone: true,
   templateUrl: './cbx-sidebar.component.html',
   styleUrls: ['./cbx-sidebar.component.scss'],
-  imports: [CommonModule, FormsModule, ReaderIconComponent, DatePipe]
+  imports: [CommonModule, FormsModule, TranslocoPipe, ReaderIconComponent, DatePipe]
 })
 export class CbxSidebarComponent implements OnInit, OnDestroy {
   private sidebarService = inject(CbxSidebarService);

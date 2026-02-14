@@ -7,6 +7,7 @@ import {MatrixController, MatrixElement} from 'chartjs-chart-matrix';
 import {BehaviorSubject, EMPTY, Observable, Subject} from 'rxjs';
 import {catchError, takeUntil} from 'rxjs/operators';
 import {ReadingSessionHeatmapResponse, UserStatsService} from '../../../../../settings/user-management/user-stats.service';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -31,7 +32,7 @@ type SessionHeatmapChartData = ChartData<'matrix', MatrixDataPoint[], string>;
 @Component({
   selector: 'app-reading-session-heatmap',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective, Tooltip],
+  imports: [CommonModule, BaseChartDirective, Tooltip, TranslocoDirective],
   templateUrl: './reading-session-heatmap.component.html',
   styleUrls: ['./reading-session-heatmap.component.scss']
 })
@@ -51,6 +52,7 @@ export class ReadingSessionHeatmapComponent implements OnInit, OnDestroy {
   public hasStreakData = false;
 
   private readonly userStatsService = inject(UserStatsService);
+  private readonly translocoService = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
   private readonly chartDataSubject: BehaviorSubject<SessionHeatmapChartData>;
   private maxSessionCount = 1;
@@ -95,7 +97,9 @@ export class ReadingSessionHeatmapComponent implements OnInit, OnDestroy {
             },
             label: (context) => {
               const point = context.raw as MatrixDataPoint;
-              return `${point.v} reading session${point.v === 1 ? '' : 's'}`;
+              return point.v === 1
+                ? this.translocoService.translate('statsUser.sessionHeatmap.readingSession', {count: point.v})
+                : this.translocoService.translate('statsUser.sessionHeatmap.readingSessions_plural', {count: point.v});
             }
           }
         },
@@ -312,11 +316,11 @@ export class ReadingSessionHeatmapComponent implements OnInit, OnDestroy {
 
     // Milestones
     this.milestones = [
-      {label: '7-Day Streak', icon: '\uD83D\uDD25', requirement: 7, type: 'streak', unlocked: this.longestStreak >= 7},
-      {label: '30-Day Streak', icon: '\u26A1', requirement: 30, type: 'streak', unlocked: this.longestStreak >= 30},
-      {label: '100 Reading Days', icon: '\uD83D\uDCDA', requirement: 100, type: 'total', unlocked: this.totalReadingDays >= 100},
-      {label: '365 Reading Days', icon: '\uD83C\uDFC6', requirement: 365, type: 'total', unlocked: this.totalReadingDays >= 365},
-      {label: 'Year of Reading', icon: '\uD83D\uDC51', requirement: 365, type: 'streak', unlocked: this.longestStreak >= 365},
+      {label: this.translocoService.translate('statsUser.sessionHeatmap.milestone7DayStreak'), icon: '\uD83D\uDD25', requirement: 7, type: 'streak', unlocked: this.longestStreak >= 7},
+      {label: this.translocoService.translate('statsUser.sessionHeatmap.milestone30DayStreak'), icon: '\u26A1', requirement: 30, type: 'streak', unlocked: this.longestStreak >= 30},
+      {label: this.translocoService.translate('statsUser.sessionHeatmap.milestone100ReadingDays'), icon: '\uD83D\uDCDA', requirement: 100, type: 'total', unlocked: this.totalReadingDays >= 100},
+      {label: this.translocoService.translate('statsUser.sessionHeatmap.milestone365ReadingDays'), icon: '\uD83C\uDFC6', requirement: 365, type: 'total', unlocked: this.totalReadingDays >= 365},
+      {label: this.translocoService.translate('statsUser.sessionHeatmap.milestoneYearOfReading'), icon: '\uD83D\uDC51', requirement: 365, type: 'streak', unlocked: this.longestStreak >= 365},
     ];
   }
 

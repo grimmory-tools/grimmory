@@ -9,6 +9,7 @@ import {BookService} from '../../../../../book/service/book.service';
 import {LibraryFilterService} from '../../../library-stats/service/library-filter.service';
 import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book} from '../../../../../book/model/book.model';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 interface TasteQuadrant {
   name: string;
@@ -31,13 +32,14 @@ type RatingTasteChartData = ChartData<'scatter', BookDataPoint[], string>;
 @Component({
   selector: 'app-rating-taste-chart',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective, Tooltip],
+  imports: [CommonModule, BaseChartDirective, Tooltip, TranslocoDirective],
   templateUrl: './rating-taste-chart.component.html',
   styleUrls: ['./rating-taste-chart.component.scss']
 })
 export class RatingTasteChartComponent implements OnInit, OnDestroy {
   private readonly bookService = inject(BookService);
   private readonly libraryFilterService = inject(LibraryFilterService);
+  private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
 
   public readonly chartType = 'scatter' as const;
@@ -57,7 +59,7 @@ export class RatingTasteChartComponent implements OnInit, OnDestroy {
         max: 5,
         title: {
           display: true,
-          text: 'External Rating (1-5 scale)',
+          text: this.t.translate('statsUser.ratingTaste.axisExternalRating'),
           color: '#ffffff',
           font: {
             family: "'Inter', sans-serif",
@@ -83,7 +85,7 @@ export class RatingTasteChartComponent implements OnInit, OnDestroy {
         max: 5,
         title: {
           display: true,
-          text: 'Your Personal Rating (normalized from 1-10)',
+          text: this.t.translate('statsUser.ratingTaste.axisPersonalRating'),
           color: '#ffffff',
           font: {
             family: "'Inter', sans-serif",
@@ -134,17 +136,17 @@ export class RatingTasteChartComponent implements OnInit, OnDestroy {
         callbacks: {
           title: (context) => {
             const point = context[0].raw as BookDataPoint;
-            return point.bookTitle || 'Unknown Book';
+            return point.bookTitle || this.t.translate('statsUser.ratingTaste.tooltipUnknownBook');
           },
           label: (context) => {
             const point = context.raw as BookDataPoint;
             const diff = point.personalRatingNormalized - point.externalRating;
             const diffText = diff > 0 ? `+${diff.toFixed(1)}` : diff.toFixed(1);
             return [
-              `Your Rating: ${point.personalRating}/10 (${point.personalRatingNormalized.toFixed(1)}/5)`,
-              `External Rating: ${point.externalRating.toFixed(1)}/5`,
-              `Difference: ${diffText} (on 5-point scale)`,
-              `Category: ${point.quadrant}`
+              this.t.translate('statsUser.ratingTaste.tooltipYourRating', {rating: point.personalRating, normalized: point.personalRatingNormalized.toFixed(1)}),
+              this.t.translate('statsUser.ratingTaste.tooltipExternalRating', {rating: point.externalRating.toFixed(1)}),
+              this.t.translate('statsUser.ratingTaste.tooltipDifference', {diff: diffText}),
+              this.t.translate('statsUser.ratingTaste.tooltipCategory', {category: point.quadrant})
             ];
           }
         }
@@ -261,10 +263,10 @@ export class RatingTasteChartComponent implements OnInit, OnDestroy {
 
   private categorizeBooks(books: Book[]): Map<string, BookDataPoint[]> {
     const categories = new Map<string, BookDataPoint[]>([
-      ['Hidden Gems', []],
-      ['Popular Favorites', []],
-      ['Overrated', []],
-      ['Agreed Misses', []]
+      [this.t.translate('statsUser.ratingTaste.quadrantHiddenGems'), []],
+      [this.t.translate('statsUser.ratingTaste.quadrantPopularFavorites'), []],
+      [this.t.translate('statsUser.ratingTaste.quadrantOverrated'), []],
+      [this.t.translate('statsUser.ratingTaste.quadrantAgreedMisses'), []]
     ]);
 
     books.forEach(book => {
@@ -277,13 +279,13 @@ export class RatingTasteChartComponent implements OnInit, OnDestroy {
       // Use normalized rating (3 is midpoint on 1-5 scale) for quadrant calculation
       let quadrant: string;
       if (personalRatingNormalized >= 3 && externalRating >= 3) {
-        quadrant = 'Popular Favorites';
+        quadrant = this.t.translate('statsUser.ratingTaste.quadrantPopularFavorites');
       } else if (personalRatingNormalized >= 3 && externalRating < 3) {
-        quadrant = 'Hidden Gems';
+        quadrant = this.t.translate('statsUser.ratingTaste.quadrantHiddenGems');
       } else if (personalRatingNormalized < 3 && externalRating >= 3) {
-        quadrant = 'Overrated';
+        quadrant = this.t.translate('statsUser.ratingTaste.quadrantOverrated');
       } else {
-        quadrant = 'Agreed Misses';
+        quadrant = this.t.translate('statsUser.ratingTaste.quadrantAgreedMisses');
       }
 
       const dataPoint: BookDataPoint = {
@@ -303,11 +305,15 @@ export class RatingTasteChartComponent implements OnInit, OnDestroy {
   }
 
   private updateChartData(dataPoints: Map<string, BookDataPoint[]>): void {
+    const pf = this.t.translate('statsUser.ratingTaste.quadrantPopularFavorites');
+    const hg = this.t.translate('statsUser.ratingTaste.quadrantHiddenGems');
+    const or = this.t.translate('statsUser.ratingTaste.quadrantOverrated');
+    const am = this.t.translate('statsUser.ratingTaste.quadrantAgreedMisses');
     const quadrantColors: Record<string, { bg: string, border: string }> = {
-      'Popular Favorites': {bg: 'rgba(76, 175, 80, 0.7)', border: '#4caf50'},
-      'Hidden Gems': {bg: 'rgba(156, 39, 176, 0.7)', border: '#9c27b0'},
-      'Overrated': {bg: 'rgba(255, 152, 0, 0.7)', border: '#ff9800'},
-      'Agreed Misses': {bg: 'rgba(158, 158, 158, 0.7)', border: '#9e9e9e'}
+      [pf]: {bg: 'rgba(76, 175, 80, 0.7)', border: '#4caf50'},
+      [hg]: {bg: 'rgba(156, 39, 176, 0.7)', border: '#9c27b0'},
+      [or]: {bg: 'rgba(255, 152, 0, 0.7)', border: '#ff9800'},
+      [am]: {bg: 'rgba(158, 158, 158, 0.7)', border: '#9e9e9e'}
     };
 
     const datasets = Array.from(dataPoints.entries())
@@ -326,24 +332,28 @@ export class RatingTasteChartComponent implements OnInit, OnDestroy {
   }
 
   private calculateStatistics(dataPoints: Map<string, BookDataPoint[]>): void {
+    const pfKey = this.t.translate('statsUser.ratingTaste.quadrantPopularFavorites');
+    const hgKey = this.t.translate('statsUser.ratingTaste.quadrantHiddenGems');
+    const orKey = this.t.translate('statsUser.ratingTaste.quadrantOverrated');
+    const amKey = this.t.translate('statsUser.ratingTaste.quadrantAgreedMisses');
     const quadrantInfo: Record<string, { description: string, icon: string, color: string }> = {
-      'Popular Favorites': {
-        description: 'Books you and the public both love',
+      [pfKey]: {
+        description: this.t.translate('statsUser.ratingTaste.quadrantDescPopularFavorites'),
         icon: '⭐',
         color: '#4caf50'
       },
-      'Hidden Gems': {
-        description: 'Books you rate higher than the public',
+      [hgKey]: {
+        description: this.t.translate('statsUser.ratingTaste.quadrantDescHiddenGems'),
         icon: '💎',
         color: '#9c27b0'
       },
-      'Overrated': {
-        description: 'Popular books that disappointed you',
+      [orKey]: {
+        description: this.t.translate('statsUser.ratingTaste.quadrantDescOverrated'),
         icon: '📉',
         color: '#ff9800'
       },
-      'Agreed Misses': {
-        description: 'Books neither you nor public enjoyed',
+      [amKey]: {
+        description: this.t.translate('statsUser.ratingTaste.quadrantDescAgreedMisses'),
         icon: '👎',
         color: '#9e9e9e'
       }

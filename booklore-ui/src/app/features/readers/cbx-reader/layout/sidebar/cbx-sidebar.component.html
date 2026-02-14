@@ -23,14 +23,14 @@
           [class.active]="activeTab === 'pages'"
           (click)="setActiveTab('pages')">
           <app-reader-icon name="book" class="tab-icon"></app-reader-icon>
-          <span>Content</span>
+          <span>{{ 'readerCbx.sidebar.contentTab' | transloco }}</span>
         </button>
         <button
           class="tab"
           [class.active]="activeTab === 'bookmarks'"
           (click)="setActiveTab('bookmarks')">
           <app-reader-icon name="bookmark" class="tab-icon"></app-reader-icon>
-          <span>Bookmarks</span>
+          <span>{{ 'readerCbx.sidebar.bookmarksTab' | transloco }}</span>
           @if (bookmarks.length > 0) {
             <span class="badge">{{ bookmarks.length }}</span>
           }
@@ -40,7 +40,7 @@
           [class.active]="activeTab === 'notes'"
           (click)="setActiveTab('notes')">
           <app-reader-icon name="note" class="tab-icon"></app-reader-icon>
-          <span>Notes</span>
+          <span>{{ 'readerCbx.sidebar.notesTab' | transloco }}</span>
           @if (notes.length > 0) {
             <span class="badge">{{ notes.length }}</span>
           }
@@ -66,7 +66,7 @@
             @if (pages.length === 0) {
               <div class="empty-state">
                 <app-reader-icon name="book" class="empty-icon" [size]="48" [strokeWidth]="1.5"></app-reader-icon>
-                <p>No pages found</p>
+                <p>{{ 'readerCbx.sidebar.noPagesFound' | transloco }}</p>
               </div>
             }
           }
@@ -79,7 +79,7 @@
                       <span class="item-title">{{ bookmark.title }}</span>
                       <span class="item-meta">{{ bookmark.createdAt | date: 'MMM d, y' }}</span>
                     </div>
-                    <button class="delete-btn" (click)="onDeleteBookmark($event, bookmark.id)" aria-label="Delete bookmark">
+                    <button class="delete-btn" (click)="onDeleteBookmark($event, bookmark.id)" [attr.aria-label]="'readerCbx.sidebar.deleteBookmark' | transloco">
                       <app-reader-icon name="trash" [size]="16"></app-reader-icon>
                     </button>
                   </li>
@@ -88,8 +88,8 @@
             } @else {
               <div class="empty-state">
                 <app-reader-icon name="bookmark" class="empty-icon" [size]="48" [strokeWidth]="1.5"></app-reader-icon>
-                <p>No bookmarks yet</p>
-                <span class="empty-hint">Tap the bookmark icon to save your place</span>
+                <p>{{ 'readerCbx.sidebar.noBookmarksYet' | transloco }}</p>
+                <span class="empty-hint">{{ 'readerCbx.sidebar.bookmarkHint' | transloco }}</span>
               </div>
             }
           }
@@ -101,12 +101,12 @@
                   <input
                     type="text"
                     class="search-input"
-                    placeholder="Search notes..."
+                    [placeholder]="'readerCbx.sidebar.searchNotesPlaceholder' | transloco"
                     [(ngModel)]="notesSearchQuery"
                     (ngModelChange)="onNotesSearchInput($event)"
                   />
                   @if (notesSearchQuery) {
-                    <button class="clear-btn" (click)="clearNotesSearch()" aria-label="Clear search">
+                    <button class="clear-btn" (click)="clearNotesSearch()" [attr.aria-label]="'readerCbx.sidebar.clearSearch' | transloco">
                       <app-reader-icon name="close" [size]="14"></app-reader-icon>
                     </button>
                   }
@@ -126,10 +126,10 @@
                         <span class="item-meta">{{ note.createdAt | date: 'MMM d, y' }}</span>
                       </div>
                       <div class="action-buttons">
-                        <button class="edit-btn" (click)="onEditNote($event, note)" aria-label="Edit note">
+                        <button class="edit-btn" (click)="onEditNote($event, note)" [attr.aria-label]="'readerCbx.sidebar.editNote' | transloco">
                           <app-reader-icon name="edit" [size]="16"></app-reader-icon>
                         </button>
-                        <button class="delete-btn" (click)="onDeleteNote($event, note.id)" aria-label="Delete note">
+                        <button class="delete-btn" (click)="onDeleteNote($event, note.id)" [attr.aria-label]="'readerCbx.sidebar.deleteNote' | transloco">
                           <app-reader-icon name="trash" [size]="16"></app-reader-icon>
                         </button>
                       </div>
@@ -139,14 +139,14 @@
               } @else if (notes.length > 0 && notesSearchQuery) {
                 <div class="empty-state">
                   <app-reader-icon name="search" class="empty-icon" [size]="48" [strokeWidth]="1.5"></app-reader-icon>
-                  <p>No matching notes</p>
-                  <span class="empty-hint">Try different search terms</span>
+                  <p>{{ 'readerCbx.sidebar.noMatchingNotes' | transloco }}</p>
+                  <span class="empty-hint">{{ 'readerCbx.sidebar.tryDifferentSearch' | transloco }}</span>
                 </div>
               } @else {
                 <div class="empty-state">
                   <app-reader-icon name="note" class="empty-icon" [size]="48" [strokeWidth]="1.5"></app-reader-icon>
-                  <p>No notes yet</p>
-                  <span class="empty-hint">Tap the notes icon to add a note for the current page</span>
+                  <p>{{ 'readerCbx.sidebar.noNotesYet' | transloco }}</p>
+                  <span class="empty-hint">{{ 'readerCbx.sidebar.notesHint' | transloco }}</span>
                 </div>
               }
             </div>

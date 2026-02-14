@@ -1,3 +1,4 @@
+<ng-container *transloco="let t; prefix: 'readerEbook.sidebar'">
 @if (isOpen) {
   <div class="sidebar-overlay" (click)="onOverlayClick()" [class.closing]="closing">
     <aside class="sidebar" (click)="$event.stopPropagation()" [class.closing]="closing">
@@ -6,7 +7,7 @@
         @if (bookInfo.coverUrl) {
           <img
             [src]="bookInfo.coverUrl"
-            alt="Book cover"
+            [alt]="t('bookCoverAlt')"
             class="book-cover"
             (click)="onCoverClick()"
             role="button"
@@ -29,14 +30,14 @@
           [class.active]="activeTab === 'chapters'"
           (click)="setActiveTab('chapters')">
           <app-reader-icon name="book" class="tab-icon"></app-reader-icon>
-          <span>Contents</span>
+          <span>{{ t('contentsTab') }}</span>
         </button>
         <button
           class="tab"
           [class.active]="activeTab === 'bookmarks'"
           (click)="setActiveTab('bookmarks')">
           <app-reader-icon name="bookmark" class="tab-icon"></app-reader-icon>
-          <span>Bookmarks</span>
+          <span>{{ t('bookmarksTab') }}</span>
           @if (bookmarks.length > 0) {
             <span class="badge">{{ bookmarks.length }}</span>
           }
@@ -46,7 +47,7 @@
           [class.active]="activeTab === 'highlights'"
           (click)="setActiveTab('highlights')">
           <app-reader-icon name="edit" class="tab-icon"></app-reader-icon>
-          <span>Highlights</span>
+          <span>{{ t('highlightsTab') }}</span>
           @if (annotations.length > 0) {
             <span class="badge">{{ annotations.length }}</span>
           }
@@ -101,7 +102,7 @@
                       <span class="item-title">{{ bookmark.title }}</span>
                       <span class="item-meta">{{ bookmark.createdAt | date: 'MMM d, y' }}</span>
                     </div>
-                    <button class="delete-btn" (click)="onDeleteBookmark($event, bookmark.id)" aria-label="Delete bookmark">
+                    <button class="delete-btn" (click)="onDeleteBookmark($event, bookmark.id)" [attr.aria-label]="t('deleteBookmark')">
                       <app-reader-icon name="trash" [size]="16"></app-reader-icon>
                     </button>
                   </li>
@@ -110,8 +111,8 @@
             } @else {
               <div class="empty-state">
                 <app-reader-icon name="bookmark" class="empty-icon" [size]="48" [strokeWidth]="1.5"></app-reader-icon>
-                <p>No bookmarks yet</p>
-                <span class="empty-hint">Tap the bookmark icon to save your place</span>
+                <p>{{ t('noBookmarksYet') }}</p>
+                <span class="empty-hint">{{ t('noBookmarksHint') }}</span>
               </div>
             }
           }
@@ -129,7 +130,7 @@
                       }
                       <span class="item-meta">{{ annotation.createdAt | date: 'MMM d, y' }}</span>
                     </div>
-                    <button class="delete-btn" (click)="onDeleteAnnotation($event, annotation.id)" aria-label="Delete highlight">
+                    <button class="delete-btn" (click)="onDeleteAnnotation($event, annotation.id)" [attr.aria-label]="t('deleteHighlight')">
                       <app-reader-icon name="trash" [size]="16"></app-reader-icon>
                     </button>
                   </li>
@@ -138,8 +139,8 @@
             } @else {
               <div class="empty-state">
                 <app-reader-icon name="edit" class="empty-icon" [size]="48" [strokeWidth]="1.5"></app-reader-icon>
-                <p>No highlights yet</p>
-                <span class="empty-hint">Select text to create a highlight</span>
+                <p>{{ t('noHighlightsYet') }}</p>
+                <span class="empty-hint">{{ t('noHighlightsHint') }}</span>
               </div>
             }
           }
@@ -148,3 +149,4 @@
     </aside>
   </div>
 }
+</ng-container>

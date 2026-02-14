@@ -88,10 +88,7 @@ export class SortService {
     hardcoverRating: (book) => book.metadata?.hardcoverRating || null,
     hardcoverReviewCount: (book) => book.metadata?.hardcoverReviewCount || null,
     ranobedbRating: (book) => book.metadata?.ranobedbRating || null,
-    locked: (book) =>
-      Object.keys(book.metadata ?? {})
-        .filter((key) => key.endsWith('Locked'))
-        .every((key) => book.metadata?.[key] === true),
+    locked: (book) => book.metadata?.allMetadataLocked ?? false,
     lastReadTime: (book) => book.lastReadTime ? new Date(book.lastReadTime).getTime() : null,
     addedOn: (book) => book.addedOn ? new Date(book.addedOn).getTime() : null,
     fileSizeKb: (book) => book.fileSizeKb || null,

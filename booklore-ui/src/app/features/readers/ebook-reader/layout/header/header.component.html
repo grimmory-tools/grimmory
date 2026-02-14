@@ -1,28 +1,29 @@
+<ng-container *transloco="let t; prefix: 'readerEbook.header'">
 <div class="reader-header" [class.visible]="isVisible" [style.background]="currentTheme.bg" [style.color]="currentTheme.fg">
   <div class="header-left">
-    <button class="icon-btn" (click)="onShowChapters()" title="Chapters">
+    <button class="icon-btn" (click)="onShowChapters()" [title]="t('chapters')">
       <app-reader-icon name="menu" [size]="20"></app-reader-icon>
     </button>
-    <button class="icon-btn" (click)="onCreateBookmark()" [title]="isCurrentCfiBookmarked ? 'Remove Bookmark' : 'Add Bookmark'" [class.active]="isCurrentCfiBookmarked">
+    <button class="icon-btn" (click)="onCreateBookmark()" [title]="isCurrentCfiBookmarked ? t('removeBookmark') : t('addBookmark')" [class.active]="isCurrentCfiBookmarked">
       <app-reader-icon name="bookmark"></app-reader-icon>
     </button>
-    <button class="icon-btn" (click)="onOpenSearch()" title="Search">
+    <button class="icon-btn" (click)="onOpenSearch()" [title]="t('search')">
       <app-reader-icon name="search"></app-reader-icon>
     </button>
   </div>
   <span class="chapter-title">{{ bookTitle }}</span>
   <div class="header-right">
-    <button class="icon-btn desktop-only" (click)="onOpenNotes()" title="Notes">
+    <button class="icon-btn desktop-only" (click)="onOpenNotes()" [title]="t('notes')">
       <app-reader-icon name="note"></app-reader-icon>
     </button>
-    <button class="icon-btn desktop-only" (click)="onToggleFullscreen()" [title]="isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'">
+    <button class="icon-btn desktop-only" (click)="onToggleFullscreen()" [title]="isFullscreen ? t('exitFullscreen') : t('fullscreen')">
       <app-reader-icon [name]="isFullscreen ? 'fullscreen-exit' : 'fullscreen'" [size]="20"></app-reader-icon>
     </button>
-    <button class="icon-btn desktop-only" (click)="onShowHelp()" title="Keyboard Shortcuts">
+    <button class="icon-btn desktop-only" (click)="onShowHelp()" [title]="t('keyboardShortcuts')">
       <app-reader-icon name="help" [size]="20"></app-reader-icon>
     </button>
     <div class="overflow-menu mobile-only">
-      <button class="icon-btn" (click)="overflowOpen = !overflowOpen; $event.stopPropagation()" title="More">
+      <button class="icon-btn" (click)="overflowOpen = !overflowOpen; $event.stopPropagation()" [title]="t('more')">
         <app-reader-icon name="dots-vertical" [size]="20"></app-reader-icon>
       </button>
       @if (overflowOpen) {
@@ -30,24 +31,25 @@
         <div class="overflow-dropdown" [style.background]="currentTheme.bg" [style.color]="currentTheme.fg">
           <button class="overflow-item" (click)="onOpenNotes(); overflowOpen = false">
             <app-reader-icon name="note" [size]="18"></app-reader-icon>
-            <span>Notes</span>
+            <span>{{ t('notes') }}</span>
           </button>
           <button class="overflow-item" (click)="onToggleFullscreen(); overflowOpen = false">
             <app-reader-icon [name]="isFullscreen ? 'fullscreen-exit' : 'fullscreen'" [size]="18"></app-reader-icon>
-            <span>{{ isFullscreen ? 'Exit Fullscreen' : 'Fullscreen' }}</span>
+            <span>{{ isFullscreen ? t('exitFullscreen') : t('fullscreen') }}</span>
           </button>
           <button class="overflow-item" (click)="onShowHelp(); overflowOpen = false">
             <app-reader-icon name="help" [size]="18"></app-reader-icon>
-            <span>Keyboard Shortcuts</span>
+            <span>{{ t('keyboardShortcuts') }}</span>
           </button>
         </div>
       }
     </div>
-    <button class="icon-btn" (click)="onShowControls()" title="Settings">
+    <button class="icon-btn" (click)="onShowControls()" [title]="t('settings')">
       <app-reader-icon name="settings"></app-reader-icon>
     </button>
-    <button class="icon-btn close-btn" (click)="onClose(); $event.stopPropagation()" title="Close Reader">
+    <button class="icon-btn close-btn" (click)="onClose(); $event.stopPropagation()" [title]="t('closeReader')">
       <app-reader-icon name="close"></app-reader-icon>
     </button>
   </div>
 </div>
+</ng-container>

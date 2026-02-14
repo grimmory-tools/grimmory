@@ -17,6 +17,7 @@ import {PublicationTrendChartComponent} from './charts/publication-trend-chart/p
 import {ReadingJourneyChartComponent} from './charts/reading-journey-chart/reading-journey-chart.component';
 import {LibrariesSummaryService} from './service/libraries-summary.service';
 import {LibraryFilterService, LibraryOption} from './service/library-filter.service';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 interface ChartConfig {
   id: string;
@@ -42,7 +43,8 @@ interface ChartConfig {
     AuthorUniverseChartComponent,
     PublicationTimelineChartComponent,
     PublicationTrendChartComponent,
-    ReadingJourneyChartComponent
+    ReadingJourneyChartComponent,
+    TranslocoDirective
   ],
   templateUrl: './library-stats.component.html',
   styleUrls: ['./library-stats.component.scss']
@@ -50,6 +52,7 @@ interface ChartConfig {
 export class LibraryStatsComponent implements OnInit, OnDestroy {
   private readonly libraryFilterService = inject(LibraryFilterService);
   private readonly librariesSummaryService = inject(LibrariesSummaryService);
+  private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
 
   public isLoading = true;
@@ -59,17 +62,7 @@ export class LibraryStatsComponent implements OnInit, OnDestroy {
   public selectedLibrary: LibraryOption | null = null;
   public showConfigPanel = false;
 
-  public chartsConfig: ChartConfig[] = [
-    {id: 'bookFormats', name: 'Book Formats', enabled: true, category: 'small'},
-    {id: 'languageDistribution', name: 'Languages', enabled: true, category: 'small'},
-    {id: 'metadataScore', name: 'Metadata Score', enabled: true, category: 'small'},
-    {id: 'pageCountDistribution', name: 'Page Count', enabled: true, category: 'small'},
-    {id: 'publicationTimeline', name: 'Publication Timeline', enabled: true, category: 'large'},
-    {id: 'readingJourney', name: 'Reading Journey', enabled: true, category: 'large'},
-    {id: 'topItems', name: 'Top Items (Authors/Categories/etc.)', enabled: true, category: 'large'},
-    {id: 'authorUniverse', name: 'Author Universe', enabled: true, category: 'large'},
-    {id: 'publicationTrend', name: 'Publication Trend', enabled: true, category: 'xlarge'}
-  ];
+  public chartsConfig: ChartConfig[] = this.buildChartsConfig();
 
   booksSummary$ = this.librariesSummaryService.getBooksSummary().pipe(
     catchError(error => {
@@ -184,16 +177,20 @@ export class LibraryStatsComponent implements OnInit, OnDestroy {
   }
 
   public resetChartOrder(): void {
-    this.chartsConfig = [
-      {id: 'bookFormats', name: 'Book Formats', enabled: true, category: 'small'},
-      {id: 'languageDistribution', name: 'Languages', enabled: true, category: 'small'},
-      {id: 'metadataScore', name: 'Metadata Score', enabled: true, category: 'small'},
-      {id: 'pageCountDistribution', name: 'Page Count', enabled: true, category: 'small'},
-      {id: 'publicationTimeline', name: 'Publication Timeline', enabled: true, category: 'large'},
-      {id: 'readingJourney', name: 'Reading Journey', enabled: true, category: 'large'},
-      {id: 'topItems', name: 'Top Items (Authors/Categories/etc.)', enabled: true, category: 'large'},
-      {id: 'authorUniverse', name: 'Author Universe', enabled: true, category: 'large'},
-      {id: 'publicationTrend', name: 'Publication Trend', enabled: true, category: 'xlarge'}
+    this.chartsConfig = this.buildChartsConfig();
+  }
+
+  private buildChartsConfig(): ChartConfig[] {
+    return [
+      {id: 'bookFormats', name: this.t.translate('statsLibrary.chartNames.bookFormats'), enabled: true, category: 'small'},
+      {id: 'languageDistribution', name: this.t.translate('statsLibrary.chartNames.languages'), enabled: true, category: 'small'},
+      {id: 'metadataScore', name: this.t.translate('statsLibrary.chartNames.metadataScore'), enabled: true, category: 'small'},
+      {id: 'pageCountDistribution', name: this.t.translate('statsLibrary.chartNames.pageCount'), enabled: true, category: 'small'},
+      {id: 'publicationTimeline', name: this.t.translate('statsLibrary.chartNames.publicationTimeline'), enabled: true, category: 'large'},
+      {id: 'readingJourney', name: this.t.translate('statsLibrary.chartNames.readingJourney'), enabled: true, category: 'large'},
+      {id: 'topItems', name: this.t.translate('statsLibrary.chartNames.topItems'), enabled: true, category: 'large'},
+      {id: 'authorUniverse', name: this.t.translate('statsLibrary.chartNames.authorUniverse'), enabled: true, category: 'large'},
+      {id: 'publicationTrend', name: this.t.translate('statsLibrary.chartNames.publicationTrend'), enabled: true, category: 'xlarge'}
     ];
   }
 }

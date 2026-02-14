@@ -1,16 +1,17 @@
+<ng-container *transloco="let t; prefix: 'statsUser.seriesProgress'">
 <div class="series-progress-container">
   <div class="chart-header">
     <div class="chart-title">
       <h3>
         <i class="pi pi-list series-icon"></i>
-        Series Progress Tracker
+        {{ t('title') }}
         <i class="pi pi-question-circle chart-info-icon"
-           pTooltip="Shows each book series in your library as a stacked bar: read, reading, and unread volumes. Series are sorted by completion percentage. Use this to spot which series you've fallen behind on or are close to finishing."
+           [pTooltip]="t('tooltip')"
            tooltipPosition="bottom"
            tooltipStyleClass="chart-info-tooltip"
            [appendTo]="'body'"></i>
       </h3>
-      <p class="chart-description">Track your reading progress across book series</p>
+      <p class="chart-description">{{ t('description') }}</p>
     </div>
     @if (stats) {
       <div class="series-summary">
@@ -34,16 +35,16 @@
     <div class="stats-row">
       <div class="stat-pill">
         <span class="pill-value">{{ stats.totalSeries }}</span>
-        <span class="pill-label">Series</span>
+        <span class="pill-label">{{ t('series') }}</span>
       </div>
       <div class="stat-pill">
         <span class="pill-value">{{ stats.avgSeriesCompletion }}%</span>
-        <span class="pill-label">Avg. Completion</span>
+        <span class="pill-label">{{ t('avgCompletion') }}</span>
       </div>
       @if (stats.highestRatedSeries) {
         <div class="stat-pill highlight">
           <span class="pill-value">{{ stats.highestRatedSeries.avgPersonalRating?.toFixed(1) }}</span>
-          <span class="pill-label">Top Rated</span>
+          <span class="pill-label">{{ t('topRated') }}</span>
         </div>
       }
     </div>
@@ -60,8 +61,8 @@
   @if (seriesList.length > 0) {
     <div class="series-details">
       <div class="details-header">
-        <h4>Series Breakdown</h4>
-        <span class="series-count">{{ filteredSeriesList.length }} of {{ seriesList.length }}</span>
+        <h4>{{ t('seriesBreakdown') }}</h4>
+        <span class="series-count">{{ t('ofTotal', { filtered: filteredSeriesList.length, total: seriesList.length }) }}</span>
       </div>
 
       <div class="controls-row">
@@ -69,7 +70,7 @@
           <i class="pi pi-search"></i>
           <input
             type="text"
-            placeholder="Search series..."
+            [placeholder]="t('searchSeries')"
             [value]="searchTerm"
             (input)="onSearchChange($any($event.target).value)"
           />
@@ -77,17 +78,17 @@
 
         <div class="filter-controls">
           <select class="filter-select" [value]="filterStatus" (change)="onFilterChange($any($event.target).value)">
-            <option value="all">All Status</option>
-            <option value="in-progress">In Progress</option>
-            <option value="completed">Completed</option>
-            <option value="not-started">Not Started</option>
+            <option value="all">{{ t('allStatus') }}</option>
+            <option value="in-progress">{{ t('inProgress') }}</option>
+            <option value="completed">{{ t('completed') }}</option>
+            <option value="not-started">{{ t('notStarted') }}</option>
           </select>
 
           <select class="sort-select" [value]="sortBy" (change)="onSortChange($any($event.target).value)">
-            <option value="progress">Sort by Progress</option>
-            <option value="rating">Sort by Rating</option>
-            <option value="books">Sort by Books</option>
-            <option value="name">Sort by Name</option>
+            <option value="progress">{{ t('sortByProgress') }}</option>
+            <option value="rating">{{ t('sortByRating') }}</option>
+            <option value="books">{{ t('sortByBooks') }}</option>
+            <option value="name">{{ t('sortByName') }}</option>
           </select>
         </div>
       </div>
@@ -103,9 +104,9 @@
                 <span class="series-name">{{ series.name }}</span>
                 <div class="series-meta">
                   <span class="books-count">
-                    {{ series.booksRead }}/{{ series.booksOwned }} read
+                    {{ t('booksRead', { read: series.booksRead, owned: series.booksOwned }) }}
                     @if (series.totalInSeries) {
-                      <span class="total-hint">({{ series.totalInSeries }} in series)</span>
+                      <span class="total-hint">{{ t('inSeriesHint', { total: series.totalInSeries }) }}</span>
                     }
                   </span>
                   @if (series.avgPersonalRating) {
@@ -131,7 +132,7 @@
             </div>
             @if (series.nextUnread && series.status !== 'completed') {
               <div class="next-up">
-                <span class="next-label">Next:</span>
+                <span class="next-label">{{ t('next') }}</span>
                 <span class="next-title">{{ series.nextUnread }}</span>
               </div>
             }
@@ -141,7 +142,7 @@
         @if (filteredSeriesList.length === 0 && searchTerm) {
           <div class="no-results">
             <i class="pi pi-search"></i>
-            <span>No series matching "{{ searchTerm }}"</span>
+            <span>{{ t('noMatchingSearch', { term: searchTerm }) }}</span>
           </div>
         }
       </div>
@@ -155,7 +156,7 @@
             <i class="pi pi-chevron-left"></i>
           </button>
           <span class="page-info">
-            Page {{ currentPage + 1 }} of {{ getTotalPages() }}
+            {{ t('pageInfo', { current: currentPage + 1, total: getTotalPages() }) }}
           </span>
           <button
             class="page-btn"
@@ -171,8 +172,9 @@
   @if (!stats) {
     <div class="no-data-message">
       <i class="pi pi-info-circle"></i>
-      <p>No series found in your library.</p>
-      <small>Books need series metadata to appear here.</small>
+      <p>{{ t('noData') }}</p>
+      <small>{{ t('noDataHint') }}</small>
     </div>
   }
 </div>
+</ng-container>

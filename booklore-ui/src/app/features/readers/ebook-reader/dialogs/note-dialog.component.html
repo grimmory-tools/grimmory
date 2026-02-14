@@ -1,7 +1,8 @@
+<ng-container *transloco="let t; prefix: 'readerEbook.noteDialog'">
 <div class="dialog-overlay" (click)="onOverlayClick($event)">
   <div class="dialog">
     <div class="dialog-header">
-      <h2>{{ isEditing ? 'Edit Note' : 'Add Note' }}</h2>
+      <h2>{{ isEditing ? t('editNote') : t('addNote') }}</h2>
       <button class="close-btn" (click)="onCancel()">
         <app-reader-icon name="close" [size]="18"></app-reader-icon>
       </button>
@@ -10,25 +11,25 @@
     <div class="dialog-body">
       @if (data?.selectedText) {
         <div class="selected-text-section">
-          <span class="section-label">Selected Text</span>
+          <span class="section-label">{{ t('selectedText') }}</span>
           <p class="selected-text">"{{ data?.selectedText }}"</p>
         </div>
       }
 
       <div class="note-section">
-        <label class="section-label" for="noteContent">Your Note</label>
+        <label class="section-label" for="noteContent">{{ t('yourNote') }}</label>
         <textarea
           id="noteContent"
           class="note-input"
           [(ngModel)]="noteContent"
-          placeholder="Write your note here..."
+          [placeholder]="t('notePlaceholder')"
           rows="6"
           autofocus
         ></textarea>
       </div>
 
       <div class="color-section">
-        <span class="section-label">Note Color</span>
+        <span class="section-label">{{ t('noteColor') }}</span>
         <div class="color-buttons">
           @for (color of noteColors; track color.value) {
             <button
@@ -44,8 +45,9 @@
     </div>
 
     <div class="dialog-footer">
-      <button class="btn btn-secondary" (click)="onCancel()">Cancel</button>
-      <button class="btn btn-primary" (click)="onSave()" [disabled]="!noteContent.trim()">{{ isEditing ? 'Update Note' : 'Save Note' }}</button>
+      <button class="btn btn-secondary" (click)="onCancel()">{{ 'common.cancel' | transloco }}</button>
+      <button class="btn btn-primary" (click)="onSave()" [disabled]="!noteContent.trim()">{{ isEditing ? t('updateNote') : t('saveNote') }}</button>
     </div>
   </div>
 </div>
+</ng-container>

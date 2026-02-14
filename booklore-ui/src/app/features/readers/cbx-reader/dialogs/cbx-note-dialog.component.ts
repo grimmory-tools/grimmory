@@ -1,6 +1,7 @@
-import {Component, EventEmitter, Input, Output, OnChanges, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, inject, Input, Output, OnChanges, SimpleChanges} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
+import {TranslocoService, TranslocoPipe} from '@jsverse/transloco';
 import {ReaderIconComponent} from '../../ebook-reader/shared/icon.component';
 
 export interface CbxNoteDialogData {
@@ -18,11 +19,13 @@ export interface CbxNoteDialogResult {
 @Component({
   selector: 'app-cbx-note-dialog',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReaderIconComponent],
+  imports: [CommonModule, FormsModule, TranslocoPipe, ReaderIconComponent],
   templateUrl: './cbx-note-dialog.component.html',
   styleUrls: ['./cbx-note-dialog.component.scss']
 })
 export class CbxNoteDialogComponent implements OnChanges {
+  private readonly t = inject(TranslocoService);
+
   @Input() data: CbxNoteDialogData | null = null;
   @Output() save = new EventEmitter<CbxNoteDialogResult>();
   @Output() cancel = new EventEmitter<void>();
@@ -41,14 +44,16 @@ export class CbxNoteDialogComponent implements OnChanges {
     }
   }
 
-  noteColors = [
-    {value: '#FFC107', label: 'Amber'},
-    {value: '#4CAF50', label: 'Green'},
-    {value: '#2196F3', label: 'Blue'},
-    {value: '#E91E63', label: 'Pink'},
-    {value: '#9C27B0', label: 'Purple'},
-    {value: '#FF5722', label: 'Deep Orange'}
-  ];
+  get noteColors() {
+    return [
+      {value: '#FFC107', label: this.t.translate('readerCbx.noteDialog.colorAmber')},
+      {value: '#4CAF50', label: this.t.translate('readerCbx.noteDialog.colorGreen')},
+      {value: '#2196F3', label: this.t.translate('readerCbx.noteDialog.colorBlue')},
+      {value: '#E91E63', label: this.t.translate('readerCbx.noteDialog.colorPink')},
+      {value: '#9C27B0', label: this.t.translate('readerCbx.noteDialog.colorPurple')},
+      {value: '#FF5722', label: this.t.translate('readerCbx.noteDialog.colorDeepOrange')}
+    ];
+  }
 
   onSave(): void {
     if (this.noteContent.trim()) {

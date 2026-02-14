@@ -90,6 +90,7 @@ export class MetadataEditorComponent implements OnInit {
 
   refreshingBookIds = new Set<number>();
   isAutoFetching = false;
+  isFetchingFromFile = false;
   autoSaveEnabled = false;
 
   originalMetadata!: BookMetadata;
@@ -1033,6 +1034,31 @@ export class MetadataEditorComponent implements OnInit {
       this.isAutoFetching = false;
       this.refreshingBookIds.delete(bookId);
     }, 15000);
+  }
+
+  fetchFromFile(bookId: number) {
+    this.isFetchingFromFile = true;
+    this.bookService.getFileMetadata(bookId).pipe(
+      finalize(() => this.isFetchingFromFile = false),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: (metadata) => {
+        this.populateFormFromMetadata(metadata);
+        this.metadataForm.markAsDirty();
+        this.messageService.add({
+          severity: 'info',
+          summary: this.t.translate('metadata.editor.toast.successSummary'),
+          detail: this.t.translate('metadata.editor.toast.fileMetadataLoaded'),
+        });
+      },
+      error: (err) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: this.t.translate('metadata.editor.toast.errorSummary'),
+          detail: err?.error?.message || this.t.translate('metadata.editor.toast.fileMetadataFailed'),
+        });
+      }
+    });
   }
 
   onNext() {

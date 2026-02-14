@@ -16,5 +16,10 @@
   "next": "Next",
   "submit": "Submit",
   "remove": "Remove",
-  "edit": "Edit"
+  "edit": "Edit",
+  "info": "Info",
+  "select": "Select",
+  "dismiss": "Dismiss",
+  "discard": "Discard",
+  "review": "Review"
 }

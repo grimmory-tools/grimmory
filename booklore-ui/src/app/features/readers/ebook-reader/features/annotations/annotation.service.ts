@@ -2,6 +2,7 @@ import {inject, Injectable} from '@angular/core';
 import {Observable, of} from 'rxjs';
 import {catchError, map, tap} from 'rxjs/operators';
 import {MessageService} from 'primeng/api';
+import {TranslocoService} from '@jsverse/transloco';
 import {
   Annotation,
   AnnotationService,
@@ -14,6 +15,7 @@ import {Annotation as ViewAnnotation, ReaderAnnotationService} from './annotatio
 export class ReaderAnnotationHttpService {
   private annotationService = inject(AnnotationService);
   private messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
   private readerAnnotationService = inject(ReaderAnnotationService);
 
   private currentChapterTitle: string | null = null;
@@ -44,8 +46,8 @@ export class ReaderAnnotationHttpService {
       tap(() => {
         this.messageService.add({
           severity: 'success',
-          summary: 'Highlight Added',
-          detail: 'Your highlight was saved successfully.'
+          summary: this.t.translate('readerEbook.toast.highlightAddedSummary'),
+          detail: this.t.translate('readerEbook.toast.highlightAddedDetail')
         });
       }),
       catchError(error => {
@@ -54,13 +56,13 @@ export class ReaderAnnotationHttpService {
           isDuplicate
             ? {
               severity: 'warn',
-              summary: 'Highlight Already Exists',
-              detail: 'You already have a highlight at this location.'
+              summary: this.t.translate('readerEbook.toast.highlightExistsSummary'),
+              detail: this.t.translate('readerEbook.toast.highlightExistsDetail')
             }
             : {
               severity: 'error',
-              summary: 'Unable to Add Highlight',
-              detail: 'Something went wrong while adding the highlight. Please try again.'
+              summary: this.t.translate('readerEbook.toast.highlightFailedSummary'),
+              detail: this.t.translate('readerEbook.toast.highlightFailedDetail')
             }
         );
         return of(null);
@@ -81,16 +83,16 @@ export class ReaderAnnotationHttpService {
       map(() => {
         this.messageService.add({
           severity: 'success',
-          summary: 'Highlight Removed',
-          detail: 'Your highlight was removed successfully.'
+          summary: this.t.translate('readerEbook.toast.highlightRemovedSummary'),
+          detail: this.t.translate('readerEbook.toast.highlightRemovedDetail')
         });
         return true;
       }),
       catchError(() => {
         this.messageService.add({
           severity: 'error',
-          summary: 'Unable to Remove Highlight',
-          detail: 'Something went wrong while removing the highlight. Please try again.'
+          summary: this.t.translate('readerEbook.toast.highlightRemoveFailedSummary'),
+          detail: this.t.translate('readerEbook.toast.highlightRemoveFailedDetail')
         });
         return of(false);
       })
@@ -102,15 +104,15 @@ export class ReaderAnnotationHttpService {
       tap(() => {
         this.messageService.add({
           severity: 'success',
-          summary: 'Note Updated',
-          detail: 'Your note was saved successfully.'
+          summary: this.t.translate('readerEbook.toast.noteAnnotationUpdatedSummary'),
+          detail: this.t.translate('readerEbook.toast.noteAnnotationUpdatedDetail')
         });
       }),
       catchError(() => {
         this.messageService.add({
           severity: 'error',
-          summary: 'Unable to Update Note',
-          detail: 'Something went wrong while updating the note. Please try again.'
+          summary: this.t.translate('readerEbook.toast.noteAnnotationUpdateFailedSummary'),
+          detail: this.t.translate('readerEbook.toast.noteAnnotationUpdateFailedDetail')
         });
         return of(null);
       })

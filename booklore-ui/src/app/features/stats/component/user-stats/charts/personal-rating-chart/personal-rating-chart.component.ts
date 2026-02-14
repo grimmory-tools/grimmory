@@ -8,6 +8,7 @@ import {Tooltip} from 'primeng/tooltip';
 import {BookService} from '../../../../../book/service/book.service';
 import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book} from '../../../../../book/model/book.model';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 interface RatingStats {
   ratingRange: string;
@@ -53,12 +54,13 @@ type RatingChartData = ChartData<'bar', number[], string>;
 @Component({
   selector: 'app-personal-rating-chart',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective, Tooltip],
+  imports: [CommonModule, BaseChartDirective, Tooltip, TranslocoDirective],
   templateUrl: './personal-rating-chart.component.html',
   styleUrls: ['./personal-rating-chart.component.scss']
 })
 export class PersonalRatingChartComponent implements OnInit, OnDestroy {
   private readonly bookService = inject(BookService);
+  private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
 
   public readonly chartType = 'bar' as const;
@@ -84,10 +86,11 @@ export class PersonalRatingChartComponent implements OnInit, OnDestroy {
         titleFont: {size: 14, weight: 'bold'},
         bodyFont: {size: 13},
         callbacks: {
-          title: (context) => `Personal Rating: ${context[0].label}`,
+          title: (context) => this.t.translate('statsUser.personalRating.tooltipTitle', {label: context[0].label}),
           label: (context) => {
             const value = context.parsed.y;
-            return `${value} book${value === 1 ? '' : 's'}`;
+            const key = value === 1 ? 'statsUser.personalRating.tooltipBook' : 'statsUser.personalRating.tooltipBooks';
+            return this.t.translate(key, {value});
           }
         }
       },
@@ -97,7 +100,7 @@ export class PersonalRatingChartComponent implements OnInit, OnDestroy {
       x: {
         title: {
           display: true,
-          text: 'Personal Rating',
+          text: this.t.translate('statsUser.personalRating.axisPersonalRating'),
           color: '#ffffff',
           font: {
             family: "'Inter', sans-serif",
@@ -117,7 +120,7 @@ export class PersonalRatingChartComponent implements OnInit, OnDestroy {
       y: {
         title: {
           display: true,
-          text: 'Number of Books',
+          text: this.t.translate('statsUser.personalRating.axisNumberOfBooks'),
           color: '#ffffff',
           font: {
             family: "'Inter', sans-serif",
@@ -145,7 +148,7 @@ export class PersonalRatingChartComponent implements OnInit, OnDestroy {
   private readonly chartDataSubject = new BehaviorSubject<RatingChartData>({
     labels: [],
     datasets: [{
-      label: 'Books by Personal Rating',
+      label: this.t.translate('statsUser.personalRating.booksByPersonalRating'),
       data: [],
       backgroundColor: [...CHART_COLORS],
       ...CHART_DEFAULTS
@@ -189,7 +192,7 @@ export class PersonalRatingChartComponent implements OnInit, OnDestroy {
       this.chartDataSubject.next({
         labels: allLabels,
         datasets: [{
-          label: 'Books by Personal Rating',
+          label: this.t.translate('statsUser.personalRating.booksByPersonalRating'),
           data: dataValues,
           backgroundColor: colors,
           borderColor: colors.map(color => color),

@@ -1,31 +1,32 @@
+<ng-container *transloco="let t; prefix: 'statsUser.pageTurner'">
 <div class="page-turner-container">
   <div class="chart-header">
     <div class="chart-title">
       <h3>
         <i class="pi pi-bolt page-turner-icon"></i>
-        Page Turner Score
+        {{ t('title') }}
         <i class="pi pi-question-circle chart-info-icon"
-           pTooltip="Each book gets a 'grip score' (0-100) based on how your reading behavior changed over time. It measures whether your sessions got longer, whether gaps between sessions shrank, and whether you had a burst of reading near the end. Higher scores mean the book pulled you in more as you read."
+           [pTooltip]="t('tooltip')"
            tooltipPosition="bottom"
            tooltipStyleClass="chart-info-tooltip"
            [appendTo]="'body'"></i>
       </h3>
-      <p class="chart-description">How gripping each book was based on your reading patterns</p>
+      <p class="chart-description">{{ t('description') }}</p>
     </div>
   </div>
 
   <div class="stats-row">
     <div class="stat-item">
       <span class="stat-value" [title]="stats.mostGripping">{{ stats.mostGripping | slice:0:18 }}</span>
-      <span class="stat-label">Most Gripping</span>
+      <span class="stat-label">{{ t('mostGripping') }}</span>
     </div>
     <div class="stat-item">
       <span class="stat-value">{{ stats.avgGripScore }}</span>
-      <span class="stat-label">Avg Grip Score</span>
+      <span class="stat-label">{{ t('avgGripScore') }}</span>
     </div>
     <div class="stat-item">
       <span class="stat-value" [title]="stats.guiltyPleasure">{{ stats.guiltyPleasure | slice:0:18 }}</span>
-      <span class="stat-label">Guilty Pleasure</span>
+      <span class="stat-label">{{ t('guiltyPleasure') }}</span>
     </div>
   </div>
 
@@ -37,15 +38,15 @@
           <div class="book-info">
             <span class="book-name">{{ book.bookTitle | slice:0:30 }}</span>
             <div class="book-indicators">
-              <span class="indicator" [title]="'Session duration trend'">
+              <span class="indicator" [title]="t('sessionDurationTrend')">
                 <i class="pi pi-clock"></i> {{ getAccelerationLabel(book.sessionAcceleration) }}
               </span>
-              <span class="indicator" [title]="'Gap between sessions trend'">
+              <span class="indicator" [title]="t('gapBetweenSessionsTrend')">
                 <i class="pi pi-calendar"></i> {{ getGapLabel(book.gapReduction) }}
               </span>
               @if (book.finishBurst) {
                 <span class="indicator burst">
-                  <i class="pi pi-forward"></i> Finish Burst
+                  <i class="pi pi-forward"></i> {{ t('finishBurst') }}
                 </span>
               }
             </div>
@@ -64,3 +65,4 @@
     </canvas>
   </div>
 </div>
+</ng-container>

@@ -2,6 +2,7 @@ import {inject, Injectable} from '@angular/core';
 import {BehaviorSubject, Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 import {MessageService} from 'primeng/api';
+import {TranslocoService} from '@jsverse/transloco';
 import {BookNoteV2Service, CreateBookNoteV2Request, UpdateBookNoteV2Request} from '../../../../../shared/service/book-note-v2.service';
 import {NoteDialogData, NoteDialogResult} from '../../dialogs/note-dialog.component';
 import {ReaderSelectionService} from '../selection/selection.service';
@@ -18,6 +19,7 @@ export interface NoteDialogState {
 export class ReaderNoteService {
   private bookNoteV2Service = inject(BookNoteV2Service);
   private messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
   private selectionService = inject(ReaderSelectionService);
   private progressService = inject(ReaderProgressService);
   private leftSidebarService = inject(ReaderLeftSidebarService);
@@ -110,15 +112,15 @@ export class ReaderNoteService {
           this.leftSidebarService.refreshNotes();
           this.messageService.add({
             severity: 'success',
-            summary: 'Note Saved',
-            detail: 'Your note has been saved successfully.'
+            summary: this.t.translate('readerEbook.toast.noteSavedSummary'),
+            detail: this.t.translate('readerEbook.toast.noteSavedDetail')
           });
         },
         error: () => {
           this.messageService.add({
             severity: 'error',
-            summary: 'Save Failed',
-            detail: 'Failed to save the note. Please try again.'
+            summary: this.t.translate('readerEbook.toast.saveFailedSummary'),
+            detail: this.t.translate('readerEbook.toast.saveFailedDetail')
           });
         }
       });
@@ -138,15 +140,15 @@ export class ReaderNoteService {
           this.leftSidebarService.refreshNotes();
           this.messageService.add({
             severity: 'success',
-            summary: 'Note Updated',
-            detail: 'Your note has been updated successfully.'
+            summary: this.t.translate('readerEbook.toast.noteUpdatedSummary'),
+            detail: this.t.translate('readerEbook.toast.noteUpdatedDetail')
           });
         },
         error: () => {
           this.messageService.add({
             severity: 'error',
-            summary: 'Update Failed',
-            detail: 'Failed to update the note. Please try again.'
+            summary: this.t.translate('readerEbook.toast.updateFailedSummary'),
+            detail: this.t.translate('readerEbook.toast.updateFailedDetail')
           });
         }
       });

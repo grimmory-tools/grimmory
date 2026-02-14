@@ -16,5 +16,10 @@
   "next": "Siguiente",
   "submit": "Enviar",
   "remove": "Eliminar",
-  "edit": "Editar"
+  "edit": "Editar",
+  "info": "Información",
+  "select": "Seleccionar",
+  "dismiss": "Descartar",
+  "discard": "Descartar",
+  "review": "Revisar"
 }

@@ -30,6 +30,7 @@ import {EpubCustomFontService} from './features/fonts/custom-font.service';
 import {TextSelectionAction, TextSelectionPopupComponent} from './shared/selection-popup.component';
 import {NoteDialogData, NoteDialogResult, ReaderNoteDialogComponent} from './dialogs/note-dialog.component';
 import {EbookShortcutsHelpComponent} from './dialogs/shortcuts-help.component';
+import {TranslocoPipe} from '@jsverse/transloco';
 
 @Component({
   selector: 'app-ebook-reader',
@@ -45,7 +46,8 @@ import {EbookShortcutsHelpComponent} from './dialogs/shortcuts-help.component';
     ReaderNavbarComponent,
     TextSelectionPopupComponent,
     ReaderNoteDialogComponent,
-    EbookShortcutsHelpComponent
+    EbookShortcutsHelpComponent,
+    TranslocoPipe
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [

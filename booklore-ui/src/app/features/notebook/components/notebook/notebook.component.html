@@ -1,0 +1,203 @@
+<ng-container *transloco="let t">
+  <div class="main-container">
+
+    <!-- Page Header -->
+    <div class="settings-header">
+      <h2 class="settings-title">
+        <i class="pi pi-pencil"></i>
+        {{ t('notebook.pageTitle') }}
+      </h2>
+      <p class="settings-description">{{ t('notebook.pageDescription') }}</p>
+    </div>
+
+    <!-- Filters Card -->
+    <div class="settings-card">
+      <div class="filters-bar">
+        <div class="filters-left">
+          <span class="p-input-icon-left search-wrapper">
+            <i class="pi pi-search"></i>
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="searchQuery"
+              (ngModelChange)="onSearchChange()"
+              [placeholder]="t('notebook.searchPlaceholder')"
+              class="search-input"
+            />
+          </span>
+
+          <p-select
+            [(ngModel)]="selectedBookId"
+            [options]="bookOptions"
+            optionLabel="label"
+            optionValue="value"
+            [filter]="true"
+            filterBy="label"
+            [lazy]="true"
+            [virtualScroll]="true"
+            [virtualScrollItemSize]="38"
+            [showClear]="true"
+            appendTo="body"
+            (ngModelChange)="onFilterChange()"
+            (onFilter)="onBookFilter($event)"
+            [placeholder]="t('notebook.filterByBook')"
+            [panelStyle]="{'min-width': '300px'}"
+            class="book-select"
+          />
+        </div>
+
+        <div class="filters-right">
+          <div class="type-filters">
+            <button
+              class="option-button"
+              [class.selected]="showHighlights"
+              (click)="showHighlights = !showHighlights; onFilterChange()"
+            >
+              <i class="pi pi-highlighter"></i>
+              <span class="option-text">{{ t('notebook.filterHighlights') }}</span>
+            </button>
+            <button
+              class="option-button"
+              [class.selected]="showNotes"
+              (click)="showNotes = !showNotes; onFilterChange()"
+            >
+              <i class="pi pi-file-edit"></i>
+              <span class="option-text">{{ t('notebook.filterNotes') }}</span>
+            </button>
+            <button
+              class="option-button"
+              [class.selected]="showBookmarks"
+              (click)="showBookmarks = !showBookmarks; onFilterChange()"
+            >
+              <i class="pi pi-bookmark"></i>
+              <span class="option-text">{{ t('notebook.filterBookmarks') }}</span>
+            </button>
+          </div>
+
+          <p-button
+            [icon]="sortNewest ? 'pi pi-sort-amount-down' : 'pi pi-sort-amount-up'"
+            [pTooltip]="sortNewest ? t('notebook.sortNewest') : t('notebook.sortOldest')"
+            tooltipPosition="bottom"
+            [outlined]="true"
+            size="small"
+            (onClick)="toggleSort()"
+          />
+          <p-button
+            icon="pi pi-download"
+            [label]="t('notebook.export')"
+            [outlined]="true"
+            size="small"
+            severity="info"
+            (onClick)="exportMarkdown()"
+            [disabled]="totalEntries === 0 || exporting"
+            [loading]="exporting"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Scrollable Content Area -->
+    <div class="entries-scroll-area">
+      <!-- Loading State -->
+      @if (loading) {
+        <div class="settings-card">
+          <div class="state-container">
+            <i class="pi pi-spin pi-spinner"></i>
+          </div>
+        </div>
+      }
+
+      <!-- Empty State: No annotations at all -->
+      @if (!loading && totalEntries === 0 && !searchQuery.trim() && selectedBookId === null && showHighlights && showNotes && showBookmarks) {
+        <div class="settings-card">
+          <div class="state-container">
+            <div class="state-icon">
+              <i class="pi pi-pencil"></i>
+            </div>
+            <p class="state-title">{{ t('notebook.noEntries') }}</p>
+            <p class="state-hint">{{ t('notebook.noEntriesHint') }}</p>
+          </div>
+        </div>
+      }
+
+      <!-- Empty State: No results match filters -->
+      @if (!loading && totalEntries === 0 && (searchQuery.trim() || selectedBookId !== null || !showHighlights || !showNotes || !showBookmarks)) {
+        <div class="settings-card">
+          <div class="state-container">
+            <div class="state-icon warn">
+              <i class="pi pi-filter-slash"></i>
+            </div>
+            <p class="state-title">{{ t('notebook.noResults') }}</p>
+          </div>
+        </div>
+      }
+
+      <!-- Book Groups -->
+      @if (!loading && filteredGroups.length > 0) {
+        @for (group of filteredGroups; track group.bookId) {
+          <div class="settings-card book-group-card">
+            <!-- Book Header -->
+            <div class="book-group-header" (click)="toggleGroup(group.bookId)">
+              <img [src]="group.thumbnailUrl" [alt]="group.bookTitle" class="book-thumbnail" />
+              <div class="book-info">
+                <span class="book-title">{{ group.bookTitle }}</span>
+                <span class="book-entry-count">
+                  {{ group.entries.length }} {{ group.entries.length === 1 ? t('notebook.annotation') : t('notebook.annotations') }}
+                </span>
+              </div>
+              <i class="pi toggle-icon" [class.pi-chevron-down]="!isGroupCollapsed(group.bookId)" [class.pi-chevron-right]="isGroupCollapsed(group.bookId)"></i>
+            </div>
+
+            <!-- Entries -->
+            @if (!isGroupCollapsed(group.bookId)) {
+              <div class="entries-list">
+                @for (entry of group.entries; track entry.id + '-' + entry.type) {
+                  <div
+                    class="entry-item"
+                    [style.border-left-color]="entry.color || 'var(--p-primary-color)'"
+                  >
+                    <div class="entry-top-row">
+                      <div class="entry-type-badge" [class]="'type-' + entry.type.toLowerCase()">
+                        <i [class]="getTypeIcon(entry.type)"></i>
+                        <span>{{ getTypeLabel(entry.type) }}</span>
+                      </div>
+                      @if (entry.chapterTitle) {
+                        <span class="entry-chapter">
+                          <i class="pi pi-list"></i>
+                          {{ entry.chapterTitle }}
+                        </span>
+                      }
+                      <span class="entry-date">{{ entry.createdAt | date:'mediumDate' }}</span>
+                    </div>
+                    @if (entry.text) {
+                      <div class="entry-text">{{ entry.text }}</div>
+                    }
+                    @if (entry.note) {
+                      <div class="entry-note">
+                        <i class="pi pi-comment"></i>
+                        <span>{{ entry.note }}</span>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Pagination -->
+        @if (totalEntries > pageSize) {
+          <div class="settings-card pagination-card">
+            <p-paginator
+              [rows]="pageSize"
+              [totalRecords]="totalEntries"
+              [first]="first"
+              [rowsPerPageOptions]="[25, 50, 100]"
+              (onPageChange)="onPageChange($event)"
+            />
+          </div>
+        }
+      }
+    </div>
+  </div>
+</ng-container>

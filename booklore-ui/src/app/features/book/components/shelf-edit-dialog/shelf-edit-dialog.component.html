@@ -1,12 +1,13 @@
+<ng-container *transloco="let t; prefix: 'book.shelfEditDialog'">
 <div class="shelf-form">
   <div class="panel-header">
     <div class="header-icon-wrapper">
       <i class="pi pi-pencil header-icon"></i>
     </div>
     <div class="header-text">
-      <h2 class="panel-title">Edit Shelf</h2>
+      <h2 class="panel-title">{{ t('title') }}</h2>
       <p class="panel-description">
-        Customize your shelf name and icon
+        {{ t('description') }}
       </p>
     </div>
     <p-button
@@ -22,15 +23,15 @@
   <div class="shelf-container">
     <div class="shelf-fields">
       <div class="shelf-row">
-        <label class="label">Shelf Name:</label>
-        <input type="text" pInputText [(ngModel)]="shelfName" placeholder="Enter shelf name..." class="input"/>
+        <label class="label">{{ t('shelfNameLabel') }}</label>
+        <input type="text" pInputText [(ngModel)]="shelfName" [placeholder]="t('shelfNamePlaceholder')" class="input"/>
       </div>
 
       <div class="shelf-row">
-        <label class="label">Shelf Icon:</label>
+        <label class="label">{{ t('shelfIconLabel') }}</label>
         <div class="icon-section">
           @if (!selectedIcon) {
-            <p-button label="Select Icon" icon="pi pi-search" [outlined]="true" severity="info" (onClick)="openIconPicker()"></p-button>
+            <p-button [label]="t('selectIcon')" icon="pi pi-search" [outlined]="true" severity="info" (onClick)="openIconPicker()"></p-button>
           }
 
           @if (selectedIcon) {
@@ -50,10 +51,10 @@
 
       @if (isAdmin) {
         <div class="shelf-row">
-          <label class="label">Visibility:</label>
+          <label class="label">{{ t('visibilityLabel') }}</label>
           <div class="visibility-section" style="display: flex; align-items: center; gap: 0.5rem;">
             <p-checkbox [(ngModel)]="isPublic" [binary]="true" inputId="publicShelf"></p-checkbox>
-            <label for="publicShelf" style="cursor: pointer; user-select: none;">Public Shelf</label>
+            <label for="publicShelf" style="cursor: pointer; user-select: none;">{{ t('publicShelfLabel') }}</label>
           </div>
         </div>
       }
@@ -64,13 +65,13 @@
     <div></div>
     <div class="footer-actions">
       <p-button
-        label="Cancel"
+        [label]="t('cancelButton')"
         severity="secondary"
         [outlined]="true"
         (onClick)="closeDialog()"
       />
       <p-button
-        label="Save Changes"
+        [label]="t('saveChanges')"
         icon="pi pi-check"
         severity="success"
         (onClick)="save()"
@@ -78,3 +79,4 @@
     </div>
   </div>
 </div>
+</ng-container>

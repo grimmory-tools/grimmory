@@ -8,7 +8,7 @@
       class="book-cover"
       [class.loaded]="isImageLoaded"
       [class.square-cover]="_isAudiobook"
-      [alt]="'Cover of ' + displayTitle"
+      [alt]="('book.card.alt.cover' | transloco: { title: displayTitle })"
       loading="lazy"
       decoding="async"
       (load)="onImageLoad()"/>

@@ -1,3 +1,4 @@
+<ng-container *transloco="let t; prefix: 'magicShelf'">
 <div class="magic-shelf-container">
   <div class="panel-header">
     <div class="header-icon-wrapper">
@@ -5,9 +6,9 @@
     </div>
     <div class="header-text">
       <h2 class="panel-title">
-        {{ editMode ? 'Edit Magic Shelf' : 'Magic Shelf Builder' }}
+        {{ editMode ? t('header.titleEdit') : t('header.titleCreate') }}
       </h2>
-      <p class="panel-description">Create smart shelves with custom rules to automatically organize your books</p>
+      <p class="panel-description">{{ t('header.description') }}</p>
     </div>
     <p-button
       icon="pi pi-times"
@@ -23,12 +24,12 @@
     <fieldset [disabled]="form.get('isPublic')?.value && !isAdmin">
       <div class="form-header">
         <div class="form-field">
-          <label for="shelfName">Magic Shelf Name</label>
-          <input pInputText id="shelfName" type="text" formControlName="name" placeholder="E.g. Rom-Zom-Coms, Fast & Furious, Missing Metadata"/>
+          <label for="shelfName">{{ t('form.shelfName') }}</label>
+          <input pInputText id="shelfName" type="text" formControlName="name" [placeholder]="t('form.namePlaceholder')"/>
         </div>
         <div class="icon-picker-section">
           <div class="icon-picker-wrapper">
-            <label>Shelf Icon</label>
+            <label>{{ t('form.shelfIcon') }}</label>
             @if (selectedIcon) {
               <div class="selected-icon-display">
                 <div class="icon-display-container" (click)="openIconPicker()" (keydown.enter)="openIconPicker()" tabindex="0" role="button">
@@ -38,7 +39,7 @@
                     iconClass="selected-icon"
                     alt="Selected shelf icon">
                   </app-icon-display>
-                  <span class="icon-label">Click to change</span>
+                  <span class="icon-label">{{ t('form.clickToChange') }}</span>
                 </div>
                 <p-button
                   icon="pi pi-times"
@@ -47,7 +48,7 @@
                   [rounded]="true"
                   size="small"
                   (onClick)="clearSelectedIcon()"
-                  pTooltip="Remove icon"
+                  [pTooltip]="t('form.removeIcon')"
                   tooltipPosition="left"
                 />
               </div>
@@ -55,7 +56,7 @@
               <div class="icon-display-container" (click)="openIconPicker()" (keydown.enter)="openIconPicker()" tabindex="0" role="button">
                 <div class="icon-placeholder">
                   <i class="pi pi-plus"></i>
-                  <span>Select Icon</span>
+                  <span>{{ t('form.selectIcon') }}</span>
                 </div>
               </div>
             }
@@ -65,7 +66,7 @@
           <div class="public-checkbox-section">
             <div class="checkbox-wrapper">
               <p-checkbox formControlName="isPublic" [binary]="true" inputId="isPublic" (onChange)="onIsPublicChange($event)"></p-checkbox>
-              <label for="isPublic">Public</label>
+              <label for="isPublic">{{ t('form.public') }}</label>
             </div>
           </div>
         }
@@ -80,13 +81,13 @@
   <div class="dialog-footer">
     <div class="footer-actions">
       <p-button
-        label="Cancel"
+        [label]="t('actions.cancel')"
         severity="secondary"
         [outlined]="true"
         (onClick)="cancel()"
       />
       <p-button
-        label="Save Filter"
+        [label]="t('actions.saveFilter')"
         icon="pi pi-save"
         severity="success"
         (onClick)="submit()"
@@ -98,10 +99,10 @@
   <ng-template #groupTemplate let-group="group">
     <div class="group-container" [formGroup]="group">
       <div class="group-header">
-        <label>Condition:</label>
+        <label>{{ t('group.condition') }}</label>
         <p-select [options]="conditionOptions" formControlName="join" class="condition-select" appendTo="body" [showClear]="false"/>
-        <p-button icon="pi pi-plus" size="small" text (click)="addRule(group)" label="Add Rule" outlined></p-button>
-        <p-button icon="pi pi-folder-open" size="small" text (click)="addGroup(group)" label="Add Group" outlined></p-button>
+        <p-button icon="pi pi-plus" size="small" text (click)="addRule(group)" [label]="t('actions.addRule')" outlined></p-button>
+        <p-button icon="pi pi-folder-open" size="small" text (click)="addGroup(group)" [label]="t('actions.addGroup')" outlined></p-button>
         @if (group.parent) {
           <p-button icon="pi pi-trash" text (click)="deleteGroup(group)" severity="danger"></p-button>
         }
@@ -115,26 +116,26 @@
                 <ng-container *ngTemplateOutlet="groupTemplate; context: { group: ruleCtrl }"></ng-container>
               </ng-container>
             } @else {
-              <p-select [options]="fieldOptions" formControlName="field" (onChange)="onFieldChange(ruleCtrl)" placeholder="Field" appendTo="body" class="field-select"/>
-              <p-select [options]="getOperatorOptionsForField(ruleCtrl.get('field')?.value)" appendTo="body" formControlName="operator" placeholder="Operator" class="operator-select" (onChange)="onOperatorChange(ruleCtrl)"/>
+              <p-select [options]="fieldOptions" formControlName="field" (onChange)="onFieldChange(ruleCtrl)" [placeholder]="t('placeholders.field')" appendTo="body" class="field-select"/>
+              <p-select [options]="getOperatorOptionsForField(ruleCtrl.get('field')?.value)" appendTo="body" formControlName="operator" [placeholder]="t('placeholders.operator')" class="operator-select" (onChange)="onOperatorChange(ruleCtrl)"/>
 
               @if (!['is_empty', 'is_not_empty'].includes(ruleCtrl.get('operator')?.value)) {
                 @if (ruleCtrl.get('operator')?.value === 'in_between') {
                   @if (ruleCtrl.get('field')?.value === 'publishedDate') {
-                    <p-datepicker [formControl]="ruleCtrl.get('valueStart')" dateFormat="dd-M-yy" placeholder="Start Year" appendTo="body" fluid class="value-input"></p-datepicker>
-                    <p-datepicker [formControl]="ruleCtrl.get('valueEnd')" dateFormat="dd-M-yy" placeholder="End Year" appendTo="body" fluid class="value-input"></p-datepicker>
+                    <p-datepicker [formControl]="ruleCtrl.get('valueStart')" dateFormat="dd-M-yy" [placeholder]="t('placeholders.startYear')" appendTo="body" fluid class="value-input"></p-datepicker>
+                    <p-datepicker [formControl]="ruleCtrl.get('valueEnd')" dateFormat="dd-M-yy" [placeholder]="t('placeholders.endYear')" appendTo="body" fluid class="value-input"></p-datepicker>
                   } @else if (ruleCtrl.get('field')?.value === 'dateFinished') {
-                    <p-datepicker [formControl]="ruleCtrl.get('valueStart')" dateFormat="dd-M-yy" placeholder="Start Date" appendTo="body" fluid class="value-input"></p-datepicker>
-                    <p-datepicker [formControl]="ruleCtrl.get('valueEnd')" dateFormat="dd-M-yy" placeholder="End Date" appendTo="body" fluid class="value-input"></p-datepicker>
+                    <p-datepicker [formControl]="ruleCtrl.get('valueStart')" dateFormat="dd-M-yy" [placeholder]="t('placeholders.startDate')" appendTo="body" fluid class="value-input"></p-datepicker>
+                    <p-datepicker [formControl]="ruleCtrl.get('valueEnd')" dateFormat="dd-M-yy" [placeholder]="t('placeholders.endDate')" appendTo="body" fluid class="value-input"></p-datepicker>
                   } @else if (numericFieldConfigMap.get(ruleCtrl.get('field')?.value)?.type === 'number') {
-                    <p-inputNumber [formControl]="ruleCtrl.get('valueStart')" [min]="0" class="value-input" placeholder="Start Value" [showButtons]="true"></p-inputNumber>
-                    <p-inputNumber [formControl]="ruleCtrl.get('valueEnd')" [min]="0" class="value-input" placeholder="End Value" [showButtons]="true"></p-inputNumber>
+                    <p-inputNumber [formControl]="ruleCtrl.get('valueStart')" [min]="0" class="value-input" [placeholder]="t('placeholders.startValue')" [showButtons]="true"></p-inputNumber>
+                    <p-inputNumber [formControl]="ruleCtrl.get('valueEnd')" [min]="0" class="value-input" [placeholder]="t('placeholders.endValue')" [showButtons]="true"></p-inputNumber>
                   } @else if (numericFieldConfigMap.get(ruleCtrl.get('field')?.value)?.type === 'decimal') {
-                    <p-inputNumber [formControl]="ruleCtrl.get('valueStart')" mode="decimal" [minFractionDigits]="1" [maxFractionDigits]="1" [min]="0" [max]="numericFieldConfigMap.get(ruleCtrl.get('field')?.value)?.max || 10" class="value-input" placeholder="Start Value" [showButtons]="true"></p-inputNumber>
-                    <p-inputNumber [formControl]="ruleCtrl.get('valueEnd')" mode="decimal" [minFractionDigits]="1" [maxFractionDigits]="1" [min]="0" [max]="numericFieldConfigMap.get(ruleCtrl.get('field')?.value)?.max || 10" class="value-input" placeholder="End Value" [showButtons]="true"></p-inputNumber>
+                    <p-inputNumber [formControl]="ruleCtrl.get('valueStart')" mode="decimal" [minFractionDigits]="1" [maxFractionDigits]="1" [min]="0" [max]="numericFieldConfigMap.get(ruleCtrl.get('field')?.value)?.max || 10" class="value-input" [placeholder]="t('placeholders.startValue')" [showButtons]="true"></p-inputNumber>
+                    <p-inputNumber [formControl]="ruleCtrl.get('valueEnd')" mode="decimal" [minFractionDigits]="1" [maxFractionDigits]="1" [min]="0" [max]="numericFieldConfigMap.get(ruleCtrl.get('field')?.value)?.max || 10" class="value-input" [placeholder]="t('placeholders.endValue')" [showButtons]="true"></p-inputNumber>
                   } @else {
-                    <input pInputText [formControl]="ruleCtrl.get('valueStart')" class="value-input" placeholder="Start Value"/>
-                    <input pInputText [formControl]="ruleCtrl.get('valueEnd')" class="value-input" placeholder="End Value"/>
+                    <input pInputText [formControl]="ruleCtrl.get('valueStart')" class="value-input" [placeholder]="t('placeholders.startValue')"/>
+                    <input pInputText [formControl]="ruleCtrl.get('valueEnd')" class="value-input" [placeholder]="t('placeholders.endValue')"/>
                   }
                 } @else {
                   @if (ruleCtrl.get('field')?.value === 'publishedDate') {
@@ -142,37 +143,37 @@
                   } @else if (ruleCtrl.get('field')?.value === 'dateFinished') {
                     <p-datepicker formControlName="value" dateFormat="dd-M-yy" appendTo="body" fluid class="value-input"></p-datepicker>
                   } @else if (numericFieldConfigMap.get(ruleCtrl.get('field')?.value)?.type === 'number') {
-                    <p-inputNumber formControlName="value" class="value-input" mode="decimal" placeholder="Value" [showButtons]="true"></p-inputNumber>
+                    <p-inputNumber formControlName="value" class="value-input" mode="decimal" [placeholder]="t('placeholders.value')" [showButtons]="true"></p-inputNumber>
                   } @else if (numericFieldConfigMap.get(ruleCtrl.get('field')?.value)?.type === 'decimal') {
-                    <p-inputNumber formControlName="value" mode="decimal" [minFractionDigits]="1" [maxFractionDigits]="1" [min]="0" [max]="numericFieldConfigMap.get(ruleCtrl.get('field')?.value)?.max || 10" class="value-input" placeholder="Value" [showButtons]="true"></p-inputNumber>
+                    <p-inputNumber formControlName="value" mode="decimal" [minFractionDigits]="1" [maxFractionDigits]="1" [min]="0" [max]="numericFieldConfigMap.get(ruleCtrl.get('field')?.value)?.max || 10" class="value-input" [placeholder]="t('placeholders.value')"></p-inputNumber>
                   } @else if (['includes_any', 'includes_all', 'excludes_all'].includes(ruleCtrl.get('operator')?.value)) {
                     @if (ruleCtrl.get('field')?.value === 'readStatus') {
-                      <p-multiSelect [options]="readStatusOptions" formControlName="value" display="chip" class="value-input" appendTo="body" placeholder="Select Statuses"></p-multiSelect>
+                      <p-multiSelect [options]="readStatusOptions" formControlName="value" display="chip" class="value-input" appendTo="body" [placeholder]="t('placeholders.selectStatuses')"></p-multiSelect>
                     } @else if (ruleCtrl.get('field')?.value === 'fileType') {
-                      <p-multiSelect [options]="fileType" formControlName="value" display="chip" class="value-input" appendTo="body" placeholder="Select File Types"></p-multiSelect>
+                      <p-multiSelect [options]="fileType" formControlName="value" display="chip" class="value-input" appendTo="body" [placeholder]="t('placeholders.selectFileTypes')"></p-multiSelect>
                     } @else if (ruleCtrl.get('field')?.value === 'library') {
-                      <p-multiSelect [options]="libraryOptions" formControlName="value" display="chip" class="value-input" appendTo="body" placeholder="Select Libraries"></p-multiSelect>
+                      <p-multiSelect [options]="libraryOptions" formControlName="value" display="chip" class="value-input" appendTo="body" [placeholder]="t('placeholders.selectLibraries')"></p-multiSelect>
                     } @else if (ruleCtrl.get('field')?.value === 'shelf') {
-                      <p-multiSelect [options]="shelfOptions" formControlName="value" display="chip" class="value-input" appendTo="body" placeholder="Select Shelves"></p-multiSelect>
+                      <p-multiSelect [options]="shelfOptions" formControlName="value" display="chip" class="value-input" appendTo="body" [placeholder]="t('placeholders.selectShelves')"></p-multiSelect>
                     } @else if (ruleCtrl.get('field')?.value === 'categories') {
-                      <p-multiSelect [options]="categoryOptions" formControlName="value" display="chip" class="value-input" appendTo="body" placeholder="Select Genres"></p-multiSelect>
+                      <p-multiSelect [options]="categoryOptions" formControlName="value" display="chip" class="value-input" appendTo="body" [placeholder]="t('placeholders.selectGenres')"></p-multiSelect>
                     } @else {
                       <div class="autocomplete-wrapper">
-                        <p-autoComplete [formControl]="ruleCtrl.get('value')" [multiple]="true" [typeahead]="false" [dropdown]="false" [forceSelection]="false" placeholder="Enter values (press Enter)" (onBlur)="onAutoCompleteBlur(ruleCtrl.get('value'), $event)"></p-autoComplete>
+                        <p-autoComplete [formControl]="ruleCtrl.get('value')" [multiple]="true" [typeahead]="false" [dropdown]="false" [forceSelection]="false" [placeholder]="t('placeholders.enterValues')" (onBlur)="onAutoCompleteBlur(ruleCtrl.get('value'), $event)"></p-autoComplete>
                       </div>
                     }
                   } @else if (ruleCtrl.get('field')?.value === 'readStatus') {
-                    <p-select [options]="readStatusOptions" formControlName="value" placeholder="Select Status" appendTo="body" class="value-input"></p-select>
+                    <p-select [options]="readStatusOptions" formControlName="value" [placeholder]="t('placeholders.selectStatus')" appendTo="body" class="value-input"></p-select>
                   } @else if (ruleCtrl.get('field')?.value === 'fileType') {
-                    <p-select [options]="fileType" formControlName="value" placeholder="Select File Type" appendTo="body" class="value-input"></p-select>
+                    <p-select [options]="fileType" formControlName="value" [placeholder]="t('placeholders.selectFileType')" appendTo="body" class="value-input"></p-select>
                   } @else if (ruleCtrl.get('field')?.value === 'library') {
-                    <p-select [options]="libraryOptions" formControlName="value" placeholder="Select Library" appendTo="body" class="value-input"></p-select>
+                    <p-select [options]="libraryOptions" formControlName="value" [placeholder]="t('placeholders.selectLibrary')" appendTo="body" class="value-input"></p-select>
                   } @else if (ruleCtrl.get('field')?.value === 'shelf') {
-                    <p-select [options]="shelfOptions" formControlName="value" placeholder="Select Shelf" appendTo="body" class="value-input"></p-select>
+                    <p-select [options]="shelfOptions" formControlName="value" [placeholder]="t('placeholders.selectShelf')" appendTo="body" class="value-input"></p-select>
                   } @else if (ruleCtrl.get('field')?.value === 'categories') {
-                    <p-select [options]="categoryOptions" formControlName="value" placeholder="Select Genre" appendTo="body" class="value-input"></p-select>
+                    <p-select [options]="categoryOptions" formControlName="value" [placeholder]="t('placeholders.selectGenre')" appendTo="body" class="value-input"></p-select>
                   } @else {
-                    <input pInputText formControlName="value" class="value-input" placeholder="Value"/>
+                    <input pInputText formControlName="value" class="value-input" [placeholder]="t('placeholders.value')"/>
                   }
                 }
               }
@@ -184,3 +185,4 @@
     </div>
   </ng-template>
 </div>
+</ng-container>

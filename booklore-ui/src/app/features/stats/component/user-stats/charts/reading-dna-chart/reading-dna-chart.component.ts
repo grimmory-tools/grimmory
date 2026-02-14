@@ -8,6 +8,7 @@ import {Tooltip} from 'primeng/tooltip';
 import {BookService} from '../../../../../book/service/book.service';
 import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book, ReadStatus} from '../../../../../book/model/book.model';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 interface ReadingDNAProfile {
   adventurous: number;
@@ -32,12 +33,13 @@ type ReadingDNAChartData = ChartData<'radar', number[], string>;
 @Component({
   selector: 'app-reading-dna-chart',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective, Tooltip],
+  imports: [CommonModule, BaseChartDirective, Tooltip, TranslocoDirective],
   templateUrl: './reading-dna-chart.component.html',
   styleUrls: ['./reading-dna-chart.component.scss']
 })
 export class ReadingDNAChartComponent implements OnInit, OnDestroy {
   private readonly bookService = inject(BookService);
+  private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
 
   public readonly chartType = 'radar' as const;
@@ -77,18 +79,12 @@ export class ReadingDNAChartComponent implements OnInit, OnDestroy {
             size: 12
           },
           padding: 25,
-          callback: function (label: string) {
-            const icons: Record<string, string> = {
-              'Adventurous': '🌟',
-              'Perfectionist': '💎',
-              'Intellectual': '🧠',
-              'Emotional': '💖',
-              'Patient': '🕰️',
-              'Social': '👥',
-              'Nostalgic': '📚',
-              'Ambitious': '🚀'
-            };
-            return [icons[label] || '', label];
+          callback: (label: string) => {
+            const traitKeys = ['adventurous', 'perfectionist', 'intellectual', 'emotional', 'patient', 'social', 'nostalgic', 'ambitious'];
+            const icons = ['🌟', '💎', '🧠', '💖', '🕰️', '👥', '📚', '🚀'];
+            const translatedLabels = traitKeys.map(k => this.t.translate(`statsUser.readingDna.traits.${k}`));
+            const idx = translatedLabels.indexOf(label);
+            return [idx >= 0 ? icons[idx] : '', label];
           }
         }
       }
@@ -111,16 +107,16 @@ export class ReadingDNAChartComponent implements OnInit, OnDestroy {
         callbacks: {
           title: (context) => {
             const label = context[0]?.label || '';
-            return `${label} Personality`;
+            return this.t.translate('statsUser.readingDna.tooltipPersonality', {label});
           },
           label: (context) => {
             const score = context.parsed.r;
             const insight = this.personalityInsights.find(i => i.trait === context.label);
 
             return [
-              `Score: ${score}/100`,
+              this.t.translate('statsUser.readingDna.tooltipScore', {score}),
               '',
-              insight ? insight.description : 'Your reading personality trait'
+              insight ? insight.description : this.t.translate('statsUser.readingDna.tooltipDefaultDescription')
             ];
           }
         }
@@ -144,11 +140,10 @@ export class ReadingDNAChartComponent implements OnInit, OnDestroy {
     }
   };
 
+  private readonly traitKeys = ['adventurous', 'perfectionist', 'intellectual', 'emotional', 'patient', 'social', 'nostalgic', 'ambitious'];
+
   private readonly chartDataSubject = new BehaviorSubject<ReadingDNAChartData>({
-    labels: [
-      'Adventurous', 'Perfectionist', 'Intellectual', 'Emotional',
-      'Patient', 'Social', 'Nostalgic', 'Ambitious'
-    ],
+    labels: [],
     datasets: []
   });
 
@@ -200,13 +195,12 @@ export class ReadingDNAChartComponent implements OnInit, OnDestroy {
       '#9c27b0', '#3f51b5', '#673ab7', '#009688'
     ];
 
+    const translatedLabels = this.traitKeys.map(k => this.t.translate(`statsUser.readingDna.traits.${k}`));
+
     this.chartDataSubject.next({
-      labels: [
-        'Adventurous', 'Perfectionist', 'Intellectual', 'Emotional',
-        'Patient', 'Social', 'Nostalgic', 'Ambitious'
-      ],
+      labels: translatedLabels,
       datasets: [{
-        label: 'Reading DNA Profile',
+        label: this.t.translate('statsUser.readingDna.readingDnaProfile'),
         data,
         backgroundColor: 'rgba(233, 30, 99, 0.2)',
         borderColor: '#e91e63',
@@ -441,75 +435,19 @@ export class ReadingDNAChartComponent implements OnInit, OnDestroy {
     );
   }
 
-  private getTraitDescription(trait: string, score: number): string {
-    const descriptions: Record<string, [string, string, string]> = {
-      'Adventurous': [
-        'You tend to stick to familiar genres and formats',
-        'You enjoy a healthy mix of genres and styles',
-        'You explore a wide variety of genres, languages, and formats'
-      ],
-      'Perfectionist': [
-        'You keep many books in progress or unfinished',
-        'You finish most books and favor quality reads',
-        'You almost always finish what you start and seek top-rated books'
-      ],
-      'Intellectual': [
-        'Your reading leans toward lighter subjects',
-        'You balance entertainment with educational reading',
-        'You gravitate heavily toward non-fiction and scholarly material'
-      ],
-      'Emotional': [
-        'You tend toward plot-driven or factual reading',
-        'You enjoy a mix of emotional and analytical reads',
-        'You connect deeply with memoirs, poetry, and emotionally rich stories'
-      ],
-      'Patient': [
-        'You prefer shorter, quicker reads',
-        'You occasionally tackle longer works and series',
-        'You regularly take on epic novels and multi-book series'
-      ],
-      'Social': [
-        'You prefer niche or lesser-known titles',
-        'You read a mix of popular and niche titles',
-        'Your library is packed with bestsellers and widely-discussed books'
-      ],
-      'Nostalgic': [
-        'You mostly read contemporary publications',
-        'You appreciate a mix of classic and modern works',
-        'You have a deep love for classic literature and older works'
-      ],
-      'Ambitious': [
-        'You read at a casual pace with shorter books',
-        'You maintain a solid reading volume with some challenging picks',
-        'You push yourself with large volumes of challenging, lengthy books'
-      ]
-    };
-
-    const levels = descriptions[trait];
-    if (!levels) return '';
-
-    if (score < 33) return levels[0];
-    if (score < 67) return levels[1];
-    return levels[2];
+  private getTraitDescription(traitKey: string, score: number): string {
+    const level = score < 33 ? 'low' : score < 67 ? 'mid' : 'high';
+    return this.t.translate(`statsUser.readingDna.descriptions.${traitKey}.${level}`);
   }
 
   private buildPersonalityInsights(profile: ReadingDNAProfile): PersonalityInsight[] {
-    const traits: { key: keyof ReadingDNAProfile; trait: string; color: string }[] = [
-      {key: 'adventurous', trait: 'Adventurous', color: '#e91e63'},
-      {key: 'perfectionist', trait: 'Perfectionist', color: '#2196f3'},
-      {key: 'intellectual', trait: 'Intellectual', color: '#00bcd4'},
-      {key: 'emotional', trait: 'Emotional', color: '#ff9800'},
-      {key: 'patient', trait: 'Patient', color: '#9c27b0'},
-      {key: 'social', trait: 'Social', color: '#3f51b5'},
-      {key: 'nostalgic', trait: 'Nostalgic', color: '#673ab7'},
-      {key: 'ambitious', trait: 'Ambitious', color: '#009688'}
-    ];
+    const traitColors = ['#e91e63', '#2196f3', '#00bcd4', '#ff9800', '#9c27b0', '#3f51b5', '#673ab7', '#009688'];
 
-    return traits.map(({key, trait, color}) => ({
-      trait,
-      score: profile[key],
-      description: this.getTraitDescription(trait, profile[key]),
-      color
+    return this.traitKeys.map((key, i) => ({
+      trait: this.t.translate(`statsUser.readingDna.traits.${key}`),
+      score: profile[key as keyof ReadingDNAProfile],
+      description: this.getTraitDescription(key, profile[key as keyof ReadingDNAProfile]),
+      color: traitColors[i]
     }));
   }
 }

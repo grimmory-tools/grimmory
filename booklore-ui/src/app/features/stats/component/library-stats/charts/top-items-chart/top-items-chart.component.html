@@ -1,11 +1,12 @@
+<ng-container *transloco="let t; prefix: 'statsLibrary.topItems'">
 <div class="top-items-container">
   <div class="chart-header">
     <div class="chart-title">
       <h3>
         <i class="pi" [ngClass]="selectedDataType.icon" [style.color]="selectedDataType.color"></i>
-        Top 15 {{ selectedDataType.label }}
+        {{ t('titlePrefix') }} {{ selectedDataType.label }}
       </h3>
-      <p class="chart-description">Most represented {{ selectedDataType.label.toLowerCase() }} in your library</p>
+      <p class="chart-description">{{ t('descriptionPrefix') }} {{ selectedDataType.label.toLowerCase() }} {{ t('descriptionSuffix') }}</p>
     </div>
     <div class="header-controls">
       <p-select
@@ -34,7 +35,7 @@
       @if (totalItems > 0) {
         <div class="stats-badge">
           <span class="badge-value">{{ totalItems }}</span>
-          <span class="badge-label">shown</span>
+          <span class="badge-label">{{ t('shown') }}</span>
         </div>
       }
     </div>
@@ -67,8 +68,9 @@
   @if (totalItems === 0) {
     <div class="no-data-message">
       <i class="pi pi-info-circle"></i>
-      <p>No {{ selectedDataType.label.toLowerCase() }} data available.</p>
-      <small>Make sure your books have {{ selectedDataType.label.toLowerCase() }} metadata.</small>
+      <p>{{ t('noDataPrefix') }} {{ selectedDataType.label.toLowerCase() }} {{ t('noDataSuffix') }}</p>
+      <small>{{ t('noDataHintPrefix') }} {{ selectedDataType.label.toLowerCase() }} {{ t('noDataHintSuffix') }}</small>
     </div>
   }
 </div>
+</ng-container>

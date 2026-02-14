@@ -1,9 +1,10 @@
+<ng-container *transloco="let t; prefix: 'statsLibrary'">
 <div class="library-stats-container">
   <div class="header-card">
     <div class="filter-section">
       <div class="library-filter">
         <div class="select-row">
-          <label for="library-dropdown">Library Statistics</label>
+          <label for="library-dropdown">{{ t('main.title') }}</label>
           <div class="dropdown-row">
             <p-select
               fluid
@@ -12,7 +13,7 @@
               [(ngModel)]="selectedLibrary"
               optionLabel="name"
               size="small"
-              placeholder="Select a library"
+              [placeholder]="t('main.selectLibrary')"
               (onChange)="onLibraryChange()"
               appendTo="body"
               [style]="{'min-width': '200px'}"
@@ -29,33 +30,33 @@
         </div>
 
         <div class="library-totals" role="status" aria-live="polite">
-          <div class="total-item total-books" title="Total books">
+          <div class="total-item total-books" [title]="t('main.totalBooks')">
             <i class="pi pi-book"></i>
-            <span class="total-label">Books</span>
+            <span class="total-label">{{ t('main.books') }}</span>
             <span class="total-value">{{ totalBooks$ | async }}</span>
           </div>
 
-          <div class="total-item total-authors" title="Total authors">
+          <div class="total-item total-authors" [title]="t('main.totalAuthors')">
             <i class="pi pi-users"></i>
-            <span class="total-label">Authors</span>
+            <span class="total-label">{{ t('main.authors') }}</span>
             <span class="total-value">{{ totalAuthors$ | async }}</span>
           </div>
 
-          <div class="total-item total-series" title="Total series">
+          <div class="total-item total-series" [title]="t('main.totalSeries')">
             <i class="pi pi-bookmark"></i>
-            <span class="total-label">Series</span>
+            <span class="total-label">{{ t('main.series') }}</span>
             <span class="total-value">{{ totalSeries$ | async }}</span>
           </div>
 
-          <div class="total-item total-publishers" title="Total publishers">
+          <div class="total-item total-publishers" [title]="t('main.totalPublishers')">
             <i class="pi pi-building"></i>
-            <span class="total-label">Publishers</span>
+            <span class="total-label">{{ t('main.publishers') }}</span>
             <span class="total-value">{{ totalPublishers$ | async }}</span>
           </div>
 
-          <div class="total-item total-size" title="Total size">
+          <div class="total-item total-size" [title]="t('main.totalSize')">
             <i class="pi pi-file"></i>
-            <span class="total-label">Library Size</span>
+            <span class="total-label">{{ t('main.librarySize') }}</span>
             <span class="total-value">{{ totalSize$ | async }}</span>
           </div>
         </div>
@@ -67,28 +68,28 @@
     <div class="config-modal-overlay" (click)="closeConfigPanel()">
       <div class="config-modal" (click)="$event.stopPropagation()">
         <div class="config-modal-header">
-          <h3><i class="pi pi-cog"></i> Chart Configuration</h3>
-          <button type="button" class="close-btn" (click)="closeConfigPanel()" title="Close">
+          <h3><i class="pi pi-cog"></i> {{ t('config.title') }}</h3>
+          <button type="button" class="close-btn" (click)="closeConfigPanel()" [title]="t('config.close')">
             <i class="pi pi-times"></i>
           </button>
         </div>
 
         <div class="config-modal-actions">
           <button type="button" class="config-action-btn enable-all" (click)="enableAllCharts()">
-            <i class="pi pi-check"></i> Enable All
+            <i class="pi pi-check"></i> {{ t('config.enableAll') }}
           </button>
           <button type="button" class="config-action-btn disable-all" (click)="disableAllCharts()">
-            <i class="pi pi-times"></i> Disable All
+            <i class="pi pi-times"></i> {{ t('config.disableAll') }}
           </button>
           <button type="button" class="config-action-btn reset-order" (click)="resetChartOrder()">
-            <i class="pi pi-refresh"></i> Reset Order
+            <i class="pi pi-refresh"></i> {{ t('config.resetOrder') }}
           </button>
         </div>
 
         <div class="config-modal-content">
           <div class="config-categories">
             <div class="config-category">
-              <h4>Small Charts</h4>
+              <h4>{{ t('config.smallCharts') }}</h4>
               <div class="chart-toggles">
                 @for (chart of getChartsByCategory('small'); track chart.id) {
                   <div class="chart-toggle">
@@ -104,7 +105,7 @@
             </div>
 
             <div class="config-category">
-              <h4>Large Charts</h4>
+              <h4>{{ t('config.largeCharts') }}</h4>
               <div class="chart-toggles">
                 @for (chart of getChartsByCategory('large'); track chart.id) {
                   <div class="chart-toggle">
@@ -120,7 +121,7 @@
             </div>
 
             <div class="config-category">
-              <h4>Extra Large Charts</h4>
+              <h4>{{ t('config.xlargeCharts') }}</h4>
               <div class="chart-toggles">
                 @for (chart of getChartsByCategory('xlarge'); track chart.id) {
                   <div class="chart-toggle">
@@ -152,7 +153,7 @@
              [cdkDragData]="chartConfig"
              [class]="'chart-section ' + chartConfig.category">
 
-          <div class="drag-handle" cdkDragHandle title="Drag to reorder">
+          <div class="drag-handle" cdkDragHandle [title]="t('main.dragToReorder')">
             <i class="pi pi-bars"></i>
           </div>
 
@@ -192,14 +193,15 @@
 
   @if (isLoading) {
     <div class="loading-message">
-      Loading statistics...
+      {{ t('main.loading') }}
     </div>
   }
 
   @if (!isLoading && !hasData) {
     <div class="no-data-message">
-      No data available.
-      <small>Make sure your library contains books with metadata.</small>
+      {{ t('main.noData') }}
+      <small>{{ t('main.noDataHint') }}</small>
     </div>
   }
 </div>
+</ng-container>

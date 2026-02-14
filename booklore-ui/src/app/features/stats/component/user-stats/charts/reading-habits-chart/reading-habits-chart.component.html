@@ -1,16 +1,17 @@
+<ng-container *transloco="let t; prefix: 'statsUser.readingHabits'">
 <div class="reading-habits-container">
   <div class="chart-header">
     <div class="chart-title">
       <h3>
         <i class="pi pi-chart-line reading-habits-icon"></i>
-        Reading Habits Analysis
+        {{ t('title') }}
         <i class="pi pi-question-circle chart-info-icon"
-           pTooltip="A radar chart analyzing your reading behavior across 8 dimensions. Consistency measures regularity of completions over time. Completionism tracks finish vs. abandonment rate. Methodology checks if you read series in order. Scores are derived from your reading activity, dates, and progress data."
+           [pTooltip]="t('tooltip')"
            tooltipPosition="bottom"
            tooltipStyleClass="chart-info-tooltip"
            [appendTo]="'body'"></i>
       </h3>
-      <p class="chart-description">Your behavioral reading patterns across 8 dimensions</p>
+      <p class="chart-description">{{ t('description') }}</p>
     </div>
   </div>
   <div class="chart-wrapper">
@@ -22,7 +23,7 @@
   </div>
   @if (habitInsights.length > 0) {
     <div class="habit-insights">
-      <h4>Your Reading Habit Patterns</h4>
+      <h4>{{ t('habitPatterns') }}</h4>
       <div class="insights-grid">
         @for (insight of habitInsights; track insight.habit) {
           <div class="insight-card">
@@ -40,3 +41,4 @@
     </div>
   }
 </div>
+</ng-container>

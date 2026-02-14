@@ -8,6 +8,7 @@ import {ChartConfiguration, ChartData} from 'chart.js';
 import {BookService} from '../../../../../book/service/book.service';
 import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book} from '../../../../../book/model/book.model';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 type SurvivalChartData = ChartData<'line', number[], string>;
 
@@ -16,12 +17,13 @@ const THRESHOLDS = [0, 10, 25, 50, 75, 90, 100];
 @Component({
   selector: 'app-reading-survival-chart',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective, Tooltip],
+  imports: [CommonModule, BaseChartDirective, Tooltip, TranslocoDirective],
   templateUrl: './reading-survival-chart.component.html',
   styleUrls: ['./reading-survival-chart.component.scss']
 })
 export class ReadingSurvivalChartComponent implements OnInit, OnDestroy {
   private readonly bookService = inject(BookService);
+  private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
 
   public readonly chartType = 'line' as const;
@@ -51,8 +53,8 @@ export class ReadingSurvivalChartComponent implements OnInit, OnDestroy {
         titleFont: {size: 13, weight: 'bold'},
         bodyFont: {size: 12},
         callbacks: {
-          title: (context) => `${context[0].label} progress`,
-          label: (context) => `${(context.parsed.y ?? 0).toFixed(1)}% of books reached this point`
+          title: (context) => this.t.translate('statsUser.readingSurvival.tooltipProgress', {label: context[0].label}),
+          label: (context) => this.t.translate('statsUser.readingSurvival.tooltipSurvival', {value: (context.parsed.y ?? 0).toFixed(1)})
         }
       },
       datalabels: {display: false}
@@ -61,7 +63,7 @@ export class ReadingSurvivalChartComponent implements OnInit, OnDestroy {
       x: {
         title: {
           display: true,
-          text: 'Progress Threshold',
+          text: this.t.translate('statsUser.readingSurvival.axisProgressThreshold'),
           color: '#ffffff',
           font: {family: "'Inter', sans-serif", size: 12, weight: 'bold'}
         },
@@ -77,7 +79,7 @@ export class ReadingSurvivalChartComponent implements OnInit, OnDestroy {
         max: 100,
         title: {
           display: true,
-          text: '% of Books Surviving',
+          text: this.t.translate('statsUser.readingSurvival.axisBooksSurviving'),
           color: '#ffffff',
           font: {family: "'Inter', sans-serif", size: 12, weight: 'bold'}
         },
@@ -164,7 +166,7 @@ export class ReadingSurvivalChartComponent implements OnInit, OnDestroy {
     this.chartDataSubject.next({
       labels,
       datasets: [{
-        label: 'Survival Rate',
+        label: this.t.translate('statsUser.readingSurvival.survivalRate'),
         data: survivalValues,
         borderColor: '#e91e63',
         backgroundColor: 'rgba(233, 30, 99, 0.15)',

@@ -3,6 +3,7 @@ import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
+import {TranslocoDirective} from '@jsverse/transloco';
 import {ReaderSidebarService, SidebarBookInfo, SidebarTab} from './sidebar.service';
 import {TocItem} from 'epubjs';
 import {BookMark} from '../../../../../shared/service/book-mark.service';
@@ -14,7 +15,7 @@ import {ReaderIconComponent} from '../../shared/icon.component';
   standalone: true,
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss'],
-  imports: [CommonModule, FormsModule, ReaderIconComponent]
+  imports: [CommonModule, FormsModule, TranslocoDirective, ReaderIconComponent]
 })
 export class ReaderSidebarComponent implements OnInit, OnDestroy {
   private sidebarService = inject(ReaderSidebarService);

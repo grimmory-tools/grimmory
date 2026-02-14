@@ -89,6 +89,11 @@ export class AppMenuComponent implements OnInit {
               icon: 'pi pi-fw pi-book',
               routerLink: ['/all-books'],
               bookCount$: of(bookState.books ? bookState.books.length : 0),
+            },
+            {
+              label: this.t.translate('layout.menu.notebook'),
+              icon: 'pi pi-fw pi-pencil',
+              routerLink: ['/notebook'],
             }
           ],
         },

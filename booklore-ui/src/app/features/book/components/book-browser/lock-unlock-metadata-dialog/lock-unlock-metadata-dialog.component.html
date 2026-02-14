@@ -1,11 +1,12 @@
+<ng-container *transloco="let t; prefix: 'book.lockUnlockDialog'">
 <div class="lock-unlock-container">
   <div class="panel-header">
     <div class="header-icon-wrapper">
       <i class="pi pi-lock header-icon"></i>
     </div>
     <div class="header-text">
-      <h2 class="panel-title">Lock or Unlock Metadata</h2>
-      <p class="panel-description">{{ bookIds.size }} book{{ bookIds.size > 1 ? 's' : '' }} selected</p>
+      <h2 class="panel-title">{{ t('title') }}</h2>
+      <p class="panel-description">{{ t('selectedCount', { count: bookIds.size }) }}</p>
     </div>
     <p-button
       icon="pi pi-times"
@@ -36,13 +37,14 @@
 
   <div class="dialog-footer">
     <div class="footer-actions">
-      <p-button icon="pi pi-refresh" label="Reset" outlined="true" severity="warn" (onClick)="resetFieldLocks()"></p-button>
+      <p-button icon="pi pi-refresh" [label]="t('reset')" outlined="true" severity="warn" (onClick)="resetFieldLocks()"></p-button>
     </div>
     <div class="footer-actions">
-      <p-button icon="pi pi-lock" label="Lock All" outlined="true" severity="danger" (onClick)="toggleLockAll('LOCK')"></p-button>
-      <p-button icon="pi pi-lock-open" label="Unlock All" outlined="true" severity="success" (onClick)="toggleLockAll('UNLOCK')"></p-button>
+      <p-button icon="pi pi-lock" [label]="t('lockAll')" outlined="true" severity="danger" (onClick)="toggleLockAll('LOCK')"></p-button>
+      <p-button icon="pi pi-lock-open" [label]="t('unlockAll')" outlined="true" severity="success" (onClick)="toggleLockAll('UNLOCK')"></p-button>
       <p-divider layout="vertical"></p-divider>
-      <p-button [label]="isSaving ? 'Saving...' : 'Save'" [outlined]="true" icon="pi pi-check" severity="info" (onClick)="applyFieldLocks()" [disabled]="bookIds.size === 0 || isSaving"></p-button>
+      <p-button [label]="isSaving ? t('saving') : t('save')" [outlined]="true" icon="pi pi-check" severity="info" (onClick)="applyFieldLocks()" [disabled]="bookIds.size === 0 || isSaving"></p-button>
     </div>
   </div>
 </div>
+</ng-container>

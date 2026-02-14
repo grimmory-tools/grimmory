@@ -8,6 +8,7 @@ import {ChartConfiguration, ChartData} from 'chart.js';
 import {BookService} from '../../../../../book/service/book.service';
 import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book} from '../../../../../book/model/book.model';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 interface MatrixDataPoint {
   x: number; // month (0-11)
@@ -28,12 +29,13 @@ type HeatmapChartData = ChartData<'matrix', MatrixDataPoint[], string>;
 @Component({
   selector: 'app-reading-heatmap-chart',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective, Tooltip],
+  imports: [CommonModule, BaseChartDirective, Tooltip, TranslocoDirective],
   templateUrl: './reading-heatmap-chart.component.html',
   styleUrls: ['./reading-heatmap-chart.component.scss']
 })
 export class ReadingHeatmapChartComponent implements OnInit, OnDestroy {
   private readonly bookService = inject(BookService);
+  private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
 
   public readonly chartType = 'matrix' as const;
@@ -72,7 +74,8 @@ export class ReadingHeatmapChartComponent implements OnInit, OnDestroy {
           },
           label: (context) => {
             const point = context.raw as MatrixDataPoint;
-            return `${point.v} book${point.v === 1 ? '' : 's'} read`;
+            const key = point.v === 1 ? 'statsUser.readingHeatmap.tooltipBook' : 'statsUser.readingHeatmap.tooltipBooks';
+            return this.t.translate(key, {value: point.v});
           }
         }
       },
@@ -122,7 +125,7 @@ export class ReadingHeatmapChartComponent implements OnInit, OnDestroy {
   private readonly chartDataSubject = new BehaviorSubject<HeatmapChartData>({
     labels: [],
     datasets: [{
-      label: 'Books Read',
+      label: this.t.translate('statsUser.readingHeatmap.booksRead'),
       data: []
     }]
   });
@@ -178,7 +181,7 @@ export class ReadingHeatmapChartComponent implements OnInit, OnDestroy {
     this.chartDataSubject.next({
       labels: [],
       datasets: [{
-        label: 'Books Read',
+        label: this.t.translate('statsUser.readingHeatmap.booksRead'),
         data: heatmapData,
         backgroundColor: (context) => {
           const point = context.raw as MatrixDataPoint;

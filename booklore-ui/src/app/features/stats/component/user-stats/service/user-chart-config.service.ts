@@ -1,5 +1,6 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {BehaviorSubject, Observable} from 'rxjs';
+import {TranslocoService} from '@jsverse/transloco';
 import {ReadingSessionHeatmapComponent} from '../charts/reading-session-heatmap/reading-session-heatmap.component';
 import {FavoriteDaysChartComponent} from '../charts/favorite-days-chart/favorite-days-chart.component';
 import {PeakHoursChartComponent} from '../charts/peak-hours-chart/peak-hours-chart.component';
@@ -34,6 +35,29 @@ export interface UserChartConfig {
 })
 export class UserChartConfigService {
   private readonly STORAGE_KEY = 'userStatsChartConfig';
+  private readonly t = inject(TranslocoService);
+
+  private readonly chartNameKeyMap: Record<string, string> = {
+    'heatmap': 'statsUser.chartNames.heatmap',
+    'favorite-days': 'statsUser.chartNames.favoriteDays',
+    'peak-hours': 'statsUser.chartNames.peakHours',
+    'timeline': 'statsUser.chartNames.timeline',
+    'reading-heatmap': 'statsUser.chartNames.readingHeatmap',
+    'personal-rating': 'statsUser.chartNames.personalRating',
+    'reading-progress': 'statsUser.chartNames.readingProgress',
+    'read-status': 'statsUser.chartNames.readStatus',
+    'genre-stats': 'statsUser.chartNames.genreStats',
+    'completion-timeline': 'statsUser.chartNames.completionTimeline',
+    'reading-clock': 'statsUser.chartNames.readingClock',
+    'page-turner': 'statsUser.chartNames.pageTurner',
+    'completion-race': 'statsUser.chartNames.completionRace',
+    'reading-survival': 'statsUser.chartNames.readingSurvival',
+    'book-length': 'statsUser.chartNames.bookLength',
+    'rating-taste': 'statsUser.chartNames.ratingTaste',
+    'series-progress': 'statsUser.chartNames.seriesProgress',
+    'reading-dna': 'statsUser.chartNames.readingDna',
+    'reading-habits': 'statsUser.chartNames.readingHabits',
+  };
 
   private readonly defaultCharts: UserChartConfig[] = [
     {id: 'heatmap', title: 'Reading Session Heatmap', component: ReadingSessionHeatmapComponent, enabled: true, sizeClass: 'chart-full', order: 0},
@@ -59,6 +83,23 @@ export class UserChartConfigService {
 
   private chartsSubject = new BehaviorSubject<UserChartConfig[]>(this.loadChartConfig());
   public charts$: Observable<UserChartConfig[]> = this.chartsSubject.asObservable();
+
+  constructor() {
+    this.t.langChanges$.subscribe(() => {
+      const charts = this.chartsSubject.value;
+      this.translateChartTitles(charts);
+      this.chartsSubject.next([...charts]);
+    });
+  }
+
+  private translateChartTitles(charts: UserChartConfig[]): void {
+    charts.forEach(chart => {
+      const key = this.chartNameKeyMap[chart.id];
+      if (key) {
+        chart.title = this.t.translate(key);
+      }
+    });
+  }
 
   getVisibleCharts(): UserChartConfig[] {
     return this.chartsSubject.value.filter(chart => chart.enabled);

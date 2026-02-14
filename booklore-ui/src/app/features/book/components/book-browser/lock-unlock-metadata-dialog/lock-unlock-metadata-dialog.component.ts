@@ -8,6 +8,7 @@ import {BookService} from '../../../service/book.service';
 import {Divider} from 'primeng/divider';
 import {LoadingService} from '../../../../../core/services/loading.service';
 import {finalize} from 'rxjs';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 @Component({
   selector: 'app-lock-unlock-metadata-dialog',
@@ -15,7 +16,8 @@ import {finalize} from 'rxjs';
   imports: [
     Button,
     FormsModule,
-    Divider
+    Divider,
+    TranslocoDirective
 ],
   templateUrl: './lock-unlock-metadata-dialog.component.html',
   styleUrl: './lock-unlock-metadata-dialog.component.scss'
@@ -26,6 +28,7 @@ export class LockUnlockMetadataDialogComponent implements OnInit {
   dialogRef = inject(DynamicDialogRef);
   private messageService = inject(MessageService);
   private loadingService = inject(LoadingService);
+  private readonly t = inject(TranslocoService);
   fieldLocks: Record<string, boolean | undefined> = {};
 
   bookIds: Set<number> = this.dynamicDialogConfig.data.bookIds;
@@ -89,8 +92,8 @@ export class LockUnlockMetadataDialogComponent implements OnInit {
 
   getLockLabel(field: string): string {
     const state = this.fieldLocks[field];
-    if (state === undefined) return 'Unselected';
-    return state ? 'Locked' : 'Unlocked';
+    if (state === undefined) return this.t.translate('book.lockUnlockDialog.unselected');
+    return state ? this.t.translate('book.lockUnlockDialog.locked') : this.t.translate('book.lockUnlockDialog.unlocked');
   }
 
   getLockIcon(field: string): string {
@@ -124,7 +127,7 @@ export class LockUnlockMetadataDialogComponent implements OnInit {
     }
 
     this.isSaving = true;
-    const loader = this.loadingService.show('Updating field locks...');
+    const loader = this.loadingService.show(this.t.translate('book.lockUnlockDialog.toast.updatingFieldLocks'));
 
     this.bookService.toggleFieldLocks(this.bookIds, fieldActions)
       .pipe(finalize(() => {
@@ -135,16 +138,16 @@ export class LockUnlockMetadataDialogComponent implements OnInit {
         next: () => {
           this.messageService.add({
             severity: 'success',
-            summary: 'Field Locks Updated',
-            detail: 'Selected metadata fields have been updated successfully.'
+            summary: this.t.translate('book.lockUnlockDialog.toast.updatedSummary'),
+            detail: this.t.translate('book.lockUnlockDialog.toast.updatedDetail')
           });
           this.dialogRef.close('fields-updated');
         },
         error: () => {
           this.messageService.add({
             severity: 'error',
-            summary: 'Failed to Update Field Locks',
-            detail: 'An error occurred while updating field lock statuses.'
+            summary: this.t.translate('book.lockUnlockDialog.toast.failedSummary'),
+            detail: this.t.translate('book.lockUnlockDialog.toast.failedDetail')
           });
         }
       });

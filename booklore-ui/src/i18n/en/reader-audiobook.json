@@ -1,0 +1,64 @@
+{
+  "loading": "Loading audiobook...",
+  "untitled": "Untitled",
+  "unknownAuthor": "Unknown Author",
+  "coverAlt": "Cover",
+  "header": {
+    "backTooltip": "Back",
+    "bookmarksTooltip": "Bookmarks",
+    "chaptersTracksTooltip": "Chapters/Tracks"
+  },
+  "trackInfo": {
+    "trackOf": "Track {{ current }} of {{ total }}",
+    "chapterOf": "Chapter {{ current }} of {{ total }}"
+  },
+  "controls": {
+    "previousTrackTooltip": "Previous Track",
+    "previousChapterTooltip": "Previous Chapter",
+    "rewindTooltip": "-30s",
+    "forwardTooltip": "+30s",
+    "nextTrackTooltip": "Next Track",
+    "nextChapterTooltip": "Next Chapter"
+  },
+  "extra": {
+    "addBookmark": "Add Bookmark",
+    "sleepTimer": "Sleep Timer",
+    "endOfChapter": "End of chapter"
+  },
+  "details": {
+    "narratedBy": "Narrated by {{ narrator }}",
+    "kbps": "{{ bitrate }} kbps",
+    "totalDuration": "{{ duration }} total"
+  },
+  "sidebar": {
+    "tracks": "Tracks",
+    "chapters": "Chapters"
+  },
+  "bookmarks": {
+    "title": "Bookmarks",
+    "empty": "No bookmarks yet",
+    "emptyHint": "Add a bookmark to save your place",
+    "deleteTooltip": "Delete",
+    "bookmarkAt": "Bookmark at {{ time }}"
+  },
+  "sleepTimerMenu": {
+    "minutes15": "15 minutes",
+    "minutes30": "30 minutes",
+    "minutes45": "45 minutes",
+    "minutes60": "60 minutes",
+    "endOfChapter": "End of chapter",
+    "cancelTimer": "Cancel timer"
+  },
+  "toast": {
+    "loadFailed": "Failed to load audiobook",
+    "audioLoadFailed": "Failed to load audio",
+    "sleepTimerSet": "Playback will stop in {{ minutes }} minutes",
+    "sleepTimerEndOfChapter": "Playback will stop at end of chapter",
+    "sleepTimerStopped": "Playback stopped by sleep timer",
+    "bookmarkAdded": "Bookmark Added",
+    "bookmarkExists": "Bookmark Exists",
+    "bookmarkExistsDetail": "A bookmark already exists at this position",
+    "bookmarkFailed": "Failed to add bookmark",
+    "bookmarkDeleted": "Bookmark Deleted"
+  }
+}

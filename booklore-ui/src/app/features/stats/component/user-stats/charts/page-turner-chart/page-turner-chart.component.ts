@@ -6,13 +6,14 @@ import {BehaviorSubject, EMPTY, Observable, Subject} from 'rxjs';
 import {catchError, takeUntil} from 'rxjs/operators';
 import {ChartConfiguration, ChartData} from 'chart.js';
 import {PageTurnerScoreResponse, UserStatsService} from '../../../../../settings/user-management/user-stats.service';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 type PageTurnerChartData = ChartData<'bar', number[], string>;
 
 @Component({
   selector: 'app-page-turner-chart',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective, Tooltip],
+  imports: [CommonModule, BaseChartDirective, Tooltip, TranslocoDirective],
   templateUrl: './page-turner-chart.component.html',
   styleUrls: ['./page-turner-chart.component.scss']
 })
@@ -25,6 +26,7 @@ export class PageTurnerChartComponent implements OnInit, OnDestroy {
   public topBooks: PageTurnerScoreResponse[] = [];
 
   private readonly userStatsService = inject(UserStatsService);
+  private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
   private readonly chartDataSubject: BehaviorSubject<PageTurnerChartData>;
 
@@ -61,7 +63,7 @@ export class PageTurnerChartComponent implements OnInit, OnDestroy {
         x: {
           title: {
             display: true,
-            text: 'Grip Score (0-100)',
+            text: this.t.translate('statsUser.pageTurner.axisGripScore'),
             color: '#ffffff',
             font: {family: "'Inter', sans-serif", size: 13, weight: 'bold'}
           },
@@ -145,12 +147,12 @@ export class PageTurnerChartComponent implements OnInit, OnDestroy {
         const item = top15[idx];
         if (!item) return '';
         const lines = [
-          `Grip Score: ${item.gripScore}/100`,
-          `Sessions: ${item.totalSessions}`,
-          `Avg Session: ${Math.round(item.avgSessionDurationSeconds / 60)}min`,
+          this.t.translate('statsUser.pageTurner.tooltipGripScore', {score: item.gripScore}),
+          this.t.translate('statsUser.pageTurner.tooltipSessions', {count: item.totalSessions}),
+          this.t.translate('statsUser.pageTurner.tooltipAvgSession', {minutes: Math.round(item.avgSessionDurationSeconds / 60)}),
         ];
         if (item.personalRating) {
-          lines.push(`Rating: ${item.personalRating}/10`);
+          lines.push(this.t.translate('statsUser.pageTurner.tooltipRating', {rating: item.personalRating}));
         }
         return lines;
       };
@@ -159,7 +161,7 @@ export class PageTurnerChartComponent implements OnInit, OnDestroy {
     this.chartDataSubject.next({
       labels,
       datasets: [{
-        label: 'Grip Score',
+        label: this.t.translate('statsUser.pageTurner.gripScore'),
         data: values,
         backgroundColor: bgColors,
         borderColor: bgColors.map(c => c.replace('0.85', '1')),
@@ -172,14 +174,14 @@ export class PageTurnerChartComponent implements OnInit, OnDestroy {
   }
 
   getAccelerationLabel(value: number): string {
-    if (value > 5) return 'Increasing';
-    if (value < -5) return 'Decreasing';
-    return 'Steady';
+    if (value > 5) return this.t.translate('statsUser.pageTurner.increasing');
+    if (value < -5) return this.t.translate('statsUser.pageTurner.decreasing');
+    return this.t.translate('statsUser.pageTurner.steady');
   }
 
   getGapLabel(value: number): string {
-    if (value < -2) return 'Shrinking';
-    if (value > 2) return 'Growing';
-    return 'Steady';
+    if (value < -2) return this.t.translate('statsUser.pageTurner.shrinking');
+    if (value > 2) return this.t.translate('statsUser.pageTurner.growing');
+    return this.t.translate('statsUser.pageTurner.steady');
   }
 }

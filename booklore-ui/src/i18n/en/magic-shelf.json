@@ -1,0 +1,122 @@
+{
+  "header": {
+    "titleEdit": "Edit Magic Shelf",
+    "titleCreate": "Magic Shelf Builder",
+    "description": "Create smart shelves with custom rules to automatically organize your books"
+  },
+  "form": {
+    "shelfName": "Magic Shelf Name",
+    "namePlaceholder": "E.g. Rom-Zom-Coms, Fast & Furious, Missing Metadata",
+    "shelfIcon": "Shelf Icon",
+    "clickToChange": "Click to change",
+    "removeIcon": "Remove icon",
+    "selectIcon": "Select Icon",
+    "public": "Public"
+  },
+  "actions": {
+    "cancel": "Cancel",
+    "saveFilter": "Save Filter",
+    "addRule": "Add Rule",
+    "addGroup": "Add Group"
+  },
+  "group": {
+    "condition": "Condition:"
+  },
+  "placeholders": {
+    "field": "Field",
+    "operator": "Operator",
+    "startYear": "Start Year",
+    "endYear": "End Year",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "startValue": "Start Value",
+    "endValue": "End Value",
+    "value": "Value",
+    "selectStatuses": "Select Statuses",
+    "selectFileTypes": "Select File Types",
+    "selectLibraries": "Select Libraries",
+    "selectShelves": "Select Shelves",
+    "selectGenres": "Select Genres",
+    "enterValues": "Enter values (press Enter)",
+    "selectStatus": "Select Status",
+    "selectFileType": "Select File Type",
+    "selectLibrary": "Select Library",
+    "selectShelf": "Select Shelf",
+    "selectGenre": "Select Genre"
+  },
+  "conditions": {
+    "and": "AND",
+    "or": "OR"
+  },
+  "fields": {
+    "library": "Library",
+    "shelf": "Shelf",
+    "readStatus": "Read Status",
+    "dateFinished": "Date Finished",
+    "lastReadTime": "Last Read Time",
+    "metadataScore": "Metadata Score",
+    "title": "Title",
+    "authors": "Authors",
+    "categories": "Categories",
+    "moods": "Moods",
+    "tags": "Tags",
+    "publisher": "Publisher",
+    "publishedDate": "Published Date",
+    "personalRating": "Personal Rating",
+    "pageCount": "Page Count",
+    "language": "Language",
+    "isbn13": "ISBN-13",
+    "isbn10": "ISBN-10",
+    "seriesName": "Series Name",
+    "seriesNumber": "Series Number",
+    "seriesTotal": "Books in Series",
+    "fileSize": "File Size (Kb)",
+    "fileType": "File Type",
+    "subtitle": "Subtitle",
+    "amazonRating": "Amazon Rating",
+    "amazonReviewCount": "Amazon Review Count",
+    "goodreadsRating": "Goodreads Rating",
+    "goodreadsReviewCount": "Goodreads Review Count",
+    "hardcoverRating": "Hardcover Rating",
+    "hardcoverReviewCount": "Hardcover Review Count",
+    "ranobedbRating": "Ranobedb Rating",
+    "genre": "Genre"
+  },
+  "operators": {
+    "equals": "Equals",
+    "notEqual": "\u2260 Not Equal",
+    "empty": "Empty",
+    "notEmpty": "Not Empty",
+    "includesAny": "Includes Any",
+    "excludesAll": "Excludes All",
+    "includesAll": "Includes All",
+    "contains": "Contains",
+    "doesNotContain": "Doesn't Contain",
+    "startsWith": "Starts With",
+    "endsWith": "Ends With",
+    "greaterThan": "> Greater Than",
+    "greaterOrEqual": "\u2265 Greater or Equal",
+    "lessThan": "< Less Than",
+    "lessOrEqual": "\u2264 Less or Equal",
+    "between": "Between"
+  },
+  "readStatuses": {
+    "unread": "Unread",
+    "reading": "Reading",
+    "reReading": "Re Reading",
+    "read": "Read",
+    "partiallyRead": "Partially Read",
+    "paused": "Paused",
+    "wontRead": "Wont Read",
+    "abandoned": "Abandoned",
+    "unset": "Unset"
+  },
+  "toast": {
+    "validationErrorSummary": "Validation Error",
+    "validationErrorDetail": "You must add at least one valid rule before saving.",
+    "successSummary": "Success",
+    "successDetail": "Magic shelf saved successfully.",
+    "errorSummary": "Error",
+    "errorDetailDefault": "Failed to save magic shelf."
+  }
+}

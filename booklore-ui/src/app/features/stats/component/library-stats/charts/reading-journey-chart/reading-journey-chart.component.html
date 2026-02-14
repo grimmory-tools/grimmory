@@ -1,11 +1,12 @@
+<ng-container *transloco="let t; prefix: 'statsLibrary.readingJourney'">
 <div class="reading-journey-container">
   <div class="chart-header">
     <div class="chart-title">
       <h3>
         <i class="pi pi-directions journey-title-icon"></i>
-        Reading Journey
+        {{ t('title') }}
       </h3>
-      <p class="chart-description">Books added vs finished over time - the gap is your backlog</p>
+      <p class="chart-description">{{ t('description') }}</p>
     </div>
     @if (dateRange) {
       <div class="date-range-badge">
@@ -26,51 +27,51 @@
     <div class="insights-section">
       <div class="insights-row">
         <div class="insight-item backlog">
-          <span class="insight-label">Current Backlog</span>
+          <span class="insight-label">{{ t('insightCurrentBacklog') }}</span>
           <span class="insight-value">{{ insights.currentBacklog }}</span>
-          <span class="insight-detail">{{ insights.backlogPercent }}% unread</span>
+          <span class="insight-detail">{{ t('insightBacklogPercent', { percent: insights.backlogPercent }) }}</span>
         </div>
 
         <div class="insight-item time-to-read">
-          <span class="insight-label">Avg Time to Finish</span>
+          <span class="insight-label">{{ t('insightAvgTimeToFinish') }}</span>
           <span class="insight-value">{{ insights.avgTimeToFinishDays }}</span>
-          <span class="insight-detail">days after adding</span>
+          <span class="insight-detail">{{ t('insightDaysAfterAdding') }}</span>
         </div>
 
         <div class="insight-item productive">
-          <span class="insight-label">Best Reading Month</span>
+          <span class="insight-label">{{ t('insightBestReadingMonth') }}</span>
           <span class="insight-value">{{ insights.mostProductiveCount }}</span>
           <span class="insight-detail">{{ insights.mostProductiveMonth }}</span>
         </div>
 
         <div class="insight-item acquisition">
-          <span class="insight-label">Peak Acquisition</span>
+          <span class="insight-label">{{ t('insightPeakAcquisition') }}</span>
           <span class="insight-value">{{ insights.busiestAcquisitionCount }}</span>
           <span class="insight-detail">{{ insights.busiestAcquisitionMonth }}</span>
         </div>
 
         <div class="insight-item finish-rate">
-          <span class="insight-label">Finish Rate</span>
+          <span class="insight-label">{{ t('insightFinishRate') }}</span>
           <span class="insight-value">{{ insights.finishRate }}</span>
-          <span class="insight-detail">books/month avg</span>
+          <span class="insight-detail">{{ t('insightBooksPerMonthAvg') }}</span>
         </div>
 
         <div class="insight-item streak">
-          <span class="insight-label">Longest Streak</span>
+          <span class="insight-label">{{ t('insightLongestStreak') }}</span>
           <span class="insight-value">{{ insights.longestStreak }}</span>
-          <span class="insight-detail">consecutive months</span>
+          <span class="insight-detail">{{ t('insightConsecutiveMonths') }}</span>
         </div>
 
         <div class="insight-item recent">
-          <span class="insight-label">Last 3 Months</span>
+          <span class="insight-label">{{ t('insightLast3Months') }}</span>
           <span class="insight-value">{{ insights.recentActivity }}</span>
-          <span class="insight-detail">recently finished</span>
+          <span class="insight-detail">{{ t('insightRecentlyFinished') }}</span>
         </div>
 
         <div class="insight-item total">
-          <span class="insight-label">Completion</span>
+          <span class="insight-label">{{ t('insightCompletion') }}</span>
           <span class="insight-value">{{ insights.totalFinished }}/{{ insights.totalAdded }}</span>
-          <span class="insight-detail">books finished</span>
+          <span class="insight-detail">{{ t('insightBooksFinished') }}</span>
         </div>
       </div>
     </div>
@@ -79,8 +80,9 @@
   @if (totalBooks === 0 || !insights) {
     <div class="no-data-message">
       <i class="pi pi-info-circle"></i>
-      <p>No reading journey data available.</p>
-      <small>Books need addedOn or dateFinished dates to appear here.</small>
+      <p>{{ t('noData') }}</p>
+      <small>{{ t('noDataHint') }}</small>
     </div>
   }
 </div>
+</ng-container>

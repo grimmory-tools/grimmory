@@ -1,21 +1,22 @@
+<ng-container *transloco="let t; prefix: 'statsUser.bookLength'">
 <div class="book-length-container">
   <div class="chart-header">
     <div class="chart-title">
       <h3>
         <i class="pi pi-book book-length-icon"></i>
-        Book Length Sweet Spot
+        {{ t('title') }}
         <i class="pi pi-question-circle chart-info-icon"
-           pTooltip="Each dot is a book you've rated, plotted by its page count (X-axis) and your personal rating (Y-axis). Colors indicate read status: green = read, blue = reading, red = abandoned. The trend line shows whether you tend to rate longer or shorter books higher. The 'sweet spot' is the page-count range where your average rating is highest."
+           [pTooltip]="t('tooltip')"
            tooltipPosition="bottom"
            tooltipStyleClass="chart-info-tooltip"
            [appendTo]="'body'"></i>
       </h3>
-      <p class="chart-description">How book length relates to your personal ratings</p>
+      <p class="chart-description">{{ t('description') }}</p>
     </div>
     @if (totalRatedBooks > 0) {
       <div class="stats-badge">
         <span class="badge-value">{{ totalRatedBooks }}</span>
-        <span class="badge-label">books analyzed</span>
+        <span class="badge-label">{{ t('booksAnalyzed') }}</span>
       </div>
     }
   </div>
@@ -24,11 +25,11 @@
     <div class="stats-row">
       <div class="stat-card">
         <span class="stat-value-sm">{{ sweetSpot }}</span>
-        <span class="stat-label">Sweet Spot</span>
+        <span class="stat-label">{{ t('sweetSpot') }}</span>
       </div>
       <div class="stat-card">
         <span class="stat-value-sm">{{ highestRatedLength }}</span>
-        <span class="stat-label">Highest Rated</span>
+        <span class="stat-label">{{ t('highestRated') }}</span>
       </div>
     </div>
   }
@@ -41,3 +42,4 @@
     </canvas>
   </div>
 </div>
+</ng-container>

@@ -8,6 +8,7 @@ import {ChartConfiguration, ChartData, ScatterDataPoint} from 'chart.js';
 import {BookService} from '../../../../../book/service/book.service';
 import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book, ReadStatus} from '../../../../../book/model/book.model';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 interface BookScatterPoint extends ScatterDataPoint {
   bookTitle: string;
@@ -17,10 +18,10 @@ interface BookScatterPoint extends ScatterDataPoint {
 type LengthChartData = ChartData<'scatter', BookScatterPoint[], string>;
 
 const STATUS_COLORS: Record<string, { bg: string; border: string }> = {
-  'Read': {bg: 'rgba(76, 175, 80, 0.7)', border: '#4caf50'},
-  'Reading': {bg: 'rgba(33, 150, 243, 0.7)', border: '#2196f3'},
-  'Abandoned': {bg: 'rgba(244, 67, 54, 0.7)', border: '#f44336'},
-  'Other': {bg: 'rgba(158, 158, 158, 0.7)', border: '#9e9e9e'}
+  'read': {bg: 'rgba(76, 175, 80, 0.7)', border: '#4caf50'},
+  'reading': {bg: 'rgba(33, 150, 243, 0.7)', border: '#2196f3'},
+  'abandoned': {bg: 'rgba(244, 67, 54, 0.7)', border: '#f44336'},
+  'other': {bg: 'rgba(158, 158, 158, 0.7)', border: '#9e9e9e'}
 };
 
 const PAGE_RANGES = [
@@ -35,12 +36,13 @@ const PAGE_RANGES = [
 @Component({
   selector: 'app-book-length-chart',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective, Tooltip],
+  imports: [CommonModule, BaseChartDirective, Tooltip, TranslocoDirective],
   templateUrl: './book-length-chart.component.html',
   styleUrls: ['./book-length-chart.component.scss']
 })
 export class BookLengthChartComponent implements OnInit, OnDestroy {
   private readonly bookService = inject(BookService);
+  private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
 
   public readonly chartType = 'scatter' as const;
@@ -58,7 +60,7 @@ export class BookLengthChartComponent implements OnInit, OnDestroy {
       x: {
         title: {
           display: true,
-          text: 'Page Count',
+          text: this.t.translate('statsUser.bookLength.axisPageCount'),
           color: '#ffffff',
           font: {family: "'Inter', sans-serif", size: 12, weight: 'bold'}
         },
@@ -73,7 +75,7 @@ export class BookLengthChartComponent implements OnInit, OnDestroy {
         max: 10,
         title: {
           display: true,
-          text: 'Personal Rating',
+          text: this.t.translate('statsUser.bookLength.axisPersonalRating'),
           color: '#ffffff',
           font: {family: "'Inter', sans-serif", size: 12, weight: 'bold'}
         },
@@ -111,14 +113,14 @@ export class BookLengthChartComponent implements OnInit, OnDestroy {
         callbacks: {
           title: (context) => {
             const point = context[0].raw as BookScatterPoint;
-            return point.bookTitle || 'Unknown Book';
+            return point.bookTitle || this.t.translate('statsUser.bookLength.tooltipUnknownBook');
           },
           label: (context) => {
             const point = context.raw as BookScatterPoint;
             return [
-              `Pages: ${point.x}`,
-              `Rating: ${point.y}/10`,
-              `Status: ${point.readStatus}`
+              this.t.translate('statsUser.bookLength.tooltipPages', {count: point.x}),
+              this.t.translate('statsUser.bookLength.tooltipRating', {rating: point.y}),
+              this.t.translate('statsUser.bookLength.tooltipStatus', {status: point.readStatus})
             ];
           }
         }
@@ -169,12 +171,13 @@ export class BookLengthChartComponent implements OnInit, OnDestroy {
     this.totalRatedBooks = ratedBooks.length;
     if (this.totalRatedBooks === 0) return;
 
-    // Group by status
-    const grouped = new Map<string, BookScatterPoint[]>();
+    // Group by status key (for colors) and translated label (for display)
+    const grouped = new Map<string, { label: string; points: BookScatterPoint[] }>();
     for (const book of ratedBooks) {
+      const statusKey = this.getStatusKey(book.readStatus);
       const statusLabel = this.getStatusLabel(book.readStatus);
-      if (!grouped.has(statusLabel)) grouped.set(statusLabel, []);
-      grouped.get(statusLabel)!.push({
+      if (!grouped.has(statusKey)) grouped.set(statusKey, {label: statusLabel, points: []});
+      grouped.get(statusKey)!.points.push({
         x: book.metadata!.pageCount!,
         y: book.personalRating!,
         bookTitle: book.metadata?.title || book.fileName || 'Unknown',
@@ -182,8 +185,8 @@ export class BookLengthChartComponent implements OnInit, OnDestroy {
       });
     }
 
-    const datasets = Array.from(grouped.entries()).map(([label, points]) => {
-      const colors = STATUS_COLORS[label] || STATUS_COLORS['Other'];
+    const datasets = Array.from(grouped.entries()).map(([key, {label, points}]) => {
+      const colors = STATUS_COLORS[key] || STATUS_COLORS['other'];
       return {
         label: `${label} (${points.length})`,
         data: points,
@@ -200,7 +203,7 @@ export class BookLengthChartComponent implements OnInit, OnDestroy {
     const trend = this.computeTrendLine(allPoints);
     if (trend) {
       datasets.push({
-        label: 'Trend',
+        label: this.t.translate('statsUser.bookLength.trend'),
         data: trend as BookScatterPoint[],
         backgroundColor: 'transparent',
         borderColor: 'rgba(255, 255, 255, 0.4)',
@@ -216,20 +219,37 @@ export class BookLengthChartComponent implements OnInit, OnDestroy {
     this.computeStats(ratedBooks);
   }
 
-  private getStatusLabel(status?: ReadStatus): string {
-    if (!status) return 'Other';
+  private getStatusKey(status?: ReadStatus): string {
+    if (!status) return 'other';
     switch (status) {
       case ReadStatus.READ:
       case ReadStatus.PARTIALLY_READ:
-        return 'Read';
+        return 'read';
       case ReadStatus.READING:
       case ReadStatus.RE_READING:
-        return 'Reading';
+        return 'reading';
       case ReadStatus.ABANDONED:
       case ReadStatus.WONT_READ:
-        return 'Abandoned';
+        return 'abandoned';
       default:
-        return 'Other';
+        return 'other';
+    }
+  }
+
+  private getStatusLabel(status?: ReadStatus): string {
+    if (!status) return this.t.translate('statsUser.bookLength.statusOther');
+    switch (status) {
+      case ReadStatus.READ:
+      case ReadStatus.PARTIALLY_READ:
+        return this.t.translate('statsUser.bookLength.statusRead');
+      case ReadStatus.READING:
+      case ReadStatus.RE_READING:
+        return this.t.translate('statsUser.bookLength.statusReading');
+      case ReadStatus.ABANDONED:
+      case ReadStatus.WONT_READ:
+        return this.t.translate('statsUser.bookLength.statusAbandoned');
+      default:
+        return this.t.translate('statsUser.bookLength.statusOther');
     }
   }
 

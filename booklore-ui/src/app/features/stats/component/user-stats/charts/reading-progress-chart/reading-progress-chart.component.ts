@@ -8,6 +8,7 @@ import {ChartConfiguration, ChartData} from 'chart.js';
 import {BookService} from '../../../../../book/service/book.service';
 import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book} from '../../../../../book/model/book.model';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 interface ReadingProgressStats {
   progressRange: string;
@@ -45,12 +46,13 @@ type ProgressChartData = ChartData<'doughnut', number[], string>;
 @Component({
   selector: 'app-reading-progress-chart',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective, Tooltip],
+  imports: [CommonModule, BaseChartDirective, Tooltip, TranslocoDirective],
   templateUrl: './reading-progress-chart.component.html',
   styleUrls: ['./reading-progress-chart.component.scss']
 })
 export class ReadingProgressChartComponent implements OnInit, OnDestroy {
   private readonly bookService = inject(BookService);
+  private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
 
   public readonly chartType = 'doughnut' as const;
@@ -118,8 +120,14 @@ export class ReadingProgressChartComponent implements OnInit, OnDestroy {
             const percentage = ((value / total) * 100).toFixed(1);
             const label = context.label;
             const rangeInfo = PROGRESS_RANGES.find(r => r.range === label);
-            const description = rangeInfo ? ` (${rangeInfo.desc})` : '';
-            return `${value} book${value === 1 ? '' : 's'}${description} - ${percentage}%`;
+            const descKeys: Record<string, string> = {
+              'Not Started': 'notStarted', 'Just Started': 'justStarted',
+              'Getting Into It': 'gettingIntoIt', 'Halfway Through': 'halfwayThrough',
+              'Almost Finished': 'almostFinished', 'Completed': 'completed'
+            };
+            const description = rangeInfo ? this.t.translate(`statsUser.readingProgress.${descKeys[rangeInfo.desc] || 'notStarted'}`) : '';
+            const plural = value === 1 ? '' : 's';
+            return this.t.translate('statsUser.readingProgress.tooltipLabel', {value, plural, description, percentage});
           }
         }
       },
@@ -134,7 +142,7 @@ export class ReadingProgressChartComponent implements OnInit, OnDestroy {
   private readonly chartDataSubject = new BehaviorSubject<ProgressChartData>({
     labels: [],
     datasets: [{
-      label: 'Books by Progress',
+      label: this.t.translate('statsUser.readingProgress.booksByProgress'),
       data: [],
       backgroundColor: [...CHART_COLORS],
       ...CHART_DEFAULTS
@@ -173,7 +181,7 @@ export class ReadingProgressChartComponent implements OnInit, OnDestroy {
       this.chartDataSubject.next({
         labels,
         datasets: [{
-          label: 'Books by Progress',
+          label: this.t.translate('statsUser.readingProgress.booksByProgress'),
           data: dataValues,
           backgroundColor: [...CHART_COLORS],
           borderColor: '#ffffff',

@@ -1,11 +1,12 @@
+<ng-container *transloco="let t; prefix: 'book.sender'">
 <div class="book-sender-container">
   <div class="panel-header">
     <div class="header-icon-wrapper">
       <i class="pi pi-envelope header-icon"></i>
     </div>
     <div class="header-text">
-      <h2 class="panel-title">Send Book</h2>
-      <p class="panel-description">Email this book to a recipient</p>
+      <h2 class="panel-title">{{ t('title') }}</h2>
+      <p class="panel-description">{{ t('description') }}</p>
     </div>
     <p-button
       icon="pi pi-times"
@@ -20,11 +21,11 @@
   <div class="dialog-content">
     <div class="form-fields">
       <div class="form-field">
-        <label class="field-label">Email Provider</label>
+        <label class="field-label">{{ t('emailProvider') }}</label>
         <p-select
           [options]="emailProviders"
           optionLabel="label"
-          placeholder="Select Email Provider"
+          [placeholder]="t('selectProvider')"
           [(ngModel)]="selectedProvider"
           appendTo="body"
           class="full-width">
@@ -32,11 +33,11 @@
       </div>
 
       <div class="form-field">
-        <label class="field-label">Recipient</label>
+        <label class="field-label">{{ t('recipient') }}</label>
         <p-select
           [options]="emailRecipients"
           optionLabel="label"
-          placeholder="Select Book Recipient"
+          [placeholder]="t('selectRecipient')"
           [(ngModel)]="selectedRecipient"
           [disabled]="!selectedProvider"
           appendTo="body"
@@ -46,14 +47,14 @@
 
       @if (emailableFiles.length > 0) {
         <div class="form-field">
-          <label class="field-label">File Format</label>
+          <label class="field-label">{{ t('fileFormat') }}</label>
           <div class="format-options">
             @for (file of emailableFiles; track file.id) {
               <div class="format-option" [class.selected]="selectedFileId === file.id">
                 <p-radioButton name="fileFormat" [value]="file.id" [(ngModel)]="selectedFileId"/>
                 <div class="format-info">
-                  <span class="format-type">{{ file.bookType || 'Unknown' }}</span>
-                  @if (file.isPrimary) { <span class="primary-badge">Primary</span> }
+                  <span class="format-type">{{ file.bookType || t('unknownFormat') }}</span>
+                  @if (file.isPrimary) { <span class="primary-badge">{{ t('primaryBadge') }}</span> }
                   <span class="file-size">{{ formatFileSize(file.fileSizeKb) }}</span>
                 </div>
               </div>
@@ -65,7 +66,7 @@
       @if (showLargeFileWarning) {
         <div class="warning-banner">
           <i class="pi pi-exclamation-triangle"></i>
-          <span>This file exceeds 25MB. Some email providers may reject large attachments.</span>
+          <span>{{ t('largeFileWarning') }}</span>
         </div>
       }
     </div>
@@ -74,9 +75,10 @@
   <div class="dialog-footer">
     <p-button
       icon="pi pi-envelope"
-      label="Send Book"
+      [label]="t('sendBook')"
       [disabled]="!selectedProvider || !selectedRecipient"
       (onClick)="sendBook()">
     </p-button>
   </div>
 </div>
+</ng-container>

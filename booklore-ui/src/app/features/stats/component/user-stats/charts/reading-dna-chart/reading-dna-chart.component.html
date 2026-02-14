@@ -1,16 +1,17 @@
+<ng-container *transloco="let t; prefix: 'statsUser.readingDna'">
 <div class="reading-dna-container">
   <div class="chart-header">
     <div class="chart-title">
       <h3>
         <i class="pi pi-chart-line reading-dna-icon"></i>
-        Reading DNA Profile
+        {{ t('title') }}
         <i class="pi pi-question-circle chart-info-icon"
-           pTooltip="A radar chart profiling your reading personality across 8 dimensions. Scores are computed from your library's genres, ratings, page counts, publication dates, and reading progress. Each trait uses non-overlapping criteria for accurate results."
+           [pTooltip]="t('tooltip')"
            tooltipPosition="bottom"
            tooltipStyleClass="chart-info-tooltip"
            [appendTo]="'body'"></i>
       </h3>
-      <p class="chart-description">Your unique reading personality across 8 dimensions</p>
+      <p class="chart-description">{{ t('description') }}</p>
     </div>
   </div>
   <div class="chart-wrapper">
@@ -22,7 +23,7 @@
   </div>
   @if (personalityInsights.length > 0) {
     <div class="personality-insights">
-      <h4>Your Reading Personality Traits</h4>
+      <h4>{{ t('personalityTraits') }}</h4>
       <div class="insights-grid">
         @for (insight of personalityInsights; track insight.trait) {
           <div class="insight-card">
@@ -40,3 +41,4 @@
     </div>
   }
 </div>
+</ng-container>

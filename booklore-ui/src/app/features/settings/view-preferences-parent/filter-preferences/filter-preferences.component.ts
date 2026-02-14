@@ -1,6 +1,7 @@
 import {Component, ElementRef, inject, OnDestroy, OnInit, viewChild} from '@angular/core';
 import {Select} from 'primeng/select';
-import {ALL_FILTER_OPTIONS, BookFilterMode, DEFAULT_VISIBLE_FILTERS, User, UserService, UserSettings, UserState, VisibleFilterType} from '../../user-management/user.service';
+import {ALL_FILTER_OPTION_VALUES, ALL_FILTER_OPTIONS, BookFilterMode, DEFAULT_VISIBLE_FILTERS, User, UserService, UserSettings, UserState, VisibleFilterType} from '../../user-management/user.service';
+import {FILTER_LABEL_KEYS} from '../../../book/components/book-browser/book-filter/book-filter.config';
 import {MessageService} from 'primeng/api';
 import {Observable, Subject} from 'rxjs';
 import {FormsModule} from '@angular/forms';
@@ -100,11 +101,14 @@ export class FilterPreferencesComponent implements OnInit, OnDestroy {
 
   get availableFilters(): {label: string; value: string}[] {
     const used = new Set(this.selectedVisibleFilters);
-    return this.allFilterOptions.filter(opt => !used.has(opt.value));
+    return ALL_FILTER_OPTION_VALUES
+      .filter(v => !used.has(v))
+      .map(v => ({label: this.getFilterLabel(v), value: v}));
   }
 
   getFilterLabel(value: string): string {
-    return this.allFilterOptions.find(opt => opt.value === value)?.label ?? value;
+    const key = FILTER_LABEL_KEYS[value as keyof typeof FILTER_LABEL_KEYS];
+    return key ? this.t.translate(key) : value;
   }
 
   onDrop(event: CdkDragDrop<VisibleFilterType[]>): void {

@@ -89,6 +89,40 @@
     "foldersWillBeSelected": "{{ count }} folders will be selected",
     "selectDirectoriesBtn": "Select Directories"
   },
+  "liveNotification": {
+    "defaultMessage": "No recent notifications..."
+  },
+  "metadataProgress": {
+    "taskStalled": "Task stalled or backend unavailable",
+    "taskCancelled": "Task cancelled by user",
+    "cancellationScheduledSummary": "Cancellation Scheduled",
+    "cancellationScheduledDetail": "Task cancellation has been successfully scheduled",
+    "cancelFailedSummary": "Cancel Failed",
+    "cancelFailedDetail": "Failed to cancel the task. Please try again.",
+    "taskTitle": "Metadata Fetch Task",
+    "tagReview": "Review",
+    "tagAuto": "Auto",
+    "bookProgress": "Book <strong>{{ current }}</strong> of {{ total }}",
+    "reviewBtn": "Review",
+    "discardBtn": "Discard",
+    "dismissBtn": "Dismiss",
+    "discardTooltip": "Preserve current metadata, discard new fetched metadata",
+    "cancelBtn": "Cancel",
+    "cancelTooltip": "Cancel this task",
+    "statusInProgress": "In Progress",
+    "statusCompleted": "Completed",
+    "statusError": "Error",
+    "statusCancelled": "Cancelled"
+  },
+  "reader": {
+    "failedToLoadPages": "Failed to load pages",
+    "failedToLoadBook": "Failed to load the book"
+  },
+  "settingsHelper": {
+    "settingsSavedSummary": "Settings Saved",
+    "settingsSavedDetail": "The settings were successfully saved!",
+    "saveErrorDetail": "There was an error saving the settings."
+  },
   "setup": {
     "title": "Welcome to Booklore",
     "subtitle": "Setup your initial admin account to get started",

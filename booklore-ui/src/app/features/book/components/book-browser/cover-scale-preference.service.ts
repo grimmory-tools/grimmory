@@ -2,6 +2,7 @@ import {inject, Injectable} from '@angular/core';
 import {Subject} from 'rxjs';
 import {debounceTime} from 'rxjs/operators';
 import {MessageService} from 'primeng/api';
+import {TranslocoService} from '@jsverse/transloco';
 import {LocalStorageService} from '../../../../shared/service/local-storage.service';
 import {Book} from '../../model/book.model';
 
@@ -17,6 +18,7 @@ export class CoverScalePreferenceService {
   private readonly STORAGE_KEY = 'coverScalePreference';
 
   private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
   private readonly localStorageService = inject(LocalStorageService);
 
   private readonly scaleChangeSubject = new Subject<number>();
@@ -64,15 +66,15 @@ export class CoverScalePreferenceService {
       this.localStorageService.set(this.STORAGE_KEY, scale);
       this.messageService.add({
         severity: 'success',
-        summary: 'Cover Size Saved',
-        detail: `Cover size set to ${scale.toFixed(2)}x.`,
+        summary: this.t.translate('book.coverPref.toast.savedSummary'),
+        detail: this.t.translate('book.coverPref.toast.savedDetail', {scale: scale.toFixed(2)}),
         life: 1500
       });
     } catch (e) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Save Failed',
-        detail: 'Could not save cover size preference locally.',
+        summary: this.t.translate('book.coverPref.toast.saveFailedSummary'),
+        detail: this.t.translate('book.coverPref.toast.saveFailedDetail'),
         life: 3000
       });
     }

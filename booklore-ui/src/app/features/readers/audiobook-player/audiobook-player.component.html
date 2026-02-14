@@ -1,7 +1,8 @@
+<ng-container *transloco="let t; prefix: 'readerAudiobook'">
 @if (isLoading) {
   <div class="loading-container">
     <p-progressSpinner strokeWidth="3" />
-    <span class="loading-text">Loading audiobook...</span>
+    <span class="loading-text">{{ t('loading') }}</span>
   </div>
 } @else {
   <div class="audiobook-player">
@@ -23,12 +24,12 @@
         [text]="true"
         severity="secondary"
         (onClick)="closeReader()"
-        pTooltip="Back"
+        [pTooltip]="t('header.backTooltip')"
         tooltipPosition="bottom"
       />
       <div class="header-info">
-        <h1 class="book-title">{{ audiobookInfo.title || 'Untitled' }}</h1>
-        <span class="book-author">{{ audiobookInfo.author || 'Unknown Author' }}</span>
+        <h1 class="book-title">{{ audiobookInfo.title || t('untitled') }}</h1>
+        <span class="book-author">{{ audiobookInfo.author || t('unknownAuthor') }}</span>
       </div>
       <div class="header-actions">
         <p-button
@@ -37,7 +38,7 @@
           [text]="true"
           severity="secondary"
           (onClick)="toggleBookmarkList()"
-          pTooltip="Bookmarks"
+          [pTooltip]="t('header.bookmarksTooltip')"
           tooltipPosition="bottom"
         />
         <p-button
@@ -46,7 +47,7 @@
           [text]="true"
           severity="secondary"
           (onClick)="toggleTrackList()"
-          pTooltip="Chapters/Tracks"
+          [pTooltip]="t('header.chaptersTracksTooltip')"
           tooltipPosition="bottom"
         />
       </div>
@@ -61,7 +62,7 @@
             <img
               [src]="coverUrl"
               (error)="onCoverError()"
-              alt="Cover"
+              [alt]="t('coverAlt')"
               class="cover-image"
             />
           } @else {
@@ -81,11 +82,11 @@
       <div class="track-info">
         @if (audiobookInfo.folderBased && currentTrack) {
           <span class="track-title">{{ currentTrack.title }}</span>
-          <span class="track-number">Track {{ currentTrackIndex + 1 }} of {{ audiobookInfo.tracks?.length }}</span>
+          <span class="track-number">{{ t('trackInfo.trackOf', { current: currentTrackIndex + 1, total: audiobookInfo.tracks?.length }) }}</span>
         } @else if (getCurrentChapter()) {
           <span class="track-title">{{ getCurrentChapter()?.title }}</span>
           @if (hasMultipleChapters()) {
-            <span class="track-number">Chapter {{ getCurrentChapterIndex() + 1 }} of {{ audiobookInfo.chapters?.length }}</span>
+            <span class="track-number">{{ t('trackInfo.chapterOf', { current: getCurrentChapterIndex() + 1, total: audiobookInfo.chapters?.length }) }}</span>
           }
         }
       </div>
@@ -119,7 +120,7 @@
             severity="secondary"
             (onClick)="previousTrack()"
             [disabled]="currentTrackIndex === 0"
-            pTooltip="Previous Track"
+            [pTooltip]="t('controls.previousTrackTooltip')"
             tooltipPosition="top"
             size="large"
           />
@@ -131,7 +132,7 @@
             severity="secondary"
             (onClick)="previousChapter()"
             [disabled]="!canGoPreviousChapter()"
-            pTooltip="Previous Chapter"
+            [pTooltip]="t('controls.previousChapterTooltip')"
             tooltipPosition="top"
             size="large"
           />
@@ -143,7 +144,7 @@
           [text]="true"
           severity="secondary"
           (onClick)="seekRelative(-30)"
-          pTooltip="-30s"
+          [pTooltip]="t('controls.rewindTooltip')"
           tooltipPosition="top"
           size="large"
         />
@@ -164,7 +165,7 @@
           [text]="true"
           severity="secondary"
           (onClick)="seekRelative(30)"
-          pTooltip="+30s"
+          [pTooltip]="t('controls.forwardTooltip')"
           tooltipPosition="top"
           size="large"
         />
@@ -177,7 +178,7 @@
             severity="secondary"
             (onClick)="nextTrack()"
             [disabled]="!audiobookInfo.tracks || currentTrackIndex >= audiobookInfo.tracks.length - 1"
-            pTooltip="Next Track"
+            [pTooltip]="t('controls.nextTrackTooltip')"
             tooltipPosition="top"
             size="large"
           />
@@ -189,7 +190,7 @@
             severity="secondary"
             (onClick)="nextChapter()"
             [disabled]="!canGoNextChapter()"
-            pTooltip="Next Chapter"
+            [pTooltip]="t('controls.nextChapterTooltip')"
             tooltipPosition="top"
             size="large"
           />
@@ -236,7 +237,7 @@
         <!-- Add bookmark button -->
         <p-button
           icon="pi pi-bookmark-fill"
-          label="Add Bookmark"
+          [label]="t('extra.addBookmark')"
           [rounded]="true"
           [text]="true"
           severity="secondary"
@@ -248,7 +249,7 @@
         <p-button
           #sleepTimerBtn
           icon="pi pi-moon"
-          [label]="sleepTimerActive ? formatSleepTimerRemaining() : 'Sleep Timer'"
+          [label]="sleepTimerActive ? formatSleepTimerRemaining() : t('extra.sleepTimer')"
           [rounded]="true"
           [text]="true"
           severity="secondary"
@@ -269,19 +270,19 @@
         @if (audiobookInfo.narrator) {
           <span class="detail-item">
             <i class="pi pi-user"></i>
-            Narrated by {{ audiobookInfo.narrator }}
+            {{ t('details.narratedBy', { narrator: audiobookInfo.narrator }) }}
           </span>
         }
         @if (audiobookInfo.bitrate) {
           <span class="detail-item">
             <i class="pi pi-sliders-h"></i>
-            {{ audiobookInfo.bitrate }} kbps
+            {{ t('details.kbps', { bitrate: audiobookInfo.bitrate }) }}
           </span>
         }
         @if (audiobookInfo.durationMs) {
           <span class="detail-item">
             <i class="pi pi-clock"></i>
-            {{ formatDuration(audiobookInfo.durationMs) }} total
+            {{ t('details.totalDuration', { duration: formatDuration(audiobookInfo.durationMs) }) }}
           </span>
         }
       </div>
@@ -291,7 +292,7 @@
     @if (showTrackList) {
       <aside class="track-list-sidebar">
         <div class="sidebar-header">
-          <h2>{{ audiobookInfo.folderBased ? 'Tracks' : 'Chapters' }}</h2>
+          <h2>{{ audiobookInfo.folderBased ? t('sidebar.tracks') : t('sidebar.chapters') }}</h2>
           <p-button
             icon="pi pi-times"
             [rounded]="true"
@@ -348,7 +349,7 @@
     @if (showBookmarkList) {
       <aside class="track-list-sidebar bookmark-sidebar">
         <div class="sidebar-header">
-          <h2>Bookmarks</h2>
+          <h2>{{ t('bookmarks.title') }}</h2>
           <p-button
             icon="pi pi-times"
             [rounded]="true"
@@ -361,8 +362,8 @@
           @if (bookmarks.length === 0) {
             <div class="empty-bookmarks">
               <i class="pi pi-bookmark"></i>
-              <p>No bookmarks yet</p>
-              <span>Add a bookmark to save your place</span>
+              <p>{{ t('bookmarks.empty') }}</p>
+              <span>{{ t('bookmarks.emptyHint') }}</span>
             </div>
           } @else {
             <ul class="track-list">
@@ -383,7 +384,7 @@
                     severity="danger"
                     size="small"
                     (onClick)="deleteBookmark($event, bookmark.id)"
-                    pTooltip="Delete"
+                    [pTooltip]="t('bookmarks.deleteTooltip')"
                     tooltipPosition="left"
                   />
                 </li>
@@ -395,3 +396,4 @@
     }
   </div>
 }
+</ng-container>

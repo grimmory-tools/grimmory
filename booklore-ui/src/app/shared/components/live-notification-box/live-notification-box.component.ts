@@ -2,6 +2,7 @@ import {Component, inject} from '@angular/core';
 import {NotificationEventService} from '../../websocket/notification-event.service';
 import {LogNotification} from '../../websocket/model/log-notification.model';
 import {Tag} from 'primeng/tag';
+import {TranslocoService} from '@jsverse/transloco';
 
 import {TagComponent} from '../tag/tag.component';
 
@@ -18,7 +19,8 @@ import {TagComponent} from '../tag/tag.component';
   ]
 })
 export class LiveNotificationBoxComponent {
-  latestNotification: LogNotification = {message: 'No recent notifications...'};
+  private readonly t = inject(TranslocoService);
+  latestNotification: LogNotification = {message: this.t.translate('shared.liveNotification.defaultMessage')};
 
   private notificationService = inject(NotificationEventService);
 

@@ -1,11 +1,12 @@
+<ng-container *transloco="let t; prefix: 'book.shelfCreator'">
 <div class="shelf-creator">
   <div class="panel-header">
     <div class="header-icon-wrapper">
       <i class="pi pi-bookmark header-icon"></i>
     </div>
     <div class="header-text">
-      <h2 class="panel-title">Create New Shelf</h2>
-      <p class="panel-description">Add a custom shelf to organize your books</p>
+      <h2 class="panel-title">{{ t('title') }}</h2>
+      <p class="panel-description">{{ t('description') }}</p>
     </div>
     <p-button
       icon="pi pi-times"
@@ -14,7 +15,7 @@
       [text]="true"
       [rounded]="true"
       class="close-button"
-      pTooltip="Close"
+      [pTooltip]="t('closeTooltip')"
       tooltipPosition="left"/>
   </div>
 
@@ -22,7 +23,7 @@
     <div class="form-group highlight-group">
       <label for="shelfName" class="form-label">
         <i class="pi pi-tag label-icon"></i>
-        Shelf Name
+        {{ t('shelfNameLabel') }}
         <span class="required-indicator">*</span>
       </label>
       <div class="input-wrapper">
@@ -32,9 +33,9 @@
           pInputText
           [(ngModel)]="shelfName"
           class="input-full"
-          placeholder="e.g., Favorites, To Read, Currently Reading"
+          [placeholder]="t('shelfNamePlaceholder')"
           [class.filled]="shelfName.trim()"
-         
+
         />
         @if (shelfName.trim()) {
           <i class="pi pi-check-circle input-icon success"></i>
@@ -47,14 +48,14 @@
     <div class="form-group highlight-group">
       <label class="form-label">
         <i class="pi pi-palette label-icon"></i>
-        Shelf Icon (Optional)
+        {{ t('shelfIconLabel') }}
       </label>
       @if (!selectedIcon) {
         <button class="icon-select-btn" (click)="openIconPicker()" type="button">
           <i class="pi pi-plus"></i>
           <div class="btn-content">
-            <span class="btn-title">Choose an Icon</span>
-            <span class="btn-subtitle">Select from available icons</span>
+            <span class="btn-title">{{ t('chooseIcon') }}</span>
+            <span class="btn-subtitle">{{ t('chooseIconSubtitle') }}</span>
           </div>
         </button>
       } @else {
@@ -66,7 +67,7 @@
             />
           </div>
           <div class="icon-info">
-            <span class="icon-label">Selected Icon</span>
+            <span class="icon-label">{{ t('selectedIcon') }}</span>
             <span class="icon-name">
               @if (selectedIcon.type === 'PRIME_NG') {
                 {{ selectedIcon.value }}
@@ -82,7 +83,7 @@
             [rounded]="true"
             size="small"
             (onClick)="clearSelectedIcon()"
-            pTooltip="Remove icon"
+            [pTooltip]="t('removeIconTooltip')"
             tooltipPosition="left"
           />
         </div>
@@ -95,11 +96,11 @@
       <div class="form-group highlight-group">
         <label class="form-label">
           <i class="pi pi-globe label-icon"></i>
-          Visibility
+          {{ t('visibilityLabel') }}
         </label>
         <div class="input-wrapper" style="display: flex; align-items: center; gap: 0.5rem;">
           <p-checkbox [(ngModel)]="isPublic" [binary]="true" inputId="publicShelf"></p-checkbox>
-          <label for="publicShelf" style="cursor: pointer">Make this shelf public (read-only for others)</label>
+          <label for="publicShelf" style="cursor: pointer">{{ t('makePublicLabel') }}</label>
         </div>
       </div>
     }
@@ -110,24 +111,24 @@
       @if (!shelfName.trim()) {
         <div class="validation-message error">
           <i class="pi pi-exclamation-circle"></i>
-          <span>Shelf name is required</span>
+          <span>{{ t('validationRequired') }}</span>
         </div>
       } @else {
         <div class="validation-message success">
           <i class="pi pi-check-circle"></i>
-          <span>Ready to create</span>
+          <span>{{ t('validationReady') }}</span>
         </div>
       }
     </div>
     <div class="footer-actions">
       <p-button
-        label="Cancel"
+        [label]="t('cancelButton')"
         severity="secondary"
         [outlined]="true"
         (onClick)="cancel()"
       />
       <p-button
-        label="Create Shelf"
+        [label]="t('createButton')"
         icon="pi pi-plus"
         severity="success"
         (onClick)="createShelf()"
@@ -136,3 +137,4 @@
     </div>
   </div>
 </div>
+</ng-container>

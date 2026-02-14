@@ -89,6 +89,40 @@
     "foldersWillBeSelected": "{{ count }} carpetas serán seleccionadas",
     "selectDirectoriesBtn": "Seleccionar directorios"
   },
+  "liveNotification": {
+    "defaultMessage": "Sin notificaciones recientes..."
+  },
+  "metadataProgress": {
+    "taskStalled": "Tarea detenida o servidor no disponible",
+    "taskCancelled": "Tarea cancelada por el usuario",
+    "cancellationScheduledSummary": "Cancelación programada",
+    "cancellationScheduledDetail": "La cancelación de la tarea se ha programado correctamente",
+    "cancelFailedSummary": "Error al cancelar",
+    "cancelFailedDetail": "No se pudo cancelar la tarea. Inténtalo de nuevo.",
+    "taskTitle": "Tarea de obtención de metadatos",
+    "tagReview": "Revisión",
+    "tagAuto": "Auto",
+    "bookProgress": "Libro <strong>{{ current }}</strong> de {{ total }}",
+    "reviewBtn": "Revisar",
+    "discardBtn": "Descartar",
+    "dismissBtn": "Cerrar",
+    "discardTooltip": "Conservar metadatos actuales, descartar los nuevos metadatos obtenidos",
+    "cancelBtn": "Cancelar",
+    "cancelTooltip": "Cancelar esta tarea",
+    "statusInProgress": "En progreso",
+    "statusCompleted": "Completado",
+    "statusError": "Error",
+    "statusCancelled": "Cancelado"
+  },
+  "reader": {
+    "failedToLoadPages": "Error al cargar las páginas",
+    "failedToLoadBook": "Error al cargar el libro"
+  },
+  "settingsHelper": {
+    "settingsSavedSummary": "Configuración guardada",
+    "settingsSavedDetail": "¡La configuración se guardó correctamente!",
+    "saveErrorDetail": "Hubo un error al guardar la configuración."
+  },
   "setup": {
     "title": "Bienvenido a Booklore",
     "subtitle": "Configura tu cuenta de administrador inicial para comenzar",

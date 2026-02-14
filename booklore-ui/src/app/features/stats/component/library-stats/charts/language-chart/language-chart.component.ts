@@ -8,6 +8,7 @@ import {LibraryFilterService} from '../../service/library-filter.service';
 import {BookService} from '../../../../../book/service/book.service';
 import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book} from '../../../../../book/model/book.model';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 interface LanguageStats {
   language: string;
@@ -131,13 +132,14 @@ const LANGUAGE_NAMES: Record<string, string> = {
 @Component({
   selector: 'app-language-chart',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective],
+  imports: [CommonModule, BaseChartDirective, TranslocoDirective],
   templateUrl: './language-chart.component.html',
   styleUrls: ['./language-chart.component.scss']
 })
 export class LanguageChartComponent implements OnInit, OnDestroy {
   private readonly bookService = inject(BookService);
   private readonly libraryFilterService = inject(LibraryFilterService);
+  private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
 
   public readonly chartType = 'pie' as const;
@@ -182,7 +184,7 @@ export class LanguageChartComponent implements OnInit, OnDestroy {
             const value = context.parsed;
             const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
             const percentage = ((value / total) * 100).toFixed(1);
-            return `${context.label}: ${value} books (${percentage}%)`;
+            return this.t.translate('statsLibrary.language.tooltipLabel', {label: context.label, value, percentage});
           }
         }
       },

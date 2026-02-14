@@ -1,16 +1,17 @@
+<ng-container *transloco="let t; prefix: 'statsUser.peakHours'">
 <div class="peak-hours-container">
   <div class="chart-header">
     <div class="chart-title">
       <h3>
         <i class="pi pi-clock peak-hours-icon"></i>
-        Peak Reading Hours
+        {{ t('title') }}
         <i class="pi pi-question-circle chart-info-icon"
-           pTooltip="Shows the number of reading sessions and total reading time for each hour of the day (midnight to 11pm). Filter by year and month to see how your habits shift over time. The peak hour highlights when you read the most."
+           [pTooltip]="t('tooltip')"
            tooltipPosition="bottom"
            tooltipStyleClass="chart-info-tooltip"
            [appendTo]="'body'"></i>
       </h3>
-      <p class="chart-description">Reading activity by hour of the day</p>
+      <p class="chart-description">{{ t('description') }}</p>
     </div>
     <div class="filter-controls">
       <p-select
@@ -19,7 +20,7 @@
         (onChange)="onFilterChange()"
         optionLabel="label"
         optionValue="value"
-        placeholder="Select Year"
+        [placeholder]="t('selectYear')"
         [style]="{'min-width': '100px'}">
       </p-select>
       <p-select
@@ -28,7 +29,7 @@
         (onChange)="onFilterChange()"
         optionLabel="label"
         optionValue="value"
-        placeholder="Select Month"
+        [placeholder]="t('selectMonth')"
         [style]="{'min-width': '130px'}">
       </p-select>
     </div>
@@ -41,3 +42,4 @@
     </canvas>
   </div>
 </div>
+</ng-container>

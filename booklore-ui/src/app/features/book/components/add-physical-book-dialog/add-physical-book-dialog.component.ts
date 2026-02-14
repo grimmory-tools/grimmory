@@ -14,6 +14,7 @@ import {Library} from '../../model/library.model';
 import {CreatePhysicalBookRequest} from '../../model/book.model';
 import {filter, take} from 'rxjs/operators';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {TranslocoDirective} from '@jsverse/transloco';
 
 @Component({
   selector: 'app-add-physical-book-dialog',
@@ -27,7 +28,8 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
     Select,
     Textarea,
     InputNumber,
-    AutoComplete
+    AutoComplete,
+    TranslocoDirective
   ],
   styleUrl: './add-physical-book-dialog.component.scss',
 })

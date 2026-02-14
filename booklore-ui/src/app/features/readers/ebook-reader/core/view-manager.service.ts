@@ -184,9 +184,9 @@ export class ReaderViewManagerService {
     this.annotationService.addAnnotations(this.view, annotations);
   }
 
-  updateHeadersAndFooters(chapterName: string, pageInfo?: PageInfo, theme?: ThemeInfo): void {
+  updateHeadersAndFooters(chapterName: string, pageInfo?: PageInfo, theme?: ThemeInfo, timeRemainingLabel?: string): void {
     const renderer = this.getRenderer();
-    PageDecorator.updateHeadersAndFooters(renderer, chapterName, pageInfo, theme);
+    PageDecorator.updateHeadersAndFooters(renderer, chapterName, pageInfo, theme, timeRemainingLabel);
   }
 
   getChapters(): TocItem[] {

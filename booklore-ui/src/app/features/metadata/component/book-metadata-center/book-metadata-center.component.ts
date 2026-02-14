@@ -107,7 +107,7 @@ export class BookMetadataCenterComponent implements OnInit, OnDestroy {
         this.bookService.bookState$.pipe(
           map(state => state.books?.find(b => b.id === bookId)),
           filter((book): book is Book => !!book && !!book.metadata),
-          distinctUntilChanged((a, b) => a.id === b.id && a.metadata === b.metadata),
+          distinctUntilChanged(),
           switchMap(book =>
             this.bookService.getBookByIdFromAPI(book.id, true)
           )

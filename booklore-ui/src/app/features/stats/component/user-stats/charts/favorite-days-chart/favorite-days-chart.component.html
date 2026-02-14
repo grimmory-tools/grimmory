@@ -1,16 +1,17 @@
+<ng-container *transloco="let t; prefix: 'statsUser.favoriteDays'">
 <div class="favorite-days-container">
   <div class="chart-header">
     <div class="chart-title">
       <h3>
         <i class="pi pi-calendar-plus favorite-days-icon"></i>
-        Favorite Reading Days
+        {{ t('title') }}
         <i class="pi pi-question-circle chart-info-icon"
-           pTooltip="Bars show how many reading sessions and total reading time you logged on each day of the week. Filter by year and month to spot seasonal patterns. Helps you find your most productive reading days."
+           [pTooltip]="t('tooltip')"
            tooltipPosition="bottom"
            tooltipStyleClass="chart-info-tooltip"
            [appendTo]="'body'"></i>
       </h3>
-      <p class="chart-description">Reading sessions and duration by day of the week</p>
+      <p class="chart-description">{{ t('description') }}</p>
     </div>
     <div class="filter-controls">
       <p-select
@@ -19,7 +20,7 @@
         (onChange)="onFilterChange()"
         optionLabel="label"
         optionValue="value"
-        placeholder="Select Year"
+        [placeholder]="t('selectYear')"
         [style]="{'min-width': '90px'}">
       </p-select>
       <p-select
@@ -28,7 +29,7 @@
         (onChange)="onFilterChange()"
         optionLabel="label"
         optionValue="value"
-        placeholder="Select Month"
+        [placeholder]="t('selectMonth')"
         [style]="{'min-width': '120px'}">
       </p-select>
     </div>
@@ -41,3 +42,4 @@
     </canvas>
   </div>
 </div>
+</ng-container>

@@ -26,12 +26,13 @@ import {TaskHelperService} from '../../../../settings/task-management/task-helpe
 import {BookNavigationService} from '../../../service/book-navigation.service';
 import {BookCardOverlayPreferenceService} from '../book-card-overlay-preference.service';
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
+import {TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 
 @Component({
   selector: 'app-book-card',
   templateUrl: './book-card.component.html',
   styleUrls: ['./book-card.component.scss'],
-  imports: [Button, MenuModule, CheckboxModule, FormsModule, NgClass, TieredMenu, ProgressBar, TooltipModule, RouterLink],
+  imports: [Button, MenuModule, CheckboxModule, FormsModule, NgClass, TieredMenu, ProgressBar, TooltipModule, RouterLink, TranslocoPipe],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -70,6 +71,7 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
   private bookNavigationService = inject(BookNavigationService);
   private cdr = inject(ChangeDetectorRef);
   private appSettingsService = inject(AppSettingsService);
+  private readonly t = inject(TranslocoService);
 
   protected _progressPercentage: number | null = null;
   protected _koProgressPercentage: number | null = null;
@@ -140,7 +142,7 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
     if (changes['seriesViewEnabled'] || changes['isSeriesCollapsed']) {
       this._isSeriesViewActive = this.seriesViewEnabled && !!this.book.seriesCount && this.book.seriesCount >= 1;
       this._displayTitle = (this.isSeriesCollapsed && this.book.metadata?.seriesName) ? this.book.metadata?.seriesName : this.book.metadata?.title;
-      this._titleTooltip = 'Title: ' + this._displayTitle;
+      this._titleTooltip = this.t.translate('book.card.alt.titleTooltip', { title: this._displayTitle });
     }
   }
 
@@ -169,8 +171,8 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
     this._readStatusTooltip = this.readStatusHelper.getReadStatusTooltip(this.book.readStatus);
     this._shouldShowStatusIcon = this.readStatusHelper.shouldShowStatusIcon(this.book.readStatus);
 
-    this._seriesCountTooltip = 'Series collapsed: ' + this.book.seriesCount + ' books';
-    this._titleTooltip = 'Title: ' + this._displayTitle;
+    this._seriesCountTooltip = this.t.translate('book.card.alt.seriesCollapsed', { count: this.book.seriesCount });
+    this._titleTooltip = this.t.translate('book.card.alt.titleTooltip', { title: this._displayTitle });
   }
 
   get hasProgress(): boolean {
@@ -273,12 +275,12 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
   private initMenu() {
     this.items = [
       {
-        label: 'Assign Shelf',
+        label: this.t.translate('book.card.menu.assignShelf'),
         icon: 'pi pi-folder',
         command: () => this.openShelfDialog()
       },
       {
-        label: 'View Details',
+        label: this.t.translate('book.card.menu.viewDetails'),
         icon: 'pi pi-info-circle',
         command: () => {
           setTimeout(() => {
@@ -301,13 +303,13 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
       if (hasAdditionalFiles) {
         const downloadItems = this.getDownloadMenuItems();
         items.push({
-          label: 'Download',
+          label: this.t.translate('book.card.menu.download'),
           icon: 'pi pi-download',
           items: downloadItems
         });
       } else if (this.additionalFilesLoaded) {
         items.push({
-          label: 'Download',
+          label: this.t.translate('book.card.menu.download'),
           icon: 'pi pi-download',
           command: () => {
             this.bookService.downloadFile(this.book);
@@ -315,9 +317,9 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
         });
       } else {
         items.push({
-          label: 'Download',
+          label: this.t.translate('book.card.menu.download'),
           icon: this.isSubMenuLoading ? 'pi pi-spin pi-spinner' : 'pi pi-download',
-          items: [{label: 'Loading...', disabled: true}]
+          items: [{label: this.t.translate('book.card.menu.loading'), disabled: true}]
         });
       }
     }
@@ -329,23 +331,23 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
       if (hasAdditionalFiles) {
         const deleteItems = this.getDeleteMenuItems();
         items.push({
-          label: 'Delete',
+          label: this.t.translate('book.card.menu.delete'),
           icon: 'pi pi-trash',
           items: deleteItems
         });
       } else if (this.additionalFilesLoaded) {
         items.push({
-          label: 'Delete',
+          label: this.t.translate('book.card.menu.delete'),
           icon: 'pi pi-trash',
           command: () => {
             this.confirmationService.confirm({
-              message: `Are you sure you want to delete "${this.book.metadata?.title}"?\n\nThis will permanently remove the book file from your filesystem.\n\nThis action cannot be undone.`,
-              header: 'Confirm Deletion',
+              message: this.t.translate('book.card.confirm.deleteBookMessage', {title: this.book.metadata?.title}),
+              header: this.t.translate('book.card.confirm.deleteBookHeader'),
               icon: 'pi pi-exclamation-triangle',
               acceptIcon: 'pi pi-trash',
               rejectIcon: 'pi pi-times',
-              acceptLabel: 'Delete',
-              rejectLabel: 'Cancel',
+              acceptLabel: this.t.translate('common.delete'),
+              rejectLabel: this.t.translate('common.cancel'),
               acceptButtonStyleClass: 'p-button-danger',
               rejectButtonStyleClass: 'p-button-outlined',
               accept: () => {
@@ -356,9 +358,9 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
         });
       } else {
         items.push({
-          label: 'Delete',
+          label: this.t.translate('book.card.menu.delete'),
           icon: this.isSubMenuLoading ? 'pi pi-spin pi-spinner' : 'pi pi-trash',
-          items: [{label: 'Loading...', disabled: true}]
+          items: [{label: this.t.translate('book.card.menu.loading'), disabled: true}]
         });
       }
     }
@@ -366,25 +368,25 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
     if (this.user?.permissions.canEmailBook) {
       items.push(
         {
-          label: 'Email Book',
+          label: this.t.translate('book.card.menu.emailBook'),
           icon: 'pi pi-envelope',
           items: [{
-            label: 'Quick Send',
+            label: this.t.translate('book.card.menu.quickSend'),
             icon: 'pi pi-envelope',
             command: () => {
               this.emailService.emailBookQuick(this.book.id).subscribe({
                 next: () => {
                   this.messageService.add({
                     severity: 'info',
-                    summary: 'Success',
-                    detail: 'The book sending has been scheduled.',
+                    summary: this.t.translate('common.success'),
+                    detail: this.t.translate('book.card.toast.quickSendSuccessDetail'),
                   });
                 },
                 error: (err) => {
-                  const errorMessage = err?.error?.message || 'An error occurred while sending the book.';
+                  const errorMessage = err?.error?.message || this.t.translate('book.card.toast.quickSendErrorDetail');
                   this.messageService.add({
                     severity: 'error',
-                    summary: 'Error',
+                    summary: this.t.translate('common.error'),
                     detail: errorMessage,
                   });
                 },
@@ -392,7 +394,7 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
             }
           },
             {
-              label: 'Custom Send',
+              label: this.t.translate('book.card.menu.customSend'),
               icon: 'pi pi-envelope',
               command: () => {
                 this.bookDialogHelperService.openCustomSendDialog(this.book);
@@ -404,11 +406,11 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
 
     if (this.user?.permissions.canEditMetadata) {
       items.push({
-        label: 'Metadata',
+        label: this.t.translate('book.card.menu.metadata'),
         icon: 'pi pi-database',
         items: [
           {
-            label: 'Search Metadata',
+            label: this.t.translate('book.card.menu.searchMetadata'),
             icon: 'pi pi-sparkles',
             command: () => {
               setTimeout(() => {
@@ -419,7 +421,7 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
             },
           },
           {
-            label: 'Auto Fetch',
+            label: this.t.translate('book.card.menu.autoFetch'),
             icon: 'pi pi-bolt',
             command: () => {
               this.taskHelperService.refreshMetadataTask({
@@ -429,44 +431,44 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
             }
           },
           {
-            label: 'Custom Fetch',
+            label: this.t.translate('book.card.menu.customFetch'),
             icon: 'pi pi-sync',
             command: () => {
               this.bookDialogHelperService.openMetadataRefreshDialog(new Set([this.book!.id]))
             },
           },
           {
-            label: 'Regenerate Cover (File)',
+            label: this.t.translate('book.card.menu.regenerateCover'),
             icon: 'pi pi-image',
             command: () => {
               this.bookService.regenerateCover(this.book.id).subscribe({
                 next: () => this.messageService.add({
                   severity: 'success',
-                  summary: 'Success',
-                  detail: 'Cover regeneration started'
+                  summary: this.t.translate('common.success'),
+                  detail: this.t.translate('book.card.toast.coverRegenSuccessDetail')
                 }),
                 error: (err) => this.messageService.add({
                   severity: 'error',
-                  summary: 'Error',
-                  detail: err?.error?.message || 'Failed to regenerate cover'
+                  summary: this.t.translate('common.error'),
+                  detail: err?.error?.message || this.t.translate('book.card.toast.coverRegenFailedDetail')
                 })
               });
             }
           },
           {
-            label: 'Generate Custom Cover',
+            label: this.t.translate('book.card.menu.generateCustomCover'),
             icon: 'pi pi-palette',
             command: () => {
               this.bookService.generateCustomCover(this.book.id).subscribe({
                 next: () => this.messageService.add({
                   severity: 'success',
-                  summary: 'Success',
-                  detail: 'Cover generated successfully'
+                  summary: this.t.translate('common.success'),
+                  detail: this.t.translate('book.card.toast.customCoverSuccessDetail')
                 }),
                 error: (err) => this.messageService.add({
                   severity: 'error',
-                  summary: 'Error',
-                  detail: err?.error?.message || 'Failed to generate cover'
+                  summary: this.t.translate('common.error'),
+                  detail: err?.error?.message || this.t.translate('book.card.toast.customCoverFailedDetail')
                 })
               });
             }
@@ -484,7 +486,7 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
 
     if (this.user?.permissions.canMoveOrganizeFiles && this.diskType === 'LOCAL') {
       moreActions.push({
-        label: 'Organize File',
+        label: this.t.translate('book.card.menu.organizeFile'),
         icon: 'pi pi-arrows-h',
         command: () => {
           this.bookDialogHelperService.openFileMoverDialog(new Set([this.book.id]));
@@ -494,7 +496,7 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
 
     moreActions.push(
       {
-        label: 'Read Status',
+        label: this.t.translate('book.card.menu.readStatus'),
         icon: 'pi pi-book',
         items: Object.entries(readStatusLabels).map(([status, label]) => ({
           label,
@@ -503,16 +505,16 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
               next: () => {
                 this.messageService.add({
                   severity: 'success',
-                  summary: 'Read Status Updated',
-                  detail: `Marked as "${label}"`,
+                  summary: this.t.translate('book.card.toast.readStatusUpdatedSummary'),
+                  detail: this.t.translate('book.card.toast.readStatusUpdatedDetail', {label}),
                   life: 2000
                 });
               },
               error: () => {
                 this.messageService.add({
                   severity: 'error',
-                  summary: 'Update Failed',
-                  detail: 'Could not update read status.',
+                  summary: this.t.translate('book.card.toast.readStatusFailedSummary'),
+                  detail: this.t.translate('book.card.toast.readStatusFailedDetail'),
                   life: 3000
                 });
               }
@@ -521,23 +523,23 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
         }))
       },
       {
-        label: 'Reset Booklore Progress',
+        label: this.t.translate('book.card.menu.resetBookloreProgress'),
         icon: 'pi pi-undo',
         command: () => {
           this.bookService.resetProgress(this.book.id, ResetProgressTypes.BOOKLORE).subscribe({
             next: () => {
               this.messageService.add({
                 severity: 'success',
-                summary: 'Progress Reset',
-                detail: 'Booklore reading progress has been reset.',
+                summary: this.t.translate('book.card.toast.progressResetSummary'),
+                detail: this.t.translate('book.card.toast.progressResetBookloreDetail'),
                 life: 1500
               });
             },
             error: () => {
               this.messageService.add({
                 severity: 'error',
-                summary: 'Failed',
-                detail: 'Could not reset Booklore progress.',
+                summary: this.t.translate('book.card.toast.progressResetFailedSummary'),
+                detail: this.t.translate('book.card.toast.progressResetBookloreFailedDetail'),
                 life: 1500
               });
             }
@@ -545,23 +547,23 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
         },
       },
       {
-        label: 'Reset KOReader Progress',
+        label: this.t.translate('book.card.menu.resetKOReaderProgress'),
         icon: 'pi pi-undo',
         command: () => {
           this.bookService.resetProgress(this.book.id, ResetProgressTypes.KOREADER).subscribe({
             next: () => {
               this.messageService.add({
                 severity: 'success',
-                summary: 'Progress Reset',
-                detail: 'KOReader reading progress has been reset.',
+                summary: this.t.translate('book.card.toast.progressResetSummary'),
+                detail: this.t.translate('book.card.toast.progressResetKOReaderDetail'),
                 life: 1500
               });
             },
             error: () => {
               this.messageService.add({
                 severity: 'error',
-                summary: 'Failed',
-                detail: 'Could not reset KOReader progress.',
+                summary: this.t.translate('book.card.toast.progressResetFailedSummary'),
+                detail: this.t.translate('book.card.toast.progressResetKOReaderFailedDetail'),
                 life: 1500
               });
             }
@@ -571,7 +573,7 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
     );
 
     items.push({
-      label: 'More Actions',
+      label: this.t.translate('book.card.menu.moreActions'),
       icon: 'pi pi-ellipsis-h',
       items: moreActions
     });
@@ -657,17 +659,17 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
     const items: MenuItem[] = [];
 
     items.push({
-      label: 'Book',
+      label: this.t.translate('book.card.menu.book'),
       icon: 'pi pi-book',
       command: () => {
         this.confirmationService.confirm({
-          message: `Are you sure you want to delete "${this.book.metadata?.title}"?\n\nThis will permanently remove the book file from your filesystem.\n\nThis action cannot be undone.`,
-          header: 'Confirm Deletion',
+          message: this.t.translate('book.card.confirm.deleteBookMessage', {title: this.book.metadata?.title}),
+          header: this.t.translate('book.card.confirm.deleteBookHeader'),
           icon: 'pi pi-exclamation-triangle',
           acceptIcon: 'pi pi-trash',
           rejectIcon: 'pi pi-times',
-          acceptLabel: 'Delete',
-          rejectLabel: 'Cancel',
+          acceptLabel: this.t.translate('common.delete'),
+          rejectLabel: this.t.translate('common.cancel'),
           acceptButtonStyleClass: 'p-button-danger',
           rejectButtonStyleClass: 'p-button-outlined',
           accept: () => {
@@ -722,8 +724,8 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
 
   private deleteAdditionalFile(bookId: number, fileId: number, fileName: string): void {
     this.confirmationService.confirm({
-      message: `Are you sure you want to delete the additional file "${fileName}"?`,
-      header: 'Confirm File Deletion',
+      message: this.t.translate('book.card.confirm.deleteFileMessage', {fileName}),
+      header: this.t.translate('book.card.confirm.deleteFileHeader'),
       icon: 'pi pi-exclamation-triangle',
       acceptIcon: 'pi pi-trash',
       rejectIcon: 'pi pi-times',
@@ -733,15 +735,15 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
           next: () => {
             this.messageService.add({
               severity: 'success',
-              summary: 'Success',
-              detail: `Additional file "${fileName}" deleted successfully`
+              summary: this.t.translate('common.success'),
+              detail: this.t.translate('book.card.toast.deleteFileSuccessDetail', {fileName})
             });
           },
           error: (error) => {
             this.messageService.add({
               severity: 'error',
-              summary: 'Error',
-              detail: `Failed to delete additional file: ${error.message || 'Unknown error'}`
+              summary: this.t.translate('common.error'),
+              detail: this.t.translate('book.card.toast.deleteFileErrorDetail', {error: error.message || 'Unknown error'})
             });
           }
         });

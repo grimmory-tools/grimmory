@@ -4,7 +4,7 @@
     <div class="panel-body">
       <!-- Fit Mode -->
       <div class="control">
-        <label>Fit Mode</label>
+        <label>{{ 'readerCbx.quickSettings.fitMode' | transloco }}</label>
         <div class="control-right">
           <div class="button-group">
             @for (option of fitModeOptions; track option.value) {
@@ -22,7 +22,7 @@
 
       <!-- Scroll Mode -->
       <div class="control">
-        <label>Scroll Mode</label>
+        <label>{{ 'readerCbx.quickSettings.scrollMode' | transloco }}</label>
         <div class="control-right">
           <div class="button-group text-btns">
             @for (option of scrollModeOptions; track option.value) {
@@ -41,9 +41,9 @@
       <!-- Page View (only in paginated mode) -->
       @if (isPaginated && !isPhonePortrait) {
         <div class="control">
-          <label>Page View</label>
+          <label>{{ 'readerCbx.quickSettings.pageView' | transloco }}</label>
           <div class="control-right">
-            <span class="mode-label">{{ isTwoPageView ? 'Two-Page' : 'Single' }}</span>
+            <span class="mode-label">{{ isTwoPageView ? ('readerCbx.quickSettings.twoPage' | transloco) : ('readerCbx.quickSettings.single' | transloco) }}</span>
             <button class="switch" [class.active]="isTwoPageView" (click)="onPageViewToggle()">
               <span class="slider"></span>
             </button>
@@ -54,9 +54,9 @@
       <!-- Page Spread (only in two-page mode) -->
       @if (isPaginated && isTwoPageView) {
         <div class="control">
-          <label>Page Spread</label>
+          <label>{{ 'readerCbx.quickSettings.pageSpread' | transloco }}</label>
           <div class="control-right">
-            <span class="mode-label">{{ state.pageSpread === CbxPageSpread.ODD ? 'Odd First' : 'Even First' }}</span>
+            <span class="mode-label">{{ state.pageSpread === CbxPageSpread.ODD ? ('readerCbx.quickSettings.oddFirst' | transloco) : ('readerCbx.quickSettings.evenFirst' | transloco) }}</span>
             <button class="switch" [class.active]="state.pageSpread === CbxPageSpread.EVEN" (click)="onPageSpreadToggle()">
               <span class="slider"></span>
             </button>
@@ -66,9 +66,9 @@
 
       <!-- Reading Direction -->
       <div class="control">
-        <label>Reading Direction</label>
+        <label>{{ 'readerCbx.quickSettings.readingDirection' | transloco }}</label>
         <div class="control-right">
-          <span class="mode-label">{{ state.readingDirection === CbxReadingDirection.LTR ? 'Left to Right' : 'Right to Left' }}</span>
+          <span class="mode-label">{{ state.readingDirection === CbxReadingDirection.LTR ? ('readerCbx.quickSettings.leftToRight' | transloco) : ('readerCbx.quickSettings.rightToLeft' | transloco) }}</span>
           <button class="switch" [class.active]="state.readingDirection === CbxReadingDirection.RTL" (click)="onReadingDirectionToggle()">
             <span class="slider"></span>
           </button>
@@ -77,7 +77,7 @@
 
       <!-- Slideshow Interval -->
       <div class="control">
-        <label>Slideshow Interval</label>
+        <label>{{ 'readerCbx.quickSettings.slideshowInterval' | transloco }}</label>
         <div class="control-right">
           <div class="button-group text-btns">
             @for (option of slideshowIntervalOptions; track option.value) {
@@ -95,7 +95,7 @@
 
       <!-- Background Color -->
       <div class="control">
-        <label>Background</label>
+        <label>{{ 'readerCbx.quickSettings.background' | transloco }}</label>
         <div class="control-right">
           <div class="button-group">
             @for (option of backgroundOptions; track option.value) {

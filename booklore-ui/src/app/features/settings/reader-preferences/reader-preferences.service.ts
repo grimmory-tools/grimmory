@@ -3,11 +3,13 @@ import {User, UserService, UserSettings} from '../user-management/user.service';
 import {MessageService} from 'primeng/api';
 import {filter, takeUntil} from 'rxjs/operators';
 import {Subject} from 'rxjs';
+import {TranslocoService} from '@jsverse/transloco';
 
 @Injectable({providedIn: 'root'})
 export class ReaderPreferencesService implements OnDestroy {
   private readonly userService = inject(UserService);
   private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
   private currentUser: User | null = null;
   private readonly destroy$ = new Subject<void>();
 
@@ -38,8 +40,8 @@ export class ReaderPreferencesService implements OnDestroy {
     this.userService.updateUserSetting(this.currentUser.id, rootKey, updatedValue);
     this.messageService.add({
       severity: 'success',
-      summary: 'Preferences Updated',
-      detail: 'Your preferences have been saved successfully.',
+      summary: this.t.translate('settingsReader.toast.preferencesUpdated'),
+      detail: this.t.translate('settingsReader.toast.preferencesUpdatedDetail'),
       life: 2000
     });
   }

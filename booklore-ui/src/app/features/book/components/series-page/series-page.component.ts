@@ -22,6 +22,7 @@ import {TaskHelperService} from "../../../settings/task-management/task-helper.s
 import {MetadataRefreshType} from "../../../metadata/model/request/metadata-refresh-type.enum";
 import {TieredMenu} from "primeng/tieredmenu";
 import {AppSettingsService} from "../../../../shared/service/app-settings.service";
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {Tooltip} from "primeng/tooltip";
 import {Divider} from "primeng/divider";
 import {animate, style, transition, trigger} from "@angular/animations";
@@ -50,7 +51,8 @@ import {BookCardOverlayPreferenceService} from '../book-browser/book-card-overla
     VirtualScrollerModule,
     TieredMenu,
     Tooltip,
-    Divider
+    Divider,
+    TranslocoDirective
   ],
   animations: [
     trigger('slideInOut', [
@@ -82,6 +84,7 @@ export class SeriesPageComponent implements OnDestroy {
   private messageService = inject(MessageService);
   protected bookCardOverlayPreferenceService = inject(BookCardOverlayPreferenceService);
   protected appSettingsService = inject(AppSettingsService);
+  private readonly t = inject(TranslocoService);
 
   tab: string = "view";
   isExpanded = false;
@@ -271,23 +274,23 @@ export class SeriesPageComponent implements OnDestroy {
     const v = (value ?? '').toString().toUpperCase();
     switch (v) {
       case ReadStatus.UNREAD:
-        return 'UNREAD';
+        return this.t.translate('book.seriesPage.status.unread');
       case ReadStatus.READING:
-        return 'READING';
+        return this.t.translate('book.seriesPage.status.reading');
       case ReadStatus.RE_READING:
-        return 'RE-READING';
+        return this.t.translate('book.seriesPage.status.reReading');
       case ReadStatus.READ:
-        return 'READ';
+        return this.t.translate('book.seriesPage.status.read');
       case ReadStatus.PARTIALLY_READ:
-        return 'PARTIALLY READ';
+        return this.t.translate('book.seriesPage.status.partiallyRead');
       case ReadStatus.PAUSED:
-        return 'PAUSED';
+        return this.t.translate('book.seriesPage.status.paused');
       case ReadStatus.ABANDONED:
-        return 'ABANDONED';
+        return this.t.translate('book.seriesPage.status.abandoned');
       case ReadStatus.WONT_READ:
-        return "WON'T READ";
+        return this.t.translate('book.seriesPage.status.wontRead');
       default:
-        return 'UNSET';
+        return this.t.translate('book.seriesPage.status.unset');
     }
   }
 
@@ -374,18 +377,18 @@ export class SeriesPageComponent implements OnDestroy {
 
   confirmDeleteBooks(): void {
     this.confirmationService.confirm({
-      message: `Are you sure you want to delete ${this.selectedBooks.size} book(s)?\n\nThis will permanently remove the book files from your filesystem.\n\nThis action cannot be undone.`,
-      header: 'Confirm Deletion',
+      message: this.t.translate('book.browser.confirm.deleteMessage', {count: this.selectedBooks.size}),
+      header: this.t.translate('book.browser.confirm.deleteHeader'),
       icon: 'pi pi-exclamation-triangle',
       acceptIcon: 'pi pi-trash',
       rejectIcon: 'pi pi-times',
-      acceptLabel: 'Delete',
-      rejectLabel: 'Cancel',
+      acceptLabel: this.t.translate('common.delete'),
+      rejectLabel: this.t.translate('common.cancel'),
       acceptButtonStyleClass: 'p-button-danger',
       rejectButtonStyleClass: 'p-button-outlined',
       accept: () => {
         const count = this.selectedBooks.size;
-        const loader = this.loadingService.show(`Deleting ${count} book(s)...`);
+        const loader = this.loadingService.show(this.t.translate('book.browser.loading.deleting', {count}));
 
         this.bookService.deleteBooks(this.selectedBooks)
           .pipe(finalize(() => this.loadingService.hide(loader)))
@@ -437,17 +440,17 @@ export class SeriesPageComponent implements OnDestroy {
     if (!this.selectedBooks || this.selectedBooks.size === 0) return;
     const count = this.selectedBooks.size;
     this.confirmationService.confirm({
-      message: `Are you sure you want to regenerate covers for ${count} book(s)?`,
-      header: 'Confirm Cover Regeneration',
+      message: this.t.translate('book.browser.confirm.regenCoverMessage', {count}),
+      header: this.t.translate('book.browser.confirm.regenCoverHeader'),
       icon: 'pi pi-image',
-      acceptLabel: 'Yes',
-      rejectLabel: 'No',
+      acceptLabel: this.t.translate('common.yes'),
+      rejectLabel: this.t.translate('common.no'),
       acceptButtonProps: {
-        label: 'Yes',
+        label: this.t.translate('common.yes'),
         severity: 'success'
       },
       rejectButtonProps: {
-        label: 'No',
+        label: this.t.translate('common.no'),
         severity: 'secondary'
       },
       accept: () => {
@@ -455,16 +458,16 @@ export class SeriesPageComponent implements OnDestroy {
           next: () => {
             this.messageService.add({
               severity: 'success',
-              summary: 'Cover Regeneration Started',
-              detail: `Regenerating covers for ${count} book(s). Refresh the page when complete.`,
+              summary: this.t.translate('book.browser.toast.regenCoverStartedSummary'),
+              detail: this.t.translate('book.browser.toast.regenCoverStartedDetail', {count}),
               life: 3000
             });
           },
           error: () => {
             this.messageService.add({
               severity: 'error',
-              summary: 'Failed',
-              detail: 'Could not start cover regeneration.',
+              summary: this.t.translate('book.browser.toast.failedSummary'),
+              detail: this.t.translate('book.browser.toast.regenCoverFailedDetail'),
               life: 3000
             });
           }
@@ -477,17 +480,17 @@ export class SeriesPageComponent implements OnDestroy {
     if (!this.selectedBooks || this.selectedBooks.size === 0) return;
     const count = this.selectedBooks.size;
     this.confirmationService.confirm({
-      message: `Are you sure you want to generate custom covers for ${count} book(s)?`,
-      header: 'Confirm Custom Cover Generation',
+      message: this.t.translate('book.browser.confirm.customCoverMessage', {count}),
+      header: this.t.translate('book.browser.confirm.customCoverHeader'),
       icon: 'pi pi-palette',
-      acceptLabel: 'Yes',
-      rejectLabel: 'No',
+      acceptLabel: this.t.translate('common.yes'),
+      rejectLabel: this.t.translate('common.no'),
       acceptButtonProps: {
-        label: 'Yes',
+        label: this.t.translate('common.yes'),
         severity: 'success'
       },
       rejectButtonProps: {
-        label: 'No',
+        label: this.t.translate('common.no'),
         severity: 'secondary'
       },
       accept: () => {
@@ -495,16 +498,16 @@ export class SeriesPageComponent implements OnDestroy {
           next: () => {
             this.messageService.add({
               severity: 'success',
-              summary: 'Custom Cover Generation Started',
-              detail: `Generating custom covers for ${count} book(s).`,
+              summary: this.t.translate('book.browser.toast.customCoverStartedSummary'),
+              detail: this.t.translate('book.browser.toast.customCoverStartedDetail', {count}),
               life: 3000
             });
           },
           error: () => {
             this.messageService.add({
               severity: 'error',
-              summary: 'Failed',
-              detail: 'Could not start custom cover generation.',
+              summary: this.t.translate('book.browser.toast.failedSummary'),
+              detail: this.t.translate('book.browser.toast.customCoverFailedDetail'),
               life: 3000
             });
           }

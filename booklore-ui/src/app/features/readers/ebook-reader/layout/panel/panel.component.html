@@ -1,3 +1,4 @@
+<ng-container *transloco="let t; prefix: 'readerEbook.panel'">
 @if (isOpen) {
   <div class="sidebar-overlay" (click)="onOverlayClick()" [class.closing]="closing">
     <aside class="sidebar" (click)="$event.stopPropagation()" [class.closing]="closing">
@@ -5,9 +6,9 @@
       <header class="sidebar-header">
         <h2 class="sidebar-title">
           @if (activeTab === 'search') {
-            Search
+            {{ t('searchTitle') }}
           } @else {
-            Notes
+            {{ t('notesTitle') }}
           }
         </h2>
       </header>
@@ -19,7 +20,7 @@
           [class.active]="activeTab === 'search'"
           (click)="setActiveTab('search')">
           <app-reader-icon name="search" class="tab-icon"></app-reader-icon>
-          <span>Search</span>
+          <span>{{ t('searchTab') }}</span>
           @if (searchState.results.length > 0) {
             <span class="badge">{{ searchState.results.length }}</span>
           }
@@ -29,7 +30,7 @@
           [class.active]="activeTab === 'notes'"
           (click)="setActiveTab('notes')">
           <app-reader-icon name="note" class="tab-icon"></app-reader-icon>
-          <span>Notes</span>
+          <span>{{ t('notesTab') }}</span>
           @if (notes.length > 0) {
             <span class="badge">{{ notes.length }}</span>
           }
@@ -46,13 +47,13 @@
                 <input
                   type="text"
                   class="search-input"
-                  placeholder="Search in book..."
+                  [placeholder]="t('searchPlaceholder')"
                   [(ngModel)]="searchQuery"
                   (ngModelChange)="onSearchInput($event)"
                   autofocus
                 />
                 @if (searchQuery) {
-                  <button class="clear-btn" (click)="clearSearch()" aria-label="Clear search">
+                  <button class="clear-btn" (click)="clearSearch()" [attr.aria-label]="t('clearSearch')">
                     <app-reader-icon name="close" [size]="14"></app-reader-icon>
                   </button>
                 }
@@ -64,8 +65,8 @@
                     <div class="progress-fill" [style.width.%]="searchState.progress * 100"></div>
                   </div>
                   <div class="progress-info">
-                    <span class="progress-text">Searching... {{ (searchState.progress * 100) | number:'1.0-0' }}%</span>
-                    <button class="cancel-search-btn" (click)="onCancelSearch()" title="Cancel search">
+                    <span class="progress-text">{{ t('searching') }} {{ (searchState.progress * 100) | number:'1.0-0' }}%</span>
+                    <button class="cancel-search-btn" (click)="onCancelSearch()" [title]="t('cancelSearch')">
                       <app-reader-icon name="close" [size]="14"></app-reader-icon>
                     </button>
                   </div>
@@ -74,7 +75,7 @@
 
               @if (searchState.results.length > 0) {
                 <div class="search-results-header">
-                  <span>{{ searchState.results.length }} result{{ searchState.results.length === 1 ? '' : 's' }} found</span>
+                  <span>{{ searchState.results.length === 1 ? t('resultsFound', { count: searchState.results.length }) : t('resultsFoundPlural', { count: searchState.results.length }) }}</span>
                 </div>
                 <ul class="item-list search-results">
                   @for (result of searchState.results; track result.cfi) {
@@ -95,14 +96,14 @@
               } @else if (!searchState.isSearching && searchQuery) {
                 <div class="empty-state">
                   <app-reader-icon name="search" class="empty-icon" [size]="48" [strokeWidth]="1.5"></app-reader-icon>
-                  <p>No results found</p>
-                  <span class="empty-hint">Try different keywords</span>
+                  <p>{{ t('noResultsFound') }}</p>
+                  <span class="empty-hint">{{ t('tryDifferentKeywords') }}</span>
                 </div>
               } @else if (!searchQuery) {
                 <div class="empty-state">
                   <app-reader-icon name="search" class="empty-icon" [size]="48" [strokeWidth]="1.5"></app-reader-icon>
-                  <p>Search this book</p>
-                  <span class="empty-hint">Enter text to find in the book</span>
+                  <p>{{ t('searchThisBook') }}</p>
+                  <span class="empty-hint">{{ t('enterTextToFind') }}</span>
                 </div>
               }
             </div>
@@ -116,12 +117,12 @@
                   <input
                     type="text"
                     class="search-input"
-                    placeholder="Search notes..."
+                    [placeholder]="t('searchNotes')"
                     [(ngModel)]="notesSearchQuery"
                     (ngModelChange)="onNotesSearchInput($event)"
                   />
                   @if (notesSearchQuery) {
-                    <button class="clear-btn" (click)="clearNotesSearch()" aria-label="Clear search">
+                    <button class="clear-btn" (click)="clearNotesSearch()" [attr.aria-label]="t('clearSearch')">
                       <app-reader-icon name="close" [size]="14"></app-reader-icon>
                     </button>
                   }
@@ -144,10 +145,10 @@
                         <span class="item-meta">{{ note.createdAt | date: 'MMM d, y' }}</span>
                       </div>
                       <div class="action-buttons">
-                        <button class="edit-btn" (click)="onEditNote($event, note)" aria-label="Edit note">
+                        <button class="edit-btn" (click)="onEditNote($event, note)" [attr.aria-label]="t('editNote')">
                           <app-reader-icon name="edit" [size]="16"></app-reader-icon>
                         </button>
-                        <button class="delete-btn" (click)="onDeleteNote($event, note.id)" aria-label="Delete note">
+                        <button class="delete-btn" (click)="onDeleteNote($event, note.id)" [attr.aria-label]="t('deleteNote')">
                           <app-reader-icon name="trash" [size]="16"></app-reader-icon>
                         </button>
                       </div>
@@ -157,14 +158,14 @@
               } @else if (notes.length > 0 && notesSearchQuery) {
                 <div class="empty-state">
                   <app-reader-icon name="search" class="empty-icon" [size]="48" [strokeWidth]="1.5"></app-reader-icon>
-                  <p>No matching notes</p>
-                  <span class="empty-hint">Try different search terms</span>
+                  <p>{{ t('noMatchingNotes') }}</p>
+                  <span class="empty-hint">{{ t('tryDifferentSearchTerms') }}</span>
                 </div>
               } @else {
                 <div class="empty-state">
                   <app-reader-icon name="note" class="empty-icon" [size]="48" [strokeWidth]="1.5"></app-reader-icon>
-                  <p>No notes yet</p>
-                  <span class="empty-hint">Select text and tap the note icon to add a note</span>
+                  <p>{{ t('noNotesYet') }}</p>
+                  <span class="empty-hint">{{ t('noNotesHint') }}</span>
                 </div>
               }
             </div>
@@ -174,3 +175,4 @@
     </aside>
   </div>
 }
+</ng-container>

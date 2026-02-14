@@ -239,6 +239,7 @@ export interface BookMetadata {
   contentRating?: string | null;
   ageRatingLocked?: boolean;
   contentRatingLocked?: boolean;
+  allMetadataLocked?: boolean;
 
   [key: string]: unknown;
 }

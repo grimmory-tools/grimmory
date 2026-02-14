@@ -1,11 +1,12 @@
+<ng-container *transloco="let t; prefix: 'statsLibrary.bookFormats'">
 <div class="book-formats-container">
   <div class="chart-header">
     <div class="chart-title">
       <h3>
         <i class="pi pi-file formats-title-icon"></i>
-        Book Formats
+        {{ t('title') }}
       </h3>
-      <p class="chart-description">Distribution of file types in your library</p>
+      <p class="chart-description">{{ t('description') }}</p>
     </div>
   </div>
 
@@ -22,7 +23,8 @@
   @if (totalBooks === 0) {
     <div class="no-data-message">
       <i class="pi pi-info-circle"></i>
-      <p>No books available.</p>
+      <p>{{ t('noData') }}</p>
     </div>
   }
 </div>
+</ng-container>

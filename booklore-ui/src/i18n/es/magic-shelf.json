@@ -1,0 +1,122 @@
+{
+  "header": {
+    "titleEdit": "Editar Estante M\u00e1gico",
+    "titleCreate": "Constructor de Estante M\u00e1gico",
+    "description": "Crea estantes inteligentes con reglas personalizadas para organizar tus libros autom\u00e1ticamente"
+  },
+  "form": {
+    "shelfName": "Nombre del Estante M\u00e1gico",
+    "namePlaceholder": "Ej. Rom-Zom-Coms, R\u00e1pidos y Furiosos, Metadatos Faltantes",
+    "shelfIcon": "\u00cdcono del Estante",
+    "clickToChange": "Clic para cambiar",
+    "removeIcon": "Eliminar \u00edcono",
+    "selectIcon": "Seleccionar \u00cdcono",
+    "public": "P\u00fablico"
+  },
+  "actions": {
+    "cancel": "Cancelar",
+    "saveFilter": "Guardar Filtro",
+    "addRule": "Agregar Regla",
+    "addGroup": "Agregar Grupo"
+  },
+  "group": {
+    "condition": "Condici\u00f3n:"
+  },
+  "placeholders": {
+    "field": "Campo",
+    "operator": "Operador",
+    "startYear": "A\u00f1o Inicio",
+    "endYear": "A\u00f1o Fin",
+    "startDate": "Fecha Inicio",
+    "endDate": "Fecha Fin",
+    "startValue": "Valor Inicio",
+    "endValue": "Valor Fin",
+    "value": "Valor",
+    "selectStatuses": "Seleccionar Estados",
+    "selectFileTypes": "Seleccionar Tipos de Archivo",
+    "selectLibraries": "Seleccionar Bibliotecas",
+    "selectShelves": "Seleccionar Estantes",
+    "selectGenres": "Seleccionar G\u00e9neros",
+    "enterValues": "Ingrese valores (presione Enter)",
+    "selectStatus": "Seleccionar Estado",
+    "selectFileType": "Seleccionar Tipo de Archivo",
+    "selectLibrary": "Seleccionar Biblioteca",
+    "selectShelf": "Seleccionar Estante",
+    "selectGenre": "Seleccionar G\u00e9nero"
+  },
+  "conditions": {
+    "and": "Y",
+    "or": "O"
+  },
+  "fields": {
+    "library": "Biblioteca",
+    "shelf": "Estante",
+    "readStatus": "Estado de Lectura",
+    "dateFinished": "Fecha de Finalizaci\u00f3n",
+    "lastReadTime": "\u00daltima Lectura",
+    "metadataScore": "Puntuaci\u00f3n de Metadatos",
+    "title": "T\u00edtulo",
+    "authors": "Autores",
+    "categories": "Categor\u00edas",
+    "moods": "Estados de \u00c1nimo",
+    "tags": "Etiquetas",
+    "publisher": "Editorial",
+    "publishedDate": "Fecha de Publicaci\u00f3n",
+    "personalRating": "Calificaci\u00f3n Personal",
+    "pageCount": "N\u00famero de P\u00e1ginas",
+    "language": "Idioma",
+    "isbn13": "ISBN-13",
+    "isbn10": "ISBN-10",
+    "seriesName": "Nombre de la Serie",
+    "seriesNumber": "N\u00famero de Serie",
+    "seriesTotal": "Libros en la Serie",
+    "fileSize": "Tama\u00f1o del Archivo (Kb)",
+    "fileType": "Tipo de Archivo",
+    "subtitle": "Subt\u00edtulo",
+    "amazonRating": "Calificaci\u00f3n de Amazon",
+    "amazonReviewCount": "Cantidad de Rese\u00f1as de Amazon",
+    "goodreadsRating": "Calificaci\u00f3n de Goodreads",
+    "goodreadsReviewCount": "Cantidad de Rese\u00f1as de Goodreads",
+    "hardcoverRating": "Calificaci\u00f3n de Hardcover",
+    "hardcoverReviewCount": "Cantidad de Rese\u00f1as de Hardcover",
+    "ranobedbRating": "Calificaci\u00f3n de Ranobedb",
+    "genre": "G\u00e9nero"
+  },
+  "operators": {
+    "equals": "Igual",
+    "notEqual": "\u2260 No Igual",
+    "empty": "Vac\u00edo",
+    "notEmpty": "No Vac\u00edo",
+    "includesAny": "Incluye Alguno",
+    "excludesAll": "Excluye Todos",
+    "includesAll": "Incluye Todos",
+    "contains": "Contiene",
+    "doesNotContain": "No Contiene",
+    "startsWith": "Comienza Con",
+    "endsWith": "Termina Con",
+    "greaterThan": "> Mayor Que",
+    "greaterOrEqual": "\u2265 Mayor o Igual",
+    "lessThan": "< Menor Que",
+    "lessOrEqual": "\u2264 Menor o Igual",
+    "between": "Entre"
+  },
+  "readStatuses": {
+    "unread": "No Le\u00eddo",
+    "reading": "Leyendo",
+    "reReading": "Releyendo",
+    "read": "Le\u00eddo",
+    "partiallyRead": "Parcialmente Le\u00eddo",
+    "paused": "Pausado",
+    "wontRead": "No Leer\u00e9",
+    "abandoned": "Abandonado",
+    "unset": "Sin Establecer"
+  },
+  "toast": {
+    "validationErrorSummary": "Error de Validaci\u00f3n",
+    "validationErrorDetail": "Debe agregar al menos una regla v\u00e1lida antes de guardar.",
+    "successSummary": "\u00c9xito",
+    "successDetail": "Estante m\u00e1gico guardado exitosamente.",
+    "errorSummary": "Error",
+    "errorDetailDefault": "No se pudo guardar el estante m\u00e1gico."
+  }
+}

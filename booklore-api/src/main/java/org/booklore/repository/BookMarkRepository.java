@@ -29,4 +29,7 @@ public interface BookMarkRepository extends JpaRepository<BookMarkEntity, Long> 
 
     // New: count bookmarks per book
     long countByBookIdAndUserId(Long bookId, Long userId);
+
+    @Query("SELECT b FROM BookMarkEntity b JOIN FETCH b.book bk JOIN FETCH bk.metadata WHERE b.userId = :userId ORDER BY b.createdAt DESC")
+    List<BookMarkEntity> findByUserIdOrderByCreatedAtDesc(@Param("userId") Long userId);
 }

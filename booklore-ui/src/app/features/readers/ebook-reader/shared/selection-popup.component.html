@@ -1,3 +1,4 @@
+<ng-container *transloco="let t; prefix: 'readerEbook.selectionPopup'">
 @if (visible) {
   <div class="popup-backdrop" (click)="onDismiss($event)"></div>
   <div class="text-selection-popup"
@@ -5,20 +6,20 @@
        [style.left.px]="position.x"
        [style.top.px]="position.y">
 
-    <button class="action-btn" (click)="onSelect()" title="Copy Text">
+    <button class="action-btn" (click)="onSelect()" [title]="t('copyText')">
       <app-reader-icon name="copy" [size]="16"></app-reader-icon>
     </button>
 
     <div class="divider"></div>
 
-    <button class="action-btn" (click)="onSearch()" title="Search in book">
+    <button class="action-btn" (click)="onSearch()" [title]="t('searchInBook')">
       <app-reader-icon name="search" [size]="16"></app-reader-icon>
     </button>
 
     <div class="divider"></div>
 
     <div class="annotation-container">
-      <button class="action-btn" [class.active]="showAnnotationOptions" (click)="toggleAnnotationOptions()" title="Annotate">
+      <button class="action-btn" [class.active]="showAnnotationOptions" (click)="toggleAnnotationOptions()" [title]="t('annotate')">
         <app-reader-icon name="edit" [size]="16"></app-reader-icon>
         <app-reader-icon name="chevron-down" class="chevron" [class.open]="showAnnotationOptions" [size]="10"></app-reader-icon>
       </button>
@@ -57,15 +58,16 @@
 
     <div class="divider"></div>
 
-    <button class="action-btn" (click)="onNote()" title="Add Note">
+    <button class="action-btn" (click)="onNote()" [title]="t('addNote')">
       <app-reader-icon name="note" [size]="16"></app-reader-icon>
     </button>
 
     @if (overlappingAnnotationId) {
       <div class="divider"></div>
-      <button class="action-btn delete-btn" (click)="onDelete()" title="Delete Annotation">
+      <button class="action-btn delete-btn" (click)="onDelete()" [title]="t('deleteAnnotation')">
         <app-reader-icon name="trash" [size]="16"></app-reader-icon>
       </button>
     }
   </div>
 }
+</ng-container>

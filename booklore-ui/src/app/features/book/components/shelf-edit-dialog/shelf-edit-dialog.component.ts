@@ -11,6 +11,7 @@ import {IconPickerService, IconSelection} from '../../../../shared/service/icon-
 import {IconDisplayComponent} from '../../../../shared/components/icon-display/icon-display.component';
 import {CheckboxModule} from 'primeng/checkbox';
 import {UserService} from '../../../settings/user-management/user.service';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 @Component({
   selector: 'app-shelf-edit-dialog',
@@ -20,7 +21,8 @@ import {UserService} from '../../../settings/user-management/user.service';
     ReactiveFormsModule,
     FormsModule,
     IconDisplayComponent,
-    CheckboxModule
+    CheckboxModule,
+    TranslocoDirective
   ],
   templateUrl: './shelf-edit-dialog.component.html',
   standalone: true,
@@ -34,6 +36,7 @@ export class ShelfEditDialogComponent implements OnInit {
   private messageService = inject(MessageService);
   private iconPickerService = inject(IconPickerService);
   private userService = inject(UserService);
+  private readonly t = inject(TranslocoService);
 
   shelfName: string = '';
   selectedIcon: IconSelection | null = null;
@@ -82,11 +85,11 @@ export class ShelfEditDialogComponent implements OnInit {
 
     this.shelfService.updateShelf(shelf, this.shelf?.id).subscribe({
       next: () => {
-        this.messageService.add({severity: 'success', summary: 'Shelf Updated', detail: 'The shelf was updated successfully.'});
+        this.messageService.add({severity: 'success', summary: this.t.translate('book.shelfEditDialog.toast.updateSuccessSummary'), detail: this.t.translate('book.shelfEditDialog.toast.updateSuccessDetail')});
         this.dynamicDialogRef.close();
       },
       error: (e) => {
-        this.messageService.add({severity: 'error', summary: 'Update Failed', detail: 'An error occurred while updating the shelf. Please try again.'});
+        this.messageService.add({severity: 'error', summary: this.t.translate('book.shelfEditDialog.toast.updateFailedSummary'), detail: this.t.translate('book.shelfEditDialog.toast.updateFailedDetail')});
         console.error(e);
       }
     });

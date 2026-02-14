@@ -120,6 +120,14 @@ public class BookController {
         return ResponseEntity.ok(bookMetadataService.getComicInfoMetadata(bookId));
     }
 
+    @Operation(summary = "Get file metadata", description = "Extract embedded metadata from the book file.")
+    @ApiResponse(responseCode = "200", description = "File metadata returned successfully")
+    @GetMapping("/{bookId}/file-metadata")
+    public ResponseEntity<?> getFileMetadata(
+            @Parameter(description = "ID of the book") @PathVariable long bookId) {
+        return ResponseEntity.ok(bookMetadataService.getFileMetadata(bookId));
+    }
+
     @Operation(summary = "Get book content", description = "Retrieve the binary content of a book for reading. Supports HTTP Range requests for partial content streaming.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Full book content returned"),

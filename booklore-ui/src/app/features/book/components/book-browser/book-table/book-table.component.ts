@@ -15,6 +15,7 @@ import {filter, Subject} from 'rxjs';
 import {UserService} from '../../../../settings/user-management/user.service';
 import {take, takeUntil} from 'rxjs/operators';
 import {ReadStatusHelper} from '../../../helpers/read-status.helper';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 @Component({
   selector: 'app-book-table',
@@ -27,7 +28,8 @@ import {ReadStatusHelper} from '../../../helpers/read-status.helper';
     Button,
     TooltipModule,
     NgClass,
-    RouterLink
+    RouterLink,
+    TranslocoDirective
   ],
   styleUrls: ['./book-table.component.scss'],
   providers: [DatePipe]
@@ -48,33 +50,34 @@ export class BookTableComponent implements OnInit, OnDestroy, OnChanges {
   private userService = inject(UserService);
   private datePipe = inject(DatePipe);
   private readStatusHelper = inject(ReadStatusHelper);
+  private readonly t = inject(TranslocoService);
 
   private metadataCenterViewMode: 'route' | 'dialog' = 'route';
   private destroy$ = new Subject<void>();
 
-  readonly allColumns = [
-    {field: 'readStatus', header: '📖'},
-    {field: 'title', header: 'Title'},
-    {field: 'authors', header: 'Authors'},
-    {field: 'publisher', header: 'Publisher'},
-    {field: 'seriesName', header: 'Series'},
-    {field: 'seriesNumber', header: 'Series #'},
-    {field: 'categories', header: 'Genres'},
-    {field: 'publishedDate', header: 'Published'},
-    {field: 'lastReadTime', header: 'Last Read'},
-    {field: 'addedOn', header: 'Added'},
-    {field: 'fileName', header: 'File Name'},
-    {field: 'fileSizeKb', header: 'File Size'},
-    {field: 'language', header: 'Language'},
-    {field: 'isbn', header: 'ISBN'},
-    {field: 'pageCount', header: 'Pages'},
-    {field: 'amazonRating', header: 'Amazon'},
-    {field: 'amazonReviewCount', header: 'AZ #'},
-    {field: 'goodreadsRating', header: 'Goodreads'},
-    {field: 'goodreadsReviewCount', header: 'GR #'},
-    {field: 'hardcoverRating', header: 'Hardcover'},
-    {field: 'hardcoverReviewCount', header: 'HC #'},
-    {field: 'ranobedbRating', header: 'Ranobedb'},
+  readonly allColumns: { field: string; header: string }[] = [
+    {field: 'readStatus', header: this.t.translate('book.columnPref.columns.readStatus')},
+    {field: 'title', header: this.t.translate('book.columnPref.columns.title')},
+    {field: 'authors', header: this.t.translate('book.columnPref.columns.authors')},
+    {field: 'publisher', header: this.t.translate('book.columnPref.columns.publisher')},
+    {field: 'seriesName', header: this.t.translate('book.columnPref.columns.seriesName')},
+    {field: 'seriesNumber', header: this.t.translate('book.columnPref.columns.seriesNumber')},
+    {field: 'categories', header: this.t.translate('book.columnPref.columns.categories')},
+    {field: 'publishedDate', header: this.t.translate('book.columnPref.columns.publishedDate')},
+    {field: 'lastReadTime', header: this.t.translate('book.columnPref.columns.lastReadTime')},
+    {field: 'addedOn', header: this.t.translate('book.columnPref.columns.addedOn')},
+    {field: 'fileName', header: this.t.translate('book.columnPref.columns.fileName')},
+    {field: 'fileSizeKb', header: this.t.translate('book.columnPref.columns.fileSizeKb')},
+    {field: 'language', header: this.t.translate('book.columnPref.columns.language')},
+    {field: 'isbn', header: this.t.translate('book.columnPref.columns.isbn')},
+    {field: 'pageCount', header: this.t.translate('book.columnPref.columns.pageCount')},
+    {field: 'amazonRating', header: this.t.translate('book.columnPref.columns.amazonRating')},
+    {field: 'amazonReviewCount', header: this.t.translate('book.columnPref.columns.amazonReviewCount')},
+    {field: 'goodreadsRating', header: this.t.translate('book.columnPref.columns.goodreadsRating')},
+    {field: 'goodreadsReviewCount', header: this.t.translate('book.columnPref.columns.goodreadsReviewCount')},
+    {field: 'hardcoverRating', header: this.t.translate('book.columnPref.columns.hardcoverRating')},
+    {field: 'hardcoverReviewCount', header: this.t.translate('book.columnPref.columns.hardcoverReviewCount')},
+    {field: 'ranobedbRating', header: this.t.translate('book.columnPref.columns.ranobedbRating')},
   ];
 
   scrollHeight = 'calc(100dvh - 160px)';
@@ -327,15 +330,15 @@ export class BookTableComponent implements OnInit, OnDestroy, OnChanges {
       next: () => {
         this.messageService.add({
           severity: 'success',
-          summary: `Metadata ${lockAction === 'LOCK' ? 'Locked' : 'Unlocked'}`,
-          detail: `Book metadata has been ${lockAction === 'LOCK' ? 'locked' : 'unlocked'} successfully.`,
+          summary: lockAction === 'LOCK' ? this.t.translate('book.table.toast.metadataLockedSummary') : this.t.translate('book.table.toast.metadataUnlockedSummary'),
+          detail: lockAction === 'LOCK' ? this.t.translate('book.table.toast.metadataLockedDetail') : this.t.translate('book.table.toast.metadataUnlockedDetail'),
         });
       },
       error: () => {
         this.messageService.add({
           severity: 'error',
-          summary: `Failed to ${lockAction === 'LOCK' ? 'Lock' : 'Unlock'}`,
-          detail: `An error occurred while ${lockAction === 'LOCK' ? 'locking' : 'unlocking'} the metadata.`,
+          summary: lockAction === 'LOCK' ? this.t.translate('book.table.toast.lockFailedSummary') : this.t.translate('book.table.toast.unlockFailedSummary'),
+          detail: lockAction === 'LOCK' ? this.t.translate('book.table.toast.lockFailedDetail') : this.t.translate('book.table.toast.unlockFailedDetail'),
         });
       }
     });

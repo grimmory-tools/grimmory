@@ -1,9 +1,10 @@
+<ng-container *transloco="let t; prefix: 'book.reviews'">
 <div class="book-reviews-container">
   <div class="reviews-content">
     @if (loading) {
       <div class="loading-state">
         <p-progressSpinner/>
-        <span class="loading-text">Getting latest reviews...</span>
+        <span class="loading-text">{{ t('labels.loadingReviews') }}</span>
       </div>
     } @else if (reviews?.length === 0) {
       <div class="empty-state">
@@ -15,20 +16,20 @@
               icon="pi pi-download"
               severity="primary"
               (click)="fetchNewReviews()"
-              pTooltip="Fetch Reviews"
+              [pTooltip]="t('tooltip.fetchReviews')"
               tooltipPosition="top"
               class="action-btn floating-btn">
             </p-button>
           }
         </div>
-        <p class="empty-state-title">No reviews available for this book</p>
+        <p class="empty-state-title">{{ t('empty.noReviews') }}</p>
         @if (!reviewDownloadEnabled) {
           <p class="empty-state-subtitle empty-state-subtitle--warning">
-            Book review downloads are currently disabled. Enable this in Metadata Settings to fetch reviews.
+            {{ t('empty.downloadsDisabled') }}
           </p>
         } @else if (hasPermission && !reviewsLocked) {
           <p class="empty-state-subtitle">
-            Click "Fetch Reviews" to download reviews from configured providers
+            {{ t('empty.fetchPrompt') }}
           </p>
         }
         <div class="empty-state-decoration"></div>
@@ -40,7 +41,7 @@
             <div [class]="'review-card' + (!review.title ? ' no-title' : '') + (review.spoiler && !isSpoilerRevealed(review.id!) ? ' has-spoiler' : '')">
               @if (review.spoiler && !isSpoilerRevealed(review.id!)) {
                 <p-button
-                  label="Show Spoiler"
+                  [label]="t('labels.showSpoiler')"
                   icon="pi pi-eye"
                   severity="warn"
                   size="small"
@@ -52,7 +53,7 @@
                 <div class="review-header-inner">
                   <div class="reviewer-info-group">
                     <div class="reviewer-name-row">
-                      <span class="reviewer-name">{{ review.reviewerName || 'Anonymous' }}</span>
+                      <span class="reviewer-name">{{ review.reviewerName || t('labels.anonymous') }}</span>
                       @if (review.metadataProvider) {
                         <p-tag
                           [rounded]="true"
@@ -63,7 +64,7 @@
                         <p-tag [rounded]="true" [value]="review.country" severity="info"/>
                       }
                       @if (review.spoiler) {
-                        <p-tag [rounded]="true" value="Spoiler" severity="warn" icon="pi pi-exclamation-triangle"/>
+                        <p-tag [rounded]="true" [value]="t('labels.spoiler')" severity="warn" icon="pi pi-exclamation-triangle"/>
                       }
                     </div>
                     <div class="review-meta">
@@ -89,7 +90,7 @@
                       @if (reviewsLocked) {
                         <div class="lock-icon-container">
                           <i class="pi pi-lock lock-icon"
-                             pTooltip="Reviews are locked"
+                             [pTooltip]="t('tooltip.reviewsLocked')"
                              tooltipPosition="top"></i>
                         </div>
                       } @else {
@@ -99,7 +100,7 @@
                           severity="danger"
                           text
                           (onClick)="deleteReview(review)"
-                          pTooltip="Delete Review"
+                          [pTooltip]="t('tooltip.deleteReview')"
                           tooltipPosition="top"
                           class="action-btn-hover"/>
                       }
@@ -126,14 +127,14 @@
                     @if (review.body) {
                       <div class="review-body review-body--blurred">{{ review.body }}</div>
                     } @else {
-                      <div class="review-empty-text review-empty-text--blurred">No review content available</div>
+                      <div class="review-empty-text review-empty-text--blurred">{{ t('empty.noContent') }}</div>
                     }
                   </div>
                 } @else {
                   @if (review.body) {
                     <div class="review-body">{{ review.body }}</div>
                   } @else {
-                    <div class="review-empty-text">No review content available</div>
+                    <div class="review-empty-text">{{ t('empty.noContent') }}</div>
                   }
                 }
                 <div class="review-fade-overlay"></div>
@@ -157,7 +158,7 @@
           [severity]="reviewsLocked ? 'danger' : 'success'"
           [disabled]="!reviewDownloadEnabled || loading"
           (click)="toggleReviewsLock()"
-          [pTooltip]="loading ? 'Please wait while reviews are being fetched' : (!reviewDownloadEnabled ? 'Enable review downloads in settings to use this feature' : (reviewsLocked ? 'Unlock Reviews' : 'Lock Reviews'))"
+          [pTooltip]="loading ? t('tooltip.pleaseWait') : (!reviewDownloadEnabled ? t('tooltip.enableDownloads') : (reviewsLocked ? t('tooltip.unlockReviews') : t('tooltip.lockReviews')))"
           tooltipPosition="left"
           class="action-btn"/>
 
@@ -169,7 +170,7 @@
           [loading]="loading"
           [disabled]="reviewsLocked || !reviewDownloadEnabled || loading"
           (click)="fetchNewReviews()"
-          [pTooltip]="loading ? 'Please wait while reviews are being fetched' : (!reviewDownloadEnabled ? 'Enable review downloads in settings to use this feature' : (reviewsLocked ? 'Reviews are locked' : 'Fetch New Reviews'))"
+          [pTooltip]="loading ? t('tooltip.pleaseWait') : (!reviewDownloadEnabled ? t('tooltip.enableDownloads') : (reviewsLocked ? t('tooltip.reviewsLocked') : t('tooltip.fetchNewReviews')))"
           tooltipPosition="left"
           class="action-btn"/>
       }
@@ -182,7 +183,7 @@
           severity="danger"
           [disabled]="reviewsLocked || loading"
           (click)="deleteAllReviews()"
-          [pTooltip]="loading ? 'Please wait while reviews are being fetched' : (reviewsLocked ? 'Reviews are locked' : 'Delete All Reviews')"
+          [pTooltip]="loading ? t('tooltip.pleaseWait') : (reviewsLocked ? t('tooltip.reviewsLocked') : t('tooltip.deleteAllReviews'))"
           tooltipPosition="left"
           class="action-btn"/>
       }
@@ -195,7 +196,7 @@
           [severity]="allSpoilersRevealed ? 'warn' : 'info'"
           [disabled]="loading"
           (click)="toggleSpoilerVisibility()"
-          [pTooltip]="loading ? 'Please wait while reviews are being fetched' : (allSpoilersRevealed ? 'Hide All Spoilers' : 'Reveal All Spoilers')"
+          [pTooltip]="loading ? t('tooltip.pleaseWait') : (allSpoilersRevealed ? t('tooltip.hideAllSpoilers') : t('tooltip.revealAllSpoilers'))"
           tooltipPosition="left"
           class="action-btn"/>
 
@@ -206,10 +207,11 @@
           severity="contrast"
           [disabled]="loading"
           (click)="toggleSortOrder()"
-          [pTooltip]="loading ? 'Please wait while reviews are being fetched' : (sortAscending ? 'Sort by Newest First' : 'Sort by Oldest First')"
+          [pTooltip]="loading ? t('tooltip.pleaseWait') : (sortAscending ? t('tooltip.sortNewest') : t('tooltip.sortOldest'))"
           tooltipPosition="left"
           class="action-btn"/>
       }
     </div>
   </div>
 </div>
+</ng-container>

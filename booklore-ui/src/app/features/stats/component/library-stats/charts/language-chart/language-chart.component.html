@@ -1,11 +1,12 @@
+<ng-container *transloco="let t; prefix: 'statsLibrary.language'">
 <div class="language-chart-container">
   <div class="chart-header">
     <div class="chart-title">
       <h3>
         <i class="pi pi-globe language-title-icon"></i>
-        Languages
+        {{ t('title') }}
       </h3>
-      <p class="chart-description">Languages represented in your collection</p>
+      <p class="chart-description">{{ t('description') }}</p>
     </div>
   </div>
 
@@ -22,7 +23,8 @@
   @if (booksWithLanguage === 0) {
     <div class="no-data-message">
       <i class="pi pi-info-circle"></i>
-      <p>No language data available.</p>
+      <p>{{ t('noData') }}</p>
     </div>
   }
 </div>
+</ng-container>

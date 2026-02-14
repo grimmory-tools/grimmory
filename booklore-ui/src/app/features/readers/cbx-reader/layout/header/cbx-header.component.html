@@ -1,12 +1,12 @@
 <div class="cbx-header" [class.visible]="isVisible">
   <div class="header-left">
-    <button class="icon-btn" (click)="onOpenSidebar()" title="Contents">
+    <button class="icon-btn" (click)="onOpenSidebar()" [title]="'readerCbx.header.contents' | transloco">
       <app-reader-icon name="menu" [size]="20" />
     </button>
-    <button class="icon-btn" (click)="onToggleBookmark()" [title]="isCurrentPageBookmarked ? 'Remove Bookmark' : 'Add Bookmark'" [class.active]="isCurrentPageBookmarked">
+    <button class="icon-btn" (click)="onToggleBookmark()" [title]="isCurrentPageBookmarked ? ('readerCbx.header.removeBookmark' | transloco) : ('readerCbx.header.addBookmark' | transloco)" [class.active]="isCurrentPageBookmarked">
       <app-reader-icon name="bookmark" [size]="20" />
     </button>
-    <button class="icon-btn" (click)="onOpenNoteDialog()" [title]="currentPageHasNotes ? 'Page has notes - Add another' : 'Add Note'" [class.has-notes]="currentPageHasNotes">
+    <button class="icon-btn" (click)="onOpenNoteDialog()" [title]="currentPageHasNotes ? ('readerCbx.header.pageHasNotesAddAnother' | transloco) : ('readerCbx.header.addNote' | transloco)" [class.has-notes]="currentPageHasNotes">
       <app-reader-icon name="note" [size]="20" />
       @if (currentPageHasNotes) {
         <span class="indicator-dot"></span>
@@ -15,17 +15,17 @@
   </div>
   <span class="book-title">{{ bookTitle }}</span>
   <div class="header-right">
-    <button class="icon-btn desktop-only" (click)="onToggleSlideshow()" [title]="state.isSlideshowActive ? 'Stop Slideshow (P)' : 'Start Slideshow (P)'" [class.active]="state.isSlideshowActive">
+    <button class="icon-btn desktop-only" (click)="onToggleSlideshow()" [title]="state.isSlideshowActive ? ('readerCbx.header.stopSlideshow' | transloco) : ('readerCbx.header.startSlideshow' | transloco)" [class.active]="state.isSlideshowActive">
       <app-reader-icon [name]="state.isSlideshowActive ? 'pause' : 'play'" [size]="20" />
     </button>
-    <button class="icon-btn desktop-only" (click)="onToggleFullscreen()" [title]="state.isFullscreen ? 'Exit Fullscreen (F)' : 'Fullscreen (F)'">
+    <button class="icon-btn desktop-only" (click)="onToggleFullscreen()" [title]="state.isFullscreen ? ('readerCbx.header.exitFullscreen' | transloco) : ('readerCbx.header.fullscreen' | transloco)">
       <app-reader-icon [name]="state.isFullscreen ? 'fullscreen-exit' : 'fullscreen'" [size]="20" />
     </button>
-    <button class="icon-btn desktop-only" (click)="onShowShortcutsHelp()" title="Keyboard Shortcuts (?)">
+    <button class="icon-btn desktop-only" (click)="onShowShortcutsHelp()" [title]="'readerCbx.header.keyboardShortcuts' | transloco">
       <app-reader-icon name="help" [size]="20" />
     </button>
     <div class="overflow-menu mobile-only">
-      <button class="icon-btn" (click)="overflowOpen = !overflowOpen; $event.stopPropagation()" title="More">
+      <button class="icon-btn" (click)="overflowOpen = !overflowOpen; $event.stopPropagation()" [title]="'readerCbx.header.more' | transloco">
         <app-reader-icon name="dots-vertical" [size]="20" />
       </button>
       @if (overflowOpen) {
@@ -33,23 +33,23 @@
         <div class="overflow-dropdown">
           <button class="overflow-item" (click)="onToggleSlideshow(); overflowOpen = false" [class.active]="state.isSlideshowActive">
             <app-reader-icon [name]="state.isSlideshowActive ? 'pause' : 'play'" [size]="18" />
-            <span>{{ state.isSlideshowActive ? 'Stop Slideshow' : 'Start Slideshow' }}</span>
+            <span>{{ state.isSlideshowActive ? ('readerCbx.header.stopSlideshowLabel' | transloco) : ('readerCbx.header.startSlideshowLabel' | transloco) }}</span>
           </button>
           <button class="overflow-item" (click)="onToggleFullscreen(); overflowOpen = false">
             <app-reader-icon [name]="state.isFullscreen ? 'fullscreen-exit' : 'fullscreen'" [size]="18" />
-            <span>{{ state.isFullscreen ? 'Exit Fullscreen' : 'Fullscreen' }}</span>
+            <span>{{ state.isFullscreen ? ('readerCbx.header.exitFullscreenLabel' | transloco) : ('readerCbx.header.fullscreenLabel' | transloco) }}</span>
           </button>
           <button class="overflow-item" (click)="onShowShortcutsHelp(); overflowOpen = false">
             <app-reader-icon name="help" [size]="18" />
-            <span>Keyboard Shortcuts</span>
+            <span>{{ 'readerCbx.header.keyboardShortcutsLabel' | transloco }}</span>
           </button>
         </div>
       }
     </div>
-    <button class="icon-btn" (click)="onOpenSettings()" title="Settings">
+    <button class="icon-btn" (click)="onOpenSettings()" [title]="'readerCbx.header.settings' | transloco">
       <app-reader-icon name="settings" [size]="20" />
     </button>
-    <button class="icon-btn close-btn" (click)="onClose(); $event.stopPropagation()" title="Close Reader">
+    <button class="icon-btn close-btn" (click)="onClose(); $event.stopPropagation()" [title]="'readerCbx.header.closeReader' | transloco">
       <app-reader-icon name="close" [size]="20" />
     </button>
   </div>

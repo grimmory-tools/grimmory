@@ -1,15 +1,16 @@
+<ng-container *transloco="let t; prefix: 'statsLibrary.authorUniverse'">
 <div class="author-universe-container">
   <div class="chart-header">
     <div class="chart-title">
       <h3>
         <i class="pi pi-globe author-title-icon"></i>
-        Author Universe
+        {{ t('title') }}
       </h3>
-      <p class="chart-description">Explore your authors by books, ratings, and reading progress</p>
+      <p class="chart-description">{{ t('description') }}</p>
     </div>
     @if (totalAuthors > 0) {
       <div class="author-count-badge">
-        {{ totalAuthors }} authors
+        {{ t('authorsBadge', { count: totalAuthors }) }}
       </div>
     }
   </div>
@@ -18,7 +19,7 @@
     <div class="chart-legend-info">
       <span class="legend-note">
         <i class="pi pi-info-circle"></i>
-        Bubble size = total pages &bull; Position = books vs rating &bull; Color = completion %
+        {{ t('legendNote') }}
       </span>
     </div>
 
@@ -47,7 +48,8 @@
   @if (totalAuthors === 0) {
     <div class="no-data-message">
       <i class="pi pi-info-circle"></i>
-      <p>No author data available. Authors need at least 2 books to appear.</p>
+      <p>{{ t('noData') }}</p>
     </div>
   }
 </div>
+</ng-container>

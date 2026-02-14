@@ -59,6 +59,11 @@
     "cancelFailed": "Cancellation Failed",
     "cancelError": "Failed to cancel the task. The task may already be completed or failed.",
     "cancelNoId": "Cannot cancel task without ID.",
-    "loadError": "Failed to load tasks"
+    "loadError": "Failed to load tasks",
+    "metadataScheduled": "Metadata Update Scheduled",
+    "metadataScheduledDetail": "The metadata update for the selected books has been successfully scheduled.",
+    "metadataAlreadyRunningDetail": "A metadata refresh task is already in progress. Please wait for it to complete before starting another one.",
+    "metadataFailed": "Metadata Update Failed",
+    "metadataFailedDetail": "An unexpected error occurred while scheduling the metadata update. Please try again later or contact support if the issue persists."
   }
 }

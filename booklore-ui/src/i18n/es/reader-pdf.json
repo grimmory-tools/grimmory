@@ -1,0 +1,10 @@
+{
+  "toolbar": {
+    "switchToLightMode": "Cambiar a modo claro",
+    "switchToDarkMode": "Cambiar a modo oscuro",
+    "closePdfReader": "Cerrar lector PDF"
+  },
+  "toast": {
+    "failedToLoadBook": "Error al cargar el libro"
+  }
+}

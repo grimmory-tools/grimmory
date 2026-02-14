@@ -1,6 +1,7 @@
 import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
+import {TranslocoService, TranslocoPipe} from '@jsverse/transloco';
 import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 import {Book} from '../../../../book/model/book.model';
@@ -10,12 +11,13 @@ import {CbxFooterService, CbxFooterState} from './cbx-footer.service';
 @Component({
   selector: 'app-cbx-footer',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReaderIconComponent],
+  imports: [CommonModule, FormsModule, TranslocoPipe, ReaderIconComponent],
   templateUrl: './cbx-footer.component.html',
   styleUrls: ['./cbx-footer.component.scss']
 })
 export class CbxFooterComponent implements OnInit, OnDestroy {
   private footerService = inject(CbxFooterService);
+  private readonly t = inject(TranslocoService);
   private destroy$ = new Subject<void>();
 
   isVisible = false;
@@ -144,13 +146,13 @@ export class CbxFooterComponent implements OnInit, OnDestroy {
   }
 
   getPreviousBookTooltip(): string {
-    if (!this.state.previousBookInSeries) return 'No Previous Book';
-    return `Previous: ${this.getBookDisplayTitle(this.state.previousBookInSeries)}`;
+    if (!this.state.previousBookInSeries) return this.t.translate('readerCbx.footer.noPreviousBook');
+    return this.t.translate('readerCbx.footer.previousBookTooltip', { title: this.getBookDisplayTitle(this.state.previousBookInSeries) });
   }
 
   getNextBookTooltip(): string {
-    if (!this.state.nextBookInSeries) return 'No Next Book';
-    return `Next: ${this.getBookDisplayTitle(this.state.nextBookInSeries)}`;
+    if (!this.state.nextBookInSeries) return this.t.translate('readerCbx.footer.noNextBook');
+    return this.t.translate('readerCbx.footer.nextBookTooltip', { title: this.getBookDisplayTitle(this.state.nextBookInSeries) });
   }
 
   private getBookDisplayTitle(book: Book): string {
