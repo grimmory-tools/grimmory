@@ -4,6 +4,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.booklore.model.dto.*;
 import org.booklore.model.entity.*;
+import org.booklore.model.enums.BookFileType;
+import org.booklore.model.enums.ComicCreatorRole;
 import org.booklore.model.enums.ReadStatus;
 import org.booklore.repository.BookRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -1492,6 +1494,907 @@ class BookRuleEvaluatorServiceIntegrationTest {
         }
     }
 
+
+    @Nested
+    class MetadataPresenceTests {
+        @Test
+        void has_stringField_matchesWhenPresent() {
+            BookEntity withDesc = createBook("With Description");
+            withDesc.getMetadata().setDescription("A great book");
+            em.merge(withDesc.getMetadata());
+
+            BookEntity noDesc = createBook("No Description");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "description"));
+            assertThat(ids).contains(withDesc.getId());
+            assertThat(ids).doesNotContain(noDesc.getId());
+        }
+
+        @Test
+        void hasNot_stringField_matchesWhenAbsent() {
+            BookEntity withDesc = createBook("With Description");
+            withDesc.getMetadata().setDescription("A great book");
+            em.merge(withDesc.getMetadata());
+
+            BookEntity noDesc = createBook("No Description");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.NOT_EQUALS, "description"));
+            assertThat(ids).contains(noDesc.getId());
+            assertThat(ids).doesNotContain(withDesc.getId());
+        }
+
+        @Test
+        void has_emptyStringTreatedAsAbsent() {
+            BookEntity emptyDesc = createBook("Empty Description");
+            emptyDesc.getMetadata().setDescription("  ");
+            em.merge(emptyDesc.getMetadata());
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "description"));
+            assertThat(ids).doesNotContain(emptyDesc.getId());
+        }
+
+        @Test
+        void has_numericField_matchesWhenPresent() {
+            BookEntity withPages = createBook("With Pages");
+            withPages.getMetadata().setPageCount(300);
+            em.merge(withPages.getMetadata());
+
+            BookEntity noPages = createBook("No Pages");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "pageCount"));
+            assertThat(ids).contains(withPages.getId());
+            assertThat(ids).doesNotContain(noPages.getId());
+        }
+
+        @Test
+        void has_isbn13_matchesWhenPresent() {
+            BookEntity withIsbn = createBook("With ISBN");
+            withIsbn.getMetadata().setIsbn13("9781234567890");
+            em.merge(withIsbn.getMetadata());
+
+            BookEntity noIsbn = createBook("No ISBN");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "isbn13"));
+            assertThat(ids).contains(withIsbn.getId());
+            assertThat(ids).doesNotContain(noIsbn.getId());
+        }
+
+        @Test
+        void has_coverImage_matchesWhenPresent() {
+            BookEntity withCover = createBook("With Cover");
+            withCover.setBookCoverHash("abc123");
+            em.merge(withCover);
+
+            BookEntity noCover = createBook("No Cover");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "thumbnailUrl"));
+            assertThat(ids).contains(withCover.getId());
+            assertThat(ids).doesNotContain(noCover.getId());
+        }
+
+        @Test
+        void has_authors_matchesWhenPresent() {
+            BookEntity withAuthors = createBook("With Authors");
+            AuthorEntity author = AuthorEntity.builder().name("Test Author MP").build();
+            em.persist(author);
+            withAuthors.getMetadata().setAuthors(new HashSet<>(Set.of(author)));
+            em.merge(withAuthors.getMetadata());
+
+            BookEntity noAuthors = createBook("No Authors");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "authors"));
+            assertThat(ids).contains(withAuthors.getId());
+            assertThat(ids).doesNotContain(noAuthors.getId());
+        }
+
+        @Test
+        void hasNot_authors_matchesWhenAbsent() {
+            BookEntity withAuthors = createBook("With Authors");
+            AuthorEntity author = AuthorEntity.builder().name("Test Author MP2").build();
+            em.persist(author);
+            withAuthors.getMetadata().setAuthors(new HashSet<>(Set.of(author)));
+            em.merge(withAuthors.getMetadata());
+
+            BookEntity noAuthors = createBook("No Authors");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.NOT_EQUALS, "authors"));
+            assertThat(ids).contains(noAuthors.getId());
+            assertThat(ids).doesNotContain(withAuthors.getId());
+        }
+
+        @Test
+        void has_categories_matchesWhenPresent() {
+            BookEntity withCats = createBook("With Categories");
+            CategoryEntity cat = CategoryEntity.builder().name("Fiction MP").build();
+            em.persist(cat);
+            withCats.getMetadata().setCategories(new HashSet<>(Set.of(cat)));
+            em.merge(withCats.getMetadata());
+
+            BookEntity noCats = createBook("No Categories");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "categories"));
+            assertThat(ids).contains(withCats.getId());
+            assertThat(ids).doesNotContain(noCats.getId());
+        }
+
+        @Test
+        void has_rating_matchesWhenPresent() {
+            BookEntity withRating = createBook("With Rating");
+            withRating.getMetadata().setAmazonRating(4.5);
+            em.merge(withRating.getMetadata());
+
+            BookEntity noRating = createBook("No Rating");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "amazonRating"));
+            assertThat(ids).contains(withRating.getId());
+            assertThat(ids).doesNotContain(noRating.getId());
+        }
+
+        @Test
+        void has_externalId_matchesWhenPresent() {
+            BookEntity withId = createBook("With Goodreads ID");
+            withId.getMetadata().setGoodreadsId("12345");
+            em.merge(withId.getMetadata());
+
+            BookEntity noId = createBook("No Goodreads ID");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "goodreadsId"));
+            assertThat(ids).contains(withId.getId());
+            assertThat(ids).doesNotContain(noId.getId());
+        }
+
+        @Test
+        void has_personalRating_matchesWhenPresent() {
+            BookEntity withRating = createBook("With Personal Rating");
+            UserBookProgressEntity progress = createProgress(withRating, ReadStatus.READ);
+            progress.setPersonalRating(4);
+            em.merge(progress);
+
+            BookEntity noRating = createBook("No Personal Rating");
+            createProgress(noRating, ReadStatus.READING);
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "personalRating"));
+            assertThat(ids).contains(withRating.getId());
+            assertThat(ids).doesNotContain(noRating.getId());
+        }
+
+        @Test
+        void has_publishedDate_matchesWhenPresent() {
+            BookEntity withDate = createBook("With Published Date");
+            withDate.getMetadata().setPublishedDate(LocalDate.of(2023, 1, 1));
+            em.merge(withDate.getMetadata());
+
+            BookEntity noDate = createBook("No Published Date");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "publishedDate"));
+            assertThat(ids).contains(withDate.getId());
+            assertThat(ids).doesNotContain(noDate.getId());
+        }
+
+        @Test
+        void has_seriesInfo_matchesWhenPresent() {
+            BookEntity withSeries = createBook("With Series", "My Series", 1f, 3);
+
+            BookEntity noSeries = createBook("No Series");
+            em.flush();
+            em.clear();
+
+            List<Long> idsName = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "seriesName"));
+            assertThat(idsName).contains(withSeries.getId());
+            assertThat(idsName).doesNotContain(noSeries.getId());
+
+            List<Long> idsNumber = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "seriesNumber"));
+            assertThat(idsNumber).contains(withSeries.getId());
+            assertThat(idsNumber).doesNotContain(noSeries.getId());
+
+            List<Long> idsTotal = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "seriesTotal"));
+            assertThat(idsTotal).contains(withSeries.getId());
+            assertThat(idsTotal).doesNotContain(noSeries.getId());
+        }
+
+        @Test
+        void has_narrator_matchesWhenPresent() {
+            BookEntity withNarrator = createBook("With Narrator");
+            withNarrator.getMetadata().setNarrator("John Smith");
+            em.merge(withNarrator.getMetadata());
+
+            BookEntity noNarrator = createBook("No Narrator");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "narrator"));
+            assertThat(ids).contains(withNarrator.getId());
+            assertThat(ids).doesNotContain(noNarrator.getId());
+        }
+
+        @Test
+        void unknownField_matchesAll() {
+            BookEntity book = createBook("Any Book");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "nonExistentField"));
+            assertThat(ids).contains(book.getId());
+        }
+
+        @Test
+        void has_moods_matchesWhenPresent() {
+            BookEntity withMoods = createBook("With Moods");
+            MoodEntity mood = MoodEntity.builder().name("Dark MP").build();
+            em.persist(mood);
+            withMoods.getMetadata().setMoods(new HashSet<>(Set.of(mood)));
+            em.merge(withMoods.getMetadata());
+
+            BookEntity noMoods = createBook("No Moods");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "moods"));
+            assertThat(ids).contains(withMoods.getId());
+            assertThat(ids).doesNotContain(noMoods.getId());
+        }
+
+        @Test
+        void has_tags_matchesWhenPresent() {
+            BookEntity withTags = createBook("With Tags");
+            TagEntity tag = TagEntity.builder().name("Favorite MP").build();
+            em.persist(tag);
+            withTags.getMetadata().setTags(new HashSet<>(Set.of(tag)));
+            em.merge(withTags.getMetadata());
+
+            BookEntity noTags = createBook("No Tags");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "tags"));
+            assertThat(ids).contains(withTags.getId());
+            assertThat(ids).doesNotContain(noTags.getId());
+        }
+
+        @Test
+        void has_multipleFieldsCombined_andLogic() {
+            BookEntity withBoth = createBook("With Both");
+            withBoth.getMetadata().setDescription("A book");
+            withBoth.getMetadata().setIsbn13("9781234567890");
+            em.merge(withBoth.getMetadata());
+
+            BookEntity withOneOnly = createBook("With One Only");
+            withOneOnly.getMetadata().setDescription("A book");
+            em.merge(withOneOnly.getMetadata());
+            em.flush();
+            em.clear();
+
+            Rule rule1 = new Rule();
+            rule1.setField(RuleField.METADATA_PRESENCE);
+            rule1.setOperator(RuleOperator.EQUALS);
+            rule1.setValue("description");
+
+            Rule rule2 = new Rule();
+            rule2.setField(RuleField.METADATA_PRESENCE);
+            rule2.setOperator(RuleOperator.EQUALS);
+            rule2.setValue("isbn13");
+
+            GroupRule group = new GroupRule();
+            group.setJoin(JoinType.AND);
+            group.setRules(List.of(rule1, rule2));
+
+            List<Long> ids = findMatchingIds(group);
+            assertThat(ids).contains(withBoth.getId());
+            assertThat(ids).doesNotContain(withOneOnly.getId());
+        }
+
+        @Test
+        void hasNot_multipleFieldsCombined_orLogic() {
+            BookEntity missingBoth = createBook("Missing Both");
+
+            BookEntity missingOne = createBook("Missing One");
+            missingOne.getMetadata().setDescription("A book");
+            em.merge(missingOne.getMetadata());
+
+            BookEntity hasBoth = createBook("Has Both");
+            hasBoth.getMetadata().setDescription("A book");
+            hasBoth.getMetadata().setPublisher("Penguin");
+            em.merge(hasBoth.getMetadata());
+            em.flush();
+            em.clear();
+
+            Rule rule1 = new Rule();
+            rule1.setField(RuleField.METADATA_PRESENCE);
+            rule1.setOperator(RuleOperator.NOT_EQUALS);
+            rule1.setValue("description");
+
+            Rule rule2 = new Rule();
+            rule2.setField(RuleField.METADATA_PRESENCE);
+            rule2.setOperator(RuleOperator.NOT_EQUALS);
+            rule2.setValue("publisher");
+
+            GroupRule group = new GroupRule();
+            group.setJoin(JoinType.OR);
+            group.setRules(List.of(rule1, rule2));
+
+            List<Long> ids = findMatchingIds(group);
+            assertThat(ids).contains(missingBoth.getId(), missingOne.getId());
+            assertThat(ids).doesNotContain(hasBoth.getId());
+        }
+
+        @Test
+        void has_booleanField_matchesWhenPresent() {
+            BookEntity withAbridged = createBook("Abridged Book");
+            withAbridged.getMetadata().setAbridged(true);
+            em.merge(withAbridged.getMetadata());
+
+            BookEntity noAbridged = createBook("Not Set Abridged");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "abridged"));
+            assertThat(ids).contains(withAbridged.getId());
+            assertThat(ids).doesNotContain(noAbridged.getId());
+        }
+
+        @Test
+        void has_booleanField_falseCountsAsPresent() {
+            BookEntity abridgedFalse = createBook("Not Abridged");
+            abridgedFalse.getMetadata().setAbridged(false);
+            em.merge(abridgedFalse.getMetadata());
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "abridged"));
+            assertThat(ids).contains(abridgedFalse.getId());
+        }
+
+        @Test
+        void has_ageRating_matchesWhenPresent() {
+            BookEntity withAge = createBook("With Age Rating");
+            withAge.getMetadata().setAgeRating(16);
+            em.merge(withAge.getMetadata());
+
+            BookEntity noAge = createBook("No Age Rating");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "ageRating"));
+            assertThat(ids).contains(withAge.getId());
+            assertThat(ids).doesNotContain(noAge.getId());
+        }
+
+        @Test
+        void has_audiobookDuration_matchesWhenPresent() {
+            BookEntity withDuration = createBook("Audiobook");
+            BookFileEntity audioFile = BookFileEntity.builder()
+                    .book(withDuration)
+                    .fileName("book.m4b")
+                    .fileSubPath("")
+                    .isBookFormat(true)
+                    .bookType(BookFileType.AUDIOBOOK)
+                    .durationSeconds(3600L)
+                    .build();
+            em.persist(audioFile);
+
+            BookEntity noDuration = createBook("No Duration");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "audiobookDuration"));
+            assertThat(ids).contains(withDuration.getId());
+            assertThat(ids).doesNotContain(noDuration.getId());
+        }
+
+        @Test
+        void hasNot_audiobookDuration_matchesWhenAbsent() {
+            BookEntity withDuration = createBook("Audiobook");
+            BookFileEntity audioFile = BookFileEntity.builder()
+                    .book(withDuration)
+                    .fileName("book2.m4b")
+                    .fileSubPath("")
+                    .isBookFormat(true)
+                    .bookType(BookFileType.AUDIOBOOK)
+                    .durationSeconds(3600L)
+                    .build();
+            em.persist(audioFile);
+
+            BookEntity noDuration = createBook("No Duration");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.NOT_EQUALS, "audiobookDuration"));
+            assertThat(ids).contains(noDuration.getId());
+            assertThat(ids).doesNotContain(withDuration.getId());
+        }
+
+        @Test
+        void has_comicCharacters_matchesWhenPresent() {
+            BookEntity comicBook = createBook("Comic Book");
+            ComicMetadataEntity comicMeta = ComicMetadataEntity.builder()
+                    .bookId(comicBook.getId())
+                    .bookMetadata(comicBook.getMetadata())
+                    .build();
+            ComicCharacterEntity character = ComicCharacterEntity.builder().name("Spider-Man MP").build();
+            em.persist(character);
+            comicMeta.setCharacters(new HashSet<>(Set.of(character)));
+            em.persist(comicMeta);
+            comicBook.getMetadata().setComicMetadata(comicMeta);
+            em.merge(comicBook.getMetadata());
+
+            BookEntity noComic = createBook("Not a Comic");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "comicCharacters"));
+            assertThat(ids).contains(comicBook.getId());
+            assertThat(ids).doesNotContain(noComic.getId());
+        }
+
+        @Test
+        void has_comicTeams_matchesWhenPresent() {
+            BookEntity comicBook = createBook("Team Comic");
+            ComicMetadataEntity comicMeta = ComicMetadataEntity.builder()
+                    .bookId(comicBook.getId())
+                    .bookMetadata(comicBook.getMetadata())
+                    .build();
+            ComicTeamEntity team = ComicTeamEntity.builder().name("Avengers MP").build();
+            em.persist(team);
+            comicMeta.setTeams(new HashSet<>(Set.of(team)));
+            em.persist(comicMeta);
+            comicBook.getMetadata().setComicMetadata(comicMeta);
+            em.merge(comicBook.getMetadata());
+
+            BookEntity noTeams = createBook("No Teams");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "comicTeams"));
+            assertThat(ids).contains(comicBook.getId());
+            assertThat(ids).doesNotContain(noTeams.getId());
+        }
+
+        @Test
+        void has_comicLocations_matchesWhenPresent() {
+            BookEntity comicBook = createBook("Location Comic");
+            ComicMetadataEntity comicMeta = ComicMetadataEntity.builder()
+                    .bookId(comicBook.getId())
+                    .bookMetadata(comicBook.getMetadata())
+                    .build();
+            ComicLocationEntity location = ComicLocationEntity.builder().name("Gotham MP").build();
+            em.persist(location);
+            comicMeta.setLocations(new HashSet<>(Set.of(location)));
+            em.persist(comicMeta);
+            comicBook.getMetadata().setComicMetadata(comicMeta);
+            em.merge(comicBook.getMetadata());
+
+            BookEntity noLocations = createBook("No Locations");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "comicLocations"));
+            assertThat(ids).contains(comicBook.getId());
+            assertThat(ids).doesNotContain(noLocations.getId());
+        }
+
+        @Test
+        void has_comicPencillers_matchesWhenPresent() {
+            BookEntity comicBook = createBook("Penciller Comic");
+            ComicMetadataEntity comicMeta = ComicMetadataEntity.builder()
+                    .bookId(comicBook.getId())
+                    .bookMetadata(comicBook.getMetadata())
+                    .build();
+            em.persist(comicMeta);
+            comicBook.getMetadata().setComicMetadata(comicMeta);
+            em.merge(comicBook.getMetadata());
+
+            ComicCreatorEntity creator = ComicCreatorEntity.builder().name("Jim Lee MP").build();
+            em.persist(creator);
+            ComicCreatorMappingEntity mapping = ComicCreatorMappingEntity.builder()
+                    .comicMetadata(comicMeta)
+                    .creator(creator)
+                    .role(ComicCreatorRole.PENCILLER)
+                    .build();
+            em.persist(mapping);
+
+            BookEntity noCreators = createBook("No Creators");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "comicPencillers"));
+            assertThat(ids).contains(comicBook.getId());
+            assertThat(ids).doesNotContain(noCreators.getId());
+        }
+
+        @Test
+        void has_comicCreator_onlyMatchesCorrectRole() {
+            BookEntity comicBook = createBook("Colorist Comic");
+            ComicMetadataEntity comicMeta = ComicMetadataEntity.builder()
+                    .bookId(comicBook.getId())
+                    .bookMetadata(comicBook.getMetadata())
+                    .build();
+            em.persist(comicMeta);
+            comicBook.getMetadata().setComicMetadata(comicMeta);
+            em.merge(comicBook.getMetadata());
+
+            ComicCreatorEntity creator = ComicCreatorEntity.builder().name("Colorist Person MP").build();
+            em.persist(creator);
+            ComicCreatorMappingEntity mapping = ComicCreatorMappingEntity.builder()
+                    .comicMetadata(comicMeta)
+                    .creator(creator)
+                    .role(ComicCreatorRole.COLORIST)
+                    .build();
+            em.persist(mapping);
+            em.flush();
+            em.clear();
+
+            // Has colorist → should match
+            List<Long> coloristIds = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "comicColorists"));
+            assertThat(coloristIds).contains(comicBook.getId());
+
+            // Has penciller → should NOT match (only colorist assigned)
+            List<Long> pencillerIds = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "comicPencillers"));
+            assertThat(pencillerIds).doesNotContain(comicBook.getId());
+
+            // Has inker → should NOT match
+            List<Long> inkerIds = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "comicInkers"));
+            assertThat(inkerIds).doesNotContain(comicBook.getId());
+        }
+
+        @Test
+        void hasNot_coverImage_matchesWhenAbsent() {
+            BookEntity withCover = createBook("With Cover 2");
+            withCover.setBookCoverHash("xyz789");
+            em.merge(withCover);
+
+            BookEntity noCover = createBook("No Cover 2");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.NOT_EQUALS, "thumbnailUrl"));
+            assertThat(ids).contains(noCover.getId());
+            assertThat(ids).doesNotContain(withCover.getId());
+        }
+
+        @Test
+        void hasNot_numericField_matchesWhenAbsent() {
+            BookEntity withPages = createBook("With Pages 2");
+            withPages.getMetadata().setPageCount(200);
+            em.merge(withPages.getMetadata());
+
+            BookEntity noPages = createBook("No Pages 2");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.NOT_EQUALS, "pageCount"));
+            assertThat(ids).contains(noPages.getId());
+            assertThat(ids).doesNotContain(withPages.getId());
+        }
+
+        @Test
+        void hasNot_unknownField_matchesNothing() {
+            BookEntity book = createBook("Any Book 2");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.NOT_EQUALS, "nonExistentField"));
+            assertThat(ids).doesNotContain(book.getId());
+        }
+
+        @Test
+        void has_nullValue_matchesAll() {
+            BookEntity book = createBook("Null Value Book");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, null));
+            assertThat(ids).contains(book.getId());
+        }
+
+        @Test
+        void has_subtitle_matchesWhenPresent() {
+            BookEntity withSubtitle = createBook("With Subtitle");
+            withSubtitle.getMetadata().setSubtitle("A Subtitle");
+            em.merge(withSubtitle.getMetadata());
+
+            BookEntity noSubtitle = createBook("No Subtitle");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "subtitle"));
+            assertThat(ids).contains(withSubtitle.getId());
+            assertThat(ids).doesNotContain(noSubtitle.getId());
+        }
+
+        @Test
+        void has_publisher_matchesWhenPresent() {
+            BookEntity withPublisher = createBook("With Publisher MP");
+            withPublisher.getMetadata().setPublisher("Penguin");
+            em.merge(withPublisher.getMetadata());
+
+            BookEntity noPublisher = createBook("No Publisher MP");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "publisher"));
+            assertThat(ids).contains(withPublisher.getId());
+            assertThat(ids).doesNotContain(noPublisher.getId());
+        }
+
+        @Test
+        void has_language_matchesWhenPresent() {
+            BookEntity withLang = createBook("With Language");
+            withLang.getMetadata().setLanguage("en");
+            em.merge(withLang.getMetadata());
+
+            BookEntity noLang = createBook("No Language");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "language"));
+            assertThat(ids).contains(withLang.getId());
+            assertThat(ids).doesNotContain(noLang.getId());
+        }
+
+        @Test
+        void has_asin_matchesWhenPresent() {
+            BookEntity withAsin = createBook("With ASIN");
+            withAsin.getMetadata().setAsin("B00TEST123");
+            em.merge(withAsin.getMetadata());
+
+            BookEntity noAsin = createBook("No ASIN");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "asin"));
+            assertThat(ids).contains(withAsin.getId());
+            assertThat(ids).doesNotContain(noAsin.getId());
+        }
+
+        @Test
+        void has_contentRating_matchesWhenPresent() {
+            BookEntity withCR = createBook("With Content Rating");
+            withCR.getMetadata().setContentRating("MATURE");
+            em.merge(withCR.getMetadata());
+
+            BookEntity noCR = createBook("No Content Rating");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "contentRating"));
+            assertThat(ids).contains(withCR.getId());
+            assertThat(ids).doesNotContain(noCR.getId());
+        }
+
+        @Test
+        void has_isbn10_matchesWhenPresent() {
+            BookEntity withIsbn10 = createBook("With ISBN10");
+            withIsbn10.getMetadata().setIsbn10("0123456789");
+            em.merge(withIsbn10.getMetadata());
+
+            BookEntity noIsbn10 = createBook("No ISBN10");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "isbn10"));
+            assertThat(ids).contains(withIsbn10.getId());
+            assertThat(ids).doesNotContain(noIsbn10.getId());
+        }
+
+        @Test
+        void has_reviewCount_matchesWhenPresent() {
+            BookEntity withReviews = createBook("With Reviews");
+            withReviews.getMetadata().setAudibleReviewCount(150);
+            em.merge(withReviews.getMetadata());
+
+            BookEntity noReviews = createBook("No Reviews");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "audibleReviewCount"));
+            assertThat(ids).contains(withReviews.getId());
+            assertThat(ids).doesNotContain(noReviews.getId());
+        }
+
+        @Test
+        void has_otherExternalIds_matchWhenPresent() {
+            BookEntity withIds = createBook("With External IDs");
+            withIds.getMetadata().setAudibleId("AUD123");
+            withIds.getMetadata().setComicvineId("CV456");
+            withIds.getMetadata().setHardcoverId("HC789");
+            withIds.getMetadata().setGoogleId("G012");
+            withIds.getMetadata().setLubimyczytacId("LUB345");
+            withIds.getMetadata().setRanobedbId("RAN678");
+            em.merge(withIds.getMetadata());
+
+            BookEntity noIds = createBook("No External IDs");
+            em.flush();
+            em.clear();
+
+            for (String field : List.of("audibleId", "comicvineId", "hardcoverId", "googleId", "lubimyczytacId", "ranobedbId")) {
+                List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, field));
+                assertThat(ids).as("Has %s", field).contains(withIds.getId());
+                assertThat(ids).as("Has %s", field).doesNotContain(noIds.getId());
+            }
+        }
+
+        @Test
+        void has_otherRatings_matchWhenPresent() {
+            BookEntity withRatings = createBook("With Ratings");
+            withRatings.getMetadata().setGoodreadsRating(4.2);
+            withRatings.getMetadata().setHardcoverRating(3.8);
+            withRatings.getMetadata().setRanobedbRating(4.0);
+            withRatings.getMetadata().setLubimyczytacRating(4.5);
+            withRatings.getMetadata().setAudibleRating(4.1);
+            em.merge(withRatings.getMetadata());
+
+            BookEntity noRatings = createBook("No Ratings");
+            em.flush();
+            em.clear();
+
+            for (String field : List.of("goodreadsRating", "hardcoverRating", "ranobedbRating", "lubimyczytacRating", "audibleRating")) {
+                List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, field));
+                assertThat(ids).as("Has %s", field).contains(withRatings.getId());
+                assertThat(ids).as("Has %s", field).doesNotContain(noRatings.getId());
+            }
+        }
+
+        @Test
+        void has_personalRating_noProgressEntity_treatedAsAbsent() {
+            BookEntity noProgress = createBook("No Progress At All");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "personalRating"));
+            assertThat(ids).doesNotContain(noProgress.getId());
+        }
+
+        @Test
+        void mixedWithOtherRuleTypes() {
+            BookEntity matchesBoth = createBook("Matching Book");
+            matchesBoth.getMetadata().setDescription("A great story");
+            matchesBoth.getMetadata().setPageCount(250);
+            em.merge(matchesBoth.getMetadata());
+
+            BookEntity hasDescNoPages = createBook("Has Desc No Pages");
+            hasDescNoPages.getMetadata().setDescription("Another story");
+            em.merge(hasDescNoPages.getMetadata());
+
+            BookEntity shortWithPages = createBook("Short with Pages");
+            shortWithPages.getMetadata().setPageCount(100);
+            em.merge(shortWithPages.getMetadata());
+            em.flush();
+            em.clear();
+
+            Rule presenceRule = new Rule();
+            presenceRule.setField(RuleField.METADATA_PRESENCE);
+            presenceRule.setOperator(RuleOperator.EQUALS);
+            presenceRule.setValue("description");
+
+            Rule pageRule = new Rule();
+            pageRule.setField(RuleField.PAGE_COUNT);
+            pageRule.setOperator(RuleOperator.GREATER_THAN);
+            pageRule.setValue(200);
+
+            GroupRule group = new GroupRule();
+            group.setJoin(JoinType.AND);
+            group.setRules(List.of(presenceRule, pageRule));
+
+            List<Long> ids = findMatchingIds(group);
+            assertThat(ids).contains(matchesBoth.getId());
+            assertThat(ids).doesNotContain(hasDescNoPages.getId(), shortWithPages.getId());
+        }
+
+        @Test
+        void has_otherReviewCounts_matchWhenPresent() {
+            BookEntity withReviews = createBook("With All Reviews");
+            withReviews.getMetadata().setAmazonReviewCount(100);
+            withReviews.getMetadata().setGoodreadsReviewCount(200);
+            withReviews.getMetadata().setHardcoverReviewCount(50);
+            em.merge(withReviews.getMetadata());
+
+            BookEntity noReviews = createBook("No Review Counts");
+            em.flush();
+            em.clear();
+
+            for (String field : List.of("amazonReviewCount", "goodreadsReviewCount", "hardcoverReviewCount")) {
+                List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, field));
+                assertThat(ids).as("Has %s", field).contains(withReviews.getId());
+                assertThat(ids).as("Has %s", field).doesNotContain(noReviews.getId());
+            }
+        }
+
+        @Test
+        void has_comicEditors_matchesWhenPresent() {
+            BookEntity comicBook = createBook("Editor Comic");
+            ComicMetadataEntity comicMeta = ComicMetadataEntity.builder()
+                    .bookId(comicBook.getId())
+                    .bookMetadata(comicBook.getMetadata())
+                    .build();
+            em.persist(comicMeta);
+            comicBook.getMetadata().setComicMetadata(comicMeta);
+            em.merge(comicBook.getMetadata());
+
+            ComicCreatorEntity editor = ComicCreatorEntity.builder().name("Editor Person MP").build();
+            em.persist(editor);
+            ComicCreatorMappingEntity mapping = ComicCreatorMappingEntity.builder()
+                    .comicMetadata(comicMeta)
+                    .creator(editor)
+                    .role(ComicCreatorRole.EDITOR)
+                    .build();
+            em.persist(mapping);
+
+            BookEntity noEditors = createBook("No Editors");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "comicEditors"));
+            assertThat(ids).contains(comicBook.getId());
+            assertThat(ids).doesNotContain(noEditors.getId());
+        }
+
+        @Test
+        void hasNot_comicCharacters_matchesWhenAbsent() {
+            BookEntity comicBook = createBook("Comic With Chars");
+            ComicMetadataEntity comicMeta = ComicMetadataEntity.builder()
+                    .bookId(comicBook.getId())
+                    .bookMetadata(comicBook.getMetadata())
+                    .build();
+            ComicCharacterEntity character = ComicCharacterEntity.builder().name("Batman MP").build();
+            em.persist(character);
+            comicMeta.setCharacters(new HashSet<>(Set.of(character)));
+            em.persist(comicMeta);
+            comicBook.getMetadata().setComicMetadata(comicMeta);
+            em.merge(comicBook.getMetadata());
+
+            BookEntity noChars = createBook("No Characters");
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.NOT_EQUALS, "comicCharacters"));
+            assertThat(ids).contains(noChars.getId());
+            assertThat(ids).doesNotContain(comicBook.getId());
+        }
+
+        @Test
+        void has_audiobookDuration_fileWithoutDuration_doesNotMatch() {
+            BookEntity bookNoDuration = createBook("File Without Duration");
+            BookFileEntity fileNoDuration = BookFileEntity.builder()
+                    .book(bookNoDuration)
+                    .fileName("noduration.m4b")
+                    .fileSubPath("")
+                    .isBookFormat(true)
+                    .bookType(BookFileType.AUDIOBOOK)
+                    .build();
+            em.persist(fileNoDuration);
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.METADATA_PRESENCE, RuleOperator.EQUALS, "audiobookDuration"));
+            assertThat(ids).doesNotContain(bookNoDuration.getId());
+        }
+    }
 
     @Nested
     class IntegerFieldTests {

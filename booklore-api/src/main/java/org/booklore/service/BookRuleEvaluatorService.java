@@ -7,8 +7,8 @@ import org.booklore.model.dto.GroupRule;
 import org.booklore.model.dto.Rule;
 import org.booklore.model.dto.RuleField;
 import org.booklore.model.dto.RuleOperator;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.UserBookProgressEntity;
+import org.booklore.model.entity.*;
+import org.booklore.model.enums.ComicCreatorRole;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import tools.jackson.core.type.TypeReference;
@@ -88,6 +88,10 @@ public class BookRuleEvaluatorService {
 
     private Predicate buildRulePredicate(Rule rule, CriteriaQuery<?> query, CriteriaBuilder cb, Root<BookEntity> root, Join<BookEntity, UserBookProgressEntity> progressJoin, Long userId) {
         if (rule.getField() == null || rule.getOperator() == null) return null;
+
+        if (rule.getField() == RuleField.METADATA_PRESENCE) {
+            return buildMetadataPresencePredicate(rule, query, cb, root, progressJoin);
+        }
 
         if (COMPOSITE_FIELDS.contains(rule.getField())) {
             return buildCompositeFieldPredicate(rule, query, cb, root, progressJoin, userId);
@@ -204,6 +208,102 @@ public class BookRuleEvaluatorService {
         };
 
         return negate ? cb.not(result) : result;
+    }
+
+    private Predicate buildMetadataPresencePredicate(Rule rule, CriteriaQuery<?> query, CriteriaBuilder cb, Root<BookEntity> root, Join<BookEntity, UserBookProgressEntity> progressJoin) {
+        boolean hasOperator = rule.getOperator() == RuleOperator.EQUALS;
+        String metadataField = rule.getValue() != null ? rule.getValue().toString() : "";
+        Predicate isPresent = buildFieldPresencePredicate(metadataField, query, cb, root, progressJoin);
+        return hasOperator ? isPresent : cb.not(isPresent);
+    }
+
+    private Predicate buildFieldPresencePredicate(String metadataField, CriteriaQuery<?> query, CriteriaBuilder cb, Root<BookEntity> root, Join<BookEntity, UserBookProgressEntity> progressJoin) {
+        return switch (metadataField) {
+            // Cover image — stored as hash on BookEntity
+            case "thumbnailUrl" -> cb.isNotNull(root.get("bookCoverHash"));
+
+            // Personal rating — on progress join
+            case "personalRating" -> cb.isNotNull(progressJoin.get("personalRating"));
+
+            // Audiobook duration — on BookFileEntity
+            case "audiobookDuration" -> {
+                Subquery<Long> sub = query.subquery(Long.class);
+                Root<BookFileEntity> subRoot = sub.from(BookFileEntity.class);
+                sub.select(cb.literal(1L)).where(
+                        cb.equal(subRoot.get("book").get("id"), root.get("id")),
+                        cb.isNotNull(subRoot.get("durationSeconds"))
+                );
+                yield cb.exists(sub);
+            }
+
+            // Collection fields on BookMetadataEntity
+            case "authors" -> collectionPresence(query, cb, root, "authors");
+            case "categories" -> collectionPresence(query, cb, root, "categories");
+            case "moods" -> collectionPresence(query, cb, root, "moods");
+            case "tags" -> collectionPresence(query, cb, root, "tags");
+
+            // Comic collection fields
+            case "comicCharacters" -> comicCollectionPresence(query, cb, root, "characters");
+            case "comicTeams" -> comicCollectionPresence(query, cb, root, "teams");
+            case "comicLocations" -> comicCollectionPresence(query, cb, root, "locations");
+
+            // Comic creator role fields
+            case "comicPencillers" -> comicCreatorPresence(query, cb, root, ComicCreatorRole.PENCILLER);
+            case "comicInkers" -> comicCreatorPresence(query, cb, root, ComicCreatorRole.INKER);
+            case "comicColorists" -> comicCreatorPresence(query, cb, root, ComicCreatorRole.COLORIST);
+            case "comicLetterers" -> comicCreatorPresence(query, cb, root, ComicCreatorRole.LETTERER);
+            case "comicCoverArtists" -> comicCreatorPresence(query, cb, root, ComicCreatorRole.COVER_ARTIST);
+            case "comicEditors" -> comicCreatorPresence(query, cb, root, ComicCreatorRole.EDITOR);
+
+            // String fields on BookMetadataEntity
+            case "title", "subtitle", "description", "publisher", "language", "seriesName",
+                 "isbn13", "isbn10", "asin", "contentRating", "narrator",
+                 "goodreadsId", "hardcoverId", "googleId", "audibleId",
+                 "lubimyczytacId", "ranobedbId", "comicvineId" ->
+                    stringPresence(cb, root.get("metadata").get(metadataField));
+
+            // Numeric/date/boolean fields on BookMetadataEntity
+            case "pageCount", "seriesNumber", "seriesTotal", "ageRating", "publishedDate", "abridged",
+                 "amazonRating", "goodreadsRating", "hardcoverRating", "ranobedbRating",
+                 "lubimyczytacRating", "audibleRating",
+                 "amazonReviewCount", "goodreadsReviewCount", "hardcoverReviewCount", "audibleReviewCount" ->
+                    cb.isNotNull(root.get("metadata").get(metadataField));
+
+            default -> cb.conjunction();
+        };
+    }
+
+    private Predicate stringPresence(CriteriaBuilder cb, Expression<?> field) {
+        return cb.and(cb.isNotNull(field), cb.notEqual(cb.trim(field.as(String.class)), ""));
+    }
+
+    private Predicate collectionPresence(CriteriaQuery<?> query, CriteriaBuilder cb, Root<BookEntity> root, String collectionName) {
+        Subquery<Long> sub = query.subquery(Long.class);
+        Root<BookEntity> subRoot = sub.from(BookEntity.class);
+        Join<Object, Object> metadataJoin = subRoot.join("metadata", JoinType.INNER);
+        metadataJoin.join(collectionName, JoinType.INNER);
+        sub.select(cb.literal(1L)).where(cb.equal(subRoot.get("id"), root.get("id")));
+        return cb.exists(sub);
+    }
+
+    private Predicate comicCollectionPresence(CriteriaQuery<?> query, CriteriaBuilder cb, Root<BookEntity> root, String collectionName) {
+        Subquery<Long> sub = query.subquery(Long.class);
+        Root<BookEntity> subRoot = sub.from(BookEntity.class);
+        Join<Object, Object> metadataJoin = subRoot.join("metadata", JoinType.INNER);
+        Join<Object, Object> comicJoin = metadataJoin.join("comicMetadata", JoinType.INNER);
+        comicJoin.join(collectionName, JoinType.INNER);
+        sub.select(cb.literal(1L)).where(cb.equal(subRoot.get("id"), root.get("id")));
+        return cb.exists(sub);
+    }
+
+    private Predicate comicCreatorPresence(CriteriaQuery<?> query, CriteriaBuilder cb, Root<BookEntity> root, ComicCreatorRole role) {
+        Subquery<Long> sub = query.subquery(Long.class);
+        Root<ComicCreatorMappingEntity> subRoot = sub.from(ComicCreatorMappingEntity.class);
+        sub.select(cb.literal(1L)).where(
+                cb.equal(subRoot.get("comicMetadata").get("bookId"), root.get("id")),
+                cb.equal(subRoot.get("role"), role)
+        );
+        return cb.exists(sub);
     }
 
     private Predicate buildSeriesStatusPredicate(String value, CriteriaQuery<?> query, CriteriaBuilder cb, Root<BookEntity> root, Predicate hasSeries, Long userId) {

@@ -92,7 +92,8 @@ export type RuleField =
   | 'seriesStatus'
   | 'seriesGaps'
   | 'seriesPosition'
-  | 'readingProgress';
+  | 'readingProgress'
+  | 'metadataPresence';
 
 
 interface FullFieldConfig {
@@ -183,7 +184,8 @@ const FIELD_CONFIGS: Record<RuleField, FullFieldConfig> = {
   seriesStatus: {label: 'seriesStatus'},
   seriesGaps: {label: 'seriesGaps'},
   seriesPosition: {label: 'seriesPosition'},
-  readingProgress: {label: 'readingProgress', type: 'decimal', max: 100}
+  readingProgress: {label: 'readingProgress', type: 'decimal', max: 100},
+  metadataPresence: {label: 'metadataPresence'}
 };
 
 interface FieldGroup {
@@ -196,7 +198,8 @@ const FIELD_GROUPS: FieldGroup[] = [
   { translationKey: 'bookInfo', fields: ['title', 'subtitle', 'description', 'authors', 'categories', 'publisher', 'language', 'pageCount', 'ageRating', 'contentRating'] },
   { translationKey: 'series', fields: ['seriesName', 'seriesNumber', 'seriesTotal', 'seriesStatus', 'seriesGaps', 'seriesPosition'] },
   { translationKey: 'dates', fields: ['publishedDate', 'dateFinished', 'lastReadTime', 'addedOn'] },
-  { translationKey: 'ratingsReviews', fields: ['personalRating', 'metadataScore', 'amazonRating', 'amazonReviewCount', 'goodreadsRating', 'goodreadsReviewCount', 'hardcoverRating', 'hardcoverReviewCount', 'ranobedbRating', 'lubimyczytacRating', 'audibleRating', 'audibleReviewCount'] },
+  { translationKey: 'ratingsReviews', fields: ['personalRating', 'amazonRating', 'amazonReviewCount', 'goodreadsRating', 'goodreadsReviewCount', 'hardcoverRating', 'hardcoverReviewCount', 'ranobedbRating', 'lubimyczytacRating', 'audibleRating', 'audibleReviewCount'] },
+  { translationKey: 'qualityMetadata', fields: ['metadataScore', 'metadataPresence'] },
   { translationKey: 'tagsMoods', fields: ['moods', 'tags'] },
   { translationKey: 'audiobook', fields: ['narrator', 'abridged', 'audiobookDuration'] },
   { translationKey: 'fileIdentifiers', fields: ['fileType', 'fileSize', 'isbn13', 'isbn10', 'isPhysical'] }
@@ -327,6 +330,81 @@ export class MagicShelfComponent implements OnInit {
       {label: this.t.translate('magicShelf.seriesPositions.nextUnread'), value: 'next_unread'},
       {label: this.t.translate('magicShelf.seriesPositions.firstInSeries'), value: 'first_in_series'},
       {label: this.t.translate('magicShelf.seriesPositions.lastInSeries'), value: 'last_in_series'},
+    ];
+  }
+
+  get metadataPresenceOptions() {
+    return [
+      { label: this.t.translate('magicShelf.metadataFieldGroups.bookInfo'), items: [
+        {label: this.t.translate('magicShelf.metadataFields.title'), value: 'title'},
+        {label: this.t.translate('magicShelf.metadataFields.subtitle'), value: 'subtitle'},
+        {label: this.t.translate('magicShelf.metadataFields.description'), value: 'description'},
+        {label: this.t.translate('magicShelf.metadataFields.thumbnailUrl'), value: 'thumbnailUrl'},
+        {label: this.t.translate('magicShelf.metadataFields.publisher'), value: 'publisher'},
+        {label: this.t.translate('magicShelf.metadataFields.publishedDate'), value: 'publishedDate'},
+        {label: this.t.translate('magicShelf.metadataFields.language'), value: 'language'},
+        {label: this.t.translate('magicShelf.metadataFields.pageCount'), value: 'pageCount'},
+      ]},
+      { label: this.t.translate('magicShelf.metadataFieldGroups.authorsCategories'), items: [
+        {label: this.t.translate('magicShelf.metadataFields.authors'), value: 'authors'},
+        {label: this.t.translate('magicShelf.metadataFields.categories'), value: 'categories'},
+        {label: this.t.translate('magicShelf.metadataFields.moods'), value: 'moods'},
+        {label: this.t.translate('magicShelf.metadataFields.tags'), value: 'tags'},
+      ]},
+      { label: this.t.translate('magicShelf.metadataFieldGroups.series'), items: [
+        {label: this.t.translate('magicShelf.metadataFields.seriesName'), value: 'seriesName'},
+        {label: this.t.translate('magicShelf.metadataFields.seriesNumber'), value: 'seriesNumber'},
+        {label: this.t.translate('magicShelf.metadataFields.seriesTotal'), value: 'seriesTotal'},
+      ]},
+      { label: this.t.translate('magicShelf.metadataFieldGroups.identifiers'), items: [
+        {label: this.t.translate('magicShelf.metadataFields.isbn13'), value: 'isbn13'},
+        {label: this.t.translate('magicShelf.metadataFields.isbn10'), value: 'isbn10'},
+        {label: this.t.translate('magicShelf.metadataFields.asin'), value: 'asin'},
+      ]},
+      { label: this.t.translate('magicShelf.metadataFieldGroups.contentClassification'), items: [
+        {label: this.t.translate('magicShelf.metadataFields.ageRating'), value: 'ageRating'},
+        {label: this.t.translate('magicShelf.metadataFields.contentRating'), value: 'contentRating'},
+      ]},
+      { label: this.t.translate('magicShelf.metadataFieldGroups.ratings'), items: [
+        {label: this.t.translate('magicShelf.metadataFields.personalRating'), value: 'personalRating'},
+        {label: this.t.translate('magicShelf.metadataFields.amazonRating'), value: 'amazonRating'},
+        {label: this.t.translate('magicShelf.metadataFields.goodreadsRating'), value: 'goodreadsRating'},
+        {label: this.t.translate('magicShelf.metadataFields.hardcoverRating'), value: 'hardcoverRating'},
+        {label: this.t.translate('magicShelf.metadataFields.ranobedbRating'), value: 'ranobedbRating'},
+        {label: this.t.translate('magicShelf.metadataFields.lubimyczytacRating'), value: 'lubimyczytacRating'},
+        {label: this.t.translate('magicShelf.metadataFields.audibleRating'), value: 'audibleRating'},
+      ]},
+      { label: this.t.translate('magicShelf.metadataFieldGroups.reviewCounts'), items: [
+        {label: this.t.translate('magicShelf.metadataFields.amazonReviewCount'), value: 'amazonReviewCount'},
+        {label: this.t.translate('magicShelf.metadataFields.goodreadsReviewCount'), value: 'goodreadsReviewCount'},
+        {label: this.t.translate('magicShelf.metadataFields.hardcoverReviewCount'), value: 'hardcoverReviewCount'},
+        {label: this.t.translate('magicShelf.metadataFields.audibleReviewCount'), value: 'audibleReviewCount'},
+      ]},
+      { label: this.t.translate('magicShelf.metadataFieldGroups.externalIds'), items: [
+        {label: this.t.translate('magicShelf.metadataFields.goodreadsId'), value: 'goodreadsId'},
+        {label: this.t.translate('magicShelf.metadataFields.hardcoverId'), value: 'hardcoverId'},
+        {label: this.t.translate('magicShelf.metadataFields.googleId'), value: 'googleId'},
+        {label: this.t.translate('magicShelf.metadataFields.audibleId'), value: 'audibleId'},
+        {label: this.t.translate('magicShelf.metadataFields.lubimyczytacId'), value: 'lubimyczytacId'},
+        {label: this.t.translate('magicShelf.metadataFields.ranobedbId'), value: 'ranobedbId'},
+        {label: this.t.translate('magicShelf.metadataFields.comicvineId'), value: 'comicvineId'},
+      ]},
+      { label: this.t.translate('magicShelf.metadataFieldGroups.audiobook'), items: [
+        {label: this.t.translate('magicShelf.metadataFields.narrator'), value: 'narrator'},
+        {label: this.t.translate('magicShelf.metadataFields.abridged'), value: 'abridged'},
+        {label: this.t.translate('magicShelf.metadataFields.audiobookDuration'), value: 'audiobookDuration'},
+      ]},
+      { label: this.t.translate('magicShelf.metadataFieldGroups.comic'), items: [
+        {label: this.t.translate('magicShelf.metadataFields.comicCharacters'), value: 'comicCharacters'},
+        {label: this.t.translate('magicShelf.metadataFields.comicTeams'), value: 'comicTeams'},
+        {label: this.t.translate('magicShelf.metadataFields.comicLocations'), value: 'comicLocations'},
+        {label: this.t.translate('magicShelf.metadataFields.comicPencillers'), value: 'comicPencillers'},
+        {label: this.t.translate('magicShelf.metadataFields.comicInkers'), value: 'comicInkers'},
+        {label: this.t.translate('magicShelf.metadataFields.comicColorists'), value: 'comicColorists'},
+        {label: this.t.translate('magicShelf.metadataFields.comicLetterers'), value: 'comicLetterers'},
+        {label: this.t.translate('magicShelf.metadataFields.comicCoverArtists'), value: 'comicCoverArtists'},
+        {label: this.t.translate('magicShelf.metadataFields.comicEditors'), value: 'comicEditors'},
+      ]},
     ];
   }
 
@@ -540,7 +618,7 @@ export class MagicShelfComponent implements OnInit {
         {label: this.t.translate('magicShelf.operators.isNot'), value: 'not_equals'},
       ];
     }
-    if (field === 'seriesGaps') {
+    if (field === 'seriesGaps' || field === 'metadataPresence') {
       return [
         {label: this.t.translate('magicShelf.operators.has'), value: 'equals'},
         {label: this.t.translate('magicShelf.operators.hasNot'), value: 'not_equals'},

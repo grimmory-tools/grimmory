@@ -96,6 +96,8 @@ public enum RuleField {
     @JsonProperty("seriesPosition")
     SERIES_POSITION,
     @JsonProperty("readingProgress")
-    READING_PROGRESS
+    READING_PROGRESS,
+    @JsonProperty("metadataPresence")
+    METADATA_PRESENCE
 }
 

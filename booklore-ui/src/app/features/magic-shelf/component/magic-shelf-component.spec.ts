@@ -63,6 +63,14 @@ describe('MagicShelfComponent (Part 3)', () => {
       expect(operators[0].label).toContain('has');
     });
 
+    it('should return has/hasNot operators for metadataPresence', () => {
+      const operators = component.getOperatorOptionsForField('metadataPresence');
+      expect(operators).toHaveLength(2);
+      expect(operators.map(o => o.value)).toEqual(['equals', 'not_equals']);
+      expect(operators[0].label).toContain('has');
+      expect(operators[1].label).toContain('hasNot');
+    });
+
     it('should include relative date operators for date fields', () => {
       const operators = component.getOperatorOptionsForField('dateFinished');
       const values = operators.map(o => o.value);
@@ -496,8 +504,8 @@ describe('MagicShelfComponent (Part 3)', () => {
   });
 
   describe('fieldOptions completeness', () => {
-    it('should have 8 groups total', () => {
-      expect(component.fieldOptions.length).toBe(8);
+    it('should have 9 groups total', () => {
+      expect(component.fieldOptions.length).toBe(9);
     });
 
     it('should map categories field to genre translation key', () => {
@@ -525,6 +533,70 @@ describe('MagicShelfComponent (Part 3)', () => {
       expect(fieldValues).toContain('dateFinished');
       expect(fieldValues).toContain('lastReadTime');
       expect(fieldValues).toContain('addedOn');
+    });
+
+    it('should include metadataScore and metadataPresence in qualityMetadata group', () => {
+      const groups = component.fieldOptions;
+      const qualityGroup = groups.find(g => g.label.includes('qualityMetadata'));
+      const fieldValues = qualityGroup?.items.map(i => i.value) ?? [];
+      expect(fieldValues).toContain('metadataScore');
+      expect(fieldValues).toContain('metadataPresence');
+    });
+
+    it('should NOT include metadataScore in ratingsReviews group', () => {
+      const groups = component.fieldOptions;
+      const ratingsGroup = groups.find(g => g.label.includes('ratingsReviews'));
+      const fieldValues = ratingsGroup?.items.map(i => i.value) ?? [];
+      expect(fieldValues).not.toContain('metadataScore');
+    });
+  });
+
+  describe('metadataPresenceOptions', () => {
+    it('should return 10 groups', () => {
+      const options = component.metadataPresenceOptions;
+      expect(options).toHaveLength(10);
+    });
+
+    it('should have grouped structure with label and items', () => {
+      const options = component.metadataPresenceOptions;
+      options.forEach(group => {
+        expect(group.label).toBeDefined();
+        expect(group.items).toBeDefined();
+        expect(group.items.length).toBeGreaterThan(0);
+        group.items.forEach(item => {
+          expect(item.label).toBeDefined();
+          expect(item.value).toBeDefined();
+        });
+      });
+    });
+
+    it('should include key metadata fields', () => {
+      const options = component.metadataPresenceOptions;
+      const allValues = options.flatMap(g => g.items.map(i => i.value));
+      expect(allValues).toContain('title');
+      expect(allValues).toContain('thumbnailUrl');
+      expect(allValues).toContain('authors');
+      expect(allValues).toContain('isbn13');
+      expect(allValues).toContain('goodreadsId');
+      expect(allValues).toContain('audiobookDuration');
+      expect(allValues).toContain('comicCharacters');
+    });
+  });
+
+  describe('buildRuleFromData for metadataPresence', () => {
+    it('should parse metadataPresence rule with string value', () => {
+      const rule: Rule = {field: 'metadataPresence', operator: 'equals', value: 'thumbnailUrl'};
+      const formGroup = component.buildRuleFromData(rule);
+      expect(formGroup.get('field')?.value).toBe('metadataPresence');
+      expect(formGroup.get('operator')?.value).toBe('equals');
+      expect(formGroup.get('value')?.value).toBe('thumbnailUrl');
+    });
+
+    it('should parse metadataPresence rule with not_equals', () => {
+      const rule: Rule = {field: 'metadataPresence', operator: 'not_equals', value: 'description'};
+      const formGroup = component.buildRuleFromData(rule);
+      expect(formGroup.get('operator')?.value).toBe('not_equals');
+      expect(formGroup.get('value')?.value).toBe('description');
     });
   });
 

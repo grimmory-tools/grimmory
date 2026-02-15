@@ -159,6 +159,8 @@
                     <p-select [options]="seriesGapsOptions" formControlName="value" [placeholder]="t('placeholders.selectSeriesGap')" appendTo="body" class="value-input"></p-select>
                   } @else if (ruleCtrl.get('field')?.value === 'seriesPosition') {
                     <p-select [options]="seriesPositionOptions" formControlName="value" [placeholder]="t('placeholders.selectSeriesPosition')" appendTo="body" class="value-input"></p-select>
+                  } @else if (ruleCtrl.get('field')?.value === 'metadataPresence') {
+                    <p-select [options]="metadataPresenceOptions" [group]="true" optionGroupLabel="label" optionGroupChildren="items" [filter]="true" filterBy="label" formControlName="value" [placeholder]="t('placeholders.selectMetadataField')" appendTo="body" class="value-input"></p-select>
                   } @else if (['includes_any', 'includes_all', 'excludes_all'].includes(ruleCtrl.get('operator')?.value)) {
                     @if (ruleCtrl.get('field')?.value === 'readStatus') {
                       <p-multiSelect [options]="readStatusOptions" formControlName="value" display="chip" class="value-input" appendTo="body" [placeholder]="t('placeholders.selectStatuses')"></p-multiSelect>

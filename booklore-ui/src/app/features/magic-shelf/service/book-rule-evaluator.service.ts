@@ -17,6 +17,10 @@ export class BookRuleEvaluatorService {
   }
 
   private evaluateRule(book: Book, rule: Rule, allBooks: Book[]): boolean {
+    if (rule.field === 'metadataPresence') {
+      return this.evaluateMetadataPresence(book, rule);
+    }
+
     if (rule.field === 'seriesStatus' || rule.field === 'seriesGaps' || rule.field === 'seriesPosition') {
       return this.evaluateCompositeField(book, rule, allBooks);
     }
@@ -469,6 +473,76 @@ export class BookRuleEvaluatorService {
       }
       default:
         return false;
+    }
+  }
+
+  private evaluateMetadataPresence(book: Book, rule: Rule): boolean {
+    const metadataField = typeof rule.value === 'string' ? rule.value : '';
+    const isPresent = this.isMetadataFieldPresent(book, metadataField);
+    return rule.operator === 'equals' ? isPresent : !isPresent;
+  }
+
+  private isMetadataFieldPresent(book: Book, field: string): boolean {
+    const val = this.getMetadataFieldValue(book, field);
+    if (val == null) return false;
+    if (typeof val === 'string') return val.trim() !== '';
+    if (Array.isArray(val)) return val.length > 0;
+    return true;
+  }
+
+  private getMetadataFieldValue(book: Book, field: string): unknown {
+    switch (field) {
+      case 'title': return book.metadata?.title;
+      case 'subtitle': return book.metadata?.subtitle;
+      case 'description': return book.metadata?.description;
+      case 'publisher': return book.metadata?.publisher;
+      case 'publishedDate': return book.metadata?.publishedDate;
+      case 'language': return book.metadata?.language;
+      case 'thumbnailUrl': return book.metadata?.thumbnailUrl;
+      case 'narrator': return book.metadata?.narrator;
+      case 'contentRating': return book.metadata?.contentRating;
+      case 'pageCount': return book.metadata?.pageCount;
+      case 'seriesNumber': return book.metadata?.seriesNumber;
+      case 'seriesTotal': return book.metadata?.seriesTotal;
+      case 'ageRating': return book.metadata?.ageRating;
+      case 'seriesName': return book.metadata?.seriesName;
+      case 'isbn13': return book.metadata?.isbn13;
+      case 'isbn10': return book.metadata?.isbn10;
+      case 'asin': return book.metadata?.asin;
+      case 'authors': return book.metadata?.authors;
+      case 'categories': return book.metadata?.categories;
+      case 'moods': return book.metadata?.moods;
+      case 'tags': return book.metadata?.tags;
+      case 'personalRating': return book.personalRating;
+      case 'amazonRating': return book.metadata?.amazonRating;
+      case 'goodreadsRating': return book.metadata?.goodreadsRating;
+      case 'hardcoverRating': return book.metadata?.hardcoverRating;
+      case 'ranobedbRating': return book.metadata?.ranobedbRating;
+      case 'lubimyczytacRating': return book.metadata?.lubimyczytacRating;
+      case 'audibleRating': return book.metadata?.audibleRating;
+      case 'amazonReviewCount': return book.metadata?.amazonReviewCount;
+      case 'goodreadsReviewCount': return book.metadata?.goodreadsReviewCount;
+      case 'hardcoverReviewCount': return book.metadata?.hardcoverReviewCount;
+      case 'audibleReviewCount': return book.metadata?.audibleReviewCount;
+      case 'goodreadsId': return book.metadata?.goodreadsId;
+      case 'hardcoverId': return book.metadata?.hardcoverId;
+      case 'googleId': return book.metadata?.googleId;
+      case 'audibleId': return book.metadata?.audibleId;
+      case 'lubimyczytacId': return book.metadata?.lubimyczytacId;
+      case 'ranobedbId': return book.metadata?.ranobedbId;
+      case 'comicvineId': return book.metadata?.comicvineId;
+      case 'abridged': return book.metadata?.abridged;
+      case 'audiobookDuration': return book.metadata?.audiobookMetadata?.durationSeconds;
+      case 'comicCharacters': return book.metadata?.comicMetadata?.characters;
+      case 'comicTeams': return book.metadata?.comicMetadata?.teams;
+      case 'comicLocations': return book.metadata?.comicMetadata?.locations;
+      case 'comicPencillers': return book.metadata?.comicMetadata?.pencillers;
+      case 'comicInkers': return book.metadata?.comicMetadata?.inkers;
+      case 'comicColorists': return book.metadata?.comicMetadata?.colorists;
+      case 'comicLetterers': return book.metadata?.comicMetadata?.letterers;
+      case 'comicCoverArtists': return book.metadata?.comicMetadata?.coverArtists;
+      case 'comicEditors': return book.metadata?.comicMetadata?.editors;
+      default: return null;
     }
   }
 
