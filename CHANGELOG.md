@@ -1,3 +1,10 @@
+## [1.20.1](https://gitlab.theprivateserver.de/WorldTeacher/wt-booklore/compare/1.20.0...1.20.1) (2026-02-15)
+
+
+### Bug Fixes
+
+* test prod auto ([cd824ed](https://gitlab.theprivateserver.de/WorldTeacher/wt-booklore/commit/cd824ed25c469422ad699e0de8622bd00621d865))
+
 # [1.20.0](https://gitlab.theprivateserver.de/WorldTeacher/wt-booklore/compare/1.19.0...1.20.0) (2026-02-15)
 
 
