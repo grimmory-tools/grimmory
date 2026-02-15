@@ -1,11 +1,12 @@
+<ng-container *transloco="let t; prefix: 'statsLibrary.metadataScore'">
 <div class="metadata-score-container">
   <div class="chart-header">
     <div class="chart-title">
       <h3>
         <i class="pi pi-check-circle score-title-icon"></i>
-        Metadata Score
+        {{ t('title') }}
       </h3>
-      <p class="chart-description">Quality of book metadata in your library</p>
+      <p class="chart-description">{{ t('description') }}</p>
     </div>
   </div>
 
@@ -22,7 +23,8 @@
   @if (totalBooks === 0) {
     <div class="no-data-message">
       <i class="pi pi-info-circle"></i>
-      <p>No metadata score data available.</p>
+      <p>{{ t('noData') }}</p>
     </div>
   }
 </div>
+</ng-container>

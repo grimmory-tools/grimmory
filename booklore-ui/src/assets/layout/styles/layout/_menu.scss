@@ -3,7 +3,7 @@
 
 .layout-sidebar {
   position: fixed;
-  width: 225px;
+  width: var(--sidebar-width, 225px);
   height: calc(100dvh - 6.1rem);
   z-index: 999;
   overflow-y: auto;

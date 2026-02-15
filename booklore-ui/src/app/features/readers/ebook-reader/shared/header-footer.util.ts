@@ -11,7 +11,7 @@ export interface ThemeInfo {
 export class PageDecorator {
   private static readonly DEFAULT_FONT_SIZE = '0.875rem';
 
-  static updateHeadersAndFooters(renderer: any, chapterName: string, pageInfo?: PageInfo, theme?: ThemeInfo): void {
+  static updateHeadersAndFooters(renderer: any, chapterName: string, pageInfo?: PageInfo, theme?: ThemeInfo, timeRemainingLabel?: string): void {
 
     if (!renderer) {
       return;
@@ -21,7 +21,7 @@ export class PageDecorator {
     const isSingleColumn = columnCount === 1;
 
     this.updateHeaders(renderer, chapterName, isSingleColumn, theme);
-    this.updateFooters(renderer, pageInfo, isSingleColumn, theme);
+    this.updateFooters(renderer, pageInfo, isSingleColumn, theme, timeRemainingLabel);
   }
 
   private static updateHeaders(renderer: any, chapterName: string, isSingleColumn: boolean, theme?: ThemeInfo): void {
@@ -40,7 +40,7 @@ export class PageDecorator {
     });
   }
 
-  private static updateFooters(renderer: any, pageInfo: PageInfo | undefined, isSingleColumn: boolean, theme?: ThemeInfo): void {
+  private static updateFooters(renderer: any, pageInfo: PageInfo | undefined, isSingleColumn: boolean, theme?: ThemeInfo, timeRemainingLabel?: string): void {
     if (!renderer.feet || !Array.isArray(renderer.feet) || renderer.feet.length === 0 || !pageInfo) {
       return;
     }
@@ -49,7 +49,7 @@ export class PageDecorator {
 
     renderer.feet.forEach((footElement: HTMLElement, index: number) => {
       if (footElement) {
-        const footerContent = this.createFooterContent(pageInfo, isSingleColumn, index, renderer.feet.length, footerStyle);
+        const footerContent = this.createFooterContent(pageInfo, isSingleColumn, index, renderer.feet.length, footerStyle, timeRemainingLabel);
         footElement.replaceChildren(footerContent);
       }
     });
@@ -88,11 +88,11 @@ export class PageDecorator {
     return headerContent;
   }
 
-  private static createFooterContent(pageInfo: PageInfo, isSingleColumn: boolean, index: number, totalColumns: number, style: string): HTMLElement {
+  private static createFooterContent(pageInfo: PageInfo, isSingleColumn: boolean, index: number, totalColumns: number, style: string, timeRemainingLabel?: string): HTMLElement {
     const footerContent = document.createElement('div');
     footerContent.style.cssText = style;
 
-    const text = 'Time remaining in section: ' + (pageInfo.sectionTimeText ?? '0s');
+    const text = timeRemainingLabel ?? ('Time remaining in section: ' + (pageInfo.sectionTimeText ?? '0s'));
 
     if (isSingleColumn) {
       const timeSpan = document.createElement('span');

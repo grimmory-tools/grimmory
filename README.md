@@ -1,5 +1,9 @@
 <p align="center">
-  <img src="assets/logo with text.svg" alt="BookLore" height="80" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-with-text-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="assets/logo-with-text-light.svg">
+    <img src="assets/logo-with-text-light.svg" alt="BookLore" height="80" />
+  </picture>
 </p>
 
 <p align="center"><strong>Your books deserve a home. This is it.</strong></p>

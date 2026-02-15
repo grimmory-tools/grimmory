@@ -22,31 +22,12 @@ export interface ReadingSessionResponse {
 
 export interface PageableResponse<T> {
   content: T[];
-  pageable: {
-    pageNumber: number;
-    pageSize: number;
-    sort: {
-      empty: boolean;
-      sorted: boolean;
-      unsorted: boolean;
-    };
-    offset: number;
-    paged: boolean;
-    unpaged: boolean;
+  page: {
+    totalElements: number;
+    totalPages: number;
+    number: number;
+    size: number;
   };
-  totalElements: number;
-  last: boolean;
-  totalPages: number;
-  numberOfElements: number;
-  first: boolean;
-  size: number;
-  number: number;
-  sort: {
-    empty: boolean;
-    sorted: boolean;
-    unsorted: boolean;
-  };
-  empty: boolean;
 }
 
 export interface CreateReadingSessionDto {

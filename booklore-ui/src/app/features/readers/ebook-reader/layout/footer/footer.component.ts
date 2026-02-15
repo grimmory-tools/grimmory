@@ -1,4 +1,5 @@
 import {Component, EventEmitter, HostListener, inject, Input, Output} from '@angular/core';
+import {TranslocoDirective} from '@jsverse/transloco';
 import {ReaderViewManagerService} from '../../core/view-manager.service';
 import {ReaderIconComponent} from '../../shared/icon.component';
 
@@ -30,7 +31,7 @@ interface RelocateEventDetail {
 @Component({
   selector: 'app-reader-navbar',
   standalone: true,
-  imports: [ReaderIconComponent],
+  imports: [TranslocoDirective, ReaderIconComponent],
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.scss']
 })

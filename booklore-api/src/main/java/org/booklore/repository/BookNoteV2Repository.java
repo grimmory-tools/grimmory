@@ -31,4 +31,7 @@ public interface BookNoteV2Repository extends JpaRepository<BookNoteV2Entity, Lo
     long countByBookIdAndUserId(Long bookId, Long userId);
 
     void deleteByBookIdAndUserId(Long bookId, Long userId);
+
+    @Query("SELECT n FROM BookNoteV2Entity n JOIN FETCH n.book b JOIN FETCH b.metadata WHERE n.userId = :userId ORDER BY n.createdAt DESC")
+    List<BookNoteV2Entity> findByUserIdOrderByCreatedAtDesc(@Param("userId") Long userId);
 }

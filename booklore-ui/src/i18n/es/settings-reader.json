@@ -125,6 +125,10 @@
     "black": "Negro",
     "white": "Blanco"
   },
+  "toast": {
+    "preferencesUpdated": "Preferencias actualizadas",
+    "preferencesUpdatedDetail": "Tus preferencias se han guardado correctamente."
+  },
   "fonts": {
     "sectionTitle": "Biblioteca de fuentes personalizadas",
     "sectionDesc": "Personaliza tu experiencia de lectura subiendo fuentes personalizadas para usar con formatos eBook (EPUB, FB2, MOBI, AZW3). Sube hasta 10 archivos de fuentes personalizadas que estarán disponibles para seleccionar en los ajustes del lector de eBooks.",

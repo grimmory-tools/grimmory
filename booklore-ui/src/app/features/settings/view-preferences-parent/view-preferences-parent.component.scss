@@ -16,3 +16,93 @@
 }
 
 @include settings.settings-section-divider;
+
+.preferences-section {
+  @media (min-width: 768px) {
+    padding: 0 1rem;
+  }
+}
+
+.section-header {
+  @include settings.settings-section-header;
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  @include settings.settings-section-title;
+  margin: 0;
+}
+
+.settings-card {
+  @include settings.settings-card;
+}
+
+.setting-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem;
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+.setting-info {
+  flex: 1;
+  min-width: 0;
+
+  .setting-label {
+    display: block;
+    font-weight: settings.$settings-section-title-weight;
+    color: var(--p-text-color);
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .setting-label-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+
+    .setting-label {
+      margin-bottom: 0;
+      flex-shrink: 0;
+      min-width: 180px;
+    }
+  }
+
+  .setting-description {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    color: var(--p-text-muted-color);
+    font-size: settings.$settings-section-description-size;
+    line-height: 1.5;
+    margin: 0;
+
+    .pi {
+      color: var(--p-primary-color);
+      margin-top: 0.125rem;
+      flex-shrink: 0;
+    }
+  }
+}
+
+.slider-container {
+  flex: 1;
+  min-width: 200px;
+  max-width: 300px;
+
+  @media (max-width: 768px) {
+    min-width: 180px;
+    max-width: 250px;
+  }
+}

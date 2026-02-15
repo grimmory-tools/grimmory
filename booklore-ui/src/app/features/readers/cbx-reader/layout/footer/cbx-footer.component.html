@@ -7,15 +7,15 @@
       [disabled]="!state.previousBookInSeries"
       [title]="getPreviousBookTooltip()">
       <app-reader-icon name="chevron-double-left" [size]="14" />
-      <span class="label hide-on-mobile">Prev Book</span>
+      <span class="label hide-on-mobile">{{ 'readerCbx.footer.prevBook' | transloco }}</span>
     </button>
   }
 
   <div class="page-nav-left">
-    <button class="nav-btn" (click)="onFirstPage()" [disabled]="!canGoPrevious" title="First Page">
+    <button class="nav-btn" (click)="onFirstPage()" [disabled]="!canGoPrevious" [title]="'readerCbx.footer.firstPage' | transloco">
       <app-reader-icon name="chevron-first" [size]="16" />
     </button>
-    <button class="nav-btn" (click)="onPreviousPage()" [disabled]="!canGoPrevious" title="Previous Page">
+    <button class="nav-btn" (click)="onPreviousPage()" [disabled]="!canGoPrevious" [title]="'readerCbx.footer.previousPage' | transloco">
       <app-reader-icon name="chevron-left" [size]="16" />
     </button>
     <div class="page-info">
@@ -23,13 +23,13 @@
       @if (displaySecondPage) {
         <span class="separator">-{{ displaySecondPage }}</span>
       }
-      <span class="total"> of {{ state.totalPages }}</span>
+      <span class="total"> {{ 'readerCbx.footer.of' | transloco }} {{ state.totalPages }}</span>
     </div>
 
-    <button class="nav-btn" (click)="onNextPage()" [disabled]="!canGoNext" title="Next Page">
+    <button class="nav-btn" (click)="onNextPage()" [disabled]="!canGoNext" [title]="'readerCbx.footer.nextPage' | transloco">
       <app-reader-icon name="chevron-right" [size]="16" />
     </button>
-    <button class="nav-btn" (click)="onLastPage()" [disabled]="!canGoNext" title="Last Page">
+    <button class="nav-btn" (click)="onLastPage()" [disabled]="!canGoNext" [title]="'readerCbx.footer.lastPage' | transloco">
       <app-reader-icon name="chevron-last" [size]="16" />
     </button>
   </div>
@@ -44,7 +44,7 @@
         [value]="sliderValue"
         (input)="onSliderChange($event)"
         list="page-ticks"
-        title="Page Slider"/>
+        [title]="'readerCbx.footer.pageSlider' | transloco"/>
       <datalist id="page-ticks">
         @for (tick of sliderTicks; track tick) {
           <option [value]="tick"></option>
@@ -59,7 +59,7 @@
           [(ngModel)]="goToPageInput"
           [min]="1"
           [max]="state.totalPages"
-          placeholder="Page"
+          [placeholder]="'readerCbx.footer.pagePlaceholder' | transloco"
           class="page-input"
           (keyup.enter)="onGoToPage()"
         />
@@ -67,7 +67,7 @@
           class="go-btn"
           (click)="onGoToPage()"
           [disabled]="goToPageInput === null || goToPageInput < 1 || goToPageInput > state.totalPages">
-          Go
+          {{ 'readerCbx.footer.go' | transloco }}
         </button>
       </div>
     </div>
@@ -83,7 +83,7 @@
       (click)="onNextBook()"
       [disabled]="!state.nextBookInSeries"
       [title]="getNextBookTooltip()">
-      <span class="label hide-on-mobile">Next Book</span>
+      <span class="label hide-on-mobile">{{ 'readerCbx.footer.nextBook' | transloco }}</span>
       <app-reader-icon name="chevron-double-right" [size]="14" />
     </button>
   }

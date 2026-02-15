@@ -279,7 +279,7 @@ class BookCoverServiceTest {
         MetadataPersistenceSettings settings = new MetadataPersistenceSettings();
         settings.setSaveToOriginalFile(saveToOriginalFileObj);
         settings.setConvertCbrCb7ToCbz(convertCbrCb7ToCbz);
-        return new org.booklore.model.dto.settings.AppSettings() {
+        return new AppSettings() {
             @Override
             public MetadataPersistenceSettings getMetadataPersistenceSettings() {
                 return settings;

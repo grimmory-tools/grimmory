@@ -1,3 +1,4 @@
+<ng-container *transloco="let t; prefix: 'book.browser'">
 <div class="book-browser-container">
   <div class="book-browser-main">
 
@@ -12,17 +13,17 @@
                 } @else if (isFilterActive || hasSearchTerm) {
                   {{ computedFilterLabel }}
                 } @else {
-                  All Books
+                  {{ t('labels.allBooks') }}
                 }
               } @else if (entityType === EntityType.UNSHELVED) {
-                {{ (isFilterActive || hasSearchTerm) ? 'Unshelved Books (Filtered)' : 'Unshelved Books' }}
+                {{ (isFilterActive || hasSearchTerm) ? t('labels.unshelvedBooksFiltered') : t('labels.unshelvedBooks') }}
               } @else {
-                {{ entityType }}: {{ (entity$ | async)?.name }}{{ (isFilterActive || hasSearchTerm) ? ' (Filtered)' : '' }}
+                {{ entityType }}: {{ (entity$ | async)?.name }}{{ (isFilterActive || hasSearchTerm) ? ' ' + t('labels.filteredSuffix') : '' }}
               }
             </p>
             @if (seriesCollapseFilter.isSeriesCollapsed && (bookState$ | async)?.books; as books) {
               <p class="series-collapsed-info">
-                Showing {{ books.length }} {{ books.length === 1 ? 'item' : 'items' }} (series collapsed)
+                {{ t('labels.seriesCollapsedInfo', { count: books.length, itemWord: books.length === 1 ? t('labels.item') : t('labels.items') }) }}
               </p>
             }
           </div>
@@ -50,7 +51,7 @@
             <a class="topbar-items topbar-item" (click)="clearFilter()">
               <i
                 class="pi pi-filter-slash filter-clear-icon"
-                pTooltip="Clear applied filters"
+                [pTooltip]="t('tooltip.clearFilters')"
                 tooltipPosition="top">
               </i>
             </a>
@@ -61,7 +62,7 @@
               <a class="topbar-items topbar-item" (click)="columnPopover.toggle($event)">
                 <i
                   class="pi pi-eye"
-                  pTooltip="Visible columns"
+                  [pTooltip]="t('tooltip.visibleColumns')"
                   tooltipPosition="top">
                 </i>
               </a>
@@ -73,16 +74,16 @@
                     [(ngModel)]="visibleColumns"
                     (ngModelChange)="onVisibleColumnsChange($event)"
                     display="chip"
-                    placeholder="Select Columns"
+                    [placeholder]="t('placeholder.selectColumns')"
                     [style]="{ width: '100%' }"
                     [filter]="true"
                     [showClear]="true"
                   ></p-multiSelect>
                 </div>
                 <div class="column-popover-footer">
-                  <p>Set as default?</p>
+                  <p>{{ t('labels.setAsDefault') }}</p>
                   <p-button
-                    label="Save"
+                    [label]="t('labels.save')"
                     outlined
                     size="small"
                     (click)="columnPreferenceService.saveVisibleColumns(visibleColumns)"></p-button>
@@ -94,7 +95,7 @@
             <a
               class="topbar-items topbar-item"
               (click)="seriesCollapseOverlay.toggle($event)"
-              pTooltip="Display settings"
+              [pTooltip]="t('tooltip.displaySettings')"
               tooltipPosition="top">
               <i class="pi pi-cog"></i>
             </a>
@@ -108,12 +109,12 @@
                       [ngModel]="seriesCollapseFilter.isSeriesCollapsed"
                       (onChange)="onSeriesCollapseCheckboxChange($event.checked)">
                     </p-checkbox>
-                    <label for="collapse-series-checkbox" class="display-settings-label">Collapse series</label>
+                    <label for="collapse-series-checkbox" class="display-settings-label">{{ t('labels.collapseSeries') }}</label>
                   </div>
                 </div>
                 @if (isMobile) {
                   <div class="display-settings-section">
-                    <label class="display-settings-label">Grid columns</label>
+                    <label class="display-settings-label">{{ t('labels.gridColumns') }}</label>
                     <div class="column-options">
                       <button
                         type="button"
@@ -134,7 +135,7 @@
                   </div>
                 } @else {
                   <div class="display-settings-section">
-                    <label class="display-settings-label">Grid item size</label>
+                    <label class="display-settings-label">{{ t('labels.gridItemSize') }}</label>
                     <p-slider
                       [(ngModel)]="coverScalePreferenceService.scaleFactor"
                       [min]="0.5"
@@ -156,7 +157,7 @@
                       [ngModel]="bookCardOverlayPreferenceService.showBookTypePill"
                       (onChange)="bookCardOverlayPreferenceService.setShowBookTypePill($event.checked)">
                     </p-checkbox>
-                    <label for="show-book-type-pill-checkbox" class="display-settings-label">Book type overlay</label>
+                    <label for="show-book-type-pill-checkbox" class="display-settings-label">{{ t('labels.bookTypeOverlay') }}</label>
                   </div>
                 </div>
               </div>
@@ -167,7 +168,7 @@
             <a class="topbar-items topbar-item" (click)="sortPopover.toggle($event)">
               <i
                 class="pi pi-sort"
-                pTooltip="Select sorting"
+                [pTooltip]="t('tooltip.selectSorting')"
                 tooltipPosition="top">
               </i>
               @if (sortCriteriaCount > 1) {
@@ -188,7 +189,7 @@
           <a class="topbar-items topbar-item" (click)="toggleTableGrid()">
             <i
               [ngClass]="viewIcon"
-              pTooltip="Toggle between Grid and Table view"
+              [pTooltip]="t('tooltip.toggleView')"
               tooltipPosition="top">
             </i>
           </a>
@@ -200,7 +201,7 @@
             type="button"
             class="topbar-items topbar-item"
             (click)="searchDropdown.toggle($event)"
-            pTooltip="Search"
+            [pTooltip]="t('tooltip.search')"
             tooltipPosition="top"
           >
             <i class="pi pi-search"></i>
@@ -211,7 +212,7 @@
               <input
                 type="text"
                 pInputText
-                placeholder="Title, Author, Series, Genre, or ISBN..."
+                [placeholder]="t('placeholder.search')"
                 [(ngModel)]="bookTitle"
                 (ngModelChange)="onSearchTermChange($event)"
                 class="search-input-full"
@@ -233,7 +234,7 @@
           <input
             type="text"
             pInputText
-            placeholder="Title, Author, Series, Genre, or ISBN..."
+            [placeholder]="t('placeholder.search')"
             [(ngModel)]="bookTitle"
             (ngModelChange)="onSearchTermChange($event)"
             class="search-input"
@@ -253,7 +254,7 @@
         <a class="topbar-items topbar-item" (click)="toggleSidebar()">
           <i
             [ngClass]="showFilter ? 'pi pi-angle-double-right' : 'pi pi-angle-double-left'"
-            pTooltip="Toggle sidebar filters"
+            [pTooltip]="t('tooltip.toggleSidebar')"
             tooltipPosition="top">
           </i>
         </a>
@@ -271,14 +272,14 @@
           @if (bookState?.error) {
             <div class="no-books-container">
               <p class="no-books-text">
-                {{ entityType === EntityType.LIBRARY ? "Failed to load library's books!" : "Failed to load shelf's books!" }}
+                {{ entityType === EntityType.LIBRARY ? t('labels.failedLibrary') : t('labels.failedShelf') }}
               </p>
             </div>
           }
           @if (!bookState?.error && bookState?.loaded && bookState?.books?.length === 0) {
             <div class="no-books-container">
               <p class="no-books-text">
-                This collection has no books!
+                {{ t('labels.noBooks') }}
               </p>
             </div>
           }
@@ -326,7 +327,7 @@
                     <div class="selected-count-badge">
                       <i class="pi pi-check-circle"></i>
                       <span class="selected-count">{{ selectedCount }}</span>
-                      <span class="selected-label">selected</span>
+                      <span class="selected-label">{{ t('labels.selected') }}</span>
                     </div>
                   </div>
                   <div class="footer-center">
@@ -336,7 +337,7 @@
                           <p-tieredMenu #menu [model]="metadataMenuItems" [popup]="true" appendTo="body" styleClass="footer-menu"/>
                           <p-button
                             (click)="menu.toggle($event)"
-                            pTooltip="Metadata actions"
+                            [pTooltip]="t('tooltip.metadataActions')"
                             tooltipPosition="top"
                             outlined="true"
                             severity="info"
@@ -348,7 +349,7 @@
                           outlined="true"
                           severity="info"
                           (onClick)="openShelfAssigner()"
-                          pTooltip="Assign to shelf"
+                          [pTooltip]="t('tooltip.assignToShelf')"
                           tooltipPosition="top">
                         </p-button>
                         @if (entityType === EntityType.SHELF) {
@@ -357,7 +358,7 @@
                             outlined="true"
                             severity="info"
                             (click)="unshelfBooks()"
-                            pTooltip="Remove from this shelf"
+                            [pTooltip]="t('tooltip.removeFromShelf')"
                             tooltipPosition="top">
                           </p-button>
                         }
@@ -367,7 +368,7 @@
                             icon="pi pi-lock"
                             severity="info"
                             (click)="lockUnlockMetadata()"
-                            pTooltip="Lock/Unlock metadata"
+                            [pTooltip]="t('tooltip.lockUnlockMetadata')"
                             tooltipPosition="top">
                           </p-button>
                         }
@@ -377,7 +378,7 @@
                             icon="pi pi-arrows-h"
                             severity="info"
                             (click)="moveFiles()"
-                            pTooltip="Organize Files"
+                            [pTooltip]="t('tooltip.organizeFiles')"
                             tooltipPosition="top">
                           </p-button>
                         }
@@ -388,7 +389,7 @@
                             severity="info"
                             (click)="attachFilesToBook()"
                             [disabled]="!canAttachFiles()"
-                            pTooltip="Attach to Another Book"
+                            [pTooltip]="t('tooltip.attachToBook')"
                             tooltipPosition="top">
                           </p-button>
                         }
@@ -396,7 +397,7 @@
                           <div class="more-actions-wrapper">
                             <p-button
                               (click)="menu.toggle($event)"
-                              pTooltip="More actions"
+                              [pTooltip]="t('tooltip.moreActions')"
                               tooltipPosition="top"
                               outlined="true"
                               severity="info"
@@ -414,7 +415,7 @@
                         icon="pi pi-check-square"
                         severity="success"
                         (click)="selectAllBooks()"
-                        pTooltip="Select all books"
+                        [pTooltip]="t('tooltip.selectAll')"
                         tooltipPosition="top">
                       </p-button>
                       <p-button
@@ -422,7 +423,7 @@
                         icon="pi pi-times"
                         severity="warn"
                         (click)="deselectAllBooks()"
-                        pTooltip="Deselect all books"
+                        [pTooltip]="t('tooltip.deselectAll')"
                         tooltipPosition="top">
                       </p-button>
                     </div>
@@ -433,7 +434,7 @@
                         icon="pi pi-trash"
                         severity="danger"
                         (click)="confirmDeleteBooks()"
-                        pTooltip="Delete selected books"
+                        [pTooltip]="t('tooltip.deleteSelected')"
                         tooltipPosition="top">
                       </p-button>
                     }
@@ -465,3 +466,4 @@
   }
 
 </div>
+</ng-container>

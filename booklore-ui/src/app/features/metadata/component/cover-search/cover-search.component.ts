@@ -8,6 +8,7 @@ import {InputText} from 'primeng/inputtext';
 import {ProgressSpinner} from 'primeng/progressspinner';
 import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
 import {BookService} from '../../../book/service/book.service';
+import {BookMetadataManageService} from '../../../book/service/book-metadata-manage.service';
 import {Image} from 'primeng/image';
 import {Tooltip} from 'primeng/tooltip';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
@@ -40,6 +41,7 @@ export class CoverSearchComponent implements OnInit {
   private dynamicDialogConfig = inject(DynamicDialogConfig);
   protected dynamicDialogRef = inject(DynamicDialogRef);
   protected bookService = inject(BookService);
+  private bookMetadataManageService = inject(BookMetadataManageService);
   private messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
 
@@ -107,8 +109,8 @@ export class CoverSearchComponent implements OnInit {
 
   selectAndSave(image: CoverImage) {
     const uploadObservable = this.coverType === 'audiobook'
-      ? this.bookService.uploadAudiobookCoverFromUrl(this.bookId, image.url)
-      : this.bookService.uploadCoverFromUrl(this.bookId, image.url);
+      ? this.bookMetadataManageService.uploadAudiobookCoverFromUrl(this.bookId, image.url)
+      : this.bookMetadataManageService.uploadCoverFromUrl(this.bookId, image.url);
 
     uploadObservable.subscribe({
       next: () => {

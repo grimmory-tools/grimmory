@@ -1,3 +1,4 @@
+<ng-container *transloco="let t; prefix: 'readerEbook.settingsDialog'">
 <div class="dialog-overlay" (click)="close.emit()">
   <div class="dialog" (click)="$event.stopPropagation()">
     <div class="tabs-row">
@@ -6,39 +7,39 @@
           class="tab"
           [class.active]="activeTab === 'theme'"
           (click)="activeTab = 'theme'">
-          Theme
+          {{ t('themeTab') }}
         </button>
         <button
           class="tab"
           [class.active]="activeTab === 'typography'"
           (click)="activeTab = 'typography'">
-          Typography
+          {{ t('typographyTab') }}
         </button>
         <button
           class="tab"
           [class.active]="activeTab === 'layout'"
           (click)="activeTab = 'layout'">
-          Layout
+          {{ t('layoutTab') }}
         </button>
       </div>
-      <button class="close-btn" (click)="close.emit()">✕</button>
+      <button class="close-btn" (click)="close.emit()">&#10005;</button>
     </div>
 
     <div class="dialog-body">
       @if (activeTab === 'theme') {
         <div class="tab-content">
           <div class="section-header dark-mode-header">
-            Dark Mode
+            {{ t('darkMode') }}
             <span class="mode-switch-wrapper">
-              <span class="mode-icon sun" [class.active]="!state.isDark">☀️</span>
+              <span class="mode-icon sun" [class.active]="!state.isDark">&#9728;&#65039;</span>
               <button class="switch" [class.active]="state.isDark" (click)="toggleDarkMode()">
                 <span class="slider"></span>
               </button>
-              <span class="mode-icon moon" [class.active]="state.isDark">🌙</span>
+              <span class="mode-icon moon" [class.active]="state.isDark">&#127769;</span>
             </span>
           </div>
 
-          <div class="section-header">Theme Colors</div>
+          <div class="section-header">{{ t('themeColors') }}</div>
           <div class="theme-grid">
             @for (theme of themes; track theme.name) {
               <label class="theme-option">
@@ -59,7 +60,7 @@
             }
           </div>
 
-          <div class="section-header">Annotation Highlighter</div>
+          <div class="section-header">{{ t('annotationHighlighter') }}</div>
           <div class="annotation-colors">
             @for (color of annotationColors; track color.name) {
               <button
@@ -69,7 +70,7 @@
                 [attr.aria-label]="color.label"
                 (click)="setAnnotationColor(color.value)">
                 @if (selectedAnnotationColor === color.value) {
-                  <span class="check-icon">✓</span>
+                  <span class="check-icon">&#10003;</span>
                 }
               </button>
             }
@@ -80,29 +81,29 @@
       @if (activeTab === 'typography') {
         <div class="tab-content">
 
-          <div class="section-header">Font Settings</div>
+          <div class="section-header">{{ t('fontSettings') }}</div>
           <div class="control">
-            <label>Font Size</label>
+            <label>{{ t('fontSize') }}</label>
             <div class="control-right">
               <div class="stepper">
-                <button (click)="decreaseFontSize()">−</button>
+                <button (click)="decreaseFontSize()">&#8722;</button>
                 <span>{{ state.fontSize }}</span>
                 <button (click)="increaseFontSize()">+</button>
               </div>
             </div>
           </div>
           <div class="control">
-            <label>Line Height</label>
+            <label>{{ t('lineHeight') }}</label>
             <div class="control-right">
               <div class="stepper">
-                <button (click)="decreaseLineHeight()">−</button>
+                <button (click)="decreaseLineHeight()">&#8722;</button>
                 <span>{{ state.lineHeight | number:'1.1-1' }}</span>
                 <button (click)="increaseLineHeight()">+</button>
               </div>
             </div>
           </div>
 
-          <div class="section-header">Font Family</div>
+          <div class="section-header">{{ t('fontFamily') }}</div>
           <div class="font-grid">
             @for (font of fonts; track font.value) {
               <button
@@ -120,10 +121,10 @@
 
       @if (activeTab === 'layout') {
         <div class="tab-content">
-          <div class="section-header">Layout</div>
+          <div class="section-header">{{ t('layout') }}</div>
 
           <div class="control">
-            <label>Reading Flow</label>
+            <label>{{ t('readingFlow') }}</label>
             <div class="control-right">
               <div class="radio-group">
                 <label>
@@ -134,7 +135,7 @@
                     [checked]="state.flow === 'paginated'"
                     (change)="setFlow('paginated')"
                   />
-                  Paginated
+                  {{ t('paginated') }}
                 </label>
                 <label>
                   <input
@@ -144,17 +145,17 @@
                     [checked]="state.flow === 'scrolled'"
                     (change)="setFlow('scrolled')"
                   />
-                  Scrolled
+                  {{ t('scrolled') }}
                 </label>
               </div>
             </div>
           </div>
 
           <div class="control">
-            <label>Max Columns</label>
+            <label>{{ t('maxColumns') }}</label>
             <div class="control-right">
               <div class="stepper">
-                <button (click)="decreaseMaxColumnCount()">−</button>
+                <button (click)="decreaseMaxColumnCount()">&#8722;</button>
                 <span>{{ state.maxColumnCount }}</span>
                 <button (click)="increaseMaxColumnCount()">+</button>
               </div>
@@ -162,7 +163,7 @@
           </div>
 
           <div class="control">
-            <label>Column Gap</label>
+            <label>{{ t('columnGap') }}</label>
             <div class="control-right gap-control">
               <input
                 #gapInput
@@ -178,10 +179,10 @@
           </div>
 
           <div class="control">
-            <label>Max Width</label>
+            <label>{{ t('maxWidth') }}</label>
             <div class="control-right">
               <div class="stepper">
-                <button (click)="decreaseMaxInlineSize()">−</button>
+                <button (click)="decreaseMaxInlineSize()">&#8722;</button>
                 <span>{{ state.maxInlineSize }}</span>
                 <button (click)="increaseMaxInlineSize()">+</button>
               </div>
@@ -189,27 +190,27 @@
           </div>
 
           <div class="control">
-            <label>Max Height</label>
+            <label>{{ t('maxHeight') }}</label>
             <div class="control-right">
               <div class="stepper">
-                <button (click)="decreaseMaxBlockSize()">−</button>
+                <button (click)="decreaseMaxBlockSize()">&#8722;</button>
                 <span>{{ state.maxBlockSize }}</span>
                 <button (click)="increaseMaxBlockSize()">+</button>
               </div>
             </div>
           </div>
 
-          <div class="section-header">Text Options</div>
+          <div class="section-header">{{ t('textOptions') }}</div>
 
           <div class="toggle-control">
-            <span>Justify Text</span>
+            <span>{{ t('justifyText') }}</span>
             <button class="switch" [class.active]="state.justify" (click)="toggleJustify()">
               <span class="slider"></span>
             </button>
           </div>
 
           <div class="toggle-control">
-            <span>Hyphenate</span>
+            <span>{{ t('hyphenate') }}</span>
             <button class="switch" [class.active]="state.hyphenate" (click)="toggleHyphenate()">
               <span class="slider"></span>
             </button>
@@ -219,3 +220,4 @@
     </div>
   </div>
 </div>
+</ng-container>

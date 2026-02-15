@@ -1,5 +1,6 @@
 package org.booklore.repository;
 
+import org.booklore.model.entity.AuthorEntity;
 import org.booklore.model.entity.BookEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -158,7 +159,7 @@ public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, Jpa
             WHERE (b.deleted IS NULL OR b.deleted = false)
             ORDER BY a.name
             """)
-    List<org.booklore.model.entity.AuthorEntity> findDistinctAuthors();
+    List<AuthorEntity> findDistinctAuthors();
 
     @Query("""
             SELECT DISTINCT a FROM AuthorEntity a
@@ -168,7 +169,7 @@ public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, Jpa
               AND b.library.id IN :libraryIds
             ORDER BY a.name
             """)
-    List<org.booklore.model.entity.AuthorEntity> findDistinctAuthorsByLibraryIds(@Param("libraryIds") Collection<Long> libraryIds);
+    List<AuthorEntity> findDistinctAuthorsByLibraryIds(@Param("libraryIds") Collection<Long> libraryIds);
 
     // ============================================
     // BOOKS BY AUTHOR - Two Query Pattern

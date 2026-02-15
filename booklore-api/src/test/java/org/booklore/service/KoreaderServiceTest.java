@@ -9,6 +9,7 @@ import org.booklore.exception.APIException;
 import org.booklore.model.dto.progress.KoreaderProgress;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookLoreUserEntity;
+import org.booklore.model.entity.KoreaderUserEntity;
 import org.booklore.model.entity.UserBookProgressEntity;
 import org.booklore.model.enums.ReadStatus;
 import org.booklore.repository.BookRepository;
@@ -73,7 +74,7 @@ class KoreaderServiceTest {
 
     @Test
     void authorizeUser_success() {
-        var userEntity = new org.booklore.model.entity.KoreaderUserEntity();
+        var userEntity = new KoreaderUserEntity();
         userEntity.setPasswordMD5("MD5PWD");
         when(koreaderUserRepo.findByUsername("u"))
                 .thenReturn(Optional.of(userEntity));
@@ -93,7 +94,7 @@ class KoreaderServiceTest {
 
     @Test
     void authorizeUser_badPassword() {
-        var userEntity = new org.booklore.model.entity.KoreaderUserEntity();
+        var userEntity = new KoreaderUserEntity();
         userEntity.setPasswordMD5("OTHER");
         when(koreaderUserRepo.findByUsername("u"))
                 .thenReturn(Optional.of(userEntity));

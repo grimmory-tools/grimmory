@@ -161,7 +161,6 @@
                   <p-button [pTooltip]="t('unlockCoverTooltip')" tooltipPosition="top" size="small" icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('audiobookCover')" severity="warn"></p-button>
                 }
               </div>
-              `
             </div>
           }
         </div>
@@ -453,7 +452,7 @@
                   [options]="ageRatingOptions"
                   optionLabel="label"
                   optionValue="value"
-                  placeholder="Select"
+                  [placeholder]="t('selectPlaceholder')"
                   [showClear]="true"
                   appendTo="body">
                 </p-select>
@@ -474,7 +473,7 @@
                   [options]="contentRatingOptions"
                   optionLabel="label"
                   optionValue="value"
-                  placeholder="Select"
+                  [placeholder]="t('selectPlaceholder')"
                   [showClear]="true"
                   appendTo="body">
                 </p-select>
@@ -967,6 +966,18 @@
           }
 
           <div class="actions-right">
+            @if (!book.isPhysical) {
+              <p-button
+                [label]="isFetchingFromFile ? t('fetchingBtn') : t('fetchFromFileBtn')"
+                [icon]="isFetchingFromFile ? 'pi pi-spin pi-spinner' : 'pi pi-file'"
+                [outlined]="true"
+                severity="secondary"
+                (onClick)="fetchFromFile(book.id)"
+                [disabled]="isFetchingFromFile"
+                [pTooltip]="t('fetchFromFileTooltip')"
+                tooltipPosition="top">
+              </p-button>
+            }
             <p-button
               [label]="isAutoFetching ? t('fetchingBtn') : t('autoFetchBtn')"
               [icon]="isAutoFetching ? 'pi pi-spin pi-spinner' : 'pi pi-bolt'"
@@ -1025,6 +1036,17 @@
               </div>
             }
             <div class="mobile-lock-actions">
+              @if (!book.isPhysical) {
+                <p-button
+                  icon="pi pi-file"
+                  [outlined]="true"
+                  severity="secondary"
+                  (onClick)="fetchFromFile(book.id)"
+                  [disabled]="isFetchingFromFile"
+                  [pTooltip]="t('fetchFromFileBtn')"
+                  tooltipPosition="top">
+                </p-button>
+              }
               <p-button
                 icon="pi pi-bolt"
                 [outlined]="true"

@@ -1,25 +1,26 @@
+<ng-container *transloco="let t; prefix: 'readerEbook.quickSettings'">
 <div class="quick-settings-overlay" (click)="onOverlayClick()">
   <div class="quick-settings-panel" (click)="$event.stopPropagation()">
     <div class="pointer"></div>
     <div class="panel-body">
       <!-- Dark Mode -->
       <div class="control">
-        <label>Dark Mode</label>
+        <label>{{ t('darkMode') }}</label>
         <div class="control-right">
-          <span class="mode-icon sun" [class.active]="!isDarkMode">☀️</span>
+          <span class="mode-icon sun" [class.active]="!isDarkMode">&#9728;&#65039;</span>
           <button class="switch" [class.active]="isDarkMode" (click)="toggleDarkMode()">
             <span class="slider"></span>
           </button>
-          <span class="mode-icon moon" [class.active]="isDarkMode">🌙</span>
+          <span class="mode-icon moon" [class.active]="isDarkMode">&#127769;</span>
         </div>
       </div>
 
       <!-- Font Size -->
       <div class="control">
-        <label>Font Size</label>
+        <label>{{ t('fontSize') }}</label>
         <div class="control-right">
           <div class="stepper">
-            <button (click)="decreaseFontSize()">−</button>
+            <button (click)="decreaseFontSize()">&#8722;</button>
             <span>{{ state.fontSize }}%</span>
             <button (click)="increaseFontSize()">+</button>
           </div>
@@ -28,10 +29,10 @@
 
       <!-- Line Spacing -->
       <div class="control">
-        <label>Line Spacing</label>
+        <label>{{ t('lineSpacing') }}</label>
         <div class="control-right">
           <div class="stepper">
-            <button (click)="decreaseLineHeight()">−</button>
+            <button (click)="decreaseLineHeight()">&#8722;</button>
             <span>{{ state.lineHeight | number:'1.1-1' }}</span>
             <button (click)="increaseLineHeight()">+</button>
           </div>
@@ -42,8 +43,9 @@
     <div class="panel-footer">
       <button class="more-settings-btn" (click)="onOpenFullSettings()">
         <app-reader-icon name="settings" [size]="16"></app-reader-icon>
-        <span>More Settings</span>
+        <span>{{ t('moreSettings') }}</span>
       </button>
     </div>
   </div>
 </div>
+</ng-container>

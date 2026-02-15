@@ -15,6 +15,7 @@ import org.booklore.model.dto.settings.MetadataPersistenceSettings;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.service.appsettings.AppSettingService;
+import org.booklore.util.SecureXmlUtils;
 import org.booklore.service.metadata.BookLoreMetadata;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
@@ -247,7 +248,7 @@ public class PdfMetadataWriter implements MetadataWriter {
      * - Booklore (booklore:) for series, subtitle, ISBNs, external IDs, ratings, moods, tags, page count
      */
     private byte[] addCustomIdentifiersToXmp(byte[] xmpBytes, BookMetadataEntity metadata, MetadataCopyHelper helper, MetadataClearFlags clear) throws Exception {
-        DocumentBuilder builder = org.booklore.util.SecureXmlUtils.createSecureDocumentBuilder(true);
+        DocumentBuilder builder = SecureXmlUtils.createSecureDocumentBuilder(true);
         Document doc = builder.parse(new ByteArrayInputStream(xmpBytes));
 
         Element rdfRoot = (Element) doc.getElementsByTagNameNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "RDF").item(0);
@@ -442,7 +443,7 @@ public class PdfMetadataWriter implements MetadataWriter {
     private boolean isXmpMetadataDifferent(byte[] existingBytes, byte[] newBytes) {
         if (existingBytes == null || newBytes == null) return true;
         try {
-            DocumentBuilder builder = org.booklore.util.SecureXmlUtils.createSecureDocumentBuilder(false);
+            DocumentBuilder builder = SecureXmlUtils.createSecureDocumentBuilder(false);
             Document doc1 = builder.parse(new ByteArrayInputStream(existingBytes));
             Document doc2 = builder.parse(new ByteArrayInputStream(newBytes));
             return !Objects.equals(

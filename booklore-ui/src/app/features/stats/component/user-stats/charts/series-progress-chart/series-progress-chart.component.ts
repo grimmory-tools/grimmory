@@ -9,6 +9,7 @@ import {BookService} from '../../../../../book/service/book.service';
 import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book, ReadStatus} from '../../../../../book/model/book.model';
 import {LibraryFilterService} from '../../../library-stats/service/library-filter.service';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 interface SeriesInfo {
   name: string;
@@ -43,13 +44,14 @@ type SeriesChartData = ChartData<'bar', number[], string>;
 @Component({
   selector: 'app-series-progress-chart',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective, Tooltip],
+  imports: [CommonModule, BaseChartDirective, Tooltip, TranslocoDirective],
   templateUrl: './series-progress-chart.component.html',
   styleUrls: ['./series-progress-chart.component.scss']
 })
 export class SeriesProgressChartComponent implements OnInit, OnDestroy {
   private readonly bookService = inject(BookService);
   private readonly libraryFilterService = inject(LibraryFilterService);
+  private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
 
   public readonly chartType = 'bar' as const;
@@ -80,7 +82,7 @@ export class SeriesProgressChartComponent implements OnInit, OnDestroy {
         max: 100,
         title: {
           display: true,
-          text: 'Completion %',
+          text: this.t.translate('statsUser.seriesProgress.axisCompletion'),
           color: '#ffffff',
           font: {
             family: "'Inter', sans-serif",
@@ -149,13 +151,13 @@ export class SeriesProgressChartComponent implements OnInit, OnDestroy {
             const series = this.chartSeries[context[0].dataIndex];
             if (!series) return [];
             const lines = [
-              `Read: ${series.booksRead}/${series.booksOwned} owned`
+              this.t.translate('statsUser.seriesProgress.tooltipRead', {read: series.booksRead, owned: series.booksOwned})
             ];
             if (series.totalInSeries) {
-              lines.push(`Series total: ${series.totalInSeries} books`);
+              lines.push(this.t.translate('statsUser.seriesProgress.tooltipSeriesTotal', {total: series.totalInSeries}));
             }
             if (series.avgPersonalRating) {
-              lines.push(`Your rating: ${series.avgPersonalRating.toFixed(1)}/10`);
+              lines.push(this.t.translate('statsUser.seriesProgress.tooltipYourRating', {rating: series.avgPersonalRating.toFixed(1)}));
             }
             return lines;
           }
@@ -563,7 +565,7 @@ export class SeriesProgressChartComponent implements OnInit, OnDestroy {
       labels,
       datasets: [
         {
-          label: 'Read',
+          label: this.t.translate('statsUser.seriesProgress.read'),
           data: readPercentages,
           backgroundColor: 'rgba(76, 175, 80, 0.85)',
           borderColor: '#4caf50',
@@ -571,7 +573,7 @@ export class SeriesProgressChartComponent implements OnInit, OnDestroy {
           borderRadius: 2
         },
         {
-          label: 'Reading',
+          label: this.t.translate('statsUser.seriesProgress.reading'),
           data: readingPercentages,
           backgroundColor: 'rgba(255, 193, 7, 0.85)',
           borderColor: '#ffc107',
@@ -579,7 +581,7 @@ export class SeriesProgressChartComponent implements OnInit, OnDestroy {
           borderRadius: 2
         },
         {
-          label: 'Partially Read',
+          label: this.t.translate('statsUser.seriesProgress.partiallyRead'),
           data: partiallyReadPercentages,
           backgroundColor: 'rgba(255, 152, 0, 0.85)',
           borderColor: '#ff9800',
@@ -587,7 +589,7 @@ export class SeriesProgressChartComponent implements OnInit, OnDestroy {
           borderRadius: 2
         },
         {
-          label: 'Paused',
+          label: this.t.translate('statsUser.seriesProgress.paused'),
           data: pausedPercentages,
           backgroundColor: 'rgba(33, 150, 243, 0.85)',
           borderColor: '#2196f3',
@@ -595,7 +597,7 @@ export class SeriesProgressChartComponent implements OnInit, OnDestroy {
           borderRadius: 2
         },
         {
-          label: 'Abandoned',
+          label: this.t.translate('statsUser.seriesProgress.abandoned'),
           data: abandonedPercentages,
           backgroundColor: 'rgba(239, 83, 80, 0.85)',
           borderColor: '#ef5350',
@@ -603,7 +605,7 @@ export class SeriesProgressChartComponent implements OnInit, OnDestroy {
           borderRadius: 2
         },
         {
-          label: 'Won\'t Read',
+          label: this.t.translate('statsUser.seriesProgress.wontRead'),
           data: wontReadPercentages,
           backgroundColor: 'rgba(158, 158, 158, 0.6)',
           borderColor: '#9e9e9e',
@@ -611,7 +613,7 @@ export class SeriesProgressChartComponent implements OnInit, OnDestroy {
           borderRadius: 2
         },
         {
-          label: 'Unread',
+          label: this.t.translate('statsUser.seriesProgress.unread'),
           data: unreadPercentages,
           backgroundColor: 'rgba(158, 158, 158, 0.3)',
           borderColor: '#9e9e9e',

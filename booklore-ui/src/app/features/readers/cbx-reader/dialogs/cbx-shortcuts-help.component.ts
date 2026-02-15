@@ -1,5 +1,6 @@
-import {Component, EventEmitter, Output} from '@angular/core';
+import {Component, EventEmitter, inject, Output} from '@angular/core';
 import {CommonModule} from '@angular/common';
+import {TranslocoService, TranslocoPipe} from '@jsverse/transloco';
 import {ReaderIconComponent} from '../../ebook-reader/shared/icon.component';
 
 interface ShortcutItem {
@@ -16,48 +17,52 @@ interface ShortcutGroup {
 @Component({
   selector: 'app-cbx-shortcuts-help',
   standalone: true,
-  imports: [CommonModule, ReaderIconComponent],
+  imports: [CommonModule, TranslocoPipe, ReaderIconComponent],
   templateUrl: './cbx-shortcuts-help.component.html',
   styleUrls: ['./cbx-shortcuts-help.component.scss']
 })
 export class CbxShortcutsHelpComponent {
+  private readonly t = inject(TranslocoService);
+
   @Output() close = new EventEmitter<void>();
 
-  shortcutGroups: ShortcutGroup[] = [
-    {
-      title: 'Navigation',
-      shortcuts: [
-        {keys: ['←', '→'], description: 'Previous / Next page', mobileGesture: 'Swipe left/right'},
-        {keys: ['Space'], description: 'Next page'},
-        {keys: ['Shift', 'Space'], description: 'Previous page'},
-        {keys: ['Home'], description: 'First page'},
-        {keys: ['End'], description: 'Last page'},
-        {keys: ['Page Up'], description: 'Previous page'},
-        {keys: ['Page Down'], description: 'Next page'}
-      ]
-    },
-    {
-      title: 'Display',
-      shortcuts: [
-        {keys: ['F'], description: 'Toggle fullscreen'},
-        {keys: ['D'], description: 'Toggle reading direction (LTR/RTL)'},
-        {keys: ['Escape'], description: 'Exit fullscreen / Close dialogs'},
-        {keys: ['Double-click'], description: 'Toggle zoom (fit page / actual size)', mobileGesture: 'Double-tap'}
-      ]
-    },
-    {
-      title: 'Playback',
-      shortcuts: [
-        {keys: ['P'], description: 'Toggle slideshow / auto-play'}
-      ]
-    },
-    {
-      title: 'Other',
-      shortcuts: [
-        {keys: ['?'], description: 'Show this help dialog'}
-      ]
-    }
-  ];
+  get shortcutGroups(): ShortcutGroup[] {
+    return [
+      {
+        title: this.t.translate('readerCbx.shortcutsHelp.groupNavigation'),
+        shortcuts: [
+          {keys: ['←', '→'], description: this.t.translate('readerCbx.shortcutsHelp.previousNextPage'), mobileGesture: this.t.translate('readerCbx.shortcutsHelp.swipeLeftRight')},
+          {keys: ['Space'], description: this.t.translate('readerCbx.shortcutsHelp.nextPage')},
+          {keys: ['Shift', 'Space'], description: this.t.translate('readerCbx.shortcutsHelp.previousPage')},
+          {keys: ['Home'], description: this.t.translate('readerCbx.shortcutsHelp.firstPage')},
+          {keys: ['End'], description: this.t.translate('readerCbx.shortcutsHelp.lastPage')},
+          {keys: ['Page Up'], description: this.t.translate('readerCbx.shortcutsHelp.previousPage')},
+          {keys: ['Page Down'], description: this.t.translate('readerCbx.shortcutsHelp.nextPage')}
+        ]
+      },
+      {
+        title: this.t.translate('readerCbx.shortcutsHelp.groupDisplay'),
+        shortcuts: [
+          {keys: ['F'], description: this.t.translate('readerCbx.shortcutsHelp.toggleFullscreen')},
+          {keys: ['D'], description: this.t.translate('readerCbx.shortcutsHelp.toggleReadingDirection')},
+          {keys: ['Escape'], description: this.t.translate('readerCbx.shortcutsHelp.exitFullscreenCloseDialogs')},
+          {keys: ['Double-click'], description: this.t.translate('readerCbx.shortcutsHelp.toggleZoom'), mobileGesture: this.t.translate('readerCbx.shortcutsHelp.doubleTap')}
+        ]
+      },
+      {
+        title: this.t.translate('readerCbx.shortcutsHelp.groupPlayback'),
+        shortcuts: [
+          {keys: ['P'], description: this.t.translate('readerCbx.shortcutsHelp.toggleSlideshow')}
+        ]
+      },
+      {
+        title: this.t.translate('readerCbx.shortcutsHelp.groupOther'),
+        shortcuts: [
+          {keys: ['?'], description: this.t.translate('readerCbx.shortcutsHelp.showHelpDialog')}
+        ]
+      }
+    ];
+  }
 
   isMobile = window.innerWidth < 768;
 

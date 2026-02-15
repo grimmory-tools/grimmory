@@ -1,4 +1,4 @@
-import {Component, OnDestroy, Renderer2, ViewChild} from '@angular/core';
+import {Component, OnDestroy, OnInit, Renderer2, ViewChild} from '@angular/core';
 import {NavigationEnd, Router, RouterOutlet} from '@angular/router';
 import {filter, Subscription} from 'rxjs';
 import {LayoutService} from "./service/app.layout.service";
@@ -6,6 +6,7 @@ import {AppSidebarComponent} from "../layout-sidebar/app.sidebar.component";
 import {AppTopBarComponent} from '../layout-topbar/app.topbar.component';
 import {NgClass} from '@angular/common';
 import {ToastModule} from 'primeng/toast';
+import {LocalStorageService} from '../../../service/local-storage.service';
 
 @Component({
   selector: 'app-layout',
@@ -18,7 +19,7 @@ import {ToastModule} from 'primeng/toast';
   ],
   templateUrl: './app.layout.component.html'
 })
-export class AppLayoutComponent implements OnDestroy {
+export class AppLayoutComponent implements OnInit, OnDestroy {
 
   overlayMenuOpenSubscription: Subscription;
 
@@ -30,7 +31,7 @@ export class AppLayoutComponent implements OnDestroy {
 
   @ViewChild(AppTopBarComponent) appTopbar!: AppTopBarComponent;
 
-  constructor(public layoutService: LayoutService, public renderer: Renderer2, public router: Router) {
+  constructor(public layoutService: LayoutService, public renderer: Renderer2, public router: Router, private localStorageService: LocalStorageService) {
     this.overlayMenuOpenSubscription = this.layoutService.overlayOpen$.subscribe(() => {
       if (!this.menuOutsideClickListener) {
         this.menuOutsideClickListener = this.renderer.listen('document', 'click', (event) => {
@@ -50,6 +51,11 @@ export class AppLayoutComponent implements OnDestroy {
         this.hideMenu();
         this.hideProfileMenu();
       });
+  }
+
+  ngOnInit(): void {
+    const width = this.localStorageService.get<number>('sidebarWidth') ?? 225;
+    document.documentElement.style.setProperty('--sidebar-width', width + 'px');
   }
 
   isOutsideClicked(event: MouseEvent): boolean {

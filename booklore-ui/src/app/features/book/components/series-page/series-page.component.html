@@ -1,10 +1,11 @@
+<ng-container *transloco="let t; prefix: 'book.seriesPage'">
 @if (filteredBooks$ | async; as books) {
   <div class="series-wrapper">
     <p-tabs [value]="tab" lazy="true" scrollable>
       <p-tablist>
         <p-tab value="view">
           <i [class]="'pi pi-crown'"></i>
-          Series Details
+          {{ t('seriesDetailsTab') }}
         </p-tab>
       </p-tablist>
       <p-tabpanels class="tabpanels-responsive">
@@ -49,7 +50,7 @@
                 <div class="metadata-section-padding">
                   <div class="metadata-grid">
                     <p>
-                      <span class="metadata-label">Publisher: </span>
+                      <span class="metadata-label">{{ t('publisher') }} </span>
                       @if (firstBook.metadata?.publisher; as publisher) {
                         <span class="publisher-link" (click)="goToPublisher(publisher)">
                           {{publisher}}
@@ -58,10 +59,10 @@
                         <span>-</span>
                       }
                     </p>
-                    <p><strong>Years:</strong> {{ (yearsRange$ | async) || '-' }}</p>
-                    <p><strong>Number of books:</strong> {{ books.length || 0}}</p>
-                    <p><strong>Language:</strong> {{ firstBook.metadata?.language || "-"}}</p>
-                    <p><strong>Read Status: </strong>
+                    <p><strong>{{ t('years') }}</strong> {{ (yearsRange$ | async) || '-' }}</p>
+                    <p><strong>{{ t('numberOfBooks') }}</strong> {{ books.length || 0}}</p>
+                    <p><strong>{{ t('language') }}</strong> {{ firstBook.metadata?.language || "-"}}</p>
+                    <p><strong>{{ t('readStatus') }}</strong>
                     @let s = seriesReadStatus$ | async;
                     <span class="status-badge"
                       [ngClass]="getStatusSeverityClass(s || 'UNREAD')">
@@ -79,11 +80,11 @@
                 <div [ngClass]="{ 'line-clamp-5': !isExpanded, 'line-clamp-none': isExpanded }"
                   class="description-container">
                   <div class="readonly-editor"
-                  [innerHTML]="(firstDescription$ | async) || 'No description available.'"></div>
+                  [innerHTML]="(firstDescription$ | async) || t('noDescription')"></div>
                 </div>
                 @let desc = firstDescription$ | async;
                 @if ((desc?.length ?? 0) > 500) {
-                  <p-button [label]="isExpanded ? 'Show less' : 'Show more'"
+                  <p-button [label]="isExpanded ? t('showLess') : t('showMore')"
                     [icon]="isExpanded ? 'pi pi-chevron-up' : 'pi pi-chevron-down'" iconPos="right" size="small" text
                     (click)="toggleExpand()">
                   </p-button>
@@ -108,7 +109,7 @@
                   </div>
                 }
                 @if (books.length === 0) {
-                  <div class="empty-state">No books found for this series.</div>
+                  <div class="empty-state">{{ t('noBooksFound') }}</div>
                 }
               </div>
 
@@ -129,7 +130,7 @@
           <div class="selected-count-badge">
             <i class="pi pi-check-circle badge-icon"></i>
             <span class="badge-count" style="color: var(--primary-color)">{{ selectedBooks.size }}</span>
-            <span class="badge-label">selected</span>
+            <span class="badge-label">{{ t('selected') }}</span>
           </div>
         </div>
         <div class="footer-center">
@@ -138,7 +139,7 @@
                 <p-tieredMenu #menu [model]="metadataMenuItems" [popup]="true" appendTo="body"/>
                 <p-button
                   (click)="menu.toggle($event)"
-                  pTooltip="Metadata actions"
+                  [pTooltip]="t('tooltip.metadataActions')"
                   tooltipPosition="top"
                   outlined="true"
                   severity="info"
@@ -150,7 +151,7 @@
                 outlined="true"
                 severity="info"
                 (onClick)="openShelfAssigner()"
-                pTooltip="Assign to shelf"
+                [pTooltip]="t('tooltip.assignToShelf')"
                 tooltipPosition="top">
               </p-button>
               @if (userState.user!.permissions.canBulkLockUnlockMetadata) {
@@ -159,7 +160,7 @@
                   icon="pi pi-lock"
                   severity="info"
                   (click)="lockUnlockMetadata()"
-                  pTooltip="Lock/Unlock metadata"
+                  [pTooltip]="t('tooltip.lockUnlockMetadata')"
                   tooltipPosition="top">
                 </p-button>
               }
@@ -169,7 +170,7 @@
                   icon="pi pi-arrows-h"
                   severity="info"
                   (click)="moveFiles()"
-                  pTooltip="Organize Files"
+                  [pTooltip]="t('tooltip.organizeFiles')"
                   tooltipPosition="top">
                 </p-button>
               }
@@ -177,7 +178,7 @@
                 <div class="more-actions-wrapper">
                   <p-button
                     (click)="menu.toggle($event)"
-                    pTooltip="More actions"
+                    [pTooltip]="t('tooltip.moreActions')"
                     tooltipPosition="top"
                     outlined="true"
                     severity="info"
@@ -194,7 +195,7 @@
               icon="pi pi-check-square"
               severity="success"
               (click)="selectAllBooks()"
-              pTooltip="Select all books"
+              [pTooltip]="t('tooltip.selectAll')"
               tooltipPosition="top">
             </p-button>
             <p-button
@@ -202,7 +203,7 @@
               icon="pi pi-times"
               severity="warn"
               (click)="deselectAllBooks()"
-              pTooltip="Deselect all books"
+              [pTooltip]="t('tooltip.deselectAll')"
               tooltipPosition="top">
             </p-button>
           </div>
@@ -213,7 +214,7 @@
               icon="pi pi-trash"
               severity="danger"
               (click)="confirmDeleteBooks()"
-              pTooltip="Delete selected books"
+              [pTooltip]="t('tooltip.deleteSelected')"
               tooltipPosition="top">
             </p-button>
           }
@@ -230,7 +231,8 @@
     <p-progressSpinner strokeWidth="4" fill="transparent" animationDuration=".8s">
     </p-progressSpinner>
     <p style="color: var(--primary-color);">
-      Loading series details...
+      {{ t('loadingSeriesDetails') }}
     </p>
   </div>
 }
+</ng-container>

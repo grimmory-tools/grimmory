@@ -17,6 +17,7 @@ import {LoadingService} from '../../../../core/services/loading.service';
 import {UserService} from '../../../settings/user-management/user.service';
 import {IconDisplayComponent} from '../../../../shared/components/icon-display/icon-display.component';
 import {IconSelection} from '../../../../shared/service/icon-picker.service';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 @Component({
   selector: 'app-shelf-assigner',
@@ -28,7 +29,8 @@ import {IconSelection} from '../../../../shared/service/icon-picker.service';
     Checkbox,
     AsyncPipe,
     FormsModule,
-    IconDisplayComponent
+    IconDisplayComponent,
+    TranslocoDirective
   ]
 })
 export class ShelfAssignerComponent implements OnInit {
@@ -41,6 +43,7 @@ export class ShelfAssignerComponent implements OnInit {
   private bookDialogHelper = inject(BookDialogHelperService);
   private loadingService = inject(LoadingService);
   private userService = inject(UserService);
+  private readonly t = inject(TranslocoService);
 
   shelfState$: Observable<ShelfState> = combineLatest([
     this.shelfService.shelfState$,
@@ -78,17 +81,17 @@ export class ShelfAssignerComponent implements OnInit {
   }
 
   private updateBookShelves(bookIds: Set<number>, idsToAssign: Set<number | undefined>, idsToUnassign: Set<number>): void {
-    const loader = this.loadingService.show(`Updating shelves for ${bookIds.size} book(s)...`);
+    const loader = this.loadingService.show(this.t.translate('book.shelfAssigner.loading.updatingShelves', { count: bookIds.size }));
 
     this.bookService.updateBookShelves(bookIds, idsToAssign, idsToUnassign)
       .pipe(finalize(() => this.loadingService.hide(loader)))
       .subscribe({
         next: () => {
-          this.messageService.add({severity: 'info', summary: 'Success', detail: 'Book shelves updated'});
+          this.messageService.add({severity: 'info', summary: this.t.translate('common.success'), detail: this.t.translate('book.shelfAssigner.toast.updateSuccessDetail')});
           this.dynamicDialogRef.close({assigned: true});
         },
         error: () => {
-          this.messageService.add({severity: 'error', summary: 'Error', detail: 'Failed to update book shelves'});
+          this.messageService.add({severity: 'error', summary: this.t.translate('common.error'), detail: this.t.translate('book.shelfAssigner.toast.updateFailedDetail')});
           this.dynamicDialogRef.close({assigned: false});
         }
       });

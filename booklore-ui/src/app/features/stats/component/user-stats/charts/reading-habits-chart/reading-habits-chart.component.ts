@@ -8,6 +8,7 @@ import {Tooltip} from 'primeng/tooltip';
 import {BookService} from '../../../../../book/service/book.service';
 import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book, ReadStatus} from '../../../../../book/model/book.model';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 interface ReadingHabitsProfile {
   consistency: number;
@@ -32,13 +33,16 @@ type ReadingHabitsChartData = ChartData<'radar', number[], string>;
 @Component({
   selector: 'app-reading-habits-chart',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective, Tooltip],
+  imports: [CommonModule, BaseChartDirective, Tooltip, TranslocoDirective],
   templateUrl: './reading-habits-chart.component.html',
   styleUrls: ['./reading-habits-chart.component.scss']
 })
 export class ReadingHabitsChartComponent implements OnInit, OnDestroy {
   private readonly bookService = inject(BookService);
+  private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
+
+  private readonly habitKeys = ['consistency', 'multitasking', 'completionism', 'exploration', 'organization', 'intensity', 'methodology', 'momentum'];
 
   public readonly chartType = 'radar' as const;
 
@@ -77,18 +81,11 @@ export class ReadingHabitsChartComponent implements OnInit, OnDestroy {
             size: 12
           },
           padding: 25,
-          callback: function (label: string) {
-            const icons: Record<string, string> = {
-              'Consistency': '📅',
-              'Multitasking': '📚',
-              'Completionism': '✅',
-              'Exploration': '🔍',
-              'Organization': '📋',
-              'Intensity': '⚡',
-              'Methodology': '🎯',
-              'Momentum': '🔥'
-            };
-            return [icons[label] || '', label];
+          callback: (label: string) => {
+            const icons = ['📅', '📚', '✅', '🔍', '📋', '⚡', '🎯', '🔥'];
+            const translatedLabels = this.habitKeys.map(k => this.t.translate(`statsUser.readingHabits.habits.${k}`));
+            const idx = translatedLabels.indexOf(label);
+            return [idx >= 0 ? icons[idx] : '', label];
           }
         }
       }
@@ -111,16 +108,16 @@ export class ReadingHabitsChartComponent implements OnInit, OnDestroy {
         callbacks: {
           title: (context) => {
             const label = context[0]?.label || '';
-            return `${label} Habit`;
+            return this.t.translate('statsUser.readingHabits.tooltipHabit', {label});
           },
           label: (context) => {
             const score = context.parsed.r;
             const insight = this.habitInsights.find(i => i.habit === context.label);
 
             return [
-              `Score: ${score}/100`,
+              this.t.translate('statsUser.readingHabits.tooltipScore', {score}),
               '',
-              insight ? insight.description : 'Your reading habit pattern'
+              insight ? insight.description : this.t.translate('statsUser.readingHabits.tooltipDefaultDescription')
             ];
           }
         }
@@ -145,10 +142,7 @@ export class ReadingHabitsChartComponent implements OnInit, OnDestroy {
   };
 
   private readonly chartDataSubject = new BehaviorSubject<ReadingHabitsChartData>({
-    labels: [
-      'Consistency', 'Multitasking', 'Completionism', 'Exploration',
-      'Organization', 'Intensity', 'Methodology', 'Momentum'
-    ],
+    labels: [],
     datasets: []
   });
 
@@ -200,13 +194,12 @@ export class ReadingHabitsChartComponent implements OnInit, OnDestroy {
       '#ffc107', '#4caf50', '#2196f3', '#673ab7'
     ];
 
+    const translatedLabels = this.habitKeys.map(k => this.t.translate(`statsUser.readingHabits.habits.${k}`));
+
     this.chartDataSubject.next({
-      labels: [
-        'Consistency', 'Multitasking', 'Completionism', 'Exploration',
-        'Organization', 'Intensity', 'Methodology', 'Momentum'
-      ],
+      labels: translatedLabels,
       datasets: [{
-        label: 'Reading Habits Profile',
+        label: this.t.translate('statsUser.readingHabits.readingHabitsProfile'),
         data,
         backgroundColor: 'rgba(156, 39, 176, 0.2)',
         borderColor: '#9c27b0',
@@ -509,75 +502,19 @@ export class ReadingHabitsChartComponent implements OnInit, OnDestroy {
     );
   }
 
-  private getHabitDescription(habit: string, score: number): string {
-    const descriptions: Record<string, [string, string, string]> = {
-      'Consistency': [
-        'Your reading is sporadic with long gaps between books',
-        'You read at a fairly regular pace throughout the year',
-        'You maintain a very steady, disciplined reading rhythm'
-      ],
-      'Multitasking': [
-        'You prefer focusing on one book at a time',
-        'You occasionally juggle a couple of books at once',
-        'You regularly read multiple books simultaneously'
-      ],
-      'Completionism': [
-        'You often set books aside before finishing them',
-        'You finish most books you start, with a few exceptions',
-        'You almost never abandon a book once you start it'
-      ],
-      'Exploration': [
-        'You tend to revisit favorite authors and familiar territory',
-        'You balance familiar authors with occasional new discoveries',
-        'You actively seek out new authors, eras, and languages'
-      ],
-      'Organization': [
-        'Your library could use more rating and status tracking',
-        'You keep your library reasonably well curated',
-        'You diligently rate, categorize, and track every book'
-      ],
-      'Intensity': [
-        'You lean toward shorter, lighter reads',
-        'You read a mix of short and longer books',
-        'You consistently tackle lengthy, immersive books'
-      ],
-      'Methodology': [
-        'You pick books spontaneously without a system',
-        'You show some methodical patterns in your reading choices',
-        'You systematically work through series, authors, and genres'
-      ],
-      'Momentum': [
-        'Your reading activity has been quiet recently',
-        'You have a steady reading pace going',
-        'You are on a strong active reading streak right now'
-      ]
-    };
-
-    const levels = descriptions[habit];
-    if (!levels) return '';
-
-    if (score < 33) return levels[0];
-    if (score < 67) return levels[1];
-    return levels[2];
+  private getHabitDescription(habitKey: string, score: number): string {
+    const level = score < 33 ? 'low' : score < 67 ? 'mid' : 'high';
+    return this.t.translate(`statsUser.readingHabits.descriptions.${habitKey}.${level}`);
   }
 
   private buildHabitInsights(profile: ReadingHabitsProfile): HabitInsight[] {
-    const habits: { key: keyof ReadingHabitsProfile; habit: string; color: string }[] = [
-      {key: 'consistency', habit: 'Consistency', color: '#9c27b0'},
-      {key: 'multitasking', habit: 'Multitasking', color: '#e91e63'},
-      {key: 'completionism', habit: 'Completionism', color: '#ff5722'},
-      {key: 'exploration', habit: 'Exploration', color: '#ff9800'},
-      {key: 'organization', habit: 'Organization', color: '#ffc107'},
-      {key: 'intensity', habit: 'Intensity', color: '#4caf50'},
-      {key: 'methodology', habit: 'Methodology', color: '#2196f3'},
-      {key: 'momentum', habit: 'Momentum', color: '#673ab7'}
-    ];
+    const habitColors = ['#9c27b0', '#e91e63', '#ff5722', '#ff9800', '#ffc107', '#4caf50', '#2196f3', '#673ab7'];
 
-    return habits.map(({key, habit, color}) => ({
-      habit,
-      score: profile[key],
-      description: this.getHabitDescription(habit, profile[key]),
-      color
+    return this.habitKeys.map((key, i) => ({
+      habit: this.t.translate(`statsUser.readingHabits.habits.${key}`),
+      score: profile[key as keyof ReadingHabitsProfile],
+      description: this.getHabitDescription(key, profile[key as keyof ReadingHabitsProfile]),
+      color: habitColors[i]
     }));
   }
 }

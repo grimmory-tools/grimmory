@@ -7,8 +7,9 @@ import {ButtonModule} from 'primeng/button';
 import {Divider} from 'primeng/divider';
 import {Tooltip} from 'primeng/tooltip';
 import {MessageService} from 'primeng/api';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
-import {MetadataBatchProgressNotification, MetadataBatchStatus, MetadataBatchStatusLabels} from '../../model/metadata-batch-progress.model';
+import {MetadataBatchProgressNotification, MetadataBatchStatus} from '../../model/metadata-batch-progress.model';
 import {MetadataProgressService} from '../../service/metadata-progress.service';
 import {MetadataTaskService} from '../../../features/book/service/metadata-task';
 import {Tag} from 'primeng/tag';
@@ -20,7 +21,7 @@ import {DialogLauncherService} from '../../services/dialog-launcher.service';
   templateUrl: './metadata-progress-widget-component.html',
   styleUrls: ['./metadata-progress-widget-component.scss'],
   standalone: true,
-  imports: [KeyValuePipe, ProgressBarModule, ButtonModule, Divider, Tooltip, Tag]
+  imports: [KeyValuePipe, ProgressBarModule, ButtonModule, Divider, Tooltip, Tag, TranslocoDirective]
 })
 export class MetadataProgressWidgetComponent implements OnInit, OnDestroy {
   activeTasks: Record<string, MetadataBatchProgressNotification> = {};
@@ -31,6 +32,7 @@ export class MetadataProgressWidgetComponent implements OnInit, OnDestroy {
   private metadataTaskService = inject(MetadataTaskService);
   private taskService = inject(TaskService);
   private messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
 
   private lastUpdateMap = new Map<string, number>();
   private timeoutHandles = new Map<string, number>();
@@ -79,7 +81,7 @@ export class MetadataProgressWidgetComponent implements OnInit, OnDestroy {
       this.activeTasks[taskId] = {
         ...task,
         status: MetadataBatchStatus.ERROR,
-        message: 'Task stalled or backend unavailable'
+        message: this.t.translate('shared.metadataProgress.taskStalled')
       };
       this.activeTasks = {...this.activeTasks};
     }
@@ -112,23 +114,23 @@ export class MetadataProgressWidgetComponent implements OnInit, OnDestroy {
           this.activeTasks[taskId] = {
             ...task,
             status: MetadataBatchStatus.CANCELLED,
-            message: 'Task cancelled by user'
+            message: this.t.translate('shared.metadataProgress.taskCancelled')
           };
           this.activeTasks = {...this.activeTasks};
         }
 
         this.messageService.add({
           severity: 'success',
-          summary: 'Cancellation Scheduled',
-          detail: 'Task cancellation has been successfully scheduled'
+          summary: this.t.translate('shared.metadataProgress.cancellationScheduledSummary'),
+          detail: this.t.translate('shared.metadataProgress.cancellationScheduledDetail')
         });
       },
       error: (error) => {
         console.error('Failed to cancel task:', error);
         this.messageService.add({
           severity: 'error',
-          summary: 'Cancel Failed',
-          detail: 'Failed to cancel the task. Please try again.'
+          summary: this.t.translate('shared.metadataProgress.cancelFailedSummary'),
+          detail: this.t.translate('shared.metadataProgress.cancelFailedDetail')
         });
       }
     });
@@ -158,8 +160,16 @@ export class MetadataProgressWidgetComponent implements OnInit, OnDestroy {
     }
   }
 
+  private readonly statusLabelKeys: Record<MetadataBatchStatus, string> = {
+    [MetadataBatchStatus.IN_PROGRESS]: 'shared.metadataProgress.statusInProgress',
+    [MetadataBatchStatus.COMPLETED]: 'shared.metadataProgress.statusCompleted',
+    [MetadataBatchStatus.ERROR]: 'shared.metadataProgress.statusError',
+    [MetadataBatchStatus.CANCELLED]: 'shared.metadataProgress.statusCancelled',
+  };
+
   getStatusLabel(status: MetadataBatchStatus): string {
-    return MetadataBatchStatusLabels[status] ?? status;
+    const key = this.statusLabelKeys[status];
+    return key ? this.t.translate(key) : status;
   }
 
   protected readonly Object = Object;

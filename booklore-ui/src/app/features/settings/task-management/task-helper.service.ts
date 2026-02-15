@@ -4,6 +4,7 @@ import {MetadataRefreshRequest} from '../../metadata/model/request/metadata-refr
 import {catchError, map} from 'rxjs/operators';
 import {of} from 'rxjs';
 import {TaskCreateRequest, TaskService, TaskType} from './task.service';
+import {TranslocoService} from '@jsverse/transloco';
 
 @Injectable({
   providedIn: 'root'
@@ -11,6 +12,7 @@ import {TaskCreateRequest, TaskService, TaskType} from './task.service';
 export class TaskHelperService {
   private taskService = inject(TaskService);
   private messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
 
   refreshMetadataTask(options: MetadataRefreshRequest) {
     const request: TaskCreateRequest = {
@@ -22,8 +24,8 @@ export class TaskHelperService {
       map(() => {
         this.messageService.add({
           severity: 'success',
-          summary: 'Metadata Update Scheduled',
-          detail: 'The metadata update for the selected books has been successfully scheduled.'
+          summary: this.t.translate('settingsTasks.toast.metadataScheduled'),
+          detail: this.t.translate('settingsTasks.toast.metadataScheduledDetail')
         });
         return {success: true};
       }),
@@ -31,16 +33,16 @@ export class TaskHelperService {
         if (e.status === 409) {
           this.messageService.add({
             severity: 'error',
-            summary: 'Task Already Running',
+            summary: this.t.translate('settingsTasks.toast.alreadyRunning'),
             life: 5000,
-            detail: 'A metadata refresh task is already in progress. Please wait for it to complete before starting another one.'
+            detail: this.t.translate('settingsTasks.toast.metadataAlreadyRunningDetail')
           });
         } else {
           this.messageService.add({
             severity: 'error',
-            summary: 'Metadata Update Failed',
+            summary: this.t.translate('settingsTasks.toast.metadataFailed'),
             life: 5000,
-            detail: 'An unexpected error occurred while scheduling the metadata update. Please try again later or contact support if the issue persists.'
+            detail: this.t.translate('settingsTasks.toast.metadataFailedDetail')
           });
         }
         return of({success: false});

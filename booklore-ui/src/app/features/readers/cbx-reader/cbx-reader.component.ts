@@ -8,6 +8,7 @@ import {CbxReaderService} from '../../book/service/cbx-reader.service';
 import {BookService} from '../../book/service/book.service';
 import {CbxBackgroundColor, CbxFitMode, CbxPageSpread, CbxPageViewMode, CbxScrollMode, CbxReadingDirection, CbxSlideshowInterval, UserService} from '../../settings/user-management/user.service';
 import {MessageService} from 'primeng/api';
+import {TranslocoService, TranslocoPipe} from '@jsverse/transloco';
 import {Book, BookSetting, BookType} from '../../book/model/book.model';
 import {BookState} from '../../book/model/state/book-state.model';
 import {ProgressSpinner} from 'primeng/progressspinner';
@@ -35,6 +36,7 @@ import {BookNoteV2} from '../../../shared/service/book-note-v2.service';
     CommonModule,
     ProgressSpinner,
     FormsModule,
+    TranslocoPipe,
     CbxHeaderComponent,
     CbxSidebarComponent,
     CbxFooterComponent,
@@ -126,6 +128,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   private bookService = inject(BookService);
   private userService = inject(UserService);
   private messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
   private pageTitle = inject(PageTitleService);
   private readingSessionService = inject(ReadingSessionService);
   private headerService = inject(CbxHeaderService);
@@ -247,15 +250,15 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
               this.readingSessionService.startSession(this.bookId, "CBX", (this.currentPage + 1).toString(), percentage);
             },
             error: (err) => {
-              const errorMessage = err?.error?.message || 'Failed to load pages';
-              this.messageService.add({severity: 'error', summary: 'Error', detail: errorMessage});
+              const errorMessage = err?.error?.message || this.t.translate('shared.reader.failedToLoadPages');
+              this.messageService.add({severity: 'error', summary: this.t.translate('common.error'), detail: errorMessage});
               this.isLoading = false;
             }
           });
         },
         error: (err) => {
-          const errorMessage = err?.error?.message || 'Failed to load the book';
-          this.messageService.add({severity: 'error', summary: 'Error', detail: errorMessage});
+          const errorMessage = err?.error?.message || this.t.translate('shared.reader.failedToLoadBook');
+          this.messageService.add({severity: 'error', summary: this.t.translate('common.error'), detail: errorMessage});
           this.isLoading = false;
         }
       });

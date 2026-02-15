@@ -1,5 +1,6 @@
 package org.booklore.controller;
 
+import org.booklore.model.dto.Book;
 import org.booklore.model.dto.progress.KoreaderProgress;
 import org.booklore.service.koreader.KoreaderService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -48,6 +49,13 @@ public class KoreaderController {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(progress);
+    }
+
+    @Operation(summary = "Get book by hash", description = "Retrieve full book details by its MD5 hash, including metadata with ISBN values.")
+    @ApiResponse(responseCode = "200", description = "Full book object returned successfully")
+    @GetMapping("/books/by-hash/{bookHash}")
+    public ResponseEntity<Book> getBookByHash(@Parameter(description = "Book MD5 hash") @PathVariable String bookHash) {
+        return koreaderService.getBookByHash(bookHash);
     }
 
     @Operation(summary = "Update KoReader progress", description = "Update reading progress for a book.")

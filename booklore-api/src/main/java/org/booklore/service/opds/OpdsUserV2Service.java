@@ -8,9 +8,12 @@ import org.booklore.model.dto.request.OpdsUserV2CreateRequest;
 import org.booklore.model.dto.request.OpdsUserV2UpdateRequest;
 import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.model.entity.OpdsUserV2Entity;
+import org.booklore.model.enums.OpdsSortOrder;
 import org.booklore.repository.OpdsUserV2Repository;
 import org.booklore.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.booklore.model.enums.AuditAction;
+import org.booklore.service.audit.AuditService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -28,6 +31,7 @@ public class OpdsUserV2Service {
     private final UserRepository userRepository;
     private final OpdsUserV2Mapper mapper;
     private final PasswordEncoder passwordEncoder;
+    private final AuditService auditService;
 
 
     public List<OpdsUserV2> getOpdsUsers() {
@@ -46,10 +50,12 @@ public class OpdsUserV2Service {
                     .user(userEntity)
                     .username(request.getUsername())
                     .passwordHash(passwordEncoder.encode(request.getPassword()))
-                    .sortOrder(request.getSortOrder() != null ? request.getSortOrder() : org.booklore.model.enums.OpdsSortOrder.RECENT)
+                    .sortOrder(request.getSortOrder() != null ? request.getSortOrder() : OpdsSortOrder.RECENT)
                     .build();
 
-            return mapper.toDto(opdsUserV2Repository.save(opdsUserV2));
+            OpdsUserV2 result = mapper.toDto(opdsUserV2Repository.save(opdsUserV2));
+            auditService.log(AuditAction.OPDS_USER_CREATED, "OpdsUser", result.getId(), "Created OPDS user: " + request.getUsername());
+            return result;
         } catch (DataIntegrityViolationException e) {
             if (e.getMostSpecificCause().getMessage().contains("uq_username")) {
                 throw new DataIntegrityViolationException("Username '" + request.getUsername() + "' is already taken");
@@ -64,7 +70,9 @@ public class OpdsUserV2Service {
         if (!user.getUser().getId().equals(bookLoreUser.getId())) {
             throw new AccessDeniedException("You are not allowed to delete this user");
         }
+        String username = user.getUsername();
         opdsUserV2Repository.delete(user);
+        auditService.log(AuditAction.OPDS_USER_DELETED, "OpdsUser", userId, "Deleted OPDS user: " + username);
     }
 
     public OpdsUserV2 updateOpdsUser(Long userId, OpdsUserV2UpdateRequest request) {
@@ -77,7 +85,9 @@ public class OpdsUserV2Service {
         }
         
         user.setSortOrder(request.sortOrder());
-        return mapper.toDto(opdsUserV2Repository.save(user));
+        OpdsUserV2 result = mapper.toDto(opdsUserV2Repository.save(user));
+        auditService.log(AuditAction.OPDS_USER_UPDATED, "OpdsUser", userId, "Updated OPDS user: " + user.getUsername());
+        return result;
     }
 
     public OpdsUserV2Entity findByUsername(String username) {

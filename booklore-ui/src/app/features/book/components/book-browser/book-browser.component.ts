@@ -3,6 +3,7 @@ import {ActivatedRoute, NavigationStart, Router} from '@angular/router';
 import {ConfirmationService, MenuItem, MessageService} from 'primeng/api';
 import {PageTitleService} from '../../../../shared/service/page-title.service';
 import {BookService} from '../../service/book.service';
+import {BookMetadataManageService} from '../../service/book-metadata-manage.service';
 import {debounceTime, filter, map, switchMap, takeUntil} from 'rxjs/operators';
 import {BehaviorSubject, combineLatest, finalize, Observable, of, Subject, Subscription} from 'rxjs';
 import {DynamicDialogRef} from 'primeng/dynamicdialog';
@@ -57,6 +58,7 @@ import {BookBrowserScrollService} from './book-browser-scroll.service';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {MultiSortPopoverComponent} from './sorting/multi-sort-popover/multi-sort-popover.component';
 import {SortService} from '../../service/sort.service';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 export enum EntityType {
   LIBRARY = 'Library',
@@ -74,7 +76,7 @@ export enum EntityType {
   imports: [
     Button, VirtualScrollerModule, BookCardComponent, AsyncPipe, ProgressSpinner, Menu, InputText, FormsModule,
     BookTableComponent, BookFilterComponent, Tooltip, NgClass, NgStyle, Popover,
-    Checkbox, Slider, Divider, MultiSelect, TieredMenu, BadgeModule, MultiSortPopoverComponent
+    Checkbox, Slider, Divider, MultiSelect, TieredMenu, BadgeModule, MultiSortPopoverComponent, TranslocoDirective
   ],
   providers: [SeriesCollapseFilter],
   animations: [
@@ -108,6 +110,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   private router = inject(Router);
   private messageService = inject(MessageService);
   private bookService = inject(BookService);
+  private bookMetadataManageService = inject(BookMetadataManageService);
   private dialogHelperService = inject(BookDialogHelperService);
   private bookMenuService = inject(BookMenuService);
   private libraryShelfMenuService = inject(LibraryShelfMenuService);
@@ -119,6 +122,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   private filterOrchestrationService = inject(BookFilterOrchestrationService);
   private localStorageService = inject(LocalStorageService);
   private scrollService = inject(BookBrowserScrollService);
+  private readonly t = inject(TranslocoService);
 
   bookState$: Observable<BookState> | undefined;
   entity$: Observable<Library | Shelf | MagicShelf | null> | undefined;
@@ -164,7 +168,8 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   private sideBarFilter = new SideBarFilter(this.selectedFilter, this.selectedFilterMode);
   private headerFilter = new HeaderFilter(this.searchTerm$);
   protected bookSorter = new BookSorter(
-    sortCriteria => this.onMultiSortChange(sortCriteria)
+    sortCriteria => this.onMultiSortChange(sortCriteria),
+    this.t
   );
   private sortService = inject(SortService);
 
@@ -236,7 +241,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     const filters = this.selectedFilter.value;
 
     if (!filters || Object.keys(filters).length === 0) {
-      return 'All Books';
+      return this.t.translate('book.browser.labels.allBooks');
     }
 
     const filterEntries = Object.entries(filters);
@@ -258,7 +263,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
       .join(', ');
 
     return filterSummary.length > 50
-      ? `${filterEntries.length} Active Filters`
+      ? this.t.translate('book.browser.labels.activeFilters', {count: filterEntries.length})
       : filterSummary;
   }
 
@@ -332,7 +337,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
       this.entityType$ = of(entityType);
       this.entity$ = of(null);
       this.seriesCollapseFilter.setContext(null, null);
-      this.pageTitle.setPageTitle(currentPath === 'all-books' ? 'All Books' : 'Unshelved Books');
+      this.pageTitle.setPageTitle(currentPath === 'all-books' ? this.t.translate('book.browser.labels.allBooks') : this.t.translate('book.browser.labels.unshelvedBooks'));
     } else {
       const routeEntityInfo$ = this.entityService.getEntityInfoFromRoute(this.activatedRoute);
       this.entityType$ = routeEntityInfo$.pipe(map(info => {
@@ -415,7 +420,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
       });
 
 
-      this.currentFilterLabel = 'All Books';
+      this.currentFilterLabel = this.t.translate('book.browser.labels.allBooks');
       const filterParams = queryParamMap.get('filter');
 
       if (filterParams) {
@@ -494,7 +499,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     this.rawFilterParamFromUrl = null;
 
     const hasSidebarFilters = !!filters && Object.keys(filters).length > 0;
-    this.currentFilterLabel = hasSidebarFilters ? this.computedFilterLabel : 'All Books';
+    this.currentFilterLabel = hasSidebarFilters ? this.computedFilterLabel : this.t.translate('book.browser.labels.allBooks');
 
     this.queryParamsService.updateFilters(filters);
   }
@@ -558,18 +563,18 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
 
   confirmDeleteBooks(): void {
     this.confirmationService.confirm({
-      message: `Are you sure you want to delete ${this.selectedBooks.size} book(s)?\n\nThis will permanently remove the book files from your filesystem.\n\nThis action cannot be undone.`,
-      header: 'Confirm Deletion',
+      message: this.t.translate('book.browser.confirm.deleteMessage', {count: this.selectedBooks.size}),
+      header: this.t.translate('book.browser.confirm.deleteHeader'),
       icon: 'pi pi-exclamation-triangle',
       acceptIcon: 'pi pi-trash',
       rejectIcon: 'pi pi-times',
-      acceptLabel: 'Delete',
-      rejectLabel: 'Cancel',
+      acceptLabel: this.t.translate('common.delete'),
+      rejectLabel: this.t.translate('common.cancel'),
       acceptButtonStyleClass: 'p-button-danger',
       rejectButtonStyleClass: 'p-button-outlined',
       accept: () => {
         const count = this.selectedBooks.size;
-        const loader = this.loadingService.show(`Deleting ${count} book(s)...`);
+        const loader = this.loadingService.show(this.t.translate('book.browser.loading.deleting', {count}));
 
         this.bookService.deleteBooks(this.selectedBooks)
           .pipe(finalize(() => this.loadingService.hide(loader)))
@@ -735,10 +740,10 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     this.userService.updateUserSetting(user.id, 'entityViewPreferences', prefs);
     this.messageService.add({
       severity: 'success',
-      summary: 'Sort Saved',
+      summary: this.t.translate('book.browser.toast.sortSavedSummary'),
       detail: this.entityType === EntityType.ALL_BOOKS || this.entityType === EntityType.UNSHELVED
-        ? 'Default sort configuration saved.'
-        : `Sort configuration saved for this ${this.entityType.toLowerCase()}.`
+        ? this.t.translate('book.browser.toast.sortSavedGlobalDetail')
+        : this.t.translate('book.browser.toast.sortSavedEntityDetail', {entityType: this.entityType.toLowerCase()})
     });
   }
 
@@ -775,17 +780,17 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   unshelfBooks(): void {
     if (!this.entity) return;
     const count = this.selectedBooks.size;
-    const loader = this.loadingService.show(`Unshelving ${count} book(s)...`);
+    const loader = this.loadingService.show(this.t.translate('book.browser.loading.unshelving', {count}));
 
     this.bookService.updateBookShelves(this.selectedBooks, new Set(), new Set([this.entity.id!]))
       .pipe(finalize(() => this.loadingService.hide(loader)))
       .subscribe({
         next: () => {
-          this.messageService.add({severity: 'info', summary: 'Success', detail: 'Books shelves updated'});
+          this.messageService.add({severity: 'info', summary: this.t.translate('common.success'), detail: this.t.translate('book.browser.toast.unshelveSuccessDetail')});
           this.bookSelectionService.deselectAll();
         },
         error: () => {
-          this.messageService.add({severity: 'error', summary: 'Error', detail: 'Failed to update books shelves'});
+          this.messageService.add({severity: 'error', summary: this.t.translate('common.error'), detail: this.t.translate('book.browser.toast.unshelveFailedDetail')});
         }
       });
   }
@@ -829,34 +834,34 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.selectedBooks || this.selectedBooks.size === 0) return;
     const count = this.selectedBooks.size;
     this.confirmationService.confirm({
-      message: `Are you sure you want to regenerate covers for ${count} book(s)?`,
-      header: 'Confirm Cover Regeneration',
+      message: this.t.translate('book.browser.confirm.regenCoverMessage', {count}),
+      header: this.t.translate('book.browser.confirm.regenCoverHeader'),
       icon: 'pi pi-image',
-      acceptLabel: 'Yes',
-      rejectLabel: 'No',
+      acceptLabel: this.t.translate('common.yes'),
+      rejectLabel: this.t.translate('common.no'),
       acceptButtonProps: {
-        label: 'Yes',
+        label: this.t.translate('common.yes'),
         severity: 'success'
       },
       rejectButtonProps: {
-        label: 'No',
+        label: this.t.translate('common.no'),
         severity: 'secondary'
       },
       accept: () => {
-        this.bookService.regenerateCoversForBooks(Array.from(this.selectedBooks)).subscribe({
+        this.bookMetadataManageService.regenerateCoversForBooks(Array.from(this.selectedBooks)).subscribe({
           next: () => {
             this.messageService.add({
               severity: 'success',
-              summary: 'Cover Regeneration Started',
-              detail: `Regenerating covers for ${count} book(s). Refresh the page when complete.`,
+              summary: this.t.translate('book.browser.toast.regenCoverStartedSummary'),
+              detail: this.t.translate('book.browser.toast.regenCoverStartedDetail', {count}),
               life: 3000
             });
           },
           error: () => {
             this.messageService.add({
               severity: 'error',
-              summary: 'Failed',
-              detail: 'Could not start cover regeneration.',
+              summary: this.t.translate('book.browser.toast.failedSummary'),
+              detail: this.t.translate('book.browser.toast.regenCoverFailedDetail'),
               life: 3000
             });
           }
@@ -869,34 +874,34 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.selectedBooks || this.selectedBooks.size === 0) return;
     const count = this.selectedBooks.size;
     this.confirmationService.confirm({
-      message: `Are you sure you want to generate custom covers for ${count} book(s)?`,
-      header: 'Confirm Custom Cover Generation',
+      message: this.t.translate('book.browser.confirm.customCoverMessage', {count}),
+      header: this.t.translate('book.browser.confirm.customCoverHeader'),
       icon: 'pi pi-palette',
-      acceptLabel: 'Yes',
-      rejectLabel: 'No',
+      acceptLabel: this.t.translate('common.yes'),
+      rejectLabel: this.t.translate('common.no'),
       acceptButtonProps: {
-        label: 'Yes',
+        label: this.t.translate('common.yes'),
         severity: 'success'
       },
       rejectButtonProps: {
-        label: 'No',
+        label: this.t.translate('common.no'),
         severity: 'secondary'
       },
       accept: () => {
-        this.bookService.generateCustomCoversForBooks(Array.from(this.selectedBooks)).subscribe({
+        this.bookMetadataManageService.generateCustomCoversForBooks(Array.from(this.selectedBooks)).subscribe({
           next: () => {
             this.messageService.add({
               severity: 'success',
-              summary: 'Custom Cover Generation Started',
-              detail: `Generating custom covers for ${count} book(s).`,
+              summary: this.t.translate('book.browser.toast.customCoverStartedSummary'),
+              detail: this.t.translate('book.browser.toast.customCoverStartedDetail', {count}),
               life: 3000
             });
           },
           error: () => {
             this.messageService.add({
               severity: 'error',
-              summary: 'Failed',
-              detail: 'Could not start custom cover generation.',
+              summary: this.t.translate('book.browser.toast.failedSummary'),
+              detail: this.t.translate('book.browser.toast.customCoverFailedDetail'),
               life: 3000
             });
           }
@@ -920,8 +925,8 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     if (sourceBooks.length === 0) {
       this.messageService.add({
         severity: 'warn',
-        summary: 'No Eligible Books',
-        detail: 'Selected books must be single-file books (no alternative formats).'
+        summary: this.t.translate('book.browser.toast.noEligibleBooksSummary'),
+        detail: this.t.translate('book.browser.toast.noEligibleBooksDetail')
       });
       return;
     }
@@ -931,8 +936,8 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     if (libraryIds.size > 1) {
       this.messageService.add({
         severity: 'warn',
-        summary: 'Multiple Libraries',
-        detail: 'All selected books must be from the same library.'
+        summary: this.t.translate('book.browser.toast.multipleLibrariesSummary'),
+        detail: this.t.translate('book.browser.toast.multipleLibrariesDetail')
       });
       return;
     }

@@ -7,7 +7,7 @@
 }
 
 :host ::ng-deep .cdk-virtual-scroll-orientation-vertical .cdk-virtual-scroll-content-wrapper {
-  width: 190px !important;
+  width: calc(var(--sidebar-width, 225px) - 35px) !important;
   min-width: unset;
 }
 

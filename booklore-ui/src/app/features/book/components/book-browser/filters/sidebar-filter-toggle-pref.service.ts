@@ -1,6 +1,7 @@
 import {inject, Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
 import {MessageService} from 'primeng/api';
+import {TranslocoService} from '@jsverse/transloco';
 import {LocalStorageService} from '../../../../../shared/service/local-storage.service';
 
 @Injectable({
@@ -10,6 +11,7 @@ export class SidebarFilterTogglePrefService {
 
   private readonly STORAGE_KEY = 'showSidebarFilter';
   private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
   private readonly localStorageService = inject(LocalStorageService);
 
   private readonly showFilterSubject = new BehaviorSubject<boolean>(true);
@@ -43,8 +45,8 @@ export class SidebarFilterTogglePrefService {
     } catch (e) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Save Failed',
-        detail: 'Could not save sidebar filter preference locally.',
+        summary: this.t.translate('book.filterPref.toast.saveFailedSummary'),
+        detail: this.t.translate('book.filterPref.toast.saveFailedDetail'),
         life: 3000
       });
     }

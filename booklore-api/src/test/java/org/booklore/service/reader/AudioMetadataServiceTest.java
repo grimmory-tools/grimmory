@@ -5,6 +5,7 @@ import org.booklore.model.dto.response.AudiobookInfo;
 import org.booklore.model.dto.response.AudiobookTrack;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
+import org.booklore.model.entity.BookMetadataEntity;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.AudioHeader;
@@ -168,7 +169,7 @@ class AudioMetadataServiceTest {
                         .build()
         ));
 
-        var bookMetadata = new org.booklore.model.entity.BookMetadataEntity();
+        var bookMetadata = new BookMetadataEntity();
         bookMetadata.setTitle("DB Book Title");
         bookMetadata.setNarrator("DB Narrator");
         bookEntity.setMetadata(bookMetadata);

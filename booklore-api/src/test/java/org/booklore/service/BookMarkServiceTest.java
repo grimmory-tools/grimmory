@@ -2,10 +2,12 @@ package org.booklore.service;
 
 import org.booklore.config.BookmarkProperties;
 import org.booklore.config.security.service.AuthenticationService;
+import org.booklore.exception.APIException;
 import org.booklore.mapper.BookMarkMapper;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.BookMark;
 import org.booklore.model.dto.CreateBookMarkRequest;
+import org.booklore.model.dto.UpdateBookMarkRequest;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.model.entity.BookMarkEntity;
@@ -112,7 +114,7 @@ class BookMarkServiceTest {
         when(authenticationService.getAuthenticatedUser()).thenReturn(userDto);
         when(bookMarkRepository.existsByCfiAndBookIdAndUserId("new-cfi", bookId, userId)).thenReturn(true); // Duplicate exists
 
-        assertThrows(org.booklore.exception.APIException.class, () -> bookMarkService.createBookmark(request));
+        assertThrows(APIException.class, () -> bookMarkService.createBookmark(request));
         verify(bookMarkRepository, never()).save(any());
     }
 
@@ -153,7 +155,7 @@ class BookMarkServiceTest {
 
     @Test
     void updateBookmark_Success() {
-        var updateRequest = org.booklore.model.dto.UpdateBookMarkRequest.builder()
+        var updateRequest = UpdateBookMarkRequest.builder()
                 .title("Updated Title")
                 .color("#FF0000")
                 .notes("Updated notes")
@@ -174,7 +176,7 @@ class BookMarkServiceTest {
 
     @Test
     void updateBookmark_NotFound() {
-        var updateRequest = org.booklore.model.dto.UpdateBookMarkRequest.builder()
+        var updateRequest = UpdateBookMarkRequest.builder()
                 .title("Updated Title")
                 .build();
 

@@ -10,6 +10,7 @@
     "patterns": "Patrones",
     "authentication": "Autenticación",
     "tasks": "Tareas",
+    "auditLogs": "Auditoría",
     "opds": "OPDS",
     "devices": "Dispositivos"
   }

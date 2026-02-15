@@ -34,6 +34,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.Optional;
+import org.booklore.model.enums.AuditAction;
+import org.booklore.service.audit.AuditService;
 
 @RequiredArgsConstructor
 @Service
@@ -54,6 +56,7 @@ public class FileUploadService {
     private final AdditionalFileMapper additionalFileMapper;
     private final FileMovingHelper fileMovingHelper;
     private final MonitoringRegistrationService monitoringRegistrationService;
+    private final AuditService auditService;
 
     public void uploadFile(MultipartFile file, long libraryId, long pathId) {
         validateFile(file);
@@ -78,6 +81,7 @@ public class FileUploadService {
             moveFileToFinalLocation(tempPath, finalPath);
 
             log.info("File uploaded to final location: {}", finalPath);
+            auditService.log(AuditAction.BOOK_UPLOADED, "Library", libraryId, "Uploaded file: " + originalFileName);
 
         } catch (IOException e) {
             log.error("Failed to upload file: {}", originalFileName, e);

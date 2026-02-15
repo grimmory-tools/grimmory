@@ -59,6 +59,11 @@
     "cancelFailed": "Error de cancelación",
     "cancelError": "Error al cancelar la tarea. La tarea puede haber finalizado o fallado.",
     "cancelNoId": "No se puede cancelar la tarea sin ID.",
-    "loadError": "Error al cargar las tareas"
+    "loadError": "Error al cargar las tareas",
+    "metadataScheduled": "Actualización de metadatos programada",
+    "metadataScheduledDetail": "La actualización de metadatos para los libros seleccionados se ha programado correctamente.",
+    "metadataAlreadyRunningDetail": "Ya hay una tarea de actualización de metadatos en progreso. Por favor, espera a que finalice antes de iniciar otra.",
+    "metadataFailed": "Error en la actualización de metadatos",
+    "metadataFailedDetail": "Ocurrió un error inesperado al programar la actualización de metadatos. Por favor, inténtalo de nuevo más tarde o contacta con soporte si el problema persiste."
   }
 }

@@ -3,28 +3,30 @@ import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
 import {BehaviorSubject, EMPTY, Observable, Subject} from 'rxjs';
 import {catchError, filter, first, takeUntil} from 'rxjs/operators';
-import {ChartConfiguration, ChartData, Chart, TooltipItem} from 'chart.js';
+import {ChartConfiguration, ChartData, Chart} from 'chart.js';
 import {Tooltip} from 'primeng/tooltip';
 import {BookService} from '../../../../../book/service/book.service';
 import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book, ReadStatus} from '../../../../../book/model/book.model';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 interface ReadingStatusStats {
   status: string;
+  rawStatus: ReadStatus;
   count: number;
   percentage: number;
 }
 
 const STATUS_COLOR_MAP: Record<string, string> = {
-  'Unread': '#6c757d',           // Gray
-  'Currently Reading': '#17a2b8', // Cyan
-  'Re-reading': '#6f42c1',        // Purple
-  'Read': '#28a745',              // Green
-  'Partially Read': '#ffc107',    // Yellow
-  'Paused': '#fd7e14',            // Orange
-  "Won't Read": '#dc3545',        // Red
-  'Abandoned': '#e74c3c',         // Light Red
-  'No Status': '#343a40'          // Dark Gray
+  [ReadStatus.UNREAD]: '#6c757d',
+  [ReadStatus.READING]: '#17a2b8',
+  [ReadStatus.RE_READING]: '#6f42c1',
+  [ReadStatus.READ]: '#28a745',
+  [ReadStatus.PARTIALLY_READ]: '#ffc107',
+  [ReadStatus.PAUSED]: '#fd7e14',
+  [ReadStatus.WONT_READ]: '#dc3545',
+  [ReadStatus.ABANDONED]: '#e74c3c',
+  [ReadStatus.UNSET]: '#343a40'
 } as const;
 
 const CHART_DEFAULTS = {
@@ -39,12 +41,13 @@ type StatusChartData = ChartData<'doughnut', number[], string>;
 @Component({
   selector: 'app-read-status-chart',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective, Tooltip],
+  imports: [CommonModule, BaseChartDirective, Tooltip, TranslocoDirective],
   templateUrl: './read-status-chart.component.html',
   styleUrls: ['./read-status-chart.component.scss']
 })
 export class ReadStatusChartComponent implements OnInit, OnDestroy {
   private readonly bookService = inject(BookService);
+  private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
 
   public readonly chartType = 'doughnut' as const;
@@ -84,7 +87,15 @@ export class ReadStatusChartComponent implements OnInit, OnDestroy {
         bodyFont: {size: 13},
         callbacks: {
           title: (context) => context[0]?.label || '',
-          label: this.formatTooltipLabel
+          label: (context) => {
+            const dataIndex = context.dataIndex;
+            const dataset = context.dataset;
+            const value = dataset.data[dataIndex] as number;
+            const label = context.chart.data.labels?.[dataIndex] || '';
+            const total = (dataset.data as number[]).reduce((a: number, b: number) => a + b, 0);
+            const percentage = ((value / total) * 100).toFixed(1);
+            return this.t.translate('statsUser.readStatus.tooltipLabel', {label, value, percentage});
+          }
         }
       }
     },
@@ -131,7 +142,7 @@ export class ReadStatusChartComponent implements OnInit, OnDestroy {
     try {
       const labels = stats.map(s => s.status);
       const dataValues = stats.map(s => s.count);
-      const colors = stats.map(s => STATUS_COLOR_MAP[s.status] || '#6c757d');
+      const colors = stats.map(s => STATUS_COLOR_MAP[s.rawStatus] || '#6c757d');
 
       this.chartDataSubject.next({
         labels,
@@ -196,6 +207,7 @@ export class ReadStatusChartComponent implements OnInit, OnDestroy {
     return Array.from(statusMap.entries())
       .map(([status, count]) => ({
         status: this.formatReadStatus(status),
+        rawStatus: status,
         count,
         percentage: Number(((count / totalBooks) * 100).toFixed(1))
       }))
@@ -204,19 +216,19 @@ export class ReadStatusChartComponent implements OnInit, OnDestroy {
 
   private formatReadStatus(status: ReadStatus | null | undefined): string {
     const STATUS_MAPPING: Record<string, string> = {
-      [ReadStatus.UNREAD]: 'Unread',
-      [ReadStatus.READING]: 'Currently Reading',
-      [ReadStatus.RE_READING]: 'Re-reading',
-      [ReadStatus.READ]: 'Read',
-      [ReadStatus.PARTIALLY_READ]: 'Partially Read',
-      [ReadStatus.PAUSED]: 'Paused',
-      [ReadStatus.WONT_READ]: "Won't Read",
-      [ReadStatus.ABANDONED]: 'Abandoned',
-      [ReadStatus.UNSET]: 'No Status'
+      [ReadStatus.UNREAD]: this.t.translate('statsUser.readStatus.unread'),
+      [ReadStatus.READING]: this.t.translate('statsUser.readStatus.currentlyReading'),
+      [ReadStatus.RE_READING]: this.t.translate('statsUser.readStatus.reReading'),
+      [ReadStatus.READ]: this.t.translate('statsUser.readStatus.read'),
+      [ReadStatus.PARTIALLY_READ]: this.t.translate('statsUser.readStatus.partiallyRead'),
+      [ReadStatus.PAUSED]: this.t.translate('statsUser.readStatus.paused'),
+      [ReadStatus.WONT_READ]: this.t.translate('statsUser.readStatus.wontRead'),
+      [ReadStatus.ABANDONED]: this.t.translate('statsUser.readStatus.abandoned'),
+      [ReadStatus.UNSET]: this.t.translate('statsUser.readStatus.noStatus')
     };
 
-    if (!status) return 'No Status';
-    return STATUS_MAPPING[status] ?? 'No Status';
+    if (!status) return this.t.translate('statsUser.readStatus.noStatus');
+    return STATUS_MAPPING[status] ?? this.t.translate('statsUser.readStatus.noStatus');
   }
 
   private generateLegendLabels(chart: Chart) {
@@ -243,15 +255,5 @@ export class ReadStatusChartComponent implements OnInit, OnDestroy {
         fontColor: '#ffffff'
       };
     });
-  }
-
-  private formatTooltipLabel(context: TooltipItem<any>): string {
-    const dataIndex = context.dataIndex;
-    const dataset = context.dataset;
-    const value = dataset.data[dataIndex] as number;
-    const label = context.chart.data.labels?.[dataIndex] || 'Unknown';
-    const total = (dataset.data as number[]).reduce((a: number, b: number) => a + b, 0);
-    const percentage = ((value / total) * 100).toFixed(1);
-    return `${label}: ${value} books (${percentage}%)`;
   }
 }

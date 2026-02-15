@@ -15,6 +15,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.booklore.model.enums.AuditAction;
+import org.booklore.service.audit.AuditService;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 public class TaskHistoryService {
 
     private final TaskHistoryRepository taskHistoryRepository;
+    private final AuditService auditService;
 
     @Transactional
     public void createTask(String taskId, TaskType type, Long userId, Map<String, Object> options) {
@@ -35,6 +38,23 @@ public class TaskHistoryService {
                 .taskOptions(options)
                 .build();
         taskHistoryRepository.save(task);
+        auditService.log(AuditAction.TASK_EXECUTED, "Task", null, buildTaskDescription(type, options));
+    }
+
+    private String buildTaskDescription(TaskType type, Map<String, Object> options) {
+        String taskName = type != null ? type.getName() : "Unknown";
+        StringBuilder sb = new StringBuilder("Started task: ").append(taskName);
+        if (options == null || options.isEmpty()) {
+            return sb.toString();
+        }
+        Object bookIds = options.get("bookIds");
+        Object libraryId = options.get("libraryId");
+        if (bookIds instanceof Collection<?> ids && !ids.isEmpty()) {
+            sb.append(" (Book IDs: ").append(ids.stream().map(Object::toString).collect(Collectors.joining(", "))).append(")");
+        } else if (libraryId != null) {
+            sb.append(" (Library ID: ").append(libraryId).append(")");
+        }
+        return sb.toString();
     }
 
     @Transactional

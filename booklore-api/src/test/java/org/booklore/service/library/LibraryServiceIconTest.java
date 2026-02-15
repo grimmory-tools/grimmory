@@ -2,6 +2,7 @@ package org.booklore.service.library;
 
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.mapper.LibraryMapper;
+import org.booklore.service.audit.AuditService;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.Library;
 import org.booklore.model.dto.LibraryPath;
@@ -60,6 +61,8 @@ class LibraryServiceIconTest {
     private AuthenticationService authenticationService;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private AuditService auditService;
 
     @InjectMocks
     private LibraryService libraryService;

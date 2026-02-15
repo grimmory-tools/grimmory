@@ -1,7 +1,7 @@
 <div class="dialog-overlay" (click)="onOverlayClick($event)">
   <div class="dialog">
     <div class="dialog-header">
-      <h2>Keyboard Shortcuts</h2>
+      <h2>{{ 'readerEbook.shortcutsHelp.title' | transloco }}</h2>
       <button class="close-btn" (click)="onClose()">
         <app-reader-icon name="close" [size]="18"></app-reader-icon>
       </button>
@@ -36,7 +36,7 @@
     </div>
 
     <div class="dialog-footer">
-      <button class="btn btn-primary" (click)="onClose()">Got it</button>
+      <button class="btn btn-primary" (click)="onClose()">{{ 'readerEbook.shortcutsHelp.gotIt' | transloco }}</button>
     </div>
   </div>
 </div>

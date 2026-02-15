@@ -6,6 +6,7 @@ import {BehaviorSubject, EMPTY, Observable, Subject} from 'rxjs';
 import {catchError, takeUntil} from 'rxjs/operators';
 import {ChartConfiguration, ChartData} from 'chart.js';
 import {PeakHoursResponse, UserStatsService} from '../../../../../settings/user-management/user-stats.service';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 type ClockChartData = ChartData<'polarArea', number[], string>;
 
@@ -19,12 +20,13 @@ const HOUR_LABELS = [
 @Component({
   selector: 'app-reading-clock-chart',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective, Tooltip],
+  imports: [CommonModule, BaseChartDirective, Tooltip, TranslocoDirective],
   templateUrl: './reading-clock-chart.component.html',
   styleUrls: ['./reading-clock-chart.component.scss']
 })
 export class ReadingClockChartComponent implements OnInit, OnDestroy {
   private readonly userStatsService = inject(UserStatsService);
+  private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
 
   public readonly chartType = 'polarArea' as const;
@@ -59,9 +61,9 @@ export class ReadingClockChartComponent implements OnInit, OnDestroy {
             if (minutes >= 60) {
               const hrs = Math.floor(minutes / 60);
               const mins = Math.round(minutes % 60);
-              return `${hrs}h ${mins}m of reading`;
+              return this.t.translate('statsUser.readingClock.tooltipReading', {time: `${hrs}h ${mins}m`});
             }
-            return `${Math.round(minutes)}m of reading`;
+            return this.t.translate('statsUser.readingClock.tooltipReading', {time: `${Math.round(minutes)}m`});
           }
         }
       },
@@ -138,11 +140,11 @@ export class ReadingClockChartComponent implements OnInit, OnDestroy {
     const morningTotal = morningHours.reduce((sum, h) => sum + hourMinutes[h], 0);
 
     if (nightTotal > morningTotal * 1.2) {
-      this.readerType = 'Night Owl';
+      this.readerType = this.t.translate('statsUser.readingClock.nightOwl');
     } else if (morningTotal > nightTotal * 1.2) {
-      this.readerType = 'Early Bird';
+      this.readerType = this.t.translate('statsUser.readingClock.earlyBird');
     } else {
-      this.readerType = 'Balanced';
+      this.readerType = this.t.translate('statsUser.readingClock.balanced');
     }
 
     // Generate colors: cool blues for low, warm oranges for peak

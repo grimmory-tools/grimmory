@@ -59,7 +59,7 @@ public class ReadingSessionService {
     private final UserBookProgressRepository userBookProgressRepository;
 
     @Transactional
-    public void recordSession(ReadingSessionRequest request) {
+    public Long recordSession(ReadingSessionRequest request) {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
         Long userId = authenticatedUser.getId();
 
@@ -84,6 +84,8 @@ public class ReadingSessionService {
         readingSessionRepository.save(session);
 
         log.info("Reading session persisted successfully: sessionId={}, userId={}, bookId={}, duration={}s", session.getId(), userId, request.getBookId(), request.getDurationSeconds());
+        
+        return session.getId();
     }
 
     @Transactional(readOnly = true)

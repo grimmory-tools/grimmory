@@ -1,0 +1,98 @@
+<ng-container *transloco="let t; prefix: 'settingsAuditLogs'">
+  <div class="main-container">
+    <div class="settings-header">
+      <h2 class="settings-title">
+        <i class="pi pi-history"></i>
+        {{ t('title') }}
+      </h2>
+      <p class="settings-description">{{ t('description') }}</p>
+    </div>
+
+    <div class="settings-card">
+      <div class="section-header">
+        <h3 class="section-title">
+          <i class="pi pi-list"></i>
+          {{ t('sectionTitle') }}
+        </h3>
+        <div class="filter-controls">
+          <p-select
+            [options]="actionOptions"
+            [(ngModel)]="selectedAction"
+            optionLabel="label"
+            optionValue="value"
+            [placeholder]="t('filterPlaceholder')"
+            (onChange)="onFilterChange()"
+            class="action-filter">
+          </p-select>
+          <p-select
+            [options]="usernameOptions"
+            [(ngModel)]="selectedUsername"
+            optionLabel="label"
+            optionValue="value"
+            [placeholder]="t('userFilterPlaceholder')"
+            (onChange)="onFilterChange()"
+            class="user-filter">
+          </p-select>
+          <p-datepicker
+            [(ngModel)]="dateRange"
+            (ngModelChange)="onDateRangeChange()"
+            selectionMode="range"
+            [placeholder]="t('dateRangePlaceholder')"
+            dateFormat="yy-mm-dd"
+            [showIcon]="true"
+            [showButtonBar]="true"
+            class="date-range-filter">
+          </p-datepicker>
+        </div>
+      </div>
+      <div class="section-body">
+        <p-table
+          [value]="logs"
+          [lazy]="true"
+          [paginator]="true"
+          [rows]="rows"
+          [totalRecords]="totalRecords"
+          [loading]="loading"
+          [showCurrentPageReport]="true"
+          [currentPageReportTemplate]="t('pageReport')"
+          (onLazyLoad)="onLazyLoad($event)"
+          [rowsPerPageOptions]="[10, 25, 50]"
+          styleClass="p-datatable-sm p-datatable-striped">
+
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width: 175px">{{ t('columns.timestamp') }}</th>
+              <th style="width: 100px">{{ t('columns.user') }}</th>
+              <th style="width: 140px">{{ t('columns.action') }}</th>
+              <th>{{ t('columns.description') }}</th>
+              <th style="width: 130px">{{ t('columns.ip') }}</th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-log>
+            <tr>
+              <td class="timestamp-cell">{{ log.createdAt | date:'medium' }}</td>
+              <td>{{ log.username }}</td>
+              <td>
+                <span class="action-badge" [ngClass]="getActionClass(log.action)">
+                  {{ formatAction(log.action) }}
+                </span>
+              </td>
+              <td class="description-cell">{{ log.description }}</td>
+              <td class="ip-cell">{{ log.ipAddress || '—' }}</td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="5" class="empty-message">
+                <i class="pi pi-inbox"></i>
+                <span>{{ t('empty') }}</span>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </div>
+</ng-container>

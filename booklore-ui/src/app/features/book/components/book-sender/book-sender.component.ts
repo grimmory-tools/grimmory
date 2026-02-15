@@ -11,6 +11,7 @@ import {EmailV2ProviderService} from '../../../settings/email-v2/email-v2-provid
 import {EmailV2RecipientService} from '../../../settings/email-v2/email-v2-recipient/email-v2-recipient.service';
 import {Book, BookFile} from '../../model/book.model';
 import {RadioButton} from 'primeng/radiobutton';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 interface EmailableFile {
   id: number;
@@ -27,7 +28,8 @@ const LARGE_FILE_THRESHOLD_KB = 25 * 1024; // 25MB
     Button,
     Select,
     FormsModule,
-    RadioButton
+    RadioButton,
+    TranslocoDirective,
   ],
   templateUrl: './book-sender.component.html',
   styleUrls: ['./book-sender.component.scss']
@@ -38,6 +40,7 @@ export class BookSenderComponent implements OnInit {
   private emailRecipientService = inject(EmailV2RecipientService);
   private emailService = inject(EmailService);
   private messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
   dynamicDialogRef = inject(DynamicDialogRef);
   private dynamicDialogConfig = inject(DynamicDialogConfig);
 
@@ -143,16 +146,16 @@ export class BookSenderComponent implements OnInit {
         next: () => {
           this.messageService.add({
             severity: 'success',
-            summary: 'Email Scheduled',
-            detail: 'The book has been successfully scheduled for sending.'
+            summary: this.t.translate('book.sender.toast.emailScheduledSummary'),
+            detail: this.t.translate('book.sender.toast.emailScheduledDetail')
           });
           this.dynamicDialogRef.close(true);
         },
         error: (error) => {
           this.messageService.add({
             severity: 'error',
-            summary: 'Sending Failed',
-            detail: 'There was an issue while scheduling the book for sending. Please try again later.'
+            summary: this.t.translate('book.sender.toast.sendingFailedSummary'),
+            detail: this.t.translate('book.sender.toast.sendingFailedDetail')
           });
           console.error('Error sending book:', error);
         }
@@ -161,22 +164,22 @@ export class BookSenderComponent implements OnInit {
       if (!this.selectedProvider) {
         this.messageService.add({
           severity: 'error',
-          summary: 'Email Provider Missing',
-          detail: 'Please select an email provider to proceed.'
+          summary: this.t.translate('book.sender.toast.providerMissingSummary'),
+          detail: this.t.translate('book.sender.toast.providerMissingDetail')
         });
       }
       if (!this.selectedRecipient) {
         this.messageService.add({
           severity: 'error',
-          summary: 'Recipient Missing',
-          detail: 'Please select a recipient to send the book.'
+          summary: this.t.translate('book.sender.toast.recipientMissingSummary'),
+          detail: this.t.translate('book.sender.toast.recipientMissingDetail')
         });
       }
       if (!this.book?.id) {
         this.messageService.add({
           severity: 'error',
-          summary: 'Book Not Selected',
-          detail: 'Please select a book to send.'
+          summary: this.t.translate('book.sender.toast.bookNotSelectedSummary'),
+          detail: this.t.translate('book.sender.toast.bookNotSelectedDetail')
         });
       }
     }

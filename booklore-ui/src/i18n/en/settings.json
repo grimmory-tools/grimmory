@@ -10,6 +10,7 @@
     "patterns": "Patterns",
     "authentication": "Authentication",
     "tasks": "Tasks",
+    "auditLogs": "Audit Logs",
     "opds": "OPDS",
     "devices": "Devices"
   }

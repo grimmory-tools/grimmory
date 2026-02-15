@@ -6,6 +6,7 @@ import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.booklore.exception.APIException;
 import org.booklore.exception.ApiError;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.repository.BookRepository;
@@ -296,7 +297,7 @@ class CbxReaderServiceTest {
             Files.createFile(unknownPath);
             Files.setLastModifiedTime(unknownPath, FileTime.fromMillis(System.currentTimeMillis()));
 
-            assertThrows(org.booklore.exception.APIException.class, () -> cbxReaderService.getAvailablePages(1L));
+            assertThrows(APIException.class, () -> cbxReaderService.getAvailablePages(1L));
         }
     }
 

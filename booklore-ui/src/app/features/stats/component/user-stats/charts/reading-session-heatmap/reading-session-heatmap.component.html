@@ -1,29 +1,30 @@
+<ng-container *transloco="let t; prefix: 'statsUser.sessionHeatmap'">
 <div class="reading-session-heatmap-container">
   <div class="chart-header">
     <div class="chart-title">
       <h3>
         <i class="pi pi-calendar heatmap-title-icon"></i>
-        Reading Session Activity
+        {{ t('title') }}
         <i class="pi pi-question-circle chart-info-icon"
-           pTooltip="A daily heatmap of your reading sessions for the selected year. Darker cells mean more sessions that day. Streak stats track consecutive reading days across all time. Milestones unlock as you hit streak or total-day thresholds."
+           [pTooltip]="t('tooltip')"
            tooltipPosition="bottom"
            tooltipStyleClass="chart-info-tooltip"
            [appendTo]="'body'"></i>
       </h3>
-      <p class="chart-description">Daily overview of your reading sessions across the year</p>
+      <p class="chart-description">{{ t('description') }}</p>
     </div>
     <div class="year-selector">
       <button type="button"
               class="year-nav-btn"
               (click)="changeYear(-1)"
-              title="Previous year">
+              [title]="t('previousYear')">
         <i class="pi pi-chevron-left"></i>
       </button>
       <span class="current-year">{{ currentYear }}</span>
       <button type="button"
               class="year-nav-btn"
               (click)="changeYear(1)"
-              title="Next year">
+              [title]="t('nextYear')">
         <i class="pi pi-chevron-right"></i>
       </button>
     </div>
@@ -42,16 +43,16 @@
     <div class="chart-footer">
       <div class="footer-pills left">
         <span class="pill current">
-          <span class="pill-value">{{ currentStreak }}</span> Current Streak
+          <span class="pill-value">{{ currentStreak }}</span> {{ t('currentStreak') }}
         </span>
         <span class="pill longest">
-          <span class="pill-value">{{ longestStreak }}</span> Longest Streak
+          <span class="pill-value">{{ longestStreak }}</span> {{ t('longestStreak') }}
         </span>
         <span class="pill total">
-          <span class="pill-value">{{ totalReadingDays }}</span> Total Days
+          <span class="pill-value">{{ totalReadingDays }}</span> {{ t('totalDays') }}
         </span>
         <span class="pill consistency">
-          <span class="pill-value">{{ consistencyPercent }}%</span> Consistency
+          <span class="pill-value">{{ consistencyPercent }}%</span> {{ t('consistency') }}
         </span>
       </div>
       @if (milestones.length > 0) {
@@ -66,3 +67,4 @@
     </div>
   }
 </div>
+</ng-container>

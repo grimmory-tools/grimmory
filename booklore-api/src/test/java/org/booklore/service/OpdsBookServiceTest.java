@@ -7,6 +7,7 @@ import org.booklore.model.dto.*;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.model.entity.ShelfEntity;
+import org.booklore.model.entity.UserPermissionsEntity;
 import org.booklore.repository.BookOpdsRepository;
 import org.booklore.repository.ShelfRepository;
 import org.booklore.repository.UserRepository;
@@ -123,7 +124,7 @@ class OpdsBookServiceTest {
     void getBooksPage_legacyUser_delegatesToLegacyMethod() {
         OpdsUserDetails details = legacyUserDetails();
         BookLoreUserEntity entity = mock(BookLoreUserEntity.class);
-        var permissionsEntity = mock(org.booklore.model.entity.UserPermissionsEntity.class);
+        var permissionsEntity = mock(UserPermissionsEntity.class);
         when(permissionsEntity.isPermissionAccessOpds()).thenReturn(true);
         when(permissionsEntity.isPermissionAdmin()).thenReturn(false);
         when(entity.getPermissions()).thenReturn(permissionsEntity);
@@ -182,7 +183,7 @@ class OpdsBookServiceTest {
         when(bookOpdsRepository.findAllWithFullMetadataByIdsAndShelfIds(anyList(), anySet())).thenReturn(List.of());
 
         BookLoreUserEntity entity = mock(BookLoreUserEntity.class);
-        var permissionsEntity = mock(org.booklore.model.entity.UserPermissionsEntity.class);
+        var permissionsEntity = mock(UserPermissionsEntity.class);
         when(permissionsEntity.isPermissionAccessOpds()).thenReturn(true);
         when(permissionsEntity.isPermissionAdmin()).thenReturn(true);
         when(entity.getPermissions()).thenReturn(permissionsEntity);
@@ -329,7 +330,7 @@ class OpdsBookServiceTest {
     void getBooksPageForV2User_throwsForbidden_whenNoPermission() {
         OpdsUserV2 v2 = OpdsUserV2.builder().userId(1L).build();
         BookLoreUserEntity entity = mock(BookLoreUserEntity.class);
-        var permissionsEntity = mock(org.booklore.model.entity.UserPermissionsEntity.class);
+        var permissionsEntity = mock(UserPermissionsEntity.class);
         when(permissionsEntity.isPermissionAccessOpds()).thenReturn(false);
         when(permissionsEntity.isPermissionAdmin()).thenReturn(false);
         when(entity.getPermissions()).thenReturn(permissionsEntity);
@@ -344,7 +345,7 @@ class OpdsBookServiceTest {
     void getBooksPage_withSingleShelfId_returnsShelfBooks() {
         OpdsUserDetails details = v2UserDetails(1L, false, Set.of(1L));
         BookLoreUserEntity entity = mock(BookLoreUserEntity.class);
-        var permissionsEntity = mock(org.booklore.model.entity.UserPermissionsEntity.class);
+        var permissionsEntity = mock(UserPermissionsEntity.class);
         when(permissionsEntity.isPermissionAccessOpds()).thenReturn(true);
         when(permissionsEntity.isPermissionAdmin()).thenReturn(false);
         when(entity.getPermissions()).thenReturn(permissionsEntity);
@@ -383,7 +384,7 @@ class OpdsBookServiceTest {
     void getBooksPage_withMultipleShelfIds_returnsShelfBooks() {
         OpdsUserDetails details = v2UserDetails(1L, false, Set.of(1L));
         BookLoreUserEntity entity = mock(BookLoreUserEntity.class);
-        var permissionsEntity = mock(org.booklore.model.entity.UserPermissionsEntity.class);
+        var permissionsEntity = mock(UserPermissionsEntity.class);
         when(permissionsEntity.isPermissionAccessOpds()).thenReturn(true);
         when(permissionsEntity.isPermissionAdmin()).thenReturn(false);
         when(entity.getPermissions()).thenReturn(permissionsEntity);
@@ -429,7 +430,7 @@ class OpdsBookServiceTest {
     void getBooksPage_withShelfIdAndQuery_searchesInShelf() {
         OpdsUserDetails details = v2UserDetails(1L, false, Set.of(1L));
         BookLoreUserEntity entity = mock(BookLoreUserEntity.class);
-        var permissionsEntity = mock(org.booklore.model.entity.UserPermissionsEntity.class);
+        var permissionsEntity = mock(UserPermissionsEntity.class);
         when(permissionsEntity.isPermissionAccessOpds()).thenReturn(true);
         when(permissionsEntity.isPermissionAdmin()).thenReturn(false);
         when(entity.getPermissions()).thenReturn(permissionsEntity);
@@ -468,7 +469,7 @@ class OpdsBookServiceTest {
     void getBooksPage_withShelfId_throwsForbidden_whenNotOwner() {
         OpdsUserDetails details = v2UserDetails(1L, false, Set.of(1L));
         BookLoreUserEntity entity = mock(BookLoreUserEntity.class);
-        var permissionsEntity = mock(org.booklore.model.entity.UserPermissionsEntity.class);
+        var permissionsEntity = mock(UserPermissionsEntity.class);
         when(permissionsEntity.isPermissionAccessOpds()).thenReturn(true);
         when(permissionsEntity.isPermissionAdmin()).thenReturn(false);
         when(entity.getPermissions()).thenReturn(permissionsEntity);
@@ -498,7 +499,7 @@ class OpdsBookServiceTest {
     void getBooksPage_withShelfId_allowsAdmin_evenIfNotOwner() {
         OpdsUserDetails details = v2UserDetails(1L, true, Set.of(1L));
         BookLoreUserEntity entity = mock(BookLoreUserEntity.class);
-        var permissionsEntity = mock(org.booklore.model.entity.UserPermissionsEntity.class);
+        var permissionsEntity = mock(UserPermissionsEntity.class);
         when(permissionsEntity.isPermissionAccessOpds()).thenReturn(true);
         when(permissionsEntity.isPermissionAdmin()).thenReturn(true);
         when(entity.getPermissions()).thenReturn(permissionsEntity);

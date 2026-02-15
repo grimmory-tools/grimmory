@@ -13,13 +13,14 @@ import {PdfAnnotationService} from '../../../shared/service/pdf-annotation.servi
 
 import {ProgressSpinner} from 'primeng/progressspinner';
 import {MessageService} from 'primeng/api';
+import {TranslocoService, TranslocoPipe} from '@jsverse/transloco';
 import {ReadingSessionService} from '../../../shared/service/reading-session.service';
 import {Location} from '@angular/common';
 
 @Component({
   selector: 'app-pdf-reader',
   standalone: true,
-  imports: [NgxExtendedPdfViewerModule, ProgressSpinner],
+  imports: [NgxExtendedPdfViewerModule, ProgressSpinner, TranslocoPipe],
   templateUrl: './pdf-reader.component.html',
   styleUrl: './pdf-reader.component.scss',
 })
@@ -32,6 +33,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   isLoading = true;
   totalPages: number = 0;
   isDarkTheme = true;
+  canPrint = false;
 
   rotation: 0 | 90 | 180 | 270 = 0;
   authorization = '';
@@ -58,6 +60,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   private location = inject(Location);
   private pdfViewerService = inject(NgxExtendedPdfViewerService);
   private pdfAnnotationService = inject(PdfAnnotationService);
+  private readonly t = inject(TranslocoService);
 
   ngOnInit(): void {
     this.annotationSaveSubscription = this.annotationSaveSubject
@@ -92,6 +95,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
             this.zoom = pdfPrefs.pdfSettings?.zoom || myself.userSettings.pdfReaderSetting.pageZoom || 'page-fit';
             this.spread = pdfPrefs.pdfSettings?.spread || myself.userSettings.pdfReaderSetting.pageSpread || 'odd';
           }
+          this.canPrint = myself.permissions.canDownload || myself.permissions.admin;
           this.page = pdfMeta.pdfProgress?.page || 1;
           this.bookData = `${API_CONFIG.BASE_URL}/api/v1/books/${this.bookId}/content`;
           const token = this.authService.getOidcAccessToken() || this.authService.getInternalAccessToken();
@@ -99,7 +103,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
           this.isLoading = false;
         },
         error: () => {
-          this.messageService.add({severity: 'error', summary: 'Error', detail: 'Failed to load the book'});
+          this.messageService.add({severity: 'error', summary: this.t.translate('common.error'), detail: this.t.translate('readerPdf.toast.failedToLoadBook')});
           this.isLoading = false;
         }
       });

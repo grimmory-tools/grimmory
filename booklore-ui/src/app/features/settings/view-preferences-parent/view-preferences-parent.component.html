@@ -17,5 +17,39 @@
     <app-sidebar-sorting-preferences></app-sidebar-sorting-preferences>
     <div class="section-divider"><hr></div>
     <app-meta-center-view-mode-component></app-meta-center-view-mode-component>
+    <div class="section-divider"><hr></div>
+
+    <div class="preferences-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <i class="pi pi-objects-column"></i>
+          {{ t('layout.sectionTitle') }}
+        </h3>
+      </div>
+
+      <div class="settings-card">
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-label-row">
+              <label class="setting-label">{{ t('layout.sidebarWidth', {value: sidebarWidth}) }}</label>
+              <div class="slider-container">
+                <p-slider
+                  [(ngModel)]="sidebarWidth"
+                  [min]="175"
+                  [max]="400"
+                  [step]="1"
+                  (onChange)="onSidebarWidthChange()"
+                  (onSlideEnd)="saveSidebarWidth()">
+                </p-slider>
+              </div>
+            </div>
+            <p class="setting-description">
+              <i class="pi pi-info-circle"></i>
+              {{ t('layout.sidebarWidthDesc') }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </ng-container>

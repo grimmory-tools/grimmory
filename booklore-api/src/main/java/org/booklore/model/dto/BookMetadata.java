@@ -70,6 +70,8 @@ public class BookMetadata {
     private List<BookReview> bookReviews;
     private Double rating;
 
+    private Boolean allMetadataLocked;
+
     private Boolean titleLocked;
     private Boolean subtitleLocked;
     private Boolean publisherLocked;

@@ -1,10 +1,11 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, EventEmitter, inject, Input, Output} from '@angular/core';
 import {SortDirection, SortOption} from '../../../../model/sort.model';
 import {CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, moveItemInArray} from '@angular/cdk/drag-drop';
 import {Select} from 'primeng/select';
 import {FormsModule} from '@angular/forms';
 import {Tooltip} from 'primeng/tooltip';
 import {Button} from 'primeng/button';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 @Component({
   selector: 'app-multi-sort-popover',
@@ -16,12 +17,14 @@ import {Button} from 'primeng/button';
     Select,
     FormsModule,
     Tooltip,
-    Button
+    Button,
+    TranslocoDirective
   ],
   templateUrl: './multi-sort-popover.component.html',
   styleUrl: './multi-sort-popover.component.scss'
 })
 export class MultiSortPopoverComponent {
+  private readonly t = inject(TranslocoService);
   @Input() sortCriteria: SortOption[] = [];
   @Input() availableSortOptions: SortOption[] = [];
   @Input() showSaveButton = false;
@@ -79,7 +82,9 @@ export class MultiSortPopoverComponent {
   }
 
   getDirectionTooltip(direction: SortDirection): string {
-    return direction === SortDirection.ASCENDING ? 'Ascending - click to change' : 'Descending - click to change';
+    return direction === SortDirection.ASCENDING
+      ? this.t.translate('book.sorting.ascendingTooltip')
+      : this.t.translate('book.sorting.descendingTooltip');
   }
 
   protected readonly SortDirection = SortDirection;

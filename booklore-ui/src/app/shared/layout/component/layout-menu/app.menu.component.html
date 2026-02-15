@@ -1,15 +1,32 @@
 <ng-container *transloco="let t; prefix: 'layout.menu'">
 <div class="menu-container">
   <div>
-    <ul class="layout-menu">
-      @if (homeMenu$ | async; as homeMenu) {
-        @for (item of homeMenu; track item.label; let i = $index) {
-          @if (!item.separator) {
-            <li app-menuitem [item]="item" [index]="i" [root]="true" menuKey="home"></li>
+    <div class="home-menu-section">
+      <ul class="layout-menu">
+        @if (homeMenu$ | async; as homeMenu) {
+          @for (item of homeMenu; track item.label; let i = $index) {
+            @if (!item.separator) {
+              <li app-menuitem [item]="item" [index]="i" [root]="true" menuKey="home"></li>
+            }
           }
         }
-      }
-    </ul>
+      </ul>
+      <i class="pi pi-objects-column sidebar-width-btn"
+         (click)="widthPanel.toggle($event)"></i>
+      <p-popover #widthPanel appendTo="body">
+        <div class="sidebar-width-popover">
+          <label class="sidebar-width-popover-label">{{ sidebarWidth }}px</label>
+          <p-slider
+            [(ngModel)]="sidebarWidth"
+            [min]="175"
+            [max]="400"
+            [step]="1"
+            (onChange)="onSidebarWidthChange()"
+            (onSlideEnd)="saveSidebarWidth()">
+          </p-slider>
+        </div>
+      </p-popover>
+    </div>
 
     <ul class="layout-menu">
       @if (libraryMenu$ | async; as libraryMenu) {

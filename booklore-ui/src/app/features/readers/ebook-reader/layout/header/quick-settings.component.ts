@@ -1,5 +1,6 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {DecimalPipe} from '@angular/common';
+import {TranslocoDirective} from '@jsverse/transloco';
 import {ReaderStateService} from '../../state/reader-state.service';
 import {ReaderIconComponent} from '../../shared/icon.component';
 import {BookService} from '../../../../book/service/book.service';
@@ -8,7 +9,7 @@ import {EbookViewerSetting} from '../../../../book/model/book.model';
 @Component({
   selector: 'app-reader-quick-settings',
   standalone: true,
-  imports: [DecimalPipe, ReaderIconComponent],
+  imports: [DecimalPipe, TranslocoDirective, ReaderIconComponent],
   templateUrl: './quick-settings.component.html',
   styleUrls: ['./quick-settings.component.scss']
 })

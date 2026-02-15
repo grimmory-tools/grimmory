@@ -1,16 +1,17 @@
+<ng-container *transloco="let t; prefix: 'statsUser.readingProgress'">
 <div class="reading-progress-container">
   <div class="chart-header">
     <div class="chart-title">
       <h3>
         <i class="pi pi-chart-bar reading-progress-icon"></i>
-        Reading Progress Distribution
+        {{ t('title') }}
         <i class="pi pi-question-circle chart-info-icon"
-           pTooltip="Shows how many books fall into each progress bracket: not started (0%), just started (1-25%), halfway (26-50%), mostly done (51-75%), nearly finished (76-99%), and completed (100%). Progress is based on the furthest point reached across all reading sessions."
+           [pTooltip]="t('tooltip')"
            tooltipPosition="bottom"
            tooltipStyleClass="chart-info-tooltip"
            [appendTo]="'body'"></i>
       </h3>
-      <p class="chart-description">Books by reading completion status</p>
+      <p class="chart-description">{{ t('description') }}</p>
     </div>
   </div>
   <div class="chart-wrapper">
@@ -21,3 +22,4 @@
     </canvas>
   </div>
 </div>
+</ng-container>

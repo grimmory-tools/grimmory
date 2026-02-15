@@ -1,32 +1,33 @@
+<ng-container *transloco="let t; prefix: 'statsUser.sessionTimeline'">
 <div class="timeline-container">
   <div class="timeline-header">
     <div class="header-title">
       <h3>
         <i class="pi pi-clock timeline-title-icon"></i>
-        Reading Session Timeline
+        {{ t('title') }}
         <i class="pi pi-question-circle chart-info-icon"
-           pTooltip="Shows your reading sessions laid out across each day of the week. Each block represents a session, sized by duration. Hover to see book title, pages read, and time spent. Use the week navigator to browse your reading history week by week."
+           [pTooltip]="t('tooltip')"
            tooltipPosition="bottom"
            tooltipStyleClass="chart-info-tooltip"
            [appendTo]="'body'"></i>
       </h3>
-      <p class="timeline-subtitle">Weekly overview of your reading sessions and patterns</p>
+      <p class="timeline-subtitle">{{ t('description') }}</p>
     </div>
     <div class="week-info">
       <button type="button"
               class="week-nav-btn"
               (click)="changeWeek(-1)"
-              title="Previous week">
+              [title]="t('previousWeek')">
         <i class="pi pi-chevron-left"></i>
       </button>
       <div class="week-display">
-        <span class="week-label">Week {{ currentWeek }}</span>
+        <span class="week-label">{{ t('week', { number: currentWeek }) }}</span>
         <span class="week-dates">{{ getWeekDateRange() }}</span>
       </div>
       <button type="button"
               class="week-nav-btn"
               (click)="changeWeek(1)"
-              title="Next week">
+              [title]="t('nextWeek')">
         <i class="pi pi-chevron-right"></i>
       </button>
     </div>
@@ -37,7 +38,7 @@
         (onChange)="onYearChange()"
         optionLabel="label"
         optionValue="value"
-        placeholder="Select Year"
+        [placeholder]="t('selectYear')"
         [style]="{'min-width': '120px'}">
       </p-select>
       <p-select
@@ -46,7 +47,7 @@
         (onChange)="onWeekChange()"
         optionLabel="label"
         optionValue="value"
-        placeholder="Select Week"
+        [placeholder]="t('selectWeek')"
         [style]="{'min-width': '120px'}">
       </p-select>
     </div>
@@ -107,3 +108,4 @@
     </div>
   </div>
 </div>
+</ng-container>

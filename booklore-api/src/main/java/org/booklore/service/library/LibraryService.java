@@ -16,6 +16,7 @@ import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.model.entity.LibraryEntity;
 import org.booklore.model.entity.LibraryPathEntity;
+import org.booklore.model.enums.AuditAction;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.model.websocket.Topic;
 import org.booklore.repository.BookRepository;
@@ -42,6 +43,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import org.booklore.service.audit.AuditService;
 
 @Slf4j
 @Service
@@ -71,6 +73,7 @@ public class LibraryService {
     private final MonitoringService monitoringService;
     private final AuthenticationService authenticationService;
     private final UserRepository userRepository;
+    private final AuditService auditService;
 
     @Transactional
     @EventListener(ApplicationReadyEvent.class)
@@ -158,6 +161,7 @@ public class LibraryService {
             });
         }
 
+        auditService.log(AuditAction.LIBRARY_UPDATED, "Library", libraryId, "Updated library: " + library.getName());
         return libraryMapper.toLibrary(savedLibrary);
     }
 
@@ -208,11 +212,13 @@ public class LibraryService {
             log.info("Parsing task completed!");
         });
 
+        auditService.log(AuditAction.LIBRARY_CREATED, "Library", libraryEntity.getId(), "Created library: " + libraryEntity.getName());
         return libraryMapper.toLibrary(libraryEntity);
     }
 
     public void rescanLibrary(long libraryId) {
-        libraryRepository.findById(libraryId).orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
+        LibraryEntity lib = libraryRepository.findById(libraryId).orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
+        auditService.log(AuditAction.LIBRARY_SCANNED, "Library", libraryId, "Scanned library: " + lib.getName());
 
         SecurityContextVirtualThread.runWithSecurityContext(() -> {
             if (!scanningLibraries.add(libraryId)) {
@@ -265,7 +271,9 @@ public class LibraryService {
         monitoringService.unregisterLibrary(id);
         Set<Long> bookIds = library.getBookEntities().stream().map(BookEntity::getId).collect(Collectors.toSet());
         fileService.deleteBookCovers(bookIds);
+        String libraryName = library.getName();
         libraryRepository.deleteById(id);
+        auditService.log(AuditAction.LIBRARY_DELETED, "Library", id, "Deleted library: " + libraryName);
         log.info("Library deleted successfully: {}", id);
     }
 
@@ -284,7 +292,9 @@ public class LibraryService {
     public Library setFileNamingPattern(long libraryId, String pattern) {
         LibraryEntity library = libraryRepository.findById(libraryId).orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
         library.setFileNamingPattern(pattern);
-        return libraryMapper.toLibrary(libraryRepository.save(library));
+        Library result = libraryMapper.toLibrary(libraryRepository.save(library));
+        auditService.log(AuditAction.NAMING_PATTERN_CHANGED, "Library", libraryId, "Changed naming pattern for library: " + library.getName() + " to: " + pattern);
+        return result;
     }
 
     public Map<String, Long> getBookCountsByFormat(long libraryId) {

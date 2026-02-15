@@ -8,6 +8,7 @@ import {LibraryFilterService} from '../../service/library-filter.service';
 import {BookService} from '../../../../../book/service/book.service';
 import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book, ReadStatus} from '../../../../../book/model/book.model';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 interface AuthorStats {
   name: string;
@@ -41,13 +42,14 @@ const COMPLETION_COLORS = {
 @Component({
   selector: 'app-author-universe-chart',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective],
+  imports: [CommonModule, BaseChartDirective, TranslocoDirective],
   templateUrl: './author-universe-chart.component.html',
   styleUrls: ['./author-universe-chart.component.scss']
 })
 export class AuthorUniverseChartComponent implements OnInit, OnDestroy {
   private readonly bookService = inject(BookService);
   private readonly libraryFilterService = inject(LibraryFilterService);
+  private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
 
   public readonly chartType = 'bubble' as const;
@@ -104,7 +106,7 @@ export class AuthorUniverseChartComponent implements OnInit, OnDestroy {
         x: {
           title: {
             display: true,
-            text: 'Books in Library',
+            text: this.t.translate('statsLibrary.authorUniverse.axisBooks'),
             color: '#ffffff',
             font: {
               family: "'Inter', sans-serif",
@@ -130,7 +132,7 @@ export class AuthorUniverseChartComponent implements OnInit, OnDestroy {
         y: {
           title: {
             display: true,
-            text: 'Average Rating',
+            text: this.t.translate('statsLibrary.authorUniverse.axisRating'),
             color: '#ffffff',
             font: {
               family: "'Inter', sans-serif",
@@ -349,7 +351,7 @@ export class AuthorUniverseChartComponent implements OnInit, OnDestroy {
 
     if (highCompletion.length > 0) {
       datasets.push({
-        label: '75-100% Read',
+        label: this.t.translate('statsLibrary.authorUniverse.legend75to100'),
         data: highCompletion,
         backgroundColor: this.hexToRgba(COMPLETION_COLORS.high, 0.6),
         borderColor: COMPLETION_COLORS.high,
@@ -361,7 +363,7 @@ export class AuthorUniverseChartComponent implements OnInit, OnDestroy {
 
     if (mediumCompletion.length > 0) {
       datasets.push({
-        label: '50-74% Read',
+        label: this.t.translate('statsLibrary.authorUniverse.legend50to74'),
         data: mediumCompletion,
         backgroundColor: this.hexToRgba(COMPLETION_COLORS.medium, 0.6),
         borderColor: COMPLETION_COLORS.medium,
@@ -373,7 +375,7 @@ export class AuthorUniverseChartComponent implements OnInit, OnDestroy {
 
     if (lowCompletion.length > 0) {
       datasets.push({
-        label: '25-49% Read',
+        label: this.t.translate('statsLibrary.authorUniverse.legend25to49'),
         data: lowCompletion,
         backgroundColor: this.hexToRgba(COMPLETION_COLORS.low, 0.6),
         borderColor: COMPLETION_COLORS.low,
@@ -385,7 +387,7 @@ export class AuthorUniverseChartComponent implements OnInit, OnDestroy {
 
     if (minimalCompletion.length > 0) {
       datasets.push({
-        label: '1-24% Read',
+        label: this.t.translate('statsLibrary.authorUniverse.legend1to24'),
         data: minimalCompletion,
         backgroundColor: this.hexToRgba(COMPLETION_COLORS.minimal, 0.6),
         borderColor: COMPLETION_COLORS.minimal,
@@ -397,7 +399,7 @@ export class AuthorUniverseChartComponent implements OnInit, OnDestroy {
 
     if (unread.length > 0) {
       datasets.push({
-        label: 'Unread',
+        label: this.t.translate('statsLibrary.authorUniverse.legendUnread'),
         data: unread,
         backgroundColor: this.hexToRgba(COMPLETION_COLORS.unread, 0.6),
         borderColor: COMPLETION_COLORS.unread,
@@ -421,20 +423,20 @@ export class AuthorUniverseChartComponent implements OnInit, OnDestroy {
     // Most prolific author
     const mostProlific = authorStats[0];
     if (mostProlific) {
-      insights.push(`Most collected: ${mostProlific.name} with ${mostProlific.bookCount} books`);
+      insights.push(this.t.translate('statsLibrary.authorUniverse.insightMostCollected', {name: mostProlific.name, count: mostProlific.bookCount}));
     }
 
     // Highest rated author (with at least 2 books)
     const ratedAuthors = authorStats.filter(a => a.avgRating > 0);
     if (ratedAuthors.length > 0) {
       const highestRated = ratedAuthors.reduce((a, b) => a.avgRating > b.avgRating ? a : b);
-      insights.push(`Highest rated: ${highestRated.name} (${highestRated.avgRating.toFixed(1)}★)`);
+      insights.push(this.t.translate('statsLibrary.authorUniverse.insightHighestRated', {name: highestRated.name, rating: `${highestRated.avgRating.toFixed(1)}\u2605`}));
     }
 
     // Most pages by author
     const mostPages = authorStats.reduce((a, b) => a.totalPages > b.totalPages ? a : b);
     if (mostPages.totalPages > 0) {
-      insights.push(`Most pages: ${mostPages.name} (${mostPages.totalPages.toLocaleString()} pages)`);
+      insights.push(this.t.translate('statsLibrary.authorUniverse.insightMostPages', {name: mostPages.name, count: mostPages.totalPages.toLocaleString()}));
     }
 
     // Best completion rate (with at least 3 books)
@@ -444,7 +446,7 @@ export class AuthorUniverseChartComponent implements OnInit, OnDestroy {
         a.completionRate > b.completionRate ? a : b
       );
       if (bestCompletion.completionRate > 0) {
-        insights.push(`Most read: ${bestCompletion.name} (${Math.round(bestCompletion.completionRate)}% complete)`);
+        insights.push(this.t.translate('statsLibrary.authorUniverse.insightMostRead', {name: bestCompletion.name, percent: Math.round(bestCompletion.completionRate)}));
       }
     }
 
@@ -452,7 +454,7 @@ export class AuthorUniverseChartComponent implements OnInit, OnDestroy {
     const hiddenGems = ratedAuthors.filter(a => a.bookCount <= 3 && a.avgRating >= 4.0);
     if (hiddenGems.length > 0) {
       const gem = hiddenGems.reduce((a, b) => a.avgRating > b.avgRating ? a : b);
-      insights.push(`Hidden gem: ${gem.name} (${gem.avgRating.toFixed(1)}★ across ${gem.bookCount} books)`);
+      insights.push(this.t.translate('statsLibrary.authorUniverse.insightHiddenGem', {name: gem.name, rating: `${gem.avgRating.toFixed(1)}\u2605`, count: gem.bookCount}));
     }
 
     // Biggest backlog - author with most unread books
@@ -463,7 +465,7 @@ export class AuthorUniverseChartComponent implements OnInit, OnDestroy {
       );
       const unreadCount = biggestBacklog.bookCount - biggestBacklog.readCount;
       if (unreadCount >= 2) {
-        insights.push(`Biggest backlog: ${biggestBacklog.name} (${unreadCount} unread books)`);
+        insights.push(this.t.translate('statsLibrary.authorUniverse.insightBiggestBacklog', {name: biggestBacklog.name, count: unreadCount}));
       }
     }
 
@@ -473,7 +475,7 @@ export class AuthorUniverseChartComponent implements OnInit, OnDestroy {
       const top3Books = authorStats.slice(0, 3).reduce((sum, a) => sum + a.bookCount, 0);
       const concentration = Math.round((top3Books / totalBooks) * 100);
       if (concentration >= 25) {
-        insights.push(`Top 3 concentration: ${concentration}% of your collection`);
+        insights.push(this.t.translate('statsLibrary.authorUniverse.insightTop3Concentration', {percent: concentration}));
       }
     }
 
@@ -485,7 +487,7 @@ export class AuthorUniverseChartComponent implements OnInit, OnDestroy {
       );
       const avgPages = Math.round(longestReads.totalPages / longestReads.bookCount);
       if (avgPages >= 300) {
-        insights.push(`Longest reads: ${longestReads.name} (avg ${avgPages} pages/book)`);
+        insights.push(this.t.translate('statsLibrary.authorUniverse.insightLongestReads', {name: longestReads.name, pages: avgPages}));
       }
     }
 
@@ -495,14 +497,14 @@ export class AuthorUniverseChartComponent implements OnInit, OnDestroy {
       const mostVersatile = versatileAuthors.reduce((a, b) =>
         a.categories.length > b.categories.length ? a : b
       );
-      insights.push(`Most versatile: ${mostVersatile.name} (${mostVersatile.categories.length} genres)`);
+      insights.push(this.t.translate('statsLibrary.authorUniverse.insightMostVersatile', {name: mostVersatile.name, count: mostVersatile.categories.length}));
     }
 
     // Completely unread - authors with 0% completion but multiple books
     const completelyUnread = authorStats.filter(a => a.completionRate === 0 && a.bookCount >= 2);
     if (completelyUnread.length > 0) {
       const topUnread = completelyUnread.reduce((a, b) => a.bookCount > b.bookCount ? a : b);
-      insights.push(`Untouched author: ${topUnread.name} (${topUnread.bookCount} unread books)`);
+      insights.push(this.t.translate('statsLibrary.authorUniverse.insightUntouchedAuthor', {name: topUnread.name, count: topUnread.bookCount}));
     }
 
     // Total reading commitment
@@ -510,7 +512,7 @@ export class AuthorUniverseChartComponent implements OnInit, OnDestroy {
     const totalRead = authorStats.reduce((sum, a) => sum + (a.totalPages * a.completionRate / 100), 0);
     if (totalPages > 0) {
       const overallProgress = Math.round((totalRead / totalPages) * 100);
-      insights.push(`Overall progress: ${overallProgress}% pages read across all authors`);
+      insights.push(this.t.translate('statsLibrary.authorUniverse.insightOverallProgress', {percent: overallProgress}));
     }
 
     return insights;
@@ -557,19 +559,24 @@ export class AuthorUniverseChartComponent implements OnInit, OnDestroy {
     const stats = raw.authorStats;
 
     const ratingText = stats.avgRating > 0
-      ? `${stats.avgRating.toFixed(2)} ★`
-      : 'No ratings';
+      ? `${stats.avgRating.toFixed(2)} \u2605`
+      : this.t.translate('statsLibrary.authorUniverse.tooltipNoRatings');
 
     const categoriesHtml = stats.categories.length > 0
-      ? `<div style="color:rgba(255,255,255,0.9);font-size:12px;line-height:1.6">Genres: ${stats.categories.slice(0, 3).join(', ')}</div>`
+      ? `<div style="color:rgba(255,255,255,0.9);font-size:12px;line-height:1.6">${this.t.translate('statsLibrary.authorUniverse.tooltipGenres', {genres: stats.categories.slice(0, 3).join(', ')})}</div>`
       : '';
+
+    const booksLine = this.t.translate('statsLibrary.authorUniverse.tooltipBooks', {count: stats.bookCount});
+    const pagesLine = this.t.translate('statsLibrary.authorUniverse.tooltipTotalPages', {count: stats.totalPages.toLocaleString()});
+    const ratingLine = this.t.translate('statsLibrary.authorUniverse.tooltipAvgRating', {rating: ratingText});
+    const readLine = this.t.translate('statsLibrary.authorUniverse.tooltipRead', {read: stats.readCount, total: stats.bookCount, percent: Math.round(stats.completionRate)});
 
     tooltipEl.innerHTML = `
       <div style="color:#fff;font-size:14px;font-weight:700;margin-bottom:6px">${stats.name}</div>
-      <div style="color:rgba(255,255,255,0.9);font-size:12px;line-height:1.6">Books: ${stats.bookCount}</div>
-      <div style="color:rgba(255,255,255,0.9);font-size:12px;line-height:1.6">Total Pages: ${stats.totalPages.toLocaleString()}</div>
-      <div style="color:rgba(255,255,255,0.9);font-size:12px;line-height:1.6">Avg Rating: ${ratingText}</div>
-      <div style="color:rgba(255,255,255,0.9);font-size:12px;line-height:1.6">Read: ${stats.readCount}/${stats.bookCount} (${Math.round(stats.completionRate)}%)</div>
+      <div style="color:rgba(255,255,255,0.9);font-size:12px;line-height:1.6">${booksLine}</div>
+      <div style="color:rgba(255,255,255,0.9);font-size:12px;line-height:1.6">${pagesLine}</div>
+      <div style="color:rgba(255,255,255,0.9);font-size:12px;line-height:1.6">${ratingLine}</div>
+      <div style="color:rgba(255,255,255,0.9);font-size:12px;line-height:1.6">${readLine}</div>
       ${categoriesHtml}
     `;
 

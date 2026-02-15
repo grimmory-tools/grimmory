@@ -2,6 +2,7 @@ package org.booklore.service;
 
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.model.dto.BookLoreUser;
+import org.booklore.service.audit.AuditService;
 import org.booklore.model.dto.MagicShelf;
 import org.booklore.model.entity.MagicShelfEntity;
 import org.booklore.model.enums.IconType;
@@ -28,6 +29,8 @@ class MagicShelfServiceTest {
     private MagicShelfRepository magicShelfRepository;
     @Mock
     private AuthenticationService authenticationService;
+    @Mock
+    private AuditService auditService;
 
     @InjectMocks
     private MagicShelfService magicShelfService;

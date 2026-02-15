@@ -203,6 +203,16 @@ export const DEFAULT_VISIBLE_FILTERS: VisibleFilterType[] = [
   'matchScore', 'publisher', 'publishedDate', 'fileSize'
 ];
 
+// Translation key for each filter option — use book.filter.labels.<value>
+export const ALL_FILTER_OPTION_VALUES: VisibleFilterType[] = [
+  'author', 'category', 'series', 'bookType', 'readStatus',
+  'personalRating', 'library', 'tag', 'ageRating', 'contentRating',
+  'matchScore', 'publisher', 'publishedDate', 'fileSize', 'shelf',
+  'shelfStatus', 'language', 'pageCount', 'mood', 'amazonRating',
+  'goodreadsRating', 'hardcoverRating', 'narrator',
+  'comicCharacter', 'comicTeam', 'comicLocation', 'comicCreator'
+];
+
 export const ALL_FILTER_OPTIONS: { label: string; value: VisibleFilterType }[] = [
   {label: 'Author', value: 'author'},
   {label: 'Genre', value: 'category'},

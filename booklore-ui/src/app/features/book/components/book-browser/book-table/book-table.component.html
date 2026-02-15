@@ -1,3 +1,4 @@
+<ng-container *transloco="let t; prefix: 'book.table'">
 <p-table
   [value]="books"
   [columns]="visibleColumns"
@@ -42,7 +43,7 @@
             [icon]="isMetadataFullyLocked(metadata) ? 'pi pi-lock' : 'pi pi-lock-open'"
             [severity]="isMetadataFullyLocked(metadata) ? 'danger' : 'success'"
             [text]="true"
-            [title]="isMetadataFullyLocked(metadata) ? 'Locked' : 'Unlocked'"
+            [title]="isMetadataFullyLocked(metadata) ? t('locked') : t('unlocked')"
             size="small"
             [style]="{ width: '1.5rem', height: '1.5rem', padding: '0', fontSize: '0.75rem' }"
             (click)="toggleMetadataLock(metadata)">
@@ -52,7 +53,7 @@
           <a [routerLink]="urlHelper.getBookUrl(book)">
             <img
               [attr.src]="urlHelper.getThumbnailUrl(metadata.bookId, metadata.coverUpdatedOn)"
-              alt="Book Cover"
+              [alt]="t('bookCoverAlt')"
               class="cover-thumbnail"
               tooltipPosition="left"
               [pTooltip]="tooltipContent"
@@ -63,7 +64,7 @@
             <div class="tooltip-cover-container">
               <img
                 [attr.src]="urlHelper.getThumbnailUrl(metadata.bookId, metadata.coverUpdatedOn)"
-                alt="Book Cover"
+                [alt]="t('bookCoverAlt')"
                 class="tooltip-cover-image"
               />
               <em class="tooltip-cover-title">{{ metadata.title }}</em>
@@ -77,7 +78,7 @@
               @if (shouldShowStatusIcon(book.readStatus)) {
                 <div class="read-status-indicator"
                      [ngClass]="getReadStatusClass(book.readStatus)"
-                     [pTooltip]="'Status: ' + getReadStatusTooltip(book.readStatus)"
+                     [pTooltip]="t('statusPrefix') + getReadStatusTooltip(book.readStatus)"
                      tooltipPosition="top">
                   <i [class]="getReadStatusIcon(book.readStatus)"></i>
                 </div>
@@ -116,3 +117,4 @@
     }
   </ng-template>
 </p-table>
+</ng-container>

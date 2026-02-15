@@ -34,5 +34,11 @@ public enum RuleOperator {
     @JsonProperty("excludes_all")
     EXCLUDES_ALL,
     @JsonProperty("includes_all")
-    INCLUDES_ALL
+    INCLUDES_ALL,
+    @JsonProperty("within_last")
+    WITHIN_LAST,
+    @JsonProperty("older_than")
+    OLDER_THAN,
+    @JsonProperty("this_period")
+    THIS_PERIOD
 }

@@ -8,6 +8,7 @@ import {LibraryFilterService} from '../../service/library-filter.service';
 import {BookService} from '../../../../../book/service/book.service';
 import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book} from '../../../../../book/model/book.model';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 interface FormatStats {
   format: string;
@@ -29,13 +30,14 @@ const FORMAT_COLORS: Record<string, string> = {
 @Component({
   selector: 'app-book-formats-chart',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective],
+  imports: [CommonModule, BaseChartDirective, TranslocoDirective],
   templateUrl: './book-formats-chart.component.html',
   styleUrls: ['./book-formats-chart.component.scss']
 })
 export class BookFormatsChartComponent implements OnInit, OnDestroy {
   private readonly bookService = inject(BookService);
   private readonly libraryFilterService = inject(LibraryFilterService);
+  private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
 
   public readonly chartType = 'pie' as const;
@@ -79,7 +81,7 @@ export class BookFormatsChartComponent implements OnInit, OnDestroy {
             const value = context.parsed;
             const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
             const percentage = ((value / total) * 100).toFixed(1);
-            return `${context.label}: ${value} books (${percentage}%)`;
+            return this.t.translate('statsLibrary.bookFormats.tooltipLabel', {label: context.label, value, percentage});
           }
         }
       },

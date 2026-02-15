@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.regex.Pattern;
+import org.booklore.model.enums.AuditAction;
+import org.booklore.service.audit.AuditService;
 
 @Slf4j
 @Service
@@ -31,6 +33,7 @@ public class UserProvisioningService {
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final UserDefaultsService userDefaultsService;
     private final AppSettingService appSettingService;
+    private final AuditService auditService;
 
     public boolean isInitialUserAlreadyProvisioned() {
         return userRepository.count() > 0;
@@ -264,6 +267,7 @@ public class UserProvisioningService {
         BookLoreUserEntity save = userRepository.save(user);
         userDefaultsService.addDefaultShelves(save);
         userDefaultsService.addDefaultSettings(save);
+        auditService.log(AuditAction.USER_CREATED, "User", save.getId(), "Created user: " + save.getUsername());
         return save;
     }
 }

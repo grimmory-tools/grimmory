@@ -70,7 +70,7 @@
             <div class="end-of-comic-action">
               <button class="next-book-action-button" (click)="navigateToNextBook()">
                 <span class="action-icon">📖</span>
-                <span class="action-text">Continue to Next Book</span>
+                <span class="action-text">{{ 'readerCbx.reader.continueToNextBook' | transloco }}</span>
                 <span class="book-title">{{ getBookDisplayTitle(nextBookInSeries) }}</span>
               </button>
             </div>
@@ -89,7 +89,7 @@
               <div class="end-of-comic-action">
                 <button class="next-book-action-button" (click)="navigateToNextBook()">
                   <span class="action-icon">📖</span>
-                  <span class="action-text">Continue to Next Book</span>
+                  <span class="action-text">{{ 'readerCbx.reader.continueToNextBook' | transloco }}</span>
                   <span class="book-title">{{ getBookDisplayTitle(nextBookInSeries) }}</span>
                 </button>
               </div>
@@ -98,14 +98,14 @@
         }
       } @else {
         <div class="no-pages">
-          <p>No pages available.</p>
+          <p>{{ 'readerCbx.reader.noPagesAvailable' | transloco }}</p>
         </div>
       }
     } @else {
       <div class="loader-overlay">
         <div class="loader-content">
           <div class="spinner"></div>
-          <p class="loader-text">Loading book...</p>
+          <p class="loader-text">{{ 'readerCbx.reader.loadingBook' | transloco }}</p>
         </div>
       </div>
     }

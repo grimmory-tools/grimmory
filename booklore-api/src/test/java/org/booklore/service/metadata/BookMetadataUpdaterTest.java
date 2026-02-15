@@ -388,8 +388,8 @@ class BookMetadataUpdaterTest {
         metadataEntity.setBook(bookEntity);
         bookEntity.setMetadata(metadataEntity);
 
-        Set<org.booklore.model.entity.AuthorEntity> existingAuthors = new HashSet<>();
-        existingAuthors.add(org.booklore.model.entity.AuthorEntity.builder().name("Old Author").build());
+        Set<AuthorEntity> existingAuthors = new HashSet<>();
+        existingAuthors.add(AuthorEntity.builder().name("Old Author").build());
         metadataEntity.setAuthors(existingAuthors);
 
         BookFileEntity primaryFile = new BookFileEntity();
@@ -416,12 +416,12 @@ class BookMetadataUpdaterTest {
                 .replaceMode(MetadataReplaceMode.REPLACE_ALL)
                 .build();
 
-        when(authorRepository.findByName("New Author")).thenReturn(Optional.of(org.booklore.model.entity.AuthorEntity.builder().name("New Author").build()));
+        when(authorRepository.findByName("New Author")).thenReturn(Optional.of(AuthorEntity.builder().name("New Author").build()));
 
         bookMetadataUpdater.setBookMetadata(context);
 
         // Verify authors are replaced
-        Set<org.booklore.model.entity.AuthorEntity> authors = bookEntity.getMetadata().getAuthors();
+        Set<AuthorEntity> authors = bookEntity.getMetadata().getAuthors();
         assertEquals(1, authors.size());
         assertTrue(authors.stream().anyMatch(a -> a.getName().equals("New Author")));
         assertFalse(authors.stream().anyMatch(a -> a.getName().equals("Old Author")));
@@ -436,8 +436,8 @@ class BookMetadataUpdaterTest {
         metadataEntity.setBook(bookEntity);
         bookEntity.setMetadata(metadataEntity);
 
-        Set<org.booklore.model.entity.CategoryEntity> existingCategories = new HashSet<>();
-        existingCategories.add(org.booklore.model.entity.CategoryEntity.builder().name("Old Category").build());
+        Set<CategoryEntity> existingCategories = new HashSet<>();
+        existingCategories.add(CategoryEntity.builder().name("Old Category").build());
         metadataEntity.setCategories(existingCategories);
 
         BookFileEntity primaryFile = new BookFileEntity();
@@ -464,12 +464,12 @@ class BookMetadataUpdaterTest {
                 .replaceMode(MetadataReplaceMode.REPLACE_ALL)
                 .build();
 
-        when(categoryRepository.findByName("New Category")).thenReturn(Optional.of(org.booklore.model.entity.CategoryEntity.builder().name("New Category").build()));
+        when(categoryRepository.findByName("New Category")).thenReturn(Optional.of(CategoryEntity.builder().name("New Category").build()));
 
         bookMetadataUpdater.setBookMetadata(context);
 
         // Verify categories are replaced
-        Set<org.booklore.model.entity.CategoryEntity> categories = bookEntity.getMetadata().getCategories();
+        Set<CategoryEntity> categories = bookEntity.getMetadata().getCategories();
         assertEquals(1, categories.size());
         assertTrue(categories.stream().anyMatch(c -> c.getName().equals("New Category")));
         assertFalse(categories.stream().anyMatch(c -> c.getName().equals("Old Category")));

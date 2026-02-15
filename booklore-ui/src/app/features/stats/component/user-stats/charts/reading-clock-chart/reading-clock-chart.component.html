@@ -1,16 +1,17 @@
+<ng-container *transloco="let t; prefix: 'statsUser.readingClock'">
 <div class="reading-clock-container">
   <div class="chart-header">
     <div class="chart-title">
       <h3>
         <i class="pi pi-clock reading-clock-icon"></i>
-        Reading Clock
+        {{ t('title') }}
         <i class="pi pi-question-circle chart-info-icon"
-           pTooltip="Each segment of the clock represents one hour of the day (12am-11pm). The size of each segment shows how many total minutes you've spent reading during that hour across all time. Warm colors indicate your busiest hours. You're classified as a Night Owl (most reading 8pm-2am), Early Bird (5am-11am), or Balanced."
+           [pTooltip]="t('tooltip')"
            tooltipPosition="bottom"
            tooltipStyleClass="chart-info-tooltip"
            [appendTo]="'body'"></i>
       </h3>
-      <p class="chart-description">When do you read throughout the day</p>
+      <p class="chart-description">{{ t('description') }}</p>
     </div>
   </div>
 
@@ -18,15 +19,15 @@
     <div class="stats-row">
       <div class="stat-card peak">
         <span class="stat-value">{{ peakHour }}</span>
-        <span class="stat-label">Peak Hour</span>
+        <span class="stat-label">{{ t('peakHour') }}</span>
       </div>
       <div class="stat-card total">
         <span class="stat-value">{{ totalHoursRead }}h</span>
-        <span class="stat-label">Total Read</span>
+        <span class="stat-label">{{ t('totalRead') }}</span>
       </div>
       <div class="stat-card type">
         <span class="stat-value">{{ readerType }}</span>
-        <span class="stat-label">Reader Type</span>
+        <span class="stat-label">{{ t('readerType') }}</span>
       </div>
     </div>
   }
@@ -42,8 +43,9 @@
   @if (!hasData) {
     <div class="no-data-message">
       <i class="pi pi-info-circle"></i>
-      <p>No reading session data found.</p>
-      <small>Track your reading sessions to see your reading clock.</small>
+      <p>{{ t('noData') }}</p>
+      <small>{{ t('noDataHint') }}</small>
     </div>
   }
 </div>
+</ng-container>

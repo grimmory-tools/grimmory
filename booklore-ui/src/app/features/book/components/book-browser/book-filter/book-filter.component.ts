@@ -5,15 +5,16 @@ import {Shelf} from '../../../model/shelf.model';
 import {EntityType} from '../book-browser.component';
 import {Accordion, AccordionContent, AccordionHeader, AccordionPanel} from 'primeng/accordion';
 import {CdkFixedSizeVirtualScroll, CdkVirtualForOf, CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
-import {AsyncPipe, NgClass, TitleCasePipe} from '@angular/common';
+import {AsyncPipe, NgClass} from '@angular/common';
 import {Badge} from 'primeng/badge';
 import {FormsModule} from '@angular/forms';
 import {SelectButton} from 'primeng/selectbutton';
 import {BookFilterMode, DEFAULT_VISIBLE_FILTERS, UserService, VisibleFilterType} from '../../../../settings/user-management/user.service';
 import {MagicShelf} from '../../../../magic-shelf/service/magic-shelf.service';
-import {Filter, FILTER_LABELS, FilterType} from './book-filter.config';
+import {Filter, FILTER_LABEL_KEYS, FilterType} from './book-filter.config';
 import {BookFilterService} from './book-filter.service';
 import {filter} from 'rxjs/operators';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 type FilterModeOption = { label: string; value: BookFilterMode };
 
@@ -26,7 +27,8 @@ type FilterModeOption = { label: string; value: BookFilterMode };
   imports: [
     Accordion, AccordionPanel, AccordionHeader, AccordionContent,
     CdkVirtualScrollViewport, CdkFixedSizeVirtualScroll, CdkVirtualForOf,
-    NgClass, Badge, AsyncPipe, TitleCasePipe, FormsModule, SelectButton
+    NgClass, Badge, AsyncPipe, FormsModule, SelectButton,
+    TranslocoDirective
   ]
 })
 export class BookFilterComponent implements OnInit, OnDestroy {
@@ -40,6 +42,7 @@ export class BookFilterComponent implements OnInit, OnDestroy {
 
   private readonly filterService = inject(BookFilterService);
   private readonly userService = inject(UserService);
+  private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
 
   private readonly activeFilters$ = new BehaviorSubject<Record<string, unknown[]> | null>(null);
@@ -55,7 +58,12 @@ export class BookFilterComponent implements OnInit, OnDestroy {
   private _selectedFilterMode: BookFilterMode = 'and';
   private _visibleFilters: VisibleFilterType[] = [...DEFAULT_VISIBLE_FILTERS];
 
-  readonly filterLabels = FILTER_LABELS;
+  readonly filterLabelKeys = FILTER_LABEL_KEYS;
+
+  getFilterLabel(type: FilterType): string {
+    const key = this.filterLabelKeys[type];
+    return key ? this.t.translate(key) : type;
+  }
   readonly filterModeOptions: FilterModeOption[] = [
     {label: 'AND', value: 'and'},
     {label: 'OR', value: 'or'},

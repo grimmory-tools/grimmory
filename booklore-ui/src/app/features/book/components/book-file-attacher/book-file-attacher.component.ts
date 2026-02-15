@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { AutoComplete, AutoCompleteSelectEvent } from 'primeng/autocomplete';
@@ -7,8 +7,10 @@ import { Checkbox } from 'primeng/checkbox';
 import { Subject, takeUntil } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
 import { BookService } from '../../service/book.service';
+import { BookFileService } from '../../service/book-file.service';
 import { Book } from '../../model/book.model';
 import { MessageService } from 'primeng/api';
+import { TranslocoDirective, TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-book-file-attacher',
@@ -17,7 +19,9 @@ import { MessageService } from 'primeng/api';
     FormsModule,
     AutoComplete,
     Button,
-    Checkbox
+    Checkbox,
+    TranslocoDirective,
+    TranslocoPipe,
   ],
   templateUrl: './book-file-attacher.component.html',
   styleUrls: ['./book-file-attacher.component.scss']
@@ -33,10 +37,13 @@ export class BookFileAttacherComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private allBooks: Book[] = [];
 
+  private readonly t = inject(TranslocoService);
+
   constructor(
     private dialogRef: DynamicDialogRef,
     private config: DynamicDialogConfig,
     private bookService: BookService,
+    private bookFileService: BookFileService,
     private messageService: MessageService
   ) {}
 
@@ -110,9 +117,9 @@ export class BookFileAttacherComponent implements OnInit, OnDestroy {
 
   getSourceFileInfo(book: Book): string {
     const file = book.primaryFile;
-    if (!file) return 'Unknown file';
-    const format = file.extension?.toUpperCase() || file.bookType || 'Unknown';
-    return `${format} - ${file.fileName || 'Unknown filename'}`;
+    if (!file) return this.t.translate('book.fileAttacher.unknownFile');
+    const format = file.extension?.toUpperCase() || file.bookType || this.t.translate('book.fileAttacher.unknownFormat');
+    return `${format} - ${file.fileName || this.t.translate('book.fileAttacher.unknownFilename')}`;
   }
 
   canAttach(): boolean {
@@ -126,7 +133,7 @@ export class BookFileAttacherComponent implements OnInit, OnDestroy {
 
     const sourceBookIds = this.sourceBooks.map(b => b.id);
 
-    this.bookService.attachBookFiles(
+    this.bookFileService.attachBookFiles(
       this.targetBook.id,
       sourceBookIds,
       this.deleteSourceBooks

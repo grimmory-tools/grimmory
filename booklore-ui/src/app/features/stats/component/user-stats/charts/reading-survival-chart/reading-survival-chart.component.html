@@ -1,16 +1,17 @@
+<ng-container *transloco="let t; prefix: 'statsUser.readingSurvival'">
 <div class="reading-survival-container">
   <div class="chart-header">
     <div class="chart-title">
       <h3>
         <i class="pi pi-chart-line reading-survival-icon"></i>
-        Reading Survival Curve
+        {{ t('title') }}
         <i class="pi pi-question-circle chart-info-icon"
-           pTooltip="Inspired by survival analysis: starting from all books you've begun reading, this curve shows what fraction made it to each progress milestone. A steep drop at a threshold reveals where you tend to abandon books. The 'danger zone' highlights the steepest single drop-off point."
+           [pTooltip]="t('tooltip')"
            tooltipPosition="bottom"
            tooltipStyleClass="chart-info-tooltip"
            [appendTo]="'body'"></i>
       </h3>
-      <p class="chart-description">Of books started, what percentage reached each progress threshold</p>
+      <p class="chart-description">{{ t('description') }}</p>
     </div>
   </div>
 
@@ -18,20 +19,20 @@
     <div class="stats-row">
       <div class="stat-card">
         <span class="stat-value">{{ totalStarted }}</span>
-        <span class="stat-label">Started</span>
+        <span class="stat-label">{{ t('started') }}</span>
       </div>
       <div class="stat-card">
         <span class="stat-value">{{ completionRate }}%</span>
-        <span class="stat-label">Completion Rate</span>
+        <span class="stat-label">{{ t('completionRate') }}</span>
       </div>
       <div class="stat-card">
         <span class="stat-value">{{ medianDropout }}</span>
-        <span class="stat-label">Median Dropout</span>
+        <span class="stat-label">{{ t('medianDropout') }}</span>
       </div>
       <div class="stat-card danger">
         <span class="stat-value">{{ dangerZoneRange }}</span>
         <span class="stat-subtitle">{{ dangerZoneDrop }}</span>
-        <span class="stat-label">Danger Zone</span>
+        <span class="stat-label">{{ t('dangerZone') }}</span>
       </div>
     </div>
   }
@@ -47,8 +48,9 @@
   @if (totalStarted === 0) {
     <div class="no-data-message">
       <i class="pi pi-info-circle"></i>
-      <p>No books with reading progress found.</p>
-      <small>Start reading some books to see your survival curve.</small>
+      <p>{{ t('noData') }}</p>
+      <small>{{ t('noDataHint') }}</small>
     </div>
   }
 </div>
+</ng-container>

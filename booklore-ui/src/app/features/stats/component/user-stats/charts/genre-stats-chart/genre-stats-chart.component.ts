@@ -6,13 +6,14 @@ import {BehaviorSubject, EMPTY, Observable, Subject} from 'rxjs';
 import {catchError, takeUntil} from 'rxjs/operators';
 import {Tooltip} from 'primeng/tooltip';
 import {GenreStatsResponse, UserStatsService} from '../../../../../settings/user-management/user-stats.service';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 type GenreChartData = ChartData<'bar', number[], string>;
 
 @Component({
   selector: 'app-genre-stats-chart',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective, Tooltip],
+  imports: [CommonModule, BaseChartDirective, Tooltip, TranslocoDirective],
   templateUrl: './genre-stats-chart.component.html',
   styleUrls: ['./genre-stats-chart.component.scss']
 })
@@ -24,6 +25,7 @@ export class GenreStatsChartComponent implements OnInit, OnDestroy {
   public readonly chartOptions: ChartConfiguration['options'];
 
   private readonly userStatsService = inject(UserStatsService);
+  private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
   private readonly chartDataSubject: BehaviorSubject<GenreChartData>;
 
@@ -77,7 +79,7 @@ export class GenreStatsChartComponent implements OnInit, OnDestroy {
         x: {
           title: {
             display: true,
-            text: 'Genres',
+            text: this.t.translate('statsUser.genreStats.axisGenres'),
             color: '#ffffff',
             font: {
               family: "'Inter', sans-serif",
@@ -104,7 +106,7 @@ export class GenreStatsChartComponent implements OnInit, OnDestroy {
         y: {
           title: {
             display: true,
-            text: 'Time Read',
+            text: this.t.translate('statsUser.genreStats.axisTimeRead'),
             color: '#ffffff',
             font: {
               family: "'Inter', sans-serif",
@@ -121,22 +123,27 @@ export class GenreStatsChartComponent implements OnInit, OnDestroy {
               const hours = Math.floor(minutes / 60);
               const days = Math.floor(hours / 24);
 
+              const dayLabel = days === 1 ? this.t.translate('statsUser.genreStats.day') : this.t.translate('statsUser.genreStats.days');
+              const hrLabel = (h: number) => h === 1 ? this.t.translate('statsUser.genreStats.hr') : this.t.translate('statsUser.genreStats.hrs');
+              const minLabel = this.t.translate('statsUser.genreStats.min');
+              const secLabel = this.t.translate('statsUser.genreStats.sec');
+
               if (days > 0) {
                 const remainingHours = hours % 24;
                 if (remainingHours > 0) {
-                  return `${days} ${days === 1 ? 'day' : 'days'} ${remainingHours} ${remainingHours === 1 ? 'hr' : 'hrs'}`;
+                  return `${days} ${dayLabel} ${remainingHours} ${hrLabel(remainingHours)}`;
                 }
-                return `${days} ${days === 1 ? 'day' : 'days'}`;
+                return `${days} ${dayLabel}`;
               } else if (hours > 0) {
                 const remainingMinutes = minutes % 60;
                 if (remainingMinutes > 0) {
-                  return `${hours} ${hours === 1 ? 'hr' : 'hrs'} ${remainingMinutes} min`;
+                  return `${hours} ${hrLabel(hours)} ${remainingMinutes} ${minLabel}`;
                 }
-                return `${hours} ${hours === 1 ? 'hr' : 'hrs'}`;
+                return `${hours} ${hrLabel(hours)}`;
               } else if (minutes > 0) {
-                return `${minutes} min`;
+                return `${minutes} ${minLabel}`;
               }
-              return `${seconds} sec`;
+              return `${seconds} ${secLabel}`;
             },
             stepSize: undefined,
             maxTicksLimit: 8
@@ -185,7 +192,7 @@ export class GenreStatsChartComponent implements OnInit, OnDestroy {
       labels,
       datasets: [
         {
-          label: 'Reading Time',
+          label: this.t.translate('statsUser.genreStats.readingTime'),
           data: durations,
           backgroundColor: 'rgba(34, 197, 94, 0.8)',
           borderColor: 'rgba(34, 197, 94, 1)',

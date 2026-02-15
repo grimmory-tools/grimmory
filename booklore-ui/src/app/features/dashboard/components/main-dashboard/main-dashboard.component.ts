@@ -166,8 +166,9 @@ export class MainDashboardComponent implements OnInit {
 
         return this.bookService.bookState$.pipe(
           map((state: BookState) => {
-            const filteredBooks = (state.books || []).filter((book) =>
-              this.ruleEvaluatorService.evaluateGroup(book, group)
+            const allBooks = state.books || [];
+            const filteredBooks = allBooks.filter((book) =>
+              this.ruleEvaluatorService.evaluateGroup(book, group, allBooks)
             );
 
             return maxItems ? filteredBooks.slice(0, maxItems) : filteredBooks;

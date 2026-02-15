@@ -1,0 +1,769 @@
+{
+  "browser": {
+    "confirm": {
+      "deleteMessage": "¿Estás seguro de que deseas eliminar {{ count }} libro(s)?\n\nEsto eliminará permanentemente los archivos de libros de tu sistema de archivos.\n\nEsta acción no se puede deshacer.",
+      "deleteHeader": "Confirmar eliminación",
+      "regenCoverMessage": "¿Estás seguro de que deseas regenerar las portadas de {{ count }} libro(s)?",
+      "regenCoverHeader": "Confirmar regeneración de portada",
+      "customCoverMessage": "¿Estás seguro de que deseas generar portadas personalizadas para {{ count }} libro(s)?",
+      "customCoverHeader": "Confirmar generación de portada personalizada"
+    },
+    "toast": {
+      "sortSavedSummary": "Orden guardado",
+      "sortSavedGlobalDetail": "Configuración de orden predeterminada guardada.",
+      "sortSavedEntityDetail": "Configuración de orden guardada para este/a {{ entityType }}.",
+      "regenCoverStartedSummary": "Regeneración de portada iniciada",
+      "regenCoverStartedDetail": "Regenerando portadas para {{ count }} libro(s). Actualiza la página cuando termine.",
+      "customCoverStartedSummary": "Generación de portada personalizada iniciada",
+      "customCoverStartedDetail": "Generando portadas personalizadas para {{ count }} libro(s).",
+      "failedSummary": "Error",
+      "regenCoverFailedDetail": "No se pudo iniciar la regeneración de portadas.",
+      "customCoverFailedDetail": "No se pudo iniciar la generación de portadas personalizadas.",
+      "unshelveSuccessDetail": "Estantes de libros actualizados",
+      "unshelveFailedDetail": "Error al actualizar los estantes de libros",
+      "noEligibleBooksSummary": "Sin libros elegibles",
+      "noEligibleBooksDetail": "Los libros seleccionados deben ser de un solo archivo (sin formatos alternativos).",
+      "multipleLibrariesSummary": "Múltiples bibliotecas",
+      "multipleLibrariesDetail": "Todos los libros seleccionados deben ser de la misma biblioteca."
+    },
+    "loading": {
+      "deleting": "Eliminando {{ count }} libro(s)...",
+      "unshelving": "Quitando {{ count }} libro(s) del estante..."
+    },
+    "labels": {
+      "allBooks": "Todos los libros",
+      "unshelvedBooks": "Libros sin estante",
+      "unshelvedBooksFiltered": "Libros sin estante (Filtrados)",
+      "filteredSuffix": "(Filtrados)",
+      "seriesCollapsedInfo": "Mostrando {{ count }} {{ itemWord }} (series contraídas)",
+      "item": "elemento",
+      "items": "elementos",
+      "selected": "seleccionados",
+      "setAsDefault": "¿Establecer como predeterminado?",
+      "save": "Guardar",
+      "collapseSeries": "Contraer series",
+      "gridColumns": "Columnas de cuadrícula",
+      "gridItemSize": "Tamaño de elemento",
+      "bookTypeOverlay": "Indicador de tipo de libro",
+      "noBooks": "¡Esta colección no tiene libros!",
+      "failedLibrary": "¡Error al cargar los libros de la biblioteca!",
+      "failedShelf": "¡Error al cargar los libros del estante!",
+      "activeFilters": "{{ count }} filtros activos"
+    },
+    "tooltip": {
+      "clearFilters": "Limpiar filtros aplicados",
+      "visibleColumns": "Columnas visibles",
+      "displaySettings": "Ajustes de visualización",
+      "selectSorting": "Seleccionar ordenamiento",
+      "toggleView": "Alternar entre vista de cuadrícula y tabla",
+      "search": "Buscar",
+      "toggleSidebar": "Alternar filtros laterales",
+      "metadataActions": "Acciones de metadatos",
+      "assignToShelf": "Asignar a estante",
+      "removeFromShelf": "Quitar de este estante",
+      "lockUnlockMetadata": "Bloquear/Desbloquear metadatos",
+      "organizeFiles": "Organizar archivos",
+      "attachToBook": "Adjuntar a otro libro",
+      "moreActions": "Más acciones",
+      "selectAll": "Seleccionar todos los libros",
+      "deselectAll": "Deseleccionar todos los libros",
+      "deleteSelected": "Eliminar libros seleccionados"
+    },
+    "placeholder": {
+      "selectColumns": "Seleccionar columnas",
+      "search": "Título, Autor, Serie, Género o ISBN..."
+    }
+  },
+  "card": {
+    "menu": {
+      "assignShelf": "Asignar estante",
+      "viewDetails": "Ver detalles",
+      "download": "Descargar",
+      "delete": "Eliminar",
+      "emailBook": "Enviar por correo",
+      "quickSend": "Envío rápido",
+      "customSend": "Envío personalizado",
+      "metadata": "Metadatos",
+      "searchMetadata": "Buscar metadatos",
+      "autoFetch": "Obtener automáticamente",
+      "customFetch": "Obtención personalizada",
+      "regenerateCover": "Regenerar portada (archivo)",
+      "generateCustomCover": "Generar portada personalizada",
+      "moreActions": "Más acciones",
+      "organizeFile": "Organizar archivo",
+      "readStatus": "Estado de lectura",
+      "resetBookloreProgress": "Restablecer progreso de Booklore",
+      "resetKOReaderProgress": "Restablecer progreso de KOReader",
+      "book": "Libro",
+      "loading": "Cargando..."
+    },
+    "confirm": {
+      "deleteBookMessage": "¿Estás seguro de que deseas eliminar \"{{ title }}\"?\n\nEsto eliminará permanentemente el archivo del libro de tu sistema de archivos.\n\nEsta acción no se puede deshacer.",
+      "deleteBookHeader": "Confirmar eliminación",
+      "deleteFileMessage": "¿Estás seguro de que deseas eliminar el archivo adicional \"{{ fileName }}\"?",
+      "deleteFileHeader": "Confirmar eliminación de archivo"
+    },
+    "toast": {
+      "quickSendSuccessDetail": "El envío del libro ha sido programado.",
+      "quickSendErrorDetail": "Ocurrió un error al enviar el libro.",
+      "deleteFileSuccessDetail": "Archivo adicional \"{{ fileName }}\" eliminado correctamente",
+      "deleteFileErrorDetail": "Error al eliminar el archivo adicional: {{ error }}",
+      "readStatusUpdatedSummary": "Estado de lectura actualizado",
+      "readStatusUpdatedDetail": "Marcado como \"{{ label }}\"",
+      "readStatusFailedSummary": "Error al actualizar",
+      "readStatusFailedDetail": "No se pudo actualizar el estado de lectura.",
+      "progressResetSummary": "Progreso restablecido",
+      "progressResetBookloreDetail": "El progreso de lectura de Booklore ha sido restablecido.",
+      "progressResetKOReaderDetail": "El progreso de lectura de KOReader ha sido restablecido.",
+      "progressResetFailedSummary": "Error",
+      "progressResetBookloreFailedDetail": "No se pudo restablecer el progreso de Booklore.",
+      "progressResetKOReaderFailedDetail": "No se pudo restablecer el progreso de KOReader.",
+      "coverRegenSuccessSummary": "Correcto",
+      "coverRegenSuccessDetail": "Regeneración de portada iniciada",
+      "coverRegenFailedDetail": "Error al regenerar la portada",
+      "customCoverSuccessSummary": "Correcto",
+      "customCoverSuccessDetail": "Portada generada correctamente",
+      "customCoverFailedDetail": "Error al generar la portada"
+    },
+    "alt": {
+      "cover": "Portada de {{ title }}",
+      "titleTooltip": "Título: {{ title }}",
+      "seriesCollapsed": "Series contraídas: {{ count }} libros"
+    }
+  },
+  "notes": {
+    "confirm": {
+      "deleteMessage": "¿Estás seguro de que deseas eliminar la nota \"{{ title }}\"?",
+      "deleteHeader": "Confirmar eliminación"
+    },
+    "toast": {
+      "loadFailedDetail": "Error al cargar las notas de este libro.",
+      "validationSummary": "Error de validación",
+      "validationDetail": "El título y el contenido son obligatorios.",
+      "createSuccessDetail": "Nota creada correctamente.",
+      "createFailedDetail": "Error al crear la nota.",
+      "updateSuccessDetail": "Nota actualizada correctamente.",
+      "updateFailedDetail": "Error al actualizar la nota.",
+      "deleteSuccessDetail": "Nota eliminada correctamente.",
+      "deleteFailedDetail": "Error al eliminar la nota."
+    }
+  },
+  "bookService": {
+    "toast": {
+      "someFilesNotDeletedSummary": "Algunos archivos no pudieron ser eliminados",
+      "someFilesNotDeletedDetail": "Libros: {{ fileNames }}",
+      "booksDeletedSummary": "Libros eliminados",
+      "booksDeletedDetail": "{{ count }} libro(s) eliminado(s) correctamente.",
+      "deleteFailedSummary": "Error al eliminar",
+      "deleteFailedDetail": "Ocurrió un error al eliminar los libros.",
+      "physicalBookCreatedSummary": "Libro físico creado",
+      "physicalBookCreatedDetail": "\"{{ title }}\" ha sido añadido a tu biblioteca.",
+      "creationFailedSummary": "Error al crear",
+      "creationFailedDetail": "Ocurrió un error al crear el libro físico.",
+      "fileDeletedSummary": "Archivo eliminado",
+      "additionalFileDeletedDetail": "Archivo adicional eliminado correctamente.",
+      "bookFileDeletedDetail": "Archivo de libro eliminado correctamente.",
+      "fileDeleteFailedSummary": "Error al eliminar",
+      "fileDeleteFailedDetail": "Ocurrió un error al eliminar el archivo.",
+      "fileUploadedSummary": "Archivo subido",
+      "fileUploadedDetail": "Archivo adicional subido correctamente.",
+      "uploadFailedSummary": "Error al subir",
+      "uploadFailedDetail": "Ocurrió un error al subir el archivo.",
+      "fieldLockFailedSummary": "Error al actualizar bloqueo de campo",
+      "fieldLockFailedDetail": "No se pudieron actualizar los bloqueos de campos de metadatos. Inténtalo de nuevo.",
+      "filesAttachedSummary": "Archivos adjuntados",
+      "filesAttachedDetail": "{{ count }} archivo(s) de libro adjuntado(s) correctamente.",
+      "attachmentFailedSummary": "Error al adjuntar",
+      "attachmentFailedDetail": "Ocurrió un error al adjuntar los archivos."
+    }
+  },
+  "menuService": {
+    "menu": {
+      "autoFetchMetadata": "Obtener metadatos automáticamente",
+      "customFetchMetadata": "Obtención personalizada de metadatos",
+      "bulkMetadataEditor": "Editor masivo de metadatos",
+      "multiBookMetadataEditor": "Editor de metadatos multi-libro",
+      "regenerateCovers": "Regenerar portadas",
+      "generateCustomCovers": "Generar portadas personalizadas",
+      "updateReadStatus": "Actualizar estado de lectura",
+      "setAgeRating": "Establecer clasificación por edad",
+      "clearAgeRating": "Borrar clasificación por edad",
+      "setContentRating": "Establecer clasificación de contenido",
+      "clearContentRating": "Borrar clasificación de contenido",
+      "removeFromAllShelves": "Eliminar de todos los estantes",
+      "resetBookloreProgress": "Restablecer progreso de Booklore",
+      "resetKOReaderProgress": "Restablecer progreso de KOReader"
+    },
+    "confirm": {
+      "readStatusMessage": "¿Estás seguro de que deseas marcar {{ count }} libro(s) como \"{{ label }}\"?",
+      "readStatusHeader": "Confirmar actualización de estado de lectura",
+      "ageRatingMessage": "¿Estás seguro de que deseas establecer la clasificación por edad a \"{{ label }}\" para {{ count }} libro(s)?",
+      "ageRatingHeader": "Confirmar actualización de clasificación por edad",
+      "clearAgeRatingMessage": "¿Estás seguro de que deseas borrar la clasificación por edad de {{ count }} libro(s)?",
+      "clearAgeRatingHeader": "Confirmar borrado de clasificación por edad",
+      "contentRatingMessage": "¿Estás seguro de que deseas establecer la clasificación de contenido a \"{{ label }}\" para {{ count }} libro(s)?",
+      "contentRatingHeader": "Confirmar actualización de clasificación de contenido",
+      "clearContentRatingMessage": "¿Estás seguro de que deseas borrar la clasificación de contenido de {{ count }} libro(s)?",
+      "clearContentRatingHeader": "Confirmar borrado de clasificación de contenido",
+      "unshelveMessage": "¿Estás seguro de que deseas eliminar {{ count }} libro(s) de TODOS sus estantes?",
+      "unshelveHeader": "Confirmar eliminación de estantes",
+      "resetBookloreMessage": "¿Estás seguro de que deseas restablecer el progreso de lectura de Booklore para {{ count }} libro(s)?",
+      "resetKOReaderMessage": "¿Estás seguro de que deseas restablecer el progreso de lectura de KOReader para {{ count }} libro(s)?",
+      "resetHeader": "Confirmar restablecimiento"
+    },
+    "toast": {
+      "readStatusUpdatedSummary": "Estado de lectura actualizado",
+      "readStatusUpdatedDetail": "Marcado como \"{{ label }}\"",
+      "updateFailedSummary": "Error al actualizar",
+      "readStatusFailedDetail": "No se pudo actualizar el estado de lectura.",
+      "ageRatingUpdatedSummary": "Clasificación por edad actualizada",
+      "ageRatingUpdatedDetail": "Establecido a \"{{ label }}\"",
+      "ageRatingFailedDetail": "No se pudo actualizar la clasificación por edad.",
+      "ageRatingClearedSummary": "Clasificación por edad borrada",
+      "ageRatingClearedDetail": "La clasificación por edad ha sido borrada.",
+      "clearAgeRatingFailedDetail": "No se pudo borrar la clasificación por edad.",
+      "contentRatingUpdatedSummary": "Clasificación de contenido actualizada",
+      "contentRatingUpdatedDetail": "Establecido a \"{{ label }}\"",
+      "contentRatingFailedDetail": "No se pudo actualizar la clasificación de contenido.",
+      "contentRatingClearedSummary": "Clasificación de contenido borrada",
+      "contentRatingClearedDetail": "La clasificación de contenido ha sido borrada.",
+      "clearContentRatingFailedDetail": "No se pudo borrar la clasificación de contenido.",
+      "noBooksOnShelvesDetail": "Los libros seleccionados no están en ningún estante.",
+      "unshelveSuccessDetail": "Libros eliminados de todos los estantes",
+      "unshelveFailedDetail": "Error al actualizar los estantes de libros",
+      "progressResetSummary": "Progreso restablecido",
+      "bookloreProgressResetDetail": "El progreso de lectura de Booklore ha sido restablecido.",
+      "koreaderProgressResetDetail": "El progreso de lectura de KOReader ha sido restablecido.",
+      "failedSummary": "Error",
+      "progressResetFailedDetail": "No se pudo restablecer el progreso."
+    },
+    "loading": {
+      "updatingReadStatus": "Actualizando estado de lectura para {{ count }} libro(s)...",
+      "settingAgeRating": "Estableciendo clasificación por edad para {{ count }} libro(s)...",
+      "clearingAgeRating": "Borrando clasificación por edad de {{ count }} libro(s)...",
+      "settingContentRating": "Estableciendo clasificación de contenido para {{ count }} libro(s)...",
+      "clearingContentRating": "Borrando clasificación de contenido de {{ count }} libro(s)...",
+      "removingFromShelves": "Eliminando {{ count }} libro(s) de los estantes...",
+      "resettingBookloreProgress": "Restableciendo progreso de Booklore para {{ count }} libro(s)...",
+      "resettingKOReaderProgress": "Restableciendo progreso de KOReader para {{ count }} libro(s)..."
+    }
+  },
+  "shelfMenuService": {
+    "library": {
+      "optionsLabel": "Opciones",
+      "addPhysicalBook": "Añadir libro físico",
+      "editLibrary": "Editar biblioteca",
+      "rescanLibrary": "Re-escanear biblioteca",
+      "customFetchMetadata": "Obtención personalizada de metadatos",
+      "autoFetchMetadata": "Obtener metadatos automáticamente",
+      "deleteLibrary": "Eliminar biblioteca"
+    },
+    "shelf": {
+      "publicShelfPrefix": "Estante público - ",
+      "readOnly": "Solo lectura",
+      "optionsLabel": "Opciones",
+      "editShelf": "Editar estante",
+      "deleteShelf": "Eliminar estante"
+    },
+    "magicShelf": {
+      "optionsLabel": "Opciones",
+      "editMagicShelf": "Editar estante mágico",
+      "deleteMagicShelf": "Eliminar estante mágico"
+    },
+    "confirm": {
+      "rescanLibraryMessage": "¿Estás seguro de que deseas actualizar la biblioteca: {{ name }}?",
+      "deleteLibraryMessage": "¿Estás seguro de que deseas eliminar la biblioteca: {{ name }}?",
+      "deleteShelfMessage": "¿Estás seguro de que deseas eliminar el estante: {{ name }}?",
+      "deleteMagicShelfMessage": "¿Estás seguro de que deseas eliminar el estante mágico: {{ name }}?",
+      "header": "Confirmación",
+      "rescanLabel": "Re-escanear"
+    },
+    "toast": {
+      "libraryRefreshSuccessDetail": "Actualización de biblioteca programada",
+      "libraryRefreshFailedDetail": "Error al actualizar la biblioteca",
+      "libraryDeletedDetail": "Biblioteca eliminada",
+      "libraryDeleteFailedDetail": "Error al eliminar la biblioteca",
+      "shelfDeletedDetail": "Estante eliminado",
+      "shelfDeleteFailedDetail": "Error al eliminar el estante",
+      "magicShelfDeletedDetail": "Estante mágico eliminado",
+      "magicShelfDeleteFailedDetail": "Error al eliminar el estante",
+      "failedSummary": "Error"
+    },
+    "loading": {
+      "deletingLibrary": "Eliminando biblioteca '{{ name }}'..."
+    }
+  },
+  "columnPref": {
+    "columns": {
+      "readStatus": "Lectura",
+      "title": "Título",
+      "authors": "Autores",
+      "publisher": "Editorial",
+      "seriesName": "Serie",
+      "seriesNumber": "Serie #",
+      "categories": "Géneros",
+      "publishedDate": "Publicado",
+      "lastReadTime": "Última lectura",
+      "addedOn": "Añadido",
+      "fileName": "Nombre de archivo",
+      "fileSizeKb": "Tamaño",
+      "language": "Idioma",
+      "isbn": "ISBN",
+      "pageCount": "Páginas",
+      "amazonRating": "Amazon",
+      "amazonReviewCount": "AZ #",
+      "goodreadsRating": "Goodreads",
+      "goodreadsReviewCount": "GR #",
+      "hardcoverRating": "Hardcover",
+      "hardcoverReviewCount": "HC #",
+      "ranobedbRating": "Ranobedb"
+    },
+    "toast": {
+      "savedSummary": "Preferencias guardadas",
+      "savedDetail": "Tu diseño de columnas ha sido guardado."
+    }
+  },
+  "coverPref": {
+    "toast": {
+      "savedSummary": "Tamaño de portada guardado",
+      "savedDetail": "Tamaño de portada establecido a {{ scale }}x.",
+      "saveFailedSummary": "Error al guardar",
+      "saveFailedDetail": "No se pudo guardar la preferencia de tamaño de portada localmente."
+    }
+  },
+  "filterPref": {
+    "toast": {
+      "saveFailedSummary": "Error al guardar",
+      "saveFailedDetail": "No se pudo guardar la preferencia del filtro lateral localmente."
+    }
+  },
+  "reviews": {
+    "confirm": {
+      "deleteAllMessage": "¿Estás seguro de que deseas eliminar las {{ count }} reseñas de este libro? Esta acción no se puede deshacer.",
+      "deleteAllHeader": "Confirmar eliminación de todas",
+      "deleteMessage": "¿Estás seguro de que deseas eliminar esta reseña de {{ reviewer }}?",
+      "deleteHeader": "Confirmar eliminación"
+    },
+    "toast": {
+      "loadFailedSummary": "Error al cargar reseñas",
+      "loadFailedDetail": "No se pudieron cargar las reseñas de este libro.",
+      "reviewsUpdatedSummary": "Reseñas actualizadas",
+      "reviewsUpdatedDetail": "Las últimas reseñas se han obtenido correctamente.",
+      "fetchFailedSummary": "Error al obtener",
+      "fetchFailedDetail": "No se pudieron obtener las nuevas reseñas de este libro.",
+      "allDeletedSummary": "Todas las reseñas eliminadas",
+      "allDeletedDetail": "Todas las reseñas han sido eliminadas correctamente.",
+      "deleteAllFailedSummary": "Error al eliminar",
+      "deleteAllFailedDetail": "No se pudieron eliminar todas las reseñas.",
+      "deleteSuccessSummary": "Reseña eliminada",
+      "deleteSuccessDetail": "La reseña ha sido eliminada correctamente.",
+      "deleteFailedSummary": "Error al eliminar",
+      "deleteFailedDetail": "No se pudo eliminar la reseña.",
+      "lockedSummary": "Reseñas bloqueadas",
+      "lockedDetail": "Las reseñas ahora están protegidas contra modificaciones y actualizaciones.",
+      "unlockedSummary": "Reseñas desbloqueadas",
+      "unlockedDetail": "Las reseñas ahora pueden ser modificadas y actualizadas.",
+      "lockFailedSummary": "Error al cambiar bloqueo",
+      "lockFailedDetail": "No se pudo cambiar el estado de bloqueo de las reseñas."
+    },
+    "labels": {
+      "loadingReviews": "Obteniendo las últimas reseñas...",
+      "showSpoiler": "Mostrar spoiler",
+      "anonymous": "Anónimo",
+      "spoiler": "Spoiler"
+    },
+    "empty": {
+      "noReviews": "No hay reseñas disponibles para este libro",
+      "downloadsDisabled": "La descarga de reseñas está desactivada. Actívala en la configuración de metadatos para obtener reseñas.",
+      "fetchPrompt": "Haz clic en \"Obtener reseñas\" para descargar reseñas de los proveedores configurados",
+      "noContent": "No hay contenido de reseña disponible"
+    },
+    "tooltip": {
+      "fetchReviews": "Obtener reseñas",
+      "reviewsLocked": "Las reseñas están bloqueadas",
+      "deleteReview": "Eliminar reseña",
+      "pleaseWait": "Espere mientras se obtienen las reseñas",
+      "enableDownloads": "Active la descarga de reseñas en la configuración para usar esta función",
+      "unlockReviews": "Desbloquear reseñas",
+      "lockReviews": "Bloquear reseñas",
+      "fetchNewReviews": "Obtener nuevas reseñas",
+      "deleteAllReviews": "Eliminar todas las reseñas",
+      "hideAllSpoilers": "Ocultar todos los spoilers",
+      "revealAllSpoilers": "Revelar todos los spoilers",
+      "sortNewest": "Ordenar por más recientes",
+      "sortOldest": "Ordenar por más antiguos"
+    }
+  },
+  "addPhysicalBook": {
+    "title": "Agregar libro físico",
+    "description": "Catalogar un libro físico sin archivo digital",
+    "closeTooltip": "Cerrar",
+    "libraryLabel": "Biblioteca",
+    "libraryPlaceholder": "Seleccionar una biblioteca",
+    "titleLabel": "Título",
+    "titlePlaceholder": "ej., El gran Gatsby",
+    "isbnLabel": "ISBN",
+    "isbnPlaceholder": "ej., 9780134685991",
+    "authorsLabel": "Autores",
+    "authorsPlaceholder": "Escriba el nombre del autor y presione Enter",
+    "descriptionLabel": "Descripción",
+    "descriptionPlaceholder": "Breve descripción del libro...",
+    "publisherLabel": "Editorial",
+    "publisherPlaceholder": "Nombre de la editorial",
+    "publishedDateLabel": "Fecha de publicación",
+    "publishedDatePlaceholder": "ej., 2020 o 2020-05-15",
+    "languageLabel": "Idioma",
+    "languagePlaceholder": "ej., Español",
+    "pageCountLabel": "Número de páginas",
+    "pageCountPlaceholder": "Número de páginas",
+    "categoriesLabel": "Categorías/Géneros",
+    "categoriesPlaceholder": "Escriba la categoría y presione Enter",
+    "validationLibraryRequired": "La biblioteca es obligatoria",
+    "validationTitleOrIsbn": "Se requiere un título o ISBN",
+    "validationReady": "Listo para crear",
+    "cancelButton": "Cancelar",
+    "addButton": "Agregar libro físico"
+  },
+  "fileUploader": {
+    "title": "Subir archivo adicional",
+    "unknownTitle": "Título desconocido",
+    "selectFileType": "Seleccionar tipo de archivo",
+    "typeAlternativeFormat": "Formato alternativo",
+    "typeSupplementary": "Archivo complementario",
+    "descriptionLabel": "Descripción (Opcional)",
+    "descriptionPlaceholder": "Agregar una descripción para este archivo...",
+    "statusUploading": "Subiendo",
+    "statusUploaded": "Subido",
+    "statusUploadFailed": "Error al subir",
+    "statusTooLarge": "Demasiado grande",
+    "statusReady": "Listo",
+    "statusFailed": "Fallido",
+    "dragDropText": "Arrastre y suelte un archivo aquí para subir.",
+    "uploadForBook": "Subir un archivo adicional para <strong>{{ title }}</strong>.",
+    "thisBook": "este libro",
+    "toast": {
+      "fileTooLargeSummary": "Archivo demasiado grande",
+      "fileTooLargeDetail": "{{ fileName }} excede el tamaño máximo de {{ maxSize }}",
+      "fileTooLargeError": "El archivo excede el tamaño máximo de {{ maxSize }}",
+      "uploadFailedUnknown": "La subida falló por un error desconocido."
+    }
+  },
+  "filter": {
+    "title": "Filtros",
+    "showingFirst100": "Mostrando los primeros 100 elementos",
+    "footerNote": "Nota: Se muestran los 100 primeros elementos por categoría de filtro",
+    "labels": {
+      "author": "Autor",
+      "category": "Género",
+      "series": "Serie",
+      "bookType": "Tipo de libro",
+      "readStatus": "Estado de lectura",
+      "personalRating": "Calificación personal",
+      "publisher": "Editorial",
+      "matchScore": "Puntuación de coincidencia de metadatos",
+      "library": "Biblioteca",
+      "shelf": "Estante",
+      "shelfStatus": "Estado del estante",
+      "tag": "Etiqueta",
+      "publishedDate": "Año de publicación",
+      "fileSize": "Tamaño de archivo",
+      "amazonRating": "Calificación Amazon",
+      "goodreadsRating": "Calificación Goodreads",
+      "hardcoverRating": "Calificación Hardcover",
+      "language": "Idioma",
+      "pageCount": "Número de páginas",
+      "mood": "Estado de ánimo",
+      "ageRating": "Clasificación por edad",
+      "contentRating": "Clasificación de contenido",
+      "narrator": "Narrador",
+      "comicCharacter": "Personaje de cómic",
+      "comicTeam": "Equipo de cómic",
+      "comicLocation": "Ubicación de cómic",
+      "comicCreator": "Creador de cómic"
+    },
+    "readStatus": {
+      "unread": "No leído",
+      "reading": "Leyendo",
+      "reReading": "Releyendo",
+      "partiallyRead": "Parcialmente leído",
+      "paused": "Pausado",
+      "read": "Leído",
+      "wontRead": "No leeré",
+      "abandoned": "Abandonado",
+      "unset": "Sin definir"
+    },
+    "matchScore": {
+      "outstanding": "Sobresaliente (95–100%)",
+      "excellent": "Excelente (90–94%)",
+      "great": "Genial (80–89%)",
+      "good": "Bueno (70–79%)",
+      "fair": "Regular (50–69%)",
+      "weak": "Débil (30–49%)",
+      "poor": "Pobre (0–29%)"
+    },
+    "fileSize": {
+      "lt1mb": "< 1 MB",
+      "1to10mb": "1–10 MB",
+      "10to50mb": "10–50 MB",
+      "50to100mb": "50–100 MB",
+      "250to500mb": "250–500 MB",
+      "05to1gb": "0,5–1 GB",
+      "1to2gb": "1–2 GB",
+      "5plusGb": "5+ GB"
+    },
+    "pageCount": {
+      "lt50": "< 50 páginas",
+      "50to100": "50–100 páginas",
+      "100to200": "100–200 páginas",
+      "200to400": "200–400 páginas",
+      "400to600": "400–600 páginas",
+      "600to1000": "600–1000 páginas",
+      "1000plus": "1000+ páginas"
+    },
+    "ageRating": {
+      "allAges": "Todas las edades"
+    },
+    "contentRating": {
+      "everyone": "Todos",
+      "teen": "Adolescente",
+      "mature": "Maduro",
+      "adult": "Adulto",
+      "explicit": "Explícito"
+    },
+    "shelfStatus": {
+      "shelved": "En estante",
+      "unshelved": "Sin estante"
+    },
+    "comicRoles": {
+      "penciller": "Dibujante",
+      "inker": "Entintador",
+      "colorist": "Colorista",
+      "letterer": "Rotulista",
+      "coverArtist": "Artista de portada",
+      "editor": "Editor"
+    }
+  },
+  "shelfAssigner": {
+    "title": "Asignar libros a estantes",
+    "descriptionMulti": "Seleccionar estantes para {{ count }} libro(s)",
+    "descriptionSingle": "Organizar \"{{ title }}\" en tus estantes",
+    "shelvesAvailable": "{{ count }} estante(s) disponible(s)",
+    "emptyTitle": "No hay estantes disponibles",
+    "emptyDescription": "Crea tu primer estante para empezar a organizar tus libros.<br/>Haz clic en el botón de abajo para comenzar.",
+    "createShelf": "Crear estante",
+    "cancelButton": "Cancelar",
+    "saveChanges": "Guardar cambios",
+    "loading": {
+      "updatingShelves": "Actualizando estantes para {{ count }} libro(s)..."
+    },
+    "toast": {
+      "updateSuccessDetail": "Estantes de libros actualizados",
+      "updateFailedDetail": "Error al actualizar los estantes de libros"
+    }
+  },
+  "shelfCreator": {
+    "title": "Crear nuevo estante",
+    "description": "Agrega un estante personalizado para organizar tus libros",
+    "closeTooltip": "Cerrar",
+    "shelfNameLabel": "Nombre del estante",
+    "shelfNamePlaceholder": "ej., Favoritos, Por leer, Leyendo actualmente",
+    "shelfIconLabel": "Icono del estante (Opcional)",
+    "chooseIcon": "Elegir un icono",
+    "chooseIconSubtitle": "Seleccionar de los iconos disponibles",
+    "selectedIcon": "Icono seleccionado",
+    "removeIconTooltip": "Eliminar icono",
+    "visibilityLabel": "Visibilidad",
+    "makePublicLabel": "Hacer este estante público (solo lectura para otros)",
+    "validationRequired": "El nombre del estante es obligatorio",
+    "validationReady": "Listo para crear",
+    "cancelButton": "Cancelar",
+    "createButton": "Crear estante",
+    "toast": {
+      "createSuccessDetail": "Estante creado: {{ name }}",
+      "createFailedDetail": "Error al crear el estante"
+    }
+  },
+  "shelfEditDialog": {
+    "title": "Editar estante",
+    "description": "Personaliza el nombre y el icono de tu estante",
+    "shelfNameLabel": "Nombre del estante:",
+    "shelfNamePlaceholder": "Ingrese el nombre del estante...",
+    "shelfIconLabel": "Icono del estante:",
+    "selectIcon": "Seleccionar icono",
+    "visibilityLabel": "Visibilidad:",
+    "publicShelfLabel": "Estante público",
+    "cancelButton": "Cancelar",
+    "saveChanges": "Guardar cambios",
+    "toast": {
+      "updateSuccessSummary": "Estante actualizado",
+      "updateSuccessDetail": "El estante se actualizó correctamente.",
+      "updateFailedSummary": "Error al actualizar",
+      "updateFailedDetail": "Ocurrió un error al actualizar el estante. Por favor, inténtelo de nuevo."
+    }
+  },
+  "table": {
+    "bookCoverAlt": "Portada del libro",
+    "statusPrefix": "Estado: ",
+    "locked": "Bloqueado",
+    "unlocked": "Desbloqueado",
+    "toast": {
+      "metadataLockedSummary": "Metadatos bloqueados",
+      "metadataLockedDetail": "Los metadatos del libro se han bloqueado correctamente.",
+      "metadataUnlockedSummary": "Metadatos desbloqueados",
+      "metadataUnlockedDetail": "Los metadatos del libro se han desbloqueado correctamente.",
+      "lockFailedSummary": "Error al bloquear",
+      "lockFailedDetail": "Se produjo un error al bloquear los metadatos.",
+      "unlockFailedSummary": "Error al desbloquear",
+      "unlockFailedDetail": "Se produjo un error al desbloquear los metadatos."
+    }
+  },
+  "lockUnlockDialog": {
+    "title": "Bloquear o desbloquear metadatos",
+    "selectedCount": "{{ count }} libro(s) seleccionados",
+    "reset": "Restablecer",
+    "lockAll": "Bloquear todo",
+    "unlockAll": "Desbloquear todo",
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "locked": "Bloqueado",
+    "unlocked": "Desbloqueado",
+    "unselected": "Sin seleccionar",
+    "toast": {
+      "updatingFieldLocks": "Actualizando bloqueos de campos...",
+      "updatedSummary": "Bloqueos actualizados",
+      "updatedDetail": "Los campos de metadatos seleccionados se han actualizado correctamente.",
+      "failedSummary": "Error al actualizar bloqueos",
+      "failedDetail": "Se produjo un error al actualizar los estados de bloqueo de campos."
+    }
+  },
+  "sorting": {
+    "sortOrder": "Orden de clasificación",
+    "removeTooltip": "Eliminar",
+    "addSortFieldPlaceholder": "Agregar campo de orden...",
+    "saveAsDefault": "Guardar como predeterminado",
+    "ascendingTooltip": "Ascendente - clic para cambiar",
+    "descendingTooltip": "Descendente - clic para cambiar",
+    "options": {
+      "title": "Título",
+      "fileName": "Nombre de archivo",
+      "filePath": "Ruta de archivo",
+      "author": "Autor",
+      "authorSurnameVorname": "Autor (Apellido)",
+      "seriesName": "Nombre de serie",
+      "seriesNumber": "Número de serie",
+      "lastReadTime": "Última lectura",
+      "personalRating": "Calificación personal",
+      "addedOn": "Fecha de añadido",
+      "fileSizeKb": "Tamaño de archivo",
+      "locked": "Bloqueado",
+      "publisher": "Editorial",
+      "publishedDate": "Fecha de publicación",
+      "readStatus": "Estado de lectura",
+      "dateFinished": "Fecha de finalización",
+      "readingProgress": "Progreso de lectura",
+      "bookType": "Tipo de libro",
+      "amazonRating": "Calificación Amazon",
+      "amazonReviewCount": "Amazon #",
+      "goodreadsRating": "Calificación Goodreads",
+      "goodreadsReviewCount": "Goodreads #",
+      "hardcoverRating": "Calificación Hardcover",
+      "hardcoverReviewCount": "Hardcover #",
+      "ranobedbRating": "Calificación Ranobedb",
+      "narrator": "Narrador",
+      "pageCount": "Páginas",
+      "random": "Aleatorio"
+    }
+  },
+  "fileAttacher": {
+    "title": "Adjuntar archivo a otro libro",
+    "titleBulk": "Adjuntar archivos a otro libro",
+    "description": "Mover el archivo de este libro a otro libro como formato alternativo",
+    "descriptionBulk": "Mover los archivos de estos libros a otro libro como formatos alternativos",
+    "sourceBookLabel": "Libro de origen ({{ count }})",
+    "sourceBooksLabel": "Libros de origen ({{ count }})",
+    "unknownTitle": "Titulo desconocido",
+    "selectTargetBook": "Seleccionar libro de destino",
+    "searchPlaceholder": "Buscar un libro en la misma biblioteca...",
+    "deleteSource": "Eliminar libro de origen tras adjuntar",
+    "deleteSourceBulk": "Eliminar libros de origen tras adjuntar",
+    "warningMove": "Esto moverá el archivo del libro de origen al libro de destino como formato alternativo.",
+    "warningMoveBulk": "Esto moverá los archivos de los libros seleccionados al libro de destino como formatos alternativos.",
+    "warningDelete": "El registro del libro de origen será eliminado (el archivo se conservará en el libro de destino).",
+    "warningDeleteBulk": "Los registros de los libros de origen serán eliminados (los archivos se conservarán en el libro de destino).",
+    "warningKeep": "El registro del libro de origen permanecerá, pero no tendrá archivos legibles.",
+    "warningKeepBulk": "Los registros de los libros de origen permanecerán, pero no tendrán archivos legibles.",
+    "attachFile": "Adjuntar archivo",
+    "attachFilesBulk": "Adjuntar archivos",
+    "unknownFile": "Archivo desconocido",
+    "unknownFormat": "Desconocido",
+    "unknownFilename": "Nombre de archivo desconocido"
+  },
+  "searcher": {
+    "placeholder": "Título, autor, serie, género o ISBN...",
+    "clearSearch": "Borrar búsqueda",
+    "bookCoverAlt": "Portada del libro",
+    "byPrefix": "por",
+    "noResults": "No se encontraron resultados",
+    "unknownAuthor": "Autor desconocido"
+  },
+  "sender": {
+    "title": "Enviar libro",
+    "description": "Enviar este libro por correo electrónico a un destinatario",
+    "emailProvider": "Proveedor de correo",
+    "selectProvider": "Seleccionar proveedor de correo",
+    "recipient": "Destinatario",
+    "selectRecipient": "Seleccionar destinatario del libro",
+    "fileFormat": "Formato de archivo",
+    "unknownFormat": "Desconocido",
+    "primaryBadge": "Principal",
+    "largeFileWarning": "Este archivo supera los 25 MB. Algunos proveedores de correo pueden rechazar archivos adjuntos grandes.",
+    "sendBook": "Enviar libro",
+    "toast": {
+      "emailScheduledSummary": "Correo programado",
+      "emailScheduledDetail": "El libro ha sido programado para su envío correctamente.",
+      "sendingFailedSummary": "Error de envío",
+      "sendingFailedDetail": "Hubo un problema al programar el envío del libro. Inténtelo de nuevo más tarde.",
+      "providerMissingSummary": "Proveedor de correo no seleccionado",
+      "providerMissingDetail": "Seleccione un proveedor de correo para continuar.",
+      "recipientMissingSummary": "Destinatario no seleccionado",
+      "recipientMissingDetail": "Seleccione un destinatario para enviar el libro.",
+      "bookNotSelectedSummary": "Libro no seleccionado",
+      "bookNotSelectedDetail": "Seleccione un libro para enviar."
+    }
+  },
+  "seriesPage": {
+    "seriesDetailsTab": "Detalles de la serie",
+    "publisher": "Editorial:",
+    "years": "Años:",
+    "numberOfBooks": "Número de libros:",
+    "language": "Idioma:",
+    "readStatus": "Estado de lectura:",
+    "noDescription": "No hay descripción disponible.",
+    "showLess": "Mostrar menos",
+    "showMore": "Mostrar más",
+    "noBooksFound": "No se encontraron libros para esta serie.",
+    "selected": "seleccionados",
+    "loadingSeriesDetails": "Cargando detalles de la serie...",
+    "status": {
+      "unread": "NO LEÍDO",
+      "reading": "LEYENDO",
+      "reReading": "RELEYENDO",
+      "read": "LEÍDO",
+      "partiallyRead": "PARCIALMENTE LEÍDO",
+      "paused": "EN PAUSA",
+      "abandoned": "ABANDONADO",
+      "wontRead": "NO LEERÉ",
+      "unset": "SIN ESTADO"
+    },
+    "tooltip": {
+      "metadataActions": "Acciones de metadatos",
+      "assignToShelf": "Asignar a estante",
+      "lockUnlockMetadata": "Bloquear/Desbloquear metadatos",
+      "organizeFiles": "Organizar archivos",
+      "moreActions": "Más acciones",
+      "selectAll": "Seleccionar todos los libros",
+      "deselectAll": "Deseleccionar todos los libros",
+      "deleteSelected": "Eliminar libros seleccionados"
+    }
+  }
+}

@@ -8,6 +8,7 @@ import {DatePicker} from 'primeng/datepicker';
 import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
 import {MessageService} from 'primeng/api';
 import {BookService} from '../../../book/service/book.service';
+import {BookMetadataManageService} from '../../../book/service/book-metadata-manage.service';
 import {Book, BulkMetadataUpdateRequest} from '../../../book/model/book.model';
 import {Checkbox} from 'primeng/checkbox';
 import {AutoComplete} from 'primeng/autocomplete';
@@ -60,6 +61,7 @@ export class BulkMetadataUpdateComponent implements OnInit {
   readonly ref = inject(DynamicDialogRef);
   private readonly fb = inject(FormBuilder);
   private readonly bookService = inject(BookService);
+  private readonly bookMetadataManageService = inject(BookMetadataManageService);
   private readonly messageService = inject(MessageService);
 
   allAuthors!: string[];
@@ -257,10 +259,10 @@ export class BulkMetadataUpdateComponent implements OnInit {
     };
 
     this.loading = true;
-    this.bookService.updateBooksMetadata(payload).subscribe({
+    this.bookMetadataManageService.updateBooksMetadata(payload).subscribe({
       next: () => {
         if (this.selectedCoverFile) {
-          this.bookService.bulkUploadCover(this.bookIds, this.selectedCoverFile).subscribe({
+          this.bookMetadataManageService.bulkUploadCover(this.bookIds, this.selectedCoverFile).subscribe({
             next: () => {
               this.loading = false;
               this.messageService.add({

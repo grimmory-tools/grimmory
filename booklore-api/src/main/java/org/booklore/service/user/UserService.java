@@ -22,6 +22,8 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.booklore.model.enums.AuditAction;
+import org.booklore.service.audit.AuditService;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +35,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final ObjectMapper objectMapper;
     private final BookLoreUserTransformer bookLoreUserTransformer;
+    private final AuditService auditService;
 
     public List<BookLoreUser> getBookLoreUsers() {
         return userRepository.findAll()
@@ -48,6 +51,7 @@ public class UserService {
 
         if (updateRequest.getPermissions() != null && getMyself().getPermissions().isAdmin()) {
             UserPermission.copyFromRequestToEntity(updateRequest.getPermissions(), user.getPermissions());
+            auditService.log(AuditAction.PERMISSIONS_CHANGED, "User", id, "Changed permissions for user: " + user.getUsername());
         }
 
         if (updateRequest.getAssignedLibraries() != null && getMyself().getPermissions().isAdmin()) {
@@ -57,6 +61,7 @@ public class UserService {
         }
 
         userRepository.save(user);
+        auditService.log(AuditAction.USER_UPDATED, "User", id, "Updated user: " + user.getUsername());
         return bookLoreUserTransformer.toDTO(user);
     }
 
@@ -71,6 +76,7 @@ public class UserService {
             throw ApiError.SELF_DELETION_NOT_ALLOWED.createException();
         }
         userRepository.delete(userToDelete);
+        auditService.log(AuditAction.USER_DELETED, "User", id, "Deleted user: " + userToDelete.getUsername());
     }
 
     public BookLoreUser getBookLoreUser(Long id) {
@@ -107,6 +113,7 @@ public class UserService {
         bookLoreUserEntity.setDefaultPassword(false);
         bookLoreUserEntity.setPasswordHash(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
         userRepository.save(bookLoreUserEntity);
+        auditService.log(AuditAction.PASSWORD_CHANGED, "User", bookLoreUser.getId(), "Password changed by user: " + bookLoreUser.getUsername());
     }
 
     public void changeUserPassword(ChangeUserPasswordRequest request) {
@@ -116,6 +123,7 @@ public class UserService {
         }
         userEntity.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(userEntity);
+        auditService.log(AuditAction.PASSWORD_CHANGED, "User", request.getUserId(), "Password changed for user: " + userEntity.getUsername());
     }
 
     public void updateUserSetting(Long userId, UpdateUserSettingRequest request) {

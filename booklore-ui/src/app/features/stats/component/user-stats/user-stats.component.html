@@ -1,13 +1,14 @@
+<ng-container *transloco="let t; prefix: 'statsUser'">
 <div class="user-stats-container">
   <div class="header-section">
     <div class="header-content">
       <div class="greeting">
         <i class="pi pi-chart-line"></i>
-        <h2>{{ userName }}'s Reading Statistics</h2>
+        <h2>{{ t('main.title', { name: userName }) }}</h2>
       </div>
       <button class="config-toggle-btn" (click)="toggleConfigPanel()">
         <i class="pi pi-cog"></i>
-        <span>Customize Layout</span>
+        <span>{{ t('main.customizeLayout') }}</span>
       </button>
     </div>
   </div>
@@ -19,7 +20,7 @@
     [resizable]="false"
     [style]="{width: '600px', maxWidth: '90vw'}"
     class="config-dialog"
-    header="Chart Configuration">
+    [header]="t('main.chartConfig')">
 
     <div class="config-dialog-content">
       <div class="config-list" cdkDropList (cdkDropListDropped)="drop($event)">
@@ -43,18 +44,18 @@
     <ng-template pTemplate="footer">
       <p-button class="reset-btn" (click)="resetLayout()" severity="danger">
         <i class="pi pi-refresh"></i>
-        <span>Reset Layout</span>
+        <span>{{ t('main.resetLayout') }}</span>
       </p-button>
       <p-button class="hide-all-btn" (click)="hideAllCharts()" severity="secondary">
         <i class="pi pi-eye-slash"></i>
-        <span>Hide All</span>
+        <span>{{ t('main.hideAll') }}</span>
       </p-button>
       <p-button class="show-all-btn" (click)="showAllCharts()" severity="secondary">
         <i class="pi pi-eye"></i>
-        <span>Show All</span>
+        <span>{{ t('main.showAll') }}</span>
       </p-button>
       <p-button class="close-btn" (click)="toggleConfigPanel()" severity="secondary">
-        <span>Close</span>
+        <span>{{ t('main.close') }}</span>
       </p-button>
     </ng-template>
   </p-dialog>
@@ -130,3 +131,4 @@
     }
   </div>
 </div>
+</ng-container>

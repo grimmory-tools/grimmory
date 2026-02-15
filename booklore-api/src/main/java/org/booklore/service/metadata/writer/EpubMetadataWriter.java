@@ -367,7 +367,7 @@ public class EpubMetadataWriter implements MetadataWriter {
                 return;
             }
 
-            DocumentBuilder builder = org.booklore.util.SecureXmlUtils.createSecureDocumentBuilder(true);
+            DocumentBuilder builder = SecureXmlUtils.createSecureDocumentBuilder(true);
             Document opfDoc = builder.parse(opfFile);
 
             applyCoverImageToEpub(tempDir, opfDoc, coverData);
@@ -486,7 +486,7 @@ public class EpubMetadataWriter implements MetadataWriter {
             throw new IOException("container.xml not found at expected location: " + containerXml);
         }
 
-        DocumentBuilder builder = org.booklore.util.SecureXmlUtils.createSecureDocumentBuilder(false);
+        DocumentBuilder builder = SecureXmlUtils.createSecureDocumentBuilder(false);
         Document containerDoc = builder.parse(containerXml.toFile());
         Node rootfile = containerDoc.getElementsByTagName("rootfile").item(0);
         if (rootfile == null) {

@@ -11,6 +11,7 @@
     "logout": "Logout",
     "language": "Language",
     "supportBookLore": "Support BookLore",
+    "notificationAriaLabel": "Unified Notification Icon",
     "createLibrary": "Create Library",
     "stats": "Stats",
     "libraryStats": "Library Stats",
@@ -24,6 +25,7 @@
     "shelves": "Shelves",
     "magicShelves": "Magic Shelves",
     "unshelved": "Unshelved",
+    "notebook": "Notebook",
     "update": "(Update)"
   },
   "changelog": {

@@ -8,6 +8,7 @@ import {LibraryFilterService} from '../../service/library-filter.service';
 import {BookService} from '../../../../../book/service/book.service';
 import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book} from '../../../../../book/model/book.model';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 interface PageRange {
   label: string;
@@ -37,13 +38,14 @@ const PAGE_RANGES: PageRange[] = [
 @Component({
   selector: 'app-page-count-chart',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective],
+  imports: [CommonModule, BaseChartDirective, TranslocoDirective],
   templateUrl: './page-count-chart.component.html',
   styleUrls: ['./page-count-chart.component.scss']
 })
 export class PageCountChartComponent implements OnInit, OnDestroy {
   private readonly bookService = inject(BookService);
   private readonly libraryFilterService = inject(LibraryFilterService);
+  private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
 
   public readonly chartType = 'bar' as const;
@@ -69,10 +71,12 @@ export class PageCountChartComponent implements OnInit, OnDestroy {
         titleFont: {size: 13, weight: 'bold'},
         bodyFont: {size: 11},
         callbacks: {
-          title: (context) => `${context[0].label} pages`,
+          title: (context) => this.t.translate('statsLibrary.pageCount.tooltipTitle', {label: context[0].label}),
           label: (context) => {
             const value = context.parsed.y;
-            return `${value} book${value === 1 ? '' : 's'}`;
+            return value === 1
+              ? this.t.translate('statsLibrary.pageCount.tooltipLabel', {value})
+              : this.t.translate('statsLibrary.pageCount.tooltipLabelPlural', {value});
           }
         }
       },
@@ -82,7 +86,7 @@ export class PageCountChartComponent implements OnInit, OnDestroy {
       x: {
         title: {
           display: true,
-          text: 'Page Count',
+          text: this.t.translate('statsLibrary.pageCount.axisPageCount'),
           color: '#ffffff',
           font: {
             family: "'Inter', sans-serif",
@@ -102,7 +106,7 @@ export class PageCountChartComponent implements OnInit, OnDestroy {
       y: {
         title: {
           display: true,
-          text: 'Books',
+          text: this.t.translate('statsLibrary.pageCount.axisBooks'),
           color: '#ffffff',
           font: {
             family: "'Inter', sans-serif",

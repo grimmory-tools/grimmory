@@ -202,7 +202,7 @@ export class BookdropFileReviewComponent implements OnInit {
               return fresh;
             }
           });
-          this.totalRecords = response.totalElements;
+          this.totalRecords = response.page.totalElements;
           this.currentPage = page;
           this.loading = false;
           this.syncCurrentPageSelection();

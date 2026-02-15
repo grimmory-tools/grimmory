@@ -4,6 +4,7 @@ import org.booklore.exception.ApiError;
 import org.booklore.mapper.BookMapper;
 import org.booklore.mapper.custom.BookLoreUserTransformer;
 import org.booklore.model.dto.*;
+import org.booklore.model.entity.AuthorEntity;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.model.entity.ShelfEntity;
@@ -171,7 +172,7 @@ public class OpdsBookService {
                 .orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(userId));
         BookLoreUser user = bookLoreUserTransformer.toDTO(entity);
 
-        List<org.booklore.model.entity.AuthorEntity> authors;
+        List<AuthorEntity> authors;
 
         if (user.getPermissions().isAdmin()) {
             authors = bookOpdsRepository.findDistinctAuthors();
@@ -183,7 +184,7 @@ public class OpdsBookService {
         }
 
         return authors.stream()
-                .map(org.booklore.model.entity.AuthorEntity::getName)
+                .map(AuthorEntity::getName)
                 .filter(Objects::nonNull)
                 .distinct()
                 .sorted()

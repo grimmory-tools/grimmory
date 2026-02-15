@@ -1,0 +1,17 @@
+{
+  "title": "Registro de auditoría",
+  "description": "Vea un registro de las acciones administrativas realizadas en el sistema.",
+  "sectionTitle": "Registro de actividad",
+  "filterPlaceholder": "Filtrar por acción",
+  "userFilterPlaceholder": "Filtrar por usuario",
+  "dateRangePlaceholder": "Filtrar por rango de fechas",
+  "pageReport": "Mostrando {first} a {last} de {totalRecords} entradas",
+  "empty": "No se encontraron registros de auditoría",
+  "columns": {
+    "timestamp": "Fecha y hora",
+    "user": "Usuario",
+    "action": "Acción",
+    "description": "Descripción",
+    "ip": "Dirección IP"
+  }
+}

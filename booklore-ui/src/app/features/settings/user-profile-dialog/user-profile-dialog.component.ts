@@ -104,7 +104,7 @@ export class UserProfileDialogComponent implements OnInit, OnDestroy {
     }
 
     if (this.editUserData.name === this.currentUser.name && this.editUserData.email === this.currentUser.email) {
-      this.messageService.add({severity: 'info', summary: 'Info', detail: this.t.translate('settingsProfile.toast.noChanges')});
+      this.messageService.add({severity: 'info', summary: this.t.translate('common.info'), detail: this.t.translate('settingsProfile.toast.noChanges')});
       this.isEditing = false;
       return;
     }

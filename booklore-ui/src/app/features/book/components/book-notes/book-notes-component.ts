@@ -10,6 +10,7 @@ import {ConfirmDialog} from 'primeng/confirmdialog';
 import {ProgressSpinner} from 'primeng/progressspinner';
 import {Tooltip} from 'primeng/tooltip';
 import {ConfirmationService, MessageService} from 'primeng/api';
+import {TranslocoService} from '@jsverse/transloco';
 import {BookNote, BookNoteService, CreateBookNoteRequest} from '../../../../shared/service/book-note.service';
 
 @Component({
@@ -36,6 +37,7 @@ export class BookNotesComponent implements OnInit, OnChanges {
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
   private destroyRef = inject(DestroyRef);
+  private readonly t = inject(TranslocoService);
 
   notes: BookNote[] = [];
   loading = false;
@@ -85,8 +87,8 @@ export class BookNotesComponent implements OnInit, OnChanges {
           this.loading = false;
           this.messageService.add({
             severity: 'error',
-            summary: 'Error',
-            detail: 'Failed to load notes for this book.'
+            summary: this.t.translate('common.error'),
+            detail: this.t.translate('book.notes.toast.loadFailedDetail')
           });
         }
       });
@@ -116,8 +118,8 @@ export class BookNotesComponent implements OnInit, OnChanges {
     if (!this.newNote.title.trim() || !this.newNote.content.trim()) {
       this.messageService.add({
         severity: 'warn',
-        summary: 'Validation Error',
-        detail: 'Both title and content are required.'
+        summary: this.t.translate('book.notes.toast.validationSummary'),
+        detail: this.t.translate('book.notes.toast.validationDetail')
       });
       return;
     }
@@ -130,16 +132,16 @@ export class BookNotesComponent implements OnInit, OnChanges {
           this.showCreateDialog = false;
           this.messageService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: 'Note created successfully.'
+            summary: this.t.translate('common.success'),
+            detail: this.t.translate('book.notes.toast.createSuccessDetail')
           });
         },
         error: (error) => {
           console.error('Failed to create note:', error);
           this.messageService.add({
             severity: 'error',
-            summary: 'Error',
-            detail: 'Failed to create note.'
+            summary: this.t.translate('common.error'),
+            detail: this.t.translate('book.notes.toast.createFailedDetail')
           });
         }
       });
@@ -149,8 +151,8 @@ export class BookNotesComponent implements OnInit, OnChanges {
     if (!this.editNote.title?.trim() || !this.editNote.content?.trim()) {
       this.messageService.add({
         severity: 'warn',
-        summary: 'Validation Error',
-        detail: 'Both title and content are required.'
+        summary: this.t.translate('book.notes.toast.validationSummary'),
+        detail: this.t.translate('book.notes.toast.validationDetail')
       });
       return;
     }
@@ -170,16 +172,16 @@ export class BookNotesComponent implements OnInit, OnChanges {
           this.selectedNote = null;
           this.messageService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: 'Note updated successfully.'
+            summary: this.t.translate('common.success'),
+            detail: this.t.translate('book.notes.toast.updateSuccessDetail')
           });
         },
         error: (error) => {
           console.error('Failed to update note:', error);
           this.messageService.add({
             severity: 'error',
-            summary: 'Error',
-            detail: 'Failed to update note.'
+            summary: this.t.translate('common.error'),
+            detail: this.t.translate('book.notes.toast.updateFailedDetail')
           });
         }
       });
@@ -188,8 +190,8 @@ export class BookNotesComponent implements OnInit, OnChanges {
   deleteNote(note: BookNote): void {
     this.confirmationService.confirm({
       key: 'deleteNote',
-      message: `Are you sure you want to delete the note "${note.title}"?`,
-      header: 'Confirm Deletion',
+      message: this.t.translate('book.notes.confirm.deleteMessage', {title: note.title}),
+      header: this.t.translate('book.notes.confirm.deleteHeader'),
       icon: 'pi pi-exclamation-triangle',
       acceptIcon: 'pi pi-trash',
       rejectIcon: 'pi pi-times',
@@ -207,16 +209,16 @@ export class BookNotesComponent implements OnInit, OnChanges {
         this.notes = this.notes.filter(n => n.id !== noteId);
         this.messageService.add({
           severity: 'success',
-          summary: 'Success',
-          detail: 'Note deleted successfully.'
+          summary: this.t.translate('common.success'),
+          detail: this.t.translate('book.notes.toast.deleteSuccessDetail')
         });
       },
       error: (error) => {
         console.error('Failed to delete note:', error);
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to delete note.'
+          summary: this.t.translate('common.error'),
+          detail: this.t.translate('book.notes.toast.deleteFailedDetail')
         });
       }
     });

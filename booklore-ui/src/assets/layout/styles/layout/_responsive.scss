@@ -35,7 +35,7 @@
 
     &.layout-static {
       .layout-main-container {
-        padding-left: 255px;
+        padding-left: calc(var(--sidebar-width, 225px) + 30px);
         box-sizing: border-box;
       }
 

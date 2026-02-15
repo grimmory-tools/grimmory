@@ -16,6 +16,7 @@ import {ReaderLeftSidebarService} from './layout/panel/panel.service';
 import {ReaderHeaderService} from './layout/header/header.service';
 import {ReaderNoteService} from './features/notes/note.service';
 import {BookService} from '../../book/service/book.service';
+import {BookFileService} from '../../book/service/book-file.service';
 import {ActivatedRoute} from '@angular/router';
 import {Book, BookType} from '../../book/model/book.model';
 import {ReaderHeaderComponent} from './layout/header/header.component';
@@ -30,6 +31,7 @@ import {EpubCustomFontService} from './features/fonts/custom-font.service';
 import {TextSelectionAction, TextSelectionPopupComponent} from './shared/selection-popup.component';
 import {NoteDialogData, NoteDialogResult, ReaderNoteDialogComponent} from './dialogs/note-dialog.component';
 import {EbookShortcutsHelpComponent} from './dialogs/shortcuts-help.component';
+import {TranslocoPipe} from '@jsverse/transloco';
 
 @Component({
   selector: 'app-ebook-reader',
@@ -45,7 +47,8 @@ import {EbookShortcutsHelpComponent} from './dialogs/shortcuts-help.component';
     ReaderNavbarComponent,
     TextSelectionPopupComponent,
     ReaderNoteDialogComponent,
-    EbookShortcutsHelpComponent
+    EbookShortcutsHelpComponent,
+    TranslocoPipe
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [
@@ -71,6 +74,7 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
   private loaderService = inject(ReaderLoaderService);
   private styleService = inject(ReaderStyleService);
   private bookService = inject(BookService);
+  private bookFileService = inject(BookFileService);
   private route = inject(ActivatedRoute);
   private epubCustomFontService = inject(EpubCustomFontService);
   private annotationService = inject(ReaderAnnotationHttpService);
@@ -281,7 +285,7 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
   }
 
   private loadBookBlob(): Observable<void> {
-    return this.bookService.getFileContent(this.bookId, this.altBookType).pipe(
+    return this.bookFileService.getFileContent(this.bookId, this.altBookType).pipe(
       switchMap(fileBlob => {
         const fileUrl = URL.createObjectURL(fileBlob);
         this._fileUrl = fileUrl;

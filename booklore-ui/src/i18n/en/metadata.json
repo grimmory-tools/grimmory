@@ -83,6 +83,8 @@
     "unlockAllBtn": "Unlock All",
     "lockAllBtn": "Lock All",
     "saveBtn": "Save",
+    "fetchFromFileBtn": "From File",
+    "fetchFromFileTooltip": "Load metadata embedded in the book file",
     "previousBookTooltip": "Go to previous book",
     "nextBookTooltip": "Go to next book",
     "autoFetchTooltip": "Automatically fetch metadata using default sources",
@@ -98,6 +100,7 @@
     "contentRatingAdult": "Adult",
     "contentRatingExplicit": "Explicit",
     "ageRatingAllAges": "All Ages",
+    "selectPlaceholder": "Select",
     "toast": {
       "successSummary": "Success",
       "metadataUpdated": "Book metadata updated",
@@ -125,7 +128,9 @@
       "customAudiobookCoverGenerated": "Custom audiobook cover generated successfully.",
       "customAudiobookCoverPartialDetail": "Cover generated but failed to refresh display. Please refresh the page.",
       "customAudiobookCoverFailed": "Failed to generate custom audiobook cover",
-      "audiobookUploadFailed": "An error occurred while uploading the audiobook cover"
+      "audiobookUploadFailed": "An error occurred while uploading the audiobook cover",
+      "fileMetadataLoaded": "Metadata loaded from book file. Review and save.",
+      "fileMetadataFailed": "Failed to extract metadata from book file"
     }
   },
   "picker": {

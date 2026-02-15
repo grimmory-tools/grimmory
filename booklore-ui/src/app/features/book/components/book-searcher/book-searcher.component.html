@@ -1,3 +1,4 @@
+<ng-container *transloco="let t; prefix: 'book.searcher'">
 <div class="book-searcher-container">
   <p-iconfield class="search-iconfield" [class.focused]="isSearchFocused" [class.has-results]="isDropdownOpen">
     <p-inputicon class="pi pi-search"/>
@@ -8,7 +9,7 @@
       (input)="onSearchInputChange()"
       (focus)="isSearchFocused = true"
       (blur)="onSearchBlur()"
-      placeholder="Title, Author, Series, Genre, or ISBN..."
+      [placeholder]="t('placeholder')"
       class="search-input"
     />
     @if (searchQuery) {
@@ -18,7 +19,7 @@
         [text]="true"
         [rounded]="true"
         class="clear-search-btn"
-        aria-label="Clear Search">
+        [attr.aria-label]="t('clearSearch')">
       </p-button>
     }
   </p-iconfield>
@@ -34,7 +35,7 @@
             <div class="search-item-content">
               <img
                 [attr.src]="urlHelper.getThumbnailUrl(book.id, book.metadata?.coverUpdatedOn)"
-                alt="Book Cover"
+                [alt]="t('bookCoverAlt')"
                 class="search-book-cover"
               />
               <div class="search-book-details">
@@ -45,7 +46,7 @@
                 </div>
                 <div class="search-book-meta-line">
                   @if (book.metadata?.authors?.length ?? 0 > 0) {
-                    <p class="search-book-authors">by {{ getAuthorNames(book.metadata?.authors) }}</p>
+                    <p class="search-book-authors">{{ t('byPrefix') }} {{ getAuthorNames(book.metadata?.authors) }}</p>
                   }
                   @if (getPublishedYear(book.metadata?.publishedDate)) {
                     <span class="metadata-badge year-badge">{{ getPublishedYear(book.metadata?.publishedDate) }}</span>
@@ -64,9 +65,10 @@
         }
       } @else {
         <div class="search-dropdown-item no-results">
-          <span>No results found</span>
+          <span>{{ t('noResults') }}</span>
         </div>
       }
     </div>
   }
 </div>
+</ng-container>

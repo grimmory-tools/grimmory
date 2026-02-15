@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import org.booklore.config.security.service.AuthenticationService;
+import org.booklore.exception.APIException;
+import org.booklore.mapper.KoreaderUserMapper;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.KoreaderUser;
 import org.booklore.model.entity.BookLoreUserEntity;
@@ -29,7 +31,7 @@ class KoreaderUserServiceTest {
     @Mock AuthenticationService authService;
     @Mock UserRepository userRepository;
     @Mock KoreaderUserRepository koreaderUserRepository;
-    @Mock org.booklore.mapper.KoreaderUserMapper koreaderUserMapper;
+    @Mock KoreaderUserMapper koreaderUserMapper;
     @InjectMocks
     KoreaderUserService service;
 
@@ -100,7 +102,7 @@ class KoreaderUserServiceTest {
     @Test
     void upsertUser_throws_whenOwnerMissing() {
         when(userRepository.findById(123L)).thenReturn(Optional.empty());
-        assertThrows(org.booklore.exception.APIException.class,
+        assertThrows(APIException.class,
                      () -> service.upsertUser("x", "y"));
     }
 
@@ -114,7 +116,7 @@ class KoreaderUserServiceTest {
     @Test
     void getUser_throws_whenNotFound() {
         when(koreaderUserRepository.findByBookLoreUserId(123L)).thenReturn(Optional.empty());
-        assertThrows(org.booklore.exception.APIException.class, () -> service.getUser());
+        assertThrows(APIException.class, () -> service.getUser());
     }
 
     @Test
@@ -128,6 +130,6 @@ class KoreaderUserServiceTest {
     @Test
     void toggleSync_throws_whenEntityMissing() {
         when(koreaderUserRepository.findByBookLoreUserId(123L)).thenReturn(Optional.empty());
-        assertThrows(org.booklore.exception.APIException.class, () -> service.toggleSync(false));
+        assertThrows(APIException.class, () -> service.toggleSync(false));
     }
 }

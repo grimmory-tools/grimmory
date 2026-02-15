@@ -8,6 +8,7 @@ import {LibraryFilterService} from '../../service/library-filter.service';
 import {BookService} from '../../../../../book/service/book.service';
 import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book, ReadStatus} from '../../../../../book/model/book.model';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 interface MonthlyData {
   month: string;
@@ -38,13 +39,14 @@ type JourneyChartData = ChartData<'line', number[], string>;
 @Component({
   selector: 'app-reading-journey-chart',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective],
+  imports: [CommonModule, BaseChartDirective, TranslocoDirective],
   templateUrl: './reading-journey-chart.component.html',
   styleUrls: ['./reading-journey-chart.component.scss']
 })
 export class ReadingJourneyChartComponent implements OnInit, OnDestroy {
   private readonly bookService = inject(BookService);
   private readonly libraryFilterService = inject(LibraryFilterService);
+  private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
 
   public readonly chartType = 'line' as const;
@@ -115,7 +117,7 @@ export class ReadingJourneyChartComponent implements OnInit, OnDestroy {
           border: {display: false},
           title: {
             display: true,
-            text: 'Month',
+            text: this.t.translate('statsLibrary.readingJourney.axisMonth'),
             color: '#ffffff',
             font: {
               family: "'Inter', sans-serif",
@@ -140,7 +142,7 @@ export class ReadingJourneyChartComponent implements OnInit, OnDestroy {
           border: {display: false},
           title: {
             display: true,
-            text: 'Cumulative Books',
+            text: this.t.translate('statsLibrary.readingJourney.axisCumulativeBooks'),
             color: '#ffffff',
             font: {
               family: "'Inter', sans-serif",
@@ -183,7 +185,7 @@ export class ReadingJourneyChartComponent implements OnInit, OnDestroy {
               const addedValue = context[0].chart.data.datasets[0].data[dataIndex] as number;
               const finishedValue = context[0].chart.data.datasets[1].data[dataIndex] as number;
               const backlog = addedValue - finishedValue;
-              return [`\nBacklog: ${backlog} books`];
+              return [`\n${this.t.translate('statsLibrary.readingJourney.tooltipBacklog', {count: backlog})}`];
             }
           }
         },
@@ -415,7 +417,9 @@ export class ReadingJourneyChartComponent implements OnInit, OnDestroy {
         }
       }
     }
-    const recentActivity = recentFinished > 0 ? `${recentFinished} books` : 'No activity';
+    const recentActivity = recentFinished > 0
+      ? this.t.translate('statsLibrary.readingJourney.recentActivityBooks', {count: recentFinished})
+      : this.t.translate('statsLibrary.readingJourney.recentActivityNone');
 
     // Longest reading streak (consecutive months with finished books)
     let longestStreak = 0;
@@ -459,7 +463,7 @@ export class ReadingJourneyChartComponent implements OnInit, OnDestroy {
       labels,
       datasets: [
         {
-          label: 'Books Added',
+          label: this.t.translate('statsLibrary.readingJourney.legendBooksAdded'),
           data: addedData,
           borderColor: '#3b82f6',
           backgroundColor: 'rgba(59, 130, 246, 0.1)',
@@ -469,7 +473,7 @@ export class ReadingJourneyChartComponent implements OnInit, OnDestroy {
           order: 2
         },
         {
-          label: 'Books Finished',
+          label: this.t.translate('statsLibrary.readingJourney.legendBooksFinished'),
           data: finishedData,
           borderColor: '#10b981',
           backgroundColor: 'rgba(16, 185, 129, 0.2)',

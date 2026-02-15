@@ -7,6 +7,7 @@ import org.booklore.model.dto.*;
 import org.booklore.model.dto.request.ReadProgressRequest;
 import org.booklore.model.dto.response.BookDeletionResponse;
 import org.booklore.model.dto.response.BookStatusUpdateResponse;
+import org.booklore.model.dto.response.BookSyncResponse;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.LibraryPathEntity;
@@ -41,8 +42,12 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.booklore.model.enums.AuditAction;
+import org.booklore.service.audit.AuditService;
 
 @Slf4j
 @AllArgsConstructor
@@ -66,7 +71,7 @@ public class BookService {
     private final EbookViewerPreferenceRepository ebookViewerPreferencesRepository;
     private final SidecarMetadataWriter sidecarMetadataWriter;
     private final FileStreamingService fileStreamingService;
-
+    private final AuditService auditService;
 
     public List<Book> getBookDTOs(boolean includeDescription) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
@@ -75,9 +80,7 @@ public class BookService {
         List<Book> books = isAdmin
                 ? bookQueryService.getAllBooks(includeDescription)
                 : bookQueryService.getAllBooksByLibraryIds(
-                user.getAssignedLibraries().stream()
-                        .map(Library::getId)
-                        .collect(Collectors.toSet()),
+                getUserLibraryIds(user),
                 includeDescription,
                 user.getId()
         );
@@ -94,10 +97,121 @@ public class BookService {
                     progressMap.get(book.getId()),
                     fileProgressMap.get(book.getId())
             );
-            book.setShelves(filterShelvesByUserId(book.getShelves(), user.getId()));
+            Set<Shelf> filtered = filterShelvesByUserId(book.getShelves(), user.getId());
+            book.setShelves(!includeDescription && filtered != null && filtered.isEmpty() ? null : filtered);
         });
 
         return books;
+    }
+
+    public String computeBooksETag(boolean includeDescription) {
+        BookLoreUser user = authenticationService.getAuthenticatedUser();
+        boolean isAdmin = user.getPermissions().isAdmin();
+
+        Object[] row = extractStatsRow(isAdmin
+                ? bookRepository.getBookStats()
+                : bookRepository.getBookStatsByLibraryIds(getUserLibraryIds(user)));
+
+        long count = ((Number) row[0]).longValue();
+        long maxBookTs = toEpochMilli(row[1]);
+        long maxAddedTs = toEpochMilli(row[2]);
+        long maxProgressTs = toEpochMilli(userBookProgressRepository.getMaxProgressTimestamp(user.getId()));
+
+        return "\"" + count + "-" + maxBookTs + "-" + maxAddedTs + "-" + maxProgressTs
+                + "-" + includeDescription + "\"";
+    }
+
+    public BookSyncResponse getBooksDelta(Instant since, boolean includeDescription) {
+        BookLoreUser user = authenticationService.getAuthenticatedUser();
+        boolean isAdmin = user.getPermissions().isAdmin();
+        Set<Long> libraryIds = isAdmin ? null : getUserLibraryIds(user);
+
+        // Find book IDs modified since the given timestamp
+        Set<Long> modifiedBookIds = isAdmin
+                ? bookRepository.findBookIdsModifiedSince(since)
+                : bookRepository.findBookIdsModifiedSinceByLibraryIds(since, libraryIds);
+
+        // Find book IDs with progress changes
+        Set<Long> progressChangedIds = userBookProgressRepository.findBookIdsWithProgressChangedSince(user.getId(), since);
+
+        // Combine all changed IDs
+        Set<Long> allChangedIds = new HashSet<>(modifiedBookIds);
+        allChangedIds.addAll(progressChangedIds);
+
+        // Find deleted book IDs
+        List<Long> deletedIds = isAdmin
+                ? bookRepository.findDeletedBookIdsSince(since)
+                : bookRepository.findDeletedBookIdsSinceByLibraryIds(since, libraryIds);
+
+        // Fetch and enrich changed books
+        List<Book> changedBooks = List.of();
+        if (!allChangedIds.isEmpty()) {
+            List<BookEntity> bookEntities = bookQueryService.findAllWithMetadataByIds(allChangedIds);
+            if (!isAdmin) {
+                // Content restriction is handled by BookQueryService for non-admin users,
+                // but since we're using findAllWithMetadataByIds directly, filter by library
+                bookEntities = bookEntities.stream()
+                        .filter(b -> libraryIds.contains(b.getLibrary().getId()))
+                        .collect(Collectors.toList());
+            }
+            changedBooks = enrichBookEntities(bookEntities, user, includeDescription);
+        }
+
+        // Get total book count for client to detect full-sync needs
+        Object[] row = extractStatsRow(isAdmin
+                ? bookRepository.getBookStats()
+                : bookRepository.getBookStatsByLibraryIds(libraryIds));
+        long totalCount = ((Number) row[0]).longValue();
+
+        return BookSyncResponse.builder()
+                .books(changedBooks)
+                .deletedIds(deletedIds)
+                .syncTimestamp(Instant.now().toString())
+                .totalBookCount(totalCount)
+                .build();
+    }
+
+    private List<Book> enrichBookEntities(List<BookEntity> bookEntities, BookLoreUser user, boolean includeDescription) {
+        // Map entities through the same DTO pipeline as full fetch (includes field stripping)
+        List<Book> books = bookQueryService.mapEntitiesToDto(bookEntities, includeDescription, user.getId());
+
+        Set<Long> bookIds = books.stream().map(Book::getId).collect(Collectors.toSet());
+        Map<Long, UserBookProgressEntity> progressMap =
+                readingProgressService.fetchUserProgress(user.getId(), bookIds);
+        Map<Long, UserBookFileProgressEntity> fileProgressMap =
+                readingProgressService.fetchUserFileProgress(user.getId(), bookIds);
+
+        books.forEach(book -> {
+            readingProgressService.enrichBookWithProgress(
+                    book,
+                    progressMap.get(book.getId()),
+                    fileProgressMap.get(book.getId())
+            );
+            Set<Shelf> filtered = filterShelvesByUserId(book.getShelves(), user.getId());
+            book.setShelves(!includeDescription && filtered != null && filtered.isEmpty() ? null : filtered);
+        });
+
+        return books;
+    }
+
+    private long toEpochMilli(Object value) {
+        if (value == null) return 0;
+        if (value instanceof Instant inst) return inst.toEpochMilli();
+        if (value instanceof Timestamp ts) return ts.toInstant().toEpochMilli();
+        return 0;
+    }
+
+    private Object[] extractStatsRow(Object[] result) {
+        if (result.length > 0 && result[0] instanceof Object[]) {
+            return (Object[]) result[0];
+        }
+        return result;
+    }
+
+    private Set<Long> getUserLibraryIds(BookLoreUser user) {
+        return user.getAssignedLibraries().stream()
+                .map(Library::getId)
+                .collect(Collectors.toSet());
     }
 
     public List<Book> getBooksByIds(Set<Long> bookIds, boolean withDescription) {
@@ -146,6 +260,23 @@ public class BookService {
         return book;
     }
 
+    public Book getBookByHash(String md5Hash, boolean withDescription) {
+        BookLoreUser user = authenticationService.getAuthenticatedUser();
+
+        // Find book by MD5 hash
+        BookEntity bookEntity = bookRepository.findByCurrentHash(md5Hash)
+                .orElseThrow(() -> ApiError.GENERIC_NOT_FOUND.createException("Book with hash " + md5Hash + " not found"));
+
+        // Check if user has access to this book (via library access)
+        boolean hasAccess = bookEntity.getLibraryPath().getLibrary().getUsers().stream()
+                .anyMatch(u -> u.getId().equals(user.getId()));
+
+        if (!hasAccess) {
+            throw ApiError.GENERIC_NOT_FOUND.createException("Book with hash " + md5Hash + " not found");
+        }
+
+        return getBook(bookEntity.getId(), withDescription);
+    }
 
     public BookViewerSettings getBookViewerSetting(long bookId, long bookFileId) {
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
@@ -352,7 +483,6 @@ public class BookService {
 
         fileStreamingService.streamWithRangeSupport(path, contentType, request, response);
     }
-
     @Transactional
     public ResponseEntity<BookDeletionResponse> deleteBooks(Set<Long> ids) {
         List<BookEntity> books = bookQueryService.findAllWithMetadataByIds(ids);
@@ -401,6 +531,7 @@ public class BookService {
         }
 
         bookRepository.deleteAll(books);
+        auditService.log(AuditAction.BOOK_DELETED, "Deleted " + ids.size() + " book(s)");
         BookDeletionResponse response = new BookDeletionResponse(ids, failedFileDeletions);
         return failedFileDeletions.isEmpty()
                 ? ResponseEntity.ok(response)
@@ -488,6 +619,104 @@ public class BookService {
         return shelves.stream()
                 .filter(shelf -> userId.equals(shelf.getUserId()))
                 .collect(Collectors.toSet());
+    }
+
+    public List<org.booklore.model.dto.response.BookSearchResult> fuzzySearch(String searchTitle, String searchIsbn) {
+        if (searchTitle == null && searchIsbn == null) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("At least one search parameter (title or isbn) must be provided");
+        }
+
+        BookLoreUser user = authenticationService.getAuthenticatedUser();
+        boolean isAdmin = user.getPermissions().isAdmin();
+
+        List<BookEntity> allBooks = isAdmin
+                ? bookRepository.findAllWithMetadata()
+                : bookRepository.findAllWithMetadataByLibraryIds(
+                user.getAssignedLibraries().stream()
+                        .map(Library::getId)
+                        .collect(Collectors.toList())
+        );
+
+        org.apache.commons.text.similarity.FuzzyScore fuzzyScore = 
+                new org.apache.commons.text.similarity.FuzzyScore(java.util.Locale.ENGLISH);
+
+        return allBooks.stream()
+                .map(book -> {
+                    String bookTitle = book.getMetadata() != null && book.getMetadata().getTitle() != null
+                            ? book.getMetadata().getTitle()
+                            : (book.getPrimaryBookFile() != null ? book.getPrimaryBookFile().getFileName() : "");
+                    
+                    double normalizedScore = 0.0;
+                    
+                    // Search by ISBN if provided
+                    if (searchIsbn != null && book.getMetadata() != null) {
+                        String cleanSearchIsbn = searchIsbn.replaceAll("[^0-9X]", "");
+                        String bookIsbn13 = book.getMetadata().getIsbn13() != null 
+                                ? book.getMetadata().getIsbn13().replaceAll("[^0-9X]", "") 
+                                : "";
+                        String bookIsbn10 = book.getMetadata().getIsbn10() != null 
+                                ? book.getMetadata().getIsbn10().replaceAll("[^0-9X]", "") 
+                                : "";
+                        
+                        // Exact match gets perfect score
+                        if (cleanSearchIsbn.equalsIgnoreCase(bookIsbn13) || cleanSearchIsbn.equalsIgnoreCase(bookIsbn10)) {
+                            normalizedScore = 1.0;
+                        } else if (!bookIsbn13.isEmpty() || !bookIsbn10.isEmpty()) {
+                            // Fuzzy match for partial ISBN matches
+                            int isbnScore13 = !bookIsbn13.isEmpty() 
+                                    ? fuzzyScore.fuzzyScore(bookIsbn13.toLowerCase(), cleanSearchIsbn.toLowerCase()) 
+                                    : 0;
+                            int isbnScore10 = !bookIsbn10.isEmpty() 
+                                    ? fuzzyScore.fuzzyScore(bookIsbn10.toLowerCase(), cleanSearchIsbn.toLowerCase()) 
+                                    : 0;
+                            int bestIsbnScore = Math.max(isbnScore13, isbnScore10);
+                            int maxScore = Math.max(
+                                    fuzzyScore.fuzzyScore(cleanSearchIsbn, cleanSearchIsbn),
+                                    Math.max(
+                                            !bookIsbn13.isEmpty() ? fuzzyScore.fuzzyScore(bookIsbn13, bookIsbn13) : 0,
+                                            !bookIsbn10.isEmpty() ? fuzzyScore.fuzzyScore(bookIsbn10, bookIsbn10) : 0
+                                    )
+                            );
+                            normalizedScore = maxScore > 0 ? (double) bestIsbnScore / maxScore : 0.0;
+                        }
+                    }
+                    
+                    // Search by title if provided and no ISBN match found
+                    if (searchTitle != null && normalizedScore < 1.0) {
+                        int titleScore = fuzzyScore.fuzzyScore(bookTitle.toLowerCase(), searchTitle.toLowerCase());
+                        int maxScore = Math.max(
+                                fuzzyScore.fuzzyScore(bookTitle, bookTitle),
+                                fuzzyScore.fuzzyScore(searchTitle, searchTitle)
+                        );
+                        double titleNormalizedScore = maxScore > 0 ? (double) titleScore / maxScore : 0.0;
+                        
+                        // Use the better score between ISBN and title
+                        normalizedScore = Math.max(normalizedScore, titleNormalizedScore);
+                    }
+                    
+                    String hash = book.getPrimaryBookFile() != null 
+                            ? book.getPrimaryBookFile().getCurrentHash() 
+                            : null;
+                    
+                    String coverHash = book.getBookCoverHash();
+                    
+                    return org.booklore.model.dto.response.BookSearchResult.builder()
+                            .id(book.getId())
+                            .title(bookTitle)
+                            .hash(hash)
+                            .coverHash(coverHash)
+                            .matchScore(normalizedScore)
+                            .build();
+                })
+                .filter(result -> result.getMatchScore() > 0.0)
+                .sorted((a, b) -> Double.compare(b.getMatchScore(), a.getMatchScore()))
+                .limit(50)
+                .collect(Collectors.toList());
+    }
+
+    @Deprecated
+    public List<org.booklore.model.dto.response.BookSearchResult> fuzzySearchByTitle(String searchTitle) {
+        return fuzzySearch(searchTitle, null);
     }
 
 }

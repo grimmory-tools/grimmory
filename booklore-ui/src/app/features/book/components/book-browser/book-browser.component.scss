@@ -447,7 +447,7 @@
   z-index: 50;
 
   @media (max-width: 991px) {
-    width: 225px;
+    width: var(--sidebar-width, 225px);
     position: fixed;
     top: 3.85rem;
     right: 0;
@@ -478,7 +478,7 @@
     }
 
     &.active {
-      width: 225px;
+      width: var(--sidebar-width, 225px);
       opacity: 1;
       pointer-events: auto;
       margin-left: 1rem;

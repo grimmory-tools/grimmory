@@ -51,9 +51,12 @@ export interface BookdropFinalizeResult {
 
 export interface Page<T> {
   content: T[];
-  totalElements: number;
-  totalPages: number;
-  number: number;
+  page: {
+    totalElements: number;
+    totalPages: number;
+    number: number;
+    size: number;
+  };
 }
 
 export interface PatternExtractRequest {

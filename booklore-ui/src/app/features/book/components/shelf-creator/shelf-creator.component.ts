@@ -11,6 +11,7 @@ import {Tooltip} from 'primeng/tooltip';
 import {IconDisplayComponent} from '../../../../shared/components/icon-display/icon-display.component';
 import {UserService} from '../../../settings/user-management/user.service';
 import {CheckboxModule} from 'primeng/checkbox';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 @Component({
   selector: 'app-shelf-creator',
@@ -22,7 +23,8 @@ import {CheckboxModule} from 'primeng/checkbox';
     InputText,
     Tooltip,
     IconDisplayComponent,
-    CheckboxModule
+    CheckboxModule,
+    TranslocoDirective
   ],
   styleUrl: './shelf-creator.component.scss',
 })
@@ -32,6 +34,7 @@ export class ShelfCreatorComponent {
   private messageService = inject(MessageService);
   private iconPickerService = inject(IconPickerService);
   private userService = inject(UserService);
+  private readonly t = inject(TranslocoService);
 
   shelfName: string = '';
   selectedIcon: IconSelection | null = null;
@@ -67,11 +70,11 @@ export class ShelfCreatorComponent {
 
     this.shelfService.createShelf(newShelf as Shelf).subscribe({
       next: () => {
-        this.messageService.add({severity: 'info', summary: 'Success', detail: `Shelf created: ${this.shelfName}`});
+        this.messageService.add({severity: 'info', summary: this.t.translate('common.success'), detail: this.t.translate('book.shelfCreator.toast.createSuccessDetail', { name: this.shelfName })});
         this.dynamicDialogRef.close(true);
       },
       error: (e) => {
-        this.messageService.add({severity: 'error', summary: 'Error', detail: 'Failed to create shelf'});
+        this.messageService.add({severity: 'error', summary: this.t.translate('common.error'), detail: this.t.translate('book.shelfCreator.toast.createFailedDetail')});
         console.error('Error creating shelf:', e);
       }
     });

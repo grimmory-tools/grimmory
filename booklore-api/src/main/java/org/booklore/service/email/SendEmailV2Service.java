@@ -23,6 +23,8 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.booklore.model.enums.AuditAction;
+import org.booklore.service.audit.AuditService;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -41,6 +43,7 @@ public class SendEmailV2Service {
     private final EmailRecipientV2Repository emailRecipientRepository;
     private final NotificationService notificationService;
     private final AuthenticationService authenticationService;
+    private final AuditService auditService;
 
     public void emailBookQuick(Long bookId) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
@@ -72,6 +75,7 @@ public class SendEmailV2Service {
         SecurityContextVirtualThread.runWithSecurityContext(() -> {
             try {
                 sendEmail(emailProvider, recipientEmail, book, bookFile);
+                auditService.log(AuditAction.BOOK_SENT, "Book", book.getId(), "Sent book: " + bookTitle + " to " + recipientEmail);
                 String successMessage = "The book: " + bookTitle + " has been successfully sent to " + recipientEmail;
                 notificationService.sendMessage(Topic.LOG, LogNotification.info(successMessage));
                 log.info(successMessage);

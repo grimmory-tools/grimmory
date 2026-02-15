@@ -23,6 +23,7 @@ import org.booklore.repository.BookRepository;
 import org.booklore.service.NotificationService;
 import org.booklore.service.book.BookQueryService;
 import org.booklore.service.metadata.extractor.CbxMetadataExtractor;
+import org.booklore.service.metadata.extractor.MetadataExtractorFactory;
 import org.booklore.service.metadata.parser.BookParser;
 import org.booklore.service.metadata.parser.DetailedMetadataProvider;
 import org.booklore.util.FileUtils;
@@ -58,6 +59,7 @@ public class BookMetadataService {
     private final BookQueryService bookQueryService;
     private final Map<MetadataProvider, BookParser> parserMap;
     private final CbxMetadataExtractor cbxMetadataExtractor;
+    private final MetadataExtractorFactory metadataExtractorFactory;
     private final MetadataClearFlagsMapper metadataClearFlagsMapper;
     private final PlatformTransactionManager transactionManager;
 
@@ -145,6 +147,16 @@ public class BookMetadataService {
             return null;
         }
         return cbxMetadataExtractor.extractMetadata(new File(FileUtils.getBookFullPath(bookEntity)));
+    }
+
+    public BookMetadata getFileMetadata(long bookId) {
+        log.info("Extracting file metadata for book ID: {}", bookId);
+        BookEntity bookEntity = bookRepository.findById(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
+        var primaryFile = bookEntity.getPrimaryBookFile();
+        if (primaryFile == null) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("Book has no file to extract metadata from");
+        }
+        return metadataExtractorFactory.extractMetadata(primaryFile.getBookType(), new File(FileUtils.getBookFullPath(bookEntity)));
     }
 
     @Transactional

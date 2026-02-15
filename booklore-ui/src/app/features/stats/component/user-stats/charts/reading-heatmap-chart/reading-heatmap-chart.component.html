@@ -1,16 +1,17 @@
+<ng-container *transloco="let t; prefix: 'statsUser.readingHeatmap'">
 <div class="reading-heatmap-container">
   <div class="chart-header">
     <div class="chart-title">
       <h3>
         <i class="pi pi-calendar reading-heatmap-icon"></i>
-        Reading Activity Heatmap
+        {{ t('title') }}
         <i class="pi pi-question-circle chart-info-icon"
-           pTooltip="A 10-year grid showing how many books were added to your library each month. Darker cells mean more books. Helps you visualize long-term acquisition trends and seasonal reading bursts."
+           [pTooltip]="t('tooltip')"
            tooltipPosition="bottom"
            tooltipStyleClass="chart-info-tooltip"
            [appendTo]="'body'"></i>
       </h3>
-      <p class="chart-description">Monthly reading activity over the past 10 years</p>
+      <p class="chart-description">{{ t('description') }}</p>
     </div>
   </div>
   <div class="chart-wrapper">
@@ -21,4 +22,4 @@
     </canvas>
   </div>
 </div>
-
+</ng-container>

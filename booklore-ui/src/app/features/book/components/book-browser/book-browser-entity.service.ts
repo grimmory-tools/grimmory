@@ -165,8 +165,9 @@ export class BookBrowserEntityService {
         if (!bookState.loaded || bookState.error || !magicShelf?.filterJson) {
           return bookState;
         }
-        const filteredBooks: Book[] | undefined = bookState.books?.filter(book =>
-          this.bookRuleEvaluatorService.evaluateGroup(book, JSON.parse(magicShelf.filterJson!) as GroupRule)
+        const allBooks = bookState.books ?? [];
+        const filteredBooks = allBooks.filter(book =>
+          this.bookRuleEvaluatorService.evaluateGroup(book, JSON.parse(magicShelf.filterJson!) as GroupRule, allBooks)
         );
         const sortedBooks = this.sortService.applySort(filteredBooks ?? [], sortOption);
         return {...bookState, books: sortedBooks};

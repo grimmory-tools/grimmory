@@ -9,6 +9,7 @@ import {forkJoin, Observable} from 'rxjs';
 import {Tooltip} from 'primeng/tooltip';
 import {UrlHelperService} from '../../../../../shared/service/url-helper.service';
 import {BookService} from '../../../../book/service/book.service';
+import {BookMetadataManageService} from '../../../../book/service/book-metadata-manage.service';
 import {Textarea} from 'primeng/textarea';
 import {filter, take} from 'rxjs/operators';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
@@ -78,6 +79,7 @@ export class MetadataPickerComponent implements OnInit {
 
   private messageService = inject(MessageService);
   private bookService = inject(BookService);
+  private bookMetadataManageService = inject(BookMetadataManageService);
   protected urlHelper = inject(UrlHelperService);
   private destroyRef = inject(DestroyRef);
   private appSettingsService = inject(AppSettingsService);
@@ -287,14 +289,14 @@ export class MetadataPickerComponent implements OnInit {
     const updatedBookMetadata = this.buildMetadataWrapper(undefined);
 
     const requests: Observable<unknown>[] = [
-      this.bookService.updateBookMetadata(this.currentBookId, updatedBookMetadata, false)
+      this.bookMetadataManageService.updateBookMetadata(this.currentBookId, updatedBookMetadata, false)
     ];
 
     // Handle audiobook cover upload when fetched from Audible provider
     if (this.isAudibleProvider() && this.copiedFields['audiobookThumbnailUrl']) {
       const audiobookCoverUrl = this.fetchedMetadata.thumbnailUrl;
       if (audiobookCoverUrl) {
-        requests.push(this.bookService.uploadAudiobookCoverFromUrl(this.currentBookId, audiobookCoverUrl));
+        requests.push(this.bookMetadataManageService.uploadAudiobookCoverFromUrl(this.currentBookId, audiobookCoverUrl));
       }
     }
 
@@ -515,7 +517,7 @@ export class MetadataPickerComponent implements OnInit {
   }
 
   private updateMetadata(shouldLockAllFields: boolean | undefined): void {
-    this.bookService.updateBookMetadata(this.currentBookId, this.buildMetadataWrapper(shouldLockAllFields), false).subscribe({
+    this.bookMetadataManageService.updateBookMetadata(this.currentBookId, this.buildMetadataWrapper(shouldLockAllFields), false).subscribe({
       next: () => {
         if (shouldLockAllFields !== undefined) {
           this.messageService.add({

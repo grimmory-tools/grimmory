@@ -5,13 +5,14 @@ import {ChartConfiguration, ChartData} from 'chart.js';
 import {BehaviorSubject, EMPTY, Observable, Subject} from 'rxjs';
 import {catchError, takeUntil} from 'rxjs/operators';
 import {CompletionTimelineResponse, UserStatsService} from '../../../../../settings/user-management/user-stats.service';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 type CompletionChartData = ChartData<'bar', number[], string>;
 
 @Component({
   selector: 'app-completion-timeline-chart',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective],
+  imports: [CommonModule, BaseChartDirective, TranslocoDirective],
   templateUrl: './completion-timeline-chart.component.html',
   styleUrls: ['./completion-timeline-chart.component.scss']
 })
@@ -24,6 +25,7 @@ export class CompletionTimelineChartComponent implements OnInit, OnDestroy {
   public readonly chartOptions: ChartConfiguration['options'];
 
   private readonly userStatsService = inject(UserStatsService);
+  private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
   private readonly chartDataSubject: BehaviorSubject<CompletionChartData>;
 
@@ -69,7 +71,8 @@ export class CompletionTimelineChartComponent implements OnInit, OnDestroy {
             label: (context) => {
               const label = context.dataset.label || '';
               const value = context.parsed.y;
-              return `${label}: ${value} book${value !== 1 ? 's' : ''}`;
+              const key = value !== 1 ? 'statsUser.completionTimeline.tooltipBooks' : 'statsUser.completionTimeline.tooltipBook';
+              return this.t.translate(key, {label, value});
             }
           }
         },
@@ -79,7 +82,7 @@ export class CompletionTimelineChartComponent implements OnInit, OnDestroy {
         x: {
           title: {
             display: true,
-            text: 'Month',
+            text: this.t.translate('statsUser.completionTimeline.axisMonth'),
             color: '#ffffff',
             font: {
               family: "'Inter', sans-serif",
@@ -97,7 +100,7 @@ export class CompletionTimelineChartComponent implements OnInit, OnDestroy {
         y: {
           title: {
             display: true,
-            text: 'Number of Books',
+            text: this.t.translate('statsUser.completionTimeline.axisNumberOfBooks'),
             color: '#ffffff',
             font: {
               family: "'Inter', sans-serif",
@@ -190,7 +193,7 @@ export class CompletionTimelineChartComponent implements OnInit, OnDestroy {
       labels,
       datasets: [
         {
-          label: 'Completed',
+          label: this.t.translate('statsUser.completionTimeline.completed'),
           data: completedBooks,
           backgroundColor: 'rgba(106, 176, 76, 0.8)',
           borderColor: 'rgba(106, 176, 76, 1)',
@@ -200,7 +203,7 @@ export class CompletionTimelineChartComponent implements OnInit, OnDestroy {
           categoryPercentage: 0.6
         },
         {
-          label: 'Active Reading',
+          label: this.t.translate('statsUser.completionTimeline.activeReading'),
           data: activeReading,
           backgroundColor: 'rgba(59, 130, 246, 0.8)',
           borderColor: 'rgba(59, 130, 246, 1)',
@@ -210,7 +213,7 @@ export class CompletionTimelineChartComponent implements OnInit, OnDestroy {
           categoryPercentage: 0.6
         },
         {
-          label: 'Paused',
+          label: this.t.translate('statsUser.completionTimeline.paused'),
           data: pausedBooks,
           backgroundColor: 'rgba(255, 193, 7, 0.8)',
           borderColor: 'rgba(255, 193, 7, 1)',
@@ -220,7 +223,7 @@ export class CompletionTimelineChartComponent implements OnInit, OnDestroy {
           categoryPercentage: 0.6
         },
         {
-          label: 'Discontinued',
+          label: this.t.translate('statsUser.completionTimeline.discontinued'),
           data: discontinuedBooks,
           backgroundColor: 'rgba(239, 68, 68, 0.8)',
           borderColor: 'rgba(239, 68, 68, 1)',

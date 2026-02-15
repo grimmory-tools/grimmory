@@ -1,11 +1,12 @@
+<ng-container *transloco="let t; prefix: 'book.fileUploader'">
 <div class="additional-file-uploader-container">
   <div class="panel-header">
     <div class="header-icon-wrapper">
       <i class="pi pi-file-plus header-icon"></i>
     </div>
     <div class="header-text">
-      <h2 class="panel-title">Upload Additional File</h2>
-      <p class="panel-description">{{ book.metadata?.title || 'Unknown Title' }}</p>
+      <h2 class="panel-title">{{ t('title') }}</h2>
+      <p class="panel-description">{{ book.metadata?.title || t('unknownTitle') }}</p>
     </div>
     <p-button
       icon="pi pi-times"
@@ -24,18 +25,18 @@
     [(ngModel)]="fileType"
     optionLabel="label"
     optionValue="value"
-    placeholder="Select file type"
+    [placeholder]="t('selectFileType')"
     class="full-width"
     [disabled]="isUploading"
   ></p-select>
 
   <!-- Description Field -->
   <div class="description-field">
-    <label for="description" class="description-label">Description (Optional)</label>
+    <label for="description" class="description-label">{{ t('descriptionLabel') }}</label>
     <p-textarea
       [(ngModel)]="description"
       rows="3"
-      placeholder="Add a description for this file..."
+      [attr.placeholder]="t('descriptionPlaceholder')"
       class="full-width"
       [disabled]="isUploading"
     ></p-textarea>
@@ -98,7 +99,7 @@
                         <i
                           class="pi pi-spin pi-spinner status-icon"
                           style="color: slateblue"
-                          pTooltip="Uploading"
+                          [pTooltip]="t('statusUploading')"
                           tooltipPosition="top">
                         </i>
                       }
@@ -106,7 +107,7 @@
                         <i
                           class="pi pi-check status-icon"
                           style="color: green"
-                          pTooltip="Uploaded"
+                          [pTooltip]="t('statusUploaded')"
                           tooltipPosition="top">
                         </i>
                       }
@@ -114,7 +115,7 @@
                         <i
                           class="pi pi-exclamation-triangle status-icon"
                           style="color: darkred"
-                          pTooltip="{{ uploadFile.errorMessage || 'Upload failed' }}"
+                          [pTooltip]="uploadFile.errorMessage || t('statusUploadFailed')"
                           tooltipPosition="top">
                         </i>
                       }
@@ -131,12 +132,11 @@
     <ng-template #empty>
       <div class="empty-state">
         <i class="pi pi-cloud-upload empty-icon"></i>
-        <p class="empty-text">Drag and drop a file here to upload.</p>
-        <p class="empty-subtext">
-          Upload an additional file for <strong>{{ book.metadata?.title || 'this book' }}</strong>.
-        </p>
+        <p class="empty-text">{{ t('dragDropText') }}</p>
+        <p class="empty-subtext" [innerHTML]="t('uploadForBook', { title: book.metadata?.title || t('thisBook') })"></p>
       </div>
     </ng-template>
   </p-fileupload>
   </div>
 </div>
+</ng-container>

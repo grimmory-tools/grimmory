@@ -4,8 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.AppProperties;
 import org.booklore.config.security.JwtUtils;
+import org.booklore.config.security.userdetails.KoreaderUserDetails;
 import org.booklore.config.security.userdetails.OpdsUserDetails;
 import org.booklore.exception.ApiError;
+import org.booklore.mapper.custom.BookLoreUserTransformer;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.request.UserLoginRequest;
 import org.booklore.model.entity.BookLoreUserEntity;
@@ -26,6 +28,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.booklore.model.enums.AuditAction;
+import org.booklore.service.audit.AuditService;
 
 @Slf4j
 @AllArgsConstructor
@@ -39,6 +43,8 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
     private final DefaultSettingInitializer defaultSettingInitializer;
+    private final BookLoreUserTransformer bookLoreUserTransformer;
+    private final AuditService auditService;
 
     public BookLoreUser getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -52,7 +58,21 @@ public class AuthenticationService {
             }
             return user;
         }
-        throw new IllegalStateException("Authenticated principal is not of type BookLoreUser");
+        // Handle KoreaderUserDetails principal
+        if (principal instanceof KoreaderUserDetails koreaderDetails) {
+            Long bookLoreUserId = koreaderDetails.getBookLoreUserId();
+            if (bookLoreUserId == null) {
+                throw new IllegalStateException("KOReader user is not linked to a BookLore user");
+            }
+            BookLoreUserEntity userEntity = userRepository.findById(bookLoreUserId)
+                    .orElseThrow(() -> new IllegalStateException("BookLore user not found for KOReader user"));
+            BookLoreUser user = bookLoreUserTransformer.toDTO(userEntity);
+            if (user.getId() != null && user.getId() != -1L) {
+                defaultSettingInitializer.ensureDefaultSettings(user);
+            }
+            return user;
+        }
+        throw new IllegalStateException("Authenticated principal is not of type BookLoreUser or KoreaderUserDetails");
     }
 
     public BookLoreUser getSystemUser() {
@@ -87,9 +107,13 @@ public class AuthenticationService {
     }
 
     public ResponseEntity<Map<String, String>> loginUser(UserLoginRequest loginRequest) {
-        BookLoreUserEntity user = userRepository.findByUsername(loginRequest.getUsername()).orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(loginRequest.getUsername()));
+        BookLoreUserEntity user = userRepository.findByUsername(loginRequest.getUsername()).orElseThrow(() -> {
+            auditService.log(AuditAction.LOGIN_FAILED, "Login failed for unknown user: " + loginRequest.getUsername());
+            return ApiError.USER_NOT_FOUND.createException(loginRequest.getUsername());
+        });
 
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPasswordHash())) {
+            auditService.log(AuditAction.LOGIN_FAILED, "Login failed for user: " + loginRequest.getUsername());
             throw ApiError.INVALID_CREDENTIALS.createException();
         }
 
@@ -125,6 +149,7 @@ public class AuthenticationService {
                 .build();
 
         refreshTokenRepository.save(refreshTokenEntity);
+        auditService.log(AuditAction.LOGIN_SUCCESS, "User", user.getId(), "Login successful for user: " + user.getUsername());
 
         return ResponseEntity.ok(Map.of(
                 "accessToken", accessToken,

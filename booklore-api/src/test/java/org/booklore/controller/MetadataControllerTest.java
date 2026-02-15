@@ -8,6 +8,7 @@ import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.repository.BookRepository;
+import org.booklore.service.audit.AuditService;
 import org.booklore.service.metadata.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,6 +39,8 @@ class MetadataControllerTest {
     private BookRepository bookRepository;
     @Mock
     private MetadataManagementService metadataManagementService;
+    @Mock
+    private AuditService auditService;
 
     @InjectMocks
     private MetadataController metadataController;

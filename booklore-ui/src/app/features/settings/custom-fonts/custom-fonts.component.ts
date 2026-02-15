@@ -110,7 +110,7 @@ export class CustomFontsComponent implements OnInit {
             this.customFonts = this.customFonts.filter(f => f.id !== font.id);
             this.messageService.add({
               severity: 'success',
-              summary: 'Success',
+              summary: this.t.translate('common.success'),
               detail: this.t.translate('settingsReader.fonts.deleteSuccess', {name: font.fontName})
             });
           },

@@ -2,6 +2,7 @@ package org.booklore.service.task;
 
 import org.booklore.repository.TaskHistoryRepository;
 import org.booklore.model.entity.TaskHistoryEntity;
+import org.booklore.service.audit.AuditService;
 import org.booklore.task.TaskStatus;
 import org.booklore.model.dto.response.TasksHistoryResponse;
 import org.booklore.model.enums.TaskType;
@@ -22,6 +23,8 @@ class TaskHistoryServiceTest {
 
     @Mock
     private TaskHistoryRepository taskHistoryRepository;
+    @Mock
+    private AuditService auditService;
 
     @InjectMocks
     private TaskHistoryService taskHistoryService;

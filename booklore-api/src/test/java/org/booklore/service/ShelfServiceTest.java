@@ -2,6 +2,7 @@ package org.booklore.service;
 
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.mapper.ShelfMapper;
+import org.booklore.service.audit.AuditService;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.Shelf;
 import org.booklore.model.dto.request.ShelfCreateRequest;
@@ -38,6 +39,8 @@ class ShelfServiceTest {
     private AuthenticationService authenticationService;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private AuditService auditService;
 
     @InjectMocks
     private ShelfService shelfService;

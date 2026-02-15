@@ -1,29 +1,30 @@
+<ng-container *transloco="let t; prefix: 'statsUser.completionRace'">
 <div class="completion-race-container">
   <div class="chart-header">
     <div class="chart-title">
       <h3>
         <i class="pi pi-flag completion-race-icon"></i>
-        Reading Completion Race
+        {{ t('title') }}
         <i class="pi pi-question-circle chart-info-icon"
-           pTooltip="Each line represents a completed book's reading journey. The X-axis shows days since you started that book, and the Y-axis shows your progress from 0% to 100%. Steeper lines mean faster reads. Only books marked as 'Read' with tracked sessions are included."
+           [pTooltip]="t('tooltip')"
            tooltipPosition="bottom"
            tooltipStyleClass="chart-info-tooltip"
            [appendTo]="'body'"></i>
       </h3>
-      <p class="chart-description">Compare how quickly you finished different books</p>
+      <p class="chart-description">{{ t('description') }}</p>
     </div>
     <div class="year-selector">
       <button type="button"
               class="year-nav-btn"
               (click)="changeYear(-1)"
-              title="Previous year">
+              [title]="t('previousYear')">
         <i class="pi pi-chevron-left"></i>
       </button>
       <span class="current-year">{{ currentYear }}</span>
       <button type="button"
               class="year-nav-btn"
               (click)="changeYear(1)"
-              title="Next year">
+              [title]="t('nextYear')">
         <i class="pi pi-chevron-right"></i>
       </button>
     </div>
@@ -33,29 +34,29 @@
     <div class="stats-row">
       <div class="stat-card">
         <span class="stat-value">{{ totalBooks }}</span>
-        <span class="stat-label">Books</span>
+        <span class="stat-label">{{ t('books') }}</span>
       </div>
       <div class="stat-card">
         <span class="stat-value">{{ totalSessions }}</span>
-        <span class="stat-label">Sessions</span>
+        <span class="stat-label">{{ t('sessions') }}</span>
       </div>
       <div class="stat-card">
         <span class="stat-value">{{ avgDaysToFinish }}d</span>
-        <span class="stat-label">Avg Days</span>
+        <span class="stat-label">{{ t('avgDays') }}</span>
       </div>
       <div class="stat-card">
         <span class="stat-value">{{ medianDaysToFinish }}d</span>
-        <span class="stat-label">Median Days</span>
+        <span class="stat-label">{{ t('medianDays') }}</span>
       </div>
       <div class="stat-card fastest">
         <span class="stat-value">{{ fastestDays }}</span>
         <span class="stat-subtitle">{{ fastestTitle }}</span>
-        <span class="stat-label">Fastest</span>
+        <span class="stat-label">{{ t('fastest') }}</span>
       </div>
       <div class="stat-card slowest">
         <span class="stat-value">{{ slowestDays }}</span>
         <span class="stat-subtitle">{{ slowestTitle }}</span>
-        <span class="stat-label">Slowest</span>
+        <span class="stat-label">{{ t('slowest') }}</span>
       </div>
     </div>
   }
@@ -71,8 +72,9 @@
   @if (totalBooks === 0) {
     <div class="no-data-message">
       <i class="pi pi-info-circle"></i>
-      <p>No completed books with reading sessions found for {{ currentYear }}.</p>
-      <small>Complete some books with tracked reading sessions to see your completion races.</small>
+      <p>{{ t('noData', { year: currentYear }) }}</p>
+      <small>{{ t('noDataHint') }}</small>
     </div>
   }
 </div>
+</ng-container>

@@ -70,6 +70,34 @@ public enum RuleField {
     @JsonProperty("ageRating")
     AGE_RATING,
     @JsonProperty("contentRating")
-    CONTENT_RATING
+    CONTENT_RATING,
+    @JsonProperty("addedOn")
+    ADDED_ON,
+    @JsonProperty("lubimyczytacRating")
+    LUBIMYCZYTAC_RATING,
+    @JsonProperty("description")
+    DESCRIPTION,
+    @JsonProperty("narrator")
+    NARRATOR,
+    @JsonProperty("audibleRating")
+    AUDIBLE_RATING,
+    @JsonProperty("audibleReviewCount")
+    AUDIBLE_REVIEW_COUNT,
+    @JsonProperty("abridged")
+    ABRIDGED,
+    @JsonProperty("audiobookDuration")
+    AUDIOBOOK_DURATION,
+    @JsonProperty("isPhysical")
+    IS_PHYSICAL,
+    @JsonProperty("seriesStatus")
+    SERIES_STATUS,
+    @JsonProperty("seriesGaps")
+    SERIES_GAPS,
+    @JsonProperty("seriesPosition")
+    SERIES_POSITION,
+    @JsonProperty("readingProgress")
+    READING_PROGRESS,
+    @JsonProperty("metadataPresence")
+    METADATA_PRESENCE
 }
 

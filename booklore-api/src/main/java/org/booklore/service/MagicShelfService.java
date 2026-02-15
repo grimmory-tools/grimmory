@@ -5,6 +5,8 @@ import org.booklore.model.dto.MagicShelf;
 import org.booklore.model.entity.MagicShelfEntity;
 import org.booklore.repository.MagicShelfRepository;
 import lombok.AllArgsConstructor;
+import org.booklore.model.enums.AuditAction;
+import org.booklore.service.audit.AuditService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +19,7 @@ public class MagicShelfService {
 
     private final MagicShelfRepository magicShelfRepository;
     private final AuthenticationService authenticationService;
+    private final AuditService auditService;
 
     public List<MagicShelf> getUserShelves() {
         Long userId = authenticationService.getAuthenticatedUser().getId();
@@ -59,12 +62,16 @@ public class MagicShelfService {
             existing.setIconType(dto.getIconType());
             existing.setFilterJson(dto.getFilterJson());
             existing.setPublic(dto.getIsPublic());
-            return toDto(magicShelfRepository.save(existing));
+            MagicShelf result = toDto(magicShelfRepository.save(existing));
+            auditService.log(AuditAction.MAGIC_SHELF_UPDATED, "MagicShelf", dto.getId(), "Updated magic shelf: " + dto.getName());
+            return result;
         }
         if (magicShelfRepository.existsByUserIdAndName(userId, dto.getName())) {
             throw new IllegalArgumentException("A shelf with the same name already exists for this user.");
         }
-        return toDto(magicShelfRepository.save(toEntity(dto, userId)));
+        MagicShelf result = toDto(magicShelfRepository.save(toEntity(dto, userId)));
+        auditService.log(AuditAction.MAGIC_SHELF_CREATED, "MagicShelf", result.getId(), "Created magic shelf: " + dto.getName());
+        return result;
     }
 
     @Transactional
@@ -74,7 +81,9 @@ public class MagicShelfService {
         if (!shelf.getUserId().equals(userId)) {
             throw new SecurityException("You are not authorized to delete this shelf");
         }
+        String shelfName = shelf.getName();
         magicShelfRepository.deleteById(id);
+        auditService.log(AuditAction.MAGIC_SHELF_DELETED, "MagicShelf", id, "Deleted magic shelf: " + shelfName);
     }
 
     private MagicShelf toDto(MagicShelfEntity entity) {

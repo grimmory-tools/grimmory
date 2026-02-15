@@ -16,7 +16,7 @@ LABEL org.opencontainers.image.title="BookLore" \
       org.opencontainers.image.licenses="GPL-3.0" \
       org.opencontainers.image.base.name="docker.io/library/eclipse-temurin:25-jre-alpine"
 
-ENV JAVA_TOOL_OPTIONS="-XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
+ENV JAVA_TOOL_OPTIONS="-XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -XX:+UseContainerSupport -XX:+UseCompactObjectHeaders -XX:MaxRAMPercentage=75.0"
 
 RUN apk update && apk add --no-cache su-exec
 

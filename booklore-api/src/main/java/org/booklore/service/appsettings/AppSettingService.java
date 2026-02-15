@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
+import org.booklore.model.enums.AuditAction;
+import org.booklore.service.audit.AuditService;
 
 @Service
 @DependsOnDatabaseInitialization
@@ -28,14 +30,16 @@ public class AppSettingService {
     private final AppProperties appProperties;
     private final SettingPersistenceHelper settingPersistenceHelper;
     private final AuthenticationService authenticationService;
+    private final AuditService auditService;
 
     private volatile AppSettings appSettings;
     private final ReentrantLock lock = new ReentrantLock();
 
-    public AppSettingService(AppProperties appProperties, SettingPersistenceHelper settingPersistenceHelper, @Lazy AuthenticationService authenticationService) {
+    public AppSettingService(AppProperties appProperties, SettingPersistenceHelper settingPersistenceHelper, @Lazy AuthenticationService authenticationService, @Lazy AuditService auditService) {
         this.appProperties = appProperties;
         this.settingPersistenceHelper = settingPersistenceHelper;
         this.authenticationService = authenticationService;
+        this.auditService = auditService;
     }
 
     public AppSettings getAppSettings() {
@@ -66,6 +70,8 @@ public class AppSettingService {
         setting.setVal(settingPersistenceHelper.serializeSettingValue(key, val));
         settingPersistenceHelper.appSettingsRepository.save(setting);
         refreshCache();
+        AuditAction action = key.name().startsWith("OIDC_") ? AuditAction.OIDC_CONFIG_CHANGED : AuditAction.SETTINGS_UPDATED;
+        auditService.log(action, "Updated setting: " + key);
     }
 
     private void validatePermission(AppSettingKey key, BookLoreUser user) {

@@ -10,6 +10,7 @@ import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {PageTitleService} from "../../../../shared/service/page-title.service";
 import {BookService} from '../../../book/service/book.service';
+import {BookMetadataManageService} from '../../../book/service/book-metadata-manage.service';
 import {Book} from '../../../book/model/book.model';
 import {FormsModule} from '@angular/forms';
 import {Tooltip} from 'primeng/tooltip';
@@ -67,6 +68,7 @@ interface TabConfig {
 })
 export class MetadataManagerComponent implements OnInit, OnDestroy {
   private bookService = inject(BookService);
+  private bookMetadataManageService = inject(BookMetadataManageService);
   private messageService = inject(MessageService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -326,7 +328,7 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
 
     this.loading = true;
     this.mergingInProgress = true;
-    this.bookService.consolidateMetadata(this.currentMergeType, targetValues, [oldValue]).subscribe({
+    this.bookMetadataManageService.consolidateMetadata(this.currentMergeType, targetValues, [oldValue]).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',
@@ -403,7 +405,7 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
 
     this.loading = true;
     this.mergingInProgress = true;
-    this.bookService.consolidateMetadata(this.currentMergeType, targetValues, valuesToMerge).subscribe({
+    this.bookMetadataManageService.consolidateMetadata(this.currentMergeType, targetValues, valuesToMerge).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',
@@ -463,7 +465,7 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
 
     this.loading = true;
     this.deletingInProgress = true;
-    this.bookService.deleteMetadata(this.currentMergeType, valuesToDelete).subscribe({
+    this.bookMetadataManageService.deleteMetadata(this.currentMergeType, valuesToDelete).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',

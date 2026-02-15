@@ -1,5 +1,6 @@
 import {inject, Injectable} from '@angular/core';
 import {BookStateService} from './book-state.service';
+import {BookCacheService} from './book-cache.service';
 import {Book, BookMetadata} from '../model/book.model';
 
 @Injectable({
@@ -7,6 +8,7 @@ import {Book, BookMetadata} from '../model/book.model';
 })
 export class BookSocketService {
   private bookStateService = inject(BookStateService);
+  private bookCacheService = inject(BookCacheService);
 
   handleNewlyCreatedBook(book: Book): void {
     const currentState = this.bookStateService.getCurrentBookState();
@@ -18,12 +20,14 @@ export class BookSocketService {
       updatedBooks.push(book);
     }
     this.bookStateService.updateBookState({...currentState, books: updatedBooks});
+    this.bookCacheService.put(book);
   }
 
   handleRemovedBookIds(removedBookIds: number[]): void {
     const currentState = this.bookStateService.getCurrentBookState();
     const filteredBooks = (currentState.books || []).filter(book => !removedBookIds.includes(book.id));
     this.bookStateService.updateBookState({...currentState, books: filteredBooks});
+    this.bookCacheService.deleteMany(removedBookIds);
   }
 
   handleBookUpdate(updatedBook: Book): void {
@@ -32,6 +36,7 @@ export class BookSocketService {
       book.id === updatedBook.id ? updatedBook : book
     );
     this.bookStateService.updateBookState({...currentState, books: updatedBooks});
+    this.bookCacheService.put(updatedBook);
   }
 
   handleMultipleBookUpdates(updatedBooks: Book[]): void {
@@ -45,6 +50,7 @@ export class BookSocketService {
     );
 
     this.bookStateService.updateBookState({...currentState, books: mergedBooks});
+    this.bookCacheService.putAll(updatedBooks);
   }
 
   handleBookMetadataUpdate(bookId: number, updatedMetadata: BookMetadata): void {
@@ -53,19 +59,30 @@ export class BookSocketService {
       return book.id === bookId ? {...book, metadata: updatedMetadata} : book;
     });
     this.bookStateService.updateBookState({...currentState, books: updatedBooks});
+
+    // Mirror metadata update to cache
+    const updatedBook = updatedBooks.find(b => b.id === bookId);
+    if (updatedBook) {
+      this.bookCacheService.put(updatedBook);
+    }
   }
 
   handleMultipleBookCoverPatches(patches: { id: number; coverUpdatedOn: string }[]): void {
     if (!patches || patches.length === 0) return;
     const currentState = this.bookStateService.getCurrentBookState();
     const books = currentState.books || [];
+    const patchedBooks: Book[] = [];
     patches.forEach(p => {
       const index = books.findIndex(b => b.id === p.id);
       if (index !== -1 && books[index].metadata) {
         books[index].metadata.coverUpdatedOn = p.coverUpdatedOn;
+        patchedBooks.push(books[index]);
       }
     });
     this.bookStateService.updateBookState({...currentState, books});
+    if (patchedBooks.length > 0) {
+      this.bookCacheService.putAll(patchedBooks);
+    }
   }
 }
 

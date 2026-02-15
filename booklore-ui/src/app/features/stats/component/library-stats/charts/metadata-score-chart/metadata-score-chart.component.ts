@@ -8,6 +8,7 @@ import {LibraryFilterService} from '../../service/library-filter.service';
 import {BookService} from '../../../../../book/service/book.service';
 import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book} from '../../../../../book/model/book.model';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 interface ScoreRange {
   label: string;
@@ -25,24 +26,27 @@ interface ScoreStats {
 
 type ScoreChartData = ChartData<'doughnut', number[], string>;
 
-const SCORE_RANGES: ScoreRange[] = [
-  {label: 'Excellent (90-100%)', min: 90, max: 100, color: '#16A34A'},
-  {label: 'Good (70-89%)', min: 70, max: 89, color: '#22C55E'},
-  {label: 'Fair (50-69%)', min: 50, max: 69, color: '#F59E0B'},
-  {label: 'Poor (25-49%)', min: 25, max: 49, color: '#F97316'},
-  {label: 'Very Poor (0-24%)', min: 0, max: 24, color: '#DC2626'}
+const SCORE_RANGE_KEYS = ['excellent', 'good', 'fair', 'poor', 'veryPoor'] as const;
+
+const SCORE_RANGE_DEFS: { key: typeof SCORE_RANGE_KEYS[number]; min: number; max: number; color: string }[] = [
+  {key: 'excellent', min: 90, max: 100, color: '#16A34A'},
+  {key: 'good', min: 70, max: 89, color: '#22C55E'},
+  {key: 'fair', min: 50, max: 69, color: '#F59E0B'},
+  {key: 'poor', min: 25, max: 49, color: '#F97316'},
+  {key: 'veryPoor', min: 0, max: 24, color: '#DC2626'}
 ];
 
 @Component({
   selector: 'app-metadata-score-chart',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective],
+  imports: [CommonModule, BaseChartDirective, TranslocoDirective],
   templateUrl: './metadata-score-chart.component.html',
   styleUrls: ['./metadata-score-chart.component.scss']
 })
 export class MetadataScoreChartComponent implements OnInit, OnDestroy {
   private readonly bookService = inject(BookService);
   private readonly libraryFilterService = inject(LibraryFilterService);
+  private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
 
   public readonly chartType = 'doughnut' as const;
@@ -89,7 +93,7 @@ export class MetadataScoreChartComponent implements OnInit, OnDestroy {
             const value = context.parsed;
             const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
             const percentage = ((value / total) * 100).toFixed(1);
-            return `${value} books (${percentage}%)`;
+            return this.t.translate('statsLibrary.metadataScore.tooltipLabel', {value, percentage});
           }
         }
       },
@@ -182,15 +186,15 @@ export class MetadataScoreChartComponent implements OnInit, OnDestroy {
   private calculateScoreStats(books: Book[]): ScoreStats[] {
     const rangeCounts = new Map<string, { count: number, color: string }>();
 
-    SCORE_RANGES.forEach(range => {
-      rangeCounts.set(range.label, {count: 0, color: range.color});
+    SCORE_RANGE_DEFS.forEach(range => {
+      rangeCounts.set(range.key, {count: 0, color: range.color});
     });
 
     books.forEach(book => {
       const score = book.metadataMatchScore!;
-      for (const range of SCORE_RANGES) {
+      for (const range of SCORE_RANGE_DEFS) {
         if (score >= range.min && score <= range.max) {
-          const data = rangeCounts.get(range.label)!;
+          const data = rangeCounts.get(range.key)!;
           data.count++;
           break;
         }
@@ -198,11 +202,11 @@ export class MetadataScoreChartComponent implements OnInit, OnDestroy {
     });
 
     const total = books.length;
-    return SCORE_RANGES
+    return SCORE_RANGE_DEFS
       .map(range => {
-        const data = rangeCounts.get(range.label)!;
+        const data = rangeCounts.get(range.key)!;
         return {
-          range: range.label,
+          range: this.t.translate(`statsLibrary.metadataScore.${range.key}`),
           count: data.count,
           percentage: (data.count / total) * 100,
           color: data.color

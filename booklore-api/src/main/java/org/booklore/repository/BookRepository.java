@@ -118,6 +118,29 @@ public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpec
     @Query("SELECT COUNT(b) FROM BookEntity b WHERE b.deleted = TRUE")
     long countAllSoftDeleted();
 
+    @Query("SELECT COUNT(b), MAX(COALESCE(b.metadataUpdatedAt, b.addedOn)), MAX(b.addedOn) " +
+           "FROM BookEntity b WHERE b.deleted IS NULL OR b.deleted = false")
+    Object[] getBookStats();
+
+    @Query("SELECT COUNT(b), MAX(COALESCE(b.metadataUpdatedAt, b.addedOn)), MAX(b.addedOn) " +
+           "FROM BookEntity b WHERE b.library.id IN :libraryIds AND (b.deleted IS NULL OR b.deleted = false)")
+    Object[] getBookStatsByLibraryIds(@Param("libraryIds") Set<Long> libraryIds);
+
+    @Query("SELECT b.id FROM BookEntity b WHERE (b.deleted IS NULL OR b.deleted = false) " +
+           "AND (b.addedOn > :since OR b.metadataUpdatedAt > :since)")
+    Set<Long> findBookIdsModifiedSince(@Param("since") Instant since);
+
+    @Query("SELECT b.id FROM BookEntity b WHERE (b.deleted IS NULL OR b.deleted = false) " +
+           "AND (b.addedOn > :since OR b.metadataUpdatedAt > :since) AND b.library.id IN :libraryIds")
+    Set<Long> findBookIdsModifiedSinceByLibraryIds(@Param("since") Instant since, @Param("libraryIds") Set<Long> libraryIds);
+
+    @Query("SELECT b.id FROM BookEntity b WHERE b.deleted = true AND b.deletedAt > :since")
+    List<Long> findDeletedBookIdsSince(@Param("since") Instant since);
+
+    @Query("SELECT b.id FROM BookEntity b WHERE b.deleted = true AND b.deletedAt > :since " +
+           "AND b.library.id IN :libraryIds")
+    List<Long> findDeletedBookIdsSinceByLibraryIds(@Param("since") Instant since, @Param("libraryIds") Set<Long> libraryIds);
+
     @Query(value = """
         SELECT b.*
         FROM book b

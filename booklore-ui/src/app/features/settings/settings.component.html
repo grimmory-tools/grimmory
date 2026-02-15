@@ -46,6 +46,11 @@
                 <i class="pi pi-list-check"></i> {{ t('tasks') }}
               </p-tab>
             }
+            @if (userState.user.permissions.admin) {
+              <p-tab [value]="SettingsTab.AuditLogs">
+                <i class="pi pi-history"></i> {{ t('auditLogs') }}
+              </p-tab>
+            }
             <p-tab [value]="SettingsTab.OpdsV2">
               <i class="pi pi-globe"></i> {{ t('opds') }}
             </p-tab>
@@ -113,6 +118,13 @@
               <p-tabpanel [value]="SettingsTab.Tasks">
                 <ng-template #content>
                   <app-task-management></app-task-management>
+                </ng-template>
+              </p-tabpanel>
+            }
+            @if (userState.user.permissions.admin) {
+              <p-tabpanel [value]="SettingsTab.AuditLogs">
+                <ng-template #content>
+                  <app-audit-logs></app-audit-logs>
                 </ng-template>
               </p-tabpanel>
             }

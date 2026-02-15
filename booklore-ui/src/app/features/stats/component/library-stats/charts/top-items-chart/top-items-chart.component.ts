@@ -10,6 +10,7 @@ import {LibraryFilterService} from '../../service/library-filter.service';
 import {BookService} from '../../../../../book/service/book.service';
 import {Book, ReadStatus} from '../../../../../book/model/book.model';
 import {BookState} from '../../../../../book/model/state/book-state.model';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 interface ItemStats {
   name: string;
@@ -27,25 +28,37 @@ interface DataTypeOption {
 type DataType = 'authors' | 'categories' | 'publishers' | 'tags' | 'moods' | 'series';
 type ItemChartData = ChartData<'bar', number[], string>;
 
-const DATA_TYPE_OPTIONS: DataTypeOption[] = [
-  {label: 'Authors', value: 'authors', icon: 'pi-th-large', color: '#2563EB'},
-  {label: 'Categories', value: 'categories', icon: 'pi-user', color: '#0D9488'},
-  {label: 'Series', value: 'series', icon: 'pi-tag', color: '#DB2777'},
-  {label: 'Publishers', value: 'publishers', icon: 'pi-building', color: '#7C3AED'},
-  {label: 'Tags', value: 'tags', icon: 'pi-bookmark', color: '#EAB308'},
-  {label: 'Moods', value: 'moods', icon: 'pi-heart', color: '#EA580C'}
+const DATA_TYPE_DEFS: { key: string; value: DataType; icon: string; color: string }[] = [
+  {key: 'authors', value: 'authors', icon: 'pi-th-large', color: '#2563EB'},
+  {key: 'categories', value: 'categories', icon: 'pi-user', color: '#0D9488'},
+  {key: 'series', value: 'series', icon: 'pi-tag', color: '#DB2777'},
+  {key: 'publishers', value: 'publishers', icon: 'pi-building', color: '#7C3AED'},
+  {key: 'tags', value: 'tags', icon: 'pi-bookmark', color: '#EAB308'},
+  {key: 'moods', value: 'moods', icon: 'pi-heart', color: '#EA580C'}
 ];
 
-const READ_STATUS_CONFIG: Record<ReadStatus, { label: string; color: string }> = {
-  [ReadStatus.READ]: {label: 'Read', color: '#22c55e'},
-  [ReadStatus.READING]: {label: 'Reading', color: '#3b82f6'},
-  [ReadStatus.RE_READING]: {label: 'Re-reading', color: '#8b5cf6'},
-  [ReadStatus.UNREAD]: {label: 'Unread', color: '#6b7280'},
-  [ReadStatus.PARTIALLY_READ]: {label: 'Partially Read', color: '#f59e0b'},
-  [ReadStatus.PAUSED]: {label: 'Paused', color: '#eab308'},
-  [ReadStatus.WONT_READ]: {label: "Won't Read", color: '#ef4444'},
-  [ReadStatus.ABANDONED]: {label: 'Abandoned', color: '#dc2626'},
-  [ReadStatus.UNSET]: {label: 'Not Set', color: '#9ca3af'}
+const READ_STATUS_KEYS: Record<ReadStatus, string> = {
+  [ReadStatus.READ]: 'read',
+  [ReadStatus.READING]: 'reading',
+  [ReadStatus.RE_READING]: 'reReading',
+  [ReadStatus.UNREAD]: 'unread',
+  [ReadStatus.PARTIALLY_READ]: 'partiallyRead',
+  [ReadStatus.PAUSED]: 'paused',
+  [ReadStatus.WONT_READ]: 'wontRead',
+  [ReadStatus.ABANDONED]: 'abandoned',
+  [ReadStatus.UNSET]: 'notSet'
+};
+
+const READ_STATUS_COLORS: Record<ReadStatus, string> = {
+  [ReadStatus.READ]: '#22c55e',
+  [ReadStatus.READING]: '#3b82f6',
+  [ReadStatus.RE_READING]: '#8b5cf6',
+  [ReadStatus.UNREAD]: '#6b7280',
+  [ReadStatus.PARTIALLY_READ]: '#f59e0b',
+  [ReadStatus.PAUSED]: '#eab308',
+  [ReadStatus.WONT_READ]: '#ef4444',
+  [ReadStatus.ABANDONED]: '#dc2626',
+  [ReadStatus.UNSET]: '#9ca3af'
 };
 
 const READ_STATUS_ORDER: ReadStatus[] = [
@@ -63,7 +76,7 @@ const READ_STATUS_ORDER: ReadStatus[] = [
 @Component({
   selector: 'app-top-items-chart',
   standalone: true,
-  imports: [CommonModule, FormsModule, BaseChartDirective, Select],
+  imports: [CommonModule, FormsModule, BaseChartDirective, Select, TranslocoDirective],
   templateUrl: './top-items-chart.component.html',
   styleUrls: ['./top-items-chart.component.scss']
 })
@@ -73,8 +86,8 @@ export class TopItemsChartComponent implements OnInit, OnDestroy {
   public readonly chartType = 'bar' as const;
   public readonly chartData$: Observable<ItemChartData>;
   public chartOptions: ChartConfiguration<'bar'>['options'];
-  public dataTypeOptions = DATA_TYPE_OPTIONS;
-  public selectedDataType: DataTypeOption = DATA_TYPE_OPTIONS[0];
+  public dataTypeOptions: DataTypeOption[];
+  public selectedDataType: DataTypeOption;
 
   public totalItems = 0;
   public totalBooks = 0;
@@ -82,12 +95,20 @@ export class TopItemsChartComponent implements OnInit, OnDestroy {
 
   private readonly bookService = inject(BookService);
   private readonly libraryFilterService = inject(LibraryFilterService);
+  private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
   private readonly chartDataSubject: BehaviorSubject<ItemChartData>;
   private lastCalculatedStats: ItemStats[] = [];
   private allBooks: Book[] = [];
 
   constructor() {
+    this.dataTypeOptions = DATA_TYPE_DEFS.map(def => ({
+      label: this.t.translate(`statsLibrary.topItems.dataTypes.${def.key}`),
+      value: def.value,
+      icon: def.icon,
+      color: def.color
+    }));
+    this.selectedDataType = this.dataTypeOptions[0];
     this.chartDataSubject = new BehaviorSubject<ItemChartData>({
       labels: [],
       datasets: []
@@ -98,7 +119,7 @@ export class TopItemsChartComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (this.initialDataType) {
-      const initialOption = DATA_TYPE_OPTIONS.find(opt => opt.value === this.initialDataType);
+      const initialOption = this.dataTypeOptions.find(opt => opt.value === this.initialDataType);
       if (initialOption) {
         this.selectedDataType = initialOption;
         this.initChartOptions();
@@ -162,7 +183,7 @@ export class TopItemsChartComponent implements OnInit, OnDestroy {
           border: {display: false},
           title: {
             display: true,
-            text: 'Number of Books',
+            text: this.t.translate('statsLibrary.topItems.axisNumberOfBooks'),
             color: '#ffffff',
             font: {
               family: "'Inter', sans-serif",
@@ -264,12 +285,13 @@ export class TopItemsChartComponent implements OnInit, OnDestroy {
       const datasets = READ_STATUS_ORDER
         .filter(status => stats.some(s => s.statusBreakdown[status] > 0))
         .map(status => {
-          const config = READ_STATUS_CONFIG[status];
+          const statusKey = READ_STATUS_KEYS[status];
+          const color = READ_STATUS_COLORS[status];
           return {
-            label: config.label,
+            label: this.t.translate(`statsLibrary.topItems.readStatus.${statusKey}`),
             data: stats.map(s => s.statusBreakdown[status]),
-            backgroundColor: config.color,
-            borderColor: config.color,
+            backgroundColor: color,
+            borderColor: color,
             borderWidth: 1,
             borderRadius: 4,
             barPercentage: 0.85,
@@ -295,14 +317,13 @@ export class TopItemsChartComponent implements OnInit, OnDestroy {
     if (stats.length === 0) return;
 
     const typeName = this.selectedDataType.label.toLowerCase().slice(0, -1); // Remove 's' for singular
-    const typeNamePlural = this.selectedDataType.label.toLowerCase();
 
     // 1. Top item
     const top = stats[0];
     this.insights.push({
       icon: 'pi-trophy',
-      label: `Top ${typeName}`,
-      value: `${top.name} (${top.count} books)`
+      label: this.t.translate('statsLibrary.topItems.insightTop', {type: typeName}),
+      value: this.t.translate('statsLibrary.topItems.insightTopValue', {name: top.name, count: top.count})
     });
 
     // 2. Most completed - highest read percentage
@@ -317,8 +338,8 @@ export class TopItemsChartComponent implements OnInit, OnDestroy {
       if (readPct > 0) {
         this.insights.push({
           icon: 'pi-check-circle',
-          label: 'Most completed',
-          value: `${mostRead.name} (${readPct}% read)`
+          label: this.t.translate('statsLibrary.topItems.insightMostCompleted'),
+          value: this.t.translate('statsLibrary.topItems.insightMostCompletedValue', {name: mostRead.name, percent: readPct})
         });
       }
     }
@@ -331,8 +352,8 @@ export class TopItemsChartComponent implements OnInit, OnDestroy {
         const concentration = Math.round((top5Books / totalAllBooks) * 100);
         this.insights.push({
           icon: 'pi-chart-pie',
-          label: 'Top 5 coverage',
-          value: `${concentration}% of library`
+          label: this.t.translate('statsLibrary.topItems.insightTop5Coverage'),
+          value: this.t.translate('statsLibrary.topItems.insightTop5CoverageValue', {percent: concentration})
         });
       }
     }
@@ -342,8 +363,8 @@ export class TopItemsChartComponent implements OnInit, OnDestroy {
       const avgBooks = (this.totalBooks / stats.length).toFixed(1);
       this.insights.push({
         icon: 'pi-book',
-        label: `Avg per ${typeName}`,
-        value: `${avgBooks} books`
+        label: this.t.translate('statsLibrary.topItems.insightAvgPer', {type: typeName}),
+        value: this.t.translate('statsLibrary.topItems.insightAvgPerValue', {avg: avgBooks})
       });
     }
   }
@@ -445,10 +466,10 @@ export class TopItemsChartComponent implements OnInit, OnDestroy {
       return '';
     }
 
-    const statusLabel = context.dataset.label || 'Books';
-    const bookText = value === 1 ? 'book' : 'books';
-
-    return `${statusLabel}: ${value} ${bookText}`;
+    const statusLabel = context.dataset.label || this.t.translate('statsLibrary.pageCount.axisBooks');
+    return value === 1
+      ? this.t.translate('statsLibrary.topItems.tooltipBook', {status: statusLabel, value})
+      : this.t.translate('statsLibrary.topItems.tooltipBooks', {status: statusLabel, value});
   }
 
   private truncateTitle(title: string, maxLength: number): string {

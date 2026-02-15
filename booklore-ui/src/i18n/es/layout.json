@@ -11,6 +11,7 @@
     "logout": "Cerrar sesión",
     "language": "Idioma",
     "supportBookLore": "Apoyar BookLore",
+    "notificationAriaLabel": "Icono de notificación unificado",
     "createLibrary": "Crear biblioteca",
     "stats": "Estadísticas",
     "libraryStats": "Estadísticas de biblioteca",
@@ -24,6 +25,7 @@
     "shelves": "Estantes",
     "magicShelves": "Estantes mágicos",
     "unshelved": "Sin estante",
+    "notebook": "Cuaderno",
     "update": "(Actualizar)"
   },
   "changelog": {

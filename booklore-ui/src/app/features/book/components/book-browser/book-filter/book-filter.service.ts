@@ -204,7 +204,7 @@ export class BookFilterService {
     if (!magicShelf.filterJson) return [];
     try {
       const groupRule = JSON.parse(magicShelf.filterJson) as GroupRule;
-      return books.filter(book => this.bookRuleEvaluatorService.evaluateGroup(book, groupRule));
+      return books.filter(book => this.bookRuleEvaluatorService.evaluateGroup(book, groupRule, books));
     } catch {
       console.warn('Invalid filterJson for MagicShelf');
       return [];

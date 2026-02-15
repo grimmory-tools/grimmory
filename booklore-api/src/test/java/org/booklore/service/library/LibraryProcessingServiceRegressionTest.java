@@ -1,5 +1,6 @@
 package org.booklore.service.library;
 
+import org.booklore.model.dto.settings.LibraryFile;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.LibraryEntity;
 import org.booklore.model.entity.LibraryPathEntity;
@@ -89,7 +90,7 @@ class LibraryProcessingServiceRegressionTest {
 
         when(libraryRepository.findById(libraryId)).thenReturn(Optional.of(libraryEntity));
         when(libraryFileHelper.getLibraryFiles(libraryEntity)).thenReturn(List.of(
-            org.booklore.model.dto.settings.LibraryFile.builder()
+            LibraryFile.builder()
                 .libraryPathEntity(pathEntity)
                 .fileName("other.epub")
                 .fileSubPath("")

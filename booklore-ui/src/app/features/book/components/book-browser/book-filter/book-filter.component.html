@@ -1,7 +1,8 @@
+<ng-container *transloco="let t; prefix: 'book.filter'">
 <div class="book-filter-container">
 
   <div class="filter-header">
-    <span class="filter-title">Filters</span>
+    <span class="filter-title">{{ t('title') }}</span>
     <p-selectButton
       [options]="filterModeOptions"
       [(ngModel)]="selectedFilterMode"
@@ -21,7 +22,7 @@
               <p-accordion-header>
             <span class="filter-type-label">
               <span class="filter-label-text">
-                {{ filterLabels[filterType] || (filterType | titlecase) }}
+                {{ getFilterLabel(filterType) }}
               </span>
               @if (activeFilters[filterType]?.length) {
                 <span class="active-filter-count">
@@ -50,7 +51,7 @@
                   </cdk-virtual-scroll-viewport>
                   @if (truncatedFilters[filterType]) {
                     <div class="truncation-notice">
-                      Showing first 100 items
+                      {{ t('showingFirst100') }}
                     </div>
                   }
                 }
@@ -62,7 +63,8 @@
     </p-accordion>
 
     <div class="footer-notice">
-      Note: Top 100 items are displayed per filter category
+      {{ t('footerNote') }}
     </div>
   </div>
 </div>
+</ng-container>

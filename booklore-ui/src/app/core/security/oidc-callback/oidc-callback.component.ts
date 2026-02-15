@@ -1,8 +1,8 @@
 import {Component, inject, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {OAuthService} from 'angular-oauth2-oidc';
-import {AuthService} from '../../../shared/service/auth.service';
 import {MessageService} from 'primeng/api';
+import {TranslocoService} from '@jsverse/transloco';
 
 @Component({
   selector: 'app-oidc-callback',
@@ -13,6 +13,7 @@ export class OidcCallbackComponent implements OnInit {
   private router = inject(Router);
   private oauthService = inject(OAuthService);
   private messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
 
   async ngOnInit(): Promise<void> {
     try {
@@ -26,8 +27,8 @@ export class OidcCallbackComponent implements OnInit {
       console.error('[OIDC Callback] Login failed', e);
       this.messageService.add({
         severity: 'error',
-        summary: 'OIDC Login Failed',
-        detail: 'Redirecting to local login...',
+        summary: this.t.translate('auth.oidc.loginFailedSummary'),
+        detail: this.t.translate('auth.oidc.redirectingDetail'),
         life: 3000
       });
       setTimeout(() => {

@@ -1,5 +1,6 @@
-import {Component, EventEmitter, Output} from '@angular/core';
+import {Component, EventEmitter, inject, Output} from '@angular/core';
 import {CommonModule} from '@angular/common';
+import {TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {ReaderIconComponent} from '../shared/icon.component';
 
 interface ShortcutItem {
@@ -16,49 +17,53 @@ interface ShortcutGroup {
 @Component({
   selector: 'app-ebook-shortcuts-help',
   standalone: true,
-  imports: [CommonModule, ReaderIconComponent],
+  imports: [CommonModule, TranslocoPipe, ReaderIconComponent],
   templateUrl: './shortcuts-help.component.html',
   styleUrls: ['./shortcuts-help.component.scss']
 })
 export class EbookShortcutsHelpComponent {
   @Output() close = new EventEmitter<void>();
 
-  shortcutGroups: ShortcutGroup[] = [
-    {
-      title: 'Navigation',
-      shortcuts: [
-        {keys: ['←'], description: 'Previous page', mobileGesture: 'Swipe right'},
-        {keys: ['→'], description: 'Next page', mobileGesture: 'Swipe left'},
-        {keys: ['Space'], description: 'Next page'},
-        {keys: ['Shift', 'Space'], description: 'Previous page'},
-        {keys: ['Home'], description: 'First section'},
-        {keys: ['End'], description: 'Last section'},
-        {keys: ['Page Up'], description: 'Previous page'},
-        {keys: ['Page Down'], description: 'Next page'}
-      ]
-    },
-    {
-      title: 'Panels',
-      shortcuts: [
-        {keys: ['T'], description: 'Table of contents'},
-        {keys: ['S'], description: 'Search'},
-        {keys: ['N'], description: 'Notes'}
-      ]
-    },
-    {
-      title: 'Display',
-      shortcuts: [
-        {keys: ['F'], description: 'Toggle fullscreen'},
-        {keys: ['Escape'], description: 'Exit fullscreen / Close dialogs'}
-      ]
-    },
-    {
-      title: 'Other',
-      shortcuts: [
-        {keys: ['?'], description: 'Show this help dialog'}
-      ]
-    }
-  ];
+  private readonly t = inject(TranslocoService);
+
+  get shortcutGroups(): ShortcutGroup[] {
+    return [
+      {
+        title: this.t.translate('readerEbook.shortcutsHelp.navigation'),
+        shortcuts: [
+          {keys: ['\u2190'], description: this.t.translate('readerEbook.shortcutsHelp.previousPage'), mobileGesture: this.t.translate('readerEbook.shortcutsHelp.swipeRight')},
+          {keys: ['\u2192'], description: this.t.translate('readerEbook.shortcutsHelp.nextPage'), mobileGesture: this.t.translate('readerEbook.shortcutsHelp.swipeLeft')},
+          {keys: ['Space'], description: this.t.translate('readerEbook.shortcutsHelp.nextPage')},
+          {keys: ['Shift', 'Space'], description: this.t.translate('readerEbook.shortcutsHelp.previousPage')},
+          {keys: ['Home'], description: this.t.translate('readerEbook.shortcutsHelp.firstSection')},
+          {keys: ['End'], description: this.t.translate('readerEbook.shortcutsHelp.lastSection')},
+          {keys: ['Page Up'], description: this.t.translate('readerEbook.shortcutsHelp.previousPage')},
+          {keys: ['Page Down'], description: this.t.translate('readerEbook.shortcutsHelp.nextPage')}
+        ]
+      },
+      {
+        title: this.t.translate('readerEbook.shortcutsHelp.panels'),
+        shortcuts: [
+          {keys: ['T'], description: this.t.translate('readerEbook.shortcutsHelp.tableOfContents')},
+          {keys: ['S'], description: this.t.translate('readerEbook.shortcutsHelp.searchShortcut')},
+          {keys: ['N'], description: this.t.translate('readerEbook.shortcutsHelp.notesShortcut')}
+        ]
+      },
+      {
+        title: this.t.translate('readerEbook.shortcutsHelp.display'),
+        shortcuts: [
+          {keys: ['F'], description: this.t.translate('readerEbook.shortcutsHelp.toggleFullscreen')},
+          {keys: ['Escape'], description: this.t.translate('readerEbook.shortcutsHelp.exitFullscreenCloseDialogs')}
+        ]
+      },
+      {
+        title: this.t.translate('readerEbook.shortcutsHelp.other'),
+        shortcuts: [
+          {keys: ['?'], description: this.t.translate('readerEbook.shortcutsHelp.showHelpDialog')}
+        ]
+      }
+    ];
+  }
 
   isMobile = window.innerWidth < 768;
 

@@ -2,10 +2,12 @@ package org.booklore.repository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.booklore.BookloreApplication;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.entity.LibraryEntity;
 import org.booklore.model.entity.LibraryPathEntity;
+import org.booklore.service.task.TaskCronService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,11 +21,12 @@ import java.time.Instant;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 
 
 @SpringBootTest(classes = {
-        org.booklore.BookloreApplication.class
+        BookloreApplication.class
 })
 @Transactional
 @TestPropertySource(properties = {
@@ -57,13 +60,13 @@ class BookOpdsRepositoryDataJpaTest {
         @Bean("flyway")
         @Primary
         public org.flywaydb.core.Flyway flyway() {
-            return org.mockito.Mockito.mock(org.flywaydb.core.Flyway.class);
+            return mock(org.flywaydb.core.Flyway.class);
         }
-        
+
         @Bean
         @Primary
-        public org.booklore.service.task.TaskCronService taskCronService() {
-            return org.mockito.Mockito.mock(org.booklore.service.task.TaskCronService.class);
+        public TaskCronService taskCronService() {
+            return mock(TaskCronService.class);
         }
     }
 

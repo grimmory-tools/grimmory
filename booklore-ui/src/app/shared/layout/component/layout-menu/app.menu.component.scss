@@ -4,6 +4,44 @@
   height: 100%;
 }
 
+.home-menu-section {
+  position: relative;
+
+  .sidebar-width-btn {
+    position: absolute;
+    top: 0.125rem;
+    right: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--p-surface-500);
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: var(--p-primary-color);
+    }
+  }
+}
+
+.sidebar-width-popover {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 200px;
+  padding: 0.25rem;
+
+  .sidebar-width-popover-label {
+    font-size: 0.8rem;
+    color: var(--p-text-muted-color);
+    white-space: nowrap;
+    min-width: 38px;
+    text-align: right;
+  }
+
+  p-slider {
+    flex: 1;
+  }
+}
+
 .version-info {
   padding: 1rem;
   text-align: center;

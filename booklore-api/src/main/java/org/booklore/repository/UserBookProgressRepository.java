@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -19,6 +20,14 @@ public interface UserBookProgressRepository extends JpaRepository<UserBookProgre
     Optional<UserBookProgressEntity> findByUserIdAndBookId(Long userId, Long bookId);
 
     List<UserBookProgressEntity> findByUserIdAndBookIdIn(Long userId, Set<Long> bookIds);
+
+    @Query("SELECT MAX(COALESCE(ubp.lastReadTime, ubp.readStatusModifiedTime)) " +
+           "FROM UserBookProgressEntity ubp WHERE ubp.user.id = :userId")
+    Instant getMaxProgressTimestamp(@Param("userId") Long userId);
+
+    @Query("SELECT ubp.book.id FROM UserBookProgressEntity ubp WHERE ubp.user.id = :userId " +
+           "AND (ubp.lastReadTime > :since OR ubp.readStatusModifiedTime > :since)")
+    Set<Long> findBookIdsWithProgressChangedSince(@Param("userId") Long userId, @Param("since") Instant since);
 
     @Query("""
         SELECT ubp FROM UserBookProgressEntity ubp

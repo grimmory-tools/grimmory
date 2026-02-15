@@ -83,6 +83,8 @@
     "unlockAllBtn": "Desbloquear todo",
     "lockAllBtn": "Bloquear todo",
     "saveBtn": "Guardar",
+    "fetchFromFileBtn": "Del archivo",
+    "fetchFromFileTooltip": "Cargar metadatos incrustados en el archivo del libro",
     "previousBookTooltip": "Ir al libro anterior",
     "nextBookTooltip": "Ir al libro siguiente",
     "autoFetchTooltip": "Obtener metadatos automáticamente usando fuentes predeterminadas",
@@ -98,6 +100,7 @@
     "contentRatingAdult": "Adulto",
     "contentRatingExplicit": "Explícito",
     "ageRatingAllAges": "Todas las edades",
+    "selectPlaceholder": "Seleccionar",
     "toast": {
       "successSummary": "Éxito",
       "metadataUpdated": "Metadatos del libro actualizados",
@@ -125,7 +128,9 @@
       "customAudiobookCoverGenerated": "Portada personalizada del audiolibro generada correctamente.",
       "customAudiobookCoverPartialDetail": "Portada generada pero no se pudo actualizar la visualización. Por favor recarga la página.",
       "customAudiobookCoverFailed": "Error al generar portada personalizada del audiolibro",
-      "audiobookUploadFailed": "Ocurrió un error al subir la portada del audiolibro"
+      "audiobookUploadFailed": "Ocurrió un error al subir la portada del audiolibro",
+      "fileMetadataLoaded": "Metadatos cargados del archivo del libro. Revisa y guarda.",
+      "fileMetadataFailed": "Error al extraer metadatos del archivo del libro"
     }
   },
   "picker": {

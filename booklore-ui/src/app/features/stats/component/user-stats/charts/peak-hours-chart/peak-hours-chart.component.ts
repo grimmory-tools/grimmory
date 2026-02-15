@@ -8,13 +8,14 @@ import {Select} from 'primeng/select';
 import {Tooltip} from 'primeng/tooltip';
 import {FormsModule} from '@angular/forms';
 import {PeakHoursResponse, UserStatsService} from '../../../../../settings/user-management/user-stats.service';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 type PeakHoursChartData = ChartData<'line', number[], string>;
 
 @Component({
   selector: 'app-peak-hours-chart',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective, Select, FormsModule, Tooltip],
+  imports: [CommonModule, BaseChartDirective, Select, FormsModule, Tooltip, TranslocoDirective],
   templateUrl: './peak-hours-chart.component.html',
   styleUrls: ['./peak-hours-chart.component.scss']
 })
@@ -24,27 +25,14 @@ export class PeakHoursChartComponent implements OnInit, OnDestroy {
   public readonly chartOptions: ChartConfiguration['options'];
 
   private readonly userStatsService = inject(UserStatsService);
+  private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
   private readonly chartDataSubject: BehaviorSubject<PeakHoursChartData>;
 
   public selectedYear: number | null = null;
   public selectedMonth: number | null = null;
   public yearOptions: { label: string; value: number | null }[] = [];
-  public monthOptions: { label: string; value: number | null }[] = [
-    {label: 'All Months', value: null},
-    {label: 'January', value: 1},
-    {label: 'February', value: 2},
-    {label: 'March', value: 3},
-    {label: 'April', value: 4},
-    {label: 'May', value: 5},
-    {label: 'June', value: 6},
-    {label: 'July', value: 7},
-    {label: 'August', value: 8},
-    {label: 'September', value: 9},
-    {label: 'October', value: 10},
-    {label: 'November', value: 11},
-    {label: 'December', value: 12}
-  ];
+  public monthOptions: { label: string; value: number | null }[] = [];
 
   constructor() {
     this.chartDataSubject = new BehaviorSubject<PeakHoursChartData>({
@@ -86,10 +74,12 @@ export class PeakHoursChartComponent implements OnInit, OnDestroy {
             label: (context) => {
               const label = context.dataset.label || '';
               const value = context.parsed.y;
-              if (label === 'Sessions') {
-                return `${label}: ${value} session${value !== 1 ? 's' : ''}`;
+              const sessionsLabel = this.t.translate('statsUser.peakHours.sessions');
+              if (label === sessionsLabel) {
+                const key = value !== 1 ? 'statsUser.peakHours.tooltipSessionsPlural' : 'statsUser.peakHours.tooltipSessions';
+                return this.t.translate(key, {label, value});
               } else {
-                return `${label}: ${value} min`;
+                return this.t.translate('statsUser.peakHours.tooltipMin', {label, value});
               }
             }
           }
@@ -100,7 +90,7 @@ export class PeakHoursChartComponent implements OnInit, OnDestroy {
         x: {
           title: {
             display: true,
-            text: 'Hour of Day',
+            text: this.t.translate('statsUser.peakHours.axisHourOfDay'),
             color: '#ffffff',
             font: {
               family: "'Inter', sans-serif",
@@ -123,7 +113,7 @@ export class PeakHoursChartComponent implements OnInit, OnDestroy {
           position: 'left',
           title: {
             display: true,
-            text: 'Number of Sessions',
+            text: this.t.translate('statsUser.peakHours.axisNumberOfSessions'),
             color: 'rgba(34, 197, 94, 0.9)',
             font: {
               family: "'Inter', sans-serif",
@@ -148,7 +138,7 @@ export class PeakHoursChartComponent implements OnInit, OnDestroy {
           position: 'right',
           title: {
             display: true,
-            text: 'Avg Duration (min)',
+            text: this.t.translate('statsUser.peakHours.axisAvgDuration'),
             color: 'rgba(251, 191, 36, 0.9)',
             font: {
               family: "'Inter', sans-serif",
@@ -185,10 +175,15 @@ export class PeakHoursChartComponent implements OnInit, OnDestroy {
 
   private initializeYearOptions(): void {
     const currentYear = new Date().getFullYear();
-    this.yearOptions = [{label: 'All Years', value: null}];
+    this.yearOptions = [{label: this.t.translate('statsUser.peakHours.allYears'), value: null}];
     for (let year = currentYear; year >= currentYear - 10; year--) {
       this.yearOptions.push({label: year.toString(), value: year});
     }
+    const monthKeys = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+    this.monthOptions = [
+      {label: this.t.translate('statsUser.peakHours.allMonths'), value: null},
+      ...monthKeys.map((key, i) => ({label: this.t.translate(`statsUser.peakHours.${key}`), value: i + 1}))
+    ];
   }
 
   public onFilterChange(): void {
@@ -239,7 +234,7 @@ export class PeakHoursChartComponent implements OnInit, OnDestroy {
       labels,
       datasets: [
         {
-          label: 'Sessions',
+          label: this.t.translate('statsUser.peakHours.sessions'),
           data: sessionCounts,
           borderColor: 'rgba(34, 197, 94, 0.9)',
           backgroundColor: 'rgba(34, 197, 94, 0.1)',
@@ -254,7 +249,7 @@ export class PeakHoursChartComponent implements OnInit, OnDestroy {
           yAxisID: 'y'
         },
         {
-          label: 'Avg Duration (min)',
+          label: this.t.translate('statsUser.peakHours.avgDurationMin'),
           data: avgDurations,
           borderColor: 'rgba(251, 191, 36, 0.9)',
           backgroundColor: 'rgba(251, 191, 36, 0.1)',

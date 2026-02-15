@@ -27,6 +27,9 @@ categories:
     labels:
       - 'bug'
       - 'fix'
+  - title: '⚡ Performance'
+    labels:
+      - 'performance'
   - title: '🛠️ Refactoring & Maintenance'
     labels:
       - 'refactor'

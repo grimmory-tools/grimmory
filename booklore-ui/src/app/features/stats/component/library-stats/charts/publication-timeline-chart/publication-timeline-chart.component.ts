@@ -8,6 +8,7 @@ import {LibraryFilterService} from '../../service/library-filter.service';
 import {BookService} from '../../../../../book/service/book.service';
 import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book} from '../../../../../book/model/book.model';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 interface DecadeStats {
   decade: string;
@@ -52,13 +53,14 @@ const DECADE_COLORS: Record<string, string> = {
 @Component({
   selector: 'app-publication-timeline-chart',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective],
+  imports: [CommonModule, BaseChartDirective, TranslocoDirective],
   templateUrl: './publication-timeline-chart.component.html',
   styleUrls: ['./publication-timeline-chart.component.scss']
 })
 export class PublicationTimelineChartComponent implements OnInit, OnDestroy {
   private readonly bookService = inject(BookService);
   private readonly libraryFilterService = inject(LibraryFilterService);
+  private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
 
   public readonly chartType = 'bar' as const;
@@ -128,7 +130,7 @@ export class PublicationTimelineChartComponent implements OnInit, OnDestroy {
           border: {display: false},
           title: {
             display: true,
-            text: 'Number of Books',
+            text: this.t.translate('statsLibrary.publicationTimeline.axisNumberOfBooks'),
             color: '#ffffff',
             font: {
               family: "'Inter', sans-serif",
@@ -169,8 +171,9 @@ export class PublicationTimelineChartComponent implements OnInit, OnDestroy {
           callbacks: {
             label: (context) => {
               const value = context.parsed.x;
-              const bookText = value === 1 ? 'book' : 'books';
-              return `${value} ${bookText}`;
+              return value === 1
+                ? this.t.translate('statsLibrary.publicationTimeline.tooltipBook', {value})
+                : this.t.translate('statsLibrary.publicationTimeline.tooltipBooks', {value});
             }
           }
         },

@@ -1,6 +1,7 @@
 import {inject, Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
 import {MessageService} from 'primeng/api';
+import {TranslocoService} from '@jsverse/transloco';
 import {TableColumnPreference, UserService} from '../../../settings/user-management/user.service';
 
 @Injectable({
@@ -9,37 +10,21 @@ import {TableColumnPreference, UserService} from '../../../settings/user-managem
 export class TableColumnPreferenceService {
   private readonly userService = inject(UserService);
   private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
 
   private readonly preferencesSubject = new BehaviorSubject<TableColumnPreference[]>([]);
   readonly preferences$ = this.preferencesSubject.asObservable();
 
-  private readonly allAvailableColumns = [
-    {field: 'readStatus', header: 'Read'},
-    {field: 'title', header: 'Title'},
-    {field: 'authors', header: 'Authors'},
-    {field: 'publisher', header: 'Publisher'},
-    {field: 'seriesName', header: 'Series'},
-    {field: 'seriesNumber', header: 'Series #'},
-    {field: 'categories', header: 'Genres'},
-    {field: 'publishedDate', header: 'Published'},
-    {field: 'lastReadTime', header: 'Last Read'},
-    {field: 'addedOn', header: 'Added'},
-    {field: 'fileName', header: 'File Name'},
-    {field: 'fileSizeKb', header: 'File Size'},
-    {field: 'language', header: 'Language'},
-    {field: 'isbn', header: 'ISBN'},
-    {field: 'pageCount', header: 'Pages'},
-    {field: 'amazonRating', header: 'Amazon'},
-    {field: 'amazonReviewCount', header: 'AZ #'},
-    {field: 'goodreadsRating', header: 'Goodreads'},
-    {field: 'goodreadsReviewCount', header: 'GR #'},
-    {field: 'hardcoverRating', header: 'Hardcover'},
-    {field: 'hardcoverReviewCount', header: 'HC #'},
-    {field: 'ranobedbRating', header: 'Ranobedb'},
+  private readonly allAvailableFields = [
+    'readStatus', 'title', 'authors', 'publisher', 'seriesName', 'seriesNumber',
+    'categories', 'publishedDate', 'lastReadTime', 'addedOn', 'fileName', 'fileSizeKb',
+    'language', 'isbn', 'pageCount', 'amazonRating', 'amazonReviewCount',
+    'goodreadsRating', 'goodreadsReviewCount', 'hardcoverRating', 'hardcoverReviewCount',
+    'ranobedbRating',
   ];
 
-  private readonly fallbackPreferences: TableColumnPreference[] = this.allAvailableColumns.map((col, index) => ({
-    field: col.field,
+  private readonly fallbackPreferences: TableColumnPreference[] = this.allAvailableFields.map((field, index) => ({
+    field,
     visible: true,
     order: index
   }));
@@ -50,7 +35,10 @@ export class TableColumnPreferenceService {
   }
 
   get allColumns(): { field: string; header: string }[] {
-    return this.allAvailableColumns;
+    return this.allAvailableFields.map(field => ({
+      field,
+      header: this.t.translate(`book.columnPref.columns.${field}`)
+    }));
   }
 
   get visibleColumns(): { field: string; header: string }[] {
@@ -59,7 +47,7 @@ export class TableColumnPreferenceService {
       .sort((a, b) => a.order - b.order)
       .map(pref => ({
         field: pref.field,
-        header: this.getColumnHeader(pref.field)
+        header: this.t.translate(`book.columnPref.columns.${pref.field}`)
       }));
   }
 
@@ -70,11 +58,11 @@ export class TableColumnPreferenceService {
   saveVisibleColumns(selectedColumns: { field: string }[]): void {
     const selectedFieldSet = new Set(selectedColumns.map(c => c.field));
 
-    const updatedPreferences: TableColumnPreference[] = this.allAvailableColumns.map((col, index) => {
-      const selectionIndex = selectedColumns.findIndex(c => c.field === col.field);
+    const updatedPreferences: TableColumnPreference[] = this.allAvailableFields.map((field, index) => {
+      const selectionIndex = selectedColumns.findIndex(c => c.field === field);
       return {
-        field: col.field,
-        visible: selectedFieldSet.has(col.field),
+        field,
+        visible: selectedFieldSet.has(field),
         order: selectionIndex >= 0 ? selectionIndex : index
       };
     });
@@ -88,23 +76,19 @@ export class TableColumnPreferenceService {
 
     this.messageService.add({
       severity: 'success',
-      summary: 'Preferences Saved',
-      detail: 'Your column layout has been saved.',
+      summary: this.t.translate('book.columnPref.toast.savedSummary'),
+      detail: this.t.translate('book.columnPref.toast.savedDetail'),
       life: 1500
     });
-  }
-
-  private getColumnHeader(field: string): string {
-    return this.allAvailableColumns.find(col => col.field === field)?.header ?? field;
   }
 
   private mergeWithAllColumns(savedPrefs: TableColumnPreference[]): TableColumnPreference[] {
     const savedPrefMap = new Map(savedPrefs.map(p => [p.field, p]));
 
-    return this.allAvailableColumns.map((col, index) => {
-      const saved = savedPrefMap.get(col.field);
+    return this.allAvailableFields.map((field, index) => {
+      const saved = savedPrefMap.get(field);
       return {
-        field: col.field,
+        field,
         visible: saved?.visible ?? true,
         order: saved?.order ?? index
       };

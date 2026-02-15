@@ -114,5 +114,12 @@
     "prefsUpdated": "Preferences Updated",
     "metaCenterSaved": "Your metadata center view preference has been saved.",
     "seriesViewSaved": "Your series view mode preference has been saved."
+  },
+  "layout": {
+    "sectionTitle": "Layout",
+    "sidebarWidth": "Sidebar Width: {{value}}px",
+    "sidebarWidthDesc": "Controls the width of the navigation sidebar and the book filter panel.",
+    "saved": "Preferences Updated",
+    "savedDetail": "Your sidebar width preference has been saved."
   }
 }

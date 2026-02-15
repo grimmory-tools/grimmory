@@ -7,16 +7,18 @@ import {Rating} from 'primeng/rating';
 import {Tag} from 'primeng/tag';
 import {Button} from 'primeng/button';
 import {ConfirmationService, MessageService} from 'primeng/api';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {UserService} from '../../../settings/user-management/user.service';
 import {FormsModule} from '@angular/forms';
 import {Tooltip} from 'primeng/tooltip';
 import {BookService} from '../../service/book.service';
+import {BookMetadataManageService} from '../../service/book-metadata-manage.service';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 
 @Component({
   selector: 'app-book-reviews',
   standalone: true,
-  imports: [ProgressSpinner, Rating, Tag, Button, FormsModule, Tooltip],
+  imports: [ProgressSpinner, Rating, Tag, Button, FormsModule, Tooltip, TranslocoDirective],
   templateUrl: './book-reviews.component.html',
   styleUrl: './book-reviews.component.scss'
 })
@@ -27,11 +29,13 @@ export class BookReviewsComponent implements OnInit, OnChanges {
 
   private reviewService = inject(BookReviewService);
   private bookService = inject(BookService);
+  private bookMetadataManageService = inject(BookMetadataManageService);
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
   private userService = inject(UserService);
   private appSettingsService = inject(AppSettingsService);
   private destroyRef = inject(DestroyRef);
+  private readonly t = inject(TranslocoService);
 
   loading = false;
   hasPermission = false;
@@ -84,8 +88,8 @@ export class BookReviewsComponent implements OnInit, OnChanges {
 
           this.messageService.add({
             severity: 'error',
-            summary: 'Failed to Load Reviews',
-            detail: 'Could not load reviews for this book.',
+            summary: this.t.translate('book.reviews.toast.loadFailedSummary'),
+            detail: this.t.translate('book.reviews.toast.loadFailedDetail'),
             life: 3000
           });
         }
@@ -107,8 +111,8 @@ export class BookReviewsComponent implements OnInit, OnChanges {
           this.updateSpoilerState();
           this.messageService.add({
             severity: 'success',
-            summary: 'Reviews Updated',
-            detail: 'Latest reviews have been fetched successfully.',
+            summary: this.t.translate('book.reviews.toast.reviewsUpdatedSummary'),
+            detail: this.t.translate('book.reviews.toast.reviewsUpdatedDetail'),
             life: 3000
           });
         },
@@ -117,8 +121,8 @@ export class BookReviewsComponent implements OnInit, OnChanges {
           this.loading = false;
           this.messageService.add({
             severity: 'error',
-            summary: 'Fetch Failed',
-            detail: 'Could not fetch new reviews for this book.',
+            summary: this.t.translate('book.reviews.toast.fetchFailedSummary'),
+            detail: this.t.translate('book.reviews.toast.fetchFailedDetail'),
             life: 3000
           });
         }
@@ -129,8 +133,8 @@ export class BookReviewsComponent implements OnInit, OnChanges {
     if (!this.reviews || this.reviews.length === 0 || this.reviewsLocked) return;
 
     this.confirmationService.confirm({
-      message: `Are you sure you want to delete all ${this.reviews.length} reviews for this book? This action cannot be undone.`,
-      header: 'Confirm Delete All',
+      message: this.t.translate('book.reviews.confirm.deleteAllMessage', {count: this.reviews.length}),
+      header: this.t.translate('book.reviews.confirm.deleteAllHeader'),
       icon: 'pi pi-exclamation-triangle',
       acceptIcon: 'pi pi-trash',
       rejectIcon: 'pi pi-times',
@@ -145,8 +149,8 @@ export class BookReviewsComponent implements OnInit, OnChanges {
             this.allSpoilersRevealed = false;
             this.messageService.add({
               severity: 'success',
-              summary: 'All Reviews Deleted',
-              detail: 'All reviews have been successfully deleted.',
+              summary: this.t.translate('book.reviews.toast.allDeletedSummary'),
+              detail: this.t.translate('book.reviews.toast.allDeletedDetail'),
               life: 3000
             });
           },
@@ -154,8 +158,8 @@ export class BookReviewsComponent implements OnInit, OnChanges {
             console.error('Failed to delete all reviews:', error);
             this.messageService.add({
               severity: 'error',
-              summary: 'Delete Failed',
-              detail: 'Could not delete all reviews.',
+              summary: this.t.translate('book.reviews.toast.deleteAllFailedSummary'),
+              detail: this.t.translate('book.reviews.toast.deleteAllFailedDetail'),
               life: 3000
             });
           }
@@ -196,17 +200,14 @@ export class BookReviewsComponent implements OnInit, OnChanges {
       'reviewsLocked': newLockState ? 'LOCK' : 'UNLOCK'
     };
 
-    this.bookService.toggleFieldLocks([this.bookId], fieldActions)
+    this.bookMetadataManageService.toggleFieldLocks([this.bookId], fieldActions)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          const action = newLockState ? 'locked' : 'unlocked';
           this.messageService.add({
             severity: 'info',
-            summary: `Reviews ${action.charAt(0).toUpperCase() + action.slice(1)}`,
-            detail: newLockState
-              ? 'Reviews are now protected from modifications and refreshes.'
-              : 'Reviews can now be modified and refreshed.',
+            summary: this.t.translate(newLockState ? 'book.reviews.toast.lockedSummary' : 'book.reviews.toast.unlockedSummary'),
+            detail: this.t.translate(newLockState ? 'book.reviews.toast.lockedDetail' : 'book.reviews.toast.unlockedDetail'),
             life: 3000
           });
         },
@@ -214,8 +215,8 @@ export class BookReviewsComponent implements OnInit, OnChanges {
           console.error('Failed to toggle lock status:', error);
           this.messageService.add({
             severity: 'error',
-            summary: 'Lock Toggle Failed',
-            detail: 'Could not change the lock status for reviews.',
+            summary: this.t.translate('book.reviews.toast.lockFailedSummary'),
+            detail: this.t.translate('book.reviews.toast.lockFailedDetail'),
             life: 3000
           });
         }
@@ -255,8 +256,8 @@ export class BookReviewsComponent implements OnInit, OnChanges {
     if (!review.id || this.reviewsLocked) return;
 
     this.confirmationService.confirm({
-      message: `Are you sure you want to delete this review by ${review.reviewerName || 'Anonymous'}?`,
-      header: 'Confirm Deletion',
+      message: this.t.translate('book.reviews.confirm.deleteMessage', {reviewer: review.reviewerName || 'Anonymous'}),
+      header: this.t.translate('book.reviews.confirm.deleteHeader'),
       icon: 'pi pi-exclamation-triangle',
       acceptIcon: 'pi pi-trash',
       rejectIcon: 'pi pi-times',
@@ -268,8 +269,8 @@ export class BookReviewsComponent implements OnInit, OnChanges {
             this.updateSpoilerState();
             this.messageService.add({
               severity: 'success',
-              summary: 'Review Deleted',
-              detail: 'The review has been successfully deleted.',
+              summary: this.t.translate('book.reviews.toast.deleteSuccessSummary'),
+              detail: this.t.translate('book.reviews.toast.deleteSuccessDetail'),
               life: 2000
             });
           },
@@ -277,8 +278,8 @@ export class BookReviewsComponent implements OnInit, OnChanges {
             console.error('Failed to delete review:', error);
             this.messageService.add({
               severity: 'error',
-              summary: 'Delete Failed',
-              detail: 'Could not delete the review.',
+              summary: this.t.translate('book.reviews.toast.deleteFailedSummary'),
+              detail: this.t.translate('book.reviews.toast.deleteFailedDetail'),
               life: 3000
             });
           }

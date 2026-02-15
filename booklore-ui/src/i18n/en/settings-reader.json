@@ -125,6 +125,10 @@
     "black": "Black",
     "white": "White"
   },
+  "toast": {
+    "preferencesUpdated": "Preferences Updated",
+    "preferencesUpdatedDetail": "Your preferences have been saved successfully."
+  },
   "fonts": {
     "sectionTitle": "Custom Font Library",
     "sectionDesc": "Personalize your reading experience by uploading custom fonts to use with eBook formats (EPUB, FB2, MOBI, AZW3). Upload up to 10 custom font files that will be available for selection in the eBook reader settings.",

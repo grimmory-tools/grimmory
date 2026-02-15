@@ -8,6 +8,7 @@ import org.booklore.model.entity.ShelfEntity;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.OpdsSortOrder;
 import org.booklore.service.MagicShelfService;
+import org.booklore.util.ArchiveUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
@@ -480,7 +481,7 @@ class OpdsFeedServiceTest {
         BookFile bookFile = BookFile.builder()
                 .bookType(BookFileType.CBX)
                 .fileName("comic.cbz")
-                .archiveType(org.booklore.util.ArchiveUtils.ArchiveType.UNKNOWN)
+                .archiveType(ArchiveUtils.ArchiveType.UNKNOWN)
                 .build();
 
         String mimeType = (String) method.invoke(opdsFeedService, bookFile);
@@ -495,7 +496,7 @@ class OpdsFeedServiceTest {
         BookFile bookFile = BookFile.builder()
                 .bookType(BookFileType.CBX)
                 .fileName("comic.cbr")
-                .archiveType(org.booklore.util.ArchiveUtils.ArchiveType.UNKNOWN)
+                .archiveType(ArchiveUtils.ArchiveType.UNKNOWN)
                 .build();
 
         String mimeType = (String) method.invoke(opdsFeedService, bookFile);

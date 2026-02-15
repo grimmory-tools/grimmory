@@ -8,6 +8,7 @@ import {LibraryFilterService} from '../../service/library-filter.service';
 import {BookService} from '../../../../../book/service/book.service';
 import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book} from '../../../../../book/model/book.model';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 interface TrendInsights {
   peakYear: number;
@@ -32,13 +33,14 @@ type TrendChartData = ChartData<'line', number[], string>;
 @Component({
   selector: 'app-publication-trend-chart',
   standalone: true,
-  imports: [CommonModule, BaseChartDirective],
+  imports: [CommonModule, BaseChartDirective, TranslocoDirective],
   templateUrl: './publication-trend-chart.component.html',
   styleUrls: ['./publication-trend-chart.component.scss']
 })
 export class PublicationTrendChartComponent implements OnInit, OnDestroy {
   private readonly bookService = inject(BookService);
   private readonly libraryFilterService = inject(LibraryFilterService);
+  private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
 
   public readonly chartType = 'line' as const;
@@ -109,7 +111,7 @@ export class PublicationTrendChartComponent implements OnInit, OnDestroy {
           border: {display: false},
           title: {
             display: true,
-            text: 'Publication Year',
+            text: this.t.translate('statsLibrary.publicationTrend.axisPublicationYear'),
             color: '#ffffff',
             font: {
               family: "'Inter', sans-serif",
@@ -135,7 +137,7 @@ export class PublicationTrendChartComponent implements OnInit, OnDestroy {
           border: {display: false},
           title: {
             display: true,
-            text: 'Books',
+            text: this.t.translate('statsLibrary.publicationTrend.axisBooks'),
             color: '#ffffff',
             font: {
               family: "'Inter', sans-serif",
@@ -161,11 +163,12 @@ export class PublicationTrendChartComponent implements OnInit, OnDestroy {
           titleFont: {size: 13, weight: 'bold'},
           bodyFont: {size: 11},
           callbacks: {
-            title: (context) => `Year ${context[0].label}`,
+            title: (context) => this.t.translate('statsLibrary.publicationTrend.tooltipTitle', {year: context[0].label}),
             label: (context) => {
               const value = context.parsed.y;
-              const bookText = value === 1 ? 'book' : 'books';
-              return `${value} ${bookText} published`;
+              return value === 1
+                ? this.t.translate('statsLibrary.publicationTrend.tooltipBook', {value})
+                : this.t.translate('statsLibrary.publicationTrend.tooltipBooks', {value});
             }
           }
         },

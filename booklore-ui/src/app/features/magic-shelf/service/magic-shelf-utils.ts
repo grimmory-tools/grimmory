@@ -11,7 +11,13 @@ export const EMPTY_CHECK_OPERATORS: RuleOperator[] = [
   'is_not_empty'
 ];
 
-export function parseValue(val: unknown, type: 'string' | 'number' | 'decimal' | 'date' | undefined): unknown {
+export const RELATIVE_DATE_OPERATORS: RuleOperator[] = [
+  'within_last',
+  'older_than',
+  'this_period'
+];
+
+export function parseValue(val: unknown, type: 'string' | 'number' | 'decimal' | 'date' | 'boolean' | undefined): unknown {
   if (val == null) return null;
   if (type === 'number' || type === 'decimal') {
     const num = Number(val);
@@ -48,8 +54,9 @@ export function serializeDateRules(ruleOrGroup: unknown): unknown {
     };
   }
 
-  const rule = ruleOrGroup as { field?: string; value?: unknown; valueStart?: unknown; valueEnd?: unknown; [key: string]: unknown };
-  const isDateField = rule.field === 'publishedDate' || rule.field === 'dateFinished';
+  const rule = ruleOrGroup as { field?: string; operator?: string; value?: unknown; valueStart?: unknown; valueEnd?: unknown; [key: string]: unknown };
+  const isRelativeDateOp = RELATIVE_DATE_OPERATORS.includes(rule.operator as RuleOperator);
+  const isDateField = !isRelativeDateOp && (rule.field === 'publishedDate' || rule.field === 'dateFinished' || rule.field === 'addedOn' || rule.field === 'lastReadTime');
   const serialize = (val: unknown) => (val instanceof Date ? val.toISOString().split('T')[0] : val);
 
   return {

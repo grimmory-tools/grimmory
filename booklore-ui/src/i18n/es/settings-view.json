@@ -114,5 +114,12 @@
     "prefsUpdated": "Preferencias actualizadas",
     "metaCenterSaved": "Tu preferencia de vista del centro de metadatos se ha guardado.",
     "seriesViewSaved": "Tu preferencia de modo de vista de series se ha guardado."
+  },
+  "layout": {
+    "sectionTitle": "Diseño",
+    "sidebarWidth": "Ancho de la barra lateral: {{value}}px",
+    "sidebarWidthDesc": "Controla el ancho de la barra de navegación lateral y del panel de filtros de libros.",
+    "saved": "Preferencias actualizadas",
+    "savedDetail": "Tu preferencia de ancho de la barra lateral se ha guardado."
   }
 }

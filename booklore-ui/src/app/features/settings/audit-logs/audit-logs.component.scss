@@ -1,0 +1,122 @@
+@use '../../../shared/styles/settings-shared' as settings;
+
+.main-container {
+  @include settings.settings-page-container;
+}
+
+@include settings.settings-page-header;
+
+.settings-title {
+  @include settings.settings-page-title;
+  margin-bottom: 0.75rem;
+}
+
+.settings-description {
+  @include settings.settings-page-description;
+}
+
+.settings-card {
+  @include settings.settings-card;
+  gap: 1rem;
+}
+
+.section-header {
+  @include settings.settings-section-header;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.section-title {
+  @include settings.settings-section-title;
+}
+
+.section-body {
+  @include settings.settings-section-body;
+  padding-left: 0;
+}
+
+.filter-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+::ng-deep .action-filter {
+  min-width: 180px;
+}
+
+::ng-deep .user-filter {
+  min-width: 140px;
+}
+
+::ng-deep .date-range-filter {
+  min-width: 220px;
+}
+
+::ng-deep .p-datatable-table {
+  table-layout: fixed;
+}
+
+.action-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &.action-danger {
+    background: color-mix(in srgb, var(--p-red-500) 15%, transparent);
+    color: var(--p-red-400);
+  }
+
+  &.action-success {
+    background: color-mix(in srgb, var(--p-green-500) 15%, transparent);
+    color: var(--p-green-400);
+  }
+
+  &.action-info {
+    background: color-mix(in srgb, var(--p-primary-color) 15%, transparent);
+    color: var(--p-primary-color);
+  }
+
+  &.action-warning {
+    background: color-mix(in srgb, var(--p-orange-500) 15%, transparent);
+    color: var(--p-orange-400);
+  }
+}
+
+.timestamp-cell {
+  white-space: nowrap;
+  font-size: 0.875rem;
+  color: var(--p-text-muted-color);
+}
+
+.description-cell {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ip-cell {
+  font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+  font-size: 0.8rem;
+  color: var(--p-text-muted-color);
+}
+
+::ng-deep .p-datatable.p-datatable-sm .p-datatable-tbody > tr > td.empty-message {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--p-text-muted-color);
+
+  .pi {
+    display: block;
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+}

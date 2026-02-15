@@ -3,6 +3,7 @@ import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {Subject} from 'rxjs';
 import {takeUntil, debounceTime, distinctUntilChanged, filter} from 'rxjs/operators';
+import {TranslocoDirective} from '@jsverse/transloco';
 import {ReaderLeftSidebarService, LeftSidebarTab} from './panel.service';
 import {BookNoteV2} from '../../../../../shared/service/book-note-v2.service';
 import {SearchState, SearchResult} from '../sidebar/sidebar.service';
@@ -13,7 +14,7 @@ import {ReaderIconComponent} from '../../shared/icon.component';
   standalone: true,
   templateUrl: './panel.component.html',
   styleUrls: ['./panel.component.scss'],
-  imports: [CommonModule, FormsModule, ReaderIconComponent]
+  imports: [CommonModule, FormsModule, TranslocoDirective, ReaderIconComponent]
 })
 export class ReaderLeftSidebarComponent implements OnInit, OnDestroy {
   private leftSidebarService = inject(ReaderLeftSidebarService);

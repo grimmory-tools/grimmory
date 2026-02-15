@@ -2,6 +2,7 @@ package org.booklore.service;
 
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.mapper.OpdsUserV2Mapper;
+import org.booklore.service.audit.AuditService;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.OpdsUserV2;
 import org.booklore.model.dto.request.OpdsUserV2CreateRequest;
@@ -40,6 +41,8 @@ class OpdsUserV2ServiceTest {
     private OpdsUserV2Mapper mapper;
     @Mock
     private PasswordEncoder passwordEncoder;
+    @Mock
+    private AuditService auditService;
 
     @InjectMocks
     private OpdsUserV2Service service;

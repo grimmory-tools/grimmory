@@ -1,15 +1,16 @@
+<ng-container *transloco="let t; prefix: 'book.shelfAssigner'">
 <div class="shelf-assigner">
   <div class="panel-header">
     <div class="header-icon-wrapper">
       <i class="pi pi-bookmark header-icon"></i>
     </div>
     <div class="header-text">
-      <h2 class="panel-title">Assign Books to Shelves</h2>
+      <h2 class="panel-title">{{ t('title') }}</h2>
       <p class="panel-description">
         @if (isMultiBooks) {
-          Select shelves for {{ bookIds.size }} {{ bookIds.size === 1 ? 'book' : 'books' }}
+          {{ t('descriptionMulti', { count: bookIds.size }) }}
         } @else {
-          Organize "{{ book.metadata?.title }}" into your shelves
+          {{ t('descriptionSingle', { title: book.metadata?.title }) }}
         }
       </p>
     </div>
@@ -29,7 +30,7 @@
         <div class="list-header">
           <span class="shelf-count">
             <i class="pi pi-bookmark"></i>
-            {{ (shelfState$ | async)!.shelves!.length }} {{ (shelfState$ | async)!.shelves!.length === 1 ? 'shelf' : 'shelves' }} available
+            {{ t('shelvesAvailable', { count: (shelfState$ | async)!.shelves!.length }) }}
           </span>
         </div>
 
@@ -68,18 +69,15 @@
         <div class="empty-icon-wrapper">
           <i class="pi pi-bookmark empty-icon"></i>
         </div>
-        <h3 class="empty-title">No Shelves Available</h3>
-        <p class="empty-description">
-          Create your first shelf to start organizing your books.<br/>
-          Click the button below to get started.
-        </p>
+        <h3 class="empty-title">{{ t('emptyTitle') }}</h3>
+        <p class="empty-description" [innerHTML]="t('emptyDescription')"></p>
       </div>
     }
   </div>
 
   <div class="dialog-footer">
     <p-button
-      label="Create Shelf"
+      [label]="t('createShelf')"
       icon="pi pi-plus"
       [outlined]="true"
       severity="info"
@@ -87,13 +85,13 @@
     />
     <div class="footer-actions">
       <p-button
-        label="Cancel"
+        [label]="t('cancelButton')"
         severity="secondary"
         [outlined]="true"
         (onClick)="closeDialog()"
       />
       <p-button
-        label="Save Changes"
+        [label]="t('saveChanges')"
         icon="pi pi-check"
         severity="success"
         (onClick)="updateBooksShelves()"
@@ -101,3 +99,4 @@
     </div>
   </div>
 </div>
+</ng-container>

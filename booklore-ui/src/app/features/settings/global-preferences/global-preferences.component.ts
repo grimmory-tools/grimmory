@@ -6,7 +6,7 @@ import {ToggleSwitch} from 'primeng/toggleswitch';
 import {MessageService} from 'primeng/api';
 
 import {AppSettingsService} from '../../../shared/service/app-settings.service';
-import {BookService} from '../../book/service/book.service';
+import {BookMetadataManageService} from '../../book/service/book-metadata-manage.service';
 import {AppSettingKey, AppSettings, CoverCroppingSettings} from '../../../shared/model/app-settings.model';
 import {filter, take} from 'rxjs/operators';
 import {InputText} from 'primeng/inputtext';
@@ -46,7 +46,7 @@ export class GlobalPreferencesComponent implements OnInit {
   };
 
   private appSettingsService = inject(AppSettingsService);
-  private bookService = inject(BookService);
+  private bookMetadataManageService = inject(BookMetadataManageService);
   private messageService = inject(MessageService);
   private t = inject(TranslocoService);
 
@@ -98,7 +98,7 @@ export class GlobalPreferencesComponent implements OnInit {
   }
 
   regenerateCovers(): void {
-    this.bookService.regenerateCovers().subscribe({
+    this.bookMetadataManageService.regenerateCovers().subscribe({
       next: () =>
         this.showMessage('success', this.t.translate('settingsApp.covers.regenerateStarted'), this.t.translate('settingsApp.covers.regenerateStartedDetail')),
       error: () =>

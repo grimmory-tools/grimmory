@@ -11,7 +11,7 @@ import {Button} from 'primeng/button';
 import {Tooltip} from 'primeng/tooltip';
 import {Image} from 'primeng/image';
 import {UrlHelperService} from '../../../../../../shared/service/url-helper.service';
-import {BookService} from '../../../../../book/service/book.service';
+import {BookMetadataManageService} from '../../../../../book/service/book-metadata-manage.service';
 import {TranslocoDirective} from '@jsverse/transloco';
 
 export interface ReadEvent {
@@ -76,7 +76,7 @@ export class MetadataTabsComponent {
   @Input() recommendedBooks: BookRecommendation[] = [];
 
   protected urlHelper = inject(UrlHelperService);
-  private bookService = inject(BookService);
+  private bookMetadataManageService = inject(BookMetadataManageService);
 
   @Output() readBook = new EventEmitter<ReadEvent>();
   @Output() downloadBook = new EventEmitter<DownloadEvent>();
@@ -172,6 +172,6 @@ export class MetadataTabsComponent {
   }
 
   supportsDualCovers(): boolean {
-    return this.bookService.supportsDualCovers(this.book);
+    return this.bookMetadataManageService.supportsDualCovers(this.book);
   }
 }

@@ -1,6 +1,7 @@
 import {inject, Injectable} from '@angular/core';
 import {BehaviorSubject, Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
+import {TranslocoService} from '@jsverse/transloco';
 import {CbxPageInfo, CbxReaderService} from '../../../../book/service/cbx-reader.service';
 import {UrlHelperService} from '../../../../../shared/service/url-helper.service';
 import {Book} from '../../../../book/model/book.model';
@@ -22,6 +23,7 @@ export class CbxSidebarService {
   private cbxReaderService = inject(CbxReaderService);
   private bookMarkService = inject(BookMarkService);
   private bookNoteV2Service = inject(BookNoteV2Service);
+  private readonly t = inject(TranslocoService);
 
   private destroy$ = new Subject<void>();
   private bookId!: number;
@@ -63,7 +65,7 @@ export class CbxSidebarService {
 
     this._bookInfo.next({
       id: book.id,
-      title: book.metadata?.title || book.fileName || 'Untitled',
+      title: book.metadata?.title || book.fileName || this.t.translate('readerCbx.sidebar.untitled'),
       authors: (book.metadata?.authors || []).join(', '),
       coverUrl: this.urlHelper.getThumbnailUrl(book.id, book.metadata?.coverUpdatedOn)
     });
@@ -129,7 +131,7 @@ export class CbxSidebarService {
     const request: CreateBookMarkRequest = {
       bookId: this.bookId,
       cfi: pageNumber.toString(),
-      title: title || `Page ${pageNumber}`
+      title: title || `${this.t.translate('readerCbx.sidebar.page')} ${pageNumber}`
     };
 
     this.bookMarkService.createBookmark(request)
@@ -177,7 +179,7 @@ export class CbxSidebarService {
       cfi: pageNumber.toString(),
       noteContent,
       color: color || '#FFC107',
-      chapterTitle: `Page ${pageNumber}`
+      chapterTitle: `${this.t.translate('readerCbx.sidebar.page')} ${pageNumber}`
     };
 
     this.bookNoteV2Service.createNote(request)

@@ -3,6 +3,7 @@ package org.booklore.service;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookLoreUser;
+import org.booklore.model.dto.settings.AppSettings;
 import org.booklore.model.dto.kobo.KoboBookMetadata;
 import org.booklore.model.dto.kobo.KoboTag;
 import org.booklore.model.dto.kobo.KoboTagWrapper;
@@ -144,8 +145,8 @@ class KoboEntitlementServiceTest {
         return book;
     }
 
-    private org.booklore.model.dto.settings.AppSettings createAppSettingsWithKoboSettings() {
-        var appSettings = new org.booklore.model.dto.settings.AppSettings();
+    private AppSettings createAppSettingsWithKoboSettings() {
+        var appSettings = new AppSettings();
         KoboSettings koboSettings = KoboSettings.builder()
                 .convertCbxToEpub(true)
                 .conversionLimitInMbForCbx(50)

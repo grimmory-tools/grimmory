@@ -1,6 +1,7 @@
 package org.booklore.controller;
 
 import org.booklore.model.dto.request.ReadingSessionRequest;
+import org.booklore.model.dto.response.ReadingSessionCreatedResponse;
 import org.booklore.model.dto.response.ReadingSessionResponse;
 import org.booklore.service.ReadingSessionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,9 +26,12 @@ public class ReadingSessionController {
             @ApiResponse(responseCode = "400", description = "Invalid payload")
     })
     @PostMapping
-    public ResponseEntity<Void> recordReadingSession(@RequestBody @Valid ReadingSessionRequest request) {
-        readingSessionService.recordSession(request);
-        return ResponseEntity.accepted().build();
+    public ResponseEntity<ReadingSessionCreatedResponse> recordReadingSession(@RequestBody @Valid ReadingSessionRequest request) {
+        Long sessionId = readingSessionService.recordSession(request);
+        ReadingSessionCreatedResponse response = ReadingSessionCreatedResponse.builder()
+                .sessionId(sessionId)
+                .build();
+        return ResponseEntity.accepted().body(response);
     }
 
     @Operation(summary = "Get reading sessions for a book", description = "Returns paginated reading sessions for a specific book for the authenticated user")

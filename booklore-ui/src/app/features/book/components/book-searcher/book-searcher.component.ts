@@ -13,6 +13,7 @@ import {Router} from '@angular/router';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
 import {HeaderFilter} from '../book-browser/filters/HeaderFilter';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 @Component({
   selector: 'app-book-searcher',
@@ -24,7 +25,8 @@ import {HeaderFilter} from '../book-browser/filters/HeaderFilter';
     SlicePipe,
     Divider,
     IconField,
-    InputIcon
+    InputIcon,
+    TranslocoDirective,
   ],
   styleUrls: ['./book-searcher.component.scss'],
   standalone: true
@@ -39,6 +41,7 @@ export class BookSearcherComponent implements OnInit, OnDestroy {
   private bookService = inject(BookService);
   private router = inject(Router);
   protected urlHelper = inject(UrlHelperService);
+  private readonly t = inject(TranslocoService);
   private headerFilter = new HeaderFilter(this.#searchSubject.asObservable());
 
   ngOnInit(): void {
@@ -56,7 +59,7 @@ export class BookSearcherComponent implements OnInit, OnDestroy {
   }
 
   getAuthorNames(authors: string[] | undefined): string {
-    return authors?.join(', ') || 'Unknown Author';
+    return authors?.join(', ') || this.t.translate('book.searcher.unknownAuthor');
   }
 
   getPublishedYear(publishedDate: string | undefined): string | null {

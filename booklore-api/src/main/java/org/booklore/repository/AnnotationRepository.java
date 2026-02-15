@@ -31,4 +31,7 @@ public interface AnnotationRepository extends JpaRepository<AnnotationEntity, Lo
     long countByBookIdAndUserId(Long bookId, Long userId);
 
     void deleteByBookIdAndUserId(Long bookId, Long userId);
+
+    @Query("SELECT a FROM AnnotationEntity a JOIN FETCH a.book b JOIN FETCH b.metadata WHERE a.userId = :userId ORDER BY a.createdAt DESC")
+    List<AnnotationEntity> findByUserIdOrderByCreatedAtDesc(@Param("userId") Long userId);
 }

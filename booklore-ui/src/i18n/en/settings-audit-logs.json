@@ -1,0 +1,17 @@
+{
+  "title": "Audit Logs",
+  "description": "View a record of admin-significant actions performed across the system.",
+  "sectionTitle": "Activity Log",
+  "filterPlaceholder": "Filter by action",
+  "userFilterPlaceholder": "Filter by user",
+  "dateRangePlaceholder": "Filter by date range",
+  "pageReport": "Showing {first} to {last} of {totalRecords} entries",
+  "empty": "No audit logs found",
+  "columns": {
+    "timestamp": "Date & Time",
+    "user": "User",
+    "action": "Action",
+    "description": "Description",
+    "ip": "IP Address"
+  }
+}
