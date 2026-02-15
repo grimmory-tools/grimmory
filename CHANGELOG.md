@@ -1,3 +1,10 @@
+## [1.20.4](https://gitlab.theprivateserver.de/WorldTeacher/wt-booklore/compare/1.20.3...1.20.4) (2026-02-15)
+
+
+### Bug Fixes
+
+* new docker pipeline ([0b617db](https://gitlab.theprivateserver.de/WorldTeacher/wt-booklore/commit/0b617db40ee419699ad5c15cd178f92e51449a8c))
+
 ## [1.20.3](https://gitlab.theprivateserver.de/WorldTeacher/wt-booklore/compare/1.20.2...1.20.3) (2026-02-15)
 
 
