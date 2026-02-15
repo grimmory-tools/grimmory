@@ -194,27 +194,19 @@ mirror_from_github:
       when: on_success
       variables:
         DOCKER_SNAPSHOT_IMAGE: "$CI_REGISTRY_IMAGE/mergerequests/mr-$CI_MERGE_REQUEST_IID:latest"
+        DOCKER_BUILD_ARGS: >-
+          --platform linux/amd64
+          --platform linux/arm64
+          --build-arg APP_VERSION=mr-$CI_MERGE_REQUEST_IID-$CI_COMMIT_SHORT_SHA
+          --build-arg APP_REVISION=$CI_COMMIT_SHA
 
     - if: "$CI_COMMIT_TAG"
       when: on_success
+      variables:
+        DOCKER_BUILD_ARGS: >-
+          --platform linux/amd64
+          --platform linux/arm64
+          --build-arg APP_VERSION=$CI_COMMIT_TAG
+          --build-arg APP_REVISION=$CI_COMMIT_SHA
 
     - when: never
-
-# Override docker-build job to inject git-based version
-docker-build:
-  extends: .docker-base
-  variables:
-    DOCKER_BUILD_ARGS: "--platform linux/amd64 --platform linux/arm64"
-  before_script:
-    - echo "Configuring container registries..."
-    - configure_containers_registries || true
-    - |
-      if [ -n "$CI_COMMIT_TAG" ]; then
-        export APP_VERSION="$CI_COMMIT_TAG"
-      else
-        export APP_VERSION=$(git describe --tags --always --dirty 2>/dev/null || echo "mr-$CI_MERGE_REQUEST_IID-$CI_COMMIT_SHORT_SHA")
-      fi
-    - echo "Building with APP_VERSION=$APP_VERSION"
-    - export DOCKER_BUILD_ARGS="$DOCKER_BUILD_ARGS --build-arg APP_VERSION=$APP_VERSION --build-arg APP_REVISION=$CI_COMMIT_SHA"
-  script:
-    - docker-build
