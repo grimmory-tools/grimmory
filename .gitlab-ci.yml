@@ -27,7 +27,7 @@ include:
       - when: never
     inputs:
       changelog-enabled: true
-      auto-release-enabled: true
+      auto-release-enabled: false
 
   # docker component only on MR pipelines + tag pipelines (never on schedule, never on normal pushes)
   - component: "$CI_SERVER_FQDN/to-be-continuous/docker/gitlab-ci-docker@8.0"
