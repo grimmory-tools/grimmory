@@ -206,7 +206,7 @@ mirror_from_github:
         DOCKER_BUILD_ARGS: >-
           --platform linux/amd64
           --platform linux/arm64
-          --build-arg APP_VERSION=$CI_COMMIT_TAG
+          --build-arg APP_VERSION=wt-$CI_COMMIT_TAG
           --build-arg APP_REVISION=$CI_COMMIT_SHA
 
     - when: never
