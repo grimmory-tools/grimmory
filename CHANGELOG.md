@@ -1,3 +1,10 @@
+## [1.21.2](https://gitlab.worldteacher.dev/WorldTeacher/wt-booklore/compare/1.21.1...1.21.2) (2026-02-16)
+
+
+### Bug Fixes
+
+* show calendar to set read date ([0c09526](https://gitlab.worldteacher.dev/WorldTeacher/wt-booklore/commit/0c09526516b8a6f14eb0c39174d42707e9736a44))
+
 ## [1.21.1](https://gitlab.worldteacher.dev/WorldTeacher/wt-booklore/compare/1.21.0...1.21.1) (2026-02-16)
 
 
