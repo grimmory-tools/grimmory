@@ -1481,19 +1481,23 @@ class BookRuleEvaluatorServiceIntegrationTest {
 
         @Test
         void thisPeriod_week_matchesThisWeekBook() {
-            BookEntity yesterday = createBook("Yesterday Book");
-            yesterday.setAddedOn(Instant.now().minus(1, ChronoUnit.DAYS));
-            em.merge(yesterday);
+            LocalDate today = LocalDate.now();
+            LocalDate thisMonday = today.with(java.time.temporal.TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY));
+            LocalDate lastWeek = thisMonday.minusWeeks(1);
 
-            BookEntity twoWeeksAgo = createBook("Two Weeks Ago Book");
-            twoWeeksAgo.setAddedOn(Instant.now().minus(14, ChronoUnit.DAYS));
-            em.merge(twoWeeksAgo);
+            BookEntity thisWeekBook = createBook("This Week Book");
+            thisWeekBook.setAddedOn(thisMonday.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant());
+            em.merge(thisWeekBook);
+
+            BookEntity lastWeekBook = createBook("Last Week Book");
+            lastWeekBook.setAddedOn(lastWeek.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant());
+            em.merge(lastWeekBook);
             em.flush();
             em.clear();
 
             List<Long> ids = findMatchingIds(singleRule(RuleField.ADDED_ON, RuleOperator.THIS_PERIOD, "week"));
-            assertThat(ids).contains(yesterday.getId());
-            assertThat(ids).doesNotContain(twoWeeksAgo.getId());
+            assertThat(ids).contains(thisWeekBook.getId());
+            assertThat(ids).doesNotContain(lastWeekBook.getId());
         }
     }
 

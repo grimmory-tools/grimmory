@@ -4,6 +4,8 @@ import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.ApiError;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.CompletionRaceSessionDto;
+import org.booklore.model.dto.request.ReadingSessionBatchRequest;
+import org.booklore.model.dto.request.ReadingSessionItemRequest;
 import org.booklore.model.dto.request.ReadingSessionRequest;
 import org.booklore.model.dto.PageTurnerSessionDto;
 import org.booklore.model.dto.response.BookCompletionHeatmapResponse;
@@ -14,6 +16,7 @@ import org.booklore.model.dto.response.GenreStatisticsResponse;
 import org.booklore.model.dto.response.PageTurnerScoreResponse;
 import org.booklore.model.dto.response.PeakReadingHoursResponse;
 
+import org.booklore.model.dto.response.ReadingSessionBatchResponse;
 import org.booklore.model.dto.response.ReadingSessionHeatmapResponse;
 import org.booklore.model.dto.response.ReadingSessionResponse;
 import org.booklore.model.dto.response.ReadingSessionTimelineResponse;
@@ -86,6 +89,66 @@ public class ReadingSessionService {
         log.info("Reading session persisted successfully: sessionId={}, userId={}, bookId={}, duration={}s", session.getId(), userId, request.getBookId(), request.getDurationSeconds());
         
         return session.getId();
+    }
+
+    @Transactional
+    public ReadingSessionBatchResponse recordSessionsBatch(ReadingSessionBatchRequest request) {
+        BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
+        Long userId = authenticatedUser.getId();
+
+        // Get user entity
+        BookLoreUserEntity userEntity = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + userId));
+        
+        // Validate book exists and user has access
+        BookEntity book = bookRepository.findById(request.getBookId())
+                .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(request.getBookId()));
+
+        // Validate all session times
+        for (ReadingSessionItemRequest sessionItem : request.getSessions()) {
+            if (sessionItem.getEndTime().isBefore(sessionItem.getStartTime())) {
+                throw new IllegalArgumentException("End time must be after start time");
+            }
+        }
+
+        // Convert all session items to entities
+        List<ReadingSessionEntity> sessionEntities = request.getSessions().stream()
+                .map(sessionItem -> ReadingSessionEntity.builder()
+                        .user(userEntity)
+                        .book(book)
+                        .bookType(request.getBookType())
+                        .startTime(sessionItem.getStartTime())
+                        .endTime(sessionItem.getEndTime())
+                        .durationSeconds(sessionItem.getDurationSeconds())
+                        .durationFormatted(sessionItem.getDurationFormatted())
+                        .startProgress(sessionItem.getStartProgress())
+                        .endProgress(sessionItem.getEndProgress())
+                        .progressDelta(sessionItem.getProgressDelta())
+                        .startLocation(sessionItem.getStartLocation())
+                        .endLocation(sessionItem.getEndLocation())
+                        .build())
+                .collect(Collectors.toList());
+
+        // Bulk insert
+        List<ReadingSessionEntity> savedSessions = readingSessionRepository.saveAll(sessionEntities);
+
+        // Build response with session IDs
+        List<ReadingSessionBatchResponse.SessionResult> results = savedSessions.stream()
+                .map(session -> ReadingSessionBatchResponse.SessionResult.builder()
+                        .sessionId(session.getId())
+                        .startTime(session.getStartTime())
+                        .endTime(session.getEndTime())
+                        .build())
+                .collect(Collectors.toList());
+
+        log.info("Batch reading sessions persisted successfully: userId={}, bookId={}, count={}", 
+                userId, request.getBookId(), savedSessions.size());
+
+        return ReadingSessionBatchResponse.builder()
+                .totalRequested(request.getSessions().size())
+                .successCount(savedSessions.size())
+                .results(results)
+                .build();
     }
 
     @Transactional(readOnly = true)
