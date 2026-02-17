@@ -58,6 +58,8 @@
   "toast": {
     "taskQueued": "Task Queued",
     "taskQueuedDetail": "{{name}} has been queued and will run in the background.",
+    "dryRunQueued": "Dry Run Queued",
+    "dryRunQueuedDetail": "{{name}} dry run has been queued. Preview results will be available in logs without making any database changes.",
     "taskCompleted": "Task Completed",
     "taskCompletedDetail": "{{name}} has been completed successfully.",
     "taskFailed": "Task Failed",

@@ -264,7 +264,11 @@ export class TaskManagementComponent implements OnInit, OnDestroy {
         next: (response) => {
           const name = this.getTaskDisplayName(type);
           if (isAsync) {
-            this.showMessage('info', this.t.translate('settingsTasks.toast.taskQueued'), this.t.translate('settingsTasks.toast.taskQueuedDetail', {name}));
+            if (isDryRun) {
+              this.showMessage('info', this.t.translate('settingsTasks.toast.dryRunQueued'), this.t.translate('settingsTasks.toast.dryRunQueuedDetail', {name}));
+            } else {
+              this.showMessage('info', this.t.translate('settingsTasks.toast.taskQueued'), this.t.translate('settingsTasks.toast.taskQueuedDetail', {name}));
+            }
           } else {
             if (response.status === TaskStatus.COMPLETED) {
               this.showMessage('success', this.t.translate('settingsTasks.toast.taskCompleted'), this.t.translate('settingsTasks.toast.taskCompletedDetail', {name}));
