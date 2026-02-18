@@ -148,7 +148,7 @@ public class OpdsFeedService {
                     escapeXml(library.getName()),
                     library.getId(),
                     now(),
-                    escapeXml("/api/v1/opds/catalog?libraryId=" + library.getId()),
+                    escapeXml("/api/v1/opds/libraries/" + library.getId()),
                     escapeXml(library.getName() != null ? library.getName() : "Library collection")
             ));
         }
@@ -746,6 +746,171 @@ public class OpdsFeedService {
         }
 
         return shelfIds.isEmpty() ? null : shelfIds;
+    }
+
+    public String generateLibraryNavigation(Long libraryId, HttpServletRequest request) {
+        Long userId = getUserId();
+        String libraryName = opdsBookService.getLibraryName(libraryId);
+
+        var feed = new StringBuilder("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <feed xmlns="http://www.w3.org/2005/Atom" xmlns:opds="http://opds-spec.org/2010/catalog">
+                  <id>urn:booklore:library:%d</id>
+                  <title>%s</title>
+                  <updated>%s</updated>
+                  <link rel="self" href="/api/v1/opds/libraries/%d" type="application/atom+xml;profile=opds-catalog;kind=navigation"/>
+                  <link rel="start" href="/api/v1/opds" type="application/atom+xml;profile=opds-catalog;kind=navigation"/>
+                  <link rel="search" type="application/opensearchdescription+xml" title="Search" href="/api/v1/opds/search.opds"/>
+                """.formatted(libraryId, escapeXml(libraryName), now(), libraryId));
+
+        // Authors navigation
+        feed.append("""
+                  <entry>
+                    <title>Authors</title>
+                    <id>urn:booklore:library:%d:authors</id>
+                    <updated>%s</updated>
+                    <link rel="subsection" href="%s" type="application/atom+xml;profile=opds-catalog;kind=navigation"/>
+                    <content type="text">Browse books by author in %s</content>
+                  </entry>
+                """.formatted(
+                libraryId,
+                now(),
+                escapeXml("/api/v1/opds/libraries/" + libraryId + "/authors"),
+                escapeXml(libraryName)
+        ));
+
+        // Series navigation
+        feed.append("""
+                  <entry>
+                    <title>Series</title>
+                    <id>urn:booklore:library:%d:series</id>
+                    <updated>%s</updated>
+                    <link rel="subsection" href="%s" type="application/atom+xml;profile=opds-catalog;kind=navigation"/>
+                    <content type="text">Browse books by series in %s</content>
+                  </entry>
+                """.formatted(
+                libraryId,
+                now(),
+                escapeXml("/api/v1/opds/libraries/" + libraryId + "/series"),
+                escapeXml(libraryName)
+        ));
+
+        // Recently Added acquisition
+        feed.append("""
+                  <entry>
+                    <title>Recently Added</title>
+                    <id>urn:booklore:library:%d:recent</id>
+                    <updated>%s</updated>
+                    <link rel="subsection" href="%s" type="application/atom+xml;profile=opds-catalog;kind=acquisition"/>
+                    <content type="text">Recently added books in %s</content>
+                  </entry>
+                """.formatted(
+                libraryId,
+                now(),
+                escapeXml("/api/v1/opds/libraries/" + libraryId + "/recent?page=1&size=50"),
+                escapeXml(libraryName)
+        ));
+
+        // All Books acquisition
+        feed.append("""
+                  <entry>
+                    <title>All Books</title>
+                    <id>urn:booklore:library:%d:catalog</id>
+                    <updated>%s</updated>
+                    <link rel="subsection" href="%s" type="application/atom+xml;profile=opds-catalog;kind=acquisition"/>
+                    <content type="text">All books in %s</content>
+                  </entry>
+                """.formatted(
+                libraryId,
+                now(),
+                escapeXml("/api/v1/opds/libraries/" + libraryId + "/catalog?page=1&size=50"),
+                escapeXml(libraryName)
+        ));
+
+        feed.append("</feed>");
+        return feed.toString();
+    }
+
+    public String generateLibraryAuthorsNavigation(Long libraryId, HttpServletRequest request) {
+        Long userId = getUserId();
+        List<String> authors = opdsBookService.getDistinctAuthors(userId, libraryId);
+        String libraryName = opdsBookService.getLibraryName(libraryId);
+
+        var feed = new StringBuilder("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <feed xmlns="http://www.w3.org/2005/Atom" xmlns:opds="http://opds-spec.org/2010/catalog">
+                  <id>urn:booklore:library:%d:authors</id>
+                  <title>Authors in %s</title>
+                  <updated>%s</updated>
+                  <link rel="self" href="/api/v1/opds/libraries/%d/authors" type="application/atom+xml;profile=opds-catalog;kind=navigation"/>
+                  <link rel="start" href="/api/v1/opds" type="application/atom+xml;profile=opds-catalog;kind=navigation"/>
+                  <link rel="up" href="/api/v1/opds/libraries/%d" type="application/atom+xml;profile=opds-catalog;kind=navigation"/>
+                  <link rel="search" type="application/opensearchdescription+xml" title="Search" href="/api/v1/opds/search.opds"/>
+                """.formatted(libraryId, escapeXml(libraryName), now(), libraryId, libraryId));
+
+        for (String author : authors) {
+            feed.append("""
+                      <entry>
+                        <title>%s</title>
+                        <id>urn:booklore:library:%d:author:%s</id>
+                        <updated>%s</updated>
+                        <link rel="subsection" href="%s" type="application/atom+xml;profile=opds-catalog;kind=acquisition"/>
+                        <content type="text">Books by %s in %s</content>
+                      </entry>
+                    """.formatted(
+                    escapeXml(author),
+                    libraryId,
+                    escapeXml(author),
+                    now(),
+                    escapeXml("/api/v1/opds/catalog?libraryId=" + libraryId + "&author=" + java.net.URLEncoder.encode(author, java.nio.charset.StandardCharsets.UTF_8)),
+                    escapeXml(author),
+                    escapeXml(libraryName)
+            ));
+        }
+
+        feed.append("</feed>");
+        return feed.toString();
+    }
+
+    public String generateLibrarySeriesNavigation(Long libraryId, HttpServletRequest request) {
+        Long userId = getUserId();
+        List<String> seriesList = opdsBookService.getDistinctSeries(userId, libraryId);
+        String libraryName = opdsBookService.getLibraryName(libraryId);
+
+        var feed = new StringBuilder("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <feed xmlns="http://www.w3.org/2005/Atom" xmlns:opds="http://opds-spec.org/2010/catalog">
+                  <id>urn:booklore:library:%d:series</id>
+                  <title>Series in %s</title>
+                  <updated>%s</updated>
+                  <link rel="self" href="/api/v1/opds/libraries/%d/series" type="application/atom+xml;profile=opds-catalog;kind=navigation"/>
+                  <link rel="start" href="/api/v1/opds" type="application/atom+xml;profile=opds-catalog;kind=navigation"/>
+                  <link rel="up" href="/api/v1/opds/libraries/%d" type="application/atom+xml;profile=opds-catalog;kind=navigation"/>
+                  <link rel="search" type="application/opensearchdescription+xml" title="Search" href="/api/v1/opds/search.opds"/>
+                """.formatted(libraryId, escapeXml(libraryName), now(), libraryId, libraryId));
+
+        for (String series : seriesList) {
+            feed.append("""
+                      <entry>
+                        <title>%s</title>
+                        <id>urn:booklore:library:%d:series:%s</id>
+                        <updated>%s</updated>
+                        <link rel="subsection" href="%s" type="application/atom+xml;profile=opds-catalog;kind=acquisition"/>
+                        <content type="text">Books in the %s series in %s</content>
+                      </entry>
+                    """.formatted(
+                    escapeXml(series),
+                    libraryId,
+                    escapeXml(series),
+                    now(),
+                    escapeXml("/api/v1/opds/catalog?libraryId=" + libraryId + "&series=" + java.net.URLEncoder.encode(series, java.nio.charset.StandardCharsets.UTF_8)),
+                    escapeXml(series),
+                    escapeXml(libraryName)
+            ));
+        }
+
+        feed.append("</feed>");
+        return feed.toString();
     }
 
     private Long getUserId() {

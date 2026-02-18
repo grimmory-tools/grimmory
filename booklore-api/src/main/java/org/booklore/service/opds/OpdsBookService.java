@@ -601,4 +601,79 @@ public class OpdsBookService {
 
         return (float) (sum / count);
     }
+
+    public List<String> getDistinctAuthors(Long userId, Long libraryId) {
+        if (userId == null) {
+            return List.of();
+        }
+
+        BookLoreUserEntity entity = userRepository.findById(userId)
+                .orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(userId));
+        BookLoreUser user = bookLoreUserTransformer.toDTO(entity);
+
+        // Verify user has access to this library
+        if (!user.getPermissions().isAdmin()) {
+            Set<Long> userLibraryIds = user.getAssignedLibraries().stream()
+                    .map(Library::getId)
+                    .collect(Collectors.toSet());
+            if (!userLibraryIds.contains(libraryId)) {
+                throw ApiError.FORBIDDEN.createException("You do not have access to this library");
+            }
+        }
+
+        List<AuthorEntity> authors = bookOpdsRepository.findDistinctAuthorsByLibraryIds(Set.of(libraryId));
+
+        return authors.stream()
+                .map(AuthorEntity::getName)
+                .filter(Objects::nonNull)
+                .distinct()
+                .sorted()
+                .toList();
+    }
+
+    public List<String> getDistinctSeries(Long userId, Long libraryId) {
+        if (userId == null) {
+            return List.of();
+        }
+
+        BookLoreUserEntity entity = userRepository.findById(userId)
+                .orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(userId));
+        BookLoreUser user = bookLoreUserTransformer.toDTO(entity);
+
+        // Verify user has access to this library
+        if (!user.getPermissions().isAdmin()) {
+            Set<Long> userLibraryIds = user.getAssignedLibraries().stream()
+                    .map(Library::getId)
+                    .collect(Collectors.toSet());
+            if (!userLibraryIds.contains(libraryId)) {
+                throw ApiError.FORBIDDEN.createException("You do not have access to this library");
+            }
+        }
+
+        return bookOpdsRepository.findDistinctSeriesByLibraryIds(Set.of(libraryId));
+    }
+
+    public Page<Book> getRecentBooksPage(Long userId, Long libraryId, int page, int size) {
+        if (userId == null) {
+            throw ApiError.FORBIDDEN.createException("Authentication required");
+        }
+
+        BookLoreUserEntity entity = userRepository.findById(userId)
+                .orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(userId));
+        BookLoreUser user = bookLoreUserTransformer.toDTO(entity);
+
+        // Verify user has access to this library
+        if (!user.getPermissions().isAdmin()) {
+            Set<Long> userLibraryIds = user.getAssignedLibraries().stream()
+                    .map(Library::getId)
+                    .collect(Collectors.toSet());
+            if (!userLibraryIds.contains(libraryId)) {
+                throw ApiError.FORBIDDEN.createException("You do not have access to this library");
+            }
+        }
+
+        // Always sort by addedOn DESC for library-scoped recent books
+        Page<Book> books = getRecentBooksByLibraryIdsPageInternal(Set.of(libraryId), page, size);
+        return applyBookFilters(books, userId);
+    }
 }

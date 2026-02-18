@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -122,6 +123,88 @@ public class OpdsController {
         String feed = opdsFeedService.generateSeriesNavigation(request);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(OPDS_CATALOG_MEDIA_TYPE))
+                .body(feed);
+    }
+
+    @Operation(summary = "Get library navigation", description = "Retrieve the OPDS navigation feed for a specific library.")
+    @ApiResponse(responseCode = "200", description = "Library navigation feed returned successfully")
+    @GetMapping(value = "/libraries/{libraryId}", produces = OPDS_CATALOG_MEDIA_TYPE)
+    public ResponseEntity<String> getLibraryNavigation(
+            @Parameter(description = "ID of the library") @PathVariable Long libraryId,
+            @Parameter(hidden = true) HttpServletRequest request) {
+        String feed = opdsFeedService.generateLibraryNavigation(libraryId, request);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(OPDS_CATALOG_MEDIA_TYPE))
+                .body(feed);
+    }
+
+    @Operation(summary = "Get library authors navigation", description = "Retrieve the OPDS authors navigation feed for a specific library.")
+    @ApiResponse(responseCode = "200", description = "Library authors navigation feed returned successfully")
+    @GetMapping(value = "/libraries/{libraryId}/authors", produces = OPDS_CATALOG_MEDIA_TYPE)
+    public ResponseEntity<String> getLibraryAuthorsNavigation(
+            @Parameter(description = "ID of the library") @PathVariable Long libraryId,
+            @Parameter(hidden = true) HttpServletRequest request) {
+        String feed = opdsFeedService.generateLibraryAuthorsNavigation(libraryId, request);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(OPDS_CATALOG_MEDIA_TYPE))
+                .body(feed);
+    }
+
+    @Operation(summary = "Get library series navigation", description = "Retrieve the OPDS series navigation feed for a specific library.")
+    @ApiResponse(responseCode = "200", description = "Library series navigation feed returned successfully")
+    @GetMapping(value = "/libraries/{libraryId}/series", produces = OPDS_CATALOG_MEDIA_TYPE)
+    public ResponseEntity<String> getLibrarySeriesNavigation(
+            @Parameter(description = "ID of the library") @PathVariable Long libraryId,
+            @Parameter(hidden = true) HttpServletRequest request) {
+        String feed = opdsFeedService.generateLibrarySeriesNavigation(libraryId, request);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(OPDS_CATALOG_MEDIA_TYPE))
+                .body(feed);
+    }
+
+    @Operation(summary = "Get library recent books", description = "Retrieve the OPDS recent books feed for a specific library.")
+    @ApiResponse(responseCode = "200", description = "Library recent books feed returned successfully")
+    @GetMapping(value = "/libraries/{libraryId}/recent", produces = OPDS_ACQUISITION_MEDIA_TYPE)
+    public ResponseEntity<String> getLibraryRecentBooks(
+            @Parameter(description = "ID of the library") @PathVariable Long libraryId,
+            @Parameter(hidden = true) HttpServletRequest request) {
+        // Create a wrapper request that adds libraryId parameter and forces recent sorting
+        HttpServletRequest wrappedRequest = new HttpServletRequestWrapper(request) {
+            @Override
+            public String getParameter(String name) {
+                if ("libraryId".equals(name)) {
+                    return String.valueOf(libraryId);
+                }
+                return super.getParameter(name);
+            }
+        };
+        
+        String feed = opdsFeedService.generateRecentFeed(wrappedRequest);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(OPDS_ACQUISITION_MEDIA_TYPE))
+                .body(feed);
+    }
+
+    @Operation(summary = "Get library catalog", description = "Retrieve the OPDS catalog feed for a specific library.")
+    @ApiResponse(responseCode = "200", description = "Library catalog feed returned successfully")
+    @GetMapping(value = "/libraries/{libraryId}/catalog", produces = OPDS_ACQUISITION_MEDIA_TYPE)
+    public ResponseEntity<String> getLibraryCatalog(
+            @Parameter(description = "ID of the library") @PathVariable Long libraryId,
+            @Parameter(hidden = true) HttpServletRequest request) {
+        // Create a wrapper request that adds libraryId parameter
+        HttpServletRequest wrappedRequest = new HttpServletRequestWrapper(request) {
+            @Override
+            public String getParameter(String name) {
+                if ("libraryId".equals(name)) {
+                    return String.valueOf(libraryId);
+                }
+                return super.getParameter(name);
+            }
+        };
+        
+        String feed = opdsFeedService.generateCatalogFeed(wrappedRequest);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(OPDS_ACQUISITION_MEDIA_TYPE))
                 .body(feed);
     }
 
