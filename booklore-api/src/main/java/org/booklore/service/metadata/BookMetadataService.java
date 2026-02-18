@@ -16,14 +16,12 @@ import org.booklore.model.dto.request.FetchMetadataRequest;
 import org.booklore.model.dto.request.ToggleAllLockRequest;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookMetadataEntity;
-import org.booklore.model.enums.BookFileType;
-import org.booklore.model.enums.Lock;
-import org.booklore.model.enums.MetadataProvider;
-import org.booklore.model.enums.MetadataReplaceMode;
+import org.booklore.model.enums.*;
 import org.booklore.model.websocket.Topic;
 import org.booklore.repository.BookMetadataRepository;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.NotificationService;
+import org.booklore.service.audit.AuditService;
 import org.booklore.service.book.BookQueryService;
 import org.booklore.service.metadata.extractor.CbxMetadataExtractor;
 import org.booklore.service.metadata.extractor.MetadataExtractorFactory;
@@ -58,6 +56,7 @@ public class BookMetadataService {
     private final NotificationService notificationService;
     private final BookMetadataRepository bookMetadataRepository;
     private final BookQueryService bookQueryService;
+    private final AuditService auditService;
     private final Map<MetadataProvider, BookParser> parserMap;
     private final CbxMetadataExtractor cbxMetadataExtractor;
     private final MetadataExtractorFactory metadataExtractorFactory;
@@ -178,6 +177,7 @@ public class BookMetadataService {
 
         bookMetadataUpdater.setBookMetadata(context);
         bookRepository.save(bookEntity);
+        auditService.log(AuditAction.METADATA_UPDATED, "Book", bookId, "Updated metadata for book: " + bookEntity.getMetadata().getTitle());
         return bookMetadataMapper.toBookMetadata(bookEntity.getMetadata(), true);
     }
 

@@ -235,16 +235,21 @@ public class BookMetadataUpdater {
     private void updateAuthorsIfNeeded(BookMetadata m, BookMetadataEntity e, MetadataClearFlags clear, boolean merge, MetadataReplaceMode replaceMode) {
         if (Boolean.TRUE.equals(e.getAuthorsLocked())) return;
 
-        e.setAuthors(Optional.ofNullable(e.getAuthors()).orElseGet(HashSet::new));
+        // Get or initialize authors collection
+        Set<AuthorEntity> authors = e.getAuthors();
+        if (authors == null) {
+            authors = new HashSet<>();
+            e.setAuthors(authors);
+        }
 
         if (clear.isAuthors()) {
-            e.getAuthors().clear();
+            authors.clear();
             return;
         }
 
         Set<String> authorNames = Optional.ofNullable(m.getAuthors()).orElse(Collections.emptySet());
         if (authorNames.isEmpty()) {
-            if (replaceMode == MetadataReplaceMode.REPLACE_ALL) e.getAuthors().clear();
+            if (replaceMode == MetadataReplaceMode.REPLACE_ALL) authors.clear();
             return;
         }
 
@@ -257,15 +262,15 @@ public class BookMetadataUpdater {
         if (newAuthors.isEmpty()) return;
 
         if (replaceMode == MetadataReplaceMode.REPLACE_ALL || replaceMode == MetadataReplaceMode.REPLACE_WHEN_PROVIDED) {
-            if (!merge) e.getAuthors().clear();
-            e.getAuthors().addAll(newAuthors);
+            if (!merge) authors.clear();
+            authors.addAll(newAuthors);
             e.updateSearchText();
-        } else if (replaceMode == MetadataReplaceMode.REPLACE_MISSING && e.getAuthors().isEmpty()) {
-            e.getAuthors().addAll(newAuthors);
+        } else if (replaceMode == MetadataReplaceMode.REPLACE_MISSING && authors.isEmpty()) {
+            authors.addAll(newAuthors);
             e.updateSearchText();
         } else if (replaceMode == null) {
-            if (!merge) e.getAuthors().clear();
-            e.getAuthors().addAll(newAuthors);
+            if (!merge) authors.clear();
+            authors.addAll(newAuthors);
             e.updateSearchText();
         }
     }

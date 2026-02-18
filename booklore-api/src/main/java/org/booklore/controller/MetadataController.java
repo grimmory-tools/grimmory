@@ -6,16 +6,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.booklore.config.security.annotation.CheckBookAccess;
-import org.booklore.exception.ApiError;
 import org.booklore.mapper.BookMetadataMapper;
-import org.booklore.model.MetadataUpdateContext;
 import org.booklore.model.MetadataUpdateWrapper;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.request.*;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.enums.AuditAction;
 import org.booklore.model.enums.MetadataProvider;
-import org.booklore.model.enums.MetadataReplaceMode;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.audit.AuditService;
 import org.booklore.service.metadata.BookMetadataService;
@@ -65,24 +60,7 @@ public class MetadataController {
             @Parameter(description = "Metadata update wrapper") @RequestBody MetadataUpdateWrapper metadataUpdateWrapper,
             @Parameter(description = "ID of the book") @PathVariable long bookId,
             @Parameter(description = "Merge categories") @RequestParam(defaultValue = "false") boolean mergeCategories) {
-        BookEntity bookEntity = bookRepository.findAllWithMetadataByIds(java.util.Collections.singleton(bookId)).stream()
-                .findFirst()
-                .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
-
-        MetadataUpdateContext context = MetadataUpdateContext.builder()
-                .bookEntity(bookEntity)
-                .metadataUpdateWrapper(metadataUpdateWrapper)
-                .updateThumbnail(true)
-                .mergeCategories(mergeCategories)
-                .replaceMode(MetadataReplaceMode.REPLACE_ALL)
-                .mergeMoods(false)
-                .mergeTags(false)
-                .build();
-
-        bookMetadataUpdater.setBookMetadata(context);
-        bookRepository.save(bookEntity);
-        auditService.log(AuditAction.METADATA_UPDATED, "Book", bookId, "Updated metadata for book: " + bookEntity.getMetadata().getTitle());
-        BookMetadata bookMetadata = bookMetadataMapper.toBookMetadata(bookEntity.getMetadata(), true);
+        BookMetadata bookMetadata = bookMetadataService.updateMetadata(bookId, metadataUpdateWrapper, mergeCategories);
         return ResponseEntity.ok(bookMetadata);
     }
 
