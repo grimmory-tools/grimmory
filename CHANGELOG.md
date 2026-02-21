@@ -1,3 +1,10 @@
+## [1.21.3](https://gitlab.worldteacher.dev/WorldTeacher/wt-booklore/compare/1.21.2...1.21.3) (2026-02-21)
+
+
+### Bug Fixes
+
+* **typo:** fixed a typo ([7e86ee9](https://gitlab.worldteacher.dev/WorldTeacher/wt-booklore/commit/7e86ee9a5d5ef9b25fdaf7cbb5b3b75059b7f3a9))
+
 ## [1.21.2](https://gitlab.worldteacher.dev/WorldTeacher/wt-booklore/compare/1.21.1...1.21.2) (2026-02-16)
 
 
