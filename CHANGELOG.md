@@ -1,3 +1,10 @@
+## [1.21.4](https://gitlab.worldteacher.dev/WorldTeacher/wt-booklore/compare/1.21.3...1.21.4) (2026-02-21)
+
+
+### Bug Fixes
+
+* **build:** change build to show version ([4047b95](https://gitlab.worldteacher.dev/WorldTeacher/wt-booklore/commit/4047b95565353cd04dcea88c79c881e4b02548e0))
+
 ## [1.21.3](https://gitlab.worldteacher.dev/WorldTeacher/wt-booklore/compare/1.21.2...1.21.3) (2026-02-21)
 
 
