@@ -277,7 +277,7 @@ export class MagicShelfComponent implements OnInit {
     {label: 'CBX', value: 'cbx'},
     {label: 'FB2', value: 'fb2'},
     {label: 'MOBI', value: 'mobi'},
-    {label: 'AZW3', value: 'azw3'}
+    {label: 'AZW3', value: 'azw3'},
     {label: 'Audiobook', value: 'audiobook'}
   ];
 
