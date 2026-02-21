@@ -9,6 +9,7 @@ import org.booklore.config.security.userdetails.OpdsUserDetails;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookFile;
 import org.booklore.model.dto.Library;
+import org.booklore.model.entity.MagicShelfEntity;
 import org.booklore.model.enums.OpdsSortOrder;
 import org.booklore.service.MagicShelfService;
 import org.booklore.util.ArchiveUtils;
@@ -330,7 +331,11 @@ public class OpdsFeedService {
         Page<Book> booksPage;
 
         if (magicShelfId != null) {
-            booksPage = magicShelfBookService.getBooksByMagicShelfId(userId, magicShelfId, page - 1, size);
+            MagicShelfEntity magicShelf = magicShelfBookService.getValidatedMagicShelf(userId, magicShelfId);
+            booksPage = magicShelfBookService.getBooksForShelf(magicShelf, userId, page - 1, size);
+            if (magicShelf.getOpdsSort() != null) {
+                sortOrder = magicShelf.getOpdsSort();
+            }
         } else if (author != null && !author.isBlank()) {
             booksPage = opdsBookService.getBooksByAuthorName(userId, author, page - 1, size);
         } else if (series != null && !series.isBlank()) {
@@ -339,7 +344,7 @@ public class OpdsFeedService {
             booksPage = opdsBookService.getBooksPage(userId, query, libraryId, shelfIds, page - 1, size);
         }
 
-        // Apply user's preferred sort order
+        // Apply sort order (shelf-level override if set, otherwise user's account preference)
         booksPage = opdsBookService.applySortOrder(booksPage, sortOrder);
 
         String feedTitle = determineFeedTitle(libraryId, shelfIds, magicShelfId, author, series);

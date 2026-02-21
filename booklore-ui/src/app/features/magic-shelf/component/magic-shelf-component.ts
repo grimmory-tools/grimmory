@@ -436,6 +436,21 @@ export class MagicShelfComponent implements OnInit {
     ];
   }
 
+  get opdsSortOptions(): { label: string; value: string | null }[] {
+    return [
+      {label: this.t.translate('magicShelf.opdsSort.default'), value: null},
+      {label: this.t.translate('magicShelf.opdsSort.RECENT'), value: 'RECENT'},
+      {label: this.t.translate('magicShelf.opdsSort.TITLE_ASC'), value: 'TITLE_ASC'},
+      {label: this.t.translate('magicShelf.opdsSort.TITLE_DESC'), value: 'TITLE_DESC'},
+      {label: this.t.translate('magicShelf.opdsSort.AUTHOR_ASC'), value: 'AUTHOR_ASC'},
+      {label: this.t.translate('magicShelf.opdsSort.AUTHOR_DESC'), value: 'AUTHOR_DESC'},
+      {label: this.t.translate('magicShelf.opdsSort.SERIES_ASC'), value: 'SERIES_ASC'},
+      {label: this.t.translate('magicShelf.opdsSort.SERIES_DESC'), value: 'SERIES_DESC'},
+      {label: this.t.translate('magicShelf.opdsSort.RATING_ASC'), value: 'RATING_ASC'},
+      {label: this.t.translate('magicShelf.opdsSort.RATING_DESC'), value: 'RATING_DESC'},
+    ];
+  }
+
   libraries: Library[] = [];
   libraryOptions: { label: string; value: number }[] = [];
   shelves: Shelf[] = [];
@@ -446,6 +461,7 @@ export class MagicShelfComponent implements OnInit {
     name: new FormControl<string | null>(null),
     icon: new FormControl<string | null>(null),
     isPublic: new FormControl<boolean>(false),
+    opdsSort: new FormControl<string | null>(null),
     group: this.createGroup()
   });
 
@@ -503,6 +519,7 @@ export class MagicShelfComponent implements OnInit {
           name: new FormControl<string | null>(data?.name ?? null, {nonNullable: true, validators: [Validators.required]}),
           icon: new FormControl<string | null>(iconValue),
           isPublic: new FormControl<boolean>(data?.isPublic ?? false),
+          opdsSort: new FormControl<string | null>(data?.opdsSort ?? null),
           group: data?.filterJson ? this.buildGroupFromData(JSON.parse(data.filterJson)) : this.createGroup()
         });
 
@@ -517,6 +534,7 @@ export class MagicShelfComponent implements OnInit {
         name: new FormControl<string | null>(null, {nonNullable: true, validators: [Validators.required]}),
         icon: new FormControl<string | null>(null),
         isPublic: new FormControl<boolean>(false),
+        opdsSort: new FormControl<string | null>(null),
         group: this.createGroup()
       });
     }
@@ -838,7 +856,7 @@ export class MagicShelfComponent implements OnInit {
       return;
     }
 
-    const value = this.form.value as { name: string | null; icon: string | null; group: GroupRule, isPublic: boolean | null };
+    const value = this.form.value as { name: string | null; icon: string | null; group: GroupRule, isPublic: boolean | null, opdsSort: string | null };
     const cleanedGroup = removeNulls(serializeDateRules(value.group));
 
     this.magicShelfService.saveShelf({
@@ -847,17 +865,13 @@ export class MagicShelfComponent implements OnInit {
       icon: value.icon,
       iconType: this.selectedIcon?.type,
       isPublic: !!value.isPublic,
+      opdsSort: value.opdsSort ?? null,
       group: cleanedGroup
     }).subscribe({
       next: (savedShelf) => {
         this.messageService.add({severity: 'success', summary: this.t.translate('magicShelf.toast.successSummary'), detail: this.t.translate('magicShelf.toast.successDetail')});
         if (savedShelf?.id) {
           this.shelfId = savedShelf.id;
-          this.form.patchValue({
-            name: savedShelf.name,
-            icon: savedShelf.icon,
-            isPublic: savedShelf.isPublic
-          });
         }
         this.ref.close(savedShelf);
       },

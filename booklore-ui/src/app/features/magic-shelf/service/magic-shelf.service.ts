@@ -15,6 +15,7 @@ export interface MagicShelf {
   iconType?: 'PRIME_NG' | 'CUSTOM_SVG' | null;
   filterJson: string;
   isPublic?: boolean;
+  opdsSort?: string | null;
 }
 
 export interface MagicShelfState {
@@ -94,14 +95,15 @@ export class MagicShelfService {
     );
   }
 
-  saveShelf(data: { id?: number; name: string | null; icon: string | null; iconType?: 'PRIME_NG' | 'CUSTOM_SVG'; group: unknown, isPublic?: boolean | null }): Observable<MagicShelf> {
+  saveShelf(data: { id?: number; name: string | null; icon: string | null; iconType?: 'PRIME_NG' | 'CUSTOM_SVG'; group: unknown, isPublic?: boolean | null, opdsSort?: string | null }): Observable<MagicShelf> {
     const payload: MagicShelf = {
       id: data.id,
       name: data.name ?? '',
       icon: data.icon,
       iconType: data.iconType,
       filterJson: JSON.stringify(data.group),
-      isPublic: data.isPublic ?? false
+      isPublic: data.isPublic ?? false,
+      opdsSort: data.opdsSort ?? null
     };
 
     return this.http.post<MagicShelf>(this.url, payload).pipe(

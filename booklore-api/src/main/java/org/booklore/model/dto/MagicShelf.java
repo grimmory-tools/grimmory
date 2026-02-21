@@ -1,6 +1,7 @@
 package org.booklore.model.dto;
 
 import org.booklore.model.enums.IconType;
+import org.booklore.model.enums.OpdsSortOrder;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -25,4 +26,6 @@ public class MagicShelf {
     private String filterJson;
 
     private Boolean isPublic = false;
+
+    private OpdsSortOrder opdsSort;
 }

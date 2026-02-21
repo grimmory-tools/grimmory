@@ -70,6 +70,22 @@
             </div>
           </div>
         }
+
+        <div class="form-field opds-sort-section">
+          <label for="opdsSort">{{ t('form.opdsSort') }}</label>
+          <p-select
+            inputId="opdsSort"
+            formControlName="opdsSort"
+            [options]="opdsSortOptions"
+            optionLabel="label"
+            optionValue="value"
+            [showClear]="false"
+            appendTo="body"
+            class="opds-sort-select"
+            [pTooltip]="t('form.opdsSortTooltip')"
+            tooltipPosition="top"
+          />
+        </div>
       </div>
 
       @if (showImportPanel) {

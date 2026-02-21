@@ -1,6 +1,7 @@
 package org.booklore.model.entity;
 
 import org.booklore.model.enums.IconType;
+import org.booklore.model.enums.OpdsSortOrder;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -39,6 +40,10 @@ public class MagicShelfEntity {
     @Column(name = "is_public", nullable = false)
     @lombok.Builder.Default
     private boolean isPublic = false;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "opds_sort")
+    private OpdsSortOrder opdsSort;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @lombok.Builder.Default

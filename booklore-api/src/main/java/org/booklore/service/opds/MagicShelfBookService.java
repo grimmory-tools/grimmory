@@ -44,7 +44,11 @@ public class MagicShelfBookService {
     private final ObjectMapper objectMapper;
 
     public Page<Book> getBooksByMagicShelfId(Long userId, Long magicShelfId, int page, int size) {
-        MagicShelfEntity shelf = validateMagicShelfAccess(userId, magicShelfId);
+        MagicShelfEntity shelf = getValidatedMagicShelf(userId, magicShelfId);
+        return getBooksForShelf(shelf, userId, page, size);
+    }
+
+    Page<Book> getBooksForShelf(MagicShelfEntity shelf, Long userId, int page, int size) {
         try {
             GroupRule groupRule = objectMapper.readValue(shelf.getFilterJson(), GroupRule.class);
             Specification<BookEntity> specification = ruleEvaluatorService.toSpecification(groupRule, userId);
@@ -92,7 +96,7 @@ public class MagicShelfBookService {
                 .orElse("Magic Shelf Books");
     }
 
-    private MagicShelfEntity validateMagicShelfAccess(Long userId, Long magicShelfId) {
+    public MagicShelfEntity getValidatedMagicShelf(Long userId, Long magicShelfId) {
         MagicShelfEntity shelf = magicShelfRepository.findById(magicShelfId)
                 .orElseThrow(() -> ApiError.MAGIC_SHELF_NOT_FOUND.createException(magicShelfId));
 
