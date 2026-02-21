@@ -859,6 +859,7 @@ export class MagicShelfComponent implements OnInit {
             isPublic: savedShelf.isPublic
           });
         }
+        this.ref.close(savedShelf);
       },
       error: (err) => {
         this.messageService.add({
