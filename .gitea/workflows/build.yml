@@ -1,0 +1,117 @@
+# Build the Booklore Docker image with a branch-and-timestamp tag and publish it as an artifact
+# so it can be downloaded and tested locally.
+
+name: Build Booklore Docker
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "**"
+
+jobs:
+  build-image:
+    runs-on: ubuntu-latest
+    needs: ["run-tests"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compute image tag
+        run: |
+          BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+          BRANCH_SLUG=$(echo "$BRANCH_NAME" | tr '[:upper:]' '[:lower:]' | tr '/' '-' | tr -c 'a-z0-9-_' '-')
+          TIMESTAMP=$(date -u +"%Y%m%d%H%M%S")
+          echo "IMAGE_TAG_SUFFIX=${BRANCH_SLUG}-${TIMESTAMP}" >> "$GITHUB_ENV"
+          echo "BRANCH_LATEST_TAG=${BRANCH_SLUG}-latest" >> "$GITHUB_ENV"
+
+      - name: Set Up QEMU for Multi-Architecture Builds
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set Up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set Up JDK 25
+        uses: actions/setup-java@v5
+        with:
+          java-version: "25"
+          distribution: "oracle"
+          cache: "gradle"
+
+      - name: Clean annotation processor cache
+        run: |
+          cd booklore-api
+          rm -rf build/generated bin .gradle/caches/modules-2/metadata-* || true
+          rm -rf booklore-api/bin
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          push: false
+          load: true
+          tags: |
+            booklore:${{ env.IMAGE_TAG_SUFFIX }}
+            booklore:${{ env.BRANCH_LATEST_TAG }}
+          build-args: |
+            APP_VERSION=${{ env.IMAGE_TAG_SUFFIX }}
+            APP_REVISION=${{ github.sha }}
+
+      - name: Save image as artifact
+        run: |
+          docker save booklore:${IMAGE_TAG_SUFFIX} -o booklore-image-${IMAGE_TAG_SUFFIX}.tar
+
+      - name: Print image tag
+        run: |
+          echo "Built image tags:"
+          echo "  - booklore:${IMAGE_TAG_SUFFIX}"
+          echo "  - booklore:${BRANCH_LATEST_TAG}"
+
+      # - name: Upload image artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: booklore-image-${{ env.IMAGE_TAG_SUFFIX }}
+      #     path: booklore-image-${{ env.IMAGE_TAG_SUFFIX }}.tar
+      #     retention-days: 3
+
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set Up JDK 25
+        uses: actions/setup-java@v5
+        with:
+          java-version: "25"
+          distribution: "oracle"
+          cache: "gradle"
+
+      - name: Set Up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: booklore-ui/package-lock.json
+
+      - name: Clean annotation processor cache
+        run: |
+          cd booklore-api
+          rm -rf build/generated bin .gradle/caches/modules-2/metadata-* || true
+
+      - name: Run backend tests
+        run: |
+          cd booklore-api
+          chmod +x gradlew
+          ./gradlew test
+
+      - name: Install frontend dependencies
+        run: |
+          cd booklore-ui
+          npm ci
+
+      - name: Run frontend tests
+        run: |
+          cd booklore-ui
+          npx ng test

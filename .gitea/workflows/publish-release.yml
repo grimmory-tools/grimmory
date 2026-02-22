@@ -1,0 +1,148 @@
+name: Test, Build & Publish Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "**"
+
+jobs:
+  backend-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set Up JDK 25
+        uses: actions/setup-java@v5
+        with:
+          java-version: "25"
+          distribution: "oracle"
+          cache: "gradle"
+
+      - name: Run backend tests
+        run: |
+          cd booklore-api
+          chmod +x gradlew
+          ./gradlew test
+
+  frontend-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set Up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: booklore-ui/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd booklore-ui
+          npm ci
+
+      - name: Run frontend tests
+        run: |
+          cd booklore-ui
+          npx ng test
+
+  build-and-publish:
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
+    needs: [backend-tests, frontend-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compute image tags
+        run: |
+          BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+          BRANCH_SLUG=$(echo "$BRANCH_NAME" | tr '[:upper:]' '[:lower:]' | tr '/' '-' | tr -c 'a-z0-9-_' '-' | sed 's/^-*//;s/-*$//')
+          TIMESTAMP=$(date -u +"%Y%m%d%H%M%S")
+          echo "IMAGE_TAG_SUFFIX=${BRANCH_SLUG}-${TIMESTAMP}" >> "$GITHUB_ENV"
+          echo "IMAGE_TAG_TIMESTAMPED=${{ secrets.DOCKER_HUB_USERNAME }}/booklore:${BRANCH_SLUG}-${TIMESTAMP}" >> "$GITHUB_ENV"
+          echo "IMAGE_TAG_BRANCH=${{ secrets.DOCKER_HUB_USERNAME }}/booklore:${BRANCH_SLUG}" >> "$GITHUB_ENV"
+          echo "IMAGE_TAG_DEVELOP=${{ secrets.DOCKER_HUB_USERNAME }}/booklore:develop" >> "$GITHUB_ENV"
+          echo "IMAGE_TAG_LATEST=${{ secrets.DOCKER_HUB_USERNAME }}/booklore:latest" >> "$GITHUB_ENV"
+
+      - name: Set Up QEMU for Multi-Architecture Builds
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set Up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set Up JDK 25
+        uses: actions/setup-java@v5
+        with:
+          java-version: "25"
+          distribution: "oracle"
+          cache: "gradle"
+      - name: Clean annotation processor cache
+        run: |
+          cd booklore-api
+          rm -rf build/generated bin .gradle/caches/modules-2/metadata-* || true
+          rm -rf booklore-api/bin
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ env.IMAGE_TAG_TIMESTAMPED }}
+            ${{ env.IMAGE_TAG_BRANCH }}
+            ${{ env.IMAGE_TAG_DEVELOP }}
+            ${{ env.IMAGE_TAG_LATEST }}
+          build-args: |
+            APP_VERSION=${{ env.IMAGE_TAG_SUFFIX }}
+            APP_REVISION=${{ github.sha }}
+
+      - name: Print published image tags
+        run: |
+          echo "✅ Published Docker images:"
+          echo "  - ${{ env.IMAGE_TAG_TIMESTAMPED }}"
+          echo "  - ${{ env.IMAGE_TAG_BRANCH }}"
+          echo "  - ${{ env.IMAGE_TAG_DEVELOP }}"
+          echo "  - ${{ env.IMAGE_TAG_LATEST }}"
+
+  koreader-plugin-release:
+    if: github.ref == 'refs/heads/koreader-plugin' || github.ref == 'refs/heads/koreader-plugin-test'
+    needs: [backend-tests, frontend-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get current date
+        id: date
+        run: echo "DATE=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+
+      - name: Zip KOReader plugin
+        run: |
+          cd tools
+          zip -r ../booklore.koplugin.zip booklore.koplugin
+
+      - name: Create Release with Asset
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: koreader-plugin-${{ steps.date.outputs.DATE }}
+          name: KOReader Plugin Release ${{ steps.date.outputs.DATE }}
+          body: |
+            KOReader Plugin release for ${{ steps.date.outputs.DATE }}
+            Branch: ${{ github.ref_name }}
+          files: booklore.koplugin.zip
+          draft: false
+          prerelease: false
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

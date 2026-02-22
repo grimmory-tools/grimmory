@@ -1,0 +1,183 @@
+# Build the Booklore Docker image with a branch-and-timestamp tag and publish it as an artifact
+# This workflow intelligently determines which tests to run based on changed files
+
+name: Smart Build Booklore Docker
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "**"
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      run_backend_tests: ${{ steps.check-changes.outputs.run_backend_tests }}
+      run_frontend_tests: ${{ steps.check-changes.outputs.run_frontend_tests }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history to compare changes
+
+      - name: Detect changed directories
+        id: check-changes
+        run: |
+          # Get the base ref to compare against
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            BASE_REF="${{ github.event.pull_request.base.sha }}"
+          else
+            # For pushes, compare with the previous commit or main branch
+            if [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+              BASE_REF="${{ github.event.before }}"
+            else
+              BASE_REF="origin/main"
+            fi
+          fi
+          
+          echo "Comparing against: $BASE_REF"
+          
+          # Check for changes in each directory
+          if git diff --name-only $BASE_REF HEAD | grep -q '^booklore-api/'; then
+            echo "Changes detected in booklore-api/"
+            BACKEND_CHANGED=true
+          else
+            echo "No changes in booklore-api/"
+            BACKEND_CHANGED=false
+          fi
+          
+          if git diff --name-only $BASE_REF HEAD | grep -q '^booklore-ui/'; then
+            echo "Changes detected in booklore-ui/"
+            FRONTEND_CHANGED=true
+          else
+            echo "No changes in booklore-ui/"
+            FRONTEND_CHANGED=false
+          fi
+          
+          # Set outputs
+          echo "run_backend_tests=$BACKEND_CHANGED" >> $GITHUB_OUTPUT
+          echo "run_frontend_tests=$FRONTEND_CHANGED" >> $GITHUB_OUTPUT
+          
+          echo "Test execution plan:"
+          echo "  Backend tests: $BACKEND_CHANGED"
+          echo "  Frontend tests: $FRONTEND_CHANGED"
+
+  run-tests:
+    runs-on: ubuntu-latest
+    needs: ["detect-changes"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set Up JDK 25
+        if: needs.detect-changes.outputs.run_backend_tests == 'true'
+        uses: actions/setup-java@v5
+        with:
+          java-version: "25"
+          distribution: "oracle"
+          cache: "gradle"
+
+      - name: Set Up Node.js
+        if: needs.detect-changes.outputs.run_frontend_tests == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: booklore-ui/package-lock.json
+
+      - name: Clean annotation processor cache
+        if: needs.detect-changes.outputs.run_backend_tests == 'true'
+        run: |
+          cd booklore-api
+          rm -rf build/generated bin .gradle/caches/modules-2/metadata-* || true
+
+      - name: Run backend tests
+        if: needs.detect-changes.outputs.run_backend_tests == 'true'
+        run: |
+          cd booklore-api
+          chmod +x gradlew
+          ./gradlew test
+
+      - name: Install frontend dependencies
+        if: needs.detect-changes.outputs.run_frontend_tests == 'true'
+        run: |
+          cd booklore-ui
+          npm ci
+
+      - name: Run frontend tests
+        if: needs.detect-changes.outputs.run_frontend_tests == 'true'
+        run: |
+          cd booklore-ui
+          npx ng test
+
+      - name: No tests to run
+        if: needs.detect-changes.outputs.run_backend_tests == 'false' && needs.detect-changes.outputs.run_frontend_tests == 'false'
+        run: |
+          echo "No changes detected in booklore-api/ or booklore-ui/"
+          echo "Skipping all tests"
+
+  build-image:
+    runs-on: ubuntu-latest
+    needs: ["run-tests"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compute image tag
+        run: |
+          BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+          BRANCH_SLUG=$(echo "$BRANCH_NAME" | tr '[:upper:]' '[:lower:]' | tr '/' '-' | tr -c 'a-z0-9-_' '-')
+          TIMESTAMP=$(date -u +"%Y%m%d%H%M%S")
+          echo "IMAGE_TAG_SUFFIX=${BRANCH_SLUG}-${TIMESTAMP}" >> "$GITHUB_ENV"
+          echo "BRANCH_LATEST_TAG=${BRANCH_SLUG}-latest" >> "$GITHUB_ENV"
+
+      - name: Set Up QEMU for Multi-Architecture Builds
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set Up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set Up JDK 25
+        uses: actions/setup-java@v5
+        with:
+          java-version: "25"
+          distribution: "oracle"
+          cache: "gradle"
+
+      - name: Clean annotation processor cache
+        run: |
+          cd booklore-api
+          rm -rf build/generated bin .gradle/caches/modules-2/metadata-* || true
+          rm -rf booklore-api/bin
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          push: false
+          load: true
+          tags: |
+            booklore:${{ env.IMAGE_TAG_SUFFIX }}
+            booklore:${{ env.BRANCH_LATEST_TAG }}
+          build-args: |
+            APP_VERSION=${{ env.IMAGE_TAG_SUFFIX }}
+            APP_REVISION=${{ github.sha }}
+
+      - name: Save image as artifact
+        run: |
+          docker save booklore:${IMAGE_TAG_SUFFIX} -o booklore-image-${IMAGE_TAG_SUFFIX}.tar
+
+      - name: Print image tag
+        run: |
+          echo "Built image tags:"
+          echo "  - booklore:${IMAGE_TAG_SUFFIX}"
+          echo "  - booklore:${BRANCH_LATEST_TAG}"
+
+      # - name: Upload image artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: booklore-image-${{ env.IMAGE_TAG_SUFFIX }}
+      #     path: booklore-image-${{ env.IMAGE_TAG_SUFFIX }}.tar
+      #     retention-days: 3
