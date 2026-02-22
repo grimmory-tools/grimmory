@@ -31,7 +31,7 @@ COPY ./booklore-api/src /springboot-app/src
 COPY --from=angular-build /angular-app/dist/booklore/browser /springboot-app/src/main/resources/static
 
 # Inject version into application.yaml using yq
-ARG APP_VERSION=development
+ARG APP_VERSION
 RUN apk add --no-cache yq && \
     yq eval '.app.version = strenv(APP_VERSION)' -i /springboot-app/src/main/resources/application.yaml
 
