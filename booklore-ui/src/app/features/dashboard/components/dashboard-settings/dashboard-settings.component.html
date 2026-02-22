@@ -52,12 +52,12 @@
                 </div>
 
                 <div class="scroller-field">
-                  <label>Direction</label>
+                  <label>{{ t('direction') }}</label>
                   <p-select
                     fluid
                     [options]="sortDirectionOptions"
                     [(ngModel)]="scroller.sortDirection"
-                    placeholder="Select direction"
+                    [placeholder]="t('selectDirection')"
                     appendTo="body">
                   </p-select>
                 </div>
@@ -65,12 +65,12 @@
 
             @if (scroller.type === 'upNext') {
               <div class="scroller-field">
-                <label>Book Selection</label>
+                <label>{{ t('upNextLabel') }}</label>
                 <p-select
                   fluid
                   [options]="upNextModeOptions"
                   [(ngModel)]="scroller.upNextShowFirstUnread"
-                  placeholder="Select mode"
+                  [placeholder]="t('selectMode')"
                   appendTo="body">
                 </p-select>
               </div>
@@ -78,12 +78,12 @@
 
             @if (scroller.type === 'readAgain') {
               <div class="scroller-field">
-                <label>Sort Order</label>
+                <label>{{ t('readAgainLabel') }}</label>
                 <p-select
                   fluid
                   [options]="readAgainSortOptions"
                   [(ngModel)]="scroller.readAgainSortByFinished"
-                  placeholder="Select sorting"
+                  [placeholder]="t('selectSorting')"
                   appendTo="body">
                 </p-select>
               </div>
@@ -138,14 +138,14 @@
     <div class="dialog-footer">
       <div class="footer-left">
         <p-button
-          label="Add Scroller"
+          [label]="t('addScroller')"
           icon="pi pi-plus"
           severity="primary"
           (click)="addScroller()"
           [disabled]="config.scrollers.length >= MAX_SCROLLERS">
         </p-button>
         <p-button
-          label="Reset to Default"
+          [label]="t('resetToDefault')"
           icon="pi pi-refresh"
           severity="secondary"
           text
@@ -154,13 +154,13 @@
       </div>
       <div class="footer-actions">
         <p-button
-          label="Cancel"
+          [label]="t('cancel')"
           [outlined]="true"
           severity="secondary"
           (click)="cancel()">
         </p-button>
         <p-button
-          label="Save"
+          [label]="t('save')"
           icon="pi pi-check"
           severity="success"
           (click)="save()">

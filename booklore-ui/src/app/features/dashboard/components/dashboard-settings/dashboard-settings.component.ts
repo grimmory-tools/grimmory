@@ -44,16 +44,11 @@ export class DashboardSettingsComponent implements OnInit {
 
   config!: DashboardConfig;
 
-  availableScrollerTypes = [
-    {label: 'Continue Reading', value: ScrollerType.LAST_READ},
-    {label: 'Continue Listening', value: ScrollerType.LAST_LISTENED},
-    {label: 'Recently Added', value: ScrollerType.LATEST_ADDED},
-    {label: 'Discover Something New', value: ScrollerType.RANDOM},
-    {label: 'Magic Shelf', value: ScrollerType.MAGIC_SHELF},
-    {label: 'Up Next', value: ScrollerType.UP_NEXT},
-    {label: 'Read Again', value: ScrollerType.READ_AGAIN},
-    {label: 'Recommendations', value: ScrollerType.RECOMMENDATIONS}
-  ];
+  availableScrollerTypes: {label: string; value: ScrollerType}[] = [];
+  sortFieldOptions: {label: string; value: string}[] = [];
+  sortDirectionOptions: {label: string; value: string}[] = [];
+  upNextModeOptions: {label: string; value: boolean}[] = [];
+  readAgainSortOptions: {label: string; value: boolean}[] = [];
 
   magicShelves$ = this.magicShelfService.shelvesState$.pipe(
     map(state => (state.shelves || []).map(shelf => ({
@@ -61,37 +56,6 @@ export class DashboardSettingsComponent implements OnInit {
       value: shelf.id!
     })))
   );
-
-  sortFieldOptions = [
-    {label: 'Title', value: 'title'},
-    {label: 'Title + Series', value: 'titleSeries'},
-    {label: 'File Name', value: 'fileName'},
-    {label: 'File Path', value: 'filePath'},
-    {label: 'Date Added', value: 'addedOn'},
-    {label: 'Author', value: 'author'},
-    {label: 'Author (Surname)', value: 'authorSurnameVorname'},
-    {label: 'Author + Series', value: 'authorSeries'},
-    {label: 'Personal Rating', value: 'personalRating'},
-    {label: 'Publisher', value: 'publisher'},
-    {label: 'Published Date', value: 'publishedDate'},
-    {label: 'Last Read', value: 'lastReadTime'},
-    {label: 'Pages', value: 'pageCount'}
-  ];
-
-  sortDirectionOptions = [
-    {label: 'Ascending', value: 'asc'},
-    {label: 'Descending', value: 'desc'}
-  ];
-
-  upNextModeOptions = [
-    {label: 'Next book in series', value: false},
-    {label: 'First unread in series', value: true}
-  ];
-
-  readAgainSortOptions = [
-    {label: 'Random', value: false},
-    {label: 'Recently finished', value: true}
-  ];
 
   private magicShelvesMap = new Map<number, string>();
 
@@ -126,7 +90,10 @@ export class DashboardSettingsComponent implements OnInit {
       {label: t('scrollerTypes.lastListened'), value: ScrollerType.LAST_LISTENED},
       {label: t('scrollerTypes.latestAdded'), value: ScrollerType.LATEST_ADDED},
       {label: t('scrollerTypes.random'), value: ScrollerType.RANDOM},
-      {label: t('scrollerTypes.magicShelf'), value: ScrollerType.MAGIC_SHELF}
+      {label: t('scrollerTypes.magicShelf'), value: ScrollerType.MAGIC_SHELF},
+      {label: t('scrollerTypes.upNext'), value: ScrollerType.UP_NEXT},
+      {label: t('scrollerTypes.readAgain'), value: ScrollerType.READ_AGAIN},
+      {label: t('scrollerTypes.recommendations'), value: ScrollerType.RECOMMENDATIONS}
     ];
 
     this.sortFieldOptions = [
@@ -153,6 +120,16 @@ export class DashboardSettingsComponent implements OnInit {
       {label: t('sortDirections.asc'), value: 'asc'},
       {label: t('sortDirections.desc'), value: 'desc'}
     ];
+
+    this.upNextModeOptions = [
+      {label: t('upNextModes.nextInSeries'), value: false},
+      {label: t('upNextModes.firstUnread'), value: true}
+    ];
+
+    this.readAgainSortOptions = [
+      {label: t('readAgainSorts.random'), value: false},
+      {label: t('readAgainSorts.recentlyFinished'), value: true}
+    ];
   }
 
   getScrollerTitle(scroller: ScrollerConfig): string {
@@ -174,7 +151,7 @@ export class DashboardSettingsComponent implements OnInit {
       case ScrollerType.READ_AGAIN:
         return 'dashboard.scroller.readAgain';
       case ScrollerType.RECOMMENDATIONS:
-        return 'dashboard.scroller.recomendations';
+        return 'dashboard.scroller.recommendations';
       default:
         return 'dashboard.scroller.default';
     }

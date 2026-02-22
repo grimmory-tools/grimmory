@@ -37,6 +37,6 @@ export const DEFAULT_DASHBOARD_CONFIG: DashboardConfig = {
     {id: '4', type: ScrollerType.RANDOM, title: 'dashboard.scroller.discoverNew', enabled: true, order: 4, maxItems: DEFAULT_MAX_ITEMS},
     {id: '5', type: ScrollerType.UP_NEXT, title: 'dashboard.scroller.upNext', enabled: true, order: 5, maxItems: DEFAULT_MAX_ITEMS, upNextShowFirstUnread: false},
     {id: '6', type: ScrollerType.READ_AGAIN, title: 'dashboard.scroller.readAgain', enabled: false, order: 6, maxItems: DEFAULT_MAX_ITEMS, readAgainSortByFinished: false},
-    {id: '7', type: ScrollerType.RECOMMENDATIONS, title: 'dashboard.scroller.recomendations', enabled: true, order: 7, maxItems: DEFAULT_MAX_ITEMS}
+    {id: '7', type: ScrollerType.RECOMMENDATIONS, title: 'dashboard.scroller.recommendations', enabled: true, order: 7, maxItems: DEFAULT_MAX_ITEMS}
   ]
 };
