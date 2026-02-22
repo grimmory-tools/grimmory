@@ -44,7 +44,9 @@ include:
       push-args: "--compression-format zstd --compression-level 20"
       snapshot-image: "$CI_REGISTRY_IMAGE/snapshot:$CI_COMMIT_REF_SLUG"
       release-extra-tags: "latest \\g<major>.\\g<minor>\\g<build> \\g<major>\\g<build>"
-
+  - component: "$CI_SERVER_FQDN/to-be-continuous/gitlab-butler/gitlab-ci-butler@1.4"
+    inputs:
+      pipelines-delete-older-than: "30"
 # -----------------------------
 # Tests (branch pushes + MRs)
 # -----------------------------
