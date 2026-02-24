@@ -29,11 +29,18 @@ COPY ./booklore-api/src /springboot-app/src
 # Copy Angular dist into Spring Boot static resources so it's embedded in the JAR
 COPY --from=angular-build /angular-app/dist/booklore/browser /springboot-app/src/main/resources/static
 
-# Inject version into application.yaml using yq
+# Inject version into application.yaml.
+# We use sed to replace Spring's runtime placeholder with a hard literal so the
+# value is baked into the JAR and does not depend on the APP_VERSION env var
+# being present in the running container.
+# The ARG is included in the RUN command explicitly so buildah/Docker invalidates
+# the layer cache whenever APP_VERSION changes (avoids stale cached builds).
 ARG APP_VERSION
 ENV APP_VERSION=${APP_VERSION}
-RUN apk add --no-cache yq && \
-    yq eval '.app.version = strenv(APP_VERSION)' -i /springboot-app/src/main/resources/application.yaml
+RUN echo "Building with APP_VERSION=${APP_VERSION}" && \
+    sed -i "s|version: \${APP_VERSION:development}|version: ${APP_VERSION}|g" \
+        /springboot-app/src/main/resources/application.yaml && \
+    grep "version:" /springboot-app/src/main/resources/application.yaml
 
 RUN --mount=type=cache,target=/home/gradle/.gradle \
     gradle clean build -x test --no-daemon --parallel
