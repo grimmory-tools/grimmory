@@ -1,3 +1,10 @@
+## [2.0.1](https://gitlab.worldteacher.dev/WorldTeacher/wt-booklore/compare/2.0.0...2.0.1) (2026-02-24)
+
+
+### Bug Fixes
+
+* **dockerfile:** add env to dockerfile to hopefully add version info ([74554c4](https://gitlab.worldteacher.dev/WorldTeacher/wt-booklore/commit/74554c45f1cdd8a0209504c1b07649b1f28a54bd))
+
 # [2.0.0](https://gitlab.worldteacher.dev/WorldTeacher/wt-booklore/compare/1.21.7...2.0.0) (2026-02-23)
 
 
