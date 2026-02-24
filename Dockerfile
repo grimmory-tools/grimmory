@@ -31,6 +31,7 @@ COPY --from=angular-build /angular-app/dist/booklore/browser /springboot-app/src
 
 # Inject version into application.yaml using yq
 ARG APP_VERSION
+ENV ARG_VERSION
 RUN apk add --no-cache yq && \
     yq eval '.app.version = strenv(APP_VERSION)' -i /springboot-app/src/main/resources/application.yaml
 
@@ -42,12 +43,14 @@ FROM eclipse-temurin:25-jre-alpine
 
 ARG APP_VERSION
 ARG APP_REVISION
+ENV APP_VERSION
+ENV APP_REVISION
 
 # Set OCI labels
-LABEL org.opencontainers.image.title="BookLore" \
-      org.opencontainers.image.description="BookLore: A self-hosted, multi-user digital library with smart shelves, auto metadata, Kobo & KOReader sync, BookDrop imports, OPDS support, and a built-in reader for EPUB, PDF, and comics." \
-      org.opencontainers.image.source="https://github.com/booklore-app/booklore" \
-      org.opencontainers.image.url="https://github.com/booklore-app/booklore" \
+LABEL org.opencontainers.image.title="WT-BookLore" \
+      org.opencontainers.image.description="WT-BookLore: A self-hosted, multi-user digital library with smart shelves, auto metadata, Kobo & KOReader sync, BookDrop imports, OPDS support, and a built-in reader for EPUB, PDF, and comics. This fork includes native support for the KOReader Sync plugin as well as all changes done by me." \
+      org.opencontainers.image.source="https://gitlab.worldteacher.dev/WorldTeacher/wt-booklore" \
+      org.opencontainers.image.url="https://gitlab.worldteacher.dev/WorldTeacher/wt-booklore" \
       org.opencontainers.image.documentation="https://booklore.org/docs/getting-started" \
       org.opencontainers.image.version=$APP_VERSION \
       org.opencontainers.image.revision=$APP_REVISION \
