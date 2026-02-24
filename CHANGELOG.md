@@ -1,3 +1,10 @@
+## [2.0.3](https://gitlab.worldteacher.dev/WorldTeacher/wt-booklore/compare/2.0.2...2.0.3) (2026-02-24)
+
+
+### Bug Fixes
+
+* export APP_VERSION to ENV so strenv() works under buildah ([a65f34b](https://gitlab.worldteacher.dev/WorldTeacher/wt-booklore/commit/a65f34bbcf78bc2dbc12d83891812b586d027f8d))
+
 ## [2.0.2](https://gitlab.worldteacher.dev/WorldTeacher/wt-booklore/compare/2.0.1...2.0.2) (2026-02-24)
 
 
