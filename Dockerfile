@@ -67,8 +67,7 @@ LABEL org.opencontainers.image.title="WT-BookLore" \
 
 ENV JAVA_TOOL_OPTIONS="-XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -XX:+UseContainerSupport -XX:+UseCompactObjectHeaders -XX:MaxRAMPercentage=75.0"
 
-RUN apk update && apk add --no-cache su-exec && \
-    mkdir -p /bookdrop
+RUN apk update && apk add --no-cache su-exec mariadb-connector-c mariadb-client
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
