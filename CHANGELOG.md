@@ -1,3 +1,10 @@
+# [2.1.0](https://gitlab.worldteacher.dev/WorldTeacher/wt-booklore/compare/2.0.3...2.1.0) (2026-02-25)
+
+
+### Features
+
+* add APPLY_OPDS_TABLE_MIGRATION env var for opds_sort column ([21b4c71](https://gitlab.worldteacher.dev/WorldTeacher/wt-booklore/commit/21b4c7188666a613f5d857208a203f51e7188c16))
+
 ## [2.0.3](https://gitlab.worldteacher.dev/WorldTeacher/wt-booklore/compare/2.0.2...2.0.3) (2026-02-24)
 
 
