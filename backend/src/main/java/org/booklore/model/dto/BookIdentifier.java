@@ -7,3 +7,4 @@ public interface BookIdentifier {
     String getIsbn13();
     String getHardcoverBookId();
 }
+

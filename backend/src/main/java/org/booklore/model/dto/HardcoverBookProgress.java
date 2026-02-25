@@ -23,3 +23,4 @@ public class HardcoverBookProgress {
     private Date lastReadDate = null;
     private ReadStatus status;
 }
+
