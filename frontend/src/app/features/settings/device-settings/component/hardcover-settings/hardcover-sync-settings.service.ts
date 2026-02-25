@@ -22,4 +22,8 @@ export class HardcoverSyncSettingsService {
   updateSettings(settings: HardcoverSyncSettings): Observable<HardcoverSyncSettings> {
     return this.http.put<HardcoverSyncSettings>(this.baseUrl, settings);
   }
+
+  startImport(settings: HardcoverSyncSettings): Observable<unknown> {
+    return this.http.put(API_CONFIG.BASE_URL + '/api/v1/hardcover-import', settings);
+  }
 }
