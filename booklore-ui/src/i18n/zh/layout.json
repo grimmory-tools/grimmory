@@ -10,7 +10,6 @@
     "profile": "个人资料",
     "logout": "退出登录",
     "language": "语言",
-    "supportBookLore": "支持 BookLore",
     "notificationAriaLabel": "统一通知图标",
     "createLibrary": "创建书库",
     "stats": "统计",
@@ -42,11 +41,11 @@
   "uploadDialog": {
     "chooseFile": "选择文件：",
     "selectImage": "选择图片",
-    "fileNote": "支持的格式：JPEG、PNG \u2022 最大文件大小：5 MB",
+    "fileNote": "支持的格式：JPEG、PNG • 最大文件大小：5 MB",
     "or": "或",
     "imageUrl": "图片 URL：",
     "urlPlaceholder": "在此粘贴图片 URL",
-    "urlNote": "支持的格式：JPEG、PNG \u2022 最大文件大小：5 MB",
+    "urlNote": "支持的格式：JPEG、PNG • 最大文件大小：5 MB",
     "errorNoInput": "请选择一个文件或粘贴一个 URL。",
     "errorUploadFailed": "图片上传失败。",
     "errorUploadRetry": "上传失败，请重试。"

@@ -66,73 +66,6 @@
   position: relative;
 }
 
-.heart-button {
-  overflow: visible;
-  cursor: pointer;
-  position: relative;
-
-  &:hover .heart-icon {
-    animation: heartbeat 0.6s ease-in-out;
-    filter: drop-shadow(0 0 8px rgba(236, 72, 153, 0.8));
-  }
-
-  &:hover .heart-ripple {
-    animation: ripple-burst 1.2s ease-out infinite;
-  }
-
-  &:hover .heart-ripple-delayed {
-    animation-delay: 0.4s;
-  }
-}
-
-.heart-ripple {
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  border-radius: 50%;
-  border: 1.5px solid #ec4899;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.heart-orbit {
-  position: absolute;
-  z-index: 11;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  pointer-events: none;
-  top: calc(50% - 2px);
-  left: calc(50% - 2px);
-}
-
-.heart-orbit-1 {
-  background: #f472b6;
-  box-shadow: 0 0 10px #f472b6, 0 0 4px #f472b6;
-  animation: orbit-1 2.5s linear infinite;
-}
-
-.heart-orbit-2 {
-  background: #a78bfa;
-  box-shadow: 0 0 10px #a78bfa, 0 0 4px #a78bfa;
-  animation: orbit-2 3.2s linear infinite reverse;
-}
-
-.heart-orbit-3 {
-  background: #38bdf8;
-  box-shadow: 0 0 10px #38bdf8, 0 0 4px #38bdf8;
-  animation: orbit-3 4s linear infinite;
-}
-
-.heart-icon {
-  z-index: 10;
-  color: #e8366d !important;
-  font-size: 1.05rem;
-  animation: heart-float 2.5s ease-in-out infinite;
-  filter: drop-shadow(0 0 6px rgba(232, 54, 109, 0.8));
-  transition: filter 0.3s;
-}
-
 .mobile-trigger {
   display: none;
   position: relative;
@@ -181,39 +114,6 @@
 
 .spin {
   animation: spin 1.5s linear infinite;
-}
-
-@keyframes orbit-1 {
-  0% { transform: rotate(0deg) translateX(16px) rotate(0deg); }
-  100% { transform: rotate(360deg) translateX(16px) rotate(-360deg); }
-}
-
-@keyframes orbit-2 {
-  0% { transform: rotate(120deg) translateX(14px) rotate(-120deg); }
-  100% { transform: rotate(480deg) translateX(14px) rotate(-480deg); }
-}
-
-@keyframes orbit-3 {
-  0% { transform: rotate(240deg) translateX(18px) rotate(-240deg); }
-  100% { transform: rotate(600deg) translateX(18px) rotate(-600deg); }
-}
-
-@keyframes ripple-burst {
-  0% { transform: scale(0.8); opacity: 0.6; }
-  100% { transform: scale(2.2); opacity: 0; }
-}
-
-@keyframes heart-float {
-  0%, 100% { transform: translateY(1px); }
-  50% { transform: translateY(-1px); }
-}
-
-@keyframes heartbeat {
-  0% { transform: scale(1); }
-  25% { transform: scale(1.35); }
-  40% { transform: scale(0.95); }
-  55% { transform: scale(1.2); }
-  100% { transform: scale(1); }
 }
 
 @keyframes pulsate {

@@ -10,7 +10,6 @@
     "profile": "プロフィール",
     "logout": "ログアウト",
     "language": "言語",
-    "supportBookLore": "BookLoreを支援",
     "notificationAriaLabel": "統合通知アイコン",
     "createLibrary": "ライブラリ作成",
     "stats": "統計",
@@ -42,11 +41,11 @@
   "uploadDialog": {
     "chooseFile": "ファイルを選択：",
     "selectImage": "画像を選択",
-    "fileNote": "対応形式: JPEG, PNG \u2022 最大ファイルサイズ: 5 MB",
+    "fileNote": "対応形式: JPEG, PNG • 最大ファイルサイズ: 5 MB",
     "or": "または",
     "imageUrl": "画像URL：",
     "urlPlaceholder": "画像URLを貼り付け",
-    "urlNote": "対応形式: JPEG, PNG \u2022 最大ファイルサイズ: 5 MB",
+    "urlNote": "対応形式: JPEG, PNG • 最大ファイルサイズ: 5 MB",
     "errorNoInput": "ファイルを選択するか、URLを貼り付けてください。",
     "errorUploadFailed": "画像のアップロードに失敗しました。",
     "errorUploadRetry": "アップロードに失敗しました。もう一度お試しください。"

@@ -10,7 +10,6 @@
     "profile": "Profile",
     "logout": "Logout",
     "language": "Language",
-    "supportBookLore": "Support BookLore",
     "notificationAriaLabel": "Unified Notification Icon",
     "createLibrary": "Create Library",
     "stats": "Stats",
@@ -43,11 +42,11 @@
   "uploadDialog": {
     "chooseFile": "Choose File:",
     "selectImage": "Select Image",
-    "fileNote": "Supported formats: JPEG, PNG \u2022 Maximum file size: 5 MB",
+    "fileNote": "Supported formats: JPEG, PNG • Maximum file size: 5 MB",
     "or": "OR",
     "imageUrl": "Image URL:",
     "urlPlaceholder": "Paste image URL here",
-    "urlNote": "Supported formats: JPEG, PNG \u2022 Maximum file size: 5 MB",
+    "urlNote": "Supported formats: JPEG, PNG • Maximum file size: 5 MB",
     "errorNoInput": "Please select a file or paste a URL.",
     "errorUploadFailed": "Failed to upload image.",
     "errorUploadRetry": "Upload failed. Please try again."

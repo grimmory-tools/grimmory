@@ -117,14 +117,6 @@
           </p-popover>
         </li>
 
-        <li class="topbar-item-relative heart-button topbar-item" (click)="openGithubSupportDialog()">
-          <span class="heart-ripple"></span>
-          <span class="heart-ripple heart-ripple-delayed"></span>
-          <span class="heart-orbit heart-orbit-1"></span>
-          <span class="heart-orbit heart-orbit-2"></span>
-          <span class="heart-orbit heart-orbit-3"></span>
-          <i class="pi pi-heart-fill heart-icon"></i>
-        </li>
         <li class="topbar-item-relative">
           <button
             type="button"
@@ -289,15 +281,6 @@
               {{ t('language') }}
             </button>
             <p-menu #langMenuMobile [model]="langMenuItems" [popup]="true"/>
-          </li>
-          <li>
-            <button
-              class="mobile-menu-item"
-              (click)="openGithubSupportDialog(); mobileMenu.hide()"
-            >
-              <i class="pi pi-thumbs-up topbar-icon"></i>
-              {{ t('supportBookLore') }}
-            </button>
           </li>
 
           @if (userService.userState$ | async; as userState) {

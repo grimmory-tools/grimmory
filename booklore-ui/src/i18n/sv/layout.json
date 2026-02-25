@@ -10,7 +10,6 @@
     "profile": "Profil",
     "logout": "Logga ut",
     "language": "Språk",
-    "supportBookLore": "Stöd BookLore",
     "notificationAriaLabel": "Samlad notifikationsikon",
     "createLibrary": "Skapa bibliotek",
     "stats": "Statistik",
@@ -42,11 +41,11 @@
   "uploadDialog": {
     "chooseFile": "Välj fil:",
     "selectImage": "Välj bild",
-    "fileNote": "Format som stöds: JPEG, PNG \u2022 Maximal filstorlek: 5 MB",
+    "fileNote": "Format som stöds: JPEG, PNG • Maximal filstorlek: 5 MB",
     "or": "ELLER",
     "imageUrl": "Bild-URL:",
     "urlPlaceholder": "Klistra in bild-URL här",
-    "urlNote": "Format som stöds: JPEG, PNG \u2022 Maximal filstorlek: 5 MB",
+    "urlNote": "Format som stöds: JPEG, PNG • Maximal filstorlek: 5 MB",
     "errorNoInput": "Välj en fil eller klistra in en URL.",
     "errorUploadFailed": "Kunde inte ladda upp bild.",
     "errorUploadRetry": "Uppladdning misslyckades. Försök igen."

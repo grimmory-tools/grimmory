@@ -10,7 +10,6 @@
     "profile": "Perfil",
     "logout": "Cerrar sesión",
     "language": "Idioma",
-    "supportBookLore": "Apoyar BookLore",
     "notificationAriaLabel": "Icono de notificación unificado",
     "createLibrary": "Crear biblioteca",
     "stats": "Estadísticas",
@@ -43,11 +42,11 @@
   "uploadDialog": {
     "chooseFile": "Elegir archivo:",
     "selectImage": "Seleccionar imagen",
-    "fileNote": "Formatos compatibles: JPEG, PNG \u2022 Tamaño máximo: 5 MB",
+    "fileNote": "Formatos compatibles: JPEG, PNG • Tamaño máximo: 5 MB",
     "or": "O",
     "imageUrl": "URL de imagen:",
     "urlPlaceholder": "Pegar URL de imagen aquí",
-    "urlNote": "Formatos compatibles: JPEG, PNG \u2022 Tamaño máximo: 5 MB",
+    "urlNote": "Formatos compatibles: JPEG, PNG • Tamaño máximo: 5 MB",
     "errorNoInput": "Por favor, seleccione un archivo o pegue una URL.",
     "errorUploadFailed": "Error al subir la imagen.",
     "errorUploadRetry": "Error en la subida. Por favor, inténtelo de nuevo."

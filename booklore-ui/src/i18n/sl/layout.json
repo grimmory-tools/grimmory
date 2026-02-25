@@ -1,47 +1,46 @@
 {
-    "topbar": {
-        "bookdrop": "Bookdrop",
-        "createNewLibrary": "Ustvari novo knjižnico",
-        "uploadBook": "Naloži knjigo",
-        "charts": "Grafi",
-        "metadataManager": "Upravljalnik metapodatkov",
-        "settings": "Nastavitve",
-        "documentation": "Dokumentacija",
-        "profile": "Profil",
-        "logout": "Odjava",
-        "language": "Jezik",
-        "supportBookLore": "Podpri BookLore",
-        "notificationAriaLabel": "Enotna ikona za obvestila",
-        "createLibrary": "Ustvari knjižnico",
-        "stats": "Statistika",
-        "libraryStats": "Statistika knjižnice",
-        "readingStats": "Statistika branja"
-    },
-    "menu": {
-        "home": "Domov",
-        "dashboard": "Nadzorna plošča",
-        "allBooks": "Vse knjige",
-        "libraries": "Knjižnice",
-        "shelves": "Police",
-        "magicShelves": "Pametne police",
-        "unshelved": "Brez police",
-        "series": "Zbirke",
-        "notebook": "Beležnica",
-        "update": "(Posodobitev)"
-    },
-    "changelog": {
-        "title": "Kaj je novega",
-        "description": "Zadnje posodobitve in izboljšave",
-        "loading": "Nalaganje dnevnika sprememb ...",
-        "empty": "Ni razpoložljivih posodobitev."
-    },
-    "theme": {
-        "primary": "Primarna",
-        "surface": "Površina"
-    },
-    "uploadDialog": {
-        "chooseFile": "Izberi datoteko:",
-        "selectImage": "Izberi sliko",
-        "fileNote": "Podprti formati: JPEG, PNG • Največja velikost datoteke: 5 MB"
-    }
+  "topbar": {
+    "bookdrop": "Bookdrop",
+    "createNewLibrary": "Ustvari novo knjižnico",
+    "uploadBook": "Naloži knjigo",
+    "charts": "Grafi",
+    "metadataManager": "Upravljalnik metapodatkov",
+    "settings": "Nastavitve",
+    "documentation": "Dokumentacija",
+    "profile": "Profil",
+    "logout": "Odjava",
+    "language": "Jezik",
+    "notificationAriaLabel": "Enotna ikona za obvestila",
+    "createLibrary": "Ustvari knjižnico",
+    "stats": "Statistika",
+    "libraryStats": "Statistika knjižnice",
+    "readingStats": "Statistika branja"
+  },
+  "menu": {
+    "home": "Domov",
+    "dashboard": "Nadzorna plošča",
+    "allBooks": "Vse knjige",
+    "libraries": "Knjižnice",
+    "shelves": "Police",
+    "magicShelves": "Pametne police",
+    "unshelved": "Brez police",
+    "series": "Zbirke",
+    "notebook": "Beležnica",
+    "update": "(Posodobitev)"
+  },
+  "changelog": {
+    "title": "Kaj je novega",
+    "description": "Zadnje posodobitve in izboljšave",
+    "loading": "Nalaganje dnevnika sprememb ...",
+    "empty": "Ni razpoložljivih posodobitev."
+  },
+  "theme": {
+    "primary": "Primarna",
+    "surface": "Površina"
+  },
+  "uploadDialog": {
+    "chooseFile": "Izberi datoteko:",
+    "selectImage": "Izberi sliko",
+    "fileNote": "Podprti formati: JPEG, PNG • Največja velikost datoteke: 5 MB"
+  }
 }

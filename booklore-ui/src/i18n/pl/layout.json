@@ -10,7 +10,6 @@
     "profile": "Profil",
     "logout": "Wyloguj",
     "language": "Język",
-    "supportBookLore": "Wesprzyj BookLore",
     "notificationAriaLabel": "Ikona powiadomień",
     "createLibrary": "Utwórz bibliotekę",
     "stats": "Statystyki",
@@ -42,11 +41,11 @@
   "uploadDialog": {
     "chooseFile": "Wybierz plik:",
     "selectImage": "Wybierz obraz",
-    "fileNote": "Obsługiwane formaty: JPEG, PNG \u2022 Maksymalny rozmiar pliku: 5 MB",
+    "fileNote": "Obsługiwane formaty: JPEG, PNG • Maksymalny rozmiar pliku: 5 MB",
     "or": "LUB",
     "imageUrl": "URL obrazu:",
     "urlPlaceholder": "Wklej URL obrazu tutaj",
-    "urlNote": "Obsługiwane formaty: JPEG, PNG \u2022 Maksymalny rozmiar pliku: 5 MB",
+    "urlNote": "Obsługiwane formaty: JPEG, PNG • Maksymalny rozmiar pliku: 5 MB",
     "errorNoInput": "Proszę wybrać plik lub wkleić URL.",
     "errorUploadFailed": "Nie udało się przesłać obrazu.",
     "errorUploadRetry": "Przesyłanie nie powiodło się. Spróbuj ponownie."

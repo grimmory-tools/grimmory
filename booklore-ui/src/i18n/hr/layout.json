@@ -10,7 +10,6 @@
     "profile": "Profil",
     "logout": "Odjava",
     "language": "Jezik",
-    "supportBookLore": "Podržite BookLore",
     "notificationAriaLabel": "Ikona obavijesti",
     "createLibrary": "Kreiraj knjižnicu",
     "stats": "Statistika",
@@ -42,11 +41,11 @@
   "uploadDialog": {
     "chooseFile": "Odaberite datoteku:",
     "selectImage": "Odaberite sliku",
-    "fileNote": "Podržani formati: JPEG, PNG \u2022 Maksimalna veličina datoteke: 5 MB",
+    "fileNote": "Podržani formati: JPEG, PNG • Maksimalna veličina datoteke: 5 MB",
     "or": "ILI",
     "imageUrl": "URL slike:",
     "urlPlaceholder": "Zalijepite URL slike ovdje",
-    "urlNote": "Podržani formati: JPEG, PNG \u2022 Maksimalna veličina datoteke: 5 MB",
+    "urlNote": "Podržani formati: JPEG, PNG • Maksimalna veličina datoteke: 5 MB",
     "errorNoInput": "Odaberite datoteku ili zalijepite URL.",
     "errorUploadFailed": "Učitavanje slike nije uspjelo.",
     "errorUploadRetry": "Učitavanje nije uspjelo. Pokušajte ponovo."

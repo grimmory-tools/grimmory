@@ -141,10 +141,6 @@ export class AppTopBarComponent implements OnDestroy {
     this.layoutService.onMenuToggle();
   }
 
-  openGithubSupportDialog(): void {
-    this.dialogLauncher.openGithubSupportDialog();
-  }
-
   openLibraryCreatorDialog(): void {
     this.dialogLauncher.openLibraryCreateDialog();
   }

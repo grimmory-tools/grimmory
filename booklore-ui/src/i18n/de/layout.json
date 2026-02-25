@@ -10,7 +10,6 @@
     "profile": "Profil",
     "logout": "Abmelden",
     "language": "Sprache",
-    "supportBookLore": "BookLore unterstützen",
     "notificationAriaLabel": "Benachrichtigungssymbol",
     "createLibrary": "Bibliothek erstellen",
     "stats": "Statistiken",
@@ -42,11 +41,11 @@
   "uploadDialog": {
     "chooseFile": "Datei auswählen:",
     "selectImage": "Bild auswählen",
-    "fileNote": "Unterstützte Formate: JPEG, PNG \u2022 Maximale Dateigröße: 5 MB",
+    "fileNote": "Unterstützte Formate: JPEG, PNG • Maximale Dateigröße: 5 MB",
     "or": "ODER",
     "imageUrl": "Bild-URL:",
     "urlPlaceholder": "Bild-URL hier einfügen",
-    "urlNote": "Unterstützte Formate: JPEG, PNG \u2022 Maximale Dateigröße: 5 MB",
+    "urlNote": "Unterstützte Formate: JPEG, PNG • Maximale Dateigröße: 5 MB",
     "errorNoInput": "Bitte wählen Sie eine Datei aus oder fügen Sie eine URL ein.",
     "errorUploadFailed": "Bild konnte nicht hochgeladen werden.",
     "errorUploadRetry": "Hochladen fehlgeschlagen. Bitte versuchen Sie es erneut."
