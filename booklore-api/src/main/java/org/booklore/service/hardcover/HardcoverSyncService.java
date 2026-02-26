@@ -226,7 +226,9 @@ public class HardcoverSyncService {
 
     private void createNewProgressRecords(Long userId, Set<String> allIsbns10, Set<String> allIsbns13, Set<String> hardcoverIds, ArrayList<HardcoverBookProgress> hardcoverBooks) {
         List<BookIdentifier> noProgressBookIds = userBookProgressRepository.findMissingProgressBookIdsByHardcoverId(userId, allIsbns10, allIsbns13, hardcoverIds);
-
+        if (noProgressBookIds.size() == 0) {
+            return;
+        }
         // Dynamically create an INSERT query that inserts multiple rows
         StringBuilder sql = new StringBuilder();
         sql.append("INSERT INTO `user_book_progress` (`user_id`, `book_id`, `last_read_time`, read_status, `date_finished`, `personal_rating`) VALUES ");
@@ -264,9 +266,10 @@ public class HardcoverSyncService {
             if (hardcoverBook == null) {
                 continue;
             }
+            java.time.Instant lastReadDate = hardcoverBook.getLastReadDate() == null ? null : hardcoverBook.getLastReadDate().toInstant();
             UserBookProgressEntity userBookProgressEntity = entityManager.find(UserBookProgressEntity.class, existingBookProgress.getProgressId());
-            userBookProgressEntity.setLastReadTime(hardcoverBook.getLastReadDate().toInstant());
-            userBookProgressEntity.setDateFinished(hardcoverBook.getLastReadDate().toInstant());
+            userBookProgressEntity.setLastReadTime(lastReadDate);
+            userBookProgressEntity.setDateFinished(lastReadDate);
             userBookProgressEntity.setReadStatus(hardcoverBook.getStatus());
             userBookProgressEntity.setPersonalRating(hardcoverBook.getRating());
 
