@@ -307,33 +307,29 @@ public class HardcoverSyncService {
                 hardcoverBook.setStatus(readStatus);
                 hardcoverBooks.add(hardcoverBook);
             }
+
             List<BookIdentifier> booksWithExistingProgress = userBookProgressRepository.findExistingProgressBookIdsByIdentifiers(userId, allIsbns10, allIsbns13, hardcoverIds);
-            if (booksWithExistingProgress.size() > 0) {
-                for (int i = 0; i < hardcoverBooks.size(); i++) {
-                    HardcoverBookProgress hardcoverBook = hardcoverBooks.get(i);
-                    // Just try and get the book from the `user_book_progress` table that corresponds to the book from Hardcover.
-                    BookIdentifier relatedBookloreProgressRecord = booksWithExistingProgress.stream().filter(
-                                    bookIdentifier -> hardcoverBook.getIsbn10().contains(bookIdentifier.getIsbn10()) ||
-                                    hardcoverBook.getIsbn13().contains(bookIdentifier.getIsbn13()) ||
-                                    hardcoverBook.getHardcoverId().equals(bookIdentifier.getHardcoverBookId())).findFirst().orElse(null);
-                    if (relatedBookloreProgressRecord == null) {
-                        continue;
-                    }
-
-                    UserBookProgressEntity userBookProgressEntity = entityManager.find(UserBookProgressEntity.class, relatedBookloreProgressRecord.getProgressId());
-                    userBookProgressEntity.setLastReadTime(hardcoverBook.getLastReadDate().toInstant());
-                    userBookProgressEntity.setDateFinished(hardcoverBook.getLastReadDate().toInstant());
-                    userBookProgressEntity.setReadStatus(hardcoverBook.getStatus());
-                    userBookProgressEntity.setPersonalRating(hardcoverBook.getRating());
-
-                    entityManager.merge(userBookProgressEntity);
-                    hardcoverBooks.remove(i);
-                    i--;
+            for (int i = 0; i < booksWithExistingProgress.size(); i++) {
+                BookIdentifier existingBookProgress = booksWithExistingProgress.get(i);
+                HardcoverBookProgress hardcoverBook = hardcoverBooks.stream().filter(
+                        book -> book.getIsbn10().contains(existingBookProgress.getIsbn10()) ||
+                                book.getIsbn13().contains(existingBookProgress.getIsbn13()) ||
+                                book.getHardcoverId().equals(existingBookProgress.getHardcoverBookId())).findFirst().orElse(null);
+                if (hardcoverBook == null) {
+                    continue;
                 }
-            }
-            List<BookIdentifier> noProgressBookIds = userBookProgressRepository.findMissingProgressBookIdsByHardcoverId(userId, allIsbns10, allIsbns13, hardcoverIds);
-            List<HardcoverBookProgress> toBeInsertedFromHardcover = new ArrayList<>();
+                UserBookProgressEntity userBookProgressEntity = entityManager.find(UserBookProgressEntity.class, existingBookProgress.getProgressId());
+                userBookProgressEntity.setLastReadTime(hardcoverBook.getLastReadDate().toInstant());
+                userBookProgressEntity.setDateFinished(hardcoverBook.getLastReadDate().toInstant());
+                userBookProgressEntity.setReadStatus(hardcoverBook.getStatus());
+                userBookProgressEntity.setPersonalRating(hardcoverBook.getRating());
 
+                entityManager.merge(userBookProgressEntity);
+            }
+
+            List<BookIdentifier> noProgressBookIds = userBookProgressRepository.findMissingProgressBookIdsByHardcoverId(userId, allIsbns10, allIsbns13, hardcoverIds);
+
+            // Dynamically create an INSERT query that inserts multiple rows
             StringBuilder sql = new StringBuilder();
             sql.append("INSERT INTO `user_book_progress` (`user_id`, `book_id`, `last_read_time`, read_status, `date_finished`, `personal_rating`) VALUES ");
             sql.repeat("(?, ?, ?, ?, ?, ?), ", noProgressBookIds.size());
@@ -348,7 +344,6 @@ public class HardcoverSyncService {
                         book.getHardcoverId().equals(bookIdentifier.getHardcoverBookId())).findFirst().orElse(null);
                 if (hardcoverBookProgress == null) continue;
                 int parameterIndex = (i * 6) + 1;
-//                DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofLocalizedPattern("YYYY-MM-d H:m:s");
                 java.sql.Timestamp lastReadDate = hardcoverBookProgress.getLastReadDate() == null ? null : new java.sql.Timestamp(hardcoverBookProgress.getLastReadDate().getTime());
                 insertQuery.setParameter(parameterIndex++, userId);
                 insertQuery.setParameter(parameterIndex++, bookIdentifier.getBookId());
@@ -360,7 +355,6 @@ public class HardcoverSyncService {
             insertQuery.executeUpdate();
         } catch (Exception e) {
             log.warn("Failed to get user's hardcover books: {}", e.getMessage());
-            e.printStackTrace();
             return;
         }
     }
