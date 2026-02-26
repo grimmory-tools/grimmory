@@ -104,13 +104,13 @@ export class HardcoverSettingsComponent {
       hardcoverApiKey: this.hardcoverApiKey
     }).subscribe({
       next: () => {
-        this.messageService.add({severity: 'success', summary: "noice"});
+        this.messageService.add({severity: 'success', summary: this.t.translate('settingsDevice.hardcover.importStarted')});
       },
       error: () => {
         this.messageService.add({
           severity: 'error',
-          summary: "niet goed",
-          detail: "niet goed"
+          summary: this.t.translate('settingsDevice.hardcover.importFailed'),
+          detail: this.t.translate('settingsDevice.hardcover.importError')
         });
       }
     })
