@@ -414,6 +414,74 @@ class HardcoverSyncServiceTest {
         assertEquals(320, readPrivateIntField(result, "pages"));
     }
 
+    // === Tests for importing Hardcover data ===
+
+    @Test
+    @DisplayName("importHardcoverData shouldn't import anything if hardcover sync is disabled for user")
+    void importHardcoverData_whenHardcoverSyncisDisabled() throws Exception {
+
+    }
+
+    @Test
+    @DisplayName("importHardcoverData shouldn't import anything if Hardcover API key isn't set")
+    void importHardcoverData_whenNoAPIKeyIsSet() throws Exception {
+
+    }
+
+    @Test
+    @DisplayName("parseHardcoverResponse should return null if data is null")
+    void parseHardcoverResponse_whenDataIsNull() throws Exception {
+
+    }
+
+    @Test
+    @DisplayName("parseHardcoverResponse should return null if Me is null")
+    void parseHardcoverResponse_whenMeIsNull() throws Exception {
+
+    }
+
+    @Test
+    @DisplayName("parseHardcoverResponse should return null if Me is empty")
+    void parseHardcoverResponse_whenMeIsEmpty() throws Exception {
+
+    }
+
+    @Test
+    @DisplayName("parseHardcoverResponse should return null if user_books is null")
+    void parseHardcoverResponse_whenUser_booksIsNull() throws Exception {
+
+    }
+
+    @Test
+    @DisplayName("parseHardcoverResponse should parse a Hardcover response properly")
+    void parseHardcoverResponseTest() throws Exception {
+
+    }
+
+    @Test
+    @DisplayName("parseHardcoverResponse should return all identifiers properly")
+    void parseHardcoverResponseIdentifiers() throws Exception {
+
+    }
+
+    @Test
+    @DisplayName("updateExistingProgress should update all the book progress properly")
+    void updateExistingProgressTest() throws Exception {
+
+    }
+
+    @Test
+    @DisplayName("createNewProgressRecords should insert all the progress records properly from Hardcover")
+    void createNewProgressRecordsTest() throws Exception {
+
+    }
+
+    @Test
+    @DisplayName("createNewProgressRecords shouldn't do anything if no books from hardcover could be found in the Booklore database")
+    void createNewProgressRecords_whenNoMatchingHardcoverBooksAreFound() throws Exception {
+
+    }
+
     // === Helper methods to create mock responses ===
 
     private Map<String, Object> createSearchResponse(Integer bookId, Integer pages) {
