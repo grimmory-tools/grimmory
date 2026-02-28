@@ -1,0 +1,66 @@
+{
+  "main": {
+    "pageTitle": "",
+    "welcomeTitle": "",
+    "welcomeSubtitle": "",
+    "welcomeDescription": "",
+    "createLibrary": "",
+    "customizeDashboard": ""
+  },
+  "scroller": {
+    "noBooksFound": "",
+    "loadError": "",
+    "continueListening": "",
+    "continueReading": "",
+    "recentlyAdded": "",
+    "discoverNew": "",
+    "magicShelf": "",
+    "default": ""
+  },
+  "settings": {
+    "title": "",
+    "description": "",
+    "type": "",
+    "selectType": "",
+    "magicShelf": "",
+    "selectMagicShelf": "",
+    "sortField": "",
+    "selectField": "",
+    "direction": "",
+    "selectDirection": "",
+    "maxItems": "",
+    "addScroller": "",
+    "resetToDefault": "",
+    "scrollerTypes": {
+      "lastRead": "",
+      "lastListened": "",
+      "latestAdded": "",
+      "random": "",
+      "magicShelf": "",
+      "default": ""
+    },
+    "sortFields": {
+      "title": "",
+      "fileName": "",
+      "filePath": "",
+      "addedOn": "",
+      "author": "",
+      "authorSurnameVorname": "",
+      "seriesName": "",
+      "seriesNumber": "",
+      "personalRating": "",
+      "publisher": "",
+      "publishedDate": "",
+      "lastReadTime": "",
+      "readStatus": "",
+      "dateFinished": "",
+      "readingProgress": "",
+      "bookType": "",
+      "pageCount": ""
+    },
+    "sortDirections": {
+      "asc": "",
+      "desc": ""
+    }
+  }
+}

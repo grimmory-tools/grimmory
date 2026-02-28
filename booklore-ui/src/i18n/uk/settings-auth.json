@@ -1,0 +1,73 @@
+{
+  "title": "",
+  "description": "",
+  "methods": {
+    "sectionTitle": "",
+    "sectionDesc": ""
+  },
+  "internal": {
+    "label": "",
+    "status": "",
+    "description": ""
+  },
+  "oidc": {
+    "label": "",
+    "experimental": "",
+    "description": "",
+    "configHint": "",
+    "enabled": "",
+    "disabled": ""
+  },
+  "providerConfig": {
+    "sectionTitle": "",
+    "sectionDesc": "",
+    "providerName": "",
+    "providerPlaceholder": "",
+    "clientId": "",
+    "clientIdPlaceholder": "",
+    "issuerUri": "",
+    "issuerPlaceholder": "",
+    "scope": "",
+    "scopeHint": "",
+    "claimMappings": "",
+    "claimDesc": "",
+    "usernameClaim": "",
+    "usernamePlaceholder": "",
+    "emailClaim": "",
+    "emailPlaceholder": "",
+    "nameClaim": "",
+    "namePlaceholder": ""
+  },
+  "provisioning": {
+    "sectionTitle": "",
+    "sectionDesc": "",
+    "autoLabel": "",
+    "autoEnabled": "",
+    "autoDisabled": "",
+    "autoDesc": "",
+    "defaultPerms": "",
+    "readBooks": "",
+    "defaultLibraryAccess": "",
+    "selectLibraries": ""
+  },
+  "perms": {
+    "uploadBooks": "",
+    "downloadBooks": "",
+    "editMetadata": "",
+    "manageLibrary": "",
+    "emailBook": "",
+    "deleteBook": "",
+    "koreaderSync": "",
+    "koboSync": "",
+    "accessOpds": ""
+  },
+  "toast": {
+    "saved": "",
+    "oidcUpdated": "",
+    "oidcError": "",
+    "providerSaved": "",
+    "providerError": "",
+    "provisionSaved": "",
+    "provisionError": ""
+  }
+}

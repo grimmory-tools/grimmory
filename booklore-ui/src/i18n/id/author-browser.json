@@ -1,0 +1,140 @@
+{
+  "pageTitle": "",
+  "browseAllAuthors": "",
+  "searchPlaceholder": "",
+  "noAuthorsFound": "",
+  "cardSize": "",
+  "sort": {
+    "name": "",
+    "bookCount": "",
+    "matched": "",
+    "recentlyAdded": "",
+    "recentlyRead": "",
+    "readingProgress": "",
+    "avgRating": "",
+    "photo": "",
+    "seriesCount": ""
+  },
+  "filters": {
+    "all": "",
+    "matchStatus": "",
+    "matched": "",
+    "unmatched": "",
+    "photoStatus": "",
+    "hasPhoto": "",
+    "noPhoto": "",
+    "readStatus": "",
+    "allRead": "",
+    "someRead": "",
+    "inProgress": "",
+    "unread": "",
+    "bookCount": "",
+    "library": "",
+    "genre": "",
+    "reset": ""
+  },
+  "footer": {
+    "selected": "",
+    "autoMatch": "",
+    "deleteSelected": "",
+    "selectAll": "",
+    "deselectAll": ""
+  },
+  "toast": {
+    "deleteSuccessSummary": "",
+    "deleteSuccessDetail": "",
+    "deleteFailedSummary": "",
+    "deleteFailedDetail": "",
+    "autoMatchSuccessSummary": "",
+    "autoMatchSuccessDetail": "",
+    "autoMatchFailedSummary": "",
+    "autoMatchFailedDetail": "",
+    "quickMatchSuccessSummary": "",
+    "quickMatchSuccessDetail": "",
+    "quickMatchFailedSummary": "",
+    "quickMatchFailedDetail": "",
+    "deleteSelectedSuccessSummary": "",
+    "deleteSelectedSuccessDetail": ""
+  },
+  "card": {
+    "matched": "",
+    "quickMatch": "",
+    "book": "",
+    "books": "",
+    "menu": {
+      "viewAuthor": "",
+      "editAuthor": "",
+      "quickMatch": "",
+      "deleteAuthor": ""
+    }
+  },
+  "editor": {
+    "nameLabel": "",
+    "asinLabel": "",
+    "descriptionLabel": "",
+    "saveBtn": "",
+    "saving": "",
+    "uploadPhotoTooltip": "",
+    "lockField": "",
+    "unlockField": "",
+    "lockAllBtn": "",
+    "unlockAllBtn": "",
+    "searchPhotoTooltip": "",
+    "searchPhotoTitle": "",
+    "toast": {
+      "successSummary": "",
+      "successDetail": "",
+      "errorSummary": "",
+      "errorDetail": "",
+      "photoUploadedSummary": "",
+      "photoUploadedDetail": "",
+      "photoUploadErrorDetail": ""
+    }
+  },
+  "detail": {
+    "quickMatchTooltip": "",
+    "loading": "",
+    "booksTab": "",
+    "editTab": "",
+    "matchTab": "",
+    "showMore": "",
+    "showLess": "",
+    "booksBy": "",
+    "noBooksFound": ""
+  },
+  "photoSearch": {
+    "queryLabel": "",
+    "queryPlaceholder": "",
+    "searchBtn": "",
+    "resetTooltip": "",
+    "readyTitle": "",
+    "readyHint": "",
+    "searching": "",
+    "noResults": "",
+    "noResultsHint": "",
+    "resultsFound": "",
+    "selectBtn": "",
+    "photoAlt": ""
+  },
+  "match": {
+    "authorNameLabel": "",
+    "authorNamePlaceholder": "",
+    "regionLabel": "",
+    "searchBtn": "",
+    "searching": "",
+    "noResults": "",
+    "noResultsHint": "",
+    "readyToSearch": "",
+    "readyToSearchHint": "",
+    "resultsFound": "",
+    "matchBtn": "",
+    "toast": {
+      "searchFailedSummary": "",
+      "searchFailedDetail": "",
+      "matchSuccessSummary": "",
+      "matchSuccessDetail": "",
+      "matchFailedSummary": "",
+      "matchFailedDetail": ""
+    }
+  }
+}

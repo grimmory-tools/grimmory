@@ -1,0 +1,25 @@
+{
+  "pageTitle": "",
+  "browseAllSeries": "",
+  "searchPlaceholder": "",
+  "readNext": "",
+  "booksRead": "",
+  "noSeriesFound": "",
+  "noSeriesInCategory": "",
+  "cardSize": "",
+  "filters": {
+    "all": "",
+    "notStarted": "",
+    "inProgress": "",
+    "completed": "",
+    "abandoned": ""
+  },
+  "sort": {
+    "nameAsc": "",
+    "nameDesc": "",
+    "bookCount": "",
+    "progress": "",
+    "recentlyRead": "",
+    "recentlyAdded": ""
+  }
+}

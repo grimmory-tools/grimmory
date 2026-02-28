@@ -1,0 +1,55 @@
+{
+  "topbar": {
+    "bookdrop": "",
+    "createNewLibrary": "",
+    "uploadBook": "",
+    "charts": "",
+    "metadataManager": "",
+    "settings": "",
+    "documentation": "",
+    "profile": "",
+    "logout": "",
+    "language": "",
+    "supportBookLore": "",
+    "notificationAriaLabel": "",
+    "createLibrary": "",
+    "stats": "",
+    "libraryStats": "",
+    "readingStats": ""
+  },
+  "menu": {
+    "home": "",
+    "dashboard": "",
+    "allBooks": "",
+    "libraries": "",
+    "shelves": "",
+    "magicShelves": "",
+    "unshelved": "",
+    "series": "",
+    "authors": "",
+    "notebook": "",
+    "update": ""
+  },
+  "changelog": {
+    "title": "",
+    "description": "",
+    "loading": "",
+    "empty": ""
+  },
+  "theme": {
+    "primary": "",
+    "surface": ""
+  },
+  "uploadDialog": {
+    "chooseFile": "",
+    "selectImage": "",
+    "fileNote": "",
+    "or": "",
+    "imageUrl": "",
+    "urlPlaceholder": "",
+    "urlNote": "",
+    "errorNoInput": "",
+    "errorUploadFailed": "",
+    "errorUploadRetry": ""
+  }
+}

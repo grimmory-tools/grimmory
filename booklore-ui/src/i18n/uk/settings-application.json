@@ -1,0 +1,50 @@
+{
+  "title": "",
+  "description": "",
+  "covers": {
+    "sectionTitle": "",
+    "regenerate": "",
+    "regenerateBtn": "",
+    "regenerateDesc": "",
+    "regenerateStarted": "",
+    "regenerateStartedDetail": "",
+    "regenerateError": "",
+    "verticalCropping": "",
+    "verticalCroppingDesc": "",
+    "horizontalCropping": "",
+    "horizontalCroppingDesc": "",
+    "aspectRatio": "",
+    "aspectRatioDesc": "",
+    "smartCropping": "",
+    "smartCroppingDesc": ""
+  },
+  "search": {
+    "sectionTitle": "",
+    "autoBookSearch": "",
+    "autoBookSearchDesc": "",
+    "similarBook": "",
+    "similarBookDesc": ""
+  },
+  "fileManagement": {
+    "sectionTitle": "",
+    "maxUploadSize": "",
+    "maxUploadPlaceholder": "",
+    "maxUploadDesc": "",
+    "restartWarning": "",
+    "invalidInput": "",
+    "invalidInputDetail": ""
+  },
+  "appearance": {
+    "sectionTitle": "",
+    "supportButtonAnimation": "",
+    "supportButtonAnimationDesc": ""
+  },
+  "telemetry": {
+    "sectionTitle": "",
+    "enableTelemetry": "",
+    "telemetryDesc": ""
+  },
+  "settingsSaved": "",
+  "settingsSavedDetail": "",
+  "settingsError": ""
+}

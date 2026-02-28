@@ -1,0 +1,62 @@
+{
+  "creator": {
+    "titleNew": "",
+    "titleEdit": "",
+    "subtitle": "",
+    "libraryDetails": "",
+    "nameLabel": "",
+    "namePlaceholder": "",
+    "iconLabel": "",
+    "chooseIcon": "",
+    "customSvg": "",
+    "bookFolders": "",
+    "addFolder": "",
+    "emptyFoldersHint": "",
+    "options": "",
+    "watchFolders": "",
+    "watchFoldersTooltip": "",
+    "metadataSource": "",
+    "metadataSourceTooltip": "",
+    "metadataSourcePlaceholder": "",
+    "metadataSourceEmbedded": "",
+    "metadataSourceSidecar": "",
+    "metadataSourcePreferSidecar": "",
+    "metadataSourcePreferEmbedded": "",
+    "metadataSourceNone": "",
+    "formatPriority": "",
+    "formatPriorityTooltip": "",
+    "allowedFormats": "",
+    "allowedFormatsTooltip": "",
+    "allowAll": "",
+    "formatWarning": "",
+    "deselectedFormatsWarning": "",
+    "validation": {
+      "enterName": "",
+      "selectIcon": "",
+      "addFolder": "",
+      "readyCreate": "",
+      "readyUpdate": ""
+    },
+    "buttonCreate": "",
+    "buttonUpdate": "",
+    "toast": {
+      "nameExistsSummary": "",
+      "nameExistsDetail": "",
+      "updatedSummary": "",
+      "updatedDetail": "",
+      "updateFailedSummary": "",
+      "updateFailedDetail": "",
+      "createdSummary": "",
+      "createdDetail": "",
+      "createdLargeDetail": "",
+      "createFailedSummary": "",
+      "createFailedDetail": ""
+    }
+  },
+  "loading": {
+    "title": "",
+    "processing": "",
+    "complete": "",
+    "openLibrary": ""
+  }
+}

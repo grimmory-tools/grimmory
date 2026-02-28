@@ -1,0 +1,34 @@
+{
+  "title": "",
+  "description": "",
+  "defaultSettings": {
+    "sectionTitle": "",
+    "sectionDesc": "",
+    "saveButton": "",
+    "saveSuccess": "",
+    "saveFailed": "",
+    "saveError": ""
+  },
+  "libraryOverrides": {
+    "sectionTitle": "",
+    "sectionDesc": "",
+    "customSettings": "",
+    "defaultSettings": "",
+    "exportSidecar": "",
+    "importSidecar": "",
+    "exportTooltip": "",
+    "importTooltip": "",
+    "saveLibraryButton": "",
+    "saveSuccess": "",
+    "saveFailed": "",
+    "saveError": "",
+    "exportSuccess": "",
+    "exportComplete": "",
+    "exportFailed": "",
+    "exportError": "",
+    "importSuccess": "",
+    "importComplete": "",
+    "importFailed": "",
+    "importError": ""
+  }
+}
