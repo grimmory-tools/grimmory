@@ -5,6 +5,9 @@ import jakarta.persistence.Query;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
+import org.booklore.exception.ApiError;
 import org.booklore.model.dto.BookIdentifier;
 import org.booklore.model.dto.HardcoverBookProgress;
 import org.booklore.model.dto.HardcoverSyncSettings;
@@ -50,6 +53,8 @@ public class HardcoverSyncService {
 
     // Thread-local to hold the current API token for GraphQL requests
     private final ThreadLocal<String> currentApiToken = new ThreadLocal<>();
+
+    private AtomicBoolean hardcoverImportLock = new AtomicBoolean(false);
 
     @Autowired
     public HardcoverSyncService(HardcoverSyncSettingsService hardcoverSyncSettingsService, BookRepository bookRepository, UserBookProgressRepository userBookProgressRepository, EntityManager entityManager) {
@@ -196,31 +201,33 @@ public class HardcoverSyncService {
     @Async
     @Transactional
     public void importHardcoverData(Long userId) {
-        // Get user's Hardcover settings
-        HardcoverSyncSettings userSettings = hardcoverSyncSettingsService.getSettingsForUserId(userId);
+        if (hardcoverImportLock.compareAndSet(false, true)) {        // Get user's Hardcover settings
+            try {
+                HardcoverSyncSettings userSettings = hardcoverSyncSettingsService.getSettingsForUserId(userId);
+                if (!isHardcoverSyncEnabledForUser(userSettings)) {
+                    log.trace("Hardcover sync skipped for user {}: not enabled or no API token configured", userId);
+                    return;
+                }
+                // Set the user's API token for this sync operation
+                currentApiToken.set(userSettings.getHardcoverApiKey());
 
-        if (!isHardcoverSyncEnabledForUser(userSettings)) {
-            log.trace("Hardcover sync skipped for user {}: not enabled or no API token configured", userId);
-            return;
-        }
-
-        // Set the user's API token for this sync operation
-        currentApiToken.set(userSettings.getHardcoverApiKey());
-
-        try {
-            Map<String, Object> response = getUserBooksFromHardcover();
-            if (response == null) {
-                return;
+                Map<String, Object> response = getUserBooksFromHardcover();
+                if (response == null) {
+                    return;
+                }
+                Set<String> allIsbns10 = new HashSet<>();
+                Set<String> allIsbns13 = new HashSet<>();
+                Set<String> hardcoverIds = new HashSet<>();
+                ArrayList<HardcoverBookProgress> hardcoverData = parseHardcoverResponse(response, allIsbns10, allIsbns13, hardcoverIds);
+                updateExistingProgress(userId, allIsbns10, allIsbns13, hardcoverIds, hardcoverData);
+                createNewProgressRecords(userId, allIsbns10, allIsbns13, hardcoverIds, hardcoverData);
+            } catch (Exception e) {
+                log.warn("Failed to get user's hardcover books: {}", e.getMessage());
+            } finally {
+                hardcoverImportLock.set(false);
             }
-            Set<String> allIsbns10 = new HashSet<>();
-            Set<String> allIsbns13 = new HashSet<>();
-            Set<String> hardcoverIds = new HashSet<>();
-            ArrayList<HardcoverBookProgress> hardcoverData = parseHardcoverResponse(response, allIsbns10, allIsbns13, hardcoverIds);
-            updateExistingProgress(userId, allIsbns10, allIsbns13, hardcoverIds, hardcoverData);
-            createNewProgressRecords(userId, allIsbns10, allIsbns13, hardcoverIds, hardcoverData);
-        } catch (Exception e) {
-            log.warn("Failed to get user's hardcover books: {}", e.getMessage());
-            return;
+        } else {
+            throw ApiError.TOO_MANY_HARDCOVER_IMPORTS.createException();
         }
     }
 
