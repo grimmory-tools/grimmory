@@ -2,6 +2,7 @@ package org.booklore.service.hardcover;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
+import java.sql.Types;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -23,6 +24,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,6 +52,7 @@ public class HardcoverSyncService {
     private final BookRepository bookRepository;
     private final UserBookProgressRepository userBookProgressRepository;
     private final EntityManager entityManager;
+    private JdbcTemplate jdbcTemplate;
 
     // Thread-local to hold the current API token for GraphQL requests
     private final ThreadLocal<String> currentApiToken = new ThreadLocal<>();
@@ -57,11 +60,12 @@ public class HardcoverSyncService {
     private AtomicBoolean hardcoverImportLock = new AtomicBoolean(false);
 
     @Autowired
-    public HardcoverSyncService(HardcoverSyncSettingsService hardcoverSyncSettingsService, BookRepository bookRepository, UserBookProgressRepository userBookProgressRepository, EntityManager entityManager) {
+    public HardcoverSyncService(HardcoverSyncSettingsService hardcoverSyncSettingsService, BookRepository bookRepository, UserBookProgressRepository userBookProgressRepository, EntityManager entityManager, JdbcTemplate jdbcTemplate) {
         this.hardcoverSyncSettingsService = hardcoverSyncSettingsService;
         this.bookRepository = bookRepository;
         this.userBookProgressRepository = userBookProgressRepository;
         this.entityManager = entityManager;
+        this.jdbcTemplate = jdbcTemplate;
         this.restClient = RestClient.builder()
                 .baseUrl(HARDCOVER_API_URL)
                 .build();
@@ -201,6 +205,7 @@ public class HardcoverSyncService {
     @Async
     @Transactional
     public void importHardcoverData(Long userId) {
+        log.info("Hardcover import triggered");
         if (hardcoverImportLock.compareAndSet(false, true)) {        // Get user's Hardcover settings
             try {
                 HardcoverSyncSettings userSettings = hardcoverSyncSettingsService.getSettingsForUserId(userId);
@@ -215,12 +220,13 @@ public class HardcoverSyncService {
                 if (response == null) {
                     return;
                 }
-                Set<String> allIsbns10 = new HashSet<>();
-                Set<String> allIsbns13 = new HashSet<>();
-                Set<String> hardcoverIds = new HashSet<>();
+                Map<String, HardcoverBookProgress> allIsbns10 = new HashMap<>();
+                Map<String, HardcoverBookProgress> allIsbns13 = new HashMap<>();
+                Map<String, HardcoverBookProgress> hardcoverIds = new HashMap<>();
                 ArrayList<HardcoverBookProgress> hardcoverData = parseHardcoverResponse(response, allIsbns10, allIsbns13, hardcoverIds);
                 updateExistingProgress(userId, allIsbns10, allIsbns13, hardcoverIds, hardcoverData);
                 createNewProgressRecords(userId, allIsbns10, allIsbns13, hardcoverIds, hardcoverData);
+                log.info("Hardcover import done");
             } catch (Exception e) {
                 log.warn("Failed to get user's hardcover books: {}", e.getMessage());
             } finally {
@@ -231,48 +237,50 @@ public class HardcoverSyncService {
         }
     }
 
-    private void createNewProgressRecords(Long userId, Set<String> allIsbns10, Set<String> allIsbns13, Set<String> hardcoverIds, ArrayList<HardcoverBookProgress> hardcoverBooks) {
-        List<BookIdentifier> noProgressBookIds = userBookProgressRepository.findMissingProgressBookIdsByHardcoverId(userId, allIsbns10, allIsbns13, hardcoverIds);
+    private void createNewProgressRecords(Long userId, Map<String, HardcoverBookProgress> allIsbns10, Map<String, HardcoverBookProgress> allIsbns13, Map<String, HardcoverBookProgress> hardcoverIds, ArrayList<HardcoverBookProgress> hardcoverBooks) {
+        List<BookIdentifier> noProgressBookIds = userBookProgressRepository.findMissingProgressBookIdsByHardcoverId(userId, allIsbns10.keySet(), allIsbns13.keySet(), hardcoverIds.keySet());
         if (noProgressBookIds.size() == 0) {
             return;
         }
-        // Dynamically create an INSERT query that inserts multiple rows
-        StringBuilder sql = new StringBuilder();
-        sql.append("INSERT INTO `user_book_progress` (`user_id`, `book_id`, `last_read_time`, read_status, `date_finished`, `personal_rating`) VALUES ");
-        sql.repeat("(?, ?, ?, ?, ?, ?), ", noProgressBookIds.size());
-        sql.delete(sql.length() - 2, sql.length());
-        Query insertQuery = entityManager.createNativeQuery(sql.toString());
-
-        for (int i = 0; i < noProgressBookIds.size(); i++) {
-            BookIdentifier bookIdentifier = noProgressBookIds.get(i);
-            HardcoverBookProgress hardcoverBookProgress = hardcoverBooks.stream().filter(
-                    book -> book.getIsbn10().contains(bookIdentifier.getIsbn10()) ||
-                    book.getIsbn13().contains(bookIdentifier.getIsbn13()) ||
-                    book.getHardcoverId().equals(bookIdentifier.getHardcoverBookId())).findFirst().orElse(null);
-            if (hardcoverBookProgress == null) continue;
-            int parameterIndex = (i * 6) + 1;
-            java.sql.Timestamp lastReadDate = hardcoverBookProgress.getLastReadDate() == null ? null : new java.sql.Timestamp(hardcoverBookProgress.getLastReadDate().getTime());
-            insertQuery.setParameter(parameterIndex++, userId);
-            insertQuery.setParameter(parameterIndex++, bookIdentifier.getBookId());
-            insertQuery.setParameter(parameterIndex++, lastReadDate);
-            insertQuery.setParameter(parameterIndex++, hardcoverBookProgress.getStatus().toString());
-            insertQuery.setParameter(parameterIndex++, lastReadDate);
-            insertQuery.setParameter(parameterIndex++, hardcoverBookProgress.getRating());
+        String sql = "INSERT INTO `user_book_progress` (`user_id`, `book_id`, `last_read_time`, read_status, `date_finished`, `personal_rating`) VALUES (?, ?, ?, ?, ?, ?)";
+        List<BookIdentifier> toBeInsertedBooks = new ArrayList<>();
+        for (BookIdentifier bookWithNoProgress : noProgressBookIds) {
+            if (getHardcoverBook(allIsbns10, allIsbns13, hardcoverIds, bookWithNoProgress) != null) {
+                toBeInsertedBooks.add(bookWithNoProgress);
+            }
         }
-        insertQuery.executeUpdate();
+        jdbcTemplate.batchUpdate(sql, toBeInsertedBooks, 100, (preparedStatement, bookIdentifier) -> {
+            HardcoverBookProgress hardcoverBook = getHardcoverBook(allIsbns10, allIsbns13, hardcoverIds, bookIdentifier);
+
+            if (hardcoverBook == null) return;
+            preparedStatement.setInt(1, Math.toIntExact(userId));
+            preparedStatement.setInt(2, bookIdentifier.getBookId());
+            java.sql.Timestamp lastReadDate = hardcoverBook.getLastReadDate() == null ? null : new java.sql.Timestamp(hardcoverBook.getLastReadDate().getTime());
+            if (lastReadDate != null) {
+                preparedStatement.setTimestamp(3, lastReadDate);
+                preparedStatement.setTimestamp(5, lastReadDate);
+            } else {
+                preparedStatement.setNull(3, Types.TIMESTAMP);
+                preparedStatement.setNull(5, Types.TIMESTAMP);
+            }
+            preparedStatement.setString(4, hardcoverBook.getStatus().toString());
+            if (hardcoverBook.getRating() != null) {
+                preparedStatement.setInt(6, hardcoverBook.getRating());
+            } else {
+                preparedStatement.setNull(6, Types.INTEGER);
+            }
+        });
     }
 
-    private void updateExistingProgress(Long userId, Set<String> allIsbns10, Set<String> allIsbns13, Set<String> hardcoverIds, ArrayList<HardcoverBookProgress> hardcoverBooks) {
-        List<BookIdentifier> booksWithExistingProgress = userBookProgressRepository.findExistingProgressBookIdsByIdentifiers(userId, allIsbns10, allIsbns13, hardcoverIds);
+    private void updateExistingProgress(Long userId, Map<String, HardcoverBookProgress> allIsbns10, Map<String, HardcoverBookProgress> allIsbns13, Map<String, HardcoverBookProgress> hardcoverIds, ArrayList<HardcoverBookProgress> hardcoverBooks) {
+        List<BookIdentifier> booksWithExistingProgress = userBookProgressRepository.findExistingProgressBookIdsByIdentifiers(userId, allIsbns10.keySet(), allIsbns13.keySet(), hardcoverIds.keySet());
         for (int i = 0; i < booksWithExistingProgress.size(); i++) {
             BookIdentifier existingBookProgress = booksWithExistingProgress.get(i);
-            HardcoverBookProgress hardcoverBook = hardcoverBooks.stream().filter(
-                    book -> book.getIsbn10().contains(existingBookProgress.getIsbn10()) ||
-                            book.getIsbn13().contains(existingBookProgress.getIsbn13()) ||
-                            book.getHardcoverId().equals(existingBookProgress.getHardcoverBookId())).findFirst().orElse(null);
-            if (hardcoverBook == null) {
-                continue;
-            }
+            getHardcoverBook(allIsbns10, allIsbns13, hardcoverIds, existingBookProgress);
+            HardcoverBookProgress hardcoverBook = getHardcoverBook(allIsbns10, allIsbns13, hardcoverIds, existingBookProgress);
+
+            if (hardcoverBook == null) continue;
+
             java.time.Instant lastReadDate = hardcoverBook.getLastReadDate() == null ? null : hardcoverBook.getLastReadDate().toInstant();
             UserBookProgressEntity userBookProgressEntity = entityManager.find(UserBookProgressEntity.class, existingBookProgress.getProgressId());
             userBookProgressEntity.setLastReadTime(lastReadDate);
@@ -284,7 +292,18 @@ public class HardcoverSyncService {
         }
     }
 
-    private @Nullable ArrayList<HardcoverBookProgress> parseHardcoverResponse(Map<String, Object> response, Set<String> allIsbns10, Set<String> allIsbns13, Set<String> hardcoverIds) throws ParseException {
+    private HardcoverBookProgress getHardcoverBook(Map<String, HardcoverBookProgress> allIsbns10, Map<String, HardcoverBookProgress> allIsbns13, Map<String, HardcoverBookProgress> hardcoverIds, BookIdentifier existingBookProgress) {
+        if (hardcoverIds.containsKey(existingBookProgress.getHardcoverBookId())) {
+            return hardcoverIds.get(existingBookProgress.getHardcoverBookId());
+        } else if (allIsbns10.containsKey(existingBookProgress.getIsbn10())) {
+            return allIsbns10.get(existingBookProgress.getIsbn10());
+        } else if (allIsbns13.containsKey(existingBookProgress.getIsbn13())) {
+            return allIsbns13.get(existingBookProgress.getIsbn13());
+        }
+        return null;
+    }
+
+    private @Nullable ArrayList<HardcoverBookProgress> parseHardcoverResponse(Map<String, Object> response, Map<String, HardcoverBookProgress> allIsbns10, Map<String, HardcoverBookProgress> allIsbns13, Map<String, HardcoverBookProgress> hardcoverIds) throws ParseException {
         ArrayList<HardcoverBookProgress> hardcoverBooks = new ArrayList<>();
         // Navigate the response to get book info
         Map<String, Object> data = (Map<String, Object>) response.get("data");
@@ -303,7 +322,24 @@ public class HardcoverSyncService {
         for (Map user_book : user_books) {
             HardcoverBookProgress hardcoverBook = new HardcoverBookProgress();
             hardcoverBook.setHardcoverId(((Integer) user_book.get("book_id")).toString());
-            hardcoverIds.add(((Integer) user_book.get("book_id")).toString());
+            // Book status from Hardcover: https://docs.hardcover.app/api/graphql/schemas/books/#user-book-statuses
+            ReadStatus readStatus = switch((Integer) user_book.get("status_id")) {
+                case 1:
+                    yield ReadStatus.UNREAD;
+                case 2:
+                    yield ReadStatus.READING;
+                case 3:
+                    yield ReadStatus.READ;
+                case 4:
+                    yield ReadStatus.PAUSED;
+                case 5:
+                    yield ReadStatus.ABANDONED;
+                case 6:
+                    yield ReadStatus.WONT_READ;
+                default:
+                    yield ReadStatus.UNSET;
+            };
+            hardcoverBook.setStatus(readStatus);
             if (user_book.get("edition_id") != null) {
                 hardcoverBook.setEditionId((Integer) user_book.get("edition_id"));
             }
@@ -329,36 +365,19 @@ public class HardcoverSyncService {
                     for (Map<String, Object> edition : editions) {
                         if (edition.get("isbn_10") != null) {
                             bookIsbns10.add((String) edition.get("isbn_10"));
-                            allIsbns10.add((String) edition.get("isbn_10"));
+                            allIsbns10.put((String) edition.get("isbn_10"), hardcoverBook);
                         }
                         if (edition.get("isbn_13") != null) {
                             bookIsbns13.add((String) edition.get("isbn_13"));
-                            allIsbns13.add((String) edition.get("isbn_13"));
+                            allIsbns13.put((String) edition.get("isbn_13"), hardcoverBook);
                         }
                     }
                     hardcoverBook.setIsbn10(bookIsbns10);
                     hardcoverBook.setIsbn13(bookIsbns13);
                 }
             }
-            // Book status from Hardcover: https://docs.hardcover.app/api/graphql/schemas/books/#user-book-statuses
-            ReadStatus readStatus = switch((Integer) user_book.get("status_id")) {
-                case 1:
-                    yield ReadStatus.UNREAD;
-                case 2:
-                    yield ReadStatus.READING;
-                case 3:
-                    yield ReadStatus.READ;
-                case 4:
-                    yield ReadStatus.PAUSED;
-                case 5:
-                    yield ReadStatus.ABANDONED;
-                case 6:
-                    yield ReadStatus.WONT_READ;
-                default:
-                    yield ReadStatus.UNSET;
-            };
-            hardcoverBook.setStatus(readStatus);
             hardcoverBooks.add(hardcoverBook);
+            hardcoverIds.put(hardcoverBook.getHardcoverId(), hardcoverBook);
         }
         return hardcoverBooks;
     }
@@ -386,7 +405,6 @@ public class HardcoverSyncService {
         GraphQLRequest request = new GraphQLRequest();
         request.setQuery(query);
         Map<String, Object> response = executeGraphQL(request);
-        log.info("Hardcover import triggered");
         if (response == null) {
             return null;
         }
