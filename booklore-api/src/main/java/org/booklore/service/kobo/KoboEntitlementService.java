@@ -1,5 +1,6 @@
 package org.booklore.service.kobo;
 
+import org.apache.commons.lang3.StringUtils;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.mapper.KoboReadingStateMapper;
 import org.booklore.model.dto.kobo.*;
@@ -16,17 +17,29 @@ import org.booklore.repository.UserBookProgressRepository;
 import org.booklore.service.book.BookQueryService;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.opds.MagicShelfBookService;
+import org.booklore.util.SecureXmlUtils;
 import org.booklore.util.kobo.KoboUrlBuilder;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.model.FileHeader;
 
+import org.springframework.stereotype.Service;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+import java.io.File;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import javax.xml.parsers.DocumentBuilder;
 
 @AllArgsConstructor
 @Service
@@ -280,6 +293,46 @@ public class KoboEntitlementService {
         return mapToKoboMetadata(books.getFirst(), token);
     }
 
+    private boolean checkEpubFixedLayout(BookEntity book) {
+        if (book.getPrimaryBookFile().getBookType() != BookFileType.EPUB) return false;
+        Path filePath = book.getFullFilePath();
+        if (filePath == null) return false;
+
+        File epubFile = book.getFullFilePath().toFile();
+        try (ZipFile zip = new ZipFile(epubFile)) {
+            DocumentBuilder builder = SecureXmlUtils.createSecureDocumentBuilder(true);
+
+            FileHeader containerHdr = zip.getFileHeader("META-INF/container.xml");
+            if (containerHdr == null) return false;
+
+            try (InputStream cis = zip.getInputStream(containerHdr)) {
+                Document containerDoc = builder.parse(cis);
+                NodeList roots = containerDoc.getElementsByTagName("rootfile");
+                if (roots.getLength() == 0) return false;
+
+                String opfPath = ((Element) roots.item(0)).getAttribute("full-path");
+                if (StringUtils.isBlank(opfPath)) return false;
+
+                FileHeader opfHdr = zip.getFileHeader(opfPath);
+                if (opfHdr == null) return false;
+
+                try (InputStream in = zip.getInputStream(opfHdr)) {
+                    Document doc = builder.parse(in);
+                    NodeList manifestItems = doc.getElementsByTagName("meta");
+
+                    for (int i = 0; i < manifestItems.getLength(); i++) {
+                        Element item = (Element) manifestItems.item(i);
+                        String prop = item.getAttribute("property");
+                        if (prop.equals("rendition:layout") && item.getTextContent().equals("pre-paginated")) return true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.debug("Failed to determine if epub is pre-paginated for Kobo sync: {}", e.getMessage());
+        }
+        return false;
+    }
+
     private KoboBookMetadata mapToKoboMetadata(BookEntity book, String token) {
         BookMetadataEntity metadata = book.getMetadata();
 
@@ -328,7 +381,9 @@ public class KoboEntitlementService {
         boolean isCbxFile = primaryFile.getBookType() == BookFileType.CBX;
 
         if (koboSettings != null) {
-            if (isEpubFile && koboSettings.isConvertToKepub()) {
+            if (isEpubFile && checkEpubFixedLayout(book)) {
+                bookFormat = KoboBookFormat.EPUB3FL;
+            } else if (isEpubFile && koboSettings.isConvertToKepub()) {
                 bookFormat = KoboBookFormat.KEPUB;
             } else if (isCbxFile && koboSettings.isConvertCbxToEpub()) {
                 bookFormat = KoboBookFormat.EPUB3;
