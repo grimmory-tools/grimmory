@@ -301,7 +301,11 @@ public class HardcoverSyncService {
                 hardcoverBook.setEditionId((Integer) user_book.get("edition_id"));
             }
             if (user_book.get("rating") != null) {
-                hardcoverBook.setRating(((Double) user_book.get("rating")).intValue());
+                Double rating = (Double) user_book.get("rating");
+                // it's getting doubled, because ratings on Hardcover are out of 5, whereas the ratings on Booklore are out of 10.
+                // So multiplying the rating by 2 properly scaled the rating from Hardcover to Booklore.
+                Integer scaledRating = ((Double) (rating * 2)).intValue();
+                hardcoverBook.setRating(scaledRating);
             }
             if (user_book.get("last_read_date") != null) {
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-M-dd", Locale.ENGLISH);
