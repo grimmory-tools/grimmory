@@ -82,7 +82,17 @@
                 </div>
                 <p class="setting-description" [innerHTML]="t('hardcover.apiKeyDesc')">
                 </p>
-                <p-button (onClick)="triggerHardcoverImport()" outlined="true">Import hardcover data</p-button>
+                <div class="token-input-group">
+                  <p-button (onClick)="triggerHardcoverImport()" outlined="true">Import hardcover
+                    data
+                  </p-button>
+                  <p-checkbox
+                    [(ngModel)]="overwriteExistingData"
+                    id="overwriteHardcoverDataCheckbox"
+                    [binary]="true">
+                  </p-checkbox>
+                  <label for="#overwriteHardcoverDataCheckbox">Overwrite hardcover data</label>
+                </div>
               </div>
             </div>
           }

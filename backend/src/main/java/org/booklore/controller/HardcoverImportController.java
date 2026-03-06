@@ -30,10 +30,10 @@ public class HardcoverImportController {
     @ApiResponse(responseCode = "200", description = "Hardcover import triggered")
     @PutMapping
     @PreAuthorize("@securityUtil.canSyncKobo() or @securityUtil.canSyncKoReader() or @securityUtil.isAdmin()")
-    public ResponseEntity<Void> updateSettings(@RequestBody HardcoverSyncSettings settings)
+    public ResponseEntity<Void> updateSettings(@RequestBody boolean overwrite)
             throws ExecutionException, InterruptedException {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
-        hardcoverSyncService.importHardcoverData(user.getId());
+        hardcoverSyncService.importHardcoverData(user.getId(), overwrite);
 
         return ResponseEntity.ok().build();
     }
