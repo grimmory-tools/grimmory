@@ -348,14 +348,16 @@ public class EpubReaderService {
     }
 
     public static String getOPFPath(File epubFile) throws Exception {
-        ZipFile zip = new ZipFile(epubFile);
-        return parseContainerXml(zip);
+        try (ZipFile zip = new ZipFile(epubFile)) {
+            return parseContainerXml(zip);
+        }
     }
 
     public static Document getOPFDocument(File epubFile) throws Exception {
-        ZipFile zip = new ZipFile(epubFile);
-        String opfPath = parseContainerXml(zip);
-        return parseXmlEntry(zip, opfPath);
+        try (ZipFile zip = new ZipFile(epubFile)) {
+            String opfPath = parseContainerXml(zip);
+            return parseXmlEntry(zip, opfPath);
+        }
     }
 
     private List<EpubManifestItem> parseManifest(Document opfDoc, String rootPath, ZipFile zipFile) {
