@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.client.RestClient;
 import org.mockito.ArgumentMatchers;
 
@@ -55,6 +56,9 @@ class HardcoverSyncServiceTest {
     @Mock
     private EntityManager entityManager;
 
+    @Mock
+    private JdbcTemplate jdbcTemplate;
+
     private HardcoverSyncService service;
 
     private BookEntity testBook;
@@ -67,7 +71,7 @@ class HardcoverSyncServiceTest {
     @BeforeEach
     void setUp() throws Exception {
         // Create service with mocked dependencies
-        service = new HardcoverSyncService(hardcoverSyncSettingsService, bookRepository, userBookProgressRepository, entityManager);
+        service = new HardcoverSyncService(hardcoverSyncSettingsService, bookRepository, userBookProgressRepository, entityManager, jdbcTemplate);
         
         // Inject our mocked restClient using reflection
         Field restClientField = HardcoverSyncService.class.getDeclaredField("restClient");

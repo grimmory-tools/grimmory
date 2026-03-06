@@ -52,7 +52,7 @@ public class HardcoverSyncService {
     private final BookRepository bookRepository;
     private final UserBookProgressRepository userBookProgressRepository;
     private final EntityManager entityManager;
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     // Thread-local to hold the current API token for GraphQL requests
     private final ThreadLocal<String> currentApiToken = new ThreadLocal<>();
@@ -204,7 +204,7 @@ public class HardcoverSyncService {
      */
     @Async
     @Transactional
-    public void importHardcoverData(Long userId) {
+    public void importHardcoverData(Long userId, boolean overwriteData) {
         log.info("Hardcover import triggered");
         if (hardcoverImportLock.compareAndSet(false, true)) {        // Get user's Hardcover settings
             try {
@@ -224,8 +224,10 @@ public class HardcoverSyncService {
                 Map<String, HardcoverBookProgress> allIsbns13 = new HashMap<>();
                 Map<String, HardcoverBookProgress> hardcoverIds = new HashMap<>();
                 ArrayList<HardcoverBookProgress> hardcoverData = parseHardcoverResponse(response, allIsbns10, allIsbns13, hardcoverIds);
-                updateExistingProgress(userId, allIsbns10, allIsbns13, hardcoverIds, hardcoverData);
                 createNewProgressRecords(userId, allIsbns10, allIsbns13, hardcoverIds, hardcoverData);
+                if (overwriteData) {
+                    updateExistingProgress(userId, allIsbns10, allIsbns13, hardcoverIds, hardcoverData);
+                }
                 log.info("Hardcover import done");
             } catch (Exception e) {
                 log.warn("Failed to get user's hardcover books: {}", e.getMessage());
