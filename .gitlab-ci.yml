@@ -27,12 +27,31 @@ include:
     inputs:
       changelog-enabled: true
       auto-release-enabled: false
-
-  # docker component only on MR pipelines + tag pipelines (never on schedule, never on normal pushes)
+  # Docker for MR pipelines
   - component: "$CI_SERVER_FQDN/to-be-continuous/docker/gitlab-ci-docker@8.0"
     rules:
       - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
         when: always
+      - when: never
+    inputs:
+      trivy-disabled: true
+      hadolint-disabled: true
+      prod-publish-strategy: "none"
+      push-args: "--compression-format zstd --compression-level 20"
+
+      # ✅ actually ends up in the build command
+      build-args: >-
+        --build-arg APP_VERSION=mr-$CI_MERGE_REQUEST_IID-$CI_COMMIT_SHORT_SHA
+        --build-arg APP_REVISION=$CI_COMMIT_SHA
+        --platform=linux/amd64
+
+      # ✅ fixes your failing cache push in MR pipelines
+      build-cache-disabled: true
+
+      snapshot-image: "$CI_REGISTRY_IMAGE/mergerequests:mr-$CI_MERGE_REQUEST_IID"
+  # Docker for TAG pipelines
+  - component: "$CI_SERVER_FQDN/to-be-continuous/docker/gitlab-ci-docker@8.0"
+    rules:
       - if: "$CI_COMMIT_TAG"
         when: always
       - when: never
@@ -41,6 +60,12 @@ include:
       hadolint-disabled: true
       prod-publish-strategy: "none"
       push-args: "--compression-format zstd --compression-level 20"
+
+      build-args: >-
+        --build-arg APP_VERSION=wt-$CI_COMMIT_TAG
+        --build-arg APP_REVISION=$CI_COMMIT_SHA
+        --platform=linux/amd64,linux/arm64
+
       snapshot-image: "$CI_REGISTRY_IMAGE/snapshot:$CI_COMMIT_REF_SLUG"
       release-extra-tags: "latest \\g<major>.\\g<minor>\\g<build> \\g<major>\\g<build>"
   #- component: "$CI_SERVER_FQDN/to-be-continuous/gitlab-butler/gitlab-ci-butler@1.4"
@@ -95,19 +120,19 @@ frontend_tests:
 # Also: no more "push && CI_OPEN_MERGE_REQUESTS" here → Branch pipelines will be "test only".
 .docker-base:
   tags: [buildah]
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      when: on_success
-      variables:
-        DOCKER_SNAPSHOT_IMAGE: "$CI_REGISTRY_IMAGE/mergerequests/mr-$CI_MERGE_REQUEST_IID:latest"
-        DOCKER_BUILD_ARGS: "--build-arg APP_VERSION=mr-$CI_MERGE_REQUEST_IID-$CI_COMMIT_SHORT_SHA --build-arg APP_REVISION=$CI_COMMIT_SHA --platform=linux/amd64,linux/arm64"
-
-    - if: "$CI_COMMIT_TAG"
-      when: on_success
-      variables:
-        DOCKER_BUILD_ARGS: "--build-arg APP_VERSION=wt-$CI_COMMIT_TAG --build-arg APP_REVISION=$CI_COMMIT_SHA --platform=linux/amd64,linux/arm64"
-
-    - when: never
+#  rules:
+#    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+#      when: on_success
+#      variables:
+#        DOCKER_SNAPSHOT_IMAGE: "$CI_REGISTRY_IMAGE/mergerequests/mr-$CI_MERGE_REQUEST_IID:latest"
+#        DOCKER_BUILD_ARGS: "--build-arg APP_VERSION=mr-$CI_MERGE_REQUEST_IID-$CI_COMMIT_SHORT_SHA --build-arg APP_REVISION=$CI_COMMIT_SHA --platform=linux/amd64,linux/arm64"#
+#
+#    - if: "$CI_COMMIT_TAG"
+#      when: on_success
+#      variables:
+#        DOCKER_BUILD_ARGS: "--build-arg APP_VERSION=wt-$CI_COMMIT_TAG --build-arg APP_REVISION=$CI_COMMIT_SHA --platform=linux/amd64,linux/arm64"#
+#
+#    - when: never
 
 ### Testing place
 ### split ci
