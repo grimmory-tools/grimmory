@@ -17,6 +17,7 @@ workflow:
       when: always
     - when: never
 
+
 include:
   # semantic-release only on main push (never on schedule/MR/tag)
   - component: "$CI_SERVER_FQDN/to-be-continuous/semantic-release/gitlab-ci-semrel@4.0"
