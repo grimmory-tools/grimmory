@@ -45,7 +45,8 @@ releases_pipeline:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: always
 
-    - changes:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
         - .gitlab-ci.yml
         - .gitlab/**/*
         - Dockerfile
@@ -62,8 +63,5 @@ releases_pipeline:
         - package*.json
         - yarn.lock
         - pnpm-lock.yaml
-
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "main"'
-      when: always
 
     - when: never
