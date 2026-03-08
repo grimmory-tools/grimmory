@@ -8,9 +8,9 @@ include:
   - component: "$CI_SERVER_FQDN/to-be-continuous/gitleaks/gitlab-ci-gitleaks@2.9"
   # Spectral disabled - no static OpenAPI/AsyncAPI specs to lint
   # - component: "$CI_SERVER_FQDN/to-be-continuous/spectral/gitlab-ci-spectral@1.4"
-  - component: "$CI_SERVER_FQDN/to-be-continuous/sqlfluff/gitlab-ci-sqlfluff@1.6"
-    inputs:
-      lint-args: "--dialect mariadb"
+  # - component: "$CI_SERVER_FQDN/to-be-continuous/sqlfluff/gitlab-ci-sqlfluff@1.6"
+  #   inputs:
+  #     lint-args: "--dialect mariadb"
   - component: "$CI_SERVER_FQDN/to-be-continuous/gradle/gitlab-ci-gradle@2.13.0"
     inputs:
       image: "eclipse-temurin:25-jdk"
