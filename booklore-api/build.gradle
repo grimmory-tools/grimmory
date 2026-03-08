@@ -55,6 +55,7 @@ dependencies {
     // --- Lombok (For Clean Code) ---
     compileOnly 'org.projectlombok:lombok:1.18.42'
     annotationProcessor 'org.projectlombok:lombok:1.18.42'
+    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
 
     // --- Book & Image Processing ---
     implementation 'org.apache.pdfbox:pdfbox:3.0.6'

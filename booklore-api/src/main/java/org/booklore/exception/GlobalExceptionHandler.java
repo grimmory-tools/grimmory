@@ -7,6 +7,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -93,10 +94,23 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AsyncRequestNotUsableException.class)
     public void handleAsyncRequestNotUsableException(AsyncRequestNotUsableException ex) {
         if (ex.getCause() instanceof ClientAbortException) {
-            log.info("Request was canceled by client: {}", ex.getMessage());
+            log.debug("Request was canceled by client: {}", ex.getMessage());
         } else {
             log.error("Unexpected error occurred during async request handling: ", ex);
         }
+    }
+
+    @ExceptionHandler(HttpMessageNotWritableException.class)
+    public void handleHttpMessageNotWritableException(HttpMessageNotWritableException ex) {
+        Throwable cause = ex.getCause();
+        while (cause != null) {
+            if (cause instanceof ClientAbortException || cause instanceof AsyncRequestNotUsableException) {
+                log.debug("Client disconnected before response could be fully written: {}", ex.getMessage());
+                return;
+            }
+            cause = cause.getCause();
+        }
+        log.error("Could not write HTTP response: {}", ex.getMessage(), ex);
     }
 
     @ExceptionHandler(InterruptedException.class)

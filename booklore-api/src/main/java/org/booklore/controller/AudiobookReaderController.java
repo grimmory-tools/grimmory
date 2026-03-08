@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -99,5 +100,32 @@ public class AudiobookReaderController {
         headers.setCacheControl("public, max-age=86400");
 
         return new ResponseEntity<>(coverData, headers, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Download audiobook",
+            description = "Download the full audiobook file. Single-file audiobooks are returned directly; " +
+                    "folder-based audiobooks (multi-track) are packaged as a ZIP archive.")
+    @ApiResponse(responseCode = "200", description = "Audiobook downloaded successfully")
+    @ApiResponse(responseCode = "404", description = "Audiobook not found")
+    @CheckBookAccess(bookIdParam = "bookId")
+    @GetMapping("/{bookId}/download")
+    public ResponseEntity<Resource> downloadAudiobook(
+            @Parameter(description = "ID of the book") @PathVariable Long bookId,
+            @Parameter(description = "Optional book type for alternative format") @RequestParam(required = false) String bookType) {
+        return audiobookReaderService.downloadAudiobook(bookId, bookType);
+    }
+
+    @Operation(summary = "Download a single track",
+            description = "Download a single track from a folder-based (multi-track) audiobook by track index (0-indexed).")
+    @ApiResponse(responseCode = "200", description = "Track downloaded successfully")
+    @ApiResponse(responseCode = "400", description = "Not a folder-based audiobook")
+    @ApiResponse(responseCode = "404", description = "Track index out of range or file not found")
+    @CheckBookAccess(bookIdParam = "bookId")
+    @GetMapping("/{bookId}/track/{trackIndex}/download")
+    public ResponseEntity<Resource> downloadAudiobookTrack(
+            @Parameter(description = "ID of the book") @PathVariable Long bookId,
+            @Parameter(description = "Track index (0-indexed)") @PathVariable Integer trackIndex,
+            @Parameter(description = "Optional book type for alternative format") @RequestParam(required = false) String bookType) {
+        return audiobookReaderService.downloadAudiobookTrack(bookId, trackIndex, bookType);
     }
 }

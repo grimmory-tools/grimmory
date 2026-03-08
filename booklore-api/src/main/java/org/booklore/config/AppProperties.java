@@ -14,9 +14,9 @@ public class AppProperties {
     private String bookdropFolder;
     private String version;
     private RemoteAuth remoteAuth;
+    private Swagger swagger = new Swagger();
     private Boolean forceDisableOidc = false;
     private Telemetry telemetry = new Telemetry();
-    private Swagger swagger = new Swagger();
 
     /**
      * Type of disk storage where library files are stored.
