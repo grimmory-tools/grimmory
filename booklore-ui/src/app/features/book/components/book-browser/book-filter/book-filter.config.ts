@@ -79,12 +79,12 @@ export const FILE_SIZE_RANGES: readonly RangeConfig[] = [
   {id: 1, label: '1–10 MB', min: 1024, max: 10240, sortIndex: 1},
   {id: 2, label: '10–50 MB', min: 10240, max: 51200, sortIndex: 2},
   {id: 3, label: '50–100 MB', min: 51200, max: 102400, sortIndex: 3},
-  {id: 4, label: '100–250 MB', min: 102400, max: 256000, sortIndex: 4},
-  {id: 5, label: '250–500 MB', min: 256000, max: 512000, sortIndex: 5},
-  {id: 6, label: '0.5–1 GB', min: 512000, max: 1048576, sortIndex: 6},
-  {id: 7, label: '1–2 GB', min: 1048576, max: 2097152, sortIndex: 7},
-  {id: 8, label: '2–5 GB', min: 2097152, max: 5242880, sortIndex: 8},
-  {id: 9, label: '5+ GB', min: 5242880, max: Infinity, sortIndex: 9}
+  {id: 8, label: '100–250 MB', min: 102400, max: 256000, sortIndex: 4},
+  {id: 4, label: '250–500 MB', min: 256000, max: 512000, sortIndex: 5},
+  {id: 5, label: '0.5–1 GB', min: 512000, max: 1048576, sortIndex: 6},
+  {id: 6, label: '1–2 GB', min: 1048576, max: 2097152, sortIndex: 7},
+  {id: 9, label: '2–5 GB', min: 2097152, max: 5242880, sortIndex: 8},
+  {id: 7, label: '5+ GB', min: 5242880, max: Infinity, sortIndex: 9}
 ];
 
 export const PAGE_COUNT_RANGES: readonly RangeConfig[] = [
@@ -142,7 +142,7 @@ export const FILTER_LABELS: Readonly<Record<FilterType, string>> = {
   author: 'Author',
   category: 'Genre',
   series: 'Series',
-  bookType: 'Book Type',
+  bookType: 'File Format',
   readStatus: 'Read Status',
   personalRating: 'Personal Rating',
   publisher: 'Publisher',
