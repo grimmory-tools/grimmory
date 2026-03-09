@@ -35,19 +35,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler(
-                        "/",
-                        "/index.html",
-                        "/favicon.ico",
-                        "/manifest.webmanifest",
-                        "/assets/**",
-                        "/icons/**",
-                        "/*.js",
-                        "/*.css",
-                        "/*.woff2",
-                        "/*.woff",
-                        "/*.ttf"
-                )
+        registry.addResourceHandler("/**")
                 .addResourceLocations("classpath:/static/")
                 .resourceChain(true)
                 .addResolver(new PathResourceResolver() {
