@@ -116,6 +116,7 @@
     "apiKeyPlaceholder": "Enter your Hardcover API key",
     "apiKeyDesc": "Your personal Hardcover API key. Get it from <a href=\"https://hardcover.app/account/api\" target=\"_blank\" rel=\"noopener\">hardcover.app/account/api</a>. This key is used only for syncing your reading progress and is not shared with other users.",
     "accessDenied": "Access to Hardcover sync is restricted.",
+    "importData": "Import Hardcover data",
     "importStarted": "Hardcover import has started",
     "importFailed": "Hardcover import failed",
     "importError": "Unable to import data from Hardcover. Please try again.",
@@ -125,6 +126,7 @@
     "syncDisabledMsg": "Hardcover sync disabled",
     "apiKeyUpdated": "Hardcover API key updated",
     "updateFailed": "Update Failed",
-    "updateError": "Unable to update Hardcover sync settings. Please try again."
+    "updateError": "Unable to update Hardcover sync settings. Please try again.",
+    "overwriteData": "Overwrite Existing Data"
   }
 }
