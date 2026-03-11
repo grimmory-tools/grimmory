@@ -45,6 +45,9 @@ releases_pipeline:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: always
 
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+      when: always
+
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes:
         - .gitlab-ci.yml

@@ -51,6 +51,23 @@ include:
       snapshot-image: "$CI_REGISTRY_IMAGE/snapshot:$CI_COMMIT_REF_SLUG"
       release-extra-tags: "latest \\g<major>.\\g<minor>\\g<build> \\g<major>\\g<build>"
 
+  - component: "$CI_SERVER_FQDN/to-be-continuous/docker/gitlab-ci-docker@8.1"
+    rules:
+      - if: '$CI_COMMIT_BRANCH == "develop"'
+        when: always
+      - if: '$CI_PIPELINE_SOURCE == "parent_pipeline"'
+        when: never
+    inputs:
+      trivy-disabled: true
+      hadolint-disabled: true
+      prod-publish-strategy: "none"
+      push-args: "--compression-format zstd --compression-level 20"
+      build-args: >-
+        --build-arg APP_VERSION=snapshot-$CI_COMMIT_SHORT_SHA
+        --build-arg APP_REVISION=$CI_COMMIT_SHA
+        --platform=linux/amd64,linux/arm64
+      snapshot-image: "$CI_REGISTRY_IMAGE/snapshot:develop"
+
 .semrel-base:
   tags:
     - universal
