@@ -248,6 +248,18 @@ public class ReadingProgressService {
             }
         }
 
+        if (percentage != null) {
+            ReadStatus newStatus = calculateReadStatus(percentage, progress.getReadStatus());
+            progress.setReadStatus(newStatus);
+            BookFileEntity primaryFile = book.getPrimaryBookFile();
+            if (primaryFile != null) {
+                setProgressPercent(progress, primaryFile.getBookType(), percentage);
+            }
+            // Auto-set dateFinished when the book transitions to READ and no date is set yet
+            if (newStatus == ReadStatus.READ && progress.getDateFinished() == null) {
+                progress.setDateFinished(now);
+            }
+        }
         if (request.getDateFinished() != null) {
             progress.setDateFinished(request.getDateFinished());
         }
