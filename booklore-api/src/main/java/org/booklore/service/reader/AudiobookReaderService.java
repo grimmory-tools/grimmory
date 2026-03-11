@@ -1,6 +1,8 @@
 package org.booklore.service.reader;
 
 import org.booklore.exception.ApiError;
+import org.booklore.model.dto.response.AudiobookChapter;
+import org.booklore.model.dto.response.AudiobookChaptersDownloadResponse;
 import org.booklore.model.dto.response.AudiobookInfo;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
@@ -189,6 +191,132 @@ public class AudiobookReaderService {
             log.error("Failed to download track {} for book {}: {}", trackIndex, bookId, e.getMessage(), e);
             throw ApiError.FAILED_TO_DOWNLOAD_FILE.createException(bookId);
         }
+    }
+
+    /**
+     * Download the next N chapters/tracks of an audiobook starting at fromIndex.
+     * <p>
+     * For folder-based audiobooks: returns a ZIP archive of the requested track files.
+     * For single-file audiobooks with embedded chapters: returns a JSON response containing
+     * the requested chapter metadata slice and a URL to download the full audio file.
+     *
+     * @param bookId    the book identifier
+     * @param bookType  optional book file type override
+     * @param fromIndex 0-based index of the first chapter/track to include
+     * @param count     number of chapters/tracks to include; silently truncated to available range
+     * @return ZIP download for folder-based, or AudiobookChaptersDownloadResponse JSON for single-file
+     */
+    public ResponseEntity<?> downloadNextChapters(Long bookId, String bookType, int fromIndex, int count) {
+        if (fromIndex < 0) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("fromIndex must be >= 0");
+        }
+        if (count < 1) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("count must be >= 1");
+        }
+
+        BookFileEntity bookFile = getAudiobookFile(bookId, bookType);
+
+        if (bookFile.isFolderBased()) {
+            return downloadNextTracks(bookId, bookFile, fromIndex, count);
+        } else {
+            return downloadNextEmbeddedChapters(bookId, bookFile, fromIndex, count);
+        }
+    }
+
+    private ResponseEntity<Resource> downloadNextTracks(Long bookId, BookFileEntity bookFile, int fromIndex, int count) {
+        List<Path> allTracks = audioFileUtility.listAudioFiles(bookFile.getFullFilePath());
+        int totalTracks = allTracks.size();
+
+        if (fromIndex >= totalTracks) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException(
+                    "fromIndex " + fromIndex + " is out of range; audiobook has " + totalTracks + " tracks");
+        }
+
+        int toIndex = Math.min(fromIndex + count, totalTracks);
+        List<Path> selectedTracks = allTracks.subList(fromIndex, toIndex);
+
+        String bookTitle = resolveBookTitle(bookFile, bookId);
+        String zipFileName = bookTitle + "_chapters_" + fromIndex + "_to_" + (toIndex - 1) + ".zip";
+
+        try {
+            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+            try (ZipOutputStream zos = new ZipOutputStream(baos)) {
+                for (Path track : selectedTracks) {
+                    ZipEntry entry = new ZipEntry(track.getFileName().toString());
+                    zos.putNextEntry(entry);
+                    try (InputStream in = Files.newInputStream(track)) {
+                        in.transferTo(zos);
+                    }
+                    zos.closeEntry();
+                }
+            }
+
+            byte[] zipBytes = baos.toByteArray();
+            Resource resource = new org.springframework.core.io.ByteArrayResource(zipBytes);
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.valueOf("application/zip"))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, buildContentDisposition(zipFileName))
+                    .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(zipBytes.length))
+                    .header(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
+                    .header(HttpHeaders.PRAGMA, "no-cache")
+                    .header(HttpHeaders.EXPIRES, "0")
+                    .body(resource);
+        } catch (Exception e) {
+            log.error("Failed to build chapter ZIP for book {}: {}", bookId, e.getMessage(), e);
+            throw ApiError.FAILED_TO_DOWNLOAD_FILE.createException(bookId);
+        }
+    }
+
+    private ResponseEntity<AudiobookChaptersDownloadResponse> downloadNextEmbeddedChapters(
+            Long bookId, BookFileEntity bookFile, int fromIndex, int count) {
+
+        List<BookFileEntity.AudioFileChapter> allChapters = bookFile.getChapters();
+        if (allChapters == null || allChapters.isEmpty()) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException(
+                    "This audiobook has no embedded chapter metadata");
+        }
+
+        int totalChapters = allChapters.size();
+        if (fromIndex >= totalChapters) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException(
+                    "fromIndex " + fromIndex + " is out of range; audiobook has " + totalChapters + " chapters");
+        }
+
+        int toIndex = Math.min(fromIndex + count, totalChapters);
+        List<AudiobookChapter> chapterSlice = allChapters.subList(fromIndex, toIndex).stream()
+                .map(c -> AudiobookChapter.builder()
+                        .index(c.getIndex())
+                        .title(c.getTitle())
+                        .startTimeMs(c.getStartTimeMs())
+                        .endTimeMs(c.getEndTimeMs())
+                        .durationMs(c.getDurationMs())
+                        .build())
+                .toList();
+
+        AudiobookChaptersDownloadResponse response = AudiobookChaptersDownloadResponse.builder()
+                .bookId(bookId)
+                .downloadUrl("/api/v1/audiobook/" + bookId + "/download")
+                .chapters(chapterSlice)
+                .note("Full audio file is returned; use startTimeMs and endTimeMs to seek to the desired chapter.")
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    private String resolveBookTitle(BookFileEntity bookFile, Long bookId) {
+        try {
+            if (bookFile.getBook() != null
+                    && bookFile.getBook().getMetadata() != null
+                    && bookFile.getBook().getMetadata().getTitle() != null) {
+                return bookFile.getBook().getMetadata().getTitle()
+                        .replaceAll("[^a-zA-Z0-9_\\-]", "_")
+                        .replaceAll("_+", "_")
+                        .replaceAll("^_|_$", "");
+            }
+        } catch (Exception ignored) {
+        }
+        return "audiobook_" + bookId;
     }
 
     private String buildContentDisposition(String fileName) {

@@ -128,4 +128,23 @@ public class AudiobookReaderController {
             @Parameter(description = "Optional book type for alternative format") @RequestParam(required = false) String bookType) {
         return audiobookReaderService.downloadAudiobookTrack(bookId, trackIndex, bookType);
     }
+
+    @Operation(summary = "Download next N chapters",
+            description = "Download the next N chapters/tracks of an audiobook starting at a given index. " +
+                    "For folder-based (multi-track) audiobooks: returns a ZIP archive of the requested track files. " +
+                    "For single-file audiobooks with embedded chapters (e.g. M4B): returns JSON with the requested " +
+                    "chapter metadata slice and a URL to download the full audio file. " +
+                    "The range is silently truncated to available chapters/tracks if fromIndex + count exceeds the total.")
+    @ApiResponse(responseCode = "200", description = "ZIP archive (folder-based) or chapter metadata JSON (single-file)")
+    @ApiResponse(responseCode = "400", description = "Invalid parameters, fromIndex out of range, or no embedded chapters available")
+    @ApiResponse(responseCode = "404", description = "Audiobook not found")
+    @CheckBookAccess(bookIdParam = "bookId")
+    @GetMapping("/{bookId}/chapters/download")
+    public ResponseEntity<?> downloadNextChapters(
+            @Parameter(description = "ID of the book") @PathVariable Long bookId,
+            @Parameter(description = "0-based index of the first chapter/track to include") @RequestParam int fromIndex,
+            @Parameter(description = "Number of chapters/tracks to include (silently truncated if it exceeds the total)") @RequestParam int count,
+            @Parameter(description = "Optional book type for alternative format") @RequestParam(required = false) String bookType) {
+        return audiobookReaderService.downloadNextChapters(bookId, bookType, fromIndex, count);
+    }
 }
