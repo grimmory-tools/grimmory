@@ -46,6 +46,7 @@ public class HardcoverSyncService {
     private static final String HARDCOVER_API_URL = "https://api.hardcover.app/v1/graphql";
     private static final int STATUS_CURRENTLY_READING = 2;
     private static final int STATUS_READ = 3;
+    private static final int HARDCOVER_LIMIT = 1000;
 
     private final RestClient restClient;
     private final HardcoverSyncSettingsService hardcoverSyncSettingsService;
@@ -216,14 +217,14 @@ public class HardcoverSyncService {
                 // Set the user's API token for this sync operation
                 currentApiToken.set(userSettings.getHardcoverApiKey());
 
-                Map<String, Object> response = getUserBooksFromHardcover();
-                if (response == null) {
+                List<Map> user_books = getUserBooksFromHardcover();
+                if (user_books == null) {
                     return;
                 }
                 Map<String, HardcoverBookProgress> allIsbns10 = new HashMap<>();
                 Map<String, HardcoverBookProgress> allIsbns13 = new HashMap<>();
                 Map<String, HardcoverBookProgress> hardcoverIds = new HashMap<>();
-                ArrayList<HardcoverBookProgress> hardcoverData = parseHardcoverResponse(response, allIsbns10, allIsbns13, hardcoverIds);
+                ArrayList<HardcoverBookProgress> hardcoverData = parseHardcoverResponse(user_books, allIsbns10, allIsbns13, hardcoverIds);
                 createNewProgressRecords(userId, allIsbns10, allIsbns13, hardcoverIds, hardcoverData);
                 if (overwriteData) {
                     updateExistingProgress(userId, allIsbns10, allIsbns13, hardcoverIds, hardcoverData);
@@ -305,21 +306,8 @@ public class HardcoverSyncService {
         return null;
     }
 
-    private @Nullable ArrayList<HardcoverBookProgress> parseHardcoverResponse(Map<String, Object> response, Map<String, HardcoverBookProgress> allIsbns10, Map<String, HardcoverBookProgress> allIsbns13, Map<String, HardcoverBookProgress> hardcoverIds) throws ParseException {
+    private @Nullable ArrayList<HardcoverBookProgress> parseHardcoverResponse(List<Map> user_books, Map<String, HardcoverBookProgress> allIsbns10, Map<String, HardcoverBookProgress> allIsbns13, Map<String, HardcoverBookProgress> hardcoverIds) throws ParseException {
         ArrayList<HardcoverBookProgress> hardcoverBooks = new ArrayList<>();
-        // Navigate the response to get book info
-        Map<String, Object> data = (Map<String, Object>) response.get("data");
-        if (data == null) return null;
-
-        ArrayList<Map> me = (ArrayList<Map>) data.get("me");
-        if (me == null) return null;
-
-        // Navigate the response to get book info
-        Map<String, Object> first = (Map<String, Object>) me.getFirst();
-        if (first == null || first.size() == 0) return null;
-
-        ArrayList<Map> user_books = (ArrayList<Map>) first.get("user_books");
-        if (user_books == null || user_books.size() == 0) return null;
 
         for (Map user_book : user_books) {
             HardcoverBookProgress hardcoverBook = new HardcoverBookProgress();
@@ -384,11 +372,20 @@ public class HardcoverSyncService {
         return hardcoverBooks;
     }
 
-    private @Nullable Map<String, Object> getUserBooksFromHardcover() {
-        String query = """
+    private @Nullable List<Map> getUserBooksFromHardcover() throws InterruptedException {
+        ArrayList<Map> user_books = new ArrayList<>();
+        boolean fetchedAllBooks = false;
+        while (!fetchedAllBooks) {
+            log.debug("Quering Hardcover for the user's books with offset {}", user_books.size());
+            String query = String.format("""
                 query GetReadBooks {
                     me {
-                        user_books {
+                        user_books_aggregate {
+                          aggregate {
+                            count
+                          }
+                        },
+                        user_books (offset: %s, limit: %s) {
                             book {
                                 editions {
                                     isbn_13,
@@ -403,14 +400,45 @@ public class HardcoverSyncService {
                         }
                     }
                 }
-                """;
-        GraphQLRequest request = new GraphQLRequest();
-        request.setQuery(query);
-        Map<String, Object> response = executeGraphQL(request);
-        if (response == null) {
-            return null;
+                """, String.valueOf(user_books.size()), String.valueOf(HARDCOVER_LIMIT));
+            GraphQLRequest request = new GraphQLRequest();
+            request.setQuery(query);
+            Map<String, Object> response = executeGraphQL(request);
+            if (response == null) {
+                return null;
+            }
+            // Navigate the response to get book info
+            Map<String, Object> data = (Map<String, Object>) response.get("data");
+            if (data == null) return null;
+
+            ArrayList<Map> me = (ArrayList<Map>) data.get("me");
+            if (me == null) return null;
+
+            Map<String, Object> first = (Map<String, Object>) me.getFirst();
+            if (first == null || first.size() == 0) return null;
+
+            ArrayList<Map> more_user_books = (ArrayList<Map>) first.get("user_books");
+            if (more_user_books == null || more_user_books.size() == 0) return null;
+
+            Map<String, Object> user_books_aggregate = (Map<String, Object>) first.get("user_books_aggregate");
+            if (user_books_aggregate == null) return null;
+
+            Map<String, Object> aggregate = (Map<String, Object>) user_books_aggregate.get("aggregate");
+            if (aggregate == null) return null;
+
+            user_books.addAll(more_user_books);
+
+            Integer aggregate_count = (Integer) aggregate.get("count");
+            if (aggregate_count == null) return null;
+
+            if (aggregate_count - user_books.size() > 0) {
+                // Respect the rate limit, which is 60 requests per minute (or 1 request per second)
+                Thread.sleep(1000);
+            } else {
+                fetchedAllBooks = true;
+            }
         }
-        return response;
+        return user_books;
     }
 
     /**
