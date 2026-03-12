@@ -1,4 +1,12 @@
-<p align="center">
+NOTICE:
+
+This is actively being worked on. Do not expect any releases soon. 
+
+------
+
+
+
+#<p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/logo-with-text-dark.svg">
     <source media="(prefers-color-scheme: light)" srcset="assets/logo-with-text-light.svg">
