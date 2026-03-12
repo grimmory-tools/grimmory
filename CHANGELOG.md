@@ -1,3 +1,32 @@
+# [2.3.0](https://gitlab.worldteacher.dev/wt-booklore/wt-booklore/compare/2.2.0...2.3.0) (2026-03-12)
+
+
+### Bug Fixes
+
+* **api:** re-add deleted endpoints ([e2b1126](https://gitlab.worldteacher.dev/wt-booklore/wt-booklore/commit/e2b11265f8ebadd50b52cf85d7fff9f2a7dad348))
+* **book-browser:** select all expands series in collapsed view ([f6f78fd](https://gitlab.worldteacher.dev/wt-booklore/wt-booklore/commit/f6f78fdf205675d3eff3d7b2ec737d1d68166bcc))
+* **ci:** adjust workflow rules for semantic release and docker components ([3b2129b](https://gitlab.worldteacher.dev/wt-booklore/wt-booklore/commit/3b2129bba0fc8b526cac4460e68ff12fe1559404))
+* **ci:** refine release pipeline rules for main branch ([780936b](https://gitlab.worldteacher.dev/wt-booklore/wt-booklore/commit/780936b96dd4018ada903ee9ec52fca7f1d0c0ff))
+* **ci:** remove optional flag from frontend and backend pipeline jobs; test new scroller setup ([406831d](https://gitlab.worldteacher.dev/wt-booklore/wt-booklore/commit/406831da781950d35567550452c202527eefa9c2))
+* **ci:** update release rules for parent pipeline and enable auto-release ([fe58ab0](https://gitlab.worldteacher.dev/wt-booklore/wt-booklore/commit/fe58ab00707460fa6d734feb4397918672b68469))
+* **config:** simplify resource handler configuration in WebMvcConfig ([27539f0](https://gitlab.worldteacher.dev/wt-booklore/wt-booklore/commit/27539f0f0bda3f8bb6979d855042097a0a1a7077))
+* **config:** test config change to allow progress sync push ([acd51de](https://gitlab.worldteacher.dev/wt-booklore/wt-booklore/commit/acd51de17793835cea884d0ec6ad3d72b9367124))
+* **controller:** increase max size limit for reading sessions request ([b0a6214](https://gitlab.worldteacher.dev/wt-booklore/wt-booklore/commit/b0a6214b3c3e54b72ecea02f35348dbbd43979b9))
+* **progress:** auto-set dateFinished when book reaches READ status ([f869039](https://gitlab.worldteacher.dev/wt-booklore/wt-booklore/commit/f869039815465fc8af88fe1096221286ac8820f1))
+
+
+### Features
+
+* **api-docs:** replace Swagger UI with Scalar ([02148b3](https://gitlab.worldteacher.dev/wt-booklore/wt-booklore/commit/02148b39dc30d79802f53554b5e84937efb7d6af))
+* **api:** re-enable Swagger UI and OpenAPI docs ([b4ed1b7](https://gitlab.worldteacher.dev/wt-booklore/wt-booklore/commit/b4ed1b70a605739f1c55e6f9191752421f4c7d81))
+* **audiobook:** add download endpoints for audiobooks and tracks ([befa98e](https://gitlab.worldteacher.dev/wt-booklore/wt-booklore/commit/befa98e5118a91f1fb27b5d4b45ca0f43a338841))
+* **audiobook:** add endpoint to download next N chapters with response model ([7b19b3a](https://gitlab.worldteacher.dev/wt-booklore/wt-booklore/commit/7b19b3a50e15662ec18ffae8c9413c68304c6be9))
+* **book-card:** clickable read status icon with tiered menu ([0213a86](https://gitlab.worldteacher.dev/wt-booklore/wt-booklore/commit/0213a8623662e523de72693f1a4e8aae8ebb5d4f))
+* **ci:** add workflow rules for parent pipeline ([4714136](https://gitlab.worldteacher.dev/wt-booklore/wt-booklore/commit/47141368efb90ea94f2f650bdc84bd597ccebab6))
+* **heatmap:** replace tooltip with scrollable clickable book list panel ([f1f519e](https://gitlab.worldteacher.dev/wt-booklore/wt-booklore/commit/f1f519eb904667e496c1936a00e1aa73e459810b))
+* merge upstream, prepare for departure ([be92f8d](https://gitlab.worldteacher.dev/wt-booklore/wt-booklore/commit/be92f8de6e709de8fad17f89a3bc15985827938c))
+* **sidebar-filter:** show all filter entries with per-panel search bar ([1bfc4ed](https://gitlab.worldteacher.dev/wt-booklore/wt-booklore/commit/1bfc4edefd3559de180d990a5fc6f02f70aab041)), closes [hi#cardinality](https://gitlab.worldteacher.dev/hi/issues/cardinality)
+
 # [2.2.0](https://gitlab.worldteacher.dev/wt-booklore/wt-booklore/compare/2.1.0...2.2.0) (2026-03-02)
 
 
