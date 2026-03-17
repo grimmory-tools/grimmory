@@ -83,17 +83,7 @@ public class AppBookService {
                 fileType, minRating, maxRating, authors, language);
 
         Page<BookEntity> bookPage = bookRepository.findAll(spec, pageable);
-
-        Set<Long> bookIds = bookPage.getContent().stream()
-                .map(BookEntity::getId)
-                .collect(Collectors.toSet());
-        Map<Long, UserBookProgressEntity> progressMap = getProgressMap(userId, bookIds);
-
-        List<AppBookSummary> summaries = bookPage.getContent().stream()
-                .map(book -> mobileBookMapper.toSummary(book, progressMap.get(book.getId())))
-                .collect(Collectors.toList());
-
-        return AppPageResponse.of(summaries, pageNum, pageSize, bookPage.getTotalElements());
+        return buildPageResponse(bookPage, userId, pageNum, pageSize);
     }
 
     @Transactional(readOnly = true)
@@ -169,8 +159,8 @@ public class AppBookService {
         List<BookEntity> books = bookRepository.findAll(spec);
         Map<Long, UserBookProgressEntity> progressMap = getProgressMapForBooks(userId, books);
 
-        return books.stream()
-                .filter(book -> progressMap.containsKey(book.getId()))
+        List<Long> topIds = books.stream()
+                .filter(b -> progressMap.containsKey(b.getId()))
                 .sorted((b1, b2) -> {
                     Instant t1 = progressMap.get(b1.getId()).getLastReadTime();
                     Instant t2 = progressMap.get(b2.getId()).getLastReadTime();
@@ -180,7 +170,16 @@ public class AppBookService {
                     return t2.compareTo(t1);
                 })
                 .limit(maxItems)
-                .map(book -> mobileBookMapper.toSummary(book, progressMap.get(book.getId())))
+                .map(BookEntity::getId)
+                .collect(Collectors.toList());
+
+        if (topIds.isEmpty()) return Collections.emptyList();
+
+        Map<Long, BookEntity> enrichedMap = bookRepository.findAllForSummaryByIds(topIds)
+                .stream().collect(Collectors.toMap(BookEntity::getId, b -> b));
+
+        return topIds.stream()
+                .map(id -> mobileBookMapper.toSummary(enrichedMap.get(id), progressMap.get(id)))
                 .collect(Collectors.toList());
     }
 
@@ -203,8 +202,8 @@ public class AppBookService {
         List<BookEntity> books = bookRepository.findAll(spec);
         Map<Long, UserBookProgressEntity> progressMap = getProgressMapForBooks(userId, books);
 
-        return books.stream()
-                .filter(book -> progressMap.containsKey(book.getId()))
+        List<Long> topIds = books.stream()
+                .filter(b -> progressMap.containsKey(b.getId()))
                 .sorted((b1, b2) -> {
                     Instant t1 = progressMap.get(b1.getId()).getLastReadTime();
                     Instant t2 = progressMap.get(b2.getId()).getLastReadTime();
@@ -214,7 +213,16 @@ public class AppBookService {
                     return t2.compareTo(t1);
                 })
                 .limit(maxItems)
-                .map(book -> mobileBookMapper.toSummary(book, progressMap.get(book.getId())))
+                .map(BookEntity::getId)
+                .collect(Collectors.toList());
+
+        if (topIds.isEmpty()) return Collections.emptyList();
+
+        Map<Long, BookEntity> enrichedMap = bookRepository.findAllForSummaryByIds(topIds)
+                .stream().collect(Collectors.toMap(BookEntity::getId, b -> b));
+
+        return topIds.stream()
+                .map(id -> mobileBookMapper.toSummary(enrichedMap.get(id), progressMap.get(id)))
                 .collect(Collectors.toList());
     }
 
@@ -317,7 +325,7 @@ public class AppBookService {
             return AppPageResponse.of(Collections.emptyList(), pageNum, pageSize, 0L);
         }
 
-        List<BookEntity> bookEntities = bookRepository.findAllById(bookIds);
+        List<BookEntity> bookEntities = bookRepository.findAllForSummaryByIds(bookIds);
         Map<Long, UserBookProgressEntity> progressMap = getProgressMapForBooks(userId, bookEntities);
 
         List<AppBookSummary> summaries = bookEntities.stream()
@@ -677,13 +685,24 @@ public class AppBookService {
             int pageNum,
             int pageSize) {
 
-        Map<Long, UserBookProgressEntity> progressMap = getProgressMapForBooks(userId, bookPage.getContent());
+        List<BookEntity> enriched = enrichBooksForSummary(bookPage.getContent());
+        Map<Long, UserBookProgressEntity> progressMap = getProgressMapForBooks(userId, enriched);
 
-        List<AppBookSummary> summaries = bookPage.getContent().stream()
+        List<AppBookSummary> summaries = enriched.stream()
                 .map(book -> mobileBookMapper.toSummary(book, progressMap.get(book.getId())))
                 .collect(Collectors.toList());
 
         return AppPageResponse.of(summaries, pageNum, pageSize, bookPage.getTotalElements());
+    }
+
+    private List<BookEntity> enrichBooksForSummary(List<BookEntity> books) {
+        if (books.isEmpty()) return books;
+        Set<Long> ids = books.stream().map(BookEntity::getId).collect(Collectors.toSet());
+        Map<Long, BookEntity> enrichedMap = bookRepository.findAllForSummaryByIds(ids)
+                .stream().collect(Collectors.toMap(BookEntity::getId, b -> b));
+        return books.stream()
+                .map(b -> enrichedMap.getOrDefault(b.getId(), b))
+                .collect(Collectors.toList());
     }
 
     private Map<Long, UserBookProgressEntity> getProgressMapForBooks(Long userId, List<BookEntity> books) {
