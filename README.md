@@ -1,6 +1,9 @@
 > [!NOTE]
 > This project is in early development. Some links (website, documentation, demo, repositories) are not yet active and will come online as infrastructure is set up.
 
+> [!NOTE]
+> Grimmory is the successor of booklore.
+
 
 Grimmory is a self-hosted application for managing your entire book collection in one place.
 Organize, read, annotate, sync across devices, and share without relying on third-party services.
