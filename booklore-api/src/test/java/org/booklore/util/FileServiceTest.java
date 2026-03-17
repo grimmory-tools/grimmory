@@ -5,6 +5,7 @@ import org.booklore.model.dto.settings.AppSettings;
 import org.booklore.model.dto.settings.CoverCroppingSettings;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.service.appsettings.AppSettingService;
+import org.booklore.service.metadata.MetadataUserAgentService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
@@ -45,6 +46,9 @@ class FileServiceTest {
     @Mock
     private AppSettingService appSettingService;
 
+    @Mock
+    private MetadataUserAgentService metadataUserAgentService;
+
     private FileService fileService;
 
     @TempDir
@@ -61,10 +65,11 @@ class FileServiceTest {
                 .coverCroppingSettings(coverCroppingSettings)
                 .build();
         lenient().when(appSettingService.getAppSettings()).thenReturn(appSettings);
+        lenient().when(metadataUserAgentService.getMetadataFetcherUserAgent()).thenReturn("Grimmory/test");
 
         RestTemplate mockRestTemplate = mock(RestTemplate.class);
         RestTemplate mockNoRedirectRestTemplate = mock(RestTemplate.class);
-        fileService = new FileService(appProperties, mockRestTemplate, appSettingService, mockNoRedirectRestTemplate);
+        fileService = new FileService(appProperties, mockRestTemplate, appSettingService, mockNoRedirectRestTemplate, metadataUserAgentService);
     }
 
     @Nested
@@ -1161,6 +1166,9 @@ class FileServiceTest {
         @Mock
         private AppSettingService appSettingServiceForNetwork;
 
+        @Mock
+        private MetadataUserAgentService metadataUserAgentServiceForNetwork;
+
         private FileService fileService;
 
         @BeforeEach
@@ -1176,8 +1184,9 @@ class FileServiceTest {
                     .coverCroppingSettings(coverCroppingSettings)
                     .build();
             lenient().when(appSettingServiceForNetwork.getAppSettings()).thenReturn(appSettings);
+                lenient().when(metadataUserAgentServiceForNetwork.getMetadataFetcherUserAgent()).thenReturn("Grimmory/test");
 
-            fileService = new FileService(appProperties, restTemplate, appSettingServiceForNetwork, restTemplate);
+                fileService = new FileService(appProperties, restTemplate, appSettingServiceForNetwork, restTemplate, metadataUserAgentServiceForNetwork);
         }
 
         @Nested
@@ -1194,7 +1203,9 @@ class FileServiceTest {
 
                 RestTemplate mockRestTemplate = mock(RestTemplate.class);
                 AppSettingService mockAppSettingService = mock(AppSettingService.class);
-                FileService testFileService = new FileService(appProperties, mockRestTemplate, mockAppSettingService, mockRestTemplate);
+                MetadataUserAgentService mockMetadataUserAgentService = mock(MetadataUserAgentService.class);
+                when(mockMetadataUserAgentService.getMetadataFetcherUserAgent()).thenReturn("Grimmory/test");
+                FileService testFileService = new FileService(appProperties, mockRestTemplate, mockAppSettingService, mockRestTemplate, mockMetadataUserAgentService);
 
                 ResponseEntity<byte[]> responseEntity = ResponseEntity.ok(imageBytes);
                 when(mockRestTemplate.exchange(
