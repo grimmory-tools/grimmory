@@ -11,9 +11,8 @@ Organize, read, annotate, sync across devices, and share without relying on thir
 [![Release](https://img.shields.io/github/v/release/grimmory-tools/grimmory?color=818CF8&style=flat-square&logo=github)](https://github.com/grimmory-tools/grimmory/releases)
 [![License](https://img.shields.io/github/license/grimmory-tools/grimmory?color=fab005&style=flat-square)](LICENSE)
 [![Docker Pulls](https://img.shields.io/docker/pulls/grimmory/grimmory?color=2496ED&style=flat-square&logo=docker&logoColor=white)](https://hub.docker.com/r/grimmory/grimmory)
-[![Stars](https://img.shields.io/github/stars/grimmory-tools/grimmory?style=flat-square&color=ffd43b)](https://github.com/grimmory-tools/grimmory/stargazers)
 [![Discord](https://img.shields.io/badge/Discord-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discord.gg/FwqHeFWk)
-[![Open Collective](https://img.shields.io/opencollective/all/grimmory?style=flat-square&color=7FADF2&logo=opencollective)](https://opencollective.com/grimmory)
+
 
 [Website](https://grimmory.org/) | [Documentation](https://grimmory.org/docs/getting-started) | [Quick Start](#quick-start) | [Discord](https://discord.gg/FwqHeFWk)
 
