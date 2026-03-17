@@ -1,12 +1,12 @@
 
-# <p align="center">
-<picture>
-<source media="(prefers-color-scheme: dark)" srcset="assets/logo-with-text-dark.svg">
-<source media="(prefers-color-scheme: light)" srcset="assets/logo-with-text-light.svg">
-<img src="assets/logo-with-text-light.svg" alt="Grimmory" height="80" />
-</picture>
-
-</p>
+<!-- # <p align="center"> -->
+<!-- <picture> -->
+<!-- <source media="(prefers-color-scheme: dark)" srcset="assets/logo-with-text-dark.svg"> -->
+<!-- <source media="(prefers-color-scheme: light)" srcset="assets/logo-with-text-light.svg"> -->
+<!-- <img src="assets/logo-with-text-light.svg" alt="Grimmory" height="80" /> -->
+<!-- </picture> -->
+<!---->
+<!-- </p> -->
 
 <p align="center"><strong>Your books deserve a home. This is it.</strong></p>
 
