@@ -89,7 +89,7 @@ public class ReadingProgressService {
                                         UserBookFileProgressEntity fileProgress) {
         if (progress != null) {
             book.setReadStatus(progress.getReadStatus() == null ?
-                    String.valueOf(ReadStatus.UNSET) : String.valueOf(progress.getReadStatus()));
+                    String.valueOf(ReadStatus.UNREAD) : String.valueOf(progress.getReadStatus()));
             book.setDateFinished(progress.getDateFinished());
             book.setPersonalRating(progress.getPersonalRating());
 
@@ -152,7 +152,6 @@ public class ReadingProgressService {
                     .cfi(fileProgress.getPositionData())
                     .href(fileProgress.getPositionHref())
                     .percentage(roundToOneDecimal(fileProgress.getProgressPercent()))
-                    .ttsPositionCfi(fileProgress.getTtsPositionCfi())
                     .build());
             case PDF -> book.setPdfProgress(PdfProgress.builder()
                     .page(parseIntOrNull(fileProgress.getPositionData()))
@@ -249,6 +248,18 @@ public class ReadingProgressService {
             }
         }
 
+        if (percentage != null) {
+            ReadStatus newStatus = calculateReadStatus(percentage, progress.getReadStatus());
+            progress.setReadStatus(newStatus);
+            BookFileEntity primaryFile = book.getPrimaryBookFile();
+            if (primaryFile != null) {
+                setProgressPercent(progress, primaryFile.getBookType(), percentage);
+            }
+            // Auto-set dateFinished when the book transitions to READ and no date is set yet
+            if (newStatus == ReadStatus.READ && progress.getDateFinished() == null) {
+                progress.setDateFinished(now);
+            }
+        }
         if (request.getDateFinished() != null) {
             progress.setDateFinished(request.getDateFinished());
         }
@@ -288,7 +299,6 @@ public class ReadingProgressService {
         entity.setPositionData(fileProgress.positionData());
         entity.setPositionHref(fileProgress.positionHref());
         entity.setProgressPercent(fileProgress.progressPercent());
-        entity.setTtsPositionCfi(fileProgress.ttsPositionCfi());
         entity.setLastReadTime(now);
 
         userBookFileProgressRepository.save(entity);

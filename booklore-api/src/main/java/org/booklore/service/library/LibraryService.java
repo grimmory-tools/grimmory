@@ -265,7 +265,7 @@ public class LibraryService {
     @Transactional(readOnly = true)
     public Book getBook(long libraryId, long bookId) {
         libraryRepository.findById(libraryId).orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
-        BookEntity bookEntity = bookRepository.findBookByIdAndLibraryId(bookId, libraryId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
+        BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).filter(b -> b.getLibrary().getId() == libraryId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
         return bookMapper.toBook(bookEntity);
     }
 

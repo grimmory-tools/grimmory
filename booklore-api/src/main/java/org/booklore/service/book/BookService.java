@@ -103,6 +103,7 @@ public class BookService {
                 .map(Library::getId)
                 .collect(Collectors.toSet());
     }
+    @Transactional(readOnly = true)
     public List<Book> getBooksByIds(Set<Long> bookIds, boolean withDescription) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         boolean isAdmin = user.getPermissions().isAdmin();

@@ -22,6 +22,7 @@ import org.booklore.service.metadata.writer.MetadataWriter;
 import org.booklore.service.metadata.writer.MetadataWriterFactory;
 import org.booklore.util.BookCoverUtils;
 import org.booklore.util.FileService;
+import org.booklore.config.AppProperties;
 import org.booklore.util.SecurityContextVirtualThread;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

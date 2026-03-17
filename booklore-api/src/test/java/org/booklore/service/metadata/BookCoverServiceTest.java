@@ -88,7 +88,7 @@ class BookCoverServiceTest {
 
         @Test
         void generateCustomCoverThrowsWhenBookNotFound() {
-            when(bookRepository.findById(1L)).thenReturn(Optional.empty());
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> service.generateCustomCover(1L))
                     .isInstanceOf(APIException.class)
@@ -97,7 +97,7 @@ class BookCoverServiceTest {
 
         @Test
         void updateCoverFromFileThrowsWhenBookNotFound() {
-            when(bookRepository.findById(1L)).thenReturn(Optional.empty());
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.empty());
             MultipartFile file = mock(MultipartFile.class);
 
             assertThatThrownBy(() -> service.updateCoverFromFile(1L, file))
@@ -106,7 +106,7 @@ class BookCoverServiceTest {
 
         @Test
         void updateCoverFromUrlThrowsWhenBookNotFound() {
-            when(bookRepository.findById(1L)).thenReturn(Optional.empty());
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> service.updateCoverFromUrl(1L, "http://example.com/cover.jpg"))
                     .isInstanceOf(APIException.class);
@@ -127,7 +127,7 @@ class BookCoverServiceTest {
         @Test
         void generateCustomCoverThrowsWhenCoverLocked() {
             BookEntity book = buildBook(1L, true);
-            when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
 
             assertThatThrownBy(() -> service.generateCustomCover(1L))
                     .isInstanceOf(APIException.class)
@@ -137,7 +137,7 @@ class BookCoverServiceTest {
         @Test
         void updateCoverFromFileThrowsWhenCoverLocked() {
             BookEntity book = buildBook(1L, true);
-            when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             MultipartFile file = mock(MultipartFile.class);
 
             assertThatThrownBy(() -> service.updateCoverFromFile(1L, file))
@@ -148,7 +148,7 @@ class BookCoverServiceTest {
         @Test
         void updateCoverFromUrlThrowsWhenCoverLocked() {
             BookEntity book = buildBook(1L, true);
-            when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
 
             assertThatThrownBy(() -> service.updateCoverFromUrl(1L, "http://example.com"))
                     .isInstanceOf(APIException.class)
@@ -370,7 +370,7 @@ class BookCoverServiceTest {
             AuthorEntity author = AuthorEntity.builder().name("Jane Doe").build();
             book.getMetadata().setAuthors(List.of(author));
             book.setBookFiles(new ArrayList<>());
-            when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(coverImageGenerator.generateCover("Test Book", "Jane Doe")).thenReturn(new byte[]{1, 2, 3});
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
 
@@ -410,46 +410,33 @@ class BookCoverServiceTest {
     @Nested
     class FileValidation {
 
-@Test
-void generateCustomCover_coverLocked_throws() {
-    BookEntity book = mockBookEntity(2L, true);
-    when(bookRepository.findByIdWithBookFiles(2L)).thenReturn(Optional.of(book));
-    when(bookRepository.findAllWithMetadataByIds(any())).thenReturn(List.of(book));
-    when(appSettingService.getAppSettings()).thenReturn(mockAppSettings(true, false));
-    assertThatThrownBy(() -> bookCoverService.generateCustomCover(2L))
-            .isInstanceOf(ApiError.METADATA_LOCKED.createException().getClass());
-}
+        @Test
+        void rejectsEmptyFile() {
+            MultipartFile file = mock(MultipartFile.class);
+            when(file.isEmpty()).thenReturn(true);
 
-@Test
-void updateCoverFromFile_success() {
-    MultipartFile file = mock(MultipartFile.class);
-    BookEntity book = spy(mockBookEntity(3L, false));
-    doReturn(Path.of("/dummy/path")).when(book).getFullFilePath();
-    when(bookRepository.findByIdWithBookFiles(3L)).thenReturn(Optional.of(book));
-    when(bookRepository.save(any())).thenReturn(book);
-    when(appSettingService.getAppSettings()).thenReturn(mockAppSettings(true, false));
+            assertThatThrownBy(() -> service.updateCoverFromFileForBooks(Set.of(1L), file))
+                    .isInstanceOf(APIException.class)
+                    .hasMessageContaining("empty");
+        }
 
-    MetadataWriter writer = mock(MetadataWriter.class);
-    when(metadataWriterFactory.getWriter(any())).thenReturn(Optional.of(writer));
-}
+        @Test
+        void rejectsNonImageContentType() {
+            MultipartFile file = mock(MultipartFile.class);
+            when(file.isEmpty()).thenReturn(false);
+            when(file.getContentType()).thenReturn("application/pdf");
 
             assertThatThrownBy(() -> service.updateCoverFromFileForBooks(Set.of(1L), file))
                     .isInstanceOf(APIException.class)
                     .hasMessageContaining("JPEG and PNG");
         }
 
-@Test
-void updateCoverFromUrl_success() {
-    String url = "http://test.com/cover.jpg";
-    BookEntity book = spy(mockBookEntity(4L, false));
-    doReturn(Path.of("/dummy/path")).when(book).getFullFilePath();
-    when(bookRepository.findByIdWithBookFiles(4L)).thenReturn(Optional.of(book));
-    when(bookRepository.save(any())).thenReturn(book);
-    when(appSettingService.getAppSettings()).thenReturn(mockAppSettings(true, false));
-
-    MetadataWriter writer = mock(MetadataWriter.class);
-    when(metadataWriterFactory.getWriter(any())).thenReturn(Optional.of(writer));
-}
+        @Test
+        void rejectsFileLargerThan5MB() {
+            MultipartFile file = mock(MultipartFile.class);
+            when(file.isEmpty()).thenReturn(false);
+            when(file.getContentType()).thenReturn("image/jpeg");
+            when(file.getSize()).thenReturn(6L * 1024 * 1024);
 
             assertThatThrownBy(() -> service.updateCoverFromFileForBooks(Set.of(1L), file))
                     .isInstanceOf(APIException.class)
@@ -503,7 +490,7 @@ void updateCoverFromUrl_success() {
         @Test
         void successfullyUpdatesCoverFromUrl() {
             BookEntity book = buildBook(1L, false);
-            when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
 
             service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
@@ -764,7 +751,7 @@ void updateCoverFromUrl_success() {
                 var callback = inv.getArgument(0, org.springframework.transaction.support.TransactionCallback.class);
                 return callback.doInTransaction(null);
             });
-            when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(processorRegistry.getProcessorOrThrow(BookFileType.EPUB)).thenReturn(processor);
             when(processor.generateCover(book)).thenReturn(true);
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
@@ -806,49 +793,30 @@ void updateCoverFromUrl_success() {
             }
         }
 
-@Test
-void regenerateCoversForBooks_success() {
-    try (MockedStatic<SecurityContextVirtualThread> ignored = mockStatic(SecurityContextVirtualThread.class)) {
-        BookEntity book = mockBookEntity(9L, false);
-        when(bookQueryService.findAllWithMetadataByIds(any())).thenReturn(List.of(book));
-        when(bookRepository.findByIdWithBookFiles(9L)).thenReturn(Optional.of(book));
-        when(bookRepository.save(any())).thenReturn(book);
+        @Test
+        void missingOnlySkipsBooksWithExistingCover() {
+            BookEntity withCover = buildBook(1L, false);
+            withCover.setBookCoverHash("existingHash");
+            BookFileEntity ebookFile1 = BookFileEntity.builder()
+                    .bookType(BookFileType.EPUB).isBookFormat(true).build();
+            withCover.setBookFiles(List.of(ebookFile1));
+            withCover.setLibrary(LibraryEntity.builder().build());
 
-        BookFileProcessor processor = mock(BookFileProcessor.class);
-        when(processorRegistry.getProcessorOrThrow(any())).thenReturn(processor);
-        when(processor.generateCover(any())).thenReturn(true);
+            BookEntity withoutCover = buildBook(2L, false);
+            withoutCover.setBookCoverHash(null);
+            BookFileEntity ebookFile2 = BookFileEntity.builder()
+                    .bookType(BookFileType.EPUB).isBookFormat(true).build();
+            withoutCover.setBookFiles(List.of(ebookFile2));
+            withoutCover.setLibrary(LibraryEntity.builder().build());
 
-        BookCoverUpdateProjection projection = mock(BookCoverUpdateProjection.class);
-        when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of(projection));
-        doNothing().when(notificationService).sendMessage(any(), any());
-
-        when(transactionTemplate.execute(any())).thenAnswer(invocation -> {
-            org.springframework.transaction.support.TransactionCallback<?> callback = invocation.getArgument(0);
-            return callback.doInTransaction(null);
-        });
-
-        ignored.when(() -> SecurityContextVirtualThread.runWithSecurityContext(any(Runnable.class)))
-                .thenAnswer(invocation -> {
-                    Runnable runnable = invocation.getArgument(0);
-                    runnable.run();
-                    return null;
-                });
-
-        bookCoverService.regenerateCoversForBooks(Set.of(9L));
-
-        ArgumentCaptor<BookEntity> bookCaptor = ArgumentCaptor.forClass(BookEntity.class);
-        verify(processor).generateCover(bookCaptor.capture());
-        assertThat(bookCaptor.getValue().getId()).isEqualTo(9L);
-        verify(notificationService, atLeastOnce()).sendMessage(any(), any());
-    }
-}
+            when(bookQueryService.getAllFullBookEntities()).thenReturn(List.of(withCover, withoutCover));
 
             BookFileProcessor processor = mock(BookFileProcessor.class);
             when(transactionTemplate.execute(any())).thenAnswer(inv -> {
                 var callback = inv.getArgument(0, org.springframework.transaction.support.TransactionCallback.class);
                 return callback.doInTransaction(null);
             });
-            when(bookRepository.findById(2L)).thenReturn(Optional.of(withoutCover));
+            when(bookRepository.findByIdWithBookFiles(2L)).thenReturn(Optional.of(withoutCover));
             when(processorRegistry.getProcessorOrThrow(BookFileType.EPUB)).thenReturn(processor);
             when(processor.generateCover(withoutCover)).thenReturn(true);
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
@@ -968,22 +936,48 @@ void regenerateCoversForBooks_success() {
             verify(processorRegistry).getProcessorOrThrow(BookFileType.PDF);
         }
 
-@Test
-void updateCover_metadataPersistenceSettings_saveToOriginalFile() {
-    MultipartFile file = mock(MultipartFile.class);
-    BookEntity book = spy(mockBookEntity(10L, false));
-    doReturn(Path.of("/dummy/path")).when(book).getFullFilePath();
-    when(bookRepository.findByIdWithBookFiles(10L)).thenReturn(Optional.of(book));
-    when(bookRepository.save(any())).thenReturn(book);
-    when(appSettingService.getAppSettings()).thenReturn(mockAppSettings(true, false));
+        @Test
+        void handlesEmptyFormatPriorityList() {
+            BookEntity book = buildBook(1L, false);
+            BookFileEntity epubFile = BookFileEntity.builder()
+                    .bookType(BookFileType.EPUB).isBookFormat(true).build();
+            book.setBookFiles(List.of(epubFile));
+            book.setLibrary(LibraryEntity.builder().formatPriority(List.of()).build());
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
 
-    MetadataWriter writer = mock(MetadataWriter.class);
-    when(metadataWriterFactory.getWriter(any())).thenReturn(Optional.of(writer));
-}
+            BookFileProcessor processor = mock(BookFileProcessor.class);
+            when(processorRegistry.getProcessorOrThrow(BookFileType.EPUB)).thenReturn(processor);
+            when(processor.generateCover(eq(book), eq(epubFile))).thenReturn(true);
+
+            service.regenerateCover(1L);
+
+            verify(processorRegistry).getProcessorOrThrow(BookFileType.EPUB);
+        }
+    }
+
+    @Nested
+    class WriteCoverToBookFile {
+
+        @Test
+        void writesAndUpdatesHashWhenWriterExists() {
+            BookEntity book = buildBook(1L, false);
+            BookFileEntity primaryFile = BookFileEntity.builder()
+                    .bookType(BookFileType.EPUB).isBookFormat(true)
+                    .fileName("test.epub").fileSubPath("sub")
+                    .build();
+            book.setBookFiles(List.of(primaryFile));
+            book.setLibrary(LibraryEntity.builder().build());
+            book.setLibraryPath(LibraryPathEntity.builder().path("/lib").build());
+
+            AppSettings appSettings = mock(AppSettings.class);
+            MetadataPersistenceSettings persistSettings = mock(MetadataPersistenceSettings.class);
+            when(appSettingService.getAppSettings()).thenReturn(appSettings);
+            when(appSettings.getMetadataPersistenceSettings()).thenReturn(persistSettings);
+            when(persistSettings.isConvertCbrCb7ToCbz()).thenReturn(false);
 
             MetadataWriter writer = mock(MetadataWriter.class);
             when(metadataWriterFactory.getWriter(BookFileType.EPUB)).thenReturn(Optional.of(writer));
-            when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
 
             try (MockedStatic<FileFingerprint> fpMock = mockStatic(FileFingerprint.class)) {
@@ -1000,7 +994,7 @@ void updateCover_metadataPersistenceSettings_saveToOriginalFile() {
         void skipsWriteWhenNoPrimaryFile() {
             BookEntity book = buildBook(1L, false);
             book.setBookFiles(new ArrayList<>());
-            when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
 
             service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
@@ -1015,7 +1009,7 @@ void updateCover_metadataPersistenceSettings_saveToOriginalFile() {
         @Test
         void sendsNotificationWhenUpdatesExist() {
             BookEntity book = buildBook(1L, false);
-            when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
 
             BookCoverUpdateProjection projection = mock(BookCoverUpdateProjection.class);
             when(bookRepository.findCoverUpdateInfoByIds(List.of(1L))).thenReturn(List.of(projection));
@@ -1028,7 +1022,7 @@ void updateCover_metadataPersistenceSettings_saveToOriginalFile() {
         @Test
         void doesNotSendNotificationWhenNoUpdates() {
             BookEntity book = buildBook(1L, false);
-            when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
 
             service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
@@ -1044,7 +1038,7 @@ void updateCover_metadataPersistenceSettings_saveToOriginalFile() {
         void returnsNullForEmptyAuthors() {
             BookEntity book = buildBook(1L, false);
             book.getMetadata().setAuthors(new ArrayList<>());
-            when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(coverImageGenerator.generateCover("Test Book", null)).thenReturn(new byte[]{1});
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
 
@@ -1060,7 +1054,7 @@ void updateCover_metadataPersistenceSettings_saveToOriginalFile() {
             authors.add(AuthorEntity.builder().name("Alice").build());
             authors.add(AuthorEntity.builder().name("Bob").build());
             book.getMetadata().setAuthors(authors);
-            when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(coverImageGenerator.generateCover(eq("Test Book"), argThat(s -> s.contains("Alice") && s.contains("Bob"))))
                     .thenReturn(new byte[]{1});
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
@@ -1084,7 +1078,7 @@ void updateCover_metadataPersistenceSettings_saveToOriginalFile() {
                     .isBookFormat(true)
                     .build();
             book.setBookFiles(List.of(bookFile));
-            when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
 
             service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");

@@ -244,9 +244,9 @@ public class BookMetadataUpdater {
         if (Boolean.TRUE.equals(e.getAuthorsLocked())) return;
 
         // Get or initialize authors collection
-        Set<AuthorEntity> authors = e.getAuthors();
+        List<AuthorEntity> authors = e.getAuthors();
         if (authors == null) {
-            authors = new HashSet<>();
+            authors = new ArrayList<>();
             e.setAuthors(authors);
         }
 

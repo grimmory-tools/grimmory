@@ -63,7 +63,7 @@ spring:
       minimum-idle: 5              # Keep warm connections ready
       idle-timeout: 300000         # 5 minutes before idle connections are closed
   jpa:
-    open-in-view: false
+    open-in-view: true # true until we implement proper DTOs and service-layer data fetching
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl

@@ -11,12 +11,6 @@ import org.booklore.mapper.custom.BookLoreUserTransformer;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.repository.UserRepository;
-import org.booklore.service.appsettings.AppSettingService;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -59,27 +53,6 @@ public abstract class AbstractQueryParameterJwtFilter extends OncePerRequestFilt
         Long userId = jwtUtils.extractUserId(token);
         BookLoreUserEntity entity = userRepository.findByIdWithDetails(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + userId));
-        BookLoreUser user = bookLoreUserTransformer.toDTO(entity);
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(user, null, null);
-        authentication.setDetails(new UserAuthenticationDetails(request, user.getId()));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-    }
-
-    protected void authenticateOidcUser(String token, HttpServletRequest request) throws Exception {
-        var processor = dynamicOidcJwtProcessor.getProcessor();
-        var claimsSet = processor.process(token, null);
-
-        if (claimsSet.getExpirationTime() == null ||
-            claimsSet.getExpirationTime().toInstant().isBefore(Instant.now())) {
-            throw new RuntimeException("OIDC token expired or invalid");
-        }
-
-        OidcProviderDetails providerDetails = appSettingService.getAppSettings().getOidcProviderDetails();
-        OidcProviderDetails.ClaimMapping claimMapping = providerDetails.getClaimMapping();
-        String username = claimsSet.getStringClaim(claimMapping.getUsername());
-        BookLoreUserEntity entity = userRepository.findByUsernameWithDetails(username)
-                .orElseThrow(() -> new UsernameNotFoundException("OIDC user not found: " + username));
         BookLoreUser user = bookLoreUserTransformer.toDTO(entity);
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(user, null, null);
