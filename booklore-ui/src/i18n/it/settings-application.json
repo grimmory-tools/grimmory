@@ -41,10 +41,5 @@
     },
     "settingsSaved": "Impostazioni salvate",
     "settingsSavedDetail": "Le impostazioni sono state salvate con successo!",
-    "settingsError": "Si è verificato un errore durante il salvataggio delle impostazioni.",
-    "appearance": {
-        "supportButtonAnimation": "",
-        "supportButtonAnimationDesc": "",
-        "sectionTitle": ""
-    }
+    "settingsError": "Si è verificato un errore durante il salvataggio delle impostazioni."
 }

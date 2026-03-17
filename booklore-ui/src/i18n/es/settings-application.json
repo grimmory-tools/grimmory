@@ -35,11 +35,6 @@
         "invalidInput": "Entrada inválida",
         "invalidInputDetail": "Introduce un tamaño máximo de carga de archivo válido en MB."
     },
-    "appearance": {
-        "sectionTitle": "Apariencia",
-        "supportButtonAnimation": "Animación del botón de apoyo",
-        "supportButtonAnimationDesc": "Muestra el efecto animado de corazón en el botón de apoyo en la barra superior. Desactivar esto mantiene el botón visible pero elimina la animación."
-    },
     "telemetry": {
         "sectionTitle": "Telemetría",
         "enableTelemetry": "Habilitar telemetría",

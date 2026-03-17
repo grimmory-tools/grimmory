@@ -43,10 +43,5 @@
     },
     "settingsSaved": "Nastavitve shranjene",
     "settingsSavedDetail": "Nastavitve so bile uspešno shranjene!",
-    "settingsError": "Pri shranjevanju nastavitev je prišlo do napake.",
-    "appearance": {
-        "supportButtonAnimation": "Animacija gumba za podporo",
-        "supportButtonAnimationDesc": "Prikaži animirani učinek srca na gumbu za podporo v zgornji vrstici. Če to onemogočiš, gumb ostane viden, vendar se animacija odstrani.",
-        "sectionTitle": "Izgled"
-    }
+    "settingsError": "Pri shranjevanju nastavitev je prišlo do napake."
 }

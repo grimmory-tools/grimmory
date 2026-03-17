@@ -41,10 +41,5 @@
     },
     "settingsSaved": "",
     "settingsSavedDetail": "",
-    "settingsError": "",
-    "appearance": {
-        "supportButtonAnimation": "",
-        "supportButtonAnimationDesc": "",
-        "sectionTitle": ""
-    }
+    "settingsError": ""
 }

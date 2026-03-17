@@ -43,10 +43,5 @@
     },
     "settingsSaved": "Inställningar sparade",
     "settingsSavedDetail": "Inställningarna sparades!",
-    "settingsError": "Det uppstod ett fel vid sparning av inställningarna.",
-    "appearance": {
-        "supportButtonAnimation": "Supportknappsanimation",
-        "supportButtonAnimationDesc": "Visa den animerade hjärteffekten för supportknappen på övre menyraden. Om du inaktiverar detta syns knappen fortfarande men animationen tas bort.",
-        "sectionTitle": "Utseende"
-    }
+    "settingsError": "Det uppstod ett fel vid sparning av inställningarna."
 }

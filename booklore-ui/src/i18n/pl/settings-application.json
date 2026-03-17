@@ -41,10 +41,5 @@
     },
     "settingsSaved": "Ustawienia zapisane",
     "settingsSavedDetail": "Ustawienia zostały pomyślnie zapisane!",
-    "settingsError": "Wystąpił błąd podczas zapisywania ustawień.",
-    "appearance": {
-        "supportButtonAnimation": "",
-        "supportButtonAnimationDesc": "",
-        "sectionTitle": ""
-    }
+    "settingsError": "Wystąpił błąd podczas zapisywania ustawień."
 }
