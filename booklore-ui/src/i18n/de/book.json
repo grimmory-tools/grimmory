@@ -44,7 +44,7 @@
             "collapseSeries": "Serien zusammenklappen",
             "gridColumns": "Rasterspalten",
             "gridItemSize": "Rasterelementgröße",
-            "bookTypeOverlay": "Buchtyp-Overlay",
+            "bookTypeOverlay": "Dateiformat-Overlay",
             "noBooks": "Diese Sammlung enthält keine Bücher!",
             "failedLibrary": "Bücher der Bibliothek konnten nicht geladen werden!",
             "failedShelf": "Bücher des Regals konnten nicht geladen werden!",
@@ -101,7 +101,10 @@
             "deleteBookMessage": "Sind Sie sicher, dass Sie \"{{ title }}\" löschen möchten?\n\nDies entfernt die Buchdatei dauerhaft aus Ihrem Dateisystem.\n\nDiese Aktion kann nicht rückgängig gemacht werden.",
             "deleteBookHeader": "Löschen bestätigen",
             "deleteFileMessage": "Sind Sie sicher, dass Sie die zusätzliche Datei \"{{ fileName }}\" löschen möchten?",
-            "deleteFileHeader": "Dateilöschung bestätigen"
+            "deleteFileHeader": "Dateilöschung bestätigen",
+            "largeFileMessage": "Diese Datei überschreitet 25 MB. Einige E-Mail-Anbieter lehnen möglicherweise große Anhänge ab..\n\nMöchten Sie es dennoch versenden?",
+            "largeFileHeader": "Warnung vor großen Dateien",
+            "sendAnyway": "Trotzdem senden"
         },
         "toast": {
             "quickSendSuccessDetail": "Der Buchversand wurde geplant.",
@@ -134,7 +137,8 @@
             "readBook": "Buch lesen",
             "playAudiobook": "Hörbuch abspielen",
             "bookMenu": "Buchaktionen-Menü",
-            "continueReading": "Weiterlesen"
+            "continueReading": "Weiterlesen",
+            "readStatusMenu": "Lesestatus ändern"
         }
     },
     "notes": {
@@ -263,7 +267,8 @@
             "customFetchMetadata": "Metadaten benutzerdefiniert abrufen",
             "autoFetchMetadata": "Metadaten automatisch abrufen",
             "findDuplicates": "Duplikate finden",
-            "deleteLibrary": "Bibliothek löschen"
+            "deleteLibrary": "Bibliothek löschen",
+            "bulkIsbnImport": "ISBNs aus Datei importieren"
         },
         "shelf": {
             "publicShelfPrefix": "Öffentliches Regal - ",
@@ -275,7 +280,8 @@
         "magicShelf": {
             "optionsLabel": "Optionen",
             "editMagicShelf": "Magisches Regal bearbeiten",
-            "deleteMagicShelf": "Magisches Regal löschen"
+            "deleteMagicShelf": "Magisches Regal löschen",
+            "exportJson": "Kopiere JSON"
         },
         "confirm": {
             "rescanLibraryMessage": "Sind Sie sicher, dass Sie die Bibliothek aktualisieren möchten: {{ name }}?",
@@ -294,7 +300,8 @@
             "shelfDeleteFailedDetail": "Regal konnte nicht gelöscht werden",
             "magicShelfDeletedDetail": "Magisches Regal wurde gelöscht",
             "magicShelfDeleteFailedDetail": "Regal konnte nicht gelöscht werden",
-            "failedSummary": "Fehlgeschlagen"
+            "failedSummary": "Fehlgeschlagen",
+            "magicShelfJsonCopiedDetail": "Magisches Regal JSON in die Zwischenablage kopiert"
         },
         "loading": {
             "deletingLibrary": "Bibliothek '{{ name }}' wird gelöscht..."
@@ -429,7 +436,8 @@
         "validationTitleOrIsbn": "Titel oder ISBN ist erforderlich",
         "validationReady": "Bereit zum Erstellen",
         "cancelButton": "Abbrechen",
-        "addButton": "Physisches Buch hinzufügen"
+        "addButton": "Physisches Buch hinzufügen",
+        "fetchMetadataTooltip": "Metadaten anhand der ISBN abrufen"
     },
     "fileUploader": {
         "title": "Zusätzliche Datei hochladen",
@@ -444,7 +452,7 @@
         "statusReady": "Bereit",
         "statusFailed": "Fehlgeschlagen",
         "dragDropText": "Ziehen Sie eine Datei hierher, um sie hochzuladen.",
-        "supportedFormats": "Unterstützte Formate: <strong>.pdf</strong>, <strong>.epub</strong>, <strong>.cbz</strong>, <strong>.cbr</strong>, <strong>.cb7</strong>, <strong>.fb2</strong>, <strong>.mobi</strong>, <strong>.azw3</strong>, <strong>.m4b</strong>, <strong>.mp3</strong>",
+        "supportedFormats": "",
         "maxFileSize": "Maximale Dateigröße: {{ size }} pro Datei",
         "uploadForBook": "Eine zusätzliche Datei für <strong>{{ title }}</strong> hochladen.",
         "thisBook": "dieses Buch",
@@ -454,7 +462,7 @@
             "fileTooLargeError": "Datei überschreitet die maximale Größe von {{ maxSize }}",
             "uploadFailedUnknown": "Hochladen aufgrund eines unbekannten Fehlers fehlgeschlagen."
         },
-        "supplementaryAllFormats": ""
+        "supplementaryAllFormats": "Für Zusatzdateien werden alle Dateiformate unterstützt."
     },
     "filter": {
         "title": "Filter",
@@ -844,5 +852,39 @@
             "mergeFailedDetail": "Diese Gruppe konnte nicht zusammengeführt werden.",
             "mergePartialDetail": "{{ success }} zusammengeführt, {{ failed }} fehlgeschlagen."
         }
+    },
+    "bulkIsbnImport": {
+        "title": "ISBNs importieren",
+        "description": "Importieren Sie mehrere physische Bücher aus einer Liste von ISBN-Nummern",
+        "libraryLabel": "Bibliothek",
+        "libraryPlaceholder": "Wählen Sie eine Bibliothek aus",
+        "tabFile": "Datei hochladen",
+        "tabPaste": "ISBNs einfügen",
+        "chooseFile": "Datei auswählen",
+        "closeTooltip": "Schließen",
+        "pastePlaceholder": "Füge hier die ISBNs ein, jeweils eine pro Zeile oder durch Kommas getrennt...",
+        "errorFileTooLarge": "Die Datei überschreitet die maximale Größe von 1 MB.",
+        "errorNoIsbns": "In der Eingabe wurden keine ISBNs gefunden.",
+        "errorTooMany": "Es werden nur die ersten {{max }} ISBNs importiert. Teile deine Datei für den Rest auf.",
+        "validCount": "{{count }} gültige ISBN(s)",
+        "skippedCount": "{{ count }} übersprungen",
+        "duplicatesRemoved": "{{count }} doppelte Einträge wurden entfernt",
+        "reason": {
+            "invalid": "Ungültiges ISBN-Format",
+            "alreadyExists": "Ist bereits in dieser Bibliothek vorhanden"
+        },
+        "previewLabel": "Zu importierende ISBNs",
+        "validationLibraryRequired": "Wähle eine Bibliothek aus",
+        "validationNoIsbns": "Lade eine Datei hoch oder füge ISBNs ein, um loszulegen",
+        "validationReady": "Bereit zum Importieren von {{count }} ISBN(s)",
+        "cancelButton": "Abbrechen",
+        "startImportButton": "Import starten",
+        "processingLabel": "Verarbeitung von {{current}} von {{total}}",
+        "lookingUp": "Metadaten werden abgerufen...",
+        "unknownError": "Unbekannter Fehler",
+        "processingHint": "Bereits erstellte Bücher bleiben erhalten, wenn Sie abbrechen.",
+        "cancelImportButton": "Import stoppen",
+        "summaryTitle": "Import beendet",
+        "summaryFailed": "Fehlgeschlagen"
     }
 }

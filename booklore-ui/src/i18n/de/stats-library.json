@@ -88,7 +88,13 @@
         "insightPeakDecade": "Spitzenjahrzehnt",
         "insightPeakDecadeBooks": "{{ count }} Bücher",
         "insightDecadesCovered": "Abgedeckte Jahrzehnte",
-        "insightDifferentEras": "verschiedene Epochen"
+        "insightDifferentEras": "verschiedene Epochen",
+        "insightGoldenEra": "Goldene Ära",
+        "insightGoldenEraRange": "{{ count }} Bücher",
+        "insightMostCommonYear": "Häufigstes Jahr",
+        "insightMostCommonYearBooks": "{{ count }} Bücher",
+        "insightRarityScore": "Seltenheitswert",
+        "insightRarePicks": "seltene Fundstücke"
     },
     "publicationTrend": {
         "title": "Veröffentlichungstrend",
@@ -117,7 +123,7 @@
     },
     "readingJourney": {
         "title": "Lesereise",
-        "description": "Hinzugefügte vs. beendete Bücher im Zeitverlauf. Die Lücke ist Ihr Rückstand.",
+        "description": "Hinzugefügte vs. beendete Bücher im Zeitverlauf - die Lücke ist Ihr Rückstand",
         "noData": "Keine Lesereisedaten verfügbar.",
         "noDataHint": "Bücher benötigen ein Hinzugefügt- oder Beendet-Datum, um hier angezeigt zu werden.",
         "axisMonth": "Monat",

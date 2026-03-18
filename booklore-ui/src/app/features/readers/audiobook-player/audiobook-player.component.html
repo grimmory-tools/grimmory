@@ -4,7 +4,7 @@
     <p-progressSpinner strokeWidth="3" />
     <span class="loading-text">{{ t('loading') }}</span>
   </div>
-} @else {
+} @else if (audiobookInfo) {
   <div class="audiobook-player">
     <!-- Hidden audio element -->
     <audio
@@ -394,6 +394,10 @@
         </div>
       </aside>
     }
+  </div>
+} @else {
+  <div class="loading-container">
+    <span class="loading-text">{{ t('toast.loadFailed') }}</span>
   </div>
 }
 </ng-container>

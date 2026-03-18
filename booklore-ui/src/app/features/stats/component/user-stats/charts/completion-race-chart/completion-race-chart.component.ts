@@ -175,7 +175,7 @@ export class CompletionRaceChartComponent implements OnInit, OnDestroy {
       }
       bookMap.get(item.bookId)!.sessions.push({
         date: new Date(item.sessionDate),
-        progress: Math.min(item.endProgress * 100, 100)
+        progress: Math.min(item.endProgress, 100)
       });
     }
 

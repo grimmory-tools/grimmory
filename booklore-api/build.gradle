@@ -18,6 +18,7 @@ java {
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 configurations {
@@ -73,7 +74,7 @@ dependencies {
     implementation 'io.documentnode:epub4j-core:4.2.3'
 
     // --- Audio Metadata (Audiobook Support) ---
-    implementation 'net.jthink:jaudiotagger:3.0.1'
+    implementation 'com.github.RouHim:jaudiotagger:2.0.16'
 
     // --- UNRAR Support ---
     implementation 'com.github.junrar:junrar:7.5.8'

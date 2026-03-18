@@ -129,7 +129,7 @@
     "patternExtract": {
         "infoBanner": "Ingrese un patrón para extraer metadatos de los nombres de archivo de <strong>{{ fileCount }}</strong> archivo(s) seleccionado(s). Use marcadores como <code>{{ '{' }}SeriesName{{ '}' }}</code> para capturar valores.",
         "patternTitle": "Patrón",
-        "patternPlaceholder": "ej., {SeriesName} - Cap {SeriesNumber}",
+        "patternPlaceholder": "e.g., {SeriesName} - Cap {SeriesNumber}",
         "patternAriaLabel": "Patrón de nombre de archivo para extracción de metadatos",
         "preview": "Vista previa",
         "previewAriaLabel": "Vista previa de la extracción de patrón en archivos de muestra",

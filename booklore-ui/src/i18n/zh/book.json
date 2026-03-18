@@ -445,7 +445,7 @@
         "statusReady": "就绪",
         "statusFailed": "失败",
         "dragDropText": "将文件拖放到此处进行上传。",
-        "supportedFormats": "支持的格式：<strong>.pdf</strong>、<strong>.epub</strong>、<strong>.cbz</strong>、<strong>.cbr</strong>、<strong>.cb7</strong>、<strong>.fb2</strong>、<strong>.mobi</strong>、<strong>.azw3</strong>、<strong>.m4b</strong>、<strong>.mp3</strong>",
+        "supportedFormats": "",
         "maxFileSize": "最大文件大小：每个文件 {{ size }}",
         "uploadForBook": "为 <strong>{{ title }}</strong> 上传附加文件。",
         "thisBook": "此图书",

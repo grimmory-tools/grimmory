@@ -40,7 +40,7 @@ public class MetadataExtractorFactory {
             case FB2 -> fb2MetadataExtractor.extractMetadata(file);
             case MOBI -> mobiMetadataExtractor.extractMetadata(file);
             case AZW3, AZW -> azw3MetadataExtractor.extractMetadata(file);
-            case M4B, M4A, MP3 -> audiobookMetadataExtractor.extractMetadata(file);
+            case M4B, M4A, MP3, OPUS -> audiobookMetadataExtractor.extractMetadata(file);
         };
     }
 
@@ -52,7 +52,7 @@ public class MetadataExtractorFactory {
             case FB2 -> fb2MetadataExtractor.extractCover(file);
             case MOBI -> mobiMetadataExtractor.extractCover(file);
             case AZW3, AZW -> azw3MetadataExtractor.extractCover(file);
-            case M4B, M4A, MP3 -> audiobookMetadataExtractor.extractCover(file);
+            case M4B, M4A, MP3, OPUS -> audiobookMetadataExtractor.extractCover(file);
         };
     }
 

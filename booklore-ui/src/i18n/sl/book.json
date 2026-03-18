@@ -452,7 +452,7 @@
         "statusReady": "Pripravljeno",
         "statusFailed": "Napaka",
         "dragDropText": "Povleci in spusti datoteko sem za nalaganje.",
-        "supportedFormats": "Podprti formati: <strong>.pdf</strong>, <strong>.epub</strong>, <strong>.cbz</strong>, <strong>.cbr</strong>, <strong>.cb7</strong>, <strong>.fb2</strong>, <strong>.mobi</strong>, <strong>.azw3</strong>, <strong>.m4b</strong>, <strong>.mp3</strong>",
+        "supportedFormats": "",
         "maxFileSize": "Največja velikost: {{ size }} na datoteko",
         "uploadForBook": "Naloži dodatno datoteko za <strong>{{ title }}</strong>.",
         "thisBook": "to knjigo",

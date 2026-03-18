@@ -21,7 +21,7 @@
         "filesCount": "{{ uploaded }}/{{ total }} ファイル",
         "failedCount": "（{{ count }}件失敗）",
         "dragDropTitle": "ファイルをドラッグ＆ドロップ",
-        "supportedFormats": "対応形式: <strong>.pdf</strong>、<strong>.epub</strong>、<strong>.cbz</strong>、<strong>.cbr</strong>、<strong>.cb7</strong>、<strong>.fb2</strong>、<strong>.m4b</strong>、<strong>.mp3</strong>",
+        "supportedFormats": "",
         "maxFileSize": "最大ファイルサイズ: {{ size }}/ファイル",
         "fileTooLargeTooltip": "ファイルが大きすぎます",
         "uploadFailedTooltip": "アップロードに失敗しました",

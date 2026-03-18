@@ -1,34 +1,34 @@
 {
-  "title": "",
-  "description": "",
-  "basicInfo": "",
-  "username": "",
-  "usernamePlaceholder": "",
-  "fullName": "",
-  "fullNamePlaceholder": "",
-  "email": "",
-  "emailPlaceholder": "",
-  "editProfile": "",
-  "saveChanges": "",
-  "security": "",
-  "currentPassword": "",
-  "newPassword": "",
-  "confirmNewPassword": "",
-  "changePassword": "",
-  "loading": "",
-  "validation": {
-    "currentPasswordRequired": "",
-    "newPasswordRequired": "",
-    "passwordMinLength": "",
-    "confirmPasswordRequired": "",
-    "passwordMismatch": ""
-  },
-  "toast": {
-    "errorNoUser": "",
-    "noChanges": "",
-    "profileUpdated": "",
-    "profileUpdateFailed": "",
-    "passwordChanged": "",
-    "passwordChangeFailed": ""
-  }
+    "title": "Профіль користувача",
+    "description": "Керуйте інформацією свого облікового запису та налаштуваннями безпеки",
+    "basicInfo": "Основна інформація",
+    "username": "Ім'я користувача",
+    "usernamePlaceholder": "Ім'я користувача...",
+    "fullName": "Повне ім'я",
+    "fullNamePlaceholder": "Введіть повне ім'я...",
+    "email": "Електронна пошта",
+    "emailPlaceholder": "Введіть email...",
+    "editProfile": "Редагувати профіль",
+    "saveChanges": "Зберегти зміни",
+    "security": "Налаштування безпеки",
+    "currentPassword": "Поточний пароль",
+    "newPassword": "Новий пароль",
+    "confirmNewPassword": "Підтвердіть новий пароль",
+    "changePassword": "Змінити пароль",
+    "loading": "Завантаження даних користувача...",
+    "validation": {
+        "currentPasswordRequired": "Поточний пароль є обов'язковим.",
+        "newPasswordRequired": "Новий пароль є обов'язковим.",
+        "passwordMinLength": "Пароль має містити щонайменше 8 символів.",
+        "confirmPasswordRequired": "Будь ласка, підтвердьте новий пароль.",
+        "passwordMismatch": "Паролі не збігаються."
+    },
+    "toast": {
+        "errorNoUser": "Дані користувача недоступні.",
+        "noChanges": "Змін не виявлено.",
+        "profileUpdated": "Профіль успішно оновлено",
+        "profileUpdateFailed": "Не вдалося оновити профіль",
+        "passwordChanged": "Пароль успішно змінено",
+        "passwordChangeFailed": "Не вдалося змінити пароль"
+    }
 }

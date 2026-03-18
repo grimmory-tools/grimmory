@@ -52,12 +52,13 @@
             "createFailedSummary": "Ustvarjanje ni uspelo",
             "createFailedDetail": "Prišlo je do napake pri ustvarjanju knjižnice. Prosim, poskusi znova."
         },
-        "folderStructureHint": "Prepričaj se, da mape sledijo pričakovani <a href='https://booklore.org/docs/library/folder-structure#-recommended-structures' target='_blank' rel='noopener'>strukturi imenikov</a> za knjige in zvočne knjige.",
+        "folderStructureHint": "Združevanje datotek v knjige je odvisno od tvojega <a href='https://booklore.org/docs/library/organization-modes' target='_blank' rel='noopener'>načina organizacije</a>.",
         "organizationMode": "Organizacijski način",
         "organizationModeTooltip": "Kako so datoteke med skeniranjem združene v knjige",
         "organizationModeBookPerFile": "Ena knjiga na datoteko",
         "organizationModeBookPerFolder": "Ena knjiga na mapo",
-        "organizationModeAutoDetect": "Samodejno zaznavanje (zastarelo)"
+        "organizationModeAutoDetect": "Samodejno zaznavanje (zastarelo)",
+        "organizationModeLockedTooltip": "Načina organizacije ni mogoče spremeniti po ustvarjanju knjižnice. Če želiš uporabiti drug način, ustvari novo knjižnico."
     },
     "loading": {
         "title": "Nalaganje knjižnice",

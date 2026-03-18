@@ -21,7 +21,7 @@
         "sectionTitle": "Configuración del proveedor OIDC",
         "sectionDesc": "Configura los ajustes de tu proveedor OIDC. Todos los campos son obligatorios para habilitar OIDC.",
         "providerName": "Nombre del proveedor",
-        "providerPlaceholder": "ej. Authentik, Keycloak",
+        "providerPlaceholder": "e.g. Authentik, Keycloak",
         "clientId": "ID de cliente",
         "clientIdPlaceholder": "Tu ID de cliente OIDC",
         "clientSecret": "Secreto del cliente",

@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 public class AudioFileUtilityService {
 
     private static final Set<String> AUDIO_EXTENSIONS = Set.of(
-            ".mp3", ".m4a", ".m4b"
+            ".mp3", ".m4a", ".m4b", ".opus"
     );
 
     /**
@@ -55,6 +55,8 @@ public class AudioFileUtilityService {
             return "audio/mp4";
         } else if (fileName.endsWith(".mp3")) {
             return "audio/mpeg";
+        } else if (fileName.endsWith(".opus")) {
+            return "audio/opus";
         }
         return "application/octet-stream";
     }

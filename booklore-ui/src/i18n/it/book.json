@@ -444,7 +444,7 @@
         "statusReady": "Pronto",
         "statusFailed": "Fallito",
         "dragDropText": "Trascina e rilascia un file qui per caricarlo.",
-        "supportedFormats": "Formati supportati: <strong>.pdf</strong>, <strong>.epub</strong>, <strong>.cbz</strong>, <strong>.cbr</strong>, <strong>.cb7</strong>, <strong>.fb2</strong>, <strong>.mobi</strong>, <strong>.azw3</strong>, <strong>.m4b</strong>, <strong>.mp3</strong>",
+        "supportedFormats": "",
         "maxFileSize": "Dimensione massima: {{ size }} per file",
         "uploadForBook": "Carica un file aggiuntivo per <strong>{{ title }}</strong>.",
         "thisBook": "questo libro",

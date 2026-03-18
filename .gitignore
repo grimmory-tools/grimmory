@@ -45,5 +45,6 @@ local-scripts/
 ### Dev config, books, and data ###
 booklore-ui/test-results/
 booklore-api/src/main/resources/application-local.yaml
-booklore-api/docs
 /shared/
+
+/scratch

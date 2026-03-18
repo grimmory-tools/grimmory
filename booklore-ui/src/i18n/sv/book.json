@@ -267,7 +267,8 @@
             "customFetchMetadata": "Anpassad metadatahämtning",
             "autoFetchMetadata": "Auto-hämta metadata",
             "findDuplicates": "Hitta dubbletter",
-            "deleteLibrary": "Radera bibliotek"
+            "deleteLibrary": "Radera bibliotek",
+            "bulkIsbnImport": "Importera ISBN-nummer från fil"
         },
         "shelf": {
             "publicShelfPrefix": "Publik hylla - ",
@@ -279,7 +280,8 @@
         "magicShelf": {
             "optionsLabel": "Alternativ",
             "editMagicShelf": "Redigera magisk hylla",
-            "deleteMagicShelf": "Radera magisk hylla"
+            "deleteMagicShelf": "Radera magisk hylla",
+            "exportJson": "Kopiera JSON"
         },
         "confirm": {
             "rescanLibraryMessage": "Är du säker på att du vill uppdatera biblioteket: {{ name }}?",
@@ -298,7 +300,8 @@
             "shelfDeleteFailedDetail": "Kunde inte radera hylla",
             "magicShelfDeletedDetail": "Magiska hyllan raderades",
             "magicShelfDeleteFailedDetail": "Kunde inte radera hylla",
-            "failedSummary": "Misslyckades"
+            "failedSummary": "Misslyckades",
+            "magicShelfJsonCopiedDetail": "Magisk hylla-JSON kopierad till urklipp"
         },
         "loading": {
             "deletingLibrary": "Raderar biblioteket '{{ name }}'..."
@@ -449,7 +452,7 @@
         "statusReady": "Redo",
         "statusFailed": "Misslyckades",
         "dragDropText": "Dra och släpp en fil här för att ladda upp.",
-        "supportedFormats": "Format som stöds: <strong>.pdf</strong>, <strong>.epub</strong>, <strong>.cbz</strong>, <strong>.cbr</strong>, <strong>.cb7</strong>, <strong>.fb2</strong>, <strong>.mobi</strong>, <strong>.azw3</strong>, <strong>.m4b</strong>, <strong>.mp3</strong>",
+        "supportedFormats": "",
         "maxFileSize": "Maximal filstorlek: {{ size }} per fil",
         "uploadForBook": "Ladda upp en extra fil för <strong>{{ title }}</strong>.",
         "thisBook": "denna bok",
@@ -469,7 +472,7 @@
             "author": "Författare",
             "category": "Genre",
             "series": "Serie",
-            "bookType": "Boktyp",
+            "bookType": "Filformat",
             "readStatus": "Lässtatus",
             "personalRating": "Personligt betyg",
             "publisher": "Förlag",
@@ -674,7 +677,7 @@
             "readStatus": "Lässtatus",
             "dateFinished": "Avslutad datum",
             "readingProgress": "Läsframsteg",
-            "bookType": "Boktyp",
+            "bookType": "Filformat",
             "amazonRating": "Amazon-betyg",
             "amazonReviewCount": "Amazon #",
             "goodreadsRating": "Goodreads-betyg",
@@ -849,5 +852,48 @@
             "deleteHeader": "Bekräfta borttagning",
             "deleteMessage": "Detta tar permanent bort {{ count }} bok/böcker och deras filer från disken. Detta kan inte ångras."
         }
+    },
+    "bulkIsbnImport": {
+        "title": "Importera ISBN-nummer",
+        "description": "Importera flera fysiska böcker från en lista med ISBN-nummer",
+        "closeTooltip": "Stäng",
+        "libraryLabel": "Bibliotek",
+        "libraryPlaceholder": "Välj ett bibliotek",
+        "tabFile": "Ladda upp fil",
+        "tabPaste": "Klistra in ISBN-nummer",
+        "chooseFile": "Välj fil",
+        "fileFormatsHint": "Format som stöds: .txt, .csv, .tsv (max 1 MB)",
+        "pastePlaceholder": "Klistra in ISBN-nummer här, ett per rad eller separerade med komma...",
+        "parseButton": "Bearbeta",
+        "errorFileTooLarge": "Filen överskrider storleksgränsen på 1 MB.",
+        "errorNoIsbns": "Inga ISBN-nummer hittades i indata.",
+        "errorTooMany": "Endast de första {{ max }} ISBN-numren kommer att importeras. Dela upp din fil för resten.",
+        "validCount": "{{ count }} giltiga ISBN-nummer",
+        "skippedCount": "{{ count }} hoppades över",
+        "duplicatesRemoved": "{{ count }} dublett(er) borttagna",
+        "reason": {
+            "invalid": "Ogiltigt ISBN-format",
+            "alreadyExists": "Existerar redan i detta bibliotek"
+        },
+        "previewLabel": "ISBN-nummer att importera",
+        "clearButton": "Rensa",
+        "validationLibraryRequired": "Välj ett bibliotek",
+        "validationNoIsbns": "Ladda upp en fil eller klistra in ISBN-nummer för att börja",
+        "validationReady": "Redo att importera {{ count }} ISBN-nummer",
+        "cancelButton": "Avbryt",
+        "startImportButton": "Påbörja import",
+        "processingLabel": "Bearbetar {{ current }} av {{ total }}",
+        "lookingUp": "Söker efter metadata...",
+        "createdNoMetadata": "Skapad (inga metadata hittades)",
+        "unknownError": "Okänt fel",
+        "processingHint": "Redan skapade böcker kommer att behållas om du avbryter.",
+        "cancelImportButton": "Stoppa import",
+        "summaryTitle": "Importen är klar",
+        "summaryCreated": "Skapad med metadata",
+        "summaryNoMetadata": "Skapad (endast ISBN)",
+        "summaryFailed": "Misslyckades",
+        "summaryCancelled": "Hoppades över (avbruten)",
+        "failedIsbnsLabel": "Misslyckade ISBN-nummer",
+        "doneButton": "Färdig"
     }
 }

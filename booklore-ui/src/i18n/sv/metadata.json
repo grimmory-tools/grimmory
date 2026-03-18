@@ -396,7 +396,10 @@
             "largeFileHeader": "Varning för stor fil",
             "sendAnyway": "Skicka ändå"
         },
-        "audiobookAbridged": "Förkortad"
+        "audiobookAbridged": "Förkortad",
+        "firstAuthorBadge": "MAIN",
+        "menuMarkPhysical": "Markera som fysisk",
+        "menuUnmarkPhysical": "Avmarkera som fysisk"
     },
     "sidecar": {
         "title": "Sidecar-metadata",
@@ -503,7 +506,14 @@
             "tag": "Tagg",
             "series": "Serie",
             "publisher": "Förlag",
-            "language": "Språk"
+            "language": "Språk",
+            "authors": "Författare",
+            "genres": "Genrer",
+            "moods": "Stämningar",
+            "tags": "Taggar",
+            "seriesPlural": "Serier",
+            "publishers": "Utgivare",
+            "languages": "Språk"
         },
         "placeholders": {
             "searchAuthors": "Sök författare...",

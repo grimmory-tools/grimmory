@@ -89,7 +89,7 @@
           name="file"
           [customUpload]="true"
           [multiple]="true"
-          accept=".pdf,.epub,.cbz,.cbr,.cb7,.fb2,.mobi,.azw,.azw3,.m4b,.mp3"
+          accept=".pdf,.epub,.cbz,.cbr,.cb7,.fb2,.mobi,.azw,.azw3,.m4b,.m4a,.mp3,.opus"
           (onSelect)="onFilesSelect($event)"
           (uploadHandler)="uploadFiles($event)">
           <ng-template #header let-files let-chooseCallback="chooseCallback" let-clearCallback="clearCallback" let-uploadCallback="uploadCallback">

@@ -80,7 +80,7 @@
         "seriesName": "Serienname",
         "seriesNumber": "Seriennummer",
         "seriesTotal": "Bücher in der Serie",
-        "fileSize": "Dateigröße (KB)",
+        "fileSize": "Dateigröße (Kb)",
         "fileType": "Dateityp",
         "subtitle": "Untertitel",
         "amazonRating": "Amazon-Bewertung",
@@ -106,7 +106,10 @@
         "seriesGaps": "Serienlücken",
         "seriesPosition": "Serienposition",
         "readingProgress": "Lesefortschritt (%)",
-        "metadataPresence": "Metadaten-Vollständigkeit"
+        "metadataPresence": "Metadaten-Vollständigkeit",
+        "audiobookCodec": "Codec",
+        "audiobookChapterCount": "Anzahl Kapitel",
+        "audiobookBitrate": "Bitrate (kbps)"
     },
     "fieldGroups": {
         "organization": "Organisation",
@@ -257,7 +260,10 @@
         "comicColorists": "Koloristen",
         "comicLetterers": "Letterer",
         "comicCoverArtists": "Cover-Künstler",
-        "comicEditors": "Redakteure"
+        "comicEditors": "Redakteure",
+        "audiobookCodec": "Codec",
+        "audiobookChapterCount": "Kapitel",
+        "audiobookBitrate": "Bitrate"
     },
     "toast": {
         "validationErrorSummary": "Validierungsfehler",
@@ -266,5 +272,13 @@
         "successDetail": "Magisches Regal erfolgreich gespeichert.",
         "errorSummary": "Fehler",
         "errorDetailDefault": "Magisches Regal konnte nicht gespeichert werden."
+    },
+    "importJson": {
+        "buttonLabel": "Import",
+        "apply": "Anwenden",
+        "emptyError": "Bitte fügen Sie zunächst eine JSON-Konfiguration ein.",
+        "parseError": "Ungültiges JSON. Bitte überprüfen Sie die Syntax und versuchen Sie es erneut.",
+        "structureError": "Die Struktur ist ungültig. Die JSON-Datei muss „type“: „group“ und ein „rules“-Array enthalten.",
+        "successDetail": "Die Regeln wurden erfolgreich importiert. Bitte überprüfen Sie diese und speichern Sie sie, sobald Sie fertig sind."
     }
 }

@@ -16,7 +16,7 @@
     "cron": {
         "noSchedule": "Sin programación",
         "edit": "Editar",
-        "placeholder": "ej., 0 2 * * *",
+        "placeholder": "e.g., 0 2 * * *",
         "validationPrefix": "La expresión cron debe tener exactamente 6 campos (segundos, minutos, horas, día, mes, día de la semana)",
         "invalidField": "Campo {{name}} no válido: {{value}}",
         "updateSuccess": "La configuración de tarea programada se actualizó correctamente.",

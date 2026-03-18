@@ -444,7 +444,7 @@
         "statusReady": "Готов",
         "statusFailed": "Ошибка",
         "dragDropText": "Перетащите файл сюда для загрузки.",
-        "supportedFormats": "Поддерживаемые форматы: <strong>.pdf</strong>, <strong>.epub</strong>, <strong>.cbz</strong>, <strong>.cbr</strong>, <strong>.cb7</strong>, <strong>.fb2</strong>, <strong>.mobi</strong>, <strong>.azw3</strong>, <strong>.m4b</strong>, <strong>.mp3</strong>",
+        "supportedFormats": "",
         "maxFileSize": "Максимальный размер файла: {{ size }}",
         "uploadForBook": "Загрузить дополнительный файл для <strong>{{ title }}</strong>.",
         "thisBook": "эту книгу",

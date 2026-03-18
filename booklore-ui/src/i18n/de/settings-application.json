@@ -5,7 +5,7 @@
         "sectionTitle": "Buchcover-Bild",
         "regenerate": "Cover neu generieren",
         "regenerateBtn": "Neu generieren",
-        "regenerateDesc": "Generiert Coverbilder für alle Bücher aus den in der Datei eingebetteten Covern neu.",
+        "regenerateDesc": "Generiert Coverbilder für alle Bücher aus den in der Datei eingebetteten Covern neu. Verwenden Sie „Fehlende neu generieren“, um nur Cover für Bücher zu erstellen, die noch kein Cover haben.",
         "regenerateStarted": "Cover-Neugenerierung gestartet",
         "regenerateStartedDetail": "Buchcover werden neu generiert.",
         "regenerateError": "Cover-Neugenerierung konnte nicht gestartet werden.",
@@ -31,7 +31,7 @@
         "sectionTitle": "Dateiverwaltung",
         "maxUploadSize": "Maximale Dateiupload-Größe",
         "maxUploadPlaceholder": "Max. Größe",
-        "maxUploadDesc": "Legt die maximal erlaubte Größe (in MB) pro hochgeladener Datei fest. Gilt für EPUB-, PDF-, CBZ-, CBR- und CB7-Formate.",
+        "maxUploadDesc": "Legt die maximal erlaubte Größe (in MB) pro hochgeladener Datei fest. Gilt für alle unterstützten Formate.",
         "restartWarning": "Änderungen werden nach einem Neustart des Servers wirksam",
         "invalidInput": "Ungültige Eingabe",
         "invalidInputDetail": "Bitte geben Sie eine gültige maximale Dateiupload-Größe in MB ein."
@@ -45,8 +45,8 @@
     "settingsSavedDetail": "Die Einstellungen wurden erfolgreich gespeichert!",
     "settingsError": "Beim Speichern der Einstellungen ist ein Fehler aufgetreten.",
     "appearance": {
-        "supportButtonAnimation": "",
-        "supportButtonAnimationDesc": "",
-        "sectionTitle": ""
+        "supportButtonAnimation": "Animation der Support-Schaltfläche",
+        "supportButtonAnimationDesc": "Zeigt den animierten Herz-Effekt auf der Support-Schaltfläche in der oberen Leiste an. Wenn Sie diese Option deaktivieren, bleibt die Schaltfläche sichtbar, jedoch wird die Animation deaktiviert.",
+        "sectionTitle": "Erscheinungsbild"
     }
 }

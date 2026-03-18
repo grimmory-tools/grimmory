@@ -140,7 +140,7 @@
         "nameRequired": "Namn krävs och måste vara minst 3 tecken.",
         "usernameRequired": "Användarnamn krävs.",
         "emailInvalid": "Ange en giltig e-postadress.",
-        "passwordMinLength": "Lösenordet måste vara minst 6 tecken.",
+        "passwordMinLength": "Lösenordet måste vara minst 8 tecken.",
         "confirmRequired": "Lösenordsbekräftelse krävs",
         "passwordMismatch": "Lösenorden matchar inte.",
         "libraryAccess": "Biblioteksåtkomst",

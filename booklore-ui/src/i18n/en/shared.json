@@ -21,7 +21,7 @@
     "filesCount": "{{ uploaded }}/{{ total }} files",
     "failedCount": "({{ count }} failed)",
     "dragDropTitle": "Drag and Drop Files",
-    "supportedFormats": "Supported formats: <strong>.pdf</strong>, <strong>.epub</strong>, <strong>.cbz</strong>, <strong>.cbr</strong>, <strong>.cb7</strong>, <strong>.fb2</strong>, <strong>.m4b</strong>, <strong>.mp3</strong>",
+    "supportedFormats": "Supported formats: <strong>.pdf</strong>, <strong>.epub</strong>, <strong>.cbz</strong>, <strong>.cbr</strong>, <strong>.cb7</strong>, <strong>.fb2</strong>, <strong>.mobi</strong>, <strong>.azw</strong>, <strong>.azw3</strong>, <strong>.m4b</strong>, <strong>.m4a</strong>, <strong>.mp3</strong>, <strong>.opus</strong>",
     "maxFileSize": "Maximum file size: {{ size }} per file",
     "fileTooLargeTooltip": "File too large",
     "uploadFailedTooltip": "Upload failed",

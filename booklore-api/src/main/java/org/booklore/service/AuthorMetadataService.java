@@ -13,6 +13,7 @@ import org.booklore.model.dto.Library;
 import org.booklore.model.dto.request.AuthorMatchRequest;
 import org.booklore.model.dto.request.AuthorUpdateRequest;
 import org.booklore.model.entity.AuthorEntity;
+import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.enums.AuditAction;
 import org.booklore.model.enums.AuthorMetadataSource;
 import org.booklore.repository.AuthorRepository;
@@ -189,6 +190,13 @@ public class AuthorMetadataService {
             if (author == null) continue;
 
             String authorName = author.getName();
+
+            if (author.getBookMetadataEntityList() != null) {
+                for (BookMetadataEntity metadata : author.getBookMetadataEntityList()) {
+                    metadata.getAuthors().remove(author);
+                }
+            }
+
             fileService.deleteAuthorImages(authorId);
             authorRepository.delete(author);
 

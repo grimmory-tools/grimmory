@@ -21,7 +21,7 @@
         "filesCount": "{{ uploaded }}/{{ total }} файлов",
         "failedCount": "({{ count }} с ошибками)",
         "dragDropTitle": "Перетащите файлы сюда",
-        "supportedFormats": "Поддерживаемые форматы: <strong>.pdf</strong>, <strong>.epub</strong>, <strong>.cbz</strong>, <strong>.cbr</strong>, <strong>.cb7</strong>, <strong>.fb2</strong>, <strong>.m4b</strong>, <strong>.mp3</strong>",
+        "supportedFormats": "",
         "maxFileSize": "Максимальный размер файла: {{ size }} на файл",
         "fileTooLargeTooltip": "Файл слишком большой",
         "uploadFailedTooltip": "Ошибка загрузки",

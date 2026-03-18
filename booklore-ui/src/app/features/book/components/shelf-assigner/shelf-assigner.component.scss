@@ -51,6 +51,7 @@
   padding: 0.625rem 0.875rem;
   background: var(--overlay-background);
   border-radius: 6px;
+  gap: 0.5rem;
 
   .shelf-count {
     display: flex;
@@ -59,17 +60,51 @@
     font-size: 0.9rem;
     font-weight: 600;
     color: var(--text-color);
+    white-space: nowrap;
 
     i {
       color: var(--primary-color);
     }
   }
 
+  .shelf-search {
+    flex: 1;
+    max-width: 200px;
+    position: relative;
+
+    input {
+      width: 100%;
+      font-size: 0.85rem;
+      padding: 0.375rem 2rem 0.375rem 2rem;
+    }
+
+    .clear-icon {
+      position: absolute;
+      right: 0.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: var(--text-secondary-color);
+      font-size: 0.75rem;
+      z-index: 1;
+
+      &:hover {
+        color: var(--text-color);
+      }
+    }
+  }
+
   @media (max-width: 480px) {
     padding: 0.5rem 0.625rem;
+    flex-wrap: wrap;
 
     .shelf-count {
       font-size: 0.85rem;
+    }
+
+    .shelf-search {
+      max-width: 100%;
+      order: 1;
     }
   }
 }

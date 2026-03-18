@@ -1,19 +1,19 @@
 {
-    "title": "Záznamky auditu",
+    "title": "Záznamy auditu",
     "description": "Zobrazte záznam administrátorsky významných akcií vykonaných v rámci celého systému.",
-    "sectionTitle": "",
-    "filterPlaceholder": "",
-    "userFilterPlaceholder": "",
-    "dateRangePlaceholder": "",
-    "clearFilters": "",
-    "autoRefresh": "",
-    "pageReport": "",
-    "empty": "",
+    "sectionTitle": "Záznamy aktivity",
+    "filterPlaceholder": "Filtrovať podľa akcie",
+    "userFilterPlaceholder": "Filtrovať podľa užívateľa",
+    "dateRangePlaceholder": "Filtrovať podľa časového rozsahu",
+    "clearFilters": "Vymazať všetky filtre",
+    "autoRefresh": "Automatické obnovovanie (10 s)",
+    "pageReport": "Zobrazené od {first} do {last} z {totalRecords} záznamov",
+    "empty": "Nenašli sa žiadne auditné záznamy",
     "columns": {
-        "timestamp": "",
-        "user": "",
-        "action": "",
-        "description": "",
-        "ip": ""
+        "timestamp": "Kedy",
+        "user": "Používateľ",
+        "action": "Akcia",
+        "description": "Opis",
+        "ip": "IP adresa"
     }
 }

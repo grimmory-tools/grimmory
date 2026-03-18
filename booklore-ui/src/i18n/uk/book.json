@@ -267,7 +267,8 @@
             "customFetchMetadata": "Налаштовуване отримання метаданих",
             "autoFetchMetadata": "Автозавантаження метаданих",
             "findDuplicates": "Знайти дублікати",
-            "deleteLibrary": "Видалити бібліотеку"
+            "deleteLibrary": "Видалити бібліотеку",
+            "bulkIsbnImport": "Імпортувати ISBN із файлу"
         },
         "shelf": {
             "publicShelfPrefix": "Публічна полиця - ",
@@ -279,7 +280,8 @@
         "magicShelf": {
             "optionsLabel": "Опції",
             "editMagicShelf": "Редагувати магічну полицю",
-            "deleteMagicShelf": "Видалити магічну полицю"
+            "deleteMagicShelf": "Видалити магічну полицю",
+            "exportJson": "Скопіювати JSON"
         },
         "confirm": {
             "rescanLibraryMessage": "Ви впевнені, що хочете оновити бібліотеку: {{ name }}?",
@@ -298,7 +300,8 @@
             "shelfDeleteFailedDetail": "Не вдалося видалити полицю",
             "magicShelfDeletedDetail": "Магічну полицю видалено",
             "magicShelfDeleteFailedDetail": "Не вдалося видалити полицю",
-            "failedSummary": "Не вдалося"
+            "failedSummary": "Не вдалося",
+            "magicShelfJsonCopiedDetail": "JSON магічної полиці скопійовано в буфер обміну"
         },
         "loading": {
             "deletingLibrary": "Видалення бібліотеки '{{ name }}'..."
@@ -849,5 +852,48 @@
             "mergeFailedDetail": "Не вдалося об'єднати цю групу.",
             "mergePartialDetail": "{{ success }} об'єднано, {{ failed }} не вдалося."
         }
+    },
+    "bulkIsbnImport": {
+        "title": "Імпорт ISBN",
+        "description": "Імпортуйте кілька паперових книг зі списку ISBN",
+        "closeTooltip": "Закрити",
+        "libraryLabel": "Бібліотека",
+        "libraryPlaceholder": "Виберіть бібліотеку",
+        "tabFile": "Завантажити файл",
+        "tabPaste": "Вставити ISBN",
+        "chooseFile": "Вибрати файл",
+        "fileFormatsHint": "Підтримувані формати: .txt, .csv, .tsv (макс. 1 МБ)",
+        "pastePlaceholder": "Вставте ISBN сюди, по одному в рядку або розділені комами...",
+        "parseButton": "Розібрати",
+        "errorFileTooLarge": "Файл перевищує ліміт розміру 1 МБ.",
+        "errorNoIsbns": "У вхідних даних не знайдено ISBN.",
+        "errorTooMany": "Буде імпортовано лише перші {{ max }} ISBN. Для решти розбийте файл.",
+        "validCount": "{{ count }} коректних ISBN",
+        "skippedCount": "Пропущено: {{ count }}",
+        "duplicatesRemoved": "Видалено дублікатів: {{ count }}",
+        "reason": {
+            "invalid": "Некоректний формат ISBN",
+            "alreadyExists": "Вже є в цій бібліотеці"
+        },
+        "previewLabel": "ISBN для імпорту",
+        "clearButton": "Очистити",
+        "validationLibraryRequired": "Виберіть бібліотеку",
+        "validationNoIsbns": "Щоб почати, завантажте файл або вставте ISBN",
+        "validationReady": "Готово до імпорту {{ count }} ISBN",
+        "cancelButton": "Скасувати",
+        "startImportButton": "Почати імпорт",
+        "processingLabel": "Обробка {{ current }} з {{ total }}",
+        "lookingUp": "Пошук метаданих...",
+        "createdNoMetadata": "Створено (метадані не знайдено)",
+        "unknownError": "Невідома помилка",
+        "processingHint": "Уже створені книги буде збережено, якщо ви скасуєте імпорт.",
+        "cancelImportButton": "Зупинити імпорт",
+        "summaryTitle": "Імпорт завершено",
+        "summaryCreated": "Створено з метаданими",
+        "summaryNoMetadata": "Створено (лише ISBN)",
+        "summaryFailed": "Помилка",
+        "summaryCancelled": "Пропущено (скасовано)",
+        "failedIsbnsLabel": "ISBN, які не вдалося імпортувати",
+        "doneButton": "Готово"
     }
 }

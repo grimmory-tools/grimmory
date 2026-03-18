@@ -65,7 +65,38 @@
     },
     "fieldSelector": {
         "sectionTitle": "Aktiverade fält i metadataredigeraren och -väljaren",
-        "sectionDesc": "Välj vilka metadatafält som ska visas vid redigering av bokinformation eller val av metadata från leverantörer. Inaktiverade fält döljs från gränssnittet."
+        "sectionDesc": "Välj vilka metadatafält som ska visas vid redigering av bokinformation eller val av metadata från leverantörer. Inaktiverade fält döljs från gränssnittet.",
+        "providers": {
+            "amazon": "Amazon",
+            "googleBooks": "Google Books",
+            "goodreads": "Goodreads",
+            "hardcover": "Hardcover",
+            "audible": "Audible",
+            "comicvine": "Comicvine",
+            "lubimyczytac": "Lubimyczytac",
+            "ranobedb": "Ranobedb"
+        },
+        "fields": {
+            "asin": "Amazon ASIN",
+            "amazonRating": "Amazon-betyg",
+            "amazonReviewCount": "Antal Amazon-betyg",
+            "googleId": "Google Books-ID",
+            "goodreadsId": "Goodreads-ID",
+            "goodreadsRating": "Goodreads-betyg",
+            "goodreadsReviewCount": "Antal Goodreads-betyg",
+            "hardcoverId": "Hardcover-ID",
+            "hardcoverBookId": "Hardcover-bok-ID",
+            "hardcoverRating": "Hardcover-betyg",
+            "hardcoverReviewCount": "Antal Hardcover-betyg",
+            "comicvineId": "Comicvine-ID",
+            "lubimyczytacId": "Lubimyczytac-ID",
+            "lubimyczytacRating": "Lubimyczytac-betyg",
+            "ranobedbId": "Ranobedb-ID",
+            "ranobedbRating": "Ranobedb-betyg",
+            "audibleId": "Audible-ID",
+            "audibleRating": "Audible-betyg",
+            "audibleReviewCount": "Antal Audible-betyg"
+        }
     },
     "publicReviews": {
         "sectionTitle": "Publika recensioner",
@@ -91,6 +122,34 @@
         "saveSuccess": "Vikterna sparades",
         "saveError": "Kunde inte spara vikter",
         "recalcSuccess": "Alla bokors matchningspoäng omräknades.",
-        "recalcError": "Kunde inte räkna om matchningspoäng."
+        "recalcError": "Kunde inte räkna om matchningspoäng.",
+        "fields": {
+            "categories": "Kategorier",
+            "coverImage": "Omslagsbild",
+            "seriesName": "Namn på serie",
+            "seriesNumber": "Serienummer",
+            "seriesTotal": "Totalt antal i serie",
+            "language": "Språk",
+            "isbn13": "ISBN-13",
+            "isbn10": "ISBN-10",
+            "pageCount": "Sidantal",
+            "amazonRating": "Amazon-betyg",
+            "amazonReviewCount": "Amazon-betyg #",
+            "goodreadsRating": "Goodreads-betyg",
+            "goodreadsReviewCount": "Goodreads-betyg #",
+            "hardcoverRating": "Hardcover-betyg",
+            "hardcoverReviewCount": "Hardcover-betyg #",
+            "audibleRating": "Audible-betyg",
+            "audibleReviewCount": "Audible-betyg #",
+            "doubanRating": "Douban-betyg",
+            "doubanReviewCount": "Douban-betyg #",
+            "ranobedbRating": "Ranobedb-betyg",
+            "title": "Titel",
+            "subtitle": "Undertitel",
+            "authors": "Författare",
+            "description": "Beskrivning",
+            "publisher": "Utgivare",
+            "publishedDate": "Utgivningsdatum"
+        }
     }
 }

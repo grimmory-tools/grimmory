@@ -52,7 +52,13 @@
             "createFailedSummary": "Помилка створення",
             "createFailedDetail": "Під час створення бібліотеки виникла помилка. Будь ласка, спробуйте ще раз."
         },
-        "folderStructureHint": "Переконайтеся, що ваші директорії відповідають очікуваній <a href='https://booklore.org/docs/library/folder-structure#-recommended-structures' target='_blank' rel='noopener'>структурі</a> для книг та аудіокниг."
+        "folderStructureHint": "Спосіб групування файлів у книги залежить від вашого <a href='https://booklore.org/docs/library/organization-modes' target='_blank' rel='noopener'>режиму організації</a>.",
+        "organizationMode": "Режим організації",
+        "organizationModeTooltip": "Як файли групуються в книги під час сканування",
+        "organizationModeLockedTooltip": "Режим організації не можна змінити після створення бібліотеки. Щоб використати інший режим, створіть нову бібліотеку.",
+        "organizationModeBookPerFile": "Одна книга на файл",
+        "organizationModeBookPerFolder": "Одна книга на папку",
+        "organizationModeAutoDetect": "Автовизначення (застарілий режим)"
     },
     "loading": {
         "title": "Завантаження бібліотеки",

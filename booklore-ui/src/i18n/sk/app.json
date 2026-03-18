@@ -1,8 +1,8 @@
 {
     "offline": "Ste offline",
     "loading": "Načítavam Booklore…",
-    "loadingDescription": "",
-    "offlineLoadingDescription": "",
-    "offlineDescription": "",
-    "connectionLost": ""
+    "loadingDescription": "Počkajte, prosím, kým všetko pripravíme.",
+    "offlineLoadingDescription": "BookLore potrebuje pripojenie k serveru, aby sa načítal.",
+    "offlineDescription": "Skontrolujte svoju sieť a skúste to znova.",
+    "connectionLost": "Vaše pripojenie bolo prerušené. Niektoré funkcie nemusia fungovať."
 }

@@ -2,16 +2,16 @@
     "tabs": {
         "reader": "Čítačka",
         "view": "Pohľad",
-        "metadata1": "",
-        "metadata2": "",
-        "application": "",
-        "users": "",
-        "email": "",
-        "patterns": "",
-        "authentication": "",
-        "tasks": "",
-        "auditLogs": "",
-        "opds": "",
-        "devices": ""
+        "metadata1": "Metadáta 1",
+        "metadata2": "Metadáta 2",
+        "application": "Aplikácia",
+        "users": "Používatelia",
+        "email": "E-mail",
+        "patterns": "Vzory",
+        "authentication": "OIDC",
+        "tasks": "Úlohy",
+        "auditLogs": "Auditné záznamy",
+        "opds": "OPDS",
+        "devices": "Zariadenia"
     }
 }

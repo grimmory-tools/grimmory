@@ -20,7 +20,8 @@ public enum BookFileExtension {
     FB2("fb2", BookFileType.FB2),
     M4B("m4b", BookFileType.AUDIOBOOK),
     M4A("m4a", BookFileType.AUDIOBOOK),
-    MP3("mp3", BookFileType.AUDIOBOOK);
+    MP3("mp3", BookFileType.AUDIOBOOK),
+    OPUS("opus", BookFileType.AUDIOBOOK);
 
     private final String extension;
     private final BookFileType type;

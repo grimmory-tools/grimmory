@@ -451,7 +451,7 @@
         "statusReady": "Spremno",
         "statusFailed": "Neuspjelo",
         "dragDropText": "Povucite i ispustite datoteku ovdje za učitavanje.",
-        "supportedFormats": "Podržani formati: <strong>.pdf</strong>, <strong>.epub</strong>, <strong>.cbz</strong>, <strong>.cbr</strong>, <strong>.cb7</strong>, <strong>.fb2</strong>, <strong>.mobi</strong>, <strong>.azw3</strong>, <strong>.m4b</strong>, <strong>.mp3</strong>",
+        "supportedFormats": "",
         "maxFileSize": "Maksimalna veličina datoteke: {{ size }} po datoteci",
         "uploadForBook": "Učitajte dodatnu datoteku za <strong>{{ title }}</strong>.",
         "thisBook": "ovu knjigu",

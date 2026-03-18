@@ -127,7 +127,7 @@ public class BookFileEntity {
                     .filter(java.nio.file.Files::isRegularFile)
                     .filter(p -> {
                         String name = p.getFileName().toString().toLowerCase();
-                        return name.endsWith(".mp3") || name.endsWith(".m4a") || name.endsWith(".m4b");
+                        return name.endsWith(".mp3") || name.endsWith(".m4a") || name.endsWith(".m4b") || name.endsWith(".opus");
                     })
                     .sorted()
                     .findFirst()

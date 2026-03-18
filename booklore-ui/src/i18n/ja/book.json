@@ -444,7 +444,7 @@
         "statusReady": "準備完了",
         "statusFailed": "失敗",
         "dragDropText": "ここにファイルをドラッグ＆ドロップしてアップロードします。",
-        "supportedFormats": "対応形式: <strong>.pdf</strong>、<strong>.epub</strong>、<strong>.cbz</strong>、<strong>.cbr</strong>、<strong>.cb7</strong>、<strong>.fb2</strong>、<strong>.mobi</strong>、<strong>.azw3</strong>、<strong>.m4b</strong>、<strong>.mp3</strong>",
+        "supportedFormats": "",
         "maxFileSize": "最大ファイルサイズ: {{ size }}/ファイル",
         "uploadForBook": "<strong>{{ title }}</strong>の追加ファイルをアップロードします。",
         "thisBook": "この本",

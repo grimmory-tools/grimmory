@@ -51,7 +51,14 @@
             "createdLargeDetail": "Könyvtár létrehozva {{count}} fájllal. Betöltés folyamatban...",
             "createFailedSummary": "Létrehozás sikertelen",
             "createFailedDetail": "Egy hiba lépett fel a könyvtár létrehozása közben. Kérlek próbáld újra."
-        }
+        },
+        "folderStructureHint": "A fájljaid könyvekké való csoportosítása a beállított <a href='https://booklore.org/docs/library/organization-modes' target='_blank' rel='noopener'>fájl rendezési metódus</a> függvénye.",
+        "organizationMode": "Fájl rendezési metódus",
+        "organizationModeTooltip": "Hogyan kerülnek csoportosításra a fájlok könyvekké egy mappaellenőrzés során",
+        "organizationModeLockedTooltip": "A fájl rendezési metódus nem változtatható meg a könyvtár létrehozása után. Hogy egy másik metódust használj, hozz létre egy új könyvtárat.",
+        "organizationModeBookPerFile": "Egy könyv fájlonként",
+        "organizationModeBookPerFolder": "Egy könyv mappánként",
+        "organizationModeAutoDetect": "Automatikus (legacy)"
     },
     "loading": {
         "title": "Könyvtár betöltése",

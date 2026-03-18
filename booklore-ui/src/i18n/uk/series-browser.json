@@ -1,24 +1,24 @@
 {
-    "pageTitle": "",
-    "browseAllSeries": "",
-    "searchPlaceholder": "",
-    "readNext": "",
-    "booksRead": "",
-    "noSeriesFound": "",
-    "noSeriesInCategory": "",
+    "pageTitle": "Серії",
+    "browseAllSeries": "Переглянути всі серії",
+    "searchPlaceholder": "Пошук за назвою серії або автором...",
+    "readNext": "Читати далі",
+    "booksRead": "книг прочитано",
+    "noSeriesFound": "Немає серій, що відповідають вашому пошуку або фільтрам.",
+    "noSeriesInCategory": "У цій категорії серій не знайдено.",
     "cardSize": "Розмір картки",
     "filters": {
         "all": "Усі",
-        "notStarted": "",
+        "notStarted": "Не розпочато",
         "inProgress": "У процесі",
-        "completed": "",
-        "abandoned": ""
+        "completed": "Завершено",
+        "abandoned": "Покинуто"
     },
     "sort": {
-        "nameAsc": "",
-        "nameDesc": "",
+        "nameAsc": "Назва (А-Я)",
+        "nameDesc": "Назва (Я-А)",
         "bookCount": "Кількість книг",
-        "progress": "",
+        "progress": "Прогрес",
         "recentlyRead": "Нещодавно прочитані",
         "recentlyAdded": "Нещодавно додані"
     }

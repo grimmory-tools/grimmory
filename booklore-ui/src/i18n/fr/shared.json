@@ -21,7 +21,7 @@
         "filesCount": "{{ uploaded }}/{{ total }} fichiers",
         "failedCount": "({{ count }} échoué(s))",
         "dragDropTitle": "Glisser-déposer des fichiers",
-        "supportedFormats": "Formats pris en charge : <strong>.pdf</strong>, <strong>.epub</strong>, <strong>.cbz</strong>, <strong>.cbr</strong>, <strong>.cb7</strong>, <strong>.fb2</strong>, <strong>.m4b</strong>, <strong>.mp3</strong>",
+        "supportedFormats": "",
         "maxFileSize": "Taille maximale : {{ size }} par fichier",
         "fileTooLargeTooltip": "Fichier trop volumineux",
         "uploadFailedTooltip": "Échec du téléversement",

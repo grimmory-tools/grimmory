@@ -272,5 +272,14 @@
         "successDetail": "Magisk hylla sparad.",
         "errorSummary": "Fel",
         "errorDetailDefault": "Kunde inte spara magisk hylla."
+    },
+    "importJson": {
+        "buttonLabel": "Importera",
+        "placeholder": "{\n  \"type\": \"group\",\n  \"join\": \"and\",\n  \"rules\": [\n    { \"field\": \"readStatus\", \"operator\": \"equals\", \"value\": \"READING\" }\n  ]\n}",
+        "apply": "Tillämpa",
+        "emptyError": "Klistra först in en JSON-konfiguration.",
+        "parseError": "Ogiltig JSON. Kontrollera syntaxen och försök igen.",
+        "structureError": "Ogiltig struktur. JSON:et måste ha \"type\": \"group\" och en \"rules\"-array.",
+        "successDetail": "Reglerna har importerats. Granska och spara när du är klar."
     }
 }

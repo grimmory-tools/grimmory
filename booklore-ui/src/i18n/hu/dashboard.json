@@ -10,9 +10,9 @@
     "scroller": {
         "noBooksFound": "Nem találhatóak könyvek ehhez a könyveskocsihoz.",
         "loadError": "Nem sikerült betölteni a könyveket! Kérlek próbáld meg frissíteni az oldalt.",
-        "continueListening": "Lejátszás Folytatása",
-        "continueReading": "Olvasás Folytatása",
-        "recentlyAdded": "Nemrégiben Hozzáadott",
+        "continueListening": "Lejátszás folytatása",
+        "continueReading": "Olvasás folytatása",
+        "recentlyAdded": "Nemrégiben hozzáadott",
         "discoverNew": "Fedezz fel valami újat",
         "magicShelf": "Varázspolc",
         "default": "Könyveskocsi"
@@ -55,7 +55,7 @@
             "readStatus": "Olvasás Állapota",
             "dateFinished": "Befejezés Dátuma",
             "readingProgress": "Olvasás Előrehaladottsága",
-            "bookType": "Könyv Típus",
+            "bookType": "Fájlformátum",
             "pageCount": "Oldalak"
         },
         "sortDirections": {

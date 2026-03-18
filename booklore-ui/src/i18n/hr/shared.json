@@ -21,7 +21,7 @@
         "filesCount": "{{ uploaded }}/{{ total }} datoteka",
         "failedCount": "({{ count }} neuspjelo)",
         "dragDropTitle": "Povucite i ispustite datoteke",
-        "supportedFormats": "Podržani formati: <strong>.pdf</strong>, <strong>.epub</strong>, <strong>.cbz</strong>, <strong>.cbr</strong>, <strong>.cb7</strong>, <strong>.fb2</strong>, <strong>.m4b</strong>, <strong>.mp3</strong>",
+        "supportedFormats": "",
         "maxFileSize": "Maksimalna veličina datoteke: {{ size }} po datoteci",
         "fileTooLargeTooltip": "Datoteka je prevelika",
         "uploadFailedTooltip": "Učitavanje nije uspjelo",

@@ -21,7 +21,7 @@
         "filesCount": "{{ uploaded }}/{{ total }} arquivos",
         "failedCount": "({{ count }} falhou)",
         "dragDropTitle": "Arraste e Solte Arquivos",
-        "supportedFormats": "Formatos suportados: <strong>.pdf</strong>, <strong>.epub</strong>, <strong>.cbz</strong>, <strong>.cbr</strong>, <strong>.cb7</strong>, <strong>.fb2</strong>, <strong>.m4b</strong>, <strong>.mp3</strong>",
+        "supportedFormats": "",
         "maxFileSize": "Tamanho máximo do arquivo: {{ size }} por arquivo",
         "fileTooLargeTooltip": "Arquivo muito grande",
         "uploadFailedTooltip": "Envio falhou",

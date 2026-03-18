@@ -52,7 +52,13 @@
             "createFailedSummary": "Erstellung fehlgeschlagen",
             "createFailedDetail": "Beim Erstellen der Bibliothek ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
         },
-        "folderStructureHint": "Stellen Sie sicher, dass die Ordner der erwarteten <a href='https://booklore.org/docs/library/folder-structure#-recommended-structures' target='_blank' rel='noopener'>Verzeichnisstruktur</a> für Bücher und Hörbücher entsprechen."
+        "folderStructureHint": "Stellen Sie sicher, dass die Ordner der erwarteten <a href='https://booklore.org/docs/library/folder-structure#-recommended-structures' target='_blank' rel='noopener'>Verzeichnisstruktur</a> für Bücher und Hörbücher entsprechen.",
+        "organizationMode": "Organisationsmodus",
+        "organizationModeTooltip": "Wie Dateien beim Scannen in Bücher gruppiert werden",
+        "organizationModeBookPerFile": "Ein Buch pro Datei",
+        "organizationModeBookPerFolder": "Ein Buch pro Ordner",
+        "organizationModeAutoDetect": "Automatische Erkennung (veraltet)",
+        "organizationModeLockedTooltip": "Der Organisationsmodus kann nach der Erstellung der Bibliothek nicht mehr geändert werden. Um einen anderen Modus zu verwenden, erstellen Sie bitte eine neue Bibliothek."
     },
     "loading": {
         "title": "Bibliothek wird geladen",

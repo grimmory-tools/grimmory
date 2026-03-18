@@ -1,12 +1,12 @@
 {
     "loading": "Cargando audiolibro...",
-    "untitled": "Sin titulo",
+    "untitled": "Sin título",
     "unknownAuthor": "Autor desconocido",
     "coverAlt": "Portada",
     "header": {
         "backTooltip": "Volver",
         "bookmarksTooltip": "Marcadores",
-        "chaptersTracksTooltip": "Capitulos/Pistas"
+        "chaptersTracksTooltip": "Capítulos/Pistas"
     },
     "trackInfo": {
         "trackOf": "Pista {{ current }} de {{ total }}",
@@ -14,16 +14,16 @@
     },
     "controls": {
         "previousTrackTooltip": "Pista anterior",
-        "previousChapterTooltip": "Capitulo anterior",
+        "previousChapterTooltip": "Capítulo anterior",
         "rewindTooltip": "-30s",
         "forwardTooltip": "+30s",
         "nextTrackTooltip": "Siguiente pista",
-        "nextChapterTooltip": "Siguiente capitulo"
+        "nextChapterTooltip": "Siguiente capítulo"
     },
     "extra": {
         "addBookmark": "Agregar marcador",
         "sleepTimer": "Temporizador",
-        "endOfChapter": "Fin del capitulo"
+        "endOfChapter": "Fin del capítulo"
     },
     "details": {
         "narratedBy": "Narrado por {{ narrator }}",
@@ -32,12 +32,12 @@
     },
     "sidebar": {
         "tracks": "Pistas",
-        "chapters": "Capitulos"
+        "chapters": "Capítulos"
     },
     "bookmarks": {
         "title": "Marcadores",
         "empty": "Sin marcadores",
-        "emptyHint": "Agrega un marcador para guardar tu posicion",
+        "emptyHint": "Agrega un marcador para guardar tu posición",
         "deleteTooltip": "Eliminar",
         "bookmarkAt": "Marcador en {{ time }}"
     },
@@ -46,18 +46,18 @@
         "minutes30": "30 minutos",
         "minutes45": "45 minutos",
         "minutes60": "60 minutos",
-        "endOfChapter": "Fin del capitulo",
+        "endOfChapter": "Fin del capítulo",
         "cancelTimer": "Cancelar temporizador"
     },
     "toast": {
         "loadFailed": "Error al cargar el audiolibro",
         "audioLoadFailed": "Error al cargar el audio",
         "sleepTimerSet": "La reproducción se detendrá en {{ minutes }} minutos",
-        "sleepTimerEndOfChapter": "La reproduccion se detendra al final del capitulo",
-        "sleepTimerStopped": "Reproduccion detenida por el temporizador",
+        "sleepTimerEndOfChapter": "La reproducción se detendrá al final del capítulo",
+        "sleepTimerStopped": "Reproducción detenida por el temporizador",
         "bookmarkAdded": "Marcador agregado",
         "bookmarkExists": "El marcador ya existe",
-        "bookmarkExistsDetail": "Ya existe un marcador en esta posicion",
+        "bookmarkExistsDetail": "Ya existe un marcador en esta posición",
         "bookmarkFailed": "Error al agregar el marcador",
         "bookmarkDeleted": "Marcador eliminado"
     }

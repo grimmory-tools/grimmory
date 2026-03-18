@@ -37,7 +37,9 @@
         "writeOnScanDesc": "Sidecar-JSON-Dateien erstellen, wenn Bücher beim Scannen erstmals zur Bibliothek hinzugefügt werden.",
         "includeCover": "Cover-Bilddatei einschließen",
         "includeCoverDesc": "Das Coverbild zusätzlich als <code>Buchname.cover.jpg</code> neben der Sidecar-JSON-Datei speichern.",
-        "loadError": "Einstellungen konnten nicht geladen werden."
+        "loadError": "Einstellungen konnten nicht geladen werden.",
+        "networkModeTitle": "Netzwerkspeichermodus aktiv:",
+        "networkModeDesc": "Diese Instanz ist für Netzwerkspeicher eingerichtet (DISK_TYPE=NETWORK). Alle Funktionen zum Schreiben und Umorganisieren von Dateien sind deaktiviert. Metadaten werden nur in der Datenbank gespeichert, und deine Buchdateien werden nie geändert."
     },
     "providers": {
         "sectionTitle": "Metadaten-Anbieter",
@@ -63,7 +65,38 @@
     },
     "fieldSelector": {
         "sectionTitle": "Aktivierte Felder im Metadaten-Editor und -Picker",
-        "sectionDesc": "Wählen Sie, welche Metadatenfelder beim Bearbeiten von Buchinformationen oder beim Auswählen von Metadaten von Anbietern angezeigt werden. Deaktivierte Felder werden in der Oberfläche ausgeblendet."
+        "sectionDesc": "Wählen Sie, welche Metadatenfelder beim Bearbeiten von Buchinformationen oder beim Auswählen von Metadaten von Anbietern angezeigt werden. Deaktivierte Felder werden in der Oberfläche ausgeblendet.",
+        "providers": {
+            "amazon": "Amazon",
+            "googleBooks": "Google Books",
+            "goodreads": "Goodreads",
+            "hardcover": "Hardcover",
+            "audible": "Audible",
+            "lubimyczytac": "Lubimyczytac",
+            "comicvine": "Comicvine",
+            "ranobedb": "Ranobedb"
+        },
+        "fields": {
+            "asin": "Amazon ASIN",
+            "amazonRating": "Amazon Bewertung",
+            "amazonReviewCount": "Anzahl der Amazon-Bewertungen",
+            "googleId": "Google Books ID",
+            "goodreadsId": "Goodreads ID",
+            "goodreadsRating": "Goodreads Bewertung",
+            "goodreadsReviewCount": "Anzahl der Goodreads-Bewertungen",
+            "hardcoverId": "Hardcover ID",
+            "hardcoverBookId": "Hardcover Buch ID",
+            "hardcoverRating": "Hardcover Bewertung",
+            "hardcoverReviewCount": "Anzahl der Hardcover Bewertungen",
+            "comicvineId": "Comicvine ID",
+            "lubimyczytacId": "Lubimyczytac ID",
+            "lubimyczytacRating": "Lubimyczytac Bewertung",
+            "ranobedbId": "Ranobedb ID",
+            "ranobedbRating": "Ranobedb Bewertung",
+            "audibleId": "Audible ID",
+            "audibleRating": "Audible Bewertung",
+            "audibleReviewCount": "Anzahl der Audible-Bewertungen"
+        }
     },
     "publicReviews": {
         "sectionTitle": "Öffentliche Rezensionen",
@@ -89,6 +122,33 @@
         "saveSuccess": "Gewichtungen erfolgreich gespeichert",
         "saveError": "Gewichtungen konnten nicht gespeichert werden",
         "recalcSuccess": "Alle Buch-Übereinstimmungsbewertungen wurden erfolgreich neu berechnet.",
-        "recalcError": "Übereinstimmungsbewertungen konnten nicht neu berechnet werden."
+        "recalcError": "Übereinstimmungsbewertungen konnten nicht neu berechnet werden.",
+        "fields": {
+            "title": "Titel",
+            "subtitle": "Untertitel",
+            "authors": "Autoren",
+            "description": "Beschreibung",
+            "publisher": "Verlag",
+            "publishedDate": "Veröffentlichungsdatum",
+            "categories": "Kategorien",
+            "coverImage": "Cover Bild",
+            "seriesName": "Serienname",
+            "seriesNumber": "Serien-Nummer",
+            "language": "Sprache",
+            "isbn13": "ISBN-13",
+            "pageCount": "Seitenzahl",
+            "amazonRating": "Amazon Bewertung",
+            "goodreadsRating": "Goodreads Bewertung",
+            "hardcoverRating": "Hardcover Bewertung",
+            "isbn10": "ISBN-10",
+            "amazonReviewCount": "Amazon Bewertung #",
+            "goodreadsReviewCount": "Goodreads Bewertung #",
+            "hardcoverReviewCount": "Hardcover Bewertung #",
+            "audibleRating": "Audible Bewertung",
+            "audibleReviewCount": "Audible Bewertung #",
+            "doubanRating": "Douban Bewertung",
+            "doubanReviewCount": "Douban Bewertung #",
+            "ranobedbRating": "Ranobedb Bewertung"
+        }
     }
 }

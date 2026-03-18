@@ -52,12 +52,13 @@
             "createFailedSummary": "Skapande misslyckades",
             "createFailedDetail": "Ett fel uppstod vid skapande av biblioteket. Försök igen."
         },
-        "folderStructureHint": "Se till att dina mappar följer den förväntade <a href='https://booklore.org/docs/library/folder-structure#-recommended-structures' target='_blank' rel='noopener'>katalogstrukturen</a> för böcker och ljudböcker.",
+        "folderStructureHint": "Hur filer grupperas till böcker baseras på ditt <a href='https://booklore.org/docs/library/organization-modes' target='_blank' rel='noopener'>organisationsläge</a>.",
         "organizationMode": "Organisationsläge",
         "organizationModeTooltip": "Hur filer grupperas till böcker under skanning",
         "organizationModeBookPerFile": "En bok per fil",
         "organizationModeBookPerFolder": "En bok per mapp",
-        "organizationModeAutoDetect": "Automatisk identifiering (gammal)"
+        "organizationModeAutoDetect": "Automatisk identifiering (gammal)",
+        "organizationModeLockedTooltip": "Organisationsläget kan inte ändras efter att biblioteket har skapats. För att använda ett annat läge, skapa ett nytt bibliotek."
     },
     "loading": {
         "title": "Laddar bibliotek",

@@ -8,7 +8,7 @@
     "defaultPattern": {
         "sectionTitle": "Patrón predeterminado",
         "sectionDesc": "Patrón de respaldo cuando no se configura una anulación específica de biblioteca.",
-        "placeholder": "ej., {title} - {authors}",
+        "placeholder": "e.g., {title} - {authors}",
         "preview": "Vista previa:",
         "invalidChars": "El patrón contiene caracteres no válidos.",
         "saveSuccess": "¡El patrón predeterminado se guardó correctamente!",

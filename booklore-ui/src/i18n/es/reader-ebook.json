@@ -117,7 +117,7 @@
         "noMatchingNotes": "No se encontraron notas",
         "tryDifferentSearchTerms": "Prueba con otros términos de búsqueda",
         "noNotesYet": "Aún no hay notas",
-        "noNotesHint": "Selecciona texto y toca el icono de nota para añadir una"
+        "noNotesHint": "Selecciona texto y toca el ícono de nota para añadir una"
     },
     "sidebar": {
         "bookCoverAlt": "Portada del libro",
@@ -126,7 +126,7 @@
         "highlightsTab": "Resaltados",
         "deleteBookmark": "Eliminar marcador",
         "noBookmarksYet": "Aún no hay marcadores",
-        "noBookmarksHint": "Toca el icono de marcador para guardar tu posición",
+        "noBookmarksHint": "Toca el ícono de marcador para guardar tu posición",
         "deleteHighlight": "Eliminar resaltado",
         "noHighlightsYet": "Aún no hay resaltados",
         "noHighlightsHint": "Selecciona texto para crear un resaltado"

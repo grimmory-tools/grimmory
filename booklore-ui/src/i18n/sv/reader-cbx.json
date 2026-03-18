@@ -80,7 +80,9 @@
         "fullscreenLabel": "Helskärm",
         "keyboardShortcutsLabel": "Tangentbordsgenvägar",
         "settings": "Inställningar",
-        "closeReader": "Stäng läsaren"
+        "closeReader": "Stäng läsaren",
+        "enableMagnifier": "Förstoringsglas (M)",
+        "disableMagnifier": "Avaktivera förstoringsglas (M)"
     },
     "quickSettings": {
         "fitMode": "Anpassningsläge",
@@ -106,7 +108,9 @@
         "background": "Bakgrund",
         "black": "Svart",
         "gray": "Grå",
-        "white": "Vit"
+        "white": "Vit",
+        "magnifierLensSize": "Linsstorlek",
+        "magnifierZoom": "Förstoring"
     },
     "sidebar": {
         "contentTab": "Innehåll",

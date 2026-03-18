@@ -6,7 +6,7 @@
     },
     "form": {
         "shelfName": "Nombre del Estante Mágico",
-        "namePlaceholder": "Ej. Rom-Zom-Coms, Rápidos y Furiosos, Metadatos Faltantes",
+        "namePlaceholder": "E.g. Rom-Zom-Coms, Rápidos y Furiosos, Metadatos Faltantes",
         "shelfIcon": "Ícono del Estante",
         "clickToChange": "Clic para cambiar",
         "removeIcon": "Eliminar ícono",

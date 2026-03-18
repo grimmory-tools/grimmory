@@ -21,7 +21,7 @@
         "filesCount": "{{ uploaded }}/{{ total }} Dateien",
         "failedCount": "({{ count }} fehlgeschlagen)",
         "dragDropTitle": "Dateien per Drag-and-Drop ablegen",
-        "supportedFormats": "Unterstützte Formate: <strong>.pdf</strong>, <strong>.epub</strong>, <strong>.cbz</strong>, <strong>.cbr</strong>, <strong>.cb7</strong>, <strong>.fb2</strong>, <strong>.m4b</strong>, <strong>.mp3</strong>",
+        "supportedFormats": "Unterstützte Formate: <strong>.pdf</strong>, <strong>.epub</strong>, <strong>.cbz</strong>, <strong>.cbr</strong>, <strong>.cb7</strong>, <strong>.fb2</strong>, <strong>.mobi</strong>, <strong>.azw</strong>, <strong>.azw3</strong>, <strong>.m4b</strong>, <strong>.m4a</strong>, <strong>.mp3</strong>, <strong>.opus</strong>",
         "maxFileSize": "Maximale Dateigröße: {{ size }} pro Datei",
         "fileTooLargeTooltip": "Datei zu groß",
         "uploadFailedTooltip": "Hochladen fehlgeschlagen",
@@ -150,5 +150,15 @@
         "toast": {
             "createFailedDefault": "Administrator konnte nicht erstellt werden. Versuchen Sie es erneut."
         }
+    },
+    "supportDialog": {
+        "title": "BookLore unterstützen",
+        "subtitle": "Von einem Solo-Entwickler, der Bücher liebt",
+        "intro": "BookLore wird von einem einzelnen Entwickler erstellt und gepflegt, der Bücher wirklich liebt. Wenn Ihnen die Organisation Ihrer Bibliothek damit etwas mehr Freude bereitet, finden Sie hier einige Möglichkeiten, das Projekt zu unterstützen und am Laufen zu halten.",
+        "kofiTitle": "Kaufen Sie mir einen Kaffee",
+        "starDesc": "Ein Stern hat eine große Wirkung. Er unterstützt neue Nutzer dabei, BookLore zu entdecken, und motiviert mich.",
+        "collectiveDesc": "Regelmäßiger Support, der zur Deckung der Hosting-Kosten beiträgt und eine nachhaltige Entwicklung gewährleistet.",
+        "kofiDesc": "Eine einmalige Spende, um nächtliche Programmier-Sessions zu unterstützen. Jeder Beitrag wird dankbar angenommen!",
+        "closing": "Vielen Dank, dass Sie Teil der BookLore-Community sind."
     }
 }

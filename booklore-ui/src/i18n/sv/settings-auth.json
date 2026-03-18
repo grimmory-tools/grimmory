@@ -81,11 +81,63 @@
         "providerSaved": "OIDC-leverantörsinställningar sparade.",
         "providerError": "Kunde inte spara OIDC-leverantörsinställningar.",
         "provisionSaved": "OIDC-autoprovisioneringsinställningar sparade.",
-        "provisionError": "Kunde inte spara OIDC-autoprovisioneringsinställningar."
+        "provisionError": "Kunde inte spara OIDC-autoprovisioneringsinställningar.",
+        "sessionDurationSaved": "Lästillfällets längd sparades.",
+        "sessionDurationError": "Det gick inte att spara lästillfällets längd.",
+        "copiedToClipboard": "Kopierad till urklipp.",
+        "syncModeSaved": "Gruppsynkroniseringsläget sparat.",
+        "syncModeError": "Kunde inte spara gruppsynkroniseringsläget.",
+        "groupMappingSaved": "Gruppmappning sparad.",
+        "groupMappingDeleted": "Gruppmappning raderad.",
+        "groupMappingError": "Det gick inte att spara gruppmappningen."
     },
     "groupMapping": {
         "sectionTitle": "Gruppmappning",
         "sectionDesc": "Mappa OIDC-leverantörsgrupper till Booklore-behörigheter och biblioteksåtkomst. Användarnas behörigheter synkroniseras baserat på deras gruppmedlemskap.",
-        "syncModeLabel": "Gruppsynksläge"
+        "syncModeLabel": "Gruppsynksläge",
+        "syncModeHint": "Styr hur OIDC-grupper synkroniseras med användarbehörigheter vid inloggning.",
+        "addMapping": "Lägg till mappning",
+        "colGroupClaim": "Gruppanspråk",
+        "colAdmin": "Admin",
+        "colPermissions": "Behörigheter",
+        "colLibraries": "Bibliotek",
+        "colDescription": "Beskrivning",
+        "addTitle": "Lägg till gruppmappning",
+        "editTitle": "Redigera gruppmappning",
+        "groupClaimLabel": "Gruppanspråksvärde",
+        "groupClaimPlaceholder": "t.ex. booklore-admins",
+        "descriptionLabel": "Beskrivning",
+        "descriptionPlaceholder": "Frivillig beskrivning",
+        "adminLabel": "Beviljandeadmin",
+        "permissionsLabel": "Behörigheter",
+        "librariesLabel": "Biblioteksåtkomst"
+    },
+    "infoPanel": {
+        "pkceMethod": "PKCE-metod",
+        "grantType": "Beviljandetyp",
+        "sectionTitle": "Referens för leverantörskonfiguration",
+        "sectionDesc": "Använd dessa värden när du konfigurerar din OIDC-leverantörs klientinställningar.",
+        "redirectUri": "Omdirigerings-URI",
+        "postLogoutRedirectUri": "Omdirigerings-URI efter utloggning",
+        "backChannelLogoutUri": "URI för utloggning från bakkanalen",
+        "requiredScopes": "Obligatoriska omfattningar"
+    },
+    "testConnection": {
+        "button": "Testa anslutning",
+        "passed": "Alla kontroller godkända",
+        "failed": "Vissa kontroller misslyckades",
+        "checks": "kontroller",
+        "error": "Misslyckades med att testa OIDC-anslutningen."
+    },
+    "oidcOnly": {
+        "sectionTitle": "Endast OIDC-läge",
+        "sectionDesc": "När den är aktiverad är lokal inloggning dold och användare omdirigeras automatiskt till OIDC-leverantören. Administratörer kan fortfarande komma åt lokal inloggning via /login?local=true.",
+        "label": "Endast OIDC-läge",
+        "enabled": "Aktiverad",
+        "disabled": "Inaktiverad",
+        "description": "Inaktivera lokal inloggning för alla användare och omdirigera automatiskt till OIDC. Administratörsanvändare kan fortfarande logga in lokalt med hjälp av bakdörrs-URL:en.",
+        "backdoorHint": "Admin-bakdörr: gå till /login?local=true för att använda lokal inloggning.",
+        "saved": "Endast OIDC-läge uppdaterat.",
+        "error": "Misslyckades med att uppdatera endast OIDC-läge."
     }
 }

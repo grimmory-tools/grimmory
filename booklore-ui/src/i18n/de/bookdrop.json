@@ -162,7 +162,7 @@
             "subtitle": "Ein Abenteuer",
             "authors": "Max Mustermann",
             "seriesNumber": "25",
-            "published": "{Published:yyyy-MM-dd}",
+            "published": "{Veröffentlicht:yyyy-MM-dd}",
             "publisher": "Beispielverlag",
             "language": "de",
             "seriesTotal": "50",

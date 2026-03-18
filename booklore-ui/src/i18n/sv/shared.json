@@ -21,7 +21,7 @@
         "filesCount": "{{ uploaded }}/{{ total }} filer",
         "failedCount": "({{ count }} misslyckades)",
         "dragDropTitle": "Dra och släpp filer",
-        "supportedFormats": "Format som stöds: <strong>.pdf</strong>, <strong>.epub</strong>, <strong>.cbz</strong>, <strong>.cbr</strong>, <strong>.cb7</strong>, <strong>.fb2</strong>, <strong>.m4b</strong>, <strong>.mp3</strong>",
+        "supportedFormats": "",
         "maxFileSize": "Maximal filstorlek: {{ size }} per fil",
         "fileTooLargeTooltip": "Filen är för stor",
         "uploadFailedTooltip": "Uppladdning misslyckades",
@@ -143,12 +143,24 @@
             "usernameRequired": "Användarnamn krävs",
             "nameRequired": "Namn krävs",
             "emailRequired": "Giltig e-post krävs",
-            "passwordMinLength": "Minst 6 tecken krävs",
+            "passwordMinLength": "Minst 8 tecken krävs",
             "confirmPasswordRequired": "Lösenordsbekräftelse krävs",
             "passwordsMismatch": "Lösenorden matchar inte"
         },
         "toast": {
             "createFailedDefault": "Kunde inte skapa administratörsanvändare. Försök igen."
         }
+    },
+    "supportDialog": {
+        "kofiDesc": "En engångsdricks för att ge energi till sena kodningssessioner. Varje liten summa uppskattas!",
+        "closing": "Tack för att du är en del av BookLore-communityn.",
+        "title": "Stötta BookLore",
+        "subtitle": "Från en ensam utvecklare som älskar böcker",
+        "intro": "BookLore byggs och underhålls av en enda utvecklare som verkligen älskar böcker. Om det har gjort det lite roligare att organisera ditt bibliotek, så har du här några sätt att stödja projektet och hålla det igång.",
+        "starTitle": "Stjärnmärk på GitHub",
+        "starDesc": "En stjärnmärkning gör mycket. Den hjälper nya människor att hitta BookLore och håller mig motiverad.",
+        "collectiveTitle": "Open Collective",
+        "collectiveDesc": "Återkommande support som hjälper till att täcka hosting och håller utvecklingen hållbar.",
+        "kofiTitle": "Bjud mig på en kaffe"
     }
 }

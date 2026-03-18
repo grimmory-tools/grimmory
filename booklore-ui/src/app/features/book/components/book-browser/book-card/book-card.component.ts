@@ -890,6 +890,7 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
       case 'm4b':
       case 'm4a':
       case 'mp3':
+      case 'opus':
         return 'pi pi-headphones';
       default:
         return 'pi pi-file';

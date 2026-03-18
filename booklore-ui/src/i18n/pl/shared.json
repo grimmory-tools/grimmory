@@ -21,7 +21,7 @@
         "filesCount": "{{ uploaded }}/{{ total }} plików",
         "failedCount": "({{ count }} niepowodzenie)",
         "dragDropTitle": "Przeciągnij i upuść pliki",
-        "supportedFormats": "Obsługiwane formaty: <strong>.pdf</strong>, <strong>.epub</strong>, <strong>.cbz</strong>, <strong>.cbr</strong>, <strong>.cb7</strong>, <strong>.fb2</strong>, <strong>.m4b</strong>, <strong>.mp3</strong>",
+        "supportedFormats": "",
         "maxFileSize": "Maksymalny rozmiar pliku: {{ size }} na plik",
         "fileTooLargeTooltip": "Plik za duży",
         "uploadFailedTooltip": "Przesyłanie nie powiodło się",

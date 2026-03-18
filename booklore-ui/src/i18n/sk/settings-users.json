@@ -1,6 +1,6 @@
 {
     "title": "Správa používateľov",
-    "description": "",
+    "description": "Spravujte používateľov Booklore, ich oprávnenia a prístup ku knižniciam. Nakonfigurujte používateľské roly a možnosti pre vašu zbierku kníh.",
     "currentUsers": {
         "sectionTitle": "",
         "sectionDesc": "",

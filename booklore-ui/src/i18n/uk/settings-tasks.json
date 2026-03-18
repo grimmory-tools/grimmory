@@ -1,69 +1,69 @@
 {
-  "title": "",
-  "description": "",
-  "systemTasks": {
-    "sectionTitle": "",
-    "sectionDesc": ""
-  },
-  "loading": "",
-  "emptyTitle": "",
-  "status": {
-    "running": "",
-    "stale": "",
-    "neverRun": "",
-    "justNow": ""
-  },
-  "cron": {
-    "noSchedule": "",
-    "edit": "",
-    "placeholder": "",
-    "validationPrefix": "",
-    "invalidField": "",
-    "updateSuccess": "",
-    "updateError": ""
-  },
-  "buttons": {
-    "run": "",
-    "rerun": ""
-  },
-  "metadataReplace": {
-    "label": "",
-    "selectMode": "",
-    "replaceMissing": "",
-    "replaceAll": "",
-    "replaceMissingDesc": "",
-    "replaceAllDesc": ""
-  },
-  "progress": {
-    "staleWarning": "",
-    "statusLabel": "",
-    "progressLabel": "",
-    "startedLabel": "",
-    "processing": "",
-    "stuckMessage": ""
-  },
-  "toast": {
-    "taskQueued": "",
-    "taskQueuedDetail": "",
-    "taskCompleted": "",
-    "taskCompletedDetail": "",
-    "taskFailed": "",
-    "taskFailedDetail": "",
-    "taskStarted": "",
-    "taskStartedDetail": "",
-    "startError": "",
-    "alreadyRunning": "",
-    "alreadyRunningDetail": "",
-    "taskCancelled": "",
-    "cancelledDetail": "",
-    "cancelFailed": "",
-    "cancelError": "",
-    "cancelNoId": "",
-    "loadError": "",
-    "metadataScheduled": "",
-    "metadataScheduledDetail": "",
-    "metadataAlreadyRunningDetail": "",
-    "metadataFailed": "",
-    "metadataFailedDetail": ""
-  }
+    "title": "Керування системними завданнями",
+    "description": "Керуйте автоматизованими системними завданнями для обслуговування бібліотеки, оновлення метаданих і очищення кешу. Плануйте повторювані операції за допомогою <a href=\"https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"cron-link\">cron-виразів Spring</a>.",
+    "systemTasks": {
+        "sectionTitle": "Системні завдання",
+        "sectionDesc": "Запускайте завдання вручну, відстежуйте прогрес у реальному часі та налаштовуйте автоматизацію за розкладом."
+    },
+    "loading": "Завантаження завдань...",
+    "emptyTitle": "Немає доступних завдань",
+    "status": {
+        "running": "Виконується",
+        "stale": "Зависло",
+        "neverRun": "Ніколи не запускалося",
+        "justNow": "Щойно"
+    },
+    "cron": {
+        "noSchedule": "Без розкладу",
+        "edit": "Редагувати",
+        "placeholder": "напр., 0 2 * * *",
+        "validationPrefix": "Cron-вираз має містити рівно 6 полів (секунди, хвилини, години, день, місяць, день тижня)",
+        "invalidField": "Недійсне поле {{name}}: {{value}}",
+        "updateSuccess": "Конфігурацію запланованого завдання успішно оновлено.",
+        "updateError": "Не вдалося оновити конфігурацію запланованого завдання."
+    },
+    "buttons": {
+        "run": "Запустити",
+        "rerun": "Запустити знову"
+    },
+    "metadataReplace": {
+        "label": "Режим заміни метаданих:",
+        "selectMode": "Виберіть режим",
+        "replaceMissing": "Оновлювати лише відсутні метадані (рекомендовано)",
+        "replaceAll": "Замінити всі метадані (перезаписати наявні)",
+        "replaceMissingDesc": "Оновлювати лише книги, у яких бракує інформації метаданих. Наявні метадані буде збережено.",
+        "replaceAllDesc": "Замінити всі метадані для всіх книг, навіть якщо вони вже мають метадані. Використовуйте з обережністю, оскільки це перезапише наявні дані."
+    },
+    "progress": {
+        "staleWarning": "Схоже, це завдання зависло. Оновлень не надходило понад 5 хвилин.",
+        "statusLabel": "Статус:",
+        "progressLabel": "Прогрес:",
+        "startedLabel": "Початок:",
+        "processing": "Обробка...",
+        "stuckMessage": "Схоже, завдання зависло (оновлення не надходять)"
+    },
+    "toast": {
+        "taskQueued": "Завдання поставлено в чергу",
+        "taskQueuedDetail": "{{name}} додано в чергу і буде виконано у фоновому режимі.",
+        "taskCompleted": "Завдання завершено",
+        "taskCompletedDetail": "{{name}} успішно завершено.",
+        "taskFailed": "Помилка завдання",
+        "taskFailedDetail": "Не вдалося завершити {{name}}.",
+        "taskStarted": "Завдання запущено",
+        "taskStartedDetail": "{{name}} успішно запущено.",
+        "startError": "Не вдалося запустити {{name}}.",
+        "alreadyRunning": "Завдання вже виконується",
+        "alreadyRunningDetail": "Це завдання вже виконується або очікує на виконання.",
+        "taskCancelled": "Завдання скасовано",
+        "cancelledDetail": "Завдання успішно скасовано.",
+        "cancelFailed": "Не вдалося скасувати",
+        "cancelError": "Не вдалося скасувати завдання. Можливо, воно вже завершено або завершилося помилкою.",
+        "cancelNoId": "Неможливо скасувати завдання без ID.",
+        "loadError": "Не вдалося завантажити завдання",
+        "metadataScheduled": "Оновлення метаданих заплановано",
+        "metadataScheduledDetail": "Оновлення метаданих для вибраних книг успішно заплановано.",
+        "metadataAlreadyRunningDetail": "Завдання оновлення метаданих уже виконується. Дочекайтеся його завершення перед запуском іншого.",
+        "metadataFailed": "Не вдалося оновити метадані",
+        "metadataFailedDetail": "Під час планування оновлення метаданих сталася неочікувана помилка. Спробуйте пізніше або зверніться до підтримки, якщо проблема не зникне."
+    }
 }

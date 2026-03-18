@@ -694,6 +694,7 @@ public class OpdsFeedService {
             case AUDIOBOOK -> {
                 String lower = bookFile.getFileName().toLowerCase();
                 if (lower.endsWith(".mp3")) yield "audio/mpeg";
+                if (lower.endsWith(".opus")) yield "audio/opus";
                 yield "audio/mp4";
             }
         };

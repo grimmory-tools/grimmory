@@ -21,7 +21,7 @@
         "filesCount": "{{ uploaded }}/{{ total }} 个文件",
         "failedCount": "（{{ count }} 个失败）",
         "dragDropTitle": "拖放文件",
-        "supportedFormats": "支持的格式：<strong>.pdf</strong>、<strong>.epub</strong>、<strong>.cbz</strong>、<strong>.cbr</strong>、<strong>.cb7</strong>、<strong>.fb2</strong>、<strong>.m4b</strong>、<strong>.mp3</strong>",
+        "supportedFormats": "",
         "maxFileSize": "最大文件大小：每个文件 {{ size }}",
         "fileTooLargeTooltip": "文件过大",
         "uploadFailedTooltip": "上传失败",

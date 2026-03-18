@@ -1,19 +1,19 @@
 {
-  "title": "",
-  "description": "",
-  "sectionTitle": "",
-  "filterPlaceholder": "",
-  "userFilterPlaceholder": "",
-  "dateRangePlaceholder": "",
-  "clearFilters": "",
-  "autoRefresh": "",
-  "pageReport": "",
-  "empty": "",
-  "columns": {
-    "timestamp": "",
-    "user": "",
-    "action": "",
-    "description": "",
-    "ip": ""
-  }
+    "title": "Журнали аудиту",
+    "description": "Переглядайте записи про дії адміністративної важливості, виконані в системі.",
+    "sectionTitle": "Журнал активності",
+    "filterPlaceholder": "Фільтр за дією",
+    "userFilterPlaceholder": "Фільтр за користувачем",
+    "dateRangePlaceholder": "Фільтр за діапазоном дат",
+    "clearFilters": "Очистити всі фільтри",
+    "autoRefresh": "Автооновлення (10 с)",
+    "pageReport": "Показано записи з {first} до {last} із {totalRecords}",
+    "empty": "Журналів аудиту не знайдено",
+    "columns": {
+        "timestamp": "Коли",
+        "user": "Користувач",
+        "action": "Дія",
+        "description": "Опис",
+        "ip": "IP-адреса"
+    }
 }

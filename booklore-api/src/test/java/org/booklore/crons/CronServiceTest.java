@@ -84,7 +84,19 @@ class CronServiceTest {
     }
 
     @Test
-    void sendPing_postSuccess_savesSettings() {
+    void sendPing_telemetryDisabled_doesNotSend() {
+        AppSettings settings = mock(AppSettings.class);
+        when(appSettingService.getAppSettings()).thenReturn(settings);
+        when(settings.isTelemetryEnabled()).thenReturn(false);
+        cronService.sendPing();
+        verifyNoInteractions(restClient);
+    }
+
+    @Test
+    void sendPing_telemetryEnabled_postSuccess_savesSettings() {
+        AppSettings settings = mock(AppSettings.class);
+        when(appSettingService.getAppSettings()).thenReturn(settings);
+        when(settings.isTelemetryEnabled()).thenReturn(true);
         when(appProperties.getTelemetry().getBaseUrl()).thenReturn("http://telemetry");
         InstallationPing ping = InstallationPing.builder().appVersion("1.0.0").build();
         when(telemetryService.getInstallationPing()).thenReturn(ping);
@@ -99,7 +111,10 @@ class CronServiceTest {
     }
 
     @Test
-    void sendPing_postFails_doesNotSaveSettings() {
+    void sendPing_telemetryEnabled_postFails_doesNotSaveSettings() {
+        AppSettings settings = mock(AppSettings.class);
+        when(appSettingService.getAppSettings()).thenReturn(settings);
+        when(settings.isTelemetryEnabled()).thenReturn(true);
         when(appProperties.getTelemetry().getBaseUrl()).thenReturn("http://telemetry");
         InstallationPing ping = InstallationPing.builder().appVersion("1.0.0").build();
         when(telemetryService.getInstallationPing()).thenReturn(ping);

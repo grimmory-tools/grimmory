@@ -3,24 +3,24 @@
     "description": "Konfigurieren Sie OpenID Connect (OIDC) für die Anmeldung über einen externen Anbieter wie z.B. Authentik, Authelia oder Pocket ID.",
     "methods": {
         "sectionTitle": "Authentifizierungsmethoden",
-        "sectionDesc": "Wählen Sie, welche Authentifizierungsmethoden den Benutzern zur Anmeldung zur Verfügung stehen."
+        "sectionDesc": "Wählen Sie, welche Login-Methoden den Benutzern zur Anmeldung zur Verfügung stehen."
     },
     "internal": {
-        "label": "Interne Authentifizierung",
+        "label": "Lokales Login",
         "status": "Immer aktiviert",
         "description": "Integrierte Authentifizierung mit Benutzername und Passwort. Für Administratorkonten immer verfügbar. Kann für andere Benutzer ausgeblendet werden, wenn der OIDC-Only Modus aktiviert ist."
     },
     "oidc": {
-        "label": "OIDC-Authentifizierung",
+        "label": "OIDC-Login",
         "experimental": "Experimentell",
         "description": "OpenID Connect für Single Sign-On mit externen Anbietern (Authentik, Keycloak usw.).",
-        "configHint": "Konfigurieren Sie die Einstellungen unten, um OIDC zu aktivieren.",
+        "configHint": "Bitte konfigurieren Sie die folgenden Einstellungen, um die Funktion zu aktivieren.",
         "enabled": "Aktiviert",
         "disabled": "Deaktiviert"
     },
     "providerConfig": {
         "sectionTitle": "OIDC-Anbieterkonfiguration",
-        "sectionDesc": "Konfigurieren Sie Ihre OIDC-Anbietereinstellungen. Alle Felder sind erforderlich, um die OIDC-Authentifizierung zu aktivieren.",
+        "sectionDesc": "Konfigurieren Sie Ihre OIDC-Anbietereinstellungen. Alle Felder sind erforderlich, um OIDC zu aktivieren.",
         "providerName": "Anbietername",
         "providerPlaceholder": "z.B. Authentik, Keycloak",
         "clientId": "Client-ID",
@@ -30,8 +30,8 @@
         "clientSecretHint": "Für geschützte Clients erforderlich. Für öffentliche Clients, die nur PKCE nutzen, leer lassen.",
         "issuerUri": "Issuer-URI",
         "issuerPlaceholder": "z.B. https://auth.example.com/realms/booklore",
-        "scope": "Scope",
-        "scopeHint": "Erforderliche Scopes für die OIDC-Anmeldung. Müssen von Ihrem Anbieter unterstützt werden.",
+        "scope": "Scopes",
+        "scopeHint": "In der OIDC-Autorisierungsanfrage übermittelte Scopes. Bitte leer lassen, um die Standardeinstellung zu verwenden.",
         "claimMappings": "Claim-Zuordnungen",
         "claimDesc": "Ordnen Sie OIDC-Token-Claims den Booklore-Benutzerfeldern zu. Diese müssen mit den Token-Claims Ihres Anbieters übereinstimmen.",
         "usernameClaim": "Benutzername-Claim",
@@ -39,7 +39,11 @@
         "emailClaim": "E-Mail-Claim",
         "emailPlaceholder": "z.B. email",
         "nameClaim": "Anzeigename-Claim",
-        "namePlaceholder": "z.B. name"
+        "namePlaceholder": "z.B. name",
+        "sessionDuration": "Dauer der Sitzung (Stunden)",
+        "sessionDurationPlaceholder": "Standardeinstellung",
+        "sessionDurationHint": "Wie lange OIDC-Benutzer angemeldet bleiben. Bitte leer lassen, um die Standardwerte zu verwenden.",
+        "backchannelLogoutHint": "Bitte konfigurieren Sie diese URI in Ihrem OIDC-Anbieter, um die vom Server initiierte Sitzungsaufhebung zu aktivieren."
     },
     "provisioning": {
         "sectionTitle": "Benutzerbereitstellung",
@@ -51,7 +55,10 @@
         "defaultPerms": "Standardberechtigungen",
         "readBooks": "Bücher lesen",
         "defaultLibraryAccess": "Standard-Bibliothekszugriff",
-        "selectLibraries": "Bibliotheken auswählen, auf die neue Benutzer zugreifen können"
+        "selectLibraries": "Bibliotheken auswählen, auf die neue Benutzer zugreifen können",
+        "linkLocalLabel": "Bestehende lokale Konten verknüpfen",
+        "linkLocalDesc": "Wenn diese Option aktiviert ist, werden lokal erstellte Benutzer bei der ersten OIDC-Anmeldung automatisch mit ihrer OIDC-Identität verknüpft, sofern die Benutzernamen übereinstimmen. Wenn diese Option deaktiviert ist, können nur Benutzer, die ursprünglich über OIDC erstellt wurden, anhand ihres Benutzernamens abgeglichen werden.",
+        "linkLocalWarning": "Bitte erwägen Sie, diese Option zu deaktivieren, nachdem sich alle bestehenden Benutzer mindestens einmal über OIDC angemeldet haben. Wenn Sie diese Option aktiviert lassen, kann jeder mit einem übereinstimmenden Benutzernamen in Ihrem OIDC-Anbieter ein lokales Konto übernehmen."
     },
     "perms": {
         "uploadBooks": "Bücher hochladen",
@@ -71,6 +78,41 @@
         "providerSaved": "OIDC-Anbietereinstellungen gespeichert.",
         "providerError": "OIDC-Anbietereinstellungen konnten nicht gespeichert werden.",
         "provisionSaved": "OIDC-Auto-Provisioning-Einstellungen gespeichert.",
-        "provisionError": "OIDC-Auto-Provisioning-Einstellungen konnten nicht gespeichert werden."
+        "provisionError": "OIDC-Auto-Provisioning-Einstellungen konnten nicht gespeichert werden.",
+        "sessionDurationSaved": "Sitzungsdauer gespeichert.",
+        "sessionDurationError": "Die Speicherung der Sitzungsdauer ist fehlgeschlagen.",
+        "copiedToClipboard": "In die Zwischenablage kopiert."
+    },
+    "groupMapping": {
+        "sectionTitle": "Gruppenzuordnung",
+        "sectionDesc": "Ordnen Sie OIDC-Anbietergruppen den Booklore-Berechtigungen und dem Bibliothekszugriff zu. Die Berechtigungen der Benutzer werden auf Grundlage ihrer Gruppenmitgliedschaften synchronisiert.",
+        "colAdmin": "Admin",
+        "colPermissions": "Berechtigungen",
+        "colLibraries": "Bibliotheken",
+        "colDescription": "Beschreibung",
+        "descriptionLabel": "Beschreibung",
+        "descriptionPlaceholder": "Optionale Beschreibung",
+        "permissionsLabel": "Berechtigungen",
+        "librariesLabel": "Bibliothekszugang"
+    },
+    "testConnection": {
+        "button": "Verbindung testen",
+        "passed": "Alle Tests bestanden",
+        "failed": "Einige Tests sind fehlgeschlagen",
+        "checks": "Tests",
+        "error": "Die OIDC-Verbindung konnte nicht getestet werden."
+    },
+    "oidcOnly": {
+        "sectionDesc": "Wenn diese Option aktiviert ist, wird die lokale Anmeldung ausgeblendet und Benutzer werden automatisch zum OIDC-Anbieter weitergeleitet. Administratoren können weiterhin über /login?local=true auf die lokale Anmeldung zugreifen.",
+        "enabled": "Aktiviert",
+        "disabled": "Deaktiviert",
+        "description": "Deaktivieren Sie die lokale Anmeldung für alle Benutzer und leiten Sie automatisch zu OIDC weiter. Administratoren können sich weiterhin lokal über die Backdoor-URL anmelden.",
+        "backdoorHint": "Administrator-Backdoor: Bitte rufen Sie /login?local=true auf, um die lokale Anmeldung zu verwenden."
+    },
+    "infoPanel": {
+        "redirectUri": "Redirect URI",
+        "pkceMethod": "PKCE Methode",
+        "sectionDesc": "Bitte verwenden Sie diese Werte bei der Konfiguration der Client-Einstellungen Ihres OIDC-Anbieters.",
+        "requiredScopes": "Erforderliche Scopes"
     }
 }

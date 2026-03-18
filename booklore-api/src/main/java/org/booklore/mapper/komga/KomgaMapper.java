@@ -282,7 +282,7 @@ public class KomgaMapper {
             case FB2 -> "application/fictionbook2+zip";
             case MOBI -> "application/x-mobipocket-ebook";
             case AZW3 -> "application/vnd.amazon.ebook";
-            case AUDIOBOOK -> "audio/mp4";
+            case AUDIOBOOK -> "audio/*";
         };
     }
 

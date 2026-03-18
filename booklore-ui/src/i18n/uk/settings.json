@@ -8,9 +8,9 @@
         "users": "Користувачі",
         "email": "Email",
         "patterns": "Шаблони",
-        "authentication": "Автентифікація",
-        "tasks": "Задачі",
-        "auditLogs": "Журнал аудиту",
+        "authentication": "OIDC",
+        "tasks": "Завдання",
+        "auditLogs": "Журнали аудиту",
         "opds": "OPDS",
         "devices": "Пристрої"
     }

@@ -21,7 +21,7 @@
         "filesCount": "{{ uploaded }}/{{ total }} datotek",
         "failedCount": "({{ count }} spodletelo)",
         "dragDropTitle": "Povleci in spusti datoteke",
-        "supportedFormats": "Podprti formati: <strong>.pdf</strong>, <strong>.epub</strong>, <strong>.cbz</strong>, <strong>.cbr</strong>, <strong>.cb7</strong>, <strong>.fb2</strong>, <strong>.m4b</strong>, <strong>.mp3</strong>",
+        "supportedFormats": "",
         "maxFileSize": "Največja velikost datoteke: {{ size }} na datoteko",
         "fileTooLargeTooltip": "Datoteka je prevelika",
         "uploadFailedTooltip": "Nalaganje ni uspelo",

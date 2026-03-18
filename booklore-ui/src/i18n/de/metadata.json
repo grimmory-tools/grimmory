@@ -43,7 +43,7 @@
         "moods": "Stimmungen",
         "tags": "Schlagwörter",
         "seriesName": "Serienname",
-        "seriesNumber": "Serie Nr.",
+        "seriesNumber": "Serie #",
         "seriesTotal": "Serien gesamt",
         "publicReviews": "Öffentliche Rezensionen",
         "noValue": "Kein Wert",
@@ -64,7 +64,7 @@
         "goodreadsRating": "Goodreads ★",
         "goodreadsReviewCount": "Goodreads #",
         "hardcoverId": "Hardcover ID",
-        "hardcoverBookId": "Hardcover Book ID",
+        "hardcoverBookId": "Hardcover Buch ID",
         "hardcoverRating": "Hardcover ★",
         "hardcoverReviewCount": "Hardcover #",
         "lubimyczytacId": "Lubimyczytac ID",
@@ -131,7 +131,8 @@
             "audiobookUploadFailed": "Beim Hochladen des Hörbuch-Covers ist ein Fehler aufgetreten",
             "fileMetadataLoaded": "Metadaten aus Buchdatei geladen. Überprüfen und speichern.",
             "fileMetadataFailed": "Metadaten konnten nicht aus der Buchdatei extrahiert werden"
-        }
+        },
+        "writtenToFileTooltip": "Dieses Feld wird in die physische Datei geschrieben"
     },
     "picker": {
         "loadingMetadata": "Vollständige Metadaten werden geladen...",
@@ -221,7 +222,15 @@
         "downloadTooltip": "Herunterladen",
         "deleteTooltip": "Löschen",
         "downloadAllTooltip": "Alle Dateien als ZIP-Archiv herunterladen",
-        "physicalBookHint": "Sie können eine digitale Kopie hochladen oder Metadaten manuell hinzufügen."
+        "physicalBookHint": "Sie können eine digitale Kopie hochladen oder Metadaten manuell hinzufügen.",
+        "chapters": "Kapitel",
+        "chapterTitle": "Titel",
+        "startTime": "Start",
+        "endTime": "Ende",
+        "duration": "Dauer",
+        "totalDuration": "Gesamtdauer",
+        "noChapters": "Keine Kapitelinformationen verfügbar.",
+        "fileName": "Datei"
     },
     "viewer": {
         "metadataLocked": "Die Metadaten dieses Buches sind gesperrt.",
@@ -264,7 +273,7 @@
         "comicStoryArc": "Handlungsstrang",
         "comicAltSeries": "Alt. Serie",
         "comicFormat": "Format",
-        "comicImprint": "Imprint",
+        "comicImprint": "Impressum",
         "pencillers": "Zeichner",
         "inkers": "Tuscher",
         "colorists": "Koloristen",
@@ -357,7 +366,11 @@
             "dateUpdatedSummary": "Datum aktualisiert",
             "dateUpdatedDetail": "Abschlussdatum des Buches wurde aktualisiert.",
             "dateUpdateFailedSummary": "Aktualisierung fehlgeschlagen",
-            "dateUpdateFailedDetail": "Abschlussdatum konnte nicht aktualisiert werden."
+            "dateUpdateFailedDetail": "Abschlussdatum konnte nicht aktualisiert werden.",
+            "detachFileSuccessDetail": "Die Datei wurde getrennt und ein neues Buch erstellt.",
+            "detachFileSuccessSummary": "Datei getrennt",
+            "detachFileErrorSummary": "Trennen fehlgeschlagen",
+            "detachFileErrorDetail": "Das Trennen der Datei ist fehlgeschlagen."
         },
         "confirm": {
             "resetProgressMessage": "Lesefortschritt für \"{{ title }}\" zurücksetzen?",
@@ -373,8 +386,16 @@
             "deleteFileBtn": "Datei löschen",
             "deleteBookMessage": "Möchten Sie \"{{ title }}\" wirklich löschen?\n\nDer Bucheintrag wird dauerhaft aus Ihrer Bibliothek entfernt.\n\nDiese Aktion kann nicht rückgängig gemacht werden.",
             "deleteBookAllFilesMessage": "Möchten Sie \"{{ title }}\" wirklich löschen?\n\nDer Bucheintrag UND alle zugehörigen Dateien werden dauerhaft von Ihrem Dateisystem entfernt.\n\nDiese Aktion kann nicht rückgängig gemacht werden.",
-            "deleteEverythingBtn": "Alles löschen"
-        }
+            "deleteEverythingBtn": "Alles löschen",
+            "detachFileMessage": "Dadurch wird „{{ fileName }}“ aus diesem Buch entfernt und ein neues, eigenständiges Buch dafür erstellt. Die Datei wird nicht gelöscht.",
+            "detachFileCopyMetadata": "Metadaten in neues Buch kopieren",
+            "largeFileMessage": "Diese Datei ist größer als 25 MB. Manche E-Mail-Anbieter lehnen große Anhänge möglicherweise ab.\n\nMöchtest du sie trotzdem senden?",
+            "largeFileHeader": "Warnung: Große Datei",
+            "sendAnyway": "Trotzdem senden"
+        },
+        "audiobookAbridged": "Gekürzt",
+        "menuMarkPhysical": "Als physisch markieren",
+        "menuUnmarkPhysical": "Markierung als physisch entfernen"
     },
     "sidecar": {
         "title": "Sidecar-Metadaten",
@@ -481,7 +502,11 @@
             "tag": "Schlagwort",
             "series": "Serie",
             "publisher": "Verlag",
-            "language": "Sprache"
+            "language": "Sprache",
+            "authors": "Autoren",
+            "genres": "Genres",
+            "seriesPlural": "Serien",
+            "languages": "Sprachen"
         },
         "placeholders": {
             "searchAuthors": "Autoren suchen...",

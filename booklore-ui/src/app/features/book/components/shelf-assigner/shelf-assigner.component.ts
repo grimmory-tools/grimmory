@@ -18,6 +18,9 @@ import {UserService} from '../../../settings/user-management/user.service';
 import {IconDisplayComponent} from '../../../../shared/components/icon-display/icon-display.component';
 import {IconSelection} from '../../../../shared/service/icon-picker.service';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {InputText} from 'primeng/inputtext';
+import {IconField} from 'primeng/iconfield';
+import {InputIcon} from 'primeng/inputicon';
 
 @Component({
   selector: 'app-shelf-assigner',
@@ -30,7 +33,10 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
     AsyncPipe,
     FormsModule,
     IconDisplayComponent,
-    TranslocoDirective
+    TranslocoDirective,
+    InputText,
+    IconField,
+    InputIcon
   ]
 })
 export class ShelfAssignerComponent implements OnInit {
@@ -45,14 +51,25 @@ export class ShelfAssignerComponent implements OnInit {
   private userService = inject(UserService);
   private readonly t = inject(TranslocoService);
 
+  searchQuery = '';
+  private shelfSortField: 'name' | 'id' = 'name';
+  private shelfSortOrder: 'asc' | 'desc' = 'asc';
+
   shelfState$: Observable<ShelfState> = combineLatest([
     this.shelfService.shelfState$,
     this.userService.userState$
   ]).pipe(
-    map(([state, userState]) => ({
-      ...state,
-      shelves: state.shelves?.filter(s => s.userId === userState.user?.id) || []
-    }))
+    map(([state, userState]) => {
+      if (userState.user?.userSettings.sidebarShelfSorting) {
+        this.shelfSortField = this.validateSortField(userState.user.userSettings.sidebarShelfSorting.field);
+        this.shelfSortOrder = this.validateSortOrder(userState.user.userSettings.sidebarShelfSorting.order);
+      }
+      const filtered = state.shelves?.filter(s => s.userId === userState.user?.id) || [];
+      return {
+        ...state,
+        shelves: this.sortShelves(filtered)
+      };
+    })
   );
 
   book: Book = this.dynamicDialogConfig.data.book;
@@ -131,5 +148,35 @@ export class ShelfAssignerComponent implements OnInit {
     } else {
       return {type: 'PRIME_NG', value: `pi pi-${shelf.icon}`};
     }
+  }
+
+  filterShelves(shelves: Shelf[]): Shelf[] {
+    if (!this.searchQuery.trim()) {
+      return shelves;
+    }
+    const query = this.searchQuery.trim().toLowerCase();
+    return shelves.filter(s => s.name.toLowerCase().includes(query));
+  }
+
+  private sortShelves(shelves: Shelf[]): Shelf[] {
+    return [...shelves].sort((a, b) => {
+      const aVal = (a as unknown as Record<string, unknown>)[this.shelfSortField] ?? '';
+      const bVal = (b as unknown as Record<string, unknown>)[this.shelfSortField] ?? '';
+      let comparison = 0;
+      if (typeof aVal === 'string' && typeof bVal === 'string') {
+        comparison = aVal.localeCompare(bVal);
+      } else if (typeof aVal === 'number' && typeof bVal === 'number') {
+        comparison = aVal - bVal;
+      }
+      return this.shelfSortOrder === 'asc' ? comparison : -comparison;
+    });
+  }
+
+  private validateSortField(field: string): 'name' | 'id' {
+    return field === 'id' ? 'id' : 'name';
+  }
+
+  private validateSortOrder(order: string): 'asc' | 'desc' {
+    return order === 'desc' ? 'desc' : 'asc';
   }
 }

@@ -32,10 +32,22 @@
             <i class="pi pi-bookmark"></i>
             {{ t('shelvesAvailable', { count: (shelfState$ | async)!.shelves!.length }) }}
           </span>
+          <p-iconfield class="shelf-search">
+            <p-inputicon class="pi pi-search"/>
+            <input
+              type="text"
+              pInputText
+              [(ngModel)]="searchQuery"
+              [placeholder]="t('searchPlaceholder')"
+            />
+            @if (searchQuery) {
+              <i class="pi pi-times clear-icon" (click)="searchQuery = ''"></i>
+            }
+          </p-iconfield>
         </div>
 
         <div class="shelves-grid">
-          @for (shelf of (shelfState$ | async)?.shelves; track shelf.id) {
+          @for (shelf of filterShelves((shelfState$ | async)!.shelves!); track shelf.id) {
             <div class="shelf-item" [class.selected]="isShelfSelected(shelf)">
               <div class="shelf-checkbox">
                 <p-checkbox

@@ -570,6 +570,89 @@ class AudioMetadataServiceTest {
     }
 
     @Test
+    void getMetadata_singleFile_survivesMissingHeaderFields() throws Exception {
+        AudioFile audioFile = mock(AudioFile.class);
+        AudioHeader header = mock(AudioHeader.class);
+        Tag tag = mock(Tag.class);
+
+        when(audioFile.getAudioHeader()).thenReturn(header);
+        when(audioFile.getTag()).thenReturn(tag);
+        when(header.getPreciseTrackLength()).thenReturn(3600.0);
+        when(header.getBitRateAsNumber()).thenThrow(new NullPointerException("bitRate"));
+        when(header.getEncodingType()).thenReturn("Opus");
+        when(header.getSampleRateAsNumber()).thenThrow(new NullPointerException("sampleRate"));
+        when(header.getChannels()).thenThrow(new NullPointerException("channels"));
+        when(tag.getFirst(FieldKey.TITLE)).thenReturn("Test Opus");
+
+        try (MockedStatic<AudioFileIO> audioFileIOMock = mockStatic(AudioFileIO.class)) {
+            audioFileIOMock.when(() -> AudioFileIO.read(audioPath.toFile())).thenReturn(audioFile);
+
+            AudiobookInfo info = audioMetadataService.getMetadata(bookFileEntity, audioPath);
+
+            assertNotNull(info);
+            assertEquals(3600000L, info.getDurationMs());
+            assertNull(info.getBitrate());
+            assertEquals("Opus", info.getCodec());
+            assertNull(info.getSampleRate());
+            assertNull(info.getChannels());
+            assertEquals("Test Opus", info.getTitle());
+        }
+    }
+
+    @Test
+    void getMetadata_folderBased_survivesMissingFirstTrackHeaderFields() throws Exception {
+        bookFileEntity.setFolderBased(true);
+        Path folderPath = tempDir.resolve("opus_folder");
+        Files.createDirectory(folderPath);
+
+        Path track1 = folderPath.resolve("parts-01.opus");
+        Path track2 = folderPath.resolve("parts-02.opus");
+        Files.createFile(track1);
+        Files.createFile(track2);
+
+        when(audioFileUtility.listAudioFiles(folderPath)).thenReturn(List.of(track1, track2));
+        when(audioFileUtility.getTrackTitleFromFilename("parts-02.opus")).thenReturn("parts-02");
+
+        AudioFile audioFile1 = mock(AudioFile.class);
+        AudioFile audioFile2 = mock(AudioFile.class);
+        AudioHeader header1 = mock(AudioHeader.class);
+        AudioHeader header2 = mock(AudioHeader.class);
+        Tag tag1 = mock(Tag.class);
+
+        when(audioFile1.getAudioHeader()).thenReturn(header1);
+        when(audioFile1.getTag()).thenReturn(tag1);
+        when(header1.getPreciseTrackLength()).thenReturn(1800.0);
+        when(header1.getBitRateAsNumber()).thenThrow(new NullPointerException("bitRate"));
+        when(header1.getEncodingType()).thenReturn("Opus");
+        when(header1.getSampleRateAsNumber()).thenThrow(new NullPointerException("sampleRate"));
+        when(header1.getChannels()).thenThrow(new NullPointerException("channels"));
+        when(tag1.getFirst(FieldKey.ALBUM)).thenReturn("Test Album");
+        when(tag1.getFirst(FieldKey.TITLE)).thenReturn("Part 1");
+
+        when(audioFile2.getAudioHeader()).thenReturn(header2);
+        when(audioFile2.getTag()).thenReturn(null);
+        when(header2.getPreciseTrackLength()).thenReturn(1200.0);
+
+        try (MockedStatic<AudioFileIO> audioFileIOMock = mockStatic(AudioFileIO.class)) {
+            audioFileIOMock.when(() -> AudioFileIO.read(track1.toFile())).thenReturn(audioFile1);
+            audioFileIOMock.when(() -> AudioFileIO.read(track2.toFile())).thenReturn(audioFile2);
+
+            AudiobookInfo info = audioMetadataService.getMetadata(bookFileEntity, folderPath);
+
+            assertNotNull(info);
+            assertTrue(info.isFolderBased());
+            assertEquals(3000000L, info.getDurationMs());
+            assertEquals("Test Album", info.getTitle());
+            assertEquals("Opus", info.getCodec());
+            assertNull(info.getBitrate());
+            assertNull(info.getSampleRate());
+            assertNull(info.getChannels());
+            assertEquals("Part 1", info.getTracks().get(0).getTitle());
+            assertEquals("parts-02", info.getTracks().get(1).getTitle());
+        }
+    }
+
+    @Test
     void getMetadata_backfillsChapters_whenDbHasMetadataButNoChapters() throws Exception {
         bookFileEntity.setDurationSeconds(3600L);
         bookFileEntity.setBitrate(192);

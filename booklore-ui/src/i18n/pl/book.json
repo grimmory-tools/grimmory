@@ -444,7 +444,7 @@
         "statusReady": "Gotowy",
         "statusFailed": "Niepowodzenie",
         "dragDropText": "Przeciągnij i upuść plik tutaj, aby go przesłać.",
-        "supportedFormats": "Obsługiwane formaty: <strong>.pdf</strong>, <strong>.epub</strong>, <strong>.cbz</strong>, <strong>.cbr</strong>, <strong>.cb7</strong>, <strong>.fb2</strong>, <strong>.mobi</strong>, <strong>.azw3</strong>, <strong>.m4b</strong>, <strong>.mp3</strong>",
+        "supportedFormats": "",
         "maxFileSize": "Maksymalny rozmiar pliku: {{ size }} na plik",
         "uploadForBook": "Prześlij dodatkowy plik dla <strong>{{ title }}</strong>.",
         "thisBook": "tej książki",

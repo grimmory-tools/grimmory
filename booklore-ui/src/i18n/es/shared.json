@@ -21,7 +21,7 @@
         "filesCount": "{{ uploaded }}/{{ total }} archivos",
         "failedCount": "({{ count }} fallidos)",
         "dragDropTitle": "Arrastra y suelta archivos",
-        "supportedFormats": "Formatos compatibles: <strong>.pdf</strong>, <strong>.epub</strong>, <strong>.cbz</strong>, <strong>.cbr</strong>, <strong>.cb7</strong>, <strong>.fb2</strong>, <strong>.m4b</strong>, <strong>.mp3</strong>",
+        "supportedFormats": "",
         "maxFileSize": "Tamaño máximo de archivo: {{ size }} por archivo",
         "fileTooLargeTooltip": "Archivo demasiado grande",
         "uploadFailedTooltip": "Error al subir",

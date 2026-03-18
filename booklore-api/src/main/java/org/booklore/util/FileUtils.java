@@ -155,7 +155,7 @@ public class FileUtils {
     public boolean isAudioFile(String fileName) {
         if (fileName == null) return false;
         String lower = fileName.toLowerCase();
-        return lower.endsWith(".mp3") || lower.endsWith(".m4a") || lower.endsWith(".m4b");
+        return lower.endsWith(".mp3") || lower.endsWith(".m4a") || lower.endsWith(".m4b") || lower.endsWith(".opus");
     }
 
     /**

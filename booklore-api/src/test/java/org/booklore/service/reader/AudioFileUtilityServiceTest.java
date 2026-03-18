@@ -234,10 +234,11 @@ class AudioFileUtilityServiceTest {
     void getSupportedExtensions_returnsAllExpectedExtensions() {
         var extensions = audioFileUtility.getSupportedExtensions();
 
-        assertEquals(3, extensions.size());
+        assertEquals(4, extensions.size());
         assertTrue(extensions.contains(".mp3"));
         assertTrue(extensions.contains(".m4a"));
         assertTrue(extensions.contains(".m4b"));
+        assertTrue(extensions.contains(".opus"));
     }
 
     @Test

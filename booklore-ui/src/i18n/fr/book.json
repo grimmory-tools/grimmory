@@ -447,7 +447,7 @@
         "statusReady": "Prêt",
         "statusFailed": "Échec",
         "dragDropText": "Glissez-déposez un fichier ici pour le téléverser.",
-        "supportedFormats": "Formats pris en charge : <strong>.pdf</strong>, <strong>.epub</strong>, <strong>.cbz</strong>, <strong>.cbr</strong>, <strong>.cb7</strong>, <strong>.fb2</strong>, <strong>.mobi</strong>, <strong>.azw3</strong>, <strong>.m4b</strong>, <strong>.mp3</strong>",
+        "supportedFormats": "",
         "maxFileSize": "Taille maximale : {{ size }} par fichier",
         "uploadForBook": "Téléverser un fichier supplémentaire pour <strong>{{ title }}</strong>.",
         "thisBook": "ce livre",

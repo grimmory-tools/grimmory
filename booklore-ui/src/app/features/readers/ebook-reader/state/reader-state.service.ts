@@ -122,7 +122,7 @@ export class ReaderStateService {
           newState.fontFamily = `custom:${(settings as any).customFontId}`;
         }
 
-        if (settings.gap != null) newState.gap = settings.gap;
+        if (settings.gap != null) newState.gap = Math.min(settings.gap, 0.5);
         if (settings.hyphenate != null) newState.hyphenate = settings.hyphenate;
         if (settings.justify != null) newState.justify = settings.justify;
         if (settings.maxColumnCount != null) newState.maxColumnCount = settings.maxColumnCount;

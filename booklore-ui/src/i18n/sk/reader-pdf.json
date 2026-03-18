@@ -2,9 +2,9 @@
     "toolbar": {
         "switchToLightMode": "Prepnúť do svetlého režimu",
         "switchToDarkMode": "Prepni do tmavého režimu",
-        "closePdfReader": ""
+        "closePdfReader": "Zavri čítačku PDF"
     },
     "toast": {
-        "failedToLoadBook": ""
+        "failedToLoadBook": "Nepodarilo sa načítať knihu"
     }
 }

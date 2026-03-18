@@ -42,8 +42,7 @@ public class CronService {
 
     @Scheduled(fixedDelay = 24, timeUnit = TimeUnit.HOURS, initialDelay = 24)
     public void sendTelemetryData() {
-        AppSettings settings = appSettingService.getAppSettings();
-        if (settings != null && settings.isTelemetryEnabled()) {
+        if (isTelemetryEnabled()) {
             String url = appProperties.getTelemetry().getBaseUrl() + "/api/v1/ingest";
             BookloreTelemetry telemetry = telemetryService.collectTelemetry();
             if (postData(url, telemetry)) {
@@ -54,11 +53,13 @@ public class CronService {
 
     @Scheduled(fixedDelay = 24, timeUnit = TimeUnit.HOURS, initialDelay = 12)
     public void sendPing() {
-        String url = appProperties.getTelemetry().getBaseUrl() + "/api/v1/heartbeat";
-        InstallationPing ping = telemetryService.getInstallationPing();
-        if (ping != null && postData(url, ping)) {
-            appSettingService.saveSetting(LAST_PING_KEY, Instant.now().toString());
-            appSettingService.saveSetting(LAST_PING_APP_VERSION_KEY, ping.getAppVersion());
+        if (isTelemetryEnabled()) {
+            String url = appProperties.getTelemetry().getBaseUrl() + "/api/v1/heartbeat";
+            InstallationPing ping = telemetryService.getInstallationPing();
+            if (ping != null && postData(url, ping)) {
+                appSettingService.saveSetting(LAST_PING_KEY, Instant.now().toString());
+                appSettingService.saveSetting(LAST_PING_APP_VERSION_KEY, ping.getAppVersion());
+            }
         }
     }
 
@@ -74,6 +75,11 @@ public class CronService {
             log.debug("POST request to URL: {}, Message: {}", url, ex.getMessage());
             return false;
         }
+    }
+
+    private boolean isTelemetryEnabled() {
+        AppSettings settings = appSettingService.getAppSettings();
+        return settings != null && settings.isTelemetryEnabled();
     }
 
     private void checkAndRunTelemetry() {

@@ -1,50 +1,52 @@
 {
-  "title": "",
-  "description": "",
-  "covers": {
-    "sectionTitle": "",
-    "regenerate": "",
-    "regenerateBtn": "",
-    "regenerateDesc": "",
-    "regenerateStarted": "",
-    "regenerateStartedDetail": "",
-    "regenerateError": "",
-    "verticalCropping": "",
-    "verticalCroppingDesc": "",
-    "horizontalCropping": "",
-    "horizontalCroppingDesc": "",
-    "aspectRatio": "",
-    "aspectRatioDesc": "",
-    "smartCropping": "",
-    "smartCroppingDesc": ""
-  },
-  "search": {
-    "sectionTitle": "",
-    "autoBookSearch": "",
-    "autoBookSearchDesc": "",
-    "similarBook": "",
-    "similarBookDesc": ""
-  },
-  "fileManagement": {
-    "sectionTitle": "",
-    "maxUploadSize": "",
-    "maxUploadPlaceholder": "",
-    "maxUploadDesc": "",
-    "restartWarning": "",
-    "invalidInput": "",
-    "invalidInputDetail": ""
-  },
-  "appearance": {
-    "sectionTitle": "",
-    "supportButtonAnimation": "",
-    "supportButtonAnimationDesc": ""
-  },
-  "telemetry": {
-    "sectionTitle": "",
-    "enableTelemetry": "",
-    "telemetryDesc": ""
-  },
-  "settingsSaved": "",
-  "settingsSavedDetail": "",
-  "settingsError": ""
+    "title": "Глобальні налаштування",
+    "description": "Налаштуйте глобальні параметри вашого екземпляра Booklore, зокрема обробку обкладинок, параметри пошуку та ліміти завантаження файлів.",
+    "covers": {
+        "sectionTitle": "Обкладинка книги",
+        "regenerate": "Перегенерувати обкладинки",
+        "regenerateBtn": "",
+        "regenerateDesc": "Перегенеровує обкладинки для всіх книг із вбудованих у файл обкладинок. Використовуйте \"Перегенерувати відсутні\", щоб створити обкладинки лише для книг, у яких їх ще немає.",
+        "regenerateStarted": "Перегенерацію обкладинок розпочато",
+        "regenerateStartedDetail": "Обкладинки книг перегенеровуються.",
+        "regenerateError": "Не вдалося запустити перегенерацію обкладинок.",
+        "verticalCropping": "Вертикальне обрізання обкладинок",
+        "verticalCroppingDesc": "Автоматично обрізає надто високі зображення (наприклад, вебкомікси) зверху, щоб створити придатні мініатюри обкладинок.",
+        "horizontalCropping": "Горизонтальне обрізання обкладинок",
+        "horizontalCroppingDesc": "Автоматично обрізає надто широкі зображення зліва, щоб створити придатні мініатюри обкладинок.",
+        "aspectRatio": "Поріг співвідношення сторін: {{value}}",
+        "aspectRatioDesc": "Зображення зі співвідношенням сторін, що перевищує цей поріг, буде обрізано. Значення 2.5 означає, що зображення, вищі (або ширші) за нормальні більш ніж у 2.5 раза, буде обрізано.",
+        "smartCropping": "Розумне обрізання",
+        "smartCroppingDesc": "Пропускає області однорідного кольору під час визначення місця обрізання. Фокусує обкладинку на найрелевантнішому вмісті.",
+        "regenerateAllBtn": "Перегенерувати всі",
+        "regenerateMissingBtn": "Перегенерувати відсутні"
+    },
+    "search": {
+        "sectionTitle": "Пошук і рекомендації",
+        "autoBookSearch": "Автопошук книги",
+        "autoBookSearchDesc": "Автоматично намагається зіставити метадані, коли відкрито панель інформації про книгу.",
+        "similarBook": "Рекомендації схожих книг",
+        "similarBookDesc": "Вмикає або вимикає рекомендації схожих книг на основі вашої бібліотеки."
+    },
+    "fileManagement": {
+        "sectionTitle": "Керування файлами",
+        "maxUploadSize": "Максимальний розмір файлу для завантаження",
+        "maxUploadPlaceholder": "Макс. розмір",
+        "maxUploadDesc": "Визначає максимально дозволений розмір (у МБ) для кожного завантажуваного файлу. Застосовується до всіх підтримуваних форматів.",
+        "restartWarning": "Зміни набудуть чинності після перезапуску сервера",
+        "invalidInput": "Некоректне значення",
+        "invalidInputDetail": "Введіть коректний максимальний розмір файлу для завантаження в МБ."
+    },
+    "appearance": {
+        "sectionTitle": "Зовнішній вигляд",
+        "supportButtonAnimation": "Анімація кнопки підтримки",
+        "supportButtonAnimationDesc": "Показувати анімований ефект серця на кнопці підтримки у верхній панелі. Вимкнення залишає кнопку видимою, але прибирає анімацію."
+    },
+    "telemetry": {
+        "sectionTitle": "Телеметрія",
+        "enableTelemetry": "Увімкнути телеметрію",
+        "telemetryDesc": "Допоможіть покращувати Booklore, надсилаючи анонімну статистику використання. Ці дані дають змогу розробникам бачити, які функції найчастіше використовуються, виявляти помилки та проблеми продуктивності, щоб розуміти, над чим працювати далі. Жодна особиста інформація, вміст книг або будь-які ідентифікаційні дані ніколи не надсилаються. Дані автоматично надсилаються на сервер Booklore раз на 24 години. Це повністю безпечно і дуже корисно для розробників."
+    },
+    "settingsSaved": "Налаштування збережено",
+    "settingsSavedDetail": "Налаштування успішно збережено!",
+    "settingsError": "Під час збереження налаштувань сталася помилка."
 }

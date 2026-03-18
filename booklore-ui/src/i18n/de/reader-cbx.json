@@ -41,7 +41,10 @@
         "toggleZoom": "Zoom umschalten (Seite einpassen / Originalgröße)",
         "doubleTap": "Doppeltippen",
         "toggleSlideshow": "Diashow / Automatische Wiedergabe umschalten",
-        "showHelpDialog": "Diesen Hilfedialog anzeigen"
+        "showHelpDialog": "Diesen Hilfedialog anzeigen",
+        "toggleMagnifier": "Lupe ein-/ausschalten",
+        "magnifierZoom": "Lupenzoom (wenn aktiv)",
+        "magnifierLensSize": "Größe der Lupe (wenn aktiv)"
     },
     "footer": {
         "prevBook": "Vorheriges Buch",
@@ -77,7 +80,9 @@
         "fullscreenLabel": "Vollbild",
         "keyboardShortcutsLabel": "Tastenkürzel",
         "settings": "Einstellungen",
-        "closeReader": "Reader schließen"
+        "closeReader": "Reader schließen",
+        "enableMagnifier": "Lupe (M)",
+        "disableMagnifier": "Lupe deaktivieren (M)"
     },
     "quickSettings": {
         "fitMode": "Einpassungsmodus",
@@ -103,7 +108,9 @@
         "background": "Hintergrund",
         "black": "Schwarz",
         "gray": "Grau",
-        "white": "Weiß"
+        "white": "Weiß",
+        "magnifierLensSize": "Lupengröße",
+        "magnifierZoom": "Vergrößerung"
     },
     "sidebar": {
         "contentTab": "Inhalt",
