@@ -11,6 +11,7 @@ import {IconCategoriesHelper} from '../../helpers/icon-categories.helper';
 import {Button} from 'primeng/button';
 import {TabsModule} from 'primeng/tabs';
 import {UserService} from '../../../features/settings/user-management/user.service';
+import {forkJoin, of} from 'rxjs';
 
 interface SvgEntry {
   name: string;
@@ -81,7 +82,7 @@ export class IconPickerComponent implements OnInit {
   set activeTabIndex(value: string) {
     this._activeTabIndex = value;
     if (value === '1' && this.svgIcons.length === 0) {
-      this.loadSvgIconsFromCache();
+      this.loadSvgIcons();
     }
   }
 
@@ -111,7 +112,7 @@ export class IconPickerComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.activeTabIndex === '1') {
-      this.loadSvgIconsFromCache();
+      this.loadSvgIcons();
     }
   }
 
@@ -130,8 +131,38 @@ export class IconPickerComponent implements OnInit {
     this.ref.close({type: 'PRIME_NG', value: icon});
   }
 
-  private loadSvgIconsFromCache(): void {
-    this.svgIcons = this.iconCache.getAllIconNames();
+  private loadSvgIcons(): void {
+    this.isLoadingSvgIcons = true;
+    this.svgIconsError = '';
+
+    this.iconService.getIconNames().subscribe({
+      next: (names) => {
+        if (names.length === 0) {
+          this.svgIcons = [];
+          this.isLoadingSvgIcons = false;
+          return;
+        }
+        const contentRequests = names.map(name =>
+          this.iconCache.getCachedSanitized(name)
+            ? of(null)
+            : this.iconService.getSvgIconContent(name)
+        );
+        forkJoin(contentRequests).subscribe({
+          next: () => {
+            this.svgIcons = names;
+            this.isLoadingSvgIcons = false;
+          },
+          error: () => {
+            this.svgIcons = names;
+            this.isLoadingSvgIcons = false;
+          }
+        });
+      },
+      error: () => {
+        this.isLoadingSvgIcons = false;
+        this.svgIconsError = this.ERROR_MESSAGES.LOAD_ICONS_ERROR;
+      }
+    });
   }
 
   getSvgContent(iconName: string): SafeHtml | null {
@@ -264,7 +295,7 @@ export class IconPickerComponent implements OnInit {
         }
 
         this.clearAllEntries();
-        this.loadSvgIconsFromCache();
+        this.loadSvgIcons();
       },
       error: () => {
         this.isSavingBatch = false;
