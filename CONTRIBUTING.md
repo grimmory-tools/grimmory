@@ -355,7 +355,7 @@ Environment: Chrome 120, macOS 14.2, Booklore 1.2.0
 
 ## Community & Support
 
-- **Discord:** [Join the server](https://discord.gg/Ee5hd458Uz) for questions and discussion
+- **Discord:** [Join the server](https://discord.com/invite/FwqHeFWk) for questions and discussion
 - **GitHub Issues:** [Report bugs or request features](https://github.com/booklore-app/booklore/issues)
 
 ---
