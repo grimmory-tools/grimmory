@@ -15,20 +15,13 @@ import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.BookRepository;
 import org.booklore.util.FileUtils;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipFile;
-import org.apache.pdfbox.io.IOUtils;
 import org.booklore.util.SecureXmlUtils;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.nio.charset.Charset;
@@ -48,6 +41,7 @@ public class EpubReaderService {
     private static final String CONTAINER_NS = "urn:oasis:names:tc:opendocument:xmlns:container";
     private static final String OPF_NS = "http://www.idpf.org/2007/opf";
     private static final String DC_NS = "http://purl.org/dc/elements/1.1/";
+    private static final String DCTERMS_NS = "http://purl.org/dc/terms/";
     private static final String NCX_NS = "http://www.daisy.org/z3986/2005/ncx/";
     private static final String XHTML_NS = "http://www.w3.org/1999/xhtml";
     private static final String EPUB_NS = "http://www.idpf.org/2007/ops";
@@ -292,8 +286,6 @@ public class EpubReaderService {
 
             List<EpubSpineItem> spine = parseSpine(opfDoc, manifestById);
 
-            Map<String, Object> metadata = parseMetadata(opfDoc);
-
             String navPath = null;
             String ncxPath = null;
             for (EpubManifestItem item : manifest) {
@@ -321,6 +313,7 @@ public class EpubReaderService {
                 }
             }
 
+            Map<String, Object> metadata = parseMetadata(opfDoc, manifest, spine, toc);
             String coverPath = findCoverPath(opfDoc, manifest, manifestById);
 
             return EpubBookInfo.builder()
@@ -365,6 +358,7 @@ public class EpubReaderService {
             String href = item.getAttribute("href");
             String mediaType = item.getAttribute("media-type");
             String properties = item.getAttribute("properties");
+            String mediaOverlay = item.getAttribute("media-overlay");
 
             String fullHref = rootPath + href;
             long size = getEntrySize(zipFile, fullHref);
@@ -379,6 +373,7 @@ public class EpubReaderService {
                     .href(fullHref)
                     .mediaType(mediaType)
                     .properties(propList)
+                    .mediaOverlay(mediaOverlay == null || mediaOverlay.isBlank() ? null : mediaOverlay)
                     .size(size)
                     .build());
         }
@@ -410,8 +405,8 @@ public class EpubReaderService {
         return spine;
     }
 
-    private Map<String, Object> parseMetadata(Document opfDoc) {
-        Map<String, Object> metadata = new HashMap<>();
+    private Map<String, Object> parseMetadata(Document opfDoc, List<EpubManifestItem> manifest, List<EpubSpineItem> spine, EpubTocItem toc) {
+        Map<String, Object> metadata = new LinkedHashMap<>();
 
         String title = getElementTextByNS(opfDoc, DC_NS, "title");
         if (title == null) title = getElementText(opfDoc, "dc:title");
@@ -437,7 +432,237 @@ public class EpubReaderService {
         if (description == null) description = getElementText(opfDoc, "dc:description");
         if (description != null) metadata.put("description", description);
 
+        Map<String, Object> accessibility = parseAccessibilityMetadata(opfDoc);
+        if (!accessibility.isEmpty()) {
+            metadata.put("accessibility", accessibility);
+        }
+
+        Map<String, Object> inferredAccessibility = inferAccessibilityMetadata(manifest, spine, toc);
+        if (!inferredAccessibility.isEmpty()) {
+            metadata.put("inferredAccessibility", inferredAccessibility);
+        }
+
         return metadata;
+    }
+
+    private Map<String, Object> parseAccessibilityMetadata(Document opfDoc) {
+        List<String> accessModes = new ArrayList<>();
+        List<List<String>> accessModeSufficient = new ArrayList<>();
+        Set<String> features = new LinkedHashSet<>();
+        Set<String> hazards = new LinkedHashSet<>();
+        Set<String> conformsTo = new LinkedHashSet<>();
+        Set<String> accessibilityApis = new LinkedHashSet<>();
+        Set<String> accessibilityControls = new LinkedHashSet<>();
+        Set<String> accessibilityLabels = new LinkedHashSet<>();
+        Set<String> accessibilityValues = new LinkedHashSet<>();
+        String summary = null;
+        String certifiedBy = null;
+        String certifierCredential = null;
+        String certifierReport = null;
+
+        NodeList metadataNodes = opfDoc.getElementsByTagNameNS(OPF_NS, "meta");
+        if (metadataNodes.getLength() == 0) {
+            metadataNodes = opfDoc.getElementsByTagName("meta");
+        }
+
+        for (int i = 0; i < metadataNodes.getLength(); i++) {
+            Element meta = (Element) metadataNodes.item(i);
+            String key = normalizeAccessibilityProperty(meta);
+            if (key == null) {
+                continue;
+            }
+
+            String value = getMetaValue(meta);
+            if (value == null || value.isBlank()) {
+                continue;
+            }
+
+            switch (key) {
+                case "accessMode" -> splitMetadataValues(value).forEach(accessModes::add);
+                case "accessModeSufficient" -> {
+                    List<String> sufficientModes = splitMetadataValues(value);
+                    if (!sufficientModes.isEmpty()) {
+                        accessModeSufficient.add(sufficientModes);
+                    }
+                }
+                case "feature" -> features.addAll(splitMetadataValues(value));
+                case "hazard" -> hazards.addAll(splitMetadataValues(value));
+                case "summary" -> summary = value;
+                case "conformsTo" -> conformsTo.addAll(splitMetadataValues(value));
+                case "certifiedBy" -> certifiedBy = value;
+                case "certifierCredential" -> certifierCredential = value;
+                case "certifierReport" -> certifierReport = value;
+                case "api" -> accessibilityApis.addAll(splitMetadataValues(value));
+                case "control" -> accessibilityControls.addAll(splitMetadataValues(value));
+                case "label" -> accessibilityLabels.addAll(splitMetadataValues(value));
+                case "value" -> accessibilityValues.addAll(splitMetadataValues(value));
+                default -> {
+                }
+            }
+        }
+
+        NodeList conformsToNodes = opfDoc.getElementsByTagNameNS(DCTERMS_NS, "conformsTo");
+        for (int i = 0; i < conformsToNodes.getLength(); i++) {
+            String value = conformsToNodes.item(i).getTextContent();
+            if (value != null && !value.isBlank()) {
+                conformsTo.add(value.trim());
+            }
+        }
+
+        Map<String, Object> accessibility = new LinkedHashMap<>();
+        if (!conformsTo.isEmpty()) {
+            accessibility.put("conformsTo", List.copyOf(conformsTo));
+        }
+        if (certifiedBy != null || certifierCredential != null || certifierReport != null) {
+            Map<String, Object> certification = new LinkedHashMap<>();
+            if (certifiedBy != null) {
+                certification.put("certifiedBy", certifiedBy);
+            }
+            if (certifierCredential != null) {
+                certification.put("credential", certifierCredential);
+            }
+            if (certifierReport != null) {
+                certification.put("report", certifierReport);
+            }
+            accessibility.put("certification", certification);
+        }
+        if (summary != null) {
+            accessibility.put("summary", summary);
+        }
+        if (!accessModes.isEmpty()) {
+            accessibility.put("accessMode", List.copyOf(new LinkedHashSet<>(accessModes)));
+        }
+        if (!accessModeSufficient.isEmpty()) {
+            accessibility.put("accessModeSufficient", List.copyOf(accessModeSufficient));
+        }
+        if (!features.isEmpty()) {
+            accessibility.put("feature", List.copyOf(features));
+        }
+        if (!hazards.isEmpty()) {
+            accessibility.put("hazard", List.copyOf(hazards));
+        }
+        if (!accessibilityApis.isEmpty()) {
+            accessibility.put("api", List.copyOf(accessibilityApis));
+        }
+        if (!accessibilityControls.isEmpty()) {
+            accessibility.put("control", List.copyOf(accessibilityControls));
+        }
+        if (!accessibilityLabels.isEmpty()) {
+            accessibility.put("label", List.copyOf(accessibilityLabels));
+        }
+        if (!accessibilityValues.isEmpty()) {
+            accessibility.put("value", List.copyOf(accessibilityValues));
+        }
+
+        return accessibility;
+    }
+
+    private Map<String, Object> inferAccessibilityMetadata(List<EpubManifestItem> manifest, List<EpubSpineItem> spine, EpubTocItem toc) {
+        Set<String> features = new LinkedHashSet<>();
+
+        if (toc != null && toc.getChildren() != null && !toc.getChildren().isEmpty()) {
+            features.add("tableOfContents");
+        }
+        if (spine != null && !spine.isEmpty()) {
+            features.add("readingOrder");
+        }
+        boolean hasSynchronizedAudioText = manifest.stream().anyMatch(item ->
+                (item.getMediaOverlay() != null && !item.getMediaOverlay().isBlank())
+                        || "application/smil+xml".equals(item.getMediaType())
+        );
+        if (hasSynchronizedAudioText) {
+            features.add("synchronizedAudioText");
+        }
+
+        if (features.isEmpty()) {
+            return Map.of();
+        }
+
+        Map<String, Object> inferredAccessibility = new LinkedHashMap<>();
+        inferredAccessibility.put("feature", List.copyOf(features));
+        return inferredAccessibility;
+    }
+
+    private String normalizeAccessibilityProperty(Element meta) {
+        String property = meta.getAttribute("property");
+        if (property != null && !property.isBlank()) {
+            String normalizedProperty = normalizeAccessibilityPropertyName(property);
+            if (normalizedProperty != null) {
+                return normalizedProperty;
+            }
+        }
+
+        String name = meta.getAttribute("name");
+        if (name != null && !name.isBlank()) {
+            return normalizeAccessibilityPropertyName(name);
+        }
+
+        return null;
+    }
+
+    private String normalizeAccessibilityPropertyName(String propertyName) {
+        if (propertyName == null || propertyName.isBlank()) {
+            return null;
+        }
+
+        String normalized = propertyName.trim();
+        int lastColon = normalized.lastIndexOf(':');
+        if (lastColon >= 0 && lastColon < normalized.length() - 1) {
+            normalized = normalized.substring(lastColon + 1);
+        }
+
+        return switch (normalized) {
+            case "accessMode" -> "accessMode";
+            case "accessModeSufficient" -> "accessModeSufficient";
+            case "accessibilityFeature" -> "feature";
+            case "accessibilityHazard" -> "hazard";
+            case "accessibilitySummary" -> "summary";
+            case "accessibilityAPI" -> "api";
+            case "accessibilityControl" -> "control";
+            case "accessibilityLabel" -> "label";
+            case "accessibilityValue" -> "value";
+            case "certifiedBy" -> "certifiedBy";
+            case "certifierCredential" -> "certifierCredential";
+            case "certifierReport" -> "certifierReport";
+            case "conformsTo" -> "conformsTo";
+            default -> null;
+        };
+    }
+
+    private String getMetaValue(Element meta) {
+        String content = meta.getAttribute("content");
+        if (content != null && !content.isBlank()) {
+            return content.trim();
+        }
+
+        String text = meta.getTextContent();
+        if (text != null && !text.isBlank()) {
+            return text.trim();
+        }
+
+        return null;
+    }
+
+    private List<String> splitMetadataValues(String value) {
+        if (value == null || value.isBlank()) {
+            return List.of();
+        }
+        if (value.contains(",")) {
+            return Arrays.stream(value.split("\\s*,\\s*"))
+                    .map(String::trim)
+                    .filter(token -> !token.isEmpty())
+                    .toList();
+        }
+
+        String[] tokens = WHITESPACE_PATTERN.split(value.trim());
+        if (tokens.length > 1 && Arrays.stream(tokens).noneMatch(token -> token.contains("/"))) {
+            return Arrays.stream(tokens)
+                    .map(String::trim)
+                    .filter(token -> !token.isEmpty())
+                    .toList();
+        }
+
+        return List.of(value.trim());
     }
 
     private EpubTocItem parseNavDocument(ZipFile zipFile, String navPath, String rootPath) throws Exception {

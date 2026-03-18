@@ -16,5 +16,6 @@ public class EpubManifestItem {
     private String href;
     private String mediaType;
     private List<String> properties;
+    private String mediaOverlay;
     private long size;
 }

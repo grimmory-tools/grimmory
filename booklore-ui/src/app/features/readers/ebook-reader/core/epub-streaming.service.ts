@@ -16,6 +16,7 @@ export interface EpubManifestItem {
   href: string;
   mediaType: string;
   properties?: string[];
+  mediaOverlay?: string;
   size: number;
 }
 

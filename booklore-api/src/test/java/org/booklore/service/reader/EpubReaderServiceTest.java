@@ -28,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -93,6 +94,40 @@ class EpubReaderServiceTest {
                 </nav>
             </body>
             </html>
+            """;
+
+    private static final String ACCESSIBILITY_CONTENT_OPF = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <package xmlns="http://www.idpf.org/2007/opf"
+                     xmlns:dc="http://purl.org/dc/elements/1.1/"
+                     xmlns:dcterms="http://purl.org/dc/terms/"
+                     version="3.0"
+                     prefix="schema: http://schema.org/ a11y: http://www.idpf.org/epub/vocab/package/a11y/#">
+                <metadata>
+                    <dc:title>Accessible Read Aloud</dc:title>
+                    <dc:creator>Inclusive Author</dc:creator>
+                    <dc:language>en</dc:language>
+                    <meta property="schema:accessMode">textual</meta>
+                    <meta property="schema:accessMode">auditory</meta>
+                    <meta property="schema:accessModeSufficient">textual</meta>
+                    <meta property="schema:accessibilityFeature">tableOfContents</meta>
+                    <meta property="schema:accessibilityFeature">synchronizedAudioText</meta>
+                    <meta property="schema:accessibilityHazard">none</meta>
+                    <meta property="schema:accessibilitySummary">Human-readable accessibility summary.</meta>
+                    <meta property="a11y:certifiedBy">EU Accessibility Lab</meta>
+                    <meta property="a11y:certifierCredential">cert-123</meta>
+                    <meta property="a11y:certifierReport">https://example.com/report</meta>
+                    <meta property="dcterms:conformsTo">http://www.idpf.org/epub/a11y/accessibility-20170105.html#wcag-aa</meta>
+                </metadata>
+                <manifest>
+                    <item id="chapter1" href="chapter1.xhtml" media-type="application/xhtml+xml" media-overlay="mo1"/>
+                    <item id="mo1" href="overlay.smil" media-type="application/smil+xml"/>
+                    <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
+                </manifest>
+                <spine>
+                    <itemref idref="chapter1"/>
+                </spine>
+            </package>
             """;
 
     @BeforeEach
@@ -488,6 +523,54 @@ class EpubReaderServiceTest {
     }
 
     @Test
+    void testAccessibilityMetadata_IsNormalizedToReadiumStyleStructure() throws Exception {
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(bookEntity));
+
+        try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
+            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath.toString());
+
+            ZipFile zipFile = createMockZipFileWithAccessibilityMetadata();
+            ZipFile.Builder builder = createMockZipFileBuilder(zipFile);
+
+            try (MockedStatic<ZipFile> zipFileStatic = mockStatic(ZipFile.class)) {
+                zipFileStatic.when(ZipFile::builder).thenReturn(builder);
+
+                Files.createFile(epubPath);
+                Files.setLastModifiedTime(epubPath, FileTime.fromMillis(System.currentTimeMillis()));
+
+                EpubBookInfo bookInfo = epubReaderService.getBookInfo(1L);
+
+                @SuppressWarnings("unchecked")
+                Map<String, Object> accessibility = (Map<String, Object>) bookInfo.getMetadata().get("accessibility");
+                assertNotNull(accessibility);
+                assertEquals(List.of("http://www.idpf.org/epub/a11y/accessibility-20170105.html#wcag-aa"), accessibility.get("conformsTo"));
+                assertEquals(List.of("textual", "auditory"), accessibility.get("accessMode"));
+                assertEquals(List.of(List.of("textual")), accessibility.get("accessModeSufficient"));
+                assertEquals(List.of("tableOfContents", "synchronizedAudioText"), accessibility.get("feature"));
+                assertEquals(List.of("none"), accessibility.get("hazard"));
+                assertEquals("Human-readable accessibility summary.", accessibility.get("summary"));
+
+                @SuppressWarnings("unchecked")
+                Map<String, Object> certification = (Map<String, Object>) accessibility.get("certification");
+                assertEquals("EU Accessibility Lab", certification.get("certifiedBy"));
+                assertEquals("cert-123", certification.get("credential"));
+                assertEquals("https://example.com/report", certification.get("report"));
+
+                @SuppressWarnings("unchecked")
+                Map<String, Object> inferredAccessibility = (Map<String, Object>) bookInfo.getMetadata().get("inferredAccessibility");
+                assertNotNull(inferredAccessibility);
+                assertEquals(List.of("tableOfContents", "readingOrder", "synchronizedAudioText"), inferredAccessibility.get("feature"));
+
+                EpubManifestItem chapterItem = bookInfo.getManifest().stream()
+                        .filter(item -> "chapter1".equals(item.getId()))
+                        .findFirst()
+                        .orElseThrow();
+                assertEquals("mo1", chapterItem.getMediaOverlay());
+            }
+        }
+    }
+
+    @Test
     void testStreamFile_LeadingSlashHandled() throws Exception {
         when(bookRepository.findById(1L)).thenReturn(Optional.of(bookEntity));
 
@@ -620,6 +703,38 @@ class EpubReaderServiceTest {
         ZipArchiveEntry coverEntry = mock(ZipArchiveEntry.class);
         when(coverEntry.getSize()).thenReturn(10240L);
         when(zipFile.getEntry("OEBPS/cover.jpg")).thenReturn(coverEntry);
+
+        return zipFile;
+    }
+
+    private ZipFile createMockZipFileWithAccessibilityMetadata() throws Exception {
+        ZipFile zipFile = mock(ZipFile.class);
+
+        ZipArchiveEntry containerEntry = mock(ZipArchiveEntry.class);
+        when(containerEntry.getSize()).thenReturn((long) CONTAINER_XML.length());
+        when(zipFile.getEntry("META-INF/container.xml")).thenReturn(containerEntry);
+        when(zipFile.getInputStream(containerEntry))
+                .thenAnswer(inv -> new ByteArrayInputStream(CONTAINER_XML.getBytes(StandardCharsets.UTF_8)));
+
+        ZipArchiveEntry opfEntry = mock(ZipArchiveEntry.class);
+        when(opfEntry.getSize()).thenReturn((long) ACCESSIBILITY_CONTENT_OPF.length());
+        when(zipFile.getEntry("OEBPS/content.opf")).thenReturn(opfEntry);
+        when(zipFile.getInputStream(opfEntry))
+                .thenAnswer(inv -> new ByteArrayInputStream(ACCESSIBILITY_CONTENT_OPF.getBytes(StandardCharsets.UTF_8)));
+
+        ZipArchiveEntry navEntry = mock(ZipArchiveEntry.class);
+        when(navEntry.getSize()).thenReturn((long) NAV_XHTML.length());
+        when(zipFile.getEntry("OEBPS/nav.xhtml")).thenReturn(navEntry);
+        when(zipFile.getInputStream(navEntry))
+                .thenAnswer(inv -> new ByteArrayInputStream(NAV_XHTML.getBytes(StandardCharsets.UTF_8)));
+
+        ZipArchiveEntry chapterEntry = mock(ZipArchiveEntry.class);
+        when(chapterEntry.getSize()).thenReturn(321L);
+        when(zipFile.getEntry("OEBPS/chapter1.xhtml")).thenReturn(chapterEntry);
+
+        ZipArchiveEntry smilEntry = mock(ZipArchiveEntry.class);
+        when(smilEntry.getSize()).thenReturn(123L);
+        when(zipFile.getEntry("OEBPS/overlay.smil")).thenReturn(smilEntry);
 
         return zipFile;
     }
