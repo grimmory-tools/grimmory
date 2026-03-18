@@ -150,15 +150,5 @@
         "toast": {
             "createFailedDefault": "Administrator konnte nicht erstellt werden. Versuchen Sie es erneut."
         }
-    },
-    "supportDialog": {
-        "title": "BookLore unterstützen",
-        "subtitle": "Von einem Solo-Entwickler, der Bücher liebt",
-        "intro": "BookLore wird von einem einzelnen Entwickler erstellt und gepflegt, der Bücher wirklich liebt. Wenn Ihnen die Organisation Ihrer Bibliothek damit etwas mehr Freude bereitet, finden Sie hier einige Möglichkeiten, das Projekt zu unterstützen und am Laufen zu halten.",
-        "kofiTitle": "Kaufen Sie mir einen Kaffee",
-        "starDesc": "Ein Stern hat eine große Wirkung. Er unterstützt neue Nutzer dabei, BookLore zu entdecken, und motiviert mich.",
-        "collectiveDesc": "Regelmäßiger Support, der zur Deckung der Hosting-Kosten beiträgt und eine nachhaltige Entwicklung gewährleistet.",
-        "kofiDesc": "Eine einmalige Spende, um nächtliche Programmier-Sessions zu unterstützen. Jeder Beitrag wird dankbar angenommen!",
-        "closing": "Vielen Dank, dass Sie Teil der BookLore-Community sind."
     }
 }

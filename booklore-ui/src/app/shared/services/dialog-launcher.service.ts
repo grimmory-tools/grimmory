@@ -1,6 +1,5 @@
 import {inject, Injectable, Type} from '@angular/core';
 import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {GithubSupportDialog} from '../components/github-support-dialog/github-support-dialog';
 import {LibraryCreatorComponent} from '../../features/library-creator/library-creator.component';
 import {BookUploaderComponent} from '../components/book-uploader/book-uploader.component';
 import {UserProfileDialogComponent} from '../../features/settings/user-profile-dialog/user-profile-dialog.component';
@@ -67,13 +66,6 @@ export class DialogLauncherService {
     return this.openDialog(DashboardSettingsComponent, {
       showHeader: false,
       styleClass: `${DialogSize.XL} ${DialogStyle.MINIMAL}`,
-    });
-  }
-
-  openGithubSupportDialog(): DynamicDialogRef | null {
-    return this.openDialog(GithubSupportDialog, {
-      showHeader: false,
-      styleClass: `${DialogSize.MD} ${DialogStyle.MINIMAL}`,
     });
   }
 
