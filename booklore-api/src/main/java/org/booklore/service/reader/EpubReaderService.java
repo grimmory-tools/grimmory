@@ -451,11 +451,8 @@ public class EpubReaderService {
         Set<String> features = new LinkedHashSet<>();
         Set<String> hazards = new LinkedHashSet<>();
         Set<String> conformsTo = new LinkedHashSet<>();
-        Set<String> accessibilityApis = new LinkedHashSet<>();
-        Set<String> accessibilityControls = new LinkedHashSet<>();
-        Set<String> accessibilityLabels = new LinkedHashSet<>();
-        Set<String> accessibilityValues = new LinkedHashSet<>();
         String summary = null;
+        String exemption = null;
         String certifiedBy = null;
         String certifierCredential = null;
         String certifierReport = null;
@@ -492,10 +489,7 @@ public class EpubReaderService {
                 case "certifiedBy" -> certifiedBy = value;
                 case "certifierCredential" -> certifierCredential = value;
                 case "certifierReport" -> certifierReport = value;
-                case "api" -> accessibilityApis.addAll(splitMetadataValues(value));
-                case "control" -> accessibilityControls.addAll(splitMetadataValues(value));
-                case "label" -> accessibilityLabels.addAll(splitMetadataValues(value));
-                case "value" -> accessibilityValues.addAll(splitMetadataValues(value));
+                case "exemption" -> exemption = value;
                 default -> {
                 }
             }
@@ -526,6 +520,9 @@ public class EpubReaderService {
             }
             accessibility.put("certification", certification);
         }
+        if (exemption != null) {
+            accessibility.put("exemption", exemption);
+        }
         if (summary != null) {
             accessibility.put("summary", summary);
         }
@@ -540,18 +537,6 @@ public class EpubReaderService {
         }
         if (!hazards.isEmpty()) {
             accessibility.put("hazard", List.copyOf(hazards));
-        }
-        if (!accessibilityApis.isEmpty()) {
-            accessibility.put("api", List.copyOf(accessibilityApis));
-        }
-        if (!accessibilityControls.isEmpty()) {
-            accessibility.put("control", List.copyOf(accessibilityControls));
-        }
-        if (!accessibilityLabels.isEmpty()) {
-            accessibility.put("label", List.copyOf(accessibilityLabels));
-        }
-        if (!accessibilityValues.isEmpty()) {
-            accessibility.put("value", List.copyOf(accessibilityValues));
         }
 
         return accessibility;
@@ -617,14 +602,11 @@ public class EpubReaderService {
             case "accessibilityFeature" -> "feature";
             case "accessibilityHazard" -> "hazard";
             case "accessibilitySummary" -> "summary";
-            case "accessibilityAPI" -> "api";
-            case "accessibilityControl" -> "control";
-            case "accessibilityLabel" -> "label";
-            case "accessibilityValue" -> "value";
             case "certifiedBy" -> "certifiedBy";
             case "certifierCredential" -> "certifierCredential";
             case "certifierReport" -> "certifierReport";
             case "conformsTo" -> "conformsTo";
+            case "exemption" -> "exemption";
             default -> null;
         };
     }

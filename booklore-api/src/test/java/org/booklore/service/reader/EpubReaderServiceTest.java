@@ -118,6 +118,7 @@ class EpubReaderServiceTest {
                     <meta property="a11y:certifierCredential">cert-123</meta>
                     <meta property="a11y:certifierReport">https://example.com/report</meta>
                     <meta property="dcterms:conformsTo">http://www.idpf.org/epub/a11y/accessibility-20170105.html#wcag-aa</meta>
+                    <meta property="a11y:exemption">eaa-microenterprise</meta>
                 </metadata>
                 <manifest>
                     <item id="chapter1" href="chapter1.xhtml" media-type="application/xhtml+xml" media-overlay="mo1"/>
@@ -549,6 +550,7 @@ class EpubReaderServiceTest {
                 assertEquals(List.of("tableOfContents", "synchronizedAudioText"), accessibility.get("feature"));
                 assertEquals(List.of("none"), accessibility.get("hazard"));
                 assertEquals("Human-readable accessibility summary.", accessibility.get("summary"));
+                assertEquals("eaa-microenterprise", accessibility.get("exemption"));
 
                 @SuppressWarnings("unchecked")
                 Map<String, Object> certification = (Map<String, Object>) accessibility.get("certification");
@@ -566,6 +568,41 @@ class EpubReaderServiceTest {
                         .findFirst()
                         .orElseThrow();
                 assertEquals("mo1", chapterItem.getMediaOverlay());
+            }
+        }
+    }
+
+    @Test
+    void testGetBookInfo_WithoutAccessibilityMetadata_StillWorks() throws Exception {
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(bookEntity));
+
+        try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
+            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath.toString());
+
+            ZipFile zipFile = createMockZipFile();
+            ZipFile.Builder builder = createMockZipFileBuilder(zipFile);
+
+            try (MockedStatic<ZipFile> zipFileStatic = mockStatic(ZipFile.class)) {
+                zipFileStatic.when(ZipFile::builder).thenReturn(builder);
+
+                Files.createFile(epubPath);
+                Files.setLastModifiedTime(epubPath, FileTime.fromMillis(System.currentTimeMillis()));
+
+                EpubBookInfo bookInfo = epubReaderService.getBookInfo(1L);
+
+                assertNull(bookInfo.getMetadata().get("accessibility"),
+                        "EPUBs without accessibility metadata should not have an accessibility key");
+
+                @SuppressWarnings("unchecked")
+                Map<String, Object> inferredAccessibility = (Map<String, Object>) bookInfo.getMetadata().get("inferredAccessibility");
+                assertNotNull(inferredAccessibility,
+                        "Inferred accessibility should still be present when TOC and spine exist");
+                @SuppressWarnings("unchecked")
+                List<String> inferredFeatures = (List<String>) inferredAccessibility.get("feature");
+                assertTrue(inferredFeatures.contains("tableOfContents"));
+                assertTrue(inferredFeatures.contains("readingOrder"));
+                assertFalse(inferredFeatures.contains("synchronizedAudioText"),
+                        "No media overlays means no synchronizedAudioText");
             }
         }
     }
