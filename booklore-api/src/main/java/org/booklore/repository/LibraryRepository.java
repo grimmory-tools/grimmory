@@ -19,4 +19,12 @@ public interface LibraryRepository extends JpaRepository<LibraryEntity, Long>, J
     @EntityGraph(attributePaths = {"bookEntities"})
     @Query("SELECT l FROM LibraryEntity l WHERE l.id = :id")
     Optional<LibraryEntity> findByIdWithBooks(@Param("id") Long id);
+
+    @EntityGraph(attributePaths = {"libraryPaths"})
+    @Query("SELECT l FROM LibraryEntity l WHERE l.id = :id")
+    Optional<LibraryEntity> findByIdWithPaths(@Param("id") Long id);
+
+    @EntityGraph(attributePaths = {"libraryPaths"})
+    @Query("SELECT l FROM LibraryEntity l")
+    List<LibraryEntity> findAllWithPaths();
 }

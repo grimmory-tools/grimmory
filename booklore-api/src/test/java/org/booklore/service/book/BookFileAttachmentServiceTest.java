@@ -1,7 +1,6 @@
 package org.booklore.service.book;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.APIException;
 import org.booklore.mapper.BookMapper;
@@ -10,6 +9,7 @@ import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.response.AttachBookFileResponse;
 import org.booklore.model.entity.*;
 import org.booklore.model.enums.BookFileType;
+import org.booklore.repository.BookFileRepository;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserBookProgressRepository;
 import org.booklore.service.file.FileMoveHelper;
@@ -35,6 +35,7 @@ import static org.mockito.Mockito.*;
 class BookFileAttachmentServiceTest {
 
     @Mock private BookRepository bookRepository;
+    @Mock private BookFileRepository bookFileRepository;
     @Mock private UserBookProgressRepository userBookProgressRepository;
     @Mock private AuthenticationService authenticationService;
     @Mock private ReadingProgressService readingProgressService;
@@ -283,11 +284,6 @@ class BookFileAttachmentServiceTest {
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(target));
             when(bookRepository.findByIdWithBookFiles(2L)).thenReturn(Optional.of(source));
 
-            Query mockQuery = mock(Query.class);
-            when(entityManager.createQuery(anyString())).thenReturn(mockQuery);
-            when(mockQuery.setParameter(anyString(), any())).thenReturn(mockQuery);
-            when(mockQuery.executeUpdate()).thenReturn(1);
-
             setupGetUpdatedBookMocks(1L, target);
 
             service.attachBookFiles(1L, List.of(2L, 2L, 2L), false);
@@ -313,11 +309,6 @@ class BookFileAttachmentServiceTest {
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(target));
             when(bookRepository.findByIdWithBookFiles(2L)).thenReturn(Optional.of(source));
 
-            Query mockQuery = mock(Query.class);
-            when(entityManager.createQuery(anyString())).thenReturn(mockQuery);
-            when(mockQuery.setParameter(anyString(), any())).thenReturn(mockQuery);
-            when(mockQuery.executeUpdate()).thenReturn(1);
-
             when(bookRepository.findAllById(List.of(2L))).thenReturn(List.of(source));
             setupGetUpdatedBookMocks(1L, target);
 
@@ -326,7 +317,7 @@ class BookFileAttachmentServiceTest {
             assertNotNull(result);
             assertNotNull(result.updatedBook());
             assertEquals(List.of(2L), result.deletedSourceBookIds());
-            verify(entityManager).createQuery(contains("UPDATE BookFileEntity"));
+            verify(bookFileRepository).reassignFilesToBook(eq(1L), anyList());
             verify(entityManager).flush();
             verify(entityManager).clear();
             verify(bookRepository).deleteAll(List.of(source));
@@ -348,17 +339,12 @@ class BookFileAttachmentServiceTest {
             when(bookRepository.findByIdWithBookFiles(2L)).thenReturn(Optional.of(source1));
             when(bookRepository.findByIdWithBookFiles(3L)).thenReturn(Optional.of(source2));
 
-            Query mockQuery = mock(Query.class);
-            when(entityManager.createQuery(anyString())).thenReturn(mockQuery);
-            when(mockQuery.setParameter(anyString(), any())).thenReturn(mockQuery);
-            when(mockQuery.executeUpdate()).thenReturn(1);
-
             when(bookRepository.findAllById(anyList())).thenReturn(List.of(source1, source2));
             setupGetUpdatedBookMocks(1L, target);
 
             service.attachBookFiles(1L, List.of(2L, 3L), false);
 
-            verify(entityManager, times(2)).createQuery(contains("UPDATE BookFileEntity"));
+            verify(bookFileRepository, times(2)).reassignFilesToBook(eq(1L), anyList());
             verify(bookRepository).deleteAll(anyList());
         }
 
@@ -374,11 +360,6 @@ class BookFileAttachmentServiceTest {
 
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(target));
             when(bookRepository.findByIdWithBookFiles(2L)).thenReturn(Optional.of(source));
-
-            Query mockQuery = mock(Query.class);
-            when(entityManager.createQuery(anyString())).thenReturn(mockQuery);
-            when(mockQuery.setParameter(anyString(), any())).thenReturn(mockQuery);
-            when(mockQuery.executeUpdate()).thenReturn(1);
 
             setupGetUpdatedBookMocks(1L, target);
 
@@ -399,11 +380,6 @@ class BookFileAttachmentServiceTest {
 
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(target));
             when(bookRepository.findByIdWithBookFiles(2L)).thenReturn(Optional.of(source));
-
-            Query mockQuery = mock(Query.class);
-            when(entityManager.createQuery(anyString())).thenReturn(mockQuery);
-            when(mockQuery.setParameter(anyString(), any())).thenReturn(mockQuery);
-            when(mockQuery.executeUpdate()).thenReturn(1);
 
             when(bookRepository.findAllById(List.of(2L))).thenReturn(List.of(source));
             setupGetUpdatedBookMocks(1L, target);
@@ -679,10 +655,6 @@ class BookFileAttachmentServiceTest {
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(target));
             when(bookRepository.findByIdWithBookFiles(2L)).thenReturn(Optional.of(source));
 
-            Query mockQuery = mock(Query.class);
-            when(entityManager.createQuery(anyString())).thenReturn(mockQuery);
-            when(mockQuery.setParameter(anyString(), any())).thenReturn(mockQuery);
-            when(mockQuery.executeUpdate()).thenReturn(1);
             when(bookRepository.findAllById(List.of(2L))).thenReturn(List.of(source));
 
             BookLoreUser user = BookLoreUser.builder().id(1L).username("testuser").build();
@@ -724,11 +696,6 @@ class BookFileAttachmentServiceTest {
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(target));
             when(bookRepository.findByIdWithBookFiles(2L)).thenReturn(Optional.of(source));
 
-            Query mockQuery = mock(Query.class);
-            when(entityManager.createQuery(anyString())).thenReturn(mockQuery);
-            when(mockQuery.setParameter(anyString(), any())).thenReturn(mockQuery);
-            when(mockQuery.executeUpdate()).thenReturn(1);
-
             setupGetUpdatedBookMocks(1L, target);
 
             AttachBookFileResponse result = service.attachBookFiles(1L, List.of(2L), false);
@@ -751,17 +718,12 @@ class BookFileAttachmentServiceTest {
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(target));
             when(bookRepository.findByIdWithBookFiles(2L)).thenReturn(Optional.of(source));
 
-            Query mockQuery = mock(Query.class);
-            when(entityManager.createQuery(anyString())).thenReturn(mockQuery);
-            when(mockQuery.setParameter(anyString(), any())).thenReturn(mockQuery);
-            when(mockQuery.executeUpdate()).thenReturn(1);
-
             when(bookRepository.findAllById(List.of(2L))).thenReturn(List.of(source));
             setupGetUpdatedBookMocks(1L, target);
 
             service.attachBookFiles(1L, List.of(2L), false);
 
-            verify(entityManager).createQuery(contains("UPDATE BookFileEntity"));
+            verify(bookFileRepository).reassignFilesToBook(eq(1L), anyList());
             verify(bookRepository).deleteAll(List.of(source));
         }
 
@@ -830,11 +792,6 @@ class BookFileAttachmentServiceTest {
             Files.createDirectories(sourceDir);
             Files.createFile(sourceDir.resolve("source.pdf"));
 
-            Query mockQuery = mock(Query.class);
-            when(entityManager.createQuery(anyString())).thenReturn(mockQuery);
-            when(mockQuery.setParameter(anyString(), any())).thenReturn(mockQuery);
-            when(mockQuery.executeUpdate()).thenReturn(1);
-
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(target));
             when(bookRepository.findByIdWithBookFiles(2L)).thenReturn(Optional.of(source));
             setupGetUpdatedBookMocks(1L, target);
@@ -843,7 +800,7 @@ class BookFileAttachmentServiceTest {
 
             assertTrue(Files.exists(sourceDir.resolve("source.pdf")),
                     "Source file should remain at original location");
-            verify(entityManager).createQuery(contains("bf.fileSubPath"));
+            verify(bookFileRepository).reassignFileToBookWithPath(eq(1L), anyString(), eq(20L));
             assertEquals(List.of(2L), result.deletedSourceBookIds());
         }
 
