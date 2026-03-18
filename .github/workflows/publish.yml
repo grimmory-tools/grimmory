@@ -169,11 +169,29 @@ jobs:
           name: booklore-api
           path: booklore-api/build/libs/
 
-      - name: Upload to Release
+      - name: Download Angular Dist
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: booklore-ui
+          path: booklore-ui/dist/booklore/browser/
+
+      - name: Upload Backend to Release
         env:
           APP_VERSION: ${{github.event.release.tag_name}}
           GITHUB_TOKEN: ${{ github.TOKEN }}
         run: |
-          cd booklore-api/build/libs/
-          gh release upload "$APP_VERSION" *.jar       
+          gh release upload "$APP_VERSION" booklore-api/build/libs/*.jar
+        shell: bash
+
+      - name: Upload Frontend to Release
+        env:
+          APP_VERSION: ${{github.event.release.tag_name}}
+          RELEASE_TAG_NAME: ${{github.event.release.tag_name}}
+          GITHUB_TOKEN: ${{ github.TOKEN }}
+        run: |
+          APP_VERSION=${APP_VERSION#v}
+          APP_VERSION=${APP_VERSION:-0.0.0-snasphot}
+
+          tar cf "booklore-ui-${APP_VERSION}.tar" -C booklore-ui/dist/ .
+          gh release upload "${RELEASE_TAG_NAME}" "booklore-ui-${APP_VERSION}.tar"
         shell: bash
