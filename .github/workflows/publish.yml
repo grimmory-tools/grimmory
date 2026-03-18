@@ -134,6 +134,11 @@ jobs:
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
           images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=schedule
+            type=semver,pattern={{version}}
+            type=ref,event=branch
+            type=sha
 
       - name: Build and push Docker image
         id: push
