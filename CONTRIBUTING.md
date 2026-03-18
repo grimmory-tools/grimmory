@@ -1,10 +1,10 @@
-# Contributing to Booklore
+# Contributing to Grimmory
 
-Thanks for your interest in contributing to Booklore! Whether you're fixing bugs, adding features, improving documentation, or asking questions, every contribution helps.
+Thanks for your interest in contributing to Grimmory! Whether you're fixing bugs, adding features, improving documentation, or asking questions, every contribution helps.
 
-## What is Booklore?
+## What is Grimmory?
 
-**Booklore** is a self-hostable digital library platform for managing and reading books and comics.
+**Grimmory** is a self-hostable digital library platform for managing and reading books and comics.
 
 **Tech Stack:**
 
@@ -34,7 +34,7 @@ Thanks for your interest in contributing to Booklore! Whether you're fixing bugs
 
 ## Before You Start
 
-> **Issue first, PR second.** Every pull request must be linked to an approved issue. If you want to work on something, [open an issue](https://github.com/booklore-app/booklore/issues/new) (or find an existing one) and wait for a maintainer to approve it before writing code. PRs submitted without a linked, approved issue will be closed.
+> **Issue first, PR second.** Every pull request must be linked to an approved issue. If you want to work on something, [open an issue](https://github.com/grimmory-tools/grimmory/issues/new) (or find an existing one) and wait for a maintainer to approve it before writing code. PRs submitted without a linked, approved issue will be closed.
 
 This protects both your time and ours. It ensures that the work is actually wanted and that you're heading in the right direction before you invest effort.
 
@@ -50,8 +50,8 @@ This protects both your time and ours. It ensures that the work is actually want
 
 Not sure where to begin? Look for issues labeled:
 
-- [`good first issue`](https://github.com/booklore-app/booklore/labels/good%20first%20issue) - small, well-scoped tasks ideal for newcomers
-- [`help wanted`](https://github.com/booklore-app/booklore/labels/help%20wanted) - tasks where maintainers would appreciate a hand
+- [`good first issue`](https://github.com/grimmory-tools/grimmory/labels/good%20first%20issue) - small, well-scoped tasks ideal for newcomers
+- [`help wanted`](https://github.com/grimmory-tools/grimmory/labels/help%20wanted) - tasks where maintainers would appreciate a hand
 
 ---
 
@@ -59,12 +59,12 @@ Not sure where to begin? Look for issues labeled:
 
 ### Fork and Clone
 
-First, [fork the repository](https://github.com/booklore-app/booklore/fork) on GitHub, then clone your fork locally:
+First, [fork the repository](https://github.com/grimmory-tools/grimmory/fork) on GitHub, then clone your fork locally:
 
 ```bash
-git clone https://github.com/<your-username>/booklore.git
-cd booklore
-git remote add upstream https://github.com/booklore-app/booklore.git
+git clone https://github.com/<your-username>/grimmory.git
+cd grimmory
+git remote add upstream https://github.com/grimmory-tools/grimmory.git
 ```
 
 ### Keep Your Fork in Sync
@@ -87,9 +87,9 @@ git push origin develop
 ### Project Structure
 
 ```
-booklore/
-├── booklore-ui/             # Angular frontend (TypeScript, PrimeNG)
-├── booklore-api/            # Spring Boot backend (Java 25, Gradle)
+grimmory/
+├── grimmory-ui/             # Angular frontend (TypeScript, PrimeNG)
+├── grimmory-api/            # Spring Boot backend (Java 25, Gradle)
 ├── dev.docker-compose.yml   # Development Docker stack
 ├── assets/                  # Shared assets (logos, icons)
 └── local/                   # Local development helpers
@@ -137,9 +137,9 @@ For full control over each component or IDE integration (debugging, hot-reload, 
 Start MariaDB and create the database:
 
 ```sql
-CREATE DATABASE IF NOT EXISTS booklore;
-CREATE USER 'booklore_user'@'localhost' IDENTIFIED BY 'your_password';
-GRANT ALL PRIVILEGES ON booklore.* TO 'booklore_user'@'localhost';
+CREATE DATABASE IF NOT EXISTS grimmory;
+CREATE USER 'grimmory_user'@'localhost' IDENTIFIED BY 'your_password';
+GRANT ALL PRIVILEGES ON grimmory.* TO 'grimmory_user'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
@@ -147,25 +147,25 @@ FLUSH PRIVILEGES;
 
 #### 2. Backend
 
-Create a dev config at `booklore-api/src/main/resources/application-dev.yml`:
+Create a dev config at `grimmory-api/src/main/resources/application-dev.yml`:
 
 ```yaml
 app:
-  path-book: '/path/to/booklore-data/books'
-  path-config: '/path/to/booklore-data/config'
+  path-book: '/path/to/grimmory-data/books'
+  path-config: '/path/to/grimmory-data/config'
 
 spring:
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://localhost:3306/booklore?createDatabaseIfNotExist=true
-    username: booklore_user
+    url: jdbc:mariadb://localhost:3306/grimmory?createDatabaseIfNotExist=true
+    username: grimmory_user
     password: your_password
 ```
 
 Replace the paths with actual directories on your system and ensure they exist with read/write permissions.
 
 ```bash
-cd booklore-api
+cd grimmory-api
 ./gradlew bootRun --args='--spring.profiles.active=dev'
 
 # Verify
@@ -175,7 +175,7 @@ curl http://localhost:8080/actuator/health
 #### 3. Frontend
 
 ```bash
-cd booklore-ui
+cd grimmory-ui
 npm install
 ng serve
 ```
@@ -193,7 +193,7 @@ Always run tests before submitting a pull request.
 **Frontend (Vitest):**
 
 ```bash
-cd booklore-ui
+cd grimmory-ui
 ng test               # Run all tests
 ng test --coverage    # With coverage report (output: coverage/)
 ```
@@ -201,9 +201,9 @@ ng test --coverage    # With coverage report (output: coverage/)
 **Backend (JUnit + Gradle):**
 
 ```bash
-cd booklore-api
+cd grimmory-api
 ./gradlew test                                                        # Run all tests
-./gradlew test --tests "com.booklore.api.service.BookServiceTest"     # Specific class
+./gradlew test --tests "com.grimmory.api.service.BookServiceTest"     # Specific class
 ./gradlew test jacocoTestReport                                       # Coverage report
 ```
 
@@ -274,7 +274,7 @@ Before opening your PR:
 - [ ] PR contains a single logical change (one bug fix OR one feature)
 - [ ] No unrelated refactors, style changes, or "improvements" are bundled in
 - [ ] **PR is reasonably sized.** PRs with 1000+ changed lines will be closed without review. Break large changes into small, focused PRs.
-- [ ] **For user-facing features:** submit a companion docs PR at [booklore-docs](https://github.com/booklore-app/booklore-docs)
+- [ ] **For user-facing features:** submit a companion docs PR at [grimmory-docs](https://github.com/grimmory-tools/grimmory-docs)
 
 > When you open your PR on GitHub, a **PR template** will appear. Fill it out completely, including test output and screenshots.
 
@@ -307,7 +307,7 @@ We've seen a sharp increase in AI-generated PRs where the contributor clearly ne
 - Testing: JUnit 5 + Mockito + AssertJ. `@ExtendWith(MockitoExtension.class)` for unit tests, `@SpringBootTest` only for integration tests.
 - Use modern Java features (records, sealed classes, pattern matching, text blocks, etc.).
 - No fully qualified class names inline. Always use imports.
-- Flyway migrations go in `booklore-api/src/main/resources/db/migration/` with naming `V<number>__<Description>.sql`.
+- Flyway migrations go in `grimmory-api/src/main/resources/db/migration/` with naming `V<number>__<Description>.sql`.
 - Never modify a released migration. Always create a new migration file for changes.
 - Use idempotent guards in migrations (`CREATE TABLE IF NOT EXISTS`, `ADD COLUMN IF NOT EXISTS`, `DROP ... IF EXISTS` before re-creating).
 
@@ -326,13 +326,13 @@ We've seen a sharp increase in AI-generated PRs where the contributor clearly ne
 
 ## Reporting Bugs
 
-1. **Search [existing issues](https://github.com/booklore-app/booklore/issues)** to avoid duplicates.
+1. **Search [existing issues](https://github.com/grimmory-tools/grimmory/issues)** to avoid duplicates.
 2. **Open a new issue** with the `bug` label including:
    - Clear, descriptive title (e.g., "Book import fails with PDF files over 100MB")
    - Steps to reproduce
    - Expected vs. actual behavior
    - Screenshots or error logs (if applicable)
-   - Environment details (OS, browser, Booklore version)
+   - Environment details (OS, browser, Grimmory version)
 
 **Example:**
 
@@ -348,15 +348,15 @@ Steps to Reproduce:
 Expected: Title should persist after refresh
 Actual: Title reverts to original value
 
-Environment: Chrome 120, macOS 14.2, Booklore 1.2.0
+Environment: Chrome 120, macOS 14.2, Grimmory 1.2.0
 ```
 
 ---
 
 ## Community & Support
 
-- **Discord:** [Join the server](https://discord.gg/Ee5hd458Uz) for questions and discussion
-- **GitHub Issues:** [Report bugs or request features](https://github.com/booklore-app/booklore/issues)
+- **Discord:** [Join the server](https://discord.gg/##########) for questions and discussion
+- **GitHub Issues:** [Report bugs or request features](https://github.com/grimmory-tools/grimmory/issues)
 
 ---
 
@@ -381,8 +381,8 @@ Instances of unacceptable behavior may result in temporary or permanent ban from
 
 ## License
 
-Booklore is licensed under the [AGPL-3.0 License](./LICENSE). By contributing, you agree that your contributions will be licensed under the same terms.
+Grimmory is licensed under the [AGPL-3.0 License](./LICENSE). By contributing, you agree that your contributions will be licensed under the same terms.
 
 ---
 
-Thank you for being part of the Booklore community!
+Thank you for being part of the Grimmory community!
