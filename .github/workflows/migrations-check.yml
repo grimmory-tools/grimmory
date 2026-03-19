@@ -42,11 +42,8 @@ jobs:
           head_ref="${{ inputs.head_ref }}"
 
           if [ "$base_ref" = "0000000000000000000000000000000000000000" ]; then
-            if git rev-parse "${head_ref}^" >/dev/null 2>&1; then
-              base_ref="$(git rev-parse "${head_ref}^")"
-            else
-              base_ref="$head_ref"
-            fi
+            echo "base_ref is the all-zero sentinel; callers must supply a real comparison base for migration checks." >&2
+            exit 1
           fi
 
           echo "base_ref=$base_ref" >> "$GITHUB_OUTPUT"
