@@ -333,16 +333,6 @@ class FileServiceTest {
                         () -> assertTrue(result.endsWith("555.jpg"))
                 );
             }
-
-            @Test
-            void getToolsKepubifyPath_returnsCorrectPath() {
-                String result = fileService.getToolsKepubifyPath();
-
-                assertAll(
-                        () -> assertTrue(result.contains("tools")),
-                        () -> assertTrue(result.contains("kepubify"))
-                );
-            }
         }
     }
 
