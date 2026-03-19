@@ -27,12 +27,11 @@ jobs:
       - name: Confirm Preview Ref Is Contained By Main
         run: |
           git fetch origin main --tags --force
-          if ! git branch -r --contains HEAD | grep -q 'origin/main'; then
+          if ! git merge-base --is-ancestor HEAD origin/main; then
             echo "Selected ref is not contained by origin/main"
             exit 1
           fi
           git checkout -B main "$(git rev-parse HEAD)"
-
       - name: Set Up Node.js
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6
         with:
