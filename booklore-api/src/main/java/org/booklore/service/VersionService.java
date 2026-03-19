@@ -21,12 +21,12 @@ public class VersionService {
     @Value("${app.version:unknown}")
     String appVersion;
 
-    private static final String GITHUB_REPO = "booklore-app/booklore";
+    private static final String GITHUB_REPO = "grimmory-tools/grimmory";
     private static final String BASE_URI = "https://api.github.com/repos/" + GITHUB_REPO;
     private static final int MAX_RELEASES = 15;
     private static final RestClient REST_CLIENT = RestClient.builder()
             .defaultHeader("Accept", "application/vnd.github+json")
-            .defaultHeader("User-Agent", "BookLore-Version-Checker")
+            .defaultHeader("User-Agent", "Grimmory-Version-Checker")
             .build();
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -87,7 +87,7 @@ public class VersionService {
                 if (tag == null || !isVersionGreater(tag, currentVersion)) {
                     continue;
                 }
-                String url = "https://github.com/booklore-app/booklore" + "/releases/tag/" + tag;
+                String url = "https://github.com/grimmory-tools/grimmory" + "/releases/tag/" + tag;
                 LocalDateTime published = LocalDateTime.parse(release.path("published_at").asText(), DateTimeFormatter.ISO_DATE_TIME);
                 updates.add(new ReleaseNote(tag, release.path("name").asText(tag), release.path("body").asText(""), url, published));
             }

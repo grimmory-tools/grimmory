@@ -9,9 +9,9 @@ services:
     # image: grimmory/grimmory:latest
     # Or the GHCR image:
     # image: ghcr.io/grimmory-tools/grimmory:v0.38.2
+    # The image already embeds its own release version metadata.
     container_name: grimmory
     environment:
-      - APP_VERSION=v0.38.2
       - USER_ID=1000
       - GROUP_ID=1000
       - TZ=Etc/UTC

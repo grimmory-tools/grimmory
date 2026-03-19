@@ -30,11 +30,19 @@ jobs:
           ref: ${{ inputs.ref }}
 
       - name: Generate Preview Tag
+        env:
+          PR_NUMBER: ${{ inputs.pr_number }}
         run: |
           short_sha=$(git rev-parse --short HEAD)
 
-          if [ -n "${{ inputs.pr_number }}" ]; then
-            preview_tag="pr-${{ inputs.pr_number }}-${short_sha}"
+          if [ -n "$PR_NUMBER" ]; then
+            case "$PR_NUMBER" in
+              (*[!0-9]*)
+                echo "Invalid PR number: $PR_NUMBER"
+                exit 1
+                ;;
+            esac
+            preview_tag="pr-${PR_NUMBER}-${short_sha}"
           else
             preview_tag="preview-${short_sha}"
           fi
@@ -71,6 +79,4 @@ jobs:
           cache-from: |
             type=gha
             type=registry,ref=ghcr.io/grimmory-tools/grimmory:buildcache
-          cache-to: |
-            type=gha,mode=max
-            type=registry,ref=ghcr.io/grimmory-tools/grimmory:buildcache,mode=max
+          cache-to: type=gha,mode=max

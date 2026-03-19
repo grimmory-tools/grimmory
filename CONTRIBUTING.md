@@ -334,7 +334,7 @@ We've seen a sharp increase in AI-generated PRs where the contributor clearly ne
    - Steps to reproduce
    - Expected vs. actual behavior
    - Screenshots or error logs (if applicable)
-   - Environment details (OS, browser, Booklore version)
+   - Environment details (OS, browser, Grimmory version)
 
 **Example:**
 
@@ -350,7 +350,7 @@ Steps to Reproduce:
 Expected: Title should persist after refresh
 Actual: Title reverts to original value
 
-Environment: Chrome 120, macOS 14.2, Booklore 1.2.0
+Environment: Chrome 120, macOS 14.2, Grimmory 1.2.0
 ```
 
 ---
@@ -383,8 +383,8 @@ Instances of unacceptable behavior may result in temporary or permanent ban from
 
 ## License
 
-Booklore is licensed under the [AGPL-3.0 License](./LICENSE). By contributing, you agree that your contributions will be licensed under the same terms.
+Grimmory is licensed under the [AGPL-3.0 License](./LICENSE). By contributing, you agree that your contributions will be licensed under the same terms.
 
 ---
 
-Thank you for being part of the Booklore community!
+Thank you for being part of the Grimmory community!

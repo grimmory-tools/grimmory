@@ -17,7 +17,6 @@ Volume=grimmory-data:/app/data
 
 
 Environment=TZ=Etc/UTC
-Environment=APP_VERSION=v0.38.2
 Secret=grimmory_db_pass,type=env,target=DATABASE_PASSWORD
 Environment=DATABASE_URL=jdbc:mariadb://localhost:3306/grimmory
 Environment=DATABASE_USERNAME=grimmory
@@ -26,3 +25,6 @@ HealthInterval=1m
 HealthRetries=5
 HealthStartPeriod=1m
 HealthTimeout=10s
+
+[Install]
+WantedBy=default.target

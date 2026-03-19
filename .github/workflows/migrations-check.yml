@@ -95,7 +95,7 @@ jobs:
           echo "Applying migrations from base ref (${{ needs.check-for-migrations.outputs.base_ref }})..."
           docker run --network host \
             -v ${{ github.workspace }}:/flyway/sql \
-            flyway/flyway:11.19.0-alpine \
+            flyway/flyway:12.1.1 \
             -url=jdbc:mariadb://127.0.0.1:3306/booklore_test \
             -user=root -password=root \
             -locations=filesystem:/flyway/sql/booklore-api/src/main/resources/db/migration \
@@ -112,7 +112,7 @@ jobs:
           echo "Applying new migrations from head ref (${{ needs.check-for-migrations.outputs.head_ref }})..."
           docker run --network host \
             -v ${{ github.workspace }}:/flyway/sql \
-            flyway/flyway:11.19.0-alpine \
+            flyway/flyway:12.1.1 \
             -url=jdbc:mariadb://127.0.0.1:3306/booklore_test \
             -user=root -password=root \
             -locations=filesystem:/flyway/sql/booklore-api/src/main/resources/db/migration \

@@ -106,11 +106,11 @@ services:
     # Convenience tag:
     # image: grimmory/grimmory:latest
     # Alternative: ghcr.io/grimmory-tools/grimmory:v0.38.2
+    # The image already embeds its own release version metadata.
     # To build from source instead: comment out 'image' and uncomment below
     # build: .
     container_name: grimmory
     environment:
-      - APP_VERSION=v0.38.2
       - USER_ID=${APP_USER_ID}
       - GROUP_ID=${APP_GROUP_ID}
       - TZ=${TZ}

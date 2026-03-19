@@ -53,4 +53,4 @@ To enable OIDC authentication in Grimmory, you need to set the following within 
 
 ### Step 4: Test the Integration
 
-Once configured, simply click Save Settings and then click the Enabled radio button to activate it. Simply log out and log back in and you should be working with no issues! Any issues please raise an issue on the [Github](https://github.com/grimmory-tools/grimmory/issues/new?template=bug_report.yml)
+Once configured, simply click Save Settings and then click the Enabled radio button to activate it. Simply log out and log back in and you should be working with no issues! Any issues please raise an issue on [GitHub](https://github.com/grimmory-tools/grimmory/issues/new?template=bug_report.yml)

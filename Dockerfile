@@ -4,7 +4,7 @@ WORKDIR /workspace/booklore-ui
 
 COPY booklore-ui/package.json booklore-ui/package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm \
-    npm ci --force --no-audit --no-fund
+    npm ci --no-audit --no-fund
 
 COPY booklore-ui/ ./
 RUN npm run build --configuration=production
@@ -36,12 +36,14 @@ RUN set -eux; \
 FROM alpine:3.22 AS unrar-build
 
 ARG UNRAR_VERSION=7.2.4
+ARG UNRAR_SHA256=b02e571a33af7711cd803080500370dc1d28eea82b2032480819d27462ad8b31
 
 RUN apk add --no-cache build-base curl tar
 
 WORKDIR /tmp
 
 RUN curl -fsSL "https://www.rarlab.com/rar/unrarsrc-${UNRAR_VERSION}.tar.gz" -o unrarsrc.tar.gz && \
+    echo "${UNRAR_SHA256}  unrarsrc.tar.gz" | sha256sum -c - && \
     tar -xzf unrarsrc.tar.gz && \
     make -C unrar
 
