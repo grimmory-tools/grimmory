@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: release-main
+  cancel-in-progress: false
+
 jobs:
   migration-check:
     name: Flyway Migration Check
