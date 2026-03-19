@@ -249,6 +249,14 @@ feat(auth)!: migrate to OAuth 2.1
 BREAKING CHANGE: OAuth 2.0 is no longer supported
 ```
 
+PR titles targeting `develop` or `main` must use the same format. Feature work is squash-merged into `develop`, and stable releases are computed from the resulting commit history on `main`.
+
+Release impact is derived from commit type:
+
+- `feat` => minor release
+- `fix`, `perf`, `refactor` => patch release
+- `docs`, `ci`, `build`, `chore`, `test`, `style` => changelog-only unless paired with a release-triggering commit
+
 ### Workflow
 
 1. Create a branch from `develop`
@@ -257,6 +265,8 @@ BREAKING CHANGE: OAuth 2.0 is no longer supported
 4. Update documentation if your changes affect usage
 5. Run the linter and fix any issues
 6. Push to your fork and open a PR targeting `develop`
+
+Maintainers promote cleaned `develop` history to `main` for stable releases. Do not expect a second squash step from `develop` to `main`; release automation depends on preserved conventional commit history.
 
 ---
 

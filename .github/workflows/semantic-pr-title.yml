@@ -1,0 +1,32 @@
+name: CI - Semantic PR Title
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
+
+jobs:
+  validate-pr-title:
+    name: Validate PR Title
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check Conventional PR Title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          regex='^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([A-Za-z0-9._/-]+\))?(!)?: .+$'
+          if ! printf '%s\n' "$PR_TITLE" | grep -Eq "$regex"; then
+            echo "PR titles for develop/main must use Conventional Commit format." >&2
+            echo "Example: refactor(release): adopt semantic-release for stable builds" >&2
+            exit 1
+          fi

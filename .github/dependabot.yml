@@ -38,6 +38,26 @@ updates:
         patterns:
           - "*"
 
+  # Release tooling – npm (semantic-release)
+  - package-ecosystem: "npm"
+    directory: "/tools/release"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+      time: "03:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "ci"
+      - "release"
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      release-tooling:
+        patterns:
+          - "*"
+
   # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
