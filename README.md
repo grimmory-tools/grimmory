@@ -86,7 +86,7 @@ MYSQL_DATABASE=grimmory
 
 ### Step 2: Docker Compose
 
-Stable images are published from semantic-release tags on `main` as `vX.Y.Z` plus `latest`. Nightly images are published as `nightly` from `develop`.
+Stable images are published from semantic-release tags on `main` as `vX.Y.Z` plus `latest`. Nightly images are built from `develop` and tagged `nightly`.
 
 > [!NOTE]
 > Upgrading from an existing Booklore container? Keep your current service name, `container_name`, database name/user, ports, and mounted volumes exactly as they are and replace only the `image:` line with `grimmory/grimmory:<tag>` or `ghcr.io/grimmory-tools/grimmory:<tag>`.
