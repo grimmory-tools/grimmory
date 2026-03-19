@@ -2,7 +2,7 @@
 > This project is in early development. Some links (website, documentation, demo, repositories) are not yet active and will come online as infrastructure is set up.
 
 > [!NOTE]
-> Grimmory is the successor of the original project.
+> Grimmory is the successor of booklore.
 
 
 Grimmory is a self-hosted application for managing your entire book collection in one place.
@@ -102,11 +102,10 @@ Create a `docker-compose.yml` or copy and adapt [`deploy/compose/docker-compose.
 ```yaml
 services:
   grimmory:
-    image: grimmory/grimmory:v0.38.2
+    image: grimmory/grimmory:latest
     # Convenience tag:
-    # image: grimmory/grimmory:latest
-    # Alternative: ghcr.io/grimmory-tools/grimmory:v0.38.2
-    # The image already embeds its own release version metadata.
+    # image: grimmory/grimmory:<release-version>
+    # Alternative: ghcr.io/grimmory-tools/grimmory:<release-version>
     # To build from source instead: comment out 'image' and uncomment below
     # build: .
     container_name: grimmory
