@@ -4,15 +4,15 @@ on:
   workflow_call:
     inputs:
       checkout_ref:
-        description: 'The ref to check out before diffing migrations'
+        description: "The ref to check out before diffing migrations"
         required: true
         type: string
       base_ref:
-        description: 'The base ref for comparison'
+        description: "The base ref for comparison"
         required: true
         type: string
       head_ref:
-        description: 'The head ref for comparison'
+        description: "The head ref for comparison"
         required: true
         type: string
     outputs:
@@ -66,7 +66,7 @@ jobs:
 
   flyway-migration-preview:
     name: Flyway DB Migration Preview
-    needs: [ check-for-migrations ]
+    needs: [check-for-migrations]
     if: needs.check-for-migrations.outputs.has_migrations == 'true'
     runs-on: ubuntu-latest
     services:
@@ -95,7 +95,7 @@ jobs:
           echo "Applying migrations from base ref (${{ needs.check-for-migrations.outputs.base_ref }})..."
           docker run --network host \
             -v ${{ github.workspace }}:/flyway/sql \
-            flyway/flyway:12.1.1 \
+            flyway/flyway:12.1.0 \
             -url=jdbc:mariadb://127.0.0.1:3306/booklore_test \
             -user=root -password=root \
             -locations=filesystem:/flyway/sql/booklore-api/src/main/resources/db/migration \
@@ -112,7 +112,7 @@ jobs:
           echo "Applying new migrations from head ref (${{ needs.check-for-migrations.outputs.head_ref }})..."
           docker run --network host \
             -v ${{ github.workspace }}:/flyway/sql \
-            flyway/flyway:12.1.1 \
+            flyway/flyway:12.1.0 \
             -url=jdbc:mariadb://127.0.0.1:3306/booklore_test \
             -user=root -password=root \
             -locations=filesystem:/flyway/sql/booklore-api/src/main/resources/db/migration \
