@@ -36,9 +36,10 @@ Organize, read, annotate, sync across devices, and share without relying on thir
 
 | Category | Formats |
 | :--- | :--- |
-| eBooks | EPUB, MOBI, AZW, AZW3 |
+| eBooks | EPUB, MOBI, AZW, AZW3, FB2 |
 | Documents | PDF |
 | Comics | CBZ, CBR, CB7 |
+| Audiobooks | M4B, M4A, MP3, OPUS |
 
 ---
 
