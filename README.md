@@ -2,7 +2,7 @@
 > This project is in early development. Some links (website, documentation, demo, repositories) are not yet active and will come online as infrastructure is set up.
 
 > [!NOTE]
-> Grimmory is the successor of booklore.
+> Grimmory is the successor of the original project.
 
 
 Grimmory is a self-hosted application for managing your entire book collection in one place.
@@ -86,17 +86,31 @@ MYSQL_DATABASE=grimmory
 
 ### Step 2: Docker Compose
 
-Create a `docker-compose.yml`:
+Stable images are published as `vX.Y.Z` plus `latest` from `main`. Nightly images are published as `nightly` from `develop`.
+
+> [!NOTE]
+> Upgrading from an existing Booklore container? Keep your current service name, `container_name`, database name/user, ports, and mounted volumes exactly as they are and replace only the `image:` line with `grimmory/grimmory:<tag>` or `ghcr.io/grimmory-tools/grimmory:<tag>`.
+
+```yaml
+services:
+  booklore:
+    image: grimmory/grimmory:v0.38.2
+```
+
+Create a `docker-compose.yml` or copy and adapt [`deploy/compose/docker-compose.yml`](deploy/compose/docker-compose.yml):
 
 ```yaml
 services:
   grimmory:
-    image: grimmory/grimmory:latest
-    # Alternative: ghcr.io/grimmory-tools/grimmory:latest
+    image: grimmory/grimmory:v0.38.2
+    # Convenience tag:
+    # image: grimmory/grimmory:latest
+    # Alternative: ghcr.io/grimmory-tools/grimmory:v0.38.2
     # To build from source instead: comment out 'image' and uncomment below
     # build: .
     container_name: grimmory
     environment:
+      - APP_VERSION=v0.38.2
       - USER_ID=${APP_USER_ID}
       - GROUP_ID=${APP_GROUP_ID}
       - TZ=${TZ}
@@ -148,6 +162,12 @@ docker compose up -d
 ```
 
 Open http://localhost:6060, create your admin account, and start building your library.
+
+Additional deployment examples:
+
+- Docker Compose: [`deploy/compose/docker-compose.yml`](deploy/compose/docker-compose.yml)
+- Helm: [`deploy/helm/grimmory/Chart.yaml`](deploy/helm/grimmory/Chart.yaml)
+- Podman Quadlet: [`deploy/podman/quadlet/README.md`](deploy/podman/quadlet/README.md)
 
 ---
 

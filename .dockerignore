@@ -1,15 +1,14 @@
-.git
-.github
-.idea
-.vscode
-.angular
+**
+!Dockerfile
+!.dockerignore
+!booklore-api/**
+!booklore-ui/**
+!packaging/docker/**
 
 booklore-ui/node_modules
 booklore-ui/dist
 booklore-ui/.angular
 booklore-ui/test-results
 
-booklore-api/build/reports
-booklore-api/build/test-results
-
-*.md
+booklore-api/build
+booklore-api/.gradle

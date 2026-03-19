@@ -66,7 +66,7 @@ template: |
 
   ## 🐳 Docker Images
 
-  - **Docker Hub:** `booklore/booklore:v$RESOLVED_VERSION`
-  - **GitHub Container Registry:** `ghcr.io/booklore-app/booklore:v$RESOLVED_VERSION`
+  - **Docker Hub:** `grimmory/grimmory:v$RESOLVED_VERSION`
+  - **GitHub Container Registry:** `ghcr.io/grimmory-tools/grimmory:v$RESOLVED_VERSION`
 
-  **Full Changelog**: https://github.com/booklore-app/booklore/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION
+  **Full Changelog**: https://github.com/grimmory-tools/grimmory/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION
