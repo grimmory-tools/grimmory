@@ -1,12 +1,9 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, computed, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
-import {BehaviorSubject, EMPTY, Observable, Subject} from 'rxjs';
-import {catchError, filter, first, takeUntil} from 'rxjs/operators';
 import {ChartConfiguration, ChartData} from 'chart.js';
 import {Tooltip} from 'primeng/tooltip';
 import {BookService} from '../../../../../book/service/book.service';
-import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book, ReadStatus} from '../../../../../book/model/book.model';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
@@ -37,10 +34,16 @@ type ReadingDNAChartData = ChartData<'radar', number[], string>;
   templateUrl: './reading-dna-chart.component.html',
   styleUrls: ['./reading-dna-chart.component.scss']
 })
-export class ReadingDNAChartComponent implements OnInit, OnDestroy {
+export class ReadingDNAChartComponent {
   private readonly bookService = inject(BookService);
   private readonly t = inject(TranslocoService);
-  private readonly destroy$ = new Subject<void>();
+  private readonly profile = computed(() => {
+    if (this.bookService.isBooksLoading()) {
+      return null;
+    }
+
+    return this.calculateReadingDNAData(this.bookService.books());
+  });
 
   public readonly chartType = 'radar' as const;
 
@@ -111,7 +114,7 @@ export class ReadingDNAChartComponent implements OnInit, OnDestroy {
           },
           label: (context) => {
             const score = context.parsed.r;
-            const insight = this.personalityInsights.find(i => i.trait === context.label);
+            const insight = this.personalityInsights().find(i => i.trait === context.label);
 
             return [
               this.t.translate('statsUser.readingDna.tooltipScore', {score}),
@@ -141,42 +144,10 @@ export class ReadingDNAChartComponent implements OnInit, OnDestroy {
   };
 
   private readonly traitKeys = ['adventurous', 'perfectionist', 'intellectual', 'emotional', 'patient', 'social', 'nostalgic', 'ambitious'];
-
-  private readonly chartDataSubject = new BehaviorSubject<ReadingDNAChartData>({
-    labels: [],
-    datasets: []
-  });
-
-  public readonly chartData$: Observable<ReadingDNAChartData> = this.chartDataSubject.asObservable();
-  public personalityInsights: PersonalityInsight[] = [];
-
-  ngOnInit(): void {
-    this.bookService.bookState$
-      .pipe(
-        filter(state => state.loaded),
-        first(),
-        catchError((error) => {
-          console.error('Error processing reading DNA data:', error);
-          return EMPTY;
-        }),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(() => {
-        const profile = this.calculateReadingDNAData();
-        this.updateChartData(profile);
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  private updateChartData(profile: ReadingDNAProfile | null): void {
+  public readonly chartData = computed<ReadingDNAChartData>(() => {
+    const profile = this.profile();
     if (!profile) {
-      this.chartDataSubject.next({labels: [], datasets: []});
-      this.personalityInsights = [];
-      return;
+      return {labels: [], datasets: []};
     }
 
     const data = [
@@ -197,7 +168,7 @@ export class ReadingDNAChartComponent implements OnInit, OnDestroy {
 
     const translatedLabels = this.traitKeys.map(k => this.t.translate(`statsUser.readingDna.traits.${k}`));
 
-    this.chartDataSubject.next({
+    return {
       labels: translatedLabels,
       datasets: [{
         label: this.t.translate('statsUser.readingDna.readingDnaProfile'),
@@ -212,31 +183,19 @@ export class ReadingDNAChartComponent implements OnInit, OnDestroy {
         pointHoverRadius: 8,
         fill: true
       }]
-    });
+    };
+  });
+  public readonly personalityInsights = computed(() => {
+    const profile = this.profile();
+    return profile ? this.buildPersonalityInsights(profile) : [];
+  });
 
-    this.personalityInsights = this.buildPersonalityInsights(profile);
-  }
-
-  private calculateReadingDNAData(): ReadingDNAProfile | null {
-    const currentState = this.bookService.getCurrentBookState();
-
-    if (!this.isValidBookState(currentState)) {
+  private calculateReadingDNAData(books: Book[]): ReadingDNAProfile | null {
+    if (books.length === 0) {
       return null;
     }
 
-    return this.analyzeReadingDNA(currentState.books!);
-  }
-
-  private isValidBookState(state: unknown): state is BookState {
-    return (
-      typeof state === 'object' &&
-      state !== null &&
-      'loaded' in state &&
-      typeof (state as { loaded: boolean }).loaded === 'boolean' &&
-      'books' in state &&
-      Array.isArray((state as { books: unknown }).books) &&
-      (state as { books: Book[] }).books.length > 0
-    );
+    return this.analyzeReadingDNA(books);
   }
 
   private analyzeReadingDNA(books: Book[]): ReadingDNAProfile | null {

@@ -1,18 +1,15 @@
-import {Component, DestroyRef, inject, OnInit, ViewChild} from '@angular/core';
+import {Component, computed, effect, inject, OnInit, signal, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
 import {FetchedProposal, MetadataTaskService} from '../../../book/service/metadata-task';
 import {BookService} from '../../../book/service/book.service';
 import {Book} from '../../../book/model/book.model';
-import {BehaviorSubject, Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
 import {ProgressSpinner} from 'primeng/progressspinner';
 import {Button} from 'primeng/button';
 import {Divider} from 'primeng/divider';
 import {ProgressBar} from 'primeng/progressbar';
 import {Tooltip} from 'primeng/tooltip';
 import {MetadataProgressService} from '../../../../shared/service/metadata-progress.service';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MetadataPickerComponent} from '../book-metadata-center/metadata-picker/metadata-picker.component';
 
 @Component({
@@ -32,23 +29,31 @@ export class MetadataReviewDialogComponent implements OnInit {
   private metadataTaskService = inject(MetadataTaskService);
   private bookService = inject(BookService);
   private progressService = inject(MetadataProgressService);
-  private destroyRef = inject(DestroyRef);
 
-  proposals: FetchedProposal[] = [];
-  currentBooks: Record<number, Book> = {};
   loading = true;
-  currentIndex = 0;
-  private initialized = false;
+  readonly proposals = signal<FetchedProposal[]>([]);
+  readonly currentIndex = signal(0);
+  readonly currentBook = computed<Book | null>(() => {
+    const proposal = this.proposals()[this.currentIndex()];
+    if (!proposal) {
+      return null;
+    }
 
-  private currentIndexSubject = new BehaviorSubject<number>(0);
+    return this.bookService.findBookById(proposal.bookId) ?? null;
+  });
 
-  book$: Observable<Book | null> = this.currentIndexSubject.pipe(
-    map(idx => {
-      const proposal = this.proposals[idx];
-      if (!proposal) return null;
-      return this.currentBooks[proposal.bookId] ?? null;
-    })
-  );
+  constructor() {
+    effect(() => {
+      const proposals = this.proposals();
+      if (proposals.length === 0) {
+        return;
+      }
+
+      const bookIds = new Set(proposals.map(proposal => proposal.bookId));
+      const matchedBooks = this.bookService.books().filter(book => bookIds.has(book.id));
+      this.loading = matchedBooks.length !== bookIds.size;
+    });
+  }
 
   ngOnInit() {
     const taskId = this.config.data?.taskId;
@@ -59,29 +64,8 @@ export class MetadataReviewDialogComponent implements OnInit {
 
     this.metadataTaskService.getTaskWithProposals(taskId).subscribe({
       next: (task) => {
-        this.proposals = task.proposals || [];
-        const bookIds = new Set(this.proposals.map(p => p.bookId));
-
-        this.bookService.bookState$
-          .pipe(
-            map(bookState => bookState.books?.filter(book => bookIds.has(book.id)) ?? []),
-            takeUntilDestroyed(this.destroyRef)
-          )
-          .subscribe((matchedBooks) => {
-
-            if (!this.initialized && matchedBooks.length === bookIds.size) {
-              this.currentBooks = matchedBooks.reduce((map, book) => {
-                map[book.id] = book;
-                return map;
-              }, {} as Record<number, Book>);
-              this.loading = false;
-              this.currentIndex = 0;
-              this.currentIndexSubject.next(0);
-              this.initialized = true;
-            } else if (!this.initialized) {
-              this.loading = true;
-            }
-          });
+        this.proposals.set(task.proposals || []);
+        this.currentIndex.set(0);
       },
       error: () => {
         this.dialogRef.close();
@@ -90,10 +74,10 @@ export class MetadataReviewDialogComponent implements OnInit {
   }
 
   get currentProposal(): FetchedProposal | null {
-    return this.proposals[this.currentIndex] ?? null;
+    return this.proposals()[this.currentIndex()] ?? null;
   }
 
-  onSave(updatedFields: Partial<FetchedProposal>): void {
+  onSave(): void {
     const currentProposal = this.currentProposal;
     if (!currentProposal) return;
     this.pickerComponent.onSave();
@@ -109,12 +93,11 @@ export class MetadataReviewDialogComponent implements OnInit {
   }
 
   onNext(): void {
-    const nextIndex = this.currentIndex + 1;
-    if (nextIndex >= this.proposals.length) {
+    const nextIndex = this.currentIndex() + 1;
+    if (nextIndex >= this.proposals().length) {
       this.dialogRef.close();
     } else {
-      this.currentIndex = nextIndex;
-      this.currentIndexSubject.next(nextIndex);
+      this.currentIndex.set(nextIndex);
     }
   }
 
@@ -127,7 +110,7 @@ export class MetadataReviewDialogComponent implements OnInit {
   }
 
   get isLast(): boolean {
-    return this.currentIndex === this.proposals.length - 1;
+    return this.currentIndex() === this.proposals().length - 1;
   }
 
   close(): void {

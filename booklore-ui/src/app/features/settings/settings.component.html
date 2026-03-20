@@ -1,6 +1,6 @@
 <ng-container *transloco="let t; prefix: 'settings.tabs'">
-  @if (userService.userState$ | async; as userState) {
-    @if (userState.user) {
+  @if (userService.currentUser(); as currentUser) {
+    @if (currentUser) {
       <div class="settings-container">
         <p-tabs [(value)]="activeTab" lazy scrollable>
           <p-tablist>
@@ -10,7 +10,7 @@
             <p-tab [value]="SettingsTab.ViewPreferences">
               <i class="pi pi-desktop"></i> {{ t('view') }}
             </p-tab>
-            @if (userState.user.permissions.admin || userState.user.permissions.canManageMetadataConfig) {
+            @if (currentUser.permissions.admin || currentUser.permissions.canManageMetadataConfig) {
               <p-tab [value]="SettingsTab.MetadataSettings">
                 <i class="pi pi-sliders-h"></i> {{ t('metadata1') }}
               </p-tab>
@@ -18,12 +18,12 @@
                 <i class="pi pi-database"></i> {{ t('metadata2') }}
               </p-tab>
             }
-            @if (userState.user.permissions.admin || userState.user.permissions.canManageGlobalPreferences) {
+            @if (currentUser.permissions.admin || currentUser.permissions.canManageGlobalPreferences) {
               <p-tab [value]="SettingsTab.ApplicationSettings">
                 <i class="pi pi-cog"></i> {{ t('application') }}
               </p-tab>
             }
-            @if (userState.user.permissions.admin) {
+            @if (currentUser.permissions.admin) {
               <p-tab [value]="SettingsTab.UserManagement">
                 <i class="pi pi-users"></i> {{ t('users') }}
               </p-tab>
@@ -31,22 +31,22 @@
             <p-tab [value]="SettingsTab.EmailSettingsV2">
               <i class="pi pi-envelope"></i> {{ t('email') }}
             </p-tab>
-            @if (userState.user.permissions.admin || userState.user.permissions.canManageMetadataConfig) {
+            @if (currentUser.permissions.admin || currentUser.permissions.canManageMetadataConfig) {
               <p-tab [value]="SettingsTab.NamingPattern">
                 <i class="pi pi-sitemap"></i> {{ t('patterns') }}
               </p-tab>
             }
-            @if (userState.user.permissions.admin) {
+            @if (currentUser.permissions.admin) {
               <p-tab [value]="SettingsTab.AuthenticationSettings">
                 <i class="pi pi-lock"></i> {{ t('authentication') }}
               </p-tab>
             }
-            @if (userState.user.permissions.admin || userState.user.permissions.canAccessTaskManager) {
+            @if (currentUser.permissions.admin || currentUser.permissions.canAccessTaskManager) {
               <p-tab [value]="SettingsTab.Tasks">
                 <i class="pi pi-list-check"></i> {{ t('tasks') }}
               </p-tab>
             }
-            @if (userState.user.permissions.admin) {
+            @if (currentUser.permissions.admin) {
               <p-tab [value]="SettingsTab.AuditLogs">
                 <i class="pi pi-history"></i> {{ t('auditLogs') }}
               </p-tab>
@@ -69,7 +69,7 @@
                 <app-view-preferences-parent></app-view-preferences-parent>
               </ng-template>
             </p-tabpanel>
-            @if (userState.user.permissions.admin || userState.user.permissions.canManageMetadataConfig) {
+            @if (currentUser.permissions.admin || currentUser.permissions.canManageMetadataConfig) {
               <p-tabpanel [value]="SettingsTab.MetadataSettings">
                 <ng-template #content>
                   <app-metadata-settings-component></app-metadata-settings-component>
@@ -81,14 +81,14 @@
                 </ng-template>
               </p-tabpanel>
             }
-            @if (userState.user.permissions.admin || userState.user.permissions.canManageGlobalPreferences) {
+            @if (currentUser.permissions.admin || currentUser.permissions.canManageGlobalPreferences) {
               <p-tabpanel [value]="SettingsTab.ApplicationSettings">
                 <ng-template #content>
                   <app-global-preferences></app-global-preferences>
                 </ng-template>
               </p-tabpanel>
             }
-            @if (userState.user.permissions.admin) {
+            @if (currentUser.permissions.admin) {
               <p-tabpanel [value]="SettingsTab.UserManagement">
                 <ng-template #content>
                   <app-user-management></app-user-management>
@@ -100,28 +100,28 @@
                 <app-email-v2></app-email-v2>
               </ng-template>
             </p-tabpanel>
-            @if (userState.user.permissions.admin || userState.user.permissions.canManageMetadataConfig) {
+            @if (currentUser.permissions.admin || currentUser.permissions.canManageMetadataConfig) {
               <p-tabpanel [value]="SettingsTab.NamingPattern">
                 <ng-template #content>
                   <app-file-naming-pattern></app-file-naming-pattern>
                 </ng-template>
               </p-tabpanel>
             }
-            @if (userState.user.permissions.admin) {
+            @if (currentUser.permissions.admin) {
               <p-tabpanel [value]="SettingsTab.AuthenticationSettings">
                 <ng-template #content>
                   <app-authentication-settings></app-authentication-settings>
                 </ng-template>
               </p-tabpanel>
             }
-            @if (userState.user.permissions.admin || userState.user.permissions.canAccessTaskManager) {
+            @if (currentUser.permissions.admin || currentUser.permissions.canAccessTaskManager) {
               <p-tabpanel [value]="SettingsTab.Tasks">
                 <ng-template #content>
                   <app-task-management></app-task-management>
                 </ng-template>
               </p-tabpanel>
             }
-            @if (userState.user.permissions.admin) {
+            @if (currentUser.permissions.admin) {
               <p-tabpanel [value]="SettingsTab.AuditLogs">
                 <ng-template #content>
                   <app-audit-logs></app-audit-logs>

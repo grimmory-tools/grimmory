@@ -1,6 +1,6 @@
-import {Component, CUSTOM_ELEMENTS_SCHEMA, HostListener, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, CUSTOM_ELEMENTS_SCHEMA, effect, HostListener, inject, OnDestroy, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {Observable, of, Subject, throwError} from 'rxjs';
+import {from, Observable, of, Subject, throwError} from 'rxjs';
 import {catchError, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {MessageService} from 'primeng/api';
 import {ReaderLoaderService} from './core/loader.service';
@@ -29,7 +29,7 @@ import {ReaderBookMetadataDialogComponent} from './dialogs/metadata-dialog.compo
 import {ReaderHeaderFooterVisibilityManager} from './shared/visibility.util';
 import {EpubCustomFontService} from './features/fonts/custom-font.service';
 import {TextSelectionAction, TextSelectionPopupComponent} from './shared/selection-popup.component';
-import {NoteDialogData, NoteDialogResult, ReaderNoteDialogComponent} from './dialogs/note-dialog.component';
+import {NoteDialogResult, ReaderNoteDialogComponent} from './dialogs/note-dialog.component';
 import {EbookShortcutsHelpComponent} from './dialogs/shortcuts-help.component';
 import {TranslocoPipe} from '@jsverse/transloco';
 
@@ -101,22 +101,32 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
   showQuickSettings = false;
   showControls = false;
   showMetadata = false;
-  isCurrentCfiBookmarked = false;
   forceNavbarVisible = false;
   headerVisible = false;
   book: Book | null = null;
   sectionFractions: number[] = [];
-
-  showSelectionPopup = false;
-  popupPosition = {x: 0, y: 0};
-  showPopupBelow = false;
-  overlappingAnnotationId: number | null = null;
-  selectedText = '';
-
-  showNoteDialog = false;
-  noteDialogData: NoteDialogData | null = null;
   isFullscreen = false;
   showShortcutsHelp = false;
+
+  readonly readerState = this.stateService.state;
+  readonly selectionState = this.selectionService.state;
+  readonly noteDialogState = this.noteService.dialogState;
+  readonly isCurrentCfiBookmarked = this.headerService.isCurrentCfiBookmarked;
+
+  constructor() {
+    effect(() => {
+      this.stateService.state();
+      this.applyStyles();
+    });
+
+    effect(
+      () => {
+        this.sidebarService.bookmarks();
+        this.updateBookmarkIndicator();
+      },
+      {allowSignalWrites: true}
+    );
+  }
 
   get currentProgressData(): any {
     return this.progressService.currentProgressData;
@@ -130,26 +140,9 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
       this.forceNavbarVisible = state.footerVisible;
     });
 
-    this.selectionService.state$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(state => {
-        this.showSelectionPopup = state.visible;
-        this.popupPosition = state.position;
-        this.showPopupBelow = state.showBelow;
-        this.overlappingAnnotationId = state.overlappingAnnotationId;
-        this.selectedText = state.selectedText;
-      });
-
     this.sidebarService.showMetadata$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.showMetadata = true);
-
-    this.noteService.dialogState$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(state => {
-        this.showNoteDialog = state.visible;
-        this.noteDialogData = state.data;
-      });
 
     this.headerService.showControls$
       .pipe(takeUntil(this.destroy$))
@@ -174,7 +167,6 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
       switchMap(() => this.setupView()),
       tap(() => {
         this.subscribeToViewEvents();
-        this.subscribeToStateChanges();
       }),
       switchMap(() => this.loadBookFromAPI()),
       tap(() => this.isLoading = false),
@@ -226,12 +218,15 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
     this.bookId = +this.route.snapshot.paramMap.get('bookId')!;
     this.altBookType = this.route.snapshot.queryParamMap.get('bookType') ?? undefined;
 
-    return this.bookService.getBookByIdFromAPI(this.bookId, false).pipe(
+    return from(this.bookService.ensureBookDetail(this.bookId, false)).pipe(
       switchMap((book) => {
         this.book = book;
 
         // Use alternative bookType from query param if provided, otherwise use primary
-        const bookType = (this.altBookType as BookType) ?? book.primaryFile?.bookType!;
+        const bookType = (this.altBookType as BookType | undefined) ?? book.primaryFile?.bookType;
+        if (!bookType) {
+          return throwError(() => new Error('Book type not found'));
+        }
 
         // Determine which file ID to use for progress tracking
         let bookFileId: number | undefined;
@@ -251,7 +246,7 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
       switchMap(({book, bookType, bookFileId}) => {
         this.progressService.initialize(this.bookId, bookType, bookFileId);
         this.selectionService.initialize(this.bookId, this.destroy$);
-        this.headerService.initialize(this.bookId, book.metadata?.title || '', this.destroy$);
+        this.headerService.initialize(this.bookId, book.metadata?.title || '');
 
         // Use streaming for EPUB if query param is set, blob loading otherwise (default)
         const useStreaming = this.route.snapshot.queryParamMap.get('streaming') === 'true';
@@ -294,12 +289,6 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
         return this.viewManager.loadEpub(fileUrl);
       })
     );
-  }
-
-  private subscribeToStateChanges(): void {
-    this.stateService.state$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.applyStyles());
   }
 
   private subscribeToViewEvents(): void {
@@ -358,7 +347,7 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
           case 'escape-pressed':
             if (this.showShortcutsHelp) {
               this.showShortcutsHelp = false;
-            } else if (this.showNoteDialog) {
+            } else if (this.noteDialogState().visible) {
               this.noteService.closeDialog();
             } else if (this.showControls) {
               this.showControls = false;
@@ -380,22 +369,19 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
 
   private updateBookmarkIndicator(): void {
     const currentCfi = this.progressService.currentCfi;
-    this.sidebarService.bookmarks$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(bookmarks => {
-        this.isCurrentCfiBookmarked = currentCfi
-          ? bookmarks.some(b => b.cfi === currentCfi)
-          : false;
-        this.headerService.setCurrentCfiBookmarked(this.isCurrentCfiBookmarked);
-      });
+    const isBookmarked = currentCfi
+      ? this.sidebarService.bookmarks().some(bookmark => bookmark.cfi === currentCfi)
+      : false;
+    this.headerService.setCurrentCfiBookmarked(isBookmarked);
   }
 
   private applyStyles(): void {
     const renderer = this.viewManager.getRenderer();
     if (renderer) {
-      this.styleService.applyStylesToRenderer(renderer, this.stateService.currentState);
-      if (this.stateService.currentState.flow) {
-        renderer.setAttribute?.('flow', this.stateService.currentState.flow);
+      const state = this.stateService.state();
+      this.styleService.applyStylesToRenderer(renderer, state);
+      if (state.flow) {
+        renderer.setAttribute?.('flow', state.flow);
       }
     }
   }

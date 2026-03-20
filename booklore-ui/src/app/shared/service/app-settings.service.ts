@@ -1,9 +1,12 @@
-import {inject, Injectable} from '@angular/core';
+import {computed, effect, inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {BehaviorSubject, Observable, of} from 'rxjs';
-import {catchError, finalize, map, shareReplay, switchMap, tap} from 'rxjs/operators';
+import {lastValueFrom, Observable, of} from 'rxjs';
+import {catchError, map, switchMap} from 'rxjs/operators';
 import {API_CONFIG} from '../../core/config/api-config';
 import {AppSettings, OidcProviderDetails, OidcTestResult} from '../model/app-settings.model';
+import {AuthService} from './auth.service';
+import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
+import {APP_SETTINGS_QUERY_KEY, PUBLIC_SETTINGS_QUERY_KEY} from './app-settings-query-keys';
 
 export interface PublicAppSettings {
   oidcEnabled: boolean;
@@ -15,66 +18,54 @@ export interface PublicAppSettings {
 @Injectable({providedIn: 'root'})
 export class AppSettingsService {
   private http = inject(HttpClient);
+  private queryClient = inject(QueryClient);
+  private authService = inject(AuthService);
+  private readonly token = this.authService.token;
 
   private readonly apiUrl = `${API_CONFIG.BASE_URL}/api/v1/settings`;
   private readonly publicApiUrl = `${API_CONFIG.BASE_URL}/api/v1/public-settings`;
 
-  private loading$: Observable<AppSettings> | null = null;
-  private appSettingsSubject = new BehaviorSubject<AppSettings | null>(null);
+  private publicSettingsQuery = injectQuery(() => ({
+    ...this.getPublicSettingsQueryOptions(),
+  }));
 
-  appSettings$ = this.appSettingsSubject.asObservable().pipe(
-    tap(state => {
-      if (!state && !this.loading$) {
-        this.loading$ = this.fetchAppSettings().pipe(
-          shareReplay(1),
-          finalize(() => (this.loading$ = null))
-        );
-        this.loading$.subscribe();
+  private appSettingsQuery = injectQuery(() => ({
+    ...this.getAppSettingsQueryOptions(),
+    enabled: !!this.token(),
+  }));
+
+  appSettings = computed(() => this.appSettingsQuery.data() ?? null);
+  publicAppSettings = computed(() => this.publicSettingsQuery.data() ?? null);
+
+  constructor() {
+    effect(() => {
+      const token = this.token();
+      if (token === null) {
+        this.queryClient.removeQueries({queryKey: APP_SETTINGS_QUERY_KEY});
       }
-    })
-  );
+    });
 
-  private publicLoading$: Observable<PublicAppSettings> | null = null;
-  private publicAppSettingsSubject = new BehaviorSubject<PublicAppSettings | null>(null);
-
-  publicAppSettings$ = this.publicAppSettingsSubject.asObservable().pipe(
-    tap(state => {
-      if (!state && !this.publicLoading$) {
-        this.publicLoading$ = this.fetchPublicSettings().pipe(
-          shareReplay(1),
-          finalize(() => (this.publicLoading$ = null))
-        );
-        this.publicLoading$.subscribe();
-      }
-    })
-  );
-
-  get currentPublicSettings(): PublicAppSettings | null {
-    return this.publicAppSettingsSubject.value;
-  }
-
-  private fetchAppSettings(): Observable<AppSettings> {
-    return this.http.get<AppSettings>(this.apiUrl).pipe(
-      tap(settings => {
-        this.appSettingsSubject.next(settings);
+    // When authenticated settings load, keep public settings cache in sync
+    effect(() => {
+      const settings = this.appSettings();
+      if (settings) {
         this.syncPublicSettings(settings);
-      }),
-      catchError(err => {
-        console.error('Error loading app settings:', err);
-        this.appSettingsSubject.next(null);
-        throw err;
-      })
-    );
+      }
+    });
   }
 
-  private fetchPublicSettings(): Observable<PublicAppSettings> {
-    return this.http.get<PublicAppSettings>(this.publicApiUrl).pipe(
-      tap(settings => this.publicAppSettingsSubject.next(settings)),
-      catchError(err => {
-        console.error('Failed to fetch public settings', err);
-        throw err;
-      })
-    );
+  getPublicSettingsQueryOptions() {
+    return queryOptions({
+      queryKey: PUBLIC_SETTINGS_QUERY_KEY,
+      queryFn: () => lastValueFrom(this.http.get<PublicAppSettings>(this.publicApiUrl))
+    });
+  }
+
+  private getAppSettingsQueryOptions() {
+    return queryOptions({
+      queryKey: APP_SETTINGS_QUERY_KEY,
+      queryFn: () => lastValueFrom(this.http.get<AppSettings>(this.apiUrl))
+    });
   }
 
   testOidcConnection(providerDetails: OidcProviderDetails): Observable<OidcTestResult> {
@@ -88,7 +79,7 @@ export class AppSettingsService {
       oidcProviderDetails: appSettings.oidcProviderDetails,
       oidcForceOnlyMode: appSettings.oidcForceOnlyMode
     };
-    const current = this.publicAppSettingsSubject.value;
+    const current = this.publicAppSettings();
 
     if (
       !current ||
@@ -97,7 +88,7 @@ export class AppSettingsService {
       current.oidcForceOnlyMode !== updatedPublicSettings.oidcForceOnlyMode ||
       JSON.stringify(current.oidcProviderDetails) !== JSON.stringify(updatedPublicSettings.oidcProviderDetails)
     ) {
-      this.publicAppSettingsSubject.next(updatedPublicSettings);
+      this.queryClient.setQueryData(PUBLIC_SETTINGS_QUERY_KEY, updatedPublicSettings);
     }
   }
 
@@ -108,7 +99,10 @@ export class AppSettingsService {
     }));
 
     return this.http.put<void>(this.apiUrl, payload).pipe(
-      switchMap(() => this.fetchAppSettings()),
+      switchMap(() => {
+        void this.queryClient.invalidateQueries({queryKey: APP_SETTINGS_QUERY_KEY});
+        return of(void 0);
+      }),
       map(() => void 0),
       catchError(err => {
         console.error('Error saving settings:', err);
@@ -120,12 +114,12 @@ export class AppSettingsService {
   toggleOidcEnabled(enabled: boolean): Observable<void> {
     const payload = [{name: 'OIDC_ENABLED', value: enabled}];
     return this.http.put<void>(this.apiUrl, payload).pipe(
-      tap(() => {
-        const current = this.appSettingsSubject.value;
+      map(() => {
+        const current = this.appSettings();
         if (current) {
-          current.oidcEnabled = enabled;
-          this.appSettingsSubject.next({...current});
-          this.syncPublicSettings(current);
+          const updated = {...current, oidcEnabled: enabled};
+          this.queryClient.setQueryData(APP_SETTINGS_QUERY_KEY, updated);
+          this.syncPublicSettings(updated);
         }
       }),
       catchError(err => {

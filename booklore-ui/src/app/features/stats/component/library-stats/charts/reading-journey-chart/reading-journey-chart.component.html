@@ -8,17 +8,17 @@
       </h3>
       <p class="chart-description">{{ t('description') }}</p>
     </div>
-    @if (dateRange) {
+    @if (dateRange()) {
       <div class="date-range-badge">
-        {{ dateRange }}
+        {{ dateRange() }}
       </div>
     }
   </div>
 
-  @if (totalBooks > 0 && insights) {
+  @if (totalBooks() > 0 && insights(); as insights) {
     <div class="chart-wrapper">
       <canvas baseChart
-              [data]="(chartData$ | async) ?? {labels: [], datasets: []}"
+              [data]="chartData()"
               [options]="chartOptions"
               [type]="chartType">
       </canvas>
@@ -77,7 +77,7 @@
     </div>
   }
 
-  @if (totalBooks === 0 || !insights) {
+  @if (totalBooks() === 0 || !insights()) {
     <div class="no-data-message">
       <i class="pi pi-info-circle"></i>
       <p>{{ t('noData') }}</p>

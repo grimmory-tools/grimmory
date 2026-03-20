@@ -1,8 +1,6 @@
-import {Component, HostListener, inject, OnInit} from '@angular/core';
-import {AsyncPipe, NgStyle} from '@angular/common';
+import {Component, HostListener, computed, inject, OnInit, signal} from '@angular/core';
+import {NgStyle} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {combineLatest, Observable, BehaviorSubject} from 'rxjs';
-import {map} from 'rxjs/operators';
 import {ProgressSpinner} from 'primeng/progressspinner';
 import {InputText} from 'primeng/inputtext';
 import {Select} from 'primeng/select';
@@ -35,7 +33,6 @@ interface SortOption {
   templateUrl: './series-browser.component.html',
   styleUrls: ['./series-browser.component.scss'],
   imports: [
-    AsyncPipe,
     NgStyle,
     FormsModule,
     ProgressSpinner,
@@ -62,9 +59,28 @@ export class SeriesBrowserComponent implements OnInit {
   private router = inject(Router);
   protected seriesScaleService = inject(SeriesScalePreferenceService);
 
-  bookState$ = this.bookService.bookState$;
+  readonly isBooksLoading = this.bookService.isBooksLoading;
+  private readonly searchTerm = signal('');
+  private readonly statusFilter = signal('all');
+  private readonly sortBy = signal('name-asc');
+  readonly filteredSeries = computed(() => {
+    let result = this.seriesDataService.allSeries();
+
+    const search = this.searchTerm().trim().toLowerCase();
+    if (search) {
+      result = result.filter(series =>
+        series.seriesName.toLowerCase().includes(search) ||
+        series.authors.some(author => author.toLowerCase().includes(search))
+      );
+    }
+
+    result = this.applyStatusFilter(result, this.statusFilter());
+    return this.applySort(result, this.sortBy());
+  });
 
   screenWidth = window.innerWidth;
+  filterOptions: FilterOption[] = [];
+  sortOptions: SortOption[] = [];
 
   @HostListener('window:resize')
   onResize(): void {
@@ -79,30 +95,31 @@ export class SeriesBrowserComponent implements OnInit {
     const base = this.isMobile
       ? SeriesBrowserComponent.MOBILE_BASE_WIDTH
       : SeriesBrowserComponent.BASE_WIDTH;
-    return Math.round(base * this.seriesScaleService.scaleFactor);
+    return Math.round(base * this.seriesScaleService.scaleFactor());
   }
 
   get cardHeight(): number {
     const base = this.isMobile
       ? SeriesBrowserComponent.MOBILE_BASE_HEIGHT
       : SeriesBrowserComponent.BASE_HEIGHT;
-    return Math.round(base * this.seriesScaleService.scaleFactor);
+    return Math.round(base * this.seriesScaleService.scaleFactor());
   }
 
   get gridColumnMinWidth(): string {
     return `${this.cardWidth}px`;
   }
 
-  // Search and filter state
-  searchTerm$ = new BehaviorSubject<string>('');
-  statusFilter$ = new BehaviorSubject<string>('all');
-  sortBy$ = new BehaviorSubject<string>('name-asc');
+  get searchValue(): string {
+    return this.searchTerm();
+  }
 
-  filterOptions: FilterOption[] = [];
-  sortOptions: SortOption[] = [];
+  get statusFilterValue(): string {
+    return this.statusFilter();
+  }
 
-  // Filtered grid
-  filteredSeries$!: Observable<SeriesSummary[]>;
+  get sortByValue(): string {
+    return this.sortBy();
+  }
 
   ngOnInit(): void {
     this.pageTitle.setPageTitle(this.t.translate('seriesBrowser.pageTitle'));
@@ -123,46 +140,18 @@ export class SeriesBrowserComponent implements OnInit {
       {label: this.t.translate('seriesBrowser.sort.recentlyRead'), value: 'recently-read'},
       {label: this.t.translate('seriesBrowser.sort.recentlyAdded'), value: 'recently-added'}
     ];
-
-    this.filteredSeries$ = combineLatest([
-      this.seriesDataService.allSeries$,
-      this.searchTerm$,
-      this.statusFilter$,
-      this.sortBy$
-    ]).pipe(
-      map(([allSeries, search, statusFilter, sortBy]) => {
-        let result = allSeries;
-
-        if (search.trim()) {
-          const term = search.trim().toLowerCase();
-          result = result.filter(s =>
-            s.seriesName.toLowerCase().includes(term) ||
-            s.authors.some(a => a.toLowerCase().includes(term))
-          );
-        }
-
-        result = this.applyStatusFilter(result, statusFilter);
-        result = this.applySort(result, sortBy);
-
-        return result;
-      })
-    );
   }
 
   onSearchChange(value: string): void {
-    this.searchTerm$.next(value);
+    this.searchTerm.set(value);
   }
 
   onStatusFilterChange(value: string): void {
-    this.statusFilter$.next(value);
+    this.statusFilter.set(value);
   }
 
   onSortChange(value: string): void {
-    this.sortBy$.next(value);
-  }
-
-  updateScale(): void {
-    this.seriesScaleService.setScale(this.seriesScaleService.scaleFactor);
+    this.sortBy.set(value);
   }
 
   navigateToSeries(series: SeriesSummary): void {

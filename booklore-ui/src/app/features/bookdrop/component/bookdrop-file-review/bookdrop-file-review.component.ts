@@ -1,6 +1,6 @@
 import {Component, DestroyRef, inject, OnInit, QueryList, ViewChildren} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {filter, startWith, take, tap} from 'rxjs/operators';
+import {startWith, tap} from 'rxjs/operators';
 import {PageTitleService} from "../../../../shared/service/page-title.service";
 
 import {BookdropFile, BookdropFinalizePayload, BookdropFinalizeResult, BookdropService, FileExtractionResult, BulkEditRequest as BackendBulkEditRequest, BulkEditResult as BackendBulkEditResult} from '../../service/bookdrop.service';
@@ -14,10 +14,10 @@ import {Select} from 'primeng/select';
 import {Tooltip} from 'primeng/tooltip';
 import {Divider} from 'primeng/divider';
 import {ConfirmationService, MessageService} from 'primeng/api';
-import {Observable, Subscription} from 'rxjs';
+import {Subscription} from 'rxjs';
 import {InputGroup} from 'primeng/inputgroup';
 import {InputGroupAddonModule} from 'primeng/inputgroupaddon';
-import {AppSettings} from '../../../../shared/model/app-settings.model';
+
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {BookMetadata} from '../../../book/model/book.model';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
@@ -79,14 +79,12 @@ export class BookdropFileReviewComponent implements OnInit {
 
   @ViewChildren('metadataPicker') metadataPickers!: QueryList<BookdropFileMetadataPickerComponent>;
 
-  appSettings$: Observable<AppSettings | null> = this.appSettingsService.appSettings$;
   private routerSub!: Subscription;
 
   uploadPattern = '';
   _defaultLibraryId: string | null = null;
 
   defaultPathId: string | null = null;
-  libraries: Library[] = [];
   bookdropFileUis: BookdropFileUI[] = [];
   fileUiCache: Record<number, BookdropFileUI> = {};
   copiedFlags: Record<number, boolean> = {};
@@ -111,16 +109,10 @@ export class BookdropFileReviewComponent implements OnInit {
       }))
       .subscribe();
 
-    this.libraryService.libraryState$
-      .subscribe(state => {
-        this.libraries = state.libraries ?? [];
-      });
-
-    this.appSettings$
-      .pipe(filter(Boolean), take(1))
-      .subscribe(settings => {
-        this.uploadPattern = settings?.uploadPattern ?? '';
-      });
+    const settings = this.appSettingsService.appSettings();
+    if (settings) {
+      this.uploadPattern = settings.uploadPattern ?? '';
+    }
   }
 
   get defaultLibraryId() {
@@ -135,6 +127,10 @@ export class BookdropFileReviewComponent implements OnInit {
     if (selected && selected.paths.length === 1) {
       this.defaultPathId = String(selected.paths[0].id)
     }
+  }
+
+  get libraries(): Library[] {
+    return this.libraryService.libraries();
   }
 
   get libraryOptions() {
@@ -278,7 +274,7 @@ export class BookdropFileReviewComponent implements OnInit {
   }
 
   copyMetadata(): void {
-    const files = this.getSelectedFiles().map(fileUi => {
+    this.getSelectedFiles().forEach(fileUi => {
       const cachedfUi = this.fileUiCache[fileUi.file.id];
       const fetched = cachedfUi.file.fetchedMetadata;
       const form = cachedfUi.metadataForm;
@@ -299,7 +295,7 @@ export class BookdropFileReviewComponent implements OnInit {
   resetMetadata(): void {
     const selectedFiles = this.getSelectedFiles();
 
-    const files = selectedFiles.map(fileUi => {
+    selectedFiles.forEach(fileUi => {
       const original = fileUi.file.originalMetadata;
       fileUi.metadataForm.patchValue({
         title: original?.title || null,

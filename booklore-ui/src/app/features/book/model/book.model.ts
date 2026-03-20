@@ -402,6 +402,25 @@ export enum ReadStatus {
   UNSET = 'UNSET'
 }
 
+export function computeSeriesReadStatus(books: Book[]): ReadStatus {
+  if (!books || books.length === 0) return ReadStatus.UNREAD;
+  const statuses = books.map(b => (b.readStatus as ReadStatus) ?? ReadStatus.UNREAD);
+
+  if (statuses.includes(ReadStatus.WONT_READ)) return ReadStatus.WONT_READ;
+  if (statuses.includes(ReadStatus.ABANDONED)) return ReadStatus.ABANDONED;
+  if (statuses.every(s => s === ReadStatus.READ)) return ReadStatus.READ;
+
+  const isAnyReading = statuses.some(
+    s => s === ReadStatus.READING || s === ReadStatus.RE_READING || s === ReadStatus.PAUSED
+  );
+  if (isAnyReading) return ReadStatus.READING;
+
+  if (statuses.some(s => s === ReadStatus.READ)) return ReadStatus.PARTIALLY_READ;
+  if (statuses.every(s => s === ReadStatus.UNREAD)) return ReadStatus.UNREAD;
+
+  return ReadStatus.PARTIALLY_READ;
+}
+
 export interface CreatePhysicalBookRequest {
   libraryId: number;
   isbn?: string;

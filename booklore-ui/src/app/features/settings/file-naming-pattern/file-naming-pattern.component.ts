@@ -3,9 +3,9 @@ import {FormsModule} from '@angular/forms';
 import {Button} from 'primeng/button';
 import {MessageService} from 'primeng/api';
 import {AppSettingsService} from '../../../shared/service/app-settings.service';
-import {forkJoin, Observable, of} from 'rxjs';
-import {AppSettingKey, AppSettings} from '../../../shared/model/app-settings.model';
-import {catchError, filter, take} from 'rxjs/operators';
+import {forkJoin, of} from 'rxjs';
+import {AppSettingKey} from '../../../shared/model/app-settings.model';
+import {catchError} from 'rxjs/operators';
 import {Library} from '../../book/model/library.model';
 import {LibraryService} from '../../book/service/library.service';
 import {InputText} from 'primeng/inputtext';
@@ -35,7 +35,6 @@ export class FileNamingPatternComponent implements OnInit {
   };
 
   defaultPattern = '';
-  libraries: Library[] = [];
   defaultErrorMessage = '';
 
   private appSettingsService = inject(AppSettingsService);
@@ -43,20 +42,15 @@ export class FileNamingPatternComponent implements OnInit {
   private libraryService = inject(LibraryService);
   private t = inject(TranslocoService);
 
-  appSettings$: Observable<AppSettings | null> = this.appSettingsService.appSettings$;
-
   ngOnInit(): void {
-    this.appSettings$
-      .pipe(filter((settings) => settings != null), take(1))
-      .subscribe((settings) => {
-        this.defaultPattern = settings?.uploadPattern ?? '';
-      });
+    const settings = this.appSettingsService.appSettings();
+    if (settings) {
+      this.defaultPattern = settings.uploadPattern ?? '';
+    }
+  }
 
-    this.libraryService.libraryState$
-      .pipe(filter(state => state.loaded && !!state.libraries))
-      .subscribe(state => {
-        this.libraries = state.libraries ?? [];
-      });
+  get libraries(): Library[] {
+    return this.libraryService.libraries();
   }
 
   private resolvePattern(pattern: string, values: Record<string, string>): string {
@@ -91,7 +85,7 @@ export class FileNamingPatternComponent implements OnInit {
   }
 
   validatePattern(pattern: string): boolean {
-    const validPatternRegex = /^[\w\s\-{}\[\]\/().<>.,:'"#|]*$/;
+    const validPatternRegex = /^[\w\s\-{}[/().<>.,:'"#|\]]*$/;
     return validPatternRegex.test(pattern);
   }
 
@@ -100,7 +94,7 @@ export class FileNamingPatternComponent implements OnInit {
     this.defaultErrorMessage = this.validatePattern(pattern) ? '' : this.t.translate('settingsNaming.defaultPattern.invalidChars');
   }
 
-  onLibraryPatternChange(library: Library): void {
+  onLibraryPatternChange(_library: Library): void {
     // Optionally add per-library validation here
   }
 

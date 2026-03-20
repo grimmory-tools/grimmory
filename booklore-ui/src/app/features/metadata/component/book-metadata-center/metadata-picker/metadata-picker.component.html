@@ -1,4 +1,4 @@
-@if (book$ | async; as book) {
+@if (book; as book) {
   <form [formGroup]="metadataForm" (ngSubmit)="onSave()" class="metadata-picker" *transloco="let t; prefix: 'metadata.picker'">
     <div class="dialog-body">
       @if (detailLoading) {

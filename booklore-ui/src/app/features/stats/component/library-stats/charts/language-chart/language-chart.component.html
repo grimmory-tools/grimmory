@@ -10,17 +10,17 @@
     </div>
   </div>
 
-  @if (booksWithLanguage > 0) {
+  @if (booksWithLanguage() > 0) {
     <div class="chart-wrapper">
       <canvas baseChart
-              [data]="(chartData$ | async) ?? {labels: [], datasets: []}"
+              [data]="chartData()"
               [options]="chartOptions"
               [type]="chartType">
       </canvas>
     </div>
   }
 
-  @if (booksWithLanguage === 0) {
+  @if (booksWithLanguage() === 0) {
     <div class="no-data-message">
       <i class="pi pi-info-circle"></i>
       <p>{{ t('noData') }}</p>

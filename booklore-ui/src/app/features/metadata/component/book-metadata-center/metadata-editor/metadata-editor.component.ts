@@ -1,10 +1,9 @@
-import {Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output,} from "@angular/core";
+import {Component, computed, DestroyRef, effect, EffectRef, EventEmitter, inject, Input, OnInit, Output,} from "@angular/core";
 import {InputText} from "primeng/inputtext";
 import {Button} from "primeng/button";
 import {Divider} from "primeng/divider";
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule,} from "@angular/forms";
 import {Observable, sample} from "rxjs";
-import {AsyncPipe} from "@angular/common";
 import {MessageService} from "primeng/api";
 import {Book, BookMetadata, ComicMetadata, MetadataClearFlags, MetadataUpdateWrapper,} from "../../../../book/model/book.model";
 import {UrlHelperService} from "../../../../../shared/service/url-helper.service";
@@ -45,7 +44,6 @@ import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray} from '@angular/cdk/d
     Button,
     Divider,
     FormsModule,
-    AsyncPipe,
     ReactiveFormsModule,
     FileUpload,
     ProgressSpinner,
@@ -62,7 +60,29 @@ import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray} from '@angular/cdk/d
   ],
 })
 export class MetadataEditorComponent implements OnInit {
-  @Input() book$!: Observable<Book | null>;
+  private currentBook: Book | null = null;
+
+  @Input()
+  set book(value: Book | null) {
+    this.currentBook = value;
+
+    const metadata = value?.metadata;
+    if (!metadata) return;
+
+    this.currentBookId = metadata.bookId;
+    if (this.refreshingBookIds.has(value.id)) {
+      this.refreshingBookIds.delete(value.id);
+      this.isAutoFetching = false;
+    }
+
+    this.originalMetadata = structuredClone(metadata);
+    this.populateFormFromMetadata(metadata);
+  }
+
+  get book(): Book | null {
+    return this.currentBook;
+  }
+
   @Output() nextBookClicked = new EventEmitter<void>();
   @Output() previousBookClicked = new EventEmitter<void>();
   @Output() closeDialogButtonClicked = new EventEmitter<void>();
@@ -84,6 +104,7 @@ export class MetadataEditorComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private appSettingsService = inject(AppSettingsService);
   private readonly t = inject(TranslocoService);
+  private readonly uniqueMetadata = computed(() => this.bookService.uniqueMetadata());
 
   metadataForm: FormGroup;
   currentBookId!: number;
@@ -100,12 +121,12 @@ export class MetadataEditorComponent implements OnInit {
 
   originalMetadata!: BookMetadata;
 
-  allAuthors!: string[];
-  allCategories!: string[];
-  allMoods!: string[];
-  allTags!: string[];
-  allPublishers!: string[];
-  allSeries!: string[];
+  get allAuthors(): string[] { return this.uniqueMetadata().authors; }
+  get allCategories(): string[] { return this.uniqueMetadata().categories; }
+  get allMoods(): string[] { return this.uniqueMetadata().moods; }
+  get allTags(): string[] { return this.uniqueMetadata().tags; }
+  get allPublishers(): string[] { return this.uniqueMetadata().publishers; }
+  get allSeries(): string[] { return this.uniqueMetadata().series; }
   filteredCategories: string[] = [];
   filteredAuthors: string[] = [];
   authorInputValue = '';
@@ -150,7 +171,16 @@ export class MetadataEditorComponent implements OnInit {
     audibleReviewCount: true,
   };
 
-  navigationState$ = this.bookNavigationService.getNavigationState();
+  private syncProviderFieldsEffect!: EffectRef;
+  readonly navigationState = this.bookNavigationService.navigationState;
+  readonly canNavigatePrevious = this.bookNavigationService.canNavigatePrevious;
+  readonly canNavigateNext = this.bookNavigationService.canNavigateNext;
+  readonly navigationPosition = computed(() => {
+    const position = this.bookNavigationService.currentPosition();
+    return position
+      ? this.t.translate('metadata.editor.navigationPosition', {current: position.current, total: position.total})
+      : '';
+  });
 
   filterCategories(event: { query: string }) {
     const query = event.query.toLowerCase();
@@ -356,78 +386,18 @@ export class MetadataEditorComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.book$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((book) => {
-      const metadata = book?.metadata;
-      if (!metadata) return;
-      this.currentBookId = metadata.bookId;
-      if (this.refreshingBookIds.has(book.id)) {
-        this.refreshingBookIds.delete(book.id);
-        this.isAutoFetching = false;
+    const user = this.userService.currentUser();
+    if (user) {
+      this.metadataCenterViewMode = user.userSettings.metadataCenterViewMode ?? 'route';
+      this.autoSaveEnabled = user.userSettings.autoSaveMetadata ?? false;
+    }
+
+    this.syncProviderFieldsEffect = effect(() => {
+      const settings = this.appSettingsService.appSettings();
+      if (settings?.metadataProviderSpecificFields) {
+        this.providerSpecificFields = settings.metadataProviderSpecificFields;
       }
-      this.originalMetadata = structuredClone(metadata);
-      this.populateFormFromMetadata(metadata);
     });
-
-    this.prepareAutoComplete();
-
-    this.userService.userState$
-      .pipe(
-        filter(userState => !!userState?.user && userState.loaded),
-        take(1)
-      )
-      .subscribe(userState => {
-        this.metadataCenterViewMode = userState.user?.userSettings.metadataCenterViewMode ?? 'route';
-        this.autoSaveEnabled = userState.user?.userSettings.autoSaveMetadata ?? false;
-      });
-
-    this.appSettingsService.appSettings$
-      .pipe(
-        filter(settings => !!settings),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe(settings => {
-        if (settings?.metadataProviderSpecificFields) {
-          this.providerSpecificFields = settings.metadataProviderSpecificFields;
-        }
-      });
-  }
-
-  private prepareAutoComplete(): void {
-    this.bookService.bookState$
-      .pipe(
-        filter((bookState) => bookState.loaded),
-        take(1)
-      )
-      .subscribe((bookState) => {
-        const authors = new Set<string>();
-        const categories = new Set<string>();
-        const moods = new Set<string>();
-        const tags = new Set<string>();
-        const publishers = new Set<string>();
-        const series = new Set<string>();
-
-        (bookState.books ?? []).forEach((book) => {
-          book.metadata?.authors?.forEach((author) => authors.add(author));
-          book.metadata?.categories?.forEach((category) =>
-            categories.add(category)
-          );
-          book.metadata?.moods?.forEach((mood) => moods.add(mood));
-          book.metadata?.tags?.forEach((tag) => tags.add(tag));
-          if (book.metadata?.publisher) {
-            publishers.add(book.metadata.publisher);
-          }
-          if (book.metadata?.seriesName) {
-            series.add(book.metadata.seriesName);
-          }
-        });
-
-        this.allAuthors = Array.from(authors);
-        this.allCategories = Array.from(categories);
-        this.allMoods = Array.from(moods);
-        this.allTags = Array.from(tags);
-        this.allPublishers = Array.from(publishers);
-        this.allSeries = Array.from(series);
-      });
   }
 
   private populateFormFromMetadata(metadata: BookMetadata): void {
@@ -654,7 +624,6 @@ export class MetadataEditorComponent implements OnInit {
               summary: this.t.translate('metadata.editor.toast.successSummary'),
               detail: this.t.translate('metadata.editor.toast.metadataUpdated'),
             });
-            this.prepareAutoComplete();
             this.metadataForm.markAsPristine();
           },
           error: (err: any) => {
@@ -937,6 +906,7 @@ export class MetadataEditorComponent implements OnInit {
       event.originalEvent as HttpResponse<unknown>;
     if (response && response.status === 200) {
       this.isUploading = false;
+      this.bookService.handleBookMetadataUpdate(this.currentBookId);
     } else {
       this.isUploading = false;
       this.messageService.add({
@@ -960,11 +930,9 @@ export class MetadataEditorComponent implements OnInit {
 
   regenerateCover(bookId: number) {
     this.bookMetadataManageService.regenerateCover(bookId).pipe(
-      switchMap(() => this.bookService.getBookByIdFromAPI(bookId, false)),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
-      next: (updatedBook) => {
-        this.bookService.handleBookUpdate(updatedBook);
+      next: () => {
         this.messageService.add({
           severity: "success",
           summary: this.t.translate('metadata.editor.toast.successSummary'),
@@ -984,12 +952,10 @@ export class MetadataEditorComponent implements OnInit {
   generateCustomCover(bookId: number) {
     this.isGeneratingCover = true;
     this.bookMetadataManageService.generateCustomCover(bookId).pipe(
-      switchMap(() => this.bookService.getBookByIdFromAPI(bookId, false)),
       finalize(() => this.isGeneratingCover = false),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
-      next: (updatedBook) => {
-        this.bookService.handleBookUpdate(updatedBook);
+      next: () => {
         this.messageService.add({
           severity: "success",
           summary: this.t.translate('metadata.editor.toast.successSummary'),
@@ -1008,11 +974,9 @@ export class MetadataEditorComponent implements OnInit {
 
   regenerateAudiobookCover(bookId: number) {
     this.bookMetadataManageService.regenerateAudiobookCover(bookId).pipe(
-      switchMap(() => this.bookService.getBookByIdFromAPI(bookId, false)),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
-      next: (updatedBook) => {
-        this.bookService.handleBookUpdate(updatedBook);
+      next: () => {
         this.messageService.add({
           severity: "success",
           summary: this.t.translate('metadata.editor.toast.successSummary'),
@@ -1032,12 +996,10 @@ export class MetadataEditorComponent implements OnInit {
   generateCustomAudiobookCover(bookId: number) {
     this.isGeneratingAudiobookCover = true;
     this.bookMetadataManageService.generateCustomAudiobookCover(bookId).pipe(
-      switchMap(() => this.bookService.getBookByIdFromAPI(bookId, false)),
       finalize(() => this.isGeneratingAudiobookCover = false),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
-      next: (updatedBook) => {
-        this.bookService.handleBookUpdate(updatedBook);
+      next: () => {
         this.messageService.add({
           severity: "success",
           summary: this.t.translate('metadata.editor.toast.successSummary'),
@@ -1130,23 +1092,12 @@ export class MetadataEditorComponent implements OnInit {
     ref?.onClose.pipe(
       take(1),
       filter(result => !!result),
-      switchMap(() => this.bookService.getBookByIdFromAPI(this.currentBookId, false)),
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe(updatedBook => {
-      this.bookService.handleBookUpdate(updatedBook);
-    });
-  }
-
-  canNavigatePrevious(): boolean {
-    return this.bookNavigationService.canNavigatePrevious();
-  }
-
-  canNavigateNext(): boolean {
-    return this.bookNavigationService.canNavigateNext();
+    ).subscribe();
   }
 
   navigatePrevious(): void {
-    const prevBookId = this.bookNavigationService.getPreviousBookId();
+    const prevBookId = this.bookNavigationService.previousBookId();
     if (prevBookId) {
       if (this.autoSaveEnabled && this.metadataForm.dirty) {
         this.saveMetadata().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.navigateToBook(prevBookId));
@@ -1157,7 +1108,7 @@ export class MetadataEditorComponent implements OnInit {
   }
 
   navigateNext(): void {
-    const nextBookId = this.bookNavigationService.getNextBookId();
+    const nextBookId = this.bookNavigationService.nextBookId();
     if (nextBookId) {
       if (this.autoSaveEnabled && this.metadataForm.dirty) {
         this.saveMetadata().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.navigateToBook(nextBookId));
@@ -1176,11 +1127,6 @@ export class MetadataEditorComponent implements OnInit {
     } else {
       this.metadataHostService.switchBook(bookId);
     }
-  }
-
-  getNavigationPosition(): string {
-    const position = this.bookNavigationService.getCurrentPosition();
-    return position ? this.t.translate('metadata.editor.navigationPosition', {current: position.current, total: position.total}) : '';
   }
 
   isFieldVisible(field: keyof MetadataProviderSpecificFields): boolean {
@@ -1236,11 +1182,8 @@ export class MetadataEditorComponent implements OnInit {
     ref?.onClose.pipe(
       take(1),
       filter(result => !!result),
-      switchMap(() => this.bookService.getBookByIdFromAPI(this.currentBookId, false)),
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe(updatedBook => {
-      this.bookService.handleBookUpdate(updatedBook);
-    });
+    ).subscribe();
   }
 
   onAudiobookCoverUpload(event: FileUploadEvent): void {
@@ -1248,11 +1191,7 @@ export class MetadataEditorComponent implements OnInit {
       event.originalEvent as HttpResponse<unknown>;
     if (response && response.status === 200) {
       this.isUploading = false;
-      this.bookService.getBookByIdFromAPI(this.currentBookId, false).pipe(
-        takeUntilDestroyed(this.destroyRef)
-      ).subscribe(updatedBook => {
-        this.bookService.handleBookUpdate(updatedBook);
-      });
+      this.bookService.handleBookMetadataUpdate(this.currentBookId);
     } else {
       this.isUploading = false;
       this.messageService.add({

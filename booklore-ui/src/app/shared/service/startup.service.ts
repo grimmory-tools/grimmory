@@ -1,26 +1,18 @@
 import {Injectable, inject} from '@angular/core';
 import {AuthService} from './auth.service';
 import {UserService} from '../../features/settings/user-management/user.service';
-import {filter, catchError} from 'rxjs/operators';
-import {of} from 'rxjs';
+import {QueryClient} from '@tanstack/angular-query-experimental';
 
 @Injectable({providedIn: 'root'})
 export class StartupService {
   private authService = inject(AuthService);
   private userService = inject(UserService);
+  private queryClient = inject(QueryClient);
 
   load(): Promise<void> {
-    this.authService.token$
-      .pipe(filter(t => !!t))
-      .subscribe(() => {
-        this.userService.getMyself()
-          .pipe(catchError(() => of(null)))
-          .subscribe(user => {
-            if (user) {
-              this.userService.setInitialUser(user);
-            }
-          });
-      });
+    if (this.authService.token()) {
+      return this.queryClient.fetchQuery(this.userService.getUserQueryOptions()).then(() => {});
+    }
 
     return Promise.resolve();
   }

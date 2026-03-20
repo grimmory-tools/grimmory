@@ -1,5 +1,4 @@
-import {inject, Injectable} from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
+import {inject, Injectable, signal} from '@angular/core';
 import {MessageService} from 'primeng/api';
 import {TranslocoService} from '@jsverse/transloco';
 import {TableColumnPreference, UserService} from '../../../settings/user-management/user.service';
@@ -12,8 +11,8 @@ export class TableColumnPreferenceService {
   private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
 
-  private readonly preferencesSubject = new BehaviorSubject<TableColumnPreference[]>([]);
-  readonly preferences$ = this.preferencesSubject.asObservable();
+  private readonly _preferences = signal<TableColumnPreference[]>([]);
+  readonly preferences = this._preferences.asReadonly();
 
   private readonly allAvailableFields = [
     'readStatus', 'title', 'authors', 'publisher', 'seriesName', 'seriesNumber',
@@ -31,7 +30,7 @@ export class TableColumnPreferenceService {
 
   initPreferences(savedPrefs: TableColumnPreference[] | undefined): void {
     const effectivePrefs = savedPrefs?.length ? savedPrefs : this.fallbackPreferences;
-    this.preferencesSubject.next(this.mergeWithAllColumns(effectivePrefs));
+    this._preferences.set(this.mergeWithAllColumns(effectivePrefs));
   }
 
   get allColumns(): { field: string; header: string }[] {
@@ -42,17 +41,13 @@ export class TableColumnPreferenceService {
   }
 
   get visibleColumns(): { field: string; header: string }[] {
-    return this.preferencesSubject.value
+    return this.preferences()
       .filter(pref => pref.visible)
       .sort((a, b) => a.order - b.order)
       .map(pref => ({
         field: pref.field,
         header: this.t.translate(`book.columnPref.columns.${pref.field}`)
       }));
-  }
-
-  get preferences(): TableColumnPreference[] {
-    return this.preferencesSubject.value;
   }
 
   saveVisibleColumns(selectedColumns: { field: string }[]): void {
@@ -67,7 +62,7 @@ export class TableColumnPreferenceService {
       };
     });
 
-    this.preferencesSubject.next(updatedPreferences);
+    this._preferences.set(updatedPreferences);
 
     const currentUser = this.userService.getCurrentUser();
     if (!currentUser) return;

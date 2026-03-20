@@ -27,7 +27,7 @@ export class UrlHelperService {
 
   getThumbnailUrl(bookId: number, coverUpdatedOn?: string): string {
     if (!coverUpdatedOn) {
-      const book = this.bookService.getBookByIdFromState(bookId);
+      const book = this.bookService.findBookById(bookId);
       if (book && book.metadata) {
         const coverGenerator = new CoverGeneratorComponent();
         coverGenerator.title = book.metadata.title || '';
@@ -52,7 +52,7 @@ export class UrlHelperService {
 
   getCoverUrl(bookId: number, coverUpdatedOn?: string): string {
     if (!coverUpdatedOn) {
-      const book = this.bookService.getBookByIdFromState(bookId);
+      const book = this.bookService.findBookById(bookId);
       if (book && book.metadata) {
         const coverGenerator = new CoverGeneratorComponent();
         coverGenerator.title = book.metadata.title || '';
@@ -74,7 +74,7 @@ export class UrlHelperService {
 
   getAudiobookCoverUrl(bookId: number, audiobookCoverUpdatedOn?: string): string {
     if (!audiobookCoverUpdatedOn) {
-      const book = this.bookService.getBookByIdFromState(bookId);
+      const book = this.bookService.findBookById(bookId);
       if (book && book.metadata) {
         const coverGenerator = new CoverGeneratorComponent();
         coverGenerator.title = book.metadata.title || '';
@@ -92,7 +92,7 @@ export class UrlHelperService {
 
   getAudiobookThumbnailUrl(bookId: number, audiobookCoverUpdatedOn?: string): string {
     if (!audiobookCoverUpdatedOn) {
-      const book = this.bookService.getBookByIdFromState(bookId);
+      const book = this.bookService.findBookById(bookId);
       if (book && book.metadata) {
         const coverGenerator = new CoverGeneratorComponent();
         coverGenerator.title = book.metadata.title || '';

@@ -13,7 +13,7 @@ import {LibraryService} from '../../book/service/library.service';
 import {Dialog} from 'primeng/dialog';
 import {Password} from 'primeng/password';
 import {InputText} from 'primeng/inputtext';
-import {filter, take, takeUntil} from 'rxjs/operators';
+import {takeUntil} from 'rxjs/operators';
 import {Subject} from 'rxjs';
 import {Tooltip} from 'primeng/tooltip';
 import {DialogLauncherService} from '../../../shared/services/dialog-launcher.service';
@@ -55,11 +55,11 @@ export class UserManagementComponent implements OnInit, OnDestroy {
   private messageService = inject(MessageService);
   private t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
+  get allLibraries() { return this.libraryService.libraries(); }
 
   users: UserWithEditing[] = [];
   currentUser: User | null = null;
   editingLibraryIds: number[] = [];
-  allLibraries: Library[] = [];
   expandedRows: Record<string, boolean> = {};
 
   isPasswordDialogVisible = false;
@@ -72,24 +72,11 @@ export class UserManagementComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.loadUsers();
 
-    this.userService.userState$
-      .pipe(
-        filter(userState => !!userState?.user && userState.loaded),
-        take(1),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(userState => {
-        this.currentUser = userState.user;
-        this.isAdmin = userState.user?.permissions?.admin || false;
-      });
-
-    this.libraryService.libraryState$
-      .pipe(
-        filter(state => !!state?.loaded),
-        take(1),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(libraries => this.allLibraries = libraries.libraries ?? []);
+    const user = this.userService.currentUser();
+    if (user) {
+      this.currentUser = user;
+      this.isAdmin = user.permissions?.admin || false;
+    }
   }
 
   ngOnDestroy(): void {

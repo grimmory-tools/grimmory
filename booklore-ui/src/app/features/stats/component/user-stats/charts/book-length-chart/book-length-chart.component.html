@@ -13,22 +13,22 @@
       </h3>
       <p class="chart-description">{{ t('description') }}</p>
     </div>
-    @if (totalRatedBooks > 0) {
+    @if (totalRatedBooks() > 0) {
       <div class="stats-badge">
-        <span class="badge-value">{{ totalRatedBooks }}</span>
+        <span class="badge-value">{{ totalRatedBooks() }}</span>
         <span class="badge-label">{{ t('booksAnalyzed') }}</span>
       </div>
     }
   </div>
 
-  @if (totalRatedBooks > 0) {
+  @if (totalRatedBooks() > 0) {
     <div class="stats-row">
       <div class="stat-card">
-        <span class="stat-value-sm">{{ sweetSpot }}</span>
+        <span class="stat-value-sm">{{ sweetSpot() }}</span>
         <span class="stat-label">{{ t('sweetSpot') }}</span>
       </div>
       <div class="stat-card">
-        <span class="stat-value-sm">{{ highestRatedLength }}</span>
+        <span class="stat-value-sm">{{ highestRatedLength() }}</span>
         <span class="stat-label">{{ t('highestRated') }}</span>
       </div>
     </div>
@@ -36,7 +36,7 @@
 
   <div class="chart-wrapper">
     <canvas baseChart
-            [data]="(chartData$ | async) ?? {datasets: []}"
+            [data]="chartData()"
             [options]="chartOptions"
             [type]="chartType">
     </canvas>

@@ -1,4 +1,4 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, computed, effect, inject, Injector, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
 
 import {InputText} from 'primeng/inputtext';
@@ -14,7 +14,6 @@ import {Checkbox} from 'primeng/checkbox';
 import {AutoComplete} from 'primeng/autocomplete';
 import {AutoCompleteSelectEvent} from 'primeng/autocomplete';
 import {ProgressSpinner} from 'primeng/progressspinner';
-import {filter, take} from "rxjs/operators";
 
 @Component({
   selector: 'app-bulk-metadata-update-component',
@@ -63,13 +62,15 @@ export class BulkMetadataUpdateComponent implements OnInit {
   private readonly bookService = inject(BookService);
   private readonly bookMetadataManageService = inject(BookMetadataManageService);
   private readonly messageService = inject(MessageService);
+  private readonly injector = inject(Injector);
+  private readonly uniqueMetadata = computed(() => this.bookService.uniqueMetadata());
 
-  allAuthors!: string[];
-  allGenres!: string[];
-  allMoods!: string[];
-  allTags!: string[];
-  allPublishers!: string[];
-  allSeries!: string[];
+  get allAuthors(): string[] { return this.uniqueMetadata().authors; }
+  get allGenres(): string[] { return this.uniqueMetadata().categories; }
+  get allMoods(): string[] { return this.uniqueMetadata().moods; }
+  get allTags(): string[] { return this.uniqueMetadata().tags; }
+  get allPublishers(): string[] { return this.uniqueMetadata().publishers; }
+  get allSeries(): string[] { return this.uniqueMetadata().series; }
   filteredGenres: string[] = [];
   filteredAuthors: string[] = [];
   filteredMoods: string[] = [];
@@ -121,7 +122,7 @@ export class BulkMetadataUpdateComponent implements OnInit {
 
   ngOnInit(): void {
     this.bookIds = this.config.data?.bookIds ?? [];
-    this.books = this.bookService.getBooksByIdsFromState(this.bookIds);
+    this.books = this.bookService.getBooksByIds(this.bookIds);
 
     this.metadataForm = this.fb.group({
       authors: [],
@@ -135,41 +136,9 @@ export class BulkMetadataUpdateComponent implements OnInit {
       tags: []
     });
 
-    this.bookService.bookState$
-      .pipe(
-        filter((bookState) => bookState.loaded),
-        take(1)
-      )
-      .subscribe((bookState) => {
-        const authors = new Set<string>();
-        const categories = new Set<string>();
-        const moods = new Set<string>();
-        const tags = new Set<string>();
-        const publishers = new Set<string>();
-        const series = new Set<string>();
-
-        (bookState.books ?? []).forEach((book) => {
-          book.metadata?.authors?.forEach((author) => authors.add(author));
-          book.metadata?.categories?.forEach((category) =>
-            categories.add(category)
-          );
-          book.metadata?.moods?.forEach((mood) => moods.add(mood));
-          book.metadata?.tags?.forEach((tag) => tags.add(tag));
-          if (book.metadata?.publisher) {
-            publishers.add(book.metadata.publisher);
-          }
-          if (book.metadata?.seriesName) {
-            series.add(book.metadata.seriesName);
-          }
-        });
-
-        this.allAuthors = Array.from(authors);
-        this.allGenres = Array.from(categories);
-        this.allMoods = Array.from(moods);
-        this.allTags = Array.from(tags);
-        this.allPublishers = Array.from(publishers);
-        this.allSeries = Array.from(series);
-      });
+    effect(() => {
+      this.books = this.bookService.books().filter(book => this.bookIds.includes(book.id));
+    }, {injector: this.injector});
   }
 
   onFieldClearToggle(field: keyof typeof this.clearFields): void {

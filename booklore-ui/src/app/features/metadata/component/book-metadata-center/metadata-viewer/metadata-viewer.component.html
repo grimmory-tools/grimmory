@@ -1,4 +1,4 @@
-@if (book$ | async; as book) {
+@if (book; as book) {
   <div class="metadata-viewer-container" *transloco="let t; prefix: 'metadata.viewer'">
     <div class="metadata-header">
 
@@ -61,7 +61,7 @@
           </div>
         </div>
 
-        @if (navigationState$ | async) {
+        @if (navigationState()) {
           <div class="navigation-buttons-mobile">
             <p-button
               icon="pi pi-chevron-left"
@@ -74,7 +74,7 @@
               tooltipPosition="bottom">
             </p-button>
             <span class="navigation-position">
-              {{ getNavigationPosition() }}
+              {{ navigationPosition() }}
             </span>
             <p-button
               icon="pi pi-chevron-right"
@@ -620,10 +620,10 @@
           }
         </div>
 
-        @if (userService.userState$ | async; as userState) {
+        @if (userService.currentUser(); as currentUser) {
           <div class="action-buttons-container">
             <div class="action-buttons">
-              @if (navigationState$ | async) {
+              @if (navigationState()) {
                 <div class="action-group navigation-group">
                   <p-button
                     icon="pi pi-chevron-left"
@@ -635,7 +635,7 @@
                     tooltipPosition="bottom">
                   </p-button>
                   <span class="navigation-position">
-                    {{ getNavigationPosition() }}
+                    {{ navigationPosition() }}
                   </span>
                   <p-button
                     icon="pi pi-chevron-right"
@@ -651,28 +651,22 @@
               }
               @if (hasDigitalFile(book)) {
                 <div class="action-group primary-actions">
-                  @if (readMenuItems$ | async; as readItems) {
-                    @if (readItems.length > 0) {
-                      <p-splitbutton [label]="getReadButtonLabel(book)" [icon]="getReadButtonIcon(book)" [model]="readItems" (onClick)="read(book.id)" severity="primary" class="read-button-responsive"/>
-                    } @else {
-                      <p-button [label]="getReadButtonLabel(book)" [icon]="getReadButtonIcon(book)" (onClick)="read(book.id)" severity="primary" class="read-button-responsive"/>
-                    }
+                  @if (readMenuItems().length > 0) {
+                    <p-splitbutton [label]="getReadButtonLabel(book)" [icon]="getReadButtonIcon(book)" [model]="readMenuItems()" (onClick)="read(book.id)" severity="primary" class="read-button-responsive"/>
                   } @else {
                     <p-button [label]="getReadButtonLabel(book)" [icon]="getReadButtonIcon(book)" (onClick)="read(book.id)" severity="primary" class="read-button-responsive"/>
                   }
                 </div>
               }
               <div class="action-group secondary-actions">
-                @if ((userState.user!.permissions.canDownload || userState.user!.permissions.admin) && hasAnyFiles(book)) {
+                @if ((currentUser.permissions.canDownload || currentUser.permissions.admin) && hasAnyFiles(book)) {
                   @if ((book!.alternativeFormats && book!.alternativeFormats.length > 0) || (book!.supplementaryFiles && book!.supplementaryFiles.length > 0)) {
-                    @if (downloadMenuItems$ | async; as downloadItems) {
-                      <p-splitbutton [label]="(getDisplayFormat(book.primaryFile) ?? 'File') + ' · ' + formatFileSize(book.primaryFile)" icon="pi pi-download" [model]="downloadItems" (onClick)="download(book)" severity="success" outlined class="mobile-icon-only"/>
-                    }
+                    <p-splitbutton [label]="(getDisplayFormat(book.primaryFile) ?? 'File') + ' · ' + formatFileSize(book.primaryFile)" icon="pi pi-download" [model]="downloadMenuItems()" (onClick)="download(book)" severity="success" outlined class="mobile-icon-only"/>
                   } @else {
                     <p-button [label]="(getDisplayFormat(book.primaryFile) ?? 'File') + ' · ' + formatFileSize(book.primaryFile)" icon="pi pi-download" severity="success" outlined (onClick)="download(book)" class="mobile-icon-only"></p-button>
                   }
                 }
-                @if (userState.user!.permissions.canEditMetadata || userState.user!.permissions.admin) {
+                @if (currentUser.permissions.canEditMetadata || currentUser.permissions.admin) {
                   <p-button
                     [label]="isAutoFetching ? t('fetchingBtn') : t('fetchMetadataBtn')"
                     [icon]="isAutoFetching ? 'pi pi-spin pi-spinner' : 'pi pi-bolt'"
@@ -685,11 +679,9 @@
                     class="mobile-icon-only">
                   </p-button>
                 }
-                @if (otherItems$ | async; as otherItems) {
-                  @if (otherItems.length > 0) {
-                    <p-button icon="pi pi-ellipsis-v" severity="info" outlined (click)="entitymenu.toggle($event)"></p-button>
-                    <p-tieredMenu #entitymenu [model]="otherItems" [popup]="true" appendTo="body"></p-tieredMenu>
-                  }
+                @if (otherItems().length > 0) {
+                  <p-button icon="pi pi-ellipsis-v" severity="info" outlined (click)="entitymenu.toggle($event)"></p-button>
+                  <p-tieredMenu #entitymenu [model]="otherItems()" [popup]="true" appendTo="body"></p-tieredMenu>
                 }
               </div>
             </div>

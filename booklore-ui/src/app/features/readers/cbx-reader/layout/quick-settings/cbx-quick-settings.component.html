@@ -10,7 +10,7 @@
             @for (option of fitModeOptions; track option.value) {
               <button
                 class="option-btn"
-                [class.active]="state.fitMode === option.value"
+                [class.active]="state().fitMode === option.value"
                 (click)="onFitModeSelect(option.value)"
                 [title]="option.label">
                 <app-reader-icon [name]="option.icon" [size]="16" />
@@ -28,7 +28,7 @@
             @for (option of scrollModeOptions; track option.value) {
               <button
                 class="option-btn text-btn"
-                [class.active]="state.scrollMode === option.value"
+                [class.active]="state().scrollMode === option.value"
                 (click)="onScrollModeSelect(option.value)"
                 [title]="option.label">
                 {{ option.label }}
@@ -56,8 +56,8 @@
         <div class="control">
           <label>{{ 'readerCbx.quickSettings.pageSpread' | transloco }}</label>
           <div class="control-right">
-            <span class="mode-label">{{ state.pageSpread === CbxPageSpread.ODD ? ('readerCbx.quickSettings.oddFirst' | transloco) : ('readerCbx.quickSettings.evenFirst' | transloco) }}</span>
-            <button class="switch" [class.active]="state.pageSpread === CbxPageSpread.EVEN" (click)="onPageSpreadToggle()">
+            <span class="mode-label">{{ state().pageSpread === CbxPageSpread.ODD ? ('readerCbx.quickSettings.oddFirst' | transloco) : ('readerCbx.quickSettings.evenFirst' | transloco) }}</span>
+            <button class="switch" [class.active]="state().pageSpread === CbxPageSpread.EVEN" (click)="onPageSpreadToggle()">
               <span class="slider"></span>
             </button>
           </div>
@@ -68,8 +68,8 @@
       <div class="control">
         <label>{{ 'readerCbx.quickSettings.readingDirection' | transloco }}</label>
         <div class="control-right">
-          <span class="mode-label">{{ state.readingDirection === CbxReadingDirection.LTR ? ('readerCbx.quickSettings.leftToRight' | transloco) : ('readerCbx.quickSettings.rightToLeft' | transloco) }}</span>
-          <button class="switch" [class.active]="state.readingDirection === CbxReadingDirection.RTL" (click)="onReadingDirectionToggle()">
+          <span class="mode-label">{{ state().readingDirection === CbxReadingDirection.LTR ? ('readerCbx.quickSettings.leftToRight' | transloco) : ('readerCbx.quickSettings.rightToLeft' | transloco) }}</span>
+          <button class="switch" [class.active]="state().readingDirection === CbxReadingDirection.RTL" (click)="onReadingDirectionToggle()">
             <span class="slider"></span>
           </button>
         </div>
@@ -83,7 +83,7 @@
             @for (option of slideshowIntervalOptions; track option.value) {
               <button
                 class="option-btn text-btn small"
-                [class.active]="state.slideshowInterval === option.value"
+                [class.active]="state().slideshowInterval === option.value"
                 (click)="onSlideshowIntervalSelect(option.value)"
                 [title]="option.label">
                 {{ option.label }}
@@ -101,7 +101,7 @@
             @for (option of backgroundOptions; track option.value) {
               <button
                 class="option-btn color-btn"
-                [class.active]="state.backgroundColor === option.value"
+                [class.active]="state().backgroundColor === option.value"
                 (click)="onBackgroundSelect(option.value)"
                 [title]="option.label">
                 <span class="color-swatch" [style.background]="option.color"></span>
@@ -119,7 +119,7 @@
             @for (option of magnifierLensSizeOptions; track option.value) {
               <button
                 class="option-btn text-btn small"
-                [class.active]="state.magnifierLensSize === option.value"
+                [class.active]="state().magnifierLensSize === option.value"
                 (click)="onMagnifierLensSizeSelect(option.value)"
                 [title]="option.label">
                 {{ option.label }}
@@ -137,7 +137,7 @@
             @for (option of magnifierZoomOptions; track option.value) {
               <button
                 class="option-btn text-btn small"
-                [class.active]="state.magnifierZoom === option.value"
+                [class.active]="state().magnifierZoom === option.value"
                 (click)="onMagnifierZoomSelect(option.value)"
                 [title]="option.label">
                 {{ option.label }}

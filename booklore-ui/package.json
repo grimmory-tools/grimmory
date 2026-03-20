@@ -27,6 +27,7 @@
     "@primeuix/themes": "^2.0.3",
     "@stomp/rx-stomp": "^2.3.0",
     "@stomp/stompjs": "^7.3.0",
+    "@tanstack/angular-query-experimental": "5.90.26",
     "@tweenjs/tween.js": "^25.0.0",
     "chart.js": "^4.5.1",
     "chartjs-chart-matrix": "^3.0.0",

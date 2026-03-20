@@ -25,65 +25,69 @@
   </div>
 
   <div class="shelves-container">
-    @if ((shelfState$ | async)?.shelves && (shelfState$ | async)!.shelves!.length > 0) {
-      <div class="shelves-list">
-        <div class="list-header">
-          <span class="shelf-count">
-            <i class="pi pi-bookmark"></i>
-            {{ t('shelvesAvailable', { count: (shelfState$ | async)!.shelves!.length }) }}
-          </span>
-          <p-iconfield class="shelf-search">
-            <p-inputicon class="pi pi-search"/>
-            <input
-              type="text"
-              pInputText
-              [(ngModel)]="searchQuery"
-              [placeholder]="t('searchPlaceholder')"
-            />
-            @if (searchQuery) {
-              <i class="pi pi-times clear-icon" (click)="searchQuery = ''"></i>
-            }
-          </p-iconfield>
-        </div>
+    @if (shelves(); as shelves) {
+      @if (shelves.length > 0) {
+        <div class="shelves-list">
+          <div class="list-header">
+            <span class="shelf-count">
+              <i class="pi pi-bookmark"></i>
+              {{ t('shelvesAvailable', { count: shelves.length }) }}
+            </span>
+            <p-iconfield class="shelf-search">
+              <p-inputicon class="pi pi-search"/>
+              <input
+                type="text"
+                pInputText
+                [(ngModel)]="searchQuery"
+                [placeholder]="t('searchPlaceholder')"
+              />
+              @if (searchQuery) {
+                <button type="button" class="clear-icon" (click)="searchQuery = ''">
+                  <i class="pi pi-times"></i>
+                </button>
+              }
+            </p-iconfield>
+          </div>
 
-        <div class="shelves-grid">
-          @for (shelf of filterShelves((shelfState$ | async)!.shelves!); track shelf.id) {
-            <div class="shelf-item" [class.selected]="isShelfSelected(shelf)">
-              <div class="shelf-checkbox">
-                <p-checkbox
-                  [inputId]="'shelf-' + shelf.id"
-                  name="shelves"
-                  [value]="shelf"
-                  [(ngModel)]="selectedShelves"
-                />
+          <div class="shelves-grid">
+            @for (shelf of filterShelves(shelves); track shelf.id) {
+              <div class="shelf-item" [class.selected]="isShelfSelected(shelf)">
+                <div class="shelf-checkbox">
+                  <p-checkbox
+                    [inputId]="'shelf-' + shelf.id"
+                    name="shelves"
+                    [value]="shelf"
+                    [(ngModel)]="selectedShelves"
+                  />
+                </div>
+                <label [for]="'shelf-' + shelf.id" class="shelf-label">
+                  @if (shelf.icon) {
+                    <div class="shelf-icon-wrapper">
+                      <app-icon-display
+                        [icon]="getShelfIcon(shelf)"
+                        size="20px"
+                        iconClass="shelf-icon"
+                      />
+                    </div>
+                  } @else {
+                      <div class="shelf-icon-wrapper-empty">
+                    </div>
+                  }
+                  <span class="shelf-name">{{ shelf.name }}</span>
+                </label>
               </div>
-              <label [for]="'shelf-' + shelf.id" class="shelf-label">
-                @if (shelf.icon) {
-                  <div class="shelf-icon-wrapper">
-                    <app-icon-display
-                      [icon]="getShelfIcon(shelf)"
-                      size="20px"
-                      iconClass="shelf-icon"
-                    />
-                  </div>
-                } @else {
-                    <div class="shelf-icon-wrapper-empty">
-                  </div>
-                }
-                <span class="shelf-name">{{ shelf.name }}</span>
-              </label>
-            </div>
-          }
+            }
+          </div>
         </div>
-      </div>
-    } @else {
-      <div class="empty-state">
-        <div class="empty-icon-wrapper">
-          <i class="pi pi-bookmark empty-icon"></i>
+      } @else {
+        <div class="empty-state">
+          <div class="empty-icon-wrapper">
+            <i class="pi pi-bookmark empty-icon"></i>
+          </div>
+          <h3 class="empty-title">{{ t('emptyTitle') }}</h3>
+          <p class="empty-description" [innerHTML]="t('emptyDescription')"></p>
         </div>
-        <h3 class="empty-title">{{ t('emptyTitle') }}</h3>
-        <p class="empty-description" [innerHTML]="t('emptyDescription')"></p>
-      </div>
+      }
     }
   </div>
 

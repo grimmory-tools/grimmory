@@ -16,7 +16,7 @@
   </div>
   <div class="chart-wrapper">
     <canvas baseChart
-            [data]="(chartData$ | async) ?? {labels: [], datasets: []}"
+            [data]="chartData()"
             [options]="chartOptions"
             [type]="chartType">
     </canvas>

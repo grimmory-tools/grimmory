@@ -27,7 +27,7 @@ describe('MagicShelfComponent (Part 3)', () => {
       providers: [
         {provide: TranslocoService, useValue: mockTransloco},
         {provide: LibraryService, useValue: {getLibrariesFromState: vi.fn(() => [])}},
-        {provide: ShelfService, useValue: {getShelvesFromState: vi.fn(() => [])}},
+        {provide: ShelfService, useValue: {shelves$: of([])}},
         {provide: BookService, useValue: {bookState$: of({loaded: false, books: []})}},
         {provide: MagicShelfService, useValue: {}},
         {provide: MessageService, useValue: {add: vi.fn()}},

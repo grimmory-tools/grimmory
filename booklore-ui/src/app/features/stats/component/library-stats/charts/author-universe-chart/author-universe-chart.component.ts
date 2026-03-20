@@ -1,12 +1,10 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, effect, inject, OnDestroy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
-import {BehaviorSubject, EMPTY, Observable, Subject} from 'rxjs';
-import {catchError, filter, first, switchMap, takeUntil} from 'rxjs/operators';
+import {BehaviorSubject, Observable} from 'rxjs';
 import {Chart, ChartConfiguration, ChartData} from 'chart.js';
 import {LibraryFilterService} from '../../service/library-filter.service';
 import {BookService} from '../../../../../book/service/book.service';
-import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book, ReadStatus} from '../../../../../book/model/book.model';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
@@ -46,11 +44,17 @@ const COMPLETION_COLORS = {
   templateUrl: './author-universe-chart.component.html',
   styleUrls: ['./author-universe-chart.component.scss']
 })
-export class AuthorUniverseChartComponent implements OnInit, OnDestroy {
+export class AuthorUniverseChartComponent implements OnDestroy {
   private readonly bookService = inject(BookService);
   private readonly libraryFilterService = inject(LibraryFilterService);
   private readonly t = inject(TranslocoService);
-  private readonly destroy$ = new Subject<void>();
+  private readonly syncChartEffect = effect(() => {
+    if (this.bookService.isBooksLoading()) {
+      return;
+    }
+
+    this.calculateAndUpdateChart(this.bookService.books(), this.libraryFilterService.selectedLibrary());
+  });
 
   public readonly chartType = 'bubble' as const;
   public chartOptions: ChartConfiguration<'bubble'>['options'];
@@ -69,29 +73,7 @@ export class AuthorUniverseChartComponent implements OnInit, OnDestroy {
     this.initChartOptions();
   }
 
-  ngOnInit(): void {
-    this.bookService.bookState$
-      .pipe(
-        filter(state => state.loaded),
-        first(),
-        switchMap(() =>
-          this.libraryFilterService.selectedLibrary$.pipe(
-            takeUntil(this.destroy$)
-          )
-        ),
-        catchError((error) => {
-          console.error('Error processing author universe data:', error);
-          return EMPTY;
-        })
-      )
-      .subscribe(() => {
-        this.calculateAndUpdateChart();
-      });
-  }
-
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
     document.getElementById('author-chart-tooltip')?.remove();
   }
 
@@ -187,11 +169,8 @@ export class AuthorUniverseChartComponent implements OnInit, OnDestroy {
     };
   }
 
-  private calculateAndUpdateChart(): void {
-    const currentState = this.bookService.getCurrentBookState();
-    const selectedLibraryId = this.libraryFilterService.getCurrentSelectedLibrary();
-
-    if (!this.isValidBookState(currentState)) {
+  private calculateAndUpdateChart(books: Book[], selectedLibraryId: number | null): void {
+    if (books.length === 0) {
       this.chartDataSubject.next({labels: [], datasets: []});
       this.totalAuthors = 0;
       this.topAuthors = [];
@@ -199,25 +178,13 @@ export class AuthorUniverseChartComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const filteredBooks = this.filterBooksByLibrary(currentState.books!, selectedLibraryId);
+    const filteredBooks = this.filterBooksByLibrary(books, selectedLibraryId);
     const authorStats = this.calculateAuthorStats(filteredBooks);
 
     this.totalAuthors = authorStats.length;
     this.topAuthors = authorStats.slice(0, 10);
     this.insights = this.generateInsights(authorStats);
     this.updateChartData(authorStats);
-  }
-
-  private isValidBookState(state: unknown): state is BookState {
-    return (
-      typeof state === 'object' &&
-      state !== null &&
-      'loaded' in state &&
-      typeof (state as { loaded: boolean }).loaded === 'boolean' &&
-      'books' in state &&
-      Array.isArray((state as { books: unknown }).books) &&
-      (state as { books: Book[] }).books.length > 0
-    );
   }
 
   private filterBooksByLibrary(books: Book[], selectedLibraryId: number | null): Book[] {

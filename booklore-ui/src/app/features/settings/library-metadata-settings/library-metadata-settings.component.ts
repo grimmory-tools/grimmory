@@ -1,8 +1,6 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, effect, inject, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
 import {AccordionModule} from 'primeng/accordion';
 import {MessageService} from 'primeng/api';
 import {Button} from 'primeng/button';
@@ -32,10 +30,6 @@ export class LibraryMetadataSettingsComponent implements OnInit {
   private sidecarService = inject(SidecarService);
   private t = inject(TranslocoService);
 
-  libraries$: Observable<Library[]> = this.libraryService.libraryState$.pipe(
-    map(state => state.libraries || [])
-  );
-
   defaultMetadataOptions: MetadataRefreshOptions = this.getDefaultMetadataOptions();
   libraryMetadataOptions: Record<number, MetadataRefreshOptions> = {};
   activePanel: number | null = null;
@@ -43,28 +37,33 @@ export class LibraryMetadataSettingsComponent implements OnInit {
   sidecarImporting: Record<number, boolean> = {};
   isLocalStorage = true;
   private cachedDefaultOptions: Record<number, MetadataRefreshOptions> = {};
-
-  ngOnInit() {
-    this.appSettingsService.appSettings$.subscribe(appSettings => {
-      if (appSettings) {
-        this.isLocalStorage = appSettings.diskType === 'LOCAL';
-        this.defaultMetadataOptions = appSettings.defaultMetadataRefreshOptions;
-        this.cachedDefaultOptions = {};
-        this.initializeLibraryOptions(appSettings);
-        this.updateLibraryOptionsFromSettings(appSettings);
+  private readonly syncLibraryOptionsEffect = effect(() => {
+    this.libraries.forEach(library => {
+      if (library.id && !this.libraryMetadataOptions[library.id]) {
+        const libraryOptions = this.getLibrarySpecificOptions(library.id);
+        if (libraryOptions) {
+          this.libraryMetadataOptions[library.id] = libraryOptions;
+        }
       }
     });
+  });
 
-    this.libraries$.subscribe(libraries => {
-      libraries.forEach(library => {
-        if (library.id && !this.libraryMetadataOptions[library.id]) {
-          const libraryOptions = this.getLibrarySpecificOptions(library.id);
-          if (libraryOptions) {
-            this.libraryMetadataOptions[library.id] = libraryOptions;
-          }
-        }
-      });
-    });
+  get libraries(): Library[] {
+    return this.libraryService.libraries();
+  }
+
+  private readonly syncAppSettingsEffect = effect(() => {
+    const appSettings = this.appSettingsService.appSettings();
+    if (appSettings) {
+      this.isLocalStorage = appSettings.diskType === 'LOCAL';
+      this.defaultMetadataOptions = appSettings.defaultMetadataRefreshOptions;
+      this.cachedDefaultOptions = {};
+      this.initializeLibraryOptions(appSettings);
+      this.updateLibraryOptionsFromSettings(appSettings);
+    }
+  });
+
+  ngOnInit() {
   }
 
   onPanelChange(event: unknown) {
@@ -171,6 +170,7 @@ export class LibraryMetadataSettingsComponent implements OnInit {
   }
 
   private updateLibraryOptionsFromSettings(appSettings: AppSettings) {
+    void appSettings;
     Object.keys(this.libraryMetadataOptions).forEach(libraryIdStr => {
       const libraryId = parseInt(libraryIdStr, 10);
       if (!this.hasLibrarySpecificOptions(libraryId)) {
@@ -184,25 +184,17 @@ export class LibraryMetadataSettingsComponent implements OnInit {
   }
 
   private hasLibrarySpecificOptionsInSettings(libraryId: number): boolean {
-    let hasOptions = false;
-    this.appSettingsService.appSettings$.subscribe(settings => {
-      hasOptions = settings?.libraryMetadataRefreshOptions?.some(
-        option => option.libraryId === libraryId
-      ) || false;
-    }).unsubscribe();
-
-    return hasOptions;
+    const settings = this.appSettingsService.appSettings();
+    return settings?.libraryMetadataRefreshOptions?.some(
+      option => option.libraryId === libraryId
+    ) || false;
   }
 
   private getLibrarySpecificOptions(libraryId: number): MetadataRefreshOptions | null {
-    let libraryOptions: MetadataRefreshOptions | null = null;
-    this.appSettingsService.appSettings$.subscribe(settings => {
-      libraryOptions = settings?.libraryMetadataRefreshOptions?.find(
-        option => option.libraryId === libraryId
-      ) || null;
-    }).unsubscribe();
-
-    return libraryOptions;
+    const settings = this.appSettingsService.appSettings();
+    return settings?.libraryMetadataRefreshOptions?.find(
+      option => option.libraryId === libraryId
+    ) || null;
   }
 
   private getDefaultMetadataOptions(): MetadataRefreshOptions {

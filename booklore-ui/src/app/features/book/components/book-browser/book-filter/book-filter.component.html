@@ -16,7 +16,7 @@
   <div class="filter-content">
     <p-accordion [value]="expandedPanels" [multiple]="true" (valueChange)="onExpandedPanelsChange($event)">
       @for (filterType of visibleFilterTypes; track trackByFilterType(i, filterType); let i = $index) {
-        @if (filterStreams[filterType] | async; as filters) {
+        @if (filterSignals[filterType](); as filters) {
           @if (filters.length > 0) {
             <p-accordion-panel [value]="i">
               <p-accordion-header>

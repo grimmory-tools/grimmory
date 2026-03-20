@@ -1,12 +1,9 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, computed, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
-import {BehaviorSubject, EMPTY, Observable, Subject} from 'rxjs';
-import {catchError, filter, first, switchMap, takeUntil} from 'rxjs/operators';
 import {ChartConfiguration, ChartData} from 'chart.js';
 import {LibraryFilterService} from '../../service/library-filter.service';
 import {BookService} from '../../../../../book/service/book.service';
-import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book, ReadStatus} from '../../../../../book/model/book.model';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
@@ -43,52 +40,74 @@ type JourneyChartData = ChartData<'line', number[], string>;
   templateUrl: './reading-journey-chart.component.html',
   styleUrls: ['./reading-journey-chart.component.scss']
 })
-export class ReadingJourneyChartComponent implements OnInit, OnDestroy {
+export class ReadingJourneyChartComponent {
   private readonly bookService = inject(BookService);
   private readonly libraryFilterService = inject(LibraryFilterService);
   private readonly t = inject(TranslocoService);
-  private readonly destroy$ = new Subject<void>();
+  private readonly filteredBooks = computed(() => {
+    if (this.bookService.isBooksLoading()) {
+      return [];
+    }
+
+    return this.filterBooksByLibrary(this.bookService.books(), this.libraryFilterService.selectedLibrary());
+  });
+  private readonly monthlyData = computed(() => this.calculateMonthlyData(this.filteredBooks()));
 
   public readonly chartType = 'line' as const;
   public chartOptions: ChartConfiguration<'line'>['options'];
-  public insights: JourneyInsights | null = null;
-  public totalBooks = 0;
-  public dateRange = '';
-
-  private readonly chartDataSubject = new BehaviorSubject<JourneyChartData>({
-    labels: [],
-    datasets: []
+  public readonly insights = computed(() => {
+    const filteredBooks = this.filteredBooks();
+    const monthlyData = this.monthlyData();
+    return filteredBooks.length > 0 ? this.calculateInsights(filteredBooks, monthlyData) : null;
   });
+  public readonly totalBooks = computed(() => this.filteredBooks().length);
+  public readonly dateRange = computed(() => {
+    const monthlyData = this.monthlyData();
+    if (monthlyData.length === 0) {
+      return '';
+    }
 
-  public readonly chartData$: Observable<JourneyChartData> = this.chartDataSubject.asObservable();
+    return `${monthlyData[0].label} - ${monthlyData[monthlyData.length - 1].label}`;
+  });
+  public readonly chartData = computed<JourneyChartData>(() => {
+    const monthlyData = this.monthlyData();
+    if (monthlyData.length === 0) {
+      return {labels: [], datasets: []};
+    }
+
+    const labels = monthlyData.map(d => d.label);
+    const addedData = monthlyData.map(d => d.cumulativeAdded);
+    const finishedData = monthlyData.map(d => d.cumulativeFinished);
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: this.t.translate('statsLibrary.readingJourney.legendBooksAdded'),
+          data: addedData,
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          pointBackgroundColor: '#3b82f6',
+          pointBorderColor: '#ffffff',
+          fill: true,
+          order: 2
+        },
+        {
+          label: this.t.translate('statsLibrary.readingJourney.legendBooksFinished'),
+          data: finishedData,
+          borderColor: '#10b981',
+          backgroundColor: 'rgba(16, 185, 129, 0.2)',
+          pointBackgroundColor: '#10b981',
+          pointBorderColor: '#ffffff',
+          fill: true,
+          order: 1
+        }
+      ]
+    };
+  });
 
   constructor() {
     this.initChartOptions();
-  }
-
-  ngOnInit(): void {
-    this.bookService.bookState$
-      .pipe(
-        filter(state => state.loaded),
-        first(),
-        switchMap(() =>
-          this.libraryFilterService.selectedLibrary$.pipe(
-            takeUntil(this.destroy$)
-          )
-        ),
-        catchError((error) => {
-          console.error('Error processing reading journey data:', error);
-          return EMPTY;
-        })
-      )
-      .subscribe(() => {
-        this.calculateAndUpdateChart();
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   private initChartOptions(): void {
@@ -211,45 +230,6 @@ export class ReadingJourneyChartComponent implements OnInit, OnDestroy {
     };
   }
 
-  private calculateAndUpdateChart(): void {
-    const currentState = this.bookService.getCurrentBookState();
-    const selectedLibraryId = this.libraryFilterService.getCurrentSelectedLibrary();
-
-    if (!this.isValidBookState(currentState)) {
-      this.chartDataSubject.next({labels: [], datasets: []});
-      this.insights = null;
-      this.totalBooks = 0;
-      this.dateRange = '';
-      return;
-    }
-
-    const filteredBooks = this.filterBooksByLibrary(currentState.books!, selectedLibraryId);
-    this.totalBooks = filteredBooks.length;
-
-    if (filteredBooks.length === 0) {
-      this.chartDataSubject.next({labels: [], datasets: []});
-      this.insights = null;
-      this.dateRange = '';
-      return;
-    }
-
-    const monthlyData = this.calculateMonthlyData(filteredBooks);
-    this.insights = this.calculateInsights(filteredBooks, monthlyData);
-    this.updateChartData(monthlyData);
-  }
-
-  private isValidBookState(state: unknown): state is BookState {
-    return (
-      typeof state === 'object' &&
-      state !== null &&
-      'loaded' in state &&
-      typeof (state as { loaded: boolean }).loaded === 'boolean' &&
-      'books' in state &&
-      Array.isArray((state as { books: unknown }).books) &&
-      (state as { books: Book[] }).books.length > 0
-    );
-  }
-
   private filterBooksByLibrary(books: Book[], selectedLibraryId: number | null): Book[] {
     return selectedLibraryId
       ? books.filter(book => book.libraryId === selectedLibraryId)
@@ -290,8 +270,6 @@ export class ReadingJourneyChartComponent implements OnInit, OnDestroy {
     const firstMonth = sortedMonths[0];
     const lastMonth = sortedMonths[sortedMonths.length - 1];
     const allMonthsRange = this.getMonthRange(firstMonth, lastMonth);
-
-    this.dateRange = `${this.formatMonthLabel(firstMonth)} - ${this.formatMonthLabel(lastMonth)}`;
 
     let cumulativeAdded = 0;
     let cumulativeFinished = 0;
@@ -447,42 +425,5 @@ export class ReadingJourneyChartComponent implements OnInit, OnDestroy {
       recentActivity,
       longestStreak
     };
-  }
-
-  private updateChartData(monthlyData: MonthlyData[]): void {
-    if (monthlyData.length === 0) {
-      this.chartDataSubject.next({labels: [], datasets: []});
-      return;
-    }
-
-    const labels = monthlyData.map(d => d.label);
-    const addedData = monthlyData.map(d => d.cumulativeAdded);
-    const finishedData = monthlyData.map(d => d.cumulativeFinished);
-
-    this.chartDataSubject.next({
-      labels,
-      datasets: [
-        {
-          label: this.t.translate('statsLibrary.readingJourney.legendBooksAdded'),
-          data: addedData,
-          borderColor: '#3b82f6',
-          backgroundColor: 'rgba(59, 130, 246, 0.1)',
-          pointBackgroundColor: '#3b82f6',
-          pointBorderColor: '#ffffff',
-          fill: true,
-          order: 2
-        },
-        {
-          label: this.t.translate('statsLibrary.readingJourney.legendBooksFinished'),
-          data: finishedData,
-          borderColor: '#10b981',
-          backgroundColor: 'rgba(16, 185, 129, 0.2)',
-          pointBackgroundColor: '#10b981',
-          pointBorderColor: '#ffffff',
-          fill: true,
-          order: 1
-        }
-      ]
-    });
   }
 }

@@ -1,13 +1,15 @@
-import {inject, Injectable} from '@angular/core';
+import {computed, effect, inject, Injectable, signal} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {BehaviorSubject, Observable, of} from 'rxjs';
-import {catchError, distinctUntilChanged, finalize, map, shareReplay, tap} from 'rxjs/operators';
+import {from, lastValueFrom, Observable} from 'rxjs';
+import {tap} from 'rxjs/operators';
+import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
 
 import {Library} from '../model/library.model';
-import {LibraryState} from '../model/state/library-state.model';
 import {BookService} from './book.service';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {AuthService} from '../../../shared/service/auth.service';
+import {BOOKS_QUERY_KEY} from './book-query-keys';
+import {LIBRARIES_QUERY_KEY, libraryFormatCountsQueryKey} from './library-query-keys';
 
 @Injectable({providedIn: 'root'})
 export class LibraryService {
@@ -15,72 +17,56 @@ export class LibraryService {
   private http = inject(HttpClient);
   private bookService = inject(BookService);
   private authService = inject(AuthService);
+  private queryClient = inject(QueryClient);
+  private readonly token = this.authService.token;
 
-  private libraryStateSubject = new BehaviorSubject<LibraryState>({
-    libraries: null,
-    loaded: false,
-    error: null,
-  });
-
-  private largeLibraryLoadingSubject = new BehaviorSubject<{ isLoading: boolean; expectedCount: number }>({
+  readonly largeLibraryLoading = signal<{ isLoading: boolean; expectedCount: number }>({
     isLoading: false,
     expectedCount: 0
   });
 
-  largeLibraryLoading$ = this.largeLibraryLoadingSubject.asObservable();
+  private librariesQuery = injectQuery(() => ({
+    ...this.getLibrariesQueryOptions(),
+    enabled: !!this.token(),
+  }));
 
-  private loading$: Observable<Library[]> | null = null;
+  libraries = computed(() => this.librariesQuery.data() ?? []);
+
+  librariesError = computed<string | null>(() => {
+    if (!this.token() || !this.librariesQuery.isError()) {
+      return null;
+    }
+
+    const error = this.librariesQuery.error();
+    return error instanceof Error ? error.message : 'Failed to load libraries';
+  });
+
+  isLibrariesLoading = computed(() => !!this.token() && this.librariesQuery.isPending());
 
   constructor() {
-    this.authService.token$.pipe(
-      distinctUntilChanged()
-    ).subscribe(token => {
+    effect(() => {
+      const token = this.token();
       if (token === null) {
-        this.libraryStateSubject.next({
-          libraries: null,
-          loaded: true,
-          error: null,
-        });
-        this.loading$ = null;
-      } else {
-        const current = this.libraryStateSubject.value;
-        if (current.loaded && !current.libraries) {
-          this.libraryStateSubject.next({
-            libraries: null,
-            loaded: false,
-            error: null,
-          });
-          this.loading$ = null;
-        }
+        this.queryClient.removeQueries({queryKey: LIBRARIES_QUERY_KEY});
       }
     });
   }
 
-  libraryState$ = this.libraryStateSubject.asObservable().pipe(
-    tap(state => {
-      if (!state.loaded && !state.error && !this.loading$) {
-        this.loading$ = this.fetchLibraries().pipe(
-          shareReplay(1),
-          finalize(() => (this.loading$ = null))
-        );
-        this.loading$.subscribe();
+  private getLibrariesQueryOptions() {
+    return queryOptions({
+      queryKey: LIBRARIES_QUERY_KEY,
+      queryFn: async () => {
+        const libraries = await lastValueFrom(this.http.get<Library[]>(this.url));
+        return this.sortLibraries(libraries);
       }
-    })
-  );
+    });
+  }
 
-  private fetchLibraries(): Observable<Library[]> {
-    return this.http.get<Library[]>(this.url).pipe(
-      tap(libs => this.libraryStateSubject.next({
-        libraries: this.sortLibraries(libs),
-        loaded: true,
-        error: null,
-      })),
-      catchError(err => {
-        const current = this.libraryStateSubject.value;
-        this.libraryStateSubject.next({libraries: current.libraries, loaded: true, error: err.message});
-        throw err;
-      })
-    );
+  private getLibraryFormatCountsQueryOptions(libraryId: number) {
+    return queryOptions({
+      queryKey: libraryFormatCountsQueryKey(libraryId),
+      queryFn: () => lastValueFrom(this.http.get<Record<string, number>>(`${this.url}/${libraryId}/format-counts`))
+    });
   }
 
   scanLibraryPaths(lib: Library): Observable<number> {
@@ -89,23 +75,17 @@ export class LibraryService {
 
   createLibrary(lib: Library): Observable<Library> {
     return this.http.post<Library>(this.url, lib).pipe(
-      map(created => {
-        const curr = this.libraryStateSubject.value;
-        const updated = curr.libraries ? [...curr.libraries, created] : [created];
-        this.libraryStateSubject.next({...curr, libraries: this.sortLibraries(updated)});
-        return created;
+      tap(() => {
+        void this.queryClient.invalidateQueries({queryKey: LIBRARIES_QUERY_KEY, exact: true});
       })
     );
   }
 
   updateLibrary(lib: Library, id?: number): Observable<Library> {
     return this.http.put<Library>(`${this.url}/${id}`, lib).pipe(
-      map(updated => {
-        const curr = this.libraryStateSubject.value;
-        const list = curr.libraries?.map(l => (l.id === updated.id ? updated : l)) || [updated];
-        this.libraryStateSubject.next({...curr, libraries: this.sortLibraries(list)});
-        this.bookService.refreshBooks();
-        return updated;
+      tap(() => {
+        void this.queryClient.invalidateQueries({queryKey: LIBRARIES_QUERY_KEY, exact: true});
+        void this.queryClient.invalidateQueries({queryKey: BOOKS_QUERY_KEY, exact: true});
       })
     );
   }
@@ -113,25 +93,17 @@ export class LibraryService {
   deleteLibrary(id: number): Observable<void> {
     return this.http.delete<void>(`${this.url}/${id}`).pipe(
       tap(() => {
-        this.bookService.removeBooksByLibraryId(id);
-        const curr = this.libraryStateSubject.value;
-        const filtered = curr.libraries?.filter(l => l.id !== id) || [];
-        this.libraryStateSubject.next({...curr, libraries: filtered});
-      }),
-      catchError(err => {
-        const curr = this.libraryStateSubject.value;
-        this.libraryStateSubject.next({...curr, error: err.message});
-        return of();
+        void this.queryClient.invalidateQueries({queryKey: LIBRARIES_QUERY_KEY, exact: true});
+        void this.queryClient.invalidateQueries({queryKey: BOOKS_QUERY_KEY, exact: true});
+        this.queryClient.removeQueries({queryKey: libraryFormatCountsQueryKey(id), exact: true});
       })
     );
   }
 
   refreshLibrary(id: number): Observable<void> {
     return this.http.put<void>(`${this.url}/${id}/refresh`, {}).pipe(
-      catchError(err => {
-        const curr = this.libraryStateSubject.value;
-        this.libraryStateSubject.next({...curr, error: err.message});
-        throw err;
+      tap(() => {
+        void this.queryClient.invalidateQueries({queryKey: LIBRARIES_QUERY_KEY, exact: true});
       })
     );
   }
@@ -140,42 +112,34 @@ export class LibraryService {
     return this.http
       .patch<Library>(`${this.url}/${id}/file-naming-pattern`, {fileNamingPattern: pattern})
       .pipe(
-        map(updated => {
-          const curr = this.libraryStateSubject.value;
-          const list = curr.libraries?.map(l => (l.id === updated.id ? updated : l)) || [updated];
-          this.libraryStateSubject.next({...curr, libraries: this.sortLibraries(list)});
-          return updated;
+        tap(() => {
+          void this.queryClient.invalidateQueries({queryKey: LIBRARIES_QUERY_KEY, exact: true});
         })
       );
   }
 
   doesLibraryExistByName(name: string): boolean {
-    return (this.libraryStateSubject.value.libraries || []).some(l => l.name === name);
+    return this.libraries().some(library => library.name === name);
   }
 
   findLibraryById(id: number): Library | undefined {
-    return this.libraryStateSubject.value.libraries?.find(l => l.id === id);
+    return this.libraries().find(library => library.id === id);
   }
 
-  getLibrariesFromState(): Library[] {
-    return this.libraryStateSubject.value.libraries || [];
-  }
-
-  getBookCount(libraryId: number): Observable<number> {
-    return this.bookService.bookState$.pipe(
-      map(state => (state.books || []).filter(b => b.libraryId === libraryId).length)
-    );
+  getBookCountValue(libraryId: number): number {
+    return this.bookService.books().filter(book => book.libraryId === libraryId).length;
   }
 
   setLargeLibraryLoading(isLoading: boolean, expectedCount: number): void {
-    this.largeLibraryLoadingSubject.next({ isLoading, expectedCount });
+    this.largeLibraryLoading.set({ isLoading, expectedCount });
   }
 
   getBookCountsByFormat(libraryId: number): Observable<Record<string, number>> {
-    return this.http.get<Record<string, number>>(`${this.url}/${libraryId}/format-counts`);
+    return from(this.queryClient.ensureQueryData(this.getLibraryFormatCountsQueryOptions(libraryId)));
   }
 
   private sortLibraries(libraries: Library[]): Library[] {
     return [...libraries].sort((a, b) => a.name.localeCompare(b.name));
   }
+
 }

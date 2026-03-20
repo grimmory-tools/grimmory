@@ -1,4 +1,4 @@
-import {Component, EventEmitter, inject, OnDestroy, OnInit, Output} from '@angular/core';
+import {Component, DestroyRef, effect, inject, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {Subject} from 'rxjs';
@@ -6,7 +6,6 @@ import {takeUntil, debounceTime, distinctUntilChanged, filter} from 'rxjs/operat
 import {TranslocoDirective} from '@jsverse/transloco';
 import {ReaderLeftSidebarService, LeftSidebarTab} from './panel.service';
 import {BookNoteV2} from '../../../../../shared/service/book-note-v2.service';
-import {SearchState, SearchResult} from '../sidebar/sidebar.service';
 import {ReaderIconComponent} from '../../shared/icon.component';
 
 @Component({
@@ -16,47 +15,43 @@ import {ReaderIconComponent} from '../../shared/icon.component';
   styleUrls: ['./panel.component.scss'],
   imports: [CommonModule, FormsModule, TranslocoDirective, ReaderIconComponent]
 })
-export class ReaderLeftSidebarComponent implements OnInit, OnDestroy {
-  private leftSidebarService = inject(ReaderLeftSidebarService);
-  private destroy$ = new Subject<void>();
+export class ReaderLeftSidebarComponent {
+  private readonly leftSidebarService = inject(ReaderLeftSidebarService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly destroy$ = new Subject<void>();
+  private closeAnimationTimeout: ReturnType<typeof setTimeout> | null = null;
 
-  isOpen = false;
-  closing = false;
-  activeTab: LeftSidebarTab = 'search';
-  notes: BookNoteV2[] = [];
-  notesSearchQuery = '';
-  searchState: SearchState = { query: '', results: [], isSearching: false, progress: 0 };
+  readonly activeTab = this.leftSidebarService.activeTab;
+  readonly notes = this.leftSidebarService.notes;
+  readonly notesSearchQuery = this.leftSidebarService.notesSearchQuery;
+  readonly searchState = this.leftSidebarService.searchState;
+  readonly filteredNotes = this.leftSidebarService.filteredNotes;
+
+  readonly isOpen = signal(false);
+  readonly closing = signal(false);
   searchQuery = '';
-  private searchInput$ = new Subject<string>();
+  private readonly searchInput$ = new Subject<string>();
 
-  ngOnInit(): void {
-    this.leftSidebarService.isOpen$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(isOpen => {
-        if (isOpen) {
-          this.isOpen = true;
-          this.closing = false;
-        } else if (this.isOpen) {
-          this.closeWithAnimation();
-        }
-      });
+  constructor() {
+    effect(() => {
+      if (this.leftSidebarService.isOpen()) {
+        this.clearCloseAnimation();
+        this.isOpen.set(true);
+        this.closing.set(false);
+        return;
+      }
 
-    this.leftSidebarService.activeTab$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(tab => this.activeTab = tab);
+      if (this.isOpen()) {
+        this.closeWithAnimation();
+      }
+    });
 
-    this.leftSidebarService.notes$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(notes => this.notes = notes);
-
-    this.leftSidebarService.searchState$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(state => {
-        this.searchState = state;
-        if (state.query && state.query !== this.searchQuery) {
-          this.searchQuery = state.query;
-        }
-      });
+    effect(() => {
+      const state = this.leftSidebarService.searchState();
+      if (state.query !== this.searchQuery) {
+        this.searchQuery = state.query;
+      }
+    });
 
     this.searchInput$
       .pipe(
@@ -66,19 +61,28 @@ export class ReaderLeftSidebarComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$)
       )
       .subscribe(query => this.leftSidebarService.search(query));
-  }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    this.destroyRef.onDestroy(() => {
+      this.clearCloseAnimation();
+      this.destroy$.next();
+      this.destroy$.complete();
+    });
   }
 
   private closeWithAnimation(): void {
-    this.closing = true;
-    setTimeout(() => {
-      this.isOpen = false;
-      this.closing = false;
+    this.closing.set(true);
+    this.closeAnimationTimeout = setTimeout(() => {
+      this.isOpen.set(false);
+      this.closing.set(false);
+      this.closeAnimationTimeout = null;
     }, 250);
+  }
+
+  private clearCloseAnimation(): void {
+    if (this.closeAnimationTimeout) {
+      clearTimeout(this.closeAnimationTimeout);
+      this.closeAnimationTimeout = null;
+    }
   }
 
   onOverlayClick(): void {
@@ -104,17 +108,11 @@ export class ReaderLeftSidebarComponent implements OnInit, OnDestroy {
   }
 
   onNotesSearchInput(query: string): void {
-    this.notesSearchQuery = query;
     this.leftSidebarService.setNotesSearchQuery(query);
   }
 
   clearNotesSearch(): void {
-    this.notesSearchQuery = '';
     this.leftSidebarService.setNotesSearchQuery('');
-  }
-
-  get filteredNotes(): BookNoteV2[] {
-    return this.leftSidebarService.getFilteredNotes();
   }
 
   onSearchInput(query: string): void {

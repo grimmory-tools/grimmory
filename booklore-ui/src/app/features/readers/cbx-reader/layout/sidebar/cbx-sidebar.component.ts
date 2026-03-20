@@ -1,12 +1,8 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, DestroyRef, effect, inject, signal} from '@angular/core';
 import {CommonModule, DatePipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {TranslocoPipe} from '@jsverse/transloco';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
-import {CbxSidebarService, CbxSidebarTab, SidebarBookInfo} from './cbx-sidebar.service';
-import {CbxPageInfo} from '../../../../book/service/cbx-reader.service';
-import {BookMark} from '../../../../../shared/service/book-mark.service';
+import {CbxSidebarService, CbxSidebarTab} from './cbx-sidebar.service';
 import {BookNoteV2} from '../../../../../shared/service/book-note-v2.service';
 import {ReaderIconComponent} from '../../../ebook-reader';
 
@@ -17,68 +13,54 @@ import {ReaderIconComponent} from '../../../ebook-reader';
   styleUrls: ['./cbx-sidebar.component.scss'],
   imports: [CommonModule, FormsModule, TranslocoPipe, ReaderIconComponent, DatePipe]
 })
-export class CbxSidebarComponent implements OnInit, OnDestroy {
-  private sidebarService = inject(CbxSidebarService);
-  private destroy$ = new Subject<void>();
+export class CbxSidebarComponent {
+  private readonly sidebarService = inject(CbxSidebarService);
+  private readonly destroyRef = inject(DestroyRef);
+  private closeAnimationTimeout: ReturnType<typeof setTimeout> | null = null;
 
-  isOpen = false;
-  closing = false;
-  activeTab: CbxSidebarTab = 'pages';
-  bookInfo: SidebarBookInfo = { id: null, title: '', authors: '', coverUrl: null };
-  pages: CbxPageInfo[] = [];
-  currentPage = 1;
-  bookmarks: BookMark[] = [];
-  notes: BookNoteV2[] = [];
-  notesSearchQuery = '';
+  readonly activeTab = this.sidebarService.activeTab;
+  readonly bookInfo = this.sidebarService.bookInfo;
+  readonly pages = this.sidebarService.pages;
+  readonly currentPage = this.sidebarService.currentPage;
+  readonly bookmarks = this.sidebarService.bookmarks;
+  readonly notes = this.sidebarService.notes;
+  readonly notesSearchQuery = this.sidebarService.notesSearchQuery;
+  readonly filteredNotes = this.sidebarService.filteredNotes;
 
-  ngOnInit(): void {
-    this.sidebarService.isOpen$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(isOpen => {
-        if (isOpen) {
-          this.isOpen = true;
-          this.closing = false;
-        } else if (this.isOpen) {
-          this.closeWithAnimation();
-        }
-      });
+  readonly isOpen = signal(false);
+  readonly closing = signal(false);
 
-    this.sidebarService.activeTab$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(tab => this.activeTab = tab);
+  constructor() {
+    effect(() => {
+      if (this.sidebarService.isOpen()) {
+        this.clearCloseAnimation();
+        this.isOpen.set(true);
+        this.closing.set(false);
+        return;
+      }
 
-    this.sidebarService.bookInfo$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(info => this.bookInfo = info);
+      if (this.isOpen()) {
+        this.closeWithAnimation();
+      }
+    });
 
-    this.sidebarService.pages$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(pages => this.pages = pages);
-
-    this.sidebarService.currentPage$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(page => this.currentPage = page);
-
-    this.sidebarService.bookmarks$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(bookmarks => this.bookmarks = bookmarks);
-
-    this.sidebarService.notes$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(notes => this.notes = notes);
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    this.destroyRef.onDestroy(() => this.clearCloseAnimation());
   }
 
   private closeWithAnimation(): void {
-    this.closing = true;
-    setTimeout(() => {
-      this.isOpen = false;
-      this.closing = false;
+    this.closing.set(true);
+    this.closeAnimationTimeout = setTimeout(() => {
+      this.isOpen.set(false);
+      this.closing.set(false);
+      this.closeAnimationTimeout = null;
     }, 250);
+  }
+
+  private clearCloseAnimation(): void {
+    if (this.closeAnimationTimeout) {
+      clearTimeout(this.closeAnimationTimeout);
+      this.closeAnimationTimeout = null;
+    }
   }
 
   onOverlayClick(): void {
@@ -94,7 +76,7 @@ export class CbxSidebarComponent implements OnInit, OnDestroy {
   }
 
   isPageActive(pageNumber: number): boolean {
-    return this.currentPage === pageNumber;
+    return this.currentPage() === pageNumber;
   }
 
   onBookmarkClick(cfi: string): void {
@@ -121,16 +103,10 @@ export class CbxSidebarComponent implements OnInit, OnDestroy {
   }
 
   onNotesSearchInput(query: string): void {
-    this.notesSearchQuery = query;
     this.sidebarService.setNotesSearchQuery(query);
   }
 
   clearNotesSearch(): void {
-    this.notesSearchQuery = '';
     this.sidebarService.setNotesSearchQuery('');
-  }
-
-  get filteredNotes(): BookNoteV2[] {
-    return this.sidebarService.getFilteredNotes();
   }
 }

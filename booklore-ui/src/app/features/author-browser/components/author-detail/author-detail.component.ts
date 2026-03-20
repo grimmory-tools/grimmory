@@ -1,8 +1,6 @@
-import {AfterViewChecked, Component, ElementRef, inject, OnInit, ViewChild} from '@angular/core';
+import {AfterViewChecked, Component, computed, ElementRef, inject, OnInit, signal, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {AsyncPipe, NgClass, NgStyle} from '@angular/common';
-import {combineLatest, Observable} from 'rxjs';
-import {filter, map} from 'rxjs/operators';
+import {NgClass, NgStyle} from '@angular/common';
 import {Tab, TabList, TabPanel, TabPanels, Tabs} from 'primeng/tabs';
 import {ProgressSpinner} from 'primeng/progressspinner';
 import {Button} from 'primeng/button';
@@ -14,7 +12,6 @@ import {Tooltip} from 'primeng/tooltip';
 import {AuthorService} from '../../service/author.service';
 import {AuthorDetails} from '../../model/author.model';
 import {BookService} from '../../../book/service/book.service';
-import {Book} from '../../../book/model/book.model';
 import {BookCardComponent} from '../../../book/components/book-browser/book-card/book-card.component';
 import {CoverScalePreferenceService} from '../../../book/components/book-browser/cover-scale-preference.service';
 import {BookCardOverlayPreferenceService} from '../../../book/components/book-browser/book-card-overlay-preference.service';
@@ -29,7 +26,6 @@ import {PageTitleService} from '../../../../shared/service/page-title.service';
   templateUrl: './author-detail.component.html',
   styleUrls: ['./author-detail.component.scss'],
   imports: [
-    AsyncPipe,
     NgClass,
     NgStyle,
     Tabs,
@@ -63,7 +59,6 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
 
   @ViewChild('descriptionContent') descriptionContentRef?: ElementRef<HTMLElement>;
 
-  author: AuthorDetails | null = null;
   loading = true;
   tab = 'books';
   isExpanded = false;
@@ -71,20 +66,31 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
   hasPhoto = true;
   photoTimestamp = Date.now();
   quickMatching = false;
+  private authorState = signal<AuthorDetails | null>(null);
+  author = this.authorState.asReadonly();
+  authorBooks = computed(() => {
+    const authorName = this.author()?.name?.toLowerCase();
+    if (!authorName) {
+      return [];
+    }
 
-  authorBooks$!: Observable<Book[]>;
+    return this.bookService.books().filter(book =>
+      book.metadata?.authors?.some(author => author.toLowerCase() === authorName)
+    );
+  });
 
   get currentCardSize() {
-    return this.coverScalePreferenceService.currentCardSize;
+    return this.coverScalePreferenceService.currentCardSize();
   }
 
   get gridColumnMinWidth(): string {
-    return this.coverScalePreferenceService.gridColumnMinWidth;
+    return this.coverScalePreferenceService.gridColumnMinWidth();
   }
 
   get photoUrl(): string {
-    if (!this.author) return '';
-    return this.authorService.getAuthorPhotoUrl(this.author.id) + '&t=' + this.photoTimestamp;
+    const author = this.author();
+    if (!author) return '';
+    return this.authorService.getAuthorPhotoUrl(author.id) + '&t=' + this.photoTimestamp;
   }
 
   get canEditMetadata(): boolean {
@@ -99,18 +105,6 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
       this.tab = tabParam;
     }
     this.loadAuthor(authorId);
-
-    this.authorBooks$ = this.bookService.bookState$.pipe(
-      filter(state => state.loaded && !!state.books),
-      map(state => {
-        const books = state.books || [];
-        const authorName = this.author?.name?.toLowerCase();
-        if (!authorName) return [];
-        return books.filter(b =>
-          b.metadata?.authors?.some(a => a.toLowerCase() === authorName)
-        );
-      })
-    );
   }
 
   ngAfterViewChecked(): void {
@@ -129,15 +123,21 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
   }
 
   onAuthorUpdated(updatedAuthor: AuthorDetails): void {
-    this.author = updatedAuthor;
+    this.authorState.set(updatedAuthor);
     this.hasPhoto = true;
     this.photoTimestamp = Date.now();
+    this.authorService.patchAuthorInCache(updatedAuthor.id, {
+      name: updatedAuthor.name,
+      asin: updatedAuthor.asin,
+      hasPhoto: true,
+    });
   }
 
   quickMatch(): void {
-    if (!this.author || this.quickMatching) return;
+    const author = this.author();
+    if (!author || this.quickMatching) return;
     this.quickMatching = true;
-    this.authorService.quickMatchAuthor(this.author.id).subscribe({
+    this.authorService.quickMatchAuthor(author.id).subscribe({
       next: (matched) => {
         this.onAuthorUpdated(matched);
         this.quickMatching = false;
@@ -161,20 +161,9 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
   private loadAuthor(authorId: number): void {
     this.authorService.getAuthorDetails(authorId).subscribe({
       next: (author) => {
-        this.author = author;
+        this.authorState.set(author);
         this.loading = false;
         this.pageTitle.setPageTitle(author.name);
-
-        this.authorBooks$ = this.bookService.bookState$.pipe(
-          filter(state => state.loaded && !!state.books),
-          map(state => {
-            const books = state.books || [];
-            const name = author.name.toLowerCase();
-            return books.filter(b =>
-              b.metadata?.authors?.some(a => a.toLowerCase() === name)
-            );
-          })
-        );
       },
       error: () => {
         this.loading = false;

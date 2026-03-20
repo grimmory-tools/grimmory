@@ -328,7 +328,7 @@ export class BookMenuService {
              rejectLabel: this.t.translate('common.no'),
              accept: () => {
                const loader = this.loadingService.show(this.t.translate('book.menuService.loading.removingFromShelves', {count}));
-               const books = this.bookService.getBooksByIdsFromState(Array.from(selectedBooks));
+               const books = this.bookService.getBooksByIds(Array.from(selectedBooks));
                const allShelfIds = new Set<number>();
                books.forEach(b => b.shelves?.forEach(s => {
                  if (s.id) allShelfIds.add(s.id);

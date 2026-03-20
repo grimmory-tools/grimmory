@@ -1,8 +1,6 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {TranslocoService, TranslocoPipe} from '@jsverse/transloco';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
 import {
   CbxFitMode,
   CbxScrollMode,
@@ -15,7 +13,7 @@ import {
   CbxMagnifierLensSize
 } from '../../../../settings/user-management/user.service';
 import {ReaderIconComponent, ReaderIconName} from '../../../ebook-reader/shared/icon.component';
-import {CbxQuickSettingsService, CbxQuickSettingsState} from './cbx-quick-settings.service';
+import {CbxQuickSettingsService} from './cbx-quick-settings.service';
 
 @Component({
   selector: 'app-cbx-quick-settings',
@@ -24,22 +22,11 @@ import {CbxQuickSettingsService, CbxQuickSettingsState} from './cbx-quick-settin
   templateUrl: './cbx-quick-settings.component.html',
   styleUrls: ['./cbx-quick-settings.component.scss']
 })
-export class CbxQuickSettingsComponent implements OnInit, OnDestroy {
-  private quickSettingsService = inject(CbxQuickSettingsService);
+export class CbxQuickSettingsComponent {
+  private readonly quickSettingsService = inject(CbxQuickSettingsService);
   private readonly t = inject(TranslocoService);
-  private destroy$ = new Subject<void>();
 
-  state: CbxQuickSettingsState = {
-    fitMode: CbxFitMode.FIT_PAGE,
-    scrollMode: CbxScrollMode.PAGINATED,
-    pageViewMode: CbxPageViewMode.SINGLE_PAGE,
-    pageSpread: CbxPageSpread.ODD,
-    backgroundColor: CbxBackgroundColor.GRAY,
-    readingDirection: CbxReadingDirection.LTR,
-    slideshowInterval: CbxSlideshowInterval.FIVE_SECONDS,
-    magnifierZoom: CbxMagnifierZoom.ZOOM_3X,
-    magnifierLensSize: CbxMagnifierLensSize.MEDIUM
-  };
+  readonly state = this.quickSettingsService.state;
 
   protected readonly CbxFitMode = CbxFitMode;
   protected readonly CbxScrollMode = CbxScrollMode;
@@ -100,27 +87,16 @@ export class CbxQuickSettingsComponent implements OnInit, OnDestroy {
     ];
   }
 
-  ngOnInit(): void {
-    this.quickSettingsService.state$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(state => this.state = state);
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   get isTwoPageView(): boolean {
-    return this.state.pageViewMode === CbxPageViewMode.TWO_PAGE;
+    return this.state().pageViewMode === CbxPageViewMode.TWO_PAGE;
   }
 
   get isPaginated(): boolean {
-    return this.state.scrollMode === CbxScrollMode.PAGINATED;
+    return this.state().scrollMode === CbxScrollMode.PAGINATED;
   }
 
   get isLongStrip(): boolean {
-    return this.state.scrollMode === CbxScrollMode.LONG_STRIP;
+    return this.state().scrollMode === CbxScrollMode.LONG_STRIP;
   }
 
   get isPhonePortrait(): boolean {
@@ -128,11 +104,11 @@ export class CbxQuickSettingsComponent implements OnInit, OnDestroy {
   }
 
   get currentScrollModeLabel(): string {
-    return this.scrollModeOptions.find(o => o.value === this.state.scrollMode)?.label || this.t.translate('readerCbx.quickSettings.paginated');
+    return this.scrollModeOptions.find(o => o.value === this.state().scrollMode)?.label || this.t.translate('readerCbx.quickSettings.paginated');
   }
 
   get currentSlideshowIntervalLabel(): string {
-    return this.slideshowIntervalOptions.find(o => o.value === this.state.slideshowInterval)?.label || '5s';
+    return this.slideshowIntervalOptions.find(o => o.value === this.state().slideshowInterval)?.label || '5s';
   }
 
   onFitModeSelect(mode: CbxFitMode): void {
@@ -144,14 +120,14 @@ export class CbxQuickSettingsComponent implements OnInit, OnDestroy {
   }
 
   onPageViewToggle(): void {
-    const newMode = this.state.pageViewMode === CbxPageViewMode.SINGLE_PAGE
+    const newMode = this.state().pageViewMode === CbxPageViewMode.SINGLE_PAGE
       ? CbxPageViewMode.TWO_PAGE
       : CbxPageViewMode.SINGLE_PAGE;
     this.quickSettingsService.emitPageViewModeChange(newMode);
   }
 
   onPageSpreadToggle(): void {
-    const newSpread = this.state.pageSpread === CbxPageSpread.ODD
+    const newSpread = this.state().pageSpread === CbxPageSpread.ODD
       ? CbxPageSpread.EVEN
       : CbxPageSpread.ODD;
     this.quickSettingsService.emitPageSpreadChange(newSpread);
@@ -162,7 +138,7 @@ export class CbxQuickSettingsComponent implements OnInit, OnDestroy {
   }
 
   onReadingDirectionToggle(): void {
-    const newDirection = this.state.readingDirection === CbxReadingDirection.LTR
+    const newDirection = this.state().readingDirection === CbxReadingDirection.LTR
       ? CbxReadingDirection.RTL
       : CbxReadingDirection.LTR;
     this.quickSettingsService.emitReadingDirectionChange(newDirection);

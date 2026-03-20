@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, effect, inject, OnDestroy, OnInit} from '@angular/core';
 import {RxStompService} from './shared/websocket/rx-stomp.service';
 import {BookService} from './features/book/service/book.service';
 import {NotificationEventService} from './shared/websocket/notification-event.service';
@@ -17,7 +17,7 @@ import {TaskProgressPayload, TaskService} from './features/settings/task-managem
 import {LibraryService} from './features/book/service/library.service';
 import {LibraryHealthService} from './features/book/service/library-health.service';
 import {LibraryLoadingService} from './features/library-creator/library-loading.service';
-import {scan, withLatestFrom} from 'rxjs/operators';
+import {scan} from 'rxjs/operators';
 import {AuthService} from './shared/service/auth.service';
 
 @Component({
@@ -46,19 +46,20 @@ export class AppComponent implements OnInit, OnDestroy {
   private libraryHealthService = inject(LibraryHealthService);
   private libraryLoadingService = inject(LibraryLoadingService);
   private authService = inject(AuthService);
+  private readonly syncAuthInitializationEffect = effect(() => {
+    const ready = this.authInit.initialized();
+    this.loading = !ready;
+
+    if (ready && !this.subscriptionsInitialized) {
+      this.setupWebSocketSubscriptions();
+      this.libraryHealthService.initialize();
+      this.subscriptionsInitialized = true;
+    }
+  });
 
   ngOnInit(): void {
     window.addEventListener('online', this.onOnline);
     window.addEventListener('offline', this.onOffline);
-
-    this.authInit.initialized$.subscribe(ready => {
-      this.loading = !ready;
-      if (ready && !this.subscriptionsInitialized) {
-        this.setupWebSocketSubscriptions();
-        this.libraryHealthService.initialize();
-        this.subscriptionsInitialized = true;
-      }
-    });
   }
 
   private onOnline = () => {
@@ -84,8 +85,8 @@ export class AppComponent implements OnInit, OnDestroy {
   private setupWebSocketSubscriptions(): void {
     this.subscriptions.push(
       this.rxStompService.watch('/user/queue/book-add').pipe(
-        withLatestFrom(this.libraryService.largeLibraryLoading$),
-        scan((acc, [msg, loadingState]) => {
+        scan((acc, msg) => {
+          const loadingState = this.libraryService.largeLibraryLoading();
           const book = JSON.parse(msg.body);
           if (loadingState.isLoading) {
             const newCount = acc.count + 1;

@@ -6,8 +6,9 @@ import {AdditionalFile, AdditionalFileType, Book, DetachBookFileResponse, Duplic
 import {API_CONFIG} from '../../../core/config/api-config';
 import {MessageService} from 'primeng/api';
 import {FileDownloadService} from '../../../shared/service/file-download.service';
-import {BookStateService} from './book-state.service';
 import {TranslocoService} from '@jsverse/transloco';
+import {QueryClient} from '@tanstack/angular-query-experimental';
+import {patchBookInCacheWith, patchBooksInCache, removeBookQueries} from './book-query-cache';
 
 @Injectable({
   providedIn: 'root',
@@ -19,7 +20,7 @@ export class BookFileService {
   private http = inject(HttpClient);
   private messageService = inject(MessageService);
   private fileDownloadService = inject(FileDownloadService);
-  private bookStateService = inject(BookStateService);
+  private queryClient = inject(QueryClient);
   private readonly t = inject(TranslocoService);
 
   getFileContent(bookId: number, bookType?: string): Observable<Blob> {
@@ -44,26 +45,13 @@ export class BookFileService {
   }
 
   deleteAdditionalFile(bookId: number, fileId: number): Observable<void> {
-    const deleteUrl = `${this.url}/${bookId}/files/${fileId}`;
-    return this.http.delete<void>(deleteUrl).pipe(
+    return this.http.delete<void>(`${this.url}/${bookId}/files/${fileId}`).pipe(
       tap(() => {
-        const currentState = this.bookStateService.getCurrentBookState();
-        const updatedBooks = (currentState.books || []).map(book => {
-          if (book.id === bookId) {
-            return {
-              ...book,
-              alternativeFormats: book.alternativeFormats?.filter(file => file.id !== fileId),
-              supplementaryFiles: book.supplementaryFiles?.filter(file => file.id !== fileId)
-            };
-          }
-          return book;
-        });
-
-        this.bookStateService.updateBookState({
-          ...currentState,
-          books: updatedBooks
-        });
-
+        patchBookInCacheWith(this.queryClient, bookId, book => ({
+          ...book,
+          alternativeFormats: book.alternativeFormats?.filter(f => f.id !== fileId),
+          supplementaryFiles: book.supplementaryFiles?.filter(f => f.id !== fileId),
+        }));
         this.messageService.add({
           severity: 'success',
           summary: this.t.translate('book.bookService.toast.fileDeletedSummary'),
@@ -82,43 +70,19 @@ export class BookFileService {
   }
 
   deleteBookFile(bookId: number, fileId: number, isPrimary: boolean): Observable<void> {
-    const deleteUrl = `${this.url}/${bookId}/files/${fileId}`;
-    return this.http.delete<void>(deleteUrl).pipe(
+    return this.http.delete<void>(`${this.url}/${bookId}/files/${fileId}`).pipe(
       tap(() => {
-        const currentState = this.bookStateService.getCurrentBookState();
-        const updatedBooks = (currentState.books || []).map(book => {
-          if (book.id === bookId) {
-            if (isPrimary) {
-              const remainingAlternatives = book.alternativeFormats?.filter(file => file.id !== fileId) || [];
-              if (remainingAlternatives.length > 0) {
-                const [newPrimary, ...restAlternatives] = remainingAlternatives;
-                return {
-                  ...book,
-                  primaryFile: newPrimary,
-                  alternativeFormats: restAlternatives
-                };
-              } else {
-                return {
-                  ...book,
-                  primaryFile: undefined,
-                  alternativeFormats: []
-                };
-              }
-            } else {
-              return {
-                ...book,
-                alternativeFormats: book.alternativeFormats?.filter(file => file.id !== fileId)
-              };
-            }
+        patchBookInCacheWith(this.queryClient, bookId, book => {
+          if (isPrimary) {
+            const remaining = book.alternativeFormats?.filter(f => f.id !== fileId) || [];
+            const [newPrimary, ...rest] = remaining;
+            return {...book, primaryFile: newPrimary, alternativeFormats: rest};
           }
-          return book;
+          return {
+            ...book,
+            alternativeFormats: book.alternativeFormats?.filter(f => f.id !== fileId),
+          };
         });
-
-        this.bookStateService.updateBookState({
-          ...currentState,
-          books: updatedBooks
-        });
-
         this.messageService.add({
           severity: 'success',
           summary: this.t.translate('book.bookService.toast.fileDeletedSummary'),
@@ -162,26 +126,13 @@ export class BookFileService {
       }
     }
     return this.http.post<AdditionalFile>(`${this.url}/${bookId}/files`, formData).pipe(
-      tap((newFile) => {
-        const currentState = this.bookStateService.getCurrentBookState();
-        const updatedBooks = (currentState.books || []).map(book => {
-          if (book.id === bookId) {
-            const updatedBook = {...book};
-            if (fileType === AdditionalFileType.ALTERNATIVE_FORMAT) {
-              updatedBook.alternativeFormats = [...(book.alternativeFormats || []), newFile];
-            } else {
-              updatedBook.supplementaryFiles = [...(book.supplementaryFiles || []), newFile];
-            }
-            return updatedBook;
+      tap(newFile => {
+        patchBookInCacheWith(this.queryClient, bookId, book => {
+          if (fileType === AdditionalFileType.ALTERNATIVE_FORMAT) {
+            return {...book, alternativeFormats: [...(book.alternativeFormats || []), newFile]};
           }
-          return book;
+          return {...book, supplementaryFiles: [...(book.supplementaryFiles || []), newFile]};
         });
-
-        this.bookStateService.updateBookState({
-          ...currentState,
-          books: updatedBooks
-        });
-
         this.messageService.add({
           severity: 'success',
           summary: this.t.translate('book.bookService.toast.fileUploadedSummary'),
@@ -209,19 +160,9 @@ export class BookFileService {
   }
 
   detachBookFile(bookId: number, fileId: number, copyMetadata: boolean): Observable<DetachBookFileResponse> {
-    return this.http.post<DetachBookFileResponse>(`${this.url}/${bookId}/files/${fileId}/detach`, { copyMetadata }).pipe(
+    return this.http.post<DetachBookFileResponse>(`${this.url}/${bookId}/files/${fileId}/detach`, {copyMetadata}).pipe(
       tap(response => {
-        const currentState = this.bookStateService.getCurrentBookState();
-        let updatedBooks = (currentState.books || []).map(book =>
-          book.id === bookId ? response.sourceBook : book
-        );
-        updatedBooks = [...updatedBooks, response.newBook];
-
-        this.bookStateService.updateBookState({
-          ...currentState,
-          books: updatedBooks
-        });
-
+        patchBooksInCache(this.queryClient, [response.sourceBook, response.newBook]);
         this.messageService.add({
           severity: 'success',
           summary: this.t.translate('metadata.viewer.toast.detachFileSuccessSummary'),
@@ -249,22 +190,12 @@ export class BookFileService {
       moveFiles
     }).pipe(
       tap(response => {
-        const currentState = this.bookStateService.getCurrentBookState();
-        const deletedIdSet = new Set(response.deletedSourceBookIds);
-        let updatedBooks = (currentState.books || []).map(book =>
-          book.id === targetBookId ? response.updatedBook : book
-        ).filter(book => !deletedIdSet.has(book.id));
-
-        this.bookStateService.updateBookState({
-          ...currentState,
-          books: updatedBooks
-        });
-
-        const fileCount = sourceBookIds.length;
+        patchBooksInCache(this.queryClient, [response.updatedBook]);
+        removeBookQueries(this.queryClient, response.deletedSourceBookIds);
         this.messageService.add({
           severity: 'success',
           summary: this.t.translate('book.bookService.toast.filesAttachedSummary'),
-          detail: this.t.translate('book.bookService.toast.filesAttachedDetail', {count: fileCount})
+          detail: this.t.translate('book.bookService.toast.filesAttachedDetail', {count: sourceBookIds.length})
         });
       }),
       catchError(error => {

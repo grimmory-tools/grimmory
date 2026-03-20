@@ -1,5 +1,4 @@
-import {inject, Injectable} from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
+import {inject, Injectable, signal} from '@angular/core';
 import {MessageService} from 'primeng/api';
 import {TranslocoService} from '@jsverse/transloco';
 import {LocalStorageService} from '../../../../../shared/service/local-storage.service';
@@ -14,29 +13,24 @@ export class SidebarFilterTogglePrefService {
   private readonly t = inject(TranslocoService);
   private readonly localStorageService = inject(LocalStorageService);
 
-  private readonly showFilterSubject = new BehaviorSubject<boolean>(true);
-  readonly showFilter$ = this.showFilterSubject.asObservable();
+  private readonly _showFilter = signal(true);
+  readonly showFilter = this._showFilter.asReadonly();
 
   constructor() {
     const isNarrow = window.innerWidth <= 768;
-    this.showFilterSubject = new BehaviorSubject<boolean>(!isNarrow);
-    this.showFilter$ = this.showFilterSubject.asObservable();
+    this._showFilter.set(!isNarrow);
     this.loadFromStorage();
   }
 
-  get selectedShowFilter(): boolean {
-    return this.showFilterSubject.value;
+  toggle(): void {
+    this.setShowFilter(!this.showFilter());
   }
 
-  set selectedShowFilter(value: boolean) {
-    if (this.showFilterSubject.value !== value) {
-      this.showFilterSubject.next(value);
+  setShowFilter(value: boolean): void {
+    if (this._showFilter() !== value) {
+      this._showFilter.set(value);
       this.savePreference(value);
     }
-  }
-
-  toggle(): void {
-    this.selectedShowFilter = !this.selectedShowFilter;
   }
 
   private savePreference(value: boolean): void {
@@ -55,10 +49,10 @@ export class SidebarFilterTogglePrefService {
   private loadFromStorage(): void {
     const isNarrow = window.innerWidth <= 768;
     if (isNarrow) {
-      this.showFilterSubject.next(false);
+      this._showFilter.set(false);
     } else {
       const saved = this.localStorageService.get<boolean>(this.STORAGE_KEY);
-      this.showFilterSubject.next(saved !== null ? saved : true);
+      this._showFilter.set(saved !== null ? saved : true);
     }
   }
 }

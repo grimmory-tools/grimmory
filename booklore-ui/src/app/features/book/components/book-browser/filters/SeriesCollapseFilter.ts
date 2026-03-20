@@ -1,41 +1,27 @@
-import {BookFilter} from './BookFilter';
-import {BehaviorSubject, Observable, Subject} from 'rxjs';
-import {BookState} from '../../../model/state/book-state.model';
-import {debounceTime, filter, map, takeUntil} from 'rxjs/operators';
+import {effect, inject, Injectable, signal} from '@angular/core';
 import {Book} from '../../../model/book.model';
-import {inject, Injectable, OnDestroy} from '@angular/core';
 import {MessageService} from 'primeng/api';
 import {UserService} from '../../../../settings/user-management/user.service';
 
 @Injectable({providedIn: 'root'})
-export class SeriesCollapseFilter implements BookFilter, OnDestroy {
+export class SeriesCollapseFilter {
+  private static readonly PERSIST_DELAY_MS = 500;
+
   private readonly userService = inject(UserService);
   private readonly messageService = inject(MessageService);
 
-  private readonly seriesCollapseSubject = new BehaviorSubject<boolean>(false);
-  readonly seriesCollapse$ = this.seriesCollapseSubject.asObservable();
-  private destroy$ = new Subject<void>();
-
-  private hasUserToggled = false;
+  private readonly _seriesCollapsed = signal(false);
+  readonly seriesCollapsed = this._seriesCollapsed.asReadonly();
   private currentContext: { type: 'LIBRARY' | 'SHELF' | 'MAGIC_SHELF', id: number } | null = null;
+  private persistTimeout: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
-    this.userService.userState$
-      .pipe(
-        filter(userState => !!userState?.user && userState.loaded),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(() => {
+    effect(() => {
+      const user = this.userService.currentUser();
+      if (user) {
         this.applyPreference();
-      });
-
-    this.seriesCollapse$
-      .pipe(debounceTime(500))
-      .subscribe(isCollapsed => {
-        if (this.hasUserToggled) {
-          this.persistCollapsePreference(isCollapsed);
-        }
-      });
+      }
+    });
   }
 
   setContext(type: 'LIBRARY' | 'SHELF' | 'MAGIC_SHELF' | null, id: number | null): void {
@@ -47,13 +33,9 @@ export class SeriesCollapseFilter implements BookFilter, OnDestroy {
     this.applyPreference();
   }
 
-  get isSeriesCollapsed(): boolean {
-    return this.seriesCollapseSubject.value;
-  }
-
   setCollapsed(value: boolean): void {
-    this.hasUserToggled = true;
-    this.seriesCollapseSubject.next(value);
+    this._seriesCollapsed.set(value);
+    this.schedulePersist(value);
   }
 
   private applyPreference(): void {
@@ -64,70 +46,74 @@ export class SeriesCollapseFilter implements BookFilter, OnDestroy {
 
     if (prefs) {
       // Backward compatibility: check for old 'seriesCollapse' field
-      const globalAny = prefs.global as any;
-      collapsed = prefs.global?.seriesCollapsed ?? globalAny?.seriesCollapse ?? false;
+      const legacyGlobalSeriesCollapse = (prefs.global as { seriesCollapse?: boolean }).seriesCollapse;
+      collapsed = prefs.global?.seriesCollapsed ?? legacyGlobalSeriesCollapse ?? false;
 
       if (this.currentContext) {
         const override = prefs.overrides?.find(o =>
           o.entityType === this.currentContext?.type && o.entityId === this.currentContext?.id
         );
         if (override) {
-           const prefAny = override.preferences as any;
+           const legacyOverrideSeriesCollapse = (override.preferences as { seriesCollapse?: boolean }).seriesCollapse;
            if (override.preferences.seriesCollapsed !== undefined) {
              collapsed = override.preferences.seriesCollapsed;
-           } else if (prefAny?.seriesCollapse !== undefined) {
-             collapsed = prefAny.seriesCollapse;
+           } else if (legacyOverrideSeriesCollapse !== undefined) {
+             collapsed = legacyOverrideSeriesCollapse;
            }
         }
       }
     }
 
-    this.hasUserToggled = false;
-    if (this.seriesCollapseSubject.value !== collapsed) {
-      this.seriesCollapseSubject.next(collapsed);
+    if (this._seriesCollapsed() !== collapsed) {
+      this._seriesCollapsed.set(collapsed);
     }
   }
 
-  filter(bookState: BookState, forceExpandSeries?: boolean): Observable<BookState> {
-    return this.seriesCollapse$.pipe(
-      map(isCollapsed => {
-        const shouldCollapse = forceExpandSeries ? false : isCollapsed;
-        if (!shouldCollapse || !bookState.books) return bookState;
+  collapseBooks(books: Book[], forceExpandSeries?: boolean, isSeriesCollapsed: boolean = this.seriesCollapsed()): Book[] {
+    const shouldCollapse = forceExpandSeries ? false : isSeriesCollapsed;
+    if (!shouldCollapse || books.length === 0) return books;
 
-        const books = [...bookState.books];
+    const sourceBooks = [...books];
+    const seriesMap = new Map<string, Book[]>();
+    const collapsedBooks: Book[] = [];
 
-        const seriesMap = new Map<string, Book[]>();
-        const collapsedBooks: Book[] = [];
-
-        for (const book of books) {
-          const seriesName = book.metadata?.seriesName?.trim();
-          if (seriesName) {
-            if (!seriesMap.has(seriesName)) {
-              seriesMap.set(seriesName, []);
-            }
-            seriesMap.get(seriesName)!.push(book);
-          } else {
-            collapsedBooks.push(book);
-          }
+    for (const book of sourceBooks) {
+      const seriesName = book.metadata?.seriesName?.trim();
+      if (seriesName) {
+        if (!seriesMap.has(seriesName)) {
+          seriesMap.set(seriesName, []);
         }
+        seriesMap.get(seriesName)!.push(book);
+      } else {
+        collapsedBooks.push(book);
+      }
+    }
 
-        for (const [seriesName, group] of seriesMap.entries()) {
-          const sortedGroup = group.slice().sort((a, b) => {
-            const aNum = a.metadata?.seriesNumber ?? Number.MAX_VALUE;
-            const bNum = b.metadata?.seriesNumber ?? Number.MAX_VALUE;
-            return aNum - bNum;
-          });
-          const firstBook = sortedGroup[0];
-          collapsedBooks.push({
-            ...firstBook,
-            seriesBooks: group,
-            seriesCount: group.length
-          });
-        }
+    for (const group of seriesMap.values()) {
+      const sortedGroup = group.slice().sort((a, b) => {
+        const aNum = a.metadata?.seriesNumber ?? Number.MAX_VALUE;
+        const bNum = b.metadata?.seriesNumber ?? Number.MAX_VALUE;
+        return aNum - bNum;
+      });
+      const firstBook = sortedGroup[0];
+      collapsedBooks.push({
+        ...firstBook,
+        seriesBooks: group,
+        seriesCount: group.length
+      });
+    }
 
-        return {...bookState, books: collapsedBooks};
-      })
-    );
+    return collapsedBooks;
+  }
+
+  private schedulePersist(isCollapsed: boolean): void {
+    if (this.persistTimeout) {
+      clearTimeout(this.persistTimeout);
+    }
+
+    this.persistTimeout = setTimeout(() => {
+      this.persistCollapsePreference(isCollapsed);
+    }, SeriesCollapseFilter.PERSIST_DELAY_MS);
   }
 
   private persistCollapsePreference(isCollapsed: boolean): void {
@@ -179,10 +165,5 @@ export class SeriesCollapseFilter implements BookFilter, OnDestroy {
       detail: `Series collapse set to ${isCollapsed ? 'enabled' : 'disabled'}${this.currentContext ? ' for this view' : ' globally'}.`,
       life: 1500
     });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

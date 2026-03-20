@@ -1,8 +1,8 @@
-import {Component, HostListener, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {AsyncPipe, NgStyle} from '@angular/common';
+import {Component, computed, DestroyRef, effect, HostListener, inject, OnInit, signal, ViewChild} from '@angular/core';
+import {NgStyle} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {combineLatest, Observable, BehaviorSubject, Subscription} from 'rxjs';
-import {filter, map} from 'rxjs/operators';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {filter} from 'rxjs/operators';
 import {ProgressSpinner} from 'primeng/progressspinner';
 import {InputText} from 'primeng/inputtext';
 import {Select} from 'primeng/select';
@@ -56,7 +56,6 @@ const DEFAULT_SORT_DIRECTIONS: Record<string, SortDirection> = {
   templateUrl: './author-browser.component.html',
   styleUrls: ['./author-browser.component.scss'],
   imports: [
-    AsyncPipe,
     NgStyle,
     FormsModule,
     ProgressSpinner,
@@ -72,7 +71,7 @@ const DEFAULT_SORT_DIRECTIONS: Record<string, SortDirection> = {
     VirtualScrollerModule
   ]
 })
-export class AuthorBrowserComponent implements OnInit, OnDestroy {
+export class AuthorBrowserComponent implements OnInit {
 
   private static readonly BASE_WIDTH = 165;
   private static readonly BASE_HEIGHT = 290;
@@ -87,6 +86,7 @@ export class AuthorBrowserComponent implements OnInit, OnDestroy {
   private t = inject(TranslocoService);
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
+  private destroyRef = inject(DestroyRef);
   protected userService = inject(UserService);
   protected authorScaleService = inject(AuthorScalePreferenceService);
   protected selectionService = inject(AuthorSelectionService);
@@ -94,15 +94,87 @@ export class AuthorBrowserComponent implements OnInit, OnDestroy {
   @ViewChild('scroll')
   virtualScroller: VirtualScrollerComponent | undefined;
 
-  private subscriptions: Subscription[] = [];
-
-  loading = true;
-  private authorsLoaded = false;
-  private booksLoaded = false;
   screenWidth = window.innerWidth;
-  selectedCount = 0;
-  isCheckboxEnabled = false;
   thumbnailCacheBusters = new Map<number, number>();
+  private selectedAuthors = this.selectionService.selectedAuthors;
+  private allAuthorsState = signal<AuthorSummary[] | null>(null);
+
+  loading = computed(() => this.allAuthorsState() === null || this.bookService.isBooksLoading());
+  protected currentUser = this.userService.currentUser;
+  selectedCount = computed(() => this.selectedAuthors().size);
+  searchTerm = signal('');
+  sortBy = signal('name');
+  sortDirection = signal<SortDirection>('asc');
+  filters = signal<AuthorFilters>({...DEFAULT_AUTHOR_FILTERS});
+  private enrichedAuthors = computed(() => {
+    const authors = this.allAuthorsState();
+    if (!authors) {
+      return [];
+    }
+
+    return this.enrichAuthors(authors, this.bookService.books());
+  });
+  libraryOptions = computed<FilterOption[]>(() => {
+    const allLabel = this.t.translate('authorBrowser.filters.all');
+    const librarySet = new Set<string>();
+
+    for (const author of this.enrichedAuthors()) {
+      for (const library of author.libraryNames) {
+        librarySet.add(library);
+      }
+    }
+
+    return [
+      {label: allLabel, value: 'all'},
+      ...[...librarySet].sort().map(library => ({label: library, value: library}))
+    ];
+  });
+  genreOptions = computed<FilterOption[]>(() => {
+    const allLabel = this.t.translate('authorBrowser.filters.all');
+    const genreSet = new Set<string>();
+
+    for (const author of this.enrichedAuthors()) {
+      for (const category of author.categories) {
+        genreSet.add(category);
+      }
+    }
+
+    return [
+      {label: allLabel, value: 'all'},
+      ...[...genreSet].sort().map(category => ({label: category, value: category}))
+    ];
+  });
+  activeFilterCount = computed(() => {
+    const filters = this.filters();
+    let count = 0;
+    if (filters.matchStatus !== 'all') count++;
+    if (filters.photoStatus !== 'all') count++;
+    if (filters.readStatus !== 'all') count++;
+    if (filters.bookCount !== 'all') count++;
+    if (filters.library !== 'all') count++;
+    if (filters.genre !== 'all') count++;
+    return count;
+  });
+  filteredAuthors = computed<EnrichedAuthor[]>(() => {
+    let result = this.enrichedAuthors();
+    const search = this.searchTerm().trim().toLowerCase();
+
+    if (search) {
+      result = result.filter(author => author.name.toLowerCase().includes(search));
+    }
+
+    result = this.applyFilters(result, this.filters());
+    return this.applySort(result, this.sortBy(), this.sortDirection());
+  });
+  private readonly syncAuthorsEffect = effect(() => {
+    const authors = this.authorService.allAuthors();
+    if (authors !== null) {
+      this.allAuthorsState.set(authors);
+    }
+  });
+  private readonly syncSelectionEffect = effect(() => {
+    this.selectionService.setCurrentAuthors(this.filteredAuthors());
+  });
 
   @HostListener('window:resize')
   onResize(): void {
@@ -117,38 +189,26 @@ export class AuthorBrowserComponent implements OnInit, OnDestroy {
     const base = this.isMobile
       ? AuthorBrowserComponent.MOBILE_BASE_WIDTH
       : AuthorBrowserComponent.BASE_WIDTH;
-    return Math.round(base * this.authorScaleService.scaleFactor);
+    return Math.round(base * this.authorScaleService.scaleFactor());
   }
 
   get cardHeight(): number {
     const base = this.isMobile
       ? AuthorBrowserComponent.MOBILE_BASE_HEIGHT
       : AuthorBrowserComponent.BASE_HEIGHT;
-    return Math.round(base * this.authorScaleService.scaleFactor);
+    return Math.round(base * this.authorScaleService.scaleFactor());
   }
 
   get gridColumnMinWidth(): string {
     return `${this.cardWidth}px`;
   }
 
-  searchTerm$ = new BehaviorSubject<string>('');
-  sortBy$ = new BehaviorSubject<string>('name');
-  sortDirection$ = new BehaviorSubject<SortDirection>('asc');
-  allAuthors$ = new BehaviorSubject<AuthorSummary[]>([]);
-  filters$ = new BehaviorSubject<AuthorFilters>({...DEFAULT_AUTHOR_FILTERS});
-
   sortOptions: SortOption[] = [];
-  libraryOptions: FilterOption[] = [];
-  genreOptions: FilterOption[] = [];
-  activeFilterCount = 0;
 
   private readonly validSortValues = [
     'name', 'book-count', 'matched', 'recently-added', 'recently-read',
     'reading-progress', 'avg-rating', 'photo', 'series-count'
   ];
-
-  filteredAuthors$!: Observable<EnrichedAuthor[]>;
-  private enrichedAuthors$ = new BehaviorSubject<EnrichedAuthor[]>([]);
 
   ngOnInit(): void {
     this.pageTitle.setPageTitle(this.t.translate('authorBrowser.pageTitle'));
@@ -168,116 +228,51 @@ export class AuthorBrowserComponent implements OnInit, OnDestroy {
     const sortParam = this.activatedRoute.snapshot.queryParamMap.get('sort');
     const dirParam = this.activatedRoute.snapshot.queryParamMap.get('dir') as SortDirection | null;
     if (sortParam && this.validSortValues.includes(sortParam)) {
-      this.sortBy$.next(sortParam);
-      this.sortDirection$.next(dirParam === 'asc' || dirParam === 'desc' ? dirParam : DEFAULT_SORT_DIRECTIONS[sortParam]);
+      this.sortBy.set(sortParam);
+      this.sortDirection.set(dirParam === 'asc' || dirParam === 'desc' ? dirParam : DEFAULT_SORT_DIRECTIONS[sortParam]);
     }
 
-    this.subscriptions.push(
-      this.authorService.allAuthors$.pipe(
-        filter((authors): authors is AuthorSummary[] => authors !== null)
-      ).subscribe(authors => {
-        this.allAuthors$.next(authors);
-        this.authorsLoaded = true;
-        this.updateLoading();
-      })
-    );
-
-    this.subscriptions.push(
-      combineLatest([
-        this.allAuthors$,
-        this.bookService.bookState$.pipe(
-          filter(state => state.loaded && !!state.books),
-          map(state => state.books || [])
-        )
-      ]).subscribe(([authors, books]) => {
-        this.booksLoaded = true;
-        this.updateLoading();
-        const enriched = this.enrichAuthors(authors, books);
-        this.updateDynamicFilterOptions(enriched);
-        this.enrichedAuthors$.next(enriched);
-      })
-    );
-
-    this.filteredAuthors$ = combineLatest([
-      this.enrichedAuthors$,
-      this.searchTerm$,
-      this.sortBy$,
-      this.sortDirection$,
-      this.filters$
-    ]).pipe(
-      map(([enriched, search, sortBy, sortDir, filters]) => {
-        let result = enriched;
-
-        if (search.trim()) {
-          const term = search.trim().toLowerCase();
-          result = result.filter(a => a.name.toLowerCase().includes(term));
-        }
-
-        result = this.applyFilters(result, filters);
-        result = this.applySort(result, sortBy, sortDir);
-        this.selectionService.setCurrentAuthors(result);
-        return result;
-      })
-    );
-
-    this.subscriptions.push(
-      this.selectionService.selectedAuthors$.subscribe(selected => {
-        this.selectedCount = selected.size;
-        this.isCheckboxEnabled = selected.size > 0;
-      })
-    );
-
     this.setupScrollPositionTracking();
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.forEach(s => s.unsubscribe());
-    this.selectionService.deselectAll();
+    this.destroyRef.onDestroy(() => this.selectionService.deselectAll());
   }
 
   onSearchChange(value: string): void {
-    this.searchTerm$.next(value);
+    this.searchTerm.set(value);
   }
 
   onSortChange(value: string): void {
-    this.sortBy$.next(value);
-    this.sortDirection$.next(DEFAULT_SORT_DIRECTIONS[value] || 'asc');
-    this.updateSortQueryParams(value, this.sortDirection$.value);
+    this.sortBy.set(value);
+    const nextDirection = DEFAULT_SORT_DIRECTIONS[value] || 'asc';
+    this.sortDirection.set(nextDirection);
+    this.updateSortQueryParams(value, nextDirection);
   }
 
   toggleSortDirection(): void {
-    const next: SortDirection = this.sortDirection$.value === 'asc' ? 'desc' : 'asc';
-    this.sortDirection$.next(next);
-    this.updateSortQueryParams(this.sortBy$.value, next);
+    const next: SortDirection = this.sortDirection() === 'asc' ? 'desc' : 'asc';
+    this.sortDirection.set(next);
+    this.updateSortQueryParams(this.sortBy(), next);
   }
 
   onFilterChange(key: keyof AuthorFilters, value: string): void {
-    const current = this.filters$.value;
-    this.filters$.next({...current, [key]: value});
-    this.updateActiveFilterCount();
+    this.filters.update(current => ({...current, [key]: value}));
   }
 
   resetFilters(): void {
-    this.filters$.next({...DEFAULT_AUTHOR_FILTERS});
-    this.activeFilterCount = 0;
-  }
-
-  updateScale(): void {
-    this.authorScaleService.setScale(this.authorScaleService.scaleFactor);
+    this.filters.set({...DEFAULT_AUTHOR_FILTERS});
   }
 
   get canEditMetadata(): boolean {
-    const user = this.userService.getCurrentUser();
+    const user = this.userService.currentUser();
     return !!user?.permissions?.admin || !!user?.permissions?.canEditMetadata;
   }
 
   get canDeleteBook(): boolean {
-    const user = this.userService.getCurrentUser();
+    const user = this.userService.currentUser();
     return !!user?.permissions?.admin || !!user?.permissions?.canDeleteBook;
   }
 
   isAuthorSelected(authorId: number): boolean {
-    return this.selectionService.selectedAuthors.has(authorId);
+    return this.selectedAuthors().has(authorId);
   }
 
   onCheckboxClicked(event: AuthorCheckboxClickEvent): void {
@@ -322,9 +317,9 @@ export class AuthorBrowserComponent implements OnInit, OnDestroy {
 
   onAuthorQuickMatched(updated: AuthorSummary): void {
     this.thumbnailCacheBusters.set(updated.id, Date.now());
-    const current = this.allAuthors$.value;
-    const updatedList = current.map(a => a.id === updated.id ? updated : a);
-    this.allAuthors$.next(updatedList);
+    this.allAuthorsState.update(current =>
+      (current ?? []).map(author => author.id === updated.id ? updated : author)
+    );
   }
 
   autoMatchSelected(): void {
@@ -333,10 +328,9 @@ export class AuthorBrowserComponent implements OnInit, OnDestroy {
     this.authorService.autoMatchAuthors(ids).subscribe({
       next: (matched) => {
         this.thumbnailCacheBusters.set(matched.id, Date.now());
-        const current = this.allAuthors$.value;
-        this.allAuthors$.next(current.map(a => a.id === matched.id
-          ? {...a, asin: matched.asin, hasPhoto: matched.hasPhoto}
-          : a
+        this.allAuthorsState.update(current => (current ?? []).map(author => author.id === matched.id
+          ? {...author, asin: matched.asin, hasPhoto: matched.hasPhoto}
+          : author
         ));
       },
       complete: () => {
@@ -384,43 +378,6 @@ export class AuthorBrowserComponent implements OnInit, OnDestroy {
       queryParamsHandling: 'merge',
       replaceUrl: true
     });
-  }
-
-  private updateLoading(): void {
-    this.loading = !this.authorsLoaded || !this.booksLoaded;
-  }
-
-  private updateActiveFilterCount(): void {
-    const f = this.filters$.value;
-    let count = 0;
-    if (f.matchStatus !== 'all') count++;
-    if (f.photoStatus !== 'all') count++;
-    if (f.readStatus !== 'all') count++;
-    if (f.bookCount !== 'all') count++;
-    if (f.library !== 'all') count++;
-    if (f.genre !== 'all') count++;
-    this.activeFilterCount = count;
-  }
-
-  private updateDynamicFilterOptions(authors: EnrichedAuthor[]): void {
-    const allLabel = this.t.translate('authorBrowser.filters.all');
-
-    const librarySet = new Set<string>();
-    const genreSet = new Set<string>();
-    for (const a of authors) {
-      for (const lib of a.libraryNames) librarySet.add(lib);
-      for (const cat of a.categories) genreSet.add(cat);
-    }
-
-    this.libraryOptions = [
-      {label: allLabel, value: 'all'},
-      ...[...librarySet].sort().map(lib => ({label: lib, value: lib}))
-    ];
-
-    this.genreOptions = [
-      {label: allLabel, value: 'all'},
-      ...[...genreSet].sort().map(cat => ({label: cat, value: cat}))
-    ];
   }
 
   private enrichAuthors(authors: AuthorSummary[], books: Book[]): EnrichedAuthor[] {
@@ -544,14 +501,13 @@ export class AuthorBrowserComponent implements OnInit, OnDestroy {
   }
 
   private setupScrollPositionTracking(): void {
-    this.subscriptions.push(
-      this.router.events.pipe(
-        filter(event => event instanceof NavigationStart)
-      ).subscribe(() => {
-        this.dismissBodyMenus();
-        this.saveScrollPosition();
-      })
-    );
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationStart),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => {
+      this.dismissBodyMenus();
+      this.saveScrollPosition();
+    });
   }
 
   private dismissBodyMenus(): void {
@@ -568,8 +524,7 @@ export class AuthorBrowserComponent implements OnInit, OnDestroy {
 
   private removeAuthorsFromList(ids: number[]): void {
     const idSet = new Set(ids);
-    const updated = this.allAuthors$.value.filter(a => !idSet.has(a.id));
-    this.allAuthors$.next(updated);
+    this.allAuthorsState.update(current => (current ?? []).filter(author => !idSet.has(author.id)));
   }
 
   private applySort(authors: EnrichedAuthor[], sortBy: string, direction: SortDirection): EnrichedAuthor[] {

@@ -1,6 +1,6 @@
 <ng-container *transloco="let t; prefix: 'dashboard.main'">
   <div class="dashboard-container">
-    @if ((bookState$ | async)?.loaded === false) {
+    @if (isBooksLoading()) {
       <div class="loading-state">
         <p-progressSpinner
           class="spinner center-spinner"
@@ -10,13 +10,12 @@
           animationDuration="1.5s">
         </p-progressSpinner>
       </div>
-    }
-    @if ((bookState$ | async)?.loaded === true) {
+    } @else {
       <div class="dashboard">
         <div class="dashboard-inner">
-          @if (isLibrariesEmpty$ | async) {
+          @if (isLibrariesEmpty()) {
             <div class="dashboard-no-library">
-              @if ((userService.userState$ | async)?.user?.permissions; as permissions) {
+              @if (userService.currentUser()?.permissions; as permissions) {
                 <div>
                   @if (permissions.admin || permissions.canManageLibrary) {
                     <div>
@@ -51,7 +50,7 @@
               </p-button>
             </div>
 
-            @if (dashboardConfig$ | async; as config) {
+            @if (dashboardConfig(); as config) {
               @for (scroller of config.scrollers; track scroller.id) {
                 @if (scroller.enabled) {
                   <app-dashboard-scroller
@@ -59,7 +58,7 @@
                     [title]="scroller.title"
                     [isMagicShelf]="scroller.type === ScrollerType.MAGIC_SHELF"
                     [useSquareCovers]="scroller.type === ScrollerType.LAST_LISTENED"
-                    [books]="getBooksForScroller(scroller) | async">
+                    [books]="getBooksForScroller(scroller)">
                   </app-dashboard-scroller>
                 }
               }

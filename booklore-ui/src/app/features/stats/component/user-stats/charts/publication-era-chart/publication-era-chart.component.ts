@@ -1,11 +1,10 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, effect, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
 import {Tooltip} from 'primeng/tooltip';
-import {EMPTY, Subject} from 'rxjs';
-import {catchError, filter, first, takeUntil} from 'rxjs/operators';
 import {ChartConfiguration, ChartData} from 'chart.js';
 import {BookService} from '../../../../../book/service/book.service';
+import {Book} from '../../../../../book/model/book.model';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 @Component({
@@ -15,10 +14,16 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
   templateUrl: './publication-era-chart.component.html',
   styleUrls: ['./publication-era-chart.component.scss']
 })
-export class PublicationEraChartComponent implements OnInit, OnDestroy {
+export class PublicationEraChartComponent {
   private readonly bookService = inject(BookService);
   private readonly t = inject(TranslocoService);
-  private readonly destroy$ = new Subject<void>();
+  private readonly syncChartEffect = effect(() => {
+    if (this.bookService.isBooksLoading()) {
+      return;
+    }
+
+    this.processData(this.bookService.books());
+  });
 
   public readonly chartType = 'line' as const;
   public hasData = false;
@@ -72,21 +77,15 @@ export class PublicationEraChartComponent implements OnInit, OnDestroy {
     interaction: {mode: 'index', intersect: false}
   };
 
-  ngOnInit(): void {
-    this.bookService.bookState$
-      .pipe(filter(state => state.loaded), first(), catchError(() => EMPTY), takeUntil(this.destroy$))
-      .subscribe(() => this.processData());
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  private processData(): void {
-    const state = this.bookService.getCurrentBookState();
-    const books = state.books;
-    if (!books || books.length === 0) return;
+  private processData(books: Book[]): void {
+    if (books.length === 0) {
+      this.hasData = false;
+      this.bestDecade = '';
+      this.bestAvgRating = 0;
+      this.totalRated = 0;
+      this.chartData = {labels: [], datasets: []};
+      return;
+    }
 
     const ratedBooks = books.filter(b => b.metadata?.publishedDate && b.personalRating && b.personalRating > 0);
     if (ratedBooks.length < 3) return;

@@ -29,22 +29,22 @@
     <app-book-searcher class="topbar-search"></app-book-searcher>
     <ul class="topbar-items topbar-desktop-items">
       <div class="topbar-action-group">
-        @if (userService.userState$ | async; as userState) {
-          @if (userState.user?.permissions?.canAccessBookdrop || userState.user?.permissions?.admin) {
+        @if (user(); as currentUser) {
+          @if (currentUser.permissions?.canAccessBookdrop || currentUser.permissions?.admin) {
             <li>
               <a class="topbar-item" (click)="navigateToBookdrop()" [pTooltip]="t('bookdrop')" tooltipPosition="bottom">
                 <i class="pi pi-inbox topbar-icon"></i>
               </a>
             </li>
           }
-          @if (userState.user?.permissions?.canManageLibrary || userState.user?.permissions?.admin) {
+          @if (currentUser.permissions?.canManageLibrary || currentUser.permissions?.admin) {
             <li>
               <a class="topbar-item" (click)="openLibraryCreatorDialog()" [pTooltip]="t('createNewLibrary')" tooltipPosition="bottom">
                 <i class="pi pi-plus-circle topbar-icon"></i>
               </a>
             </li>
           }
-          @if (userState.user?.permissions?.canUpload || userState.user?.permissions?.admin) {
+          @if (currentUser.permissions?.canUpload || currentUser.permissions?.admin) {
             <li>
               <a class="topbar-item" (click)="openFileUploadDialog()" [pTooltip]="t('uploadBook')" tooltipPosition="bottom">
                 <i class="pi pi-upload topbar-icon"></i>
@@ -71,8 +71,8 @@
             }
           </li>
         }
-        @if (userService.userState$ | async; as userState) {
-          @if (userState.user?.permissions?.canManageLibrary || userState.user?.permissions?.admin) {
+        @if (user(); as currentUser) {
+          @if (currentUser.permissions?.canManageLibrary || currentUser.permissions?.admin) {
             <li>
               <a class="topbar-item" (click)="navigateToMetadataManager()" [pTooltip]="t('metadataManager')" tooltipPosition="bottom">
                 <i class="pi pi-sparkles topbar-icon"></i>
@@ -153,9 +153,9 @@
           </a>
         </li>
 
-        <!-- Show Profile only to demo users -->
-        @if (userService.userState$ | async; as userState) {
-          @if (!userState.user?.permissions?.demoUser) {
+        <!-- Show Profile only to non-demo users -->
+        @if (user(); as currentUser) {
+          @if (!currentUser.permissions?.demoUser) {
             <li>
               <button class="topbar-item" (click)="openUserProfileDialog()" [pTooltip]="t('profile')" tooltipPosition="bottom">
                 <i class="pi pi-user topbar-icon"></i>
@@ -180,8 +180,8 @@
       />
       <p-popover #mobileMenu>
         <ul class="mobile-menu-list">
-          @if (userService.userState$ | async; as userState) {
-            @if (userState.user?.permissions?.canAccessBookdrop || userState.user?.permissions?.admin) {
+          @if (user(); as currentUser) {
+            @if (currentUser.permissions?.canAccessBookdrop || currentUser.permissions?.admin) {
               <li>
                 <button
                   class="mobile-menu-item"
@@ -192,7 +192,7 @@
                 </button>
               </li>
             }
-            @if (userState.user?.permissions?.canManageLibrary || userState.user?.permissions?.admin) {
+            @if (currentUser.permissions?.canManageLibrary || currentUser.permissions?.admin) {
               <li>
                 <button
                   class="mobile-menu-item"
@@ -203,7 +203,7 @@
                 </button>
               </li>
             }
-            @if (userState.user?.permissions?.canUpload || userState.user?.permissions?.admin) {
+            @if (currentUser.permissions?.canUpload || currentUser.permissions?.admin) {
               <li>
                 <button
                   class="mobile-menu-item"
@@ -214,9 +214,7 @@
                 </button>
               </li>
             }
-          }
-          @if (userService.userState$ | async; as statsUserState) {
-            @if (statsUserState.user?.permissions?.canAccessLibraryStats || statsUserState.user?.permissions?.admin) {
+            @if (currentUser.permissions?.canAccessLibraryStats || currentUser.permissions?.admin) {
               <li>
                 <button
                   class="mobile-menu-item"
@@ -227,7 +225,7 @@
                 </button>
               </li>
             }
-            @if (statsUserState.user?.permissions?.canAccessUserStats || statsUserState.user?.permissions?.admin) {
+            @if (currentUser.permissions?.canAccessUserStats || currentUser.permissions?.admin) {
               <li>
                 <button
                   class="mobile-menu-item"
@@ -238,9 +236,7 @@
                 </button>
               </li>
             }
-          }
-          @if (userService.userState$ | async; as userState) {
-            @if (userState.user?.permissions?.canManageLibrary || userState.user?.permissions?.admin) {
+            @if (currentUser.permissions?.canManageLibrary || currentUser.permissions?.admin) {
               <li>
                 <button
                   class="mobile-menu-item"
@@ -282,8 +278,8 @@
             <p-menu #langMenuMobile [model]="langMenuItems" [popup]="true"/>
           </li>
 
-          @if (userService.userState$ | async; as userState) {
-            @if (!userState.user?.permissions?.demoUser) {
+          @if (user(); as currentUser) {
+            @if (!currentUser.permissions?.demoUser) {
               <li>
                 <button
                   class="mobile-menu-item"

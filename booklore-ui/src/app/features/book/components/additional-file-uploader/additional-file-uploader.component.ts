@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, effect, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 
 import {FormsModule} from '@angular/forms';
 import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
@@ -12,7 +12,6 @@ import {BookFileService} from '../../service/book-file.service';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {AdditionalFileType, Book} from '../../model/book.model';
 import {MessageService} from 'primeng/api';
-import {filter, take} from 'rxjs/operators';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 interface FileTypeOption {
@@ -73,18 +72,12 @@ export class AdditionalFileUploaderComponent implements OnInit, OnDestroy {
       { label: this.t.translate('book.fileUploader.typeAlternativeFormat'), value: AdditionalFileType.ALTERNATIVE_FORMAT },
       { label: this.t.translate('book.fileUploader.typeSupplementary'), value: AdditionalFileType.SUPPLEMENTARY }
     ];
-    this.appSettingsService.appSettings$
-      .pipe(
-        filter(settings => settings != null),
-        take(1)
-      )
-      .subscribe(settings => {
-        if (settings) {
-          const maxSizeMb = settings.maxFileUploadSizeInMb || 100;
-          this.maxFileSizeBytes = maxSizeMb * 1024 * 1024;
-          this.maxFileSizeDisplay = `${maxSizeMb} MB`;
-        }
-      });
+    const settings = this.appSettingsService.appSettings();
+    if (settings) {
+      const maxSizeMb = settings.maxFileUploadSizeInMb || 100;
+      this.maxFileSizeBytes = maxSizeMb * 1024 * 1024;
+      this.maxFileSizeDisplay = `${maxSizeMb} MB`;
+    }
   }
 
   ngOnDestroy(): void {
