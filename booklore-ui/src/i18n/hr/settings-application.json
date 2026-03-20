@@ -43,10 +43,5 @@
     },
     "settingsSaved": "Postavke spremljene",
     "settingsSavedDetail": "Postavke su uspješno spremljene!",
-    "settingsError": "Došlo je do pogreške prilikom spremanja postavki.",
-    "appearance": {
-        "supportButtonAnimation": "Animacija gumba za podršku",
-        "supportButtonAnimationDesc": "Prikaži animirani efekt srca na gumbu za podršku u gornjoj traci. Isključivanjem ove opcije gumb ostaje vidljiv, ali se animacija uklanja.",
-        "sectionTitle": "Izgled"
-    }
+    "settingsError": "Došlo je do pogreške prilikom spremanja postavki."
 }

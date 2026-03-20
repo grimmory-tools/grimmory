@@ -41,10 +41,5 @@
     },
     "settingsSaved": "Instellingen opgeslagen",
     "settingsSavedDetail": "De instellingen zijn succesvol opgeslagen!",
-    "settingsError": "Er is een fout opgetreden bij het opslaan van de instellingen.",
-    "appearance": {
-        "supportButtonAnimation": "",
-        "supportButtonAnimationDesc": "",
-        "sectionTitle": ""
-    }
+    "settingsError": "Er is een fout opgetreden bij het opslaan van de instellingen."
 }

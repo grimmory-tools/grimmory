@@ -41,10 +41,5 @@
     },
     "settingsSaved": "Paramètres enregistrés",
     "settingsSavedDetail": "Les paramètres ont été enregistrés avec succès !",
-    "settingsError": "Une erreur s'est produite lors de l'enregistrement des paramètres.",
-    "appearance": {
-        "supportButtonAnimation": "Animation du bouton de support",
-        "supportButtonAnimationDesc": "",
-        "sectionTitle": "Apparence"
-    }
+    "settingsError": "Une erreur s'est produite lors de l'enregistrement des paramètres."
 }

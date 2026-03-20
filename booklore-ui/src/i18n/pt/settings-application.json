@@ -41,10 +41,5 @@
     },
     "settingsSaved": "Configurações Salvas",
     "settingsSavedDetail": "As configurações foram salvas com sucesso!",
-    "settingsError": "Houve um erro ao salvar as configurações.",
-    "appearance": {
-        "supportButtonAnimation": "",
-        "supportButtonAnimationDesc": "",
-        "sectionTitle": ""
-    }
+    "settingsError": "Houve um erro ao salvar as configurações."
 }
