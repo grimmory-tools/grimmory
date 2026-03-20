@@ -124,7 +124,7 @@
     "saveErrorDetail": "保存设置时出错。"
   },
   "setup": {
-    "title": "欢迎使用 Booklore",
+    "title": "欢迎使用 Grimmory",
     "subtitle": "设置初始管理员账户以开始使用",
     "usernameLabel": "用户名",
     "usernamePlaceholder": "选择一个用户名",

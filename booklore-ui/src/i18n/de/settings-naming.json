@@ -3,7 +3,7 @@
   "description": "Konfigurieren Sie die automatische Dateiorganisation mit Metadaten-Platzhaltern. Muster werden beim Hochladen, Verschieben von Dateien oder nach Metadaten-Aktualisierungen angewendet.",
   "warning": {
     "title": "Hinweis zur Metadatenqualität:",
-    "text": "Die Dateibenennung basiert vollständig auf den in Booklore gespeicherten Metadaten. Diese Funktion wird nur für qualitativ hochwertige, gepflegte Bibliotheken mit vollständigen Metadaten empfohlen."
+    "text": "Die Dateibenennung basiert vollständig auf den in Grimmory gespeicherten Metadaten. Diese Funktion wird nur für qualitativ hochwertige, gepflegte Bibliotheken mit vollständigen Metadaten empfohlen."
   },
   "defaultPattern": {
     "sectionTitle": "Standardmuster",

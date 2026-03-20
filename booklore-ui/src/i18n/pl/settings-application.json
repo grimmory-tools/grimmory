@@ -1,6 +1,6 @@
 {
   "title": "Preferencje globalne",
-  "description": "Skonfiguruj globalne ustawienia instancji Booklore, w tym obsługę obrazów okładek, preferencje wyszukiwania i limity przesyłania plików.",
+  "description": "Skonfiguruj globalne ustawienia instancji Grimmory, w tym obsługę obrazów okładek, preferencje wyszukiwania i limity przesyłania plików.",
   "covers": {
     "sectionTitle": "Obraz okładki książki",
     "regenerate": "Ponownie wygeneruj okładki",

@@ -1,6 +1,6 @@
 {
   "title": "用户管理",
-  "description": "管理 BookLore 用户、权限和书库访问。配置用户角色和书籍收藏的操作能力。",
+  "description": "管理 Grimmory 用户、权限和书库访问。配置用户角色和书籍收藏的操作能力。",
   "currentUsers": {
     "sectionTitle": "当前用户",
     "sectionDesc": "查看和管理所有注册用户、权限和书库访问。",
@@ -70,7 +70,7 @@
     "koreaderSync": "KOReader 同步",
     "koboSync": "Kobo 同步",
     "opdsFeedAccess": "OPDS 订阅源访问",
-    "bulkResetBooklore": "批量重置 BookLore 阅读进度",
+    "bulkResetGrimmory": "批量重置 Grimmory 阅读进度",
     "bulkResetKoreader": "批量重置 KOReader 阅读进度",
     "bulkResetReadStatus": "批量重置书籍阅读状态"
   },

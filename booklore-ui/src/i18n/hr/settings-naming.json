@@ -3,7 +3,7 @@
   "description": "Konfigurirajte automatsku organizaciju datoteka koristeći oznake metapodataka. Uzorci se primjenjuju prilikom učitavanja, premještanja datoteka ili nakon ažuriranja metapodataka.",
   "warning": {
     "title": "Napomena o kvaliteti metapodataka:",
-    "text": "Imenovanje datoteka u potpunosti se oslanja na metapodatke pohranjene u Booklore-u. Ova značajka se preporuča samo za visokokvalitetne, kuratirane zbirke s potpunim metapodacima."
+    "text": "Imenovanje datoteka u potpunosti se oslanja na metapodatke pohranjene u Grimmory-u. Ova značajka se preporuča samo za visokokvalitetne, kuratirane zbirke s potpunim metapodacima."
   },
   "defaultPattern": {
     "sectionTitle": "Zadani uzorak",

@@ -1,6 +1,6 @@
 {
   "title": "Gebruikersbeheer",
-  "description": "Beheer Booklore-gebruikers, hun rechten en bibliotheektoegang. Configureer gebruikersrollen en mogelijkheden voor uw boekcollectie.",
+  "description": "Beheer Grimmory-gebruikers, hun rechten en bibliotheektoegang. Configureer gebruikersrollen en mogelijkheden voor uw boekcollectie.",
   "currentUsers": {
     "sectionTitle": "Huidige gebruikers",
     "sectionDesc": "Bekijk en beheer alle geregistreerde gebruikers, hun rechten en bibliotheektoegang.",
@@ -70,7 +70,7 @@
     "koreaderSync": "KOReader-synchronisatie",
     "koboSync": "Kobo-synchronisatie",
     "opdsFeedAccess": "",
-    "bulkResetBooklore": "Bulk Booklore-leesvoortgang resetten",
+    "bulkResetGrimmory": "Bulk Grimmory-leesvoortgang resetten",
     "bulkResetKoreader": "Bulk KOReader-leesvoortgang resetten",
     "bulkResetReadStatus": "Bulk boekleesstatus resetten"
   },

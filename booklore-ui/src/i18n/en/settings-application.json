@@ -1,6 +1,6 @@
 {
   "title": "Global Preferences",
-  "description": "Configure global settings for your Booklore instance, including cover image handling, search preferences, and file upload limits.",
+  "description": "Configure global settings for your Grimmory instance, including cover image handling, search preferences, and file upload limits.",
   "covers": {
     "sectionTitle": "Book Cover Image",
     "regenerate": "Regenerate Covers",

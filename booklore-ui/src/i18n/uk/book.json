@@ -92,7 +92,7 @@
       "moreActions": "Більше дій",
       "organizeFile": "Організувати файл",
       "readStatus": "Статус читання",
-      "resetBookloreProgress": "Скинути прогрес у Booklore",
+      "resetGrimmoryProgress": "Скинути прогрес у Grimmory",
       "resetKOReaderProgress": "Скинути прогрес у KOReader",
       "book": "Книга",
       "loading": "Завантаження..."
@@ -116,10 +116,10 @@
       "readStatusFailedSummary": "Не вдалося оновити",
       "readStatusFailedDetail": "Не вдалося оновити статус читання.",
       "progressResetSummary": "Прогрес скинуто",
-      "progressResetBookloreDetail": "Прогрес читання у Booklore скинуто.",
+      "progressResetGrimmoryDetail": "Прогрес читання у Grimmory скинуто.",
       "progressResetKOReaderDetail": "Прогрес читання у KOReader скинуто.",
       "progressResetFailedSummary": "Не вдалося",
-      "progressResetBookloreFailedDetail": "Не вдалося скинути прогрес у Booklore.",
+      "progressResetGrimmoryFailedDetail": "Не вдалося скинути прогрес у Grimmory.",
       "progressResetKOReaderFailedDetail": "Не вдалося скинути прогрес у KOReader.",
       "coverRegenSuccessSummary": "Успішно",
       "coverRegenSuccessDetail": "Розпочато регенерацію обкладинки",
@@ -201,7 +201,7 @@
       "setContentRating": "Встановити рейтинг контенту",
       "clearContentRating": "Очистити рейтинг контенту",
       "removeFromAllShelves": "Прибрати з усіх полиць",
-      "resetBookloreProgress": "Скинути прогрес у Booklore",
+      "resetGrimmoryProgress": "Скинути прогрес у Grimmory",
       "resetKOReaderProgress": "Скинути прогрес у KOReader"
     },
     "confirm": {
@@ -217,7 +217,7 @@
       "clearContentRatingHeader": "Підтвердити очищення рейтингу контенту",
       "unshelveMessage": "Ви впевнені, що хочете вилучити {{ count }} кн. з УСІХ полиць?",
       "unshelveHeader": "Підтвердити вилучення з полиць",
-      "resetBookloreMessage": "Ви впевнені, що хочете скинути прогрес читання Booklore для {{ count }} кн.?",
+      "resetGrimmoryMessage": "Ви впевнені, що хочете скинути прогрес читання Grimmory для {{ count }} кн.?",
       "resetKOReaderMessage": "Ви впевнені, що хочете скинути прогрес читання KOReader для {{ count }} кн.?",
       "resetHeader": "Підтвердити скидання"
     },
@@ -242,7 +242,7 @@
       "unshelveSuccessDetail": "Книги прибрано з усіх полиць",
       "unshelveFailedDetail": "Не вдалося оновити книжкові полиці",
       "progressResetSummary": "Прогрес скинуто",
-      "bookloreProgressResetDetail": "Прогрес читання в Booklore скинуто.",
+      "grimmoryProgressResetDetail": "Прогрес читання в Grimmory скинуто.",
       "koreaderProgressResetDetail": "Прогрес читання в KOReader скинуто.",
       "failedSummary": "Не вдалося",
       "progressResetFailedDetail": "Не вдалося скинути прогрес."
@@ -254,7 +254,7 @@
       "settingContentRating": "Встановлення рейтингу контенту для {{ count }} кн...",
       "clearingContentRating": "Очищення рейтингу контенту для {{ count }} кн...",
       "removingFromShelves": "Вилучення {{ count }} кн. з полиць...",
-      "resettingBookloreProgress": "Скидання прогресу Booklore для {{ count }} кн...",
+      "resettingGrimmoryProgress": "Скидання прогресу Grimmory для {{ count }} кн...",
       "resettingKOReaderProgress": "Скидання прогресу KOReader для {{ count }} кн..."
     }
   },

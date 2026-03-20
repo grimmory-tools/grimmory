@@ -92,7 +92,7 @@
       "moreActions": "更多操作",
       "organizeFile": "整理文件",
       "readStatus": "阅读状态",
-      "resetBookloreProgress": "重置 Booklore 进度",
+      "resetGrimmoryProgress": "重置 Grimmory 进度",
       "resetKOReaderProgress": "重置 KOReader 进度",
       "book": "图书",
       "loading": "加载中..."
@@ -113,10 +113,10 @@
       "readStatusFailedSummary": "更新失败",
       "readStatusFailedDetail": "无法更新阅读状态。",
       "progressResetSummary": "进度已重置",
-      "progressResetBookloreDetail": "Booklore 阅读进度已重置。",
+      "progressResetGrimmoryDetail": "Grimmory 阅读进度已重置。",
       "progressResetKOReaderDetail": "KOReader 阅读进度已重置。",
       "progressResetFailedSummary": "失败",
-      "progressResetBookloreFailedDetail": "无法重置 Booklore 进度。",
+      "progressResetGrimmoryFailedDetail": "无法重置 Grimmory 进度。",
       "progressResetKOReaderFailedDetail": "无法重置 KOReader 进度。",
       "coverRegenSuccessSummary": "成功",
       "coverRegenSuccessDetail": "封面重新生成已开始",
@@ -198,7 +198,7 @@
       "setContentRating": "设置内容分级",
       "clearContentRating": "清除内容分级",
       "removeFromAllShelves": "从所有书架移除",
-      "resetBookloreProgress": "重置 Booklore 进度",
+      "resetGrimmoryProgress": "重置 Grimmory 进度",
       "resetKOReaderProgress": "重置 KOReader 进度"
     },
     "confirm": {
@@ -214,7 +214,7 @@
       "clearContentRatingHeader": "确认清除内容分级",
       "unshelveMessage": "确定要将 {{ count }} 本书从所有书架中移除吗？",
       "unshelveHeader": "确认移除",
-      "resetBookloreMessage": "确定要重置 {{ count }} 本书的 Booklore 阅读进度吗？",
+      "resetGrimmoryMessage": "确定要重置 {{ count }} 本书的 Grimmory 阅读进度吗？",
       "resetKOReaderMessage": "确定要重置 {{ count }} 本书的 KOReader 阅读进度吗？",
       "resetHeader": "确认重置"
     },
@@ -239,7 +239,7 @@
       "unshelveSuccessDetail": "图书已从所有书架移除",
       "unshelveFailedDetail": "更新图书书架失败",
       "progressResetSummary": "进度已重置",
-      "bookloreProgressResetDetail": "Booklore 阅读进度已重置。",
+      "grimmoryProgressResetDetail": "Grimmory 阅读进度已重置。",
       "koreaderProgressResetDetail": "KOReader 阅读进度已重置。",
       "failedSummary": "失败",
       "progressResetFailedDetail": "无法重置进度。"
@@ -251,7 +251,7 @@
       "settingContentRating": "正在设置 {{ count }} 本书的内容分级...",
       "clearingContentRating": "正在清除 {{ count }} 本书的内容分级...",
       "removingFromShelves": "正在将 {{ count }} 本书从书架移除...",
-      "resettingBookloreProgress": "正在重置 {{ count }} 本书的 Booklore 进度...",
+      "resettingGrimmoryProgress": "正在重置 {{ count }} 本书的 Grimmory 进度...",
       "resettingKOReaderProgress": "正在重置 {{ count }} 本书的 KOReader 进度..."
     }
   },

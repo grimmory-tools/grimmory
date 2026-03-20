@@ -1,6 +1,6 @@
 {
   "title": "Globala inställningar",
-  "description": "Konfigurera globala inställningar för din Booklore-instans, inklusive omslagsbildshantering, sökinställningar och filuppladdningsgränser.",
+  "description": "Konfigurera globala inställningar för din Grimmory-instans, inklusive omslagsbildshantering, sökinställningar och filuppladdningsgränser.",
   "covers": {
     "sectionTitle": "Bokomslag",
     "regenerate": "Återskapa omslag",

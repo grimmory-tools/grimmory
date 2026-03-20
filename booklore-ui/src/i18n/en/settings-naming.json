@@ -3,7 +3,7 @@
   "description": "Configure automatic file organization using metadata placeholders. Patterns are applied when uploading, moving files, or after metadata updates.",
   "warning": {
     "title": "Metadata Quality Notice:",
-    "text": "File naming relies entirely on metadata stored in Booklore. This feature is recommended only for high-quality, curated libraries with complete metadata."
+    "text": "File naming relies entirely on metadata stored in Grimmory. This feature is recommended only for high-quality, curated libraries with complete metadata."
   },
   "defaultPattern": {
     "sectionTitle": "Default Pattern",

@@ -11,7 +11,7 @@
     "opdsLabel": "Strežnik OPDS",
     "opdsDesc": "Omogoči strežnik OPDS za dostop do zbirke prek združljivih bralnih aplikacij, kot so KOReader, Moon+ Reader itd.",
     "komgaLabel": "Komga API",
-    "komgaDesc": "Omogoči API, združljiv s Komgo, za uporabo odjemalcev Komga (Tachiyomi, Komelia itd.) z Booklore. Za avtentikacijo uporablja iste uporabniške račune OPDS.",
+    "komgaDesc": "Omogoči API, združljiv s Komgo, za uporabo odjemalcev Komga (Tachiyomi, Komelia itd.) z Grimmory. Za avtentikacijo uporablja iste uporabniške račune OPDS.",
     "groupUnknownLabel": "Združi neznane zbirke",
     "groupUnknownDesc": "Ko je to omogočeno, bodo knjige brez zbirke združene pod naslovom \"Neznana zbirka\". Ko je onemogočeno, se bo vsaka knjiga pojavila kot svoja samostojna zbirka.",
     "enabled": "Omogočeno",
@@ -21,7 +21,7 @@
   },
   "endpoints": {
     "sectionTitle": "Končne točke API",
-    "sectionDesc": "Uporabi te naslove URL za povezavo svojih bralnih aplikacij z Booklore.",
+    "sectionDesc": "Uporabi te naslove URL za povezavo svojih bralnih aplikacij z Grimmory.",
     "opdsCatalog": "URL kataloga OPDS",
     "opdsHint": "Za aplikacije, združljive z OPDS",
     "komgaBase": "Osnovni URL za Komga",
@@ -30,7 +30,7 @@
   },
   "users": {
     "sectionTitle": "Uporabniki OPDS",
-    "sectionDesc": "Upravljaj uporabniške račune za dostop do OPDS in Komga API. Ti so ločeni od uporabniških računov Booklore.",
+    "sectionDesc": "Upravljaj uporabniške račune za dostop do OPDS in Komga API. Ti so ločeni od uporabniških računov Grimmory.",
     "addUser": "Dodaj uporabnika",
     "emptyTitle": "Ni najdenih uporabnikov",
     "emptySubtitle": "Za začetek ustvari svojega prvega uporabnika OPDS",

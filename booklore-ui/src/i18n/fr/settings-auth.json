@@ -1,6 +1,6 @@
 {
   "title": "Paramètres d'authentification",
-  "description": "Configurez les méthodes d'authentification pour votre instance Booklore. L'authentification interne est toujours activée, et vous pouvez optionnellement activer l'OIDC pour les fournisseurs d'authentification externes.",
+  "description": "Configurez les méthodes d'authentification pour votre instance Grimmory. L'authentification interne est toujours activée, et vous pouvez optionnellement activer l'OIDC pour les fournisseurs d'authentification externes.",
   "methods": {
     "sectionTitle": "Méthodes d'authentification",
     "sectionDesc": "Choisissez les méthodes d'authentification disponibles pour les utilisateurs."
@@ -29,11 +29,11 @@
     "clientSecretPlaceholder": "Votre clé secrète du client OIDC",
     "clientSecretHint": "",
     "issuerUri": "URI de l'émetteur",
-    "issuerPlaceholder": "ex. https://auth.exemple.com/realms/booklore",
+    "issuerPlaceholder": "ex. https://auth.exemple.com/realms/grimmory",
     "scope": "Scope",
     "scopeHint": "Scopes requis pour la connexion OIDC. Doivent être pris en charge par votre fournisseur.",
     "claimMappings": "Correspondance des claims",
-    "claimDesc": "Associez les claims du jeton OIDC aux champs utilisateur Booklore. Ceux-ci doivent correspondre aux claims du jeton de votre fournisseur.",
+    "claimDesc": "Associez les claims du jeton OIDC aux champs utilisateur Grimmory. Ceux-ci doivent correspondre aux claims du jeton de votre fournisseur.",
     "usernameClaim": "Claim du nom d'utilisateur",
     "usernamePlaceholder": "ex. preferred_username",
     "emailClaim": "Claim de l'e-mail",
@@ -47,7 +47,7 @@
     "autoLabel": "Provisionnement automatique des utilisateurs",
     "autoEnabled": "Activé",
     "autoDisabled": "Désactivé",
-    "autoDesc": "Lorsque cette option est activée, les nouveaux utilisateurs sont automatiquement créés lors de la première connexion OIDC avec les permissions ci-dessous. Lorsqu'elle est désactivée, les utilisateurs doivent être créés manuellement dans Booklore avant de pouvoir se connecter via OIDC.",
+    "autoDesc": "Lorsque cette option est activée, les nouveaux utilisateurs sont automatiquement créés lors de la première connexion OIDC avec les permissions ci-dessous. Lorsqu'elle est désactivée, les utilisateurs doivent être créés manuellement dans Grimmory avant de pouvoir se connecter via OIDC.",
     "defaultPerms": "Permissions par défaut",
     "readBooks": "Lire des livres",
     "defaultLibraryAccess": "Accès par défaut aux bibliothèques",

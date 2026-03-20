@@ -124,7 +124,7 @@
     "saveErrorDetail": "Hubo un error al guardar la configuración."
   },
   "setup": {
-    "title": "Bienvenido a Booklore",
+    "title": "Bienvenido a Grimmory",
     "subtitle": "Configura tu cuenta de administrador inicial para comenzar",
     "usernameLabel": "Nombre de usuario",
     "usernamePlaceholder": "Elige un nombre de usuario",

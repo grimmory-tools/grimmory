@@ -1,6 +1,6 @@
 {
   "title": "Upravljanje korisnicima",
-  "description": "Upravljajte korisnicima Booklore-a, njihovim dozvolama i pristupom knjižnici. Konfigurirajte korisničke uloge i mogućnosti za vašu kolekciju knjiga.",
+  "description": "Upravljajte korisnicima Grimmory-a, njihovim dozvolama i pristupom knjižnici. Konfigurirajte korisničke uloge i mogućnosti za vašu kolekciju knjiga.",
   "currentUsers": {
     "sectionTitle": "Trenutni korisnici",
     "sectionDesc": "Pregledajte i upravljajte svim registriranim korisnicima, njihovim dozvolama i pristupom knjižnici.",
@@ -70,7 +70,7 @@
     "koreaderSync": "KOReader sinkronizacija",
     "koboSync": "Kobo sinkronizacija",
     "opdsFeedAccess": "Pristup OPDS feedu",
-    "bulkResetBooklore": "Skupno vraćanje Booklore napretka čitanja",
+    "bulkResetGrimmory": "Skupno vraćanje Grimmory napretka čitanja",
     "bulkResetKoreader": "Skupno vraćanje KOReader napretka čitanja",
     "bulkResetReadStatus": "Skupno vraćanje statusa čitanja knjiga"
   },

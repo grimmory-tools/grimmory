@@ -1,6 +1,6 @@
 {
   "title": "Préférences globales",
-  "description": "Configurez les paramètres globaux de votre instance Booklore, y compris la gestion des images de couverture, les préférences de recherche et les limites de téléversement de fichiers.",
+  "description": "Configurez les paramètres globaux de votre instance Grimmory, y compris la gestion des images de couverture, les préférences de recherche et les limites de téléversement de fichiers.",
   "covers": {
     "sectionTitle": "Image de couverture des livres",
     "regenerate": "Régénérer les couvertures",

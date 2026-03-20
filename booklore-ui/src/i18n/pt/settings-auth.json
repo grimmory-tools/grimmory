@@ -1,6 +1,6 @@
 {
   "title": "Configurações de Autenticação OIDC",
-  "description": "Configure os métodos de autenticação da sua instância do Booklore. A autenticação interna está sempre ativada, e você pode opcionalmente habilitar o OIDC para provedores de autenticação externos.",
+  "description": "Configure os métodos de autenticação da sua instância do Grimmory. A autenticação interna está sempre ativada, e você pode opcionalmente habilitar o OIDC para provedores de autenticação externos.",
   "methods": {
     "sectionTitle": "Métodos de Autenticação",
     "sectionDesc": "Escolha quais métodos de autenticação estão disponíveis para os usuários fazerem login."
@@ -29,11 +29,11 @@
     "clientSecretPlaceholder": "",
     "clientSecretHint": "",
     "issuerUri": "URI do Emissor",
-    "issuerPlaceholder": "ex. https://auth.example.com/realms/booklore",
+    "issuerPlaceholder": "ex. https://auth.example.com/realms/grimmory",
     "scope": "Escopo",
     "scopeHint": "Escopos obrigatórios para login OIDC. Devem ser suportados pelo seu provedor.",
     "claimMappings": "Mapeamento de Claims",
-    "claimDesc": "Mapeie as claims do token OIDC para os campos de usuário do Booklore. Devem corresponder às claims do token do seu provedor.",
+    "claimDesc": "Mapeie as claims do token OIDC para os campos de usuário do Grimmory. Devem corresponder às claims do token do seu provedor.",
     "usernameClaim": "Claim de Nome de Usuário",
     "usernamePlaceholder": "ex. preferred_username",
     "emailClaim": "Claim de Email",
@@ -47,7 +47,7 @@
     "autoLabel": "Provisionamento Automático de Usuários",
     "autoEnabled": "Ativado",
     "autoDisabled": "Desativado",
-    "autoDesc": "Quando ativado, novos usuários são criados automaticamente no primeiro login OIDC com as permissões abaixo. Quando desativado, os usuários devem ser criados manualmente no Booklore antes de poderem fazer login via OIDC.",
+    "autoDesc": "Quando ativado, novos usuários são criados automaticamente no primeiro login OIDC com as permissões abaixo. Quando desativado, os usuários devem ser criados manualmente no Grimmory antes de poderem fazer login via OIDC.",
     "defaultPerms": "Permissões Padrão",
     "readBooks": "Ler Livros",
     "defaultLibraryAccess": "Acesso Padrão às Bibliotecas",

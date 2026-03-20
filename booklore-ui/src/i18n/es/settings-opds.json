@@ -7,7 +7,7 @@
     "opdsLabel": "Servidor OPDS",
     "opdsDesc": "Habilita el servidor OPDS para acceder a tu colección de libros a través de aplicaciones de lectura compatibles con OPDS como KOReader, Moon+ Reader, etc.",
     "komgaLabel": "API Komga",
-    "komgaDesc": "Habilita la API compatible con Komga para usar clientes Komga (Tachiyomi, Komelia, etc.) con Booklore. Usa las mismas cuentas de usuario OPDS para autenticación.",
+    "komgaDesc": "Habilita la API compatible con Komga para usar clientes Komga (Tachiyomi, Komelia, etc.) con Grimmory. Usa las mismas cuentas de usuario OPDS para autenticación.",
     "groupUnknownLabel": "Agrupar series desconocidas",
     "groupUnknownDesc": "Cuando está habilitado, los libros sin serie se agruparán bajo \"Serie desconocida\". Cuando está deshabilitado, cada libro aparecerá como su propia serie individual.",
     "enabled": "Habilitado",
@@ -17,7 +17,7 @@
   },
   "endpoints": {
     "sectionTitle": "Endpoints de la API",
-    "sectionDesc": "Usa estas URLs para conectar tus aplicaciones de lectura a Booklore.",
+    "sectionDesc": "Usa estas URLs para conectar tus aplicaciones de lectura a Grimmory.",
     "opdsCatalog": "URL del catálogo OPDS",
     "opdsHint": "Para aplicaciones compatibles con OPDS",
     "komgaBase": "URL base de Komga",
@@ -26,7 +26,7 @@
   },
   "users": {
     "sectionTitle": "Usuarios OPDS",
-    "sectionDesc": "Gestiona las cuentas de usuario para el acceso OPDS y la API Komga. Estos son independientes de las cuentas de usuario de Booklore.",
+    "sectionDesc": "Gestiona las cuentas de usuario para el acceso OPDS y la API Komga. Estos son independientes de las cuentas de usuario de Grimmory.",
     "addUser": "Añadir usuario",
     "emptyTitle": "No se encontraron usuarios",
     "emptySubtitle": "Crea tu primer usuario OPDS para comenzar",

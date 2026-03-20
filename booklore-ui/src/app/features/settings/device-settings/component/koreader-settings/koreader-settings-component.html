@@ -49,7 +49,7 @@
             <div class="setting-item">
               <div class="setting-info">
                 <div class="setting-label-row">
-                  <label class="setting-label">{{ t('koreader.syncWithBooklore') }}</label>
+                  <label class="setting-label">{{ t('koreader.syncWithGrimmory') }}</label>
                   <p-toggle-switch
                     name="syncWithBookloreReader"
                     [(ngModel)]="syncWithBookloreReader"
@@ -58,7 +58,7 @@
                     [disabled]="!credentialsSaved || !koReaderSyncEnabled">
                   </p-toggle-switch>
                 </div>
-                <p class="setting-description" [innerHTML]="t('koreader.syncWithBookloreDesc')">
+                <p class="setting-description" [innerHTML]="t('koreader.syncWithGrimmoryDesc')">
                 </p>
               </div>
             </div>

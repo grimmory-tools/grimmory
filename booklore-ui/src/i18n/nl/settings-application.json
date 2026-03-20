@@ -1,6 +1,6 @@
 {
   "title": "Globale voorkeuren",
-  "description": "Configureer globale instellingen voor uw Booklore-instantie, waaronder omslagafbeeldingbeheer, zoekvoorkeuren en uploadlimieten.",
+  "description": "Configureer globale instellingen voor uw Grimmory-instantie, waaronder omslagafbeeldingbeheer, zoekvoorkeuren en uploadlimieten.",
   "covers": {
     "sectionTitle": "Boekomslagafbeelding",
     "regenerate": "Omslagen opnieuw genereren",

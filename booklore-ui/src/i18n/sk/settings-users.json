@@ -1,6 +1,6 @@
 {
   "title": "Správa používateľov",
-  "description": "Spravujte používateľov Booklore, ich oprávnenia a prístup ku knižniciam. Nakonfigurujte používateľské roly a možnosti pre vašu zbierku kníh.",
+  "description": "Spravujte používateľov Grimmory, ich oprávnenia a prístup ku knižniciam. Nakonfigurujte používateľské roly a možnosti pre vašu zbierku kníh.",
   "currentUsers": {
     "sectionTitle": "",
     "sectionDesc": "",
@@ -70,7 +70,7 @@
     "koreaderSync": "",
     "koboSync": "",
     "opdsFeedAccess": "",
-    "bulkResetBooklore": "",
+    "bulkResetGrimmory": "",
     "bulkResetKoreader": "",
     "bulkResetReadStatus": ""
   },

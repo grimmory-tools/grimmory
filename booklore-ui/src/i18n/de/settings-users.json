@@ -1,6 +1,6 @@
 {
   "title": "Benutzerverwaltung",
-  "description": "Verwalten Sie Booklore-Benutzer, deren Berechtigungen und Bibliothekszugriff. Konfigurieren Sie Benutzerrollen und Fähigkeiten für Ihre Büchersammlung.",
+  "description": "Verwalten Sie Grimmory-Benutzer, deren Berechtigungen und Bibliothekszugriff. Konfigurieren Sie Benutzerrollen und Fähigkeiten für Ihre Büchersammlung.",
   "currentUsers": {
     "sectionTitle": "Aktuelle Benutzer",
     "sectionDesc": "Alle registrierten Benutzer, deren Berechtigungen und Bibliothekszugriff anzeigen und verwalten.",
@@ -70,7 +70,7 @@
     "koreaderSync": "KOReader-Synchronisierung",
     "koboSync": "Kobo-Synchronisierung",
     "opdsFeedAccess": "OPDS-Feed-Zugriff",
-    "bulkResetBooklore": "Massen-Zurücksetzen des Booklore-Lesefortschritts",
+    "bulkResetGrimmory": "Massen-Zurücksetzen des Grimmory-Lesefortschritts",
     "bulkResetKoreader": "Massen-Zurücksetzen des KOReader-Lesefortschritts",
     "bulkResetReadStatus": "Massen-Zurücksetzen des Lesestatus"
   },

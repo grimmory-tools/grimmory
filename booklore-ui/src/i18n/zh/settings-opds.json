@@ -7,7 +7,7 @@
     "opdsLabel": "OPDS 服务器",
     "opdsDesc": "启用 OPDS 服务器以通过兼容 OPDS 的阅读应用（如 KOReader、Moon+ Reader 等）访问您的图书收藏。",
     "komgaLabel": "Komga API",
-    "komgaDesc": "启用兼容 Komga 的 API 以使用 Komga 客户端（Tachiyomi、Komelia 等）访问 Booklore。使用相同的 OPDS 用户账户进行身份验证。",
+    "komgaDesc": "启用兼容 Komga 的 API 以使用 Komga 客户端（Tachiyomi、Komelia 等）访问 Grimmory。使用相同的 OPDS 用户账户进行身份验证。",
     "groupUnknownLabel": "分组未知系列",
     "groupUnknownDesc": "启用后，没有系列的图书将被归入「未知系列」。禁用后，每本书将作为独立系列显示。",
     "enabled": "已启用",
@@ -17,7 +17,7 @@
   },
   "endpoints": {
     "sectionTitle": "API 端点",
-    "sectionDesc": "使用这些 URL 将您的阅读应用连接到 Booklore。",
+    "sectionDesc": "使用这些 URL 将您的阅读应用连接到 Grimmory。",
     "opdsCatalog": "OPDS 目录 URL",
     "opdsHint": "用于兼容 OPDS 的应用",
     "komgaBase": "Komga 基础 URL",
@@ -26,7 +26,7 @@
   },
   "users": {
     "sectionTitle": "OPDS 用户",
-    "sectionDesc": "管理 OPDS 和 Komga API 访问的用户账户。这些账户与 Booklore 用户账户是分开的。",
+    "sectionDesc": "管理 OPDS 和 Komga API 访问的用户账户。这些账户与 Grimmory 用户账户是分开的。",
     "addUser": "添加用户",
     "emptyTitle": "未找到用户",
     "emptySubtitle": "创建您的第一个 OPDS 用户以开始使用",

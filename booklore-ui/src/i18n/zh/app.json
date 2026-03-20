@@ -1,8 +1,8 @@
 {
   "offline": "您已离线",
-  "loading": "正在加载 BookLore…",
+  "loading": "正在加载 Grimmory…",
   "loadingDescription": "请稍候，我们正在准备就绪。",
-  "offlineLoadingDescription": "BookLore 需要连接到服务器才能加载。",
+  "offlineLoadingDescription": "Grimmory 需要连接到服务器才能加载。",
   "offlineDescription": "请检查您的网络连接后重试。",
   "connectionLost": "您的连接已断开，部分功能可能无法使用。"
 }

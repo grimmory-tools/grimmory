@@ -3,7 +3,7 @@
   "description": "Configura l'organizzazione automatica dei file usando segnaposto di metadati. I pattern vengono applicati durante il caricamento, lo spostamento dei file o dopo l'aggiornamento dei metadati.",
   "warning": {
     "title": "Avviso qualità metadati:",
-    "text": "La denominazione dei file dipende interamente dai metadati archiviati in Booklore. Questa funzionalità è raccomandata solo per librerie di alta qualità e curate con metadati completi."
+    "text": "La denominazione dei file dipende interamente dai metadati archiviati in Grimmory. Questa funzionalità è raccomandata solo per librerie di alta qualità e curate con metadati completi."
   },
   "defaultPattern": {
     "sectionTitle": "Pattern predefinito",

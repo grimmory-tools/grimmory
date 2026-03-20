@@ -3,7 +3,7 @@
   "description": "Configura la organización automática de archivos usando marcadores de metadatos. Los patrones se aplican al subir, mover archivos o después de actualizar metadatos.",
   "warning": {
     "title": "Aviso de calidad de metadatos:",
-    "text": "Los nombres de archivo dependen completamente de los metadatos almacenados en Booklore. Esta función se recomienda solo para bibliotecas de alta calidad y curadas con metadatos completos."
+    "text": "Los nombres de archivo dependen completamente de los metadatos almacenados en Grimmory. Esta función se recomienda solo para bibliotecas de alta calidad y curadas con metadatos completos."
   },
   "defaultPattern": {
     "sectionTitle": "Patrón predeterminado",

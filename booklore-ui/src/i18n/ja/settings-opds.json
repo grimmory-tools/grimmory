@@ -7,7 +7,7 @@
     "opdsLabel": "OPDSサーバー",
     "opdsDesc": "OPDSサーバーを有効にして、OPDS対応のリーディングアプリ（KOReader、Moon+ Readerなど）からブックコレクションにアクセスします。",
     "komgaLabel": "Komga API",
-    "komgaDesc": "Komga互換APIを有効にして、Komgaクライアント（Tachiyomi、Komeliaなど）をBookloreで使用します。認証にはOPDSユーザーアカウントを使用します。",
+    "komgaDesc": "Komga互換APIを有効にして、Komgaクライアント（Tachiyomi、Komeliaなど）をGrimmoryで使用します。認証にはOPDSユーザーアカウントを使用します。",
     "groupUnknownLabel": "不明なシリーズをグループ化",
     "groupUnknownDesc": "有効にすると、シリーズのない本は「不明なシリーズ」の下にグループ化されます。無効にすると、各本が個別のシリーズとして表示されます。",
     "enabled": "有効",
@@ -17,7 +17,7 @@
   },
   "endpoints": {
     "sectionTitle": "APIエンドポイント",
-    "sectionDesc": "これらのURLを使用してリーディングアプリをBookloreに接続します。",
+    "sectionDesc": "これらのURLを使用してリーディングアプリをGrimmoryに接続します。",
     "opdsCatalog": "OPDSカタログURL",
     "opdsHint": "OPDS対応アプリ用",
     "komgaBase": "Komga ベースURL",
@@ -26,7 +26,7 @@
   },
   "users": {
     "sectionTitle": "OPDSユーザー",
-    "sectionDesc": "OPDSおよびKomga APIアクセス用のユーザーアカウントを管理します。これらはBookloreユーザーアカウントとは別です。",
+    "sectionDesc": "OPDSおよびKomga APIアクセス用のユーザーアカウントを管理します。これらはGrimmoryユーザーアカウントとは別です。",
     "addUser": "ユーザーを追加",
     "emptyTitle": "ユーザーが見つかりません",
     "emptySubtitle": "最初のOPDSユーザーを作成して始めましょう",

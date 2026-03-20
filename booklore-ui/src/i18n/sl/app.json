@@ -1,8 +1,8 @@
 {
   "offline": "Nimaš povezave",
-  "loading": "Nalaganje zbirke Booklore…",
+  "loading": "Nalaganje zbirke Grimmory…",
   "loadingDescription": "Prosim počakaj, da pripravimo vse potrebno.",
-  "offlineLoadingDescription": "BookLore za nalaganje potrebuje povezavo s strežnikom.",
+  "offlineLoadingDescription": "Grimmory za nalaganje potrebuje povezavo s strežnikom.",
   "offlineDescription": "Preveri svojo omrežno povezavo in poskusi znova.",
   "connectionLost": "Povezava je bila prekinjena. Nekatere funkcije morda ne bodo delovale."
 }

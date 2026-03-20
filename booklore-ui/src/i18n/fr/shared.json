@@ -124,7 +124,7 @@
     "saveErrorDetail": "Une erreur s'est produite lors de l'enregistrement des paramètres."
   },
   "setup": {
-    "title": "Bienvenue sur Booklore",
+    "title": "Bienvenue sur Grimmory",
     "subtitle": "Configurez votre compte administrateur initial pour commencer",
     "usernameLabel": "Nom d'utilisateur",
     "usernamePlaceholder": "Choisissez un nom d'utilisateur",

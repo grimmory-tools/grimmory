@@ -1,6 +1,6 @@
 {
   "title": "全局偏好设置",
-  "description": "配置 BookLore 实例的全局设置，包括封面图片处理、搜索偏好和文件上传限制。",
+  "description": "配置 Grimmory 实例的全局设置，包括封面图片处理、搜索偏好和文件上传限制。",
   "covers": {
     "sectionTitle": "书籍封面图片",
     "regenerate": "重新生成封面",

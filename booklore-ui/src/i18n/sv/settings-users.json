@@ -1,6 +1,6 @@
 {
   "title": "Användarhantering",
-  "description": "Hantera Booklore-användare, deras behörigheter och biblioteksåtkomst. Konfigurera användarroller och förmågor för din boksamling.",
+  "description": "Hantera Grimmory-användare, deras behörigheter och biblioteksåtkomst. Konfigurera användarroller och förmågor för din boksamling.",
   "currentUsers": {
     "sectionTitle": "Aktuella användare",
     "sectionDesc": "Visa och hantera alla registrerade användare, deras behörigheter och biblioteksåtkomst.",
@@ -70,7 +70,7 @@
     "koreaderSync": "KOReader-synk",
     "koboSync": "Kobo-synk",
     "opdsFeedAccess": "OPDS-flödesåtkomst",
-    "bulkResetBooklore": "Massåterställ Booklore-läsframsteg",
+    "bulkResetGrimmory": "Massåterställ Grimmory-läsframsteg",
     "bulkResetKoreader": "Massåterställ KoReader-läsframsteg",
     "bulkResetReadStatus": "Massåterställ boklässtatus"
   },

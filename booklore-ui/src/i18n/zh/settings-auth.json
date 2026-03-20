@@ -1,6 +1,6 @@
 {
   "title": "OIDC设置",
-  "description": "配置 BookLore 实例的认证方式。内部认证始终启用，您可以选择启用 OIDC 进行外部认证。",
+  "description": "配置 Grimmory 实例的认证方式。内部认证始终启用，您可以选择启用 OIDC 进行外部认证。",
   "methods": {
     "sectionTitle": "认证方式",
     "sectionDesc": "选择用户可以使用哪些认证方式登录。"
@@ -29,11 +29,11 @@
     "clientSecretPlaceholder": "",
     "clientSecretHint": "",
     "issuerUri": "签发者 URI",
-    "issuerPlaceholder": "例如 https://auth.example.com/realms/booklore",
+    "issuerPlaceholder": "例如 https://auth.example.com/realms/grimmory",
     "scope": "范围",
     "scopeHint": "OIDC 登录所需的范围。必须由您的提供商支持。",
     "claimMappings": "声明映射",
-    "claimDesc": "将 OIDC 令牌声明映射到 BookLore 用户字段。这些必须与您的提供商的令牌声明匹配。",
+    "claimDesc": "将 OIDC 令牌声明映射到 Grimmory 用户字段。这些必须与您的提供商的令牌声明匹配。",
     "usernameClaim": "用户名声明",
     "usernamePlaceholder": "例如 preferred_username",
     "emailClaim": "邮箱声明",
@@ -47,7 +47,7 @@
     "autoLabel": "自动用户配置",
     "autoEnabled": "已启用",
     "autoDisabled": "已禁用",
-    "autoDesc": "启用后，新用户将在首次 OIDC 登录时自动创建，并拥有以下权限。禁用后，用户必须先在 BookLore 中手动创建，才能通过 OIDC 登录。",
+    "autoDesc": "启用后，新用户将在首次 OIDC 登录时自动创建，并拥有以下权限。禁用后，用户必须先在 Grimmory 中手动创建，才能通过 OIDC 登录。",
     "defaultPerms": "默认权限",
     "readBooks": "阅读书籍",
     "defaultLibraryAccess": "默认书库访问",

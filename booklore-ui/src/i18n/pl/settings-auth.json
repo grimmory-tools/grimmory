@@ -1,6 +1,6 @@
 {
   "title": "Ustawienia uwierzytelniania",
-  "description": "Skonfiguruj metody uwierzytelniania dla Twojej instancji Booklore. Uwierzytelnianie wewnętrzne jest zawsze włączone, a opcjonalnie możesz włączyć OIDC dla zewnętrznych dostawców uwierzytelniania.",
+  "description": "Skonfiguruj metody uwierzytelniania dla Twojej instancji Grimmory. Uwierzytelnianie wewnętrzne jest zawsze włączone, a opcjonalnie możesz włączyć OIDC dla zewnętrznych dostawców uwierzytelniania.",
   "methods": {
     "sectionTitle": "Metody uwierzytelniania",
     "sectionDesc": "Wybierz, które metody uwierzytelniania będą dostępne dla użytkowników do logowania."
@@ -29,11 +29,11 @@
     "clientSecretPlaceholder": "",
     "clientSecretHint": "",
     "issuerUri": "URI wydawcy",
-    "issuerPlaceholder": "np. https://auth.example.com/realms/booklore",
+    "issuerPlaceholder": "np. https://auth.example.com/realms/grimmory",
     "scope": "Zakres",
     "scopeHint": "Wymagane zakresy do logowania OIDC. Muszą być obsługiwane przez Twojego dostawcę.",
     "claimMappings": "Mapowanie roszczeń",
-    "claimDesc": "Mapuj roszczenia tokena OIDC na pola użytkownika Booklore. Muszą one odpowiadać roszczeniom tokena Twojego dostawcy.",
+    "claimDesc": "Mapuj roszczenia tokena OIDC na pola użytkownika Grimmory. Muszą one odpowiadać roszczeniom tokena Twojego dostawcy.",
     "usernameClaim": "Roszczenie nazwy użytkownika",
     "usernamePlaceholder": "np. preferred_username",
     "emailClaim": "Roszczenie adresu e-mail",
@@ -47,7 +47,7 @@
     "autoLabel": "Automatyczne provisionowanie użytkowników",
     "autoEnabled": "Włączone",
     "autoDisabled": "Wyłączone",
-    "autoDesc": "Gdy włączone, nowi użytkownicy są automatycznie tworzeni przy pierwszym logowaniu OIDC z poniższymi uprawnieniami. Gdy wyłączone, użytkownicy muszą być ręcznie utworzeni w Booklore, zanim będą mogli się zalogować przez OIDC.",
+    "autoDesc": "Gdy włączone, nowi użytkownicy są automatycznie tworzeni przy pierwszym logowaniu OIDC z poniższymi uprawnieniami. Gdy wyłączone, użytkownicy muszą być ręcznie utworzeni w Grimmory, zanim będą mogli się zalogować przez OIDC.",
     "defaultPerms": "Domyślne uprawnienia",
     "readBooks": "Czytanie książek",
     "defaultLibraryAccess": "Domyślny dostęp do biblioteki",

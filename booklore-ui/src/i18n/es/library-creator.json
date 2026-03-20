@@ -12,7 +12,7 @@
     "bookFolders": "Carpetas de Libros",
     "addFolder": "Agregar carpeta",
     "emptyFoldersHint": "Agrega carpetas que contengan tus archivos de libros",
-    "folderStructureHint": "Como se agrupan los archivos en libros depende de tu <a href='https://booklore.org/docs/library/organization-modes' target='_blank' rel='noopener'>modo de organización</a>.",
+    "folderStructureHint": "Como se agrupan los archivos en libros depende de tu <a href='https://grimmory.org/docs/library/organization-modes' target='_blank' rel='noopener'>modo de organización</a>.",
     "options": "Opciones",
     "watchFolders": "Vigilar carpetas",
     "watchFoldersTooltip": "Detectar automáticamente nuevos libros agregados a las carpetas",

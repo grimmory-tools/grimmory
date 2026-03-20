@@ -24,7 +24,7 @@
     "moveOrganize": "Premikanje/organizacija datotek",
     "bulkLockUnlock": "Množično zaklepanje/odklepanje metapodatkov",
     "opdsFeedAccess": "Dostop do vira OPDS",
-    "bulkResetBooklore": "Množična ponastavitev napredka v Booklore",
+    "bulkResetGrimmory": "Množična ponastavitev napredka v Grimmory",
     "bulkResetKoreader": "Množična ponastavitev napredka v KoReaderju",
     "bulkResetReadStatus": "Množična ponastavitev statusa branja"
   },
@@ -63,7 +63,7 @@
     "createError": "Pri ustvarjanju uporabnika je prišlo do nepričakovane napake. Poskusi znova pozneje."
   },
   "title": "Upravljanje uporabnikov",
-  "description": "Upravljaj uporabnike Booklore, njihova dovoljenja in dostop do knjižnic. Nastavi uporabniške vloge in zmožnosti za svojo zbirko knjig.",
+  "description": "Upravljaj uporabnike Grimmory, njihova dovoljenja in dostop do knjižnic. Nastavi uporabniške vloge in zmožnosti za svojo zbirko knjig.",
   "currentUsers": {
     "sectionTitle": "Trenutni uporabniki",
     "sectionDesc": "Pregleduj in upravljaj vse registrirane uporabnike, njihova dovoljenja in dostop do knjižnic.",

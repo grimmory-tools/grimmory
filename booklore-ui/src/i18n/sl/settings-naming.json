@@ -3,7 +3,7 @@
   "description": "Konfiguriraj samodejno organizacijo datotek z uporabo gradnikov metapodatkov. Vzorci se uporabijo pri nalaganju, premikanju datotek ali po posodobitvi metapodatkov.",
   "warning": {
     "title": "Obvestilo o kakovosti metapodatkov:",
-    "text": "Poimenovanje datotek se v celoti zanaša na metapodatke, shranjene v Booklore. Ta funkcija je priporočljiva le za kakovostne, urejene knjižnice s popolnimi metapodatki."
+    "text": "Poimenovanje datotek se v celoti zanaša na metapodatke, shranjene v Grimmory. Ta funkcija je priporočljiva le za kakovostne, urejene knjižnice s popolnimi metapodatki."
   },
   "defaultPattern": {
     "sectionTitle": "Privzeti vzorec",

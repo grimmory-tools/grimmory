@@ -1,6 +1,6 @@
 {
   "title": "Preferencias globales",
-  "description": "Configura los ajustes globales de tu instancia de Booklore, incluyendo el manejo de imágenes de portada, preferencias de búsqueda y límites de carga de archivos.",
+  "description": "Configura los ajustes globales de tu instancia de Grimmory, incluyendo el manejo de imágenes de portada, preferencias de búsqueda y límites de carga de archivos.",
   "covers": {
     "sectionTitle": "Imagen de portada del libro",
     "regenerate": "Regenerar portadas",

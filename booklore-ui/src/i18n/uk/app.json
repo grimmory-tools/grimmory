@@ -1,8 +1,8 @@
 {
   "offline": "Ви офлайн",
-  "loading": "Завантаження BookLore…",
+  "loading": "Завантаження Grimmory…",
   "loadingDescription": "Зачекайте, будь ласка, триває підготовка.",
-  "offlineLoadingDescription": "Для завантаження BookLore потрібне з'єднання із сервером.",
+  "offlineLoadingDescription": "Для завантаження Grimmory потрібне з'єднання із сервером.",
   "offlineDescription": "Перевірте мережу та спробуйте ще раз.",
   "connectionLost": "З'єднання втрачено. Деякі функції можуть бути обмежені."
 }

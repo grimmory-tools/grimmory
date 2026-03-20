@@ -1,8 +1,8 @@
 {
   "offline": "Niste povezani",
-  "loading": "Učitavanje Booklore…",
+  "loading": "Učitavanje Grimmory…",
   "loadingDescription": "Pričekajte dok pripremamo sve za vas.",
-  "offlineLoadingDescription": "BookLore treba vezu s poslužiteljem za učitavanje.",
+  "offlineLoadingDescription": "Grimmory treba vezu s poslužiteljem za učitavanje.",
   "offlineDescription": "Provjerite mrežnu vezu i pokušajte ponovo.",
   "connectionLost": "Vaša veza je prekinuta. Neke značajke možda neće raditi."
 }

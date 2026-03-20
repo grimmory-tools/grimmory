@@ -52,7 +52,7 @@
       "createFailedSummary": "Kreiranje nije uspjelo",
       "createFailedDetail": "Došlo je do pogreške prilikom kreiranja zbirke. Pokušajte ponovo."
     },
-    "folderStructureHint": "Provjerite slijede li vaše mape očekivanu <a href='https://booklore.org/docs/library/folder-structure#-recommended-structures' target='_blank' rel='noopener'>strukturu direktorija</a> za knjige i audioknjige.",
+    "folderStructureHint": "Provjerite slijede li vaše mape očekivanu <a href='https://grimmory.org/docs/library/folder-structure#-recommended-structures' target='_blank' rel='noopener'>strukturu direktorija</a> za knjige i audioknjige.",
     "organizationMode": "Organizacijski način",
     "organizationModeTooltip": "Kako se datoteke grupiraju u knjige tijekom skeniranja",
     "organizationModeBookPerFile": "Jedna knjiga po datoteci",

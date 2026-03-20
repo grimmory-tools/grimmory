@@ -124,7 +124,7 @@
     "saveErrorDetail": "There was an error saving the settings."
   },
   "setup": {
-    "title": "Welcome to Booklore",
+    "title": "Welcome to Grimmory",
     "subtitle": "Setup your initial admin account to get started",
     "usernameLabel": "Username",
     "usernamePlaceholder": "Choose a username",

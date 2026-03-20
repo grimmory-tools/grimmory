@@ -117,14 +117,14 @@ export class KoreaderSettingsComponent implements OnInit, OnDestroy {
         this.messageService.add({
           severity: 'success',
           summary: this.t.translate('settingsDevice.koreader.syncUpdated'),
-          detail: enabled ? this.t.translate('settingsDevice.koreader.bookloreReaderEnabled') : this.t.translate('settingsDevice.koreader.bookloreReaderDisabled')
+          detail: enabled ? this.t.translate('settingsDevice.koreader.grimmoryReaderEnabled') : this.t.translate('settingsDevice.koreader.grimmoryReaderDisabled')
         });
       },
       error: () => {
         this.messageService.add({
           severity: 'error',
           summary: this.t.translate('settingsDevice.koreader.syncUpdateFailed'),
-          detail: this.t.translate('settingsDevice.koreader.bookloreReaderError')
+          detail: this.t.translate('settingsDevice.koreader.grimmoryReaderError')
         });
       }
     });

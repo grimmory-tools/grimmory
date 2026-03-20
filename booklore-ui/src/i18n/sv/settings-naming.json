@@ -3,7 +3,7 @@
   "description": "Konfigurera automatisk filorganisation med metadataplatshållare. Mönster tillämpas vid uppladdning, filflyttning eller efter metadatauppdateringar.",
   "warning": {
     "title": "Observera angående metadatakvalitet:",
-    "text": "Filnamngivning förlitar sig helt på metadata lagrad i Booklore. Denna funktion rekommenderas bara för högkvalitativa, välskötta bibliotek med komplett metadata."
+    "text": "Filnamngivning förlitar sig helt på metadata lagrad i Grimmory. Denna funktion rekommenderas bara för högkvalitativa, välskötta bibliotek med komplett metadata."
   },
   "defaultPattern": {
     "sectionTitle": "Standardmönster",

@@ -124,7 +124,7 @@
     "saveErrorDetail": "設定の保存中にエラーが発生しました。"
   },
   "setup": {
-    "title": "Bookloreへようこそ",
+    "title": "Grimmoryへようこそ",
     "subtitle": "初期管理者アカウントを設定して始めましょう",
     "usernameLabel": "ユーザー名",
     "usernamePlaceholder": "ユーザー名を選択",

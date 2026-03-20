@@ -92,7 +92,7 @@
       "moreActions": "Meer acties",
       "organizeFile": "Bestand ordenen",
       "readStatus": "Leesstatus",
-      "resetBookloreProgress": "Voortgang Booklore herstellen",
+      "resetGrimmoryProgress": "Voortgang Grimmory herstellen",
       "resetKOReaderProgress": "Voortgang KOreader resetten",
       "book": "Boek",
       "loading": "Laden..."
@@ -116,10 +116,10 @@
       "readStatusFailedSummary": "Update mislukt",
       "readStatusFailedDetail": "De leesstatus kon niet worden bijgewerkt.",
       "progressResetSummary": "Voortgang resetten",
-      "progressResetBookloreDetail": "De voortgang van het lezen van Booklore is gereset.",
+      "progressResetGrimmoryDetail": "De voortgang van het lezen van Grimmory is gereset.",
       "progressResetKOReaderDetail": "De leesvoortgang van KOReader is gereset.",
       "progressResetFailedSummary": "Mislukt",
-      "progressResetBookloreFailedDetail": "De voortgang van Booklore kon niet worden gereset.",
+      "progressResetGrimmoryFailedDetail": "De voortgang van Grimmory kon niet worden gereset.",
       "progressResetKOReaderFailedDetail": "De voortgang van KOReader kon niet worden gereset.",
       "coverRegenSuccessSummary": "Succes",
       "coverRegenSuccessDetail": "Regeneratie van de omslag is gestart",
@@ -200,7 +200,7 @@
       "setContentRating": "",
       "clearContentRating": "",
       "removeFromAllShelves": "",
-      "resetBookloreProgress": "",
+      "resetGrimmoryProgress": "",
       "resetKOReaderProgress": ""
     },
     "confirm": {
@@ -216,7 +216,7 @@
       "clearContentRatingHeader": "",
       "unshelveMessage": "",
       "unshelveHeader": "",
-      "resetBookloreMessage": "",
+      "resetGrimmoryMessage": "",
       "resetKOReaderMessage": "",
       "resetHeader": ""
     },
@@ -241,7 +241,7 @@
       "unshelveSuccessDetail": "Boeken verwijderd uit alle rekken",
       "unshelveFailedDetail": "Kan boekenplanken niet bijwerken",
       "progressResetSummary": "Voortgang resetten",
-      "bookloreProgressResetDetail": "De leesvoortgang van Booklore is gereset.",
+      "grimmoryProgressResetDetail": "De leesvoortgang van Grimmory is gereset.",
       "koreaderProgressResetDetail": "De leesvoortgang van KoReader is gereset.",
       "failedSummary": "Mislukt",
       "progressResetFailedDetail": "De voortgang kon niet worden gereset."
@@ -253,7 +253,7 @@
       "settingContentRating": "Inhoudsclassificatie instellen voor {{ count }} boek(en)...",
       "clearingContentRating": "Inhoudsclassificatie voor {{ count }} boek(en) wordt gewist...",
       "removingFromShelves": "",
-      "resettingBookloreProgress": "",
+      "resettingGrimmoryProgress": "",
       "resettingKOReaderProgress": ""
     }
   },

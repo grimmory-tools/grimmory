@@ -12,7 +12,7 @@
     "bookFolders": "Book Folders",
     "addFolder": "Add folder",
     "emptyFoldersHint": "Add folders containing your book files",
-    "folderStructureHint": "How files are grouped into books depends on your <a href='https://booklore.org/docs/library/organization-modes' target='_blank' rel='noopener'>organization mode</a>.",
+    "folderStructureHint": "How files are grouped into books depends on your <a href='https://grimmory.org/docs/library/organization-modes' target='_blank' rel='noopener'>organization mode</a>.",
     "options": "Options",
     "watchFolders": "Watch folders",
     "watchFoldersTooltip": "Automatically detect new books added to folders",

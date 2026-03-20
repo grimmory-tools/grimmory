@@ -1,6 +1,6 @@
 {
   "title": "Globale Einstellungen",
-  "description": "Konfigurieren Sie globale Einstellungen für Ihre Booklore-Instanz, einschließlich Coverbild-Verarbeitung, Sucheinstellungen und Dateiupload-Limits.",
+  "description": "Konfigurieren Sie globale Einstellungen für Ihre Grimmory-Instanz, einschließlich Coverbild-Verarbeitung, Sucheinstellungen und Dateiupload-Limits.",
   "covers": {
     "sectionTitle": "Buchcover-Bild",
     "regenerate": "Cover neu generieren",

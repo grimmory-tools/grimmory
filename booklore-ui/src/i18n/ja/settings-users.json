@@ -1,6 +1,6 @@
 {
   "title": "ユーザー管理",
-  "description": "Bookloreのユーザー、権限、ライブラリアクセスを管理します。ブックコレクションのユーザーロールと機能を設定します。",
+  "description": "Grimmoryのユーザー、権限、ライブラリアクセスを管理します。ブックコレクションのユーザーロールと機能を設定します。",
   "currentUsers": {
     "sectionTitle": "現在のユーザー",
     "sectionDesc": "すべての登録ユーザー、権限、ライブラリアクセスを表示・管理します。",
@@ -70,7 +70,7 @@
     "koreaderSync": "KOReader同期",
     "koboSync": "Kobo同期",
     "opdsFeedAccess": "OPDSフィードアクセス",
-    "bulkResetBooklore": "Booklore読書進捗の一括リセット",
+    "bulkResetGrimmory": "Grimmory読書進捗の一括リセット",
     "bulkResetKoreader": "KOReader読書進捗の一括リセット",
     "bulkResetReadStatus": "ブック読書状態の一括リセット"
   },

@@ -1,8 +1,8 @@
 {
   "offline": "Você Está Offline",
-  "loading": "Carregando Booklore…",
+  "loading": "Carregando Grimmory…",
   "loadingDescription": "Aguarde enquanto preparamos tudo.",
-  "offlineLoadingDescription": "O BookLore precisa de uma conexão com o servidor para carregar.",
+  "offlineLoadingDescription": "O Grimmory precisa de uma conexão com o servidor para carregar.",
   "offlineDescription": "Verifique sua rede e tente novamente.",
   "connectionLost": "Sua conexão foi perdida. Alguns recursos podem não funcionar."
 }

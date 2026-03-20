@@ -52,7 +52,7 @@
       "createFailedSummary": "Skapande misslyckades",
       "createFailedDetail": "Ett fel uppstod vid skapande av biblioteket. Försök igen."
     },
-    "folderStructureHint": "Hur filer grupperas till böcker baseras på ditt <a href='https://booklore.org/docs/library/organization-modes' target='_blank' rel='noopener'>organisationsläge</a>.",
+    "folderStructureHint": "Hur filer grupperas till böcker baseras på ditt <a href='https://grimmory.org/docs/library/organization-modes' target='_blank' rel='noopener'>organisationsläge</a>.",
     "organizationMode": "Organisationsläge",
     "organizationModeTooltip": "Hur filer grupperas till böcker under skanning",
     "organizationModeBookPerFile": "En bok per fil",

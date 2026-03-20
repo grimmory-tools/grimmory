@@ -92,7 +92,7 @@
       "moreActions": "Weitere Aktionen",
       "organizeFile": "Datei organisieren",
       "readStatus": "Lesestatus",
-      "resetBookloreProgress": "Booklore-Fortschritt zurücksetzen",
+      "resetGrimmoryProgress": "Grimmory-Fortschritt zurücksetzen",
       "resetKOReaderProgress": "KOReader-Fortschritt zurücksetzen",
       "book": "Buch",
       "loading": "Laden..."
@@ -116,10 +116,10 @@
       "readStatusFailedSummary": "Aktualisierung fehlgeschlagen",
       "readStatusFailedDetail": "Lesestatus konnte nicht aktualisiert werden.",
       "progressResetSummary": "Fortschritt zurückgesetzt",
-      "progressResetBookloreDetail": "Booklore-Lesefortschritt wurde zurückgesetzt.",
+      "progressResetGrimmoryDetail": "Grimmory-Lesefortschritt wurde zurückgesetzt.",
       "progressResetKOReaderDetail": "KOReader-Lesefortschritt wurde zurückgesetzt.",
       "progressResetFailedSummary": "Fehlgeschlagen",
-      "progressResetBookloreFailedDetail": "Booklore-Fortschritt konnte nicht zurückgesetzt werden.",
+      "progressResetGrimmoryFailedDetail": "Grimmory-Fortschritt konnte nicht zurückgesetzt werden.",
       "progressResetKOReaderFailedDetail": "KOReader-Fortschritt konnte nicht zurückgesetzt werden.",
       "coverRegenSuccessSummary": "Erfolgreich",
       "coverRegenSuccessDetail": "Cover-Neugenerierung gestartet",
@@ -201,7 +201,7 @@
       "setContentRating": "Inhaltsbewertung festlegen",
       "clearContentRating": "Inhaltsbewertung löschen",
       "removeFromAllShelves": "Aus allen Regalen entfernen",
-      "resetBookloreProgress": "Booklore-Fortschritt zurücksetzen",
+      "resetGrimmoryProgress": "Grimmory-Fortschritt zurücksetzen",
       "resetKOReaderProgress": "KOReader-Fortschritt zurücksetzen"
     },
     "confirm": {
@@ -217,7 +217,7 @@
       "clearContentRatingHeader": "Inhaltsbewertung löschen bestätigen",
       "unshelveMessage": "Sind Sie sicher, dass Sie {{ count }} Buch/Bücher aus ALLEN Regalen entfernen möchten?",
       "unshelveHeader": "Entfernung bestätigen",
-      "resetBookloreMessage": "Sind Sie sicher, dass Sie den Booklore-Lesefortschritt für {{ count }} Buch/Bücher zurücksetzen möchten?",
+      "resetGrimmoryMessage": "Sind Sie sicher, dass Sie den Grimmory-Lesefortschritt für {{ count }} Buch/Bücher zurücksetzen möchten?",
       "resetKOReaderMessage": "Sind Sie sicher, dass Sie den KOReader-Lesefortschritt für {{ count }} Buch/Bücher zurücksetzen möchten?",
       "resetHeader": "Zurücksetzen bestätigen"
     },
@@ -242,7 +242,7 @@
       "unshelveSuccessDetail": "Bücher aus allen Regalen entfernt",
       "unshelveFailedDetail": "Aktualisierung der Bücherregale fehlgeschlagen",
       "progressResetSummary": "Fortschritt zurückgesetzt",
-      "bookloreProgressResetDetail": "Booklore-Lesefortschritt wurde zurückgesetzt.",
+      "grimmoryProgressResetDetail": "Grimmory-Lesefortschritt wurde zurückgesetzt.",
       "koreaderProgressResetDetail": "KOReader-Lesefortschritt wurde zurückgesetzt.",
       "failedSummary": "Fehlgeschlagen",
       "progressResetFailedDetail": "Fortschritt konnte nicht zurückgesetzt werden."
@@ -254,7 +254,7 @@
       "settingContentRating": "Inhaltsbewertung für {{ count }} Buch/Bücher wird gesetzt...",
       "clearingContentRating": "Inhaltsbewertung für {{ count }} Buch/Bücher wird gelöscht...",
       "removingFromShelves": "{{ count }} Buch/Bücher werden aus Regalen entfernt...",
-      "resettingBookloreProgress": "Booklore-Fortschritt für {{ count }} Buch/Bücher wird zurückgesetzt...",
+      "resettingGrimmoryProgress": "Grimmory-Fortschritt für {{ count }} Buch/Bücher wird zurückgesetzt...",
       "resettingKOReaderProgress": "KOReader-Fortschritt für {{ count }} Buch/Bücher wird zurückgesetzt..."
     }
   },

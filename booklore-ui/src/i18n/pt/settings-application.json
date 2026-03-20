@@ -1,6 +1,6 @@
 {
   "title": "Preferências Globais",
-  "description": "Configure definições globais para sua instância do Booklore, incluindo tratamento de imagens de capa, preferências de pesquisa e limites de envio de arquivos.",
+  "description": "Configure definições globais para sua instância do Grimmory, incluindo tratamento de imagens de capa, preferências de pesquisa e limites de envio de arquivos.",
   "covers": {
     "sectionTitle": "Imagem de Capa do Livro",
     "regenerate": "Regenerar Capas",

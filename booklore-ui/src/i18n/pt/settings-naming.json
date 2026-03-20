@@ -3,7 +3,7 @@
   "description": "Configure a organização automática de arquivos usando marcadores de metadados. Os padrões são aplicados ao enviar, mover arquivos ou após atualizações de metadados.",
   "warning": {
     "title": "Aviso sobre Qualidade dos Metadados:",
-    "text": "A nomeação de arquivos depende inteiramente dos metadados armazenados no Booklore. Este recurso é recomendado apenas para bibliotecas de alta qualidade e bem curadas com metadados completos."
+    "text": "A nomeação de arquivos depende inteiramente dos metadados armazenados no Grimmory. Este recurso é recomendado apenas para bibliotecas de alta qualidade e bem curadas com metadados completos."
   },
   "defaultPattern": {
     "sectionTitle": "Padrão Padrão",

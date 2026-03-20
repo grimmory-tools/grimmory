@@ -1,6 +1,6 @@
 {
   "title": "Preferenze globali",
-  "description": "Configura le impostazioni globali per la tua istanza di Booklore, inclusa la gestione delle immagini di copertina, le preferenze di ricerca e i limiti di caricamento file.",
+  "description": "Configura le impostazioni globali per la tua istanza di Grimmory, inclusa la gestione delle immagini di copertina, le preferenze di ricerca e i limiti di caricamento file.",
   "covers": {
     "sectionTitle": "Immagine di copertina",
     "regenerate": "Rigenera copertine",

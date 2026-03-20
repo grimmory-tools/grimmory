@@ -7,7 +7,7 @@
     "opdsLabel": "OPDS Server",
     "opdsDesc": "Schakel de OPDS-server in om uw boekcollectie te benaderen via OPDS-compatibele lees-apps zoals KOReader, Moon+ Reader, etc.",
     "komgaLabel": "Komga API",
-    "komgaDesc": "Schakel de Komga-compatibele API in om Komga-clients (Tachiyomi, Komelia, etc.) te gebruiken met Booklore. Gebruikt dezelfde OPDS-gebruikersaccounts voor authenticatie.",
+    "komgaDesc": "Schakel de Komga-compatibele API in om Komga-clients (Tachiyomi, Komelia, etc.) te gebruiken met Grimmory. Gebruikt dezelfde OPDS-gebruikersaccounts voor authenticatie.",
     "groupUnknownLabel": "Onbekende reeksen groeperen",
     "groupUnknownDesc": "",
     "enabled": "",

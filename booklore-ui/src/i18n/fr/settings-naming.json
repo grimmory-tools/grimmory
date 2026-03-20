@@ -3,7 +3,7 @@
   "description": "Configurez l'organisation automatique des fichiers à l'aide de variables de métadonnées. Les modèles sont appliqués lors du téléversement, du déplacement de fichiers ou après la mise à jour des métadonnées.",
   "warning": {
     "title": "Avis sur la qualité des métadonnées :",
-    "text": "Le nommage des fichiers repose entièrement sur les métadonnées stockées dans Booklore. Cette fonctionnalité est recommandée uniquement pour les bibliothèques de haute qualité avec des métadonnées complètes."
+    "text": "Le nommage des fichiers repose entièrement sur les métadonnées stockées dans Grimmory. Cette fonctionnalité est recommandée uniquement pour les bibliothèques de haute qualité avec des métadonnées complètes."
   },
   "defaultPattern": {
     "sectionTitle": "Modèle par défaut",
