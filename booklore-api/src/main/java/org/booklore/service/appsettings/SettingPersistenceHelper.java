@@ -121,6 +121,11 @@ public class SettingPersistenceHelper {
     }
 
     MetadataRefreshOptions getDefaultMetadataRefreshOptions() {
+        MetadataRefreshOptions.FieldProvider goodreadsGoogleProvider = MetadataRefreshOptions.FieldProvider.builder()
+                .p1(MetadataProvider.GoodReads)
+                .p2(MetadataProvider.Google)
+                .build();
+
         MetadataRefreshOptions.FieldProvider amazonProvider = MetadataRefreshOptions.FieldProvider.builder()
                 .p1(MetadataProvider.Amazon)
                 .build();
@@ -129,21 +134,21 @@ public class SettingPersistenceHelper {
                 .build();
 
         MetadataRefreshOptions.FieldOptions fieldOptions = MetadataRefreshOptions.FieldOptions.builder()
-                .title(amazonProvider)
-                .subtitle(amazonProvider)
-                .description(amazonProvider)
-                .authors(amazonProvider)
-                .publisher(amazonProvider)
-                .publishedDate(amazonProvider)
-                .seriesName(amazonProvider)
-                .seriesNumber(amazonProvider)
-                .seriesTotal(amazonProvider)
-                .isbn13(amazonProvider)
-                .isbn10(amazonProvider)
-                .language(amazonProvider)
-                .categories(amazonProvider)
-                .cover(amazonProvider)
-                .pageCount(amazonProvider)
+                .title(goodreadsGoogleProvider)
+                .subtitle(goodreadsGoogleProvider)
+                .description(goodreadsGoogleProvider)
+                .authors(goodreadsGoogleProvider)
+                .publisher(goodreadsGoogleProvider)
+                .publishedDate(goodreadsGoogleProvider)
+                .seriesName(goodreadsGoogleProvider)
+                .seriesNumber(goodreadsGoogleProvider)
+                .seriesTotal(goodreadsGoogleProvider)
+                .isbn13(goodreadsGoogleProvider)
+                .isbn10(goodreadsGoogleProvider)
+                .language(goodreadsGoogleProvider)
+                .categories(goodreadsGoogleProvider)
+                .cover(goodreadsGoogleProvider)
+                .pageCount(goodreadsGoogleProvider)
                 .asin(nullProvider)
                 .goodreadsId(nullProvider)
                 .comicvineId(nullProvider)
