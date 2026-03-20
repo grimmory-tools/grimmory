@@ -46,6 +46,8 @@ interface SvgIconBatchResponse {
 })
 export class IconPickerComponent implements OnInit {
 
+  private hasLoadedSvgIcons = false;
+
   private readonly MAX_ICON_NAME_LENGTH = 255;
   private readonly MAX_SVG_SIZE = 1048576; // 1MB
   private readonly ICON_NAME_PATTERN = /^[a-zA-Z0-9_-]+$/;
@@ -82,7 +84,7 @@ export class IconPickerComponent implements OnInit {
 
   set activeTabIndex(value: string) {
     this._activeTabIndex = value;
-    if (value === '1' && this.svgIcons.length === 0) {
+    if (value === '1' && !this.hasLoadedSvgIcons && !this.isLoadingSvgIcons) {
       this.loadSvgIcons();
     }
   }
@@ -112,7 +114,7 @@ export class IconPickerComponent implements OnInit {
 
 
   ngOnInit(): void {
-    if (this.activeTabIndex === '1') {
+    if (this.activeTabIndex === '1' && !this.hasLoadedSvgIcons && !this.isLoadingSvgIcons) {
       this.loadSvgIcons();
     }
   }
@@ -138,6 +140,7 @@ export class IconPickerComponent implements OnInit {
 
     this.iconService.getIconNames().subscribe({
       next: (names) => {
+        this.hasLoadedSvgIcons = true;
         if (names.length === 0) {
           this.svgIcons = [];
           this.isLoadingSvgIcons = false;
@@ -158,6 +161,7 @@ export class IconPickerComponent implements OnInit {
       },
       error: () => {
         this.isLoadingSvgIcons = false;
+        this.hasLoadedSvgIcons = false;
         this.svgIconsError = this.ERROR_MESSAGES.LOAD_ICONS_ERROR;
       }
     });
@@ -293,6 +297,7 @@ export class IconPickerComponent implements OnInit {
         }
 
         this.clearAllEntries();
+        this.hasLoadedSvgIcons = false;
         this.loadSvgIcons();
       },
       error: () => {
