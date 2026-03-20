@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <Container version="2">
     <Name>Grimmory</Name>
-    <Repository>grimmory/grimmory:latest</Repository>
-    <Registry>https://hub.docker.com/r/grimmory/grimmory</Registry>
+    <Repository>ghcr.io/grimmory-tools/grimmory:latest</Repository>
+    <Registry>https://github.com/grimmory-tools/grimmory/pkgs/container/grimmory</Registry>
     <TemplateURL>https://github.com/grimmory-tools/grimmory/blob/main/unraid.xml</TemplateURL>
     <MyIP/>
     <Shell>bash</Shell>
