@@ -252,7 +252,7 @@ public class GraphQLResponse {
     @AllArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class FeaturedSeries {
-        private Integer position;
+        private Float position;
         private Series series;
     }
 

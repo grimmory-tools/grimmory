@@ -770,7 +770,7 @@ class HardcoverParserTest {
 
         GraphQLResponse.FeaturedSeries featuredSeries = new GraphQLResponse.FeaturedSeries();
         featuredSeries.setSeries(series);
-        featuredSeries.setPosition(2);
+        featuredSeries.setPosition(2f);
         doc.setFeaturedSeries(featuredSeries);
 
         // Image
@@ -828,7 +828,7 @@ class HardcoverParserTest {
 
         GraphQLResponse.FeaturedSeries featuredSeries = new GraphQLResponse.FeaturedSeries();
         featuredSeries.setSeries(series);
-        featuredSeries.setPosition(2);
+        featuredSeries.setPosition(2f);
         book.setFeaturedBookSeries(featuredSeries);
 
         GraphQLResponse.Image image = new GraphQLResponse.Image();
