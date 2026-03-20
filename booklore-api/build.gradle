@@ -10,6 +10,9 @@ plugins {
 group = 'org.booklore'
 version = '0.0.1-SNAPSHOT'
 
+def frontendDistDir = providers.gradleProperty('frontendDistDir')
+        .orElse("${rootDir}/../booklore-ui/dist/booklore/browser")
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(25)
@@ -138,6 +141,16 @@ jacocoTestReport {
     reports {
         xml.required = true
         html.required = true
+    }
+}
+
+tasks.named('processResources') {
+    def frontendResourcesDir = providers.provider { file(frontendDistDir.get()) }
+    inputs.dir(frontendResourcesDir)
+            .withPropertyName('frontendDistDir')
+            .optional()
+    from(frontendResourcesDir) {
+        into 'static'
     }
 }
 

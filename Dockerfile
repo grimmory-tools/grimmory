@@ -24,11 +24,8 @@ RUN --mount=type=cache,target=/home/gradle/.gradle \
 COPY booklore-api/ ./
 COPY --from=frontend-build /workspace/booklore-ui/dist/booklore/browser /tmp/frontend-dist
 
-RUN mkdir -p build/resources/main/static && \
-    cp -r /tmp/frontend-dist/. build/resources/main/static/
-
 RUN --mount=type=cache,target=/home/gradle/.gradle \
-    ./gradlew --no-daemon bootJar
+    ./gradlew --no-daemon -PfrontendDistDir=/tmp/frontend-dist bootJar
 
 RUN set -eux; \
     jar_path="$(find build/libs -maxdepth 1 -name '*.jar' ! -name '*plain.jar' | head -n 1)"; \
