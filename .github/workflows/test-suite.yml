@@ -7,6 +7,11 @@ on:
         description: 'The ref to check out before running tests'
         required: true
         type: string
+      publish_test_results:
+        description: 'Whether to publish test results directly from this workflow'
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   backend-tests:
@@ -41,7 +46,7 @@ jobs:
 
       - name: Publish Backend Test Results
         uses: EnricoMi/publish-unit-test-result-action@c950f6fb443cb5af20a377fd0dfaa78838901040 # v2
-        if: always()
+        if: ${{ always() && inputs.publish_test_results }}
         with:
           files: booklore-api/build/test-results/**/*.xml
           check_name: Backend Test Results
@@ -106,7 +111,7 @@ jobs:
 
       - name: Publish Frontend Test Results
         uses: EnricoMi/publish-unit-test-result-action@c950f6fb443cb5af20a377fd0dfaa78838901040 # v2
-        if: always()
+        if: ${{ always() && inputs.publish_test_results }}
         with:
           files: booklore-ui/test-results/vitest-results.xml
           check_name: Frontend Test Results
