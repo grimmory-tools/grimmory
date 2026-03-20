@@ -265,6 +265,8 @@ public class GraphQLResponse {
         private String name;
         @JsonProperty("books_count")
         private Integer booksCount;
+        @JsonProperty("primary_books_count")
+        private Integer primaryBooksCount;
     }
 
     @Getter
