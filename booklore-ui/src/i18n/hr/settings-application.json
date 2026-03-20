@@ -36,11 +36,6 @@
         "invalidInput": "Nevažeći unos",
         "invalidInputDetail": "Unesite valjanu maksimalnu veličinu učitavanja datoteke u MB."
     },
-    "telemetry": {
-        "sectionTitle": "Telemetrija",
-        "enableTelemetry": "Omogući telemetriju",
-        "telemetryDesc": "Pomozite poboljšati Booklore dijeljenjem anonimne statistike korištenja. Ovi podaci omogućuju programerima da vide koje se značajke najviše koriste, identificiraju bugove i uoče probleme s performansama kako bi znali na čemu dalje raditi. Nikada se ne šalju osobni podaci, sadržaj knjiga ili bilo koji identifikacijski podaci. Podaci se automatski šalju na Booklore poslužitelj jednom u 24 sata. Potpuno je sigurno i vrlo korisno za programere."
-    },
     "settingsSaved": "Postavke spremljene",
     "settingsSavedDetail": "Postavke su uspješno spremljene!",
     "settingsError": "Došlo je do pogreške prilikom spremanja postavki."

@@ -34,11 +34,6 @@
         "invalidInput": "Nieprawidłowe dane",
         "invalidInputDetail": "Proszę wprowadzić prawidłowy maksymalny rozmiar przesyłanego pliku w MB."
     },
-    "telemetry": {
-        "sectionTitle": "Telemetria",
-        "enableTelemetry": "Włącz telemetrię",
-        "telemetryDesc": "Pomóż ulepszyć Booklore, udostępniając anonimowe statystyki użytkowania. Te dane pozwalają deweloperom zobaczyć, które funkcje są najczęściej używane, identyfikować błędy i wykrywać problemy z wydajnością, aby wiedzieli, nad czym pracować dalej. Żadne dane osobowe, treści książek ani żadne identyfikowalne dane nigdy nie są wysyłane. Dane są automatycznie wysyłane na serwer Booklore raz na 24 godziny. Jest to całkowicie bezpieczne i bardzo pomocne dla deweloperów."
-    },
     "settingsSaved": "Ustawienia zapisane",
     "settingsSavedDetail": "Ustawienia zostały pomyślnie zapisane!",
     "settingsError": "Wystąpił błąd podczas zapisywania ustawień."

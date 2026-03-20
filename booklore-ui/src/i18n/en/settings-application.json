@@ -35,11 +35,6 @@
     "invalidInput": "Invalid Input",
     "invalidInputDetail": "Please enter a valid max file upload size in MB."
   },
-  "telemetry": {
-    "sectionTitle": "Telemetry",
-    "enableTelemetry": "Enable Telemetry",
-    "telemetryDesc": "Help improve Booklore by sharing anonymous usage statistics. This data lets the developers see which features are most used, identify bugs, and spot performance issues so they know what to work on next. No personal information, book content, or any identifiable data is ever sent. Data is sent to the Booklore server automatically once every 24 hours. It's completely safe and very helpful to the developers."
-  },
   "settingsSaved": "Settings Saved",
   "settingsSavedDetail": "The settings were successfully saved!",
   "settingsError": "There was an error saving the settings."

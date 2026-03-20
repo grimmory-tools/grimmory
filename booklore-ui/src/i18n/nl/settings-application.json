@@ -34,11 +34,6 @@
         "invalidInput": "Ongeldige invoer",
         "invalidInputDetail": "Voer een geldige maximale uploadgrootte in MB in."
     },
-    "telemetry": {
-        "sectionTitle": "Telemetrie",
-        "enableTelemetry": "Telemetrie inschakelen",
-        "telemetryDesc": "Help Booklore te verbeteren door anonieme gebruiksstatistieken te delen. Deze gegevens laten de ontwikkelaars zien welke functies het meest worden gebruikt, bugs identificeren en prestatieproblemen opsporen zodat ze weten waar ze aan moeten werken. Er worden nooit persoonlijke gegevens, boekinhoud of identificeerbare gegevens verzonden. Gegevens worden automatisch elke 24 uur naar de Booklore-server verzonden. Het is volledig veilig en zeer nuttig voor de ontwikkelaars."
-    },
     "settingsSaved": "Instellingen opgeslagen",
     "settingsSavedDetail": "De instellingen zijn succesvol opgeslagen!",
     "settingsError": "Er is een fout opgetreden bij het opslaan van de instellingen."

@@ -34,11 +34,6 @@
         "invalidInput": "无效输入",
         "invalidInputDetail": "请输入有效的最大文件上传大小（以 MB 为单位）。"
     },
-    "telemetry": {
-        "sectionTitle": "遥测",
-        "enableTelemetry": "启用遥测",
-        "telemetryDesc": "通过共享匿名使用统计数据来帮助改进 BookLore。这些数据可以让开发者了解哪些功能最常使用、识别错误和发现性能问题，从而知道下一步该做什么。不会发送任何个人信息、书籍内容或任何可识别的数据。数据每 24 小时自动发送一次到 BookLore 服务器。这完全安全，对开发者非常有帮助。"
-    },
     "settingsSaved": "设置已保存",
     "settingsSavedDetail": "设置已成功保存！",
     "settingsError": "保存设置时出错。"

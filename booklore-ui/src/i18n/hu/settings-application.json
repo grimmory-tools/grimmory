@@ -34,11 +34,6 @@
         "invalidInput": "",
         "invalidInputDetail": ""
     },
-    "telemetry": {
-        "sectionTitle": "",
-        "enableTelemetry": "",
-        "telemetryDesc": ""
-    },
     "settingsSaved": "",
     "settingsSavedDetail": "",
     "settingsError": ""

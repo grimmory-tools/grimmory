@@ -36,11 +36,6 @@
         "invalidInput": "Ogiltig inmatning",
         "invalidInputDetail": "Ange en giltig max filuppladdningsstorlek i MB."
     },
-    "telemetry": {
-        "sectionTitle": "Telemetri",
-        "enableTelemetry": "Aktivera telemetri",
-        "telemetryDesc": "Hjälp till att förbättra Booklore genom att dela anonym användningsstatistik. Denna data låter utvecklarna se vilka funktioner som används mest, identifiera buggar och upptäcka prestandaproblem så att de vet vad de ska arbeta med härnäst. Ingen personlig information, bokinnehåll eller identifierbar data skickas någonsin. Data skickas till Booklore-servern automatiskt var 24:e timme. Det är helt säkert och mycket hjälpsamt för utvecklarna."
-    },
     "settingsSaved": "Inställningar sparade",
     "settingsSavedDetail": "Inställningarna sparades!",
     "settingsError": "Det uppstod ett fel vid sparning av inställningarna."

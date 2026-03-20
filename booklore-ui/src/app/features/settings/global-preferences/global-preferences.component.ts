@@ -37,7 +37,6 @@ export class GlobalPreferencesComponent implements OnInit {
   toggles = {
     autoBookSearch: false,
     similarBookRecommendation: false,
-    enableTelemetry: true,
   };
 
   coverCroppingSettings: CoverCroppingSettings = {
@@ -77,7 +76,6 @@ export class GlobalPreferencesComponent implements OnInit {
       }
       this.toggles.autoBookSearch = settings.autoBookSearch ?? false;
       this.toggles.similarBookRecommendation = settings.similarBookRecommendation ?? false;
-      this.toggles.enableTelemetry = settings?.telemetryEnabled ?? true;
     });
   }
 
@@ -86,7 +84,6 @@ export class GlobalPreferencesComponent implements OnInit {
     const toggleKeyMap: Record<string, AppSettingKey> = {
       autoBookSearch: AppSettingKey.AUTO_BOOK_SEARCH,
       similarBookRecommendation: AppSettingKey.SIMILAR_BOOK_RECOMMENDATION,
-      enableTelemetry: AppSettingKey.TELEMETRY_ENABLED,
     };
     const keyToSend = toggleKeyMap[settingKey];
     if (keyToSend) {
