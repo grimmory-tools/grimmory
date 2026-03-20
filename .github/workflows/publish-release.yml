@@ -19,7 +19,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
-          fetch-depth: 0
+          fetch-depth: 1
           ref: ${{ github.ref }}
 
       - name: Record Release Tag and Commit
@@ -63,10 +63,10 @@ jobs:
             APP_VERSION=${{ env.release_tag }}
             APP_REVISION=${{ env.commit_sha }}
           cache-from: |
-            type=gha
+            type=gha,scope=image-shared
             type=registry,ref=ghcr.io/grimmory-tools/grimmory:buildcache
           cache-to: |
-            type=gha,mode=max
+            type=gha,scope=image-shared,mode=max
             type=registry,ref=ghcr.io/grimmory-tools/grimmory:buildcache,mode=max
 
       - name: Publish Draft GitHub Release

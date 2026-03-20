@@ -1,4 +1,4 @@
-FROM node:24-alpine AS frontend-build
+FROM --platform=$BUILDPLATFORM node:24-alpine AS frontend-build
 
 WORKDIR /workspace/booklore-ui
 
@@ -7,9 +7,10 @@ RUN --mount=type=cache,target=/root/.npm \
     npm ci --no-audit --no-fund
 
 COPY booklore-ui/ ./
-RUN npm run build --configuration=production
+RUN --mount=type=cache,target=/workspace/booklore-ui/.angular/cache \
+    npm run build --configuration=production
 
-FROM gradle:9.3.1-jdk25-alpine AS backend-build
+FROM --platform=$BUILDPLATFORM gradle:9.3.1-jdk25-alpine AS backend-build
 
 WORKDIR /workspace/booklore-api
 
@@ -36,6 +37,17 @@ RUN set -eux; \
 FROM linuxserver/unrar:7.1.10 AS unrar-layer
 
 FROM eclipse-temurin:25-jre-alpine
+ENV JAVA_TOOL_OPTIONS="-XX:+UseG1GC -XX:+UseCompactObjectHeaders -XX:+UseStringDeduplication -XX:MaxRAMPercentage=75.0 -XX:+ExitOnOutOfMemoryError"
+
+RUN apk add --no-cache su-exec libstdc++ libgcc && \
+    mkdir -p /bookdrop
+
+COPY packaging/docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+COPY --from=unrar-layer /usr/bin/unrar-alpine /usr/local/bin/unrar
+
+COPY --from=backend-build /workspace/booklore-api/app.jar /app/app.jar
 
 ARG APP_VERSION=development
 ARG APP_REVISION=unknown
@@ -50,19 +62,8 @@ LABEL org.opencontainers.image.title="Grimmory" \
       org.opencontainers.image.licenses="AGPL-3.0" \
       org.opencontainers.image.base.name="docker.io/library/eclipse-temurin:25-jre-alpine"
 
-ENV JAVA_TOOL_OPTIONS="-XX:+UseG1GC -XX:+UseCompactObjectHeaders -XX:+UseStringDeduplication -XX:MaxRAMPercentage=75.0 -XX:+ExitOnOutOfMemoryError"
 ENV APP_VERSION=${APP_VERSION} \
     APP_REVISION=${APP_REVISION}
-
-RUN apk update && apk add --no-cache su-exec libstdc++ libgcc && \
-    mkdir -p /bookdrop
-
-COPY packaging/docker/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
-
-COPY --from=unrar-layer /usr/bin/unrar-alpine /usr/local/bin/unrar
-
-COPY --from=backend-build /workspace/booklore-api/app.jar /app/app.jar
 
 ARG BOOKLORE_PORT=6060
 EXPOSE ${BOOKLORE_PORT}

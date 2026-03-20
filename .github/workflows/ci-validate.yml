@@ -59,5 +59,4 @@ jobs:
           build-args: |
             APP_VERSION=ci-${{ github.sha }}
             APP_REVISION=${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=image-shared
