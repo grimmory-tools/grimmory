@@ -3,12 +3,16 @@ name: Reusable - Flyway Migration Check
 on:
   workflow_call:
     inputs:
+      checkout_ref:
+        description: "The ref to check out before diffing migrations"
+        required: true
+        type: string
       base_ref:
-        description: 'The base ref for comparison'
+        description: "The base ref for comparison"
         required: true
         type: string
       head_ref:
-        description: 'The head ref for comparison'
+        description: "The head ref for comparison"
         required: true
         type: string
     outputs:
@@ -21,28 +25,45 @@ jobs:
     name: Check for DB Migrations
     runs-on: ubuntu-latest
     outputs:
+      base_ref: ${{ steps.normalize_refs.outputs.base_ref }}
+      head_ref: ${{ steps.normalize_refs.outputs.head_ref }}
       has_migrations: ${{ steps.check_migrations.outputs.has_migrations }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 0
+          ref: ${{ inputs.checkout_ref }}
+
+      - name: Normalize Diff Refs
+        id: normalize_refs
+        run: |
+          base_ref="${{ inputs.base_ref }}"
+          head_ref="${{ inputs.head_ref }}"
+
+          if [ "$base_ref" = "0000000000000000000000000000000000000000" ]; then
+            echo "base_ref is the all-zero sentinel; callers must supply a real comparison base for migration checks." >&2
+            exit 1
+          fi
+
+          echo "base_ref=$base_ref" >> "$GITHUB_OUTPUT"
+          echo "head_ref=$head_ref" >> "$GITHUB_OUTPUT"
 
       - name: Detect Flyway Migration Changes
         id: check_migrations
         run: |
-          echo "Comparing ${{ inputs.base_ref }}...${{ inputs.head_ref }}"
-          if git diff --name-only ${{ inputs.base_ref }}...${{ inputs.head_ref }} | grep -q "booklore-api/src/main/resources/db/migration/V.*.sql"; then
+          echo "Comparing ${{ steps.normalize_refs.outputs.base_ref }}...${{ steps.normalize_refs.outputs.head_ref }}"
+          if git diff --name-only "${{ steps.normalize_refs.outputs.base_ref }}...${{ steps.normalize_refs.outputs.head_ref }}" | grep -Eq "^booklore-api/src/main/resources/db/migration/V.*\\.sql$"; then
             echo "Migration file changes detected. Proceeding with migration preview."
-            echo "has_migrations=true" >> $GITHUB_OUTPUT
+            echo "has_migrations=true" >> "$GITHUB_OUTPUT"
           else
             echo "No migration file changes detected. Skipping migration preview."
-            echo "has_migrations=false" >> $GITHUB_OUTPUT
+            echo "has_migrations=false" >> "$GITHUB_OUTPUT"
           fi
 
   flyway-migration-preview:
     name: Flyway DB Migration Preview
-    needs: [ check-for-migrations ]
+    needs: [check-for-migrations]
     if: needs.check-for-migrations.outputs.has_migrations == 'true'
     runs-on: ubuntu-latest
     services:
@@ -63,15 +84,15 @@ jobs:
       - name: Checkout Base Branch
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
-          ref: ${{ inputs.base_ref }}
+          ref: ${{ needs.check-for-migrations.outputs.base_ref }}
           fetch-depth: 0
 
       - name: Apply Migrations from Base Branch
         run: |
-          echo "Applying migrations from base ref (${{ inputs.base_ref }})..."
+          echo "Applying migrations from base ref (${{ needs.check-for-migrations.outputs.base_ref }})..."
           docker run --network host \
             -v ${{ github.workspace }}:/flyway/sql \
-            flyway/flyway:11.19.0-alpine \
+            flyway/flyway:12.1.0 \
             -url=jdbc:mariadb://127.0.0.1:3306/booklore_test \
             -user=root -password=root \
             -locations=filesystem:/flyway/sql/booklore-api/src/main/resources/db/migration \
@@ -80,15 +101,15 @@ jobs:
       - name: Checkout Head Branch
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
-          ref: ${{ inputs.head_ref }}
+          ref: ${{ needs.check-for-migrations.outputs.head_ref }}
           fetch-depth: 0
 
       - name: Apply Migrations from Head Branch
         run: |
-          echo "Applying new migrations from head ref (${{ inputs.head_ref }})..."
+          echo "Applying new migrations from head ref (${{ needs.check-for-migrations.outputs.head_ref }})..."
           docker run --network host \
             -v ${{ github.workspace }}:/flyway/sql \
-            flyway/flyway:11.19.0-alpine \
+            flyway/flyway:12.1.0 \
             -url=jdbc:mariadb://127.0.0.1:3306/booklore_test \
             -user=root -password=root \
             -locations=filesystem:/flyway/sql/booklore-api/src/main/resources/db/migration \

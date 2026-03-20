@@ -2,9 +2,11 @@
 
 <!-- Why is this change needed? Explain in your own words. -->
 
+> **Required for `develop` and `main`.** Your PR title must use Conventional Commit format because maintainers squash-merge with the PR title and stable releases are computed from commit history. Example: `fix(reader): prevent blank pages on chapter jump`
+
 **Linked Issue:** Fixes #<!-- issue number -->
 
-> **Required.** Every PR must reference an approved issue. If no issue exists, [open one](https://github.com/booklore-app/booklore/issues/new) and wait for maintainer approval before submitting a PR. Unsolicited PRs without a linked issue will be closed.
+> **Required.** Every PR must reference an approved issue. If no issue exists, [open one](https://github.com/grimmory-tools/grimmory/issues/new) and wait for maintainer approval before submitting a PR. Unsolicited PRs without a linked issue will be closed.
 
 ## 🏷️ Type of Change
 
@@ -82,7 +84,7 @@ PASTE OUTPUT HERE
 - [ ] PR is reasonably scoped (PRs over 1000+ changed lines will be closed, split into smaller PRs)
 - [ ] No unsolicited refactors, cleanups, or "improvements" are bundled in
 - [ ] Flyway migration versioning is correct _(if schema was modified)_
-- [ ] Documentation PR submitted to [booklore-docs](https://github.com/booklore-app/booklore-docs) _(if user-facing changes)_
+- [ ] Required documentation updates are included in this repo or the current Grimmory docs surface _(if user-facing changes)_
 
 ### 🤖 AI-Assisted Contributions
 

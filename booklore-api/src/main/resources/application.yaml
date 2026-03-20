@@ -1,7 +1,7 @@
 app:
   path-config: '/app/data'
   bookdrop-folder: '/bookdrop'
-  version: 'development'
+  version: ${APP_VERSION:development}
 
   cors:
     # Comma-separated list of allowed CORS origins.

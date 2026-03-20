@@ -1,0 +1,21 @@
+[Unit]
+Description=Grimmory Database Container Using MariaDB
+
+[Container]
+ContainerName=grimmory-db
+Image=lscr.io/linuxserver/mariadb:11.4.8
+Pod=grimmory.pod
+Pull=always
+
+Volume=grimmory-db:/config
+
+Environment=TZ=Etc/UTC
+Environment=PUID=0
+Environment=PGID=0
+Environment=MYSQL_USER=grimmory
+Secret=grimmory_db_pass,type=env,target=MYSQL_ROOT_PASSWORD
+Secret=grimmory_db_pass,type=env,target=MYSQL_PASSWORD
+Environment=MYSQL_DATABASE=grimmory
+
+DropCapability=all
+AddCapability=CAP_CHOWN CAP_SETUID CAP_SETGID CAP_FOWNER

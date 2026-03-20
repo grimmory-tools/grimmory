@@ -86,13 +86,26 @@ MYSQL_DATABASE=grimmory
 
 ### Step 2: Docker Compose
 
-Create a `docker-compose.yml`:
+Stable images are published from semantic-release tags on `main` as `vX.Y.Z` plus `latest`. Nightly images are built from `develop` and tagged `nightly`.
+
+> [!NOTE]
+> Upgrading from an existing Booklore container? Keep your current service name, `container_name`, database name/user, ports, and mounted volumes exactly as they are and replace only the `image:` line with `grimmory/grimmory:<tag>` or `ghcr.io/grimmory-tools/grimmory:<tag>`.
+
+```yaml
+services:
+  booklore:
+    image: grimmory/grimmory:v2.2.1
+```
+
+Create a `docker-compose.yml` or copy and adapt [`deploy/compose/docker-compose.yml`](deploy/compose/docker-compose.yml):
 
 ```yaml
 services:
   grimmory:
     image: grimmory/grimmory:latest
-    # Alternative: ghcr.io/grimmory-tools/grimmory:latest
+    # Convenience tag:
+    # image: grimmory/grimmory:<release-version>
+    # Alternative: ghcr.io/grimmory-tools/grimmory:<release-version>
     # To build from source instead: comment out 'image' and uncomment below
     # build: .
     container_name: grimmory
@@ -148,6 +161,12 @@ docker compose up -d
 ```
 
 Open http://localhost:6060, create your admin account, and start building your library.
+
+Additional deployment examples:
+
+- Docker Compose: [`deploy/compose/docker-compose.yml`](deploy/compose/docker-compose.yml)
+- Helm: [`deploy/helm/grimmory/Chart.yaml`](deploy/helm/grimmory/Chart.yaml)
+- Podman Quadlet: [`deploy/podman/quadlet/README.md`](deploy/podman/quadlet/README.md)
 
 ---
 

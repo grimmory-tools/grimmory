@@ -1,7 +1,0 @@
-[Unit]
-Description=BookLore Pod
-After=network-online.target
-
-[Pod]
-PodName=booklore
-PublishPort=6060:6060
