@@ -1,0 +1,18 @@
+{
+  "name": "grimmory-release-tooling",
+  "private": true,
+  "description": "Release automation tooling for Grimmory",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "release": "semantic-release",
+    "release:dry-run": "semantic-release --dry-run"
+  },
+  "devDependencies": {
+    "@semantic-release/changelog": "6.0.3",
+    "@semantic-release/git": "10.0.1",
+    "conventional-changelog-conventionalcommits": "9.3.0",
+    "semantic-release": "25.0.3"
+  }
+}

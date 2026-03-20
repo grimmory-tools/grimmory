@@ -1,10 +1,10 @@
-# Contributing to Booklore
+# Contributing to Grimmory
 
-Thanks for your interest in contributing to Booklore! Whether you're fixing bugs, adding features, improving documentation, or asking questions, every contribution helps.
+Thanks for your interest in contributing to Grimmory! Whether you're fixing bugs, adding features, improving documentation, or asking questions, every contribution helps.
 
-## What is Booklore?
+## What is Grimmory?
 
-**Booklore** is a self-hostable digital library platform for managing and reading books and comics.
+**Grimmory** is a self-hostable digital library platform for managing and reading books and comics. It is the community-maintained successor to Booklore.
 
 **Tech Stack:**
 
@@ -34,7 +34,7 @@ Thanks for your interest in contributing to Booklore! Whether you're fixing bugs
 
 ## Before You Start
 
-> **Issue first, PR second.** Every pull request must be linked to an approved issue. If you want to work on something, [open an issue](https://github.com/booklore-app/booklore/issues/new) (or find an existing one) and wait for a maintainer to approve it before writing code. PRs submitted without a linked, approved issue will be closed.
+> **Issue first, PR second.** Every pull request must be linked to an approved issue. If you want to work on something, [open an issue](https://github.com/grimmory-tools/grimmory/issues/new) (or find an existing one) and wait for a maintainer to approve it before writing code. PRs submitted without a linked, approved issue will be closed.
 
 This protects both your time and ours. It ensures that the work is actually wanted and that you're heading in the right direction before you invest effort.
 
@@ -50,8 +50,8 @@ This protects both your time and ours. It ensures that the work is actually want
 
 Not sure where to begin? Look for issues labeled:
 
-- [`good first issue`](https://github.com/booklore-app/booklore/labels/good%20first%20issue) - small, well-scoped tasks ideal for newcomers
-- [`help wanted`](https://github.com/booklore-app/booklore/labels/help%20wanted) - tasks where maintainers would appreciate a hand
+- [`good first issue`](https://github.com/grimmory-tools/grimmory/labels/good%20first%20issue) - small, well-scoped tasks ideal for newcomers
+- [`help wanted`](https://github.com/grimmory-tools/grimmory/labels/help%20wanted) - tasks where maintainers would appreciate a hand
 
 ---
 
@@ -59,12 +59,12 @@ Not sure where to begin? Look for issues labeled:
 
 ### Fork and Clone
 
-First, [fork the repository](https://github.com/booklore-app/booklore/fork) on GitHub, then clone your fork locally:
+First, [fork the repository](https://github.com/grimmory-tools/grimmory/fork) on GitHub, then clone your fork locally:
 
 ```bash
-git clone https://github.com/<your-username>/booklore.git
-cd booklore
-git remote add upstream https://github.com/booklore-app/booklore.git
+git clone https://github.com/<your-username>/grimmory.git
+cd grimmory
+git remote add upstream https://github.com/grimmory-tools/grimmory.git
 ```
 
 ### Keep Your Fork in Sync
@@ -78,7 +78,7 @@ git merge upstream/develop
 git push origin develop
 ```
 
-> **Note:** All work should be based on the `develop` branch, not `main`.
+> **Note:** Feature work targets `develop`. `main` is reserved for stable releases and release tags.
 
 ---
 
@@ -87,9 +87,11 @@ git push origin develop
 ### Project Structure
 
 ```
-booklore/
+grimmory/
 ├── booklore-ui/             # Angular frontend (TypeScript, PrimeNG)
 ├── booklore-api/            # Spring Boot backend (Java 25, Gradle)
+├── deploy/                  # Compose, Helm, and Podman deployment examples
+├── packaging/docker/        # Container runtime assets used by the Docker build
 ├── dev.docker-compose.yml   # Development Docker stack
 ├── assets/                  # Shared assets (logos, icons)
 └── local/                   # Local development helpers
@@ -108,7 +110,7 @@ This starts:
 | Service    | URL / Port            |
 |------------|-----------------------|
 | Frontend   | http://localhost:4200 |
-| Backend    | http://localhost:8080 |
+| Backend    | http://localhost:6060 |
 | MariaDB    | localhost:3366        |
 | Debug port | localhost:5005        |
 
@@ -247,6 +249,14 @@ feat(auth)!: migrate to OAuth 2.1
 BREAKING CHANGE: OAuth 2.0 is no longer supported
 ```
 
+PR titles targeting `develop` or `main` must use the same format. Feature work is squash-merged into `develop`, and stable releases are computed from the resulting commit history on `main`.
+
+Release impact is derived from commit type:
+
+- `feat` => minor release
+- `fix`, `perf`, `refactor` => patch release
+- `docs`, `ci`, `build`, `chore`, `test`, `style` => changelog-only unless paired with a release-triggering commit
+
 ### Workflow
 
 1. Create a branch from `develop`
@@ -255,6 +265,8 @@ BREAKING CHANGE: OAuth 2.0 is no longer supported
 4. Update documentation if your changes affect usage
 5. Run the linter and fix any issues
 6. Push to your fork and open a PR targeting `develop`
+
+Maintainers promote cleaned `develop` history to `main` for stable releases. Do not expect a second squash step from `develop` to `main`; release automation depends on preserved conventional commit history.
 
 ---
 
@@ -274,7 +286,7 @@ Before opening your PR:
 - [ ] PR contains a single logical change (one bug fix OR one feature)
 - [ ] No unrelated refactors, style changes, or "improvements" are bundled in
 - [ ] **PR is reasonably sized.** PRs with 1000+ changed lines will be closed without review. Break large changes into small, focused PRs.
-- [ ] **For user-facing features:** submit a companion docs PR at [booklore-docs](https://github.com/booklore-app/booklore-docs)
+- [ ] **For user-facing features:** include the required docs updates in this repo or in the active Grimmory docs surface
 
 > When you open your PR on GitHub, a **PR template** will appear. Fill it out completely, including test output and screenshots.
 
@@ -326,13 +338,13 @@ We've seen a sharp increase in AI-generated PRs where the contributor clearly ne
 
 ## Reporting Bugs
 
-1. **Search [existing issues](https://github.com/booklore-app/booklore/issues)** to avoid duplicates.
+1. **Search [existing issues](https://github.com/grimmory-tools/grimmory/issues)** to avoid duplicates.
 2. **Open a new issue** with the `bug` label including:
    - Clear, descriptive title (e.g., "Book import fails with PDF files over 100MB")
    - Steps to reproduce
    - Expected vs. actual behavior
    - Screenshots or error logs (if applicable)
-   - Environment details (OS, browser, Booklore version)
+   - Environment details (OS, browser, Grimmory version)
 
 **Example:**
 
@@ -348,7 +360,7 @@ Steps to Reproduce:
 Expected: Title should persist after refresh
 Actual: Title reverts to original value
 
-Environment: Chrome 120, macOS 14.2, Booklore 1.2.0
+Environment: Chrome 120, macOS 14.2, Grimmory 1.2.0
 ```
 
 ---
@@ -356,7 +368,7 @@ Environment: Chrome 120, macOS 14.2, Booklore 1.2.0
 ## Community & Support
 
 - **Discord:** [Join the server](https://discord.gg/Ee5hd458Uz) for questions and discussion
-- **GitHub Issues:** [Report bugs or request features](https://github.com/booklore-app/booklore/issues)
+- **GitHub Issues:** [Report bugs or request features](https://github.com/grimmory-tools/grimmory/issues)
 
 ---
 
@@ -381,8 +393,8 @@ Instances of unacceptable behavior may result in temporary or permanent ban from
 
 ## License
 
-Booklore is licensed under the [AGPL-3.0 License](./LICENSE). By contributing, you agree that your contributions will be licensed under the same terms.
+Grimmory is licensed under the [AGPL-3.0 License](./LICENSE). By contributing, you agree that your contributions will be licensed under the same terms.
 
 ---
 
-Thank you for being part of the Booklore community!
+Thank you for being part of the Grimmory community!

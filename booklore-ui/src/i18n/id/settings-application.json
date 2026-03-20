@@ -34,16 +34,6 @@
         "invalidInput": "",
         "invalidInputDetail": ""
     },
-    "appearance": {
-        "sectionTitle": "",
-        "supportButtonAnimation": "",
-        "supportButtonAnimationDesc": ""
-    },
-    "telemetry": {
-        "sectionTitle": "",
-        "enableTelemetry": "",
-        "telemetryDesc": ""
-    },
     "settingsSaved": "",
     "settingsSavedDetail": "",
     "settingsError": ""

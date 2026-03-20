@@ -36,17 +36,7 @@
         "invalidInput": "Neveljaven vnos",
         "invalidInputDetail": "Prosim, vnesi veljavno največjo velikost datoteke v MB."
     },
-    "telemetry": {
-        "sectionTitle": "Telemetrija",
-        "enableTelemetry": "Omogoči telemetrijo",
-        "telemetryDesc": "Pomagaj izboljšati Booklore z deljenjem anonimnih statistik uporabe. Ti podatki razvijalcem omogočajo vpogled v to, katere funkcije so najbolj uporabljene, prepoznavanje hroščev in težav z zmogljivostjo. Osebni podatki, vsebina knjig ali kateri koli drugi identifikacijski podatki se nikoli ne pošiljajo. Podatki se samodejno pošljejo na strežnik Booklore enkrat na 24 ur. To je popolnoma varno in zelo v pomoč razvijalcem."
-    },
     "settingsSaved": "Nastavitve shranjene",
     "settingsSavedDetail": "Nastavitve so bile uspešno shranjene!",
-    "settingsError": "Pri shranjevanju nastavitev je prišlo do napake.",
-    "appearance": {
-        "supportButtonAnimation": "Animacija gumba za podporo",
-        "supportButtonAnimationDesc": "Prikaži animirani učinek srca na gumbu za podporo v zgornji vrstici. Če to onemogočiš, gumb ostane viden, vendar se animacija odstrani.",
-        "sectionTitle": "Izgled"
-    }
+    "settingsError": "Pri shranjevanju nastavitev je prišlo do napake."
 }

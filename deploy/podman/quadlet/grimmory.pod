@@ -1,0 +1,7 @@
+[Unit]
+Description=Grimmory Pod
+After=network-online.target
+
+[Pod]
+PodName=grimmory
+PublishPort=6060:6060

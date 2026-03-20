@@ -26,22 +26,22 @@ Before setting up the OIDC client, ensure that Pocket ID is installed and runnin
 
 ### Step 2: Add a client
 
-Once you have logged in and configured a PassKey you now need to create an OIDC client, this will let Pocket ID know about the application that needs to be configured, and will give you the relevant keys to add to the BookLore settings dialogue
+Once you have logged in and configured a PassKey you now need to create an OIDC client, this will let Pocket ID know about the application that needs to be configured, and will give you the relevant keys to add to the Grimmory settings dialogue
 
 - Login to PocketID
 - Go to OIDC Clients on the left side bar
 - Click Add OIDC Client
-    - Name: BookLore [Can be anything you want]
+    - Name: Grimmory [Can be anything you want]
     - Callback URLs: `https://{host}/oauth2-callback` 
-- Tick Public & PKCE (This is required for BookLore to correctly authenticate with the client)
+- Tick Public & PKCE (This is required for Grimmory to correctly authenticate with the client)
 - Copy your Client ID to use later.
 - Click show more details and copy the Certificate URL to use later
 - Click Save
 
 
-### Step 3: Configure BookLore OIDC Settings
+### Step 3: Configure Grimmory OIDC Settings
 
-To enable OIDC authentication in BookLore, you need to set the following within the application:
+To enable OIDC authentication in Grimmory, you need to set the following within the application:
 
 - Navigate to the settings cog at the top of the page
 - Provider name - PocketID 
@@ -53,4 +53,4 @@ To enable OIDC authentication in BookLore, you need to set the following within 
 
 ### Step 4: Test the Integration
 
-Once configured, simply click Save Settings and then click the Enabled radio button to activate it. Simply log out and log back in and you should be working with no issues! Any issues please raise an issue on the [Github](https://github.com/booklore-app/booklore/issues/new?template=bug_report.yml)
+Once configured, simply click Save Settings and then click the Enabled radio button to activate it. Simply log out and log back in and you should be working with no issues! Any issues please raise an issue on [GitHub](https://github.com/grimmory-tools/grimmory/issues/new?template=bug_report.yml)

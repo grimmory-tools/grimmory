@@ -1,0 +1,102 @@
+name: Preview - Build Image
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Git ref to preview build'
+        required: true
+        type: string
+      pr_number:
+        description: 'Optional PR number for a pr-<number>-<sha> tag'
+        required: false
+        default: ''
+        type: string
+      refresh_shared_cache:
+        description: 'Rebuild from scratch and refresh the shared image cache'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  build-and-push:
+    name: Build and Push Preview Image
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 1
+          ref: ${{ inputs.ref }}
+
+      - name: Generate Preview Tag
+        env:
+          PR_NUMBER: ${{ inputs.pr_number }}
+        run: |
+          short_sha=$(git rev-parse --short HEAD)
+
+          if [ -n "$PR_NUMBER" ]; then
+            case "$PR_NUMBER" in
+              (*[!0-9]*)
+                echo "Invalid PR number: $PR_NUMBER"
+                exit 1
+                ;;
+            esac
+            preview_tag="pr-${PR_NUMBER}-${short_sha}"
+          else
+            preview_tag="preview-${short_sha}"
+          fi
+
+          echo "preview_tag=$preview_tag" >> "$GITHUB_ENV"
+          echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          echo "Preview tag: $preview_tag"
+
+      - name: Set Up Docker Buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+
+      - name: Authenticate to GitHub Container Registry
+        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # v4.0.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Build and push Preview image
+        if: ${{ !inputs.refresh_shared_cache }}
+        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
+        with:
+          context: .
+          file: Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ghcr.io/grimmory-tools/grimmory:${{ env.preview_tag }}
+          build-args: |
+            APP_VERSION=${{ env.preview_tag }}
+            APP_REVISION=${{ env.commit_sha }}
+          cache-from: |
+            type=gha,scope=image-shared
+            type=registry,ref=ghcr.io/grimmory-tools/grimmory:buildcache
+
+      - name: Build and push Preview image with cache refresh
+        if: ${{ inputs.refresh_shared_cache }}
+        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
+        with:
+          context: .
+          file: Dockerfile
+          platforms: linux/amd64
+          push: true
+          no-cache: true
+          tags: |
+            ghcr.io/grimmory-tools/grimmory:${{ env.preview_tag }}
+          build-args: |
+            APP_VERSION=${{ env.preview_tag }}
+            APP_REVISION=${{ env.commit_sha }}
+          cache-to: |
+            type=gha,scope=image-shared,mode=max
+            type=registry,ref=ghcr.io/grimmory-tools/grimmory:buildcache,mode=max
