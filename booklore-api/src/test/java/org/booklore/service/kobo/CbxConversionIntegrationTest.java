@@ -3,7 +3,6 @@ package org.booklore.service.kobo;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import freemarker.template.TemplateException;
-import com.github.junrar.exception.RarException;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
@@ -38,7 +37,7 @@ class CbxConversionIntegrationTest {
 
     @Test
     @DisplayName("Should successfully convert CBZ to EPUB with valid structure")
-    void convertCbzToEpub_MainConversionTest() throws IOException, TemplateException, RarException {
+    void convertCbzToEpub_MainConversionTest() throws IOException, TemplateException {
         File testCbzFile = createTestComicCbzFile();
         BookEntity bookMetadata = createTestBookMetadata();
 

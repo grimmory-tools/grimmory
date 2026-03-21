@@ -3,7 +3,6 @@ package org.booklore.service.kobo;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import freemarker.template.TemplateException;
-import com.github.junrar.exception.RarException;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
@@ -42,7 +41,7 @@ class CbxConversionServiceTest {
     }
 
     @Test
-    void convertCbxToEpub_WithValidCbzFile_ShouldGenerateValidEpub() throws IOException, TemplateException, RarException {
+    void convertCbxToEpub_WithValidCbzFile_ShouldGenerateValidEpub() throws IOException, TemplateException {
         File epubFile = cbxConversionService.convertCbxToEpub(testCbzFile, tempDir.toFile(), testBookEntity,85);
 
         assertThat(epubFile).exists();
@@ -94,7 +93,7 @@ class CbxConversionServiceTest {
     }
 
     @Test
-    void convertCbxToEpub_WithNullBookEntity_ShouldUseDefaultMetadata() throws IOException, TemplateException, RarException {
+    void convertCbxToEpub_WithNullBookEntity_ShouldUseDefaultMetadata() throws IOException, TemplateException {
         File epubFile = cbxConversionService.convertCbxToEpub(testCbzFile, tempDir.toFile(), null,85);
 
         assertThat(epubFile).exists();
@@ -102,7 +101,7 @@ class CbxConversionServiceTest {
     }
 
     @Test
-    void convertCbxToEpub_WithMultipleImages_ShouldPreservePageOrder() throws IOException, TemplateException, RarException {
+    void convertCbxToEpub_WithMultipleImages_ShouldPreservePageOrder() throws IOException, TemplateException {
         File multiPageCbzFile = createMultiPageCbzFile();
 
         File epubFile = cbxConversionService.convertCbxToEpub(multiPageCbzFile, tempDir.toFile(), testBookEntity,85);
@@ -112,7 +111,7 @@ class CbxConversionServiceTest {
     }
 
     @Test
-    void convertCbxToEpub_WithZipNamedAsCbr_ShouldGenerateValidEpub() throws IOException, TemplateException, RarException {
+    void convertCbxToEpub_WithZipNamedAsCbr_ShouldGenerateValidEpub() throws IOException, TemplateException {
         File zipAsCbr = new File(tempDir.toFile(), "fake.cbr");
         try (ZipArchiveOutputStream zipOut = new ZipArchiveOutputStream(new FileOutputStream(zipAsCbr))) {
             BufferedImage testImage = createTestImage("Page 1", Color.RED);

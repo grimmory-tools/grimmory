@@ -260,13 +260,14 @@ class CbxMetadataWriterTest {
     @Test
     void saveMetadataToFile_ZipNamedAsCbr_ShouldUpdateMetadata() throws Exception {
         File zipAsCbr = createCbz(tempDir.resolve("mismatched.cbr"), new String[]{"page1.jpg"});
+        Path zipAsCbz = tempDir.resolve("mismatched.cbz");
 
         BookMetadataEntity meta = new BookMetadataEntity();
         meta.setTitle("Mismatched Title");
 
         writer.saveMetadataToFile(zipAsCbr, meta, null, new MetadataClearFlags());
 
-        try (ZipFile zip = new ZipFile(zipAsCbr)) {
+        try (ZipFile zip = new ZipFile(zipAsCbz.toFile())) {
             ZipEntry ci = zip.getEntry("ComicInfo.xml");
             assertNotNull(ci, "ComicInfo.xml should be present");
             Document doc = parseXml(zip.getInputStream(ci));
