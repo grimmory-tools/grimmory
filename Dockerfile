@@ -22,7 +22,7 @@ RUN --mount=type=cache,target=/home/gradle/.gradle \
     ./gradlew --no-daemon dependencies
 
 COPY booklore-api/ ./
-COPY --from=frontend-build /workspace/booklore-ui/dist/booklore/browser /tmp/frontend-dist
+COPY --from=frontend-build /workspace/booklore-ui/dist/grimmory/browser /tmp/frontend-dist
 
 RUN --mount=type=cache,target=/home/gradle/.gradle \
     ./gradlew --no-daemon -PfrontendDistDir=/tmp/frontend-dist bootJar

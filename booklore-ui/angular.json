@@ -24,7 +24,7 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
-            "outputPath": "dist/booklore",
+            "outputPath": "dist/grimmory",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [

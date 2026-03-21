@@ -10,7 +10,7 @@ plugins {
 group = 'org.booklore'
 version = '0.0.1-SNAPSHOT'
 
-def defaultFrontendDistDir = file("${rootDir}/../booklore-ui/dist/booklore/browser")
+def defaultFrontendDistDir = file("${rootDir}/../booklore-ui/dist/grimmory/browser")
 def configuredFrontendDistDir = providers.gradleProperty('frontendDistDir')
         .map { file(it) }
 
