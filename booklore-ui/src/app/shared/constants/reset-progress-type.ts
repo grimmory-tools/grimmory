@@ -5,4 +5,4 @@ export const ResetProgressTypes = {
   KOBO: 'KOBO'
 } as const;
 
-export type ResetProgressType = keyof typeof ResetProgressTypes;
+export type ResetProgressType = typeof ResetProgressTypes[keyof typeof ResetProgressTypes];

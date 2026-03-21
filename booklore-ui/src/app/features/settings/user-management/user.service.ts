@@ -424,7 +424,7 @@ export class UserService {
     );
   }
 
-  createUser<T extends Record<string, unknown>>(userData: T): Observable<void> {
+  createUser<T extends object>(userData: T): Observable<void> {
     return this.http.post<void>(this.apiUrl, this.serializeUserPayload(userData));
   }
 
@@ -500,30 +500,31 @@ export class UserService {
     };
   }
 
-  private serializeUserPayload<T extends Record<string, unknown>>(payload: T): T {
-    const nextPayload: Record<string, unknown> = {...payload};
+  private serializeUserPayload<T extends object>(payload: T): T {
+    const payloadRecord = payload as Record<string, unknown>;
+    const nextPayload: Record<string, unknown> = {...payloadRecord};
 
-    if ('permissions' in payload && payload.permissions && typeof payload.permissions === 'object') {
-      const permissions = payload.permissions as User['permissions'];
+    if ('permissions' in payloadRecord && payloadRecord['permissions'] && typeof payloadRecord['permissions'] === 'object') {
+      const permissions = payloadRecord['permissions'] as User['permissions'];
       // TODO(grimmory-cleanup): Drop the legacy Booklore permission alias after the backend accepts only Grimmory names.
       const canBulkResetReadProgress =
         permissions.canBulkResetGrimmoryReadProgress ?? permissions.canBulkResetBookloreReadProgress;
 
-      nextPayload.permissions = {
+      nextPayload['permissions'] = {
         ...permissions,
         canBulkResetGrimmoryReadProgress: canBulkResetReadProgress,
         canBulkResetBookloreReadProgress: canBulkResetReadProgress,
       };
     }
 
-    if ('permissionBulkResetGrimmoryReadProgress' in payload || 'permissionBulkResetBookloreReadProgress' in payload) {
+    if ('permissionBulkResetGrimmoryReadProgress' in payloadRecord || 'permissionBulkResetBookloreReadProgress' in payloadRecord) {
       // TODO(grimmory-cleanup): Drop the flat Booklore form field alias after the create-user API accepts only Grimmory names.
       const canBulkResetReadProgress =
-        (payload.permissionBulkResetGrimmoryReadProgress as boolean | undefined)
-        ?? (payload.permissionBulkResetBookloreReadProgress as boolean | undefined);
+        (payloadRecord['permissionBulkResetGrimmoryReadProgress'] as boolean | undefined)
+        ?? (payloadRecord['permissionBulkResetBookloreReadProgress'] as boolean | undefined);
 
-      nextPayload.permissionBulkResetGrimmoryReadProgress = canBulkResetReadProgress;
-      nextPayload.permissionBulkResetBookloreReadProgress = canBulkResetReadProgress;
+      nextPayload['permissionBulkResetGrimmoryReadProgress'] = canBulkResetReadProgress;
+      nextPayload['permissionBulkResetBookloreReadProgress'] = canBulkResetReadProgress;
     }
 
     return nextPayload as T;
