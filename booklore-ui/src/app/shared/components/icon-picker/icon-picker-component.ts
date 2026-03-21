@@ -11,6 +11,7 @@ import {IconCategoriesHelper} from '../../helpers/icon-categories.helper';
 import {Button} from 'primeng/button';
 import {TabsModule} from 'primeng/tabs';
 import {UserService} from '../../../features/settings/user-management/user.service';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 interface SvgEntry {
   name: string;
@@ -37,7 +38,8 @@ interface SvgIconBatchResponse {
   imports: [
     FormsModule,
     Button,
-    TabsModule
+    TabsModule,
+    TranslocoDirective
   ],
   templateUrl: './icon-picker-component.html',
   styleUrl: './icon-picker-component.scss'
@@ -67,6 +69,7 @@ export class IconPickerComponent implements OnInit {
   urlHelper = inject(UrlHelperService);
   messageService = inject(MessageService);
   userService = inject(UserService);
+  private readonly t = inject(TranslocoService);
 
   searchText: string = '';
   selectedIcon: string | null = null;

@@ -150,5 +150,27 @@
     "toast": {
       "createFailedDefault": "Error al crear el usuario administrador. Inténtalo de nuevo."
     }
+  },
+  "iconPicker": {
+    "title": "Escoger un Ícono",
+    "subtitle": "Selecciona desde la biblioteca o agrega SVGs personalizados",
+    "primeIcons": "Íconos Prime",
+    "svgLibrary": "Biblioteca SVG",
+    "addCustom": "Añadir Personalizados",
+    "primeIconsSearch": "Buscar íconos Prime...",
+    "loadingIcons": "Cargando íconos...",
+    "svgIconsSearch": "Buscar iconos SVG...",
+    "deleteIcon": "Suelta aquí para borrar",
+    "svgInput": {
+      "title": "Ingresa SVG",
+      "iconName": "Nombre del Ícono",
+      "placeholder": "e.g., mi-icono-personalizado",
+      "svgCode": "Código SVG",
+      "preview": "Vista Previa",
+      "addToQueue": "Agregar a la Cola",
+      "queue": "Cola",
+      "clearAll": "Limpiar todo",
+      "saveAllIcons": "Guardar todos los íconos"
+    }
   }
 }

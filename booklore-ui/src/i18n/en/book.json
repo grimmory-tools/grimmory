@@ -30,6 +30,13 @@
       "deleting": "Deleting {{ count }} book(s)...",
       "unshelving": "Unshelving {{ count }} book(s)..."
     },
+    "entityTypes": {
+      "library": "Library",
+      "shelf": "Shelf",
+      "magicShelf": "Magic Shelf",
+      "allBooks": "All Books",
+      "unshelved": "Unshelved Books"
+    },
     "labels": {
       "allBooks": "All Books",
       "unshelvedBooks": "Unshelved Books",

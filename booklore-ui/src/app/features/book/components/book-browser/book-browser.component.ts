@@ -61,11 +61,11 @@ import {SortService} from '../../service/sort.service';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 export enum EntityType {
-  LIBRARY = 'Library',
-  SHELF = 'Shelf',
-  MAGIC_SHELF = 'Magic Shelf',
-  ALL_BOOKS = 'All Books',
-  UNSHELVED = 'Unshelved Books',
+  LIBRARY = 'library',
+  SHELF = 'shelf',
+  MAGIC_SHELF = 'magicShelf',
+  ALL_BOOKS = 'allBooks',
+  UNSHELVED = 'unshelved',
 }
 
 @Component({

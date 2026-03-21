@@ -150,5 +150,27 @@
     "toast": {
       "createFailedDefault": "Failed to create admin user. Try again."
     }
+  },
+  "iconPicker": {
+    "title": "Choose an Icon",
+    "subtitle": "Select from library or add custom SVGs",
+    "primeIcons": "Prime Icons",
+    "svgLibrary": "SVG Library",
+    "addCustom": "Add Custom",
+    "primeIconsSearch": "Search Prime icons...",
+    "loadingIcons": "Loading icons...",
+    "svgIconsSearch": "Search SVG icons...",
+    "deleteIcon": "Drop here to delete",
+    "svgInput": {
+      "title": "SVG Input",
+      "iconName": "Icon Name",
+      "placeholder": "e.g., my-custom-icon",
+      "svgCode": "SVG Code",
+      "preview": "Preview",
+      "addToQueue": "Add to Queue",
+      "queue": "Queue",
+      "clearAll": "Clear All",
+      "saveAllIcons": "Save All Icons"
+    }
   }
 }

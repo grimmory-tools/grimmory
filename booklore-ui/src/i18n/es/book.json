@@ -30,6 +30,13 @@
       "deleting": "Eliminando {{ count }} libro(s)...",
       "unshelving": "Quitando {{ count }} libro(s) del estante..."
     },
+    "entityTypes": {
+      "library": "Biblioteca",
+      "shelf": "Estante",
+      "magicShelf": "Estante Mágico",
+      "allBooks": "Todos los libros",
+      "unshelved": "Libros sin estante"
+    },
     "labels": {
       "allBooks": "Todos los libros",
       "unshelvedBooks": "Libros sin estante",

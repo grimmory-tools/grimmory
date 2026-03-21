@@ -1,3 +1,4 @@
+<ng-container *transloco="let t; prefix: 'shared.iconPicker'">
 <div class="icon-picker">
   <header class="dialog-header">
     <div class="header-content">
@@ -5,8 +6,8 @@
         <i class="pi pi-palette"></i>
       </div>
       <div class="header-text">
-        <h1>Choose an Icon</h1>
-        <p>Select from library or add custom SVGs</p>
+        <h1>{{ t('title') }}</h1>
+        <p>{{ t('subtitle') }}</p>
       </div>
     </div>
     <p-button
@@ -23,16 +24,16 @@
       <p-tablist>
         <p-tab value="0">
           <i class="pi pi-prime"></i>
-          <span>Prime Icons</span>
+          <span>{{ t('primeIcons') }}</span>
         </p-tab>
         <p-tab value="1">
           <i class="pi pi-images"></i>
-          <span>SVG Library</span>
+          <span>{{ t('svgLibrary') }}</span>
         </p-tab>
         @if (canManageIcons) {
           <p-tab value="2">
             <i class="pi pi-plus-circle"></i>
-            <span>Add Custom</span>
+            <span>{{ t('addCustom') }}</span>
           </p-tab>
         }
       </p-tablist>
@@ -46,7 +47,7 @@
               <input
                 type="text"
                 pInputText
-                placeholder="Search Prime icons..."
+                placeholder="{{ t('primeIconsSearch') }}"
                 [(ngModel)]="searchText"
                 class="search-input"
               />
@@ -73,7 +74,7 @@
             @if (isLoadingSvgIcons) {
               <div class="loading-state">
                 <i class="pi pi-spin pi-spinner"></i>
-                <span>Loading icons...</span>
+                <span>{{ t('loadingIcons') }}</span>
               </div>
             } @else if (svgIconsError) {
               <div class="error-state">
@@ -86,7 +87,7 @@
                 <input
                   type="text"
                   pInputText
-                  placeholder="Search SVG icons..."
+                  placeholder="{{ t('svgIconsSearch') }}"
                   [(ngModel)]="svgSearchText"
                   class="search-input"
                 />
@@ -118,7 +119,7 @@
                     (drop)="onTrashDrop($event)"
                   >
                     <i class="pi pi-trash"></i>
-                    <span>Drop here to delete</span>
+                    <span>{{ t('deleteIcon') }}</span>
                   </div>
                 </div>
               }
@@ -133,23 +134,23 @@
               <section class="form-section">
                 <div class="section-header">
                   <i class="pi pi-code"></i>
-                  <span>SVG Input</span>
+                  <span>{{ t('svgInput.title') }}</span>
                 </div>
 
                 <div class="form-fields">
                   <div class="form-field">
-                    <label>Icon Name</label>
+                    <label>{{ t('svgInput.iconName') }}</label>
                     <input
                       type="text"
                       pInputText
                       [(ngModel)]="svgName"
-                      placeholder="e.g., my-custom-icon"
+                      placeholder="{{ t('svgInput.placeholder') }}"
                       class="input-full"
                     />
                   </div>
 
                   <div class="form-field">
-                    <label>SVG Code</label>
+                    <label>{{ t('svgInput.svgCode') }}</label>
                     <textarea
                       pInputTextarea
                       [(ngModel)]="svgContent"
@@ -162,7 +163,7 @@
 
                   @if (svgContent && svgPreview) {
                     <div class="preview-card">
-                      <div class="preview-label">Preview</div>
+                      <div class="preview-label">{{ t('svgInput.preview') }}</div>
                       <div class="preview-content" [innerHTML]="svgPreview"></div>
                     </div>
                   }
@@ -177,7 +178,7 @@
 
                 <div class="form-actions">
                   <p-button
-                    label="Add to Queue"
+                    label="{{ t('svgInput.addToQueue') }}"
                     icon="pi pi-plus"
                     [outlined]="true"
                     [disabled]="!svgContent || !svgName"
@@ -190,11 +191,11 @@
                 <section class="form-section queue-section">
                   <div class="section-header">
                     <i class="pi pi-list"></i>
-                    <span>Queue</span>
+                    <span>{{ t('svgInput.queue') }}</span>
                     <span class="section-badge">{{ svgEntries.length }}</span>
                     <div class="section-actions">
                       <p-button
-                        label="Clear All"
+                        label="{{ t('svgInput.clearAll') }}"
                         icon="pi pi-times"
                         severity="danger"
                         [text]="true"
@@ -230,7 +231,7 @@
 
                   <div class="form-actions">
                     <p-button
-                      label="Save All Icons"
+                      label="{{ t('saveAllIcons') }}"
                       icon="pi pi-save"
                       severity="success"
                       [loading]="isSavingBatch"
@@ -247,3 +248,4 @@
     </p-tabs>
   </div>
 </div>
+</ng-container>
