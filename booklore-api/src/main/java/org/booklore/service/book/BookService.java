@@ -338,7 +338,7 @@ public class BookService {
                     .orElseThrow(() -> ApiError.FILE_NOT_FOUND.createException("No file of type " + bookType + " found for book"));
             filePath = bookFile.getFullFilePath().toString();
         } else {
-            filePath = FileUtils.getBookFullPath(bookEntity);
+            filePath = FileUtils.getBookFullPath(bookEntity).toString();
         }
         File file = new File(filePath);
         if (!file.exists()) {
@@ -362,7 +362,7 @@ public class BookService {
                     .orElseThrow(() -> ApiError.FILE_NOT_FOUND.createException("No file of type " + bookType + " found for book"));
             filePath = bookFile.getFullFilePath().toString();
         } else {
-            filePath = FileUtils.getBookFullPath(bookEntity);
+            filePath = FileUtils.getBookFullPath(bookEntity).toString();
         }
 
         Path path = Paths.get(filePath);

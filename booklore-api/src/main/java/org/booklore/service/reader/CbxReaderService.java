@@ -144,8 +144,7 @@ public class CbxReaderService {
                     .orElseThrow(() -> ApiError.FILE_NOT_FOUND.createException("No file of type " + bookType + " found for book"));
             return bookFile.getFullFilePath();
         }
-        String bookFullPath = FileUtils.getBookFullPath(bookEntity);
-        return Path.of(bookFullPath);
+        return FileUtils.getBookFullPath(bookEntity);
     }
 
     private void validatePageRequest(Long bookId, int page, List<String> imageEntries) throws FileNotFoundException {

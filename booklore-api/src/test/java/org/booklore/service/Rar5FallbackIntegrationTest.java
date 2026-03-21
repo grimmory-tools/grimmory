@@ -74,7 +74,7 @@ class Rar5FallbackIntegrationTest {
 
         try (var fileUtilsStatic = org.mockito.Mockito.mockStatic(org.booklore.util.FileUtils.class)) {
             fileUtilsStatic.when(() -> org.booklore.util.FileUtils.getBookFullPath(book))
-                    .thenReturn(cbrCopy.toString());
+                    .thenReturn(cbrCopy);
 
             CbxReaderService readerService = new CbxReaderService(mockRepo);
             List<Integer> pages = readerService.getAvailablePages(99L);
@@ -96,7 +96,7 @@ class Rar5FallbackIntegrationTest {
 
         try (var fileUtilsStatic = org.mockito.Mockito.mockStatic(org.booklore.util.FileUtils.class)) {
             fileUtilsStatic.when(() -> org.booklore.util.FileUtils.getBookFullPath(book))
-                    .thenReturn(cbrCopy.toString());
+                    .thenReturn(cbrCopy);
 
             CbxReaderService readerService = new CbxReaderService(mockRepo);
             ByteArrayOutputStream out = new ByteArrayOutputStream();

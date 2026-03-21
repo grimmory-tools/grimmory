@@ -73,7 +73,7 @@ public class EpubProcessor extends AbstractFileProcessor implements BookFileProc
     @Override
     public boolean generateCover(BookEntity bookEntity, BookFileEntity bookFile) {
         try {
-            File epubFile = new File(FileUtils.getBookFullPath(bookEntity, bookFile));
+            File epubFile = FileUtils.getBookFullPath(bookEntity, bookFile).toFile();
             byte[] coverData = epubMetadataExtractor.extractCover(epubFile);
 
             if (coverData == null) {

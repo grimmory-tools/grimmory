@@ -197,7 +197,7 @@ public class BookMetadataService {
             log.info("Unsupported operation for book ID {} - no file or not CBX type", bookId);
             return null;
         }
-        return cbxMetadataExtractor.extractMetadata(new File(FileUtils.getBookFullPath(bookEntity)));
+        return cbxMetadataExtractor.extractMetadata(FileUtils.getBookFullPath(bookEntity).toFile());
     }
 
     public BookMetadata getFileMetadata(long bookId) {
@@ -207,7 +207,7 @@ public class BookMetadataService {
         if (primaryFile == null) {
             throw ApiError.GENERIC_BAD_REQUEST.createException("Book has no file to extract metadata from");
         }
-        return metadataExtractorFactory.extractMetadata(primaryFile.getBookType(), new File(FileUtils.getBookFullPath(bookEntity)));
+        return metadataExtractorFactory.extractMetadata(primaryFile.getBookType(), FileUtils.getBookFullPath(bookEntity).toFile());
     }
 
     @Transactional
