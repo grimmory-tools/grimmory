@@ -1,34 +1,34 @@
 {
-    "title": "Perfil de usuario",
-    "description": "Gestiona la información de tu cuenta y los ajustes de seguridad",
-    "basicInfo": "Información básica",
-    "username": "Nombre de usuario",
-    "usernamePlaceholder": "Nombre de usuario...",
-    "fullName": "Nombre completo",
-    "fullNamePlaceholder": "Introduce el nombre completo...",
-    "email": "Correo electrónico",
-    "emailPlaceholder": "Introduce el correo...",
-    "editProfile": "Editar perfil",
-    "saveChanges": "Guardar cambios",
-    "security": "Ajustes de seguridad",
-    "currentPassword": "Contraseña actual",
-    "newPassword": "Nueva contraseña",
-    "confirmNewPassword": "Confirmar nueva contraseña",
-    "changePassword": "Cambiar contraseña",
-    "loading": "Cargando datos del usuario...",
-    "validation": {
-        "currentPasswordRequired": "La contraseña actual es obligatoria.",
-        "newPasswordRequired": "La nueva contraseña es obligatoria.",
-        "passwordMinLength": "La contraseña debe tener al menos 8 caracteres.",
-        "confirmPasswordRequired": "Por favor, confirma tu nueva contraseña.",
-        "passwordMismatch": "Las contraseñas no coinciden."
-    },
-    "toast": {
-        "errorNoUser": "Datos del usuario no disponibles.",
-        "noChanges": "No se detectaron cambios.",
-        "profileUpdated": "Perfil actualizado correctamente",
-        "profileUpdateFailed": "Error al actualizar el perfil",
-        "passwordChanged": "Contraseña cambiada correctamente",
-        "passwordChangeFailed": "Error al cambiar la contraseña"
-    }
+  "title": "Perfil de usuario",
+  "description": "Gestiona la información de tu cuenta y los ajustes de seguridad",
+  "basicInfo": "Información básica",
+  "username": "Nombre de usuario",
+  "usernamePlaceholder": "Nombre de usuario...",
+  "fullName": "Nombre completo",
+  "fullNamePlaceholder": "Introduce el nombre completo...",
+  "email": "Correo electrónico",
+  "emailPlaceholder": "Introduce el correo...",
+  "editProfile": "Editar perfil",
+  "saveChanges": "Guardar cambios",
+  "security": "Ajustes de seguridad",
+  "currentPassword": "Contraseña actual",
+  "newPassword": "Nueva contraseña",
+  "confirmNewPassword": "Confirmar nueva contraseña",
+  "changePassword": "Cambiar contraseña",
+  "loading": "Cargando datos del usuario...",
+  "validation": {
+    "currentPasswordRequired": "La contraseña actual es obligatoria.",
+    "newPasswordRequired": "La nueva contraseña es obligatoria.",
+    "passwordMinLength": "La contraseña debe tener al menos 8 caracteres.",
+    "confirmPasswordRequired": "Por favor, confirma tu nueva contraseña.",
+    "passwordMismatch": "Las contraseñas no coinciden."
+  },
+  "toast": {
+    "errorNoUser": "Datos del usuario no disponibles.",
+    "noChanges": "No se detectaron cambios.",
+    "profileUpdated": "Perfil actualizado correctamente",
+    "profileUpdateFailed": "Error al actualizar el perfil",
+    "passwordChanged": "Contraseña cambiada correctamente",
+    "passwordChangeFailed": "Error al cambiar la contraseña"
+  }
 }

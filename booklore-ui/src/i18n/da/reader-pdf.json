@@ -1,10 +1,10 @@
 {
-    "toolbar": {
-        "switchToLightMode": "",
-        "switchToDarkMode": "",
-        "closePdfReader": ""
-    },
-    "toast": {
-        "failedToLoadBook": ""
-    }
+  "toolbar": {
+    "switchToLightMode": "",
+    "switchToDarkMode": "",
+    "closePdfReader": ""
+  },
+  "toast": {
+    "failedToLoadBook": ""
+  }
 }

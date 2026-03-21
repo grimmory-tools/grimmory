@@ -1,76 +1,76 @@
 {
-    "title": "Impostazioni autenticazione",
-    "description": "Configura i metodi di autenticazione per la tua istanza di Booklore. L'autenticazione interna è sempre abilitata, e puoi opzionalmente abilitare OIDC per provider di autenticazione esterni.",
-    "methods": {
-        "sectionTitle": "Metodi di autenticazione",
-        "sectionDesc": "Scegli quali metodi di autenticazione sono disponibili per l'accesso degli utenti."
-    },
-    "internal": {
-        "label": "Autenticazione interna",
-        "status": "Sempre abilitata",
-        "description": "Autenticazione integrata con nome utente e password. È il metodo predefinito e non può essere disabilitato."
-    },
-    "oidc": {
-        "label": "Autenticazione OIDC",
-        "experimental": "Sperimentale",
-        "description": "OpenID Connect per il single sign-on con provider esterni (Authentik, Keycloak, ecc.).",
-        "configHint": "Configura le impostazioni qui sotto per abilitare.",
-        "enabled": "Abilitato",
-        "disabled": "Disabilitato"
-    },
-    "providerConfig": {
-        "sectionTitle": "Configurazione provider OIDC",
-        "sectionDesc": "Configura le impostazioni del tuo provider OIDC. Tutti i campi sono obbligatori per abilitare l'autenticazione OIDC.",
-        "providerName": "Nome provider",
-        "providerPlaceholder": "es. Authentik, Keycloak",
-        "clientId": "Client ID",
-        "clientIdPlaceholder": "Il tuo client ID OIDC",
-        "clientSecret": "",
-        "clientSecretPlaceholder": "",
-        "clientSecretHint": "",
-        "issuerUri": "URI emittente",
-        "issuerPlaceholder": "es. https://auth.example.com/realms/booklore",
-        "scope": "Scope",
-        "scopeHint": "Scope richiesti per l'accesso OIDC. Devono essere supportati dal tuo provider.",
-        "claimMappings": "Mappatura claim",
-        "claimDesc": "Mappa i claim del token OIDC ai campi utente di Booklore. Devono corrispondere ai claim del token del tuo provider.",
-        "usernameClaim": "Claim nome utente",
-        "usernamePlaceholder": "es. preferred_username",
-        "emailClaim": "Claim email",
-        "emailPlaceholder": "es. email",
-        "nameClaim": "Claim nome visualizzato",
-        "namePlaceholder": "es. name"
-    },
-    "provisioning": {
-        "sectionTitle": "Provisioning utenti",
-        "sectionDesc": "Configura come vengono creati i nuovi utenti OIDC e quali permessi ricevono.",
-        "autoLabel": "Provisioning automatico utenti",
-        "autoEnabled": "Abilitato",
-        "autoDisabled": "Disabilitato",
-        "autoDesc": "Quando abilitato, i nuovi utenti vengono creati automaticamente al primo accesso OIDC con i permessi indicati sotto. Quando disabilitato, gli utenti devono essere creati manualmente in Booklore prima di poter accedere tramite OIDC.",
-        "defaultPerms": "Permessi predefiniti",
-        "readBooks": "Leggere libri",
-        "defaultLibraryAccess": "Accesso librerie predefinito",
-        "selectLibraries": "Seleziona le librerie a cui i nuovi utenti possono accedere"
-    },
-    "perms": {
-        "uploadBooks": "Caricare libri",
-        "downloadBooks": "Scaricare libri",
-        "editMetadata": "Modificare metadati libri",
-        "manageLibrary": "Gestire libreria",
-        "emailBook": "Inviare libro via email",
-        "deleteBook": "Eliminare libro",
-        "koreaderSync": "Sincronizzazione KOReader",
-        "koboSync": "Sincronizzazione Kobo",
-        "accessOpds": "Accesso OPDS"
-    },
-    "toast": {
-        "saved": "Salvato",
-        "oidcUpdated": "Impostazione OIDC aggiornata.",
-        "oidcError": "Aggiornamento impostazione OIDC fallito.",
-        "providerSaved": "Impostazioni provider OIDC salvate.",
-        "providerError": "Salvataggio impostazioni provider OIDC fallito.",
-        "provisionSaved": "Impostazioni auto-provisioning OIDC salvate.",
-        "provisionError": "Salvataggio impostazioni auto-provisioning OIDC fallito."
-    }
+  "title": "Impostazioni autenticazione",
+  "description": "Configura i metodi di autenticazione per la tua istanza di Grimmory. L'autenticazione interna è sempre abilitata, e puoi opzionalmente abilitare OIDC per provider di autenticazione esterni.",
+  "methods": {
+    "sectionTitle": "Metodi di autenticazione",
+    "sectionDesc": "Scegli quali metodi di autenticazione sono disponibili per l'accesso degli utenti."
+  },
+  "internal": {
+    "label": "Autenticazione interna",
+    "status": "Sempre abilitata",
+    "description": "Autenticazione integrata con nome utente e password. È il metodo predefinito e non può essere disabilitato."
+  },
+  "oidc": {
+    "label": "Autenticazione OIDC",
+    "experimental": "Sperimentale",
+    "description": "OpenID Connect per il single sign-on con provider esterni (Authentik, Keycloak, ecc.).",
+    "configHint": "Configura le impostazioni qui sotto per abilitare.",
+    "enabled": "Abilitato",
+    "disabled": "Disabilitato"
+  },
+  "providerConfig": {
+    "sectionTitle": "Configurazione provider OIDC",
+    "sectionDesc": "Configura le impostazioni del tuo provider OIDC. Tutti i campi sono obbligatori per abilitare l'autenticazione OIDC.",
+    "providerName": "Nome provider",
+    "providerPlaceholder": "es. Authentik, Keycloak",
+    "clientId": "Client ID",
+    "clientIdPlaceholder": "Il tuo client ID OIDC",
+    "clientSecret": "",
+    "clientSecretPlaceholder": "",
+    "clientSecretHint": "",
+    "issuerUri": "URI emittente",
+    "issuerPlaceholder": "es. https://auth.example.com/realms/grimmory",
+    "scope": "Scope",
+    "scopeHint": "Scope richiesti per l'accesso OIDC. Devono essere supportati dal tuo provider.",
+    "claimMappings": "Mappatura claim",
+    "claimDesc": "Mappa i claim del token OIDC ai campi utente di Grimmory. Devono corrispondere ai claim del token del tuo provider.",
+    "usernameClaim": "Claim nome utente",
+    "usernamePlaceholder": "es. preferred_username",
+    "emailClaim": "Claim email",
+    "emailPlaceholder": "es. email",
+    "nameClaim": "Claim nome visualizzato",
+    "namePlaceholder": "es. name"
+  },
+  "provisioning": {
+    "sectionTitle": "Provisioning utenti",
+    "sectionDesc": "Configura come vengono creati i nuovi utenti OIDC e quali permessi ricevono.",
+    "autoLabel": "Provisioning automatico utenti",
+    "autoEnabled": "Abilitato",
+    "autoDisabled": "Disabilitato",
+    "autoDesc": "Quando abilitato, i nuovi utenti vengono creati automaticamente al primo accesso OIDC con i permessi indicati sotto. Quando disabilitato, gli utenti devono essere creati manualmente in Grimmory prima di poter accedere tramite OIDC.",
+    "defaultPerms": "Permessi predefiniti",
+    "readBooks": "Leggere libri",
+    "defaultLibraryAccess": "Accesso librerie predefinito",
+    "selectLibraries": "Seleziona le librerie a cui i nuovi utenti possono accedere"
+  },
+  "perms": {
+    "uploadBooks": "Caricare libri",
+    "downloadBooks": "Scaricare libri",
+    "editMetadata": "Modificare metadati libri",
+    "manageLibrary": "Gestire libreria",
+    "emailBook": "Inviare libro via email",
+    "deleteBook": "Eliminare libro",
+    "koreaderSync": "Sincronizzazione KOReader",
+    "koboSync": "Sincronizzazione Kobo",
+    "accessOpds": "Accesso OPDS"
+  },
+  "toast": {
+    "saved": "Salvato",
+    "oidcUpdated": "Impostazione OIDC aggiornata.",
+    "oidcError": "Aggiornamento impostazione OIDC fallito.",
+    "providerSaved": "Impostazioni provider OIDC salvate.",
+    "providerError": "Salvataggio impostazioni provider OIDC fallito.",
+    "provisionSaved": "Impostazioni auto-provisioning OIDC salvate.",
+    "provisionError": "Salvataggio impostazioni auto-provisioning OIDC fallito."
+  }
 }

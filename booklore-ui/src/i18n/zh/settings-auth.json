@@ -1,76 +1,76 @@
 {
-    "title": "OIDC设置",
-    "description": "配置 BookLore 实例的认证方式。内部认证始终启用，您可以选择启用 OIDC 进行外部认证。",
-    "methods": {
-        "sectionTitle": "认证方式",
-        "sectionDesc": "选择用户可以使用哪些认证方式登录。"
-    },
-    "internal": {
-        "label": "内部认证",
-        "status": "始终启用",
-        "description": "内置的用户名和密码认证。这是默认方式，无法禁用。"
-    },
-    "oidc": {
-        "label": "OIDC 认证",
-        "experimental": "实验性",
-        "description": "OpenID Connect 用于与外部提供商（Authentik、Keycloak 等）进行单点登录。",
-        "configHint": "配置以下设置以启用。",
-        "enabled": "已启用",
-        "disabled": "已禁用"
-    },
-    "providerConfig": {
-        "sectionTitle": "OIDC 提供商配置",
-        "sectionDesc": "配置您的 OIDC 提供商设置。启用 OIDC 认证需要填写所有字段。",
-        "providerName": "提供商名称",
-        "providerPlaceholder": "例如 Authentik、Keycloak",
-        "clientId": "客户端 ID",
-        "clientIdPlaceholder": "您的 OIDC 客户端 ID",
-        "clientSecret": "",
-        "clientSecretPlaceholder": "",
-        "clientSecretHint": "",
-        "issuerUri": "签发者 URI",
-        "issuerPlaceholder": "例如 https://auth.example.com/realms/booklore",
-        "scope": "范围",
-        "scopeHint": "OIDC 登录所需的范围。必须由您的提供商支持。",
-        "claimMappings": "声明映射",
-        "claimDesc": "将 OIDC 令牌声明映射到 BookLore 用户字段。这些必须与您的提供商的令牌声明匹配。",
-        "usernameClaim": "用户名声明",
-        "usernamePlaceholder": "例如 preferred_username",
-        "emailClaim": "邮箱声明",
-        "emailPlaceholder": "例如 email",
-        "nameClaim": "显示名称声明",
-        "namePlaceholder": "例如 name"
-    },
-    "provisioning": {
-        "sectionTitle": "用户配置",
-        "sectionDesc": "配置新 OIDC 用户的创建方式和默认权限。",
-        "autoLabel": "自动用户配置",
-        "autoEnabled": "已启用",
-        "autoDisabled": "已禁用",
-        "autoDesc": "启用后，新用户将在首次 OIDC 登录时自动创建，并拥有以下权限。禁用后，用户必须先在 BookLore 中手动创建，才能通过 OIDC 登录。",
-        "defaultPerms": "默认权限",
-        "readBooks": "阅读书籍",
-        "defaultLibraryAccess": "默认书库访问",
-        "selectLibraries": "选择新用户可以访问的书库"
-    },
-    "perms": {
-        "uploadBooks": "上传书籍",
-        "downloadBooks": "下载书籍",
-        "editMetadata": "编辑书籍元数据",
-        "manageLibrary": "管理书库",
-        "emailBook": "发送书籍邮件",
-        "deleteBook": "删除书籍",
-        "koreaderSync": "KOReader 同步",
-        "koboSync": "Kobo 同步",
-        "accessOpds": "访问 OPDS"
-    },
-    "toast": {
-        "saved": "已保存",
-        "oidcUpdated": "OIDC 设置已更新。",
-        "oidcError": "更新 OIDC 设置失败。",
-        "providerSaved": "OIDC 提供商设置已保存。",
-        "providerError": "保存 OIDC 提供商设置失败。",
-        "provisionSaved": "OIDC 自动配置设置已保存。",
-        "provisionError": "保存 OIDC 自动配置设置失败。"
-    }
+  "title": "OIDC设置",
+  "description": "配置 Grimmory 实例的认证方式。内部认证始终启用，您可以选择启用 OIDC 进行外部认证。",
+  "methods": {
+    "sectionTitle": "认证方式",
+    "sectionDesc": "选择用户可以使用哪些认证方式登录。"
+  },
+  "internal": {
+    "label": "内部认证",
+    "status": "始终启用",
+    "description": "内置的用户名和密码认证。这是默认方式，无法禁用。"
+  },
+  "oidc": {
+    "label": "OIDC 认证",
+    "experimental": "实验性",
+    "description": "OpenID Connect 用于与外部提供商（Authentik、Keycloak 等）进行单点登录。",
+    "configHint": "配置以下设置以启用。",
+    "enabled": "已启用",
+    "disabled": "已禁用"
+  },
+  "providerConfig": {
+    "sectionTitle": "OIDC 提供商配置",
+    "sectionDesc": "配置您的 OIDC 提供商设置。启用 OIDC 认证需要填写所有字段。",
+    "providerName": "提供商名称",
+    "providerPlaceholder": "例如 Authentik、Keycloak",
+    "clientId": "客户端 ID",
+    "clientIdPlaceholder": "您的 OIDC 客户端 ID",
+    "clientSecret": "",
+    "clientSecretPlaceholder": "",
+    "clientSecretHint": "",
+    "issuerUri": "签发者 URI",
+    "issuerPlaceholder": "例如 https://auth.example.com/realms/grimmory",
+    "scope": "范围",
+    "scopeHint": "OIDC 登录所需的范围。必须由您的提供商支持。",
+    "claimMappings": "声明映射",
+    "claimDesc": "将 OIDC 令牌声明映射到 Grimmory 用户字段。这些必须与您的提供商的令牌声明匹配。",
+    "usernameClaim": "用户名声明",
+    "usernamePlaceholder": "例如 preferred_username",
+    "emailClaim": "邮箱声明",
+    "emailPlaceholder": "例如 email",
+    "nameClaim": "显示名称声明",
+    "namePlaceholder": "例如 name"
+  },
+  "provisioning": {
+    "sectionTitle": "用户配置",
+    "sectionDesc": "配置新 OIDC 用户的创建方式和默认权限。",
+    "autoLabel": "自动用户配置",
+    "autoEnabled": "已启用",
+    "autoDisabled": "已禁用",
+    "autoDesc": "启用后，新用户将在首次 OIDC 登录时自动创建，并拥有以下权限。禁用后，用户必须先在 Grimmory 中手动创建，才能通过 OIDC 登录。",
+    "defaultPerms": "默认权限",
+    "readBooks": "阅读书籍",
+    "defaultLibraryAccess": "默认书库访问",
+    "selectLibraries": "选择新用户可以访问的书库"
+  },
+  "perms": {
+    "uploadBooks": "上传书籍",
+    "downloadBooks": "下载书籍",
+    "editMetadata": "编辑书籍元数据",
+    "manageLibrary": "管理书库",
+    "emailBook": "发送书籍邮件",
+    "deleteBook": "删除书籍",
+    "koreaderSync": "KOReader 同步",
+    "koboSync": "Kobo 同步",
+    "accessOpds": "访问 OPDS"
+  },
+  "toast": {
+    "saved": "已保存",
+    "oidcUpdated": "OIDC 设置已更新。",
+    "oidcError": "更新 OIDC 设置失败。",
+    "providerSaved": "OIDC 提供商设置已保存。",
+    "providerError": "保存 OIDC 提供商设置失败。",
+    "provisionSaved": "OIDC 自动配置设置已保存。",
+    "provisionError": "保存 OIDC 自动配置设置失败。"
+  }
 }

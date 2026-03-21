@@ -1,34 +1,34 @@
 {
-    "title": "Konfiguracija metapodataka zbirke",
-    "description": "Konfigurirajte ponašanje dohvaćanja metapodataka za vaše zbirke. Postavite globalne zadane vrijednosti i kreirajte zamjene specifične za knjižnicu kako biste kontrolirali kako se metapodaci knjiga dohvaćaju od različitih pružatelja.",
-    "defaultSettings": {
-        "sectionTitle": "Zadane postavke metapodataka",
-        "sectionDesc": "Postavite globalne zadane prioritete pružatelja za polja metapodataka zbirke. Ove postavke se primjenjuju na sve zbirke osim ako nisu zamijenjene ispod. BookLore isprobava pružatelje s lijeva na desno (1. → 2. → 3. → 4. prioritet) za svako polje knjige dok ne pronađe podatke. Sustav prvo provjerava vašeg 1. prioritetnog pružatelja, a ako taj pružatelj nema specifično polje (poput opisa ili autora), automatski prelazi na 2. prioritet, zatim 3. i konačno 4. Ostavite prioritet praznim da ga u potpunosti preskočite. Na primjer, ako Amazon (1.) nema opis, ali Google Books (2.) ima, koristit će se Googleov opis. Koristite potvrdne okvire Omogući za potpuno onemogućavanje dohvaćanja specifičnih polja, jer će onemogućena polja biti u potpunosti preskočena bez obzira na postavke pružatelja.",
-        "saveButton": "Spremi zadane postavke",
-        "saveSuccess": "Zadane opcije metapodataka su uspješno spremljene.",
-        "saveFailed": "Spremanje nije uspjelo",
-        "saveError": "Spremanje zadanih opcija metapodataka nije uspjelo. Pokušajte ponovo."
-    },
-    "libraryOverrides": {
-        "sectionTitle": "Zamjene specifične za knjižnicu",
-        "sectionDesc": "Zamijenite zadane postavke prioriteta za specifične zbirke. Na primjer, možete preferirati Amazon za beletristiku, ali Google Books za tehničke knjige. Svaka zbirka može imati vlastiti redoslijed prioriteta pružatelja dok se oslanja na zadane postavke za nespecificirana polja. Također možete omogućiti ili onemogućiti specifična polja metapodataka po zbirci, što je korisno ako određenim zbirkama ne trebaju specifične vrste podataka poput opisa ili naslovnica.",
-        "customSettings": "Prilagođene postavke",
-        "defaultSettings": "Zadane postavke",
-        "exportSidecar": "Izvezi prateće",
-        "importSidecar": "Uvezi prateće",
-        "exportTooltip": "Generiraj .metadata.json datoteke za sve knjige u ovoj knjižnici",
-        "importTooltip": "Uvezi metapodatke iz postojećih .metadata.json datoteka u ovoj knjižnici",
-        "saveLibraryButton": "Spremi postavke za {{name}}",
-        "saveSuccess": "Opcije metapodataka zbirke su uspješno spremljene.",
-        "saveFailed": "Spremanje nije uspjelo",
-        "saveError": "Spremanje opcija metapodataka zbirke nije uspjelo. Pokušajte ponovo.",
-        "exportSuccess": "Izvezene prateće datoteke za {{count}} knjiga.",
-        "exportComplete": "Izvoz završen",
-        "exportFailed": "Izvoz nije uspio",
-        "exportError": "Izvoz pratećih datoteka nije uspio. Pokušajte ponovo.",
-        "importSuccess": "Uvezeni metapodaci iz {{count}} pratećih datoteka.",
-        "importComplete": "Uvoz završen",
-        "importFailed": "Uvoz nije uspio",
-        "importError": "Uvoz iz pratećih datoteka nije uspio. Pokušajte ponovo."
-    }
+  "title": "Konfiguracija metapodataka zbirke",
+  "description": "Konfigurirajte ponašanje dohvaćanja metapodataka za vaše zbirke. Postavite globalne zadane vrijednosti i kreirajte zamjene specifične za knjižnicu kako biste kontrolirali kako se metapodaci knjiga dohvaćaju od različitih pružatelja.",
+  "defaultSettings": {
+    "sectionTitle": "Zadane postavke metapodataka",
+    "sectionDesc": "Postavite globalne zadane prioritete pružatelja za polja metapodataka zbirke. Ove postavke se primjenjuju na sve zbirke osim ako nisu zamijenjene ispod. Grimmory isprobava pružatelje s lijeva na desno (1. → 2. → 3. → 4. prioritet) za svako polje knjige dok ne pronađe podatke. Sustav prvo provjerava vašeg 1. prioritetnog pružatelja, a ako taj pružatelj nema specifično polje (poput opisa ili autora), automatski prelazi na 2. prioritet, zatim 3. i konačno 4. Ostavite prioritet praznim da ga u potpunosti preskočite. Na primjer, ako Amazon (1.) nema opis, ali Google Books (2.) ima, koristit će se Googleov opis. Koristite potvrdne okvire Omogući za potpuno onemogućavanje dohvaćanja specifičnih polja, jer će onemogućena polja biti u potpunosti preskočena bez obzira na postavke pružatelja.",
+    "saveButton": "Spremi zadane postavke",
+    "saveSuccess": "Zadane opcije metapodataka su uspješno spremljene.",
+    "saveFailed": "Spremanje nije uspjelo",
+    "saveError": "Spremanje zadanih opcija metapodataka nije uspjelo. Pokušajte ponovo."
+  },
+  "libraryOverrides": {
+    "sectionTitle": "Zamjene specifične za knjižnicu",
+    "sectionDesc": "Zamijenite zadane postavke prioriteta za specifične zbirke. Na primjer, možete preferirati Amazon za beletristiku, ali Google Books za tehničke knjige. Svaka zbirka može imati vlastiti redoslijed prioriteta pružatelja dok se oslanja na zadane postavke za nespecificirana polja. Također možete omogućiti ili onemogućiti specifična polja metapodataka po zbirci, što je korisno ako određenim zbirkama ne trebaju specifične vrste podataka poput opisa ili naslovnica.",
+    "customSettings": "Prilagođene postavke",
+    "defaultSettings": "Zadane postavke",
+    "exportSidecar": "Izvezi prateće",
+    "importSidecar": "Uvezi prateće",
+    "exportTooltip": "Generiraj .metadata.json datoteke za sve knjige u ovoj knjižnici",
+    "importTooltip": "Uvezi metapodatke iz postojećih .metadata.json datoteka u ovoj knjižnici",
+    "saveLibraryButton": "Spremi postavke za {{name}}",
+    "saveSuccess": "Opcije metapodataka zbirke su uspješno spremljene.",
+    "saveFailed": "Spremanje nije uspjelo",
+    "saveError": "Spremanje opcija metapodataka zbirke nije uspjelo. Pokušajte ponovo.",
+    "exportSuccess": "Izvezene prateće datoteke za {{count}} knjiga.",
+    "exportComplete": "Izvoz završen",
+    "exportFailed": "Izvoz nije uspio",
+    "exportError": "Izvoz pratećih datoteka nije uspio. Pokušajte ponovo.",
+    "importSuccess": "Uvezeni metapodaci iz {{count}} pratećih datoteka.",
+    "importComplete": "Uvoz završen",
+    "importFailed": "Uvoz nije uspio",
+    "importError": "Uvoz iz pratećih datoteka nije uspio. Pokušajte ponovo."
+  }
 }

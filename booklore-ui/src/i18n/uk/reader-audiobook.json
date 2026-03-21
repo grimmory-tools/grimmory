@@ -1,64 +1,64 @@
 {
-    "loading": "Завантаження аудіокниги...",
-    "untitled": "Без назви",
-    "unknownAuthor": "Невідомий автор",
-    "coverAlt": "Обкладинка",
-    "header": {
-        "backTooltip": "Назад",
-        "bookmarksTooltip": "Закладки",
-        "chaptersTracksTooltip": "Розділи/Треки"
-    },
-    "trackInfo": {
-        "trackOf": "Трек {{ current }} з {{ total }}",
-        "chapterOf": "Розділ {{ current }} з {{ total }}"
-    },
-    "controls": {
-        "previousTrackTooltip": "Попередній трек",
-        "previousChapterTooltip": "Попередній розділ",
-        "rewindTooltip": "-30s",
-        "forwardTooltip": "+30s",
-        "nextTrackTooltip": "Наступний трек",
-        "nextChapterTooltip": "Наступний розділ"
-    },
-    "extra": {
-        "addBookmark": "Додати закладку",
-        "sleepTimer": "Таймер сну",
-        "endOfChapter": "Кінець розділу"
-    },
-    "details": {
-        "narratedBy": "Озвучено: {{ narrator }}",
-        "kbps": "{{ bitrate }} кбіт/с",
-        "totalDuration": "{{ duration }} загалом"
-    },
-    "sidebar": {
-        "tracks": "Треки",
-        "chapters": "Розділи"
-    },
-    "bookmarks": {
-        "title": "Закладки",
-        "empty": "Закладок ще немає",
-        "emptyHint": "Додайте закладку, щоб зберегти поточне місце",
-        "deleteTooltip": "Видалити",
-        "bookmarkAt": "Закладка на {{ time }}"
-    },
-    "sleepTimerMenu": {
-        "minutes15": "15 хвилин",
-        "minutes30": "30 хвилин",
-        "minutes45": "45 хвилин",
-        "minutes60": "60 хвилин",
-        "endOfChapter": "Кінець розділу",
-        "cancelTimer": "Скасувати таймер"
-    },
-    "toast": {
-        "loadFailed": "Не вдалося завантажити аудіокнигу",
-        "audioLoadFailed": "Не вдалося завантажити аудіо",
-        "sleepTimerSet": "Відтворення зупиниться через {{ minutes }} хвилин",
-        "sleepTimerEndOfChapter": "Відтворення зупиниться в кінці розділу",
-        "sleepTimerStopped": "Відтворення зупинено таймером сну",
-        "bookmarkAdded": "Закладку додано",
-        "bookmarkExists": "Закладка вже існує",
-        "bookmarkExistsDetail": "У цій позиції вже є закладка",
-        "bookmarkFailed": "Не вдалося додати закладку",
-        "bookmarkDeleted": "Закладку видалено"
-    }
+  "loading": "Завантаження аудіокниги...",
+  "untitled": "Без назви",
+  "unknownAuthor": "Невідомий автор",
+  "coverAlt": "Обкладинка",
+  "header": {
+    "backTooltip": "Назад",
+    "bookmarksTooltip": "Закладки",
+    "chaptersTracksTooltip": "Розділи/Треки"
+  },
+  "trackInfo": {
+    "trackOf": "Трек {{ current }} з {{ total }}",
+    "chapterOf": "Розділ {{ current }} з {{ total }}"
+  },
+  "controls": {
+    "previousTrackTooltip": "Попередній трек",
+    "previousChapterTooltip": "Попередній розділ",
+    "rewindTooltip": "-30s",
+    "forwardTooltip": "+30s",
+    "nextTrackTooltip": "Наступний трек",
+    "nextChapterTooltip": "Наступний розділ"
+  },
+  "extra": {
+    "addBookmark": "Додати закладку",
+    "sleepTimer": "Таймер сну",
+    "endOfChapter": "Кінець розділу"
+  },
+  "details": {
+    "narratedBy": "Озвучено: {{ narrator }}",
+    "kbps": "{{ bitrate }} кбіт/с",
+    "totalDuration": "{{ duration }} загалом"
+  },
+  "sidebar": {
+    "tracks": "Треки",
+    "chapters": "Розділи"
+  },
+  "bookmarks": {
+    "title": "Закладки",
+    "empty": "Закладок ще немає",
+    "emptyHint": "Додайте закладку, щоб зберегти поточне місце",
+    "deleteTooltip": "Видалити",
+    "bookmarkAt": "Закладка на {{ time }}"
+  },
+  "sleepTimerMenu": {
+    "minutes15": "15 хвилин",
+    "minutes30": "30 хвилин",
+    "minutes45": "45 хвилин",
+    "minutes60": "60 хвилин",
+    "endOfChapter": "Кінець розділу",
+    "cancelTimer": "Скасувати таймер"
+  },
+  "toast": {
+    "loadFailed": "Не вдалося завантажити аудіокнигу",
+    "audioLoadFailed": "Не вдалося завантажити аудіо",
+    "sleepTimerSet": "Відтворення зупиниться через {{ minutes }} хвилин",
+    "sleepTimerEndOfChapter": "Відтворення зупиниться в кінці розділу",
+    "sleepTimerStopped": "Відтворення зупинено таймером сну",
+    "bookmarkAdded": "Закладку додано",
+    "bookmarkExists": "Закладка вже існує",
+    "bookmarkExistsDetail": "У цій позиції вже є закладка",
+    "bookmarkFailed": "Не вдалося додати закладку",
+    "bookmarkDeleted": "Закладку видалено"
+  }
 }

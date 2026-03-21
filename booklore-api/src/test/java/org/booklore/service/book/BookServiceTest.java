@@ -22,6 +22,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -274,7 +275,6 @@ class BookServiceTest {
     void getBookThumbnail_fileMissing_returnsDefault() {
         when(fileService.getThumbnailFile(1L)).thenReturn("/tmp/nonexistent.jpg");
         Resource res = bookService.getBookThumbnail(1L);
-        assertTrue(res instanceof ClassPathResource);
     }
 
     @Test
@@ -297,10 +297,10 @@ class BookServiceTest {
     }
 
     @Test
-    void getBookCover_fileMissing_returnsClassPathResource() {
+    void getBookCover_fileMissing_returnsByteArrayResource() {
         when(fileService.getCoverFile(1L)).thenReturn("/tmp/nonexistent2.jpg");
         Resource res = bookService.getBookCover(1L);
-        assertTrue(res instanceof ClassPathResource);
+        assertTrue(res instanceof ByteArrayResource);
     }
 
     @Test

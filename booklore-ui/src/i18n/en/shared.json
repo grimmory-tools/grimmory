@@ -92,18 +92,6 @@
   "liveNotification": {
     "defaultMessage": "No recent notifications..."
   },
-  "supportDialog": {
-    "title": "Support BookLore",
-    "subtitle": "From a solo dev who loves books",
-    "intro": "BookLore is built and maintained by a single developer who genuinely loves books. If it's made organizing your library a little more enjoyable, here are a few ways to support the project and keep it going.",
-    "starTitle": "Star on GitHub",
-    "starDesc": "A star goes a long way. It helps new people find BookLore and keeps me motivated.",
-    "collectiveTitle": "Open Collective",
-    "collectiveDesc": "Recurring support that helps cover hosting and keeps development sustainable.",
-    "kofiTitle": "Buy me a coffee",
-    "kofiDesc": "A one-time tip to fuel late-night coding sessions. Every bit is appreciated!",
-    "closing": "Thank you for being part of the BookLore community."
-  },
   "metadataProgress": {
     "taskStalled": "Task stalled or backend unavailable",
     "taskCancelled": "Task cancelled by user",
@@ -136,7 +124,7 @@
     "saveErrorDetail": "There was an error saving the settings."
   },
   "setup": {
-    "title": "Welcome to Booklore",
+    "title": "Welcome to Grimmory",
     "subtitle": "Setup your initial admin account to get started",
     "usernameLabel": "Username",
     "usernamePlaceholder": "Choose a username",

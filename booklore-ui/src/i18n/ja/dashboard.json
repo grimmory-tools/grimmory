@@ -1,66 +1,66 @@
 {
-    "main": {
-        "pageTitle": "ダッシュボード",
-        "welcomeTitle": "BookLoreへようこそ！",
-        "welcomeSubtitle": "最初のライブラリを作成しましょう",
-        "welcomeDescription": "ライブラリはすべての本が保管される場所です。今日からデジタルコレクションを始めましょう！",
-        "createLibrary": "ライブラリを作成",
-        "customizeDashboard": "ダッシュボードをカスタマイズ"
+  "main": {
+    "pageTitle": "ダッシュボード",
+    "welcomeTitle": "Grimmoryへようこそ！",
+    "welcomeSubtitle": "最初のライブラリを作成しましょう",
+    "welcomeDescription": "ライブラリはすべての本が保管される場所です。今日からデジタルコレクションを始めましょう！",
+    "createLibrary": "ライブラリを作成",
+    "customizeDashboard": "ダッシュボードをカスタマイズ"
+  },
+  "scroller": {
+    "noBooksFound": "このスクローラーに本が見つかりません。",
+    "loadError": "本の読み込みに失敗しました。ページを更新してください。",
+    "continueListening": "聴き続ける",
+    "continueReading": "読み続ける",
+    "recentlyAdded": "最近追加",
+    "discoverNew": "新しい本を発見",
+    "magicShelf": "マジックシェルフ",
+    "default": "スクローラー"
+  },
+  "settings": {
+    "title": "ダッシュボード設定",
+    "description": "異なるブックコレクションから最大5つのスクローラーを追加し、動作をカスタマイズできます",
+    "type": "タイプ",
+    "selectType": "タイプを選択",
+    "magicShelf": "マジックシェルフ",
+    "selectMagicShelf": "マジックシェルフを選択",
+    "sortField": "ソートフィールド",
+    "selectField": "フィールドを選択",
+    "direction": "方向",
+    "selectDirection": "方向を選択",
+    "maxItems": "最大アイテム数",
+    "addScroller": "スクローラーを追加",
+    "resetToDefault": "デフォルトに戻す",
+    "scrollerTypes": {
+      "lastRead": "読み続ける",
+      "lastListened": "聴き続ける",
+      "latestAdded": "最近追加",
+      "random": "新しい本を発見",
+      "magicShelf": "マジックシェルフ",
+      "default": "スクローラー"
     },
-    "scroller": {
-        "noBooksFound": "このスクローラーに本が見つかりません。",
-        "loadError": "本の読み込みに失敗しました。ページを更新してください。",
-        "continueListening": "聴き続ける",
-        "continueReading": "読み続ける",
-        "recentlyAdded": "最近追加",
-        "discoverNew": "新しい本を発見",
-        "magicShelf": "マジックシェルフ",
-        "default": "スクローラー"
+    "sortFields": {
+      "title": "タイトル",
+      "fileName": "ファイル名",
+      "filePath": "ファイルパス",
+      "addedOn": "追加日",
+      "author": "著者",
+      "authorSurnameVorname": "著者（姓）",
+      "seriesName": "シリーズ名",
+      "seriesNumber": "シリーズ番号",
+      "personalRating": "個人評価",
+      "publisher": "出版社",
+      "publishedDate": "出版日",
+      "lastReadTime": "最終閲覧",
+      "readStatus": "読書状態",
+      "dateFinished": "完了日",
+      "readingProgress": "読書進捗",
+      "bookType": "本の種類",
+      "pageCount": "ページ数"
     },
-    "settings": {
-        "title": "ダッシュボード設定",
-        "description": "異なるブックコレクションから最大5つのスクローラーを追加し、動作をカスタマイズできます",
-        "type": "タイプ",
-        "selectType": "タイプを選択",
-        "magicShelf": "マジックシェルフ",
-        "selectMagicShelf": "マジックシェルフを選択",
-        "sortField": "ソートフィールド",
-        "selectField": "フィールドを選択",
-        "direction": "方向",
-        "selectDirection": "方向を選択",
-        "maxItems": "最大アイテム数",
-        "addScroller": "スクローラーを追加",
-        "resetToDefault": "デフォルトに戻す",
-        "scrollerTypes": {
-            "lastRead": "読み続ける",
-            "lastListened": "聴き続ける",
-            "latestAdded": "最近追加",
-            "random": "新しい本を発見",
-            "magicShelf": "マジックシェルフ",
-            "default": "スクローラー"
-        },
-        "sortFields": {
-            "title": "タイトル",
-            "fileName": "ファイル名",
-            "filePath": "ファイルパス",
-            "addedOn": "追加日",
-            "author": "著者",
-            "authorSurnameVorname": "著者（姓）",
-            "seriesName": "シリーズ名",
-            "seriesNumber": "シリーズ番号",
-            "personalRating": "個人評価",
-            "publisher": "出版社",
-            "publishedDate": "出版日",
-            "lastReadTime": "最終閲覧",
-            "readStatus": "読書状態",
-            "dateFinished": "完了日",
-            "readingProgress": "読書進捗",
-            "bookType": "本の種類",
-            "pageCount": "ページ数"
-        },
-        "sortDirections": {
-            "asc": "昇順",
-            "desc": "降順"
-        }
+    "sortDirections": {
+      "asc": "昇順",
+      "desc": "降順"
     }
+  }
 }

@@ -1,50 +1,40 @@
 {
-    "title": "Preferensi Global",
-    "description": "",
-    "covers": {
-        "sectionTitle": "Gambar Sampul Buku",
-        "regenerate": "",
-        "regenerateBtn": "",
-        "regenerateDesc": "",
-        "regenerateStarted": "",
-        "regenerateStartedDetail": "",
-        "regenerateError": "",
-        "verticalCropping": "",
-        "verticalCroppingDesc": "",
-        "horizontalCropping": "",
-        "horizontalCroppingDesc": "",
-        "aspectRatio": "",
-        "aspectRatioDesc": "",
-        "smartCropping": "",
-        "smartCroppingDesc": ""
-    },
-    "search": {
-        "sectionTitle": "",
-        "autoBookSearch": "",
-        "autoBookSearchDesc": "",
-        "similarBook": "",
-        "similarBookDesc": ""
-    },
-    "fileManagement": {
-        "sectionTitle": "",
-        "maxUploadSize": "",
-        "maxUploadPlaceholder": "",
-        "maxUploadDesc": "",
-        "restartWarning": "",
-        "invalidInput": "",
-        "invalidInputDetail": ""
-    },
-    "appearance": {
-        "sectionTitle": "",
-        "supportButtonAnimation": "",
-        "supportButtonAnimationDesc": ""
-    },
-    "telemetry": {
-        "sectionTitle": "",
-        "enableTelemetry": "",
-        "telemetryDesc": ""
-    },
-    "settingsSaved": "",
-    "settingsSavedDetail": "",
-    "settingsError": ""
+  "title": "Preferensi Global",
+  "description": "",
+  "covers": {
+    "sectionTitle": "Gambar Sampul Buku",
+    "regenerate": "",
+    "regenerateBtn": "",
+    "regenerateDesc": "",
+    "regenerateStarted": "",
+    "regenerateStartedDetail": "",
+    "regenerateError": "",
+    "verticalCropping": "",
+    "verticalCroppingDesc": "",
+    "horizontalCropping": "",
+    "horizontalCroppingDesc": "",
+    "aspectRatio": "",
+    "aspectRatioDesc": "",
+    "smartCropping": "",
+    "smartCroppingDesc": ""
+  },
+  "search": {
+    "sectionTitle": "",
+    "autoBookSearch": "",
+    "autoBookSearchDesc": "",
+    "similarBook": "",
+    "similarBookDesc": ""
+  },
+  "fileManagement": {
+    "sectionTitle": "",
+    "maxUploadSize": "",
+    "maxUploadPlaceholder": "",
+    "maxUploadDesc": "",
+    "restartWarning": "",
+    "invalidInput": "",
+    "invalidInputDetail": ""
+  },
+  "settingsSaved": "",
+  "settingsSavedDetail": "",
+  "settingsError": ""
 }

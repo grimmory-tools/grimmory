@@ -1,50 +1,40 @@
 {
-    "title": "Preferências Globais",
-    "description": "Configure definições globais para sua instância do Booklore, incluindo tratamento de imagens de capa, preferências de pesquisa e limites de envio de arquivos.",
-    "covers": {
-        "sectionTitle": "Imagem de Capa do Livro",
-        "regenerate": "Regenerar Capas",
-        "regenerateBtn": "Regenerar",
-        "regenerateDesc": "Regenera as imagens de capa de todos os livros a partir das capas incorporadas nos arquivos.",
-        "regenerateStarted": "Regeneração de Capas Iniciada",
-        "regenerateStartedDetail": "As capas dos livros estão sendo regeneradas.",
-        "regenerateError": "Falha ao iniciar a regeneração de capas.",
-        "verticalCropping": "Corte Vertical de Capa",
-        "verticalCroppingDesc": "Cortar automaticamente imagens extremamente altas (como web comics) a partir do topo para criar miniaturas de capa utilizáveis.",
-        "horizontalCropping": "Corte Horizontal de Capa",
-        "horizontalCroppingDesc": "Cortar automaticamente imagens extremamente largas a partir da esquerda para criar miniaturas de capa utilizáveis.",
-        "aspectRatio": "Limiar de Proporção: {{value}}",
-        "aspectRatioDesc": "Imagens com proporções que excedem este limiar serão cortadas. Um valor de 2.5 significa que imagens mais de 2.5x mais altas (ou mais largas) que o normal serão cortadas.",
-        "smartCropping": "Corte Inteligente",
-        "smartCroppingDesc": "Ignorar regiões de cor uniforme ao determinar onde cortar. Foca a imagem da capa no conteúdo mais relevante."
-    },
-    "search": {
-        "sectionTitle": "Pesquisa e Recomendações",
-        "autoBookSearch": "Pesquisa Automática de Livro",
-        "autoBookSearchDesc": "Tenta automaticamente a correspondência de metadados quando o painel de informações do livro é aberto.",
-        "similarBook": "Recomendação de Livros Similares",
-        "similarBookDesc": "Ativa ou desativa recomendações de livros similares baseadas na sua biblioteca."
-    },
-    "fileManagement": {
-        "sectionTitle": "Gerenciamento de Arquivos",
-        "maxUploadSize": "Tamanho Máximo de Upload de Arquivo",
-        "maxUploadPlaceholder": "Tamanho máximo",
-        "maxUploadDesc": "Define o tamanho máximo permitido (em MB) para cada arquivo enviado. Aplica-se aos formatos EPUB, PDF, CBZ, CBR e CB7.",
-        "restartWarning": "As alterações terão efeito após reiniciar o servidor",
-        "invalidInput": "Entrada Inválida",
-        "invalidInputDetail": "Digite um tamanho máximo de upload de arquivo válido em MB."
-    },
-    "telemetry": {
-        "sectionTitle": "Telemetria",
-        "enableTelemetry": "Ativar Telemetria",
-        "telemetryDesc": "Ajude a melhorar o Booklore compartilhando estatísticas de uso anônimas. Esses dados permitem que os desenvolvedores vejam quais recursos são mais usados, identifiquem bugs e detectem problemas de desempenho para saberem no que trabalhar em seguida. Nenhuma informação pessoal, conteúdo de livros ou dados identificáveis são enviados. Os dados são enviados automaticamente ao servidor do Booklore uma vez a cada 24 horas. É completamente seguro e muito útil para os desenvolvedores."
-    },
-    "settingsSaved": "Configurações Salvas",
-    "settingsSavedDetail": "As configurações foram salvas com sucesso!",
-    "settingsError": "Houve um erro ao salvar as configurações.",
-    "appearance": {
-        "supportButtonAnimation": "",
-        "supportButtonAnimationDesc": "",
-        "sectionTitle": ""
-    }
+  "title": "Preferências Globais",
+  "description": "Configure definições globais para sua instância do Grimmory, incluindo tratamento de imagens de capa, preferências de pesquisa e limites de envio de arquivos.",
+  "covers": {
+    "sectionTitle": "Imagem de Capa do Livro",
+    "regenerate": "Regenerar Capas",
+    "regenerateBtn": "Regenerar",
+    "regenerateDesc": "Regenera as imagens de capa de todos os livros a partir das capas incorporadas nos arquivos.",
+    "regenerateStarted": "Regeneração de Capas Iniciada",
+    "regenerateStartedDetail": "As capas dos livros estão sendo regeneradas.",
+    "regenerateError": "Falha ao iniciar a regeneração de capas.",
+    "verticalCropping": "Corte Vertical de Capa",
+    "verticalCroppingDesc": "Cortar automaticamente imagens extremamente altas (como web comics) a partir do topo para criar miniaturas de capa utilizáveis.",
+    "horizontalCropping": "Corte Horizontal de Capa",
+    "horizontalCroppingDesc": "Cortar automaticamente imagens extremamente largas a partir da esquerda para criar miniaturas de capa utilizáveis.",
+    "aspectRatio": "Limiar de Proporção: {{value}}",
+    "aspectRatioDesc": "Imagens com proporções que excedem este limiar serão cortadas. Um valor de 2.5 significa que imagens mais de 2.5x mais altas (ou mais largas) que o normal serão cortadas.",
+    "smartCropping": "Corte Inteligente",
+    "smartCroppingDesc": "Ignorar regiões de cor uniforme ao determinar onde cortar. Foca a imagem da capa no conteúdo mais relevante."
+  },
+  "search": {
+    "sectionTitle": "Pesquisa e Recomendações",
+    "autoBookSearch": "Pesquisa Automática de Livro",
+    "autoBookSearchDesc": "Tenta automaticamente a correspondência de metadados quando o painel de informações do livro é aberto.",
+    "similarBook": "Recomendação de Livros Similares",
+    "similarBookDesc": "Ativa ou desativa recomendações de livros similares baseadas na sua biblioteca."
+  },
+  "fileManagement": {
+    "sectionTitle": "Gerenciamento de Arquivos",
+    "maxUploadSize": "Tamanho Máximo de Upload de Arquivo",
+    "maxUploadPlaceholder": "Tamanho máximo",
+    "maxUploadDesc": "Define o tamanho máximo permitido (em MB) para cada arquivo enviado. Aplica-se aos formatos EPUB, PDF, CBZ, CBR e CB7.",
+    "restartWarning": "As alterações terão efeito após reiniciar o servidor",
+    "invalidInput": "Entrada Inválida",
+    "invalidInputDetail": "Digite um tamanho máximo de upload de arquivo válido em MB."
+  },
+  "settingsSaved": "Configurações Salvas",
+  "settingsSavedDetail": "As configurações foram salvas com sucesso!",
+  "settingsError": "Houve um erro ao salvar as configurações."
 }

@@ -1,66 +1,66 @@
 {
-    "main": {
-        "pageTitle": "Översikt",
-        "welcomeTitle": "Välkommen till BookLore!",
-        "welcomeSubtitle": "Låt oss skapa ditt första bibliotek",
-        "welcomeDescription": "Ett bibliotek är där alla dina böcker finns. Börja bygga din digitala samling idag!",
-        "createLibrary": "Skapa ditt bibliotek",
-        "customizeDashboard": "Anpassa översikten"
+  "main": {
+    "pageTitle": "Översikt",
+    "welcomeTitle": "Välkommen till Grimmory!",
+    "welcomeSubtitle": "Låt oss skapa ditt första bibliotek",
+    "welcomeDescription": "Ett bibliotek är där alla dina böcker finns. Börja bygga din digitala samling idag!",
+    "createLibrary": "Skapa ditt bibliotek",
+    "customizeDashboard": "Anpassa översikten"
+  },
+  "scroller": {
+    "noBooksFound": "Inga böcker hittades för denna scroller.",
+    "loadError": "Kunde inte ladda böcker! Försök att uppdatera sidan.",
+    "continueListening": "Fortsätt lyssna",
+    "continueReading": "Fortsätt läsa",
+    "recentlyAdded": "Nyligen tillagda",
+    "discoverNew": "Upptäck något nytt",
+    "magicShelf": "Magisk hylla",
+    "default": "Scroller"
+  },
+  "settings": {
+    "title": "Konfiguration av översikt",
+    "description": "Lägg till upp till 5 scrollers från olika boksamlingar och anpassa deras beteende",
+    "type": "Typ",
+    "selectType": "Välj typ",
+    "magicShelf": "Magisk hylla",
+    "selectMagicShelf": "Välj magisk hylla",
+    "sortField": "Sorteringsfält",
+    "selectField": "Välj fält",
+    "direction": "Riktning",
+    "selectDirection": "Välj riktning",
+    "maxItems": "Max antal",
+    "addScroller": "Lägg till scroller",
+    "resetToDefault": "Återställ till standard",
+    "scrollerTypes": {
+      "lastRead": "Fortsätt läsa",
+      "lastListened": "Fortsätt lyssna",
+      "latestAdded": "Nyligen tillagda",
+      "random": "Upptäck något nytt",
+      "magicShelf": "Magisk hylla",
+      "default": "Scroller"
     },
-    "scroller": {
-        "noBooksFound": "Inga böcker hittades för denna scroller.",
-        "loadError": "Kunde inte ladda böcker! Försök att uppdatera sidan.",
-        "continueListening": "Fortsätt lyssna",
-        "continueReading": "Fortsätt läsa",
-        "recentlyAdded": "Nyligen tillagda",
-        "discoverNew": "Upptäck något nytt",
-        "magicShelf": "Magisk hylla",
-        "default": "Scroller"
+    "sortFields": {
+      "title": "Titel",
+      "fileName": "Filnamn",
+      "filePath": "Filsökväg",
+      "addedOn": "Tillagd datum",
+      "author": "Författare",
+      "authorSurnameVorname": "Författare (efternamn)",
+      "seriesName": "Serienamn",
+      "seriesNumber": "Serienummer",
+      "personalRating": "Personligt betyg",
+      "publisher": "Förlag",
+      "publishedDate": "Utgivningsdatum",
+      "lastReadTime": "Senast läst",
+      "readStatus": "Lässtatus",
+      "dateFinished": "Avslutad datum",
+      "readingProgress": "Läsframsteg",
+      "bookType": "Filformat",
+      "pageCount": "Sidor"
     },
-    "settings": {
-        "title": "Konfiguration av översikt",
-        "description": "Lägg till upp till 5 scrollers från olika boksamlingar och anpassa deras beteende",
-        "type": "Typ",
-        "selectType": "Välj typ",
-        "magicShelf": "Magisk hylla",
-        "selectMagicShelf": "Välj magisk hylla",
-        "sortField": "Sorteringsfält",
-        "selectField": "Välj fält",
-        "direction": "Riktning",
-        "selectDirection": "Välj riktning",
-        "maxItems": "Max antal",
-        "addScroller": "Lägg till scroller",
-        "resetToDefault": "Återställ till standard",
-        "scrollerTypes": {
-            "lastRead": "Fortsätt läsa",
-            "lastListened": "Fortsätt lyssna",
-            "latestAdded": "Nyligen tillagda",
-            "random": "Upptäck något nytt",
-            "magicShelf": "Magisk hylla",
-            "default": "Scroller"
-        },
-        "sortFields": {
-            "title": "Titel",
-            "fileName": "Filnamn",
-            "filePath": "Filsökväg",
-            "addedOn": "Tillagd datum",
-            "author": "Författare",
-            "authorSurnameVorname": "Författare (efternamn)",
-            "seriesName": "Serienamn",
-            "seriesNumber": "Serienummer",
-            "personalRating": "Personligt betyg",
-            "publisher": "Förlag",
-            "publishedDate": "Utgivningsdatum",
-            "lastReadTime": "Senast läst",
-            "readStatus": "Lässtatus",
-            "dateFinished": "Avslutad datum",
-            "readingProgress": "Läsframsteg",
-            "bookType": "Filformat",
-            "pageCount": "Sidor"
-        },
-        "sortDirections": {
-            "asc": "Stigande",
-            "desc": "Fallande"
-        }
+    "sortDirections": {
+      "asc": "Stigande",
+      "desc": "Fallande"
     }
+  }
 }

@@ -1,8 +1,8 @@
 {
-    "offline": "Du är offline",
-    "loading": "Laddar Booklore…",
-    "loadingDescription": "Vänta medan vi gör allt klart.",
-    "offlineLoadingDescription": "BookLore behöver en anslutning till servern för att laddas.",
-    "offlineDescription": "Kontrollera ditt nätverk och försök igen.",
-    "connectionLost": "Din anslutning bröts. Vissa funktioner kanske inte fungerar."
+  "offline": "Du är offline",
+  "loading": "Laddar Grimmory…",
+  "loadingDescription": "Vänta medan vi gör allt klart.",
+  "offlineLoadingDescription": "Grimmory behöver en anslutning till servern för att laddas.",
+  "offlineDescription": "Kontrollera ditt nätverk och försök igen.",
+  "connectionLost": "Din anslutning bröts. Vissa funktioner kanske inte fungerar."
 }

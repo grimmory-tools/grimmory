@@ -1,8 +1,8 @@
 {
-    "offline": "Jesteś offline",
-    "loading": "Ładowanie Booklore…",
-    "loadingDescription": "Proszę czekać, przygotowujemy wszystko.",
-    "offlineLoadingDescription": "BookLore wymaga połączenia z serwerem, aby się załadować.",
-    "offlineDescription": "Sprawdź swoją sieć i spróbuj ponownie.",
-    "connectionLost": "Połączenie zostało utracone. Niektóre funkcje mogą nie działać."
+  "offline": "Jesteś offline",
+  "loading": "Ładowanie Grimmory…",
+  "loadingDescription": "Proszę czekać, przygotowujemy wszystko.",
+  "offlineLoadingDescription": "Grimmory wymaga połączenia z serwerem, aby się załadować.",
+  "offlineDescription": "Sprawdź swoją sieć i spróbuj ponownie.",
+  "connectionLost": "Połączenie zostało utracone. Niektóre funkcje mogą nie działać."
 }

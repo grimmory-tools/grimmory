@@ -1,50 +1,40 @@
 {
-    "title": "Preferenze globali",
-    "description": "Configura le impostazioni globali per la tua istanza di Booklore, inclusa la gestione delle immagini di copertina, le preferenze di ricerca e i limiti di caricamento file.",
-    "covers": {
-        "sectionTitle": "Immagine di copertina",
-        "regenerate": "Rigenera copertine",
-        "regenerateBtn": "Rigenera",
-        "regenerateDesc": "Rigenera le immagini di copertina per tutti i libri dalle copertine incorporate nei file.",
-        "regenerateStarted": "Rigenerazione copertine avviata",
-        "regenerateStartedDetail": "Le copertine dei libri sono in fase di rigenerazione.",
-        "regenerateError": "Impossibile avviare la rigenerazione delle copertine.",
-        "verticalCropping": "Ritaglio verticale copertina",
-        "verticalCroppingDesc": "Ritaglia automaticamente le immagini estremamente alte (come i web comic) dall'alto per creare miniature di copertina utilizzabili.",
-        "horizontalCropping": "Ritaglio orizzontale copertina",
-        "horizontalCroppingDesc": "Ritaglia automaticamente le immagini estremamente larghe da sinistra per creare miniature di copertina utilizzabili.",
-        "aspectRatio": "Soglia rapporto d'aspetto: {{value}}",
-        "aspectRatioDesc": "Le immagini con rapporti d'aspetto superiori a questa soglia verranno ritagliate. Un valore di 2.5 significa che le immagini più di 2.5 volte più alte (o più larghe) del normale verranno ritagliate.",
-        "smartCropping": "Ritaglio intelligente",
-        "smartCroppingDesc": "Ignora le regioni di colore uniforme quando si determina dove ritagliare. Focalizza l'immagine di copertina sul contenuto più rilevante."
-    },
-    "search": {
-        "sectionTitle": "Ricerca e raccomandazioni",
-        "autoBookSearch": "Ricerca automatica libri",
-        "autoBookSearchDesc": "Tenta automaticamente la corrispondenza dei metadati quando viene aperto il pannello informazioni del libro.",
-        "similarBook": "Raccomandazione libri simili",
-        "similarBookDesc": "Abilita o disabilita le raccomandazioni di libri simili basate sulla tua libreria."
-    },
-    "fileManagement": {
-        "sectionTitle": "Gestione file",
-        "maxUploadSize": "Dimensione massima caricamento file",
-        "maxUploadPlaceholder": "Dimensione massima",
-        "maxUploadDesc": "Definisce la dimensione massima consentita (in MB) per ogni file caricato. Si applica ai formati EPUB, PDF, CBZ, CBR e CB7.",
-        "restartWarning": "Le modifiche avranno effetto dopo il riavvio del server",
-        "invalidInput": "Input non valido",
-        "invalidInputDetail": "Inserisci una dimensione massima valida per il caricamento file in MB."
-    },
-    "telemetry": {
-        "sectionTitle": "Telemetria",
-        "enableTelemetry": "Abilita telemetria",
-        "telemetryDesc": "Aiuta a migliorare Booklore condividendo statistiche d'uso anonime. Questi dati permettono agli sviluppatori di vedere quali funzionalità sono più utilizzate, identificare bug e individuare problemi di prestazioni per sapere su cosa lavorare. Nessuna informazione personale, contenuto dei libri o dato identificabile viene mai inviato. I dati vengono inviati automaticamente al server Booklore una volta ogni 24 ore. È completamente sicuro e molto utile per gli sviluppatori."
-    },
-    "settingsSaved": "Impostazioni salvate",
-    "settingsSavedDetail": "Le impostazioni sono state salvate con successo!",
-    "settingsError": "Si è verificato un errore durante il salvataggio delle impostazioni.",
-    "appearance": {
-        "supportButtonAnimation": "",
-        "supportButtonAnimationDesc": "",
-        "sectionTitle": ""
-    }
+  "title": "Preferenze globali",
+  "description": "Configura le impostazioni globali per la tua istanza di Grimmory, inclusa la gestione delle immagini di copertina, le preferenze di ricerca e i limiti di caricamento file.",
+  "covers": {
+    "sectionTitle": "Immagine di copertina",
+    "regenerate": "Rigenera copertine",
+    "regenerateBtn": "Rigenera",
+    "regenerateDesc": "Rigenera le immagini di copertina per tutti i libri dalle copertine incorporate nei file.",
+    "regenerateStarted": "Rigenerazione copertine avviata",
+    "regenerateStartedDetail": "Le copertine dei libri sono in fase di rigenerazione.",
+    "regenerateError": "Impossibile avviare la rigenerazione delle copertine.",
+    "verticalCropping": "Ritaglio verticale copertina",
+    "verticalCroppingDesc": "Ritaglia automaticamente le immagini estremamente alte (come i web comic) dall'alto per creare miniature di copertina utilizzabili.",
+    "horizontalCropping": "Ritaglio orizzontale copertina",
+    "horizontalCroppingDesc": "Ritaglia automaticamente le immagini estremamente larghe da sinistra per creare miniature di copertina utilizzabili.",
+    "aspectRatio": "Soglia rapporto d'aspetto: {{value}}",
+    "aspectRatioDesc": "Le immagini con rapporti d'aspetto superiori a questa soglia verranno ritagliate. Un valore di 2.5 significa che le immagini più di 2.5 volte più alte (o più larghe) del normale verranno ritagliate.",
+    "smartCropping": "Ritaglio intelligente",
+    "smartCroppingDesc": "Ignora le regioni di colore uniforme quando si determina dove ritagliare. Focalizza l'immagine di copertina sul contenuto più rilevante."
+  },
+  "search": {
+    "sectionTitle": "Ricerca e raccomandazioni",
+    "autoBookSearch": "Ricerca automatica libri",
+    "autoBookSearchDesc": "Tenta automaticamente la corrispondenza dei metadati quando viene aperto il pannello informazioni del libro.",
+    "similarBook": "Raccomandazione libri simili",
+    "similarBookDesc": "Abilita o disabilita le raccomandazioni di libri simili basate sulla tua libreria."
+  },
+  "fileManagement": {
+    "sectionTitle": "Gestione file",
+    "maxUploadSize": "Dimensione massima caricamento file",
+    "maxUploadPlaceholder": "Dimensione massima",
+    "maxUploadDesc": "Definisce la dimensione massima consentita (in MB) per ogni file caricato. Si applica ai formati EPUB, PDF, CBZ, CBR e CB7.",
+    "restartWarning": "Le modifiche avranno effetto dopo il riavvio del server",
+    "invalidInput": "Input non valido",
+    "invalidInputDetail": "Inserisci una dimensione massima valida per il caricamento file in MB."
+  },
+  "settingsSaved": "Impostazioni salvate",
+  "settingsSavedDetail": "Le impostazioni sono state salvate con successo!",
+  "settingsError": "Si è verificato un errore durante il salvataggio delle impostazioni."
 }

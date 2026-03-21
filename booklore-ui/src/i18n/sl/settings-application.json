@@ -1,52 +1,42 @@
 {
-    "title": "Splošne nastavitve",
-    "description": "Konfiguriraj splošne nastavitve za svojo instanco Booklore, vključno z upravljanjem naslovnic, nastavitvami iskanja in omejitvami nalaganja datotek.",
-    "covers": {
-        "sectionTitle": "Naslovnica knjige",
-        "regenerate": "Ponovno ustvari naslovnice",
-        "regenerateBtn": "Ponovno ustvari",
-        "regenerateDesc": "Obnovi slike platnic za vse knjige iz vdelanih platnic v datoteki. Uporabi možnost \"Obnovi manjkajoče\", da ustvariš samo platnice za knjige, ki jih še nimajo.",
-        "regenerateStarted": "Ustvarjanje naslovnic se je začelo",
-        "regenerateStartedDetail": "Slike naslovnic se trenutno ponovno ustvarjajo.",
-        "regenerateError": "Ponovnega ustvarjanja naslovnic ni bilo mogoče zagnati.",
-        "verticalCropping": "Navpično obrezovanje naslovnic",
-        "verticalCroppingDesc": "Samodejno obreži izjemno visoke slike (npr. spletni stripi) z vrha, da ustvariš uporabne sličice naslovnic.",
-        "horizontalCropping": "Vodoravno obrezovanje naslovnic",
-        "horizontalCroppingDesc": "Samodejno obreži izjemno široke slike z leve strani, da ustvariš uporabne sličice naslovnic.",
-        "aspectRatio": "Prag razmerja stranic: {{value}}",
-        "aspectRatioDesc": "Slike, ki presegajo to razmerje stranic, bodo obrezane. Vrednost 2.5 pomeni, da bodo obrezane slike, ki so več kot 2,5-krat višje (ali širše) od običajnih.",
-        "smartCropping": "Pametno obrezovanje",
-        "smartCroppingDesc": "Preskoči enobarvne regije pri določanju mesta obreza. Fokusira naslovnico na najbolj relevantno vsebino.",
-        "regenerateAllBtn": "Obnovi vse",
-        "regenerateMissingBtn": "Obnovi manjkajoče"
-    },
-    "search": {
-        "sectionTitle": "Iskanje in priporočila",
-        "autoBookSearch": "Samodejno iskanje knjig",
-        "autoBookSearchDesc": "Samodejno poskusi poiskati ujemajoče se metapodatke, ko odpreš ploščo z informacijami o knjigi.",
-        "similarBook": "Priporočila podobnih knjig",
-        "similarBookDesc": "Omogoči ali onemogoči priporočila podobnih knjig na podlagi tvoje knjižnice."
-    },
-    "fileManagement": {
-        "sectionTitle": "Upravljanje datotek",
-        "maxUploadSize": "Največja velikost naložene datoteke",
-        "maxUploadPlaceholder": "Največja velikost",
-        "maxUploadDesc": "Določa največjo dovoljeno velikost (v MB) za vsako naloženo datoteko. Velja za formate EPUB, PDF, CBZ, CBR in CB7.",
-        "restartWarning": "Spremembe bodo stopile v veljavo po ponovnem zagonu strežnika",
-        "invalidInput": "Neveljaven vnos",
-        "invalidInputDetail": "Prosim, vnesi veljavno največjo velikost datoteke v MB."
-    },
-    "telemetry": {
-        "sectionTitle": "Telemetrija",
-        "enableTelemetry": "Omogoči telemetrijo",
-        "telemetryDesc": "Pomagaj izboljšati Booklore z deljenjem anonimnih statistik uporabe. Ti podatki razvijalcem omogočajo vpogled v to, katere funkcije so najbolj uporabljene, prepoznavanje hroščev in težav z zmogljivostjo. Osebni podatki, vsebina knjig ali kateri koli drugi identifikacijski podatki se nikoli ne pošiljajo. Podatki se samodejno pošljejo na strežnik Booklore enkrat na 24 ur. To je popolnoma varno in zelo v pomoč razvijalcem."
-    },
-    "settingsSaved": "Nastavitve shranjene",
-    "settingsSavedDetail": "Nastavitve so bile uspešno shranjene!",
-    "settingsError": "Pri shranjevanju nastavitev je prišlo do napake.",
-    "appearance": {
-        "supportButtonAnimation": "Animacija gumba za podporo",
-        "supportButtonAnimationDesc": "Prikaži animirani učinek srca na gumbu za podporo v zgornji vrstici. Če to onemogočiš, gumb ostane viden, vendar se animacija odstrani.",
-        "sectionTitle": "Izgled"
-    }
+  "title": "Splošne nastavitve",
+  "description": "Konfiguriraj splošne nastavitve za svojo instanco Grimmory, vključno z upravljanjem naslovnic, nastavitvami iskanja in omejitvami nalaganja datotek.",
+  "covers": {
+    "sectionTitle": "Naslovnica knjige",
+    "regenerate": "Ponovno ustvari naslovnice",
+    "regenerateBtn": "Ponovno ustvari",
+    "regenerateDesc": "Obnovi slike platnic za vse knjige iz vdelanih platnic v datoteki. Uporabi možnost \"Obnovi manjkajoče\", da ustvariš samo platnice za knjige, ki jih še nimajo.",
+    "regenerateStarted": "Ustvarjanje naslovnic se je začelo",
+    "regenerateStartedDetail": "Slike naslovnic se trenutno ponovno ustvarjajo.",
+    "regenerateError": "Ponovnega ustvarjanja naslovnic ni bilo mogoče zagnati.",
+    "verticalCropping": "Navpično obrezovanje naslovnic",
+    "verticalCroppingDesc": "Samodejno obreži izjemno visoke slike (npr. spletni stripi) z vrha, da ustvariš uporabne sličice naslovnic.",
+    "horizontalCropping": "Vodoravno obrezovanje naslovnic",
+    "horizontalCroppingDesc": "Samodejno obreži izjemno široke slike z leve strani, da ustvariš uporabne sličice naslovnic.",
+    "aspectRatio": "Prag razmerja stranic: {{value}}",
+    "aspectRatioDesc": "Slike, ki presegajo to razmerje stranic, bodo obrezane. Vrednost 2.5 pomeni, da bodo obrezane slike, ki so več kot 2,5-krat višje (ali širše) od običajnih.",
+    "smartCropping": "Pametno obrezovanje",
+    "smartCroppingDesc": "Preskoči enobarvne regije pri določanju mesta obreza. Fokusira naslovnico na najbolj relevantno vsebino.",
+    "regenerateAllBtn": "Obnovi vse",
+    "regenerateMissingBtn": "Obnovi manjkajoče"
+  },
+  "search": {
+    "sectionTitle": "Iskanje in priporočila",
+    "autoBookSearch": "Samodejno iskanje knjig",
+    "autoBookSearchDesc": "Samodejno poskusi poiskati ujemajoče se metapodatke, ko odpreš ploščo z informacijami o knjigi.",
+    "similarBook": "Priporočila podobnih knjig",
+    "similarBookDesc": "Omogoči ali onemogoči priporočila podobnih knjig na podlagi tvoje knjižnice."
+  },
+  "fileManagement": {
+    "sectionTitle": "Upravljanje datotek",
+    "maxUploadSize": "Največja velikost naložene datoteke",
+    "maxUploadPlaceholder": "Največja velikost",
+    "maxUploadDesc": "Določa največjo dovoljeno velikost (v MB) za vsako naloženo datoteko. Velja za formate EPUB, PDF, CBZ, CBR in CB7.",
+    "restartWarning": "Spremembe bodo stopile v veljavo po ponovnem zagonu strežnika",
+    "invalidInput": "Neveljaven vnos",
+    "invalidInputDetail": "Prosim, vnesi veljavno največjo velikost datoteke v MB."
+  },
+  "settingsSaved": "Nastavitve shranjene",
+  "settingsSavedDetail": "Nastavitve so bile uspešno shranjene!",
+  "settingsError": "Pri shranjevanju nastavitev je prišlo do napake."
 }

@@ -1,34 +1,34 @@
 {
-    "title": "Korisnički profil",
-    "description": "Upravljajte informacijama o računu i sigurnosnim postavkama",
-    "basicInfo": "Osnovne informacije",
-    "username": "Korisničko ime",
-    "usernamePlaceholder": "Korisničko ime...",
-    "fullName": "Puno ime",
-    "fullNamePlaceholder": "Unesite puno ime...",
-    "email": "E-mail",
-    "emailPlaceholder": "Unesite e-mail...",
-    "editProfile": "Uredi profil",
-    "saveChanges": "Spremi promjene",
-    "security": "Sigurnosne postavke",
-    "currentPassword": "Trenutna lozinka",
-    "newPassword": "Nova lozinka",
-    "confirmNewPassword": "Potvrdi novu lozinku",
-    "changePassword": "Promijeni lozinku",
-    "loading": "Učitavanje korisničkih podataka...",
-    "validation": {
-        "currentPasswordRequired": "Trenutna lozinka je obavezna.",
-        "newPasswordRequired": "Nova lozinka je obavezna.",
-        "passwordMinLength": "Lozinka mora imati najmanje 8 znakova.",
-        "confirmPasswordRequired": "Potvrdite novu lozinku.",
-        "passwordMismatch": "Lozinke se ne podudaraju."
-    },
-    "toast": {
-        "errorNoUser": "Korisnički podaci nisu dostupni.",
-        "noChanges": "Nema otkrivenih promjena.",
-        "profileUpdated": "Profil uspješno ažuriran",
-        "profileUpdateFailed": "Ažuriranje profila nije uspjelo",
-        "passwordChanged": "Lozinka uspješno promijenjena",
-        "passwordChangeFailed": "Promjena lozinke nije uspjela"
-    }
+  "title": "Korisnički profil",
+  "description": "Upravljajte informacijama o računu i sigurnosnim postavkama",
+  "basicInfo": "Osnovne informacije",
+  "username": "Korisničko ime",
+  "usernamePlaceholder": "Korisničko ime...",
+  "fullName": "Puno ime",
+  "fullNamePlaceholder": "Unesite puno ime...",
+  "email": "E-mail",
+  "emailPlaceholder": "Unesite e-mail...",
+  "editProfile": "Uredi profil",
+  "saveChanges": "Spremi promjene",
+  "security": "Sigurnosne postavke",
+  "currentPassword": "Trenutna lozinka",
+  "newPassword": "Nova lozinka",
+  "confirmNewPassword": "Potvrdi novu lozinku",
+  "changePassword": "Promijeni lozinku",
+  "loading": "Učitavanje korisničkih podataka...",
+  "validation": {
+    "currentPasswordRequired": "Trenutna lozinka je obavezna.",
+    "newPasswordRequired": "Nova lozinka je obavezna.",
+    "passwordMinLength": "Lozinka mora imati najmanje 8 znakova.",
+    "confirmPasswordRequired": "Potvrdite novu lozinku.",
+    "passwordMismatch": "Lozinke se ne podudaraju."
+  },
+  "toast": {
+    "errorNoUser": "Korisnički podaci nisu dostupni.",
+    "noChanges": "Nema otkrivenih promjena.",
+    "profileUpdated": "Profil uspješno ažuriran",
+    "profileUpdateFailed": "Ažuriranje profila nije uspjelo",
+    "passwordChanged": "Lozinka uspješno promijenjena",
+    "passwordChangeFailed": "Promjena lozinke nije uspjela"
+  }
 }

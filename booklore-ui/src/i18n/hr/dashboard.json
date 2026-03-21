@@ -1,66 +1,66 @@
 {
-    "main": {
-        "pageTitle": "Nadzorna ploča",
-        "welcomeTitle": "Dobrodošli u BookLore!",
-        "welcomeSubtitle": "Kreirajmo vašu prvu knjižnicu",
-        "welcomeDescription": "Knjižnica je mjesto gdje žive sve vaše knjige. Počnite graditi svoju digitalnu zbirku već danas!",
-        "createLibrary": "Kreirajte svoju knjižnicu",
-        "customizeDashboard": "Prilagodi nadzornu ploču"
+  "main": {
+    "pageTitle": "Nadzorna ploča",
+    "welcomeTitle": "Dobrodošli u Grimmory!",
+    "welcomeSubtitle": "Kreirajmo vašu prvu knjižnicu",
+    "welcomeDescription": "Knjižnica je mjesto gdje žive sve vaše knjige. Počnite graditi svoju digitalnu zbirku već danas!",
+    "createLibrary": "Kreirajte svoju knjižnicu",
+    "customizeDashboard": "Prilagodi nadzornu ploču"
+  },
+  "scroller": {
+    "noBooksFound": "Nema pronađenih knjiga za prikaz.",
+    "loadError": "Učitavanje knjiga nije uspjelo! Pokušajte osvježiti stranicu.",
+    "continueListening": "Nastavi slušanje",
+    "continueReading": "Nastavi čitanje",
+    "recentlyAdded": "Nedavno dodano",
+    "discoverNew": "Otkrijte nešto novo",
+    "magicShelf": "Čarobna polica",
+    "default": "Klizač"
+  },
+  "settings": {
+    "title": "Konfiguracija nadzorne ploče",
+    "description": "Dodajte do 5 klizača iz različitih kolekcija knjiga i prilagodite njihovo ponašanje",
+    "type": "Vrsta",
+    "selectType": "Odaberite vrstu",
+    "magicShelf": "Čarobna polica",
+    "selectMagicShelf": "Odaberite čarobnu policu",
+    "sortField": "Polje sortiranja",
+    "selectField": "Odaberite polje",
+    "direction": "Smjer",
+    "selectDirection": "Odaberite smjer",
+    "maxItems": "Maks. stavki",
+    "addScroller": "Dodaj klizač",
+    "resetToDefault": "Vrati na zadano",
+    "scrollerTypes": {
+      "lastRead": "Nastavi čitanje",
+      "lastListened": "Nastavi slušanje",
+      "latestAdded": "Nedavno dodano",
+      "random": "Otkrijte nešto novo",
+      "magicShelf": "Čarobna polica",
+      "default": "Klizač"
     },
-    "scroller": {
-        "noBooksFound": "Nema pronađenih knjiga za prikaz.",
-        "loadError": "Učitavanje knjiga nije uspjelo! Pokušajte osvježiti stranicu.",
-        "continueListening": "Nastavi slušanje",
-        "continueReading": "Nastavi čitanje",
-        "recentlyAdded": "Nedavno dodano",
-        "discoverNew": "Otkrijte nešto novo",
-        "magicShelf": "Čarobna polica",
-        "default": "Klizač"
+    "sortFields": {
+      "title": "Naslov",
+      "fileName": "Naziv datoteke",
+      "filePath": "Putanja datoteke",
+      "addedOn": "Datum dodavanja",
+      "author": "Autor",
+      "authorSurnameVorname": "Autor (prezime)",
+      "seriesName": "Naziv serijala",
+      "seriesNumber": "Broj u serijalu",
+      "personalRating": "Osobna ocjena",
+      "publisher": "Izdavač",
+      "publishedDate": "Datum izdavanja",
+      "lastReadTime": "Zadnje čitano",
+      "readStatus": "Status čitanja",
+      "dateFinished": "Datum završetka",
+      "readingProgress": "Napredak čitanja",
+      "bookType": "Format datoteke",
+      "pageCount": "Stranice"
     },
-    "settings": {
-        "title": "Konfiguracija nadzorne ploče",
-        "description": "Dodajte do 5 klizača iz različitih kolekcija knjiga i prilagodite njihovo ponašanje",
-        "type": "Vrsta",
-        "selectType": "Odaberite vrstu",
-        "magicShelf": "Čarobna polica",
-        "selectMagicShelf": "Odaberite čarobnu policu",
-        "sortField": "Polje sortiranja",
-        "selectField": "Odaberite polje",
-        "direction": "Smjer",
-        "selectDirection": "Odaberite smjer",
-        "maxItems": "Maks. stavki",
-        "addScroller": "Dodaj klizač",
-        "resetToDefault": "Vrati na zadano",
-        "scrollerTypes": {
-            "lastRead": "Nastavi čitanje",
-            "lastListened": "Nastavi slušanje",
-            "latestAdded": "Nedavno dodano",
-            "random": "Otkrijte nešto novo",
-            "magicShelf": "Čarobna polica",
-            "default": "Klizač"
-        },
-        "sortFields": {
-            "title": "Naslov",
-            "fileName": "Naziv datoteke",
-            "filePath": "Putanja datoteke",
-            "addedOn": "Datum dodavanja",
-            "author": "Autor",
-            "authorSurnameVorname": "Autor (prezime)",
-            "seriesName": "Naziv serijala",
-            "seriesNumber": "Broj u serijalu",
-            "personalRating": "Osobna ocjena",
-            "publisher": "Izdavač",
-            "publishedDate": "Datum izdavanja",
-            "lastReadTime": "Zadnje čitano",
-            "readStatus": "Status čitanja",
-            "dateFinished": "Datum završetka",
-            "readingProgress": "Napredak čitanja",
-            "bookType": "Format datoteke",
-            "pageCount": "Stranice"
-        },
-        "sortDirections": {
-            "asc": "Uzlazno",
-            "desc": "Silazno"
-        }
+    "sortDirections": {
+      "asc": "Uzlazno",
+      "desc": "Silazno"
     }
+  }
 }

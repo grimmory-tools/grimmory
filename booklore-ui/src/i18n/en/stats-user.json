@@ -155,7 +155,7 @@
   "personalRating": {
     "title": "Personal Rating Distribution",
     "tooltip": "Shows how many books you've given each rating from 1 to 10. Helps you see whether you tend to rate generously, harshly, or cluster around a particular score. Only books with a personal rating are included.",
-    "description": "Books by your rating (1\u201310)",
+    "description": "Books by your rating (1–10)",
     "axisPersonalRating": "Personal Rating",
     "axisNumberOfBooks": "Number of Books",
     "booksByPersonalRating": "Books by Personal Rating",

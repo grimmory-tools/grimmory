@@ -1,76 +1,76 @@
 {
-    "title": "認証設定",
-    "description": "Bookloreインスタンスの認証方法を設定します。内部認証は常に有効で、オプションで外部認証プロバイダー用のOIDCを有効にできます。",
-    "methods": {
-        "sectionTitle": "認証方法",
-        "sectionDesc": "ユーザーがサインインに使用できる認証方法を選択します。"
-    },
-    "internal": {
-        "label": "内部認証",
-        "status": "常に有効",
-        "description": "ユーザー名とパスワードによる組み込みの認証。デフォルトの方法であり、無効にすることはできません。"
-    },
-    "oidc": {
-        "label": "OIDC認証",
-        "experimental": "実験的",
-        "description": "外部プロバイダー（Authentik、Keycloakなど）によるシングルサインオン用のOpenID Connect。",
-        "configHint": "有効にするには以下の設定を構成してください。",
-        "enabled": "有効",
-        "disabled": "無効"
-    },
-    "providerConfig": {
-        "sectionTitle": "OIDCプロバイダー設定",
-        "sectionDesc": "OIDCプロバイダーの設定を構成します。OIDC認証を有効にするにはすべてのフィールドが必要です。",
-        "providerName": "プロバイダー名",
-        "providerPlaceholder": "例: Authentik、Keycloak",
-        "clientId": "クライアントID",
-        "clientIdPlaceholder": "OIDCクライアントID",
-        "clientSecret": "",
-        "clientSecretPlaceholder": "",
-        "clientSecretHint": "",
-        "issuerUri": "発行者URI",
-        "issuerPlaceholder": "例: https://auth.example.com/realms/booklore",
-        "scope": "スコープ",
-        "scopeHint": "OIDCログインに必要なスコープ。プロバイダーでサポートされている必要があります。",
-        "claimMappings": "クレームマッピング",
-        "claimDesc": "OIDCトークンのクレームをBookloreユーザーフィールドにマッピングします。プロバイダーのトークンクレームと一致する必要があります。",
-        "usernameClaim": "ユーザー名クレーム",
-        "usernamePlaceholder": "例: preferred_username",
-        "emailClaim": "メールクレーム",
-        "emailPlaceholder": "例: email",
-        "nameClaim": "表示名クレーム",
-        "namePlaceholder": "例: name"
-    },
-    "provisioning": {
-        "sectionTitle": "ユーザープロビジョニング",
-        "sectionDesc": "新しいOIDCユーザーの作成方法と付与される権限を設定します。",
-        "autoLabel": "自動ユーザープロビジョニング",
-        "autoEnabled": "有効",
-        "autoDisabled": "無効",
-        "autoDesc": "有効にすると、初回OIDCログイン時に以下の権限で新しいユーザーが自動的に作成されます。無効の場合、OIDCでログインする前にBookloreでユーザーを手動で作成する必要があります。",
-        "defaultPerms": "デフォルト権限",
-        "readBooks": "本を読む",
-        "defaultLibraryAccess": "デフォルトライブラリアクセス",
-        "selectLibraries": "新しいユーザーがアクセスできるライブラリを選択"
-    },
-    "perms": {
-        "uploadBooks": "本をアップロード",
-        "downloadBooks": "本をダウンロード",
-        "editMetadata": "ブックメタデータを編集",
-        "manageLibrary": "ライブラリを管理",
-        "emailBook": "本をメール送信",
-        "deleteBook": "本を削除",
-        "koreaderSync": "KOReader同期",
-        "koboSync": "Kobo同期",
-        "accessOpds": "OPDSアクセス"
-    },
-    "toast": {
-        "saved": "保存しました",
-        "oidcUpdated": "OIDC設定が更新されました。",
-        "oidcError": "OIDC設定の更新に失敗しました。",
-        "providerSaved": "OIDCプロバイダー設定が保存されました。",
-        "providerError": "OIDCプロバイダー設定の保存に失敗しました。",
-        "provisionSaved": "OIDC自動プロビジョニング設定が保存されました。",
-        "provisionError": "OIDC自動プロビジョニング設定の保存に失敗しました。"
-    }
+  "title": "認証設定",
+  "description": "Grimmoryインスタンスの認証方法を設定します。内部認証は常に有効で、オプションで外部認証プロバイダー用のOIDCを有効にできます。",
+  "methods": {
+    "sectionTitle": "認証方法",
+    "sectionDesc": "ユーザーがサインインに使用できる認証方法を選択します。"
+  },
+  "internal": {
+    "label": "内部認証",
+    "status": "常に有効",
+    "description": "ユーザー名とパスワードによる組み込みの認証。デフォルトの方法であり、無効にすることはできません。"
+  },
+  "oidc": {
+    "label": "OIDC認証",
+    "experimental": "実験的",
+    "description": "外部プロバイダー（Authentik、Keycloakなど）によるシングルサインオン用のOpenID Connect。",
+    "configHint": "有効にするには以下の設定を構成してください。",
+    "enabled": "有効",
+    "disabled": "無効"
+  },
+  "providerConfig": {
+    "sectionTitle": "OIDCプロバイダー設定",
+    "sectionDesc": "OIDCプロバイダーの設定を構成します。OIDC認証を有効にするにはすべてのフィールドが必要です。",
+    "providerName": "プロバイダー名",
+    "providerPlaceholder": "例: Authentik、Keycloak",
+    "clientId": "クライアントID",
+    "clientIdPlaceholder": "OIDCクライアントID",
+    "clientSecret": "",
+    "clientSecretPlaceholder": "",
+    "clientSecretHint": "",
+    "issuerUri": "発行者URI",
+    "issuerPlaceholder": "例: https://auth.example.com/realms/grimmory",
+    "scope": "スコープ",
+    "scopeHint": "OIDCログインに必要なスコープ。プロバイダーでサポートされている必要があります。",
+    "claimMappings": "クレームマッピング",
+    "claimDesc": "OIDCトークンのクレームをGrimmoryユーザーフィールドにマッピングします。プロバイダーのトークンクレームと一致する必要があります。",
+    "usernameClaim": "ユーザー名クレーム",
+    "usernamePlaceholder": "例: preferred_username",
+    "emailClaim": "メールクレーム",
+    "emailPlaceholder": "例: email",
+    "nameClaim": "表示名クレーム",
+    "namePlaceholder": "例: name"
+  },
+  "provisioning": {
+    "sectionTitle": "ユーザープロビジョニング",
+    "sectionDesc": "新しいOIDCユーザーの作成方法と付与される権限を設定します。",
+    "autoLabel": "自動ユーザープロビジョニング",
+    "autoEnabled": "有効",
+    "autoDisabled": "無効",
+    "autoDesc": "有効にすると、初回OIDCログイン時に以下の権限で新しいユーザーが自動的に作成されます。無効の場合、OIDCでログインする前にGrimmoryでユーザーを手動で作成する必要があります。",
+    "defaultPerms": "デフォルト権限",
+    "readBooks": "本を読む",
+    "defaultLibraryAccess": "デフォルトライブラリアクセス",
+    "selectLibraries": "新しいユーザーがアクセスできるライブラリを選択"
+  },
+  "perms": {
+    "uploadBooks": "本をアップロード",
+    "downloadBooks": "本をダウンロード",
+    "editMetadata": "ブックメタデータを編集",
+    "manageLibrary": "ライブラリを管理",
+    "emailBook": "本をメール送信",
+    "deleteBook": "本を削除",
+    "koreaderSync": "KOReader同期",
+    "koboSync": "Kobo同期",
+    "accessOpds": "OPDSアクセス"
+  },
+  "toast": {
+    "saved": "保存しました",
+    "oidcUpdated": "OIDC設定が更新されました。",
+    "oidcError": "OIDC設定の更新に失敗しました。",
+    "providerSaved": "OIDCプロバイダー設定が保存されました。",
+    "providerError": "OIDCプロバイダー設定の保存に失敗しました。",
+    "provisionSaved": "OIDC自動プロビジョニング設定が保存されました。",
+    "provisionError": "OIDC自動プロビジョニング設定の保存に失敗しました。"
+  }
 }

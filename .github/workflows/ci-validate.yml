@@ -10,6 +10,22 @@ on:
       - develop
 
 jobs:
+  upload-event-file:
+    name: Upload Event File
+    if: ${{ github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip ci]') }}
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Upload GitHub Event Payload
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: ci-event-file
+          path: ${{ github.event_path }}
+          retention-days: 7
+
   migration-check:
     name: Flyway Migration Check
     if: ${{ github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip ci]') }}
@@ -29,6 +45,7 @@ jobs:
       checks: write
     with:
       checkout_ref: ${{ github.sha }}
+      publish_test_results: false
 
   packaging-smoke-test:
     name: Packaging Smoke Test

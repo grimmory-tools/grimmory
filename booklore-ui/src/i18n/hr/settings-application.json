@@ -1,52 +1,42 @@
 {
-    "title": "Globalne postavke",
-    "description": "Konfigurirajte globalne postavke za vašu Booklore instancu, uključujući rukovanje naslovnicama, preferencije pretraživanja i ograničenja učitavanja datoteka.",
-    "covers": {
-        "sectionTitle": "Naslovna slika knjige",
-        "regenerate": "Regeneriraj naslovnice",
-        "regenerateBtn": "Regeneriraj",
-        "regenerateDesc": "Obnavlja slike naslovnica za sve knjige iz ugrađenih naslovnica u datoteci. Koristite \"Obnovi nedostajuće\" za generiranje naslovnica samo za knjige koje još nemaju naslovnicu.",
-        "regenerateStarted": "Regeneracija naslovnica pokrenuta",
-        "regenerateStartedDetail": "Naslovnice knjiga se regeneriraju.",
-        "regenerateError": "Pokretanje regeneracije naslovnica nije uspjelo.",
-        "verticalCropping": "Vertikalno izrezivanje naslovnica",
-        "verticalCroppingDesc": "Automatski izrezuje iznimno visoke slike (poput web stripova) od vrha kako bi se stvorile upotrebljive minijature naslovnica.",
-        "horizontalCropping": "Horizontalno izrezivanje naslovnica",
-        "horizontalCroppingDesc": "Automatski izrezuje iznimno široke slike s lijeve strane kako bi se stvorile upotrebljive minijature naslovnica.",
-        "aspectRatio": "Prag omjera slike: {{value}}",
-        "aspectRatioDesc": "Slike s omjerima koji premašuju ovaj prag bit će izrezane. Vrijednost 2,5 znači da će slike koje su više od 2,5x više (ili šire) od normalnog biti izrezane.",
-        "smartCropping": "Pametno izrezivanje",
-        "smartCroppingDesc": "Preskoči jednobojne regije pri određivanju mjesta izrezivanja. Fokusira naslovnicu na najrelevantniji sadržaj.",
-        "regenerateAllBtn": "Obnovi sve",
-        "regenerateMissingBtn": "Obnovi nedostajuće"
-    },
-    "search": {
-        "sectionTitle": "Pretraživanje i preporuke",
-        "autoBookSearch": "Automatsko pretraživanje knjiga",
-        "autoBookSearchDesc": "Automatski pokušava pronaći metapodatke kada se otvori panel informacija o knjizi.",
-        "similarBook": "Preporuka sličnih knjiga",
-        "similarBookDesc": "Omogućuje ili onemogućuje preporuke sličnih knjiga na temelju vaše zbirke."
-    },
-    "fileManagement": {
-        "sectionTitle": "Upravljanje datotekama",
-        "maxUploadSize": "Maks. veličina učitavanja",
-        "maxUploadPlaceholder": "Maks. veličina",
-        "maxUploadDesc": "Definira maksimalnu dopuštenu veličinu (u MB) za svaku prenesenu datoteku. Odnosi se na sve podržane formate datoteka.",
-        "restartWarning": "Promjene će stupiti na snagu nakon ponovnog pokretanja poslužitelja",
-        "invalidInput": "Nevažeći unos",
-        "invalidInputDetail": "Unesite valjanu maksimalnu veličinu učitavanja datoteke u MB."
-    },
-    "telemetry": {
-        "sectionTitle": "Telemetrija",
-        "enableTelemetry": "Omogući telemetriju",
-        "telemetryDesc": "Pomozite poboljšati Booklore dijeljenjem anonimne statistike korištenja. Ovi podaci omogućuju programerima da vide koje se značajke najviše koriste, identificiraju bugove i uoče probleme s performansama kako bi znali na čemu dalje raditi. Nikada se ne šalju osobni podaci, sadržaj knjiga ili bilo koji identifikacijski podaci. Podaci se automatski šalju na Booklore poslužitelj jednom u 24 sata. Potpuno je sigurno i vrlo korisno za programere."
-    },
-    "settingsSaved": "Postavke spremljene",
-    "settingsSavedDetail": "Postavke su uspješno spremljene!",
-    "settingsError": "Došlo je do pogreške prilikom spremanja postavki.",
-    "appearance": {
-        "supportButtonAnimation": "Animacija gumba za podršku",
-        "supportButtonAnimationDesc": "Prikaži animirani efekt srca na gumbu za podršku u gornjoj traci. Isključivanjem ove opcije gumb ostaje vidljiv, ali se animacija uklanja.",
-        "sectionTitle": "Izgled"
-    }
+  "title": "Globalne postavke",
+  "description": "Konfigurirajte globalne postavke za vašu Grimmory instancu, uključujući rukovanje naslovnicama, preferencije pretraživanja i ograničenja učitavanja datoteka.",
+  "covers": {
+    "sectionTitle": "Naslovna slika knjige",
+    "regenerate": "Regeneriraj naslovnice",
+    "regenerateBtn": "Regeneriraj",
+    "regenerateDesc": "Obnavlja slike naslovnica za sve knjige iz ugrađenih naslovnica u datoteci. Koristite \"Obnovi nedostajuće\" za generiranje naslovnica samo za knjige koje još nemaju naslovnicu.",
+    "regenerateStarted": "Regeneracija naslovnica pokrenuta",
+    "regenerateStartedDetail": "Naslovnice knjiga se regeneriraju.",
+    "regenerateError": "Pokretanje regeneracije naslovnica nije uspjelo.",
+    "verticalCropping": "Vertikalno izrezivanje naslovnica",
+    "verticalCroppingDesc": "Automatski izrezuje iznimno visoke slike (poput web stripova) od vrha kako bi se stvorile upotrebljive minijature naslovnica.",
+    "horizontalCropping": "Horizontalno izrezivanje naslovnica",
+    "horizontalCroppingDesc": "Automatski izrezuje iznimno široke slike s lijeve strane kako bi se stvorile upotrebljive minijature naslovnica.",
+    "aspectRatio": "Prag omjera slike: {{value}}",
+    "aspectRatioDesc": "Slike s omjerima koji premašuju ovaj prag bit će izrezane. Vrijednost 2,5 znači da će slike koje su više od 2,5x više (ili šire) od normalnog biti izrezane.",
+    "smartCropping": "Pametno izrezivanje",
+    "smartCroppingDesc": "Preskoči jednobojne regije pri određivanju mjesta izrezivanja. Fokusira naslovnicu na najrelevantniji sadržaj.",
+    "regenerateAllBtn": "Obnovi sve",
+    "regenerateMissingBtn": "Obnovi nedostajuće"
+  },
+  "search": {
+    "sectionTitle": "Pretraživanje i preporuke",
+    "autoBookSearch": "Automatsko pretraživanje knjiga",
+    "autoBookSearchDesc": "Automatski pokušava pronaći metapodatke kada se otvori panel informacija o knjizi.",
+    "similarBook": "Preporuka sličnih knjiga",
+    "similarBookDesc": "Omogućuje ili onemogućuje preporuke sličnih knjiga na temelju vaše zbirke."
+  },
+  "fileManagement": {
+    "sectionTitle": "Upravljanje datotekama",
+    "maxUploadSize": "Maks. veličina učitavanja",
+    "maxUploadPlaceholder": "Maks. veličina",
+    "maxUploadDesc": "Definira maksimalnu dopuštenu veličinu (u MB) za svaku prenesenu datoteku. Odnosi se na sve podržane formate datoteka.",
+    "restartWarning": "Promjene će stupiti na snagu nakon ponovnog pokretanja poslužitelja",
+    "invalidInput": "Nevažeći unos",
+    "invalidInputDetail": "Unesite valjanu maksimalnu veličinu učitavanja datoteke u MB."
+  },
+  "settingsSaved": "Postavke spremljene",
+  "settingsSavedDetail": "Postavke su uspješno spremljene!",
+  "settingsError": "Došlo je do pogreške prilikom spremanja postavki."
 }

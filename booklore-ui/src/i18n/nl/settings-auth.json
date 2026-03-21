@@ -1,76 +1,76 @@
 {
-    "title": "Authenticatie-instellingen",
-    "description": "Configureer authenticatiemethoden voor uw Booklore-instantie. Interne authenticatie is altijd ingeschakeld en u kunt optioneel OIDC inschakelen voor externe authenticatieproviders.",
-    "methods": {
-        "sectionTitle": "Authenticatiemethoden",
-        "sectionDesc": "Kies welke authenticatiemethoden beschikbaar zijn voor gebruikers om in te loggen."
-    },
-    "internal": {
-        "label": "",
-        "status": "",
-        "description": ""
-    },
-    "oidc": {
-        "label": "",
-        "experimental": "",
-        "description": "",
-        "configHint": "",
-        "enabled": "",
-        "disabled": ""
-    },
-    "providerConfig": {
-        "sectionTitle": "",
-        "sectionDesc": "",
-        "providerName": "",
-        "providerPlaceholder": "",
-        "clientId": "",
-        "clientIdPlaceholder": "",
-        "clientSecret": "",
-        "clientSecretPlaceholder": "",
-        "clientSecretHint": "",
-        "issuerUri": "",
-        "issuerPlaceholder": "",
-        "scope": "",
-        "scopeHint": "",
-        "claimMappings": "",
-        "claimDesc": "",
-        "usernameClaim": "",
-        "usernamePlaceholder": "",
-        "emailClaim": "",
-        "emailPlaceholder": "",
-        "nameClaim": "",
-        "namePlaceholder": ""
-    },
-    "provisioning": {
-        "sectionTitle": "",
-        "sectionDesc": "",
-        "autoLabel": "",
-        "autoEnabled": "",
-        "autoDisabled": "",
-        "autoDesc": "",
-        "defaultPerms": "",
-        "readBooks": "",
-        "defaultLibraryAccess": "",
-        "selectLibraries": ""
-    },
-    "perms": {
-        "uploadBooks": "Boeken uploaden",
-        "downloadBooks": "Boeken downloaden",
-        "editMetadata": "",
-        "manageLibrary": "Bibliotheek beheren",
-        "emailBook": "",
-        "deleteBook": "",
-        "koreaderSync": "KOReader-synchronisatie",
-        "koboSync": "Kobo-synchronisatie",
-        "accessOpds": ""
-    },
-    "toast": {
-        "saved": "",
-        "oidcUpdated": "",
-        "oidcError": "",
-        "providerSaved": "",
-        "providerError": "",
-        "provisionSaved": "",
-        "provisionError": ""
-    }
+  "title": "Authenticatie-instellingen",
+  "description": "Configureer authenticatiemethoden voor uw Grimmory-instantie. Interne authenticatie is altijd ingeschakeld en u kunt optioneel OIDC inschakelen voor externe authenticatieproviders.",
+  "methods": {
+    "sectionTitle": "Authenticatiemethoden",
+    "sectionDesc": "Kies welke authenticatiemethoden beschikbaar zijn voor gebruikers om in te loggen."
+  },
+  "internal": {
+    "label": "",
+    "status": "",
+    "description": ""
+  },
+  "oidc": {
+    "label": "",
+    "experimental": "",
+    "description": "",
+    "configHint": "",
+    "enabled": "",
+    "disabled": ""
+  },
+  "providerConfig": {
+    "sectionTitle": "",
+    "sectionDesc": "",
+    "providerName": "",
+    "providerPlaceholder": "",
+    "clientId": "",
+    "clientIdPlaceholder": "",
+    "clientSecret": "",
+    "clientSecretPlaceholder": "",
+    "clientSecretHint": "",
+    "issuerUri": "",
+    "issuerPlaceholder": "",
+    "scope": "",
+    "scopeHint": "",
+    "claimMappings": "",
+    "claimDesc": "",
+    "usernameClaim": "",
+    "usernamePlaceholder": "",
+    "emailClaim": "",
+    "emailPlaceholder": "",
+    "nameClaim": "",
+    "namePlaceholder": ""
+  },
+  "provisioning": {
+    "sectionTitle": "",
+    "sectionDesc": "",
+    "autoLabel": "",
+    "autoEnabled": "",
+    "autoDisabled": "",
+    "autoDesc": "",
+    "defaultPerms": "",
+    "readBooks": "",
+    "defaultLibraryAccess": "",
+    "selectLibraries": ""
+  },
+  "perms": {
+    "uploadBooks": "Boeken uploaden",
+    "downloadBooks": "Boeken downloaden",
+    "editMetadata": "",
+    "manageLibrary": "Bibliotheek beheren",
+    "emailBook": "",
+    "deleteBook": "",
+    "koreaderSync": "KOReader-synchronisatie",
+    "koboSync": "Kobo-synchronisatie",
+    "accessOpds": ""
+  },
+  "toast": {
+    "saved": "",
+    "oidcUpdated": "",
+    "oidcError": "",
+    "providerSaved": "",
+    "providerError": "",
+    "provisionSaved": "",
+    "provisionError": ""
+  }
 }

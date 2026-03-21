@@ -1,52 +1,42 @@
 {
-    "title": "Globale Einstellungen",
-    "description": "Konfigurieren Sie globale Einstellungen für Ihre Booklore-Instanz, einschließlich Coverbild-Verarbeitung, Sucheinstellungen und Dateiupload-Limits.",
-    "covers": {
-        "sectionTitle": "Buchcover-Bild",
-        "regenerate": "Cover neu generieren",
-        "regenerateBtn": "Neu generieren",
-        "regenerateDesc": "Generiert Coverbilder für alle Bücher aus den in der Datei eingebetteten Covern neu. Verwenden Sie „Fehlende neu generieren“, um nur Cover für Bücher zu erstellen, die noch kein Cover haben.",
-        "regenerateStarted": "Cover-Neugenerierung gestartet",
-        "regenerateStartedDetail": "Buchcover werden neu generiert.",
-        "regenerateError": "Cover-Neugenerierung konnte nicht gestartet werden.",
-        "verticalCropping": "Vertikaler Cover-Zuschnitt",
-        "verticalCroppingDesc": "Extrem hohe Bilder (wie Web-Comics) automatisch von oben zuschneiden, um brauchbare Cover-Miniaturansichten zu erstellen.",
-        "horizontalCropping": "Horizontaler Cover-Zuschnitt",
-        "horizontalCroppingDesc": "Extrem breite Bilder automatisch von links zuschneiden, um brauchbare Cover-Miniaturansichten zu erstellen.",
-        "aspectRatio": "Seitenverhältnis-Schwellenwert: {{value}}",
-        "aspectRatioDesc": "Bilder mit Seitenverhältnissen über diesem Schwellenwert werden zugeschnitten. Ein Wert von 2,5 bedeutet, dass Bilder, die mehr als 2,5-mal höher (oder breiter) als normal sind, zugeschnitten werden.",
-        "smartCropping": "Intelligenter Zuschnitt",
-        "smartCroppingDesc": "Gleichmäßige Farbbereiche beim Zuschnitt überspringen. Fokussiert das Coverbild auf den relevantesten Inhalt.",
-        "regenerateAllBtn": "Alle neu generieren",
-        "regenerateMissingBtn": "Fehlende neu generieren"
-    },
-    "search": {
-        "sectionTitle": "Suche & Empfehlungen",
-        "autoBookSearch": "Automatische Buchsuche",
-        "autoBookSearchDesc": "Versucht automatisch Metadaten abzugleichen, wenn das Buchinformationspanel geöffnet wird.",
-        "similarBook": "Buchempfehlungen",
-        "similarBookDesc": "Aktiviert oder deaktiviert Buchempfehlungen basierend auf Ihrer Bibliothek."
-    },
-    "fileManagement": {
-        "sectionTitle": "Dateiverwaltung",
-        "maxUploadSize": "Maximale Dateiupload-Größe",
-        "maxUploadPlaceholder": "Max. Größe",
-        "maxUploadDesc": "Legt die maximal erlaubte Größe (in MB) pro hochgeladener Datei fest. Gilt für alle unterstützten Formate.",
-        "restartWarning": "Änderungen werden nach einem Neustart des Servers wirksam",
-        "invalidInput": "Ungültige Eingabe",
-        "invalidInputDetail": "Bitte geben Sie eine gültige maximale Dateiupload-Größe in MB ein."
-    },
-    "telemetry": {
-        "sectionTitle": "Telemetrie",
-        "enableTelemetry": "Telemetrie aktivieren",
-        "telemetryDesc": "Helfen Sie Booklore zu verbessern, indem Sie anonyme Nutzungsstatistiken teilen. Diese Daten helfen den Entwicklern zu sehen, welche Funktionen am meisten genutzt werden, Fehler zu erkennen und Leistungsprobleme zu identifizieren, damit sie wissen, woran sie als nächstes arbeiten sollten. Es werden niemals persönliche Informationen, Buchinhalte oder andere identifizierbare Daten gesendet. Daten werden automatisch alle 24 Stunden an den Booklore-Server gesendet. Es ist absolut sicher und sehr hilfreich für die Entwickler."
-    },
-    "settingsSaved": "Einstellungen gespeichert",
-    "settingsSavedDetail": "Die Einstellungen wurden erfolgreich gespeichert!",
-    "settingsError": "Beim Speichern der Einstellungen ist ein Fehler aufgetreten.",
-    "appearance": {
-        "supportButtonAnimation": "Animation der Support-Schaltfläche",
-        "supportButtonAnimationDesc": "Zeigt den animierten Herz-Effekt auf der Support-Schaltfläche in der oberen Leiste an. Wenn Sie diese Option deaktivieren, bleibt die Schaltfläche sichtbar, jedoch wird die Animation deaktiviert.",
-        "sectionTitle": "Erscheinungsbild"
-    }
+  "title": "Globale Einstellungen",
+  "description": "Konfigurieren Sie globale Einstellungen für Ihre Grimmory-Instanz, einschließlich Coverbild-Verarbeitung, Sucheinstellungen und Dateiupload-Limits.",
+  "covers": {
+    "sectionTitle": "Buchcover-Bild",
+    "regenerate": "Cover neu generieren",
+    "regenerateBtn": "Neu generieren",
+    "regenerateDesc": "Generiert Coverbilder für alle Bücher aus den in der Datei eingebetteten Covern neu. Verwenden Sie „Fehlende neu generieren“, um nur Cover für Bücher zu erstellen, die noch kein Cover haben.",
+    "regenerateStarted": "Cover-Neugenerierung gestartet",
+    "regenerateStartedDetail": "Buchcover werden neu generiert.",
+    "regenerateError": "Cover-Neugenerierung konnte nicht gestartet werden.",
+    "verticalCropping": "Vertikaler Cover-Zuschnitt",
+    "verticalCroppingDesc": "Extrem hohe Bilder (wie Web-Comics) automatisch von oben zuschneiden, um brauchbare Cover-Miniaturansichten zu erstellen.",
+    "horizontalCropping": "Horizontaler Cover-Zuschnitt",
+    "horizontalCroppingDesc": "Extrem breite Bilder automatisch von links zuschneiden, um brauchbare Cover-Miniaturansichten zu erstellen.",
+    "aspectRatio": "Seitenverhältnis-Schwellenwert: {{value}}",
+    "aspectRatioDesc": "Bilder mit Seitenverhältnissen über diesem Schwellenwert werden zugeschnitten. Ein Wert von 2,5 bedeutet, dass Bilder, die mehr als 2,5-mal höher (oder breiter) als normal sind, zugeschnitten werden.",
+    "smartCropping": "Intelligenter Zuschnitt",
+    "smartCroppingDesc": "Gleichmäßige Farbbereiche beim Zuschnitt überspringen. Fokussiert das Coverbild auf den relevantesten Inhalt.",
+    "regenerateAllBtn": "Alle neu generieren",
+    "regenerateMissingBtn": "Fehlende neu generieren"
+  },
+  "search": {
+    "sectionTitle": "Suche & Empfehlungen",
+    "autoBookSearch": "Automatische Buchsuche",
+    "autoBookSearchDesc": "Versucht automatisch Metadaten abzugleichen, wenn das Buchinformationspanel geöffnet wird.",
+    "similarBook": "Buchempfehlungen",
+    "similarBookDesc": "Aktiviert oder deaktiviert Buchempfehlungen basierend auf Ihrer Bibliothek."
+  },
+  "fileManagement": {
+    "sectionTitle": "Dateiverwaltung",
+    "maxUploadSize": "Maximale Dateiupload-Größe",
+    "maxUploadPlaceholder": "Max. Größe",
+    "maxUploadDesc": "Legt die maximal erlaubte Größe (in MB) pro hochgeladener Datei fest. Gilt für alle unterstützten Formate.",
+    "restartWarning": "Änderungen werden nach einem Neustart des Servers wirksam",
+    "invalidInput": "Ungültige Eingabe",
+    "invalidInputDetail": "Bitte geben Sie eine gültige maximale Dateiupload-Größe in MB ein."
+  },
+  "settingsSaved": "Einstellungen gespeichert",
+  "settingsSavedDetail": "Die Einstellungen wurden erfolgreich gespeichert!",
+  "settingsError": "Beim Speichern der Einstellungen ist ein Fehler aufgetreten."
 }

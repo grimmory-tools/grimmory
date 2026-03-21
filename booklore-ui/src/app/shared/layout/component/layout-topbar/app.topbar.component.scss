@@ -4,24 +4,10 @@
   gap: 0.5rem;
 }
 
-.logo-icon {
-  width: 1.875rem;
-  height: 1.875rem;
-}
-
-.logo-text-wrapper {
-  display: flex;
-  align-items: center;
-  padding-top: 0.5rem;
-
-  p {
-    margin: 0;
-  }
-}
-
-.logo-text-lore {
+.logo-text {
   font-size: 1.875rem;
   line-height: 2.25rem;
+  margin: 0;
 }
 
 .topbar-content {
