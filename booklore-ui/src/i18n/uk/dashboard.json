@@ -1,66 +1,66 @@
 {
-    "main": {
-        "pageTitle": "Панель керування",
-        "welcomeTitle": "Ласкаво просимо до BookLore!",
-        "welcomeSubtitle": "Створіть свою першу бібліотеку",
-        "welcomeDescription": "У бібліотеці зберігаються всі ваші книги. Почніть створювати свою цифрову колекцію вже сьогодні!",
-        "createLibrary": "Створіть свою бібліотеку",
-        "customizeDashboard": "Налаштувати панель керування"
+  "main": {
+    "pageTitle": "Панель керування",
+    "welcomeTitle": "Ласкаво просимо до Grimmory!",
+    "welcomeSubtitle": "Створіть свою першу бібліотеку",
+    "welcomeDescription": "У бібліотеці зберігаються всі ваші книги. Почніть створювати свою цифрову колекцію вже сьогодні!",
+    "createLibrary": "Створіть свою бібліотеку",
+    "customizeDashboard": "Налаштувати панель керування"
+  },
+  "scroller": {
+    "noBooksFound": "Книг не знайдено для цієї панелі.",
+    "loadError": "Не вдалося завантажити книги! Оновіть сторінку.",
+    "continueListening": "Продовжити прослуховування",
+    "continueReading": "Продовжити читання",
+    "recentlyAdded": "Нещодавно додані",
+    "discoverNew": "Відкрийте для себе щось нове",
+    "magicShelf": "Магічна полиця",
+    "default": "Панель"
+  },
+  "settings": {
+    "title": "Налаштування панелі",
+    "description": "Додайте до 5 панелей із різних книжних колекцій та налаштуйте їх",
+    "type": "Тип",
+    "selectType": "Оберіть тип",
+    "magicShelf": "Магічна полиця",
+    "selectMagicShelf": "Оберіть магічну полицю",
+    "sortField": "Сортувати за полем",
+    "selectField": "Оберіть поле",
+    "direction": "Напрямок",
+    "selectDirection": "Порядок",
+    "maxItems": "Макс. кількість",
+    "addScroller": "Додати панель",
+    "resetToDefault": "Відновити стандартні",
+    "scrollerTypes": {
+      "lastRead": "Продовжити читання",
+      "lastListened": "Продовжити прослуховування",
+      "latestAdded": "Нещодавно додані",
+      "random": "Відкрийте для себе щось нове",
+      "magicShelf": "Магічна полиця",
+      "default": "Панель"
     },
-    "scroller": {
-        "noBooksFound": "Книг не знайдено для цієї панелі.",
-        "loadError": "Не вдалося завантажити книги! Оновіть сторінку.",
-        "continueListening": "Продовжити прослуховування",
-        "continueReading": "Продовжити читання",
-        "recentlyAdded": "Нещодавно додані",
-        "discoverNew": "Відкрийте для себе щось нове",
-        "magicShelf": "Магічна полиця",
-        "default": "Панель"
+    "sortFields": {
+      "title": "Назва",
+      "fileName": "Назва файлу",
+      "filePath": "Шлях до файлу",
+      "addedOn": "Дата додавання",
+      "author": "Автор",
+      "authorSurnameVorname": "Автор (Прізвище)",
+      "seriesName": "Назва серії",
+      "seriesNumber": "Номер серії",
+      "personalRating": "Особиста оцінка",
+      "publisher": "Видавництво",
+      "publishedDate": "Дата публікації",
+      "lastReadTime": "Останнє читання",
+      "readStatus": "Статус читання",
+      "dateFinished": "Дата завершення",
+      "readingProgress": "Прогрес читання",
+      "bookType": "Тип книги",
+      "pageCount": "Сторінки"
     },
-    "settings": {
-        "title": "Налаштування панелі",
-        "description": "Додайте до 5 панелей із різних книжних колекцій та налаштуйте їх",
-        "type": "Тип",
-        "selectType": "Оберіть тип",
-        "magicShelf": "Магічна полиця",
-        "selectMagicShelf": "Оберіть магічну полицю",
-        "sortField": "Сортувати за полем",
-        "selectField": "Оберіть поле",
-        "direction": "Напрямок",
-        "selectDirection": "Порядок",
-        "maxItems": "Макс. кількість",
-        "addScroller": "Додати панель",
-        "resetToDefault": "Відновити стандартні",
-        "scrollerTypes": {
-            "lastRead": "Продовжити читання",
-            "lastListened": "Продовжити прослуховування",
-            "latestAdded": "Нещодавно додані",
-            "random": "Відкрийте для себе щось нове",
-            "magicShelf": "Магічна полиця",
-            "default": "Панель"
-        },
-        "sortFields": {
-            "title": "Назва",
-            "fileName": "Назва файлу",
-            "filePath": "Шлях до файлу",
-            "addedOn": "Дата додавання",
-            "author": "Автор",
-            "authorSurnameVorname": "Автор (Прізвище)",
-            "seriesName": "Назва серії",
-            "seriesNumber": "Номер серії",
-            "personalRating": "Особиста оцінка",
-            "publisher": "Видавництво",
-            "publishedDate": "Дата публікації",
-            "lastReadTime": "Останнє читання",
-            "readStatus": "Статус читання",
-            "dateFinished": "Дата завершення",
-            "readingProgress": "Прогрес читання",
-            "bookType": "Тип книги",
-            "pageCount": "Сторінки"
-        },
-        "sortDirections": {
-            "asc": "За зростанням",
-            "desc": "За спаданням"
-        }
+    "sortDirections": {
+      "asc": "За зростанням",
+      "desc": "За спаданням"
     }
+  }
 }

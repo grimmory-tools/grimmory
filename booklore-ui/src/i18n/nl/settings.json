@@ -1,17 +1,17 @@
 {
-    "tabs": {
-        "reader": "Lezer",
-        "view": "Weergave",
-        "metadata1": "Metadata 1",
-        "metadata2": "Metadata 2",
-        "application": "Applicatie",
-        "users": "Gebruikers",
-        "email": "E-mail",
-        "patterns": "Patronen",
-        "authentication": "Authenticatie",
-        "tasks": "Taken",
-        "auditLogs": "",
-        "opds": "OPDS",
-        "devices": "Apparaten"
-    }
+  "tabs": {
+    "reader": "Lezer",
+    "view": "Weergave",
+    "metadata1": "Metadata 1",
+    "metadata2": "Metadata 2",
+    "application": "Applicatie",
+    "users": "Gebruikers",
+    "email": "E-mail",
+    "patterns": "Patronen",
+    "authentication": "Authenticatie",
+    "tasks": "Taken",
+    "auditLogs": "",
+    "opds": "OPDS",
+    "devices": "Apparaten"
+  }
 }

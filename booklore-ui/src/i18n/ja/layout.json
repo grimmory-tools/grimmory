@@ -1,55 +1,55 @@
 {
-    "topbar": {
-        "bookdrop": "ブックドロップ",
-        "createNewLibrary": "新規ライブラリ作成",
-        "uploadBook": "本をアップロード",
-        "charts": "チャート",
-        "metadataManager": "メタデータマネージャー",
-        "settings": "設定",
-        "documentation": "ドキュメント",
-        "profile": "プロフィール",
-        "logout": "ログアウト",
-        "language": "言語",
-        "supportBookLore": "BookLoreを支援",
-        "notificationAriaLabel": "統合通知アイコン",
-        "createLibrary": "ライブラリ作成",
-        "stats": "統計",
-        "libraryStats": "ライブラリ統計",
-        "readingStats": "読書統計"
-    },
-    "menu": {
-        "home": "ホーム",
-        "dashboard": "ダッシュボード",
-        "allBooks": "すべての本",
-        "libraries": "ライブラリ",
-        "shelves": "シェルフ",
-        "magicShelves": "マジックシェルフ",
-        "unshelved": "未分類",
-        "series": "シリーズ",
-        "notebook": "ノートブック",
-        "update": "（アップデート）",
-        "authors": ""
-    },
-    "changelog": {
-        "title": "新着情報",
-        "description": "最新のアップデートと改善",
-        "loading": "変更履歴を読み込み中...",
-        "empty": "利用可能なアップデートはありません。"
-    },
-    "theme": {
-        "primary": "プライマリ",
-        "surface": "サーフェス"
-    },
-    "uploadDialog": {
-        "chooseFile": "ファイルを選択：",
-        "selectImage": "画像を選択",
-        "fileNote": "対応形式: JPEG, PNG • 最大ファイルサイズ: 5 MB",
-        "or": "または",
-        "imageUrl": "画像URL：",
-        "urlPlaceholder": "画像URLを貼り付け",
-        "urlNote": "対応形式: JPEG, PNG • 最大ファイルサイズ: 5 MB",
-        "errorNoInput": "ファイルを選択するか、URLを貼り付けてください。",
-        "errorUploadFailed": "画像のアップロードに失敗しました。",
-        "errorUploadRetry": "アップロードに失敗しました。もう一度お試しください。"
-    }
+  "topbar": {
+    "bookdrop": "ブックドロップ",
+    "createNewLibrary": "新規ライブラリ作成",
+    "uploadBook": "本をアップロード",
+    "charts": "チャート",
+    "metadataManager": "メタデータマネージャー",
+    "settings": "設定",
+    "documentation": "ドキュメント",
+    "profile": "プロフィール",
+    "logout": "ログアウト",
+    "language": "言語",
+    "supportGrimmory": "Grimmoryを支援",
+    "notificationAriaLabel": "統合通知アイコン",
+    "createLibrary": "ライブラリ作成",
+    "stats": "統計",
+    "libraryStats": "ライブラリ統計",
+    "readingStats": "読書統計"
+  },
+  "menu": {
+    "home": "ホーム",
+    "dashboard": "ダッシュボード",
+    "allBooks": "すべての本",
+    "libraries": "ライブラリ",
+    "shelves": "シェルフ",
+    "magicShelves": "マジックシェルフ",
+    "unshelved": "未分類",
+    "series": "シリーズ",
+    "notebook": "ノートブック",
+    "update": "（アップデート）",
+    "authors": ""
+  },
+  "changelog": {
+    "title": "新着情報",
+    "description": "最新のアップデートと改善",
+    "loading": "変更履歴を読み込み中...",
+    "empty": "利用可能なアップデートはありません。"
+  },
+  "theme": {
+    "primary": "プライマリ",
+    "surface": "サーフェス"
+  },
+  "uploadDialog": {
+    "chooseFile": "ファイルを選択：",
+    "selectImage": "画像を選択",
+    "fileNote": "対応形式: JPEG, PNG • 最大ファイルサイズ: 5 MB",
+    "or": "または",
+    "imageUrl": "画像URL：",
+    "urlPlaceholder": "画像URLを貼り付け",
+    "urlNote": "対応形式: JPEG, PNG • 最大ファイルサイズ: 5 MB",
+    "errorNoInput": "ファイルを選択するか、URLを貼り付けてください。",
+    "errorUploadFailed": "画像のアップロードに失敗しました。",
+    "errorUploadRetry": "アップロードに失敗しました。もう一度お試しください。"
+  }
 }

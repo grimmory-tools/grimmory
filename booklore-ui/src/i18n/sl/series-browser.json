@@ -1,25 +1,25 @@
 {
-    "pageTitle": "Zbirke",
-    "browseAllSeries": "Prebrskaj vse zbirke",
-    "searchPlaceholder": "Išči po imenu zbirke ali avtorju...",
-    "readNext": "Naslednje za branje",
-    "booksRead": "prebranih knjig",
-    "noSeriesFound": "Nobena zbirka ne ustreza tvojemu iskanju ali filtrom.",
-    "noSeriesInCategory": "V tej kategoriji ni najdenih zbirk.",
-    "cardSize": "Velikost kartice",
-    "filters": {
-        "all": "Vse",
-        "notStarted": "Še nezačeto",
-        "inProgress": "V teku",
-        "completed": "Prebrano",
-        "abandoned": "Opuščeno"
-    },
-    "sort": {
-        "nameAsc": "Ime (A–Z)",
-        "nameDesc": "Ime (Z–A)",
-        "bookCount": "Število knjig",
-        "progress": "Napredek",
-        "recentlyRead": "Nedavno prebrano",
-        "recentlyAdded": "Nedavno dodano"
-    }
+  "pageTitle": "Zbirke",
+  "browseAllSeries": "Prebrskaj vse zbirke",
+  "searchPlaceholder": "Išči po imenu zbirke ali avtorju...",
+  "readNext": "Naslednje za branje",
+  "booksRead": "prebranih knjig",
+  "noSeriesFound": "Nobena zbirka ne ustreza tvojemu iskanju ali filtrom.",
+  "noSeriesInCategory": "V tej kategoriji ni najdenih zbirk.",
+  "cardSize": "Velikost kartice",
+  "filters": {
+    "all": "Vse",
+    "notStarted": "Še nezačeto",
+    "inProgress": "V teku",
+    "completed": "Prebrano",
+    "abandoned": "Opuščeno"
+  },
+  "sort": {
+    "nameAsc": "Ime (A–Z)",
+    "nameDesc": "Ime (Z–A)",
+    "bookCount": "Število knjig",
+    "progress": "Napredek",
+    "recentlyRead": "Nedavno prebrano",
+    "recentlyAdded": "Nedavno dodano"
+  }
 }

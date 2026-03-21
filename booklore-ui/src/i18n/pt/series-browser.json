@@ -1,25 +1,25 @@
 {
-    "pageTitle": "Séries",
-    "browseAllSeries": "Navegar por Todas as Séries",
-    "searchPlaceholder": "Pesquisar por nome da série ou autor...",
-    "readNext": "Ler Próximo",
-    "booksRead": "livros lidos",
-    "noSeriesFound": "Nenhuma série corresponde à sua pesquisa ou filtros.",
-    "noSeriesInCategory": "Nenhuma série encontrada nesta categoria.",
-    "cardSize": "Tamanho do Cartão",
-    "filters": {
-        "all": "Todas",
-        "notStarted": "Não Iniciadas",
-        "inProgress": "Em Andamento",
-        "completed": "Concluídas",
-        "abandoned": "Abandonadas"
-    },
-    "sort": {
-        "nameAsc": "Nome (A-Z)",
-        "nameDesc": "Nome (Z-A)",
-        "bookCount": "Quantidade de Livros",
-        "progress": "Progresso",
-        "recentlyRead": "Lidos Recentemente",
-        "recentlyAdded": "Adicionados Recentemente"
-    }
+  "pageTitle": "Séries",
+  "browseAllSeries": "Navegar por Todas as Séries",
+  "searchPlaceholder": "Pesquisar por nome da série ou autor...",
+  "readNext": "Ler Próximo",
+  "booksRead": "livros lidos",
+  "noSeriesFound": "Nenhuma série corresponde à sua pesquisa ou filtros.",
+  "noSeriesInCategory": "Nenhuma série encontrada nesta categoria.",
+  "cardSize": "Tamanho do Cartão",
+  "filters": {
+    "all": "Todas",
+    "notStarted": "Não Iniciadas",
+    "inProgress": "Em Andamento",
+    "completed": "Concluídas",
+    "abandoned": "Abandonadas"
+  },
+  "sort": {
+    "nameAsc": "Nome (A-Z)",
+    "nameDesc": "Nome (Z-A)",
+    "bookCount": "Quantidade de Livros",
+    "progress": "Progresso",
+    "recentlyRead": "Lidos Recentemente",
+    "recentlyAdded": "Adicionados Recentemente"
+  }
 }

@@ -1,66 +1,66 @@
 {
-    "main": {
-        "pageTitle": "Painel",
-        "welcomeTitle": "Bem-vindo ao BookLore!",
-        "welcomeSubtitle": "Vamos criar sua primeira biblioteca",
-        "welcomeDescription": "Uma biblioteca é onde todos os seus livros ficam. Comece a construir sua coleção digital hoje!",
-        "createLibrary": "Criar Sua Biblioteca",
-        "customizeDashboard": "Personalizar Painel"
+  "main": {
+    "pageTitle": "Painel",
+    "welcomeTitle": "Bem-vindo ao Grimmory!",
+    "welcomeSubtitle": "Vamos criar sua primeira biblioteca",
+    "welcomeDescription": "Uma biblioteca é onde todos os seus livros ficam. Comece a construir sua coleção digital hoje!",
+    "createLibrary": "Criar Sua Biblioteca",
+    "customizeDashboard": "Personalizar Painel"
+  },
+  "scroller": {
+    "noBooksFound": "Nenhum livro encontrado para este carrossel.",
+    "loadError": "Falha ao carregar livros! Tente atualizar a página.",
+    "continueListening": "Continuar Ouvindo",
+    "continueReading": "Continuar Lendo",
+    "recentlyAdded": "Adicionados Recentemente",
+    "discoverNew": "Descubra Algo Novo",
+    "magicShelf": "Prateleira Mágica",
+    "default": "Carrossel"
+  },
+  "settings": {
+    "title": "Configuração do Painel",
+    "description": "Adicione até 5 carrosséis de diferentes coleções de livros e personalize seu comportamento",
+    "type": "Tipo",
+    "selectType": "Selecionar tipo",
+    "magicShelf": "Prateleira Mágica",
+    "selectMagicShelf": "Selecionar prateleira mágica",
+    "sortField": "Campo de Ordenação",
+    "selectField": "Selecionar campo",
+    "direction": "Direção",
+    "selectDirection": "Selecionar direção",
+    "maxItems": "Máximo de Itens",
+    "addScroller": "Adicionar Carrossel",
+    "resetToDefault": "Redefinir para Padrão",
+    "scrollerTypes": {
+      "lastRead": "Continuar Lendo",
+      "lastListened": "Continuar Ouvindo",
+      "latestAdded": "Adicionados Recentemente",
+      "random": "Descubra Algo Novo",
+      "magicShelf": "Prateleira Mágica",
+      "default": "Carrossel"
     },
-    "scroller": {
-        "noBooksFound": "Nenhum livro encontrado para este carrossel.",
-        "loadError": "Falha ao carregar livros! Tente atualizar a página.",
-        "continueListening": "Continuar Ouvindo",
-        "continueReading": "Continuar Lendo",
-        "recentlyAdded": "Adicionados Recentemente",
-        "discoverNew": "Descubra Algo Novo",
-        "magicShelf": "Prateleira Mágica",
-        "default": "Carrossel"
+    "sortFields": {
+      "title": "Título",
+      "fileName": "Nome do Arquivo",
+      "filePath": "Caminho do Arquivo",
+      "addedOn": "Data de Adição",
+      "author": "Autor",
+      "authorSurnameVorname": "Autor (Sobrenome)",
+      "seriesName": "Nome da Série",
+      "seriesNumber": "Número da Série",
+      "personalRating": "Avaliação Pessoal",
+      "publisher": "Editora",
+      "publishedDate": "Data de Publicação",
+      "lastReadTime": "Última Leitura",
+      "readStatus": "Status de Leitura",
+      "dateFinished": "Data de Conclusão",
+      "readingProgress": "Progresso de Leitura",
+      "bookType": "Tipo de Livro",
+      "pageCount": "Páginas"
     },
-    "settings": {
-        "title": "Configuração do Painel",
-        "description": "Adicione até 5 carrosséis de diferentes coleções de livros e personalize seu comportamento",
-        "type": "Tipo",
-        "selectType": "Selecionar tipo",
-        "magicShelf": "Prateleira Mágica",
-        "selectMagicShelf": "Selecionar prateleira mágica",
-        "sortField": "Campo de Ordenação",
-        "selectField": "Selecionar campo",
-        "direction": "Direção",
-        "selectDirection": "Selecionar direção",
-        "maxItems": "Máximo de Itens",
-        "addScroller": "Adicionar Carrossel",
-        "resetToDefault": "Redefinir para Padrão",
-        "scrollerTypes": {
-            "lastRead": "Continuar Lendo",
-            "lastListened": "Continuar Ouvindo",
-            "latestAdded": "Adicionados Recentemente",
-            "random": "Descubra Algo Novo",
-            "magicShelf": "Prateleira Mágica",
-            "default": "Carrossel"
-        },
-        "sortFields": {
-            "title": "Título",
-            "fileName": "Nome do Arquivo",
-            "filePath": "Caminho do Arquivo",
-            "addedOn": "Data de Adição",
-            "author": "Autor",
-            "authorSurnameVorname": "Autor (Sobrenome)",
-            "seriesName": "Nome da Série",
-            "seriesNumber": "Número da Série",
-            "personalRating": "Avaliação Pessoal",
-            "publisher": "Editora",
-            "publishedDate": "Data de Publicação",
-            "lastReadTime": "Última Leitura",
-            "readStatus": "Status de Leitura",
-            "dateFinished": "Data de Conclusão",
-            "readingProgress": "Progresso de Leitura",
-            "bookType": "Tipo de Livro",
-            "pageCount": "Páginas"
-        },
-        "sortDirections": {
-            "asc": "Ascendente",
-            "desc": "Descendente"
-        }
+    "sortDirections": {
+      "asc": "Ascendente",
+      "desc": "Descendente"
     }
+  }
 }

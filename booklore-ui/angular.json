@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "booklore": {
+    "grimmory": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -24,7 +24,7 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
-            "outputPath": "dist/booklore",
+            "outputPath": "dist/grimmory",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -100,10 +100,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "booklore:build:production"
+              "buildTarget": "grimmory:build:production"
             },
             "development": {
-              "buildTarget": "booklore:build:development"
+              "buildTarget": "grimmory:build:development"
             }
           },
           "defaultConfiguration": "development"

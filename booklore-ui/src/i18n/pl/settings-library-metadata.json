@@ -1,34 +1,34 @@
 {
-    "title": "Konfiguracja metadanych biblioteki",
-    "description": "Skonfiguruj zachowanie pobierania metadanych dla swoich bibliotek. Ustaw globalne wartości domyślne i utwórz nadpisania dla konkretnych bibliotek, aby kontrolować sposób pobierania metadanych książek od różnych dostawców.",
-    "defaultSettings": {
-        "sectionTitle": "Domyślne ustawienia metadanych",
-        "sectionDesc": "Ustaw globalne domyślne priorytety dostawców dla pól metadanych książek. Te ustawienia dotyczą wszystkich bibliotek, chyba że zostaną nadpisane poniżej. BookLore próbuje dostawców od lewej do prawej (1. → 2. → 3. → 4. priorytet) dla każdego pola książki, aż znajdzie dane. System sprawdza najpierw dostawcę o 1. priorytecie, a jeśli ten nie ma konkretnego pola (np. opisu lub autora), automatycznie przechodzi do 2. priorytetu, potem 3. i wreszcie 4. Pozostaw priorytet pusty, aby go pominąć. Na przykład, jeśli Amazon (1.) nie ma opisu, ale Google Books (2.) ma, zostanie użyty opis Google. Użyj przełączników Włącz, aby całkowicie wyłączyć pobieranie konkretnych pól, które zostaną pominięte niezależnie od ustawień dostawcy.",
-        "saveButton": "Zapisz ustawienia domyślne",
-        "saveSuccess": "Domyślne opcje metadanych zostały pomyślnie zapisane.",
-        "saveFailed": "Zapis nie powiódł się",
-        "saveError": "Nie udało się zapisać domyślnych opcji metadanych. Spróbuj ponownie."
-    },
-    "libraryOverrides": {
-        "sectionTitle": "Nadpisania dla konkretnych bibliotek",
-        "sectionDesc": "Nadpisz domyślne ustawienia priorytetów dla konkretnych bibliotek. Na przykład, możesz preferować Amazon dla beletrystyki, ale Google Books dla książek technicznych. Każda biblioteka może mieć własną kolejność priorytetów dostawców, korzystając z domyślnych ustawień dla nieokreślonych pól. Możesz również włączać lub wyłączać konkretne pola metadanych dla biblioteki, co jest przydatne, gdy pewne biblioteki nie potrzebują określonych typów danych, takich jak opisy lub okładki.",
-        "customSettings": "Ustawienia niestandardowe",
-        "defaultSettings": "Ustawienia domyślne",
-        "exportSidecar": "Eksportuj sidecar",
-        "importSidecar": "Importuj sidecar",
-        "exportTooltip": "Generuj pliki .metadata.json dla wszystkich książek w tej bibliotece",
-        "importTooltip": "Importuj metadane z istniejących plików .metadata.json w tej bibliotece",
-        "saveLibraryButton": "Zapisz ustawienia {{name}}",
-        "saveSuccess": "Opcje metadanych biblioteki zostały pomyślnie zapisane.",
-        "saveFailed": "Zapis nie powiódł się",
-        "saveError": "Nie udało się zapisać opcji metadanych biblioteki. Spróbuj ponownie.",
-        "exportSuccess": "Wyeksportowano pliki sidecar dla {{count}} książek.",
-        "exportComplete": "Eksport zakończony",
-        "exportFailed": "Eksport nie powiódł się",
-        "exportError": "Nie udało się wyeksportować plików sidecar. Spróbuj ponownie.",
-        "importSuccess": "Zaimportowano metadane z {{count}} plików sidecar.",
-        "importComplete": "Import zakończony",
-        "importFailed": "Import nie powiódł się",
-        "importError": "Nie udało się zaimportować z plików sidecar. Spróbuj ponownie."
-    }
+  "title": "Konfiguracja metadanych biblioteki",
+  "description": "Skonfiguruj zachowanie pobierania metadanych dla swoich bibliotek. Ustaw globalne wartości domyślne i utwórz nadpisania dla konkretnych bibliotek, aby kontrolować sposób pobierania metadanych książek od różnych dostawców.",
+  "defaultSettings": {
+    "sectionTitle": "Domyślne ustawienia metadanych",
+    "sectionDesc": "Ustaw globalne domyślne priorytety dostawców dla pól metadanych książek. Te ustawienia dotyczą wszystkich bibliotek, chyba że zostaną nadpisane poniżej. Grimmory próbuje dostawców od lewej do prawej (1. → 2. → 3. → 4. priorytet) dla każdego pola książki, aż znajdzie dane. System sprawdza najpierw dostawcę o 1. priorytecie, a jeśli ten nie ma konkretnego pola (np. opisu lub autora), automatycznie przechodzi do 2. priorytetu, potem 3. i wreszcie 4. Pozostaw priorytet pusty, aby go pominąć. Na przykład, jeśli Amazon (1.) nie ma opisu, ale Google Books (2.) ma, zostanie użyty opis Google. Użyj przełączników Włącz, aby całkowicie wyłączyć pobieranie konkretnych pól, które zostaną pominięte niezależnie od ustawień dostawcy.",
+    "saveButton": "Zapisz ustawienia domyślne",
+    "saveSuccess": "Domyślne opcje metadanych zostały pomyślnie zapisane.",
+    "saveFailed": "Zapis nie powiódł się",
+    "saveError": "Nie udało się zapisać domyślnych opcji metadanych. Spróbuj ponownie."
+  },
+  "libraryOverrides": {
+    "sectionTitle": "Nadpisania dla konkretnych bibliotek",
+    "sectionDesc": "Nadpisz domyślne ustawienia priorytetów dla konkretnych bibliotek. Na przykład, możesz preferować Amazon dla beletrystyki, ale Google Books dla książek technicznych. Każda biblioteka może mieć własną kolejność priorytetów dostawców, korzystając z domyślnych ustawień dla nieokreślonych pól. Możesz również włączać lub wyłączać konkretne pola metadanych dla biblioteki, co jest przydatne, gdy pewne biblioteki nie potrzebują określonych typów danych, takich jak opisy lub okładki.",
+    "customSettings": "Ustawienia niestandardowe",
+    "defaultSettings": "Ustawienia domyślne",
+    "exportSidecar": "Eksportuj sidecar",
+    "importSidecar": "Importuj sidecar",
+    "exportTooltip": "Generuj pliki .metadata.json dla wszystkich książek w tej bibliotece",
+    "importTooltip": "Importuj metadane z istniejących plików .metadata.json w tej bibliotece",
+    "saveLibraryButton": "Zapisz ustawienia {{name}}",
+    "saveSuccess": "Opcje metadanych biblioteki zostały pomyślnie zapisane.",
+    "saveFailed": "Zapis nie powiódł się",
+    "saveError": "Nie udało się zapisać opcji metadanych biblioteki. Spróbuj ponownie.",
+    "exportSuccess": "Wyeksportowano pliki sidecar dla {{count}} książek.",
+    "exportComplete": "Eksport zakończony",
+    "exportFailed": "Eksport nie powiódł się",
+    "exportError": "Nie udało się wyeksportować plików sidecar. Spróbuj ponownie.",
+    "importSuccess": "Zaimportowano metadane z {{count}} plików sidecar.",
+    "importComplete": "Import zakończony",
+    "importFailed": "Import nie powiódł się",
+    "importError": "Nie udało się zaimportować z plików sidecar. Spróbuj ponownie."
+  }
 }

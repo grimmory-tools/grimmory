@@ -1,66 +1,66 @@
 {
-    "main": {
-        "pageTitle": "Panel",
-        "welcomeTitle": "Bienvenido a BookLore!",
-        "welcomeSubtitle": "Vamos a crear tu primera biblioteca",
-        "welcomeDescription": "Una biblioteca es donde viven todos tus libros. ¡Comienza a construir tu colección digital hoy!",
-        "createLibrary": "Crear tu biblioteca",
-        "customizeDashboard": "Personalizar panel"
+  "main": {
+    "pageTitle": "Panel",
+    "welcomeTitle": "Bienvenido a Grimmory!",
+    "welcomeSubtitle": "Vamos a crear tu primera biblioteca",
+    "welcomeDescription": "Una biblioteca es donde viven todos tus libros. ¡Comienza a construir tu colección digital hoy!",
+    "createLibrary": "Crear tu biblioteca",
+    "customizeDashboard": "Personalizar panel"
+  },
+  "scroller": {
+    "noBooksFound": "No se encontraron libros para este carrusel.",
+    "loadError": "Error al cargar los libros. Por favor, intenta actualizar la página.",
+    "continueListening": "Seguir escuchando",
+    "continueReading": "Seguir leyendo",
+    "recentlyAdded": "Añadidos recientemente",
+    "discoverNew": "Descubre algo nuevo",
+    "magicShelf": "Estante mágico",
+    "default": "Carrusel"
+  },
+  "settings": {
+    "title": "Configuración del panel",
+    "description": "Añade hasta 5 carruseles de diferentes colecciones de libros y personaliza su comportamiento",
+    "type": "Tipo",
+    "selectType": "Seleccionar tipo",
+    "magicShelf": "Estante mágico",
+    "selectMagicShelf": "Seleccionar estante mágico",
+    "sortField": "Campo de orden",
+    "selectField": "Seleccionar campo",
+    "direction": "Dirección",
+    "selectDirection": "Seleccionar dirección",
+    "maxItems": "Máximo de elementos",
+    "addScroller": "Añadir carrusel",
+    "resetToDefault": "Restablecer valores",
+    "scrollerTypes": {
+      "lastRead": "Seguir leyendo",
+      "lastListened": "Seguir escuchando",
+      "latestAdded": "Añadidos recientemente",
+      "random": "Descubre algo nuevo",
+      "magicShelf": "Estante mágico",
+      "default": "Carrusel"
     },
-    "scroller": {
-        "noBooksFound": "No se encontraron libros para este carrusel.",
-        "loadError": "Error al cargar los libros. Por favor, intenta actualizar la página.",
-        "continueListening": "Seguir escuchando",
-        "continueReading": "Seguir leyendo",
-        "recentlyAdded": "Añadidos recientemente",
-        "discoverNew": "Descubre algo nuevo",
-        "magicShelf": "Estante mágico",
-        "default": "Carrusel"
+    "sortFields": {
+      "title": "Título",
+      "fileName": "Nombre de archivo",
+      "filePath": "Ruta de archivo",
+      "addedOn": "Fecha de adición",
+      "author": "Autor",
+      "authorSurnameVorname": "Autor (Apellido)",
+      "seriesName": "Nombre de serie",
+      "seriesNumber": "Número de serie",
+      "personalRating": "Valoración personal",
+      "publisher": "Editorial",
+      "publishedDate": "Fecha de publicación",
+      "lastReadTime": "Última lectura",
+      "readStatus": "Estado de lectura",
+      "dateFinished": "Fecha de finalización",
+      "readingProgress": "Progreso de lectura",
+      "bookType": "Formato de archivo",
+      "pageCount": "Páginas"
     },
-    "settings": {
-        "title": "Configuración del panel",
-        "description": "Añade hasta 5 carruseles de diferentes colecciones de libros y personaliza su comportamiento",
-        "type": "Tipo",
-        "selectType": "Seleccionar tipo",
-        "magicShelf": "Estante mágico",
-        "selectMagicShelf": "Seleccionar estante mágico",
-        "sortField": "Campo de orden",
-        "selectField": "Seleccionar campo",
-        "direction": "Dirección",
-        "selectDirection": "Seleccionar dirección",
-        "maxItems": "Máximo de elementos",
-        "addScroller": "Añadir carrusel",
-        "resetToDefault": "Restablecer valores",
-        "scrollerTypes": {
-            "lastRead": "Seguir leyendo",
-            "lastListened": "Seguir escuchando",
-            "latestAdded": "Añadidos recientemente",
-            "random": "Descubre algo nuevo",
-            "magicShelf": "Estante mágico",
-            "default": "Carrusel"
-        },
-        "sortFields": {
-            "title": "Título",
-            "fileName": "Nombre de archivo",
-            "filePath": "Ruta de archivo",
-            "addedOn": "Fecha de adición",
-            "author": "Autor",
-            "authorSurnameVorname": "Autor (Apellido)",
-            "seriesName": "Nombre de serie",
-            "seriesNumber": "Número de serie",
-            "personalRating": "Valoración personal",
-            "publisher": "Editorial",
-            "publishedDate": "Fecha de publicación",
-            "lastReadTime": "Última lectura",
-            "readStatus": "Estado de lectura",
-            "dateFinished": "Fecha de finalización",
-            "readingProgress": "Progreso de lectura",
-            "bookType": "Formato de archivo",
-            "pageCount": "Páginas"
-        },
-        "sortDirections": {
-            "asc": "Ascendente",
-            "desc": "Descendente"
-        }
+    "sortDirections": {
+      "asc": "Ascendente",
+      "desc": "Descendente"
     }
+  }
 }

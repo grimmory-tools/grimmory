@@ -30,7 +30,7 @@
 
           @if (userService.userState$ | async; as userState) {
             @if (entityType !== EntityType.ALL_BOOKS && entityType !== EntityType.UNSHELVED &&
-            (userState.user!.permissions.admin || userState.user!.permissions.canManageLibrary)) {
+            (userState.user?.permissions?.admin || userState.user?.permissions?.canManageLibrary)) {
               <div class="entity-menu-wrapper">
                 <p-button
                   icon="pi pi-ellipsis-v"
@@ -363,7 +363,7 @@
                             tooltipPosition="top">
                           </p-button>
                         }
-                        @if (userState.user!.permissions.canBulkLockUnlockMetadata) {
+                        @if (userState.user?.permissions?.canBulkLockUnlockMetadata) {
                           <p-button
                             outlined="true"
                             icon="pi pi-lock"
@@ -373,7 +373,7 @@
                             tooltipPosition="top">
                           </p-button>
                         }
-                        @if (userState.user!.permissions.canMoveOrganizeFiles && (appSettingsService.appSettings$ | async)?.diskType === 'LOCAL') {
+                        @if (userState.user?.permissions?.canMoveOrganizeFiles && (appSettingsService.appSettings$ | async)?.diskType === 'LOCAL') {
                           <p-button
                             outlined="true"
                             icon="pi pi-arrows-h"
@@ -383,7 +383,7 @@
                             tooltipPosition="top">
                           </p-button>
                         }
-                        @if (userState.user!.permissions.canManageLibrary || userState.user!.permissions.admin) {
+                        @if (userState.user?.permissions?.canManageLibrary || userState.user?.permissions?.admin) {
                           <p-button
                             outlined="true"
                             icon="pi pi-link"

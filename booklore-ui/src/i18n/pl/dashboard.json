@@ -1,66 +1,66 @@
 {
-    "main": {
-        "pageTitle": "Panel główny",
-        "welcomeTitle": "Witaj w BookLore!",
-        "welcomeSubtitle": "Utwórzmy Twoją pierwszą bibliotekę",
-        "welcomeDescription": "Biblioteka to miejsce, w którym mieszkają wszystkie Twoje książki. Zacznij budować swoją cyfrową kolekcję już dziś!",
-        "createLibrary": "Utwórz swoją bibliotekę",
-        "customizeDashboard": "Dostosuj panel główny"
+  "main": {
+    "pageTitle": "Panel główny",
+    "welcomeTitle": "Witaj w Grimmory!",
+    "welcomeSubtitle": "Utwórzmy Twoją pierwszą bibliotekę",
+    "welcomeDescription": "Biblioteka to miejsce, w którym mieszkają wszystkie Twoje książki. Zacznij budować swoją cyfrową kolekcję już dziś!",
+    "createLibrary": "Utwórz swoją bibliotekę",
+    "customizeDashboard": "Dostosuj panel główny"
+  },
+  "scroller": {
+    "noBooksFound": "Nie znaleziono książek dla tego przewijaka.",
+    "loadError": "Nie udało się załadować książek! Spróbuj odświeżyć stronę.",
+    "continueListening": "Kontynuuj słuchanie",
+    "continueReading": "Kontynuuj czytanie",
+    "recentlyAdded": "Ostatnio dodane",
+    "discoverNew": "Odkryj coś nowego",
+    "magicShelf": "Inteligentna półka",
+    "default": "Przewijak"
+  },
+  "settings": {
+    "title": "Konfiguracja panelu głównego",
+    "description": "Dodaj do 5 przewijaków z różnych kolekcji książek i dostosuj ich zachowanie",
+    "type": "Typ",
+    "selectType": "Wybierz typ",
+    "magicShelf": "Inteligentna półka",
+    "selectMagicShelf": "Wybierz inteligentną półkę",
+    "sortField": "Pole sortowania",
+    "selectField": "Wybierz pole",
+    "direction": "Kierunek",
+    "selectDirection": "Wybierz kierunek",
+    "maxItems": "Maks. elementów",
+    "addScroller": "Dodaj przewijak",
+    "resetToDefault": "Resetuj do domyślnych",
+    "scrollerTypes": {
+      "lastRead": "Kontynuuj czytanie",
+      "lastListened": "Kontynuuj słuchanie",
+      "latestAdded": "Ostatnio dodane",
+      "random": "Odkryj coś nowego",
+      "magicShelf": "Inteligentna półka",
+      "default": "Przewijak"
     },
-    "scroller": {
-        "noBooksFound": "Nie znaleziono książek dla tego przewijaka.",
-        "loadError": "Nie udało się załadować książek! Spróbuj odświeżyć stronę.",
-        "continueListening": "Kontynuuj słuchanie",
-        "continueReading": "Kontynuuj czytanie",
-        "recentlyAdded": "Ostatnio dodane",
-        "discoverNew": "Odkryj coś nowego",
-        "magicShelf": "Inteligentna półka",
-        "default": "Przewijak"
+    "sortFields": {
+      "title": "Tytuł",
+      "fileName": "Nazwa pliku",
+      "filePath": "Ścieżka pliku",
+      "addedOn": "Data dodania",
+      "author": "Autor",
+      "authorSurnameVorname": "Autor (Nazwisko)",
+      "seriesName": "Nazwa serii",
+      "seriesNumber": "Numer serii",
+      "personalRating": "Ocena osobista",
+      "publisher": "Wydawca",
+      "publishedDate": "Data wydania",
+      "lastReadTime": "Ostatnio czytano",
+      "readStatus": "Status czytania",
+      "dateFinished": "Data ukończenia",
+      "readingProgress": "Postęp czytania",
+      "bookType": "Typ książki",
+      "pageCount": "Strony"
     },
-    "settings": {
-        "title": "Konfiguracja panelu głównego",
-        "description": "Dodaj do 5 przewijaków z różnych kolekcji książek i dostosuj ich zachowanie",
-        "type": "Typ",
-        "selectType": "Wybierz typ",
-        "magicShelf": "Inteligentna półka",
-        "selectMagicShelf": "Wybierz inteligentną półkę",
-        "sortField": "Pole sortowania",
-        "selectField": "Wybierz pole",
-        "direction": "Kierunek",
-        "selectDirection": "Wybierz kierunek",
-        "maxItems": "Maks. elementów",
-        "addScroller": "Dodaj przewijak",
-        "resetToDefault": "Resetuj do domyślnych",
-        "scrollerTypes": {
-            "lastRead": "Kontynuuj czytanie",
-            "lastListened": "Kontynuuj słuchanie",
-            "latestAdded": "Ostatnio dodane",
-            "random": "Odkryj coś nowego",
-            "magicShelf": "Inteligentna półka",
-            "default": "Przewijak"
-        },
-        "sortFields": {
-            "title": "Tytuł",
-            "fileName": "Nazwa pliku",
-            "filePath": "Ścieżka pliku",
-            "addedOn": "Data dodania",
-            "author": "Autor",
-            "authorSurnameVorname": "Autor (Nazwisko)",
-            "seriesName": "Nazwa serii",
-            "seriesNumber": "Numer serii",
-            "personalRating": "Ocena osobista",
-            "publisher": "Wydawca",
-            "publishedDate": "Data wydania",
-            "lastReadTime": "Ostatnio czytano",
-            "readStatus": "Status czytania",
-            "dateFinished": "Data ukończenia",
-            "readingProgress": "Postęp czytania",
-            "bookType": "Typ książki",
-            "pageCount": "Strony"
-        },
-        "sortDirections": {
-            "asc": "Rosnąco",
-            "desc": "Malejąco"
-        }
+    "sortDirections": {
+      "asc": "Rosnąco",
+      "desc": "Malejąco"
     }
+  }
 }

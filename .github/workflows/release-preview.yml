@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       ref:
-        description: 'Ref or commit to preview as the next stable release candidate'
+        description: 'Ref or commit to preview as the next stable release candidate promoted onto main'
         required: false
-        default: main
+        default: develop
         type: string
 
 jobs:
@@ -24,16 +24,33 @@ jobs:
           fetch-depth: 0
           ref: ${{ inputs.ref }}
 
-      - name: Confirm Preview Ref Is Contained By Main
+      - name: Prepare Stable Release Preview
         run: |
+          set -eu
+
           git fetch origin main --tags --force
-          if ! git merge-base --is-ancestor HEAD origin/main; then
-            echo "Selected ref is not contained by origin/main"
+
+          if ! git merge-base --is-ancestor origin/main HEAD; then
+            echo "Selected ref does not contain origin/main and cannot be promoted cleanly to main" >&2
             exit 1
           fi
+
+          echo "Previewing release candidate range origin/main..HEAD"
+          {
+            echo "## Stable Release Preview"
+            echo
+            echo "- Base branch: \`main\`"
+            echo "- Candidate ref: \`$(git rev-parse --short HEAD)\`"
+            echo "- Range: \`origin/main..HEAD\`"
+            echo
+            echo "### Included Commits"
+            git log --reverse --no-merges --pretty='- %h %s' origin/main..HEAD || true
+          } >> "$GITHUB_STEP_SUMMARY"
+
           git checkout -B main "$(git rev-parse HEAD)"
+
       - name: Set Up Node.js
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
         with:
           node-version: '24'
           cache: 'npm'

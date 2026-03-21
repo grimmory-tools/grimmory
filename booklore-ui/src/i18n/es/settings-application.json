@@ -1,51 +1,41 @@
 {
-    "title": "Preferencias globales",
-    "description": "Configura los ajustes globales de tu instancia de Booklore, incluyendo el manejo de imágenes de portada, preferencias de búsqueda y límites de carga de archivos.",
-    "covers": {
-        "sectionTitle": "Imagen de portada del libro",
-        "regenerate": "Regenerar portadas",
-        "regenerateAllBtn": "Regenerar todas",
-        "regenerateMissingBtn": "Regenerar faltantes",
-        "regenerateDesc": "Regenera las imágenes de portada de todos los libros a partir de las portadas incrustadas en el archivo. Usa \"Regenerar faltantes\" para generar portadas solo para libros que aún no tienen una.",
-        "regenerateStarted": "Regeneración de portadas iniciada",
-        "regenerateStartedDetail": "Las portadas de los libros se están regenerando.",
-        "regenerateError": "Error al iniciar la regeneración de portadas.",
-        "verticalCropping": "Recorte vertical de portada",
-        "verticalCroppingDesc": "Recortar automáticamente imágenes extremadamente altas (como webcómics) desde la parte superior para crear miniaturas de portada utilizables.",
-        "horizontalCropping": "Recorte horizontal de portada",
-        "horizontalCroppingDesc": "Recortar automáticamente imágenes extremadamente anchas desde la izquierda para crear miniaturas de portada utilizables.",
-        "aspectRatio": "Umbral de relación de aspecto: {{value}}",
-        "aspectRatioDesc": "Las imágenes con relaciones de aspecto que excedan este umbral serán recortadas. Un valor de 2.5 significa que las imágenes más de 2.5 veces más altas (o anchas) de lo normal serán recortadas.",
-        "smartCropping": "Recorte inteligente",
-        "smartCroppingDesc": "Omitir regiones de color uniforme al determinar dónde recortar. Enfoca la imagen de portada en el contenido más relevante."
-    },
-    "search": {
-        "sectionTitle": "Búsqueda y recomendaciones",
-        "autoBookSearch": "Búsqueda automática de libros",
-        "autoBookSearchDesc": "Intenta automáticamente emparejar metadatos cuando se abre el panel de información del libro.",
-        "similarBook": "Recomendación de libros similares",
-        "similarBookDesc": "Habilita o deshabilita las recomendaciones de libros similares basadas en tu biblioteca."
-    },
-    "fileManagement": {
-        "sectionTitle": "Gestión de archivos",
-        "maxUploadSize": "Tamaño máximo de carga de archivo",
-        "maxUploadPlaceholder": "Tamaño máximo",
-        "maxUploadDesc": "Define el tamaño máximo permitido (en MB) para cada archivo cargado. Se aplica a todos los formatos de archivo compatibles.",
-        "restartWarning": "Los cambios surtirán efecto después de reiniciar el servidor",
-        "invalidInput": "Entrada inválida",
-        "invalidInputDetail": "Introduce un tamaño máximo de carga de archivo válido en MB."
-    },
-    "appearance": {
-        "sectionTitle": "Apariencia",
-        "supportButtonAnimation": "Animación del botón de apoyo",
-        "supportButtonAnimationDesc": "Muestra el efecto animado de corazón en el botón de apoyo en la barra superior. Desactivar esto mantiene el botón visible pero elimina la animación."
-    },
-    "telemetry": {
-        "sectionTitle": "Telemetría",
-        "enableTelemetry": "Habilitar telemetría",
-        "telemetryDesc": "Ayuda a mejorar Booklore compartiendo estadísticas de uso anónimas. Estos datos permiten a los desarrolladores ver qué funciones se usan más, identificar errores y detectar problemas de rendimiento para saber en qué trabajar a continuación. Nunca se envía información personal, contenido de libros ni datos identificables. Los datos se envían al servidor de Booklore automáticamente una vez cada 24 horas. Es completamente seguro y muy útil para los desarrolladores."
-    },
-    "settingsSaved": "Ajustes guardados",
-    "settingsSavedDetail": "¡Los ajustes se guardaron correctamente!",
-    "settingsError": "Hubo un error al guardar los ajustes."
+  "title": "Preferencias globales",
+  "description": "Configura los ajustes globales de tu instancia de Grimmory, incluyendo el manejo de imágenes de portada, preferencias de búsqueda y límites de carga de archivos.",
+  "covers": {
+    "sectionTitle": "Imagen de portada del libro",
+    "regenerate": "Regenerar portadas",
+    "regenerateAllBtn": "Regenerar todas",
+    "regenerateMissingBtn": "Regenerar faltantes",
+    "regenerateDesc": "Regenera las imágenes de portada de todos los libros a partir de las portadas incrustadas en el archivo. Usa \"Regenerar faltantes\" para generar portadas solo para libros que aún no tienen una.",
+    "regenerateStarted": "Regeneración de portadas iniciada",
+    "regenerateStartedDetail": "Las portadas de los libros se están regenerando.",
+    "regenerateError": "Error al iniciar la regeneración de portadas.",
+    "verticalCropping": "Recorte vertical de portada",
+    "verticalCroppingDesc": "Recortar automáticamente imágenes extremadamente altas (como webcómics) desde la parte superior para crear miniaturas de portada utilizables.",
+    "horizontalCropping": "Recorte horizontal de portada",
+    "horizontalCroppingDesc": "Recortar automáticamente imágenes extremadamente anchas desde la izquierda para crear miniaturas de portada utilizables.",
+    "aspectRatio": "Umbral de relación de aspecto: {{value}}",
+    "aspectRatioDesc": "Las imágenes con relaciones de aspecto que excedan este umbral serán recortadas. Un valor de 2.5 significa que las imágenes más de 2.5 veces más altas (o anchas) de lo normal serán recortadas.",
+    "smartCropping": "Recorte inteligente",
+    "smartCroppingDesc": "Omitir regiones de color uniforme al determinar dónde recortar. Enfoca la imagen de portada en el contenido más relevante."
+  },
+  "search": {
+    "sectionTitle": "Búsqueda y recomendaciones",
+    "autoBookSearch": "Búsqueda automática de libros",
+    "autoBookSearchDesc": "Intenta automáticamente emparejar metadatos cuando se abre el panel de información del libro.",
+    "similarBook": "Recomendación de libros similares",
+    "similarBookDesc": "Habilita o deshabilita las recomendaciones de libros similares basadas en tu biblioteca."
+  },
+  "fileManagement": {
+    "sectionTitle": "Gestión de archivos",
+    "maxUploadSize": "Tamaño máximo de carga de archivo",
+    "maxUploadPlaceholder": "Tamaño máximo",
+    "maxUploadDesc": "Define el tamaño máximo permitido (en MB) para cada archivo cargado. Se aplica a todos los formatos de archivo compatibles.",
+    "restartWarning": "Los cambios surtirán efecto después de reiniciar el servidor",
+    "invalidInput": "Entrada inválida",
+    "invalidInputDetail": "Introduce un tamaño máximo de carga de archivo válido en MB."
+  },
+  "settingsSaved": "Ajustes guardados",
+  "settingsSavedDetail": "¡Los ajustes se guardaron correctamente!",
+  "settingsError": "Hubo un error al guardar los ajustes."
 }

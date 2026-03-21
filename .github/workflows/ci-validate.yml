@@ -10,6 +10,22 @@ on:
       - develop
 
 jobs:
+  upload-event-file:
+    name: Upload Event File
+    if: ${{ github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip ci]') }}
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Upload GitHub Event Payload
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: ci-event-file
+          path: ${{ github.event_path }}
+          retention-days: 7
+
   migration-check:
     name: Flyway Migration Check
     if: ${{ github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip ci]') }}
@@ -29,6 +45,7 @@ jobs:
       checks: write
     with:
       checkout_ref: ${{ github.sha }}
+      publish_test_results: false
 
   packaging-smoke-test:
     name: Packaging Smoke Test
@@ -47,10 +64,10 @@ jobs:
         uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
 
       - name: Set Up Docker Buildx
-        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
 
       - name: Build Runtime Image
-        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
         with:
           context: .
           file: Dockerfile
@@ -59,5 +76,4 @@ jobs:
           build-args: |
             APP_VERSION=ci-${{ github.sha }}
             APP_REVISION=${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=image-shared

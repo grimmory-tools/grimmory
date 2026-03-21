@@ -1,17 +1,17 @@
 {
-    "tabs": {
-        "reader": "Читалка",
-        "view": "Вигляд",
-        "metadata1": "Метадані 1",
-        "metadata2": "Метадані 2",
-        "application": "Програма",
-        "users": "Користувачі",
-        "email": "Email",
-        "patterns": "Шаблони",
-        "authentication": "OIDC",
-        "tasks": "Завдання",
-        "auditLogs": "Журнали аудиту",
-        "opds": "OPDS",
-        "devices": "Пристрої"
-    }
+  "tabs": {
+    "reader": "Читалка",
+    "view": "Вигляд",
+    "metadata1": "Метадані 1",
+    "metadata2": "Метадані 2",
+    "application": "Програма",
+    "users": "Користувачі",
+    "email": "Email",
+    "patterns": "Шаблони",
+    "authentication": "OIDC",
+    "tasks": "Завдання",
+    "auditLogs": "Журнали аудиту",
+    "opds": "OPDS",
+    "devices": "Пристрої"
+  }
 }

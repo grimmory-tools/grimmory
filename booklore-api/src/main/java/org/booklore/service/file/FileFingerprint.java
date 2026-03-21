@@ -52,6 +52,10 @@ public class FileFingerprint {
     public static String generateFolderHash(Path folderPath) {
         Path normalizedFolderPath = validateReadableFolderPath(folderPath);
         try {
+            if (!Files.exists(normalizedFolderPath) || !Files.isDirectory(normalizedFolderPath)) {
+                throw new RuntimeException("Folder does not exist: " + normalizedFolderPath);
+            }
+
             List<Path> audioFiles;
             try (var files = Files.list(normalizedFolderPath)) {
                 audioFiles = files

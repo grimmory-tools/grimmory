@@ -1,55 +1,55 @@
 {
-    "topbar": {
-        "bookdrop": "Bookdrop",
-        "createNewLibrary": "Criar Nova Biblioteca",
-        "uploadBook": "Enviar Livro",
-        "charts": "Gráficos",
-        "metadataManager": "Gerenciador de Metadados",
-        "settings": "Configurações",
-        "documentation": "Documentação",
-        "profile": "Perfil",
-        "logout": "Sair",
-        "language": "Idioma",
-        "supportBookLore": "Apoiar o BookLore",
-        "notificationAriaLabel": "Ícone de Notificação Unificada",
-        "createLibrary": "Criar Biblioteca",
-        "stats": "Estatísticas",
-        "libraryStats": "Estatísticas da Biblioteca",
-        "readingStats": "Estatísticas de Leitura"
-    },
-    "menu": {
-        "home": "Início",
-        "dashboard": "Painel",
-        "allBooks": "Todos os Livros",
-        "libraries": "Bibliotecas",
-        "shelves": "Prateleiras",
-        "magicShelves": "Prateleiras Mágicas",
-        "unshelved": "Sem Prateleira",
-        "series": "Séries",
-        "notebook": "Caderno",
-        "update": "(Atualizar)",
-        "authors": ""
-    },
-    "changelog": {
-        "title": "Novidades",
-        "description": "Últimas atualizações e melhorias",
-        "loading": "Carregando novidades...",
-        "empty": "Nenhuma atualização disponível."
-    },
-    "theme": {
-        "primary": "Primário",
-        "surface": "Superfície"
-    },
-    "uploadDialog": {
-        "chooseFile": "Escolher Arquivo:",
-        "selectImage": "Selecionar Imagem",
-        "fileNote": "Formatos suportados: JPEG, PNG • Tamanho máximo: 5 MB",
-        "or": "OU",
-        "imageUrl": "URL da Imagem:",
-        "urlPlaceholder": "Cole a URL da imagem aqui",
-        "urlNote": "Formatos suportados: JPEG, PNG • Tamanho máximo: 5 MB",
-        "errorNoInput": "Selecione um arquivo ou cole uma URL.",
-        "errorUploadFailed": "Falha ao enviar a imagem.",
-        "errorUploadRetry": "Envio falhou. Tente novamente."
-    }
+  "topbar": {
+    "bookdrop": "Bookdrop",
+    "createNewLibrary": "Criar Nova Biblioteca",
+    "uploadBook": "Enviar Livro",
+    "charts": "Gráficos",
+    "metadataManager": "Gerenciador de Metadados",
+    "settings": "Configurações",
+    "documentation": "Documentação",
+    "profile": "Perfil",
+    "logout": "Sair",
+    "language": "Idioma",
+    "supportGrimmory": "Apoiar o Grimmory",
+    "notificationAriaLabel": "Ícone de Notificação Unificada",
+    "createLibrary": "Criar Biblioteca",
+    "stats": "Estatísticas",
+    "libraryStats": "Estatísticas da Biblioteca",
+    "readingStats": "Estatísticas de Leitura"
+  },
+  "menu": {
+    "home": "Início",
+    "dashboard": "Painel",
+    "allBooks": "Todos os Livros",
+    "libraries": "Bibliotecas",
+    "shelves": "Prateleiras",
+    "magicShelves": "Prateleiras Mágicas",
+    "unshelved": "Sem Prateleira",
+    "series": "Séries",
+    "notebook": "Caderno",
+    "update": "(Atualizar)",
+    "authors": ""
+  },
+  "changelog": {
+    "title": "Novidades",
+    "description": "Últimas atualizações e melhorias",
+    "loading": "Carregando novidades...",
+    "empty": "Nenhuma atualização disponível."
+  },
+  "theme": {
+    "primary": "Primário",
+    "surface": "Superfície"
+  },
+  "uploadDialog": {
+    "chooseFile": "Escolher Arquivo:",
+    "selectImage": "Selecionar Imagem",
+    "fileNote": "Formatos suportados: JPEG, PNG • Tamanho máximo: 5 MB",
+    "or": "OU",
+    "imageUrl": "URL da Imagem:",
+    "urlPlaceholder": "Cole a URL da imagem aqui",
+    "urlNote": "Formatos suportados: JPEG, PNG • Tamanho máximo: 5 MB",
+    "errorNoInput": "Selecione um arquivo ou cole uma URL.",
+    "errorUploadFailed": "Falha ao enviar a imagem.",
+    "errorUploadRetry": "Envio falhou. Tente novamente."
+  }
 }

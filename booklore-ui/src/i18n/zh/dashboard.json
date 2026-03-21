@@ -1,66 +1,66 @@
 {
-    "main": {
-        "pageTitle": "仪表板",
-        "welcomeTitle": "欢迎来到 BookLore！",
-        "welcomeSubtitle": "让我们创建您的第一个书库",
-        "welcomeDescription": "书库是存放所有书籍的地方。今天就开始构建您的数字藏书吧！",
-        "createLibrary": "创建您的书库",
-        "customizeDashboard": "自定义仪表板"
+  "main": {
+    "pageTitle": "仪表板",
+    "welcomeTitle": "欢迎来到 Grimmory！",
+    "welcomeSubtitle": "让我们创建您的第一个书库",
+    "welcomeDescription": "书库是存放所有书籍的地方。今天就开始构建您的数字藏书吧！",
+    "createLibrary": "创建您的书库",
+    "customizeDashboard": "自定义仪表板"
+  },
+  "scroller": {
+    "noBooksFound": "此滚动条中未找到书籍。",
+    "loadError": "加载书籍失败！请尝试刷新页面。",
+    "continueListening": "继续收听",
+    "continueReading": "继续阅读",
+    "recentlyAdded": "最近添加",
+    "discoverNew": "发现新书",
+    "magicShelf": "智能书架",
+    "default": "滚动条"
+  },
+  "settings": {
+    "title": "仪表板配置",
+    "description": "从不同的书籍集合中添加最多 5 个滚动条，并自定义其行为",
+    "type": "类型",
+    "selectType": "选择类型",
+    "magicShelf": "智能书架",
+    "selectMagicShelf": "选择智能书架",
+    "sortField": "排序字段",
+    "selectField": "选择字段",
+    "direction": "方向",
+    "selectDirection": "选择方向",
+    "maxItems": "最大数量",
+    "addScroller": "添加滚动条",
+    "resetToDefault": "重置为默认",
+    "scrollerTypes": {
+      "lastRead": "继续阅读",
+      "lastListened": "继续收听",
+      "latestAdded": "最近添加",
+      "random": "发现新书",
+      "magicShelf": "智能书架",
+      "default": "滚动条"
     },
-    "scroller": {
-        "noBooksFound": "此滚动条中未找到书籍。",
-        "loadError": "加载书籍失败！请尝试刷新页面。",
-        "continueListening": "继续收听",
-        "continueReading": "继续阅读",
-        "recentlyAdded": "最近添加",
-        "discoverNew": "发现新书",
-        "magicShelf": "智能书架",
-        "default": "滚动条"
+    "sortFields": {
+      "title": "标题",
+      "fileName": "文件名",
+      "filePath": "文件路径",
+      "addedOn": "添加日期",
+      "author": "作者",
+      "authorSurnameVorname": "作者（姓氏）",
+      "seriesName": "系列名称",
+      "seriesNumber": "系列编号",
+      "personalRating": "个人评分",
+      "publisher": "出版社",
+      "publishedDate": "出版日期",
+      "lastReadTime": "上次阅读",
+      "readStatus": "阅读状态",
+      "dateFinished": "完成日期",
+      "readingProgress": "阅读进度",
+      "bookType": "书籍类型",
+      "pageCount": "页数"
     },
-    "settings": {
-        "title": "仪表板配置",
-        "description": "从不同的书籍集合中添加最多 5 个滚动条，并自定义其行为",
-        "type": "类型",
-        "selectType": "选择类型",
-        "magicShelf": "智能书架",
-        "selectMagicShelf": "选择智能书架",
-        "sortField": "排序字段",
-        "selectField": "选择字段",
-        "direction": "方向",
-        "selectDirection": "选择方向",
-        "maxItems": "最大数量",
-        "addScroller": "添加滚动条",
-        "resetToDefault": "重置为默认",
-        "scrollerTypes": {
-            "lastRead": "继续阅读",
-            "lastListened": "继续收听",
-            "latestAdded": "最近添加",
-            "random": "发现新书",
-            "magicShelf": "智能书架",
-            "default": "滚动条"
-        },
-        "sortFields": {
-            "title": "标题",
-            "fileName": "文件名",
-            "filePath": "文件路径",
-            "addedOn": "添加日期",
-            "author": "作者",
-            "authorSurnameVorname": "作者（姓氏）",
-            "seriesName": "系列名称",
-            "seriesNumber": "系列编号",
-            "personalRating": "个人评分",
-            "publisher": "出版社",
-            "publishedDate": "出版日期",
-            "lastReadTime": "上次阅读",
-            "readStatus": "阅读状态",
-            "dateFinished": "完成日期",
-            "readingProgress": "阅读进度",
-            "bookType": "书籍类型",
-            "pageCount": "页数"
-        },
-        "sortDirections": {
-            "asc": "升序",
-            "desc": "降序"
-        }
+    "sortDirections": {
+      "asc": "升序",
+      "desc": "降序"
     }
+  }
 }

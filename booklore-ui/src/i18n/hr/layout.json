@@ -1,55 +1,55 @@
 {
-    "topbar": {
-        "bookdrop": "Bookdrop",
-        "createNewLibrary": "Kreiraj novu knjižnicu",
-        "uploadBook": "Učitaj knjigu",
-        "charts": "Grafikoni",
-        "metadataManager": "Upravitelj metapodacima",
-        "settings": "Postavke",
-        "documentation": "Dokumentacija",
-        "profile": "Profil",
-        "logout": "Odjava",
-        "language": "Jezik",
-        "supportBookLore": "Podržite BookLore",
-        "notificationAriaLabel": "Ikona obavijesti",
-        "createLibrary": "Kreiraj knjižnicu",
-        "stats": "Statistika",
-        "libraryStats": "Knjižnična statistika",
-        "readingStats": "Statistika čitanja"
-    },
-    "menu": {
-        "home": "Početna",
-        "dashboard": "Nadzorna ploča",
-        "allBooks": "Sve knjige",
-        "libraries": "Zbirke",
-        "shelves": "Police",
-        "magicShelves": "Čarobne police",
-        "unshelved": "Bez police",
-        "series": "Serijali",
-        "notebook": "Bilježnica",
-        "update": "(Ažuriraj)",
-        "authors": "Autori"
-    },
-    "changelog": {
-        "title": "Što je novo",
-        "description": "Najnovija ažuriranja i poboljšanja",
-        "loading": "Učitavanje popisa promjena...",
-        "empty": "Nema dostupnih ažuriranja."
-    },
-    "theme": {
-        "primary": "Primarna",
-        "surface": "Površina"
-    },
-    "uploadDialog": {
-        "chooseFile": "Odaberite datoteku:",
-        "selectImage": "Odaberite sliku",
-        "fileNote": "Podržani formati: JPEG, PNG • Maksimalna veličina datoteke: 5 MB",
-        "or": "ILI",
-        "imageUrl": "URL slike:",
-        "urlPlaceholder": "Zalijepite URL slike ovdje",
-        "urlNote": "Podržani formati: JPEG, PNG • Maksimalna veličina datoteke: 5 MB",
-        "errorNoInput": "Odaberite datoteku ili zalijepite URL.",
-        "errorUploadFailed": "Učitavanje slike nije uspjelo.",
-        "errorUploadRetry": "Učitavanje nije uspjelo. Pokušajte ponovo."
-    }
+  "topbar": {
+    "bookdrop": "Bookdrop",
+    "createNewLibrary": "Kreiraj novu knjižnicu",
+    "uploadBook": "Učitaj knjigu",
+    "charts": "Grafikoni",
+    "metadataManager": "Upravitelj metapodacima",
+    "settings": "Postavke",
+    "documentation": "Dokumentacija",
+    "profile": "Profil",
+    "logout": "Odjava",
+    "language": "Jezik",
+    "supportGrimmory": "Podržite Grimmory",
+    "notificationAriaLabel": "Ikona obavijesti",
+    "createLibrary": "Kreiraj knjižnicu",
+    "stats": "Statistika",
+    "libraryStats": "Knjižnična statistika",
+    "readingStats": "Statistika čitanja"
+  },
+  "menu": {
+    "home": "Početna",
+    "dashboard": "Nadzorna ploča",
+    "allBooks": "Sve knjige",
+    "libraries": "Zbirke",
+    "shelves": "Police",
+    "magicShelves": "Čarobne police",
+    "unshelved": "Bez police",
+    "series": "Serijali",
+    "notebook": "Bilježnica",
+    "update": "(Ažuriraj)",
+    "authors": "Autori"
+  },
+  "changelog": {
+    "title": "Što je novo",
+    "description": "Najnovija ažuriranja i poboljšanja",
+    "loading": "Učitavanje popisa promjena...",
+    "empty": "Nema dostupnih ažuriranja."
+  },
+  "theme": {
+    "primary": "Primarna",
+    "surface": "Površina"
+  },
+  "uploadDialog": {
+    "chooseFile": "Odaberite datoteku:",
+    "selectImage": "Odaberite sliku",
+    "fileNote": "Podržani formati: JPEG, PNG • Maksimalna veličina datoteke: 5 MB",
+    "or": "ILI",
+    "imageUrl": "URL slike:",
+    "urlPlaceholder": "Zalijepite URL slike ovdje",
+    "urlNote": "Podržani formati: JPEG, PNG • Maksimalna veličina datoteke: 5 MB",
+    "errorNoInput": "Odaberite datoteku ili zalijepite URL.",
+    "errorUploadFailed": "Učitavanje slike nije uspjelo.",
+    "errorUploadRetry": "Učitavanje nije uspjelo. Pokušajte ponovo."
+  }
 }

@@ -1,8 +1,8 @@
 {
-    "offline": "",
-    "loading": "",
-    "loadingDescription": "",
-    "offlineLoadingDescription": "",
-    "offlineDescription": "",
-    "connectionLost": ""
+  "offline": "",
+  "loading": "",
+  "loadingDescription": "",
+  "offlineLoadingDescription": "",
+  "offlineDescription": "",
+  "connectionLost": ""
 }
