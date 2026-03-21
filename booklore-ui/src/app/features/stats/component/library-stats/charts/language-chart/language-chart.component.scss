@@ -2,6 +2,7 @@
 
 .language-chart-container {
   width: 100%;
+  overflow-x: auto;
 }
 
 .language-title-icon {
@@ -13,6 +14,7 @@
   position: relative;
   height: 220px;
   width: 100%;
+  min-width: min(500px, 300%);
 }
 
 @media (max-width: 768px) {

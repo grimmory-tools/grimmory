@@ -1,7 +1,7 @@
 import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
-import {BehaviorSubject, EMPTY, Observable, Subject} from 'rxjs';
+import {BehaviorSubject, combineLatest, EMPTY, Observable, Subject} from 'rxjs';
 import {catchError, filter, first, switchMap, takeUntil} from 'rxjs/operators';
 import {ChartConfiguration, ChartData} from 'chart.js';
 import {LibraryFilterService} from '../../service/library-filter.service';
@@ -37,97 +37,6 @@ const LANGUAGE_COLORS = [
   '#84CC16', // Lime
   '#A855F7'  // Purple-500
 ] as const;
-
-// Common language code to display name mapping
-const LANGUAGE_NAMES: Record<string, string> = {
-  'en': 'English',
-  'eng': 'English',
-  'english': 'English',
-  'es': 'Spanish',
-  'spa': 'Spanish',
-  'spanish': 'Spanish',
-  'fr': 'French',
-  'fra': 'French',
-  'french': 'French',
-  'de': 'German',
-  'deu': 'German',
-  'german': 'German',
-  'it': 'Italian',
-  'ita': 'Italian',
-  'italian': 'Italian',
-  'pt': 'Portuguese',
-  'por': 'Portuguese',
-  'portuguese': 'Portuguese',
-  'ru': 'Russian',
-  'rus': 'Russian',
-  'russian': 'Russian',
-  'zh': 'Chinese',
-  'zho': 'Chinese',
-  'chinese': 'Chinese',
-  'ja': 'Japanese',
-  'jpn': 'Japanese',
-  'japanese': 'Japanese',
-  'ko': 'Korean',
-  'kor': 'Korean',
-  'korean': 'Korean',
-  'pl': 'Polish',
-  'pol': 'Polish',
-  'polish': 'Polish',
-  'nl': 'Dutch',
-  'nld': 'Dutch',
-  'dutch': 'Dutch',
-  'sv': 'Swedish',
-  'swe': 'Swedish',
-  'swedish': 'Swedish',
-  'ar': 'Arabic',
-  'ara': 'Arabic',
-  'arabic': 'Arabic',
-  'hi': 'Hindi',
-  'hin': 'Hindi',
-  'hindi': 'Hindi',
-  'tr': 'Turkish',
-  'tur': 'Turkish',
-  'turkish': 'Turkish',
-  'cs': 'Czech',
-  'ces': 'Czech',
-  'czech': 'Czech',
-  'da': 'Danish',
-  'dan': 'Danish',
-  'danish': 'Danish',
-  'fi': 'Finnish',
-  'fin': 'Finnish',
-  'finnish': 'Finnish',
-  'no': 'Norwegian',
-  'nor': 'Norwegian',
-  'norwegian': 'Norwegian',
-  'uk': 'Ukrainian',
-  'ukr': 'Ukrainian',
-  'ukrainian': 'Ukrainian',
-  'he': 'Hebrew',
-  'heb': 'Hebrew',
-  'hebrew': 'Hebrew',
-  'el': 'Greek',
-  'ell': 'Greek',
-  'greek': 'Greek',
-  'hu': 'Hungarian',
-  'hun': 'Hungarian',
-  'hungarian': 'Hungarian',
-  'ro': 'Romanian',
-  'ron': 'Romanian',
-  'romanian': 'Romanian',
-  'th': 'Thai',
-  'tha': 'Thai',
-  'thai': 'Thai',
-  'vi': 'Vietnamese',
-  'vie': 'Vietnamese',
-  'vietnamese': 'Vietnamese',
-  'id': 'Indonesian',
-  'ind': 'Indonesian',
-  'indonesian': 'Indonesian',
-  'ms': 'Malay',
-  'msa': 'Malay',
-  'malay': 'Malay'
-};
 
 @Component({
   selector: 'app-language-chart',
@@ -206,8 +115,10 @@ export class LanguageChartComponent implements OnInit, OnDestroy {
       .pipe(
         filter(state => state.loaded),
         first(),
-        switchMap(() =>
-          this.libraryFilterService.selectedLibrary$.pipe(
+        switchMap(() => combineLatest([
+          this.libraryFilterService.selectedLibrary$,
+          this.t.langChanges$
+        ]).pipe(
             takeUntil(this.destroy$)
           )
         ),
@@ -277,9 +188,7 @@ export class LanguageChartComponent implements OnInit, OnDestroy {
     books.forEach(book => {
       const language = book.metadata?.language?.trim().toLowerCase();
       if (language) {
-        // Normalize the language to a display name
-        const normalizedKey = this.normalizeLanguage(language);
-        languageCounts.set(normalizedKey, (languageCounts.get(normalizedKey) || 0) + 1);
+        languageCounts.set(language, (languageCounts.get(language) || 0) + 1);
       }
     });
 
@@ -296,22 +205,17 @@ export class LanguageChartComponent implements OnInit, OnDestroy {
       .slice(0, 15); // Show top 15 languages
   }
 
-  private normalizeLanguage(language: string): string {
-    const lower = language.toLowerCase().trim();
-    // Check if it maps to a known language
-    if (LANGUAGE_NAMES[lower]) {
-      return lower;
-    }
-    return lower;
-  }
-
   private getDisplayName(language: string): string {
-    const lower = language.toLowerCase();
-    if (LANGUAGE_NAMES[lower]) {
-      return LANGUAGE_NAMES[lower];
+    try {
+      const displayNames = new Intl.DisplayNames(
+        [this.t.getActiveLang()], 
+        { type: 'language' }
+      );
+      const name = displayNames.of(language) ?? language;
+      return name.charAt(0).toUpperCase() + name.slice(1);
+    } catch {
+      return language.charAt(0).toUpperCase() + language.slice(1);
     }
-    // Capitalize first letter if no mapping found
-    return language.charAt(0).toUpperCase() + language.slice(1);
   }
 
   private updateChartData(stats: LanguageStats[]): void {
