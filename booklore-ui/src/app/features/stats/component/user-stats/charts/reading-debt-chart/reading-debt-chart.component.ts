@@ -62,9 +62,13 @@ export class ReadingDebtChartComponent implements OnInit, OnDestroy {
   };
 
   ngOnInit(): void {
-    this.bookService.bookState$
-      .pipe(filter(state => state.loaded), first(), catchError(() => EMPTY), takeUntil(this.destroy$))
-      .subscribe(() => this.processData());
+    this.t.langChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.bookService.bookState$
+          .pipe(filter(state => state.loaded), first(), catchError(() => EMPTY))
+          .subscribe(() => this.processData());
+      });
   }
 
   ngOnDestroy(): void {
@@ -78,17 +82,18 @@ export class ReadingDebtChartComponent implements OnInit, OnDestroy {
     if (!books || books.length === 0) return;
 
     const now = new Date();
+    const locale = this.t.getActiveLang();
     const monthlyAdded = new Map<string, number>();
     const monthlyFinished = new Map<string, number>();
     const months: string[] = [];
     const monthLabels: string[] = [];
-    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const formatter = new Intl.DateTimeFormat(locale, {month: 'short'});
 
     for (let i = 11; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
       months.push(key);
-      monthLabels.push(`${monthNames[d.getMonth()]} ${String(d.getFullYear()).slice(2)}`);
+      monthLabels.push(`${formatter.format(d)} ${String(d.getFullYear()).slice(2)}`);
       monthlyAdded.set(key, 0);
       monthlyFinished.set(key, 0);
     }

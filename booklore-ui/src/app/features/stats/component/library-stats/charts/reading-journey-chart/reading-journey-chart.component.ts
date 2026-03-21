@@ -67,22 +67,26 @@ export class ReadingJourneyChartComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.bookService.bookState$
-      .pipe(
-        filter(state => state.loaded),
-        first(),
-        switchMap(() =>
-          this.libraryFilterService.selectedLibrary$.pipe(
-            takeUntil(this.destroy$)
-          )
-        ),
-        catchError((error) => {
-          console.error('Error processing reading journey data:', error);
-          return EMPTY;
-        })
-      )
+    this.t.langChanges$
+      .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        this.calculateAndUpdateChart();
+        this.bookService.bookState$
+          .pipe(
+            filter(state => state.loaded),
+            first(),
+            switchMap(() =>
+              this.libraryFilterService.selectedLibrary$.pipe(
+                takeUntil(this.destroy$)
+              )
+            ),
+            catchError((error) => {
+              console.error('Error processing reading journey data:', error);
+              return EMPTY;
+            })
+          )
+          .subscribe(() => {
+            this.calculateAndUpdateChart();
+          });
       });
   }
 
@@ -261,7 +265,6 @@ export class ReadingJourneyChartComponent implements OnInit, OnDestroy {
     const monthlyFinished = new Map<string, number>();
 
     for (const book of books) {
-      // Track added dates
       if (book.addedOn) {
         const monthKey = this.getMonthKey(book.addedOn);
         if (monthKey) {
@@ -269,7 +272,6 @@ export class ReadingJourneyChartComponent implements OnInit, OnDestroy {
         }
       }
 
-      // Track finished dates
       if (book.dateFinished && book.readStatus === ReadStatus.READ) {
         const monthKey = this.getMonthKey(book.dateFinished);
         if (monthKey) {
@@ -278,7 +280,6 @@ export class ReadingJourneyChartComponent implements OnInit, OnDestroy {
       }
     }
 
-    // Get all unique months and sort them
     const allMonths = new Set([...monthlyAdded.keys(), ...monthlyFinished.keys()]);
     const sortedMonths = Array.from(allMonths).sort();
 
@@ -286,7 +287,6 @@ export class ReadingJourneyChartComponent implements OnInit, OnDestroy {
       return [];
     }
 
-    // Fill in gaps and calculate cumulative values
     const firstMonth = sortedMonths[0];
     const lastMonth = sortedMonths[sortedMonths.length - 1];
     const allMonthsRange = this.getMonthRange(firstMonth, lastMonth);
@@ -348,8 +348,8 @@ export class ReadingJourneyChartComponent implements OnInit, OnDestroy {
 
   private formatMonthLabel(monthKey: string): string {
     const [year, month] = monthKey.split('-');
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return `${monthNames[parseInt(month, 10) - 1]} ${year}`;
+    const formatter = new Intl.DateTimeFormat(this.t.getActiveLang(), {month: 'short'});
+    return `${formatter.format(new Date(parseInt(year), parseInt(month, 10) - 1, 1))} ${year}`;
   }
 
   private calculateInsights(books: Book[], monthlyData: MonthlyData[]): JourneyInsights {
@@ -361,7 +361,6 @@ export class ReadingJourneyChartComponent implements OnInit, OnDestroy {
     const currentBacklog = totalAdded - totalFinished;
     const backlogPercent = totalAdded > 0 ? Math.round((currentBacklog / totalAdded) * 100) : 0;
 
-    // Calculate average time to finish
     let totalDaysToFinish = 0;
     let finishedWithBothDates = 0;
 
@@ -383,7 +382,6 @@ export class ReadingJourneyChartComponent implements OnInit, OnDestroy {
       ? Math.round(totalDaysToFinish / finishedWithBothDates)
       : 0;
 
-    // Find most productive reading month
     let mostProductiveMonth = 'N/A';
     let mostProductiveCount = 0;
     let busiestAcquisitionMonth = 'N/A';
@@ -400,12 +398,10 @@ export class ReadingJourneyChartComponent implements OnInit, OnDestroy {
       }
     }
 
-    // Finish rate (books finished per month on average)
     const finishRate = monthlyData.length > 0
       ? +(totalFinished / monthlyData.length).toFixed(1)
       : 0;
 
-    // Recent activity
     const now = new Date();
     const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1);
     let recentFinished = 0;
@@ -421,7 +417,6 @@ export class ReadingJourneyChartComponent implements OnInit, OnDestroy {
       ? this.t.translate('statsLibrary.readingJourney.recentActivityBooks', {count: recentFinished})
       : this.t.translate('statsLibrary.readingJourney.recentActivityNone');
 
-    // Longest reading streak (consecutive months with finished books)
     let longestStreak = 0;
     let currentStreak = 0;
     for (const data of monthlyData) {

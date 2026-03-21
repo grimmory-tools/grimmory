@@ -9,8 +9,6 @@ import {catchError, takeUntil} from 'rxjs/operators';
 import {ReadingSessionHeatmapResponse, UserStatsService} from '../../../../../settings/user-management/user-stats.service';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
-const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 interface MatrixDataPoint {
   x: number;
@@ -56,6 +54,8 @@ export class ReadingSessionHeatmapComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private readonly chartDataSubject: BehaviorSubject<SessionHeatmapChartData>;
   private maxSessionCount = 1;
+  private dayNames: string[] = [];
+  private monthNames: string[] = [];
 
   constructor() {
     this.chartDataSubject = new BehaviorSubject<SessionHeatmapChartData>({
@@ -88,7 +88,7 @@ export class ReadingSessionHeatmapComponent implements OnInit, OnDestroy {
             title: (context) => {
               const point = context[0].raw as MatrixDataPoint;
               const date = new Date(point.date);
-              return date.toLocaleDateString('en-US', {
+              return date.toLocaleDateString(this.translocoService.getActiveLang(), {
                 weekday: 'short',
                 year: 'numeric',
                 month: 'short',
@@ -117,7 +117,7 @@ export class ReadingSessionHeatmapComponent implements OnInit, OnDestroy {
               const weekNum = value as number;
               if (weekNum % 4 === 0) {
                 const date = this.getDateFromWeek(this.currentYear, weekNum);
-                return MONTH_NAMES[date.getMonth()];
+                return this.monthNames[date.getMonth()];
               }
               return '';
             },
@@ -135,7 +135,7 @@ export class ReadingSessionHeatmapComponent implements OnInit, OnDestroy {
             stepSize: 1,
             callback: (value) => {
               const dayIndex = value as number;
-              return dayIndex >= 0 && dayIndex <= 6 ? DAY_NAMES[dayIndex] : '';
+              return dayIndex >= 0 && dayIndex <= 6 ? this.dayNames[dayIndex] : '';
             },
             color: '#ffffff',
             font: {family: "'Inter', sans-serif", size: 11}
@@ -149,8 +149,18 @@ export class ReadingSessionHeatmapComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     Chart.register(...registerables, MatrixController, MatrixElement);
     this.currentYear = this.initialYear;
-    this.loadYearData(this.currentYear);
-    this.loadStreakData();
+
+    this.translocoService.langChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(locale => {
+        const dayFormatter = new Intl.DateTimeFormat(locale, { weekday: 'short' });
+        const monthFormatter = new Intl.DateTimeFormat(locale, { month: 'short' });
+        this.dayNames = [...Array(7)].map((_, i) => dayFormatter.format(new Date(2024, 0, i + 1)));
+        this.monthNames = [...Array(12)].map((_, i) => monthFormatter.format(new Date(2024, i, 1)));
+
+        this.loadYearData(this.currentYear);
+        this.loadStreakData();
+      });
   }
 
   ngOnDestroy(): void {

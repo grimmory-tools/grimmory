@@ -29,7 +29,7 @@ export class FavoriteDaysChartComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private readonly chartDataSubject: BehaviorSubject<FavoriteDaysChartData>;
 
-  private readonly allDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  private allDays: string[] = [];
 
   public selectedYear: number | null = null;
   public selectedMonth: number | null = null;
@@ -163,11 +163,18 @@ export class FavoriteDaysChartComponent implements OnInit, OnDestroy {
         }
       }
     };
-    this.initializeYearOptions();
   }
 
   ngOnInit(): void {
-    this.loadFavoriteDays();
+    this.t.langChanges$
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(() => {
+      const locale = this.t.getActiveLang();
+      const formatter = new Intl.DateTimeFormat(locale, { weekday: 'long' });
+      this.allDays = [...Array(7)].map((_, i) => formatter.format(new Date(2024, 0, 7 + i)));
+      this.initializeYearOptions();
+      this.loadFavoriteDays();
+    });
   }
 
   ngOnDestroy(): void {
@@ -177,14 +184,20 @@ export class FavoriteDaysChartComponent implements OnInit, OnDestroy {
 
   private initializeYearOptions(): void {
     const currentYear = new Date().getFullYear();
+    const locale = this.t.getActiveLang();
+    
     this.yearOptions = [{label: this.t.translate('statsUser.favoriteDays.allYears'), value: null}];
     for (let year = currentYear; year >= currentYear - 10; year--) {
       this.yearOptions.push({label: year.toString(), value: year});
     }
-    const monthKeys = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+    
+    const monthFormatter = new Intl.DateTimeFormat(locale, { month: 'long' });
     this.monthOptions = [
       {label: this.t.translate('statsUser.favoriteDays.allMonths'), value: null},
-      ...monthKeys.map((key, i) => ({label: this.t.translate(`statsUser.favoriteDays.${key}`), value: i + 1}))
+      ...Array.from({length: 12}, (_, i) => ({
+        label: monthFormatter.format(new Date(2024, i, 1)),
+        value: i + 1
+      }))
     ];
   }
 

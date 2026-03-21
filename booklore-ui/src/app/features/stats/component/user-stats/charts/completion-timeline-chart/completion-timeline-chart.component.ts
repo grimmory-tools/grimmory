@@ -29,7 +29,7 @@ export class CompletionTimelineChartComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private readonly chartDataSubject: BehaviorSubject<CompletionChartData>;
 
-  private readonly monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  private monthNames: string[] = [];
 
   constructor() {
     this.chartDataSubject = new BehaviorSubject<CompletionChartData>({
@@ -125,7 +125,14 @@ export class CompletionTimelineChartComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.currentYear = this.initialYear;
-    this.loadCompletionTimeline(this.currentYear);
+
+    this.t.langChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(locale => {
+        const formatter = new Intl.DateTimeFormat(locale, {month: 'short'});
+        this.monthNames = [...Array(12)].map((_, i) => formatter.format(new Date(2024, i, 1)));
+        this.loadCompletionTimeline(this.currentYear);
+      });
   }
 
   ngOnDestroy(): void {

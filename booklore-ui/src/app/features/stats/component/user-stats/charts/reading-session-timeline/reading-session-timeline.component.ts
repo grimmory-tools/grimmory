@@ -1,7 +1,8 @@
-import {Component, inject, Input, OnInit} from '@angular/core';
+import {Component, inject, Input, OnDestroy, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {catchError} from 'rxjs/operators';
-import {of} from 'rxjs';
+import {of, Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 import {Select} from 'primeng/select';
 import {FormsModule} from '@angular/forms';
 import {Tooltip} from 'primeng/tooltip';
@@ -58,15 +59,16 @@ interface DayTimeline {
   templateUrl: './reading-session-timeline.component.html',
   styleUrls: ['./reading-session-timeline.component.scss']
 })
-export class ReadingSessionTimelineComponent implements OnInit {
+export class ReadingSessionTimelineComponent implements OnInit, OnDestroy {
   @Input() initialYear: number = new Date().getFullYear();
   @Input() weekNumber: number = getISOWeek(new Date());
 
   private userStatsService = inject(UserStatsService);
   private urlHelperService = inject(UrlHelperService);
   private translocoService = inject(TranslocoService);
+  private readonly destroy$ = new Subject<void>();
 
-  public daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  public daysOfWeek: string[] = [];
   public hourLabels: string[] = [];
   public timelineData: DayTimeline[] = [];
   public currentYear: number = new Date().getFullYear();
@@ -82,9 +84,21 @@ export class ReadingSessionTimelineComponent implements OnInit {
     this.updateDateFromYearAndWeek();
     this.initializeYearOptions();
     this.ensureYearInOptions();
-    this.updateWeekOptions();
-    this.initializeHourLabels();
-    this.loadReadingSessions();
+
+    this.translocoService.langChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(locale => {
+        const formatter = new Intl.DateTimeFormat(locale, {weekday: 'short'});
+        this.daysOfWeek = [...Array(7)].map((_, i) => formatter.format(new Date(2024, 0, 1 + i)));
+        this.initializeHourLabels();
+        this.updateWeekOptions();
+        this.loadReadingSessions();
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private initializeYearOptions(): void {
@@ -120,11 +134,8 @@ export class ReadingSessionTimelineComponent implements OnInit {
   }
 
   private initializeHourLabels(): void {
-    for (let i = 0; i < 24; i++) {
-      const hour = i === 0 ? 12 : i > 12 ? i - 12 : i;
-      const period = i < 12 ? 'AM' : 'PM';
-      this.hourLabels.push(`${hour} ${period}`);
-    }
+    const formatter = new Intl.DateTimeFormat(this.translocoService.getActiveLang(), {hour: 'numeric', hour12: true});
+    this.hourLabels = [...Array(24)].map((_, i) => formatter.format(new Date(2024, 0, 1, i)));
   }
 
   private loadReadingSessions(): void {
@@ -190,7 +201,7 @@ export class ReadingSessionTimelineComponent implements OnInit {
     const weekEnd = endOfISOWeek(this.currentDate);
 
     const formatDate = (date: Date) => {
-      const month = date.toLocaleDateString('en-US', {month: 'short'});
+      const month = date.toLocaleDateString(this.translocoService.getActiveLang(), {month: 'short'});
       const day = date.getDate();
       return `${month} ${day}`;
     };
@@ -340,10 +351,8 @@ export class ReadingSessionTimelineComponent implements OnInit {
   }
 
   public formatTime(hour: number, minute: number): string {
-    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-    const period = hour < 12 ? 'AM' : 'PM';
-    const displayMinute = minute.toString().padStart(2, '0');
-    return `${displayHour}:${displayMinute} ${period}`;
+    const date = new Date(2024, 0, 1, hour, minute);
+    return new Intl.DateTimeFormat(this.translocoService.getActiveLang(), {hour: 'numeric', minute: '2-digit', hour12: true}).format(date);
   }
 
   public formatDuration(minutes: number): string {

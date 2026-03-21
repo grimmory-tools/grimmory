@@ -22,8 +22,6 @@ interface YearMonthData {
   count: number;
 }
 
-const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
 type HeatmapChartData = ChartData<'matrix', MatrixDataPoint[], string>;
 
 @Component({
@@ -41,6 +39,7 @@ export class ReadingHeatmapChartComponent implements OnInit, OnDestroy {
   public readonly chartType = 'matrix' as const;
 
   private yearLabels: string[] = [];
+  private monthNames: string[] = [];
   private maxBookCount = 1;
 
   public readonly chartOptions: ChartConfiguration['options'] = {
@@ -69,7 +68,7 @@ export class ReadingHeatmapChartComponent implements OnInit, OnDestroy {
           title: (context) => {
             const point = context[0].raw as MatrixDataPoint;
             const year = this.yearLabels[point.y];
-            const month = MONTH_NAMES[point.x];
+            const month = this.monthNames[point.x];
             return `${month} ${year}`;
           },
           label: (context) => {
@@ -96,7 +95,7 @@ export class ReadingHeatmapChartComponent implements OnInit, OnDestroy {
         position: 'bottom',
         ticks: {
           stepSize: 1,
-          callback: (value) => MONTH_NAMES[value as number] || '',
+          callback: (value) => this.monthNames[value as number] || '',
           color: '#ffffff',
           font: {
             family: "'Inter', sans-serif",
@@ -133,6 +132,16 @@ export class ReadingHeatmapChartComponent implements OnInit, OnDestroy {
   public readonly chartData$: Observable<HeatmapChartData> = this.chartDataSubject.asObservable();
 
   ngOnInit(): void {
+    this.t.langChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(locale => {
+        const formatter = new Intl.DateTimeFormat(locale, {month: 'short'});
+        this.monthNames = [...Array(12)].map((_, i) => formatter.format(new Date(2024, i, 1)));
+
+        const stats = this.calculateHeatmapData();
+        this.updateChartData(stats);
+      });
+
     this.bookService.bookState$
       .pipe(
         filter(state => state.loaded),
@@ -247,4 +256,3 @@ export class ReadingHeatmapChartComponent implements OnInit, OnDestroy {
       .sort((a, b) => a.year - b.year || a.month - b.month);
   }
 }
-
