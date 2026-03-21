@@ -1,7 +1,7 @@
 {
   "main": {
     "pageTitle": "Dashboard",
-    "welcomeTitle": "Welcome to BookLore!",
+    "welcomeTitle": "Welcome to Grimmory!",
     "welcomeSubtitle": "Let's create your first library",
     "welcomeDescription": "A library is where all your books live. Start building your digital collection today!",
     "createLibrary": "Create Your Library",

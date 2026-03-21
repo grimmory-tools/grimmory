@@ -1,66 +1,66 @@
 {
-    "main": {
-        "pageTitle": "Dashboard",
-        "welcomeTitle": "Willkommen bei BookLore!",
-        "welcomeSubtitle": "Erstellen Sie Ihre erste Bibliothek",
-        "welcomeDescription": "Eine Bibliothek ist der Ort, an dem alle Ihre Bücher leben. Beginnen Sie noch heute mit dem Aufbau Ihrer digitalen Sammlung!",
-        "createLibrary": "Ihre Bibliothek erstellen",
-        "customizeDashboard": "Dashboard anpassen"
+  "main": {
+    "pageTitle": "Dashboard",
+    "welcomeTitle": "Willkommen bei Grimmory!",
+    "welcomeSubtitle": "Erstellen Sie Ihre erste Bibliothek",
+    "welcomeDescription": "Eine Bibliothek ist der Ort, an dem alle Ihre Bücher leben. Beginnen Sie noch heute mit dem Aufbau Ihrer digitalen Sammlung!",
+    "createLibrary": "Ihre Bibliothek erstellen",
+    "customizeDashboard": "Dashboard anpassen"
+  },
+  "scroller": {
+    "noBooksFound": "Keine Bücher für diesen Scroller gefunden.",
+    "loadError": "Bücher konnten nicht geladen werden! Bitte versuchen Sie, die Seite zu aktualisieren.",
+    "continueListening": "Weiter hören",
+    "continueReading": "Weiterlesen",
+    "recentlyAdded": "Kürzlich hinzugefügt",
+    "discoverNew": "Etwas Neues entdecken",
+    "magicShelf": "Magisches Regal",
+    "default": "Scroller"
+  },
+  "settings": {
+    "title": "Dashboard-Konfiguration",
+    "description": "Fügen Sie bis zu 5 Scroller aus verschiedenen Buchsammlungen hinzu und passen Sie deren Verhalten an",
+    "type": "Typ",
+    "selectType": "Typ auswählen",
+    "magicShelf": "Magisches Regal",
+    "selectMagicShelf": "Magisches Regal auswählen",
+    "sortField": "Sortierfeld",
+    "selectField": "Feld auswählen",
+    "direction": "Richtung",
+    "selectDirection": "Richtung auswählen",
+    "maxItems": "Max. Einträge",
+    "addScroller": "Scroller hinzufügen",
+    "resetToDefault": "Auf Standard zurücksetzen",
+    "scrollerTypes": {
+      "lastRead": "Weiterlesen",
+      "lastListened": "Weiter hören",
+      "latestAdded": "Kürzlich hinzugefügt",
+      "random": "Etwas Neues entdecken",
+      "magicShelf": "Magisches Regal",
+      "default": "Scroller"
     },
-    "scroller": {
-        "noBooksFound": "Keine Bücher für diesen Scroller gefunden.",
-        "loadError": "Bücher konnten nicht geladen werden! Bitte versuchen Sie, die Seite zu aktualisieren.",
-        "continueListening": "Weiter hören",
-        "continueReading": "Weiterlesen",
-        "recentlyAdded": "Kürzlich hinzugefügt",
-        "discoverNew": "Etwas Neues entdecken",
-        "magicShelf": "Magisches Regal",
-        "default": "Scroller"
+    "sortFields": {
+      "title": "Titel",
+      "fileName": "Dateiname",
+      "filePath": "Dateipfad",
+      "addedOn": "Hinzugefügt am",
+      "author": "Autor",
+      "authorSurnameVorname": "Autor (Nachname)",
+      "seriesName": "Serienname",
+      "seriesNumber": "Seriennummer",
+      "personalRating": "Persönliche Bewertung",
+      "publisher": "Verlag",
+      "publishedDate": "Veröffentlichungsdatum",
+      "lastReadTime": "Zuletzt gelesen",
+      "readStatus": "Lesestatus",
+      "dateFinished": "Beendet am",
+      "readingProgress": "Lesefortschritt",
+      "bookType": "Dateiformat",
+      "pageCount": "Seiten"
     },
-    "settings": {
-        "title": "Dashboard-Konfiguration",
-        "description": "Fügen Sie bis zu 5 Scroller aus verschiedenen Buchsammlungen hinzu und passen Sie deren Verhalten an",
-        "type": "Typ",
-        "selectType": "Typ auswählen",
-        "magicShelf": "Magisches Regal",
-        "selectMagicShelf": "Magisches Regal auswählen",
-        "sortField": "Sortierfeld",
-        "selectField": "Feld auswählen",
-        "direction": "Richtung",
-        "selectDirection": "Richtung auswählen",
-        "maxItems": "Max. Einträge",
-        "addScroller": "Scroller hinzufügen",
-        "resetToDefault": "Auf Standard zurücksetzen",
-        "scrollerTypes": {
-            "lastRead": "Weiterlesen",
-            "lastListened": "Weiter hören",
-            "latestAdded": "Kürzlich hinzugefügt",
-            "random": "Etwas Neues entdecken",
-            "magicShelf": "Magisches Regal",
-            "default": "Scroller"
-        },
-        "sortFields": {
-            "title": "Titel",
-            "fileName": "Dateiname",
-            "filePath": "Dateipfad",
-            "addedOn": "Hinzugefügt am",
-            "author": "Autor",
-            "authorSurnameVorname": "Autor (Nachname)",
-            "seriesName": "Serienname",
-            "seriesNumber": "Seriennummer",
-            "personalRating": "Persönliche Bewertung",
-            "publisher": "Verlag",
-            "publishedDate": "Veröffentlichungsdatum",
-            "lastReadTime": "Zuletzt gelesen",
-            "readStatus": "Lesestatus",
-            "dateFinished": "Beendet am",
-            "readingProgress": "Lesefortschritt",
-            "bookType": "Dateiformat",
-            "pageCount": "Seiten"
-        },
-        "sortDirections": {
-            "asc": "Aufsteigend",
-            "desc": "Absteigend"
-        }
+    "sortDirections": {
+      "asc": "Aufsteigend",
+      "desc": "Absteigend"
     }
+  }
 }

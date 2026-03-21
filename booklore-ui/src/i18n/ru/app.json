@@ -1,8 +1,8 @@
 {
-    "offline": "Вы не в сети",
-    "loading": "Загрузка Booklore…",
-    "loadingDescription": "Пожалуйста, подождите, пока мы всё подготовим.",
-    "offlineLoadingDescription": "BookLore требует подключение к серверу для загрузки.",
-    "offlineDescription": "Проверьте сеть и попробуйте снова.",
-    "connectionLost": "Соединение потеряно. Некоторые функции могут не работать."
+  "offline": "Вы не в сети",
+  "loading": "Загрузка Grimmory…",
+  "loadingDescription": "Пожалуйста, подождите, пока мы всё подготовим.",
+  "offlineLoadingDescription": "Grimmory требует подключение к серверу для загрузки.",
+  "offlineDescription": "Проверьте сеть и попробуйте снова.",
+  "connectionLost": "Соединение потеряно. Некоторые функции могут не работать."
 }

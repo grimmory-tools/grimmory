@@ -1,25 +1,25 @@
 {
-    "pageTitle": "Серии",
-    "browseAllSeries": "Обзор всех серий",
-    "searchPlaceholder": "Поиск по названию серии или автору...",
-    "readNext": "Читать далее",
-    "booksRead": "книг прочитано",
-    "noSeriesFound": "Серии не найдены по вашему запросу или фильтрам.",
-    "noSeriesInCategory": "Серии не найдены в этой категории.",
-    "cardSize": "Размер карточки",
-    "filters": {
-        "all": "Все",
-        "notStarted": "Не начато",
-        "inProgress": "В процессе",
-        "completed": "Завершено",
-        "abandoned": "Заброшено"
-    },
-    "sort": {
-        "nameAsc": "Название (А-Я)",
-        "nameDesc": "Название (Я-А)",
-        "bookCount": "Количество книг",
-        "progress": "Прогресс",
-        "recentlyRead": "Недавно прочитанные",
-        "recentlyAdded": "Недавно добавленные"
-    }
+  "pageTitle": "Серии",
+  "browseAllSeries": "Обзор всех серий",
+  "searchPlaceholder": "Поиск по названию серии или автору...",
+  "readNext": "Читать далее",
+  "booksRead": "книг прочитано",
+  "noSeriesFound": "Серии не найдены по вашему запросу или фильтрам.",
+  "noSeriesInCategory": "Серии не найдены в этой категории.",
+  "cardSize": "Размер карточки",
+  "filters": {
+    "all": "Все",
+    "notStarted": "Не начато",
+    "inProgress": "В процессе",
+    "completed": "Завершено",
+    "abandoned": "Заброшено"
+  },
+  "sort": {
+    "nameAsc": "Название (А-Я)",
+    "nameDesc": "Название (Я-А)",
+    "bookCount": "Количество книг",
+    "progress": "Прогресс",
+    "recentlyRead": "Недавно прочитанные",
+    "recentlyAdded": "Недавно добавленные"
+  }
 }

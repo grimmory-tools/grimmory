@@ -1,66 +1,66 @@
 {
-    "main": {
-        "pageTitle": "Tableau de bord",
-        "welcomeTitle": "Bienvenue sur BookLore !",
-        "welcomeSubtitle": "Créons votre première bibliothèque",
-        "welcomeDescription": "Une bibliothèque est l'endroit où vivent tous vos livres. Commencez à construire votre collection numérique dès aujourd'hui !",
-        "createLibrary": "Créer votre bibliothèque",
-        "customizeDashboard": "Personnaliser le tableau de bord"
+  "main": {
+    "pageTitle": "Tableau de bord",
+    "welcomeTitle": "Bienvenue sur Grimmory !",
+    "welcomeSubtitle": "Créons votre première bibliothèque",
+    "welcomeDescription": "Une bibliothèque est l'endroit où vivent tous vos livres. Commencez à construire votre collection numérique dès aujourd'hui !",
+    "createLibrary": "Créer votre bibliothèque",
+    "customizeDashboard": "Personnaliser le tableau de bord"
+  },
+  "scroller": {
+    "noBooksFound": "Aucun livre trouvé pour ce défilement.",
+    "loadError": "Échec du chargement des livres ! Veuillez actualiser la page.",
+    "continueListening": "Continuer l'écoute",
+    "continueReading": "Continuer la lecture",
+    "recentlyAdded": "Ajoutés récemment",
+    "discoverNew": "Découvrir quelque chose de nouveau",
+    "magicShelf": "Étagère magique",
+    "default": "Défilement"
+  },
+  "settings": {
+    "title": "Configuration du tableau de bord",
+    "description": "Ajoutez jusqu'à 5 défilements de différentes collections de livres et personnalisez leur comportement",
+    "type": "Type",
+    "selectType": "Sélectionner le type",
+    "magicShelf": "Étagère magique",
+    "selectMagicShelf": "Sélectionner une étagère magique",
+    "sortField": "Champ de tri",
+    "selectField": "Sélectionner un champ",
+    "direction": "Direction",
+    "selectDirection": "Sélectionner la direction",
+    "maxItems": "Nombre maximum",
+    "addScroller": "Ajouter un défilement",
+    "resetToDefault": "Réinitialiser par défaut",
+    "scrollerTypes": {
+      "lastRead": "Continuer la lecture",
+      "lastListened": "Continuer l'écoute",
+      "latestAdded": "Ajoutés récemment",
+      "random": "Découvrir quelque chose de nouveau",
+      "magicShelf": "Étagère magique",
+      "default": "Défilement"
     },
-    "scroller": {
-        "noBooksFound": "Aucun livre trouvé pour ce défilement.",
-        "loadError": "Échec du chargement des livres ! Veuillez actualiser la page.",
-        "continueListening": "Continuer l'écoute",
-        "continueReading": "Continuer la lecture",
-        "recentlyAdded": "Ajoutés récemment",
-        "discoverNew": "Découvrir quelque chose de nouveau",
-        "magicShelf": "Étagère magique",
-        "default": "Défilement"
+    "sortFields": {
+      "title": "Titre",
+      "fileName": "Nom de fichier",
+      "filePath": "Chemin du fichier",
+      "addedOn": "Date d'ajout",
+      "author": "Auteur",
+      "authorSurnameVorname": "Auteur (Nom de famille)",
+      "seriesName": "Nom de la série",
+      "seriesNumber": "Numéro de la série",
+      "personalRating": "Note personnelle",
+      "publisher": "Éditeur",
+      "publishedDate": "Date de publication",
+      "lastReadTime": "Dernière lecture",
+      "readStatus": "Statut de lecture",
+      "dateFinished": "Date de fin",
+      "readingProgress": "Progression de lecture",
+      "bookType": "Type de livre",
+      "pageCount": "Pages"
     },
-    "settings": {
-        "title": "Configuration du tableau de bord",
-        "description": "Ajoutez jusqu'à 5 défilements de différentes collections de livres et personnalisez leur comportement",
-        "type": "Type",
-        "selectType": "Sélectionner le type",
-        "magicShelf": "Étagère magique",
-        "selectMagicShelf": "Sélectionner une étagère magique",
-        "sortField": "Champ de tri",
-        "selectField": "Sélectionner un champ",
-        "direction": "Direction",
-        "selectDirection": "Sélectionner la direction",
-        "maxItems": "Nombre maximum",
-        "addScroller": "Ajouter un défilement",
-        "resetToDefault": "Réinitialiser par défaut",
-        "scrollerTypes": {
-            "lastRead": "Continuer la lecture",
-            "lastListened": "Continuer l'écoute",
-            "latestAdded": "Ajoutés récemment",
-            "random": "Découvrir quelque chose de nouveau",
-            "magicShelf": "Étagère magique",
-            "default": "Défilement"
-        },
-        "sortFields": {
-            "title": "Titre",
-            "fileName": "Nom de fichier",
-            "filePath": "Chemin du fichier",
-            "addedOn": "Date d'ajout",
-            "author": "Auteur",
-            "authorSurnameVorname": "Auteur (Nom de famille)",
-            "seriesName": "Nom de la série",
-            "seriesNumber": "Numéro de la série",
-            "personalRating": "Note personnelle",
-            "publisher": "Éditeur",
-            "publishedDate": "Date de publication",
-            "lastReadTime": "Dernière lecture",
-            "readStatus": "Statut de lecture",
-            "dateFinished": "Date de fin",
-            "readingProgress": "Progression de lecture",
-            "bookType": "Type de livre",
-            "pageCount": "Pages"
-        },
-        "sortDirections": {
-            "asc": "Croissant",
-            "desc": "Décroissant"
-        }
+    "sortDirections": {
+      "asc": "Croissant",
+      "desc": "Décroissant"
     }
+  }
 }

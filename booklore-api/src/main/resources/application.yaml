@@ -19,8 +19,6 @@ app:
     admin-group: ${REMOTE_AUTH_ADMIN_GROUP}
     groups-delimiter: ${REMOTE_AUTH_GROUPS_DELIMITER:\\s+}
   force-disable-oidc: ${FORCE_DISABLE_OIDC:false}
-  telemetry:
-    base-url: ${TELEMETRY_BASE_URL:https://telemetry.booklore.org}
   disk-type: ${DISK_TYPE:LOCAL}
 
 server:

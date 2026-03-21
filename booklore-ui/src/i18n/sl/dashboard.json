@@ -1,66 +1,66 @@
 {
-    "main": {
-        "pageTitle": "Nadzorna plošča",
-        "welcomeTitle": "Dobrodošel v BookLore!",
-        "welcomeSubtitle": "Ustvariva tvojo prvo knjižnico",
-        "welcomeDescription": "Knjižnica je dom vseh tvojih knjig. Začni graditi svojo digitalno zbirko še danes!",
-        "createLibrary": "Ustvari svojo knjižnico",
-        "customizeDashboard": "Prilagodi nadzorno ploščo"
+  "main": {
+    "pageTitle": "Nadzorna plošča",
+    "welcomeTitle": "Dobrodošel v Grimmory!",
+    "welcomeSubtitle": "Ustvariva tvojo prvo knjižnico",
+    "welcomeDescription": "Knjižnica je dom vseh tvojih knjig. Začni graditi svojo digitalno zbirko še danes!",
+    "createLibrary": "Ustvari svojo knjižnico",
+    "customizeDashboard": "Prilagodi nadzorno ploščo"
+  },
+  "scroller": {
+    "noBooksFound": "Za ta drsnik ni bilo najdenih knjig.",
+    "loadError": "Nalaganje knjig ni uspelo! Prosim, poskusi osvežiti stran.",
+    "continueListening": "Nadaljuj s poslušanjem",
+    "continueReading": "Nadaljuj z branjem",
+    "recentlyAdded": "Zadnje dodano",
+    "discoverNew": "Odkrij nekaj novega",
+    "magicShelf": "Čarobna polica",
+    "default": "Drsnik"
+  },
+  "settings": {
+    "title": "Konfiguracija nadzorne plošče",
+    "description": "Dodaj do 5 drsnikov iz različnih zbirk knjig in prilagodi njihovo delovanje",
+    "type": "Vrsta",
+    "selectType": "Izberi vrsto",
+    "magicShelf": "Čarobna polica",
+    "selectMagicShelf": "Izberi čarobno polico",
+    "sortField": "Polje za razvrščanje",
+    "selectField": "Izberi polje",
+    "direction": "Smer",
+    "selectDirection": "Izberi smer",
+    "maxItems": "Največje št. elementov",
+    "addScroller": "Dodaj drsnik",
+    "resetToDefault": "Ponastavi na privzeto",
+    "scrollerTypes": {
+      "lastRead": "Nadaljuj z branjem",
+      "lastListened": "Nadaljuj s poslušanjem",
+      "latestAdded": "Zadnje dodano",
+      "random": "Odkrij nekaj novega",
+      "magicShelf": "Čarobna polica",
+      "default": "Drsnik"
     },
-    "scroller": {
-        "noBooksFound": "Za ta drsnik ni bilo najdenih knjig.",
-        "loadError": "Nalaganje knjig ni uspelo! Prosim, poskusi osvežiti stran.",
-        "continueListening": "Nadaljuj s poslušanjem",
-        "continueReading": "Nadaljuj z branjem",
-        "recentlyAdded": "Zadnje dodano",
-        "discoverNew": "Odkrij nekaj novega",
-        "magicShelf": "Čarobna polica",
-        "default": "Drsnik"
+    "sortFields": {
+      "title": "Naslov",
+      "fileName": "Ime datoteke",
+      "filePath": "Pot datoteke",
+      "addedOn": "Datum dodajanja",
+      "author": "Avtor",
+      "authorSurnameVorname": "Avtor (Priimek)",
+      "seriesName": "Ime zbirke",
+      "seriesNumber": "Številka v zbirki",
+      "personalRating": "Osebna ocena",
+      "publisher": "Založba",
+      "publishedDate": "Datum izida",
+      "lastReadTime": "Nazadnje brano",
+      "readStatus": "Status branja",
+      "dateFinished": "Datum dokončanja",
+      "readingProgress": "Napredek branja",
+      "bookType": "Oblika datoteke",
+      "pageCount": "Strani"
     },
-    "settings": {
-        "title": "Konfiguracija nadzorne plošče",
-        "description": "Dodaj do 5 drsnikov iz različnih zbirk knjig in prilagodi njihovo delovanje",
-        "type": "Vrsta",
-        "selectType": "Izberi vrsto",
-        "magicShelf": "Čarobna polica",
-        "selectMagicShelf": "Izberi čarobno polico",
-        "sortField": "Polje za razvrščanje",
-        "selectField": "Izberi polje",
-        "direction": "Smer",
-        "selectDirection": "Izberi smer",
-        "maxItems": "Največje št. elementov",
-        "addScroller": "Dodaj drsnik",
-        "resetToDefault": "Ponastavi na privzeto",
-        "scrollerTypes": {
-            "lastRead": "Nadaljuj z branjem",
-            "lastListened": "Nadaljuj s poslušanjem",
-            "latestAdded": "Zadnje dodano",
-            "random": "Odkrij nekaj novega",
-            "magicShelf": "Čarobna polica",
-            "default": "Drsnik"
-        },
-        "sortFields": {
-            "title": "Naslov",
-            "fileName": "Ime datoteke",
-            "filePath": "Pot datoteke",
-            "addedOn": "Datum dodajanja",
-            "author": "Avtor",
-            "authorSurnameVorname": "Avtor (Priimek)",
-            "seriesName": "Ime zbirke",
-            "seriesNumber": "Številka v zbirki",
-            "personalRating": "Osebna ocena",
-            "publisher": "Založba",
-            "publishedDate": "Datum izida",
-            "lastReadTime": "Nazadnje brano",
-            "readStatus": "Status branja",
-            "dateFinished": "Datum dokončanja",
-            "readingProgress": "Napredek branja",
-            "bookType": "Oblika datoteke",
-            "pageCount": "Strani"
-        },
-        "sortDirections": {
-            "asc": "Naraščajoče",
-            "desc": "Padajoče"
-        }
+    "sortDirections": {
+      "asc": "Naraščajoče",
+      "desc": "Padajoče"
     }
+  }
 }

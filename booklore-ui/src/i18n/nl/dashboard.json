@@ -1,66 +1,66 @@
 {
-    "main": {
-        "pageTitle": "Dashboard",
-        "welcomeTitle": "Welkom bij BookLore!",
-        "welcomeSubtitle": "Laten we je eerste bibliotheek maken",
-        "welcomeDescription": "Een bibliotheek is waar je boeken leven. Start vandaag met je digitale collectie te bouwen!",
-        "createLibrary": "Maak jouw bibliotheek",
-        "customizeDashboard": "Dashboard aanpassen"
+  "main": {
+    "pageTitle": "Dashboard",
+    "welcomeTitle": "Welkom bij Grimmory!",
+    "welcomeSubtitle": "Laten we je eerste bibliotheek maken",
+    "welcomeDescription": "Een bibliotheek is waar je boeken leven. Start vandaag met je digitale collectie te bouwen!",
+    "createLibrary": "Maak jouw bibliotheek",
+    "customizeDashboard": "Dashboard aanpassen"
+  },
+  "scroller": {
+    "noBooksFound": "Geen boeken gevonden voor deze scroller.",
+    "loadError": "Boeken laden mislukt! Probeer de pagina te vernieuwen.",
+    "continueListening": "Luister Verder",
+    "continueReading": "Lees Verder",
+    "recentlyAdded": "Recent toegevoegd",
+    "discoverNew": "Ontdek Iets Nieuws",
+    "magicShelf": "Magische plank",
+    "default": "Scroller"
+  },
+  "settings": {
+    "title": "Dashboardconfiguratie",
+    "description": "Voeg maximaal 5 scrollers toe uit verschillende boekcollecties en pas hun gedrag aan",
+    "type": "Type",
+    "selectType": "Selecteer type",
+    "magicShelf": "",
+    "selectMagicShelf": "",
+    "sortField": "Sorteerveld",
+    "selectField": "Selecteer veld",
+    "direction": "Richting",
+    "selectDirection": "Selecteer richting",
+    "maxItems": "Max. items",
+    "addScroller": "Scroller toevoegen",
+    "resetToDefault": "Naar standaard resetten",
+    "scrollerTypes": {
+      "lastRead": "Verder lezen",
+      "lastListened": "Verder luisteren",
+      "latestAdded": "Recent toegevoegd",
+      "random": "Ontdek iets nieuws",
+      "magicShelf": "",
+      "default": "Scroller"
     },
-    "scroller": {
-        "noBooksFound": "Geen boeken gevonden voor deze scroller.",
-        "loadError": "Boeken laden mislukt! Probeer de pagina te vernieuwen.",
-        "continueListening": "Luister Verder",
-        "continueReading": "Lees Verder",
-        "recentlyAdded": "Recent toegevoegd",
-        "discoverNew": "Ontdek Iets Nieuws",
-        "magicShelf": "Magische plank",
-        "default": "Scroller"
+    "sortFields": {
+      "title": "Titel",
+      "fileName": "Bestandsnaam",
+      "filePath": "Bestandspad",
+      "addedOn": "Datum toegevoegd",
+      "author": "Auteur",
+      "authorSurnameVorname": "Auteur (Achternaam)",
+      "seriesName": "Reeksnaam",
+      "seriesNumber": "Reeksnummer",
+      "personalRating": "Persoonlijke beoordeling",
+      "publisher": "Uitgever",
+      "publishedDate": "Publicatiedatum",
+      "lastReadTime": "Laatst gelezen",
+      "readStatus": "Leesstatus",
+      "dateFinished": "Datum voltooid",
+      "readingProgress": "Leesvoortgang",
+      "bookType": "Boektype",
+      "pageCount": "Pagina's"
     },
-    "settings": {
-        "title": "Dashboardconfiguratie",
-        "description": "Voeg maximaal 5 scrollers toe uit verschillende boekcollecties en pas hun gedrag aan",
-        "type": "Type",
-        "selectType": "Selecteer type",
-        "magicShelf": "",
-        "selectMagicShelf": "",
-        "sortField": "Sorteerveld",
-        "selectField": "Selecteer veld",
-        "direction": "Richting",
-        "selectDirection": "Selecteer richting",
-        "maxItems": "Max. items",
-        "addScroller": "Scroller toevoegen",
-        "resetToDefault": "Naar standaard resetten",
-        "scrollerTypes": {
-            "lastRead": "Verder lezen",
-            "lastListened": "Verder luisteren",
-            "latestAdded": "Recent toegevoegd",
-            "random": "Ontdek iets nieuws",
-            "magicShelf": "",
-            "default": "Scroller"
-        },
-        "sortFields": {
-            "title": "Titel",
-            "fileName": "Bestandsnaam",
-            "filePath": "Bestandspad",
-            "addedOn": "Datum toegevoegd",
-            "author": "Auteur",
-            "authorSurnameVorname": "Auteur (Achternaam)",
-            "seriesName": "Reeksnaam",
-            "seriesNumber": "Reeksnummer",
-            "personalRating": "Persoonlijke beoordeling",
-            "publisher": "Uitgever",
-            "publishedDate": "Publicatiedatum",
-            "lastReadTime": "Laatst gelezen",
-            "readStatus": "Leesstatus",
-            "dateFinished": "Datum voltooid",
-            "readingProgress": "Leesvoortgang",
-            "bookType": "Boektype",
-            "pageCount": "Pagina's"
-        },
-        "sortDirections": {
-            "asc": "Oplopend",
-            "desc": "Aflopend"
-        }
+    "sortDirections": {
+      "asc": "Oplopend",
+      "desc": "Aflopend"
     }
+  }
 }

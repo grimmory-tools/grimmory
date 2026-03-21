@@ -1,55 +1,55 @@
 {
-    "topbar": {
-        "bookdrop": "Bookdrop",
-        "createNewLibrary": "Skapa nytt bibliotek",
-        "uploadBook": "Ladda upp bok",
-        "charts": "Diagram",
-        "metadataManager": "Metadatahanterare",
-        "settings": "Inställningar",
-        "documentation": "Dokumentation",
-        "profile": "Profil",
-        "logout": "Logga ut",
-        "language": "Språk",
-        "supportBookLore": "Stöd BookLore",
-        "notificationAriaLabel": "Samlad notifikationsikon",
-        "createLibrary": "Skapa bibliotek",
-        "stats": "Statistik",
-        "libraryStats": "Biblioteksstatistik",
-        "readingStats": "Läsningsstatistik"
-    },
-    "menu": {
-        "home": "Hem",
-        "dashboard": "Översikt",
-        "allBooks": "Alla böcker",
-        "libraries": "Bibliotek",
-        "shelves": "Hyllor",
-        "magicShelves": "Magiska hyllor",
-        "unshelved": "Osorterade",
-        "series": "Serier",
-        "notebook": "Anteckningsbok",
-        "update": "(Uppdatering)",
-        "authors": "Författare"
-    },
-    "changelog": {
-        "title": "Nyheter",
-        "description": "Senaste uppdateringar och förbättringar",
-        "loading": "Laddar ändringslogg...",
-        "empty": "Inga uppdateringar tillgängliga."
-    },
-    "theme": {
-        "primary": "Primär",
-        "surface": "Yta"
-    },
-    "uploadDialog": {
-        "chooseFile": "Välj fil:",
-        "selectImage": "Välj bild",
-        "fileNote": "Format som stöds: JPEG, PNG • Maximal filstorlek: 5 MB",
-        "or": "ELLER",
-        "imageUrl": "Bild-URL:",
-        "urlPlaceholder": "Klistra in bild-URL här",
-        "urlNote": "Format som stöds: JPEG, PNG • Maximal filstorlek: 5 MB",
-        "errorNoInput": "Välj en fil eller klistra in en URL.",
-        "errorUploadFailed": "Kunde inte ladda upp bild.",
-        "errorUploadRetry": "Uppladdning misslyckades. Försök igen."
-    }
+  "topbar": {
+    "bookdrop": "Bookdrop",
+    "createNewLibrary": "Skapa nytt bibliotek",
+    "uploadBook": "Ladda upp bok",
+    "charts": "Diagram",
+    "metadataManager": "Metadatahanterare",
+    "settings": "Inställningar",
+    "documentation": "Dokumentation",
+    "profile": "Profil",
+    "logout": "Logga ut",
+    "language": "Språk",
+    "supportGrimmory": "Stöd Grimmory",
+    "notificationAriaLabel": "Samlad notifikationsikon",
+    "createLibrary": "Skapa bibliotek",
+    "stats": "Statistik",
+    "libraryStats": "Biblioteksstatistik",
+    "readingStats": "Läsningsstatistik"
+  },
+  "menu": {
+    "home": "Hem",
+    "dashboard": "Översikt",
+    "allBooks": "Alla böcker",
+    "libraries": "Bibliotek",
+    "shelves": "Hyllor",
+    "magicShelves": "Magiska hyllor",
+    "unshelved": "Osorterade",
+    "series": "Serier",
+    "notebook": "Anteckningsbok",
+    "update": "(Uppdatering)",
+    "authors": "Författare"
+  },
+  "changelog": {
+    "title": "Nyheter",
+    "description": "Senaste uppdateringar och förbättringar",
+    "loading": "Laddar ändringslogg...",
+    "empty": "Inga uppdateringar tillgängliga."
+  },
+  "theme": {
+    "primary": "Primär",
+    "surface": "Yta"
+  },
+  "uploadDialog": {
+    "chooseFile": "Välj fil:",
+    "selectImage": "Välj bild",
+    "fileNote": "Format som stöds: JPEG, PNG • Maximal filstorlek: 5 MB",
+    "or": "ELLER",
+    "imageUrl": "Bild-URL:",
+    "urlPlaceholder": "Klistra in bild-URL här",
+    "urlNote": "Format som stöds: JPEG, PNG • Maximal filstorlek: 5 MB",
+    "errorNoInput": "Välj en fil eller klistra in en URL.",
+    "errorUploadFailed": "Kunde inte ladda upp bild.",
+    "errorUploadRetry": "Uppladdning misslyckades. Försök igen."
+  }
 }

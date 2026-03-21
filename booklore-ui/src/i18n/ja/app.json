@@ -1,8 +1,8 @@
 {
-    "offline": "オフラインです",
-    "loading": "BookLoreを読み込み中…",
-    "loadingDescription": "準備中です。しばらくお待ちください。",
-    "offlineLoadingDescription": "BookLoreの読み込みにはサーバーへの接続が必要です。",
-    "offlineDescription": "ネットワークを確認して、もう一度お試しください。",
-    "connectionLost": "接続が切断されました。一部の機能が使用できない場合があります。"
+  "offline": "オフラインです",
+  "loading": "Grimmoryを読み込み中…",
+  "loadingDescription": "準備中です。しばらくお待ちください。",
+  "offlineLoadingDescription": "Grimmoryの読み込みにはサーバーへの接続が必要です。",
+  "offlineDescription": "ネットワークを確認して、もう一度お試しください。",
+  "connectionLost": "接続が切断されました。一部の機能が使用できない場合があります。"
 }

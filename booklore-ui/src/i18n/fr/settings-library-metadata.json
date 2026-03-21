@@ -1,34 +1,34 @@
 {
-    "title": "Configuration des métadonnées de la bibliothèque",
-    "description": "Configurez le comportement de récupération des métadonnées pour vos bibliothèques. Définissez des valeurs par défaut globales et créez des remplacements spécifiques par bibliothèque pour contrôler la récupération des métadonnées auprès de différents fournisseurs.",
-    "defaultSettings": {
-        "sectionTitle": "Paramètres de métadonnées par défaut",
-        "sectionDesc": "Définissez les priorités globales par défaut des fournisseurs pour les champs de métadonnées des livres. Ces paramètres s'appliquent à toutes les bibliothèques sauf remplacement ci-dessous. BookLore essaie les fournisseurs de gauche à droite (1re → 2e → 3e → 4e priorité) pour chaque champ jusqu'à trouver des données. Le système vérifie d'abord votre fournisseur de 1re priorité : si ce fournisseur n'a pas le champ spécifique (comme la description ou l'auteur), il passe automatiquement à votre 2e priorité, puis 3e, et enfin 4e. Laissez une priorité vide pour l'ignorer entièrement. Par exemple, si Amazon (1re) n'a pas de description mais Google Books (2e) en a une, la description de Google sera utilisée. Utilisez les cases à cocher Activer pour désactiver complètement la récupération de champs spécifiques : les champs désactivés seront entièrement ignorés quels que soient les paramètres du fournisseur.",
-        "saveButton": "Enregistrer les paramètres par défaut",
-        "saveSuccess": "Les options de métadonnées par défaut ont été enregistrées avec succès.",
-        "saveFailed": "Échec de l'enregistrement",
-        "saveError": "Échec de l'enregistrement des options de métadonnées par défaut. Veuillez réessayer."
-    },
-    "libraryOverrides": {
-        "sectionTitle": "Remplacements par bibliothèque",
-        "sectionDesc": "Remplacez les paramètres de priorité par défaut pour des bibliothèques spécifiques. Par exemple, vous pourriez préférer Amazon pour la fiction mais Google Books pour les livres techniques. Chaque bibliothèque peut avoir son propre ordre de priorité des fournisseurs tout en utilisant les valeurs par défaut pour les champs non spécifiés. Vous pouvez également activer ou désactiver des champs de métadonnées spécifiques par bibliothèque, ce qui est utile si certaines bibliothèques n'ont pas besoin de types de données spécifiques comme les descriptions ou les couvertures.",
-        "customSettings": "Paramètres personnalisés",
-        "defaultSettings": "Paramètres par défaut",
-        "exportSidecar": "Exporter le sidecar",
-        "importSidecar": "Importer le sidecar",
-        "exportTooltip": "Générer des fichiers .metadata.json pour tous les livres de cette bibliothèque",
-        "importTooltip": "Importer les métadonnées depuis les fichiers .metadata.json existants dans cette bibliothèque",
-        "saveLibraryButton": "Enregistrer les paramètres de {{name}}",
-        "saveSuccess": "Les options de métadonnées de la bibliothèque ont été enregistrées avec succès.",
-        "saveFailed": "Échec de l'enregistrement",
-        "saveError": "Échec de l'enregistrement des options de métadonnées de la bibliothèque. Veuillez réessayer.",
-        "exportSuccess": "Fichiers sidecar exportés pour {{count}} livres.",
-        "exportComplete": "Exportation terminée",
-        "exportFailed": "Échec de l'exportation",
-        "exportError": "Échec de l'exportation des fichiers sidecar. Veuillez réessayer.",
-        "importSuccess": "Métadonnées importées depuis {{count}} fichiers sidecar.",
-        "importComplete": "Importation terminée",
-        "importFailed": "Échec de l'importation",
-        "importError": "Échec de l'importation depuis les fichiers sidecar. Veuillez réessayer."
-    }
+  "title": "Configuration des métadonnées de la bibliothèque",
+  "description": "Configurez le comportement de récupération des métadonnées pour vos bibliothèques. Définissez des valeurs par défaut globales et créez des remplacements spécifiques par bibliothèque pour contrôler la récupération des métadonnées auprès de différents fournisseurs.",
+  "defaultSettings": {
+    "sectionTitle": "Paramètres de métadonnées par défaut",
+    "sectionDesc": "Définissez les priorités globales par défaut des fournisseurs pour les champs de métadonnées des livres. Ces paramètres s'appliquent à toutes les bibliothèques sauf remplacement ci-dessous. Grimmory essaie les fournisseurs de gauche à droite (1re → 2e → 3e → 4e priorité) pour chaque champ jusqu'à trouver des données. Le système vérifie d'abord votre fournisseur de 1re priorité : si ce fournisseur n'a pas le champ spécifique (comme la description ou l'auteur), il passe automatiquement à votre 2e priorité, puis 3e, et enfin 4e. Laissez une priorité vide pour l'ignorer entièrement. Par exemple, si Amazon (1re) n'a pas de description mais Google Books (2e) en a une, la description de Google sera utilisée. Utilisez les cases à cocher Activer pour désactiver complètement la récupération de champs spécifiques : les champs désactivés seront entièrement ignorés quels que soient les paramètres du fournisseur.",
+    "saveButton": "Enregistrer les paramètres par défaut",
+    "saveSuccess": "Les options de métadonnées par défaut ont été enregistrées avec succès.",
+    "saveFailed": "Échec de l'enregistrement",
+    "saveError": "Échec de l'enregistrement des options de métadonnées par défaut. Veuillez réessayer."
+  },
+  "libraryOverrides": {
+    "sectionTitle": "Remplacements par bibliothèque",
+    "sectionDesc": "Remplacez les paramètres de priorité par défaut pour des bibliothèques spécifiques. Par exemple, vous pourriez préférer Amazon pour la fiction mais Google Books pour les livres techniques. Chaque bibliothèque peut avoir son propre ordre de priorité des fournisseurs tout en utilisant les valeurs par défaut pour les champs non spécifiés. Vous pouvez également activer ou désactiver des champs de métadonnées spécifiques par bibliothèque, ce qui est utile si certaines bibliothèques n'ont pas besoin de types de données spécifiques comme les descriptions ou les couvertures.",
+    "customSettings": "Paramètres personnalisés",
+    "defaultSettings": "Paramètres par défaut",
+    "exportSidecar": "Exporter le sidecar",
+    "importSidecar": "Importer le sidecar",
+    "exportTooltip": "Générer des fichiers .metadata.json pour tous les livres de cette bibliothèque",
+    "importTooltip": "Importer les métadonnées depuis les fichiers .metadata.json existants dans cette bibliothèque",
+    "saveLibraryButton": "Enregistrer les paramètres de {{name}}",
+    "saveSuccess": "Les options de métadonnées de la bibliothèque ont été enregistrées avec succès.",
+    "saveFailed": "Échec de l'enregistrement",
+    "saveError": "Échec de l'enregistrement des options de métadonnées de la bibliothèque. Veuillez réessayer.",
+    "exportSuccess": "Fichiers sidecar exportés pour {{count}} livres.",
+    "exportComplete": "Exportation terminée",
+    "exportFailed": "Échec de l'exportation",
+    "exportError": "Échec de l'exportation des fichiers sidecar. Veuillez réessayer.",
+    "importSuccess": "Métadonnées importées depuis {{count}} fichiers sidecar.",
+    "importComplete": "Importation terminée",
+    "importFailed": "Échec de l'importation",
+    "importError": "Échec de l'importation depuis les fichiers sidecar. Veuillez réessayer."
+  }
 }

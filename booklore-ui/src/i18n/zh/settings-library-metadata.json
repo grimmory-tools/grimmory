@@ -1,34 +1,34 @@
 {
-    "title": "书库元数据配置",
-    "description": "配置书库的元数据获取行为。设置全局默认值并创建特定书库的覆盖设置，以控制如何从不同提供商检索书籍元数据。",
-    "defaultSettings": {
-        "sectionTitle": "默认元数据设置",
-        "sectionDesc": "设置书籍元数据字段的全局默认提供商优先级。这些设置适用于所有书库，除非在下方被覆盖。BookLore 会从左到右（第 1 优先 → 第 2 优先 → 第 3 优先 → 第 4 优先）尝试每个书籍字段的提供商，直到找到数据。系统首先检查您的第 1 优先级提供商，如果该提供商没有特定字段（如描述或作者），则自动转到第 2 优先级，然后第 3，最后第 4。留空优先级可完全跳过。例如，如果 Amazon（第 1）没有描述但 Google Books（第 2）有，则会使用 Google 的描述。使用启用复选框可完全禁用特定字段的获取，禁用的字段将被完全跳过，无论提供商设置如何。",
-        "saveButton": "保存默认设置",
-        "saveSuccess": "默认元数据选项已成功保存。",
-        "saveFailed": "保存失败",
-        "saveError": "保存默认元数据选项失败，请重试。"
-    },
-    "libraryOverrides": {
-        "sectionTitle": "特定书库覆盖设置",
-        "sectionDesc": "为特定书库覆盖默认优先级设置。例如，您可能更偏好小说使用 Amazon，技术书籍使用 Google Books。每个书库可以有自己的提供商优先级顺序，未指定的字段则回退到默认值。您还可以按书库启用或禁用特定元数据字段，这对于不需要特定数据类型（如描述或封面）的书库很有用。",
-        "customSettings": "自定义设置",
-        "defaultSettings": "默认设置",
-        "exportSidecar": "导出 Sidecar",
-        "importSidecar": "导入 Sidecar",
-        "exportTooltip": "为此书库中的所有书籍生成 .metadata.json 文件",
-        "importTooltip": "从此书库中现有的 .metadata.json 文件导入元数据",
-        "saveLibraryButton": "保存 {{name}} 设置",
-        "saveSuccess": "书库元数据选项已成功保存。",
-        "saveFailed": "保存失败",
-        "saveError": "保存书库元数据选项失败，请重试。",
-        "exportSuccess": "已为 {{count}} 本书籍导出 Sidecar 文件。",
-        "exportComplete": "导出完成",
-        "exportFailed": "导出失败",
-        "exportError": "导出 Sidecar 文件失败，请重试。",
-        "importSuccess": "已从 {{count}} 个 Sidecar 文件导入元数据。",
-        "importComplete": "导入完成",
-        "importFailed": "导入失败",
-        "importError": "从 Sidecar 文件导入失败，请重试。"
-    }
+  "title": "书库元数据配置",
+  "description": "配置书库的元数据获取行为。设置全局默认值并创建特定书库的覆盖设置，以控制如何从不同提供商检索书籍元数据。",
+  "defaultSettings": {
+    "sectionTitle": "默认元数据设置",
+    "sectionDesc": "设置书籍元数据字段的全局默认提供商优先级。这些设置适用于所有书库，除非在下方被覆盖。Grimmory 会从左到右（第 1 优先 → 第 2 优先 → 第 3 优先 → 第 4 优先）尝试每个书籍字段的提供商，直到找到数据。系统首先检查您的第 1 优先级提供商，如果该提供商没有特定字段（如描述或作者），则自动转到第 2 优先级，然后第 3，最后第 4。留空优先级可完全跳过。例如，如果 Amazon（第 1）没有描述但 Google Books（第 2）有，则会使用 Google 的描述。使用启用复选框可完全禁用特定字段的获取，禁用的字段将被完全跳过，无论提供商设置如何。",
+    "saveButton": "保存默认设置",
+    "saveSuccess": "默认元数据选项已成功保存。",
+    "saveFailed": "保存失败",
+    "saveError": "保存默认元数据选项失败，请重试。"
+  },
+  "libraryOverrides": {
+    "sectionTitle": "特定书库覆盖设置",
+    "sectionDesc": "为特定书库覆盖默认优先级设置。例如，您可能更偏好小说使用 Amazon，技术书籍使用 Google Books。每个书库可以有自己的提供商优先级顺序，未指定的字段则回退到默认值。您还可以按书库启用或禁用特定元数据字段，这对于不需要特定数据类型（如描述或封面）的书库很有用。",
+    "customSettings": "自定义设置",
+    "defaultSettings": "默认设置",
+    "exportSidecar": "导出 Sidecar",
+    "importSidecar": "导入 Sidecar",
+    "exportTooltip": "为此书库中的所有书籍生成 .metadata.json 文件",
+    "importTooltip": "从此书库中现有的 .metadata.json 文件导入元数据",
+    "saveLibraryButton": "保存 {{name}} 设置",
+    "saveSuccess": "书库元数据选项已成功保存。",
+    "saveFailed": "保存失败",
+    "saveError": "保存书库元数据选项失败，请重试。",
+    "exportSuccess": "已为 {{count}} 本书籍导出 Sidecar 文件。",
+    "exportComplete": "导出完成",
+    "exportFailed": "导出失败",
+    "exportError": "导出 Sidecar 文件失败，请重试。",
+    "importSuccess": "已从 {{count}} 个 Sidecar 文件导入元数据。",
+    "importComplete": "导入完成",
+    "importFailed": "导入失败",
+    "importError": "从 Sidecar 文件导入失败，请重试。"
+  }
 }

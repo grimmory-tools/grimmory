@@ -1,69 +1,69 @@
 {
-    "title": "Gestor de tareas del sistema",
-    "description": "Gestiona las tareas automatizadas del sistema para mantenimiento de bibliotecas, actualización de metadatos y limpieza de caché. Programa operaciones recurrentes usando <a href=\"https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"cron-link\">expresiones cron de Spring</a>.",
-    "systemTasks": {
-        "sectionTitle": "Tareas del sistema",
-        "sectionDesc": "Ejecuta tareas manualmente, monitorea el progreso en tiempo real y configura la automatización programada."
-    },
-    "loading": "Cargando tareas...",
-    "emptyTitle": "No hay tareas disponibles",
-    "status": {
-        "running": "En ejecución",
-        "stale": "Estancada",
-        "neverRun": "Nunca ejecutada",
-        "justNow": "Justo ahora"
-    },
-    "cron": {
-        "noSchedule": "Sin programación",
-        "edit": "Editar",
-        "placeholder": "e.g., 0 2 * * *",
-        "validationPrefix": "La expresión cron debe tener exactamente 6 campos (segundos, minutos, horas, día, mes, día de la semana)",
-        "invalidField": "Campo {{name}} no válido: {{value}}",
-        "updateSuccess": "La configuración de tarea programada se actualizó correctamente.",
-        "updateError": "Error al actualizar la configuración de tarea programada."
-    },
-    "buttons": {
-        "run": "Ejecutar",
-        "rerun": "Re-ejecutar"
-    },
-    "metadataReplace": {
-        "label": "Modo de reemplazo de metadatos:",
-        "selectMode": "Seleccionar modo",
-        "replaceMissing": "Actualizar solo metadatos faltantes (Recomendado)",
-        "replaceAll": "Reemplazar todos los metadatos (Sobrescribir existentes)",
-        "replaceMissingDesc": "Solo actualizar libros que no tienen información de metadatos. Los metadatos existentes se preservarán.",
-        "replaceAllDesc": "Reemplazar todos los metadatos de todos los libros, incluso si ya tienen metadatos. Usar con precaución ya que sobrescribirá los datos existentes."
-    },
-    "progress": {
-        "staleWarning": "Esta tarea parece estar bloqueada. No se han recibido actualizaciones en más de 5 minutos.",
-        "statusLabel": "Estado:",
-        "progressLabel": "Progreso:",
-        "startedLabel": "Iniciada:",
-        "processing": "Procesando...",
-        "stuckMessage": "La tarea parece estar bloqueada (sin actualizaciones recibidas)"
-    },
-    "toast": {
-        "taskQueued": "Tarea en cola",
-        "taskQueuedDetail": "{{name}} se ha puesto en cola y se ejecutará en segundo plano.",
-        "taskCompleted": "Tarea completada",
-        "taskCompletedDetail": "{{name}} se ha completado correctamente.",
-        "taskFailed": "Tarea fallida",
-        "taskFailedDetail": "{{name}} no pudo completarse.",
-        "taskStarted": "Tarea iniciada",
-        "taskStartedDetail": "{{name}} se ha iniciado correctamente.",
-        "startError": "Error al iniciar {{name}}.",
-        "alreadyRunning": "Tarea ya en ejecución",
-        "alreadyRunningDetail": "Esta tarea ya está en progreso o pendiente.",
-        "taskCancelled": "Tarea cancelada",
-        "cancelledDetail": "La tarea se canceló correctamente.",
-        "cancelFailed": "Error de cancelación",
-        "cancelError": "Error al cancelar la tarea. La tarea puede haber finalizado o fallado.",
-        "cancelNoId": "No se puede cancelar la tarea sin ID.",
-        "loadError": "Error al cargar las tareas",
-        "metadataScheduled": "Actualización de metadatos programada",
-        "metadataScheduledDetail": "La actualización de metadatos para los libros seleccionados se ha programado correctamente.",
-        "metadataAlreadyRunningDetail": "Ya hay una tarea de actualización de metadatos en progreso. Por favor, espera a que finalice antes de iniciar otra.",
-        "metadataFailed": "Error en la actualización de metadatos",
-        "metadataFailedDetail": "Ocurrió un error inesperado al programar la actualización de metadatos. Por favor, inténtalo de nuevo más tarde o contacta con soporte si el problema persiste."
-    }
+  "title": "Gestor de tareas del sistema",
+  "description": "Gestiona las tareas automatizadas del sistema para mantenimiento de bibliotecas, actualización de metadatos y limpieza de caché. Programa operaciones recurrentes usando <a href=\"https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"cron-link\">expresiones cron de Spring</a>.",
+  "systemTasks": {
+    "sectionTitle": "Tareas del sistema",
+    "sectionDesc": "Ejecuta tareas manualmente, monitorea el progreso en tiempo real y configura la automatización programada."
+  },
+  "loading": "Cargando tareas...",
+  "emptyTitle": "No hay tareas disponibles",
+  "status": {
+    "running": "En ejecución",
+    "stale": "Estancada",
+    "neverRun": "Nunca ejecutada",
+    "justNow": "Justo ahora"
+  },
+  "cron": {
+    "noSchedule": "Sin programación",
+    "edit": "Editar",
+    "placeholder": "e.g., 0 2 * * *",
+    "validationPrefix": "La expresión cron debe tener exactamente 6 campos (segundos, minutos, horas, día, mes, día de la semana)",
+    "invalidField": "Campo {{name}} no válido: {{value}}",
+    "updateSuccess": "La configuración de tarea programada se actualizó correctamente.",
+    "updateError": "Error al actualizar la configuración de tarea programada."
+  },
+  "buttons": {
+    "run": "Ejecutar",
+    "rerun": "Re-ejecutar"
+  },
+  "metadataReplace": {
+    "label": "Modo de reemplazo de metadatos:",
+    "selectMode": "Seleccionar modo",
+    "replaceMissing": "Actualizar solo metadatos faltantes (Recomendado)",
+    "replaceAll": "Reemplazar todos los metadatos (Sobrescribir existentes)",
+    "replaceMissingDesc": "Solo actualizar libros que no tienen información de metadatos. Los metadatos existentes se preservarán.",
+    "replaceAllDesc": "Reemplazar todos los metadatos de todos los libros, incluso si ya tienen metadatos. Usar con precaución ya que sobrescribirá los datos existentes."
+  },
+  "progress": {
+    "staleWarning": "Esta tarea parece estar bloqueada. No se han recibido actualizaciones en más de 5 minutos.",
+    "statusLabel": "Estado:",
+    "progressLabel": "Progreso:",
+    "startedLabel": "Iniciada:",
+    "processing": "Procesando...",
+    "stuckMessage": "La tarea parece estar bloqueada (sin actualizaciones recibidas)"
+  },
+  "toast": {
+    "taskQueued": "Tarea en cola",
+    "taskQueuedDetail": "{{name}} se ha puesto en cola y se ejecutará en segundo plano.",
+    "taskCompleted": "Tarea completada",
+    "taskCompletedDetail": "{{name}} se ha completado correctamente.",
+    "taskFailed": "Tarea fallida",
+    "taskFailedDetail": "{{name}} no pudo completarse.",
+    "taskStarted": "Tarea iniciada",
+    "taskStartedDetail": "{{name}} se ha iniciado correctamente.",
+    "startError": "Error al iniciar {{name}}.",
+    "alreadyRunning": "Tarea ya en ejecución",
+    "alreadyRunningDetail": "Esta tarea ya está en progreso o pendiente.",
+    "taskCancelled": "Tarea cancelada",
+    "cancelledDetail": "La tarea se canceló correctamente.",
+    "cancelFailed": "Error de cancelación",
+    "cancelError": "Error al cancelar la tarea. La tarea puede haber finalizado o fallado.",
+    "cancelNoId": "No se puede cancelar la tarea sin ID.",
+    "loadError": "Error al cargar las tareas",
+    "metadataScheduled": "Actualización de metadatos programada",
+    "metadataScheduledDetail": "La actualización de metadatos para los libros seleccionados se ha programado correctamente.",
+    "metadataAlreadyRunningDetail": "Ya hay una tarea de actualización de metadatos en progreso. Por favor, espera a que finalice antes de iniciar otra.",
+    "metadataFailed": "Error en la actualización de metadatos",
+    "metadataFailedDetail": "Ocurrió un error inesperado al programar la actualización de metadatos. Por favor, inténtalo de nuevo más tarde o contacta con soporte si el problema persiste."
+  }
 }

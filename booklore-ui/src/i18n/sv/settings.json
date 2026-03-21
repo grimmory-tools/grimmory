@@ -1,17 +1,17 @@
 {
-    "tabs": {
-        "reader": "Läsare",
-        "view": "Vy",
-        "metadata1": "Metadata 1",
-        "metadata2": "Metadata 2",
-        "application": "Applikation",
-        "users": "Användare",
-        "email": "E-post",
-        "patterns": "Mönster",
-        "authentication": "OIDC",
-        "tasks": "Uppgifter",
-        "auditLogs": "Granskningsloggar",
-        "opds": "OPDS",
-        "devices": "Enheter"
-    }
+  "tabs": {
+    "reader": "Läsare",
+    "view": "Vy",
+    "metadata1": "Metadata 1",
+    "metadata2": "Metadata 2",
+    "application": "Applikation",
+    "users": "Användare",
+    "email": "E-post",
+    "patterns": "Mönster",
+    "authentication": "OIDC",
+    "tasks": "Uppgifter",
+    "auditLogs": "Granskningsloggar",
+    "opds": "OPDS",
+    "devices": "Enheter"
+  }
 }

@@ -1,76 +1,76 @@
 {
-    "title": "Настройки аутентификации",
-    "description": "Настройте методы аутентификации для Вашего экземпляра Booklore. Внутренняя аутентификация всегда включена, а дополнительно можно включить OIDC для внешних провайдеров аутентификации.",
-    "methods": {
-        "sectionTitle": "Методы аутентификации",
-        "sectionDesc": "Выберите, какие методы аутентификации доступны пользователям для входа."
-    },
-    "internal": {
-        "label": "Внутренняя аутентификация",
-        "status": "Всегда включена",
-        "description": "Встроенная аутентификация по имени пользователя и паролю. Это метод по умолчанию, который нельзя отключить."
-    },
-    "oidc": {
-        "label": "Аутентификация OIDC",
-        "experimental": "Экспериментальная",
-        "description": "OpenID Connect для единого входа через внешних провайдеров (Authentik, Keycloak и т.д.).",
-        "configHint": "Настройте параметры ниже для включения.",
-        "enabled": "Включена",
-        "disabled": "Отключена"
-    },
-    "providerConfig": {
-        "sectionTitle": "Конфигурация провайдера OIDC",
-        "sectionDesc": "Настройте параметры провайдера OIDC. Все поля обязательны для включения аутентификации OIDC.",
-        "providerName": "Имя провайдера",
-        "providerPlaceholder": "например, Authentik, Keycloak",
-        "clientId": "Client ID",
-        "clientIdPlaceholder": "Ваш OIDC Client ID",
-        "clientSecret": "",
-        "clientSecretPlaceholder": "",
-        "clientSecretHint": "",
-        "issuerUri": "URI издателя",
-        "issuerPlaceholder": "например, https://auth.example.com/realms/booklore",
-        "scope": "Область видимости",
-        "scopeHint": "Обязательные области для входа OIDC. Должны поддерживаться Вашим провайдером.",
-        "claimMappings": "Сопоставление утверждений",
-        "claimDesc": "Сопоставьте утверждения токена OIDC с полями пользователя Booklore. Они должны соответствовать утверждениям токена Вашего провайдера.",
-        "usernameClaim": "Утверждение имени пользователя",
-        "usernamePlaceholder": "например, preferred_username",
-        "emailClaim": "Утверждение email",
-        "emailPlaceholder": "например, email",
-        "nameClaim": "Утверждение отображаемого имени",
-        "namePlaceholder": "например, name"
-    },
-    "provisioning": {
-        "sectionTitle": "Создание пользователей",
-        "sectionDesc": "Настройте, как создаются новые пользователи OIDC и какие разрешения они получают.",
-        "autoLabel": "Автоматическое создание пользователей",
-        "autoEnabled": "Включено",
-        "autoDisabled": "Отключено",
-        "autoDesc": "Когда включено, новые пользователи автоматически создаются при первом входе через OIDC с разрешениями, указанными ниже. Когда отключено, пользователи должны быть созданы вручную в Booklore перед входом через OIDC.",
-        "defaultPerms": "Разрешения по умолчанию",
-        "readBooks": "Чтение книг",
-        "defaultLibraryAccess": "Доступ к библиотекам по умолчанию",
-        "selectLibraries": "Выберите библиотеки, доступные новым пользователям"
-    },
-    "perms": {
-        "uploadBooks": "Загрузка книг",
-        "downloadBooks": "Скачивание книг",
-        "editMetadata": "Редактирование метаданных книг",
-        "manageLibrary": "Управление библиотекой",
-        "emailBook": "Отправка книг по email",
-        "deleteBook": "Удаление книг",
-        "koreaderSync": "Синхронизация KOReader",
-        "koboSync": "Синхронизация Kobo",
-        "accessOpds": "Доступ к OPDS"
-    },
-    "toast": {
-        "saved": "Сохранено",
-        "oidcUpdated": "Настройка OIDC обновлена.",
-        "oidcError": "Не удалось обновить настройку OIDC.",
-        "providerSaved": "Настройки провайдера OIDC сохранены.",
-        "providerError": "Не удалось сохранить настройки провайдера OIDC.",
-        "provisionSaved": "Настройки автоматического создания пользователей OIDC сохранены.",
-        "provisionError": "Не удалось сохранить настройки автоматического создания пользователей OIDC."
-    }
+  "title": "Настройки аутентификации",
+  "description": "Настройте методы аутентификации для Вашего экземпляра Grimmory. Внутренняя аутентификация всегда включена, а дополнительно можно включить OIDC для внешних провайдеров аутентификации.",
+  "methods": {
+    "sectionTitle": "Методы аутентификации",
+    "sectionDesc": "Выберите, какие методы аутентификации доступны пользователям для входа."
+  },
+  "internal": {
+    "label": "Внутренняя аутентификация",
+    "status": "Всегда включена",
+    "description": "Встроенная аутентификация по имени пользователя и паролю. Это метод по умолчанию, который нельзя отключить."
+  },
+  "oidc": {
+    "label": "Аутентификация OIDC",
+    "experimental": "Экспериментальная",
+    "description": "OpenID Connect для единого входа через внешних провайдеров (Authentik, Keycloak и т.д.).",
+    "configHint": "Настройте параметры ниже для включения.",
+    "enabled": "Включена",
+    "disabled": "Отключена"
+  },
+  "providerConfig": {
+    "sectionTitle": "Конфигурация провайдера OIDC",
+    "sectionDesc": "Настройте параметры провайдера OIDC. Все поля обязательны для включения аутентификации OIDC.",
+    "providerName": "Имя провайдера",
+    "providerPlaceholder": "например, Authentik, Keycloak",
+    "clientId": "Client ID",
+    "clientIdPlaceholder": "Ваш OIDC Client ID",
+    "clientSecret": "",
+    "clientSecretPlaceholder": "",
+    "clientSecretHint": "",
+    "issuerUri": "URI издателя",
+    "issuerPlaceholder": "например, https://auth.example.com/realms/grimmory",
+    "scope": "Область видимости",
+    "scopeHint": "Обязательные области для входа OIDC. Должны поддерживаться Вашим провайдером.",
+    "claimMappings": "Сопоставление утверждений",
+    "claimDesc": "Сопоставьте утверждения токена OIDC с полями пользователя Grimmory. Они должны соответствовать утверждениям токена Вашего провайдера.",
+    "usernameClaim": "Утверждение имени пользователя",
+    "usernamePlaceholder": "например, preferred_username",
+    "emailClaim": "Утверждение email",
+    "emailPlaceholder": "например, email",
+    "nameClaim": "Утверждение отображаемого имени",
+    "namePlaceholder": "например, name"
+  },
+  "provisioning": {
+    "sectionTitle": "Создание пользователей",
+    "sectionDesc": "Настройте, как создаются новые пользователи OIDC и какие разрешения они получают.",
+    "autoLabel": "Автоматическое создание пользователей",
+    "autoEnabled": "Включено",
+    "autoDisabled": "Отключено",
+    "autoDesc": "Когда включено, новые пользователи автоматически создаются при первом входе через OIDC с разрешениями, указанными ниже. Когда отключено, пользователи должны быть созданы вручную в Grimmory перед входом через OIDC.",
+    "defaultPerms": "Разрешения по умолчанию",
+    "readBooks": "Чтение книг",
+    "defaultLibraryAccess": "Доступ к библиотекам по умолчанию",
+    "selectLibraries": "Выберите библиотеки, доступные новым пользователям"
+  },
+  "perms": {
+    "uploadBooks": "Загрузка книг",
+    "downloadBooks": "Скачивание книг",
+    "editMetadata": "Редактирование метаданных книг",
+    "manageLibrary": "Управление библиотекой",
+    "emailBook": "Отправка книг по email",
+    "deleteBook": "Удаление книг",
+    "koreaderSync": "Синхронизация KOReader",
+    "koboSync": "Синхронизация Kobo",
+    "accessOpds": "Доступ к OPDS"
+  },
+  "toast": {
+    "saved": "Сохранено",
+    "oidcUpdated": "Настройка OIDC обновлена.",
+    "oidcError": "Не удалось обновить настройку OIDC.",
+    "providerSaved": "Настройки провайдера OIDC сохранены.",
+    "providerError": "Не удалось сохранить настройки провайдера OIDC.",
+    "provisionSaved": "Настройки автоматического создания пользователей OIDC сохранены.",
+    "provisionError": "Не удалось сохранить настройки автоматического создания пользователей OIDC."
+  }
 }

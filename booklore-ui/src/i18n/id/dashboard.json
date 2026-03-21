@@ -1,66 +1,66 @@
 {
-    "main": {
-        "pageTitle": "Dasbor",
-        "welcomeTitle": "Selamat Datang di BookLore!",
-        "welcomeSubtitle": "",
-        "welcomeDescription": "",
-        "createLibrary": "",
-        "customizeDashboard": ""
+  "main": {
+    "pageTitle": "Dasbor",
+    "welcomeTitle": "Selamat Datang di Grimmory!",
+    "welcomeSubtitle": "",
+    "welcomeDescription": "",
+    "createLibrary": "",
+    "customizeDashboard": ""
+  },
+  "scroller": {
+    "noBooksFound": "",
+    "loadError": "",
+    "continueListening": "",
+    "continueReading": "",
+    "recentlyAdded": "",
+    "discoverNew": "",
+    "magicShelf": "",
+    "default": ""
+  },
+  "settings": {
+    "title": "",
+    "description": "",
+    "type": "Tipe",
+    "selectType": "",
+    "magicShelf": "",
+    "selectMagicShelf": "",
+    "sortField": "",
+    "selectField": "",
+    "direction": "",
+    "selectDirection": "",
+    "maxItems": "",
+    "addScroller": "",
+    "resetToDefault": "",
+    "scrollerTypes": {
+      "lastRead": "",
+      "lastListened": "",
+      "latestAdded": "",
+      "random": "",
+      "magicShelf": "",
+      "default": ""
     },
-    "scroller": {
-        "noBooksFound": "",
-        "loadError": "",
-        "continueListening": "",
-        "continueReading": "",
-        "recentlyAdded": "",
-        "discoverNew": "",
-        "magicShelf": "",
-        "default": ""
+    "sortFields": {
+      "title": "Judul",
+      "fileName": "",
+      "filePath": "",
+      "addedOn": "",
+      "author": "Penulis",
+      "authorSurnameVorname": "",
+      "seriesName": "",
+      "seriesNumber": "",
+      "personalRating": "",
+      "publisher": "Penerbit",
+      "publishedDate": "",
+      "lastReadTime": "",
+      "readStatus": "",
+      "dateFinished": "",
+      "readingProgress": "",
+      "bookType": "",
+      "pageCount": "Halaman"
     },
-    "settings": {
-        "title": "",
-        "description": "",
-        "type": "Tipe",
-        "selectType": "",
-        "magicShelf": "",
-        "selectMagicShelf": "",
-        "sortField": "",
-        "selectField": "",
-        "direction": "",
-        "selectDirection": "",
-        "maxItems": "",
-        "addScroller": "",
-        "resetToDefault": "",
-        "scrollerTypes": {
-            "lastRead": "",
-            "lastListened": "",
-            "latestAdded": "",
-            "random": "",
-            "magicShelf": "",
-            "default": ""
-        },
-        "sortFields": {
-            "title": "Judul",
-            "fileName": "",
-            "filePath": "",
-            "addedOn": "",
-            "author": "Penulis",
-            "authorSurnameVorname": "",
-            "seriesName": "",
-            "seriesNumber": "",
-            "personalRating": "",
-            "publisher": "Penerbit",
-            "publishedDate": "",
-            "lastReadTime": "",
-            "readStatus": "",
-            "dateFinished": "",
-            "readingProgress": "",
-            "bookType": "",
-            "pageCount": "Halaman"
-        },
-        "sortDirections": {
-            "asc": "Naik",
-            "desc": "Turun"
-        }
+    "sortDirections": {
+      "asc": "Naik",
+      "desc": "Turun"
     }
+  }
 }

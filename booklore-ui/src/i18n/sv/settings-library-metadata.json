@@ -1,34 +1,34 @@
 {
-    "title": "Konfiguration av biblioteksmetadata",
-    "description": "Konfigurera beteende för metadatahämtning för dina bibliotek. Ange globala standardinställningar och skapa biblioteksspecifika åsidosättningar för att styra hur bokmetadata hämtas från olika leverantörer.",
-    "defaultSettings": {
-        "sectionTitle": "Standardinställningar för metadata",
-        "sectionDesc": "Ange globala standardleverantörsprioriteringar för bokmetadatafält. Dessa inställningar gäller för alla bibliotek om de inte åsidosätts nedan. BookLore provar leverantörer från vänster till höger (1:a > 2:a > 3:e > 4:e prioritet) för varje bokfält tills data hittas. Systemet kontrollerar din 1:a-prioritetsleverantör först; om den leverantören inte har det specifika fältet (som beskrivning eller författare) flyttar det automatiskt till din 2:a prioritet, sedan 3:e och slutligen 4:e. Lämna en prioritet tom för att hoppa över den. Om Amazon (1:a) till exempel inte har någon beskrivning men Google Books (2:a) har det, kommer Googles beskrivning att användas. Använd kryssrutorna Aktivera för att helt inaktivera hämtning för specifika fält; inaktiverade fält hoppas över helt oavsett leverantörsinställningar.",
-        "saveButton": "Spara standardinställningar",
-        "saveSuccess": "Standardinställningar för metadata har sparats.",
-        "saveFailed": "Sparning misslyckades",
-        "saveError": "Kunde inte spara standardinställningar för metadata. Försök igen."
-    },
-    "libraryOverrides": {
-        "sectionTitle": "Biblioteksspecifika åsidosättningar",
-        "sectionDesc": "Åsidosätt standardprioriteringsinställningarna för specifika bibliotek. Du kanske till exempel föredrar Amazon för skönlitteratur men Google Books för tekniska böcker. Varje bibliotek kan ha sin egen leverantörsprioritetsordning medan det faller tillbaka på standardinställningar för ospecificerade fält. Du kan också aktivera eller inaktivera specifika metadatafält per bibliotek, vilket är användbart om vissa bibliotek inte behöver specifika datatyper som beskrivningar eller omslag.",
-        "customSettings": "Anpassade inställningar",
-        "defaultSettings": "Standardinställningar",
-        "exportSidecar": "Exportera sidecar",
-        "importSidecar": "Importera sidecar",
-        "exportTooltip": "Generera .metadata.json-filer för alla böcker i detta bibliotek",
-        "importTooltip": "Importera metadata från befintliga .metadata.json-filer i detta bibliotek",
-        "saveLibraryButton": "Spara {{name}}-inställningar",
-        "saveSuccess": "Biblioteksmetadataalternativ har sparats.",
-        "saveFailed": "Sparning misslyckades",
-        "saveError": "Kunde inte spara biblioteksmetadataalternativ. Försök igen.",
-        "exportSuccess": "Exporterade sidecar-filer för {{count}} böcker.",
-        "exportComplete": "Export klar",
-        "exportFailed": "Export misslyckades",
-        "exportError": "Kunde inte exportera sidecar-filer. Försök igen.",
-        "importSuccess": "Importerade metadata från {{count}} sidecar-filer.",
-        "importComplete": "Import klar",
-        "importFailed": "Import misslyckades",
-        "importError": "Kunde inte importera från sidecar-filer. Försök igen."
-    }
+  "title": "Konfiguration av biblioteksmetadata",
+  "description": "Konfigurera beteende för metadatahämtning för dina bibliotek. Ange globala standardinställningar och skapa biblioteksspecifika åsidosättningar för att styra hur bokmetadata hämtas från olika leverantörer.",
+  "defaultSettings": {
+    "sectionTitle": "Standardinställningar för metadata",
+    "sectionDesc": "Ange globala standardleverantörsprioriteringar för bokmetadatafält. Dessa inställningar gäller för alla bibliotek om de inte åsidosätts nedan. Grimmory provar leverantörer från vänster till höger (1:a > 2:a > 3:e > 4:e prioritet) för varje bokfält tills data hittas. Systemet kontrollerar din 1:a-prioritetsleverantör först; om den leverantören inte har det specifika fältet (som beskrivning eller författare) flyttar det automatiskt till din 2:a prioritet, sedan 3:e och slutligen 4:e. Lämna en prioritet tom för att hoppa över den. Om Amazon (1:a) till exempel inte har någon beskrivning men Google Books (2:a) har det, kommer Googles beskrivning att användas. Använd kryssrutorna Aktivera för att helt inaktivera hämtning för specifika fält; inaktiverade fält hoppas över helt oavsett leverantörsinställningar.",
+    "saveButton": "Spara standardinställningar",
+    "saveSuccess": "Standardinställningar för metadata har sparats.",
+    "saveFailed": "Sparning misslyckades",
+    "saveError": "Kunde inte spara standardinställningar för metadata. Försök igen."
+  },
+  "libraryOverrides": {
+    "sectionTitle": "Biblioteksspecifika åsidosättningar",
+    "sectionDesc": "Åsidosätt standardprioriteringsinställningarna för specifika bibliotek. Du kanske till exempel föredrar Amazon för skönlitteratur men Google Books för tekniska böcker. Varje bibliotek kan ha sin egen leverantörsprioritetsordning medan det faller tillbaka på standardinställningar för ospecificerade fält. Du kan också aktivera eller inaktivera specifika metadatafält per bibliotek, vilket är användbart om vissa bibliotek inte behöver specifika datatyper som beskrivningar eller omslag.",
+    "customSettings": "Anpassade inställningar",
+    "defaultSettings": "Standardinställningar",
+    "exportSidecar": "Exportera sidecar",
+    "importSidecar": "Importera sidecar",
+    "exportTooltip": "Generera .metadata.json-filer för alla böcker i detta bibliotek",
+    "importTooltip": "Importera metadata från befintliga .metadata.json-filer i detta bibliotek",
+    "saveLibraryButton": "Spara {{name}}-inställningar",
+    "saveSuccess": "Biblioteksmetadataalternativ har sparats.",
+    "saveFailed": "Sparning misslyckades",
+    "saveError": "Kunde inte spara biblioteksmetadataalternativ. Försök igen.",
+    "exportSuccess": "Exporterade sidecar-filer för {{count}} böcker.",
+    "exportComplete": "Export klar",
+    "exportFailed": "Export misslyckades",
+    "exportError": "Kunde inte exportera sidecar-filer. Försök igen.",
+    "importSuccess": "Importerade metadata från {{count}} sidecar-filer.",
+    "importComplete": "Import klar",
+    "importFailed": "Import misslyckades",
+    "importError": "Kunde inte importera från sidecar-filer. Försök igen."
+  }
 }

@@ -1,50 +1,40 @@
 {
-    "title": "Préférences globales",
-    "description": "Configurez les paramètres globaux de votre instance Booklore, y compris la gestion des images de couverture, les préférences de recherche et les limites de téléversement de fichiers.",
-    "covers": {
-        "sectionTitle": "Image de couverture des livres",
-        "regenerate": "Régénérer les couvertures",
-        "regenerateBtn": "Régénérer",
-        "regenerateDesc": "Régénère les images de couverture pour tous les livres à partir des couvertures intégrées dans le fichier.",
-        "regenerateStarted": "Régénération des couvertures lancée",
-        "regenerateStartedDetail": "Les couvertures des livres sont en cours de régénération.",
-        "regenerateError": "Échec du lancement de la régénération des couvertures.",
-        "verticalCropping": "Recadrage vertical des couvertures",
-        "verticalCroppingDesc": "Recadrer automatiquement les images extrêmement hautes (comme les webcomics) depuis le haut pour créer des miniatures de couverture utilisables.",
-        "horizontalCropping": "Recadrage horizontal des couvertures",
-        "horizontalCroppingDesc": "Recadrer automatiquement les images extrêmement larges depuis la gauche pour créer des miniatures de couverture utilisables.",
-        "aspectRatio": "Seuil de rapport d'aspect : {{value}}",
-        "aspectRatioDesc": "Les images dont le rapport d'aspect dépasse ce seuil seront recadrées. Une valeur de 2,5 signifie que les images plus de 2,5 fois plus hautes (ou plus larges) que la normale seront recadrées.",
-        "smartCropping": "Recadrage intelligent",
-        "smartCroppingDesc": "Ignorer les régions de couleur uniforme lors de la détermination de l'endroit où recadrer. Concentre l'image de couverture sur le contenu le plus pertinent."
-    },
-    "search": {
-        "sectionTitle": "Recherche et recommandations",
-        "autoBookSearch": "Recherche automatique de livres",
-        "autoBookSearchDesc": "Tente automatiquement la correspondance des métadonnées lorsque le panneau d'informations du livre est ouvert.",
-        "similarBook": "Recommandation de livres similaires",
-        "similarBookDesc": "Active ou désactive les recommandations de livres similaires basées sur votre bibliothèque."
-    },
-    "fileManagement": {
-        "sectionTitle": "Gestion des fichiers",
-        "maxUploadSize": "Taille max. de téléversement",
-        "maxUploadPlaceholder": "Taille max.",
-        "maxUploadDesc": "Définit la taille maximale autorisée (en Mo) pour chaque fichier téléversé. S'applique à tous les formats supportés.",
-        "restartWarning": "Les modifications prendront effet après le redémarrage du serveur",
-        "invalidInput": "Entrée invalide",
-        "invalidInputDetail": "Veuillez entrer une taille maximale de téléversement valide en Mo."
-    },
-    "telemetry": {
-        "sectionTitle": "Télémétrie",
-        "enableTelemetry": "Activer la télémétrie",
-        "telemetryDesc": "Aidez à améliorer Booklore en partageant des statistiques d'utilisation anonymes. Ces données permettent aux développeurs de voir quelles fonctionnalités sont les plus utilisées, d'identifier les bugs et de repérer les problèmes de performance afin de savoir sur quoi travailler ensuite. Aucune information personnelle, contenu de livre ou donnée identifiable n'est jamais envoyé. Les données sont envoyées automatiquement au serveur Booklore une fois toutes les 24 heures. C'est totalement sûr et très utile pour les développeurs."
-    },
-    "settingsSaved": "Paramètres enregistrés",
-    "settingsSavedDetail": "Les paramètres ont été enregistrés avec succès !",
-    "settingsError": "Une erreur s'est produite lors de l'enregistrement des paramètres.",
-    "appearance": {
-        "supportButtonAnimation": "Animation du bouton de support",
-        "supportButtonAnimationDesc": "",
-        "sectionTitle": "Apparence"
-    }
+  "title": "Préférences globales",
+  "description": "Configurez les paramètres globaux de votre instance Grimmory, y compris la gestion des images de couverture, les préférences de recherche et les limites de téléversement de fichiers.",
+  "covers": {
+    "sectionTitle": "Image de couverture des livres",
+    "regenerate": "Régénérer les couvertures",
+    "regenerateBtn": "Régénérer",
+    "regenerateDesc": "Régénère les images de couverture pour tous les livres à partir des couvertures intégrées dans le fichier.",
+    "regenerateStarted": "Régénération des couvertures lancée",
+    "regenerateStartedDetail": "Les couvertures des livres sont en cours de régénération.",
+    "regenerateError": "Échec du lancement de la régénération des couvertures.",
+    "verticalCropping": "Recadrage vertical des couvertures",
+    "verticalCroppingDesc": "Recadrer automatiquement les images extrêmement hautes (comme les webcomics) depuis le haut pour créer des miniatures de couverture utilisables.",
+    "horizontalCropping": "Recadrage horizontal des couvertures",
+    "horizontalCroppingDesc": "Recadrer automatiquement les images extrêmement larges depuis la gauche pour créer des miniatures de couverture utilisables.",
+    "aspectRatio": "Seuil de rapport d'aspect : {{value}}",
+    "aspectRatioDesc": "Les images dont le rapport d'aspect dépasse ce seuil seront recadrées. Une valeur de 2,5 signifie que les images plus de 2,5 fois plus hautes (ou plus larges) que la normale seront recadrées.",
+    "smartCropping": "Recadrage intelligent",
+    "smartCroppingDesc": "Ignorer les régions de couleur uniforme lors de la détermination de l'endroit où recadrer. Concentre l'image de couverture sur le contenu le plus pertinent."
+  },
+  "search": {
+    "sectionTitle": "Recherche et recommandations",
+    "autoBookSearch": "Recherche automatique de livres",
+    "autoBookSearchDesc": "Tente automatiquement la correspondance des métadonnées lorsque le panneau d'informations du livre est ouvert.",
+    "similarBook": "Recommandation de livres similaires",
+    "similarBookDesc": "Active ou désactive les recommandations de livres similaires basées sur votre bibliothèque."
+  },
+  "fileManagement": {
+    "sectionTitle": "Gestion des fichiers",
+    "maxUploadSize": "Taille max. de téléversement",
+    "maxUploadPlaceholder": "Taille max.",
+    "maxUploadDesc": "Définit la taille maximale autorisée (en Mo) pour chaque fichier téléversé. S'applique à tous les formats supportés.",
+    "restartWarning": "Les modifications prendront effet après le redémarrage du serveur",
+    "invalidInput": "Entrée invalide",
+    "invalidInputDetail": "Veuillez entrer une taille maximale de téléversement valide en Mo."
+  },
+  "settingsSaved": "Paramètres enregistrés",
+  "settingsSavedDetail": "Les paramètres ont été enregistrés avec succès !",
+  "settingsError": "Une erreur s'est produite lors de l'enregistrement des paramètres."
 }

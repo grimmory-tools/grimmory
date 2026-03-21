@@ -1,66 +1,66 @@
 {
-    "main": {
-        "pageTitle": "Панель управления",
-        "welcomeTitle": "Добро пожаловать в BookLore!",
-        "welcomeSubtitle": "Давайте создадим Вашу первую библиотеку",
-        "welcomeDescription": "Библиотека — это место, где хранятся все Ваши книги. Начните создавать свою цифровую коллекцию уже сегодня!",
-        "createLibrary": "Создать библиотеку",
-        "customizeDashboard": "Настроить панель управления"
+  "main": {
+    "pageTitle": "Панель управления",
+    "welcomeTitle": "Добро пожаловать в Grimmory!",
+    "welcomeSubtitle": "Давайте создадим Вашу первую библиотеку",
+    "welcomeDescription": "Библиотека — это место, где хранятся все Ваши книги. Начните создавать свою цифровую коллекцию уже сегодня!",
+    "createLibrary": "Создать библиотеку",
+    "customizeDashboard": "Настроить панель управления"
+  },
+  "scroller": {
+    "noBooksFound": "Книги для этой ленты не найдены.",
+    "loadError": "Не удалось загрузить книги! Попробуйте обновить страницу.",
+    "continueListening": "Продолжить прослушивание",
+    "continueReading": "Продолжить чтение",
+    "recentlyAdded": "Недавно добавленные",
+    "discoverNew": "Откройте для себя что-то новое",
+    "magicShelf": "Умная полка",
+    "default": "Лента"
+  },
+  "settings": {
+    "title": "Настройка панели управления",
+    "description": "Добавьте до 5 лент из различных коллекций книг и настройте их поведение",
+    "type": "Тип",
+    "selectType": "Выберите тип",
+    "magicShelf": "Умная полка",
+    "selectMagicShelf": "Выберите умную полку",
+    "sortField": "Поле сортировки",
+    "selectField": "Выберите поле",
+    "direction": "Направление",
+    "selectDirection": "Выберите направление",
+    "maxItems": "Макс. элементов",
+    "addScroller": "Добавить ленту",
+    "resetToDefault": "Сбросить по умолчанию",
+    "scrollerTypes": {
+      "lastRead": "Продолжить чтение",
+      "lastListened": "Продолжить прослушивание",
+      "latestAdded": "Недавно добавленные",
+      "random": "Откройте для себя что-то новое",
+      "magicShelf": "Умная полка",
+      "default": "Лента"
     },
-    "scroller": {
-        "noBooksFound": "Книги для этой ленты не найдены.",
-        "loadError": "Не удалось загрузить книги! Попробуйте обновить страницу.",
-        "continueListening": "Продолжить прослушивание",
-        "continueReading": "Продолжить чтение",
-        "recentlyAdded": "Недавно добавленные",
-        "discoverNew": "Откройте для себя что-то новое",
-        "magicShelf": "Умная полка",
-        "default": "Лента"
+    "sortFields": {
+      "title": "Название",
+      "fileName": "Имя файла",
+      "filePath": "Путь к файлу",
+      "addedOn": "Дата добавления",
+      "author": "Автор",
+      "authorSurnameVorname": "Автор (фамилия)",
+      "seriesName": "Название серии",
+      "seriesNumber": "Номер в серии",
+      "personalRating": "Личная оценка",
+      "publisher": "Издательство",
+      "publishedDate": "Дата публикации",
+      "lastReadTime": "Последнее чтение",
+      "readStatus": "Статус чтения",
+      "dateFinished": "Дата завершения",
+      "readingProgress": "Прогресс чтения",
+      "bookType": "Тип книги",
+      "pageCount": "Страницы"
     },
-    "settings": {
-        "title": "Настройка панели управления",
-        "description": "Добавьте до 5 лент из различных коллекций книг и настройте их поведение",
-        "type": "Тип",
-        "selectType": "Выберите тип",
-        "magicShelf": "Умная полка",
-        "selectMagicShelf": "Выберите умную полку",
-        "sortField": "Поле сортировки",
-        "selectField": "Выберите поле",
-        "direction": "Направление",
-        "selectDirection": "Выберите направление",
-        "maxItems": "Макс. элементов",
-        "addScroller": "Добавить ленту",
-        "resetToDefault": "Сбросить по умолчанию",
-        "scrollerTypes": {
-            "lastRead": "Продолжить чтение",
-            "lastListened": "Продолжить прослушивание",
-            "latestAdded": "Недавно добавленные",
-            "random": "Откройте для себя что-то новое",
-            "magicShelf": "Умная полка",
-            "default": "Лента"
-        },
-        "sortFields": {
-            "title": "Название",
-            "fileName": "Имя файла",
-            "filePath": "Путь к файлу",
-            "addedOn": "Дата добавления",
-            "author": "Автор",
-            "authorSurnameVorname": "Автор (фамилия)",
-            "seriesName": "Название серии",
-            "seriesNumber": "Номер в серии",
-            "personalRating": "Личная оценка",
-            "publisher": "Издательство",
-            "publishedDate": "Дата публикации",
-            "lastReadTime": "Последнее чтение",
-            "readStatus": "Статус чтения",
-            "dateFinished": "Дата завершения",
-            "readingProgress": "Прогресс чтения",
-            "bookType": "Тип книги",
-            "pageCount": "Страницы"
-        },
-        "sortDirections": {
-            "asc": "По возрастанию",
-            "desc": "По убыванию"
-        }
+    "sortDirections": {
+      "asc": "По возрастанию",
+      "desc": "По убыванию"
     }
+  }
 }

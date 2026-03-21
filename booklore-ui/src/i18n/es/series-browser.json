@@ -1,25 +1,25 @@
 {
-    "pageTitle": "Series",
-    "browseAllSeries": "Explorar todas las series",
-    "searchPlaceholder": "Buscar por nombre de serie o autor...",
-    "readNext": "Leer siguiente",
-    "booksRead": "libros leídos",
-    "noSeriesFound": "Ninguna serie coincide con tu búsqueda o filtros.",
-    "noSeriesInCategory": "No se encontraron series en esta categoría.",
-    "cardSize": "Tamaño de tarjeta",
-    "filters": {
-        "all": "Todas",
-        "notStarted": "Sin empezar",
-        "inProgress": "En progreso",
-        "completed": "Completadas",
-        "abandoned": "Abandonadas"
-    },
-    "sort": {
-        "nameAsc": "Nombre (A-Z)",
-        "nameDesc": "Nombre (Z-A)",
-        "bookCount": "Cantidad de libros",
-        "progress": "Progreso",
-        "recentlyRead": "Leídas recientemente",
-        "recentlyAdded": "Agregadas recientemente"
-    }
+  "pageTitle": "Series",
+  "browseAllSeries": "Explorar todas las series",
+  "searchPlaceholder": "Buscar por nombre de serie o autor...",
+  "readNext": "Leer siguiente",
+  "booksRead": "libros leídos",
+  "noSeriesFound": "Ninguna serie coincide con tu búsqueda o filtros.",
+  "noSeriesInCategory": "No se encontraron series en esta categoría.",
+  "cardSize": "Tamaño de tarjeta",
+  "filters": {
+    "all": "Todas",
+    "notStarted": "Sin empezar",
+    "inProgress": "En progreso",
+    "completed": "Completadas",
+    "abandoned": "Abandonadas"
+  },
+  "sort": {
+    "nameAsc": "Nombre (A-Z)",
+    "nameDesc": "Nombre (Z-A)",
+    "bookCount": "Cantidad de libros",
+    "progress": "Progreso",
+    "recentlyRead": "Leídas recientemente",
+    "recentlyAdded": "Agregadas recientemente"
+  }
 }

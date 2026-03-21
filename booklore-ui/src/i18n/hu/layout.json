@@ -1,55 +1,55 @@
 {
-    "topbar": {
-        "bookdrop": "Gyűjtőláda",
-        "createNewLibrary": "Új Könyvtár Létrehozása",
-        "uploadBook": "Könyv Feltöltése",
-        "charts": "Kimutatások",
-        "metadataManager": "Metaadat Szerkesztő",
-        "settings": "Beállítások",
-        "documentation": "Dokumentáció",
-        "profile": "Profil",
-        "logout": "Kijelentkezés",
-        "language": "Nyelv",
-        "supportBookLore": "BookLore Támogatása",
-        "notificationAriaLabel": "Egységes Értesítés Ikon",
-        "createLibrary": "Könyvtár Létrehozása",
-        "stats": "Statisztikák",
-        "libraryStats": "Könyvtár Statisztikák",
-        "readingStats": "Olvasási Statisztikák"
-    },
-    "menu": {
-        "home": "Áttekintés",
-        "dashboard": "Kezdőlap",
-        "allBooks": "Minden Könyv",
-        "libraries": "Könyvtárak",
-        "shelves": "Polcok",
-        "magicShelves": "Varázspolcok",
-        "unshelved": "Besorolatlan",
-        "series": "Sorozatok",
-        "authors": "Szerzők",
-        "notebook": "Jegyzetfüzet",
-        "update": "(Frissítés)"
-    },
-    "changelog": {
-        "title": "Újdonságok",
-        "description": "Legújabb frissítések és fejlesztések",
-        "loading": "Változáskövetés betöltése...",
-        "empty": "Nem érhető el új frissítés."
-    },
-    "theme": {
-        "primary": "Elsődleges",
-        "surface": "Felszín"
-    },
-    "uploadDialog": {
-        "chooseFile": "Fájl Tallózása:",
-        "selectImage": "Kép Kiválasztása",
-        "fileNote": "Támogatott formátumok: JPEG, PNG • Maximális fájlméret: 5 MB",
-        "or": "VAGY",
-        "imageUrl": "Kép URL:",
-        "urlPlaceholder": "Illeszd be ide a kép URL-jét",
-        "urlNote": "Támogatott formátumok: JPEG, PNG • Maximális fájlméret: 5 MB",
-        "errorNoInput": "Kérlek válassz ki egy fájlt vagy illesz be egy URL-t.",
-        "errorUploadFailed": "Kép feltöltése sikertelen.",
-        "errorUploadRetry": "Feltöltés sikertelen. Kérlek próbáld újra."
-    }
+  "topbar": {
+    "bookdrop": "Gyűjtőláda",
+    "createNewLibrary": "Új Könyvtár Létrehozása",
+    "uploadBook": "Könyv Feltöltése",
+    "charts": "Kimutatások",
+    "metadataManager": "Metaadat Szerkesztő",
+    "settings": "Beállítások",
+    "documentation": "Dokumentáció",
+    "profile": "Profil",
+    "logout": "Kijelentkezés",
+    "language": "Nyelv",
+    "supportGrimmory": "Grimmory Támogatása",
+    "notificationAriaLabel": "Egységes Értesítés Ikon",
+    "createLibrary": "Könyvtár Létrehozása",
+    "stats": "Statisztikák",
+    "libraryStats": "Könyvtár Statisztikák",
+    "readingStats": "Olvasási Statisztikák"
+  },
+  "menu": {
+    "home": "Áttekintés",
+    "dashboard": "Kezdőlap",
+    "allBooks": "Minden Könyv",
+    "libraries": "Könyvtárak",
+    "shelves": "Polcok",
+    "magicShelves": "Varázspolcok",
+    "unshelved": "Besorolatlan",
+    "series": "Sorozatok",
+    "authors": "Szerzők",
+    "notebook": "Jegyzetfüzet",
+    "update": "(Frissítés)"
+  },
+  "changelog": {
+    "title": "Újdonságok",
+    "description": "Legújabb frissítések és fejlesztések",
+    "loading": "Változáskövetés betöltése...",
+    "empty": "Nem érhető el új frissítés."
+  },
+  "theme": {
+    "primary": "Elsődleges",
+    "surface": "Felszín"
+  },
+  "uploadDialog": {
+    "chooseFile": "Fájl Tallózása:",
+    "selectImage": "Kép Kiválasztása",
+    "fileNote": "Támogatott formátumok: JPEG, PNG • Maximális fájlméret: 5 MB",
+    "or": "VAGY",
+    "imageUrl": "Kép URL:",
+    "urlPlaceholder": "Illeszd be ide a kép URL-jét",
+    "urlNote": "Támogatott formátumok: JPEG, PNG • Maximális fájlméret: 5 MB",
+    "errorNoInput": "Kérlek válassz ki egy fájlt vagy illesz be egy URL-t.",
+    "errorUploadFailed": "Kép feltöltése sikertelen.",
+    "errorUploadRetry": "Feltöltés sikertelen. Kérlek próbáld újra."
+  }
 }

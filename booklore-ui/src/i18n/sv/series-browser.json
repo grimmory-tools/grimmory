@@ -1,25 +1,25 @@
 {
-    "pageTitle": "Serier",
-    "browseAllSeries": "Bläddra bland alla serier",
-    "searchPlaceholder": "Sök efter serienamn eller författare...",
-    "readNext": "Läs nästa",
-    "booksRead": "böcker lästa",
-    "noSeriesFound": "Inga serier matchar din sökning eller dina filter.",
-    "noSeriesInCategory": "Inga serier hittades i denna kategori.",
-    "cardSize": "Kortstorlek",
-    "filters": {
-        "all": "Alla",
-        "notStarted": "Ej påbörjad",
-        "inProgress": "Pågår",
-        "completed": "Avslutad",
-        "abandoned": "Övergiven"
-    },
-    "sort": {
-        "nameAsc": "Namn (A-Ö)",
-        "nameDesc": "Namn (Ö-A)",
-        "bookCount": "Antal böcker",
-        "progress": "Framsteg",
-        "recentlyRead": "Nyligen läst",
-        "recentlyAdded": "Nyligen tillagd"
-    }
+  "pageTitle": "Serier",
+  "browseAllSeries": "Bläddra bland alla serier",
+  "searchPlaceholder": "Sök efter serienamn eller författare...",
+  "readNext": "Läs nästa",
+  "booksRead": "böcker lästa",
+  "noSeriesFound": "Inga serier matchar din sökning eller dina filter.",
+  "noSeriesInCategory": "Inga serier hittades i denna kategori.",
+  "cardSize": "Kortstorlek",
+  "filters": {
+    "all": "Alla",
+    "notStarted": "Ej påbörjad",
+    "inProgress": "Pågår",
+    "completed": "Avslutad",
+    "abandoned": "Övergiven"
+  },
+  "sort": {
+    "nameAsc": "Namn (A-Ö)",
+    "nameDesc": "Namn (Ö-A)",
+    "bookCount": "Antal böcker",
+    "progress": "Framsteg",
+    "recentlyRead": "Nyligen läst",
+    "recentlyAdded": "Nyligen tillagd"
+  }
 }

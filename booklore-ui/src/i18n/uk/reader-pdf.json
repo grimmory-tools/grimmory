@@ -1,10 +1,10 @@
 {
-    "toolbar": {
-        "switchToLightMode": "Перейти на світлу тему",
-        "switchToDarkMode": "Перейти на темний тему",
-        "closePdfReader": "Закрити PDF Reader"
-    },
-    "toast": {
-        "failedToLoadBook": "Не вдалося завантажити книгу"
-    }
+  "toolbar": {
+    "switchToLightMode": "Перейти на світлу тему",
+    "switchToDarkMode": "Перейти на темний тему",
+    "closePdfReader": "Закрити PDF Reader"
+  },
+  "toast": {
+    "failedToLoadBook": "Не вдалося завантажити книгу"
+  }
 }

@@ -3,7 +3,7 @@ import {Tooltip} from 'primeng/tooltip';
 
 export type DocType = 'kobo' | 'opds' | 'metadataManager' | 'koReader' | 'email'
   | 'amazonCookie' | 'fetchConfig' | 'hardcover' | 'taskManagement' | 'fileNamePatterns'
-  | 'authentication' | 'telemetry';
+  | 'authentication';
 
 @Component({
   selector: 'app-external-doc-link',
@@ -25,7 +25,7 @@ export type DocType = 'kobo' | 'opds' | 'metadataManager' | 'koReader' | 'email'
   `]
 })
 export class ExternalDocLinkComponent {
-  private readonly BASE_URL = 'https://booklore.org/docs';
+  private readonly BASE_URL = 'https://grimmory.org/docs';
 
   private readonly DOC_URLS: Record<DocType, string> = {
     kobo: `${this.BASE_URL}/integration/kobo`,
@@ -38,8 +38,7 @@ export class ExternalDocLinkComponent {
     fetchConfig: `${this.BASE_URL}/metadata/metadata-fetch-configuration`,
     taskManagement: `${this.BASE_URL}/tools/task-manager`,
     fileNamePatterns: `${this.BASE_URL}/metadata/file-naming-patterns`,
-    authentication: `${this.BASE_URL}/authentication/overview#setting-up-oidc`,
-    telemetry: `${this.BASE_URL}/tools/telemetry`
+    authentication: `${this.BASE_URL}/authentication/overview#setting-up-oidc`
   };
 
   @Input() docType!: DocType;

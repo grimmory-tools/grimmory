@@ -155,7 +155,7 @@ export class BookPatchService {
 
   resetProgress(bookIds: number | number[], type: ResetProgressType): Observable<BookStatusUpdateResponse[]> {
     const ids = Array.isArray(bookIds) ? bookIds : [bookIds];
-    const params = new HttpParams().set('type', ResetProgressTypes[type]);
+    const params = new HttpParams().set('type', type);
 
     return this.http.post<BookStatusUpdateResponse[]>(`${this.url}/reset-progress`, ids, {params}).pipe(
       tap(responses => {

@@ -1,34 +1,34 @@
 {
-    "title": "Configurazione metadati libreria",
-    "description": "Configura il comportamento di recupero metadati per le tue librerie. Imposta le impostazioni globali predefinite e crea sovrascritture specifiche per libreria per controllare come vengono recuperati i metadati dei libri dai diversi provider.",
-    "defaultSettings": {
-        "sectionTitle": "Impostazioni metadati predefinite",
-        "sectionDesc": "Imposta le priorità globali predefinite dei provider per i campi metadati dei libri. Queste impostazioni si applicano a tutte le librerie a meno che non vengano sovrascritte di seguito. BookLore prova i provider da sinistra a destra (1ª → 2ª → 3ª → 4ª priorità) per ogni campo del libro finché non trova i dati. Il sistema controlla prima il tuo provider di 1ª priorità: se quel provider non ha il campo specifico (come descrizione o autore), passa automaticamente alla 2ª priorità, poi alla 3ª e infine alla 4ª. Lascia una priorità vuota per saltarla completamente. Ad esempio, se Amazon (1ª) non ha la descrizione ma Google Books (2ª) sì, verrà utilizzata la descrizione di Google. Usa le caselle di selezione Abilita per disabilitare completamente il recupero di campi specifici: i campi disabilitati verranno saltati indipendentemente dalle impostazioni del provider.",
-        "saveButton": "Salva impostazioni predefinite",
-        "saveSuccess": "Le opzioni metadati predefinite sono state salvate con successo.",
-        "saveFailed": "Salvataggio fallito",
-        "saveError": "Salvataggio delle opzioni metadati predefinite fallito. Riprova."
-    },
-    "libraryOverrides": {
-        "sectionTitle": "Sovrascritture specifiche per libreria",
-        "sectionDesc": "Sovrascrivi le impostazioni di priorità predefinite per librerie specifiche. Ad esempio, potresti preferire Amazon per la narrativa ma Google Books per i libri tecnici. Ogni libreria può avere il proprio ordine di priorità dei provider, ricadendo sulle impostazioni predefinite per i campi non specificati. Puoi anche abilitare o disabilitare campi metadati specifici per libreria: utile se certe librerie non necessitano di tipi di dati specifici come descrizioni o copertine.",
-        "customSettings": "Impostazioni personalizzate",
-        "defaultSettings": "Impostazioni predefinite",
-        "exportSidecar": "Esporta sidecar",
-        "importSidecar": "Importa sidecar",
-        "exportTooltip": "Genera file .metadata.json per tutti i libri di questa libreria",
-        "importTooltip": "Importa metadati dai file .metadata.json esistenti in questa libreria",
-        "saveLibraryButton": "Salva impostazioni {{name}}",
-        "saveSuccess": "Le opzioni metadati della libreria sono state salvate con successo.",
-        "saveFailed": "Salvataggio fallito",
-        "saveError": "Salvataggio delle opzioni metadati della libreria fallito. Riprova.",
-        "exportSuccess": "File sidecar esportati per {{count}} libri.",
-        "exportComplete": "Esportazione completata",
-        "exportFailed": "Esportazione fallita",
-        "exportError": "Esportazione file sidecar fallita. Riprova.",
-        "importSuccess": "Metadati importati da {{count}} file sidecar.",
-        "importComplete": "Importazione completata",
-        "importFailed": "Importazione fallita",
-        "importError": "Importazione dai file sidecar fallita. Riprova."
-    }
+  "title": "Configurazione metadati libreria",
+  "description": "Configura il comportamento di recupero metadati per le tue librerie. Imposta le impostazioni globali predefinite e crea sovrascritture specifiche per libreria per controllare come vengono recuperati i metadati dei libri dai diversi provider.",
+  "defaultSettings": {
+    "sectionTitle": "Impostazioni metadati predefinite",
+    "sectionDesc": "Imposta le priorità globali predefinite dei provider per i campi metadati dei libri. Queste impostazioni si applicano a tutte le librerie a meno che non vengano sovrascritte di seguito. Grimmory prova i provider da sinistra a destra (1ª → 2ª → 3ª → 4ª priorità) per ogni campo del libro finché non trova i dati. Il sistema controlla prima il tuo provider di 1ª priorità: se quel provider non ha il campo specifico (come descrizione o autore), passa automaticamente alla 2ª priorità, poi alla 3ª e infine alla 4ª. Lascia una priorità vuota per saltarla completamente. Ad esempio, se Amazon (1ª) non ha la descrizione ma Google Books (2ª) sì, verrà utilizzata la descrizione di Google. Usa le caselle di selezione Abilita per disabilitare completamente il recupero di campi specifici: i campi disabilitati verranno saltati indipendentemente dalle impostazioni del provider.",
+    "saveButton": "Salva impostazioni predefinite",
+    "saveSuccess": "Le opzioni metadati predefinite sono state salvate con successo.",
+    "saveFailed": "Salvataggio fallito",
+    "saveError": "Salvataggio delle opzioni metadati predefinite fallito. Riprova."
+  },
+  "libraryOverrides": {
+    "sectionTitle": "Sovrascritture specifiche per libreria",
+    "sectionDesc": "Sovrascrivi le impostazioni di priorità predefinite per librerie specifiche. Ad esempio, potresti preferire Amazon per la narrativa ma Google Books per i libri tecnici. Ogni libreria può avere il proprio ordine di priorità dei provider, ricadendo sulle impostazioni predefinite per i campi non specificati. Puoi anche abilitare o disabilitare campi metadati specifici per libreria: utile se certe librerie non necessitano di tipi di dati specifici come descrizioni o copertine.",
+    "customSettings": "Impostazioni personalizzate",
+    "defaultSettings": "Impostazioni predefinite",
+    "exportSidecar": "Esporta sidecar",
+    "importSidecar": "Importa sidecar",
+    "exportTooltip": "Genera file .metadata.json per tutti i libri di questa libreria",
+    "importTooltip": "Importa metadati dai file .metadata.json esistenti in questa libreria",
+    "saveLibraryButton": "Salva impostazioni {{name}}",
+    "saveSuccess": "Le opzioni metadati della libreria sono state salvate con successo.",
+    "saveFailed": "Salvataggio fallito",
+    "saveError": "Salvataggio delle opzioni metadati della libreria fallito. Riprova.",
+    "exportSuccess": "File sidecar esportati per {{count}} libri.",
+    "exportComplete": "Esportazione completata",
+    "exportFailed": "Esportazione fallita",
+    "exportError": "Esportazione file sidecar fallita. Riprova.",
+    "importSuccess": "Metadati importati da {{count}} file sidecar.",
+    "importComplete": "Importazione completata",
+    "importFailed": "Importazione fallita",
+    "importError": "Importazione dai file sidecar fallita. Riprova."
+  }
 }

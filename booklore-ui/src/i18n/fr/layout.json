@@ -1,55 +1,55 @@
 {
-    "topbar": {
-        "bookdrop": "Bookdrop",
-        "createNewLibrary": "Créer une nouvelle bibliothèque",
-        "uploadBook": "Téléverser un livre",
-        "charts": "Graphiques",
-        "metadataManager": "Gestionnaire de métadonnées",
-        "settings": "Paramètres",
-        "documentation": "Documentation",
-        "profile": "Profil",
-        "logout": "Déconnexion",
-        "language": "Langue",
-        "supportBookLore": "Soutenir BookLore",
-        "notificationAriaLabel": "Icône de notification unifiée",
-        "createLibrary": "Créer une bibliothèque",
-        "stats": "Statistiques",
-        "libraryStats": "Statistiques de la bibliothèque",
-        "readingStats": "Statistiques de lecture"
-    },
-    "menu": {
-        "home": "Accueil",
-        "dashboard": "Tableau de bord",
-        "allBooks": "Tous les livres",
-        "libraries": "Bibliothèques",
-        "shelves": "Étagères",
-        "magicShelves": "Étagères magiques",
-        "unshelved": "Non rangés",
-        "series": "Séries",
-        "notebook": "Carnet",
-        "update": "(Mise à jour)",
-        "authors": "Auteurs"
-    },
-    "changelog": {
-        "title": "Nouveautés",
-        "description": "Dernières mises à jour et améliorations",
-        "loading": "Chargement du journal des modifications...",
-        "empty": "Aucune mise à jour disponible."
-    },
-    "theme": {
-        "primary": "Principal",
-        "surface": "Surface"
-    },
-    "uploadDialog": {
-        "chooseFile": "Choisir un fichier :",
-        "selectImage": "Sélectionner une image",
-        "fileNote": "Formats pris en charge : JPEG, PNG • Taille maximale : 5 Mo",
-        "or": "OU",
-        "imageUrl": "URL de l'image :",
-        "urlPlaceholder": "Collez l'URL de l'image ici",
-        "urlNote": "Formats pris en charge : JPEG, PNG • Taille maximale : 5 Mo",
-        "errorNoInput": "Veuillez sélectionner un fichier ou coller une URL.",
-        "errorUploadFailed": "Échec du téléversement de l'image.",
-        "errorUploadRetry": "Échec du téléversement. Veuillez réessayer."
-    }
+  "topbar": {
+    "bookdrop": "Bookdrop",
+    "createNewLibrary": "Créer une nouvelle bibliothèque",
+    "uploadBook": "Téléverser un livre",
+    "charts": "Graphiques",
+    "metadataManager": "Gestionnaire de métadonnées",
+    "settings": "Paramètres",
+    "documentation": "Documentation",
+    "profile": "Profil",
+    "logout": "Déconnexion",
+    "language": "Langue",
+    "supportGrimmory": "Soutenir Grimmory",
+    "notificationAriaLabel": "Icône de notification unifiée",
+    "createLibrary": "Créer une bibliothèque",
+    "stats": "Statistiques",
+    "libraryStats": "Statistiques de la bibliothèque",
+    "readingStats": "Statistiques de lecture"
+  },
+  "menu": {
+    "home": "Accueil",
+    "dashboard": "Tableau de bord",
+    "allBooks": "Tous les livres",
+    "libraries": "Bibliothèques",
+    "shelves": "Étagères",
+    "magicShelves": "Étagères magiques",
+    "unshelved": "Non rangés",
+    "series": "Séries",
+    "notebook": "Carnet",
+    "update": "(Mise à jour)",
+    "authors": "Auteurs"
+  },
+  "changelog": {
+    "title": "Nouveautés",
+    "description": "Dernières mises à jour et améliorations",
+    "loading": "Chargement du journal des modifications...",
+    "empty": "Aucune mise à jour disponible."
+  },
+  "theme": {
+    "primary": "Principal",
+    "surface": "Surface"
+  },
+  "uploadDialog": {
+    "chooseFile": "Choisir un fichier :",
+    "selectImage": "Sélectionner une image",
+    "fileNote": "Formats pris en charge : JPEG, PNG • Taille maximale : 5 Mo",
+    "or": "OU",
+    "imageUrl": "URL de l'image :",
+    "urlPlaceholder": "Collez l'URL de l'image ici",
+    "urlNote": "Formats pris en charge : JPEG, PNG • Taille maximale : 5 Mo",
+    "errorNoInput": "Veuillez sélectionner un fichier ou coller une URL.",
+    "errorUploadFailed": "Échec du téléversement de l'image.",
+    "errorUploadRetry": "Échec du téléversement. Veuillez réessayer."
+  }
 }
