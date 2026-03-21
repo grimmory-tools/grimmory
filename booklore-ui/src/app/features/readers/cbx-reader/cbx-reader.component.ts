@@ -174,7 +174,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     this.subscribeToFooterEvents();
     this.subscribeToQuickSettingsEvents();
 
-    this.route.paramMap.subscribe((params) => {
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       this.isLoading = true;
       this.bookId = +params.get('bookId')!;
       this.altBookType = this.route.snapshot.queryParamMap.get('bookType') ?? undefined;
@@ -218,7 +218,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
           const pagesObservable = this.cbxReaderService.getAvailablePages(this.bookId, this.altBookType);
 
-          pagesObservable.subscribe({
+          pagesObservable.pipe(takeUntil(this.destroy$)).subscribe({
             next: (pages) => {
               this.pages = pages;
               if (this.bookType === CbxReaderComponent.TYPE_CBX) {

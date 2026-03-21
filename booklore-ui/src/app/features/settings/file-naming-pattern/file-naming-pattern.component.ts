@@ -1,4 +1,5 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {Button} from 'primeng/button';
 import {MessageService} from 'primeng/api';
@@ -42,6 +43,7 @@ export class FileNamingPatternComponent implements OnInit {
   private messageService = inject(MessageService);
   private libraryService = inject(LibraryService);
   private t = inject(TranslocoService);
+  private destroyRef = inject(DestroyRef);
 
   appSettings$: Observable<AppSettings | null> = this.appSettingsService.appSettings$;
 
@@ -53,7 +55,10 @@ export class FileNamingPatternComponent implements OnInit {
       });
 
     this.libraryService.libraryState$
-      .pipe(filter(state => state.loaded && !!state.libraries))
+      .pipe(
+        filter(state => state.loaded && !!state.libraries),
+        takeUntilDestroyed(this.destroyRef)
+      )
       .subscribe(state => {
         this.libraries = state.libraries ?? [];
       });

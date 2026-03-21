@@ -1,4 +1,5 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {DynamicDialogRef} from 'primeng/dynamicdialog';
 import {LibraryService} from '../../../book/service/library.service';
 import {Observable} from 'rxjs';
@@ -50,6 +51,7 @@ export class MainDashboardComponent implements OnInit {
   private sortService = inject(SortService);
   private pageTitle = inject(PageTitleService);
   private readonly t = inject(TranslocoService);
+  private destroyRef = inject(DestroyRef);
 
   bookState$ = this.bookService.bookState$;
   dashboardConfig$ = this.dashboardConfigService.config$;
@@ -65,11 +67,11 @@ export class MainDashboardComponent implements OnInit {
   ngOnInit(): void {
     this.pageTitle.setPageTitle(this.t.translate('dashboard.main.pageTitle'));
 
-    this.dashboardConfig$.subscribe(() => {
+    this.dashboardConfig$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.scrollerBooksCache.clear();
     });
 
-    this.magicShelfService.shelvesState$.subscribe(() => {
+    this.magicShelfService.shelvesState$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.scrollerBooksCache.clear();
     });
   }

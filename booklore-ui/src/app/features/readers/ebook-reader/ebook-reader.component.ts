@@ -380,14 +380,11 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
 
   private updateBookmarkIndicator(): void {
     const currentCfi = this.progressService.currentCfi;
-    this.sidebarService.bookmarks$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(bookmarks => {
-        this.isCurrentCfiBookmarked = currentCfi
-          ? bookmarks.some(b => b.cfi === currentCfi)
-          : false;
-        this.headerService.setCurrentCfiBookmarked(this.isCurrentCfiBookmarked);
-      });
+    const bookmarks = this.sidebarService.currentBookmarks;
+    this.isCurrentCfiBookmarked = currentCfi
+      ? bookmarks.some(b => b.cfi === currentCfi)
+      : false;
+    this.headerService.setCurrentCfiBookmarked(this.isCurrentCfiBookmarked);
   }
 
   private applyStyles(): void {

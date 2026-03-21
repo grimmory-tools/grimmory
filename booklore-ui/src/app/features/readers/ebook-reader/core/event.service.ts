@@ -41,6 +41,8 @@ export class ReaderEventService {
   private lastClickZone: 'left' | 'middle' | 'right' | null = null;
   private longHoldTimeout: ReturnType<typeof setTimeout> | null = null;
   private keydownHandler?: (event: KeyboardEvent) => void;
+  private windowMessageHandler?: (event: MessageEvent) => void;
+  private attachedDocCleanups: Array<() => void> = [];
   private clickedDocs = new WeakSet<Document>();
 
   private touchStartX = 0;
@@ -66,6 +68,20 @@ export class ReaderEventService {
       document.removeEventListener('keydown', this.keydownHandler);
       this.keydownHandler = undefined;
     }
+    if (this.windowMessageHandler) {
+      window.removeEventListener('message', this.windowMessageHandler);
+      this.windowMessageHandler = undefined;
+    }
+    this.attachedDocCleanups.forEach(cleanup => cleanup());
+    this.attachedDocCleanups = [];
+    if (this.longHoldTimeout) {
+      clearTimeout(this.longHoldTimeout);
+      this.longHoldTimeout = null;
+    }
+    if (this.selectionChangeTimeout) {
+      clearTimeout(this.selectionChangeTimeout);
+      this.selectionChangeTimeout = null;
+    }
     this.view = null;
     this.viewCallbacks = null;
     this.clickedDocs = new WeakSet<Document>();
@@ -81,9 +97,6 @@ export class ReaderEventService {
     this.view.addEventListener('load', (e: any) => {
       this.eventSubject.next({type: 'load', detail: e.detail});
       if (e.detail?.doc) {
-        if (this.keydownHandler) {
-          e.detail.doc.addEventListener('keydown', this.keydownHandler);
-        }
         this.attachIframeEventHandlers(e.detail.doc);
       }
 
@@ -169,11 +182,12 @@ export class ReaderEventService {
   }
 
   private attachWindowMessageHandler(): void {
-    window.addEventListener('message', (event) => {
+    this.windowMessageHandler = (event: MessageEvent) => {
       if (event.data?.type === 'iframe-click') {
         this.handleIframeClickMessage(event.data);
       }
-    });
+    };
+    window.addEventListener('message', this.windowMessageHandler);
   }
 
   private attachIframeEventHandlers(doc: Document): void {
@@ -182,15 +196,22 @@ export class ReaderEventService {
     }
     this.clickedDocs.add(doc);
 
+    const abortController = new AbortController();
+    const {signal} = abortController;
+
+    if (this.keydownHandler) {
+      doc.addEventListener('keydown', this.keydownHandler, {signal});
+    }
+
     doc.addEventListener('mousedown', () => {
       this.longHoldTimeout = setTimeout(() => {
         this.longHoldTimeout = null;
       }, this.LONG_HOLD_THRESHOLD_MS);
-    }, true);
+    }, {capture: true, signal});
 
     doc.addEventListener('mouseup', () => {
       this.handleSelectionEnd(doc);
-    });
+    }, {signal});
 
     doc.addEventListener('click', (event: MouseEvent) => {
       // Ignore synthesized mouse events that follow touch events
@@ -214,25 +235,26 @@ export class ReaderEventService {
         eventClientX: event.clientX,
         target: (event.target as HTMLElement)?.tagName
       }, '*');
-    }, true);
+    }, {capture: true, signal});
 
     doc.addEventListener('touchstart', (event: TouchEvent) => {
       this.handleTouchStart(event, doc);
-    }, {passive: true});
+    }, {passive: true, signal});
 
     doc.addEventListener('touchmove', (event: TouchEvent) => {
       this.handleTouchMove(event, doc);
-    }, {passive: false});
+    }, {passive: false, signal});
 
     doc.addEventListener('touchend', (event: TouchEvent) => {
       this.handleTouchEnd(event, doc);
-    }, {passive: false});
+    }, {passive: false, signal});
 
     doc.addEventListener('selectionchange', () => {
       this.handleSelectionChange(doc);
-    });
+    }, {signal});
 
     this.injectMobileSelectionStyles(doc);
+    this.attachedDocCleanups.push(() => abortController.abort());
   }
 
   private handleSelectionChange(doc: Document): void {

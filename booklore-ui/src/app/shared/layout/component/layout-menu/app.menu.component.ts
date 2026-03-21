@@ -1,4 +1,5 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {AppMenuitemComponent} from './app.menuitem.component';
 import {AsyncPipe} from '@angular/common';
 import {MenuModule} from 'primeng/menu';
@@ -52,6 +53,7 @@ export class AppMenuComponent implements OnInit {
   private authorService = inject(AuthorService);
   private t = inject(TranslocoService);
   private localStorageService = inject(LocalStorageService);
+  private destroyRef = inject(DestroyRef);
 
   librarySortField: 'name' | 'id' = 'name';
   librarySortOrder: 'asc' | 'desc' = 'desc';
@@ -72,7 +74,8 @@ export class AppMenuComponent implements OnInit {
     this.authorService.getAllAuthors().subscribe();
 
     this.userService.userState$.pipe(
-      filter(userState => !!userState?.user && userState.loaded))
+      filter(userState => !!userState?.user && userState.loaded),
+      takeUntilDestroyed(this.destroyRef))
       .subscribe(userState => {
         if (userState.user?.userSettings.sidebarLibrarySorting) {
           this.librarySortField = this.validateSortField(userState.user.userSettings.sidebarLibrarySorting.field);

@@ -4,7 +4,7 @@ import {NgxExtendedPdfViewerModule, NgxExtendedPdfViewerService, pdfDefaultOptio
 import {PageTitleService} from "../../../shared/service/page-title.service";
 import {BookService} from '../../book/service/book.service';
 import {forkJoin, Subject, Subscription} from 'rxjs';
-import {debounceTime, map, switchMap} from 'rxjs/operators';
+import {debounceTime, map, switchMap, takeUntil} from 'rxjs/operators';
 import {BookSetting} from '../../book/model/book.model';
 import {UserService} from '../../settings/user-management/user.service';
 import {AuthService} from '../../../shared/service/auth.service';
@@ -50,6 +50,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   private annotationSaveSubject = new Subject<void>();
   private annotationSaveSubscription!: Subscription;
   private annotationsLoaded = false;
+  private destroy$ = new Subject<void>();
 
   private bookService = inject(BookService);
   private userService = inject(UserService);
@@ -68,7 +69,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       .pipe(debounceTime(1500))
       .subscribe(() => this.persistAnnotations());
 
-    this.route.paramMap.subscribe((params) => {
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       this.isLoading = true;
       this.bookId = +params.get('bookId')!;
       this.altBookType = this.route.snapshot.queryParamMap.get('bookType') ?? undefined;
@@ -172,6 +173,9 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+
     if (this.readingSessionService.isSessionActive()) {
       const percentage = this.totalPages > 0 ? Math.round((this.page / this.totalPages) * 1000) / 10 : 0;
       this.readingSessionService.endSession(this.page.toString(), percentage);

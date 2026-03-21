@@ -83,6 +83,10 @@ export class ReaderSidebarService {
     return this._activeTab.value;
   }
 
+  get currentBookmarks(): BookMark[] {
+    return this._bookmarks.value;
+  }
+
   initialize(bookId: number, book: Book, destroy$: Subject<void>): void {
     this.bookId = bookId;
     this.destroy$ = destroy$;

@@ -51,14 +51,14 @@ export class AppComponent implements OnInit, OnDestroy {
     window.addEventListener('online', this.onOnline);
     window.addEventListener('offline', this.onOffline);
 
-    this.authInit.initialized$.subscribe(ready => {
+    this.subscriptions.push(this.authInit.initialized$.subscribe(ready => {
       this.loading = !ready;
       if (ready && !this.subscriptionsInitialized) {
         this.setupWebSocketSubscriptions();
         this.libraryHealthService.initialize();
         this.subscriptionsInitialized = true;
       }
-    });
+    }));
   }
 
   private onOnline = () => {

@@ -66,11 +66,11 @@ export class DashboardSettingsComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.buildTranslatedOptions());
 
-    this.configService.config$.subscribe(config => {
+    this.configService.config$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(config => {
       this.config = JSON.parse(JSON.stringify(config));
     });
 
-    this.magicShelfService.shelvesState$.subscribe(state => {
+    this.magicShelfService.shelvesState$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(state => {
       this.magicShelvesMap.clear();
       (state.shelves || []).forEach(shelf => {
         if (shelf.id) {

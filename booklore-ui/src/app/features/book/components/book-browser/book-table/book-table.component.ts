@@ -56,6 +56,7 @@ export class BookTableComponent implements OnInit, OnDestroy, OnChanges {
 
   private metadataCenterViewMode: 'route' | 'dialog' = 'route';
   private destroy$ = new Subject<void>();
+  private boundSetScrollHeight = this.setScrollHeight.bind(this);
 
   readonly allColumns: { field: string; header: string }[] = [
     {field: 'readStatus', header: this.t.translate('book.columnPref.columns.readStatus')},
@@ -98,7 +99,7 @@ export class BookTableComponent implements OnInit, OnDestroy, OnChanges {
     this.selectedBookIds = this.preselectedBookIds;
     this.selectedBooks = this.bookService.getBooksByIdsFromState([...this.selectedBookIds]);
     this.setScrollHeight();
-    window.addEventListener('resize', this.setScrollHeight.bind(this));
+    window.addEventListener('resize', this.boundSetScrollHeight);
   }
 
   setScrollHeight() {
@@ -349,6 +350,6 @@ export class BookTableComponent implements OnInit, OnDestroy, OnChanges {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    window.removeEventListener('resize', this.setScrollHeight.bind(this));
+    window.removeEventListener('resize', this.boundSetScrollHeight);
   }
 }
