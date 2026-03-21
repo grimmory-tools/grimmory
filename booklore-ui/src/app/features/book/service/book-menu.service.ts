@@ -356,7 +356,7 @@ export class BookMenuService {
        });
     }
 
-    if (permissions?.canBulkResetBookloreReadProgress) {
+    if (permissions?.canBulkResetGrimmoryReadProgress ?? permissions?.canBulkResetBookloreReadProgress) {
       items.push({
         label: this.t.translate('book.menuService.menu.resetGrimmoryProgress'),
         icon: 'pi pi-undo',
@@ -370,7 +370,7 @@ export class BookMenuService {
             accept: () => {
               const loader = this.loadingService.show(this.t.translate('book.menuService.loading.resettingGrimmoryProgress', {count}));
 
-              this.bookService.resetProgress(Array.from(selectedBooks), ResetProgressTypes.BOOKLORE)
+              this.bookService.resetProgress(Array.from(selectedBooks), ResetProgressTypes.GRIMMORY)
                 .pipe(finalize(() => this.loadingService.hide(loader)))
                 .subscribe({
                   next: () => {

@@ -288,7 +288,7 @@ export class UserManagementComponent implements OnInit, OnDestroy {
   getBulkResetPermissionsCount(user: User): number {
     const permissions = user.permissions;
     let count = 0;
-    if (permissions.canBulkResetBookloreReadProgress) count++;
+    if (permissions.canBulkResetGrimmoryReadProgress ?? permissions.canBulkResetBookloreReadProgress) count++;
     if (permissions.canBulkResetKoReaderReadProgress) count++;
     if (permissions.canBulkResetBookReadStatus) count++;
     return count;
@@ -340,6 +340,7 @@ export class UserManagementComponent implements OnInit, OnDestroy {
       user.permissions.canBulkRegenerateCover = true;
       user.permissions.canMoveOrganizeFiles = true;
       user.permissions.canBulkLockUnlockMetadata = true;
+      user.permissions.canBulkResetGrimmoryReadProgress = true;
       user.permissions.canBulkResetBookloreReadProgress = true;
       user.permissions.canBulkResetKoReaderReadProgress = true;
       user.permissions.canBulkResetBookReadStatus = true;

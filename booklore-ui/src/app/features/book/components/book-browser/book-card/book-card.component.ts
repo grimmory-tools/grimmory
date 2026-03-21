@@ -185,7 +185,7 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
 
     const progressParts: string[] = [];
     if (this._progressPercentage !== null) {
-      progressParts.push(`${this._progressPercentage}% (BookLore)`);
+      progressParts.push(`${this._progressPercentage}% (Grimmory)`);
     }
     if (this._koProgressPercentage !== null) {
       progressParts.push(`${this._koProgressPercentage}% (KOReader)`);
@@ -619,7 +619,7 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
         label: this.t.translate('book.card.menu.resetGrimmoryProgress'),
         icon: 'pi pi-undo',
         command: () => {
-          this.bookService.resetProgress(this.book.id, ResetProgressTypes.BOOKLORE).subscribe({
+          this.bookService.resetProgress(this.book.id, ResetProgressTypes.GRIMMORY).subscribe({
             next: () => {
               this.messageService.add({
                 severity: 'success',
