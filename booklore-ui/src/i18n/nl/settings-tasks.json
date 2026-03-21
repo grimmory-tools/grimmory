@@ -1,69 +1,69 @@
 {
-    "title": "Systeem taakbeheer",
-    "description": "Beheer geautomatiseerde systeemtaken voor bibliotheeonderhoud, metadata-verversing en cache-opschoning. Plan terugkerende bewerkingen met behulp van <a href=\"https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"cron-link\">Spring cron-expressies</a>.",
-    "systemTasks": {
-        "sectionTitle": "Systeemtaken",
-        "sectionDesc": "Voer taken handmatig uit, bewaak de voortgang in realtime en configureer geplande automatisering."
-    },
-    "loading": "Taken laden...",
-    "emptyTitle": "Geen taken beschikbaar",
-    "status": {
-        "running": "Actief",
-        "stale": "Vastgelopen",
-        "neverRun": "Nooit uitgevoerd",
-        "justNow": "Zojuist"
-    },
-    "cron": {
-        "noSchedule": "Geen planning",
-        "edit": "Bewerken",
-        "placeholder": "bijv. 0 2 * * *",
-        "validationPrefix": "Cron-expressie moet precies 6 velden bevatten (seconden, minuten, uren, dag, maand, weekdag)",
-        "invalidField": "Ongeldig {{name}}-veld: {{value}}",
-        "updateSuccess": "Geplande taakconfiguratie is succesvol bijgewerkt.",
-        "updateError": "Kon geplande taakconfiguratie niet bijwerken."
-    },
-    "buttons": {
-        "run": "Uitvoeren",
-        "rerun": "Opnieuw uitvoeren"
-    },
-    "metadataReplace": {
-        "label": "Metadata-vervangmodus:",
-        "selectMode": "Selecteer modus",
-        "replaceMissing": "Alleen ontbrekende metadata bijwerken (Aanbevolen)",
-        "replaceAll": "Alle metadata vervangen (Bestaande overschrijven)",
-        "replaceMissingDesc": "Werk alleen boeken bij die metadata missen. Bestaande metadata wordt behouden.",
-        "replaceAllDesc": "Vervang alle metadata voor alle boeken, zelfs als ze al metadata hebben. Gebruik met voorzichtigheid, want dit overschrijft bestaande gegevens."
-    },
-    "progress": {
-        "staleWarning": "Deze taak lijkt vast te zitten. Geen updates ontvangen gedurende meer dan 5 minuten.",
-        "statusLabel": "Status:",
-        "progressLabel": "Voortgang:",
-        "startedLabel": "Gestart:",
-        "processing": "Verwerken...",
-        "stuckMessage": "Taak lijkt vast te zitten (geen updates ontvangen)"
-    },
-    "toast": {
-        "taskQueued": "Taak in wachtrij",
-        "taskQueuedDetail": "{{name}} is in de wachtrij geplaatst en wordt op de achtergrond uitgevoerd.",
-        "taskCompleted": "Taak voltooid",
-        "taskCompletedDetail": "{{name}} is succesvol voltooid.",
-        "taskFailed": "Taak mislukt",
-        "taskFailedDetail": "{{name}} kon niet worden voltooid.",
-        "taskStarted": "Taak gestart",
-        "taskStartedDetail": "{{name}} is succesvol gestart.",
-        "startError": "Kon {{name}} niet starten.",
-        "alreadyRunning": "Taak wordt al uitgevoerd",
-        "alreadyRunningDetail": "Deze taak is al bezig of in behandeling.",
-        "taskCancelled": "Taak geannuleerd",
-        "cancelledDetail": "Taak is succesvol geannuleerd.",
-        "cancelFailed": "Annulering mislukt",
-        "cancelError": "Kon de taak niet annuleren. De taak is mogelijk al voltooid of mislukt.",
-        "cancelNoId": "Kan taak niet annuleren zonder ID.",
-        "loadError": "Kon taken niet laden",
-        "metadataScheduled": "Metadata-update ingepland",
-        "metadataScheduledDetail": "De metadata-update voor de geselecteerde boeken is succesvol ingepland.",
-        "metadataAlreadyRunningDetail": "Er wordt al een metadata-verversionstaak uitgevoerd. Wacht tot deze is voltooid voordat u een nieuwe start.",
-        "metadataFailed": "Metadata-update mislukt",
-        "metadataFailedDetail": "Er is een onverwachte fout opgetreden bij het inplannen van de metadata-update. Probeer het later opnieuw of neem contact op met ondersteuning als het probleem aanhoudt."
-    }
+  "title": "Systeem taakbeheer",
+  "description": "Beheer geautomatiseerde systeemtaken voor bibliotheeonderhoud, metadata-verversing en cache-opschoning. Plan terugkerende bewerkingen met behulp van <a href=\"https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"cron-link\">Spring cron-expressies</a>.",
+  "systemTasks": {
+    "sectionTitle": "Systeemtaken",
+    "sectionDesc": "Voer taken handmatig uit, bewaak de voortgang in realtime en configureer geplande automatisering."
+  },
+  "loading": "Taken laden...",
+  "emptyTitle": "Geen taken beschikbaar",
+  "status": {
+    "running": "Actief",
+    "stale": "Vastgelopen",
+    "neverRun": "Nooit uitgevoerd",
+    "justNow": "Zojuist"
+  },
+  "cron": {
+    "noSchedule": "Geen planning",
+    "edit": "Bewerken",
+    "placeholder": "bijv. 0 2 * * *",
+    "validationPrefix": "Cron-expressie moet precies 6 velden bevatten (seconden, minuten, uren, dag, maand, weekdag)",
+    "invalidField": "Ongeldig {{name}}-veld: {{value}}",
+    "updateSuccess": "Geplande taakconfiguratie is succesvol bijgewerkt.",
+    "updateError": "Kon geplande taakconfiguratie niet bijwerken."
+  },
+  "buttons": {
+    "run": "Uitvoeren",
+    "rerun": "Opnieuw uitvoeren"
+  },
+  "metadataReplace": {
+    "label": "Metadata-vervangmodus:",
+    "selectMode": "Selecteer modus",
+    "replaceMissing": "Alleen ontbrekende metadata bijwerken (Aanbevolen)",
+    "replaceAll": "Alle metadata vervangen (Bestaande overschrijven)",
+    "replaceMissingDesc": "Werk alleen boeken bij die metadata missen. Bestaande metadata wordt behouden.",
+    "replaceAllDesc": "Vervang alle metadata voor alle boeken, zelfs als ze al metadata hebben. Gebruik met voorzichtigheid, want dit overschrijft bestaande gegevens."
+  },
+  "progress": {
+    "staleWarning": "Deze taak lijkt vast te zitten. Geen updates ontvangen gedurende meer dan 5 minuten.",
+    "statusLabel": "Status:",
+    "progressLabel": "Voortgang:",
+    "startedLabel": "Gestart:",
+    "processing": "Verwerken...",
+    "stuckMessage": "Taak lijkt vast te zitten (geen updates ontvangen)"
+  },
+  "toast": {
+    "taskQueued": "Taak in wachtrij",
+    "taskQueuedDetail": "{{name}} is in de wachtrij geplaatst en wordt op de achtergrond uitgevoerd.",
+    "taskCompleted": "Taak voltooid",
+    "taskCompletedDetail": "{{name}} is succesvol voltooid.",
+    "taskFailed": "Taak mislukt",
+    "taskFailedDetail": "{{name}} kon niet worden voltooid.",
+    "taskStarted": "Taak gestart",
+    "taskStartedDetail": "{{name}} is succesvol gestart.",
+    "startError": "Kon {{name}} niet starten.",
+    "alreadyRunning": "Taak wordt al uitgevoerd",
+    "alreadyRunningDetail": "Deze taak is al bezig of in behandeling.",
+    "taskCancelled": "Taak geannuleerd",
+    "cancelledDetail": "Taak is succesvol geannuleerd.",
+    "cancelFailed": "Annulering mislukt",
+    "cancelError": "Kon de taak niet annuleren. De taak is mogelijk al voltooid of mislukt.",
+    "cancelNoId": "Kan taak niet annuleren zonder ID.",
+    "loadError": "Kon taken niet laden",
+    "metadataScheduled": "Metadata-update ingepland",
+    "metadataScheduledDetail": "De metadata-update voor de geselecteerde boeken is succesvol ingepland.",
+    "metadataAlreadyRunningDetail": "Er wordt al een metadata-verversionstaak uitgevoerd. Wacht tot deze is voltooid voordat u een nieuwe start.",
+    "metadataFailed": "Metadata-update mislukt",
+    "metadataFailedDetail": "Er is een onverwachte fout opgetreden bij het inplannen van de metadata-update. Probeer het later opnieuw of neem contact op met ondersteuning als het probleem aanhoudt."
+  }
 }

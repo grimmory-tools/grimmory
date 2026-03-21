@@ -1,25 +1,25 @@
 {
-    "pageTitle": "系列",
-    "browseAllSeries": "浏览所有系列",
-    "searchPlaceholder": "按系列名称或作者搜索...",
-    "readNext": "接下来阅读",
-    "booksRead": "已读书籍",
-    "noSeriesFound": "没有与搜索或筛选条件匹配的系列。",
-    "noSeriesInCategory": "此分类中未找到系列。",
-    "cardSize": "卡片大小",
-    "filters": {
-        "all": "全部",
-        "notStarted": "未开始",
-        "inProgress": "进行中",
-        "completed": "已完成",
-        "abandoned": "已放弃"
-    },
-    "sort": {
-        "nameAsc": "名称 (A-Z)",
-        "nameDesc": "名称 (Z-A)",
-        "bookCount": "书籍数量",
-        "progress": "进度",
-        "recentlyRead": "最近阅读",
-        "recentlyAdded": "最近添加"
-    }
+  "pageTitle": "系列",
+  "browseAllSeries": "浏览所有系列",
+  "searchPlaceholder": "按系列名称或作者搜索...",
+  "readNext": "接下来阅读",
+  "booksRead": "已读书籍",
+  "noSeriesFound": "没有与搜索或筛选条件匹配的系列。",
+  "noSeriesInCategory": "此分类中未找到系列。",
+  "cardSize": "卡片大小",
+  "filters": {
+    "all": "全部",
+    "notStarted": "未开始",
+    "inProgress": "进行中",
+    "completed": "已完成",
+    "abandoned": "已放弃"
+  },
+  "sort": {
+    "nameAsc": "名称 (A-Z)",
+    "nameDesc": "名称 (Z-A)",
+    "bookCount": "书籍数量",
+    "progress": "进度",
+    "recentlyRead": "最近阅读",
+    "recentlyAdded": "最近添加"
+  }
 }

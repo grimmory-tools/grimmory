@@ -1,69 +1,69 @@
 {
-    "title": "Upravitelj sistemskih zadataka",
-    "description": "Upravljajte automatiziranim sistemskim zadacima za održavanje zbirke, osvježavanje metapodataka i čišćenje predmemorije. Zakažite ponavljajuće operacije koristeći <a href=\"https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"cron-link\">Spring cron izraze</a>.",
-    "systemTasks": {
-        "sectionTitle": "Sistemski zadaci",
-        "sectionDesc": "Izvršavajte zadatke ručno, pratite napredak u stvarnom vremenu i konfigurirajte zakazanu automatizaciju."
-    },
-    "loading": "Učitavanje zadataka...",
-    "emptyTitle": "Nema dostupnih zadataka",
-    "status": {
-        "running": "Pokrenuto",
-        "stale": "Zastarjelo",
-        "neverRun": "Nikada pokrenuto",
-        "justNow": "Upravo sada"
-    },
-    "cron": {
-        "noSchedule": "Bez rasporeda",
-        "edit": "Uredi",
-        "placeholder": "npr., 0 2 * * *",
-        "validationPrefix": "Cron izraz mora imati točno 6 polja (sekunde, minute, sati, dan, mjesec, dan u tjednu)",
-        "invalidField": "Nevažeće polje {{name}}: {{value}}",
-        "updateSuccess": "Konfiguracija zakazanog zadatka je uspješno ažurirana.",
-        "updateError": "Ažuriranje konfiguracije zakazanog zadatka nije uspjelo."
-    },
-    "buttons": {
-        "run": "Pokreni",
-        "rerun": "Ponovo pokreni"
-    },
-    "metadataReplace": {
-        "label": "Način zamjene metapodataka:",
-        "selectMode": "Odaberite način",
-        "replaceMissing": "Ažuriraj samo nedostajuće metapodatke (preporučeno)",
-        "replaceAll": "Zamijeni sve metapodatke (prepiši postojeće)",
-        "replaceMissingDesc": "Ažuriraj samo knjige kojima nedostaju metapodaci. Postojeći metapodaci će biti sačuvani.",
-        "replaceAllDesc": "Zamijeni sve metapodatke za sve knjige, čak i ako već imaju metapodatke. Koristite s oprezom jer će ovo prepisati postojeće podatke."
-    },
-    "progress": {
-        "staleWarning": "Čini se da je ovaj zadatak zapeo. Nema ažuriranja već više od 5 minuta.",
-        "statusLabel": "Status:",
-        "progressLabel": "Napredak:",
-        "startedLabel": "Pokrenuto:",
-        "processing": "Obrada...",
-        "stuckMessage": "Čini se da je zadatak zapeo (nema primljenih ažuriranja)"
-    },
-    "toast": {
-        "taskQueued": "Zadatak u redu čekanja",
-        "taskQueuedDetail": "{{name}} je stavljen u red čekanja i pokrenut će se u pozadini.",
-        "taskCompleted": "Zadatak završen",
-        "taskCompletedDetail": "{{name}} je uspješno završen.",
-        "taskFailed": "Zadatak nije uspio",
-        "taskFailedDetail": "{{name}} nije uspješno završen.",
-        "taskStarted": "Zadatak pokrenut",
-        "taskStartedDetail": "{{name}} je uspješno pokrenut.",
-        "startError": "Pokretanje {{name}} nije uspjelo.",
-        "alreadyRunning": "Zadatak je već pokrenut",
-        "alreadyRunningDetail": "Ovaj zadatak je već u tijeku ili na čekanju.",
-        "taskCancelled": "Zadatak otkazan",
-        "cancelledDetail": "Zadatak je uspješno otkazan.",
-        "cancelFailed": "Otkazivanje nije uspjelo",
-        "cancelError": "Otkazivanje zadatka nije uspjelo. Zadatak je možda već završen ili nije uspio.",
-        "cancelNoId": "Nije moguće otkazati zadatak bez ID-a.",
-        "loadError": "Učitavanje zadataka nije uspjelo",
-        "metadataScheduled": "Ažuriranje metapodataka zakazano",
-        "metadataScheduledDetail": "Ažuriranje metapodataka za odabrane knjige je uspješno zakazano.",
-        "metadataAlreadyRunningDetail": "Zadatak osvježavanja metapodataka je već u tijeku. Pričekajte da završi prije pokretanja novog.",
-        "metadataFailed": "Ažuriranje metapodataka nije uspjelo",
-        "metadataFailedDetail": "Došlo je do neočekivane pogreške prilikom zakazivanja ažuriranja metapodataka. Pokušajte ponovo kasnije ili se obratite podršci ako problem i dalje postoji."
-    }
+  "title": "Upravitelj sistemskih zadataka",
+  "description": "Upravljajte automatiziranim sistemskim zadacima za održavanje zbirke, osvježavanje metapodataka i čišćenje predmemorije. Zakažite ponavljajuće operacije koristeći <a href=\"https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"cron-link\">Spring cron izraze</a>.",
+  "systemTasks": {
+    "sectionTitle": "Sistemski zadaci",
+    "sectionDesc": "Izvršavajte zadatke ručno, pratite napredak u stvarnom vremenu i konfigurirajte zakazanu automatizaciju."
+  },
+  "loading": "Učitavanje zadataka...",
+  "emptyTitle": "Nema dostupnih zadataka",
+  "status": {
+    "running": "Pokrenuto",
+    "stale": "Zastarjelo",
+    "neverRun": "Nikada pokrenuto",
+    "justNow": "Upravo sada"
+  },
+  "cron": {
+    "noSchedule": "Bez rasporeda",
+    "edit": "Uredi",
+    "placeholder": "npr., 0 2 * * *",
+    "validationPrefix": "Cron izraz mora imati točno 6 polja (sekunde, minute, sati, dan, mjesec, dan u tjednu)",
+    "invalidField": "Nevažeće polje {{name}}: {{value}}",
+    "updateSuccess": "Konfiguracija zakazanog zadatka je uspješno ažurirana.",
+    "updateError": "Ažuriranje konfiguracije zakazanog zadatka nije uspjelo."
+  },
+  "buttons": {
+    "run": "Pokreni",
+    "rerun": "Ponovo pokreni"
+  },
+  "metadataReplace": {
+    "label": "Način zamjene metapodataka:",
+    "selectMode": "Odaberite način",
+    "replaceMissing": "Ažuriraj samo nedostajuće metapodatke (preporučeno)",
+    "replaceAll": "Zamijeni sve metapodatke (prepiši postojeće)",
+    "replaceMissingDesc": "Ažuriraj samo knjige kojima nedostaju metapodaci. Postojeći metapodaci će biti sačuvani.",
+    "replaceAllDesc": "Zamijeni sve metapodatke za sve knjige, čak i ako već imaju metapodatke. Koristite s oprezom jer će ovo prepisati postojeće podatke."
+  },
+  "progress": {
+    "staleWarning": "Čini se da je ovaj zadatak zapeo. Nema ažuriranja već više od 5 minuta.",
+    "statusLabel": "Status:",
+    "progressLabel": "Napredak:",
+    "startedLabel": "Pokrenuto:",
+    "processing": "Obrada...",
+    "stuckMessage": "Čini se da je zadatak zapeo (nema primljenih ažuriranja)"
+  },
+  "toast": {
+    "taskQueued": "Zadatak u redu čekanja",
+    "taskQueuedDetail": "{{name}} je stavljen u red čekanja i pokrenut će se u pozadini.",
+    "taskCompleted": "Zadatak završen",
+    "taskCompletedDetail": "{{name}} je uspješno završen.",
+    "taskFailed": "Zadatak nije uspio",
+    "taskFailedDetail": "{{name}} nije uspješno završen.",
+    "taskStarted": "Zadatak pokrenut",
+    "taskStartedDetail": "{{name}} je uspješno pokrenut.",
+    "startError": "Pokretanje {{name}} nije uspjelo.",
+    "alreadyRunning": "Zadatak je već pokrenut",
+    "alreadyRunningDetail": "Ovaj zadatak je već u tijeku ili na čekanju.",
+    "taskCancelled": "Zadatak otkazan",
+    "cancelledDetail": "Zadatak je uspješno otkazan.",
+    "cancelFailed": "Otkazivanje nije uspjelo",
+    "cancelError": "Otkazivanje zadatka nije uspjelo. Zadatak je možda već završen ili nije uspio.",
+    "cancelNoId": "Nije moguće otkazati zadatak bez ID-a.",
+    "loadError": "Učitavanje zadataka nije uspjelo",
+    "metadataScheduled": "Ažuriranje metapodataka zakazano",
+    "metadataScheduledDetail": "Ažuriranje metapodataka za odabrane knjige je uspješno zakazano.",
+    "metadataAlreadyRunningDetail": "Zadatak osvježavanja metapodataka je već u tijeku. Pričekajte da završi prije pokretanja novog.",
+    "metadataFailed": "Ažuriranje metapodataka nije uspjelo",
+    "metadataFailedDetail": "Došlo je do neočekivane pogreške prilikom zakazivanja ažuriranja metapodataka. Pokušajte ponovo kasnije ili se obratite podršci ako problem i dalje postoji."
+  }
 }

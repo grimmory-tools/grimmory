@@ -1,17 +1,17 @@
 {
-    "tabs": {
-        "reader": "Pembaca",
-        "view": "Tampilan",
-        "metadata1": "Metadata 1",
-        "metadata2": "",
-        "application": "Aplikasi",
-        "users": "Pengguna",
-        "email": "Email",
-        "patterns": "Pola",
-        "authentication": "Autentikasi",
-        "tasks": "Tugas",
-        "auditLogs": "",
-        "opds": "OPDS",
-        "devices": "Perangkat"
-    }
+  "tabs": {
+    "reader": "Pembaca",
+    "view": "Tampilan",
+    "metadata1": "Metadata 1",
+    "metadata2": "",
+    "application": "Aplikasi",
+    "users": "Pengguna",
+    "email": "Email",
+    "patterns": "Pola",
+    "authentication": "Autentikasi",
+    "tasks": "Tugas",
+    "auditLogs": "",
+    "opds": "OPDS",
+    "devices": "Perangkat"
+  }
 }

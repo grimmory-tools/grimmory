@@ -1,6 +1,6 @@
 {
   "offline": "You're Offline",
-  "loading": "Loading Booklore\u2026",
+  "loading": "Loading Booklore…",
   "loadingDescription": "Please wait while we get things ready.",
   "offlineLoadingDescription": "BookLore needs a connection to the server to load.",
   "offlineDescription": "Check your network and try again.",

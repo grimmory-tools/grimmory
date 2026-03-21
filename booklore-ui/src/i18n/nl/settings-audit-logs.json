@@ -1,19 +1,19 @@
 {
-    "title": "",
-    "description": "Bekijk een overzicht van beheerdersrelevante acties die in het systeem zijn uitgevoerd.",
-    "sectionTitle": "",
-    "filterPlaceholder": "",
-    "userFilterPlaceholder": "",
-    "dateRangePlaceholder": "",
-    "clearFilters": "",
-    "autoRefresh": "",
-    "pageReport": "",
-    "empty": "",
-    "columns": {
-        "timestamp": "",
-        "user": "",
-        "action": "",
-        "description": "",
-        "ip": ""
-    }
+  "title": "",
+  "description": "Bekijk een overzicht van beheerdersrelevante acties die in het systeem zijn uitgevoerd.",
+  "sectionTitle": "",
+  "filterPlaceholder": "",
+  "userFilterPlaceholder": "",
+  "dateRangePlaceholder": "",
+  "clearFilters": "",
+  "autoRefresh": "",
+  "pageReport": "",
+  "empty": "",
+  "columns": {
+    "timestamp": "",
+    "user": "",
+    "action": "",
+    "description": "",
+    "ip": ""
+  }
 }
