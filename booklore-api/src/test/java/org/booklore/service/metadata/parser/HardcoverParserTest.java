@@ -398,7 +398,7 @@ class HardcoverParserTest {
             assertThat(metadata.getAuthors()).contains("Test Author");
             assertThat(metadata.getSeriesName()).isEqualTo("Test Series");
             assertThat(metadata.getSeriesNumber()).isEqualTo(2.0f);
-            assertThat(metadata.getSeriesTotal()).isEqualTo(5);
+            assertThat(metadata.getSeriesTotal()).isEqualTo(3);
             assertThat(metadata.getIsbn13()).isEqualTo("9781111111113");
             assertThat(metadata.getIsbn10()).isEqualTo("1111111111");
             assertThat(metadata.getProvider()).isEqualTo(MetadataProvider.Hardcover);
@@ -433,7 +433,7 @@ class HardcoverParserTest {
             assertThat(metadata.getAuthors()).contains("Test Author");
             assertThat(metadata.getSeriesName()).isEqualTo("Test Series");
             assertThat(metadata.getSeriesNumber()).isEqualTo(2.0f);
-            assertThat(metadata.getSeriesTotal()).isEqualTo(5);
+            assertThat(metadata.getSeriesTotal()).isEqualTo(3);
             assertThat(metadata.getIsbn13()).isEqualTo("9781234567897");
             assertThat(metadata.getIsbn10()).isEqualTo("123456789X");
             assertThat(metadata.getPublisher()).isEqualTo("Test Publisher");
@@ -767,10 +767,11 @@ class HardcoverParserTest {
         GraphQLResponse.Series series = new GraphQLResponse.Series();
         series.setName("Test Series");
         series.setBooksCount(5);
+        series.setPrimaryBooksCount(3);
 
         GraphQLResponse.FeaturedSeries featuredSeries = new GraphQLResponse.FeaturedSeries();
         featuredSeries.setSeries(series);
-        featuredSeries.setPosition(2);
+        featuredSeries.setPosition(2f);
         doc.setFeaturedSeries(featuredSeries);
 
         // Image
@@ -825,10 +826,11 @@ class HardcoverParserTest {
         GraphQLResponse.Series series = new GraphQLResponse.Series();
         series.setName("Test Series");
         series.setBooksCount(5);
+        series.setPrimaryBooksCount(3);
 
         GraphQLResponse.FeaturedSeries featuredSeries = new GraphQLResponse.FeaturedSeries();
         featuredSeries.setSeries(series);
-        featuredSeries.setPosition(2);
+        featuredSeries.setPosition(2f);
         book.setFeaturedBookSeries(featuredSeries);
 
         GraphQLResponse.Image image = new GraphQLResponse.Image();
