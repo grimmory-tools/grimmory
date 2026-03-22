@@ -27,6 +27,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 import java.net.http.HttpClient;
 import java.util.ArrayList;
@@ -53,7 +54,10 @@ public class SecurityConfig {
             "/api/v1/auth/**",         // Login and token refresh endpoints (must remain public)
             "/api/v1/public-settings", // Public endpoint for checking OIDC or other app settings
             "/api/v1/setup/**",        // Setup wizard endpoints (must remain accessible before initial setup)
-            "/api/v1/healthcheck/**"   // Healthcheck endpoints (must remain accessible for Docker healthchecks)
+            "/api/v1/healthcheck/**",   // Healthcheck endpoints (must remain accessible for Docker healthchecks)
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html"
     };
 
     private static final String[] COMMON_UNAUTHENTICATED_ENDPOINTS = {
@@ -223,9 +227,28 @@ public class SecurityConfig {
         return http.build();
     }
 
+        @Bean
+    @Order(9)
+        @ConditionalOnProperty(prefix = "springdoc.api-docs", name = "enabled", havingValue = "true", matchIfMissing = false)
+    public SecurityFilterChain swaggerStaticResourcesSecurityChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/assets/**", "/favicon.ico", "/media/**", "/manifest.webmanifest")
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .headers(headers -> headers
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
+                        .referrerPolicy(referrer -> referrer.policy(
+                                ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+                        .contentTypeOptions(contentType -> {})
+                )
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+        return http.build();
+    }
+
     @Bean
     @Order(9)
-    public SecurityFilterChain staticResourcesSecurityChain(HttpSecurity http) throws Exception {
+        @ConditionalOnProperty(prefix = "springdoc.api-docs", name = "enabled", havingValue = "false", matchIfMissing = true)
+        public SecurityFilterChain staticResourcesSecurityChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -236,6 +259,51 @@ public class SecurityConfig {
                         .contentTypeOptions(contentType -> {})
                 )
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+        return http.build();
+    }
+
+    @Bean
+    @Order(10)
+        @ConditionalOnProperty(prefix = "springdoc.api-docs", name = "enabled", havingValue = "true", matchIfMissing = false)
+        public SecurityFilterChain uiAndSwaggerSecurityChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(AbstractHttpConfigurer::disable)
+            .headers(headers -> headers
+                .referrerPolicy(ref -> ref.policy(
+                    ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+                .contentTypeOptions(contentType -> {})
+            )
+            .authorizeHttpRequests(auth -> auth
+                // Allow Swagger & OpenAPI
+                .requestMatchers(
+                    "/v3/api-docs/**",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html"
+                ).permitAll()
+
+                // UI frontend also needs to be accessible
+                                .requestMatchers(
+                                        "/",
+                                        "/index.html",
+                                        "/assets/**",
+                                        "/favicon.ico",
+                                        "/manifest.webmanifest",
+                                        "/**/*.js",
+                                        "/**/*.css",
+                                        "/**/*.map",
+                                        "/**/*.png",
+                                        "/**/*.svg",
+                                        "/**/*.gif",
+                                        "/**/*.woff2",
+                                        "/**/*.woff",
+                                        "/**/*.ttf",
+                                        "/ngsw.json"
+                                )
+                .permitAll()
+
+                // Everything else must be authenticated
+                .anyRequest().authenticated()
+            );
         return http.build();
     }
 

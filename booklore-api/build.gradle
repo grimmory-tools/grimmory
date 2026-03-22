@@ -123,6 +123,9 @@ dependencies {
     testImplementation 'org.assertj:assertj-core:3.27.7'
     testImplementation "org.mockito:mockito-inline:5.2.0"
     testRuntimeOnly 'com.h2database:h2'
+
+    // --- OpenAPI Documentation ---
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.14")
 }
 
 hibernate {
