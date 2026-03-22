@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
 import {BehaviorSubject, EMPTY, Observable, Subject} from 'rxjs';
@@ -44,6 +44,8 @@ type JourneyChartData = ChartData<'line', number[], string>;
   styleUrls: ['./reading-journey-chart.component.scss']
 })
 export class ReadingJourneyChartComponent implements OnInit, OnDestroy {
+  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
+
   private readonly bookService = inject(BookService);
   private readonly libraryFilterService = inject(LibraryFilterService);
   private readonly t = inject(TranslocoService);
@@ -87,6 +89,15 @@ export class ReadingJourneyChartComponent implements OnInit, OnDestroy {
           .subscribe(() => {
             this.calculateAndUpdateChart();
           });
+
+        if (this.chartOptions?.scales?.['x']?.title) {
+          (this.chartOptions.scales['x'] as any).title.text = this.t.translate('statsLibrary.readingJourney.axisMonth');
+        }
+        if (this.chartOptions?.scales?.['y']?.title) {
+          (this.chartOptions.scales['y'] as any).title.text = this.t.translate('statsLibrary.readingJourney.axisCumulativeBooks');
+        }
+
+        this.chart?.chart?.update();
       });
   }
 

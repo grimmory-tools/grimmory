@@ -128,6 +128,12 @@ export class MetadataScoreChartComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.calculateAndUpdateChart();
       });
+
+    this.t.langChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.calculateAndUpdateChart();
+      });
   }
 
   ngOnDestroy(): void {

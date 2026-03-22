@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
 import {BehaviorSubject, EMPTY, Observable, Subject} from 'rxjs';
@@ -60,6 +60,8 @@ const DECADE_COLORS: Record<string, string> = {
   styleUrls: ['./publication-timeline-chart.component.scss']
 })
 export class PublicationTimelineChartComponent implements OnInit, OnDestroy {
+  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
+
   private readonly bookService = inject(BookService);
   private readonly libraryFilterService = inject(LibraryFilterService);
   private readonly t = inject(TranslocoService);
@@ -98,6 +100,18 @@ export class PublicationTimelineChartComponent implements OnInit, OnDestroy {
       )
       .subscribe(() => {
         this.calculateAndUpdateChart();
+      });
+
+    this.t.langChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.calculateAndUpdateChart();
+
+        if (this.chartOptions?.scales?.['x']?.title) {
+          (this.chartOptions.scales['x'] as any).title.text = this.t.translate('statsLibrary.publicationTimeline.axisNumberOfBooks');
+        }
+
+        this.chart?.chart?.update();
       });
   }
 

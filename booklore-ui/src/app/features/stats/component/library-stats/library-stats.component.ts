@@ -80,6 +80,26 @@ export class LibraryStatsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadLibraryOptions();
+
+    this.t.langChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.chartsConfig = this.chartsConfig.map(chart => ({
+          ...chart,
+          name: this.t.translate(`statsLibrary.chartNames.${this.getChartTranslationKey(chart.id)}`)
+        }));
+
+        this.libraryOptions = this.libraryOptions.map(option => ({
+          ...option,
+          name: option.id === null
+            ? this.t.translate('statsLibrary.libraryFilter.allLibraries')
+            : option.name
+        }));
+
+        if (this.selectedLibrary) {
+          this.selectedLibrary = this.libraryOptions.find(o => o.id === this.selectedLibrary!.id) ?? this.selectedLibrary;
+        }
+      });
   }
 
   ngOnDestroy(): void {
@@ -178,6 +198,21 @@ export class LibraryStatsComponent implements OnInit, OnDestroy {
 
   public resetChartOrder(): void {
     this.chartsConfig = this.buildChartsConfig();
+  }
+
+  private getChartTranslationKey(id: string): string {
+    const map: Record<string, string> = {
+      bookFormats: 'bookFormats',
+      languageDistribution: 'languages',
+      metadataScore: 'metadataScore',
+      pageCountDistribution: 'pageCount',
+      publicationTimeline: 'publicationTimeline',
+      readingJourney: 'readingJourney',
+      topItems: 'topItems',
+      authorUniverse: 'authorUniverse',
+      publicationTrend: 'publicationTrend'
+    };
+    return map[id] ?? id;
   }
 
   private buildChartsConfig(): ChartConfig[] {

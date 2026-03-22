@@ -1,4 +1,4 @@
-import {Component, inject, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {BaseChartDirective} from 'ng2-charts';
@@ -82,6 +82,7 @@ const READ_STATUS_ORDER: ReadStatus[] = [
 })
 export class TopItemsChartComponent implements OnInit, OnDestroy {
   @Input() initialDataType: DataType | null = null;
+  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
 
   public readonly chartType = 'bar' as const;
   public readonly chartData$: Observable<ItemChartData>;
@@ -142,6 +143,25 @@ export class TopItemsChartComponent implements OnInit, OnDestroy {
       )
       .subscribe(() => {
         this.loadAndProcessData();
+      });
+
+    this.t.langChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.dataTypeOptions = DATA_TYPE_DEFS.map(def => ({
+          label: this.t.translate(`statsLibrary.topItems.dataTypes.${def.key}`),
+          value: def.value,
+          icon: def.icon,
+          color: def.color
+        }));
+        this.selectedDataType = this.dataTypeOptions.find(o => o.value === this.selectedDataType.value) ?? this.dataTypeOptions[0];
+
+        if (this.chartOptions?.scales?.['x']?.title) {
+          (this.chartOptions.scales['x'] as any).title.text = this.t.translate('statsLibrary.topItems.axisNumberOfBooks');
+        }
+
+        this.chart?.chart?.update();
+        this.processData();
       });
   }
 

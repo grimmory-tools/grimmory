@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
 import {BehaviorSubject, EMPTY, Observable, Subject} from 'rxjs';
@@ -47,6 +47,8 @@ const COMPLETION_COLORS = {
   styleUrls: ['./author-universe-chart.component.scss']
 })
 export class AuthorUniverseChartComponent implements OnInit, OnDestroy {
+  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
+
   private readonly bookService = inject(BookService);
   private readonly libraryFilterService = inject(LibraryFilterService);
   private readonly t = inject(TranslocoService);
@@ -86,6 +88,21 @@ export class AuthorUniverseChartComponent implements OnInit, OnDestroy {
       )
       .subscribe(() => {
         this.calculateAndUpdateChart();
+      });
+
+    this.t.langChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.calculateAndUpdateChart();
+
+        if (this.chartOptions?.scales?.['x']?.title) {
+          (this.chartOptions.scales['x'] as any).title.text = this.t.translate('statsLibrary.authorUniverse.axisBooks');
+        }
+        if (this.chartOptions?.scales?.['y']?.title) {
+          (this.chartOptions.scales['y'] as any).title.text = this.t.translate('statsLibrary.authorUniverse.axisRating');
+        }
+
+        this.chart?.chart?.update();
       });
   }
 
