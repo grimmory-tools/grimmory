@@ -35,8 +35,6 @@ RUN set -eux; \
     jar_path="$(find build/libs -maxdepth 1 -name '*.jar' ! -name '*plain.jar' | head -n 1)"; \
     cp "$jar_path" /workspace/booklore-api/app.jar
 
-FROM linuxserver/unrar:7.1.10 AS unrar-layer
-
 FROM mwader/static-ffmpeg:8.1 AS ffprobe-layer
 
 FROM scratch AS kepubify-layer-amd64
@@ -76,7 +74,6 @@ RUN apk add --no-cache su-exec libstdc++ libgcc && \
 COPY packaging/docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-COPY --from=unrar-layer /usr/bin/unrar-alpine /usr/local/bin/unrar
 COPY --from=ffprobe-layer /ffprobe /usr/local/bin/ffprobe
 COPY --from=kepubify-layer /kepubify /usr/local/bin/kepubify
 
