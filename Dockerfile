@@ -68,7 +68,7 @@ ENV JAVA_TOOL_OPTIONS="-XX:+UseShenandoahGC \
     -XX:InitialRAMPercentage=8.0 \
     -XX:+ExitOnOutOfMemoryError"
 
-RUN apk add --no-cache su-exec libstdc++ libgcc && \
+RUN apk add --no-cache su-exec libstdc++ libgcc libarchive && \
     mkdir -p /bookdrop
 
 COPY packaging/docker/entrypoint.sh /usr/local/bin/entrypoint.sh
@@ -99,4 +99,4 @@ ARG BOOKLORE_PORT=6060
 EXPOSE ${BOOKLORE_PORT}
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["java", "-jar", "/app/app.jar"]
+CMD ["java", "-jar", "/app/app.jar", "--enable-native-access=ALL-UNNAMED"]
