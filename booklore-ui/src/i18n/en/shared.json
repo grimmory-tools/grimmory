@@ -89,6 +89,75 @@
     "foldersWillBeSelected": "{{ count }} folders will be selected",
     "selectDirectoriesBtn": "Select Directories"
   },
+  "fileMover": {
+    "title": "Move & Organize Files",
+    "booksSelected": "{{ count }} book selected",
+    "booksSelected_other": "{{ count }} books selected",
+    "banner": {
+      "preview": "Preview and organize <strong>{{ count }} file</strong>. Files will be renamed based on metadata and naming patterns.",
+      "preview_other": "Preview and organize <strong>{{ count }} files</strong>. Files will be renamed based on metadata and naming patterns.",
+      "metadataWarning": "Requires good metadata quality.",
+      "learnMore": "Learn more",
+      "hide": "Hide",
+      "details": {
+        "autoOrganize": "Your files will be automatically renamed, organized, and can be moved between libraries based on your preferences. Check the preview below to see how your files will look.",
+        "changePattern": "Want to change how files are named? Go to <strong>Settings → File Naming Pattern</strong>. Each library can have its own naming pattern!",
+        "moveWarning": "This will actually move and rename files on your computer across different library folders. Make sure you're happy with the preview first!",
+        "metadataDanger": "This feature relies entirely on your books' metadata. If your metadata is missing or inconsistent, the resulting file names will be incorrect. Only recommended for well-curated libraries."
+      }
+    },
+    "patterns": {
+      "title": "Naming Rules",
+      "bookCount": "{{ count }} book",
+      "bookCount_other": "{{ count }} books",
+      "noPattern": "No pattern configured"
+    },
+    "bulk": {
+      "title": "Bulk Assignment",
+      "setAllTo": "Set all files to:",
+      "selectLibrary": "Select library",
+      "selectPath": "Select path"
+    },
+    "table": {
+      "title": "File Preview",
+      "noPaths": "No paths",
+      "columns": {
+        "id": "ID",
+        "currentPath": "Current Path",
+        "targetLibrary": "Target Library",
+        "libraryPath": "Library Path",
+        "newPath": "New Path"
+      }
+    },
+    "footer": {
+      "successCount": "{{ count }} file successfully moved",
+      "successCount_other": "{{ count }} files successfully moved",
+      "moving": "Moving...",
+      "moveFiles": "Move Files"
+    }
+  },
+  "iconPicker": {
+    "title": "Choose an Icon",
+    "subtitle": "Select from library or add custom SVGs",
+    "primeIcons": "Prime Icons",
+    "svgLibrary": "SVG Library",
+    "addCustom": "Add Custom",
+    "primeIconsSearch": "Search Prime icons...",
+    "loadingIcons": "Loading icons...",
+    "svgIconsSearch": "Search SVG icons...",
+    "deleteIcon": "Drop here to delete",
+    "svgInput": {
+      "title": "SVG Input",
+      "iconName": "Icon Name",
+      "placeholder": "e.g., my-custom-icon",
+      "svgCode": "SVG Code",
+      "preview": "Preview",
+      "addToQueue": "Add to Queue",
+      "queue": "Queue",
+      "clearAll": "Clear All",
+      "saveAllIcons": "Save All Icons"
+    }
+  },
   "liveNotification": {
     "defaultMessage": "No recent notifications..."
   },
@@ -149,28 +218,6 @@
     },
     "toast": {
       "createFailedDefault": "Failed to create admin user. Try again."
-    }
-  },
-  "iconPicker": {
-    "title": "Choose an Icon",
-    "subtitle": "Select from library or add custom SVGs",
-    "primeIcons": "Prime Icons",
-    "svgLibrary": "SVG Library",
-    "addCustom": "Add Custom",
-    "primeIconsSearch": "Search Prime icons...",
-    "loadingIcons": "Loading icons...",
-    "svgIconsSearch": "Search SVG icons...",
-    "deleteIcon": "Drop here to delete",
-    "svgInput": {
-      "title": "SVG Input",
-      "iconName": "Icon Name",
-      "placeholder": "e.g., my-custom-icon",
-      "svgCode": "SVG Code",
-      "preview": "Preview",
-      "addToQueue": "Add to Queue",
-      "queue": "Queue",
-      "clearAll": "Clear All",
-      "saveAllIcons": "Save All Icons"
     }
   }
 }

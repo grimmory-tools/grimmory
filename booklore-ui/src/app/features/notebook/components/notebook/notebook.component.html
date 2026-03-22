@@ -41,6 +41,8 @@
             (ngModelChange)="onFilterChange()"
             (onFilter)="onBookFilter($event)"
             [placeholder]="t('notebook.filterByBook')"
+            [emptyFilterMessage]="t('notebook.noResults')"
+            [emptyMessage]="t('notebook.noResults')"
             [panelStyle]="{'min-width': '300px'}"
             class="book-select"
           />

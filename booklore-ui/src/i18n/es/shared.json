@@ -21,7 +21,7 @@
     "filesCount": "{{ uploaded }}/{{ total }} archivos",
     "failedCount": "({{ count }} fallidos)",
     "dragDropTitle": "Arrastra y suelta archivos",
-    "supportedFormats": "",
+    "supportedFormats": "Formatos soportados: <strong>.pdf</strong>, <strong>.epub</strong>, <strong>.cbz</strong>, <strong>.cbr</strong>, <strong>.cb7</strong>, <strong>.fb2</strong>, <strong>.mobi</strong>, <strong>.azw</strong>, <strong>.azw3</strong>, <strong>.m4b</strong>, <strong>.m4a</strong>, <strong>.mp3</strong>, <strong>.opus</strong>",
     "maxFileSize": "Tamaño máximo de archivo: {{ size }} por archivo",
     "fileTooLargeTooltip": "Archivo demasiado grande",
     "uploadFailedTooltip": "Error al subir",
@@ -92,6 +92,75 @@
   "liveNotification": {
     "defaultMessage": "Sin notificaciones recientes..."
   },
+  "fileMover": {
+    "title": "Mover y organizar archivos",
+    "booksSelected": "{{ count }} libro seleccionado",
+    "booksSelected_other": "{{ count }} libros seleccionados",
+    "banner": {
+      "preview": "Previsualiza y organiza <strong>{{ count }} archivo</strong>. Los archivos se renombrarán según los metadatos y los patrones de nombre.",
+      "preview_other": "Previsualiza y organiza <strong>{{ count }} archivos</strong>. Los archivos se renombrarán según los metadatos y los patrones de nombre.",
+      "metadataWarning": "Requiere metadatos de buena calidad.",
+      "learnMore": "Más información",
+      "hide": "Ocultar",
+      "details": {
+        "autoOrganize": "Tus archivos se renombrarán y organizarán automáticamente, y podrán moverse entre bibliotecas según tus preferencias. Revisa la vista previa abajo para ver cómo quedarán.",
+        "changePattern": "¿Quieres cambiar cómo se nombran los archivos? Ve a <strong>Configuración → Patrón de nombres de archivos</strong>. ¡Cada biblioteca puede tener su propio patrón!",
+        "moveWarning": "Esto realmente moverá y renombrará archivos en tu computadora entre diferentes carpetas de biblioteca. ¡Asegúrate de estar conforme con la vista previa primero!",
+        "metadataDanger": "Esta función depende completamente de los metadatos de tus libros. Si los metadatos faltan o son inconsistentes, los nombres resultantes serán incorrectos. Solo recomendado para bibliotecas bien cuidadas."
+      }
+    },
+    "patterns": {
+      "title": "Reglas de nombrado",
+      "bookCount": "{{ count }} libro",
+      "bookCount_other": "{{ count }} libros",
+      "noPattern": "No hay patrón configurado"
+    },
+    "bulk": {
+      "title": "Asignación masiva",
+      "setAllTo": "Establecer todos los archivos a:",
+      "selectLibrary": "Seleccionar biblioteca",
+      "selectPath": "Seleccionar ruta"
+    },
+    "table": {
+      "title": "Vista previa de archivos",
+      "noPaths": "Sin rutas",
+      "columns": {
+        "id": "ID",
+        "currentPath": "Ruta actual",
+        "targetLibrary": "Biblioteca de destino",
+        "libraryPath": "Ruta de la biblioteca",
+        "newPath": "Nueva ruta"
+      }
+    },
+    "footer": {
+      "successCount": "{{ count }} archivo movido correctamente",
+      "successCount_other": "{{ count }} archivos movidos correctamente",
+      "moving": "Moviendo...",
+      "moveFiles": "Mover archivos"
+    }
+  },
+  "iconPicker": {
+    "title": "Escoger un Ícono",
+    "subtitle": "Selecciona desde la biblioteca o agrega SVGs personalizados",
+    "primeIcons": "Íconos Prime",
+    "svgLibrary": "Biblioteca SVG",
+    "addCustom": "Añadir Personalizados",
+    "primeIconsSearch": "Buscar íconos Prime...",
+    "loadingIcons": "Cargando íconos...",
+    "svgIconsSearch": "Buscar iconos SVG...",
+    "deleteIcon": "Suelta aquí para borrar",
+    "svgInput": {
+      "title": "Ingresa SVG",
+      "iconName": "Nombre del Ícono",
+      "placeholder": "e.g., mi-icono-personalizado",
+      "svgCode": "Código SVG",
+      "preview": "Vista Previa",
+      "addToQueue": "Agregar a la Cola",
+      "queue": "Cola",
+      "clearAll": "Limpiar todo",
+      "saveAllIcons": "Guardar todos los íconos"
+    }
+  },
   "metadataProgress": {
     "taskStalled": "Tarea detenida o servidor no disponible",
     "taskCancelled": "Tarea cancelada por el usuario",
@@ -149,28 +218,6 @@
     },
     "toast": {
       "createFailedDefault": "Error al crear el usuario administrador. Inténtalo de nuevo."
-    }
-  },
-  "iconPicker": {
-    "title": "Escoger un Ícono",
-    "subtitle": "Selecciona desde la biblioteca o agrega SVGs personalizados",
-    "primeIcons": "Íconos Prime",
-    "svgLibrary": "Biblioteca SVG",
-    "addCustom": "Añadir Personalizados",
-    "primeIconsSearch": "Buscar íconos Prime...",
-    "loadingIcons": "Cargando íconos...",
-    "svgIconsSearch": "Buscar iconos SVG...",
-    "deleteIcon": "Suelta aquí para borrar",
-    "svgInput": {
-      "title": "Ingresa SVG",
-      "iconName": "Nombre del Ícono",
-      "placeholder": "e.g., mi-icono-personalizado",
-      "svgCode": "Código SVG",
-      "preview": "Vista Previa",
-      "addToQueue": "Agregar a la Cola",
-      "queue": "Cola",
-      "clearAll": "Limpiar todo",
-      "saveAllIcons": "Guardar todos los íconos"
     }
   }
 }

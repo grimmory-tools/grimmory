@@ -15,6 +15,7 @@ import {AppSettingsService} from '../../service/app-settings.service';
 import {Select} from 'primeng/select';
 import {Library, LibraryPath} from '../../../features/book/model/library.model';
 import {replacePlaceholders} from '../../util/pattern-resolver';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 interface FilePreview {
   bookId: number;
@@ -36,7 +37,7 @@ interface FilePreview {
 @Component({
   selector: 'app-file-mover-component',
   standalone: true,
-  imports: [Button, FormsModule, TableModule, Select],
+  imports: [Button, FormsModule, TableModule, Select, TranslocoDirective],
   templateUrl: './file-mover-component.html',
   styleUrl: './file-mover-component.scss'
 })

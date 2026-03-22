@@ -24,6 +24,7 @@
         <p-fileupload
           [chooseStyleClass]="'p-button-sm p-button-outlined p-button-danger'"
           [pTooltip]="t('uploadPhotoTooltip')"
+          [chooseLabel]="t('uploadPhotoTooltip')"
           tooltipPosition="top"
           [disabled]="form.get('photoLocked')?.value"
           name="file"

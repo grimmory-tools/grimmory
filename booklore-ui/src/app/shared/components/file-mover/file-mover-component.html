@@ -1,11 +1,12 @@
+<ng-container *transloco="let t">
 <div class="file-mover-container">
   <div class="panel-header">
     <div class="header-icon-wrapper">
       <i class="pi pi-folder-open header-icon"></i>
     </div>
     <div class="header-text">
-      <h2 class="panel-title">Move & Organize Files</h2>
-      <p class="panel-description">{{ books.length }} book{{ books.length !== 1 ? 's' : '' }} selected</p>
+      <h2 class="panel-title">{{ t('shared.fileMover.title') }}</h2>
+      <p class="panel-description">{{ t('shared.fileMover.booksSelected', { count: books.length }) }}</p>
     </div>
     <p-button
       icon="pi pi-times"
@@ -25,17 +26,14 @@
           <i class="pi pi-info-circle"></i>
         </div>
         <div class="banner-content">
-          <span class="banner-text">
-            Preview and organize <strong>{{ filePreviews.length }} file{{ filePreviews.length !== 1 ? 's' : '' }}</strong>.
-            Files will be renamed based on metadata and naming patterns.
-          </span>
+          <span class="banner-text" [innerHTML]="t('shared.fileMover.banner.preview', { count: filePreviews.length })"></span>
           <span class="banner-warning">
             <i class="pi pi-exclamation-triangle"></i>
-            Requires good metadata quality.
+            {{ t('shared.fileMover.banner.metadataWarning') }}
           </span>
         </div>
         <button type="button" class="banner-toggle" (click)="toggleInfoCollapsed()">
-          <span>{{ infoCollapsed ? 'Learn more' : 'Hide' }}</span>
+          <span>{{ infoCollapsed ? t('shared.fileMover.banner.learnMore') : t('shared.fileMover.banner.hide') }}</span>
           <i [class]="infoCollapsed ? 'pi pi-chevron-down' : 'pi pi-chevron-up'"></i>
         </button>
       </div>
@@ -44,19 +42,19 @@
         <div class="banner-details">
           <div class="detail-item">
             <i class="pi pi-check-circle"></i>
-            <span>Your files will be automatically renamed, organized, and can be moved between libraries based on your preferences. Check the preview below to see how your files will look.</span>
+            <span>{{ t('shared.fileMover.banner.details.autoOrganize') }}</span>
           </div>
           <div class="detail-item">
             <i class="pi pi-cog"></i>
-            <span>Want to change how files are named? Go to <strong>Settings → File Naming Pattern</strong>. Each library can have its own naming pattern!</span>
+            <span [innerHTML]="t('shared.fileMover.banner.details.changePattern')"></span>
           </div>
           <div class="detail-item warning">
             <i class="pi pi-exclamation-triangle"></i>
-            <span>This will actually move and rename files on your computer across different library folders. Make sure you're happy with the preview first!</span>
+            <span>{{ t('shared.fileMover.banner.details.moveWarning') }}</span>
           </div>
           <div class="detail-item danger">
             <i class="pi pi-shield"></i>
-            <span>This feature relies entirely on your books' metadata. If your metadata is missing or inconsistent, the resulting file names will be incorrect. Only recommended for well-curated libraries.</span>
+            <span>{{ t('shared.fileMover.banner.details.metadataDanger') }}</span>
           </div>
         </div>
       }
@@ -67,7 +65,7 @@
       <button type="button" class="patterns-toggle" (click)="togglePatternsCollapsed()">
         <div class="toggle-content">
           <i class="pi pi-code"></i>
-          <span>Naming Rules</span>
+          <span>{{ t('shared.fileMover.patterns.title') }}</span>
           <span class="patterns-count">{{ libraryPatterns.length }}</span>
         </div>
         <i [class]="patternsCollapsed ? 'pi pi-chevron-down' : 'pi pi-chevron-up'"></i>
@@ -79,9 +77,9 @@
             <div class="pattern-card">
               <div class="pattern-header">
                 <span class="pattern-library">{{ pattern.libraryName }}</span>
-                <span class="pattern-badge">{{ pattern.bookCount }} book{{ pattern.bookCount > 1 ? 's' : '' }}</span>
+                <span class="pattern-badge">{{ t('shared.fileMover.patterns.bookCount', { count: pattern.bookCount }) }}</span>
               </div>
-              <code class="pattern-code">{{ pattern.pattern || 'No pattern configured' }}</code>
+              <code class="pattern-code">{{ pattern.pattern || t('shared.fileMover.patterns.noPattern') }}</code>
               <span class="pattern-source">{{ pattern.source }}</span>
             </div>
           }
@@ -93,16 +91,16 @@
     <section class="bulk-section">
       <div class="bulk-header">
         <i class="pi pi-list"></i>
-        <span>Bulk Assignment</span>
+        <span>{{ t('shared.fileMover.bulk.title') }}</span>
       </div>
       <div class="bulk-controls">
-        <label class="bulk-label">Set all files to:</label>
+        <label class="bulk-label">{{ t('shared.fileMover.bulk.setAllTo') }}</label>
         <p-select
           [options]="availableLibraries"
           [(ngModel)]="defaultTargetLibraryId"
           optionLabel="name"
           optionValue="id"
-          placeholder="Select library"
+          [placeholder]="t('shared.fileMover.bulk.selectLibrary')"
           (onChange)="onDefaultLibraryChange()"
           class="select-library"
           size="small"
@@ -114,7 +112,7 @@
             [(ngModel)]="defaultTargetLibraryPathId"
             optionLabel="path"
             optionValue="id"
-            placeholder="Select path"
+            [placeholder]="t('shared.fileMover.bulk.selectPath')"
             (onChange)="onDefaultLibraryPathChange()"
             class="select-path"
             size="small"
@@ -128,7 +126,7 @@
     <section class="table-section">
       <div class="table-header">
         <i class="pi pi-table"></i>
-        <span>File Preview</span>
+        <span>{{ t('shared.fileMover.table.title') }}</span>
       </div>
       <div class="table-container">
         <p-table
@@ -142,12 +140,12 @@
           <ng-template pTemplate="header">
             <tr>
               <th style="width: 50px;"></th>
-              <th style="width: 60px;">ID</th>
-              <th>Current Path</th>
-              <th style="width: 160px;">Target Library</th>
-              <th style="width: 160px;">Library Path</th>
+              <th style="width: 60px;">{{ t('shared.fileMover.table.columns.id') }}</th>
+              <th>{{ t('shared.fileMover.table.columns.currentPath') }}</th>
+              <th style="width: 160px;">{{ t('shared.fileMover.table.columns.targetLibrary') }}</th>
+              <th style="width: 160px;">{{ t('shared.fileMover.table.columns.libraryPath') }}</th>
               <th style="width: 40px;"></th>
-              <th>New Path</th>
+              <th>{{ t('shared.fileMover.table.columns.newPath') }}</th>
             </tr>
           </ng-template>
           <ng-template pTemplate="body" let-preview>
@@ -195,7 +193,7 @@
                     size="small"
                   ></p-select>
                 } @else {
-                  <span class="no-paths">No paths</span>
+                  <span class="no-paths">{{ t('shared.fileMover.table.noPaths') }}</span>
                 }
               </td>
               <td class="arrow-cell">
@@ -218,20 +216,20 @@
     @if (movedFileCount > 0) {
       <div class="success-indicator">
         <i class="pi pi-check-circle"></i>
-        <span>{{ movedFileCount }} file{{ movedFileCount > 1 ? 's' : '' }} successfully moved</span>
+        <span>{{ t('shared.fileMover.footer.successCount', { count: movedFileCount }) }}</span>
       </div>
     }
     <div class="footer-actions">
       @if (movedFileCount === 0) {
         <p-button
-          label="Cancel"
+          label="{{ t('common.cancel') }}"
           icon="pi pi-times"
           severity="secondary"
           [outlined]="true"
           (click)="cancel()"
         ></p-button>
         <p-button
-          [label]="loading ? 'Moving...' : 'Move Files'"
+          [label]="loading ? t('shared.fileMover.footer.moving') : t('shared.fileMover.footer.moveFiles')"
           [icon]="loading ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
           severity="success"
           (click)="saveChanges()"
@@ -239,7 +237,7 @@
         ></p-button>
       } @else {
         <p-button
-          label="Close"
+          label="{{ t('common.close') }}"
           icon="pi pi-check"
           severity="primary"
           (click)="cancel()"
@@ -248,3 +246,4 @@
     </div>
   </div>
 </div>
+</ng-container>
