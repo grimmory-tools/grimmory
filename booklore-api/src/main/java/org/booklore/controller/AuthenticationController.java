@@ -78,10 +78,10 @@ public class AuthenticationController {
             throw ApiError.REMOTE_AUTH_DISABLED.createException();
         }
 
-        String name = headers.get(appProperties.getRemoteAuth().getHeaderName().toLowerCase(Locale.ROOT));
-        String username = headers.get(appProperties.getRemoteAuth().getHeaderUser().toLowerCase(Locale.ROOT));
-        String email = headers.get(appProperties.getRemoteAuth().getHeaderEmail().toLowerCase(Locale.ROOT));
-        String groups = headers.get(appProperties.getRemoteAuth().getHeaderGroups().toLowerCase(Locale.ROOT));
+        String name = headers.get(appProperties.getRemoteAuth().getHeaderName());
+        String username = headers.get(appProperties.getRemoteAuth().getHeaderUser());
+        String email = headers.get(appProperties.getRemoteAuth().getHeaderEmail());
+        String groups = headers.get(appProperties.getRemoteAuth().getHeaderGroups());
         log.debug("Remote-Auth: retrieved values from headers: name: {}, username: {}, email: {}, groups: {}", name, username, email, groups);
         log.debug("Remote-Auth: remote auth settings: {}", appProperties.getRemoteAuth());
 
