@@ -166,7 +166,8 @@ public class CbxConversionService {
             throw new IllegalArgumentException("Invalid CBX file: " + cbxFile);
         }
 
-        if (!isSupportedCbxFormat(cbxFile.getName())) {
+        ArchiveUtils.ArchiveType type = ArchiveUtils.detectArchiveType(cbxFile);
+        if (type == ArchiveUtils.ArchiveType.UNKNOWN) {
             throw new IllegalArgumentException("Unsupported file format: " + cbxFile.getName() +
                     ". Supported formats: CBZ, CBR, CB7");
         }
@@ -692,16 +693,6 @@ public class CbxConversionService {
         java.util.zip.CRC32 crc32 = new java.util.zip.CRC32();
         crc32.update(data);
         return crc32.getValue();
-    }
-
-    public boolean isSupportedCbxFormat(String fileName) {
-        if (fileName == null) {
-            return false;
-        }
-        String lowerName = fileName.toLowerCase();
-        return lowerName.endsWith(".cbz") ||
-                lowerName.endsWith(".cbr") ||
-                lowerName.endsWith(".cb7");
     }
 
 }
