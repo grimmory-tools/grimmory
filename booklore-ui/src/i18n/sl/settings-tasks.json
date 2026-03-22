@@ -1,69 +1,69 @@
 {
-    "title": "Upravitelj sistemskih opravil",
-    "description": "Upravljaj avtomatizirana sistemska opravila za vzdrževanje knjižnice, osveževanje metapodatkov in čiščenje predpomnilnika. Nastavi ponavljajoče se operacije z uporabo <a href=\"https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"cron-link\">Spring cron izrazov</a>.",
-    "systemTasks": {
-        "sectionTitle": "Sistemska opravila",
-        "sectionDesc": "Ročno zaženi opravila, spremljaj napredek v realnem času in konfiguriraj načrtovano avtomatizacijo."
-    },
-    "loading": "Nalaganje opravil...",
-    "emptyTitle": "Na voljo ni nobenega opravila",
-    "status": {
-        "running": "Se izvaja",
-        "stale": "Zastalo",
-        "neverRun": "Nikoli zagnano",
-        "justNow": "Ravnokar"
-    },
-    "cron": {
-        "noSchedule": "Brez urnika",
-        "edit": "Uredi",
-        "placeholder": "npr., 0 2 * * *",
-        "validationPrefix": "Cron izraz mora imeti natanko 6 polj (sekunde, minute, ure, dan, mesec, dan v tednu)",
-        "invalidField": "Neveljavno polje {{name}}: {{value}}",
-        "updateSuccess": "Konfiguracija načrtovanega opravila je bila uspešno posodobljena.",
-        "updateError": "Posodobitev načrtovanega opravila ni uspela."
-    },
-    "buttons": {
-        "run": "Zaženi",
-        "rerun": "Ponovno zaženi"
-    },
-    "metadataReplace": {
-        "label": "Način zamenjave metapodatkov:",
-        "selectMode": "Izberi način",
-        "replaceMissing": "Posodobi le manjkajoče metapodatke (priporočeno)",
-        "replaceAll": "Zamenjaj vse metapodatke (povozi obstoječe)",
-        "replaceMissingDesc": "Posodobi le knjige, ki nimajo vseh metapodatkov. Obstoječi metapodatki bodo ohranjeni.",
-        "replaceAllDesc": "Zamenjaj vse metapodatke za vse knjige, tudi če jih že imajo. Uporabljaj previdno, saj bo to povozilo obstoječe podatke."
-    },
-    "progress": {
-        "staleWarning": "To opravilo je videti zataknjeno. Že več kot 5 minut ni bilo nobene posodobitve.",
-        "statusLabel": "Status:",
-        "progressLabel": "Napredek:",
-        "startedLabel": "Začetek:",
-        "processing": "Obdelava...",
-        "stuckMessage": "Opravilo je videti zataknjeno (ni posodobitev)"
-    },
-    "toast": {
-        "taskQueued": "Opravilo dodano v vrsto",
-        "taskQueuedDetail": "{{name}} je v čakalni vrsti in se bo izvajalo v ozadju.",
-        "taskCompleted": "Opravilo dokončano",
-        "taskCompletedDetail": "{{name}} je bilo uspešno dokončano.",
-        "taskFailed": "Opravilo ni uspelo",
-        "taskFailedDetail": "Izvedba opravila {{name}} ni uspela.",
-        "taskStarted": "Opravilo zagnano",
-        "taskStartedDetail": "{{name}} se je uspešno zagnalo.",
-        "startError": "Zaganjanje opravila {{name}} ni uspelo.",
-        "alreadyRunning": "Opravilo se že izvaja",
-        "alreadyRunningDetail": "To opravilo je že v teku ali v čakalni vrsti.",
-        "taskCancelled": "Opravilo preklicano",
-        "cancelledDetail": "Opravilo je bilo uspešno preklicano.",
-        "cancelFailed": "Preklic ni uspel",
-        "cancelError": "Opravila ni bilo mogoče preklicati. Morda je že dokončano ali pa je spodletelo.",
-        "cancelNoId": "Opravila brez ID-ja ni mogoče preklicati.",
-        "loadError": "Nalaganje opravil ni uspelo",
-        "metadataScheduled": "Posodobitev metapodatkov načrtovana",
-        "metadataScheduledDetail": "Posodobitev metapodatkov za izbrane knjige je bila uspešno načrtovana.",
-        "metadataAlreadyRunningDetail": "Opravilo osveževanja metapodatkov je že v teku. Počakaj, da se konča, preden začneš novega.",
-        "metadataFailed": "Posodobitev metapodatkov ni uspela",
-        "metadataFailedDetail": "Prišlo je do nepričakovane napake pri načrtovanju posodobitve metapodatkov. Poskusi znova pozneje ali stopi v stik s podporo."
-    }
+  "title": "Upravitelj sistemskih opravil",
+  "description": "Upravljaj avtomatizirana sistemska opravila za vzdrževanje knjižnice, osveževanje metapodatkov in čiščenje predpomnilnika. Nastavi ponavljajoče se operacije z uporabo <a href=\"https://spring.io/blog/2020/11/10/new-in-spring-5-3-improved-cron-expressions\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"cron-link\">Spring cron izrazov</a>.",
+  "systemTasks": {
+    "sectionTitle": "Sistemska opravila",
+    "sectionDesc": "Ročno zaženi opravila, spremljaj napredek v realnem času in konfiguriraj načrtovano avtomatizacijo."
+  },
+  "loading": "Nalaganje opravil...",
+  "emptyTitle": "Na voljo ni nobenega opravila",
+  "status": {
+    "running": "Se izvaja",
+    "stale": "Zastalo",
+    "neverRun": "Nikoli zagnano",
+    "justNow": "Ravnokar"
+  },
+  "cron": {
+    "noSchedule": "Brez urnika",
+    "edit": "Uredi",
+    "placeholder": "npr., 0 2 * * *",
+    "validationPrefix": "Cron izraz mora imeti natanko 6 polj (sekunde, minute, ure, dan, mesec, dan v tednu)",
+    "invalidField": "Neveljavno polje {{name}}: {{value}}",
+    "updateSuccess": "Konfiguracija načrtovanega opravila je bila uspešno posodobljena.",
+    "updateError": "Posodobitev načrtovanega opravila ni uspela."
+  },
+  "buttons": {
+    "run": "Zaženi",
+    "rerun": "Ponovno zaženi"
+  },
+  "metadataReplace": {
+    "label": "Način zamenjave metapodatkov:",
+    "selectMode": "Izberi način",
+    "replaceMissing": "Posodobi le manjkajoče metapodatke (priporočeno)",
+    "replaceAll": "Zamenjaj vse metapodatke (povozi obstoječe)",
+    "replaceMissingDesc": "Posodobi le knjige, ki nimajo vseh metapodatkov. Obstoječi metapodatki bodo ohranjeni.",
+    "replaceAllDesc": "Zamenjaj vse metapodatke za vse knjige, tudi če jih že imajo. Uporabljaj previdno, saj bo to povozilo obstoječe podatke."
+  },
+  "progress": {
+    "staleWarning": "To opravilo je videti zataknjeno. Že več kot 5 minut ni bilo nobene posodobitve.",
+    "statusLabel": "Status:",
+    "progressLabel": "Napredek:",
+    "startedLabel": "Začetek:",
+    "processing": "Obdelava...",
+    "stuckMessage": "Opravilo je videti zataknjeno (ni posodobitev)"
+  },
+  "toast": {
+    "taskQueued": "Opravilo dodano v vrsto",
+    "taskQueuedDetail": "{{name}} je v čakalni vrsti in se bo izvajalo v ozadju.",
+    "taskCompleted": "Opravilo dokončano",
+    "taskCompletedDetail": "{{name}} je bilo uspešno dokončano.",
+    "taskFailed": "Opravilo ni uspelo",
+    "taskFailedDetail": "Izvedba opravila {{name}} ni uspela.",
+    "taskStarted": "Opravilo zagnano",
+    "taskStartedDetail": "{{name}} se je uspešno zagnalo.",
+    "startError": "Zaganjanje opravila {{name}} ni uspelo.",
+    "alreadyRunning": "Opravilo se že izvaja",
+    "alreadyRunningDetail": "To opravilo je že v teku ali v čakalni vrsti.",
+    "taskCancelled": "Opravilo preklicano",
+    "cancelledDetail": "Opravilo je bilo uspešno preklicano.",
+    "cancelFailed": "Preklic ni uspel",
+    "cancelError": "Opravila ni bilo mogoče preklicati. Morda je že dokončano ali pa je spodletelo.",
+    "cancelNoId": "Opravila brez ID-ja ni mogoče preklicati.",
+    "loadError": "Nalaganje opravil ni uspelo",
+    "metadataScheduled": "Posodobitev metapodatkov načrtovana",
+    "metadataScheduledDetail": "Posodobitev metapodatkov za izbrane knjige je bila uspešno načrtovana.",
+    "metadataAlreadyRunningDetail": "Opravilo osveževanja metapodatkov je že v teku. Počakaj, da se konča, preden začneš novega.",
+    "metadataFailed": "Posodobitev metapodatkov ni uspela",
+    "metadataFailedDetail": "Prišlo je do nepričakovane napake pri načrtovanju posodobitve metapodatkov. Poskusi znova pozneje ali stopi v stik s podporo."
+  }
 }

@@ -1,34 +1,34 @@
 {
-    "title": "Användarprofil",
-    "description": "Hantera din kontoinformation och säkerhetsinställningar",
-    "basicInfo": "Grundläggande information",
-    "username": "Användarnamn",
-    "usernamePlaceholder": "Användarnamn...",
-    "fullName": "Fullständigt namn",
-    "fullNamePlaceholder": "Ange fullständigt namn...",
-    "email": "E-post",
-    "emailPlaceholder": "Ange e-post...",
-    "editProfile": "Redigera profil",
-    "saveChanges": "Spara ändringar",
-    "security": "Säkerhetsinställningar",
-    "currentPassword": "Nuvarande lösenord",
-    "newPassword": "Nytt lösenord",
-    "confirmNewPassword": "Bekräfta nytt lösenord",
-    "changePassword": "Byt lösenord",
-    "loading": "Laddar användardata...",
-    "validation": {
-        "currentPasswordRequired": "Nuvarande lösenord krävs.",
-        "newPasswordRequired": "Nytt lösenord krävs.",
-        "passwordMinLength": "Lösenordet måste vara minst 8 tecken.",
-        "confirmPasswordRequired": "Bekräfta ditt nya lösenord.",
-        "passwordMismatch": "Lösenorden matchar inte."
-    },
-    "toast": {
-        "errorNoUser": "Användardata inte tillgänglig.",
-        "noChanges": "Inga ändringar upptäcktes.",
-        "profileUpdated": "Profilen uppdaterades",
-        "profileUpdateFailed": "Kunde inte uppdatera profilen",
-        "passwordChanged": "Lösenordet ändrades",
-        "passwordChangeFailed": "Kunde inte ändra lösenord"
-    }
+  "title": "Användarprofil",
+  "description": "Hantera din kontoinformation och säkerhetsinställningar",
+  "basicInfo": "Grundläggande information",
+  "username": "Användarnamn",
+  "usernamePlaceholder": "Användarnamn...",
+  "fullName": "Fullständigt namn",
+  "fullNamePlaceholder": "Ange fullständigt namn...",
+  "email": "E-post",
+  "emailPlaceholder": "Ange e-post...",
+  "editProfile": "Redigera profil",
+  "saveChanges": "Spara ändringar",
+  "security": "Säkerhetsinställningar",
+  "currentPassword": "Nuvarande lösenord",
+  "newPassword": "Nytt lösenord",
+  "confirmNewPassword": "Bekräfta nytt lösenord",
+  "changePassword": "Byt lösenord",
+  "loading": "Laddar användardata...",
+  "validation": {
+    "currentPasswordRequired": "Nuvarande lösenord krävs.",
+    "newPasswordRequired": "Nytt lösenord krävs.",
+    "passwordMinLength": "Lösenordet måste vara minst 8 tecken.",
+    "confirmPasswordRequired": "Bekräfta ditt nya lösenord.",
+    "passwordMismatch": "Lösenorden matchar inte."
+  },
+  "toast": {
+    "errorNoUser": "Användardata inte tillgänglig.",
+    "noChanges": "Inga ändringar upptäcktes.",
+    "profileUpdated": "Profilen uppdaterades",
+    "profileUpdateFailed": "Kunde inte uppdatera profilen",
+    "passwordChanged": "Lösenordet ändrades",
+    "passwordChangeFailed": "Kunde inte ändra lösenord"
+  }
 }

@@ -10,6 +10,10 @@ plugins {
 group = 'org.booklore'
 version = '0.0.1-SNAPSHOT'
 
+def defaultFrontendDistDir = file("${rootDir}/../booklore-ui/dist/grimmory/browser")
+def configuredFrontendDistDir = providers.gradleProperty('frontendDistDir')
+        .map { file(it) }
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(25)
@@ -138,6 +142,21 @@ jacocoTestReport {
     reports {
         xml.required = true
         html.required = true
+    }
+}
+
+tasks.named('processResources') {
+    def frontendResourcesDir = configuredFrontendDistDir
+            .orElse(providers.provider { defaultFrontendDistDir })
+            .get()
+
+    inputs.property('frontendDistDir', frontendResourcesDir.absolutePath)
+    inputs.property('hasFrontendResources', frontendResourcesDir.exists())
+
+    if (frontendResourcesDir.exists()) {
+        from(frontendResourcesDir) {
+            into 'static'
+        }
     }
 }
 

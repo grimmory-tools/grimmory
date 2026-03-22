@@ -1,55 +1,55 @@
 {
-    "topbar": {
-        "bookdrop": "Bookdrop",
-        "createNewLibrary": "Створити нову бібліотеку",
-        "uploadBook": "Завантажити книгу",
-        "charts": "Графіки",
-        "metadataManager": "Менеджер метаданих",
-        "settings": "Налаштування",
-        "documentation": "Документація",
-        "profile": "Профіль",
-        "logout": "Вийти",
-        "language": "Мова",
-        "supportBookLore": "Підтримати BookLore",
-        "notificationAriaLabel": "Значок сповіщень",
-        "createLibrary": "Створити бібліотеку",
-        "stats": "Статистика",
-        "libraryStats": "Статистика бібліотеки",
-        "readingStats": "Статистика читання"
-    },
-    "menu": {
-        "home": "Головна",
-        "dashboard": "Панель керування",
-        "allBooks": "Усі книги",
-        "libraries": "Бібліотеки",
-        "shelves": "Полиці",
-        "magicShelves": "Магічні полиці",
-        "unshelved": "Поза полицями",
-        "series": "Серії",
-        "authors": "Автори",
-        "notebook": "Нотатник",
-        "update": "(Оновлення)"
-    },
-    "changelog": {
-        "title": "Що нового",
-        "description": "Останні оновлення та покращення",
-        "loading": "Завантаження списку змін...",
-        "empty": "Оновлень немає."
-    },
-    "theme": {
-        "primary": "Основна",
-        "surface": "Другорядна"
-    },
-    "uploadDialog": {
-        "chooseFile": "Виберіть файл:",
-        "selectImage": "Виберіть зображення",
-        "fileNote": "Підтримувані формати: JPEG, PNG • Максимальний розмір файлу: 5 МБ",
-        "or": "АБО",
-        "imageUrl": "URL зображення:",
-        "urlPlaceholder": "Вставте посилання на зображення",
-        "urlNote": "Підтримувані формати: JPEG, PNG • Максимальний розмір файлу: 5 МБ",
-        "errorNoInput": "Оберіть файл або вставте посилання.",
-        "errorUploadFailed": "Не вдалося завантажити зображення.",
-        "errorUploadRetry": "Не вдалося завантажити. Будь ласка, повторіть спробу."
-    }
+  "topbar": {
+    "bookdrop": "Bookdrop",
+    "createNewLibrary": "Створити нову бібліотеку",
+    "uploadBook": "Завантажити книгу",
+    "charts": "Графіки",
+    "metadataManager": "Менеджер метаданих",
+    "settings": "Налаштування",
+    "documentation": "Документація",
+    "profile": "Профіль",
+    "logout": "Вийти",
+    "language": "Мова",
+    "supportGrimmory": "Підтримати Grimmory",
+    "notificationAriaLabel": "Значок сповіщень",
+    "createLibrary": "Створити бібліотеку",
+    "stats": "Статистика",
+    "libraryStats": "Статистика бібліотеки",
+    "readingStats": "Статистика читання"
+  },
+  "menu": {
+    "home": "Головна",
+    "dashboard": "Панель керування",
+    "allBooks": "Усі книги",
+    "libraries": "Бібліотеки",
+    "shelves": "Полиці",
+    "magicShelves": "Магічні полиці",
+    "unshelved": "Поза полицями",
+    "series": "Серії",
+    "authors": "Автори",
+    "notebook": "Нотатник",
+    "update": "(Оновлення)"
+  },
+  "changelog": {
+    "title": "Що нового",
+    "description": "Останні оновлення та покращення",
+    "loading": "Завантаження списку змін...",
+    "empty": "Оновлень немає."
+  },
+  "theme": {
+    "primary": "Основна",
+    "surface": "Другорядна"
+  },
+  "uploadDialog": {
+    "chooseFile": "Виберіть файл:",
+    "selectImage": "Виберіть зображення",
+    "fileNote": "Підтримувані формати: JPEG, PNG • Максимальний розмір файлу: 5 МБ",
+    "or": "АБО",
+    "imageUrl": "URL зображення:",
+    "urlPlaceholder": "Вставте посилання на зображення",
+    "urlNote": "Підтримувані формати: JPEG, PNG • Максимальний розмір файлу: 5 МБ",
+    "errorNoInput": "Оберіть файл або вставте посилання.",
+    "errorUploadFailed": "Не вдалося завантажити зображення.",
+    "errorUploadRetry": "Не вдалося завантажити. Будь ласка, повторіть спробу."
+  }
 }

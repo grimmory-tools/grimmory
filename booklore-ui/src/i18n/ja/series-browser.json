@@ -1,25 +1,25 @@
 {
-    "pageTitle": "シリーズ",
-    "browseAllSeries": "すべてのシリーズを閲覧",
-    "searchPlaceholder": "シリーズ名または著者で検索...",
-    "readNext": "次に読む",
-    "booksRead": "冊読了",
-    "noSeriesFound": "検索やフィルターに一致するシリーズがありません。",
-    "noSeriesInCategory": "このカテゴリにシリーズが見つかりません。",
-    "cardSize": "カードサイズ",
-    "filters": {
-        "all": "すべて",
-        "notStarted": "未開始",
-        "inProgress": "読書中",
-        "completed": "完了",
-        "abandoned": "中断"
-    },
-    "sort": {
-        "nameAsc": "名前（A-Z）",
-        "nameDesc": "名前（Z-A）",
-        "bookCount": "冊数",
-        "progress": "進捗",
-        "recentlyRead": "最近読んだ順",
-        "recentlyAdded": "最近追加した順"
-    }
+  "pageTitle": "シリーズ",
+  "browseAllSeries": "すべてのシリーズを閲覧",
+  "searchPlaceholder": "シリーズ名または著者で検索...",
+  "readNext": "次に読む",
+  "booksRead": "冊読了",
+  "noSeriesFound": "検索やフィルターに一致するシリーズがありません。",
+  "noSeriesInCategory": "このカテゴリにシリーズが見つかりません。",
+  "cardSize": "カードサイズ",
+  "filters": {
+    "all": "すべて",
+    "notStarted": "未開始",
+    "inProgress": "読書中",
+    "completed": "完了",
+    "abandoned": "中断"
+  },
+  "sort": {
+    "nameAsc": "名前（A-Z）",
+    "nameDesc": "名前（Z-A）",
+    "bookCount": "冊数",
+    "progress": "進捗",
+    "recentlyRead": "最近読んだ順",
+    "recentlyAdded": "最近追加した順"
+  }
 }

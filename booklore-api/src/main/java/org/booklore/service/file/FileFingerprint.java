@@ -52,11 +52,14 @@ public class FileFingerprint {
                 throw new RuntimeException("Folder does not exist: " + folderPath);
             }
 
-            List<Path> audioFiles = Files.list(folderPath)
-                    .filter(Files::isRegularFile)
-                    .filter(p -> isAudioFile(p.getFileName().toString()))
-                    .sorted(Comparator.comparing(p -> p.getFileName().toString()))
-                    .toList();
+            List<Path> audioFiles;
+            try (var files = Files.list(folderPath)) {
+                audioFiles = files
+                        .filter(Files::isRegularFile)
+                        .filter(p -> isAudioFile(p.getFileName().toString()))
+                        .sorted(Comparator.comparing(p -> p.getFileName().toString()))
+                        .toList();
+            }
 
             if (audioFiles.isEmpty()) {
                 throw new RuntimeException("No audio files in folder: " + folderPath);

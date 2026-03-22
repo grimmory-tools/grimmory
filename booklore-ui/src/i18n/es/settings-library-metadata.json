@@ -1,34 +1,34 @@
 {
-    "title": "Configuración de metadatos de biblioteca",
-    "description": "Configura el comportamiento de obtención de metadatos para tus bibliotecas. Establece valores predeterminados globales y crea anulaciones específicas por biblioteca para controlar cómo se recuperan los metadatos de libros de diferentes proveedores.",
-    "defaultSettings": {
-        "sectionTitle": "Ajustes de metadatos predeterminados",
-        "sectionDesc": "Establece las prioridades predeterminadas globales de proveedores para los campos de metadatos de libros. Estos ajustes se aplican a todas las bibliotecas a menos que se anulen a continuación. BookLore prueba los proveedores de izquierda a derecha (1.ª → 2.ª → 3.ª → 4.ª prioridad) para cada campo del libro hasta encontrar datos. El sistema comprueba tu proveedor de 1.ª prioridad primero; si ese proveedor no tiene el campo específico (como descripción o autor), pasa automáticamente a tu 2.ª prioridad, luego 3.ª y finalmente 4.ª. Deja una prioridad vacía para omitirla por completo. Por ejemplo, si Amazon (1.ª) no tiene descripción pero Google Books (2.ª) sí, se usará la descripción de Google. Usa las casillas de Habilitar para desactivar completamente la obtención de campos específicos; los campos deshabilitados se omitirán independientemente de los ajustes del proveedor.",
-        "saveButton": "Guardar ajustes predeterminados",
-        "saveSuccess": "Las opciones de metadatos predeterminadas se guardaron correctamente.",
-        "saveFailed": "Error al guardar",
-        "saveError": "Error al guardar las opciones de metadatos predeterminadas. Inténtalo de nuevo."
-    },
-    "libraryOverrides": {
-        "sectionTitle": "Anulaciones específicas por biblioteca",
-        "sectionDesc": "Anula los ajustes de prioridad predeterminados para bibliotecas específicas. Por ejemplo, podrías preferir Amazon para ficción pero Google Books para libros técnicos. Cada biblioteca puede tener su propio orden de prioridad de proveedores mientras recurre a los valores predeterminados para campos no especificados. También puedes habilitar o deshabilitar campos de metadatos específicos por biblioteca, útil si ciertas bibliotecas no necesitan tipos de datos específicos como descripciones o portadas.",
-        "customSettings": "Ajustes personalizados",
-        "defaultSettings": "Ajustes predeterminados",
-        "exportSidecar": "Exportar sidecar",
-        "importSidecar": "Importar sidecar",
-        "exportTooltip": "Generar archivos .metadata.json para todos los libros de esta biblioteca",
-        "importTooltip": "Importar metadatos de archivos .metadata.json existentes en esta biblioteca",
-        "saveLibraryButton": "Guardar ajustes de {{name}}",
-        "saveSuccess": "Las opciones de metadatos de la biblioteca se guardaron correctamente.",
-        "saveFailed": "Error al guardar",
-        "saveError": "Error al guardar las opciones de metadatos de la biblioteca. Inténtalo de nuevo.",
-        "exportSuccess": "Archivos sidecar exportados para {{count}} libros.",
-        "exportComplete": "Exportación completada",
-        "exportFailed": "Error en la exportación",
-        "exportError": "Error al exportar los archivos sidecar. Inténtalo de nuevo.",
-        "importSuccess": "Metadatos importados de {{count}} archivos sidecar.",
-        "importComplete": "Importación completada",
-        "importFailed": "Error en la importación",
-        "importError": "Error al importar de archivos sidecar. Inténtalo de nuevo."
-    }
+  "title": "Configuración de metadatos de biblioteca",
+  "description": "Configura el comportamiento de obtención de metadatos para tus bibliotecas. Establece valores predeterminados globales y crea anulaciones específicas por biblioteca para controlar cómo se recuperan los metadatos de libros de diferentes proveedores.",
+  "defaultSettings": {
+    "sectionTitle": "Ajustes de metadatos predeterminados",
+    "sectionDesc": "Establece las prioridades predeterminadas globales de proveedores para los campos de metadatos de libros. Estos ajustes se aplican a todas las bibliotecas a menos que se anulen a continuación. Grimmory prueba los proveedores de izquierda a derecha (1.ª → 2.ª → 3.ª → 4.ª prioridad) para cada campo del libro hasta encontrar datos. El sistema comprueba tu proveedor de 1.ª prioridad primero; si ese proveedor no tiene el campo específico (como descripción o autor), pasa automáticamente a tu 2.ª prioridad, luego 3.ª y finalmente 4.ª. Deja una prioridad vacía para omitirla por completo. Por ejemplo, si Amazon (1.ª) no tiene descripción pero Google Books (2.ª) sí, se usará la descripción de Google. Usa las casillas de Habilitar para desactivar completamente la obtención de campos específicos; los campos deshabilitados se omitirán independientemente de los ajustes del proveedor.",
+    "saveButton": "Guardar ajustes predeterminados",
+    "saveSuccess": "Las opciones de metadatos predeterminadas se guardaron correctamente.",
+    "saveFailed": "Error al guardar",
+    "saveError": "Error al guardar las opciones de metadatos predeterminadas. Inténtalo de nuevo."
+  },
+  "libraryOverrides": {
+    "sectionTitle": "Anulaciones específicas por biblioteca",
+    "sectionDesc": "Anula los ajustes de prioridad predeterminados para bibliotecas específicas. Por ejemplo, podrías preferir Amazon para ficción pero Google Books para libros técnicos. Cada biblioteca puede tener su propio orden de prioridad de proveedores mientras recurre a los valores predeterminados para campos no especificados. También puedes habilitar o deshabilitar campos de metadatos específicos por biblioteca, útil si ciertas bibliotecas no necesitan tipos de datos específicos como descripciones o portadas.",
+    "customSettings": "Ajustes personalizados",
+    "defaultSettings": "Ajustes predeterminados",
+    "exportSidecar": "Exportar sidecar",
+    "importSidecar": "Importar sidecar",
+    "exportTooltip": "Generar archivos .metadata.json para todos los libros de esta biblioteca",
+    "importTooltip": "Importar metadatos de archivos .metadata.json existentes en esta biblioteca",
+    "saveLibraryButton": "Guardar ajustes de {{name}}",
+    "saveSuccess": "Las opciones de metadatos de la biblioteca se guardaron correctamente.",
+    "saveFailed": "Error al guardar",
+    "saveError": "Error al guardar las opciones de metadatos de la biblioteca. Inténtalo de nuevo.",
+    "exportSuccess": "Archivos sidecar exportados para {{count}} libros.",
+    "exportComplete": "Exportación completada",
+    "exportFailed": "Error en la exportación",
+    "exportError": "Error al exportar los archivos sidecar. Inténtalo de nuevo.",
+    "importSuccess": "Metadatos importados de {{count}} archivos sidecar.",
+    "importComplete": "Importación completada",
+    "importFailed": "Error en la importación",
+    "importError": "Error al importar de archivos sidecar. Inténtalo de nuevo."
+  }
 }

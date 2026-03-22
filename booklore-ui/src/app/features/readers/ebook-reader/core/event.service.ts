@@ -257,7 +257,7 @@ export class ReaderEventService {
   }
 
   private injectMobileSelectionStyles(doc: Document): void {
-    const styleId = 'booklore-mobile-selection-styles';
+    const styleId = 'grimmory-mobile-selection-styles';
     if (doc.getElementById(styleId)) return;
 
     const style = doc.createElement('style');

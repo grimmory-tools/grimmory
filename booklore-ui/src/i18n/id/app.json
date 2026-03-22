@@ -1,8 +1,8 @@
 {
-    "offline": "Anda sedang offline",
-    "loading": "Memuat Booklore…",
-    "loadingDescription": "Mohon menunggu selagi kami menyiapkan semuanya.",
-    "offlineLoadingDescription": "",
-    "offlineDescription": "",
-    "connectionLost": ""
+  "offline": "Anda sedang offline",
+  "loading": "Memuat Grimmory…",
+  "loadingDescription": "Mohon menunggu selagi kami menyiapkan semuanya.",
+  "offlineLoadingDescription": "",
+  "offlineDescription": "",
+  "connectionLost": ""
 }

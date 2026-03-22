@@ -1,8 +1,8 @@
 {
-    "offline": "Vous êtes hors ligne",
-    "loading": "Chargement de Booklore…",
-    "loadingDescription": "Veuillez patienter pendant la préparation.",
-    "offlineLoadingDescription": "BookLore a besoin d'une connexion au serveur pour se charger.",
-    "offlineDescription": "Vérifiez votre réseau et réessayez.",
-    "connectionLost": "Votre connexion a été perdue. Certaines fonctionnalités peuvent ne pas fonctionner."
+  "offline": "Vous êtes hors ligne",
+  "loading": "Chargement de Grimmory…",
+  "loadingDescription": "Veuillez patienter pendant la préparation.",
+  "offlineLoadingDescription": "Grimmory a besoin d'une connexion au serveur pour se charger.",
+  "offlineDescription": "Vérifiez votre réseau et réessayez.",
+  "connectionLost": "Votre connexion a été perdue. Certaines fonctionnalités peuvent ne pas fonctionner."
 }

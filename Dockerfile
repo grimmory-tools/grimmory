@@ -1,74 +1,95 @@
-# Stage 1: Build the Angular app
-FROM node:24-alpine AS angular-build
+FROM --platform=$BUILDPLATFORM node:24-alpine AS frontend-build
 
-WORKDIR /angular-app
+WORKDIR /workspace/booklore-ui
 
-COPY ./booklore-ui/package.json ./booklore-ui/package-lock.json ./
+COPY booklore-ui/package.json booklore-ui/package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm \
-    npm config set registry https://registry.npmjs.org/ \
-    && npm ci --force
+    npm ci --no-audit --no-fund
 
-COPY ./booklore-ui /angular-app/
+COPY booklore-ui/ ./
+RUN --mount=type=cache,target=/workspace/booklore-ui/.angular/cache \
+    npm run build --configuration=production
 
-RUN npm run build --configuration=production
+FROM --platform=$BUILDPLATFORM gradle:9.3.1-jdk25-alpine AS backend-build
 
-# Stage 2: Build the Spring Boot app with Gradle
-FROM gradle:9.3.1-jdk25-alpine AS springboot-build
+WORKDIR /workspace/booklore-api
 
-WORKDIR /springboot-app
-
-# Copy only build files first to cache dependencies
-COPY ./booklore-api/build.gradle ./booklore-api/settings.gradle /springboot-app/
-
-# Download dependencies (cached layer)
-RUN --mount=type=cache,target=/home/gradle/.gradle \
-    gradle dependencies --no-daemon
-
-COPY ./booklore-api/src /springboot-app/src
-
-# Copy Angular dist into Spring Boot static resources so it's embedded in the JAR
-COPY --from=angular-build /angular-app/dist/booklore/browser /springboot-app/src/main/resources/static
-
-# Inject version into application.yaml using yq
-ARG APP_VERSION
-RUN apk add --no-cache yq && \
-    yq eval '.app.version = strenv(APP_VERSION)' -i /springboot-app/src/main/resources/application.yaml
+COPY booklore-api/gradlew booklore-api/gradlew.bat booklore-api/build.gradle booklore-api/settings.gradle ./
+COPY booklore-api/gradle ./gradle
+RUN chmod +x ./gradlew
 
 RUN --mount=type=cache,target=/home/gradle/.gradle \
-    gradle clean build -x test --no-daemon --parallel
+    ./gradlew --no-daemon dependencies
 
-# Stage 3: Final image
+COPY booklore-api/ ./
+COPY --from=frontend-build /workspace/booklore-ui/dist/grimmory/browser /tmp/frontend-dist
+
+RUN --mount=type=cache,target=/home/gradle/.gradle \
+    ./gradlew --no-daemon -PfrontendDistDir=/tmp/frontend-dist bootJar
+
+RUN set -eux; \
+    jar_path="$(find build/libs -maxdepth 1 -name '*.jar' ! -name '*plain.jar' | head -n 1)"; \
+    cp "$jar_path" /workspace/booklore-api/app.jar
+
+FROM linuxserver/unrar:7.1.10 AS unrar-layer
+
+FROM mwader/static-ffmpeg:8.1 AS ffprobe-layer
+
+FROM scratch AS kepubify-layer-amd64
+
+ARG KEPUBIFY_VERSION="4.0.4"
+ARG KEPUBIFY_AMD64_CHECKSUM="sha256:37d7628d26c5c906f607f24b36f781f306075e7073a6fe7820a751bb60431fc5"
+
+ADD \
+      --checksum="${KEPUBIFY_AMD64_CHECKSUM}" \
+      --chmod=755 \
+      https://github.com/pgaskin/kepubify/releases/download/v${KEPUBIFY_VERSION}/kepubify-linux-64bit /kepubify
+
+FROM scratch AS kepubify-layer-arm64
+
+ARG KEPUBIFY_VERSION="4.0.4"
+ARG KEPUBIFY_ARM64_CHECKSUM="sha256:5a15b8f6f6a96216c69330601bca29638cfee50f7bf48712795cff88ae2d03a3"
+
+ADD \
+      --checksum="${KEPUBIFY_ARM64_CHECKSUM}" \
+      --chmod=755 \
+      https://github.com/pgaskin/kepubify/releases/download/v${KEPUBIFY_VERSION}/kepubify-linux-arm64 /kepubify
+
+FROM kepubify-layer-${TARGETARCH} AS kepubify-layer
+
 FROM eclipse-temurin:25-jre-alpine
-
-ARG APP_VERSION
-ARG APP_REVISION
-
-# Set OCI labels
-LABEL org.opencontainers.image.title="BookLore" \
-      org.opencontainers.image.description="BookLore: A self-hosted, multi-user digital library with smart shelves, auto metadata, Kobo & KOReader sync, BookDrop imports, OPDS support, and a built-in reader for EPUB, PDF, and comics." \
-      org.opencontainers.image.source="https://github.com/booklore-app/booklore" \
-      org.opencontainers.image.url="https://github.com/booklore-app/booklore" \
-      org.opencontainers.image.documentation="https://booklore.org/docs/getting-started" \
-      org.opencontainers.image.version=$APP_VERSION \
-      org.opencontainers.image.revision=$APP_REVISION \
-      org.opencontainers.image.licenses="GPL-3.0" \
-      org.opencontainers.image.base.name="docker.io/library/eclipse-temurin:25-jre-alpine"
-
 ENV JAVA_TOOL_OPTIONS="-XX:+UseG1GC -XX:+UseCompactObjectHeaders -XX:+UseStringDeduplication -XX:MaxRAMPercentage=75.0 -XX:+ExitOnOutOfMemoryError"
 
-ARG TARGETARCH
-RUN apk update && apk add --no-cache su-exec libstdc++ libgcc && \
+RUN apk add --no-cache su-exec libstdc++ libgcc && \
     mkdir -p /bookdrop
 
-COPY docker/unrar/unrar-${TARGETARCH} /usr/local/bin/unrar
-RUN chmod 755 /usr/local/bin/unrar
-
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY packaging/docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
-COPY --from=springboot-build /springboot-app/build/libs/booklore-api-0.0.1-SNAPSHOT.jar /app/app.jar
+
+COPY --from=unrar-layer /usr/bin/unrar-alpine /usr/local/bin/unrar
+COPY --from=ffprobe-layer /ffprobe /usr/local/bin/ffprobe
+COPY --from=kepubify-layer /kepubify /usr/local/bin/kepubify
+
+COPY --from=backend-build /workspace/booklore-api/app.jar /app/app.jar
+
+ARG APP_VERSION=development
+ARG APP_REVISION=unknown
+
+LABEL org.opencontainers.image.title="Grimmory" \
+      org.opencontainers.image.description="Grimmory: a self-hosted, multi-user digital library with smart shelves, auto metadata, Kobo and KOReader sync, BookDrop imports, OPDS support, and a built-in reader for EPUB, PDF, and comics." \
+      org.opencontainers.image.source="https://github.com/grimmory-tools/grimmory" \
+      org.opencontainers.image.url="https://github.com/grimmory-tools/grimmory" \
+      org.opencontainers.image.documentation="https://grimmory.org/docs/getting-started" \
+      org.opencontainers.image.version=$APP_VERSION \
+      org.opencontainers.image.revision=$APP_REVISION \
+      org.opencontainers.image.licenses="AGPL-3.0" \
+      org.opencontainers.image.base.name="docker.io/library/eclipse-temurin:25-jre-alpine"
+
+ENV APP_VERSION=${APP_VERSION} \
+    APP_REVISION=${APP_REVISION}
 
 ARG BOOKLORE_PORT=6060
 EXPOSE ${BOOKLORE_PORT}
 
-ENTRYPOINT ["entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["java", "-jar", "/app/app.jar"]

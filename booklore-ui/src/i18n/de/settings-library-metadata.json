@@ -1,34 +1,34 @@
 {
-    "title": "Bibliotheks-Metadatenkonfiguration",
-    "description": "Konfigurieren Sie das Metadaten-Abrufverhalten für Ihre Bibliotheken. Legen Sie globale Standardwerte fest und erstellen Sie bibliotheksspezifische Überschreibungen, um zu steuern, wie Buchmetadaten von verschiedenen Anbietern abgerufen werden.",
-    "defaultSettings": {
-        "sectionTitle": "Standard-Metadateneinstellungen",
-        "sectionDesc": "Legen Sie globale Standard-Anbieterprioritäten für Buchmetadatenfelder fest. Diese Einstellungen gelten für alle Bibliotheken, sofern sie nicht weiter unten überschrieben werden. BookLore versucht die Anbieter von links nach rechts (1. → 2. → 3. → 4. Priorität) für jedes Buchfeld, bis Daten gefunden werden. Das System prüft zuerst Ihren Anbieter mit 1. Priorität. Wenn dieser Anbieter das spezifische Feld (wie Beschreibung oder Autor) nicht hat, wechselt es automatisch zur 2. Priorität, dann zur 3. und schließlich zur 4. Lassen Sie eine Priorität leer, um sie zu überspringen. Wenn beispielsweise Amazon (1.) keine Beschreibung hat, aber Google Books (2.) schon, wird die Beschreibung von Google verwendet. Verwenden Sie die Aktivieren-Kontrollkästchen, um den Abruf für bestimmte Felder komplett zu deaktivieren. Deaktivierte Felder werden unabhängig von den Anbietereinstellungen übersprungen.",
-        "saveButton": "Standardeinstellungen speichern",
-        "saveSuccess": "Standard-Metadatenoptionen wurden erfolgreich gespeichert.",
-        "saveFailed": "Speichern fehlgeschlagen",
-        "saveError": "Standard-Metadatenoptionen konnten nicht gespeichert werden. Bitte versuchen Sie es erneut."
-    },
-    "libraryOverrides": {
-        "sectionTitle": "Bibliotheksspezifische Überschreibungen",
-        "sectionDesc": "Überschreiben Sie die Standard-Prioritätseinstellungen für bestimmte Bibliotheken. Sie könnten beispielsweise Amazon für Belletristik bevorzugen, aber Google Books für Fachbücher. Jede Bibliothek kann ihre eigene Anbieter-Prioritätsreihenfolge haben und greift bei nicht festgelegten Feldern auf die Standardwerte zurück. Sie können auch bestimmte Metadatenfelder pro Bibliothek aktivieren oder deaktivieren, nützlich wenn bestimmte Bibliotheken keine spezifischen Datentypen wie Beschreibungen oder Cover benötigen.",
-        "customSettings": "Benutzerdefinierte Einstellungen",
-        "defaultSettings": "Standardeinstellungen",
-        "exportSidecar": "Sidecar exportieren",
-        "importSidecar": "Sidecar importieren",
-        "exportTooltip": ".metadata.json-Dateien für alle Bücher in dieser Bibliothek generieren",
-        "importTooltip": "Metadaten aus vorhandenen .metadata.json-Dateien in dieser Bibliothek importieren",
-        "saveLibraryButton": "{{name}}-Einstellungen speichern",
-        "saveSuccess": "Bibliotheks-Metadatenoptionen wurden erfolgreich gespeichert.",
-        "saveFailed": "Speichern fehlgeschlagen",
-        "saveError": "Bibliotheks-Metadatenoptionen konnten nicht gespeichert werden. Bitte versuchen Sie es erneut.",
-        "exportSuccess": "Sidecar-Dateien für {{count}} Bücher exportiert.",
-        "exportComplete": "Export abgeschlossen",
-        "exportFailed": "Export fehlgeschlagen",
-        "exportError": "Sidecar-Dateien konnten nicht exportiert werden. Bitte versuchen Sie es erneut.",
-        "importSuccess": "Metadaten aus {{count}} Sidecar-Dateien importiert.",
-        "importComplete": "Import abgeschlossen",
-        "importFailed": "Import fehlgeschlagen",
-        "importError": "Import aus Sidecar-Dateien fehlgeschlagen. Bitte versuchen Sie es erneut."
-    }
+  "title": "Bibliotheks-Metadatenkonfiguration",
+  "description": "Konfigurieren Sie das Metadaten-Abrufverhalten für Ihre Bibliotheken. Legen Sie globale Standardwerte fest und erstellen Sie bibliotheksspezifische Überschreibungen, um zu steuern, wie Buchmetadaten von verschiedenen Anbietern abgerufen werden.",
+  "defaultSettings": {
+    "sectionTitle": "Standard-Metadateneinstellungen",
+    "sectionDesc": "Legen Sie globale Standard-Anbieterprioritäten für Buchmetadatenfelder fest. Diese Einstellungen gelten für alle Bibliotheken, sofern sie nicht weiter unten überschrieben werden. Grimmory versucht die Anbieter von links nach rechts (1. → 2. → 3. → 4. Priorität) für jedes Buchfeld, bis Daten gefunden werden. Das System prüft zuerst Ihren Anbieter mit 1. Priorität. Wenn dieser Anbieter das spezifische Feld (wie Beschreibung oder Autor) nicht hat, wechselt es automatisch zur 2. Priorität, dann zur 3. und schließlich zur 4. Lassen Sie eine Priorität leer, um sie zu überspringen. Wenn beispielsweise Amazon (1.) keine Beschreibung hat, aber Google Books (2.) schon, wird die Beschreibung von Google verwendet. Verwenden Sie die Aktivieren-Kontrollkästchen, um den Abruf für bestimmte Felder komplett zu deaktivieren. Deaktivierte Felder werden unabhängig von den Anbietereinstellungen übersprungen.",
+    "saveButton": "Standardeinstellungen speichern",
+    "saveSuccess": "Standard-Metadatenoptionen wurden erfolgreich gespeichert.",
+    "saveFailed": "Speichern fehlgeschlagen",
+    "saveError": "Standard-Metadatenoptionen konnten nicht gespeichert werden. Bitte versuchen Sie es erneut."
+  },
+  "libraryOverrides": {
+    "sectionTitle": "Bibliotheksspezifische Überschreibungen",
+    "sectionDesc": "Überschreiben Sie die Standard-Prioritätseinstellungen für bestimmte Bibliotheken. Sie könnten beispielsweise Amazon für Belletristik bevorzugen, aber Google Books für Fachbücher. Jede Bibliothek kann ihre eigene Anbieter-Prioritätsreihenfolge haben und greift bei nicht festgelegten Feldern auf die Standardwerte zurück. Sie können auch bestimmte Metadatenfelder pro Bibliothek aktivieren oder deaktivieren, nützlich wenn bestimmte Bibliotheken keine spezifischen Datentypen wie Beschreibungen oder Cover benötigen.",
+    "customSettings": "Benutzerdefinierte Einstellungen",
+    "defaultSettings": "Standardeinstellungen",
+    "exportSidecar": "Sidecar exportieren",
+    "importSidecar": "Sidecar importieren",
+    "exportTooltip": ".metadata.json-Dateien für alle Bücher in dieser Bibliothek generieren",
+    "importTooltip": "Metadaten aus vorhandenen .metadata.json-Dateien in dieser Bibliothek importieren",
+    "saveLibraryButton": "{{name}}-Einstellungen speichern",
+    "saveSuccess": "Bibliotheks-Metadatenoptionen wurden erfolgreich gespeichert.",
+    "saveFailed": "Speichern fehlgeschlagen",
+    "saveError": "Bibliotheks-Metadatenoptionen konnten nicht gespeichert werden. Bitte versuchen Sie es erneut.",
+    "exportSuccess": "Sidecar-Dateien für {{count}} Bücher exportiert.",
+    "exportComplete": "Export abgeschlossen",
+    "exportFailed": "Export fehlgeschlagen",
+    "exportError": "Sidecar-Dateien konnten nicht exportiert werden. Bitte versuchen Sie es erneut.",
+    "importSuccess": "Metadaten aus {{count}} Sidecar-Dateien importiert.",
+    "importComplete": "Import abgeschlossen",
+    "importFailed": "Import fehlgeschlagen",
+    "importError": "Import aus Sidecar-Dateien fehlgeschlagen. Bitte versuchen Sie es erneut."
+  }
 }

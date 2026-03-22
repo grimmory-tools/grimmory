@@ -1,10 +1,10 @@
 {
-    "toolbar": {
-        "switchToLightMode": "Beralih ke Mode Terang",
-        "switchToDarkMode": "Beralih ke Mode Gelap",
-        "closePdfReader": "Tutup Pembaca PDF"
-    },
-    "toast": {
-        "failedToLoadBook": ""
-    }
+  "toolbar": {
+    "switchToLightMode": "Beralih ke Mode Terang",
+    "switchToDarkMode": "Beralih ke Mode Gelap",
+    "closePdfReader": "Tutup Pembaca PDF"
+  },
+  "toast": {
+    "failedToLoadBook": ""
+  }
 }

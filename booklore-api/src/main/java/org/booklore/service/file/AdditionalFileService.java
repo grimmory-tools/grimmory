@@ -131,16 +131,16 @@ public class AdditionalFileService {
 
         try (ZipOutputStream zos = new ZipOutputStream(baos)) {
             // Get all files in the folder, sorted by name
-            List<Path> files = Files.list(folderPath)
-                    .filter(Files::isRegularFile)
-                    .sorted(Comparator.comparing(p -> p.getFileName().toString()))
-                    .toList();
-
-            for (Path audioFile : files) {
-                ZipEntry entry = new ZipEntry(audioFile.getFileName().toString());
-                zos.putNextEntry(entry);
-                Files.copy(audioFile, zos);
-                zos.closeEntry();
+            try (var files = Files.list(folderPath)) {
+                for (Path audioFile : files
+                        .filter(Files::isRegularFile)
+                        .sorted(Comparator.comparing(p -> p.getFileName().toString()))
+                        .toList()) {
+                    ZipEntry entry = new ZipEntry(audioFile.getFileName().toString());
+                    zos.putNextEntry(entry);
+                    Files.copy(audioFile, zos);
+                    zos.closeEntry();
+                }
             }
         }
 

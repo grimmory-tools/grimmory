@@ -1,0 +1,102 @@
+name: Nightly - Build and Publish
+
+on:
+  schedule:
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+jobs:
+  resolve_ref:
+    name: Resolve Nightly Ref
+    runs-on: ubuntu-latest
+
+    outputs:
+      commit_sha: ${{ steps.resolve.outputs.commit_sha }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 1
+          ref: develop
+
+      - name: Record Resolved Commit
+        id: resolve
+        run: |
+          echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  test-suite:
+    name: Test Suite
+    needs: [resolve_ref]
+    uses: ./.github/workflows/test-suite.yml
+    permissions:
+      contents: read
+      checks: write
+    with:
+      checkout_ref: ${{ needs.resolve_ref.outputs.commit_sha }}
+
+  build-and-push:
+    name: Build and Push Nightly Image
+    needs: [resolve_ref, test-suite]
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 1
+          ref: ${{ needs.resolve_ref.outputs.commit_sha }}
+
+      - name: Generate Nightly Tag
+        run: |
+          short_sha=$(git rev-parse --short HEAD)
+          build_date=$(date -u +%Y%m%d)
+          nightly_tag="nightly-${build_date}-${short_sha}"
+          echo "nightly_tag=$nightly_tag" >> "$GITHUB_ENV"
+          echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          echo "Nightly tag: $nightly_tag"
+
+      - name: Set Up QEMU for Multi-Arch Builds
+        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
+
+      - name: Set Up Docker Buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+
+      - name: Authenticate to Docker Hub
+        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # v4.0.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Authenticate to GitHub Container Registry
+        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # v4.0.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
+        with:
+          context: .
+          file: Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            grimmory/grimmory:${{ env.nightly_tag }}
+            grimmory/grimmory:nightly
+            ghcr.io/grimmory-tools/grimmory:${{ env.nightly_tag }}
+            ghcr.io/grimmory-tools/grimmory:nightly
+          build-args: |
+            APP_VERSION=${{ env.nightly_tag }}
+            APP_REVISION=${{ env.commit_sha }}
+          cache-from: |
+            type=gha,scope=image-shared
+            type=registry,ref=ghcr.io/grimmory-tools/grimmory:buildcache
+          cache-to: |
+            type=gha,scope=image-shared,mode=max
+            type=registry,ref=ghcr.io/grimmory-tools/grimmory:buildcache,mode=max

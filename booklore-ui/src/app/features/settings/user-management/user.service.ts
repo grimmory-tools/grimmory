@@ -3,7 +3,7 @@ import {HttpClient} from '@angular/common/http';
 import {BehaviorSubject, Observable, throwError} from 'rxjs';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {Library} from '../../book/model/library.model';
-import {catchError, distinctUntilChanged, finalize, shareReplay, tap} from 'rxjs/operators';
+import {catchError, distinctUntilChanged, finalize, map, shareReplay, tap} from 'rxjs/operators';
 import {AuthService} from '../../../shared/service/auth.service';
 import {DashboardConfig} from '../../dashboard/models/dashboard-config.model';
 
@@ -320,6 +320,8 @@ export interface User {
     canBulkRegenerateCover: boolean;
     canMoveOrganizeFiles: boolean;
     canBulkLockUnlockMetadata: boolean;
+    canBulkResetGrimmoryReadProgress?: boolean;
+    // TODO(grimmory-cleanup): Remove once the backend no longer serves the legacy Booklore permission name.
     canBulkResetBookloreReadProgress?: boolean;
     canBulkResetKoReaderReadProgress?: boolean;
     canBulkResetBookReadStatus?: boolean;
@@ -398,7 +400,7 @@ export class UserService {
 
   private fetchMyself(): Observable<User> {
     return this.http.get<User>(`${this.userUrl}/me`).pipe(
-      tap(user => this.userStateSubject.next({user, loaded: true, error: null})),
+      tap(user => this.userStateSubject.next({user: this.normalizeUser(user), loaded: true, error: null})),
       catchError(err => {
         const curr = this.userStateSubject.value;
         this.userStateSubject.next({user: curr.user, loaded: true, error: err.message});
@@ -416,19 +418,26 @@ export class UserService {
   }
 
   getMyself(): Observable<User> {
-    return this.http.get<User>(`${this.userUrl}/me`);
+    return this.http.get<User>(`${this.userUrl}/me`).pipe(
+      map(user => this.normalizeUser(user)),
+      tap(user => this.userStateSubject.next({user, loaded: true, error: null}))
+    );
   }
 
-  createUser(userData: Omit<User, 'id'>): Observable<void> {
-    return this.http.post<void>(this.apiUrl, userData);
+  createUser<T extends object>(userData: T): Observable<void> {
+    return this.http.post<void>(this.apiUrl, this.serializeUserPayload(userData));
   }
 
   getUsers(): Observable<User[]> {
-    return this.http.get<User[]>(this.userUrl);
+    return this.http.get<User[]>(this.userUrl).pipe(
+      map(users => users.map(user => this.normalizeUser(user)))
+    );
   }
 
   updateUser(userId: number, updateData: UserUpdateRequest): Observable<User> {
-    return this.http.put<User>(`${this.userUrl}/${userId}`, updateData);
+    return this.http.put<User>(`${this.userUrl}/${userId}`, this.serializeUserPayload(updateData)).pipe(
+      map(user => this.normalizeUser(user))
+    );
   }
 
   deleteUser(userId: number): Observable<void> {
@@ -477,5 +486,47 @@ export class UserService {
         this.userStateSubject.next({...currentState, user: updatedUser});
       }
     });
+  }
+
+  private normalizeUser(user: User): User {
+    const permissions = user.permissions;
+    return {
+      ...user,
+      permissions: {
+        ...permissions,
+        canBulkResetGrimmoryReadProgress: permissions.canBulkResetGrimmoryReadProgress ?? permissions.canBulkResetBookloreReadProgress,
+        canBulkResetBookloreReadProgress: permissions.canBulkResetBookloreReadProgress ?? permissions.canBulkResetGrimmoryReadProgress,
+      }
+    };
+  }
+
+  private serializeUserPayload<T extends object>(payload: T): T {
+    const payloadRecord = payload as Record<string, unknown>;
+    const nextPayload: Record<string, unknown> = {...payloadRecord};
+
+    if ('permissions' in payloadRecord && payloadRecord['permissions'] && typeof payloadRecord['permissions'] === 'object') {
+      const permissions = payloadRecord['permissions'] as User['permissions'];
+      // TODO(grimmory-cleanup): Drop the legacy Booklore permission alias after the backend accepts only Grimmory names.
+      const canBulkResetReadProgress =
+        permissions.canBulkResetGrimmoryReadProgress ?? permissions.canBulkResetBookloreReadProgress;
+
+      nextPayload['permissions'] = {
+        ...permissions,
+        canBulkResetGrimmoryReadProgress: canBulkResetReadProgress,
+        canBulkResetBookloreReadProgress: canBulkResetReadProgress,
+      };
+    }
+
+    if ('permissionBulkResetGrimmoryReadProgress' in payloadRecord || 'permissionBulkResetBookloreReadProgress' in payloadRecord) {
+      // TODO(grimmory-cleanup): Drop the flat Booklore form field alias after the create-user API accepts only Grimmory names.
+      const canBulkResetReadProgress =
+        (payloadRecord['permissionBulkResetGrimmoryReadProgress'] as boolean | undefined)
+        ?? (payloadRecord['permissionBulkResetBookloreReadProgress'] as boolean | undefined);
+
+      nextPayload['permissionBulkResetGrimmoryReadProgress'] = canBulkResetReadProgress;
+      nextPayload['permissionBulkResetBookloreReadProgress'] = canBulkResetReadProgress;
+    }
+
+    return nextPayload as T;
   }
 }

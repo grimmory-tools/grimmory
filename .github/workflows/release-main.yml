@@ -1,0 +1,166 @@
+name: Release - Semantic Stable
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: release-main
+  cancel-in-progress: false
+
+jobs:
+  migration-check:
+    name: Flyway Migration Check
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+    uses: ./.github/workflows/migrations-check.yml
+    with:
+      base_ref: ${{ github.event.before }}
+      head_ref: ${{ github.sha }}
+      checkout_ref: ${{ github.sha }}
+
+  test-suite:
+    name: Test Suite
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+    needs: [migration-check]
+    uses: ./.github/workflows/test-suite.yml
+    permissions:
+      contents: read
+      checks: write
+    with:
+      checkout_ref: ${{ github.sha }}
+
+  semantic-release:
+    name: Compute Release, Update Changelog, and Draft GitHub Release
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+    needs: [migration-check, test-suite]
+    runs-on: ubuntu-latest
+
+    outputs:
+      released: ${{ steps.release_state.outputs.released }}
+      release_tag: ${{ steps.release_state.outputs.release_tag }}
+      release_sha: ${{ steps.release_state.outputs.release_sha }}
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set Up Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: tools/release/package-lock.json
+
+      - name: Install Release Tooling Dependencies
+        run: npm --prefix tools/release ci
+
+      - name: Record Pre-Release HEAD
+        id: pre_release
+        run: |
+          echo "head_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Configure Release Bot Git Identity
+        env:
+          RELEASE_GH_TOKEN: ${{ secrets.RELEASE_BOT_TOKEN != '' && secrets.RELEASE_BOT_TOKEN || github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin "https://x-access-token:${RELEASE_GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+
+      - name: Run semantic-release
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_BOT_TOKEN != '' && secrets.RELEASE_BOT_TOKEN || github.token }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_TOKEN != '' && secrets.RELEASE_BOT_TOKEN || github.token }}
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: npx --prefix tools/release semantic-release --extends ./tools/release/release.config.cjs
+
+      - name: Capture Release State
+        id: release_state
+        run: |
+          set -eu
+          head_before="${{ steps.pre_release.outputs.head_sha }}"
+          head_after="$(git rev-parse HEAD)"
+
+          echo "release_sha=$head_after" >> "$GITHUB_OUTPUT"
+
+          if [ "$head_after" = "$head_before" ]; then
+            echo "released=false" >> "$GITHUB_OUTPUT"
+            echo "release_tag=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          release_tag="$(git tag --points-at "$head_after" 'v*' | sort -V | tail -n 1)"
+
+          if [ -z "$release_tag" ]; then
+            echo "semantic-release advanced HEAD without creating a release tag" >&2
+            exit 1
+          fi
+
+          echo "released=true" >> "$GITHUB_OUTPUT"
+          echo "release_tag=$release_tag" >> "$GITHUB_OUTPUT"
+
+  publish-release:
+    name: Publish Stable Images
+    if: ${{ needs.semantic-release.outputs.released == 'true' }}
+    needs: [semantic-release]
+    uses: ./.github/workflows/publish-release.yml
+    permissions:
+      contents: write
+      packages: write
+    secrets: inherit
+    with:
+      release_tag: ${{ needs.semantic-release.outputs.release_tag }}
+      commit_sha: ${{ needs.semantic-release.outputs.release_sha }}
+
+  backport-release:
+    name: Backport Release Commit to Develop
+    if: ${{ needs.semantic-release.outputs.released == 'true' && needs.publish-release.result == 'success' }}
+    needs: [semantic-release, publish-release]
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Configure Release Bot Git Identity
+        env:
+          RELEASE_GH_TOKEN: ${{ secrets.RELEASE_BOT_TOKEN != '' && secrets.RELEASE_BOT_TOKEN || github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin "https://x-access-token:${RELEASE_GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+
+      - name: Cherry-pick Release Commit onto Develop
+        env:
+          RELEASE_SHA: ${{ needs.semantic-release.outputs.release_sha }}
+          RELEASE_TAG: ${{ needs.semantic-release.outputs.release_tag }}
+        run: |
+          set -eu
+          release_version="${RELEASE_TAG#v}"
+
+          git fetch origin main develop --tags
+          git checkout -B develop origin/develop
+
+          if git log --format=%s origin/develop | grep -Fxq "chore(release): ${release_version} [skip ci]"; then
+            echo "Develop already contains the release commit for ${RELEASE_TAG}; skipping backport."
+            exit 0
+          fi
+
+          git cherry-pick -x "$RELEASE_SHA"
+          git push origin HEAD:develop

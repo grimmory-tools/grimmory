@@ -1,66 +1,66 @@
 {
-    "main": {
-        "pageTitle": "Kezdőlap",
-        "welcomeTitle": "Üdvözöl a BookLore!",
-        "welcomeSubtitle": "Hozzuk létre az első könyvtáradat",
-        "welcomeDescription": "A könyvár az a hely, ahol az összes könyved otthonra lel. Kezdd el építeni a digitális gyűjteményedet ma!",
-        "createLibrary": "Könyvtár létrehozása",
-        "customizeDashboard": "Kezdőlap testreszabása"
+  "main": {
+    "pageTitle": "Kezdőlap",
+    "welcomeTitle": "Üdvözöl a Grimmory!",
+    "welcomeSubtitle": "Hozzuk létre az első könyvtáradat",
+    "welcomeDescription": "A könyvár az a hely, ahol az összes könyved otthonra lel. Kezdd el építeni a digitális gyűjteményedet ma!",
+    "createLibrary": "Könyvtár létrehozása",
+    "customizeDashboard": "Kezdőlap testreszabása"
+  },
+  "scroller": {
+    "noBooksFound": "Nem találhatóak könyvek ehhez a könyveskocsihoz.",
+    "loadError": "Nem sikerült betölteni a könyveket! Kérlek próbáld meg frissíteni az oldalt.",
+    "continueListening": "Lejátszás folytatása",
+    "continueReading": "Olvasás folytatása",
+    "recentlyAdded": "Nemrégiben hozzáadott",
+    "discoverNew": "Fedezz fel valami újat",
+    "magicShelf": "Varázspolc",
+    "default": "Könyveskocsi"
+  },
+  "settings": {
+    "title": "Kezdőlap Konfigurálása",
+    "description": "Adj hozzá maximum 5 könyveskocsit különböző gyűjteményekből és szabd testre a viselkedésüket",
+    "type": "Típus",
+    "selectType": "Típus kiválasztása",
+    "magicShelf": "Varázspolc",
+    "selectMagicShelf": "Varázspolc kiválasztása",
+    "sortField": "Rendező Mező",
+    "selectField": "Mező kiválasztása",
+    "direction": "Irány",
+    "selectDirection": "Irány kiválasztása",
+    "maxItems": "Maximális Elemek",
+    "addScroller": "Könyveskocsi hozzáadása",
+    "resetToDefault": "Visszaállítás Alapértelmezettre",
+    "scrollerTypes": {
+      "lastRead": "Olvasás Folytatása",
+      "lastListened": "Lejátszás Folytatása",
+      "latestAdded": "Nemrégiben Hozzáadott",
+      "random": "Fedezz fel valami újat",
+      "magicShelf": "Varázspolc",
+      "default": "Könyveskocsi"
     },
-    "scroller": {
-        "noBooksFound": "Nem találhatóak könyvek ehhez a könyveskocsihoz.",
-        "loadError": "Nem sikerült betölteni a könyveket! Kérlek próbáld meg frissíteni az oldalt.",
-        "continueListening": "Lejátszás folytatása",
-        "continueReading": "Olvasás folytatása",
-        "recentlyAdded": "Nemrégiben hozzáadott",
-        "discoverNew": "Fedezz fel valami újat",
-        "magicShelf": "Varázspolc",
-        "default": "Könyveskocsi"
+    "sortFields": {
+      "title": "Cím",
+      "fileName": "Fájlnév",
+      "filePath": "Elérési Útvonal",
+      "addedOn": "Hozzáadás Dátuma",
+      "author": "Szerző",
+      "authorSurnameVorname": "Szerző (családnév)",
+      "seriesName": "Sorozat Neve",
+      "seriesNumber": "Sorozat Száma",
+      "personalRating": "Személyes Értékelés",
+      "publisher": "Kiadó",
+      "publishedDate": "Kiadás Dátuma",
+      "lastReadTime": "Utoljára Olvasott",
+      "readStatus": "Olvasás Állapota",
+      "dateFinished": "Befejezés Dátuma",
+      "readingProgress": "Olvasás Előrehaladottsága",
+      "bookType": "Fájlformátum",
+      "pageCount": "Oldalak"
     },
-    "settings": {
-        "title": "Kezdőlap Konfigurálása",
-        "description": "Adj hozzá maximum 5 könyveskocsit különböző gyűjteményekből és szabd testre a viselkedésüket",
-        "type": "Típus",
-        "selectType": "Típus kiválasztása",
-        "magicShelf": "Varázspolc",
-        "selectMagicShelf": "Varázspolc kiválasztása",
-        "sortField": "Rendező Mező",
-        "selectField": "Mező kiválasztása",
-        "direction": "Irány",
-        "selectDirection": "Irány kiválasztása",
-        "maxItems": "Maximális Elemek",
-        "addScroller": "Könyveskocsi hozzáadása",
-        "resetToDefault": "Visszaállítás Alapértelmezettre",
-        "scrollerTypes": {
-            "lastRead": "Olvasás Folytatása",
-            "lastListened": "Lejátszás Folytatása",
-            "latestAdded": "Nemrégiben Hozzáadott",
-            "random": "Fedezz fel valami újat",
-            "magicShelf": "Varázspolc",
-            "default": "Könyveskocsi"
-        },
-        "sortFields": {
-            "title": "Cím",
-            "fileName": "Fájlnév",
-            "filePath": "Elérési Útvonal",
-            "addedOn": "Hozzáadás Dátuma",
-            "author": "Szerző",
-            "authorSurnameVorname": "Szerző (családnév)",
-            "seriesName": "Sorozat Neve",
-            "seriesNumber": "Sorozat Száma",
-            "personalRating": "Személyes Értékelés",
-            "publisher": "Kiadó",
-            "publishedDate": "Kiadás Dátuma",
-            "lastReadTime": "Utoljára Olvasott",
-            "readStatus": "Olvasás Állapota",
-            "dateFinished": "Befejezés Dátuma",
-            "readingProgress": "Olvasás Előrehaladottsága",
-            "bookType": "Fájlformátum",
-            "pageCount": "Oldalak"
-        },
-        "sortDirections": {
-            "asc": "Emelkedő",
-            "desc": "Csökkenő"
-        }
+    "sortDirections": {
+      "asc": "Emelkedő",
+      "desc": "Csökkenő"
     }
+  }
 }

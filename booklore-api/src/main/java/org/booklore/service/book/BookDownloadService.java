@@ -193,22 +193,22 @@ public class BookDownloadService {
                 // Handle folder-based audiobooks - add all files from the folder
                 if (bookFile.isFolderBased() && Files.isDirectory(filePath)) {
                     String folderPrefix = bookFile.getFileName() + "/";
-                    List<Path> audioFiles = Files.list(filePath)
-                            .filter(Files::isRegularFile)
-                            .sorted(Comparator.comparing(p -> p.getFileName().toString()))
-                            .toList();
+                    try (var audioFiles = Files.list(filePath)) {
+                        for (Path audioFile : audioFiles
+                                .filter(Files::isRegularFile)
+                                .sorted(Comparator.comparing(p -> p.getFileName().toString()))
+                                .toList()) {
+                            String entryName = folderPrefix + audioFile.getFileName().toString();
+                            ZipEntry zipEntry = new ZipEntry(entryName);
+                            zipEntry.setSize(Files.size(audioFile));
+                            zos.putNextEntry(zipEntry);
 
-                    for (Path audioFile : audioFiles) {
-                        String entryName = folderPrefix + audioFile.getFileName().toString();
-                        ZipEntry zipEntry = new ZipEntry(entryName);
-                        zipEntry.setSize(Files.size(audioFile));
-                        zos.putNextEntry(zipEntry);
+                            try (InputStream fis = Files.newInputStream(audioFile)) {
+                                fis.transferTo(zos);
+                            }
 
-                        try (InputStream fis = Files.newInputStream(audioFile)) {
-                            fis.transferTo(zos);
+                            zos.closeEntry();
                         }
-
-                        zos.closeEntry();
                     }
                 } else {
                     // Regular file
@@ -322,16 +322,16 @@ public class BookDownloadService {
 
         try (ZipOutputStream zos = new ZipOutputStream(baos)) {
             // Get all files in the folder, sorted by name
-            List<Path> files = Files.list(folderPath)
-                    .filter(Files::isRegularFile)
-                    .sorted(Comparator.comparing(p -> p.getFileName().toString()))
-                    .toList();
-
-            for (Path audioFile : files) {
-                ZipEntry entry = new ZipEntry(audioFile.getFileName().toString());
-                zos.putNextEntry(entry);
-                Files.copy(audioFile, zos);
-                zos.closeEntry();
+            try (var files = Files.list(folderPath)) {
+                for (Path audioFile : files
+                        .filter(Files::isRegularFile)
+                        .sorted(Comparator.comparing(p -> p.getFileName().toString()))
+                        .toList()) {
+                    ZipEntry entry = new ZipEntry(audioFile.getFileName().toString());
+                    zos.putNextEntry(entry);
+                    Files.copy(audioFile, zos);
+                    zos.closeEntry();
+                }
             }
         }
 

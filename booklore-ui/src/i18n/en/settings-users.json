@@ -1,6 +1,6 @@
 {
   "title": "User Management",
-  "description": "Manage Booklore users, their permissions, and library access. Configure user roles and capabilities for your book collection.",
+  "description": "Manage Grimmory users, their permissions, and library access. Configure user roles and capabilities for your book collection.",
   "currentUsers": {
     "sectionTitle": "Current Users",
     "sectionDesc": "View and manage all registered users, their permissions, and library access.",
@@ -70,7 +70,7 @@
     "koreaderSync": "KOReader Sync",
     "koboSync": "Kobo Sync",
     "opdsFeedAccess": "OPDS Feed Access",
-    "bulkResetBooklore": "Bulk Reset Booklore Read Progress",
+    "bulkResetGrimmory": "Bulk Reset Grimmory Read Progress",
     "bulkResetKoreader": "Bulk Reset KoReader Read Progress",
     "bulkResetReadStatus": "Bulk Reset Book Read Status"
   },

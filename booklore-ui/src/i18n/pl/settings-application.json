@@ -1,50 +1,40 @@
 {
-    "title": "Preferencje globalne",
-    "description": "Skonfiguruj globalne ustawienia instancji Booklore, w tym obsługę obrazów okładek, preferencje wyszukiwania i limity przesyłania plików.",
-    "covers": {
-        "sectionTitle": "Obraz okładki książki",
-        "regenerate": "Ponownie wygeneruj okładki",
-        "regenerateBtn": "Ponownie wygeneruj",
-        "regenerateDesc": "Ponownie generuje obrazy okładek dla wszystkich książek z osadzonych okładek w plikach.",
-        "regenerateStarted": "Rozpoczęto ponowne generowanie okładek",
-        "regenerateStartedDetail": "Okładki książek są ponownie generowane.",
-        "regenerateError": "Nie udało się rozpocząć ponownego generowania okładek.",
-        "verticalCropping": "Pionowe przycinanie okładek",
-        "verticalCroppingDesc": "Automatycznie przycinaj wyjątkowo wysokie obrazy (jak komiksy webowe) od góry, aby utworzyć użyteczne miniaturki okładek.",
-        "horizontalCropping": "Poziome przycinanie okładek",
-        "horizontalCroppingDesc": "Automatycznie przycinaj wyjątkowo szerokie obrazy od lewej, aby utworzyć użyteczne miniaturki okładek.",
-        "aspectRatio": "Próg proporcji: {{value}}",
-        "aspectRatioDesc": "Obrazy o proporcjach przekraczających ten próg zostaną przycięte. Wartość 2,5 oznacza, że obrazy ponad 2,5x wyższe (lub szersze) niż normalne zostaną przycięte.",
-        "smartCropping": "Inteligentne przycinanie",
-        "smartCroppingDesc": "Pomijaj jednokolorowe regiony przy określaniu miejsca przycinania. Skupia obraz okładki na najbardziej istotnej treści."
-    },
-    "search": {
-        "sectionTitle": "Wyszukiwanie i rekomendacje",
-        "autoBookSearch": "Automatyczne wyszukiwanie książek",
-        "autoBookSearchDesc": "Automatycznie próbuje dopasować metadane po otwarciu panelu informacji o książce.",
-        "similarBook": "Rekomendacje podobnych książek",
-        "similarBookDesc": "Włącza lub wyłącza rekomendacje podobnych książek na podstawie Twojej biblioteki."
-    },
-    "fileManagement": {
-        "sectionTitle": "Zarządzanie plikami",
-        "maxUploadSize": "Maks. rozmiar przesyłanego pliku",
-        "maxUploadPlaceholder": "Maks. rozmiar",
-        "maxUploadDesc": "Określa maksymalny dozwolony rozmiar (w MB) każdego przesyłanego pliku. Dotyczy formatów EPUB, PDF, CBZ, CBR i CB7.",
-        "restartWarning": "Zmiany zostaną zastosowane po ponownym uruchomieniu serwera",
-        "invalidInput": "Nieprawidłowe dane",
-        "invalidInputDetail": "Proszę wprowadzić prawidłowy maksymalny rozmiar przesyłanego pliku w MB."
-    },
-    "telemetry": {
-        "sectionTitle": "Telemetria",
-        "enableTelemetry": "Włącz telemetrię",
-        "telemetryDesc": "Pomóż ulepszyć Booklore, udostępniając anonimowe statystyki użytkowania. Te dane pozwalają deweloperom zobaczyć, które funkcje są najczęściej używane, identyfikować błędy i wykrywać problemy z wydajnością, aby wiedzieli, nad czym pracować dalej. Żadne dane osobowe, treści książek ani żadne identyfikowalne dane nigdy nie są wysyłane. Dane są automatycznie wysyłane na serwer Booklore raz na 24 godziny. Jest to całkowicie bezpieczne i bardzo pomocne dla deweloperów."
-    },
-    "settingsSaved": "Ustawienia zapisane",
-    "settingsSavedDetail": "Ustawienia zostały pomyślnie zapisane!",
-    "settingsError": "Wystąpił błąd podczas zapisywania ustawień.",
-    "appearance": {
-        "supportButtonAnimation": "",
-        "supportButtonAnimationDesc": "",
-        "sectionTitle": ""
-    }
+  "title": "Preferencje globalne",
+  "description": "Skonfiguruj globalne ustawienia instancji Grimmory, w tym obsługę obrazów okładek, preferencje wyszukiwania i limity przesyłania plików.",
+  "covers": {
+    "sectionTitle": "Obraz okładki książki",
+    "regenerate": "Ponownie wygeneruj okładki",
+    "regenerateBtn": "Ponownie wygeneruj",
+    "regenerateDesc": "Ponownie generuje obrazy okładek dla wszystkich książek z osadzonych okładek w plikach.",
+    "regenerateStarted": "Rozpoczęto ponowne generowanie okładek",
+    "regenerateStartedDetail": "Okładki książek są ponownie generowane.",
+    "regenerateError": "Nie udało się rozpocząć ponownego generowania okładek.",
+    "verticalCropping": "Pionowe przycinanie okładek",
+    "verticalCroppingDesc": "Automatycznie przycinaj wyjątkowo wysokie obrazy (jak komiksy webowe) od góry, aby utworzyć użyteczne miniaturki okładek.",
+    "horizontalCropping": "Poziome przycinanie okładek",
+    "horizontalCroppingDesc": "Automatycznie przycinaj wyjątkowo szerokie obrazy od lewej, aby utworzyć użyteczne miniaturki okładek.",
+    "aspectRatio": "Próg proporcji: {{value}}",
+    "aspectRatioDesc": "Obrazy o proporcjach przekraczających ten próg zostaną przycięte. Wartość 2,5 oznacza, że obrazy ponad 2,5x wyższe (lub szersze) niż normalne zostaną przycięte.",
+    "smartCropping": "Inteligentne przycinanie",
+    "smartCroppingDesc": "Pomijaj jednokolorowe regiony przy określaniu miejsca przycinania. Skupia obraz okładki na najbardziej istotnej treści."
+  },
+  "search": {
+    "sectionTitle": "Wyszukiwanie i rekomendacje",
+    "autoBookSearch": "Automatyczne wyszukiwanie książek",
+    "autoBookSearchDesc": "Automatycznie próbuje dopasować metadane po otwarciu panelu informacji o książce.",
+    "similarBook": "Rekomendacje podobnych książek",
+    "similarBookDesc": "Włącza lub wyłącza rekomendacje podobnych książek na podstawie Twojej biblioteki."
+  },
+  "fileManagement": {
+    "sectionTitle": "Zarządzanie plikami",
+    "maxUploadSize": "Maks. rozmiar przesyłanego pliku",
+    "maxUploadPlaceholder": "Maks. rozmiar",
+    "maxUploadDesc": "Określa maksymalny dozwolony rozmiar (w MB) każdego przesyłanego pliku. Dotyczy formatów EPUB, PDF, CBZ, CBR i CB7.",
+    "restartWarning": "Zmiany zostaną zastosowane po ponownym uruchomieniu serwera",
+    "invalidInput": "Nieprawidłowe dane",
+    "invalidInputDetail": "Proszę wprowadzić prawidłowy maksymalny rozmiar przesyłanego pliku w MB."
+  },
+  "settingsSaved": "Ustawienia zapisane",
+  "settingsSavedDetail": "Ustawienia zostały pomyślnie zapisane!",
+  "settingsError": "Wystąpił błąd podczas zapisywania ustawień."
 }

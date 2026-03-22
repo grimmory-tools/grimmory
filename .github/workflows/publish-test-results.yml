@@ -1,0 +1,83 @@
+name: Test Results - Publish
+
+on:
+  workflow_run:
+    workflows:
+      - CI - Validate
+    types:
+      - completed
+
+jobs:
+  publish-test-results:
+    name: Publish Test Results
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event.workflow_run.conclusion == 'failure' }}
+    runs-on: ubuntu-latest
+
+    permissions:
+      actions: read
+      contents: read
+      checks: write
+      pull-requests: write
+
+    steps:
+      - name: Download Test Report Artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+          path: artifacts
+          pattern: "*-test-reports"
+
+      - name: Download Workflow Event Payload
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+          path: artifacts
+          name: ci-event-file
+
+      - name: Detect Published Test Artifacts
+        id: detect
+        run: |
+          set -eu
+
+          if [ -f "artifacts/ci-event-file/event.json" ]; then
+            echo "event_file=artifacts/ci-event-file/event.json" >> "$GITHUB_OUTPUT"
+          else
+            echo "Missing ci-event-file artifact; cannot publish test results." >&2
+            exit 1
+          fi
+
+          if find artifacts/backend-test-reports -name '*.xml' -print -quit | grep -q .; then
+            echo "backend_present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "backend_present=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          if find artifacts/frontend-test-reports -name '*.xml' -print -quit | grep -q .; then
+            echo "frontend_present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "frontend_present=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish Backend Test Results
+        if: ${{ steps.detect.outputs.backend_present == 'true' }}
+        uses: EnricoMi/publish-unit-test-result-action@c950f6fb443cb5af20a377fd0dfaa78838901040 # v2
+        with:
+          commit: ${{ github.event.workflow_run.head_sha }}
+          event_file: ${{ steps.detect.outputs.event_file }}
+          event_name: ${{ github.event.workflow_run.event }}
+          files: artifacts/backend-test-reports/**/*.xml
+          check_name: Backend Test Results
+
+      - name: Publish Frontend Test Results
+        if: ${{ steps.detect.outputs.frontend_present == 'true' }}
+        uses: EnricoMi/publish-unit-test-result-action@c950f6fb443cb5af20a377fd0dfaa78838901040 # v2
+        with:
+          commit: ${{ github.event.workflow_run.head_sha }}
+          event_file: ${{ steps.detect.outputs.event_file }}
+          event_name: ${{ github.event.workflow_run.event }}
+          files: artifacts/frontend-test-reports/**/*.xml
+          check_name: Frontend Test Results

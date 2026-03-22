@@ -1,34 +1,34 @@
 {
-    "title": "Bibliotheek-metadataconfiguratie",
-    "description": "Configureer het ophaalgedrag van metadata voor uw bibliotheken. Stel globale standaardwaarden in en maak bibliotheekspecifieke overschrijvingen om te bepalen hoe boekmetadata van verschillende providers wordt opgehaald.",
-    "defaultSettings": {
-        "sectionTitle": "Standaard metadata-instellingen",
-        "sectionDesc": "Stel globale standaard providerprioriteiten in voor boekmetadatavelden. Deze instellingen gelden voor alle bibliotheken tenzij hieronder overschreven. BookLore probeert providers van links naar rechts (1e → 2e → 3e → 4e prioriteit) voor elk boekveld totdat er gegevens gevonden worden. Het systeem controleert eerst uw 1e prioriteitsprovider. Als die provider het specifieke veld niet heeft (zoals beschrijving of auteur), gaat het automatisch naar uw 2e prioriteit, dan 3e en uiteindelijk 4e. Laat een prioriteit leeg om deze volledig over te slaan. Als Amazon (1e) bijvoorbeeld geen beschrijving heeft maar Google Books (2e) wel, dan wordt de beschrijving van Google gebruikt. Gebruik de selectievakjes Inschakelen om het ophalen voor specifieke velden volledig uit te schakelen.",
-        "saveButton": "Standaardinstellingen opslaan",
-        "saveSuccess": "Standaard metadata-opties zijn succesvol opgeslagen.",
-        "saveFailed": "Opslaan mislukt",
-        "saveError": "Kon standaard metadata-opties niet opslaan. Probeer het opnieuw."
-    },
-    "libraryOverrides": {
-        "sectionTitle": "Bibliotheekspecifieke overschrijvingen",
-        "sectionDesc": "Overschrijf de standaard prioriteitsinstellingen voor specifieke bibliotheken. U kunt bijvoorbeeld de voorkeur geven aan Amazon voor fictie maar Google Books voor technische boeken. Elke bibliotheek kan zijn eigen providerprioriteit hebben terwijl standaardwaarden worden gebruikt voor niet-gespecificeerde velden. U kunt ook specifieke metadatavelden per bibliotheek in- of uitschakelen.",
-        "customSettings": "Aangepaste instellingen",
-        "defaultSettings": "Standaardinstellingen",
-        "exportSidecar": "Sidecar exporteren",
-        "importSidecar": "Sidecar importeren",
-        "exportTooltip": ".metadata.json-bestanden genereren voor alle boeken in deze bibliotheek",
-        "importTooltip": "Metadata importeren uit bestaande .metadata.json-bestanden in deze bibliotheek",
-        "saveLibraryButton": "{{name}}-instellingen opslaan",
-        "saveSuccess": "Bibliotheek-metadata-opties zijn succesvol opgeslagen.",
-        "saveFailed": "Opslaan mislukt",
-        "saveError": "Kon bibliotheek-metadata-opties niet opslaan. Probeer het opnieuw.",
-        "exportSuccess": "Sidecar-bestanden geëxporteerd voor {{count}} boeken.",
-        "exportComplete": "Export voltooid",
-        "exportFailed": "Export mislukt",
-        "exportError": "Kon sidecar-bestanden niet exporteren. Probeer het opnieuw.",
-        "importSuccess": "Metagegevens geïmporteerd uit {{count}} sidecar-bestanden.",
-        "importComplete": "Import voltooid",
-        "importFailed": "Import mislukt",
-        "importError": "Kon niet importeren uit sidecar-bestanden. Probeer het opnieuw."
-    }
+  "title": "Bibliotheek-metadataconfiguratie",
+  "description": "Configureer het ophaalgedrag van metadata voor uw bibliotheken. Stel globale standaardwaarden in en maak bibliotheekspecifieke overschrijvingen om te bepalen hoe boekmetadata van verschillende providers wordt opgehaald.",
+  "defaultSettings": {
+    "sectionTitle": "Standaard metadata-instellingen",
+    "sectionDesc": "Stel globale standaard providerprioriteiten in voor boekmetadatavelden. Deze instellingen gelden voor alle bibliotheken tenzij hieronder overschreven. Grimmory probeert providers van links naar rechts (1e → 2e → 3e → 4e prioriteit) voor elk boekveld totdat er gegevens gevonden worden. Het systeem controleert eerst uw 1e prioriteitsprovider. Als die provider het specifieke veld niet heeft (zoals beschrijving of auteur), gaat het automatisch naar uw 2e prioriteit, dan 3e en uiteindelijk 4e. Laat een prioriteit leeg om deze volledig over te slaan. Als Amazon (1e) bijvoorbeeld geen beschrijving heeft maar Google Books (2e) wel, dan wordt de beschrijving van Google gebruikt. Gebruik de selectievakjes Inschakelen om het ophalen voor specifieke velden volledig uit te schakelen.",
+    "saveButton": "Standaardinstellingen opslaan",
+    "saveSuccess": "Standaard metadata-opties zijn succesvol opgeslagen.",
+    "saveFailed": "Opslaan mislukt",
+    "saveError": "Kon standaard metadata-opties niet opslaan. Probeer het opnieuw."
+  },
+  "libraryOverrides": {
+    "sectionTitle": "Bibliotheekspecifieke overschrijvingen",
+    "sectionDesc": "Overschrijf de standaard prioriteitsinstellingen voor specifieke bibliotheken. U kunt bijvoorbeeld de voorkeur geven aan Amazon voor fictie maar Google Books voor technische boeken. Elke bibliotheek kan zijn eigen providerprioriteit hebben terwijl standaardwaarden worden gebruikt voor niet-gespecificeerde velden. U kunt ook specifieke metadatavelden per bibliotheek in- of uitschakelen.",
+    "customSettings": "Aangepaste instellingen",
+    "defaultSettings": "Standaardinstellingen",
+    "exportSidecar": "Sidecar exporteren",
+    "importSidecar": "Sidecar importeren",
+    "exportTooltip": ".metadata.json-bestanden genereren voor alle boeken in deze bibliotheek",
+    "importTooltip": "Metadata importeren uit bestaande .metadata.json-bestanden in deze bibliotheek",
+    "saveLibraryButton": "{{name}}-instellingen opslaan",
+    "saveSuccess": "Bibliotheek-metadata-opties zijn succesvol opgeslagen.",
+    "saveFailed": "Opslaan mislukt",
+    "saveError": "Kon bibliotheek-metadata-opties niet opslaan. Probeer het opnieuw.",
+    "exportSuccess": "Sidecar-bestanden geëxporteerd voor {{count}} boeken.",
+    "exportComplete": "Export voltooid",
+    "exportFailed": "Export mislukt",
+    "exportError": "Kon sidecar-bestanden niet exporteren. Probeer het opnieuw.",
+    "importSuccess": "Metagegevens geïmporteerd uit {{count}} sidecar-bestanden.",
+    "importComplete": "Import voltooid",
+    "importFailed": "Import mislukt",
+    "importError": "Kon niet importeren uit sidecar-bestanden. Probeer het opnieuw."
+  }
 }

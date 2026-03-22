@@ -1,25 +1,25 @@
 {
-    "pageTitle": "Serijali",
-    "browseAllSeries": "Pregledaj sve serijale",
-    "searchPlaceholder": "Pretraži po nazivu serijala ili autoru...",
-    "readNext": "Čitaj sljedeće",
-    "booksRead": "pročitanih knjiga",
-    "noSeriesFound": "Nijedan serijal ne odgovara vašoj pretrazi ili filterima.",
-    "noSeriesInCategory": "Nema pronađenih serijala u ovoj kategoriji.",
-    "cardSize": "Veličina kartice",
-    "filters": {
-        "all": "Svi",
-        "notStarted": "Nezapočeto",
-        "inProgress": "U tijeku",
-        "completed": "Završeno",
-        "abandoned": "Napušteno"
-    },
-    "sort": {
-        "nameAsc": "Naziv (A-Ž)",
-        "nameDesc": "Naziv (Ž-A)",
-        "bookCount": "Broj knjiga",
-        "progress": "Napredak",
-        "recentlyRead": "Nedavno čitano",
-        "recentlyAdded": "Nedavno dodano"
-    }
+  "pageTitle": "Serijali",
+  "browseAllSeries": "Pregledaj sve serijale",
+  "searchPlaceholder": "Pretraži po nazivu serijala ili autoru...",
+  "readNext": "Čitaj sljedeće",
+  "booksRead": "pročitanih knjiga",
+  "noSeriesFound": "Nijedan serijal ne odgovara vašoj pretrazi ili filterima.",
+  "noSeriesInCategory": "Nema pronađenih serijala u ovoj kategoriji.",
+  "cardSize": "Veličina kartice",
+  "filters": {
+    "all": "Svi",
+    "notStarted": "Nezapočeto",
+    "inProgress": "U tijeku",
+    "completed": "Završeno",
+    "abandoned": "Napušteno"
+  },
+  "sort": {
+    "nameAsc": "Naziv (A-Ž)",
+    "nameDesc": "Naziv (Ž-A)",
+    "bookCount": "Broj knjiga",
+    "progress": "Napredak",
+    "recentlyRead": "Nedavno čitano",
+    "recentlyAdded": "Nedavno dodano"
+  }
 }

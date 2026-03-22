@@ -34,7 +34,7 @@ export class KoreaderSettingsComponent implements OnInit, OnDestroy {
   editMode = true;
   showPassword = false;
   koReaderSyncEnabled = false;
-  syncWithBookloreReader = false;
+  syncWithGrimmoryReader = false;
   koReaderUsername = '';
   koReaderPassword = '';
   credentialsSaved = false;
@@ -69,7 +69,7 @@ export class KoreaderSettingsComponent implements OnInit, OnDestroy {
         this.koReaderUsername = koreaderUser.username;
         this.koReaderPassword = koreaderUser.password;
         this.koReaderSyncEnabled = koreaderUser.syncEnabled;
-        this.syncWithBookloreReader = koreaderUser.syncWithBookloreReader ?? false;
+        this.syncWithGrimmoryReader = koreaderUser.syncWithGrimmoryReader ?? koreaderUser.syncWithBookloreReader ?? false;
         this.credentialsSaved = true;
       },
       error: err => {
@@ -110,21 +110,21 @@ export class KoreaderSettingsComponent implements OnInit, OnDestroy {
     });
   }
 
-  onToggleSyncWithBookloreReader(enabled: boolean) {
-    this.koreaderService.toggleSyncProgressWithBookloreReader(enabled).subscribe({
+  onToggleSyncWithGrimmoryReader(enabled: boolean) {
+    this.koreaderService.toggleSyncProgressWithGrimmoryReader(enabled).subscribe({
       next: () => {
-        this.syncWithBookloreReader = enabled;
+        this.syncWithGrimmoryReader = enabled;
         this.messageService.add({
           severity: 'success',
           summary: this.t.translate('settingsDevice.koreader.syncUpdated'),
-          detail: enabled ? this.t.translate('settingsDevice.koreader.bookloreReaderEnabled') : this.t.translate('settingsDevice.koreader.bookloreReaderDisabled')
+          detail: enabled ? this.t.translate('settingsDevice.koreader.grimmoryReaderEnabled') : this.t.translate('settingsDevice.koreader.grimmoryReaderDisabled')
         });
       },
       error: () => {
         this.messageService.add({
           severity: 'error',
           summary: this.t.translate('settingsDevice.koreader.syncUpdateFailed'),
-          detail: this.t.translate('settingsDevice.koreader.bookloreReaderError')
+          detail: this.t.translate('settingsDevice.koreader.grimmoryReaderError')
         });
       }
     });

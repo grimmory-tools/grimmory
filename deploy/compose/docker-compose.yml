@@ -1,0 +1,60 @@
+services:
+  # Upgrade path from Booklore:
+  # Keep your existing service name, container_name, database names/users, ports,
+  # and mounted volumes. Replace only the image line(s) with Grimmory tags.
+  grimmory:
+    # Stable release example:
+    image: grimmory/grimmory:v0.38.2
+    # Convenience tag:
+    # image: grimmory/grimmory:latest
+    # Or the GHCR image:
+    # image: ghcr.io/grimmory-tools/grimmory:v0.38.2
+    # The image already embeds its own release version metadata.
+    container_name: grimmory
+    environment:
+      - USER_ID=1000
+      - GROUP_ID=1000
+      - TZ=Etc/UTC
+      - DATABASE_URL=jdbc:mariadb://mariadb:3306/grimmory
+      - DATABASE_USERNAME=grimmory
+      - DATABASE_PASSWORD=your_secure_password
+      - SWAGGER_ENABLED=false
+      - FORCE_DISABLE_OIDC=false
+      # ALLOWED_ORIGINS=
+      # JAVA_TOOL_OPTIONS=-XX:+UseSerialGC -Xmx256m -XX:+UseCompactObjectHeaders -XX:+ExitOnOutOfMemoryError
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    ports:
+      - "6060:6060"
+    volumes:
+      - ./data:/app/data
+      - ./books:/books
+      - ./bookdrop:/bookdrop
+    healthcheck:
+      test: wget -q -O - http://localhost:6060/api/v1/healthcheck
+      interval: 60s
+      retries: 5
+      start_period: 60s
+      timeout: 10s
+    restart: unless-stopped
+
+  mariadb:
+    image: lscr.io/linuxserver/mariadb:11.4.8
+    container_name: mariadb
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - MYSQL_ROOT_PASSWORD=super_secure_password
+      - MYSQL_DATABASE=grimmory
+      - MYSQL_USER=grimmory
+      - MYSQL_PASSWORD=your_secure_password
+    volumes:
+      - ./config:/config
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "mariadb-admin", "ping", "-h", "localhost" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
