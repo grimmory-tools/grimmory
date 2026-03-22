@@ -252,7 +252,7 @@ public class GraphQLResponse {
     @AllArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class FeaturedSeries {
-        private Integer position;
+        private Float position;
         private Series series;
     }
 
@@ -265,6 +265,8 @@ public class GraphQLResponse {
         private String name;
         @JsonProperty("books_count")
         private Integer booksCount;
+        @JsonProperty("primary_books_count")
+        private Integer primaryBooksCount;
     }
 
     @Getter

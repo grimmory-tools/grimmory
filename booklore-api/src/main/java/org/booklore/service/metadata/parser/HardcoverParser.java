@@ -231,7 +231,7 @@ public class HardcoverParser implements BookParser {
 
         if (book.getFeaturedBookSeries() != null && book.getFeaturedBookSeries().getSeries() != null) {
             metadata.setSeriesName(book.getFeaturedBookSeries().getSeries().getName());
-            metadata.setSeriesTotal(book.getFeaturedBookSeries().getSeries().getBooksCount());
+            metadata.setSeriesTotal(book.getFeaturedBookSeries().getSeries().getPrimaryBooksCount());
 
             if (book.getFeaturedBookSeries().getPosition() != null) {
                 try {
@@ -316,7 +316,7 @@ public class HardcoverParser implements BookParser {
         }
         if (doc.getFeaturedSeries().getSeries() != null) {
             metadata.setSeriesName(doc.getFeaturedSeries().getSeries().getName());
-            metadata.setSeriesTotal(doc.getFeaturedSeries().getSeries().getBooksCount());
+            metadata.setSeriesTotal(doc.getFeaturedSeries().getSeries().getPrimaryBooksCount());
         }
         if (doc.getFeaturedSeries().getPosition() != null) {
             try {
