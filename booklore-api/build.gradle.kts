@@ -139,7 +139,7 @@ hibernate {
 
 tasks.named<Test>("test") {
     useJUnitPlatform()
-    jvmArgs("-XX:+EnableDynamicAgentLoading")
+    jvmArgs("-XX:+EnableDynamicAgentLoading", "--enable-native-access=ALL-UNNAMED")
     finalizedBy(tasks.named("jacocoTestReport"))
 }
 
