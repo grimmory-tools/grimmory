@@ -10,13 +10,6 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 type ClockChartData = ChartData<'polarArea', number[], string>;
 
-const HOUR_LABELS = [
-  '12am', '1am', '2am', '3am', '4am', '5am',
-  '6am', '7am', '8am', '9am', '10am', '11am',
-  '12pm', '1pm', '2pm', '3pm', '4pm', '5pm',
-  '6pm', '7pm', '8pm', '9pm', '10pm', '11pm'
-];
-
 @Component({
   selector: 'app-reading-clock-chart',
   standalone: true,
@@ -34,6 +27,8 @@ export class ReadingClockChartComponent implements OnInit, OnDestroy {
   public totalHoursRead = 0;
   public readerType = '';
   public hasData = false;
+
+  private lastData: PeakHoursResponse[] = [];
 
   public readonly chartOptions: ChartConfiguration<'polarArea'>['options'] = {
     responsive: true,
@@ -55,7 +50,7 @@ export class ReadingClockChartComponent implements OnInit, OnDestroy {
         titleFont: {size: 13, weight: 'bold'},
         bodyFont: {size: 12},
         callbacks: {
-          title: (context) => HOUR_LABELS[context[0].dataIndex],
+          title: (context) => this.buildHourLabels()[context[0].dataIndex],
           label: (context) => {
             const minutes = context.parsed.r;
             if (minutes >= 60) {
@@ -98,12 +93,28 @@ export class ReadingClockChartComponent implements OnInit, OnDestroy {
           return EMPTY;
         })
       )
-      .subscribe((data) => this.processData(data));
+      .subscribe((data) => {
+        this.lastData = data;
+        this.processData(data);
+      });
+
+    this.t.langChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (this.lastData.length > 0) {
+          this.processData(this.lastData);
+        }
+      });
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  private buildHourLabels(): string[] {
+    const formatter = new Intl.DateTimeFormat(this.t.getActiveLang(), {hour: 'numeric', hour12: true});
+    return [...Array(24)].map((_, i) => formatter.format(new Date(2024, 0, 1, i)));
   }
 
   private processData(data: PeakHoursResponse[]): void {
@@ -114,7 +125,8 @@ export class ReadingClockChartComponent implements OnInit, OnDestroy {
 
     this.hasData = true;
 
-    // Build 24-hour array
+    const hourLabels = this.buildHourLabels();
+
     const hourMinutes = new Array(24).fill(0);
     let totalSeconds = 0;
     let peakIdx = 0;
@@ -130,7 +142,7 @@ export class ReadingClockChartComponent implements OnInit, OnDestroy {
       }
     }
 
-    this.peakHour = HOUR_LABELS[peakIdx];
+    this.peakHour = hourLabels[peakIdx];
     this.totalHoursRead = Math.round(totalSeconds / 3600);
 
     // Night owl vs early bird
@@ -158,7 +170,7 @@ export class ReadingClockChartComponent implements OnInit, OnDestroy {
     });
 
     this.chartDataSubject.next({
-      labels: HOUR_LABELS,
+      labels: hourLabels,
       datasets: [{
         data: hourMinutes,
         backgroundColor: colors,

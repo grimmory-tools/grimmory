@@ -224,9 +224,10 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
       switchMap(book =>
         combineLatest([
           this.userService.userState$.pipe(take(1)),
-          this.appSettingsService.appSettings$.pipe(take(1))
+          this.appSettingsService.appSettings$.pipe(take(1)),
+          this.t.langChanges$
         ]).pipe(
-          map(([userState, appSettings]) => {
+          map(([userState, appSettings, _lang]) => {
             const items: MenuItem[] = [];
 
             items.push({
@@ -457,6 +458,15 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
       )
       .subscribe(settings => {
         this.amazonDomain = settings?.metadataProviderSettings?.amazon?.domain ?? 'com';
+      });
+
+    this.t.langChanges$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.readStatusMenuItems = this.readStatusOptions.map(option => ({
+          label: this.t.translate(option.labelKey),
+          command: () => this.updateReadStatus(option.value)
+        }));
       });
   }
 
@@ -1216,7 +1226,7 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
   formatDate(dateString: string | undefined): string {
     if (!dateString) return '';
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString(this.t.getActiveLang(), {
       year: 'numeric',
       month: 'short',
       day: 'numeric'

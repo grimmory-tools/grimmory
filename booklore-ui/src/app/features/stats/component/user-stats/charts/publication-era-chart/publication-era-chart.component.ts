@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
 import {Tooltip} from 'primeng/tooltip';
@@ -16,6 +16,8 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
   styleUrls: ['./publication-era-chart.component.scss']
 })
 export class PublicationEraChartComponent implements OnInit, OnDestroy {
+  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
+
   private readonly bookService = inject(BookService);
   private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
@@ -50,7 +52,7 @@ export class PublicationEraChartComponent implements OnInit, OnDestroy {
         borderColor: '#ffffff', borderWidth: 1, cornerRadius: 6, padding: 10,
         callbacks: {
           label: (ctx) => {
-            return `${ctx.dataset.label}: ${ctx.parsed.y} books`;
+            return `${ctx.dataset.label}: ${ctx.parsed.y} ${this.t.translate('statsUser.publicationEra.books')}`;
           }
         }
       },
@@ -60,13 +62,13 @@ export class PublicationEraChartComponent implements OnInit, OnDestroy {
       x: {
         grid: {color: 'rgba(255, 255, 255, 0.08)'},
         ticks: {color: 'rgba(255, 255, 255, 0.6)', font: {size: 11}},
-        title: {display: true, text: 'Rating Range', color: 'rgba(255, 255, 255, 0.5)', font: {size: 11}}
+        title: {display: true, text: this.t.translate('statsUser.publicationEra.axisRatingRange'), color: 'rgba(255, 255, 255, 0.5)', font: {size: 11}}
       },
       y: {
         beginAtZero: true,
         grid: {color: 'rgba(255, 255, 255, 0.08)'},
         ticks: {color: 'rgba(255, 255, 255, 0.6)', font: {size: 11}, stepSize: 1},
-        title: {display: true, text: 'Books', color: 'rgba(255, 255, 255, 0.5)', font: {size: 11}}
+        title: {display: true, text: this.t.translate('statsUser.publicationEra.axisBooks'), color: 'rgba(255, 255, 255, 0.5)', font: {size: 11}}
       }
     },
     interaction: {mode: 'index', intersect: false}
@@ -76,6 +78,21 @@ export class PublicationEraChartComponent implements OnInit, OnDestroy {
     this.bookService.bookState$
       .pipe(filter(state => state.loaded), first(), catchError(() => EMPTY), takeUntil(this.destroy$))
       .subscribe(() => this.processData());
+
+    this.t.langChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.processData();
+
+        setTimeout(() => {
+          const chartInstance = this.chart?.chart;
+          if (chartInstance) {
+            (chartInstance.options as any).scales.x.title.text = this.t.translate('statsUser.publicationEra.axisRatingRange');
+            (chartInstance.options as any).scales.y.title.text = this.t.translate('statsUser.publicationEra.axisBooks');
+            chartInstance.update();
+          }
+        });
+      });
   }
 
   ngOnDestroy(): void {

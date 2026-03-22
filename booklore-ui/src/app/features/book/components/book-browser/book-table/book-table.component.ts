@@ -57,30 +57,7 @@ export class BookTableComponent implements OnInit, OnDestroy, OnChanges {
   private metadataCenterViewMode: 'route' | 'dialog' = 'route';
   private destroy$ = new Subject<void>();
 
-  readonly allColumns: { field: string; header: string }[] = [
-    {field: 'readStatus', header: this.t.translate('book.columnPref.columns.readStatus')},
-    {field: 'title', header: this.t.translate('book.columnPref.columns.title')},
-    {field: 'authors', header: this.t.translate('book.columnPref.columns.authors')},
-    {field: 'publisher', header: this.t.translate('book.columnPref.columns.publisher')},
-    {field: 'seriesName', header: this.t.translate('book.columnPref.columns.seriesName')},
-    {field: 'seriesNumber', header: this.t.translate('book.columnPref.columns.seriesNumber')},
-    {field: 'categories', header: this.t.translate('book.columnPref.columns.categories')},
-    {field: 'publishedDate', header: this.t.translate('book.columnPref.columns.publishedDate')},
-    {field: 'lastReadTime', header: this.t.translate('book.columnPref.columns.lastReadTime')},
-    {field: 'addedOn', header: this.t.translate('book.columnPref.columns.addedOn')},
-    {field: 'fileName', header: this.t.translate('book.columnPref.columns.fileName')},
-    {field: 'fileSizeKb', header: this.t.translate('book.columnPref.columns.fileSizeKb')},
-    {field: 'language', header: this.t.translate('book.columnPref.columns.language')},
-    {field: 'isbn', header: this.t.translate('book.columnPref.columns.isbn')},
-    {field: 'pageCount', header: this.t.translate('book.columnPref.columns.pageCount')},
-    {field: 'amazonRating', header: this.t.translate('book.columnPref.columns.amazonRating')},
-    {field: 'amazonReviewCount', header: this.t.translate('book.columnPref.columns.amazonReviewCount')},
-    {field: 'goodreadsRating', header: this.t.translate('book.columnPref.columns.goodreadsRating')},
-    {field: 'goodreadsReviewCount', header: this.t.translate('book.columnPref.columns.goodreadsReviewCount')},
-    {field: 'hardcoverRating', header: this.t.translate('book.columnPref.columns.hardcoverRating')},
-    {field: 'hardcoverReviewCount', header: this.t.translate('book.columnPref.columns.hardcoverReviewCount')},
-    {field: 'ranobedbRating', header: this.t.translate('book.columnPref.columns.ranobedbRating')},
-  ];
+  allColumns: { field: string; header: string }[] = this.buildAllColumns();
 
   scrollHeight = 'calc(100dvh - 160px)';
 
@@ -99,6 +76,12 @@ export class BookTableComponent implements OnInit, OnDestroy, OnChanges {
     this.selectedBooks = this.bookService.getBooksByIdsFromState([...this.selectedBookIds]);
     this.setScrollHeight();
     window.addEventListener('resize', this.setScrollHeight.bind(this));
+
+    this.t.langChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.allColumns = this.buildAllColumns();
+      });
   }
 
   setScrollHeight() {
@@ -350,5 +333,32 @@ export class BookTableComponent implements OnInit, OnDestroy, OnChanges {
     this.destroy$.next();
     this.destroy$.complete();
     window.removeEventListener('resize', this.setScrollHeight.bind(this));
+  }
+
+  private buildAllColumns(): { field: string; header: string }[] {
+    return [
+      {field: 'readStatus', header: this.t.translate('book.columnPref.columns.readStatus')},
+      {field: 'title', header: this.t.translate('book.columnPref.columns.title')},
+      {field: 'authors', header: this.t.translate('book.columnPref.columns.authors')},
+      {field: 'publisher', header: this.t.translate('book.columnPref.columns.publisher')},
+      {field: 'seriesName', header: this.t.translate('book.columnPref.columns.seriesName')},
+      {field: 'seriesNumber', header: this.t.translate('book.columnPref.columns.seriesNumber')},
+      {field: 'categories', header: this.t.translate('book.columnPref.columns.categories')},
+      {field: 'publishedDate', header: this.t.translate('book.columnPref.columns.publishedDate')},
+      {field: 'lastReadTime', header: this.t.translate('book.columnPref.columns.lastReadTime')},
+      {field: 'addedOn', header: this.t.translate('book.columnPref.columns.addedOn')},
+      {field: 'fileName', header: this.t.translate('book.columnPref.columns.fileName')},
+      {field: 'fileSizeKb', header: this.t.translate('book.columnPref.columns.fileSizeKb')},
+      {field: 'language', header: this.t.translate('book.columnPref.columns.language')},
+      {field: 'isbn', header: this.t.translate('book.columnPref.columns.isbn')},
+      {field: 'pageCount', header: this.t.translate('book.columnPref.columns.pageCount')},
+      {field: 'amazonRating', header: this.t.translate('book.columnPref.columns.amazonRating')},
+      {field: 'amazonReviewCount', header: this.t.translate('book.columnPref.columns.amazonReviewCount')},
+      {field: 'goodreadsRating', header: this.t.translate('book.columnPref.columns.goodreadsRating')},
+      {field: 'goodreadsReviewCount', header: this.t.translate('book.columnPref.columns.goodreadsReviewCount')},
+      {field: 'hardcoverRating', header: this.t.translate('book.columnPref.columns.hardcoverRating')},
+      {field: 'hardcoverReviewCount', header: this.t.translate('book.columnPref.columns.hardcoverReviewCount')},
+      {field: 'ranobedbRating', header: this.t.translate('book.columnPref.columns.ranobedbRating')},
+    ];
   }
 }

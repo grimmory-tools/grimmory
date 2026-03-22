@@ -227,6 +227,29 @@ export class AuthorBrowserComponent implements OnInit, OnDestroy {
       })
     );
 
+    this.subscriptions.push(
+      this.t.langChanges$.subscribe(() => {
+        this.pageTitle.setPageTitle(this.t.translate('authorBrowser.pageTitle'));
+
+        this.sortOptions = [
+          {label: this.t.translate('authorBrowser.sort.name'), value: 'name'},
+          {label: this.t.translate('authorBrowser.sort.bookCount'), value: 'book-count'},
+          {label: this.t.translate('authorBrowser.sort.matched'), value: 'matched'},
+          {label: this.t.translate('authorBrowser.sort.recentlyAdded'), value: 'recently-added'},
+          {label: this.t.translate('authorBrowser.sort.recentlyRead'), value: 'recently-read'},
+          {label: this.t.translate('authorBrowser.sort.readingProgress'), value: 'reading-progress'},
+          {label: this.t.translate('authorBrowser.sort.avgRating'), value: 'avg-rating'},
+          {label: this.t.translate('authorBrowser.sort.photo'), value: 'photo'},
+          {label: this.t.translate('authorBrowser.sort.seriesCount'), value: 'series-count'}
+        ];
+
+        const enriched = this.enrichedAuthors$.value;
+        if (enriched.length > 0) {
+          this.updateDynamicFilterOptions(enriched);
+        }
+      })
+    );
+
     this.setupScrollPositionTracking();
   }
 

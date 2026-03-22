@@ -257,7 +257,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (filterEntries.length === 1) {
       const [filterType, values] = filterEntries[0];
-      const filterName = FilterLabelHelper.getFilterTypeName(filterType);
+      const filterName = this.t.translate(`book.filter.labels.${filterType}`);
 
       if (values.length === 1) {
         const displayValue = FilterLabelHelper.getFilterDisplayValue(filterType, values[0]);
@@ -268,7 +268,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     const filterSummary = filterEntries
-      .map(([type, values]) => `${FilterLabelHelper.getFilterTypeName(type)} (${values.length})`)
+      .map(([type, values]) => `${this.t.translate(`book.filter.labels.${type}`)} (${values.length})`)
       .join(', ');
 
     return filterSummary.length > 50
@@ -307,6 +307,33 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     this.setupSearchTermSubscription();
     this.setupScrollPositionTracking();
     this.setupSelectionSubscription();
+
+    this.t.langChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        setTimeout(() => {
+          if (this.bookTableComponent) {
+            this.visibleColumns = this.visibleColumns.map(col => {
+              const updated = this.bookTableComponent.allColumns.find(c => c.field === col.field);
+              return updated ?? col;
+            });
+          }
+          
+          if (this.entity) {
+            this.entityOptions = this.entityService.isLibrary(this.entity)
+              ? this.libraryShelfMenuService.initializeLibraryMenuItems(this.entity)
+              : this.entityService.isMagicShelf(this.entity)
+                ? this.libraryShelfMenuService.initializeMagicShelfMenuItems(this.entity)
+                : this.libraryShelfMenuService.initializeShelfMenuItems(this.entity);
+          }
+          
+          if (this.isFilterActive) {
+            this.currentFilterLabel = this.computedFilterLabel;
+          }
+
+          this.cdr.detectChanges();
+        });
+      });
   }
 
   ngAfterViewInit(): void {

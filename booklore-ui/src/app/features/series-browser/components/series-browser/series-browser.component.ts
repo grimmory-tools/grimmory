@@ -1,8 +1,8 @@
-import {Component, HostListener, inject, OnInit} from '@angular/core';
+import {Component, HostListener, inject, OnDestroy, OnInit} from '@angular/core';
 import {AsyncPipe, NgStyle} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {combineLatest, Observable, BehaviorSubject} from 'rxjs';
-import {map} from 'rxjs/operators';
+import {combineLatest, Observable, BehaviorSubject, Subject} from 'rxjs';
+import {map, takeUntil} from 'rxjs/operators';
 import {ProgressSpinner} from 'primeng/progressspinner';
 import {InputText} from 'primeng/inputtext';
 import {Select} from 'primeng/select';
@@ -48,7 +48,7 @@ interface SortOption {
     VirtualScrollerModule
   ]
 })
-export class SeriesBrowserComponent implements OnInit {
+export class SeriesBrowserComponent implements OnInit, OnDestroy {
 
   private static readonly BASE_WIDTH = 230;
   private static readonly BASE_HEIGHT = 285;
@@ -61,6 +61,8 @@ export class SeriesBrowserComponent implements OnInit {
   private t = inject(TranslocoService);
   private router = inject(Router);
   protected seriesScaleService = inject(SeriesScalePreferenceService);
+
+  private destroy$ = new Subject<void>();
 
   bookState$ = this.bookService.bookState$;
 
@@ -124,6 +126,29 @@ export class SeriesBrowserComponent implements OnInit {
       {label: this.t.translate('seriesBrowser.sort.recentlyAdded'), value: 'recently-added'}
     ];
 
+    this.t.langChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.pageTitle.setPageTitle(this.t.translate('seriesBrowser.pageTitle'));
+
+        this.filterOptions = [
+          {label: this.t.translate('seriesBrowser.filters.all'), value: 'all'},
+          {label: this.t.translate('seriesBrowser.filters.notStarted'), value: 'not-started'},
+          {label: this.t.translate('seriesBrowser.filters.inProgress'), value: 'in-progress'},
+          {label: this.t.translate('seriesBrowser.filters.completed'), value: 'completed'},
+          {label: this.t.translate('seriesBrowser.filters.abandoned'), value: 'abandoned'}
+        ];
+
+        this.sortOptions = [
+          {label: this.t.translate('seriesBrowser.sort.nameAsc'), value: 'name-asc'},
+          {label: this.t.translate('seriesBrowser.sort.nameDesc'), value: 'name-desc'},
+          {label: this.t.translate('seriesBrowser.sort.bookCount'), value: 'book-count'},
+          {label: this.t.translate('seriesBrowser.sort.progress'), value: 'progress'},
+          {label: this.t.translate('seriesBrowser.sort.recentlyRead'), value: 'recently-read'},
+          {label: this.t.translate('seriesBrowser.sort.recentlyAdded'), value: 'recently-added'}
+        ];
+      });
+
     this.filteredSeries$ = combineLatest([
       this.seriesDataService.allSeries$,
       this.searchTerm$,
@@ -147,6 +172,11 @@ export class SeriesBrowserComponent implements OnInit {
         return result;
       })
     );
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onSearchChange(value: string): void {

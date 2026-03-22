@@ -137,6 +137,16 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
         this.cdr.markForCheck();
       });
     }
+
+    this.t.langChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.computeAllMemoizedValues();
+        if (this.menuInitialized) {
+          this.initMenu();
+          this.cdr.markForCheck();
+        }
+      });
   }
 
   ngOnChanges(changes: SimpleChanges): void {

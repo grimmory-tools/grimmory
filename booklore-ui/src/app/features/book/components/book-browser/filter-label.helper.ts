@@ -1,31 +1,7 @@
 import {fileSizeRanges, matchScoreRanges, pageCountRanges, ratingOptions10, ratingRanges} from './book-filter/book-filter.config';
 
 export class FilterLabelHelper {
-  private static readonly FILTER_TYPE_MAP: Record<string, string> = {
-    author: 'Author',
-    category: 'Genre',
-    series: 'Series',
-    publisher: 'Publisher',
-    readStatus: 'Read Status',
-    personalRating: 'Personal Rating',
-    publishedDate: 'Year Published',
-    matchScore: 'Metadata Match Score',
-    language: 'Language',
-    bookType: 'Book Type',
-    shelfStatus: 'Shelf Status',
-    fileSize: 'File Size',
-    pageCount: 'Page Count',
-    amazonRating: 'Amazon Rating',
-    goodreadsRating: 'Goodreads Rating',
-    hardcoverRating: 'Hardcover Rating',
-    ranobedbRating: 'Ranobedb Rating',
-    mood: 'Mood',
-    tag: 'Tag',
-  };
 
-  static getFilterTypeName(filterType: string): string {
-    return this.FILTER_TYPE_MAP[filterType] || this.capitalize(filterType);
-  }
 
   static getFilterDisplayValue(filterType: string, value: string | number): string {
     const numericValue = typeof value === 'string' ? Number(value) : value;
@@ -68,7 +44,4 @@ export class FilterLabelHelper {
     }
   }
 
-  private static capitalize(str: string): string {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
 }
