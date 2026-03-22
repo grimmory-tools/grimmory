@@ -19,6 +19,7 @@ import org.booklore.service.opds.MagicShelfBookService;
 import org.booklore.util.kobo.KoboUrlBuilder;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -328,7 +329,9 @@ public class KoboEntitlementService {
         boolean isCbxFile = primaryFile.getBookType() == BookFileType.CBX;
 
         if (koboSettings != null) {
-            if (isEpubFile && koboSettings.isConvertToKepub()) {
+            if (isEpubFile && primaryFile.isFixedLayout()) {
+                bookFormat = KoboBookFormat.EPUB3FL;
+            } else if (isEpubFile && koboSettings.isConvertToKepub()) {
                 bookFormat = KoboBookFormat.KEPUB;
             } else if (isCbxFile && koboSettings.isConvertCbxToEpub()) {
                 bookFormat = KoboBookFormat.EPUB3;

@@ -15,11 +15,6 @@ import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.BookRepository;
 import org.booklore.util.FileUtils;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipFile;
-import org.apache.pdfbox.io.IOUtils;
 import org.booklore.util.SecureXmlUtils;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
@@ -335,7 +330,7 @@ public class EpubReaderService {
         }
     }
 
-    private String parseContainerXml(ZipFile zipFile) throws Exception {
+    private static String parseContainerXml(ZipFile zipFile) throws Exception {
         Document doc = parseXmlEntry(zipFile, CONTAINER_PATH);
         NodeList rootfiles = doc.getElementsByTagNameNS(CONTAINER_NS, "rootfile");
         if (rootfiles.getLength() == 0) {
@@ -350,6 +345,19 @@ public class EpubReaderService {
             throw new IOException("No full-path attribute in rootfile");
         }
         return fullPath;
+    }
+
+    public static String getOPFPath(File epubFile) throws Exception {
+        try (ZipFile zip = new ZipFile(epubFile)) {
+            return parseContainerXml(zip);
+        }
+    }
+
+    public static Document getOPFDocument(File epubFile) throws Exception {
+        try (ZipFile zip = new ZipFile(epubFile)) {
+            String opfPath = parseContainerXml(zip);
+            return parseXmlEntry(zip, opfPath);
+        }
     }
 
     private List<EpubManifestItem> parseManifest(Document opfDoc, String rootPath, ZipFile zipFile) {
@@ -638,7 +646,7 @@ public class EpubReaderService {
         return null;
     }
 
-    private Document parseXmlEntry(ZipFile zipFile, String entryPath) throws Exception {
+    private static Document parseXmlEntry(ZipFile zipFile, String entryPath) throws Exception {
         ZipArchiveEntry entry = zipFile.getEntry(entryPath);
         if (entry == null) {
             throw new FileNotFoundException("Entry not found: " + entryPath);
