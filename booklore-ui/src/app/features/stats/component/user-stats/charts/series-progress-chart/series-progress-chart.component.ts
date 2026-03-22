@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
 import {Tooltip} from 'primeng/tooltip';
@@ -49,6 +49,8 @@ type SeriesChartData = ChartData<'bar', number[], string>;
   styleUrls: ['./series-progress-chart.component.scss']
 })
 export class SeriesProgressChartComponent implements OnInit, OnDestroy {
+  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
+
   private readonly bookService = inject(BookService);
   private readonly libraryFilterService = inject(LibraryFilterService);
   private readonly t = inject(TranslocoService);
@@ -190,6 +192,20 @@ export class SeriesProgressChartComponent implements OnInit, OnDestroy {
       )
       .subscribe(() => {
         this.calculateAndUpdateChart();
+      });
+
+    this.t.langChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.calculateAndUpdateChart();
+
+        setTimeout(() => {
+          const chartInstance = this.chart?.chart;
+          if (chartInstance) {
+            (chartInstance.options as any).scales.x.title.text = this.t.translate('statsUser.seriesProgress.axisCompletion');
+            chartInstance.update();
+          }
+        });
       });
   }
 

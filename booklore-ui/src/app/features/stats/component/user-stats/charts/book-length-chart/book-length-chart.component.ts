@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
 import {Tooltip} from 'primeng/tooltip';
@@ -41,6 +41,8 @@ const PAGE_RANGES = [
   styleUrls: ['./book-length-chart.component.scss']
 })
 export class BookLengthChartComponent implements OnInit, OnDestroy {
+  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
+
   private readonly bookService = inject(BookService);
   private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
@@ -151,6 +153,21 @@ export class BookLengthChartComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$)
       )
       .subscribe(() => this.processData());
+
+    this.t.langChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.processData();
+
+        setTimeout(() => {
+          const chartInstance = this.chart?.chart;
+          if (chartInstance) {
+            (chartInstance.options as any).scales.x.title.text = this.t.translate('statsUser.bookLength.axisPageCount');
+            (chartInstance.options as any).scales.y.title.text = this.t.translate('statsUser.bookLength.axisPersonalRating');
+            chartInstance.update();
+          }
+        });
+      });
   }
 
   ngOnDestroy(): void {

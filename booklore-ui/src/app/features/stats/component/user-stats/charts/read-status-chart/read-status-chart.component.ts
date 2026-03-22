@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
 import {BehaviorSubject, EMPTY, Observable, Subject} from 'rxjs';
@@ -46,6 +46,8 @@ type StatusChartData = ChartData<'doughnut', number[], string>;
   styleUrls: ['./read-status-chart.component.scss']
 })
 export class ReadStatusChartComponent implements OnInit, OnDestroy {
+  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
+
   private readonly bookService = inject(BookService);
   private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
@@ -130,6 +132,14 @@ export class ReadStatusChartComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         const stats = this.calculateReadingStatusStats();
         this.updateChartData(stats);
+      });
+
+    this.t.langChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        const stats = this.calculateReadingStatusStats();
+        this.updateChartData(stats);
+        this.chart?.chart?.update();
       });
   }
 

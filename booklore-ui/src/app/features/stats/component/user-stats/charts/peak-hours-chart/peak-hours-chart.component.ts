@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
 import {ChartConfiguration, ChartData} from 'chart.js';
@@ -20,6 +20,8 @@ type PeakHoursChartData = ChartData<'line', number[], string>;
   styleUrls: ['./peak-hours-chart.component.scss']
 })
 export class PeakHoursChartComponent implements OnInit, OnDestroy {
+  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
+
   public readonly chartType = 'line' as const;
   public readonly chartData$: Observable<PeakHoursChartData>;
   public readonly chartOptions: ChartConfiguration['options'];
@@ -161,11 +163,27 @@ export class PeakHoursChartComponent implements OnInit, OnDestroy {
         }
       }
     };
-    this.initializeYearOptions();
   }
 
   ngOnInit(): void {
-    this.loadPeakHours();
+    this.t.langChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.initializeYearOptions();
+
+        if ((this.chartOptions?.scales?.['x'] as any)?.title) {
+          (this.chartOptions!.scales!['x'] as any).title.text = this.t.translate('statsUser.peakHours.axisHourOfDay');
+        }
+        if ((this.chartOptions?.scales?.['y'] as any)?.title) {
+          (this.chartOptions!.scales!['y'] as any).title.text = this.t.translate('statsUser.peakHours.axisNumberOfSessions');
+        }
+        if ((this.chartOptions?.scales?.['y1'] as any)?.title) {
+          (this.chartOptions!.scales!['y1'] as any).title.text = this.t.translate('statsUser.peakHours.axisAvgDuration');
+        }
+
+        this.chart?.chart?.update();
+        this.loadPeakHours();
+      });
   }
 
   ngOnDestroy(): void {
@@ -175,14 +193,20 @@ export class PeakHoursChartComponent implements OnInit, OnDestroy {
 
   private initializeYearOptions(): void {
     const currentYear = new Date().getFullYear();
+    const locale = this.t.getActiveLang();
+
     this.yearOptions = [{label: this.t.translate('statsUser.peakHours.allYears'), value: null}];
     for (let year = currentYear; year >= currentYear - 10; year--) {
       this.yearOptions.push({label: year.toString(), value: year});
     }
-    const monthKeys = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+
+    const monthFormatter = new Intl.DateTimeFormat(locale, {month: 'long'});
     this.monthOptions = [
       {label: this.t.translate('statsUser.peakHours.allMonths'), value: null},
-      ...monthKeys.map((key, i) => ({label: this.t.translate(`statsUser.peakHours.${key}`), value: i + 1}))
+      ...Array.from({length: 12}, (_, i) => ({
+        label: monthFormatter.format(new Date(2024, i, 1)),
+        value: i + 1
+      }))
     ];
   }
 
@@ -268,9 +292,7 @@ export class PeakHoursChartComponent implements OnInit, OnDestroy {
   }
 
   private formatHour(hour: number): string {
-    if (hour === 0) return '12 AM';
-    if (hour === 12) return '12 PM';
-    if (hour < 12) return `${hour} AM`;
-    return `${hour - 12} PM`;
+    const date = new Date(2024, 0, 1, hour);
+    return new Intl.DateTimeFormat(this.t.getActiveLang(), {hour: 'numeric', hour12: true}).format(date);
   }
 }

@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
 import {ChartConfiguration, ChartData} from 'chart.js';
@@ -20,6 +20,8 @@ type FavoriteDaysChartData = ChartData<'bar', number[], string>;
   styleUrls: ['./favorite-days-chart.component.scss']
 })
 export class FavoriteDaysChartComponent implements OnInit, OnDestroy {
+  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
+
   public readonly chartType = 'bar' as const;
   public readonly chartData$: Observable<FavoriteDaysChartData>;
   public readonly chartOptions: ChartConfiguration['options'];
@@ -167,14 +169,26 @@ export class FavoriteDaysChartComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.t.langChanges$
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(() => {
-      const locale = this.t.getActiveLang();
-      const formatter = new Intl.DateTimeFormat(locale, { weekday: 'long' });
-      this.allDays = [...Array(7)].map((_, i) => formatter.format(new Date(2024, 0, 7 + i)));
-      this.initializeYearOptions();
-      this.loadFavoriteDays();
-    });
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        const locale = this.t.getActiveLang();
+        const formatter = new Intl.DateTimeFormat(locale, {weekday: 'long'});
+        this.allDays = [...Array(7)].map((_, i) => formatter.format(new Date(2024, 0, 7 + i)));
+        this.initializeYearOptions();
+
+        if ((this.chartOptions?.scales?.['x'] as any)?.title) {
+          (this.chartOptions!.scales!['x'] as any).title.text = this.t.translate('statsUser.favoriteDays.axisDayOfWeek');
+        }
+        if ((this.chartOptions?.scales?.['y'] as any)?.title) {
+          (this.chartOptions!.scales!['y'] as any).title.text = this.t.translate('statsUser.favoriteDays.axisNumberOfSessions');
+        }
+        if ((this.chartOptions?.scales?.['y1'] as any)?.title) {
+          (this.chartOptions!.scales!['y1'] as any).title.text = this.t.translate('statsUser.favoriteDays.axisDurationHours');
+        }
+
+        this.chart?.chart?.update();
+        this.loadFavoriteDays();
+      });
   }
 
   ngOnDestroy(): void {
@@ -191,7 +205,7 @@ export class FavoriteDaysChartComponent implements OnInit, OnDestroy {
       this.yearOptions.push({label: year.toString(), value: year});
     }
     
-    const monthFormatter = new Intl.DateTimeFormat(locale, { month: 'long' });
+    const monthFormatter = new Intl.DateTimeFormat(locale, {month: 'long'});
     this.monthOptions = [
       {label: this.t.translate('statsUser.favoriteDays.allMonths'), value: null},
       ...Array.from({length: 12}, (_, i) => ({

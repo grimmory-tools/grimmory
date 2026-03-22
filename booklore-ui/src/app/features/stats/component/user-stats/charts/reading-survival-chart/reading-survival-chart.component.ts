@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
 import {Tooltip} from 'primeng/tooltip';
@@ -22,6 +22,8 @@ const THRESHOLDS = [0, 10, 25, 50, 75, 90, 100];
   styleUrls: ['./reading-survival-chart.component.scss']
 })
 export class ReadingSurvivalChartComponent implements OnInit, OnDestroy {
+  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
+
   private readonly bookService = inject(BookService);
   private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
@@ -113,6 +115,21 @@ export class ReadingSurvivalChartComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$)
       )
       .subscribe(() => this.calculateSurvivalCurve());
+
+    this.t.langChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.calculateSurvivalCurve();
+
+        setTimeout(() => {
+          const chartInstance = this.chart?.chart;
+          if (chartInstance) {
+            (chartInstance.options as any).scales.x.title.text = this.t.translate('statsUser.readingSurvival.axisProgressThreshold');
+            (chartInstance.options as any).scales.y.title.text = this.t.translate('statsUser.readingSurvival.axisBooksSurviving');
+            chartInstance.update();
+          }
+        });
+      });
   }
 
   ngOnDestroy(): void {

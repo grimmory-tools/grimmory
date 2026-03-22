@@ -42,6 +42,9 @@ export class ReadingDNAChartComponent implements OnInit, OnDestroy {
   private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
 
+  private readonly traitKeys = ['adventurous', 'perfectionist', 'intellectual', 'emotional', 'patient', 'social', 'nostalgic', 'ambitious'];
+  private lastProfile: ReadingDNAProfile | null = null;
+
   public readonly chartType = 'radar' as const;
 
   public readonly chartOptions: ChartConfiguration<'radar'>['options'] = {
@@ -80,9 +83,8 @@ export class ReadingDNAChartComponent implements OnInit, OnDestroy {
           },
           padding: 25,
           callback: (label: string) => {
-            const traitKeys = ['adventurous', 'perfectionist', 'intellectual', 'emotional', 'patient', 'social', 'nostalgic', 'ambitious'];
             const icons = ['🌟', '💎', '🧠', '💖', '🕰️', '👥', '📚', '🚀'];
-            const translatedLabels = traitKeys.map(k => this.t.translate(`statsUser.readingDna.traits.${k}`));
+            const translatedLabels = this.traitKeys.map(k => this.t.translate(`statsUser.readingDna.traits.${k}`));
             const idx = translatedLabels.indexOf(label);
             return [idx >= 0 ? icons[idx] : '', label];
           }
@@ -140,8 +142,6 @@ export class ReadingDNAChartComponent implements OnInit, OnDestroy {
     }
   };
 
-  private readonly traitKeys = ['adventurous', 'perfectionist', 'intellectual', 'emotional', 'patient', 'social', 'nostalgic', 'ambitious'];
-
   private readonly chartDataSubject = new BehaviorSubject<ReadingDNAChartData>({
     labels: [],
     datasets: []
@@ -162,8 +162,14 @@ export class ReadingDNAChartComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$)
       )
       .subscribe(() => {
-        const profile = this.calculateReadingDNAData();
-        this.updateChartData(profile);
+        this.lastProfile = this.calculateReadingDNAData();
+        this.updateChartData(this.lastProfile);
+      });
+
+    this.t.langChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.updateChartData(this.lastProfile);
       });
   }
 

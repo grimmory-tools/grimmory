@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
 import {BehaviorSubject, EMPTY, Observable, Subject} from 'rxjs';
@@ -59,6 +59,8 @@ type RatingChartData = ChartData<'bar', number[], string>;
   styleUrls: ['./personal-rating-chart.component.scss']
 })
 export class PersonalRatingChartComponent implements OnInit, OnDestroy {
+  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
+
   private readonly bookService = inject(BookService);
   private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
@@ -171,6 +173,22 @@ export class PersonalRatingChartComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         const stats = this.calculatePersonalRatingStats();
         this.updateChartData(stats);
+      });
+
+    this.t.langChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        const stats = this.calculatePersonalRatingStats();
+        this.updateChartData(stats);
+
+        if ((this.chartOptions?.scales?.['x'] as any)?.title) {
+          (this.chartOptions!.scales!['x'] as any).title.text = this.t.translate('statsUser.personalRating.axisPersonalRating');
+        }
+        if ((this.chartOptions?.scales?.['y'] as any)?.title) {
+          (this.chartOptions!.scales!['y'] as any).title.text = this.t.translate('statsUser.personalRating.axisNumberOfBooks');
+        }
+
+        this.chart?.chart?.update();
       });
   }
 

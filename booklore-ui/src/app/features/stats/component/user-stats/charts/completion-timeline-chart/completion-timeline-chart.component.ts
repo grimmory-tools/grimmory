@@ -1,4 +1,4 @@
-import {Component, inject, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
 import {ChartConfiguration, ChartData} from 'chart.js';
@@ -18,6 +18,7 @@ type CompletionChartData = ChartData<'bar', number[], string>;
 })
 export class CompletionTimelineChartComponent implements OnInit, OnDestroy {
   @Input() initialYear: number = new Date().getFullYear();
+  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
 
   public currentYear: number = new Date().getFullYear();
   public readonly chartType = 'bar' as const;
@@ -131,6 +132,15 @@ export class CompletionTimelineChartComponent implements OnInit, OnDestroy {
       .subscribe(locale => {
         const formatter = new Intl.DateTimeFormat(locale, {month: 'short'});
         this.monthNames = [...Array(12)].map((_, i) => formatter.format(new Date(2024, i, 1)));
+
+        if ((this.chartOptions?.scales?.['x'] as any)?.title) {
+          (this.chartOptions!.scales!['x'] as any).title.text = this.t.translate('statsUser.completionTimeline.axisMonth');
+        }
+        if ((this.chartOptions?.scales?.['y'] as any)?.title) {
+          (this.chartOptions!.scales!['y'] as any).title.text = this.t.translate('statsUser.completionTimeline.axisNumberOfBooks');
+        }
+
+        this.chart?.chart?.update();
         this.loadCompletionTimeline(this.currentYear);
       });
   }

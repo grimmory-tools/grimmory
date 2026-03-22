@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
 import {Tooltip} from 'primeng/tooltip';
@@ -18,6 +18,8 @@ type PageTurnerChartData = ChartData<'bar', number[], string>;
   styleUrls: ['./page-turner-chart.component.scss']
 })
 export class PageTurnerChartComponent implements OnInit, OnDestroy {
+  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
+
   public readonly chartType = 'bar' as const;
   public readonly chartData$: Observable<PageTurnerChartData>;
   public readonly chartOptions: ChartConfiguration['options'];
@@ -90,6 +92,17 @@ export class PageTurnerChartComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadData();
+
+    this.t.langChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if ((this.chartOptions?.scales?.['x'] as any)?.title) {
+          (this.chartOptions!.scales!['x'] as any).title.text = this.t.translate('statsUser.pageTurner.axisGripScore');
+        }
+
+        this.chart?.chart?.update();
+        this.loadData();
+      });
   }
 
   ngOnDestroy(): void {

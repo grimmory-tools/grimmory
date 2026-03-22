@@ -1,4 +1,4 @@
-import {Component, inject, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
 import {ChartConfiguration, ChartData} from 'chart.js';
@@ -19,6 +19,7 @@ type GenreChartData = ChartData<'bar', number[], string>;
 })
 export class GenreStatsChartComponent implements OnInit, OnDestroy {
   @Input() maxGenres: number = 35;
+  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
 
   public readonly chartType = 'bar' as const;
   public readonly chartData$: Observable<GenreChartData>;
@@ -159,6 +160,20 @@ export class GenreStatsChartComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadGenreStats();
+
+    this.t.langChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if ((this.chartOptions?.scales as any)?.['x']?.title) {
+          (this.chartOptions!.scales!['x'] as any).title.text = this.t.translate('statsUser.genreStats.axisGenres');
+        }
+        if ((this.chartOptions?.scales?.['y'] as any)?.title) {
+          (this.chartOptions!.scales!['y'] as any).title.text = this.t.translate('statsUser.genreStats.axisTimeRead');
+        }
+
+        this.chart?.chart?.update();
+        this.loadGenreStats();
+      });
   }
 
   ngOnDestroy(): void {

@@ -43,6 +43,7 @@ export class ReadingHabitsChartComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
 
   private readonly habitKeys = ['consistency', 'multitasking', 'completionism', 'exploration', 'organization', 'intensity', 'methodology', 'momentum'];
+  private lastProfile: ReadingHabitsProfile | null = null;
 
   public readonly chartType = 'radar' as const;
 
@@ -161,8 +162,14 @@ export class ReadingHabitsChartComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$)
       )
       .subscribe(() => {
-        const profile = this.calculateReadingHabitsData();
-        this.updateChartData(profile);
+        this.lastProfile = this.calculateReadingHabitsData();
+        this.updateChartData(this.lastProfile);
+      });
+
+    this.t.langChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.updateChartData(this.lastProfile);
       });
   }
 

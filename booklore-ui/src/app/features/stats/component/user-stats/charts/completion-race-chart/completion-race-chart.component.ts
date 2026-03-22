@@ -1,4 +1,4 @@
-import {Component, inject, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
 import {Tooltip} from 'primeng/tooltip';
@@ -32,6 +32,7 @@ const LINE_COLORS = [
 })
 export class CompletionRaceChartComponent implements OnInit, OnDestroy {
   @Input() initialYear: number = new Date().getFullYear();
+  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
 
   public currentYear: number = new Date().getFullYear();
   public readonly chartType = 'line' as const;
@@ -142,6 +143,20 @@ export class CompletionRaceChartComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.currentYear = this.initialYear;
     this.loadData(this.currentYear);
+
+    this.t.langChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (this.chartOptions?.scales?.['x']?.title) {
+          (this.chartOptions!.scales!['x'] as any).title.text = this.t.translate('statsUser.completionRace.axisDaysSinceFirstSession');
+        }
+        if (this.chartOptions?.scales?.['y']?.title) {
+          (this.chartOptions!.scales!['y'] as any).title.text = this.t.translate('statsUser.completionRace.axisProgress');
+        }
+
+        this.chart?.chart?.update();
+        this.loadData(this.currentYear);
+      });
   }
 
   ngOnDestroy(): void {
