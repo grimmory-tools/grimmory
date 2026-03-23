@@ -51,6 +51,11 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Install just
+        uses: taiki-e/install-action@0d865d5cc6d507df4765f1f866bfae8bab4e2a73 # v2.69.7
+        with:
+          tool: just
+
       - name: Set Up Node.js
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
         with:
@@ -59,7 +64,7 @@ jobs:
           cache-dependency-path: tools/release/package-lock.json
 
       - name: Install Release Tooling Dependencies
-        run: npm --prefix tools/release ci
+        run: just release install
 
       - name: Record Pre-Release HEAD
         id: pre_release
@@ -82,7 +87,7 @@ jobs:
           GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
           GIT_COMMITTER_NAME: github-actions[bot]
           GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
-        run: npx --prefix tools/release semantic-release --extends ./tools/release/release.config.cjs
+        run: just release run
 
       - name: Capture Release State
         id: release_state

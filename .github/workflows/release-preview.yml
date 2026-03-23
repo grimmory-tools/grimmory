@@ -49,6 +49,11 @@ jobs:
 
           git checkout -B main "$(git rev-parse HEAD)"
 
+      - name: Install just
+        uses: taiki-e/install-action@0d865d5cc6d507df4765f1f866bfae8bab4e2a73 # v2.69.7
+        with:
+          tool: just
+
       - name: Set Up Node.js
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
         with:
@@ -57,16 +62,13 @@ jobs:
           cache-dependency-path: tools/release/package-lock.json
 
       - name: Install Release Tooling Dependencies
-        run: npm --prefix tools/release ci
+        run: just release install
 
       - name: Run semantic-release Dry Run
         env:
           GH_TOKEN: ${{ secrets.RELEASE_BOT_TOKEN != '' && secrets.RELEASE_BOT_TOKEN || github.token }}
           GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_TOKEN != '' && secrets.RELEASE_BOT_TOKEN || github.token }}
-        run: |
-          npx --prefix tools/release semantic-release \
-            --dry-run \
-            --extends ./tools/release/release.config.cjs | tee semantic-release-preview.log
+        run: just release preview | tee semantic-release-preview.log
 
       - name: Upload Preview Output
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0

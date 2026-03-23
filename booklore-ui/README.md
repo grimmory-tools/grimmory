@@ -1,59 +1,74 @@
-# Grimmory
+# Grimmory UI
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.2.
+The `booklore-ui` project is the Angular frontend for Grimmory. It owns the browser application, component styling, client-side routing, stateful UI interactions, and the compiled bundle that is packaged into the current production image.
 
-## Development server
+## Stack
 
-To start a local development server, run:
+- Angular 21
+- TypeScript
+- PrimeNG + PrimeIcons
+- Transloco for i18n
+- Vitest for unit tests
+- Angular ESLint
 
-```bash
-ng serve
-```
+## Local Command Surface
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Use [`Justfile`](Justfile) when possible. It is the primary frontend command surface for both humans and agents.
 
 ```bash
-ng generate --help
+just                 # List frontend recipes
+just install         # Install or update dependencies for local development
+just install-ci      # Install dependencies exactly as CI does
+just dev             # Start the Angular dev server
+just test            # Run the frontend test suite
+just check           # Run the standard local verification pass
+just lint            # Run the frontend linter
+just build           # Build the production bundle
 ```
 
-## Building
-
-To build the project run:
+The repository root exposes the same recipes through the `ui` namespace:
 
 ```bash
-ng build
+just ui install
+just ui install-ci
+just ui dev
+just ui test
+just ui check
+just ui lint
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+## Running Locally
 
 ```bash
-ng test
+cd booklore-ui
+just install
+just dev
 ```
 
-## Running end-to-end tests
+The development server runs on port `4200` by default.
 
-For end-to-end (e2e) testing, run:
+## Build and Test
 
 ```bash
-ng e2e
+just build
+just check
+just test
+just coverage
+just lint
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+The production output is written to `dist/grimmory/` and is consumed by the backend packaging flow when building the all-in-one production image.
 
-## Additional Resources
+Use `just ci-check` when you want the stricter CI-style flow from a clean install, including the severity-gated audit step.
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## UI-Specific Notes
+
+- This project uses standalone Angular components.
+- Dependency injection should use `inject()`.
+- Styling uses SCSS.
+- UI strings live in `src/i18n/`.
+- The current production bundle is still packaged into the backend jar during the root Docker build.
+
+## More Detail
+
+Frontend-specific contributor rules and conventions live in [CONTRIBUTING.md](CONTRIBUTING.md).

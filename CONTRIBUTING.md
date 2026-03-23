@@ -98,12 +98,38 @@ grimmory/
 └── local/                   # Local development helpers
 ```
 
+### Preferred Command Surface
+
+Use the root [`Justfile`](Justfile) as the primary local command surface. It wraps the commands documented below into a consistent interface for both humans and agents.
+
+Useful starting points:
+
+```bash
+just                       # Show all root, api, and ui recipes
+just check                 # Run the local verification pass
+just test                  # Run backend + frontend tests
+just api run               # Start the backend with the dev profile
+just ui dev                # Start the frontend dev server
+just dev-up                # Start the Docker dev stack
+just image-build           # Build the production image locally
+```
+
+> **Tip:** Agents and automation should prefer `just` recipes when a suitable recipe exists so local workflows and documented commands stay aligned.
+> **Tip:** Set `GRIMMORY_COMPOSE_FILE=/path/to/compose.yml` if you need the root `just` recipes to target a different development compose file.
+
+### Component Guides
+
+Use the repo-level guide for workflow, release, and PR policy, then drop into the component-specific guides when you are working inside a project:
+
+- Backend: [booklore-api/README.md](booklore-api/README.md) and [booklore-api/CONTRIBUTING.md](booklore-api/CONTRIBUTING.md)
+- Frontend: [booklore-ui/README.md](booklore-ui/README.md) and [booklore-ui/CONTRIBUTING.md](booklore-ui/CONTRIBUTING.md)
+
 ### Option 1: Docker Development Stack (Recommended)
 
 The fastest way to get a working environment. No local toolchain required.
 
 ```bash
-docker compose -f dev.docker-compose.yml up
+just dev-up
 ```
 
 This starts:
@@ -119,12 +145,12 @@ All ports are configurable via environment variables (`FRONTEND_PORT`, `BACKEND_
 
 ```bash
 # To stop
-docker compose -f dev.docker-compose.yml down
+just dev-down
 ```
 
 ### Option 2: Manual Setup
 
-For full control over each component or IDE integration (debugging, hot-reload, etc.).
+For full control over each component or IDE integration (debugging, hot-reload, etc.). The detailed component-level commands now live in the API and UI subproject guides linked above.
 
 #### Prerequisites
 
@@ -140,13 +166,13 @@ For full control over each component or IDE integration (debugging, hot-reload, 
 Start MariaDB and create the database:
 
 ```sql
-CREATE DATABASE IF NOT EXISTS booklore;
-CREATE USER 'booklore_user'@'localhost' IDENTIFIED BY 'your_password';
-GRANT ALL PRIVILEGES ON booklore.* TO 'booklore_user'@'localhost';
+CREATE DATABASE IF NOT EXISTS grimmory;
+CREATE USER 'grimmory_user'@'localhost' IDENTIFIED BY 'your_password';
+GRANT ALL PRIVILEGES ON grimmory.* TO 'grimmory_user'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
-> **Tip:** You can also spin up MariaDB via Docker: `docker compose -f local/docker-compose-maria.yml up -d`
+> **Tip:** You can also start just the database service with `just db-up`
 
 #### 2. Backend
 
@@ -160,16 +186,15 @@ app:
 spring:
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://localhost:3306/booklore?createDatabaseIfNotExist=true
-    username: booklore_user
+    url: jdbc:mariadb://localhost:3306/grimmory?createDatabaseIfNotExist=true
+    username: grimmory_user
     password: your_password
 ```
 
 Replace the paths with actual directories on your system and ensure they exist with read/write permissions.
 
 ```bash
-cd booklore-api
-./gradlew bootRun --args='--spring.profiles.active=dev'
+just api run
 
 # Verify
 curl http://localhost:8080/actuator/health
@@ -178,14 +203,11 @@ curl http://localhost:8080/actuator/health
 #### 3. Frontend
 
 ```bash
-cd booklore-ui
-npm install
-ng serve
+just ui install
+just ui dev
 ```
 
 The UI will be available at http://localhost:4200 with hot-reload enabled.
-
-> If you hit dependency issues, try `npm ci --force`.
 
 ---
 
@@ -196,18 +218,16 @@ Always run tests before submitting a pull request.
 **Frontend (Vitest):**
 
 ```bash
-cd booklore-ui
-ng test               # Run all tests
-ng test --coverage    # With coverage report (output: coverage/)
+just ui test          # Run all tests
+just ui coverage      # With coverage report (output: coverage/)
 ```
 
 **Backend (JUnit + Gradle):**
 
 ```bash
-cd booklore-api
-./gradlew test                                                        # Run all tests
-./gradlew test --tests "com.booklore.api.service.BookServiceTest"     # Specific class
-./gradlew test jacocoTestReport                                       # Coverage report
+just api test                                                                # Run all tests
+just api test-class test_class=org.booklore.service.BookServiceTest          # Specific class
+just api coverage                                                            # Coverage report
 ```
 
 ---
@@ -225,23 +245,13 @@ You need a MariaDB instance accessible to the container. The easiest way is to u
 ```bash
 
 # From the repository root
-docker build -t grimmory:local .
+just image-build
 
 # Start only the database from the dev stack
-docker compose -f dev.docker-compose.yml up -d backend_db
+just db-up
 
 # Run the production image against it, reusing the dev stack's data
-docker run --rm -it \
-  --name grimmory-local \
-  --network host \
-  -e "SPRING_DATASOURCE_URL=jdbc:mariadb://localhost:3366/booklore?createDatabaseIfNotExist=true" \
-  -e "SPRING_DATASOURCE_USERNAME=booklore" \
-  -e "SPRING_DATASOURCE_PASSWORD=booklore" \
-  -v ./shared/data:/app/data \
-  -v ./shared/books:/books \
-  -v ./shared/bookdrop:/bookdrop \
-  -p 6060:6060 \
-  grimmory:local
+just image-run
 ```
 
 The application will be available at http://localhost:6060.
@@ -249,11 +259,11 @@ The application will be available at http://localhost:6060.
 ### Cleanup
 
 ```bash
-# Stop and remove the container
-docker stop grimmory-local
-
 # Stop the database service when done
-docker compose -f dev.docker-compose.yml down
+just db-down
+
+# Or stop the full stack if you started it with `just dev-up`
+just dev-down
 ```
 
 ### Cross-platform build (optional)
@@ -261,7 +271,7 @@ docker compose -f dev.docker-compose.yml down
 If you want to test a different architecture (e.g., ARM64 on an x86 machine):
 
 ```bash
-docker buildx build --platform linux/arm64 -t grimmory:local-arm64 --load .
+just image-build linux/arm64 grimmory:local-arm64
 ```
 
 ### Tips
@@ -336,9 +346,9 @@ Maintainers promote cleaned `develop` history to `main` for stable releases. Do 
 Before opening your PR:
 
 - [ ] PR is linked to an **approved** issue (PRs without a linked issue will be closed)
-- [ ] All tests pass (`./gradlew test` and `ng test`)
+- [ ] All tests pass (`just test`)
 - [ ] Actual test output is pasted in the PR description
-- [ ] Code follows project conventions (see [Backend Conventions](#backend-conventions), [Frontend Conventions](#frontend-conventions))
+- [ ] Code follows the relevant component conventions (see [booklore-api/CONTRIBUTING.md](booklore-api/CONTRIBUTING.md) and [booklore-ui/CONTRIBUTING.md](booklore-ui/CONTRIBUTING.md))
 - [ ] No lint errors
 - [ ] Branch is up-to-date with `develop`
 - [ ] You ran the full stack locally and manually verified the change works
@@ -368,32 +378,12 @@ We've seen a sharp increase in AI-generated PRs where the contributor clearly ne
 
 ---
 
-## Backend Conventions
+## Component Conventions
 
-- Use Spring Data JPA repository methods or JPQL. No native queries unless explicitly approved by a maintainer.
-- Constructor injection via Lombok `@AllArgsConstructor`. No `@Autowired`.
-- Logging via Lombok `@Slf4j`. No manual `LoggerFactory.getLogger(...)`.
-- Throw errors via `ApiError` enum (`ApiError.SOME_ERROR.createException()`). No raw `RuntimeException`.
-- Entities use `*Entity` suffix; DTOs drop it (e.g., `BookEntity` vs `Book`).
-- Use MapStruct for entity-to-DTO mapping. No hand-written mapping code.
-- Security: `@PreAuthorize("@securityUtil.isAdmin()")` or `@CheckBookAccess`. No `@Secured` or `@RolesAllowed`.
-- Testing: JUnit 5 + Mockito + AssertJ. `@ExtendWith(MockitoExtension.class)` for unit tests, `@SpringBootTest` only for integration tests.
-- Use modern Java features (records, sealed classes, pattern matching, text blocks, etc.).
-- No fully qualified class names inline. Always use imports.
-- Flyway migrations go in `booklore-api/src/main/resources/db/migration/` with naming `V<number>__<Description>.sql`.
-- Never modify a released migration. Always create a new migration file for changes.
-- Use idempotent guards in migrations (`CREATE TABLE IF NOT EXISTS`, `ADD COLUMN IF NOT EXISTS`, `DROP ... IF EXISTS` before re-creating).
+Detailed coding conventions now live with each project:
 
----
-
-## Frontend Conventions
-
-- Follow the [Angular style guide](https://angular.dev/style-guide).
-- All components are standalone. No NgModules.
-- Use `inject()` for dependency injection. No constructor injection.
-- PrimeNG for UI components. SCSS for styling. Transloco for i18n.
-- Testing with Vitest (not Karma/Jasmine).
-- All UI features must be responsive (desktop + mobile).
+- Backend rules: [booklore-api/CONTRIBUTING.md](booklore-api/CONTRIBUTING.md)
+- Frontend rules: [booklore-ui/CONTRIBUTING.md](booklore-ui/CONTRIBUTING.md)
 
 ---
 

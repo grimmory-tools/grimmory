@@ -1,0 +1,17 @@
+set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
+
+# Show the release-tooling recipes available in this directory.
+help:
+    @just --list
+
+# Install the pinned semantic-release tooling used by local and CI release tasks.
+install:
+    npm ci
+
+# Preview the next semantic-release result for the current checkout.
+preview:
+    npx semantic-release --dry-run --extends ./release.config.cjs
+
+# Run semantic-release for the current checkout.
+run:
+    npx semantic-release --extends ./release.config.cjs

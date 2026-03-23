@@ -12,9 +12,9 @@ services:
       - "${BACKEND_PORT:-6060}:6060"
       - "127.0.0.1:${REMOTE_DEBUG_PORT:-5005}:5005"
     environment:
-      - DATABASE_URL=jdbc:mariadb://backend_db:3306/booklore
-      - DATABASE_USERNAME=booklore
-      - DATABASE_PASSWORD=booklore
+      - DATABASE_URL=jdbc:mariadb://backend_db:3306/grimmory
+      - DATABASE_USERNAME=grimmory
+      - DATABASE_PASSWORD=grimmory
       - REMOTE_DEBUG_ENABLED=true
       - ALLOWED_ORIGINS=http://localhost:4200
     stdin_open: true
@@ -37,14 +37,14 @@ services:
       - backend_db:/var/lib/mysql
     restart: unless-stopped
     environment:
-      - MYSQL_ROOT_PASSWORD=booklore
-      - MYSQL_DATABASE=booklore
-      - MYSQL_USER=booklore
-      - MYSQL_PASSWORD=booklore
+      - MYSQL_ROOT_PASSWORD=grimmory
+      - MYSQL_DATABASE=grimmory
+      - MYSQL_USER=grimmory
+      - MYSQL_PASSWORD=grimmory
     ports:
       - "${DB_PORT:-3366}:3306"
     healthcheck:
-      test: [ "CMD", "mariadb-admin", "ping", "-h", "localhost", "-uroot", "-pbooklore" ]
+      test: [ "CMD", "mariadb-admin", "ping", "-h", "localhost", "-uroot", "-pgrimmory" ]
       interval: 10s
       timeout: 5s
       retries: 5
