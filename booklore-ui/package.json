@@ -59,7 +59,7 @@
     "@types/node": "^25.3.2",
     "@types/showdown": "^2.0.6",
     "@vitest/coverage-v8": "^4.0.17",
-    "angular-eslint": "^21.2.0",
+    "angular-eslint": "^21.3.1",
     "eslint": "^9.39.3",
     "jsdom": "^28.1.0",
     "typescript": "~5.9.3",
