@@ -1,5 +1,8 @@
 package org.booklore.service.book;
 
+import jakarta.persistence.EntityNotFoundException;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.ApiError;
 import org.booklore.mapper.BookReviewMapper;
@@ -14,9 +17,6 @@ import org.booklore.repository.BookReviewRepository;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.metadata.BookReviewUpdateService;
 import org.booklore.service.metadata.MetadataRefreshService;
-import jakarta.persistence.EntityNotFoundException;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,7 +39,7 @@ public class BookReviewService {
     private final AuthenticationService authenticationService;
 
     public List<BookReview> getByBookId(Long bookId) {
-        BookEntity bookEntity = bookRepository.findById(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
+        BookEntity bookEntity = bookRepository.findByIdWithMetadata(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
         List<BookReview> existingReviews = bookReviewRepository.findByBookMetadataBookId(bookId).stream()
                 .map(mapper::toDto)
@@ -106,7 +106,7 @@ public class BookReviewService {
 
     @Transactional
     public List<BookReview> refreshReviews(Long bookId) {
-        BookEntity bookEntity = bookRepository.findById(bookId)
+        BookEntity bookEntity = bookRepository.findByIdWithMetadata(bookId)
                 .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
         bookEntity.getMetadata().getReviews().clear();

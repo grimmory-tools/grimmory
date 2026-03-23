@@ -1,11 +1,11 @@
 package org.booklore.service.hardcover;
 
+import lombok.extern.slf4j.Slf4j;
 import org.booklore.model.dto.HardcoverSyncSettings;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.metadata.parser.hardcover.GraphQLRequest;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -80,7 +80,7 @@ public class HardcoverSyncService {
                 }
 
                 // Fetch book fresh within the async context to avoid lazy loading issues
-                BookEntity book = bookRepository.findById(bookId).orElse(null);
+                BookEntity book = bookRepository.findByIdWithMetadata(bookId).orElse(null);
                 if (book == null) {
                     log.debug("Hardcover sync skipped: book {} not found", bookId);
                     return;

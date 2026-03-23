@@ -55,7 +55,7 @@ class HardcoverSyncSettingsServiceTest {
                 .hardcoverSyncEnabled(true)
                 .build();
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.findByIdWithSettings(1L)).thenReturn(Optional.of(user));
         when(koboUserSettingsRepository.findByUserId(1L)).thenReturn(Optional.of(legacy));
 
         HardcoverSyncSettings settings = service.getSettingsForUserId(1L);
@@ -81,7 +81,7 @@ class HardcoverSyncSettingsServiceTest {
                 .settingValue("old")
                 .build());
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.findByIdWithSettings(1L)).thenReturn(Optional.of(user));
 
         HardcoverSyncSettings update = new HardcoverSyncSettings();
         update.setHardcoverApiKey("  new-key  ");

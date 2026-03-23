@@ -1,12 +1,13 @@
 package org.booklore.service;
 
+import lombok.AllArgsConstructor;
+import org.booklore.exception.ApiError;
 import org.booklore.mapper.AuthorMapper;
 import org.booklore.model.entity.AuthorEntity;
-import org.booklore.exception.ApiError;
 import org.booklore.repository.AuthorRepository;
 import org.booklore.repository.BookRepository;
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,8 +19,11 @@ public class AuthorService {
     private final BookRepository bookRepository;
     private final AuthorMapper authorMapper;
 
+    @Transactional(readOnly = true)
     public List<String> getAuthorsByBookId(Long bookId) {
-        bookRepository.findById(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
+        if (!bookRepository.existsById(bookId)) {
+            throw ApiError.BOOK_NOT_FOUND.createException(bookId);
+        }
         List<AuthorEntity> authorEntities = authorRepository.findAuthorsByBookId(bookId);
         return authorEntities.stream().map(authorMapper::toAuthorEntityName).toList();
     }

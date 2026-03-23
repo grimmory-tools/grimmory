@@ -1,8 +1,8 @@
 package org.booklore.config.security;
 
+import lombok.AllArgsConstructor;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.repository.ShelfRepository;
-import lombok.AllArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -108,7 +108,7 @@ public class SecurityUtil {
     public boolean isShelfOwner(Long shelfId) {
         var user = getCurrentUser();
         if (user != null) {
-            return shelfRepository.findById(shelfId)
+            return shelfRepository.findByIdWithUser(shelfId)
                     .map(shelf -> shelf.getUser().getId().equals(user.getId()))
                     .orElse(false);
         }
@@ -133,7 +133,7 @@ public class SecurityUtil {
     public boolean canReadShelf(Long shelfId) {
         var user = getCurrentUser();
         if (user != null) {
-            return shelfRepository.findById(shelfId)
+            return shelfRepository.findByIdWithUser(shelfId)
                     .map(shelf -> shelf.isPublic() || shelf.getUser().getId().equals(user.getId()))
                     .orElse(false);
         }

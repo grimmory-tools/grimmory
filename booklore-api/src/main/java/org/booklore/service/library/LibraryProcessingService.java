@@ -1,5 +1,9 @@
 package org.booklore.service.library;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.booklore.exception.ApiError;
 import org.booklore.model.dto.settings.LibraryFile;
 import org.booklore.model.entity.BookEntity;
@@ -14,10 +18,6 @@ import org.booklore.service.NotificationService;
 import org.booklore.service.file.FileFingerprint;
 import org.booklore.task.options.RescanLibraryContext;
 import org.booklore.util.FileUtils;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,7 +69,7 @@ public class LibraryProcessingService {
 
     @Transactional
     public void rescanLibrary(RescanLibraryContext context) throws IOException {
-        LibraryEntity libraryEntity = libraryRepository.findById(context.getLibraryId()).orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(context.getLibraryId()));
+        LibraryEntity libraryEntity = libraryRepository.findByIdWithBooks(context.getLibraryId()).orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(context.getLibraryId()));
         notificationService.sendMessage(Topic.LOG, LogNotification.info("Started refreshing library: " + libraryEntity.getName()));
 
         validateLibraryPathsAccessible(libraryEntity);
@@ -101,8 +101,8 @@ public class LibraryProcessingService {
         bookRestorationService.restoreDeletedBooks(allLibraryFiles);
         bookDeletionService.purgeDisallowedFormats(libraryEntity);
         entityManager.clear();
-        // Re-fetch library entity to get fresh state after entity manager was cleared
-        libraryEntity = libraryRepository.findById(context.getLibraryId())
+        // Re-fetch library entity with books to get fresh state after entity manager was cleared
+        libraryEntity = libraryRepository.findByIdWithBooks(context.getLibraryId())
                 .orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(context.getLibraryId()));
 
         List<LibraryFile> newFiles = detectNewBookPaths(filteredFiles, libraryEntity);

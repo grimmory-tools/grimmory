@@ -6,13 +6,12 @@ import org.booklore.convertor.AudioFileChapterListConverter;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.util.ArchiveUtils;
 
-import java.util.List;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.util.List;
 
 @Entity
 @Getter
@@ -27,7 +26,7 @@ public class BookFileEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id", nullable = false)
     private BookEntity book;
 
