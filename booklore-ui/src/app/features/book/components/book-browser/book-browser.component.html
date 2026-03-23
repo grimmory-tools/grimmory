@@ -300,7 +300,7 @@
                 @for (book of scroll.viewPortItems; let i = $index; track book.id) {
                   <div
                     class="virtual-scroller-item"
-                    [ngStyle]="{width: currentCardSize.width + 'px', height: getCardHeight(book) + 'px'}">
+                    [ngStyle]="{width: currentCardSize.width + 'px', height: getCardHeight() + 'px'}">
                     <app-book-card
                       [index]="books.indexOf(book)"
                       [book]="book"
