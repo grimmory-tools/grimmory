@@ -1,8 +1,8 @@
-@if (selectedFetchedMetadata$ | async; as selectedFetchedMetadata) {
+@if (selectedFetchedMetadata(); as selectedFetchedMetadata) {
   <div class="metadata-container">
     <app-metadata-picker
       [fetchedMetadata]="selectedFetchedMetadata"
-      [book$]="book$"
+      [book]="book"
       [detailLoading]="detailLoading"
       (goBack)="onGoBack()">
     </app-metadata-picker>

@@ -1,4 +1,4 @@
-import {Component, ElementRef, inject, OnDestroy, OnInit, viewChild} from '@angular/core';
+import {Component, effect, ElementRef, inject, Injector, OnDestroy, OnInit, viewChild} from '@angular/core';
 import {Button} from 'primeng/button';
 
 import {MessageService} from 'primeng/api';
@@ -8,11 +8,11 @@ import {DEFAULT_VISIBLE_SORT_FIELDS, SortCriterion, User, UserService} from '../
 import {LibraryService} from '../../../book/service/library.service';
 import {ShelfService} from '../../../book/service/shelf.service';
 import {MagicShelfService} from '../../../magic-shelf/service/magic-shelf.service';
-import {combineLatest, Subject} from 'rxjs';
+import {Subject} from 'rxjs';
 import {FormsModule} from '@angular/forms';
 import {ToastModule} from 'primeng/toast';
 import {Tooltip} from 'primeng/tooltip';
-import {filter, take, takeUntil} from 'rxjs/operators';
+import {takeUntil} from 'rxjs/operators';
 import {ToggleSwitch} from 'primeng/toggleswitch';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {SortDirection, SortOption} from '../../../book/model/sort.model';
@@ -81,9 +81,21 @@ export class ViewPreferencesComponent implements OnInit, OnDestroy {
 
   viewModeOptions: {label: string; value: string; translationKey: string}[] = [];
 
-  libraryOptions: { label: string; value: number }[] = [];
-  shelfOptions: { label: string; value: number }[] = [];
-  magicShelfOptions: { label: string; value: number }[] = [];
+  get libraryOptions(): { label: string; value: number }[] {
+    return this.libraryService.libraries()
+      .filter(library => library.id !== undefined)
+      .map(library => ({label: library.name, value: library.id!}));
+  }
+  get shelfOptions(): { label: string; value: number }[] {
+    return this.shelfService.shelves()
+      .filter(shelf => shelf.id !== undefined)
+      .map(shelf => ({label: shelf.name, value: shelf.id!}));
+  }
+  get magicShelfOptions(): { label: string; value: number }[] {
+    return this.magicShelfService.shelves()
+      .filter(shelf => shelf.id !== undefined)
+      .map(shelf => ({label: shelf.name, value: shelf.id!}));
+  }
 
   selectedSort: string = 'title';
   selectedSortDir: 'ASC' | 'DESC' = 'ASC';
@@ -115,12 +127,15 @@ export class ViewPreferencesComponent implements OnInit, OnDestroy {
 
   private user: User | null = null;
   private readonly destroy$ = new Subject<void>();
+  private readonly injector = inject(Injector);
 
   private libraryService = inject(LibraryService);
   private shelfService = inject(ShelfService);
   private magicShelfService = inject(MagicShelfService);
   private userService = inject(UserService);
   private messageService = inject(MessageService);
+  private readonly currentUser = this.userService.currentUser;
+  private hasInitializedPreferences = false;
 
   ngOnInit(): void {
     this.rebuildTranslatedLabels();
@@ -137,72 +152,53 @@ export class ViewPreferencesComponent implements OnInit, OnDestroy {
       });
     });
 
-    combineLatest([
-      this.userService.userState$.pipe(filter(userState => !!userState?.user && userState.loaded), take(1)),
-      this.libraryService.libraryState$.pipe(filter(libraryState => !!libraryState?.libraries && libraryState.loaded), take(1)),
-      this.shelfService.shelfState$.pipe(filter(shelfState => !!shelfState?.shelves && shelfState.loaded), take(1)),
-      this.magicShelfService.shelvesState$.pipe(filter(magicState => !!magicState?.shelves && magicState.loaded), take(1))
-    ]).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(([userState, librariesState, shelfState, magicState]) => {
+    effect(() => {
+      const user = this.currentUser();
+      if (this.hasInitializedPreferences || !user) {
+        return;
+      }
 
-      this.user = userState.user;
-      const prefs = userState.user?.userSettings?.entityViewPreferences;
+      this.hasInitializedPreferences = true;
+      this.user = user;
+      const prefs = user.userSettings?.entityViewPreferences;
       const global = prefs?.global;
       this.selectedSort = global?.sortKey ?? 'title';
       this.selectedSortDir = global?.sortDir ?? 'ASC';
       this.selectedView = global?.view ?? 'GRID';
-      this.autoSaveMetadata = userState.user?.userSettings?.autoSaveMetadata ?? false;
+      this.autoSaveMetadata = user.userSettings?.autoSaveMetadata ?? false;
 
-      // Load multi-sort criteria, falling back to legacy single sort
       if (global?.sortCriteria && global.sortCriteria.length > 0) {
         this.sortCriteria = [...global.sortCriteria];
       } else {
         this.sortCriteria = [{field: this.selectedSort, direction: this.selectedSortDir}];
       }
 
-      // Build SortOption[] versions for the popover
-      this.allSortAsOptions = this.sortOptions.map(o => ({
-        label: this.t.translate('settingsView.librarySort.' + o.translationKey),
-        field: o.field,
+      this.allSortAsOptions = this.sortOptions.map(option => ({
+        label: this.t.translate('settingsView.librarySort.' + option.translationKey),
+        field: option.field,
         direction: SortDirection.ASCENDING
       }));
       this.globalSortAsOptions = this.toSortOptions(this.sortCriteria);
 
-      this.visibleSortFields = userState.user?.userSettings?.visibleSortFields
-        ? [...userState.user.userSettings.visibleSortFields]
+      this.visibleSortFields = user.userSettings?.visibleSortFields
+        ? [...user.userSettings.visibleSortFields]
         : [...DEFAULT_VISIBLE_SORT_FIELDS];
 
-      this.overrides = (prefs?.overrides ?? []).map(o => {
-        const sc = o.preferences.sortCriteria?.length
-          ? [...o.preferences.sortCriteria]
-          : [{field: o.preferences.sortKey, direction: o.preferences.sortDir ?? 'ASC'} as SortCriterion];
+      this.overrides = (prefs?.overrides ?? []).map(override => {
+        const sortCriteria = override.preferences.sortCriteria?.length
+          ? [...override.preferences.sortCriteria]
+          : [{field: override.preferences.sortKey, direction: override.preferences.sortDir ?? 'ASC'} as SortCriterion];
         return {
-          entityType: o.entityType,
-          library: o.entityId,
-          sort: o.preferences.sortKey,
-          sortDir: o.preferences.sortDir ?? 'ASC',
-          sortCriteria: sc,
-          sortCriteriaAsOptions: this.toSortOptions(sc),
-          view: o.preferences.view ?? 'GRID'
+          entityType: override.entityType,
+          library: override.entityId,
+          sort: override.preferences.sortKey,
+          sortDir: override.preferences.sortDir ?? 'ASC',
+          sortCriteria,
+          sortCriteriaAsOptions: this.toSortOptions(sortCriteria),
+          view: override.preferences.view ?? 'GRID'
         };
       });
-
-      this.libraryOptions = (librariesState.libraries ?? []).filter(lib => lib.id !== undefined).map(lib => ({
-        label: lib.name,
-        value: lib.id!
-      }));
-
-      this.shelfOptions = (shelfState?.shelves ?? []).filter(s => s.id !== undefined).map(s => ({
-        label: s.name,
-        value: s.id!
-      }));
-
-      this.magicShelfOptions = (magicState?.shelves ?? []).filter(s => s.id !== undefined).map(s => ({
-        label: s.name,
-        value: s.id!
-      }));
-    });
+    }, {injector: this.injector});
   }
 
   private rebuildTranslatedLabels(): void {

@@ -1,8 +1,6 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, computed, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {of, Subject} from 'rxjs';
-import {catchError, map, startWith, takeUntil} from 'rxjs/operators';
 import {CdkDragDrop, DragDropModule, moveItemInArray} from '@angular/cdk/drag-drop';
 import {Select} from 'primeng/select';
 import {Button} from 'primeng/button';
@@ -18,6 +16,8 @@ import {ReadingJourneyChartComponent} from './charts/reading-journey-chart/readi
 import {LibrariesSummaryService} from './service/libraries-summary.service';
 import {LibraryFilterService, LibraryOption} from './service/library-filter.service';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {BookService} from '../../../book/service/book.service';
+import {LibraryService} from '../../../book/service/library.service';
 
 interface ChartConfig {
   id: string;
@@ -49,90 +49,39 @@ interface ChartConfig {
   templateUrl: './library-stats.component.html',
   styleUrls: ['./library-stats.component.scss']
 })
-export class LibraryStatsComponent implements OnInit, OnDestroy {
+export class LibraryStatsComponent {
   private readonly libraryFilterService = inject(LibraryFilterService);
   private readonly librariesSummaryService = inject(LibrariesSummaryService);
+  private readonly bookService = inject(BookService);
+  private readonly libraryService = inject(LibraryService);
   private readonly t = inject(TranslocoService);
-  private readonly destroy$ = new Subject<void>();
 
-  public isLoading = true;
-  public hasData = false;
-  public hasError = false;
-  public libraryOptions: LibraryOption[] = [];
-  public selectedLibrary: LibraryOption | null = null;
+  public readonly isLoading = computed(() =>
+    this.bookService.isBooksLoading() || this.libraryService.isLibrariesLoading()
+  );
+  public readonly hasData = computed(() => this.booksSummary().totalBooks > 0);
+  public readonly libraryOptions = this.libraryFilterService.libraryOptions;
+  public readonly booksSummary = this.librariesSummaryService.booksSummary;
+  public readonly totalSize = this.librariesSummaryService.formattedSize;
+  public readonly selectedLibrary = computed<LibraryOption | null>(() => {
+    const options = this.libraryOptions();
+
+    if (options.length === 0) {
+      return null;
+    }
+
+    return options.find(option => option.id === this.libraryFilterService.selectedLibrary()) ?? options[0];
+  });
   public showConfigPanel = false;
 
   public chartsConfig: ChartConfig[] = this.buildChartsConfig();
 
-  booksSummary$ = this.librariesSummaryService.getBooksSummary().pipe(
-    catchError(error => {
-      console.error('Error loading books summary:', error);
-      this.hasError = true;
-      return of({totalBooks: 0, totalSizeKb: 0, totalAuthors: 0, totalSeries: 0, totalPublishers: 0});
-    })
-  );
-
-  public readonly totalBooks$ = this.booksSummary$.pipe(map(summary => summary.totalBooks));
-  public readonly totalAuthors$ = this.booksSummary$.pipe(map(summary => summary.totalAuthors));
-  public readonly totalSeries$ = this.booksSummary$.pipe(map(summary => summary.totalSeries));
-  public readonly totalPublishers$ = this.booksSummary$.pipe(map(summary => summary.totalPublishers));
-  public readonly totalSize$ = this.librariesSummaryService.getFormattedSize().pipe(catchError(() => of('0 KB')));
-
-  ngOnInit(): void {
-    this.loadLibraryOptions();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  onLibraryChange(): void {
-    if (!this.selectedLibrary) {
-      return;
-    }
-    const libraryId = this.selectedLibrary.id;
-    this.libraryFilterService.setSelectedLibrary(libraryId);
-  }
-
-  private loadLibraryOptions(): void {
-    this.libraryFilterService.getLibraryOptions()
-      .pipe(
-        takeUntil(this.destroy$),
-        startWith([]),
-        catchError(error => {
-          console.error('Error loading library options:', error);
-          this.hasError = true;
-          this.isLoading = false;
-          return of([]);
-        })
-      )
-      .subscribe({
-        next: (options) => {
-          this.libraryOptions = options;
-          this.initializeSelectedLibrary(options);
-        },
-        error: (error) => {
-          console.error('Subscription error:', error);
-          this.hasError = true;
-          this.isLoading = false;
-        }
-      });
-  }
-
-  private initializeSelectedLibrary(options: LibraryOption[]): void {
-    if (options.length === 0) {
-      this.hasData = false;
-      this.isLoading = false;
+  onLibraryChange(selectedLibrary: LibraryOption | null): void {
+    if (!selectedLibrary) {
       return;
     }
 
-    if (!this.selectedLibrary) {
-      this.hasData = true;
-      this.isLoading = false;
-      this.selectedLibrary = options[0];
-      this.libraryFilterService.setSelectedLibrary(this.selectedLibrary.id);
-    }
+    this.libraryFilterService.setSelectedLibrary(selectedLibrary.id);
   }
 
   public toggleConfigPanel(): void {

@@ -1,70 +1,54 @@
 import {inject, Injectable} from '@angular/core';
-import {BookStateService} from './book-state.service';
-import {Book, BookMetadata} from '../model/book.model';
+import {Book} from '../model/book.model';
+import {QueryClient} from '@tanstack/angular-query-experimental';
+import {BOOKS_QUERY_KEY} from './book-query-keys';
+import {
+  addBookToCache,
+  invalidateBookDetailQueries,
+  invalidateBooksQuery,
+  patchBooksInCache,
+  removeBookQueries,
+} from './book-query-cache';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BookSocketService {
-  private bookStateService = inject(BookStateService);
+  private queryClient = inject(QueryClient);
 
   handleNewlyCreatedBook(book: Book): void {
-    const currentState = this.bookStateService.getCurrentBookState();
-    const updatedBooks = currentState.books ? [...currentState.books] : [];
-    const bookIndex = updatedBooks.findIndex(existingBook => existingBook.id === book.id);
-    if (bookIndex > -1) {
-      updatedBooks[bookIndex] = book;
-    } else {
-      updatedBooks.push(book);
-    }
-    this.bookStateService.updateBookState({...currentState, books: updatedBooks});
+    addBookToCache(this.queryClient, book);
   }
 
   handleRemovedBookIds(removedBookIds: number[]): void {
-    const currentState = this.bookStateService.getCurrentBookState();
-    const filteredBooks = (currentState.books || []).filter(book => !removedBookIds.includes(book.id));
-    this.bookStateService.updateBookState({...currentState, books: filteredBooks});
+    invalidateBooksQuery(this.queryClient);
+    removeBookQueries(this.queryClient, removedBookIds);
   }
 
   handleBookUpdate(updatedBook: Book): void {
-    const currentState = this.bookStateService.getCurrentBookState();
-    const updatedBooks = (currentState.books || []).map(book =>
-      book.id === updatedBook.id ? updatedBook : book
-    );
-    this.bookStateService.updateBookState({...currentState, books: updatedBooks});
+    patchBooksInCache(this.queryClient, [updatedBook]);
   }
 
   handleMultipleBookUpdates(updatedBooks: Book[]): void {
-    const currentState = this.bookStateService.getCurrentBookState();
-    const currentBooks = currentState.books || [];
-
-    const updatedMap = new Map(updatedBooks.map(book => [book.id, book]));
-
-    const mergedBooks = currentBooks.map(book =>
-      updatedMap.has(book.id) ? updatedMap.get(book.id)! : book
-    );
-
-    this.bookStateService.updateBookState({...currentState, books: mergedBooks});
+    patchBooksInCache(this.queryClient, updatedBooks);
   }
 
-  handleBookMetadataUpdate(bookId: number, updatedMetadata: BookMetadata): void {
-    const currentState = this.bookStateService.getCurrentBookState();
-    const updatedBooks = (currentState.books || []).map(book => {
-      return book.id === bookId ? {...book, metadata: updatedMetadata} : book;
-    });
-    this.bookStateService.updateBookState({...currentState, books: updatedBooks});
+  handleBookMetadataUpdate(bookId: number): void {
+    invalidateBooksQuery(this.queryClient);
+    invalidateBookDetailQueries(this.queryClient, [bookId]);
   }
 
   handleMultipleBookCoverPatches(patches: { id: number; coverUpdatedOn: string }[]): void {
     if (!patches || patches.length === 0) return;
-    const currentState = this.bookStateService.getCurrentBookState();
-    const books = currentState.books || [];
-    patches.forEach(p => {
-      const index = books.findIndex(b => b.id === p.id);
-      if (index !== -1 && books[index].metadata) {
-        books[index].metadata.coverUpdatedOn = p.coverUpdatedOn;
-      }
-    });
-    this.bookStateService.updateBookState({...currentState, books});
+    const patchMap = new Map(patches.map(p => [p.id, p.coverUpdatedOn]));
+    this.queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, current =>
+      (current ?? []).map(book => {
+        const coverUpdatedOn = patchMap.get(book.id);
+        return coverUpdatedOn && book.metadata
+          ? {...book, metadata: {...book.metadata, coverUpdatedOn}}
+          : book;
+      })
+    );
+    invalidateBookDetailQueries(this.queryClient, patches.map(p => p.id));
   }
 }

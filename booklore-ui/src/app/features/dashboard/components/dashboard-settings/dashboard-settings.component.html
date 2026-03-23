@@ -28,9 +28,10 @@
 
             <div class="scroller-fields">
               <div class="scroller-field" [class.expanded]="scroller.type !== 'magicShelf'">
-                <label>{{ t('type') }}</label>
+                <label [for]="'dashboard-scroller-type-' + scroller.id">{{ t('type') }}</label>
                 <p-select
                   fluid
+                  [inputId]="'dashboard-scroller-type-' + scroller.id"
                   [options]="availableScrollerTypes"
                   [(ngModel)]="scroller.type"
                   (onChange)="onScrollerTypeChange(scroller)"
@@ -41,10 +42,11 @@
 
               @if (scroller.type === 'magicShelf') {
                 <div class="scroller-field">
-                  <label>{{ t('magicShelf') }}</label>
+                  <label [for]="'dashboard-scroller-magic-shelf-' + scroller.id">{{ t('magicShelf') }}</label>
                   <p-select
                     fluid
-                    [options]="(magicShelves$ | async)!"
+                    [inputId]="'dashboard-scroller-magic-shelf-' + scroller.id"
+                    [options]="magicShelves()"
                     [(ngModel)]="scroller.magicShelfId"
                     [placeholder]="t('selectMagicShelf')"
                     appendTo="body">
@@ -52,9 +54,10 @@
                 </div>
 
                 <div class="scroller-field">
-                  <label>{{ t('sortField') }}</label>
+                  <label [for]="'dashboard-scroller-sort-field-' + scroller.id">{{ t('sortField') }}</label>
                   <p-select
                     fluid
+                    [inputId]="'dashboard-scroller-sort-field-' + scroller.id"
                     [options]="sortFieldOptions"
                     [(ngModel)]="scroller.sortField"
                     [placeholder]="t('selectField')"
@@ -63,9 +66,10 @@
                 </div>
 
                 <div class="scroller-field">
-                  <label>{{ t('direction') }}</label>
+                  <label [for]="'dashboard-scroller-sort-direction-' + scroller.id">{{ t('direction') }}</label>
                   <p-select
                     fluid
+                    [inputId]="'dashboard-scroller-sort-direction-' + scroller.id"
                     [options]="sortDirectionOptions"
                     [(ngModel)]="scroller.sortDirection"
                     [placeholder]="t('selectDirection')"
@@ -76,9 +80,10 @@
             </div>
 
             <div class="scroller-field max-items-field">
-              <label>{{ t('maxItems') }}</label>
+              <label [for]="'dashboard-scroller-max-items-' + scroller.id">{{ t('maxItems') }}</label>
               <p-inputNumber
                 fluid
+                [inputId]="'dashboard-scroller-max-items-' + scroller.id"
                 [(ngModel)]="scroller.maxItems"
                 [min]="MIN_ITEMS"
                 [max]="MAX_ITEMS"

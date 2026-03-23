@@ -1,12 +1,10 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {TranslocoService, TranslocoPipe} from '@jsverse/transloco';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
 import {Book} from '../../../../book/model/book.model';
 import {ReaderIconComponent} from '../../../ebook-reader/shared/icon.component';
-import {CbxFooterService, CbxFooterState} from './cbx-footer.service';
+import {CbxFooterService} from './cbx-footer.service';
 
 @Component({
   selector: 'app-cbx-footer',
@@ -15,45 +13,23 @@ import {CbxFooterService, CbxFooterState} from './cbx-footer.service';
   templateUrl: './cbx-footer.component.html',
   styleUrls: ['./cbx-footer.component.scss']
 })
-export class CbxFooterComponent implements OnInit, OnDestroy {
-  private footerService = inject(CbxFooterService);
+export class CbxFooterComponent {
+  private readonly footerService = inject(CbxFooterService);
   private readonly t = inject(TranslocoService);
-  private destroy$ = new Subject<void>();
 
-  isVisible = false;
-  state: CbxFooterState = {
-    currentPage: 0,
-    totalPages: 0,
-    isTwoPageView: false,
-    previousBookInSeries: null,
-    nextBookInSeries: null,
-    hasSeries: false
-  };
+  readonly forceVisible = this.footerService.forceVisible;
+  readonly state = this.footerService.state;
 
   goToPageInput: number | null = null;
 
-  ngOnInit(): void {
-    this.footerService.state$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(state => this.state = state);
-
-    this.footerService.forceVisible$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(visible => this.isVisible = visible);
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   get displayPage(): number {
-    return this.state.currentPage + 1;
+    return this.state().currentPage + 1;
   }
 
   get displaySecondPage(): number | null {
-    if (this.state.isTwoPageView && this.state.currentPage + 1 < this.state.totalPages) {
-      return this.state.currentPage + 2;
+    const state = this.state();
+    if (state.isTwoPageView && state.currentPage + 1 < state.totalPages) {
+      return state.currentPage + 2;
     }
     return null;
   }
@@ -63,15 +39,16 @@ export class CbxFooterComponent implements OnInit, OnDestroy {
   }
 
   get canGoPrevious(): boolean {
-    return this.state.currentPage > 0;
+    return this.state().currentPage > 0;
   }
 
   get canGoNext(): boolean {
-    return this.state.currentPage < this.state.totalPages - 1;
+    const state = this.state();
+    return state.currentPage < state.totalPages - 1;
   }
 
   get sliderTicks(): number[] {
-    const totalPages = this.state.totalPages;
+    const totalPages = this.state().totalPages;
     if (totalPages <= 10) {
       return Array.from({length: totalPages}, (_, i) => i + 1);
     } else if (totalPages <= 20) {
@@ -125,7 +102,7 @@ export class CbxFooterComponent implements OnInit, OnDestroy {
   }
 
   onGoToPage(): void {
-    if (this.goToPageInput !== null && this.goToPageInput >= 1 && this.goToPageInput <= this.state.totalPages) {
+    if (this.goToPageInput !== null && this.goToPageInput >= 1 && this.goToPageInput <= this.state().totalPages) {
       this.footerService.emitGoToPage(this.goToPageInput);
       this.goToPageInput = null;
     }
@@ -146,13 +123,15 @@ export class CbxFooterComponent implements OnInit, OnDestroy {
   }
 
   getPreviousBookTooltip(): string {
-    if (!this.state.previousBookInSeries) return this.t.translate('readerCbx.footer.noPreviousBook');
-    return this.t.translate('readerCbx.footer.previousBookTooltip', { title: this.getBookDisplayTitle(this.state.previousBookInSeries) });
+    const previousBookInSeries = this.state().previousBookInSeries;
+    if (!previousBookInSeries) return this.t.translate('readerCbx.footer.noPreviousBook');
+    return this.t.translate('readerCbx.footer.previousBookTooltip', {title: this.getBookDisplayTitle(previousBookInSeries)});
   }
 
   getNextBookTooltip(): string {
-    if (!this.state.nextBookInSeries) return this.t.translate('readerCbx.footer.noNextBook');
-    return this.t.translate('readerCbx.footer.nextBookTooltip', { title: this.getBookDisplayTitle(this.state.nextBookInSeries) });
+    const nextBookInSeries = this.state().nextBookInSeries;
+    if (!nextBookInSeries) return this.t.translate('readerCbx.footer.noNextBook');
+    return this.t.translate('readerCbx.footer.nextBookTooltip', {title: this.getBookDisplayTitle(nextBookInSeries)});
   }
 
   private getBookDisplayTitle(book: Book): string {

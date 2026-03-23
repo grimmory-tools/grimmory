@@ -1,4 +1,4 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Injectable, signal} from '@angular/core';
 import {Subject} from 'rxjs';
 import {switchMap, takeUntil, tap} from 'rxjs/operators';
 import {of} from 'rxjs';
@@ -43,27 +43,19 @@ export class ReaderSelectionService {
   private previewColor: string | null = null;
   private previewStyle: AnnotationStyle | null = null;
 
-  private stateSubject = new Subject<SelectionState>();
-  public state$ = this.stateSubject.asObservable();
+  private readonly defaultState: SelectionState = {
+    visible: false,
+    position: {x: 0, y: 0},
+    showBelow: false,
+    overlappingAnnotationId: null,
+    selectedText: ''
+  };
+
+  private readonly _state = signal<SelectionState>(this.defaultState);
+  readonly state = this._state.asReadonly();
 
   private annotationsChangedSubject = new Subject<Annotation[]>();
   public annotationsChanged$ = this.annotationsChangedSubject.asObservable();
-
-  get visible(): boolean {
-    return this._visible;
-  }
-
-  get position(): { x: number; y: number } {
-    return this._position;
-  }
-
-  get showBelow(): boolean {
-    return this._showBelow;
-  }
-
-  get overlappingAnnotationId(): number | null {
-    return this._overlappingAnnotationId;
-  }
 
   initialize(bookId: number, destroy$: Subject<void>): void {
     this.bookId = bookId;
@@ -286,7 +278,7 @@ export class ReaderSelectionService {
   }
 
   private emitState(): void {
-    this.stateSubject.next({
+    this._state.set({
       visible: this._visible,
       position: this._position,
       showBelow: this._showBelow,
@@ -305,6 +297,7 @@ export class ReaderSelectionService {
     this.previewCfi = null;
     this.previewColor = null;
     this.previewStyle = null;
+    this._state.set(this.defaultState);
   }
 
   getCurrentSelection(): SelectionDetail | null {

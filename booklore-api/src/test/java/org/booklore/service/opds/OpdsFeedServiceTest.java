@@ -495,10 +495,11 @@ class OpdsFeedServiceTest {
         var method = OpdsFeedService.class.getDeclaredMethod("fileMimeType", BookFile.class);
         method.setAccessible(true);
 
+        // The reliable path: archive type is cached during indexing
         BookFile bookFile = BookFile.builder()
                 .bookType(BookFileType.CBX)
                 .fileName("comic.cbr")
-                .archiveType(ArchiveUtils.ArchiveType.UNKNOWN)
+                .archiveType(ArchiveUtils.ArchiveType.RAR)
                 .build();
 
         String mimeType = (String) method.invoke(opdsFeedService, bookFile);

@@ -1,8 +1,6 @@
-import {Component, inject, Input, OnDestroy, OnInit} from '@angular/core';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
+import {Component, inject, Input} from '@angular/core';
 import {TranslocoPipe} from '@jsverse/transloco';
-import {CbxHeaderService, CbxHeaderState} from './cbx-header.service';
+import {CbxHeaderService} from './cbx-header.service';
 import {ReaderIconComponent} from '../../../ebook-reader';
 import {CommonModule} from '@angular/common';
 
@@ -13,39 +11,17 @@ import {CommonModule} from '@angular/common';
   templateUrl: './cbx-header.component.html',
   styleUrls: ['./cbx-header.component.scss']
 })
-export class CbxHeaderComponent implements OnInit, OnDestroy {
-  private headerService = inject(CbxHeaderService);
-  private destroy$ = new Subject<void>();
+export class CbxHeaderComponent {
+  private readonly headerService = inject(CbxHeaderService);
 
   @Input() isCurrentPageBookmarked = false;
   @Input() currentPageHasNotes = false;
 
-  isVisible = true;
+  readonly forceVisible = this.headerService.forceVisible;
+  readonly state = this.headerService.state;
+  readonly bookTitle = this.headerService.bookTitle;
+
   overflowOpen = false;
-  state: CbxHeaderState = {
-    isFullscreen: false,
-    isSlideshowActive: false,
-    isMagnifierActive: false
-  };
-
-  get bookTitle(): string {
-    return this.headerService.title;
-  }
-
-  ngOnInit(): void {
-    this.headerService.forceVisible$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(visible => this.isVisible = visible);
-
-    this.headerService.state$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(state => this.state = state);
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 
   onOpenSidebar(): void {
     this.headerService.openSidebar();

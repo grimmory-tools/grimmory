@@ -1,5 +1,5 @@
-import {inject, Injectable} from '@angular/core';
-import {BehaviorSubject, Subject} from 'rxjs';
+import {inject, Injectable, signal} from '@angular/core';
+import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 import {MessageService} from 'primeng/api';
 import {TranslocoService} from '@jsverse/transloco';
@@ -28,19 +28,11 @@ export class ReaderNoteService {
   private bookId!: number;
   private destroy$ = new Subject<void>();
 
-  private dialogStateSubject = new BehaviorSubject<NoteDialogState>({
+  private readonly _dialogState = signal<NoteDialogState>({
     visible: false,
     data: null
   });
-  public dialogState$ = this.dialogStateSubject.asObservable();
-
-  get showNoteDialog(): boolean {
-    return this.dialogStateSubject.value.visible;
-  }
-
-  get noteDialogData(): NoteDialogData | null {
-    return this.dialogStateSubject.value.data;
-  }
+  readonly dialogState = this._dialogState.asReadonly();
 
   initialize(bookId: number, destroy$: Subject<void>): void {
     this.bookId = bookId;
@@ -63,7 +55,7 @@ export class ReaderNoteService {
   openNewNoteDialog(): void {
     const selectionData = this.selectionService.getCurrentSelection();
     if (selectionData) {
-      this.dialogStateSubject.next({
+      this._dialogState.set({
         visible: true,
         data: {
           cfi: selectionData.cfi,
@@ -76,14 +68,14 @@ export class ReaderNoteService {
   }
 
   openEditDialog(data: NoteDialogData): void {
-    this.dialogStateSubject.next({
+    this._dialogState.set({
       visible: true,
       data
     });
   }
 
   saveNote(result: NoteDialogResult): void {
-    const data = this.dialogStateSubject.value.data;
+    const data = this._dialogState().data;
     if (!data) return;
 
     if (data.noteId) {
@@ -155,14 +147,14 @@ export class ReaderNoteService {
   }
 
   closeDialog(): void {
-    this.dialogStateSubject.next({
+    this._dialogState.set({
       visible: false,
       data: null
     });
   }
 
   reset(): void {
-    this.dialogStateSubject.next({
+    this._dialogState.set({
       visible: false,
       data: null
     });

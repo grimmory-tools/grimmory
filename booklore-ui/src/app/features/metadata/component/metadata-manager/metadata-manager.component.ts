@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, effect, inject, OnDestroy, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Tab, TabList, TabPanel, TabPanels, Tabs} from 'primeng/tabs';
 import {TableModule} from 'primeng/table';
@@ -77,6 +77,16 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
   private readonly t = inject(TranslocoService);
 
   private routeSub!: Subscription;
+  private readonly syncMetadataEffect = effect(() => {
+    const isLoading = this.bookService.isBooksLoading();
+    this.loading = isLoading;
+
+    if (isLoading) {
+      return;
+    }
+
+    this.extractMetadata(this.bookService.books());
+  });
 
   authors: MetadataItem[] = [];
   categories: MetadataItem[] = [];
@@ -136,7 +146,6 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
   ];
 
   ngOnInit() {
-    this.loadMetadata();
     this.routeSub = this.route.queryParams.subscribe(params => {
       const tabParam = params['tab'] as MetadataType;
       if (this.validTabs.includes(tabParam)) {
@@ -162,16 +171,6 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.routeSub.unsubscribe();
-  }
-
-  loadMetadata() {
-    this.loading = true;
-    this.bookService.bookState$.subscribe(state => {
-      if (state.loaded && state.books) {
-        this.extractMetadata(state.books);
-        this.loading = false;
-      }
-    });
   }
 
   private extractMetadata(books: Book[]) {
@@ -346,7 +345,6 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
         this.renameTarget = '';
         this.mergingInProgress = false;
         this.loading = false;
-        this.loadMetadata();
       },
       error: (error) => {
         this.messageService.add({
@@ -365,7 +363,6 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
   }
 
   confirmMerge() {
-    const selected = this.getSelectedItems(this.currentMergeType);
     if (!this.mergeTarget.trim()) {
       this.messageService.add({
         severity: 'warn',
@@ -423,7 +420,6 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
         this.clearSelection(this.currentMergeType);
         this.mergingInProgress = false;
         this.loading = false;
-        this.loadMetadata();
       },
       error: (error) => {
         this.messageService.add({
@@ -479,7 +475,6 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
         this.clearSelection(this.currentMergeType);
         this.deletingInProgress = false;
         this.loading = false;
-        this.loadMetadata();
       },
       error: (error) => {
         this.messageService.add({

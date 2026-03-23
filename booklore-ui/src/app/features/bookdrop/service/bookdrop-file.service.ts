@@ -1,6 +1,6 @@
-import {inject, Injectable, OnDestroy} from '@angular/core';
+import {effect, inject, Injectable, OnDestroy} from '@angular/core';
 import {BehaviorSubject, Subscription} from 'rxjs';
-import {map, filter, take} from 'rxjs/operators';
+import {map} from 'rxjs/operators';
 import {BookdropFileApiService} from './bookdrop-file-api.service';
 import {AuthService} from '../../../shared/service/auth.service';
 import {UserService} from '../../settings/user-management/user.service';
@@ -30,21 +30,20 @@ export class BookdropFileService implements OnDestroy {
   private authService = inject(AuthService);
   private subscriptions = new Subscription();
   private userService = inject(UserService);
+  private hasInitialized = false;
 
   constructor() {
-    this.userService.userState$
-      .pipe(
-        filter(state => state.loaded && !!state.user),
-        take(1)
-      )
-      .subscribe(state => {
-        const user = state.user!;
-        if (user.permissions.admin || user.permissions.canAccessBookdrop) {
-          this.authService.token$
-            .pipe(filter(t => !!t), take(1))
-            .subscribe(() => this.refresh());
-        }
-      });
+    effect(() => {
+      const user = this.userService.currentUser();
+      if (this.hasInitialized || !user) {
+        return;
+      }
+      this.hasInitialized = true;
+
+      if ((user.permissions.admin || user.permissions.canAccessBookdrop) && this.authService.token()) {
+        this.refresh();
+      }
+    });
   }
 
   handleIncomingFile(summary: BookdropFileNotification): void {

@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, effect, inject} from '@angular/core';
 
 import {FormsModule} from '@angular/forms';
 import {InputText} from 'primeng/inputtext';
@@ -8,8 +8,6 @@ import {ToastModule} from 'primeng/toast';
 import {MessageService} from 'primeng/api';
 import {KoreaderService} from './koreader.service';
 import {UserService} from '../../../user-management/user.service';
-import {filter, takeUntil} from 'rxjs/operators';
-import {Subject} from 'rxjs';
 import {ExternalDocLinkComponent} from '../../../../../shared/components/external-doc-link/external-doc-link.component';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 
@@ -30,7 +28,7 @@ import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/tran
   templateUrl: './koreader-settings-component.html',
   styleUrls: ['./koreader-settings-component.scss']
 })
-export class KoreaderSettingsComponent implements OnInit, OnDestroy {
+export class KoreaderSettingsComponent {
   editMode = true;
   showPassword = false;
   koReaderSyncEnabled = false;
@@ -45,21 +43,20 @@ export class KoreaderSettingsComponent implements OnInit, OnDestroy {
   private readonly userService = inject(UserService);
   private readonly t = inject(TranslocoService);
 
-  private readonly destroy$ = new Subject<void>();
   hasPermission = false;
+  private prevHasPermission = false;
 
-  ngOnInit() {
-    let prevHasPermission = false;
-    this.userService.userState$.pipe(
-      filter(userState => !!userState?.user && userState.loaded),
-      takeUntil(this.destroy$)
-    ).subscribe(userState => {
-      const currHasPermission = (userState.user?.permissions.canSyncKoReader || userState.user?.permissions.admin) ?? false;
+  constructor() {
+    effect(() => {
+      const user = this.userService.currentUser();
+      if (!user) return;
+
+      const currHasPermission = (user.permissions.canSyncKoReader || user.permissions.admin) ?? false;
       this.hasPermission = currHasPermission;
-      if (currHasPermission && !prevHasPermission) {
+      if (currHasPermission && !this.prevHasPermission) {
         this.loadKoreaderSettings();
       }
-      prevHasPermission = currHasPermission;
+      this.prevHasPermission = currHasPermission;
     });
   }
 
@@ -168,8 +165,4 @@ export class KoreaderSettingsComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 }

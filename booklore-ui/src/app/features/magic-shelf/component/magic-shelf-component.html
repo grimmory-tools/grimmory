@@ -29,7 +29,7 @@
         </div>
         <div class="icon-picker-section">
           <div class="icon-picker-wrapper">
-            <label>{{ t('form.shelfIcon') }}</label>
+            <span>{{ t('form.shelfIcon') }}</span>
             @if (selectedIcon) {
               <div class="selected-icon-display">
                 <div class="icon-display-container" (click)="openIconPicker()" (keydown.enter)="openIconPicker()" tabindex="0" role="button">
@@ -116,11 +116,11 @@
     </div>
   </div>
 
-  <ng-template #groupTemplate let-group="group">
+      <ng-template #groupTemplate let-group="group">
     <div class="group-container" [formGroup]="group">
       <div class="group-header">
-        <label>{{ t('group.condition') }}</label>
-        <p-select [options]="conditionOptions" formControlName="join" class="condition-select" appendTo="body" [showClear]="false"/>
+        <label [for]="getControlId(group.get('join'), 'magic-shelf-group-join')">{{ t('group.condition') }}</label>
+        <p-select [inputId]="getControlId(group.get('join'), 'magic-shelf-group-join')" [options]="conditionOptions" formControlName="join" class="condition-select" appendTo="body" [showClear]="false"/>
         <p-button icon="pi pi-plus" size="small" text (click)="addRule(group)" [label]="t('actions.addRule')" outlined></p-button>
         <p-button icon="pi pi-folder-open" size="small" text (click)="addGroup(group)" [label]="t('actions.addGroup')" outlined></p-button>
         @if (group.parent) {
@@ -187,11 +187,11 @@
                     } @else if (ruleCtrl.get('field')?.value === 'fileType') {
                       <p-multiSelect [options]="fileType" formControlName="value" display="chip" class="value-input" appendTo="body" [placeholder]="t('placeholders.selectFileTypes')"></p-multiSelect>
                     } @else if (ruleCtrl.get('field')?.value === 'library') {
-                      <p-multiSelect [options]="libraryOptions" formControlName="value" display="chip" class="value-input" appendTo="body" [placeholder]="t('placeholders.selectLibraries')"></p-multiSelect>
+                      <p-multiSelect [options]="libraryOptions()" formControlName="value" display="chip" class="value-input" appendTo="body" [placeholder]="t('placeholders.selectLibraries')"></p-multiSelect>
                     } @else if (ruleCtrl.get('field')?.value === 'shelf') {
-                      <p-multiSelect [options]="shelfOptions" formControlName="value" display="chip" class="value-input" appendTo="body" [placeholder]="t('placeholders.selectShelves')"></p-multiSelect>
+                      <p-multiSelect [options]="shelfOptions()" formControlName="value" display="chip" class="value-input" appendTo="body" [placeholder]="t('placeholders.selectShelves')"></p-multiSelect>
                     } @else if (ruleCtrl.get('field')?.value === 'categories') {
-                      <p-multiSelect [options]="categoryOptions" formControlName="value" display="chip" class="value-input" appendTo="body" [placeholder]="t('placeholders.selectGenres')"></p-multiSelect>
+                      <p-multiSelect [options]="categoryOptions()" formControlName="value" display="chip" class="value-input" appendTo="body" [placeholder]="t('placeholders.selectGenres')"></p-multiSelect>
                     } @else if (ruleCtrl.get('field')?.value === 'contentRating') {
                       <p-multiSelect [options]="contentRatingOptions" formControlName="value" display="chip" class="value-input" appendTo="body" [placeholder]="t('placeholders.selectContentRatings')"></p-multiSelect>
                     } @else {
@@ -204,11 +204,11 @@
                   } @else if (ruleCtrl.get('field')?.value === 'fileType') {
                     <p-select [options]="fileType" formControlName="value" [placeholder]="t('placeholders.selectFileType')" appendTo="body" class="value-input"></p-select>
                   } @else if (ruleCtrl.get('field')?.value === 'library') {
-                    <p-select [options]="libraryOptions" formControlName="value" [placeholder]="t('placeholders.selectLibrary')" appendTo="body" class="value-input"></p-select>
+                    <p-select [options]="libraryOptions()" formControlName="value" [placeholder]="t('placeholders.selectLibrary')" appendTo="body" class="value-input"></p-select>
                   } @else if (ruleCtrl.get('field')?.value === 'shelf') {
-                    <p-select [options]="shelfOptions" formControlName="value" [placeholder]="t('placeholders.selectShelf')" appendTo="body" class="value-input"></p-select>
+                    <p-select [options]="shelfOptions()" formControlName="value" [placeholder]="t('placeholders.selectShelf')" appendTo="body" class="value-input"></p-select>
                   } @else if (ruleCtrl.get('field')?.value === 'categories') {
-                    <p-select [options]="categoryOptions" formControlName="value" [placeholder]="t('placeholders.selectGenre')" appendTo="body" class="value-input"></p-select>
+                    <p-select [options]="categoryOptions()" formControlName="value" [placeholder]="t('placeholders.selectGenre')" appendTo="body" class="value-input"></p-select>
                   } @else if (ruleCtrl.get('field')?.value === 'contentRating') {
                     <p-select [options]="contentRatingOptions" formControlName="value" [placeholder]="t('placeholders.selectContentRating')" appendTo="body" class="value-input"></p-select>
                   } @else {

@@ -33,9 +33,9 @@
       class="menu-item-container"
       [class.active-route-container]="isRouteActive"
       (click)="triggerLink()"
-    >
-      @if ((item.routerLink && !item.items)) {
-        <a
+      >
+        @if ((item.routerLink && !item.items)) {
+          <a
           #link
           (click)="itemClick($event)"
           [ngClass]="item.class"
@@ -53,7 +53,7 @@
           tabindex="0"
           pRipple
         >
-          @if (item.unhealthy$ | async) {
+          @if (item.unhealthy) {
             <span
               class="library-health-dot"
               [pTooltip]="'common.libraryPathInaccessible' | transloco"
@@ -82,7 +82,7 @@
           [text]="true"
           [outlined]="false"
           [rounded]="true"
-          [label]="hovered ? '' : (item.bookCount$ | async)?.toString() || ''"
+          [label]="hovered ? '' : item.bookCount?.toString() || ''"
           [icon]="hovered ? 'pi pi-ellipsis-v' : ''"
           class="entity-menu-button"
         ></p-button>
@@ -92,7 +92,7 @@
 
         @if (item.type === 'Library' && (!admin && !canManipulateLibrary) || item.type === 'All Books' || item.type === 'Series' || item.type === 'Authors' || item.label === 'Unshelved' || item.label === 'Kobo') {
           <p class="book-count">
-        {{ formatCount(item.bookCount$ | async) }}
+        {{ formatCount(item.bookCount) }}
       </p>
         }
   </span>

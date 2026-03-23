@@ -1,4 +1,4 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, effect, inject, OnInit} from '@angular/core';
 import {AuthService} from '../../service/auth.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {FormsModule} from '@angular/forms';
@@ -6,9 +6,8 @@ import {Password} from 'primeng/password';
 import {Button} from 'primeng/button';
 import {Message} from 'primeng/message';
 import {InputText} from 'primeng/inputtext';
-import {Observable} from 'rxjs';
-import {filter, take} from 'rxjs/operators';
-import {AppSettingsService, PublicAppSettings} from '../../service/app-settings.service';
+import {take} from 'rxjs/operators';
+import {AppSettingsService} from '../../service/app-settings.service';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {OidcService} from '../../../core/security/oidc.service';
 
@@ -35,7 +34,6 @@ export class LoginComponent implements OnInit {
   isOidcLoginInProgress = false;
   showLocalLogin = true;
   private oidcOnlyAutoRedirect = false;
-
   private authService = inject(AuthService);
   private oidcService = inject(OidcService);
   private appSettingsService = inject(AppSettingsService);
@@ -43,7 +41,24 @@ export class LoginComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private translocoService = inject(TranslocoService);
 
-  publicAppSettings$: Observable<PublicAppSettings | null> = this.appSettingsService.publicAppSettings$;
+  private readonly initPublicSettingsEffect = effect(() => {
+    const publicSettings = this.appSettingsService.publicAppSettings();
+    if (!publicSettings) return;
+
+    this.oidcEnabled = publicSettings.oidcEnabled;
+    this.oidcName = publicSettings.oidcProviderDetails?.providerName || 'OIDC';
+
+    if (publicSettings.oidcForceOnlyMode) {
+      this.route.queryParams.pipe(take(1)).subscribe(params => {
+        const isLocalMode = params['local'] === 'true';
+        const hasOidcError = !!params['oidcError'];
+
+        if (!isLocalMode && !hasOidcError) {
+          this.handleAutoRedirect();
+        }
+      });
+    }
+  });
 
   private static readonly OIDC_ERROR_KEYS: Record<string, string> = {
     'state_mismatch': 'auth.login.oidcErrors.stateMismatch',
@@ -67,24 +82,6 @@ export class LoginComponent implements OnInit {
       }
     });
 
-    this.publicAppSettings$
-      .pipe(
-        filter(settings => settings != null),
-        take(1)
-      )
-      .subscribe(publicSettings => {
-        this.oidcEnabled = publicSettings!.oidcEnabled;
-        this.oidcName = publicSettings!.oidcProviderDetails?.providerName || 'OIDC';
-
-        this.route.queryParams.pipe(take(1)).subscribe(params => {
-          const isLocalMode = params['local'] === 'true';
-          const hasOidcError = !!params['oidcError'];
-
-          if (publicSettings!.oidcForceOnlyMode && !isLocalMode && !hasOidcError) {
-            this.handleAutoRedirect();
-          }
-        });
-      });
   }
 
   private handleAutoRedirect(): void {
@@ -156,7 +153,7 @@ export class LoginComponent implements OnInit {
     this.errorMessage = '';
 
     try {
-      const publicSettings = this.appSettingsService.currentPublicSettings;
+      const publicSettings = this.appSettingsService.publicAppSettings();
       if (!publicSettings?.oidcProviderDetails) {
         this.errorMessage = this.translocoService.translate('auth.login.oidcInitError');
         this.isOidcLoginInProgress = false;

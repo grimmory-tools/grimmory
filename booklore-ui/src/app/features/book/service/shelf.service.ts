@@ -1,14 +1,17 @@
-import {inject, Injectable} from '@angular/core';
+import {computed, effect, inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {BehaviorSubject, combineLatest, Observable, of} from 'rxjs';
-import {tap, catchError, map, shareReplay, finalize} from 'rxjs/operators';
+import {lastValueFrom, Observable} from 'rxjs';
+import {tap} from 'rxjs/operators';
+import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
 
 import {Shelf} from '../model/shelf.model';
-import {ShelfState} from '../model/state/shelf-state.model';
 import {BookService} from './book.service';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {Book} from '../model/book.model';
 import {UserService} from '../../settings/user-management/user.service';
+import {AuthService} from '../../../shared/service/auth.service';
+
+const SHELVES_QUERY_KEY = ['shelves'] as const;
 
 @Injectable({providedIn: 'root'})
 export class ShelfService {
@@ -16,65 +19,60 @@ export class ShelfService {
   private http = inject(HttpClient);
   private bookService = inject(BookService);
   private userService = inject(UserService);
+  private authService = inject(AuthService);
+  private queryClient = inject(QueryClient);
+  private readonly token = this.authService.token;
 
-  private shelfStateSubject = new BehaviorSubject<ShelfState>({
-    shelves: null,
-    loaded: false,
-    error: null,
+  private shelvesQuery = injectQuery(() => ({
+    ...this.getShelvesQueryOptions(),
+    enabled: !!this.token(),
+  }));
+
+  shelves = computed(() => this.shelvesQuery.data() ?? []);
+
+  shelvesError = computed<string | null>(() => {
+    if (!this.token() || !this.shelvesQuery.isError()) {
+      return null;
+    }
+
+    const error = this.shelvesQuery.error();
+    return error instanceof Error ? error.message : 'Failed to load shelves';
   });
 
-  private loading$: Observable<Shelf[]> | null = null;
+  isShelvesLoading = computed(() => !!this.token() && this.shelvesQuery.isPending());
 
-  shelfState$ = this.shelfStateSubject.asObservable().pipe(
-    tap(state => {
-      if (!state.loaded && !state.error && !this.loading$) {
-        this.loading$ = this.fetchShelves().pipe(
-          shareReplay(1),
-          finalize(() => (this.loading$ = null))
-        );
-        this.loading$.subscribe();
-      }
-    })
-  );
-
-  private fetchShelves(): Observable<Shelf[]> {
-    return this.http.get<Shelf[]>(this.url).pipe(
-      tap(shelves => this.shelfStateSubject.next({shelves, loaded: true, error: null})),
-      catchError(err => {
-        const curr = this.shelfStateSubject.value;
-        this.shelfStateSubject.next({shelves: curr.shelves, loaded: true, error: err.message});
-        throw err;
-      })
-    );
-  }
-
-  public reloadShelves(): void {
-    this.fetchShelves().subscribe({
-      next: () => {
-      },
-      error: () => {
+  constructor() {
+    effect(() => {
+      const token = this.token();
+      if (token === null) {
+        this.queryClient.removeQueries({queryKey: SHELVES_QUERY_KEY});
       }
     });
   }
 
+  private getShelvesQueryOptions() {
+    return queryOptions({
+      queryKey: SHELVES_QUERY_KEY,
+      queryFn: () => lastValueFrom(this.http.get<Shelf[]>(this.url))
+    });
+  }
+
+  reloadShelves(): void {
+    void this.queryClient.invalidateQueries({queryKey: SHELVES_QUERY_KEY, exact: true});
+  }
+
   createShelf(shelf: Shelf): Observable<Shelf> {
     return this.http.post<Shelf>(this.url, shelf).pipe(
-      map(newShelf => {
-        const curr = this.shelfStateSubject.value;
-        const updated = curr.shelves ? [...curr.shelves, newShelf] : [newShelf];
-        this.shelfStateSubject.next({...curr, shelves: updated});
-        return newShelf;
+      tap(() => {
+        void this.queryClient.invalidateQueries({queryKey: SHELVES_QUERY_KEY, exact: true});
       })
     );
   }
 
   updateShelf(shelf: Shelf, id?: number): Observable<Shelf> {
     return this.http.put<Shelf>(`${this.url}/${id}`, shelf).pipe(
-      map(updated => {
-        const curr = this.shelfStateSubject.value;
-        const list = curr.shelves?.map(s => (s.id === updated.id ? updated : s)) || [updated];
-        this.shelfStateSubject.next({...curr, shelves: list});
-        return updated;
+      tap(() => {
+        void this.queryClient.invalidateQueries({queryKey: SHELVES_QUERY_KEY, exact: true});
       })
     );
   }
@@ -83,56 +81,33 @@ export class ShelfService {
     return this.http.delete<void>(`${this.url}/${id}`).pipe(
       tap(() => {
         this.bookService.removeBooksFromShelf(id);
-        const curr = this.shelfStateSubject.value;
-        const filtered = curr.shelves?.filter(s => s.id !== id) || [];
-        this.shelfStateSubject.next({...curr, shelves: filtered});
-      }),
-      catchError(err => {
-        const curr = this.shelfStateSubject.value;
-        this.shelfStateSubject.next({...curr, error: err.message});
-        return of();
+        void this.queryClient.invalidateQueries({queryKey: SHELVES_QUERY_KEY, exact: true});
       })
     );
   }
 
-  getShelfById(id: number): Shelf | undefined {
-    return this.shelfStateSubject.value.shelves?.find(s => s.id === id);
-  }
+  getBookCountValue(shelfId: number): number {
+    const shelf = this.shelves().find(currentShelf => currentShelf.id === shelfId);
+    if (!shelf) return 0;
 
-  getShelvesFromState(): Shelf[] {
-    return this.shelfStateSubject.value.shelves ?? [];
-  }
+    const currentUserId = this.userService.getCurrentUser()?.id;
+    const isOwner = currentUserId === shelf.userId;
 
-  getBookCount(shelfId: number): Observable<number> {
-    return combineLatest([
-      this.shelfState$,
-      this.userService.userState$,
-      this.bookService.bookState$
-    ]).pipe(
-      map(([shelfState, userState, bookState]) => {
-        const shelf = shelfState.shelves?.find(s => s.id === shelfId);
-        if (!shelf) return 0;
+    if (isOwner) {
+      return this.bookService.books().filter(book =>
+        book.shelves?.some(currentShelf => currentShelf.id === shelfId)
+      ).length;
+    }
 
-        const isOwner = userState.user?.id === shelf.userId;
-
-        if (isOwner) {
-          return (bookState.books || []).filter(b => b.shelves?.some(s => s.id === shelfId)).length;
-        } else {
-          return shelf.bookCount || 0;
-        }
-      })
-    );
+    return shelf.bookCount || 0;
   }
 
   getBooksOnShelf(shelfId: number): Observable<Book[]> {
     return this.http.get<Book[]>(`${this.url}/${shelfId}/books`);
   }
 
-  getUnshelvedBookCount(): Observable<number> {
-    return this.bookService.bookState$.pipe(
-      map(state =>
-        (state.books || []).filter(b => !b.shelves || b.shelves.length === 0).length
-      )
-    );
+  getUnshelvedBookCountValue(): number {
+    return this.bookService.books().filter(book => !book.shelves || book.shelves.length === 0).length;
   }
+
 }

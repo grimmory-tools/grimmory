@@ -1,5 +1,14 @@
 <ng-container *transloco="let t; prefix: 'book.seriesPage'">
-@if (filteredBooks$ | async; as books) {
+@if (isBooksLoading()) {
+  <div class="loading-state">
+    <p-progressSpinner strokeWidth="4" fill="transparent" animationDuration=".8s">
+    </p-progressSpinner>
+    <p style="color: var(--primary-color);">
+      {{ t('loadingSeriesDetails') }}
+    </p>
+  </div>
+} @else {
+  @let books = filteredBooks();
   <div class="series-wrapper">
     <p-tabs [value]="tab" lazy="true" scrollable>
       <p-tablist>
@@ -21,7 +30,7 @@
 
                 <!-- HERO: Cover + Identity info -->
                 <div class="series-hero">
-                  @if (coverBook$ | async; as coverBook) {
+                  @if (coverBook(); as coverBook) {
                     <div class="hero-cover-section">
                       <img
                         [src]="getBookThumbnailUrl(coverBook)"
@@ -33,9 +42,9 @@
                   }
 
                   <div class="hero-info">
-                    <h2 class="series-title">{{ seriesTitle$ | async }}</h2>
+                    <h2 class="series-title">{{ seriesTitle() }}</h2>
 
-                    @if (allAuthors$ | async; as authors) {
+                    @if (allAuthors(); as authors) {
                       <p class="series-authors">
                         @for (author of authors; track $index; let isLast = $last) {
                           <a class="author-link" (click)="goToAuthorBooks(author)">{{ author }}</a>
@@ -44,7 +53,7 @@
                       </p>
                     }
 
-                    @if (allCategories$ | async; as categories) {
+                    @if (allCategories(); as categories) {
                       @if (categories.length) {
                         <div class="categories-scroll">
                           <div class="categories-list">
@@ -59,7 +68,7 @@
                     }
 
                     <div class="metadata-cards">
-                      @if (allPublishers$ | async; as publishers) {
+                      @if (allPublishers(); as publishers) {
                         @if (publishers.length) {
                           <span class="meta-card meta-card--publisher" (click)="goToPublisher(publishers[0])">
                             <i class="pi pi-building"></i>
@@ -73,13 +82,13 @@
                         <i class="pi pi-book"></i>
                         {{ books.length }} {{ books.length === 1 ? t('book') : t('books') }}
                       </span>
-                      @if (yearsRange$ | async; as years) {
+                      @if (yearsRange(); as years) {
                         <span class="meta-card meta-card--years">
                           <i class="pi pi-calendar"></i>
                           {{ years }}
                         </span>
                       }
-                      @if (seriesStats$ | async; as stats) {
+                      @if (seriesStats(); as stats) {
                         @if (stats.totalPages > 0) {
                           <span class="meta-card meta-card--pages">
                             <i class="pi pi-file"></i>
@@ -101,7 +110,7 @@
                           </span>
                         }
                       }
-                      @if (allLanguages$ | async; as languages) {
+                      @if (allLanguages(); as languages) {
                         @if (languages.length) {
                           <span class="meta-card meta-card--language">
                             <i class="pi pi-globe"></i>
@@ -109,7 +118,7 @@
                           </span>
                         }
                       }
-                      @if (seriesCompletion$ | async; as completion) {
+                      @if (seriesCompletion(); as completion) {
                         <span class="meta-card meta-card--owned">
                           <i class="pi pi-check-circle"></i>
                           {{ completion.owned }}/{{ completion.total }} {{ t('stats.owned') }}
@@ -118,7 +127,7 @@
                     </div>
 
                     <!-- Ratings -->
-                    @if (seriesStats$ | async; as stats) {
+                    @if (seriesStats(); as stats) {
                       @if (stats.avgPersonalRating != null || stats.avgGoodreads != null || stats.avgAmazon != null || stats.avgHardcover != null) {
                         <div class="ratings-row">
                           @if (stats.avgPersonalRating != null) {
@@ -155,7 +164,7 @@
 
                     <!-- Next Up + Progress (pushed to bottom, aligned with cover) -->
                     <div class="hero-status">
-                      @if (nextUp$ | async; as nextUp) {
+                      @if (nextUp(); as nextUp) {
                         <div class="next-up-card" (click)="readBook(nextUp.book.id)">
                           <img [src]="nextUp.thumbnailUrl"
                             [alt]="nextUp.book.metadata?.title || ''"
@@ -181,7 +190,7 @@
                         </div>
                       }
 
-                      @if (readStatusBreakdown$ | async; as segments) {
+                      @if (readStatusBreakdown(); as segments) {
                         @if (segments.length) {
                           <div class="read-progress-card">
                             <div class="read-progress-section">
@@ -202,7 +211,7 @@
                                     {{ getStatusLabel(seg.status) }} ({{ seg.count }})
                                   </span>
                                 }
-                                @let readProg = seriesReadProgress$ | async;
+                                @let readProg = seriesReadProgress();
                                 @if (readProg) {
                                   <span class="read-percent-label">
                                     {{ t('readPercent', { progress: readProg }) }}
@@ -227,7 +236,7 @@
                     <div #descriptionContent [ngClass]="{ 'line-clamp-7': !isExpanded }"
                       class="description-content">
                       <div class="description-html"
-                        [innerHTML]="(firstDescription$ | async) || t('noDescription')"></div>
+                        [innerHTML]="firstDescription() || t('noDescription')"></div>
                     </div>
                     @if (isExpanded || isOverflowing) {
                       <button class="expand-toggle" (click)="toggleExpand()">
@@ -356,7 +365,7 @@
     </p-tabpanels>
   </p-tabs>
   @if (selectedBooks.size > 0) {
-    @if (userService.userState$ | async; as userState) {
+    @if (currentUser(); as user) {
       <div class="book-browser-footer" [@slideInOut]>
         <div class="footer-content">
           <div class="footer-left">
@@ -387,17 +396,17 @@
                   [pTooltip]="t('tooltip.assignToShelf')"
                   tooltipPosition="top">
                 </p-button>
-                @if (userState.user!.permissions.canBulkLockUnlockMetadata) {
+                @if (user.permissions.canBulkLockUnlockMetadata) {
                   <p-button
                     outlined="true"
                     icon="pi pi-lock"
                     severity="info"
-                    (click)="lockUnlockMetadata()"
-                    [pTooltip]="t('tooltip.lockUnlockMetadata')"
-                    tooltipPosition="top">
+                  (click)="lockUnlockMetadata()"
+                  [pTooltip]="t('tooltip.lockUnlockMetadata')"
+                  tooltipPosition="top">
                   </p-button>
                 }
-                @if (userState.user!.permissions.canMoveOrganizeFiles && (appSettingsService.appSettings$ | async)?.diskType === 'LOCAL') {
+                @if (user.permissions.canMoveOrganizeFiles && appSettings()?.diskType === 'LOCAL') {
                   <p-button
                     outlined="true"
                     icon="pi pi-arrows-h"
@@ -440,7 +449,7 @@
                 tooltipPosition="top">
               </p-button>
             </div>
-            @if (userState.user!.permissions.admin || userState.user!.permissions.canDeleteBook) {
+            @if (user.permissions.admin || user.permissions.canDeleteBook) {
               <p-divider layout="vertical"></p-divider>
               <p-button
                 outlined="true"
@@ -458,14 +467,5 @@
     }
   }
 </div>
-
-} @else {
-  <div class="loading-state">
-    <p-progressSpinner strokeWidth="4" fill="transparent" animationDuration=".8s">
-    </p-progressSpinner>
-    <p style="color: var(--primary-color);">
-      {{ t('loadingSeriesDetails') }}
-    </p>
-  </div>
 }
 </ng-container>

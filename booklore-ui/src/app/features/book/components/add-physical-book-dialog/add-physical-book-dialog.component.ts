@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {Component, computed, effect, inject} from '@angular/core';
 import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
 import {FormsModule} from '@angular/forms';
 import {Button} from 'primeng/button';
@@ -13,8 +13,6 @@ import {BookMetadataService} from '../../service/book-metadata.service';
 import {LibraryService} from '../../service/library.service';
 import {Library} from '../../model/library.model';
 import {CreatePhysicalBookRequest} from '../../model/book.model';
-import {filter, take} from 'rxjs/operators';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {TranslocoDirective} from '@jsverse/transloco';
 
 @Component({
@@ -34,15 +32,13 @@ import {TranslocoDirective} from '@jsverse/transloco';
   ],
   styleUrl: './add-physical-book-dialog.component.scss',
 })
-export class AddPhysicalBookDialogComponent implements OnInit {
+export class AddPhysicalBookDialogComponent {
   private dynamicDialogRef = inject(DynamicDialogRef);
   private dialogConfig = inject(DynamicDialogConfig);
   private bookService = inject(BookService);
   private bookMetadataService = inject(BookMetadataService);
   private libraryService = inject(LibraryService);
-  private destroyRef = inject(DestroyRef);
 
-  libraries: Library[] = [];
   selectedLibraryId: number | null = null;
   title: string = '';
   isbn: string = '';
@@ -54,49 +50,33 @@ export class AddPhysicalBookDialogComponent implements OnInit {
   pageCount: number | null = null;
   categories: string[] = [];
 
-  allAuthors: string[] = [];
-  allCategories: string[] = [];
+  private readonly metadata = computed(() => this.bookService.uniqueMetadata());
+  get allAuthors(): string[] { return this.metadata().authors; }
+  get allCategories(): string[] { return this.metadata().categories; }
   filteredAuthors: string[] = [];
   filteredCategories: string[] = [];
 
   coverUrl: string | null = null;
   isLoading: boolean = false;
   isFetchingMetadata: boolean = false;
+  private readonly initializeSelectedLibraryEffect = effect(() => {
+    const libraries = this.libraries;
+    if (libraries.length === 0) {
+      return;
+    }
 
-  ngOnInit(): void {
-    this.libraryService.libraryState$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(state => {
-        if (state.loaded && state.libraries) {
-          this.libraries = state.libraries;
-          if (this.dialogConfig.data?.libraryId) {
-            this.selectedLibraryId = this.dialogConfig.data.libraryId;
-          } else if (this.libraries.length > 0 && this.libraries[0].id !== undefined) {
-            this.selectedLibraryId = this.libraries[0].id;
-          }
-        }
-      });
-    this.prepareAutoComplete();
-  }
+    if (this.dialogConfig.data?.libraryId) {
+      this.selectedLibraryId = this.dialogConfig.data.libraryId;
+      return;
+    }
 
-  private prepareAutoComplete(): void {
-    this.bookService.bookState$
-      .pipe(
-        filter((bookState) => bookState.loaded),
-        take(1)
-      )
-      .subscribe((bookState) => {
-        const authors = new Set<string>();
-        const categories = new Set<string>();
+    if (this.selectedLibraryId == null && this.libraries[0].id !== undefined) {
+      this.selectedLibraryId = this.libraries[0].id;
+    }
+  });
 
-        (bookState.books ?? []).forEach((book) => {
-          book.metadata?.authors?.forEach((author) => authors.add(author));
-          book.metadata?.categories?.forEach((category) => categories.add(category));
-        });
-
-        this.allAuthors = Array.from(authors);
-        this.allCategories = Array.from(categories);
-      });
+  get libraries(): Library[] {
+    return this.libraryService.libraries();
   }
 
   filterAuthors(event: AutoCompleteCompleteEvent): void {

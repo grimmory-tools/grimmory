@@ -47,6 +47,10 @@ public class BookFileEntity {
     @Column(name = "book_type", nullable = false)
     private BookFileType bookType;
 
+    @Column(name = "is_fixed_layout", nullable = false)
+    @Builder.Default
+    private boolean isFixedLayout = false;
+
     @Column(name = "archive_type")
     @Enumerated(EnumType.STRING)
     private ArchiveUtils.ArchiveType archiveType;
@@ -93,6 +97,10 @@ public class BookFileEntity {
 
     public boolean isBook() {
         return isBookFormat;
+    }
+
+    public boolean isFixedLayout() {
+        return isFixedLayout;
     }
 
     public Path getFullFilePath() {

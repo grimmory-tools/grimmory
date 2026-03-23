@@ -1,4 +1,4 @@
-@if ((libraryState$ | async)?.libraries; as libraries) {
+@if (libraries(); as libraries) {
   <ng-container *transloco="let t; prefix: 'shared.bookUploader'">
   <div class="book-uploader">
     <div class="panel-header">

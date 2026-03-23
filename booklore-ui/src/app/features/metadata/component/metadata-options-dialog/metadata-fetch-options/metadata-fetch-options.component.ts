@@ -4,7 +4,6 @@ import {MetadataRefreshRequest} from '../../../model/request/metadata-refresh-re
 import {MetadataRefreshType} from '../../../model/request/metadata-refresh-type.enum';
 import {MetadataRefreshOptions} from '../../../model/request/metadata-refresh-options.model';
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
-import {filter, take} from 'rxjs/operators';
 import {MetadataAdvancedFetchOptionsComponent} from '../metadata-advanced-fetch-options/metadata-advanced-fetch-options.component';
 import {TaskHelperService} from '../../../../settings/task-management/task-helper.service';
 import {TranslocoDirective} from '@jsverse/transloco';
@@ -34,12 +33,10 @@ export class MetadataFetchOptionsComponent {
     this.libraryId = this.dynamicDialogConfig.data.libraryId;
     this.bookIds = this.dynamicDialogConfig.data.bookIds;
     this.metadataRefreshType = this.dynamicDialogConfig.data.metadataRefreshType;
-    this.appSettingsService.appSettings$.pipe(
-      filter(settings => settings != null),
-      take(1)
-    ).subscribe(settings => {
-      this.currentMetadataOptions = settings?.defaultMetadataRefreshOptions;
-    });
+    const settings = this.appSettingsService.appSettings();
+    if (settings) {
+      this.currentMetadataOptions = settings.defaultMetadataRefreshOptions;
+    }
   }
 
   onMetadataSubmit(metadataRefreshOptions: MetadataRefreshOptions) {

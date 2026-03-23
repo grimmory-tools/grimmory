@@ -1,13 +1,7 @@
-import {Component, inject, OnInit} from '@angular/core';
-import {DynamicDialogRef} from 'primeng/dynamicdialog';
-import {LibraryService} from '../../../book/service/library.service';
-import {Observable} from 'rxjs';
-import {map, shareReplay, switchMap} from 'rxjs/operators';
+import {Component, computed, inject, OnInit} from '@angular/core';
 import {Button} from 'primeng/button';
-import {AsyncPipe} from '@angular/common';
 import {DashboardScrollerComponent} from '../dashboard-scroller/dashboard-scroller.component';
 import {BookService} from '../../../book/service/book.service';
-import {BookState} from '../../../book/model/state/book-state.model';
 import {Book, ReadStatus} from '../../../book/model/book.model';
 import {UserService} from '../../../settings/user-management/user.service';
 import {ProgressSpinner} from 'primeng/progressspinner';
@@ -20,8 +14,9 @@ import {BookRuleEvaluatorService} from '../../../magic-shelf/service/book-rule-e
 import {GroupRule} from '../../../magic-shelf/component/magic-shelf-component';
 import {DialogLauncherService} from '../../../../shared/services/dialog-launcher.service';
 import {SortService} from '../../../book/service/sort.service';
-import {PageTitleService} from "../../../../shared/service/page-title.service";
+import {PageTitleService} from '../../../../shared/service/page-title.service';
 import {SortDirection, SortOption} from '../../../book/model/sort.model';
+import {LibraryService} from '../../../book/service/library.service';
 
 const DEFAULT_MAX_ITEMS = 20;
 
@@ -32,7 +27,6 @@ const DEFAULT_MAX_ITEMS = 20;
   imports: [
     Button,
     DashboardScrollerComponent,
-    AsyncPipe,
     ProgressSpinner,
     TooltipModule,
     TranslocoDirective
@@ -42,6 +36,7 @@ const DEFAULT_MAX_ITEMS = 20;
 export class MainDashboardComponent implements OnInit {
 
   private bookService = inject(BookService);
+  private libraryService = inject(LibraryService);
   private dialogLauncher = inject(DialogLauncherService);
   protected userService = inject(UserService);
   private dashboardConfigService = inject(DashboardConfigService);
@@ -51,174 +46,146 @@ export class MainDashboardComponent implements OnInit {
   private pageTitle = inject(PageTitleService);
   private readonly t = inject(TranslocoService);
 
-  bookState$ = this.bookService.bookState$;
-  dashboardConfig$ = this.dashboardConfigService.config$;
-
-  private scrollerBooksCache = new Map<string, Observable<Book[]>>();
-
-  isLibrariesEmpty$: Observable<boolean> = inject(LibraryService).libraryState$.pipe(
-    map(state => !state.libraries || state.libraries.length === 0)
+  readonly dashboardConfig = this.dashboardConfigService.config;
+  readonly isBooksLoading = this.bookService.isBooksLoading;
+  readonly isLibrariesEmpty = computed(() =>
+    !this.libraryService.isLibrariesLoading() && this.libraryService.libraries().length === 0
   );
+  readonly scrollerBooks = computed(() => {
+    const config = this.dashboardConfig();
+    const books = this.bookService.books();
+    const scrollerMap = new Map<string, Book[]>();
+
+    for (const scroller of config.scrollers) {
+      scrollerMap.set(scroller.id, this.getBooksForConfig(scroller, books, this.magicShelfService.shelves()));
+    }
+
+    return scrollerMap;
+  });
 
   ScrollerType = ScrollerType;
 
   ngOnInit(): void {
     this.pageTitle.setPageTitle(this.t.translate('dashboard.main.pageTitle'));
-
-    this.dashboardConfig$.subscribe(() => {
-      this.scrollerBooksCache.clear();
-    });
-
-    this.magicShelfService.shelvesState$.subscribe(() => {
-      this.scrollerBooksCache.clear();
-    });
   }
 
-  private getLastReadBooks(maxItems: number, sortBy?: string): Observable<Book[]> {
-    return this.bookService.bookState$.pipe(
-      map((state: BookState) => {
-        let books = (state.books || []).filter(book =>
-          book.lastReadTime &&
-          (book.readStatus === ReadStatus.READING || book.readStatus === ReadStatus.RE_READING || book.readStatus === ReadStatus.PAUSED) &&
-          this.hasEbookProgress(book)
-        );
-        books = books.sort((a, b) => {
-          const aTime = new Date(a.lastReadTime!).getTime();
-          const bTime = new Date(b.lastReadTime!).getTime();
-          return bTime - aTime;
-        });
-        return books.slice(0, maxItems);
-      })
-    );
+  getBooksForScroller(config: ScrollerConfig): Book[] {
+    return this.scrollerBooks().get(config.id) ?? [];
   }
 
-  private getLastListenedBooks(maxItems: number): Observable<Book[]> {
-    return this.bookService.bookState$.pipe(
-      map((state: BookState) => {
-        let books = (state.books || []).filter(book =>
-          book.lastReadTime &&
-          (book.readStatus === ReadStatus.READING || book.readStatus === ReadStatus.RE_READING || book.readStatus === ReadStatus.PAUSED) &&
-          book.audiobookProgress
-        );
-        books = books.sort((a, b) => {
-          const aTime = new Date(a.lastReadTime!).getTime();
-          const bTime = new Date(b.lastReadTime!).getTime();
-          return bTime - aTime;
-        });
-        return books.slice(0, maxItems);
-      })
+  private getBooksForConfig(config: ScrollerConfig, books: Book[], magicShelves: {id?: number | null; filterJson: string}[]): Book[] {
+    switch (config.type) {
+      case ScrollerType.LAST_READ:
+        return this.getLastReadBooks(books, config.maxItems || DEFAULT_MAX_ITEMS);
+      case ScrollerType.LAST_LISTENED:
+        return this.getLastListenedBooks(books, config.maxItems || DEFAULT_MAX_ITEMS);
+      case ScrollerType.LATEST_ADDED:
+        return this.getLatestAddedBooks(books, config.maxItems || DEFAULT_MAX_ITEMS);
+      case ScrollerType.RANDOM:
+        return this.getRandomBooks(books, config.maxItems || DEFAULT_MAX_ITEMS);
+      case ScrollerType.MAGIC_SHELF:
+        return this.getMagicShelfBooks(config, books, magicShelves);
+      default:
+        return [];
+    }
+  }
+
+  private getLastReadBooks(books: Book[], maxItems: number): Book[] {
+    const recentBooks = books.filter(book =>
+      book.lastReadTime &&
+      (book.readStatus === ReadStatus.READING || book.readStatus === ReadStatus.RE_READING || book.readStatus === ReadStatus.PAUSED) &&
+      this.hasEbookProgress(book)
     );
+
+    return recentBooks.sort((a, b) => {
+      const aTime = new Date(a.lastReadTime!).getTime();
+      const bTime = new Date(b.lastReadTime!).getTime();
+      return bTime - aTime;
+    }).slice(0, maxItems);
+  }
+
+  private getLastListenedBooks(books: Book[], maxItems: number): Book[] {
+    const recentBooks = books.filter(book =>
+      book.lastReadTime &&
+      (book.readStatus === ReadStatus.READING || book.readStatus === ReadStatus.RE_READING || book.readStatus === ReadStatus.PAUSED) &&
+      book.audiobookProgress
+    );
+
+    return recentBooks.sort((a, b) => {
+      const aTime = new Date(a.lastReadTime!).getTime();
+      const bTime = new Date(b.lastReadTime!).getTime();
+      return bTime - aTime;
+    }).slice(0, maxItems);
   }
 
   private hasEbookProgress(book: Book): boolean {
     return !!(book.epubProgress || book.pdfProgress || book.cbxProgress || book.koreaderProgress || book.koboProgress);
   }
 
-  private getLatestAddedBooks(maxItems: number, sortBy?: string): Observable<Book[]> {
-    return this.bookService.bookState$.pipe(
-      map((state: BookState) => {
-        let books = (state.books || []).filter(book => book.addedOn);
+  private getLatestAddedBooks(books: Book[], maxItems: number): Book[] {
+    const addedBooks = books.filter(book => book.addedOn);
 
-        books = books.sort((a, b) => {
-          const aTime = new Date(a.addedOn!).getTime();
-          const bTime = new Date(b.addedOn!).getTime();
-          return bTime - aTime;
-        });
-
-        return books.slice(0, maxItems);
-      })
-    );
+    return addedBooks.sort((a, b) => {
+      const aTime = new Date(a.addedOn!).getTime();
+      const bTime = new Date(b.addedOn!).getTime();
+      return bTime - aTime;
+    }).slice(0, maxItems);
   }
 
-  private getRandomBooks(maxItems: number, sortBy?: string): Observable<Book[]> {
-    return this.bookService.bookState$.pipe(
-      map((state: BookState) => {
-        const excludedStatuses = new Set<ReadStatus>([
-          ReadStatus.READ,
-          ReadStatus.PARTIALLY_READ,
-          ReadStatus.READING,
-          ReadStatus.PAUSED,
-          ReadStatus.WONT_READ,
-          ReadStatus.ABANDONED
-        ]);
+  private getRandomBooks(books: Book[], maxItems: number): Book[] {
+    const excludedStatuses = new Set<ReadStatus>([
+      ReadStatus.READ,
+      ReadStatus.PARTIALLY_READ,
+      ReadStatus.READING,
+      ReadStatus.PAUSED,
+      ReadStatus.WONT_READ,
+      ReadStatus.ABANDONED
+    ]);
 
-        const candidates = (state.books || []).filter(book =>
-          !book.readStatus || !excludedStatuses.has(book.readStatus)
-        );
-
-        return this.shuffleBooks(candidates, maxItems);
-      })
+    const candidates = books.filter(book =>
+      !book.readStatus || !excludedStatuses.has(book.readStatus)
     );
+
+    return this.shuffleBooks(candidates, maxItems);
   }
 
-  private getMagicShelfBooks(shelfId: number, maxItems?: number, sortBy?: string): Observable<Book[]> {
-    return this.magicShelfService.getShelf(shelfId).pipe(
-      switchMap((shelf) => {
-        if (!shelf) return this.bookService.bookState$.pipe(map(() => []));
-
-        let group: GroupRule;
-        try {
-          group = JSON.parse(shelf.filterJson);
-        } catch (e) {
-          console.error('Invalid filter JSON', e);
-          return this.bookService.bookState$.pipe(map(() => []));
-        }
-
-        return this.bookService.bookState$.pipe(
-          map((state: BookState) => {
-            const allBooks = state.books || [];
-            const filteredBooks = allBooks.filter((book) =>
-              this.ruleEvaluatorService.evaluateGroup(book, group, allBooks)
-            );
-
-            return maxItems ? filteredBooks.slice(0, maxItems) : filteredBooks;
-          })
-        );
-      })
-    );
-  }
-
-  getBooksForScroller(config: ScrollerConfig): Observable<Book[]> {
-    if (!this.scrollerBooksCache.has(config.id)) {
-      let books$: Observable<Book[]>;
-
-      switch (config.type) {
-        case ScrollerType.LAST_READ:
-          books$ = this.getLastReadBooks(config.maxItems || DEFAULT_MAX_ITEMS);
-          break;
-        case ScrollerType.LAST_LISTENED:
-          books$ = this.getLastListenedBooks(config.maxItems || DEFAULT_MAX_ITEMS);
-          break;
-        case ScrollerType.LATEST_ADDED:
-          books$ = this.getLatestAddedBooks(config.maxItems || DEFAULT_MAX_ITEMS);
-          break;
-        case ScrollerType.RANDOM:
-          books$ = this.getRandomBooks(config.maxItems || DEFAULT_MAX_ITEMS);
-          break;
-        case ScrollerType.MAGIC_SHELF:
-          books$ = this.getMagicShelfBooks(config.magicShelfId!, config.maxItems).pipe(
-            map(books => {
-              if (config.sortField && config.sortDirection) {
-                const sortOption = this.createSortOption(config.sortField, config.sortDirection);
-                return this.sortService.applySort(books, sortOption);
-              }
-              return books;
-            })
-          );
-          break;
-        default:
-          books$ = this.bookService.bookState$.pipe(map(() => []));
-      }
-
-      this.scrollerBooksCache.set(config.id, books$.pipe(shareReplay(1)));
+  private getMagicShelfBooks(
+    config: ScrollerConfig,
+    books: Book[],
+    magicShelves: {id?: number | null; filterJson: string}[]
+  ): Book[] {
+    const shelf = magicShelves.find(currentShelf => currentShelf.id === config.magicShelfId);
+    if (!shelf) {
+      return [];
     }
 
-    return this.scrollerBooksCache.get(config.id)!;
+    let group: GroupRule;
+    try {
+      group = JSON.parse(shelf.filterJson);
+    } catch (e) {
+      console.error('Invalid filter JSON', e);
+      return [];
+    }
+
+    let filteredBooks = books.filter(book =>
+      this.ruleEvaluatorService.evaluateGroup(book, group, books)
+    );
+
+    if (config.maxItems) {
+      filteredBooks = filteredBooks.slice(0, config.maxItems);
+    }
+
+    if (config.sortField && config.sortDirection) {
+      const sortOption = this.createSortOption(config.sortField, config.sortDirection);
+      return this.sortService.applySort(filteredBooks, sortOption);
+    }
+
+    return filteredBooks;
   }
 
   private createSortOption(field: string, direction: string): SortOption {
     return {
-      field: field,
+      field,
       direction: direction === 'asc' ? SortDirection.ASCENDING : SortDirection.DESCENDING,
       label: ''
     };

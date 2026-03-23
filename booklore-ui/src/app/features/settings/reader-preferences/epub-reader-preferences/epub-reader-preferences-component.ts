@@ -1,5 +1,5 @@
 import {DecimalPipe} from '@angular/common';
-import {Component, inject, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, effect, inject, Input, OnDestroy, OnInit} from '@angular/core';
 import {Button} from 'primeng/button';
 import {FormsModule} from '@angular/forms';
 import {TranslocoDirective} from '@jsverse/transloco';
@@ -49,18 +49,17 @@ export class EpubReaderPreferencesComponent implements OnInit, OnDestroy {
 
   customFontsReady = false;
 
-  ngOnInit(): void {
-    this.subscribeToFontUpdates();
+  private readonly syncFontsEffect = effect(() => {
+    const fonts = this.customFontService.fonts();
+    if (fonts.length > 0 || !this.customFontService.isFontsLoading()) {
+      this.customFontsReady = true;
+    }
+    if (this.hasCustomFontsChanged(fonts)) {
+      this.onFontsChanged(fonts);
+    }
+  });
 
-    this.customFontService.getUserFonts().subscribe({
-      next: () => {
-        this.customFontsReady = true;
-      },
-      error: (err) => {
-        console.error('Failed to load custom fonts:', err);
-        this.customFontsReady = true;
-      }
-    });
+  ngOnInit(): void {
   }
 
   ngOnDestroy(): void {
@@ -68,29 +67,20 @@ export class EpubReaderPreferencesComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private subscribeToFontUpdates(): void {
-    this.customFontService.fonts$
-      .pipe(
-        skip(1),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(async fonts => {
-        try {
-          const selectedFontDeleted = this.isCurrentlySelectedFontDeleted(fonts);
+  private async onFontsChanged(fonts: CustomFont[]): Promise<void> {
+    try {
+      const selectedFontDeleted = this.isCurrentlySelectedFontDeleted(fonts);
 
-          if (this.hasCustomFontsChanged(fonts)) {
-            this.customFonts = fonts;
-            await this.customFontService.loadAllFonts(fonts);
-            this.updateFontsDropdown(fonts);
-          }
+      this.customFonts = fonts;
+      await this.customFontService.loadAllFonts(fonts);
+      this.updateFontsDropdown(fonts);
 
-          if (selectedFontDeleted) {
-            this.resetToDefaultFont();
-          }
-        } catch (err) {
-          console.error('Failed to process custom fonts:', err);
-        }
-      });
+      if (selectedFontDeleted) {
+        this.resetToDefaultFont();
+      }
+    } catch (err) {
+      console.error('Failed to process custom fonts:', err);
+    }
   }
 
   private hasCustomFontsChanged(newFonts: CustomFont[]): boolean {

@@ -1,6 +1,4 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
+import {Component, inject} from '@angular/core';
 import {TranslocoDirective} from '@jsverse/transloco';
 import {ReaderHeaderService} from './header.service';
 import {ReaderIconComponent} from '../../shared/icon.component';
@@ -13,42 +11,16 @@ import {Router} from '@angular/router';
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })
-export class ReaderHeaderComponent implements OnInit, OnDestroy {
-  private headerService = inject(ReaderHeaderService);
-  private router = inject(Router);
-  private destroy$ = new Subject<void>();
+export class ReaderHeaderComponent {
+  private readonly headerService = inject(ReaderHeaderService);
+  private readonly router = inject(Router);
 
-  isVisible = false;
-  isCurrentCfiBookmarked = false;
-  isFullscreen = false;
+  readonly forceVisible = this.headerService.forceVisible;
+  readonly isCurrentCfiBookmarked = this.headerService.isCurrentCfiBookmarked;
+  readonly isFullscreen = this.headerService.isFullscreen;
+  readonly bookTitle = this.headerService.bookTitle;
+  readonly theme = this.headerService.theme;
   overflowOpen = false;
-
-  get bookTitle(): string {
-    return this.headerService.title;
-  }
-
-  get currentTheme() {
-    return this.headerService.currentState.theme;
-  }
-
-  ngOnInit(): void {
-    this.headerService.forceVisible$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(visible => this.isVisible = visible);
-
-    this.headerService.isCurrentCfiBookmarked$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(bookmarked => this.isCurrentCfiBookmarked = bookmarked);
-
-    this.headerService.fullscreenState$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(fs => this.isFullscreen = fs);
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 
   onShowChapters(): void {
     this.headerService.openSidebar();

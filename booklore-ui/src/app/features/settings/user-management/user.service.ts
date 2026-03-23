@@ -1,11 +1,13 @@
-import {inject, Injectable} from '@angular/core';
+import {computed, effect, inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {BehaviorSubject, Observable, throwError} from 'rxjs';
+import {lastValueFrom, Observable, throwError} from 'rxjs';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {Library} from '../../book/model/library.model';
-import {catchError, distinctUntilChanged, finalize, map, shareReplay, tap} from 'rxjs/operators';
+import {catchError, map, tap} from 'rxjs/operators';
 import {AuthService} from '../../../shared/service/auth.service';
 import {DashboardConfig} from '../../dashboard/models/dashboard-config.model';
+import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
+import {CURRENT_USER_QUERY_KEY} from './user-query-keys';
 
 export interface EntityViewPreferences {
   global: EntityViewPreference;
@@ -352,75 +354,54 @@ export class UserService {
 
   private http = inject(HttpClient);
   private authService = inject(AuthService);
+  private queryClient = inject(QueryClient);
+  private readonly token = this.authService.token;
 
-  userStateSubject = new BehaviorSubject<UserState>({
-    user: null,
-    loaded: false,
-    error: null,
+  private readonly userQuery = injectQuery(() => ({
+    ...this.getUserQueryOptions(),
+    enabled: !!this.token(),
+  }));
+
+  currentUser = computed(() => this.userQuery.data() ?? null);
+  isUserLoading = computed(() => !!this.token() && this.userQuery.isPending());
+  userError = computed<string | null>(() => {
+    if (!this.token() || !this.userQuery.isError()) return null;
+    const error = this.userQuery.error();
+    return error instanceof Error ? error.message : 'Failed to load user';
   });
 
-  private loading$: Observable<User> | null = null;
-
   constructor() {
-    this.authService.token$.pipe(
-      distinctUntilChanged()
-    ).subscribe(token => {
+    effect(() => {
+      const token = this.token();
       if (token === null) {
-        this.userStateSubject.next({
-          user: null,
-          loaded: true,
-          error: null,
-        });
-        this.loading$ = null;
-      } else {
-        const current = this.userStateSubject.value;
-        if (current.loaded && !current.user) {
-          this.userStateSubject.next({
-            user: null,
-            loaded: false,
-            error: null,
-          });
-          this.loading$ = null;
-        }
+        this.queryClient.removeQueries({queryKey: CURRENT_USER_QUERY_KEY});
       }
     });
   }
 
-  userState$ = this.userStateSubject.asObservable().pipe(
-    tap(state => {
-      if (!state.loaded && !state.error && !this.loading$) {
-        this.loading$ = this.fetchMyself().pipe(
-          shareReplay(1),
-          finalize(() => (this.loading$ = null))
-        );
-        this.loading$.subscribe();
-      }
-    })
-  );
-
-  private fetchMyself(): Observable<User> {
-    return this.http.get<User>(`${this.userUrl}/me`).pipe(
-      tap(user => this.userStateSubject.next({user: this.normalizeUser(user), loaded: true, error: null})),
-      catchError(err => {
-        const curr = this.userStateSubject.value;
-        this.userStateSubject.next({user: curr.user, loaded: true, error: err.message});
-        throw err;
-      })
-    );
+  getUserQueryOptions() {
+    return queryOptions({
+      queryKey: CURRENT_USER_QUERY_KEY,
+      queryFn: () => lastValueFrom(
+        this.http.get<User>(`${this.userUrl}/me`).pipe(
+          map(user => this.normalizeUser(user))
+        )
+      )
+    });
   }
 
-  public setInitialUser(user: User): void {
-    this.userStateSubject.next({user, loaded: true, error: null});
+  setInitialUser(user: User): void {
+    this.queryClient.setQueryData(CURRENT_USER_QUERY_KEY, this.normalizeUser(user));
   }
 
   getCurrentUser(): User | null {
-    return this.userStateSubject.value.user;
+    return this.currentUser();
   }
 
   getMyself(): Observable<User> {
     return this.http.get<User>(`${this.userUrl}/me`).pipe(
       map(user => this.normalizeUser(user)),
-      tap(user => this.userStateSubject.next({user, loaded: true, error: null}))
+      tap(user => this.queryClient.setQueryData(CURRENT_USER_QUERY_KEY, user))
     );
   }
 
@@ -479,11 +460,11 @@ export class UserService {
       headers: {'Content-Type': 'application/json'},
       responseType: 'text' as 'json'
     }).subscribe(() => {
-      const currentState = this.userStateSubject.value;
-      if (currentState.user) {
-        const updatedSettings = {...currentState.user.userSettings, [key]: value};
-        const updatedUser = {...currentState.user, userSettings: updatedSettings};
-        this.userStateSubject.next({...currentState, user: updatedUser});
+      const currentUser = this.currentUser();
+      if (currentUser) {
+        const updatedSettings = {...currentUser.userSettings, [key]: value};
+        const updatedUser = {...currentUser, userSettings: updatedSettings};
+        this.queryClient.setQueryData(CURRENT_USER_QUERY_KEY, updatedUser);
       }
     });
   }

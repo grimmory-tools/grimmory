@@ -14,7 +14,7 @@ export class EpubCustomFontService {
   private customFontBlobUrls = new Map<number, string>();
 
   loadAndCacheFonts(): Observable<CustomFont[]> {
-    return this.customFontService.getUserFonts().pipe(
+    return from(this.customFontService.ensureFonts()).pipe(
       tap(fonts => this.customFonts = fonts),
       switchMap(fonts =>
         from(this.customFontService.loadAllFonts(fonts)).pipe(

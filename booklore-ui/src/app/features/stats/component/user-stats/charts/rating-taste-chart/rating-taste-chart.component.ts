@@ -1,13 +1,10 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, computed, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
 import {Tooltip} from 'primeng/tooltip';
-import {BehaviorSubject, EMPTY, Observable, Subject} from 'rxjs';
-import {catchError, filter, first, switchMap, takeUntil} from 'rxjs/operators';
 import {ChartConfiguration, ChartData, ScatterDataPoint} from 'chart.js';
 import {BookService} from '../../../../../book/service/book.service';
 import {LibraryFilterService} from '../../../library-stats/service/library-filter.service';
-import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book} from '../../../../../book/model/book.model';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
@@ -29,6 +26,13 @@ interface BookDataPoint extends ScatterDataPoint {
 
 type RatingTasteChartData = ChartData<'scatter', BookDataPoint[], string>;
 
+interface RatingTasteMetrics {
+  quadrants: TasteQuadrant[];
+  totalRatedBooks: number;
+  averageDeviation: number;
+  chartData: RatingTasteChartData;
+}
+
 @Component({
   selector: 'app-rating-taste-chart',
   standalone: true,
@@ -36,16 +40,22 @@ type RatingTasteChartData = ChartData<'scatter', BookDataPoint[], string>;
   templateUrl: './rating-taste-chart.component.html',
   styleUrls: ['./rating-taste-chart.component.scss']
 })
-export class RatingTasteChartComponent implements OnInit, OnDestroy {
+export class RatingTasteChartComponent {
   private readonly bookService = inject(BookService);
   private readonly libraryFilterService = inject(LibraryFilterService);
   private readonly t = inject(TranslocoService);
-  private readonly destroy$ = new Subject<void>();
+  private readonly metrics = computed<RatingTasteMetrics>(() => {
+    if (this.bookService.isBooksLoading()) {
+      return this.emptyMetrics();
+    }
+
+    return this.calculateMetrics(this.bookService.books(), this.libraryFilterService.selectedLibrary());
+  });
 
   public readonly chartType = 'scatter' as const;
-  public quadrants: TasteQuadrant[] = [];
-  public totalRatedBooks = 0;
-  public averageDeviation = 0;
+  public readonly quadrants = computed(() => this.metrics().quadrants);
+  public readonly totalRatedBooks = computed(() => this.metrics().totalRatedBooks);
+  public readonly averageDeviation = computed(() => this.metrics().averageDeviation);
 
   public readonly chartOptions: ChartConfiguration<'scatter'>['options'] = {
     responsive: true,
@@ -161,73 +171,31 @@ export class RatingTasteChartComponent implements OnInit, OnDestroy {
     }
   };
 
-  private readonly chartDataSubject = new BehaviorSubject<RatingTasteChartData>({
-    datasets: []
-  });
+  public readonly chartData = computed(() => this.metrics().chartData);
 
-  public readonly chartData$: Observable<RatingTasteChartData> = this.chartDataSubject.asObservable();
-
-  ngOnInit(): void {
-    this.bookService.bookState$
-      .pipe(
-        filter(state => state.loaded),
-        first(),
-        switchMap(() =>
-          this.libraryFilterService.selectedLibrary$.pipe(
-            takeUntil(this.destroy$)
-          )
-        ),
-        catchError((error) => {
-          console.error('Error processing rating taste data:', error);
-          return EMPTY;
-        })
-      )
-      .subscribe(() => {
-        this.calculateAndUpdateChart();
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  private calculateAndUpdateChart(): void {
-    const currentState = this.bookService.getCurrentBookState();
-    const selectedLibraryId = this.libraryFilterService.getCurrentSelectedLibrary();
-
-    if (!this.isValidBookState(currentState)) {
-      this.chartDataSubject.next({datasets: []});
-      this.quadrants = [];
-      return;
+  private calculateMetrics(books: Book[], selectedLibraryId: string | number | null): RatingTasteMetrics {
+    if (books.length === 0) {
+      return this.emptyMetrics();
     }
 
-    const filteredBooks = this.filterBooksByLibrary(currentState.books!, selectedLibraryId);
+    const filteredBooks = this.filterBooksByLibrary(books, selectedLibraryId);
     const ratedBooks = this.getBooksWithBothRatings(filteredBooks);
 
     if (ratedBooks.length === 0) {
-      this.chartDataSubject.next({datasets: []});
-      this.quadrants = [];
-      this.totalRatedBooks = 0;
-      return;
+      return this.emptyMetrics();
     }
 
-    this.totalRatedBooks = ratedBooks.length;
+    const totalRatedBooks = ratedBooks.length;
     const dataPoints = this.categorizeBooks(ratedBooks);
-    this.updateChartData(dataPoints);
-    this.calculateStatistics(dataPoints);
-  }
+    const chartData = this.buildChartData(dataPoints);
+    const {quadrants, averageDeviation} = this.calculateStatistics(dataPoints);
 
-  private isValidBookState(state: unknown): state is BookState {
-    return (
-      typeof state === 'object' &&
-      state !== null &&
-      'loaded' in state &&
-      typeof (state as { loaded: boolean }).loaded === 'boolean' &&
-      'books' in state &&
-      Array.isArray((state as { books: unknown }).books) &&
-      (state as { books: Book[] }).books.length > 0
-    );
+    return {
+      quadrants,
+      totalRatedBooks,
+      averageDeviation,
+      chartData
+    };
   }
 
   private filterBooksByLibrary(books: Book[], selectedLibraryId: string | number | null): Book[] {
@@ -304,7 +272,7 @@ export class RatingTasteChartComponent implements OnInit, OnDestroy {
     return categories;
   }
 
-  private updateChartData(dataPoints: Map<string, BookDataPoint[]>): void {
+  private buildChartData(dataPoints: Map<string, BookDataPoint[]>): RatingTasteChartData {
     const pf = this.t.translate('statsUser.ratingTaste.quadrantPopularFavorites');
     const hg = this.t.translate('statsUser.ratingTaste.quadrantHiddenGems');
     const or = this.t.translate('statsUser.ratingTaste.quadrantOverrated');
@@ -328,10 +296,10 @@ export class RatingTasteChartComponent implements OnInit, OnDestroy {
         pointBorderWidth: 2
       }));
 
-    this.chartDataSubject.next({datasets});
+    return {datasets};
   }
 
-  private calculateStatistics(dataPoints: Map<string, BookDataPoint[]>): void {
+  private calculateStatistics(dataPoints: Map<string, BookDataPoint[]>): Pick<RatingTasteMetrics, 'quadrants' | 'averageDeviation'> {
     const pfKey = this.t.translate('statsUser.ratingTaste.quadrantPopularFavorites');
     const hgKey = this.t.translate('statsUser.ratingTaste.quadrantHiddenGems');
     const orKey = this.t.translate('statsUser.ratingTaste.quadrantOverrated');
@@ -359,7 +327,7 @@ export class RatingTasteChartComponent implements OnInit, OnDestroy {
       }
     };
 
-    this.quadrants = Array.from(dataPoints.entries()).map(([name, points]) => ({
+    const quadrants = Array.from(dataPoints.entries()).map(([name, points]) => ({
       name,
       description: quadrantInfo[name].description,
       count: points.length,
@@ -376,6 +344,17 @@ export class RatingTasteChartComponent implements OnInit, OnDestroy {
         totalPoints++;
       });
     });
-    this.averageDeviation = totalPoints > 0 ? totalDeviation / totalPoints : 0;
+    const averageDeviation = totalPoints > 0 ? totalDeviation / totalPoints : 0;
+
+    return {quadrants, averageDeviation};
+  }
+
+  private emptyMetrics(): RatingTasteMetrics {
+    return {
+      quadrants: [],
+      totalRatedBooks: 0,
+      averageDeviation: 0,
+      chartData: {datasets: []}
+    };
   }
 }

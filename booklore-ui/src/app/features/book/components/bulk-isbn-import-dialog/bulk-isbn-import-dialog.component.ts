@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {Component, effect, inject} from '@angular/core';
 import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
 import {FormsModule} from '@angular/forms';
 import {Button} from 'primeng/button';
@@ -11,8 +11,7 @@ import {BookService} from '../../service/book.service';
 import {BookMetadataService} from '../../service/book-metadata.service';
 import {LibraryService} from '../../service/library.service';
 import {Library} from '../../model/library.model';
-import {Book, CreatePhysicalBookRequest} from '../../model/book.model';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {BookMetadata, CreatePhysicalBookRequest} from '../../model/book.model';
 import {TranslocoDirective} from '@jsverse/transloco';
 import {Tabs, TabList, Tab, TabPanels, TabPanel} from 'primeng/tabs';
 
@@ -58,15 +57,13 @@ type ImportPhase = 'upload' | 'processing' | 'summary';
   ],
   styleUrl: './bulk-isbn-import-dialog.component.scss',
 })
-export class BulkIsbnImportDialogComponent implements OnInit {
+export class BulkIsbnImportDialogComponent {
   private dynamicDialogRef = inject(DynamicDialogRef);
   private dialogConfig = inject(DynamicDialogConfig);
   private bookService = inject(BookService);
   private bookMetadataService = inject(BookMetadataService);
   private libraryService = inject(LibraryService);
-  private destroyRef = inject(DestroyRef);
 
-  libraries: Library[] = [];
   selectedLibraryId: number | null = null;
 
   phase: ImportPhase = 'upload';
@@ -84,20 +81,24 @@ export class BulkIsbnImportDialogComponent implements OnInit {
 
   parseError = '';
   readonly maxIsbnCount = MAX_ISBN_COUNT;
+  private readonly initializeSelectedLibraryEffect = effect(() => {
+    const libraries = this.libraries;
+    if (libraries.length === 0) {
+      return;
+    }
 
-  ngOnInit(): void {
-    this.libraryService.libraryState$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(state => {
-        if (state.loaded && state.libraries) {
-          this.libraries = state.libraries;
-          if (this.dialogConfig.data?.libraryId) {
-            this.selectedLibraryId = this.dialogConfig.data.libraryId;
-          } else if (this.libraries.length > 0 && this.libraries[0].id !== undefined) {
-            this.selectedLibraryId = this.libraries[0].id;
-          }
-        }
-      });
+    if (this.dialogConfig.data?.libraryId) {
+      this.selectedLibraryId = this.dialogConfig.data.libraryId;
+      return;
+    }
+
+    if (this.selectedLibraryId == null && libraries[0].id !== undefined) {
+      this.selectedLibraryId = libraries[0].id;
+    }
+  });
+
+  get libraries(): Library[] {
+    return this.libraryService.libraries();
   }
 
   onFileSelect(event: FileSelectEvent): void {
@@ -177,9 +178,9 @@ export class BulkIsbnImportDialogComponent implements OnInit {
           entry.status = 'created-no-metadata';
           this.noMetadataCount++;
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         entry.status = 'failed';
-        entry.error = err?.message || 'Unknown error';
+        entry.error = err instanceof Error ? err.message : 'Unknown error';
         this.failedCount++;
       }
 
@@ -310,7 +311,7 @@ export class BulkIsbnImportDialogComponent implements OnInit {
     const isbns = new Set<string>();
     if (!this.selectedLibraryId) return isbns;
 
-    const books: Book[] = this.bookService.getCurrentBookState().books ?? [];
+    const books = this.bookService.books();
     for (const book of books) {
       if (book.libraryId !== this.selectedLibraryId) continue;
       const isbn13 = book.metadata?.isbn13;
@@ -332,8 +333,8 @@ export class BulkIsbnImportDialogComponent implements OnInit {
     return false;
   }
 
-  private lookupIsbn(isbn: string): Promise<any> {
-    return new Promise((resolve, reject) => {
+  private lookupIsbn(isbn: string): Promise<BookMetadata | null> {
+    return new Promise((resolve) => {
       this.bookMetadataService.lookupByIsbn(isbn).subscribe({
         next: metadata => resolve(metadata),
         error: err => {

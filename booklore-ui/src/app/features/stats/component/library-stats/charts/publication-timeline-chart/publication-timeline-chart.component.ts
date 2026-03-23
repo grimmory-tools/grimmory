@@ -1,12 +1,9 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, computed, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
-import {BehaviorSubject, EMPTY, Observable, Subject} from 'rxjs';
-import {catchError, filter, first, switchMap, takeUntil} from 'rxjs/operators';
 import {ChartConfiguration, ChartData} from 'chart.js';
 import {LibraryFilterService} from '../../service/library-filter.service';
 import {BookService} from '../../../../../book/service/book.service';
-import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book} from '../../../../../book/model/book.model';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
@@ -59,51 +56,53 @@ const DECADE_COLORS: Record<string, string> = {
   templateUrl: './publication-timeline-chart.component.html',
   styleUrls: ['./publication-timeline-chart.component.scss']
 })
-export class PublicationTimelineChartComponent implements OnInit, OnDestroy {
+export class PublicationTimelineChartComponent {
   private readonly bookService = inject(BookService);
   private readonly libraryFilterService = inject(LibraryFilterService);
   private readonly t = inject(TranslocoService);
-  private readonly destroy$ = new Subject<void>();
+  private readonly booksWithDate = computed(() => {
+    if (this.bookService.isBooksLoading()) {
+      return [];
+    }
+
+    const filteredBooks = this.filterBooksByLibrary(this.bookService.books(), this.libraryFilterService.selectedLibrary());
+    return filteredBooks.filter(b => b.metadata?.publishedDate);
+  });
+  private readonly decadeStats = computed(() => this.calculateDecadeStats(this.booksWithDate()));
 
   public readonly chartType = 'bar' as const;
   public chartOptions: ChartConfiguration<'bar'>['options'];
-  public insights: TimelineInsights | null = null;
-  public totalBooks = 0;
-
-  private readonly chartDataSubject = new BehaviorSubject<TimelineChartData>({
-    labels: [],
-    datasets: []
+  public readonly insights = computed(() => {
+    const booksWithDate = this.booksWithDate();
+    return booksWithDate.length > 0 ? this.calculateInsights(booksWithDate) : null;
   });
+  public readonly totalBooks = computed(() => this.booksWithDate().length);
+  public readonly chartData = computed<TimelineChartData>(() => {
+    const stats = this.decadeStats();
+    if (stats.length === 0) {
+      return {labels: [], datasets: []};
+    }
 
-  public readonly chartData$: Observable<TimelineChartData> = this.chartDataSubject.asObservable();
+    const labels = stats.map(s => s.label);
+    const data = stats.map(s => s.count);
+    const colors = stats.map(s => s.color);
+
+    return {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: colors,
+        borderColor: colors,
+        borderWidth: 1,
+        borderRadius: 4,
+        barPercentage: 0.8,
+        categoryPercentage: 0.85
+      }]
+    };
+  });
 
   constructor() {
     this.initChartOptions();
-  }
-
-  ngOnInit(): void {
-    this.bookService.bookState$
-      .pipe(
-        filter(state => state.loaded),
-        first(),
-        switchMap(() =>
-          this.libraryFilterService.selectedLibrary$.pipe(
-            takeUntil(this.destroy$)
-          )
-        ),
-        catchError((error) => {
-          console.error('Error processing publication timeline data:', error);
-          return EMPTY;
-        })
-      )
-      .subscribe(() => {
-        this.calculateAndUpdateChart();
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   private initChartOptions(): void {
@@ -184,45 +183,6 @@ export class PublicationTimelineChartComponent implements OnInit, OnDestroy {
         }
       }
     };
-  }
-
-  private calculateAndUpdateChart(): void {
-    const currentState = this.bookService.getCurrentBookState();
-    const selectedLibraryId = this.libraryFilterService.getCurrentSelectedLibrary();
-
-    if (!this.isValidBookState(currentState)) {
-      this.chartDataSubject.next({labels: [], datasets: []});
-      this.insights = null;
-      this.totalBooks = 0;
-      return;
-    }
-
-    const filteredBooks = this.filterBooksByLibrary(currentState.books!, selectedLibraryId);
-    const booksWithDate = filteredBooks.filter(b => b.metadata?.publishedDate);
-
-    this.totalBooks = booksWithDate.length;
-
-    if (booksWithDate.length === 0) {
-      this.chartDataSubject.next({labels: [], datasets: []});
-      this.insights = null;
-      return;
-    }
-
-    const decadeStats = this.calculateDecadeStats(booksWithDate);
-    this.insights = this.calculateInsights(booksWithDate);
-    this.updateChartData(decadeStats);
-  }
-
-  private isValidBookState(state: unknown): state is BookState {
-    return (
-      typeof state === 'object' &&
-      state !== null &&
-      'loaded' in state &&
-      typeof (state as { loaded: boolean }).loaded === 'boolean' &&
-      'books' in state &&
-      Array.isArray((state as { books: unknown }).books) &&
-      (state as { books: Book[] }).books.length > 0
-    );
   }
 
   private filterBooksByLibrary(books: Book[], selectedLibraryId: number | null): Book[] {
@@ -393,24 +353,5 @@ export class PublicationTimelineChartComponent implements OnInit, OnDestroy {
       mostCommonYear,
       rarityScore
     };
-  }
-
-  private updateChartData(stats: DecadeStats[]): void {
-    const labels = stats.map(s => s.label);
-    const data = stats.map(s => s.count);
-    const colors = stats.map(s => s.color);
-
-    this.chartDataSubject.next({
-      labels,
-      datasets: [{
-        data,
-        backgroundColor: colors,
-        borderColor: colors,
-        borderWidth: 1,
-        borderRadius: 4,
-        barPercentage: 0.8,
-        categoryPercentage: 0.85
-      }]
-    });
   }
 }

@@ -1,12 +1,9 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, computed, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
-import {BehaviorSubject, EMPTY, Observable, Subject} from 'rxjs';
-import {catchError, filter, first, switchMap, takeUntil} from 'rxjs/operators';
 import {ChartConfiguration, ChartData} from 'chart.js';
 import {LibraryFilterService} from '../../service/library-filter.service';
 import {BookService} from '../../../../../book/service/book.service';
-import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book} from '../../../../../book/model/book.model';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
@@ -37,52 +34,72 @@ type TrendChartData = ChartData<'line', number[], string>;
   templateUrl: './publication-trend-chart.component.html',
   styleUrls: ['./publication-trend-chart.component.scss']
 })
-export class PublicationTrendChartComponent implements OnInit, OnDestroy {
+export class PublicationTrendChartComponent {
   private readonly bookService = inject(BookService);
   private readonly libraryFilterService = inject(LibraryFilterService);
   private readonly t = inject(TranslocoService);
-  private readonly destroy$ = new Subject<void>();
+  private readonly booksWithDate = computed(() => {
+    if (this.bookService.isBooksLoading()) {
+      return [];
+    }
+
+    const filteredBooks = this.filterBooksByLibrary(this.bookService.books(), this.libraryFilterService.selectedLibrary());
+    return filteredBooks.filter(b => b.metadata?.publishedDate);
+  });
+  private readonly yearCounts = computed(() => this.calculateYearCounts(this.booksWithDate()));
 
   public readonly chartType = 'line' as const;
   public chartOptions: ChartConfiguration<'line'>['options'];
-  public insights: TrendInsights | null = null;
-  public totalBooks = 0;
-  public yearRange = '';
+  public readonly insights = computed(() => {
+    const booksWithDate = this.booksWithDate();
+    if (booksWithDate.length === 0) {
+      return null;
+    }
 
-  private readonly chartDataSubject = new BehaviorSubject<TrendChartData>({
-    labels: [],
-    datasets: []
+    return this.calculateInsights(this.yearCounts(), booksWithDate.length);
   });
+  public readonly totalBooks = computed(() => this.booksWithDate().length);
+  public readonly yearRange = computed(() => {
+    const years = Array.from(this.yearCounts().keys()).sort((a, b) => a - b);
+    if (years.length === 0) {
+      return '';
+    }
 
-  public readonly chartData$: Observable<TrendChartData> = this.chartDataSubject.asObservable();
+    return `${years[0]} - ${years[years.length - 1]}`;
+  });
+  public readonly chartData = computed<TrendChartData>(() => {
+    const yearCounts = this.yearCounts();
+    const years = Array.from(yearCounts.keys()).sort((a, b) => a - b);
+
+    if (years.length === 0) {
+      return {labels: [], datasets: []};
+    }
+
+    const minYear = years[0];
+    const maxYear = years[years.length - 1];
+    const labels: string[] = [];
+    const data: number[] = [];
+
+    for (let year = minYear; year <= maxYear; year++) {
+      labels.push(year.toString());
+      data.push(yearCounts.get(year) || 0);
+    }
+
+    return {
+      labels,
+      datasets: [{
+        data,
+        borderColor: '#06b6d4',
+        backgroundColor: 'rgba(6, 182, 212, 0.1)',
+        pointBackgroundColor: '#06b6d4',
+        pointBorderColor: '#ffffff',
+        fill: true
+      }]
+    };
+  });
 
   constructor() {
     this.initChartOptions();
-  }
-
-  ngOnInit(): void {
-    this.bookService.bookState$
-      .pipe(
-        filter(state => state.loaded),
-        first(),
-        switchMap(() =>
-          this.libraryFilterService.selectedLibrary$.pipe(
-            takeUntil(this.destroy$)
-          )
-        ),
-        catchError((error) => {
-          console.error('Error processing publication trend data:', error);
-          return EMPTY;
-        })
-      )
-      .subscribe(() => {
-        this.calculateAndUpdateChart();
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   private initChartOptions(): void {
@@ -193,47 +210,6 @@ export class PublicationTrendChartComponent implements OnInit, OnDestroy {
         mode: 'index'
       }
     };
-  }
-
-  private calculateAndUpdateChart(): void {
-    const currentState = this.bookService.getCurrentBookState();
-    const selectedLibraryId = this.libraryFilterService.getCurrentSelectedLibrary();
-
-    if (!this.isValidBookState(currentState)) {
-      this.chartDataSubject.next({labels: [], datasets: []});
-      this.insights = null;
-      this.totalBooks = 0;
-      this.yearRange = '';
-      return;
-    }
-
-    const filteredBooks = this.filterBooksByLibrary(currentState.books!, selectedLibraryId);
-    const booksWithDate = filteredBooks.filter(b => b.metadata?.publishedDate);
-
-    this.totalBooks = booksWithDate.length;
-
-    if (booksWithDate.length === 0) {
-      this.chartDataSubject.next({labels: [], datasets: []});
-      this.insights = null;
-      this.yearRange = '';
-      return;
-    }
-
-    const yearCounts = this.calculateYearCounts(booksWithDate);
-    this.insights = this.calculateInsights(yearCounts, booksWithDate.length);
-    this.updateChartData(yearCounts);
-  }
-
-  private isValidBookState(state: unknown): state is BookState {
-    return (
-      typeof state === 'object' &&
-      state !== null &&
-      'loaded' in state &&
-      typeof (state as { loaded: boolean }).loaded === 'boolean' &&
-      'books' in state &&
-      Array.isArray((state as { books: unknown }).books) &&
-      (state as { books: Book[] }).books.length > 0
-    );
   }
 
   private filterBooksByLibrary(books: Book[], selectedLibraryId: number | null): Book[] {
@@ -354,40 +330,5 @@ export class PublicationTrendChartComponent implements OnInit, OnDestroy {
     }
 
     return `${bestStartYear}-${bestStartYear + 4}`;
-  }
-
-  private updateChartData(yearCounts: Map<number, number>): void {
-    const years = Array.from(yearCounts.keys()).sort((a, b) => a - b);
-
-    if (years.length === 0) {
-      this.chartDataSubject.next({labels: [], datasets: []});
-      this.yearRange = '';
-      return;
-    }
-
-    // Fill in gaps for continuous line
-    const minYear = years[0];
-    const maxYear = years[years.length - 1];
-    this.yearRange = `${minYear} - ${maxYear}`;
-
-    const labels: string[] = [];
-    const data: number[] = [];
-
-    for (let year = minYear; year <= maxYear; year++) {
-      labels.push(year.toString());
-      data.push(yearCounts.get(year) || 0);
-    }
-
-    this.chartDataSubject.next({
-      labels,
-      datasets: [{
-        data,
-        borderColor: '#06b6d4',
-        backgroundColor: 'rgba(6, 182, 212, 0.1)',
-        pointBackgroundColor: '#06b6d4',
-        pointBorderColor: '#ffffff',
-        fill: true
-      }]
-    });
   }
 }

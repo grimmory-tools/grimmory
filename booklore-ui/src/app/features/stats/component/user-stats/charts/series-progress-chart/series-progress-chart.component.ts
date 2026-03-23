@@ -1,12 +1,10 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, effect, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
 import {Tooltip} from 'primeng/tooltip';
-import {BehaviorSubject, EMPTY, Observable, Subject} from 'rxjs';
-import {catchError, filter, first, switchMap, takeUntil} from 'rxjs/operators';
+import {BehaviorSubject, Observable} from 'rxjs';
 import {ChartConfiguration, ChartData} from 'chart.js';
 import {BookService} from '../../../../../book/service/book.service';
-import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book, ReadStatus} from '../../../../../book/model/book.model';
 import {LibraryFilterService} from '../../../library-stats/service/library-filter.service';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
@@ -48,11 +46,17 @@ type SeriesChartData = ChartData<'bar', number[], string>;
   templateUrl: './series-progress-chart.component.html',
   styleUrls: ['./series-progress-chart.component.scss']
 })
-export class SeriesProgressChartComponent implements OnInit, OnDestroy {
+export class SeriesProgressChartComponent {
   private readonly bookService = inject(BookService);
   private readonly libraryFilterService = inject(LibraryFilterService);
   private readonly t = inject(TranslocoService);
-  private readonly destroy$ = new Subject<void>();
+  private readonly syncChartEffect = effect(() => {
+    if (this.bookService.isBooksLoading()) {
+      return;
+    }
+
+    this.calculateAndUpdateChart(this.bookService.books(), this.libraryFilterService.selectedLibrary());
+  });
 
   public readonly chartType = 'bar' as const;
   public seriesList: SeriesInfo[] = [];
@@ -173,31 +177,6 @@ export class SeriesProgressChartComponent implements OnInit, OnDestroy {
 
   public readonly chartData$: Observable<SeriesChartData> = this.chartDataSubject.asObservable();
 
-  ngOnInit(): void {
-    this.bookService.bookState$
-      .pipe(
-        filter(state => state.loaded),
-        first(),
-        switchMap(() =>
-          this.libraryFilterService.selectedLibrary$.pipe(
-            takeUntil(this.destroy$)
-          )
-        ),
-        catchError((error) => {
-          console.error('Error processing series data:', error);
-          return EMPTY;
-        })
-      )
-      .subscribe(() => {
-        this.calculateAndUpdateChart();
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   onSearchChange(term: string): void {
     this.searchTerm = term.toLowerCase().trim();
     this.currentPage = 0;
@@ -279,11 +258,8 @@ export class SeriesProgressChartComponent implements OnInit, OnDestroy {
     this.updateChartData();
   }
 
-  private calculateAndUpdateChart(): void {
-    const currentState = this.bookService.getCurrentBookState();
-    const selectedLibraryId = this.libraryFilterService.getCurrentSelectedLibrary();
-
-    if (!this.isValidBookState(currentState)) {
+  private calculateAndUpdateChart(books: Book[], selectedLibraryId: number | null): void {
+    if (books.length === 0) {
       this.chartDataSubject.next({labels: [], datasets: []});
       this.seriesList = [];
       this.displayedSeries = [];
@@ -291,7 +267,7 @@ export class SeriesProgressChartComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const filteredBooks = this.filterBooksByLibrary(currentState.books!, selectedLibraryId);
+    const filteredBooks = this.filterBooksByLibrary(books, selectedLibraryId);
     const seriesBooks = this.getBooksInSeries(filteredBooks);
 
     if (seriesBooks.length === 0) {
@@ -308,18 +284,6 @@ export class SeriesProgressChartComponent implements OnInit, OnDestroy {
     this.stats = this.calculateSeriesStats(this.seriesList);
     this.currentPage = 0;
     this.applyFiltersAndSort();
-  }
-
-  private isValidBookState(state: unknown): state is BookState {
-    return (
-      typeof state === 'object' &&
-      state !== null &&
-      'loaded' in state &&
-      typeof (state as {loaded: boolean}).loaded === 'boolean' &&
-      'books' in state &&
-      Array.isArray((state as {books: unknown}).books) &&
-      (state as {books: Book[]}).books.length > 0
-    );
   }
 
   private filterBooksByLibrary(books: Book[], selectedLibraryId: string | number | null): Book[] {

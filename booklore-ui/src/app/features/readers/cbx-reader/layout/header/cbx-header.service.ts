@@ -1,6 +1,6 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Injectable, signal} from '@angular/core';
 import {Location} from '@angular/common';
-import {BehaviorSubject, Subject} from 'rxjs';
+import {Subject} from 'rxjs';
 import {CbxSidebarService} from '../sidebar/cbx-sidebar.service';
 
 export interface CbxHeaderState {
@@ -11,22 +11,23 @@ export interface CbxHeaderState {
 
 @Injectable()
 export class CbxHeaderService {
-  private sidebarService = inject(CbxSidebarService);
-  private location = inject(Location);
-
-  private destroy$ = new Subject<void>();
-  private bookId!: number;
-  private bookTitle = '';
-
-  private _forceVisible = new BehaviorSubject<boolean>(true);
-  forceVisible$ = this._forceVisible.asObservable();
-
-  private _state = new BehaviorSubject<CbxHeaderState>({
+  private readonly defaultState: CbxHeaderState = {
     isFullscreen: false,
     isSlideshowActive: false,
     isMagnifierActive: false
-  });
-  state$ = this._state.asObservable();
+  };
+
+  private sidebarService = inject(CbxSidebarService);
+  private location = inject(Location);
+
+  private readonly _bookTitle = signal('');
+  readonly bookTitle = this._bookTitle.asReadonly();
+
+  private readonly _forceVisible = signal(true);
+  readonly forceVisible = this._forceVisible.asReadonly();
+
+  private readonly _state = signal<CbxHeaderState>(this.defaultState);
+  readonly state = this._state.asReadonly();
 
   private _showQuickSettings = new Subject<void>();
   showQuickSettings$ = this._showQuickSettings.asObservable();
@@ -49,30 +50,16 @@ export class CbxHeaderService {
   private _showShortcutsHelp = new Subject<void>();
   showShortcutsHelp$ = this._showShortcutsHelp.asObservable();
 
-  get title(): string {
-    return this.bookTitle;
-  }
-
-  get isVisible(): boolean {
-    return this._forceVisible.value;
-  }
-
-  get state(): CbxHeaderState {
-    return this._state.value;
-  }
-
-  initialize(bookId: number, title: string | undefined, destroy$: Subject<void>): void {
-    this.bookId = bookId;
-    this.bookTitle = title || '';
-    this.destroy$ = destroy$;
+  initialize(title: string | undefined): void {
+    this._bookTitle.set(title || '');
   }
 
   setForceVisible(visible: boolean): void {
-    this._forceVisible.next(visible);
+    this._forceVisible.set(visible);
   }
 
   updateState(partial: Partial<CbxHeaderState>): void {
-    this._state.next({...this._state.value, ...partial});
+    this._state.update(current => ({...current, ...partial}));
   }
 
   openSidebar(): void {
@@ -112,8 +99,8 @@ export class CbxHeaderService {
   }
 
   reset(): void {
-    this._forceVisible.next(true);
-    this._state.next({isFullscreen: false, isSlideshowActive: false, isMagnifierActive: false});
-    this.bookTitle = '';
+    this._forceVisible.set(true);
+    this._state.set(this.defaultState);
+    this._bookTitle.set('');
   }
 }

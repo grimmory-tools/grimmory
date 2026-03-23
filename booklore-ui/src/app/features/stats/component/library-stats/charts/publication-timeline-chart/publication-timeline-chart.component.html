@@ -8,23 +8,23 @@
       </h3>
       <p class="chart-description">{{ t('description') }}</p>
     </div>
-    @if (totalBooks > 0) {
+    @if (totalBooks() > 0) {
       <div class="books-count-badge">
-        {{ t('booksWithDates', { count: totalBooks }) }}
+        {{ t('booksWithDates', { count: totalBooks() }) }}
       </div>
     }
   </div>
 
-  @if (totalBooks > 0) {
+  @if (totalBooks() > 0) {
     <div class="chart-wrapper">
       <canvas baseChart
-              [data]="(chartData$ | async) ?? {labels: [], datasets: []}"
+              [data]="chartData()"
               [options]="chartOptions"
               [type]="chartType">
       </canvas>
     </div>
 
-    @if (insights) {
+    @if (insights(); as insights) {
       <div class="insights-section">
         <div class="insights-row">
           @if (insights.oldestBook) {
@@ -85,7 +85,7 @@
     }
   }
 
-  @if (totalBooks === 0) {
+  @if (totalBooks() === 0) {
     <div class="no-data-message">
       <i class="pi pi-info-circle"></i>
       <p>{{ t('noData') }}</p>

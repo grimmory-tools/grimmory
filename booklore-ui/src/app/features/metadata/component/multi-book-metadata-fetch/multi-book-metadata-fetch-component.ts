@@ -1,5 +1,4 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
-import {Subject, takeUntil} from 'rxjs';
+import {Component, effect, inject} from '@angular/core';
 
 import {MetadataRefreshType} from '../../model/request/metadata-refresh-type.enum';
 import {MetadataRefreshOptions} from '../../model/request/metadata-refresh-options.model';
@@ -19,13 +18,11 @@ import {Button} from 'primeng/button';
   styleUrl: './multi-book-metadata-fetch-component.scss',
   imports: [MetadataFetchOptionsComponent, FormsModule, Button],
 })
-export class MultiBookMetadataFetchComponent implements OnInit, OnDestroy {
+export class MultiBookMetadataFetchComponent {
   bookIds!: number[];
   booksToShow: Book[] = [];
   metadataRefreshType!: MetadataRefreshType;
   currentMetadataOptions!: MetadataRefreshOptions;
-
-  private destroy$ = new Subject<void>();
 
   private dynamicDialogConfig = inject(DynamicDialogConfig);
   dialogRef = inject(DynamicDialogRef);
@@ -33,21 +30,16 @@ export class MultiBookMetadataFetchComponent implements OnInit, OnDestroy {
   private appSettingsService = inject(AppSettingsService);
   expanded = false;
 
-  ngOnInit(): void {
+  constructor() {
     this.bookIds = this.dynamicDialogConfig.data.bookIds;
     this.metadataRefreshType = this.dynamicDialogConfig.data.metadataRefreshType;
+    this.booksToShow = this.bookService.getBooksByIds(this.bookIds);
 
-    this.booksToShow = this.bookService.getBooksByIdsFromState(this.bookIds);
-
-    this.appSettingsService.appSettings$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(settings => {
-        this.currentMetadataOptions = settings!.defaultMetadataRefreshOptions;
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    effect(() => {
+      const settings = this.appSettingsService.appSettings();
+      if (settings) {
+        this.currentMetadataOptions = settings.defaultMetadataRefreshOptions;
+      }
+    });
   }
 }

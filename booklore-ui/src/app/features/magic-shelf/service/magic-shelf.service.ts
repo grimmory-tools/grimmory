@@ -1,8 +1,10 @@
-import {inject, Injectable} from '@angular/core';
-import {API_CONFIG} from '../../../core/config/api-config';
+import {computed, effect, inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {BehaviorSubject, Observable, of} from 'rxjs';
-import {catchError, distinctUntilChanged, finalize, map, shareReplay, switchMap, tap} from 'rxjs/operators';
+import {lastValueFrom, Observable} from 'rxjs';
+import {tap} from 'rxjs/operators';
+import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
+
+import {API_CONFIG} from '../../../core/config/api-config';
 import {BookService} from '../../book/service/book.service';
 import {BookRuleEvaluatorService} from './book-rule-evaluator.service';
 import {AuthService} from '../../../shared/service/auth.service';
@@ -17,11 +19,7 @@ export interface MagicShelf {
   isPublic?: boolean;
 }
 
-export interface MagicShelfState {
-  shelves: MagicShelf[] | null;
-  loaded: boolean;
-  error: string | null;
-}
+const MAGIC_SHELVES_QUERY_KEY = ['magicShelves'] as const;
 
 @Injectable({
   providedIn: 'root',
@@ -33,68 +31,51 @@ export class MagicShelfService {
   private readonly bookService = inject(BookService);
   private readonly ruleEvaluatorService = inject(BookRuleEvaluatorService);
   private readonly authService = inject(AuthService);
+  private readonly queryClient = inject(QueryClient);
+  private readonly token = this.authService.token;
 
-  private readonly shelvesStateSubject = new BehaviorSubject<MagicShelfState>({
-    shelves: null,
-    loaded: false,
-    error: null,
+  private readonly shelvesQuery = injectQuery(() => ({
+    ...this.getShelvesQueryOptions(),
+    enabled: !!this.token(),
+  }));
+
+  readonly shelves = computed(() => this.shelvesQuery.data() ?? []);
+
+  readonly shelvesError = computed<string | null>(() => {
+    if (!this.token() || !this.shelvesQuery.isError()) {
+      return null;
+    }
+
+    const error = this.shelvesQuery.error();
+    return error instanceof Error ? error.message : 'Failed to load magic shelves';
   });
 
-  private loading$: Observable<MagicShelf[]> | null = null;
+  readonly isShelvesLoading = computed(() => !!this.token() && this.shelvesQuery.isPending());
 
   constructor() {
-    this.authService.token$.pipe(
-      distinctUntilChanged()
-    ).subscribe(token => {
+    effect(() => {
+      const token = this.token();
       if (token === null) {
-        this.shelvesStateSubject.next({
-          shelves: null,
-          loaded: true,
-          error: null,
-        });
-        this.loading$ = null;
-      } else {
-        const current = this.shelvesStateSubject.value;
-        if (current.loaded && !current.shelves) {
-          this.shelvesStateSubject.next({
-            shelves: null,
-            loaded: false,
-            error: null,
-          });
-          this.loading$ = null;
-        }
+        this.queryClient.removeQueries({queryKey: MAGIC_SHELVES_QUERY_KEY});
       }
     });
   }
 
-  public readonly shelvesState$ = this.shelvesStateSubject.asObservable().pipe(
-    tap(state => {
-      if (!state.loaded && !state.error && !this.loading$) {
-        this.loading$ = this.fetchMagicShelves().pipe(
-          shareReplay(1),
-          finalize(() => (this.loading$ = null))
-        );
-        this.loading$.subscribe();
-      }
-    })
-  );
-
-  private get state(): MagicShelfState {
-    return this.shelvesStateSubject.value;
+  private getShelvesQueryOptions() {
+    return queryOptions({
+      queryKey: MAGIC_SHELVES_QUERY_KEY,
+      queryFn: () => lastValueFrom(this.http.get<MagicShelf[]>(this.url))
+    });
   }
 
-  private fetchMagicShelves(): Observable<MagicShelf[]> {
-    return this.http.get<MagicShelf[]>(this.url).pipe(
-      tap(shelves => this.shelvesStateSubject.next({shelves, loaded: true, error: null})),
-      catchError(err => {
-        const curr = this.shelvesStateSubject.value;
-        this.shelvesStateSubject.next({shelves: curr.shelves, loaded: true, error: err.message});
-        throw err;
-      })
-    );
-  }
-
-  saveShelf(data: { id?: number; name: string | null; icon: string | null; iconType?: 'PRIME_NG' | 'CUSTOM_SVG'; group: unknown, isPublic?: boolean | null }): Observable<MagicShelf> {
+  saveShelf(data: {
+    id?: number;
+    name: string | null;
+    icon: string | null;
+    iconType?: 'PRIME_NG' | 'CUSTOM_SVG';
+    group: unknown;
+    isPublic?: boolean | null;
+  }): Observable<MagicShelf> {
     const payload: MagicShelf = {
       id: data.id,
       name: data.name ?? '',
@@ -105,70 +86,40 @@ export class MagicShelfService {
     };
 
     return this.http.post<MagicShelf>(this.url, payload).pipe(
-      tap((newShelf) => {
-        const curr = this.state;
-        const shelves = curr.shelves || [];
-        const updated = shelves.some((s) => s.id === newShelf.id)
-          ? shelves.map((s) => (s.id === newShelf.id ? newShelf : s))
-          : [...shelves, newShelf];
-
-        this.shelvesStateSubject.next({...curr, shelves: updated});
-      }),
-      catchError((error) => {
-        this.updateError(error.message);
-        throw error;
+      tap(() => {
+        void this.queryClient.invalidateQueries({queryKey: MAGIC_SHELVES_QUERY_KEY, exact: true});
       })
     );
   }
 
-  getShelf(id: number): Observable<MagicShelf | undefined> {
-    return this.shelvesState$.pipe(
-      map(state => (state.shelves || []).find(shelf => shelf.id === id))
-    );
+  findShelfById(id: number): MagicShelf | undefined {
+    return this.shelves().find(shelf => shelf.id === id);
+  }
+
+  getBookCountValue(shelfId: number): number {
+    const shelf = this.findShelfById(shelfId);
+    if (!shelf) {
+      return 0;
+    }
+
+    let group: GroupRule;
+    try {
+      group = JSON.parse(shelf.filterJson);
+    } catch (error) {
+      console.error('Invalid filter JSON', error);
+      return 0;
+    }
+
+    const allBooks = this.bookService.books();
+    return allBooks.filter(book =>
+      this.ruleEvaluatorService.evaluateGroup(book, group, allBooks)
+    ).length;
   }
 
   deleteShelf(id: number): Observable<void> {
     return this.http.delete<void>(`${this.url}/${id}`).pipe(
       tap(() => {
-        const curr = this.state;
-        const updated = (curr.shelves || []).filter((s) => s.id !== id);
-        this.shelvesStateSubject.next({...curr, shelves: updated});
-      }),
-      catchError((error) => {
-        this.updateError(error.message);
-        throw error;
-      })
-    );
-  }
-
-  private updateError(error: string): void {
-    this.shelvesStateSubject.next({
-      ...this.state,
-      error,
-      loaded: true,
-    });
-  }
-
-  getBookCount(shelfId: number): Observable<number> {
-    return this.getShelf(shelfId).pipe(
-      switchMap((shelf) => {
-        if (!shelf) return of(0);
-        let group: GroupRule;
-        try {
-          group = JSON.parse(shelf.filterJson);
-        } catch (e) {
-          console.error('Invalid filter JSON', e);
-          return of(0);
-        }
-
-        return this.bookService.bookState$.pipe(
-          map((state) => {
-            const allBooks = state.books ?? [];
-            return allBooks.filter((book) =>
-              this.ruleEvaluatorService.evaluateGroup(book, group, allBooks)
-            ).length;
-          })
-        );
+        void this.queryClient.invalidateQueries({queryKey: MAGIC_SHELVES_QUERY_KEY, exact: true});
       })
     );
   }

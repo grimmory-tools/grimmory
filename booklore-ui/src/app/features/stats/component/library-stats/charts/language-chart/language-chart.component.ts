@@ -1,12 +1,9 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, computed, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
-import {BehaviorSubject, EMPTY, Observable, Subject} from 'rxjs';
-import {catchError, filter, first, switchMap, takeUntil} from 'rxjs/operators';
 import {ChartConfiguration, ChartData} from 'chart.js';
 import {LibraryFilterService} from '../../service/library-filter.service';
 import {BookService} from '../../../../../book/service/book.service';
-import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book} from '../../../../../book/model/book.model';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
@@ -136,16 +133,22 @@ const LANGUAGE_NAMES: Record<string, string> = {
   templateUrl: './language-chart.component.html',
   styleUrls: ['./language-chart.component.scss']
 })
-export class LanguageChartComponent implements OnInit, OnDestroy {
+export class LanguageChartComponent {
   private readonly bookService = inject(BookService);
   private readonly libraryFilterService = inject(LibraryFilterService);
   private readonly t = inject(TranslocoService);
-  private readonly destroy$ = new Subject<void>();
+  private readonly filteredBooks = computed(() => {
+    if (this.bookService.isBooksLoading()) {
+      return [];
+    }
+
+    return this.filterBooksByLibrary(this.bookService.books(), this.libraryFilterService.selectedLibrary());
+  });
 
   public readonly chartType = 'pie' as const;
-  public languageStats: LanguageStats[] = [];
-  public totalBooks = 0;
-  public booksWithLanguage = 0;
+  public readonly languageStats = computed(() => this.calculateLanguageStats(this.filteredBooks()));
+  public readonly totalBooks = computed(() => this.filteredBooks().length);
+  public readonly booksWithLanguage = computed(() => this.languageStats().reduce((sum, s) => sum + s.count, 0));
 
   public readonly chartOptions: ChartConfiguration<'pie'>['options'] = {
     responsive: true,
@@ -194,76 +197,28 @@ export class LanguageChartComponent implements OnInit, OnDestroy {
     }
   };
 
-  private readonly chartDataSubject = new BehaviorSubject<LanguageChartData>({
-    labels: [],
-    datasets: []
+  public readonly chartData = computed<LanguageChartData>(() => {
+    const stats = this.languageStats();
+    if (stats.length === 0) {
+      return {labels: [], datasets: []};
+    }
+
+    const labels = stats.map(s => s.displayName);
+    const data = stats.map(s => s.count);
+    const colors = stats.map((_, index) => LANGUAGE_COLORS[index % LANGUAGE_COLORS.length]);
+
+    return {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: colors,
+        borderColor: colors.map(() => 'rgba(255, 255, 255, 0.2)'),
+        borderWidth: 2,
+        hoverBorderColor: '#ffffff',
+        hoverBorderWidth: 3
+      }]
+    };
   });
-
-  public readonly chartData$: Observable<LanguageChartData> = this.chartDataSubject.asObservable();
-
-  ngOnInit(): void {
-    this.bookService.bookState$
-      .pipe(
-        filter(state => state.loaded),
-        first(),
-        switchMap(() =>
-          this.libraryFilterService.selectedLibrary$.pipe(
-            takeUntil(this.destroy$)
-          )
-        ),
-        catchError((error) => {
-          console.error('Error processing language data:', error);
-          return EMPTY;
-        })
-      )
-      .subscribe(() => {
-        this.calculateAndUpdateChart();
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  private calculateAndUpdateChart(): void {
-    const currentState = this.bookService.getCurrentBookState();
-    const selectedLibraryId = this.libraryFilterService.getCurrentSelectedLibrary();
-
-    if (!this.isValidBookState(currentState)) {
-      this.chartDataSubject.next({labels: [], datasets: []});
-      this.languageStats = [];
-      this.totalBooks = 0;
-      this.booksWithLanguage = 0;
-      return;
-    }
-
-    const filteredBooks = this.filterBooksByLibrary(currentState.books!, selectedLibraryId);
-    this.totalBooks = filteredBooks.length;
-
-    if (filteredBooks.length === 0) {
-      this.chartDataSubject.next({labels: [], datasets: []});
-      this.languageStats = [];
-      return;
-    }
-
-    const stats = this.calculateLanguageStats(filteredBooks);
-    this.languageStats = stats;
-    this.booksWithLanguage = stats.reduce((sum, s) => sum + s.count, 0);
-    this.updateChartData(stats);
-  }
-
-  private isValidBookState(state: unknown): state is BookState {
-    return (
-      typeof state === 'object' &&
-      state !== null &&
-      'loaded' in state &&
-      typeof (state as { loaded: boolean }).loaded === 'boolean' &&
-      'books' in state &&
-      Array.isArray((state as { books: unknown }).books) &&
-      (state as { books: Book[] }).books.length > 0
-    );
-  }
 
   private filterBooksByLibrary(books: Book[], selectedLibraryId: number | null): Book[] {
     return selectedLibraryId
@@ -312,23 +267,5 @@ export class LanguageChartComponent implements OnInit, OnDestroy {
     }
     // Capitalize first letter if no mapping found
     return language.charAt(0).toUpperCase() + language.slice(1);
-  }
-
-  private updateChartData(stats: LanguageStats[]): void {
-    const labels = stats.map(s => s.displayName);
-    const data = stats.map(s => s.count);
-    const colors = stats.map((_, index) => LANGUAGE_COLORS[index % LANGUAGE_COLORS.length]);
-
-    this.chartDataSubject.next({
-      labels,
-      datasets: [{
-        data,
-        backgroundColor: colors,
-        borderColor: colors.map(() => 'rgba(255, 255, 255, 0.2)'),
-        borderWidth: 2,
-        hoverBorderColor: '#ffffff',
-        hoverBorderWidth: 3
-      }]
-    });
   }
 }

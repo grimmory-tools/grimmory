@@ -1,5 +1,5 @@
-import {inject, Injectable} from '@angular/core';
-import {BehaviorSubject, Subject} from 'rxjs';
+import {Injectable, signal} from '@angular/core';
+import {Subject} from 'rxjs';
 import {Book} from '../../../../book/model/book.model';
 
 export interface CbxFooterState {
@@ -13,18 +13,20 @@ export interface CbxFooterState {
 
 @Injectable()
 export class CbxFooterService {
-  private _state = new BehaviorSubject<CbxFooterState>({
+  private readonly defaultState: CbxFooterState = {
     currentPage: 0,
     totalPages: 0,
     isTwoPageView: false,
     previousBookInSeries: null,
     nextBookInSeries: null,
     hasSeries: false
-  });
-  state$ = this._state.asObservable();
+  };
 
-  private _forceVisible = new BehaviorSubject<boolean>(false);
-  forceVisible$ = this._forceVisible.asObservable();
+  private readonly _state = signal<CbxFooterState>(this.defaultState);
+  readonly state = this._state.asReadonly();
+
+  private readonly _forceVisible = signal(false);
+  readonly forceVisible = this._forceVisible.asReadonly();
 
   private _previousPage = new Subject<void>();
   previousPage$ = this._previousPage.asObservable();
@@ -50,20 +52,12 @@ export class CbxFooterService {
   private _sliderChange = new Subject<number>();
   sliderChange$ = this._sliderChange.asObservable();
 
-  get state(): CbxFooterState {
-    return this._state.value;
-  }
-
-  get isVisible(): boolean {
-    return this._forceVisible.value;
-  }
-
   setForceVisible(visible: boolean): void {
-    this._forceVisible.next(visible);
+    this._forceVisible.set(visible);
   }
 
   updateState(partial: Partial<CbxFooterState>): void {
-    this._state.next({...this._state.value, ...partial});
+    this._state.update(current => ({...current, ...partial}));
   }
 
   setCurrentPage(page: number): void {
@@ -123,14 +117,7 @@ export class CbxFooterService {
   }
 
   reset(): void {
-    this._state.next({
-      currentPage: 0,
-      totalPages: 0,
-      isTwoPageView: false,
-      previousBookInSeries: null,
-      nextBookInSeries: null,
-      hasSeries: false
-    });
-    this._forceVisible.next(false);
+    this._state.set(this.defaultState);
+    this._forceVisible.set(false);
   }
 }

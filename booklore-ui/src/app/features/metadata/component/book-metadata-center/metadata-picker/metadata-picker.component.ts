@@ -1,19 +1,17 @@
-import {Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
+import {Component, computed, DestroyRef, effect, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
 import {Book, BookMetadata, ComicMetadata, MetadataClearFlags, MetadataUpdateWrapper} from '../../../../book/model/book.model';
 import {MessageService} from 'primeng/api';
 import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray} from '@angular/cdk/drag-drop';
 import {Button} from 'primeng/button';
 import {FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {InputText} from 'primeng/inputtext';
-import {AsyncPipe} from '@angular/common';
 import {forkJoin, Observable} from 'rxjs';
 import {Tooltip} from 'primeng/tooltip';
 import {UrlHelperService} from '../../../../../shared/service/url-helper.service';
 import {BookService} from '../../../../book/service/book.service';
 import {BookMetadataManageService} from '../../../../book/service/book-metadata-manage.service';
 import {Textarea} from 'primeng/textarea';
-import {filter, take} from 'rxjs/operators';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+
 import {AutoComplete, AutoCompleteSelectEvent} from 'primeng/autocomplete';
 import {Image} from 'primeng/image';
 import {Checkbox} from 'primeng/checkbox';
@@ -34,7 +32,6 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
     InputText,
     ReactiveFormsModule,
     Tooltip,
-    AsyncPipe,
     Textarea,
     AutoComplete,
     Image,
@@ -63,13 +60,36 @@ export class MetadataPickerComponent implements OnInit {
 
   @Input() reviewMode!: boolean;
   @Input() fetchedMetadata!: BookMetadata;
-  @Input() book$!: Observable<Book | null>;
+  @Input()
+  set book(value: Book | null) {
+    this.currentBook = value;
+
+    const metadata = value?.metadata;
+    if (!metadata) return;
+
+    if (this.reviewMode) {
+      this.metadataForm.reset();
+      this.copiedFields = {};
+      this.savedFields = {};
+      this.hoveredFields = {};
+    }
+
+    this.originalMetadata = metadata;
+    this.originalMetadata.thumbnailUrl = this.urlHelper.getThumbnailUrl(metadata.bookId, metadata.coverUpdatedOn);
+    this.currentBookId = metadata.bookId;
+    this.patchMetadataToForm(metadata, value);
+  }
+
+  get book(): Book | null {
+    return this.currentBook;
+  }
+
   @Input() detailLoading = false;
   @Output() goBack = new EventEmitter<boolean>();
 
   currentBook: Book | null = null;
 
-  private allItems: Record<string, string[]> = {};
+  private get allItems(): Record<string, string[]> { return this.uniqueMetadata(); }
   filteredItems: Record<string, string[]> = {};
   authorInputValue = '';
 
@@ -90,6 +110,8 @@ export class MetadataPickerComponent implements OnInit {
   private formBuilder = inject(MetadataFormBuilder);
   private metadataUtils = inject(MetadataUtilsService);
   private readonly t = inject(TranslocoService);
+  private readonly uniqueMetadata = computed(() => this.bookService.uniqueMetadata());
+
 
   private enabledProviderFields: MetadataProviderSpecificFields | null = null;
 
@@ -130,64 +152,16 @@ export class MetadataPickerComponent implements OnInit {
       .filter(item => item.toLowerCase().includes(query));
   }
 
+  private readonly syncProviderFieldsEffect = effect(() => {
+    const settings = this.appSettingsService.appSettings();
+    if (settings?.metadataProviderSpecificFields) {
+      this.enabledProviderFields = settings.metadataProviderSpecificFields;
+      this.updateProviderFields();
+      this.updateBottomFields();
+    }
+  });
+
   ngOnInit(): void {
-    this.appSettingsService.appSettings$
-      .pipe(
-        filter(settings => !!settings?.metadataProviderSpecificFields),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe(settings => {
-        if (settings?.metadataProviderSpecificFields) {
-          this.enabledProviderFields = settings.metadataProviderSpecificFields;
-          this.updateProviderFields();
-          this.updateBottomFields();
-        }
-      });
-
-    this.bookService.bookState$
-      .pipe(
-        filter(bookState => bookState.loaded),
-        take(1)
-      )
-      .subscribe(bookState => {
-        const itemSets: Record<string, Set<string>> = {
-          authors: new Set<string>(),
-          categories: new Set<string>(),
-          moods: new Set<string>(),
-          tags: new Set<string>()
-        };
-
-        (bookState.books ?? []).forEach(book => {
-          for (const key of Object.keys(itemSets)) {
-            const values = book.metadata?.[key as keyof BookMetadata] as string[] | undefined;
-            values?.forEach(v => itemSets[key].add(v));
-          }
-        });
-
-        for (const key of Object.keys(itemSets)) {
-          this.allItems[key] = Array.from(itemSets[key]);
-        }
-      });
-
-    this.book$
-      .pipe(
-        filter((book): book is Book => !!book && !!book.metadata),
-        takeUntilDestroyed(this.destroyRef)
-      ).subscribe((book) => {
-      if (this.reviewMode) {
-        this.metadataForm.reset();
-        this.copiedFields = {};
-        this.savedFields = {};
-        this.hoveredFields = {};
-      }
-
-      this.currentBook = book;
-      const metadata = book.metadata!;
-      this.originalMetadata = metadata;
-      this.originalMetadata.thumbnailUrl = this.urlHelper.getThumbnailUrl(metadata.bookId, metadata.coverUpdatedOn);
-      this.currentBookId = metadata.bookId;
-      this.patchMetadataToForm(metadata, book);
-    });
   }
 
   private patchMetadataToForm(metadata: BookMetadata, book: Book): void {

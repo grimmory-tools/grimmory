@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
+import {Component, DestroyRef, effect, inject, Input, OnChanges, OnInit, signal, SimpleChanges} from '@angular/core';
 
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {BookReview, BookReviewService} from './book-review-service';
@@ -36,6 +36,7 @@ export class BookReviewsComponent implements OnInit, OnChanges {
   private appSettingsService = inject(AppSettingsService);
   private destroyRef = inject(DestroyRef);
   private readonly t = inject(TranslocoService);
+  private bookIdState = signal<number | null>(null);
 
   loading = false;
   hasPermission = false;
@@ -45,27 +46,29 @@ export class BookReviewsComponent implements OnInit, OnChanges {
   allSpoilersRevealed = false;
   reviewDownloadEnabled = true;
 
+  constructor() {
+    effect(() => {
+      const bookId = this.bookIdState();
+      if (!bookId) {
+        this.reviewsLocked = false;
+        return;
+      }
+
+      const book = this.bookService.findBookById(bookId);
+      this.reviewsLocked = book?.metadata?.reviewsLocked ?? false;
+    });
+  }
+
   ngOnInit(): void {
     this.checkUserPermissions();
-    this.subscribeToBookState();
     this.subscribeToAppSettings();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['bookId'] && changes['bookId'].currentValue) {
+      this.bookIdState.set(changes['bookId'].currentValue);
       this.loadReviews();
     }
-  }
-
-  private subscribeToBookState(): void {
-    this.bookService.bookState$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(state => {
-        if (state.books && this.bookId) {
-          const book = state.books.find(b => b.id === this.bookId);
-          this.reviewsLocked = book?.metadata?.reviewsLocked ?? false;
-        }
-      });
   }
 
   private loadReviews(): void {
@@ -244,12 +247,9 @@ export class BookReviewsComponent implements OnInit, OnChanges {
   }
 
   private checkUserPermissions(): void {
-    this.userService.userState$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(userState => {
-        this.hasPermission = userState?.user?.permissions?.admin ||
-          userState?.user?.permissions?.canEditMetadata || false;
-      });
+    const user = this.userService.currentUser();
+    this.hasPermission = user?.permissions?.admin ||
+      user?.permissions?.canEditMetadata || false;
   }
 
   deleteReview(review: BookReview): void {
@@ -315,11 +315,8 @@ export class BookReviewsComponent implements OnInit, OnChanges {
   }
 
   private subscribeToAppSettings(): void {
-    this.appSettingsService.appSettings$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(settings => {
-        this.reviewDownloadEnabled = settings?.metadataPublicReviewsSettings?.downloadEnabled ?? true;
-      });
+    const settings = this.appSettingsService.appSettings();
+    this.reviewDownloadEnabled = settings?.metadataPublicReviewsSettings?.downloadEnabled ?? true;
   }
 
   getProviderSeverity(provider: string): 'success' | 'warn' {

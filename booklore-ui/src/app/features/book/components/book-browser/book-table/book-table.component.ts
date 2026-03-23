@@ -12,9 +12,8 @@ import {BookService} from '../../../service/book.service';
 import {BookMetadataManageService} from '../../../service/book-metadata-manage.service';
 import {MessageService} from 'primeng/api';
 import {RouterLink} from '@angular/router';
-import {filter, Subject} from 'rxjs';
+import {Subject} from 'rxjs';
 import {UserService} from '../../../../settings/user-management/user.service';
-import {take, takeUntil} from 'rxjs/operators';
 import {ReadStatusHelper} from '../../../helpers/read-status.helper';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
@@ -85,18 +84,13 @@ export class BookTableComponent implements OnInit, OnDestroy, OnChanges {
   scrollHeight = 'calc(100dvh - 160px)';
 
   ngOnInit(): void {
-    this.userService.userState$
-      .pipe(
-        filter(userState => !!userState?.user && userState.loaded),
-        take(1),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(userState => {
-        this.metadataCenterViewMode = userState?.user?.userSettings.metadataCenterViewMode ?? 'route';
-      });
+    const user = this.userService.currentUser();
+    if (user) {
+      this.metadataCenterViewMode = user.userSettings.metadataCenterViewMode ?? 'route';
+    }
 
     this.selectedBookIds = this.preselectedBookIds;
-    this.selectedBooks = this.bookService.getBooksByIdsFromState([...this.selectedBookIds]);
+    this.selectedBooks = this.bookService.getBooksByIds([...this.selectedBookIds]);
     this.setScrollHeight();
     window.addEventListener('resize', this.setScrollHeight.bind(this));
   }

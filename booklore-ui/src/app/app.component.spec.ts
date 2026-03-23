@@ -1,8 +1,9 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {signal} from '@angular/core';
 import {AppComponent} from './app.component';
 import {AuthInitializationService} from './core/security/auth-initialization-service';
-import {BehaviorSubject, of} from 'rxjs';
+import {of} from 'rxjs';
 import {RxStompService} from './shared/websocket/rx-stomp.service';
 import {BookService} from './features/book/service/book.service';
 import {NotificationEventService} from './shared/websocket/notification-event.service';
@@ -18,15 +19,12 @@ import {TranslocoTestingModule} from '@jsverse/transloco';
 describe('AppComponent offline detection', () => {
   let fixture: ComponentFixture<AppComponent>;
   let component: AppComponent;
-  let authInitSubject: BehaviorSubject<boolean>;
 
   beforeEach(() => {
-    authInitSubject = new BehaviorSubject<boolean>(false);
-
     TestBed.configureTestingModule({
       imports: [TranslocoTestingModule.forRoot({langs: {}})],
       providers: [
-        {provide: AuthInitializationService, useValue: {initialized$: authInitSubject.asObservable()}},
+        {provide: AuthInitializationService, useValue: {initialized: signal(false)}},
         {provide: RxStompService, useValue: {watch: vi.fn(() => of())}},
         {provide: BookService, useValue: {}},
         {provide: NotificationEventService, useValue: {}},
@@ -34,7 +32,7 @@ describe('AppComponent offline detection', () => {
         {provide: MetadataProgressService, useValue: {}},
         {provide: BookdropFileService, useValue: {}},
         {provide: TaskService, useValue: {}},
-        {provide: LibraryService, useValue: {largeLibraryLoading$: of({isLoading: false, expectedCount: 0})}},
+        {provide: LibraryService, useValue: {largeLibraryLoading: signal({isLoading: false, expectedCount: 0})}},
         {provide: LibraryHealthService, useValue: {initialize: vi.fn()}},
         {provide: LibraryLoadingService, useValue: {hide: vi.fn()}},
       ]

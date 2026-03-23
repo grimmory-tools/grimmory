@@ -1,6 +1,6 @@
-import {Component, inject, Input, OnDestroy, OnInit} from '@angular/core';
-import {Observable, Subject} from 'rxjs';
-import {filter, switchMap, takeUntil} from 'rxjs/operators';
+import {Component, inject, Input, OnDestroy} from '@angular/core';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 import {Book} from '../../../../book/model/book.model';
 import {SidecarMetadata, SidecarService, SidecarSyncStatus} from '../../../service/sidecar.service';
 import {MessageService} from 'primeng/api';
@@ -17,8 +17,21 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
   styleUrls: ['./sidecar-viewer.component.scss'],
   imports: [Button, Tag, Tooltip, JsonPipe, DatePipe, TranslocoDirective]
 })
-export class SidecarViewerComponent implements OnInit, OnDestroy {
-  @Input() book$!: Observable<Book>;
+export class SidecarViewerComponent implements OnDestroy {
+  @Input()
+  set book(value: Book | null) {
+    if (!value) {
+      this.currentBookId = null;
+      this.sidecarContent = null;
+      this.syncStatus = 'NOT_APPLICABLE';
+      this.loading = false;
+      this.error = null;
+      return;
+    }
+
+    this.currentBookId = value.id;
+    this.loadSidecarData(value.id);
+  }
 
   private sidecarService = inject(SidecarService);
   private messageService = inject(MessageService);
@@ -32,16 +45,6 @@ export class SidecarViewerComponent implements OnInit, OnDestroy {
   importing = false;
   currentBookId: number | null = null;
   error: string | null = null;
-
-  ngOnInit(): void {
-    this.book$.pipe(
-      filter((book): book is Book => !!book),
-      takeUntil(this.destroy$)
-    ).subscribe(book => {
-      this.currentBookId = book.id;
-      this.loadSidecarData(book.id);
-    });
-  }
 
   loadSidecarData(bookId: number): void {
     this.loading = true;

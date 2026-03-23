@@ -4,9 +4,7 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MetadataRefreshOptions} from '../../metadata/model/request/metadata-refresh-options.model';
 import {AppSettingsService} from '../../../shared/service/app-settings.service';
 import {SettingsHelperService} from '../../../shared/service/settings-helper.service';
-import {Observable} from 'rxjs';
 import {AppSettingKey, AppSettings} from '../../../shared/model/app-settings.model';
-import {filter, take} from 'rxjs/operators';
 import {ToggleSwitch} from 'primeng/toggleswitch';
 import {MetadataMatchWeightsComponent} from '../global-preferences/metadata-match-weights/metadata-match-weights-component';
 import {MetadataPersistenceSettingsComponent} from './metadata-persistence-settings/metadata-persistence-settings-component';
@@ -40,8 +38,6 @@ export class MetadataSettingsComponent implements OnInit {
   private readonly settingsHelper = inject(SettingsHelperService);
   private t = inject(TranslocoService);
 
-  readonly appSettings$: Observable<AppSettings | null> = this.appSettingsService.appSettings$;
-
   ngOnInit(): void {
     this.loadSettings();
   }
@@ -57,16 +53,10 @@ export class MetadataSettingsComponent implements OnInit {
   }
 
   private loadSettings(): void {
-    this.appSettings$.pipe(
-      filter((settings): settings is AppSettings => !!settings),
-      take(1)
-    ).subscribe({
-      next: (settings) => this.initializeSettings(settings),
-      error: (error) => {
-        console.error('Failed to load settings:', error);
-        this.settingsHelper.showMessage('error', this.t.translate('common.error'), this.t.translate('settingsMeta.autoDownload.loadError'));
-      }
-    });
+    const settings = this.appSettingsService.appSettings();
+    if (settings) {
+      this.initializeSettings(settings);
+    }
   }
 
   private initializeSettings(settings: AppSettings): void {

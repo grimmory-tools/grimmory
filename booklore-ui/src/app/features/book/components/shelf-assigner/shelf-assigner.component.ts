@@ -1,15 +1,12 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, computed, effect, inject} from '@angular/core';
 import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
 import {Book} from '../../model/book.model';
 import {MessageService} from 'primeng/api';
 import {ShelfService} from '../../service/shelf.service';
-import {combineLatest, finalize, Observable} from 'rxjs';
+import {finalize} from 'rxjs';
 import {BookService} from '../../service/book.service';
-import {map, tap} from 'rxjs/operators';
 import {Shelf} from '../../model/shelf.model';
-import {ShelfState} from '../../model/state/shelf-state.model';
 import {Button} from 'primeng/button';
-import {AsyncPipe} from '@angular/common';
 import {Checkbox} from 'primeng/checkbox';
 import {FormsModule} from '@angular/forms';
 import {BookDialogHelperService} from '../book-browser/book-dialog-helper.service';
@@ -30,7 +27,6 @@ import {InputIcon} from 'primeng/inputicon';
   imports: [
     Button,
     Checkbox,
-    AsyncPipe,
     FormsModule,
     IconDisplayComponent,
     TranslocoDirective,
@@ -39,7 +35,7 @@ import {InputIcon} from 'primeng/inputicon';
     InputIcon
   ]
 })
-export class ShelfAssignerComponent implements OnInit {
+export class ShelfAssignerComponent {
 
   private shelfService = inject(ShelfService);
   private dynamicDialogConfig = inject(DynamicDialogConfig);
@@ -52,43 +48,40 @@ export class ShelfAssignerComponent implements OnInit {
   private readonly t = inject(TranslocoService);
 
   searchQuery = '';
-  private shelfSortField: 'name' | 'id' = 'name';
-  private shelfSortOrder: 'asc' | 'desc' = 'asc';
-
-  shelfState$: Observable<ShelfState> = combineLatest([
-    this.shelfService.shelfState$,
-    this.userService.userState$
-  ]).pipe(
-    map(([state, userState]) => {
-      if (userState.user?.userSettings.sidebarShelfSorting) {
-        this.shelfSortField = this.validateSortField(userState.user.userSettings.sidebarShelfSorting.field);
-        this.shelfSortOrder = this.validateSortOrder(userState.user.userSettings.sidebarShelfSorting.order);
-      }
-      const filtered = state.shelves?.filter(s => s.userId === userState.user?.id) || [];
-      return {
-        ...state,
-        shelves: this.sortShelves(filtered)
-      };
-    })
-  );
+  private currentUser = this.userService.currentUser;
 
   book: Book = this.dynamicDialogConfig.data.book;
   selectedShelves: Shelf[] = [];
   bookIds: Set<number> = this.dynamicDialogConfig.data.bookIds;
   isMultiBooks: boolean = this.dynamicDialogConfig.data.isMultiBooks;
-
-  ngOnInit(): void {
-    if (!this.isMultiBooks && this.book.shelves) {
-      this.shelfState$.pipe(
-        map(state => state.shelves || []),
-        tap(shelves => {
-          this.selectedShelves = shelves.filter(shelf =>
-            this.book.shelves?.some(bShelf => bShelf.id === shelf.id)
-          );
-        })
-      ).subscribe();
+  private readonly shelfSortField = computed<'name' | 'id'>(() => {
+    const sorting = this.currentUser()?.userSettings.sidebarShelfSorting;
+    return sorting ? this.validateSortField(sorting.field) : 'name';
+  });
+  private readonly shelfSortOrder = computed<'asc' | 'desc'>(() => {
+    const sorting = this.currentUser()?.userSettings.sidebarShelfSorting;
+    return sorting ? this.validateSortOrder(sorting.order) : 'asc';
+  });
+  readonly shelves = computed(() => {
+    const user = this.currentUser();
+    const filteredShelves = this.shelfService.shelves().filter(shelf => shelf.userId === user?.id);
+    return this.sortShelves(filteredShelves);
+  });
+  private hasInitializedSelectedShelves = false;
+  private readonly initializeSelectedShelvesEffect = effect(() => {
+    if (this.isMultiBooks || this.hasInitializedSelectedShelves || !this.book.shelves?.length) {
+      return;
     }
-  }
+
+    const selectedShelves = this.shelves().filter(shelf =>
+      this.book.shelves?.some(bookShelf => bookShelf.id === shelf.id)
+    );
+
+    if (selectedShelves.length > 0 || this.shelfService.shelves().length > 0) {
+      this.selectedShelves = selectedShelves;
+      this.hasInitializedSelectedShelves = true;
+    }
+  });
 
   updateBooksShelves(): void {
     const idsToAssign = new Set<number | undefined>(this.selectedShelves.map(shelf => shelf.id));
@@ -125,13 +118,7 @@ export class ShelfAssignerComponent implements OnInit {
   }
 
   createShelfDialog(): void {
-    const dialogRef = this.bookDialogHelper.openShelfCreatorDialog();
-
-    dialogRef.onClose.subscribe((created: boolean) => {
-      if (created) {
-        this.shelfService.reloadShelves();
-      }
-    });
+    this.bookDialogHelper.openShelfCreatorDialog();
   }
 
   closeDialog(): void {
@@ -159,16 +146,18 @@ export class ShelfAssignerComponent implements OnInit {
   }
 
   private sortShelves(shelves: Shelf[]): Shelf[] {
+    const sortField = this.shelfSortField();
+    const sortOrder = this.shelfSortOrder();
     return [...shelves].sort((a, b) => {
-      const aVal = (a as unknown as Record<string, unknown>)[this.shelfSortField] ?? '';
-      const bVal = (b as unknown as Record<string, unknown>)[this.shelfSortField] ?? '';
+      const aVal = (a as unknown as Record<string, unknown>)[sortField] ?? '';
+      const bVal = (b as unknown as Record<string, unknown>)[sortField] ?? '';
       let comparison = 0;
       if (typeof aVal === 'string' && typeof bVal === 'string') {
         comparison = aVal.localeCompare(bVal);
       } else if (typeof aVal === 'number' && typeof bVal === 'number') {
         comparison = aVal - bVal;
       }
-      return this.shelfSortOrder === 'asc' ? comparison : -comparison;
+      return sortOrder === 'asc' ? comparison : -comparison;
     });
   }
 

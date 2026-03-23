@@ -1,12 +1,10 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, computed, inject} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {TableModule} from 'primeng/table';
 import {EmailV2ProviderComponent} from './email-v2-provider/email-v2-provider.component';
 import {EmailV2RecipientComponent} from './email-v2-recipient/email-v2-recipient.component';
 import {ExternalDocLinkComponent} from '../../../shared/components/external-doc-link/external-doc-link.component';
 import {UserService} from '../user-management/user.service';
-import {Subject} from 'rxjs';
-import {filter, takeUntil, tap} from 'rxjs/operators';
 import {TranslocoDirective} from '@jsverse/transloco';
 
 
@@ -23,24 +21,11 @@ import {TranslocoDirective} from '@jsverse/transloco';
   templateUrl: './email-v2.component.html',
   styleUrls: ['./email-v2.component.scss'],
 })
-export class EmailV2Component implements OnInit, OnDestroy {
+export class EmailV2Component {
   private userService = inject(UserService);
-  private readonly destroy$ = new Subject<void>();
 
-  hasPermission = false;
-
-  ngOnInit(): void {
-    this.userService.userState$.pipe(
-      filter(state => !!state?.user && state.loaded),
-      takeUntil(this.destroy$),
-      tap(state => {
-        this.hasPermission = !!(state.user?.permissions.canEmailBook || state.user?.permissions.admin);
-      })
-    ).subscribe();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
+  readonly hasPermission = computed(() => {
+    const user = this.userService.currentUser();
+    return !!(user?.permissions.canEmailBook || user?.permissions.admin);
+  });
 }

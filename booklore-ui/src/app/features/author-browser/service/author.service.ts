@@ -1,11 +1,14 @@
-import {inject, Injectable} from '@angular/core';
+import {computed, effect, inject, Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {BehaviorSubject, Observable} from 'rxjs';
-import {map, tap} from 'rxjs/operators';
+import {lastValueFrom, Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
 import {SseClient} from 'ngx-sse-client';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {AuthorSummary, AuthorDetails, AuthorSearchResult, AuthorMatchRequest, AuthorUpdateRequest, AuthorPhotoResult} from '../model/author.model';
 import {AuthService} from '../../../shared/service/auth.service';
+import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
+import {AUTHORS_QUERY_KEY} from './author-query-keys';
+import {patchAuthorInCache} from './author-query-cache';
 
 @Injectable({
   providedIn: 'root'
@@ -15,16 +18,41 @@ export class AuthorService {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
   private sseClient = inject(SseClient);
+  private queryClient = inject(QueryClient);
   private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/authors`;
   private readonly mediaBaseUrl = `${API_CONFIG.BASE_URL}/api/v1/media`;
+  private readonly token = this.authService.token;
 
-  private allAuthorsSubject = new BehaviorSubject<AuthorSummary[] | null>(null);
-  allAuthors$ = this.allAuthorsSubject.asObservable();
+  private authorsQuery = injectQuery(() => ({
+    ...this.getAuthorsQueryOptions(),
+    enabled: !!this.token(),
+  }));
 
-  getAllAuthors(): Observable<AuthorSummary[]> {
-    return this.http.get<AuthorSummary[]>(this.baseUrl).pipe(
-      tap(authors => this.allAuthorsSubject.next(authors))
-    );
+  allAuthors = computed(() => this.authorsQuery.data() ?? null);
+  isAuthorsLoading = computed(() => !!this.token() && this.authorsQuery.isPending());
+
+  constructor() {
+    effect(() => {
+      const token = this.token();
+      if (token === null) {
+        this.queryClient.removeQueries({queryKey: AUTHORS_QUERY_KEY});
+      }
+    });
+  }
+
+  private getAuthorsQueryOptions() {
+    return queryOptions({
+      queryKey: AUTHORS_QUERY_KEY,
+      queryFn: () => lastValueFrom(this.http.get<AuthorSummary[]>(this.baseUrl))
+    });
+  }
+
+  invalidateAuthors(): void {
+    void this.queryClient.invalidateQueries({queryKey: AUTHORS_QUERY_KEY, exact: true});
+  }
+
+  patchAuthorInCache(authorId: number, fields: Partial<AuthorSummary>): void {
+    patchAuthorInCache(this.queryClient, authorId, fields);
   }
 
   getAuthorDetails(authorId: number): Observable<AuthorDetails> {

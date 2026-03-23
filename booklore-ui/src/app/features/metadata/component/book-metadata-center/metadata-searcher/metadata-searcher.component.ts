@@ -1,4 +1,4 @@
-import {Component, inject, Input, OnChanges, OnDestroy, OnInit, SimpleChanges} from '@angular/core';
+import {Component, effect, inject, Input, OnChanges, OnDestroy, OnInit, signal, SimpleChanges} from '@angular/core';
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {Button} from 'primeng/button';
 import {InputText} from 'primeng/inputtext';
@@ -9,10 +9,7 @@ import {Book, BookMetadata} from '../../../../book/model/book.model';
 import {AppSettings} from '../../../../../shared/model/app-settings.model';
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
 
-import {BehaviorSubject, combineLatest, Observable, Subject, Subscription, takeUntil} from 'rxjs';
-import {filter, switchMap} from 'rxjs/operators';
-import {ActivatedRoute} from '@angular/router';
-import {AsyncPipe} from '@angular/common';
+import {Subject, Subscription, takeUntil} from 'rxjs';
 import {MetadataPickerComponent} from '../metadata-picker/metadata-picker.component';
 import {BookMetadataService} from '../../../../book/service/book-metadata.service';
 import {Tooltip} from 'primeng/tooltip';
@@ -29,7 +26,6 @@ import {TranslocoDirective} from '@jsverse/transloco';
     InputText,
     MetadataPickerComponent,
     MultiSelect,
-    AsyncPipe,
     Tooltip,
     TranslocoDirective
   ],
@@ -43,21 +39,48 @@ export class MetadataSearcherComponent implements OnInit, OnDestroy, OnChanges {
   loading: boolean = false;
   searchTriggered = false;
 
-  @Input() book$!: Observable<Book | null>;
+  private currentBook: Book | null = null;
+  private currentSettings: AppSettings | null = null;
+
+  @Input()
+  set book(value: Book | null) {
+    this.currentBook = value;
+    this.syncFormFromState();
+  }
+
+  get book(): Book | null {
+    return this.currentBook;
+  }
+
   @Input() isActiveTab: boolean = false;
 
-  selectedFetchedMetadata$ = new BehaviorSubject<BookMetadata | null>(null);
+  readonly selectedFetchedMetadata = signal<BookMetadata | null>(null);
   detailLoading = false;
 
   private formBuilder = inject(FormBuilder);
   private bookMetadataService = inject(BookMetadataService);
   private appSettingsService = inject(AppSettingsService);
-  private route = inject(ActivatedRoute);
 
   private subscription: Subscription = new Subscription();
   private cancelRequest$ = new Subject<void>();
+  private syncSettingsEffect = effect(() => {
+    const settings = this.appSettingsService.appSettings();
+    if (!settings) return;
 
-  appSettings$: Observable<AppSettings | null> = this.appSettingsService.appSettings$;
+    this.currentSettings = settings;
+    const providerSettings = settings.metadataProviderSettings ?? {};
+    this.providers = Object.entries(providerSettings)
+      .filter(([_, value]) => !!value && typeof value === 'object' && 'enabled' in value && (value as any).enabled)
+      .map(([key]) => key.charAt(0).toUpperCase() + key.slice(1));
+
+    const currentProviders = this.form.get('provider')?.value || [];
+    const validProviders = currentProviders.filter((p: string) => this.providers.includes(p));
+    if (validProviders.length !== currentProviders.length) {
+      this.form.patchValue({provider: validProviders.length > 0 ? validProviders : null});
+    }
+
+    this.syncFormFromState();
+  });
 
   providerCounts: Map<string, number> = new Map();
   providerLoading: Map<string, boolean> = new Map();
@@ -87,64 +110,39 @@ export class MetadataSearcherComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnInit() {
-    this.subscription.add(
-      this.appSettings$
-        .pipe(filter(settings => !!settings))
-        .subscribe(settings => {
-          const providerSettings = settings!.metadataProviderSettings ?? {};
-          this.providers = Object.entries(providerSettings)
-            .filter(([_, value]) => !!value && typeof value === 'object' && 'enabled' in value && (value as any).enabled)
-            .map(([key]) => key.charAt(0).toUpperCase() + key.slice(1));
+  }
 
-          const currentProviders = this.form.get('provider')?.value || [];
-          const validProviders = currentProviders.filter((p: string) => this.providers.includes(p));
-          if (validProviders.length !== currentProviders.length) {
-            this.form.patchValue({provider: validProviders.length > 0 ? validProviders : null});
-          }
-        })
-    );
+  private syncFormFromState(): void {
+    if (!this.currentBook || !this.currentSettings) {
+      return;
+    }
 
-    this.subscription.add(
-      this.route.paramMap
-        .pipe(
-          switchMap(params => {
-            const bookId = +params.get('id')!;
-            if (this.bookId !== bookId) {
-              this.bookId = bookId;
-              this.cancelRequest$.next();
-              this.loading = false;
-              this.allFetchedMetadata = [];
-              this.filteredMetadata = [];
-              this.providerCounts.clear();
-              this.selectedFetchedMetadata$.next(null);
-            }
-            return combineLatest([this.book$, this.appSettings$]);
-          }),
-          filter(([book, settings]) => !!book && !!settings),
-        )
-        .subscribe(([book, settings]) => {
-          const bookChanged = book!.id !== this.bookId;
-          if (bookChanged) {
-            this.resetFormFromBook(book!);
-            if (settings!.autoBookSearch) {
-              if (this.isActiveTab) {
-                this.onSubmit();
-              } else {
-                this.pendingAutoSearch = true;
-              }
-            }
-          } else {
-            this.updateFormFromBook(book!);
-          }
-        })
-    );
+    const bookChanged = this.currentBook.id !== this.bookId;
+    if (bookChanged) {
+      this.resetFormFromBook(this.currentBook);
+      if (this.currentSettings.autoBookSearch) {
+        if (this.isActiveTab) {
+          this.onSubmit();
+        } else {
+          this.pendingAutoSearch = true;
+        }
+      }
+      return;
+    }
+
+    this.updateFormFromBook(this.currentBook);
   }
 
   private resetFormFromBook(book: Book): void {
-    this.selectedFetchedMetadata$.next(null);
+    this.cancelRequest$.next();
+    this.loading = false;
+    this.detailLoading = false;
+    this.selectedFetchedMetadata.set(null);
     this.allFetchedMetadata = [];
     this.filteredMetadata = [];
     this.providerCounts.clear();
+    this.providerLoading.clear();
+    this.providerCompletionStatus.clear();
     this.metadataByProvider.clear();
     this.selectedProviderFilters = new Set(['all']);
     this.bookId = book.id;
@@ -175,7 +173,6 @@ export class MetadataSearcherComponent implements OnInit, OnDestroy, OnChanges {
     this.cancelRequest$.next();
     this.cancelRequest$.complete();
     this.subscription.unsubscribe();
-    this.selectedFetchedMetadata$.complete();
   }
 
   get isSearchEnabled(): boolean {
@@ -374,7 +371,7 @@ export class MetadataSearcherComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   onBookClick(fetchedMetadata: BookMetadata) {
-    this.selectedFetchedMetadata$.next(fetchedMetadata);
+    this.selectedFetchedMetadata.set(fetchedMetadata);
 
     const enrichment = this.getDetailEnrichmentInfo(fetchedMetadata);
 
@@ -384,10 +381,10 @@ export class MetadataSearcherComponent implements OnInit, OnDestroy, OnChanges {
         .pipe(takeUntil(this.cancelRequest$))
         .subscribe({
           next: (enriched) => {
-            const current = this.selectedFetchedMetadata$.value;
+            const current = this.selectedFetchedMetadata();
             const currentId = current && this.getProviderItemId(current, enrichment.provider);
             if (currentId === enrichment.id) {
-              this.selectedFetchedMetadata$.next(enriched);
+              this.selectedFetchedMetadata.set(enriched);
             }
             this.detailLoading = false;
           },
@@ -433,7 +430,7 @@ export class MetadataSearcherComponent implements OnInit, OnDestroy, OnChanges {
 
   onGoBack() {
     this.detailLoading = false;
-    this.selectedFetchedMetadata$.next(null);
+    this.selectedFetchedMetadata.set(null);
   }
 
   sanitizeHtml(htmlString: string | null | undefined): string {

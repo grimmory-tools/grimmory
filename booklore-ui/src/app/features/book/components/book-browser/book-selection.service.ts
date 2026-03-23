@@ -1,5 +1,4 @@
-import {Injectable} from '@angular/core';
-import {BehaviorSubject, Observable} from 'rxjs';
+import {computed, Injectable, signal} from '@angular/core';
 import {Book} from '../../model/book.model';
 
 export interface CheckboxClickEvent {
@@ -11,46 +10,39 @@ export interface CheckboxClickEvent {
 
 @Injectable({providedIn: 'root'})
 export class BookSelectionService {
-  private selectedBooksSubject = new BehaviorSubject<Set<number>>(new Set());
+  private readonly _selectedBooks = signal<Set<number>>(new Set());
+  readonly selectedBooks = this._selectedBooks.asReadonly();
+  readonly selectedCount = computed(() => this._selectedBooks().size);
+
   private currentBooks: Book[] = [];
   private lastSelectedIndex: number | null = null;
-
-  selectedBooks$: Observable<Set<number>> = this.selectedBooksSubject.asObservable();
-
-  get selectedBooks(): Set<number> {
-    return this.selectedBooksSubject.value;
-  }
-
-  get selectedCount(): number {
-    return this.selectedBooksSubject.value.size;
-  }
 
   setCurrentBooks(books: Book[]): void {
     this.currentBooks = books;
   }
 
-  getCurrentBooks(): Book[] {
-    return this.currentBooks;
-  }
-
   selectBook(book: Book): void {
-    const current = new Set(this.selectedBooksSubject.value);
-    if (book.seriesBooks) {
-      book.seriesBooks.forEach(b => current.add(b.id));
-    } else {
-      current.add(book.id);
-    }
-    this.selectedBooksSubject.next(current);
+    this._selectedBooks.update(current => {
+      const next = new Set(current);
+      if (book.seriesBooks) {
+        book.seriesBooks.forEach(seriesBook => next.add(seriesBook.id));
+      } else {
+        next.add(book.id);
+      }
+      return next;
+    });
   }
 
   deselectBook(book: Book): void {
-    const current = new Set(this.selectedBooksSubject.value);
-    if (book.seriesBooks) {
-      book.seriesBooks.forEach(b => current.delete(b.id));
-    } else {
-      current.delete(book.id);
-    }
-    this.selectedBooksSubject.next(current);
+    this._selectedBooks.update(current => {
+      const next = new Set(current);
+      if (book.seriesBooks) {
+        book.seriesBooks.forEach(seriesBook => next.delete(seriesBook.id));
+      } else {
+        next.delete(book.id);
+      }
+      return next;
+    });
   }
 
   handleCheckboxClick(event: CheckboxClickEvent): void {
@@ -83,23 +75,21 @@ export class BookSelectionService {
   selectAll(): void {
     if (!this.currentBooks || this.currentBooks.length === 0) return;
 
-    const current = new Set(this.selectedBooksSubject.value);
-    for (const book of this.currentBooks) {
-      current.add(book.id);
-    }
-    this.selectedBooksSubject.next(current);
+    this._selectedBooks.update(current => {
+      const next = new Set(current);
+      for (const book of this.currentBooks) {
+        next.add(book.id);
+      }
+      return next;
+    });
   }
 
   deselectAll(): void {
-    this.selectedBooksSubject.next(new Set());
+    this._selectedBooks.set(new Set());
     this.lastSelectedIndex = null;
   }
 
   setSelectedBooks(bookIds: Set<number>): void {
-    this.selectedBooksSubject.next(new Set(bookIds));
-  }
-
-  hasSelection(): boolean {
-    return this.selectedBooksSubject.value.size > 0;
+    this._selectedBooks.set(new Set(bookIds));
   }
 }

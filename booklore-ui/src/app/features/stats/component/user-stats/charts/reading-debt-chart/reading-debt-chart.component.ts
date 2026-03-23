@@ -1,9 +1,7 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, effect, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
 import {Tooltip} from 'primeng/tooltip';
-import {EMPTY, Subject} from 'rxjs';
-import {catchError, filter, first, takeUntil} from 'rxjs/operators';
 import {ChartConfiguration, ChartData} from 'chart.js';
 import {BookService} from '../../../../../book/service/book.service';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
@@ -15,10 +13,16 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
   templateUrl: './reading-debt-chart.component.html',
   styleUrls: ['./reading-debt-chart.component.scss']
 })
-export class ReadingDebtChartComponent implements OnInit, OnDestroy {
+export class ReadingDebtChartComponent {
   private readonly bookService = inject(BookService);
   private readonly t = inject(TranslocoService);
-  private readonly destroy$ = new Subject<void>();
+  private readonly syncChartEffect = effect(() => {
+    if (this.bookService.isBooksLoading()) {
+      return;
+    }
+
+    this.processData(this.bookService.books());
+  });
 
   public readonly chartType = 'bar' as const;
   public hasData = false;
@@ -61,21 +65,14 @@ export class ReadingDebtChartComponent implements OnInit, OnDestroy {
     }
   };
 
-  ngOnInit(): void {
-    this.bookService.bookState$
-      .pipe(filter(state => state.loaded), first(), catchError(() => EMPTY), takeUntil(this.destroy$))
-      .subscribe(() => this.processData());
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  private processData(): void {
-    const state = this.bookService.getCurrentBookState();
-    const books = state.books;
-    if (!books || books.length === 0) return;
+  private processData(books: ReturnType<BookService['books']>): void {
+    if (books.length === 0) {
+      this.hasData = false;
+      this.currentBacklog = 0;
+      this.trend = '';
+      this.chartData = {labels: [], datasets: []};
+      return;
+    }
 
     const now = new Date();
     const monthlyAdded = new Map<string, number>();
@@ -109,7 +106,13 @@ export class ReadingDebtChartComponent implements OnInit, OnDestroy {
     const added = months.map(m => monthlyAdded.get(m) || 0);
     const finished = months.map(m => monthlyFinished.get(m) || 0);
 
-    if (added.every(v => v === 0) && finished.every(v => v === 0)) return;
+    if (added.every(v => v === 0) && finished.every(v => v === 0)) {
+      this.hasData = false;
+      this.currentBacklog = 0;
+      this.trend = '';
+      this.chartData = {labels: [], datasets: []};
+      return;
+    }
 
     const backlog: number[] = [];
     let running = 0;

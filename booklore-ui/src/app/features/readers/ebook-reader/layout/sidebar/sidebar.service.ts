@@ -1,5 +1,5 @@
-import {inject, Injectable, Injector} from '@angular/core';
-import {BehaviorSubject, Subject} from 'rxjs';
+import {inject, Injectable, Injector, signal} from '@angular/core';
+import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 import {TocItem} from 'epubjs';
 import {BookMark, BookMarkService} from '../../../../../shared/service/book-mark.service';
@@ -52,25 +52,30 @@ export class ReaderSidebarService {
   private bookId!: number;
   private selectionService: ReaderSelectionService | null = null;
 
-  private _isOpen = new BehaviorSubject<boolean>(false);
-  private _activeTab = new BehaviorSubject<SidebarTab>('chapters');
-  private _bookInfo = new BehaviorSubject<SidebarBookInfo>({
+  private readonly _isOpen = signal(false);
+  readonly isOpen = this._isOpen.asReadonly();
+
+  private readonly _activeTab = signal<SidebarTab>('chapters');
+  readonly activeTab = this._activeTab.asReadonly();
+
+  private readonly _bookInfo = signal<SidebarBookInfo>({
     id: null,
     title: '',
     authors: '',
     coverUrl: null
   });
-  private _chapters = new BehaviorSubject<TocItem[]>([]);
-  private _bookmarks = new BehaviorSubject<BookMark[]>([]);
-  private _annotations = new BehaviorSubject<Annotation[]>([]);
-  private _expandedChapters = new Set<string>();
+  readonly bookInfo = this._bookInfo.asReadonly();
 
-  isOpen$ = this._isOpen.asObservable();
-  activeTab$ = this._activeTab.asObservable();
-  bookInfo$ = this._bookInfo.asObservable();
-  chapters$ = this._chapters.asObservable();
-  bookmarks$ = this._bookmarks.asObservable();
-  annotations$ = this._annotations.asObservable();
+  private readonly _chapters = signal<TocItem[]>([]);
+  readonly chapters = this._chapters.asReadonly();
+
+  private readonly _bookmarks = signal<BookMark[]>([]);
+  readonly bookmarks = this._bookmarks.asReadonly();
+
+  private readonly _annotations = signal<Annotation[]>([]);
+  readonly annotations = this._annotations.asReadonly();
+
+  private _expandedChapters = new Set<string>();
 
   private _showMetadata = new Subject<void>();
   showMetadata$ = this._showMetadata.asObservable();
@@ -79,22 +84,18 @@ export class ReaderSidebarService {
     return this.progressService.currentChapterHref;
   }
 
-  get activeTab(): SidebarTab {
-    return this._activeTab.value;
-  }
-
   initialize(bookId: number, book: Book, destroy$: Subject<void>): void {
     this.bookId = bookId;
     this.destroy$ = destroy$;
 
-    this._bookInfo.next({
+    this._bookInfo.set({
       id: book.id,
       title: book.metadata?.title || '',
       authors: (book.metadata?.authors || []).join(', '),
       coverUrl: this.urlHelper.getThumbnailUrl(book.id, book.metadata?.coverUpdatedOn)
     });
 
-    this._chapters.next(this.viewManager.getChapters());
+    this._chapters.set(this.viewManager.getChapters());
 
     this.loadBookmarks();
 
@@ -111,7 +112,7 @@ export class ReaderSidebarService {
     this.selectionService.annotationsChanged$
       .pipe(takeUntil(this.destroy$))
       .subscribe(annotations => {
-        this._annotations.next(annotations);
+        this._annotations.set(annotations);
       });
   }
 
@@ -119,7 +120,7 @@ export class ReaderSidebarService {
     this.annotationService.getAnnotations(this.bookId)
       .pipe(takeUntil(this.destroy$))
       .subscribe(annotations => {
-        this._annotations.next(annotations);
+        this._annotations.set(annotations);
         if (!this.selectionService) {
           this.selectionService = this.injector.get(ReaderSelectionService);
         }
@@ -132,27 +133,27 @@ export class ReaderSidebarService {
   }
 
   setAnnotations(annotations: Annotation[]): void {
-    this._annotations.next(annotations);
+    this._annotations.set(annotations);
   }
 
   updateChapters(): void {
-    this._chapters.next(this.viewManager.getChapters());
+    this._chapters.set(this.viewManager.getChapters());
   }
 
   open(tab?: SidebarTab): void {
     if (tab) {
-      this._activeTab.next(tab);
+      this._activeTab.set(tab);
     }
-    this._isOpen.next(true);
+    this._isOpen.set(true);
     this.autoExpandCurrentChapter();
   }
 
   close(): void {
-    this._isOpen.next(false);
+    this._isOpen.set(false);
   }
 
   toggle(tab?: SidebarTab): void {
-    if (this._isOpen.value && (!tab || this._activeTab.value === tab)) {
+    if (this._isOpen() && (!tab || this._activeTab() === tab)) {
       this.close();
     } else {
       this.open(tab);
@@ -160,7 +161,7 @@ export class ReaderSidebarService {
   }
 
   setActiveTab(tab: SidebarTab): void {
-    this._activeTab.next(tab);
+    this._activeTab.set(tab);
   }
 
   navigateToChapter(href: string): void {
@@ -195,7 +196,7 @@ export class ReaderSidebarService {
     const currentHref = this.currentChapterHref;
     if (!currentHref) return;
 
-    const chapters = this._chapters.value;
+    const chapters = this._chapters();
     const expandParents = (items: TocItem[], parents: string[] = []): boolean => {
       for (const item of items) {
         const currentParents = [...parents, item.href];
@@ -223,7 +224,7 @@ export class ReaderSidebarService {
   private loadBookmarks(): void {
     this.bookMarkHttpService.getBookmarksForBook(this.bookId)
       .pipe(takeUntil(this.destroy$))
-      .subscribe(bookmarks => this._bookmarks.next(bookmarks));
+      .subscribe(bookmarks => this._bookmarks.set(bookmarks));
   }
 
   navigateToBookmark(cfi: string): void {
@@ -246,7 +247,7 @@ export class ReaderSidebarService {
     const currentCfi = this.progressService.currentCfi;
     if (!currentCfi) return;
 
-    const existingBookmark = this._bookmarks.value.find(b => b.cfi === currentCfi);
+    const existingBookmark = this._bookmarks().find(bookmark => bookmark.cfi === currentCfi);
     if (existingBookmark) {
       this.deleteBookmark(existingBookmark.id!);
     } else {
@@ -267,7 +268,7 @@ export class ReaderSidebarService {
   }
 
   deleteAnnotation(annotationId: number): void {
-    const annotations = this._annotations.value;
+    const annotations = this._annotations();
     const annotation = annotations.find(a => a.id === annotationId);
     if (!annotation) return;
 
@@ -279,7 +280,7 @@ export class ReaderSidebarService {
             .pipe(takeUntil(this.destroy$))
             .subscribe();
           const updatedAnnotations = annotations.filter(a => a.id !== annotationId);
-          this._annotations.next(updatedAnnotations);
+          this._annotations.set(updatedAnnotations);
           if (this.selectionService) {
             this.selectionService.setAnnotations(updatedAnnotations);
           }
@@ -293,12 +294,12 @@ export class ReaderSidebarService {
   }
 
   reset(): void {
-    this._isOpen.next(false);
-    this._activeTab.next('chapters');
-    this._bookInfo.next({ id: null, title: '', authors: '', coverUrl: null });
-    this._chapters.next([]);
-    this._bookmarks.next([]);
-    this._annotations.next([]);
+    this._isOpen.set(false);
+    this._activeTab.set('chapters');
+    this._bookInfo.set({id: null, title: '', authors: '', coverUrl: null});
+    this._chapters.set([]);
+    this._bookmarks.set([]);
+    this._annotations.set([]);
     this._expandedChapters.clear();
   }
 }

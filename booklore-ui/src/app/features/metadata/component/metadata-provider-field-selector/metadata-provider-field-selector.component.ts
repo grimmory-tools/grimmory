@@ -3,7 +3,6 @@ import {ToggleSwitchModule} from 'primeng/toggleswitch';
 import {FormsModule} from '@angular/forms';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {AppSettingKey, MetadataProviderSpecificFields} from '../../../../shared/model/app-settings.model';
-import {filter, take} from 'rxjs/operators';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 @Component({
@@ -50,16 +49,10 @@ export class MetadataProviderFieldSelectorComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    this.appSettingsService.appSettings$
-      .pipe(
-        filter(settings => !!settings?.metadataProviderSpecificFields),
-        take(1)
-      )
-      .subscribe(settings => {
-        if (settings?.metadataProviderSpecificFields) {
-          this.selectedFields = this.toFieldArray(settings.metadataProviderSpecificFields);
-        }
-      });
+    const settings = this.appSettingsService.appSettings();
+    if (settings?.metadataProviderSpecificFields) {
+      this.selectedFields = this.toFieldArray(settings.metadataProviderSpecificFields);
+    }
   }
 
   toggleField(field: string, checked: boolean) {

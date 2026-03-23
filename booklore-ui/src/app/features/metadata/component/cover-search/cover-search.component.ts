@@ -54,7 +54,7 @@ export class CoverSearchComponent implements OnInit {
 
   ngOnInit() {
     this.bookId = this.dynamicDialogConfig.data.bookId;
-    const book = this.bookService.getBookByIdFromState(this.bookId);
+    const book = this.bookService.findBookById(this.bookId);
 
     // Use explicitly provided coverType, or auto-detect based on primary file
     if (this.dynamicDialogConfig.data.coverType) {

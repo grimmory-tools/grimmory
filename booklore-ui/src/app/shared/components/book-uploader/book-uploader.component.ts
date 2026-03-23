@@ -1,23 +1,16 @@
-import {Component, DestroyRef, inject, OnInit, ViewChild} from '@angular/core';
+import {Component, inject, OnInit, ViewChild, effect} from '@angular/core';
 import {FileSelectEvent, FileUpload, FileUploadHandlerEvent} from 'primeng/fileupload';
 import {Button} from 'primeng/button';
-import {AsyncPipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {MessageService} from 'primeng/api';
 import {Select} from 'primeng/select';
 import {Badge} from 'primeng/badge';
 import {LibraryService} from '../../../features/book/service/library.service';
 import {Library, LibraryPath} from '../../../features/book/model/library.model';
-import {LibraryState} from '../../../features/book/model/state/library-state.model';
-import {Observable} from 'rxjs';
 import {API_CONFIG} from '../../../core/config/api-config';
-import {Book} from '../../../features/book/model/book.model';
 import {HttpClient, HttpEventType, HttpRequest} from '@angular/common/http';
 import {Tooltip} from 'primeng/tooltip';
 import {AppSettingsService} from '../../service/app-settings.service';
-import {filter, take} from 'rxjs/operators';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {AppSettings} from '../../model/app-settings.model';
 import {SelectButton} from 'primeng/selectbutton';
 import {DynamicDialogRef} from 'primeng/dynamicdialog';
 import {ProgressBar} from 'primeng/progressbar';
@@ -30,13 +23,15 @@ interface UploadingFile {
   errorMessage?: string;
 }
 
+type FileChooserCallback = () => void;
+type FileRemoveCallback = (event: Event, index: number) => void;
+
 @Component({
   selector: 'app-book-uploader',
   standalone: true,
   imports: [
     FileUpload,
     Button,
-    AsyncPipe,
     FormsModule,
     Select,
     Badge,
@@ -63,10 +58,8 @@ export class BookUploaderComponent implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly ref = inject(DynamicDialogRef);
   private readonly t = inject(TranslocoService);
-  private readonly destroyRef = inject(DestroyRef);
 
-  readonly libraryState$: Observable<LibraryState> = this.libraryService.libraryState$;
-  appSettings$: Observable<AppSettings | null> = this.appSettingsService.appSettings$;
+  readonly libraries = this.libraryService.libraries;
   maxFileSizeBytes?: number;
   maxFileSizeDisplay: string = '100 MB';
   stateOptions = [
@@ -74,26 +67,24 @@ export class BookUploaderComponent implements OnInit {
     {label: this.t.translate('shared.bookUploader.destinationBookdrop'), value: 'bookdrop'}
   ];
   value = 'library';
+  private readonly selectSingleLibraryEffect = effect(() => {
+    const libraries = this.libraries();
+    if (libraries.length !== 1 || this.selectedLibrary) {
+      return;
+    }
+
+    this.selectedLibrary = libraries[0];
+  });
+
+  private readonly loadSettingsEffect = effect(() => {
+    const settings = this.appSettingsService.appSettings();
+    if (!settings) return;
+    const maxSizeMb = settings.maxFileUploadSizeInMb ?? 100;
+    this.maxFileSizeBytes = maxSizeMb * 1024 * 1024;
+    this.maxFileSizeDisplay = `${maxSizeMb} MB`;
+  });
 
   ngOnInit(): void {
-    this.appSettings$
-      .pipe(
-        filter(settings => settings != null),
-        take(1)
-      )
-      .subscribe(settings => {
-        const maxSizeMb = settings?.maxFileUploadSizeInMb ?? 100;
-        this.maxFileSizeBytes = maxSizeMb * 1024 * 1024;
-        this.maxFileSizeDisplay = `${maxSizeMb} MB`;
-      });
-
-    this.libraryState$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(state => {
-      if (state?.libraries?.length !== 1 || this.selectedLibrary) {
-        return;
-      }
-
-      this.selectedLibrary = state.libraries[0];
-    });
   }
 
   get selectedLibrary(): Library | null {
@@ -116,7 +107,7 @@ export class BookUploaderComponent implements OnInit {
     return this.files.length > 0;
   }
 
-  choose(_event: any, chooseCallback: () => void): void {
+  choose(_event: Event, chooseCallback: FileChooserCallback): void {
     chooseCallback();
   }
 
@@ -165,14 +156,14 @@ export class BookUploaderComponent implements OnInit {
     }
   }
 
-  onRemoveTemplatingFile(_event: any, file: File, removeFileCallback: (event: any, index: number) => void, _index: number): void {
+  onRemoveTemplatingFile(event: Event, file: File, removeFileCallback: FileRemoveCallback, _index?: number): void {
     // Remove from our tracking array
     this.files = this.files.filter(f => f.file !== file);
 
     // Find and remove from p-fileupload's internal array (index may differ from ours)
     const fileUploadIndex = this.fileUpload.files?.findIndex(f => f.name === file.name && f.size === file.size) ?? -1;
     if (fileUploadIndex >= 0) {
-      removeFileCallback(_event, fileUploadIndex);
+      removeFileCallback(event, fileUploadIndex);
     }
   }
 
@@ -180,7 +171,7 @@ export class BookUploaderComponent implements OnInit {
     uploadCallback();
   }
 
-  uploadFiles(event: FileUploadHandlerEvent): void {
+  uploadFiles(_event: FileUploadHandlerEvent): void {
     if (this.value === 'library' && (!this.selectedLibrary || !this.selectedPath)) {
       this.messageService.add({
         severity: 'warn',

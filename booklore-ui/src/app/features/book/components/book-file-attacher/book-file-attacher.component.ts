@@ -1,11 +1,10 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, computed, inject, OnInit, OnDestroy, Signal, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { AutoComplete, AutoCompleteSelectEvent } from 'primeng/autocomplete';
 import { Button } from 'primeng/button';
 import { Checkbox } from 'primeng/checkbox';
 import { Subject, takeUntil } from 'rxjs';
-import { filter, take } from 'rxjs/operators';
 import { BookService } from '../../service/book.service';
 import { BookFileService } from '../../service/book-file.service';
 import { Book } from '../../model/book.model';
@@ -37,7 +36,7 @@ export class BookFileAttacherComponent implements OnInit, OnDestroy {
   filteredBooks: Book[] = [];
 
   private destroy$ = new Subject<void>();
-  private allBooks: Book[] = [];
+  private allBooks: Signal<Book[]> = signal([]);
 
   private readonly t = inject(TranslocoService);
   private readonly appSettingsService = inject(AppSettingsService);
@@ -63,28 +62,22 @@ export class BookFileAttacherComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.appSettingsService.appSettings$.pipe(
-      filter(settings => !!settings),
-      take(1),
-      takeUntil(this.destroy$)
-    ).subscribe(settings => {
-      this.moveFiles = settings!.metadataPersistenceSettings?.moveFilesToLibraryPattern ?? false;
-    });
+    const settings = this.appSettingsService.appSettings();
+    if (settings) {
+      this.moveFiles = settings.metadataPersistenceSettings?.moveFilesToLibraryPattern ?? false;
+    }
 
     // Get the library ID from first source book (all should be same library)
     const libraryId = this.sourceBooks[0].libraryId;
     const sourceBookIds = new Set(this.sourceBooks.map(b => b.id));
 
-    // Load all books from state and filter for same library, excluding source books
-    this.bookService.bookState$.pipe(
-      filter(state => state.loaded && !!state.books),
-      take(1),
-      takeUntil(this.destroy$)
-    ).subscribe(state => {
-      this.allBooks = (state.books || []).filter(book =>
+    this.allBooks = computed(() =>
+      this.bookService.books().filter(book =>
         book.libraryId === libraryId && !sourceBookIds.has(book.id)
-      );
-    });
+      )
+    );
+
+    this.filteredBooks = this.allBooks().slice(0, 20);
   }
 
   ngOnDestroy(): void {
@@ -98,12 +91,13 @@ export class BookFileAttacherComponent implements OnInit, OnDestroy {
 
   filterBooks(event: { query: string }): void {
     const query = event.query.toLowerCase().trim();
+    const books = this.allBooks();
     if (!query) {
-      this.filteredBooks = this.allBooks.slice(0, 20);
+      this.filteredBooks = books.slice(0, 20);
       return;
     }
 
-    this.filteredBooks = this.allBooks
+    this.filteredBooks = books
       .filter(book => {
         const title = book.metadata?.title?.toLowerCase() || '';
         const authors = book.metadata?.authors?.join(' ').toLowerCase() || '';
