@@ -195,8 +195,8 @@ export class BookTableComponent implements OnInit, OnDestroy, OnChanges {
     return this.readStatusHelper.getReadStatusTooltip(readStatus);
   }
 
-  shouldShowStatusIcon(readStatus: ReadStatus | undefined): boolean {
-    return this.readStatusHelper.shouldShowStatusIcon(readStatus);
+  shouldShowStatusIcon(): boolean {
+    return this.readStatusHelper.shouldShowStatusIcon();
   }
 
   getCellClickableValue(metadata: BookMetadata, book: Book, field: string) {

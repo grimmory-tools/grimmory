@@ -45,7 +45,7 @@ export class CoverScalePreferenceService {
     this.scheduleSave(scale);
   }
 
-  getCardHeight(_book: Book): number {
+  getCardHeight(): number {
     // Use uniform height for all book types to ensure smooth virtual scrolling.
     // Mixed heights cause choppy/jumpy scrolling because the virtual scroller
     // cannot accurately estimate positions when item heights vary.
@@ -72,7 +72,7 @@ export class CoverScalePreferenceService {
         detail: this.t.translate('book.coverPref.toast.savedDetail', {scale: scale.toFixed(2)}),
         life: 1500
       });
-    } catch (e) {
+    } catch {
       this.messageService.add({
         severity: 'error',
         summary: this.t.translate('book.coverPref.toast.saveFailedSummary'),

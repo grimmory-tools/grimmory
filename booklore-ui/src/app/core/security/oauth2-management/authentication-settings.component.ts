@@ -10,7 +10,6 @@ import {MessageService} from 'primeng/api';
 import {AppSettingsService} from '../../../shared/service/app-settings.service';
 import {AppSettingKey, AppSettings, OidcProviderDetails, OidcTestResult} from '../../../shared/model/app-settings.model';
 import {MultiSelect} from 'primeng/multiselect';
-import {Library} from '../../../features/book/model/library.model';
 import {LibraryService} from '../../../features/book/service/library.service';
 import {ExternalDocLinkComponent} from '../../../shared/components/external-doc-link/external-doc-link.component';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';

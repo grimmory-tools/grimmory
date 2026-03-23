@@ -326,14 +326,14 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.coverScalePreferenceService.gridColumnMinWidth();
   }
 
-  getCardHeight(_book: Book): number {
+  getCardHeight(): number {
     if (this.isMobile) {
       return this.mobileCardSize.height;
     }
     if (this.isAudiobookOnlyLibrary) {
       return this.currentCardSize.height;
     }
-    return this.coverScalePreferenceService.getCardHeight(_book);
+    return this.coverScalePreferenceService.getCardHeight();
   }
 
   get viewIcon(): string {

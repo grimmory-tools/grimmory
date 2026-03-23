@@ -79,7 +79,7 @@ export class ReadStatusHelper {
     }
   }
 
-  shouldShowStatusIcon(_readStatus: ReadStatus | undefined): boolean {
+  shouldShowStatusIcon(): boolean {
     return true;
   }
 }

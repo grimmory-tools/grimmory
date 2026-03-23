@@ -37,7 +37,7 @@
     [multiple]="false"
     [accept]="acceptedFormats"
     (onSelect)="onFilesSelect($event)"
-    (uploadHandler)="uploadFiles($event)"
+    (uploadHandler)="uploadFiles()"
     [disabled]="isUploading">
     <ng-template #header let-files let-chooseCallback="chooseCallback" let-clearCallback="clearCallback" let-uploadCallback="uploadCallback">
       <div class="upload-header-actions">

@@ -47,7 +47,7 @@ function handle401Error(authService: AuthService, request: HttpRequest<unknown>,
       }),
       catchError(err => {
         isRefreshing = false;
-        forceLogout(authService, router);
+        forceLogout(authService);
         return throwError(() => err);
       })
     );
@@ -64,6 +64,6 @@ function handle401Error(authService: AuthService, request: HttpRequest<unknown>,
   );
 }
 
-function forceLogout(authService: AuthService, router: Router): void {
+function forceLogout(authService: AuthService): void {
   authService.logout();
 }

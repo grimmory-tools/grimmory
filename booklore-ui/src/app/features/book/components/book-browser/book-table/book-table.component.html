@@ -75,7 +75,7 @@
         @for (col of visibleColumns; track col.field) {
           @if (col.field === 'readStatus') {
             <td class="cell-status">
-              @if (shouldShowStatusIcon(book.readStatus)) {
+              @if (shouldShowStatusIcon()) {
                 <div class="read-status-indicator"
                      [ngClass]="getReadStatusClass(book.readStatus)"
                      [pTooltip]="t('statusPrefix') + getReadStatusTooltip(book.readStatus)"

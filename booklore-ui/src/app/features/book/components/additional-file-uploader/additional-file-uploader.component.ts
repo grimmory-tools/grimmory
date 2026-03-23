@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, effect, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 
 import {FormsModule} from '@angular/forms';
 import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
@@ -152,7 +152,7 @@ export class AdditionalFileUploaderComponent implements OnInit, OnDestroy {
     uploadCallback();
   }
 
-  uploadFiles(event: FileUploadHandlerEvent): void {
+  uploadFiles(): void {
     const filesToUpload = this.files.filter(f => f.status === 'Pending');
 
     if (filesToUpload.length === 0) return;

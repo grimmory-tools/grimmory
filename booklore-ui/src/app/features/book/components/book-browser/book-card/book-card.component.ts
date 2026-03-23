@@ -157,7 +157,7 @@ export class BookCardComponent implements OnInit, OnChanges {
     this._readStatusIcon = this.readStatusHelper.getReadStatusIcon(this.book.readStatus);
     this._readStatusClass = this.readStatusHelper.getReadStatusClass(this.book.readStatus);
     this._readStatusTooltip = this.readStatusHelper.getReadStatusTooltip(this.book.readStatus);
-    this._shouldShowStatusIcon = this.readStatusHelper.shouldShowStatusIcon(this.book.readStatus);
+    this._shouldShowStatusIcon = this.readStatusHelper.shouldShowStatusIcon();
 
     this._seriesCountTooltip = this.t.translate('book.card.alt.seriesCollapsed', { count: this.book.seriesCount });
     this._titleTooltip = this.t.translate('book.card.alt.titleTooltip', { title: this._displayTitle });
