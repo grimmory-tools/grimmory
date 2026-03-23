@@ -1,10 +1,10 @@
-import {Component, ElementRef, HostBinding, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, effect, ElementRef, HostBinding, inject, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {NavigationEnd, Router, RouterLink} from '@angular/router';
 import {animate, state, style, transition, trigger} from '@angular/animations';
 import {Subscription} from 'rxjs';
 import {filter} from 'rxjs/operators';
 import {MenuService} from './service/app.menu.service';
-import {AsyncPipe, NgClass} from '@angular/common';
+import {NgClass} from '@angular/common';
 import {Ripple} from 'primeng/ripple';
 import {Button} from 'primeng/button';
 import {Menu} from 'primeng/menu';
@@ -25,7 +25,6 @@ import {TranslocoPipe} from '@jsverse/transloco';
     RouterLink,
     NgClass,
     Ripple,
-    AsyncPipe,
     Button,
     Menu,
     IconDisplayComponent,
@@ -64,7 +63,7 @@ export class AppMenuitemComponent implements OnInit, OnDestroy {
     return this.router.url.split('?')[0] === this.item.routerLink[0];
   }
 
-  private userStateSubscription: Subscription;
+  private userService = inject(UserService);
   menuSourceSubscription: Subscription;
   menuResetSubscription: Subscription;
   private routerSubscription: Subscription;
@@ -72,14 +71,14 @@ export class AppMenuitemComponent implements OnInit, OnDestroy {
   constructor(
     public router: Router,
     private menuService: MenuService,
-    private userService: UserService,
     private dialogLauncher: DialogLauncherService,
     private bookDialogHelperService: BookDialogHelperService
   ) {
-    this.userStateSubscription = this.userService.userState$.subscribe(userState => {
-      if (userState?.user) {
-        this.canManipulateLibrary = userState.user.permissions.canManageLibrary;
-        this.admin = userState.user.permissions.admin;
+    effect(() => {
+      const user = this.userService.currentUser();
+      if (user) {
+        this.canManipulateLibrary = user.permissions.canManageLibrary;
+        this.admin = user.permissions.admin;
       }
     });
 
@@ -117,7 +116,6 @@ export class AppMenuitemComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.userStateSubscription?.unsubscribe();
     this.menuSourceSubscription?.unsubscribe();
     this.menuResetSubscription?.unsubscribe();
     this.routerSubscription?.unsubscribe();

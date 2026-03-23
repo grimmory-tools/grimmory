@@ -57,7 +57,7 @@ export class ReaderSettingsDialogComponent implements OnInit {
   }
 
   get state() {
-    return this.stateService.currentState;
+    return this.stateService.state();
   }
 
   get themes() {
@@ -65,7 +65,7 @@ export class ReaderSettingsDialogComponent implements OnInit {
   }
 
   get fonts() {
-    return this.stateService.fonts;
+    return this.stateService.fonts();
   }
 
   private syncSettingsToBackend() {

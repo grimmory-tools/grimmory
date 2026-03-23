@@ -47,25 +47,25 @@
     <p-tabpanels class="tabpanels-responsive">
       <p-tabpanel value="view">
         <app-metadata-viewer
-          [book$]="book$"
+          [book]="book()"
           [recommendedBooks]="recommendedBooks">
         </app-metadata-viewer>
       </p-tabpanel>
       @if (admin || canEditMetadata) {
         <p-tabpanel value="edit">
           <app-metadata-editor
-            [book$]="book$">
+            [book]="book()">
           </app-metadata-editor>
         </p-tabpanel>
       }
       @if (admin || canEditMetadata) {
         <p-tabpanel value="match">
-          <app-metadata-searcher [book$]="book$" [isActiveTab]="tab === 'match'"></app-metadata-searcher>
+          <app-metadata-searcher [book]="book()" [isActiveTab]="tab === 'match'"></app-metadata-searcher>
         </p-tabpanel>
       }
       @if ((admin || canEditMetadata) && !isPhysical && isLocalStorage) {
         <p-tabpanel value="sidecar">
-          <app-sidecar-viewer [book$]="book$"></app-sidecar-viewer>
+          <app-sidecar-viewer [book]="book()"></app-sidecar-viewer>
         </p-tabpanel>
       }
     </p-tabpanels>

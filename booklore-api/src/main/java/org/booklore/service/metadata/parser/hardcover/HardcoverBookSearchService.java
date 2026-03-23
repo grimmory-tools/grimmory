@@ -57,6 +57,7 @@ public class HardcoverBookSearchService {
                           series {
                             name
                             books_count
+                            primary_books_count
                           }
                           position
                         }

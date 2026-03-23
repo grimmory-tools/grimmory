@@ -1,12 +1,10 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, effect, inject} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {InputText} from 'primeng/inputtext';
 import {ToggleSwitch} from 'primeng/toggleswitch';
 import {Button} from 'primeng/button';
 import {ToastModule} from 'primeng/toast';
 import {MessageService} from 'primeng/api';
-import {Subject} from 'rxjs';
-import {filter, takeUntil} from 'rxjs/operators';
 import {ExternalDocLinkComponent} from '../../../../../shared/components/external-doc-link/external-doc-link.component';
 import {UserService} from '../../../user-management/user.service';
 import {HardcoverSyncSettingsService} from './hardcover-sync-settings.service';
@@ -28,32 +26,31 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
   templateUrl: './hardcover-settings-component.html',
   styleUrls: ['./hardcover-settings-component.scss']
 })
-export class HardcoverSettingsComponent implements OnInit, OnDestroy {
+export class HardcoverSettingsComponent {
   private readonly messageService = inject(MessageService);
   private readonly hardcoverSyncSettingsService = inject(HardcoverSyncSettingsService);
   private readonly userService = inject(UserService);
   private readonly t = inject(TranslocoService);
-  private readonly destroy$ = new Subject<void>();
 
   hasPermission = false;
   hardcoverSyncEnabled = false;
   hardcoverApiKey = '';
   showHardcoverApiKey = false;
+  private prevHasPermission = false;
 
-  ngOnInit() {
-    let prevHasPermission = false;
-    this.userService.userState$.pipe(
-      filter(userState => !!userState?.user && userState.loaded),
-      takeUntil(this.destroy$)
-    ).subscribe(userState => {
-      const currHasPermission = (userState.user?.permissions.canSyncKoReader
-        || userState.user?.permissions.canSyncKobo
-        || userState.user?.permissions.admin) ?? false;
+  constructor() {
+    effect(() => {
+      const user = this.userService.currentUser();
+      if (!user) return;
+
+      const currHasPermission = (user.permissions.canSyncKoReader
+        || user.permissions.canSyncKobo
+        || user.permissions.admin) ?? false;
       this.hasPermission = currHasPermission;
-      if (currHasPermission && !prevHasPermission) {
+      if (currHasPermission && !this.prevHasPermission) {
         this.loadHardcoverSettings();
       }
-      prevHasPermission = currHasPermission;
+      this.prevHasPermission = currHasPermission;
     });
   }
 
@@ -128,8 +125,4 @@ export class HardcoverSettingsComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 }

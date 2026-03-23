@@ -15,23 +15,23 @@
     </div>
   </div>
 
-  @if (totalStarted > 0) {
+  @if (totalStarted() > 0) {
     <div class="stats-row">
       <div class="stat-card">
-        <span class="stat-value">{{ totalStarted }}</span>
+        <span class="stat-value">{{ totalStarted() }}</span>
         <span class="stat-label">{{ t('started') }}</span>
       </div>
       <div class="stat-card">
-        <span class="stat-value">{{ completionRate }}%</span>
+        <span class="stat-value">{{ completionRate() }}%</span>
         <span class="stat-label">{{ t('completionRate') }}</span>
       </div>
       <div class="stat-card">
-        <span class="stat-value">{{ medianDropout }}</span>
+        <span class="stat-value">{{ medianDropout() }}</span>
         <span class="stat-label">{{ t('medianDropout') }}</span>
       </div>
       <div class="stat-card danger">
-        <span class="stat-value">{{ dangerZoneRange }}</span>
-        <span class="stat-subtitle">{{ dangerZoneDrop }}</span>
+        <span class="stat-value">{{ dangerZoneRange() }}</span>
+        <span class="stat-subtitle">{{ dangerZoneDrop() }}</span>
         <span class="stat-label">{{ t('dangerZone') }}</span>
       </div>
     </div>
@@ -39,13 +39,13 @@
 
   <div class="chart-wrapper">
     <canvas baseChart
-            [data]="(chartData$ | async) ?? {labels: [], datasets: []}"
+            [data]="chartData()"
             [options]="chartOptions"
             [type]="chartType">
     </canvas>
   </div>
 
-  @if (totalStarted === 0) {
+  @if (totalStarted() === 0) {
     <div class="no-data-message">
       <i class="pi pi-info-circle"></i>
       <p>{{ t('noData') }}</p>

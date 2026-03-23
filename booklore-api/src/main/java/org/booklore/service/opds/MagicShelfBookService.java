@@ -23,6 +23,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
@@ -43,6 +44,7 @@ public class MagicShelfBookService {
     private final ContentRestrictionService contentRestrictionService;
     private final ObjectMapper objectMapper;
 
+    @Transactional(readOnly = true)
     public Page<Book> getBooksByMagicShelfId(Long userId, Long magicShelfId, int page, int size) {
         MagicShelfEntity shelf = validateMagicShelfAccess(userId, magicShelfId);
         try {
@@ -103,7 +105,7 @@ public class MagicShelfBookService {
             return shelf;
         }
 
-        BookLoreUserEntity entity = userRepository.findById(userId)
+        BookLoreUserEntity entity = userRepository.findByIdWithDetails(userId)
                 .orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(userId));
 
         if (entity.getPermissions() == null ||
@@ -124,7 +126,7 @@ public class MagicShelfBookService {
 
     private Specification<BookEntity> createLibraryFilterSpecification(Long userId) {
         return (root, query, cb) -> {
-            BookLoreUserEntity entity = userRepository.findById(userId)
+            BookLoreUserEntity entity = userRepository.findByIdWithDetails(userId)
                     .orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(userId));
 
             BookLoreUser user = bookLoreUserTransformer.toDTO(entity);

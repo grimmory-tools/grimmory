@@ -1,5 +1,4 @@
-import {Injectable} from '@angular/core';
-import {BehaviorSubject, Observable} from 'rxjs';
+import {computed, Injectable, signal} from '@angular/core';
 
 export interface BookNavigationState {
   bookIds: number[];
@@ -10,77 +9,69 @@ export interface BookNavigationState {
   providedIn: 'root'
 })
 export class BookNavigationService {
-  private navigationState$ = new BehaviorSubject<BookNavigationState | null>(null);
-  private availableBookIds: number[] = [];
+  private readonly _navigationState = signal<BookNavigationState | null>(null);
+  readonly navigationState = this._navigationState.asReadonly();
+
+  private readonly _availableBookIds = signal<number[]>([]);
+  readonly availableBookIds = this._availableBookIds.asReadonly();
+
+  readonly canNavigatePrevious = computed(() => {
+    const state = this.navigationState();
+    return state !== null && state.currentIndex > 0;
+  });
+
+  readonly canNavigateNext = computed(() => {
+    const state = this.navigationState();
+    return state !== null && state.currentIndex < state.bookIds.length - 1;
+  });
+
+  readonly previousBookId = computed<number | null>(() => {
+    const state = this.navigationState();
+    return state && state.currentIndex > 0
+      ? state.bookIds[state.currentIndex - 1]
+      : null;
+  });
+
+  readonly nextBookId = computed<number | null>(() => {
+    const state = this.navigationState();
+    return state && state.currentIndex < state.bookIds.length - 1
+      ? state.bookIds[state.currentIndex + 1]
+      : null;
+  });
+
+  readonly currentPosition = computed<{ current: number; total: number } | null>(() => {
+    const state = this.navigationState();
+    return state
+      ? {
+          current: state.currentIndex + 1,
+          total: state.bookIds.length
+        }
+      : null;
+  });
 
   setAvailableBookIds(bookIds: number[]): void {
-    this.availableBookIds = bookIds;
-  }
-
-  getAvailableBookIds(): number[] {
-    return this.availableBookIds;
+    this._availableBookIds.set(bookIds);
   }
 
   setNavigationContext(bookIds: number[], currentBookId: number): void {
     const currentIndex = bookIds.indexOf(currentBookId);
     if (currentIndex !== -1) {
-      this.navigationState$.next({bookIds, currentIndex});
+      this._navigationState.set({bookIds, currentIndex});
     } else {
-      this.navigationState$.next(null);
+      this._navigationState.set(null);
     }
-  }
-
-  getNavigationState(): Observable<BookNavigationState | null> {
-    return this.navigationState$.asObservable();
-  }
-
-  canNavigatePrevious(): boolean {
-    const state = this.navigationState$.value;
-    return state !== null && state.currentIndex > 0;
-  }
-
-  canNavigateNext(): boolean {
-    const state = this.navigationState$.value;
-    return state !== null && state.currentIndex < state.bookIds.length - 1;
-  }
-
-  getPreviousBookId(): number | null {
-    const state = this.navigationState$.value;
-    if (state && state.currentIndex > 0) {
-      return state.bookIds[state.currentIndex - 1];
-    }
-    return null;
-  }
-
-  getNextBookId(): number | null {
-    const state = this.navigationState$.value;
-    if (state && state.currentIndex < state.bookIds.length - 1) {
-      return state.bookIds[state.currentIndex + 1];
-    }
-    return null;
   }
 
   updateCurrentBook(bookId: number): void {
-    const state = this.navigationState$.value;
+    const state = this.navigationState();
     if (state) {
       const newIndex = state.bookIds.indexOf(bookId);
       if (newIndex !== -1) {
-        this.navigationState$.next({
+        this._navigationState.set({
           ...state,
           currentIndex: newIndex
         });
       }
     }
-  }
-
-  getCurrentPosition(): { current: number; total: number } | null {
-    const state = this.navigationState$.value;
-    if (state) {
-      return {
-        current: state.currentIndex + 1,
-        total: state.bookIds.length
-      };
-    }
-    return null;
   }
 }

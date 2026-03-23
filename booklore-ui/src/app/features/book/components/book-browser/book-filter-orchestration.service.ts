@@ -1,43 +1,36 @@
 import {inject, Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
-import {map, switchMap} from 'rxjs/operators';
-import {BookState} from '../../model/state/book-state.model';
+import {ParamMap} from '@angular/router';
+import {Book} from '../../model/book.model';
 import {SortOption} from '../../model/sort.model';
 import {SortService} from '../../service/sort.service';
-import {HeaderFilter} from './filters/HeaderFilter';
-import {SideBarFilter} from './filters/sidebar-filter';
+import {filterBooksBySearchTerm} from './filters/HeaderFilter';
+import {filterBooksByFilters} from './filters/sidebar-filter';
 import {SeriesCollapseFilter} from './filters/SeriesCollapseFilter';
-import {ParamMap} from '@angular/router';
 import {QUERY_PARAMS} from './book-browser-query-params.service';
+import {BookFilterMode} from '../../../settings/user-management/user.service';
 
 @Injectable({providedIn: 'root'})
 export class BookFilterOrchestrationService {
   private sortService = inject(SortService);
 
   applyFilters(
-    bookState: BookState,
-    headerFilter: HeaderFilter,
-    sideBarFilter: SideBarFilter,
+    books: Book[],
+    searchTerm: string,
+    activeFilters: Record<string, unknown[]> | null,
+    filterMode: BookFilterMode,
     seriesCollapseFilter: SeriesCollapseFilter,
+    isSeriesCollapsed: boolean,
     forceExpandSeries: boolean,
-    sortOption: SortOption
-  ): Observable<BookState> {
-    return headerFilter.filter(bookState).pipe(
-      switchMap(filtered => sideBarFilter.filter(filtered)),
-      switchMap(filtered => seriesCollapseFilter.filter(filtered, forceExpandSeries)),
-      map(filtered =>
-        (filtered.loaded && !filtered.error)
-          ? ({
-            ...filtered,
-            books: this.sortService.applySort(filtered.books || [], sortOption)
-          })
-          : filtered
-      )
-    );
+    sortCriteria: SortOption[]
+  ): Book[] {
+    const searchedBooks = filterBooksBySearchTerm(books, searchTerm);
+    const filteredBooks = filterBooksByFilters(searchedBooks, activeFilters, filterMode);
+    const collapsedBooks = seriesCollapseFilter.collapseBooks(filteredBooks, forceExpandSeries, isSeriesCollapsed);
+    return this.sortService.applyMultiSort(collapsedBooks, sortCriteria);
   }
 
   shouldForceExpandSeries(queryParamMap: ParamMap): boolean {
     const filterParam = queryParamMap.get(QUERY_PARAMS.FILTER);
-    return (!!filterParam && filterParam.split(',').some(pair => pair.trim().startsWith('series:')));
+    return !!filterParam && filterParam.split(',').some(pair => pair.trim().startsWith('series:'));
   }
 }

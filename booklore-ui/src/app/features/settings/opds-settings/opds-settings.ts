@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, effect, inject, OnDestroy, OnInit} from '@angular/core';
 
 import {Button} from 'primeng/button';
 import {InputText} from 'primeng/inputtext';
@@ -10,7 +10,7 @@ import {FormsModule} from '@angular/forms';
 import {ConfirmDialog} from 'primeng/confirmdialog';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {OpdsService, OpdsSortOrder, OpdsUserV2, OpdsUserV2CreateRequest} from './opds.service';
-import {catchError, filter, take, takeUntil, tap} from 'rxjs/operators';
+import {catchError, takeUntil} from 'rxjs/operators';
 import {UserService} from '../user-management/user.service';
 import {of, Subject} from 'rxjs';
 import {ToggleSwitch} from 'primeng/toggleswitch';
@@ -80,41 +80,35 @@ export class OpdsSettings implements OnInit, OnDestroy {
     {label: 'Rating (High to Low)', value: 'RATING_DESC' as OpdsSortOrder, translationKey: 'settingsOpds.sortOrders.ratingDesc'}
   ];
 
+  private prevHasPermission = false;
+
+  private readonly syncPermissionEffect = effect(() => {
+    const user = this.userService.currentUser();
+    if (!user) return;
+
+    this.hasPermission = !!(user.permissions.canAccessOpds || user.permissions.admin);
+    if (this.hasPermission && !this.prevHasPermission) {
+      this.loadAppSettings();
+    }
+    this.prevHasPermission = this.hasPermission;
+  });
+
   ngOnInit(): void {
     this.loading = true;
-
-    let prevHasPermission = false;
-    this.userService.userState$.pipe(
-      filter(state => !!state?.user && state.loaded),
-      takeUntil(this.destroy$),
-      tap(state => {
-        this.hasPermission = !!(state.user?.permissions.canAccessOpds || state.user?.permissions.admin);
-      }),
-      filter(() => {
-        const shouldRun = this.hasPermission && !prevHasPermission;
-        prevHasPermission = this.hasPermission;
-        return shouldRun;
-      }),
-      tap(() => this.loadAppSettings())
-    ).subscribe();
   }
 
   private loadAppSettings(): void {
-    this.appSettingsService.appSettings$
-      .pipe(
-        filter((settings): settings is NonNullable<typeof settings> => settings != null),
-        take(1)
-      )
-      .subscribe(settings => {
-        this.opdsEnabled = settings.opdsServerEnabled ?? false;
-        this.komgaApiEnabled = settings.komgaApiEnabled ?? false;
-        this.komgaGroupUnknown = settings.komgaGroupUnknown ?? true;
-        if (this.opdsEnabled || this.komgaApiEnabled) {
-          this.loadUsers();
-        } else {
-          this.loading = false;
-        }
-      });
+    const settings = this.appSettingsService.appSettings();
+    if (settings) {
+      this.opdsEnabled = settings.opdsServerEnabled ?? false;
+      this.komgaApiEnabled = settings.komgaApiEnabled ?? false;
+      this.komgaGroupUnknown = settings.komgaGroupUnknown ?? true;
+      if (this.opdsEnabled || this.komgaApiEnabled) {
+        this.loadUsers();
+      } else {
+        this.loading = false;
+      }
+    }
   }
 
   private loadUsers(): void {

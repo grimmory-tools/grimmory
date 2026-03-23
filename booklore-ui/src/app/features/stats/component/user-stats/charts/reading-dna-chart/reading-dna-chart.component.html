@@ -16,16 +16,16 @@
   </div>
   <div class="chart-wrapper">
     <canvas baseChart
-            [data]="(chartData$ | async) ?? {labels: [], datasets: []}"
+            [data]="chartData()"
             [options]="chartOptions"
             [type]="chartType">
     </canvas>
   </div>
-  @if (personalityInsights.length > 0) {
+  @if (personalityInsights().length > 0) {
     <div class="personality-insights">
       <h4>{{ t('personalityTraits') }}</h4>
       <div class="insights-grid">
-        @for (insight of personalityInsights; track insight.trait) {
+        @for (insight of personalityInsights(); track insight.trait) {
           <div class="insight-card">
             <div class="insight-header">
               <span class="insight-trait">{{ insight.trait }}</span>

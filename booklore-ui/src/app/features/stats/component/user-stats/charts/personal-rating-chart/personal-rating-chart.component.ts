@@ -1,12 +1,9 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, computed, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
-import {BehaviorSubject, EMPTY, Observable, Subject} from 'rxjs';
-import {catchError, filter, first, takeUntil} from 'rxjs/operators';
 import {ChartConfiguration, ChartData} from 'chart.js';
 import {Tooltip} from 'primeng/tooltip';
 import {BookService} from '../../../../../book/service/book.service';
-import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book} from '../../../../../book/model/book.model';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
@@ -58,10 +55,16 @@ type RatingChartData = ChartData<'bar', number[], string>;
   templateUrl: './personal-rating-chart.component.html',
   styleUrls: ['./personal-rating-chart.component.scss']
 })
-export class PersonalRatingChartComponent implements OnInit, OnDestroy {
+export class PersonalRatingChartComponent {
   private readonly bookService = inject(BookService);
   private readonly t = inject(TranslocoService);
-  private readonly destroy$ = new Subject<void>();
+  private readonly ratingStats = computed(() => {
+    if (this.bookService.isBooksLoading()) {
+      return [];
+    }
+
+    return this.calculatePersonalRatingStats(this.bookService.books());
+  });
 
   public readonly chartType = 'bar' as const;
 
@@ -145,43 +148,9 @@ export class PersonalRatingChartComponent implements OnInit, OnDestroy {
     }
   };
 
-  private readonly chartDataSubject = new BehaviorSubject<RatingChartData>({
-    labels: [],
-    datasets: [{
-      label: this.t.translate('statsUser.personalRating.booksByPersonalRating'),
-      data: [],
-      backgroundColor: [...CHART_COLORS],
-      ...CHART_DEFAULTS
-    }]
-  });
-
-  public readonly chartData$: Observable<RatingChartData> = this.chartDataSubject.asObservable();
-
-  ngOnInit(): void {
-    this.bookService.bookState$
-      .pipe(
-        filter(state => state.loaded),
-        first(),
-        catchError((error) => {
-          console.error('Error processing personal rating data:', error);
-          return EMPTY;
-        }),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(() => {
-        const stats = this.calculatePersonalRatingStats();
-        this.updateChartData(stats);
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  private updateChartData(stats: RatingStats[]): void {
+  public readonly chartData = computed<RatingChartData>(() => {
     try {
-      // Always show all rating labels from 1-10, even if there's no data
+      const stats = this.ratingStats();
       const allLabels = RATING_RANGES.map(r => r.range);
       const dataValues = allLabels.map(label => {
         const stat = stats.find(s => s.ratingRange === label);
@@ -189,7 +158,7 @@ export class PersonalRatingChartComponent implements OnInit, OnDestroy {
       });
       const colors = allLabels.map((_, index) => CHART_COLORS[index % CHART_COLORS.length]);
 
-      this.chartDataSubject.next({
+      return {
         labels: allLabels,
         datasets: [{
           label: this.t.translate('statsUser.personalRating.booksByPersonalRating'),
@@ -201,32 +170,27 @@ export class PersonalRatingChartComponent implements OnInit, OnDestroy {
           barPercentage: 0.8,
           categoryPercentage: 0.6
         }]
-      });
+      };
     } catch (error) {
       console.error('Error updating personal rating chart data:', error);
+      return {
+        labels: [],
+        datasets: [{
+          label: this.t.translate('statsUser.personalRating.booksByPersonalRating'),
+          data: [],
+          backgroundColor: [...CHART_COLORS],
+          ...CHART_DEFAULTS
+        }]
+      };
     }
-  }
+  });
 
-  private calculatePersonalRatingStats(): RatingStats[] {
-    const currentState = this.bookService.getCurrentBookState();
-
-    if (!this.isValidBookState(currentState)) {
+  private calculatePersonalRatingStats(books: Book[]): RatingStats[] {
+    if (books.length === 0) {
       return [];
     }
 
-    return this.processPersonalRatingStats(currentState.books!);
-  }
-
-  private isValidBookState(state: unknown): state is BookState {
-    return (
-      typeof state === 'object' &&
-      state !== null &&
-      'loaded' in state &&
-      typeof (state as {loaded: boolean}).loaded === 'boolean' &&
-      'books' in state &&
-      Array.isArray((state as {books: unknown}).books) &&
-      (state as {books: Book[]}).books.length > 0
-    );
+    return this.processPersonalRatingStats(books);
   }
 
   private processPersonalRatingStats(books: Book[]): RatingStats[] {

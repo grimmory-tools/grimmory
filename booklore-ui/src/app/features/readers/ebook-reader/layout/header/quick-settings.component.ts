@@ -22,7 +22,7 @@ export class ReaderQuickSettingsComponent {
   constructor(private bookService: BookService) {}
 
   get state() {
-    return this.stateService.currentState;
+    return this.stateService.state();
   }
 
   get isDarkMode(): boolean {

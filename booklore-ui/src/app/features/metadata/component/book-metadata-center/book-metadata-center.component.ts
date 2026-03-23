@@ -1,9 +1,9 @@
-import {Component, inject, OnDestroy, OnInit, Optional} from '@angular/core';
+import {computed, Component, effect, inject, OnDestroy, OnInit, signal} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {UserService} from '../../../settings/user-management/user.service';
 import {Book, BookRecommendation} from '../../../book/model/book.model';
-import {BehaviorSubject, Observable, Subject} from 'rxjs';
-import {distinctUntilChanged, filter, map, shareReplay, switchMap, take, takeUntil, tap,} from 'rxjs/operators';
+import {Subject} from 'rxjs';
+import {distinctUntilChanged, filter, map, takeUntil,} from 'rxjs/operators';
 import {BookService} from '../../../book/service/book.service';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {Tab, TabList, TabPanel, TabPanels, Tabs,} from 'primeng/tabs';
@@ -15,6 +15,7 @@ import {MetadataViewerComponent} from './metadata-viewer/metadata-viewer.compone
 import {MetadataEditorComponent} from './metadata-editor/metadata-editor.component';
 import {MetadataSearcherComponent} from './metadata-searcher/metadata-searcher.component';
 import {SidecarViewerComponent} from './sidecar-viewer/sidecar-viewer.component';
+import {injectQuery} from '@tanstack/angular-query-experimental';
 
 @Component({
   selector: 'app-book-metadata-center',
@@ -42,18 +43,50 @@ export class BookMetadataCenterComponent implements OnInit, OnDestroy {
   private userService = inject(UserService);
   private appSettingsService = inject(AppSettingsService);
   private metadataHostService = inject(BookMetadataHostService);
+  readonly config = inject(DynamicDialogConfig, {optional: true});
+  readonly ref = inject(DynamicDialogRef, {optional: true});
   private destroy$ = new Subject<void>();
 
-  book$!: Observable<Book>;
+  private currentBookId = signal<number | null>(this.config?.data?.bookId ?? null);
+  private bookQuery = injectQuery(() => {
+    const bookId = this.currentBookId();
+
+    if (bookId == null) {
+      return {
+        queryKey: ['books', 'detail', -1, true] as const,
+        queryFn: async (): Promise<Book> => {
+          throw new Error('No book selected');
+        },
+        enabled: false,
+      };
+    }
+
+    return this.bookService.bookDetailQueryOptions(bookId, true);
+  });
+  readonly book = computed(() => this.bookQuery.data() ?? null);
+  private readonly fetchRecommendations = effect(() => {
+    const bookId = this.currentBookId();
+    if (bookId == null) {
+      this.recommendedBooks = [];
+      return;
+    }
+
+    this.fetchBookRecommendationsIfNeeded(bookId);
+  });
+
   recommendedBooks: BookRecommendation[] = [];
   private _tab: string = 'view';
   canEditMetadata: boolean = false;
   admin: boolean = false;
-  isPhysical: boolean = false;
+  private readonly syncUserPermissionsEffect = effect(() => {
+    const user = this.userService.currentUser();
+    if (!user) return;
+    this.canEditMetadata = user.permissions?.canEditMetadata ?? false;
+    this.admin = user.permissions?.admin ?? false;
+  });
+  get isPhysical(): boolean { return this.book()?.isPhysical ?? false; }
   isLocalStorage: boolean = true;
 
-  private appSettings$ = this.appSettingsService.appSettings$;
-  private currentBookId$ = new BehaviorSubject<number | null>(null);
   private validTabs = ['view', 'edit', 'match', 'sidecar'];
 
   get tab(): string {
@@ -72,16 +105,10 @@ export class BookMetadataCenterComponent implements OnInit, OnDestroy {
     }
   }
 
-  constructor(
-    @Optional() public config?: DynamicDialogConfig,
-    @Optional() public ref?: DynamicDialogRef
-  ) {
-  }
-
   ngOnInit(): void {
     const bookIdFromDialog: number | undefined = this.config?.data?.bookId;
     if (bookIdFromDialog != null) {
-      this.currentBookId$.next(bookIdFromDialog);
+      this.currentBookId.set(bookIdFromDialog);
     } else {
       this.route.paramMap
         .pipe(
@@ -89,7 +116,7 @@ export class BookMetadataCenterComponent implements OnInit, OnDestroy {
           filter(bookId => !isNaN(bookId)),
           takeUntil(this.destroy$)
         )
-        .subscribe(bookId => this.currentBookId$.next(bookId));
+        .subscribe(bookId => this.currentBookId.set(bookId));
     }
 
     this.metadataHostService.bookSwitches$
@@ -98,34 +125,7 @@ export class BookMetadataCenterComponent implements OnInit, OnDestroy {
         distinctUntilChanged(),
         takeUntil(this.destroy$)
       )
-      .subscribe(bookId => {
-        this.currentBookId$.next(bookId);
-      });
-
-    this.book$ = this.currentBookId$.pipe(
-      filter((bookId): bookId is number => bookId != null),
-      distinctUntilChanged(),
-      switchMap(bookId =>
-        this.bookService.bookState$.pipe(
-          map(state => state.books?.find(b => b.id === bookId)),
-          filter((book): book is Book => !!book && !!book.metadata),
-          distinctUntilChanged(),
-          switchMap(book =>
-            this.bookService.getBookByIdFromAPI(book.id, true)
-          )
-        )
-      ),
-      tap(book => this.isPhysical = book.isPhysical ?? false),
-      takeUntil(this.destroy$),
-      shareReplay({bufferSize: 1, refCount: true})
-    );
-
-    this.currentBookId$
-      .pipe(
-        filter((id): id is number => id != null),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(bookId => this.fetchBookRecommendationsIfNeeded(bookId));
+      .subscribe(bookId => this.currentBookId.set(bookId));
 
     this.route.queryParamMap
       .pipe(
@@ -137,39 +137,24 @@ export class BookMetadataCenterComponent implements OnInit, OnDestroy {
         this._tab = this.validTabs.includes(tabParam) ? tabParam : 'view';
       });
 
-    this.userService.userState$
-      .pipe(
-        filter(userState => !!userState?.user && userState.loaded),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(userState => {
-        this.canEditMetadata = userState.user?.permissions?.canEditMetadata ?? false;
-        this.admin = userState.user?.permissions?.admin ?? false;
-      });
-
-    this.appSettings$
-      .pipe(
-        filter(settings => !!settings),
-        take(1),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(settings => {
-        this.isLocalStorage = settings!.diskType === 'LOCAL';
-      });
+    const currentSettings = this.appSettingsService.appSettings();
+    if (currentSettings) {
+      this.isLocalStorage = currentSettings.diskType === 'LOCAL';
+    }
   }
 
   private fetchBookRecommendationsIfNeeded(bookId: number): void {
-    this.appSettings$.pipe(
-      filter(settings => settings != null),
-      take(1),
-      filter(settings => settings!.similarBookRecommendation ?? false),
-      switchMap(() => this.bookService.getBookRecommendations(bookId)),
-      takeUntil(this.destroy$)
-    ).subscribe(recommendations => {
-      this.recommendedBooks = recommendations.sort(
-        (a, b) => (b.similarityScore ?? 0) - (a.similarityScore ?? 0)
-      );
-    });
+    const settings = this.appSettingsService.appSettings();
+    if (!settings || !(settings.similarBookRecommendation ?? false)) {
+      return;
+    }
+    this.bookService.getBookRecommendations(bookId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(recommendations => {
+        this.recommendedBooks = recommendations.sort(
+          (a, b) => (b.similarityScore ?? 0) - (a.similarityScore ?? 0)
+        );
+      });
   }
 
   ngOnDestroy(): void {

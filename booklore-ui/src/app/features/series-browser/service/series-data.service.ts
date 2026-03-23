@@ -1,8 +1,6 @@
-import {inject, Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
-import {filter, map, shareReplay} from 'rxjs/operators';
+import {computed, inject, Injectable} from '@angular/core';
 import {BookService} from '../../book/service/book.service';
-import {Book, ReadStatus} from '../../book/model/book.model';
+import {Book, computeSeriesReadStatus, ReadStatus} from '../../book/model/book.model';
 import {SeriesSummary} from '../model/series.model';
 
 @Injectable({
@@ -12,11 +10,7 @@ export class SeriesDataService {
 
   private bookService = inject(BookService);
 
-  allSeries$: Observable<SeriesSummary[]> = this.bookService.bookState$.pipe(
-    filter(state => state.loaded && !!state.books),
-    map(state => this.buildSeriesSummaries(state.books || [])),
-    shareReplay(1)
-  );
+  allSeries = computed(() => this.buildSeriesSummaries(this.bookService.books()));
 
   private buildSeriesSummaries(books: Book[]): SeriesSummary[] {
     const seriesMap = new Map<string, Book[]>();
@@ -73,7 +67,7 @@ export class SeriesDataService {
         bookCount,
         readCount,
         progress: bookCount > 0 ? readCount / bookCount : 0,
-        seriesStatus: this.computeSeriesStatus(sorted),
+        seriesStatus: computeSeriesReadStatus(sorted),
         nextUnread,
         lastReadTime,
         coverBooks: sorted.slice(0, 7),
@@ -84,24 +78,4 @@ export class SeriesDataService {
     return summaries;
   }
 
-  private computeSeriesStatus(books: Book[]): ReadStatus {
-    if (!books || books.length === 0) return ReadStatus.UNREAD;
-    const statuses = books.map(b => (b.readStatus as ReadStatus) ?? ReadStatus.UNREAD);
-
-    if (statuses.includes(ReadStatus.WONT_READ)) return ReadStatus.WONT_READ;
-    if (statuses.includes(ReadStatus.ABANDONED)) return ReadStatus.ABANDONED;
-    if (statuses.every(s => s === ReadStatus.READ)) return ReadStatus.READ;
-
-    const isAnyReading = statuses.some(
-      s => s === ReadStatus.READING || s === ReadStatus.RE_READING || s === ReadStatus.PAUSED
-    );
-    if (isAnyReading) return ReadStatus.READING;
-
-    const someRead = statuses.some(s => s === ReadStatus.READ);
-    if (someRead) return ReadStatus.PARTIALLY_READ;
-
-    if (statuses.every(s => s === ReadStatus.UNREAD)) return ReadStatus.UNREAD;
-
-    return ReadStatus.PARTIALLY_READ;
-  }
 }

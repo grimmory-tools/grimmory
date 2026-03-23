@@ -1,7 +1,6 @@
-import {inject, Injectable} from '@angular/core';
+import {computed, inject, Injectable, signal} from '@angular/core';
 import {Location} from '@angular/common';
-import {BehaviorSubject, Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
+import {Subject} from 'rxjs';
 import {ReaderStateService} from '../../state/reader-state.service';
 import {ReaderSidebarService} from '../sidebar/sidebar.service';
 import {ReaderLeftSidebarService} from '../panel/panel.service';
@@ -16,51 +15,39 @@ export class ReaderHeaderService {
   private bookService = inject(BookService);
   private location = inject(Location);
 
-  private destroy$ = new Subject<void>();
   private bookId!: number;
-  private bookTitle = '';
+  private readonly _bookTitle = signal('');
+  readonly bookTitle = this._bookTitle.asReadonly();
 
-  private _forceVisible = new BehaviorSubject<boolean>(false);
-  forceVisible$ = this._forceVisible.asObservable();
+  private readonly _forceVisible = signal(false);
+  readonly forceVisible = this._forceVisible.asReadonly();
 
-  private _isCurrentCfiBookmarked = new BehaviorSubject<boolean>(false);
-  isCurrentCfiBookmarked$ = this._isCurrentCfiBookmarked.asObservable();
+  private readonly _isCurrentCfiBookmarked = signal(false);
+  readonly isCurrentCfiBookmarked = this._isCurrentCfiBookmarked.asReadonly();
 
   private _showControls = new Subject<void>();
   private _showMetadata = new Subject<void>();
   private _toggleFullscreen = new Subject<void>();
   private _showShortcutsHelp = new Subject<void>();
-  private _isFullscreen = new BehaviorSubject<boolean>(false);
+  private readonly _isFullscreen = signal(false);
+  readonly isFullscreen = this._isFullscreen.asReadonly();
   showControls$ = this._showControls.asObservable();
   showMetadata$ = this._showMetadata.asObservable();
   toggleFullscreen$ = this._toggleFullscreen.asObservable();
   showShortcutsHelp$ = this._showShortcutsHelp.asObservable();
-  fullscreenState$ = this._isFullscreen.asObservable();
+  readonly theme = computed(() => this.stateService.state().theme);
 
-  get currentState() {
-    return this.stateService.currentState;
-  }
-
-  get title(): string {
-    return this.bookTitle;
-  }
-
-  get isVisible(): boolean {
-    return this._forceVisible.value;
-  }
-
-  initialize(bookId: number, title: string, destroy$: Subject<void>): void {
+  initialize(bookId: number, title: string): void {
     this.bookId = bookId;
-    this.bookTitle = title;
-    this.destroy$ = destroy$;
+    this._bookTitle.set(title);
   }
 
   setForceVisible(visible: boolean): void {
-    this._forceVisible.next(visible);
+    this._forceVisible.set(visible);
   }
 
   setCurrentCfiBookmarked(bookmarked: boolean): void {
-    this._isCurrentCfiBookmarked.next(bookmarked);
+    this._isCurrentCfiBookmarked.set(bookmarked);
   }
 
   openSidebar(): void {
@@ -88,7 +75,7 @@ export class ReaderHeaderService {
   }
 
   setFullscreen(isFullscreen: boolean): void {
-    this._isFullscreen.next(isFullscreen);
+    this._isFullscreen.set(isFullscreen);
   }
 
   showShortcutsHelp(): void {
@@ -110,7 +97,7 @@ export class ReaderHeaderService {
   }
 
   private syncSettingsToBackend(): void {
-    const state = this.stateService.currentState;
+    const state = this.stateService.state();
     const setting: EbookViewerSetting = {
       lineHeight: state.lineHeight,
       justify: state.justify,
@@ -127,15 +114,13 @@ export class ReaderHeaderService {
       isDark: state.isDark,
       flow: state.flow,
     };
-    this.bookService.updateViewerSetting({ebookSettings: setting}, this.bookId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe();
+    this.bookService.updateViewerSetting({ebookSettings: setting}, this.bookId).subscribe();
   }
 
   reset(): void {
-    this._forceVisible.next(false);
-    this._isCurrentCfiBookmarked.next(false);
-    this._isFullscreen.next(false);
-    this.bookTitle = '';
+    this._forceVisible.set(false);
+    this._isCurrentCfiBookmarked.set(false);
+    this._isFullscreen.set(false);
+    this._bookTitle.set('');
   }
 }

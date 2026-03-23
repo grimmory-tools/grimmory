@@ -1,5 +1,7 @@
 package org.booklore.service.recommender;
 
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.ApiError;
 import org.booklore.mapper.BookMapper;
@@ -9,18 +11,18 @@ import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.book.BookQueryService;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
 @AllArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class BookRecommendationService {
 
     private final BookSimilarityService similarityService;
@@ -31,8 +33,9 @@ public class BookRecommendationService {
 
     private static final int MAX_BOOKS_PER_AUTHOR = 3;
 
+    @Transactional
     public List<BookRecommendation> getRecommendations(Long bookId, int limit) {
-        BookEntity book = bookRepository.findById(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
+        BookEntity book = bookRepository.findByIdWithMetadata(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
         Set<BookRecommendationLite> recommendations = book.getSimilarBooksJson();
         if (recommendations == null || recommendations.isEmpty()) {
@@ -87,7 +90,7 @@ public class BookRecommendationService {
     }
 
     protected List<BookRecommendation> findSimilarBooks(Long bookId, int limit) {
-        BookEntity target = bookRepository.findById(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
+        BookEntity target = bookRepository.findByIdWithMetadata(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
         List<BookEntity> candidates = bookQueryService.getAllFullBookEntities();
 

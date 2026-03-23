@@ -7,7 +7,7 @@
     </div>
   }
 
-  @if (!loading && author) {
+  @if (!loading && author(); as author) {
     <div class="author-wrapper">
       <p-tabs [value]="tab" lazy="true" scrollable>
         <p-tablist>
@@ -95,7 +95,7 @@
               </div>
             </div>
 
-            @if (authorBooks$ | async; as books) {
+            @if (authorBooks(); as books) {
               <div class="books-section">
                 <h3 class="section-title">{{ t('booksBy', {name: author.name}) }} ({{ books.length }})</h3>
                 @if (books.length === 0) {

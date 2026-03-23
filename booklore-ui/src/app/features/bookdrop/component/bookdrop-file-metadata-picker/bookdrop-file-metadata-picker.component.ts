@@ -1,7 +1,5 @@
-import {Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {Component, DestroyRef, effect, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
 import {FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {filter} from 'rxjs/operators';
 import {Button} from 'primeng/button';
 import {NgClass} from '@angular/common';
 import {Tooltip} from 'primeng/tooltip';
@@ -79,18 +77,15 @@ export class BookdropFileMetadataPickerComponent implements OnInit {
 
   metadataFieldsBottom: MetadataFieldConfig[] = getBottomFields();
 
+  private readonly syncProviderFieldsEffect = effect(() => {
+    const settings = this.appSettingsService.appSettings();
+    if (settings?.metadataProviderSpecificFields) {
+      this.enabledProviderFields = settings.metadataProviderSpecificFields;
+      this.metadataFieldsBottom = getBottomFields(this.enabledProviderFields);
+    }
+  });
+
   ngOnInit(): void {
-    this.appSettingsService.appSettings$
-      .pipe(
-        filter(settings => !!settings?.metadataProviderSpecificFields),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe(settings => {
-        if (settings?.metadataProviderSpecificFields) {
-          this.enabledProviderFields = settings.metadataProviderSpecificFields;
-          this.metadataFieldsBottom = getBottomFields(this.enabledProviderFields);
-        }
-      });
   }
 
   copyMissing(): void {

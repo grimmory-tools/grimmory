@@ -1,9 +1,8 @@
-import {inject, Injectable, OnDestroy} from '@angular/core';
+import {effect, inject, Injectable, OnDestroy} from '@angular/core';
 import {BehaviorSubject, Subject, Subscription} from 'rxjs';
 import {MetadataBatchProgressNotification} from '../model/metadata-batch-progress.model';
 import {MetadataTaskService} from '../../features/book/service/metadata-task';
 import {UserService} from '../../features/settings/user-management/user.service';
-import {filter, take} from 'rxjs/operators';
 
 @Injectable({providedIn: 'root'})
 export class MetadataProgressService implements OnDestroy {
@@ -19,25 +18,25 @@ export class MetadataProgressService implements OnDestroy {
   private userService = inject(UserService);
 
   private subscriptions = new Subscription();
+  private hasInitialized = false;
 
   constructor() {
-    const sub = this.userService.userState$
-      .pipe(
-        filter(userState => !!userState?.user),
-        take(1)
-      )
-      .subscribe(userState => {
-        if (!this.hasMetadataPermissions(userState.user)) {
-          return;
-        }
-        const activeTasksSub = this.metadataTaskService.getActiveTasks().subscribe({
-          next: (tasks) => this.initializeActiveTasks(tasks),
-          error: (err) => console.warn('Failed to fetch active metadata tasks:', err)
-        });
-        this.subscriptions.add(activeTasksSub);
-      });
+    effect(() => {
+      const user = this.userService.currentUser();
+      if (this.hasInitialized || !user) {
+        return;
+      }
+      this.hasInitialized = true;
 
-    this.subscriptions.add(sub);
+      if (!this.hasMetadataPermissions(user)) {
+        return;
+      }
+      const activeTasksSub = this.metadataTaskService.getActiveTasks().subscribe({
+        next: (tasks) => this.initializeActiveTasks(tasks),
+        error: (err) => console.warn('Failed to fetch active metadata tasks:', err)
+      });
+      this.subscriptions.add(activeTasksSub);
+    });
   }
 
   handleIncomingProgress(progress: MetadataBatchProgressNotification): void {

@@ -1,6 +1,6 @@
 package org.booklore.service.appsettings;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.booklore.config.AppProperties;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.ApiError;

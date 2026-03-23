@@ -1,8 +1,9 @@
 package org.booklore.service.book;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.APIException;
-import org.booklore.service.audit.AuditService;
 import org.booklore.mapper.BookMapper;
 import org.booklore.model.dto.*;
 import org.booklore.model.dto.request.ReadProgressRequest;
@@ -11,6 +12,7 @@ import org.booklore.model.dto.response.BookStatusUpdateResponse;
 import org.booklore.model.entity.*;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.*;
+import org.booklore.service.audit.AuditService;
 import org.booklore.service.monitoring.MonitoringRegistrationService;
 import org.booklore.service.progress.ReadingProgressService;
 import org.booklore.util.FileService;
@@ -323,7 +325,7 @@ class BookServiceTest {
     void getBookContent_returnsResource() throws Exception {
         BookEntity entity = new BookEntity();
         entity.setId(10L);
-        when(bookRepository.findById(10L)).thenReturn(Optional.of(entity));
+        when(bookRepository.findByIdWithBookFiles(10L)).thenReturn(Optional.of(entity));
         Path path = Paths.get("/tmp/bookcontent.txt");
         Files.write(path, "hello".getBytes());
         try (MockedStatic<FileUtils> fileUtilsMock = mockStatic(FileUtils.class)) {
@@ -338,7 +340,7 @@ class BookServiceTest {
 
     @Test
     void getBookContent_bookNotFound_throwsException() {
-        when(bookRepository.findById(404L)).thenReturn(Optional.empty());
+        when(bookRepository.findByIdWithBookFiles(404L)).thenReturn(Optional.empty());
         assertThrows(APIException.class, () -> bookService.getBookContent(404L));
     }
 
@@ -346,7 +348,7 @@ class BookServiceTest {
     void getBookContent_fileNotFound_throwsException() {
         BookEntity entity = new BookEntity();
         entity.setId(12L);
-        when(bookRepository.findById(12L)).thenReturn(Optional.of(entity));
+        when(bookRepository.findByIdWithBookFiles(12L)).thenReturn(Optional.of(entity));
         try (MockedStatic<FileUtils> fileUtilsMock = mockStatic(FileUtils.class)) {
             fileUtilsMock.when(() -> FileUtils.getBookFullPath(entity)).thenReturn("/tmp/nonexistentfile.txt");
             assertThrows(APIException.class, () -> bookService.getBookContent(12L));
@@ -440,4 +442,47 @@ class BookServiceTest {
         assertEquals(1, result.size());
         assertTrue(result.contains(shelf1));
     }
+    @Mock
+    private org.booklore.service.FileStreamingService fileStreamingService;
+
+    @Test
+    void streamBookContent_delegatesToStreamingService() throws Exception {
+        BookEntity entity = new BookEntity();
+        entity.setId(15L);
+        BookFileEntity primaryFile = new BookFileEntity();
+        primaryFile.setBook(entity);
+        primaryFile.setBookType(BookFileType.EPUB);
+        primaryFile.setFileSubPath("");
+        primaryFile.setFileName("book.epub");
+        // Ensure bookFiles list is populated to avoid IndexOutOfBounds or similar if logic accesses it
+        entity.setBookFiles(List.of(primaryFile));
+
+        when(bookRepository.findByIdWithBookFiles(15L)).thenReturn(Optional.of(entity));
+
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        HttpServletResponse response = mock(HttpServletResponse.class);
+
+        // We don't need to mock FileUtils static method if we set up the entity correctly
+        // But streamBookContent calls FileUtils.getBookFullPath(bookEntity) if bookType is null.
+        // Let's passed bookType="EPUB" to hit the specific branch, or null to hit default.
+        // The code uses:
+        // if (bookType != null) { ... } else { filePath = FileUtils.getBookFullPath(bookEntity); }
+        // Let's test the specific type path first as it isolates logic better,
+        // OR test the null path which is likely what the browser uses.
+        // The original error was "Cannot lazily initialize collection... getPrimaryBookFile... FileUtils.getBookFullPath"
+        // So I should test the `bookType = null` case which triggers `FileUtils.getBookFullPath`.
+
+        // However, `FileUtils.getBookFullPath` is static. I may need to mock it or ensure it works with the entity.
+        // `FileUtils.getBookFullPath` calls `book.getPrimaryBookFile()`.
+
+        try (MockedStatic<FileUtils> fileUtilsMock = mockStatic(FileUtils.class)) {
+            fileUtilsMock.when(() -> FileUtils.getBookFullPath(entity)).thenReturn("/tmp/library/book.epub");
+
+            bookService.streamBookContent(15L, null, request, response);
+
+            verify(bookRepository).findByIdWithBookFiles(15L);
+            verify(fileStreamingService).streamWithRangeSupport(eq(Paths.get("/tmp/library/book.epub")), eq("application/epub+zip"), eq(request), eq(response));
+        }
+    }
+
 }

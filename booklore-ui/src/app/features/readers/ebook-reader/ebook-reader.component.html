@@ -1,6 +1,6 @@
 <div
   class="reader"
-  [style.background-color]="stateService.currentState.theme.bg ?? ''">
+  [style.background-color]="readerState().theme.bg ?? ''">
 
   <div class="header-trigger-zone"
        [class.inactive]="headerVisible"
@@ -21,7 +21,7 @@
   <app-reader-header></app-reader-header>
 
   <div class="reader-content" style="position: relative;">
-    @if (isCurrentCfiBookmarked) {
+    @if (isCurrentCfiBookmarked()) {
       <div class="bookmark-indicator">
         <svg width="48" height="64" viewBox="0 0 48 64">
           <polygon points="0,0 48,0 48,64 24,48 0,64" fill="red"/>
@@ -67,17 +67,17 @@
   }
 
   <app-text-selection-popup
-    [visible]="showSelectionPopup"
-    [position]="popupPosition"
-    [showBelow]="showPopupBelow"
-    [overlappingAnnotationId]="overlappingAnnotationId"
-    [selectedText]="selectedText"
+    [visible]="selectionState().visible"
+    [position]="selectionState().position"
+    [showBelow]="selectionState().showBelow"
+    [overlappingAnnotationId]="selectionState().overlappingAnnotationId"
+    [selectedText]="selectionState().selectedText"
     (action)="handleSelectionAction($event)"
   ></app-text-selection-popup>
 
-  @if (showNoteDialog) {
+  @if (noteDialogState().visible) {
     <app-reader-note-dialog
-      [data]="noteDialogData"
+      [data]="noteDialogState().data"
       (save)="onNoteSave($event)"
       (cancel)="onNoteCancel()"
     ></app-reader-note-dialog>

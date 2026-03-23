@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnDestroy, ViewChild} from '@angular/core';
+import {Component, computed, effect, ElementRef, inject, OnDestroy, ViewChild} from '@angular/core';
 import {MenuItem} from 'primeng/api';
 import {LayoutService} from '../layout-main/service/app.layout.service';
 import {Router, RouterLink} from '@angular/router';
@@ -7,7 +7,7 @@ import {TooltipModule} from 'primeng/tooltip';
 import {FormsModule} from '@angular/forms';
 import {InputTextModule} from 'primeng/inputtext';
 import {BookSearcherComponent} from '../../../../features/book/components/book-searcher/book-searcher.component';
-import {AsyncPipe, NgClass, NgStyle} from '@angular/common';
+import {NgClass, NgStyle} from '@angular/common';
 import {NotificationEventService} from '../../../websocket/notification-event.service';
 import {Button} from 'primeng/button';
 import {StyleClass} from 'primeng/styleclass';
@@ -45,7 +45,6 @@ import {LANG_STORAGE_KEY} from '../../../../core/config/language-initializer';
     StyleClass,
     NgClass,
     Divider,
-    AsyncPipe,
     Popover,
     UnifiedNotificationBoxComponent,
     NgStyle,
@@ -54,6 +53,8 @@ import {LANG_STORAGE_KEY} from '../../../../core/config/language-initializer';
   ],
 })
 export class AppTopBarComponent implements OnDestroy {
+  protected readonly userService = inject(UserService);
+  protected readonly user = this.userService.currentUser;
   items!: MenuItem[];
   ref?: DynamicDialogRef;
   statsMenuItems: MenuItem[] = [];
@@ -88,7 +89,6 @@ export class AppTopBarComponent implements OnDestroy {
     private notificationService: NotificationEventService,
     private router: Router,
     private authService: AuthService,
-    protected userService: UserService,
     private metadataProgressService: MetadataProgressService,
     private bookdropFileService: BookdropFileService,
     private dialogLauncher: DialogLauncherService,
@@ -123,11 +123,10 @@ export class AppTopBarComponent implements OnDestroy {
         this.updateTaskVisibilityWithBookdrop();
       });
 
-    this.userService.userState$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.initializeStatsMenu();
-      });
+    effect(() => {
+      this.user();
+      this.initializeStatsMenu();
+    });
 
     this.translocoService.langChanges$
       .pipe(takeUntil(this.destroy$))
@@ -250,8 +249,7 @@ export class AppTopBarComponent implements OnDestroy {
   }
 
   private initializeStatsMenu() {
-    const userState = this.userService.userStateSubject.value;
-    const user = userState.user;
+    const user = this.user();
 
     this.statsMenuItems = [];
 

@@ -1,11 +1,9 @@
-import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {Component, DestroyRef, effect, inject, OnInit} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {TableModule} from 'primeng/table';
 import {InputText} from 'primeng/inputtext';
 import {Button} from 'primeng/button';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
-import {filter} from 'rxjs/operators';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MessageService} from 'primeng/api';
 import {AppSettingKey} from '../../../../shared/model/app-settings.model';
 import {Select} from 'primeng/select';
@@ -104,33 +102,34 @@ export class MetadataProviderSettingsComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private t = inject(TranslocoService);
 
-  private appSettings$ = this.appSettingsService.appSettings$;
+  private readonly syncSettingsEffect = effect(() => {
+    const settings = this.appSettingsService.appSettings();
+    if (settings) {
+      this.applySettings(settings);
+    }
+  });
 
   ngOnInit(): void {
-    this.appSettings$
-      .pipe(
-        filter(settings => settings != null),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe(settings => {
-        const metadataProviderSettings = settings!.metadataProviderSettings;
-        this.amazonEnabled = metadataProviderSettings?.amazon?.enabled ?? false;
-        this.amazonCookie = metadataProviderSettings?.amazon?.cookie ?? "";
-        this.selectedAmazonDomain = metadataProviderSettings?.amazon?.domain ?? 'com';
-        this.goodreadsEnabled = metadataProviderSettings?.goodReads?.enabled ?? false;
-        this.googleEnabled = metadataProviderSettings?.google?.enabled ?? false;
-        this.selectedGoogleLanguage = metadataProviderSettings?.google?.language ?? '';
-        this.googleApiKey = metadataProviderSettings?.google?.apiKey ?? '';
-        this.hardcoverToken = metadataProviderSettings?.hardcover?.apiKey ?? '';
-        this.hardcoverEnabled = metadataProviderSettings?.hardcover?.enabled ?? false;
-        this.comicvineEnabled = metadataProviderSettings?.comicvine?.enabled ?? false;
-        this.comicvineToken = metadataProviderSettings?.comicvine?.apiKey ?? '';
-        this.doubanEnabled = metadataProviderSettings?.douban?.enabled ?? false;
-        this.lubimyCzytacEnabled = metadataProviderSettings?.lubimyczytac?.enabled ?? false;
-        this.ranobedbEnabled = metadataProviderSettings?.ranobedb?.enabled ?? false;
-        this.audibleEnabled = metadataProviderSettings?.audible?.enabled ?? false;
-        this.selectedAudibleDomain = metadataProviderSettings?.audible?.domain ?? 'com';
-      });
+  }
+
+  private applySettings(settings: NonNullable<ReturnType<typeof this.appSettingsService.appSettings>>): void {
+    const metadataProviderSettings = settings.metadataProviderSettings;
+    this.amazonEnabled = metadataProviderSettings?.amazon?.enabled ?? false;
+    this.amazonCookie = metadataProviderSettings?.amazon?.cookie ?? "";
+    this.selectedAmazonDomain = metadataProviderSettings?.amazon?.domain ?? 'com';
+    this.goodreadsEnabled = metadataProviderSettings?.goodReads?.enabled ?? false;
+    this.googleEnabled = metadataProviderSettings?.google?.enabled ?? false;
+    this.selectedGoogleLanguage = metadataProviderSettings?.google?.language ?? '';
+    this.googleApiKey = metadataProviderSettings?.google?.apiKey ?? '';
+    this.hardcoverToken = metadataProviderSettings?.hardcover?.apiKey ?? '';
+    this.hardcoverEnabled = metadataProviderSettings?.hardcover?.enabled ?? false;
+    this.comicvineEnabled = metadataProviderSettings?.comicvine?.enabled ?? false;
+    this.comicvineToken = metadataProviderSettings?.comicvine?.apiKey ?? '';
+    this.doubanEnabled = metadataProviderSettings?.douban?.enabled ?? false;
+    this.lubimyCzytacEnabled = metadataProviderSettings?.lubimyczytac?.enabled ?? false;
+    this.ranobedbEnabled = metadataProviderSettings?.ranobedb?.enabled ?? false;
+    this.audibleEnabled = metadataProviderSettings?.audible?.enabled ?? false;
+    this.selectedAudibleDomain = metadataProviderSettings?.audible?.domain ?? 'com';
   }
 
   onTokenChange(newToken: string): void {

@@ -3,10 +3,32 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable, Subject} from 'rxjs';
 import {distinctUntilChanged, exhaustMap, share, tap} from 'rxjs/operators';
 import {Book, BookFileProgress, ReadStatus} from '../model/book.model';
-import {BookStateService} from './book-state.service';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {ResetProgressType, ResetProgressTypes} from '../../../shared/constants/reset-progress-type';
 import {BookStatusUpdateResponse, PersonalRatingUpdateResponse} from '../model/book.model';
+import {QueryClient} from '@tanstack/angular-query-experimental';
+import {BOOKS_QUERY_KEY} from './book-query-keys';
+import {
+  patchBooksInCache,
+  patchBookFieldsInCache,
+} from './book-query-cache';
+
+function getResetProgressFields(type: ResetProgressType): Partial<Book> {
+  if (type === ResetProgressTypes.KOREADER) {
+    return {koreaderProgress: undefined};
+  }
+
+  if (type === ResetProgressTypes.KOBO) {
+    return {koboProgress: undefined};
+  }
+
+  return {
+    epubProgress: undefined,
+    pdfProgress: undefined,
+    cbxProgress: undefined,
+    audiobookProgress: undefined,
+  };
+}
 
 @Injectable({
   providedIn: 'root',
@@ -15,7 +37,7 @@ export class BookPatchService {
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/books`;
 
   private http = inject(HttpClient);
-  private bookStateService = inject(BookStateService);
+  private queryClient = inject(QueryClient);
 
   private epubProgressSubject = new Subject<{ bookId: number; cfi: string; href: string; percentage: number; bookFileId?: number }>();
 
@@ -28,7 +50,20 @@ export class BookPatchService {
       prev.bookFileId === curr.bookFileId
     ),
     exhaustMap(payload => {
-      const body: any = {
+      const body: {
+        bookId: number;
+        epubProgress: {
+          cfi: string;
+          href: string;
+          percentage: number;
+        };
+        fileProgress?: {
+          bookFileId: number;
+          positionData: string;
+          positionHref: string;
+          progressPercent: number;
+        };
+      } = {
         bookId: payload.bookId,
         epubProgress: {
           cfi: payload.cfi,
@@ -36,7 +71,6 @@ export class BookPatchService {
           percentage: payload.percentage
         }
       };
-      // Add file-level progress if bookFileId is provided
       if (payload.bookFileId) {
         body.fileProgress = {
           bookFileId: payload.bookFileId,
@@ -62,31 +96,33 @@ export class BookPatchService {
     };
     return this.http.post<Book[]>(`${this.url}/shelves`, requestPayload).pipe(
       tap(updatedBooks => {
-        const currentState = this.bookStateService.getCurrentBookState();
-        const currentBooks = currentState.books || [];
-        updatedBooks.forEach(updatedBook => {
-          const index = currentBooks.findIndex(b => b.id === updatedBook.id);
-          if (index !== -1) {
-            currentBooks[index] = updatedBook;
-          }
-        });
-        this.bookStateService.updateBookState({...currentState, books: [...currentBooks]});
+        patchBooksInCache(this.queryClient, updatedBooks);
       })
     );
   }
 
   savePdfProgress(bookId: number, page: number, percentage: number, bookFileId?: number): Observable<void> {
-    const body: any = {
-      bookId: bookId,
+    const body: {
+      bookId: number;
       pdfProgress: {
-        page: page,
-        percentage: percentage
+        page: number;
+        percentage: number;
+      };
+      fileProgress?: {
+        bookFileId: number;
+        positionData: string;
+        progressPercent: number;
+      };
+    } = {
+      bookId,
+      pdfProgress: {
+        page,
+        percentage
       }
     };
-    // Add file-level progress if bookFileId is provided
     if (bookFileId) {
       body.fileProgress = {
-        bookFileId: bookFileId,
+        bookFileId,
         positionData: String(page),
         progressPercent: percentage
       };
@@ -99,17 +135,27 @@ export class BookPatchService {
   }
 
   saveCbxProgress(bookId: number, page: number, percentage: number, bookFileId?: number): Observable<void> {
-    const body: any = {
-      bookId: bookId,
+    const body: {
+      bookId: number;
       cbxProgress: {
-        page: page,
-        percentage: percentage
+        page: number;
+        percentage: number;
+      };
+      fileProgress?: {
+        bookFileId: number;
+        positionData: string;
+        progressPercent: number;
+      };
+    } = {
+      bookId,
+      cbxProgress: {
+        page,
+        percentage
       }
     };
-    // Add file-level progress if bookFileId is provided
     if (bookFileId) {
       body.fileProgress = {
-        bookFileId: bookFileId,
+        bookFileId,
         positionData: String(page),
         progressPercent: percentage
       };
@@ -117,38 +163,20 @@ export class BookPatchService {
     return this.http.post<void>(`${this.url}/progress`, body);
   }
 
-  /**
-   * Save file-level progress directly using the new API.
-   * This is the preferred method for per-file progress tracking.
-   */
   saveFileProgress(bookId: number, fileProgress: BookFileProgress): Observable<void> {
-    const body = {
-      bookId: bookId,
-      fileProgress: fileProgress
-    };
-    return this.http.post<void>(`${this.url}/progress`, body);
+    return this.http.post<void>(`${this.url}/progress`, {
+      bookId,
+      fileProgress
+    });
   }
 
   updateDateFinished(bookId: number, dateFinished: string | null): Observable<void> {
-    const body = {
-      bookId: bookId,
-      dateFinished: dateFinished
-    };
-    return this.http.post<void>(`${this.url}/progress`, body).pipe(
+    return this.http.post<void>(`${this.url}/progress`, {
+      bookId,
+      dateFinished
+    }).pipe(
       tap(() => {
-        const currentState = this.bookStateService.getCurrentBookState();
-        if (currentState.books) {
-          const updatedBooks = currentState.books.map(book => {
-            if (book.id === bookId) {
-              return {...book, dateFinished: dateFinished || undefined};
-            }
-            return book;
-          });
-          this.bookStateService.updateBookState({
-            ...currentState,
-            books: updatedBooks
-          });
-        }
+        patchBookFieldsInCache(this.queryClient, [{bookId, fields: {dateFinished: dateFinished || undefined}}]);
       })
     );
   }
@@ -159,52 +187,31 @@ export class BookPatchService {
 
     return this.http.post<BookStatusUpdateResponse[]>(`${this.url}/reset-progress`, ids, {params}).pipe(
       tap(responses => {
-        const currentState = this.bookStateService.getCurrentBookState();
-        const updatedBooks = (currentState.books || []).map(book => {
-          const response = responses.find(r => r.bookId === book.id);
-          if (response) {
-            const progressReset: Partial<Book> =
-              type === 'KOREADER' ? {koreaderProgress: undefined} :
-              type === 'KOBO' ? {koboProgress: undefined} :
-              {epubProgress: undefined, pdfProgress: undefined, cbxProgress: undefined, audiobookProgress: undefined};
-            return {
-              ...book,
-              ...progressReset,
-              readStatus: response.readStatus,
-              readStatusModifiedTime: response.readStatusModifiedTime,
-              dateFinished: response.dateFinished
-            };
+        patchBookFieldsInCache(this.queryClient, responses.map(r => ({
+          bookId: r.bookId,
+          fields: {
+            ...getResetProgressFields(type),
+            readStatus: r.readStatus,
+            readStatusModifiedTime: r.readStatusModifiedTime,
+            dateFinished: r.dateFinished
           }
-          return book;
-        });
-        this.bookStateService.updateBookState({...currentState, books: updatedBooks});
+        })));
       })
     );
   }
 
   updateBookReadStatus(bookIds: number | number[], status: ReadStatus): Observable<BookStatusUpdateResponse[]> {
     const ids = Array.isArray(bookIds) ? bookIds : [bookIds];
-    const requestBody = {
-      bookIds: ids,
-      status: status
-    };
 
-    return this.http.post<BookStatusUpdateResponse[]>(`${this.url}/status`, requestBody).pipe(
+    return this.http.post<BookStatusUpdateResponse[]>(`${this.url}/status`, {
+      bookIds: ids,
+      status
+    }).pipe(
       tap(responses => {
-        const currentState = this.bookStateService.getCurrentBookState();
-        const updatedBooks = (currentState.books || []).map(book => {
-          const response = responses.find(r => r.bookId === book.id);
-          if (response) {
-            return {
-              ...book,
-              readStatus: response.readStatus,
-              readStatusModifiedTime: response.readStatusModifiedTime,
-              dateFinished: response.dateFinished
-            };
-          }
-          return book;
-        });
-        this.bookStateService.updateBookState({...currentState, books: updatedBooks});
+        patchBookFieldsInCache(this.queryClient, responses.map(r => ({
+          bookId: r.bookId,
+          fields: {readStatus: r.readStatus, readStatusModifiedTime: r.readStatusModifiedTime, dateFinished: r.dateFinished}
+        })));
       })
     );
   }
@@ -214,18 +221,10 @@ export class BookPatchService {
 
     return this.http.post<PersonalRatingUpdateResponse[]>(`${this.url}/reset-personal-rating`, ids).pipe(
       tap(responses => {
-        const currentState = this.bookStateService.getCurrentBookState();
-        const updatedBooks = (currentState.books || []).map(book => {
-          const response = responses.find(r => r.bookId === book.id);
-          if (response) {
-            return {
-              ...book,
-              personalRating: response.personalRating
-            };
-          }
-          return book;
-        });
-        this.bookStateService.updateBookState({...currentState, books: updatedBooks});
+        patchBookFieldsInCache(this.queryClient, responses.map(r => ({
+          bookId: r.bookId,
+          fields: {personalRating: r.personalRating}
+        })));
       })
     );
   }
@@ -235,28 +234,20 @@ export class BookPatchService {
 
     return this.http.put<PersonalRatingUpdateResponse[]>(`${this.url}/personal-rating`, {ids, rating}).pipe(
       tap(responses => {
-        const currentState = this.bookStateService.getCurrentBookState();
-        const updatedBooks = (currentState.books || []).map(book => {
-          const response = responses.find(r => r.bookId === book.id);
-          if (response) {
-            return {
-              ...book,
-              personalRating: response.personalRating
-            };
-          }
-          return book;
-        });
-        this.bookStateService.updateBookState({...currentState, books: updatedBooks});
+        patchBookFieldsInCache(this.queryClient, responses.map(r => ({
+          bookId: r.bookId,
+          fields: {personalRating: r.personalRating}
+        })));
       })
     );
   }
 
   updateLastReadTime(bookId: number): void {
     const timestamp = new Date().toISOString();
-    const currentState = this.bookStateService.getCurrentBookState();
-    const updatedBooks = (currentState.books || []).map(book =>
-      book.id === bookId ? {...book, lastReadTime: timestamp} : book
+    this.queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, current =>
+      (current ?? []).map(book =>
+        book.id === bookId ? {...book, lastReadTime: timestamp} : book
+      )
     );
-    this.bookStateService.updateBookState({...currentState, books: updatedBooks});
   }
 }

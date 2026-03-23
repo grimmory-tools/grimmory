@@ -1,12 +1,11 @@
-import {Injectable} from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
+import {Injectable, signal} from '@angular/core';
 
 @Injectable({providedIn: 'root'})
 export class AuthInitializationService {
-  private initialized = new BehaviorSubject<boolean>(false);
-  initialized$ = this.initialized.asObservable();
+  private readonly _initialized = signal(false);
+  readonly initialized = this._initialized.asReadonly();
 
-  markAsInitialized() {
-    this.initialized.next(true);
+  markAsInitialized(): void {
+    this._initialized.set(true);
   }
 }

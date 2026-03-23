@@ -1,12 +1,10 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, computed, inject, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {Subject} from 'rxjs';
 import {CdkDragDrop, DragDropModule} from '@angular/cdk/drag-drop';
 import {DialogModule} from 'primeng/dialog';
 import {ButtonModule} from 'primeng/button';
 import {UserService} from '../../../settings/user-management/user.service';
-import {takeUntil} from 'rxjs/operators';
-import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {TranslocoDirective} from '@jsverse/transloco';
 import {PeakHoursChartComponent} from './charts/peak-hours-chart/peak-hours-chart.component';
 import {FavoriteDaysChartComponent} from './charts/favorite-days-chart/favorite-days-chart.component';
 import {ReadingDNAChartComponent} from './charts/reading-dna-chart/reading-dna-chart.component';
@@ -68,50 +66,29 @@ import {UserChartConfig, UserChartConfigService} from './service/user-chart-conf
   templateUrl: './user-stats.component.html',
   styleUrls: ['./user-stats.component.scss']
 })
-export class UserStatsComponent implements OnInit, OnDestroy {
-  private readonly destroy$ = new Subject<void>();
-
+export class UserStatsComponent {
   private userService = inject(UserService);
   private chartConfigService = inject(UserChartConfigService);
 
   public currentYear = new Date().getFullYear();
-  public userName: string = '';
-  public showConfigPanel = false;
-  public charts: UserChartConfig[] = [];
-  public visibleCharts: UserChartConfig[] = [];
-
-  ngOnInit(): void {
-    this.chartConfigService.charts$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(charts => {
-        this.charts = charts;
-        this.visibleCharts = this.chartConfigService.getVisibleCharts();
-      });
-
-    this.userService.userState$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(state => {
-        if (state.user) {
-          this.userName = state.user.name || state.user.username;
-        }
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
+  public readonly userName = computed(() => {
+    const user = this.userService.currentUser();
+    return user ? user.name || user.username : '';
+  });
+  public readonly showConfigPanel = signal(false);
+  public readonly charts = this.chartConfigService.charts;
+  public readonly visibleCharts = this.chartConfigService.visibleCharts;
 
   toggleChart(chartId: string): void {
     this.chartConfigService.toggleChart(chartId);
   }
 
   drop(event: CdkDragDrop<UserChartConfig[]>): void {
-    this.chartConfigService.reorderCharts(event.previousIndex, event.currentIndex);
+    this.chartConfigService.reorderCharts(event.container.data, event.previousIndex, event.currentIndex);
   }
 
   toggleConfigPanel(): void {
-    this.showConfigPanel = !this.showConfigPanel;
+    this.showConfigPanel.update(visible => !visible);
   }
 
   resetLayout(): void {
@@ -119,18 +96,19 @@ export class UserStatsComponent implements OnInit, OnDestroy {
   }
 
   hideAllCharts(): void {
-    this.charts.forEach(chart => {
-      if (chart.enabled) {
-        this.chartConfigService.toggleChart(chart.id);
-      }
-    });
+    this.chartConfigService.setAllChartsEnabled(false);
   }
 
   showAllCharts(): void {
-    this.charts.forEach(chart => {
-      if (!chart.enabled) {
-        this.chartConfigService.toggleChart(chart.id);
-      }
-    });
+    this.chartConfigService.setAllChartsEnabled(true);
+  }
+
+  chartNameKey(chartId: string): string {
+    const [firstSegment, ...rest] = chartId.split('-');
+    const chartName = firstSegment + rest
+      .map(segment => segment.charAt(0).toUpperCase() + segment.slice(1))
+      .join('');
+
+    return `chartNames.${chartName}`;
   }
 }

@@ -22,7 +22,7 @@
       @if (currentProposal?.metadataJson; as proposed) {
         <app-metadata-picker
           [fetchedMetadata]="proposed"
-          [book$]="book$"
+          [book]="currentBook()"
           (goBack)="close()"
           [reviewMode]="true">
         </app-metadata-picker>
@@ -31,14 +31,14 @@
 
     <div class="dialog-footer">
       <div class="footer-info">
-        <div class="progress-group" pTooltip="{{ currentIndex + 1 }} of {{ proposals.length }} processed ({{ ((currentIndex + 1) / proposals.length * 100) | number: '1.0-0' }}%)" tooltipPosition="top">
+        <div class="progress-group" pTooltip="{{ currentIndex() + 1 }} of {{ proposals().length }} processed ({{ ((currentIndex() + 1) / proposals().length * 100) | number: '1.0-0' }}%)" tooltipPosition="top">
           <p-progressBar
-            [value]="((currentIndex + 1) / proposals.length) * 100"
+            [value]="((currentIndex() + 1) / proposals().length) * 100"
             class="progress-bar"
             showValue="false">
           </p-progressBar>
           <span class="progress-text">
-            Book {{ currentIndex + 1 }} / {{ proposals.length }}
+            Book {{ currentIndex() + 1 }} / {{ proposals().length }}
           </span>
         </div>
       </div>
@@ -78,7 +78,7 @@
           iconPos="right"
           severity="success"
           [outlined]="true"
-          (click)="onSave(currentProposal!)">
+          (click)="onSave()">
         </p-button>
 
         <p-divider layout="vertical"/>

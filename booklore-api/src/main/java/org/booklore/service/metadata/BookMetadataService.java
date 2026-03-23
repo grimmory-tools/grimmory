@@ -1,5 +1,7 @@
 package org.booklore.service.metadata;
 
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.booklore.exception.ApiError;
 import org.booklore.mapper.BookMapper;
 import org.booklore.mapper.BookMetadataMapper;
@@ -14,13 +16,12 @@ import org.booklore.model.dto.request.FetchMetadataRequest;
 import org.booklore.model.dto.request.ToggleAllLockRequest;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookMetadataEntity;
-import org.booklore.model.enums.BookFileType;
-import org.booklore.model.enums.Lock;
-import org.booklore.model.enums.MetadataProvider;
+import org.booklore.model.enums.*;
 import org.booklore.model.websocket.Topic;
 import org.booklore.repository.BookMetadataRepository;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.NotificationService;
+import org.booklore.service.audit.AuditService;
 import org.booklore.service.book.BookQueryService;
 import org.booklore.service.metadata.extractor.CbxMetadataExtractor;
 import org.booklore.service.metadata.extractor.MetadataExtractorFactory;
@@ -29,8 +30,6 @@ import org.booklore.service.metadata.parser.DetailedMetadataProvider;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.model.dto.request.MetadataRefreshOptions;
 import org.booklore.util.FileUtils;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
@@ -60,6 +59,7 @@ public class BookMetadataService {
     private final NotificationService notificationService;
     private final BookMetadataRepository bookMetadataRepository;
     private final BookQueryService bookQueryService;
+    private final AuditService auditService;
     private final Map<MetadataProvider, BookParser> parserMap;
     private final CbxMetadataExtractor cbxMetadataExtractor;
     private final MetadataExtractorFactory metadataExtractorFactory;
@@ -68,8 +68,9 @@ public class BookMetadataService {
     private final AppSettingService appSettingService;
 
 
+    @Transactional(readOnly = true)
     public Flux<BookMetadata> getProspectiveMetadataListForBookId(long bookId, FetchMetadataRequest request) {
-        BookEntity bookEntity = bookRepository.findById(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
+        BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
         Book book = bookMapper.toBook(bookEntity);
 
         return Flux.fromIterable(request.getProviders())
@@ -190,7 +191,7 @@ public class BookMetadataService {
 
     public BookMetadata getComicInfoMetadata(long bookId) {
         log.info("Extracting ComicInfo metadata for book ID: {}", bookId);
-        BookEntity bookEntity = bookRepository.findById(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
+        BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
         var primaryFile = bookEntity.getPrimaryBookFile();
         if (primaryFile == null || primaryFile.getBookType() != BookFileType.CBX) {
             log.info("Unsupported operation for book ID {} - no file or not CBX type", bookId);
@@ -207,6 +208,27 @@ public class BookMetadataService {
             throw ApiError.GENERIC_BAD_REQUEST.createException("Book has no file to extract metadata from");
         }
         return metadataExtractorFactory.extractMetadata(primaryFile.getBookType(), new File(FileUtils.getBookFullPath(bookEntity)));
+    }
+
+    @Transactional
+    public BookMetadata updateMetadata(long bookId, MetadataUpdateWrapper wrapper, boolean mergeCategories) {
+        BookEntity bookEntity = bookRepository.findByIdFull(bookId)
+                .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
+
+        MetadataUpdateContext context = MetadataUpdateContext.builder()
+                .bookEntity(bookEntity)
+                .metadataUpdateWrapper(wrapper)
+                .updateThumbnail(true)
+                .mergeCategories(mergeCategories)
+                .replaceMode(MetadataReplaceMode.REPLACE_ALL)
+                .mergeMoods(false)
+                .mergeTags(false)
+                .build();
+
+        bookMetadataUpdater.setBookMetadata(context);
+        bookRepository.save(bookEntity);
+        auditService.log(AuditAction.METADATA_UPDATED, "Book", bookId, "Updated metadata for book: " + bookEntity.getMetadata().getTitle());
+        return bookMetadataMapper.toBookMetadata(bookEntity.getMetadata(), true);
     }
 
     @Transactional
@@ -240,7 +262,7 @@ public class BookMetadataService {
         TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
         transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
         transactionTemplate.execute(status -> {
-            BookEntity book = bookRepository.findByIdWithBookFiles(bookId).orElse(null);
+            BookEntity book = bookRepository.findByIdFull(bookId).orElse(null);
             if (book == null) {
                 log.warn("Book not found for metadata update: {}", bookId);
                 return null;

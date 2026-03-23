@@ -1,5 +1,6 @@
 package org.booklore.service.opds;
 
+import lombok.RequiredArgsConstructor;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.mapper.OpdsUserV2Mapper;
 import org.booklore.model.dto.BookLoreUser;
@@ -11,7 +12,6 @@ import org.booklore.model.entity.OpdsUserV2Entity;
 import org.booklore.model.enums.OpdsSortOrder;
 import org.booklore.repository.OpdsUserV2Repository;
 import org.booklore.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.booklore.model.enums.AuditAction;
 import org.booklore.service.audit.AuditService;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -19,11 +19,13 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class OpdsUserV2Service {
 
     private final OpdsUserV2Repository opdsUserV2Repository;
@@ -66,7 +68,7 @@ public class OpdsUserV2Service {
 
     public void deleteOpdsUser(Long userId) {
         BookLoreUser bookLoreUser = authenticationService.getAuthenticatedUser();
-        OpdsUserV2Entity user = opdsUserV2Repository.findById(userId).orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+        OpdsUserV2Entity user = opdsUserV2Repository.findByIdWithUser(userId).orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
         if (!user.getUser().getId().equals(bookLoreUser.getId())) {
             throw new AccessDeniedException("You are not allowed to delete this user");
         }
@@ -77,7 +79,7 @@ public class OpdsUserV2Service {
 
     public OpdsUserV2 updateOpdsUser(Long userId, OpdsUserV2UpdateRequest request) {
         BookLoreUser bookLoreUser = authenticationService.getAuthenticatedUser();
-        OpdsUserV2Entity user = opdsUserV2Repository.findById(userId)
+        OpdsUserV2Entity user = opdsUserV2Repository.findByIdWithUser(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
         
         if (!user.getUser().getId().equals(bookLoreUser.getId())) {

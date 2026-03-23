@@ -1,6 +1,4 @@
-import {inject, Injectable} from '@angular/core';
-import {Subject} from 'rxjs';
-import {debounceTime} from 'rxjs/operators';
+import {computed, inject, Injectable, signal} from '@angular/core';
 import {MessageService} from 'primeng/api';
 import {TranslocoService} from '@jsverse/transloco';
 import {LocalStorageService} from '../../../../shared/service/local-storage.service';
@@ -21,49 +19,53 @@ export class CoverScalePreferenceService {
   private readonly t = inject(TranslocoService);
   private readonly localStorageService = inject(LocalStorageService);
 
-  private readonly scaleChangeSubject = new Subject<number>();
-  readonly scaleChange$ = this.scaleChangeSubject.asObservable();
+  private readonly _scaleFactor = signal(1.0);
+  readonly scaleFactor = this._scaleFactor.asReadonly();
 
-  scaleFactor = 1.0;
+  readonly currentCardSize = computed(() => ({
+    width: Math.round(this.BASE_WIDTH * this.scaleFactor()),
+    height: Math.round(this.BASE_HEIGHT * this.scaleFactor()),
+  }));
+  readonly gridColumnMinWidth = computed(() => `${this.currentCardSize().width}px`);
+
+  private saveTimeout: ReturnType<typeof setTimeout> | null = null;
+  private lastPersistedScale = 1.0;
 
   constructor() {
-    this.loadScaleFromStorage();
-
-    this.scaleChange$
-      .pipe(debounceTime(this.DEBOUNCE_MS))
-      .subscribe(scale => this.saveScalePreference(scale));
-  }
-
-  initScaleValue(scale: number | undefined): void {
-    this.scaleFactor = scale ?? 1.0;
+    const initialScale = this.loadScaleFromStorage();
+    this._scaleFactor.set(initialScale);
+    this.lastPersistedScale = initialScale;
   }
 
   setScale(scale: number): void {
-    this.scaleFactor = scale;
-    this.scaleChangeSubject.next(scale);
-  }
-
-  get currentCardSize(): { width: number; height: number } {
-    return {
-      width: Math.round(this.BASE_WIDTH * this.scaleFactor),
-      height: Math.round(this.BASE_HEIGHT * this.scaleFactor),
-    };
-  }
-
-  get gridColumnMinWidth(): string {
-    return `${this.currentCardSize.width}px`;
+    this._scaleFactor.set(scale);
+    if (scale === this.lastPersistedScale) {
+      return;
+    }
+    this.scheduleSave(scale);
   }
 
   getCardHeight(_book: Book): number {
     // Use uniform height for all book types to ensure smooth virtual scrolling.
     // Mixed heights cause choppy/jumpy scrolling because the virtual scroller
     // cannot accurately estimate positions when item heights vary.
-    return this.currentCardSize.height;
+    return this.currentCardSize().height;
+  }
+
+  private scheduleSave(scale: number): void {
+    if (this.saveTimeout) {
+      clearTimeout(this.saveTimeout);
+    }
+
+    this.saveTimeout = setTimeout(() => {
+      this.saveScalePreference(scale);
+    }, this.DEBOUNCE_MS);
   }
 
   private saveScalePreference(scale: number): void {
     try {
       this.localStorageService.set(this.STORAGE_KEY, scale);
+      this.lastPersistedScale = scale;
       this.messageService.add({
         severity: 'success',
         summary: this.t.translate('book.coverPref.toast.savedSummary'),
@@ -80,10 +82,11 @@ export class CoverScalePreferenceService {
     }
   }
 
-  private loadScaleFromStorage(): void {
+  private loadScaleFromStorage(): number {
     const saved = this.localStorageService.get<number>(this.STORAGE_KEY);
     if (saved !== null && !isNaN(saved)) {
-      this.scaleFactor = saved;
+      return saved;
     }
+    return 1.0;
   }
 }

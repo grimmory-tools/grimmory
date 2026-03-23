@@ -1,11 +1,9 @@
-import {Component, ElementRef, inject, OnDestroy, OnInit, viewChild} from '@angular/core';
+import {Component, effect, ElementRef, inject, viewChild} from '@angular/core';
 import {Select} from 'primeng/select';
-import {ALL_FILTER_OPTION_VALUES, ALL_FILTER_OPTIONS, BookFilterMode, DEFAULT_VISIBLE_FILTERS, User, UserService, UserSettings, UserState, VisibleFilterType} from '../../user-management/user.service';
+import {ALL_FILTER_OPTION_VALUES, ALL_FILTER_OPTIONS, BookFilterMode, DEFAULT_VISIBLE_FILTERS, User, UserService, UserSettings, VisibleFilterType} from '../../user-management/user.service';
 import {FILTER_LABEL_KEYS} from '../../../book/components/book-browser/book-filter/book-filter.config';
 import {MessageService} from 'primeng/api';
-import {Observable, Subject} from 'rxjs';
 import {FormsModule} from '@angular/forms';
-import {filter, takeUntil} from 'rxjs/operators';
 import {CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, moveItemInArray} from '@angular/cdk/drag-drop';
 import {Tooltip} from 'primeng/tooltip';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
@@ -28,7 +26,7 @@ const MAX_VISIBLE_FILTERS = 20;
   templateUrl: './filter-preferences.component.html',
   styleUrl: './filter-preferences.component.scss'
 })
-export class FilterPreferencesComponent implements OnInit, OnDestroy {
+export class FilterPreferencesComponent {
 
   readonly filterModes = [
     {label: 'And', value: 'and'},
@@ -48,24 +46,21 @@ export class FilterPreferencesComponent implements OnInit, OnDestroy {
   private readonly userService = inject(UserService);
   private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
-  private readonly destroy$ = new Subject<void>();
 
-  userData$: Observable<UserState> = this.userService.userState$;
   private currentUser: User | null = null;
+  private hasInitialized = false;
 
-  ngOnInit(): void {
-    this.userData$.pipe(
-      filter(userState => !!userState?.user && userState.loaded),
-      takeUntil(this.destroy$)
-    ).subscribe(userState => {
-      this.currentUser = userState.user;
-      this.loadPreferences(userState.user!.userSettings);
+  constructor() {
+    effect(() => {
+      const user = this.userService.currentUser();
+      if (!user) return;
+
+      this.currentUser = user;
+      if (!this.hasInitialized) {
+        this.hasInitialized = true;
+        this.loadPreferences(user.userSettings);
+      }
     });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   private loadPreferences(settings: UserSettings): void {

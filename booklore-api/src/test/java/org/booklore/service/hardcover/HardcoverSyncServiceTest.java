@@ -8,12 +8,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.web.client.RestClient;
-import org.mockito.ArgumentMatchers;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -80,7 +80,7 @@ class HardcoverSyncServiceTest {
         hardcoverSyncSettings.setHardcoverApiKey("test-api-key");
 
         when(hardcoverSyncSettingsService.getSettingsForUserId(TEST_USER_ID)).thenReturn(hardcoverSyncSettings);
-        when(bookRepository.findById(TEST_BOOK_ID)).thenReturn(Optional.of(testBook));
+        when(bookRepository.findByIdWithMetadata(TEST_BOOK_ID)).thenReturn(Optional.of(testBook));
         
         // Setup RestClient mock chain - handles multiple calls
         when(restClient.post()).thenReturn(requestBodyUriSpec);
@@ -133,7 +133,7 @@ class HardcoverSyncServiceTest {
     @Test
     @DisplayName("Should skip sync when book not found")
     void syncProgressToHardcover_whenBookNotFound_shouldSkip() {
-        when(bookRepository.findById(TEST_BOOK_ID)).thenReturn(Optional.empty());
+        when(bookRepository.findByIdWithMetadata(TEST_BOOK_ID)).thenReturn(Optional.empty());
 
         service.syncProgressToHardcover(TEST_BOOK_ID, 50.0f, TEST_USER_ID);
 

@@ -117,7 +117,7 @@ export class ReaderProgressService {
       };
     }
 
-    if (this.stateService.currentState.flow === 'paginated') {
+    if (this.stateService.state().flow === 'paginated') {
       this.updateHeadersAndFooters();
     }
 
@@ -141,9 +141,10 @@ export class ReaderProgressService {
     const renderer = this.viewManager.getRenderer();
     if (!renderer) return;
 
+    const readerState = this.stateService.state();
     const theme: ThemeInfo = {
-      fg: this.stateService.currentState.theme.fg || this.stateService.currentState.theme.light.fg,
-      bg: this.stateService.currentState.theme.bg || this.stateService.currentState.theme.light.bg
+      fg: readerState.theme.fg || readerState.theme.light.fg,
+      bg: readerState.theme.bg || readerState.theme.light.bg
     };
 
     const timeLabel = this.t.translate('readerEbook.headerFooterUtil.timeRemainingInSection', {

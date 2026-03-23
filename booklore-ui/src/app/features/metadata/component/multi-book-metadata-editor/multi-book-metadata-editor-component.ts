@@ -1,14 +1,12 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, computed, effect, inject, signal} from '@angular/core';
 import {Tab, TabList, TabPanel, TabPanels, Tabs} from 'primeng/tabs';
-import {Book} from '../../../book/model/book.model';
 import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
 import {BookService} from '../../../book/service/book.service';
-import {BehaviorSubject, combineLatest, Observable, Subject} from 'rxjs';
 import {UserService} from '../../../settings/user-management/user.service';
-import {distinctUntilChanged, filter, map, shareReplay, switchMap, takeUntil} from 'rxjs/operators';
 import {MetadataEditorComponent} from '../book-metadata-center/metadata-editor/metadata-editor.component';
 import {MetadataSearcherComponent} from '../book-metadata-center/metadata-searcher/metadata-searcher.component';
 import {Button} from 'primeng/button';
+import {injectQuery} from '@tanstack/angular-query-experimental';
 
 @Component({
   selector: 'app-multi-book-metadata-editor-component',
@@ -26,78 +24,49 @@ import {Button} from 'primeng/button';
   standalone: true,
   styleUrl: './multi-book-metadata-editor-component.scss'
 })
-export class MultiBookMetadataEditorComponent implements OnInit, OnDestroy {
-
-  bookIds: number[] = [];
-  filteredBooks: Book[] = [];
-  loading = false;
-
-  currentIndex$ = new BehaviorSubject<number>(0);
-  book$!: Observable<Book>;
-
-  canEditMetadata = false;
-  admin = false;
+export class MultiBookMetadataEditorComponent {
 
   private readonly config = inject(DynamicDialogConfig);
   readonly ref = inject(DynamicDialogRef);
   private readonly bookService = inject(BookService);
   private readonly userService = inject(UserService);
+  bookIds: number[] = this.config.data?.bookIds ?? [];
+  loading = false;
 
-  private readonly destroy$ = new Subject<void>();
+  filteredBooks = computed(() => this.bookService.books().filter(book =>
+    !!book.metadata && this.bookIds.includes(book.id)
+  ));
+  private currentIndex = signal(0);
+  private currentBookId = computed(() => this.filteredBooks()[this.currentIndex()]?.id ?? null);
+  private bookDetailQuery = injectQuery(() => ({
+    ...this.bookService.bookDetailQueryOptions(this.currentBookId() ?? -1, true),
+    enabled: this.currentBookId() != null,
+  }));
+  readonly currentBook = computed(() => this.bookDetailQuery.data() ?? null);
 
-  ngOnInit(): void {
-    this.bookIds = this.config.data?.bookIds ?? [];
+  canEditMetadata = false;
+  admin = false;
 
-    this.userService.userState$.pipe(
-      filter(userState => !!userState?.user && userState.loaded),
-      takeUntil(this.destroy$)
-    ).subscribe(userState => {
-      const userPermissions = userState.user?.permissions;
-      this.canEditMetadata = userPermissions?.canEditMetadata ?? false;
-      this.admin = userPermissions?.admin ?? false;
+  constructor() {
+    effect(() => {
+      const user = this.userService.currentUser();
+      if (!user) return;
+      this.canEditMetadata = user.permissions?.canEditMetadata ?? false;
+      this.admin = user.permissions?.admin ?? false;
     });
-
-    const filteredBooks$ = this.bookService.bookState$.pipe(
-      map(state => state.books?.filter(book =>
-        !!book?.metadata && this.bookIds.includes(book.id)
-      ) ?? []),
-      filter(books => books.length > 0),
-      map(books => {
-        this.filteredBooks = books;
-        return books;
-      }),
-      takeUntil(this.destroy$)
-    );
-
-    this.book$ = combineLatest([filteredBooks$, this.currentIndex$]).pipe(
-      map(([books, index]) => books[index]),
-      filter((book): book is Book => !!book),
-      distinctUntilChanged((a, b) => a.id === b.id && a.metadata === b.metadata),
-      switchMap(book =>
-        this.bookService.getBookByIdFromAPI(book.id, true)
-      ),
-      takeUntil(this.destroy$),
-      shareReplay({bufferSize: 1, refCount: true})
-    );
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-    this.currentIndex$.complete();
   }
 
   handleNextBook() {
-    const next = this.currentIndex$.value + 1;
-    if (next < this.filteredBooks.length) {
-      this.currentIndex$.next(next);
+    const next = this.currentIndex() + 1;
+    if (next < this.filteredBooks().length) {
+      this.currentIndex.set(next);
     }
   }
 
   handlePreviousBook() {
-    const prev = this.currentIndex$.value - 1;
+    const prev = this.currentIndex() - 1;
     if (prev >= 0) {
-      this.currentIndex$.next(prev);
+      this.currentIndex.set(prev);
     }
   }
 
@@ -106,10 +75,10 @@ export class MultiBookMetadataEditorComponent implements OnInit, OnDestroy {
   }
 
   get disableNext(): boolean {
-    return this.currentIndex$.value >= this.filteredBooks.length - 1;
+    return this.currentIndex() >= this.filteredBooks().length - 1;
   }
 
   get disablePrevious(): boolean {
-    return this.currentIndex$.value <= 0;
+    return this.currentIndex() <= 0;
   }
 }

@@ -1,7 +1,14 @@
-import {inject, Injectable} from '@angular/core';
-import {combineLatest, map, Observable} from 'rxjs';
+import {computed, inject, Injectable} from '@angular/core';
 import {LibraryFilterService} from './library-filter.service';
 import {BookService} from '../../../../book/service/book.service';
+
+export interface BooksSummary {
+  totalBooks: number;
+  totalSizeKb: number;
+  totalAuthors: number;
+  totalSeries: number;
+  totalPublishers: number;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -9,67 +16,49 @@ import {BookService} from '../../../../book/service/book.service';
 export class LibrariesSummaryService {
   private bookService = inject(BookService);
   private libraryFilterService = inject(LibraryFilterService);
+  readonly booksSummary = computed<BooksSummary>(() => {
+    const books = this.bookService.books();
+    const selectedLibraryId = this.libraryFilterService.selectedLibrary();
 
-  selectedLibrary$ = this.libraryFilterService.selectedLibrary$;
+    if (books.length === 0) {
+      return {totalBooks: 0, totalSizeKb: 0, totalAuthors: 0, totalSeries: 0, totalPublishers: 0};
+    }
 
-  getBooksSummary(): Observable<{
-    totalBooks: number;
-    totalSizeKb: number;
-    totalAuthors: number;
-    totalSeries: number;
-    totalPublishers: number;
-  }> {
-    return combineLatest([
-      this.bookService.bookState$,
-      this.selectedLibrary$
-    ]).pipe(
-      map(([state, selectedLibraryId]) => {
-        if (!state.loaded || !state.books || state.books.length === 0) {
-          return {totalBooks: 0, totalSizeKb: 0, totalAuthors: 0, totalSeries: 0, totalPublishers: 0};
-        }
+    const filteredBooks = selectedLibraryId
+      ? books.filter(book => book.libraryId === selectedLibraryId)
+      : books;
 
-        const filteredBooks = selectedLibraryId
-          ? state.books.filter(book => book.libraryId === selectedLibraryId)
-          : state.books;
+    const totalBooks = filteredBooks.length;
+    const totalSizeKb = filteredBooks.reduce((sum, book) => sum + (book.fileSizeKb || 0), 0);
 
-        const totalBooks = filteredBooks.length;
-        const totalSizeKb = filteredBooks.reduce((sum, book) => sum + (book.fileSizeKb || 0), 0);
+    const authorSet = new Set<string>();
+    const seriesSet = new Set<string>();
+    const publisherSet = new Set<string>();
 
-        const authorSet = new Set<string>();
-        const seriesSet = new Set<string>();
-        const publisherSet = new Set<string>();
-
-        filteredBooks.forEach(book => {
-          if (Array.isArray(book.metadata?.authors)) {
-            book.metadata.authors.forEach(a => {
-              const name = a?.trim();
-              if (name) authorSet.add(name);
-            });
-          }
-
-          const seriesName = book.metadata?.seriesName?.trim();
-          if (seriesName) seriesSet.add(seriesName);
-
-          const publisher = book.metadata?.publisher?.trim();
-          if (publisher) publisherSet.add(publisher);
+    filteredBooks.forEach(book => {
+      if (Array.isArray(book.metadata?.authors)) {
+        book.metadata.authors.forEach(author => {
+          const name = author?.trim();
+          if (name) authorSet.add(name);
         });
+      }
 
-        return {
-          totalBooks,
-          totalSizeKb,
-          totalAuthors: authorSet.size,
-          totalSeries: seriesSet.size,
-          totalPublishers: publisherSet.size
-        };
-      })
-    );
-  }
+      const seriesName = book.metadata?.seriesName?.trim();
+      if (seriesName) seriesSet.add(seriesName);
 
-  getFormattedSize(): Observable<string> {
-    return this.getBooksSummary().pipe(
-      map(summary => this.formatSizeKb(summary.totalSizeKb))
-    );
-  }
+      const publisher = book.metadata?.publisher?.trim();
+      if (publisher) publisherSet.add(publisher);
+    });
+
+    return {
+      totalBooks,
+      totalSizeKb,
+      totalAuthors: authorSet.size,
+      totalSeries: seriesSet.size,
+      totalPublishers: publisherSet.size
+    };
+  });
+  readonly formattedSize = computed(() => this.formatSizeKb(this.booksSummary().totalSizeKb));
 
   private formatSizeKb(kb: number): string {
     if (!kb) return '0 KB';

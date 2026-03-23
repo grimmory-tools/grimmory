@@ -1,5 +1,6 @@
 package org.booklore.service.library;
 
+import jakarta.persistence.EntityManager;
 import org.booklore.model.dto.settings.LibraryFile;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.LibraryEntity;
@@ -8,7 +9,6 @@ import org.booklore.repository.BookAdditionalFileRepository;
 import org.booklore.repository.LibraryRepository;
 import org.booklore.service.NotificationService;
 import org.booklore.task.options.RescanLibraryContext;
-import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -88,7 +88,7 @@ class LibraryProcessingServiceRegressionTest {
 
         libraryEntity.setBookEntities(List.of(filelessBook));
 
-        when(libraryRepository.findById(libraryId)).thenReturn(Optional.of(libraryEntity));
+        when(libraryRepository.findByIdWithBooks(libraryId)).thenReturn(Optional.of(libraryEntity));
         when(libraryFileHelper.getAllLibraryFiles(libraryEntity)).thenReturn(List.of(
             LibraryFile.builder()
                 .libraryPathEntity(pathEntity)

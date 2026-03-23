@@ -1,4 +1,4 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, computed, effect, inject, OnInit} from '@angular/core';
 import {AbstractControl, FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Button} from 'primeng/button';
 import {NgTemplateOutlet} from '@angular/common';
@@ -8,8 +8,7 @@ import {DatePicker} from 'primeng/datepicker';
 import {InputNumber} from 'primeng/inputnumber';
 import {ReadStatus} from '../../book/model/book.model';
 import {LibraryService} from '../../book/service/library.service';
-import {Library} from '../../book/model/library.model';
-import {MagicShelfService} from '../service/magic-shelf.service';
+import {MagicShelf, MagicShelfService} from '../service/magic-shelf.service';
 import {MessageService} from 'primeng/api';
 import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
 import {MultiSelect} from 'primeng/multiselect';
@@ -22,7 +21,6 @@ import {IconDisplayComponent} from '../../../shared/components/icon-display/icon
 import {Tooltip} from 'primeng/tooltip';
 import {BookService} from '../../book/service/book.service';
 import {ShelfService} from '../../book/service/shelf.service';
-import {Shelf} from '../../book/model/shelf.model';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {TextareaModule} from 'primeng/textarea';
 
@@ -250,10 +248,12 @@ const READ_STATUS_KEYS: Record<string, string> = {
 export class MagicShelfComponent implements OnInit {
 
   private readonly t = inject(TranslocoService);
+  private readonly controlIds = new WeakMap<AbstractControl, string>();
+  private controlIdCounter = 0;
 
   numericFieldConfigMap = new Map<RuleField, FieldConfig>(
     Object.entries(FIELD_CONFIGS)
-      .filter(([_, config]) => config.type)
+      .filter(([, config]) => config.type)
       .map(([key, config]) => [key as RuleField, {type: config.type!, max: config.max}])
   );
 
@@ -438,11 +438,29 @@ export class MagicShelfComponent implements OnInit {
     ];
   }
 
-  libraries: Library[] = [];
-  libraryOptions: { label: string; value: number }[] = [];
-  shelves: Shelf[] = [];
-  shelfOptions: { label: string; value: number }[] = [];
-  categoryOptions: { label: string; value: string }[] = [];
+  libraryOptions = computed(() =>
+    this.libraryService.libraries().map(library => ({
+      label: library.name,
+      value: library.id!
+    }))
+  );
+  shelfOptions = computed(() =>
+    this.shelfService.shelves().map(shelf => ({
+      label: shelf.name,
+      value: shelf.id!
+    }))
+  );
+  categoryOptions = computed(() => {
+    const categoriesSet = new Set<string>();
+    this.bookService.books().forEach(book => {
+      book.metadata?.categories?.forEach(category => categoriesSet.add(category));
+    });
+
+    return Array.from(categoriesSet).map(category => ({
+      label: category,
+      value: category
+    })).sort((a, b) => a.label.localeCompare(b.label));
+  });
 
   form = new FormGroup({
     name: new FormControl<string | null>(null),
@@ -468,9 +486,25 @@ export class MagicShelfComponent implements OnInit {
   private iconPicker = inject(IconPickerService);
 
   selectedIcon: IconSelection | null = null;
+  private formInitializedFromShelf = false;
 
   trackByFn(ruleCtrl: AbstractControl, index: number): unknown {
-    return ruleCtrl;
+    return ruleCtrl ?? index;
+  }
+
+  getControlId(control: AbstractControl | null, prefix: string): string {
+    if (!control) {
+      return `${prefix}-missing`;
+    }
+
+    const existingId = this.controlIds.get(control);
+    if (existingId) {
+      return existingId;
+    }
+
+    const newId = `${prefix}-${this.controlIdCounter++}`;
+    this.controlIds.set(control, newId);
+    return newId;
   }
 
   ngOnInit(): void {
@@ -478,62 +512,40 @@ export class MagicShelfComponent implements OnInit {
     const id = this.config?.data?.id;
     this.editMode = !!this.config?.data?.editMode;
 
-    // Load available categories from book metadata
-    this.bookService.bookState$.subscribe(state => {
-      if (state.loaded && state.books) {
-        // Extract unique categories from all books
-        const categoriesSet = new Set<string>();
-        state.books.forEach(book => {
-          if (book.metadata?.categories) {
-            book.metadata.categories.forEach(cat => categoriesSet.add(cat));
-          }
-        });
-
-        this.categoryOptions = Array.from(categoriesSet).map(cat => ({
-          label: cat,
-          value: cat
-        })).sort((a, b) => a.label.localeCompare(b.label));
-      }
-    });
-
     if (id) {
       this.shelfId = id;
-      this.magicShelfService.getShelf(id).subscribe((data) => {
-        const iconValue = data?.icon ?? null;
-
-        this.form = new FormGroup({
-          name: new FormControl<string | null>(data?.name ?? null, {nonNullable: true, validators: [Validators.required]}),
-          icon: new FormControl<string | null>(iconValue),
-          isPublic: new FormControl<boolean>(data?.isPublic ?? false),
-          group: data?.filterJson ? this.buildGroupFromData(JSON.parse(data.filterJson)) : this.createGroup()
-        });
-
-        if (iconValue) {
-          this.selectedIcon = iconValue.startsWith('pi ')
-            ? {type: 'PRIME_NG', value: iconValue}
-            : {type: 'CUSTOM_SVG', value: iconValue};
+      effect(() => {
+        const shelf = this.magicShelfService.findShelfById(id);
+        if (!shelf || this.formInitializedFromShelf) {
+          return;
         }
+
+        this.initializeForm(shelf);
+        this.formInitializedFromShelf = true;
       });
     } else {
-      this.form = new FormGroup({
-        name: new FormControl<string | null>(null, {nonNullable: true, validators: [Validators.required]}),
-        icon: new FormControl<string | null>(null),
-        isPublic: new FormControl<boolean>(false),
-        group: this.createGroup()
-      });
+      this.initializeForm();
+      this.formInitializedFromShelf = true;
     }
+  }
 
-    this.libraries = this.libraryService.getLibrariesFromState();
-    this.libraryOptions = this.libraries.map(lib => ({
-      label: lib.name,
-      value: lib.id!
-    }));
+  private initializeForm(shelf?: MagicShelf): void {
+    const iconValue = shelf?.icon ?? null;
 
-    this.shelves = this.shelfService.getShelvesFromState();
-    this.shelfOptions = this.shelves.map(shelf => ({
-      label: shelf.name,
-      value: shelf.id!
-    }));
+    this.form = new FormGroup({
+      name: new FormControl<string | null>(shelf?.name ?? null, {nonNullable: true, validators: [Validators.required]}),
+      icon: new FormControl<string | null>(iconValue),
+      isPublic: new FormControl<boolean>(shelf?.isPublic ?? false),
+      group: shelf?.filterJson ? this.buildGroupFromData(JSON.parse(shelf.filterJson)) : this.createGroup()
+    });
+
+    if (iconValue) {
+      this.selectedIcon = iconValue.startsWith('pi ')
+        ? {type: 'PRIME_NG', value: iconValue}
+        : {type: 'CUSTOM_SVG', value: iconValue};
+    } else {
+      this.selectedIcon = null;
+    }
   }
 
   buildGroupFromData(data: GroupRule): GroupFormGroup {

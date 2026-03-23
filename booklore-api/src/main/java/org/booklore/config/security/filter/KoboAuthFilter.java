@@ -1,17 +1,17 @@
 package org.booklore.config.security.filter;
 
-import org.booklore.config.security.userdetails.UserAuthenticationDetails;
-import org.booklore.mapper.custom.BookLoreUserTransformer;
-import org.booklore.model.dto.BookLoreUser;
-import org.booklore.model.entity.UserPermissionsEntity;
-import org.booklore.repository.KoboUserSettingsRepository;
-import org.booklore.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.booklore.config.security.userdetails.UserAuthenticationDetails;
+import org.booklore.mapper.custom.BookLoreUserTransformer;
+import org.booklore.model.dto.BookLoreUser;
+import org.booklore.model.entity.UserPermissionsEntity;
+import org.booklore.repository.KoboUserSettingsRepository;
+import org.booklore.repository.UserRepository;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -59,7 +59,7 @@ public class KoboAuthFilter extends OncePerRequestFilter {
         }
 
         var userToken = userTokenOpt.get();
-        var userOpt = userRepository.findById(userToken.getUserId());
+        var userOpt = userRepository.findByIdWithDetails(userToken.getUserId());
 
         if (userOpt.isEmpty()) {
             log.warn("User not found for token: {}", token);

@@ -673,22 +673,15 @@ public class OpdsFeedService {
 
                 if (hasValidFilePath(bookFile)) {
                     ArchiveUtils.ArchiveType type = ArchiveUtils.detectArchiveType(new File(bookFile.getFilePath()));
-                    // We only trust detection if it found something definite (not UNKNOWN)
                     if (type != ArchiveUtils.ArchiveType.UNKNOWN) {
                         yield switch (type) {
                             case RAR -> "application/vnd.comicbook-rar";
                             case ZIP -> "application/vnd.comicbook+zip";
                             case SEVEN_ZIP -> "application/x-7z-compressed";
-                            default -> "application/vnd.comicbook+zip"; // Should not happen given the if check
+                            default -> "application/vnd.comicbook+zip";
                         };
                     }
                 }
-
-                String lower = bookFile.getFileName().toLowerCase();
-                if (lower.endsWith(".cbr")) yield "application/vnd.comicbook-rar";
-                if (lower.endsWith(".cbz")) yield "application/vnd.comicbook+zip";
-                if (lower.endsWith(".cb7")) yield "application/x-7z-compressed";
-                if (lower.endsWith(".cbt")) yield "application/x-tar";
                 yield "application/vnd.comicbook+zip";
             }
             case AUDIOBOOK -> {

@@ -1,5 +1,5 @@
-import {Injectable} from '@angular/core';
-import {BehaviorSubject, Subject} from 'rxjs';
+import {Injectable, signal} from '@angular/core';
+import {Subject} from 'rxjs';
 import {CbxBackgroundColor, CbxFitMode, CbxMagnifierLensSize, CbxMagnifierZoom, CbxPageSpread, CbxPageViewMode, CbxScrollMode, CbxReadingDirection, CbxSlideshowInterval} from '../../../../settings/user-management/user.service';
 
 export interface CbxQuickSettingsState {
@@ -16,7 +16,7 @@ export interface CbxQuickSettingsState {
 
 @Injectable()
 export class CbxQuickSettingsService {
-  private _state = new BehaviorSubject<CbxQuickSettingsState>({
+  private readonly defaultState: CbxQuickSettingsState = {
     fitMode: CbxFitMode.FIT_PAGE,
     scrollMode: CbxScrollMode.PAGINATED,
     pageViewMode: CbxPageViewMode.SINGLE_PAGE,
@@ -26,11 +26,13 @@ export class CbxQuickSettingsService {
     slideshowInterval: CbxSlideshowInterval.FIVE_SECONDS,
     magnifierZoom: CbxMagnifierZoom.ZOOM_3X,
     magnifierLensSize: CbxMagnifierLensSize.MEDIUM
-  });
-  state$ = this._state.asObservable();
+  };
 
-  private _visible = new BehaviorSubject<boolean>(false);
-  visible$ = this._visible.asObservable();
+  private readonly _state = signal<CbxQuickSettingsState>(this.defaultState);
+  readonly state = this._state.asReadonly();
+
+  private readonly _visible = signal(false);
+  readonly visible = this._visible.asReadonly();
 
   private _fitModeChange = new Subject<CbxFitMode>();
   fitModeChange$ = this._fitModeChange.asObservable();
@@ -59,24 +61,16 @@ export class CbxQuickSettingsService {
   private _magnifierLensSizeChange = new Subject<CbxMagnifierLensSize>();
   magnifierLensSizeChange$ = this._magnifierLensSizeChange.asObservable();
 
-  get state(): CbxQuickSettingsState {
-    return this._state.value;
-  }
-
-  get isVisible(): boolean {
-    return this._visible.value;
-  }
-
   show(): void {
-    this._visible.next(true);
+    this._visible.set(true);
   }
 
   close(): void {
-    this._visible.next(false);
+    this._visible.set(false);
   }
 
   updateState(partial: Partial<CbxQuickSettingsState>): void {
-    this._state.next({...this._state.value, ...partial});
+    this._state.update(current => ({...current, ...partial}));
   }
 
   setFitMode(mode: CbxFitMode): void {
@@ -153,17 +147,7 @@ export class CbxQuickSettingsService {
   }
 
   reset(): void {
-    this._state.next({
-      fitMode: CbxFitMode.FIT_PAGE,
-      scrollMode: CbxScrollMode.PAGINATED,
-      pageViewMode: CbxPageViewMode.SINGLE_PAGE,
-      pageSpread: CbxPageSpread.ODD,
-      backgroundColor: CbxBackgroundColor.GRAY,
-      readingDirection: CbxReadingDirection.LTR,
-      slideshowInterval: CbxSlideshowInterval.FIVE_SECONDS,
-      magnifierZoom: CbxMagnifierZoom.ZOOM_3X,
-      magnifierLensSize: CbxMagnifierLensSize.MEDIUM
-    });
-    this._visible.next(false);
+    this._state.set(this.defaultState);
+    this._visible.set(false);
   }
 }

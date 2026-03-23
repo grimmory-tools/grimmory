@@ -4,7 +4,7 @@
 
     <div class="book-browser-header">
       <div class="entity-info-wrapper">
-        @if (entityType$ | async; as entityType) {
+        @if (entityType(); as entityType) {
           <div class="entity-info">
             <p class="entity-title">
               @if (entityType === EntityType.ALL_BOOKS) {
@@ -18,19 +18,19 @@
               } @else if (entityType === EntityType.UNSHELVED) {
                 {{ (isFilterActive || hasSearchTerm) ? t('labels.unshelvedBooksFiltered') : t('labels.unshelvedBooks') }}
               } @else {
-                {{ entityType }}: {{ (entity$ | async)?.name }}{{ (isFilterActive || hasSearchTerm) ? ' ' + t('labels.filteredSuffix') : '' }}
+                {{ entityType }}: {{ entity()?.name }}{{ (isFilterActive || hasSearchTerm) ? ' ' + t('labels.filteredSuffix') : '' }}
               }
             </p>
-            @if (seriesCollapseFilter.isSeriesCollapsed && (bookState$ | async)?.books; as books) {
+            @if (seriesCollapseFilter.seriesCollapsed() && books(); as books) {
               <p class="series-collapsed-info">
                 {{ t('labels.seriesCollapsedInfo', { count: books.length, itemWord: books.length === 1 ? t('labels.item') : t('labels.items') }) }}
               </p>
             }
           </div>
 
-          @if (userService.userState$ | async; as userState) {
+          @if (userService.currentUser(); as currentUser) {
             @if (entityType !== EntityType.ALL_BOOKS && entityType !== EntityType.UNSHELVED &&
-            (userState.user?.permissions?.admin || userState.user?.permissions?.canManageLibrary)) {
+            (currentUser.permissions.admin || currentUser.permissions.canManageLibrary)) {
               <div class="entity-menu-wrapper">
                 <p-button
                   icon="pi pi-ellipsis-v"
@@ -39,7 +39,7 @@
                   severity="info"
                   (click)="entitymenu.toggle($event)">
                 </p-button>
-                <p-menu #entitymenu [model]="entityOptions" [popup]="true" appendTo="body"></p-menu>
+                <p-menu #entitymenu [model]="entityOptions()" [popup]="true" appendTo="body"></p-menu>
               </div>
             }
           }
@@ -106,7 +106,7 @@
                     <p-checkbox
                       inputId="collapse-series-checkbox"
                       [binary]="true"
-                      [ngModel]="seriesCollapseFilter.isSeriesCollapsed"
+                      [ngModel]="seriesCollapseFilter.seriesCollapsed()"
                       (onChange)="onSeriesCollapseCheckboxChange($event.checked)">
                     </p-checkbox>
                     <label for="collapse-series-checkbox" class="display-settings-label">{{ t('labels.collapseSeries') }}</label>
@@ -137,15 +137,15 @@
                   <div class="display-settings-section">
                     <label class="display-settings-label">{{ t('labels.gridItemSize') }}</label>
                     <p-slider
-                      [(ngModel)]="coverScalePreferenceService.scaleFactor"
+                      [ngModel]="coverScalePreferenceService.scaleFactor()"
+                      (ngModelChange)="coverScalePreferenceService.setScale($event)"
                       [min]="0.5"
                       [max]="1.5"
                       [step]="0.01"
-                      [style]="{ width: '100%' }"
-                      (onChange)="updateScale()">
+                      [style]="{ width: '100%' }">
                     </p-slider>
                     <div class="scale-value-display">
-                      {{ coverScalePreferenceService.scaleFactor.toFixed(2) }}x
+                      {{ coverScalePreferenceService.scaleFactor().toFixed(2) }}x
                     </div>
                   </div>
                 }
@@ -154,7 +154,7 @@
                     <p-checkbox
                       inputId="show-book-type-pill-checkbox"
                       [binary]="true"
-                      [ngModel]="bookCardOverlayPreferenceService.showBookTypePill"
+                      [ngModel]="bookCardOverlayPreferenceService.showBookTypePill()"
                       (onChange)="bookCardOverlayPreferenceService.setShowBookTypePill($event.checked)">
                     </p-checkbox>
                     <label for="show-book-type-pill-checkbox" class="display-settings-label">{{ t('labels.bookTypeOverlay') }}</label>
@@ -253,7 +253,7 @@
 
         <a class="topbar-items topbar-item" (click)="toggleSidebar()">
           <i
-            [ngClass]="showFilter ? 'pi pi-angle-double-right' : 'pi pi-angle-double-left'"
+            [ngClass]="showFilter() ? 'pi pi-angle-double-right' : 'pi pi-angle-double-left'"
             [pTooltip]="t('tooltip.toggleSidebar')"
             tooltipPosition="top">
           </i>
@@ -261,78 +261,75 @@
       </div>
     </div>
 
-    @if (bookState$ | async; as bookState) {
+    @if (books(); as books) {
       <div>
-        @if (!bookState?.loaded && !bookState?.error) {
+        @if (isBooksLoading()) {
           <div>
             <p-progressSpinner></p-progressSpinner>
           </div>
         }
         <div class="book-state-wrapper">
-          @if (bookState?.error) {
+          @if (booksError()) {
             <div class="no-books-container">
               <p class="no-books-text">
-                {{ entityType === EntityType.LIBRARY ? t('labels.failedLibrary') : t('labels.failedShelf') }}
+                {{ entityType() === EntityType.LIBRARY ? t('labels.failedLibrary') : t('labels.failedShelf') }}
               </p>
             </div>
-          }
-          @if (!bookState?.error && bookState?.loaded && bookState?.books?.length === 0) {
+          } @else if (!isBooksLoading() && books.length === 0) {
             <div class="no-books-container">
               <p class="no-books-text">
                 {{ t('labels.noBooks') }}
               </p>
             </div>
           }
-          @if (bookState?.books; as books) {
-            @if (currentViewMode === 'table' && books.length > 0) {
-              <app-book-table
-                [books]="books"
-                [preselectedBookIds]="selectedBooks"
-                (selectedBooksChange)="onSelectedBooksChange($event)"
-                [sortOption]="this.bookSorter.selectedSort!"
-                [visibleColumns]="visibleColumns"
-              ></app-book-table>
-            }
-            @if (currentViewMode === 'grid') {
-              <virtual-scroller class="virtual-scroller" #scroll [items]="books">
-                <div
-                  class="grid"
-                  #container
-                  [ngStyle]="{'grid-template-columns': 'repeat(auto-fill, minmax(' + gridColumnMinWidth + ', 1fr))'}">
-                  @for (book of scroll.viewPortItems; let i = $index; track book.id) {
-                    <div
-                      class="virtual-scroller-item"
-                      [ngStyle]="{width: currentCardSize.width + 'px', height: getCardHeight(book) + 'px'}">
-                      <app-book-card
-                        [index]="books.indexOf(book)"
-                        [book]="book"
-                        [isCheckboxEnabled]="true"
-                        [seriesViewEnabled]="seriesViewEnabled"
-                        [onBookSelect]="handleBookSelect.bind(this)"
-                        [isSeriesCollapsed]="seriesCollapseFilter.isSeriesCollapsed"
-                        (checkboxClick)="onCheckboxClicked($event)"
-                        [isSelected]="selectedBooks.has(book.id)"
-                        [useSquareCovers]="isAudiobookOnlyLibrary"
-                        [overlayPreferenceService]="bookCardOverlayPreferenceService">
-                      </app-book-card>
-                    </div>
-                  }
-                </div>
-              </virtual-scroller>
-            }
+          @if (currentViewMode === 'table' && books.length > 0) {
+            <app-book-table
+              [books]="books"
+              [preselectedBookIds]="selectedBooks()"
+              (selectedBooksChange)="onSelectedBooksChange($event)"
+              [sortOption]="this.bookSorter.selectedSort!"
+              [visibleColumns]="visibleColumns"
+            ></app-book-table>
           }
-          @if (userService.userState$ | async; as userState) {
-            <div class="book-browser-footer" [class.footer-hidden]="selectedCount === 0">
+          @if (currentViewMode === 'grid') {
+            <virtual-scroller class="virtual-scroller" #scroll [items]="books">
+              <div
+                class="grid"
+                #container
+                [ngStyle]="{'grid-template-columns': 'repeat(auto-fill, minmax(' + gridColumnMinWidth + ', 1fr))'}">
+                @for (book of scroll.viewPortItems; let i = $index; track book.id) {
+                  <div
+                    class="virtual-scroller-item"
+                    [ngStyle]="{width: currentCardSize.width + 'px', height: getCardHeight(book) + 'px'}">
+                    <app-book-card
+                      [index]="books.indexOf(book)"
+                      [book]="book"
+                      [isCheckboxEnabled]="true"
+                      [seriesViewEnabled]="seriesViewEnabled"
+                      [onBookSelect]="handleBookSelect.bind(this)"
+                      [isSeriesCollapsed]="seriesCollapseFilter.seriesCollapsed()"
+                      (checkboxClick)="onCheckboxClicked($event)"
+                      [isSelected]="selectedBooks().has(book.id)"
+                      [useSquareCovers]="isAudiobookOnlyLibrary"
+                      [overlayPreferenceService]="bookCardOverlayPreferenceService">
+                    </app-book-card>
+                  </div>
+                }
+              </div>
+            </virtual-scroller>
+          }
+          @if (userService.currentUser(); as currentUser) {
+            <div class="book-browser-footer" [class.footer-hidden]="selectedCount() === 0">
                 <div class="footer-content">
                   <div class="footer-left">
                     <div class="selected-count-badge">
                       <i class="pi pi-check-circle"></i>
-                      <span class="selected-count">{{ selectedCount }}</span>
+                      <span class="selected-count">{{ selectedCount() }}</span>
                       <span class="selected-label">{{ t('labels.selected') }}</span>
                     </div>
                   </div>
                   <div class="footer-center">
-                    @if (entityType$ | async; as entityType) {
+                    @if (entityType(); as entityType) {
                       <div class="action-buttons-group">
                         @if (hasMetadataMenuItems) {
                           <p-tieredMenu #menu [model]="metadataMenuItems" [popup]="true" appendTo="body" styleClass="footer-menu"/>
@@ -363,7 +360,7 @@
                             tooltipPosition="top">
                           </p-button>
                         }
-                        @if (userState.user?.permissions?.canBulkLockUnlockMetadata) {
+                        @if (currentUser.permissions.canBulkLockUnlockMetadata) {
                           <p-button
                             outlined="true"
                             icon="pi pi-lock"
@@ -373,7 +370,7 @@
                             tooltipPosition="top">
                           </p-button>
                         }
-                        @if (userState.user?.permissions?.canMoveOrganizeFiles && (appSettingsService.appSettings$ | async)?.diskType === 'LOCAL') {
+                        @if (currentUser.permissions.canMoveOrganizeFiles && appSettingsService.appSettings()?.diskType === 'LOCAL') {
                           <p-button
                             outlined="true"
                             icon="pi pi-arrows-h"
@@ -383,7 +380,7 @@
                             tooltipPosition="top">
                           </p-button>
                         }
-                        @if (userState.user?.permissions?.canManageLibrary || userState.user?.permissions?.admin) {
+                        @if (currentUser.permissions.canManageLibrary || currentUser.permissions.admin) {
                           <p-button
                             outlined="true"
                             icon="pi pi-link"
@@ -428,7 +425,7 @@
                         tooltipPosition="top">
                       </p-button>
                     </div>
-                    @if (userState?.user?.permissions?.admin || userState?.user?.permissions?.canDeleteBook) {
+                    @if (currentUser?.permissions?.admin || currentUser?.permissions?.canDeleteBook) {
                       <p-divider layout="vertical"></p-divider>
                       <p-button
                         outlined="true"
@@ -449,17 +446,17 @@
     }
   </div>
 
-  @if (this.showFilter) {
+  @if (showFilter()) {
     <div
       class="mobile-filter-mask"
       (click)="toggleSidebar()">
     </div>
     <app-book-filter
-      [showFilter]="showFilter"
+      [showFilter]="showFilter()"
       class="filter-overlay-container"
-      [ngClass]="{ 'active': showFilter }"
-      [entity$]="entity$"
-      [entityType$]="entityType$"
+      [ngClass]="{ 'active': showFilter() }"
+      [entity]="entity()"
+      [entityType]="entityType()"
       [resetFilter$]="resetFilterSubject"
       (filterSelected)="onFilterSelected($event)"
       (filterModeChanged)="onFilterModeChanged($event)">

@@ -1,11 +1,9 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, effect, inject} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {filter, takeUntil} from 'rxjs/operators';
 
-import {Observable, Subject} from 'rxjs';
 import {TooltipModule} from 'primeng/tooltip';
 import {TranslocoDirective} from '@jsverse/transloco';
-import {UserService, UserSettings, UserState} from '../user-management/user.service';
+import {UserService, UserSettings} from '../user-management/user.service';
 import {ReaderPreferencesService} from './reader-preferences.service';
 import {EpubReaderPreferencesComponent} from './epub-reader-preferences/epub-reader-preferences-component';
 import {PdfReaderPreferencesComponent} from './pdf-reader-preferences/pdf-reader-preferences-component';
@@ -20,28 +18,21 @@ import {SettingsApplicationModeComponent} from './settings-application-mode/sett
   styleUrls: ['./reader-preferences.component.scss'],
   imports: [FormsModule, TooltipModule, TranslocoDirective, EpubReaderPreferencesComponent, PdfReaderPreferencesComponent, CbxReaderPreferencesComponent, CustomFontsComponent, SettingsApplicationModeComponent]
 })
-export class ReaderPreferences implements OnInit, OnDestroy {
+export class ReaderPreferences {
   private readonly userService = inject(UserService);
-  private readonly destroy$ = new Subject<void>();
 
-  userData$: Observable<UserState> = this.userService.userState$;
   userSettings!: UserSettings;
 
   hasFontManagementPermission = false;
 
-  ngOnInit(): void {
-    this.userData$.pipe(
-      filter(userState => !!userState?.user && userState.loaded),
-      takeUntil(this.destroy$)
-    ).subscribe(userState => {
-      this.userSettings = userState.user!.userSettings;
-      const perms = userState.user!.permissions;
+  constructor() {
+    effect(() => {
+      const user = this.userService.currentUser();
+      if (!user) return;
+
+      this.userSettings = user.userSettings;
+      const perms = user.permissions;
       this.hasFontManagementPermission = (perms.admin || perms.canManageFonts);
     });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

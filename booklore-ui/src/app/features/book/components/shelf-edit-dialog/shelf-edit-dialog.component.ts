@@ -1,4 +1,4 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, effect, inject, Injector, OnInit} from '@angular/core';
 import {ShelfService} from '../../service/shelf.service';
 import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
 import {Button} from 'primeng/button';
@@ -37,6 +37,8 @@ export class ShelfEditDialogComponent implements OnInit {
   private iconPickerService = inject(IconPickerService);
   private userService = inject(UserService);
   private readonly t = inject(TranslocoService);
+  private readonly injector = inject(Injector);
+  private shelfInitialized = false;
 
   shelfName: string = '';
   selectedIcon: IconSelection | null = null;
@@ -46,18 +48,28 @@ export class ShelfEditDialogComponent implements OnInit {
 
   ngOnInit(): void {
     const shelfId = this.dynamicDialogConfig?.data.shelfId;
-    this.shelf = this.shelfService.getShelfById(shelfId);
-    if (this.shelf) {
-      this.shelfName = this.shelf.name;
-      this.isPublic = this.shelf.publicShelf ?? false;
-      if (this.shelf.iconType && this.shelf.icon) {
-        if (this.shelf.iconType === 'PRIME_NG') {
-          this.selectedIcon = {type: 'PRIME_NG', value: `pi pi-${this.shelf.icon}`};
+    effect(() => {
+      if (this.shelfInitialized) {
+        return;
+      }
+
+      const shelf = this.shelfService.shelves().find(currentShelf => currentShelf.id === shelfId);
+      if (!shelf) {
+        return;
+      }
+
+      this.shelfInitialized = true;
+      this.shelf = shelf;
+      this.shelfName = shelf.name;
+      this.isPublic = shelf.publicShelf ?? false;
+      if (shelf.iconType && shelf.icon) {
+        if (shelf.iconType === 'PRIME_NG') {
+          this.selectedIcon = {type: 'PRIME_NG', value: `pi pi-${shelf.icon}`};
         } else {
-          this.selectedIcon = {type: 'CUSTOM_SVG', value: this.shelf.icon};
+          this.selectedIcon = {type: 'CUSTOM_SVG', value: shelf.icon};
         }
       }
-    }
+    }, {injector: this.injector});
   }
 
   openIconPicker() {

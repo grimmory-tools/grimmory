@@ -58,7 +58,13 @@ ADD \
 FROM kepubify-layer-${TARGETARCH} AS kepubify-layer
 
 FROM eclipse-temurin:25-jre-alpine
-ENV JAVA_TOOL_OPTIONS="-XX:+UseG1GC -XX:+UseCompactObjectHeaders -XX:+UseStringDeduplication -XX:MaxRAMPercentage=75.0 -XX:+ExitOnOutOfMemoryError"
+
+ENV JAVA_TOOL_OPTIONS="-XX:+UseShenandoahGC \
+    -XX:ShenandoahGCHeuristics=compact \
+    -XX:+UseCompactObjectHeaders \
+    -XX:MaxRAMPercentage=60.0 \
+    -XX:InitialRAMPercentage=8.0 \
+    -XX:+ExitOnOutOfMemoryError"
 
 RUN apk add --no-cache su-exec libstdc++ libgcc && \
     mkdir -p /bookdrop

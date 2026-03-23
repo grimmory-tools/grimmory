@@ -1,18 +1,18 @@
-@if (isOpen) {
-  <div class="sidebar-overlay" (click)="onOverlayClick()" [class.closing]="closing">
-    <aside class="sidebar" (click)="$event.stopPropagation()" [class.closing]="closing">
+@if (isOpen()) {
+  <div class="sidebar-overlay" (click)="onOverlayClick()" [class.closing]="closing()">
+    <aside class="sidebar" (click)="$event.stopPropagation()" [class.closing]="closing()">
       <header class="sidebar-header">
-        @if (bookInfo.coverUrl) {
+        @if (bookInfo().coverUrl) {
           <img
-            [src]="bookInfo.coverUrl"
+            [src]="bookInfo().coverUrl"
             alt="Book cover"
             class="book-cover"
           />
         }
         <div class="book-meta">
-          <h2 class="book-title">{{ bookInfo.title }}</h2>
-          @if (bookInfo.authors) {
-            <p class="book-authors">{{ bookInfo.authors }}</p>
+          <h2 class="book-title">{{ bookInfo().title }}</h2>
+          @if (bookInfo().authors) {
+            <p class="book-authors">{{ bookInfo().authors }}</p>
           }
         </div>
       </header>
@@ -20,38 +20,38 @@
       <nav class="tabs">
         <button
           class="tab"
-          [class.active]="activeTab === 'pages'"
+          [class.active]="activeTab() === 'pages'"
           (click)="setActiveTab('pages')">
           <app-reader-icon name="book" class="tab-icon"></app-reader-icon>
           <span>{{ 'readerCbx.sidebar.contentTab' | transloco }}</span>
         </button>
         <button
           class="tab"
-          [class.active]="activeTab === 'bookmarks'"
+          [class.active]="activeTab() === 'bookmarks'"
           (click)="setActiveTab('bookmarks')">
           <app-reader-icon name="bookmark" class="tab-icon"></app-reader-icon>
           <span>{{ 'readerCbx.sidebar.bookmarksTab' | transloco }}</span>
-          @if (bookmarks.length > 0) {
-            <span class="badge">{{ bookmarks.length }}</span>
+          @if (bookmarks().length > 0) {
+            <span class="badge">{{ bookmarks().length }}</span>
           }
         </button>
         <button
           class="tab"
-          [class.active]="activeTab === 'notes'"
+          [class.active]="activeTab() === 'notes'"
           (click)="setActiveTab('notes')">
           <app-reader-icon name="note" class="tab-icon"></app-reader-icon>
           <span>{{ 'readerCbx.sidebar.notesTab' | transloco }}</span>
-          @if (notes.length > 0) {
-            <span class="badge">{{ notes.length }}</span>
+          @if (notes().length > 0) {
+            <span class="badge">{{ notes().length }}</span>
           }
         </button>
       </nav>
 
       <div class="content">
-        @switch (activeTab) {
+        @switch (activeTab()) {
           @case ('pages') {
             <ul class="page-list">
-              @for (page of pages; track page.pageNumber) {
+              @for (page of pages(); track page.pageNumber) {
                 <li>
                   <button
                     class="page-row"
@@ -63,7 +63,7 @@
                 </li>
               }
             </ul>
-            @if (pages.length === 0) {
+            @if (pages().length === 0) {
               <div class="empty-state">
                 <app-reader-icon name="book" class="empty-icon" [size]="48" [strokeWidth]="1.5"></app-reader-icon>
                 <p>{{ 'readerCbx.sidebar.noPagesFound' | transloco }}</p>
@@ -71,9 +71,9 @@
             }
           }
           @case ('bookmarks') {
-            @if (bookmarks.length > 0) {
+            @if (bookmarks().length > 0) {
               <ul class="item-list">
-                @for (bookmark of bookmarks; track bookmark.id) {
+                @for (bookmark of bookmarks(); track bookmark.id) {
                   <li class="list-item" (click)="onBookmarkClick(bookmark.cfi!)">
                     <div class="item-content">
                       <span class="item-title">{{ bookmark.title }}</span>
@@ -95,17 +95,17 @@
           }
           @case ('notes') {
             <div class="notes-container">
-              @if (notes.length > 0) {
+              @if (notes().length > 0) {
                 <div class="notes-search-wrapper">
                   <app-reader-icon name="search" class="search-icon" [size]="16"></app-reader-icon>
                   <input
                     type="text"
                     class="search-input"
                     [placeholder]="'readerCbx.sidebar.searchNotesPlaceholder' | transloco"
-                    [(ngModel)]="notesSearchQuery"
+                    [ngModel]="notesSearchQuery()"
                     (ngModelChange)="onNotesSearchInput($event)"
                   />
-                  @if (notesSearchQuery) {
+                  @if (notesSearchQuery()) {
                     <button class="clear-btn" (click)="clearNotesSearch()" [attr.aria-label]="'readerCbx.sidebar.clearSearch' | transloco">
                       <app-reader-icon name="close" [size]="14"></app-reader-icon>
                     </button>
@@ -113,9 +113,9 @@
                 </div>
               }
 
-              @if (filteredNotes.length > 0) {
+              @if (filteredNotes().length > 0) {
                 <ul class="item-list">
-                  @for (note of filteredNotes; track note.id) {
+                  @for (note of filteredNotes(); track note.id) {
                     <li class="list-item note-item" (click)="onNoteClick(note.cfi)">
                       <div class="note-bar" [style.background-color]="note.color"></div>
                       <div class="item-content">
@@ -136,7 +136,7 @@
                     </li>
                   }
                 </ul>
-              } @else if (notes.length > 0 && notesSearchQuery) {
+              } @else if (notes().length > 0 && notesSearchQuery()) {
                 <div class="empty-state">
                   <app-reader-icon name="search" class="empty-icon" [size]="48" [strokeWidth]="1.5"></app-reader-icon>
                   <p>{{ 'readerCbx.sidebar.noMatchingNotes' | transloco }}</p>

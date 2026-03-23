@@ -1,12 +1,9 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, computed, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
 import {Tooltip} from 'primeng/tooltip';
-import {BehaviorSubject, EMPTY, Observable, Subject} from 'rxjs';
-import {catchError, filter, first, takeUntil} from 'rxjs/operators';
 import {ChartConfiguration, ChartData, ScatterDataPoint} from 'chart.js';
 import {BookService} from '../../../../../book/service/book.service';
-import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book, ReadStatus} from '../../../../../book/model/book.model';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
@@ -16,6 +13,13 @@ interface BookScatterPoint extends ScatterDataPoint {
 }
 
 type LengthChartData = ChartData<'scatter', BookScatterPoint[], string>;
+
+interface BookLengthMetrics {
+  totalRatedBooks: number;
+  sweetSpot: string;
+  highestRatedLength: string;
+  chartData: LengthChartData;
+}
 
 const STATUS_COLORS: Record<string, { bg: string; border: string }> = {
   'read': {bg: 'rgba(76, 175, 80, 0.7)', border: '#4caf50'},
@@ -40,15 +44,21 @@ const PAGE_RANGES = [
   templateUrl: './book-length-chart.component.html',
   styleUrls: ['./book-length-chart.component.scss']
 })
-export class BookLengthChartComponent implements OnInit, OnDestroy {
+export class BookLengthChartComponent {
   private readonly bookService = inject(BookService);
   private readonly t = inject(TranslocoService);
-  private readonly destroy$ = new Subject<void>();
+  private readonly metrics = computed<BookLengthMetrics>(() => {
+    if (this.bookService.isBooksLoading()) {
+      return this.emptyMetrics();
+    }
+
+    return this.calculateMetrics(this.bookService.books());
+  });
 
   public readonly chartType = 'scatter' as const;
-  public sweetSpot = '';
-  public highestRatedLength = '';
-  public totalRatedBooks = 0;
+  public readonly sweetSpot = computed(() => this.metrics().sweetSpot);
+  public readonly highestRatedLength = computed(() => this.metrics().highestRatedLength);
+  public readonly totalRatedBooks = computed(() => this.metrics().totalRatedBooks);
 
   public readonly chartOptions: ChartConfiguration<'scatter'>['options'] = {
     responsive: true,
@@ -136,42 +146,23 @@ export class BookLengthChartComponent implements OnInit, OnDestroy {
     }
   };
 
-  private readonly chartDataSubject = new BehaviorSubject<LengthChartData>({datasets: []});
-  public readonly chartData$: Observable<LengthChartData> = this.chartDataSubject.asObservable();
+  public readonly chartData = computed(() => this.metrics().chartData);
 
-  ngOnInit(): void {
-    this.bookService.bookState$
-      .pipe(
-        filter(state => state.loaded),
-        first(),
-        catchError((error) => {
-          console.error('Error processing book length data:', error);
-          return EMPTY;
-        }),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(() => this.processData());
-  }
+  private calculateMetrics(books: Book[]): BookLengthMetrics {
+    if (books.length === 0) {
+      return this.emptyMetrics();
+    }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  private processData(): void {
-    const currentState = this.bookService.getCurrentBookState();
-    if (!this.isValidBookState(currentState)) return;
-
-    const books = currentState.books!;
     const ratedBooks = books.filter(b =>
       b.personalRating != null && b.personalRating > 0 &&
       b.metadata?.pageCount != null && b.metadata.pageCount > 0
     );
 
-    this.totalRatedBooks = ratedBooks.length;
-    if (this.totalRatedBooks === 0) return;
+    const totalRatedBooks = ratedBooks.length;
+    if (totalRatedBooks === 0) {
+      return this.emptyMetrics();
+    }
 
-    // Group by status key (for colors) and translated label (for display)
     const grouped = new Map<string, { label: string; points: BookScatterPoint[] }>();
     for (const book of ratedBooks) {
       const statusKey = this.getStatusKey(book.readStatus);
@@ -213,10 +204,13 @@ export class BookLengthChartComponent implements OnInit, OnDestroy {
       });
     }
 
-    this.chartDataSubject.next({datasets});
-
-    // Compute sweet spot
-    this.computeStats(ratedBooks);
+    const {sweetSpot, highestRatedLength} = this.computeStats(ratedBooks);
+    return {
+      totalRatedBooks,
+      sweetSpot,
+      highestRatedLength,
+      chartData: {datasets}
+    };
   }
 
   private getStatusKey(status?: ReadStatus): string {
@@ -253,12 +247,9 @@ export class BookLengthChartComponent implements OnInit, OnDestroy {
     }
   }
 
-  private computeStats(books: Book[]): void {
-    // Find range with highest average rating
+  private computeStats(books: Book[]): Pick<BookLengthMetrics, 'sweetSpot' | 'highestRatedLength'> {
     let bestRange = '';
     let bestAvg = 0;
-    let bestPageCount = 0;
-    let bestRating = 0;
 
     for (const range of PAGE_RANGES) {
       const rangeBooks = books.filter(b =>
@@ -273,11 +264,11 @@ export class BookLengthChartComponent implements OnInit, OnDestroy {
       }
     }
 
-    this.sweetSpot = bestRange ? `${bestRange} pages (avg ${bestAvg.toFixed(1)})` : '-';
-
-    // Highest rated length
+    const sweetSpot = bestRange ? `${bestRange} pages (avg ${bestAvg.toFixed(1)})` : '-';
     const highestRated = books.reduce((a, b) => (a.personalRating! >= b.personalRating! ? a : b));
-    this.highestRatedLength = `${highestRated.metadata!.pageCount} pages`;
+    const highestRatedLength = `${highestRated.metadata!.pageCount} pages`;
+
+    return {sweetSpot, highestRatedLength};
   }
 
   private computeTrendLine(points: { x: number; y: number }[]): { x: number; y: number }[] | null {
@@ -307,15 +298,12 @@ export class BookLengthChartComponent implements OnInit, OnDestroy {
     ];
   }
 
-  private isValidBookState(state: unknown): state is BookState {
-    return (
-      typeof state === 'object' &&
-      state !== null &&
-      'loaded' in state &&
-      typeof (state as { loaded: boolean }).loaded === 'boolean' &&
-      'books' in state &&
-      Array.isArray((state as { books: unknown }).books) &&
-      (state as { books: Book[] }).books.length > 0
-    );
+  private emptyMetrics(): BookLengthMetrics {
+    return {
+      totalRatedBooks: 0,
+      sweetSpot: '',
+      highestRatedLength: '',
+      chartData: {datasets: []}
+    };
   }
 }

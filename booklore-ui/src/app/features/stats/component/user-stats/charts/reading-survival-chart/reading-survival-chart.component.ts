@@ -1,16 +1,22 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, computed, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
 import {Tooltip} from 'primeng/tooltip';
-import {BehaviorSubject, EMPTY, Observable, Subject} from 'rxjs';
-import {catchError, filter, first, takeUntil} from 'rxjs/operators';
 import {ChartConfiguration, ChartData} from 'chart.js';
 import {BookService} from '../../../../../book/service/book.service';
-import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book} from '../../../../../book/model/book.model';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 type SurvivalChartData = ChartData<'line', number[], string>;
+
+interface SurvivalMetrics {
+  totalStarted: number;
+  completionRate: number;
+  medianDropout: string;
+  dangerZoneRange: string;
+  dangerZoneDrop: string;
+  chartData: SurvivalChartData;
+}
 
 const THRESHOLDS = [0, 10, 25, 50, 75, 90, 100];
 
@@ -21,17 +27,23 @@ const THRESHOLDS = [0, 10, 25, 50, 75, 90, 100];
   templateUrl: './reading-survival-chart.component.html',
   styleUrls: ['./reading-survival-chart.component.scss']
 })
-export class ReadingSurvivalChartComponent implements OnInit, OnDestroy {
+export class ReadingSurvivalChartComponent {
   private readonly bookService = inject(BookService);
   private readonly t = inject(TranslocoService);
-  private readonly destroy$ = new Subject<void>();
+  private readonly survivalMetrics = computed<SurvivalMetrics>(() => {
+    if (this.bookService.isBooksLoading()) {
+      return this.emptyMetrics();
+    }
+
+    return this.calculateSurvivalMetrics(this.bookService.books());
+  });
 
   public readonly chartType = 'line' as const;
-  public totalStarted = 0;
-  public completionRate = 0;
-  public medianDropout = '';
-  public dangerZoneRange = '';
-  public dangerZoneDrop = '';
+  public readonly totalStarted = computed(() => this.survivalMetrics().totalStarted);
+  public readonly completionRate = computed(() => this.survivalMetrics().completionRate);
+  public readonly medianDropout = computed(() => this.survivalMetrics().medianDropout);
+  public readonly dangerZoneRange = computed(() => this.survivalMetrics().dangerZoneRange);
+  public readonly dangerZoneDrop = computed(() => this.survivalMetrics().dangerZoneDrop);
 
   public readonly chartOptions: ChartConfiguration<'line'>['options'] = {
     responsive: true,
@@ -94,62 +106,38 @@ export class ReadingSurvivalChartComponent implements OnInit, OnDestroy {
     }
   };
 
-  private readonly chartDataSubject = new BehaviorSubject<SurvivalChartData>({
-    labels: [],
-    datasets: []
-  });
+  public readonly chartData = computed(() => this.survivalMetrics().chartData);
 
-  public readonly chartData$: Observable<SurvivalChartData> = this.chartDataSubject.asObservable();
+  private calculateSurvivalMetrics(books: Book[]): SurvivalMetrics {
+    if (books.length === 0) {
+      return this.emptyMetrics();
+    }
 
-  ngOnInit(): void {
-    this.bookService.bookState$
-      .pipe(
-        filter(state => state.loaded),
-        first(),
-        catchError((error) => {
-          console.error('Error processing survival data:', error);
-          return EMPTY;
-        }),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(() => this.calculateSurvivalCurve());
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  private calculateSurvivalCurve(): void {
-    const currentState = this.bookService.getCurrentBookState();
-    if (!this.isValidBookState(currentState)) return;
-
-    const books = currentState.books!;
     const startedBooks = books.filter(b => this.getBookProgress(b) > 0);
-    this.totalStarted = startedBooks.length;
+    const totalStarted = startedBooks.length;
 
-    if (this.totalStarted === 0) return;
+    if (totalStarted === 0) {
+      return this.emptyMetrics();
+    }
 
     const progresses = startedBooks.map(b => this.getBookProgress(b));
     const survivalValues = THRESHOLDS.map(threshold => {
       const survived = progresses.filter(p => p >= threshold).length;
-      return (survived / this.totalStarted) * 100;
+      return (survived / totalStarted) * 100;
     });
 
-    // Completion rate
-    this.completionRate = Math.round(survivalValues[survivalValues.length - 1]);
+    const completionRate = Math.round(survivalValues[survivalValues.length - 1]);
 
-    // Median dropout: find where survival drops below 50%
     let medianIdx = survivalValues.findIndex(v => v < 50);
+    let medianDropout = '';
     if (medianIdx === -1) {
-      this.medianDropout = '100%+';
+      medianDropout = '100%+';
     } else if (medianIdx === 0) {
-      this.medianDropout = `${THRESHOLDS[0]}%`;
+      medianDropout = `${THRESHOLDS[0]}%`;
     } else {
-      this.medianDropout = `${THRESHOLDS[medianIdx - 1]}-${THRESHOLDS[medianIdx]}%`;
+      medianDropout = `${THRESHOLDS[medianIdx - 1]}-${THRESHOLDS[medianIdx]}%`;
     }
 
-    // Danger zone: steepest drop
     let maxDrop = 0;
     let dangerIdx = 0;
     for (let i = 1; i < survivalValues.length; i++) {
@@ -159,39 +147,45 @@ export class ReadingSurvivalChartComponent implements OnInit, OnDestroy {
         dangerIdx = i;
       }
     }
-    this.dangerZoneRange = `${THRESHOLDS[dangerIdx - 1]}-${THRESHOLDS[dangerIdx]}%`;
-    this.dangerZoneDrop = `-${maxDrop.toFixed(0)}%`;
+    const dangerZoneRange = `${THRESHOLDS[dangerIdx - 1]}-${THRESHOLDS[dangerIdx]}%`;
+    const dangerZoneDrop = `-${maxDrop.toFixed(0)}%`;
 
     const labels = THRESHOLDS.map(t => `${t}%`);
-    this.chartDataSubject.next({
-      labels,
-      datasets: [{
-        label: this.t.translate('statsUser.readingSurvival.survivalRate'),
-        data: survivalValues,
-        borderColor: '#e91e63',
-        backgroundColor: 'rgba(233, 30, 99, 0.15)',
-        fill: true,
-        stepped: true,
-        pointRadius: 5,
-        pointHoverRadius: 7,
-        pointBackgroundColor: '#e91e63',
-        pointBorderColor: '#ffffff',
-        pointBorderWidth: 2,
-        borderWidth: 2
-      }]
-    });
+    return {
+      totalStarted,
+      completionRate,
+      medianDropout,
+      dangerZoneRange,
+      dangerZoneDrop,
+      chartData: {
+        labels,
+        datasets: [{
+          label: this.t.translate('statsUser.readingSurvival.survivalRate'),
+          data: survivalValues,
+          borderColor: '#e91e63',
+          backgroundColor: 'rgba(233, 30, 99, 0.15)',
+          fill: true,
+          stepped: true,
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          pointBackgroundColor: '#e91e63',
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 2,
+          borderWidth: 2
+        }]
+      }
+    };
   }
 
-  private isValidBookState(state: unknown): state is BookState {
-    return (
-      typeof state === 'object' &&
-      state !== null &&
-      'loaded' in state &&
-      typeof (state as { loaded: boolean }).loaded === 'boolean' &&
-      'books' in state &&
-      Array.isArray((state as { books: unknown }).books) &&
-      (state as { books: Book[] }).books.length > 0
-    );
+  private emptyMetrics(): SurvivalMetrics {
+    return {
+      totalStarted: 0,
+      completionRate: 0,
+      medianDropout: '',
+      dangerZoneRange: '',
+      dangerZoneDrop: '',
+      chartData: {labels: [], datasets: []}
+    };
   }
 
   private getBookProgress(book: Book): number {

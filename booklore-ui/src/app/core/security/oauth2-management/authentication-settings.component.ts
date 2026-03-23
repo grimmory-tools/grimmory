@@ -1,4 +1,4 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, effect, inject} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {InputText} from 'primeng/inputtext';
 import {Button} from 'primeng/button';
@@ -8,9 +8,7 @@ import {ToggleSwitch} from 'primeng/toggleswitch';
 import {InputNumber} from 'primeng/inputnumber';
 import {MessageService} from 'primeng/api';
 import {AppSettingsService} from '../../../shared/service/app-settings.service';
-import {Observable} from 'rxjs';
 import {AppSettingKey, AppSettings, OidcProviderDetails, OidcTestResult} from '../../../shared/model/app-settings.model';
-import {filter, take} from 'rxjs/operators';
 import {MultiSelect} from 'primeng/multiselect';
 import {Library} from '../../../features/book/model/library.model';
 import {LibraryService} from '../../../features/book/service/library.service';
@@ -46,7 +44,7 @@ import {TagComponent} from '../../../shared/components/tag/tag.component';
   ],
   styleUrls: ['./authentication-settings.component.scss']
 })
-export class AuthenticationSettingsComponent implements OnInit {
+export class AuthenticationSettingsComponent {
   availablePermissions = [
     {label: 'Upload Books', value: 'permissionUpload', selected: false, translationKey: 'perms.uploadBooks'},
     {label: 'Download Books', value: 'permissionDownload', selected: false, translationKey: 'perms.downloadBooks'},
@@ -64,7 +62,7 @@ export class AuthenticationSettingsComponent implements OnInit {
   allowLocalAccountLinking = true;
   selectedPermissions: string[] = [];
   oidcEnabled = false;
-  allLibraries: Library[] = [];
+
   editingLibraryIds: number[] = [];
   sessionDurationHours: number | null = null;
   backchannelLogoutUri = `${window.location.origin}/api/v1/auth/oidc/backchannel-logout`;
@@ -116,21 +114,14 @@ export class AuthenticationSettingsComponent implements OnInit {
   private libraryService = inject(LibraryService);
   private groupMappingService = inject(OidcGroupMappingService);
   private t = inject(TranslocoService);
+  get allLibraries() { return this.libraryService.libraries(); }
 
-  appSettings$: Observable<AppSettings | null> = this.appSettingsService.appSettings$;
-
-  ngOnInit(): void {
-    this.appSettings$.pipe(
-      filter((settings): settings is AppSettings => settings != null),
-      take(1)
-    ).subscribe(settings => this.loadSettings(settings));
-
-    this.libraryService.libraryState$
-      .pipe(
-        filter(state => !!state?.loaded),
-        take(1)
-      ).subscribe(state => this.allLibraries = state.libraries ?? []);
-  }
+  private readonly loadSettingsEffect = effect(() => {
+    const settings = this.appSettingsService.appSettings();
+    if (settings) {
+      this.loadSettings(settings);
+    }
+  });
 
   loadSettings(settings: AppSettings): void {
     this.oidcEnabled = settings.oidcEnabled;
