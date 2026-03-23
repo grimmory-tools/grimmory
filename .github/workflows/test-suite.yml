@@ -29,6 +29,11 @@ jobs:
           fetch-depth: 0
           ref: ${{ inputs.checkout_ref }}
 
+      - name: Install just
+        uses: taiki-e/install-action@0d865d5cc6d507df4765f1f866bfae8bab4e2a73 # v2.69.7
+        with:
+          tool: just
+
       - name: Set Up JDK 25
         uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:
@@ -38,10 +43,9 @@ jobs:
 
       - name: Execute Backend Tests
         id: backend_tests
-        working-directory: ./booklore-api
         run: |
           echo "Running backend tests..."
-          ./gradlew test --no-daemon --parallel --build-cache
+          just api test
         continue-on-error: true
 
       - name: Publish Backend Test Results
@@ -82,6 +86,11 @@ jobs:
           fetch-depth: 0
           ref: ${{ inputs.checkout_ref }}
 
+      - name: Install just
+        uses: taiki-e/install-action@0d865d5cc6d507df4765f1f866bfae8bab4e2a73 # v2.69.7
+        with:
+          tool: just
+
       - name: Set Up Node.js
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
         with:
@@ -90,23 +99,19 @@ jobs:
           cache-dependency-path: booklore-ui/package-lock.json
 
       - name: Install Frontend Dependencies
-        working-directory: ./booklore-ui
-        run: npm ci
+        run: just ui install-ci
 
       - name: Audit Frontend Dependencies
-        working-directory: ./booklore-ui
-        run: npm audit --audit-level=critical
+        run: just ui audit-ci
 
       - name: Validate Dependency Tree
-        working-directory: ./booklore-ui
-        run: npm ls --depth=0
+        run: just ui deps
 
       - name: Execute Frontend Tests
         id: frontend_tests
-        working-directory: ./booklore-ui
         run: |
           echo "Running frontend tests..."
-          npx ng test
+          just ui test
         continue-on-error: true
 
       - name: Publish Frontend Test Results
