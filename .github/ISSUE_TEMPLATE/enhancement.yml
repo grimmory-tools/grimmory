@@ -1,0 +1,52 @@
+name: Enhancement
+description: Suggest a smaller quality-of-life or UX improvement for Grimmory
+labels: ["needs-triage"]
+type: Enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for smaller improvements, polish, workflow tweaks, and quality-of-life ideas.
+        If you are proposing a major new capability or a large new subsystem, use the Feature Request template instead.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: What would you like to improve?
+      description: Describe the smaller enhancement or quality-of-life improvement you want to see
+      placeholder: "Example: Add a quick action to mark a book as finished directly from the book card menu"
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-friction
+    attributes:
+      label: What's the current friction?
+      description: Explain what feels clunky, repetitive, confusing, or missing today
+      placeholder: "Example: I have to open the book details view just to mark a book as finished, which adds extra clicks when updating several books"
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-approach
+    attributes:
+      label: What would make this better?
+      description: Describe the behavior, UI tweak, or workflow improvement that would help
+      placeholder: "Example: Add a 'Mark as Finished' action to the book card overflow menu and confirmation toast"
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Anything else? (Optional)
+      description: Add screenshots, examples, or implementation notes if they help explain the request
+
+  - type: checkboxes
+    id: prerequisites
+    attributes:
+      label: Before Submitting
+      description: Please confirm you've completed this step
+      options:
+        - label: I've searched existing issues and confirmed this enhancement hasn't been requested yet
+          required: true
