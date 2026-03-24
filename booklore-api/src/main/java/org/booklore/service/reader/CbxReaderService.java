@@ -39,7 +39,7 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor
 public class CbxReaderService {
 
-    private static final String[] SUPPORTED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".avif", ".heic"};
+    private static final String[] SUPPORTED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".avif", ".heic", ".gif", ".bmp"};
     private static final Charset[] ENCODINGS_TO_TRY = {
             StandardCharsets.UTF_8,
             Charset.forName("Shift_JIS"),
