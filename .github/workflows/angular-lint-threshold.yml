@@ -21,7 +21,7 @@ jobs:
 
     env:
       LINT_WARNING_THRESHOLD: 0
-      LINT_ERROR_THRESHOLD: 722
+      LINT_ERROR_THRESHOLD: 721
       BUILD_WARNING_THRESHOLD: 24
 
     steps:
