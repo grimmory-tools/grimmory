@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, computed, effect, inject} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, effect, inject} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {ButtonModule} from 'primeng/button';
 import {RadioButtonModule} from 'primeng/radiobutton';
@@ -21,6 +21,7 @@ interface Palette {
 @Component({
   selector: 'app-theme-configurator',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './theme-configurator.component.html',
   host: {
     class: 'config-panel hidden'
