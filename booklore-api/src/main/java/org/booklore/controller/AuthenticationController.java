@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -73,15 +73,17 @@ public class AuthenticationController {
     })
     @GetMapping("/remote")
     public ResponseEntity<Map<String, String>> loginRemote(
-            @Parameter(description = "Authentication headers") @RequestHeader Map<String, String> headers) {
+            @Parameter(description = "HTTP request containing authentication headers") HttpServletRequest request) {
         if (!appProperties.getRemoteAuth().isEnabled()) {
             throw ApiError.REMOTE_AUTH_DISABLED.createException();
         }
 
-        String name = headers.get(appProperties.getRemoteAuth().getHeaderName());
-        String username = headers.get(appProperties.getRemoteAuth().getHeaderUser());
-        String email = headers.get(appProperties.getRemoteAuth().getHeaderEmail());
-        String groups = headers.get(appProperties.getRemoteAuth().getHeaderGroups());
+        // HttpServletRequest.getHeader() is case-insensitive per servlet specification
+        String name = request.getHeader(appProperties.getRemoteAuth().getHeaderName());
+        String username = request.getHeader(appProperties.getRemoteAuth().getHeaderUser());
+        String email = request.getHeader(appProperties.getRemoteAuth().getHeaderEmail());
+        String groups = request.getHeader(appProperties.getRemoteAuth().getHeaderGroups());
+        
         log.debug("Remote-Auth: retrieved values from headers: name: {}, username: {}, email: {}, groups: {}", name, username, email, groups);
         log.debug("Remote-Auth: remote auth settings: {}", appProperties.getRemoteAuth());
 
