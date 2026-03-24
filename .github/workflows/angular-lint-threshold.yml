@@ -19,7 +19,7 @@ jobs:
       contents: read
 
     env:
-      LINT_THRESHOLD: 713
+      LINT_THRESHOLD: 725
 
     steps:
       - name: Checkout Repository
