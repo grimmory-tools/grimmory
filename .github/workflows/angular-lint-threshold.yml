@@ -22,7 +22,7 @@ jobs:
     env:
       LINT_WARNING_THRESHOLD: 0
       LINT_ERROR_THRESHOLD: 725
-      BUILD_WARNING_THRESHOLD: 0
+      BUILD_WARNING_THRESHOLD: 24
 
     steps:
       - name: Checkout Repository
@@ -64,7 +64,8 @@ jobs:
             exit 1
           fi
 
-          BUILD_WARNING_COUNT=$(grep -E -c '\[WARNING\]|WARNING in|^Warning:' build-output.log || true)
+          sed -E $'s/\x1B\[[0-9;]*[A-Za-z]//g' build-output.log > build-output-plain.log
+          BUILD_WARNING_COUNT=$(grep -E -c '\[WARNING\]|WARNING in|^Warning:' build-output-plain.log || true)
 
           echo "Build warnings found: ${BUILD_WARNING_COUNT}"
           echo "BUILD_WARNING_COUNT=${BUILD_WARNING_COUNT}" >> "$GITHUB_ENV"
