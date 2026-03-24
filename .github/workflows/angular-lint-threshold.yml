@@ -51,8 +51,8 @@ jobs:
             exit 1
           fi
 
-          PROBLEM_COUNT=$(node -e "const fs=require('fs');const report=JSON.parse(fs.readFileSync('lint-results.json','utf8'));const total=(Array.isArray(report)?report:[]).reduce((sum,file)=>sum+Number(file.errorCount||0)+Number(file.warningCount||0),0);process.stdout.write(String(total));")
-
+          PROBLEM_COUNT=$(jq 'reduce .[] as $f (0; . + ($f.errorCount // 0) + ($f.warningCount // 0))' lint-results.json)
+          
           echo "Lint problems found: ${PROBLEM_COUNT}"
           echo "Allowed threshold: ${LINT_THRESHOLD}"
 
