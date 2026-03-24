@@ -11,10 +11,10 @@ Organize, read, annotate, sync across devices, and share without relying on thir
 [![Release](https://img.shields.io/github/v/release/grimmory-tools/grimmory?color=818CF8&style=flat-square&logo=github)](https://github.com/grimmory-tools/grimmory/releases)
 [![License](https://img.shields.io/github/license/grimmory-tools/grimmory?color=fab005&style=flat-square)](LICENSE)
 [![Docker Pulls](https://img.shields.io/docker/pulls/grimmory/grimmory?color=2496ED&style=flat-square&logo=docker&logoColor=white)](https://hub.docker.com/r/grimmory/grimmory)
-[![Discord](https://img.shields.io/badge/Discord-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discord.gg/FwqHeFWk)
+[![Discord](https://img.shields.io/badge/Discord-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discord.gg/9YJ7HB4n8T)
 
 
-[Website](https://grimmory.org/) | [Documentation](https://grimmory.org/docs/getting-started) | [Quick Start](#quick-start) | [Discord](https://discord.gg/FwqHeFWk)
+[Website](https://grimmory.org/) | [Documentation](https://grimmory.org/docs/getting-started) | [Quick Start](#quick-start) | [Discord](https://discord.gg/9YJ7HB4n8T)
 
 ![Grimmory Demo](assets/demo.gif)
 
@@ -236,7 +236,7 @@ All other features — reading, metadata, sync — remain fully functional.
 | Report a bug | [Open an issue](https://github.com/grimmory-tools/grimmory/issues/new?template=bug_report.yml) |
 | Request a feature | [Open an issue](https://github.com/grimmory-tools/grimmory/issues/new?template=feature_request.yml) |
 | Contribute | [Contributing Guide](CONTRIBUTING.md) |
-| Join the discussion | [Discord Server](https://discord.gg/FwqHeFWk) |
+| Join the discussion | [Discord Server](https://discord.gg/9YJ7HB4n8T) |
 
 > [!WARNING]
 > Before opening a pull request, open an issue first and get maintainer approval. Pull requests without a linked issue, without screenshots or video proof, or without pasted test output will be closed. All code must follow the project [backend](CONTRIBUTING.md#backend-conventions) and [frontend](CONTRIBUTING.md#frontend-conventions) conventions. AI-assisted contributions are welcome, but you must run, test, and understand every line you submit. See the [Contributing Guide](CONTRIBUTING.md) for full details.
