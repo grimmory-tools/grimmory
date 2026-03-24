@@ -69,7 +69,7 @@ jobs:
           echo "Build warnings found: ${BUILD_WARNING_COUNT}"
           echo "BUILD_WARNING_COUNT=${BUILD_WARNING_COUNT}" >> "$GITHUB_ENV"
 
-      - name: Run Angular Lint
+      - name: Run Frontend Linter
         working-directory: ./booklore-ui
         run: |
           # Lint output is written to JSON for threshold evaluation.
