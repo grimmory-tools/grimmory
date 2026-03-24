@@ -11,6 +11,8 @@ import {IconCategoriesHelper} from '../../helpers/icon-categories.helper';
 import {Button} from 'primeng/button';
 import {TabsModule} from 'primeng/tabs';
 import {UserService} from '../../../features/settings/user-management/user.service';
+import {from, of} from 'rxjs';
+import {catchError, mergeMap, toArray} from 'rxjs/operators';
 
 interface SvgEntry {
   name: string;
@@ -43,6 +45,8 @@ interface SvgIconBatchResponse {
   styleUrl: './icon-picker-component.scss'
 })
 export class IconPickerComponent implements OnInit {
+
+  private hasLoadedSvgIcons = false;
 
   private readonly MAX_ICON_NAME_LENGTH = 255;
   private readonly MAX_SVG_SIZE = 1048576; // 1MB
@@ -80,8 +84,8 @@ export class IconPickerComponent implements OnInit {
 
   set activeTabIndex(value: string) {
     this._activeTabIndex = value;
-    if (value === '1' && this.svgIcons.length === 0) {
-      this.loadSvgIconsFromCache();
+    if (value === '1' && !this.hasLoadedSvgIcons && !this.isLoadingSvgIcons) {
+      this.loadSvgIcons();
     }
   }
 
@@ -110,8 +114,8 @@ export class IconPickerComponent implements OnInit {
 
 
   ngOnInit(): void {
-    if (this.activeTabIndex === '1') {
-      this.loadSvgIconsFromCache();
+    if (this.activeTabIndex === '1' && !this.hasLoadedSvgIcons && !this.isLoadingSvgIcons) {
+      this.loadSvgIcons();
     }
   }
 
@@ -130,8 +134,37 @@ export class IconPickerComponent implements OnInit {
     this.ref.close({type: 'PRIME_NG', value: icon});
   }
 
-  private loadSvgIconsFromCache(): void {
-    this.svgIcons = this.iconCache.getAllIconNames();
+  private loadSvgIcons(): void {
+    this.isLoadingSvgIcons = true;
+    this.svgIconsError = '';
+
+    this.iconService.getIconNames().subscribe({
+      next: (names) => {
+        this.hasLoadedSvgIcons = true;
+        if (names.length === 0) {
+          this.svgIcons = [];
+          this.isLoadingSvgIcons = false;
+          return;
+        }
+        from(names).pipe(
+          mergeMap(name =>
+            this.iconCache.getCachedSanitized(name)
+              ? of(null)
+              : this.iconService.getSvgIconContent(name).pipe(catchError(() => of(null))),
+            5
+          ),
+          toArray()
+        ).subscribe(() => {
+          this.svgIcons = names;
+          this.isLoadingSvgIcons = false;
+        });
+      },
+      error: () => {
+        this.isLoadingSvgIcons = false;
+        this.hasLoadedSvgIcons = false;
+        this.svgIconsError = this.ERROR_MESSAGES.LOAD_ICONS_ERROR;
+      }
+    });
   }
 
   getSvgContent(iconName: string): SafeHtml | null {
@@ -264,7 +297,8 @@ export class IconPickerComponent implements OnInit {
         }
 
         this.clearAllEntries();
-        this.loadSvgIconsFromCache();
+        this.hasLoadedSvgIcons = false;
+        this.loadSvgIcons();
       },
       error: () => {
         this.isSavingBatch = false;
