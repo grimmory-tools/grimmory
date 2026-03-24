@@ -1,4 +1,4 @@
-name: Angular Lint Threshold
+name: CI - Frontend Lint Threshold
 
 on:
   pull_request:
