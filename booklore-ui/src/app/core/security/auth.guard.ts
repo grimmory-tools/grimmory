@@ -2,7 +2,7 @@ import {inject} from '@angular/core';
 import {CanActivateFn, Router} from '@angular/router';
 import {AuthService} from '../../shared/service/auth.service';
 
-export const AuthGuard: CanActivateFn = (route, state) => {
+export const AuthGuard: CanActivateFn = () => {
   const router = inject(Router);
   const authService = inject(AuthService);
 
@@ -20,7 +20,7 @@ export const AuthGuard: CanActivateFn = (route, state) => {
         return false;
       }
       return true;
-    } catch (e) {
+    } catch {
       localStorage.removeItem('accessToken_Internal');
       router.navigate(['/login']);
       return false;
