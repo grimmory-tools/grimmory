@@ -1,6 +1,6 @@
-import {Component, ElementRef, HostListener, inject, OnDestroy, OnInit} from '@angular/core';
-import {BehaviorSubject, of, Subscription} from 'rxjs';
-import {catchError, debounceTime, distinctUntilChanged, switchMap, tap} from 'rxjs/operators';
+import {Component, ElementRef, HostListener, computed, inject, signal} from '@angular/core';
+import {toObservable, toSignal} from '@angular/core/rxjs-interop';
+import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
 import {Book} from '../../model/book.model';
 import {FormsModule} from '@angular/forms';
 import {InputTextModule} from 'primeng/inputtext';
@@ -12,7 +12,7 @@ import {UrlHelperService} from '../../../../shared/service/url-helper.service';
 import {Router} from '@angular/router';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
-import {HeaderFilter} from '../book-browser/filters/HeaderFilter';
+import {filterBooksBySearchTerm} from '../book-browser/filters/HeaderFilter';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 @Component({
@@ -31,43 +31,41 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
   styleUrls: ['./book-searcher.component.scss'],
   standalone: true
 })
-export class BookSearcherComponent implements OnInit, OnDestroy {
-  searchQuery: string = '';
-  books: Book[] = [];
-  isLoading = false;
+export class BookSearcherComponent {
+  searchQuery = '';
   activeIndex = -1;
-  #searchSubject = new BehaviorSubject<string>('');
-  #subscription!: Subscription;
   isSearchFocused = false;
+
+  private readonly searchTerm = signal('');
+  private readonly debouncedSearchTerm = toSignal(
+    toObservable(this.searchTerm).pipe(
+      debounceTime(200),
+      distinctUntilChanged()
+    ),
+    {initialValue: ''}
+  );
+  private readonly filteredBooks = computed(() => {
+    const term = this.debouncedSearchTerm().trim();
+    if (term.length < 2) {
+      return [];
+    }
+
+    return filterBooksBySearchTerm(this.bookService.books(), term).slice(0, 50);
+  });
 
   private bookService = inject(BookService);
   private router = inject(Router);
   protected urlHelper = inject(UrlHelperService);
   private readonly t = inject(TranslocoService);
   private elRef = inject(ElementRef);
-  private headerFilter = new HeaderFilter(
-    this.#searchSubject.pipe(debounceTime(200), distinctUntilChanged())
-  );
 
-  ngOnInit(): void {
-    this.#subscription = this.bookService.bookState$.pipe(
-      tap(() => {
-        if (this.searchQuery.trim().length >= 2) {
-          this.isLoading = true;
-        }
-      }),
-      switchMap(bookState => this.headerFilter.filter(bookState)),
-      catchError(() => of({books: [], loaded: true, error: null}))
-    ).subscribe({
-      next: (filteredState) => {
-        this.isLoading = false;
-        this.activeIndex = -1;
-        const term = this.searchQuery.trim();
-        this.books = term.length >= 2
-          ? (filteredState.books || []).slice(0, 50)
-          : [];
-      }
-    });
+  get books(): Book[] {
+    return this.filteredBooks();
+  }
+
+  get isLoading(): boolean {
+    const rawTerm = this.searchTerm().trim();
+    return rawTerm.length >= 2 && rawTerm !== this.debouncedSearchTerm().trim();
   }
 
   getAuthorNames(authors: string[] | undefined): string {
@@ -89,7 +87,8 @@ export class BookSearcherComponent implements OnInit, OnDestroy {
   }
 
   onSearchInputChange(): void {
-    this.#searchSubject.next(this.searchQuery.trim());
+    this.searchTerm.set(this.searchQuery.trim());
+    this.activeIndex = -1;
   }
 
   onBookClick(book: Book): void {
@@ -101,8 +100,8 @@ export class BookSearcherComponent implements OnInit, OnDestroy {
 
   clearSearch(): void {
     this.searchQuery = '';
-    this.books = [];
-    this.isLoading = false;
+    this.searchTerm.set('');
+    this.activeIndex = -1;
   }
 
   get isDropdownOpen(): boolean {
@@ -138,12 +137,6 @@ export class BookSearcherComponent implements OnInit, OnDestroy {
         this.clearSearch();
         (event.target as HTMLElement).blur();
         break;
-    }
-  }
-
-  ngOnDestroy(): void {
-    if (this.#subscription) {
-      this.#subscription.unsubscribe();
     }
   }
 }

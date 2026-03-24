@@ -9,12 +9,12 @@
             <p-select
               fluid
               id="library-dropdown"
-              [options]="libraryOptions"
-              [(ngModel)]="selectedLibrary"
+              [options]="libraryOptions()"
+              [ngModel]="selectedLibrary()"
               optionLabel="name"
               size="small"
               [placeholder]="t('main.selectLibrary')"
-              (onChange)="onLibraryChange()"
+              (ngModelChange)="onLibraryChange($event)"
               appendTo="body"
               [style]="{'min-width': '200px'}"
               class="library-dropdown">
@@ -33,31 +33,31 @@
           <div class="total-item total-books" [title]="t('main.totalBooks')">
             <i class="pi pi-book"></i>
             <span class="total-label">{{ t('main.books') }}</span>
-            <span class="total-value">{{ totalBooks$ | async }}</span>
+            <span class="total-value">{{ booksSummary().totalBooks }}</span>
           </div>
 
           <div class="total-item total-authors" [title]="t('main.totalAuthors')">
             <i class="pi pi-users"></i>
             <span class="total-label">{{ t('main.authors') }}</span>
-            <span class="total-value">{{ totalAuthors$ | async }}</span>
+            <span class="total-value">{{ booksSummary().totalAuthors }}</span>
           </div>
 
           <div class="total-item total-series" [title]="t('main.totalSeries')">
             <i class="pi pi-bookmark"></i>
             <span class="total-label">{{ t('main.series') }}</span>
-            <span class="total-value">{{ totalSeries$ | async }}</span>
+            <span class="total-value">{{ booksSummary().totalSeries }}</span>
           </div>
 
           <div class="total-item total-publishers" [title]="t('main.totalPublishers')">
             <i class="pi pi-building"></i>
             <span class="total-label">{{ t('main.publishers') }}</span>
-            <span class="total-value">{{ totalPublishers$ | async }}</span>
+            <span class="total-value">{{ booksSummary().totalPublishers }}</span>
           </div>
 
           <div class="total-item total-size" [title]="t('main.totalSize')">
             <i class="pi pi-file"></i>
             <span class="total-label">{{ t('main.librarySize') }}</span>
-            <span class="total-value">{{ totalSize$ | async }}</span>
+            <span class="total-value">{{ totalSize() }}</span>
           </div>
         </div>
       </div>
@@ -141,7 +141,7 @@
     </div>
   }
 
-  @if (!isLoading && hasData) {
+  @if (!isLoading() && hasData()) {
     <div class="charts-grid"
          cdkDropList
          (cdkDropListDropped)="onChartReorder($event)"
@@ -191,13 +191,13 @@
     </div>
   }
 
-  @if (isLoading) {
+  @if (isLoading()) {
     <div class="loading-message">
       {{ t('main.loading') }}
     </div>
   }
 
-  @if (!isLoading && !hasData) {
+  @if (!isLoading() && !hasData()) {
     <div class="no-data-message">
       {{ t('main.noData') }}
       <small>{{ t('main.noDataHint') }}</small>

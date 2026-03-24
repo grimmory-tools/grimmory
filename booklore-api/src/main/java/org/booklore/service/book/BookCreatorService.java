@@ -1,5 +1,6 @@
 package org.booklore.service.book;
 
+import lombok.extern.slf4j.Slf4j;
 import org.booklore.model.dto.ComicMetadata;
 import org.booklore.model.dto.settings.LibraryFile;
 import org.booklore.model.entity.*;
@@ -8,8 +9,8 @@ import org.booklore.model.enums.ComicCreatorRole;
 import org.booklore.repository.*;
 import org.booklore.service.file.FileFingerprint;
 import org.booklore.util.FileUtils;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.*;
@@ -180,6 +181,7 @@ public class BookCreatorService {
         return input.length() <= maxLength ? input : input.substring(0, maxLength);
     }
 
+    @Transactional
     public void saveConnections(BookEntity bookEntity) {
         if (bookEntity.getMetadata().getAuthors() != null && !bookEntity.getMetadata().getAuthors().isEmpty()) {
             authorRepository.saveAll(bookEntity.getMetadata().getAuthors());

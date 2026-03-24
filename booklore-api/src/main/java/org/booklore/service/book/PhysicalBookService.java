@@ -150,7 +150,7 @@ public class PhysicalBookService {
 
     @Transactional
     public Book togglePhysicalFlag(long bookId, boolean physical) {
-        BookEntity book = bookRepository.findById(bookId)
+        BookEntity book = bookRepository.findByIdWithBookFiles(bookId)
                 .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
         book.setIsPhysical(physical);
         bookRepository.save(book);

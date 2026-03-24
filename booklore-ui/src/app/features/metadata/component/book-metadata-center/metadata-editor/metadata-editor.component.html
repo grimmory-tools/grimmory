@@ -1,4 +1,4 @@
-@if (book$ | async; as book) {
+@if (book; as book) {
   <form [formGroup]="metadataForm" class="metadata-form" *transloco="let t; prefix: 'metadata.editor'">
     @if (isLoading) {
       <div class="loading-overlay"></div>
@@ -952,7 +952,7 @@
             </div>
           }
 
-          @if (navigationState$ | async) {
+          @if (navigationState()) {
             <div class="navigation-center">
               <p-button
                 icon="pi pi-chevron-left"
@@ -965,7 +965,7 @@
                 tooltipPosition="bottom">
               </p-button>
               <span class="navigation-position">
-                  {{ getNavigationPosition() }}
+                  {{ navigationPosition() }}
                 </span>
               <p-button
                 icon="pi pi-chevron-right"
@@ -1023,7 +1023,7 @@
           }
 
           <div class="mobile-actions-row">
-            @if (navigationState$ | async) {
+            @if (navigationState()) {
               <div class="navigation-center">
                 <p-button
                   icon="pi pi-chevron-left"
@@ -1036,7 +1036,7 @@
                   tooltipPosition="bottom">
                 </p-button>
                 <span class="navigation-position">
-                  {{ getNavigationPosition() }}
+                  {{ navigationPosition() }}
                 </span>
                 <p-button
                   icon="pi pi-chevron-right"

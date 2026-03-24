@@ -129,7 +129,7 @@ class OpdsUserV2ServiceTest {
         OpdsUserV2Entity target = mock(OpdsUserV2Entity.class);
         when(target.getUser()).thenReturn(ownerEntity);
 
-        when(opdsUserV2Repository.findById(100L)).thenReturn(Optional.of(target));
+        when(opdsUserV2Repository.findByIdWithUser(100L)).thenReturn(Optional.of(target));
 
         service.deleteOpdsUser(100L);
 
@@ -148,7 +148,7 @@ class OpdsUserV2ServiceTest {
         OpdsUserV2Entity target = mock(OpdsUserV2Entity.class);
         when(target.getUser()).thenReturn(ownerEntity);
 
-        when(opdsUserV2Repository.findById(200L)).thenReturn(Optional.of(target));
+        when(opdsUserV2Repository.findByIdWithUser(200L)).thenReturn(Optional.of(target));
 
         assertThrows(AccessDeniedException.class, () -> service.deleteOpdsUser(200L));
         verify(opdsUserV2Repository, never()).delete(any());
@@ -179,7 +179,7 @@ class OpdsUserV2ServiceTest {
         BookLoreUser authUser = mock(BookLoreUser.class);
         when(authenticationService.getAuthenticatedUser()).thenReturn(authUser);
 
-        when(opdsUserV2Repository.findById(300L)).thenReturn(Optional.empty());
+        when(opdsUserV2Repository.findByIdWithUser(300L)).thenReturn(Optional.empty());
 
         RuntimeException ex = assertThrows(RuntimeException.class, () -> service.deleteOpdsUser(300L));
         assertTrue(ex.getMessage().contains("User not found with ID: 300"));

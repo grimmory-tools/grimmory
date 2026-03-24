@@ -1,5 +1,5 @@
-import {inject, Injectable} from '@angular/core';
-import {BehaviorSubject, forkJoin, Observable} from 'rxjs';
+import {inject, Injectable, signal} from '@angular/core';
+import {forkJoin, Observable} from 'rxjs';
 import {map, tap} from 'rxjs/operators';
 import {Theme, themes} from './themes.constant';
 import {BookService} from '../../../book/service/book.service';
@@ -55,19 +55,12 @@ export class ReaderStateService {
     flow: 'paginated',
   };
 
-  private stateSubject = new BehaviorSubject<ReaderState>(this.defaultState);
-  public state$ = this.stateSubject.asObservable();
-
-  get currentState(): ReaderState {
-    return this.stateSubject.value;
-  }
+  private readonly _state = signal<ReaderState>(this.defaultState);
+  readonly state = this._state.asReadonly();
 
   readonly themes = themes;
-  private fontsSubject = new BehaviorSubject<Array<{ name: string; value: string | null }>>(this.BASE_FONTS);
-
-  get fonts(): Array<{ name: string; value: string | null }> {
-    return this.fontsSubject.value;
-  }
+  private readonly _fonts = signal<Array<{ name: string; value: string | null }>>(this.BASE_FONTS);
+  readonly fonts = this._fonts.asReadonly();
 
   constructor(private bookService: BookService, private userService: UserService) {
     this.loadCustomFontsIntoList();
@@ -81,15 +74,15 @@ export class ReaderStateService {
     }));
 
     const updatedFonts = [
-      ...this.fontsSubject.value,
+      ...this._fonts(),
       ...customFontOptions
     ];
 
-    this.fontsSubject.next(updatedFonts);
+    this._fonts.set(updatedFonts);
   }
 
   refreshCustomFonts(): void {
-    this.fontsSubject.next([...this.BASE_FONTS]);
+    this._fonts.set([...this.BASE_FONTS]);
     this.loadCustomFontsIntoList();
   }
 
@@ -150,33 +143,33 @@ export class ReaderStateService {
   }
 
   updateLineHeight(delta: number): void {
-    const current = this.currentState.lineHeight;
+    const current = this._state().lineHeight;
     const newValue = Math.max(0.8, Math.min(3, current + delta));
     this.updateState({lineHeight: newValue});
   }
 
   updateMaxColumnCount(delta: number): void {
-    const current = this.currentState.maxColumnCount;
+    const current = this._state().maxColumnCount;
     const newValue = Math.max(1, Math.min(10, current + delta));
     this.updateState({maxColumnCount: newValue});
   }
 
   updateGap(delta: number): void {
-    const current = this.currentState.gap;
+    const current = this._state().gap;
     const newValue = Math.max(0, Math.min(0.5, current + delta));
     this.updateState({gap: newValue});
   }
 
   toggleJustify(): void {
-    this.updateState({justify: !this.currentState.justify});
+    this.updateState({justify: !this._state().justify});
   }
 
   toggleHyphenate(): void {
-    this.updateState({hyphenate: !this.currentState.hyphenate});
+    this.updateState({hyphenate: !this._state().hyphenate});
   }
 
   updateFontSize(delta: number): void {
-    const newFontSize = Math.max(10, Math.min(32, this.currentState.fontSize + delta));
+    const newFontSize = Math.max(10, Math.min(32, this._state().fontSize + delta));
     this.updateState({fontSize: newFontSize});
   }
 
@@ -195,18 +188,19 @@ export class ReaderStateService {
   }
 
   updateMaxInlineSize(delta: number): void {
-    const newValue = Math.max(400, Math.min(1600, this.currentState.maxInlineSize + delta));
+    const newValue = Math.max(400, Math.min(1600, this._state().maxInlineSize + delta));
     this.updateState({maxInlineSize: newValue});
   }
 
   updateMaxBlockSize(delta: number): void {
-    const newValue = Math.max(600, Math.min(2400, this.currentState.maxBlockSize + delta));
+    const newValue = Math.max(600, Math.min(2400, this._state().maxBlockSize + delta));
     this.updateState({maxBlockSize: newValue});
   }
 
   toggleDarkMode() {
-    const currentTheme = this.currentState.theme;
-    const newIsDark = !this.currentState.isDark;
+    const currentState = this._state();
+    const currentTheme = currentState.theme;
+    const newIsDark = !currentState.isDark;
     const newTheme = {
       ...currentTheme,
       fg: newIsDark ? currentTheme.dark.fg : currentTheme.light.fg,
@@ -219,21 +213,22 @@ export class ReaderStateService {
   setThemeByName(themeName: string) {
     const theme = this.themes.find(t => t.name === themeName);
     if (theme) {
+      const currentState = this._state();
       const newTheme = {
         ...theme,
-        fg: this.currentState.isDark ? theme.dark.fg : theme.light.fg,
-        bg: this.currentState.isDark ? theme.dark.bg : theme.light.bg,
-        link: this.currentState.isDark ? theme.dark.link : theme.light.link,
+        fg: currentState.isDark ? theme.dark.fg : theme.light.fg,
+        bg: currentState.isDark ? theme.dark.bg : theme.light.bg,
+        link: currentState.isDark ? theme.dark.link : theme.light.link,
       };
       this.setTheme(newTheme);
     }
   }
 
   setFlow(flow: 'paginated' | 'scrolled'): void {
-    this.updateState({ flow });
+    this.updateState({flow});
   }
 
   private updateState(partial: Partial<ReaderState>): void {
-    this.stateSubject.next({...this.currentState, ...partial});
+    this._state.update(current => ({...current, ...partial}));
   }
 }

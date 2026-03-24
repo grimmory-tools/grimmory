@@ -1,12 +1,12 @@
 <ng-container *transloco="let t; prefix: 'readerEbook.sidebar'">
-@if (isOpen) {
-  <div class="sidebar-overlay" (click)="onOverlayClick()" [class.closing]="closing">
-    <aside class="sidebar" (click)="$event.stopPropagation()" [class.closing]="closing">
+@if (isOpen()) {
+  <div class="sidebar-overlay" (click)="onOverlayClick()" [class.closing]="closing()">
+    <aside class="sidebar" (click)="$event.stopPropagation()" [class.closing]="closing()">
       <!-- Header with book info -->
       <header class="sidebar-header">
-        @if (bookInfo.coverUrl) {
+        @if (bookInfo().coverUrl) {
           <img
-            [src]="bookInfo.coverUrl"
+            [src]="bookInfo().coverUrl"
             [alt]="t('bookCoverAlt')"
             class="book-cover"
             (click)="onCoverClick()"
@@ -16,9 +16,9 @@
           />
         }
         <div class="book-meta">
-          <h2 class="book-title">{{ bookInfo.title }}</h2>
-          @if (bookInfo.authors) {
-            <p class="book-authors">{{ bookInfo.authors }}</p>
+          <h2 class="book-title">{{ bookInfo().title }}</h2>
+          @if (bookInfo().authors) {
+            <p class="book-authors">{{ bookInfo().authors }}</p>
           }
         </div>
       </header>
@@ -27,39 +27,39 @@
       <nav class="tabs">
         <button
           class="tab"
-          [class.active]="activeTab === 'chapters'"
+          [class.active]="activeTab() === 'chapters'"
           (click)="setActiveTab('chapters')">
           <app-reader-icon name="book" class="tab-icon"></app-reader-icon>
           <span>{{ t('contentsTab') }}</span>
         </button>
         <button
           class="tab"
-          [class.active]="activeTab === 'bookmarks'"
+          [class.active]="activeTab() === 'bookmarks'"
           (click)="setActiveTab('bookmarks')">
           <app-reader-icon name="bookmark" class="tab-icon"></app-reader-icon>
           <span>{{ t('bookmarksTab') }}</span>
-          @if (bookmarks.length > 0) {
-            <span class="badge">{{ bookmarks.length }}</span>
+          @if (bookmarks().length > 0) {
+            <span class="badge">{{ bookmarks().length }}</span>
           }
         </button>
         <button
           class="tab"
-          [class.active]="activeTab === 'highlights'"
+          [class.active]="activeTab() === 'highlights'"
           (click)="setActiveTab('highlights')">
           <app-reader-icon name="edit" class="tab-icon"></app-reader-icon>
           <span>{{ t('highlightsTab') }}</span>
-          @if (annotations.length > 0) {
-            <span class="badge">{{ annotations.length }}</span>
+          @if (annotations().length > 0) {
+            <span class="badge">{{ annotations().length }}</span>
           }
         </button>
       </nav>
 
       <!-- Tab content -->
       <div class="content">
-        @switch (activeTab) {
+        @switch (activeTab()) {
           @case ('chapters') {
             <ul class="chapter-list" role="tree">
-              @for (chapter of chapters; track chapter.href) {
+              @for (chapter of chapters(); track chapter.href) {
                 <ng-container *ngTemplateOutlet="chapterItem; context: { $implicit: chapter, depth: 0 }"/>
               }
             </ul>
@@ -94,9 +94,9 @@
           }
 
           @case ('bookmarks') {
-            @if (bookmarks.length > 0) {
+            @if (bookmarks().length > 0) {
               <ul class="item-list">
-                @for (bookmark of bookmarks; track bookmark.id) {
+                @for (bookmark of bookmarks(); track bookmark.id) {
                   <li class="list-item" (click)="onBookmarkClick(bookmark.cfi!)">
                     <div class="item-content">
                       <span class="item-title">{{ bookmark.title }}</span>
@@ -118,9 +118,9 @@
           }
 
           @case ('highlights') {
-            @if (annotations.length > 0) {
+            @if (annotations().length > 0) {
               <ul class="item-list">
-                @for (annotation of annotations; track annotation.id) {
+                @for (annotation of annotations(); track annotation.id) {
                   <li class="list-item highlight-item" (click)="onAnnotationClick(annotation.cfi)">
                     <div class="highlight-bar" [style.background-color]="annotation.color"></div>
                     <div class="item-content">

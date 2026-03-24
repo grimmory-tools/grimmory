@@ -1,15 +1,13 @@
-import {Component, inject, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, effect, inject, Input, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {BaseChartDirective} from 'ng2-charts';
 import {ChartConfiguration, ChartData, TooltipItem} from 'chart.js';
-import {BehaviorSubject, EMPTY, Observable, Subject} from 'rxjs';
-import {catchError, filter, first, switchMap, takeUntil} from 'rxjs/operators';
+import {BehaviorSubject, Observable} from 'rxjs';
 import {Select} from 'primeng/select';
 import {LibraryFilterService} from '../../service/library-filter.service';
 import {BookService} from '../../../../../book/service/book.service';
 import {Book, ReadStatus} from '../../../../../book/model/book.model';
-import {BookState} from '../../../../../book/model/state/book-state.model';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 interface ItemStats {
@@ -80,7 +78,7 @@ const READ_STATUS_ORDER: ReadStatus[] = [
   templateUrl: './top-items-chart.component.html',
   styleUrls: ['./top-items-chart.component.scss']
 })
-export class TopItemsChartComponent implements OnInit, OnDestroy {
+export class TopItemsChartComponent implements OnInit {
   @Input() initialDataType: DataType | null = null;
 
   public readonly chartType = 'bar' as const;
@@ -96,7 +94,13 @@ export class TopItemsChartComponent implements OnInit, OnDestroy {
   private readonly bookService = inject(BookService);
   private readonly libraryFilterService = inject(LibraryFilterService);
   private readonly t = inject(TranslocoService);
-  private readonly destroy$ = new Subject<void>();
+  private readonly syncChartEffect = effect(() => {
+    if (this.bookService.isBooksLoading()) {
+      return;
+    }
+
+    this.loadAndProcessData(this.bookService.books(), this.libraryFilterService.selectedLibrary());
+  });
   private readonly chartDataSubject: BehaviorSubject<ItemChartData>;
   private lastCalculatedStats: ItemStats[] = [];
   private allBooks: Book[] = [];
@@ -125,29 +129,6 @@ export class TopItemsChartComponent implements OnInit, OnDestroy {
         this.initChartOptions();
       }
     }
-
-    this.bookService.bookState$
-      .pipe(
-        filter(state => state.loaded),
-        first(),
-        switchMap(() =>
-          this.libraryFilterService.selectedLibrary$.pipe(
-            takeUntil(this.destroy$)
-          )
-        ),
-        catchError((error) => {
-          console.error('Error processing top items stats:', error);
-          return EMPTY;
-        })
-      )
-      .subscribe(() => {
-        this.loadAndProcessData();
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   onDataTypeChange(): void {
@@ -255,17 +236,14 @@ export class TopItemsChartComponent implements OnInit, OnDestroy {
     };
   }
 
-  private loadAndProcessData(): void {
-    const currentState = this.bookService.getCurrentBookState();
-    const selectedLibraryId = this.libraryFilterService.getCurrentSelectedLibrary();
-
-    if (!this.isValidBookState(currentState)) {
+  private loadAndProcessData(books: Book[], selectedLibraryId: number | null): void {
+    if (books.length === 0) {
       this.allBooks = [];
       this.updateChartData([]);
       return;
     }
 
-    this.allBooks = this.filterBooksByLibrary(currentState.books!, selectedLibraryId);
+    this.allBooks = this.filterBooksByLibrary(books, selectedLibraryId);
     this.processData();
   }
 
@@ -440,18 +418,6 @@ export class TopItemsChartComponent implements OnInit, OnDestroy {
       default:
         return [];
     }
-  }
-
-  private isValidBookState(state: unknown): state is BookState {
-    return (
-      typeof state === 'object' &&
-      state !== null &&
-      'loaded' in state &&
-      typeof (state as { loaded: boolean }).loaded === 'boolean' &&
-      'books' in state &&
-      Array.isArray((state as { books: unknown }).books) &&
-      (state as { books: Book[] }).books.length > 0
-    );
   }
 
   private filterBooksByLibrary(books: Book[], selectedLibraryId: number | null): Book[] {

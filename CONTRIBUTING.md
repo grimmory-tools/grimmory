@@ -21,6 +21,7 @@ Thanks for your interest in contributing to Grimmory! Whether you're fixing bugs
 - [Getting Started](#getting-started)
 - [Development Setup](#development-setup)
 - [Running Tests](#running-tests)
+- [Building the Production Docker Image](#building-the-production-docker-image)
 - [Making Changes](#making-changes)
 - [Submitting a Pull Request](#submitting-a-pull-request)
 - [Backend Conventions](#backend-conventions)
@@ -208,6 +209,66 @@ cd booklore-api
 ./gradlew test --tests "com.booklore.api.service.BookServiceTest"     # Specific class
 ./gradlew test jacocoTestReport                                       # Coverage report
 ```
+
+---
+
+## Building the Production Docker Image
+
+To verify your changes in an environment identical to production, build and run the full Docker image locally. The multi-stage `Dockerfile` in the project root compiles both the Angular frontend and the Spring Boot backend, so you don't need any local toolchain beyond Docker.
+
+> **Note:** The first build downloads dependencies and caches them in Docker layers. Subsequent builds are significantly faster.
+
+### Run
+
+You need a MariaDB instance accessible to the container. The easiest way is to use the existing Docker Compose database from the dev stack, or bring your own:
+
+```bash
+
+# From the repository root
+docker build -t grimmory:local .
+
+# Start only the database from the dev stack
+docker compose -f dev.docker-compose.yml up -d backend_db
+
+# Run the production image against it, reusing the dev stack's data
+docker run --rm -it \
+  --name grimmory-local \
+  --network host \
+  -e "SPRING_DATASOURCE_URL=jdbc:mariadb://localhost:3366/booklore?createDatabaseIfNotExist=true" \
+  -e "SPRING_DATASOURCE_USERNAME=booklore" \
+  -e "SPRING_DATASOURCE_PASSWORD=booklore" \
+  -v ./shared/data:/app/data \
+  -v ./shared/books:/books \
+  -v ./shared/bookdrop:/bookdrop \
+  -p 6060:6060 \
+  grimmory:local
+```
+
+The application will be available at http://localhost:6060.
+
+### Cleanup
+
+```bash
+# Stop and remove the container
+docker stop grimmory-local
+
+# Stop the database service when done
+docker compose -f dev.docker-compose.yml down
+```
+
+### Cross-platform build (optional)
+
+If you want to test a different architecture (e.g., ARM64 on an x86 machine):
+
+```bash
+docker buildx build --platform linux/arm64 -t grimmory:local-arm64 --load .
+```
+
+### Tips
+
+- **Memory:** The image defaults to 60% of container RAM. Limit with `--memory=512m` or similar to simulate constrained environments.
+- **Volumes:** Mount your book directories to `/books`, data/config to `/app/data`, and an optional bookdrop folder to `/bookdrop`. The example above reuses the dev stack's `shared/` folders so your existing library and covers are available.
+- **Logs:** Application logs are written to stdout. Use `docker logs -f grimmory-local` to follow them.
 
 ---
 

@@ -1,5 +1,4 @@
-import {inject, Injectable} from '@angular/core';
-import {combineLatest, map, Observable, of, shareReplay} from 'rxjs';
+import {computed, inject, Injectable, Signal} from '@angular/core';
 import {Book} from '../../../model/book.model';
 import {Library} from '../../../model/library.model';
 import {Shelf} from '../../../model/shelf.model';
@@ -21,31 +20,57 @@ export class BookFilterService {
   private readonly libraryService = inject(LibraryService);
   private readonly bookRuleEvaluatorService = inject(BookRuleEvaluatorService);
 
-  createFilterStreams(
-    entity$: Observable<Library | Shelf | MagicShelf | null>,
-    entityType$: Observable<EntityType>,
-    activeFilters$: Observable<Record<string, unknown[]> | null> = of(null),
-    filterMode$: Observable<BookFilterMode> = of('and')
-  ): Record<FilterType, Observable<Filter[]>> {
-    const filteredBooks$ = this.createFilteredBooksStream(entity$, entityType$);
+  createFilterSignals(
+    entity: Signal<Library | Shelf | MagicShelf | null>,
+    entityType: Signal<EntityType>,
+    activeFilters: Signal<Record<string, unknown[]> | null>,
+    filterMode: Signal<BookFilterMode>
+  ): Record<FilterType, Signal<Filter[]>> {
+    const filteredBooks = computed(() =>
+      this.filterBooksByEntity(this.bookService.books(), entity(), entityType())
+    );
 
-    const streams = {} as Record<FilterType, Observable<Filter[]>>;
+    const signals = {} as Record<FilterType, Signal<Filter[]>>;
 
     for (const [type, config] of Object.entries(FILTER_CONFIGS)) {
       const filterType = type as Exclude<FilterType, 'library'>;
-      streams[filterType] = this.createCascadingFilterStream(
-        filteredBooks$,
-        activeFilters$,
-        filterMode$,
-        filterType,
-        FILTER_EXTRACTORS[filterType],
-        config.sortMode
-      );
+      signals[filterType] = computed(() => {
+        const books = filterBooksByFilters(filteredBooks(), activeFilters(), filterMode(), filterType);
+        return this.buildAndSortFilters(books, FILTER_EXTRACTORS[filterType], config.sortMode);
+      });
     }
 
-    streams.library = this.createCascadingLibraryFilterStream(filteredBooks$, activeFilters$, filterMode$);
+    signals.library = computed(() => {
+      const books = filterBooksByFilters(filteredBooks(), activeFilters(), filterMode(), 'library');
+      const libraries = this.libraryService.libraries();
 
-    return streams;
+      const libraryMap = new Map(
+        libraries
+          .filter(lib => lib.id !== undefined)
+          .map(lib => [lib.id!, lib.name])
+      );
+
+      const filterMap = new Map<number, Filter>();
+
+      for (const book of books) {
+        if (book.libraryId == null) continue;
+
+        if (!filterMap.has(book.libraryId)) {
+          filterMap.set(book.libraryId, {
+            value: {
+              id: book.libraryId,
+              name: libraryMap.get(book.libraryId) || `Library ${book.libraryId}`
+            },
+            bookCount: 0
+          });
+        }
+        filterMap.get(book.libraryId)!.bookCount++;
+      }
+
+      return this.sortFiltersByCount(Array.from(filterMap.values()));
+    });
+
+    return signals;
   }
 
   filterBooksByEntity(
@@ -59,9 +84,10 @@ export class BookFilterService {
       case EntityType.LIBRARY:
         return books.filter(book => book.libraryId === (entity as Library).id);
 
-      case EntityType.SHELF:
+      case EntityType.SHELF: {
         const shelfId = (entity as Shelf).id;
         return books.filter(book => book.shelves?.some(s => s.id === shelfId));
+      }
 
       case EntityType.MAGIC_SHELF:
         return this.filterByMagicShelf(books, entity as MagicShelf);
@@ -80,77 +106,6 @@ export class BookFilterService {
 
   isNumericFilter(filterType: string): boolean {
     return NUMERIC_ID_FILTER_TYPES.has(filterType as FilterType);
-  }
-
-  private createFilteredBooksStream(
-    entity$: Observable<Library | Shelf | MagicShelf | null>,
-    entityType$: Observable<EntityType>
-  ): Observable<Book[]> {
-    return combineLatest([
-      this.bookService.bookState$,
-      entity$,
-      entityType$
-    ]).pipe(
-      map(([state, entity, entityType]) =>
-        this.filterBooksByEntity(state.books || [], entity, entityType)
-      ),
-      shareReplay({bufferSize: 1, refCount: true})
-    );
-  }
-
-  private createCascadingFilterStream(
-    books$: Observable<Book[]>,
-    activeFilters$: Observable<Record<string, unknown[]> | null>,
-    filterMode$: Observable<BookFilterMode>,
-    filterType: FilterType,
-    extractor: (book: Book) => FilterValue[],
-    sortMode: SortMode
-  ): Observable<Filter[]> {
-    return combineLatest([books$, activeFilters$, filterMode$]).pipe(
-      map(([books, activeFilters, mode]) => {
-        const filteredBooks = filterBooksByFilters(books, activeFilters, mode, filterType);
-        return this.buildAndSortFilters(filteredBooks, extractor, sortMode);
-      }),
-      shareReplay({bufferSize: 1, refCount: true})
-    );
-  }
-
-  private createCascadingLibraryFilterStream(
-    books$: Observable<Book[]>,
-    activeFilters$: Observable<Record<string, unknown[]> | null>,
-    filterMode$: Observable<BookFilterMode>
-  ): Observable<Filter[]> {
-    return combineLatest([books$, this.libraryService.libraryState$, activeFilters$, filterMode$]).pipe(
-      map(([books, libraryState, activeFilters, mode]) => {
-        const filteredBooks = filterBooksByFilters(books, activeFilters, mode, 'library');
-
-        const libraryMap = new Map(
-          (libraryState.libraries || [])
-            .filter(lib => lib.id !== undefined)
-            .map(lib => [lib.id!, lib.name])
-        );
-
-        const filterMap = new Map<number, Filter>();
-
-        for (const book of filteredBooks) {
-          if (book.libraryId == null) continue;
-
-          if (!filterMap.has(book.libraryId)) {
-            filterMap.set(book.libraryId, {
-              value: {
-                id: book.libraryId,
-                name: libraryMap.get(book.libraryId) || `Library ${book.libraryId}`
-              },
-              bookCount: 0
-            });
-          }
-          filterMap.get(book.libraryId)!.bookCount++;
-        }
-
-        return this.sortFiltersByCount(Array.from(filterMap.values()));
-      }),
-      shareReplay({bufferSize: 1, refCount: true})
-    );
   }
 
   private buildAndSortFilters(

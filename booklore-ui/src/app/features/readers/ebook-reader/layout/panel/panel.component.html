@@ -1,11 +1,11 @@
 <ng-container *transloco="let t; prefix: 'readerEbook.panel'">
-@if (isOpen) {
-  <div class="sidebar-overlay" (click)="onOverlayClick()" [class.closing]="closing">
-    <aside class="sidebar" (click)="$event.stopPropagation()" [class.closing]="closing">
+@if (isOpen()) {
+  <div class="sidebar-overlay" (click)="onOverlayClick()" [class.closing]="closing()">
+    <aside class="sidebar" (click)="$event.stopPropagation()" [class.closing]="closing()">
       <!-- Header -->
       <header class="sidebar-header">
         <h2 class="sidebar-title">
-          @if (activeTab === 'search') {
+          @if (activeTab() === 'search') {
             {{ t('searchTitle') }}
           } @else {
             {{ t('notesTitle') }}
@@ -17,29 +17,29 @@
       <nav class="tabs">
         <button
           class="tab"
-          [class.active]="activeTab === 'search'"
+          [class.active]="activeTab() === 'search'"
           (click)="setActiveTab('search')">
           <app-reader-icon name="search" class="tab-icon"></app-reader-icon>
           <span>{{ t('searchTab') }}</span>
-          @if (searchState.results.length > 0) {
-            <span class="badge">{{ searchState.results.length }}</span>
+          @if (searchState().results.length > 0) {
+            <span class="badge">{{ searchState().results.length }}</span>
           }
         </button>
         <button
           class="tab"
-          [class.active]="activeTab === 'notes'"
+          [class.active]="activeTab() === 'notes'"
           (click)="setActiveTab('notes')">
           <app-reader-icon name="note" class="tab-icon"></app-reader-icon>
           <span>{{ t('notesTab') }}</span>
-          @if (notes.length > 0) {
-            <span class="badge">{{ notes.length }}</span>
+          @if (notes().length > 0) {
+            <span class="badge">{{ notes().length }}</span>
           }
         </button>
       </nav>
 
       <!-- Tab content -->
       <div class="content">
-        @switch (activeTab) {
+        @switch (activeTab()) {
           @case ('search') {
             <div class="search-container">
               <div class="search-input-wrapper">
@@ -59,13 +59,13 @@
                 }
               </div>
 
-              @if (searchState.isSearching) {
+              @if (searchState().isSearching) {
                 <div class="search-progress">
                   <div class="progress-bar">
-                    <div class="progress-fill" [style.width.%]="searchState.progress * 100"></div>
+                    <div class="progress-fill" [style.width.%]="searchState().progress * 100"></div>
                   </div>
                   <div class="progress-info">
-                    <span class="progress-text">{{ t('searching') }} {{ (searchState.progress * 100) | number:'1.0-0' }}%</span>
+                    <span class="progress-text">{{ t('searching') }} {{ (searchState().progress * 100) | number:'1.0-0' }}%</span>
                     <button class="cancel-search-btn" (click)="onCancelSearch()" [title]="t('cancelSearch')">
                       <app-reader-icon name="close" [size]="14"></app-reader-icon>
                     </button>
@@ -73,12 +73,12 @@
                 </div>
               }
 
-              @if (searchState.results.length > 0) {
+              @if (searchState().results.length > 0) {
                 <div class="search-results-header">
-                  <span>{{ searchState.results.length === 1 ? t('resultsFound', { count: searchState.results.length }) : t('resultsFoundPlural', { count: searchState.results.length }) }}</span>
+                  <span>{{ searchState().results.length === 1 ? t('resultsFound', { count: searchState().results.length }) : t('resultsFoundPlural', { count: searchState().results.length }) }}</span>
                 </div>
                 <ul class="item-list search-results">
-                  @for (result of searchState.results; track result.cfi) {
+                  @for (result of searchState().results; track result.cfi) {
                     <li class="list-item search-result-item" (click)="onSearchResultClick(result.cfi)">
                       <div class="item-content">
                         <span class="search-excerpt">
@@ -93,7 +93,7 @@
                     </li>
                   }
                 </ul>
-              } @else if (!searchState.isSearching && searchQuery) {
+              } @else if (!searchState().isSearching && searchQuery) {
                 <div class="empty-state">
                   <app-reader-icon name="search" class="empty-icon" [size]="48" [strokeWidth]="1.5"></app-reader-icon>
                   <p>{{ t('noResultsFound') }}</p>
@@ -111,17 +111,17 @@
 
           @case ('notes') {
             <div class="notes-container">
-              @if (notes.length > 0) {
+              @if (notes().length > 0) {
                 <div class="notes-search-wrapper">
                   <app-reader-icon name="search" class="search-icon" [size]="16"></app-reader-icon>
                   <input
                     type="text"
                     class="search-input"
                     [placeholder]="t('searchNotes')"
-                    [(ngModel)]="notesSearchQuery"
+                    [ngModel]="notesSearchQuery()"
                     (ngModelChange)="onNotesSearchInput($event)"
                   />
-                  @if (notesSearchQuery) {
+                  @if (notesSearchQuery()) {
                     <button class="clear-btn" (click)="clearNotesSearch()" [attr.aria-label]="t('clearSearch')">
                       <app-reader-icon name="close" [size]="14"></app-reader-icon>
                     </button>
@@ -129,9 +129,9 @@
                 </div>
               }
 
-              @if (filteredNotes.length > 0) {
+              @if (filteredNotes().length > 0) {
                 <ul class="item-list">
-                  @for (note of filteredNotes; track note.id) {
+                  @for (note of filteredNotes(); track note.id) {
                     <li class="list-item note-item" (click)="onNoteClick(note.cfi)">
                       <div class="note-bar" [style.background-color]="note.color"></div>
                       <div class="item-content">
@@ -155,7 +155,7 @@
                     </li>
                   }
                 </ul>
-              } @else if (notes.length > 0 && notesSearchQuery) {
+              } @else if (notes().length > 0 && notesSearchQuery()) {
                 <div class="empty-state">
                   <app-reader-icon name="search" class="empty-icon" [size]="48" [strokeWidth]="1.5"></app-reader-icon>
                   <p>{{ t('noMatchingNotes') }}</p>

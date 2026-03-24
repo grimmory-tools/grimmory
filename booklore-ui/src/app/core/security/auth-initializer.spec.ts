@@ -1,22 +1,39 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest';
+import {signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {initializeAuthFactory} from './auth-initializer';
 import {AuthInitializationService} from './auth-initialization-service';
 import {AuthService} from '../../shared/service/auth.service';
 import {AppSettingsService, PublicAppSettings} from '../../shared/service/app-settings.service';
-import {BehaviorSubject} from 'rxjs';
+import {QueryClient, queryOptions} from '@tanstack/angular-query-experimental';
 
 describe('initializeAuthFactory', () => {
   let authInitService: AuthInitializationService;
-  let publicSettingsSubject: BehaviorSubject<PublicAppSettings | null>;
+  let mockQueryClient: { fetchQuery: ReturnType<typeof vi.fn> };
+
+  const defaultPublicSettings: PublicAppSettings = {
+    oidcEnabled: false,
+    remoteAuthEnabled: false,
+    oidcProviderDetails: null!,
+    oidcForceOnlyMode: false,
+  };
 
   beforeEach(() => {
-    publicSettingsSubject = new BehaviorSubject<PublicAppSettings | null>(null);
+    mockQueryClient = {
+      fetchQuery: vi.fn().mockResolvedValue(defaultPublicSettings),
+    };
 
     TestBed.configureTestingModule({
       providers: [
-        {provide: AuthService, useValue: {tokenSubject: {next: vi.fn()}, getInternalAccessToken: vi.fn()}},
-        {provide: AppSettingsService, useValue: {publicAppSettings$: publicSettingsSubject.asObservable()}},
+        {provide: AuthService, useValue: {token: signal(null), getInternalAccessToken: vi.fn()}},
+        {
+          provide: AppSettingsService,
+          useValue: {
+            publicAppSettings: signal(null),
+            getPublicSettingsQueryOptions: () => queryOptions({queryKey: ['public-settings'], queryFn: async () => defaultPublicSettings}),
+          },
+        },
+        {provide: QueryClient, useValue: mockQueryClient},
         AuthInitializationService,
       ]
     });
@@ -32,8 +49,6 @@ describe('initializeAuthFactory', () => {
     const factory = TestBed.runInInjectionContext(() => initializeAuthFactory());
     const initPromise = TestBed.runInInjectionContext(() => factory());
 
-    publicSettingsSubject.next({oidcEnabled: false, remoteAuthEnabled: false, oidcProviderDetails: null!, oidcForceOnlyMode: false});
-
     await initPromise;
 
     expect(markSpy).toHaveBeenCalled();
@@ -48,8 +63,6 @@ describe('initializeAuthFactory', () => {
 
     const factory = TestBed.runInInjectionContext(() => initializeAuthFactory());
     const initPromise = TestBed.runInInjectionContext(() => factory());
-
-    publicSettingsSubject.next({oidcEnabled: false, remoteAuthEnabled: false, oidcProviderDetails: null!, oidcForceOnlyMode: false});
 
     await initPromise;
 

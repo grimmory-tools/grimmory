@@ -1,13 +1,9 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, DestroyRef, effect, inject, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
 import {TranslocoDirective} from '@jsverse/transloco';
-import {ReaderSidebarService, SidebarBookInfo, SidebarTab} from './sidebar.service';
 import {TocItem} from 'epubjs';
-import {BookMark} from '../../../../../shared/service/book-mark.service';
-import {Annotation} from '../../../../../shared/service/annotation.service';
+import {ReaderSidebarService, SidebarTab} from './sidebar.service';
 import {ReaderIconComponent} from '../../shared/icon.component';
 
 @Component({
@@ -17,62 +13,51 @@ import {ReaderIconComponent} from '../../shared/icon.component';
   styleUrls: ['./sidebar.component.scss'],
   imports: [CommonModule, FormsModule, TranslocoDirective, ReaderIconComponent]
 })
-export class ReaderSidebarComponent implements OnInit, OnDestroy {
-  private sidebarService = inject(ReaderSidebarService);
-  private destroy$ = new Subject<void>();
+export class ReaderSidebarComponent {
+  private readonly sidebarService = inject(ReaderSidebarService);
+  private readonly destroyRef = inject(DestroyRef);
+  private closeAnimationTimeout: ReturnType<typeof setTimeout> | null = null;
 
-  isOpen = false;
-  closing = false;
-  activeTab: SidebarTab = 'chapters';
-  bookInfo: SidebarBookInfo = { id: null, title: '', authors: '', coverUrl: null };
-  chapters: TocItem[] = [];
-  bookmarks: BookMark[] = [];
-  annotations: Annotation[] = [];
+  readonly activeTab = this.sidebarService.activeTab;
+  readonly bookInfo = this.sidebarService.bookInfo;
+  readonly chapters = this.sidebarService.chapters;
+  readonly bookmarks = this.sidebarService.bookmarks;
+  readonly annotations = this.sidebarService.annotations;
 
-  ngOnInit(): void {
-    this.sidebarService.isOpen$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(isOpen => {
-        if (isOpen) {
-          this.isOpen = true;
-          this.closing = false;
-        } else if (this.isOpen) {
-          this.closeWithAnimation();
-        }
-      });
+  readonly isOpen = signal(false);
+  readonly closing = signal(false);
 
-    this.sidebarService.activeTab$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(tab => this.activeTab = tab);
+  constructor() {
+    effect(() => {
+      if (this.sidebarService.isOpen()) {
+        this.clearCloseAnimation();
+        this.isOpen.set(true);
+        this.closing.set(false);
+        return;
+      }
 
-    this.sidebarService.bookInfo$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(info => this.bookInfo = info);
+      if (this.isOpen()) {
+        this.closeWithAnimation();
+      }
+    });
 
-    this.sidebarService.chapters$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(chapters => this.chapters = chapters);
-
-    this.sidebarService.bookmarks$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(bookmarks => this.bookmarks = bookmarks);
-
-    this.sidebarService.annotations$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(annotations => this.annotations = annotations);
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    this.destroyRef.onDestroy(() => this.clearCloseAnimation());
   }
 
   private closeWithAnimation(): void {
-    this.closing = true;
-    setTimeout(() => {
-      this.isOpen = false;
-      this.closing = false;
+    this.closing.set(true);
+    this.closeAnimationTimeout = setTimeout(() => {
+      this.isOpen.set(false);
+      this.closing.set(false);
+      this.closeAnimationTimeout = null;
     }, 250);
+  }
+
+  private clearCloseAnimation(): void {
+    if (this.closeAnimationTimeout) {
+      clearTimeout(this.closeAnimationTimeout);
+      this.closeAnimationTimeout = null;
+    }
   }
 
   onOverlayClick(): void {

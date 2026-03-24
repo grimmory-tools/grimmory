@@ -1,47 +1,32 @@
-import {inject, Injectable} from '@angular/core';
-import {BehaviorSubject, Subject} from 'rxjs';
-import {debounceTime, filter, takeUntil} from 'rxjs/operators';
+import {effect, inject, Injectable, signal} from '@angular/core';
 import {UserService} from '../../../settings/user-management/user.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BookCardOverlayPreferenceService {
+  private static readonly PERSIST_DELAY_MS = 500;
+
   private readonly userService = inject(UserService);
 
-  private readonly _showBookTypePill = new BehaviorSubject<boolean>(true);
-  readonly showBookTypePill$ = this._showBookTypePill.asObservable();
+  private readonly _showBookTypePill = signal(true);
+  readonly showBookTypePill = this._showBookTypePill.asReadonly();
 
-  private destroy$ = new Subject<void>();
-  private hasUserToggled = false;
   private currentContext: { type: 'LIBRARY' | 'SHELF' | 'MAGIC_SHELF', id: number } | null = null;
+  private persistTimeout: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
-    this.userService.userState$
-      .pipe(
-        filter(userState => !!userState?.user && userState.loaded),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(() => {
+    effect(() => {
+      const user = this.userService.currentUser();
+      if (user) {
         this.loadPreferencesFromUser();
-      });
-
-    this.showBookTypePill$
-      .pipe(debounceTime(500))
-      .subscribe(show => {
-        if (this.hasUserToggled) {
-          this.persistPreference(show);
-        }
-      });
+      }
+    });
   }
 
   setShowBookTypePill(show: boolean): void {
-    this.hasUserToggled = true;
-    this._showBookTypePill.next(show);
-  }
-
-  get showBookTypePill(): boolean {
-    return this._showBookTypePill.value;
+    this._showBookTypePill.set(show);
+    this.schedulePersist(show);
   }
 
   private loadPreferencesFromUser(): void {
@@ -68,10 +53,19 @@ export class BookCardOverlayPreferenceService {
       }
     }
 
-    this.hasUserToggled = false;
-    if (this._showBookTypePill.value !== show) {
-      this._showBookTypePill.next(show);
+    if (this._showBookTypePill() !== show) {
+      this._showBookTypePill.set(show);
     }
+  }
+
+  private schedulePersist(show: boolean): void {
+    if (this.persistTimeout) {
+      clearTimeout(this.persistTimeout);
+    }
+
+    this.persistTimeout = setTimeout(() => {
+      this.persistPreference(show);
+    }, BookCardOverlayPreferenceService.PERSIST_DELAY_MS);
   }
 
   private persistPreference(show: boolean): void {
@@ -117,10 +111,5 @@ export class BookCardOverlayPreferenceService {
     }
 
     this.userService.updateUserSetting(user.id, 'entityViewPreferences', prefs);
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

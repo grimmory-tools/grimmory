@@ -46,12 +46,7 @@ export class CustomFontsComponent implements OnInit {
     this.fontsLoadedInBrowser = false;
 
     try {
-      const fonts = await new Promise<CustomFont[]>((resolve, reject) => {
-        this.customFontService.getUserFonts().subscribe({
-          next: resolve,
-          error: reject
-        });
-      });
+      const fonts = await this.customFontService.ensureFonts();
 
       this.customFonts = fonts;
       this.isLoading = false;

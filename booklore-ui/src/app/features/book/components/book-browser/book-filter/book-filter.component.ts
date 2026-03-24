@@ -1,11 +1,11 @@
-import {ChangeDetectionStrategy, Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output} from '@angular/core';
-import {BehaviorSubject, Observable, of, Subject, takeUntil} from 'rxjs';
+import {ChangeDetectionStrategy, Component, effect, EventEmitter, inject, Input, OnDestroy, OnInit, Output, Signal, signal} from '@angular/core';
+import {Subject, takeUntil} from 'rxjs';
 import {Library} from '../../../model/library.model';
 import {Shelf} from '../../../model/shelf.model';
 import {EntityType} from '../book-browser.component';
 import {Accordion, AccordionContent, AccordionHeader, AccordionPanel} from 'primeng/accordion';
 import {CdkFixedSizeVirtualScroll, CdkVirtualForOf, CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
-import {AsyncPipe, NgClass} from '@angular/common';
+import {NgClass} from '@angular/common';
 import {Badge} from 'primeng/badge';
 import {FormsModule} from '@angular/forms';
 import {SelectButton} from 'primeng/selectbutton';
@@ -13,10 +13,12 @@ import {BookFilterMode, DEFAULT_VISIBLE_FILTERS, UserService, VisibleFilterType}
 import {MagicShelf} from '../../../../magic-shelf/service/magic-shelf.service';
 import {Filter, FILTER_LABEL_KEYS, FilterType} from './book-filter.config';
 import {BookFilterService} from './book-filter.service';
-import {filter} from 'rxjs/operators';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
-type FilterModeOption = { label: string; value: BookFilterMode };
+interface FilterModeOption {
+  label: string;
+  value: BookFilterMode;
+}
 
 @Component({
   selector: 'app-book-filter',
@@ -27,13 +29,17 @@ type FilterModeOption = { label: string; value: BookFilterMode };
   imports: [
     Accordion, AccordionPanel, AccordionHeader, AccordionContent,
     CdkVirtualScrollViewport, CdkFixedSizeVirtualScroll, CdkVirtualForOf,
-    NgClass, Badge, AsyncPipe, FormsModule, SelectButton,
+    NgClass, Badge, FormsModule, SelectButton,
     TranslocoDirective
   ]
 })
 export class BookFilterComponent implements OnInit, OnDestroy {
-  @Input() entity$: Observable<Library | Shelf | MagicShelf | null> | undefined;
-  @Input() entityType$: Observable<EntityType> | undefined;
+  @Input() set entity(value: Library | Shelf | MagicShelf | null | undefined) {
+    this.entitySignal.set(value ?? null);
+  }
+  @Input() set entityType(value: EntityType | undefined) {
+    this.entityTypeSignal.set(value ?? EntityType.ALL_BOOKS);
+  }
   @Input() resetFilter$!: Subject<void>;
   @Input() showFilter = false;
 
@@ -45,12 +51,19 @@ export class BookFilterComponent implements OnInit, OnDestroy {
   private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
 
-  private readonly activeFilters$ = new BehaviorSubject<Record<string, unknown[]> | null>(null);
-  private readonly filterMode$ = new BehaviorSubject<BookFilterMode>('and');
+  private readonly entitySignal = signal<Library | Shelf | MagicShelf | null>(null);
+  private readonly entityTypeSignal = signal<EntityType>(EntityType.ALL_BOOKS);
+  private readonly activeFiltersSignal = signal<Record<string, unknown[]> | null>(null);
+  private readonly filterModeSignal = signal<BookFilterMode>('and');
 
   activeFilters: Record<string, unknown[]> = {};
-  filterStreams: Record<FilterType, Observable<Filter[]>> = {} as Record<FilterType, Observable<Filter[]>>;
-  filterTypes: FilterType[] = [];
+  filterSignals: Record<FilterType, Signal<Filter[]>> = this.filterService.createFilterSignals(
+    this.entitySignal,
+    this.entityTypeSignal,
+    this.activeFiltersSignal,
+    this.filterModeSignal
+  );
+  filterTypes: FilterType[] = Object.keys(this.filterSignals) as FilterType[];
   visibleFilterTypes: FilterType[] = [];
   expandedPanels: number[] = [0];
   truncatedFilters: Record<string, boolean> = {};
@@ -78,14 +91,15 @@ export class BookFilterComponent implements OnInit, OnDestroy {
   set selectedFilterMode(mode: BookFilterMode) {
     if (mode === this._selectedFilterMode) return;
     this._selectedFilterMode = mode;
-    this.filterMode$.next(mode);
+    this.filterModeSignal.set(mode);
     this.filterModeChanged.emit(mode);
     this.emitFilters();
   }
 
   ngOnInit(): void {
+    this.updateVisibleFilterTypes();
+    this.updateExpandedPanels();
     this.subscribeToUserSettings();
-    this.initializeFilterStreams();
     this.subscribeToReset();
   }
 
@@ -95,9 +109,11 @@ export class BookFilterComponent implements OnInit, OnDestroy {
   }
 
   handleFilterClick(filterType: string, value: unknown): void {
-    this._selectedFilterMode === 'single'
-      ? this.handleSingleMode(filterType, value)
-      : this.handleMultiMode(filterType, value);
+    if (this._selectedFilterMode === 'single') {
+      this.handleSingleMode(filterType, value);
+    } else {
+      this.handleMultiMode(filterType, value);
+    }
     this.emitFilters();
   }
 
@@ -113,7 +129,7 @@ export class BookFilterComponent implements OnInit, OnDestroy {
   clearActiveFilter(): void {
     this.activeFilters = {};
     this.expandedPanels = [0];
-    this.activeFilters$.next(null);
+    this.activeFiltersSignal.set(null);
     this.filterSelected.emit(null);
   }
 
@@ -149,29 +165,12 @@ export class BookFilterComponent implements OnInit, OnDestroy {
   }
 
   private subscribeToUserSettings(): void {
-    this.userService.userState$.pipe(
-      filter(state => !!state?.user && state.loaded),
-      takeUntil(this.destroy$)
-    ).subscribe(state => {
-      const settings = state.user!.userSettings;
-      this._visibleFilters = settings.visibleFilters ?? [...DEFAULT_VISIBLE_FILTERS];
+    effect(() => {
+      const user = this.userService.currentUser();
+      if (!user) return;
+      this._visibleFilters = user.userSettings.visibleFilters ?? [...DEFAULT_VISIBLE_FILTERS];
       this.updateVisibleFilterTypes();
     });
-  }
-
-  private initializeFilterStreams(): void {
-    const entity$ = this.entity$ ?? of(null);
-    const entityType$ = this.entityType$ ?? of(EntityType.ALL_BOOKS);
-
-    this.filterStreams = this.filterService.createFilterStreams(
-      entity$,
-      entityType$,
-      this.activeFilters$,
-      this.filterMode$
-    );
-    this.filterTypes = Object.keys(this.filterStreams) as FilterType[];
-    this.updateVisibleFilterTypes();
-    this.updateExpandedPanels();
   }
 
   private updateVisibleFilterTypes(): void {
@@ -223,7 +222,7 @@ export class BookFilterComponent implements OnInit, OnDestroy {
   private emitFilters(): void {
     const hasFilters = Object.keys(this.activeFilters).length > 0;
     const filtersToEmit = hasFilters ? {...this.activeFilters} : null;
-    this.activeFilters$.next(filtersToEmit);
+    this.activeFiltersSignal.set(filtersToEmit);
     this.filterSelected.emit(filtersToEmit);
   }
 

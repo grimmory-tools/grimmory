@@ -1,12 +1,9 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, computed, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
-import {BehaviorSubject, EMPTY, Observable, Subject} from 'rxjs';
-import {catchError, filter, first, takeUntil} from 'rxjs/operators';
 import {ChartConfiguration, ChartData} from 'chart.js';
 import {Tooltip} from 'primeng/tooltip';
 import {BookService} from '../../../../../book/service/book.service';
-import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book, ReadStatus} from '../../../../../book/model/book.model';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
@@ -37,10 +34,16 @@ type ReadingHabitsChartData = ChartData<'radar', number[], string>;
   templateUrl: './reading-habits-chart.component.html',
   styleUrls: ['./reading-habits-chart.component.scss']
 })
-export class ReadingHabitsChartComponent implements OnInit, OnDestroy {
+export class ReadingHabitsChartComponent {
   private readonly bookService = inject(BookService);
   private readonly t = inject(TranslocoService);
-  private readonly destroy$ = new Subject<void>();
+  private readonly profile = computed(() => {
+    if (this.bookService.isBooksLoading()) {
+      return null;
+    }
+
+    return this.calculateReadingHabitsData(this.bookService.books());
+  });
 
   private readonly habitKeys = ['consistency', 'multitasking', 'completionism', 'exploration', 'organization', 'intensity', 'methodology', 'momentum'];
 
@@ -112,7 +115,7 @@ export class ReadingHabitsChartComponent implements OnInit, OnDestroy {
           },
           label: (context) => {
             const score = context.parsed.r;
-            const insight = this.habitInsights.find(i => i.habit === context.label);
+            const insight = this.habitInsights().find(i => i.habit === context.label);
 
             return [
               this.t.translate('statsUser.readingHabits.tooltipScore', {score}),
@@ -140,42 +143,10 @@ export class ReadingHabitsChartComponent implements OnInit, OnDestroy {
       }
     }
   };
-
-  private readonly chartDataSubject = new BehaviorSubject<ReadingHabitsChartData>({
-    labels: [],
-    datasets: []
-  });
-
-  public readonly chartData$: Observable<ReadingHabitsChartData> = this.chartDataSubject.asObservable();
-  public habitInsights: HabitInsight[] = [];
-
-  ngOnInit(): void {
-    this.bookService.bookState$
-      .pipe(
-        filter(state => state.loaded),
-        first(),
-        catchError((error) => {
-          console.error('Error processing reading habits data:', error);
-          return EMPTY;
-        }),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(() => {
-        const profile = this.calculateReadingHabitsData();
-        this.updateChartData(profile);
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  private updateChartData(profile: ReadingHabitsProfile | null): void {
+  public readonly chartData = computed<ReadingHabitsChartData>(() => {
+    const profile = this.profile();
     if (!profile) {
-      this.chartDataSubject.next({labels: [], datasets: []});
-      this.habitInsights = [];
-      return;
+      return {labels: [], datasets: []};
     }
 
     const data = [
@@ -196,7 +167,7 @@ export class ReadingHabitsChartComponent implements OnInit, OnDestroy {
 
     const translatedLabels = this.habitKeys.map(k => this.t.translate(`statsUser.readingHabits.habits.${k}`));
 
-    this.chartDataSubject.next({
+    return {
       labels: translatedLabels,
       datasets: [{
         label: this.t.translate('statsUser.readingHabits.readingHabitsProfile'),
@@ -211,31 +182,19 @@ export class ReadingHabitsChartComponent implements OnInit, OnDestroy {
         pointHoverRadius: 8,
         fill: true
       }]
-    });
+    };
+  });
+  public readonly habitInsights = computed(() => {
+    const profile = this.profile();
+    return profile ? this.buildHabitInsights(profile) : [];
+  });
 
-    this.habitInsights = this.buildHabitInsights(profile);
-  }
-
-  private calculateReadingHabitsData(): ReadingHabitsProfile | null {
-    const currentState = this.bookService.getCurrentBookState();
-
-    if (!this.isValidBookState(currentState)) {
+  private calculateReadingHabitsData(books: Book[]): ReadingHabitsProfile | null {
+    if (books.length === 0) {
       return null;
     }
 
-    return this.analyzeReadingHabits(currentState.books!);
-  }
-
-  private isValidBookState(state: unknown): state is BookState {
-    return (
-      typeof state === 'object' &&
-      state !== null &&
-      'loaded' in state &&
-      typeof (state as { loaded: boolean }).loaded === 'boolean' &&
-      'books' in state &&
-      Array.isArray((state as { books: unknown }).books) &&
-      (state as { books: Book[] }).books.length > 0
-    );
+    return this.analyzeReadingHabits(books);
   }
 
   private analyzeReadingHabits(books: Book[]): ReadingHabitsProfile | null {

@@ -23,6 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -124,6 +125,7 @@ public class AuthenticationService {
         throw new IllegalStateException("No OPDS user authenticated");
     }
 
+    @Transactional
     public ResponseEntity<Map<String, String>> loginUser(UserLoginRequest loginRequest) {
         if (appSettingService.getAppSettings().isOidcForceOnlyMode()) {
             BookLoreUserEntity oidcCheckUser = userRepository.findByUsername(loginRequest.getUsername()).orElse(null);
@@ -161,6 +163,7 @@ public class AuthenticationService {
         return loginUser(user);
     }
 
+    @Transactional
     public ResponseEntity<Map<String, String>> loginRemote(String name, String username, String email, String groups) {
         if (username == null || username.isEmpty()) {
             throw ApiError.GENERIC_BAD_REQUEST.createException("Remote-User header is missing");
@@ -205,6 +208,7 @@ public class AuthenticationService {
         ));
     }
 
+    @Transactional
     public ResponseEntity<Map<String, String>> refreshToken(String token) {
         String ip = RequestUtils.getCurrentRequest().getRemoteAddr();
         authRateLimitService.checkRefreshRateLimit(ip);

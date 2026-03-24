@@ -1,7 +1,3 @@
-import {combineLatest, Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
-import {BookFilter} from './BookFilter';
-import {BookState} from '../../../model/state/book-state.model';
 import {fileSizeRanges, matchScoreRanges, pageCountRanges, ratingRanges} from '../book-filter/book-filter.config';
 import {Book, ReadStatus} from '../../../model/book.model';
 import {BookFilterMode} from '../../../../settings/user-management/user.service';
@@ -95,18 +91,20 @@ export function doesBookMatchFilter(
       return effectiveMode === 'or'
         ? filterValues.some(val => book.shelves?.some(s => s.id == val))
         : filterValues.every(val => book.shelves?.some(s => s.id == val));
-    case 'shelfStatus':
+    case 'shelfStatus': {
       const shelved = book.shelves && book.shelves.length > 0 ? 'shelved' : 'unshelved';
       return filterValues.includes(shelved);
+    }
     case 'tag':
       return effectiveMode === 'or'
         ? filterValues.some(val => book.metadata?.tags?.includes(val as string))
         : filterValues.every(val => book.metadata?.tags?.includes(val as string));
-    case 'publishedDate':
+    case 'publishedDate': {
       const bookYear = book.metadata?.publishedDate
         ? new Date(book.metadata.publishedDate).getFullYear()
         : null;
       return bookYear ? filterValues.some(val => val == bookYear || val == bookYear.toString()) : false;
+    }
     case 'fileSize':
       return filterValues.some(range => isFileSizeInRange(book.fileSizeKb, range as string | number));
     case 'amazonRating':
@@ -118,7 +116,7 @@ export function doesBookMatchFilter(
     case 'language':
       return filterValues.includes(book.metadata?.language);
     case 'pageCount':
-      return filterValues.some(range => isPageCountInRange(book.metadata?.pageCount!, range as string | number));
+      return filterValues.some(range => isPageCountInRange(book.metadata?.pageCount ?? undefined, range as string | number));
     case 'mood':
       return effectiveMode === 'or'
         ? filterValues.some(val => book.metadata?.moods?.includes(val as string))
@@ -194,23 +192,3 @@ export function filterBooksByFilters(
   });
 }
 
-export class SideBarFilter implements BookFilter {
-
-  constructor(private selectedFilter$: Observable<unknown>, private selectedFilterMode$: Observable<BookFilterMode>) {
-  }
-
-  filter(bookState: BookState): Observable<BookState> {
-    return combineLatest([this.selectedFilter$, this.selectedFilterMode$]).pipe(
-      map(([activeFilters, mode]) => {
-        if (bookState.books == null) return bookState;
-        if (!activeFilters) return bookState;
-        const filteredBooks = filterBooksByFilters(
-          bookState.books || [],
-          activeFilters as Record<string, unknown[]>,
-          mode
-        );
-        return {...bookState, books: filteredBooks};
-      })
-    );
-  }
-}

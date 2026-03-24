@@ -1,7 +1,6 @@
 import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {Tab, TabList, TabPanel, TabPanels, Tabs} from 'primeng/tabs';
 import {UserService} from './user-management/user.service';
-import {AsyncPipe} from '@angular/common';
 import {GlobalPreferencesComponent} from './global-preferences/global-preferences.component';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Subscription} from 'rxjs';
@@ -44,7 +43,6 @@ export enum SettingsTab {
     Tab,
     TabPanels,
     TabPanel,
-    AsyncPipe,
     GlobalPreferencesComponent,
     UserManagementComponent,
     AuthenticationSettingsComponent,

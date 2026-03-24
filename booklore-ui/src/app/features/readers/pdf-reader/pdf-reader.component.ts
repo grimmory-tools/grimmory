@@ -3,7 +3,7 @@ import {ActivatedRoute} from '@angular/router';
 import {NgxExtendedPdfViewerModule, NgxExtendedPdfViewerService, pdfDefaultOptions, ZoomType} from 'ngx-extended-pdf-viewer';
 import {PageTitleService} from "../../../shared/service/page-title.service";
 import {BookService} from '../../book/service/book.service';
-import {forkJoin, Subject, Subscription} from 'rxjs';
+import {forkJoin, from, Subject, Subscription} from 'rxjs';
 import {debounceTime, map, switchMap} from 'rxjs/operators';
 import {BookSetting} from '../../book/model/book.model';
 import {UserService} from '../../settings/user-management/user.service';
@@ -68,26 +68,29 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       .pipe(debounceTime(1500))
       .subscribe(() => this.persistAnnotations());
 
-    this.route.paramMap.subscribe((params) => {
-      this.isLoading = true;
-      this.bookId = +params.get('bookId')!;
-      this.altBookType = this.route.snapshot.queryParamMap.get('bookType') ?? undefined;
+    this.route.paramMap.pipe(
+      switchMap((params) => {
+        this.isLoading = true;
+        this.bookId = +params.get('bookId')!;
+        this.altBookType = this.route.snapshot.queryParamMap.get('bookType') ?? undefined;
 
-      this.bookService.getBookByIdFromAPI(this.bookId, false).pipe(
-        switchMap((book) => {
-          if (this.altBookType) {
-            const altFile = book.alternativeFormats?.find(f => f.bookType === this.altBookType);
-            this.bookFileId = altFile?.id;
-          } else {
-            this.bookFileId = book.primaryFile?.id;
-          }
+        return from(this.bookService.ensureBookDetail(this.bookId, false)).pipe(
+          switchMap((book) => {
+            if (this.altBookType) {
+              const altFile = book.alternativeFormats?.find(f => f.bookType === this.altBookType);
+              this.bookFileId = altFile?.id;
+            } else {
+              this.bookFileId = book.primaryFile?.id;
+            }
 
-          return forkJoin([
-            this.bookService.getBookSetting(this.bookId, this.bookFileId!),
-            this.userService.getMyself()
-          ]).pipe(map(([bookSetting, myself]) => ({book, bookSetting, myself})));
-        })
-      ).subscribe({
+            return forkJoin([
+              this.bookService.getBookSetting(this.bookId, this.bookFileId!),
+              this.userService.getMyself()
+            ]).pipe(map(([bookSetting, myself]) => ({book, bookSetting, myself})));
+          })
+        );
+      })
+    ).subscribe({
         next: ({book, bookSetting, myself}) => {
           const pdfMeta = book;
           const pdfPrefs = bookSetting;
@@ -116,7 +119,6 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
           this.isLoading = false;
         }
       });
-    });
   }
 
   onPageChange(page: number): void {

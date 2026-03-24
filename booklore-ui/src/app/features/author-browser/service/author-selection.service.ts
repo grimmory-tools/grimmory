@@ -1,5 +1,4 @@
-import {Injectable} from '@angular/core';
-import {BehaviorSubject, Observable} from 'rxjs';
+import {computed, Injectable, signal} from '@angular/core';
 import {AuthorSummary} from '../model/author.model';
 
 export interface AuthorCheckboxClickEvent {
@@ -11,19 +10,12 @@ export interface AuthorCheckboxClickEvent {
 
 @Injectable({providedIn: 'root'})
 export class AuthorSelectionService {
-  private selectedAuthorsSubject = new BehaviorSubject<Set<number>>(new Set());
+  private readonly _selectedAuthors = signal<Set<number>>(new Set());
+  readonly selectedAuthors = this._selectedAuthors.asReadonly();
+  readonly selectedCount = computed(() => this._selectedAuthors().size);
+
   private currentAuthors: AuthorSummary[] = [];
   private lastSelectedIndex: number | null = null;
-
-  selectedAuthors$: Observable<Set<number>> = this.selectedAuthorsSubject.asObservable();
-
-  get selectedAuthors(): Set<number> {
-    return this.selectedAuthorsSubject.value;
-  }
-
-  get selectedCount(): number {
-    return this.selectedAuthorsSubject.value.size;
-  }
 
   setCurrentAuthors(authors: AuthorSummary[]): void {
     this.currentAuthors = authors;
@@ -55,31 +47,37 @@ export class AuthorSelectionService {
   }
 
   selectAll(): void {
-    const current = new Set(this.selectedAuthorsSubject.value);
-    for (const author of this.currentAuthors) {
-      current.add(author.id);
-    }
-    this.selectedAuthorsSubject.next(current);
+    this._selectedAuthors.update(current => {
+      const next = new Set(current);
+      for (const author of this.currentAuthors) {
+        next.add(author.id);
+      }
+      return next;
+    });
   }
 
   deselectAll(): void {
-    this.selectedAuthorsSubject.next(new Set());
+    this._selectedAuthors.set(new Set());
     this.lastSelectedIndex = null;
   }
 
   getSelectedIds(): number[] {
-    return Array.from(this.selectedAuthorsSubject.value);
+    return Array.from(this.selectedAuthors());
   }
 
   private select(id: number): void {
-    const current = new Set(this.selectedAuthorsSubject.value);
-    current.add(id);
-    this.selectedAuthorsSubject.next(current);
+    this._selectedAuthors.update(current => {
+      const next = new Set(current);
+      next.add(id);
+      return next;
+    });
   }
 
   private deselect(id: number): void {
-    const current = new Set(this.selectedAuthorsSubject.value);
-    current.delete(id);
-    this.selectedAuthorsSubject.next(current);
+    this._selectedAuthors.update(current => {
+      const next = new Set(current);
+      next.delete(id);
+      return next;
+    });
   }
 }

@@ -3,8 +3,6 @@ import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/
 import {MessageService} from 'primeng/api';
 import {MetadataMatchWeightsService} from '../../../../shared/service/metadata-match-weights.service';
 import {Button} from 'primeng/button';
-import {filter, take} from 'rxjs/operators';
-import {Observable} from 'rxjs';
 import {AppSettingKey, AppSettings} from '../../../../shared/model/app-settings.model';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {InputNumber} from 'primeng/inputnumber';
@@ -42,8 +40,6 @@ export class MetadataMatchWeightsComponent implements OnInit {
   private fb = inject(FormBuilder);
   private t = inject(TranslocoService);
 
-  appSettings$: Observable<AppSettings | null> = this.appSettingsService.appSettings$;
-
   ngOnInit(): void {
     this.form = this.fb.group({
       title: [0, [Validators.required, Validators.min(0)]],
@@ -73,13 +69,10 @@ export class MetadataMatchWeightsComponent implements OnInit {
       audibleReviewCount: [0, [Validators.required, Validators.min(0)]],
       coverImage: [0, [Validators.required, Validators.min(0)]],
     });
-    this.appSettings$
-      .pipe(filter((settings): settings is AppSettings => !!settings), take(1))
-      .subscribe(settings => {
-        if (settings.metadataMatchWeights) {
-          this.form.patchValue(settings.metadataMatchWeights);
-        }
-      });
+    const settings = this.appSettingsService.appSettings();
+    if (settings?.metadataMatchWeights) {
+      this.form.patchValue(settings.metadataMatchWeights);
+    }
   }
 
   get orderedKeys(): string[] {

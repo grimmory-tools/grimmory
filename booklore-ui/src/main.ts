@@ -22,11 +22,21 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { provideTransloco } from '@jsverse/transloco';
 import { AVAILABLE_LANGS, TranslocoInlineLoader } from './app/core/config/transloco-loader';
 import { initializeLanguage } from './app/core/config/language-initializer';
+import { provideTanStackQuery, QueryClient } from '@tanstack/angular-query-experimental';
 
 bootstrapApplication(AppComponent, {
   providers: [
     provideZoneChangeDetection(),
     provideCharts(withDefaultRegisterables(), ChartDataLabels),
+    provideTanStackQuery(new QueryClient({
+      defaultOptions: {
+        queries: {
+          staleTime: Infinity,
+          retry: 2,
+          refetchOnWindowFocus: true,
+        },
+      },
+    })),
     provideAppInitializer(() => {
       const authService = inject(AuthService);
       return websocketInitializer(authService)();

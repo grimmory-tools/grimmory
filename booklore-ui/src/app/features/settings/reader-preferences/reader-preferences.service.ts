@@ -1,28 +1,22 @@
-import {inject, Injectable, OnDestroy} from '@angular/core';
+import {effect, inject, Injectable} from '@angular/core';
 import {User, UserService, UserSettings} from '../user-management/user.service';
 import {MessageService} from 'primeng/api';
-import {filter, takeUntil} from 'rxjs/operators';
-import {Subject} from 'rxjs';
 import {TranslocoService} from '@jsverse/transloco';
 
 @Injectable({providedIn: 'root'})
-export class ReaderPreferencesService implements OnDestroy {
+export class ReaderPreferencesService {
   private readonly userService = inject(UserService);
   private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
   private currentUser: User | null = null;
-  private readonly destroy$ = new Subject<void>();
 
   constructor() {
-    this.userService.userState$.pipe(
-      filter(userState => !!userState?.user && userState.loaded),
-      takeUntil(this.destroy$)
-    ).subscribe(userState => this.currentUser = userState.user);
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    effect(() => {
+      const user = this.userService.currentUser();
+      if (user) {
+        this.currentUser = user;
+      }
+    });
   }
 
   updatePreference(path: string[], value: unknown): void {

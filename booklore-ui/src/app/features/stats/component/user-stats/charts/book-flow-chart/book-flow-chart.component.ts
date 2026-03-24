@@ -1,10 +1,8 @@
-import {Component, ElementRef, inject, OnDestroy, OnInit, ViewChild, AfterViewInit} from '@angular/core';
+import {AfterViewInit, Component, effect, ElementRef, inject, ViewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Tooltip} from 'primeng/tooltip';
-import {Subject} from 'rxjs';
-import {filter, first, takeUntil} from 'rxjs/operators';
 import {BookService} from '../../../../../book/service/book.service';
-import {ReadStatus} from '../../../../../book/model/book.model';
+import {Book, ReadStatus} from '../../../../../book/model/book.model';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 interface SankeyNode {
@@ -31,12 +29,21 @@ interface SankeyLink {
   templateUrl: './book-flow-chart.component.html',
   styleUrls: ['./book-flow-chart.component.scss']
 })
-export class BookFlowChartComponent implements OnInit, OnDestroy, AfterViewInit {
+export class BookFlowChartComponent implements AfterViewInit {
   @ViewChild('flowCanvas', {static: false}) canvasRef!: ElementRef<HTMLCanvasElement>;
 
   private readonly bookService = inject(BookService);
   private readonly t = inject(TranslocoService);
-  private readonly destroy$ = new Subject<void>();
+  private readonly syncChartEffect = effect(() => {
+    if (this.bookService.isBooksLoading()) {
+      this.dataReady = false;
+      return;
+    }
+
+    this.processData(this.bookService.books());
+    this.dataReady = true;
+    this.tryRender();
+  });
 
   public hasData = false;
   public totalBooks = 0;
@@ -49,24 +56,9 @@ export class BookFlowChartComponent implements OnInit, OnDestroy, AfterViewInit 
   private canvasReady = false;
   private dataReady = false;
 
-  ngOnInit(): void {
-    this.bookService.bookState$
-      .pipe(filter(state => state.loaded), first(), takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.processData();
-        this.dataReady = true;
-        this.tryRender();
-      });
-  }
-
   ngAfterViewInit(): void {
     this.canvasReady = true;
     this.tryRender();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   private tryRender(): void {
@@ -75,10 +67,18 @@ export class BookFlowChartComponent implements OnInit, OnDestroy, AfterViewInit 
     }
   }
 
-  private processData(): void {
-    const currentState = this.bookService.getCurrentBookState();
-    const books = currentState.books;
-    if (!books || books.length === 0) return;
+  private processData(books: Book[]): void {
+    this.hasData = false;
+    this.totalBooks = 0;
+    this.topQuarter = '';
+    this.topStatus = '';
+    this.completionRate = '';
+    this.nodes = [];
+    this.links = [];
+
+    if (books.length === 0) {
+      return;
+    }
 
     const quarterMap = new Map<string, number>();
     const statusMap = new Map<string, number>();

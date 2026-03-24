@@ -1,19 +1,21 @@
 package org.booklore.service.user;
 
+import org.springframework.transaction.annotation.Transactional;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.booklore.config.AppProperties;
 import org.booklore.exception.ApiError;
 import org.booklore.model.dto.UserCreateRequest;
 import org.booklore.model.dto.request.InitialUserRequest;
 import org.booklore.model.dto.settings.OidcAutoProvisionDetails;
-import org.booklore.model.entity.*;
-import org.booklore.model.enums.*;
+import org.booklore.model.entity.BookLoreUserEntity;
+import org.booklore.model.entity.LibraryEntity;
+import org.booklore.model.entity.UserPermissionsEntity;
+import org.booklore.model.enums.ProvisioningMethod;
 import org.booklore.repository.LibraryRepository;
 import org.booklore.repository.UserRepository;
 import org.booklore.service.appsettings.AppSettingService;
-import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -131,7 +133,7 @@ public class UserProvisioningService {
 
         if (request.getSelectedLibraries() != null && !request.getSelectedLibraries().isEmpty()) {
             List<LibraryEntity> libraries = libraryRepository.findAllById(request.getSelectedLibraries());
-            user.setLibraries(new ArrayList<>(libraries));
+            user.setLibraries(new HashSet<>(libraries));
         }
 
         createUser(user);
@@ -179,7 +181,7 @@ public class UserProvisioningService {
         List<Long> defaultLibraryIds = oidcAutoProvisionDetails.getDefaultLibraryIds();
         if (defaultLibraryIds != null && !defaultLibraryIds.isEmpty()) {
             List<LibraryEntity> libraries = libraryRepository.findAllById(defaultLibraryIds);
-            user.setLibraries(new ArrayList<>(libraries));
+            user.setLibraries(new HashSet<>(libraries));
         }
 
         return createUser(user);
@@ -261,10 +263,10 @@ public class UserProvisioningService {
 
         if (isAdmin) {
             List<LibraryEntity> libraries = libraryRepository.findAll();
-            user.setLibraries(new ArrayList<>(libraries));
+            user.setLibraries(new HashSet<>(libraries));
         } else if (oidcAutoProvisionDetails != null && oidcAutoProvisionDetails.getDefaultLibraryIds() != null && !oidcAutoProvisionDetails.getDefaultLibraryIds().isEmpty()) {
             List<LibraryEntity> libraries = libraryRepository.findAllById(oidcAutoProvisionDetails.getDefaultLibraryIds());
-            user.setLibraries(new ArrayList<>(libraries));
+            user.setLibraries(new HashSet<>(libraries));
         }
 
         return createUser(user);

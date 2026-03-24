@@ -10,7 +10,7 @@ import org.booklore.model.entity.EmailProviderV2Entity;
 import org.booklore.model.entity.UserEmailProviderPreferenceEntity;
 import org.booklore.repository.EmailProviderV2Repository;
 import org.booklore.repository.UserEmailProviderPreferenceRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.model.enums.AuditAction;

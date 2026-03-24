@@ -6,13 +6,12 @@ import org.booklore.convertor.AudioFileChapterListConverter;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.util.ArchiveUtils;
 
-import java.util.List;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.util.List;
 
 @Entity
 @Getter
@@ -27,7 +26,7 @@ public class BookFileEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id", nullable = false)
     private BookEntity book;
 
@@ -47,6 +46,10 @@ public class BookFileEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "book_type", nullable = false)
     private BookFileType bookType;
+
+    @Column(name = "is_fixed_layout", nullable = false)
+    @Builder.Default
+    private boolean isFixedLayout = false;
 
     @Column(name = "archive_type")
     @Enumerated(EnumType.STRING)
@@ -94,6 +97,10 @@ public class BookFileEntity {
 
     public boolean isBook() {
         return isBookFormat;
+    }
+
+    public boolean isFixedLayout() {
+        return isFixedLayout;
     }
 
     public Path getFullFilePath() {

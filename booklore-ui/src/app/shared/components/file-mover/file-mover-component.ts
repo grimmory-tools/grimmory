@@ -1,10 +1,10 @@
-import {Component, inject, OnDestroy} from '@angular/core';
+import {Component, effect, inject, OnDestroy} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {Button} from 'primeng/button';
 import {TableModule} from 'primeng/table';
 import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
 import {MessageService} from 'primeng/api';
-import {filter, take, takeUntil} from 'rxjs/operators';
+import {takeUntil} from 'rxjs/operators';
 import {Subject} from 'rxjs';
 
 import {BookService} from '../../../features/book/service/book.service';
@@ -49,6 +49,56 @@ export class FileMoverComponent implements OnDestroy {
   private messageService = inject(MessageService);
   private appSettingsService = inject(AppSettingsService);
   private destroy$ = new Subject<void>();
+  private readonly appSettings = this.appSettingsService.appSettings;
+  private readonly syncLibraryPatternsEffect = effect(() => {
+    const settings = this.appSettings();
+    const libraries = this.libraryService.libraries();
+    if (!settings) {
+      return;
+    }
+
+    this.defaultMovePattern = settings.uploadPattern || '';
+
+    const booksByLibrary = new Map<number | null, Book[]>();
+    this.books.forEach(book => {
+      const libraryId =
+        book.libraryId ??
+        book.libraryPath?.id ??
+        (book as { library?: { id: number } }).library?.id ??
+        null;
+      if (!booksByLibrary.has(libraryId)) {
+        booksByLibrary.set(libraryId, []);
+      }
+      booksByLibrary.get(libraryId)!.push(book);
+    });
+
+    this.libraryPatterns = Array.from(booksByLibrary.entries()).map(([libraryId, libraryBooks]) => {
+      let libraryName = 'Unknown Library';
+      let pattern = this.defaultMovePattern;
+      let source = 'App Default';
+
+      if (libraryId) {
+        const library = libraries.find(currentLibrary => currentLibrary.id === libraryId);
+        if (library) {
+          libraryName = library.name;
+          if (library.fileNamingPattern) {
+            pattern = library.fileNamingPattern;
+            source = 'Library Setting';
+          }
+        }
+      }
+
+      return {
+        libraryId,
+        libraryName,
+        pattern,
+        source,
+        bookCount: libraryBooks.length
+      };
+    });
+
+    this.applyPattern();
+  });
 
   libraryPatterns: {
     libraryId: number | null;
@@ -64,91 +114,23 @@ export class FileMoverComponent implements OnDestroy {
 
   bookIds = new Set<number>();
   books: Book[] = [];
-  availableLibraries: { id: number | null; name: string }[] = [];
   filePreviews: FilePreview[] = [];
   defaultTargetLibraryId: number | null = null;
   defaultTargetLibraryPathId: number | null = null;
   defaultAvailableLibraryPaths: LibraryPath[] = [];
 
+  get availableLibraries(): { id: number | null; name: string }[] {
+    return this.libraryService.libraries().map(lib => ({id: lib.id ?? null, name: lib.name}));
+  }
+
   constructor() {
     this.bookIds = new Set(this.config.data?.bookIds ?? []);
-    this.books = this.bookService.getBooksByIdsFromState([...this.bookIds]);
-    this.loadAvailableLibraries();
-    this.loadDefaultPattern();
+    this.books = this.bookService.getBooksByIds([...this.bookIds]);
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  private loadDefaultPattern(): void {
-    this.appSettingsService.appSettings$.pipe(
-      filter(settings => settings != null),
-      take(1),
-      takeUntil(this.destroy$)
-    ).subscribe(settings => {
-      this.defaultMovePattern = settings?.uploadPattern || '';
-      this.loadLibraryPatterns();
-    });
-  }
-
-  private loadLibraryPatterns(): void {
-    this.libraryService.libraryState$.pipe(
-      filter(state => state.loaded && state.libraries != null),
-      take(1),
-      takeUntil(this.destroy$)
-    ).subscribe(state => {
-      const booksByLibrary = new Map<number | null, Book[]>();
-      this.books.forEach(book => {
-        const libraryId =
-          book.libraryId ??
-          book.libraryPath?.id ??
-          (book as { library?: { id: number } }).library?.id ??
-          null;
-        if (!booksByLibrary.has(libraryId)) {
-          booksByLibrary.set(libraryId, []);
-        }
-        booksByLibrary.get(libraryId)!.push(book);
-      });
-
-      this.libraryPatterns = Array.from(booksByLibrary.entries()).map(([libraryId, books]) => {
-        let libraryName = 'Unknown Library';
-        let pattern = this.defaultMovePattern;
-        let source = 'App Default';
-
-        if (libraryId) {
-          const library = state.libraries?.find(lib => lib.id === libraryId);
-          if (library) {
-            libraryName = library.name;
-            if (library.fileNamingPattern) {
-              pattern = library.fileNamingPattern;
-              source = 'Library Setting';
-            }
-          }
-        }
-
-        return {
-          libraryId,
-          libraryName,
-          pattern,
-          source,
-          bookCount: books.length
-        };
-      });
-
-      this.applyPattern();
-    });
-  }
-
-  private loadAvailableLibraries(): void {
-    this.libraryService.libraryState$.pipe(
-      filter(state => state.loaded && state.libraries != null),
-      take(1),
-      takeUntil(this.destroy$)
-    ).subscribe(state => {
-      this.availableLibraries = state.libraries?.map(lib => ({id: lib.id ?? null, name: lib.name})) || [];
-    });
   }
 
   applyPattern(): void {
@@ -285,7 +267,7 @@ export class FileMoverComponent implements OnDestroy {
       return this.defaultMovePattern;
     }
 
-    const libraries = this.libraryService.getLibrariesFromState();
+    const libraries = this.libraryService.libraries();
     const library = libraries.find((lib: Library) => lib.id === libraryId);
 
     return library?.fileNamingPattern || this.defaultMovePattern;
@@ -299,7 +281,7 @@ export class FileMoverComponent implements OnDestroy {
   private getLibraryPathsById(libraryId: number | null): LibraryPath[] {
     if (libraryId === null) return [];
 
-    const libraries = this.libraryService.getLibrariesFromState();
+    const libraries = this.libraryService.libraries();
     const library = libraries.find((lib: Library) => lib.id === libraryId);
     return library?.paths || [];
   }
@@ -322,10 +304,16 @@ export class FileMoverComponent implements OnDestroy {
   }
 
   sanitize(input: string | undefined): string {
-    return input?.replace(/[\\/:*?"<>|]/g, '')
-      .replace(/[\x00-\x1F\x7F]/g, '')
-      .replace(/\s+/g, ' ')
-      .trim() ?? '';
+    const sanitized = (input ?? '')
+      .replace(/[\\/:*?"<>|]/g, '')
+      .split('')
+      .filter(char => {
+        const code = char.charCodeAt(0);
+        return code >= 32 && code !== 127;
+      })
+      .join('');
+
+    return sanitized.replace(/\s+/g, ' ').trim();
   }
 
   formatYear(dateStr?: string): string {

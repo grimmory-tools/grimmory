@@ -1,8 +1,8 @@
-import {Component, ElementRef, HostListener, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, effect, ElementRef, HostListener, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {CommonModule} from '@angular/common';
-import {forkJoin, Subject} from 'rxjs';
-import {debounceTime, filter, first, map, switchMap, takeUntil, timeout} from 'rxjs/operators';
+import {forkJoin, from, Observable, Subject} from 'rxjs';
+import {debounceTime, map, switchMap, takeUntil, timeout} from 'rxjs/operators';
 import {PageTitleService} from "../../../shared/service/page-title.service";
 import {CbxReaderService} from '../../book/service/cbx-reader.service';
 import {BookService} from '../../book/service/book.service';
@@ -10,7 +10,6 @@ import {CbxBackgroundColor, CbxFitMode, CbxMagnifierLensSize, CbxMagnifierZoom, 
 import {MessageService} from 'primeng/api';
 import {TranslocoService, TranslocoPipe} from '@jsverse/transloco';
 import {Book, BookSetting, BookType} from '../../book/model/book.model';
-import {BookState} from '../../book/model/state/book-state.model';
 import {ProgressSpinner} from 'primeng/progressspinner';
 import {FormsModule} from "@angular/forms";
 import {ReadingSessionService} from '../../../shared/service/reading-session.service';
@@ -96,9 +95,6 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   noteDialogData: CbxNoteDialogData | null = null;
   private editingNote: BookNoteV2 | null = null;
 
-  // Footer visibility (for slideshow progress bar positioning)
-  isFooterVisible = false;
-
   // Fullscreen state
   isFullscreen = false;
 
@@ -153,16 +149,24 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   private static readonly TYPE_CBX = 'CBX';
   private static readonly SETTING_GLOBAL = 'Global';
 
+  constructor() {
+    effect(() => {
+      this.sidebarService.bookmarks();
+      this.updateBookmarkState();
+    });
+
+    effect(() => {
+      this.sidebarService.notes();
+      this.updateNotesState();
+    });
+  }
+
   ngOnInit() {
     this.visibilityManager = new ReaderHeaderFooterVisibilityManager(window.innerHeight);
     this.visibilityManager.onStateChange((state) => {
       this.headerService.setForceVisible(state.headerVisible);
       this.footerService.setForceVisible(state.footerVisible);
     });
-
-    this.footerService.forceVisible$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(visible => this.isFooterVisible = visible);
 
     this.progressSaveSubject$.pipe(
       debounceTime(2000),
@@ -174,46 +178,54 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     this.subscribeToFooterEvents();
     this.subscribeToQuickSettingsEvents();
 
-    this.route.paramMap.subscribe((params) => {
-      this.isLoading = true;
-      this.bookId = +params.get('bookId')!;
-      this.altBookType = this.route.snapshot.queryParamMap.get('bookType') ?? undefined;
+    this.route.paramMap.pipe(
+      takeUntil(this.destroy$),
+      switchMap((params) => {
+        this.isLoading = true;
+        this.bookId = +params.get('bookId')!;
+        this.altBookType = this.route.snapshot.queryParamMap.get('bookType') ?? undefined;
 
-      this.previousBookInSeries = null;
-      this.nextBookInSeries = null;
-      this.currentBook = null;
+        this.previousBookInSeries = null;
+        this.nextBookInSeries = null;
+        this.currentBook = null;
 
-      this.bookService.getBookByIdFromAPI(this.bookId, false).pipe(
-        switchMap((book) => {
-          // Use alternative bookType from query param if provided, otherwise use primary
-          this.bookType = (this.altBookType as BookType) ?? book.primaryFile?.bookType!;
-          this.currentBook = book;
+        return from(this.bookService.ensureBookDetail(this.bookId, false)).pipe(
+          switchMap((book) => {
+            // Use alternative bookType from query param if provided, otherwise use primary
+            const resolvedBookType = (this.altBookType as BookType | undefined) ?? book.primaryFile?.bookType;
+            if (!resolvedBookType) {
+              throw new Error(this.t.translate('shared.reader.failedToLoadBook'));
+            }
+            this.bookType = resolvedBookType;
+            this.currentBook = book;
 
-          // Determine which file ID to use for progress tracking
-          if (this.altBookType) {
-            const altFile = book.alternativeFormats?.find(f => f.bookType === this.altBookType);
-            this.bookFileId = altFile?.id;
-          } else {
-            this.bookFileId = book.primaryFile?.id;
-          }
+            // Determine which file ID to use for progress tracking
+            if (this.altBookType) {
+              const altFile = book.alternativeFormats?.find(f => f.bookType === this.altBookType);
+              this.bookFileId = altFile?.id;
+            } else {
+              this.bookFileId = book.primaryFile?.id;
+            }
 
-          return forkJoin([
-            this.bookService.getBookSetting(this.bookId, this.bookFileId!),
-            this.userService.getMyself()
-          ]).pipe(map(([bookSettings, myself]) => ({ book, bookSettings, myself })));
-        })
-      ).subscribe({
+            return forkJoin([
+              this.bookService.getBookSetting(this.bookId, this.bookFileId!),
+              this.userService.getMyself()
+            ]).pipe(map(([bookSettings, myself]) => ({ book, bookSettings, myself })));
+          })
+        );
+      })
+    ).subscribe({
         next: ({ book, bookSettings, myself }) => {
           const userSettings = myself.userSettings;
 
           this.pageTitle.setBookPageTitle(book);
 
           const title = book.metadata?.title || book.fileName;
-          this.headerService.initialize(this.bookId, title, this.destroy$);
+          this.headerService.initialize(title);
           this.sidebarService.initialize(this.bookId, book, this.destroy$, this.altBookType);
 
           if (book.metadata?.seriesName) {
-            this.loadSeriesNavigationAsync(book);
+            this.loadSeriesNavigation(book);
           }
 
           const pagesObservable = this.cbxReaderService.getAvailablePages(this.bookId, this.altBookType);
@@ -275,7 +287,6 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
           this.isLoading = false;
         }
       });
-    });
   }
 
   private subscribeToHeaderEvents(): void {
@@ -331,24 +342,6 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(page => {
         this.goToPage(page);
-      });
-
-    this.sidebarService.bookmarksChanged$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.updateBookmarkState();
-      });
-
-    this.sidebarService.bookmarks$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.updateBookmarkState();
-      });
-
-    this.sidebarService.notes$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.updateNotesState();
       });
 
     this.sidebarService.editNote$
@@ -624,8 +617,12 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     return !!this.currentBook?.metadata?.seriesName;
   }
 
+  get isFooterVisible(): boolean {
+    return this.footerService.forceVisible();
+  }
+
   get showQuickSettings(): boolean {
-    return this.quickSettingsService.isVisible;
+    return this.quickSettingsService.visible();
   }
 
   nextPage() {
@@ -1109,21 +1106,6 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
       this.endReadingSession();
       this.router.navigate(['/cbx-reader/book', this.nextBookInSeries.id], {replaceUrl: true});
     }
-  }
-
-  private loadSeriesNavigationAsync(book: Book): void {
-    this.bookService.bookState$.pipe(
-      filter((state: BookState) => state.loaded),
-      first(),
-      timeout(10000)
-    ).subscribe({
-      next: () => {
-        this.loadSeriesNavigation(book);
-      },
-      error: (err) => {
-        console.warn('[SeriesNav] BookService state loading timed out or failed, series navigation will be disabled:', err);
-      }
-    });
   }
 
   private loadSeriesNavigation(book: Book): void {

@@ -4,7 +4,7 @@
     <div class="header-content">
       <div class="greeting">
         <i class="pi pi-chart-line"></i>
-        <h2>{{ t('main.title', { name: userName }) }}</h2>
+        <h2>{{ t('main.title', { name: userName() }) }}</h2>
       </div>
       <button class="config-toggle-btn" (click)="toggleConfigPanel()">
         <i class="pi pi-cog"></i>
@@ -14,7 +14,8 @@
   </div>
 
   <p-dialog
-    [(visible)]="showConfigPanel"
+    [visible]="showConfigPanel()"
+    (visibleChange)="showConfigPanel.set($event)"
     [modal]="true"
     [draggable]="false"
     [resizable]="false"
@@ -23,13 +24,13 @@
     [header]="t('main.chartConfig')">
 
     <div class="config-dialog-content">
-      <div class="config-list" cdkDropList (cdkDropListDropped)="drop($event)">
-        @for (chart of charts; track chart.id) {
+      <div class="config-list" cdkDropList [cdkDropListData]="charts()" (cdkDropListDropped)="drop($event)">
+        @for (chart of charts(); track chart.id) {
           <div class="config-item" cdkDrag>
             <div class="drag-handle" cdkDragHandle>
               <i class="pi pi-bars"></i>
             </div>
-            <span class="chart-title">{{ chart.title }}</span>
+            <span class="chart-title">{{ t(chartNameKey(chart.id)) }}</span>
             <button
               class="visibility-toggle"
               (click)="toggleChart(chart.id)"
@@ -61,8 +62,8 @@
   </p-dialog>
 
   <!-- Charts Container -->
-  <div class="charts-container" cdkDropList (cdkDropListDropped)="drop($event)">
-    @for (chart of visibleCharts; track chart.id) {
+  <div class="charts-container" cdkDropList [cdkDropListData]="visibleCharts()" (cdkDropListDropped)="drop($event)">
+    @for (chart of visibleCharts(); track chart.id) {
       <div class="chart-card" [class]="chart.sizeClass" cdkDrag>
         <div class="chart-drag-handle" cdkDragHandle>
           <i class="pi pi-arrows-alt"></i>

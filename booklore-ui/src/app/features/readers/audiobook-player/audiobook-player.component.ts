@@ -2,8 +2,8 @@ import {Component, ElementRef, inject, OnDestroy, OnInit, ViewChild} from '@angu
 import {CommonModule, Location} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
 import {FormsModule} from '@angular/forms';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
+import {from, Observable, of, Subject} from 'rxjs';
+import {catchError, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 
 import {Button} from 'primeng/button';
 import {Slider, SliderChangeEvent} from 'primeng/slider';
@@ -17,6 +17,7 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {AudiobookService} from './audiobook.service';
 import {AudiobookChapter, AudiobookInfo, AudiobookProgress, AudiobookTrack} from './audiobook.model';
 import {BookService} from '../../book/service/book.service';
+import {Book} from '../../book/model/book.model';
 import {BookMark, BookMarkService, CreateBookMarkRequest} from '../../../shared/service/book-mark.service';
 import {AudiobookSessionService} from '../../../shared/service/audiobook-session.service';
 import {PageTitleService} from '../../../shared/service/page-title.service';
@@ -116,10 +117,12 @@ export class AudiobookPlayerComponent implements OnInit, OnDestroy {
       {id: 'cancel-timer', label: this.t.translate('readerAudiobook.sleepTimerMenu.cancelTimer'), command: () => this.cancelSleepTimer(), visible: false}
     ];
 
-    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
-      this.bookId = +params.get('bookId')!;
-      this.loadAudiobook();
-    });
+    this.route.paramMap.pipe(
+      takeUntil(this.destroy$),
+      map(params => Number(params.get('bookId'))),
+      filter(bookId => !Number.isNaN(bookId)),
+      switchMap(bookId => this.loadAudiobook(bookId))
+    ).subscribe();
   }
 
   ngOnDestroy(): void {
@@ -145,22 +148,23 @@ export class AudiobookPlayerComponent implements OnInit, OnDestroy {
     }
   }
 
-  private loadAudiobook(): void {
+  private loadAudiobook(bookId: number): Observable<void> {
+    this.bookId = bookId;
     this.resetState();
     this.isLoading = true;
 
-    this.audiobookService.getAudiobookInfo(this.bookId).subscribe({
-      next: (info) => {
+    return this.audiobookService.getAudiobookInfo(bookId).pipe(
+      tap((info) => {
         this.audiobookInfo = info;
         if (info.folderBased && info.tracks && info.tracks.length > 0) {
           // Prepare the source URL but don't load it yet
-          this.audioSrc = this.audiobookService.getTrackStreamUrl(this.bookId, 0);
+          this.audioSrc = this.audiobookService.getTrackStreamUrl(bookId, 0);
           const track = info.tracks[0];
           if (track?.durationMs) {
             this.duration = track.durationMs / 1000;
           }
         } else {
-          this.audioSrc = this.audiobookService.getStreamUrl(this.bookId);
+          this.audioSrc = this.audiobookService.getStreamUrl(bookId);
           if (info.durationMs) {
             this.duration = info.durationMs / 1000;
           }
@@ -168,15 +172,20 @@ export class AudiobookPlayerComponent implements OnInit, OnDestroy {
 
         // Load cover URLs - prefer stored audiobook cover, fall back to embedded, then book cover
         const token = this.authService.getInternalAccessToken();
-        this.bookCoverUrl = `${API_CONFIG.BASE_URL}/api/v1/media/book/${this.bookId}/cover?token=${encodeURIComponent(token || '')}`;
-        this.coverUrl = `${API_CONFIG.BASE_URL}/api/v1/media/book/${this.bookId}/audiobook-cover?token=${encodeURIComponent(token || '')}`;
+        this.bookCoverUrl = `${API_CONFIG.BASE_URL}/api/v1/media/book/${bookId}/cover?token=${encodeURIComponent(token || '')}`;
+        this.coverUrl = `${API_CONFIG.BASE_URL}/api/v1/media/book/${bookId}/audiobook-cover?token=${encodeURIComponent(token || '')}`;
 
         this.isLoading = false;
-
-        // Load book details in parallel (for progress, title, etc.) - non-blocking
-        this.loadBookDetails(info);
-      },
-      error: () => {
+        this.loadBookmarks();
+      }),
+      switchMap(info =>
+        from(this.bookService.ensureBookDetail(bookId, false)).pipe(
+          tap(book => this.applyBookDetails(book, info)),
+          map(() => void 0),
+          catchError(() => of(void 0))
+        )
+      ),
+      catchError(() => {
         this.messageService.add({
           severity: 'error',
           summary: this.t.translate('common.error'),
@@ -184,53 +193,43 @@ export class AudiobookPlayerComponent implements OnInit, OnDestroy {
         });
         this.isLoading = false;
         this.audioLoading = false;
-      }
-    });
+        return of(void 0);
+      })
+    );
   }
 
-  private loadBookDetails(info: AudiobookInfo): void {
-    this.bookService.getBookByIdFromAPI(this.bookId, false)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (book) => {
-          this.pageTitle.setBookPageTitle(book);
+  private applyBookDetails(book: Book, info: AudiobookInfo): void {
+    this.pageTitle.setBookPageTitle(book);
 
-          if (book.audiobookProgress) {
-            this.savedPosition = book.audiobookProgress.positionMs
-              ? book.audiobookProgress.positionMs / 1000
-              : 0;
+    if (book.audiobookProgress) {
+      this.savedPosition = book.audiobookProgress.positionMs
+        ? book.audiobookProgress.positionMs / 1000
+        : 0;
 
-            // If audio is already loaded, seek to saved position
-            const audio = this.audioElement?.nativeElement;
-            if (audio && audio.readyState >= 1 && this.savedPosition > 0) {
-              audio.currentTime = this.savedPosition;
-              this.currentTime = this.savedPosition;
-            }
+      // If audio is already loaded, seek to saved position
+      const audio = this.audioElement?.nativeElement;
+      if (audio && audio.readyState >= 1 && this.savedPosition > 0) {
+        audio.currentTime = this.savedPosition;
+        this.currentTime = this.savedPosition;
+      }
 
-            // Handle track index for folder-based audiobooks
-            if (info.folderBased && info.tracks && info.tracks.length > 0) {
-              const trackIndex = book.audiobookProgress?.trackIndex ?? 0;
-              if (trackIndex !== this.currentTrackIndex) {
-                this.currentTrackIndex = trackIndex;
-                this.loadTrack(trackIndex, false);
-                const track = info.tracks[trackIndex];
-                if (track?.durationMs) {
-                  this.duration = track.durationMs / 1000;
-                }
-              }
-            }
+      // Handle track index for folder-based audiobooks
+      if (info.folderBased && info.tracks && info.tracks.length > 0) {
+        const trackIndex = book.audiobookProgress?.trackIndex ?? 0;
+        if (trackIndex !== this.currentTrackIndex) {
+          this.currentTrackIndex = trackIndex;
+          this.loadTrack(trackIndex, false);
+          const track = info.tracks[trackIndex];
+          if (track?.durationMs) {
+            this.duration = track.durationMs / 1000;
           }
-
-          if (this.savedPosition > 0) {
-            this.currentTime = this.savedPosition;
-          }
-        },
-        error: () => {
-          // Non-critical - audiobook can still play without book details
         }
-      });
+      }
+    }
 
-    this.loadBookmarks();
+    if (this.savedPosition > 0) {
+      this.currentTime = this.savedPosition;
+    }
   }
 
   private loadTrack(index: number, showLoading = true): void {
@@ -369,10 +368,18 @@ export class AudiobookPlayerComponent implements OnInit, OnDestroy {
     navigator.mediaSession.setActionHandler('seekbackward', () => this.seekRelative(-30));
     navigator.mediaSession.setActionHandler('seekforward', () => this.seekRelative(30));
     navigator.mediaSession.setActionHandler('previoustrack', () => {
-      this.audiobookInfo.folderBased ? this.previousTrack() : this.previousChapter();
+      if (this.audiobookInfo.folderBased) {
+        this.previousTrack();
+      } else {
+        this.previousChapter();
+      }
     });
     navigator.mediaSession.setActionHandler('nexttrack', () => {
-      this.audiobookInfo.folderBased ? this.nextTrack() : this.nextChapter();
+      if (this.audiobookInfo.folderBased) {
+        this.nextTrack();
+      } else {
+        this.nextChapter();
+      }
     });
     navigator.mediaSession.setActionHandler('seekto', (details) => {
       if (details.seekTime !== undefined) {
@@ -420,6 +427,7 @@ export class AudiobookPlayerComponent implements OnInit, OnDestroy {
           position: this.currentTime
         });
       } catch {
+        // Some browsers reject position updates for live or not-yet-ready media.
       }
     }
   }

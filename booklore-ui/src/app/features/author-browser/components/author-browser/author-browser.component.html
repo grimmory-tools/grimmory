@@ -1,5 +1,5 @@
 <ng-container *transloco="let t; prefix: 'authorBrowser'">
-  @if (loading) {
+  @if (loading()) {
     <div class="loading-state">
       <p-progressSpinner
         [style]="{'width': '60px', 'height': '60px'}"
@@ -10,7 +10,7 @@
     </div>
   }
 
-  @if (!loading) {
+  @if (!loading()) {
     <div class="browse-header">
       <h2 class="browse-title">{{ t('browseAllAuthors') }}</h2>
 
@@ -21,7 +21,7 @@
             pInputText
             type="text"
             [placeholder]="t('searchPlaceholder')"
-            [ngModel]="searchTerm$ | async"
+            [ngModel]="searchTerm()"
             (ngModelChange)="onSearchChange($event)"
             class="search-input"/>
         </div>
@@ -29,7 +29,7 @@
         <div class="filter-sort-wrapper">
           <p-select
             [options]="sortOptions"
-            [ngModel]="sortBy$ | async"
+            [ngModel]="sortBy()"
             (ngModelChange)="onSortChange($event)"
             optionLabel="label"
             optionValue="value"
@@ -37,12 +37,12 @@
           </p-select>
 
           <button class="sort-direction-btn" (click)="toggleSortDirection()">
-            <i class="pi" [class.pi-arrow-up]="(sortDirection$ | async) === 'asc'" [class.pi-arrow-down]="(sortDirection$ | async) === 'desc'"></i>
+            <i class="pi" [class.pi-arrow-up]="sortDirection() === 'asc'" [class.pi-arrow-down]="sortDirection() === 'desc'"></i>
           </button>
 
           <button class="filter-btn" (click)="filterPopover.toggle($event)">
             <i class="pi pi-filter"></i>
-            @if (activeFilterCount > 0) {
+            @if (activeFilterCount() > 0) {
               <span class="filter-badge"></span>
             }
           </button>
@@ -55,15 +55,15 @@
               <div class="display-settings-content">
                 <label class="display-settings-label">{{ t('cardSize') }}</label>
                 <p-slider
-                  [(ngModel)]="authorScaleService.scaleFactor"
+                  [ngModel]="authorScaleService.scaleFactor()"
+                  (ngModelChange)="authorScaleService.setScale($event)"
                   [min]="0.7"
                   [max]="1.3"
                   [step]="0.01"
-                  [style]="{ width: '100%' }"
-                  (onChange)="updateScale()">
+                  [style]="{ width: '100%' }">
                 </p-slider>
                 <div class="scale-value-display">
-                  {{ authorScaleService.scaleFactor.toFixed(2) }}x
+                  {{ authorScaleService.scaleFactor().toFixed(2) }}x
                 </div>
               </div>
             </p-popover>
@@ -79,7 +79,7 @@
                     {label: t('filters.matched'), value: 'matched'},
                     {label: t('filters.unmatched'), value: 'unmatched'}
                   ]"
-                  [ngModel]="(filters$ | async)?.matchStatus"
+                  [ngModel]="filters().matchStatus"
                   (ngModelChange)="onFilterChange('matchStatus', $event)"
                   optionLabel="label"
                   optionValue="value"
@@ -95,7 +95,7 @@
                     {label: t('filters.hasPhoto'), value: 'has-photo'},
                     {label: t('filters.noPhoto'), value: 'no-photo'}
                   ]"
-                  [ngModel]="(filters$ | async)?.photoStatus"
+                  [ngModel]="filters().photoStatus"
                   (ngModelChange)="onFilterChange('photoStatus', $event)"
                   optionLabel="label"
                   optionValue="value"
@@ -113,7 +113,7 @@
                     {label: t('filters.inProgress'), value: 'in-progress'},
                     {label: t('filters.unread'), value: 'unread'}
                   ]"
-                  [ngModel]="(filters$ | async)?.readStatus"
+                  [ngModel]="filters().readStatus"
                   (ngModelChange)="onFilterChange('readStatus', $event)"
                   optionLabel="label"
                   optionValue="value"
@@ -137,7 +137,7 @@
                     {label: '21-35', value: '21-35'},
                     {label: '36+', value: '36+'}
                   ]"
-                  [ngModel]="(filters$ | async)?.bookCount"
+                  [ngModel]="filters().bookCount"
                   (ngModelChange)="onFilterChange('bookCount', $event)"
                   optionLabel="label"
                   optionValue="value"
@@ -148,8 +148,8 @@
               <div class="filter-group">
                 <label class="filter-label">{{ t('filters.library') }}</label>
                 <p-select
-                  [options]="libraryOptions"
-                  [ngModel]="(filters$ | async)?.library"
+                  [options]="libraryOptions()"
+                  [ngModel]="filters().library"
                   (ngModelChange)="onFilterChange('library', $event)"
                   optionLabel="label"
                   optionValue="value"
@@ -160,8 +160,8 @@
               <div class="filter-group">
                 <label class="filter-label">{{ t('filters.genre') }}</label>
                 <p-select
-                  [options]="genreOptions"
-                  [ngModel]="(filters$ | async)?.genre"
+                  [options]="genreOptions()"
+                  [ngModel]="filters().genre"
                   (ngModelChange)="onFilterChange('genre', $event)"
                   optionLabel="label"
                   optionValue="value"
@@ -169,7 +169,7 @@
                 </p-select>
               </div>
 
-              @if (activeFilterCount > 0) {
+              @if (activeFilterCount() > 0) {
                 <p-button
                   [label]="t('filters.reset')"
                   icon="pi pi-filter-slash"
@@ -186,7 +186,7 @@
       </div>
     </div>
 
-    @if (filteredAuthors$ | async; as authorList) {
+    @if (filteredAuthors(); as authorList) {
       @if (authorList.length === 0) {
         <div class="empty-state">
           <i class="pi pi-users empty-icon"></i>
@@ -203,7 +203,7 @@
             @for (author of scroll.viewPortItems; track author.id; let i = $index) {
               <div class="virtual-scroller-item"
                 [ngStyle]="{width: cardWidth + 'px', height: cardHeight + 'px'}"
-                [style.--card-scale]="authorScaleService.scaleFactor">
+                [style.--card-scale]="authorScaleService.scaleFactor()">
                 <app-author-card
                   [author]="author"
                   [index]="authorList.indexOf(author)"
@@ -226,12 +226,12 @@
       }
     }
 
-    @if (userService.userState$ | async; as userState) {
-      <div class="author-browser-footer" [class.footer-hidden]="selectedCount === 0">
+    @if (currentUser(); as user) {
+      <div class="author-browser-footer" [class.footer-hidden]="selectedCount() === 0">
         <div class="footer-content">
           <div class="selected-count-badge">
             <i class="pi pi-check-circle"></i>
-            <span class="selected-count">{{ selectedCount }}</span>
+            <span class="selected-count">{{ selectedCount() }}</span>
             <span class="selected-label">{{ t('footer.selected') }}</span>
           </div>
           @if (canEditMetadata || canDeleteBook) {

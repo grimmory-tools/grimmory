@@ -1,5 +1,5 @@
-import {inject, Injectable} from '@angular/core';
-import {BehaviorSubject, Subject} from 'rxjs';
+import {computed, inject, Injectable, signal} from '@angular/core';
+import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 import {BookNoteV2, BookNoteV2Service} from '../../../../../shared/service/book-note-v2.service';
 import {ReaderViewManagerService} from '../../core/view-manager.service';
@@ -15,23 +15,40 @@ export class ReaderLeftSidebarService {
   private destroy$ = new Subject<void>();
   private bookId!: number;
 
-  private _isOpen = new BehaviorSubject<boolean>(false);
-  private _activeTab = new BehaviorSubject<LeftSidebarTab>('search');
-  private _notes = new BehaviorSubject<BookNoteV2[]>([]);
-  private _notesSearchQuery = new BehaviorSubject<string>('');
-  private _searchState = new BehaviorSubject<SearchState>({
+  private readonly _isOpen = signal(false);
+  readonly isOpen = this._isOpen.asReadonly();
+
+  private readonly _activeTab = signal<LeftSidebarTab>('search');
+  readonly activeTab = this._activeTab.asReadonly();
+
+  private readonly _notes = signal<BookNoteV2[]>([]);
+  readonly notes = this._notes.asReadonly();
+
+  private readonly _notesSearchQuery = signal('');
+  readonly notesSearchQuery = this._notesSearchQuery.asReadonly();
+  readonly filteredNotes = computed(() => {
+    const query = this._notesSearchQuery().toLowerCase().trim();
+    const notes = this._notes();
+
+    if (!query) {
+      return notes;
+    }
+
+    return notes.filter(note =>
+      note.noteContent.toLowerCase().includes(query) ||
+      note.selectedText?.toLowerCase().includes(query) ||
+      note.chapterTitle?.toLowerCase().includes(query)
+    );
+  });
+
+  private readonly _searchState = signal<SearchState>({
     query: '',
     results: [],
     isSearching: false,
     progress: 0
   });
+  readonly searchState = this._searchState.asReadonly();
   private searchAbortController: AbortController | null = null;
-
-  isOpen$ = this._isOpen.asObservable();
-  activeTab$ = this._activeTab.asObservable();
-  notes$ = this._notes.asObservable();
-  notesSearchQuery$ = this._notesSearchQuery.asObservable();
-  searchState$ = this._searchState.asObservable();
 
   private _editNote = new Subject<BookNoteV2>();
   editNote$ = this._editNote.asObservable();
@@ -46,7 +63,7 @@ export class ReaderLeftSidebarService {
   private loadNotes(): void {
     this.bookNoteV2Service.getNotesForBook(this.bookId)
       .pipe(takeUntil(this.destroy$))
-      .subscribe(notes => this._notes.next(notes));
+      .subscribe(notes => this._notes.set(notes));
   }
 
   refreshNotes(): void {
@@ -55,17 +72,17 @@ export class ReaderLeftSidebarService {
 
   open(tab?: LeftSidebarTab): void {
     if (tab) {
-      this._activeTab.next(tab);
+      this._activeTab.set(tab);
     }
-    this._isOpen.next(true);
+    this._isOpen.set(true);
   }
 
   close(): void {
-    this._isOpen.next(false);
+    this._isOpen.set(false);
   }
 
   toggle(tab?: LeftSidebarTab): void {
-    if (this._isOpen.value && (!tab || this._activeTab.value === tab)) {
+    if (this._isOpen() && (!tab || this._activeTab() === tab)) {
       this.close();
     } else {
       this.open(tab);
@@ -73,12 +90,12 @@ export class ReaderLeftSidebarService {
   }
 
   setActiveTab(tab: LeftSidebarTab): void {
-    this._activeTab.next(tab);
+    this._activeTab.set(tab);
   }
 
   openWithSearch(query: string): void {
-    this._activeTab.next('search');
-    this._isOpen.next(true);
+    this._activeTab.set('search');
+    this._isOpen.set(true);
     setTimeout(() => this.search(query), 100);
   }
 
@@ -92,8 +109,7 @@ export class ReaderLeftSidebarService {
     this.bookNoteV2Service.deleteNote(noteId)
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        const updatedNotes = this._notes.value.filter(n => n.id !== noteId);
-        this._notes.next(updatedNotes);
+        this._notes.update(notes => notes.filter(note => note.id !== noteId));
       });
   }
 
@@ -103,19 +119,7 @@ export class ReaderLeftSidebarService {
   }
 
   setNotesSearchQuery(query: string): void {
-    this._notesSearchQuery.next(query);
-  }
-
-  getFilteredNotes(): BookNoteV2[] {
-    const query = this._notesSearchQuery.value.toLowerCase().trim();
-    if (!query) {
-      return this._notes.value;
-    }
-    return this._notes.value.filter(note =>
-      note.noteContent.toLowerCase().includes(query) ||
-      (note.selectedText?.toLowerCase().includes(query)) ||
-      (note.chapterTitle?.toLowerCase().includes(query))
-    );
+    this._notesSearchQuery.set(query);
   }
 
   async search(query: string): Promise<void> {
@@ -129,7 +133,7 @@ export class ReaderLeftSidebarService {
     }
     this.searchAbortController = new AbortController();
 
-    this._searchState.next({
+    this._searchState.set({
       query,
       results: [],
       isSearching: true,
@@ -148,10 +152,10 @@ export class ReaderLeftSidebarService {
         }
 
         if ('progress' in result) {
-          this._searchState.next({
-            ...this._searchState.value,
+          this._searchState.update(current => ({
+            ...current,
             progress: result.progress
-          });
+          }));
         }
 
         if ('subitems' in result && result.subitems) {
@@ -161,24 +165,21 @@ export class ReaderLeftSidebarService {
             sectionLabel: result.label
           }));
           results.push(...sectionResults);
-          this._searchState.next({
-            ...this._searchState.value,
+          this._searchState.update(current => ({
+            ...current,
             results: [...results]
-          });
+          }));
         }
       }
 
-      this._searchState.next({
+      this._searchState.set({
         query,
         results,
         isSearching: false,
         progress: 1
       });
     } catch (error) {
-      this._searchState.next({
-        ...this._searchState.value,
-        isSearching: false
-      });
+      this._searchState.update(current => ({...current, isSearching: false}));
     }
   }
 
@@ -188,7 +189,7 @@ export class ReaderLeftSidebarService {
       this.searchAbortController = null;
     }
     this.viewManager.clearSearch();
-    this._searchState.next({
+    this._searchState.set({
       query: '',
       results: [],
       isSearching: false,
@@ -203,10 +204,10 @@ export class ReaderLeftSidebarService {
   }
 
   reset(): void {
-    this._isOpen.next(false);
-    this._activeTab.next('search');
-    this._notes.next([]);
-    this._notesSearchQuery.next('');
+    this._isOpen.set(false);
+    this._activeTab.set('search');
+    this._notes.set([]);
+    this._notesSearchQuery.set('');
     this.clearSearch();
   }
 }

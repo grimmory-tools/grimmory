@@ -1,18 +1,20 @@
 package org.booklore.service.recommender;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.booklore.model.entity.AuthorEntity;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.entity.CategoryEntity;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class BookSimilarityService {
 
     private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");

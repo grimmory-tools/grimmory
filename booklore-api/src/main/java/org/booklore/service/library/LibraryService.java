@@ -1,6 +1,5 @@
 package org.booklore.service.library;
 
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.security.service.AuthenticationService;
@@ -24,6 +23,7 @@ import org.booklore.repository.LibraryPathRepository;
 import org.booklore.repository.LibraryRepository;
 import org.booklore.repository.UserRepository;
 import org.booklore.service.NotificationService;
+import org.booklore.service.audit.AuditService;
 import org.booklore.service.monitoring.LibraryWatchService;
 import org.booklore.task.options.RescanLibraryContext;
 import org.booklore.util.FileService;
@@ -34,6 +34,9 @@ import org.springframework.context.event.EventListener;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -43,7 +46,6 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import org.booklore.service.audit.AuditService;
 
 @Slf4j
 @Service
@@ -83,6 +85,7 @@ public class LibraryService {
         log.info("Monitoring initialized with {} libraries", libraries.size());
     }
 
+    @Transactional
     public Library updateLibrary(CreateLibraryRequest request, Long libraryId) {
         LibraryEntity library = libraryRepository.findById(libraryId)
                 .orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
@@ -148,26 +151,14 @@ public class LibraryService {
         }
 
         if (!newPaths.isEmpty()) {
-            SecurityContextVirtualThread.runWithSecurityContext(() -> {
-                if (!scanningLibraries.add(libraryId)) {
-                    log.warn("Library {} is already being scanned, skipping duplicate process request", libraryId);
-                    return;
-                }
-                try {
-                    libraryProcessingService.processLibrary(libraryId);
-                } catch (InvalidDataAccessApiUsageException e) {
-                    log.debug("InvalidDataAccessApiUsageException - Library id: {}", libraryId);
-                } finally {
-                    scanningLibraries.remove(libraryId);
-                }
-                log.info("Parsing task completed!");
-            });
+            scheduleBackgroundScanAfterCommit(libraryId);
         }
 
         auditService.log(AuditAction.LIBRARY_UPDATED, "Library", libraryId, "Updated library: " + library.getName());
         return libraryMapper.toLibrary(savedLibrary);
     }
 
+    @Transactional
     public Library createLibrary(CreateLibraryRequest request) {
         BookLoreUser bookLoreUser = authenticationService.getAuthenticatedUser();
         Optional<BookLoreUserEntity> user = userRepository.findById(bookLoreUser.getId());
@@ -201,20 +192,7 @@ public class LibraryService {
             }
         }
 
-        SecurityContextVirtualThread.runWithSecurityContext(() -> {
-            if (!scanningLibraries.add(libraryId)) {
-                log.warn("Library {} is already being scanned, skipping duplicate process request", libraryId);
-                return;
-            }
-            try {
-                libraryProcessingService.processLibrary(libraryId);
-            } catch (InvalidDataAccessApiUsageException e) {
-                log.debug("InvalidDataAccessApiUsageException - Library id: {}", libraryId);
-            } finally {
-                scanningLibraries.remove(libraryId);
-            }
-            log.info("Parsing task completed!");
-        });
+        scheduleBackgroundScanAfterCommit(libraryId);
 
         auditService.log(AuditAction.LIBRARY_CREATED, "Library", libraryEntity.getId(), "Created library: " + libraryEntity.getName());
         return libraryMapper.toLibrary(libraryEntity);
@@ -245,19 +223,22 @@ public class LibraryService {
         });
     }
 
+    @Transactional(readOnly = true)
     public Library getLibrary(long libraryId) {
         LibraryEntity libraryEntity = libraryRepository.findById(libraryId).orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
         return libraryMapper.toLibrary(libraryEntity);
     }
 
+    @Transactional(readOnly = true)
     public List<Library> getAllLibraries() {
         List<LibraryEntity> libraries = libraryRepository.findAll();
         return libraries.stream().map(libraryMapper::toLibrary).toList();
     }
 
+    @Transactional(readOnly = true)
     public List<Library> getLibraries() {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
-        BookLoreUserEntity userEntity = userRepository.findById(user.getId()).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        BookLoreUserEntity userEntity = userRepository.findByIdWithLibraries(user.getId()).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         List<LibraryEntity> libraries;
         if (userEntity.getPermissions().isPermissionAdmin()) {
             libraries = libraryRepository.findAll();
@@ -270,7 +251,7 @@ public class LibraryService {
 
     @Transactional
     public void deleteLibrary(long id) {
-        LibraryEntity library = libraryRepository.findById(id)
+        LibraryEntity library = libraryRepository.findByIdWithBooks(id)
                 .orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(id));
         libraryWatchService.unregisterLibrary(id);
         Set<Long> bookIds = library.getBookEntities().stream().map(BookEntity::getId).collect(Collectors.toSet());
@@ -281,18 +262,21 @@ public class LibraryService {
         log.info("Library deleted successfully: {}", id);
     }
 
+    @Transactional(readOnly = true)
     public Book getBook(long libraryId, long bookId) {
         libraryRepository.findById(libraryId).orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
-        BookEntity bookEntity = bookRepository.findBookByIdAndLibraryId(bookId, libraryId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
+        BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).filter(b -> b.getLibrary().getId() == libraryId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
         return bookMapper.toBook(bookEntity);
     }
 
+    @Transactional(readOnly = true)
     public List<Book> getBooks(long libraryId) {
         libraryRepository.findById(libraryId).orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
         List<BookEntity> bookEntities = bookRepository.findAllWithMetadataByLibraryId(libraryId);
         return bookEntities.stream().map(bookMapper::toBook).toList();
     }
 
+    @Transactional
     public Library setFileNamingPattern(long libraryId, String pattern) {
         LibraryEntity library = libraryRepository.findById(libraryId).orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
         library.setFileNamingPattern(pattern);
@@ -301,6 +285,7 @@ public class LibraryService {
         return result;
     }
 
+    @Transactional(readOnly = true)
     public Map<String, Long> getBookCountsByFormat(long libraryId) {
         libraryRepository.findById(libraryId).orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
         Map<String, Long> counts = new HashMap<>();
@@ -366,5 +351,34 @@ public class LibraryService {
         }
         return false;
     }
-}
 
+    private void scheduleBackgroundScanAfterCommit(long libraryId) {
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    startBackgroundScan(libraryId);
+                }
+            });
+        } else {
+            startBackgroundScan(libraryId);
+        }
+    }
+
+    private void startBackgroundScan(long libraryId) {
+        SecurityContextVirtualThread.runWithSecurityContext(() -> {
+            if (!scanningLibraries.add(libraryId)) {
+                log.warn("Library {} is already being scanned, skipping duplicate process request", libraryId);
+                return;
+            }
+            try {
+                libraryProcessingService.processLibrary(libraryId);
+            } catch (InvalidDataAccessApiUsageException e) {
+                log.debug("InvalidDataAccessApiUsageException - Library id: {}", libraryId);
+            } finally {
+                scanningLibraries.remove(libraryId);
+            }
+            log.info("Parsing task completed!");
+        });
+    }
+}

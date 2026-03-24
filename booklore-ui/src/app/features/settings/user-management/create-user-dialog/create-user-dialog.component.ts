@@ -31,7 +31,6 @@ import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/tran
 })
 export class CreateUserDialogComponent implements OnInit {
   userForm!: FormGroup;
-  libraries: Library[] = [];
 
   private fb = inject(FormBuilder);
   private libraryService = inject(LibraryService);
@@ -40,9 +39,11 @@ export class CreateUserDialogComponent implements OnInit {
   private ref = inject(DynamicDialogRef);
   private t = inject(TranslocoService);
 
-  ngOnInit() {
-    this.libraries = this.libraryService.getLibrariesFromState();
+  get libraries(): Library[] {
+    return this.libraryService.libraries();
+  }
 
+  ngOnInit() {
     this.userForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],

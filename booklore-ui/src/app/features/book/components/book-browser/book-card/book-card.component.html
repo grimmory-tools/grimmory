@@ -14,7 +14,7 @@
       (load)="onImageLoad()"/>
 
     <div class="top-left-overlay-stack">
-      @if (showBookTypePill && getDisplayFormat(); as displayFormat) {
+      @if ((overlayPreferenceService?.showBookTypePill() ?? true) && getDisplayFormat(); as displayFormat) {
         <div class="book-type-pill-overlay" [ngClass]="'book-type-' + displayFormat.toLowerCase()">
           {{ displayFormat }}
         </div>

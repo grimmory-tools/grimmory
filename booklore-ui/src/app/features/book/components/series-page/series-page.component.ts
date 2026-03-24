@@ -1,10 +1,10 @@
 import {FormsModule} from "@angular/forms";
 import {Button} from "primeng/button";
 import {ActivatedRoute, Router} from "@angular/router";
-import {AsyncPipe, DecimalPipe, KeyValuePipe, NgClass, NgStyle} from "@angular/common";
-import {filter, finalize, map, switchMap, tap} from "rxjs/operators";
-import {combineLatest, Observable, Subscription} from "rxjs";
-import {Book, BookType, ReadStatus} from "../../model/book.model";
+import {toSignal} from '@angular/core/rxjs-interop';
+import {DecimalPipe, KeyValuePipe, NgClass, NgStyle} from "@angular/common";
+import {finalize, map} from "rxjs/operators";
+import {Book, BookType, computeSeriesReadStatus, ReadStatus} from "../../model/book.model";
 import {BookService} from "../../service/book.service";
 import {BookMetadataManageService} from "../../service/book-metadata-manage.service";
 import {BookCardComponent} from "../book-browser/book-card/book-card.component";
@@ -28,9 +28,10 @@ import {Tooltip} from "primeng/tooltip";
 import {Divider} from "primeng/divider";
 import {TagComponent} from "../../../../shared/components/tag/tag.component";
 import {animate, style, transition, trigger} from "@angular/animations";
-import {AfterViewChecked, Component, ElementRef, inject, OnDestroy, ViewChild} from '@angular/core';
+import {AfterViewChecked, Component, computed, effect, ElementRef, inject, ViewChild} from '@angular/core';
 import {BookCardOverlayPreferenceService} from '../book-browser/book-card-overlay-preference.service';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
+import {injectQuery} from '@tanstack/angular-query-experimental';
 
 interface ReadStatusSegment {
   status: ReadStatus;
@@ -68,7 +69,6 @@ interface SeriesStats {
   templateUrl: "./series-page.component.html",
   styleUrls: ["./series-page.component.scss"],
   imports: [
-    AsyncPipe,
     DecimalPipe,
     KeyValuePipe,
     Button,
@@ -103,7 +103,7 @@ interface SeriesStats {
     ])
   ]
 })
-export class SeriesPageComponent implements OnDestroy, AfterViewChecked {
+export class SeriesPageComponent implements AfterViewChecked {
 
   private route = inject(ActivatedRoute);
   private bookService = inject(BookService);
@@ -128,313 +128,257 @@ export class SeriesPageComponent implements OnDestroy, AfterViewChecked {
   tab: string = "view";
   isExpanded = false;
   isOverflowing = false;
+  protected appSettings = this.appSettingsService.appSettings;
+  protected currentUser = this.userService.currentUser;
+  protected isBooksLoading = this.bookService.isBooksLoading;
 
   // Selection state
   selectedBooks = new Set<number>();
   lastSelectedIndex: number | null = null;
-  currentBooks: Book[] = [];
-  private userSub: Subscription;
 
   // Menu items
   protected metadataMenuItems: MenuItem[] | undefined;
   protected moreActionsMenuItems: MenuItem[] | undefined;
 
-  seriesParam$: Observable<string> = this.route.paramMap.pipe(
+  private seriesParam = toSignal(this.route.paramMap.pipe(
     map((params) => params.get("seriesName") || ""),
     map((name) => decodeURIComponent(name))
-  );
+  ), {initialValue: ""});
 
-  booksInSeries$: Observable<Book[]> = this.bookService.bookState$.pipe(
-    filter((state) => state.loaded && !!state.books),
-    map((state) => state.books || [])
-  );
+  filteredBooks = computed(() => {
+    const seriesName = this.seriesParam().trim().toLowerCase();
+    const inSeries = this.bookService.books().filter(
+      (book) => book.metadata?.seriesName?.trim().toLowerCase() === seriesName
+    );
 
-  filteredBooks$: Observable<Book[]> = combineLatest([
-    this.seriesParam$.pipe(map((n) => n.trim().toLowerCase())),
-    this.booksInSeries$,
-  ]).pipe(
-    map(([seriesName, books]) => {
-      const inSeries = books.filter(
-        (b) => b.metadata?.seriesName?.trim().toLowerCase() === seriesName
-      );
-      return inSeries.sort((a, b) => {
-        const aNum = a.metadata?.seriesNumber ?? Number.MAX_SAFE_INTEGER;
-        const bNum = b.metadata?.seriesNumber ?? Number.MAX_SAFE_INTEGER;
-        return aNum - bNum;
-      });
-    }),
-    tap(books => this.currentBooks = books)
-  );
+    return [...inSeries].sort((a, b) => {
+      const aNum = a.metadata?.seriesNumber ?? Number.MAX_SAFE_INTEGER;
+      const bNum = b.metadata?.seriesNumber ?? Number.MAX_SAFE_INTEGER;
+      return aNum - bNum;
+    });
+  });
 
-  coverBook$: Observable<Book | null> = this.filteredBooks$.pipe(
-    map(books => books[0] ?? null)
-  );
+  coverBook = computed(() => this.filteredBooks()[0] ?? null);
+  private firstBookId = computed(() => this.coverBook()?.id ?? null);
+  private firstBookDetailQuery = injectQuery(() => ({
+    ...this.bookService.bookDetailQueryOptions(this.firstBookId() ?? -1, true),
+    enabled: this.firstBookId() != null,
+  }));
 
-  seriesTitle$: Observable<string> = combineLatest([
-    this.seriesParam$,
-    this.filteredBooks$,
-  ]).pipe(map(([param, books]) => books[0]?.metadata?.seriesName || param));
+  seriesTitle = computed(() => this.filteredBooks()[0]?.metadata?.seriesName || this.seriesParam());
 
-  yearsRange$: Observable<string | null> = this.filteredBooks$.pipe(
-    map((books) => {
-      const years = books
-        .map((b) => b.metadata?.publishedDate)
-        .filter((d): d is string => !!d)
-        .map((d) => {
-          const match = d.match(/\d{4}/);
-          return match ? parseInt(match[0], 10) : null;
-        })
-        .filter((y): y is number => y !== null);
+  yearsRange = computed(() => {
+    const years = this.filteredBooks()
+      .map((book) => book.metadata?.publishedDate)
+      .filter((date): date is string => !!date)
+      .map((date) => {
+        const match = date.match(/\d{4}/);
+        return match ? parseInt(match[0], 10) : null;
+      })
+      .filter((year): year is number => year !== null);
 
-      if (years.length === 0) return null;
-      const min = Math.min(...years);
-      const max = Math.max(...years);
-      return min === max ? String(min) : `${min}-${max}`;
-    })
-  );
+    if (years.length === 0) return null;
+    const min = Math.min(...years);
+    const max = Math.max(...years);
+    return min === max ? String(min) : `${min}-${max}`;
+  });
 
-  firstBookWithDesc$: Observable<Book> = this.filteredBooks$.pipe(
-    map((books) => books[0]),
-    filter((b): b is Book => !!b),
-    switchMap((b) => this.bookService.getBookByIdFromAPI(b.id, true))
-  );
+  firstBookWithDesc = computed(() => this.firstBookDetailQuery.data() ?? null);
+  firstDescription = computed(() => this.firstBookWithDesc()?.metadata?.description || "");
 
-  firstDescription$: Observable<string> = this.firstBookWithDesc$.pipe(
-    map((b) => b.metadata?.description || "")
-  );
+  seriesReadStatus = computed(() => computeSeriesReadStatus(this.filteredBooks()));
 
-  seriesReadStatus$: Observable<ReadStatus> = this.filteredBooks$.pipe(
-    map((books) => {
-      if (!books || books.length === 0) return ReadStatus.UNREAD;
-      const statuses = books.map((b) => (b.readStatus as ReadStatus) ?? ReadStatus.UNREAD);
+  seriesReadProgress = computed(() => {
+    const books = this.filteredBooks();
+    const readCount = books.filter((book) => book.readStatus === ReadStatus.READ).length;
+    return `${readCount}/${books.length}`;
+  });
 
-      const hasWontRead = statuses.includes(ReadStatus.WONT_READ);
-      if (hasWontRead) return ReadStatus.WONT_READ;
+  allAuthors = computed(() => {
+    const authors = new Set<string>();
+    for (const book of this.filteredBooks()) {
+      book.metadata?.authors?.forEach((author) => authors.add(author));
+    }
+    return Array.from(authors);
+  });
 
-      const hasAbandoned = statuses.includes(ReadStatus.ABANDONED);
-      if (hasAbandoned) return ReadStatus.ABANDONED;
+  allCategories = computed(() => {
+    const categories = new Set<string>();
+    for (const book of this.filteredBooks()) {
+      book.metadata?.categories?.forEach((category) => categories.add(category));
+    }
+    return Array.from(categories);
+  });
 
-      const allRead = statuses.every((s) => s === ReadStatus.READ);
-      if (allRead) return ReadStatus.READ;
-
-      const isAnyReading = statuses.some(
-        (s) => s === ReadStatus.READING || s === ReadStatus.RE_READING || s === ReadStatus.PAUSED
-      );
-      if (isAnyReading) return ReadStatus.READING;
-
-      const someRead = statuses.some((s) => s === ReadStatus.READ);
-      if (someRead) return ReadStatus.PARTIALLY_READ;
-
-      const allUnread = statuses.every((s) => s === ReadStatus.UNREAD);
-      if (allUnread) return ReadStatus.UNREAD;
-
-      return ReadStatus.PARTIALLY_READ;
-    })
-  );
-
-  seriesReadProgress$: Observable<string> = this.filteredBooks$.pipe(
-    map((books) => {
-      const total = books?.length ?? 0;
-      const readCount = (books || []).filter((b) => b.readStatus === ReadStatus.READ).length;
-      return `${readCount}/${total}`;
-    })
-  );
-
-  // Aggregated metadata across all books
-  allAuthors$: Observable<string[]> = this.filteredBooks$.pipe(
-    map(books => {
-      const set = new Set<string>();
-      for (const book of books) {
-        book.metadata?.authors?.forEach(a => set.add(a));
+  allPublishers = computed(() => {
+    const publishers = new Set<string>();
+    for (const book of this.filteredBooks()) {
+      if (book.metadata?.publisher) {
+        publishers.add(book.metadata.publisher);
       }
-      return Array.from(set);
-    })
-  );
+    }
+    return Array.from(publishers);
+  });
 
-  allCategories$: Observable<string[]> = this.filteredBooks$.pipe(
-    map(books => {
-      const set = new Set<string>();
-      for (const book of books) {
-        book.metadata?.categories?.forEach(c => set.add(c));
+  allLanguages = computed(() => {
+    const languages = new Set<string>();
+    for (const book of this.filteredBooks()) {
+      if (book.metadata?.language) {
+        languages.add(book.metadata.language);
       }
-      return Array.from(set);
-    })
-  );
+    }
+    return Array.from(languages);
+  });
 
-  allPublishers$: Observable<string[]> = this.filteredBooks$.pipe(
-    map(books => {
-      const set = new Set<string>();
-      for (const book of books) {
-        if (book.metadata?.publisher) set.add(book.metadata.publisher);
+  seriesCompletion = computed<SeriesCompletion | null>(() => {
+    const totals = this.filteredBooks()
+      .map((book) => book.metadata?.seriesTotal)
+      .filter((total): total is number => total != null && total > 0);
+    if (totals.length === 0) return null;
+
+    const seriesTotal = Math.max(...totals);
+    const ownedNumbers = new Set(
+      this.filteredBooks()
+        .map((book) => book.metadata?.seriesNumber)
+        .filter((number): number is number => number != null)
+    );
+
+    const missingNumbers: number[] = [];
+    for (let i = 1; i <= seriesTotal; i++) {
+      if (!ownedNumbers.has(i)) missingNumbers.push(i);
+    }
+
+    const owned = ownedNumbers.size;
+    return {
+      owned,
+      total: seriesTotal,
+      percent: seriesTotal > 0 ? Math.round((owned / seriesTotal) * 100) : 0,
+      missingNumbers
+    };
+  });
+
+  readStatusBreakdown = computed(() => {
+    const books = this.filteredBooks();
+    if (books.length === 0) return [];
+
+    const counts = new Map<ReadStatus, number>();
+    for (const book of books) {
+      const status = (book.readStatus as ReadStatus) ?? ReadStatus.UNREAD;
+      counts.set(status, (counts.get(status) || 0) + 1);
+    }
+
+    const total = books.length;
+    const segments: ReadStatusSegment[] = [];
+    for (const [status, count] of counts) {
+      segments.push({status, count, percent: (count / total) * 100});
+    }
+    return segments;
+  });
+
+  nextUp = computed<NextUpBook | null>(() => {
+    const books = this.filteredBooks();
+    const reading = books.find(book =>
+      book.readStatus === ReadStatus.READING ||
+      book.readStatus === ReadStatus.RE_READING ||
+      book.readStatus === ReadStatus.PAUSED
+    );
+    const target = reading || books.find(book => book.readStatus === ReadStatus.UNREAD || !book.readStatus);
+    if (!target) return null;
+
+    const isAudiobook = target.primaryFile?.bookType === 'AUDIOBOOK';
+    const thumbnailUrl = isAudiobook
+      ? this.urlHelper.getAudiobookThumbnailUrl(target.id, target.metadata?.audiobookCoverUpdatedOn)
+      : this.urlHelper.getThumbnailUrl(target.id, target.metadata?.coverUpdatedOn);
+
+    const isReading = target.readStatus === ReadStatus.READING ||
+      target.readStatus === ReadStatus.RE_READING ||
+      target.readStatus === ReadStatus.PAUSED;
+
+    let progressPercent: number | null = null;
+    if (isReading) {
+      progressPercent = target.epubProgress?.percentage
+        ?? target.pdfProgress?.percentage
+        ?? target.cbxProgress?.percentage
+        ?? target.audiobookProgress?.percentage
+        ?? target.koreaderProgress?.percentage
+        ?? target.koboProgress?.percentage
+        ?? null;
+      if (progressPercent != null) {
+        progressPercent = Math.round(progressPercent);
       }
-      return Array.from(set);
-    })
-  );
+    }
 
-  allLanguages$: Observable<string[]> = this.filteredBooks$.pipe(
-    map(books => {
-      const set = new Set<string>();
-      for (const book of books) {
-        if (book.metadata?.language) set.add(book.metadata.language);
-      }
-      return Array.from(set);
-    })
-  );
+    return {book: target, thumbnailUrl, isReading, progressPercent};
+  });
 
-  // Series completion tracker
-  seriesCompletion$: Observable<SeriesCompletion | null> = this.filteredBooks$.pipe(
-    map(books => {
-      const totals = books
-        .map(b => b.metadata?.seriesTotal)
-        .filter((t): t is number => t != null && t > 0);
-      if (totals.length === 0) return null;
+  seriesStats = computed<SeriesStats>(() => {
+    let totalPages = 0;
+    const personalRatings: number[] = [];
+    const goodreadsRatings: number[] = [];
+    const amazonRatings: number[] = [];
+    const hardcoverRatings: number[] = [];
+    const formatCounts = new Map<BookType, number>();
+    let totalAudioDurationSeconds = 0;
 
-      const seriesTotal = Math.max(...totals);
-      const ownedNumbers = new Set(
-        books
-          .map(b => b.metadata?.seriesNumber)
-          .filter((n): n is number => n != null)
-      );
+    for (const book of this.filteredBooks()) {
+      if (book.metadata?.pageCount) totalPages += book.metadata.pageCount;
+      if (book.personalRating != null) personalRatings.push(book.personalRating);
+      if (book.metadata?.goodreadsRating != null) goodreadsRatings.push(book.metadata.goodreadsRating);
+      if (book.metadata?.amazonRating != null) amazonRatings.push(book.metadata.amazonRating);
+      if (book.metadata?.hardcoverRating != null) hardcoverRatings.push(book.metadata.hardcoverRating);
 
-      const missingNumbers: number[] = [];
-      for (let i = 1; i <= seriesTotal; i++) {
-        if (!ownedNumbers.has(i)) missingNumbers.push(i);
-      }
-
-      const owned = ownedNumbers.size;
-      return {
-        owned,
-        total: seriesTotal,
-        percent: seriesTotal > 0 ? Math.round((owned / seriesTotal) * 100) : 0,
-        missingNumbers
-      };
-    })
-  );
-
-  // Reading progress breakdown
-  readStatusBreakdown$: Observable<ReadStatusSegment[]> = this.filteredBooks$.pipe(
-    map(books => {
-      if (!books.length) return [];
-      const counts = new Map<ReadStatus, number>();
-      for (const book of books) {
-        const status = (book.readStatus as ReadStatus) ?? ReadStatus.UNREAD;
-        counts.set(status, (counts.get(status) || 0) + 1);
-      }
-      const total = books.length;
-      const segments: ReadStatusSegment[] = [];
-      for (const [status, count] of counts) {
-        segments.push({status, count, percent: (count / total) * 100});
-      }
-      return segments;
-    })
-  );
-
-  // Next up / continue reading
-  nextUp$: Observable<NextUpBook | null> = this.filteredBooks$.pipe(
-    map(books => {
-      const reading = books.find(b =>
-        b.readStatus === ReadStatus.READING ||
-        b.readStatus === ReadStatus.RE_READING ||
-        b.readStatus === ReadStatus.PAUSED
-      );
-      const target = reading || books.find(b => b.readStatus === ReadStatus.UNREAD || !b.readStatus);
-      if (!target) return null;
-
-      const isAudiobook = target.primaryFile?.bookType === 'AUDIOBOOK';
-      const thumbnailUrl = isAudiobook
-        ? this.urlHelper.getAudiobookThumbnailUrl(target.id, target.metadata?.audiobookCoverUpdatedOn)
-        : this.urlHelper.getThumbnailUrl(target.id, target.metadata?.coverUpdatedOn);
-
-      const isReading = target.readStatus === ReadStatus.READING ||
-        target.readStatus === ReadStatus.RE_READING ||
-        target.readStatus === ReadStatus.PAUSED;
-
-      let progressPercent: number | null = null;
-      if (isReading) {
-        progressPercent = target.epubProgress?.percentage
-          ?? target.pdfProgress?.percentage
-          ?? target.cbxProgress?.percentage
-          ?? target.audiobookProgress?.percentage
-          ?? target.koreaderProgress?.percentage
-          ?? target.koboProgress?.percentage
-          ?? null;
-        if (progressPercent != null) {
-          progressPercent = Math.round(progressPercent);
-        }
+      const bookType = book.primaryFile?.bookType;
+      if (bookType) {
+        formatCounts.set(bookType, (formatCounts.get(bookType) || 0) + 1);
       }
 
-      return {book: target, thumbnailUrl, isReading, progressPercent};
-    })
-  );
-
-  // Series statistics
-  seriesStats$: Observable<SeriesStats> = this.filteredBooks$.pipe(
-    map(books => {
-      let totalPages = 0;
-      const personalRatings: number[] = [];
-      const goodreadsRatings: number[] = [];
-      const amazonRatings: number[] = [];
-      const hardcoverRatings: number[] = [];
-      const formatCounts = new Map<BookType, number>();
-      let totalAudioDurationSeconds = 0;
-
-      for (const book of books) {
-        if (book.metadata?.pageCount) totalPages += book.metadata.pageCount;
-        if (book.personalRating != null) personalRatings.push(book.personalRating);
-        if (book.metadata?.goodreadsRating != null) goodreadsRatings.push(book.metadata.goodreadsRating);
-        if (book.metadata?.amazonRating != null) amazonRatings.push(book.metadata.amazonRating);
-        if (book.metadata?.hardcoverRating != null) hardcoverRatings.push(book.metadata.hardcoverRating);
-
-        const bookType = book.primaryFile?.bookType;
-        if (bookType) {
-          formatCounts.set(bookType, (formatCounts.get(bookType) || 0) + 1);
-        }
-
-        if (book.metadata?.audiobookMetadata?.durationSeconds) {
-          totalAudioDurationSeconds += book.metadata.audiobookMetadata.durationSeconds;
-        }
+      if (book.metadata?.audiobookMetadata?.durationSeconds) {
+        totalAudioDurationSeconds += book.metadata.audiobookMetadata.durationSeconds;
       }
+    }
 
-      const avg = (arr: number[]) => arr.length > 0 ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
+    const avg = (ratings: number[]) => ratings.length > 0
+      ? ratings.reduce((total, rating) => total + rating, 0) / ratings.length
+      : null;
 
-      return {
-        totalPages,
-        avgPersonalRating: avg(personalRatings),
-        avgGoodreads: avg(goodreadsRatings),
-        avgAmazon: avg(amazonRatings),
-        avgHardcover: avg(hardcoverRatings),
-        formatCounts,
-        totalAudioDurationSeconds
-      };
-    })
-  );
+    return {
+      totalPages,
+      avgPersonalRating: avg(personalRatings),
+      avgGoodreads: avg(goodreadsRatings),
+      avgAmazon: avg(amazonRatings),
+      avgHardcover: avg(hardcoverRatings),
+      formatCounts,
+      totalAudioDurationSeconds
+    };
+  });
 
   constructor() {
-    this.userSub = this.userService.userState$.pipe(filter(u => !!u?.user && u.loaded))
-      .subscribe(userState => {
-        this.metadataMenuItems = this.bookMenuService.getMetadataMenuItems(
-          () => this.autoFetchMetadata(),
-          () => this.fetchMetadata(),
-          () => this.bulkEditMetadata(),
-          () => this.multiBookEditMetadata(),
-          () => this.regenerateCoversForSelected(),
-          () => this.generateCustomCoversForSelected(),
-          userState.user
-        );
-        this.moreActionsMenuItems = this.bookMenuService.getMoreActionsMenu(this.selectedBooks, this.user());
-      });
-  }
+    effect(() => {
+      const user = this.currentUser();
+      if (!user) {
+        return;
+      }
 
-  ngOnDestroy(): void {
-    this.userSub.unsubscribe();
+      this.metadataMenuItems = this.bookMenuService.getMetadataMenuItems(
+        () => this.autoFetchMetadata(),
+        () => this.fetchMetadata(),
+        () => this.bulkEditMetadata(),
+        () => this.multiBookEditMetadata(),
+        () => this.regenerateCoversForSelected(),
+        () => this.generateCustomCoversForSelected(),
+        user
+      );
+      this.moreActionsMenuItems = this.bookMenuService.getMoreActionsMenu(this.selectedBooks, this.currentUser());
+    });
+
   }
 
   get currentCardSize() {
-    return this.coverScalePreferenceService.currentCardSize;
+    return this.coverScalePreferenceService.currentCardSize();
   }
 
   get gridColumnMinWidth(): string {
-    return this.coverScalePreferenceService.gridColumnMinWidth;
+    return this.coverScalePreferenceService.gridColumnMinWidth();
   }
 
   goToAuthorBooks(author: string): void {
@@ -607,8 +551,9 @@ export class SeriesPageComponent implements OnDestroy, AfterViewChecked {
       const start = Math.min(this.lastSelectedIndex, index);
       const end = Math.max(this.lastSelectedIndex, index);
       const isUnselectingRange = !selected;
+      const books = this.filteredBooks();
       for (let i = start; i <= end; i++) {
-        const book = this.currentBooks[i];
+        const book = books[i];
         if (!book) continue;
         this.handleBookSelection(book, !isUnselectingRange);
       }
@@ -622,8 +567,7 @@ export class SeriesPageComponent implements OnDestroy, AfterViewChecked {
   }
 
   selectAllBooks(): void {
-    if (!this.currentBooks) return;
-    for (const book of this.currentBooks) {
+    for (const book of this.filteredBooks()) {
       this.selectedBooks.add(book.id);
     }
     this.moreActionsMenuItems = this.bookMenuService.getMoreActionsMenu(this.selectedBooks, this.user());
@@ -654,8 +598,6 @@ export class SeriesPageComponent implements OnDestroy, AfterViewChecked {
           .subscribe(() => {
             this.selectedBooks.clear();
           });
-      },
-      reject: () => {
       }
     });
   }
@@ -795,7 +737,7 @@ export class SeriesPageComponent implements OnDestroy, AfterViewChecked {
   }
 
   user() {
-    return this.userService.getCurrentUser();
+    return this.currentUser();
   }
 
   get hasMetadataMenuItems(): boolean {

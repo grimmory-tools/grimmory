@@ -1,12 +1,10 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, effect, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
 import {Tooltip} from 'primeng/tooltip';
-import {BehaviorSubject, EMPTY, Observable, Subject} from 'rxjs';
-import {catchError, filter, first, takeUntil} from 'rxjs/operators';
+import {BehaviorSubject, Observable} from 'rxjs';
 import {ChartConfiguration, ChartData} from 'chart.js';
 import {BookService} from '../../../../../book/service/book.service';
-import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book} from '../../../../../book/model/book.model';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
@@ -33,10 +31,17 @@ type HeatmapChartData = ChartData<'matrix', MatrixDataPoint[], string>;
   templateUrl: './reading-heatmap-chart.component.html',
   styleUrls: ['./reading-heatmap-chart.component.scss']
 })
-export class ReadingHeatmapChartComponent implements OnInit, OnDestroy {
+export class ReadingHeatmapChartComponent {
   private readonly bookService = inject(BookService);
   private readonly t = inject(TranslocoService);
-  private readonly destroy$ = new Subject<void>();
+  private readonly syncChartEffect = effect(() => {
+    if (this.bookService.isBooksLoading()) {
+      return;
+    }
+
+    const stats = this.calculateHeatmapData(this.bookService.books());
+    this.updateChartData(stats);
+  });
 
   public readonly chartType = 'matrix' as const;
 
@@ -132,28 +137,6 @@ export class ReadingHeatmapChartComponent implements OnInit, OnDestroy {
 
   public readonly chartData$: Observable<HeatmapChartData> = this.chartDataSubject.asObservable();
 
-  ngOnInit(): void {
-    this.bookService.bookState$
-      .pipe(
-        filter(state => state.loaded),
-        first(),
-        catchError((error) => {
-          console.error('Error processing reading heatmap data:', error);
-          return EMPTY;
-        }),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(() => {
-        const stats = this.calculateHeatmapData();
-        this.updateChartData(stats);
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   private updateChartData(yearMonthData: YearMonthData[]): void {
     const currentYear = new Date().getFullYear();
     const years = Array.from({length: 10}, (_, i) => currentYear - 9 + i);
@@ -199,26 +182,12 @@ export class ReadingHeatmapChartComponent implements OnInit, OnDestroy {
     });
   }
 
-  private calculateHeatmapData(): YearMonthData[] {
-    const currentState = this.bookService.getCurrentBookState();
-
-    if (!this.isValidBookState(currentState)) {
+  private calculateHeatmapData(books: Book[]): YearMonthData[] {
+    if (books.length === 0) {
       return [];
     }
 
-    return this.processHeatmapData(currentState.books!);
-  }
-
-  private isValidBookState(state: unknown): state is BookState {
-    return (
-      typeof state === 'object' &&
-      state !== null &&
-      'loaded' in state &&
-      typeof (state as {loaded: boolean}).loaded === 'boolean' &&
-      'books' in state &&
-      Array.isArray((state as {books: unknown}).books) &&
-      (state as {books: Book[]}).books.length > 0
-    );
+    return this.processHeatmapData(books);
   }
 
   private processHeatmapData(books: Book[]): YearMonthData[] {
@@ -247,4 +216,3 @@ export class ReadingHeatmapChartComponent implements OnInit, OnDestroy {
       .sort((a, b) => a.year - b.year || a.month - b.month);
   }
 }
-

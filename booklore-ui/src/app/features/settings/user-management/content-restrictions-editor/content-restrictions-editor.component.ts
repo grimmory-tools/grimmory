@@ -1,4 +1,4 @@
-import {Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
+import {Component, computed, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {Button} from 'primeng/button';
@@ -14,8 +14,6 @@ import {
 } from '../content-restriction.model';
 import {ContentRestrictionService} from '../content-restriction.service';
 import {BookService} from '../../../book/service/book.service';
-import {filter, take} from 'rxjs/operators';
-import {Book} from '../../../book/model/book.model';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 
 @Component({
@@ -42,11 +40,19 @@ export class ContentRestrictionsEditorComponent implements OnInit, OnChanges {
   private bookService = inject(BookService);
   private messageService = inject(MessageService);
   private t = inject(TranslocoService);
+  private readonly sortedMetadata = computed(() => {
+    const md = this.bookService.uniqueMetadata();
+    return {
+      categories: [...md.categories].sort(),
+      tags: [...md.tags].sort(),
+      moods: [...md.moods].sort(),
+    };
+  });
 
   restrictions: ContentRestriction[] = [];
-  availableCategories: string[] = [];
-  availableTags: string[] = [];
-  availableMoods: string[] = [];
+  get availableCategories(): string[] { return this.sortedMetadata().categories; }
+  get availableTags(): string[] { return this.sortedMetadata().tags; }
+  get availableMoods(): string[] { return this.sortedMetadata().moods; }
 
   newRestriction: Partial<ContentRestriction> = {
     restrictionType: ContentRestrictionType.CATEGORY,
@@ -72,7 +78,6 @@ export class ContentRestrictionsEditorComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     this.loadRestrictions();
-    this.loadAvailableValues();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -96,28 +101,6 @@ export class ContentRestrictionsEditorComponent implements OnInit, OnChanges {
           detail: this.t.translate('settingsUsers.contentRestrictions.loadError')
         });
       }
-    });
-  }
-
-  loadAvailableValues() {
-    this.bookService.bookState$.pipe(
-      filter(state => !!state.books && state.books.length > 0),
-      take(1)
-    ).subscribe(state => {
-      const books: Book[] = state.books || [];
-      const categories = new Set<string>();
-      const tags = new Set<string>();
-      const moods = new Set<string>();
-
-      books.forEach((book: Book) => {
-        book.metadata?.categories?.forEach((c: string) => categories.add(c));
-        book.metadata?.tags?.forEach((t: string) => tags.add(t));
-        book.metadata?.moods?.forEach((m: string) => moods.add(m));
-      });
-
-      this.availableCategories = Array.from(categories).sort();
-      this.availableTags = Array.from(tags).sort();
-      this.availableMoods = Array.from(moods).sort();
     });
   }
 

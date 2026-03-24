@@ -1,6 +1,6 @@
-import {inject, Injectable, Injector} from '@angular/core';
+import {inject, Injectable, Injector, signal} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {BehaviorSubject, Observable, tap} from 'rxjs';
+import {Observable, tap} from 'rxjs';
 import {RxStompService} from '../websocket/rx-stomp.service';
 import {API_CONFIG} from '../../core/config/api-config';
 import {createRxStompConfig} from '../websocket/rx-stomp.config';
@@ -21,8 +21,7 @@ export class AuthService {
   private router = inject(Router);
   private postLoginInitializer = inject(PostLoginInitializerService);
 
-  public tokenSubject = new BehaviorSubject<string | null>(this.getInternalAccessToken());
-  public token$ = this.tokenSubject.asObservable();
+  readonly token = signal<string | null>(this.getInternalAccessToken());
 
   internalLogin(credentials: { username: string; password: string }): Observable<{ accessToken: string; refreshToken: string, isDefaultPassword: string }> {
     return this.http.post<{ accessToken: string; refreshToken: string, isDefaultPassword: string }>(`${this.apiUrl}/login`, credentials).pipe(
@@ -62,7 +61,7 @@ export class AuthService {
   saveInternalTokens(accessToken: string, refreshToken: string): void {
     localStorage.setItem('accessToken_Internal', accessToken);
     localStorage.setItem('refreshToken_Internal', refreshToken);
-    this.tokenSubject.next(accessToken);
+    this.token.set(accessToken);
   }
 
   getInternalAccessToken(): string | null {
@@ -103,7 +102,7 @@ export class AuthService {
   private clearSession(): void {
     localStorage.removeItem('accessToken_Internal');
     localStorage.removeItem('refreshToken_Internal');
-    this.tokenSubject.next(null);
+    this.token.set(null);
     this.postLoginInitialized = false;
     this.getRxStompService().deactivate();
   }

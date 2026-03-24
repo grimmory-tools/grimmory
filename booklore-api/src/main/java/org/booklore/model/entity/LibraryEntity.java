@@ -34,7 +34,7 @@ public class LibraryEntity {
     @OneToMany(mappedBy = "library", orphanRemoval = true)
     private List<BookEntity> bookEntities;
 
-    @OneToMany(mappedBy = "library", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "library", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<LibraryPathEntity> libraryPaths;
 
     @ManyToMany(mappedBy = "libraries")

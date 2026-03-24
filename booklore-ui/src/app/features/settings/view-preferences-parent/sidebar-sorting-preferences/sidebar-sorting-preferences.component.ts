@@ -1,10 +1,10 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, effect, inject, OnDestroy, OnInit} from '@angular/core';
 import {Select} from 'primeng/select';
-import {SidebarLibrarySorting, SidebarMagicShelfSorting, SidebarShelfSorting, User, UserService, UserSettings, UserState} from '../../user-management/user.service';
+import {SidebarLibrarySorting, SidebarMagicShelfSorting, SidebarShelfSorting, User, UserService, UserSettings} from '../../user-management/user.service';
 import {MessageService} from 'primeng/api';
-import {Observable, Subject} from 'rxjs';
+import {Subject} from 'rxjs';
 import {FormsModule} from '@angular/forms';
-import {filter, takeUntil} from 'rxjs/operators';
+import {takeUntil} from 'rxjs/operators';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 @Component({
@@ -37,20 +37,23 @@ export class SidebarSortingPreferencesComponent implements OnInit, OnDestroy {
   private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
 
-  userData$: Observable<UserState> = this.userService.userState$;
   private currentUser: User | null = null;
+  private hasInitialized = false;
+
+  private readonly syncUserEffect = effect(() => {
+    const user = this.userService.currentUser();
+    if (!user) return;
+
+    this.currentUser = user;
+    if (!this.hasInitialized) {
+      this.hasInitialized = true;
+      this.loadPreferences(user.userSettings);
+    }
+  });
 
   ngOnInit(): void {
     this.buildSortingOptions();
     this.t.langChanges$.pipe(takeUntil(this.destroy$)).subscribe(() => this.buildSortingOptions());
-
-    this.userData$.pipe(
-      filter(userState => !!userState?.user && userState.loaded),
-      takeUntil(this.destroy$)
-    ).subscribe(userState => {
-      this.currentUser = userState.user;
-      this.loadPreferences(userState.user!.userSettings);
-    });
   }
 
   ngOnDestroy(): void {

@@ -1,21 +1,51 @@
-import {Injectable, inject} from '@angular/core';
+import {computed, effect, inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {BehaviorSubject, Observable, tap} from 'rxjs';
+import {lastValueFrom, Observable, tap} from 'rxjs';
 import {CustomFont} from '../model/custom-font.model';
 import {API_CONFIG} from '../../core/config/api-config';
 import {AuthService} from './auth.service';
+import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
+
+const CUSTOM_FONTS_QUERY_KEY = ['customFonts'] as const;
 
 @Injectable({
   providedIn: 'root'
 })
 export class CustomFontService {
   private apiUrl = `${API_CONFIG.BASE_URL}/api/v1/custom-fonts`;
-  private fontsSubject = new BehaviorSubject<CustomFont[]>([]);
-  public fonts$ = this.fontsSubject.asObservable();
   private loadedFonts = new Set<string>();
+  private http = inject(HttpClient);
   private authService = inject(AuthService);
+  private queryClient = inject(QueryClient);
+  private readonly token = this.authService.token;
 
-  constructor(private http: HttpClient) {}
+  private fontsQuery = injectQuery(() => ({
+    ...this.getFontsQueryOptions(),
+    enabled: !!this.token(),
+  }));
+
+  fonts = computed(() => this.fontsQuery.data() ?? []);
+  isFontsLoading = computed(() => !!this.token() && this.fontsQuery.isPending());
+
+  constructor() {
+    effect(() => {
+      const token = this.token();
+      if (token === null) {
+        this.queryClient.removeQueries({queryKey: CUSTOM_FONTS_QUERY_KEY});
+      }
+    });
+  }
+
+  private getFontsQueryOptions() {
+    return queryOptions({
+      queryKey: CUSTOM_FONTS_QUERY_KEY,
+      queryFn: () => lastValueFrom(this.http.get<CustomFont[]>(this.apiUrl))
+    });
+  }
+
+  ensureFonts(): Promise<CustomFont[]> {
+    return this.queryClient.ensureQueryData(this.getFontsQueryOptions());
+  }
 
   uploadFont(file: File, fontName?: string): Observable<CustomFont> {
     const formData = new FormData();
@@ -26,10 +56,9 @@ export class CustomFontService {
 
     return this.http.post<CustomFont>(`${this.apiUrl}/upload`, formData).pipe(
       tap(font => {
-        // Add to cache
-        const currentFonts = this.fontsSubject.value;
-        this.fontsSubject.next([...currentFonts, font]);
-        // Load the font immediately
+        this.queryClient.setQueryData<CustomFont[]>(CUSTOM_FONTS_QUERY_KEY, current =>
+          [...(current ?? []), font]
+        );
         this.loadFontFace(font).catch(err => {
           console.error('Failed to load font after upload:', err);
         });
@@ -37,24 +66,16 @@ export class CustomFontService {
     );
   }
 
-  getUserFonts(): Observable<CustomFont[]> {
-    return this.http.get<CustomFont[]>(this.apiUrl).pipe(
-      tap(fonts => {
-        this.fontsSubject.next(fonts);
-      })
-    );
-  }
-
   deleteFont(fontId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${fontId}`).pipe(
       tap(() => {
-        // Remove from cache
-        const currentFonts = this.fontsSubject.value;
-        const updatedFonts = currentFonts.filter(f => f.id !== fontId);
-        this.fontsSubject.next(updatedFonts);
-
-        // Remove from loaded fonts set and document.fonts
+        const currentFonts = this.fonts();
         const deletedFont = currentFonts.find(f => f.id === fontId);
+
+        this.queryClient.setQueryData<CustomFont[]>(CUSTOM_FONTS_QUERY_KEY, current =>
+          (current ?? []).filter(f => f.id !== fontId)
+        );
+
         if (deletedFont) {
           this.removeFontFace(deletedFont.fontName);
           this.loadedFonts.delete(deletedFont.fontName);

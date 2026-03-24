@@ -104,7 +104,7 @@ public class CbxProcessor extends AbstractFileProcessor implements BookFileProce
                     image.flush(); // Release resources after processing
                 }
             } else {
-                log.warn("Could not find cover image in CBZ file '{}'", bookFile.getFileName());
+                log.warn("Could not find cover image in '{}' archive", bookFile.getFileName());
             }
         } catch (Exception e) {
             log.error("Error generating cover for '{}': {}", bookFile.getFileName(), e.getMessage());

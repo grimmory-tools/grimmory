@@ -44,7 +44,7 @@
       </div>
 
       <div class="settings-card">
-        @if (libraries$ | async; as libraries) {
+        @if (libraries; as libraries) {
           <p-accordion [value]="activePanel" (valueChange)="onPanelChange($event)">
             @for (library of libraries; track trackByLibrary($index, library); let i = $index) {
               <p-accordion-panel [value]="i">

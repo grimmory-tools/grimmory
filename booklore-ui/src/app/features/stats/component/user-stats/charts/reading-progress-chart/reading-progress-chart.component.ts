@@ -1,12 +1,9 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, computed, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
 import {Tooltip} from 'primeng/tooltip';
-import {BehaviorSubject, EMPTY, Observable, Subject} from 'rxjs';
-import {catchError, filter, first, takeUntil} from 'rxjs/operators';
 import {ChartConfiguration, ChartData} from 'chart.js';
 import {BookService} from '../../../../../book/service/book.service';
-import {BookState} from '../../../../../book/model/state/book-state.model';
 import {Book} from '../../../../../book/model/book.model';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
@@ -50,10 +47,16 @@ type ProgressChartData = ChartData<'doughnut', number[], string>;
   templateUrl: './reading-progress-chart.component.html',
   styleUrls: ['./reading-progress-chart.component.scss']
 })
-export class ReadingProgressChartComponent implements OnInit, OnDestroy {
+export class ReadingProgressChartComponent {
   private readonly bookService = inject(BookService);
   private readonly t = inject(TranslocoService);
-  private readonly destroy$ = new Subject<void>();
+  private readonly progressStats = computed(() => {
+    if (this.bookService.isBooksLoading()) {
+      return [];
+    }
+
+    return this.calculateReadingProgressStats(this.bookService.books());
+  });
 
   public readonly chartType = 'doughnut' as const;
 
@@ -139,46 +142,13 @@ export class ReadingProgressChartComponent implements OnInit, OnDestroy {
     }
   };
 
-  private readonly chartDataSubject = new BehaviorSubject<ProgressChartData>({
-    labels: [],
-    datasets: [{
-      label: this.t.translate('statsUser.readingProgress.booksByProgress'),
-      data: [],
-      backgroundColor: [...CHART_COLORS],
-      ...CHART_DEFAULTS
-    }]
-  });
-
-  public readonly chartData$: Observable<ProgressChartData> = this.chartDataSubject.asObservable();
-
-  ngOnInit(): void {
-    this.bookService.bookState$
-      .pipe(
-        filter(state => state.loaded),
-        first(),
-        catchError((error) => {
-          console.error('Error processing reading progress data:', error);
-          return EMPTY;
-        }),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(() => {
-        const stats = this.calculateReadingProgressStats();
-        this.updateChartData(stats);
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  private updateChartData(stats: ReadingProgressStats[]): void {
+  public readonly chartData = computed<ProgressChartData>(() => {
     try {
+      const stats = this.progressStats();
       const labels = stats.map(s => s.progressRange);
       const dataValues = stats.map(s => s.count);
 
-      this.chartDataSubject.next({
+      return {
         labels,
         datasets: [{
           label: this.t.translate('statsUser.readingProgress.booksByProgress'),
@@ -189,32 +159,27 @@ export class ReadingProgressChartComponent implements OnInit, OnDestroy {
           hoverBorderWidth: 3,
           hoverBorderColor: '#ffffff'
         }]
-      });
+      };
     } catch (error) {
       console.error('Error updating reading progress chart data:', error);
+      return {
+        labels: [],
+        datasets: [{
+          label: this.t.translate('statsUser.readingProgress.booksByProgress'),
+          data: [],
+          backgroundColor: [...CHART_COLORS],
+          ...CHART_DEFAULTS
+        }]
+      };
     }
-  }
+  });
 
-  private calculateReadingProgressStats(): ReadingProgressStats[] {
-    const currentState = this.bookService.getCurrentBookState();
-
-    if (!this.isValidBookState(currentState)) {
+  private calculateReadingProgressStats(books: Book[]): ReadingProgressStats[] {
+    if (books.length === 0) {
       return [];
     }
 
-    return this.processReadingProgressStats(currentState.books!);
-  }
-
-  private isValidBookState(state: unknown): state is BookState {
-    return (
-      typeof state === 'object' &&
-      state !== null &&
-      'loaded' in state &&
-      typeof (state as { loaded: boolean }).loaded === 'boolean' &&
-      'books' in state &&
-      Array.isArray((state as { books: unknown }).books) &&
-      (state as { books: Book[] }).books.length > 0
-    );
+    return this.processReadingProgressStats(books);
   }
 
   private processReadingProgressStats(books: Book[]): ReadingProgressStats[] {

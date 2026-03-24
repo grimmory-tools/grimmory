@@ -94,30 +94,6 @@ class CbxConversionServiceTest {
     }
 
     @Test
-    void isSupportedCbxFormat_WithSupportedFiles_ShouldReturnTrue() {
-        assertThat(cbxConversionService.isSupportedCbxFormat("test.cbz")).isTrue();
-        assertThat(cbxConversionService.isSupportedCbxFormat("test.CBZ")).isTrue();
-        assertThat(cbxConversionService.isSupportedCbxFormat("path/to/test.cbz")).isTrue();
-        assertThat(cbxConversionService.isSupportedCbxFormat("test.cbr")).isTrue();
-        assertThat(cbxConversionService.isSupportedCbxFormat("test.CBR")).isTrue();
-        assertThat(cbxConversionService.isSupportedCbxFormat("path/to/test.cbr")).isTrue();
-        assertThat(cbxConversionService.isSupportedCbxFormat("test.cb7")).isTrue();
-        assertThat(cbxConversionService.isSupportedCbxFormat("test.CB7")).isTrue();
-        assertThat(cbxConversionService.isSupportedCbxFormat("path/to/test.cb7")).isTrue();
-    }
-
-    @Test
-    void isSupportedCbxFormat_WithUnsupportedFormats_ShouldReturnFalse() {
-        assertThat(cbxConversionService.isSupportedCbxFormat("test.zip")).isFalse();
-        assertThat(cbxConversionService.isSupportedCbxFormat("test.pdf")).isFalse();
-        assertThat(cbxConversionService.isSupportedCbxFormat("test.epub")).isFalse();
-        assertThat(cbxConversionService.isSupportedCbxFormat("test.txt")).isFalse();
-        assertThat(cbxConversionService.isSupportedCbxFormat("test")).isFalse();
-        assertThat(cbxConversionService.isSupportedCbxFormat(null)).isFalse();
-        assertThat(cbxConversionService.isSupportedCbxFormat("")).isFalse();
-    }
-
-    @Test
     void convertCbxToEpub_WithNullBookEntity_ShouldUseDefaultMetadata() throws IOException, TemplateException, RarException {
         File epubFile = cbxConversionService.convertCbxToEpub(testCbzFile, tempDir.toFile(), null,85);
 

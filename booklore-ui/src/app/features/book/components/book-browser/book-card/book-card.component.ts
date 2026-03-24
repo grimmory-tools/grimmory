@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
 import {TooltipModule} from "primeng/tooltip";
 import {AdditionalFile, Book, BookType, ReadStatus} from '../../../model/book.model';
 import {Button} from 'primeng/button';
@@ -13,13 +13,11 @@ import {MetadataRefreshType} from '../../../../metadata/model/request/metadata-r
 import {UrlHelperService} from '../../../../../shared/service/url-helper.service';
 import {NgClass} from '@angular/common';
 import {User, UserService} from '../../../../settings/user-management/user.service';
-import {filter, Subject, Subscription} from 'rxjs';
 import {EmailService} from '../../../../settings/email-v2/email.service';
 import {TieredMenu} from 'primeng/tieredmenu';
 import {Router} from '@angular/router';
 import {RouterLink} from '@angular/router';
 import {ProgressBar} from 'primeng/progressbar';
-import {take, takeUntil} from 'rxjs/operators';
 import {readStatusLabels} from '../book-filter/book-filter.config';
 import {ResetProgressTypes} from '../../../../../shared/constants/reset-progress-type';
 import {ReadStatusHelper} from '../../../helpers/read-status.helper';
@@ -29,6 +27,7 @@ import {BookNavigationService} from '../../../service/book-navigation.service';
 import {BookCardOverlayPreferenceService} from '../book-card-overlay-preference.service';
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
 import {TranslocoPipe, TranslocoService} from '@jsverse/transloco';
+import {QueryClient} from '@tanstack/angular-query-experimental';
 
 @Component({
   selector: 'app-book-card',
@@ -38,7 +37,7 @@ import {TranslocoPipe, TranslocoService} from '@jsverse/transloco';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
+export class BookCardComponent implements OnInit, OnChanges {
 
   @Output() checkboxClick = new EventEmitter<{ index: number; book: Book; selected: boolean; shiftKey: boolean }>();
   @Output() menuToggled = new EventEmitter<boolean>();
@@ -78,6 +77,7 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
   private appSettingsService = inject(AppSettingsService);
   private readonly t = inject(TranslocoService);
+  private queryClient = inject(QueryClient);
 
   protected _progressPercentage: number | null = null;
   protected _koProgressPercentage: number | null = null;
@@ -98,45 +98,24 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
   protected _readButtonIcon: string = 'pi pi-book';
 
   private metadataCenterViewMode: 'route' | 'dialog' = 'route';
-  private destroy$ = new Subject<void>();
   protected readStatusHelper = inject(ReadStatusHelper);
   private user: User | null = null;
   private diskType: string = 'LOCAL';
   private menuInitialized = false;
 
-  showBookTypePill = true;
-
-  private overlayPrefSub?: Subscription;
-
   ngOnInit(): void {
     this.computeAllMemoizedValues();
-    this.userService.userState$
-      .pipe(
-        filter(userState => !!userState?.user && userState.loaded),
-        take(1),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(userState => {
-        this.user = userState.user;
-        this.metadataCenterViewMode = userState.user?.userSettings?.metadataCenterViewMode ?? 'route';
-      });
-
-    this.appSettingsService.appSettings$
-      .pipe(
-        filter(settings => !!settings),
-        take(1),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(settings => {
-        this.diskType = settings?.diskType ?? 'LOCAL';
-      });
-
-    if (this.overlayPreferenceService) {
-      this.overlayPrefSub = this.overlayPreferenceService.showBookTypePill$.subscribe(val => {
-        this.showBookTypePill = val;
-        this.cdr.markForCheck();
-      });
+    const currentUser = this.userService.currentUser();
+    if (currentUser) {
+      this.user = currentUser;
+      this.metadataCenterViewMode = currentUser.userSettings?.metadataCenterViewMode ?? 'route';
     }
+
+    const settings = this.appSettingsService.appSettings();
+    if (settings) {
+      this.diskType = settings.diskType ?? 'LOCAL';
+    }
+
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -321,19 +300,25 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
     if (!this.additionalFilesLoaded && !this.isSubMenuLoading && this.needsAdditionalFilesData()) {
       this.isSubMenuLoading = true;
       this.cdr.markForCheck();
-      this.bookService.getBookByIdFromAPI(this.book.id, true).subscribe({
-        next: (book) => {
+      const requestedBookId = this.book.id;
+      void this.queryClient.fetchQuery(this.bookService.bookDetailQueryOptions(requestedBookId, true))
+        .then((book) => {
+          if (this.book.id !== requestedBookId) {
+            return;
+          }
           this.book = book;
           this.additionalFilesLoaded = true;
           this.isSubMenuLoading = false;
           this.initMenu();
           this.cdr.markForCheck();
-        },
-        error: () => {
+        })
+        .catch(() => {
+          if (this.book.id !== requestedBookId) {
+            return;
+          }
           this.isSubMenuLoading = false;
           this.cdr.markForCheck();
-        }
-      });
+        });
     }
   }
 
@@ -689,7 +674,7 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   openBookInfo(book: Book): void {
-    const allBookIds = this.bookNavigationService.getAvailableBookIds();
+    const allBookIds = this.bookNavigationService.availableBookIds();
     if (allBookIds.length > 0) {
       this.bookNavigationService.setNavigationContext(allBookIds, book.id);
     }
@@ -940,13 +925,5 @@ export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
 
   toggleSelection(event: CheckboxChangeEvent): void {
     this.toggleCardSelection(event.checked);
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-    if (this.overlayPrefSub) {
-      this.overlayPrefSub.unsubscribe();
-    }
   }
 }

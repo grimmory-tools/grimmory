@@ -8,7 +8,7 @@ import {SelectButton} from 'primeng/selectbutton';
 import {ProgressBar} from 'primeng/progressbar';
 import {Tag} from 'primeng/tag';
 import {Paginator} from 'primeng/paginator';
-import {filter, Subject, take, takeUntil} from 'rxjs';
+import {Subject, takeUntil} from 'rxjs';
 import {BookFileService} from '../../service/book-file.service';
 import {BookService} from '../../service/book.service';
 import {Book, DuplicateDetectionRequest, DuplicateGroup} from '../../model/book.model';
@@ -81,13 +81,10 @@ export class DuplicateMergerComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.libraryId = this.config.data.libraryId;
 
-    this.appSettingsService.appSettings$.pipe(
-      filter(settings => !!settings),
-      take(1),
-      takeUntil(this.destroy$)
-    ).subscribe(settings => {
-      this.moveFiles = settings!.metadataPersistenceSettings?.moveFilesToLibraryPattern ?? false;
-    });
+    const settings = this.appSettingsService.appSettings();
+    if (settings) {
+      this.moveFiles = settings.metadataPersistenceSettings?.moveFilesToLibraryPattern ?? false;
+    }
 
     this.presetOptions = [
       {label: this.t.translate('book.duplicateMerger.presetStrict'), value: 'strict'},

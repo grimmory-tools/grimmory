@@ -1,5 +1,6 @@
 package org.booklore.service.fileprocessor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.booklore.exception.ApiError;
 import org.booklore.mapper.BookMapper;
 import org.booklore.model.dto.AudiobookMetadata;
@@ -18,8 +19,8 @@ import org.booklore.service.metadata.sidecar.SidecarMetadataWriter;
 import org.booklore.util.BookCoverUtils;
 import org.booklore.util.FileService;
 import org.booklore.util.FileUtils;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -33,6 +34,7 @@ import static org.booklore.util.FileService.truncate;
 
 @Slf4j
 @Service
+@Transactional
 public class AudiobookProcessor extends AbstractFileProcessor implements BookFileProcessor {
 
     private final AudiobookMetadataExtractor audiobookMetadataExtractor;

@@ -13,9 +13,9 @@
       </h3>
       <p class="chart-description">{{ t('description') }}</p>
     </div>
-    @if (totalRatedBooks > 0) {
+    @if (totalRatedBooks() > 0) {
       <div class="stats-badge">
-        <span class="badge-value">{{ totalRatedBooks }}</span>
+        <span class="badge-value">{{ totalRatedBooks() }}</span>
         <span class="badge-label">{{ t('booksAnalyzed') }}</span>
       </div>
     }
@@ -23,7 +23,7 @@
 
   <div class="chart-wrapper">
     <canvas baseChart
-            [data]="(chartData$ | async) ?? {datasets: []}"
+            [data]="chartData()"
             [options]="chartOptions"
             [type]="chartType">
     </canvas>
@@ -35,18 +35,18 @@
     </div>
   </div>
 
-  @if (quadrants.length > 0) {
+  @if (quadrants().length > 0) {
     <div class="taste-insights">
       <div class="insights-header">
         <h4>{{ t('tasteProfile') }}</h4>
-        @if (averageDeviation > 0) {
-          <div class="deviation-badge" [class.unique]="averageDeviation > 1" [class.mainstream]="averageDeviation <= 0.5">
+        @if (averageDeviation() > 0) {
+          <div class="deviation-badge" [class.unique]="averageDeviation() > 1" [class.mainstream]="averageDeviation() <= 0.5">
             <span class="deviation-label">{{ t('avgDeviation') }}</span>
-            <span class="deviation-value">{{ averageDeviation.toFixed(2) }} ★</span>
+            <span class="deviation-value">{{ averageDeviation().toFixed(2) }} ★</span>
             <span class="deviation-desc">
-              @if (averageDeviation > 1) {
+              @if (averageDeviation() > 1) {
                 ({{ t('uniqueTaste') }})
-              } @else if (averageDeviation <= 0.5) {
+              } @else if (averageDeviation() <= 0.5) {
                 ({{ t('mainstream') }})
               } @else {
                 ({{ t('balanced') }})
@@ -56,7 +56,7 @@
         }
       </div>
       <div class="quadrants-grid">
-        @for (quadrant of quadrants; track quadrant.name) {
+        @for (quadrant of quadrants(); track quadrant.name) {
           <div class="quadrant-card" [style.border-left-color]="quadrant.color">
             <div class="quadrant-header">
               <span class="quadrant-icon">{{ quadrant.icon }}</span>
@@ -66,11 +66,11 @@
             <p class="quadrant-description">{{ quadrant.description }}</p>
             <div class="quadrant-bar">
               <div class="bar-fill"
-                   [style.width.%]="(quadrant.count / totalRatedBooks) * 100"
+                   [style.width.%]="(quadrant.count / totalRatedBooks()) * 100"
                    [style.background-color]="quadrant.color">
               </div>
             </div>
-            <span class="quadrant-percentage">{{ ((quadrant.count / totalRatedBooks) * 100).toFixed(0) }}%</span>
+            <span class="quadrant-percentage">{{ ((quadrant.count / totalRatedBooks()) * 100).toFixed(0) }}%</span>
           </div>
         }
       </div>
