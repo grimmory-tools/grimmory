@@ -20,8 +20,8 @@ jobs:
       contents: read
 
     env:
-      LINT_WARNING_THRESHOLD: 725
-      LINT_ERROR_THRESHOLD: 0
+      LINT_WARNING_THRESHOLD: 0
+      LINT_ERROR_THRESHOLD: 725
       BUILD_WARNING_THRESHOLD: 0
 
     steps:
