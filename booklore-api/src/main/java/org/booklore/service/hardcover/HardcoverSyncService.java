@@ -92,31 +92,16 @@ public class HardcoverSyncService {
                     return;
                 }
 
-                // Find the book on Hardcover - use stored ID if available
-                HardcoverBookInfo hardcoverBook;
-                if (metadata.getHardcoverBookId() != null) {
-                    // Use the stored numeric book ID and fetch edition/page info from Hardcover
-                    hardcoverBook = new HardcoverBookInfo();
-                    hardcoverBook.bookId = metadata.getHardcoverBookId();
-                    log.debug("Using stored Hardcover book ID: {}", hardcoverBook.bookId);
+                String hardcoverBookId = metadata.getHardcoverBookId();
+                String isbn13 = metadata.getIsbn13();
+                String isbn10 = metadata.getIsbn10();
 
-                    // Always fetch the default edition and page count from Hardcover
-                    Integer bookIdInt = Integer.parseInt(hardcoverBook.bookId);
-                    HardcoverBookInfo fetched = findHardcoverBookById(bookIdInt);
-                    if (fetched != null) {
-                        hardcoverBook.editionId = fetched.editionId;
-                        hardcoverBook.pages = fetched.pages;
-                        log.debug("Fetched from Hardcover: editionId={}, pages={}", hardcoverBook.editionId, hardcoverBook.pages);
-                    } else {
-                        log.warn("Could not fetch edition info from Hardcover for book ID: {}", hardcoverBook.bookId);
-                    }
-                } else {
-                    // Search by ISBN
-                    hardcoverBook = findHardcoverBook(metadata);
-                    if (hardcoverBook == null) {
-                        log.debug("Hardcover sync skipped: book {} not found on Hardcover", bookId);
-                        return;
-                    }
+                // Find the book and closest edition on Hardcover
+                HardcoverBookInfo hardcoverBook = resolveHardcoverBook(hardcoverBookId, isbn13, isbn10);
+                
+                if (hardcoverBook == null) {
+                    log.debug("Hardcover sync skipped: book {} not found on Hardcover", bookId);
+                    return;
                 }
 
                 // Determine the status based on progress
@@ -144,8 +129,8 @@ public class HardcoverSyncService {
                 boolean success = upsertReadingProgress(userBookId, hardcoverBook.editionId, progressPages, isFinished);
                 
                 if (success) {
-                    log.info("Synced progress to Hardcover: userId={}, book={}, hardcoverBookId={}, progress={}% ({}pages)", 
-                            userId, bookId, hardcoverBook.bookId, Math.round(progressPercent), progressPages);
+                    log.info("Synced progress to Hardcover: userId={}, book={}, hardcoverBookId={}, hardcoverEditionId={}, progress={}% ({}pages)", 
+                            userId, bookId, hardcoverBook.bookId, hardcoverBook.editionId, Math.round(progressPercent), progressPages);
                 }
 
             } finally {
@@ -174,170 +159,6 @@ public class HardcoverSyncService {
 
     private String getApiToken() {
         return currentApiToken.get();
-    }
-
-    /**
-     * Find a book on Hardcover by ISBN or hardcoverId.
-     * Returns the numeric book_id, edition_id, and page count.
-     */
-    private HardcoverBookInfo findHardcoverBook(BookMetadataEntity metadata) {
-        // Try ISBN first
-        String isbn = metadata.getIsbn13();
-        if (isbn == null || isbn.isBlank()) {
-            isbn = metadata.getIsbn10();
-        }
-        
-        if (isbn == null || isbn.isBlank()) {
-            log.debug("No ISBN available for Hardcover lookup");
-            return null;
-        }
-
-        try {
-            String searchQuery = """
-                query SearchBooks($query: String!) {
-                  search(query: $query, query_type: "Book", per_page: 1, page: 1) {
-                    results
-                  }
-                }
-                """;
-
-            GraphQLRequest request = new GraphQLRequest();
-            request.setQuery(searchQuery);
-            request.setVariables(Map.of("query", isbn));
-
-            Map<String, Object> response = executeGraphQL(request);
-            log.debug("Hardcover search response for ISBN {}: {}", isbn, response);
-            if (response == null) {
-                return null;
-            }
-
-            // Navigate the response to get book info
-            Map<String, Object> data = (Map<String, Object>) response.get("data");
-            if (data == null) return null;
-
-            Map<String, Object> search = (Map<String, Object>) data.get("search");
-            if (search == null) return null;
-
-            Map<String, Object> results = (Map<String, Object>) search.get("results");
-            if (results == null) return null;
-
-            List<Map<String, Object>> hits = (List<Map<String, Object>>) results.get("hits");
-            if (hits == null || hits.isEmpty()) return null;
-
-            Map<String, Object> document = (Map<String, Object>) hits.getFirst().get("document");
-            if (document == null) return null;
-
-            // Extract book info
-            HardcoverBookInfo info = new HardcoverBookInfo();
-            
-            // The 'id' field contains the book ID
-            Object idObj = document.get("id");
-            if (idObj instanceof String) {
-                info.bookId = (String) idObj;
-            } else if (idObj instanceof Number) {
-                info.bookId = String.valueOf(((Number) idObj).intValue());
-            }
-            
-            // Get page count
-            Object pagesObj = document.get("pages");
-            if (pagesObj instanceof Number) {
-                info.pages = ((Number) pagesObj).intValue();
-            }
-
-            // Try to get default_physical_edition_id from the search results
-            Object defaultPhysicalEditionObj = document.get("default_physical_edition_id");
-            if (defaultPhysicalEditionObj instanceof Number) {
-                info.editionId = ((Number) defaultPhysicalEditionObj).intValue();
-            } else if (defaultPhysicalEditionObj instanceof String) {
-                try {
-                    info.editionId = Integer.parseInt((String) defaultPhysicalEditionObj);
-                } catch (NumberFormatException e) {
-                    // Ignore
-                }
-            }
-
-            // If no default physical edition found, try to look up edition by ISBN as fallback
-            if (info.bookId != null && info.editionId == null) {
-                EditionInfo edition = findEditionByIsbn(info.bookId, isbn);
-                if (edition != null) {
-                    info.editionId = edition.id;
-                }
-            }
-
-            // Fetch page count from the edition (prioritizing edition page count over book-level page count)
-            if (info.editionId != null) {
-                EditionInfo edition = findEditionById(info.editionId);
-                if (edition != null && edition.pages != null && edition.pages > 0) {
-                    info.pages = edition.pages;
-                    log.debug("Using page count from edition {}: {} pages", info.editionId, info.pages);
-                }
-            }
-
-            log.info("Found Hardcover book: bookId={}, editionId={}, pages={}", 
-                    info.bookId, info.editionId, info.pages);
-
-            return info.bookId != null ? info : null;
-
-        } catch (Exception e) {
-            log.warn("Failed to search Hardcover by ISBN {}: {}", isbn, e.getMessage());
-            return null;
-        }
-    }
-
-    /**
-     * Find an edition by ISBN for a given book.
-     * This queries Hardcover's editions table to match by ISBN.
-     */
-    private EditionInfo findEditionByIsbn(String bookId, String isbn) {
-        String query = """
-            query FindEditionByIsbn($bookId: Int!, $isbn: String!) {
-              editions(where: {
-                book_id: {_eq: $bookId},
-                _or: [
-                  {isbn_10: {_eq: $isbn}},
-                  {isbn_13: {_eq: $isbn}}
-                ]
-              }, limit: 1) {
-                id
-                pages
-              }
-            }
-            """;
-
-        GraphQLRequest request = new GraphQLRequest();
-        request.setQuery(query);
-        request.setVariables(Map.of("bookId", Integer.parseInt(bookId), "isbn", isbn));
-
-        try {
-            Map<String, Object> response = executeGraphQL(request);
-            log.debug("Edition lookup response: {}", response);
-            if (response == null) return null;
-
-            Map<String, Object> data = (Map<String, Object>) response.get("data");
-            if (data == null) return null;
-
-            List<Map<String, Object>> editions = (List<Map<String, Object>>) data.get("editions");
-            if (editions == null || editions.isEmpty()) return null;
-
-            Map<String, Object> edition = editions.getFirst();
-            EditionInfo info = new EditionInfo();
-            
-            Object idObj = edition.get("id");
-            if (idObj instanceof Number) {
-                info.id = ((Number) idObj).intValue();
-            }
-            
-            Object pagesObj = edition.get("pages");
-            if (pagesObj instanceof Number) {
-                info.pages = ((Number) pagesObj).intValue();
-            }
-
-            return info.id != null ? info : null;
-
-        } catch (Exception e) {
-            log.debug("Failed to find edition by ISBN: {}", e.getMessage());
-            return null;
-        }
     }
 
     private EditionInfo findEditionById(Integer editionId) {
@@ -385,65 +206,218 @@ public class HardcoverSyncService {
         }
     }
 
-    private HardcoverBookInfo findHardcoverBookById(Integer bookId) {
+    /**
+     * Resolve Hardcover book information using bookId and/or ISBN.
+     * Returns bookId, editionId, and page count based on the following logic:
+     * - If bookId + ISBN: Get book by ID, find edition by ISBN (with highest user_count), fallback to default editions
+     * - If bookId only: Get book by ID, use default_ebook_edition, fallback to default_physical_edition
+     * - If ISBN only: Find book with edition matching ISBN (with highest user_count)
+     * 
+     * @param hardcoverBookId The Hardcover book ID (can be null)
+     * @param isbn13 The ISBN-13 (can be null)
+     * @param isbn10 The ISBN-10 (can be null)
+     * @return HardcoverBookInfo with bookId, editionId, and pages, or null if not found
+     */
+    private HardcoverBookInfo resolveHardcoverBook(String hardcoverBookId, String isbn13, String isbn10) {
+        // No identifiers at all, it's impossible to resolve
+        if ((hardcoverBookId == null || hardcoverBookId.isBlank()) && 
+            (isbn13 == null || isbn13.isBlank()) && 
+            (isbn10 == null || isbn10.isBlank())) {
+            log.debug("Cannot resolve Hardcover book: no bookId or ISBN provided");
+            return null;
+        }
+        
+        // We have a specific bookId, try to resolve using it (with optional ISBN for edition matching)
+        if (hardcoverBookId != null && !hardcoverBookId.isBlank()) {
+            try {
+                return resolveByBookId(Integer.parseInt(hardcoverBookId), isbn13, isbn10);
+            } catch (NumberFormatException e) {
+                log.warn("Invalid Hardcover book ID format: {}", hardcoverBookId);
+                return null;
+            }
+        }
+        
+        // No bookId but we have ISBN, try to resolve book by ISBN
+        return resolveByIsbn(isbn13, isbn10);
+    }
+
+    /**
+     * Resolve book information when we have a bookId.
+     * Tries to match edition by ISBN, then falls back to default editions.
+     */
+    private HardcoverBookInfo resolveByBookId(Integer bookId, String isbn13, String isbn10) {
         String query = """
-            query FindBookById($bookId: Int!) {
+            query GetBookWithEditions($bookId: Int!, $isbn13: String, $isbn10: String) {
               books(where: {id: {_eq: $bookId}}, limit: 1) {
                 id
-                default_physical_edition_id
                 pages
+                default_ebook_edition_id
+                default_physical_edition_id
+                editions(where: {
+                  _or: [
+                    {isbn_13: {_eq: $isbn13}},
+                    {isbn_10: {_eq: $isbn10}}
+                  ]
+                }, order_by: {users_count: desc}, limit: 1) {
+                  id
+                  pages
+                }
               }
             }
             """;
 
         GraphQLRequest request = new GraphQLRequest();
         request.setQuery(query);
-        request.setVariables(Map.of("bookId", bookId));
+        Map<String, Object> variables = new java.util.HashMap<>();
+        variables.put("bookId", bookId);
+        variables.put("isbn13", (isbn13 != null && !isbn13.isBlank()) ? isbn13 : "");
+        variables.put("isbn10", (isbn10 != null && !isbn10.isBlank()) ? isbn10 : "");
+        request.setVariables(variables);
 
         try {
             Map<String, Object> response = executeGraphQL(request);
-            if (response == null) return null;
+            if (response == null) {
+                log.warn("No response from Hardcover for book ID {}", bookId);
+                return null;
+            }
 
             Map<String, Object> data = (Map<String, Object>) response.get("data");
             if (data == null) return null;
 
             List<Map<String, Object>> books = (List<Map<String, Object>>) data.get("books");
-            if (books == null || books.isEmpty()) return null;
+            if (books == null || books.isEmpty()) {
+                log.warn("Book ID {} not found on Hardcover", bookId);
+                return null;
+            }
 
             Map<String, Object> book = books.getFirst();
             HardcoverBookInfo info = new HardcoverBookInfo();
             info.bookId = String.valueOf(bookId);
 
-            Object defaultPhysicalEditionObj = book.get("default_physical_edition_id");
-            if (defaultPhysicalEditionObj instanceof Number) {
-                info.editionId = ((Number) defaultPhysicalEditionObj).intValue();
-            } else if (defaultPhysicalEditionObj instanceof String) {
-                try {
-                    info.editionId = Integer.parseInt((String) defaultPhysicalEditionObj);
-                } catch (NumberFormatException e) {
-                    // Ignore
+            // Try to get edition by ISBN
+            List<Map<String, Object>> editions = (List<Map<String, Object>>) book.get("editions");
+            if (editions != null && !editions.isEmpty()) {
+                Map<String, Object> bestEdition = editions.getFirst();
+                info.editionId = extractInteger(bestEdition.get("id"));
+                info.pages = extractInteger(bestEdition.get("pages"));
+                log.debug("Found edition by ISBN: editionId={}, pages={}", 
+                    info.editionId, info.pages);
+            }
+
+            // Fallback to default_physical_edition
+            if (info.editionId == null) {
+                Integer defaultPhysicalId = extractInteger(book.get("default_physical_edition_id"));
+                if (defaultPhysicalId != null) {
+                    EditionInfo physicalEdition = findEditionById(defaultPhysicalId);
+                    if (physicalEdition != null) {
+                        info.editionId = physicalEdition.id;
+                        info.pages = physicalEdition.pages;
+                        log.debug("Using default_physical_edition: editionId={}, pages={}", info.editionId, info.pages);
+                    }
                 }
             }
 
-            // Get pages from the book level first
-            Object pagesObj = book.get("pages");
-            if (pagesObj instanceof Number) {
-                info.pages = ((Number) pagesObj).intValue();
+            // Fallback to book-level pages if edition has no pages
+            if (info.pages == null) {
+                info.pages = extractInteger(book.get("pages"));
             }
 
-            // If we have an edition ID, fetch the page count from that edition
-            if (info.editionId != null) {
-                EditionInfo edition = findEditionById(info.editionId);
-                if (edition != null && edition.pages != null && edition.pages > 0) {
-                    info.pages = edition.pages;
-                    log.debug("Using page count from default physical edition {}: {} pages", info.editionId, info.pages);
-                }
+            if (info.editionId == null) {
+                log.warn("No edition found for book ID {}", bookId);
+                return null;
             }
 
-            return info.editionId != null || info.pages != null ? info : null;
+            log.info("Resolved Hardcover book: bookId={}, editionId={}, pages={}", 
+                info.bookId, info.editionId, info.pages);
+            return info;
 
         } catch (Exception e) {
-            log.debug("Failed to find Hardcover book by ID {}: {}", bookId, e.getMessage());
+            log.error("Failed to resolve Hardcover book by ID {}: {}", bookId, e.getMessage());
+            return null;
+        }
+    }
+    
+    /**
+     * Resolve book information when we only have ISBN.
+     * Finds books with matching edition and picks the one with highest user_count.
+     */
+    private HardcoverBookInfo resolveByIsbn(String isbn13, String isbn10) {
+        String query = """
+            query GetBooksByIsbn($isbn13: String, $isbn10: String) {
+              books(where: {
+                editions: {
+                  _or: [
+                    {isbn_13: {_eq: $isbn13}},
+                    {isbn_10: {_eq: $isbn10}}
+                  ]
+                }
+              }, order_by: {editions_aggregate: {max: {users_count: desc}}}, limit: 1) {
+                id
+                pages
+                editions(where: {
+                  _or: [
+                    {isbn_13: {_eq: $isbn13}},
+                    {isbn_10: {_eq: $isbn10}}
+                  ]
+                }, order_by: {users_count: desc}, limit: 1) {
+                  id
+                  pages
+                }
+              }
+            }
+            """;
+
+        GraphQLRequest request = new GraphQLRequest();
+        request.setQuery(query);
+        Map<String, Object> variables = new java.util.HashMap<>();
+        variables.put("isbn13", (isbn13 != null && !isbn13.isBlank()) ? isbn13 : "");
+        variables.put("isbn10", (isbn10 != null && !isbn10.isBlank()) ? isbn10 : "");
+        request.setVariables(variables);
+
+        try {
+            Map<String, Object> response = executeGraphQL(request);
+            if (response == null) {
+                log.warn("No response from Hardcover for ISBN {} / {}", isbn13, isbn10);
+                return null;
+            }
+
+            Map<String, Object> data = (Map<String, Object>) response.get("data");
+            if (data == null) return null;
+
+            List<Map<String, Object>> books = (List<Map<String, Object>>) data.get("books");
+            if (books == null || books.isEmpty()) {
+                log.warn("No books found on Hardcover with ISBN {} / {}", isbn13, isbn10);
+                return null;
+            }
+
+            Map<String, Object> book = books.getFirst();
+            List<Map<String, Object>> editions = (List<Map<String, Object>>) book.get("editions");
+            if (editions == null || editions.isEmpty()) {
+                log.warn("No valid editions found for ISBN {} / {}", isbn13, isbn10);
+                return null;
+            }
+
+            Map<String, Object> edition = editions.getFirst();
+            if (book == null || edition == null) {
+                log.warn("Book or edition data missing for ISBN {} / {}", isbn13, isbn10);
+                return null;
+            }
+
+            HardcoverBookInfo info = new HardcoverBookInfo();
+            info.bookId = String.valueOf(extractInteger(book.get("id")));
+            info.editionId = extractInteger(edition.get("id"));
+            info.pages = extractInteger(edition.get("pages"));
+
+            // Fallback to book-level pages if edition has no pages
+            if (info.pages == null) {
+                info.pages = extractInteger(book.get("pages"));
+            }
+
+            log.info("Resolved Hardcover book by ISBN: bookId={}, editionId={}, pages={}", 
+                info.bookId, info.editionId, info.pages);
+            return info;
+        } catch (Exception e) {
+            log.error("Failed to resolve Hardcover book by ISBN {} / {}: {}", isbn13, isbn10, e.getMessage());
             return null;
         }
     }
@@ -718,6 +692,24 @@ public class HardcoverSyncService {
             log.error("GraphQL request failed: {}", e.getMessage());
             return null;
         }
+    }
+
+    /**
+     * Helper method to safely extract Integer from various number types or strings.
+     */
+    private Integer extractInteger(Object obj) {
+        if (obj == null) return null;
+        if (obj instanceof Number) {
+            return ((Number) obj).intValue();
+        }
+        if (obj instanceof String) {
+            try {
+                return Integer.parseInt((String) obj);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        return null;
     }
 
     /**
