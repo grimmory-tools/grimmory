@@ -213,6 +213,7 @@ public class SecurityConfig {
                         .referrerPolicy(referrer -> referrer.policy(
                                 ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
                         .contentTypeOptions(contentType -> {})
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
                 )
                 .authorizeHttpRequests(auth -> auth
                         .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()

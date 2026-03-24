@@ -11,11 +11,17 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
+import java.util.Locale;
+import java.util.Set;
 
 @Slf4j
 @Component
 @Profile({"dev"})
 public class LoggingFilter extends OncePerRequestFilter {
+
+    private static final Set<String> SENSITIVE_HEADERS = Set.of(
+            "authorization", "cookie", "set-cookie", "x-api-key", "x-forwarded-access-token"
+    );
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -42,7 +48,8 @@ public class LoggingFilter extends OncePerRequestFilter {
         if (headerNames != null) {
             while (headerNames.hasMoreElements()) {
                 String headerName = headerNames.nextElement();
-                String headerValue = request.getHeader(headerName);
+                String headerValue = SENSITIVE_HEADERS.contains(headerName.toLowerCase(Locale.ROOT))
+                        ? "[REDACTED]" : request.getHeader(headerName);
                 log.info("Header: {}={}", headerName, headerValue);
             }
         }
