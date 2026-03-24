@@ -22,10 +22,6 @@ import org.booklore.service.monitoring.MonitoringRegistrationService;
 import org.booklore.service.progress.ReadingProgressService;
 import org.booklore.util.FileService;
 import org.booklore.util.FileUtils;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
@@ -51,7 +47,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @AllArgsConstructor
 @Service
-@Transactional(readOnly = true)
 public class BookService {
 
     private final BookRepository bookRepository;

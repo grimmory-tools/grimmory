@@ -480,7 +480,6 @@ public class BookDropService {
             BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId)
                     .orElseThrow(() -> ApiError.FILE_NOT_FOUND.createException("Book ID missing after import"));
 
-            notificationService.sendMessage(Topic.BOOK_ADD, fileProcessResult.getBook());
             MetadataUpdateContext context = MetadataUpdateContext.builder()
                     .bookEntity(bookEntity)
                     .metadataUpdateWrapper(MetadataUpdateWrapper.builder()
@@ -495,6 +494,8 @@ public class BookDropService {
 
             metadataRefreshService.updateBookMetadata(context);
             koboAutoShelfService.autoAddBookToKoboShelves(bookEntity.getId());
+
+            notificationService.sendMessage(Topic.BOOK_ADD, fileProcessResult.getBook());
         });
 
         cleanupBookdropData(bookdropFile);

@@ -10,10 +10,7 @@ import org.booklore.model.enums.MetadataSource;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Getter
@@ -74,5 +71,17 @@ public class LibraryEntity {
     @Column(name = "metadata_source")
     @Builder.Default
     private MetadataSource metadataSource = MetadataSource.EMBEDDED;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof LibraryEntity that)) return false;
+        return id != null && Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 
 }

@@ -132,23 +132,32 @@ public class BookRecommendationService {
                             : 0.0;
                     return new SimpleEntry<>(p.getBookId(), similarity);
                 })
-                .filter(entry -> entry.getValue() > 0.0)
+                .filter(entry -> entry.getValue() > 0.1)
                 .sorted(Map.Entry.<Long, Double>comparingByValue().reversed())
-                .limit(limit)
+                .limit(limit * 3L)
                 .toList();
 
         Set<Long> topBookIds = scored.stream().map(SimpleEntry::getKey).collect(Collectors.toSet());
         Map<Long, BookEntity> bookMap = bookQueryService.findAllWithMetadataByIds(topBookIds).stream()
                 .collect(Collectors.toMap(BookEntity::getId, Function.identity()));
 
-        return scored.stream()
-                .map(entry -> {
-                    BookEntity bookEntity = bookMap.get(entry.getKey());
-                    if (bookEntity == null) return null;
-                    return new BookRecommendation(bookMapper.toBookWithDescription(bookEntity, false), entry.getValue());
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+        Map<String, Integer> authorCounts = new HashMap<>();
+        List<BookRecommendation> recommendations = new ArrayList<>();
+
+        for (SimpleEntry<Long, Double> entry : scored) {
+            if (recommendations.size() >= limit) break;
+            BookEntity bookEntity = bookMap.get(entry.getKey());
+            if (bookEntity == null) continue;
+            Set<String> authorNames = getAuthorNames(bookEntity);
+            boolean allowed = authorNames.stream()
+                    .allMatch(name -> authorCounts.getOrDefault(name, 0) < MAX_BOOKS_PER_AUTHOR);
+            if (allowed) {
+                recommendations.add(new BookRecommendation(bookMapper.toBookWithDescription(bookEntity, false), entry.getValue()));
+                authorNames.forEach(name -> authorCounts.merge(name, 1, Integer::sum));
+            }
+        }
+
+        return recommendations;
     }
 
     private List<BookRecommendation> findSimilarBooksViaEntities(Long bookId, BookEntity target, int limit) {

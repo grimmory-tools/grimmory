@@ -162,7 +162,8 @@ public class LibraryService {
     @Transactional
     public Library createLibrary(CreateLibraryRequest request) {
         BookLoreUser bookLoreUser = authenticationService.getAuthenticatedUser();
-        Optional<BookLoreUserEntity> user = userRepository.findById(bookLoreUser.getId());
+        BookLoreUserEntity userEntity = userRepository.findById(bookLoreUser.getId())
+                .orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(bookLoreUser.getId()));
 
         LibraryEntity libraryEntity = LibraryEntity.builder()
                 .name(request.getName())
@@ -180,7 +181,7 @@ public class LibraryService {
                 .allowedFormats(request.getAllowedFormats())
                 .metadataSource(request.getMetadataSource())
                 .organizationMode(request.getOrganizationMode())
-                .users(new HashSet<>(Set.of(user.get())))
+                .users(new HashSet<>(Set.of(userEntity)))
                 .build();
 
         for (LibraryPathEntity p : libraryEntity.getLibraryPaths()) {

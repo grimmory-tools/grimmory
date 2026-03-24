@@ -11,6 +11,7 @@ import org.booklore.repository.BookRepository;
 import org.booklore.service.restriction.ContentRestrictionService;
 import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,7 +46,11 @@ public class BookQueryService {
 
     public Page<Book> getAllBooksByLibraryIdsPaged(Collection<Long> libraryIds, Long userId, Pageable pageable) {
         Page<BookEntity> page = bookRepository.findAllWithMetadataByLibraryIdsPage(libraryIds, pageable);
-        return page.map(book -> mapBookToDto(book, false, userId, true));
+        List<BookEntity> filtered = contentRestrictionService.applyRestrictions(page.getContent(), userId);
+        List<Book> dtos = filtered.stream()
+                .map(book -> mapBookToDto(book, false, userId, true))
+                .toList();
+        return new PageImpl<>(dtos, pageable, page.getTotalElements());
     }
 
     public List<BookEntity> getAllFullBookEntitiesBatch(Pageable pageable) {

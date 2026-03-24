@@ -65,6 +65,7 @@ public class MetadataTaskService {
                 .orElse(false);
     }
 
+    @Transactional
     public boolean updateProposalStatus(String taskId, Long proposalId, String statusStr) {
         Long userId = authenticationService.getAuthenticatedUser().getId();
         Optional<FetchedMetadataProposalStatus> statusOpt = parseStatus(statusStr);

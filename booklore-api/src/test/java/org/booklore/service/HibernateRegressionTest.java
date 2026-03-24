@@ -9,6 +9,7 @@ import org.booklore.repository.BookRepository;
 import org.booklore.repository.LibraryRepository;
 import org.booklore.service.task.TaskCronService;
 import org.flywaydb.core.Flyway;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -22,9 +23,9 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
+
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -173,8 +174,8 @@ class HibernateRegressionTest {
                     .build();
             // Intentionally NOT setting library back-reference
 
-            org.junit.jupiter.api.Assertions.assertThrows(
-                    Exception.class,
+            Assertions.assertThrows(
+                    org.springframework.dao.DataIntegrityViolationException.class,
                     () -> {
                         libraryRepository.saveAndFlush(library);
                         entityManager.flush();
@@ -423,8 +424,8 @@ class HibernateRegressionTest {
         /**
          * Simulate the library scan flow: create library with paths,
          * then verify paths can be loaded and iterated for scanning.
-         * This is the exact flow that was broken when enableAssociationManagement
-         * was removed — paths had NULL library_id so scanning found 0 paths.
+         * This is the exact flow broken when enableAssociationManagement
+         * was removed paths had NULL library_id so scanning found 0 paths.
          */
         @Test
         void libraryWithPaths_canBeLoadedAndIteratedForScanning() {
@@ -668,7 +669,7 @@ class HibernateRegressionTest {
             entityManager.clear();
 
             BookEntity loaded = bookRepository.findAllWithMetadataByIds(
-                    java.util.Collections.singleton(book.getId())).stream().findFirst().orElseThrow();
+                    Collections.singleton(book.getId())).stream().findFirst().orElseThrow();
             entityManager.detach(loaded);
 
             assertThat(loaded.getMetadata().getDescription())
@@ -698,7 +699,7 @@ class HibernateRegressionTest {
             entityManager.clear();
 
             List<BookEntity> books = bookRepository.findAllWithMetadataByIds(
-                    java.util.Collections.singleton(book.getId()));
+                    Collections.singleton(book.getId()));
 
             assertThat(books).hasSize(1);
 
@@ -782,7 +783,7 @@ class HibernateRegressionTest {
             BookMetadataEntity metadata = BookMetadataEntity.builder()
                     .book(book)
                     .title("Category Test Book")
-                    .categories(new java.util.HashSet<>(java.util.Set.of(cat1, cat2)))
+                    .categories(new HashSet<>(Set.of(cat1, cat2)))
                     .build();
             book.setMetadata(metadata);
             entityManager.persist(book);
@@ -791,12 +792,12 @@ class HibernateRegressionTest {
 
             // Verify categories persisted correctly
             BookEntity loaded = bookRepository.findAllWithMetadataByIds(
-                    java.util.Collections.singleton(book.getId())).stream().findFirst().orElseThrow();
+                    Collections.singleton(book.getId())).stream().findFirst().orElseThrow();
 
             assertThat(loaded.getMetadata().getCategories()).hasSize(2);
             assertThat(loaded.getMetadata().getCategories().stream()
                     .map(CategoryEntity::getName)
-                    .collect(java.util.stream.Collectors.toSet()))
+                    .collect(Collectors.toSet()))
                     .containsExactlyInAnyOrder("Fiction", "Science");
 
             Long mappingCount = entityManager.createQuery(
@@ -828,7 +829,7 @@ class HibernateRegressionTest {
             BookMetadataEntity metadata = BookMetadataEntity.builder()
                     .book(book)
                     .title("Update Category Test")
-                    .categories(new java.util.HashSet<>(java.util.Set.of(cat1, cat2)))
+                    .categories(new HashSet<>(Set.of(cat1, cat2)))
                     .build();
             book.setMetadata(metadata);
             entityManager.persist(book);
@@ -836,7 +837,7 @@ class HibernateRegressionTest {
             entityManager.clear();
 
             BookEntity loaded = bookRepository.findAllWithMetadataByIds(
-                    java.util.Collections.singleton(book.getId())).stream().findFirst().orElseThrow();
+                    Collections.singleton(book.getId())).stream().findFirst().orElseThrow();
 
             CategoryEntity managedCat2 = entityManager.find(CategoryEntity.class, cat2.getId());
             CategoryEntity managedCat3 = entityManager.find(CategoryEntity.class, cat3.getId());
@@ -849,12 +850,12 @@ class HibernateRegressionTest {
             entityManager.clear();
 
             BookEntity reloaded = bookRepository.findAllWithMetadataByIds(
-                    java.util.Collections.singleton(book.getId())).stream().findFirst().orElseThrow();
+                    Collections.singleton(book.getId())).stream().findFirst().orElseThrow();
 
             assertThat(reloaded.getMetadata().getCategories()).hasSize(2);
             assertThat(reloaded.getMetadata().getCategories().stream()
                     .map(CategoryEntity::getName)
-                    .collect(java.util.stream.Collectors.toSet()))
+                    .collect(Collectors.toSet()))
                     .containsExactlyInAnyOrder("OldCat2", "NewCat3");
         }
     }
@@ -901,7 +902,7 @@ class HibernateRegressionTest {
             BookMetadataEntity metadata = BookMetadataEntity.builder()
                     .book(book)
                     .title("Batch Test Book")
-                    .categories(new java.util.HashSet<>(java.util.Set.of(cat)))
+                    .categories(new HashSet<>(Set.of(cat)))
                     .build();
             book.setMetadata(metadata);
             entityManager.persist(book);
@@ -944,7 +945,7 @@ class HibernateRegressionTest {
             entityManager.clear();
 
             BookEntity loaded = bookRepository.findAllWithMetadataByIds(
-                    java.util.Collections.singleton(book.getId())).stream().findFirst().orElseThrow();
+                    Collections.singleton(book.getId())).stream().findFirst().orElseThrow();
 
             String oldEmbedding = loaded.getMetadata().getEmbeddingVector();
             assertThat(oldEmbedding).isEqualTo("[0.1, 0.2]");

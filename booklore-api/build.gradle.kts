@@ -134,11 +134,13 @@ dependencies {
 hibernate {
     enhancement {
         enableAssociationManagement = false
+        enableLazyInitialization = true
     }
 }
 
 tasks.named<Test>("test") {
     useJUnitPlatform()
+    maxHeapSize = "2g"
     jvmArgs("-XX:+EnableDynamicAgentLoading")
     finalizedBy(tasks.named("jacocoTestReport"))
 }

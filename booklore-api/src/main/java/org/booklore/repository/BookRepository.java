@@ -337,19 +337,10 @@ public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpec
     @Query("""
             SELECT DISTINCT b FROM BookEntity b
             LEFT JOIN b.metadata m
-            LEFT JOIN b.bookFiles bf
             WHERE b.library.id = :libraryId
             AND (
                 (m.seriesName = :seriesName)
-                OR (
-                    m.seriesName IS NULL
-                    AND bf.isBookFormat = true
-                    AND bf.id = (
-                        SELECT MIN(bf2.id) FROM BookFileEntity bf2
-                        WHERE bf2.book = b AND bf2.isBookFormat = true
-                    )
-                    AND bf.fileName = :seriesName
-                )
+                OR (m.seriesName IS NULL AND :seriesName = :unknownSeriesName)
             )
             AND (b.deleted IS NULL OR b.deleted = false)
             ORDER BY COALESCE(m.seriesNumber, 0)
@@ -396,7 +387,6 @@ public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpec
     @Query("""
             SELECT DISTINCT b FROM BookEntity b
             LEFT JOIN b.metadata m
-            LEFT JOIN b.bookFiles bf
             WHERE (
                 (m.seriesName = :seriesName)
                 OR (
