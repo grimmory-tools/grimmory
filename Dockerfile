@@ -14,7 +14,7 @@ FROM --platform=$BUILDPLATFORM gradle:9.3.1-jdk25-alpine AS backend-build
 
 WORKDIR /workspace/booklore-api
 
-COPY booklore-api/gradlew booklore-api/gradlew.bat booklore-api/build.gradle booklore-api/settings.gradle ./
+COPY booklore-api/gradlew booklore-api/gradlew.bat booklore-api/build.gradle.kts booklore-api/settings.gradle.kts ./
 COPY booklore-api/gradle ./gradle
 RUN chmod +x ./gradlew
 
