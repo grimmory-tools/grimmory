@@ -1,6 +1,5 @@
 import {HttpErrorResponse, HttpEvent, HttpHandlerFn, HttpInterceptorFn, HttpRequest} from '@angular/common/http';
 import {inject} from '@angular/core';
-import {Router} from '@angular/router';
 import {catchError, filter, switchMap, take} from 'rxjs/operators';
 import {BehaviorSubject, Observable, throwError} from 'rxjs';
 import {AuthService} from '../../shared/service/auth.service';
@@ -8,7 +7,6 @@ import {API_CONFIG} from '../config/api-config';
 
 export const AuthInterceptorService: HttpInterceptorFn = (req, next: HttpHandlerFn) => {
   const authService = inject(AuthService);
-  const router = inject(Router);
 
   const token = authService.getInternalAccessToken();
   const isApiRequest = req.url.startsWith(`${API_CONFIG.BASE_URL}/api/`);
@@ -18,7 +16,7 @@ export const AuthInterceptorService: HttpInterceptorFn = (req, next: HttpHandler
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
-        return handle401Error(authService, authReq, next, router);
+        return handle401Error(authService, authReq, next);
       }
       return throwError(() => error);
     })
@@ -28,7 +26,7 @@ export const AuthInterceptorService: HttpInterceptorFn = (req, next: HttpHandler
 let isRefreshing = false;
 const refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
-function handle401Error(authService: AuthService, request: HttpRequest<unknown>, next: HttpHandlerFn, router: Router): Observable<HttpEvent<unknown>> {
+function handle401Error(authService: AuthService, request: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>> {
   if (!isRefreshing) {
     isRefreshing = true;
     refreshTokenSubject.next(null);
@@ -47,7 +45,7 @@ function handle401Error(authService: AuthService, request: HttpRequest<unknown>,
       }),
       catchError(err => {
         isRefreshing = false;
-        forceLogout(authService, router);
+        forceLogout(authService);
         return throwError(() => err);
       })
     );
@@ -64,6 +62,6 @@ function handle401Error(authService: AuthService, request: HttpRequest<unknown>,
   );
 }
 
-function forceLogout(authService: AuthService, router: Router): void {
+function forceLogout(authService: AuthService): void {
   authService.logout();
 }
