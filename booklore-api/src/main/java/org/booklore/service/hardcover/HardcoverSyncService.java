@@ -132,7 +132,6 @@ public class HardcoverSyncService {
                     log.info("Synced progress to Hardcover: userId={}, book={}, hardcoverBookId={}, hardcoverEditionId={}, progress={}% ({}pages)", 
                             userId, bookId, hardcoverBook.bookId, hardcoverBook.editionId, Math.round(progressPercent), progressPages);
                 }
-
             } finally {
                 // Clean up thread-local
                 currentApiToken.remove();
@@ -159,51 +158,6 @@ public class HardcoverSyncService {
 
     private String getApiToken() {
         return currentApiToken.get();
-    }
-
-    private EditionInfo findEditionById(Integer editionId) {
-        String query = """
-            query FindEditionById($editionId: Int!) {
-              editions(where: {id: {_eq: $editionId}}, limit: 1) {
-                id
-                pages
-              }
-            }
-            """;
-
-        GraphQLRequest request = new GraphQLRequest();
-        request.setQuery(query);
-        request.setVariables(Map.of("editionId", editionId));
-
-        try {
-            Map<String, Object> response = executeGraphQL(request);
-            if (response == null) return null;
-
-            Map<String, Object> data = (Map<String, Object>) response.get("data");
-            if (data == null) return null;
-
-            List<Map<String, Object>> editions = (List<Map<String, Object>>) data.get("editions");
-            if (editions == null || editions.isEmpty()) return null;
-
-            Map<String, Object> edition = editions.getFirst();
-            EditionInfo info = new EditionInfo();
-
-            Object idObj = edition.get("id");
-            if (idObj instanceof Number) {
-                info.id = ((Number) idObj).intValue();
-            }
-
-            Object pagesObj = edition.get("pages");
-            if (pagesObj instanceof Number) {
-                info.pages = ((Number) pagesObj).intValue();
-            }
-
-            return info.id != null ? info : null;
-
-        } catch (Exception e) {
-            log.debug("Failed to find edition by ID: {}", e.getMessage());
-            return null;
-        }
     }
 
     /**
@@ -251,8 +205,14 @@ public class HardcoverSyncService {
               books(where: {id: {_eq: $bookId}}, limit: 1) {
                 id
                 pages
-                default_ebook_edition_id
-                default_physical_edition_id
+                default_ebook_edition {
+                  id
+                  pages
+                }
+                default_physical_edition {
+                  id
+                  pages
+                }
                 editions(where: {
                   _or: [
                     {isbn_13: {_eq: $isbn13}},
@@ -304,16 +264,23 @@ public class HardcoverSyncService {
                     info.editionId, info.pages);
             }
 
+            // Fallback to default_ebook_edition
+            if (info.editionId == null) {
+                Map<String, Object> defaultEbookEdition = (Map<String, Object>) book.get("default_ebook_edition");
+                if (defaultEbookEdition != null && defaultEbookEdition.get("id") != null) {
+                    info.editionId = extractInteger(defaultEbookEdition.get("id"));
+                    info.pages = extractInteger(defaultEbookEdition.get("pages"));
+                    log.debug("Using default_ebook_edition: editionId={}, pages={}", info.editionId, info.pages);
+                }
+            }
+
             // Fallback to default_physical_edition
             if (info.editionId == null) {
-                Integer defaultPhysicalId = extractInteger(book.get("default_physical_edition_id"));
-                if (defaultPhysicalId != null) {
-                    EditionInfo physicalEdition = findEditionById(defaultPhysicalId);
-                    if (physicalEdition != null) {
-                        info.editionId = physicalEdition.id;
-                        info.pages = physicalEdition.pages;
-                        log.debug("Using default_physical_edition: editionId={}, pages={}", info.editionId, info.pages);
-                    }
+                Map<String, Object> defaultPhysicalEdition = (Map<String, Object>) book.get("default_physical_edition");
+                if (defaultPhysicalEdition != null && defaultPhysicalEdition.get("id") != null) {
+                    info.editionId = extractInteger(defaultPhysicalEdition.get("id"));
+                    info.pages = extractInteger(defaultPhysicalEdition.get("pages"));
+                    log.debug("Using default_physical_edition: editionId={}, pages={}", info.editionId, info.pages);
                 }
             }
 
