@@ -109,10 +109,14 @@ public class HardcoverSyncService {
 
                 // Calculate progress in pages
                 int progressPages = 0;
-                if (hardcoverBook.pages != null && hardcoverBook.pages > 0) {
-                    progressPages = Math.round((progressPercent / 100.0f) * hardcoverBook.pages);
-                    progressPages = Math.max(0, Math.min(hardcoverBook.pages, progressPages));
+                if (hardcoverBook.pages == null || hardcoverBook.pages == 0) {
+                    log.warn("Hardcover sync failed: book {} has no page count information, cannot calculate progress in pages", bookId);
+                    return;
                 }
+      
+                progressPages = Math.round((progressPercent / 100.0f) * hardcoverBook.pages);
+                progressPages = Math.max(0, Math.min(hardcoverBook.pages, progressPages));
+                
                 log.info("Progress calculation: userId={}, progressPercent={}%, totalPages={}, progressPages={}", 
                         userId, progressPercent, hardcoverBook.pages, progressPages);
 
