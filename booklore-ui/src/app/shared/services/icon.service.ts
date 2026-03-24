@@ -25,7 +25,6 @@ interface SvgIconBatchResponse {
   results: IconSaveResult[];
 }
 
-type IconContentMap = Record<string, string>;
 @Injectable({
   providedIn: 'root'
 })
@@ -33,7 +32,6 @@ export class IconService {
 
   private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/icons`;
   private requestCache = new Map<string, Observable<string>>();
-  private preloadCache$: Observable<void> | null = null;
 
   private http = inject(HttpClient);
   private iconCache = inject(IconCacheService);
@@ -49,24 +47,10 @@ export class IconService {
     });
   }
 
-  preloadAllIcons(): Observable<void> {
-    if (this.preloadCache$) {
-      return this.preloadCache$;
-    }
-
-    this.preloadCache$ = this.http.get<IconContentMap>(`${this.baseUrl}/all/content`).pipe(
-      tap((iconsMap) => {
-        Object.entries(iconsMap).forEach(([iconName, content]) => {
-          const sanitized = this.sanitizer.bypassSecurityTrustHtml(this.sanitizeSvgContent(content));
-          this.iconCache.cacheIcon(iconName, content, sanitized);
-        });
-      }),
-      map(() => void 0),
-      shareReplay({ bufferSize: 1, refCount: false }),
-      finalize(() => this.preloadCache$ = null)
+  getIconNames(page: number = 0, size: number = 1000): Observable<string[]> {
+    return this.http.get<{ content: string[] }>(`${this.baseUrl}?page=${page}&size=${size}`).pipe(
+      map(response => response.content)
     );
-
-    return this.preloadCache$;
   }
 
   getSvgIconContent(iconName: string): Observable<string> {
