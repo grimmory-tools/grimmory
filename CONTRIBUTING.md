@@ -418,7 +418,7 @@ Environment: Chrome 120, macOS 14.2, Grimmory 1.2.0
 
 ## Community & Support
 
-- **Discord:** [Join the server](https://discord.gg/FwqHeFWk) for questions and discussion
+- **Discord:** [Join the server](https://discord.gg/9YJ7HB4n8T) for questions and discussion
 - **GitHub Issues:** [Report bugs or request features](https://github.com/grimmory-tools/grimmory/issues)
 
 ---
