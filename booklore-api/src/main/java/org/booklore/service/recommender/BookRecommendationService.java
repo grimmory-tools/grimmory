@@ -94,7 +94,6 @@ public class BookRecommendationService {
     protected List<BookRecommendation> findSimilarBooks(Long bookId, int limit) {
         BookEntity target = bookRepository.findByIdWithMetadata(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
-        // Try embedding-based similarity first (lightweight — no full entities loaded)
         String targetVectorJson = Optional.ofNullable(target.getMetadata())
                 .map(BookMetadataEntity::getEmbeddingVector)
                 .orElse(null);

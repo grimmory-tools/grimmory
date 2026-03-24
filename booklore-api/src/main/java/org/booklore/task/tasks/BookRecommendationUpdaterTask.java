@@ -58,7 +58,7 @@ public class BookRecommendationUpdaterTask implements Task {
 
         lastNotificationTime = sendTaskProgressNotification(taskId, 0, "Starting book recommendation update", TaskStatus.IN_PROGRESS, lastNotificationTime, true);
 
-        // Phase 1: Load books in batches, generate embeddings, store lightweight data only
+        // Load books in batches, generate embeddings, store lightweight data only
         long totalBooks = bookQueryService.countAllNonDeleted();
         Map<Long, double[]> embeddings = new HashMap<>();
         Map<Long, String> seriesNames = new HashMap<>();
@@ -106,7 +106,7 @@ public class BookRecommendationUpdaterTask implements Task {
 
         lastNotificationTime = sendTaskProgressNotification(taskId, 35, "Computing book similarities...", TaskStatus.IN_PROGRESS, lastNotificationTime, false);
 
-        // Phase 2: Compute similarities using only in-memory vectors (no entities needed)
+        // Compute similarities using only in-memory vectors (no entities needed)
         Set<Long> allBookIds = embeddings.keySet();
         Map<Long, Set<BookRecommendationLite>> allRecommendations = new HashMap<>();
 
@@ -158,7 +158,7 @@ public class BookRecommendationUpdaterTask implements Task {
             }
         }
 
-        // Phase 3: Save recommendations in batches
+        // Save recommendations in batches
         lastNotificationTime = sendTaskProgressNotification(taskId, 85, String.format("Saving recommendations for %d books...", allRecommendations.size()), TaskStatus.IN_PROGRESS, lastNotificationTime, false);
 
         bookQueryService.saveRecommendationsInBatches(allRecommendations, BATCH_SIZE);

@@ -10,6 +10,7 @@ import org.booklore.model.enums.ComicCreatorRole;
 import org.booklore.model.enums.ReadStatus;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.task.TaskCronService;
+import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -61,8 +62,8 @@ class BookRuleEvaluatorServiceIntegrationTest {
     static class TestConfig {
         @Bean("flyway")
         @Primary
-        public org.flywaydb.core.Flyway flyway() {
-            return mock(org.flywaydb.core.Flyway.class);
+        public Flyway flyway() {
+            return mock(Flyway.class);
         }
 
         @Bean
