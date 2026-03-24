@@ -1,4 +1,4 @@
-import {Component, EventEmitter, inject, Input, Output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, EventEmitter, inject, Input, Output} from '@angular/core';
 import {NgClass} from '@angular/common';
 import {ProgressBar} from 'primeng/progressbar';
 import {Button} from 'primeng/button';
@@ -11,6 +11,7 @@ import {UrlHelperService} from '../../../../shared/service/url-helper.service';
 @Component({
   selector: 'app-series-card',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './series-card.component.html',
   styleUrls: ['./series-card.component.scss'],
   imports: [NgClass, ProgressBar, Button, Tooltip, TranslocoPipe]

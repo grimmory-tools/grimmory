@@ -1,4 +1,4 @@
-import {Component, input, computed} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, input} from '@angular/core';
 
 export type TagColor =
   | 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'danger'
@@ -14,6 +14,7 @@ export type TagVariant = 'label' | 'pill';
 @Component({
   selector: 'app-tag',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <span
       [class]="tagClasses()"

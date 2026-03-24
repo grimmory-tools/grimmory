@@ -1,4 +1,4 @@
-import {Component, ElementRef, Input, ViewChild, inject} from '@angular/core';
+import {ChangeDetectionStrategy, Component, ElementRef, Input, ViewChild, inject} from '@angular/core';
 import {BookCardComponent} from '../../../book/components/book-browser/book-card/book-card.component';
 import {InfiniteScrollDirective} from 'ngx-infinite-scroll';
 import {NgClass} from '@angular/common';
@@ -11,6 +11,7 @@ import {TranslocoDirective, TranslocoPipe} from '@jsverse/transloco';
 
 @Component({
   selector: 'app-dashboard-scroller',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './dashboard-scroller.component.html',
   styleUrls: ['./dashboard-scroller.component.scss'],
   imports: [

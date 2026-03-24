@@ -1,10 +1,11 @@
-import {Component, inject, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, Input, OnInit} from '@angular/core';
 import {TranslocoDirective} from '@jsverse/transloco';
 import {ReaderPreferencesService} from '../reader-preferences.service';
 import {UserSettings} from '../../user-management/user.service';
 
 @Component({
   selector: 'app-settings-application-mode',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './settings-application-mode.component.html',
   standalone: true,
   styleUrls: ['./settings-application-mode.component.scss'],
