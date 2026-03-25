@@ -7,7 +7,6 @@ module.exports = {
     "declaration-property-value-keyword-no-deprecated": null,
     "keyframes-name-pattern": null,
     "no-descending-specificity": null,
-    "no-empty-source": null,
     "no-invalid-position-declaration": null,
     "property-no-deprecated": null,
     "property-no-vendor-prefix": null,
