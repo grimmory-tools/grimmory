@@ -58,12 +58,12 @@
 
   &.book-type-pdf {
     color: var(--book-type-pdf-color);
-    background-color: rgba(220, 38, 38, 10%);
+    background-color: rgb(220, 38, 38, 10%);
   }
 
   &.book-type-epub {
     color: var(--book-type-epub-color);
-    background-color: rgba(22, 163, 74, 10%);
+    background-color: rgb(22, 163, 74, 10%);
   }
 
   &.book-type-cbx,
@@ -71,27 +71,27 @@
   &.book-type-cbr,
   &.book-type-cb7 {
     color: var(--book-type-cbx-color);
-    background-color: rgba(59, 130, 246, 10%);
+    background-color: rgb(59, 130, 246, 10%);
   }
 
   &.book-type-fb2 {
     color: var(--book-type-fb2-color);
-    background-color: rgba(236, 72, 153, 10%);
+    background-color: rgb(236, 72, 153, 10%);
   }
 
   &.book-type-mobi {
     color: var(--book-type-mobi-color);
-    background-color: rgba(99, 102, 241, 10%);
+    background-color: rgb(99, 102, 241, 10%);
   }
 
   &.book-type-azw3 {
     color: var(--book-type-azw3-color);
-    background-color: rgba(20, 184, 166, 10%);
+    background-color: rgb(20, 184, 166, 10%);
   }
 
   &.book-type-audiobook {
     color: var(--book-type-audiobook-color);
-    background-color: rgba(234, 179, 8, 10%);
+    background-color: rgb(234, 179, 8, 10%);
   }
 }
 
@@ -110,17 +110,17 @@
 
   &.progress-positive {
     color: #16a34a;
-    background-color: rgba(22, 163, 74, 10%);
+    background-color: rgb(22, 163, 74, 10%);
   }
 
   &.progress-negative {
     color: #dc2626;
-    background-color: rgba(220, 38, 38, 10%);
+    background-color: rgb(220, 38, 38, 10%);
   }
 
   &.progress-neutral {
     color: var(--text-color-secondary);
-    background-color: rgba(128, 128, 128, 10%);
+    background-color: rgb(128, 128, 128, 10%);
   }
 }
 

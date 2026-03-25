@@ -24,7 +24,7 @@
   transition: background-color 0.2s ease, color 0.2s ease;
 
   &:hover {
-    background: rgba(0, 0, 0, 10%);
+    background: rgb(0, 0, 0, 10%);
   }
 
   svg {
@@ -37,7 +37,7 @@
   color: #e8e8e8;
 
   &:hover {
-    background: rgba(255, 255, 255, 15%);
+    background: rgb(255, 255, 255, 15%);
   }
 }
 

@@ -19,7 +19,7 @@
   border: 1px solid var(--border-color);
   border-top: none;
   border-radius: 0 0 10px 10px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 8%);
+  box-shadow: 0 2px 6px rgb(0, 0, 0, 8%);
   position: relative;
 }
 
@@ -30,7 +30,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 60%);
+  background: rgb(0, 0, 0, 60%);
 }
 
 .info-box {

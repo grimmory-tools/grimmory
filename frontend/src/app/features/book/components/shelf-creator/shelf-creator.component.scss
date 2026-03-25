@@ -23,7 +23,7 @@
   background: var(--card-background);
   border: 1px solid var(--border-color);
   border-top: none;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 8%);
+  box-shadow: 0 2px 6px rgb(0, 0, 0, 8%);
 
   @media (max-width: 480px) {
     padding: 1rem;
@@ -115,7 +115,7 @@
     border-color: var(--primary-color);
     color: var(--primary-color);
     transform: translateY(-1px);
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 15%);
+    box-shadow: 0 3px 8px rgb(0, 0, 0, 15%);
   }
 
   i {
@@ -176,7 +176,7 @@
     height: 42px;
     background: var(--primary-color);
     border-radius: 8px;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 20%);
+    box-shadow: 0 3px 8px rgb(0, 0, 0, 20%);
 
     app-icon-display {
       display: flex;

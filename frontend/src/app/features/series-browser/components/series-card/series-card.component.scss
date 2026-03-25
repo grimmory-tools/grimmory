@@ -14,7 +14,7 @@
   &:hover {
     transform: translateY(-4px) scale(1.02);
     border-color: color-mix(in srgb, var(--p-primary-400), transparent 50%);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 30%),
+    box-shadow: 0 8px 32px rgb(0, 0, 0, 30%),
     0 0 0 1px color-mix(in srgb, var(--p-primary-500), transparent 70%);
     z-index: 10;
   }
@@ -37,7 +37,7 @@
   height: calc(152px * var(--card-scale, 1));
   object-fit: cover;
   border-radius: 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 40%);
+  box-shadow: 0 4px 12px rgb(0, 0, 0, 40%);
   transition: transform 0.3s ease, width 0.2s ease, height 0.2s ease;
 }
 
@@ -188,7 +188,7 @@
   ::ng-deep .p-progressbar {
     height: 6px;
     border-radius: 3px;
-    background: rgba(255, 255, 255, 10%);
+    background: rgb(255, 255, 255, 10%);
   }
 
   &.progress-complete ::ng-deep .p-progressbar-value {

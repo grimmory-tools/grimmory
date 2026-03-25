@@ -241,7 +241,7 @@
     transition: all 0.2s ease;
 
     &:hover {
-      background: rgba(239, 68, 68, 15%);
+      background: rgb(239, 68, 68, 15%);
       color: var(--p-red-400);
     }
 
@@ -256,8 +256,8 @@
   align-items: center;
   gap: 0.625rem;
   padding: 0.625rem 0.75rem;
-  background: rgba(234, 179, 8, 8%);
-  border: 1px solid rgba(234, 179, 8, 25%);
+  background: rgb(234, 179, 8, 8%);
+  border: 1px solid rgb(234, 179, 8, 25%);
   border-radius: 6px;
   font-size: 0.8125rem;
   color: var(--text-secondary-color);
@@ -391,7 +391,7 @@
 
     &:hover {
       opacity: 1;
-      background: rgba(239, 68, 68, 15%);
+      background: rgb(239, 68, 68, 15%);
       color: var(--p-red-400);
     }
 
@@ -530,7 +530,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.625rem 0.75rem;
-  background: rgba(234, 179, 8, 10%);
+  background: rgb(234, 179, 8, 10%);
   border: 1px solid var(--p-orange-400);
   border-radius: 6px;
   font-size: 0.75rem;
@@ -600,7 +600,7 @@
 .cdk-drag-preview {
   box-sizing: border-box;
   border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 25%);
+  box-shadow: 0 4px 12px rgb(0, 0, 0, 25%);
   background: var(--overlay-background);
   border: 1px solid var(--primary-color);
 }

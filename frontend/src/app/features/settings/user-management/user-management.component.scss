@@ -492,7 +492,7 @@
   .p-dialog {
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 15%);
+    box-shadow: 0 10px 40px rgb(0, 0, 0, 15%);
   }
 
   .p-dialog-header {
@@ -526,7 +526,7 @@
         color: var(--p-primary-contrast-color);
         border-radius: 8px;
         font-size: 1.25rem;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 15%);
+        box-shadow: 0 2px 6px rgb(0, 0, 0, 15%);
       }
     }
 
@@ -657,10 +657,10 @@
     }
 
     &:not(.p-button-outlined) {
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 10%);
+      box-shadow: 0 2px 4px rgb(0, 0, 0, 10%);
 
       &:hover {
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 18%);
+        box-shadow: 0 4px 10px rgb(0, 0, 0, 18%);
         transform: translateY(-1px);
       }
 

@@ -1,12 +1,12 @@
 // Variables
 $sidebar-width: 320px;
 $sidebar-bg: #1a1a1a;
-$text-primary: rgba(255, 255, 255, 95%);
-$text-secondary: rgba(255, 255, 255, 60%);
-$text-muted: rgba(255, 255, 255, 40%);
-$border-color: rgba(255, 255, 255, 8%);
-$hover-bg: rgba(255, 255, 255, 6%);
-$active-bg: rgba(99, 102, 241, 15%);
+$text-primary: rgb(255, 255, 255, 95%);
+$text-secondary: rgb(255, 255, 255, 60%);
+$text-muted: rgb(255, 255, 255, 40%);
+$border-color: rgb(255, 255, 255, 8%);
+$hover-bg: rgb(255, 255, 255, 6%);
+$active-bg: rgb(99, 102, 241, 15%);
 $active-color: #818cf8;
 $transition-fast: 150ms ease;
 $transition-normal: 200ms ease;
@@ -15,7 +15,7 @@ $transition-normal: 200ms ease;
 .sidebar-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 40%);
+  background: rgb(0, 0, 0, 40%);
   backdrop-filter: blur(1px);
   z-index: 12000;
   animation: fadeIn $transition-normal;
@@ -36,7 +36,7 @@ $transition-normal: 200ms ease;
   display: flex;
   flex-direction: column;
   color: $text-primary;
-  box-shadow: -4px 0 24px rgba(0, 0, 0, 30%);
+  box-shadow: -4px 0 24px rgb(0, 0, 0, 30%);
   animation: slideInRight 250ms cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 12001;
 
@@ -51,7 +51,7 @@ $transition-normal: 200ms ease;
   align-items: center;
   padding: 20px 16px;
   border-bottom: 1px solid $border-color;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 3%) 0%, transparent 100%);
+  background: linear-gradient(180deg, rgb(255, 255, 255, 3%) 0%, transparent 100%);
 }
 
 .sidebar-title {
@@ -65,7 +65,7 @@ $transition-normal: 200ms ease;
 .tabs {
   display: flex;
   border-bottom: 1px solid $border-color;
-  background: rgba(0, 0, 0, 20%);
+  background: rgb(0, 0, 0, 20%);
 }
 
 .tab {
@@ -142,11 +142,11 @@ $transition-normal: 200ms ease;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 15%);
+    background: rgb(255, 255, 255, 15%);
     border-radius: 3px;
 
     &:hover {
-      background: rgba(255, 255, 255, 25%);
+      background: rgb(255, 255, 255, 25%);
     }
   }
 }
@@ -195,7 +195,7 @@ $transition-normal: 200ms ease;
   align-items: center;
   gap: 10px;
   padding: 12px 16px;
-  background: rgba(0, 0, 0, 20%);
+  background: rgb(0, 0, 0, 20%);
   border-bottom: 1px solid $border-color;
 
   .search-icon {
@@ -223,7 +223,7 @@ $transition-normal: 200ms ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 10%);
+    background: rgb(255, 255, 255, 10%);
     border: none;
     border-radius: 50%;
     color: $text-secondary;
@@ -232,7 +232,7 @@ $transition-normal: 200ms ease;
     flex-shrink: 0;
 
     &:hover {
-      background: rgba(255, 255, 255, 15%);
+      background: rgb(255, 255, 255, 15%);
       color: $text-primary;
     }
   }
@@ -303,7 +303,7 @@ $transition-normal: 200ms ease;
   }
 
   &:hover {
-    background: rgba(99, 102, 241, 15%);
+    background: rgb(99, 102, 241, 15%);
     color: $active-color;
   }
 }
@@ -343,7 +343,7 @@ $transition-normal: 200ms ease;
   }
 
   &:hover {
-    background: rgba(239, 68, 68, 15%);
+    background: rgb(239, 68, 68, 15%);
     color: #ef4444;
   }
 }
@@ -389,7 +389,7 @@ $transition-normal: 200ms ease;
   align-items: center;
   gap: 10px;
   padding: 12px 16px;
-  background: rgba(0, 0, 0, 20%);
+  background: rgb(0, 0, 0, 20%);
   border-bottom: 1px solid $border-color;
 
   .search-icon {
@@ -417,7 +417,7 @@ $transition-normal: 200ms ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 10%);
+    background: rgb(255, 255, 255, 10%);
     border: none;
     border-radius: 50%;
     color: $text-secondary;
@@ -426,7 +426,7 @@ $transition-normal: 200ms ease;
     flex-shrink: 0;
 
     &:hover {
-      background: rgba(255, 255, 255, 15%);
+      background: rgb(255, 255, 255, 15%);
       color: $text-primary;
     }
   }
@@ -440,7 +440,7 @@ $transition-normal: 200ms ease;
 
   .progress-bar {
     height: 3px;
-    background: rgba(255, 255, 255, 10%);
+    background: rgb(255, 255, 255, 10%);
     border-radius: 2px;
     overflow: hidden;
 
@@ -470,7 +470,7 @@ $transition-normal: 200ms ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 8%);
+    background: rgb(255, 255, 255, 8%);
     border: none;
     border-radius: 50%;
     color: $text-muted;
@@ -479,7 +479,7 @@ $transition-normal: 200ms ease;
     flex-shrink: 0;
 
     &:hover {
-      background: rgba(239, 68, 68, 15%);
+      background: rgb(239, 68, 68, 15%);
       color: #ef4444;
     }
   }
@@ -520,7 +520,7 @@ $transition-normal: 200ms ease;
   }
 
   .excerpt-match {
-    background: rgba(255, 255, 0, 25%);
+    background: rgb(255, 255, 0, 25%);
     color: $text-primary;
     font-weight: 500;
     padding: 1px 2px;

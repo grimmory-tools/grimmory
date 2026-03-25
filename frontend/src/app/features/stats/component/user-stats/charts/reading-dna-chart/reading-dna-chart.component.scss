@@ -32,7 +32,7 @@
 
 .reading-dna-icon {
   font-size: 1.5rem;
-  color: rgba(79, 195, 247, 100%);
+  color: rgb(79, 195, 247, 100%);
 }
 
 .chart-wrapper {
@@ -59,10 +59,10 @@
   }
 
   .insight-card {
-    background: rgba(255, 255, 255, 5%);
+    background: rgb(255, 255, 255, 5%);
     border-radius: 8px;
     padding: 1rem;
-    border: 1px solid rgba(255, 255, 255, 10%);
+    border: 1px solid rgb(255, 255, 255, 10%);
 
     .insight-header {
       display: flex;
@@ -84,7 +84,7 @@
 
     .insight-progress {
       height: 6px;
-      background: rgba(255, 255, 255, 10%);
+      background: rgb(255, 255, 255, 10%);
       border-radius: 3px;
       overflow: hidden;
       margin-bottom: 0.5rem;

@@ -57,7 +57,7 @@
     i {
       font-size: 2rem;
       color: white;
-      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 30%));
+      filter: drop-shadow(0 2px 4px rgb(0, 0, 0, 30%));
     }
   }
 
@@ -67,7 +67,7 @@
     font-weight: 500;
     max-width: 400px;
     line-height: 1.7;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 50%);
+    text-shadow: 0 1px 2px rgb(0, 0, 0, 50%);
   }
 }
 
@@ -82,7 +82,7 @@
   position: relative;
   z-index: 2;
 
-  scrollbar-color: var(--primary-color) rgba(20, 20, 30, 50%);
+  scrollbar-color: var(--primary-color) rgb(20, 20, 30, 50%);
 }
 
 .dashboard-scroller-card {
@@ -106,7 +106,7 @@
 
   &:hover, &.menu-open {
     transform: translateY(-4px) scale(1.04);
-    filter: drop-shadow(0 25px 50px rgba(0, 0, 0, 40%));
+    filter: drop-shadow(0 25px 50px rgb(0, 0, 0, 40%));
 
     &::after {
       opacity: 1;

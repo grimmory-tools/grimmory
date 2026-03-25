@@ -55,13 +55,13 @@ $provider-colors: (
   background: var(--p-surface-900);
   border-radius: 0.75rem;
   padding: 1.25rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 20%);
+  box-shadow: 0 2px 4px rgb(0, 0, 0, 20%);
   border: 1px solid var(--border-color);
   margin-bottom: 1.25rem;
   transition: all 0.3s ease;
 
   &:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 30%);
+    box-shadow: 0 4px 8px rgb(0, 0, 0, 30%);
   }
 }
 
@@ -158,7 +158,7 @@ $provider-colors: (
   background: var(--p-surface-900);
   border-radius: 0.75rem;
   padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 20%);
+  box-shadow: 0 2px 4px rgb(0, 0, 0, 20%);
   border: 1px solid var(--border-color);
   margin-bottom: 1.25rem;
   animation: slideIn 0.3s ease-out;
@@ -217,7 +217,7 @@ $provider-colors: (
 
   .results-count {
     padding: 0.25rem 0.75rem;
-    background: rgba(var(--primary-color-rgb, 99, 102, 241), 20%);
+    background: rgb(var(--primary-color-rgb, 99, 102, 241), 20%);
     color: var(--primary-color);
     border-radius: 2rem;
     font-size: 0.875rem;
@@ -231,12 +231,12 @@ $provider-colors: (
   align-items: center;
   gap: 0.375rem;
   padding: 0.25rem 0.85rem;
-  background: rgba(34, 197, 94, 80%);
+  background: rgb(34, 197, 94, 80%);
   color: white;
   border-radius: 2rem;
   font-size: 0.85rem;
   font-weight: 700;
-  box-shadow: 0 2px 8px rgba(34, 197, 94, 35%);
+  box-shadow: 0 2px 8px rgb(34, 197, 94, 35%);
 }
 
 .provider-pills {
@@ -262,26 +262,26 @@ $provider-colors: (
     cursor: pointer;
 
     .pill-icon {
-      background: rgba(var(--primary-color-rgb, 99, 102, 241), 12%);
+      background: rgb(var(--primary-color-rgb, 99, 102, 241), 12%);
       color: var(--primary-color);
     }
 
     .pill-count {
-      background: rgba(var(--primary-color-rgb, 99, 102, 241), 18%);
+      background: rgb(var(--primary-color-rgb, 99, 102, 241), 18%);
       color: #fff;
       font-weight: 700;
     }
   }
 
   &.active {
-    background: rgba(var(--primary-color-rgb, 99, 102, 241), 10%);
+    background: rgb(var(--primary-color-rgb, 99, 102, 241), 10%);
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb, 99, 102, 241), 10%),
-    0 2px 6px rgba(var(--primary-color-rgb, 99, 102, 241), 10%);
+    box-shadow: 0 0 0 2px rgb(var(--primary-color-rgb, 99, 102, 241), 10%),
+    0 2px 6px rgb(var(--primary-color-rgb, 99, 102, 241), 10%);
     transform: translateY(-1px);
 
     .pill-icon {
-      background: rgba(var(--primary-color-rgb, 99, 102, 241), 18%);
+      background: rgb(var(--primary-color-rgb, 99, 102, 241), 18%);
       color: var(--primary-color);
     }
 
@@ -291,7 +291,7 @@ $provider-colors: (
     }
 
     .pill-count {
-      background: rgba(var(--primary-color-rgb, 99, 102, 241), 22%);
+      background: rgb(var(--primary-color-rgb, 99, 102, 241), 22%);
       color: #fff;
       font-weight: 800;
     }
@@ -303,12 +303,12 @@ $provider-colors: (
         border-color: $color;
 
         .pill-icon {
-          background: rgba($color, 12%);
+          background: rgb($color, 12%);
           color: $color;
         }
 
         .pill-count {
-          background: rgba($color, 18%);
+          background: rgb($color, 18%);
           color: #fff;
           font-weight: 700;
         }
@@ -319,21 +319,21 @@ $provider-colors: (
       }
 
       &.active {
-        background: rgba($color, 20%);
+        background: rgb($color, 20%);
         border-color: $color;
-        box-shadow: 0 0 0 2px rgba($color, 10%), 0 2px 6px rgba($color, 10%);
+        box-shadow: 0 0 0 2px rgb($color, 10%), 0 2px 6px rgb($color, 10%);
 
         .pill-name {
           color: $color;
         }
 
         .pill-icon {
-          background: rgba($color, 18%);
+          background: rgb($color, 18%);
           color: $color;
         }
 
         .pill-count {
-          background: rgba($color, 22%);
+          background: rgb($color, 22%);
           color: #fff;
           font-weight: 800;
         }
@@ -343,7 +343,7 @@ $provider-colors: (
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 20%);
+    box-shadow: 0 2px 6px rgb(0, 0, 0, 20%);
   }
 
   &.active:hover {
@@ -392,7 +392,7 @@ $provider-colors: (
     border-radius: 2rem;
     font-weight: 800;
     font-size: 1rem;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 12%);
+    text-shadow: 0 1px 2px rgb(0, 0, 0, 12%);
   }
 }
 
@@ -455,7 +455,7 @@ $provider-colors: (
   padding: 1rem;
   background: var(--p-surface-900);
   border-radius: 0.75rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 20%);
+  box-shadow: 0 2px 4px rgb(0, 0, 0, 20%);
   border: 1px solid var(--border-color);
 
   @media (min-width: 768px) {
@@ -544,7 +544,7 @@ $provider-colors: (
   background: var(--p-surface-900);
   border-radius: 0.75rem;
   overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 20%);
+  box-shadow: 0 2px 6px rgb(0, 0, 0, 20%);
   border: 1px solid var(--border-color);
   cursor: pointer;
   transition: all 0.3s ease;
@@ -555,7 +555,7 @@ $provider-colors: (
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 30%);
+    box-shadow: 0 8px 16px rgb(0, 0, 0, 30%);
     border-color: var(--primary-color);
 
     .card-overlay {
@@ -590,7 +590,7 @@ $provider-colors: (
   .card-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 75%);
+    background: rgb(0, 0, 0, 75%);
     display: flex;
     flex-direction: column;
     align-items: center;

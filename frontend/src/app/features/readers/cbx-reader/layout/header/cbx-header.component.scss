@@ -12,7 +12,7 @@
   z-index: 1000;
   background: linear-gradient(135deg, #2d2d2d 0%, #1f1f1f 100%);
   border-bottom: 1px solid #404040;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 30%);
+  box-shadow: 0 2px 8px rgb(0, 0, 0, 30%);
   color: #ffffff;
   opacity: 1;
   pointer-events: auto;
@@ -51,7 +51,7 @@
     }
 
     &:hover {
-      background: rgba(255, 255, 255, 12%);
+      background: rgb(255, 255, 255, 12%);
     }
 
     &:last-child {
@@ -65,13 +65,13 @@
       }
 
       &:hover {
-        background: rgba(239, 68, 68, 20%);
+        background: rgb(239, 68, 68, 20%);
       }
     }
 
     &.active {
       color: #ef4444;
-      background: rgba(239, 68, 68, 15%);
+      background: rgb(239, 68, 68, 15%);
     }
 
     &.has-notes {
@@ -128,7 +128,7 @@
     background: #2d2d2d;
     border: 1px solid #404040;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 40%);
+    box-shadow: 0 4px 12px rgb(0, 0, 0, 40%);
     z-index: 1000;
     min-width: 180px;
     padding: 4px;
@@ -149,12 +149,12 @@
     white-space: nowrap;
 
     &:hover {
-      background: rgba(255, 255, 255, 12%);
+      background: rgb(255, 255, 255, 12%);
     }
 
     &.active {
       color: #ef4444;
-      background: rgba(239, 68, 68, 15%);
+      background: rgb(239, 68, 68, 15%);
     }
   }
 }

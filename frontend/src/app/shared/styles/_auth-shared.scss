@@ -15,7 +15,7 @@
     left: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle, rgba(59, 130, 246, 10%) 0%, transparent 70%);
+    background: radial-gradient(circle, rgb(59, 130, 246, 10%) 0%, transparent 70%);
     animation: float 20s ease-in-out infinite;
   }
 }
@@ -42,19 +42,19 @@
   width: 100%;
   border-radius: 2rem;
   padding: 2px;
-  background: linear-gradient(135deg, var(--primary-color) 0%, rgba(59, 130, 246, 30%) 50%, transparent 100%);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 40%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, rgb(59, 130, 246, 30%) 50%, transparent 100%);
+  box-shadow: 0 20px 60px rgb(0, 0, 0, 40%);
   transition: all 0.3s ease;
 
   &:hover {
-    box-shadow: 0 25px 70px rgba(0, 0, 0, 50%);
+    box-shadow: 0 25px 70px rgb(0, 0, 0, 50%);
     transform: translateY(-2px);
   }
 }
 
 @mixin auth-card {
   width: 100%;
-  background: rgba(17, 24, 39, 95%);
+  background: rgb(17, 24, 39, 95%);
   backdrop-filter: blur(20px);
   border-radius: calc(2rem - 2px);
   padding: 3rem 2.5rem;
@@ -78,7 +78,7 @@
   width: 4rem;
   height: 4rem;
   margin: 0 auto;
-  filter: drop-shadow(0 4px 12px rgba(59, 130, 246, 40%));
+  filter: drop-shadow(0 4px 12px rgb(59, 130, 246, 40%));
   transition: transform 0.3s ease;
 
   &:hover {
@@ -95,7 +95,7 @@
   justify-content: center;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--primary-color) 0%, #2563eb 100%);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 40%);
+  box-shadow: 0 4px 12px rgb(59, 130, 246, 40%);
   transition: transform 0.3s ease;
 
   i {
@@ -124,7 +124,7 @@
 
 @mixin auth-subtitle {
   font-size: 0.95rem;
-  color: rgba(255, 255, 255, 70%);
+  color: rgb(255, 255, 255, 70%);
   font-weight: 400;
   line-height: 1.5;
   max-width: 400px;
@@ -149,7 +149,7 @@
   gap: 0.5rem;
   font-size: 0.95rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 90%);
+  color: rgb(255, 255, 255, 90%);
 
   i {
     color: var(--primary-color);
@@ -161,7 +161,7 @@
   transition: all 0.3s ease;
 
   &:focus {
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 20%);
+    box-shadow: 0 0 0 3px rgb(59, 130, 246, 20%);
   }
 }
 
@@ -192,7 +192,7 @@
 
     &:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(59, 130, 246, 40%);
+      box-shadow: 0 8px 24px rgb(59, 130, 246, 40%);
     }
 
     &:active:not(:disabled) {

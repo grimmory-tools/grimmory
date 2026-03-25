@@ -26,9 +26,9 @@
       flex-direction: column;
       gap: 8px;
       padding: 16px 8px;
-      background: rgba(0, 0, 0, 10%);
+      background: rgb(0, 0, 0, 10%);
       border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 20%);
+      border: 1px solid rgb(255, 255, 255, 20%);
       backdrop-filter: blur(8px);
       pointer-events: auto;
       position: relative;
@@ -183,7 +183,7 @@
       content: '';
       position: absolute;
       inset: 0 0 0 0;
-      background: rgba(0, 0, 0, 30%);
+      background: rgb(0, 0, 0, 30%);
       z-index: 50;
       pointer-events: none;
     }
@@ -191,8 +191,8 @@
 
   .review-header {
     flex-shrink: 0;
-    background: linear-gradient(135deg, rgba(40, 40, 40, 80%), rgba(30, 30, 30, 80%));
-    border-bottom: 1px solid rgba(255, 255, 255, 10%);
+    background: linear-gradient(135deg, rgb(40, 40, 40, 80%), rgb(30, 30, 30, 80%));
+    border-bottom: 1px solid rgb(255, 255, 255, 10%);
     position: relative;
 
     .review-header-inner {
@@ -312,7 +312,7 @@
       left: 0;
       right: 0;
       height: 30px;
-      background: linear-gradient(transparent, rgba(20, 20, 20, 90%));
+      background: linear-gradient(transparent, rgb(20, 20, 20, 90%));
       pointer-events: none;
     }
   }

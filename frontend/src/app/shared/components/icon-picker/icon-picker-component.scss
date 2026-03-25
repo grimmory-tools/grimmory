@@ -189,7 +189,7 @@
 
   &.selected {
     border-color: var(--primary-color);
-    background: rgba(var(--primary-color-rgb, 59, 130, 246), 10%);
+    background: rgb(var(--primary-color-rgb, 59, 130, 246), 10%);
 
     > i {
       color: var(--primary-color);
@@ -261,7 +261,7 @@
 
   &.active {
     border-color: var(--p-red-400);
-    background: rgba(239, 68, 68, 8%);
+    background: rgb(239, 68, 68, 8%);
     color: var(--p-red-400);
   }
 }
@@ -386,8 +386,8 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  background: rgba(239, 68, 68, 10%);
-  border: 1px solid rgba(239, 68, 68, 20%);
+  background: rgb(239, 68, 68, 10%);
+  border: 1px solid rgb(239, 68, 68, 20%);
   border-radius: 6px;
   color: var(--p-red-400);
   font-size: 0.875rem;
@@ -473,7 +473,7 @@
     transition: all 0.15s ease;
 
     &:hover {
-      background: rgba(239, 68, 68, 15%);
+      background: rgb(239, 68, 68, 15%);
       color: var(--p-red-400);
     }
 
@@ -501,8 +501,8 @@
     padding: 0.5rem 0.625rem;
     font-size: 0.6875rem;
     color: var(--p-red-400);
-    background: rgba(239, 68, 68, 8%);
-    border-top: 1px solid rgba(239, 68, 68, 15%);
+    background: rgb(239, 68, 68, 8%);
+    border-top: 1px solid rgb(239, 68, 68, 15%);
   }
 }
 

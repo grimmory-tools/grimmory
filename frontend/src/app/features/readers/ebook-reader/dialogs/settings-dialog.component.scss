@@ -1,19 +1,19 @@
 // Variables matching sidebar styling
 $dialog-bg: #1a1a1a;
-$text-primary: rgba(255, 255, 255, 95%);
-$text-secondary: rgba(255, 255, 255, 60%);
-$text-muted: rgba(255, 255, 255, 40%);
-$border-color: rgba(255, 255, 255, 8%);
-$hover-bg: rgba(255, 255, 255, 8%);
+$text-primary: rgb(255, 255, 255, 95%);
+$text-secondary: rgb(255, 255, 255, 60%);
+$text-muted: rgb(255, 255, 255, 40%);
+$border-color: rgb(255, 255, 255, 8%);
+$hover-bg: rgb(255, 255, 255, 8%);
 $active-color: #818cf8;
-$active-bg: rgba(129, 140, 248, 15%);
+$active-bg: rgb(129, 140, 248, 15%);
 $transition-fast: 150ms ease;
 $transition-normal: 200ms ease;
 
 .dialog-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 25%);
+  background: rgb(0, 0, 0, 25%);
   z-index: 12000;
   display: flex;
   align-items: center;
@@ -35,7 +35,7 @@ $transition-normal: 200ms ease;
   height: 600px;
   max-height: 85vh;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 50%);
+  box-shadow: 0 20px 60px rgb(0, 0, 0, 50%);
   animation: slideUp 250ms cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
@@ -56,7 +56,7 @@ $transition-normal: 200ms ease;
   display: flex;
   align-items: center;
   border-bottom: 1px solid $border-color;
-  background: rgba(0, 0, 0, 20%);
+  background: rgb(0, 0, 0, 20%);
   padding: 0 20px;
   justify-content: center;
   position: relative;
@@ -147,11 +147,11 @@ $transition-normal: 200ms ease;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 15%);
+    background: rgb(255, 255, 255, 15%);
     border-radius: 3px;
 
     &:hover {
-      background: rgba(255, 255, 255, 25%);
+      background: rgb(255, 255, 255, 25%);
     }
   }
 }
@@ -239,7 +239,7 @@ $transition-normal: 200ms ease;
   position: relative;
   width: 44px;
   height: 24px;
-  background: rgba(255, 255, 255, 15%);
+  background: rgb(255, 255, 255, 15%);
   border: none;
   border-radius: 12px;
   cursor: pointer;
@@ -263,11 +263,11 @@ $transition-normal: 200ms ease;
     background: #ffffff;
     border-radius: 50%;
     transition: transform 300ms ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 20%);
+    box-shadow: 0 2px 4px rgb(0, 0, 0, 20%);
   }
 
   &:hover {
-    background: rgba(255, 255, 255, 20%);
+    background: rgb(255, 255, 255, 20%);
 
     &.active {
       background: #9aa3fa;
@@ -301,7 +301,7 @@ $transition-normal: 200ms ease;
   }
 
   .theme-card {
-    background: rgba(255, 255, 255, 3%);
+    background: rgb(255, 255, 255, 3%);
     border: 2px solid $border-color;
     border-radius: 8px;
     padding: 10px;
@@ -312,7 +312,7 @@ $transition-normal: 200ms ease;
 
     &:hover {
       background: $hover-bg;
-      border-color: rgba(255, 255, 255, 15%);
+      border-color: rgb(255, 255, 255, 15%);
     }
   }
 
@@ -330,7 +330,7 @@ $transition-normal: 200ms ease;
   .color-swatch {
     flex: 1;
     border-radius: 4px;
-    border: 1px solid rgba(0, 0, 0, 20%);
+    border: 1px solid rgb(0, 0, 0, 20%);
   }
 
   .theme-name {
@@ -349,7 +349,7 @@ $transition-normal: 200ms ease;
 }
 
 .font-option {
-  background: rgba(255, 255, 255, 3%);
+  background: rgb(255, 255, 255, 3%);
   border: 2px solid $border-color;
   border-radius: 8px;
   padding: 12px;
@@ -362,7 +362,7 @@ $transition-normal: 200ms ease;
 
   &:hover {
     background: $hover-bg;
-    border-color: rgba(255, 255, 255, 15%);
+    border-color: rgb(255, 255, 255, 15%);
   }
 
   &.active {
@@ -406,7 +406,7 @@ $transition-normal: 200ms ease;
     flex: 1;
     margin: 0 10px;
     height: 5px;
-    background: rgba(255, 255, 255, 12%);
+    background: rgb(255, 255, 255, 12%);
     border-radius: 3px;
     outline: none;
     cursor: pointer;
@@ -419,12 +419,12 @@ $transition-normal: 200ms ease;
       border-radius: 50%;
       background: $active-color;
       cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 30%);
+      box-shadow: 0 2px 4px rgb(0, 0, 0, 30%);
       transition: all $transition-fast;
 
       &:hover {
         transform: scale(1.1);
-        box-shadow: 0 2px 8px rgba(129, 140, 248, 50%);
+        box-shadow: 0 2px 8px rgb(129, 140, 248, 50%);
       }
     }
 
@@ -435,7 +435,7 @@ $transition-normal: 200ms ease;
       background: $active-color;
       border: none;
       cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 30%);
+      box-shadow: 0 2px 4px rgb(0, 0, 0, 30%);
     }
   }
 
@@ -473,7 +473,7 @@ $transition-normal: 200ms ease;
   display: flex;
   align-items: center;
   gap: 4px;
-  background: rgba(255, 255, 255, 3%);
+  background: rgb(255, 255, 255, 3%);
   padding: 3px;
   border-radius: 6px;
   border: 1px solid $border-color;
@@ -481,7 +481,7 @@ $transition-normal: 200ms ease;
   button {
     width: 28px;
     height: 28px;
-    background: rgba(255, 255, 255, 5%);
+    background: rgb(255, 255, 255, 5%);
     color: $text-secondary;
     border: none;
     border-radius: 4px;
@@ -534,14 +534,14 @@ $transition-normal: 200ms ease;
       height: 18px;
       border: 2px solid $active-color;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 5%);
+      background: rgb(255, 255, 255, 5%);
       margin: 0 6px 0 0;
       outline: none;
       transition: border-color $transition-fast, box-shadow $transition-fast;
 
       &:checked {
         background: $active-color;
-        box-shadow: 0 0 0 2px rgba(129, 140, 248, 15%);
+        box-shadow: 0 0 0 2px rgb(129, 140, 248, 15%);
         border-color: $active-color;
       }
 
@@ -564,19 +564,19 @@ $transition-normal: 200ms ease;
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  border: 3px solid rgba(255, 255, 255, 15%);
+  border: 3px solid rgb(255, 255, 255, 15%);
   cursor: pointer;
   transition: all $transition-fast;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 20%);
+  box-shadow: 0 2px 8px rgb(0, 0, 0, 20%);
 
   &:hover {
     transform: scale(1.08);
-    border-color: rgba(255, 255, 255, 30%);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 30%);
+    border-color: rgb(255, 255, 255, 30%);
+    box-shadow: 0 4px 12px rgb(0, 0, 0, 30%);
   }
 
   &:active {
@@ -586,13 +586,13 @@ $transition-normal: 200ms ease;
   &.active {
     border-color: $active-color;
     border-width: 3px;
-    box-shadow: 0 0 0 3px rgba(129, 140, 248, 25%), 0 4px 12px rgba(0, 0, 0, 30%);
+    box-shadow: 0 0 0 3px rgb(129, 140, 248, 25%), 0 4px 12px rgb(0, 0, 0, 30%);
 
     .check-icon {
-      color: rgba(0, 0, 0, 70%);
+      color: rgb(0, 0, 0, 70%);
       font-size: 18px;
       font-weight: bold;
-      text-shadow: 0 1px 2px rgba(255, 255, 255, 50%);
+      text-shadow: 0 1px 2px rgb(255, 255, 255, 50%);
     }
   }
 

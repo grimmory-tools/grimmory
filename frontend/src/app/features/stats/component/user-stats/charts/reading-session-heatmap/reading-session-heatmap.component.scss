@@ -35,8 +35,8 @@
     justify-self: center;
 
     .year-nav-btn {
-      background: rgba(255, 255, 255, 10%);
-      border: 1px solid rgba(255, 255, 255, 20%);
+      background: rgb(255, 255, 255, 10%);
+      border: 1px solid rgb(255, 255, 255, 20%);
       border-radius: 6px;
       padding: 0.6rem 0.6rem;
       color: #ffffff;
@@ -47,8 +47,8 @@
       justify-content: center;
 
       &:hover {
-        background: rgba(255, 255, 255, 20%);
-        border-color: rgba(255, 255, 255, 30%);
+        background: rgb(255, 255, 255, 20%);
+        border-color: rgb(255, 255, 255, 30%);
         transform: translateY(-1px);
       }
 
@@ -89,7 +89,7 @@
 
 .heatmap-title-icon {
   font-size: 1.5rem;
-  color: rgba(59, 130, 246, 100%);
+  color: rgb(59, 130, 246, 100%);
   vertical-align: middle;
   margin-right: 0.25em;
 }
@@ -102,7 +102,7 @@
   gap: 0.75rem;
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 8%);
+  border-top: 1px solid rgb(255, 255, 255, 8%);
 }
 
 .footer-pills {
@@ -122,8 +122,8 @@
   gap: 0.35rem;
   padding: 0.35rem 0.65rem;
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 10%);
-  background: rgba(255, 255, 255, 5%);
+  border: 1px solid rgb(255, 255, 255, 10%);
+  background: rgb(255, 255, 255, 5%);
   font-size: 0.85rem;
   color: var(--text-color, #ffffff);
   font-weight: 500;
@@ -139,8 +139,8 @@
   &.consistency .pill-value { color: #9c27b0; }
 
   &.milestone.unlocked {
-    border-color: rgba(76, 175, 80, 30%);
-    background: rgba(76, 175, 80, 10%);
+    border-color: rgb(76, 175, 80, 30%);
+    background: rgb(76, 175, 80, 10%);
   }
 
   &.milestone.locked {

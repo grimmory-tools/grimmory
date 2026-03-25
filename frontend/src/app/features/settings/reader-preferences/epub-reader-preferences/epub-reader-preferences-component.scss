@@ -162,7 +162,7 @@
 
     &:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 10%);
+      box-shadow: 0 4px 12px rgb(0, 0, 0, 10%);
 
       .theme-colors {
         border-color: color-mix(in srgb, var(--primary-color) 40%, transparent);

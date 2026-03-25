@@ -16,12 +16,12 @@
   }
 
   &::-webkit-scrollbar-track {
-    background: rgba(20, 20, 30, 50%);
+    background: rgb(20, 20, 30, 50%);
     border-radius: 10px;
   }
 
   scrollbar-width: thin;
-  scrollbar-color: var(--primary-color) rgba(20, 20, 30, 50%);
+  scrollbar-color: var(--primary-color) rgb(20, 20, 30, 50%);
 }
 
 @media (max-width: 768px) {
@@ -70,7 +70,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 30%);
+  text-shadow: 0 2px 4px rgb(0, 0, 0, 30%);
   letter-spacing: -0.02em;
 }
 
@@ -89,7 +89,7 @@
 }
 
 ::ng-deep .p-dialog-mask {
-  background-color: rgba(0, 0, 0, 50%);
+  background-color: rgb(0, 0, 0, 50%);
   backdrop-filter: blur(3px);
 }
 
@@ -100,13 +100,13 @@
   z-index: 100;
 
   ::ng-deep .p-button {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 30%);
+    box-shadow: 0 4px 12px rgb(0, 0, 0, 30%);
     backdrop-filter: blur(10px);
-    background: rgba(var(--p-surface-900-rgb), 80%);
+    background: rgb(var(--p-surface-900-rgb), 80%);
     border: 1px solid var(--p-content-border-color);
 
     &:hover {
-      background: rgba(var(--p-surface-800-rgb), 90%);
+      background: rgb(var(--p-surface-800-rgb), 90%);
       transform: scale(1.05);
       transition: all 0.2s ease;
     }

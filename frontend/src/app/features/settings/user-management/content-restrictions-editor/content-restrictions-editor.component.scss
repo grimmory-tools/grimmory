@@ -117,8 +117,8 @@
   transition: all 0.2s ease;
 
   &.mode-exclude {
-    background: rgba(239, 68, 68, 10%);
-    border: 1px solid rgba(239, 68, 68, 30%);
+    background: rgb(239, 68, 68, 10%);
+    border: 1px solid rgb(239, 68, 68, 30%);
     color: var(--red-500);
 
     .chip-type {
@@ -127,8 +127,8 @@
   }
 
   &.mode-allow {
-    background: rgba(34, 197, 94, 10%);
-    border: 1px solid rgba(34, 197, 94, 30%);
+    background: rgb(34, 197, 94, 10%);
+    border: 1px solid rgb(34, 197, 94, 30%);
     color: var(--green-500);
 
     .chip-type {
@@ -166,7 +166,7 @@
     }
 
     &:hover {
-      background: rgba(0, 0, 0, 10%);
+      background: rgb(0, 0, 0, 10%);
     }
   }
 }
@@ -176,7 +176,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem;
-  background: rgba(59, 130, 246, 10%);
+  background: rgb(59, 130, 246, 10%);
   border-radius: 6px;
   font-size: 0.8rem;
   color: var(--blue-500);

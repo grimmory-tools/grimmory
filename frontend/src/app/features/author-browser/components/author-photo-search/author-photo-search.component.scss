@@ -200,7 +200,7 @@
     position: absolute;
     top: 6px;
     right: 6px;
-    background: rgba(0, 0, 0, 80%);
+    background: rgb(0, 0, 0, 80%);
     color: white;
     padding: 3px 6px;
     border-radius: 4px;
@@ -219,7 +219,7 @@
     align-items: center;
     justify-content: center;
     padding: 0.5rem;
-    background: linear-gradient(to top, rgba(0, 0, 0, 80%), transparent);
+    background: linear-gradient(to top, rgb(0, 0, 0, 80%), transparent);
     opacity: 0;
     z-index: 3;
   }
