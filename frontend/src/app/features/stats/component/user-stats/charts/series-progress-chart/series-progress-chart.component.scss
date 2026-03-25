@@ -18,7 +18,7 @@
       color: var(--text-color, #ffffff);
       font-size: 1.25rem;
       font-weight: 500;
-      margin: 0 0 0.5rem 0;
+      margin: 0 0 0.5rem;
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -443,7 +443,7 @@
 
   p {
     font-size: 0.95rem;
-    margin: 0 0 0.35rem 0;
+    margin: 0 0 0.35rem;
     color: var(--text-color, #ffffff);
   }
 

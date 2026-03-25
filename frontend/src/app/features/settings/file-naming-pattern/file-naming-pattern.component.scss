@@ -63,7 +63,7 @@
   .empty-title {
     font-size: 1rem;
     font-weight: 600;
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.5rem;
     color: var(--p-text-color);
   }
 
@@ -274,7 +274,7 @@
   font-size: settings.$settings-label-size;
   font-weight: 600;
   color: var(--p-text-color);
-  margin: 0 0 0.75rem 0;
+  margin: 0 0 0.75rem;
 
   .pi {
     color: var(--p-primary-color);
@@ -286,7 +286,7 @@
   font-size: settings.$settings-section-description-size;
   line-height: 1.5;
   color: var(--p-text-muted-color);
-  margin: 0 0 0.75rem 0;
+  margin: 0 0 0.75rem;
 
   code {
     color: var(--p-orange-400);

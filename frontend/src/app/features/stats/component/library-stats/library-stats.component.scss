@@ -92,7 +92,7 @@
 
 .config-modal-overlay {
   position: fixed;
-  inset: 0 0 0 0;
+  inset: 0;
   background: rgb(0 0 0 / 70%);
   backdrop-filter: blur(4px);
   z-index: 1000;
@@ -244,7 +244,7 @@
           color: var(--text-color, #ffffff);
           font-size: 1rem;
           font-weight: 600;
-          margin: 0 0 15px 0;
+          margin: 0 0 15px;
           padding-bottom: 8px;
           border-bottom: 2px solid var(--primary-color, #80bdff);
           display: flex;

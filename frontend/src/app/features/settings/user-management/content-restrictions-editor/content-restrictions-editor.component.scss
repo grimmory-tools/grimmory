@@ -85,7 +85,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin: 0 0 0.25rem 0;
+    margin: 0 0 0.25rem;
     font-size: 0.9rem;
     font-weight: 600;
 
@@ -95,7 +95,7 @@
   }
 
   .group-description {
-    margin: 0 0 0.75rem 0;
+    margin: 0 0 0.75rem;
     font-size: 0.8rem;
     color: var(--text-color-secondary);
   }

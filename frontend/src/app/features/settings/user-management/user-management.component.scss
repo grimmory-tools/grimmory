@@ -78,7 +78,7 @@
   .empty-title {
     font-size: 1rem;
     font-weight: 600;
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.5rem;
     color: var(--p-text-color);
   }
 
@@ -331,7 +331,7 @@
 
 // Expanded card body
 .user-card-body {
-  padding: 0 1rem 1rem 1rem;
+  padding: 0 1rem 1rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -358,7 +358,7 @@
   .section-description {
     font-size: settings.$settings-description-size;
     color: var(--p-text-muted-color);
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.5rem;
     padding-left: 1.5rem;
 
     @media (width <= 600px) {
@@ -453,7 +453,7 @@
     font-size: settings.$settings-description-size;
     font-weight: 600;
     color: var(--p-text-color);
-    margin: 0 0 0.625rem 0;
+    margin: 0 0 0.625rem;
     padding-bottom: 0.5rem;
     border-bottom: 1px solid var(--p-content-border-color);
 

@@ -3,7 +3,7 @@
   display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;
   .chart-title {
     flex: 1;
-    h3 { color: var(--text-color, #ffffff); font-size: 1.25rem; font-weight: 500; margin: 0 0 0.5rem 0; display: flex; align-items: center; gap: 0.5rem; }
+    h3 { color: var(--text-color, #ffffff); font-size: 1.25rem; font-weight: 500; margin: 0 0 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
     .chart-description { color: var(--text-secondary-color); font-size: 0.9rem; margin: 0; line-height: 1.4; }
   }
   .year-nav {
@@ -34,7 +34,7 @@
 .no-data-message {
   display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem; text-align: center; color: var(--text-secondary-color);
   i { font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.5; }
-  p { font-size: 1rem; margin: 0 0 0.5rem 0; color: var(--text-color, #ffffff); }
+  p { font-size: 1rem; margin: 0 0 0.5rem; color: var(--text-color, #ffffff); }
   small { font-size: 0.85rem; opacity: 0.7; }
 }
 @media (width <= 768px) { .chart-wrapper { height: 280px; } }

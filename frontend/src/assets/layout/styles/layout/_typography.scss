@@ -1,7 +1,7 @@
 @use "variables";
 
 h1, h2, h3, h4, h5, h6 {
-    margin: 1.5rem 0 1rem 0;
+    margin: 1.5rem 0 1rem;
     font-family: inherit;
     font-weight: 500;
     line-height: 1.2;
@@ -51,12 +51,12 @@ blockquote {
 
 hr {
     border-top: solid var(--surface-border);
-    border-width: 1px 0 0 0;
+    border-width: 1px 0 0;
     margin: 1rem 0;
 }
 
 p {
-    margin: 0 0 1rem 0;
+    margin: 0 0 1rem;
     line-height: 1.5;
 
     &:last-child {

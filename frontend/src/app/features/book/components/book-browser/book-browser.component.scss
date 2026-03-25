@@ -18,7 +18,7 @@
   justify-content: space-between;
   width: 100%;
   gap: 0.25rem;
-  padding: 0.35rem 0.35rem;
+  padding: 0.35rem;
   border-radius: 0.75rem 0.75rem 0 0;
   margin-bottom: 0.5rem;
   background-color: var(--card-background);
@@ -249,7 +249,7 @@
   z-index: 1;
   border-radius: 10px 10px 0 0;
   border: 1px solid rgb(255 255 255 / 50%);
-  border-width: 1px 1px 0 1px;
+  border-width: 1px 1px 0;
   background-color: var(--card-background);
   transition: transform 0.15s ease-out, opacity 0.15s ease-out;
   transform: translateY(0);

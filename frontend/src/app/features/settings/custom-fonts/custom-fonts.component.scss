@@ -38,7 +38,7 @@
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--p-text-color);
-  margin: 0 0 0.75rem 0;
+  margin: 0 0 0.75rem;
 
   .pi {
     color: var(--p-primary-color);
@@ -73,7 +73,7 @@
   font-size: 1.125rem;
   font-weight: 600;
   color: var(--p-text-color);
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.5rem;
 
   .pi {
     color: var(--p-primary-color);
@@ -132,14 +132,14 @@
   }
 
   .empty-title {
-    margin: 0 0 0.75rem 0;
+    margin: 0 0 0.75rem;
     font-size: 1.25rem;
     font-weight: 600;
     color: var(--p-text-color);
   }
 
   .empty-description {
-    margin: 0 0 1rem 0;
+    margin: 0 0 1rem;
     font-size: 0.9375rem;
     color: var(--p-text-muted-color);
     max-width: 500px;
