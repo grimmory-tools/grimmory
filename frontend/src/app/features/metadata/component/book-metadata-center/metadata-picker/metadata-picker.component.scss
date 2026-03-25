@@ -4,7 +4,7 @@
   height: 100%;
   width: 100%;
   background: var(--card-background);
-  animation: fadeIn 0.3s ease-in;
+  animation: fade-in 0.3s ease-in;
 }
 
 // Visibility utilities
@@ -38,7 +38,7 @@
   color: var(--p-green-400);
   font-size: 0.875rem;
   font-weight: 600;
-  animation: fadeIn 0.3s ease-in;
+  animation: fade-in 0.3s ease-in;
 
   i {
     font-size: 1rem;
@@ -597,7 +597,7 @@
 }
 
 // Animation
-@keyframes fadeIn {
+@keyframes fade-in {
   from {
     opacity: 0;
   }

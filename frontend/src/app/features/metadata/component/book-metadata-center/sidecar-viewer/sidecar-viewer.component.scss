@@ -5,7 +5,7 @@
   padding: 0;
   width: 100%;
   min-height: 100%;
-  animation: fadeIn 0.3s ease-in;
+  animation: fade-in 0.3s ease-in;
 
   @media (width >= 768px) {
     padding: 0.5rem;
@@ -200,7 +200,7 @@
   }
 }
 
-@keyframes fadeIn {
+@keyframes fade-in {
   from {
     opacity: 0;
   }

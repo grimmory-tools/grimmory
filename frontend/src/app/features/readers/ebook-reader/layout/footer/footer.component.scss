@@ -185,7 +185,7 @@ $transition-normal: 200ms ease;
   box-shadow: 0 8px 32px rgb(0 0 0 / 50%);
   z-index: 1001;
   min-width: 380px;
-  animation: popoverSlideIn 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  animation: popover-slide-in 200ms cubic-bezier(0.4, 0, 0.2, 1);
   color: $text-primary;
 
   .popover-content {
@@ -408,7 +408,7 @@ $transition-normal: 200ms ease;
   }
 }
 
-@keyframes popoverSlideIn {
+@keyframes popover-slide-in {
   from {
     opacity: 0;
     transform: translateX(-50%) translateY(8px);
@@ -432,7 +432,7 @@ $transition-normal: 200ms ease;
     right: 16px;
     transform: none;
 
-    @keyframes popoverSlideIn {
+    @keyframes popover-slide-in {
       from {
         opacity: 0;
         transform: translateY(8px);

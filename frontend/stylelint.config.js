@@ -2,7 +2,6 @@ module.exports = {
   extends: ["stylelint-config-standard-scss"],
   ignoreFiles: ["dist/**", "node_modules/**"],
   rules: {
-    "keyframes-name-pattern": null,
     "no-descending-specificity": null,
     "no-invalid-position-declaration": null,
     "property-no-vendor-prefix": null,

@@ -18,10 +18,10 @@ $transition-normal: 200ms ease;
   background: rgb(0 0 0 / 40%);
   backdrop-filter: blur(1px);
   z-index: 12000;
-  animation: fadeIn $transition-normal;
+  animation: fade-in $transition-normal;
 
   &.closing {
-    animation: fadeOut $transition-normal forwards;
+    animation: fade-out $transition-normal forwards;
   }
 }
 
@@ -37,11 +37,11 @@ $transition-normal: 200ms ease;
   flex-direction: column;
   color: $text-primary;
   box-shadow: -4px 0 24px rgb(0 0 0 / 30%);
-  animation: slideInRight 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  animation: slide-in-right 250ms cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 12001;
 
   &.closing {
-    animation: slideOutRight 200ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    animation: slide-out-right 200ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
   }
 }
 
@@ -529,22 +529,22 @@ $transition-normal: 200ms ease;
 }
 
 // Animations
-@keyframes fadeIn {
+@keyframes fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-@keyframes fadeOut {
+@keyframes fade-out {
   from { opacity: 1; }
   to { opacity: 0; }
 }
 
-@keyframes slideInRight {
+@keyframes slide-in-right {
   from { transform: translateX(100%); }
   to { transform: translateX(0); }
 }
 
-@keyframes slideOutRight {
+@keyframes slide-out-right {
   from { transform: translateX(0); }
   to { transform: translateX(100%); }
 }

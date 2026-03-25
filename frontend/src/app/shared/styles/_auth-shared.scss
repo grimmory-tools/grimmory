@@ -30,7 +30,7 @@
   max-width: $max-width;
   position: relative;
   z-index: 1;
-  animation: slideUp 0.6s ease-out;
+  animation: slide-up 0.6s ease-out;
 
   @media (width <= 640px) {
     width: 95%;
@@ -172,7 +172,7 @@
   color: #ef4444;
   font-size: 0.8rem;
   margin-top: -0.25rem;
-  animation: fadeIn 0.3s ease-out;
+  animation: fade-in 0.3s ease-out;
 
   i {
     font-size: 0.75rem;
@@ -207,18 +207,18 @@
 }
 
 @mixin message-container {
-  animation: fadeIn 0.3s ease-out;
+  animation: fade-in 0.3s ease-out;
 }
 
 @mixin error-message {
-  animation: shake 0.4s ease-in-out, fadeIn 0.3s ease-out;
+  animation: shake 0.4s ease-in-out, fade-in 0.3s ease-out;
 }
 
 @mixin success-message {
-  animation: successPulse 0.5s ease-out;
+  animation: success-pulse 0.5s ease-out;
 }
 
-@keyframes slideUp {
+@keyframes slide-up {
   from {
     opacity: 0;
     transform: translateY(30px);
@@ -230,7 +230,7 @@
   }
 }
 
-@keyframes fadeIn {
+@keyframes fade-in {
   from {
     opacity: 0;
   }
@@ -278,7 +278,7 @@
   }
 }
 
-@keyframes successPulse {
+@keyframes success-pulse {
   0% {
     opacity: 0;
     transform: scale(0.95);

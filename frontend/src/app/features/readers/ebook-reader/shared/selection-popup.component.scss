@@ -17,14 +17,14 @@
   box-shadow: 0 4px 16px rgb(0 0 0 / 30%), 0 0 1px rgb(0 0 0 / 20%);
   z-index: 99999;
   transform: translateX(-50%);
-  animation: popupFadeIn 0.15s ease-out;
+  animation: popup-fade-in 0.15s ease-out;
 
   &.show-below {
-    animation: popupFadeInBelow 0.15s ease-out;
+    animation: popup-fade-in-below 0.15s ease-out;
   }
 }
 
-@keyframes popupFadeIn {
+@keyframes popup-fade-in {
   from {
     opacity: 0;
     transform: translateX(-50%) translateY(4px);
@@ -36,7 +36,7 @@
   }
 }
 
-@keyframes popupFadeInBelow {
+@keyframes popup-fade-in-below {
   from {
     opacity: 0;
     transform: translateX(-50%) translateY(-4px);
@@ -121,16 +121,16 @@
 
   &.above {
     bottom: calc(100% + 8px);
-    animation: slideUp 0.15s ease-out;
+    animation: slide-up 0.15s ease-out;
   }
 
   &.below {
     top: calc(100% + 8px);
-    animation: slideDown 0.15s ease-out;
+    animation: slide-down 0.15s ease-out;
   }
 }
 
-@keyframes slideUp {
+@keyframes slide-up {
   from {
     opacity: 0;
     transform: translateX(-50%) translateY(6px);
@@ -142,7 +142,7 @@
   }
 }
 
-@keyframes slideDown {
+@keyframes slide-down {
   from {
     opacity: 0;
     transform: translateX(-50%) translateY(-6px);

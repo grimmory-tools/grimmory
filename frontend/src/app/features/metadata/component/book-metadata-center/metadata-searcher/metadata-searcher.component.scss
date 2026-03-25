@@ -161,10 +161,10 @@ $provider-colors: (
   box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
   border: 1px solid var(--border-color);
   margin-bottom: 1.25rem;
-  animation: slideIn 0.3s ease-out;
+  animation: slide-in 0.3s ease-out;
 }
 
-@keyframes slideIn {
+@keyframes slide-in {
   from {
     opacity: 0;
     transform: translateX(-20px);
@@ -176,7 +176,7 @@ $provider-colors: (
   }
 }
 
-@keyframes slideInFromTop {
+@keyframes slide-in-from-top {
   from {
     opacity: 0;
     transform: translateY(-20px);
@@ -553,7 +553,7 @@ $provider-colors: (
   display: flex;
   flex-direction: row;
   height: 200px;
-  animation: slideInFromTop 0.4s ease-out;
+  animation: slide-in-from-top 0.4s ease-out;
 
   &:hover {
     transform: translateY(-4px);

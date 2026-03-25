@@ -311,7 +311,7 @@
   }
 
   &.fade-in {
-    animation: fadeInUp 0.4s ease-out;
+    animation: fade-in-up 0.4s ease-out;
   }
 
   &::-webkit-scrollbar {
@@ -337,7 +337,7 @@
   scrollbar-color: var(--border-color) var(--overlay-background);
 }
 
-@keyframes fadeInUp {
+@keyframes fade-in-up {
   from {
     opacity: 0;
     transform: translateY(-10px);
@@ -360,7 +360,7 @@
   transition: all 0.3s ease;
   cursor: pointer;
   opacity: 0;
-  animation: fadeInItem 0.3s ease-out forwards;
+  animation: fade-in-item 0.3s ease-out forwards;
   width: 100%;
   max-width: 100%;
 
@@ -496,7 +496,7 @@
   }
 }
 
-@keyframes fadeInItem {
+@keyframes fade-in-item {
   from {
     opacity: 0;
     transform: translateY(-10px);

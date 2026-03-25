@@ -153,11 +153,11 @@
         z-index: 2;
 
         &.fade-in {
-          animation: fadeIn 0.15s ease-out forwards;
+          animation: fade-in 0.15s ease-out forwards;
         }
       }
 
-      @keyframes fadeIn {
+      @keyframes fade-in {
         from {
           opacity: 0.7;
         }
