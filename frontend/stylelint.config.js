@@ -9,7 +9,6 @@ module.exports = {
     "no-descending-specificity": null,
     "no-empty-source": null,
     "no-invalid-position-declaration": null,
-    "number-max-precision": null,
     "property-no-deprecated": null,
     "property-no-vendor-prefix": null,
     "selector-class-pattern": null,
