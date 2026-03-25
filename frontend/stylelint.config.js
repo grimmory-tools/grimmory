@@ -13,7 +13,9 @@ module.exports = {
     "keyframes-name-pattern": null,
     "media-feature-range-notation": null,
     "no-descending-specificity": null,
+    "no-empty-source": null,
     "no-invalid-position-declaration": null,
+    "number-max-precision": null,
     "property-no-deprecated": null,
     "property-no-vendor-prefix": null,
     "rule-empty-line-before": null,
@@ -21,11 +23,12 @@ module.exports = {
     "selector-pseudo-element-no-unknown": [
       true,
       {
-        ignorePseudoElements: ["ng-deep"],
+        ignorePseudoElements: ["host", "ng-deep"],
       },
     ],
     "scss/dollar-variable-empty-line-before": null,
     "scss/load-partial-extension": null,
+    "scss/load-no-partial-leading-underscore": null,
     "shorthand-property-no-redundant-values": null,
   },
 };
