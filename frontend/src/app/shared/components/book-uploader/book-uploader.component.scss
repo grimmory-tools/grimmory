@@ -14,6 +14,7 @@
 
 .panel-header {
   @include panel.panel-header;
+
   border-bottom: none;
 }
 
