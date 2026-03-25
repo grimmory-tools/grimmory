@@ -1,6 +1,6 @@
 # Grimmory UI
 
-The `booklore-ui` project is the Angular frontend for Grimmory. It owns the browser application, component styling, client-side routing, stateful UI interactions, and the compiled bundle that is packaged into the current production image.
+The `frontend` project is the Angular frontend for Grimmory. It owns the browser application, component styling, client-side routing, stateful UI interactions, and the compiled bundle that is packaged into the current production image.
 
 ## Stack
 
@@ -40,7 +40,7 @@ just ui lint
 ## Running Locally
 
 ```bash
-cd booklore-ui
+cd frontend
 just install
 just dev
 ```

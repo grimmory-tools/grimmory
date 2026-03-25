@@ -1,6 +1,6 @@
 # Contributing to Grimmory UI
 
-This document covers frontend-specific development and review expectations for `booklore-ui`.
+This document covers frontend-specific development and review expectations for `frontend`.
 
 For repository-wide contribution policy, branch strategy, PR requirements, and release semantics, start with [../CONTRIBUTING.md](../CONTRIBUTING.md).
 
