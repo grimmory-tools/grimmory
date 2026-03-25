@@ -142,7 +142,7 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@c950f6fb443cb5af20a377fd0dfaa78838901040 # v2
         if: ${{ always() && inputs.publish_test_results }}
         with:
-          files: booklore-ui/test-results/vitest-results.xml
+          files: frontend/test-results/vitest-results.xml
           check_name: Frontend Test Results
 
       - name: Upload Frontend Test Reports
@@ -151,7 +151,7 @@ jobs:
         with:
           name: frontend-test-reports
           path: |
-            booklore-ui/test-results/vitest-results.xml
+            frontend/test-results/vitest-results.xml
           retention-days: 30
 
       - name: Validate Frontend Test Results

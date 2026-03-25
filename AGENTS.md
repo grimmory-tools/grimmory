@@ -15,7 +15,7 @@
   - Application code: `src/main/java`
   - Resources and Flyway migrations: `src/main/resources`
   - Tests: `src/test/java`
-- **Frontend (`booklore-ui/`)**
+- **Frontend (`frontend/`)**
   - Application code: `src/app/{core,features,shared}`
   - Translations: `src/i18n/`
   - Assets: `src/assets/`
@@ -54,8 +54,8 @@ just ui check       # run frontend verification
 - Use 2-space indentation in TypeScript, HTML, and SCSS.
 - Keep Angular code on standalone components. Do not add NgModules.
 - Prefer `inject()` over constructor injection.
-- Follow `booklore-ui/eslint.config.js`: component selectors use `app-*`, directive selectors use `app*`, and `any` is disallowed.
-- Put user-facing strings in Transloco files under `booklore-ui/src/i18n/`.
+- Follow `frontend/eslint.config.js`: component selectors use `app-*`, directive selectors use `app*`, and `any` is disallowed.
+- Put user-facing strings in Transloco files under `frontend/src/i18n/`.
 - Keep responsive behavior intact.
 - Use Vitest for tests.
 
