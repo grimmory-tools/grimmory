@@ -311,50 +311,6 @@
   }
 }
 
-::ng-deep {
-  .p-tabs {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-height: 0;
-  }
-
-  .p-tabpanels {
-    flex: 1;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .p-tabpanel {
-    display: none;
-
-    &.p-tabpanel-active {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      flex: 1;
-    }
-  }
-
-  .p-datatable-tbody > tr > td {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-    vertical-align: top;
-  }
-
-  .p-datatable-table {
-    align-self: flex-start;
-    width: 100%;
-  }
-
-  .p-datatable-thead > tr > th .header-content {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-}
-
 .user-dialog {
   .p-dialog-content {
     padding: 1.5rem;

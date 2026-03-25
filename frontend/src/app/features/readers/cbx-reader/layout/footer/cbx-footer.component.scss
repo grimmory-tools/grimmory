@@ -317,16 +317,13 @@ $transition-fast: 150ms ease;
 
   .page-nav-left {
     gap: 4px;
+    margin: 0 auto;
+    justify-content: center;
+    flex: 1;
   }
 
   .page-nav-right {
     display: none;
-  }
-
-  .page-nav-left {
-    margin: 0 auto;
-    justify-content: center;
-    flex: 1;
   }
 
   .page-controls {

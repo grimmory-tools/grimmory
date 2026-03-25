@@ -131,10 +131,6 @@
   }
 
   .insights-row {
-    gap: 0.75rem;
-  }
-
-  .insights-row {
     grid-template-columns: repeat(4, 1fr);
     gap: 0.5rem;
   }
