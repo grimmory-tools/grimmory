@@ -12,7 +12,6 @@ module.exports = {
     "number-max-precision": null,
     "property-no-deprecated": null,
     "property-no-vendor-prefix": null,
-    "rule-empty-line-before": null,
     "selector-class-pattern": null,
     "selector-pseudo-element-no-unknown": [
       true,

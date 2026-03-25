@@ -566,6 +566,7 @@ $border-color: rgb(255 255 255 / 10%);
       transform: translateX(100%);
       opacity: 0.5;
     }
+
     to {
       transform: translateX(0);
       opacity: 1;
@@ -698,6 +699,7 @@ $border-color: rgb(255 255 255 / 10%);
         opacity: 1;
         transform: scale(1);
       }
+
       50% {
         opacity: 0.6;
         transform: scale(0.95);

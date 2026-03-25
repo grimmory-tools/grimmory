@@ -413,6 +413,7 @@ $transition-normal: 200ms ease;
     opacity: 0;
     transform: translateX(-50%) translateY(8px);
   }
+
   to {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
@@ -436,6 +437,7 @@ $transition-normal: 200ms ease;
         opacity: 0;
         transform: translateY(8px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
