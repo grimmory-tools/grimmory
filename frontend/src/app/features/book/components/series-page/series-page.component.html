@@ -70,7 +70,7 @@
                     <div class="metadata-cards">
                       @if (allPublishers(); as publishers) {
                         @if (publishers.length) {
-                          <span class="meta-card meta-card--publisher" (click)="goToPublisher(publishers[0])">
+                          <span class="meta-card meta-card-publisher" (click)="goToPublisher(publishers[0])">
                             <i class="pi pi-building"></i>
                             @for (pub of publishers; track pub; let isLast = $last) {
                               {{ pub }}{{ isLast ? '' : ', ' }}
@@ -78,25 +78,25 @@
                           </span>
                         }
                       }
-                      <span class="meta-card meta-card--books">
+                      <span class="meta-card meta-card-books">
                         <i class="pi pi-book"></i>
                         {{ books.length }} {{ books.length === 1 ? t('book') : t('books') }}
                       </span>
                       @if (yearsRange(); as years) {
-                        <span class="meta-card meta-card--years">
+                        <span class="meta-card meta-card-years">
                           <i class="pi pi-calendar"></i>
                           {{ years }}
                         </span>
                       }
                       @if (seriesStats(); as stats) {
                         @if (stats.totalPages > 0) {
-                          <span class="meta-card meta-card--pages">
+                          <span class="meta-card meta-card-pages">
                             <i class="pi pi-file"></i>
                             {{ stats.totalPages | number }} {{ t('stats.totalPages') }}
                           </span>
                         }
                         @if (stats.formatCounts.size > 0) {
-                          <span class="meta-card meta-card--format">
+                          <span class="meta-card meta-card-format">
                             <i class="pi pi-tag"></i>
                             @for (entry of stats.formatCounts | keyvalue; track entry.key) {
                               {{ entry.key }}{{ $last ? '' : ', ' }}
@@ -104,7 +104,7 @@
                           </span>
                         }
                         @if (stats.totalAudioDurationSeconds > 0) {
-                          <span class="meta-card meta-card--audio">
+                          <span class="meta-card meta-card-audio">
                             <i class="pi pi-headphones"></i>
                             {{ formatDuration(stats.totalAudioDurationSeconds) }}
                           </span>
@@ -112,14 +112,14 @@
                       }
                       @if (allLanguages(); as languages) {
                         @if (languages.length) {
-                          <span class="meta-card meta-card--language">
+                          <span class="meta-card meta-card-language">
                             <i class="pi pi-globe"></i>
                             {{ languages.join(', ') }}
                           </span>
                         }
                       }
                       @if (seriesCompletion(); as completion) {
-                        <span class="meta-card meta-card--owned">
+                        <span class="meta-card meta-card-owned">
                           <i class="pi pi-check-circle"></i>
                           {{ completion.owned }}/{{ completion.total }} {{ t('stats.owned') }}
                         </span>

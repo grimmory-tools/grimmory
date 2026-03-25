@@ -127,7 +127,7 @@
   }
 }
 
-.meta-card--publisher {
+.meta-card-publisher {
   background: color-mix(in srgb, #3b82f6, transparent 85%);
   border-color: color-mix(in srgb, #3b82f6, transparent 60%);
   color: #93c5fd;
@@ -140,7 +140,7 @@
   i { color: #60a5fa; }
 }
 
-.meta-card--books {
+.meta-card-books {
   background: color-mix(in srgb, #8b5cf6, transparent 85%);
   border-color: color-mix(in srgb, #8b5cf6, transparent 60%);
   color: #c4b5fd;
@@ -148,7 +148,7 @@
   i { color: #a78bfa; }
 }
 
-.meta-card--years {
+.meta-card-years {
   background: color-mix(in srgb, #f59e0b, transparent 85%);
   border-color: color-mix(in srgb, #f59e0b, transparent 60%);
   color: #fcd34d;
@@ -156,7 +156,7 @@
   i { color: #fbbf24; }
 }
 
-.meta-card--pages {
+.meta-card-pages {
   background: color-mix(in srgb, #10b981, transparent 85%);
   border-color: color-mix(in srgb, #10b981, transparent 60%);
   color: #6ee7b7;
@@ -164,7 +164,7 @@
   i { color: #34d399; }
 }
 
-.meta-card--format {
+.meta-card-format {
   background: color-mix(in srgb, #f43f5e, transparent 85%);
   border-color: color-mix(in srgb, #f43f5e, transparent 60%);
   color: #fda4af;
@@ -172,7 +172,7 @@
   i { color: #fb7185; }
 }
 
-.meta-card--audio {
+.meta-card-audio {
   background: color-mix(in srgb, #06b6d4, transparent 85%);
   border-color: color-mix(in srgb, #06b6d4, transparent 60%);
   color: #67e8f9;
@@ -180,7 +180,7 @@
   i { color: #22d3ee; }
 }
 
-.meta-card--language {
+.meta-card-language {
   background: color-mix(in srgb, #ec4899, transparent 85%);
   border-color: color-mix(in srgb, #ec4899, transparent 60%);
   color: #f9a8d4;
@@ -188,7 +188,7 @@
   i { color: #f472b6; }
 }
 
-.meta-card--owned {
+.meta-card-owned {
   background: color-mix(in srgb, #14b8a6, transparent 85%);
   border-color: color-mix(in srgb, #14b8a6, transparent 60%);
   color: #5eead4;

@@ -9,7 +9,6 @@ module.exports = {
         ignoreAtRules: ["media"],
       },
     ],
-    "selector-class-pattern": null,
     "selector-pseudo-element-no-unknown": [
       true,
       {
