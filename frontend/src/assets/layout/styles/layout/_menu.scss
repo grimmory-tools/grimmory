@@ -15,7 +15,7 @@
   border: 1px solid var(--p-content-border-color);
   border-radius: variables.$borderRadius;
   padding: 0.5rem 0.8rem 0.5rem 1.35rem;
-  box-shadow: 0px 3px 5px rgba(0, 0, 0, .02), 0px 0px 2px rgba(0, 0, 0, .05), 0px 1px 4px rgba(0, 0, 0, .08);
+  box-shadow: 0 3px 5px rgba(0, 0, 0, .02), 0 0 2px rgba(0, 0, 0, .05), 0 1px 4px rgba(0, 0, 0, .08);
 }
 
 
@@ -94,7 +94,7 @@
       }
 
       &:focus {
-        @include mixins.focused-inset();
+        @include mixins.focused-inset;
       }
     }
 

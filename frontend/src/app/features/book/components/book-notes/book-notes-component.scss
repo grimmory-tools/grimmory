@@ -68,8 +68,7 @@
 }
 
 .notes-scroll-container {
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: auto hidden;
   height: 100%;
 
   &::-webkit-scrollbar {
@@ -301,7 +300,7 @@
 
 @keyframes float {
   0%, 100% {
-    transform: translateY(0px);
+    transform: translateY(0);
   }
   50% {
     transform: translateY(-10px);

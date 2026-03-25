@@ -156,15 +156,14 @@
 .json-content {
   margin: 0;
   padding: 1rem;
-  font-family: 'SF Mono', 'Consolas', 'Monaco', 'Menlo', monospace;
+  font-family: 'SF Mono', Consolas, Monaco, Menlo, monospace;
   font-size: 0.8rem;
   line-height: 1.6;
   color: var(--text-color);
-  overflow-x: auto;
+  overflow: auto auto;
   white-space: pre-wrap;
   word-break: break-word;
   max-height: 50vh;
-  overflow-y: auto;
 
   &::-webkit-scrollbar {
     width: 8px;

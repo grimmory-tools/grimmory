@@ -15,7 +15,7 @@
   transition: left variables.$transitionDuration;
   display: flex;
   align-items: center;
-  box-shadow: 0px 3px 5px rgba(0, 0, 0, .02), 0px 0px 2px rgba(0, 0, 0, .05), 0px 1px 4px rgba(0, 0, 0, .08);
+  box-shadow: 0 3px 5px rgba(0, 0, 0, .02), 0 0 2px rgba(0, 0, 0, .05), 0 1px 4px rgba(0, 0, 0, .08);
 
   .layout-topbar-logo {
     display: flex;
@@ -63,7 +63,7 @@
     background-color: var(--card-background);
     cursor: pointer;
 
-    //@include focus-visible();
+    // @include focus-visible();
 
     &:hover {
       border-color: var(--primary-color);
@@ -130,9 +130,7 @@
           border-radius: 50%;
           padding: 0;
           cursor: pointer;
-          outline-color: transparent;
-          outline-width: 2px;
-          outline-style: solid;
+          outline: transparent solid 2px;
           outline-offset: 1px;
 
           &.active-color {

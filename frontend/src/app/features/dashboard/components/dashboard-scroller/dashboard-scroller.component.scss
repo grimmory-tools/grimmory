@@ -1,6 +1,6 @@
 .dashboard-scroller-container {
   border-radius: 20px;
-  padding: 1rem 2rem 0rem 2rem;
+  padding: 1rem 2rem 0 2rem;
   margin-bottom: 2rem;
   position: relative;
   overflow: hidden;
@@ -73,8 +73,7 @@
 
 .dashboard-scroller-infinite {
   display: flex;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: auto hidden;
   scroll-snap-type: x mandatory;
   padding: 1rem 0.5rem 1rem 0.5rem;
   gap: 2rem;
@@ -89,9 +88,7 @@
 .dashboard-scroller-card {
   height: 200px;
   width: 116px;
-  flex-basis: 124px;
-  flex-shrink: 0;
-  flex-grow: 0;
+  flex: 0 0 124px;
   scroll-snap-align: start;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;

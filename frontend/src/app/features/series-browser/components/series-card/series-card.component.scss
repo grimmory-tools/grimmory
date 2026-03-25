@@ -106,7 +106,7 @@
 }
 
 // Hover: spread 3+ cover fan
-.series-card:hover .stacked-covers:not(.covers-1):not(.covers-2) {
+.series-card:hover .stacked-covers:not(.covers-1, .covers-2) {
   .cover-1 {
     transform: translateX(calc(-24px * var(--card-scale, 1))) rotate(-5deg);
   }

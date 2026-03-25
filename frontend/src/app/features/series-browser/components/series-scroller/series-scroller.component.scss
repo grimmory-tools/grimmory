@@ -70,8 +70,7 @@
 
 .series-scroller-track {
   display: flex;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: auto hidden;
   scroll-snap-type: x mandatory;
   padding: 1rem 0.5rem 1rem;
   gap: 1.25rem;

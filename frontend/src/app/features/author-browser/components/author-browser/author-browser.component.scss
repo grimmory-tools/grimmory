@@ -169,8 +169,7 @@
 .author-grid {
   display: grid;
   gap: 1.25rem;
-  align-items: start;
-  justify-items: center;
+  place-items: start center;
   width: 100%;
   padding-top: 1rem;
   padding-right: 1rem;

@@ -1,5 +1,5 @@
 ::ng-deep .p-tabpanels .custom-tab-padding {
-  padding: 1rem 0rem 0rem 0.5rem !important;
+  padding: 1rem 0 0 0.5rem !important;
 
   @media (min-width: 640px) {
     padding: var(--p-tabs-tabpanel-padding) !important;
@@ -27,7 +27,7 @@
 }
 
 ::ng-deep .p-autocomplete-clearable .p-autocomplete-clear-icon {
-  right: 0px;
+  right: 0;
   margin-top: -1rem;
   width: 2rem;
   height: 2rem;
@@ -50,7 +50,7 @@
 ::ng-deep .field-with-lock button {
   border-color: var(--p-inputtext-border-color) !important;
   border-radius: 0 6px 6px 0 !important;
-  border-left: 0px !important;
+  border-left: 0 !important;
 }
 
 ::ng-deep p-fileupload .p-button-label {

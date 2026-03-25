@@ -78,10 +78,7 @@
 
   .image-container {
     position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    inset: 0 0 0 0;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -90,7 +87,7 @@
     background: #0f0f0f;
     min-height: 0;
 
-    &:not(.two-page-view):not(.infinite-scroll) {
+    &:not(.two-page-view, .infinite-scroll) {
       flex-direction: column;
       align-items: stretch;
 
@@ -147,10 +144,7 @@
 
       .previous-page-layer {
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
+        inset: 0 0 0 0;
         z-index: 1;
       }
 
@@ -318,8 +312,7 @@
     }
 
     &.infinite-scroll {
-      overflow-y: auto;
-      overflow-x: hidden;
+      overflow: hidden auto;
       align-items: flex-start;
       touch-action: pan-y;
       overscroll-behavior: contain;
@@ -410,8 +403,7 @@
 
     // Long Strip / Webtoon mode - no gaps between pages
     &.long-strip {
-      overflow-y: auto;
-      overflow-x: hidden;
+      overflow: hidden auto;
       align-items: flex-start;
       touch-action: pan-y;
       -webkit-overflow-scrolling: touch;
@@ -589,10 +581,7 @@
 
 .loader-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0 0 0 0;
   background-color: rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;

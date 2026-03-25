@@ -179,8 +179,7 @@
 .books-grid {
   display: grid;
   gap: 1.3rem;
-  align-items: start;
-  justify-items: center;
+  place-items: start center;
   width: 100%;
   padding: 0.5rem;
 }

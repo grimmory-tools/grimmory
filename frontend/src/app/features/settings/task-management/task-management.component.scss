@@ -207,7 +207,7 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: currentColor;
+    background: currentcolor;
   }
 }
 
@@ -339,7 +339,7 @@
 }
 
 .cron-value {
-  font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+  font-family: 'SF Mono', Monaco, 'Courier New', monospace;
   font-size: 0.75rem;
   color: var(--p-primary-color);
   background: var(--p-surface-900);
@@ -369,7 +369,7 @@
 
 .cron-input {
   width: 130px;
-  font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+  font-family: 'SF Mono', Monaco, 'Courier New', monospace;
   font-size: 0.75rem;
   color: var(--p-text-color);
   background: var(--p-surface-900);

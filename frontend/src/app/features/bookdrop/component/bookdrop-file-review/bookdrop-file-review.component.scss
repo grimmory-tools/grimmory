@@ -98,7 +98,7 @@
     color: var(--text-color-secondary);
   }
 
-  p-progressSpinner {
+  p-progressspinner {
     width: 2rem;
     height: 2rem;
   }
@@ -125,7 +125,7 @@
     margin-top: 0.75rem;
   }
 
-  p-progressSpinner {
+  p-progressspinner {
     width: 2rem;
     height: 2rem;
   }
@@ -375,8 +375,7 @@ div.cover-image {
 
     ::ng-deep .p-button {
       width: var(--p-button-icon-only-width);
-      padding-inline-start: 0;
-      padding-inline-end: 0;
+      padding-inline: 0 0;
       gap: 0;
     }
   }
