@@ -15,6 +15,7 @@ import org.booklore.util.RequestUtils;
 import org.booklore.util.kobo.BookloreSyncTokenGenerator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -109,7 +110,10 @@ public class KoboLibrarySyncService {
             }
         }
 
-        if (!shouldContinueSync) {
+        // If there's no authorization header, the proxy call will for sure fail and will take
+        // the whole sync down with it.  Thus, no authorization header, no proxy call.
+        boolean hasKoboAuth = request.getHeader(HttpHeaders.AUTHORIZATION) != null;
+        if (!shouldContinueSync && hasKoboAuth) {
             ResponseEntity<JsonNode> koboStoreResponse = koboServerProxy.proxyCurrentRequest(null, true);
             Collection<Entitlement> syncResultsKobo = Optional.ofNullable(koboStoreResponse.getBody())
                     .map(body -> {
