@@ -40,7 +40,7 @@ public class CronService {
         checkAndRunPing();
     }
 
-    @Scheduled(fixedDelay = 24, timeUnit = TimeUnit.HOURS, initialDelay = 24)
+//    @Scheduled(fixedDelay = 24, timeUnit = TimeUnit.HOURS, initialDelay = 24)
     public void sendTelemetryData() {
         if (isTelemetryEnabled()) {
             String url = appProperties.getTelemetry().getBaseUrl() + "/api/v1/ingest";
@@ -51,7 +51,7 @@ public class CronService {
         }
     }
 
-    @Scheduled(fixedDelay = 24, timeUnit = TimeUnit.HOURS, initialDelay = 12)
+//    @Scheduled(fixedDelay = 24, timeUnit = TimeUnit.HOURS, initialDelay = 12)
     public void sendPing() {
         if (isTelemetryEnabled()) {
             String url = appProperties.getTelemetry().getBaseUrl() + "/api/v1/heartbeat";
