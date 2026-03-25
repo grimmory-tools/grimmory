@@ -18,7 +18,6 @@ module.exports = {
       },
     ],
     "scss/dollar-variable-empty-line-before": null,
-    "scss/dollar-variable-pattern": null,
     "scss/load-partial-extension": null,
     "scss/load-no-partial-leading-underscore": null,
   },
