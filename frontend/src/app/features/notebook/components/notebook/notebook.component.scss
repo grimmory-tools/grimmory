@@ -6,7 +6,7 @@
   overflow-y: hidden;
   height: calc(100dvh - 5rem);
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     height: calc(100dvh - 5.6rem);
   }
 }
@@ -328,7 +328,7 @@
 // ============================================================================
 // RESPONSIVE
 // ============================================================================
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .filters-bar {
     flex-direction: column;
     align-items: stretch;

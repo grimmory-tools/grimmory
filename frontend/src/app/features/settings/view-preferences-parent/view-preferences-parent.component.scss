@@ -18,7 +18,7 @@
 @include settings.settings-section-divider;
 
 .preferences-section {
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     padding: 0 1rem;
   }
 }
@@ -47,7 +47,7 @@
     padding-bottom: 0;
   }
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     flex-direction: column;
     gap: 1rem;
   }
@@ -101,7 +101,7 @@
   min-width: 200px;
   max-width: 300px;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     min-width: 180px;
     max-width: 250px;
   }

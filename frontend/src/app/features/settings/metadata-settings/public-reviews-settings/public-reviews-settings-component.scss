@@ -49,12 +49,12 @@
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 0.625rem;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     grid-template-columns: 1fr 1fr;
     gap: 0.5rem;
   }
 
-  @media (max-width: 400px) {
+  @media (width <= 400px) {
     grid-template-columns: 1fr;
   }
 }

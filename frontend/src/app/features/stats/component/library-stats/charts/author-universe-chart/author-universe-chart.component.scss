@@ -86,7 +86,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .chart-wrapper {
     height: 300px;
   }
@@ -102,7 +102,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .chart-wrapper {
     height: 260px;
   }

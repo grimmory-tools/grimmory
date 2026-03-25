@@ -85,7 +85,7 @@
   }
 }
 
-@media (max-width: 767px) {
+@media (width <= 767px) {
   .series-scroller-container {
     padding: 1rem 1rem 0;
   }

@@ -24,7 +24,7 @@
 }
 
 .preferences-section {
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     padding: 0 1rem;
   }
 }
@@ -60,7 +60,7 @@
     padding-bottom: 0;
   }
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     flex-direction: column;
     gap: 1rem;
     padding: 0.5rem 0;
@@ -97,7 +97,7 @@
       min-width: 300px;
       max-width: 500px;
 
-      @media (max-width: 768px) {
+      @media (width <= 768px) {
         min-width: 250px;
         max-width: 100%;
       }
@@ -120,7 +120,7 @@
   align-items: flex-end;
   min-width: 350px;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     align-items: flex-start;
     width: 100%;
     min-width: unset;
@@ -137,7 +137,7 @@
     flex: 1;
     min-width: 200px;
 
-    @media (max-width: 768px) {
+    @media (width <= 768px) {
       min-width: 150px;
     }
   }
@@ -146,7 +146,7 @@
     flex: 1;
     min-width: 200px;
 
-    @media (max-width: 768px) {
+    @media (width <= 768px) {
       min-width: 150px;
     }
   }

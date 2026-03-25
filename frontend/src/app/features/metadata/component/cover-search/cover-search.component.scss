@@ -295,7 +295,7 @@
 }
 
 // Responsive
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .search-section .form-row {
     flex-direction: column;
     align-items: stretch;

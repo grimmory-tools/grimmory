@@ -287,7 +287,7 @@ $transition-normal: 200ms ease;
   margin-bottom: 16px;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .theme-grid {
     grid-template-columns: repeat(3, 1fr);
   }

@@ -57,7 +57,7 @@
     width: 10rem;
     height: 0.75rem;
 
-    @media (max-width: 640px) {
+    @media (width <= 640px) {
       width: 100%;
     }
   }
@@ -77,7 +77,7 @@
     justify-content: flex-end;
   }
 
-  @media (max-width: 640px) {
+  @media (width <= 640px) {
     flex-direction: column;
     align-items: stretch;
 

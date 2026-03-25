@@ -1,7 +1,7 @@
 ::ng-deep .p-tabpanels .custom-tab-padding {
   padding: 1rem 0 0 0.5rem !important;
 
-  @media (min-width: 640px) {
+  @media (width >= 640px) {
     padding: var(--p-tabs-tabpanel-padding) !important;
   }
 }
@@ -72,7 +72,7 @@ label {
   height: 100%;
   animation: fadeIn 0.3s ease-in;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     min-width: 60rem;
   }
 }
@@ -99,7 +99,7 @@ label {
   overflow: auto;
   height: 72.5dvh;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     padding: 0.5rem;
   }
 }
@@ -111,7 +111,7 @@ label {
   gap: 1rem;
   margin-bottom: 1rem;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     flex-direction: row;
   }
 }
@@ -127,7 +127,7 @@ label {
     flex-direction: row;
     gap: 1rem;
 
-    @media (max-width: 767px) {
+    @media (width <= 767px) {
       flex-direction: column;
       align-items: center;
     }
@@ -196,7 +196,7 @@ label {
   flex-direction: column;
   flex-grow: 1;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     padding-left: 0.5rem;
   }
 }
@@ -209,7 +209,7 @@ label {
   margin-top: 0.5rem;
   padding-bottom: 0.25rem;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     flex-direction: row;
   }
 }
@@ -225,26 +225,26 @@ label {
 }
 
 .title-field {
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     flex-basis: 45%;
     flex-shrink: 0;
   }
 }
 
 .subtitle-field {
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     flex-basis: 40%;
   }
 }
 
 .language-field {
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     width: 11rem;
   }
 }
 
 .authors-field {
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     flex-basis: 45%;
     flex-shrink: 0;
   }
@@ -337,13 +337,13 @@ label {
 }
 
 .publisher-field {
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     flex-basis: 35%;
   }
 }
 
 .date-field {
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     flex-basis: 20%;
 
     p-datepicker {
@@ -360,20 +360,20 @@ label {
 .half-width {
   width: 100%;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     flex: 1;
   }
 }
 
 .series-name-field {
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     flex: 4.75;
     min-width: 0;
   }
 }
 
 .small-field {
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     flex: 1;
     min-width: 0;
   }
@@ -391,7 +391,7 @@ label {
 }
 
 .metadata-id-field {
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     min-width: 0;
   }
 }
@@ -450,7 +450,7 @@ label {
   gap: 1rem;
   margin-bottom: 1rem;
 
-  @media (max-width: 767px) {
+  @media (width <= 767px) {
     grid-template-columns: repeat(2, 1fr);
   }
 }
@@ -461,7 +461,7 @@ label {
   gap: 1rem;
   margin-bottom: 1rem;
 
-  @media (max-width: 767px) {
+  @media (width <= 767px) {
     grid-template-columns: 1fr;
   }
 }
@@ -475,7 +475,7 @@ label {
   margin-top: 1rem;
   margin-bottom: 1rem;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     flex-direction: row;
   }
 }
@@ -527,7 +527,7 @@ label {
   padding-top: 1rem;
   z-index: 10;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     padding: 1rem;
   }
 }
@@ -538,7 +538,7 @@ label {
   width: 100%;
   gap: 1rem;
 
-  @media (min-width: 640px) {
+  @media (width >= 640px) {
     display: flex;
   }
 }
@@ -576,7 +576,7 @@ label {
   width: 100%;
   flex-wrap: wrap;
 
-  @media (min-width: 640px) {
+  @media (width >= 640px) {
     display: none;
   }
 }

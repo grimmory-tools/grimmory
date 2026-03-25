@@ -27,5 +27,5 @@
   p { font-size: 1rem; margin: 0 0 0.5rem 0; color: var(--text-color, #ffffff); }
   small { font-size: 0.85rem; opacity: 0.7; }
 }
-@media (max-width: 768px) { .chart-wrapper { height: 280px; } }
-@media (max-width: 480px) { .chart-header .chart-title h3 { font-size: 1rem; } }
+@media (width <= 768px) { .chart-wrapper { height: 280px; } }
+@media (width <= 480px) { .chart-header .chart-title h3 { font-size: 1rem; } }

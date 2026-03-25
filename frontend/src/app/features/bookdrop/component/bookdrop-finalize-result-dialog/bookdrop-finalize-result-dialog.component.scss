@@ -26,7 +26,7 @@
   gap: 1rem;
   margin-bottom: 1.5rem;
 
-  @media (max-width: 480px) {
+  @media (width <= 480px) {
     grid-template-columns: 1fr;
   }
 }

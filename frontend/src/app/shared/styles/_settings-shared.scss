@@ -49,7 +49,7 @@ $settings-item-border-left-width: 3px;
   overflow-y: auto;
   padding: 0.5rem;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     height: calc(100dvh - 11.65rem);
     padding: 0.5rem;
   }
@@ -102,7 +102,7 @@ $settings-item-border-left-width: 3px;
   border-radius: $settings-card-border-radius;
   padding: $settings-card-padding;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     padding: $settings-card-padding-mobile;
     gap: $settings-card-gap-mobile;
   }
@@ -148,7 +148,7 @@ $settings-item-border-left-width: 3px;
   gap: $settings-section-body-gap;
   padding-left: $settings-section-body-padding-left;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     padding-left: $settings-section-body-padding-left-mobile;
   }
 }
@@ -168,7 +168,7 @@ $settings-item-border-left-width: 3px;
     background: color-mix(in srgb, var(--ground-background) 40%, var(--p-surface-800) 60%);
   }
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     padding: $settings-item-padding-mobile;
   }
 }
@@ -250,7 +250,7 @@ $settings-item-border-left-width: 3px;
     font-weight: 600;
   }
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     padding: 0.625rem 0.75rem;
     font-size: $settings-description-size;
   }
@@ -314,7 +314,7 @@ $settings-item-border-left-width: 3px;
   justify-content: flex-end;
   padding-top: 0.5rem;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     p-button {
       width: 100%;
     }
@@ -385,7 +385,7 @@ $settings-item-border-left-width: 3px;
     min-width: 140px;
   }
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     flex-direction: column;
     align-items: stretch;
 

@@ -25,7 +25,7 @@
 }
 
 .preferences-section {
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     padding: 0 1rem;
   }
 }
@@ -54,7 +54,7 @@
   align-items: flex-start;
   gap: 2rem;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     flex-direction: column;
     gap: 1rem;
   }
@@ -90,7 +90,7 @@
       min-width: 200px;
       max-width: 300px;
 
-      @media (max-width: 768px) {
+      @media (width <= 768px) {
         min-width: 180px;
         max-width: 250px;
       }
@@ -101,7 +101,7 @@
       min-width: 300px;
       max-width: 500px;
 
-      @media (max-width: 768px) {
+      @media (width <= 768px) {
         min-width: 250px;
         max-width: 100%;
       }
@@ -123,7 +123,7 @@
   gap: 0.75rem;
   align-items: flex-end;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     align-items: flex-start;
     width: 100%;
   }
@@ -144,7 +144,7 @@
 .slider-container {
   width: 250px;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     width: 200px;
   }
 }

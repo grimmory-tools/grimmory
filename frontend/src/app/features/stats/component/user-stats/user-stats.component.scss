@@ -275,7 +275,7 @@
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
-@media (max-width: 1440px) {
+@media (width <= 1440px) {
   .charts-container {
     grid-template-columns: repeat(12, 1fr);
   }
@@ -307,7 +307,7 @@
   }
 }
 
-@media (max-width: 1024px) {
+@media (width <= 1024px) {
   .charts-container {
     grid-template-columns: repeat(6, 1fr);
   }
@@ -330,7 +330,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .user-stats-container {
     padding: 1rem;
   }
@@ -433,7 +433,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .user-stats-container {
     padding: 0.75rem;
   }

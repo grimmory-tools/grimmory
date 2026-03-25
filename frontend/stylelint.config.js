@@ -8,7 +8,6 @@ module.exports = {
     "declaration-empty-line-before": null,
     "declaration-property-value-keyword-no-deprecated": null,
     "keyframes-name-pattern": null,
-    "media-feature-range-notation": null,
     "no-descending-specificity": null,
     "no-empty-source": null,
     "no-invalid-position-declaration": null,

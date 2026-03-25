@@ -71,11 +71,11 @@ $provider-colors: (
   gap: 1rem;
   margin-bottom: 1rem;
 
-  @media (min-width: 640px) {
+  @media (width >= 640px) {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  @media (min-width: 1024px) {
+  @media (width >= 1024px) {
     grid-template-columns: 2fr 1fr 1.5fr 1.5fr auto;
     align-items: end;
   }
@@ -101,21 +101,21 @@ $provider-colors: (
   }
 
   &.search-field-provider {
-    @media (min-width: 640px) {
+    @media (width >= 640px) {
       grid-column: span 2;
     }
 
-    @media (min-width: 1024px) {
+    @media (width >= 1024px) {
       grid-column: auto;
     }
   }
 
   &.search-button-field {
-    @media (min-width: 640px) {
+    @media (width >= 640px) {
       grid-column: span 2;
     }
 
-    @media (min-width: 1024px) {
+    @media (width >= 1024px) {
       grid-column: auto;
     }
   }
@@ -129,7 +129,7 @@ $provider-colors: (
     font-size: 0.9375rem;
     border-radius: 0.5rem;
 
-    @media (min-width: 1024px) {
+    @media (width >= 1024px) {
       width: auto;
       min-width: 8rem;
     }
@@ -458,7 +458,7 @@ $provider-colors: (
   box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
   border: 1px solid var(--border-color);
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
@@ -470,7 +470,7 @@ $provider-colors: (
   flex-direction: column;
   gap: 0.375rem;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     flex-direction: row;
     align-items: center;
     gap: 0.75rem;
@@ -531,11 +531,11 @@ $provider-colors: (
   grid-template-columns: 1fr;
   gap: 1rem;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  @media (min-width: 1200px) {
+  @media (width >= 1200px) {
     grid-template-columns: repeat(3, 1fr);
   }
 }

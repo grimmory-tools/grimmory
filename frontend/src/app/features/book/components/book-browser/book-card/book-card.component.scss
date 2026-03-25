@@ -115,7 +115,7 @@
   margin: 0;
   padding-left: 0.5rem;
 
-  @media (max-width: 767px) {
+  @media (width <= 767px) {
     font-size: 0.75rem;
     padding-left: 0.25rem;
   }
@@ -146,7 +146,7 @@
         inset 0 1px 0 rgb(255 255 255 / 20%);
     }
 
-    @media (max-width: 767px) {
+    @media (width <= 767px) {
       width: clamp(1.5rem, 8vw, 2.5rem);
       height: clamp(1.5rem, 8vw, 2.5rem);
       padding: 0;
@@ -187,7 +187,7 @@
   z-index: 2;
   will-change: opacity, visibility;
 
-  @media (max-width: 767px) {
+  @media (width <= 767px) {
     top: 4px;
     right: 4px;
   }
@@ -286,7 +286,7 @@
   gap: 4px;
   z-index: 4;
 
-  @media (max-width: 767px) {
+  @media (width <= 767px) {
     top: 4px;
     left: 4px;
     gap: 2px;
@@ -299,7 +299,7 @@
   position: static;
   margin: 0;
 
-  @media (max-width: 767px) {
+  @media (width <= 767px) {
     font-size: 0.6rem;
     padding: 1px 4px;
   }

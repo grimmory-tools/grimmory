@@ -84,7 +84,7 @@
   width: 100%;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .chart-header {
     flex-direction: column;
     align-items: stretch;
@@ -106,7 +106,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .chart-header {
     .chart-title {
       h3 {
