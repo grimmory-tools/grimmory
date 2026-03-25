@@ -50,3 +50,7 @@ booklore-api/src/main/resources/application-local.yaml
 /shared/
 
 /scratch
+/.yarn/
+/frontend/.yarn/
+/tools/release/node_modules
+/tools/release/.yarn/

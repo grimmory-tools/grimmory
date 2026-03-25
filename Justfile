@@ -88,5 +88,5 @@ doctor:
     @echo "just: $$(just --version)"
     @echo "java: $$(java -version 2>&1 | head -n 1)"
     @echo "node: $$(node --version)"
-    @echo "npm: $$(npm --version)"
+    @echo "yarn: $$(corepack yarn --version)"
     @echo "docker: $$(docker --version)"

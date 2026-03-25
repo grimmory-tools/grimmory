@@ -2,13 +2,17 @@ FROM --platform=$BUILDPLATFORM node:24-alpine AS frontend-build
 
 WORKDIR /workspace/frontend
 
-COPY frontend/package.json frontend/package-lock.json ./
-RUN --mount=type=cache,target=/root/.npm \
-    npm ci --no-audit --no-fund
+COPY .yarnrc.yml /workspace/.yarnrc.yml
+COPY frontend/package.json frontend/yarn.lock ./
+
+RUN corepack enable
+RUN --mount=type=cache,target=/workspace/.yarn/cache \
+    corepack yarn install --immutable
 
 COPY frontend/ ./
-RUN --mount=type=cache,target=/workspace/frontend/.angular/cache \
-    npm run build --configuration=production
+RUN --mount=type=cache,target=/workspace/.yarn/cache \
+    --mount=type=cache,target=/workspace/frontend/.angular/cache \
+    CI=1 NG_CLI_ANALYTICS=false corepack yarn build:prod
 
 FROM --platform=$BUILDPLATFORM gradle:9.3.1-jdk25-alpine AS backend-build
 

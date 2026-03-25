@@ -1,6 +1,6 @@
 set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 
-npm := "npm"
+yarn := "env YARN_ENABLE_GLOBAL_CACHE=0 YARN_CACHE_FOLDER=../.yarn/cache corepack yarn"
 
 # Show the frontend recipes available in this directory.
 help:
@@ -8,51 +8,51 @@ help:
 
 # Install or update frontend dependencies for local development.
 install:
-    {{ npm }} install
+    {{ yarn }} install
 
 # Install the frontend dependencies exactly as CI does.
 install-ci:
-    {{ npm }} ci
+    {{ yarn }} install --immutable
 
 # Run the Angular development server.
 dev:
-    {{ npm }} run dev
+    {{ yarn }} dev
 
 # Run the Angular development server with the default `start` script.
 start:
-    {{ npm }} start
+    {{ yarn }} start
 
 # Build the production frontend bundle.
 build:
-    {{ npm }} run build
+    CI=1 NG_CLI_ANALYTICS=false {{ yarn }} build:prod
 
 # Build the frontend continuously in development mode.
 watch:
-    {{ npm }} run watch
+    {{ yarn }} watch
 
 # Run the frontend test suite.
 test:
-    {{ npm }} test
+    {{ yarn }} test
 
 # Run the frontend tests with a coverage report.
 coverage:
-    npx ng test --coverage
+    {{ yarn }} ng test --coverage
 
 # Run the frontend linter.
 lint:
-    {{ npm }} run lint
+    {{ yarn }} lint
 
 # Check the installed dependency tree.
 deps:
-    {{ npm }} ls --depth=0
+    {{ yarn }} list --depth=0
 
 # Run a local dependency audit without forcing a CI-specific severity threshold.
 audit:
-    {{ npm }} audit
+    {{ yarn }} npm audit
 
 # Run the stricter dependency audit used in CI.
 audit-ci:
-    {{ npm }} audit --audit-level=critical
+    {{ yarn }} npm audit --severity critical
 
 # Run the standard local frontend verification pass.
 check: deps lint test

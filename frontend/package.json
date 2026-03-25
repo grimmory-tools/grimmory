@@ -1,10 +1,12 @@
 {
   "name": "grimmory",
   "version": "0.0.0",
+  "packageManager": "yarn@4.10.3",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:prod": "ng build --configuration production",
     "dev": "ng serve --open --watch --configuration development",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
@@ -52,6 +54,8 @@
   "devDependencies": {
     "@analogjs/vite-plugin-angular": "^2.3.0",
     "@analogjs/vitest-angular": "^2.3.0",
+    "@angular-devkit/architect": "0.2102.0",
+    "@angular-devkit/schematics": "21.2.0",
     "@angular/build": "^21.2.0",
     "@angular/cli": "^21.2.0",
     "@angular/compiler-cli": "^21.2.4",

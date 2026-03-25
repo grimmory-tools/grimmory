@@ -50,8 +50,8 @@ services:
       retries: 5
 
   ui:
-    image: node:22-alpine
-    command: sh -c "cd /angular-app && npm install -g @angular/cli --force && npm install --force && ng serve --host 0.0.0.0"
+    image: node:24-alpine
+    command: sh -c "cd /angular-app && corepack enable && corepack yarn install --immutable && corepack yarn ng serve --host 0.0.0.0 --watch --configuration development"
     environment:
       - NODE_ENV=development
     stdin_open: true
@@ -63,10 +63,6 @@ services:
         # you can have node_modules in a volume. however, if you enable this, expect trouble in some IDEs, as the deps are not available anymore
         # - node_modules:/angular-app/node_modules
 
-        # we ignore package-lock otherwise will throw
-        # An unhandled exception occurred: Cannot find module @rollup/rollup-linux-x64-musl. npm has a bug related to optional dependencies (https://github.com/npm/cli/issues/4828).
-        # Please try `npm i` again after removing both package-lock.json and node_modules directory.
-      - '/dev/null:/angular-app/package-lock.json'
     ports:
       - "${FRONTEND_PORT:-4200}:4200"
 
