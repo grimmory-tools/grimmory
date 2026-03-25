@@ -14,7 +14,7 @@
   margin-bottom: 30px;
   backdrop-filter: blur(10px);
   border: 1px solid var(--p-content-border-color);
-  box-shadow: 0 4px 6px rgb(0, 0, 0, 10%);
+  box-shadow: 0 4px 6px rgb(0 0 0 / 10%);
   overflow: visible;
 }
 
@@ -63,10 +63,10 @@
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        background: rgb(255, 255, 255, 2%);
+        background: rgb(255 255 255 / 2%);
         padding: 6px 10px;
         border-radius: 6px;
-        border: 1px solid rgb(255, 255, 255, 4%);
+        border: 1px solid rgb(255 255 255 / 4%);
       }
 
       .pi {
@@ -93,7 +93,7 @@
 .config-modal-overlay {
   position: fixed;
   inset: 0 0 0 0;
-  background: rgb(0, 0, 0, 70%);
+  background: rgb(0 0 0 / 70%);
   backdrop-filter: blur(4px);
   z-index: 1000;
   display: flex;
@@ -103,10 +103,10 @@
 }
 
 .config-modal {
-  background: var(--surface-card, rgb(30, 30, 30, 95%));
+  background: var(--surface-card, rgb(30 30 30 / 95%));
   border-radius: 12px;
-  box-shadow: 0 20px 40px rgb(0, 0, 0, 40%);
-  border: 1px solid rgb(255, 255, 255, 15%);
+  box-shadow: 0 20px 40px rgb(0 0 0 / 40%);
+  border: 1px solid rgb(255 255 255 / 15%);
   width: 100%;
   max-width: 800px;
   max-height: 80vh;
@@ -119,8 +119,8 @@
     justify-content: space-between;
     align-items: center;
     padding: 20px 25px;
-    border-bottom: 1px solid rgb(255, 255, 255, 10%);
-    background: var(--surface-ground, rgb(40, 40, 40, 80%));
+    border-bottom: 1px solid rgb(255 255 255 / 10%);
+    background: var(--surface-ground, rgb(40 40 40 / 80%));
 
     h3 {
       color: var(--text-color, #ffffff);
@@ -139,7 +139,7 @@
 
     .close-btn {
       background: transparent;
-      border: 1px solid rgb(255, 255, 255, 20%);
+      border: 1px solid rgb(255 255 255 / 20%);
       color: var(--text-color, #ffffff);
       padding: 8px;
       border-radius: 6px;
@@ -152,8 +152,8 @@
       height: 36px;
 
       &:hover {
-        background: rgb(255, 255, 255, 10%);
-        border-color: rgb(255, 255, 255, 30%);
+        background: rgb(255 255 255 / 10%);
+        border-color: rgb(255 255 255 / 30%);
       }
 
       .pi {
@@ -166,12 +166,12 @@
     display: flex;
     gap: 12px;
     padding: 20px 25px;
-    border-bottom: 1px solid rgb(255, 255, 255, 10%);
-    background: var(--surface-ground, rgb(35, 35, 35, 60%));
+    border-bottom: 1px solid rgb(255 255 255 / 10%);
+    background: var(--surface-ground, rgb(35 35 35 / 60%));
 
     .config-action-btn {
-      background: rgb(255, 255, 255, 10%);
-      border: 1px solid rgb(255, 255, 255, 20%);
+      background: rgb(255 255 255 / 10%);
+      border: 1px solid rgb(255 255 255 / 20%);
       color: var(--text-color, #ffffff);
       padding: 10px 16px;
       border-radius: 6px;
@@ -185,41 +185,41 @@
       justify-content: center;
 
       &:hover {
-        background: rgb(255, 255, 255, 15%);
-        border-color: rgb(255, 255, 255, 30%);
+        background: rgb(255 255 255 / 15%);
+        border-color: rgb(255 255 255 / 30%);
         transform: translateY(-1px);
       }
 
       &.enable-all {
-        background: rgb(34, 197, 94, 20%);
-        border-color: rgb(34, 197, 94, 40%);
+        background: rgb(34 197 94 / 20%);
+        border-color: rgb(34 197 94 / 40%);
         color: #22c55e;
 
         &:hover {
-          background: rgb(34, 197, 94, 30%);
-          border-color: rgb(34, 197, 94, 60%);
+          background: rgb(34 197 94 / 30%);
+          border-color: rgb(34 197 94 / 60%);
         }
       }
 
       &.disable-all {
-        background: rgb(239, 68, 68, 20%);
-        border-color: rgb(239, 68, 68, 40%);
+        background: rgb(239 68 68 / 20%);
+        border-color: rgb(239 68 68 / 40%);
         color: #ef4444;
 
         &:hover {
-          background: rgb(239, 68, 68, 30%);
-          border-color: rgb(239, 68, 68, 60%);
+          background: rgb(239 68 68 / 30%);
+          border-color: rgb(239 68 68 / 60%);
         }
       }
 
       &.reset-order {
-        background: rgb(251, 191, 36, 20%);
-        border-color: rgb(251, 191, 36, 40%);
+        background: rgb(251 191 36 / 20%);
+        border-color: rgb(251 191 36 / 40%);
         color: #fbbf24;
 
         &:hover {
-          background: rgb(251, 191, 36, 30%);
-          border-color: rgb(251, 191, 36, 60%);
+          background: rgb(251 191 36 / 30%);
+          border-color: rgb(251 191 36 / 60%);
         }
       }
 
@@ -266,7 +266,7 @@
             transition: background-color 0.2s ease;
 
             &:hover {
-              background: rgb(255, 255, 255, 5%);
+              background: rgb(255 255 255 / 5%);
             }
 
             input[type="checkbox"] {
@@ -324,7 +324,7 @@
   }
 
   &.cdk-drag-preview {
-    box-shadow: 0 8px 32px rgb(0, 0, 0, 30%);
+    box-shadow: 0 8px 32px rgb(0 0 0 / 30%);
     backdrop-filter: blur(15px);
     border: 2px solid var(--primary-color, #80bdff);
     border-radius: 8px;
@@ -347,8 +347,8 @@
   top: 8px;
   right: 8px;
   z-index: 10;
-  background: rgb(0, 0, 0, 60%);
-  border: 1px solid rgb(255, 255, 255, 20%);
+  background: rgb(0 0 0 / 60%);
+  border: 1px solid rgb(255 255 255 / 20%);
   border-radius: 4px;
   padding: 6px;
   cursor: default;
@@ -361,12 +361,12 @@
   height: 28px;
 
   &:hover {
-    background: rgb(0, 0, 0, 80%);
+    background: rgb(0 0 0 / 80%);
     border-color: var(--primary-color, #80bdff);
   }
 
   &:active {
-    background: rgb(0, 0, 0, 90%);
+    background: rgb(0 0 0 / 90%);
     transform: scale(1.1);
   }
 
@@ -398,8 +398,8 @@
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: rgb(255, 255, 255, 20%);
-    box-shadow: 0 4px 12px rgb(0, 0, 0, 15%);
+    border-color: rgb(255 255 255 / 20%);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 15%);
   }
 
   &.small {
@@ -574,7 +574,7 @@
     right: 4px;
     width: 32px;
     height: 32px;
-    background: rgb(0, 0, 0, 70%);
+    background: rgb(0 0 0 / 70%);
 
     .pi {
       font-size: 0.9rem;

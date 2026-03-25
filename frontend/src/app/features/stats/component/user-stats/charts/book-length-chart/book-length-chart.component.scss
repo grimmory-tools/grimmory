@@ -36,8 +36,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: rgb(0, 188, 212, 15%);
-    border: 1px solid rgb(0, 188, 212, 30%);
+    background: rgb(0 188 212 / 15%);
+    border: 1px solid rgb(0 188 212 / 30%);
     border-radius: 8px;
     padding: 0.5rem 1rem;
 
@@ -71,8 +71,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: rgb(255, 255, 255, 5%);
-    border: 1px solid rgb(255, 255, 255, 10%);
+    background: rgb(255 255 255 / 5%);
+    border: 1px solid rgb(255 255 255 / 10%);
     border-radius: 8px;
     padding: 0.5rem 1rem;
     flex: 1;

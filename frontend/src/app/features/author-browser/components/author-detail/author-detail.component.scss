@@ -47,7 +47,7 @@
   height: 220px;
   object-fit: cover;
   border-radius: 12px;
-  box-shadow: 0 4px 16px rgb(0, 0, 0, 30%);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 30%);
 
   @media (max-width: 767px) {
     width: 140px;
@@ -164,14 +164,14 @@
   overflow-y: auto;
 
   scrollbar-width: thin;
-  scrollbar-color: var(--primary-color) rgb(20, 20, 30, 50%);
+  scrollbar-color: var(--primary-color) rgb(20 20 30 / 50%);
 
   &::-webkit-scrollbar {
     width: 12px;
   }
 
   &::-webkit-scrollbar-track {
-    background: rgb(20, 20, 30, 50%);
+    background: rgb(20 20 30 / 50%);
     border-radius: 10px;
   }
 }

@@ -248,7 +248,7 @@
   padding: 1rem 0.5rem 0.5rem;
   z-index: 1;
   border-radius: 10px 10px 0 0;
-  border: 1px solid rgb(255, 255, 255, 50%);
+  border: 1px solid rgb(255 255 255 / 50%);
   border-width: 1px 1px 0 1px;
   background-color: var(--card-background);
   transition: transform 0.15s ease-out, opacity 0.15s ease-out;
@@ -482,7 +482,7 @@
     z-index: 998;
     width: 100%;
     height: 100%;
-    background-color: rgb(0, 0, 0, 40%);
+    background-color: rgb(0 0 0 / 40%);
   }
 }
 
@@ -498,7 +498,7 @@
     bottom: 0;
     height: calc(100% - 3.85rem);
     background-color: var(--card-background);
-    box-shadow: -2px 0 10px rgb(0, 0, 0, 15%);
+    box-shadow: -2px 0 10px rgb(0 0 0 / 15%);
     transform: translateX(100%);
     transition: transform 0.3s ease;
     z-index: 1001;

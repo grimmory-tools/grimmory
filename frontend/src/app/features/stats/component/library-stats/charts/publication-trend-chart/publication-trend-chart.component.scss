@@ -10,8 +10,8 @@
 }
 
 .year-range-badge {
-  background: linear-gradient(135deg, rgb(6, 182, 212, 20%), rgb(6, 182, 212, 10%));
-  border: 1px solid rgb(6, 182, 212, 30%);
+  background: linear-gradient(135deg, rgb(6 182 212 / 20%), rgb(6 182 212 / 10%));
+  border: 1px solid rgb(6 182 212 / 30%);
   border-radius: 20px;
   padding: 0.4rem 1rem;
   font-size: 0.85rem;
@@ -29,7 +29,7 @@
 .insights-section {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid rgb(255, 255, 255, 10%);
+  border-top: 1px solid rgb(255 255 255 / 10%);
 }
 
 .insights-row {
@@ -48,8 +48,8 @@
   text-align: center;
   padding: 0.75rem;
   border-radius: 8px;
-  background: rgb(255, 255, 255, 3%);
-  border: 1px solid rgb(255, 255, 255, 8%);
+  background: rgb(255 255 255 / 3%);
+  border: 1px solid rgb(255 255 255 / 8%);
 
   .insight-label {
     font-size: 0.7rem;

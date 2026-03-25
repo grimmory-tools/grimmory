@@ -16,7 +16,7 @@
   align-items: flex-start;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  background: rgb(59, 130, 246, 8%);
+  background: rgb(59 130 246 / 8%);
   border: 1px solid var(--p-primary-color);
   border-radius: 6px;
   color: var(--p-text-color);
@@ -28,7 +28,7 @@
   }
 
   code {
-    background: rgb(255, 255, 255, 10%);
+    background: rgb(255 255 255 / 10%);
     padding: 0.1rem 0.3rem;
     border-radius: 4px;
     font-family: monospace;
@@ -99,13 +99,13 @@
   border: 1px solid var(--p-surface-300);
 
   &.preview-success {
-    background-color: rgb(76, 175, 80, 10%);
-    border-color: rgb(76, 175, 80, 30%);
+    background-color: rgb(76 175 80 / 10%);
+    border-color: rgb(76 175 80 / 30%);
   }
 
   &.preview-failure {
-    background-color: rgb(244, 67, 54, 10%);
-    border-color: rgb(244, 67, 54, 30%);
+    background-color: rgb(244 67 54 / 10%);
+    border-color: rgb(244 67 54 / 30%);
   }
 }
 

@@ -12,9 +12,9 @@
   gap: 4px;
   padding: 6px 8px;
   background: linear-gradient(180deg, #2d3139 0%, #252830 100%);
-  border: 1px solid rgb(255, 255, 255, 8%);
+  border: 1px solid rgb(255 255 255 / 8%);
   border-radius: 8px;
-  box-shadow: 0 4px 16px rgb(0, 0, 0, 30%), 0 0 1px rgb(0, 0, 0, 20%);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 30%), 0 0 1px rgb(0 0 0 / 20%);
   z-index: 99999;
   transform: translateX(-50%);
   animation: popupFadeIn 0.15s ease-out;
@@ -57,17 +57,17 @@
   border: none;
   border-radius: 6px;
   background: transparent;
-  color: rgb(255, 255, 255, 80%);
+  color: rgb(255 255 255 / 80%);
   cursor: pointer;
   transition: all 0.15s ease;
 
   &:hover {
-    background: rgb(255, 255, 255, 10%);
+    background: rgb(255 255 255 / 10%);
     color: #fff;
   }
 
   &.active {
-    background: rgb(255, 255, 255, 12%);
+    background: rgb(255 255 255 / 12%);
     color: #fff;
   }
 
@@ -87,7 +87,7 @@
 
 .delete-btn {
   &:hover {
-    background: rgb(239, 68, 68, 15%);
+    background: rgb(239 68 68 / 15%);
     color: #ef4444;
   }
 }
@@ -95,7 +95,7 @@
 .divider {
   width: 1px;
   height: 20px;
-  background: rgb(255, 255, 255, 10%);
+  background: rgb(255 255 255 / 10%);
   margin: 0 2px;
 }
 
@@ -109,9 +109,9 @@
   transform: translateX(-50%);
   padding: 8px;
   background: linear-gradient(180deg, #2d3139 0%, #252830 100%);
-  border: 1px solid rgb(255, 255, 255, 8%);
+  border: 1px solid rgb(255 255 255 / 8%);
   border-radius: 8px;
-  box-shadow: 0 8px 24px rgb(0, 0, 0, 35%);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 35%);
   z-index: 100000;
   display: flex;
   flex-direction: column;
@@ -159,10 +159,10 @@
   width: 32px;
   height: 28px;
   padding: 0;
-  border: 1px solid rgb(255, 255, 255, 10%);
+  border: 1px solid rgb(255 255 255 / 10%);
   border-radius: 4px;
-  background: rgb(255, 255, 255, 3%);
-  color: rgb(255, 255, 255, 70%);
+  background: rgb(255 255 255 / 3%);
+  color: rgb(255 255 255 / 70%);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -173,7 +173,7 @@
   }
 
   &.highlight-style .style-text {
-    background: linear-gradient(180deg, rgb(255, 255, 0, 40%) 60%, transparent 60%);
+    background: linear-gradient(180deg, rgb(255 255 0 / 40%) 60%, transparent 60%);
   }
 
   &.underline-style .style-text {
@@ -190,14 +190,14 @@
   }
 
   &:hover {
-    border-color: rgb(255, 255, 255, 20%);
-    background: rgb(255, 255, 255, 8%);
+    border-color: rgb(255 255 255 / 20%);
+    background: rgb(255 255 255 / 8%);
     color: #fff;
   }
 
   &.selected {
     border-color: #3b82f6;
-    background: rgb(59, 130, 246, 15%);
+    background: rgb(59 130 246 / 15%);
     color: #fff;
   }
 }
@@ -224,7 +224,7 @@
 
   &.selected {
     border-color: #fff;
-    box-shadow: 0 0 0 2px rgb(59, 130, 246, 50%);
+    box-shadow: 0 0 0 2px rgb(59 130 246 / 50%);
   }
 }
 

@@ -197,7 +197,7 @@
   &:hover {
     border-color: var(--primary-color);
     transform: translateX(3px);
-    box-shadow: 0 3px 8px rgb(0, 0, 0, 10%);
+    box-shadow: 0 3px 8px rgb(0 0 0 / 10%);
 
     .permission-icon {
       color: var(--primary-color);
@@ -206,7 +206,7 @@
   }
 
   &.admin-permission {
-    background: rgb(255, 152, 0, 5%);
+    background: rgb(255 152 0 / 5%);
 
     &:hover {
       border-color: #ff9800;
@@ -217,7 +217,7 @@
     }
 
     .permission-icon-wrapper.admin-icon {
-      background: rgb(255, 152, 0, 10%);
+      background: rgb(255 152 0 / 10%);
 
       .permission-icon {
         color: #ff9800;

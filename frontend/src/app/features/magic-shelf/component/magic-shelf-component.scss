@@ -42,7 +42,7 @@
   background: var(--card-background);
   border: 1px solid var(--border-color);
   border-bottom: none;
-  box-shadow: 0 2px 6px rgb(0, 0, 0, 8%);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 8%);
   min-height: 450px;
 
   @media (max-width: 480px) {
@@ -236,7 +236,7 @@
   transition: all 0.3s ease;
 
   &:hover {
-    box-shadow: 0 3px 8px rgb(0, 0, 0, 10%);
+    box-shadow: 0 3px 8px rgb(0 0 0 / 10%);
   }
 
   @media (max-width: 768px) {

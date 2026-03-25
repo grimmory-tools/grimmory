@@ -1,19 +1,19 @@
 // Variables matching reader styling
 $dialog-bg: #1a1a1a;
-$text-primary: rgb(255, 255, 255, 95%);
-$text-secondary: rgb(255, 255, 255, 60%);
-$text-muted: rgb(255, 255, 255, 40%);
-$border-color: rgb(255, 255, 255, 8%);
-$hover-bg: rgb(255, 255, 255, 8%);
+$text-primary: rgb(255 255 255 / 95%);
+$text-secondary: rgb(255 255 255 / 60%);
+$text-muted: rgb(255 255 255 / 40%);
+$border-color: rgb(255 255 255 / 8%);
+$hover-bg: rgb(255 255 255 / 8%);
 $active-color: #4a90e2;
-$active-bg: rgb(74, 144, 226, 15%);
+$active-bg: rgb(74 144 226 / 15%);
 $transition-fast: 150ms ease;
 $transition-normal: 200ms ease;
 
 .dialog-overlay {
   position: fixed;
   inset: 0;
-  background: rgb(0, 0, 0, 50%);
+  background: rgb(0 0 0 / 50%);
   backdrop-filter: blur(4px);
   z-index: 13000;
   display: flex;
@@ -37,7 +37,7 @@ $transition-normal: 200ms ease;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgb(0, 0, 0, 50%);
+  box-shadow: 0 20px 60px rgb(0 0 0 / 50%);
   animation: slideUp 250ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -58,7 +58,7 @@ $transition-normal: 200ms ease;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: linear-gradient(180deg, rgb(255, 255, 255, 2%) 0%, transparent 100%);
+  background: linear-gradient(180deg, rgb(255 255 255 / 2%) 0%, transparent 100%);
 
   h2 {
     margin: 0;
@@ -107,11 +107,11 @@ $transition-normal: 200ms ease;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgb(255, 255, 255, 15%);
+    background: rgb(255 255 255 / 15%);
     border-radius: 3px;
 
     &:hover {
-      background: rgb(255, 255, 255, 25%);
+      background: rgb(255 255 255 / 25%);
     }
   }
 }
@@ -130,7 +130,7 @@ $transition-normal: 200ms ease;
   .page-info {
     margin: 0;
     padding: 12px 16px;
-    background: rgb(255, 255, 255, 3%);
+    background: rgb(255 255 255 / 3%);
     border-left: 3px solid $active-color;
     border-radius: 0 8px 8px 0;
     color: $text-secondary;
@@ -149,7 +149,7 @@ $transition-normal: 200ms ease;
   flex: 1;
   min-height: 120px;
   padding: 12px 16px;
-  background: rgb(255, 255, 255, 3%);
+  background: rgb(255 255 255 / 3%);
   border: 1px solid $border-color;
   border-radius: 8px;
   color: $text-primary;
@@ -166,7 +166,7 @@ $transition-normal: 200ms ease;
   &:focus {
     outline: none;
     border-color: $active-color;
-    box-shadow: 0 0 0 3px rgb(74, 144, 226, 15%);
+    box-shadow: 0 0 0 3px rgb(74 144 226 / 15%);
   }
 }
 
@@ -193,7 +193,7 @@ $transition-normal: 200ms ease;
 
   &.selected {
     border-color: $text-primary;
-    box-shadow: 0 0 0 3px rgb(255, 255, 255, 20%);
+    box-shadow: 0 0 0 3px rgb(255 255 255 / 20%);
 
     &::after {
       content: '\2713';
@@ -205,7 +205,7 @@ $transition-normal: 200ms ease;
       color: white;
       font-size: 14px;
       font-weight: bold;
-      text-shadow: 0 1px 2px rgb(0, 0, 0, 50%);
+      text-shadow: 0 1px 2px rgb(0 0 0 / 50%);
     }
   }
 }
@@ -216,7 +216,7 @@ $transition-normal: 200ms ease;
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  background: linear-gradient(0deg, rgb(255, 255, 255, 2%) 0%, transparent 100%);
+  background: linear-gradient(0deg, rgb(255 255 255 / 2%) 0%, transparent 100%);
 }
 
 .btn {
@@ -244,7 +244,7 @@ $transition-normal: 200ms ease;
   color: $text-primary;
 
   &:hover:not(:disabled) {
-    background: rgb(255, 255, 255, 12%);
+    background: rgb(255 255 255 / 12%);
   }
 }
 

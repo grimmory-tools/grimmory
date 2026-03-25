@@ -32,8 +32,8 @@
     justify-self: center;
 
     .week-nav-btn {
-      background: rgb(255, 255, 255, 10%);
-      border: 1px solid rgb(255, 255, 255, 20%);
+      background: rgb(255 255 255 / 10%);
+      border: 1px solid rgb(255 255 255 / 20%);
       border-radius: 6px;
       padding: 0.6rem 0.6rem;
       color: #ffffff;
@@ -44,8 +44,8 @@
       justify-content: center;
 
       &:hover {
-        background: rgb(255, 255, 255, 20%);
-        border-color: rgb(255, 255, 255, 30%);
+        background: rgb(255 255 255 / 20%);
+        border-color: rgb(255 255 255 / 30%);
         transform: translateY(-1px);
       }
 
@@ -97,13 +97,13 @@
   gap: 1rem;
   margin-bottom: 1rem;
   padding: 0.75rem;
-  background: rgb(255, 255, 255, 5%);
+  background: rgb(255 255 255 / 5%);
   border-radius: 8px;
-  border: 1px solid rgb(255, 255, 255, 10%);
+  border: 1px solid rgb(255 255 255 / 10%);
 
   .week-nav-btn {
-    background: rgb(255, 255, 255, 10%);
-    border: 1px solid rgb(255, 255, 255, 20%);
+    background: rgb(255 255 255 / 10%);
+    border: 1px solid rgb(255 255 255 / 20%);
     border-radius: 6px;
     padding: 0.6rem 6rem;
     color: #ffffff;
@@ -114,8 +114,8 @@
     justify-content: center;
 
     &:hover {
-      background: rgb(255, 255, 255, 20%);
-      border-color: rgb(255, 255, 255, 30%);
+      background: rgb(255 255 255 / 20%);
+      border-color: rgb(255 255 255 / 30%);
       transform: translateY(-1px);
     }
 
@@ -187,7 +187,7 @@
   .hour-label {
     display: none;
     font-size: 0.75rem;
-    color: rgb(255, 255, 255, 60%);
+    color: rgb(255 255 255 / 60%);
     position: absolute;
     left: 0;
     transform: translateX(-50%);
@@ -214,16 +214,16 @@
     align-items: center;
     font-size: 0.875rem;
     font-weight: 500;
-    color: rgb(255, 255, 255, 90%);
+    color: rgb(255 255 255 / 90%);
     padding-right: 1rem;
   }
 
   .timeline-track {
     flex: 1;
     position: relative;
-    background: rgb(255, 255, 255, 2%);
+    background: rgb(255 255 255 / 2%);
     border-radius: 4px;
-    border: 1px solid rgb(255, 255, 255, 10%);
+    border: 1px solid rgb(255 255 255 / 10%);
     min-height: 35px;
     overflow: visible;
   }
@@ -237,7 +237,7 @@
   pointer-events: none;
 
   .grid-line {
-    border-right: 1px solid rgb(255, 255, 255, 5%);
+    border-right: 1px solid rgb(255 255 255 / 5%);
 
     &:last-child {
       border-right: none;
@@ -369,15 +369,15 @@
 
 ::ng-deep .session-timeline-tooltip.p-tooltip {
   --p-tooltip-max-width: 300px;
-  --p-tooltip-background: rgb(30, 30, 30, 98%);
+  --p-tooltip-background: rgb(30 30 30 / 98%);
   --p-tooltip-color: #ffffff;
   --p-tooltip-border-radius: 12px;
-  --p-tooltip-shadow: 0 4px 20px rgb(0, 0, 0, 50%);
+  --p-tooltip-shadow: 0 4px 20px rgb(0 0 0 / 50%);
   --p-tooltip-padding: 0 !important;
   --p-tooltip-gutter: 12px;
 
   backdrop-filter: blur(10px);
-  border: 1px solid rgb(255, 255, 255, 20%);
+  border: 1px solid rgb(255 255 255 / 20%);
   min-width: 320px;
   padding: 0 !important;
 
@@ -403,7 +403,7 @@
       height: 100%;
       object-fit: cover;
       border-radius: 4px;
-      background-color: rgb(255, 255, 255, 10%);
+      background-color: rgb(255 255 255 / 10%);
     }
   }
 
@@ -422,7 +422,7 @@
 
     i {
       font-size: 1.1rem;
-      color: rgb(239, 68, 68, 100%);
+      color: rgb(239 68 68 / 100%);
     }
   }
 
@@ -439,7 +439,7 @@
     height: 1px;
     background: linear-gradient(90deg,
       transparent 0%,
-      rgb(255, 255, 255, 10%) 50%,
+      rgb(255 255 255 / 10%) 50%,
       transparent 100%);
     margin-bottom: 0.75rem;
   }
@@ -459,14 +459,14 @@
 
     i {
       font-size: 0.875rem;
-      color: rgb(255, 255, 255, 60%);
+      color: rgb(255 255 255 / 60%);
       width: 16px;
       text-align: center;
     }
   }
 
   .session-tooltip-label {
-    color: rgb(255, 255, 255, 70%);
+    color: rgb(255 255 255 / 70%);
     font-weight: 500;
   }
 
@@ -479,7 +479,7 @@
 
 .timeline-title-icon {
   font-size: 1.5rem;
-  color: rgb(239, 68, 68, 100%);
+  color: rgb(239 68 68 / 100%);
   vertical-align: middle;
   margin-right: 0.25em;
 }

@@ -1,7 +1,7 @@
  .thumbnail {
   border: 1px solid var(--border-color);
   border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgb(0, 0, 0, 10%);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
   margin: 0 auto 1rem;
 }
 
@@ -296,15 +296,15 @@ textarea.changed,
 
 .metadata-status {
   &.copied {
-    color: rgb(34, 197, 94);
+    color: rgb(34 197 94);
   }
 
   &.no-metadata {
-    color: rgb(59, 130, 246);
+    color: rgb(59 130 246);
   }
 
   &.not-applied {
-    color: rgb(239, 68, 68);
+    color: rgb(239 68 68);
   }
 }
 
@@ -474,7 +474,7 @@ textarea.changed,
 .cdk-drag-preview {
   box-sizing: border-box;
   border-radius: 1rem;
-  box-shadow: 0 2px 8px rgb(0, 0, 0, 20%);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
 }
 
 .cdk-drag-placeholder {

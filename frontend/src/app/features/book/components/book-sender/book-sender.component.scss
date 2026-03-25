@@ -18,7 +18,7 @@
   border: 1px solid var(--border-color);
   border-top: none;
   border-bottom: none;
-  box-shadow: 0 2px 6px rgb(0, 0, 0, 8%);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 8%);
 }
 
 .dialog-footer {
@@ -64,7 +64,7 @@
   transition: all 0.15s ease;
 
   &:hover {
-    background: rgb(255, 255, 255, 3%);
+    background: rgb(255 255 255 / 3%);
     border-color: var(--p-primary-400);
   }
 
@@ -107,8 +107,8 @@
   align-items: flex-start;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  background: rgb(234, 179, 8, 10%);
-  border: 1px solid rgb(234, 179, 8, 30%);
+  background: rgb(234 179 8 / 10%);
+  border: 1px solid rgb(234 179 8 / 30%);
   border-radius: 6px;
   color: #fbbf24;
 

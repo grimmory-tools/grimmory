@@ -82,12 +82,12 @@
       color: white;
       font-size: settings.$settings-section-description-size;
       font-weight: bold;
-      text-shadow: 0 1px 2px rgb(0, 0, 0, 30%);
+      text-shadow: 0 1px 2px rgb(0 0 0 / 30%);
     }
 
     &:hover {
       transform: scale(1.1);
-      box-shadow: 0 4px 12px rgb(0, 0, 0, 15%);
+      box-shadow: 0 4px 12px rgb(0 0 0 / 15%);
     }
 
     &.selected {

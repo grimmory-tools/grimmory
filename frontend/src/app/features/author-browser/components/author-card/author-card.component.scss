@@ -6,12 +6,12 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 2px 8px rgb(0, 0, 0, 15%);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
   transition: box-shadow 0.25s ease, transform 0.25s ease;
   cursor: pointer;
 
   &:hover {
-    box-shadow: 0 8px 24px rgb(0, 0, 0, 30%);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 30%);
     transform: translateY(-2px);
   }
 
@@ -45,7 +45,7 @@
   background: linear-gradient(
     90deg,
     var(--surface-ground) 25%,
-    var(--surface-hover, rgb(255, 255, 255, 8%)) 50%,
+    var(--surface-hover, rgb(255 255 255 / 8%)) 50%,
     var(--surface-ground) 75%
   );
   background-size: 200% 100%;
@@ -90,7 +90,7 @@
   font-size: 0.8rem;
   font-weight: 700;
   color: #fff;
-  background: rgb(0, 0, 0, 60%);
+  background: rgb(0 0 0 / 60%);
   padding: 3px 9px;
   border-radius: 10px;
   line-height: 1.3;
@@ -103,7 +103,7 @@
   left: 0;
   right: 0;
   padding: 8px 2px 4px 8px;
-  background: linear-gradient(to top, rgb(0, 0, 0, 90%) 0%, rgb(0, 0, 0, 50%) 70%, transparent 100%);
+  background: linear-gradient(to top, rgb(0 0 0 / 90%) 0%, rgb(0 0 0 / 50%) 70%, transparent 100%);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -114,7 +114,7 @@
   color: #22c55e;
   font-size: 0.85rem;
   flex-shrink: 0;
-  filter: drop-shadow(0 1px 2px rgb(0, 0, 0, 50%));
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 50%));
 }
 
 .author-name {
@@ -128,7 +128,7 @@
   line-height: 1.3;
   flex: 1;
   min-width: 0;
-  text-shadow: 0 1px 3px rgb(0, 0, 0, 60%);
+  text-shadow: 0 1px 3px rgb(0 0 0 / 60%);
 }
 
 .menu-button-container {
@@ -140,7 +140,7 @@
   color: #fff !important;
 
   &:hover {
-    background: rgb(255, 255, 255, 15%) !important;
+    background: rgb(255 255 255 / 15%) !important;
   }
 }
 

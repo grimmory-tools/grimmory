@@ -6,11 +6,11 @@ $bg-secondary: #1a1a2e;
 $bg-tertiary: #252542;
 $bg-darker: #0a0a12;
 $text-primary: #ffffff;
-$text-secondary: rgb(255, 255, 255, 80%);
-$text-tertiary: rgb(255, 255, 255, 50%);
+$text-secondary: rgb(255 255 255 / 80%);
+$text-tertiary: rgb(255 255 255 / 50%);
 $accent-secondary: #ec4899;
 $accent-tertiary: #06b6d4;
-$border-color: rgb(255, 255, 255, 10%);
+$border-color: rgb(255 255 255 / 10%);
 
 // CSS variable for primary color from theme
 :host {
@@ -80,7 +80,7 @@ $border-color: rgb(255, 255, 255, 10%);
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.5rem;
-  background: rgb(0, 0, 0, 40%);
+  background: rgb(0 0 0 / 40%);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid $border-color;
   z-index: 10;
@@ -155,8 +155,8 @@ $border-color: rgb(255, 255, 255, 10%);
     border-radius: 16px;
     overflow: hidden;
     box-shadow:
-      0 25px 60px -12px rgb(0, 0, 0, 60%),
-      0 0 0 1px rgb(255, 255, 255, 10%),
+      0 25px 60px -12px rgb(0 0 0 / 60%),
+      0 0 0 1px rgb(255 255 255 / 10%),
       0 0 60px color-mix(in srgb, var(--accent-color) 20%, transparent),
       0 0 100px rgb($accent-secondary, 10%);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -164,8 +164,8 @@ $border-color: rgb(255, 255, 255, 10%);
     &:hover {
       transform: scale(1.02);
       box-shadow:
-        0 30px 70px -12px rgb(0, 0, 0, 70%),
-        0 0 0 1px rgb(255, 255, 255, 15%),
+        0 30px 70px -12px rgb(0 0 0 / 70%),
+        0 0 0 1px rgb(255 255 255 / 15%),
         0 0 80px color-mix(in srgb, var(--accent-color) 30%, transparent),
         0 0 120px rgb($accent-secondary, 15%);
     }
@@ -182,7 +182,7 @@ $border-color: rgb(255, 255, 255, 10%);
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgb(0, 0, 0, 70%);
+      background: rgb(0 0 0 / 70%);
       backdrop-filter: blur(4px);
     }
 
@@ -197,8 +197,8 @@ $border-color: rgb(255, 255, 255, 10%);
 
       i {
         font-size: 5rem;
-        color: rgb(255, 255, 255, 90%);
-        text-shadow: 0 0 30px rgb(255, 255, 255, 50%);
+        color: rgb(255 255 255 / 90%);
+        text-shadow: 0 0 30px rgb(255 255 255 / 50%);
       }
     }
   }
@@ -242,7 +242,7 @@ $border-color: rgb(255, 255, 255, 10%);
   .progress-bar-wrapper {
     position: relative;
     height: 8px;
-    background: rgb(255, 255, 255, 10%);
+    background: rgb(255 255 255 / 10%);
     border-radius: 4px;
     overflow: visible;
 
@@ -251,7 +251,7 @@ $border-color: rgb(255, 255, 255, 10%);
       top: 0;
       left: 0;
       height: 100%;
-      background: rgb(255, 255, 255, 15%);
+      background: rgb(255 255 255 / 15%);
       border-radius: 4px;
       transition: width 0.3s ease;
     }
@@ -278,13 +278,13 @@ $border-color: rgb(255, 255, 255, 10%);
           height: 18px;
           background: $text-primary;
           border: 3px solid var(--accent-color);
-          box-shadow: 0 2px 10px rgb(0, 0, 0, 40%),
+          box-shadow: 0 2px 10px rgb(0 0 0 / 40%),
                       0 0 15px color-mix(in srgb, var(--accent-color) 40%, transparent);
           transition: transform 0.15s ease, box-shadow 0.15s ease;
 
           &:hover {
             transform: scale(1.2);
-            box-shadow: 0 2px 15px rgb(0, 0, 0, 50%),
+            box-shadow: 0 2px 15px rgb(0 0 0 / 50%),
                         0 0 25px color-mix(in srgb, var(--accent-color) 60%, transparent);
           }
         }
@@ -381,7 +381,7 @@ $border-color: rgb(255, 255, 255, 10%);
     width: 100px;
 
     .p-slider {
-      background: rgb(255, 255, 255, 15%);
+      background: rgb(255 255 255 / 15%);
       height: 5px;
       border-radius: 3px;
 
@@ -395,7 +395,7 @@ $border-color: rgb(255, 255, 255, 10%);
         height: 14px;
         background: $text-primary;
         border: 2px solid $accent-tertiary;
-        box-shadow: 0 2px 8px rgb(0, 0, 0, 30%);
+        box-shadow: 0 2px 8px rgb(0 0 0 / 30%);
       }
     }
   }
@@ -407,15 +407,15 @@ $border-color: rgb(255, 255, 255, 10%);
       padding: 0.5rem 0.75rem;
       font-size: 0.8rem;
       font-weight: 600;
-      background: rgb(255, 255, 255, 8%);
-      border: 1px solid rgb(255, 255, 255, 10%);
+      background: rgb(255 255 255 / 8%);
+      border: 1px solid rgb(255 255 255 / 10%);
       color: $text-secondary;
       transition: all 0.2s ease;
 
       &:hover {
-        background: rgb(255, 255, 255, 12%);
+        background: rgb(255 255 255 / 12%);
         color: $text-primary;
-        border-color: rgb(255, 255, 255, 20%);
+        border-color: rgb(255 255 255 / 20%);
       }
 
       &.p-highlight {
@@ -438,7 +438,7 @@ $border-color: rgb(255, 255, 255, 10%);
   padding: 1rem;
   color: $text-tertiary;
   font-size: 0.8rem;
-  background: rgb(255, 255, 255, 3%);
+  background: rgb(255 255 255 / 3%);
   border-radius: 12px;
   margin-top: 0.5rem;
 
@@ -447,7 +447,7 @@ $border-color: rgb(255, 255, 255, 10%);
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 0.75rem;
-    background: rgb(255, 255, 255, 5%);
+    background: rgb(255 255 255 / 5%);
     border-radius: 8px;
     white-space: nowrap;
 
@@ -485,7 +485,7 @@ $border-color: rgb(255, 255, 255, 10%);
       color: #fbbf24 !important;
 
       &:hover {
-        background: rgb(251, 191, 36, 15%) !important;
+        background: rgb(251 191 36 / 15%) !important;
       }
     }
   }
@@ -553,7 +553,7 @@ $border-color: rgb(255, 255, 255, 10%);
   display: flex;
   flex-direction: column;
   animation: slideIn 0.25s ease-out;
-  box-shadow: -10px 0 40px rgb(0, 0, 0, 50%);
+  box-shadow: -10px 0 40px rgb(0 0 0 / 50%);
 
   @keyframes slideIn {
     from {
@@ -572,7 +572,7 @@ $border-color: rgb(255, 255, 255, 10%);
     justify-content: space-between;
     padding: 1.25rem 1.5rem;
     border-bottom: 1px solid $border-color;
-    background: rgb(0, 0, 0, 20%);
+    background: rgb(0 0 0 / 20%);
 
     h2 {
       margin: 0;

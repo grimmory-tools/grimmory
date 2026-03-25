@@ -32,8 +32,8 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 0.625rem 1rem;
-  background: rgb(34, 197, 94, 10%);
-  border: 1px solid rgb(34, 197, 94, 30%);
+  background: rgb(34 197 94 / 10%);
+  border: 1px solid rgb(34 197 94 / 30%);
   border-radius: 8px;
   color: var(--p-green-400);
   font-size: 0.875rem;
@@ -207,7 +207,7 @@
   height: auto;
   border-radius: 6px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgb(0, 0, 0, 15%);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
 
   @media (min-width: 768px) {
     width: 150px;
@@ -540,7 +540,7 @@
 
   &.copied {
     border-color: var(--p-yellow-500);
-    background: rgb(234, 179, 8, 15%);
+    background: rgb(234 179 8 / 15%);
 
     i {
       color: var(--p-yellow-500);
@@ -549,7 +549,7 @@
 
   &.reset {
     border-color: var(--p-red-500);
-    background: rgb(239, 68, 68, 15%);
+    background: rgb(239 68 68 / 15%);
 
     i {
       color: var(--p-red-500);
@@ -706,7 +706,7 @@
 .cdk-drag-preview {
   box-sizing: border-box;
   border-radius: 1rem;
-  box-shadow: 0 2px 8px rgb(0, 0, 0, 20%);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
 }
 
 .cdk-drag-placeholder {

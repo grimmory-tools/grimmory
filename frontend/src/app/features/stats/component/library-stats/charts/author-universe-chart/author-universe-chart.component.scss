@@ -10,8 +10,8 @@
 }
 
 .author-count-badge {
-  background: linear-gradient(135deg, rgb(139, 92, 246, 20%), rgb(139, 92, 246, 10%));
-  border: 1px solid rgb(139, 92, 246, 30%);
+  background: linear-gradient(135deg, rgb(139 92 246 / 20%), rgb(139 92 246 / 10%));
+  border: 1px solid rgb(139 92 246 / 30%);
   border-radius: 20px;
   padding: 0.4rem 1rem;
   font-size: 0.85rem;
@@ -29,7 +29,7 @@
     gap: 0.5rem;
     font-size: 0.8rem;
     color: var(--text-secondary-color);
-    background: rgb(255, 255, 255, 5%);
+    background: rgb(255 255 255 / 5%);
     border-radius: 6px;
     padding: 0.5rem 0.75rem;
 
@@ -48,7 +48,7 @@
 .insights-section {
   margin-top: 1.25rem;
   padding-top: 1rem;
-  border-top: 1px solid rgb(255, 255, 255, 10%);
+  border-top: 1px solid rgb(255 255 255 / 10%);
 }
 
 .insights-grid {
@@ -61,15 +61,15 @@
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  background: linear-gradient(135deg, rgb(139, 92, 246, 10%), rgb(139, 92, 246, 5%));
-  border: 1px solid rgb(139, 92, 246, 20%);
+  background: linear-gradient(135deg, rgb(139 92 246 / 10%), rgb(139 92 246 / 5%));
+  border: 1px solid rgb(139 92 246 / 20%);
   border-radius: 8px;
   padding: 0.6rem 0.85rem;
   transition: all 0.2s ease;
 
   &:hover {
-    background: linear-gradient(135deg, rgb(139, 92, 246, 15%), rgb(139, 92, 246, 8%));
-    border-color: rgb(139, 92, 246, 35%);
+    background: linear-gradient(135deg, rgb(139 92 246 / 15%), rgb(139 92 246 / 8%));
+    border-color: rgb(139 92 246 / 35%);
     transform: translateY(-1px);
   }
 

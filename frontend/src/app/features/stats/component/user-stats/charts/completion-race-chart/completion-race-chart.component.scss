@@ -43,8 +43,8 @@
   flex-shrink: 0;
 
   .year-nav-btn {
-    background: rgb(255, 255, 255, 10%);
-    border: 1px solid rgb(255, 255, 255, 20%);
+    background: rgb(255 255 255 / 10%);
+    border: 1px solid rgb(255 255 255 / 20%);
     border-radius: 6px;
     padding: 0.6rem;
     color: #ffffff;
@@ -55,8 +55,8 @@
     justify-content: center;
 
     &:hover {
-      background: rgb(255, 255, 255, 20%);
-      border-color: rgb(255, 255, 255, 30%);
+      background: rgb(255 255 255 / 20%);
+      border-color: rgb(255 255 255 / 30%);
       transform: translateY(-1px);
     }
 
@@ -84,8 +84,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: rgb(255, 255, 255, 5%);
-    border: 1px solid rgb(255, 255, 255, 10%);
+    background: rgb(255 255 255 / 5%);
+    border: 1px solid rgb(255 255 255 / 10%);
     border-radius: 8px;
     padding: 0.5rem 1rem;
     min-width: 80px;

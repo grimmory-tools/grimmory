@@ -33,21 +33,21 @@ html {
   }
 
   &::-webkit-scrollbar-track {
-    background: rgb(0, 0, 0, 10%);
+    background: rgb(0 0 0 / 10%);
     border-radius: 10px;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgb(128, 128, 128, 50%);
+    background: rgb(128 128 128 / 50%);
     border-radius: 10px;
 
     &:hover {
-      background: rgb(128, 128, 128, 70%);
+      background: rgb(128 128 128 / 70%);
     }
   }
 
   scrollbar-width: thin;
-  scrollbar-color: rgb(128, 128, 128, 50%) rgb(0, 0, 0, 10%);
+  scrollbar-color: rgb(128 128 128 / 50%) rgb(0 0 0 / 10%);
 }
 
 .chart-info-tooltip.p-tooltip {
@@ -55,13 +55,13 @@ html {
 }
 
 .chart-info-icon {
-  color: rgb(255, 255, 255, 35%);
+  color: rgb(255 255 255 / 35%);
   font-size: 0.9rem;
   cursor: help;
   transition: color 0.2s ease;
 
   &:hover {
-    color: rgb(255, 255, 255, 80%);
+    color: rgb(255 255 255 / 80%);
   }
 }
 

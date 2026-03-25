@@ -1,19 +1,19 @@
 // Variables matching sidebar styling
 $dialog-bg: #1a1a1a;
-$text-primary: rgb(255, 255, 255, 95%);
-$text-secondary: rgb(255, 255, 255, 60%);
-$text-muted: rgb(255, 255, 255, 40%);
-$border-color: rgb(255, 255, 255, 8%);
-$hover-bg: rgb(255, 255, 255, 8%);
+$text-primary: rgb(255 255 255 / 95%);
+$text-secondary: rgb(255 255 255 / 60%);
+$text-muted: rgb(255 255 255 / 40%);
+$border-color: rgb(255 255 255 / 8%);
+$hover-bg: rgb(255 255 255 / 8%);
 $active-color: #818cf8;
-$active-bg: rgb(129, 140, 248, 15%);
+$active-bg: rgb(129 140 248 / 15%);
 $transition-fast: 150ms ease;
 $transition-normal: 200ms ease;
 
 .dialog-overlay {
   position: fixed;
   inset: 0;
-  background: rgb(0, 0, 0, 50%);
+  background: rgb(0 0 0 / 50%);
   backdrop-filter: blur(4px);
   z-index: 12000;
   display: flex;
@@ -37,7 +37,7 @@ $transition-normal: 200ms ease;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgb(0, 0, 0, 50%);
+  box-shadow: 0 20px 60px rgb(0 0 0 / 50%);
   animation: slideUp 250ms cubic-bezier(0.4, 0, 0.2, 1);
 
   @media (max-width: 768px) {
@@ -64,7 +64,7 @@ $transition-normal: 200ms ease;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: linear-gradient(180deg, rgb(255, 255, 255, 2%) 0%, transparent 100%);
+  background: linear-gradient(180deg, rgb(255 255 255 / 2%) 0%, transparent 100%);
 
   h2 {
     margin: 0;
@@ -121,11 +121,11 @@ $transition-normal: 200ms ease;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgb(255, 255, 255, 15%);
+    background: rgb(255 255 255 / 15%);
     border-radius: 3px;
 
     &:hover {
-      background: rgb(255, 255, 255, 25%);
+      background: rgb(255 255 255 / 25%);
     }
   }
 }
@@ -155,7 +155,7 @@ $transition-normal: 200ms ease;
   width: 100%;
   height: auto;
   border-radius: 8px;
-  box-shadow: 0 8px 24px rgb(0, 0, 0, 40%);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 40%);
   max-height: 300px;
   object-fit: cover;
 
@@ -167,8 +167,8 @@ $transition-normal: 200ms ease;
 .cover-placeholder {
   width: 100%;
   aspect-ratio: 2/3;
-  background: linear-gradient(135deg, rgb(255, 255, 255, 4%) 0%, rgb(255, 255, 255, 1%) 100%);
-  border: 2px dashed rgb(255, 255, 255, 12%);
+  background: linear-gradient(135deg, rgb(255 255 255 / 4%) 0%, rgb(255 255 255 / 1%) 100%);
+  border: 2px dashed rgb(255 255 255 / 12%);
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -247,7 +247,7 @@ $transition-normal: 200ms ease;
     font-family: 'SF Mono', Monaco, Inconsolata, 'Roboto Mono', monospace;
     font-size: 12px;
     color: $text-secondary;
-    background: rgb(255, 255, 255, 3%);
+    background: rgb(255 255 255 / 3%);
     padding: 4px 8px;
     border-radius: 4px;
   }
@@ -272,11 +272,11 @@ $transition-normal: 200ms ease;
   border-radius: 12px;
   font-size: 12px;
   font-weight: 500;
-  border: 1px solid rgb(129, 140, 248, 20%);
+  border: 1px solid rgb(129 140 248 / 20%);
   transition: background $transition-fast;
 
   &:hover {
-    background: rgb(129, 140, 248, 25%);
+    background: rgb(129 140 248 / 25%);
   }
 }
 

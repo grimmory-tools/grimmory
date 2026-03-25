@@ -38,8 +38,8 @@
   flex-shrink: 0;
 
   .year-nav-btn {
-    background: rgb(255, 255, 255, 10%);
-    border: 1px solid rgb(255, 255, 255, 20%);
+    background: rgb(255 255 255 / 10%);
+    border: 1px solid rgb(255 255 255 / 20%);
     border-radius: 6px;
     padding: 0.6rem 0.6rem;
     color: #ffffff;
@@ -50,8 +50,8 @@
     justify-content: center;
 
     &:hover {
-      background: rgb(255, 255, 255, 20%);
-      border-color: rgb(255, 255, 255, 30%);
+      background: rgb(255 255 255 / 20%);
+      border-color: rgb(255 255 255 / 30%);
       transform: translateY(-1px);
     }
 
@@ -75,7 +75,7 @@
 
 .completion-title-icon {
   font-size: 1.5rem;
-  color: rgb(251, 191, 36, 100%);
+  color: rgb(251 191 36 / 100%);
 }
 
 .chart-wrapper {

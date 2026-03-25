@@ -3,7 +3,6 @@ module.exports = {
   ignoreFiles: ["dist/**", "node_modules/**"],
   rules: {
     "at-rule-empty-line-before": null,
-    "color-function-notation": null,
     "color-hex-length": null,
     "declaration-block-single-line-max-declarations": null,
     "declaration-empty-line-before": null,

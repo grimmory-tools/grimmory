@@ -59,9 +59,9 @@
   background-color: var(--card-background);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  box-shadow: 0 4px 6px -1px rgb(0, 0, 0, 10%),
-  0 2px 4px -1px rgb(0, 0, 0, 6%),
-  0 10px 15px -3px rgb(0, 0, 0, 10%);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 10%),
+  0 2px 4px -1px rgb(0 0 0 / 6%),
+  0 10px 15px -3px rgb(0 0 0 / 10%);
   z-index: 1000;
   max-height: min(70vh, calc(100dvh - 4rem));
   overflow-y: auto;
@@ -138,7 +138,7 @@
   min-width: 50px;
   object-fit: cover;
   border-radius: 4px;
-  box-shadow: 0 2px 4px rgb(0, 0, 0, 10%);
+  box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
   background-color: var(--surface-ground);
   aspect-ratio: 2/3;
 }
