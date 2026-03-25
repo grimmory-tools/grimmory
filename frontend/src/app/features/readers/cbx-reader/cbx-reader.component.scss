@@ -6,7 +6,7 @@
   overflow: hidden;
   box-sizing: border-box;
   background: #1a1a1a;
-  color: #ffffff;
+  color: #fff;
   position: relative;
   touch-action: none;
   overscroll-behavior: none;
@@ -110,7 +110,7 @@
     }
 
     &.bg-black {
-      background: #000000;
+      background: #000;
     }
 
     &.bg-gray {
@@ -118,7 +118,7 @@
     }
 
     &.bg-white {
-      background: #ffffff;
+      background: #fff;
     }
 
     &:not(.infinite-scroll) {
@@ -513,7 +513,7 @@
       border: none;
       border-radius: 12px;
       font-weight: 600;
-      color: #ffffff;
+      color: #fff;
       cursor: pointer;
       transition: all 0.3s ease;
       box-shadow: 0 4px 20px rgb(74 144 226 / 30%);

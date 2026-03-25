@@ -17,7 +17,7 @@
     min-width: 200px;
 
     h3 {
-      color: var(--text-color, #ffffff);
+      color: var(--text-color, #fff);
       font-size: 1.25rem;
       font-weight: 500;
       margin: 0 0 0.5rem;
@@ -68,7 +68,7 @@
   .badge-value {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #ffffff;
+    color: #fff;
     line-height: 1;
   }
 
@@ -122,7 +122,7 @@
 
       .insight-value {
         font-size: 0.9rem;
-        color: var(--text-color, #ffffff);
+        color: var(--text-color, #fff);
         font-weight: 500;
         white-space: nowrap;
         overflow: hidden;

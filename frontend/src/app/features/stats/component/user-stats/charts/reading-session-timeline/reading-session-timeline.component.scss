@@ -12,7 +12,7 @@
 
   .header-title {
     h3 {
-      color: var(--text-color, #ffffff);
+      color: var(--text-color, #fff);
       font-size: 1.25rem;
       font-weight: 500;
       margin: 0 0 0.5rem;
@@ -36,7 +36,7 @@
       border: 1px solid rgb(255 255 255 / 20%);
       border-radius: 6px;
       padding: 0.6rem;
-      color: #ffffff;
+      color: #fff;
       cursor: pointer;
       transition: all 0.3s ease;
       display: flex;
@@ -67,7 +67,7 @@
       .week-label {
         font-size: 1rem;
         font-weight: 600;
-        color: #ffffff;
+        color: #fff;
         white-space: nowrap;
         line-height: 1.2;
       }
@@ -106,7 +106,7 @@
     border: 1px solid rgb(255 255 255 / 20%);
     border-radius: 6px;
     padding: 0.6rem 6rem;
-    color: #ffffff;
+    color: #fff;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
@@ -137,7 +137,7 @@
     .week-label {
       font-size: 1.125rem;
       font-weight: 600;
-      color: #ffffff;
+      color: #fff;
       white-space: nowrap;
     }
 
@@ -370,7 +370,7 @@
 ::ng-deep .session-timeline-tooltip.p-tooltip {
   --p-tooltip-max-width: 300px;
   --p-tooltip-background: rgb(30 30 30 / 98%);
-  --p-tooltip-color: #ffffff;
+  --p-tooltip-color: #fff;
   --p-tooltip-border-radius: 12px;
   --p-tooltip-shadow: 0 4px 20px rgb(0 0 0 / 50%);
   --p-tooltip-padding: 0 !important;
@@ -427,7 +427,7 @@
   }
 
   .session-tooltip-title {
-    color: #ffffff;
+    color: #fff;
     font-weight: 600;
     font-size: 0.95rem;
     overflow: hidden;
@@ -471,7 +471,7 @@
   }
 
   .session-tooltip-value {
-    color: #ffffff;
+    color: #fff;
     text-align: right;
     font-weight: 500;
   }

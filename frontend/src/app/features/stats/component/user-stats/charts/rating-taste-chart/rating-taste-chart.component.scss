@@ -15,7 +15,7 @@
     min-width: 200px;
 
     h3 {
-      color: var(--text-color, #ffffff);
+      color: var(--text-color, #fff);
       font-size: 1.25rem;
       font-weight: 500;
       margin: 0 0 0.5rem;
@@ -116,7 +116,7 @@
     gap: 0.75rem;
 
     h4 {
-      color: var(--text-color, #ffffff);
+      color: var(--text-color, #fff);
       font-size: 1.1rem;
       font-weight: 500;
       margin: 0;
@@ -136,7 +136,7 @@
       }
 
       .deviation-value {
-        color: var(--text-color, #ffffff);
+        color: var(--text-color, #fff);
         font-weight: 600;
       }
 
@@ -190,7 +190,7 @@
       }
 
       .quadrant-name {
-        color: var(--text-color, #ffffff);
+        color: var(--text-color, #fff);
         font-weight: 500;
         font-size: 0.95rem;
         flex: 1;
@@ -199,7 +199,7 @@
       .quadrant-count {
         font-weight: 600;
         font-size: 0.85rem;
-        color: #ffffff;
+        color: #fff;
         padding: 0.15rem 0.5rem;
         border-radius: 12px;
         min-width: 24px;
@@ -253,7 +253,7 @@
   p {
     font-size: 1rem;
     margin: 0 0 0.5rem;
-    color: var(--text-color, #ffffff);
+    color: var(--text-color, #fff);
   }
 
   small {

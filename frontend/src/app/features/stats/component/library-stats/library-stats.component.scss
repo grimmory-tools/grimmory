@@ -44,7 +44,7 @@
     }
 
     label {
-      color: var(--text-color, #ffffff);
+      color: var(--text-color, #fff);
       font-weight: 500;
       white-space: nowrap;
       font-size: 1.15rem;
@@ -81,7 +81,7 @@
       }
 
       .total-value {
-        color: var(--text-color, #ffffff);
+        color: var(--text-color, #fff);
         font-weight: 600;
         margin-left: 4px;
         font-size: 1.35rem;
@@ -123,7 +123,7 @@
     background: var(--surface-ground, rgb(40 40 40 / 80%));
 
     h3 {
-      color: var(--text-color, #ffffff);
+      color: var(--text-color, #fff);
       font-weight: 500;
       font-size: 1.2rem;
       margin: 0;
@@ -140,7 +140,7 @@
     .close-btn {
       background: transparent;
       border: 1px solid rgb(255 255 255 / 20%);
-      color: var(--text-color, #ffffff);
+      color: var(--text-color, #fff);
       padding: 8px;
       border-radius: 6px;
       cursor: pointer;
@@ -172,7 +172,7 @@
     .config-action-btn {
       background: rgb(255 255 255 / 10%);
       border: 1px solid rgb(255 255 255 / 20%);
-      color: var(--text-color, #ffffff);
+      color: var(--text-color, #fff);
       padding: 10px 16px;
       border-radius: 6px;
       cursor: pointer;
@@ -241,7 +241,7 @@
 
       .config-category {
         h4 {
-          color: var(--text-color, #ffffff);
+          color: var(--text-color, #fff);
           font-size: 1rem;
           font-weight: 600;
           margin: 0 0 15px;
@@ -285,12 +285,12 @@
               flex: 1;
 
               &:hover {
-                color: var(--text-color, #ffffff);
+                color: var(--text-color, #fff);
               }
             }
 
             input[type="checkbox"]:checked + label {
-              color: var(--text-color, #ffffff);
+              color: var(--text-color, #fff);
               font-weight: 500;
             }
           }
@@ -371,7 +371,7 @@
   }
 
   .pi {
-    color: var(--text-color, #ffffff);
+    color: var(--text-color, #fff);
     font-size: 0.8rem;
     cursor: grab;
 
@@ -440,7 +440,7 @@
 }
 
 .no-data-message {
-  color: var(--text-color-secondary, #999999);
+  color: var(--text-color-secondary, #999);
 
   small {
     display: block;

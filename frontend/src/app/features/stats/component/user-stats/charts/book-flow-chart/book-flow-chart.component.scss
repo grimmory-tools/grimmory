@@ -11,7 +11,7 @@
   .chart-title {
     flex: 1;
     h3 {
-      color: var(--text-color, #ffffff);
+      color: var(--text-color, #fff);
       font-size: 1.25rem;
       font-weight: 500;
       margin: 0 0 0.5rem;
@@ -53,7 +53,7 @@
     .stat-value {
       font-size: 1.3rem;
       font-weight: 600;
-      color: var(--text-color, #ffffff);
+      color: var(--text-color, #fff);
     }
     .stat-label {
       font-size: 0.75rem;
@@ -86,7 +86,7 @@
   text-align: center;
   color: var(--text-secondary-color);
   i { font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.5; }
-  p { font-size: 1rem; margin: 0 0 0.5rem; color: var(--text-color, #ffffff); }
+  p { font-size: 1rem; margin: 0 0 0.5rem; color: var(--text-color, #fff); }
   small { font-size: 0.85rem; opacity: 0.7; }
 }
 

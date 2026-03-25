@@ -12,7 +12,7 @@
     flex: 1;
 
     h3 {
-      color: var(--text-color, #ffffff);
+      color: var(--text-color, #fff);
       font-size: 1.25rem;
       font-weight: 500;
       margin: 0 0 0.5rem;
@@ -52,7 +52,7 @@
     min-width: 100px;
 
     .stat-value {
-      color: #ffffff;
+      color: #fff;
       font-size: 0.95rem;
       font-weight: 600;
       white-space: nowrap;
@@ -95,7 +95,7 @@
       overflow: hidden;
 
       .book-name {
-        color: #ffffff;
+        color: #fff;
         font-size: 0.85rem;
         font-weight: 500;
         display: block;

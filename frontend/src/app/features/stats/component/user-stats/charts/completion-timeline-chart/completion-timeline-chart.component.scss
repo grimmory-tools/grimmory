@@ -13,7 +13,7 @@
     flex: 1;
 
     h3 {
-      color: var(--text-color, #ffffff);
+      color: var(--text-color, #fff);
       font-size: 1.25rem;
       font-weight: 500;
       margin: 0 0 0.5rem;
@@ -42,7 +42,7 @@
     border: 1px solid rgb(255 255 255 / 20%);
     border-radius: 6px;
     padding: 0.6rem;
-    color: #ffffff;
+    color: #fff;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
@@ -67,7 +67,7 @@
   .current-year {
     font-size: 1.125rem;
     font-weight: 600;
-    color: #ffffff;
+    color: #fff;
     min-width: 4.5rem;
     text-align: center;
   }

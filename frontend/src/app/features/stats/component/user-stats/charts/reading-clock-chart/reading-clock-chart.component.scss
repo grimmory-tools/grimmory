@@ -12,7 +12,7 @@
     flex: 1;
 
     h3 {
-      color: var(--text-color, #ffffff);
+      color: var(--text-color, #fff);
       font-size: 1.25rem;
       font-weight: 500;
       margin: 0 0 0.5rem;
@@ -55,7 +55,7 @@
     .stat-value {
       font-size: 1.5rem;
       font-weight: 600;
-      color: var(--text-color, #ffffff);
+      color: var(--text-color, #fff);
     }
 
     .stat-label {
@@ -105,7 +105,7 @@
   p {
     font-size: 1rem;
     margin: 0 0 0.5rem;
-    color: var(--text-color, #ffffff);
+    color: var(--text-color, #fff);
   }
 
   small {

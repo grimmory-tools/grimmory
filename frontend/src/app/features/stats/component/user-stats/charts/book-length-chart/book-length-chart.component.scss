@@ -15,7 +15,7 @@
     min-width: 200px;
 
     h3 {
-      color: var(--text-color, #ffffff);
+      color: var(--text-color, #fff);
       font-size: 1.25rem;
       font-weight: 500;
       margin: 0 0 0.5rem;
@@ -80,7 +80,7 @@
     .stat-value-sm {
       font-size: 0.9rem;
       font-weight: 500;
-      color: var(--text-color, #ffffff);
+      color: var(--text-color, #fff);
       text-align: center;
     }
 
@@ -118,7 +118,7 @@
   p {
     font-size: 1rem;
     margin: 0 0 0.5rem;
-    color: var(--text-color, #ffffff);
+    color: var(--text-color, #fff);
   }
 
   small {
