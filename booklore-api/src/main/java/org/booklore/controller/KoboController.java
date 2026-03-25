@@ -18,6 +18,7 @@ import org.booklore.service.book.BookDownloadService;
 import org.booklore.service.book.BookService;
 import org.booklore.service.kobo.*;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -84,33 +86,16 @@ public class KoboController {
             @Parameter(description = "Book ID") @PathVariable String imageId,
             @Parameter(description = "Width of the thumbnail") @PathVariable int width,
             @Parameter(description = "Height of the thumbnail") @PathVariable int height,
-            @Parameter(description = "Quality of the thumbnail") @PathVariable Optional<Integer> quality,
             @Parameter(description = "Is greyscale") @PathVariable boolean isGreyscale
     ) {
         if (imageId.startsWith("BL-")) {
             return koboThumbnailService.getThumbnail(imageId);
         }
 
-        String cdnUrl;
-        if (quality.isPresent()) {
-            cdnUrl = String.format(
-                    "https://cdn.kobo.com/book-images/%s/%d/%d/%d/%b/image.jpg",
-                    imageId,
-                    width,
-                    height,
-                    quality.get(),
-                    isGreyscale
-            );
-        } else {
-            cdnUrl = String.format(
-                    "https://cdn.kobo.com/book-images/%s/%d/%d/%b/image.jpg",
-                    imageId,
-                    width,
-                    height,
-                    isGreyscale
-            );
-        }
-        return koboServerProxy.proxyExternalUrl(cdnUrl);
+        return ResponseEntity
+                .status(HttpStatus.TEMPORARY_REDIRECT)
+                .location(koboServerProxy.getKoboCDNCoverUri(imageId, width, height, isGreyscale))
+                .build();
     }
 
     @Operation(summary = "Authenticate Kobo device", description = "Authenticate a Kobo device.")
