@@ -197,8 +197,15 @@
 }
 
 @keyframes ripple-burst {
-  0% { transform: scale(0.8); opacity: 0.6; }
-  100% { transform: scale(2.2); opacity: 0; }
+  0% {
+    transform: scale(0.8);
+    opacity: 0.6;
+  }
+
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
 }
 
 @keyframes heart-float {
@@ -215,9 +222,20 @@
 }
 
 @keyframes pulsate {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.25); opacity: 0.8; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.25);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .pulsating {

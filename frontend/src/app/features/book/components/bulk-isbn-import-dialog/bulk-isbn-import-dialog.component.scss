@@ -489,9 +489,19 @@
   white-space: nowrap;
   font-size: 0.8rem;
 
-  .status-created & { color: var(--text-color); }
-  .status-created-no-metadata & { color: var(--p-yellow-500); font-style: italic; }
-  .status-failed & { color: var(--p-red-500); font-style: italic; }
+  .status-created & {
+    color: var(--text-color);
+  }
+
+  .status-created-no-metadata & {
+    color: var(--p-yellow-500);
+    font-style: italic;
+  }
+
+  .status-failed & {
+    color: var(--p-red-500);
+    font-style: italic;
+  }
 }
 
 .validation-message {
