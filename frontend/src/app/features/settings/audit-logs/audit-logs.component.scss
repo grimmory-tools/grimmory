@@ -8,6 +8,7 @@
 
 .settings-title {
   @include settings.settings-page-title;
+
   margin-bottom: 0.75rem;
 }
 
@@ -17,11 +18,13 @@
 
 .settings-card {
   @include settings.settings-card;
+
   gap: 1rem;
 }
 
 .section-header {
   @include settings.settings-section-header;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -35,6 +38,7 @@
 
 .section-body {
   @include settings.settings-section-body;
+
   padding-left: 0;
 }
 

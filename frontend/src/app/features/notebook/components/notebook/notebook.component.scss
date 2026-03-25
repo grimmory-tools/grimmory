@@ -3,6 +3,7 @@
 // Page container — override mixin's overflow so only the content area scrolls
 .main-container {
   @include settings.settings-page-container;
+
   overflow-y: hidden;
   height: calc(100dvh - 5rem);
 
@@ -30,6 +31,7 @@
 
 .settings-title {
   @include settings.settings-page-title;
+
   margin-bottom: 0.75rem;
 }
 
@@ -40,6 +42,7 @@
 // Cards
 .settings-card {
   @include settings.settings-card;
+
   padding: 1rem;
 }
 

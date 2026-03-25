@@ -9,6 +9,7 @@
 
 .settings-title {
   @include settings.settings-page-title;
+
   margin-bottom: 0.75rem;
 }
 
@@ -242,6 +243,7 @@
 
 .actions-row {
   @include settings.settings-actions-row;
+
   margin-top: 0.5rem;
 }
 

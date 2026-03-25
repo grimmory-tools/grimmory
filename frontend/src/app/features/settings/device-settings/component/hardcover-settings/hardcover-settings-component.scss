@@ -10,6 +10,7 @@
 
 .settings-title {
   @include settings.settings-page-title;
+
   margin-bottom: 0.75rem;
 }
 
@@ -36,6 +37,7 @@
 
 .section-header {
   @include settings.settings-section-header;
+
   margin-bottom: 1rem;
   margin-left: 1rem;
   margin-right: 1rem;
@@ -43,6 +45,7 @@
 
 .section-title {
   @include settings.settings-section-title;
+
   margin: 0 0 0.5rem;
 }
 
@@ -52,6 +55,7 @@
 
 .settings-card {
   @include settings.settings-card;
+
   padding: 1rem 1.5rem 1.5rem;
   margin-left: 1rem;
   margin-right: 1rem;

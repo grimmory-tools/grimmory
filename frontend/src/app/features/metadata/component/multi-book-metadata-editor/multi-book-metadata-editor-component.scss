@@ -16,6 +16,7 @@
 
 .panel-header {
   @include panel.panel-header;
+
   flex-shrink: 0;
 }
 

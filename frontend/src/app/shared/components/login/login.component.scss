@@ -34,6 +34,7 @@
 
 .login-subtitle {
   @include auth.auth-subtitle;
+
   font-size: 1rem;
 }
 
@@ -96,6 +97,7 @@
 
 .login-button {
   @include auth.auth-button;
+
   margin-top: 0.5rem;
 }
 

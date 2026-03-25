@@ -128,6 +128,7 @@
 // Variant for footers that only need right-aligned actions
 @mixin dialog-footer-end {
   @include dialog-footer;
+
   justify-content: flex-end;
 
   @media (width <= 480px) {

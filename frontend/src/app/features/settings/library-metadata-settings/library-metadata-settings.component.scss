@@ -8,6 +8,7 @@
 
 .settings-title {
   @include settings.settings-page-title;
+
   margin-bottom: 0.75rem;
 }
 
@@ -29,10 +30,12 @@
 
 .section-header {
   @include settings.settings-section-header;
+
   margin-bottom: 1rem;
 
   .section-description {
     @include settings.settings-section-description;
+
     margin: 0.5rem 0 0;
     display: flex;
     align-items: flex-start;
@@ -48,6 +51,7 @@
 
 .section-title {
   @include settings.settings-section-title;
+
   margin: 0 0 0.5rem;
 }
 

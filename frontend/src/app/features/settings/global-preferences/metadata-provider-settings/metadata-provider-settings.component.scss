@@ -24,6 +24,7 @@
 
 .section-body {
   @include settings.settings-section-body;
+
   gap: 2rem;
 }
 
@@ -68,6 +69,7 @@
 
 .setting-options {
   @include settings.settings-options;
+
   display: flex;
   flex-direction: column;
   gap: 1rem;

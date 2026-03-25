@@ -8,6 +8,7 @@
 
 .panel-header {
   @include panel.panel-header;
+
   flex-shrink: 0;
 }
 
@@ -34,6 +35,7 @@
 
 .dialog-footer {
   @include panel.dialog-footer;
+
   flex-shrink: 0;
 
   .footer-info {

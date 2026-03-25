@@ -40,6 +40,7 @@ $border-color: rgb(255 255 255 / 10%);
   justify-content: center;
   height: 100vh;
   @include gradient-bg;
+
   gap: 1rem;
 
   .loading-text {
@@ -58,6 +59,7 @@ $border-color: rgb(255 255 255 / 10%);
   flex-direction: column;
   height: 100vh;
   @include gradient-bg;
+
   color: $text-primary;
   overflow: hidden;
   position: relative;
@@ -193,6 +195,7 @@ $border-color: rgb(255 255 255 / 10%);
       align-items: center;
       justify-content: center;
       @include accent-gradient;
+
       opacity: 0.8;
 
       i {
@@ -269,6 +272,7 @@ $border-color: rgb(255 255 255 / 10%);
 
         .p-slider-range {
           @include accent-gradient;
+
           border-radius: 4px;
           box-shadow: 0 0 10px color-mix(in srgb, var(--accent-color) 50%, transparent);
         }
@@ -306,6 +310,7 @@ $border-color: rgb(255 255 255 / 10%);
       height: 72px;
       font-size: 1.75rem;
       @include accent-gradient;
+
       border: none;
       box-shadow: 0 8px 30px color-mix(in srgb, var(--accent-color) 40%, transparent),
                   0 0 50px color-mix(in srgb, var(--accent-color) 20%, transparent);
@@ -420,6 +425,7 @@ $border-color: rgb(255 255 255 / 10%);
 
       &.p-highlight {
         @include accent-gradient;
+
         color: $text-primary;
         border-color: transparent;
         box-shadow: 0 4px 15px color-mix(in srgb, var(--accent-color) 30%, transparent);

@@ -258,6 +258,7 @@ $settings-item-border-left-width: 3px;
 
 @mixin settings-warning-notice {
   @include settings-notice-base;
+
   background: color-mix(in srgb, var(--ground-background) 85%, var(--p-red-600) 15%);
   border-left: 3px solid var(--p-red-500);
 
@@ -274,6 +275,7 @@ $settings-item-border-left-width: 3px;
 
 @mixin settings-info-notice {
   @include settings-notice-base;
+
   background: color-mix(in srgb, var(--ground-background) 90%, var(--p-blue-600) 10%);
   border-left: 3px solid var(--p-blue-400);
 

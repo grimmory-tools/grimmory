@@ -4,7 +4,6 @@ module.exports = {
   rules: {
     "at-rule-empty-line-before": null,
     "declaration-block-single-line-max-declarations": null,
-    "declaration-empty-line-before": null,
     "declaration-property-value-keyword-no-deprecated": null,
     "keyframes-name-pattern": null,
     "no-descending-specificity": null,

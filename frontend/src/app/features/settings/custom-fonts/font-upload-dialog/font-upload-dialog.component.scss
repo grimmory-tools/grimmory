@@ -14,6 +14,7 @@
 
 .panel-header {
   @include panel.panel-header;
+
   border-bottom: none;
 }
 
@@ -349,6 +350,7 @@
 // ==================== Dialog Footer ====================
 .dialog-footer {
   @include panel.dialog-footer-end;
+
   border-top: 1px solid var(--border-color);
   border-left: none;
   border-right: none;
