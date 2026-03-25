@@ -18,6 +18,7 @@ import org.booklore.service.book.BookDownloadService;
 import org.booklore.service.book.BookService;
 import org.booklore.service.kobo.*;
 import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,7 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -67,60 +69,48 @@ public class KoboController {
         return koboLibrarySyncService.syncLibrary(user, token);
     }
 
-    @Operation(summary = "Get book thumbnail (versioned)", description = "Retrieve the thumbnail image for a local book with cache-busting version.")
+    @Operation(summary = "Get book thumbnail", description = "Retrieve the thumbnail image for a local book.")
     @ApiResponse(responseCode = "200", description = "Thumbnail returned successfully")
-    @GetMapping("/v1/books/{imageId}/{version}/thumbnail/{width}/{height}/false/image.jpg")
-    public ResponseEntity<Resource> getVersionedThumbnail(
-            @Parameter(description = "Book ID") @PathVariable String imageId,
-            @Parameter(description = "Cover version (timestamp)") @PathVariable String version,
-            @Parameter(description = "Width of the thumbnail") @PathVariable int width,
-            @Parameter(description = "Height of the thumbnail") @PathVariable int height) {
-        return koboThumbnailService.getThumbnail(imageId);
-    }
-
-    @Operation(summary = "Get book thumbnail", description = "Retrieve the thumbnail image for a Kobo store book.")
-    @ApiResponse(responseCode = "200", description = "Thumbnail returned successfully")
-    @GetMapping("/v1/books/{imageId}/thumbnail/{width}/{height}/false/image.jpg")
+    @GetMapping(
+            value = {
+                    "v1/books/{imageId}/{version}/thumbnail/{width}/{height}/{quality}/{isGreyscale}/image.jpg",
+                    "v1/books/{imageId}/{version}/thumbnail/{width}/{height}/{isGreyscale}/image.jpg",
+                    "v1/books/{imageId}/thumbnail/{width}/{height}/{quality}/{isGreyscale}/image.jpg",
+                    "v1/books/{imageId}/thumbnail/{width}/{height}/{isGreyscale}/image.jpg",
+            },
+            produces = MediaType.IMAGE_JPEG_VALUE
+    )
     public ResponseEntity<Resource> getThumbnail(
-            @Parameter(description = "Image ID") @PathVariable String imageId,
-            @Parameter(description = "Width of the thumbnail") @PathVariable int width,
-            @Parameter(description = "Height of the thumbnail") @PathVariable int height) {
-        if (imageId.startsWith("BL-")) {
-            return koboThumbnailService.getThumbnail(imageId);
-        } else {
-            String cdnUrl = String.format("https://cdn.kobo.com/book-images/%s/%d/%d/false/image.jpg", imageId, width, height);
-            return koboServerProxy.proxyExternalUrl(cdnUrl);
-        }
-    }
-
-    @Operation(summary = "Get greyscale book thumbnail (versioned)", description = "Retrieve a greyscale thumbnail for a local book with cache-busting version.")
-    @ApiResponse(responseCode = "200", description = "Greyscale thumbnail returned successfully")
-    @GetMapping("/v1/books/{imageId}/{version}/thumbnail/{width}/{height}/{quality}/{isGreyscale}/image.jpg")
-    public ResponseEntity<Resource> getVersionedGreyThumbnail(
             @Parameter(description = "Book ID") @PathVariable String imageId,
-            @Parameter(description = "Cover version (timestamp)") @PathVariable String version,
             @Parameter(description = "Width of the thumbnail") @PathVariable int width,
             @Parameter(description = "Height of the thumbnail") @PathVariable int height,
-            @Parameter(description = "Quality of the thumbnail") @PathVariable int quality,
-            @Parameter(description = "Is greyscale") @PathVariable boolean isGreyscale) {
-        return koboThumbnailService.getThumbnail(imageId);
-    }
-
-    @Operation(summary = "Get greyscale book thumbnail", description = "Retrieve a greyscale thumbnail image for a Kobo store book.")
-    @ApiResponse(responseCode = "200", description = "Greyscale thumbnail returned successfully")
-    @GetMapping("/v1/books/{imageId}/thumbnail/{width}/{height}/{quality}/{isGreyscale}/image.jpg")
-    public ResponseEntity<Resource> getGreyThumbnail(
-            @Parameter(description = "Image ID") @PathVariable String imageId,
-            @Parameter(description = "Width of the thumbnail") @PathVariable int width,
-            @Parameter(description = "Height of the thumbnail") @PathVariable int height,
-            @Parameter(description = "Quality of the thumbnail") @PathVariable int quality,
-            @Parameter(description = "Is greyscale") @PathVariable boolean isGreyscale) {
+            @Parameter(description = "Quality of the thumbnail") @PathVariable Optional<Integer> quality,
+            @Parameter(description = "Is greyscale") @PathVariable boolean isGreyscale
+    ) {
         if (imageId.startsWith("BL-")) {
             return koboThumbnailService.getThumbnail(imageId);
-        } else {
-            String cdnUrl = String.format("https://cdn.kobo.com/book-images/%s/%d/%d/%d/%b/image.jpg", imageId, width, height, quality, isGreyscale);
-            return koboServerProxy.proxyExternalUrl(cdnUrl);
         }
+
+        String cdnUrl;
+        if (quality.isPresent()) {
+            cdnUrl = String.format(
+                    "https://cdn.kobo.com/book-images/%s/%d/%d/%d/%b/image.jpg",
+                    imageId,
+                    width,
+                    height,
+                    quality.get(),
+                    isGreyscale
+            );
+        } else {
+            cdnUrl = String.format(
+                    "https://cdn.kobo.com/book-images/%s/%d/%d/%b/image.jpg",
+                    imageId,
+                    width,
+                    height,
+                    isGreyscale
+            );
+        }
+        return koboServerProxy.proxyExternalUrl(cdnUrl);
     }
 
     @Operation(summary = "Authenticate Kobo device", description = "Authenticate a Kobo device.")
