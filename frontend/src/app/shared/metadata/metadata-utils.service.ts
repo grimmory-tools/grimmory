@@ -128,7 +128,7 @@ export class MetadataUtilsService {
   patchMetadataToForm(
     metadata: BookMetadata,
     metadataForm: FormGroup,
-    fields: Array<{ controlName: string; lockedKey: string; type: string }>
+    fields: { controlName: string; lockedKey: string; type: string }[]
   ): void {
     const patchData: Record<string, unknown> = {};
 

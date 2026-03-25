@@ -50,7 +50,7 @@
                   [placeholder]="t('searchPlaceholder')"
                   [(ngModel)]="searchQuery"
                   (ngModelChange)="onSearchInput($event)"
-                  autofocus
+                 
                 />
                 @if (searchQuery) {
                   <button class="clear-btn" (click)="clearSearch()" [attr.aria-label]="t('clearSearch')">

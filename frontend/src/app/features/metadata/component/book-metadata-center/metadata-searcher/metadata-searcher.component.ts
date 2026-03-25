@@ -82,14 +82,14 @@ export class MetadataSearcherComponent implements OnInit, OnDestroy, OnChanges {
     this.syncFormFromState();
   });
 
-  providerCounts: Map<string, number> = new Map();
-  providerLoading: Map<string, boolean> = new Map();
-  selectedProviderFilters: Set<string> = new Set(['all']);
+  providerCounts = new Map<string, number>();
+  providerLoading = new Map<string, boolean>();
+  selectedProviderFilters = new Set<string>(['all']);
   filteredMetadata: BookMetadata[] = [];
-  providerFilterOptions: Array<{ label: string; value: string }> = [];
+  providerFilterOptions: { label: string; value: string }[] = [];
 
-  private metadataByProvider: Map<string, BookMetadata[]> = new Map();
-  private providerCompletionStatus: Map<string, boolean> = new Map();
+  private metadataByProvider = new Map<string, BookMetadata[]>();
+  private providerCompletionStatus = new Map<string, boolean>();
   private pendingAutoSearch = false;
   private providerInitialized = false;
 
@@ -363,7 +363,7 @@ export class MetadataSearcherComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  getProviderTabs(): Array<{ provider: string; count: number }> {
+  getProviderTabs(): { provider: string; count: number }[] {
     return Array.from(this.providerCounts.entries()).map(([provider, count]) => ({
       provider: provider.charAt(0).toUpperCase() + provider.slice(1),
       count

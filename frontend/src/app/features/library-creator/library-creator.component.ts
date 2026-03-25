@@ -38,7 +38,7 @@ export class LibraryCreatorComponent implements OnInit {
   watch: boolean = false;
   formatPriority: {type: BookType, label: string}[] = [];
   allowAllFormats: boolean = true;
-  selectedAllowedFormats: Set<BookType> = new Set();
+  selectedAllowedFormats = new Set<BookType>();
   formatCounts: Record<string, number> = {};
   metadataSource: MetadataSource = 'EMBEDDED';
   organizationMode: OrganizationMode = 'BOOK_PER_FILE';

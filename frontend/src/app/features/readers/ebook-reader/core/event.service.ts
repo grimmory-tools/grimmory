@@ -19,7 +19,7 @@ interface ViewCallbacks {
   prev: () => void;
   next: () => void;
   getCFI: (index: number, range: Range) => string | null;
-  getContents: () => Array<{ index: number; doc: Document }> | null;
+  getContents: () => { index: number; doc: Document }[] | null;
 }
 
 @Injectable({

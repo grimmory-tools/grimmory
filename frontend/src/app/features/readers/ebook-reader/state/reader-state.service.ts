@@ -59,7 +59,7 @@ export class ReaderStateService {
   readonly state = this._state.asReadonly();
 
   readonly themes = themes;
-  private readonly _fonts = signal<Array<{ name: string; value: string | null }>>(this.BASE_FONTS);
+  private readonly _fonts = signal<{ name: string; value: string | null }[]>(this.BASE_FONTS);
   readonly fonts = this._fonts.asReadonly();
 
   constructor(private bookService: BookService, private userService: UserService) {

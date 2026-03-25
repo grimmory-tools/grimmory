@@ -128,7 +128,7 @@ export class ReadingSurvivalChartComponent {
 
     const completionRate = Math.round(survivalValues[survivalValues.length - 1]);
 
-    let medianIdx = survivalValues.findIndex(v => v < 50);
+    const medianIdx = survivalValues.findIndex(v => v < 50);
     let medianDropout = '';
     if (medianIdx === -1) {
       medianDropout = '100%+';

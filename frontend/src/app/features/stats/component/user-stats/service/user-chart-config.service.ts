@@ -98,7 +98,7 @@ export class UserChartConfigService {
     }
 
     try {
-      const savedCharts = JSON.parse(savedConfig) as Array<Partial<UserChartConfig>>;
+      const savedCharts = JSON.parse(savedConfig) as Partial<UserChartConfig>[];
       const savedChartsById = new Map(savedCharts.map(chart => [chart.id, chart]));
 
       return this.getDefaultCharts()

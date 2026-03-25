@@ -67,7 +67,7 @@ export class DashboardConfigService {
 
   private syncMagicShelfTitles(
     config: DashboardConfig,
-    shelves: Array<{ id?: number | null; name: string }>
+    shelves: { id?: number | null; name: string }[]
   ): DashboardConfig | null {
     let updated = false;
 

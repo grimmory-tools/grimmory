@@ -137,7 +137,7 @@ export class SortService {
     const aValue = extractor(a);
     const bValue = extractor(b);
 
-    let result = this.compareValues(aValue, bValue);
+    const result = this.compareValues(aValue, bValue);
 
     return criterion.direction === SortDirection.ASCENDING ? result : -result;
   }
