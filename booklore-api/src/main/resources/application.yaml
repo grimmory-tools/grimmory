@@ -33,6 +33,9 @@ server:
     min-response-size: 1024
   tomcat:
     relaxed-query-chars: '[,],%,{,},|'
+    threads:
+      max: 20                      # Virtual threads handle concurrency; platform threads just overhead
+      min-spare: 4
 
 spring:
   jackson:
@@ -59,8 +62,8 @@ spring:
       max-lifetime: 580000         # 9.6 minutes (avoid DB-side connection cuts)
       connection-test-query: SELECT 1
       connection-timeout: 30000    # 30s to acquire a connection before timeout
-      maximum-pool-size: 20        # Higher ceiling for virtual-thread bursts
-      minimum-idle: 5              # Keep warm connections ready
+      maximum-pool-size: 10        # Virtual threads don't need large pools
+      minimum-idle: 2              # Minimal warm connections; virtual threads handle bursts
       idle-timeout: 300000         # 5 minutes before idle connections are closed
   jpa:
     open-in-view: true # true until we implement proper DTOs and service-layer data fetching
@@ -72,11 +75,16 @@ spring:
       hibernate:
         query:
           timeout: 30              # 30s max for any HQL/JPQL query
+          plan_cache_max_size: 256 # Reduce from 2048 default; ~200 unique queries max
+          in_clause_parameter_padding: true  # Pad IN params to power-of-2; fewer unique plan cache entries
         jdbc:
           time_zone: UTC
           batch_size: 500
+          fetch_size: 50           # Reduce JDBC roundtrips for large result sets
           order_inserts: true
           order_updates: true
+          batch_versioned_data: true  # Allow batching UPDATEs on @Version entities
+        default_batch_fetch_size: 16  # Global batch fetch for all lazy collections (prevents N+1)
         generate_statistics: ${HIBERNATE_STATISTICS:false}
   threads:
     virtual:

@@ -71,9 +71,9 @@ public class HardcoverSyncService {
             }
 
             // Set the user's API token for this sync operation
-            currentApiToken.set(userSettings.getHardcoverApiKey());
-
             try {
+                currentApiToken.set(userSettings.getHardcoverApiKey());
+
                 if (progressPercent == null) {
                     log.debug("Hardcover sync skipped: no progress to sync");
                     return;

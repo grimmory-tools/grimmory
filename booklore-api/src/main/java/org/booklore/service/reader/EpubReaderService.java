@@ -58,13 +58,13 @@ public class EpubReaderService {
 
     private static final Map<String, String> CONTENT_TYPE_MAP = createContentTypeMap();
 
-    private static final ThreadLocal<DocumentBuilder> DOCUMENT_BUILDER = ThreadLocal.withInitial(() -> {
+    private static DocumentBuilder createDocumentBuilder() {
         try {
             return SecureXmlUtils.createSecureDocumentBuilder(true);
         } catch (ParserConfigurationException e) {
             throw new RuntimeException("Failed to create DocumentBuilder", e);
         }
-    });
+    }
 
     private static Map<String, String> createContentTypeMap() {
         Map<String, String> map = new HashMap<>(32);
@@ -652,9 +652,7 @@ public class EpubReaderService {
             throw new FileNotFoundException("Entry not found: " + entryPath);
         }
 
-        // Use thread-local DocumentBuilder instead of creating factory each time
-        DocumentBuilder builder = DOCUMENT_BUILDER.get();
-        builder.reset(); // Reset state for reuse
+        DocumentBuilder builder = createDocumentBuilder();
         try (InputStream is = zipFile.getInputStream(entry)) {
             return builder.parse(is);
         }

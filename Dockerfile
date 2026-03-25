@@ -40,6 +40,13 @@ RUN --mount=type=cache,target=/home/gradle/.gradle \
 # Stage 3: Final image
 FROM eclipse-temurin:25-jre-alpine
 
+ENV JAVA_TOOL_OPTIONS="-XX:+UseShenandoahGC \
+    -XX:ShenandoahGCHeuristics=compact \
+    -XX:+UseCompactObjectHeaders \
+    -XX:MaxRAMPercentage=60.0 \
+    -XX:InitialRAMPercentage=8.0 \
+    -XX:+ExitOnOutOfMemoryError"
+
 ARG APP_VERSION
 ARG APP_REVISION
 
