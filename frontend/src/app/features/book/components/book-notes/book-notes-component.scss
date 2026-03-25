@@ -151,9 +151,8 @@
       overflow: hidden;
       text-overflow: ellipsis;
       background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
       background-clip: text;
+      -webkit-text-fill-color: transparent;
       font-weight: 500;
       font-size: 1.125rem;
       margin: 0;

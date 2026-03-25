@@ -104,9 +104,8 @@ $border-color: rgb(255 255 255 / 10%);
       overflow: hidden;
       text-overflow: ellipsis;
       background: linear-gradient(90deg, $text-primary, var(--accent-color));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
       background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .book-author {
@@ -590,9 +589,8 @@ $border-color: rgb(255 255 255 / 10%);
       font-size: 1.2rem;
       font-weight: 600;
       background: linear-gradient(90deg, $text-primary, var(--accent-color));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
       background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     ::ng-deep .p-button.p-button-text {

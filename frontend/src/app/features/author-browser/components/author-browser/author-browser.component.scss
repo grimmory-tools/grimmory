@@ -14,9 +14,8 @@
   font-weight: 800;
   margin-bottom: 0.75rem;
   background: linear-gradient(135deg, #fff, #e2e8f0, #3b82f6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
+  -webkit-text-fill-color: transparent;
   letter-spacing: -0.02em;
 }
 
@@ -214,7 +213,6 @@
   border-radius: 10px 10px 0 0;
   border: 1px solid rgb(255 255 255 / 50%);
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   background: rgb(0 0 0 / 65%);
   transition: transform 0.1s ease, opacity 0.1s ease;
 

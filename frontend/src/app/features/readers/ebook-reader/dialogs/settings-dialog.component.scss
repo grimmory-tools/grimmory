@@ -411,10 +411,10 @@ $transition-normal: 200ms ease;
     border-radius: 3px;
     outline: none;
     cursor: pointer;
-    -webkit-appearance: none;
+    appearance: none;
 
     &::-webkit-slider-thumb {
-      -webkit-appearance: none;
+      appearance: none;
       width: 14px;
       height: 14px;
       border-radius: 50%;
