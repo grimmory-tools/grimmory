@@ -26,7 +26,7 @@ PROJECT_WEB="https://github.com/grimmory-tools/grimmory"
 
 REPO_URL="https://github.com/grimmory-tools/grimmory.git"
 REPO_BRANCH="develop"
-FILE_BASE="booklore-ui/src/i18n"
+FILE_BASE="frontend/src/i18n"
 
 SOURCE_LANG="en"
 

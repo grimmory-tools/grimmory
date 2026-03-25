@@ -21,7 +21,7 @@ updates:
 
   # Frontend – npm (Angular)
   - package-ecosystem: "npm"
-    directory: "/booklore-ui"
+    directory: "/frontend"
     schedule:
       interval: "weekly"
       day: "friday"

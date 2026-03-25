@@ -58,7 +58,7 @@ services:
     tty: true
     restart: unless-stopped
     volumes:
-      - './booklore-ui:/angular-app'
+      - './frontend:/angular-app'
 
         # you can have node_modules in a volume. however, if you enable this, expect trouble in some IDEs, as the deps are not available anymore
         # - node_modules:/angular-app/node_modules

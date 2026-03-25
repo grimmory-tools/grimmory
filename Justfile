@@ -1,7 +1,7 @@
 set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 
 mod api 'booklore-api/Justfile'
-mod ui 'booklore-ui/Justfile'
+mod ui 'frontend/Justfile'
 mod release 'tools/release/Justfile'
 
 compose_file := env_var_or_default('GRIMMORY_COMPOSE_FILE', 'dev.docker-compose.yml')

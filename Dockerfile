@@ -1,13 +1,13 @@
 FROM --platform=$BUILDPLATFORM node:24-alpine AS frontend-build
 
-WORKDIR /workspace/booklore-ui
+WORKDIR /workspace/frontend
 
-COPY booklore-ui/package.json booklore-ui/package-lock.json ./
+COPY frontend/package.json frontend/package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm \
     npm ci --no-audit --no-fund
 
-COPY booklore-ui/ ./
-RUN --mount=type=cache,target=/workspace/booklore-ui/.angular/cache \
+COPY frontend/ ./
+RUN --mount=type=cache,target=/workspace/frontend/.angular/cache \
     npm run build --configuration=production
 
 FROM --platform=$BUILDPLATFORM gradle:9.3.1-jdk25-alpine AS backend-build
@@ -22,7 +22,7 @@ RUN --mount=type=cache,target=/home/gradle/.gradle \
     ./gradlew --no-daemon dependencies
 
 COPY booklore-api/ ./
-COPY --from=frontend-build /workspace/booklore-ui/dist/grimmory/browser /tmp/frontend-dist
+COPY --from=frontend-build /workspace/frontend/dist/grimmory/browser /tmp/frontend-dist
 
 RUN --mount=type=cache,target=/home/gradle/.gradle \
     ./gradlew --no-daemon -PfrontendDistDir=/tmp/frontend-dist bootJar

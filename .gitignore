@@ -44,6 +44,8 @@ local-scripts/
 
 ### Dev config, books, and data ###
 booklore-ui/test-results/
+frontend/test-results/
+frontend/node_modules/
 booklore-api/src/main/resources/application-local.yaml
 /shared/
 
