@@ -1,0 +1,31 @@
+module.exports = {
+  extends: ["stylelint-config-standard-scss"],
+  ignoreFiles: ["dist/**", "node_modules/**"],
+  rules: {
+    "alpha-value-notation": null,
+    "at-rule-empty-line-before": null,
+    "color-function-alias-notation": null,
+    "color-function-notation": null,
+    "color-hex-length": null,
+    "declaration-block-single-line-max-declarations": null,
+    "declaration-empty-line-before": null,
+    "declaration-property-value-keyword-no-deprecated": null,
+    "keyframes-name-pattern": null,
+    "media-feature-range-notation": null,
+    "no-descending-specificity": null,
+    "no-invalid-position-declaration": null,
+    "property-no-deprecated": null,
+    "property-no-vendor-prefix": null,
+    "rule-empty-line-before": null,
+    "selector-class-pattern": null,
+    "selector-pseudo-element-no-unknown": [
+      true,
+      {
+        ignorePseudoElements: ["ng-deep"],
+      },
+    ],
+    "scss/dollar-variable-empty-line-before": null,
+    "scss/load-partial-extension": null,
+    "shorthand-property-no-redundant-values": null,
+  },
+};

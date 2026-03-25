@@ -40,7 +40,19 @@ coverage:
 
 # Run the frontend linter.
 lint:
-    {{ yarn }} lint
+    {{ yarn }} lint:eslint
+
+# Run the frontend stylesheet linter.
+stylelint:
+    {{ yarn }} lint:styles
+
+# Run the frontend stylesheet linter with autofix enabled.
+stylelint-fix:
+    {{ yarn }} lint:styles:fix
+
+# Run the frontend TypeScript typechecker without emitting build output.
+typecheck:
+    {{ yarn }} typecheck
 
 # Check the installed dependency tree.
 deps:
@@ -55,7 +67,7 @@ audit-ci:
     {{ yarn }} npm audit --severity critical
 
 # Run the standard local frontend verification pass.
-check: deps lint test
+check: deps typecheck lint stylelint build test
 
 # Run the frontend CI-style verification sequence from a clean install.
-ci-check: install-ci audit-ci deps lint test
+ci-check: install-ci audit-ci deps typecheck lint stylelint build test
