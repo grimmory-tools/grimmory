@@ -20,6 +20,7 @@
 .warning-notice {
   margin-top: -2rem;
   margin-bottom: 1rem;
+
   @include settings.settings-warning-notice;
 }
 

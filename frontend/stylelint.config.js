@@ -2,7 +2,6 @@ module.exports = {
   extends: ["stylelint-config-standard-scss"],
   ignoreFiles: ["dist/**", "node_modules/**"],
   rules: {
-    "at-rule-empty-line-before": null,
     "declaration-block-single-line-max-declarations": null,
     "declaration-property-value-keyword-no-deprecated": null,
     "keyframes-name-pattern": null,
