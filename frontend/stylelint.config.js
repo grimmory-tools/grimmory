@@ -6,7 +6,6 @@ module.exports = {
     "keyframes-name-pattern": null,
     "no-descending-specificity": null,
     "no-invalid-position-declaration": null,
-    "property-no-deprecated": null,
     "property-no-vendor-prefix": null,
     "selector-class-pattern": null,
     "selector-pseudo-element-no-unknown": [
