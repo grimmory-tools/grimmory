@@ -182,7 +182,7 @@
     &::before {
       content: '';
       position: absolute;
-      inset: 0 0 0 0;
+      inset: 0;
       background: rgb(0 0 0 / 30%);
       z-index: 50;
       pointer-events: none;
@@ -295,7 +295,7 @@
   .review-title-section {
     flex-shrink: 0;
     border-bottom: 1px solid var(--surface-border);
-    padding: 8px 16px 4px 16px;
+    padding: 8px 16px 4px;
   }
 
   .review-content-area {
@@ -304,7 +304,7 @@
     display: flex;
     flex-direction: column;
     position: relative;
-    padding: 8px 16px 16px 16px;
+    padding: 8px 16px 16px;
 
     .review-fade-overlay {
       position: absolute;

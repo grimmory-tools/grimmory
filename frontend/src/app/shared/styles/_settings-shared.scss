@@ -74,7 +74,7 @@ $settings-item-border-left-width: 3px;
   font-size: $settings-page-title-size;
   font-weight: $settings-page-title-weight;
   color: var(--text-color);
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.5rem;
 
   .pi {
     color: var(--primary-color);
@@ -123,7 +123,7 @@ $settings-item-border-left-width: 3px;
   font-size: $settings-section-title-size;
   font-weight: $settings-section-title-weight;
   color: var(--text-color);
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.5rem;
 
   .pi {
     color: var(--primary-color);
@@ -468,7 +468,7 @@ $settings-item-border-left-width: 3px;
 
 @mixin settings-access-denied-content {
   h3 {
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.5rem;
     font-size: 1rem;
     font-weight: $settings-section-title-weight;
     color: var(--p-red-300);

@@ -18,7 +18,7 @@
     font-size: settings.$settings-section-title-size;
     font-weight: settings.$settings-section-title-weight;
     color: var(--p-text-color);
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.5rem;
     padding-bottom: 0.75rem;
     border-bottom: 1px solid color-mix(in srgb, var(--text-color) 10%, transparent);
   }

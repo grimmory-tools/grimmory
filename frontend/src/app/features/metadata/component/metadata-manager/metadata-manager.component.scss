@@ -143,7 +143,7 @@
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--p-text-color);
-  margin: 0 0 0.75rem 0;
+  margin: 0 0 0.75rem;
 
   .pi {
     color: var(--p-primary-color);
@@ -217,7 +217,7 @@
   overflow-y: auto;
 
   @media (width >= 768px) {
-    padding: 0.5rem 1rem 0 1rem;
+    padding: 0.5rem 1rem 0;
   }
 }
 
@@ -354,7 +354,7 @@
     border: 1px solid rgb(128 128 128 / 20%);
 
     p {
-      margin: 0 0 0.5rem 0;
+      margin: 0 0 0.5rem;
       font-weight: 600;
       color: var(--p-text-color);
     }

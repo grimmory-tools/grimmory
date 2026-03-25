@@ -43,7 +43,7 @@
 
 .section-title {
   @include settings.settings-section-title;
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.5rem;
 }
 
 .section-description {
@@ -52,7 +52,7 @@
 
 .settings-card {
   @include settings.settings-card;
-  padding: 1rem 1.5rem 1.5rem 1.5rem;
+  padding: 1rem 1.5rem 1.5rem;
   margin-left: 1rem;
   margin-right: 1rem;
 

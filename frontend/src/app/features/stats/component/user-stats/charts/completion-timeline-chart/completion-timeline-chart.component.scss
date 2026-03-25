@@ -16,7 +16,7 @@
       color: var(--text-color, #ffffff);
       font-size: 1.25rem;
       font-weight: 500;
-      margin: 0 0 0.5rem 0;
+      margin: 0 0 0.5rem;
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -41,7 +41,7 @@
     background: rgb(255 255 255 / 10%);
     border: 1px solid rgb(255 255 255 / 20%);
     border-radius: 6px;
-    padding: 0.6rem 0.6rem;
+    padding: 0.6rem;
     color: #ffffff;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -126,7 +126,7 @@
     }
 
     .year-nav-btn {
-      padding: 0.6rem 0.6rem;
+      padding: 0.6rem;
     }
   }
 }
