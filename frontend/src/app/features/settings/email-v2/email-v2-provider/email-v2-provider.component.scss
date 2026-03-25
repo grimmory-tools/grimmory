@@ -225,7 +225,7 @@
 .detail-value {
   font-size: settings.$settings-section-description-size;
   color: var(--p-text-color);
-  word-break: break-word;
+  overflow-wrap: anywhere;
 
   &.password-hidden {
     color: var(--p-text-muted-color);

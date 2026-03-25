@@ -241,7 +241,7 @@ $transition-normal: 200ms ease;
 .value {
   color: $text-primary;
   font-size: 13px;
-  word-break: break-word;
+  overflow-wrap: anywhere;
   line-height: 1.5;
 
   &.file-name {

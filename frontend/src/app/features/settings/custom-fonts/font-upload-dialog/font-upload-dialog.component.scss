@@ -223,7 +223,7 @@
       font-weight: 600;
       color: var(--text-color);
       font-size: 0.9375rem;
-      word-break: break-word;
+      overflow-wrap: anywhere;
       overflow-wrap: break-word;
     }
 
