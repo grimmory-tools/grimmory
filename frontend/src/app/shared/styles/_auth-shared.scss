@@ -32,7 +32,7 @@
   z-index: 1;
   animation: slideUp 0.6s ease-out;
 
-  @media (max-width: 640px) {
+  @media (width <= 640px) {
     width: 95%;
     margin-top: calc($margin-top / 2);
   }
@@ -59,7 +59,7 @@
   border-radius: calc(2rem - 2px);
   padding: 3rem 2.5rem;
 
-  @media (max-width: 640px) {
+  @media (width <= 640px) {
     padding: 2rem 1.5rem;
   }
 }
@@ -117,7 +117,7 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
 
-  @media (max-width: 640px) {
+  @media (width <= 640px) {
     font-size: 1.75rem;
   }
 }

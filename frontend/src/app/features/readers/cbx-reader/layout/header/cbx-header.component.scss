@@ -159,7 +159,7 @@
   }
 }
 
-@media (max-width: 600px) {
+@media (width <= 600px) {
   .cbx-header {
     padding: 0 4px;
 

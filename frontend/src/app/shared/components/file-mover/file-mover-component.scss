@@ -480,7 +480,7 @@
 }
 
 // Responsive
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .dialog-content {
     padding: 1rem;
     gap: 1rem;

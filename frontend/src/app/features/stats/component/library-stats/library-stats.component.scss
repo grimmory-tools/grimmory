@@ -449,7 +449,7 @@
   }
 }
 
-@media (max-width: 1600px) {
+@media (width <= 1600px) {
   .charts-grid {
     grid-template-columns: repeat(3, 1fr);
 
@@ -467,7 +467,7 @@
   }
 }
 
-@media (max-width: 1200px) {
+@media (width <= 1200px) {
   .charts-grid {
     grid-template-columns: repeat(2, 1fr);
 
@@ -487,7 +487,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .library-stats-container {
     padding: 15px;
     max-width: 100%;
@@ -586,7 +586,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .header-card {
     padding: 15px;
   }

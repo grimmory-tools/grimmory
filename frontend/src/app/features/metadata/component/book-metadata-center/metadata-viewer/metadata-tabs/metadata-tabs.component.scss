@@ -332,7 +332,7 @@
   font-size: 0.9rem;
 }
 
-@media (max-width: 576px) {
+@media (width <= 576px) {
   .chapters-table {
     font-size: 0.8rem;
 
@@ -361,7 +361,7 @@
   gap: 2rem;
   justify-content: center;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     justify-content: flex-start;
   }
 }

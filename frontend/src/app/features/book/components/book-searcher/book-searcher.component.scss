@@ -4,7 +4,7 @@
   width: 100%;
   min-width: 0;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     margin-left: 1.25rem;
     max-width: 315px;
     transition: max-width 0.3s ease;
@@ -12,7 +12,7 @@
 
   &:has(.search-iconfield.focused),
   &:has(.search-iconfield.has-results) {
-    @media (min-width: 768px) {
+    @media (width >= 768px) {
       max-width: 100%;
     }
   }
@@ -21,11 +21,11 @@
 .search-iconfield {
   width: 100%;
 
-  @media (min-width: 640px) {
+  @media (width >= 640px) {
     display: flex;
   }
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     transition: all 0.3s ease;
   }
 }
@@ -45,7 +45,7 @@
   transform: translateY(-50%);
   display: none;
 
-  @media (min-width: 640px) {
+  @media (width >= 640px) {
     display: inline-flex;
   }
 }

@@ -22,7 +22,7 @@
 }
 
 .preferences-section {
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     padding: 0 1rem;
   }
 }
@@ -51,7 +51,7 @@
     padding-bottom: 0;
   }
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     flex-direction: column;
     gap: 1rem;
   }
@@ -87,7 +87,7 @@
       align-items: center;
       gap: 0.75rem;
 
-      @media (max-width: 768px) {
+      @media (width <= 768px) {
         flex-direction: column;
         align-items: flex-start;
         gap: 0.5rem;
@@ -119,7 +119,7 @@
   gap: 0.75rem;
   align-items: flex-end;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     align-items: flex-start;
     width: 100%;
   }
@@ -130,7 +130,7 @@
   align-items: center;
   gap: 0.75rem;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
@@ -169,7 +169,7 @@
     font-size: settings.$settings-section-description-size;
   }
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     margin-top: 0.5rem;
   }
 }
@@ -179,7 +179,7 @@
   min-width: 200px;
   max-width: 300px;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     min-width: 180px;
     max-width: 250px;
   }

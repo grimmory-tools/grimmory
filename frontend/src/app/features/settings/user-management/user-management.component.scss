@@ -29,7 +29,7 @@
   justify-content: space-between;
   gap: 1rem;
 
-  @media (max-width: 767px) {
+  @media (width <= 767px) {
     flex-direction: column;
     align-items: stretch;
 
@@ -121,11 +121,11 @@
   gap: 1rem;
   padding: 1rem;
 
-  @media (max-width: 900px) {
+  @media (width <= 900px) {
     flex-wrap: wrap;
   }
 
-  @media (max-width: 600px) {
+  @media (width <= 600px) {
     flex-direction: column;
     align-items: stretch;
     gap: 0.75rem;
@@ -252,7 +252,7 @@
 .user-summary {
   flex-shrink: 0;
 
-  @media (max-width: 600px) {
+  @media (width <= 600px) {
     width: 100%;
   }
 }
@@ -262,7 +262,7 @@
   gap: 0.5rem;
   flex-wrap: wrap;
 
-  @media (max-width: 600px) {
+  @media (width <= 600px) {
     justify-content: flex-start;
   }
 }
@@ -314,7 +314,7 @@
   background: var(--p-content-border-color);
   flex-shrink: 0;
 
-  @media (max-width: 600px) {
+  @media (width <= 600px) {
     display: none;
   }
 }
@@ -324,7 +324,7 @@
   gap: 0.375rem;
   flex-shrink: 0;
 
-  @media (max-width: 600px) {
+  @media (width <= 600px) {
     justify-content: flex-end;
   }
 }
@@ -361,7 +361,7 @@
     margin: 0 0 0.5rem 0;
     padding-left: 1.5rem;
 
-    @media (max-width: 600px) {
+    @media (width <= 600px) {
       padding-left: 0;
     }
   }
@@ -369,7 +369,7 @@
   app-content-restrictions-editor {
     padding-left: 1.5rem;
 
-    @media (max-width: 600px) {
+    @media (width <= 600px) {
       padding-left: 0;
     }
   }
@@ -396,7 +396,7 @@
   gap: 1rem;
   padding-left: 1.5rem;
 
-  @media (max-width: 600px) {
+  @media (width <= 600px) {
     padding-left: 0;
   }
 }
@@ -409,7 +409,7 @@
   &.detail-field-wide {
     grid-column: span 2;
 
-    @media (max-width: 600px) {
+    @media (width <= 600px) {
       grid-column: span 1;
     }
   }
@@ -439,7 +439,7 @@
   gap: 1.25rem;
   padding-left: 1.5rem;
 
-  @media (max-width: 600px) {
+  @media (width <= 600px) {
     padding-left: 0;
     grid-template-columns: 1fr;
   }
@@ -671,7 +671,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   ::ng-deep .user-dialog {
     .p-dialog {
       width: 95vw !important;

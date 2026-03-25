@@ -7,7 +7,7 @@
   border-radius: 8px;
   padding: 1.5rem;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     padding: 1rem;
     gap: 1rem;
   }
@@ -45,7 +45,7 @@
   gap: 2rem;
   padding-left: 1rem;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     padding-left: 0.5rem;
   }
 }
@@ -56,7 +56,7 @@
   border-left: 3px solid var(--primary-color);
   background: color-mix(in srgb, var(--ground-background) 50%, var(--p-surface-800) 50%);
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     padding: 0.75rem;
   }
 }
@@ -67,7 +67,7 @@
   justify-content: space-between;
   gap: 1rem;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.75rem;
@@ -125,12 +125,12 @@
   padding-top: 0.5rem;
   border-top: 1px dashed var(--p-content-border-color);
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     grid-template-columns: 1fr 1fr;
     gap: 0.5rem;
   }
 
-  @media (max-width: 400px) {
+  @media (width <= 400px) {
     grid-template-columns: 1fr;
   }
 }
@@ -163,7 +163,7 @@
   padding-top: 0.75rem;
   border-top: 1px dashed var(--p-content-border-color);
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     p-button {
       width: 100%;
     }

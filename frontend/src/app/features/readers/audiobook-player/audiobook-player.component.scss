@@ -701,7 +701,7 @@ $border-color: rgb(255 255 255 / 10%);
 }
 
 // Responsive adjustments
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .reader-main {
     padding: 1rem;
     gap: 1rem;
@@ -741,7 +741,7 @@ $border-color: rgb(255 255 255 / 10%);
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .cover-container {
     max-width: min(300px, 30vh);
   }
@@ -774,7 +774,7 @@ $border-color: rgb(255 255 255 / 10%);
 }
 
 // Landscape mode optimization
-@media (max-height: 600px) and (orientation: landscape) {
+@media (height <= 600px) and (orientation: landscape) {
   .reader-main {
     flex-flow: row wrap;
     justify-content: center;

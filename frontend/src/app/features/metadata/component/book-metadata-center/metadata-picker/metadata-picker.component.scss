@@ -11,7 +11,7 @@
 .mobile-only {
   display: flex;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     display: none !important;
   }
 }
@@ -19,7 +19,7 @@
 .desktop-only {
   display: none;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     display: flex;
   }
 }
@@ -83,7 +83,7 @@
   border: 1px solid var(--border-color);
   border-radius: 8px;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     justify-content: flex-start;
   }
 
@@ -94,7 +94,7 @@
     flex-shrink: 0;
     display: none;
 
-    @media (min-width: 768px) {
+    @media (width >= 768px) {
       display: block;
     }
   }
@@ -109,7 +109,7 @@
     letter-spacing: 0.05em;
     flex: 1;
 
-    @media (min-width: 768px) {
+    @media (width >= 768px) {
       display: flex;
     }
 
@@ -209,7 +209,7 @@
   overflow: hidden;
   box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     width: 150px;
   }
 
@@ -298,7 +298,7 @@
   border-radius: 6px;
   color: var(--text-secondary-color);
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     width: 150px;
     height: 150px;
   }
@@ -329,7 +329,7 @@
     border-bottom: none;
   }
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     flex-direction: row;
     align-items: center;
     padding: 0.75rem 1rem;
@@ -344,7 +344,7 @@
     text-align: center;
     margin-bottom: 0.5rem;
 
-    @media (min-width: 768px) {
+    @media (width >= 768px) {
       text-align: left;
       margin-bottom: 0;
     }
@@ -354,7 +354,7 @@
     align-items: center;
     gap: 1rem;
 
-    @media (min-width: 768px) {
+    @media (width >= 768px) {
       gap: 1.5rem;
     }
   }
@@ -365,13 +365,13 @@
     align-items: center;
     gap: 0.5rem;
 
-    @media (min-width: 768px) {
+    @media (width >= 768px) {
       flex-direction: row;
     }
   }
 
   // Position covers towards the arrow on desktop only
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     padding: 1rem;
 
     .field-side.current {
@@ -390,7 +390,7 @@
   color: var(--text-color);
   min-width: 100px;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     min-width: 120px;
     flex-shrink: 0;
   }
@@ -402,7 +402,7 @@
   gap: 0.5rem;
   flex: 1;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     flex-direction: row;
     align-items: center;
     gap: 0.75rem;
@@ -477,25 +477,25 @@
 
 .textarea-row {
   .field-content {
-    @media (min-width: 768px) {
+    @media (width >= 768px) {
       align-items: flex-start;
     }
   }
 
   .field-side {
-    @media (min-width: 768px) {
+    @media (width >= 768px) {
       align-items: flex-start;
     }
   }
 
   .lock-btn {
-    @media (min-width: 768px) {
+    @media (width >= 768px) {
       margin-top: 0.25rem;
     }
   }
 
   .transfer-btn {
-    @media (min-width: 768px) {
+    @media (width >= 768px) {
       margin-top: 0.25rem;
     }
   }
@@ -607,7 +607,7 @@
 }
 
 // Mobile optimizations
-@media (max-width: 767px) {
+@media (width <= 767px) {
   .dialog-body {
     padding: 1rem;
     gap: 1.25rem;

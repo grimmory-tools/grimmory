@@ -550,7 +550,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .comic-reader-container {
     .slideshow-progress.above-footer {
       bottom: 48px;

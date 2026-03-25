@@ -40,7 +40,7 @@ $transition-normal: 200ms ease;
   box-shadow: 0 20px 60px rgb(0 0 0 / 50%);
   animation: slideUp 250ms cubic-bezier(0.4, 0, 0.2, 1);
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     width: 95%;
     max-height: 90vh;
     margin: 20px;
@@ -108,7 +108,7 @@ $transition-normal: 200ms ease;
   flex: 1;
   min-height: 0;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     padding: 16px;
   }
 
@@ -134,7 +134,7 @@ $transition-normal: 200ms ease;
   display: flex;
   gap: 24px;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     flex-direction: column;
     gap: 20px;
   }
@@ -144,7 +144,7 @@ $transition-normal: 200ms ease;
   flex-shrink: 0;
   width: 200px;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     width: 100%;
     max-width: 160px;
     margin: 0 auto;
@@ -159,7 +159,7 @@ $transition-normal: 200ms ease;
   max-height: 300px;
   object-fit: cover;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     max-height: 240px;
   }
 }
@@ -174,7 +174,7 @@ $transition-normal: 200ms ease;
   align-items: center;
   justify-content: center;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     max-height: 240px;
   }
 
@@ -182,7 +182,7 @@ $transition-normal: 200ms ease;
     font-size: 56px;
     opacity: 0.3;
 
-    @media (max-width: 768px) {
+    @media (width <= 768px) {
       font-size: 44px;
     }
   }
@@ -225,7 +225,7 @@ $transition-normal: 200ms ease;
     margin-bottom: 0;
   }
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     grid-template-columns: 1fr;
     gap: 4px;
   }

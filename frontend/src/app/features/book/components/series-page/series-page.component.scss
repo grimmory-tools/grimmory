@@ -3,7 +3,7 @@
   overflow: auto;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .tabpanels-responsive {
     height: calc(100dvh - 8.5rem);
   }
@@ -36,7 +36,7 @@
   padding: 0.5rem;
   align-items: stretch;
 
-  @media (max-width: 767px) {
+  @media (width <= 767px) {
     flex-direction: column;
     align-items: center;
     text-align: center;
@@ -46,7 +46,7 @@
 .hero-cover-section {
   flex-shrink: 0;
 
-  @media (max-width: 767px) {
+  @media (width <= 767px) {
     display: flex;
     justify-content: center;
   }
@@ -59,7 +59,7 @@
   border-radius: 12px;
   box-shadow: 0 6px 24px rgb(0 0 0 / 40%);
 
-  @media (max-width: 767px) {
+  @media (width <= 767px) {
     width: 180px;
     height: 270px;
   }
@@ -79,7 +79,7 @@
   line-height: 1.25;
   margin: 0;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     font-size: 1.875rem;
   }
 }
@@ -106,7 +106,7 @@
   gap: 0.4rem;
   margin-top: 0.5rem;
 
-  @media (max-width: 767px) {
+  @media (width <= 767px) {
     justify-content: center;
   }
 }
@@ -207,7 +207,7 @@
   flex-wrap: wrap;
   gap: 0.4rem;
 
-  @media (max-width: 767px) {
+  @media (width <= 767px) {
     justify-content: center;
   }
 }
@@ -254,7 +254,7 @@
   gap: 0.4rem;
   width: max-content;
 
-  @media (max-width: 767px) {
+  @media (width <= 767px) {
     margin: 0 auto;
   }
 }
@@ -357,7 +357,7 @@
   width: 100%;
   margin-top: auto;
 
-  @media (max-width: 767px) {
+  @media (width <= 767px) {
     flex-direction: column;
     align-items: stretch;
     margin-top: 0;
@@ -376,7 +376,7 @@
   flex: 1;
   min-width: 0;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     min-width: 16rem;
     max-width: 22rem;
   }
@@ -457,7 +457,7 @@
     border-color: var(--primary-text-color);
   }
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     min-width: 16rem;
     max-width: 22rem;
   }
@@ -580,7 +580,7 @@
     box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
   }
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     gap: 0.5rem;
     padding: 0.5rem;
   }
@@ -691,7 +691,7 @@
   text-transform: uppercase;
   letter-spacing: 0.03em;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     display: none;
   }
 }
@@ -827,7 +827,7 @@
     width: 100%;
   }
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     left: 0;
     right: 0;
   }
@@ -859,7 +859,7 @@
   display: flex;
   gap: 0.5rem;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     gap: 1.5rem;
   }
 }
@@ -894,7 +894,7 @@
   margin-left: 0.25rem;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .selected-count-badge {
     padding: 0.4rem 0.8rem;
     font-size: 0.85rem;

@@ -182,7 +182,7 @@
   background-clip: unset !important;
 }
 
-@media (max-width: 767px) {
+@media (width <= 767px) {
 
   .dashboard-scroller-card {
     height: 184px;

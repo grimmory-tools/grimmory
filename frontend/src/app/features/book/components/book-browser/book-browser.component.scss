@@ -24,7 +24,7 @@
   background-color: var(--card-background);
   border: 1px solid var(--p-content-border-color);
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     gap: 1rem;
     padding: 0.5rem 1rem;
     margin-bottom: 1rem;
@@ -47,7 +47,7 @@
   min-width: 0;
   overflow: hidden;
 
-  @media (max-width: 767px) {
+  @media (width <= 767px) {
     gap: 0;
   }
 }
@@ -59,7 +59,7 @@
   text-overflow: ellipsis;
   margin: 0;
 
-  @media (max-width: 767px) {
+  @media (width <= 767px) {
     font-size: 1rem;
     padding-left: 0.25rem;
   }
@@ -70,7 +70,7 @@
   color: #6b7280;
   margin: 0;
 
-  @media (max-width: 767px) {
+  @media (width <= 767px) {
     display: none;
     margin: 0;
     padding: 0;
@@ -91,7 +91,7 @@
   gap: 0.25rem;
   flex-shrink: 0;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     gap: 1rem;
   }
 }
@@ -102,7 +102,7 @@
   align-items: center;
   gap: 0.25rem;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     gap: 1.5rem;
   }
 }
@@ -206,7 +206,7 @@
 .mobile-search-wrapper {
   position: relative;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     display: none;
   }
 }
@@ -215,7 +215,7 @@
   display: none;
   position: relative;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     display: block;
   }
 }
@@ -261,7 +261,7 @@
     pointer-events: none;
   }
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     left: 0;
     right: 0;
   }
@@ -281,7 +281,7 @@
   flex-shrink: 0;
   width: 120px;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     width: auto;
   }
 }
@@ -302,7 +302,7 @@
     display: none;
   }
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     justify-content: flex-start;
   }
 }
@@ -311,7 +311,7 @@
   flex-shrink: 0;
   width: 120px;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     display: none;
   }
 }
@@ -328,7 +328,7 @@
     margin-right: 0.5rem;
   }
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     padding: 0.4rem 0.8rem;
     font-size: 0.85rem;
 
@@ -353,7 +353,7 @@
   flex-shrink: 0;
   gap: 0.5rem;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     gap: 1.5rem;
   }
 }
@@ -371,7 +371,7 @@
   box-sizing: border-box;
   overflow-y: auto;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     height: calc(100dvh - 9rem);
   }
 }
@@ -384,7 +384,7 @@
   width: 100%;
 
   // Mobile: fixed 2 or 3 columns based on phone width
-  @media (max-width: 767px) {
+  @media (width <= 767px) {
     gap: 0.5rem;
     padding: 0 0.5rem;
   }
@@ -429,7 +429,7 @@
   background-color: var(--card-background);
   cursor: pointer;
 
-  @media (max-width: 767px) {
+  @media (width <= 767px) {
     width: 2rem;
     height: 2rem;
   }
@@ -443,7 +443,7 @@
     font-size: 1.25rem;
     font-weight: 100;
 
-    @media (max-width: 767px) {
+    @media (width <= 767px) {
       font-size: 1rem;
     }
   }
@@ -468,14 +468,14 @@
   font-size: 1rem;
   box-sizing: border-box;
 
-  @media (max-width: 767px) {
+  @media (width <= 767px) {
     min-width: 0;
   }
 }
 
 // Filter overlay (mobile sidebar)
 .mobile-filter-mask {
-  @media (max-width: 991px) {
+  @media (width <= 991px) {
     position: absolute;
     top: 0;
     left: 0;
@@ -490,7 +490,7 @@
   flex-shrink: 0;
   z-index: 50;
 
-  @media (max-width: 991px) {
+  @media (width <= 991px) {
     width: var(--sidebar-width, 225px);
     position: fixed;
     top: 3.85rem;
@@ -509,7 +509,7 @@
     }
   }
 
-  @media (min-width: 992px) {
+  @media (width >= 992px) {
     position: relative;
     overflow: hidden;
     flex-shrink: 0;

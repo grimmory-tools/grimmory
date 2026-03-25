@@ -419,7 +419,7 @@ $transition-normal: 200ms ease;
   }
 }
 
-@media (max-width: 600px) {
+@media (width <= 600px) {
   .reader-navbar {
     padding: 0 8px;
     height: 44px;

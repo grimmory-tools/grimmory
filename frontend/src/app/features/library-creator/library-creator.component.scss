@@ -128,7 +128,7 @@
     }
   }
 
-  @media (max-width: 520px) {
+  @media (width <= 520px) {
     flex-direction: column;
   }
 }
@@ -656,7 +656,7 @@
 }
 
 // Responsive
-@media (max-width: 520px) {
+@media (width <= 520px) {
   .library-creator {
     width: 100%;
     max-width: 100%;

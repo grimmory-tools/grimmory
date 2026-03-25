@@ -7,7 +7,7 @@
   min-height: 100%;
   animation: fadeIn 0.3s ease-in;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     padding: 0.5rem;
   }
 }
@@ -19,7 +19,7 @@
   padding-bottom: 1rem;
   border-bottom: 1px solid var(--border-color);
 
-  @media (min-width: 640px) {
+  @media (width >= 640px) {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;

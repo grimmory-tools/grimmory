@@ -322,7 +322,7 @@
   }
 }
 
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .action-bar {
     flex-direction: column;
     align-items: stretch;

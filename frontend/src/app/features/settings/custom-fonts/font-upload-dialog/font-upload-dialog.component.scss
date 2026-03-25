@@ -6,7 +6,7 @@
   display: flex;
   flex-direction: column;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     width: 100%;
     max-width: 100%;
   }
@@ -27,7 +27,7 @@
   border-radius: 0 0 10px 10px;
   box-shadow: 0 2px 6px rgb(0 0 0 / 8%);
 
-  @media (max-width: 480px) {
+  @media (width <= 480px) {
     padding: 1rem;
     gap: 1rem;
   }
@@ -59,7 +59,7 @@
       }
     }
 
-    @media (max-width: 480px) {
+    @media (width <= 480px) {
       padding: 0.5rem 0.625rem;
 
       .section-title {
@@ -113,7 +113,7 @@
       }
     }
 
-    @media (max-width: 480px) {
+    @media (width <= 480px) {
       padding: 1.5rem 0.75rem;
       min-height: 180px;
 

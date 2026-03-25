@@ -6,7 +6,7 @@
   display: flex;
   flex-direction: column;
 
-  @media (max-width: 640px) {
+  @media (width <= 640px) {
     width: 100%;
     max-width: 100%;
   }
@@ -27,7 +27,7 @@
   box-shadow: 0 2px 6px rgb(0 0 0 / 8%);
   min-height: 200px;
 
-  @media (max-width: 480px) {
+  @media (width <= 480px) {
     padding: 1rem;
   }
 }
@@ -43,7 +43,7 @@
   align-items: center;
   gap: 1rem;
 
-  @media (max-width: 480px) {
+  @media (width <= 480px) {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
@@ -57,7 +57,7 @@
   color: var(--text-color);
   margin: 0;
 
-  @media (max-width: 480px) {
+  @media (width <= 480px) {
     width: 100%;
   }
 }
@@ -72,7 +72,7 @@
   display: flex;
   align-items: center;
 
-  @media (max-width: 480px) {
+  @media (width <= 480px) {
     width: 100%;
   }
 }

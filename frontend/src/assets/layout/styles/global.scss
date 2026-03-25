@@ -9,7 +9,7 @@
 // =============================================================================
 
 .p-dialog {
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     width: 95vw !important;
     max-width: 95vw !important;
     max-height: 95dvh !important;

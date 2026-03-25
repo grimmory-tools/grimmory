@@ -42,7 +42,7 @@
   p-select {
     min-width: 200px;
 
-    @media (max-width: 768px) {
+    @media (width <= 768px) {
       min-width: 100%;
       width: 100%;
     }

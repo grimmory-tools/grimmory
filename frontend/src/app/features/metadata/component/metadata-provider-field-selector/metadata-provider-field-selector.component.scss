@@ -7,7 +7,7 @@
   border-radius: 8px;
   padding: 1.5rem;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     padding: 1rem;
     gap: 1rem;
   }
@@ -42,7 +42,7 @@
 .section-body {
   padding-left: 1rem;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     padding-left: 0.5rem;
   }
 }
@@ -52,7 +52,7 @@
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1rem;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     grid-template-columns: 1fr;
     gap: 0.75rem;
   }
@@ -64,7 +64,7 @@
   border-left: 3px solid var(--primary-color);
   background: color-mix(in srgb, var(--ground-background) 50%, var(--p-surface-800) 50%);
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     padding: 0.75rem;
   }
 }

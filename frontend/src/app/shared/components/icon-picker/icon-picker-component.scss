@@ -507,7 +507,7 @@
 }
 
 // Responsive
-@media (max-width: 520px) {
+@media (width <= 520px) {
   .icon-picker {
     border-radius: 0;
     height: 100dvh;

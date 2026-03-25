@@ -17,7 +17,7 @@
   min-width: 0;
   gap: 1rem;
 
-  @media (max-width: 767px) {
+  @media (width <= 767px) {
     gap: 0.5rem;
   }
 }
@@ -34,7 +34,7 @@
   margin-left: auto;
   padding-left: 1rem;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     display: flex;
   }
 }
@@ -136,7 +136,7 @@
   position: relative;
   margin-left: auto;
 
-  @media (max-width: 767px) {
+  @media (width <= 767px) {
     display: block;
   }
 }

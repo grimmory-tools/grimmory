@@ -1,6 +1,6 @@
 @use "variables";
 
-@media screen and (min-width: 1960px) {
+@media screen and (width >= 1960px) {
   .layout-main {
     width: 100%;
     margin-left: auto !important;
@@ -9,7 +9,7 @@
 
 }
 
-@media (min-width: 992px) {
+@media (width >= 992px) {
   .layout-wrapper {
     &.layout-overlay {
       .layout-main-container {
@@ -58,7 +58,7 @@
   }
 }
 
-@media (max-width: 991px) {
+@media (width <= 991px) {
   .blocked-scroll {
     overflow: hidden;
   }
@@ -101,7 +101,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .layout-wrapper {
     .layout-main-container {
       padding: 4.4rem 0 0;

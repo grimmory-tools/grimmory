@@ -123,7 +123,7 @@
     border-radius: 10px;
   }
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     height: calc(100dvh - 13rem);
     padding: 0.5rem;
 
@@ -171,7 +171,7 @@
   }
 }
 
-@media (max-width: 767px) {
+@media (width <= 767px) {
   .browse-header {
     padding: 0.5rem 0.5rem 0;
   }

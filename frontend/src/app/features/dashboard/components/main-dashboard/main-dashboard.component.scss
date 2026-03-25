@@ -24,7 +24,7 @@
   scrollbar-color: var(--primary-color) rgb(20 20 30 / 50%);
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .dashboard-container {
     height: calc(100dvh - 5rem);
 
@@ -113,7 +113,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .dashboard-settings-button {
     top: 5rem;
     right: 1rem;

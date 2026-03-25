@@ -27,7 +27,7 @@
   }
 }
 
-@media (max-width: 991px) {
+@media (width <= 991px) {
   .layout-topbar {
     .layout-topbar-logo {
       display: none;

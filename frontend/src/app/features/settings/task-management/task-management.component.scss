@@ -111,7 +111,7 @@
   gap: 1rem;
   padding: 1rem;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     flex-direction: column;
     gap: 0.75rem;
   }
@@ -224,7 +224,7 @@
   gap: 1rem;
   flex-shrink: 0;
 
-  @media (max-width: 900px) {
+  @media (width <= 900px) {
     flex-direction: column;
     align-items: flex-end;
     gap: 0.75rem;
@@ -279,7 +279,7 @@
   border: 1px solid var(--p-content-border-color);
   border-radius: 6px;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     flex-direction: column;
     align-items: flex-start;
   }
@@ -297,7 +297,7 @@
   color: var(--p-text-muted-color);
   flex: 1;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     flex: none;
   }
 }
@@ -305,7 +305,7 @@
 ::ng-deep .mode-select {
   min-width: 200px;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     width: 100%;
   }
 }
@@ -333,7 +333,7 @@
     flex-shrink: 0;
   }
 
-  @media (max-width: 600px) {
+  @media (width <= 600px) {
     flex-wrap: wrap;
   }
 }
@@ -361,7 +361,7 @@
   align-items: center;
   gap: 0.25rem;
 
-  @media (max-width: 600px) {
+  @media (width <= 600px) {
     flex-wrap: wrap;
     width: 100%;
   }
@@ -387,7 +387,7 @@
     border-color: var(--p-red-500);
   }
 
-  @media (max-width: 600px) {
+  @media (width <= 600px) {
     width: 100%;
   }
 }
@@ -446,7 +446,7 @@
   align-items: center;
   gap: 0.75rem;
 
-  @media (max-width: 600px) {
+  @media (width <= 600px) {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.375rem;
@@ -474,7 +474,7 @@
   flex: 1;
   min-width: 0;
 
-  @media (max-width: 600px) {
+  @media (width <= 600px) {
     width: 100%;
   }
 }

@@ -148,12 +148,12 @@
   border: 1px solid var(--p-content-border-color);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     width: 340px;
     height: 220px;
   }
 
-  @media (max-width: 480px) {
+  @media (width <= 480px) {
     width: 290px;
     height: 200px;
   }
