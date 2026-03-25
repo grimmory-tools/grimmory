@@ -17,7 +17,6 @@ module.exports = {
         ignorePseudoElements: ["host", "ng-deep"],
       },
     ],
-    "scss/dollar-variable-empty-line-before": null,
     "scss/load-partial-extension": null,
     "scss/load-no-partial-leading-underscore": null,
   },
