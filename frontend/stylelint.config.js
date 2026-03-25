@@ -3,7 +3,12 @@ module.exports = {
   ignoreFiles: ["dist/**", "node_modules/**"],
   rules: {
     "no-descending-specificity": null,
-    "no-invalid-position-declaration": null,
+    "no-invalid-position-declaration": [
+      true,
+      {
+        ignoreAtRules: ["media"],
+      },
+    ],
     "property-no-vendor-prefix": null,
     "selector-class-pattern": null,
     "selector-pseudo-element-no-unknown": [
