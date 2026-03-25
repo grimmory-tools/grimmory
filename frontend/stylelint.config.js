@@ -2,7 +2,6 @@ module.exports = {
   extends: ["stylelint-config-standard-scss"],
   ignoreFiles: ["dist/**", "node_modules/**"],
   rules: {
-    "alpha-value-notation": null,
     "at-rule-empty-line-before": null,
     "color-function-alias-notation": null,
     "color-function-notation": null,

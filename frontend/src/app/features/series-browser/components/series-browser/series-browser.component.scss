@@ -112,14 +112,14 @@
   overflow-y: auto;
 
   scrollbar-width: thin;
-  scrollbar-color: var(--primary-color) rgba(20, 20, 30, 0.5);
+  scrollbar-color: var(--primary-color) rgba(20, 20, 30, 50%);
 
   &::-webkit-scrollbar {
     width: 12px;
   }
 
   &::-webkit-scrollbar-track {
-    background: rgba(20, 20, 30, 0.5);
+    background: rgba(20, 20, 30, 50%);
     border-radius: 10px;
   }
 

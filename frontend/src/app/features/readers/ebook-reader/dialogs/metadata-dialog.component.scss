@@ -1,19 +1,19 @@
 // Variables matching sidebar styling
 $dialog-bg: #1a1a1a;
-$text-primary: rgba(255, 255, 255, 0.95);
-$text-secondary: rgba(255, 255, 255, 0.6);
-$text-muted: rgba(255, 255, 255, 0.4);
-$border-color: rgba(255, 255, 255, 0.08);
-$hover-bg: rgba(255, 255, 255, 0.08);
+$text-primary: rgba(255, 255, 255, 95%);
+$text-secondary: rgba(255, 255, 255, 60%);
+$text-muted: rgba(255, 255, 255, 40%);
+$border-color: rgba(255, 255, 255, 8%);
+$hover-bg: rgba(255, 255, 255, 8%);
 $active-color: #818cf8;
-$active-bg: rgba(129, 140, 248, 0.15);
+$active-bg: rgba(129, 140, 248, 15%);
 $transition-fast: 150ms ease;
 $transition-normal: 200ms ease;
 
 .dialog-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 50%);
   backdrop-filter: blur(4px);
   z-index: 12000;
   display: flex;
@@ -37,7 +37,7 @@ $transition-normal: 200ms ease;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 50%);
   animation: slideUp 250ms cubic-bezier(0.4, 0, 0.2, 1);
 
   @media (max-width: 768px) {
@@ -64,7 +64,7 @@ $transition-normal: 200ms ease;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, transparent 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 2%) 0%, transparent 100%);
 
   h2 {
     margin: 0;
@@ -121,11 +121,11 @@ $transition-normal: 200ms ease;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 15%);
     border-radius: 3px;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 25%);
     }
   }
 }
@@ -155,7 +155,7 @@ $transition-normal: 200ms ease;
   width: 100%;
   height: auto;
   border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 40%);
   max-height: 300px;
   object-fit: cover;
 
@@ -167,8 +167,8 @@ $transition-normal: 200ms ease;
 .cover-placeholder {
   width: 100%;
   aspect-ratio: 2/3;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
-  border: 2px dashed rgba(255, 255, 255, 0.12);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 4%) 0%, rgba(255, 255, 255, 1%) 100%);
+  border: 2px dashed rgba(255, 255, 255, 12%);
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -247,7 +247,7 @@ $transition-normal: 200ms ease;
     font-family: 'SF Mono', Monaco, Inconsolata, 'Roboto Mono', monospace;
     font-size: 12px;
     color: $text-secondary;
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(255, 255, 255, 3%);
     padding: 4px 8px;
     border-radius: 4px;
   }
@@ -272,11 +272,11 @@ $transition-normal: 200ms ease;
   border-radius: 12px;
   font-size: 12px;
   font-weight: 500;
-  border: 1px solid rgba(129, 140, 248, 0.2);
+  border: 1px solid rgba(129, 140, 248, 20%);
   transition: background $transition-fast;
 
   &:hover {
-    background: rgba(129, 140, 248, 0.25);
+    background: rgba(129, 140, 248, 25%);
   }
 }
 

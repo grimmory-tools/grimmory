@@ -36,8 +36,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: rgba(0, 188, 212, 0.15);
-    border: 1px solid rgba(0, 188, 212, 0.3);
+    background: rgba(0, 188, 212, 15%);
+    border: 1px solid rgba(0, 188, 212, 30%);
     border-radius: 8px;
     padding: 0.5rem 1rem;
 
@@ -71,8 +71,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 5%);
+    border: 1px solid rgba(255, 255, 255, 10%);
     border-radius: 8px;
     padding: 0.5rem 1rem;
     flex: 1;

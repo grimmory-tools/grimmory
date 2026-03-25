@@ -15,7 +15,7 @@
   transition: left variables.$transitionDuration;
   display: flex;
   align-items: center;
-  box-shadow: 0 3px 5px rgba(0, 0, 0, .02), 0 0 2px rgba(0, 0, 0, .05), 0 1px 4px rgba(0, 0, 0, .08);
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 2%), 0 0 2px rgba(0, 0, 0, 5%), 0 1px 4px rgba(0, 0, 0, 8%);
 
   .layout-topbar-logo {
     display: flex;
@@ -92,7 +92,7 @@
     border-radius: 6px;
     border: 1px solid var(--border-color);
     transform-origin: top;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 10%), 0 2px 4px -2px rgb(0 0 0 / 10%);
 
     &.notification-box {
       width: 30rem;

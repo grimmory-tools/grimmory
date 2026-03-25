@@ -1,7 +1,7 @@
  .thumbnail {
   border: 1px solid var(--border-color);
   border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 10%);
   margin: 0 auto 1rem;
 }
 
@@ -474,7 +474,7 @@ textarea.changed,
 .cdk-drag-preview {
   box-sizing: border-box;
   border-radius: 1rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 20%);
 }
 
 .cdk-drag-placeholder {

@@ -24,7 +24,7 @@
   background: var(--card-background);
   border: 1px solid var(--border-color);
   border-top: none;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 8%);
   overflow-y: auto;
   max-height: calc(90vh - 200px);
 
@@ -105,8 +105,8 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 10%);
+  border: 1px solid rgba(239, 68, 68, 30%);
   border-radius: 6px;
   color: var(--p-red-500);
   font-size: 0.875rem;
@@ -135,22 +135,22 @@
   font-weight: 500;
 
   &.success {
-    background: rgba(34, 197, 94, 0.1);
+    background: rgba(34, 197, 94, 10%);
     color: var(--p-green-500);
-    border: 1px solid rgba(34, 197, 94, 0.3);
+    border: 1px solid rgba(34, 197, 94, 30%);
   }
 
   &.warn {
-    background: rgba(234, 179, 8, 0.1);
+    background: rgba(234, 179, 8, 10%);
     color: var(--p-yellow-500);
-    border: 1px solid rgba(234, 179, 8, 0.3);
+    border: 1px solid rgba(234, 179, 8, 30%);
     cursor: pointer;
   }
 
   &.info {
-    background: rgba(59, 130, 246, 0.1);
+    background: rgba(59, 130, 246, 10%);
     color: var(--p-blue-500);
-    border: 1px solid rgba(59, 130, 246, 0.3);
+    border: 1px solid rgba(59, 130, 246, 30%);
   }
 }
 
@@ -159,8 +159,8 @@
   flex-direction: column;
   gap: 0.25rem;
   padding: 0.5rem;
-  background: rgba(234, 179, 8, 0.05);
-  border: 1px solid rgba(234, 179, 8, 0.2);
+  background: rgba(234, 179, 8, 5%);
+  border: 1px solid rgba(234, 179, 8, 20%);
   border-radius: 6px;
   max-height: 150px;
   overflow-y: auto;
@@ -305,19 +305,19 @@
   }
 
   &.status-looking-up {
-    background: rgba(59, 130, 246, 0.05);
+    background: rgba(59, 130, 246, 5%);
   }
 
   &.status-created {
-    background: rgba(34, 197, 94, 0.05);
+    background: rgba(34, 197, 94, 5%);
   }
 
   &.status-created-no-metadata {
-    background: rgba(234, 179, 8, 0.05);
+    background: rgba(234, 179, 8, 5%);
   }
 
   &.status-failed {
-    background: rgba(239, 68, 68, 0.05);
+    background: rgba(239, 68, 68, 5%);
   }
 }
 
@@ -396,26 +396,26 @@
   }
 
   &.success {
-    background: rgba(34, 197, 94, 0.1);
-    border: 1px solid rgba(34, 197, 94, 0.3);
+    background: rgba(34, 197, 94, 10%);
+    border: 1px solid rgba(34, 197, 94, 30%);
     > i { color: var(--p-green-500); }
   }
 
   &.warn {
-    background: rgba(234, 179, 8, 0.1);
-    border: 1px solid rgba(234, 179, 8, 0.3);
+    background: rgba(234, 179, 8, 10%);
+    border: 1px solid rgba(234, 179, 8, 30%);
     > i { color: var(--p-yellow-500); }
   }
 
   &.error {
-    background: rgba(239, 68, 68, 0.1);
-    border: 1px solid rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 10%);
+    border: 1px solid rgba(239, 68, 68, 30%);
     > i { color: var(--p-red-500); }
   }
 
   &.info {
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(59, 130, 246, 0.3);
+    background: rgba(59, 130, 246, 10%);
+    border: 1px solid rgba(59, 130, 246, 30%);
     > i { color: var(--p-blue-500); }
   }
 }
@@ -452,15 +452,15 @@
   font-size: 0.85rem;
 
   &.status-created {
-    background: rgba(34, 197, 94, 0.04);
+    background: rgba(34, 197, 94, 4%);
   }
 
   &.status-created-no-metadata {
-    background: rgba(234, 179, 8, 0.04);
+    background: rgba(234, 179, 8, 4%);
   }
 
   &.status-failed {
-    background: rgba(239, 68, 68, 0.04);
+    background: rgba(239, 68, 68, 4%);
   }
 }
 
@@ -498,9 +498,9 @@
   @include panel.validation-message;
 
   &.info {
-    background: rgba(59, 130, 246, 0.1);
+    background: rgba(59, 130, 246, 10%);
     color: var(--p-blue-500);
-    border: 1px solid rgba(59, 130, 246, 0.3);
+    border: 1px solid rgba(59, 130, 246, 30%);
 
     i {
       color: var(--p-blue-500);

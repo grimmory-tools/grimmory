@@ -10,8 +10,8 @@
 }
 
 .books-count-badge {
-  background: linear-gradient(135deg, rgba(167, 139, 250, 0.2), rgba(167, 139, 250, 0.1));
-  border: 1px solid rgba(167, 139, 250, 0.3);
+  background: linear-gradient(135deg, rgba(167, 139, 250, 20%), rgba(167, 139, 250, 10%));
+  border: 1px solid rgba(167, 139, 250, 30%);
   border-radius: 20px;
   padding: 0.4rem 1rem;
   font-size: 0.85rem;
@@ -29,7 +29,7 @@
 .insights-section {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 10%);
 }
 
 .insights-row {
@@ -45,8 +45,8 @@
   text-align: center;
   padding: 0.75rem;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 3%);
+  border: 1px solid rgba(255, 255, 255, 8%);
 
   .insight-label {
     font-size: 0.7rem;

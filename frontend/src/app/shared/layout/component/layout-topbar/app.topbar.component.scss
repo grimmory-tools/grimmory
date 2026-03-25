@@ -59,7 +59,7 @@
 
   &:hover .heart-icon {
     animation: heartbeat 0.6s ease-in-out;
-    filter: drop-shadow(0 0 8px rgba(236, 72, 153, 0.8));
+    filter: drop-shadow(0 0 8px rgba(236, 72, 153, 80%));
   }
 
   &:hover .heart-ripple {
@@ -115,7 +115,7 @@
   color: #e8366d !important;
   font-size: 1.05rem;
   animation: heart-float 2.5s ease-in-out infinite;
-  filter: drop-shadow(0 0 6px rgba(232, 54, 109, 0.8));
+  filter: drop-shadow(0 0 6px rgba(232, 54, 109, 80%));
   transition: filter 0.3s;
 }
 

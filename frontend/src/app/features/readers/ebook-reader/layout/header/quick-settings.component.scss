@@ -1,12 +1,12 @@
 // Variables matching sidebar/dialog styling
 $panel-bg: #1a1a1a;
-$text-primary: rgba(255, 255, 255, 0.95);
-$text-secondary: rgba(255, 255, 255, 0.6);
-$text-muted: rgba(255, 255, 255, 0.4);
-$border-color: rgba(255, 255, 255, 0.08);
-$hover-bg: rgba(255, 255, 255, 0.08);
+$text-primary: rgba(255, 255, 255, 95%);
+$text-secondary: rgba(255, 255, 255, 60%);
+$text-muted: rgba(255, 255, 255, 40%);
+$border-color: rgba(255, 255, 255, 8%);
+$hover-bg: rgba(255, 255, 255, 8%);
 $active-color: #818cf8;
-$active-bg: rgba(129, 140, 248, 0.15);
+$active-bg: rgba(129, 140, 248, 15%);
 $transition-fast: 150ms ease;
 $transition-normal: 200ms ease;
 
@@ -14,7 +14,7 @@ $transition-normal: 200ms ease;
   position: fixed;
   inset: 0;
   z-index: 12000;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 30%);
   animation: fadeIn $transition-normal;
   cursor: pointer;
 }
@@ -32,7 +32,7 @@ $transition-normal: 200ms ease;
   background: $panel-bg;
   border: 1px solid $border-color;
   border-radius: 12px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 50%);
   animation: slideDown 200ms cubic-bezier(0.4, 0, 0.2, 1);
   overflow: visible;
   cursor: default;
@@ -125,7 +125,7 @@ $transition-normal: 200ms ease;
   position: relative;
   width: 40px;
   height: 22px;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 15%);
   border: none;
   border-radius: 11px;
   cursor: pointer;
@@ -149,11 +149,11 @@ $transition-normal: 200ms ease;
     background: #ffffff;
     border-radius: 50%;
     transition: transform 300ms ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 20%);
   }
 
   &:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 20%);
 
     &.active {
       background: #9aa3fa;
@@ -166,7 +166,7 @@ $transition-normal: 200ms ease;
   display: flex;
   align-items: center;
   gap: 2px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 3%);
   padding: 2px;
   border-radius: 6px;
   border: 1px solid $border-color;
@@ -174,7 +174,7 @@ $transition-normal: 200ms ease;
   button {
     width: 26px;
     height: 26px;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 5%);
     color: $text-secondary;
     border: none;
     border-radius: 4px;
@@ -209,7 +209,7 @@ $transition-normal: 200ms ease;
 .panel-footer {
   padding: 12px 16px;
   border-top: 1px solid $border-color;
-  background: rgba(0, 0, 0, 0.15);
+  background: rgba(0, 0, 0, 15%);
   border-radius: 0 0 12px 12px;
 }
 
@@ -220,7 +220,7 @@ $transition-normal: 200ms ease;
   gap: 8px;
   width: 100%;
   padding: 10px 16px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 5%);
   border: 1px solid $border-color;
   border-radius: 8px;
   color: $text-primary;
@@ -231,7 +231,7 @@ $transition-normal: 200ms ease;
 
   &:hover {
     background: $hover-bg;
-    border-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 15%);
   }
 
   &:active {

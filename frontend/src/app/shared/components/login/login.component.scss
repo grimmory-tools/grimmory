@@ -41,8 +41,8 @@
   margin-bottom: 1.5rem;
   padding: 1rem;
   border-radius: 0.75rem;
-  background: rgba(245, 158, 11, 0.1);
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: rgba(245, 158, 11, 10%);
+  border: 1px solid rgba(245, 158, 11, 30%);
   animation: fadeIn 0.3s ease-out;
 }
 
@@ -113,13 +113,13 @@
   &::after {
     content: '';
     flex: 1;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    border-bottom: 1px solid rgba(255, 255, 255, 15%);
   }
 
   span {
     padding: 0 1rem;
     font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 50%);
     font-weight: 500;
   }
 }
@@ -127,14 +127,14 @@
 .oidc-button {
   ::ng-deep button {
     height: 2.75rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 5%);
+    border: 1px solid rgba(255, 255, 255, 15%);
+    color: rgba(255, 255, 255, 90%);
     transition: all 0.3s ease;
 
     &:hover:not(:disabled) {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 10%);
+      border-color: rgba(255, 255, 255, 25%);
       transform: translateY(-1px);
     }
   }
@@ -149,14 +149,14 @@
   background: none;
   border: none;
   font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 50%);
   text-decoration: underline;
   cursor: pointer;
   transition: color 0.2s ease;
   padding: 0;
 
   &:hover {
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 80%);
   }
 
   &.primary {

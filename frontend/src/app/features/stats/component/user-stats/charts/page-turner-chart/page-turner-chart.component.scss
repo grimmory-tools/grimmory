@@ -32,7 +32,7 @@
 
 .page-turner-icon {
   font-size: 1.5rem;
-  color: rgba(251, 146, 60, 1);
+  color: rgba(251, 146, 60, 100%);
 }
 
 .stats-row {
@@ -45,7 +45,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.15rem;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 5%);
     border-radius: 8px;
     padding: 0.5rem 0.75rem;
     flex: 1;
@@ -77,15 +77,15 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 5%);
+    border: 1px solid rgba(255, 255, 255, 10%);
     border-radius: 8px;
     padding: 0.5rem 0.75rem;
     flex: 1;
     min-width: 180px;
 
     .book-rank {
-      color: rgba(251, 146, 60, 1);
+      color: rgba(251, 146, 60, 100%);
       font-weight: 700;
       font-size: 1rem;
     }
@@ -118,7 +118,7 @@
           gap: 0.2rem;
 
           &.burst {
-            color: rgba(251, 146, 60, 0.9);
+            color: rgba(251, 146, 60, 90%);
           }
 
           i {
@@ -129,7 +129,7 @@
     }
 
     .book-score {
-      color: rgba(251, 146, 60, 1);
+      color: rgba(251, 146, 60, 100%);
       font-size: 1.25rem;
       font-weight: 700;
       flex-shrink: 0;

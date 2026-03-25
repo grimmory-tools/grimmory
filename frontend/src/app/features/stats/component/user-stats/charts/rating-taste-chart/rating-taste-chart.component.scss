@@ -36,8 +36,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: rgba(156, 39, 176, 0.15);
-    border: 1px solid rgba(156, 39, 176, 0.3);
+    background: rgba(156, 39, 176, 15%);
+    border: 1px solid rgba(156, 39, 176, 30%);
     border-radius: 8px;
     padding: 0.5rem 1rem;
 
@@ -58,7 +58,7 @@
 
 .rating-taste-icon {
   font-size: 1.5rem;
-  color: rgba(156, 39, 176, 1);
+  color: rgba(156, 39, 176, 100%);
 }
 
 .chart-wrapper {
@@ -75,11 +75,11 @@
     .quadrant-label {
       position: absolute;
       font-size: 0.7rem;
-      color: rgba(255, 255, 255, 0.4);
+      color: rgba(255, 255, 255, 40%);
       font-weight: 500;
       padding: 0.25rem 0.5rem;
       border-radius: 4px;
-      background: rgba(0, 0, 0, 0.3);
+      background: rgba(0, 0, 0, 30%);
 
       &.top-left {
         top: 60px;
@@ -128,7 +128,7 @@
       gap: 0.5rem;
       padding: 0.4rem 0.75rem;
       border-radius: 20px;
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 10%);
       font-size: 0.85rem;
 
       .deviation-label {
@@ -146,8 +146,8 @@
       }
 
       &.unique {
-        background: rgba(156, 39, 176, 0.2);
-        border: 1px solid rgba(156, 39, 176, 0.3);
+        background: rgba(156, 39, 176, 20%);
+        border: 1px solid rgba(156, 39, 176, 30%);
 
         .deviation-value {
           color: #9c27b0;
@@ -155,8 +155,8 @@
       }
 
       &.mainstream {
-        background: rgba(76, 175, 80, 0.2);
-        border: 1px solid rgba(76, 175, 80, 0.3);
+        background: rgba(76, 175, 80, 20%);
+        border: 1px solid rgba(76, 175, 80, 30%);
 
         .deviation-value {
           color: #4caf50;
@@ -172,10 +172,10 @@
   }
 
   .quadrant-card {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 5%);
     border-radius: 8px;
     padding: 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 10%);
     border-left: 4px solid;
     position: relative;
 
@@ -216,7 +216,7 @@
 
     .quadrant-bar {
       height: 4px;
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 10%);
       border-radius: 2px;
       overflow: hidden;
       margin-bottom: 0.25rem;

@@ -18,7 +18,7 @@
   border: 1px solid var(--border-color);
   border-top: none;
   border-bottom: none;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 8%);
 }
 
 .dialog-footer {
@@ -64,12 +64,12 @@
   transition: all 0.15s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(255, 255, 255, 3%);
     border-color: var(--p-primary-400);
   }
 
   &.selected {
-    background: rgba(var(--p-primary-500-rgb), 0.1);
+    background: rgba(var(--p-primary-500-rgb), 10%);
     border-color: var(--p-primary-500);
   }
 }
@@ -107,8 +107,8 @@
   align-items: flex-start;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  background: rgba(234, 179, 8, 0.1);
-  border: 1px solid rgba(234, 179, 8, 0.3);
+  background: rgba(234, 179, 8, 10%);
+  border: 1px solid rgba(234, 179, 8, 30%);
   border-radius: 6px;
   color: #fbbf24;
 
