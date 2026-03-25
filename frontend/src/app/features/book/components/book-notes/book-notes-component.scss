@@ -102,12 +102,12 @@
   border: 1px solid var(--p-content-border-color);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     width: 340px;
     height: 220px;
   }
 
-  @media (max-width: 480px) {
+  @media (width <= 480px) {
     width: 290px;
     height: 200px;
   }
@@ -158,12 +158,12 @@
       font-size: 1.125rem;
       margin: 0;
 
-      @media (max-width: 768px) {
+      @media (width <= 768px) {
         max-width: 200px;
         font-size: 1rem;
       }
 
-      @media (max-width: 480px) {
+      @media (width <= 480px) {
         max-width: 180px;
         font-size: 0.9rem;
       }
@@ -260,12 +260,12 @@
   line-height: 1.6;
   color: #e2e8f0;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     max-height: 140px;
     font-size: 0.9rem;
   }
 
-  @media (max-width: 480px) {
+  @media (width <= 480px) {
     max-height: 120px;
     font-size: 0.85rem;
   }

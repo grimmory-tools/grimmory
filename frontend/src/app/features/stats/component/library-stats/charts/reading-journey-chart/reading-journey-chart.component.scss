@@ -123,7 +123,7 @@
   }
 }
 
-@media (max-width: 1200px) {
+@media (width <= 1200px) {
   .insight-item {
     padding: 0.6rem;
 
@@ -138,7 +138,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .chart-wrapper {
     height: 320px;
   }
@@ -165,7 +165,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .chart-wrapper {
     height: 280px;
   }

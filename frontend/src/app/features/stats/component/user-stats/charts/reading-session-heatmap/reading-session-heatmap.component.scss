@@ -148,7 +148,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .chart-header {
     grid-template-columns: 1fr;
     gap: 0.75rem;
@@ -179,7 +179,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .chart-header {
     .chart-title {
       h3 {

@@ -30,7 +30,7 @@
   height: calc(100dvh - 9.7rem);
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   ::ng-deep .layout-main .tabpanels-responsive {
     height: calc(100dvh - 8.5rem);
   }

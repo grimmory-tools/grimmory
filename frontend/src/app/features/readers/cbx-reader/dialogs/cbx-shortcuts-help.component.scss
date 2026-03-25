@@ -226,7 +226,7 @@ $transition-normal: 200ms ease;
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .dialog {
     width: 95%;
     max-height: 90vh;

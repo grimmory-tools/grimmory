@@ -6,7 +6,7 @@
   display: flex;
   flex-direction: column;
 
-  @media (max-width: 640px) {
+  @media (width <= 640px) {
     width: 100%;
     max-width: 100%;
   }
@@ -29,7 +29,7 @@
   max-height: 450px;
   overflow: hidden;
 
-  @media (max-width: 480px) {
+  @media (width <= 480px) {
     padding: 1rem;
     min-height: 300px;
     max-height: 400px;
@@ -94,7 +94,7 @@
     }
   }
 
-  @media (max-width: 480px) {
+  @media (width <= 480px) {
     padding: 0.5rem 0.625rem;
     flex-wrap: wrap;
 
@@ -218,7 +218,7 @@
     }
   }
 
-  @media (max-width: 480px) {
+  @media (width <= 480px) {
     padding: 0.625rem;
     gap: 0.5rem;
 
@@ -282,7 +282,7 @@
     line-height: 1.5;
   }
 
-  @media (max-width: 480px) {
+  @media (width <= 480px) {
     padding: 1.5rem 0.75rem;
 
     .empty-icon-wrapper {

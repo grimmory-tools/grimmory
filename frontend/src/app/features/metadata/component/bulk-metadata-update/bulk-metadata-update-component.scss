@@ -118,13 +118,13 @@
   &--wide {
     width: 100%;
 
-    @media (min-width: 768px) {
+    @media (width >= 768px) {
       flex-basis: 80%;
     }
   }
 
   &--narrow {
-    @media (min-width: 768px) {
+    @media (width >= 768px) {
       flex-basis: 20%;
     }
   }
@@ -164,7 +164,7 @@
 }
 
 .datepicker-min-width {
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     min-width: 9rem;
   }
 }

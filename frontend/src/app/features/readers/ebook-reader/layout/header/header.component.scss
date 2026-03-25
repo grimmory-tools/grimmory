@@ -126,7 +126,7 @@
   }
 }
 
-@media (max-width: 600px) {
+@media (width <= 600px) {
   .reader-header {
     padding: 0 2px;
 

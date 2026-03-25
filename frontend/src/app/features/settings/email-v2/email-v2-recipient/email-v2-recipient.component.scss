@@ -14,7 +14,7 @@
   justify-content: space-between;
   gap: 1rem;
 
-  @media (max-width: 767px) {
+  @media (width <= 767px) {
     flex-direction: column;
     align-items: stretch;
 
@@ -102,7 +102,7 @@
   align-items: center;
   gap: 1rem;
 
-  @media (max-width: 767px) {
+  @media (width <= 767px) {
     flex-direction: column;
     align-items: stretch;
     gap: 0.75rem;
@@ -112,7 +112,7 @@
 .recipient-select {
   flex-shrink: 0;
 
-  @media (max-width: 767px) {
+  @media (width <= 767px) {
     align-self: flex-start;
   }
 }
@@ -171,7 +171,7 @@
   gap: 1rem;
   flex-wrap: wrap;
 
-  @media (max-width: 767px) {
+  @media (width <= 767px) {
     flex-direction: column;
   }
 }
@@ -207,7 +207,7 @@
   gap: 0.5rem;
   flex-shrink: 0;
 
-  @media (max-width: 767px) {
+  @media (width <= 767px) {
     justify-content: flex-end;
   }
 }

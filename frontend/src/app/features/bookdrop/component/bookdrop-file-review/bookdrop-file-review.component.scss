@@ -7,7 +7,7 @@
   background: var(--card-background);
   border: 1px solid var(--p-content-border-color);
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     height: calc(100dvh - 4.4rem);
     border-radius: 0;
     border-width: 1px 0 0;
@@ -23,7 +23,7 @@
   border-bottom: 1px solid var(--p-content-border-color);
   gap: 1rem;
   
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     padding: 1rem;
   }
 }
@@ -47,7 +47,7 @@
     }
   }
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     flex-shrink: 1;
 
     p {
@@ -57,7 +57,7 @@
 }
 
 .header-actions {
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     display: flex;
   }
 }
@@ -168,7 +168,7 @@
     width: 8rem;
   }
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     width: 100%;
 
     label {
@@ -182,7 +182,7 @@
 }
 
 ::ng-deep .p-select-overlay {
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     max-width: 70vw;
 
     .p-select-option {
@@ -218,7 +218,7 @@ p-inputgroup.disabled {
   gap: 1rem;
   align-items: center;
   
-  @media (max-width: 640px) {
+  @media (width <= 640px) {
     flex-wrap: wrap;
     width: 100%;
 
@@ -294,7 +294,7 @@ p-inputgroup.disabled {
     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 10%);
   }
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     display: none !important;
   }
 }
@@ -314,7 +314,7 @@ div.cover-image {
   text-overflow: ellipsis;
   white-space: wrap;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     max-width: 100%;
   }
 }
@@ -339,7 +339,7 @@ div.cover-image {
   justify-content: flex-end;
   align-items: center;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     width: 100%;
   }
 }
@@ -348,7 +348,7 @@ div.cover-image {
 .path-select {
   width: 8rem;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     flex-basis: 50%;
   }
 }
@@ -366,7 +366,7 @@ div.cover-image {
 }
 
 .footer {
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     flex-wrap: wrap;
 
     ::ng-deep .p-button-label {
@@ -391,7 +391,7 @@ div.cover-image {
 .footer-left {
   justify-content: flex-start;
 
-  @media (max-width: 540px) {
+  @media (width <= 540px) {
     order: 2;
   }
 }
@@ -399,7 +399,7 @@ div.cover-image {
 .footer-right {
   justify-content: flex-end;
 
-  @media (max-width: 540px) {
+  @media (width <= 540px) {
     order: 3;
   }
 }
@@ -414,7 +414,7 @@ div.cover-image {
     padding: 0;
   }
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     ::ng-deep .p-paginator .p-paginator-jtp-dropdown span {
       font-size: var(--p-select-sm-font-size);
       padding-block: var(--p-select-sm-padding-y);
@@ -422,7 +422,7 @@ div.cover-image {
     }
   }
   
-  @media (max-width: 540px) {
+  @media (width <= 540px) {
     order: 1;
     width: 100%;
   }

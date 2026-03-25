@@ -12,7 +12,7 @@
     max-width: 10em;
   }
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     margin-bottom: 0;
   }
 }
@@ -37,7 +37,7 @@
   height: auto;
   width: auto;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     max-height: 14em;
   }
 }
@@ -84,7 +84,7 @@ textarea.changed,
 .field-label {
   font-size: 0.875rem;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     width: 8rem;
   }
 }
@@ -99,7 +99,7 @@ textarea.changed,
   padding: 1rem;
   border-bottom: 1px dotted var(--border-color);
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     &::before {
       content: '';
       min-width: 8rem;
@@ -159,7 +159,7 @@ textarea.changed,
   flex-direction: column;
   padding: 1rem;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     flex-direction: row;
   }
 }
@@ -169,7 +169,7 @@ textarea.changed,
   align-items: flex-start;
   justify-content: center;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     width: 20%;
     height: 100%;
   }
@@ -178,7 +178,7 @@ textarea.changed,
 .editor-thumbnail-inner {
   width: 100%;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     height: 100%;
   }
 }
@@ -187,13 +187,13 @@ textarea.changed,
   width: 100%;
   object-fit: contain;
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     height: 100%;
   }
 }
 
 .editor-metacontent {
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     width: 80%;
   }
 }
@@ -218,7 +218,7 @@ textarea.changed,
     margin: auto 1rem;
   }
 
-  @media (min-width: 768px) {
+  @media (width >= 768px) {
     .arrow-button.nosrc button[disabled] {
       display: none;
     }
@@ -260,7 +260,7 @@ textarea.changed,
 .metaeditor .metacontent {
   padding: 0 0 0 1rem;
 
-  @media (max-width: 768px) {
+  @media (width <= 768px) {
     padding: 0;
   }
 
@@ -308,7 +308,7 @@ textarea.changed,
   }
 }
 
-@media (min-width: 768px) {
+@media (width >= 768px) {
   .metapicker .metacontent,
   .metaeditor .metabody {
     padding-left: 3.25rem;
@@ -340,7 +340,7 @@ textarea.changed,
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .meta-row {
     flex-wrap: wrap;
     margin-bottom: 1em;
