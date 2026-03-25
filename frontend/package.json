@@ -10,7 +10,11 @@
     "dev": "ng serve --open --watch --configuration development",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "lint": "ng lint"
+    "typecheck": "tsc --noEmit -p tsconfig.app.json",
+    "lint": "yarn lint:eslint && yarn lint:styles",
+    "lint:eslint": "ng lint",
+    "lint:styles": "stylelint \"src/**/*.scss\" \"src/*.scss\"",
+    "lint:styles:fix": "yarn lint:styles --fix"
   },
   "private": true,
   "dependencies": {
@@ -66,6 +70,9 @@
     "angular-eslint": "^21.3.1",
     "eslint": "^9.39.3",
     "jsdom": "^28.1.0",
+    "postcss": "^8.5.6",
+    "stylelint": "^16.25.0",
+    "stylelint-config-standard-scss": "^16.0.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.56.1",
     "vitest": "^4.0.17"
