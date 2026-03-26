@@ -172,7 +172,7 @@ export class LibraryShelfMenuService {
     ];
   }
 
-  initializeShelfMenuItems(entity: any): MenuItem[] {
+  initializeShelfMenuItems(entity: Shelf | null): MenuItem[] {
     const user = this.userService.getCurrentUser();
     const isOwner = entity?.userId === user?.id;
     const isPublicShelf = entity?.publicShelf ?? false;

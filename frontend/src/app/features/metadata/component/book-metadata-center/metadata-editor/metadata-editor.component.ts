@@ -638,12 +638,18 @@ export class MetadataEditorComponent implements OnInit {
             });
             this.metadataForm.markAsPristine();
           },
-          error: (err: any) => {
+          error: (err: unknown) => {
             this.isSaving = false;
+            const errorMessage =
+              err && typeof err === 'object' && 'error' in err && err.error &&
+              typeof err.error === 'object' && 'message' in err.error &&
+              typeof err.error.message === 'string'
+                ? err.error.message
+                : this.t.translate('metadata.editor.toast.metadataUpdateFailed');
             this.messageService.add({
               severity: "error",
               summary: this.t.translate('metadata.editor.toast.errorSummary'),
-              detail: err?.error?.message || this.t.translate('metadata.editor.toast.metadataUpdateFailed'),
+              detail: errorMessage,
             });
           },
         })

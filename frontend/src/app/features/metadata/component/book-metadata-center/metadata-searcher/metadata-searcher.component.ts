@@ -70,7 +70,7 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
     this.currentSettings = settings;
     const providerSettings = settings.metadataProviderSettings ?? {};
     this.providers = Object.entries(providerSettings)
-      .filter(([, value]) => !!value && typeof value === 'object' && 'enabled' in value && (value as any).enabled)
+      .filter(([, value]) => this.isEnabledProviderSetting(value) && value.enabled)
       .map(([key]) => key.charAt(0).toUpperCase() + key.slice(1));
 
     const currentProviders = this.form.get('provider')?.value || [];
@@ -109,6 +109,10 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
     }
   }
 
+  private isEnabledProviderSetting(value: unknown): value is { enabled: boolean } {
+    return !!value && typeof value === 'object' && 'enabled' in value;
+  }
+
   private syncFormFromState(): void {
     if (!this.currentBook || !this.currentSettings) {
       return;
@@ -144,7 +148,7 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
     this.selectedProviderFilters = new Set(['all']);
     this.bookId = book.id;
 
-    const formUpdate: Record<string, any> = {
+    const formUpdate: Record<'title' | 'author' | 'isbn', string> & {provider?: string[] | null} = {
       title: book.metadata?.title ?? '',
       author: book.metadata?.authors?.[0] ?? '',
       isbn: book.metadata?.isbn13 ?? book.metadata?.isbn10 ?? ''
