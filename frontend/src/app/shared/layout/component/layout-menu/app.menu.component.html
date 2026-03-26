@@ -15,7 +15,7 @@
          (click)="widthPanel.toggle($event)"></i>
       <p-popover #widthPanel appendTo="body">
         <div class="sidebar-width-popover">
-          <label class="sidebar-width-popover-label">{{ sidebarWidth }}px</label>
+          <span class="sidebar-width-popover-label">{{ sidebarWidth }}px</span>
           <p-slider
             [(ngModel)]="sidebarWidth"
             [min]="175"

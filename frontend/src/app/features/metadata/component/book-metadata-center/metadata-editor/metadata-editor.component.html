@@ -421,7 +421,7 @@
               </div>
             </div>
             <div class="field-group small-field">
-              <label>{{ t('publicReviews') }}</label>
+              <span>{{ t('publicReviews') }}</span>
               <div class="field-with-lock">
                 <input pSize="small" pInputText [disabled]="true" [value]="t('noValue')"/>
                 @if (!book.metadata!['reviewsLocked']) {
@@ -531,7 +531,7 @@
               <div class="field-row metadata-ids-row">
                 @for (field of audiobookMetadataFields; track field) {
                   <div class="field-group metadata-id-field">
-                    <label>{{ field.label }} @if (isEmbeddable(field.controlName, book)) { <i class="pi pi-file-export embeddable-indicator" [pTooltip]="t('writtenToFileTooltip')" tooltipPosition="top"></i> }</label>
+                    <span>{{ field.label }} @if (isEmbeddable(field.controlName, book)) { <i class="pi pi-file-export embeddable-indicator" [pTooltip]="t('writtenToFileTooltip')" tooltipPosition="top"></i> }</span>
                     <div class="field-with-lock">
                       @if (field.type === 'boolean') {
                         <p-select [formControlName]="field.controlName" [options]="booleanOptions" optionLabel="label" optionValue="value" appendTo="body"></p-select>
@@ -567,7 +567,7 @@
               <div class="comic-text-grid">
                 @for (field of comicTextFields; track field) {
                   <div class="field-group">
-                    <label>{{ field.label }} @if (isEmbeddable(field.controlName, book)) { <i class="pi pi-file-export embeddable-indicator" [pTooltip]="t('writtenToFileTooltip')" tooltipPosition="top"></i> }</label>
+                    <span>{{ field.label }} @if (isEmbeddable(field.controlName, book)) { <i class="pi pi-file-export embeddable-indicator" [pTooltip]="t('writtenToFileTooltip')" tooltipPosition="top"></i> }</span>
                     <div class="field-with-lock">
                       @if (field.type === 'boolean') {
                         <p-select [formControlName]="field.controlName" [options]="booleanOptions" optionLabel="label" optionValue="value" size="small" appendTo="body"></p-select>
@@ -589,7 +589,7 @@
               <div class="comic-array-grid">
                 @for (field of comicArrayFields; track field) {
                   <div class="field-group">
-                    <label>{{ field.label }} @if (isEmbeddable(field.controlName, book)) { <i class="pi pi-file-export embeddable-indicator" [pTooltip]="t('writtenToFileTooltip')" tooltipPosition="top"></i> }</label>
+                    <span>{{ field.label }} @if (isEmbeddable(field.controlName, book)) { <i class="pi pi-file-export embeddable-indicator" [pTooltip]="t('writtenToFileTooltip')" tooltipPosition="top"></i> }</span>
                     <div class="field-with-lock">
                       <div class="autocomplete-wrapper">
                         <p-autoComplete
@@ -618,7 +618,7 @@
               @for (field of comicTextareaFields; track field) {
                 <div class="field-row comic-array-row">
                   <div class="field-group full-width">
-                    <label>{{ field.label }} @if (isEmbeddable(field.controlName, book)) { <i class="pi pi-file-export embeddable-indicator" [pTooltip]="t('writtenToFileTooltip')" tooltipPosition="top"></i> }</label>
+                    <span>{{ field.label }} @if (isEmbeddable(field.controlName, book)) { <i class="pi pi-file-export embeddable-indicator" [pTooltip]="t('writtenToFileTooltip')" tooltipPosition="top"></i> }</span>
                     <div class="field-with-lock description-with-lock">
                       <textarea pTextarea [formControlName]="field.controlName" rows="4"></textarea>
                       @if (!metadataForm.get(field.lockedKey)?.value) {

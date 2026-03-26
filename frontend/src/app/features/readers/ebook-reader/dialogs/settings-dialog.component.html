@@ -83,7 +83,7 @@
 
           <div class="section-header">{{ t('fontSettings') }}</div>
           <div class="control">
-            <label>{{ t('fontSize') }}</label>
+            <span>{{ t('fontSize') }}</span>
             <div class="control-right">
               <div class="stepper">
                 <button (click)="decreaseFontSize()">&#8722;</button>
@@ -93,7 +93,7 @@
             </div>
           </div>
           <div class="control">
-            <label>{{ t('lineHeight') }}</label>
+            <span>{{ t('lineHeight') }}</span>
             <div class="control-right">
               <div class="stepper">
                 <button (click)="decreaseLineHeight()">&#8722;</button>
@@ -124,7 +124,7 @@
           <div class="section-header">{{ t('layout') }}</div>
 
           <div class="control">
-            <label>{{ t('readingFlow') }}</label>
+            <span>{{ t('readingFlow') }}</span>
             <div class="control-right">
               <div class="radio-group">
                 <label>
@@ -152,7 +152,7 @@
           </div>
 
           <div class="control">
-            <label>{{ t('maxColumns') }}</label>
+            <span>{{ t('maxColumns') }}</span>
             <div class="control-right">
               <div class="stepper">
                 <button (click)="decreaseMaxColumnCount()">&#8722;</button>
@@ -163,7 +163,7 @@
           </div>
 
           <div class="control">
-            <label>{{ t('columnGap') }}</label>
+            <span>{{ t('columnGap') }}</span>
             <div class="control-right gap-control">
               <input
                 #gapInput
@@ -179,7 +179,7 @@
           </div>
 
           <div class="control">
-            <label>{{ t('maxWidth') }}</label>
+            <span>{{ t('maxWidth') }}</span>
             <div class="control-right">
               <div class="stepper">
                 <button (click)="decreaseMaxInlineSize()">&#8722;</button>
@@ -190,7 +190,7 @@
           </div>
 
           <div class="control">
-            <label>{{ t('maxHeight') }}</label>
+            <span>{{ t('maxHeight') }}</span>
             <div class="control-right">
               <div class="stepper">
                 <button (click)="decreaseMaxBlockSize()">&#8722;</button>

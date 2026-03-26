@@ -46,10 +46,10 @@
     <div class="gradient-divider"></div>
 
     <div class="form-group highlight-group">
-      <label class="form-label">
+      <span class="form-label">
         <i class="pi pi-palette label-icon"></i>
         {{ t('shelfIconLabel') }}
-      </label>
+      </span>
       @if (!selectedIcon) {
         <button class="icon-select-btn" (click)="openIconPicker()" type="button">
           <i class="pi pi-plus"></i>
@@ -94,10 +94,10 @@
       <div class="gradient-divider"></div>
 
       <div class="form-group highlight-group">
-        <label class="form-label">
+        <span class="form-label">
           <i class="pi pi-globe label-icon"></i>
           {{ t('visibilityLabel') }}
-        </label>
+        </span>
         <div class="input-wrapper" style="display: flex; align-items: center; gap: 0.5rem;">
           <p-checkbox [(ngModel)]="isPublic" [binary]="true" inputId="publicShelf"></p-checkbox>
           <label for="publicShelf" style="cursor: pointer">{{ t('makePublicLabel') }}</label>

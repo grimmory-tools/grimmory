@@ -28,11 +28,12 @@
 
         <div class="form-row two-col">
           <div class="form-field">
-            <label>
+            <label for="library-name">
               {{ t('nameLabel') }} <span class="required">*</span>
             </label>
             <div class="input-container">
               <input
+                id="library-name"
                 pInputText
                 [(ngModel)]="chosenLibraryName"
                 [placeholder]="t('namePlaceholder')"
@@ -45,9 +46,9 @@
           </div>
 
           <div class="form-field">
-            <label>
+            <span>
               {{ t('iconLabel') }}
-            </label>
+            </span>
             @if (!selectedIcon) {
               <button class="icon-picker-trigger" (click)="openIconPicker()" type="button">
                 <i class="pi pi-plus"></i>

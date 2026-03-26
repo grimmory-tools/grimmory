@@ -5,7 +5,7 @@
     <div class="panel-body">
       <!-- Dark Mode -->
       <div class="control">
-        <label>{{ t('darkMode') }}</label>
+        <span>{{ t('darkMode') }}</span>
         <div class="control-right">
           <span class="mode-icon sun" [class.active]="!isDarkMode">&#9728;&#65039;</span>
           <button class="switch" [class.active]="isDarkMode" (click)="toggleDarkMode()">
@@ -17,7 +17,7 @@
 
       <!-- Font Size -->
       <div class="control">
-        <label>{{ t('fontSize') }}</label>
+        <span>{{ t('fontSize') }}</span>
         <div class="control-right">
           <div class="stepper">
             <button (click)="decreaseFontSize()">&#8722;</button>
@@ -29,7 +29,7 @@
 
       <!-- Line Spacing -->
       <div class="control">
-        <label>{{ t('lineSpacing') }}</label>
+        <span>{{ t('lineSpacing') }}</span>
         <div class="control-right">
           <div class="stepper">
             <button (click)="decreaseLineHeight()">&#8722;</button>

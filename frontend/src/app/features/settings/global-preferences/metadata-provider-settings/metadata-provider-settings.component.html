@@ -24,7 +24,7 @@
               @if (amazonEnabled) {
                 <div class="setting-options">
                   <div class="config-field">
-                    <label class="config-label">{{ t('region') }}</label>
+                    <span class="config-label">{{ t('region') }}</span>
                     <p-select
                       [options]="amazonDomains"
                       [(ngModel)]="selectedAmazonDomain"
@@ -34,7 +34,7 @@
                   </div>
                   <div class="config-field">
                     <div class="config-label-row">
-                      <label class="config-label">{{ t('cookieLabel') }}</label>
+                      <span class="config-label">{{ t('cookieLabel') }}</span>
                       <app-external-doc-link docType="amazonCookie"></app-external-doc-link>
                     </div>
                     <p class="config-description">{{ t('cookieDesc') }}</p>
@@ -57,7 +57,7 @@
               @if (googleEnabled) {
                 <div class="setting-options">
                   <div class="config-field">
-                    <label class="config-label">{{ t('languageRestriction') }}</label>
+                    <span class="config-label">{{ t('languageRestriction') }}</span>
                     <p-select
                       [options]="googleLanguages"
                       [(ngModel)]="selectedGoogleLanguage"
@@ -67,7 +67,7 @@
                     </p-select>
                   </div>
                   <div class="config-field">
-                    <label class="config-label">{{ t('apiKeyOptional') }}</label>
+                    <span class="config-label">{{ t('apiKeyOptional') }}</span>
                     <p class="config-description">{{ t('googleApiDesc') }}</p>
                     <input
                       type="text"
@@ -91,7 +91,7 @@
               <div class="setting-options">
                 <div class="config-field">
                   <div class="config-label-row">
-                    <label class="config-label">{{ t('apiToken') }}</label>
+                    <span class="config-label">{{ t('apiToken') }}</span>
                     <app-external-doc-link docType="hardcover"></app-external-doc-link>
                   </div>
                   <input
@@ -113,7 +113,7 @@
               @if (comicvineEnabled) {
                 <div class="setting-options">
                   <div class="config-field">
-                    <label class="config-label">{{ t('apiToken') }}</label>
+                    <span class="config-label">{{ t('apiToken') }}</span>
                     <input
                       type="text"
                       pInputText
@@ -134,7 +134,7 @@
               @if (audibleEnabled) {
                 <div class="setting-options">
                   <div class="config-field">
-                    <label class="config-label">{{ t('region') }}</label>
+                    <span class="config-label">{{ t('region') }}</span>
                     <p-select
                       [options]="audibleDomains"
                       [(ngModel)]="selectedAudibleDomain"

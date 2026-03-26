@@ -29,7 +29,7 @@
       </h3>
 
       <div class="form-field">
-        <label class="field-label">{{ t('username') }}</label>
+        <label class="field-label" for="username">{{ t('username') }}</label>
         <input
           disabled
           id="username"
@@ -41,7 +41,7 @@
       </div>
 
       <div class="form-field">
-        <label class="field-label">{{ t('fullName') }}</label>
+        <label class="field-label" for="fullname">{{ t('fullName') }}</label>
         <input
           [disabled]="!isEditing"
           id="fullname"
@@ -53,7 +53,7 @@
       </div>
 
       <div class="form-field">
-        <label class="field-label">{{ t('email') }}</label>
+        <label class="field-label" for="email">{{ t('email') }}</label>
         <input
           [disabled]="!isEditing"
           id="email"

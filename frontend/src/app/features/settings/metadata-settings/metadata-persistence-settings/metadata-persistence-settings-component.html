@@ -50,8 +50,9 @@
         @if (metadataPersistence.saveToOriginalFile.epub.enabled) {
           <div class="setting-options">
             <div class="filesize-input">
-              <label>{{ t('maxFileSize') }}</label>
+              <label for="metadata-persistence-epub-max-file-size">{{ t('maxFileSize') }}</label>
               <input
+                id="metadata-persistence-epub-max-file-size"
                 type="number"
                 [(ngModel)]="metadataPersistence.saveToOriginalFile.epub.maxFileSizeInMb"
                 (change)="onFilesizeChange('epub')"
@@ -82,8 +83,9 @@
         @if (metadataPersistence.saveToOriginalFile.cbx.enabled) {
           <div class="setting-options">
             <div class="filesize-input">
-              <label>{{ t('maxFileSize') }}</label>
+              <label for="metadata-persistence-cbx-max-file-size">{{ t('maxFileSize') }}</label>
               <input
+                id="metadata-persistence-cbx-max-file-size"
                 type="number"
                 [(ngModel)]="metadataPersistence.saveToOriginalFile.cbx.maxFileSizeInMb"
                 (change)="onFilesizeChange('cbx')"
@@ -117,8 +119,9 @@
         @if (metadataPersistence.saveToOriginalFile.pdf.enabled) {
           <div class="setting-options">
             <div class="filesize-input">
-              <label>{{ t('maxFileSize') }}</label>
+              <label for="metadata-persistence-pdf-max-file-size">{{ t('maxFileSize') }}</label>
               <input
+                id="metadata-persistence-pdf-max-file-size"
                 type="number"
                 [(ngModel)]="metadataPersistence.saveToOriginalFile.pdf.maxFileSizeInMb"
                 (change)="onFilesizeChange('pdf')"
@@ -152,8 +155,9 @@
         @if (metadataPersistence.saveToOriginalFile.audiobook.enabled) {
           <div class="setting-options">
             <div class="filesize-input">
-              <label>{{ t('maxFileSize') }}</label>
+              <label for="metadata-persistence-audiobook-max-file-size">{{ t('maxFileSize') }}</label>
               <input
+                id="metadata-persistence-audiobook-max-file-size"
                 type="number"
                 [(ngModel)]="metadataPersistence.saveToOriginalFile.audiobook.maxFileSizeInMb"
                 (change)="onFilesizeChange('audiobook')"

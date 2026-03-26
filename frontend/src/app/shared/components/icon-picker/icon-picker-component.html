@@ -138,8 +138,9 @@
 
                 <div class="form-fields">
                   <div class="form-field">
-                    <label>Icon Name</label>
+                    <label for="icon-picker-svg-name">Icon Name</label>
                     <input
+                      id="icon-picker-svg-name"
                       type="text"
                       pInputText
                       [(ngModel)]="svgName"
@@ -149,8 +150,9 @@
                   </div>
 
                   <div class="form-field">
-                    <label>SVG Code</label>
+                    <label for="icon-picker-svg-code">SVG Code</label>
                     <textarea
+                      id="icon-picker-svg-code"
                       pInputTextarea
                       [(ngModel)]="svgContent"
                       (ngModelChange)="onSvgContentChange()"

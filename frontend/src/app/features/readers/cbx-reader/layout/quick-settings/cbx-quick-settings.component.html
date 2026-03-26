@@ -4,7 +4,7 @@
     <div class="panel-body">
       <!-- Fit Mode -->
       <div class="control">
-        <label>{{ 'readerCbx.quickSettings.fitMode' | transloco }}</label>
+        <span>{{ 'readerCbx.quickSettings.fitMode' | transloco }}</span>
         <div class="control-right">
           <div class="button-group">
             @for (option of fitModeOptions; track option.value) {
@@ -22,7 +22,7 @@
 
       <!-- Scroll Mode -->
       <div class="control">
-        <label>{{ 'readerCbx.quickSettings.scrollMode' | transloco }}</label>
+        <span>{{ 'readerCbx.quickSettings.scrollMode' | transloco }}</span>
         <div class="control-right">
           <div class="button-group text-btns">
             @for (option of scrollModeOptions; track option.value) {
@@ -41,7 +41,7 @@
       <!-- Page View (only in paginated mode) -->
       @if (isPaginated && !isPhonePortrait) {
         <div class="control">
-          <label>{{ 'readerCbx.quickSettings.pageView' | transloco }}</label>
+          <span>{{ 'readerCbx.quickSettings.pageView' | transloco }}</span>
           <div class="control-right">
             <span class="mode-label">{{ isTwoPageView ? ('readerCbx.quickSettings.twoPage' | transloco) : ('readerCbx.quickSettings.single' | transloco) }}</span>
             <button class="switch" [class.active]="isTwoPageView" (click)="onPageViewToggle()">
@@ -54,7 +54,7 @@
       <!-- Page Spread (only in two-page mode) -->
       @if (isPaginated && isTwoPageView) {
         <div class="control">
-          <label>{{ 'readerCbx.quickSettings.pageSpread' | transloco }}</label>
+          <span>{{ 'readerCbx.quickSettings.pageSpread' | transloco }}</span>
           <div class="control-right">
             <span class="mode-label">{{ state().pageSpread === CbxPageSpread.ODD ? ('readerCbx.quickSettings.oddFirst' | transloco) : ('readerCbx.quickSettings.evenFirst' | transloco) }}</span>
             <button class="switch" [class.active]="state().pageSpread === CbxPageSpread.EVEN" (click)="onPageSpreadToggle()">
@@ -66,7 +66,7 @@
 
       <!-- Reading Direction -->
       <div class="control">
-        <label>{{ 'readerCbx.quickSettings.readingDirection' | transloco }}</label>
+        <span>{{ 'readerCbx.quickSettings.readingDirection' | transloco }}</span>
         <div class="control-right">
           <span class="mode-label">{{ state().readingDirection === CbxReadingDirection.LTR ? ('readerCbx.quickSettings.leftToRight' | transloco) : ('readerCbx.quickSettings.rightToLeft' | transloco) }}</span>
           <button class="switch" [class.active]="state().readingDirection === CbxReadingDirection.RTL" (click)="onReadingDirectionToggle()">
@@ -77,7 +77,7 @@
 
       <!-- Slideshow Interval -->
       <div class="control">
-        <label>{{ 'readerCbx.quickSettings.slideshowInterval' | transloco }}</label>
+        <span>{{ 'readerCbx.quickSettings.slideshowInterval' | transloco }}</span>
         <div class="control-right">
           <div class="button-group text-btns">
             @for (option of slideshowIntervalOptions; track option.value) {
@@ -95,7 +95,7 @@
 
       <!-- Background Color -->
       <div class="control">
-        <label>{{ 'readerCbx.quickSettings.background' | transloco }}</label>
+        <span>{{ 'readerCbx.quickSettings.background' | transloco }}</span>
         <div class="control-right">
           <div class="button-group">
             @for (option of backgroundOptions; track option.value) {
@@ -113,7 +113,7 @@
 
       <!-- Magnifier Lens Size -->
       <div class="control">
-        <label>{{ 'readerCbx.quickSettings.magnifierLensSize' | transloco }}</label>
+        <span>{{ 'readerCbx.quickSettings.magnifierLensSize' | transloco }}</span>
         <div class="control-right">
           <div class="button-group text-btns">
             @for (option of magnifierLensSizeOptions; track option.value) {
@@ -131,7 +131,7 @@
 
       <!-- Magnifier Zoom -->
       <div class="control">
-        <label>{{ 'readerCbx.quickSettings.magnifierZoom' | transloco }}</label>
+        <span>{{ 'readerCbx.quickSettings.magnifierZoom' | transloco }}</span>
         <div class="control-right">
           <div class="button-group text-btns">
             @for (option of magnifierZoomOptions; track option.value) {

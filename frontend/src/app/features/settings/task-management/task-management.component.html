@@ -166,7 +166,7 @@
 
               @if (!isTaskRunning(taskInfo.taskType) && taskInfo.taskType === TaskType.REFRESH_LIBRARY_METADATA) {
                 <div class="task-options">
-                  <label class="option-label">{{ t('metadataReplace.label') }}</label>
+                  <span class="option-label">{{ t('metadataReplace.label') }}</span>
                   <p-select
                     [options]="metadataReplaceOptions"
                     [(ngModel)]="selectedMetadataReplaceMode"

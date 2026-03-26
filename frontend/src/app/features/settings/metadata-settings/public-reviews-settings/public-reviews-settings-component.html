@@ -52,8 +52,9 @@
                     </div>
                     @if (provider.enabled) {
                       <div class="max-reviews-control">
-                        <label class="max-reviews-label">{{ t('maxLabel') }}</label>
+                        <label class="max-reviews-label" [for]="'public-review-max-reviews-' + provider.provider">{{ t('maxLabel') }}</label>
                         <input
+                          [id]="'public-review-max-reviews-' + provider.provider"
                           type="number"
                           class="max-reviews-input"
                           min="1"

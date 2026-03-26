@@ -30,8 +30,9 @@
 
         <div class="form-fields-grid">
           <div class="form-field">
-            <label class="field-label">{{ t('createDialog.fullName') }}</label>
+            <label class="field-label" for="create-user-full-name">{{ t('createDialog.fullName') }}</label>
             <input
+              id="create-user-full-name"
               type="text"
               pInputText
               formControlName="name"
@@ -47,8 +48,9 @@
           </div>
 
           <div class="form-field">
-            <label class="field-label">{{ t('createDialog.username') }}</label>
+            <label class="field-label" for="create-user-username">{{ t('createDialog.username') }}</label>
             <input
+              id="create-user-username"
               type="text"
               pInputText
               formControlName="username"
@@ -64,8 +66,9 @@
           </div>
 
           <div class="form-field field-full">
-            <label class="field-label">{{ t('createDialog.email') }}</label>
+            <label class="field-label" for="create-user-email">{{ t('createDialog.email') }}</label>
             <input
+              id="create-user-email"
               type="email"
               pInputText
               formControlName="email"
@@ -83,8 +86,9 @@
           <div class="password-row field-full">
             <div class="password-grid">
               <div class="form-field">
-                <label class="field-label">{{ t('createDialog.password') }}</label>
+                <label class="field-label" for="create-user-password">{{ t('createDialog.password') }}</label>
                 <input
+                  id="create-user-password"
                   type="password"
                   pInputText
                   formControlName="password"
@@ -100,8 +104,9 @@
               </div>
 
               <div class="form-field">
-                <label class="field-label">{{ t('createDialog.confirmPassword') }}</label>
+                <label class="field-label" for="create-user-confirm-password">{{ t('createDialog.confirmPassword') }}</label>
                 <input
+                  id="create-user-confirm-password"
                   type="password"
                   pInputText
                   formControlName="confirmPassword"
@@ -135,8 +140,9 @@
         </h3>
 
         <div class="form-field">
-          <label class="field-label">{{ t('createDialog.accessibleLibraries') }}</label>
+          <label class="field-label" for="create-user-libraries">{{ t('createDialog.accessibleLibraries') }}</label>
           <p-multiselect
+            inputId="create-user-libraries"
             [options]="libraries"
             formControlName="selectedLibraries"
             [placeholder]="t('createDialog.selectLibraries')"

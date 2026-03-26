@@ -12,11 +12,12 @@
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="search-card">
       <div class="search-grid">
         <div class="search-field search-field-provider">
-          <label>
+          <label for="metadata-search-providers">
             <i class="pi pi-globe"></i>
             {{ t('providersLabel') }}
           </label>
           <p-multiselect
+            inputId="metadata-search-providers"
             [filter]="false"
             showToggleAll="false"
             [options]="providers"
@@ -27,7 +28,7 @@
         </div>
 
         <div class="search-field">
-          <label>
+          <label for="metadata-search-isbn">
             <i class="pi pi-barcode"></i>
             {{ t('isbnLabel') }}
             <i
@@ -38,6 +39,7 @@
             ></i>
           </label>
           <input
+            id="metadata-search-isbn"
             pInputText
             formControlName="isbn"
             [placeholder]="t('isbnPlaceholder')"
@@ -45,11 +47,12 @@
         </div>
 
         <div class="search-field">
-          <label>
+          <label for="metadata-search-title">
             <i class="pi pi-book"></i>
             {{ t('titleLabel') }}
           </label>
           <input
+            id="metadata-search-title"
             pInputText
             formControlName="title"
             [placeholder]="t('titlePlaceholder')"
@@ -57,11 +60,12 @@
         </div>
 
         <div class="search-field">
-          <label>
+          <label for="metadata-search-author">
             <i class="pi pi-user"></i>
             {{ t('authorLabel') }}
           </label>
           <input
+            id="metadata-search-author"
             pInputText
             formControlName="author"
             [placeholder]="t('authorPlaceholder')"

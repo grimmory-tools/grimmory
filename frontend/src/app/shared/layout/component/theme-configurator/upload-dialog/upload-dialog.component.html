@@ -2,7 +2,7 @@
 <div class="upload-dialog-content">
   <div class="upload-section">
     <div class="file-selector">
-      <label class="file-label">{{ t('chooseFile') }}</label>
+      <label class="file-label" for="upload-dialog-file-input">{{ t('chooseFile') }}</label>
       <p-button
         [label]="t('selectImage')"
         icon="pi pi-upload"
@@ -12,6 +12,7 @@
       </p-button>
     </div>
     <input
+      id="upload-dialog-file-input"
       #fileInput
       type="file"
       accept=".jpg,.jpeg,.png,image/jpeg,image/png"

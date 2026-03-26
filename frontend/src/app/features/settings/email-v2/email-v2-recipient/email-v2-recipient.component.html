@@ -47,18 +47,18 @@
                   @if (recipient.isEditing) {
                     <div class="edit-form">
                       <div class="form-field">
-                        <label class="field-label">
+                        <label class="field-label" [for]="'recipient-email-' + recipient.id">
                           <i class="pi pi-envelope"></i>
                           {{ t('email') }}
                         </label>
-                        <input type="email" pInputText [(ngModel)]="recipient.email" [placeholder]="t('emailPlaceholder')"/>
+                        <input [id]="'recipient-email-' + recipient.id" type="email" pInputText [(ngModel)]="recipient.email" [placeholder]="t('emailPlaceholder')"/>
                       </div>
                       <div class="form-field">
-                        <label class="field-label">
+                        <label class="field-label" [for]="'recipient-name-' + recipient.id">
                           <i class="pi pi-user"></i>
                           {{ t('name') }}
                         </label>
-                        <input type="text" pInputText [(ngModel)]="recipient.name" [placeholder]="t('namePlaceholder')"/>
+                        <input [id]="'recipient-name-' + recipient.id" type="text" pInputText [(ngModel)]="recipient.name" [placeholder]="t('namePlaceholder')"/>
                       </div>
                     </div>
                   } @else {

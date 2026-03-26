@@ -185,25 +185,26 @@
                     </h4>
                     <div class="details-grid">
                       <div class="detail-field">
-                        <label>{{ t('userInfo.fullName') }}</label>
+                        <label [for]="'user-full-name-' + user.id">{{ t('userInfo.fullName') }}</label>
                         @if (user.isEditing) {
-                          <input type="text" pInputText [(ngModel)]="user.name" [placeholder]="t('userInfo.enterFullName')"/>
+                          <input [id]="'user-full-name-' + user.id" type="text" pInputText [(ngModel)]="user.name" [placeholder]="t('userInfo.enterFullName')"/>
                         } @else {
                           <span>{{ user.name || t('userInfo.notSet') }}</span>
                         }
                       </div>
                       <div class="detail-field">
-                        <label>{{ t('userInfo.email') }}</label>
+                        <label [for]="'user-email-' + user.id">{{ t('userInfo.email') }}</label>
                         @if (user.isEditing) {
-                          <input type="email" pInputText [(ngModel)]="user.email" [placeholder]="t('userInfo.enterEmail')"/>
+                          <input [id]="'user-email-' + user.id" type="email" pInputText [(ngModel)]="user.email" [placeholder]="t('userInfo.enterEmail')"/>
                         } @else {
                           <span>{{ user.email || t('userInfo.notSet') }}</span>
                         }
                       </div>
                       <div class="detail-field detail-field-wide">
-                        <label>{{ t('userInfo.libraries') }}</label>
+                        <label [for]="'user-libraries-' + user.id">{{ t('userInfo.libraries') }}</label>
                         @if (user.isEditing) {
                           <p-multiSelect
+                            [inputId]="'user-libraries-' + user.id"
                             [options]="allLibraries"
                             optionLabel="name"
                             optionValue="id"

@@ -38,8 +38,9 @@
           <div class="weights-grid">
             @for (key of orderedKeys; track key) {
               <div class="weight-field">
-                <label class="field-label">{{ getFieldLabel(key) }}</label>
+                <label class="field-label" [for]="'metadata-weight-' + key">{{ getFieldLabel(key) }}</label>
                 <p-inputNumber
+                  [inputId]="'metadata-weight-' + key"
                   size="small"
                   [formControlName]="key"
                   [min]="0"

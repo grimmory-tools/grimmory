@@ -22,7 +22,7 @@
     <div class="fields-grid">
       @for (field of lockableFields; track field) {
         <div class="field-row">
-          <label class="field-label">{{ fieldLabels[field] || field }}</label>
+          <span class="field-label">{{ fieldLabels[field] || field }}</span>
           <p-button
             [outlined]="true"
             [label]="getLockLabel(field)"

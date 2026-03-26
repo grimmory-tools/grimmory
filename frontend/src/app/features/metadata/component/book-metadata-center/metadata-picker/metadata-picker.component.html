@@ -51,13 +51,13 @@
           <!-- Ebook Cover Row -->
           @if (!currentBook || hasEbookFormat(currentBook)) {
             <div class="field-row cover-field-row">
-              <label class="field-label">
+              <span class="field-label">
                 @if (currentBook && supportsDualCovers(currentBook)) {
                   <i class="pi pi-book cover-type-icon"></i> {{ t('coverLabelEbook') }}
                 } @else {
                   {{ t('coverLabel') }}
                 }
-              </label>
+              </span>
               <div class="field-content">
                 <div class="field-side current cover-side">
                   <span class="cover-label mobile-only">{{ t('mobileCurrentLabel') }}</span>
@@ -116,9 +116,9 @@
           <!-- Audiobook Cover Row -->
           @if (currentBook && hasAudiobookFormat(currentBook)) {
             <div class="field-row cover-field-row audiobook-cover-row">
-              <label class="field-label">
+              <span class="field-label">
                 <i class="pi pi-headphones cover-type-icon"></i> {{ t('coverLabelAudiobook') }}
-              </label>
+              </span>
               <div class="field-content">
                 <div class="field-side current cover-side">
                   <span class="cover-label mobile-only">{{ t('mobileCurrentLabel') }}</span>
@@ -197,7 +197,7 @@
         <div class="section-content">
           @for (field of metadataFieldsTop; track field) {
             <div class="field-row">
-              <label class="field-label">{{ field.label }}</label>
+              <span class="field-label">{{ field.label }}</span>
               <div class="field-content">
                 <div class="field-side current">
                   <button
@@ -247,7 +247,7 @@
         <div class="section-content">
           @for (field of metadataChips; track field) {
             <div class="field-row">
-              <label class="field-label">{{ field.label }}</label>
+              <span class="field-label">{{ field.label }}</span>
               <div class="field-content">
                 <div class="field-side current">
                   <button
@@ -344,7 +344,7 @@
         <div class="section-content">
           @for (field of metadataDescription; track field) {
             <div class="field-row textarea-row">
-              <label class="field-label">{{ field.label }}</label>
+              <span class="field-label">{{ field.label }}</span>
               <div class="field-content">
                 <div class="field-side current">
                   <button
@@ -390,7 +390,7 @@
         <div class="section-content">
           @for (field of metadataSeriesFields; track field) {
             <div class="field-row">
-              <label class="field-label">{{ field.label }}</label>
+              <span class="field-label">{{ field.label }}</span>
               <div class="field-content">
                 <div class="field-side current">
                   <button
@@ -436,7 +436,7 @@
         <div class="section-content">
           @for (field of metadataBookDetailsFields; track field) {
             <div class="field-row">
-              <label class="field-label">{{ field.label }}</label>
+              <span class="field-label">{{ field.label }}</span>
               <div class="field-content">
                 <div class="field-side current">
                   <button
@@ -489,7 +489,7 @@
               <!-- Comic text/number/boolean fields -->
               @for (field of comicTextFields; track field) {
                 <div class="field-row">
-                  <label class="field-label">{{ field.label }}</label>
+                  <span class="field-label">{{ field.label }}</span>
                   <div class="field-content">
                     <div class="field-side current">
                       <button
@@ -544,7 +544,7 @@
               <!-- Comic array fields (creators, characters, teams, locations) -->
               @for (field of comicArrayFields; track field) {
                 <div class="field-row">
-                  <label class="field-label">{{ field.label }}</label>
+                  <span class="field-label">{{ field.label }}</span>
                   <div class="field-content">
                     <div class="field-side current">
                       <button
@@ -601,7 +601,7 @@
               <!-- Comic textarea fields (notes) -->
               @for (field of comicTextareaFields; track field) {
                 <div class="field-row textarea-row">
-                  <label class="field-label">{{ field.label }}</label>
+                  <span class="field-label">{{ field.label }}</span>
                   <div class="field-content">
                     <div class="field-side current">
                       <button
@@ -650,7 +650,7 @@
           <div class="section-content">
             @for (field of audiobookMetadataFields; track field) {
               <div class="field-row">
-                <label class="field-label">{{ field.label }}</label>
+                <span class="field-label">{{ field.label }}</span>
                 <div class="field-content">
                   <div class="field-side current">
                     <button
@@ -716,7 +716,7 @@
           <div class="section-content">
             @for (field of metadataProviderFields; track field) {
               <div class="field-row">
-                <label class="field-label">{{ field.label }}</label>
+                <span class="field-label">{{ field.label }}</span>
                 <div class="field-content">
                   <div class="field-side current">
                     <button

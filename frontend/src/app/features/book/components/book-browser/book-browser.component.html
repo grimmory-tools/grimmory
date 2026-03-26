@@ -114,7 +114,7 @@
                 </div>
                 @if (isMobile) {
                   <div class="display-settings-section">
-                    <label class="display-settings-label">{{ t('labels.gridColumns') }}</label>
+                    <span class="display-settings-label">{{ t('labels.gridColumns') }}</span>
                     <div class="column-options">
                       <button
                         type="button"
@@ -135,7 +135,7 @@
                   </div>
                 } @else {
                   <div class="display-settings-section">
-                    <label class="display-settings-label">{{ t('labels.gridItemSize') }}</label>
+                    <span class="display-settings-label">{{ t('labels.gridItemSize') }}</span>
                     <p-slider
                       [ngModel]="coverScalePreferenceService.scaleFactor()"
                       (ngModelChange)="coverScalePreferenceService.setScale($event)"

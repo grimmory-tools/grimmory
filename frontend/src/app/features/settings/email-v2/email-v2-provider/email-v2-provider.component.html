@@ -107,10 +107,10 @@
               <div class="provider-details">
                 <div class="detail-grid">
                   <div class="detail-item">
-                    <label class="detail-label">
+                    <span class="detail-label">
                       <i class="pi pi-server"></i>
                       {{ t('host') }}
-                    </label>
+                    </span>
                     @if (provider.isEditing) {
                       <input type="text" pInputText [(ngModel)]="provider.host" [placeholder]="t('hostPlaceholder')"/>
                     } @else {
@@ -119,10 +119,10 @@
                   </div>
 
                   <div class="detail-item">
-                    <label class="detail-label">
+                    <span class="detail-label">
                       <i class="pi pi-link"></i>
                       {{ t('port') }}
-                    </label>
+                    </span>
                     @if (provider.isEditing) {
                       <input type="number" pInputText [(ngModel)]="provider.port" [placeholder]="t('portPlaceholder')"/>
                     } @else {
@@ -131,10 +131,10 @@
                   </div>
 
                   <div class="detail-item">
-                    <label class="detail-label">
+                    <span class="detail-label">
                       <i class="pi pi-user"></i>
                       {{ t('username') }}
-                    </label>
+                    </span>
                     @if (provider.isEditing) {
                       <input type="text" pInputText [(ngModel)]="provider.username" [placeholder]="t('usernamePlaceholder')"/>
                     } @else {
@@ -143,10 +143,10 @@
                   </div>
 
                   <div class="detail-item">
-                    <label class="detail-label">
+                    <span class="detail-label">
                       <i class="pi pi-lock"></i>
                       {{ t('password') }}
-                    </label>
+                    </span>
                     @if (provider.isEditing) {
                       <input type="password" pInputText [(ngModel)]="provider.password" [placeholder]="t('passwordPlaceholder')"/>
                     } @else {
@@ -155,10 +155,10 @@
                   </div>
 
                   <div class="detail-item detail-item-wide">
-                    <label class="detail-label">
+                    <span class="detail-label">
                       <i class="pi pi-envelope"></i>
                       {{ t('fromAddress') }}
-                    </label>
+                    </span>
                     @if (provider.isEditing) {
                       <input type="email" pInputText [(ngModel)]="provider.fromAddress" [placeholder]="t('fromAddressPlaceholder')"/>
                     } @else {
