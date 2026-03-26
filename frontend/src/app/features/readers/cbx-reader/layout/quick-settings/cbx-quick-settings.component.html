@@ -1,0 +1,151 @@
+<div class="quick-settings-overlay" role="button" tabindex="0" (click)="onOverlayClick()" (keydown.enter)="onOverlayClick()">
+  <div class="quick-settings-panel" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
+    <div class="pointer"></div>
+    <div class="panel-body">
+      <!-- Fit Mode -->
+      <div class="control">
+        <span>{{ 'readerCbx.quickSettings.fitMode' | transloco }}</span>
+        <div class="control-right">
+          <div class="button-group">
+            @for (option of fitModeOptions; track option.value) {
+              <button
+                class="option-btn"
+                [class.active]="state().fitMode === option.value"
+                (click)="onFitModeSelect(option.value)"
+                [title]="option.label">
+                <app-reader-icon [name]="option.icon" [size]="16" />
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Scroll Mode -->
+      <div class="control">
+        <span>{{ 'readerCbx.quickSettings.scrollMode' | transloco }}</span>
+        <div class="control-right">
+          <div class="button-group text-btns">
+            @for (option of scrollModeOptions; track option.value) {
+              <button
+                class="option-btn text-btn"
+                [class.active]="state().scrollMode === option.value"
+                (click)="onScrollModeSelect(option.value)"
+                [title]="option.label">
+                {{ option.label }}
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Page View (only in paginated mode) -->
+      @if (isPaginated && !isPhonePortrait) {
+        <div class="control">
+          <span>{{ 'readerCbx.quickSettings.pageView' | transloco }}</span>
+          <div class="control-right">
+            <span class="mode-label">{{ isTwoPageView ? ('readerCbx.quickSettings.twoPage' | transloco) : ('readerCbx.quickSettings.single' | transloco) }}</span>
+            <button class="switch" [class.active]="isTwoPageView" (click)="onPageViewToggle()">
+              <span class="slider"></span>
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Page Spread (only in two-page mode) -->
+      @if (isPaginated && isTwoPageView) {
+        <div class="control">
+          <span>{{ 'readerCbx.quickSettings.pageSpread' | transloco }}</span>
+          <div class="control-right">
+            <span class="mode-label">{{ state().pageSpread === CbxPageSpread.ODD ? ('readerCbx.quickSettings.oddFirst' | transloco) : ('readerCbx.quickSettings.evenFirst' | transloco) }}</span>
+            <button class="switch" [class.active]="state().pageSpread === CbxPageSpread.EVEN" (click)="onPageSpreadToggle()">
+              <span class="slider"></span>
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Reading Direction -->
+      <div class="control">
+        <span>{{ 'readerCbx.quickSettings.readingDirection' | transloco }}</span>
+        <div class="control-right">
+          <span class="mode-label">{{ state().readingDirection === CbxReadingDirection.LTR ? ('readerCbx.quickSettings.leftToRight' | transloco) : ('readerCbx.quickSettings.rightToLeft' | transloco) }}</span>
+          <button class="switch" [class.active]="state().readingDirection === CbxReadingDirection.RTL" (click)="onReadingDirectionToggle()">
+            <span class="slider"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Slideshow Interval -->
+      <div class="control">
+        <span>{{ 'readerCbx.quickSettings.slideshowInterval' | transloco }}</span>
+        <div class="control-right">
+          <div class="button-group text-btns">
+            @for (option of slideshowIntervalOptions; track option.value) {
+              <button
+                class="option-btn text-btn small"
+                [class.active]="state().slideshowInterval === option.value"
+                (click)="onSlideshowIntervalSelect(option.value)"
+                [title]="option.label">
+                {{ option.label }}
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Background Color -->
+      <div class="control">
+        <span>{{ 'readerCbx.quickSettings.background' | transloco }}</span>
+        <div class="control-right">
+          <div class="button-group">
+            @for (option of backgroundOptions; track option.value) {
+              <button
+                class="option-btn color-btn"
+                [class.active]="state().backgroundColor === option.value"
+                (click)="onBackgroundSelect(option.value)"
+                [title]="option.label">
+                <span class="color-swatch" [style.background]="option.color"></span>
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Magnifier Lens Size -->
+      <div class="control">
+        <span>{{ 'readerCbx.quickSettings.magnifierLensSize' | transloco }}</span>
+        <div class="control-right">
+          <div class="button-group text-btns">
+            @for (option of magnifierLensSizeOptions; track option.value) {
+              <button
+                class="option-btn text-btn small"
+                [class.active]="state().magnifierLensSize === option.value"
+                (click)="onMagnifierLensSizeSelect(option.value)"
+                [title]="option.label">
+                {{ option.label }}
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Magnifier Zoom -->
+      <div class="control">
+        <span>{{ 'readerCbx.quickSettings.magnifierZoom' | transloco }}</span>
+        <div class="control-right">
+          <div class="button-group text-btns">
+            @for (option of magnifierZoomOptions; track option.value) {
+              <button
+                class="option-btn text-btn small"
+                [class.active]="state().magnifierZoom === option.value"
+                (click)="onMagnifierZoomSelect(option.value)"
+                [title]="option.label">
+                {{ option.label }}
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

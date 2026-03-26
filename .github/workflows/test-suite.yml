@@ -35,7 +35,7 @@ jobs:
           ref: ${{ inputs.checkout_ref }}
 
       - name: Install just
-        uses: taiki-e/install-action@0d865d5cc6d507df4765f1f866bfae8bab4e2a73 # v2.69.7
+        uses: taiki-e/install-action@7627fb428e65e78e2ec9a24ae5c5bd5f8553f182 # v2.69.10
         with:
           tool: just
 
@@ -47,7 +47,7 @@ jobs:
 
       - name: Restore Gradle Cache
         id: restore_gradle_cache
-        uses: actions/cache/restore@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: |
             ~/.gradle/caches
@@ -82,7 +82,7 @@ jobs:
 
       - name: Save Gradle Cache
         if: ${{ always() && inputs.save_gradle_cache }}
-        uses: actions/cache/save@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         with:
           path: |
             ~/.gradle/caches
@@ -111,7 +111,7 @@ jobs:
           ref: ${{ inputs.checkout_ref }}
 
       - name: Install just
-        uses: taiki-e/install-action@0d865d5cc6d507df4765f1f866bfae8bab4e2a73 # v2.69.7
+        uses: taiki-e/install-action@7627fb428e65e78e2ec9a24ae5c5bd5f8553f182 # v2.69.10
         with:
           tool: just
 
@@ -119,8 +119,11 @@ jobs:
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
         with:
           node-version: '24'
-          cache: 'npm'
-          cache-dependency-path: booklore-ui/package-lock.json
+
+      - name: Enable Corepack
+        run: |
+          corepack enable
+          corepack yarn --version
 
       - name: Install Frontend Dependencies
         run: just ui install-ci
@@ -142,7 +145,7 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@c950f6fb443cb5af20a377fd0dfaa78838901040 # v2
         if: ${{ always() && inputs.publish_test_results }}
         with:
-          files: booklore-ui/test-results/vitest-results.xml
+          files: frontend/test-results/vitest-results.xml
           check_name: Frontend Test Results
 
       - name: Upload Frontend Test Reports
@@ -151,7 +154,7 @@ jobs:
         with:
           name: frontend-test-reports
           path: |
-            booklore-ui/test-results/vitest-results.xml
+            frontend/test-results/vitest-results.xml
           retention-days: 30
 
       - name: Validate Frontend Test Results

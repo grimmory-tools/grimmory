@@ -1,0 +1,107 @@
+<ng-container *transloco="let t; prefix: 'settingsReader.appMode'">
+  <div class="preferences-section">
+    <div class="section-header">
+      <h3 class="section-title">
+        <i class="pi pi-cog"></i>
+        {{ t('title') }}
+      </h3>
+      <p class="section-description">
+        {{ t('description') }}
+      </p>
+    </div>
+
+    <div class="settings-card">
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label-row">
+            <span class="setting-label">{{ t('pdfLabel') }}</span>
+            <div class="button-group">
+              @for (item of scopeOptions; track item) {
+                <button
+                  type="button"
+                  class="option-button"
+                  [class.selected]="selectedPdfScope === item.key"
+                  (click)="selectedPdfScope = item.key; onPdfScopeChange()">
+                  <i [class]="item.icon"></i>
+                  <span class="option-text">{{ item.key === 'Global' ? t('defaultOverride') : t('bookSpecific') }}</span>
+                </button>
+              }
+            </div>
+          </div>
+          <p class="setting-description">
+            {{ t('pdfDesc') }}
+          </p>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label-row">
+            <span class="setting-label">{{ t('ebookLabel') }}</span>
+            <div class="button-group">
+              @for (item of scopeOptions; track item) {
+                <button
+                  type="button"
+                  class="option-button"
+                  [class.selected]="selectedEpubScope === item.key"
+                  (click)="selectedEpubScope = item.key; onEpubScopeChange()">
+                  <i [class]="item.icon"></i>
+                  <span class="option-text">{{ item.key === 'Global' ? t('defaultOverride') : t('bookSpecific') }}</span>
+                </button>
+              }
+            </div>
+          </div>
+          <p class="setting-description">
+            {{ t('ebookDesc') }}
+          </p>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label-row">
+            <span class="setting-label">{{ t('comicLabel') }}</span>
+            <div class="button-group">
+              @for (item of scopeOptions; track item) {
+                <button
+                  type="button"
+                  class="option-button"
+                  [class.selected]="selectedCbxScope === item.key"
+                  (click)="selectedCbxScope = item.key; onCbxScopeChange()">
+                  <i [class]="item.icon"></i>
+                  <span class="option-text">{{ item.key === 'Global' ? t('defaultOverride') : t('bookSpecific') }}</span>
+                </button>
+              }
+            </div>
+          </div>
+          <p class="setting-description">
+            {{ t('comicDesc') }}
+          </p>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label-row">
+            <span class="setting-label">{{ t('streamingPdfLabel') }}</span>
+            <div class="button-group">
+              @for (item of scopeOptions; track item) {
+                <button
+                  type="button"
+                  class="option-button"
+                  [class.selected]="selectedNewPdfScope === item.key"
+                  (click)="selectedNewPdfScope = item.key; onNewPdfScopeChange()">
+                  <i [class]="item.icon"></i>
+                  <span class="option-text">{{ item.key === 'Global' ? t('defaultOverride') : t('bookSpecific') }}</span>
+                </button>
+              }
+            </div>
+          </div>
+          <p class="setting-description">
+            {{ t('streamingPdfDesc') }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>

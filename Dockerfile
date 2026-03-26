@@ -1,14 +1,18 @@
 FROM --platform=$BUILDPLATFORM node:24-alpine AS frontend-build
 
-WORKDIR /workspace/booklore-ui
+WORKDIR /workspace/frontend
 
-COPY booklore-ui/package.json booklore-ui/package-lock.json ./
-RUN --mount=type=cache,target=/root/.npm \
-    npm ci --no-audit --no-fund
+COPY .yarnrc.yml /workspace/.yarnrc.yml
+COPY frontend/package.json frontend/yarn.lock ./
 
-COPY booklore-ui/ ./
-RUN --mount=type=cache,target=/workspace/booklore-ui/.angular/cache \
-    npm run build --configuration=production
+RUN corepack enable
+RUN --mount=type=cache,target=/workspace/.yarn/cache \
+    corepack yarn install --immutable
+
+COPY frontend/ ./
+RUN --mount=type=cache,target=/workspace/.yarn/cache \
+    --mount=type=cache,target=/workspace/frontend/.angular/cache \
+    CI=1 NG_CLI_ANALYTICS=false corepack yarn build:prod
 
 FROM --platform=$BUILDPLATFORM gradle:9.3.1-jdk25-alpine AS backend-build
 
@@ -22,7 +26,7 @@ RUN --mount=type=cache,target=/home/gradle/.gradle \
     ./gradlew --no-daemon dependencies
 
 COPY booklore-api/ ./
-COPY --from=frontend-build /workspace/booklore-ui/dist/grimmory/browser /tmp/frontend-dist
+COPY --from=frontend-build /workspace/frontend/dist/grimmory/browser /tmp/frontend-dist
 
 RUN --mount=type=cache,target=/home/gradle/.gradle \
     ./gradlew --no-daemon -PfrontendDistDir=/tmp/frontend-dist bootJar

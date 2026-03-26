@@ -1,0 +1,517 @@
+<ng-container *transloco="let t; prefix: 'settingsUsers'">
+<div class="create-user-dialog">
+  <div class="panel-header">
+    <div class="header-icon-wrapper">
+      <i class="pi pi-user-plus header-icon"></i>
+    </div>
+    <div class="header-text">
+      <h2 class="panel-title">{{ t('createDialog.title') }}</h2>
+      <p class="panel-description">
+        {{ t('createDialog.description') }}
+      </p>
+    </div>
+    <p-button
+      icon="pi pi-times"
+      [text]="true"
+      [rounded]="true"
+      severity="secondary"
+      (onClick)="closeDialog()"
+      class="close-button"
+    />
+  </div>
+
+  <form [formGroup]="userForm" (ngSubmit)="createUser()">
+    <div class="form-container">
+      <div class="form-section basic-info-section">
+        <h3 class="section-title">
+          <i class="pi pi-id-card"></i>
+          {{ t('createDialog.basicInfo') }}
+        </h3>
+
+        <div class="form-fields-grid">
+          <div class="form-field">
+            <label class="field-label" for="create-user-full-name">{{ t('createDialog.fullName') }}</label>
+            <input
+              id="create-user-full-name"
+              type="text"
+              pInputText
+              formControlName="name"
+              [placeholder]="t('createDialog.enterFullName')"
+              class="field-input"
+            />
+            @if (userForm.get('name')?.invalid && (userForm.get('name')?.dirty || userForm.get('name')?.touched)) {
+              <small class="field-error">
+                <i class="pi pi-exclamation-circle"></i>
+                {{ t('createDialog.nameRequired') }}
+              </small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label class="field-label" for="create-user-username">{{ t('createDialog.username') }}</label>
+            <input
+              id="create-user-username"
+              type="text"
+              pInputText
+              formControlName="username"
+              [placeholder]="t('createDialog.enterUsername')"
+              class="field-input"
+            />
+            @if (userForm.get('username')?.invalid && (userForm.get('username')?.dirty || userForm.get('username')?.touched)) {
+              <small class="field-error">
+                <i class="pi pi-exclamation-circle"></i>
+                {{ t('createDialog.usernameRequired') }}
+              </small>
+            }
+          </div>
+
+          <div class="form-field field-full">
+            <label class="field-label" for="create-user-email">{{ t('createDialog.email') }}</label>
+            <input
+              id="create-user-email"
+              type="email"
+              pInputText
+              formControlName="email"
+              [placeholder]="t('createDialog.enterEmail')"
+              class="field-input"
+            />
+            @if (userForm.get('email')?.invalid && (userForm.get('email')?.dirty || userForm.get('email')?.touched)) {
+              <small class="field-error">
+                <i class="pi pi-exclamation-circle"></i>
+                {{ t('createDialog.emailInvalid') }}
+              </small>
+            }
+          </div>
+
+          <div class="password-row field-full">
+            <div class="password-grid">
+              <div class="form-field">
+                <label class="field-label" for="create-user-password">{{ t('createDialog.password') }}</label>
+                <input
+                  id="create-user-password"
+                  type="password"
+                  pInputText
+                  formControlName="password"
+                  [placeholder]="t('createDialog.enterPassword')"
+                  class="field-input"
+                />
+                @if (userForm.get('password')?.invalid && (userForm.get('password')?.dirty || userForm.get('password')?.touched)) {
+                  <small class="field-error">
+                    <i class="pi pi-exclamation-circle"></i>
+                    {{ t('createDialog.passwordMinLength') }}
+                  </small>
+                }
+              </div>
+
+              <div class="form-field">
+                <label class="field-label" for="create-user-confirm-password">{{ t('createDialog.confirmPassword') }}</label>
+                <input
+                  id="create-user-confirm-password"
+                  type="password"
+                  pInputText
+                  formControlName="confirmPassword"
+                  [placeholder]="t('createDialog.confirmPasswordPlaceholder')"
+                  class="field-input"
+                />
+                @if (userForm.get('confirmPassword')?.invalid && (userForm.get('confirmPassword')?.dirty || userForm.get('confirmPassword')?.touched)) {
+                  <small class="field-error">
+                    <i class="pi pi-exclamation-circle"></i>
+                    {{ t('createDialog.confirmRequired') }}
+                  </small>
+                }
+                @if (userForm.errors?.['passwordMismatch'] && (userForm.get('confirmPassword')?.dirty || userForm.get('confirmPassword')?.touched)) {
+                  <small class="field-error">
+                    <i class="pi pi-exclamation-circle"></i>
+                    {{ t('createDialog.passwordMismatch') }}
+                  </small>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gradient-divider"></div>
+
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="pi pi-book"></i>
+          {{ t('createDialog.libraryAccess') }}
+        </h3>
+
+        <div class="form-field">
+          <label class="field-label" for="create-user-libraries">{{ t('createDialog.accessibleLibraries') }}</label>
+          <p-multiselect
+            inputId="create-user-libraries"
+            [options]="libraries"
+            formControlName="selectedLibraries"
+            [placeholder]="t('createDialog.selectLibraries')"
+            optionLabel="name"
+            display="chip"
+            class="field-input"
+            appendTo="body">
+          </p-multiselect>
+          @if (userForm.get('selectedLibraries')?.invalid && (userForm.get('selectedLibraries')?.dirty || userForm.get('selectedLibraries')?.touched)) {
+            <small class="field-error">
+              <i class="pi pi-exclamation-circle"></i>
+              {{ t('createDialog.libraryRequired') }}
+            </small>
+          }
+        </div>
+      </div>
+
+      <div class="gradient-divider"></div>
+
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="pi pi-shield"></i>
+          {{ t('permissions') }}
+        </h3>
+
+        <div class="permissions-container">
+          <div class="permission-group">
+            <h4 class="permission-group-title">
+              <i class="pi pi-book"></i>
+              {{ t('permGroups.bookManagement') }}
+            </h4>
+            <div class="permission-group-items">
+              <div class="permission-item">
+                <p-checkbox formControlName="permissionUpload" [binary]="true" inputId="perm-upload"></p-checkbox>
+                <label for="perm-upload" class="permission-label">
+                  <div class="permission-icon-wrapper">
+                    <i class="pi pi-upload permission-icon"></i>
+                  </div>
+                  <span class="permission-name">{{ t('perms.uploadBooks') }}</span>
+                </label>
+              </div>
+
+              <div class="permission-item">
+                <p-checkbox formControlName="permissionDownload" [binary]="true" inputId="perm-download"></p-checkbox>
+                <label for="perm-download" class="permission-label">
+                  <div class="permission-icon-wrapper">
+                    <i class="pi pi-download permission-icon"></i>
+                  </div>
+                  <span class="permission-name">{{ t('perms.downloadBooks') }}</span>
+                </label>
+              </div>
+
+              <div class="permission-item">
+                <p-checkbox formControlName="permissionDeleteBook" [binary]="true" inputId="perm-delete"></p-checkbox>
+                <label for="perm-delete" class="permission-label">
+                  <div class="permission-icon-wrapper">
+                    <i class="pi pi-trash permission-icon"></i>
+                  </div>
+                  <span class="permission-name">{{ t('perms.deleteBooks') }}</span>
+                </label>
+              </div>
+
+              <div class="permission-item">
+                <p-checkbox formControlName="permissionEditMetadata" [binary]="true" inputId="perm-edit"></p-checkbox>
+                <label for="perm-edit" class="permission-label">
+                  <div class="permission-icon-wrapper">
+                    <i class="pi pi-pencil permission-icon"></i>
+                  </div>
+                  <span class="permission-name">{{ t('createDialog.editMetadata') }}</span>
+                </label>
+              </div>
+
+              <div class="permission-item">
+                <p-checkbox formControlName="permissionManipulateLibrary" [binary]="true" inputId="perm-library"></p-checkbox>
+                <label for="perm-library" class="permission-label">
+                  <div class="permission-icon-wrapper">
+                    <i class="pi pi-folder permission-icon"></i>
+                  </div>
+                  <span class="permission-name">{{ t('perms.manageLibrary') }}</span>
+                </label>
+              </div>
+
+              <div class="permission-item">
+                <p-checkbox formControlName="permissionEmailBook" [binary]="true" inputId="perm-email"></p-checkbox>
+                <label for="perm-email" class="permission-label">
+                  <div class="permission-icon-wrapper">
+                    <i class="pi pi-envelope permission-icon"></i>
+                  </div>
+                  <span class="permission-name">{{ t('perms.emailBooks') }}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="permission-group">
+            <h4 class="permission-group-title">
+              <i class="pi pi-mobile"></i>
+              {{ t('permGroups.deviceSync') }}
+            </h4>
+            <div class="permission-group-items">
+              <div class="permission-item">
+                <p-checkbox formControlName="permissionSyncKoreader" [binary]="true" inputId="perm-koreader"></p-checkbox>
+                <label for="perm-koreader" class="permission-label">
+                  <div class="permission-icon-wrapper">
+                    <i class="pi pi-sync permission-icon"></i>
+                  </div>
+                  <span class="permission-name">{{ t('perms.koreaderSync') }}</span>
+                </label>
+              </div>
+
+              <div class="permission-item">
+                <p-checkbox formControlName="permissionSyncKobo" [binary]="true" inputId="perm-kobo"></p-checkbox>
+                <label for="perm-kobo" class="permission-label">
+                  <div class="permission-icon-wrapper">
+                    <i class="pi pi-tablet permission-icon"></i>
+                  </div>
+                  <span class="permission-name">{{ t('perms.koboSync') }}</span>
+                </label>
+              </div>
+
+              <div class="permission-item">
+                <p-checkbox formControlName="permissionAccessOpds" [binary]="true" inputId="perm-opds"></p-checkbox>
+                <label for="perm-opds" class="permission-label">
+                  <div class="permission-icon-wrapper">
+                    <i class="pi pi-globe permission-icon"></i>
+                  </div>
+                  <span class="permission-name">{{ t('perms.opdsFeedAccess') }}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="permission-group">
+            <h4 class="permission-group-title">
+              <i class="pi pi-eye"></i>
+              {{ t('permGroups.systemAccess') }}
+            </h4>
+            <div class="permission-group-items">
+              <div class="permission-item">
+                <p-checkbox formControlName="permissionAccessBookdrop" [binary]="true" inputId="perm-bookdrop"></p-checkbox>
+                <label for="perm-bookdrop" class="permission-label">
+                  <div class="permission-icon-wrapper">
+                    <i class="pi pi-cloud-upload permission-icon"></i>
+                  </div>
+                  <span class="permission-name">{{ t('perms.accessBookdrop') }}</span>
+                </label>
+              </div>
+
+              <div class="permission-item">
+                <p-checkbox formControlName="permissionAccessLibraryStats" [binary]="true" inputId="perm-library-stats"></p-checkbox>
+                <label for="perm-library-stats" class="permission-label">
+                  <div class="permission-icon-wrapper">
+                    <i class="pi pi-chart-bar permission-icon"></i>
+                  </div>
+                  <span class="permission-name">{{ t('perms.viewLibraryStats') }}</span>
+                </label>
+              </div>
+
+              <div class="permission-item">
+                <p-checkbox formControlName="permissionAccessUserStats" [binary]="true" inputId="perm-user-stats"></p-checkbox>
+                <label for="perm-user-stats" class="permission-label">
+                  <div class="permission-icon-wrapper">
+                    <i class="pi pi-chart-line permission-icon"></i>
+                  </div>
+                  <span class="permission-name">{{ t('perms.viewUserStats') }}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="permission-group">
+            <h4 class="permission-group-title">
+              <i class="pi pi-cog"></i>
+              {{ t('permGroups.systemConfig') }}
+            </h4>
+            <div class="permission-group-items">
+              <div class="permission-item">
+                <p-checkbox formControlName="permissionManageMetadataConfig" [binary]="true" inputId="perm-metadata-config"></p-checkbox>
+                <label for="perm-metadata-config" class="permission-label">
+                  <div class="permission-icon-wrapper">
+                    <i class="pi pi-cog permission-icon"></i>
+                  </div>
+                  <span class="permission-name">{{ t('perms.manageMetadataConfig') }}</span>
+                </label>
+              </div>
+
+              <div class="permission-item">
+                <p-checkbox formControlName="permissionManageGlobalPreferences" [binary]="true" inputId="perm-global-prefs"></p-checkbox>
+                <label for="perm-global-prefs" class="permission-label">
+                  <div class="permission-icon-wrapper">
+                    <i class="pi pi-sliders-h permission-icon"></i>
+                  </div>
+                  <span class="permission-name">{{ t('perms.manageAppPreferences') }}</span>
+                </label>
+              </div>
+
+              <div class="permission-item">
+                <p-checkbox formControlName="permissionAccessTaskManager" [binary]="true" inputId="perm-task-manager"></p-checkbox>
+                <label for="perm-task-manager" class="permission-label">
+                  <div class="permission-icon-wrapper">
+                    <i class="pi pi-list-check permission-icon"></i>
+                  </div>
+                  <span class="permission-name">{{ t('perms.accessTaskManager') }}</span>
+                </label>
+              </div>
+
+              <div class="permission-item">
+                <p-checkbox formControlName="permissionManageIcons" [binary]="true" inputId="perm-icons"></p-checkbox>
+                <label for="perm-icons" class="permission-label">
+                  <div class="permission-icon-wrapper">
+                    <i class="pi pi-images permission-icon"></i>
+                  </div>
+                  <span class="permission-name">{{ t('perms.manageIcons') }}</span>
+                </label>
+              </div>
+              <div class="permission-item">
+                <p-checkbox formControlName="permissionManageFonts" [binary]="true" inputId="perm-fonts"></p-checkbox>
+                <label for="perm-fonts" class="permission-label">
+                  <div class="permission-icon-wrapper">
+                    <i class="pi pi-palette permission-icon"></i>
+                  </div>
+                  <span class="permission-name">{{ t('perms.manageFonts') }}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="permission-group">
+            <h4 class="permission-group-title">
+              <i class="pi pi-pencil"></i>
+              {{ t('permGroups.metadataEditing') }}
+            </h4>
+            <div class="permission-group-items">
+              <div class="permission-item">
+                <p-checkbox formControlName="permissionBulkAutoFetchMetadata" [binary]="true" inputId="perm-bulk-auto-fetch"></p-checkbox>
+                <label for="perm-bulk-auto-fetch" class="permission-label">
+                  <div class="permission-icon-wrapper">
+                    <i class="pi pi-sync permission-icon"></i>
+                  </div>
+                  <span class="permission-name">{{ t('perms.bulkAutoFetch') }}</span>
+                </label>
+              </div>
+              <div class="permission-item">
+                <p-checkbox formControlName="permissionBulkCustomFetchMetadata" [binary]="true" inputId="perm-bulk-custom-fetch"></p-checkbox>
+                <label for="perm-bulk-custom-fetch" class="permission-label">
+                  <div class="permission-icon-wrapper">
+                    <i class="pi pi-cog permission-icon"></i>
+                  </div>
+                  <span class="permission-name">{{ t('perms.bulkCustomFetch') }}</span>
+                </label>
+              </div>
+              <div class="permission-item">
+                <p-checkbox formControlName="permissionBulkEditMetadata" [binary]="true" inputId="perm-bulk-edit-metadata"></p-checkbox>
+                <label for="perm-bulk-edit-metadata" class="permission-label">
+                  <div class="permission-icon-wrapper">
+                    <i class="pi pi-pencil permission-icon"></i>
+                  </div>
+                  <span class="permission-name">{{ t('createDialog.bulkEditMetadata') }}</span>
+                </label>
+              </div>
+              <div class="permission-item">
+                <p-checkbox formControlName="permissionBulkRegenerateCover" [binary]="true" inputId="perm-bulk-regenerate-cover"></p-checkbox>
+                <label for="perm-bulk-regenerate-cover" class="permission-label">
+                  <div class="permission-icon-wrapper">
+                    <i class="pi pi-image permission-icon"></i>
+                  </div>
+                  <span class="permission-name">{{ t('perms.bulkRegenerateCover') }}</span>
+                </label>
+              </div>
+              <div class="permission-item">
+                <p-checkbox formControlName="permissionMoveOrganizeFiles" [binary]="true" inputId="perm-move-organize-files"></p-checkbox>
+                <label for="perm-move-organize-files" class="permission-label">
+                  <div class="permission-icon-wrapper">
+                    <i class="pi pi-folder-open permission-icon"></i>
+                  </div>
+                  <span class="permission-name">{{ t('perms.moveOrganize') }}</span>
+                </label>
+              </div>
+              <div class="permission-item">
+                <p-checkbox formControlName="permissionBulkLockUnlockMetadata" [binary]="true" inputId="perm-bulk-lock-unlock"></p-checkbox>
+                <label for="perm-bulk-lock-unlock" class="permission-label">
+                  <div class="permission-icon-wrapper">
+                    <i class="pi pi-lock-open permission-icon"></i>
+                  </div>
+                  <span class="permission-name">{{ t('perms.bulkLockUnlock') }}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="permission-group">
+            <h4 class="permission-group-title">
+              <i class="pi pi-refresh"></i>
+              {{ t('permGroups.bulkReset') }}
+            </h4>
+            <div class="permission-group-items">
+              <div class="permission-item">
+                <p-checkbox formControlName="permissionBulkResetGrimmoryReadProgress" [binary]="true" inputId="perm-bulk-reset-grimmory"></p-checkbox>
+                <label for="perm-bulk-reset-grimmory" class="permission-label">
+                  <div class="permission-icon-wrapper">
+                    <i class="pi pi-history permission-icon"></i>
+                  </div>
+                  <span class="permission-name">{{ t('perms.bulkResetGrimmory') }}</span>
+                </label>
+              </div>
+              <div class="permission-item">
+                <p-checkbox formControlName="permissionBulkResetKoReaderReadProgress" [binary]="true" inputId="perm-bulk-reset-koreader"></p-checkbox>
+                <label for="perm-bulk-reset-koreader" class="permission-label">
+                  <div class="permission-icon-wrapper">
+                    <i class="pi pi-tablet permission-icon"></i>
+                  </div>
+                  <span class="permission-name">{{ t('perms.bulkResetKoreader') }}</span>
+                </label>
+              </div>
+              <div class="permission-item">
+                <p-checkbox formControlName="permissionBulkResetBookReadStatus" [binary]="true" inputId="perm-bulk-reset-read-status"></p-checkbox>
+                <label for="perm-bulk-reset-read-status" class="permission-label">
+                  <div class="permission-icon-wrapper">
+                    <i class="pi pi-check-square permission-icon"></i>
+                  </div>
+                  <span class="permission-name">{{ t('perms.bulkResetReadStatus') }}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="permission-group full-width">
+            <h4 class="permission-group-title">
+              <i class="pi pi-shield"></i>
+              {{ t('permGroups.administration') }}
+            </h4>
+            <div class="permission-group-items">
+              <div class="permission-item admin-permission">
+                <p-checkbox formControlName="permissionAdmin" [binary]="true" inputId="perm-admin"></p-checkbox>
+                <label for="perm-admin" class="permission-label">
+                  <div class="permission-icon-wrapper admin-icon">
+                    <i class="pi pi-shield permission-icon"></i>
+                  </div>
+                  <span class="permission-name admin-name">{{ t('perms.fullAdmin') }}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dialog-footer">
+      <div class="footer-info">
+        <i class="pi pi-info-circle"></i>
+        <span>{{ t('createDialog.footerInfo') }}</span>
+      </div>
+      <div class="footer-actions">
+        <p-button
+          [label]="'common.cancel' | transloco"
+          severity="secondary"
+          [outlined]="true"
+          type="button"
+          (click)="closeDialog()"
+        />
+        <p-button
+          [label]="t('createDialog.createUser')"
+          icon="pi pi-check"
+          severity="success"
+          [disabled]="userForm.invalid"
+          type="submit"
+        />
+      </div>
+    </div>
+  </form>
+</div>
+</ng-container>

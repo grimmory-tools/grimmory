@@ -1,14 +1,18 @@
-**
-!Dockerfile
-!.dockerignore
-!booklore-api/**
-!booklore-ui/**
-!packaging/docker/**
+.git
+.github
+.yarn
+assets
+deploy
+docs
+scratch
+tools
 
-booklore-ui/node_modules
-booklore-ui/dist
-booklore-ui/.angular
-booklore-ui/test-results
+frontend/.yarn
+frontend/.angular
+frontend/dist
+frontend/node_modules
+frontend/test-results
+frontend/tmp
 
-booklore-api/build
 booklore-api/.gradle
+booklore-api/build

@@ -176,14 +176,14 @@ Additional deployment examples:
 This repository contains two application projects:
 
 - Backend: [`booklore-api/README.md`](booklore-api/README.md)
-- Frontend: [`booklore-ui/README.md`](booklore-ui/README.md)
+- Frontend: [`frontend/README.md`](frontend/README.md)
 
 Contributor workflow, PR policy, and release semantics live in [CONTRIBUTING.md](CONTRIBUTING.md). Component-specific implementation guidance lives in:
 
 - [`booklore-api/CONTRIBUTING.md`](booklore-api/CONTRIBUTING.md)
-- [`booklore-ui/CONTRIBUTING.md`](booklore-ui/CONTRIBUTING.md)
+- [`frontend/CONTRIBUTING.md`](frontend/CONTRIBUTING.md)
 
-The root [`Justfile`](Justfile) is the primary local command surface and mirrors the folder-local `booklore-api/Justfile` and `booklore-ui/Justfile` entrypoints.
+The root [`Justfile`](Justfile) is the primary local command surface and mirrors the folder-local `booklore-api/Justfile` and `frontend/Justfile` entrypoints.
 
 ```bash
 just               # Show root + api + ui recipes

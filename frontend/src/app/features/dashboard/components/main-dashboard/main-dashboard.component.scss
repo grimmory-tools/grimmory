@@ -1,0 +1,125 @@
+.dashboard-container {
+  height: calc(100dvh - 6.7rem);
+  overflow-y: auto;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  &::-webkit-scrollbar {
+    width: 12px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgb(20 20 30 / 50%);
+    border-radius: 10px;
+  }
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color) rgb(20 20 30 / 50%);
+}
+
+@media (width <= 768px) {
+  .dashboard-container {
+    height: calc(100dvh - 5rem);
+
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+  }
+}
+
+.dashboard {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.dashboard-inner {
+  width: 100%;
+}
+
+.welcome-description {
+  color: #d1d5db;
+  margin-bottom: 2rem;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.625;
+}
+
+.dashboard .no-library-header {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  background: linear-gradient(135deg, #fff, #e2e8f0, var(--p-primary-500));
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 4px rgb(0 0 0 / 30%);
+  letter-spacing: -0.02em;
+}
+
+.dashboard-no-library {
+  padding: 3rem;
+  background: var(--p-surface-900);
+  border-radius: 24px;
+  border: 1px solid var(--p-content-border-color);
+  backdrop-filter: blur(20px);
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard .p-dialog {
+  max-width: 90%;
+}
+
+::ng-deep .p-dialog-mask {
+  background-color: rgb(0 0 0 / 50%);
+  backdrop-filter: blur(3px);
+}
+
+.dashboard-settings-button {
+  position: fixed;
+  top: 6rem;
+  right: 2rem;
+  z-index: 100;
+
+  ::ng-deep .p-button {
+    box-shadow: 0 4px 12px rgb(0 0 0 / 30%);
+    backdrop-filter: blur(10px);
+    background: rgb(var(--p-surface-900-rgb), 80%);
+    border: 1px solid var(--p-content-border-color);
+
+    &:hover {
+      background: rgb(var(--p-surface-800-rgb), 90%);
+      transform: scale(1.05);
+      transition: all 0.2s ease;
+    }
+  }
+}
+
+@media (width <= 768px) {
+  .dashboard-settings-button {
+    top: 5rem;
+    right: 1rem;
+
+    ::ng-deep .p-button {
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+  }
+}
