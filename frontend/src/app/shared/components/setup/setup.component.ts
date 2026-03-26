@@ -22,17 +22,16 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
   ]
 })
 export class SetupComponent {
+  private fb = inject(FormBuilder);
+  private setupService = inject(SetupService);
+  private router = inject(Router);
   setupForm: FormGroup;
   loading = false;
   error: string | null = null;
   success = false;
   private readonly t = inject(TranslocoService);
 
-  constructor(
-    private fb: FormBuilder,
-    private setupService: SetupService,
-    private router: Router
-  ) {
+  constructor() {
     this.setupForm = this.fb.group({
       name: ['', [Validators.required]],
       username: ['', [Validators.required]],
