@@ -5,8 +5,22 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.filter.GenericFilterBean;
 
+import java.util.Set;
+
 @Configuration
 public class RequestLoggingFilterConfig {
+    private static final Set<String> EXCLUDED_PATHS = Set.of(
+            "/api/v1/healthcheck",
+            "/ws"
+    );
+
+    private static final Set<String> EXCLUDED_HEADERS = Set.of(
+            "authorization",
+            "cookie",
+            "set-cookie",
+            "x-api-key",
+            "x-forwarded-access-token"
+    );
 
     @Bean
     public GenericFilterBean logFilter() {
@@ -16,6 +30,9 @@ public class RequestLoggingFilterConfig {
         filter.setIncludePayload(true);
         filter.setMaxPayloadLength(10000);
         filter.setIncludeHeaders(true);
+
+        filter.setHeaderPredicate((header) -> !EXCLUDED_HEADERS.contains(header.toLowerCase()));
+        filter.setPathPredicate((path) -> !EXCLUDED_PATHS.contains(path));
 
         return filter;
     }
