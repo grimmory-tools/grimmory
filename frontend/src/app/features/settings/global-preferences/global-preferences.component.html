@@ -23,7 +23,7 @@
         <div class="setting-item">
           <div class="setting-info">
             <div class="setting-label-row">
-              <label class="setting-label">{{ t('covers.regenerate') }}</label>
+              <span class="setting-label">{{ t('covers.regenerate') }}</span>
               <p-splitbutton
                 [label]="t('covers.regenerateAllBtn')"
                 icon="pi pi-refresh"
@@ -44,7 +44,7 @@
         <div class="setting-item">
           <div class="setting-info">
             <div class="setting-label-row">
-              <label class="setting-label">{{ t('covers.verticalCropping') }}</label>
+              <span class="setting-label">{{ t('covers.verticalCropping') }}</span>
               <p-toggleswitch
                 [(ngModel)]="coverCroppingSettings.verticalCroppingEnabled"
                 (onChange)="onCoverCroppingChange()">
@@ -60,7 +60,7 @@
         <div class="setting-item">
           <div class="setting-info">
             <div class="setting-label-row">
-              <label class="setting-label">{{ t('covers.horizontalCropping') }}</label>
+              <span class="setting-label">{{ t('covers.horizontalCropping') }}</span>
               <p-toggleswitch
                 [(ngModel)]="coverCroppingSettings.horizontalCroppingEnabled"
                 (onChange)="onCoverCroppingChange()">
@@ -76,7 +76,7 @@
         <div class="setting-item">
           <div class="setting-info">
             <div class="setting-label-row">
-              <label class="setting-label">{{ t('covers.aspectRatio', {value: coverCroppingSettings.aspectRatioThreshold}) }}</label>
+              <span class="setting-label">{{ t('covers.aspectRatio', {value: coverCroppingSettings.aspectRatioThreshold}) }}</span>
               <div class="slider-container">
                 <p-slider
                   [(ngModel)]="coverCroppingSettings.aspectRatioThreshold"
@@ -97,7 +97,7 @@
         <div class="setting-item">
           <div class="setting-info">
             <div class="setting-label-row">
-              <label class="setting-label">{{ t('covers.smartCropping') }}</label>
+              <span class="setting-label">{{ t('covers.smartCropping') }}</span>
               <p-toggleswitch
                 [(ngModel)]="coverCroppingSettings.smartCroppingEnabled"
                 (onChange)="onCoverCroppingChange()">
@@ -124,7 +124,7 @@
         <div class="setting-item">
           <div class="setting-info">
             <div class="setting-label-row">
-              <label class="setting-label">{{ t('search.autoBookSearch') }}</label>
+              <span class="setting-label">{{ t('search.autoBookSearch') }}</span>
               <p-toggleswitch
                 [(ngModel)]="toggles.autoBookSearch"
                 (onChange)="onToggleChange('autoBookSearch', $event.checked)">
@@ -140,7 +140,7 @@
         <div class="setting-item">
           <div class="setting-info">
             <div class="setting-label-row">
-              <label class="setting-label">{{ t('search.similarBook') }}</label>
+              <span class="setting-label">{{ t('search.similarBook') }}</span>
               <p-toggleswitch
                 [(ngModel)]="toggles.similarBookRecommendation"
                 (onChange)="onToggleChange('similarBookRecommendation', $event.checked)">
@@ -167,7 +167,7 @@
         <div class="setting-item">
           <div class="setting-info">
             <div class="setting-label-row">
-              <label class="setting-label">{{ t('fileManagement.maxUploadSize') }}</label>
+              <span class="setting-label">{{ t('fileManagement.maxUploadSize') }}</span>
               <div class="input-group">
                 <div class="input-with-unit">
                   <input

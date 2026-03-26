@@ -44,7 +44,7 @@
             (onChange)="onSaveToOriginalFileToggle('epub')"
             [disabled]="isNetworkStorage">
           </p-toggleswitch>
-          <label class="setting-label">{{ t('writeEpub') }}</label>
+          <span class="setting-label">{{ t('writeEpub') }}</span>
         </div>
         <p class="setting-description">{{ t('writeEpubDesc') }}</p>
         @if (metadataPersistence.saveToOriginalFile.epub.enabled) {
@@ -76,7 +76,7 @@
             (onChange)="onSaveToOriginalFileToggle('cbx')"
             [disabled]="isNetworkStorage">
           </p-toggleswitch>
-          <label class="setting-label">{{ t('writeCbx') }}</label>
+          <span class="setting-label">{{ t('writeCbx') }}</span>
         </div>
         <p class="setting-description">{{ t('writeCbxDesc') }}</p>
         @if (metadataPersistence.saveToOriginalFile.cbx.enabled) {
@@ -108,7 +108,7 @@
             (onChange)="onSaveToOriginalFileToggle('pdf')"
             [disabled]="isNetworkStorage">
           </p-toggleswitch>
-          <label class="setting-label">{{ t('writePdf') }}</label>
+          <span class="setting-label">{{ t('writePdf') }}</span>
         </div>
         <p class="setting-description">
           {{ t('writePdfDesc') }}
@@ -143,7 +143,7 @@
             (onChange)="onSaveToOriginalFileToggle('audiobook')"
             [disabled]="isNetworkStorage">
           </p-toggleswitch>
-          <label class="setting-label">{{ t('writeAudiobook') }}</label>
+          <span class="setting-label">{{ t('writeAudiobook') }}</span>
         </div>
         <p class="setting-description">
           {{ t('writeAudiobookDesc') }}
@@ -178,7 +178,7 @@
               [ngModel]="metadataPersistence.moveFilesToLibraryPattern"
               (onChange)="onPersistenceToggle('moveFilesToLibraryPattern')">
             </p-toggleswitch>
-            <label class="setting-label">{{ t('autoMove') }}</label>
+            <span class="setting-label">{{ t('autoMove') }}</span>
           </div>
           <p class="setting-description">{{ t('autoMoveDesc') }}</p>
         </div>
@@ -203,7 +203,7 @@
             (onChange)="onSidecarToggle('enabled')"
             [disabled]="isNetworkStorage">
           </p-toggleswitch>
-          <label class="setting-label">{{ t('enableSidecar') }}</label>
+          <span class="setting-label">{{ t('enableSidecar') }}</span>
         </div>
         <p class="setting-description" [innerHTML]="t('enableSidecarDesc')"></p>
       </div>
@@ -216,7 +216,7 @@
               (onChange)="onSidecarToggle('writeOnUpdate')"
               [disabled]="isNetworkStorage">
             </p-toggleswitch>
-            <label class="setting-label">{{ t('writeOnUpdate') }}</label>
+            <span class="setting-label">{{ t('writeOnUpdate') }}</span>
           </div>
           <p class="setting-description">{{ t('writeOnUpdateDesc') }}</p>
         </div>
@@ -228,7 +228,7 @@
               (onChange)="onSidecarToggle('writeOnScan')"
               [disabled]="isNetworkStorage">
             </p-toggleswitch>
-            <label class="setting-label">{{ t('writeOnScan') }}</label>
+            <span class="setting-label">{{ t('writeOnScan') }}</span>
           </div>
           <p class="setting-description">{{ t('writeOnScanDesc') }}</p>
         </div>
@@ -240,7 +240,7 @@
               (onChange)="onSidecarToggle('includeCoverFile')"
               [disabled]="isNetworkStorage">
             </p-toggleswitch>
-            <label class="setting-label">{{ t('includeCover') }}</label>
+            <span class="setting-label">{{ t('includeCover') }}</span>
           </div>
           <p class="setting-description" [innerHTML]="t('includeCoverDesc')"></p>
         </div>

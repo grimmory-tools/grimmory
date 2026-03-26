@@ -13,7 +13,7 @@
     <div class="section-body">
       <div class="setting-item">
         <div class="setting-header-standalone">
-          <label class="setting-label">{{ t('defaultPreferences') }}</label>
+          <span class="setting-label">{{ t('defaultPreferences') }}</span>
         </div>
         <p class="setting-description">{{ t('defaultPreferencesDesc') }}</p>
         <div class="setting-options">
@@ -25,7 +25,7 @@
         </div>
 
         <div class="multi-sort-editor">
-          <label class="multi-sort-label">{{ t('sortOrderLabel') }}</label>
+          <span class="multi-sort-label">{{ t('sortOrderLabel') }}</span>
           <app-multi-sort-popover
             [sortCriteria]="globalSortAsOptions"
             [availableSortOptions]="allSortAsOptions"
@@ -36,7 +36,7 @@
 
       <div class="setting-item">
         <div class="setting-header-standalone">
-          <label class="setting-label">{{ t('visibleSortFields') }}</label>
+          <span class="setting-label">{{ t('visibleSortFields') }}</span>
         </div>
         <p class="setting-description">
           {{ t('visibleSortFieldsDesc') }}
@@ -97,14 +97,14 @@
       <div class="setting-item">
         <div class="setting-header">
           <p-toggleswitch [(ngModel)]="autoSaveMetadata"></p-toggleswitch>
-          <label class="setting-label">{{ t('autoSave') }}</label>
+          <span class="setting-label">{{ t('autoSave') }}</span>
         </div>
         <p class="setting-description">{{ t('autoSaveDesc') }}</p>
       </div>
 
       <div class="setting-item">
         <div class="setting-header-standalone">
-          <label class="setting-label">{{ t('overrideManagement') }}</label>
+          <span class="setting-label">{{ t('overrideManagement') }}</span>
         </div>
         <p class="setting-description">{{ t('overrideManagementDesc') }}</p>
         <div class="setting-options">
