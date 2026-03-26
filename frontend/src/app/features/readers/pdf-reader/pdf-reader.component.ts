@@ -17,6 +17,10 @@ import {TranslocoService, TranslocoPipe} from '@jsverse/transloco';
 import {ReadingSessionService} from '../../../shared/service/reading-session.service';
 import {Location} from '@angular/common';
 
+interface SerializedPdfAnnotation extends Record<string, unknown> {
+  id?: unknown;
+}
+
 @Component({
   selector: 'app-pdf-reader',
   standalone: true,
@@ -219,7 +223,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     }
     const serialized = this.pdfViewerService.getSerializedAnnotations();
     if (serialized && serialized.length > 0) {
-      const cleaned = serialized.map((annotation: any) => {
+      const cleaned = serialized.map((annotation: SerializedPdfAnnotation) => {
         const {id, ...rest} = annotation;
         void id;
         return rest;

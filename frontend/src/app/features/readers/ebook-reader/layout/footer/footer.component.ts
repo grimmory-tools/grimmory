@@ -6,14 +6,14 @@ import {ReaderIconComponent} from '../../shared/icon.component';
 interface TocItem {
   label: string;
   href: string;
-  subitems: any;
+  subitems?: TocItem[];
   id: number;
 }
 
 interface PageItem {
   label: string;
   href: string;
-  subitems: any;
+  subitems?: PageItem[];
   id: number;
 }
 
@@ -25,7 +25,7 @@ interface RelocateEventDetail {
   tocItem: TocItem;
   pageItem: PageItem;
   cfi: string;
-  range: any;
+  range: Range | null;
 }
 
 @Component({

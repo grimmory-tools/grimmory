@@ -1,4 +1,4 @@
-import {Injectable, inject} from '@angular/core';
+import {Injectable, inject, Renderer2} from '@angular/core';
 import {CustomFontService} from '../../../../../shared/service/custom-font.service';
 import {CustomFont} from '../../../../../shared/model/custom-font.model';
 import {Observable, forkJoin, of, from} from 'rxjs';
@@ -112,7 +112,7 @@ export class EpubCustomFontService {
     return css;
   }
 
-  injectCustomFontsStylesheet(renderer: any, document: Document): void {
+  injectCustomFontsStylesheet(renderer: Renderer2, document: Document): void {
     const css = this.generateCustomFontsStylesheet();
     if (css) {
       const styleEl = renderer.createElement('style');

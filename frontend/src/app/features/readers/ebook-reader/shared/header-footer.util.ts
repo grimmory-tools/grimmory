@@ -8,10 +8,15 @@ export interface ThemeInfo {
   bg: string;
 }
 
+interface DecoratedRenderer {
+  heads?: HTMLElement[];
+  feet?: HTMLElement[];
+}
+
 export class PageDecorator {
   private static readonly DEFAULT_FONT_SIZE = '0.875rem';
 
-  static updateHeadersAndFooters(renderer: any, chapterName: string, pageInfo?: PageInfo, theme?: ThemeInfo, timeRemainingLabel?: string): void {
+  static updateHeadersAndFooters(renderer: DecoratedRenderer | null | undefined, chapterName: string, pageInfo?: PageInfo, theme?: ThemeInfo, timeRemainingLabel?: string): void {
 
     if (!renderer) {
       return;
@@ -24,7 +29,7 @@ export class PageDecorator {
     this.updateFooters(renderer, pageInfo, isSingleColumn, theme, timeRemainingLabel);
   }
 
-  private static updateHeaders(renderer: any, chapterName: string, isSingleColumn: boolean, theme?: ThemeInfo): void {
+  private static updateHeaders(renderer: DecoratedRenderer, chapterName: string, isSingleColumn: boolean, theme?: ThemeInfo): void {
     if (!renderer.heads || !Array.isArray(renderer.heads) || renderer.heads.length === 0) {
       return;
     }
@@ -40,7 +45,7 @@ export class PageDecorator {
     });
   }
 
-  private static updateFooters(renderer: any, pageInfo: PageInfo | undefined, isSingleColumn: boolean, theme?: ThemeInfo, timeRemainingLabel?: string): void {
+  private static updateFooters(renderer: DecoratedRenderer, pageInfo: PageInfo | undefined, isSingleColumn: boolean, theme?: ThemeInfo, timeRemainingLabel?: string): void {
     if (!renderer.feet || !Array.isArray(renderer.feet) || renderer.feet.length === 0 || !pageInfo) {
       return;
     }

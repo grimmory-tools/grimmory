@@ -37,7 +37,7 @@ export class ReaderQuickSettingsComponent {
       maxColumnCount: this.state.maxColumnCount,
       gap: this.state.gap,
       fontSize: this.state.fontSize,
-      theme: typeof this.state.theme === 'object' && 'name' in this.state.theme ? this.state.theme.name : (this.state.theme as any),
+      theme: this.state.theme.name,
       maxInlineSize: this.state.maxInlineSize,
       maxBlockSize: this.state.maxBlockSize,
       fontFamily: this.state.fontFamily,
