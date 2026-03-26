@@ -36,7 +36,19 @@ test:
 
 # Run the frontend tests with a coverage report.
 coverage:
-    {{ yarn }} ng test --coverage
+    {{ yarn }} coverage
+
+# Summarize the latest frontend coverage report by global and feature buckets.
+coverage-summary:
+    {{ yarn }} coverage:summary
+
+# Install the Chromium browser used by the frontend Playwright suite.
+e2e-install:
+    {{ yarn }} e2e:install
+
+# Run the frontend Playwright suite.
+e2e:
+    {{ yarn }} e2e
 
 # Run the frontend linter.
 lint:
