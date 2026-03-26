@@ -39,6 +39,31 @@ public class KoboLibrarySyncService {
     private final ObjectMapper objectMapper;
     private final KoboSettingsService koboSettingsService;
 
+    private Collection<Entitlement> getEntitlementsFromKoboStoreResponse(ResponseEntity<JsonNode> koboStoreResponse) {
+         return Optional.ofNullable(koboStoreResponse.getBody())
+                .map(body -> {
+                    try {
+                        List<Entitlement> results = new ArrayList<>();
+                        if (body.isArray()) {
+                            for (JsonNode node : body) {
+                                if (node.has("NewEntitlement")) {
+                                    results.add(objectMapper.treeToValue(node, NewEntitlement.class));
+                                } else if (node.has("ChangedEntitlement")) {
+                                    results.add(objectMapper.treeToValue(node, ChangedEntitlement.class));
+                                } else {
+                                    log.warn("Unknown entitlement type in Kobo response: {}", node);
+                                }
+                            }
+                        }
+                        return results;
+                    } catch (Exception e) {
+                        log.error("Failed to map Kobo response to Entitlement objects", e);
+                        return Collections.<Entitlement>emptyList();
+                    }
+                })
+                .orElse(Collections.emptyList());
+    }
+
     @Transactional
     public ResponseEntity<?> syncLibrary(BookLoreUser user, String token) {
         HttpServletRequest request = RequestUtils.getCurrentRequest();
@@ -110,38 +135,20 @@ public class KoboLibrarySyncService {
         }
 
         if (!shouldContinueSync) {
-            ResponseEntity<JsonNode> koboStoreResponse = koboServerProxy.proxyCurrentRequest(null, true);
-            Collection<Entitlement> syncResultsKobo = Optional.ofNullable(koboStoreResponse.getBody())
-                    .map(body -> {
-                        try {
-                            List<Entitlement> results = new ArrayList<>();
-                            if (body.isArray()) {
-                                for (JsonNode node : body) {
-                                    if (node.has("NewEntitlement")) {
-                                        results.add(objectMapper.treeToValue(node, NewEntitlement.class));
-                                    } else if (node.has("ChangedEntitlement")) {
-                                        results.add(objectMapper.treeToValue(node, ChangedEntitlement.class));
-                                    } else {
-                                        log.warn("Unknown entitlement type in Kobo response: {}", node);
-                                    }
-                                }
-                            }
-                            return results;
-                        } catch (Exception e) {
-                            log.error("Failed to map Kobo response to Entitlement objects", e);
-                            return Collections.<Entitlement>emptyList();
-                        }
-                    })
-                    .orElse(Collections.emptyList());
+            try {
+                ResponseEntity<JsonNode> koboStoreResponse = koboServerProxy.proxyCurrentRequest(null, true);
 
-            entitlements.addAll(syncResultsKobo);
+                entitlements.addAll(getEntitlementsFromKoboStoreResponse(koboStoreResponse));
 
-            shouldContinueSync = "continue".equalsIgnoreCase(
-                    Optional.ofNullable(koboStoreResponse.getHeaders().getFirst(KoboHeaders.X_KOBO_SYNC)).orElse("")
-            );
+                shouldContinueSync = "continue".equalsIgnoreCase(
+                        Optional.ofNullable(koboStoreResponse.getHeaders().getFirst(KoboHeaders.X_KOBO_SYNC)).orElse("")
+                );
 
-            String koboSyncTokenHeader = koboStoreResponse.getHeaders().getFirst(KoboHeaders.X_KOBO_SYNCTOKEN);
-            syncToken = koboSyncTokenHeader != null ? tokenGenerator.fromBase64(koboSyncTokenHeader) : syncToken;
+                String koboSyncTokenHeader = koboStoreResponse.getHeaders().getFirst(KoboHeaders.X_KOBO_SYNCTOKEN);
+                syncToken = koboSyncTokenHeader != null ? tokenGenerator.fromBase64(koboSyncTokenHeader) : syncToken;
+            } catch (Exception e) {
+                log.warn("Failed to get response from Kobo /v1/library/sync, fallback to noproxy", e);
+            }
         }
 
         if (shouldContinueSync) {
