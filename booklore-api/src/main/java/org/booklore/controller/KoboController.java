@@ -3,6 +3,7 @@ package org.booklore.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -72,7 +73,11 @@ public class KoboController {
     }
 
     @Operation(summary = "Get book thumbnail", description = "Retrieve the thumbnail image for a local book.")
-    @ApiResponse(responseCode = "200", description = "Thumbnail returned successfully")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Thumbnail returned successfully"),
+            @ApiResponse(responseCode = "307", description = "Thumbnail is at another location"),
+    })
+
     @GetMapping(
             value = {
                     "v1/books/{imageId}/{version}/thumbnail/{width}/{height}/{quality}/{isGreyscale}/image.jpg",
