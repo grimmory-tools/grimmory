@@ -143,30 +143,30 @@
 
                     <!-- Ratings -->
                     @if (seriesStats(); as stats) {
-                      @if (stats.avgPersonalRating != null || stats.avgGoodreads != null || stats.avgAmazon != null || stats.avgHardcover != null) {
+                      @if ((stats.avgPersonalRating !== null && stats.avgPersonalRating !== undefined) || (stats.avgGoodreads !== null && stats.avgGoodreads !== undefined) || (stats.avgAmazon !== null && stats.avgAmazon !== undefined) || (stats.avgHardcover !== null && stats.avgHardcover !== undefined)) {
                         <div class="ratings-row">
-                          @if (stats.avgPersonalRating != null) {
+                          @if (stats.avgPersonalRating !== null && stats.avgPersonalRating !== undefined) {
                             <div class="rating-chip">
                               <i class="pi pi-star-fill rating-icon personal"></i>
                               <span class="rating-value">{{ stats.avgPersonalRating | number:'1.1-1' }}/10</span>
                               <span class="rating-label">{{ t('stats.avgPersonalRating') }}</span>
                             </div>
                           }
-                          @if (stats.avgGoodreads != null) {
+                          @if (stats.avgGoodreads !== null && stats.avgGoodreads !== undefined) {
                             <div class="rating-chip">
                               <i class="pi pi-star-fill rating-icon goodreads"></i>
                               <span class="rating-value">{{ getRatingPercent(stats.avgGoodreads) }}%</span>
                               <span class="rating-label">{{ t('stats.avgGoodreads') }}</span>
                             </div>
                           }
-                          @if (stats.avgAmazon != null) {
+                          @if (stats.avgAmazon !== null && stats.avgAmazon !== undefined) {
                             <div class="rating-chip">
                               <i class="pi pi-star-fill rating-icon amazon"></i>
                               <span class="rating-value">{{ getRatingPercent(stats.avgAmazon) }}%</span>
                               <span class="rating-label">{{ t('stats.avgAmazon') }}</span>
                             </div>
                           }
-                          @if (stats.avgHardcover != null) {
+                          @if (stats.avgHardcover !== null && stats.avgHardcover !== undefined) {
                             <div class="rating-chip">
                               <i class="pi pi-star-fill rating-icon hardcover"></i>
                               <span class="rating-value">{{ getRatingPercent(stats.avgHardcover) }}%</span>
@@ -196,7 +196,7 @@
                               {{ nextUp.isReading ? t('continueReading') : t('nextUp') }}
                             </span>
                             <span class="next-up-title">{{ nextUp.book.metadata?.title || '' }}</span>
-                            @if (nextUp.isReading && nextUp.progressPercent != null) {
+                            @if (nextUp.isReading && nextUp.progressPercent !== null && nextUp.progressPercent !== undefined) {
                               <div class="next-up-progress-row">
                                 <p-progressBar
                                   [value]="nextUp.progressPercent"
@@ -307,7 +307,7 @@
             <div class="book-list-card">
               <div class="list-number-col">
                 <span class="list-series-number">
-                  {{ book.metadata?.seriesNumber != null ? '#' + book.metadata?.seriesNumber : '-' }}
+                  {{ book.metadata?.seriesNumber !== null && book.metadata?.seriesNumber !== undefined ? '#' + book.metadata?.seriesNumber : '-' }}
                 </span>
               </div>
               <img [src]="getBookThumbnailUrl(book)"

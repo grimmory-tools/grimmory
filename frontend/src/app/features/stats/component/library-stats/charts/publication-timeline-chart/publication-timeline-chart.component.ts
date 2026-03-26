@@ -310,8 +310,7 @@ export class PublicationTimelineChartComponent {
     // Golden Era: best 20-year window
     let goldenEra = {start: 0, end: 0, count: 0};
     if (years.length > 0) {
-      for (let i = 0; i < years.length; i++) {
-        const windowStart = years[i];
+      for (const windowStart of years) {
         const windowEnd = windowStart + 19;
         const windowCount = years.filter(y => y >= windowStart && y <= windowEnd).length;
         if (windowCount > goldenEra.count) {

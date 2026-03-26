@@ -275,10 +275,10 @@ export class ReadingSessionTimelineComponent implements OnInit {
 
     sessions.forEach(session => {
       let placed = false;
-      for (let i = 0; i < tracks.length; i++) {
-        const lastSessionInTrack = tracks[i][tracks[i].length - 1];
+      for (const track of tracks) {
+        const lastSessionInTrack = track[track.length - 1];
         if (session.startTime >= lastSessionInTrack.endTime) {
-          tracks[i].push(session);
+          track.push(session);
           placed = true;
           break;
         }

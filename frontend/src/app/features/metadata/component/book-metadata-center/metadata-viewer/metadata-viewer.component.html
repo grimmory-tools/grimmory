@@ -13,7 +13,7 @@
             [preview]="true">
           </p-image>
 
-          @if (book?.metadata!.seriesNumber != null) {
+          @if (book?.metadata!.seriesNumber !== null && book?.metadata!.seriesNumber !== undefined) {
             <div class="series-badge">
               #{{ book?.metadata!.seriesNumber }}
             </div>
@@ -423,7 +423,7 @@
 
             <div class="metadata-item">
               <span class="metadata-key">{{ t('metadataMatchLabel') }}</span>
-              @if (book?.metadataMatchScore != null) {
+              @if (book?.metadataMatchScore !== null && book?.metadataMatchScore !== undefined) {
                 <span role="button" tabindex="0" (click)="goToMatchScoreRange(book?.metadataMatchScore!)" (keydown.enter)="goToMatchScoreRange(book?.metadataMatchScore!)" style="cursor: pointer;">
                   <app-tag size="3xs" variant="pill" [color]="getMatchScoreColor(book?.metadataMatchScore!)">
                     {{ (book?.metadataMatchScore!) | number:'1.0-0' }}%
@@ -462,7 +462,7 @@
               </span>
             </div>
 
-            @if (book?.koreaderProgress && book.koreaderProgress?.percentage != null) {
+            @if (book?.koreaderProgress && book.koreaderProgress?.percentage !== null && book.koreaderProgress?.percentage !== undefined) {
               <div class="metadata-item">
                 <span class="metadata-key">{{ t('koreaderProgressLabel') }}</span>
                 <span class="metadata-value-group">
@@ -483,7 +483,7 @@
               </div>
             }
 
-            @if (book?.koboProgress && book.koboProgress?.percentage != null) {
+            @if (book?.koboProgress && book.koboProgress?.percentage !== null && book.koboProgress?.percentage !== undefined) {
               <div class="metadata-item">
                 <span class="metadata-key">{{ t('koboProgressLabel') }}</span>
                 <span class="metadata-value-group">
@@ -545,7 +545,7 @@
 
             <div class="metadata-item">
               <span class="metadata-key">{{ t('ageRatingLabel') }}</span>
-              @if (book?.metadata?.ageRating != null) {
+              @if (book?.metadata?.ageRating !== null && book?.metadata?.ageRating !== undefined) {
                 <span class="metadata-value metadata-link" role="button" tabindex="0" (click)="goToAgeRating(book?.metadata?.ageRating!)" (keydown.enter)="goToAgeRating(book?.metadata?.ageRating!)">
                   {{ getAgeRatingLabel(book?.metadata?.ageRating) }}
                 </span>
@@ -587,7 +587,7 @@
                   <span class="metadata-value">{{ audio.chapterCount }}</span>
                 </div>
               }
-              @if (book.metadata?.abridged != null) {
+              @if (book.metadata?.abridged !== null && book.metadata?.abridged !== undefined) {
                 <div class="metadata-item">
                   <span class="metadata-key">{{ t('audiobookAbridged') }}</span>
                   <span class="metadata-value">{{ book.metadata?.abridged ? t('abridged') : t('unabridged') }}</span>

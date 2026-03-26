@@ -22,7 +22,7 @@
           {{ displayFormat }}
         </div>
       }
-      @if (!book.seriesCount && book.metadata?.seriesNumber != null) {
+      @if (!book.seriesCount && book.metadata?.seriesNumber !== null && book.metadata?.seriesNumber !== undefined) {
         <div class="series-number-overlay">
           #{{ book.metadata?.seriesNumber }}
         </div>
