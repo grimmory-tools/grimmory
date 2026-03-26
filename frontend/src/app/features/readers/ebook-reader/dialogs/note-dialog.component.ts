@@ -27,8 +27,8 @@ export interface NoteDialogResult {
 })
 export class ReaderNoteDialogComponent implements OnChanges {
   @Input() data: NoteDialogData | null = null;
-  @Output() save = new EventEmitter<NoteDialogResult>();
-  @Output() cancel = new EventEmitter<void>();
+  @Output() saved = new EventEmitter<NoteDialogResult>();
+  @Output() cancelled = new EventEmitter<void>();
 
   noteContent = '';
   selectedColor = '#FFC107';
@@ -55,7 +55,7 @@ export class ReaderNoteDialogComponent implements OnChanges {
 
   onSave(): void {
     if (this.noteContent.trim()) {
-      this.save.emit({
+      this.saved.emit({
         noteContent: this.noteContent.trim(),
         color: this.selectedColor
       });
@@ -63,7 +63,7 @@ export class ReaderNoteDialogComponent implements OnChanges {
   }
 
   onCancel(): void {
-    this.cancel.emit();
+    this.cancelled.emit();
   }
 
   selectColor(color: string): void {

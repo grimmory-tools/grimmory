@@ -16,7 +16,7 @@ import {EbookViewerSetting} from '../../../../book/model/book.model';
 export class ReaderQuickSettingsComponent {
   @Input() stateService!: ReaderStateService;
   @Input() bookId!: number;
-  @Output() close = new EventEmitter<void>();
+  @Output() closed = new EventEmitter<void>();
   @Output() openFullSettings = new EventEmitter<void>();
 
   constructor(private bookService: BookService) {}
@@ -73,11 +73,11 @@ export class ReaderQuickSettingsComponent {
   }
 
   onOpenFullSettings(): void {
-    this.close.emit();
+    this.closed.emit();
     this.openFullSettings.emit();
   }
 
   onOverlayClick(): void {
-    this.close.emit();
+    this.closed.emit();
   }
 }

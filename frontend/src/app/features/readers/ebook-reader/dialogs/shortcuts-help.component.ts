@@ -22,7 +22,7 @@ interface ShortcutGroup {
   styleUrls: ['./shortcuts-help.component.scss']
 })
 export class EbookShortcutsHelpComponent {
-  @Output() close = new EventEmitter<void>();
+  @Output() closed = new EventEmitter<void>();
 
   private readonly t = inject(TranslocoService);
 
@@ -68,7 +68,7 @@ export class EbookShortcutsHelpComponent {
   isMobile = window.innerWidth < 768;
 
   onClose(): void {
-    this.close.emit();
+    this.closed.emit();
   }
 
   onOverlayClick(event: MouseEvent): void {
