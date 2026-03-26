@@ -58,7 +58,7 @@ export class MetadataProgressWidgetComponent implements OnInit, OnDestroy {
       }
     }
 
-    for (const [taskId, task] of Object.entries(tasks)) {
+    for (const taskId of Object.keys(tasks)) {
       this.lastUpdateMap.set(taskId, now);
 
       if (this.timeoutHandles.has(taskId)) {

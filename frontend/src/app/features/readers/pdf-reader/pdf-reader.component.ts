@@ -219,7 +219,11 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     }
     const serialized = this.pdfViewerService.getSerializedAnnotations();
     if (serialized && serialized.length > 0) {
-      const cleaned = serialized.map(({id, ...rest}: any) => rest);
+      const cleaned = serialized.map((annotation: any) => {
+        const {id, ...rest} = annotation;
+        void id;
+        return rest;
+      });
       const data = JSON.stringify(cleaned);
       this.pdfAnnotationService.saveAnnotations(this.bookId, data).subscribe();
     }

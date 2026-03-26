@@ -95,6 +95,7 @@ export class FileNamingPatternComponent implements OnInit {
   }
 
   onLibraryPatternChange(_library: Library): void {
+    void _library;
     // Optionally add per-library validation here
   }
 

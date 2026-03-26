@@ -273,6 +273,7 @@ export class ReaderEventService {
   }
 
   private handleTouchStart(event: TouchEvent, _doc: Document): void {
+    void _doc;
     if (event.touches.length !== 1) return;
 
     const touch = event.touches[0];

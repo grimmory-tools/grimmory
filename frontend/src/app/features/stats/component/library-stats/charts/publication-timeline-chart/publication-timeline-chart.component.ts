@@ -334,7 +334,7 @@ export class PublicationTimelineChartComponent {
 
     // Rarity Score: % of books in decades with fewer than 3 books
     let rareBooks = 0;
-    for (const [_, count] of decadeCounts) {
+    for (const count of decadeCounts.values()) {
       if (count < 3) rareBooks += count;
     }
     const rarityScore = years.length > 0 ? Math.round((rareBooks / years.length) * 100) : 0;

@@ -2,8 +2,7 @@ import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {firstValueFrom, Observable} from 'rxjs';
 import {API_CONFIG} from '../config/api-config';
-import {AppSettingsService, PublicAppSettings} from '../../shared/service/app-settings.service';
-import {filter, take} from 'rxjs/operators';
+import {AppSettingsService} from '../../shared/service/app-settings.service';
 
 interface OidcPkceState {
   codeVerifier: string;

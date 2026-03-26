@@ -1,7 +1,6 @@
 import {Component, inject, OnDestroy} from '@angular/core';
 import {NotificationEventService} from '../../websocket/notification-event.service';
 import {LogNotification} from '../../websocket/model/log-notification.model';
-import {Tag} from 'primeng/tag';
 import {TranslocoService} from '@jsverse/transloco';
 import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';

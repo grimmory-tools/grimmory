@@ -1,8 +1,8 @@
 import {Component, effect, ElementRef, HostListener, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {CommonModule} from '@angular/common';
-import {forkJoin, from, Observable, Subject} from 'rxjs';
-import {debounceTime, map, switchMap, takeUntil, timeout} from 'rxjs/operators';
+import {forkJoin, from, Subject} from 'rxjs';
+import {debounceTime, map, switchMap, takeUntil} from 'rxjs/operators';
 import {PageTitleService} from "../../../shared/service/page-title.service";
 import {CbxReaderService} from '../../book/service/cbx-reader.service';
 import {BookService} from '../../book/service/book.service';
@@ -1058,7 +1058,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   }
 
   @HostListener('document:mouseleave', ['$event'])
-  onMouseLeave(event: MouseEvent): void {
+  onMouseLeave(): void {
     this.visibilityManager.handleMouseLeave();
     if (this.isMagnifierActive) {
       this.hideMagnifier();

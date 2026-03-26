@@ -285,7 +285,7 @@ export class RatingTasteChartComponent {
     };
 
     const datasets = Array.from(dataPoints.entries())
-      .filter(([_, points]) => points.length > 0)
+      .filter(([, points]) => points.length > 0)
       .map(([label, points]) => ({
         label: `${label} (${points.length})`,
         data: points,
