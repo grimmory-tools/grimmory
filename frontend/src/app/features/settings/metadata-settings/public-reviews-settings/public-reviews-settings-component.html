@@ -17,7 +17,7 @@
             [(ngModel)]="publicReviewSettings.downloadEnabled"
             (onChange)="onPublicReviewsToggle($event.checked)">
           </p-toggleswitch>
-          <label class="setting-label">{{ t('downloadLabel') }}</label>
+          <span class="setting-label">{{ t('downloadLabel') }}</span>
         </div>
       </div>
 
@@ -28,14 +28,14 @@
               [(ngModel)]="publicReviewSettings.autoDownloadEnabled"
               (onChange)="onAutoDownloadToggle($event.checked)">
             </p-toggleswitch>
-            <label class="setting-label">{{ t('autoDownloadLabel') }}</label>
+            <span class="setting-label">{{ t('autoDownloadLabel') }}</span>
           </div>
           <p class="setting-description">{{ t('autoDownloadDesc') }}</p>
         </div>
 
         <div class="setting-item">
           <div class="setting-header-standalone">
-            <label class="setting-label">{{ t('reviewSources') }}</label>
+            <span class="setting-label">{{ t('reviewSources') }}</span>
           </div>
           <p class="setting-description">{{ t('reviewSourcesDesc') }}</p>
           @if (publicReviewSettings.providers.length > 0) {
@@ -48,7 +48,7 @@
                         [(ngModel)]="provider.enabled"
                         (onChange)="onProviderToggle(provider.provider, $event.checked)">
                       </p-toggleswitch>
-                      <label class="provider-label">{{ provider.provider }}</label>
+                      <span class="provider-label">{{ provider.provider }}</span>
                     </div>
                     @if (provider.enabled) {
                       <div class="max-reviews-control">

@@ -7,7 +7,7 @@
       <div class="setting-item">
         <div class="setting-info">
           <div class="setting-label-row">
-            <label class="setting-label">{{ t('theme') }}</label>
+            <span class="setting-label">{{ t('theme') }}</span>
             <div class="theme-selector">
               @for (theme of themes; track theme) {
                 <button
@@ -38,7 +38,7 @@
       <div class="setting-item">
         <div class="setting-info">
           <div class="setting-label-row">
-            <label class="setting-label">{{ t('darkMode') }}</label>
+            <span class="setting-label">{{ t('darkMode') }}</span>
             <div class="button-group">
               <button
                 type="button"
@@ -70,7 +70,7 @@
       <div class="setting-item">
         <div class="setting-info">
           <div class="setting-label-row">
-            <label class="setting-label">{{ t('fontFamily') }}</label>
+            <span class="setting-label">{{ t('fontFamily') }}</span>
             <div class="button-group">
               @for (font of fonts; track font) {
                 <button
@@ -103,7 +103,7 @@
       <div class="setting-item">
         <div class="setting-info">
           <div class="setting-label-row">
-            <label class="setting-label">{{ t('fontSize') }}</label>
+            <span class="setting-label">{{ t('fontSize') }}</span>
             <div class="font-size-controls">
               <p-button icon="pi pi-minus" size="small" rounded outlined (click)="decreaseFontSize()"></p-button>
               <span class="font-size-value">{{ fontSize }}pt</span>
@@ -119,7 +119,7 @@
       <div class="setting-item">
         <div class="setting-info">
           <div class="setting-label-row">
-            <label class="setting-label">{{ t('lineHeight') }}</label>
+            <span class="setting-label">{{ t('lineHeight') }}</span>
             <div class="font-size-controls">
               <p-button icon="pi pi-minus" size="small" rounded outlined (click)="decreaseLineHeight()"></p-button>
               <span class="font-size-value">{{ lineHeight.toFixed(1) }}</span>
@@ -135,7 +135,7 @@
       <div class="setting-item">
         <div class="setting-info">
           <div class="setting-label-row">
-            <label class="setting-label">{{ t('textJustification') }}</label>
+            <span class="setting-label">{{ t('textJustification') }}</span>
             <div class="button-group">
               <button
                 type="button"
@@ -164,7 +164,7 @@
       <div class="setting-item">
         <div class="setting-info">
           <div class="setting-label-row">
-            <label class="setting-label">{{ t('hyphenation') }}</label>
+            <span class="setting-label">{{ t('hyphenation') }}</span>
             <div class="button-group">
               <button
                 type="button"
@@ -197,7 +197,7 @@
       <div class="setting-item">
         <div class="setting-info">
           <div class="setting-label-row">
-            <label class="setting-label">{{ t('flow') }}</label>
+            <span class="setting-label">{{ t('flow') }}</span>
             <div class="button-group">
               <button
                 type="button"
@@ -226,7 +226,7 @@
       <div class="setting-item">
         <div class="setting-info">
           <div class="setting-label-row">
-            <label class="setting-label">{{ t('maxColumns') }}</label>
+            <span class="setting-label">{{ t('maxColumns') }}</span>
             <div class="font-size-controls">
               <p-button icon="pi pi-minus" size="small" rounded outlined (click)="maxColumnCount = maxColumnCount > 1 ? maxColumnCount - 1 : 1"></p-button>
               <span class="font-size-value">{{ maxColumnCount }}</span>
@@ -242,7 +242,7 @@
       <div class="setting-item">
         <div class="setting-info">
           <div class="setting-label-row">
-            <label class="setting-label">{{ t('columnGap') }}</label>
+            <span class="setting-label">{{ t('columnGap') }}</span>
             <div class="font-size-controls">
               <p-button icon="pi pi-minus" size="small" rounded outlined (click)="decreaseGap()"></p-button>
               <span class="font-size-value">{{ gap * 100 | number : '1.0-0' }}%</span>
@@ -258,7 +258,7 @@
       <div class="setting-item">
         <div class="setting-info">
           <div class="setting-label-row">
-            <label class="setting-label">{{ t('maxWidth') }}</label>
+            <span class="setting-label">{{ t('maxWidth') }}</span>
             <div class="font-size-controls">
               <p-button icon="pi pi-minus" size="small" rounded outlined (click)="decreaseMaxInlineSize()"></p-button>
               <span class="font-size-value">{{ maxInlineSize }}px</span>
@@ -274,7 +274,7 @@
       <div class="setting-item">
         <div class="setting-info">
           <div class="setting-label-row">
-            <label class="setting-label">{{ t('maxHeight') }}</label>
+            <span class="setting-label">{{ t('maxHeight') }}</span>
             <div class="font-size-controls">
               <p-button icon="pi pi-minus" size="small" rounded outlined (click)="decreaseMaxBlockSize()"></p-button>
               <span class="font-size-value">{{ maxBlockSize }}px</span>

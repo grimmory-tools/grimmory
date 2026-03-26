@@ -19,7 +19,7 @@
             <div class="setting-item">
               <div class="setting-header">
                 <p-toggleswitch [(ngModel)]="amazonEnabled"></p-toggleswitch>
-                <label class="setting-label">Amazon</label>
+                <span class="setting-label">Amazon</span>
               </div>
               @if (amazonEnabled) {
                 <div class="setting-options">
@@ -52,7 +52,7 @@
             <div class="setting-item">
               <div class="setting-header">
                 <p-toggleswitch [(ngModel)]="googleEnabled"></p-toggleswitch>
-                <label class="setting-label">Google Books</label>
+                <span class="setting-label">Google Books</span>
               </div>
               @if (googleEnabled) {
                 <div class="setting-options">
@@ -86,7 +86,7 @@
                   [(ngModel)]="hardcoverEnabled"
                   [disabled]="!hardcoverToken">
                 </p-toggleswitch>
-                <label class="setting-label">Hardcover</label>
+                <span class="setting-label">Hardcover</span>
               </div>
               <div class="setting-options">
                 <div class="config-field">
@@ -108,7 +108,7 @@
             <div class="setting-item">
               <div class="setting-header">
                 <p-toggleswitch [(ngModel)]="comicvineEnabled"></p-toggleswitch>
-                <label class="setting-label">Comic Vine</label>
+                <span class="setting-label">Comic Vine</span>
               </div>
               @if (comicvineEnabled) {
                 <div class="setting-options">
@@ -129,7 +129,7 @@
             <div class="setting-item">
               <div class="setting-header">
                 <p-toggleswitch [(ngModel)]="audibleEnabled"></p-toggleswitch>
-                <label class="setting-label">Audible</label>
+                <span class="setting-label">Audible</span>
               </div>
               @if (audibleEnabled) {
                 <div class="setting-options">
@@ -155,28 +155,28 @@
             <div class="setting-item simple-provider">
               <div class="setting-header">
                 <p-toggleswitch [(ngModel)]="goodreadsEnabled"></p-toggleswitch>
-                <label class="setting-label">Goodreads</label>
+                <span class="setting-label">Goodreads</span>
               </div>
             </div>
 
             <div class="setting-item simple-provider">
               <div class="setting-header">
                 <p-toggleswitch [(ngModel)]="doubanEnabled"></p-toggleswitch>
-                <label class="setting-label">Douban</label>
+                <span class="setting-label">Douban</span>
               </div>
             </div>
 
             <div class="setting-item simple-provider">
               <div class="setting-header">
                 <p-toggleswitch [(ngModel)]="lubimyCzytacEnabled"></p-toggleswitch>
-                <label class="setting-label">Lubimyczytac</label>
+                <span class="setting-label">Lubimyczytac</span>
               </div>
             </div>
 
             <div class="setting-item simple-provider">
               <div class="setting-header">
                 <p-toggleswitch [(ngModel)]="ranobedbEnabled"></p-toggleswitch>
-                <label class="setting-label">Ranobedb</label>
+                <span class="setting-label">Ranobedb</span>
               </div>
             </div>
           </div>

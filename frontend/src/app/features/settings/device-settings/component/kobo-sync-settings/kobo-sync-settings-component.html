@@ -31,7 +31,7 @@
           <div class="setting-item">
             <div class="setting-info">
               <div class="setting-label-row">
-                <label class="setting-label">{{ t('kobo.enableSync') }}</label>
+                <span class="setting-label">{{ t('kobo.enableSync') }}</span>
                 <p-toggle-switch
                   id="syncEnabled"
                   name="syncEnabled"
@@ -49,7 +49,7 @@
             <div class="setting-item">
               <div class="setting-info">
                 <div class="setting-label-row">
-                  <label class="setting-label">{{ t('kobo.twoWaySyncLabel') }}</label>
+                  <span class="setting-label">{{ t('kobo.twoWaySyncLabel') }}</span>
                   <p-toggle-switch
                     id="twoWayProgressSync"
                     name="twoWayProgressSync"
@@ -70,7 +70,7 @@
             <div class="setting-item">
               <div class="setting-info">
                 <div class="setting-label-row">
-                  <label class="setting-label">{{ t('kobo.token') }}</label>
+                  <span class="setting-label">{{ t('kobo.token') }}</span>
                   <div class="token-input-group">
                     <input
                       pInputText
@@ -116,7 +116,7 @@
             <div class="setting-item">
               <div class="setting-info">
                 <div class="setting-label-row">
-                  <label class="setting-label">{{ t('kobo.markAsReading', {value: koboSyncSettings.progressMarkAsReadingThreshold?.toFixed(0)}) }}</label>
+                  <span class="setting-label">{{ t('kobo.markAsReading', {value: koboSyncSettings.progressMarkAsReadingThreshold?.toFixed(0)}) }}</span>
                   <div class="slider-container">
                     <p-slider
                       id="markAsReadingThreshold"
@@ -140,7 +140,7 @@
             <div class="setting-item">
               <div class="setting-info">
                 <div class="setting-label-row">
-                  <label class="setting-label">{{ t('kobo.markAsFinished', {value: koboSyncSettings.progressMarkAsFinishedThreshold?.toFixed(0)}) }}</label>
+                  <span class="setting-label">{{ t('kobo.markAsFinished', {value: koboSyncSettings.progressMarkAsFinishedThreshold?.toFixed(0)}) }}</span>
                   <div class="slider-container">
                     <p-slider
                       id="markAsFinishedThreshold"
@@ -164,7 +164,7 @@
             <div class="setting-item">
               <div class="setting-info">
                 <div class="setting-label-row">
-                  <label class="setting-label">{{ t('kobo.autoAddLabel') }}</label>
+                  <span class="setting-label">{{ t('kobo.autoAddLabel') }}</span>
                   <p-toggle-switch
                     id="autoAddToShelf"
                     name="autoAddToShelf"
@@ -197,7 +197,7 @@
             <div class="setting-item">
               <div class="setting-info">
                 <div class="setting-label-row">
-                  <label class="setting-label">{{ t('kobo.convertKepub') }}</label>
+                  <span class="setting-label">{{ t('kobo.convertKepub') }}</span>
                   <p-toggle-switch
                     id="convertToKepub"
                     [(ngModel)]="koboSettings.convertToKepub"
@@ -215,7 +215,7 @@
             <div class="setting-item">
               <div class="setting-info">
                 <div class="setting-label-row">
-                  <label class="setting-label">{{ t('kobo.conversionSizeLimit', {value: koboSettings.conversionLimitInMb}) }}</label>
+                  <span class="setting-label">{{ t('kobo.conversionSizeLimit', {value: koboSettings.conversionLimitInMb}) }}</span>
                   <div class="slider-container">
                     <p-slider
                       id="conversionLimit"
@@ -238,7 +238,7 @@
             <div class="setting-item">
               <div class="setting-info">
                 <div class="setting-label-row">
-                  <label class="setting-label">{{ t('kobo.forceHyphenation') }}</label>
+                  <span class="setting-label">{{ t('kobo.forceHyphenation') }}</span>
                   <p-toggle-switch
                     id="forceEnableHyphenation"
                     [(ngModel)]="koboSettings.forceEnableHyphenation"
@@ -255,7 +255,7 @@
             <div class="setting-item">
               <div class="setting-info">
                 <div class="setting-label-row">
-                  <label class="setting-label">{{ t('kobo.convertCbx') }}</label>
+                  <span class="setting-label">{{ t('kobo.convertCbx') }}</span>
                   <p-toggle-switch
                     id="convertCbxToEpub"
                     [(ngModel)]="koboSettings.convertCbxToEpub"
@@ -270,7 +270,7 @@
             <div class="setting-item">
               <div class="setting-info">
             <div class="setting-label-row">
-              <label class="setting-label">{{ t('kobo.imageCompression', {value: koboSettings.conversionImageCompressionPercentage}) }}</label>
+              <span class="setting-label">{{ t('kobo.imageCompression', {value: koboSettings.conversionImageCompressionPercentage}) }}</span>
               <div class="slider-container">
                 <p-slider
                   id="conversionLimit"
@@ -290,7 +290,7 @@
             <div class="setting-item">
               <div class="setting-info">
                 <div class="setting-label-row">
-                  <label class="setting-label">{{ t('kobo.cbxSizeLimit', {value: koboSettings.conversionLimitInMbForCbx}) }}</label>
+                  <span class="setting-label">{{ t('kobo.cbxSizeLimit', {value: koboSettings.conversionLimitInMbForCbx}) }}</span>
                   <div class="slider-container">
                     <p-slider
                       id="conversionLimitForCbx"

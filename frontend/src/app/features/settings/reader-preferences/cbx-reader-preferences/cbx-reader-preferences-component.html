@@ -3,7 +3,7 @@
     <div class="setting-item">
       <div class="setting-info">
         <div class="setting-label-row">
-          <label class="setting-label">{{ t('pageSpread') }}</label>
+          <span class="setting-label">{{ t('pageSpread') }}</span>
           <div class="button-group">
             @for (spread of cbxSpreads; track spread) {
               <button
@@ -26,7 +26,7 @@
     <div class="setting-item">
       <div class="setting-info">
         <div class="setting-label-row">
-          <label class="setting-label">{{ t('pageLayout') }}</label>
+          <span class="setting-label">{{ t('pageLayout') }}</span>
           <div class="button-group">
             @for (mode of cbxViewModes; track mode) {
               <button
@@ -49,7 +49,7 @@
     <div class="setting-item">
       <div class="setting-info">
         <div class="setting-label-row">
-          <label class="setting-label">{{ t('fitMode') }}</label>
+          <span class="setting-label">{{ t('fitMode') }}</span>
           <div class="button-group">
             @for (mode of cbxFitModes; track mode) {
               <button
@@ -74,7 +74,7 @@
     <div class="setting-item">
       <div class="setting-info">
         <div class="setting-label-row">
-          <label class="setting-label">{{ t('scrollMode') }}</label>
+          <span class="setting-label">{{ t('scrollMode') }}</span>
           <div class="button-group">
             @for (mode of cbxScrollModes; track mode) {
               <button
@@ -97,7 +97,7 @@
     <div class="setting-item">
       <div class="setting-info">
         <div class="setting-label-row">
-          <label class="setting-label">{{ t('backgroundColor') }}</label>
+          <span class="setting-label">{{ t('backgroundColor') }}</span>
           <div class="theme-selector">
             @for (color of cbxBackgroundColors; track color) {
               <button
