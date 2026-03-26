@@ -29,7 +29,19 @@ services:
       - ./shared/data:/app/data
       - ./shared/books:/books
       - ./shared/bookdrop:/bookdrop
-
+  frontend:
+    image: node:24-alpine
+    command: sh -c "cd /angular-app && corepack enable && corepack yarn install --immutable && corepack yarn ng serve --host 0.0.0.0 --watch --configuration development"
+    environment:
+      - NODE_ENV=development
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+    volumes:
+      - './frontend:/angular-app'
+      - node_modules:/angular-app/node_modules
+    ports:
+      - "${FRONTEND_PORT:-4200}:4200"
   backend_db:
     image: mariadb:11.4
     container_name: backend_db
@@ -44,28 +56,10 @@ services:
     ports:
       - "${DB_PORT:-3366}:3306"
     healthcheck:
-      test: [ "CMD", "mariadb-admin", "ping", "-h", "localhost", "-uroot", "-pgrimmory" ]
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-uroot", "-pgrimmory"]
       interval: 10s
       timeout: 5s
       retries: 5
-
-  ui:
-    image: node:24-alpine
-    command: sh -c "cd /angular-app && corepack enable && corepack yarn install --immutable && corepack yarn ng serve --host 0.0.0.0 --watch --configuration development"
-    environment:
-      - NODE_ENV=development
-    stdin_open: true
-    tty: true
-    restart: unless-stopped
-    volumes:
-      - './frontend:/angular-app'
-
-        # you can have node_modules in a volume. however, if you enable this, expect trouble in some IDEs, as the deps are not available anymore
-        # - node_modules:/angular-app/node_modules
-
-    ports:
-      - "${FRONTEND_PORT:-4200}:4200"
-
 volumes:
   node_modules:
   backend_db:
