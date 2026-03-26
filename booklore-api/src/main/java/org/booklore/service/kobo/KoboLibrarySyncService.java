@@ -135,9 +135,14 @@ public class KoboLibrarySyncService {
         }
 
         if (!shouldContinueSync) {
+            ResponseEntity<JsonNode> koboStoreResponse = null;
             try {
-                ResponseEntity<JsonNode> koboStoreResponse = koboServerProxy.proxyCurrentRequest(null, true);
+                koboStoreResponse = koboServerProxy.proxyCurrentRequest(null, true);
+            } catch (Exception e) {
+                log.warn("Failed to get response from Kobo /v1/library/sync, fallback to noproxy", e);
+            }
 
+            if (koboStoreResponse != null) {
                 entitlements.addAll(getEntitlementsFromKoboStoreResponse(koboStoreResponse));
 
                 String upstreamContinueSyncHeader = koboStoreResponse.getHeaders().getFirst(KoboHeaders.X_KOBO_SYNC);
@@ -148,8 +153,6 @@ public class KoboLibrarySyncService {
                 }
 
                 shouldContinueSync = "continue".equalsIgnoreCase(upstreamContinueSyncHeader);
-            } catch (Exception e) {
-                log.warn("Failed to get response from Kobo /v1/library/sync, fallback to noproxy", e);
             }
         }
 
