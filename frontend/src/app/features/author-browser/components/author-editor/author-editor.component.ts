@@ -88,7 +88,11 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
 
     const fieldControl = this.form.get(field);
     if (fieldControl) {
-      isLocked ? fieldControl.disable() : fieldControl.enable();
+      if (isLocked) {
+        fieldControl.disable();
+      } else {
+        fieldControl.enable();
+      }
     }
 
     this.saveMetadata();

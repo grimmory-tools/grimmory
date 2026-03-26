@@ -558,7 +558,11 @@ export class MetadataEditorComponent implements OnInit {
       const isLocked = metadata[key] === true;
       const formControl = this.metadataForm.get(control);
       if (formControl) {
-        isLocked ? formControl.disable() : formControl.enable();
+        if (isLocked) {
+          formControl.disable();
+        } else {
+          formControl.enable();
+        }
       }
     }
 
@@ -567,7 +571,11 @@ export class MetadataEditorComponent implements OnInit {
       const isLocked = this.metadataForm.get(field.lockedKey)?.value === true;
       const formControl = this.metadataForm.get(field.controlName);
       if (formControl) {
-        isLocked ? formControl.disable() : formControl.enable();
+        if (isLocked) {
+          formControl.disable();
+        } else {
+          formControl.enable();
+        }
       }
     }
 
@@ -576,7 +584,11 @@ export class MetadataEditorComponent implements OnInit {
       const isLocked = this.metadataForm.get(field.lockedKey)?.value === true;
       const formControl = this.metadataForm.get(field.controlName);
       if (formControl) {
-        isLocked ? formControl.disable() : formControl.enable();
+        if (isLocked) {
+          formControl.disable();
+        } else {
+          formControl.enable();
+        }
       }
     }
   }
@@ -940,7 +952,7 @@ export class MetadataEditorComponent implements OnInit {
           detail: this.t.translate('metadata.editor.toast.coverRegenerated'),
         });
       },
-      error: (err) => {
+      error: () => {
         this.messageService.add({
           severity: "error",
           summary: this.t.translate('metadata.editor.toast.errorSummary'),
@@ -963,7 +975,7 @@ export class MetadataEditorComponent implements OnInit {
           detail: this.t.translate('metadata.editor.toast.customCoverGenerated'),
         });
       },
-      error: (err) => {
+      error: () => {
         this.messageService.add({
           severity: "error",
           summary: this.t.translate('metadata.editor.toast.errorSummary'),
