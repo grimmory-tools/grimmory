@@ -1,6 +1,6 @@
 <ng-container *transloco="let t; prefix: 'readerEbook.settingsDialog'">
-<div class="dialog-overlay" (click)="close.emit()">
-  <div class="dialog" (click)="$event.stopPropagation()">
+<div class="dialog-overlay" role="button" tabindex="0" (click)="close.emit()" (keydown.enter)="close.emit()">
+  <div class="dialog" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
     <div class="tabs-row">
       <div class="tabs">
         <button

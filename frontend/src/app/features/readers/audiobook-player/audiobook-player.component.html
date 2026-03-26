@@ -309,6 +309,9 @@
                   class="track-item"
                   [class.active]="track.index === currentTrackIndex"
                   (click)="selectTrack(track)"
+                  (keydown.enter)="selectTrack(track)"
+                  role="button"
+                  tabindex="0"
                 >
                   <span class="track-index">{{ track.index + 1 }}</span>
                   <div class="track-details">
@@ -328,6 +331,9 @@
                   class="track-item"
                   [class.active]="getCurrentChapter()?.index === chapter.index"
                   (click)="selectChapter(chapter)"
+                  (keydown.enter)="selectChapter(chapter)"
+                  role="button"
+                  tabindex="0"
                 >
                   <span class="track-index">{{ chapter.index + 1 }}</span>
                   <div class="track-details">
@@ -371,6 +377,9 @@
                 <li
                   class="track-item bookmark-item"
                   (click)="goToBookmark(bookmark)"
+                  (keydown.enter)="goToBookmark(bookmark)"
+                  role="button"
+                  tabindex="0"
                 >
                   <i class="pi pi-bookmark-fill bookmark-icon"></i>
                   <div class="track-details">

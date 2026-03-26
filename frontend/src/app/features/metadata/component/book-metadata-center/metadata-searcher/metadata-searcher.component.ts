@@ -314,7 +314,7 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
     ];
   }
 
-  onProviderPillClick(provider: string, event: MouseEvent): void {
+  onProviderPillClick(provider: string, event: MouseEvent | KeyboardEvent): void {
     const providerLower = provider.toLowerCase();
 
     if (event.ctrlKey || event.metaKey) {
@@ -474,7 +474,7 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
       metadata.hardcoverId || metadata.comicvineId || metadata.audibleId || index.toString();
   }
 
-  onProviderClick(event: MouseEvent) {
+  onProviderClick(event: Event) {
     const target = event.target as HTMLElement;
     if (target.tagName === 'A' || target.closest('a')) {
       event.stopPropagation();

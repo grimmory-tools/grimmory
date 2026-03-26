@@ -220,7 +220,12 @@
                       @if ($first) { <span class="main-author-badge">m</span> }
                       {{ author }}
                       @if (!metadataForm.get('authors')?.disabled) {
-                        <i class="pi pi-times author-chip-remove" (click)="removeAuthor($index)"></i>
+                        <i
+                          class="pi pi-times author-chip-remove"
+                          role="button"
+                          tabindex="0"
+                          (click)="removeAuthor($index)"
+                          (keydown.enter)="removeAuthor($index)"></i>
                       }
                     </span>
                   }
@@ -521,7 +526,12 @@
       <!-- Audiobook Metadata Section -->
       @if (isAudiobook(book)) {
         <div class="collapsible-section" [class.expanded]="audiobookSectionExpanded">
-          <div class="collapsible-header" (click)="audiobookSectionExpanded = !audiobookSectionExpanded">
+          <div
+            class="collapsible-header"
+            role="button"
+            tabindex="0"
+            (click)="audiobookSectionExpanded = !audiobookSectionExpanded"
+            (keydown.enter)="audiobookSectionExpanded = !audiobookSectionExpanded">
             <i class="pi pi-headphones"></i>
             <span>{{ t('audiobookDetails') }}</span>
             <i [class]="audiobookSectionExpanded ? 'pi pi-chevron-up' : 'pi pi-chevron-down'" class="section-toggle"></i>
@@ -556,7 +566,12 @@
       <!-- Comic Book Metadata Section -->
       @if (isCBX(book)) {
         <div class="collapsible-section" [class.expanded]="comicSectionExpanded">
-          <div class="collapsible-header" (click)="comicSectionExpanded = !comicSectionExpanded">
+          <div
+            class="collapsible-header"
+            role="button"
+            tabindex="0"
+            (click)="comicSectionExpanded = !comicSectionExpanded"
+            (keydown.enter)="comicSectionExpanded = !comicSectionExpanded">
             <i class="pi pi-bolt"></i>
             <span>{{ t('comicBookDetails') }}</span>
             <i [class]="comicSectionExpanded ? 'pi pi-chevron-up' : 'pi pi-chevron-down'" class="section-toggle"></i>
@@ -638,7 +653,12 @@
 
       <!-- Provider Metadata Section (collapsible) -->
       <div class="collapsible-section" [class.expanded]="providerSectionExpanded">
-        <div class="collapsible-header" (click)="providerSectionExpanded = !providerSectionExpanded">
+        <div
+          class="collapsible-header"
+          role="button"
+          tabindex="0"
+          (click)="providerSectionExpanded = !providerSectionExpanded"
+          (keydown.enter)="providerSectionExpanded = !providerSectionExpanded">
           <i class="pi pi-database"></i>
           <span>{{ t('providerMetadata') }}</span>
           <i [class]="providerSectionExpanded ? 'pi pi-chevron-up' : 'pi pi-chevron-down'" class="section-toggle"></i>

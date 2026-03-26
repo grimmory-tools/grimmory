@@ -268,7 +268,12 @@
                           @if ($index === 0) { <span class="main-author-badge">m</span> }
                           {{ author }}
                           @if (!metadataForm.get('authors')?.disabled) {
-                            <i class="pi pi-times author-chip-remove" (click)="removeAuthor($index)"></i>
+                            <i
+                              class="pi pi-times author-chip-remove"
+                              role="button"
+                              tabindex="0"
+                              (click)="removeAuthor($index)"
+                              (keydown.enter)="removeAuthor($index)"></i>
                           }
                         </span>
                       }
@@ -475,7 +480,12 @@
       <!-- Comic Book Details Section -->
       @if (shouldShowComicSection()) {
         <section class="form-section">
-          <div class="section-header collapsible-header" (click)="comicSectionExpanded = !comicSectionExpanded">
+          <div
+            class="section-header collapsible-header"
+            role="button"
+            tabindex="0"
+            (click)="comicSectionExpanded = !comicSectionExpanded"
+            (keydown.enter)="comicSectionExpanded = !comicSectionExpanded">
             <i class="pi pi-bolt"></i>
             <span>{{ t('sectionComicDetails') }}</span>
             @if (!hasAnyFetchedComicData() && !hasAnyCurrentComicData()) {

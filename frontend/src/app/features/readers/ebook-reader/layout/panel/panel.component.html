@@ -1,7 +1,7 @@
 <ng-container *transloco="let t; prefix: 'readerEbook.panel'">
 @if (isOpen()) {
-  <div class="sidebar-overlay" (click)="onOverlayClick()" [class.closing]="closing()">
-    <aside class="sidebar" (click)="$event.stopPropagation()" [class.closing]="closing()">
+  <div class="sidebar-overlay" role="button" tabindex="0" (click)="onOverlayClick()" (keydown.enter)="onOverlayClick()" [class.closing]="closing()">
+    <aside class="sidebar" role="button" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()" [class.closing]="closing()">
       <!-- Header -->
       <header class="sidebar-header">
         <h2 class="sidebar-title">
@@ -79,7 +79,7 @@
                 </div>
                 <ul class="item-list search-results">
                   @for (result of searchState().results; track result.cfi) {
-                    <li class="list-item search-result-item" (click)="onSearchResultClick(result.cfi)">
+                    <li class="list-item search-result-item" role="button" tabindex="0" (click)="onSearchResultClick(result.cfi)" (keydown.enter)="onSearchResultClick(result.cfi)">
                       <div class="item-content">
                         <span class="search-excerpt">
                           <span class="excerpt-context">{{ result.excerpt.pre }}</span>
@@ -132,7 +132,7 @@
               @if (filteredNotes().length > 0) {
                 <ul class="item-list">
                   @for (note of filteredNotes(); track note.id) {
-                    <li class="list-item note-item" (click)="onNoteClick(note.cfi)">
+                    <li class="list-item note-item" role="button" tabindex="0" (click)="onNoteClick(note.cfi)" (keydown.enter)="onNoteClick(note.cfi)">
                       <div class="note-bar" [style.background-color]="note.color"></div>
                       <div class="item-content">
                         <span class="note-text">{{ note.noteContent }}</span>

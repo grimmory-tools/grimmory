@@ -107,7 +107,10 @@
                  [class.has-results]="tab.count > 0"
                  [class.active]="isProviderPillActive(tab.provider)"
                  [class]="'provider-pill provider-' + tab.provider.toLowerCase() + (tab.count > 0 ? ' has-results' : '') + (isProviderPillActive(tab.provider) ? ' active' : '')"
+                 [attr.role]="tab.count > 0 ? 'button' : null"
+                 [attr.tabindex]="tab.count > 0 ? '0' : null"
                  (click)="tab.count > 0 && onProviderPillClick(tab.provider, $event)"
+                 (keydown.enter)="tab.count > 0 && onProviderPillClick(tab.provider, $event)"
                  [style.cursor]="tab.count > 0 ? 'pointer' : 'default'">
               <div class="pill-icon">
                 <i class="pi pi-database"></i>
@@ -150,7 +153,12 @@
       <div class="results-section">
         <div class="results-grid">
           @for (metadata of filteredMetadata; track trackByMetadata($index, metadata)) {
-            <div class="metadata-card" (click)="onBookClick(metadata)">
+            <div
+              class="metadata-card"
+              role="button"
+              tabindex="0"
+              (click)="onBookClick(metadata)"
+              (keydown.enter)="onBookClick(metadata)">
               <div class="card-image">
                 <img
                   [src]="metadata.thumbnailUrl || 'assets/images/missing-cover.jpg'"
@@ -169,7 +177,10 @@
                     class="card-provider"
                     [class]="'card-provider provider-' + getProviderClass(metadata)"
                     [innerHTML]="buildProviderLink(metadata)"
-                    (click)="onProviderClick($event)">
+                    role="button"
+                    tabindex="0"
+                    (click)="onProviderClick($event)"
+                    (keydown.enter)="onProviderClick($event)">
                   </div>
                 </div>
 

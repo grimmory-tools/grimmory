@@ -8,17 +8,23 @@
             <i
               class="pi pi-plus plus-icon"
               (click)="openDialog(item)"
+              (keydown.enter)="openDialog(item)"
+              role="button"
+              tabindex="0"
             ></i>
           }
         </div>
         <i
           (click)="toggleExpand(key)"
+          (keydown.enter)="toggleExpand(key)"
           [ngClass]="{
           'pi': true,
           'pi-angle-up': isExpanded(key),
           'pi-angle-down': !isExpanded(key)
         }"
           class="expand-icon"
+          role="button"
+          tabindex="0"
         ></i>
       </div>
     } @else {
@@ -33,6 +39,9 @@
       class="menu-item-container"
       [class.active-route-container]="isRouteActive"
       (click)="triggerLink()"
+      (keydown.enter)="triggerLink()"
+      role="button"
+      tabindex="0"
       >
         @if ((item.routerLink && !item.items)) {
           <a
@@ -78,13 +87,17 @@
         <p-button
           (click)="entitymenu.toggle($event); $event.stopPropagation()"
           (mouseover)="hovered = true"
+          (focus)="hovered = true"
           (mouseleave)="hovered = false"
+          (blur)="hovered = false"
+          (keydown.enter)="entitymenu.toggle($event); $event.stopPropagation()"
           [text]="true"
           [outlined]="false"
           [rounded]="true"
           [label]="hovered ? '' : item.bookCount?.toString() || ''"
           [icon]="hovered ? 'pi pi-ellipsis-v' : ''"
           class="entity-menu-button"
+          tabindex="0"
         ></p-button>
       }
       <p-menu #entitymenu [model]="item.menu" [popup]="true" appendTo="body"></p-menu>

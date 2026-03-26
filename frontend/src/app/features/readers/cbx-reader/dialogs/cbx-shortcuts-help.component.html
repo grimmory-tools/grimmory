@@ -1,4 +1,4 @@
-<div class="dialog-overlay" (click)="onOverlayClick($event)">
+<div class="dialog-overlay" role="button" tabindex="0" (click)="onOverlayClick($event)" (keydown.enter)="onOverlayClick($event)">
   <div class="dialog">
     <div class="dialog-header">
       <h2>{{ 'readerCbx.shortcutsHelp.title' | transloco }}</h2>

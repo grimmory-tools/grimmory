@@ -1,6 +1,9 @@
 <div class="book-card"
      [class.selected]="isSelected"
-     (click)="onCardClick($event)">
+     role="button"
+     tabindex="0"
+     (click)="onCardClick($event)"
+     (keydown.enter)="onCardClick($event)">
 
   <div class="cover-container" [ngClass]="{ 'center-info-btn': _isSeriesViewActive || !hasDigitalFile(), 'loaded': isImageLoaded, 'audiobook-cover': _isAudiobook, 'square-library-cover': useSquareCovers }">
     <img
@@ -92,6 +95,9 @@
            [pTooltip]="readStatusTooltip"
            tooltipPosition="bottom"
            (click)="toggleReadStatusMenu($event, readStatusMenu)"
+           (keydown.enter)="toggleReadStatusMenu($event, readStatusMenu)"
+           role="button"
+           tabindex="0"
            [attr.aria-label]="'book.card.alt.readStatusMenu' | transloco">
         <i [class]="_readStatusIcon" style="font-size: 0.9rem"></i>
       </div>

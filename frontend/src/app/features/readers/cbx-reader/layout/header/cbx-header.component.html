@@ -32,7 +32,7 @@
         <app-reader-icon name="dots-vertical" [size]="20" />
       </button>
       @if (overflowOpen) {
-        <div class="overflow-backdrop" (click)="overflowOpen = false"></div>
+        <div class="overflow-backdrop" role="button" tabindex="0" (click)="overflowOpen = false" (keydown.enter)="overflowOpen = false"></div>
         <div class="overflow-dropdown">
           <button class="overflow-item" (click)="onToggleSlideshow(); overflowOpen = false" [class.active]="state().isSlideshowActive">
             <app-reader-icon [name]="state().isSlideshowActive ? 'pause' : 'play'" [size]="18" />

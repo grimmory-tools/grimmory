@@ -1,6 +1,6 @@
 @if (isOpen()) {
-  <div class="sidebar-overlay" (click)="onOverlayClick()" [class.closing]="closing()">
-    <aside class="sidebar" (click)="$event.stopPropagation()" [class.closing]="closing()">
+  <div class="sidebar-overlay" role="button" tabindex="0" (click)="onOverlayClick()" (keydown.enter)="onOverlayClick()" [class.closing]="closing()">
+    <aside class="sidebar" role="button" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()" [class.closing]="closing()">
       <header class="sidebar-header">
         @if (bookInfo().coverUrl) {
           <img
@@ -74,7 +74,7 @@
             @if (bookmarks().length > 0) {
               <ul class="item-list">
                 @for (bookmark of bookmarks(); track bookmark.id) {
-                  <li class="list-item" (click)="onBookmarkClick(bookmark.cfi!)">
+                  <li class="list-item" role="button" tabindex="0" (click)="onBookmarkClick(bookmark.cfi!)" (keydown.enter)="onBookmarkClick(bookmark.cfi!)">
                     <div class="item-content">
                       <span class="item-title">{{ bookmark.title }}</span>
                       <span class="item-meta">{{ bookmark.createdAt | date: 'MMM d, y' }}</span>
@@ -116,7 +116,7 @@
               @if (filteredNotes().length > 0) {
                 <ul class="item-list">
                   @for (note of filteredNotes(); track note.id) {
-                    <li class="list-item note-item" (click)="onNoteClick(note.cfi)">
+                    <li class="list-item note-item" role="button" tabindex="0" (click)="onNoteClick(note.cfi)" (keydown.enter)="onNoteClick(note.cfi)">
                       <div class="note-bar" [style.background-color]="note.color"></div>
                       <div class="item-content">
                         <span class="note-text">{{ note.noteContent }}</span>

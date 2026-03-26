@@ -12,7 +12,10 @@
         }
       </ul>
       <i class="pi pi-objects-column sidebar-width-btn"
-         (click)="widthPanel.toggle($event)"></i>
+         role="button"
+         tabindex="0"
+         (click)="widthPanel.toggle($event)"
+         (keydown.enter)="widthPanel.toggle($event)"></i>
       <p-popover #widthPanel appendTo="body">
         <div class="sidebar-width-popover">
           <span class="sidebar-width-popover-label">{{ sidebarWidth }}px</span>
@@ -80,6 +83,9 @@
           <a
             (click)="openChangelogDialog()"
             class="update-link"
+            role="button"
+            tabindex="0"
+            (keydown.enter)="openChangelogDialog()"
             >
             {{ t('update') }}
           </a>

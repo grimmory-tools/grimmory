@@ -32,7 +32,10 @@
       @if (!selectedFile) {
         <div class="upload-zone"
              [class.drag-over]="isDragOver"
+             role="button"
+             tabindex="0"
              (click)="onUploadZoneClick()"
+             (keydown.enter)="onUploadZoneClick()"
              (drop)="onDrop($event)"
              (dragover)="onDragOver($event)"
              (dragleave)="onDragLeave($event)">

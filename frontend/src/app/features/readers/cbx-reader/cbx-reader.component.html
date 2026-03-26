@@ -55,7 +55,13 @@
     @if (!isLoading) {
       @if (pages.length > 0) {
         @if (scrollMode === CbxScrollMode.PAGINATED) {
-          <div class="pages-wrapper" (click)="onImageClick()" (dblclick)="onImageDoubleClick()">
+          <div
+            class="pages-wrapper"
+            role="button"
+            tabindex="0"
+            (click)="onImageClick()"
+            (keydown.enter)="onImageClick()"
+            (dblclick)="onImageDoubleClick()">
             @if (isPageTransitioning && previousImageUrls.length > 0) {
               <div class="previous-page-layer">
                 @for (url of previousImageUrls; track url) {
@@ -81,7 +87,16 @@
         } @else {
           <div class="infinite-scroll-wrapper" [class.long-strip-wrapper]="scrollMode === CbxScrollMode.LONG_STRIP">
             @for (pageIdx of infiniteScrollPages; track pageIdx; let i = $index) {
-              <img [src]="getPageImageUrl(pageIdx)" alt="Page {{ pageIdx + 1 }}" class="page-image" (click)="onImageClick()" (dblclick)="onImageDoubleClick()" (load)="onPageImageLoad($event, pageIdx)"/>
+              <img
+                [src]="getPageImageUrl(pageIdx)"
+                alt="Page {{ pageIdx + 1 }}"
+                class="page-image"
+                role="button"
+                tabindex="0"
+                (click)="onImageClick()"
+                (keydown.enter)="onImageClick()"
+                (dblclick)="onImageDoubleClick()"
+                (load)="onPageImageLoad($event, pageIdx)"/>
             }
             @if (isLoadingMore) {
               <div class="loading-more">

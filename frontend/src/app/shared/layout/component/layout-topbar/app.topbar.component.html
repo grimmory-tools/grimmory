@@ -32,21 +32,21 @@
         @if (user(); as currentUser) {
           @if (currentUser.permissions?.canAccessBookdrop || currentUser.permissions?.admin) {
             <li>
-              <a class="topbar-item" (click)="navigateToBookdrop()" [pTooltip]="t('bookdrop')" tooltipPosition="bottom">
+              <a class="topbar-item" role="button" tabindex="0" (click)="navigateToBookdrop()" (keydown.enter)="navigateToBookdrop()" [pTooltip]="t('bookdrop')" tooltipPosition="bottom">
                 <i class="pi pi-inbox topbar-icon"></i>
               </a>
             </li>
           }
           @if (currentUser.permissions?.canManageLibrary || currentUser.permissions?.admin) {
             <li>
-              <a class="topbar-item" (click)="openLibraryCreatorDialog()" [pTooltip]="t('createNewLibrary')" tooltipPosition="bottom">
+              <a class="topbar-item" role="button" tabindex="0" (click)="openLibraryCreatorDialog()" (keydown.enter)="openLibraryCreatorDialog()" [pTooltip]="t('createNewLibrary')" tooltipPosition="bottom">
                 <i class="pi pi-plus-circle topbar-icon"></i>
               </a>
             </li>
           }
           @if (currentUser.permissions?.canUpload || currentUser.permissions?.admin) {
             <li>
-              <a class="topbar-item" (click)="openFileUploadDialog()" [pTooltip]="t('uploadBook')" tooltipPosition="bottom">
+              <a class="topbar-item" role="button" tabindex="0" (click)="openFileUploadDialog()" (keydown.enter)="openFileUploadDialog()" [pTooltip]="t('uploadBook')" tooltipPosition="bottom">
                 <i class="pi pi-upload topbar-icon"></i>
               </a>
             </li>
@@ -74,14 +74,14 @@
         @if (user(); as currentUser) {
           @if (currentUser.permissions?.canManageLibrary || currentUser.permissions?.admin) {
             <li>
-              <a class="topbar-item" (click)="navigateToMetadataManager()" [pTooltip]="t('metadataManager')" tooltipPosition="bottom">
+              <a class="topbar-item" role="button" tabindex="0" (click)="navigateToMetadataManager()" (keydown.enter)="navigateToMetadataManager()" [pTooltip]="t('metadataManager')" tooltipPosition="bottom">
                 <i class="pi pi-sparkles topbar-icon"></i>
               </a>
             </li>
           }
         }
         <li>
-          <a class="topbar-item" (click)="navigateToSettings()" [pTooltip]="t('settings')" tooltipPosition="bottom">
+          <a class="topbar-item" role="button" tabindex="0" (click)="navigateToSettings()" (keydown.enter)="navigateToSettings()" [pTooltip]="t('settings')" tooltipPosition="bottom">
             <i class="pi pi-cog topbar-icon"></i>
           </a>
         </li>

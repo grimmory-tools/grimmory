@@ -56,7 +56,10 @@
               @for (icon of filteredIcons(); track icon) {
                 <div
                   class="icon-item"
+                  role="button"
+                  tabindex="0"
                   (click)="selectIcon(icon)"
+                  (keydown.enter)="selectIcon(icon)"
                   [class.selected]="icon === selectedIcon"
                   [title]="icon"
                 >
@@ -96,7 +99,10 @@
                 @for (iconName of filteredSvgIcons(); track iconName) {
                   <div
                     class="icon-item svg-icon-item"
+                    role="button"
+                    tabindex="0"
                     (click)="selectSvgIcon(iconName)"
+                    (keydown.enter)="selectSvgIcon(iconName)"
                     [class.selected]="iconName === selectedSvgIcon"
                     [title]="iconName"
                     draggable="true"

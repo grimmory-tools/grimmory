@@ -27,7 +27,7 @@
         <app-reader-icon name="dots-vertical" [size]="20"></app-reader-icon>
       </button>
       @if (overflowOpen) {
-        <div class="overflow-backdrop" (click)="overflowOpen = false"></div>
+        <div class="overflow-backdrop" role="button" tabindex="0" (click)="overflowOpen = false" (keydown.enter)="overflowOpen = false"></div>
         <div class="overflow-dropdown" [style.background]="theme().bg" [style.color]="theme().fg">
           <button class="overflow-item" (click)="onOpenNotes(); overflowOpen = false">
             <app-reader-icon name="note" [size]="18"></app-reader-icon>

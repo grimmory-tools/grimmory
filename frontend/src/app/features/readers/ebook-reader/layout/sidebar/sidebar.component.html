@@ -1,7 +1,7 @@
 <ng-container *transloco="let t; prefix: 'readerEbook.sidebar'">
 @if (isOpen()) {
-  <div class="sidebar-overlay" (click)="onOverlayClick()" [class.closing]="closing()">
-    <aside class="sidebar" (click)="$event.stopPropagation()" [class.closing]="closing()">
+  <div class="sidebar-overlay" role="button" tabindex="0" (click)="onOverlayClick()" (keydown.enter)="onOverlayClick()" [class.closing]="closing()">
+    <aside class="sidebar" role="button" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()" [class.closing]="closing()">
       <!-- Header with book info -->
       <header class="sidebar-header">
         @if (bookInfo().coverUrl) {
@@ -65,7 +65,9 @@
             </ul>
 
             <ng-template #chapterItem let-chapter let-depth="depth">
-              <li role="treeitem">
+              <li
+                role="treeitem"
+                [attr.aria-selected]="isChapterActive(chapter.href)">
                 <button
                   class="chapter-row"
                   [class.active]="isChapterActive(chapter.href)"
@@ -97,7 +99,7 @@
             @if (bookmarks().length > 0) {
               <ul class="item-list">
                 @for (bookmark of bookmarks(); track bookmark.id) {
-                  <li class="list-item" (click)="onBookmarkClick(bookmark.cfi!)">
+                  <li class="list-item" role="button" tabindex="0" (click)="onBookmarkClick(bookmark.cfi!)" (keydown.enter)="onBookmarkClick(bookmark.cfi!)">
                     <div class="item-content">
                       <span class="item-title">{{ bookmark.title }}</span>
                       <span class="item-meta">{{ bookmark.createdAt | date: 'MMM d, y' }}</span>
@@ -121,7 +123,7 @@
             @if (annotations().length > 0) {
               <ul class="item-list">
                 @for (annotation of annotations(); track annotation.id) {
-                  <li class="list-item highlight-item" (click)="onAnnotationClick(annotation.cfi)">
+                  <li class="list-item highlight-item" role="button" tabindex="0" (click)="onAnnotationClick(annotation.cfi)" (keydown.enter)="onAnnotationClick(annotation.cfi)">
                     <div class="highlight-bar" [style.background-color]="annotation.color"></div>
                     <div class="item-content">
                       <span class="highlight-text">"{{ annotation.text }}"</span>

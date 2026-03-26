@@ -33,7 +33,12 @@
           [placeholder]="t('searchPlaceholder')"
         />
         @if (searchQuery) {
-          <i class="pi pi-times clear-icon" (click)="searchQuery = ''; onSearch()"></i>
+          <i
+            class="pi pi-times clear-icon"
+            role="button"
+            tabindex="0"
+            (click)="searchQuery = ''; onSearch()"
+            (keydown.enter)="searchQuery = ''; onSearch()"></i>
         }
       </p-iconfield>
       <p-button
@@ -143,7 +148,12 @@
                   (click)="$event.stopPropagation()"
                 />
               </div>
-              <label [for]="'folder-' + folder" class="directory-label" (click)="onRowClick(folder)">
+              <label
+                [for]="'folder-' + folder"
+                class="directory-label"
+                tabindex="0"
+                (click)="onRowClick(folder)"
+                (keydown.enter)="onRowClick(folder)">
                 <div class="directory-icon-wrapper">
                   <i class="pi pi-folder directory-icon"></i>
                 </div>

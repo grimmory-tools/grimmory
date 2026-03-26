@@ -41,11 +41,14 @@
                     <div
                       *cdkVirtualFor="let filter of filters; trackBy: trackByFilter"
                       class="filter-row"
+                      role="button"
+                      tabindex="0"
                       [ngClass]="{
                     'active': activeFilters[filterType]?.includes(getFilterValueId(filter)),
                     'active-not': activeFilters[filterType]?.includes(getFilterValueId(filter)) && selectedFilterMode === 'not'
                   }"
-                      (click)="handleFilterClick(filterType, getFilterValueId(filter))">
+                      (click)="handleFilterClick(filterType, getFilterValueId(filter))"
+                      (keydown.enter)="handleFilterClick(filterType, getFilterValueId(filter))">
                       <span class="filter-value-text">{{ getFilterValueDisplay(filter) }}</span>
                       <p-badge class="filter-value-badge" [value]="filter.bookCount"></p-badge>
                     </div>

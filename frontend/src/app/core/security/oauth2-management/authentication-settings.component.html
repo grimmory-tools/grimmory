@@ -215,7 +215,10 @@
           @if (testConnectionResult) {
             <div class="test-results-toggle"
                  [style.border-radius]="showTestDetails ? '6px 6px 0 0' : '6px'"
-                 (click)="showTestDetails = !showTestDetails">
+                 role="button"
+                 tabindex="0"
+                 (click)="showTestDetails = !showTestDetails"
+                 (keydown.enter)="showTestDetails = !showTestDetails">
               @if (testConnectionResult.success) {
                 <i class="pi pi-check-circle" style="color: var(--p-green-500);"></i>
                 <span>{{ t('testConnection.passed') }}</span>

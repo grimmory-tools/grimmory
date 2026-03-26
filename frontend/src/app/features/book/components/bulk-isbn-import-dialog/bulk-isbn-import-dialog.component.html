@@ -101,7 +101,7 @@
               {{ t('validCount', { count: entries.length }) }}
             </div>
             @if (skipped.length > 0) {
-              <div class="summary-stat warn" (click)="showSkipped = !showSkipped">
+              <div class="summary-stat warn" role="button" tabindex="0" (click)="showSkipped = !showSkipped" (keydown.enter)="showSkipped = !showSkipped">
                 <i class="pi pi-exclamation-triangle"></i>
                 {{ t('skippedCount', { count: skipped.length }) }}
                 <i class="pi" [class.pi-chevron-down]="!showSkipped" [class.pi-chevron-up]="showSkipped"></i>

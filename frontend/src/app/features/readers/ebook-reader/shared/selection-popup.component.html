@@ -1,6 +1,6 @@
 <ng-container *transloco="let t; prefix: 'readerEbook.selectionPopup'">
 @if (visible) {
-  <div class="popup-backdrop" (click)="onDismiss($event)"></div>
+  <div class="popup-backdrop" role="button" tabindex="0" (click)="onDismiss($event)" (keydown.enter)="onDismiss($event)"></div>
   <div class="text-selection-popup"
        [class.show-below]="showBelow"
        [style.left.px]="position.x"
