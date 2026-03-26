@@ -140,12 +140,14 @@ public class KoboLibrarySyncService {
 
                 entitlements.addAll(getEntitlementsFromKoboStoreResponse(koboStoreResponse));
 
-                shouldContinueSync = "continue".equalsIgnoreCase(
-                        Optional.ofNullable(koboStoreResponse.getHeaders().getFirst(KoboHeaders.X_KOBO_SYNC)).orElse("")
-                );
+                String upstreamContinueSyncHeader = koboStoreResponse.getHeaders().getFirst(KoboHeaders.X_KOBO_SYNC);
+                String upstreamKoboSyncTokenHeader = koboStoreResponse.getHeaders().getFirst(KoboHeaders.X_KOBO_SYNCTOKEN);
 
-                String koboSyncTokenHeader = koboStoreResponse.getHeaders().getFirst(KoboHeaders.X_KOBO_SYNCTOKEN);
-                syncToken = koboSyncTokenHeader != null ? tokenGenerator.fromBase64(koboSyncTokenHeader) : syncToken;
+                if (upstreamKoboSyncTokenHeader != null) {
+                    syncToken = tokenGenerator.fromBase64(upstreamKoboSyncTokenHeader);
+                }
+
+                shouldContinueSync = "continue".equalsIgnoreCase(upstreamContinueSyncHeader);
             } catch (Exception e) {
                 log.warn("Failed to get response from Kobo /v1/library/sync, fallback to noproxy", e);
             }
