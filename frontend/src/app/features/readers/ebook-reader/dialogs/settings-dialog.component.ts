@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Inject, Input, OnInit, Output, Renderer2} from '@angular/core';
+import {Component, EventEmitter, inject, Input, OnInit, Output, Renderer2} from '@angular/core';
 import {DecimalPipe, DOCUMENT} from '@angular/common';
 import {TranslocoDirective} from '@jsverse/transloco';
 import {ReaderStateService} from '../state/reader-state.service';
@@ -39,13 +39,10 @@ export class ReaderSettingsDialogComponent implements OnInit {
     {name: 'orange', value: '#FFD580', label: 'Orange'}
   ];
 
-  constructor(
-    private bookService: BookService,
-    private customFontService: EpubCustomFontService,
-    private renderer: Renderer2,
-    @Inject(DOCUMENT) private document: Document
-  ) {
-  }
+  private bookService = inject(BookService);
+  private customFontService = inject(EpubCustomFontService);
+  private renderer = inject(Renderer2);
+  private document = inject(DOCUMENT);
 
   ngOnInit() {
     this.customFontService.injectCustomFontsStylesheet(this.renderer, this.document);

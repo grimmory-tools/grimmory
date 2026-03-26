@@ -25,6 +25,8 @@ export interface ReaderState {
   providedIn: 'root'
 })
 export class ReaderStateService {
+  private bookService = inject(BookService);
+  private userService = inject(UserService);
   private epubCustomFontService = inject(EpubCustomFontService);
 
   private readonly BASE_FONTS = [
@@ -62,7 +64,7 @@ export class ReaderStateService {
   private readonly _fonts = signal<{ name: string; value: string | null }[]>(this.BASE_FONTS);
   readonly fonts = this._fonts.asReadonly();
 
-  constructor(private bookService: BookService, private userService: UserService) {
+  constructor() {
     this.loadCustomFontsIntoList();
   }
 
