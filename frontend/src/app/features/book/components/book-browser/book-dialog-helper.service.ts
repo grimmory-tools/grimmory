@@ -24,7 +24,7 @@ export class BookDialogHelperService {
 
   private dialogLauncherService = inject(DialogLauncherService);
 
-  private openDialog(component: unknown, options: {}): DynamicDialogRef | null {
+  private openDialog(component: unknown, options: object): DynamicDialogRef | null {
     return this.dialogLauncherService.openDialog(component, options);
   }
 
