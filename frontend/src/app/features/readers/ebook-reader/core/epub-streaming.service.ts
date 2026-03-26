@@ -31,7 +31,7 @@ export interface EpubBookInfo {
   spine: EpubSpineItem[];
   manifest: EpubManifestItem[];
   toc: EpubTocItem;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
   coverPath?: string;
 }
 

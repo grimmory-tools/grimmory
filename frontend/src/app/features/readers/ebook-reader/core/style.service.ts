@@ -2,6 +2,12 @@ import {inject, Injectable} from '@angular/core';
 import {ReaderState} from '../state/reader-state.service';
 import {EpubCustomFontService} from '../features/fonts/custom-font.service';
 
+interface ReaderRenderer {
+  setAttribute(name: string, value: string | number): void;
+  removeAttribute(name: string): void;
+  setStyles?(css: string): void;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -175,7 +181,7 @@ export class ReaderStyleService {
     return !isNaN(id) && id.toString() === fontFamily ? id : null;
   }
 
-  applyStylesToRenderer(renderer: any, state: ReaderState): void {
+  applyStylesToRenderer(renderer: ReaderRenderer | null | undefined, state: ReaderState): void {
     if (!renderer) return;
 
     renderer.setAttribute('max-column-count', state.maxColumnCount);

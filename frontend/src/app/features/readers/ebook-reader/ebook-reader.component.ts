@@ -32,6 +32,7 @@ import {TextSelectionAction, TextSelectionPopupComponent} from './shared/selecti
 import {NoteDialogResult, ReaderNoteDialogComponent} from './dialogs/note-dialog.component';
 import {EbookShortcutsHelpComponent} from './dialogs/shortcuts-help.component';
 import {TranslocoPipe} from '@jsverse/transloco';
+import {RelocateProgressData} from './state/progress.service';
 
 @Component({
   selector: 'app-ebook-reader',
@@ -94,8 +95,8 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
   private hasLoadedOnce = false;
   private _fileUrl: string | null = null;
   private visibilityManager!: ReaderHeaderFooterVisibilityManager;
-  private relocateTimeout: any;
-  private sectionFractionsTimeout: any;
+  private relocateTimeout?: ReturnType<typeof setTimeout>;
+  private sectionFractionsTimeout?: ReturnType<typeof setTimeout>;
 
   isLoading = true;
   showQuickSettings = false;
@@ -128,7 +129,7 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
     );
   }
 
-  get currentProgressData(): any {
+  get currentProgressData(): RelocateProgressData | null {
     return this.progressService.currentProgressData;
   }
 

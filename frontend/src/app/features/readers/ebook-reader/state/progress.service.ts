@@ -17,7 +17,31 @@ export interface ProgressState {
   chapterHref: string | null;
   fraction: number;
   pageInfo: PageInfo | undefined;
-  progressData: any;
+  progressData: RelocateProgressData | null;
+}
+
+interface ProgressNavigationItem {
+  href?: string;
+  label?: string;
+}
+
+interface ProgressSection {
+  current: number;
+  total: number;
+}
+
+interface ProgressTime {
+  section?: number;
+  total?: number;
+}
+
+export interface RelocateProgressData {
+  cfi?: string | null;
+  pageItem?: ProgressNavigationItem;
+  tocItem?: ProgressNavigationItem;
+  fraction?: number;
+  section?: ProgressSection;
+  time?: ProgressTime;
 }
 
 @Injectable()
@@ -39,7 +63,7 @@ export class ReaderProgressService {
   private _currentChapterName: string | null = null;
   private _currentChapterHref: string | null = null;
   private _currentPageInfo: PageInfo | undefined;
-  private _currentProgressData: any = null;
+  private _currentProgressData: RelocateProgressData | null = null;
 
   private progressSubject = new Subject<ProgressState>();
   public progress$ = this.progressSubject.asObservable();
@@ -56,7 +80,7 @@ export class ReaderProgressService {
     return this._currentChapterHref;
   }
 
-  get currentProgressData(): any {
+  get currentProgressData(): RelocateProgressData | null {
     return this._currentProgressData;
   }
 
@@ -71,7 +95,7 @@ export class ReaderProgressService {
     this.hasStartedSession = false;
   }
 
-  handleRelocateEvent(detail: any): void {
+  handleRelocateEvent(detail: RelocateProgressData): void {
     this._currentProgressData = detail;
 
     const cfi = detail?.cfi ?? null;

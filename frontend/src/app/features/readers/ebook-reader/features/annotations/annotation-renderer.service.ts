@@ -10,6 +10,12 @@ export interface Annotation {
   style?: AnnotationStyle;
 }
 
+interface AnnotationView {
+  addAnnotation(annotation: { value: string }): Promise<{ index: number; label: string } | undefined>;
+  deleteAnnotation(annotation: { value: string }): Promise<void>;
+  showAnnotation(annotation: { value: string }): Promise<void>;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -17,7 +23,7 @@ export class ReaderAnnotationService {
   private annotationStyles = new Map<string, { color: string; style: AnnotationStyle }>();
   private allAnnotations: Annotation[] = [];
 
-  addAnnotation(view: any, annotation: Annotation): Observable<{ index: number; label: string } | undefined> {
+  addAnnotation(view: AnnotationView | null | undefined, annotation: Annotation): Observable<{ index: number; label: string } | undefined> {
     if (!view) return of(undefined);
 
     const style = annotation.style || 'highlight';
@@ -35,7 +41,7 @@ export class ReaderAnnotationService {
     return defer(() => from(view.addAnnotation({value: annotation.value}) as Promise<{ index: number; label: string } | undefined>));
   }
 
-  deleteAnnotation(view: any, cfi: string): Observable<void> {
+  deleteAnnotation(view: AnnotationView | null | undefined, cfi: string): Observable<void> {
     if (!view) return of(undefined);
 
     this.annotationStyles.delete(cfi);
@@ -44,13 +50,13 @@ export class ReaderAnnotationService {
     return defer(() => from(view.deleteAnnotation({value: cfi}) as Promise<void>));
   }
 
-  showAnnotation(view: any, cfi: string): Observable<void> {
+  showAnnotation(view: AnnotationView | null | undefined, cfi: string): Observable<void> {
     if (!view) return of(undefined);
 
     return defer(() => from(view.showAnnotation({value: cfi}) as Promise<void>));
   }
 
-  addAnnotations(view: any, annotations: Annotation[]): void {
+  addAnnotations(view: AnnotationView | null | undefined, annotations: Annotation[]): void {
     annotations.forEach(annotation => {
       const style = annotation.style || 'highlight';
       const color = annotation.color || '#FACC15';
