@@ -63,16 +63,15 @@ export class AppMenuitemComponent implements OnInit, OnDestroy {
   }
 
   private userService = inject(UserService);
+  public router = inject(Router);
+  private menuService = inject(MenuService);
+  private dialogLauncher = inject(DialogLauncherService);
+  private bookDialogHelperService = inject(BookDialogHelperService);
   menuSourceSubscription: Subscription;
   menuResetSubscription: Subscription;
   private routerSubscription: Subscription;
 
-  constructor(
-    public router: Router,
-    private menuService: MenuService,
-    private dialogLauncher: DialogLauncherService,
-    private bookDialogHelperService: BookDialogHelperService
-  ) {
+  constructor() {
     effect(() => {
       const user = this.userService.currentUser();
       if (user) {

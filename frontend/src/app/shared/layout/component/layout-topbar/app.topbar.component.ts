@@ -53,8 +53,16 @@ import {LANG_STORAGE_KEY} from '../../../../core/config/language-initializer';
   ],
 })
 export class AppTopBarComponent implements OnDestroy {
+  public layoutService = inject(LayoutService);
   protected readonly userService = inject(UserService);
   protected readonly user = this.userService.currentUser;
+  private notificationService = inject(NotificationEventService);
+  private router = inject(Router);
+  private authService = inject(AuthService);
+  private metadataProgressService = inject(MetadataProgressService);
+  private bookdropFileService = inject(BookdropFileService);
+  private dialogLauncher = inject(DialogLauncherService);
+  private translocoService = inject(TranslocoService);
   items!: MenuItem[];
   ref?: DynamicDialogRef;
   statsMenuItems: MenuItem[] = [];
@@ -82,20 +90,8 @@ export class AppTopBarComponent implements OnDestroy {
   activeLang = '';
   langMenuItems: MenuItem[] = [];
 
-  private translocoService: TranslocoService;
-
-  constructor(
-    public layoutService: LayoutService,
-    private notificationService: NotificationEventService,
-    private router: Router,
-    private authService: AuthService,
-    private metadataProgressService: MetadataProgressService,
-    private bookdropFileService: BookdropFileService,
-    private dialogLauncher: DialogLauncherService,
-    translocoService: TranslocoService
-  ) {
-    this.translocoService = translocoService;
-    this.activeLang = translocoService.getActiveLang();
+  constructor() {
+    this.activeLang = this.translocoService.getActiveLang();
     this.langMenuItems = AVAILABLE_LANGS.map(lang => ({
       label: LANG_LABELS[lang] || lang,
       icon: lang === this.activeLang ? 'pi pi-check' : undefined,
