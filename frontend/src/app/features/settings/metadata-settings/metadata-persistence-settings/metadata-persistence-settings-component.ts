@@ -7,6 +7,8 @@ import {SettingsHelperService} from '../../../../shared/service/settings-helper.
 import {Tooltip} from 'primeng/tooltip';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
+type PersistenceToggleKey = Exclude<keyof MetadataPersistenceSettings, 'saveToOriginalFile' | 'sidecarSettings'>;
+
 @Component({
   selector: 'app-metadata-persistence-settings-component',
   imports: [
@@ -59,11 +61,9 @@ export class MetadataPersistenceSettingsComponent implements OnInit {
     this.loadSettings();
   }
 
-  onPersistenceToggle(key: keyof MetadataPersistenceSettings): void {
-    if (key !== 'saveToOriginalFile' && key !== 'sidecarSettings') {
-      (this.metadataPersistence as any)[key] = !this.metadataPersistence[key];
-      this.settingsHelper.saveSetting(AppSettingKey.METADATA_PERSISTENCE_SETTINGS, this.metadataPersistence);
-    }
+  onPersistenceToggle(key: PersistenceToggleKey): void {
+    this.metadataPersistence[key] = !this.metadataPersistence[key];
+    this.settingsHelper.saveSetting(AppSettingKey.METADATA_PERSISTENCE_SETTINGS, this.metadataPersistence);
   }
 
   onSaveToOriginalFileToggle(format: keyof SaveToOriginalFileSettings): void {
@@ -79,7 +79,7 @@ export class MetadataPersistenceSettingsComponent implements OnInit {
 
   onSidecarToggle(key: keyof SidecarSettings): void {
     if (this.metadataPersistence.sidecarSettings) {
-      (this.metadataPersistence.sidecarSettings as any)[key] = !this.metadataPersistence.sidecarSettings[key];
+      this.metadataPersistence.sidecarSettings[key] = !this.metadataPersistence.sidecarSettings[key];
       this.settingsHelper.saveSetting(AppSettingKey.METADATA_PERSISTENCE_SETTINGS, this.metadataPersistence);
     }
   }

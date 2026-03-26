@@ -1,4 +1,4 @@
-import {Injectable, ComponentRef, ApplicationRef, createComponent, EnvironmentInjector, inject} from '@angular/core';
+import {Injectable, ComponentRef, ApplicationRef, createComponent, EmbeddedViewRef, EnvironmentInjector, inject} from '@angular/core';
 import { LibraryLoadingComponent } from './library-loading/library-loading.component';
 
 @Injectable({
@@ -22,7 +22,7 @@ export class LibraryLoadingService {
     this.componentRef.instance.updateProgress(bookTitle, current, total);
 
     this.appRef.attachView(this.componentRef.hostView);
-    const domElem = (this.componentRef.hostView as any).rootNodes[0] as HTMLElement;
+    const domElem = (this.componentRef.hostView as EmbeddedViewRef<unknown>).rootNodes[0] as HTMLElement;
     document.body.appendChild(domElem);
     document.body.style.overflow = 'hidden';
   }

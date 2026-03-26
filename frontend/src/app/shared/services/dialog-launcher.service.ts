@@ -56,7 +56,7 @@ export class DialogLauncherService {
   }
 
   openDialog(component: unknown, options: object): DynamicDialogRef | null {
-    return this.dialogService.open(component as Type<any>, {
+    return this.dialogService.open(component as Type<unknown>, {
       ...this.defaultDialogOptions,
       ...options,
     });

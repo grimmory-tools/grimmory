@@ -39,9 +39,10 @@ export class BookDialogHelperService {
   }
 
   openShelfAssignerDialog(book: Book | null, bookIds: Set<number> | null): DynamicDialogRef | null {
-    const data: any = {};
+    const data: { isMultiBooks: boolean; book?: Book; bookIds?: Set<number> } = {
+      isMultiBooks: false
+    };
     if (book !== null) {
-      data.isMultiBooks = false;
       data.book = book;
     } else if (bookIds !== null) {
       data.isMultiBooks = true;

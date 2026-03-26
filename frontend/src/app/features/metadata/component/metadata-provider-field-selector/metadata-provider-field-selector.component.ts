@@ -77,7 +77,7 @@ export class MetadataProviderFieldSelectorComponent implements OnInit {
   }
 
   private toFieldState(selectedFields: string[]): MetadataProviderSpecificFields {
-    const fieldState: any = {};
+    const fieldState = {} as MetadataProviderSpecificFields;
     for (const field of this.allFieldNames) {
       fieldState[field] = selectedFields.includes(field);
     }

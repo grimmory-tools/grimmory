@@ -1,5 +1,9 @@
 import {effect, inject, Injectable, signal} from '@angular/core';
-import {UserService} from '../../../settings/user-management/user.service';
+import {EntityViewPreference, UserService} from '../../../settings/user-management/user.service';
+
+interface LegacyOverlayPreference extends Partial<EntityViewPreference> {
+  showBookTypePill?: boolean;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -35,19 +39,21 @@ export class BookCardOverlayPreferenceService {
 
     let show = true;
     if (prefs) {
-      const globalAny = prefs.global as any;
-      show = prefs.global?.overlayBookType ?? globalAny?.showBookTypePill ?? true;
+      const legacyGlobalPrefs = prefs.global as LegacyOverlayPreference;
+      show = prefs.global?.overlayBookType ?? legacyGlobalPrefs.showBookTypePill ?? true;
 
       if (this.currentContext) {
         const override = prefs.overrides?.find(o =>
           o.entityType === this.currentContext?.type && o.entityId === this.currentContext?.id
         );
         if (override) {
-          const prefAny = override.preferences as any;
           if (override.preferences.overlayBookType !== undefined) {
             show = override.preferences.overlayBookType;
-          } else if (prefAny?.showBookTypePill !== undefined) {
-            show = prefAny.showBookTypePill;
+          } else {
+            const legacyOverridePrefs = override.preferences as LegacyOverlayPreference;
+            if (legacyOverridePrefs.showBookTypePill !== undefined) {
+              show = legacyOverridePrefs.showBookTypePill;
+            }
           }
         }
       }

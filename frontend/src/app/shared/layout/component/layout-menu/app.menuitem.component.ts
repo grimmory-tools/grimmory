@@ -16,6 +16,17 @@ import {Tooltip} from 'primeng/tooltip';
 import {IconSelection} from '../../../service/icon-picker.service';
 import {TranslocoPipe} from '@jsverse/transloco';
 
+type AppMenuItem = MenuItem & {
+  items?: AppMenuItem[];
+  routerLink?: string[];
+  type?: 'library' | 'magicShelf' | 'shelf' | string;
+  iconType?: string;
+  unhealthy?: boolean;
+  bookCount?: number;
+  hasDropDown?: boolean;
+  hasCreate?: boolean;
+};
+
 @Component({
   selector: 'app-menuitem',
   templateUrl: './app.menuitem.component.html',
@@ -43,7 +54,7 @@ import {TranslocoPipe} from '@jsverse/transloco';
   ]
 })
 export class AppMenuitemComponent implements OnInit, OnDestroy {
-  @Input() item: any;
+  @Input() item!: AppMenuItem;
   @Input() index!: number;
   @Input() @HostBinding('class.layout-root-menuitem') root!: boolean;
   @Input() parentKey!: string;
@@ -159,7 +170,7 @@ export class AppMenuitemComponent implements OnInit, OnDestroy {
     this.menuService.onMenuStateChange({key: this.key});
   }
 
-  openDialog(item: any) {
+  openDialog(item: AppMenuItem) {
     if (item.type === 'library' && this.canManipulateLibrary) {
       this.dialogLauncher.openLibraryCreateDialog();
     }
