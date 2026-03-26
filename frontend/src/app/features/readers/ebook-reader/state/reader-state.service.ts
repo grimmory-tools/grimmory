@@ -21,6 +21,10 @@ export interface ReaderState {
   flow: 'paginated' | 'scrolled';
 }
 
+interface LegacyViewerSetting {
+  customFontId?: string | number | null;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -113,8 +117,11 @@ export class ReaderStateService {
               newState.fontFamily = settings.fontFamily;
             }
           }
-        } else if ((settings as any).customFontId != null) {
-          newState.fontFamily = `custom:${(settings as any).customFontId}`;
+        } else {
+          const legacySettings = settings as LegacyViewerSetting;
+          if (legacySettings.customFontId != null) {
+            newState.fontFamily = `custom:${legacySettings.customFontId}`;
+          }
         }
 
         if (settings.gap != null) newState.gap = Math.min(settings.gap, 0.5);

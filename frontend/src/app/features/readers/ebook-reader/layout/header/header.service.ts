@@ -105,9 +105,7 @@ export class ReaderHeaderService {
       maxColumnCount: state.maxColumnCount,
       gap: state.gap,
       fontSize: state.fontSize,
-      theme: typeof state.theme === 'object' && 'name' in state.theme
-        ? state.theme.name
-        : (state.theme as any),
+      theme: state.theme.name,
       maxInlineSize: state.maxInlineSize,
       maxBlockSize: state.maxBlockSize,
       fontFamily: state.fontFamily,
