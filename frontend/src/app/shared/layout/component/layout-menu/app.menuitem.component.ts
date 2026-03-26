@@ -13,7 +13,6 @@ import {DialogLauncherService} from '../../../services/dialog-launcher.service';
 import {BookDialogHelperService} from '../../../../features/book/components/book-browser/book-dialog-helper.service';
 import {IconDisplayComponent} from '../../../components/icon-display/icon-display.component';
 import {Tooltip} from 'primeng/tooltip';
-import {MenuItem} from 'primeng/api';
 import {IconSelection} from '../../../service/icon-picker.service';
 import {TranslocoPipe} from '@jsverse/transloco';
 

@@ -73,6 +73,7 @@ export class MetadataPersistenceSettingsComponent implements OnInit {
   }
 
   onFilesizeChange(format: keyof SaveToOriginalFileSettings): void {
+    void format;
     this.settingsHelper.saveSetting(AppSettingKey.METADATA_PERSISTENCE_SETTINGS, this.metadataPersistence);
   }
 

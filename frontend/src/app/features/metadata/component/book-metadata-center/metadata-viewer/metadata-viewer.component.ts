@@ -17,7 +17,7 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ProgressBar} from 'primeng/progressbar';
 import {MetadataRefreshType} from '../../../model/request/metadata-refresh-type.enum';
 import {Router} from '@angular/router';
-import {filter, take, tap} from 'rxjs/operators';
+import {tap} from 'rxjs/operators';
 import {Menu} from 'primeng/menu';
 import {ResetProgressType, ResetProgressTypes} from '../../../../../shared/constants/reset-progress-type';
 import {DatePicker} from 'primeng/datepicker';
@@ -444,7 +444,7 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['recommendedBooks']) {
       this.originalRecommendedBooks = [...this.recommendedBooks];
-      this.filterRecommendations(this.book);
+      this.filterRecommendations();
     }
   }
 
@@ -456,10 +456,10 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
         this.originalRecommendedBooks = [...this.recommendedBooks];
       }),
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe(() => this.filterRecommendations(this.book));
+    ).subscribe(() => this.filterRecommendations());
   }
 
-  private filterRecommendations(book: Book | null): void {
+  private filterRecommendations(): void {
     if (!this.originalRecommendedBooks) return;
     const bookInSeriesIds = new Set(this.bookInSeries.map(book => book.id));
     this.recommendedBooks = this.originalRecommendedBooks.filter(

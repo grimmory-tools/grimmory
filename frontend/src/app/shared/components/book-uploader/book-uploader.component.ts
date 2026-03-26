@@ -157,6 +157,7 @@ export class BookUploaderComponent implements OnInit {
   }
 
   onRemoveTemplatingFile(event: Event, file: File, removeFileCallback: FileRemoveCallback, _index?: number): void {
+    void _index;
     // Remove from our tracking array
     this.files = this.files.filter(f => f.file !== file);
 
@@ -172,6 +173,7 @@ export class BookUploaderComponent implements OnInit {
   }
 
   uploadFiles(_event: FileUploadHandlerEvent): void {
+    void _event;
     if (this.value === 'library' && (!this.selectedLibrary || !this.selectedPath)) {
       this.messageService.add({
         severity: 'warn',

@@ -25,22 +25,6 @@ interface PreviewResult {
   errorMessage?: string;
 }
 
-const PLACEHOLDER_KEY_MAP: Record<string, string> = {
-  '*': 'wildcard',
-  'SeriesName': 'seriesName',
-  'Title': 'title',
-  'Subtitle': 'subtitle',
-  'Authors': 'authors',
-  'SeriesNumber': 'seriesNumber',
-  'Published': 'published',
-  'Publisher': 'publisher',
-  'Language': 'language',
-  'SeriesTotal': 'seriesTotal',
-  'ISBN10': 'isbn10',
-  'ISBN13': 'isbn13',
-  'ASIN': 'asin',
-};
-
 @Component({
   selector: 'app-bookdrop-pattern-extract-dialog',
   standalone: true,

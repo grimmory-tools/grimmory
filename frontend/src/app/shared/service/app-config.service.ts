@@ -1,6 +1,6 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { effect, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
-import { $t, updatePreset, updateSurfacePalette } from '@primeuix/themes';
+import { $t } from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
 import { AppState } from '../model/app-state.model';
 

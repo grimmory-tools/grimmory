@@ -9,7 +9,7 @@ import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
 import {MessageService} from 'primeng/api';
 import {EmailV2ProviderService} from '../../../settings/email-v2/email-v2-provider/email-v2-provider.service';
 import {EmailV2RecipientService} from '../../../settings/email-v2/email-v2-recipient/email-v2-recipient.service';
-import {Book, BookFile} from '../../model/book.model';
+import {Book} from '../../model/book.model';
 import {RadioButton} from 'primeng/radiobutton';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 

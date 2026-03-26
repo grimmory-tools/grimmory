@@ -70,7 +70,7 @@ export class MetadataSearcherComponent implements OnInit, OnDestroy, OnChanges {
     this.currentSettings = settings;
     const providerSettings = settings.metadataProviderSettings ?? {};
     this.providers = Object.entries(providerSettings)
-      .filter(([_, value]) => !!value && typeof value === 'object' && 'enabled' in value && (value as any).enabled)
+      .filter(([, value]) => !!value && typeof value === 'object' && 'enabled' in value && (value as any).enabled)
       .map(([key]) => key.charAt(0).toUpperCase() + key.slice(1));
 
     const currentProviders = this.form.get('provider')?.value || [];
@@ -309,7 +309,7 @@ export class MetadataSearcherComponent implements OnInit, OnDestroy, OnChanges {
     this.providerFilterOptions = [
       {label: `All (${this.allFetchedMetadata.length})`, value: 'all'},
       ...Array.from(this.providerCounts.entries())
-        .filter(([_, count]) => count > 0)
+        .filter(([, count]) => count > 0)
         .map(([provider, count]) => ({
           label: `${provider.charAt(0).toUpperCase() + provider.slice(1)} (${count})`,
           value: provider
