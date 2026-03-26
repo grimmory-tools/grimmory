@@ -119,8 +119,11 @@ jobs:
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
         with:
           node-version: '24'
-          cache: 'yarn'
-          cache-dependency-path: frontend/yarn.lock
+
+      - name: Enable Corepack
+        run: |
+          corepack enable
+          corepack yarn --version
 
       - name: Install Frontend Dependencies
         run: just ui install-ci
