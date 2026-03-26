@@ -2,13 +2,13 @@
 !Dockerfile
 !.dockerignore
 !booklore-api/**
-!booklore-ui/**
+!frontend/**
 !packaging/docker/**
 
-booklore-ui/node_modules
-booklore-ui/dist
-booklore-ui/.angular
-booklore-ui/test-results
+frontend/node_modules
+frontend/dist
+frontend/.angular
+frontend/test-results
 
 booklore-api/build
 booklore-api/.gradle
