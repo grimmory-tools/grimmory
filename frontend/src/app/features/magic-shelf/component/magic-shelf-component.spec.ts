@@ -1,6 +1,7 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {TestBed} from '@angular/core/testing';
-import {MagicShelfComponent, Rule} from './magic-shelf-component';
+import {FormArray} from '@angular/forms';
+import {MagicShelfComponent, Rule, RuleOperator} from './magic-shelf-component';
 import {TranslocoService} from '@jsverse/transloco';
 import {LibraryService} from '../../book/service/library.service';
 import {ShelfService} from '../../book/service/shelf.service';
@@ -365,27 +366,27 @@ describe('MagicShelfComponent (Part 3)', () => {
 
   describe('buildRuleFromData edge cases', () => {
     it('should handle in_between for date fields', () => {
-      const rule: Rule = {field: 'publishedDate', operator: 'in_between' as any, value: null, valueStart: '2024-01-01', valueEnd: '2024-12-31'};
+      const rule: Rule = {field: 'publishedDate', operator: 'in_between' as RuleOperator, value: null, valueStart: '2024-01-01', valueEnd: '2024-12-31'};
       const formGroup = component.buildRuleFromData(rule);
       expect(formGroup.get('valueStart')?.value).toBeInstanceOf(Date);
       expect(formGroup.get('valueEnd')?.value).toBeInstanceOf(Date);
     });
 
     it('should handle in_between for number fields', () => {
-      const rule: Rule = {field: 'pageCount', operator: 'in_between' as any, value: null, valueStart: 100, valueEnd: 500};
+      const rule: Rule = {field: 'pageCount', operator: 'in_between' as RuleOperator, value: null, valueStart: 100, valueEnd: 500};
       const formGroup = component.buildRuleFromData(rule);
       expect(formGroup.get('valueStart')?.value).toBe(100);
       expect(formGroup.get('valueEnd')?.value).toBe(500);
     });
 
     it('should preserve array values for includes_any', () => {
-      const rule: Rule = {field: 'readStatus', operator: 'includes_any' as any, value: ['READ', 'READING']};
+      const rule: Rule = {field: 'readStatus', operator: 'includes_any' as RuleOperator, value: ['READ', 'READING']};
       const formGroup = component.buildRuleFromData(rule);
       expect(formGroup.get('value')?.value).toEqual(['READ', 'READING']);
     });
 
     it('should handle is_empty operator with no value', () => {
-      const rule: Rule = {field: 'title', operator: 'is_empty' as any, value: null};
+      const rule: Rule = {field: 'title', operator: 'is_empty' as RuleOperator, value: null};
       const formGroup = component.buildRuleFromData(rule);
       expect(formGroup.get('value')?.value).toBeNull();
     });
@@ -397,7 +398,7 @@ describe('MagicShelfComponent (Part 3)', () => {
     });
 
     it('should handle string values for text fields', () => {
-      const rule: Rule = {field: 'title', operator: 'contains' as any, value: 'Harry Potter'};
+      const rule: Rule = {field: 'title', operator: 'contains' as RuleOperator, value: 'Harry Potter'};
       const formGroup = component.buildRuleFromData(rule);
       expect(formGroup.get('value')?.value).toBe('Harry Potter');
     });
@@ -499,7 +500,7 @@ describe('MagicShelfComponent (Part 3)', () => {
       const group = component.createGroup();
       expect(group.get('type')?.value).toBe('group');
       expect(group.get('join')?.value).toBe('and');
-      expect((group.get('rules') as any).length).toBe(0);
+      expect((group.get('rules') as FormArray).length).toBe(0);
     });
   });
 
@@ -623,7 +624,7 @@ describe('MagicShelfComponent (Part 3)', () => {
     });
 
     it('should not contain title', () => {
-      const config = component.numericFieldConfigMap.get('title' as any);
+      const config = component.numericFieldConfigMap.get('title');
       expect(config).toBeUndefined();
     });
 
@@ -654,7 +655,7 @@ describe('MagicShelfComponent (Part 3)', () => {
       };
       const result = component.buildGroupFromData(groupData);
       expect(result.get('join')?.value).toBe('or');
-      const rulesArray = result.get('rules') as any;
+      const rulesArray = result.get('rules') as FormArray;
       expect(rulesArray.length).toBe(2);
       const nestedGroup = rulesArray.at(1);
       expect(nestedGroup.get('rules')).toBeDefined();
