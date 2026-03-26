@@ -2,18 +2,74 @@ import {inject, Injectable} from '@angular/core';
 import {Subject} from 'rxjs';
 import {ReaderAnnotationService} from '../features/annotations/annotation-renderer.service';
 
-export interface ViewEvent {
-  type: 'load' | 'relocate' | 'error' | 'middle-single-tap' | 'draw-annotation' | 'show-annotation' | 'text-selected' | 'toggle-fullscreen' | 'toggle-shortcuts-help' | 'escape-pressed' | 'go-first-section' | 'go-last-section' | 'toggle-toc' | 'toggle-search' | 'toggle-notes';
-  detail?: any;
-  popupPosition?: { x: number; y: number; showBelow?: boolean };
-}
-
 export interface TextSelection {
   text: string;
   cfi: string;
   range: Range;
   index: number;
 }
+
+interface PopupPosition {
+  x: number;
+  y: number;
+  showBelow?: boolean;
+}
+
+interface LoadEventDetail {
+  doc?: Document;
+}
+
+interface RelocateEventItem {
+  href?: string;
+  label?: string;
+}
+
+interface RelocateEventDetail {
+  cfi?: string | null;
+  fraction?: number;
+  tocItem?: RelocateEventItem;
+  pageItem?: RelocateEventItem;
+  section?: { current: number; total: number };
+  time?: { section?: number; total?: number };
+}
+
+interface DrawAnnotationEventDetail {
+  draw: (overlayer: (rects: DOMRectList, options: { color?: string }) => SVGElement, options: { color: string }) => void;
+  annotation: { value: string };
+  doc: Document;
+  range: Range;
+}
+
+interface IframeClickMessage {
+  type: 'iframe-click';
+  clientX: number;
+  clientY: number;
+  iframeLeft: number;
+  iframeWidth: number;
+  eventClientX: number;
+  target?: string;
+}
+
+interface EventServiceView extends HTMLElement {
+  addAnnotation(annotation: { value: string }): void;
+}
+
+export type ViewEvent =
+  | { type: 'load'; detail?: LoadEventDetail }
+  | { type: 'relocate'; detail: RelocateEventDetail }
+  | { type: 'error'; detail?: unknown }
+  | { type: 'middle-single-tap' }
+  | { type: 'draw-annotation'; detail: DrawAnnotationEventDetail }
+  | { type: 'show-annotation'; detail?: unknown }
+  | { type: 'text-selected'; detail: TextSelection; popupPosition: PopupPosition }
+  | { type: 'toggle-fullscreen' }
+  | { type: 'toggle-shortcuts-help' }
+  | { type: 'escape-pressed' }
+  | { type: 'go-first-section' }
+  | { type: 'go-last-section' }
+  | { type: 'toggle-toc' }
+  | { type: 'toggle-search' }
+  | { type: 'toggle-notes' };
 
 interface ViewCallbacks {
   prev: () => void;
@@ -34,7 +90,7 @@ export class ReaderEventService {
 
   private annotationService = inject(ReaderAnnotationService);
 
-  private view: any;
+  private view: EventServiceView | null = null;
   private viewCallbacks: ViewCallbacks | null = null;
   private isNavigating = false;
   private lastClickTime = 0;
@@ -53,7 +109,7 @@ export class ReaderEventService {
   private eventSubject = new Subject<ViewEvent>();
   public events$ = this.eventSubject.asObservable();
 
-  initialize(view: any, callbacks: ViewCallbacks): void {
+  initialize(view: EventServiceView, callbacks: ViewCallbacks): void {
     this.view = view;
     this.viewCallbacks = callbacks;
     this.attachViewEventListeners();
@@ -78,7 +134,8 @@ export class ReaderEventService {
   private attachViewEventListeners(): void {
     if (!this.view) return;
 
-    this.view.addEventListener('load', (e: any) => {
+    this.view.addEventListener('load', (event: Event) => {
+      const e = event as CustomEvent<LoadEventDetail>;
       this.eventSubject.next({type: 'load', detail: e.detail});
       if (e.detail?.doc) {
         if (this.keydownHandler) {
@@ -97,15 +154,18 @@ export class ReaderEventService {
       }
     });
 
-    this.view.addEventListener('relocate', (e: any) => {
+    this.view.addEventListener('relocate', (event: Event) => {
+      const e = event as CustomEvent<RelocateEventDetail>;
       this.eventSubject.next({type: 'relocate', detail: e.detail});
     });
 
-    this.view.addEventListener('error', (e: any) => {
+    this.view.addEventListener('error', (event: Event) => {
+      const e = event as CustomEvent<unknown>;
       this.eventSubject.next({type: 'error', detail: e.detail});
     });
 
-    this.view.addEventListener('draw-annotation', (e: any) => {
+    this.view.addEventListener('draw-annotation', (event: Event) => {
+      const e = event as CustomEvent<DrawAnnotationEventDetail>;
       const {draw, annotation, doc, range} = e.detail;
       const storedStyle = this.annotationService.getAnnotationStyle(annotation.value);
       if (storedStyle) {
@@ -115,7 +175,8 @@ export class ReaderEventService {
       this.eventSubject.next({type: 'draw-annotation', detail: {annotation, doc, range}});
     });
 
-    this.view.addEventListener('show-annotation', (e: any) => {
+    this.view.addEventListener('show-annotation', (event: Event) => {
+      const e = event as CustomEvent<unknown>;
       this.eventSubject.next({type: 'show-annotation', detail: e.detail});
     });
   }
@@ -170,10 +231,14 @@ export class ReaderEventService {
 
   private attachWindowMessageHandler(): void {
     window.addEventListener('message', (event) => {
-      if (event.data?.type === 'iframe-click') {
+      if (this.isIframeClickMessage(event.data)) {
         this.handleIframeClickMessage(event.data);
       }
     });
+  }
+
+  private isIframeClickMessage(value: unknown): value is IframeClickMessage {
+    return !!value && typeof value === 'object' && 'type' in value && value.type === 'iframe-click';
   }
 
   private attachIframeEventHandlers(doc: Document): void {
@@ -416,7 +481,7 @@ export class ReaderEventService {
     }, 10);
   }
 
-  private handleIframeClickMessage(data: any): void {
+  private handleIframeClickMessage(data: IframeClickMessage): void {
     if (!this.view) return;
 
     const now = Date.now();
@@ -454,7 +519,7 @@ export class ReaderEventService {
     }, this.DOUBLE_CLICK_INTERVAL_MS);
   }
 
-  private processIframeClick(data: any): void {
+  private processIframeClick(data: IframeClickMessage): void {
     if (!this.longHoldTimeout) {
       return;
     }

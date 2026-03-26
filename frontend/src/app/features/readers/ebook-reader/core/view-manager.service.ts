@@ -9,6 +9,12 @@ import {EpubStreamingService, EpubBookInfo} from './epub-streaming.service';
 export type {ViewEvent, TextSelection} from './event.service';
 export type {PageInfo, ThemeInfo} from '../shared/header-footer.util';
 
+interface FoliateTocItem {
+  label: string;
+  href: string;
+  subitems?: FoliateTocItem[];
+}
+
 interface TocItem {
   label: string;
   href: string;
@@ -24,7 +30,73 @@ export interface BookMetadata {
   identifier?: string;
   coverUrl?: string;
 
-  [key: string]: any;
+  [key: string]: unknown;
+}
+
+interface RendererContent {
+  index: number;
+  doc: Document;
+}
+
+export interface FoliateRenderer {
+  heads?: HTMLElement[];
+  feet?: HTMLElement[];
+  getContents(): RendererContent[];
+  setAttribute(name: string, value: string | number): void;
+  removeAttribute(name: string): void;
+  setStyles?(css: string): void;
+}
+
+interface FoliateBook {
+  toc?: FoliateTocItem[];
+  metadata?: BookMetadata;
+  getCover?(): Promise<Blob | null> | null;
+}
+
+interface FoliateSearchSubitem {
+  cfi: string;
+  excerpt: {
+    pre: string;
+    match: string;
+    post: string;
+  };
+}
+
+interface FoliateSearchProgress {
+  progress: number;
+}
+
+interface FoliateSearchSectionResult {
+  label?: string;
+  subitems?: FoliateSearchSubitem[];
+}
+
+type FoliateSearchResult = FoliateSearchProgress | FoliateSearchSectionResult | 'done';
+
+interface FoliateViewElement extends HTMLElement {
+  renderer?: FoliateRenderer | null;
+  book?: FoliateBook;
+  open(target: File | object): Promise<void>;
+  goTo(target: string | number): Promise<void>;
+  goToFraction(fraction: number): Promise<void>;
+  prev(): void;
+  next(): void;
+  getCFI(index: number, range: Range): string | null;
+  deselect(): void;
+  addAnnotation(annotation: { value: string }): void;
+  getSectionFractions?(): number[];
+  search?(opts: { query: string; matchCase?: boolean; matchWholeWords?: boolean }): AsyncGenerator<FoliateSearchResult>;
+  clearSearch?(): void;
+}
+
+interface StreamingBookFactoryWindow extends Window {
+  makeStreamingBook?: (
+    bookId: number,
+    baseUrl: string,
+    bookInfo: EpubBookInfo,
+    authToken: string | null,
+    bookType?: string
+  ) => Promise<object>;
 }
 
 @Injectable({
@@ -34,14 +106,14 @@ export class ReaderViewManagerService {
   private annotationService = inject(ReaderAnnotationService);
   private eventService = inject(ReaderEventService);
   private epubStreamingService = inject(EpubStreamingService);
-  private view: any;
+  private view: FoliateViewElement | null = null;
 
   public get events$(): Observable<ViewEvent> {
     return this.eventService.events$;
   }
 
   createView(container: HTMLElement): void {
-    this.view = document.createElement('foliate-view');
+    this.view = document.createElement('foliate-view') as FoliateViewElement;
     this.view.style.width = '100%';
     this.view.style.height = '100%';
     this.view.style.display = 'block';
@@ -92,7 +164,7 @@ export class ReaderViewManagerService {
   }
 
   private async openStreamingBook(bookId: number, bookInfo: EpubBookInfo, bookType?: string): Promise<void> {
-    const makeStreamingBook = (window as any).makeStreamingBook;
+    const makeStreamingBook = (window as StreamingBookFactoryWindow).makeStreamingBook;
     if (!makeStreamingBook) {
       throw new Error('makeStreamingBook not available - Foliate script may not be loaded');
     }
@@ -141,8 +213,8 @@ export class ReaderViewManagerService {
     this.view?.next();
   }
 
-  getRenderer(): any {
-    return this.view?.renderer;
+  getRenderer(): FoliateRenderer | null {
+    return this.view?.renderer ?? null;
   }
 
   getSelection(): TextSelection | null {
@@ -192,7 +264,7 @@ export class ReaderViewManagerService {
   getChapters(): TocItem[] {
     if (!this.view?.book?.toc) return [];
 
-    const mapToc = (items: any[]): TocItem[] =>
+    const mapToc = (items: FoliateTocItem[]): TocItem[] =>
       items.map(item => ({
         label: item.label,
         href: item.href,
@@ -244,7 +316,7 @@ export class ReaderViewManagerService {
     );
   }
 
-  async* search(opts: { query: string; matchCase?: boolean; matchWholeWords?: boolean }): AsyncGenerator<any> {
+  async* search(opts: { query: string; matchCase?: boolean; matchWholeWords?: boolean }): AsyncGenerator<FoliateSearchResult> {
     if (!this.view?.search) return;
     yield* this.view.search(opts);
   }
