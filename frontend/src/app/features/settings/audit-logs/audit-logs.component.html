@@ -43,13 +43,14 @@
             [showButtonBar]="true"
             class="date-range-filter">
           </p-datepicker>
-          <button
-            *ngIf="hasActiveFilters"
-            (click)="clearAllFilters()"
-            class="icon-btn clear-btn"
-            [title]="t('clearFilters')">
-            <i class="pi pi-filter-slash"></i>
-          </button>
+          @if (hasActiveFilters) {
+            <button
+              (click)="clearAllFilters()"
+              class="icon-btn clear-btn"
+              [title]="t('clearFilters')">
+              <i class="pi pi-filter-slash"></i>
+            </button>
+          }
           <button
             (click)="toggleAutoRefresh()"
             class="icon-btn refresh-btn"
@@ -101,7 +102,9 @@
                 {{ log.description }}
               </td>
               <td class="ip-cell">
-                <span *ngIf="log.countryCode" class="flag-emoji">{{ countryCodeToFlag(log.countryCode) }}</span>
+                @if (log.countryCode) {
+                  <span class="flag-emoji">{{ countryCodeToFlag(log.countryCode) }}</span>
+                }
                 {{ log.ipAddress || '—' }}
               </td>
             </tr>
