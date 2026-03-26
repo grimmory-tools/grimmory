@@ -1,16 +1,13 @@
-import { Injectable, ComponentRef, ApplicationRef, createComponent, EnvironmentInjector } from '@angular/core';
+import {Injectable, ComponentRef, ApplicationRef, createComponent, EnvironmentInjector, inject} from '@angular/core';
 import { LibraryLoadingComponent } from './library-loading/library-loading.component';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LibraryLoadingService {
+  private appRef = inject(ApplicationRef);
+  private injector = inject(EnvironmentInjector);
   private componentRef: ComponentRef<LibraryLoadingComponent> | null = null;
-
-  constructor(
-    private appRef: ApplicationRef,
-    private injector: EnvironmentInjector
-  ) {}
 
   showBookLoadingProgress(bookTitle: string, current: number, total: number): void {
     if (this.componentRef) {
