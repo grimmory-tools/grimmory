@@ -1,5 +1,5 @@
 @use "sass:meta";
-@import "../node_modules/primeicons/primeicons.css";
+@import "primeicons/primeicons.css";
 @include meta.load-css("assets/styles/reset.scss");
 @include meta.load-css("assets/layout/styles/global.scss");
 
