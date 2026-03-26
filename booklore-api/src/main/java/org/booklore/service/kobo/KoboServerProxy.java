@@ -41,7 +41,6 @@ public class KoboServerProxy {
             HttpHeaders.AUTHORIZATION.toLowerCase(),
             HttpHeaders.AUTHORIZATION,
             HttpHeaders.USER_AGENT,
-            HttpHeaders.ACCEPT,
             HttpHeaders.ACCEPT_LANGUAGE
     );
 
@@ -105,7 +104,8 @@ public class KoboServerProxy {
                     .uri(uri)
                     .timeout(Duration.ofMinutes(1))
                     .method(request.getMethod(), HttpRequest.BodyPublishers.ofString(bodyString))
-                    .header(HttpHeaders.CONTENT_TYPE, "application/json");
+                    .header(HttpHeaders.CONTENT_TYPE, "application/json")
+                    .header(HttpHeaders.ACCEPT, "application/json");
 
             Collections.list(request.getHeaderNames()).forEach(headerName -> {
                 if (!HEADERS_OUT_EXCLUDE.contains(headerName.toLowerCase()) &&
