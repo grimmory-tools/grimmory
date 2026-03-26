@@ -34,6 +34,7 @@ jobs:
       checks: write
     with:
       checkout_ref: ${{ needs.resolve_ref.outputs.commit_sha }}
+      save_gradle_cache: true
 
   build-and-push:
     name: Build and Push Nightly Image
@@ -62,6 +63,8 @@ jobs:
 
       - name: Set Up QEMU for Multi-Arch Builds
         uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
+        with:
+          cache-image: false
 
       - name: Set Up Docker Buildx
         uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0

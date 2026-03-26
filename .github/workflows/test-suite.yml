@@ -12,6 +12,11 @@ on:
         required: false
         type: boolean
         default: true
+      save_gradle_cache:
+        description: 'Whether this run should persist the shared Gradle cache'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   backend-tests:
@@ -39,7 +44,17 @@ jobs:
         with:
           java-version: '25'
           distribution: 'temurin'
-          cache: gradle
+
+      - name: Restore Gradle Cache
+        id: restore_gradle_cache
+        uses: actions/cache/restore@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('booklore-api/**/*.gradle*', 'booklore-api/settings.gradle*', 'booklore-api/gradle.properties', 'booklore-api/gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
 
       - name: Execute Backend Tests
         id: backend_tests
@@ -64,6 +79,15 @@ jobs:
             booklore-api/build/reports/tests/
             booklore-api/build/test-results/
           retention-days: 30
+
+      - name: Save Gradle Cache
+        if: ${{ always() && inputs.save_gradle_cache }}
+        uses: actions/cache/save@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ steps.restore_gradle_cache.outputs.cache-primary-key }}
 
       - name: Validate Backend Test Results
         if: steps.backend_tests.outcome == 'failure'

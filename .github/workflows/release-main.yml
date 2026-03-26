@@ -29,6 +29,7 @@ jobs:
       checks: write
     with:
       checkout_ref: ${{ github.sha }}
+      save_gradle_cache: true
 
   semantic-release:
     name: Compute Release, Update Changelog, and Draft GitHub Release
