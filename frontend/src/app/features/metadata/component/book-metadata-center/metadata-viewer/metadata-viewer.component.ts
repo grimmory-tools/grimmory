@@ -369,8 +369,6 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
                     this.dialogRef?.close();
                   }
                 },
-                error: () => {
-                }
               });
             }
           });

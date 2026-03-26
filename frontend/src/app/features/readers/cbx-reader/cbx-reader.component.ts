@@ -1170,13 +1170,13 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   private enterFullscreen(): void {
     const elem = document.documentElement;
     if (elem.requestFullscreen) {
-      elem.requestFullscreen().catch(() => {});
+      void elem.requestFullscreen().catch(() => undefined);
     }
   }
 
   private exitFullscreen(): void {
     if (document.exitFullscreen) {
-      document.exitFullscreen().catch(() => {});
+      void document.exitFullscreen().catch(() => undefined);
     }
   }
 

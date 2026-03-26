@@ -1,4 +1,4 @@
-import {Component, DestroyRef, effect, inject, OnInit} from '@angular/core';
+import {Component, effect, inject} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {TableModule} from 'primeng/table';
 import {InputText} from 'primeng/inputtext';
@@ -27,7 +27,7 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
   templateUrl: './metadata-provider-settings.component.html',
   styleUrl: './metadata-provider-settings.component.scss'
 })
-export class MetadataProviderSettingsComponent implements OnInit {
+export class MetadataProviderSettingsComponent {
 
   amazonDomains = [
     {label: 'amazon.com', value: 'com'},
@@ -99,7 +99,6 @@ export class MetadataProviderSettingsComponent implements OnInit {
 
   private appSettingsService = inject(AppSettingsService);
   private messageService = inject(MessageService);
-  private destroyRef = inject(DestroyRef);
   private t = inject(TranslocoService);
 
   private readonly syncSettingsEffect = effect(() => {
@@ -108,9 +107,6 @@ export class MetadataProviderSettingsComponent implements OnInit {
       this.applySettings(settings);
     }
   });
-
-  ngOnInit(): void {
-  }
 
   private applySettings(settings: NonNullable<ReturnType<typeof this.appSettingsService.appSettings>>): void {
     const metadataProviderSettings = settings.metadataProviderSettings;

@@ -1,5 +1,5 @@
 import {DecimalPipe} from '@angular/common';
-import {Component, effect, inject, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, effect, inject, Input, OnDestroy} from '@angular/core';
 import {Button} from 'primeng/button';
 import {FormsModule} from '@angular/forms';
 import {TranslocoDirective} from '@jsverse/transloco';
@@ -26,7 +26,7 @@ import {themes} from '../../../readers/ebook-reader/state/themes.constant';
   templateUrl: './epub-reader-preferences-component.html',
   styleUrl: './epub-reader-preferences-component.scss'
 })
-export class EpubReaderPreferencesComponent implements OnInit, OnDestroy {
+export class EpubReaderPreferencesComponent implements OnDestroy {
 
   @Input() userSettings!: UserSettings;
 
@@ -58,9 +58,6 @@ export class EpubReaderPreferencesComponent implements OnInit, OnDestroy {
       this.onFontsChanged(fonts);
     }
   });
-
-  ngOnInit(): void {
-  }
 
   ngOnDestroy(): void {
     this.destroy$.next();

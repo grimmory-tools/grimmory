@@ -11,7 +11,7 @@ export class StartupService {
 
   load(): Promise<void> {
     if (this.authService.token()) {
-      return this.queryClient.fetchQuery(this.userService.getUserQueryOptions()).then(() => {});
+      return this.queryClient.fetchQuery(this.userService.getUserQueryOptions()).then(() => undefined);
     }
 
     return Promise.resolve();

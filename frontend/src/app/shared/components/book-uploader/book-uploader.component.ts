@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, ViewChild, effect} from '@angular/core';
+import {Component, inject, ViewChild, effect} from '@angular/core';
 import {FileSelectEvent, FileUpload, FileUploadHandlerEvent} from 'primeng/fileupload';
 import {Button} from 'primeng/button';
 import {FormsModule} from '@angular/forms';
@@ -43,7 +43,7 @@ type FileRemoveCallback = (event: Event, index: number) => void;
   templateUrl: './book-uploader.component.html',
   styleUrl: './book-uploader.component.scss'
 })
-export class BookUploaderComponent implements OnInit {
+export class BookUploaderComponent {
   @ViewChild(FileUpload) fileUpload!: FileUpload;
 
   files: UploadingFile[] = [];
@@ -83,9 +83,6 @@ export class BookUploaderComponent implements OnInit {
     this.maxFileSizeBytes = maxSizeMb * 1024 * 1024;
     this.maxFileSizeDisplay = `${maxSizeMb} MB`;
   });
-
-  ngOnInit(): void {
-  }
 
   get selectedLibrary(): Library | null {
     return this._selectedLibrary;

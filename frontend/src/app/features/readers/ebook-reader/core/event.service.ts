@@ -441,9 +441,6 @@ export class ReaderEventService {
     if (timeSinceLastClick < this.DOUBLE_CLICK_INTERVAL_MS && this.lastClickZone === currentZone) {
       this.lastClickTime = now;
       this.lastClickZone = currentZone;
-
-      if (currentZone !== 'middle') {
-      }
       return;
     }
 

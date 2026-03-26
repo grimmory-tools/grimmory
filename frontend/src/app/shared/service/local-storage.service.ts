@@ -16,6 +16,7 @@ export class LocalStorageService {
     try {
       localStorage.setItem(key, JSON.stringify(value));
     } catch {
+      return;
     }
   }
 

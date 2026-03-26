@@ -1,4 +1,4 @@
-import {Component, effect, inject, OnInit} from '@angular/core';
+import {Component, effect, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {AccordionModule} from 'primeng/accordion';
@@ -23,7 +23,7 @@ import {SidecarService} from '../../metadata/service/sidecar.service';
   templateUrl: './library-metadata-settings.component.html',
   styleUrls: ['./library-metadata-settings.component.scss']
 })
-export class LibraryMetadataSettingsComponent implements OnInit {
+export class LibraryMetadataSettingsComponent {
   private libraryService = inject(LibraryService);
   private appSettingsService = inject(AppSettingsService);
   private messageService = inject(MessageService);
@@ -62,9 +62,6 @@ export class LibraryMetadataSettingsComponent implements OnInit {
       this.updateLibraryOptionsFromSettings(appSettings);
     }
   });
-
-  ngOnInit() {
-  }
 
   onPanelChange(event: unknown) {
     this.activePanel = typeof event === 'number' ? event : null;

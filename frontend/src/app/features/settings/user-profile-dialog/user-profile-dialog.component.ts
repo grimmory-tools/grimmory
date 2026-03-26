@@ -1,11 +1,10 @@
-import {Component, effect, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, effect, inject} from '@angular/core';
 import {Button} from 'primeng/button';
 import {AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators} from '@angular/forms';
 import {InputText} from 'primeng/inputtext';
 import {Password} from 'primeng/password';
 import {User, UserService, UserUpdateRequest} from '../user-management/user.service';
 import {MessageService} from 'primeng/api';
-import {Subject} from 'rxjs';
 import {DynamicDialogRef} from 'primeng/dynamicdialog';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 
@@ -34,13 +33,11 @@ export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): V
   templateUrl: './user-profile-dialog.component.html',
   styleUrls: ['./user-profile-dialog.component.scss']
 })
-export class UserProfileDialogComponent implements OnInit, OnDestroy {
+export class UserProfileDialogComponent {
 
   isEditing = false;
   currentUser: User | null = null;
   editUserData: Partial<User> = {};
-  private readonly destroy$ = new Subject<void>();
-
   changePasswordForm: FormGroup;
 
   protected readonly userService = inject(UserService);
@@ -67,14 +64,6 @@ export class UserProfileDialogComponent implements OnInit, OnDestroy {
       this.resetEditForm();
     }
   });
-
-  ngOnInit(): void {
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 
   toggleEdit(): void {
     this.isEditing = !this.isEditing;

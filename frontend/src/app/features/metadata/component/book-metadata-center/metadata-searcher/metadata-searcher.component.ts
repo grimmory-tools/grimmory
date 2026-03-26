@@ -1,4 +1,4 @@
-import {Component, effect, inject, Input, OnChanges, OnDestroy, OnInit, signal, SimpleChanges} from '@angular/core';
+import {Component, effect, inject, Input, OnChanges, OnDestroy, signal, SimpleChanges} from '@angular/core';
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {Button} from 'primeng/button';
 import {InputText} from 'primeng/inputtext';
@@ -31,7 +31,7 @@ import {TranslocoDirective} from '@jsverse/transloco';
   ],
   standalone: true
 })
-export class MetadataSearcherComponent implements OnInit, OnDestroy, OnChanges {
+export class MetadataSearcherComponent implements OnDestroy, OnChanges {
   form: FormGroup;
   providers: string[] = [];
   allFetchedMetadata: BookMetadata[] = [];
@@ -107,9 +107,6 @@ export class MetadataSearcherComponent implements OnInit, OnDestroy, OnChanges {
       this.pendingAutoSearch = false;
       this.onSubmit();
     }
-  }
-
-  ngOnInit() {
   }
 
   private syncFormFromState(): void {
