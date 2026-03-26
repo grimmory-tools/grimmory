@@ -177,6 +177,33 @@ export class SeriesProgressChartComponent {
 
   public readonly chartData$: Observable<SeriesChartData> = this.chartDataSubject.asObservable();
 
+  onSearchInput(event: Event): void {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement)) {
+      return;
+    }
+
+    this.onSearchChange(target.value);
+  }
+
+  onFilterSelect(event: Event): void {
+    const target = event.target;
+    if (!(target instanceof HTMLSelectElement)) {
+      return;
+    }
+
+    this.onFilterChange(target.value as typeof this.filterStatus);
+  }
+
+  onSortSelect(event: Event): void {
+    const target = event.target;
+    if (!(target instanceof HTMLSelectElement)) {
+      return;
+    }
+
+    this.onSortChange(target.value as typeof this.sortBy);
+  }
+
   onSearchChange(term: string): void {
     this.searchTerm = term.toLowerCase().trim();
     this.currentPage = 0;

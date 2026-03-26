@@ -72,19 +72,19 @@
             type="text"
             [placeholder]="t('searchSeries')"
             [value]="searchTerm"
-            (input)="onSearchChange($any($event.target).value)"
+            (input)="onSearchInput($event)"
           />
         </div>
 
         <div class="filter-controls">
-          <select class="filter-select" [value]="filterStatus" (change)="onFilterChange($any($event.target).value)">
+          <select class="filter-select" [value]="filterStatus" (change)="onFilterSelect($event)">
             <option value="all">{{ t('allStatus') }}</option>
             <option value="in-progress">{{ t('inProgress') }}</option>
             <option value="completed">{{ t('completed') }}</option>
             <option value="not-started">{{ t('notStarted') }}</option>
           </select>
 
-          <select class="sort-select" [value]="sortBy" (change)="onSortChange($any($event.target).value)">
+          <select class="sort-select" [value]="sortBy" (change)="onSortSelect($event)">
             <option value="progress">{{ t('sortByProgress') }}</option>
             <option value="rating">{{ t('sortByRating') }}</option>
             <option value="books">{{ t('sortByBooks') }}</option>
