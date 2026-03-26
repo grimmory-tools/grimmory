@@ -51,10 +51,11 @@ export class PageDecorator {
     }
 
     const footerStyle = this.buildStyle(theme);
+    const feet = renderer.feet;
 
-    renderer.feet.forEach((footElement: HTMLElement, index: number) => {
+    feet.forEach((footElement: HTMLElement, index: number) => {
       if (footElement) {
-        const footerContent = this.createFooterContent(pageInfo, isSingleColumn, index, renderer.feet.length, footerStyle, timeRemainingLabel);
+        const footerContent = this.createFooterContent(pageInfo, isSingleColumn, index, feet.length, footerStyle, timeRemainingLabel);
         footElement.replaceChildren(footerContent);
       }
     });

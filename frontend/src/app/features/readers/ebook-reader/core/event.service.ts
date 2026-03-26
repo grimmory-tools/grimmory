@@ -172,7 +172,7 @@ export class ReaderEventService {
         const overlayerStyle = this.annotationService.getOverlayerDrawFunction(storedStyle.style);
         draw(overlayerStyle, {color: storedStyle.color});
       }
-      this.eventSubject.next({type: 'draw-annotation', detail: {annotation, doc, range}});
+      this.eventSubject.next({type: 'draw-annotation', detail: {draw, annotation, doc, range}});
     });
 
     this.view.addEventListener('show-annotation', (event: Event) => {

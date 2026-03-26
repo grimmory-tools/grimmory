@@ -43,7 +43,7 @@ export class SeriesCardComponent {
       : this.urlHelper.getThumbnailUrl(book.id, book.metadata?.coverUpdatedOn);
   }
 
-  onCardClick(event: MouseEvent): void {
+  onCardClick(event: Event): void {
     event.stopPropagation();
     this.cardClick.emit(this.series);
   }

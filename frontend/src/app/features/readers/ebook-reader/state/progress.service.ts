@@ -108,7 +108,7 @@ export class ReaderProgressService {
     }
 
     if (cfi && percentage !== null) {
-      this.bookPatchService.saveEpubProgress(this.bookId, cfi, href, percentage, this.bookFileId);
+      this.bookPatchService.saveEpubProgress(this.bookId, cfi, href ?? '', percentage, this.bookFileId);
       this.readingSessionService.updateProgress(cfi, percentage);
     }
 
@@ -123,7 +123,7 @@ export class ReaderProgressService {
     }
 
     if (detail?.section) {
-      const percentCompleted = Math.round((detail.fraction * 100) * 10) / 10;
+      const percentCompleted = Math.round(((detail.fraction ?? 0) * 100) * 10) / 10;
       const totalMinutes = detail.time?.section ?? 0;
 
       const hours = Math.floor(totalMinutes / 60);

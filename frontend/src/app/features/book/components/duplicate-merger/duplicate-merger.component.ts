@@ -191,8 +191,8 @@ export class DuplicateMergerComponent implements OnInit, OnDestroy {
   }
 
   onPageChange(event: PaginatorState): void {
-    this.pageFirst = event.first;
-    this.pageSize = event.rows;
+    this.pageFirst = event.first ?? 0;
+    this.pageSize = event.rows ?? this.pageSize;
   }
 
   getBookFormats(book: Book): string[] {

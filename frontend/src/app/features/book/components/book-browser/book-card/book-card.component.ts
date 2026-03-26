@@ -893,8 +893,8 @@ export class BookCardComponent implements OnInit, OnChanges {
     this.lastMouseEvent = event;
   }
 
-  onCardClick(event: MouseEvent): void {
-    if (!event.ctrlKey) {
+  onCardClick(event: Event): void {
+    if (!(event instanceof MouseEvent || event instanceof KeyboardEvent) || !event.ctrlKey) {
       return;
     }
 

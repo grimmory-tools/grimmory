@@ -85,7 +85,9 @@ export class LibraryShelfMenuService {
                   severity: 'success',
                 },
                 accept: () => {
-                  this.libraryService.refreshLibrary(entity!.id).subscribe({
+                  const entityId = entity?.id;
+                  if (entityId == null) return;
+                  this.libraryService.refreshLibrary(entityId).subscribe({
                     complete: () => {
                       this.messageService.add({severity: 'info', summary: this.t.translate('common.success'), detail: this.t.translate('book.shelfMenuService.toast.libraryRefreshSuccessDetail')});
                     },
@@ -147,8 +149,13 @@ export class LibraryShelfMenuService {
                 },
                 accept: () => {
                   const loader = this.loadingService.show(this.t.translate('book.shelfMenuService.loading.deletingLibrary', {name: entity?.name}));
+                  const entityId = entity?.id;
+                  if (entityId == null) {
+                    this.loadingService.hide(loader);
+                    return;
+                  }
 
-                  this.libraryService.deleteLibrary(entity!.id)
+                  this.libraryService.deleteLibrary(entityId)
                     .pipe(finalize(() => this.loadingService.hide(loader)))
                     .subscribe({
                       complete: () => {
@@ -212,7 +219,9 @@ export class LibraryShelfMenuService {
                   severity: 'secondary'
                 },
                 accept: () => {
-                  this.shelfService.deleteShelf(entity!.id).subscribe({
+                  const entityId = entity?.id;
+                  if (entityId == null) return;
+                  this.shelfService.deleteShelf(entityId).subscribe({
                     complete: () => {
                       this.router.navigate(['/']);
                       this.messageService.add({severity: 'info', summary: this.t.translate('common.success'), detail: this.t.translate('book.shelfMenuService.toast.shelfDeletedDetail')});
@@ -284,7 +293,9 @@ export class LibraryShelfMenuService {
                   severity: 'secondary'
                 },
                 accept: () => {
-                  this.magicShelfService.deleteShelf(entity!.id).subscribe({
+                  const entityId = entity?.id;
+                  if (entityId == null) return;
+                  this.magicShelfService.deleteShelf(entityId).subscribe({
                     complete: () => {
                       this.router.navigate(['/']);
                       this.messageService.add({severity: 'info', summary: this.t.translate('common.success'), detail: this.t.translate('book.shelfMenuService.toast.magicShelfDeletedDetail')});

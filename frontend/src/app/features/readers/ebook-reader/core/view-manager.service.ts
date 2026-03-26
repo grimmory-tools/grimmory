@@ -28,7 +28,7 @@ export interface BookMetadata {
   publisher?: string;
   description?: string;
   identifier?: string;
-  coverUrl?: string;
+  coverUrl?: string | null;
 
   [key: string]: unknown;
 }
@@ -84,6 +84,8 @@ interface FoliateViewElement extends HTMLElement {
   getCFI(index: number, range: Range): string | null;
   deselect(): void;
   addAnnotation(annotation: { value: string }): void;
+  deleteAnnotation(annotation: { value: string }): Promise<void>;
+  showAnnotation(annotation: { value: string }): Promise<void>;
   getSectionFractions?(): number[];
   search?(opts: { query: string; matchCase?: boolean; matchWholeWords?: boolean }): AsyncGenerator<FoliateSearchResult>;
   clearSearch?(): void;
@@ -122,7 +124,7 @@ export class ReaderViewManagerService {
     this.eventService.initialize(this.view, {
       prev: () => this.prev(),
       next: () => this.next(),
-      getCFI: (index: number, range: Range) => this.view?.getCFI(index, range),
+      getCFI: (index: number, range: Range) => this.view?.getCFI(index, range) ?? null,
       getContents: () => this.view?.renderer?.getContents() ?? null
     });
   }
@@ -132,6 +134,7 @@ export class ReaderViewManagerService {
       return throwError(() => new Error('View not created'));
     }
 
+    const view = this.view;
     return timer(100).pipe(
       switchMap(() => from(fetch(epubPath))),
       switchMap(response => {
@@ -144,7 +147,7 @@ export class ReaderViewManagerService {
         const file = new File([blob], epubPath.split('/').pop() || 'book.epub', {
           type: 'application/epub+zip'
         });
-        return from(this.view.open(file) as Promise<void>);
+        return from(view.open(file) as Promise<void>);
       }),
       map(() => undefined),
       catchError(err => throwError(() => err))
@@ -171,7 +174,11 @@ export class ReaderViewManagerService {
     const baseUrl = this.epubStreamingService.getBaseUrl();
     const authToken = this.epubStreamingService.getAuthToken();
     const book = await makeStreamingBook(bookId, baseUrl, bookInfo, authToken, bookType);
-    await this.view.open(book);
+    const view = this.view;
+    if (!view) {
+      throw new Error('View not created');
+    }
+    await view.open(book);
   }
 
   destroy(): void {
@@ -185,8 +192,9 @@ export class ReaderViewManagerService {
     if (!this.view) {
       return of(undefined);
     }
+    const view = this.view;
     return defer(() =>
-      from(this.view.goTo(resolvedTarget) as Promise<void>)
+      from(view.goTo(resolvedTarget) as Promise<void>)
     ).pipe(
       map(() => undefined)
     );
@@ -200,7 +208,8 @@ export class ReaderViewManagerService {
     if (!this.view) {
       return of(undefined);
     }
-    return defer(() => from(this.view.goToFraction(fraction) as Promise<void>)).pipe(
+    const view = this.view;
+    return defer(() => from(view.goToFraction(fraction) as Promise<void>)).pipe(
       map(() => undefined)
     );
   }
@@ -304,8 +313,9 @@ export class ReaderViewManagerService {
     if (!this.view?.book?.getCover) {
       return of(null);
     }
+    const book = this.view.book;
     return defer(() => {
-      const coverPromise = this.view.book.getCover();
+      const coverPromise = book.getCover?.();
       return coverPromise ? from(coverPromise as Promise<Blob | null>) : of(null);
     });
   }
@@ -317,8 +327,9 @@ export class ReaderViewManagerService {
   }
 
   async* search(opts: { query: string; matchCase?: boolean; matchWholeWords?: boolean }): AsyncGenerator<FoliateSearchResult> {
-    if (!this.view?.search) return;
-    yield* this.view.search(opts);
+    const search = this.view?.search;
+    if (!search) return;
+    yield* search.call(this.view, opts);
   }
 
   clearSearch(): void {

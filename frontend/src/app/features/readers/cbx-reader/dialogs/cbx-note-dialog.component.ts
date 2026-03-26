@@ -72,7 +72,7 @@ export class CbxNoteDialogComponent implements OnChanges {
     this.selectedColor = color;
   }
 
-  onOverlayClick(event: MouseEvent): void {
+  onOverlayClick(event: Event): void {
     if ((event.target as HTMLElement).classList.contains('dialog-overlay')) {
       this.onCancel();
     }

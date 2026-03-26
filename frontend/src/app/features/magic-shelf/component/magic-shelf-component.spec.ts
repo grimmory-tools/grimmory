@@ -658,8 +658,9 @@ describe('MagicShelfComponent (Part 3)', () => {
       const rulesArray = result.get('rules') as FormArray;
       expect(rulesArray.length).toBe(2);
       const nestedGroup = rulesArray.at(1);
-      expect(nestedGroup.get('rules')).toBeDefined();
-      expect(nestedGroup.get('rules').length).toBe(1);
+      const nestedRules = nestedGroup.get('rules') as FormArray;
+      expect(nestedRules).toBeDefined();
+      expect(nestedRules.length).toBe(1);
     });
 
     it('should preserve join type', () => {

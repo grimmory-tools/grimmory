@@ -15,12 +15,28 @@ import {IconDisplayComponent} from '../../../components/icon-display/icon-displa
 import {Tooltip} from 'primeng/tooltip';
 import {IconSelection} from '../../../service/icon-picker.service';
 import {TranslocoPipe} from '@jsverse/transloco';
+import {MenuItem, MenuItemCommandEvent} from 'primeng/api';
 
-type AppMenuItem = MenuItem & {
+type AppMenuItem = Omit<MenuItem, 'items'> & {
   items?: AppMenuItem[];
+  label?: string;
   routerLink?: string[];
+  queryParams?: MenuItem['queryParams'];
+  queryParamsHandling?: MenuItem['queryParamsHandling'];
+  fragment?: string;
+  preserveFragment?: boolean;
+  skipLocationChange?: boolean;
+  replaceUrl?: boolean;
+  state?: MenuItem['state'];
+  target?: string;
   type?: 'library' | 'magicShelf' | 'shelf' | string;
-  iconType?: string;
+  iconType?: IconSelection['type'];
+  icon?: string;
+  disabled?: boolean;
+  command?: (event: MenuItemCommandEvent) => void;
+  class?: string;
+  menu?: MenuItem[];
+  badgeClass?: string;
   unhealthy?: boolean;
   bookCount?: number;
   hasDropDown?: boolean;
@@ -143,7 +159,12 @@ export class AppMenuitemComponent implements OnInit, OnDestroy {
   }
 
   updateActiveStateFromRoute() {
-    const activeRoute = this.router.isActive(this.item.routerLink[0], {
+    const firstRoute = this.item.routerLink?.[0];
+    if (!firstRoute) {
+      return;
+    }
+
+    const activeRoute = this.router.isActive(firstRoute, {
       paths: 'exact',
       queryParams: 'ignored',
       matrixParams: 'ignored',

@@ -11,7 +11,7 @@ export interface Annotation {
 }
 
 interface AnnotationView {
-  addAnnotation(annotation: { value: string }): Promise<{ index: number; label: string } | undefined>;
+  addAnnotation(annotation: { value: string }): Promise<{ index: number; label: string } | undefined> | void;
   deleteAnnotation(annotation: { value: string }): Promise<void>;
   showAnnotation(annotation: { value: string }): Promise<void>;
 }

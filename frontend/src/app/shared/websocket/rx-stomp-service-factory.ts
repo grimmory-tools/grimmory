@@ -3,7 +3,8 @@ import { createRxStompConfig } from './rx-stomp.config';
 import {AuthService} from '../service/auth.service';
 
 export function rxStompServiceFactory(authService: AuthService) {
-  const rxStomp = new RxStompService(authService);
+  void authService;
+  const rxStomp = new RxStompService();
   const stompConfig = createRxStompConfig(authService);
   rxStomp.configure(stompConfig);
   return rxStomp;

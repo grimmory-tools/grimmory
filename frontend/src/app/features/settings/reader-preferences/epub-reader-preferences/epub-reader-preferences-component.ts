@@ -122,14 +122,14 @@ export class EpubReaderPreferencesComponent implements OnDestroy {
   }
 
   get selectedFont(): string | null {
-    return this.userSettings.ebookReaderSetting.fontFamily;
+    return this.userSettings.ebookReaderSetting.fontFamily || null;
   }
 
   set selectedFont(value: string | null) {
     if (typeof value === "string") {
       this.userSettings.ebookReaderSetting.fontFamily = value;
     } else {
-      this.userSettings.ebookReaderSetting.fontFamily = null;
+      this.userSettings.ebookReaderSetting.fontFamily = '';
     }
     this.readerPreferencesService.updatePreference(['ebookReaderSetting', 'fontFamily'], value);
   }

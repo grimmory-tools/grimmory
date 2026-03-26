@@ -71,7 +71,7 @@ export class EbookShortcutsHelpComponent {
     this.closed.emit();
   }
 
-  onOverlayClick(event: MouseEvent): void {
+  onOverlayClick(event: Event): void {
     if ((event.target as HTMLElement).classList.contains('dialog-overlay')) {
       this.onClose();
     }

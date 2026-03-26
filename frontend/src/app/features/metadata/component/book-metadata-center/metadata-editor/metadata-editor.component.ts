@@ -958,11 +958,17 @@ export class MetadataEditorComponent implements OnInit {
           detail: this.t.translate('metadata.editor.toast.coverRegenerated'),
         });
       },
-      error: () => {
+      error: (err: unknown) => {
+        const errorMessage =
+          err && typeof err === 'object' && 'error' in err && err.error &&
+          typeof err.error === 'object' && 'message' in err.error &&
+          typeof err.error.message === 'string'
+            ? err.error.message
+            : this.t.translate('metadata.editor.toast.coverRegenFailed');
         this.messageService.add({
           severity: "error",
           summary: this.t.translate('metadata.editor.toast.errorSummary'),
-          detail: err?.error?.message || this.t.translate('metadata.editor.toast.coverRegenFailed'),
+          detail: errorMessage,
         });
       }
     });

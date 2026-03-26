@@ -128,7 +128,7 @@ export class TextSelectionPopupComponent {
     this.hasPreview = false;
   }
 
-  onDismiss(event: MouseEvent): void {
+  onDismiss(event: Event): void {
     event.stopPropagation();
     event.preventDefault();
 

@@ -70,12 +70,13 @@ export class AuthorCardComponent implements OnChanges {
     return !!this.author.asin;
   }
 
-  onCardClick(event: MouseEvent): void {
+  onCardClick(event: Event): void {
     const target = event.target as HTMLElement;
     if (target.closest('.menu-button-container')) {
       return;
     }
-    if (event.ctrlKey || event.metaKey) {
+    const isModifierClick = (event instanceof MouseEvent || event instanceof KeyboardEvent) && (event.ctrlKey || event.metaKey);
+    if (isModifierClick) {
       event.preventDefault();
       event.stopPropagation();
       this.toggleCardSelection(!this.isSelected);

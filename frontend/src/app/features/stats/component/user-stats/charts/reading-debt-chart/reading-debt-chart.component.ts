@@ -6,8 +6,6 @@ import {ChartConfiguration, ChartData} from 'chart.js';
 import {BookService} from '../../../../../book/service/book.service';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
-type ReadingDebtChartData = ChartData<'bar' | 'line', number[], string>;
-
 @Component({
   selector: 'app-reading-debt-chart',
   standalone: true,
@@ -31,7 +29,7 @@ export class ReadingDebtChartComponent {
   public currentBacklog = 0;
   public trend = '';
 
-  public chartData: ReadingDebtChartData = {labels: [], datasets: []};
+  public chartData: ChartData<'bar', number[], string> = {labels: [], datasets: []};
 
   public chartOptions: ChartConfiguration<'bar'>['options'] = {
     responsive: true,
@@ -159,7 +157,7 @@ export class ReadingDebtChartComponent {
           tension: 0.3,
           yAxisID: 'y1',
           order: 1
-        } as ReadingDebtChartData['datasets'][number]
+        } as unknown as ChartData<'bar', number[], string>['datasets'][number]
       ]
     };
     this.hasData = true;

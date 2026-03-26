@@ -72,7 +72,7 @@ export class FilterPreferencesComponent {
   private updatePreference(path: string[], value: unknown): void {
     if (!this.currentUser) return;
 
-    let target = this.currentUser.userSettings as MutableSettingsBranch;
+    let target = this.currentUser.userSettings as unknown as MutableSettingsBranch;
     for (let i = 0; i < path.length - 1; i++) {
       const next = target[path[i]];
       if (!next || typeof next !== 'object') {

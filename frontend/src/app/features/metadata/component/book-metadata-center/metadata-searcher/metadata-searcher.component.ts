@@ -318,10 +318,11 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
     ];
   }
 
-  onProviderPillClick(provider: string, event: MouseEvent | KeyboardEvent): void {
+  onProviderPillClick(provider: string, event: Event): void {
     const providerLower = provider.toLowerCase();
 
-    if (event.ctrlKey || event.metaKey) {
+    const isModifierClick = (event instanceof MouseEvent || event instanceof KeyboardEvent) && (event.ctrlKey || event.metaKey);
+    if (isModifierClick) {
       if (this.selectedProviderFilters.has(providerLower)) {
         this.selectedProviderFilters.delete(providerLower);
       } else {
