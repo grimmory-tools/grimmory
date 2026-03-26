@@ -175,7 +175,7 @@ describe('magic-shelf-utils', () => {
 
     it('should return value as-is for undefined type', () => {
       expect(parseValue('hello', undefined)).toBe('hello');
-      expect(parseValue('true', 'boolean' as any)).toBe('true');
+      expect(parseValue('true', 'boolean')).toBe('true');
     });
 
     it('should return arrays as-is for undefined type', () => {

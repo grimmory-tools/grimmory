@@ -8,7 +8,7 @@ declare module 'epubjs' {
 
   export interface Navigation {
     toc: TocItem[];
-    get(target: string): any;
+    get(target: string): TocItem | undefined;
   }
 
   export interface Location {
@@ -47,7 +47,7 @@ declare module 'epubjs' {
   }
 
   export interface Themes {
-    register(name: string, theme: any): void;
+    register(name: string, theme: unknown): void;
     select(name: string): void;
     override(property: string, value: string): void;
     font(name: string): void;
@@ -61,10 +61,10 @@ declare module 'epubjs' {
     next(): Promise<void>;
     currentLocation(): Location | null;
     on(event: 'relocated', callback: (location: Location) => void): void;
-    on(event: 'rendered', callback: (section: any) => void): void;
+    on(event: 'rendered', callback: (section: unknown) => void): void;
     on(event: 'keyup', callback: (event: KeyboardEvent) => void): void;
-    on(event: string, callback: any): void;
-    off(event: string, callback: any): void;
+    on(event: string, callback: (...args: unknown[]) => void): void;
+    off(event: string, callback: (...args: unknown[]) => void): void;
     destroy(): void;
   }
 
@@ -91,7 +91,7 @@ declare module 'epubjs' {
 
   export class EpubCFI {
     compare(cfi1: string, cfi2: string): number;
-    prototype: any; // Allow prototype access if needed
+    prototype: unknown; // Allow prototype access if needed
   }
 
   export default function ePub(input: string | ArrayBuffer): Book;
