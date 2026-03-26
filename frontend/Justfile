@@ -56,7 +56,7 @@ typecheck:
 
 # Check the installed dependency tree.
 deps:
-    {{ yarn }} list --depth=0
+    {{ yarn }} info -R --name-only
 
 # Run a local dependency audit without forcing a CI-specific severity threshold.
 audit:
