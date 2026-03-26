@@ -15,15 +15,25 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
+
+/* BookCreatorService has the following functions that are not tested and should be added in the future
+- createShellBook()
+- saveConnections()
+- setComicMetadataDto()
+- populateComicMetadataRelationships()
+- addCreatorsWithRole()
+- truncate()
+
+Gaps in existing coverage:
+- addCategoriesToBook, addMoodsToBook, addTagsToBook: missing "not found in repo → save and add" cases (covered for authors only)*/
 
 @ExtendWith(MockitoExtension.class)
 class BookCreatorServiceTest {
@@ -55,7 +65,7 @@ class BookCreatorServiceTest {
     void addAuthorsToBook_nullAuthors_doesNothing() {
         bookCreatorService.addAuthorsToBook(null, bookEntity);
 
-        assertNull(bookEntity.getMetadata().getAuthors());
+        assertThat(bookEntity.getMetadata().getAuthors()).isNull();
         verifyNoInteractions(authorRepository);
     }
 
@@ -63,7 +73,7 @@ class BookCreatorServiceTest {
     void addAuthorsToBook_emptyAuthors_doesNothing() {
         bookCreatorService.addAuthorsToBook(Set.of(), bookEntity);
 
-        assertNull(bookEntity.getMetadata().getAuthors());
+        assertThat(bookEntity.getMetadata().getAuthors()).isNull();
         verifyNoInteractions(authorRepository);
     }
 
@@ -74,28 +84,16 @@ class BookCreatorServiceTest {
 
         bookCreatorService.addAuthorsToBook(Set.of("Test Author"), bookEntity);
 
-        assertNotNull(bookEntity.getMetadata().getAuthors());
-        assertEquals(1, bookEntity.getMetadata().getAuthors().size());
-    }
-
-    @Test
-    void addAuthorsToBook_nullExistingAuthorsOnEntity_initializesSet() {
-        assertNull(bookEntity.getMetadata().getAuthors());
-
-        AuthorEntity author = AuthorEntity.builder().name("Author").build();
-        when(authorRepository.findByName("Author")).thenReturn(Optional.of(author));
-
-        bookCreatorService.addAuthorsToBook(Set.of("Author"), bookEntity);
-
-        assertNotNull(bookEntity.getMetadata().getAuthors());
-        assertTrue(bookEntity.getMetadata().getAuthors().contains(author));
+        assertThat(bookEntity.getMetadata().getAuthors())
+                .extracting(AuthorEntity::getName)
+                .containsExactly("Test Author");
     }
 
     @Test
     void addCategoriesToBook_nullCategories_doesNothing() {
         bookCreatorService.addCategoriesToBook(null, bookEntity);
 
-        assertNull(bookEntity.getMetadata().getCategories());
+        assertThat(bookEntity.getMetadata().getCategories()).isNull();
         verifyNoInteractions(categoryRepository);
     }
 
@@ -103,7 +101,7 @@ class BookCreatorServiceTest {
     void addCategoriesToBook_emptyCategories_doesNothing() {
         bookCreatorService.addCategoriesToBook(Set.of(), bookEntity);
 
-        assertNull(bookEntity.getMetadata().getCategories());
+        assertThat(bookEntity.getMetadata().getCategories()).isNull();
         verifyNoInteractions(categoryRepository);
     }
 
@@ -114,15 +112,17 @@ class BookCreatorServiceTest {
 
         bookCreatorService.addCategoriesToBook(Set.of("Fiction"), bookEntity);
 
-        assertNotNull(bookEntity.getMetadata().getCategories());
-        assertEquals(1, bookEntity.getMetadata().getCategories().size());
+        assertThat(bookEntity.getMetadata().getCategories())
+                .isNotNull()
+                .extracting(CategoryEntity::getName)
+                .containsExactly("Fiction");
     }
 
     @Test
     void addMoodsToBook_nullMoods_doesNothing() {
         bookCreatorService.addMoodsToBook(null, bookEntity);
 
-        assertNull(bookEntity.getMetadata().getMoods());
+        assertThat(bookEntity.getMetadata().getMoods()).isNull();
         verifyNoInteractions(moodRepository);
     }
 
@@ -130,7 +130,7 @@ class BookCreatorServiceTest {
     void addMoodsToBook_emptyMoods_doesNothing() {
         bookCreatorService.addMoodsToBook(Set.of(), bookEntity);
 
-        assertNull(bookEntity.getMetadata().getMoods());
+        assertThat(bookEntity.getMetadata().getMoods()).isNull();
         verifyNoInteractions(moodRepository);
     }
 
@@ -141,15 +141,17 @@ class BookCreatorServiceTest {
 
         bookCreatorService.addMoodsToBook(Set.of("Dark"), bookEntity);
 
-        assertNotNull(bookEntity.getMetadata().getMoods());
-        assertEquals(1, bookEntity.getMetadata().getMoods().size());
+        assertThat(bookEntity.getMetadata().getMoods())
+                .isNotNull()
+                .extracting(MoodEntity::getName)
+                .containsExactly("Dark");
     }
 
     @Test
     void addTagsToBook_nullTags_doesNothing() {
         bookCreatorService.addTagsToBook(null, bookEntity);
 
-        assertNull(bookEntity.getMetadata().getTags());
+        assertThat(bookEntity.getMetadata().getTags()).isNull();
         verifyNoInteractions(tagRepository);
     }
 
@@ -157,7 +159,7 @@ class BookCreatorServiceTest {
     void addTagsToBook_emptyTags_doesNothing() {
         bookCreatorService.addTagsToBook(Set.of(), bookEntity);
 
-        assertNull(bookEntity.getMetadata().getTags());
+        assertThat(bookEntity.getMetadata().getTags()).isNull();
         verifyNoInteractions(tagRepository);
     }
 
@@ -168,8 +170,10 @@ class BookCreatorServiceTest {
 
         bookCreatorService.addTagsToBook(Set.of("favorite"), bookEntity);
 
-        assertNotNull(bookEntity.getMetadata().getTags());
-        assertEquals(1, bookEntity.getMetadata().getTags().size());
+        assertThat(bookEntity.getMetadata().getTags())
+                .isNotNull()
+                .extracting(TagEntity::getName)
+                .containsExactly("favorite");
     }
 
     @Test
@@ -182,18 +186,25 @@ class BookCreatorServiceTest {
 
         bookCreatorService.addAuthorsToBook(Set.of("New Author"), bookEntity);
 
-        assertEquals(2, bookEntity.getMetadata().getAuthors().size());
+        assertThat(bookEntity.getMetadata().getAuthors())
+                .isNotNull()
+                .extracting(AuthorEntity::getName)
+                .contains("Existing", "New Author");
     }
 
     @Test
     void addAuthorsToBook_newAuthorNotInRepo_savesAndAdds() {
         AuthorEntity saved = AuthorEntity.builder().name("Brand New").build();
         when(authorRepository.findByName("Brand New")).thenReturn(Optional.empty());
-        when(authorRepository.save(any())).thenReturn(saved);
+        when(authorRepository.save(any(AuthorEntity.class))).thenReturn(saved);
 
         bookCreatorService.addAuthorsToBook(Set.of("Brand New"), bookEntity);
 
-        verify(authorRepository).save(any());
-        assertEquals(1, bookEntity.getMetadata().getAuthors().size());
+        verify(authorRepository).save(argThat(author -> "Brand New".equals(author.getName())));
+        
+        assertThat(bookEntity.getMetadata().getAuthors())
+                .isNotNull()
+                .extracting(AuthorEntity::getName)
+                .containsExactly("Brand New");
     }
 }
