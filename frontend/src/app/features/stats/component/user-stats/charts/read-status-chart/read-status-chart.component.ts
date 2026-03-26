@@ -14,6 +14,10 @@ interface ReadingStatusStats {
   percentage: number;
 }
 
+interface DatasetMetaPoint {
+  hidden?: boolean;
+}
+
 const STATUS_COLOR_MAP: Record<string, string> = {
   [ReadStatus.UNREAD]: '#6c757d',
   [ReadStatus.READING]: '#17a2b8',
@@ -206,9 +210,10 @@ export class ReadStatusChartComponent {
     const dataValues = dataset.data as number[];
 
     return data.labels.map((label: unknown, index: number) => {
+      const metaPoint = chart.getDatasetMeta(0)?.data?.[index] as DatasetMetaPoint | undefined;
       const isVisible = typeof chart.getDataVisibility === 'function'
         ? chart.getDataVisibility(index)
-        : !((chart.getDatasetMeta && (chart.getDatasetMeta(0)?.data?.[index] as any)?.hidden) || false);
+        : !(metaPoint?.hidden || false);
 
       return {
         text: `${String(label)} (${dataValues[index]})`,

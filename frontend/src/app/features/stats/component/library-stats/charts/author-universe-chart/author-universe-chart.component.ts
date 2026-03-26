@@ -2,7 +2,7 @@ import {Component, effect, inject, OnDestroy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BaseChartDirective} from 'ng2-charts';
 import {BehaviorSubject, Observable} from 'rxjs';
-import {Chart, ChartConfiguration, ChartData} from 'chart.js';
+import {Chart, ChartConfiguration, ChartData, TooltipModel} from 'chart.js';
 import {LibraryFilterService} from '../../service/library-filter.service';
 import {BookService} from '../../../../../book/service/book.service';
 import {Book, ReadStatus} from '../../../../../book/model/book.model';
@@ -485,7 +485,7 @@ export class AuthorUniverseChartComponent implements OnDestroy {
     return insights;
   }
 
-  private handleExternalTooltip(context: { chart: Chart; tooltip: any }): void {
+  private handleExternalTooltip(context: { chart: Chart; tooltip: TooltipModel<'bubble'> }): void {
     const {chart, tooltip} = context;
     let tooltipEl = document.getElementById('author-chart-tooltip');
 

@@ -7,7 +7,7 @@ import {RadioButton} from 'primeng/radiobutton';
 import {SelectButton} from 'primeng/selectbutton';
 import {ProgressBar} from 'primeng/progressbar';
 import {Tag} from 'primeng/tag';
-import {Paginator} from 'primeng/paginator';
+import {Paginator, PaginatorState} from 'primeng/paginator';
 import {Subject, takeUntil} from 'rxjs';
 import {BookFileService} from '../../service/book-file.service';
 import {BookService} from '../../service/book.service';
@@ -190,7 +190,7 @@ export class DuplicateMergerComponent implements OnInit, OnDestroy {
         this.matchByDirectory || this.matchByFilename);
   }
 
-  onPageChange(event: any): void {
+  onPageChange(event: PaginatorState): void {
     this.pageFirst = event.first;
     this.pageSize = event.rows;
   }

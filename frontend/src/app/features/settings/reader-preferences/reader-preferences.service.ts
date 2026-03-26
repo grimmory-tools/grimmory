@@ -3,6 +3,8 @@ import {User, UserService, UserSettings} from '../user-management/user.service';
 import {MessageService} from 'primeng/api';
 import {TranslocoService} from '@jsverse/transloco';
 
+type MutableSettingsBranch = Record<string, unknown>;
+
 @Injectable({providedIn: 'root'})
 export class ReaderPreferencesService {
   private readonly userService = inject(UserService);
@@ -22,9 +24,13 @@ export class ReaderPreferencesService {
   updatePreference(path: string[], value: unknown): void {
     if (!this.currentUser) return;
 
-    let target: any = this.currentUser.userSettings;
+    let target = this.currentUser.userSettings as MutableSettingsBranch;
     for (let i = 0; i < path.length - 1; i++) {
-      target = target[path[i]] ||= {};
+      const next = target[path[i]];
+      if (!next || typeof next !== 'object') {
+        target[path[i]] = {};
+      }
+      target = target[path[i]] as MutableSettingsBranch;
     }
     target[path.at(-1)!] = value;
 

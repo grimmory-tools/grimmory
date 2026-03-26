@@ -20,6 +20,10 @@ interface YearMonthData {
   count: number;
 }
 
+interface YScaleWithMax {
+  max?: number;
+}
+
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 type HeatmapChartData = ChartData<'matrix', MatrixDataPoint[], string>;
@@ -158,7 +162,7 @@ export class ReadingHeatmapChartComponent {
     });
 
     if (this.chartOptions?.scales?.['y']) {
-      (this.chartOptions.scales['y'] as any).max = years.length - 1;
+      (this.chartOptions.scales['y'] as YScaleWithMax).max = years.length - 1;
     }
 
     this.chartDataSubject.next({

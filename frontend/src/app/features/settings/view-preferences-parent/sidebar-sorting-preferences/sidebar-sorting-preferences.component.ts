@@ -7,6 +7,8 @@ import {FormsModule} from '@angular/forms';
 import {takeUntil} from 'rxjs/operators';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
+type MutableSettingsBranch = Record<string, unknown>;
+
 @Component({
   selector: 'app-sidebar-sorting-preferences',
   imports: [
@@ -76,9 +78,13 @@ export class SidebarSortingPreferencesComponent implements OnInit, OnDestroy {
 
   private updatePreference(path: string[], value: unknown): void {
     if (!this.currentUser) return;
-    let target: any = this.currentUser.userSettings;
+    let target = this.currentUser.userSettings as MutableSettingsBranch;
     for (let i = 0; i < path.length - 1; i++) {
-      target = target[path[i]] ||= {};
+      const next = target[path[i]];
+      if (!next || typeof next !== 'object') {
+        target[path[i]] = {};
+      }
+      target = target[path[i]] as MutableSettingsBranch;
     }
     target[path.at(-1)!] = value;
 

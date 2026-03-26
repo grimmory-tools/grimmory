@@ -10,6 +10,7 @@ import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/tran
 
 const MIN_VISIBLE_FILTERS = 5;
 const MAX_VISIBLE_FILTERS = 20;
+type MutableSettingsBranch = Record<string, unknown>;
 
 @Component({
   selector: 'app-filter-preferences',
@@ -71,9 +72,13 @@ export class FilterPreferencesComponent {
   private updatePreference(path: string[], value: unknown): void {
     if (!this.currentUser) return;
 
-    let target: any = this.currentUser.userSettings;
+    let target = this.currentUser.userSettings as MutableSettingsBranch;
     for (let i = 0; i < path.length - 1; i++) {
-      target = target[path[i]] ||= {};
+      const next = target[path[i]];
+      if (!next || typeof next !== 'object') {
+        target[path[i]] = {};
+      }
+      target = target[path[i]] as MutableSettingsBranch;
     }
     target[path.at(-1)!] = value;
 
