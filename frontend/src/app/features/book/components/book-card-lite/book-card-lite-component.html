@@ -5,7 +5,7 @@
     alt="Cover of {{ book.metadata?.title }}"
     loading="lazy"/>
     
-  @if (showSeriesNumber && !book.seriesCount && book.metadata?.seriesNumber != null) {
+  @if (showSeriesNumber && !book.seriesCount && book.metadata?.seriesNumber !== null && book.metadata?.seriesNumber !== undefined) {
     <div class="series-number-overlay">
       #{{ book.metadata?.seriesNumber }}
     </div>

@@ -93,7 +93,7 @@
                   stars="5"
                   [style.--p-rating-icon-active-color]="getStarColor(metadata[col.field])"
                 ></p-rating>
-                @if (metadata[col.field] != null) {
+                @if (metadata[col.field] !== null && metadata[col.field] !== undefined) {
                   <span>({{ metadata[col.field]?.toFixed(1) }})</span>
                 }
               </span>
