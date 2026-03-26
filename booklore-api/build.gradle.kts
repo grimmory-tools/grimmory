@@ -55,7 +55,7 @@ dependencies {
     // --- Database & Migration ---
     implementation("org.mariadb.jdbc:mariadb-java-client:3.5.7")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
-    implementation("org.flywaydb:flyway-mysql:12.0.3")
+    implementation("org.flywaydb:flyway-mysql:12.2.0")
 
     // --- Security & Authentication ---
     implementation("io.jsonwebtoken:jjwt-api:0.13.0")
@@ -63,13 +63,13 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.13.0")
 
     // --- Lombok (For Clean Code) ---
-    compileOnly("org.projectlombok:lombok:1.18.42")
-    annotationProcessor("org.projectlombok:lombok:1.18.42")
+    compileOnly("org.projectlombok:lombok:1.18.44")
+    annotationProcessor("org.projectlombok:lombok:1.18.44")
 
     // --- Book & Image Processing ---
-    implementation("org.apache.pdfbox:pdfbox:3.0.6")
-    implementation("org.apache.pdfbox:pdfbox-io:3.0.6")
-    implementation("org.apache.pdfbox:xmpbox:3.0.6")
+    implementation("org.apache.pdfbox:pdfbox:3.0.7")
+    implementation("org.apache.pdfbox:pdfbox-io:3.0.7")
+    implementation("org.apache.pdfbox:xmpbox:3.0.7")
     implementation("org.apache.pdfbox:jbig2-imageio:3.0.4")
     // Required for JPEG2000 support in PDFBox (not covered by TwelveMonkeys)
     implementation("com.github.jai-imageio:jai-imageio-core:1.4.0")
@@ -84,7 +84,7 @@ dependencies {
     implementation("io.documentnode:epub4j-core:4.2.3")
 
     // --- Audio Metadata (Audiobook Support) ---
-    implementation("com.github.RouHim:jaudiotagger:2.0.16")
+    implementation("com.github.RouHim:jaudiotagger:2.0.19")
 
     // --- UNRAR Support ---
     implementation("com.github.junrar:junrar:7.5.8")
@@ -104,7 +104,7 @@ dependencies {
 
     // --- XML Support (JAXB) ---
     implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.5")
-    runtimeOnly("org.glassfish.jaxb:jaxb-runtime:4.0.6")
+    runtimeOnly("org.glassfish.jaxb:jaxb-runtime:4.0.7")
 
     // --- Template Engine ---
     implementation("org.freemarker:freemarker:2.3.34")
