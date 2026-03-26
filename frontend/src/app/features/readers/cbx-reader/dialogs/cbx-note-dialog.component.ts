@@ -27,8 +27,8 @@ export class CbxNoteDialogComponent implements OnChanges {
   private readonly t = inject(TranslocoService);
 
   @Input() data: CbxNoteDialogData | null = null;
-  @Output() save = new EventEmitter<CbxNoteDialogResult>();
-  @Output() cancel = new EventEmitter<void>();
+  @Output() saved = new EventEmitter<CbxNoteDialogResult>();
+  @Output() cancelled = new EventEmitter<void>();
 
   noteContent = '';
   selectedColor = '#FFC107';
@@ -57,7 +57,7 @@ export class CbxNoteDialogComponent implements OnChanges {
 
   onSave(): void {
     if (this.noteContent.trim()) {
-      this.save.emit({
+      this.saved.emit({
         noteContent: this.noteContent.trim(),
         color: this.selectedColor
       });
@@ -65,7 +65,7 @@ export class CbxNoteDialogComponent implements OnChanges {
   }
 
   onCancel(): void {
-    this.cancel.emit();
+    this.cancelled.emit();
   }
 
   selectColor(color: string): void {

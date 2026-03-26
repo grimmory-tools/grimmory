@@ -6,7 +6,7 @@
         @if (homeMenu(); as homeMenu) {
           @for (item of homeMenu; track item.label; let i = $index) {
             @if (!item.separator) {
-              <li app-menuitem [item]="item" [index]="i" [root]="true" menuKey="home"></li>
+              <app-menuitem [item]="item" [index]="i" [root]="true" menuKey="home"></app-menuitem>
             }
           }
         }
@@ -35,7 +35,7 @@
       @if (libraryMenu(); as libraryMenu) {
         @for (item of libraryMenu; track item.label; let i = $index) {
           @if (!item.separator) {
-            <li app-menuitem [item]="item" [index]="i" [root]="true" menuKey="library"></li>
+            <app-menuitem [item]="item" [index]="i" [root]="true" menuKey="library"></app-menuitem>
           }
         }
       }
@@ -45,7 +45,7 @@
       @if (shelfMenu(); as shelfMenu) {
         @for (item of shelfMenu; track item.label; let i = $index) {
           @if (!item.separator) {
-            <li app-menuitem [item]="item" [index]="i" [root]="true" menuKey="shelf"></li>
+            <app-menuitem [item]="item" [index]="i" [root]="true" menuKey="shelf"></app-menuitem>
           }
         }
       }
@@ -55,7 +55,7 @@
       @if (magicShelfMenu(); as shelfMenu) {
         @for (item of shelfMenu; track item.label; let i = $index) {
           @if (!item.separator) {
-            <li app-menuitem [item]="item" [index]="i" [root]="true" menuKey="magicShelf"></li>
+            <app-menuitem [item]="item" [index]="i" [root]="true" menuKey="magicShelf"></app-menuitem>
           }
         }
       }

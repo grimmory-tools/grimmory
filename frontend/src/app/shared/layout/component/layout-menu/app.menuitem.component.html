@@ -115,7 +115,7 @@
       @if (item.items) {
         <ul>
           @for (child of item.items; track child.routerLink?.[0] ?? child.label; let i = $index) {
-            <li app-menuitem [item]="child" [index]="i" [parentKey]="key" [class]="child.badgeClass"></li>
+            <app-menuitem [item]="child" [index]="i" [parentKey]="key" [class]="child.badgeClass"></app-menuitem>
           }
         </ul>
       }

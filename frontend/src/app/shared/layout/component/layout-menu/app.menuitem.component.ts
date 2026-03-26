@@ -17,7 +17,7 @@ import {IconSelection} from '../../../service/icon-picker.service';
 import {TranslocoPipe} from '@jsverse/transloco';
 
 @Component({
-  selector: '[app-menuitem]',
+  selector: 'app-menuitem',
   templateUrl: './app.menuitem.component.html',
   styleUrls: ['./app.menuitem.component.scss'],
   imports: [

@@ -14,7 +14,7 @@ import {UrlHelperService} from '../../../../shared/service/url-helper.service';
 })
 export class ReaderBookMetadataDialogComponent {
   @Input() book: Book | null = null;
-  @Output() close = new EventEmitter<void>();
+  @Output() closed = new EventEmitter<void>();
 
   private urlHelperService = inject(UrlHelperService);
   private readonly t = inject(TranslocoService);
