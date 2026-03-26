@@ -6,7 +6,6 @@ deploy
 docs
 scratch
 tools
-booklore-ui
 
 frontend/.yarn
 frontend/.angular
