@@ -28,47 +28,40 @@ describe('NotebookService', () => {
     TestBed.resetTestingModule();
   });
 
-  it('requests notebook entries with trimmed search and repeated type params', () => {
-    service.getNotebookEntries(1, 20, ['NOTE', 'HIGHLIGHT'], 42, '  galaxy  ', 'createdAt,desc').subscribe();
+  it('loads notebook entries with repeated types, book filter, and trimmed search', () => {
+    service.getNotebookEntries(2, 25, ['HIGHLIGHT', 'NOTE'], 42, '  query  ', 'createdAt,desc')
+      .subscribe(entries => expect(entries).toEqual([]));
 
-    const request = httpTestingController.expectOne(req =>
-      req.url === `${API_CONFIG.BASE_URL}/api/v1/notebook`
-      && req.params.get('page') === '1'
-      && req.params.get('size') === '20'
-      && req.params.get('sort') === 'createdAt,desc'
-      && req.params.get('bookId') === '42'
-      && req.params.get('search') === 'galaxy'
-      && req.params.getAll('types')?.join(',') === 'NOTE,HIGHLIGHT'
-    );
-
+    const request = httpTestingController.expectOne(req => req.urlWithParams.startsWith(`${API_CONFIG.BASE_URL}/api/v1/notebook?`));
     expect(request.request.method).toBe('GET');
-    request.flush({content: [], page: {totalElements: 0, totalPages: 0, number: 1, size: 20}});
-  });
-
-  it('requests export entries without optional filters when they are absent', () => {
-    service.getExportEntries(['BOOKMARK'], null, '   ', 'updatedAt,asc').subscribe();
-
-    const request = httpTestingController.expectOne(req =>
-      req.url === `${API_CONFIG.BASE_URL}/api/v1/notebook/export`
-      && req.params.get('sort') === 'updatedAt,asc'
-      && req.params.get('bookId') === null
-      && req.params.get('search') === null
-      && req.params.getAll('types')?.join(',') === 'BOOKMARK'
-    );
-
-    expect(request.request.method).toBe('GET');
+    expect(request.request.params.get('page')).toBe('2');
+    expect(request.request.params.get('size')).toBe('25');
+    expect(request.request.params.getAll('types')).toEqual(['HIGHLIGHT', 'NOTE']);
+    expect(request.request.params.get('bookId')).toBe('42');
+    expect(request.request.params.get('search')).toBe('query');
+    expect(request.request.params.get('sort')).toBe('createdAt,desc');
     request.flush([]);
   });
 
-  it('searches books with annotations only when a trimmed query is present', () => {
-    service.getBooksWithAnnotations('  dune  ').subscribe();
+  it('loads export entries without optional filters when they are blank', () => {
+    service.getExportEntries(['BOOKMARK'], null, '   ', 'updatedAt,asc')
+      .subscribe(entries => expect(entries).toEqual([]));
 
-    const request = httpTestingController.expectOne(req =>
-      req.url === `${API_CONFIG.BASE_URL}/api/v1/notebook/books`
-      && req.params.get('search') === 'dune'
-    );
-
+    const request = httpTestingController.expectOne(req => req.urlWithParams.startsWith(`${API_CONFIG.BASE_URL}/api/v1/notebook/export?`));
     expect(request.request.method).toBe('GET');
+    expect(request.request.params.getAll('types')).toEqual(['BOOKMARK']);
+    expect(request.request.params.has('bookId')).toBe(false);
+    expect(request.request.params.has('search')).toBe(false);
+    expect(request.request.params.get('sort')).toBe('updatedAt,asc');
+    request.flush([]);
+  });
+
+  it('queries notebook books only when a non-empty search term is provided', () => {
+    service.getBooksWithAnnotations('  title  ').subscribe(options => expect(options).toEqual([]));
+
+    const request = httpTestingController.expectOne(req => req.urlWithParams.startsWith(`${API_CONFIG.BASE_URL}/api/v1/notebook/books`));
+    expect(request.request.method).toBe('GET');
+    expect(request.request.params.get('search')).toBe('title');
     request.flush([]);
   });
 });

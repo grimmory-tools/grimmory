@@ -6,76 +6,61 @@ import {AuthorScalePreferenceService} from './author-scale-preference.service';
 
 describe('AuthorScalePreferenceService', () => {
   const localStorageService = {
-    get: vi.fn<(key: string) => number | null>(),
-    set: vi.fn<(key: string, value: number) => void>(),
+    get: vi.fn(),
+    set: vi.fn(),
   };
 
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.restoreAllMocks();
     localStorageService.get.mockReset();
     localStorageService.set.mockReset();
+    localStorageService.get.mockReturnValue(1.5);
+
+    TestBed.configureTestingModule({
+      providers: [
+        AuthorScalePreferenceService,
+        {provide: LocalStorageService, useValue: localStorageService},
+      ],
+    });
   });
 
   afterEach(() => {
-    vi.runOnlyPendingTimers();
     vi.useRealTimers();
     TestBed.resetTestingModule();
   });
 
-  it('loads the initial scale from local storage when it is valid', () => {
-    localStorageService.get.mockReturnValue(1.4);
-
-    TestBed.configureTestingModule({
-      providers: [
-        AuthorScalePreferenceService,
-        {provide: LocalStorageService, useValue: localStorageService},
-      ],
-    });
-
+  it('loads the persisted scale and does not persist unchanged values', () => {
     const service = TestBed.inject(AuthorScalePreferenceService);
 
-    expect(service.scaleFactor()).toBe(1.4);
-  });
+    expect(service.scaleFactor()).toBe(1.5);
 
-  it('falls back to the default scale when storage is empty or invalid', () => {
-    localStorageService.get.mockReturnValue(Number.NaN);
+    service.setScale(1.5);
+    vi.runAllTimers();
 
-    TestBed.configureTestingModule({
-      providers: [
-        AuthorScalePreferenceService,
-        {provide: LocalStorageService, useValue: localStorageService},
-      ],
-    });
-
-    const service = TestBed.inject(AuthorScalePreferenceService);
-
-    expect(service.scaleFactor()).toBe(1);
-  });
-
-  it('debounces writes and skips persisting the same value', () => {
-    localStorageService.get.mockReturnValue(1);
-
-    TestBed.configureTestingModule({
-      providers: [
-        AuthorScalePreferenceService,
-        {provide: LocalStorageService, useValue: localStorageService},
-      ],
-    });
-
-    const service = TestBed.inject(AuthorScalePreferenceService);
-
-    service.setScale(1);
-    vi.advanceTimersByTime(1000);
     expect(localStorageService.set).not.toHaveBeenCalled();
+  });
+
+  it('debounces and persists the most recent scale value', () => {
+    const service = TestBed.inject(AuthorScalePreferenceService);
 
     service.setScale(1.2);
-    service.setScale(1.6);
+    service.setScale(1.4);
+
     vi.advanceTimersByTime(999);
     expect(localStorageService.set).not.toHaveBeenCalled();
 
     vi.advanceTimersByTime(1);
+
     expect(localStorageService.set).toHaveBeenCalledOnce();
-    expect(localStorageService.set).toHaveBeenCalledWith('authorScalePreference', 1.6);
-    expect(service.scaleFactor()).toBe(1.6);
+    expect(localStorageService.set).toHaveBeenCalledWith('authorScalePreference', 1.4);
+  });
+
+  it('falls back to the default scale when storage contains an invalid value', () => {
+    localStorageService.get.mockReturnValue(Number.NaN);
+
+    const service = TestBed.inject(AuthorScalePreferenceService);
+
+    expect(service.scaleFactor()).toBe(1);
   });
 });

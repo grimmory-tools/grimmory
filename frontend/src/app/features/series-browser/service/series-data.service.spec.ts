@@ -1,117 +1,156 @@
 import {signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
-import {describe, expect, it} from 'vitest';
+import {afterEach, describe, expect, it} from 'vitest';
 
-import {Book, ReadStatus} from '../../book/model/book.model';
 import {BookService} from '../../book/service/book.service';
+import {ReadStatus, type Book} from '../../book/model/book.model';
 import {SeriesDataService} from './series-data.service';
 
+function makeBook(partial: Partial<Book> & Pick<Book, 'id' | 'libraryId' | 'libraryName'>): Book {
+  return {
+    ...partial,
+    libraryId: partial.libraryId,
+    libraryName: partial.libraryName,
+  } as Book;
+}
+
 describe('SeriesDataService', () => {
-  const createBook = (overrides: Partial<Book>): Book => ({
-    id: 1,
-    libraryId: 1,
-    libraryName: 'Main Library',
-    fileName: 'book.epub',
-    metadata: {
-      bookId: 1,
-      title: 'Book',
-      authors: [],
-      categories: [],
-      ...overrides.metadata,
-    },
-    ...overrides,
+  afterEach(() => {
+    TestBed.resetTestingModule();
   });
 
-  it('builds grouped and sorted series summaries', () => {
+  it('groups books by normalized series name and derives summary fields', () => {
     const books = signal<Book[]>([
-      createBook({
+      makeBook({
         id: 1,
-        addedOn: '2025-01-01T00:00:00Z',
-        lastReadTime: '2025-02-01T00:00:00Z',
-        readStatus: ReadStatus.READ,
-        metadata: {
-          bookId: 1,
-          title: 'Second',
-          seriesName: ' Saga ',
-          seriesNumber: 2,
-          authors: ['Le Guin'],
-          categories: ['Fantasy'],
-        },
-      }),
-      createBook({
-        id: 2,
-        addedOn: '2025-03-01T00:00:00Z',
-        lastReadTime: '2025-03-02T00:00:00Z',
-        readStatus: ReadStatus.READING,
-        metadata: {
-          bookId: 2,
-          title: 'First',
-          seriesName: 'saga',
-          seriesNumber: 1,
-          authors: ['Le Guin', 'Butler'],
-          categories: ['Fantasy', 'Sci-Fi'],
-        },
-      }),
-      createBook({
-        id: 3,
+        libraryId: 1,
+        libraryName: 'Lib',
         readStatus: ReadStatus.UNREAD,
         metadata: {
-          bookId: 3,
-          title: 'Standalone',
-          authors: ['Cherryh'],
+          bookId: 1,
+          seriesName: '  Alpha  ',
+          seriesNumber: 2,
+          authors: ['Ada', 'Bert'],
           categories: ['Sci-Fi'],
         },
+        lastReadTime: '2026-03-25T10:00:00Z',
+        addedOn: '2026-03-25T09:00:00Z',
+      }),
+      makeBook({
+        id: 2,
+        libraryId: 1,
+        libraryName: 'Lib',
+        readStatus: ReadStatus.READ,
+        metadata: {
+          bookId: 2,
+          seriesName: 'alpha',
+          seriesNumber: 1,
+          authors: ['Bert', 'Cy'],
+          categories: ['Fantasy', 'Sci-Fi'],
+        },
+        lastReadTime: '2026-03-26T10:00:00Z',
+        addedOn: '2026-03-26T09:00:00Z',
       }),
     ]);
 
     TestBed.configureTestingModule({
       providers: [
         SeriesDataService,
-        {provide: BookService, useValue: {books}},
+        {provide: BookService, useValue: {books: books.asReadonly()}},
       ],
     });
 
     const service = TestBed.inject(SeriesDataService);
-    const [summary] = service.allSeries();
+    const summaries = service.allSeries();
 
-    expect(service.allSeries()).toHaveLength(1);
-    expect(summary.seriesName).toBe('saga');
-    expect(summary.books.map(book => book.id)).toEqual([2, 1]);
-    expect(summary.authors).toEqual(['Le Guin', 'Butler']);
-    expect(summary.categories).toEqual(['Fantasy', 'Sci-Fi']);
-    expect(summary.bookCount).toBe(2);
-    expect(summary.readCount).toBe(1);
-    expect(summary.progress).toBe(0.5);
-    expect(summary.seriesStatus).toBe(ReadStatus.READING);
-    expect(summary.nextUnread?.id).toBe(2);
-    expect(summary.lastReadTime).toBe('2025-03-02T00:00:00Z');
-    expect(summary.addedOn).toBe('2025-03-01T00:00:00Z');
-    expect(summary.coverBooks.map(book => book.id)).toEqual([2, 1]);
+    expect(summaries).toHaveLength(1);
+    expect(summaries[0]).toMatchObject({
+      seriesName: 'alpha',
+      bookCount: 2,
+      readCount: 1,
+      progress: 0.5,
+      seriesStatus: ReadStatus.PARTIALLY_READ,
+      lastReadTime: '2026-03-26T10:00:00Z',
+      addedOn: '2026-03-26T09:00:00Z',
+    });
+    expect(summaries[0].books.map(book => book.id)).toEqual([2, 1]);
+    expect(summaries[0].authors).toEqual(['Bert', 'Cy', 'Ada']);
+    expect(summaries[0].categories).toEqual(['Fantasy', 'Sci-Fi']);
+    expect(summaries[0].nextUnread?.id).toBe(1);
+    expect(summaries[0].coverBooks.map(book => book.id)).toEqual([2, 1]);
   });
 
-  it('derives status precedence from the grouped books', () => {
+  it('skips books without a series and honors series status precedence', () => {
     const books = signal<Book[]>([
-      createBook({
-        id: 4,
+      makeBook({id: 10, libraryId: 1, libraryName: 'Lib', metadata: {bookId: 10}}),
+      makeBook({
+        id: 11,
+        libraryId: 1,
+        libraryName: 'Lib',
         readStatus: ReadStatus.WONT_READ,
-        metadata: {bookId: 4, title: 'Skipped', seriesName: 'Orbit', seriesNumber: 1},
+        metadata: {bookId: 11, seriesName: 'Wont Read'},
       }),
-      createBook({
-        id: 5,
+      makeBook({
+        id: 12,
+        libraryId: 1,
+        libraryName: 'Lib',
+        readStatus: ReadStatus.ABANDONED,
+        metadata: {bookId: 12, seriesName: 'Abandoned'},
+      }),
+      makeBook({
+        id: 13,
+        libraryId: 1,
+        libraryName: 'Lib',
         readStatus: ReadStatus.READ,
-        metadata: {bookId: 5, title: 'Finished', seriesName: 'Orbit', seriesNumber: 2},
+        metadata: {bookId: 13, seriesName: 'Read'},
+      }),
+      makeBook({
+        id: 14,
+        libraryId: 1,
+        libraryName: 'Lib',
+        readStatus: ReadStatus.READING,
+        metadata: {bookId: 14, seriesName: 'Reading'},
+      }),
+      makeBook({
+        id: 15,
+        libraryId: 1,
+        libraryName: 'Lib',
+        readStatus: ReadStatus.READ,
+        metadata: {bookId: 15, seriesName: 'Partial'},
+      }),
+      makeBook({
+        id: 16,
+        libraryId: 1,
+        libraryName: 'Lib',
+        readStatus: ReadStatus.UNREAD,
+        metadata: {bookId: 16, seriesName: 'Partial'},
+      }),
+      makeBook({
+        id: 17,
+        libraryId: 1,
+        libraryName: 'Lib',
+        readStatus: ReadStatus.UNREAD,
+        metadata: {bookId: 17, seriesName: 'Unread'},
       }),
     ]);
 
     TestBed.configureTestingModule({
       providers: [
         SeriesDataService,
-        {provide: BookService, useValue: {books}},
+        {provide: BookService, useValue: {books: books.asReadonly()}},
       ],
     });
 
     const service = TestBed.inject(SeriesDataService);
+    const summaries = Object.fromEntries(service.allSeries().map(summary => [summary.seriesName, summary.seriesStatus]));
 
-    expect(service.allSeries()[0].seriesStatus).toBe(ReadStatus.WONT_READ);
+    expect(summaries).toEqual({
+      'Wont Read': ReadStatus.WONT_READ,
+      'Abandoned': ReadStatus.ABANDONED,
+      'Read': ReadStatus.READ,
+      'Reading': ReadStatus.READING,
+      'Partial': ReadStatus.PARTIALLY_READ,
+      'Unread': ReadStatus.UNREAD,
+    });
   });
 });
