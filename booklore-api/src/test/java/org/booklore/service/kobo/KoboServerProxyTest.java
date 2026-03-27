@@ -13,17 +13,16 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.server.ResponseStatusException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 import java.lang.reflect.Field;
+import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -31,7 +30,6 @@ import java.util.Collections;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -246,32 +244,16 @@ class KoboServerProxyTest {
     }
 
     @Test
-    void proxyExternalUrl_shouldFetchAndReturnImage() throws Exception {
-        String testUrl = "https://cdn.kobo.com/image123.jpg";
-        byte[] imageData = {1, 2, 3, 4, 5};
-        
-        when(httpResponseBytes.statusCode()).thenReturn(200);
-        when(httpResponseBytes.body()).thenReturn(imageData);
-        when(httpClient.<byte[]>send(any(HttpRequest.class), any()))
-                .thenReturn(httpResponseBytes);
+    void getKoboCDNCoverUri_shouldGenerateUri() {
+        URI actual = koboServerProxy.getKoboCDNCoverUri("example", 1, 2, false);
 
-        ResponseEntity<Resource> response = koboServerProxy.proxyExternalUrl(testUrl);
-
-        assertThat(response).isNotNull();
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().contentLength()).isEqualTo(5);
+        assertThat(actual.toString()).isEqualTo("https://cdn.kobo.com/book-images/example/1/2/false/image.jpg");
     }
 
     @Test
-    void proxyExternalUrl_withException_shouldThrowResponseStatusException() throws Exception {
-        String testUrl = "https://cdn.kobo.com/image123.jpg";
-        
-        when(httpClient.<byte[]>send(any(HttpRequest.class), any()))
-                .thenThrow(new java.io.IOException("Network error"));
+    void getKoboCDNCoverUri_shouldEscapeImageComponent() {
+        URI actual = koboServerProxy.getKoboCDNCoverUri("foo/bar", 1, 2, false);
 
-        assertThatThrownBy(() -> koboServerProxy.proxyExternalUrl(testUrl))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Failed to fetch image");
+        assertThat(actual.toString()).isEqualTo("https://cdn.kobo.com/book-images/foo%2Fbar/1/2/false/image.jpg");
     }
 }
