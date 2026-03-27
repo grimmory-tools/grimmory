@@ -1,8 +1,10 @@
-import {describe, expect, it} from 'vitest';
+import {describe, it} from 'vitest';
 
-// TODO(frontend-coverage): Replace this stub with real coverage for frontend/src/app/features/stats/component/user-stats/charts/completion-timeline-chart/completion-timeline-chart.component.ts.
-describe.skip("completion-timeline-chart.component TODO stub", () => {
-  it('TODO: add real coverage', () => {
-    expect(true).toBe(true);
+// NOTE(frontend-seam): Real coverage here needs seams around Chart.js bar datasets, translated
+// tooltip/axis callbacks, and year-based stats loading so completion timeline aggregation can be
+// validated without depending on chart directive rendering internals.
+describe.skip('CompletionTimelineChartComponent', () => {
+  it('needs chart-data seams to verify monthly completion aggregation and year navigation deterministically', () => {
+    // TODO(seam): Cover status-bucket folding and dataset updates once chart callbacks are decoupled from the rendering layer.
   });
 });

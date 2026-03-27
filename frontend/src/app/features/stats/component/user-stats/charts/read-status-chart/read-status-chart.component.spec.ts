@@ -1,8 +1,10 @@
-import {describe, expect, it} from 'vitest';
+import {describe, it} from 'vitest';
 
-// TODO(frontend-coverage): Replace this stub with real coverage for frontend/src/app/features/stats/component/user-stats/charts/read-status-chart/read-status-chart.component.ts.
-describe.skip("read-status-chart.component TODO stub", () => {
-  it('TODO: add real coverage', () => {
-    expect(true).toBe(true);
+// NOTE(frontend-seam): Real coverage here needs seams around computed Chart.js doughnut data,
+// legend-generation callbacks, and tooltip formatting so read-status aggregation can be asserted
+// without depending on chart metadata internals.
+describe.skip('ReadStatusChartComponent', () => {
+  it('needs chart-data seams to verify status bucketing, legend generation, and tooltip formatting deterministically', () => {
+    // TODO(seam): Cover read-status aggregation once the Chart.js legend and tooltip callbacks are extracted behind a testable adapter.
   });
 });

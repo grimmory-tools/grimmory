@@ -1,8 +1,10 @@
-import {describe, expect, it} from 'vitest';
+import {describe, it} from 'vitest';
 
-// TODO(frontend-coverage): Replace this stub with real coverage for frontend/src/app/features/dashboard/components/dashboard-scroller/dashboard-scroller.component.ts.
-describe.skip("dashboard-scroller.component TODO stub", () => {
-  it('TODO: add real coverage', () => {
-    expect(true).toBe(true);
+// NOTE(frontend-seam): Real coverage here needs seams around ngx-infinite-scroll, nested book-card
+// interactions, and overlay/menu state so scroller paging and open-menu coordination can be tested
+// without booting a full dashboard rendering stack.
+describe.skip('DashboardScrollerComponent', () => {
+  it('needs scroller and card seams to verify force-ebook mode, infinite scrolling, and menu-toggle behavior', () => {
+    // TODO(seam): Cover scroller rendering and book-card coordination once the scroll and card interactions are isolated.
   });
 });
