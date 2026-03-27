@@ -63,7 +63,7 @@ class CbxReaderServiceTest {
     void testGetAvailablePages_CBZ_Success() throws Exception {
         when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
-            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(cbzPath.toString());
+            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(cbzPath);
 
             ZipArchiveEntry entry1 = new ZipArchiveEntry("1.jpg");
             ZipArchiveEntry entry2 = new ZipArchiveEntry("2.png");
@@ -94,7 +94,7 @@ class CbxReaderServiceTest {
     void testGetAvailablePages_CBZ_Fallback_Success() throws Exception {
         when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
-            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(cbzPath.toString());
+            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(cbzPath);
 
             // Unicode enabled -> throws Exception
             ZipFile zipFileFail = mock(ZipFile.class);
@@ -141,7 +141,7 @@ class CbxReaderServiceTest {
     void testStreamPageImage_CBZ_Success() throws Exception {
         when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
-            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(cbzPath.toString());
+            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(cbzPath);
 
             ZipArchiveEntry entry1 = new ZipArchiveEntry("1.jpg");
             Enumeration<ZipArchiveEntry> entries = Collections.enumeration(List.of(entry1));
@@ -180,7 +180,7 @@ class CbxReaderServiceTest {
     void testGetAvailablePages_CB7_Success() throws Exception {
         when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
-            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(cb7Path.toString());
+            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(cb7Path);
 
             SevenZArchiveEntry entry1 = mock(SevenZArchiveEntry.class);
             when(entry1.getName()).thenReturn("1.jpg");
@@ -209,7 +209,7 @@ class CbxReaderServiceTest {
     void testGetAvailablePages_CBR_Success() throws Exception {
         when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
-            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(cbrPath.toString());
+            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(cbrPath);
 
             FileHeader header = mock(FileHeader.class);
             when(header.isDirectory()).thenReturn(false);
@@ -232,7 +232,7 @@ class CbxReaderServiceTest {
     void testStreamPageImage_CBR_Success() throws Exception {
         when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
-            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(cbrPath.toString());
+            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(cbrPath);
 
             FileHeader header = mock(FileHeader.class);
             when(header.isDirectory()).thenReturn(false);
@@ -261,7 +261,7 @@ class CbxReaderServiceTest {
     void testStreamPageImage_PageOutOfRange_Throws() throws Exception {
         when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
-            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(cbzPath.toString());
+            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(cbzPath);
 
             ZipArchiveEntry entry1 = new ZipArchiveEntry("1.jpg");
             Enumeration<ZipArchiveEntry> entries = Collections.enumeration(List.of(entry1));
@@ -292,7 +292,7 @@ class CbxReaderServiceTest {
         Files.deleteIfExists(unknownPath);
         when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
-            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(unknownPath.toString());
+            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(unknownPath);
 
             Files.createFile(unknownPath);
             Files.setLastModifiedTime(unknownPath, FileTime.fromMillis(System.currentTimeMillis()));
@@ -305,7 +305,7 @@ class CbxReaderServiceTest {
     void testStreamPageImage_EntryNotFound_Throws() throws Exception {
         when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
-            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(cbzPath.toString());
+            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(cbzPath);
 
             ZipArchiveEntry entry1 = new ZipArchiveEntry("1.jpg");
             Enumeration<ZipArchiveEntry> entries = Collections.enumeration(List.of(entry1));

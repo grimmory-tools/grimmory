@@ -217,8 +217,7 @@ public class EpubReaderService {
                     .orElseThrow(() -> ApiError.FILE_NOT_FOUND.createException("No file of type " + bookType + " found for book"));
             return bookFile.getFullFilePath();
         }
-        String bookFullPath = FileUtils.getBookFullPath(bookEntity);
-        return Path.of(bookFullPath);
+        return FileUtils.getBookFullPath(bookEntity);
     }
 
     private CachedEpubMetadata getCachedMetadata(Path epubPath) throws IOException {

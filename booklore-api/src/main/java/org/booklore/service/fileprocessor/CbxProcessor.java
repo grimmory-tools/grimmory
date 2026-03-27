@@ -33,6 +33,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.nio.file.Path;
 import java.io.InputStream;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -65,7 +66,7 @@ public class CbxProcessor extends AbstractFileProcessor implements BookFileProce
     @Override
     public BookEntity processNewFile(LibraryFile libraryFile) {
         BookEntity bookEntity = bookCreatorService.createShellBook(libraryFile, BookFileType.CBX);
-        bookEntity.getPrimaryBookFile().setArchiveType(ArchiveUtils.detectArchiveType(new File(FileUtils.getBookFullPath(bookEntity))));
+        bookEntity.getPrimaryBookFile().setArchiveType(ArchiveUtils.detectArchiveType(FileUtils.getBookFullPath(bookEntity).toFile()));
         boolean coverGenerated = generateCover(bookEntity);
         if (!coverGenerated) {
             var folder = getBookFolderForCoverFallback(libraryFile);
@@ -88,7 +89,7 @@ public class CbxProcessor extends AbstractFileProcessor implements BookFileProce
 
     @Override
     public boolean generateCover(BookEntity bookEntity, BookFileEntity bookFile) {
-        File file = new File(FileUtils.getBookFullPath(bookEntity, bookFile));
+        File file = FileUtils.getBookFullPath(bookEntity, bookFile).toFile();
         try {
             Optional<BufferedImage> imageOptional = extractImagesFromArchive(file);
             if (imageOptional.isPresent()) {
@@ -251,7 +252,7 @@ public class CbxProcessor extends AbstractFileProcessor implements BookFileProce
 
     private void extractAndSetMetadata(BookEntity bookEntity) {
         try {
-            BookMetadata extracted = cbxMetadataExtractor.extractMetadata(new File(FileUtils.getBookFullPath(bookEntity)));
+            BookMetadata extracted = cbxMetadataExtractor.extractMetadata(FileUtils.getBookFullPath(bookEntity).toFile());
             if (extracted == null) {
                 // Fallback to filename-derived title
                 setMetadata(bookEntity);

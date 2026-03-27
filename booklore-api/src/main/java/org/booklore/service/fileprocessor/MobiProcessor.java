@@ -72,7 +72,7 @@ public class MobiProcessor extends AbstractFileProcessor implements BookFileProc
     @Override
     public boolean generateCover(BookEntity bookEntity, BookFileEntity bookFile) {
         try {
-            File mobiFile = new File(FileUtils.getBookFullPath(bookEntity, bookFile));
+            File mobiFile = FileUtils.getBookFullPath(bookEntity, bookFile).toFile();
             byte[] coverData = mobiMetadataExtractor.extractCover(mobiFile);
 
             if (coverData == null || coverData.length == 0) {

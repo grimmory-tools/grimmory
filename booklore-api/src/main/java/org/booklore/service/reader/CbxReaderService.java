@@ -39,7 +39,7 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor
 public class CbxReaderService {
 
-    private static final String[] SUPPORTED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".avif", ".heic"};
+    private static final String[] SUPPORTED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".avif", ".heic", ".gif", ".bmp"};
     private static final Charset[] ENCODINGS_TO_TRY = {
             StandardCharsets.UTF_8,
             Charset.forName("Shift_JIS"),
@@ -144,8 +144,7 @@ public class CbxReaderService {
                     .orElseThrow(() -> ApiError.FILE_NOT_FOUND.createException("No file of type " + bookType + " found for book"));
             return bookFile.getFullFilePath();
         }
-        String bookFullPath = FileUtils.getBookFullPath(bookEntity);
-        return Path.of(bookFullPath);
+        return FileUtils.getBookFullPath(bookEntity);
     }
 
     private void validatePageRequest(Long bookId, int page, List<String> imageEntries) throws FileNotFoundException {

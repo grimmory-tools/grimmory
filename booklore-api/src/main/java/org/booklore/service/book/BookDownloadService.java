@@ -59,7 +59,7 @@ public class BookDownloadService {
             if (primaryFile == null) {
                 throw ApiError.FAILED_TO_DOWNLOAD_FILE.createException(bookId);
             }
-            Path file = Paths.get(FileUtils.getBookFullPath(bookEntity)).toAbsolutePath().normalize();
+            Path file = FileUtils.getBookFullPath(bookEntity).toAbsolutePath().normalize();
 
             if (!Files.exists(file)) {
                 throw ApiError.FAILED_TO_DOWNLOAD_FILE.createException(bookId);
@@ -258,7 +258,7 @@ public class BookDownloadService {
         int compressionPercentage = koboSettings.getConversionImageCompressionPercentage();
         Path tempDir = null;
         try {
-            File inputFile = new File(FileUtils.getBookFullPath(bookEntity));
+            File inputFile = FileUtils.getBookFullPath(bookEntity).toFile();
             File fileToSend = inputFile;
 
             if (convertCbxToEpub || convertEpubToKepub) {

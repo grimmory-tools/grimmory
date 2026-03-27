@@ -42,10 +42,9 @@ class FileUtilsTest {
 
         BookEntity book = createBookEntity(libraryPath, subPath, fileName);
 
-        String fullPath = FileUtils.getBookFullPath(book);
+        Path fullPath = FileUtils.getBookFullPath(book);
 
-        String expected = libraryPath.resolve(subPath).resolve(fileName)
-                .toString().replace("\\", "/");
+        Path expected = libraryPath.resolve(subPath).resolve(fileName);
 
         assertEquals(expected, fullPath);
     }

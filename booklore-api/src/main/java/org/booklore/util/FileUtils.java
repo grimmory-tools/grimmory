@@ -24,27 +24,18 @@ public class FileUtils {
 
     private final String FILE_NOT_FOUND_MESSAGE = "File does not exist: ";
 
-    public String getBookFullPath(BookEntity bookEntity) {
+    public Path getBookFullPath(BookEntity bookEntity) {
         BookFileEntity bookFile = bookEntity.getPrimaryBookFile();
-        if (bookFile == null || bookEntity.getLibraryPath() == null) {
-            return null;
-        }
-
-        return Path.of(bookEntity.getLibraryPath().getPath(), bookFile.getFileSubPath(), bookFile.getFileName())
-                .normalize()
-                .toString()
-                .replace("\\", "/");
+        return getBookFullPath(bookEntity, bookFile);
     }
 
-    public String getBookFullPath(BookEntity bookEntity, BookFileEntity bookFile) {
+    public Path getBookFullPath(BookEntity bookEntity, BookFileEntity bookFile) {
         if (bookFile == null || bookEntity.getLibraryPath() == null) {
             return null;
         }
 
         return Path.of(bookEntity.getLibraryPath().getPath(), bookFile.getFileSubPath(), bookFile.getFileName())
-                .normalize()
-                .toString()
-                .replace("\\", "/");
+                .normalize();
     }
 
     public String getBookFullPath(Book book) {
@@ -60,7 +51,7 @@ public class FileUtils {
     }
 
     public Long getFileSizeInKb(BookEntity bookEntity) {
-        Path filePath = Path.of(getBookFullPath(bookEntity));
+        Path filePath = getBookFullPath(bookEntity);
         return getFileSizeInKb(filePath);
     }
 

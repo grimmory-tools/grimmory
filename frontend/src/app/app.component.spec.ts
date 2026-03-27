@@ -15,6 +15,7 @@ import {LibraryService} from './features/book/service/library.service';
 import {LibraryHealthService} from './features/book/service/library-health.service';
 import {LibraryLoadingService} from './features/library-creator/library-loading.service';
 import {TranslocoTestingModule} from '@jsverse/transloco';
+import {AuthService} from './shared/service/auth.service';
 
 describe('AppComponent offline detection', () => {
   let fixture: ComponentFixture<AppComponent>;
@@ -35,6 +36,7 @@ describe('AppComponent offline detection', () => {
         {provide: LibraryService, useValue: {largeLibraryLoading: signal({isLoading: false, expectedCount: 0})}},
         {provide: LibraryHealthService, useValue: {initialize: vi.fn()}},
         {provide: LibraryLoadingService, useValue: {hide: vi.fn()}},
+        {provide: AuthService, useValue: {token: signal(null)}},
       ]
     });
 
