@@ -6,6 +6,7 @@ import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.repository.BookRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
@@ -151,10 +152,11 @@ class HardcoverSyncServiceTest {
     }
 
     @Test
-    @DisplayName("Should skip sync when no ISBN available")
-    void syncProgressToHardcover_whenNoIsbn_shouldSkip() {
+    @DisplayName("Should skip sync when no ISBN or hardcoverBookId available")
+    void syncProgressToHardcover_whenNoIsbnOrHardcoverBookId_shouldSkip() {
         testMetadata.setIsbn13(null);
         testMetadata.setIsbn10(null);
+        testMetadata.setHardcoverBookId(null);
 
         service.syncProgressToHardcover(TEST_BOOK_ID, 50.0f, TEST_USER_ID);
 
@@ -171,6 +173,7 @@ class HardcoverSyncServiceTest {
 
         // Mock successful responses for the chain
         when(responseSpec.body(Map.class))
+                .thenReturn(createBookByIdResponse(12345, 300, edition(10, 300), null, null))
                 .thenReturn(createInsertUserBookResponse(5001, null))
                 .thenReturn(createEmptyUserBookReadsResponse())
                 .thenReturn(createInsertUserBookReadResponse());
@@ -186,7 +189,7 @@ class HardcoverSyncServiceTest {
     void syncProgressToHardcover_withoutStoredBookId_shouldSearchByIsbn() {
         // Mock successful responses for the chain
         when(responseSpec.body(Map.class))
-                .thenReturn(createSearchResponse(12345, 300))
+                .thenReturn(createBooksByIsbnResponse(12345, 300, 10, 300))
                 .thenReturn(createInsertUserBookResponse(5001, null))
                 .thenReturn(createEmptyUserBookReadsResponse())
                 .thenReturn(createInsertUserBookReadResponse());
@@ -200,8 +203,7 @@ class HardcoverSyncServiceTest {
     @Test
     @DisplayName("Should skip further processing when book not found on Hardcover")
     void syncProgressToHardcover_whenBookNotFoundOnHardcover_shouldSkipAfterSearch() {
-        // Mock: search returns empty results
-        when(responseSpec.body(Map.class)).thenReturn(createEmptySearchResponse());
+        when(responseSpec.body(Map.class)).thenReturn(createEmptyBooksResponse());
 
         service.syncProgressToHardcover(TEST_BOOK_ID, 50.0f, TEST_USER_ID);
 
@@ -216,6 +218,7 @@ class HardcoverSyncServiceTest {
         testMetadata.setPageCount(300);
 
         when(responseSpec.body(Map.class))
+                .thenReturn(createBookByIdResponse(12345, 300, edition(10, 300), null, null))
                 .thenReturn(createInsertUserBookResponse(5001, null))
                 .thenReturn(createEmptyUserBookReadsResponse())
                 .thenReturn(createInsertUserBookReadResponse());
@@ -232,6 +235,7 @@ class HardcoverSyncServiceTest {
         testMetadata.setPageCount(300);
 
         when(responseSpec.body(Map.class))
+                .thenReturn(createBookByIdResponse(12345, 300, edition(10, 300), null, null))
                 .thenReturn(createInsertUserBookResponse(5001, null))
                 .thenReturn(createEmptyUserBookReadsResponse())
                 .thenReturn(createInsertUserBookReadResponse());
@@ -249,6 +253,7 @@ class HardcoverSyncServiceTest {
 
         // Mock: insert_user_book returns error, then find existing, then create progress
         when(responseSpec.body(Map.class))
+                .thenReturn(createBookByIdResponse(12345, 300, edition(10, 300), null, null))
                 .thenReturn(createInsertUserBookResponse(null, "Book already exists"))
                 .thenReturn(createFindUserBookResponse(5001))
                 .thenReturn(createEmptyUserBookReadsResponse())
@@ -267,6 +272,7 @@ class HardcoverSyncServiceTest {
 
         // Mock: insert_user_book -> find existing read -> update read
         when(responseSpec.body(Map.class))
+                .thenReturn(createBookByIdResponse(12345, 300, edition(10, 300), null, null))
                 .thenReturn(createInsertUserBookResponse(5001, null))
                 .thenReturn(createFindUserBookReadResponse(6001))
                 .thenReturn(createUpdateUserBookReadResponse());
@@ -283,7 +289,7 @@ class HardcoverSyncServiceTest {
         testMetadata.setIsbn10("1234567890");
 
         when(responseSpec.body(Map.class))
-                .thenReturn(createSearchResponse(12345, 300))
+                .thenReturn(createBooksByIsbnResponse(12345, 300, 10, 300))
                 .thenReturn(createInsertUserBookResponse(5001, null))
                 .thenReturn(createEmptyUserBookReadsResponse())
                 .thenReturn(createInsertUserBookReadResponse());
@@ -327,39 +333,168 @@ class HardcoverSyncServiceTest {
         verify(restClient, never()).post();
     }
 
-    // === Helper methods to create mock responses ===
-
-    private Map<String, Object> createSearchResponse(Integer bookId, Integer pages) {
-        Map<String, Object> response = new HashMap<>();
-        Map<String, Object> data = new HashMap<>();
-        Map<String, Object> search = new HashMap<>();
-        Map<String, Object> results = new HashMap<>();
-        Map<String, Object> hit = new HashMap<>();
-        Map<String, Object> document = new HashMap<>();
-
-        document.put("id", bookId.toString());
-        document.put("pages", pages);
-        hit.put("document", document);
-        results.put("hits", List.of(hit));
-        search.put("results", results);
-        data.put("search", search);
-        response.put("data", data);
-
-        return response;
+    // === resolveHardcoverBook ===
+    @Test
+    @DisplayName("Returns null when all identifiers are blank")
+    void whenAllBlank_returnsNull() throws Exception {
+        assertNull(resolveHardcoverBook("", "  ", ""));
+        verify(restClient, never()).post();
     }
 
-    private Map<String, Object> createEmptySearchResponse() {
-        Map<String, Object> response = new HashMap<>();
-        Map<String, Object> data = new HashMap<>();
-        Map<String, Object> search = new HashMap<>();
-        Map<String, Object> results = new HashMap<>();
+    @Test
+    @DisplayName("Returns null when bookId format is invalid")
+    void withInvalidBookIdFormat_returnsNull() throws Exception {
+        assertNull(resolveHardcoverBook("not-a-number", null, null));
+        verify(restClient, never()).post();
+    }
 
-        results.put("hits", List.of());
-        search.put("results", results);
-        data.put("search", search);
-        response.put("data", data);
+    @Test
+    @DisplayName("Uses default ebook edition when only bookId provided")
+    void withBookIdOnly_usesEbookEdition() throws Exception {
+        when(responseSpec.body(Map.class))
+                .thenReturn(createBookByIdResponse(12345, 300, edition(10, 280), null, null));
 
-        return response;
+        Object result = resolveHardcoverBook("12345", null, null);
+
+        assertNotNull(result);
+        assertEquals(10, readPrivateIntField(result, "editionId"));
+        assertEquals(280, readPrivateIntField(result, "pages"));
+    }
+
+    @Test
+    @DisplayName("Falls back to physical edition when no ebook available")
+    void withBookIdOnly_fallsBackToPhysicalEdition() throws Exception {
+        when(responseSpec.body(Map.class))
+                .thenReturn(createBookByIdResponse(12345, 300, null, edition(20, 250), null));
+
+        Object result = resolveHardcoverBook("12345", null, null);
+
+        assertNotNull(result);
+        assertEquals(20, readPrivateIntField(result, "editionId"));
+        assertEquals(250, readPrivateIntField(result, "pages"));
+    }
+
+    @Test
+    @DisplayName("Returns null when no editions found for bookId only")
+    void withBookIdOnly_noEditions_returnsNull() throws Exception {
+        when(responseSpec.body(Map.class))
+                .thenReturn(createBookByIdResponse(12345, 300, null, null, null));
+
+        assertNull(resolveHardcoverBook("12345", null, null));
+    }
+
+    @Test
+    @DisplayName("Uses ISBN-matched edition over defaults when bookId and isbn provided")
+    void withBookIdAndIsbn_usesIsbnMatchedEdition() throws Exception {
+        when(responseSpec.body(Map.class))
+                .thenReturn(createBookByIdResponse(12345, 300, edition(10, 200), null, List.of(edition(30, 320))));
+
+        Object result = resolveHardcoverBook("12345", "9781234567890", null);
+
+        assertNotNull(result);
+        assertEquals(30, readPrivateIntField(result, "editionId"));
+        assertEquals(320, readPrivateIntField(result, "pages"));
+    }
+
+    @Test
+    @DisplayName("Falls back to ebook edition when no ISBN match found")
+    void withBookIdAndIsbn_noIsbnMatch_fallsBackToEbook() throws Exception {
+        when(responseSpec.body(Map.class))
+                .thenReturn(createBookByIdResponse(12345, 300, edition(10, 300), null, List.of()));
+
+        Object result = resolveHardcoverBook("12345", "9781234567890", null);
+
+        assertNotNull(result);
+        assertEquals(10, readPrivateIntField(result, "editionId"));
+    }
+
+    @Test
+    @DisplayName("Returns null when API returns null response for bookId only")
+    void withBookId_whenApiReturnsNull_returnsNull() throws Exception {
+        when(responseSpec.body(Map.class)).thenReturn(null);
+
+        assertNull(resolveHardcoverBook("12345", null, null));
+    }
+
+    @Test
+    @DisplayName("Resolves book and edition when only isbn13 provided")
+    void withIsbn13Only_resolvesViaIsbn() throws Exception {
+        when(responseSpec.body(Map.class))
+                .thenReturn(createBooksByIsbnResponse(12345, 300, 99, 280));
+
+        Object result = resolveHardcoverBook(null, "9781234567890", null);
+
+        assertNotNull(result);
+        assertEquals(99, readPrivateIntField(result, "editionId"));
+        assertEquals(280, readPrivateIntField(result, "pages"));
+    }
+
+    @Test
+    @DisplayName("Resolves book and edition when only isbn10 provided")
+    void withIsbn10Only_resolvesViaIsbn() throws Exception {
+        when(responseSpec.body(Map.class))
+                .thenReturn(createBooksByIsbnResponse(12345, 300, 99, 280));
+
+        Object result = resolveHardcoverBook(null, null, "1234567890");
+
+        assertNotNull(result);
+        assertEquals(99, readPrivateIntField(result, "editionId"));
+        assertEquals(280, readPrivateIntField(result, "pages"));
+    }
+
+    @Test
+    @DisplayName("Returns null when no books found for isbn only")
+    void withIsbnOnly_noBooksFound_returnsNull() throws Exception {
+        when(responseSpec.body(Map.class)).thenReturn(createEmptyBooksResponse());
+
+        assertNull(resolveHardcoverBook(null, "9781234567890", null));
+    }
+
+    @Test
+    @DisplayName("Returns null when API returns null response for isbn only")
+    void withIsbnOnly_whenApiReturnsNull_returnsNull() throws Exception {
+        when(responseSpec.body(Map.class)).thenReturn(null);
+
+        assertNull(resolveHardcoverBook(null, "9781234567890", null));
+    }
+
+    // === Reflection helpers ===
+
+    private Object resolveHardcoverBook(String bookId, String isbn13, String isbn10) throws Exception {
+        Method method = HardcoverSyncService.class
+                .getDeclaredMethod("resolveHardcoverBook", String.class, String.class, String.class);
+        method.setAccessible(true);
+        return method.invoke(service, bookId, isbn13, isbn10);
+    }
+
+    // === Helper methods to create mock responses ===
+
+    private Map<String, Object> edition(Integer id, Integer pages) {
+        return Map.of("id", id, "pages", pages);
+    }
+
+    private Map<String, Object> createBookByIdResponse(
+            Integer bookId,
+            Integer pages,
+            Map<String, Object> ebookEdition,
+            Map<String, Object> physicalEdition,
+            List<Map<String, Object>> isbnEditions) {
+        Map<String, Object> book = new HashMap<>();
+        if (bookId != null) book.put("id", bookId);
+        if (pages != null) book.put("pages", pages);
+        if (ebookEdition != null) book.put("default_ebook_edition", ebookEdition);
+        if (physicalEdition != null) book.put("default_physical_edition", physicalEdition);
+        book.put("editions", isbnEditions != null ? isbnEditions : List.of());
+        return Map.of("data", Map.of("books", List.of(book)));
+    }
+
+    private Map<String, Object> createBooksByIsbnResponse(Integer bookId, Integer bookPages, Integer editionId, Integer editionPages) {
+        Map<String, Object> book = Map.of("id", bookId, "pages", bookPages, "editions", List.of(edition(editionId, editionPages)));
+        return Map.of("data", Map.of("books", List.of(book)));
+    }
+
+    private Map<String, Object> createEmptyBooksResponse() {
+        return Map.of("data", Map.of("books", List.of()));
     }
 
     private Map<String, Object> createInsertUserBookResponse(Integer userBookId, String error) {
@@ -445,91 +580,6 @@ class HardcoverSyncServiceTest {
         response.put("data", data);
 
         return response;
-    }
-
-    @Test
-    @DisplayName("findEditionById should return null on null response")
-    void findEditionById_nullResponse_shouldReturnNull() throws Exception {
-        when(responseSpec.body(ArgumentMatchers.<Class<Map>>eq(Map.class))).thenReturn(null);
-
-        Method method = HardcoverSyncService.class.getDeclaredMethod("findEditionById", Integer.class);
-        method.setAccessible(true);
-
-        Object result = method.invoke(service, 123);
-        assertNull(result);
-    }
-
-    @Test
-    @DisplayName("findEditionById should parse edition info when present")
-    void findEditionById_withData_shouldParse() throws Exception {
-        Map<String, Object> response = new HashMap<>();
-        Map<String, Object> data = new HashMap<>();
-        Map<String, Object> edition = new HashMap<>();
-        edition.put("id", 77);
-        edition.put("pages", 250);
-        data.put("editions", List.of(edition));
-        response.put("data", data);
-
-        when(responseSpec.body(ArgumentMatchers.<Class<Map>>eq(Map.class))).thenReturn(response);
-
-        Method method = HardcoverSyncService.class.getDeclaredMethod("findEditionById", Integer.class);
-        method.setAccessible(true);
-
-        Object result = method.invoke(service, 77);
-        assertNotNull(result);
-        assertEquals(77, readPrivateIntField(result, "id"));
-        assertEquals(250, readPrivateIntField(result, "pages"));
-    }
-
-    @Test
-    @DisplayName("findHardcoverBookById should return null on empty response")
-    void findHardcoverBookById_emptyResponse_shouldReturnNull() throws Exception {
-        when(responseSpec.body(ArgumentMatchers.<Class<Map>>eq(Map.class)))
-                .thenReturn(Map.of("data", Map.of("books", List.of())));
-
-        Method method = HardcoverSyncService.class.getDeclaredMethod("findHardcoverBookById", Integer.class);
-        method.setAccessible(true);
-
-        Object result = method.invoke(service, 123);
-        assertNull(result);
-    }
-
-    @Test
-    @DisplayName("findHardcoverBookById should use default edition and edition pages")
-    void findHardcoverBookById_withDefaultEdition_shouldUseEditionPages() throws Exception {
-        Map<String, Object> bookResponse = new HashMap<>();
-        Map<String, Object> bookData = new HashMap<>();
-        Map<String, Object> book = new HashMap<>();
-        book.put("default_physical_edition_id", "88");
-        bookData.put("books", List.of(book));
-        bookResponse.put("data", bookData);
-
-        Map<String, Object> editionResponse = new HashMap<>();
-        Map<String, Object> editionData = new HashMap<>();
-        Map<String, Object> edition = new HashMap<>();
-        edition.put("id", 88);
-        edition.put("pages", 320);
-        editionData.put("editions", List.of(edition));
-        editionResponse.put("data", editionData);
-
-        when(responseSpec.body(ArgumentMatchers.<Class<Map>>eq(Map.class)))
-                .thenReturn(bookResponse)
-                .thenReturn(editionResponse);
-
-        Method method = HardcoverSyncService.class.getDeclaredMethod("findHardcoverBookById", Integer.class);
-        method.setAccessible(true);
-
-        Object result = method.invoke(service, 123);
-        assertNotNull(result);
-        assertEquals("123", readPrivateStringField(result, "bookId"));
-        assertEquals(88, readPrivateIntField(result, "editionId"));
-        assertEquals(320, readPrivateIntField(result, "pages"));
-    }
-
-    private String readPrivateStringField(Object target, String fieldName) throws Exception {
-        Field field = target.getClass().getDeclaredField(fieldName);
-        field.setAccessible(true);
-        return (String) field.get(target);
     }
 
     private Integer readPrivateIntField(Object target, String fieldName) throws Exception {
