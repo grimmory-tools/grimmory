@@ -25,10 +25,12 @@ import org.booklore.mapper.KoboReadingStateMapper;
 import org.booklore.model.dto.KoboSyncSettings;
 import org.booklore.model.dto.kobo.*;
 import org.booklore.model.entity.KoboReadingStateEntity;
+import org.booklore.model.entity.UserBookFileProgressEntity;
 import org.booklore.model.entity.UserBookProgressEntity;
 import org.booklore.model.enums.KoboReadStatus;
 import org.booklore.model.enums.ReadStatus;
 import org.booklore.repository.KoboReadingStateRepository;
+import org.booklore.repository.UserBookFileProgressRepository;
 import org.booklore.repository.UserBookProgressRepository;
 import org.booklore.service.kobo.KoboEntitlementService;
 import org.booklore.service.kobo.KoboReadingStateBuilder;
@@ -94,6 +96,9 @@ class KoboEntitlementServiceTest {
     private UserBookProgressRepository progressRepository;
 
     @Mock
+    private UserBookFileProgressRepository fileProgressRepository;
+
+    @Mock
     private KoboReadingStateRepository readingStateRepository;
 
     @Mock
@@ -113,7 +118,8 @@ class KoboEntitlementServiceTest {
     @BeforeEach
     void setUp() {
         BookLoreUser.UserPermissions permissions = new BookLoreUser.UserPermissions();
-        user = BookLoreUser.builder().permissions(permissions).build();
+        user = BookLoreUser.builder().id(1L).permissions(permissions).build();
+        when(authenticationService.getAuthenticatedUser()).thenReturn(user);
     }
 
     @Test
@@ -563,6 +569,11 @@ class KoboEntitlementServiceTest {
         void generateChangedReadingStates_fromProgress() {
             BookEntity book = new BookEntity();
             book.setId(1L);
+            BookFileEntity primaryFile = new BookFileEntity();
+            primaryFile.setId(10L);
+            primaryFile.setBook(book);
+            primaryFile.setBookType(BookFileType.EPUB);
+            book.setBookFiles(List.of(primaryFile));
 
             UserBookProgressEntity progress = new UserBookProgressEntity();
             progress.setBook(book);
@@ -570,12 +581,19 @@ class KoboEntitlementServiceTest {
             progress.setReadStatus(ReadStatus.READING);
 
             KoboSyncSettings settings = new KoboSyncSettings();
+            settings.setTwoWayProgressSync(true);
             when(koboSettingsService.getCurrentUserSettings()).thenReturn(settings);
+
+            UserBookFileProgressEntity fileProgress = new UserBookFileProgressEntity();
+            fileProgress.setBookFile(primaryFile);
+            fileProgress.setContentSourceProgressPercent(20f);
+            when(fileProgressRepository.findByUserIdAndBookFileIdIn(eq(1L), any())).thenReturn(List.of(fileProgress));
 
             KoboReadingState.CurrentBookmark bookmark = KoboReadingState.CurrentBookmark.builder()
                     .progressPercent(50)
+                    .contentSourceProgressPercent(20)
                     .build();
-            when(readingStateBuilder.buildBookmarkFromProgress(eq(progress), any(OffsetDateTime.class)))
+            when(readingStateBuilder.buildBookmarkFromProgress(eq(progress), eq(fileProgress), any(OffsetDateTime.class)))
                     .thenReturn(bookmark);
             when(readingStateBuilder.buildStatusInfoFromProgress(eq(progress), anyString()))
                     .thenReturn(KoboReadingState.StatusInfo.builder()
@@ -590,7 +608,66 @@ class KoboEntitlementServiceTest {
             KoboReadingState state = result.getFirst().getChangedReadingState().getReadingState();
             assertEquals("1", state.getEntitlementId());
             assertNotNull(state.getCurrentBookmark());
+            assertEquals(20, state.getCurrentBookmark().getContentSourceProgressPercent());
             assertNotNull(state.getStatusInfo());
+        }
+
+        @Test
+        @DisplayName("Should use synced EPUB file progress when book has multiple files")
+        void generateChangedReadingStates_usesSyncedEpubFileProgress() {
+            BookEntity book = new BookEntity();
+            book.setId(1L);
+
+            BookFileEntity primaryEpub = new BookFileEntity();
+            primaryEpub.setId(10L);
+            primaryEpub.setBook(book);
+            primaryEpub.setBookType(BookFileType.EPUB);
+
+            BookFileEntity alternateAudiobook = new BookFileEntity();
+            alternateAudiobook.setId(20L);
+            alternateAudiobook.setBook(book);
+            alternateAudiobook.setBookType(BookFileType.AUDIOBOOK);
+
+            book.setBookFiles(List.of(primaryEpub, alternateAudiobook));
+
+            UserBookProgressEntity progress = new UserBookProgressEntity();
+            progress.setBook(book);
+            progress.setEpubProgressPercent(70f);
+            progress.setReadStatus(ReadStatus.READING);
+
+            KoboSyncSettings settings = new KoboSyncSettings();
+            settings.setTwoWayProgressSync(true);
+            when(koboSettingsService.getCurrentUserSettings()).thenReturn(settings);
+
+            UserBookFileProgressEntity epubFileProgress = new UserBookFileProgressEntity();
+            epubFileProgress.setBookFile(primaryEpub);
+            epubFileProgress.setContentSourceProgressPercent(21f);
+
+            UserBookFileProgressEntity audiobookProgress = new UserBookFileProgressEntity();
+            audiobookProgress.setBookFile(alternateAudiobook);
+            audiobookProgress.setContentSourceProgressPercent(99f);
+
+            when(fileProgressRepository.findByUserIdAndBookFileIdIn(eq(1L), any()))
+                    .thenReturn(List.of(epubFileProgress, audiobookProgress));
+
+            KoboReadingState.CurrentBookmark bookmark = KoboReadingState.CurrentBookmark.builder()
+                    .progressPercent(70)
+                    .contentSourceProgressPercent(21)
+                    .build();
+            when(readingStateBuilder.buildBookmarkFromProgress(eq(progress), eq(epubFileProgress), any(OffsetDateTime.class)))
+                    .thenReturn(bookmark);
+            when(readingStateBuilder.buildStatusInfoFromProgress(eq(progress), anyString()))
+                    .thenReturn(KoboReadingState.StatusInfo.builder()
+                            .status(KoboReadStatus.READING)
+                            .timesStartedReading(1)
+                            .build());
+
+            List<ChangedReadingState> result = koboEntitlementService.generateChangedReadingStates(List.of(progress));
+
+            assertEquals(1, result.size());
+            assertEquals(21, result.getFirst().getChangedReadingState().getReadingState()
+                    .getCurrentBookmark().getContentSourceProgressPercent());
+            verify(readingStateBuilder).buildBookmarkFromProgress(eq(progress), eq(epubFileProgress), any(OffsetDateTime.class));
         }
 
         @Test
@@ -637,7 +714,7 @@ class KoboEntitlementServiceTest {
             KoboReadingState.CurrentBookmark bookmark = KoboReadingState.CurrentBookmark.builder()
                     .progressPercent(70)
                     .build();
-            when(readingStateBuilder.buildBookmarkFromProgress(eq(progress), any(OffsetDateTime.class)))
+            when(readingStateBuilder.buildBookmarkFromProgress(eq(progress), isNull(), any(OffsetDateTime.class)))
                     .thenReturn(bookmark);
             when(readingStateBuilder.buildStatusInfoFromProgress(eq(progress), anyString()))
                     .thenReturn(KoboReadingState.StatusInfo.builder()

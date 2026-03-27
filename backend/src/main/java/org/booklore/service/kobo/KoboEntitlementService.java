@@ -14,6 +14,7 @@ import org.booklore.model.enums.ShelfType;
 import org.booklore.repository.KoboReadingStateRepository;
 import org.booklore.repository.MagicShelfRepository;
 import org.booklore.repository.ShelfRepository;
+import org.booklore.repository.UserBookFileProgressRepository;
 import org.booklore.repository.UserBookProgressRepository;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.book.BookQueryService;
@@ -43,6 +44,7 @@ public class KoboEntitlementService {
     private final AppSettingService appSettingService;
     private final KoboCompatibilityService koboCompatibilityService;
     private final UserBookProgressRepository progressRepository;
+    private final UserBookFileProgressRepository fileProgressRepository;
     private final KoboReadingStateRepository readingStateRepository;
     private final KoboReadingStateMapper readingStateMapper;
     private final AuthenticationService authenticationService;
@@ -108,9 +110,34 @@ public class KoboEntitlementService {
     public List<ChangedReadingState> generateChangedReadingStates(List<UserBookProgressEntity> progressEntries) {
         OffsetDateTime now = getCurrentUtc();
         String timestamp = now.toString();
+        Long userId = authenticationService.getAuthenticatedUser().getId();
+
+        Map<Long, Long> syncedEpubFileIdsByBookId = new HashMap<>();
+        for (UserBookProgressEntity entry : progressEntries) {
+            BookEntity book = entry.getBook();
+            if (book != null) {
+                Long fileId = getSyncedEpubFileId(book);
+                if (fileId != null) {
+                    syncedEpubFileIdsByBookId.putIfAbsent(book.getId(), fileId);
+                }
+            }
+        }
+
+        Map<Long, UserBookFileProgressEntity> fileProgressByFileId = syncedEpubFileIdsByBookId.isEmpty()
+                ? Collections.emptyMap()
+                : fileProgressRepository.findByUserIdAndBookFileIdIn(userId, syncedEpubFileIdsByBookId.values()).stream()
+                        .collect(Collectors.toMap(
+                                fp -> fp.getBookFile().getId(),
+                                fp -> fp,
+                                this::selectMostRecentProgress
+                        ));
 
         return progressEntries.stream()
-                .map(progress -> buildChangedReadingState(progress, timestamp, now))
+                .map(progress -> buildChangedReadingState(
+                        progress,
+                        fileProgressByFileId.get(syncedEpubFileIdsByBookId.get(progress.getBook().getId())),
+                        timestamp,
+                        now))
                 .toList();
     }
 
@@ -180,12 +207,15 @@ public class KoboEntitlementService {
                 .build();
     }
 
-    private ChangedReadingState buildChangedReadingState(UserBookProgressEntity progress, String timestamp, OffsetDateTime now) {
+    private ChangedReadingState buildChangedReadingState(UserBookProgressEntity progress,
+                                                         UserBookFileProgressEntity fileProgress,
+                                                         String timestamp,
+                                                         OffsetDateTime now) {
         String entitlementId = String.valueOf(progress.getBook().getId());
 
         boolean twoWaySync = koboSettingsService.getCurrentUserSettings().isTwoWayProgressSync();
         KoboReadingState.CurrentBookmark bookmark = (progress.getKoboProgressPercent() != null || (twoWaySync && progress.getEpubProgressPercent() != null))
-                ? readingStateBuilder.buildBookmarkFromProgress(progress, now)
+                ? readingStateBuilder.buildBookmarkFromProgress(progress, fileProgress, now)
                 : readingStateBuilder.buildEmptyBookmark(now);
 
         KoboReadingState readingState = KoboReadingState.builder()
@@ -218,14 +248,15 @@ public class KoboEntitlementService {
                 .orElse(null);
 
         Optional<UserBookProgressEntity> userProgress = progressRepository
-                .findByUserIdAndBookId(authenticationService.getAuthenticatedUser().getId(), book.getId());
+                .findByUserIdAndBookId(userId, book.getId());
+        UserBookFileProgressEntity fileProgress = findSyncedEpubFileProgress(userId, book).orElse(null);
 
         boolean twoWaySync = koboSettingsService.getCurrentUserSettings().isTwoWayProgressSync();
 
         KoboReadingState.CurrentBookmark webReaderBookmark = twoWaySync
                 ? userProgress
                     .filter(progress -> progress.getEpubProgress() != null && progress.getEpubProgressPercent() != null)
-                    .map(progress -> readingStateBuilder.buildBookmarkFromProgress(progress, now))
+                    .map(progress -> readingStateBuilder.buildBookmarkFromProgress(progress, fileProgress, now))
                     .orElse(null)
                 : null;
 
@@ -235,7 +266,7 @@ public class KoboEntitlementService {
                 ? existingState.getCurrentBookmark()
                 : userProgress
                 .filter(progress -> progress.getKoboProgressPercent() != null || (twoWaySync && progress.getEpubProgressPercent() != null))
-                .map(progress -> readingStateBuilder.buildBookmarkFromProgress(progress, now))
+                .map(progress -> readingStateBuilder.buildBookmarkFromProgress(progress, fileProgress, now))
                 .orElseGet(() -> readingStateBuilder.buildEmptyBookmark(now));
 
         KoboReadingState.StatusInfo statusInfo = userProgress
@@ -255,6 +286,33 @@ public class KoboEntitlementService {
                 .statistics(KoboReadingState.Statistics.builder().lastModified(now.toString()).build())
                 .priorityTimestamp(now.toString())
                 .build();
+    }
+
+    private Optional<UserBookFileProgressEntity> findSyncedEpubFileProgress(Long userId, BookEntity book) {
+        Long syncedEpubFileId = getSyncedEpubFileId(book);
+        if (syncedEpubFileId == null) {
+            return Optional.empty();
+        }
+        return fileProgressRepository.findByUserIdAndBookFileId(userId, syncedEpubFileId);
+    }
+
+    private Long getSyncedEpubFileId(BookEntity book) {
+        BookFileEntity primaryFile = book != null ? book.getPrimaryBookFile() : null;
+        if (primaryFile == null || primaryFile.getBookType() != BookFileType.EPUB) {
+            return null;
+        }
+        return primaryFile.getId();
+    }
+
+    private UserBookFileProgressEntity selectMostRecentProgress(UserBookFileProgressEntity existing,
+                                                                UserBookFileProgressEntity replacement) {
+        if (existing.getLastReadTime() == null) {
+            return replacement;
+        }
+        if (replacement.getLastReadTime() == null) {
+            return existing;
+        }
+        return replacement.getLastReadTime().isAfter(existing.getLastReadTime()) ? replacement : existing;
     }
 
     private BookEntitlement buildBookEntitlement(BookEntity book, boolean removed) {

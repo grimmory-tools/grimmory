@@ -36,6 +36,9 @@ public class UserBookFileProgressEntity {
     @Column(name = "progress_percent")
     private Float progressPercent;
 
+    @Column(name = "content_source_progress_percent")
+    private Float contentSourceProgressPercent;
+
     @Column(name = "tts_position_cfi", length = 1000)
     private String ttsPositionCfi;
 

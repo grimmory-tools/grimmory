@@ -6,6 +6,7 @@ import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.progress.EpubProgress;
 import org.booklore.model.dto.progress.PdfProgress;
+import org.booklore.model.dto.request.BookFileProgress;
 import org.booklore.model.dto.request.ReadProgressRequest;
 import org.booklore.model.dto.response.BookStatusUpdateResponse;
 import org.booklore.model.entity.*;
@@ -198,6 +199,49 @@ class ReadingProgressServiceTest {
         assertEquals("cfi", progress.getEpubProgress());
         assertEquals(ReadStatus.READ, progress.getReadStatus());
         assertEquals(100f, progress.getEpubProgressPercent());
+    }
+
+    @Test
+    void updateReadProgress_fileProgress_shouldSaveContentSourceProgress() {
+        long bookId = 1L;
+        BookEntity book = new BookEntity();
+        book.setId(bookId);
+        BookFileEntity primaryFile = new BookFileEntity();
+        primaryFile.setId(1L);
+        primaryFile.setBook(book);
+        primaryFile.setBookType(BookFileType.EPUB);
+        book.setBookFiles(List.of(primaryFile));
+
+        BookLoreUser user = mock(BookLoreUser.class);
+        when(user.getId()).thenReturn(2L);
+        when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+        when(bookRepository.findByIdWithBookFiles(bookId)).thenReturn(Optional.of(book));
+        when(bookFileRepository.findById(1L)).thenReturn(Optional.of(primaryFile));
+
+        BookLoreUserEntity userEntity = new BookLoreUserEntity();
+        userEntity.setId(2L);
+        when(userRepository.findById(2L)).thenReturn(Optional.of(userEntity));
+
+        UserBookProgressEntity progress = new UserBookProgressEntity();
+        when(userBookProgressRepository.findByUserIdAndBookId(2L, bookId)).thenReturn(Optional.of(progress));
+        when(userBookFileProgressRepository.findByUserIdAndBookFileId(2L, 1L)).thenReturn(Optional.empty());
+
+        ReadProgressRequest req = new ReadProgressRequest();
+        req.setBookId(bookId);
+        req.setFileProgress(new BookFileProgress(
+                1L,
+                "epubcfi(/6/8!/4/2/6/1:15)",
+                "OPS/chapter3.xhtml",
+                55f,
+                "epubcfi(/6/8!/4/2/6/1:10)",
+                18.6f));
+
+        readingProgressService.updateReadProgress(req);
+
+        verify(userBookFileProgressRepository).save(argThat(savedFileProgress ->
+                savedFileProgress.getContentSourceProgressPercent() != null
+                        && savedFileProgress.getContentSourceProgressPercent().equals(18.6f)
+                        && "OPS/chapter3.xhtml".equals(savedFileProgress.getPositionHref())));
     }
 
     @Test

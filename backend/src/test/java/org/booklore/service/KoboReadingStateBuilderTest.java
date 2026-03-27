@@ -3,6 +3,7 @@ package org.booklore.service;
 import org.booklore.model.dto.KoboSyncSettings;
 import org.booklore.model.dto.kobo.KoboReadingState;
 import org.booklore.model.entity.BookEntity;
+import org.booklore.model.entity.UserBookFileProgressEntity;
 import org.booklore.model.entity.UserBookProgressEntity;
 import org.booklore.model.enums.KoboReadStatus;
 import org.booklore.model.enums.ReadStatus;
@@ -191,7 +192,7 @@ class KoboReadingStateBuilderTest {
             progress.setKoboLocationSource("Kobo");
             progress.setKoboProgressReceivedTime(Instant.parse("2025-11-26T10:00:00Z"));
 
-            KoboReadingState.CurrentBookmark bookmark = builder.buildBookmarkFromProgress(progress);
+            KoboReadingState.CurrentBookmark bookmark = builder.buildBookmarkFromProgress(progress, (UserBookFileProgressEntity) null);
 
             assertNotNull(bookmark);
             assertEquals(76, bookmark.getProgressPercent()); // Rounded
@@ -209,11 +210,53 @@ class KoboReadingStateBuilderTest {
             progress.setKoboLocation(null);
             progress.setKoboProgressReceivedTime(Instant.now());
 
-            KoboReadingState.CurrentBookmark bookmark = builder.buildBookmarkFromProgress(progress);
+            KoboReadingState.CurrentBookmark bookmark = builder.buildBookmarkFromProgress(progress, (UserBookFileProgressEntity) null);
 
             assertNotNull(bookmark);
             assertEquals(50, bookmark.getProgressPercent());
             assertNull(bookmark.getLocation());
+        }
+
+        @Test
+        @DisplayName("Should not carry file content progress into Kobo bookmark")
+        void buildBookmarkFromProgress_KoboBookmarkDoesNotReuseFileContentProgress() {
+            UserBookProgressEntity progress = new UserBookProgressEntity();
+            progress.setKoboProgressPercent(44f);
+            progress.setKoboProgressReceivedTime(Instant.parse("2025-11-26T10:00:00Z"));
+
+            UserBookFileProgressEntity fileProgress = new UserBookFileProgressEntity();
+            fileProgress.setContentSourceProgressPercent(18.6f);
+
+            KoboReadingState.CurrentBookmark bookmark = builder.buildBookmarkFromProgress(progress, fileProgress);
+
+            assertNotNull(bookmark);
+            assertEquals(44, bookmark.getProgressPercent());
+            assertNull(bookmark.getContentSourceProgressPercent());
+        }
+
+        @Test
+        @DisplayName("Should build web reader bookmark with file progress content data")
+        void buildBookmarkFromProgress_WebReaderLocation() {
+            UserBookProgressEntity progress = new UserBookProgressEntity();
+            progress.setEpubProgress("epubcfi(/6/4!/4/2/6/1:1)");
+            progress.setEpubProgressHref("OPS/chapter1.xhtml");
+            progress.setEpubProgressPercent(54.6f);
+            progress.setLastReadTime(Instant.parse("2025-11-26T10:00:00Z"));
+
+            UserBookFileProgressEntity fileProgress = new UserBookFileProgressEntity();
+            fileProgress.setPositionData("epubcfi(/6/8!/4/2/6/1:15)");
+            fileProgress.setPositionHref("OPS/chapter3.xhtml");
+            fileProgress.setContentSourceProgressPercent(18.6f);
+
+            KoboReadingState.CurrentBookmark bookmark = builder.buildBookmarkFromProgress(progress, fileProgress);
+
+            assertNotNull(bookmark);
+            assertEquals(55, bookmark.getProgressPercent());
+            assertEquals(19, bookmark.getContentSourceProgressPercent());
+            assertNotNull(bookmark.getLocation());
+            assertEquals("epubcfi(/6/8!/4/2/6/1:15)", bookmark.getLocation().getValue());
+            assertEquals("EpubCfi", bookmark.getLocation().getType());
+            assertEquals("OPS/chapter3.xhtml", bookmark.getLocation().getSource());
         }
 
         @Test
@@ -224,7 +267,7 @@ class KoboReadingStateBuilderTest {
             progress.setKoboProgressReceivedTime(null);
 
             OffsetDateTime defaultTime = OffsetDateTime.parse("2025-11-26T12:00:00Z");
-            KoboReadingState.CurrentBookmark bookmark = builder.buildBookmarkFromProgress(progress, defaultTime);
+            KoboReadingState.CurrentBookmark bookmark = builder.buildBookmarkFromProgress(progress, null, defaultTime);
 
             assertNotNull(bookmark);
             assertEquals(defaultTime.toString(), bookmark.getLastModified());
@@ -237,7 +280,7 @@ class KoboReadingStateBuilderTest {
             progress.setKoboProgressPercent(33.7f);
             progress.setKoboProgressReceivedTime(Instant.now());
 
-            KoboReadingState.CurrentBookmark bookmark = builder.buildBookmarkFromProgress(progress);
+            KoboReadingState.CurrentBookmark bookmark = builder.buildBookmarkFromProgress(progress, (UserBookFileProgressEntity) null);
 
             assertEquals(34, bookmark.getProgressPercent()); // Rounded up
         }
@@ -262,7 +305,7 @@ class KoboReadingStateBuilderTest {
             progress.setKoboProgressReceivedTime(Instant.parse("2025-11-26T10:00:00Z"));
             progress.setReadStatus(ReadStatus.READING);
 
-            KoboReadingState state = builder.buildReadingStateFromProgress("100", progress);
+            KoboReadingState state = builder.buildReadingStateFromProgress("100", progress, null);
 
             assertNotNull(state);
             assertEquals("100", state.getEntitlementId());

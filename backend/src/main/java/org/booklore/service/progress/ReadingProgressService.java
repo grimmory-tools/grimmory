@@ -303,6 +303,7 @@ public class ReadingProgressService {
         entity.setPositionHref(fileProgress.positionHref());
         entity.setProgressPercent(fileProgress.progressPercent());
         entity.setTtsPositionCfi(fileProgress.ttsPositionCfi());
+        entity.setContentSourceProgressPercent(fileProgress.contentSourceProgressPercent());
         entity.setLastReadTime(now);
 
         userBookFileProgressRepository.save(entity);
@@ -317,6 +318,7 @@ public class ReadingProgressService {
         entity.setUser(user);
         entity.setBookFile(bookFile);
         entity.setLastReadTime(now);
+        entity.setContentSourceProgressPercent(null);
 
         switch (bookFile.getBookType()) {
             case PDF -> {
