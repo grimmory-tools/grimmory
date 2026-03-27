@@ -738,16 +738,20 @@ class KoboReadingStateServiceTest {
 
         ArgumentCaptor<UserBookProgressEntity> captor = ArgumentCaptor.forClass(UserBookProgressEntity.class);
         when(progressRepository.save(captor.capture())).thenReturn(existingProgress);
+        ArgumentCaptor<UserBookFileProgressEntity> fileProgressCaptor =
+                ArgumentCaptor.forClass(UserBookFileProgressEntity.class);
 
         service.saveReadingState(List.of(readingState));
 
         UserBookProgressEntity saved = captor.getValue();
         assertEquals(55f, saved.getEpubProgressPercent());
+        assertEquals("epubcfi(/6/8)", saved.getEpubProgress());
         assertEquals("chapter3.xhtml", saved.getEpubProgressHref());
-        assertNull(saved.getEpubProgress());
-        verify(fileProgressRepository).save(argThat(savedFileProgress ->
-                savedFileProgress.getContentSourceProgressPercent() != null
-                        && savedFileProgress.getContentSourceProgressPercent().equals(23f)));
+        verify(fileProgressRepository).save(fileProgressCaptor.capture());
+        UserBookFileProgressEntity savedFileProgress = fileProgressCaptor.getValue();
+        assertEquals("epubcfi(/6/8)", savedFileProgress.getPositionData());
+        assertEquals("chapter3.xhtml", savedFileProgress.getPositionHref());
+        assertEquals(23f, savedFileProgress.getContentSourceProgressPercent());
     }
 
     @Test
