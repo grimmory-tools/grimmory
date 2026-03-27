@@ -11,7 +11,7 @@ strictly controlled surface.
 - Default local command:
 
 ```bash
-PLAYWRIGHT_PORT=4301 corepack yarn e2e playwright/login-and-books.spec.ts
+PLAYWRIGHT_PORT=4301 just --justfile frontend/Justfile --working-directory frontend e2e-file playwright/login-and-books.spec.ts
 ```
 
 ### Authoring rules
@@ -33,3 +33,5 @@ PLAYWRIGHT_PORT=4301 corepack yarn e2e playwright/login-and-books.spec.ts
 - Do not change the web server port in code for one-off runs; use env vars.
 - Do not add browser specs that depend on broad route shims copied from other
   scenarios.
+- Use the `frontend/Justfile` entrypoints for browser install, server startup,
+  and spec execution. Do not invoke Yarn directly from docs or ad hoc commands.

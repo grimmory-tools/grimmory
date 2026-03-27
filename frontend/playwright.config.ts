@@ -22,7 +22,7 @@ export default defineConfig({
     video: 'retain-on-failure',
   },
   webServer: startServer ? {
-    command: `corepack yarn ng serve --host ${host} --port ${port} --configuration development --watch=false`,
+    command: `just e2e-dev ${host} ${port}`,
     url: baseURL,
     reuseExistingServer,
     timeout: 180000,

@@ -35,6 +35,7 @@ Operating rules:
 - Keep the Playwright baseline narrow and reproducible:
   - the committed browser harness is `frontend/playwright.config.ts` plus the canonical `frontend/playwright/login-and-books.spec.ts` scenario
   - Playwright must use env-driven ports via `PLAYWRIGHT_PORT` or `PLAYWRIGHT_BASE_URL`; do not hard-code `4200` in specs or fixtures
+  - browser install, server startup, and spec execution should go through the `frontend/Justfile`, not direct Yarn commands
   - future browser scenarios need their own dedicated fixture files and must not extend one catch-all route shim
 
 ## Swarm Topology
