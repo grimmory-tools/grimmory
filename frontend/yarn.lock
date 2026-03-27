@@ -5458,6 +5458,7 @@ __metadata:
     jwt-decode: "npm:^4.0.0"
     msw: "npm:^2.12.14"
     ng-lazyload-image: "npm:^9.1.3"
+    ng-mocks: "npm:^14.15.2"
     ng2-charts: "npm:^8.0.0"
     ngx-extended-pdf-viewer: "npm:^25.6.4"
     ngx-infinite-scroll: "npm:^21.0.0"
@@ -6713,6 +6714,18 @@ __metadata:
     "@angular/core": ">=11.0.0"
     rxjs: ">=6.0.0"
   checksum: 10c0/3cad8f32ce616d72c1e1c31bd8ec74e765644e2941899b6d38eaa5ac86774b19b19176265976ad4528e11596d518798fe82723519bfec28f6ccd580f7c3c7145
+  languageName: node
+  linkType: hard
+
+"ng-mocks@npm:^14.15.2":
+  version: 14.15.2
+  resolution: "ng-mocks@npm:14.15.2"
+  peerDependencies:
+    "@angular/common": 5.0.0-alpha - 5 || 6.0.0-alpha - 6 || 7.0.0-alpha - 7 || 8.0.0-alpha - 8 || 9.0.0-alpha - 9 || 10.0.0-alpha - 10 || 11.0.0-alpha - 11 || 12.0.0-alpha - 12 || 13.0.0-alpha - 13 || 14.0.0-alpha - 14 || 15.0.0-alpha - 15 || 16.0.0-alpha - 16 || 17.0.0-alpha - 17 || 18.0.0-alpha - 18 || 19.0.0-alpha - 19 || 20.0.0-alpha - 20 || 21.0.0-alpha - 21 || 22.0.0-alpha - 22
+    "@angular/core": 5.0.0-alpha - 5 || 6.0.0-alpha - 6 || 7.0.0-alpha - 7 || 8.0.0-alpha - 8 || 9.0.0-alpha - 9 || 10.0.0-alpha - 10 || 11.0.0-alpha - 11 || 12.0.0-alpha - 12 || 13.0.0-alpha - 13 || 14.0.0-alpha - 14 || 15.0.0-alpha - 15 || 16.0.0-alpha - 16 || 17.0.0-alpha - 17 || 18.0.0-alpha - 18 || 19.0.0-alpha - 19 || 20.0.0-alpha - 20 || 21.0.0-alpha - 21 || 22.0.0-alpha - 22
+    "@angular/forms": 5.0.0-alpha - 5 || 6.0.0-alpha - 6 || 7.0.0-alpha - 7 || 8.0.0-alpha - 8 || 9.0.0-alpha - 9 || 10.0.0-alpha - 10 || 11.0.0-alpha - 11 || 12.0.0-alpha - 12 || 13.0.0-alpha - 13 || 14.0.0-alpha - 14 || 15.0.0-alpha - 15 || 16.0.0-alpha - 16 || 17.0.0-alpha - 17 || 18.0.0-alpha - 18 || 19.0.0-alpha - 19 || 20.0.0-alpha - 20 || 21.0.0-alpha - 21 || 22.0.0-alpha - 22
+    "@angular/platform-browser": 5.0.0-alpha - 5 || 6.0.0-alpha - 6 || 7.0.0-alpha - 7 || 8.0.0-alpha - 8 || 9.0.0-alpha - 9 || 10.0.0-alpha - 10 || 11.0.0-alpha - 11 || 12.0.0-alpha - 12 || 13.0.0-alpha - 13 || 14.0.0-alpha - 14 || 15.0.0-alpha - 15 || 16.0.0-alpha - 16 || 17.0.0-alpha - 17 || 18.0.0-alpha - 18 || 19.0.0-alpha - 19 || 20.0.0-alpha - 20 || 21.0.0-alpha - 21 || 22.0.0-alpha - 22
+  checksum: 10c0/625b03b2bb876207c4c78bacf481d3b1c5d7056f95281008d45fd06ef7625bf2e469245c71694d48cd3190ed4ea75d5293a24bbb64085b6aeb15b4b48924d551
   languageName: node
   linkType: hard
 
