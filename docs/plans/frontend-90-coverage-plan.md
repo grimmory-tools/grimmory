@@ -32,6 +32,10 @@ Operating rules:
   - per-family metrics for `core`, `shared`, and each `features/*` bucket
   - the worst uncovered files by branch deficit
 - Keep controller ownership over plan artifacts, harness files, shared test-only helper roots, and Playwright configuration.
+- Keep the Playwright baseline narrow and reproducible:
+  - the committed browser harness is `frontend/playwright.config.ts` plus the canonical `frontend/playwright/login-and-books.spec.ts` scenario
+  - Playwright must use env-driven ports via `PLAYWRIGHT_PORT` or `PLAYWRIGHT_BASE_URL`; do not hard-code `4200` in specs or fixtures
+  - future browser scenarios need their own dedicated fixture files and must not extend one catch-all route shim
 
 ## Swarm Topology
 
