@@ -30,21 +30,21 @@
     <ul class="topbar-items topbar-desktop-items">
       <div class="topbar-action-group">
         @if (user(); as currentUser) {
-          @if (currentUser.permissions?.canAccessBookdrop || currentUser.permissions?.admin) {
+          @if (currentUser.permissions.canAccessBookdrop || currentUser.permissions.admin) {
             <li>
               <a class="topbar-item" role="button" tabindex="0" (click)="navigateToBookdrop()" (keydown.enter)="navigateToBookdrop()" [pTooltip]="t('bookdrop')" tooltipPosition="bottom">
                 <i class="pi pi-inbox topbar-icon"></i>
               </a>
             </li>
           }
-          @if (currentUser.permissions?.canManageLibrary || currentUser.permissions?.admin) {
+          @if (currentUser.permissions.canManageLibrary || currentUser.permissions.admin) {
             <li>
               <a class="topbar-item" role="button" tabindex="0" (click)="openLibraryCreatorDialog()" (keydown.enter)="openLibraryCreatorDialog()" [pTooltip]="t('createNewLibrary')" tooltipPosition="bottom">
                 <i class="pi pi-plus-circle topbar-icon"></i>
               </a>
             </li>
           }
-          @if (currentUser.permissions?.canUpload || currentUser.permissions?.admin) {
+          @if (currentUser.permissions.canUpload || currentUser.permissions.admin) {
             <li>
               <a class="topbar-item" role="button" tabindex="0" (click)="openFileUploadDialog()" (keydown.enter)="openFileUploadDialog()" [pTooltip]="t('uploadBook')" tooltipPosition="bottom">
                 <i class="pi pi-upload topbar-icon"></i>
@@ -72,7 +72,7 @@
           </li>
         }
         @if (user(); as currentUser) {
-          @if (currentUser.permissions?.canManageLibrary || currentUser.permissions?.admin) {
+          @if (currentUser.permissions.canManageLibrary || currentUser.permissions.admin) {
             <li>
               <a class="topbar-item" role="button" tabindex="0" (click)="navigateToMetadataManager()" (keydown.enter)="navigateToMetadataManager()" [pTooltip]="t('metadataManager')" tooltipPosition="bottom">
                 <i class="pi pi-sparkles topbar-icon"></i>
@@ -155,7 +155,7 @@
 
         <!-- Show Profile only to non-demo users -->
         @if (user(); as currentUser) {
-          @if (!currentUser.permissions?.demoUser) {
+          @if (!currentUser.permissions.demoUser) {
             <li>
               <button class="topbar-item" (click)="openUserProfileDialog()" [pTooltip]="t('profile')" tooltipPosition="bottom">
                 <i class="pi pi-user topbar-icon"></i>
@@ -181,7 +181,7 @@
       <p-popover #mobileMenu>
         <ul class="mobile-menu-list">
           @if (user(); as currentUser) {
-            @if (currentUser.permissions?.canAccessBookdrop || currentUser.permissions?.admin) {
+            @if (currentUser.permissions.canAccessBookdrop || currentUser.permissions.admin) {
               <li>
                 <button
                   class="mobile-menu-item"
@@ -192,7 +192,7 @@
                 </button>
               </li>
             }
-            @if (currentUser.permissions?.canManageLibrary || currentUser.permissions?.admin) {
+            @if (currentUser.permissions.canManageLibrary || currentUser.permissions.admin) {
               <li>
                 <button
                   class="mobile-menu-item"
@@ -203,7 +203,7 @@
                 </button>
               </li>
             }
-            @if (currentUser.permissions?.canUpload || currentUser.permissions?.admin) {
+            @if (currentUser.permissions.canUpload || currentUser.permissions.admin) {
               <li>
                 <button
                   class="mobile-menu-item"
@@ -214,7 +214,7 @@
                 </button>
               </li>
             }
-            @if (currentUser.permissions?.canAccessLibraryStats || currentUser.permissions?.admin) {
+            @if (currentUser.permissions.canAccessLibraryStats || currentUser.permissions.admin) {
               <li>
                 <button
                   class="mobile-menu-item"
@@ -225,7 +225,7 @@
                 </button>
               </li>
             }
-            @if (currentUser.permissions?.canAccessUserStats || currentUser.permissions?.admin) {
+            @if (currentUser.permissions.canAccessUserStats || currentUser.permissions.admin) {
               <li>
                 <button
                   class="mobile-menu-item"
@@ -236,7 +236,7 @@
                 </button>
               </li>
             }
-            @if (currentUser.permissions?.canManageLibrary || currentUser.permissions?.admin) {
+            @if (currentUser.permissions.canManageLibrary || currentUser.permissions.admin) {
               <li>
                 <button
                   class="mobile-menu-item"
@@ -279,7 +279,7 @@
           </li>
 
           @if (user(); as currentUser) {
-            @if (!currentUser.permissions?.demoUser) {
+            @if (!currentUser.permissions.demoUser) {
               <li>
                 <button
                   class="mobile-menu-item"
