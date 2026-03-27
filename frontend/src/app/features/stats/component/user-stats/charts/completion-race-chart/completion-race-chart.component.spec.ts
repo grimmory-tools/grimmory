@@ -1,8 +1,14 @@
-import {describe, expect, it} from 'vitest';
+import {describe, it} from 'vitest';
 
-// TODO(frontend-coverage): Replace this stub with real coverage for frontend/src/app/features/stats/component/user-stats/charts/completion-race-chart/completion-race-chart.component.ts.
-describe.skip("completion-race-chart.component TODO stub", () => {
-  it('TODO: add real coverage', () => {
-    expect(true).toBe(true);
+// NOTE(frontend-seam): Real coverage here needs seams around the UserStatsService stream, date
+// normalization, and Chart.js line-series assembly so yearly race aggregation can be tested
+// without leaning on a full chart runtime.
+describe.skip('CompletionRaceChartComponent', () => {
+  it('needs service and transformation seams to verify year changes, session grouping, and fastest/slowest book summaries', () => {
+    // TODO(seam): Cover loadData and processData once the observable subscription flow is isolated behind a test seam.
+  });
+
+  it('needs chart-adapter seams to verify line dataset generation and translated tooltip callbacks', () => {
+    // TODO(seam): Cover the chart dataset mapping after extracting Chart.js point metadata and callback wiring from the component.
   });
 });
