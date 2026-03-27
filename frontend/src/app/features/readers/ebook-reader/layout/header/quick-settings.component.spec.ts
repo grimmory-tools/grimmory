@@ -1,8 +1,9 @@
 import {describe, expect, it} from 'vitest';
 
-// TODO(frontend-coverage): Replace this stub with real coverage for frontend/src/app/features/readers/ebook-reader/layout/header/quick-settings.component.ts.
-describe.skip("quick-settings.component TODO stub", () => {
-  it('TODO: add real coverage', () => {
-    expect(true).toBe(true);
+// TODO(seam): Quick settings need a reader-state harness with overlay controls and persisted
+// preference services to cover the font, theme, and flow branches without brittle mocks.
+describe.skip('QuickSettingsComponent', () => {
+  it('needs a mounted reader harness for quick-settings interactions and persistence branches', () => {
+    expect.hasAssertions();
   });
 });

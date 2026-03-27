@@ -1,8 +1,9 @@
 import {describe, expect, it} from 'vitest';
 
-// TODO(frontend-coverage): Replace this stub with real coverage for frontend/src/app/features/settings/email-v2/email-v2.component.ts.
-describe.skip("email-v2.component TODO stub", () => {
-  it('TODO: add real coverage', () => {
-    expect(true).toBe(true);
+// TODO(seam): The email settings screen coordinates nested provider and recipient dialogs,
+// permissions, and persisted settings, which needs a mounted settings harness.
+describe.skip('EmailV2Component', () => {
+  it('needs a mounted settings harness for provider, recipient, and toggle flows', () => {
+    expect.hasAssertions();
   });
 });

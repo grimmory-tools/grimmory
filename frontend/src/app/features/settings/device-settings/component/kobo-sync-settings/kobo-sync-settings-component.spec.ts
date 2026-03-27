@@ -1,8 +1,9 @@
 import {describe, expect, it} from 'vitest';
 
-// TODO(frontend-coverage): Replace this stub with real coverage for frontend/src/app/features/settings/device-settings/component/kobo-sync-settings/kobo-sync-settings-component.ts.
-describe.skip("kobo-sync-settings-component TODO stub", () => {
-  it('TODO: add real coverage', () => {
-    expect(true).toBe(true);
+// TODO(seam): Kobo settings rely on user-permission effects, debounced slider saves,
+// confirm-dialog callbacks, clipboard access, and app-setting persistence.
+describe.skip('KoboSyncSettingsComponent', () => {
+  it('needs a mounted settings harness for slider debounce, token regeneration, and save flows', () => {
+    expect.hasAssertions();
   });
 });

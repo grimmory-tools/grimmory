@@ -1,8 +1,9 @@
 import {describe, expect, it} from 'vitest';
 
-// TODO(frontend-coverage): Replace this stub with real coverage for frontend/src/app/features/book/components/book-browser/sorting/multi-sort-popover/multi-sort-popover.component.ts.
-describe.skip("multi-sort-popover.component TODO stub", () => {
-  it('TODO: add real coverage', () => {
-    expect(true).toBe(true);
+// TODO(seam): This popover needs a PrimeNG overlay and drag-drop harness so the
+// multi-sort reorder and apply flows can be tested against real emitted events.
+describe.skip('MultiSortPopoverComponent', () => {
+  it('needs an overlay harness for drag-drop reorder and sort application flows', () => {
+    expect.hasAssertions();
   });
 });

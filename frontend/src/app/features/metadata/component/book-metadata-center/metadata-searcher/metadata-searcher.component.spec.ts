@@ -1,8 +1,9 @@
 import {describe, expect, it} from 'vitest';
 
-// TODO(frontend-coverage): Replace this stub with real coverage for frontend/src/app/features/metadata/component/book-metadata-center/metadata-searcher/metadata-searcher.component.ts.
-describe.skip("metadata-searcher.component TODO stub", () => {
-  it('TODO: add real coverage', () => {
-    expect(true).toBe(true);
+// TODO(seam): Search orchestration depends on reactive form state, provider fan-out requests,
+// and metadata picker integration that should be covered through a component harness.
+describe.skip('MetadataSearcherComponent', () => {
+  it('needs an integration harness for provider filtering, auto-search, and detail-loading flows', () => {
+    expect.hasAssertions();
   });
 });

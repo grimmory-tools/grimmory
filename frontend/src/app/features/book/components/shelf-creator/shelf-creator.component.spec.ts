@@ -1,8 +1,9 @@
 import {describe, expect, it} from 'vitest';
 
-// TODO(frontend-coverage): Replace this stub with real coverage for frontend/src/app/features/book/components/shelf-creator/shelf-creator.component.ts.
-describe.skip("shelf-creator.component TODO stub", () => {
-  it('TODO: add real coverage', () => {
-    expect(true).toBe(true);
+// TODO(seam): Shelf creation is driven by dialog lifecycle, form validation, and shelf
+// mutation services that should be exercised with a real modal harness.
+describe.skip('ShelfCreatorComponent', () => {
+  it('needs a dialog form harness to cover create success, validation, and error flows', () => {
+    expect.hasAssertions();
   });
 });

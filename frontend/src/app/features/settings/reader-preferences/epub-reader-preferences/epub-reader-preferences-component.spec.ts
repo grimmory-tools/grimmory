@@ -1,8 +1,9 @@
 import {describe, expect, it} from 'vitest';
 
-// TODO(frontend-coverage): Replace this stub with real coverage for frontend/src/app/features/settings/reader-preferences/epub-reader-preferences/epub-reader-preferences-component.ts.
-describe.skip("epub-reader-preferences-component TODO stub", () => {
-  it('TODO: add real coverage', () => {
-    expect(true).toBe(true);
+// TODO(seam): EPUB reader preferences need a mounted settings harness around form controls,
+// custom-font selection, and persisted user-setting mutations.
+describe.skip('EpubReaderPreferencesComponent', () => {
+  it('needs a mounted settings harness for theme, flow, and font preference branches', () => {
+    expect.hasAssertions();
   });
 });

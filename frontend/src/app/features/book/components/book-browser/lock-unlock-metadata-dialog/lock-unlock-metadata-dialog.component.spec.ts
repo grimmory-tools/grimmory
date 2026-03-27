@@ -1,8 +1,9 @@
 import {describe, expect, it} from 'vitest';
 
-// TODO(frontend-coverage): Replace this stub with real coverage for frontend/src/app/features/book/components/book-browser/lock-unlock-metadata-dialog/lock-unlock-metadata-dialog.component.ts.
-describe.skip("lock-unlock-metadata-dialog.component TODO stub", () => {
-  it('TODO: add real coverage', () => {
-    expect(true).toBe(true);
+// TODO(seam): This dialog depends on PrimeNG dynamic-dialog wiring and metadata mutation
+// services that should be exercised through a dialog harness rather than shallow class tests.
+describe.skip('LockUnlockMetadataDialogComponent', () => {
+  it('needs a dialog harness to cover the lock and unlock mutation flows', () => {
+    expect.hasAssertions();
   });
 });

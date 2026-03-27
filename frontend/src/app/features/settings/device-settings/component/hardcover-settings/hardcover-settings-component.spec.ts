@@ -1,8 +1,9 @@
 import {describe, expect, it} from 'vitest';
 
-// TODO(frontend-coverage): Replace this stub with real coverage for frontend/src/app/features/settings/device-settings/component/hardcover-settings/hardcover-settings-component.ts.
-describe.skip("hardcover-settings-component TODO stub", () => {
-  it('TODO: add real coverage', () => {
-    expect(true).toBe(true);
+// TODO(seam): This component mixes permission-driven effects, clipboard access, PrimeNG
+// toast wiring, and service persistence, so it needs a mounted settings harness.
+describe.skip('HardcoverSettingsComponent', () => {
+  it('needs a mounted settings harness for permission hydration, save, and clipboard flows', () => {
+    expect.hasAssertions();
   });
 });

@@ -1,8 +1,9 @@
 import {describe, expect, it} from 'vitest';
 
-// TODO(frontend-coverage): Replace this stub with real coverage for frontend/src/app/features/book/components/shelf-edit-dialog/shelf-edit-dialog.component.ts.
-describe.skip("shelf-edit-dialog.component TODO stub", () => {
-  it('TODO: add real coverage', () => {
-    expect(true).toBe(true);
+// TODO(seam): Shelf editing depends on the modal host, reactive form validation, and
+// shelf mutation side effects that need an integration harness to test honestly.
+describe.skip('ShelfEditDialogComponent', () => {
+  it('needs a dialog harness for rename, reorder, and save failure branches', () => {
+    expect.hasAssertions();
   });
 });

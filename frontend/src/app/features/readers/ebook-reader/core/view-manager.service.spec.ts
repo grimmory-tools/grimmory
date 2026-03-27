@@ -1,8 +1,9 @@
 import {describe, expect, it} from 'vitest';
 
-// TODO(frontend-coverage): Replace this stub with real coverage for frontend/src/app/features/readers/ebook-reader/core/view-manager.service.ts.
-describe.skip("view-manager.service TODO stub", () => {
-  it('TODO: add real coverage', () => {
-    expect(true).toBe(true);
+// TODO(seam): The view manager requires a real Foliate custom element, DOM selection APIs,
+// and streaming book factory hooks to cover its navigation and annotation branches honestly.
+describe.skip('ReaderViewManagerService', () => {
+  it('needs a DOM and foliate harness for view creation, navigation, and streaming flows', () => {
+    expect.hasAssertions();
   });
 });

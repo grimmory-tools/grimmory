@@ -1,8 +1,13 @@
 import {describe, expect, it} from 'vitest';
 
-// TODO(frontend-coverage): Replace this stub with real coverage for frontend/src/app/features/readers/ebook-reader/index.ts.
-describe.skip("index TODO stub", () => {
-  it('TODO: add real coverage', () => {
-    expect(true).toBe(true);
+import * as readerExports from './index';
+
+describe('ebook-reader index barrel', () => {
+  it('re-exports the primary reader entrypoints', () => {
+    expect(readerExports.EbookReaderComponent).toBeDefined();
+    expect(readerExports.ReaderViewManagerService).toBeDefined();
+    expect(readerExports.ReaderEventService).toBeDefined();
+    expect(readerExports.ReaderAnnotationHttpService).toBeDefined();
+    expect(readerExports.ReaderIconComponent).toBeDefined();
   });
 });
