@@ -16,6 +16,15 @@ class TestHostComponent {
   src = '';
 }
 
+@Component({
+  standalone: true,
+  imports: [SecureSrcDirective],
+  template: `<img [appSecureSrc]="src" alt="test cover" />`
+})
+class DefaultFallbackHostComponent {
+  src = '';
+}
+
 describe('SecureSrcDirective', () => {
   let fixture: ComponentFixture<TestHostComponent>;
   let httpTestingController: HttpTestingController;
@@ -105,5 +114,42 @@ describe('SecureSrcDirective', () => {
     expect(errorSpy).toHaveBeenCalledOnce();
 
     fixture.destroy();
+  });
+
+  it('revokes the active object URL when the directive is destroyed after a successful load', () => {
+    const revokeSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
+    vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:destroyed');
+
+    fixture.componentInstance.src = '/covers/7';
+    fixture.detectChanges();
+
+    const request = httpTestingController.expectOne('/covers/7');
+    request.flush(new Blob(['cover']));
+
+    fixture.destroy();
+
+    expect(revokeSpy).toHaveBeenCalledWith('blob:destroyed');
+  });
+
+  it('uses the default fallback image when no fallback attribute is provided', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [DefaultFallbackHostComponent],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+      ]
+    });
+
+    const defaultFixture = TestBed.createComponent(DefaultFallbackHostComponent);
+    const defaultHttpTestingController = TestBed.inject(HttpTestingController);
+    defaultFixture.componentInstance.src = '/covers/6';
+    defaultFixture.detectChanges();
+
+    const request = defaultHttpTestingController.expectOne('/covers/6');
+    request.error(new ProgressEvent('error'), {status: 500, statusText: 'Server Error'});
+
+    expect(defaultFixture.debugElement.query(By.css('img')).nativeElement.src).toContain('assets/images/missing-cover.jpg');
+    defaultHttpTestingController.verify();
   });
 });

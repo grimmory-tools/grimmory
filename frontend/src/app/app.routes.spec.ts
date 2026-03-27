@@ -54,4 +54,10 @@ describe('app routes', () => {
     expect(routes.find(route => route.path === 'cbx-reader/book/:bookId')?.canActivate).toEqual([AuthGuard]);
     expect(routes.find(route => route.path === 'audiobook-player/book/:bookId')?.canActivate).toEqual([AuthGuard]);
   });
+
+  it('keeps the callback and password routes outside the authenticated shell', () => {
+    expect(routes.find(route => route.path === 'oauth2-callback')?.component).toBeDefined();
+    expect(routes.find(route => route.path === 'change-password')?.component).toBeDefined();
+    expect(routes.find(route => route.path === 'change-password')?.canActivate).toBeUndefined();
+  });
 });

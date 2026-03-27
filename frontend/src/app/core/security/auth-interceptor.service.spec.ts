@@ -102,6 +102,26 @@ describe('AuthInterceptorService', () => {
     expect((response as HttpResponse<string>).body).toBe('Bearer fresh-token');
   });
 
+  it('retries a 401 request without persisting tokens when the refresh response is incomplete', async () => {
+    authService.getInternalAccessToken.mockReturnValue('expired-token');
+    authService.internalRefreshToken.mockReturnValue(of({accessToken: 'fresh-token', refreshToken: ''}));
+
+    const next = vi.fn((request: HttpRequest<unknown>) => {
+      if (request.headers.get('Authorization') === 'Bearer fresh-token') {
+        return of(new HttpResponse({status: 200, body: request.headers.get('Authorization')}));
+      }
+      return throwError(() => new HttpErrorResponse({status: 401}));
+    });
+
+    const response = await firstValueFrom(interceptor(
+      new HttpRequest('GET', `${apiUrl}/books`),
+      next
+    ));
+
+    expect(authService.saveInternalTokens).not.toHaveBeenCalled();
+    expect((response as HttpResponse<string>).body).toBe('Bearer fresh-token');
+  });
+
   it('logs out when the refresh request fails', async () => {
     authService.getInternalAccessToken.mockReturnValue('expired-token');
     authService.internalRefreshToken.mockReturnValue(

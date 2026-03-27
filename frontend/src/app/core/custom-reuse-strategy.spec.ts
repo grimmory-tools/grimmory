@@ -74,6 +74,31 @@ describe('CustomReuseStrategy', () => {
     expect(deselectSpy).not.toHaveBeenCalled();
   });
 
+  it('ignores null handles for book browser routes', () => {
+    const route = createRoute('series', {seriesId: '77'});
+    const deselectSpy = vi.spyOn(selectionService, 'deselectAll');
+
+    strategy.store(route, null);
+
+    expect(strategy.shouldDetach(route)).toBe(true);
+    expect(strategy.shouldAttach(route)).toBe(false);
+    expect(strategy.retrieve(route)).toBeNull();
+    expect(deselectSpy).not.toHaveBeenCalled();
+  });
+
+  it('returns a stored handle without touching the DOM when no scroll position was saved', () => {
+    const route = createRoute('authors');
+    const querySelectorSpy = vi.spyOn(document, 'querySelector');
+    const deselectSpy = vi.spyOn(selectionService, 'deselectAll');
+
+    strategy.store(route, handle);
+
+    expect(deselectSpy).toHaveBeenCalledOnce();
+    expect(strategy.shouldAttach(route)).toBe(true);
+    expect(strategy.retrieve(route)).toBe(handle);
+    expect(querySelectorSpy).not.toHaveBeenCalled();
+  });
+
   it('reuses routes only when the route config and params both match', () => {
     const routeConfig = {path: 'series'};
     const current = {
