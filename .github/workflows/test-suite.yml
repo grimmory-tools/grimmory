@@ -12,6 +12,11 @@ on:
         required: false
         type: boolean
         default: true
+      save_gradle_cache:
+        description: 'Whether this run should persist the shared Gradle cache'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   backend-tests:
@@ -29,19 +34,33 @@ jobs:
           fetch-depth: 0
           ref: ${{ inputs.checkout_ref }}
 
+      - name: Install just
+        uses: taiki-e/install-action@7627fb428e65e78e2ec9a24ae5c5bd5f8553f182 # v2.69.10
+        with:
+          tool: just
+
       - name: Set Up JDK 25
         uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:
           java-version: '25'
           distribution: 'temurin'
-          cache: gradle
+
+      - name: Restore Gradle Cache
+        id: restore_gradle_cache
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('booklore-api/**/*.gradle*', 'booklore-api/settings.gradle*', 'booklore-api/gradle.properties', 'booklore-api/gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
 
       - name: Execute Backend Tests
         id: backend_tests
-        working-directory: ./booklore-api
         run: |
           echo "Running backend tests..."
-          ./gradlew test --no-daemon --parallel --build-cache
+          just api test
         continue-on-error: true
 
       - name: Publish Backend Test Results
@@ -60,6 +79,15 @@ jobs:
             booklore-api/build/reports/tests/
             booklore-api/build/test-results/
           retention-days: 30
+
+      - name: Save Gradle Cache
+        if: ${{ always() && inputs.save_gradle_cache }}
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ steps.restore_gradle_cache.outputs.cache-primary-key }}
 
       - name: Validate Backend Test Results
         if: steps.backend_tests.outcome == 'failure'
@@ -82,38 +110,42 @@ jobs:
           fetch-depth: 0
           ref: ${{ inputs.checkout_ref }}
 
+      - name: Install just
+        uses: taiki-e/install-action@7627fb428e65e78e2ec9a24ae5c5bd5f8553f182 # v2.69.10
+        with:
+          tool: just
+
       - name: Set Up Node.js
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
         with:
           node-version: '24'
-          cache: 'npm'
-          cache-dependency-path: booklore-ui/package-lock.json
+
+      - name: Enable Corepack
+        run: |
+          corepack enable
+          corepack yarn --version
 
       - name: Install Frontend Dependencies
-        working-directory: ./booklore-ui
-        run: npm ci
+        run: just ui install-ci
 
       - name: Audit Frontend Dependencies
-        working-directory: ./booklore-ui
-        run: npm audit --audit-level=critical
+        run: just ui audit-ci
 
       - name: Validate Dependency Tree
-        working-directory: ./booklore-ui
-        run: npm ls --depth=0
+        run: just ui deps
 
       - name: Execute Frontend Tests
         id: frontend_tests
-        working-directory: ./booklore-ui
         run: |
           echo "Running frontend tests..."
-          npx ng test
+          just ui test
         continue-on-error: true
 
       - name: Publish Frontend Test Results
         uses: EnricoMi/publish-unit-test-result-action@c950f6fb443cb5af20a377fd0dfaa78838901040 # v2
         if: ${{ always() && inputs.publish_test_results }}
         with:
-          files: booklore-ui/test-results/vitest-results.xml
+          files: frontend/test-results/vitest-results.xml
           check_name: Frontend Test Results
 
       - name: Upload Frontend Test Reports
@@ -122,7 +154,7 @@ jobs:
         with:
           name: frontend-test-reports
           path: |
-            booklore-ui/test-results/vitest-results.xml
+            frontend/test-results/vitest-results.xml
           retention-days: 30
 
       - name: Validate Frontend Test Results

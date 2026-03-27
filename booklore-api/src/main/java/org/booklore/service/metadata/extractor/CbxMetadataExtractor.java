@@ -564,59 +564,6 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
         }
     }
 
-    /**
-     * Extracts metadata from a standalone ComicInfo.xml file.
-     * This method is useful for processing ComicInfo.xml files that have been
-     * extracted from comic book archives or exist independently.
-     *
-     * @param xmlFile The ComicInfo.xml file to parse
-     * @return BookMetadata extracted from the XML file, or fallback metadata if parsing fails
-     * @throws IllegalArgumentException if xmlFile is null
-     */
-    public BookMetadata extractFromComicInfoXml(File xmlFile) {
-        if (xmlFile == null) {
-            throw new IllegalArgumentException("XML file cannot be null");
-        }
-
-        String fallbackTitle = determineFallbackTitle(xmlFile);
-
-        try (InputStream is = new FileInputStream(xmlFile)) {
-            Document document = buildSecureDocument(is);
-            return mapDocumentToMetadata(document, fallbackTitle);
-        } catch (IOException e) {
-            log.error("Failed to read ComicInfo.xml file '{}': {}",
-                    xmlFile.getAbsolutePath(), e.getMessage(), e);
-            return BookMetadata.builder().title(fallbackTitle).build();
-        } catch (SAXException | ParserConfigurationException e) {
-            log.warn("Failed to parse ComicInfo.xml from file '{}': {}",
-                    xmlFile.getAbsolutePath(), e.getMessage(), e);
-            return BookMetadata.builder().title(fallbackTitle).build();
-        } catch (Exception e) {
-            log.error("Unexpected error processing ComicInfo.xml '{}': {}",
-                    xmlFile.getAbsolutePath(), e.getMessage(), e);
-            return BookMetadata.builder().title(fallbackTitle).build();
-        }
-    }
-
-    /**
-     * Determines the fallback title to use when metadata extraction fails.
-     * Uses the parent directory name if available, otherwise the file name.
-     *
-     * @param file The file to determine the fallback title for
-     * @return A fallback title string
-     */
-    private String determineFallbackTitle(File file) {
-        // Try parent directory first (usually the comic folder/archive name)
-        if (file.getParentFile() != null) {
-            String parentName = file.getParentFile().getName();
-            if (parentName != null && !parentName.isBlank()) {
-                return parentName;
-            }
-        }
-        // Fall back to filename without extension
-        return FilenameUtils.getBaseName(file.getName());
-    }
-
     @Override
     public byte[] extractCover(File file) {
         ArchiveUtils.ArchiveType type = ArchiveUtils.detectArchiveType(file);

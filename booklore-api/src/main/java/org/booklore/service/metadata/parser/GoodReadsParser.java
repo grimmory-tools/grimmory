@@ -20,6 +20,8 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -66,6 +68,24 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
             }
         }
 
+        String isbn = ParserUtils.cleanIsbn(fetchMetadataRequest.getIsbn());
+        if (isbn != null && !isbn.isBlank()) {
+            log.info("GoodReads: Trying ISBN lookup: {}", isbn);
+            try {
+                Document doc = fetchDoc(BASE_ISBN_URL + isbn);
+                String goodreadsId = extractGoodreadsIdFromOgUrl(doc);
+                if (goodreadsId != null) {
+                    BookMetadata metadata = parseBookDetails(doc, goodreadsId);
+                    if (metadata != null) {
+                        return metadata;
+                    }
+                }
+                log.info("GoodReads: ISBN lookup returned no results, falling back to title search");
+            } catch (Exception e) {
+                log.warn("GoodReads: ISBN lookup failed: {}, falling back to title search", e.getMessage());
+            }
+        }
+
         Optional<BookMetadata> preview = fetchMetadataPreviews(book, fetchMetadataRequest).stream().findFirst();
         if (preview.isEmpty()) {
             return null;
@@ -92,23 +112,37 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
         }
     }
 
+    private String extractGoodreadsIdFromOgUrl(Document doc) {
+        String ogUrl = Optional.ofNullable(doc.selectFirst("meta[property=og:url]"))
+                .map(e -> e.attr("content"))
+                .orElse(null);
+        if (ogUrl == null || ogUrl.isBlank()) {
+            return null;
+        }
+        try {
+            String path = new URI(ogUrl).getPath();
+            if (path == null || path.isBlank()) {
+                return null;
+            }
+            String id = path.substring(path.lastIndexOf('/') + 1);
+            return id.isBlank() ? null : id;
+        } catch (URISyntaxException e) {
+            log.warn("GoodReads: Could not parse og:url '{}': {}", ogUrl, e.getMessage());
+            return null;
+        }
+    }
+
     @Override
     public List<BookMetadata> fetchMetadata(Book book, FetchMetadataRequest fetchMetadataRequest) {
         String isbn = ParserUtils.cleanIsbn(fetchMetadataRequest.getIsbn());
         if (isbn != null && !isbn.isBlank()) {
             log.info("Goodreads Query URL (ISBN): {}{}", BASE_ISBN_URL, isbn);
             Document doc = fetchDoc(BASE_ISBN_URL + isbn);
-            String ogUrl = Optional.ofNullable(doc.selectFirst("meta[property=og:url]"))
-                    .map(e -> e.attr("content"))
-                    .orElse(null);
-
-            if (ogUrl != null && !ogUrl.isBlank()) {
-                String goodreadsId = ogUrl.substring(ogUrl.lastIndexOf('/') + 1);
-                if (!goodreadsId.isBlank()) {
-                    BookMetadata metadata = parseBookDetails(doc, goodreadsId);
-                    if (metadata != null) {
-                        return List.of(metadata);
-                    }
+            String goodreadsId = extractGoodreadsIdFromOgUrl(doc);
+            if (goodreadsId != null) {
+                BookMetadata metadata = parseBookDetails(doc, goodreadsId);
+                if (metadata != null) {
+                    return List.of(metadata);
                 }
             }
         }

@@ -110,7 +110,7 @@ class EpubReaderServiceTest {
         when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
 
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
-            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath.toString());
+            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath);
 
             ZipFile zipFile = createMockZipFile();
             ZipFile.Builder builder = createMockZipFileBuilder(zipFile);
@@ -149,7 +149,7 @@ class EpubReaderServiceTest {
         when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
 
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
-            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath.toString());
+            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath);
 
             ZipFile zipFile = createMockZipFile();
             ZipFile.Builder builder = createMockZipFileBuilder(zipFile);
@@ -177,7 +177,7 @@ class EpubReaderServiceTest {
         when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
 
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
-            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath.toString());
+            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath);
 
             byte[] chapterContent = "<html><body>Chapter 1 content</body></html>".getBytes(StandardCharsets.UTF_8);
             ZipFile zipFile = createMockZipFileWithStreamableEntry("OEBPS/chapter1.xhtml", chapterContent);
@@ -212,7 +212,7 @@ class EpubReaderServiceTest {
         when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
 
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
-            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath.toString());
+            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath);
 
             ZipFile zipFile = createMockZipFile();
             ZipFile.Builder builder = createMockZipFileBuilder(zipFile);
@@ -238,7 +238,7 @@ class EpubReaderServiceTest {
         when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
 
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
-            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath.toString());
+            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath);
 
             ZipFile zipFile = createMockZipFile();
             ZipFile.Builder builder = createMockZipFileBuilder(zipFile);
@@ -264,7 +264,7 @@ class EpubReaderServiceTest {
         when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
 
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
-            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath.toString());
+            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath);
 
             byte[] containerContent = CONTAINER_XML.getBytes(StandardCharsets.UTF_8);
             ZipFile zipFile = createMockZipFileWithStreamableEntry("META-INF/container.xml", containerContent);
@@ -299,7 +299,7 @@ class EpubReaderServiceTest {
         when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
 
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
-            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath.toString());
+            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath);
 
             ZipFile zipFile = createMockZipFile();
             ZipFile.Builder builder = createMockZipFileBuilder(zipFile);
@@ -325,7 +325,7 @@ class EpubReaderServiceTest {
         when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
 
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
-            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath.toString());
+            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath);
 
             ZipFile zipFile = createMockZipFile();
             ZipFile.Builder builder = createMockZipFileBuilder(zipFile);
@@ -353,7 +353,7 @@ class EpubReaderServiceTest {
         when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
 
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
-            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath.toString());
+            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath);
 
             ZipFile zipFile = createMockZipFileWithSizes();
             ZipFile.Builder builder = createMockZipFileBuilder(zipFile);
@@ -375,7 +375,7 @@ class EpubReaderServiceTest {
         when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
 
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
-            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath.toString());
+            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath);
 
             ZipFile zipFile = createMockZipFile();
             ZipFile.Builder builder = createMockZipFileBuilder(zipFile);
@@ -396,7 +396,7 @@ class EpubReaderServiceTest {
         when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
 
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
-            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath.toString());
+            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath);
 
             ZipFile zipFile = createMockZipFile();
             ZipFile.Builder builder = createMockZipFileBuilder(zipFile);
@@ -424,7 +424,7 @@ class EpubReaderServiceTest {
         when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
 
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
-            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath.toString());
+            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath);
 
             ZipFile zipFile = createMockZipFile();
             ZipFile.Builder builder = createMockZipFileBuilder(zipFile);
@@ -453,7 +453,7 @@ class EpubReaderServiceTest {
         when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
 
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
-            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath.toString());
+            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath);
 
             ZipFile zipFile = createMockZipFile();
             ZipFile.Builder builder = createMockZipFileBuilder(zipFile);
@@ -494,7 +494,7 @@ class EpubReaderServiceTest {
         when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
 
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
-            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath.toString());
+            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath);
 
             byte[] chapterContent = "<html><body>Chapter 1 content</body></html>".getBytes(StandardCharsets.UTF_8);
             ZipFile zipFile = createMockZipFileWithStreamableEntry("OEBPS/chapter1.xhtml", chapterContent);

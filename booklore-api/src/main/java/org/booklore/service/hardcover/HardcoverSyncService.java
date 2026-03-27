@@ -187,7 +187,6 @@ public class HardcoverSyncService {
                     log.info("Synced progress to Hardcover: userId={}, book={}, hardcoverBookId={}, hardcoverEditionId={}, progress={}% ({}pages)", 
                         userId, bookId, hardcoverBook.bookId, hardcoverBook.editionId, Math.round(progressPercent), progressPages);
                 }
-                
             } finally {
                 // Clean up thread-local
                 currentApiToken.remove();

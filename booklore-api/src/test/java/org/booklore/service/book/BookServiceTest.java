@@ -81,6 +81,9 @@ class BookServiceTest {
 
     private BookLoreUser testUser;
 
+    private Path epubPath;
+    private Path pdfPath;
+
     @BeforeEach
     void setUp() {
         BookLoreUser.UserPermissions perms = new BookLoreUser.UserPermissions();
@@ -90,6 +93,9 @@ class BookServiceTest {
                 .permissions(perms)
                 .assignedLibraries(List.of())
                 .isDefaultPassword(false).build();
+
+        epubPath = Path.of("/tmp/library/book.epub");
+        pdfPath = Path.of("/tmp/library/book.pdf");
     }
 
     @Test
@@ -125,7 +131,7 @@ class BookServiceTest {
         when(authenticationService.getAuthenticatedUser()).thenReturn(testUser);
 
         try (MockedStatic<FileUtils> fileUtilsMock = mockStatic(FileUtils.class)) {
-            fileUtilsMock.when(() -> FileUtils.getBookFullPath(entity)).thenReturn("/tmp/library/book.epub");
+            fileUtilsMock.when(() -> FileUtils.getBookFullPath(entity)).thenReturn(epubPath);
             List<Book> result = bookService.getBooksByIds(Set.of(2L), false);
 
             assertEquals(1, result.size());
@@ -153,7 +159,7 @@ class BookServiceTest {
         when(authenticationService.getAuthenticatedUser()).thenReturn(testUser);
 
         try (MockedStatic<FileUtils> fileUtilsMock = mockStatic(FileUtils.class)) {
-            fileUtilsMock.when(() -> FileUtils.getBookFullPath(entity)).thenReturn("/tmp/library/book.pdf");
+            fileUtilsMock.when(() -> FileUtils.getBookFullPath(entity)).thenReturn(pdfPath);
             Book result = bookService.getBook(3L, true);
             assertEquals(3L, result.getId());
             verify(bookRepository).findByIdWithBookFiles(3L);
@@ -329,7 +335,7 @@ class BookServiceTest {
         Path path = Paths.get("/tmp/bookcontent.txt");
         Files.write(path, "hello".getBytes());
         try (MockedStatic<FileUtils> fileUtilsMock = mockStatic(FileUtils.class)) {
-            fileUtilsMock.when(() -> FileUtils.getBookFullPath(entity)).thenReturn(path.toString());
+            fileUtilsMock.when(() -> FileUtils.getBookFullPath(entity)).thenReturn(path);
             ResponseEntity<Resource> response = bookService.getBookContent(10L);
             assertEquals(HttpStatus.OK, response.getStatusCode());
             assertArrayEquals("hello".getBytes(), response.getBody().getInputStream().readAllBytes());
@@ -350,7 +356,7 @@ class BookServiceTest {
         entity.setId(12L);
         when(bookRepository.findByIdWithBookFiles(12L)).thenReturn(Optional.of(entity));
         try (MockedStatic<FileUtils> fileUtilsMock = mockStatic(FileUtils.class)) {
-            fileUtilsMock.when(() -> FileUtils.getBookFullPath(entity)).thenReturn("/tmp/nonexistentfile.txt");
+            fileUtilsMock.when(() -> FileUtils.getBookFullPath(entity)).thenReturn(Path.of("/tmp/nonexistentfile.txt"));
             assertThrows(APIException.class, () -> bookService.getBookContent(12L));
         }
     }
@@ -476,12 +482,12 @@ class BookServiceTest {
         // `FileUtils.getBookFullPath` calls `book.getPrimaryBookFile()`.
 
         try (MockedStatic<FileUtils> fileUtilsMock = mockStatic(FileUtils.class)) {
-            fileUtilsMock.when(() -> FileUtils.getBookFullPath(entity)).thenReturn("/tmp/library/book.epub");
+            fileUtilsMock.when(() -> FileUtils.getBookFullPath(entity)).thenReturn(epubPath);
 
             bookService.streamBookContent(15L, null, request, response);
 
             verify(bookRepository).findByIdWithBookFiles(15L);
-            verify(fileStreamingService).streamWithRangeSupport(eq(Paths.get("/tmp/library/book.epub")), eq("application/epub+zip"), eq(request), eq(response));
+            verify(fileStreamingService).streamWithRangeSupport(eq(epubPath), eq("application/epub+zip"), eq(request), eq(response));
         }
     }
 

@@ -96,7 +96,7 @@ public class SendEmailV2Service {
         helper.setTo(recipientEmail);
         helper.setSubject("Your Book from Booklore: " + book.getMetadata().getTitle());
         helper.setText(generateEmailBody(book.getMetadata().getTitle()));
-        File bookFile = new File(FileUtils.getBookFullPath(book, bookFileEntity));
+        File bookFile = FileUtils.getBookFullPath(book, bookFileEntity).toFile();
         helper.addAttachment(bookFile.getName(), bookFile);
         dynamicMailSender.send(message);
         log.info("Book sent successfully to {}", recipientEmail);
