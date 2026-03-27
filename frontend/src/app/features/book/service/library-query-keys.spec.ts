@@ -1,8 +1,13 @@
 import {describe, expect, it} from 'vitest';
 
-// TODO(frontend-coverage): Replace this stub with real coverage for frontend/src/app/features/book/service/library-query-keys.ts.
-describe.skip("library-query-keys TODO stub", () => {
-  it('TODO: add real coverage', () => {
-    expect(true).toBe(true);
+import {libraryFormatCountsQueryKey, LIBRARIES_QUERY_KEY} from './library-query-keys';
+
+describe('library-query-keys', () => {
+  it('uses a stable key for the libraries collection', () => {
+    expect(LIBRARIES_QUERY_KEY).toEqual(['libraries']);
+  });
+
+  it('derives per-library format count keys', () => {
+    expect(libraryFormatCountsQueryKey(42)).toEqual(['libraries', 'format-counts', 42]);
   });
 });

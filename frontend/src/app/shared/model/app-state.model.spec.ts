@@ -1,8 +1,21 @@
-import {describe, expect, it} from 'vitest';
+import {describe, expect, expectTypeOf, it} from 'vitest';
 
-// TODO(frontend-coverage): Replace this stub with real coverage for frontend/src/app/shared/model/app-state.model.ts.
-describe.skip("app-state.model TODO stub", () => {
-  it('TODO: add real coverage', () => {
-    expect(true).toBe(true);
+import {AppState} from './app-state.model';
+
+describe('app-state.model', () => {
+  it('supports partially specified visual state presets', () => {
+    const appState: AppState = {
+      preset: 'midnight',
+      primary: '#112233'
+    };
+
+    expect(appState.preset).toBe('midnight');
+    expect(appState.surface).toBeUndefined();
+  });
+
+  it('keeps each field optional and string-based', () => {
+    expectTypeOf<AppState['preset']>().toEqualTypeOf<string | undefined>();
+    expectTypeOf<AppState['primary']>().toEqualTypeOf<string | undefined>();
+    expectTypeOf<AppState['surface']>().toEqualTypeOf<string | undefined>();
   });
 });
