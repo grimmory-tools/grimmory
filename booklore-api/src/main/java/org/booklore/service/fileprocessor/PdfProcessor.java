@@ -74,7 +74,7 @@ public class PdfProcessor extends AbstractFileProcessor implements BookFileProce
 
     @Override
     public boolean generateCover(BookEntity bookEntity, BookFileEntity bookFile) {
-        File pdfFile = new File(FileUtils.getBookFullPath(bookEntity, bookFile));
+        File pdfFile = FileUtils.getBookFullPath(bookEntity, bookFile).toFile();
         try (RandomAccessReadBufferedFile randomAccessRead = new RandomAccessReadBufferedFile(pdfFile);
              PDDocument pdf = Loader.loadPDF(randomAccessRead)) {
             return generateCoverImageAndSave(bookEntity.getId(), pdf);
@@ -104,7 +104,7 @@ public class PdfProcessor extends AbstractFileProcessor implements BookFileProce
 
     private void extractAndSetMetadata(BookEntity bookEntity) {
         try {
-            BookMetadata extracted = pdfMetadataExtractor.extractMetadata(new File(FileUtils.getBookFullPath(bookEntity)));
+            BookMetadata extracted = pdfMetadataExtractor.extractMetadata(FileUtils.getBookFullPath(bookEntity).toFile());
 
             if (StringUtils.isNotBlank(extracted.getTitle())) {
                 bookEntity.getMetadata().setTitle(truncate(extracted.getTitle(), 1000));

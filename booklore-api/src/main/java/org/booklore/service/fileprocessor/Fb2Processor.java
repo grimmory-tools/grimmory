@@ -71,7 +71,7 @@ public class Fb2Processor extends AbstractFileProcessor implements BookFileProce
     @Override
     public boolean generateCover(BookEntity bookEntity, BookFileEntity bookFile) {
         try {
-            File fb2File = new File(FileUtils.getBookFullPath(bookEntity, bookFile));
+            File fb2File = FileUtils.getBookFullPath(bookEntity, bookFile).toFile();
             byte[] coverData = fb2MetadataExtractor.extractCover(fb2File);
 
             if (coverData == null || coverData.length == 0) {
