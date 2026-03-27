@@ -391,14 +391,10 @@ public class KoboEntitlementService {
         boolean isEpubFile = primaryFile.getBookType() == BookFileType.EPUB;
         boolean isCbxFile = primaryFile.getBookType() == BookFileType.CBX;
 
-        if (koboSettings != null) {
-            if (isEpubFile && primaryFile.isFixedLayout()) {
-                bookFormat = KoboBookFormat.EPUB3FL;
-            } else if (isEpubFile && koboSettings.isConvertToKepub()) {
-                bookFormat = KoboBookFormat.KEPUB;
-            } else if (isCbxFile && koboSettings.isConvertCbxToEpub()) {
-                bookFormat = KoboBookFormat.EPUB3;
-            }
+        if (isEpubFile) {
+            bookFormat = primaryFile.isFixedLayout() ? KoboBookFormat.EPUB3FL : KoboBookFormat.KEPUB;
+        } else if (koboSettings != null && isCbxFile && koboSettings.isConvertCbxToEpub()) {
+            bookFormat = KoboBookFormat.EPUB3;
         }
 
         return KoboBookMetadata.builder()

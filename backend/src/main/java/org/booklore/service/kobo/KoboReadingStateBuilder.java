@@ -18,6 +18,7 @@ import java.util.Optional;
 public class KoboReadingStateBuilder {
 
     private final KoboSettingsService koboSettingsService;
+    private final KoboBookmarkLocationResolver bookmarkLocationResolver;
 
     public KoboReadingState.CurrentBookmark buildEmptyBookmark(OffsetDateTime timestamp) {
         return KoboReadingState.CurrentBookmark.builder()
@@ -52,25 +53,34 @@ public class KoboReadingStateBuilder {
                 .or(() -> Optional.ofNullable(defaultTime).map(OffsetDateTime::toString))
                 .orElse(null);
 
-        String locationValue = Optional.ofNullable(fileProgress)
-                .map(UserBookFileProgressEntity::getPositionData)
-                .orElse(progress.getEpubProgress());
-        String locationSource = Optional.ofNullable(fileProgress)
-                .map(UserBookFileProgressEntity::getPositionHref)
-                .orElse(progress.getEpubProgressHref());
+        Optional<KoboBookmarkLocationResolver.ResolvedBookmarkLocation> resolvedLocation =
+                bookmarkLocationResolver.resolve(progress, fileProgress);
 
-        KoboReadingState.CurrentBookmark.Location location =
-                locationValue != null || locationSource != null
-                        ? KoboReadingState.CurrentBookmark.Location.builder()
-                                .value(locationValue)
-                                .type(detectLocationType(locationValue))
-                                .source(locationSource)
-                                .build()
-                        : null;
+        String locationValue = resolvedLocation.map(KoboBookmarkLocationResolver.ResolvedBookmarkLocation::value)
+                .orElseGet(() -> Optional.ofNullable(fileProgress)
+                        .map(UserBookFileProgressEntity::getPositionData)
+                        .orElse(progress.getEpubProgress()));
+        String locationSource = resolvedLocation.map(KoboBookmarkLocationResolver.ResolvedBookmarkLocation::source)
+                .orElseGet(() -> Optional.ofNullable(fileProgress)
+                        .map(UserBookFileProgressEntity::getPositionHref)
+                        .orElse(progress.getEpubProgressHref()));
+        String locationType = resolvedLocation.map(KoboBookmarkLocationResolver.ResolvedBookmarkLocation::type)
+                .orElseGet(() -> detectLocationType(locationValue));
+
+        KoboReadingState.CurrentBookmark.Location location = locationValue != null || locationSource != null
+                ? KoboReadingState.CurrentBookmark.Location.builder()
+                        .value(locationValue)
+                        .type(locationType)
+                        .source(locationSource)
+                        .build()
+                : null;
 
         return KoboReadingState.CurrentBookmark.builder()
                 .progressPercent(Math.round(progress.getEpubProgressPercent()))
-                .contentSourceProgressPercent(roundContentSourceProgressPercent(fileProgress))
+                .contentSourceProgressPercent(resolvedLocation
+                        .map(KoboBookmarkLocationResolver.ResolvedBookmarkLocation::contentSourceProgressPercent)
+                        .map(Math::round)
+                        .orElseGet(() -> roundContentSourceProgressPercent(fileProgress)))
                 .location(location)
                 .lastModified(lastModified)
                 .build();

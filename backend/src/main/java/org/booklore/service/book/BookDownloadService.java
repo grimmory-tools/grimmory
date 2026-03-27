@@ -258,7 +258,7 @@ public class BookDownloadService {
             throw ApiError.GENERIC_BAD_REQUEST.createException("Kobo settings not found.");
         }
 
-        boolean convertEpubToKepub = isEpub && koboSettings.isConvertToKepub() && primaryFile.getFileSizeKb() <= (long) koboSettings.getConversionLimitInMb() * 1024;
+        boolean convertEpubToKepub = isEpub && !primaryFile.isFixedLayout();
         boolean convertCbxToEpub = isCbx && koboSettings.isConvertCbxToEpub() && primaryFile.getFileSizeKb() <= (long) koboSettings.getConversionLimitInMbForCbx() * 1024;
 
         int compressionPercentage = koboSettings.getConversionImageCompressionPercentage();

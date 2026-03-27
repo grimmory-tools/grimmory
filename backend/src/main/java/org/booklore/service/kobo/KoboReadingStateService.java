@@ -286,12 +286,16 @@ public class KoboReadingStateService {
 
         progress.setEpubProgressPercent(bookmark.getProgressPercent().floatValue());
         KoboReadingState.CurrentBookmark.Location location = bookmark.getLocation();
-        if (location != null && location.getValue() != null) {
+        boolean hasEpubCfiLocation = location != null
+                && location.getValue() != null
+                && "EpubCfi".equalsIgnoreCase(location.getType());
+
+        if (hasEpubCfiLocation) {
             progress.setEpubProgress(location.getValue());
-        } else {
+        } else if (progress.getEpubProgress() == null) {
             progress.setEpubProgress(null);
         }
-        if (location != null && location.getSource() != null) {
+        if (hasEpubCfiLocation && location.getSource() != null) {
             progress.setEpubProgressHref(location.getSource());
         }
 
@@ -300,13 +304,11 @@ public class KoboReadingStateService {
             if (bookmark.getContentSourceProgressPercent() != null) {
                 fileProgress.setContentSourceProgressPercent(bookmark.getContentSourceProgressPercent().floatValue());
             }
-            if (location != null && location.getValue() != null) {
+            if (hasEpubCfiLocation) {
                 fileProgress.setPositionData(location.getValue());
-            } else {
-                fileProgress.setPositionData(null);
-            }
-            if (location != null && location.getSource() != null) {
                 fileProgress.setPositionHref(location.getSource());
+            } else if (fileProgress.getPositionData() == null) {
+                fileProgress.setPositionData(null);
             }
             fileProgress.setLastReadTime(now);
             fileProgressRepository.save(fileProgress);

@@ -186,6 +186,28 @@ class KoboEntitlementServiceTest {
         assertEquals(KoboBookFormat.EPUB3.toString(), result.getDownloadUrls().getFirst().getFormat());
     }
 
+    @Test
+    void mapToKoboMetadata_epubBookShouldReturnKepubFormatEvenWhenToggleIsOff() {
+        long bookId = 1L;
+        BookEntity epubBook = createEpubBookEntity(bookId);
+        String token = "test-token";
+
+        when(bookQueryService.findAllWithMetadataByIds(Set.of(bookId)))
+                .thenReturn(List.of(epubBook));
+        when(koboCompatibilityService.isBookSupportedForKobo(epubBook))
+                .thenReturn(true);
+        when(koboUrlBuilder.downloadUrl(token, epubBook.getId()))
+                .thenReturn("http://test.com/download/" + epubBook.getId());
+        when(appSettingService.getAppSettings())
+                .thenReturn(createAppSettingsWithKoboSettings());
+
+        KoboBookMetadata result = koboEntitlementService.getMetadataForBook(bookId, token);
+
+        assertNotNull(result);
+        assertEquals(1, result.getDownloadUrls().size());
+        assertEquals(KoboBookFormat.KEPUB.toString(), result.getDownloadUrls().getFirst().getFormat());
+    }
+
     private BookEntity createCbxBookEntity(Long id) {
         BookEntity book = new BookEntity();
         book.setId(id);

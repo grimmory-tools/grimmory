@@ -7,6 +7,7 @@ import org.booklore.model.entity.UserBookFileProgressEntity;
 import org.booklore.model.entity.UserBookProgressEntity;
 import org.booklore.model.enums.KoboReadStatus;
 import org.booklore.model.enums.ReadStatus;
+import org.booklore.service.kobo.KoboBookmarkLocationResolver;
 import org.booklore.service.kobo.KoboReadingStateBuilder;
 import org.booklore.service.kobo.KoboSettingsService;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +29,7 @@ import java.time.ZoneOffset;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @DisplayName("KoboReadingStateBuilder Tests")
@@ -38,6 +40,9 @@ class KoboReadingStateBuilderTest {
     @Mock
     private KoboSettingsService koboSettingsService;
 
+    @Mock
+    private KoboBookmarkLocationResolver bookmarkLocationResolver;
+
     private KoboReadingStateBuilder builder;
 
     @BeforeEach
@@ -45,7 +50,8 @@ class KoboReadingStateBuilderTest {
         KoboSyncSettings settings = new KoboSyncSettings();
         settings.setTwoWayProgressSync(true);
         when(koboSettingsService.getCurrentUserSettings()).thenReturn(settings);
-        builder = new KoboReadingStateBuilder(koboSettingsService);
+        when(bookmarkLocationResolver.resolve(any(), any())).thenReturn(java.util.Optional.empty());
+        builder = new KoboReadingStateBuilder(koboSettingsService, bookmarkLocationResolver);
     }
 
     @Nested
@@ -257,6 +263,38 @@ class KoboReadingStateBuilderTest {
             assertEquals("epubcfi(/6/8!/4/2/6/1:15)", bookmark.getLocation().getValue());
             assertEquals("EpubCfi", bookmark.getLocation().getType());
             assertEquals("OPS/chapter3.xhtml", bookmark.getLocation().getSource());
+        }
+
+        @Test
+        @DisplayName("Should build web reader bookmark with resolved KoboSpan location")
+        void buildBookmarkFromProgress_WebReaderResolvedKoboSpanLocation() {
+            UserBookProgressEntity progress = new UserBookProgressEntity();
+            progress.setEpubProgress("epubcfi(/6/4!/4/2/6/1:1)");
+            progress.setEpubProgressHref("OPS/chapter3.xhtml");
+            progress.setEpubProgressPercent(54.6f);
+            progress.setLastReadTime(Instant.parse("2025-11-26T10:00:00Z"));
+
+            UserBookFileProgressEntity fileProgress = new UserBookFileProgressEntity();
+            fileProgress.setPositionData("epubcfi(/6/8!/4/2/6/1:15)");
+            fileProgress.setPositionHref("OPS/chapter3.xhtml");
+
+            when(bookmarkLocationResolver.resolve(progress, fileProgress))
+                    .thenReturn(java.util.Optional.of(
+                            new KoboBookmarkLocationResolver.ResolvedBookmarkLocation(
+                                    "kobo.12.18",
+                                    "KoboSpan",
+                                    "OEBPS/OPS/chapter3.xhtml",
+                                    18.6f)));
+
+            KoboReadingState.CurrentBookmark bookmark = builder.buildBookmarkFromProgress(progress, fileProgress);
+
+            assertNotNull(bookmark);
+            assertEquals(55, bookmark.getProgressPercent());
+            assertEquals(19, bookmark.getContentSourceProgressPercent());
+            assertNotNull(bookmark.getLocation());
+            assertEquals("kobo.12.18", bookmark.getLocation().getValue());
+            assertEquals("KoboSpan", bookmark.getLocation().getType());
+            assertEquals("OEBPS/OPS/chapter3.xhtml", bookmark.getLocation().getSource());
         }
 
         @Test
