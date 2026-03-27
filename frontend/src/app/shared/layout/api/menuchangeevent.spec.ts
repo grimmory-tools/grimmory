@@ -1,8 +1,19 @@
-import {describe, expect, it} from 'vitest';
+import {describe, expect, expectTypeOf, it} from 'vitest';
 
-// TODO(frontend-coverage): Replace this stub with real coverage for frontend/src/app/shared/layout/api/menuchangeevent.ts.
-describe.skip("menuchangeevent TODO stub", () => {
-  it('TODO: add real coverage', () => {
-    expect(true).toBe(true);
+import {MenuChangeEvent} from './menuchangeevent';
+
+describe('menuchangeevent', () => {
+  it('supports route-backed menu change events', () => {
+    const event: MenuChangeEvent = {
+      key: 'settings',
+      routeEvent: true
+    };
+
+    expect(event.key).toBe('settings');
+    expect(event.routeEvent).toBe(true);
+  });
+
+  it('keeps routeEvent optional', () => {
+    expectTypeOf<MenuChangeEvent['routeEvent']>().toEqualTypeOf<boolean | undefined>();
   });
 });

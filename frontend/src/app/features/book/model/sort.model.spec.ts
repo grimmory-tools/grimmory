@@ -1,8 +1,23 @@
-import {describe, expect, it} from 'vitest';
+import {describe, expect, expectTypeOf, it} from 'vitest';
 
-// TODO(frontend-coverage): Replace this stub with real coverage for frontend/src/app/features/book/model/sort.model.ts.
-describe.skip("sort.model TODO stub", () => {
-  it('TODO: add real coverage', () => {
-    expect(true).toBe(true);
+import {SortDirection, SortOption} from './sort.model';
+
+describe('sort.model', () => {
+  it('exposes the supported sort directions', () => {
+    expect(SortDirection).toEqual({
+      ASCENDING: 'ASCENDING',
+      DESCENDING: 'DESCENDING'
+    });
+  });
+
+  it('keeps sort options structurally typed', () => {
+    const sortOption: SortOption = {
+      label: 'Title',
+      field: 'title',
+      direction: SortDirection.ASCENDING
+    };
+
+    expect(sortOption.field).toBe('title');
+    expectTypeOf(sortOption.direction).toEqualTypeOf<SortDirection>();
   });
 });

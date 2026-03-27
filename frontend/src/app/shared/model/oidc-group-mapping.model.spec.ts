@@ -1,8 +1,20 @@
-import {describe, expect, it} from 'vitest';
+import {describe, expect, expectTypeOf, it} from 'vitest';
 
-// TODO(frontend-coverage): Replace this stub with real coverage for frontend/src/app/shared/model/oidc-group-mapping.model.ts.
-describe.skip("oidc-group-mapping.model TODO stub", () => {
-  it('TODO: add real coverage', () => {
-    expect(true).toBe(true);
+import {OidcGroupMapping} from './oidc-group-mapping.model';
+
+describe('oidc-group-mapping.model', () => {
+  it('supports group claims with library-specific permissions', () => {
+    const mapping: OidcGroupMapping = {
+      id: 1,
+      oidcGroupClaim: 'admins',
+      isAdmin: true,
+      permissions: ['books.read', 'books.write'],
+      libraryIds: [10, 11],
+      description: 'Admin access'
+    };
+
+    expect(mapping.libraryIds).toEqual([10, 11]);
+    expect(mapping.isAdmin).toBe(true);
+    expectTypeOf(mapping.permissions).toEqualTypeOf<string[]>();
   });
 });
