@@ -1,8 +1,14 @@
-import {describe, expect, it} from 'vitest';
+import {describe, it} from 'vitest';
 
-// TODO(frontend-coverage): Replace this stub with real coverage for frontend/src/app/features/stats/component/user-stats/charts/reading-dna-chart/reading-dna-chart.component.ts.
-describe.skip("reading-dna-chart.component TODO stub", () => {
-  it('TODO: add real coverage', () => {
-    expect(true).toBe(true);
+// NOTE(frontend-seam): Real coverage here needs seams around chart dataset derivation,
+// translated radar-axis labels, and Chart.js option callbacks so the reading-profile output can
+// be asserted without depending on Chart.js metadata internals.
+describe.skip('ReadingDnaChartComponent', () => {
+  it('needs aggregation seams to verify mood, pace, genre, and completion-profile data mapping', () => {
+    // TODO(seam): Cover chartData construction once the radar dataset adapter is extracted from the live chart wrapper.
+  });
+
+  it('needs chart-option seams to verify tooltip and legend behavior for translated profile output', () => {
+    // TODO(seam): Cover chartOptions after the translated callback surface is isolated behind deterministic test seams.
   });
 });
