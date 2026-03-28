@@ -1,101 +1,41 @@
 package org.booklore.service.kobo;
 
-import io.documentnode.epub4j.domain.Author;
-import io.documentnode.epub4j.domain.Book;
-import io.documentnode.epub4j.domain.Resource;
-import io.documentnode.epub4j.epub.EpubWriter;
-import org.booklore.model.dto.settings.AppSettings;
-import org.booklore.model.dto.settings.KoboSettings;
+import org.booklore.model.dto.kobo.KoboSpanPositionMap;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
-import org.booklore.model.entity.LibraryPathEntity;
 import org.booklore.model.entity.UserBookFileProgressEntity;
 import org.booklore.model.entity.UserBookProgressEntity;
 import org.booklore.model.enums.BookFileType;
-import org.booklore.service.appsettings.AppSettingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class KoboBookmarkLocationResolverTest {
 
-    private static final String EPUB_CHAPTER = """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <!DOCTYPE html>
-            <html xmlns="http://www.w3.org/1999/xhtml">
-            <head><title>Chapter 1</title></head>
-            <body>
-                <div>
-                    <h1>Chapter 1</h1>
-                    <p>First paragraph with some text content.</p>
-                    <p>Second paragraph with more text.</p>
-                </div>
-            </body>
-            </html>
-            """;
-
-    private static final String KEPUB_CHAPTER = """
-            <html>
-            <body>
-                <div>
-                    <h1>Chapter 1</h1>
-                    <p><span class="koboSpan" id="kobo.1.1"></span>First paragraph with some text content.</p>
-                    <p><span class="koboSpan" id="kobo.1.2"></span>Second paragraph with more text.</p>
-                </div>
-            </body>
-            </html>
-            """;
-
-    @TempDir
-    Path tempDir;
-
     @Mock
-    private AppSettingService appSettingService;
-
-    @Mock
-    private KepubConversionService kepubConversionService;
+    private KoboSpanMapService koboSpanMapService;
 
     private KoboBookmarkLocationResolver resolver;
 
     @BeforeEach
     void setUp() {
-        resolver = new KoboBookmarkLocationResolver(appSettingService, kepubConversionService);
-
-        AppSettings appSettings = new AppSettings();
-        appSettings.setKoboSettings(KoboSettings.builder()
-                .convertToKepub(false)
-                .forceEnableHyphenation(false)
-                .build());
-        when(appSettingService.getAppSettings()).thenReturn(appSettings);
+        resolver = new KoboBookmarkLocationResolver(koboSpanMapService);
     }
 
     @Test
-    void resolve_UsesFirstKoboSpanWhenOnlyHrefIsAvailable() throws Exception {
-        File epubFile = createTestEpub("test.epub");
-        File kepubFile = createKepub("test.kepub.epub");
-        when(kepubConversionService.convertEpubToKepub(any(), any(), anyBoolean())).thenReturn(kepubFile);
-
-        BookFileEntity bookFile = createBookFile(epubFile);
+    void resolve_UsesFirstKoboSpanWhenOnlyHrefIsAvailable() {
+        BookFileEntity bookFile = createBookFile();
+        when(koboSpanMapService.getValidMap(bookFile)).thenReturn(Optional.of(singleChapterMap()));
 
         UserBookFileProgressEntity fileProgress = new UserBookFileProgressEntity();
         fileProgress.setBookFile(bookFile);
@@ -110,17 +50,14 @@ class KoboBookmarkLocationResolverTest {
         assertTrue(result.isPresent());
         assertEquals("kobo.1.1", result.get().value());
         assertEquals("KoboSpan", result.get().type());
-        assertEquals("OEBPS/chapter1.xhtml", result.get().source());
+        assertEquals("OPS/chapter1.xhtml", result.get().source());
         assertEquals(0f, result.get().contentSourceProgressPercent());
     }
 
     @Test
-    void resolve_UsesStoredContentSourceProgressPercentToSelectNearestKoboSpan() throws Exception {
-        File epubFile = createTestEpub("test.epub");
-        File kepubFile = createKepub("test.kepub.epub");
-        when(kepubConversionService.convertEpubToKepub(any(), any(), anyBoolean())).thenReturn(kepubFile);
-
-        BookFileEntity bookFile = createBookFile(epubFile);
+    void resolve_UsesStoredContentSourceProgressPercentToSelectNearestKoboSpan() {
+        BookFileEntity bookFile = createBookFile();
+        when(koboSpanMapService.getValidMap(bookFile)).thenReturn(Optional.of(singleChapterMap()));
 
         UserBookFileProgressEntity fileProgress = new UserBookFileProgressEntity();
         fileProgress.setBookFile(bookFile);
@@ -136,17 +73,14 @@ class KoboBookmarkLocationResolverTest {
         assertTrue(result.isPresent());
         assertEquals("kobo.1.2", result.get().value());
         assertEquals("KoboSpan", result.get().type());
-        assertEquals("OEBPS/chapter1.xhtml", result.get().source());
+        assertEquals("OPS/chapter1.xhtml", result.get().source());
         assertEquals(80f, result.get().contentSourceProgressPercent());
     }
 
     @Test
-    void resolve_FallsBackToPrimaryEpubWhenFileProgressIsMissing() throws Exception {
-        File epubFile = createTestEpub("test.epub");
-        File kepubFile = createKepub("test.kepub.epub");
-        when(kepubConversionService.convertEpubToKepub(any(), any(), anyBoolean())).thenReturn(kepubFile);
-
-        BookFileEntity bookFile = createBookFile(epubFile);
+    void resolve_FallsBackToPrimaryEpubWhenFileProgressIsMissing() {
+        BookFileEntity bookFile = createBookFile();
+        when(koboSpanMapService.getValidMap(bookFile)).thenReturn(Optional.of(singleChapterMap()));
 
         UserBookProgressEntity progress = new UserBookProgressEntity();
         progress.setBook(bookFile.getBook());
@@ -157,48 +91,84 @@ class KoboBookmarkLocationResolverTest {
 
         assertTrue(result.isPresent());
         assertEquals("kobo.1.1", result.get().value());
-        assertEquals("KoboSpan", result.get().type());
-        assertEquals("OEBPS/chapter1.xhtml", result.get().source());
+        assertEquals("OPS/chapter1.xhtml", result.get().source());
         assertEquals(0f, result.get().contentSourceProgressPercent());
     }
 
-    private BookFileEntity createBookFile(File epubFile) {
-        LibraryPathEntity libraryPath = new LibraryPathEntity();
-        libraryPath.setPath(tempDir.toString());
+    @Test
+    void resolve_UsesGlobalProgressWhenHrefIsMissing() {
+        BookFileEntity bookFile = createBookFile();
+        when(koboSpanMapService.getValidMap(bookFile)).thenReturn(Optional.of(twoChapterMap()));
 
+        UserBookFileProgressEntity fileProgress = new UserBookFileProgressEntity();
+        fileProgress.setBookFile(bookFile);
+        fileProgress.setProgressPercent(75f);
+
+        UserBookProgressEntity progress = new UserBookProgressEntity();
+        progress.setEpubProgressPercent(75f);
+
+        Optional<KoboBookmarkLocationResolver.ResolvedBookmarkLocation> result =
+                resolver.resolve(progress, fileProgress);
+
+        assertTrue(result.isPresent());
+        assertEquals("kobo.2.2", result.get().value());
+        assertEquals("OPS/chapter2.xhtml", result.get().source());
+        assertEquals(50f, result.get().contentSourceProgressPercent());
+    }
+
+    private BookFileEntity createBookFile() {
         BookEntity book = new BookEntity();
-        book.setLibraryPath(libraryPath);
 
         BookFileEntity bookFile = new BookFileEntity();
+        bookFile.setId(10L);
         bookFile.setBook(book);
         bookFile.setBookType(BookFileType.EPUB);
-        bookFile.setFileName(epubFile.getName());
+        bookFile.setCurrentHash("hash-123");
+        bookFile.setFileName("book.epub");
         bookFile.setFileSubPath("");
         book.setBookFiles(List.of(bookFile));
 
         return bookFile;
     }
 
-    private File createTestEpub(String fileName) throws IOException {
-        Book book = new Book();
-        book.getMetadata().addTitle("Resolver Test");
-        book.getMetadata().addAuthor(new Author("Test Author"));
-        book.addSection("Chapter 1", new Resource(EPUB_CHAPTER.getBytes(StandardCharsets.UTF_8), "chapter1.xhtml"));
-
-        File epubFile = tempDir.resolve(fileName).toFile();
-        try (FileOutputStream out = new FileOutputStream(epubFile)) {
-            new EpubWriter().write(book, out);
-        }
-        return epubFile;
+    private KoboSpanPositionMap singleChapterMap() {
+        return new KoboSpanPositionMap(List.of(
+                new KoboSpanPositionMap.Chapter(
+                        "OPS/chapter1.xhtml",
+                        "OPS/chapter1.xhtml",
+                        0,
+                        0f,
+                        1f,
+                        List.of(
+                                new KoboSpanPositionMap.Span("kobo.1.1", 0.2f),
+                                new KoboSpanPositionMap.Span("kobo.1.2", 0.85f)
+                        ))
+        ));
     }
 
-    private File createKepub(String fileName) throws IOException {
-        File kepubFile = tempDir.resolve(fileName).toFile();
-        try (ZipOutputStream outputStream = new ZipOutputStream(new FileOutputStream(kepubFile))) {
-            outputStream.putNextEntry(new ZipEntry("OEBPS/chapter1.xhtml"));
-            outputStream.write(KEPUB_CHAPTER.getBytes(StandardCharsets.UTF_8));
-            outputStream.closeEntry();
-        }
-        return kepubFile;
+    private KoboSpanPositionMap twoChapterMap() {
+        return new KoboSpanPositionMap(List.of(
+                new KoboSpanPositionMap.Chapter(
+                        "OPS/chapter1.xhtml",
+                        "OPS/chapter1.xhtml",
+                        0,
+                        0f,
+                        0.5f,
+                        List.of(
+                                new KoboSpanPositionMap.Span("kobo.1.1", 0.1f),
+                                new KoboSpanPositionMap.Span("kobo.1.2", 0.9f)
+                        )),
+                new KoboSpanPositionMap.Chapter(
+                        "OPS/chapter2.xhtml",
+                        "OPS/chapter2.xhtml",
+                        1,
+                        0.5f,
+                        1f,
+                        List.of(
+                                new KoboSpanPositionMap.Span("kobo.2.1", 0.1f),
+                                new KoboSpanPositionMap.Span("kobo.2.2", 0.5f),
+                                new KoboSpanPositionMap.Span("kobo.2.3", 0.9f)
+                        ))
+        ));
     }
 }

@@ -2,28 +2,16 @@ package org.booklore.service.kobo;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.lingala.zip4j.ZipFile;
-import net.lingala.zip4j.model.FileHeader;
-import org.booklore.model.dto.settings.KoboSettings;
+import org.booklore.model.dto.kobo.KoboSpanPositionMap;
 import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.UserBookFileProgressEntity;
 import org.booklore.model.entity.UserBookProgressEntity;
 import org.booklore.model.enums.BookFileType;
-import org.booklore.service.appsettings.AppSettingService;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.parser.Parser;
 import org.springframework.stereotype.Service;
-import org.springframework.util.FileSystemUtils;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -31,8 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class KoboBookmarkLocationResolver {
 
-    private final AppSettingService appSettingService;
-    private final KepubConversionService kepubConversionService;
+    private final KoboSpanMapService koboSpanMapService;
 
     public Optional<ResolvedBookmarkLocation> resolve(UserBookProgressEntity progress,
                                                       UserBookFileProgressEntity fileProgress) {
@@ -40,22 +27,34 @@ public class KoboBookmarkLocationResolver {
         if (!isKepubExportEnabled(bookFile)) {
             return Optional.empty();
         }
-
-        File epubFile = getEpubFile(bookFile);
-        if (epubFile == null || !epubFile.isFile()) {
+        Optional<KoboSpanPositionMap> spanMap = koboSpanMapService.getValidMap(bookFile);
+        if (spanMap.isEmpty() || spanMap.get().chapters().isEmpty()) {
             return Optional.empty();
         }
 
         String href = resolveHref(progress, fileProgress);
-        if (href == null || href.isBlank()) {
+        Float chapterProgressPercent = Optional.ofNullable(fileProgress)
+                .map(UserBookFileProgressEntity::getContentSourceProgressPercent)
+                .orElse(null);
+        Float globalProgressPercent = resolveGlobalProgressPercent(progress, fileProgress);
+
+        Optional<KoboSpanPositionMap.Chapter> chapter = resolveChapter(spanMap.get(), href, globalProgressPercent);
+        if (chapter.isEmpty()) {
             return Optional.empty();
         }
 
-        Float contentSourceProgressPercent = Optional.ofNullable(fileProgress)
-                .map(UserBookFileProgressEntity::getContentSourceProgressPercent)
-                .orElse(null);
+        Float resolvedChapterProgressPercent = resolveChapterProgressPercent(chapter.get(), chapterProgressPercent,
+                globalProgressPercent, href);
+        KoboSpanPositionMap.Span span = resolveSpanMarker(chapter.get(), resolvedChapterProgressPercent);
+        if (span == null) {
+            return Optional.empty();
+        }
 
-        return resolveKoboSpan(epubFile, href, contentSourceProgressPercent);
+        return Optional.of(new ResolvedBookmarkLocation(
+                span.id(),
+                "KoboSpan",
+                chapter.get().sourceHref(),
+                resolvedChapterProgressPercent));
     }
 
     private BookFileEntity resolveBookFile(UserBookProgressEntity progress,
@@ -76,117 +75,103 @@ public class KoboBookmarkLocationResolver {
         return bookFile.getBookType() == BookFileType.EPUB && !bookFile.isFixedLayout();
     }
 
-    private File getEpubFile(BookFileEntity bookFile) {
-        try {
-            Path fullPath = bookFile.getFullFilePath();
-            return fullPath != null ? fullPath.toFile() : null;
-        } catch (Exception e) {
-            log.debug("Unable to resolve EPUB path for file {}", bookFile.getId(), e);
-            return null;
-        }
-    }
-
     private String resolveHref(UserBookProgressEntity progress,
                                UserBookFileProgressEntity fileProgress) {
         return Optional.ofNullable(fileProgress)
                 .map(UserBookFileProgressEntity::getPositionHref)
                 .filter(value -> !value.isBlank())
-                .orElseGet(() -> Optional.ofNullable(progress.getEpubProgressHref())
+                .orElseGet(() -> Optional.ofNullable(progress)
+                        .map(UserBookProgressEntity::getEpubProgressHref)
                         .filter(value -> !value.isBlank())
                         .orElse(null));
     }
 
-    private Optional<ResolvedBookmarkLocation> resolveKoboSpan(File epubFile,
-                                                               String href,
-                                                               Float contentSourceProgressPercent) {
-        Path tempDir = null;
-        try {
-            KoboSettings koboSettings = appSettingService.getAppSettings().getKoboSettings();
-            tempDir = Files.createTempDirectory("kobo-bookmark");
-            File kepubFile = kepubConversionService.convertEpubToKepub(
-                    epubFile,
-                    tempDir.toFile(),
-                    koboSettings != null && koboSettings.isForceEnableHyphenation());
-
-            Optional<ZipResource> resourceOpt = readZipResource(kepubFile, href);
-            if (resourceOpt.isEmpty()) {
-                return Optional.empty();
-            }
-
-            ZipResource resource = resourceOpt.get();
-            String html = resource.content();
-            if (html == null || html.isBlank()) {
-                return Optional.empty();
-            }
-
-            Float resolvedProgress = clampPercent(
-                    contentSourceProgressPercent != null ? contentSourceProgressPercent : 0f);
-            float targetProgress = clampUnit(resolvedProgress / 100f);
-            Document document = Jsoup.parse(html, "", Parser.htmlParser().setTrackPosition(true));
-            List<KoboSpanMarker> markers = document.select("span.koboSpan[id]").stream()
-                    .map(span -> new KoboSpanMarker(
-                            span.id(),
-                            clampUnit(span.sourceRange().endPos() / (float) Math.max(html.length(), 1))))
-                    .filter(marker -> !marker.id().isBlank())
-                    .toList();
-
-            if (markers.isEmpty()) {
-                return Optional.empty();
-            }
-
-            KoboSpanMarker marker = contentSourceProgressPercent == null
-                    ? markers.getFirst()
-                    : markers.stream()
-                            .min(Comparator.comparingDouble(item -> Math.abs(item.progression() - targetProgress)))
-                            .orElse(null);
-            if (marker == null) {
-                return Optional.empty();
-            }
-
-            return Optional.of(new ResolvedBookmarkLocation(
-                    marker.id(),
-                    "KoboSpan",
-                    resource.entryName(),
-                    resolvedProgress));
-        } catch (Exception e) {
-            log.debug("Unable to resolve KoboSpan bookmark for href {}", href, e);
-            return Optional.empty();
-        } finally {
-            if (tempDir != null) {
-                try {
-                    FileSystemUtils.deleteRecursively(tempDir);
-                } catch (IOException e) {
-                    log.debug("Unable to delete temporary KEPUB directory {}", tempDir, e);
-                }
-            }
+    private Float resolveGlobalProgressPercent(UserBookProgressEntity progress,
+                                               UserBookFileProgressEntity fileProgress) {
+        Float fileProgressPercent = Optional.ofNullable(fileProgress)
+                .map(UserBookFileProgressEntity::getProgressPercent)
+                .orElse(null);
+        if (fileProgressPercent != null) {
+            return clampPercent(fileProgressPercent);
         }
+        return Optional.ofNullable(progress)
+                .map(UserBookProgressEntity::getEpubProgressPercent)
+                .map(this::clampPercent)
+                .orElse(null);
     }
 
-    private Optional<ZipResource> readZipResource(File archiveFile, String href) throws IOException {
-        String normalizedHref = normalizeHref(href);
-        try (ZipFile zipFile = new ZipFile(archiveFile)) {
-            FileHeader fileHeader = zipFile.getFileHeaders().stream()
-                    .filter(header -> !header.isDirectory())
-                    .filter(header -> {
-                        String normalizedEntry = normalizeHref(header.getFileName());
-                        return normalizedEntry.equals(normalizedHref)
-                                || normalizedEntry.endsWith("/" + normalizedHref);
-                    })
-                    .min(Comparator.comparingInt(header -> {
-                        String normalizedEntry = normalizeHref(header.getFileName());
-                        return normalizedEntry.equals(normalizedHref) ? 0 : normalizedEntry.length();
-                    }))
-                    .orElse(null);
-
-            if (fileHeader == null) {
-                return Optional.empty();
-            }
-
-            try (var inputStream = zipFile.getInputStream(fileHeader)) {
-                String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-                return Optional.of(new ZipResource(fileHeader.getFileName(), content));
-            }
+    private Optional<KoboSpanPositionMap.Chapter> resolveChapter(KoboSpanPositionMap spanMap,
+                                                                 String href,
+                                                                 Float globalProgressPercent) {
+        Optional<KoboSpanPositionMap.Chapter> byHref = findChapterByHref(spanMap, href);
+        if (byHref.isPresent()) {
+            return byHref;
         }
+        if (globalProgressPercent == null) {
+            return Optional.empty();
+        }
+        return findChapterByGlobalProgress(spanMap, globalProgressPercent);
+    }
+
+    private Optional<KoboSpanPositionMap.Chapter> findChapterByHref(KoboSpanPositionMap spanMap, String href) {
+        if (href == null || href.isBlank()) {
+            return Optional.empty();
+        }
+        String normalizedHref = normalizeHref(href);
+        return spanMap.chapters().stream()
+                .filter(chapter -> {
+                    String normalizedChapter = chapter.normalizedHref();
+                    return normalizedChapter.equals(normalizedHref)
+                            || normalizedChapter.endsWith("/" + normalizedHref);
+                })
+                .min(Comparator.comparingInt(chapter -> {
+                    String normalizedChapter = chapter.normalizedHref();
+                    return normalizedChapter.equals(normalizedHref) ? 0 : normalizedChapter.length();
+                }));
+    }
+
+    private Optional<KoboSpanPositionMap.Chapter> findChapterByGlobalProgress(KoboSpanPositionMap spanMap,
+                                                                              Float globalProgressPercent) {
+        float globalProgress = clampUnit(globalProgressPercent / 100f);
+        return spanMap.chapters().stream()
+                .min(Comparator.comparingDouble(chapter -> distanceToChapter(globalProgress, chapter)));
+    }
+
+    private Float resolveChapterProgressPercent(KoboSpanPositionMap.Chapter chapter,
+                                                Float chapterProgressPercent,
+                                                Float globalProgressPercent,
+                                                String href) {
+        if (chapterProgressPercent != null) {
+            return clampPercent(chapterProgressPercent);
+        }
+        if (globalProgressPercent != null) {
+            float chapterStart = chapter.globalStartProgress();
+            float chapterEnd = chapter.globalEndProgress();
+            float chapterWidth = chapterEnd - chapterStart;
+            if (chapterWidth <= 0f) {
+                return 0f;
+            }
+            float chapterProgress = (clampUnit(globalProgressPercent / 100f) - chapterStart) / chapterWidth;
+            return clampPercent(clampUnit(chapterProgress) * 100f);
+        }
+        if (href != null && !href.isBlank()) {
+            return 0f;
+        }
+        return null;
+    }
+
+    private KoboSpanPositionMap.Span resolveSpanMarker(KoboSpanPositionMap.Chapter chapter, Float chapterProgressPercent) {
+        if (chapter.spans().isEmpty()) {
+            return null;
+        }
+        if (chapterProgressPercent == null) {
+            return chapter.spans().getFirst();
+        }
+
+        float targetProgress = clampUnit(chapterProgressPercent / 100f);
+        return chapter.spans().stream()
+                .min(Comparator.comparingDouble(item -> Math.abs(item.progression() - targetProgress)))
+                .orElse(null);
     }
 
     private String normalizeHref(String href) {
@@ -200,6 +185,16 @@ public class KoboBookmarkLocationResolver {
         return Math.max(0f, Math.min(value, 1f));
     }
 
+    private double distanceToChapter(float globalProgress, KoboSpanPositionMap.Chapter chapter) {
+        if (globalProgress < chapter.globalStartProgress()) {
+            return chapter.globalStartProgress() - globalProgress;
+        }
+        if (globalProgress > chapter.globalEndProgress()) {
+            return globalProgress - chapter.globalEndProgress();
+        }
+        return 0d;
+    }
+
     private Float clampPercent(Float value) {
         return Math.max(0f, Math.min(value, 100f));
     }
@@ -208,11 +203,5 @@ public class KoboBookmarkLocationResolver {
                                            String type,
                                            String source,
                                            Float contentSourceProgressPercent) {
-    }
-
-    private record ZipResource(String entryName, String content) {
-    }
-
-    private record KoboSpanMarker(String id, float progression) {
     }
 }
