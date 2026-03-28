@@ -24,9 +24,9 @@ public class BookQueryService {
     private final BookMapperV2 bookMapperV2;
     private final ContentRestrictionService contentRestrictionService;
 
-    public List<Book> getAllBooks(boolean includeDescription, boolean StripForListView) {
+    public List<Book> getAllBooks(boolean includeDescription, boolean stripForListView) {
         List<BookEntity> books = bookRepository.findAllWithMetadata();
-        return mapBooksToDto(books, includeDescription, null, StripForListView);
+        return mapBooksToDto(books, includeDescription, null, stripForListView);
     }
 
     public List<Book> getAllBooksByLibraryIds(Set<Long> libraryIds, boolean includeDescription, boolean StripForListView, Long userId) {
