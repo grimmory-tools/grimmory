@@ -86,7 +86,7 @@ describe('SidebarSortingPreferencesComponent', () => {
 
     fixture = TestBed.createComponent(SidebarSortingPreferencesComponent);
     TestBed.flushEffects();
-    fixture.componentInstance.ngOnInit();
+    fixture.detectChanges();
   });
 
   afterEach(() => {
