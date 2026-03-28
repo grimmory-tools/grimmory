@@ -1,5 +1,6 @@
 package org.booklore.service.book;
 
+import lombok.RequiredArgsConstructor;
 import org.booklore.mapper.v2.BookMapperV2;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookMetadata;
@@ -7,8 +8,8 @@ import org.booklore.model.dto.ComicMetadata;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.restriction.ContentRestrictionService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class BookQueryService {
 
     private final BookRepository bookRepository;
@@ -45,6 +47,7 @@ public class BookQueryService {
         return bookRepository.findAllFullBooks();
     }
 
+    @Transactional
     public void saveAll(List<BookEntity> books) {
         bookRepository.saveAll(books);
     }

@@ -4,7 +4,6 @@ import org.booklore.config.AppProperties;
 import org.booklore.exception.ApiError;
 import org.booklore.model.dto.request.SvgIconCreateRequest;
 import org.booklore.model.dto.response.SvgIconBatchResponse;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -44,40 +43,6 @@ public class IconService {
     private static final String XML_DECLARATION = "<?xml";
     private static final String SVG_END_TAG = "</svg>";
 
-    @PostConstruct
-    public void init() {
-        try {
-            Path iconsPath = getIconsSvgPath();
-            if (Files.exists(iconsPath)) {
-                loadIconsIntoCache();
-                log.info("Loaded {} SVG icons into cache", svgCache.size());
-            } else {
-                Files.createDirectories(iconsPath);
-                log.info("Created icons directory: {}", iconsPath);
-            }
-        } catch (IOException e) {
-            log.error("Failed to initialize IconService: {}", e.getMessage(), e);
-        }
-    }
-
-    private void loadIconsIntoCache() throws IOException {
-        Path iconsPath = getIconsSvgPath();
-        try (Stream<Path> paths = Files.list(iconsPath)) {
-            paths.filter(Files::isRegularFile)
-                    .filter(path -> path.toString().endsWith(SVG_EXTENSION))
-                    .limit(MAX_CACHE_SIZE)
-                    .forEach(path -> {
-                        try {
-                            String filename = path.getFileName().toString();
-                            String content = Files.readString(path);
-                            svgCache.put(filename, content);
-                        } catch (IOException e) {
-                            log.warn("Failed to load icon: {}", path.getFileName(), e);
-                        }
-                    });
-        }
-    }
-
     public void saveSvgIcon(SvgIconCreateRequest request) {
         validateSvgData(request.getSvgData());
 
@@ -90,6 +55,7 @@ public class IconService {
         }
 
         try {
+            Files.createDirectories(filePath.getParent());
             Files.writeString(filePath, request.getSvgData(),
                     StandardOpenOption.CREATE,
                     StandardOpenOption.TRUNCATE_EXISTING);

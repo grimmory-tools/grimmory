@@ -29,6 +29,7 @@ jobs:
       checks: write
     with:
       checkout_ref: ${{ github.sha }}
+      save_gradle_cache: true
 
   semantic-release:
     name: Compute Release, Update Changelog, and Draft GitHub Release
@@ -51,15 +52,23 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Install just
+        uses: taiki-e/install-action@7627fb428e65e78e2ec9a24ae5c5bd5f8553f182 # v2.69.10
+        with:
+          tool: just
+
       - name: Set Up Node.js
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
         with:
           node-version: '24'
-          cache: 'npm'
-          cache-dependency-path: tools/release/package-lock.json
+
+      - name: Enable Corepack
+        run: |
+          corepack enable
+          corepack yarn --version
 
       - name: Install Release Tooling Dependencies
-        run: npm --prefix tools/release ci
+        run: just release install
 
       - name: Record Pre-Release HEAD
         id: pre_release
@@ -82,7 +91,7 @@ jobs:
           GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
           GIT_COMMITTER_NAME: github-actions[bot]
           GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
-        run: npx --prefix tools/release semantic-release --extends ./tools/release/release.config.cjs
+        run: just release run
 
       - name: Capture Release State
         id: release_state

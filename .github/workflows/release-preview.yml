@@ -49,24 +49,29 @@ jobs:
 
           git checkout -B main "$(git rev-parse HEAD)"
 
+      - name: Install just
+        uses: taiki-e/install-action@7627fb428e65e78e2ec9a24ae5c5bd5f8553f182 # v2.69.10
+        with:
+          tool: just
+
       - name: Set Up Node.js
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
         with:
           node-version: '24'
-          cache: 'npm'
-          cache-dependency-path: tools/release/package-lock.json
+
+      - name: Enable Corepack
+        run: |
+          corepack enable
+          corepack yarn --version
 
       - name: Install Release Tooling Dependencies
-        run: npm --prefix tools/release ci
+        run: just release install
 
       - name: Run semantic-release Dry Run
         env:
           GH_TOKEN: ${{ secrets.RELEASE_BOT_TOKEN != '' && secrets.RELEASE_BOT_TOKEN || github.token }}
           GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_TOKEN != '' && secrets.RELEASE_BOT_TOKEN || github.token }}
-        run: |
-          npx --prefix tools/release semantic-release \
-            --dry-run \
-            --extends ./tools/release/release.config.cjs | tee semantic-release-preview.log
+        run: just release preview | tee semantic-release-preview.log
 
       - name: Upload Preview Output
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0

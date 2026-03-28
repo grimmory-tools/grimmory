@@ -1,0 +1,99 @@
+@use '../../../../shared/styles/panel-shared' as panel;
+
+.metadata-review-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.panel-header {
+  @include panel.panel-header;
+
+  flex-shrink: 0;
+}
+
+.dialog-content {
+  height: calc(95dvh - 90px - 80px);
+  overflow-y: auto;
+  padding: 1rem;
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-top: none;
+
+  &.loading-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0 0 10px 10px;
+  }
+
+  .spinner {
+    width: 2rem;
+    height: 2rem;
+  }
+}
+
+.dialog-footer {
+  @include panel.dialog-footer;
+
+  flex-shrink: 0;
+
+  .footer-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .progress-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: help;
+    transition: all 0.3s ease;
+
+    &:hover {
+      box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
+    }
+  }
+
+  .progress-bar {
+    width: 10rem;
+    height: 0.75rem;
+
+    @media (width <= 640px) {
+      width: 100%;
+    }
+  }
+
+  .progress-text {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary-color);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .footer-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: flex-end;
+  }
+
+  @media (width <= 640px) {
+    flex-direction: column;
+    align-items: stretch;
+
+    .footer-info {
+      width: 100%;
+    }
+
+    .progress-group {
+      width: 100%;
+    }
+
+    .footer-actions {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}

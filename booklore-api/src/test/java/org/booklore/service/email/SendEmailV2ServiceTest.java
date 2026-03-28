@@ -20,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
@@ -122,7 +123,7 @@ class SendEmailV2ServiceTest {
                     });
 
             try (MockedStatic<FileUtils> fileUtilsMock = mockStatic(FileUtils.class)) {
-                fileUtilsMock.when(() -> FileUtils.getBookFullPath(book)).thenReturn("/library/books/test-book.epub");
+                fileUtilsMock.when(() -> FileUtils.getBookFullPath(book)).thenReturn(Path.of("/library/books/test-book.epub"));
 
                 sendEmailV2Service.emailBookQuick(10L);
 
@@ -192,7 +193,7 @@ class SendEmailV2ServiceTest {
                     });
 
             try (MockedStatic<FileUtils> fileUtilsMock = mockStatic(FileUtils.class)) {
-                fileUtilsMock.when(() -> FileUtils.getBookFullPath(book)).thenReturn("/library/books/test-book.epub");
+                fileUtilsMock.when(() -> FileUtils.getBookFullPath(book)).thenReturn(Path.of("/library/books/test-book.epub"));
 
                 sendEmailV2Service.emailBook(request);
 
@@ -225,7 +226,7 @@ class SendEmailV2ServiceTest {
                     });
 
             try (MockedStatic<FileUtils> fileUtilsMock = mockStatic(FileUtils.class)) {
-                fileUtilsMock.when(() -> FileUtils.getBookFullPath(book)).thenReturn("/library/books/test-book.epub");
+                fileUtilsMock.when(() -> FileUtils.getBookFullPath(book)).thenReturn(Path.of("/library/books/test-book.epub"));
 
                 sendEmailV2Service.emailBook(request);
 

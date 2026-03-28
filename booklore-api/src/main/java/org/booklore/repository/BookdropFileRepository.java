@@ -3,7 +3,7 @@ package org.booklore.repository;
 
 import org.booklore.model.entity.BookdropFileEntity;
 import org.booklore.model.entity.BookdropFileEntity.Status;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

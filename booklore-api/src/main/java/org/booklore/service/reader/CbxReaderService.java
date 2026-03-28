@@ -14,6 +14,7 @@ import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.BookRepository;
+import org.booklore.util.ArchiveUtils;
 import org.booklore.util.FileUtils;
 import org.booklore.util.UnrarHelper;
 import org.springframework.stereotype.Service;
@@ -38,10 +39,7 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor
 public class CbxReaderService {
 
-    private static final String CBZ_EXTENSION = ".cbz";
-    private static final String CBR_EXTENSION = ".cbr";
-    private static final String CB7_EXTENSION = ".cb7";
-    private static final String[] SUPPORTED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".avif", ".heic"};
+    private static final String[] SUPPORTED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".avif", ".heic", ".gif", ".bmp"};
     private static final Charset[] ENCODINGS_TO_TRY = {
             StandardCharsets.UTF_8,
             Charset.forName("Shift_JIS"),
@@ -137,7 +135,7 @@ public class CbxReaderService {
     }
 
     private Path getBookPath(Long bookId, String bookType) {
-        BookEntity bookEntity = bookRepository.findById(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
+        BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
         if (bookType != null) {
             BookFileType requestedType = BookFileType.valueOf(bookType.toUpperCase());
             BookFileEntity bookFile = bookEntity.getBookFiles().stream()
@@ -146,8 +144,7 @@ public class CbxReaderService {
                     .orElseThrow(() -> ApiError.FILE_NOT_FOUND.createException("No file of type " + bookType + " found for book"));
             return bookFile.getFullFilePath();
         }
-        String bookFullPath = FileUtils.getBookFullPath(bookEntity);
-        return Path.of(bookFullPath);
+        return FileUtils.getBookFullPath(bookEntity);
     }
 
     private void validatePageRequest(Long bookId, int page, List<String> imageEntries) throws FileNotFoundException {
@@ -195,19 +192,20 @@ public class CbxReaderService {
     }
 
     private CachedArchiveMetadata scanArchiveMetadata(Path cbxPath) throws IOException {
-        String filename = cbxPath.getFileName().toString().toLowerCase();
         long lastModified = Files.getLastModifiedTime(cbxPath).toMillis();
-        if (filename.endsWith(CBZ_EXTENSION)) {
-            return scanZipMetadata(cbxPath, lastModified);
-        } else if (filename.endsWith(CB7_EXTENSION)) {
-            List<String> entries = getImageEntriesFrom7z(cbxPath);
-            return new CachedArchiveMetadata(entries, lastModified, null, false);
-        } else if (filename.endsWith(CBR_EXTENSION)) {
-            List<String> entries = getImageEntriesFromRar(cbxPath);
-            return new CachedArchiveMetadata(entries, lastModified, null, false);
-        } else {
-            throw new IOException("Unsupported archive format: " + cbxPath.getFileName());
-        }
+        ArchiveUtils.ArchiveType type = ArchiveUtils.detectArchiveType(cbxPath.toFile());
+        return switch (type) {
+            case ZIP -> scanZipMetadata(cbxPath, lastModified);
+            case SEVEN_ZIP -> {
+                List<String> entries = getImageEntriesFrom7z(cbxPath);
+                yield new CachedArchiveMetadata(entries, lastModified, null, false);
+            }
+            case RAR -> {
+                List<String> entries = getImageEntriesFromRar(cbxPath);
+                yield new CachedArchiveMetadata(entries, lastModified, null, false);
+            }
+            default -> throw new IOException("Unsupported archive format: " + cbxPath.getFileName());
+        };
     }
 
     private CachedArchiveMetadata scanZipMetadata(Path cbxPath, long lastModified) throws IOException {
@@ -316,15 +314,12 @@ public class CbxReaderService {
 
 
     private void streamEntryFromArchive(Path cbxPath, String entryName, OutputStream outputStream, CachedArchiveMetadata metadata) throws IOException {
-        String filename = cbxPath.getFileName().toString().toLowerCase();
-        if (filename.endsWith(CBZ_EXTENSION)) {
-            streamEntryFromZip(cbxPath, entryName, outputStream, metadata);
-        } else if (filename.endsWith(CB7_EXTENSION)) {
-            streamEntryFrom7z(cbxPath, entryName, outputStream);
-        } else if (filename.endsWith(CBR_EXTENSION)) {
-            streamEntryFromRar(cbxPath, entryName, outputStream);
-        } else {
-            throw new IOException("Unsupported archive format: " + cbxPath.getFileName());
+        ArchiveUtils.ArchiveType type = ArchiveUtils.detectArchiveType(cbxPath.toFile());
+        switch (type) {
+            case ZIP -> streamEntryFromZip(cbxPath, entryName, outputStream, metadata);
+            case SEVEN_ZIP -> streamEntryFrom7z(cbxPath, entryName, outputStream);
+            case RAR -> streamEntryFromRar(cbxPath, entryName, outputStream);
+            default -> throw new IOException("Unsupported archive format: " + cbxPath.getFileName());
         }
     }
 

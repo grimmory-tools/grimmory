@@ -21,7 +21,7 @@ public class RefreshTokenEntity {
     @Column(nullable = false, unique = true, length = 512)
     private String token;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private BookLoreUserEntity user;
 

@@ -1,14 +1,20 @@
 services:
   backend:
-    image: gradle:9.3.1-jdk25-alpine
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM linuxserver/unrar:7.1.10 AS unrar-layer
+        FROM gradle:9.3.1-jdk25-alpine
+        RUN apk add --no-cache libstdc++ libgcc
+        COPY --from=unrar-layer /usr/bin/unrar-alpine /usr/local/bin/unrar
     command: sh -c "cd /booklore-api && ./gradlew bootRun"
     ports:
       - "${BACKEND_PORT:-6060}:6060"
       - "127.0.0.1:${REMOTE_DEBUG_PORT:-5005}:5005"
     environment:
-      - DATABASE_URL=jdbc:mariadb://backend_db:3306/booklore
-      - DATABASE_USERNAME=booklore
-      - DATABASE_PASSWORD=booklore
+      - DATABASE_URL=jdbc:mariadb://backend_db:3306/grimmory
+      - DATABASE_USERNAME=grimmory
+      - DATABASE_PASSWORD=grimmory
       - REMOTE_DEBUG_ENABLED=true
       - ALLOWED_ORIGINS=http://localhost:4200
     stdin_open: true
@@ -31,36 +37,32 @@ services:
       - backend_db:/var/lib/mysql
     restart: unless-stopped
     environment:
-      - MYSQL_ROOT_PASSWORD=booklore
-      - MYSQL_DATABASE=booklore
-      - MYSQL_USER=booklore
-      - MYSQL_PASSWORD=booklore
+      - MYSQL_ROOT_PASSWORD=grimmory
+      - MYSQL_DATABASE=grimmory
+      - MYSQL_USER=grimmory
+      - MYSQL_PASSWORD=grimmory
     ports:
       - "${DB_PORT:-3366}:3306"
     healthcheck:
-      test: [ "CMD", "mariadb-admin", "ping", "-h", "localhost", "-uroot", "-pbooklore" ]
+      test: [ "CMD", "mariadb-admin", "ping", "-h", "localhost", "-uroot", "-pgrimmory" ]
       interval: 10s
       timeout: 5s
       retries: 5
 
   ui:
-    image: node:22-alpine
-    command: sh -c "cd /angular-app && npm install -g @angular/cli --force && npm install --force && ng serve --host 0.0.0.0"
+    image: node:24-alpine
+    command: sh -c "cd /angular-app && corepack enable && corepack yarn install --immutable && corepack yarn ng serve --host 0.0.0.0 --watch --configuration development"
     environment:
       - NODE_ENV=development
     stdin_open: true
     tty: true
     restart: unless-stopped
     volumes:
-      - './booklore-ui:/angular-app'
+      - './frontend:/angular-app'
 
         # you can have node_modules in a volume. however, if you enable this, expect trouble in some IDEs, as the deps are not available anymore
         # - node_modules:/angular-app/node_modules
 
-        # we ignore package-lock otherwise will throw
-        # An unhandled exception occurred: Cannot find module @rollup/rollup-linux-x64-musl. npm has a bug related to optional dependencies (https://github.com/npm/cli/issues/4828).
-        # Please try `npm i` again after removing both package-lock.json and node_modules directory.
-      - '/dev/null:/angular-app/package-lock.json'
     ports:
       - "${FRONTEND_PORT:-4200}:4200"
 

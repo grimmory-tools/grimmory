@@ -5,20 +5,20 @@ import org.booklore.exception.APIException;
 import org.booklore.exception.ApiError;
 import org.booklore.mapper.AdditionalFileMapper;
 import org.booklore.model.dto.BookFile;
+import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.settings.AppSettings;
-import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.BookEntity;
+import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.LibraryEntity;
 import org.booklore.model.entity.LibraryPathEntity;
+import org.booklore.model.enums.BookFileExtension;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.BookAdditionalFileRepository;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.LibraryRepository;
-import org.booklore.service.file.FileFingerprint;
 import org.booklore.service.appsettings.AppSettingService;
+import org.booklore.service.file.FileFingerprint;
 import org.booklore.service.file.FileMovingHelper;
-import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.enums.BookFileExtension;
 import org.booklore.service.metadata.extractor.MetadataExtractorFactory;
 import org.booklore.service.audit.AuditService;
 import org.booklore.service.monitoring.MonitoringRegistrationService;
@@ -26,8 +26,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
@@ -38,14 +36,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.*;
 
 class FileUploadServiceTest {
@@ -244,7 +239,7 @@ class FileUploadServiceTest {
         primaryFile.setBookType(BookFileType.EPUB);
         book.setBookFiles(new ArrayList<>(List.of(primaryFile)));
 
-        when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
+        when(bookRepository.findByIdWithBookFiles(bookId)).thenReturn(Optional.of(book));
 
         try (MockedStatic<FileFingerprint> fp = mockStatic(FileFingerprint.class)) {
             fp.when(() -> FileFingerprint.generateHash(any())).thenReturn("hash-123");
@@ -287,7 +282,7 @@ class FileUploadServiceTest {
         primaryFile.setBookType(BookFileType.EPUB);
         book.setBookFiles(new ArrayList<>(List.of(primaryFile)));
 
-        when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
+        when(bookRepository.findByIdWithBookFiles(bookId)).thenReturn(Optional.of(book));
 
         try (MockedStatic<FileFingerprint> fp = mockStatic(FileFingerprint.class)) {
             fp.when(() -> FileFingerprint.generateHash(any())).thenReturn("dup-hash");
@@ -363,7 +358,7 @@ class FileUploadServiceTest {
         book.setBookFiles(new ArrayList<>(List.of(primaryFile)));
         book.getPrimaryBookFile().setFileSubPath(".");
 
-        when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
+        when(bookRepository.findByIdWithBookFiles(bookId)).thenReturn(Optional.of(book));
         when(bookAdditionalFileRepository.save(any(BookFileEntity.class))).thenAnswer(inv -> inv.getArgument(0));
         when(additionalFileMapper.toAdditionalFile(any(BookFileEntity.class))).thenReturn(mock(BookFile.class));
 

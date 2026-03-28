@@ -12,6 +12,6 @@ public interface ComicCharacterRepository extends JpaRepository<ComicCharacterEn
     Optional<ComicCharacterEntity> findByName(String name);
 
     @Modifying(flushAutomatically = true)
-    @Query(value = "DELETE FROM comic_character WHERE id NOT IN (SELECT DISTINCT character_id FROM comic_metadata_character_mapping)", nativeQuery = true)
+    @Query("DELETE FROM ComicCharacterEntity c WHERE c.id NOT IN (SELECT cc.id FROM ComicMetadataEntity m JOIN m.characters cc)")
     void deleteOrphaned();
 }

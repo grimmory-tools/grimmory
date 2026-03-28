@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.util.UriComponentsBuilder;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
@@ -33,6 +34,7 @@ import java.util.regex.Pattern;
 public class KoboServerProxy {
 
     private static final Pattern KOBO_API_PREFIX_PATTERN = Pattern.compile("^/api/kobo/[^/]+");
+    private final String KOBO_BOOK_IMAGE_CDN_URL = "https://cdn.kobo.com/book-images/{ImageId}/{Width}/{Height}/{IsGreyscale}/image.jpg";
     private final HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofMinutes(1)).build();
     private final ObjectMapper objectMapper;
     private final BookloreSyncTokenGenerator bookloreSyncTokenGenerator;
@@ -41,7 +43,6 @@ public class KoboServerProxy {
             HttpHeaders.AUTHORIZATION.toLowerCase(),
             HttpHeaders.AUTHORIZATION,
             HttpHeaders.USER_AGENT,
-            HttpHeaders.ACCEPT,
             HttpHeaders.ACCEPT_LANGUAGE
     );
 
@@ -68,23 +69,11 @@ public class KoboServerProxy {
         return executeProxyRequest(request, body, path, includeSyncToken, syncToken);
     }
 
-    public ResponseEntity<Resource> proxyExternalUrl(String url) {
-        try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
-                    .GET()
-                    .build();
-
-            HttpResponse<byte[]> response = httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.IMAGE_JPEG);
-
-            return new ResponseEntity<>(new ByteArrayResource(response.body()), headers, HttpStatus.valueOf(response.statusCode()));
-        } catch (Exception e) {
-            log.error("Failed to proxy external Kobo CDN URL", e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to fetch image", e);
-        }
+    public URI getKoboCDNCoverUri(String imageId, int width, int height, boolean isGreyscale) {
+        return UriComponentsBuilder.fromUriString(KOBO_BOOK_IMAGE_CDN_URL)
+                .encode()
+                .buildAndExpand(imageId, width, height, isGreyscale)
+                .toUri();
     }
 
     private ResponseEntity<JsonNode> executeProxyRequest(HttpServletRequest request, Object body, String path, boolean includeSyncToken, BookloreSyncToken syncToken) {
@@ -105,7 +94,8 @@ public class KoboServerProxy {
                     .uri(uri)
                     .timeout(Duration.ofMinutes(1))
                     .method(request.getMethod(), HttpRequest.BodyPublishers.ofString(bodyString))
-                    .header(HttpHeaders.CONTENT_TYPE, "application/json");
+                    .header(HttpHeaders.CONTENT_TYPE, "application/json")
+                    .header(HttpHeaders.ACCEPT, "application/json");
 
             Collections.list(request.getHeaderNames()).forEach(headerName -> {
                 if (!HEADERS_OUT_EXCLUDE.contains(headerName.toLowerCase()) &&

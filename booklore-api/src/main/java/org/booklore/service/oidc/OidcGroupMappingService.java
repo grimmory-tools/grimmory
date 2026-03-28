@@ -103,7 +103,7 @@ public class OidcGroupMappingService {
             case "ON_LOGIN" -> {
                 applyPermissions(perms, mergedPermissions, mergedAdmin, false);
                 List<LibraryEntity> libraries = libraryRepository.findAllById(mergedLibraryIds);
-                user.setLibraries(new ArrayList<>(libraries));
+                user.setLibraries(new HashSet<>(libraries));
             }
             case "ON_LOGIN_ADDITIVE" -> {
                 applyPermissions(perms, mergedPermissions, mergedAdmin, true);
@@ -115,7 +115,7 @@ public class OidcGroupMappingService {
                 allLibIds.addAll(mergedLibraryIds);
                 if (!allLibIds.equals(existingLibIds)) {
                     List<LibraryEntity> libraries = libraryRepository.findAllById(allLibIds);
-                    user.setLibraries(new ArrayList<>(libraries));
+                    user.setLibraries(new HashSet<>(libraries));
                 }
             }
             default -> {

@@ -14,6 +14,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -302,6 +303,40 @@ class FileServiceTest {
             void handlesFilenameWithSpaces() {
                 String result = FileService.getBackgroundUrl("my background.jpg", null);
                 assertTrue(result.contains("my background.jpg"));
+            }
+        }
+
+        @Nested
+        @DisplayName("findSystemFile")
+        class FindSystemFileTest {
+            @Test
+            void searchesLocalBinFolderFirst() {
+                Path expected = Path.of("bin/example").toAbsolutePath().normalize();
+
+                try (
+                    MockedStatic<Files> filesMock = mockStatic(Files.class);
+                ) {
+                    filesMock.when(() -> Files.isRegularFile(any())).thenReturn(true);
+
+                    Path actual = fileService.findSystemFile("example");
+
+                    assertEquals(expected, actual);
+                }
+            }
+
+            @Test
+            void searchesAppDataToolsFolder() {
+                Path expected = tempDir.resolve("tools", "example");
+
+                try (
+                        MockedStatic<Files> filesMock = mockStatic(Files.class);
+                ) {
+                    filesMock.when(() -> Files.isRegularFile(any())).thenReturn(false, true);
+
+                    Path actual = fileService.findSystemFile("example");
+
+                    assertEquals(expected, actual);
+                }
             }
         }
 

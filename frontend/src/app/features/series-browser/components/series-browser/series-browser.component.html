@@ -1,0 +1,102 @@
+<ng-container *transloco="let t; prefix: 'seriesBrowser'">
+  @if (isBooksLoading()) {
+    <div class="loading-state">
+      <p-progressSpinner
+        [style]="{'width': '60px', 'height': '60px'}"
+        strokeWidth="3"
+        fill="transparent"
+        animationDuration="1.5s">
+      </p-progressSpinner>
+    </div>
+  }
+
+  @if (!isBooksLoading()) {
+    <div class="browse-header">
+      <h2 class="browse-title">{{ t('browseAllSeries') }}</h2>
+
+      <div class="browse-controls">
+        <div class="search-wrapper">
+          <i class="pi pi-search search-icon"></i>
+          <input
+            pInputText
+            type="text"
+            [placeholder]="t('searchPlaceholder')"
+            [ngModel]="searchValue"
+            (ngModelChange)="onSearchChange($event)"
+            class="search-input"/>
+        </div>
+
+        <div class="filter-sort-wrapper">
+          <p-select
+            [options]="filterOptions"
+            [ngModel]="statusFilterValue"
+            (ngModelChange)="onStatusFilterChange($event)"
+            optionLabel="label"
+            optionValue="value"
+            class="filter-dropdown">
+          </p-select>
+
+          <p-select
+            [options]="sortOptions"
+            [ngModel]="sortByValue"
+            (ngModelChange)="onSortChange($event)"
+            optionLabel="label"
+            optionValue="value"
+            class="sort-dropdown">
+          </p-select>
+
+          @if (!isMobile) {
+            <button class="display-settings-btn" (click)="displaySettingsPopover.toggle($event)">
+              <i class="pi pi-sliders-h"></i>
+            </button>
+            <p-popover #displaySettingsPopover>
+              <div class="display-settings-content">
+                <span class="display-settings-label">{{ t('cardSize') }}</span>
+                <p-slider
+                  [ngModel]="seriesScaleService.scaleFactor()"
+                  (ngModelChange)="seriesScaleService.setScale($event)"
+                  [min]="0.7"
+                  [max]="1.3"
+                  [step]="0.01"
+                  [style]="{ width: '100%' }">
+                </p-slider>
+                <div class="scale-value-display">
+                  {{ seriesScaleService.scaleFactor().toFixed(2) }}x
+                </div>
+              </div>
+            </p-popover>
+          }
+        </div>
+      </div>
+    </div>
+
+    @if (filteredSeries(); as seriesList) {
+      @if (seriesList.length === 0) {
+        <div class="empty-state">
+          <i class="pi pi-list empty-icon"></i>
+          <p>{{ t('noSeriesFound') }}</p>
+        </div>
+      } @else {
+        <virtual-scroller
+          #scroll
+          [items]="seriesList"
+          class="virtual-scroller">
+          <div class="series-grid"
+            #container
+            [ngStyle]="{'grid-template-columns': 'repeat(auto-fill, minmax(' + gridColumnMinWidth + ', 1fr))'}">
+            @for (series of scroll.viewPortItems; track series.seriesName) {
+              <div class="virtual-scroller-item"
+                [ngStyle]="{width: cardWidth + 'px', height: cardHeight + 'px'}"
+                [style.--card-scale]="seriesScaleService.scaleFactor()">
+                <app-series-card
+                  [series]="series"
+                  (cardClick)="navigateToSeries($event)">
+                </app-series-card>
+              </div>
+            }
+          </div>
+        </virtual-scroller>
+      }
+    }
+  }
+</ng-container>

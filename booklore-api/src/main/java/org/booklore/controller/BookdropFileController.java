@@ -59,7 +59,7 @@ public class BookdropFileController {
     @PostMapping("/files/discard")
     @PreAuthorize("@securityUtil.canAccessBookdrop() or @securityUtil.isAdmin()")
     public ResponseEntity<Void> discardSelectedFiles(
-            @Parameter(description = "Selection request for files to discard") @RequestBody BookdropSelectionRequest request) {
+            @Parameter(description = "Selection request for files to discard") @Valid @RequestBody BookdropSelectionRequest request) {
         bookDropService.discardSelectedFiles(request.isSelectAll(), request.getExcludedIds(), request.getSelectedIds());
         return ResponseEntity.ok().build();
     }
@@ -69,7 +69,7 @@ public class BookdropFileController {
     @PostMapping("/imports/finalize")
     @PreAuthorize("@securityUtil.canAccessBookdrop() or @securityUtil.isAdmin()")
     public ResponseEntity<BookdropFinalizeResult> finalizeImport(
-            @Parameter(description = "Finalize import request") @RequestBody BookdropFinalizeRequest request) {
+            @Parameter(description = "Finalize import request") @Valid @RequestBody BookdropFinalizeRequest request) {
         BookdropFinalizeResult result = bookDropService.finalizeImport(request);
         return ResponseEntity.ok(result);
     }

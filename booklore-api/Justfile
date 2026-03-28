@@ -1,0 +1,43 @@
+set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
+
+gradle := "./gradlew"
+
+# Show the backend recipes available in this directory.
+help:
+    @just --list
+
+# Print the backend Gradle and JVM versions.
+version:
+    {{ gradle }} --version
+
+# Run the backend locally with the requested Spring profile. Default: `dev`.
+run profile='dev':
+    {{ gradle }} bootRun --args="--spring.profiles.active={{ profile }}"
+
+# Build the backend jar and run the standard Gradle build lifecycle.
+build:
+    {{ gradle }} build --no-daemon --parallel --build-cache
+
+# Run the backend test suite.
+test:
+    {{ gradle }} test --no-daemon --parallel --build-cache
+
+# Run a single backend test class, for example `just test-class test_class=org.booklore.service.BookServiceTest`.
+test-class test_class:
+    {{ gradle }} test --tests "{{ test_class }}" --no-daemon --parallel --build-cache
+
+# Run tests and generate JaCoCo coverage output.
+coverage:
+    {{ gradle }} test jacocoTestReport --no-daemon --parallel --build-cache
+
+# Run the Gradle `check` lifecycle used for local backend verification.
+check:
+    {{ gradle }} check --no-daemon --parallel --build-cache
+
+# Remove backend build outputs.
+clean:
+    {{ gradle }} clean --no-daemon
+
+# List the available backend Gradle tasks.
+tasks:
+    {{ gradle }} tasks --all --no-daemon

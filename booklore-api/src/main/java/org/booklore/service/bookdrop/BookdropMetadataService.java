@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.exception.ApiError;
 import org.booklore.model.dto.Book;
-import org.booklore.model.dto.BookFile;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.request.MetadataRefreshOptions;
 import org.booklore.model.dto.settings.AppSettings;
@@ -29,6 +28,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Stream;
 
 import static org.booklore.model.entity.BookdropFileEntity.Status.PENDING_REVIEW;
 
@@ -71,9 +71,15 @@ public class BookdropMetadataService {
 
         BookMetadata initial = objectMapper.readValue(entity.getOriginalMetadata(), BookMetadata.class);
 
+        if (!hasSearchableMetadata(initial, entity)) {
+            log.info("Skipping online metadata fetch for '{}' — no reliable search data (title derived from filename, no ISBN or ASIN).", entity.getFileName());
+            entity.setStatus(PENDING_REVIEW);
+            entity.setUpdatedAt(Instant.now());
+            return bookdropFileRepository.save(entity);
+        }
+
         List<MetadataProvider> providers = metadataRefreshService.prepareProviders(refreshOptions);
         Book book = Book.builder()
-                .primaryFile(BookFile.builder().fileName(entity.getFileName()).build())
                 .metadata(initial)
                 .build();
 
@@ -94,6 +100,27 @@ public class BookdropMetadataService {
         entity.setUpdatedAt(Instant.now());
 
         return bookdropFileRepository.save(entity);
+    }
+
+    private boolean hasSearchableMetadata(BookMetadata metadata, BookdropFileEntity entity) {
+        if (hasAnyKnownIdentifier(metadata)) {
+            return true;
+        }
+        String title = metadata.getTitle();
+        String filenameFallback = FilenameUtils.getBaseName(entity.getFileName());
+        return title != null && !title.isBlank()
+                && !title.strip().equalsIgnoreCase(filenameFallback.strip());
+    }
+
+    private boolean hasAnyKnownIdentifier(BookMetadata m) {
+        // Keep in sync with identifier fields in BookMetadata when new providers are added.
+        return Stream.of(
+                m.getIsbn13(), m.getIsbn10(), m.getAsin(),
+                m.getGoodreadsId(), m.getGoogleId(),
+                m.getHardcoverId(), m.getHardcoverBookId(),
+                m.getComicvineId(), m.getDoubanId(),
+                m.getLubimyczytacId(), m.getRanobedbId(), m.getAudibleId()
+        ).anyMatch(id -> id != null && !id.isBlank());
     }
 
     private BookdropFileEntity getOrThrow(Long id) {

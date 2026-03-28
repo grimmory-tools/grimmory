@@ -15,7 +15,9 @@ import org.booklore.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -26,12 +28,14 @@ public class ContentRestrictionService {
     private final UserContentRestrictionRepository restrictionRepository;
     private final UserRepository userRepository;
 
+    @Transactional(readOnly = true)
     public List<ContentRestriction> getUserRestrictions(Long userId) {
         return restrictionRepository.findByUserId(userId).stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public ContentRestriction getRestriction(Long restrictionId) {
         return restrictionRepository.findById(restrictionId)
                 .map(this::toDto)
@@ -92,6 +96,7 @@ public class ContentRestrictionService {
         restrictionRepository.deleteByUserId(userId);
     }
 
+    @Transactional(readOnly = true)
     public List<BookEntity> applyRestrictions(List<BookEntity> books, Long userId) {
         List<UserContentRestrictionEntity> restrictions = restrictionRepository.findByUserId(userId);
 

@@ -8,7 +8,7 @@ import org.booklore.model.dto.EmailRecipientV2;
 import org.booklore.model.dto.request.CreateEmailRecipientRequest;
 import org.booklore.model.entity.EmailRecipientV2Entity;
 import org.booklore.repository.EmailRecipientV2Repository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

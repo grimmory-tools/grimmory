@@ -1,0 +1,73 @@
+set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
+
+yarn := "env YARN_ENABLE_GLOBAL_CACHE=0 YARN_CACHE_FOLDER=../.yarn/cache corepack yarn"
+
+# Show the frontend recipes available in this directory.
+help:
+    @just --list
+
+# Install or update frontend dependencies for local development.
+install:
+    {{ yarn }} install
+
+# Install the frontend dependencies exactly as CI does.
+install-ci:
+    {{ yarn }} install --immutable
+
+# Run the Angular development server.
+dev:
+    {{ yarn }} dev
+
+# Run the Angular development server with the default `start` script.
+start:
+    {{ yarn }} start
+
+# Build the production frontend bundle.
+build:
+    CI=1 NG_CLI_ANALYTICS=false {{ yarn }} build:prod
+
+# Build the frontend continuously in development mode.
+watch:
+    {{ yarn }} watch
+
+# Run the frontend test suite.
+test:
+    {{ yarn }} test
+
+# Run the frontend tests with a coverage report.
+coverage:
+    {{ yarn }} ng test --coverage
+
+# Run the frontend linter.
+lint:
+    {{ yarn }} lint:eslint
+
+# Run the frontend stylesheet linter.
+stylelint:
+    {{ yarn }} lint:styles
+
+# Run the frontend stylesheet linter with autofix enabled.
+stylelint-fix:
+    {{ yarn }} lint:styles:fix
+
+# Run the frontend TypeScript typechecker without emitting build output.
+typecheck:
+    {{ yarn }} typecheck
+
+# Check the installed dependency tree.
+deps:
+    {{ yarn }} info -R --name-only
+
+# Run a local dependency audit without forcing a CI-specific severity threshold.
+audit:
+    {{ yarn }} npm audit
+
+# Run the stricter dependency audit used in CI.
+audit-ci:
+    {{ yarn }} npm audit --severity critical
+
+# Run the standard local frontend verification pass.
+check: deps typecheck lint stylelint build test
+
+# Run the frontend CI-style verification sequence from a clean install.
+ci-check: install-ci audit-ci deps typecheck lint stylelint build test

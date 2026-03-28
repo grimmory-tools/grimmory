@@ -1,5 +1,6 @@
 package org.booklore.service.hardcover;
 
+import lombok.RequiredArgsConstructor;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.ApiError;
 import org.booklore.model.dto.BookLoreUser;
@@ -10,7 +11,6 @@ import org.booklore.model.entity.KoboUserSettingsEntity;
 import org.booklore.model.entity.UserSettingEntity;
 import org.booklore.repository.KoboUserSettingsRepository;
 import org.booklore.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +32,7 @@ public class HardcoverSyncSettingsService {
 
     @Transactional
     public HardcoverSyncSettings getSettingsForUserId(Long userId) {
-        BookLoreUserEntity user = userRepository.findById(userId)
+        BookLoreUserEntity user = userRepository.findByIdWithSettings(userId)
                 .orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(userId));
         return readSettings(user, userId);
     }
@@ -49,7 +49,7 @@ public class HardcoverSyncSettingsService {
             throw ApiError.INVALID_INPUT.createException("Hardcover settings cannot be null.");
         }
 
-        BookLoreUserEntity user = userRepository.findById(userId)
+        BookLoreUserEntity user = userRepository.findByIdWithSettings(userId)
                 .orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(userId));
 
         String apiKey = settings.getHardcoverApiKey();

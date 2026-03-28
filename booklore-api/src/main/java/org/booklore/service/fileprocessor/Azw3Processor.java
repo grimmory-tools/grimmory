@@ -72,7 +72,7 @@ public class Azw3Processor extends AbstractFileProcessor implements BookFileProc
     @Override
     public boolean generateCover(BookEntity bookEntity, BookFileEntity bookFile) {
         try {
-            File azw3File = new File(FileUtils.getBookFullPath(bookEntity, bookFile));
+            File azw3File = FileUtils.getBookFullPath(bookEntity, bookFile).toFile();
             byte[] coverData = azw3MetadataExtractor.extractCover(azw3File);
 
             if (coverData == null || coverData.length == 0) {

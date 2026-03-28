@@ -134,12 +134,20 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
             """)
     List<GenreStatisticsDto> findGenreStatisticsByUser(@Param("userId") Long userId);
 
-    @Query("""
+    @Query(value = """
             SELECT rs
+            FROM ReadingSessionEntity rs
+            JOIN FETCH rs.book b
+            LEFT JOIN FETCH b.metadata
+            WHERE rs.user.id = :userId
+            AND b.id = :bookId
+            ORDER BY rs.startTime DESC
+            """,
+            countQuery = """
+            SELECT COUNT(rs)
             FROM ReadingSessionEntity rs
             WHERE rs.user.id = :userId
             AND rs.book.id = :bookId
-            ORDER BY rs.startTime DESC
             """)
     Page<ReadingSessionEntity> findByUserIdAndBookId(
             @Param("userId") Long userId,
