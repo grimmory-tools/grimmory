@@ -242,6 +242,30 @@ class EpubCfiServiceTest {
     }
 
     @Nested
+    class ResolveCfiLocationTests {
+
+        @Test
+        void resolveCfiLocation_textOffsetsReturnMatchingHrefAndIncreasingProgress() {
+            String earlyCfi = service.convertXPointerToCfi(testEpubFile, "/body/DocFragment[1]/body/div[1]/p[1]/text().0");
+            String laterCfi = service.convertXPointerToCfi(testEpubFile, "/body/DocFragment[1]/body/div[1]/p[2]/text().10");
+
+            EpubCfiService.CfiLocation earlyLocation = service.resolveCfiLocation(testEpubFile, earlyCfi).orElseThrow();
+            EpubCfiService.CfiLocation laterLocation = service.resolveCfiLocation(testEpubFile, laterCfi).orElseThrow();
+
+            assertEquals("chapter1.xhtml", earlyLocation.href());
+            assertEquals("chapter1.xhtml", laterLocation.href());
+            assertNotNull(earlyLocation.contentSourceProgressPercent());
+            assertNotNull(laterLocation.contentSourceProgressPercent());
+            assertTrue(earlyLocation.contentSourceProgressPercent() < laterLocation.contentSourceProgressPercent());
+        }
+
+        @Test
+        void resolveCfiLocation_invalidCfiReturnsEmpty() {
+            assertTrue(service.resolveCfiLocation(testEpubFile, "invalid").isEmpty());
+        }
+    }
+
+    @Nested
     class ValidationTests {
 
         @Test

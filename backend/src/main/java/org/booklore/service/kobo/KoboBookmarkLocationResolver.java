@@ -7,8 +7,10 @@ import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.UserBookFileProgressEntity;
 import org.booklore.model.entity.UserBookProgressEntity;
 import org.booklore.model.enums.BookFileType;
+import org.booklore.util.koreader.EpubCfiService;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
@@ -23,6 +25,7 @@ import static org.booklore.service.kobo.KoboEpubUtils.normalizeHref;
 public class KoboBookmarkLocationResolver {
 
     private final KoboSpanMapService koboSpanMapService;
+    private final EpubCfiService epubCfiService;
 
     public Optional<ResolvedBookmarkLocation> resolve(UserBookProgressEntity progress,
                                                       UserBookFileProgressEntity fileProgress) {
@@ -41,10 +44,16 @@ public class KoboBookmarkLocationResolver {
             return Optional.empty();
         }
 
-        String href = resolveHref(progress, fileProgress);
+        Optional<EpubCfiService.CfiLocation> cfiLocation = resolveCfiLocation(bookFile, progress, fileProgress);
+        String href = cfiLocation
+                .map(EpubCfiService.CfiLocation::href)
+                .filter(value -> !value.isBlank())
+                .orElseGet(() -> resolveHref(progress, fileProgress));
         Float chapterProgressPercent = Optional.ofNullable(fileProgress)
                 .map(UserBookFileProgressEntity::getContentSourceProgressPercent)
-                .orElse(null);
+                .orElseGet(() -> cfiLocation
+                        .map(EpubCfiService.CfiLocation::contentSourceProgressPercent)
+                        .orElse(null));
         Float globalProgressPercent = resolveGlobalProgressPercent(progress, fileProgress);
 
         Optional<KoboSpanPositionMap.Chapter> chapter = resolveChapter(spanMap.get(), href, globalProgressPercent);
@@ -64,6 +73,26 @@ public class KoboBookmarkLocationResolver {
                 "KoboSpan",
                 chapter.get().sourceHref(),
                 resolvedChapterProgressPercent));
+    }
+
+    private Optional<EpubCfiService.CfiLocation> resolveCfiLocation(BookFileEntity bookFile,
+                                                                    UserBookProgressEntity progress,
+                                                                    UserBookFileProgressEntity fileProgress) {
+        String cfi = resolveCfi(progress, fileProgress);
+        if (cfi == null || cfi.isBlank() || bookFile == null) {
+            return Optional.empty();
+        }
+
+        try {
+            Path epubPath = bookFile.getFullFilePath();
+            if (epubPath == null) {
+                return Optional.empty();
+            }
+            return epubCfiService.resolveCfiLocation(epubPath, cfi);
+        } catch (Exception e) {
+            log.debug("Failed to derive chapter position from CFI for bookFile {}: {}", bookFile.getId(), e.getMessage());
+            return Optional.empty();
+        }
     }
 
     private BookFileEntity resolveBookFile(UserBookProgressEntity progress,
@@ -103,6 +132,17 @@ public class KoboBookmarkLocationResolver {
                 .orElseGet(() -> Optional.ofNullable(progress)
                         .map(UserBookProgressEntity::getEpubProgressHref)
                         .filter(value -> !value.isBlank())
+                        .orElse(null));
+    }
+
+    private String resolveCfi(UserBookProgressEntity progress,
+                              UserBookFileProgressEntity fileProgress) {
+        return Optional.ofNullable(fileProgress)
+                .map(UserBookFileProgressEntity::getPositionData)
+                .filter(value -> value != null && value.startsWith("epubcfi("))
+                .orElseGet(() -> Optional.ofNullable(progress)
+                        .map(UserBookProgressEntity::getEpubProgress)
+                        .filter(value -> value != null && value.startsWith("epubcfi("))
                         .orElse(null));
     }
 

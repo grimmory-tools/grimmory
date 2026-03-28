@@ -9,16 +9,28 @@ import org.grimmory.epub4j.cfi.CfiConverter;
 import org.grimmory.epub4j.cfi.XPointerResult;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.parser.Parser;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
 public class EpubCfiService {
+
+    private static final Pattern XPOINTER_BODY_PATTERN = Pattern.compile("^/body/DocFragment\\[(\\d+)]/body(.*)$");
+    private static final Pattern XPOINTER_TEXT_OFFSET_PATTERN = Pattern.compile("/text\\(\\)\\.(\\d+)$");
+    private static final Pattern XPOINTER_SEGMENT_PATTERN = Pattern.compile("^(\\w+)(?:\\[(\\d+)])?$");
 
     private final Cache<String, Document> documentCache;
 
@@ -74,6 +86,40 @@ public class EpubCfiService {
         return convertCfiToProgressXPointer(epubPath.toFile(), cfi);
     }
 
+    public Optional<CfiLocation> resolveCfiLocation(File epubFile, String cfi) {
+        if (cfi == null || cfi.isBlank()) {
+            return Optional.empty();
+        }
+
+        try {
+            int spineIndex = CfiConverter.extractSpineIndex(cfi);
+            String href = EpubContentReader.getSpineItemHref(epubFile, spineIndex);
+            if (href == null || href.isBlank()) {
+                return Optional.empty();
+            }
+
+            String html = EpubContentReader.getSpineItemContent(epubFile, spineIndex);
+            if (html.isBlank()) {
+                return Optional.empty();
+            }
+
+            XPointerResult xpointerResult = convertCfiToXPointer(epubFile, cfi);
+            Integer sourceOffset = resolveSourceOffset(getCachedDocument(epubFile, spineIndex), xpointerResult.getXpointer());
+            Float contentSourceProgressPercent = sourceOffset == null
+                    ? null
+                    : clampPercent((sourceOffset / (float) Math.max(html.length(), 1)) * 100f);
+
+            return Optional.of(new CfiLocation(href, contentSourceProgressPercent));
+        } catch (Exception e) {
+            log.debug("Failed to resolve chapter position from CFI: {}", e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    public Optional<CfiLocation> resolveCfiLocation(Path epubPath, String cfi) {
+        return resolveCfiLocation(epubPath.toFile(), cfi);
+    }
+
     public boolean validateCfi(File epubFile, String cfi) {
         try {
             int spineIndex = CfiConverter.extractSpineIndex(cfi);
@@ -118,7 +164,7 @@ public class EpubCfiService {
         return documentCache.get(cacheKey, key -> {
             log.debug("Cache miss for epub spine: {} index {}", epubFile.getName(), spineIndex);
             String html = EpubContentReader.getSpineItemContent(epubFile, spineIndex);
-            return Jsoup.parse(html);
+            return Jsoup.parse(html, "", Parser.htmlParser().setTrackPosition(true));
         });
     }
 
@@ -142,5 +188,114 @@ public class EpubCfiService {
 
     public void clearCache() {
         documentCache.invalidateAll();
+    }
+
+    private Integer resolveSourceOffset(Document document, String xpointer) {
+        if (xpointer == null || xpointer.isBlank()) {
+            return null;
+        }
+
+        Matcher pathMatcher = XPOINTER_BODY_PATTERN.matcher(xpointer);
+        if (!pathMatcher.matches()) {
+            throw new IllegalArgumentException("Invalid XPointer format: " + xpointer);
+        }
+
+        String remainingPath = pathMatcher.group(2);
+        Integer textOffset = null;
+        Matcher textOffsetMatcher = XPOINTER_TEXT_OFFSET_PATTERN.matcher(remainingPath);
+        if (textOffsetMatcher.find()) {
+            textOffset = Integer.parseInt(textOffsetMatcher.group(1));
+            remainingPath = XPOINTER_TEXT_OFFSET_PATTERN.matcher(remainingPath).replaceAll("");
+        }
+
+        Element element = resolveElementPath(document.body(), remainingPath);
+        if (element == null) {
+            return null;
+        }
+
+        if (textOffset != null) {
+            Integer textSourceOffset = resolveTextOffsetSourcePosition(element, textOffset);
+            if (textSourceOffset != null) {
+                return textSourceOffset;
+            }
+        }
+
+        return element.sourceRange() == null ? null : Math.max(element.sourceRange().startPos(), 0);
+    }
+
+    private Element resolveElementPath(Element root, String path) {
+        Element current = root;
+        if (path == null || path.isBlank()) {
+            return current;
+        }
+
+        for (String rawSegment : path.split("/")) {
+            if (rawSegment.isBlank()) {
+                continue;
+            }
+
+            Matcher segmentMatcher = XPOINTER_SEGMENT_PATTERN.matcher(rawSegment);
+            if (!segmentMatcher.matches()) {
+                throw new IllegalArgumentException("Invalid XPointer segment: " + rawSegment);
+            }
+
+            String tagName = segmentMatcher.group(1).toLowerCase();
+            int index = segmentMatcher.group(2) == null ? 1 : Integer.parseInt(segmentMatcher.group(2));
+
+            List<Element> matchingChildren = current.children().stream()
+                    .filter(child -> child.tagName().equalsIgnoreCase(tagName))
+                    .toList();
+            if (matchingChildren.size() < index) {
+                return null;
+            }
+
+            current = matchingChildren.get(index - 1);
+        }
+
+        return current;
+    }
+
+    private Integer resolveTextOffsetSourcePosition(Element element, int cfiOffset) {
+        List<TextNode> textNodes = new ArrayList<>();
+        collectTextNodes(element, textNodes);
+
+        int totalChars = 0;
+        for (TextNode textNode : textNodes) {
+            String nodeText = textNode.text();
+            int nodeLength = nodeText.length();
+
+            if (totalChars + nodeLength >= cfiOffset) {
+                if (textNode.sourceRange() == null) {
+                    return null;
+                }
+
+                int offsetInNode = Math.max(cfiOffset - totalChars, 0);
+                int startPos = Math.max(textNode.sourceRange().startPos(), 0);
+                return startPos + offsetInNode;
+            }
+
+            totalChars += nodeLength;
+        }
+
+        return element.sourceRange() == null ? null : Math.max(element.sourceRange().startPos(), 0);
+    }
+
+    private void collectTextNodes(Element element, List<TextNode> textNodes) {
+        for (TextNode textNode : element.textNodes()) {
+            if (!textNode.text().isEmpty()) {
+                textNodes.add(textNode);
+            }
+        }
+
+        for (Element child : element.children()) {
+            collectTextNodes(child, textNodes);
+        }
+    }
+
+    private Float clampPercent(float percent) {
+        return Math.max(0f, Math.min(percent, 100f));
+    }
+
+    public record CfiLocation(String href, Float contentSourceProgressPercent) {
     }
 }

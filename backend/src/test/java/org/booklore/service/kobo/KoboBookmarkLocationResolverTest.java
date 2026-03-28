@@ -3,15 +3,18 @@ package org.booklore.service.kobo;
 import org.booklore.model.dto.kobo.KoboSpanPositionMap;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
+import org.booklore.model.entity.LibraryPathEntity;
 import org.booklore.model.entity.UserBookFileProgressEntity;
 import org.booklore.model.entity.UserBookProgressEntity;
 import org.booklore.model.enums.BookFileType;
+import org.booklore.util.koreader.EpubCfiService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,11 +29,14 @@ class KoboBookmarkLocationResolverTest {
     @Mock
     private KoboSpanMapService koboSpanMapService;
 
+    @Mock
+    private EpubCfiService epubCfiService;
+
     private KoboBookmarkLocationResolver resolver;
 
     @BeforeEach
     void setUp() {
-        resolver = new KoboBookmarkLocationResolver(koboSpanMapService);
+        resolver = new KoboBookmarkLocationResolver(koboSpanMapService, epubCfiService);
     }
 
     @Test
@@ -117,8 +123,34 @@ class KoboBookmarkLocationResolverTest {
         assertEquals(50f, result.get().contentSourceProgressPercent());
     }
 
+    @Test
+    void resolve_UsesCfiDerivedChapterPositionWhenStoredChapterProgressIsMissing() {
+        BookFileEntity bookFile = createBookFile();
+        when(koboSpanMapService.getValidMap(bookFile)).thenReturn(Optional.of(singleChapterMap()));
+        when(epubCfiService.resolveCfiLocation(Path.of("/library/book.epub"), "epubcfi(/6/2!/4/2/2:15)"))
+                .thenReturn(Optional.of(new EpubCfiService.CfiLocation("chapter1.xhtml", 80f)));
+
+        UserBookFileProgressEntity fileProgress = new UserBookFileProgressEntity();
+        fileProgress.setBookFile(bookFile);
+        fileProgress.setPositionData("epubcfi(/6/2!/4/2/2:15)");
+
+        UserBookProgressEntity progress = new UserBookProgressEntity();
+        progress.setEpubProgress("epubcfi(/6/2!/4/2/2:15)");
+
+        Optional<KoboBookmarkLocationResolver.ResolvedBookmarkLocation> result =
+                resolver.resolve(progress, fileProgress);
+
+        assertTrue(result.isPresent());
+        assertEquals("kobo.1.2", result.get().value());
+        assertEquals("OPS/chapter1.xhtml", result.get().source());
+        assertEquals(80f, result.get().contentSourceProgressPercent());
+    }
+
     private BookFileEntity createBookFile() {
         BookEntity book = new BookEntity();
+        LibraryPathEntity libraryPath = new LibraryPathEntity();
+        libraryPath.setPath("/library");
+        book.setLibraryPath(libraryPath);
 
         BookFileEntity bookFile = new BookFileEntity();
         bookFile.setId(10L);
