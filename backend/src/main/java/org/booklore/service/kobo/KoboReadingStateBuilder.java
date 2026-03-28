@@ -58,7 +58,7 @@ public class KoboReadingStateBuilder {
         if (!koboSettingsService.getCurrentUserSettings().isTwoWayProgressSync()) {
             return false;
         }
-        if (progress.getEpubProgress() == null || progress.getEpubProgressPercent() == null) {
+        if (progress.getEpubProgressPercent() == null) {
             return false;
         }
         if (progress.getLastReadTime() == null) {

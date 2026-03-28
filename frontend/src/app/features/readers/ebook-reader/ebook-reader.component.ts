@@ -436,16 +436,17 @@ export class EbookReaderComponent implements OnInit {
       detail.section?.current,
       this.pendingInitialChapterRestore.contentSourceProgressPercent
     );
-    this.pendingInitialChapterRestore = null;
 
     if (targetFraction === null) {
       return false;
     }
 
     if (typeof detail.fraction === 'number' && Math.abs(detail.fraction - targetFraction) < 0.0001) {
+      this.pendingInitialChapterRestore = null;
       return false;
     }
 
+    this.pendingInitialChapterRestore = null;
     this.viewManager.goToFraction(targetFraction)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe();

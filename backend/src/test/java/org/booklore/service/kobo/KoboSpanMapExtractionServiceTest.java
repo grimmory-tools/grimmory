@@ -80,6 +80,62 @@ class KoboSpanMapExtractionServiceTest {
         assertEquals("OPS/Text/chapter 2.xhtml", result.chapters().getFirst().normalizedHref());
     }
 
+    @Test
+    void extractFromKepub_PreservesPlusSignsInManifestHrefs() throws Exception {
+        File kepubFile = createKepub(
+                "OPS/package.opf",
+                """
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
+                          <manifest>
+                            <item id="chap1" href="Text/chapter%2B1.xhtml" media-type="application/xhtml+xml"/>
+                          </manifest>
+                          <spine>
+                            <itemref idref="chap1"/>
+                          </spine>
+                        </package>
+                        """,
+                new ZipResource("OPS/Text/chapter+1.xhtml", chapterHtml("kobo.1.1", "kobo.1.2"))
+        );
+
+        KoboSpanPositionMap result = service.extractFromKepub(kepubFile);
+
+        assertEquals(1, result.chapters().size());
+        assertEquals("OPS/Text/chapter+1.xhtml", result.chapters().getFirst().sourceHref());
+        assertEquals("OPS/Text/chapter+1.xhtml", result.chapters().getFirst().normalizedHref());
+    }
+
+    @Test
+    void extractFromKepub_KeepsSpanlessChaptersInProgressModel() throws Exception {
+        File kepubFile = createKepub(
+                "OPS/package.opf",
+                """
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
+                          <manifest>
+                            <item id="front" href="front.xhtml" media-type="application/xhtml+xml"/>
+                            <item id="chap1" href="chapter1.xhtml" media-type="application/xhtml+xml"/>
+                            <item id="chap2" href="chapter2.xhtml" media-type="application/xhtml+xml"/>
+                          </manifest>
+                          <spine>
+                            <itemref idref="front"/>
+                            <itemref idref="chap1"/>
+                            <itemref idref="chap2"/>
+                          </spine>
+                        </package>
+                        """,
+                new ZipResource("OPS/front.xhtml", chapterHtmlWithoutSpans()),
+                new ZipResource("OPS/chapter1.xhtml", chapterHtml("kobo.1.1", "kobo.1.2")),
+                new ZipResource("OPS/chapter2.xhtml", chapterHtml("kobo.2.1", "kobo.2.2"))
+        );
+
+        KoboSpanPositionMap result = service.extractFromKepub(kepubFile);
+
+        assertEquals(3, result.chapters().size());
+        assertTrue(result.chapters().getFirst().spans().isEmpty());
+        assertTrue(result.chapters().get(1).globalStartProgress() > 0f);
+    }
+
     private File createKepub(String opfPath, String opfContent, ZipResource... resources) throws IOException {
         File kepubFile = tempDir.resolve("test.kepub.epub").toFile();
         try (ZipOutputStream outputStream = new ZipOutputStream(new FileOutputStream(kepubFile))) {
@@ -120,6 +176,16 @@ class KoboSpanMapExtractionServiceTest {
                   </body>
                 </html>
                 """.formatted(firstSpanId, secondSpanId);
+    }
+
+    private String chapterHtmlWithoutSpans() {
+        return """
+                <html>
+                  <body>
+                    <p>Front matter without Kobo span markers but with enough text to count in the book length.</p>
+                  </body>
+                </html>
+                """;
     }
 
     private record ZipResource(String path, String content) {

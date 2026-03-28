@@ -15,7 +15,6 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.booklore.service.kobo.KoboEpubUtils.clampPercent;
 import static org.booklore.service.kobo.KoboEpubUtils.clampUnit;
 import static org.booklore.service.kobo.KoboEpubUtils.normalizeHref;
 
@@ -156,7 +155,7 @@ public class KoboBookmarkLocationResolver {
         }
         return Optional.ofNullable(progress)
                 .map(UserBookProgressEntity::getEpubProgressPercent)
-                .map(KoboEpubUtils::clampPercent)
+                .map(KoboBookmarkLocationResolver::clampPercent)
                 .orElse(null);
     }
 
@@ -184,10 +183,10 @@ public class KoboBookmarkLocationResolver {
                     return normalizedChapter.equals(normalizedHref)
                             || normalizedChapter.endsWith("/" + normalizedHref);
                 })
-                .min(Comparator.comparingInt(chapter -> {
+                .max(Comparator.<KoboSpanPositionMap.Chapter>comparingInt(chapter -> {
                     String normalizedChapter = chapter.normalizedHref();
-                    return normalizedChapter.equals(normalizedHref) ? 0 : -normalizedChapter.length();
-                }));
+                    return normalizedChapter.equals(normalizedHref) ? 1 : 0;
+                }).thenComparingInt(chapter -> chapter.normalizedHref().length()));
     }
 
     private Optional<KoboSpanPositionMap.Chapter> findChapterByGlobalProgress(KoboSpanPositionMap spanMap,
@@ -238,6 +237,13 @@ public class KoboBookmarkLocationResolver {
             return globalProgress - chapter.globalEndProgress();
         }
         return 0d;
+    }
+
+    private static Float clampPercent(Float value) {
+        if (value == null) {
+            return null;
+        }
+        return Math.max(0f, Math.min(value, 100f));
     }
 
     public record ResolvedBookmarkLocation(String value,

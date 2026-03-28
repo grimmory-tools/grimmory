@@ -61,8 +61,8 @@
                   <strong>{{ t('kobo.twoWaySyncNote') }}</strong>
                 </p>
                 @if (syncForm.controls.twoWayProgressSync.value && !koboSettings.convertToKepub) {
-                  <p class="setting-warning">
-                    <i class="pi pi-exclamation-triangle"></i>
+                  <p class="setting-warning" role="status" aria-live="polite" aria-atomic="true">
+                    <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
                     @if (isAdmin) {
                       {{ t('kobo.twoWaySyncKepubWarningAdmin') }}
                     } @else {

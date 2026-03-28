@@ -296,9 +296,9 @@ public class KoboReadingStateService {
 
         if (fileProgress != null) {
             fileProgress.setProgressPercent(bookmark.getProgressPercent().floatValue());
-            if (bookmark.getContentSourceProgressPercent() != null) {
-                fileProgress.setContentSourceProgressPercent(bookmark.getContentSourceProgressPercent().floatValue());
-            }
+            fileProgress.setContentSourceProgressPercent(bookmark.getContentSourceProgressPercent() != null
+                    ? bookmark.getContentSourceProgressPercent().floatValue()
+                    : null);
             fileProgress.setPositionData(null);
             fileProgress.setPositionHref(location != null ? location.getSource() : null);
             fileProgress.setLastReadTime(effectiveBookmarkTime);

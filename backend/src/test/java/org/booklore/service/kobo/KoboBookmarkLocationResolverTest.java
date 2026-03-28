@@ -146,6 +146,41 @@ class KoboBookmarkLocationResolverTest {
         assertEquals(80f, result.get().contentSourceProgressPercent());
     }
 
+    @Test
+    void resolve_PrefersExactHrefMatchOverSuffixMatch() {
+        BookFileEntity bookFile = createBookFile();
+        when(koboSpanMapService.getValidMap(bookFile)).thenReturn(Optional.of(new KoboSpanPositionMap(List.of(
+                new KoboSpanPositionMap.Chapter(
+                        "OPS/chapter3.xhtml",
+                        "OPS/chapter3.xhtml",
+                        0,
+                        0f,
+                        0.5f,
+                        List.of(new KoboSpanPositionMap.Span("exact-span", 0.2f))),
+                new KoboSpanPositionMap.Chapter(
+                        "OEBPS/OPS/chapter3.xhtml",
+                        "OEBPS/OPS/chapter3.xhtml",
+                        1,
+                        0.5f,
+                        1f,
+                        List.of(new KoboSpanPositionMap.Span("suffix-span", 0.2f)))
+        ))));
+
+        UserBookFileProgressEntity fileProgress = new UserBookFileProgressEntity();
+        fileProgress.setBookFile(bookFile);
+        fileProgress.setPositionHref("OPS/chapter3.xhtml");
+
+        UserBookProgressEntity progress = new UserBookProgressEntity();
+        progress.setEpubProgressHref("OPS/chapter3.xhtml");
+
+        Optional<KoboBookmarkLocationResolver.ResolvedBookmarkLocation> result =
+                resolver.resolve(progress, fileProgress);
+
+        assertTrue(result.isPresent());
+        assertEquals("exact-span", result.get().value());
+        assertEquals("OPS/chapter3.xhtml", result.get().source());
+    }
+
     private BookFileEntity createBookFile() {
         BookEntity book = new BookEntity();
         LibraryPathEntity libraryPath = new LibraryPathEntity();

@@ -14,7 +14,6 @@ import org.w3c.dom.NodeList;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -187,10 +186,6 @@ public class KoboSpanMapExtractionService {
                 .filter(span -> span != null)
                 .toList();
 
-        if (spans.isEmpty()) {
-            return null;
-        }
-
         return new ExtractedChapter(
                 fileHeader.getFileName(),
                 spineIndex,
@@ -218,7 +213,7 @@ public class KoboSpanMapExtractionService {
         if (href == null || href.isBlank()) {
             return null;
         }
-        String decodedHref = URLDecoder.decode(href, StandardCharsets.UTF_8);
+        String decodedHref = KoboEpubUtils.decodeHrefPath(href);
         if (decodedHref.startsWith("/")) {
             return decodedHref.substring(1);
         }

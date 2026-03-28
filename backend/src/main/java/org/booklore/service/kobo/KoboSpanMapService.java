@@ -69,7 +69,8 @@ public class KoboSpanMapService {
             Long fileId = entity.getBookFile().getId();
             BookFileEntity bookFile = bookFilesByFileId.get(fileId);
             if (bookFile != null && bookFile.getCurrentHash() != null
-                    && bookFile.getCurrentHash().equals(entity.getFileHash())) {
+                    && bookFile.getCurrentHash().equals(entity.getFileHash())
+                    && entity.getSpanMap() != null) {
                 result.put(fileId, entity.getSpanMap());
             }
         }

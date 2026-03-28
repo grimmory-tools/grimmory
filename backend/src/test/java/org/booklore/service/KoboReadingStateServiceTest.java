@@ -863,6 +863,61 @@ class KoboReadingStateServiceTest {
     }
 
     @Test
+    @DisplayName("Should clear stale chapter progress when Kobo bookmark omits content source progress")
+    void testSyncKoboProgress_clearStaleContentSourceProgressPercent() {
+        testSettings.setTwoWayProgressSync(true);
+        String entitlementId = "100";
+
+        BookFileEntity primaryFile = setPrimaryEpub(10L);
+
+        UserBookProgressEntity existingProgress = new UserBookProgressEntity();
+        existingProgress.setUser(testUserEntity);
+        existingProgress.setBook(testBook);
+
+        UserBookFileProgressEntity fileProgress = new UserBookFileProgressEntity();
+        fileProgress.setUser(testUserEntity);
+        fileProgress.setBookFile(primaryFile);
+        fileProgress.setContentSourceProgressPercent(23f);
+        fileProgress.setPositionHref("OPS/chapter3.xhtml");
+
+        KoboReadingState.CurrentBookmark.Location location = KoboReadingState.CurrentBookmark.Location.builder()
+                .value("kobo.12.18")
+                .type("KoboSpan")
+                .source("OEBPS/OPS/chapter3.xhtml")
+                .build();
+
+        KoboReadingState.CurrentBookmark bookmark = KoboReadingState.CurrentBookmark.builder()
+                .progressPercent(55)
+                .location(location)
+                .lastModified("2025-06-15T12:00:00Z")
+                .build();
+
+        KoboReadingState readingState = KoboReadingState.builder()
+                .entitlementId(entitlementId)
+                .currentBookmark(bookmark)
+                .build();
+
+        KoboReadingStateEntity entity = new KoboReadingStateEntity();
+        when(mapper.toEntity(any())).thenReturn(entity);
+        when(mapper.toDto(any(KoboReadingStateEntity.class))).thenReturn(readingState);
+        when(repository.findByEntitlementIdAndUserId(entitlementId, 1L)).thenReturn(Optional.empty());
+        when(repository.save(any())).thenReturn(entity);
+        when(bookRepository.findById(100L)).thenReturn(Optional.of(testBook));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUserEntity));
+        when(progressRepository.findByUserIdAndBookId(1L, 100L)).thenReturn(Optional.of(existingProgress));
+        when(progressRepository.save(any())).thenReturn(existingProgress);
+        when(fileProgressRepository.findByUserIdAndBookFileId(1L, primaryFile.getId())).thenReturn(Optional.of(fileProgress));
+
+        ArgumentCaptor<UserBookFileProgressEntity> fileProgressCaptor =
+                ArgumentCaptor.forClass(UserBookFileProgressEntity.class);
+
+        service.saveReadingState(List.of(readingState));
+
+        verify(fileProgressRepository).save(fileProgressCaptor.capture());
+        assertNull(fileProgressCaptor.getValue().getContentSourceProgressPercent());
+    }
+
+    @Test
     @DisplayName("Should not cross-populate when web reader has newer progress")
     void testSyncKoboProgress_skipCrossPopulateWhenWebReaderNewer() {
         testSettings.setTwoWayProgressSync(true);

@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.File;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -108,6 +109,22 @@ class KoboSpanMapServiceTest {
         assertFalse(staleMap.isPresent());
     }
 
+    @Test
+    void getValidMaps_SkipsEntriesWithNullSpanMap() {
+        BookFileEntity bookFile = createBookFile("hash-4");
+        KoboSpanMapEntity stored = KoboSpanMapEntity.builder()
+                .bookFile(bookFile)
+                .fileHash("hash-4")
+                .spanMap(null)
+                .createdAt(Instant.now())
+                .build();
+        when(koboSpanMapRepository.findByBookFileIdIn(bookFilesById(bookFile).keySet())).thenReturn(List.of(stored));
+
+        Map<Long, KoboSpanPositionMap> validMaps = service.getValidMaps(bookFilesById(bookFile));
+
+        assertTrue(validMaps.isEmpty());
+    }
+
     private BookFileEntity createBookFile(String hash) {
         BookFileEntity bookFile = new BookFileEntity();
         bookFile.setId(42L);
@@ -121,6 +138,10 @@ class KoboSpanMapServiceTest {
                 new KoboSpanPositionMap.Chapter("OPS/chapter1.xhtml", "OPS/chapter1.xhtml", 0, 0f, 1f,
                         List.of(new KoboSpanPositionMap.Span("kobo.1.1", 0.2f)))
         ));
+    }
+
+    private Map<Long, BookFileEntity> bookFilesById(BookFileEntity bookFile) {
+        return Map.of(bookFile.getId(), bookFile);
     }
 
     private File tempKepubFile() throws Exception {
