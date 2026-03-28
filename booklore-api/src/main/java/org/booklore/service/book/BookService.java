@@ -511,7 +511,7 @@ public class BookService {
     public Set<Shelf> filterShelvesByUserId(Set<Shelf> shelves, Long userId) {
         if (shelves == null) return Collections.emptySet();
         return shelves.stream()
-                .filter(shelf -> userId.equals(shelf.getUserId()))
+                .filter(shelf -> userId.equals(shelf.getUserId()) || shelf.isPublicShelf())
                 .collect(Collectors.toSet());
     }
 
