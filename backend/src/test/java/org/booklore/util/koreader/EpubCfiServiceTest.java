@@ -182,6 +182,18 @@ class EpubCfiServiceTest {
             assertNotNull(result);
             assertNotNull(result.getXpointer());
         }
+
+        @Test
+        void convertCfiToXPointer_roundTripsNestedParagraphLocation() {
+            String originalXPointer = "/body/DocFragment[1]/body/div[1]/p[2]/text().10";
+            String cfi = service.convertXPointerToCfi(testEpubFile, originalXPointer);
+
+            CfiConvertor.XPointerResult result = service.convertCfiToXPointer(testEpubFile, cfi);
+
+            assertNotNull(result);
+            assertNotNull(result.getXpointer());
+            assertTrue(result.getXpointer().contains("/div/p[2]/text().10"));
+        }
     }
 
     @Nested
@@ -256,6 +268,7 @@ class EpubCfiServiceTest {
             assertEquals("chapter1.xhtml", laterLocation.href());
             assertNotNull(earlyLocation.contentSourceProgressPercent());
             assertNotNull(laterLocation.contentSourceProgressPercent());
+            assertTrue(earlyLocation.contentSourceProgressPercent() > 0f);
             assertTrue(earlyLocation.contentSourceProgressPercent() < laterLocation.contentSourceProgressPercent());
         }
 
