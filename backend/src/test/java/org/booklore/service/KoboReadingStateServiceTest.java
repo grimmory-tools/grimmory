@@ -380,7 +380,7 @@ class KoboReadingStateServiceTest {
 
         UserBookProgressEntity savedProgress = progressCaptor.getValue();
         assertNull(savedProgress.getKoboProgressPercent());
-        assertNotNull(savedProgress.getKoboProgressReceivedTime());
+        assertNull(savedProgress.getKoboProgressReceivedTime());
     }
 
     @Test
@@ -747,11 +747,14 @@ class KoboReadingStateServiceTest {
         assertEquals(55f, saved.getEpubProgressPercent());
         assertEquals("epubcfi(/6/8)", saved.getEpubProgress());
         assertEquals("chapter3.xhtml", saved.getEpubProgressHref());
+        assertEquals(Instant.parse("2025-06-15T12:00:00Z"), saved.getKoboProgressReceivedTime());
+        assertEquals(Instant.parse("2025-06-15T12:00:00Z"), saved.getLastReadTime());
         verify(fileProgressRepository).save(fileProgressCaptor.capture());
         UserBookFileProgressEntity savedFileProgress = fileProgressCaptor.getValue();
         assertEquals("epubcfi(/6/8)", savedFileProgress.getPositionData());
         assertEquals("chapter3.xhtml", savedFileProgress.getPositionHref());
         assertEquals(23f, savedFileProgress.getContentSourceProgressPercent());
+        assertEquals(Instant.parse("2025-06-15T12:00:00Z"), savedFileProgress.getLastReadTime());
     }
 
     @Test
@@ -875,6 +878,7 @@ class KoboReadingStateServiceTest {
         existingProgress.setBook(testBook);
         existingProgress.setEpubProgressPercent(80f);
         existingProgress.setEpubProgress("epubcfi(/6/20)");
+        existingProgress.setReadStatus(ReadStatus.READING);
 
         KoboReadingState readingState = KoboReadingState.builder()
                 .entitlementId(entitlementId)
@@ -902,6 +906,8 @@ class KoboReadingStateServiceTest {
         UserBookProgressEntity saved = captor.getValue();
         assertEquals(80f, saved.getEpubProgressPercent());
         assertEquals("epubcfi(/6/20)", saved.getEpubProgress());
+        assertEquals(ReadStatus.READING, saved.getReadStatus());
+        assertEquals(Instant.parse("2025-01-01T00:00:00Z"), saved.getKoboProgressReceivedTime());
     }
 
     @Test

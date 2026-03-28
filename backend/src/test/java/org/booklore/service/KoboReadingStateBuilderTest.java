@@ -298,6 +298,34 @@ class KoboReadingStateBuilderTest {
         }
 
         @Test
+        @DisplayName("Should prefer web reader bookmark when Kobo bookmark timestamp is older")
+        void buildBookmarkFromProgress_PrefersWebReaderWhenKoboTimestampIsOlder() {
+            UserBookProgressEntity progress = new UserBookProgressEntity();
+            progress.setEpubProgress("epubcfi(/6/4!/4/2/6/1:1)");
+            progress.setEpubProgressHref("OPS/chapter3.xhtml");
+            progress.setEpubProgressPercent(54.6f);
+            progress.setLastReadTime(Instant.parse("2025-11-26T10:00:00Z"));
+            progress.setKoboProgressPercent(12f);
+            progress.setKoboLocation("kobo.1.1");
+            progress.setKoboLocationType("KoboSpan");
+            progress.setKoboLocationSource("OPS/chapter1.xhtml");
+            progress.setKoboProgressReceivedTime(Instant.parse("2025-11-26T09:00:00Z"));
+
+            UserBookFileProgressEntity fileProgress = new UserBookFileProgressEntity();
+            fileProgress.setPositionData("epubcfi(/6/8!/4/2/6/1:15)");
+            fileProgress.setPositionHref("OPS/chapter3.xhtml");
+
+            KoboReadingState.CurrentBookmark bookmark = builder.buildBookmarkFromProgress(progress, fileProgress);
+
+            assertNotNull(bookmark);
+            assertEquals(55, bookmark.getProgressPercent());
+            assertNotNull(bookmark.getLocation());
+            assertEquals("epubcfi(/6/8!/4/2/6/1:15)", bookmark.getLocation().getValue());
+            assertEquals("EpubCfi", bookmark.getLocation().getType());
+            assertEquals("OPS/chapter3.xhtml", bookmark.getLocation().getSource());
+        }
+
+        @Test
         @DisplayName("Should use default time when progress received time is null")
         void buildBookmarkFromProgress_UseDefaultTime() {
             UserBookProgressEntity progress = new UserBookProgressEntity();
