@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static org.booklore.service.kobo.KoboEpubUtils.clampUnit;
 import static org.booklore.service.kobo.KoboEpubUtils.normalizeHref;
 
 @Service
@@ -75,8 +74,8 @@ public class KoboSpanMapExtractionService {
                         chapter.sourceHref(),
                         normalizeHref(chapter.sourceHref()),
                         chapter.spineIndex(),
-                        clampUnit(startProgress),
-                        clampUnit(endProgress),
+                        startProgress,
+                        endProgress,
                         chapter.spans()));
             }
 
@@ -171,7 +170,7 @@ public class KoboSpanMapExtractionService {
         }
 
         if (html.isBlank()) {
-            return null;
+            return new ExtractedChapter(fileHeader.getFileName(), spineIndex, 1, List.of());
         }
 
         org.jsoup.nodes.Document document = Jsoup.parse(html, "", Parser.htmlParser().setTrackPosition(true));
@@ -182,7 +181,7 @@ public class KoboSpanMapExtractionService {
                     }
                     return new KoboSpanPositionMap.Span(
                             span.id(),
-                            clampUnit(span.sourceRange().endPos() / (float) Math.max(html.length(), 1)));
+                            span.sourceRange().endPos() / (float) Math.max(html.length(), 1));
                 })
                 .filter(Objects::nonNull)
                 .toList();

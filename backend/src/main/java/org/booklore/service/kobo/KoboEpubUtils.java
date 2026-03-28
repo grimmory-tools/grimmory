@@ -38,7 +38,4 @@ class KoboEpubUtils {
                 .replaceFirst("^/+", "");
     }
 
-    static float clampUnit(float value) {
-        return Math.max(0f, Math.min(value, 1f));
-    }
 }

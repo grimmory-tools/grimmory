@@ -263,7 +263,7 @@ public class KoboEntitlementService {
 
         KoboReadingState.CurrentBookmark webReaderBookmark = twoWaySync
                 ? userProgress
-                    .filter(progress -> progress.getEpubProgress() != null && progress.getEpubProgressPercent() != null)
+                    .filter(progress -> progress.getEpubProgressPercent() != null)
                     .map(progress -> readingStateBuilder.buildBookmarkFromProgress(progress, fileProgress, now))
                     .orElse(null)
                 : null;
