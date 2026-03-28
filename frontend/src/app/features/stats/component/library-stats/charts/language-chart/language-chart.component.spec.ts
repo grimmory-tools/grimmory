@@ -88,27 +88,47 @@ describe('LanguageChartComponent', () => {
       | undefined;
   }
 
-  it('normalizes mapped languages, capitalizes unknown labels, and filters books to the selected library', () => {
+  it('returns empty stats and chart data while books are still loading', () => {
     books.set([
       createBook(1, 1, ' EN '),
-      createBook(2, 1, 'eng'),
-      createBook(3, 1, 'Spanish'),
-      createBook(4, 1, 'klingon'),
-      createBook(5, 2, 'fr'),
-      createBook(6, 1, '   '),
-      createBook(7, 1),
+      createBook(2, 1, 'spa'),
+    ]);
+    isBooksLoading.set(true);
+
+    const component = createComponent();
+
+    expect(component.totalBooks()).toBe(0);
+    expect(component.booksWithLanguage()).toBe(0);
+    expect(component.languageStats()).toEqual([]);
+    expect(component.chartData()).toEqual({labels: [], datasets: []});
+  });
+
+  it('aggregates exact normalized keys, shapes mapped and fallback labels, and filters books to the selected library', () => {
+    books.set([
+      createBook(1, 1, ' EN '),
+      createBook(2, 1, 'en'),
+      createBook(3, 1, 'eng'),
+      createBook(4, 1, ' English '),
+      createBook(5, 1, 'spa'),
+      createBook(6, 1, 'Spanish'),
+      createBook(7, 1, 'klingon'),
+      createBook(8, 1, '   '),
+      createBook(9, 1),
+      createBook(10, 2, 'en'),
     ]);
     selectedLibrary.set(1);
 
     const component = createComponent();
 
-    expect(component.totalBooks()).toBe(6);
-    expect(component.booksWithLanguage()).toBe(4);
+    expect(component.totalBooks()).toBe(9);
+    expect(component.booksWithLanguage()).toBe(7);
     expect(component.languageStats()).toEqual([
-      {language: 'en', displayName: 'English', count: 1, percentage: 25},
-      {language: 'eng', displayName: 'English', count: 1, percentage: 25},
-      {language: 'spanish', displayName: 'Spanish', count: 1, percentage: 25},
-      {language: 'klingon', displayName: 'Klingon', count: 1, percentage: 25},
+      {language: 'en', displayName: 'English', count: 2, percentage: (2 / 7) * 100},
+      {language: 'eng', displayName: 'English', count: 1, percentage: (1 / 7) * 100},
+      {language: 'english', displayName: 'English', count: 1, percentage: (1 / 7) * 100},
+      {language: 'spa', displayName: 'Spanish', count: 1, percentage: (1 / 7) * 100},
+      {language: 'spanish', displayName: 'Spanish', count: 1, percentage: (1 / 7) * 100},
+      {language: 'klingon', displayName: 'Klingon', count: 1, percentage: (1 / 7) * 100},
     ]);
   });
 
@@ -167,10 +187,10 @@ describe('LanguageChartComponent', () => {
   it('formats the tooltip callback from computed chart data without a live Chart.js instance', () => {
     books.set([
       createBook(1, 1, 'en'),
-      createBook(2, 1, 'eng'),
-      createBook(3, 1, 'english'),
-      createBook(4, 1, 'es'),
-      createBook(5, 1, 'spa'),
+      createBook(2, 1, ' EN '),
+      createBook(3, 1, 'en'),
+      createBook(4, 1, 'spa'),
+      createBook(5, 1, 'spanish'),
     ]);
 
     const component = createComponent();
@@ -189,5 +209,10 @@ describe('LanguageChartComponent', () => {
       dataset: {data: dataset.data as number[]},
       label: 'English',
     })).toBe('statsLibrary.language.tooltipLabel|label=English|value=3|percentage=60.0');
+    expect(translate).toHaveBeenCalledWith('statsLibrary.language.tooltipLabel', {
+      label: 'English',
+      value: 3,
+      percentage: '60.0',
+    });
   });
 });
