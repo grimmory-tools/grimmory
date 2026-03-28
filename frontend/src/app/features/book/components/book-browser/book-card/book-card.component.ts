@@ -666,8 +666,7 @@ export class BookCardComponent implements OnInit, OnChanges {
   openSeriesInfo(): void {
     const seriesName = this.book?.metadata?.seriesName;
     if (this.isSeriesCollapsed && seriesName) {
-      const encodedSeriesName = encodeURIComponent(seriesName);
-      this.router.navigate(['/series', encodedSeriesName]);
+      this.router.navigate(['/series', seriesName]);
     } else {
       this.openBookInfo(this.book);
     }
