@@ -9,10 +9,13 @@ import org.booklore.model.entity.UserBookProgressEntity;
 import org.booklore.model.enums.BookFileType;
 import org.springframework.stereotype.Service;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.Optional;
+
+import static org.booklore.service.kobo.KoboEpubUtils.clampPercent;
+import static org.booklore.service.kobo.KoboEpubUtils.clampUnit;
+import static org.booklore.service.kobo.KoboEpubUtils.normalizeHref;
 
 @Slf4j
 @Service
@@ -23,11 +26,17 @@ public class KoboBookmarkLocationResolver {
 
     public Optional<ResolvedBookmarkLocation> resolve(UserBookProgressEntity progress,
                                                       UserBookFileProgressEntity fileProgress) {
+        return resolve(progress, fileProgress, null);
+    }
+
+    public Optional<ResolvedBookmarkLocation> resolve(UserBookProgressEntity progress,
+                                                      UserBookFileProgressEntity fileProgress,
+                                                      Map<Long, KoboSpanPositionMap> preloadedMaps) {
         BookFileEntity bookFile = resolveBookFile(progress, fileProgress);
         if (!isKepubExportEnabled(bookFile)) {
             return Optional.empty();
         }
-        Optional<KoboSpanPositionMap> spanMap = koboSpanMapService.getValidMap(bookFile);
+        Optional<KoboSpanPositionMap> spanMap = lookupSpanMap(bookFile, preloadedMaps);
         if (spanMap.isEmpty() || spanMap.get().chapters().isEmpty()) {
             return Optional.empty();
         }
@@ -44,7 +53,7 @@ public class KoboBookmarkLocationResolver {
         }
 
         Float resolvedChapterProgressPercent = resolveChapterProgressPercent(chapter.get(), chapterProgressPercent,
-                globalProgressPercent, href);
+                globalProgressPercent);
         KoboSpanPositionMap.Span span = resolveSpanMarker(chapter.get(), resolvedChapterProgressPercent);
         if (span == null) {
             return Optional.empty();
@@ -66,6 +75,17 @@ public class KoboBookmarkLocationResolver {
             return null;
         }
         return progress.getBook().getPrimaryBookFile();
+    }
+
+    private Optional<KoboSpanPositionMap> lookupSpanMap(BookFileEntity bookFile,
+                                                       Map<Long, KoboSpanPositionMap> preloadedMaps) {
+        if (preloadedMaps != null && bookFile.getId() != null) {
+            KoboSpanPositionMap map = preloadedMaps.get(bookFile.getId());
+            if (map != null) {
+                return Optional.of(map);
+            }
+        }
+        return koboSpanMapService.getValidMap(bookFile);
     }
 
     private boolean isKepubExportEnabled(BookFileEntity bookFile) {
@@ -96,7 +116,7 @@ public class KoboBookmarkLocationResolver {
         }
         return Optional.ofNullable(progress)
                 .map(UserBookProgressEntity::getEpubProgressPercent)
-                .map(this::clampPercent)
+                .map(KoboEpubUtils::clampPercent)
                 .orElse(null);
     }
 
@@ -139,8 +159,7 @@ public class KoboBookmarkLocationResolver {
 
     private Float resolveChapterProgressPercent(KoboSpanPositionMap.Chapter chapter,
                                                 Float chapterProgressPercent,
-                                                Float globalProgressPercent,
-                                                String href) {
+                                                Float globalProgressPercent) {
         if (chapterProgressPercent != null) {
             return clampPercent(chapterProgressPercent);
         }
@@ -153,9 +172,6 @@ public class KoboBookmarkLocationResolver {
             }
             float chapterProgress = (clampUnit(globalProgressPercent / 100f) - chapterStart) / chapterWidth;
             return clampPercent(clampUnit(chapterProgress) * 100f);
-        }
-        if (href != null && !href.isBlank()) {
-            return 0f;
         }
         return null;
     }
@@ -174,17 +190,6 @@ public class KoboBookmarkLocationResolver {
                 .orElse(null);
     }
 
-    private String normalizeHref(String href) {
-        return URLDecoder.decode(href, StandardCharsets.UTF_8)
-                .replace('\\', '/')
-                .replaceFirst("#.*$", "")
-                .replaceFirst("^/+", "");
-    }
-
-    private float clampUnit(float value) {
-        return Math.max(0f, Math.min(value, 1f));
-    }
-
     private double distanceToChapter(float globalProgress, KoboSpanPositionMap.Chapter chapter) {
         if (globalProgress < chapter.globalStartProgress()) {
             return chapter.globalStartProgress() - globalProgress;
@@ -193,10 +198,6 @@ public class KoboBookmarkLocationResolver {
             return globalProgress - chapter.globalEndProgress();
         }
         return 0d;
-    }
-
-    private Float clampPercent(Float value) {
-        return Math.max(0f, Math.min(value, 100f));
     }
 
     public record ResolvedBookmarkLocation(String value,

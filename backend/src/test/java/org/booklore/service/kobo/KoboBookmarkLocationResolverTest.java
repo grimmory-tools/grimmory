@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -51,7 +52,7 @@ class KoboBookmarkLocationResolverTest {
         assertEquals("kobo.1.1", result.get().value());
         assertEquals("KoboSpan", result.get().type());
         assertEquals("OPS/chapter1.xhtml", result.get().source());
-        assertEquals(0f, result.get().contentSourceProgressPercent());
+        assertNull(result.get().contentSourceProgressPercent());
     }
 
     @Test
@@ -92,7 +93,7 @@ class KoboBookmarkLocationResolverTest {
         assertTrue(result.isPresent());
         assertEquals("kobo.1.1", result.get().value());
         assertEquals("OPS/chapter1.xhtml", result.get().source());
-        assertEquals(0f, result.get().contentSourceProgressPercent());
+        assertNull(result.get().contentSourceProgressPercent());
     }
 
     @Test

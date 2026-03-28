@@ -35,6 +35,7 @@ import org.booklore.repository.UserBookProgressRepository;
 import org.booklore.service.kobo.KoboEntitlementService;
 import org.booklore.service.kobo.KoboReadingStateBuilder;
 import org.booklore.service.kobo.KoboSettingsService;
+import org.booklore.service.kobo.KoboSpanMapService;
 import org.booklore.service.opds.MagicShelfBookService;
 import org.booklore.util.kobo.KoboUrlBuilder;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,6 +58,7 @@ import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -110,6 +112,9 @@ class KoboEntitlementServiceTest {
     @Mock
     private KoboSettingsService koboSettingsService;
 
+    @Mock
+    private KoboSpanMapService koboSpanMapService;
+
     @InjectMocks
     private KoboEntitlementService koboEntitlementService;
 
@@ -120,6 +125,7 @@ class KoboEntitlementServiceTest {
         BookLoreUser.UserPermissions permissions = new BookLoreUser.UserPermissions();
         user = BookLoreUser.builder().id(1L).permissions(permissions).build();
         when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+        when(koboSpanMapService.getValidMaps(anyMap())).thenReturn(Map.of());
     }
 
     @Test
@@ -615,7 +621,7 @@ class KoboEntitlementServiceTest {
                     .progressPercent(50)
                     .contentSourceProgressPercent(20)
                     .build();
-            when(readingStateBuilder.buildBookmarkFromProgress(eq(progress), eq(fileProgress), any(OffsetDateTime.class)))
+            when(readingStateBuilder.buildBookmarkFromProgress(eq(progress), eq(fileProgress), any(OffsetDateTime.class), anyMap()))
                     .thenReturn(bookmark);
             when(readingStateBuilder.buildStatusInfoFromProgress(eq(progress), anyString()))
                     .thenReturn(KoboReadingState.StatusInfo.builder()
@@ -676,7 +682,7 @@ class KoboEntitlementServiceTest {
                     .progressPercent(70)
                     .contentSourceProgressPercent(21)
                     .build();
-            when(readingStateBuilder.buildBookmarkFromProgress(eq(progress), eq(epubFileProgress), any(OffsetDateTime.class)))
+            when(readingStateBuilder.buildBookmarkFromProgress(eq(progress), eq(epubFileProgress), any(OffsetDateTime.class), anyMap()))
                     .thenReturn(bookmark);
             when(readingStateBuilder.buildStatusInfoFromProgress(eq(progress), anyString()))
                     .thenReturn(KoboReadingState.StatusInfo.builder()
@@ -689,7 +695,7 @@ class KoboEntitlementServiceTest {
             assertEquals(1, result.size());
             assertEquals(21, result.getFirst().getChangedReadingState().getReadingState()
                     .getCurrentBookmark().getContentSourceProgressPercent());
-            verify(readingStateBuilder).buildBookmarkFromProgress(eq(progress), eq(epubFileProgress), any(OffsetDateTime.class));
+            verify(readingStateBuilder).buildBookmarkFromProgress(eq(progress), eq(epubFileProgress), any(OffsetDateTime.class), anyMap());
         }
 
         @Test
@@ -736,7 +742,7 @@ class KoboEntitlementServiceTest {
             KoboReadingState.CurrentBookmark bookmark = KoboReadingState.CurrentBookmark.builder()
                     .progressPercent(70)
                     .build();
-            when(readingStateBuilder.buildBookmarkFromProgress(eq(progress), isNull(), any(OffsetDateTime.class)))
+            when(readingStateBuilder.buildBookmarkFromProgress(eq(progress), isNull(), any(OffsetDateTime.class), anyMap()))
                     .thenReturn(bookmark);
             when(readingStateBuilder.buildStatusInfoFromProgress(eq(progress), anyString()))
                     .thenReturn(KoboReadingState.StatusInfo.builder()

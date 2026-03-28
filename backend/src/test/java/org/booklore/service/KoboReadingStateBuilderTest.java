@@ -50,7 +50,7 @@ class KoboReadingStateBuilderTest {
         KoboSyncSettings settings = new KoboSyncSettings();
         settings.setTwoWayProgressSync(true);
         when(koboSettingsService.getCurrentUserSettings()).thenReturn(settings);
-        when(bookmarkLocationResolver.resolve(any(), any())).thenReturn(java.util.Optional.empty());
+        when(bookmarkLocationResolver.resolve(any(), any(), any())).thenReturn(java.util.Optional.empty());
         builder = new KoboReadingStateBuilder(koboSettingsService, bookmarkLocationResolver);
     }
 
@@ -278,7 +278,7 @@ class KoboReadingStateBuilderTest {
             fileProgress.setPositionData("epubcfi(/6/8!/4/2/6/1:15)");
             fileProgress.setPositionHref("OPS/chapter3.xhtml");
 
-            when(bookmarkLocationResolver.resolve(progress, fileProgress))
+            when(bookmarkLocationResolver.resolve(progress, fileProgress, null))
                     .thenReturn(java.util.Optional.of(
                             new KoboBookmarkLocationResolver.ResolvedBookmarkLocation(
                                     "kobo.12.18",

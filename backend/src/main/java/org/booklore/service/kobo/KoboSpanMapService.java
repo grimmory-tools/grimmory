@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -49,6 +51,23 @@ public class KoboSpanMapService {
             entity.setCreatedAt(Instant.now());
         }
         koboSpanMapRepository.save(entity);
+    }
+
+    @Transactional(readOnly = true)
+    public Map<Long, KoboSpanPositionMap> getValidMaps(Map<Long, BookFileEntity> bookFilesByFileId) {
+        if (bookFilesByFileId.isEmpty()) {
+            return Map.of();
+        }
+        Map<Long, KoboSpanPositionMap> result = new HashMap<>();
+        for (KoboSpanMapEntity entity : koboSpanMapRepository.findByBookFileIdIn(bookFilesByFileId.keySet())) {
+            Long fileId = entity.getBookFile().getId();
+            BookFileEntity bookFile = bookFilesByFileId.get(fileId);
+            if (bookFile != null && bookFile.getCurrentHash() != null
+                    && bookFile.getCurrentHash().equals(entity.getFileHash())) {
+                result.put(fileId, entity.getSpanMap());
+            }
+        }
+        return result;
     }
 
     @Transactional(readOnly = true)

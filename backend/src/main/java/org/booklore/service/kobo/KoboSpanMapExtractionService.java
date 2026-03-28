@@ -23,6 +23,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.booklore.service.kobo.KoboEpubUtils.clampUnit;
+import static org.booklore.service.kobo.KoboEpubUtils.normalizeHref;
+
 @Service
 @Slf4j
 public class KoboSpanMapExtractionService {
@@ -223,17 +226,6 @@ public class KoboSpanMapExtractionService {
             return decodedHref;
         }
         return Path.of(rootPath).resolve(decodedHref).normalize().toString().replace('\\', '/');
-    }
-
-    private String normalizeHref(String href) {
-        return URLDecoder.decode(href, StandardCharsets.UTF_8)
-                .replace('\\', '/')
-                .replaceFirst("#.*$", "")
-                .replaceFirst("^/+", "");
-    }
-
-    private float clampUnit(float value) {
-        return Math.max(0f, Math.min(value, 1f));
     }
 
     private record ManifestItem(String href) {

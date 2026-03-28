@@ -53,6 +53,7 @@ public class KoboEntitlementService {
     private final MagicShelfRepository magicShelfRepository;
     private final MagicShelfBookService magicShelfBookService;
     private final KoboSettingsService koboSettingsService;
+    private final KoboSpanMapService koboSpanMapService;
 
     public List<NewEntitlement> generateNewEntitlements(Set<Long> bookIds, String token) {
         List<BookEntity> books = bookQueryService.findAllWithMetadataByIds(bookIds);
@@ -113,12 +114,14 @@ public class KoboEntitlementService {
         Long userId = authenticationService.getAuthenticatedUser().getId();
 
         Map<Long, Long> syncedEpubFileIdsByBookId = new HashMap<>();
+        Map<Long, BookFileEntity> bookFilesByFileId = new HashMap<>();
         for (UserBookProgressEntity entry : progressEntries) {
             BookEntity book = entry.getBook();
             if (book != null) {
                 Long fileId = getSyncedEpubFileId(book);
                 if (fileId != null) {
                     syncedEpubFileIdsByBookId.putIfAbsent(book.getId(), fileId);
+                    bookFilesByFileId.putIfAbsent(fileId, book.getPrimaryBookFile());
                 }
             }
         }
@@ -128,16 +131,20 @@ public class KoboEntitlementService {
                 : fileProgressRepository.findByUserIdAndBookFileIdIn(userId, syncedEpubFileIdsByBookId.values()).stream()
                         .collect(Collectors.toMap(
                                 fp -> fp.getBookFile().getId(),
-                                fp -> fp,
-                                this::selectMostRecentProgress
+                                fp -> fp
                         ));
+
+        Map<Long, KoboSpanPositionMap> spanMapsByFileId = bookFilesByFileId.isEmpty()
+                ? Collections.emptyMap()
+                : koboSpanMapService.getValidMaps(bookFilesByFileId);
 
         return progressEntries.stream()
                 .map(progress -> buildChangedReadingState(
                         progress,
                         fileProgressByFileId.get(syncedEpubFileIdsByBookId.get(progress.getBook().getId())),
                         timestamp,
-                        now))
+                        now,
+                        spanMapsByFileId))
                 .toList();
     }
 
@@ -210,12 +217,13 @@ public class KoboEntitlementService {
     private ChangedReadingState buildChangedReadingState(UserBookProgressEntity progress,
                                                          UserBookFileProgressEntity fileProgress,
                                                          String timestamp,
-                                                         OffsetDateTime now) {
+                                                         OffsetDateTime now,
+                                                         Map<Long, KoboSpanPositionMap> preloadedMaps) {
         String entitlementId = String.valueOf(progress.getBook().getId());
 
         boolean twoWaySync = koboSettingsService.getCurrentUserSettings().isTwoWayProgressSync();
         KoboReadingState.CurrentBookmark bookmark = (progress.getKoboProgressPercent() != null || (twoWaySync && progress.getEpubProgressPercent() != null))
-                ? readingStateBuilder.buildBookmarkFromProgress(progress, fileProgress, now)
+                ? readingStateBuilder.buildBookmarkFromProgress(progress, fileProgress, now, preloadedMaps)
                 : readingStateBuilder.buildEmptyBookmark(now);
 
         KoboReadingState readingState = KoboReadingState.builder()
@@ -302,17 +310,6 @@ public class KoboEntitlementService {
             return null;
         }
         return primaryFile.getId();
-    }
-
-    private UserBookFileProgressEntity selectMostRecentProgress(UserBookFileProgressEntity existing,
-                                                                UserBookFileProgressEntity replacement) {
-        if (existing.getLastReadTime() == null) {
-            return replacement;
-        }
-        if (replacement.getLastReadTime() == null) {
-            return existing;
-        }
-        return replacement.getLastReadTime().isAfter(existing.getLastReadTime()) ? replacement : existing;
     }
 
     private BookEntitlement buildBookEntitlement(BookEntity book, boolean removed) {
