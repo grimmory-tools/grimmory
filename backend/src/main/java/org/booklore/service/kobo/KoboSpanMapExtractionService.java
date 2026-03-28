@@ -21,6 +21,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.booklore.service.kobo.KoboEpubUtils.clampUnit;
 import static org.booklore.service.kobo.KoboEpubUtils.normalizeHref;
@@ -183,7 +184,7 @@ public class KoboSpanMapExtractionService {
                             span.id(),
                             clampUnit(span.sourceRange().endPos() / (float) Math.max(html.length(), 1)));
                 })
-                .filter(span -> span != null)
+                .filter(Objects::nonNull)
                 .toList();
 
         return new ExtractedChapter(
