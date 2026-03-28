@@ -31,9 +31,9 @@ server:
   tomcat:
     relaxed-query-chars: '[,],%,{,},|'
     threads:
-      max: 20                      # Virtual threads handle concurrency; platform threads just overhead
-      min-spare: 4
-  max-http-request-header-size: 128KB
+      max: 10                      # Virtual threads handle concurrency; platform threads just overhead
+      min-spare: 2
+  max-http-request-header-size: 64KB
 
 spring:
   jackson:
@@ -74,12 +74,13 @@ spring:
       hibernate:
         query:
           timeout: 30              # 30s max for any HQL/JPQL query
-          plan_cache_max_size: 256 # Reduce from 2048 default; ~200 unique queries max
+          plan_cache_max_size: 128 # Reduce from 2048 default; small self-hosted app
+          plan_parameter_metadata_max_size: 32  # Reduce from 128 default
           in_clause_parameter_padding: true  # Pad IN params to power-of-2; fewer unique plan cache entries
           fail_on_pagination_over_collection_fetch: true  # Fail fast when paginating over collection fetches (in-memory pagination)
         jdbc:
           time_zone: UTC
-          batch_size: 500
+          batch_size: 100
           fetch_size: 50           # Reduce JDBC roundtrips for large result sets
           order_inserts: true
           order_updates: true

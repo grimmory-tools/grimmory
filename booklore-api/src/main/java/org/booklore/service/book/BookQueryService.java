@@ -124,8 +124,8 @@ public class BookQueryService {
     private Book mapBookToDto(BookEntity bookEntity, boolean includeDescription, Long userId, boolean stripForListView) {
         Book dto = bookMapperV2.toDTO(bookEntity);
 
-        if (!includeDescription && dto.getMetadata() != null) {
-            dto.getMetadata().setDescription(null);
+        if (includeDescription && dto.getMetadata() != null && bookEntity.getMetadata() != null) {
+            dto.getMetadata().setDescription(bookEntity.getMetadata().getDescription());
         }
 
         if (dto.getShelves() != null && userId != null) {

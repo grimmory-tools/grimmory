@@ -41,6 +41,8 @@ public class BookMetadataEntity {
     @Column(name = "published_date")
     private LocalDate publishedDate;
 
+    @Basic(fetch = FetchType.LAZY)
+    @LazyGroup("description")
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
