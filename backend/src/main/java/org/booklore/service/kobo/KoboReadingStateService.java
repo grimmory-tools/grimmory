@@ -301,7 +301,7 @@ public class KoboReadingStateService {
             progress.setEpubProgressHref(location.getSource());
         } else {
             progress.setEpubProgress(null);
-            progress.setEpubProgressHref(null);
+            progress.setEpubProgressHref(location != null ? location.getSource() : null);
         }
 
         if (fileProgress != null) {
@@ -314,7 +314,7 @@ public class KoboReadingStateService {
                 fileProgress.setPositionHref(location.getSource());
             } else {
                 fileProgress.setPositionData(null);
-                fileProgress.setPositionHref(null);
+                fileProgress.setPositionHref(location != null ? location.getSource() : null);
             }
             fileProgress.setLastReadTime(effectiveBookmarkTime);
             fileProgressRepository.save(fileProgress);

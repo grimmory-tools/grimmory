@@ -251,6 +251,8 @@ export class EbookReaderComponent implements OnInit {
               this.hasLoadedOnce = true;
               if (book.epubProgress?.cfi) {
                 return this.viewManager.goTo(book.epubProgress.cfi);
+              } else if (book.epubProgress?.href) {
+                return this.viewManager.goTo(book.epubProgress.href);
               } else if (book.epubProgress?.percentage && book.epubProgress.percentage > 0) {
                 return this.viewManager.goToFraction(book.epubProgress.percentage / 100);
               } else {
@@ -287,7 +289,6 @@ export class EbookReaderComponent implements OnInit {
     this.viewManager.createView(container);
     return of(undefined);
   }
-
   private loadBookBlob(): Observable<void> {
     return this.bookFileService.getFileContent(this.bookId, this.altBookType).pipe(
       switchMap(fileBlob => {

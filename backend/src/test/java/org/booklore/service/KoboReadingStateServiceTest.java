@@ -796,7 +796,7 @@ class KoboReadingStateServiceTest {
     }
 
     @Test
-    @DisplayName("Should clear stale EPUB CFI when Kobo sends newer KoboSpan")
+    @DisplayName("Should clear stale EPUB CFI but keep chapter source when Kobo sends newer KoboSpan")
     void testSyncKoboProgress_clearEpubCfiWhenKoboSendsKoboSpan() {
         testSettings.setTwoWayProgressSync(true);
         String entitlementId = "100";
@@ -853,12 +853,12 @@ class KoboReadingStateServiceTest {
 
         UserBookProgressEntity savedProgress = progressCaptor.getValue();
         assertNull(savedProgress.getEpubProgress());
-        assertNull(savedProgress.getEpubProgressHref());
+        assertEquals("OEBPS/OPS/chapter3.xhtml", savedProgress.getEpubProgressHref());
 
         verify(fileProgressRepository).save(fileProgressCaptor.capture());
         UserBookFileProgressEntity savedFileProgress = fileProgressCaptor.getValue();
         assertNull(savedFileProgress.getPositionData());
-        assertNull(savedFileProgress.getPositionHref());
+        assertEquals("OEBPS/OPS/chapter3.xhtml", savedFileProgress.getPositionHref());
         assertEquals(23f, savedFileProgress.getContentSourceProgressPercent());
     }
 

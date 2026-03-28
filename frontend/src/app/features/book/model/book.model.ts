@@ -60,7 +60,8 @@ export interface Book extends FileInfo {
 }
 
 export interface EpubProgress {
-  cfi: string;
+  cfi?: string | null;
+  href?: string;
   percentage: number;
 }
 
