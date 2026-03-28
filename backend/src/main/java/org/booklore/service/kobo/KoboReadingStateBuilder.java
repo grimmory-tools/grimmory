@@ -13,12 +13,16 @@ import org.booklore.model.dto.kobo.KoboSpanPositionMap;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
 public class KoboReadingStateBuilder {
+
+    private static final DateTimeFormatter KOBO_TIMESTAMP_FORMAT =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSS'Z'").withZone(ZoneOffset.UTC);
 
     private final KoboSettingsService koboSettingsService;
     private final KoboBookmarkLocationResolver bookmarkLocationResolver;
@@ -169,6 +173,6 @@ public class KoboReadingStateBuilder {
     }
 
     private String formatTimestamp(Instant instant) {
-        return instant.atOffset(ZoneOffset.UTC).toString();
+        return KOBO_TIMESTAMP_FORMAT.format(instant);
     }
 }

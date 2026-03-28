@@ -9,6 +9,8 @@ import org.booklore.repository.KoboSpanMapRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.dao.DataIntegrityViolationException;
+
 import java.io.File;
 import java.time.Instant;
 import java.util.HashMap;
@@ -50,7 +52,11 @@ public class KoboSpanMapService {
         if (entity.getCreatedAt() == null) {
             entity.setCreatedAt(Instant.now());
         }
-        koboSpanMapRepository.save(entity);
+        try {
+            koboSpanMapRepository.save(entity);
+        } catch (DataIntegrityViolationException e) {
+            log.debug("Kobo span map already stored by a concurrent request for file {}", bookFile.getId());
+        }
     }
 
     @Transactional(readOnly = true)

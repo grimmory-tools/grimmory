@@ -186,7 +186,7 @@ public class KoboBookmarkLocationResolver {
                 })
                 .min(Comparator.comparingInt(chapter -> {
                     String normalizedChapter = chapter.normalizedHref();
-                    return normalizedChapter.equals(normalizedHref) ? 0 : normalizedChapter.length();
+                    return normalizedChapter.equals(normalizedHref) ? 0 : -normalizedChapter.length();
                 }));
     }
 
