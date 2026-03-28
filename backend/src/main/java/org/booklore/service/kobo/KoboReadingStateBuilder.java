@@ -84,14 +84,17 @@ public class KoboReadingStateBuilder {
                         .type(resolved.type())
                         .source(resolved.source())
                         .build())
-                .orElse(null);
+                .orElseGet(() -> buildCfiFallbackLocation(progress, fileProgress));
 
         return KoboReadingState.CurrentBookmark.builder()
                 .progressPercent(Math.round(progress.getEpubProgressPercent()))
                 .contentSourceProgressPercent(resolvedLocation
                         .map(KoboBookmarkLocationResolver.ResolvedBookmarkLocation::contentSourceProgressPercent)
                         .map(Math::round)
-                        .orElse(null))
+                        .orElseGet(() -> Optional.ofNullable(fileProgress)
+                                .map(UserBookFileProgressEntity::getContentSourceProgressPercent)
+                                .map(Math::round)
+                                .orElse(null)))
                 .location(location)
                 .lastModified(lastModified)
                 .build();
@@ -118,6 +121,24 @@ public class KoboReadingStateBuilder {
                         .orElse(null))
                 .location(location)
                 .lastModified(lastModified)
+                .build();
+    }
+
+    private KoboReadingState.CurrentBookmark.Location buildCfiFallbackLocation(
+            UserBookProgressEntity progress, UserBookFileProgressEntity fileProgress) {
+        String cfi = Optional.ofNullable(fileProgress)
+                .map(UserBookFileProgressEntity::getPositionData)
+                .orElseGet(progress::getEpubProgress);
+        if (cfi == null) {
+            return null;
+        }
+        String source = Optional.ofNullable(fileProgress)
+                .map(UserBookFileProgressEntity::getPositionHref)
+                .orElseGet(progress::getEpubProgressHref);
+        return KoboReadingState.CurrentBookmark.Location.builder()
+                .value(cfi)
+                .type("EpubCfi")
+                .source(source)
                 .build();
     }
 

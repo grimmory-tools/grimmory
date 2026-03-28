@@ -14,7 +14,6 @@ import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.model.entity.KoboReadingStateEntity;
 import org.booklore.model.entity.UserBookFileProgressEntity;
 import org.booklore.model.entity.UserBookProgressEntity;
-import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.ReadStatus;
 import org.booklore.repository.*;
 import org.booklore.service.hardcover.HardcoverSyncService;
@@ -119,9 +118,8 @@ public class KoboReadingStateService {
 
                     syncKoboProgressToUserBookProgress(savedState, userId);
 
-                    return savedEntity;
+                    return savedState;
                 })
-                .map(mapper::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -265,7 +263,7 @@ public class KoboReadingStateService {
         }
 
         UserBookFileProgressEntity fileProgress = null;
-        BookFileEntity syncedEpubFile = getSyncedEpubFile(book);
+        BookFileEntity syncedEpubFile = KoboEpubUtils.getSyncedEpubFile(book);
         if (syncedEpubFile != null) {
             fileProgress = fileProgressRepository.findByUserIdAndBookFileId(userId, syncedEpubFile.getId())
                     .orElseGet(() -> UserBookFileProgressEntity.builder()
@@ -292,11 +290,9 @@ public class KoboReadingStateService {
 
         if (hasEpubCfiLocation) {
             progress.setEpubProgress(location.getValue());
-        } else if (progress.getEpubProgress() == null) {
-            progress.setEpubProgress(null);
-        }
-        if (hasEpubCfiLocation && location.getSource() != null) {
-            progress.setEpubProgressHref(location.getSource());
+            if (location.getSource() != null) {
+                progress.setEpubProgressHref(location.getSource());
+            }
         }
 
         if (fileProgress != null) {
@@ -307,8 +303,6 @@ public class KoboReadingStateService {
             if (hasEpubCfiLocation) {
                 fileProgress.setPositionData(location.getValue());
                 fileProgress.setPositionHref(location.getSource());
-            } else if (fileProgress.getPositionData() == null) {
-                fileProgress.setPositionData(null);
             }
             fileProgress.setLastReadTime(now);
             fileProgressRepository.save(fileProgress);
@@ -323,19 +317,11 @@ public class KoboReadingStateService {
     }
 
     private Optional<UserBookFileProgressEntity> findSyncedEpubFileProgress(Long userId, BookEntity book) {
-        BookFileEntity syncedEpubFile = getSyncedEpubFile(book);
+        BookFileEntity syncedEpubFile = KoboEpubUtils.getSyncedEpubFile(book);
         if (syncedEpubFile == null) {
             return Optional.empty();
         }
         return fileProgressRepository.findByUserIdAndBookFileId(userId, syncedEpubFile.getId());
-    }
-
-    private BookFileEntity getSyncedEpubFile(BookEntity book) {
-        BookFileEntity primaryBookFile = book != null ? book.getPrimaryBookFile() : null;
-        if (primaryBookFile == null || primaryBookFile.getBookType() != BookFileType.EPUB) {
-            return null;
-        }
-        return primaryBookFile;
     }
 
     private void normalizePutTimestamps(List<KoboReadingState> readingStates) {

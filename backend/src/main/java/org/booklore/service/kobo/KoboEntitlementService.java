@@ -118,10 +118,10 @@ public class KoboEntitlementService {
         for (UserBookProgressEntity entry : progressEntries) {
             BookEntity book = entry.getBook();
             if (book != null) {
-                Long fileId = getSyncedEpubFileId(book);
-                if (fileId != null) {
-                    syncedEpubFileIdsByBookId.putIfAbsent(book.getId(), fileId);
-                    bookFilesByFileId.putIfAbsent(fileId, book.getPrimaryBookFile());
+                BookFileEntity syncedFile = KoboEpubUtils.getSyncedEpubFile(book);
+                if (syncedFile != null) {
+                    syncedEpubFileIdsByBookId.putIfAbsent(book.getId(), syncedFile.getId());
+                    bookFilesByFileId.putIfAbsent(syncedFile.getId(), syncedFile);
                 }
             }
         }
@@ -297,19 +297,11 @@ public class KoboEntitlementService {
     }
 
     private Optional<UserBookFileProgressEntity> findSyncedEpubFileProgress(Long userId, BookEntity book) {
-        Long syncedEpubFileId = getSyncedEpubFileId(book);
-        if (syncedEpubFileId == null) {
+        BookFileEntity syncedFile = KoboEpubUtils.getSyncedEpubFile(book);
+        if (syncedFile == null) {
             return Optional.empty();
         }
-        return fileProgressRepository.findByUserIdAndBookFileId(userId, syncedEpubFileId);
-    }
-
-    private Long getSyncedEpubFileId(BookEntity book) {
-        BookFileEntity primaryFile = book != null ? book.getPrimaryBookFile() : null;
-        if (primaryFile == null || primaryFile.getBookType() != BookFileType.EPUB) {
-            return null;
-        }
-        return primaryFile.getId();
+        return fileProgressRepository.findByUserIdAndBookFileId(userId, syncedFile.getId());
     }
 
     private BookEntitlement buildBookEntitlement(BookEntity book, boolean removed) {
