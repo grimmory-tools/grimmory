@@ -154,12 +154,16 @@ class ReadingProgressServiceTest {
         UserBookFileProgressEntity fileProgress = new UserBookFileProgressEntity();
         fileProgress.setBookFile(bookFile);
         fileProgress.setPositionData("new-cfi");
+        fileProgress.setPositionHref("OPS/chapter3.xhtml");
+        fileProgress.setContentSourceProgressPercent(18.6f);
         fileProgress.setProgressPercent(50.0f);
         fileProgress.setLastReadTime(Instant.now());
 
         readingProgressService.enrichBookWithProgress(book, progress, fileProgress);
 
         assertEquals("new-cfi", book.getEpubProgress().getCfi());
+        assertEquals("OPS/chapter3.xhtml", book.getEpubProgress().getHref());
+        assertEquals(18.6f, book.getEpubProgress().getContentSourceProgressPercent());
         assertEquals(50.0f, book.getEpubProgress().getPercentage());
     }
 
