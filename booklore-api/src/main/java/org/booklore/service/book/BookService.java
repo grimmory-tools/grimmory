@@ -72,15 +72,16 @@ public class BookService {
     private final AuditService auditService;
 
 
-    public List<Book> getBookDTOs(boolean includeDescription) {
+    public List<Book> getBookDTOs(boolean includeDescription, boolean StripForListView) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         boolean isAdmin = user.getPermissions().isAdmin();
 
         List<Book> books = isAdmin
-                ? bookQueryService.getAllBooks(includeDescription)
+                ? bookQueryService.getAllBooks(includeDescription, StripForListView)
                 : bookQueryService.getAllBooksByLibraryIds(
                 getUserLibraryIds(user),
                 includeDescription,
+                StripForListView,
                 user.getId()
         );
 
