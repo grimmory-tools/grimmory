@@ -69,8 +69,8 @@ public class BookController {
     public ResponseEntity<List<Book>> getBooks(
             @Parameter(description = "Include book descriptions in the response")
             @RequestParam(required = false, defaultValue = "false") boolean withDescription,
-            @Parameter(description = "Include other metadata fields in the response")
-            @RequestParam(required = false, defaultValue = "false") boolean stripForListView) {
+            @Parameter(description = "Remove other metadata fields from the response")
+            @RequestParam(required = false, defaultValue = "true") boolean stripForListView) {
         return ResponseEntity.ok(bookService.getBookDTOs(withDescription, stripForListView));
     }
 
