@@ -66,47 +66,53 @@ function buildUserSettings(overrides: Partial<UserSettings> = {}): UserSettings 
 }
 
 function buildUser(overrides: BuildUserOverrides = {}): User {
+  const {permissions: permissionOverrides, userSettings, ...userOverrides} = overrides;
+  const permissions: User['permissions'] = {
+    admin: false,
+    canUpload: false,
+    canDownload: false,
+    canEmailBook: false,
+    canDeleteBook: false,
+    canEditMetadata: false,
+    canManageLibrary: false,
+    canManageMetadataConfig: false,
+    canSyncKoReader: false,
+    canSyncKobo: false,
+    canAccessOpds: false,
+    canAccessBookdrop: false,
+    canAccessLibraryStats: false,
+    canAccessUserStats: false,
+    canAccessTaskManager: false,
+    canManageEmailConfig: false,
+    canManageGlobalPreferences: false,
+    canManageIcons: false,
+    canManageFonts: false,
+    demoUser: false,
+    canBulkAutoFetchMetadata: false,
+    canBulkCustomFetchMetadata: false,
+    canBulkEditMetadata: false,
+    canBulkRegenerateCover: false,
+    canMoveOrganizeFiles: false,
+    canBulkLockUnlockMetadata: false,
+    canBulkResetGrimmoryReadProgress: false,
+    canBulkResetBookloreReadProgress: false,
+    canBulkResetKoReaderReadProgress: false,
+    canBulkResetBookReadStatus: false,
+  };
+
+  if (permissionOverrides) {
+    Object.assign(permissions, permissionOverrides);
+  }
+
   return {
     id: 7,
     username: 'reader',
     name: 'Reader',
     email: 'reader@example.test',
     assignedLibraries: [],
-    permissions: {
-      admin: false,
-      canUpload: false,
-      canDownload: false,
-      canEmailBook: false,
-      canDeleteBook: false,
-      canEditMetadata: false,
-      canManageLibrary: false,
-      canManageMetadataConfig: false,
-      canSyncKoReader: false,
-      canSyncKobo: false,
-      canAccessOpds: false,
-      canAccessBookdrop: false,
-      canAccessLibraryStats: false,
-      canAccessUserStats: false,
-      canAccessTaskManager: false,
-      canManageEmailConfig: false,
-      canManageGlobalPreferences: false,
-      canManageIcons: false,
-      canManageFonts: false,
-      demoUser: false,
-      canBulkAutoFetchMetadata: false,
-      canBulkCustomFetchMetadata: false,
-      canBulkEditMetadata: false,
-      canBulkRegenerateCover: false,
-      canMoveOrganizeFiles: false,
-      canBulkLockUnlockMetadata: false,
-      canBulkResetGrimmoryReadProgress: false,
-      canBulkResetBookloreReadProgress: false,
-      canBulkResetKoReaderReadProgress: false,
-      canBulkResetBookReadStatus: false,
-      ...overrides.permissions,
-    },
-    userSettings: buildUserSettings(overrides.userSettings),
-    ...overrides,
+    permissions,
+    userSettings: buildUserSettings(userSettings),
+    ...userOverrides,
   };
 }
 
