@@ -59,6 +59,9 @@ public class MetadataManagementService {
         for (BookMetadataEntity metadata : metadataList) {
             if (metadata.getBook() != null) {
                 BookEntity book = metadata.getBook();
+                if (Boolean.TRUE.equals(book.getIsPhysical())) {
+                    continue;
+                }
                 boolean bookModified = false;
 
                 var primaryFile = book.getPrimaryBookFile();

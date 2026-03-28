@@ -592,4 +592,35 @@ class MetadataManagementServiceTest {
         verify(metadataWriterFactory, never()).getWriter(any());
         verify(authorRepository).delete(oldAuthor);
     }
+
+    @Test
+    void consolidateAuthors_physicalBook_skipsFileWriteAndDoesNotThrow() {
+        AuthorEntity oldAuthor = AuthorEntity.builder().id(1L).name("Old").build();
+        AuthorEntity targetAuthor = AuthorEntity.builder().id(2L).name("Target").build();
+
+        when(authorRepository.findByNameIgnoreCase("Target")).thenReturn(Optional.of(targetAuthor));
+        when(authorRepository.save(targetAuthor)).thenReturn(targetAuthor);
+        when(authorRepository.findByNameIgnoreCase("Old")).thenReturn(Optional.of(oldAuthor));
+
+        BookEntity physicalBook = BookEntity.builder()
+                .id(1L)
+                .isPhysical(true)
+                .bookFiles(new ArrayList<>())
+                .build();
+        BookMetadataEntity metadata = BookMetadataEntity.builder()
+                .authors(new ArrayList<>(List.of(oldAuthor)))
+                .book(physicalBook)
+                .build();
+        physicalBook.setMetadata(metadata);
+
+        when(bookMetadataRepository.findAllByAuthorsContaining(oldAuthor)).thenReturn(List.of(metadata));
+
+        service.consolidateMetadata(MergeMetadataType.authors, List.of("Target"), List.of("Old"));
+
+        assertThat(metadata.getAuthors()).contains(targetAuthor);
+        assertThat(metadata.getAuthors()).doesNotContain(oldAuthor);
+        verify(metadataWriterFactory, never()).getWriter(any());
+        verify(bookRepository, never()).saveAndFlush(any());
+        verify(authorRepository).delete(oldAuthor);
+    }
 }
