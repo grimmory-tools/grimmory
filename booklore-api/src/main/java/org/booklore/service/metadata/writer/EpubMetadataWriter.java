@@ -41,9 +41,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Comparator;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -209,6 +208,10 @@ public class EpubMetadataWriter implements MetadataWriter {
                     applyCoverImageToEpub(tempDir, opfDoc, coverData);
                     hasChanges[0] = true;
                 }
+            }
+
+            if (!hasChanges[0] && hasBookloreMetadataChanges(metadataElement, metadata, isEpub3(opfDoc))) {
+                hasChanges[0] = true;
             }
 
             if (hasChanges[0]) {
@@ -757,6 +760,77 @@ public class EpubMetadataWriter implements MetadataWriter {
     private boolean isEpub3(Document doc) {
         String version = doc.getDocumentElement().getAttribute("version");
         return version != null && version.trim().startsWith("3");
+    }
+
+    private boolean hasBookloreMetadataChanges(Element metadataElement, BookMetadataEntity metadata, boolean epub3) {
+        Map<String, String> existing = new TreeMap<>();
+        NodeList metas = metadataElement.getElementsByTagNameNS("*", "meta");
+        for (int i = 0; i < metas.getLength(); i++) {
+            Element meta = (Element) metas.item(i);
+            String property = meta.getAttribute("property");
+            String name = meta.getAttribute("name");
+            String key = property.startsWith("booklore:") ? property : (name.startsWith("booklore:") ? name : null);
+            if (key != null) {
+                existing.put(key, meta.getAttribute("content").isEmpty() ? meta.getTextContent() : meta.getAttribute("content"));
+            }
+        }
+
+        Map<String, String> expected = new TreeMap<>();
+        if (StringUtils.isNotBlank(metadata.getSubtitle())) {
+            expected.put("booklore:subtitle", metadata.getSubtitle());
+        }
+        if (metadata.getPageCount() != null && metadata.getPageCount() > 0) {
+            expected.put("booklore:page_count", String.valueOf(metadata.getPageCount()));
+        }
+        if (metadata.getSeriesTotal() != null && metadata.getSeriesTotal() > 0) {
+            expected.put("booklore:series_total", String.valueOf(metadata.getSeriesTotal()));
+        }
+        if (metadata.getAmazonRating() != null && metadata.getAmazonRating() > 0) {
+            expected.put("booklore:amazon_rating", String.valueOf(metadata.getAmazonRating()));
+        }
+        if (metadata.getAmazonReviewCount() != null && metadata.getAmazonReviewCount() > 0) {
+            expected.put("booklore:amazon_review_count", String.valueOf(metadata.getAmazonReviewCount()));
+        }
+        if (metadata.getGoodreadsRating() != null && metadata.getGoodreadsRating() > 0) {
+            expected.put("booklore:goodreads_rating", String.valueOf(metadata.getGoodreadsRating()));
+        }
+        if (metadata.getGoodreadsReviewCount() != null && metadata.getGoodreadsReviewCount() > 0) {
+            expected.put("booklore:goodreads_review_count", String.valueOf(metadata.getGoodreadsReviewCount()));
+        }
+        if (metadata.getHardcoverRating() != null && metadata.getHardcoverRating() > 0) {
+            expected.put("booklore:hardcover_rating", String.valueOf(metadata.getHardcoverRating()));
+        }
+        if (metadata.getHardcoverReviewCount() != null && metadata.getHardcoverReviewCount() > 0) {
+            expected.put("booklore:hardcover_review_count", String.valueOf(metadata.getHardcoverReviewCount()));
+        }
+        if (metadata.getLubimyczytacRating() != null && metadata.getLubimyczytacRating() > 0) {
+            expected.put("booklore:lubimyczytac_rating", String.valueOf(metadata.getLubimyczytacRating()));
+        }
+        if (metadata.getRanobedbRating() != null && metadata.getRanobedbRating() > 0) {
+            expected.put("booklore:ranobedb_rating", String.valueOf(metadata.getRanobedbRating()));
+        }
+        if (metadata.getMoods() != null && !metadata.getMoods().isEmpty()) {
+            String moodsJson = "[" + metadata.getMoods().stream()
+                .map(mood -> "\"" + mood.getName().replace("\"", "\\\"") + "\"")
+                .sorted()
+                .collect(Collectors.joining(", ")) + "]";
+            expected.put("booklore:moods", moodsJson);
+        }
+        if (metadata.getTags() != null && !metadata.getTags().isEmpty()) {
+            String tagsJson = "[" + metadata.getTags().stream()
+                .map(tag -> "\"" + tag.getName().replace("\"", "\\\"") + "\"")
+                .sorted()
+                .collect(Collectors.joining(", ")) + "]";
+            expected.put("booklore:tags", tagsJson);
+        }
+        if (metadata.getAgeRating() != null) {
+            expected.put("booklore:age_rating", String.valueOf(metadata.getAgeRating()));
+        }
+        if (StringUtils.isNotBlank(metadata.getContentRating())) {
+            expected.put("booklore:content_rating", metadata.getContentRating());
+        }
+
+        return !existing.equals(expected);
     }
 
     private void removeAllBookloreMetadata(Element metadataElement) {
