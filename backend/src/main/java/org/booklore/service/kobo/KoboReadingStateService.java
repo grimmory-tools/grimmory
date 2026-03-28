@@ -228,13 +228,14 @@ public class KoboReadingStateService {
             Instant now = Instant.now();
             Instant bookmarkTime = bookmark != null ? parseTimestamp(bookmark.getLastModified()) : null;
             Instant effectiveBookmarkTime = bookmarkTime != null ? bookmarkTime : now;
-            boolean webReaderIsNewer = isWebReaderNewerThanBookmark(book, userId, bookmarkTime);
+            Optional<UserBookFileProgressEntity> existingFileProgress = findSyncedEpubFileProgress(userId, book);
+            boolean webReaderIsNewer = isWebReaderNewerThanBookmark(existingFileProgress.orElse(null), bookmarkTime);
             if (bookmark != null && (bookmark.getProgressPercent() != null || bookmark.getLocation() != null)) {
                 progress.setKoboProgressReceivedTime(effectiveBookmarkTime);
             }
 
-            boolean koboApplied = crossPopulateEpubFieldsFromKobo(progress, bookmark, book, userId,
-                    bookmarkTime, effectiveBookmarkTime);
+            boolean koboApplied = crossPopulateEpubFieldsFromKobo(progress, bookmark, book,
+                    existingFileProgress.orElse(null), bookmarkTime, effectiveBookmarkTime);
             if (koboApplied) {
                 progress.setLastReadTime(effectiveBookmarkTime);
             }
@@ -260,7 +261,7 @@ public class KoboReadingStateService {
     private boolean crossPopulateEpubFieldsFromKobo(UserBookProgressEntity progress,
                                                     KoboReadingState.CurrentBookmark bookmark,
                                                     BookEntity book,
-                                                    Long userId,
+                                                    UserBookFileProgressEntity existingFileProgress,
                                                     Instant bookmarkTime,
                                                     Instant effectiveBookmarkTime) {
         if (bookmark == null || bookmark.getProgressPercent() == null) {
@@ -271,51 +272,36 @@ public class KoboReadingStateService {
             return false;
         }
 
-        UserBookFileProgressEntity fileProgress = null;
-        BookFileEntity syncedEpubFile = KoboEpubUtils.getSyncedEpubFile(book);
-        if (syncedEpubFile != null) {
-            fileProgress = fileProgressRepository.findByUserIdAndBookFileId(userId, syncedEpubFile.getId())
-                    .orElseGet(() -> UserBookFileProgressEntity.builder()
-                            .user(progress.getUser())
-                            .bookFile(syncedEpubFile)
-                            .build());
-        }
-
-        boolean webReaderIsNewer = fileProgress != null
-                && fileProgress.getLastReadTime() != null
+        boolean webReaderIsNewer = existingFileProgress != null
+                && existingFileProgress.getLastReadTime() != null
                 && bookmarkTime != null
-                && fileProgress.getLastReadTime().isAfter(bookmarkTime);
+                && existingFileProgress.getLastReadTime().isAfter(bookmarkTime);
 
         if (webReaderIsNewer) {
             return false;
         }
 
+        UserBookFileProgressEntity fileProgress = existingFileProgress;
+        BookFileEntity syncedEpubFile = KoboEpubUtils.getSyncedEpubFile(book);
+        if (fileProgress == null && syncedEpubFile != null) {
+            fileProgress = UserBookFileProgressEntity.builder()
+                    .user(progress.getUser())
+                    .bookFile(syncedEpubFile)
+                    .build();
+        }
+
         progress.setEpubProgressPercent(bookmark.getProgressPercent().floatValue());
         KoboReadingState.CurrentBookmark.Location location = bookmark.getLocation();
-        boolean hasEpubCfiLocation = location != null
-                && location.getValue() != null
-                && "EpubCfi".equalsIgnoreCase(location.getType());
-
-        if (hasEpubCfiLocation) {
-            progress.setEpubProgress(location.getValue());
-            progress.setEpubProgressHref(location.getSource());
-        } else {
-            progress.setEpubProgress(null);
-            progress.setEpubProgressHref(location != null ? location.getSource() : null);
-        }
+        progress.setEpubProgress(null);
+        progress.setEpubProgressHref(location != null ? location.getSource() : null);
 
         if (fileProgress != null) {
             fileProgress.setProgressPercent(bookmark.getProgressPercent().floatValue());
             if (bookmark.getContentSourceProgressPercent() != null) {
                 fileProgress.setContentSourceProgressPercent(bookmark.getContentSourceProgressPercent().floatValue());
             }
-            if (hasEpubCfiLocation) {
-                fileProgress.setPositionData(location.getValue());
-                fileProgress.setPositionHref(location.getSource());
-            } else {
-                fileProgress.setPositionData(null);
-                fileProgress.setPositionHref(location != null ? location.getSource() : null);
-            }
+            fileProgress.setPositionData(null);
+            fileProgress.setPositionHref(location != null ? location.getSource() : null);
             fileProgress.setLastReadTime(effectiveBookmarkTime);
             fileProgressRepository.save(fileProgress);
         }
@@ -336,15 +322,13 @@ public class KoboReadingStateService {
         return fileProgressRepository.findByUserIdAndBookFileId(userId, syncedEpubFile.getId());
     }
 
-    private boolean isWebReaderNewerThanBookmark(BookEntity book, Long userId, Instant bookmarkTime) {
+    private boolean isWebReaderNewerThanBookmark(UserBookFileProgressEntity fileProgress, Instant bookmarkTime) {
         if (bookmarkTime == null || !koboSettingsService.getCurrentUserSettings().isTwoWayProgressSync()) {
             return false;
         }
-
-        return findSyncedEpubFileProgress(userId, book)
-                .map(UserBookFileProgressEntity::getLastReadTime)
-                .filter(lastReadTime -> lastReadTime != null && lastReadTime.isAfter(bookmarkTime))
-                .isPresent();
+        return fileProgress != null
+                && fileProgress.getLastReadTime() != null
+                && fileProgress.getLastReadTime().isAfter(bookmarkTime);
     }
 
     private void normalizePutTimestamps(List<KoboReadingState> readingStates) {

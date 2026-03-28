@@ -193,9 +193,9 @@ class KoboReadingStateBuilderTest {
         void buildBookmarkFromProgress_WithLocation() {
             UserBookProgressEntity progress = new UserBookProgressEntity();
             progress.setKoboProgressPercent(75.5f);
-            progress.setKoboLocation("epubcfi(/6/4[chap01ref]!/4/2/1:3)");
-            progress.setKoboLocationType("EpubCfi");
-            progress.setKoboLocationSource("Kobo");
+            progress.setKoboLocation("kobo.12.18");
+            progress.setKoboLocationType("KoboSpan");
+            progress.setKoboLocationSource("OEBPS/chapter3.xhtml");
             progress.setKoboProgressReceivedTime(Instant.parse("2025-11-26T10:00:00Z"));
 
             KoboReadingState.CurrentBookmark bookmark = builder.buildBookmarkFromProgress(progress, (UserBookFileProgressEntity) null);
@@ -203,9 +203,9 @@ class KoboReadingStateBuilderTest {
             assertNotNull(bookmark);
             assertEquals(76, bookmark.getProgressPercent()); // Rounded
             assertNotNull(bookmark.getLocation());
-            assertEquals("epubcfi(/6/4[chap01ref]!/4/2/1:3)", bookmark.getLocation().getValue());
-            assertEquals("EpubCfi", bookmark.getLocation().getType());
-            assertEquals("Kobo", bookmark.getLocation().getSource());
+            assertEquals("kobo.12.18", bookmark.getLocation().getValue());
+            assertEquals("KoboSpan", bookmark.getLocation().getType());
+            assertEquals("OEBPS/chapter3.xhtml", bookmark.getLocation().getSource());
         }
 
         @Test
@@ -241,7 +241,7 @@ class KoboReadingStateBuilderTest {
         }
 
         @Test
-        @DisplayName("Should build web reader bookmark with file progress content data")
+        @DisplayName("Should build web reader bookmark without a fallback location when no KoboSpan resolves")
         void buildBookmarkFromProgress_WebReaderLocation() {
             UserBookProgressEntity progress = new UserBookProgressEntity();
             progress.setEpubProgress("epubcfi(/6/4!/4/2/6/1:1)");
@@ -259,10 +259,7 @@ class KoboReadingStateBuilderTest {
             assertNotNull(bookmark);
             assertEquals(55, bookmark.getProgressPercent());
             assertEquals(19, bookmark.getContentSourceProgressPercent());
-            assertNotNull(bookmark.getLocation());
-            assertEquals("epubcfi(/6/8!/4/2/6/1:15)", bookmark.getLocation().getValue());
-            assertEquals("EpubCfi", bookmark.getLocation().getType());
-            assertEquals("OPS/chapter3.xhtml", bookmark.getLocation().getSource());
+            assertNull(bookmark.getLocation());
         }
 
         @Test
@@ -319,10 +316,7 @@ class KoboReadingStateBuilderTest {
 
             assertNotNull(bookmark);
             assertEquals(55, bookmark.getProgressPercent());
-            assertNotNull(bookmark.getLocation());
-            assertEquals("epubcfi(/6/8!/4/2/6/1:15)", bookmark.getLocation().getValue());
-            assertEquals("EpubCfi", bookmark.getLocation().getType());
-            assertEquals("OPS/chapter3.xhtml", bookmark.getLocation().getSource());
+            assertNull(bookmark.getLocation());
         }
 
         @Test
@@ -365,9 +359,9 @@ class KoboReadingStateBuilderTest {
             UserBookProgressEntity progress = new UserBookProgressEntity();
             progress.setBook(book);
             progress.setKoboProgressPercent(75f);
-            progress.setKoboLocation("epubcfi(/6/4!)");
-            progress.setKoboLocationType("EpubCfi");
-            progress.setKoboLocationSource("Kobo");
+            progress.setKoboLocation("kobo.1.1");
+            progress.setKoboLocationType("KoboSpan");
+            progress.setKoboLocationSource("OEBPS/CoverImage.xhtml");
             progress.setKoboProgressReceivedTime(Instant.parse("2025-11-26T10:00:00Z"));
             progress.setReadStatus(ReadStatus.READING);
 

@@ -238,7 +238,6 @@ class KoboEntitlementServiceTest {
         KoboSettings koboSettings = KoboSettings.builder()
                 .convertCbxToEpub(true)
                 .conversionLimitInMbForCbx(50)
-                .convertToKepub(false)
                 .conversionLimitInMb(50)
                 .build();
         appSettings.setKoboSettings(koboSettings);
