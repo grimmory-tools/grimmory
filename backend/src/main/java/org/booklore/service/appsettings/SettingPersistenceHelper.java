@@ -311,6 +311,7 @@ public class SettingPersistenceHelper {
 
     public KoboSettings getDefaultKoboSettings() {
         return KoboSettings.builder()
+                .convertToKepub(true)
                 .conversionLimitInMb(100)
                 .convertCbxToEpub(false)
                 .conversionLimitInMbForCbx(100)

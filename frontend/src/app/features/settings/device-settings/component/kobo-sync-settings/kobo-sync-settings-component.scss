@@ -118,6 +118,12 @@
     line-height: 1.5;
     margin: 0;
   }
+
+  .setting-warning {
+    @include settings.settings-warning-notice;
+
+    margin-top: 0.75rem;
+  }
 }
 
 .setting-control {

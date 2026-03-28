@@ -60,6 +60,16 @@
                   <br>
                   <strong>{{ t('kobo.twoWaySyncNote') }}</strong>
                 </p>
+                @if (syncForm.controls.twoWayProgressSync.value && !koboSettings.convertToKepub) {
+                  <p class="setting-warning">
+                    <i class="pi pi-exclamation-triangle"></i>
+                    @if (isAdmin) {
+                      {{ t('kobo.twoWaySyncKepubWarningAdmin') }}
+                    } @else {
+                      {{ t('kobo.twoWaySyncKepubWarning') }}
+                    }
+                  </p>
+                }
               </div>
             </div>
           }
@@ -188,6 +198,47 @@
           </div>
 
           <div class="settings-card">
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label-row">
+                  <span class="setting-label">{{ t('kobo.convertKepub') }}</span>
+                  <p-toggle-switch
+                    id="convertToKepub"
+                    [(ngModel)]="koboSettings.convertToKepub"
+                    (ngModelChange)="onToggleChange()">
+                  </p-toggle-switch>
+                </div>
+                <p class="setting-description">
+                  <strong>{{ t('kobo.pros') }}</strong> {{ t('kobo.convertKepubPros') }}
+                  <br>
+                  <strong>{{ t('kobo.cons') }}</strong> {{ t('kobo.convertKepubCons') }}
+                </p>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label-row">
+                  <span class="setting-label">{{ t('kobo.conversionSizeLimit', {value: koboSettings.conversionLimitInMb}) }}</span>
+                  <div class="slider-container">
+                    <p-slider
+                      id="conversionLimit"
+                      [(ngModel)]="koboSettings.conversionLimitInMb"
+                      [min]="1"
+                      [max]="250"
+                      [step]="1"
+                      (ngModelChange)="onSliderChange()">
+                    </p-slider>
+                  </div>
+                </div>
+                <p class="setting-description">
+                  {{ t('kobo.conversionSizeLimitDesc') }}
+                  <br>
+                  <strong>{{ t('kobo.recommended') }}</strong> {{ t('kobo.conversionSizeLimitRec') }}
+                </p>
+              </div>
+            </div>
+
             <div class="setting-item">
               <div class="setting-info">
                 <div class="setting-label-row">

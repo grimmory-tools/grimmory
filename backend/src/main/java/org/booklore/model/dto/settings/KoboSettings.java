@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(onConstructor_ = @JsonCreator)
 public class KoboSettings {
     @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
+    private boolean convertToKepub = true;
+    @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
     private int conversionLimitInMb = 100;
     @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
     private boolean convertCbxToEpub = false;
