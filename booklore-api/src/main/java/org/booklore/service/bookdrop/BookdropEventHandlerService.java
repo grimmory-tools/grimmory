@@ -68,10 +68,16 @@ public class BookdropEventHandlerService {
     private void processQueue() {
         while (running) {
             try {
-                processFile(fileQueue.take());
+                BookDropFileEvent event = fileQueue.take();
+                try {
+                    processFile(event);
+                } catch (Exception e) {
+                    log.error("Unexpected error processing bookdrop event for file: {}. Continuing with next file.", event.getFile(), e);
+                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 log.info("File processing thread interrupted, shutting down.");
+                return;
             }
         }
     }
@@ -159,13 +165,17 @@ public class BookdropEventHandlerService {
             }
 
         } else if (kind == StandardWatchEventKinds.ENTRY_DELETE) {
-            String deletedPath = file.toAbsolutePath().toString();
-            log.info("Detected deletion event: {}", deletedPath);
+            try {
+                String deletedPath = file.toAbsolutePath().toString();
+                log.info("Detected deletion event: {}", deletedPath);
 
-            int deletedCount = bookdropFileRepository.deleteAllByFilePathStartingWith(deletedPath);
-            log.info("Deleted {} BookdropFile record(s) from database matching path: {}", deletedCount, deletedPath);
+                int deletedCount = bookdropFileRepository.deleteAllByFilePathStartingWith(deletedPath);
+                log.info("Deleted {} BookdropFile record(s) from database matching path: {}", deletedCount, deletedPath);
 
-            bookdropNotificationService.sendBookdropFileSummaryNotification();
+                bookdropNotificationService.sendBookdropFileSummaryNotification();
+            } catch (Exception e) {
+                log.error("Error handling bookdrop file deletion: {}", file, e);
+            }
         }
     }
 
