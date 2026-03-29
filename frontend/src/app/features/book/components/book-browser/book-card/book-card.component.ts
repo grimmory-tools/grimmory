@@ -55,10 +55,8 @@ export class BookCardComponent implements OnInit, OnChanges {
   @Input() useSquareCovers: boolean = false;
 
   @ViewChild('checkboxElem') checkboxElem!: ElementRef<HTMLInputElement>;
-
   items: MenuItem[] | undefined;
   readStatusMenuItems: MenuItem[] = [];
-  isImageLoaded: boolean = false;
   isSubMenuLoading = false;
   private additionalFilesLoaded = false;
 
@@ -254,10 +252,6 @@ export class BookCardComponent implements OnInit, OnChanges {
     menu.toggle(event);
   }
 
-  onImageLoad(): void {
-    this.isImageLoaded = true;
-    this.cdr.markForCheck();
-  }
 
   readBook(book: Book): void {
     if (this.forceEbookMode && book.primaryFile?.bookType === 'AUDIOBOOK') {
