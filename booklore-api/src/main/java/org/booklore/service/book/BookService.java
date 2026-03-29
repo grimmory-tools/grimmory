@@ -72,15 +72,16 @@ public class BookService {
 
 
     @Transactional(readOnly = true)
-    public List<Book> getBookDTOs(boolean includeDescription) {
+    public List<Book> getBookDTOs(boolean includeDescription, boolean stripForListView) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         boolean isAdmin = user.getPermissions().isAdmin();
 
         List<Book> books = isAdmin
-                ? bookQueryService.getAllBooks(includeDescription)
+                ? bookQueryService.getAllBooks(includeDescription, stripForListView)
                 : bookQueryService.getAllBooksByLibraryIds(
                 getUserLibraryIds(user),
                 includeDescription,
+                stripForListView,
                 user.getId()
         );
 

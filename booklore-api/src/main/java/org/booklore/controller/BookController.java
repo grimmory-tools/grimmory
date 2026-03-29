@@ -68,8 +68,10 @@ public class BookController {
     @GetMapping
     public ResponseEntity<List<Book>> getBooks(
             @Parameter(description = "Include book descriptions in the response")
-            @RequestParam(required = false, defaultValue = "false") boolean withDescription) {
-        return ResponseEntity.ok(bookService.getBookDTOs(withDescription));
+            @RequestParam(required = false, defaultValue = "false") boolean withDescription,
+            @Parameter(description = "Remove other metadata fields from the response")
+            @RequestParam(required = false, defaultValue = "true") boolean stripForListView) {
+        return ResponseEntity.ok(bookService.getBookDTOs(withDescription, stripForListView));
     }
 
     @Operation(summary = "Get a book by ID", description = "Retrieve details of a specific book by its ID.")

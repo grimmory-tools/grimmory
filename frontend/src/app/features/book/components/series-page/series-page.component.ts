@@ -142,7 +142,6 @@ export class SeriesPageComponent implements AfterViewChecked {
 
   private seriesParam = toSignal(this.route.paramMap.pipe(
     map((params) => params.get("seriesName") || ""),
-    map((name) => decodeURIComponent(name))
   ), {initialValue: ""});
 
   filteredBooks = computed(() => {
