@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -169,8 +170,11 @@ public class BookdropEventHandlerService {
                 String deletedPath = file.toAbsolutePath().toString();
                 log.info("Detected deletion event: {}", deletedPath);
 
-                int deletedCount = bookdropFileRepository.deleteAllByFilePathStartingWith(deletedPath);
-                log.info("Deleted {} BookdropFile record(s) from database matching path: {}", deletedCount, deletedPath);
+                int exactCount = bookdropFileRepository.deleteByFilePath(deletedPath);
+                int childCount = bookdropFileRepository.deleteAllByFilePathStartingWith(deletedPath + File.separator);
+                int deletedCount = exactCount + childCount;
+                log.info("Deleted {} BookdropFile record(s) from database matching path: {} (exact: {}, children: {})",
+                        deletedCount, deletedPath, exactCount, childCount);
 
                 bookdropNotificationService.sendBookdropFileSummaryNotification();
             } catch (Exception e) {
