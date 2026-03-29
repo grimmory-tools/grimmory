@@ -247,7 +247,8 @@ public class KoboReadingStateService {
 
             // Sync progress to Hardcover asynchronously (if enabled for this user)
             // But only if the progress percentage has changed from last time, or the read status has changed
-            if (progress.getKoboProgressPercent() != null
+            if (!webReaderIsNewer
+                    && progress.getKoboProgressPercent() != null
                     && (!progress.getKoboProgressPercent().equals(previousKoboProgressPercent)
                     || progress.getReadStatus() != previousReadStatus)) {
                 hardcoverSyncService.syncProgressToHardcover(book.getId(), progress.getKoboProgressPercent(), userId);

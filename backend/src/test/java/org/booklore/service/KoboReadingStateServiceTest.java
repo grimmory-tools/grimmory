@@ -963,6 +963,7 @@ class KoboReadingStateServiceTest {
         assertEquals("epubcfi(/6/20)", saved.getEpubProgress());
         assertEquals(ReadStatus.READING, saved.getReadStatus());
         assertEquals(Instant.parse("2025-01-01T00:00:00Z"), saved.getKoboProgressReceivedTime());
+        verify(hardcoverSyncService, never()).syncProgressToHardcover(any(), any(), any());
     }
 
     @Test
