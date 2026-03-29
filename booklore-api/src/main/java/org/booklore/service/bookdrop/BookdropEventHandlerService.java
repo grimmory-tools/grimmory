@@ -171,7 +171,8 @@ public class BookdropEventHandlerService {
                 log.info("Detected deletion event: {}", deletedPath);
 
                 int exactCount = bookdropFileRepository.deleteByFilePath(deletedPath);
-                int childCount = bookdropFileRepository.deleteAllByFilePathStartingWith(deletedPath + File.separator);
+                String escapedPrefix = escapeLikeWildcards(deletedPath + File.separator);
+                int childCount = bookdropFileRepository.deleteAllByFilePathStartingWith(escapedPrefix);
                 int deletedCount = exactCount + childCount;
                 log.info("Deleted {} BookdropFile record(s) from database matching path: {} (exact: {}, children: {})",
                         deletedCount, deletedPath, exactCount, childCount);
@@ -181,6 +182,18 @@ public class BookdropEventHandlerService {
                 log.error("Error handling bookdrop file deletion: {}", file, e);
             }
         }
+    }
+
+    /**
+     * Escapes SQL LIKE wildcard characters ({@code %}, {@code _}) and the
+     * escape character itself ({@code \}) so that the value can be used as a
+     * literal prefix in a {@code LIKE … ESCAPE '\'} clause.
+     */
+    private static String escapeLikeWildcards(String value) {
+        return value
+                .replace("\\", "\\\\")
+                .replace("%", "\\%")
+                .replace("_", "\\_");
     }
 
     private boolean waitForFileStability(Path file) {
