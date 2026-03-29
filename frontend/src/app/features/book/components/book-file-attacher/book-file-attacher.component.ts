@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, OnDestroy, Signal, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild, Signal, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { AutoComplete, AutoCompleteSelectEvent } from 'primeng/autocomplete';
@@ -8,7 +8,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { BookService } from '../../service/book.service';
 import { BookFileService } from '../../service/book-file.service';
 import { Book } from '../../model/book.model';
-import {MessageService, PrimeTemplate} from 'primeng/api';
+import { MessageService, PrimeTemplate } from 'primeng/api';
 import { TranslocoDirective, TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AppSettingsService } from '../../../../shared/service/app-settings.service';
 
@@ -27,13 +27,16 @@ import { AppSettingsService } from '../../../../shared/service/app-settings.serv
   templateUrl: './book-file-attacher.component.html',
   styleUrls: ['./book-file-attacher.component.scss']
 })
-export class BookFileAttacherComponent implements OnInit, OnDestroy {
+export class BookFileAttacherComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('autocompleteWrapper') autocompleteWrapper!: ElementRef;
+
   sourceBooks: Book[] = [];
   targetBook: Book | null = null;
   moveFiles = false;
   isAttaching = false;
   searchQuery = '';
   filteredBooks: Book[] = [];
+  autocomplePanelStyle: Record<string, string> = {};
 
   private destroy$ = new Subject<void>();
   private allBooks: Signal<Book[]> = signal([]);
@@ -45,6 +48,15 @@ export class BookFileAttacherComponent implements OnInit, OnDestroy {
   private bookService = inject(BookService);
   private bookFileService = inject(BookFileService);
   private messageService = inject(MessageService);
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      const width = this.autocompleteWrapper?.nativeElement?.offsetWidth;
+      if (width) {
+        this.autocomplePanelStyle = { 'width': `${width}px`, 'max-width': `${width}px` };
+      }
+    });
+  }
 
   ngOnInit(): void {
     // Support both single book and multiple books
@@ -86,7 +98,7 @@ export class BookFileAttacherComponent implements OnInit, OnDestroy {
     return this.sourceBooks.length > 1;
   }
 
-  filterBooks(event: { query: string }): void {
+  filterBooks(event: { query: string; }): void {
     const query = event.query.toLowerCase().trim();
     const books = this.allBooks();
     if (!query) {
