@@ -100,15 +100,22 @@
 
 .book-suggestion {
   padding: 0.25rem 0;
+  overflow: hidden;
 
   .suggestion-title {
     font-weight: 500;
     margin-bottom: 0.125rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .suggestion-authors {
     font-size: 0.875rem;
     color: var(--p-text-muted-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .suggestion-format {
@@ -116,6 +123,9 @@
     color: var(--p-primary-color);
     font-weight: 600;
     margin-top: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
