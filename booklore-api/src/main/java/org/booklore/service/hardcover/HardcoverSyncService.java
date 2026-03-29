@@ -7,16 +7,15 @@ import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.metadata.parser.hardcover.GraphQLRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -31,11 +30,8 @@ import java.util.Map;
 @Service
 public class HardcoverSyncService {
 
-    private static final String HARDCOVER_API_URL = "https://api.hardcover.app/v1/graphql";
     private static final int STATUS_CURRENTLY_READING = 2;
     private static final int STATUS_READ = 3;
-    private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(10);
-    private static final Duration READ_TIMEOUT = Duration.ofSeconds(15);
 
     private final RestClient restClient;
     private final HardcoverSyncSettingsService hardcoverSyncSettingsService;
@@ -45,18 +41,12 @@ public class HardcoverSyncService {
     private final ThreadLocal<String> currentApiToken = new ThreadLocal<>();
 
     @Autowired
-    public HardcoverSyncService(HardcoverSyncSettingsService hardcoverSyncSettingsService, BookRepository bookRepository) {
+    public HardcoverSyncService(HardcoverSyncSettingsService hardcoverSyncSettingsService,
+                                BookRepository bookRepository,
+                                @Qualifier("hardcoverRestClient") RestClient hardcoverRestClient) {
         this.hardcoverSyncSettingsService = hardcoverSyncSettingsService;
         this.bookRepository = bookRepository;
-
-        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(CONNECT_TIMEOUT);
-        factory.setReadTimeout(READ_TIMEOUT);
-
-        this.restClient = RestClient.builder()
-                .baseUrl(HARDCOVER_API_URL)
-                .requestFactory(factory)
-                .build();
+        this.restClient = hardcoverRestClient;
     }
 
     /**

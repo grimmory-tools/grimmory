@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.web.client.RestClient;
 
 import java.util.List;
 
@@ -20,12 +21,15 @@ class HardcoverBookSearchServiceTest {
     @Mock
     private AppSettingService appSettingService;
 
+    @Mock
+    private RestClient restClient;
+
     private HardcoverBookSearchService searchService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        searchService = new HardcoverBookSearchService(appSettingService);
+        searchService = new HardcoverBookSearchService(appSettingService, restClient);
     }
 
     @Nested
@@ -108,7 +112,7 @@ class HardcoverBookSearchServiceTest {
         hardcover.setApiKey(token);
         providerSettings.setHardcover(hardcover);
         appSettings.setMetadataProviderSettings(providerSettings);
-        
+
         when(appSettingService.getAppSettings()).thenReturn(appSettings);
     }
 }

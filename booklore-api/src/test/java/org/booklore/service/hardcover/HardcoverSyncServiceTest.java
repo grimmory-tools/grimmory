@@ -60,12 +60,7 @@ class HardcoverSyncServiceTest {
     @BeforeEach
     void setUp() throws Exception {
         // Create service with mocked dependencies
-        service = new HardcoverSyncService(hardcoverSyncSettingsService, bookRepository);
-        
-        // Inject our mocked restClient using reflection
-        Field restClientField = HardcoverSyncService.class.getDeclaredField("restClient");
-        restClientField.setAccessible(true);
-        restClientField.set(service, restClient);
+        service = new HardcoverSyncService(hardcoverSyncSettingsService, bookRepository, restClient);
 
         testBook = new BookEntity();
         testBook.setId(TEST_BOOK_ID);
@@ -82,7 +77,7 @@ class HardcoverSyncServiceTest {
 
         when(hardcoverSyncSettingsService.getSettingsForUserId(TEST_USER_ID)).thenReturn(hardcoverSyncSettings);
         when(bookRepository.findByIdWithMetadata(TEST_BOOK_ID)).thenReturn(Optional.of(testBook));
-        
+
         // Setup RestClient mock chain - handles multiple calls
         when(restClient.post()).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.uri(anyString())).thenReturn(requestBodySpec);

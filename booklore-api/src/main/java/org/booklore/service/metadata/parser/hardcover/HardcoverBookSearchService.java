@@ -3,14 +3,13 @@ package org.booklore.service.metadata.parser.hardcover;
 import org.booklore.service.appsettings.AppSettingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
 
-import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -22,8 +21,6 @@ public class HardcoverBookSearchService {
     public static final int DEFAULT_PER_PAGE = 10;
     private static final long INITIAL_DELAY_MS = 1200;
     private static final long MAX_DELAY_MS = 15000;
-    private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(10);
-    private static final Duration READ_TIMEOUT = Duration.ofSeconds(15);
 
     private final RestClient restClient;
     private final AppSettingService appSettingService;
@@ -32,17 +29,10 @@ public class HardcoverBookSearchService {
     private final AtomicLong successCount = new AtomicLong(0);
 
     @Autowired
-    public HardcoverBookSearchService(AppSettingService appSettingService) {
+    public HardcoverBookSearchService(AppSettingService appSettingService,
+                                      @Qualifier("hardcoverRestClient") RestClient hardcoverRestClient) {
         this.appSettingService = appSettingService;
-
-        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(CONNECT_TIMEOUT);
-        factory.setReadTimeout(READ_TIMEOUT);
-
-        this.restClient = RestClient.builder()
-                .baseUrl("https://api.hardcover.app/v1/graphql")
-                .requestFactory(factory)
-                .build();
+        this.restClient = hardcoverRestClient;
     }
 
     public List<GraphQLResponse.BookWithEditions> searchBookByIsbn(String isbn) {
