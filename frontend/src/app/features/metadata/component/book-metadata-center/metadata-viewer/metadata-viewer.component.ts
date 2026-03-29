@@ -805,8 +805,7 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
   }
 
   goToSeries(seriesName: string): void {
-    const encodedSeriesName = encodeURIComponent(seriesName);
-    this.router.navigate(['/series', encodedSeriesName]);
+    this.router.navigate(['/series', seriesName]);
   }
 
   goToPublisher(publisher: string): void {

@@ -156,7 +156,7 @@ export class UrlHelperService {
 
   filterBooksBy(filterKey: string, filterValue: string) {
     if (filterKey === 'series') {
-      return this.router.createUrlTree(['/series', encodeURIComponent(filterValue)])
+      return this.router.createUrlTree(['/series', filterValue])
     }
 
     return this.router.createUrlTree(['/all-books'], {
