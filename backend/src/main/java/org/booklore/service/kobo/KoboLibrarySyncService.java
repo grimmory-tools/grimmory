@@ -230,7 +230,7 @@ public class KoboLibrarySyncService {
         }
 
         if (koboSettingsService.getCurrentUserSettings().isTwoWayProgressSync()
-                && progress.getEpubProgress() != null && progress.getEpubProgressPercent() != null) {
+                && progress.getEpubProgressPercent() != null) {
             Instant sentTime = progress.getKoboProgressSentTime();
             Instant lastReadTime = progress.getLastReadTime();
             if (lastReadTime != null && (sentTime == null || lastReadTime.isAfter(sentTime))) {

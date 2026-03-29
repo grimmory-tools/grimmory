@@ -540,6 +540,59 @@ class KoboEntitlementServiceTest {
         }
 
         @Test
+        @DisplayName("Should prefer href-only web reader bookmark over existing state when two-way sync is on")
+        void generateNewEntitlements_prefersHrefOnlyWebReaderBookmark() {
+            BookEntity book = createEpubBookEntity(1L);
+            book.setAddedOn(Instant.parse("2025-01-01T00:00:00Z"));
+            book.getPrimaryBookFile().setId(10L);
+
+            UserBookProgressEntity progress = new UserBookProgressEntity();
+            progress.setBook(book);
+            progress.setEpubProgressHref("OPS/chapter3.xhtml");
+            progress.setEpubProgressPercent(54.6f);
+
+            KoboReadingState.CurrentBookmark existingBookmark = KoboReadingState.CurrentBookmark.builder()
+                    .progressPercent(12)
+                    .build();
+            KoboReadingState existingState = KoboReadingState.builder()
+                    .entitlementId("1")
+                    .currentBookmark(existingBookmark)
+                    .build();
+            KoboReadingStateEntity existingEntity = new KoboReadingStateEntity();
+
+            KoboReadingState.CurrentBookmark webReaderBookmark = KoboReadingState.CurrentBookmark.builder()
+                    .progressPercent(55)
+                    .build();
+
+            KoboSyncSettings settings = new KoboSyncSettings();
+            settings.setTwoWayProgressSync(true);
+
+            when(bookQueryService.findAllWithMetadataByIds(Set.of(1L))).thenReturn(List.of(book));
+            when(koboCompatibilityService.isBookSupportedForKobo(book)).thenReturn(true);
+            when(koboUrlBuilder.downloadUrl("token1", 1L)).thenReturn("http://test.com/download/1");
+            when(appSettingService.getAppSettings()).thenReturn(createAppSettingsWithKoboSettings());
+            when(koboSettingsService.getCurrentUserSettings()).thenReturn(settings);
+            when(progressRepository.findByUserIdAndBookId(user.getId(), 1L)).thenReturn(Optional.of(progress));
+            when(fileProgressRepository.findByUserIdAndBookFileId(user.getId(), 10L)).thenReturn(Optional.empty());
+            when(readingStateRepository.findByEntitlementIdAndUserId("1", user.getId()))
+                    .thenReturn(Optional.of(existingEntity));
+            when(readingStateMapper.toDto(existingEntity)).thenReturn(existingState);
+            when(readingStateBuilder.buildBookmarkFromProgress(eq(progress), isNull(), any(OffsetDateTime.class)))
+                    .thenReturn(webReaderBookmark);
+            when(readingStateBuilder.buildStatusInfoFromProgress(eq(progress), anyString()))
+                    .thenReturn(KoboReadingState.StatusInfo.builder()
+                            .status(KoboReadStatus.READING)
+                            .timesStartedReading(1)
+                            .build());
+
+            List<NewEntitlement> result = koboEntitlementService.generateNewEntitlements(Set.of(1L), "token1");
+
+            assertEquals(1, result.size());
+            assertEquals(55, result.getFirst().getNewEntitlement().getReadingState().getCurrentBookmark().getProgressPercent());
+            verify(readingStateBuilder).buildBookmarkFromProgress(eq(progress), isNull(), any(OffsetDateTime.class));
+        }
+
+        @Test
         @DisplayName("Should handle empty book IDs")
         void generateNewEntitlements_emptyIds() {
             when(bookQueryService.findAllWithMetadataByIds(Set.of())).thenReturn(List.of());
