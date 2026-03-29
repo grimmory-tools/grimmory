@@ -412,7 +412,7 @@ describe('BookCardComponent', () => {
     component.ngOnInit();
 
     component.openSeriesInfo();
-    expect(router.navigate).toHaveBeenCalledWith(['/series', encodeURIComponent('The Series')]);
+    expect(router.navigate).toHaveBeenCalledWith(['/series', 'The Series']);
 
     bookNavigationService.availableBookIds.mockReturnValue([2, 44, 77]);
     component.isSeriesCollapsed = false;

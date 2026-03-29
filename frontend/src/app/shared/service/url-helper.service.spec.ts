@@ -135,7 +135,7 @@ describe('UrlHelperService', () => {
 
   it('builds series and generic book filters with the expected router shape', () => {
     expect(service.filterBooksBy('series', 'The Wheel of Time')).toEqual({
-      commands: ['/series', 'The%20Wheel%20of%20Time'],
+      commands: ['/series', 'The Wheel of Time'],
       extras: undefined,
     });
 

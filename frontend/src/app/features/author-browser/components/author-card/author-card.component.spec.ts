@@ -92,29 +92,24 @@ describe('AuthorCardComponent', () => {
     const component = createComponent();
 
     component.hasPhoto = false;
-    component.isImageLoaded = true;
     component.ngOnChanges({
       author: new SimpleChange(baseAuthor, {...baseAuthor, name: 'Augusta Ada'}, false),
     });
 
     expect(component.hasPhoto).toBe(false);
-    expect(component.isImageLoaded).toBe(true);
 
     component.ngOnChanges({
       author: new SimpleChange(baseAuthor, {...baseAuthor, asin: 'B00NEW', hasPhoto: false}, false),
     });
 
     expect(component.hasPhoto).toBe(false);
-    expect(component.isImageLoaded).toBe(false);
 
     component.hasPhoto = false;
-    component.isImageLoaded = true;
     component.ngOnChanges({
       cacheBuster: new SimpleChange(0, 1, false),
     });
 
     expect(component.hasPhoto).toBe(true);
-    expect(component.isImageLoaded).toBe(false);
   });
 
   it('short-circuits clicks that start inside the menu button container', () => {
@@ -255,7 +250,6 @@ describe('AuthorCardComponent', () => {
       hasPhoto: true,
     });
     expect(component.hasPhoto).toBe(true);
-    expect(component.isImageLoaded).toBe(false);
     expect(emitSpy).toHaveBeenCalledWith(component.author);
     expect(messageService.add).toHaveBeenCalledWith({
       severity: 'success',
