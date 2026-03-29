@@ -9,12 +9,14 @@ import org.booklore.service.metadata.parser.hardcover.GraphQLRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -32,6 +34,8 @@ public class HardcoverSyncService {
     private static final String HARDCOVER_API_URL = "https://api.hardcover.app/v1/graphql";
     private static final int STATUS_CURRENTLY_READING = 2;
     private static final int STATUS_READ = 3;
+    private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(10);
+    private static final Duration READ_TIMEOUT = Duration.ofSeconds(15);
 
     private final RestClient restClient;
     private final HardcoverSyncSettingsService hardcoverSyncSettingsService;
@@ -44,8 +48,14 @@ public class HardcoverSyncService {
     public HardcoverSyncService(HardcoverSyncSettingsService hardcoverSyncSettingsService, BookRepository bookRepository) {
         this.hardcoverSyncSettingsService = hardcoverSyncSettingsService;
         this.bookRepository = bookRepository;
+
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(CONNECT_TIMEOUT);
+        factory.setReadTimeout(READ_TIMEOUT);
+
         this.restClient = RestClient.builder()
                 .baseUrl(HARDCOVER_API_URL)
+                .requestFactory(factory)
                 .build();
     }
 
@@ -64,7 +74,7 @@ public class HardcoverSyncService {
         try {
             // Get user's Hardcover settings
             HardcoverSyncSettings userSettings = hardcoverSyncSettingsService.getSettingsForUserId(userId);
-            
+
             if (!isHardcoverSyncEnabledForUser(userSettings)) {
                 log.trace("Hardcover sync skipped for user {}: not enabled or no API token configured", userId);
                 return;
@@ -98,7 +108,7 @@ public class HardcoverSyncService {
 
                 // Find the book and closest edition on Hardcover
                 HardcoverBookInfo hardcoverBook = resolveHardcoverBook(hardcoverBookId, isbn13, isbn10);
-                
+
                 if (hardcoverBook == null) {
                     log.debug("Hardcover sync skipped: book {} not found on Hardcover", bookId);
                     return;
@@ -113,11 +123,11 @@ public class HardcoverSyncService {
                     log.warn("Hardcover sync failed: book {} has no page count information, cannot calculate progress in pages", bookId);
                     return;
                 }
-      
+
                 progressPages = Math.round((progressPercent / 100.0f) * hardcoverBook.pages);
                 progressPages = Math.max(0, Math.min(hardcoverBook.pages, progressPages));
-                
-                log.info("Progress calculation: userId={}, progressPercent={}%, totalPages={}, progressPages={}", 
+
+                log.info("Progress calculation: userId={}, progressPercent={}%, totalPages={}, progressPages={}",
                         userId, progressPercent, hardcoverBook.pages, progressPages);
 
                 // Step 1: Add/update the book in user's library
@@ -131,9 +141,9 @@ public class HardcoverSyncService {
                 // Step 2: Create or update the reading progress
                 boolean isFinished = progressPercent >= 99.0f;
                 boolean success = upsertReadingProgress(userBookId, hardcoverBook.editionId, progressPages, isFinished);
-                
+
                 if (success) {
-                    log.info("Synced progress to Hardcover: userId={}, book={}, hardcoverBookId={}, hardcoverEditionId={}, progress={}% ({}pages)", 
+                    log.info("Synced progress to Hardcover: userId={}, book={}, hardcoverBookId={}, hardcoverEditionId={}, progress={}% ({}pages)",
                             userId, bookId, hardcoverBook.bookId, hardcoverBook.editionId, Math.round(progressPercent), progressPages);
                 }
             } finally {
@@ -142,7 +152,7 @@ public class HardcoverSyncService {
             }
 
         } catch (Exception e) {
-            log.error("Failed to sync progress to Hardcover for book {} (user {}): {}", 
+            log.error("Failed to sync progress to Hardcover for book {} (user {}): {}",
                     bookId, userId, e.getMessage());
         }
     }
@@ -155,8 +165,8 @@ public class HardcoverSyncService {
             return false;
         }
 
-        return userSettings.isHardcoverSyncEnabled() 
-                && userSettings.getHardcoverApiKey() != null 
+        return userSettings.isHardcoverSyncEnabled()
+                && userSettings.getHardcoverApiKey() != null
                 && !userSettings.getHardcoverApiKey().isBlank();
     }
 
@@ -170,7 +180,7 @@ public class HardcoverSyncService {
      * - If bookId + ISBN: Get book by ID, find edition by ISBN (with highest user_count), fallback to default editions
      * - If bookId only: Get book by ID, use default_ebook_edition, fallback to default_physical_edition
      * - If ISBN only: Find book with edition matching ISBN (with highest user_count)
-     * 
+     *
      * @param hardcoverBookId The Hardcover book ID (can be null)
      * @param isbn13 The ISBN-13 (can be null)
      * @param isbn10 The ISBN-10 (can be null)
@@ -178,13 +188,13 @@ public class HardcoverSyncService {
      */
     private HardcoverBookInfo resolveHardcoverBook(String hardcoverBookId, String isbn13, String isbn10) {
         // No identifiers at all, it's impossible to resolve
-        if ((hardcoverBookId == null || hardcoverBookId.isBlank()) && 
-            (isbn13 == null || isbn13.isBlank()) && 
+        if ((hardcoverBookId == null || hardcoverBookId.isBlank()) &&
+            (isbn13 == null || isbn13.isBlank()) &&
             (isbn10 == null || isbn10.isBlank())) {
             log.debug("Cannot resolve Hardcover book: no bookId or ISBN provided");
             return null;
         }
-        
+
         // We have a specific bookId, try to resolve using it (with optional ISBN for edition matching)
         if (hardcoverBookId != null && !hardcoverBookId.isBlank()) {
             try {
@@ -194,7 +204,7 @@ public class HardcoverSyncService {
                 return null;
             }
         }
-        
+
         // No bookId but we have ISBN, try to resolve book by ISBN
         return resolveByIsbn(isbn13, isbn10);
     }
@@ -264,7 +274,7 @@ public class HardcoverSyncService {
                 Map<String, Object> bestEdition = editions.getFirst();
                 info.editionId = extractInteger(bestEdition.get("id"));
                 info.pages = extractInteger(bestEdition.get("pages"));
-                log.debug("Found edition by ISBN: editionId={}, pages={}", 
+                log.debug("Found edition by ISBN: editionId={}, pages={}",
                     info.editionId, info.pages);
             }
 
@@ -298,7 +308,7 @@ public class HardcoverSyncService {
                 return null;
             }
 
-            log.info("Resolved Hardcover book: bookId={}, editionId={}, pages={}", 
+            log.info("Resolved Hardcover book: bookId={}, editionId={}, pages={}",
                 info.bookId, info.editionId, info.pages);
             return info;
 
@@ -307,7 +317,7 @@ public class HardcoverSyncService {
             return null;
         }
     }
-    
+
     /**
      * Resolve book information when we only have ISBN.
      * Finds books with matching edition and picks the one with highest user_count.
@@ -384,7 +394,7 @@ public class HardcoverSyncService {
                 info.pages = extractInteger(book.get("pages"));
             }
 
-            log.info("Resolved Hardcover book by ISBN: bookId={}, editionId={}, pages={}", 
+            log.info("Resolved Hardcover book by ISBN: bookId={}, editionId={}, pages={}",
                 info.bookId, info.editionId, info.pages);
             return info;
         } catch (Exception e) {
