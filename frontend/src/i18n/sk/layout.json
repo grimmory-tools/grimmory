@@ -1,5 +1,6 @@
 {
   "topbar": {
+    "toggleNavigation": "Toggle navigation",
     "bookdrop": "Bookdrop",
     "createNewLibrary": "Vytvor novú knižnicu",
     "uploadBook": "",
@@ -18,6 +19,7 @@
     "readingStats": ""
   },
   "menu": {
+    "adjustSidebarWidth": "Adjust sidebar width",
     "home": "",
     "dashboard": "",
     "allBooks": "",
@@ -30,6 +32,7 @@
     "notebook": "",
     "update": ""
   },
+  "closeNavigation": "Close navigation",
   "changelog": {
     "title": "",
     "description": "",

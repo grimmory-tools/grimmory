@@ -1,5 +1,6 @@
 {
   "topbar": {
+    "toggleNavigation": "Toggle navigation",
     "bookdrop": "Gyűjtőláda",
     "createNewLibrary": "Új Könyvtár Létrehozása",
     "uploadBook": "Könyv Feltöltése",
@@ -18,6 +19,7 @@
     "readingStats": "Olvasási Statisztikák"
   },
   "menu": {
+    "adjustSidebarWidth": "Adjust sidebar width",
     "home": "Áttekintés",
     "dashboard": "Kezdőlap",
     "allBooks": "Minden Könyv",
@@ -30,6 +32,7 @@
     "notebook": "Jegyzetfüzet",
     "update": "(Frissítés)"
   },
+  "closeNavigation": "Close navigation",
   "changelog": {
     "title": "Újdonságok",
     "description": "Legújabb frissítések és fejlesztések",

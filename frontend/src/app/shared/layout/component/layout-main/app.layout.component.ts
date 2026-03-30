@@ -6,7 +6,6 @@ import { filter } from 'rxjs';
 import { LayoutService } from './service/app.layout.service';
 import { AppSidebarComponent } from '../layout-sidebar/app.sidebar.component';
 import { AppTopBarComponent } from '../layout-topbar/app.topbar.component';
-import { ToastModule } from 'primeng/toast';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { LocalStorageService } from '../../../service/local-storage.service';
 
@@ -17,7 +16,6 @@ import { LocalStorageService } from '../../../service/local-storage.service';
     AppSidebarComponent,
     AppTopBarComponent,
     NgClass,
-    ToastModule,
     TranslocoDirective
   ],
   templateUrl: './app.layout.component.html'
