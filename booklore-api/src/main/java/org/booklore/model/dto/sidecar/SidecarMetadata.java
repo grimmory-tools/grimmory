@@ -18,7 +18,7 @@ public class SidecarMetadata {
     private String version = "1.0";
     private Instant generatedAt;
     @Builder.Default
-    private String generatedBy = "booklore";
+    private String generatedBy = "grimmory";
     private SidecarBookMetadata metadata;
     private SidecarCoverInfo cover;
 }
