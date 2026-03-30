@@ -102,4 +102,4 @@ ARG BOOKLORE_PORT=6060
 EXPOSE ${BOOKLORE_PORT}
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["java", "-jar", "/app/app.jar", "--enable-native-access=ALL-UNNAMED"]
+CMD ["java", "--enable-native-access=ALL-UNNAMED", "-jar", "/app/app.jar"]
