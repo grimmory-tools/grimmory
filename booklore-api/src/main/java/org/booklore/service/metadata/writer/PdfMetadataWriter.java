@@ -3,33 +3,25 @@ package org.booklore.service.metadata.writer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.grimmory.pdfium4j.PdfDocument;
+import org.grimmory.pdfium4j.XmpMetadataWriter;
 import org.grimmory.pdfium4j.model.MetadataTag;
+import org.grimmory.pdfium4j.model.SaveOptions;
+import org.grimmory.pdfium4j.model.XmpMetadata;
 import org.booklore.model.MetadataClearFlags;
 import org.booklore.model.dto.settings.MetadataPersistenceSettings;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.service.appsettings.AppSettingService;
-import org.booklore.util.SecureXmlUtils;
 import org.booklore.service.metadata.BookLoreMetadata;
 import org.springframework.stereotype.Component;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Slf4j
@@ -67,7 +59,7 @@ public class PdfMetadataWriter implements MetadataWriter {
         try (PdfDocument doc = PdfDocument.open(filePath)) {
             applyMetadataToDocument(doc, metadataEntity, clear);
             tempFile = File.createTempFile("pdfmeta-", ".pdf");
-            doc.save(tempFile.toPath());
+            doc.save(tempFile.toPath(), SaveOptions.SKIP_VALIDATION);
             Files.move(tempFile.toPath(), filePath, StandardCopyOption.REPLACE_EXISTING);
             tempFile = null; // Prevent deletion in finally block after successful move
             log.info("Successfully embedded metadata into PDF: {}", file.getName());
@@ -151,21 +143,17 @@ public class PdfMetadataWriter implements MetadataWriter {
         }
         doc.setMetadata(MetadataTag.KEYWORDS, keywords);
 
-        // --- XMP metadata via raw XML ---
+        // --- XMP metadata via PDFium4j XmpMetadataWriter (StringBuilder-based, no DOM) ---
         try {
-            byte[] baseXmpBytes = buildDublinCoreXmp(helper, clear);
-            byte[] newXmpBytes = addCustomIdentifiersToXmp(baseXmpBytes, entity, helper, clear);
-
+            String newXmp = buildXmpPacket(helper, clear, entity);
             String existingXmp = doc.xmpMetadataString();
-            byte[] existingXmpBytes = (existingXmp != null && !existingXmp.isBlank()) 
-                    ? existingXmp.getBytes(StandardCharsets.UTF_8) : null;
 
-            if (!isXmpMetadataDifferent(existingXmpBytes, newXmpBytes)) {
+            if (!isXmpMetadataDifferent(existingXmp, newXmp)) {
                 log.info("XMP metadata unchanged, skipping write");
                 return;
             }
 
-            doc.setXmpMetadata(new String(newXmpBytes, StandardCharsets.UTF_8));
+            doc.setXmpMetadata(newXmp);
             log.info("XMP metadata updated for PDF");
         } catch (Exception e) {
             log.warn("Failed to embed XMP metadata: {}", e.getMessage(), e);
@@ -173,327 +161,200 @@ public class PdfMetadataWriter implements MetadataWriter {
     }
 
     /**
-     * Builds a Dublin Core XMP document as a base for further custom field additions.
-     * Replaces the old XMPBox-based approach with direct DOM construction.
+     * Builds the complete XMP packet using PDFium4j's StringBuilder-based XmpMetadataWriter.
+     * Eliminates all DOM and TransformerFactory overhead from the old approach.
      */
-    private byte[] buildDublinCoreXmp(MetadataCopyHelper helper, MetadataClearFlags clear) throws Exception {
-        DocumentBuilder builder = SecureXmlUtils.createSecureDocumentBuilder(true);
-        Document doc = builder.newDocument();
+    @SuppressWarnings("unchecked")
+    private String buildXmpPacket(MetadataCopyHelper helper, MetadataClearFlags clear, BookMetadataEntity metadata) {
+        // Capture DC field values from helper
+        String[] title = {null}, description = {null}, publisher = {null}, language = {null}, date = {null};
+        List<String>[] authors = new List[]{null};
+        List<String>[] subjects = new List[]{null};
 
-        Element xmpmeta = doc.createElementNS("adobe:ns:meta/", "x:xmpmeta");
-        doc.appendChild(xmpmeta);
-
-        Element rdf = doc.createElementNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:RDF");
-        xmpmeta.appendChild(rdf);
-
-        Element dcDesc = doc.createElementNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:Description");
-        dcDesc.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:dc", "http://purl.org/dc/elements/1.1/");
-        dcDesc.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about", "");
-
-        helper.copyTitle(clear != null && clear.isTitle(), title -> {
-            if (title != null) appendDcAlt(doc, dcDesc, "dc:title", title);
+        helper.copyTitle(clear != null && clear.isTitle(), t -> title[0] = t);
+        helper.copyDescription(clear != null && clear.isDescription(), d -> description[0] = d);
+        helper.copyPublisher(clear != null && clear.isPublisher(), p -> publisher[0] = p);
+        helper.copyLanguage(clear != null && clear.isLanguage(), l -> {
+            if (l != null && !l.isBlank()) language[0] = l;
         });
-        helper.copyDescription(clear != null && clear.isDescription(), desc -> {
-            if (desc != null) appendDcAlt(doc, dcDesc, "dc:description", desc);
+        helper.copyPublishedDate(clear != null && clear.isPublishedDate(), d -> {
+            if (d != null) date[0] = d.toString();
         });
-        helper.copyPublisher(clear != null && clear.isPublisher(), pub -> {
-            if (pub != null) appendDcBag(doc, dcDesc, "dc:publisher", List.of(pub));
-        });
-        helper.copyLanguage(clear != null && clear.isLanguage(), lang -> {
-            if (lang != null && !lang.isBlank()) appendDcBag(doc, dcDesc, "dc:language", List.of(lang));
-        });
-        helper.copyPublishedDate(clear != null && clear.isPublishedDate(), date -> {
-            if (date != null) appendDcSeq(doc, dcDesc, "dc:date", List.of(date.toString()));
-        });
-        helper.copyAuthors(clear != null && clear.isAuthors(), authors -> {
-            if (authors != null && !authors.isEmpty()) {
-                List<String> cleaned = authors.stream()
+        helper.copyAuthors(clear != null && clear.isAuthors(), a -> {
+            if (a != null && !a.isEmpty()) {
+                authors[0] = a.stream()
                         .map(name -> name.replaceAll("\\s+", " ").trim())
                         .filter(name -> !name.isBlank())
                         .toList();
-                if (!cleaned.isEmpty()) appendDcSeq(doc, dcDesc, "dc:creator", cleaned);
             }
         });
-        helper.copyCategories(clear != null && clear.isCategories(), cats -> {
-            if (cats != null && !cats.isEmpty()) appendDcBag(doc, dcDesc, "dc:subject", new ArrayList<>(cats));
+        helper.copyCategories(clear != null && clear.isCategories(), c -> {
+            if (c != null && !c.isEmpty()) subjects[0] = new ArrayList<>(c);
         });
 
-        if (dcDesc.hasChildNodes()) {
-            rdf.appendChild(dcDesc);
-        }
+        // Build custom fields map
+        Map<String, String> customFields = new LinkedHashMap<>();
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        Transformer tf = TransformerFactory.newInstance().newTransformer();
-        tf.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-        tf.setOutputProperty(OutputKeys.INDENT, "yes");
-        tf.transform(new DOMSource(doc), new StreamResult(baos));
-        return baos.toByteArray();
-    }
-
-    private void appendDcAlt(Document doc, Element parent, String tagName, String value) {
-        Element elem = doc.createElementNS("http://purl.org/dc/elements/1.1/", tagName);
-        Element alt = doc.createElementNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:Alt");
-        Element li = doc.createElementNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:li");
-        li.setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:lang", "x-default");
-        li.setTextContent(value);
-        alt.appendChild(li);
-        elem.appendChild(alt);
-        parent.appendChild(elem);
-    }
-
-    private void appendDcSeq(Document doc, Element parent, String tagName, List<String> values) {
-        Element elem = doc.createElementNS("http://purl.org/dc/elements/1.1/", tagName);
-        Element seq = doc.createElementNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:Seq");
-        for (String v : values) {
-            Element li = doc.createElementNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:li");
-            li.setTextContent(v);
-            seq.appendChild(li);
-        }
-        elem.appendChild(seq);
-        parent.appendChild(elem);
-    }
-
-    private void appendDcBag(Document doc, Element parent, String tagName, List<String> values) {
-        Element elem = doc.createElementNS("http://purl.org/dc/elements/1.1/", tagName);
-        Element bag = doc.createElementNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:Bag");
-        for (String v : values) {
-            Element li = doc.createElementNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:li");
-            li.setTextContent(v);
-            bag.appendChild(li);
-        }
-        elem.appendChild(bag);
-        parent.appendChild(elem);
-    }
-
-
-    /**
-     * Adds custom metadata to XMP using Booklore namespace for all custom fields.
-     * <p>
-     * Namespace strategy:
-     * - Dublin Core (dc:) for title, description, creator, publisher, date, subject, language
-     * - XMP Basic (xmp:) for metadata dates, creator tool
-     * - Booklore (booklore:) for series, subtitle, ISBNs, external IDs, ratings, moods, tags, page count
-     */
-    private byte[] addCustomIdentifiersToXmp(byte[] xmpBytes, BookMetadataEntity metadata, MetadataCopyHelper helper, MetadataClearFlags clear) throws Exception {
-        DocumentBuilder builder = SecureXmlUtils.createSecureDocumentBuilder(true);
-        Document doc = builder.parse(new ByteArrayInputStream(xmpBytes));
-
-        Element rdfRoot = (Element) doc.getElementsByTagNameNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "RDF").item(0);
-        if (rdfRoot == null) throw new IllegalStateException("RDF root missing in XMP");
-
-        // XMP Basic namespace for tool and date info
-        Element xmpBasicDescription = doc.createElementNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:Description");
-        xmpBasicDescription.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xmp", "http://ns.adobe.com/xap/1.0/");
-        xmpBasicDescription.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about", "");
-
-        xmpBasicDescription.appendChild(createXmpElement(doc, "xmp:CreatorTool", "Booklore"));
-        // Use ISO-8601 format for current timestamps
-        String nowIso = ZonedDateTime.now().format(java.time.format.DateTimeFormatter.ISO_INSTANT);
-        xmpBasicDescription.appendChild(createXmpElement(doc, "xmp:MetadataDate", nowIso));
-        xmpBasicDescription.appendChild(createXmpElement(doc, "xmp:ModifyDate", nowIso));
+        // XMP Basic (unprefixed → written as xmp: by XmpMetadataWriter)
+        customFields.put("CreatorTool", "Booklore");
+        String nowIso = ZonedDateTime.now().format(DateTimeFormatter.ISO_INSTANT);
+        customFields.put("MetadataDate", nowIso);
+        customFields.put("ModifyDate", nowIso);
         if (metadata.getPublishedDate() != null) {
-            // Use date-only format (YYYY-MM-DD) when we only have a date, not a full timestamp
-            xmpBasicDescription.appendChild(createXmpElement(doc, "xmp:CreateDate", 
-                    metadata.getPublishedDate().toString()));
+            customFields.put("CreateDate", metadata.getPublishedDate().toString());
         }
 
-        rdfRoot.appendChild(xmpBasicDescription);
+        // Booklore namespace simple fields
+        addBookloreSimpleFields(customFields, helper, clear, metadata);
 
-        // Booklore namespace for all custom metadata
-        Element bookloreDescription = doc.createElementNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:Description");
-        bookloreDescription.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:" + BookLoreMetadata.NS_PREFIX, BookLoreMetadata.NS_URI);
-        bookloreDescription.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:about", "");
+        XmpMetadata xmpMeta = new XmpMetadata(
+                Optional.ofNullable(title[0]),
+                authors[0] != null ? authors[0] : List.of(),
+                Optional.ofNullable(description[0]),
+                subjects[0] != null ? subjects[0] : List.of(),
+                Optional.ofNullable(publisher[0]),
+                Optional.ofNullable(language[0]),
+                Optional.ofNullable(date[0]),
+                Optional.empty(),
+                List.of(),
+                Optional.empty(),
+                Map.of(),
+                customFields
+        );
 
-        // Series Information - ONLY write if BOTH name AND number are valid
-        // A series name without a number is broken/incomplete data
+        XmpMetadataWriter xmpWriter = new XmpMetadataWriter()
+                .registerNamespace(BookLoreMetadata.NS_PREFIX, BookLoreMetadata.NS_URI);
+        String xmpPacket = xmpWriter.write(xmpMeta);
+
+        // Inject RDF Bag elements for tags/moods (not supported as simple custom fields)
+        return injectBagElements(xmpPacket, helper, clear);
+    }
+
+    private void addBookloreSimpleFields(Map<String, String> customFields, MetadataCopyHelper helper,
+                                         MetadataClearFlags clear, BookMetadataEntity metadata) {
+        String prefix = BookLoreMetadata.NS_PREFIX + ":";
+
         if (hasValidSeries(metadata, clear)) {
-            appendBookloreElement(doc, bookloreDescription, "seriesName", metadata.getSeriesName());
-            appendBookloreElement(doc, bookloreDescription, "seriesNumber", formatSeriesNumber(metadata.getSeriesNumber()));
-            
-            // Series total is optional, only write if > 0
+            customFields.put(prefix + "seriesName", metadata.getSeriesName());
+            customFields.put(prefix + "seriesNumber", formatSeriesNumber(metadata.getSeriesNumber()));
+
             if (metadata.getSeriesTotal() != null && metadata.getSeriesTotal() > 0) {
                 helper.copySeriesTotal(clear != null && clear.isSeriesTotal(), total -> {
                     if (total != null && total > 0) {
-                        appendBookloreElement(doc, bookloreDescription, "seriesTotal", total.toString());
+                        customFields.put(prefix + "seriesTotal", total.toString());
                     }
                 });
             }
         }
 
-        // Subtitle
         helper.copySubtitle(clear != null && clear.isSubtitle(), subtitle -> {
-            if (subtitle != null && !subtitle.isBlank()) {
-                appendBookloreElement(doc, bookloreDescription, "subtitle", subtitle);
-            }
+            if (subtitle != null && !subtitle.isBlank()) customFields.put(prefix + "subtitle", subtitle);
         });
 
-        // ISBN Identifiers
         helper.copyIsbn13(clear != null && clear.isIsbn13(), isbn -> {
-            if (isbn != null && !isbn.isBlank()) {
-                appendBookloreElement(doc, bookloreDescription, "isbn13", isbn);
-            }
+            if (isbn != null && !isbn.isBlank()) customFields.put(prefix + "isbn13", isbn);
         });
-
         helper.copyIsbn10(clear != null && clear.isIsbn10(), isbn -> {
-            if (isbn != null && !isbn.isBlank()) {
-                appendBookloreElement(doc, bookloreDescription, "isbn10", isbn);
-            }
+            if (isbn != null && !isbn.isBlank()) customFields.put(prefix + "isbn10", isbn);
         });
 
-        // External IDs (only if not blank)
         helper.copyGoogleId(clear != null && clear.isGoogleId(), id -> {
-            if (id != null && !id.isBlank()) {
-                appendBookloreElement(doc, bookloreDescription, "googleId", id);
-            }
+            if (id != null && !id.isBlank()) customFields.put(prefix + "googleId", id);
         });
-
         helper.copyGoodreadsId(clear != null && clear.isGoodreadsId(), id -> {
-            String normalizedId = normalizeGoodreadsId(id);
-            if (normalizedId != null && !normalizedId.isBlank()) {
-                appendBookloreElement(doc, bookloreDescription, "goodreadsId", normalizedId);
-            }
+            String normalized = normalizeGoodreadsId(id);
+            if (normalized != null && !normalized.isBlank()) customFields.put(prefix + "goodreadsId", normalized);
         });
-
         helper.copyHardcoverId(clear != null && clear.isHardcoverId(), id -> {
-            if (id != null && !id.isBlank()) {
-                appendBookloreElement(doc, bookloreDescription, "hardcoverId", id);
-            }
+            if (id != null && !id.isBlank()) customFields.put(prefix + "hardcoverId", id);
         });
-
         helper.copyHardcoverBookId(clear != null && clear.isHardcoverBookId(), id -> {
-            if (id != null && !id.isBlank()) {
-                appendBookloreElement(doc, bookloreDescription, "hardcoverBookId", id);
-            }
+            if (id != null && !id.isBlank()) customFields.put(prefix + "hardcoverBookId", id);
         });
-
         helper.copyAsin(clear != null && clear.isAsin(), id -> {
-            if (id != null && !id.isBlank()) {
-                appendBookloreElement(doc, bookloreDescription, "asin", id);
-            }
+            if (id != null && !id.isBlank()) customFields.put(prefix + "asin", id);
         });
-
         helper.copyComicvineId(clear != null && clear.isComicvineId(), id -> {
-            if (id != null && !id.isBlank()) {
-                appendBookloreElement(doc, bookloreDescription, "comicvineId", id);
-            }
+            if (id != null && !id.isBlank()) customFields.put(prefix + "comicvineId", id);
         });
-
         helper.copyLubimyczytacId(clear != null && clear.isLubimyczytacId(), id -> {
-            if (id != null && !id.isBlank()) {
-                appendBookloreElement(doc, bookloreDescription, "lubimyczytacId", id);
-            }
+            if (id != null && !id.isBlank()) customFields.put(prefix + "lubimyczytacId", id);
         });
-
         helper.copyRanobedbId(clear != null && clear.isRanobedbId(), id -> {
-            if (id != null && !id.isBlank()) {
-                appendBookloreElement(doc, bookloreDescription, "ranobedbId", id);
-            }
+            if (id != null && !id.isBlank()) customFields.put(prefix + "ranobedbId", id);
         });
 
-        // Ratings (only if > 0)
-        helper.copyRating(false, rating -> appendBookloreRating(doc, bookloreDescription, "rating", rating));
-        helper.copyHardcoverRating(clear != null && clear.isHardcoverRating(), rating -> appendBookloreRating(doc, bookloreDescription, "hardcoverRating", rating));
-        helper.copyGoodreadsRating(clear != null && clear.isGoodreadsRating(), rating -> appendBookloreRating(doc, bookloreDescription, "goodreadsRating", rating));
-        helper.copyAmazonRating(clear != null && clear.isAmazonRating(), rating -> appendBookloreRating(doc, bookloreDescription, "amazonRating", rating));
-        helper.copyLubimyczytacRating(clear != null && clear.isLubimyczytacRating(), rating -> appendBookloreRating(doc, bookloreDescription, "lubimyczytacRating", rating));
-        helper.copyRanobedbRating(clear != null && clear.isRanobedbRating(), rating -> appendBookloreRating(doc, bookloreDescription, "ranobedbRating", rating));
+        helper.copyRating(false, rating -> addBookloreRating(customFields, prefix, "rating", rating));
+        helper.copyHardcoverRating(clear != null && clear.isHardcoverRating(),
+                rating -> addBookloreRating(customFields, prefix, "hardcoverRating", rating));
+        helper.copyGoodreadsRating(clear != null && clear.isGoodreadsRating(),
+                rating -> addBookloreRating(customFields, prefix, "goodreadsRating", rating));
+        helper.copyAmazonRating(clear != null && clear.isAmazonRating(),
+                rating -> addBookloreRating(customFields, prefix, "amazonRating", rating));
+        helper.copyLubimyczytacRating(clear != null && clear.isLubimyczytacRating(),
+                rating -> addBookloreRating(customFields, prefix, "lubimyczytacRating", rating));
+        helper.copyRanobedbRating(clear != null && clear.isRanobedbRating(),
+                rating -> addBookloreRating(customFields, prefix, "ranobedbRating", rating));
 
-        // Tags (as RDF Bag)
-        helper.copyTags(clear != null && clear.isTags(), tags -> {
-            if (tags != null && !tags.isEmpty()) {
-                appendBookloreBag(doc, bookloreDescription, "tags", tags);
-            }
-        });
-
-        // Moods (as RDF Bag)
-        helper.copyMoods(clear != null && clear.isMoods(), moods -> {
-            if (moods != null && !moods.isEmpty()) {
-                appendBookloreBag(doc, bookloreDescription, "moods", moods);
-            }
-        });
-
-        // Page Count
         helper.copyPageCount(false, pageCount -> {
             if (pageCount != null && pageCount > 0) {
-                appendBookloreElement(doc, bookloreDescription, "pageCount", pageCount.toString());
+                customFields.put(prefix + "pageCount", pageCount.toString());
             }
         });
-
-        if (bookloreDescription.hasChildNodes()) {
-            rdfRoot.appendChild(bookloreDescription);
-        }
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        Transformer tf = TransformerFactory.newInstance().newTransformer();
-        tf.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-        tf.setOutputProperty(OutputKeys.INDENT, "yes");
-        tf.transform(new DOMSource(doc), new StreamResult(baos));
-
-        // Wrap in xpacket PIs required by PDF XMP specification
-        byte[] xmpBody = baos.toByteArray();
-        ByteArrayOutputStream wrapped = new ByteArrayOutputStream(xmpBody.length + 2200);
-        wrapped.write("<?xpacket begin=\"\uFEFF\" id=\"W5M0MpCehiHzreSzNTczkc9d\"?>\n".getBytes(StandardCharsets.UTF_8));
-        wrapped.write(xmpBody);
-        // Padding for in-place editing (PDF spec recommendation)
-        wrapped.write("\n".getBytes(StandardCharsets.UTF_8));
-        byte[] pad = new byte[2048];
-        java.util.Arrays.fill(pad, (byte) ' ');
-        pad[pad.length - 1] = '\n';
-        wrapped.write(pad);
-        wrapped.write("<?xpacket end=\"w\"?>".getBytes(StandardCharsets.UTF_8));
-        return wrapped.toByteArray();
     }
 
-    private Element createXmpElement(Document doc, String name, String content) {
-        Element el = doc.createElementNS("http://ns.adobe.com/xap/1.0/", name);
-        el.setTextContent(content);
-        return el;
-    }
-
-    private void appendBookloreElement(Document doc, Element parent, String localName, String value) {
-        Element elem = doc.createElementNS(BookLoreMetadata.NS_URI, BookLoreMetadata.NS_PREFIX + ":" + localName);
-        elem.setTextContent(value);
-        parent.appendChild(elem);
-    }
-
-    private void appendBookloreRating(Document doc, Element parent, String localName, Double rating) {
+    private void addBookloreRating(Map<String, String> customFields, String prefix, String name, Double rating) {
         if (rating != null && rating > 0) {
-            Element elem = doc.createElementNS(BookLoreMetadata.NS_URI, BookLoreMetadata.NS_PREFIX + ":" + localName);
-            elem.setTextContent(String.format(Locale.US, "%.1f", rating));
-            parent.appendChild(elem);
+            customFields.put(prefix + name, String.format(Locale.US, "%.1f", rating));
         }
     }
 
-    private void appendBookloreBag(Document doc, Element parent, String localName, Set<String> values) {
-        Element elem = doc.createElementNS(BookLoreMetadata.NS_URI, BookLoreMetadata.NS_PREFIX + ":" + localName);
-        Element rdfBag = doc.createElementNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:Bag");
-        
-        for (String value : values) {
-            if (value != null && !value.isBlank()) {
-                Element li = doc.createElementNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:li");
-                li.setTextContent(value);
-                rdfBag.appendChild(li);
+    /**
+     * Injects RDF Bag elements for tags/moods into the XMP packet string.
+     * XmpMetadataWriter doesn't support RDF Bags in custom namespaces, so we
+     * insert them as a separate rdf:Description block before &lt;/rdf:RDF&gt;.
+     */
+    private String injectBagElements(String xmpPacket, MetadataCopyHelper helper, MetadataClearFlags clear) {
+        StringBuilder bags = new StringBuilder();
+
+        helper.copyTags(clear != null && clear.isTags(), tags -> {
+            if (tags != null && !tags.isEmpty()) appendBagXml(bags, "tags", tags);
+        });
+        helper.copyMoods(clear != null && clear.isMoods(), moods -> {
+            if (moods != null && !moods.isEmpty()) appendBagXml(bags, "moods", moods);
+        });
+
+        if (bags.isEmpty()) return xmpPacket;
+
+        int idx = xmpPacket.lastIndexOf("</rdf:RDF>");
+        if (idx < 0) return xmpPacket;
+        return xmpPacket.substring(0, idx) + bags + xmpPacket.substring(idx);
+    }
+
+    private void appendBagXml(StringBuilder sb, String localName, Set<String> values) {
+        sb.append("<rdf:Description rdf:about=\"\"\n");
+        sb.append("    xmlns:").append(BookLoreMetadata.NS_PREFIX).append("=\"")
+                .append(BookLoreMetadata.NS_URI).append("\">\n");
+        sb.append("  <").append(BookLoreMetadata.NS_PREFIX).append(':').append(localName).append(">\n");
+        sb.append("    <rdf:Bag>\n");
+        for (String v : values) {
+            if (v != null && !v.isBlank()) {
+                sb.append("      <rdf:li>").append(escapeXml(v)).append("</rdf:li>\n");
             }
         }
-        
-        elem.appendChild(rdfBag);
-        parent.appendChild(elem);
+        sb.append("    </rdf:Bag>\n");
+        sb.append("  </").append(BookLoreMetadata.NS_PREFIX).append(':').append(localName).append(">\n");
+        sb.append("</rdf:Description>\n");
     }
 
-    private boolean isXmpMetadataDifferent(byte[] existingBytes, byte[] newBytes) {
-        if (existingBytes == null || newBytes == null) return true;
-        try {
-            DocumentBuilder builder = SecureXmlUtils.createSecureDocumentBuilder(false);
-            Document doc1 = builder.parse(new ByteArrayInputStream(existingBytes));
-            Document doc2 = builder.parse(new ByteArrayInputStream(newBytes));
-            return !Objects.equals(
-                    doc1.getDocumentElement().getTextContent().trim(),
-                    doc2.getDocumentElement().getTextContent().trim()
-            );
-        } catch (Exception e) {
-            log.warn("XMP diff failed: {}", e.getMessage());
-            return true;
-        }
+    private static String escapeXml(String s) {
+        if (s == null) return "";
+        return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
+    }
+
+    private boolean isXmpMetadataDifferent(String existingXmp, String newXmp) {
+        if (existingXmp == null || existingXmp.isBlank() || newXmp == null) return true;
+        return !existingXmp.equals(newXmp);
     }
 
     /**

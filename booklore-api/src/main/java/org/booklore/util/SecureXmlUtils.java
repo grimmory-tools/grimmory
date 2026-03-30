@@ -12,28 +12,41 @@ import javax.xml.parsers.ParserConfigurationException;
 @UtilityClass
 public class SecureXmlUtils {
 
-    public static DocumentBuilderFactory createSecureDocumentBuilderFactory(boolean namespaceAware) throws ParserConfigurationException {
+    // DocumentBuilderFactory is thread-safe after configuration cache one per namespace-aware mode
+    private static final DocumentBuilderFactory NS_AWARE_FACTORY;
+    private static final DocumentBuilderFactory NON_NS_AWARE_FACTORY;
+
+    static {
         try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(namespaceAware);
-            
-            // Prevent XXE attacks
-            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-            factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-            factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-            factory.setXIncludeAware(false);
-            factory.setExpandEntityReferences(false);
-            
-            return factory;
+            NS_AWARE_FACTORY = buildFactory(true);
+            NON_NS_AWARE_FACTORY = buildFactory(false);
         } catch (ParserConfigurationException e) {
-            log.error("CRITICAL: Failed to configure secure XML parser: {}", e.getMessage());
-            throw e;
+            throw new ExceptionInInitializerError(e);
         }
+    }
+
+    private static DocumentBuilderFactory buildFactory(boolean namespaceAware) throws ParserConfigurationException {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(namespaceAware);
+
+        // Prevent XXE attacks
+        factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+        factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        factory.setXIncludeAware(false);
+        factory.setExpandEntityReferences(false);
+
+        return factory;
+    }
+
+    public static DocumentBuilderFactory createSecureDocumentBuilderFactory(boolean namespaceAware) {
+        return namespaceAware ? NS_AWARE_FACTORY : NON_NS_AWARE_FACTORY;
     }
 
     public static DocumentBuilder createSecureDocumentBuilder(boolean namespaceAware) 
             throws ParserConfigurationException {
+        // newDocumentBuilder() is NOT thread-safe — must create new builder each time
         return createSecureDocumentBuilderFactory(namespaceAware).newDocumentBuilder();
     }
 }
