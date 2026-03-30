@@ -56,9 +56,6 @@ jobs:
           restore-keys: |
             gradle-${{ runner.os }}-
 
-      - name: Java Information
-        run: java -XshowSettings:properties -version
-
       # Needed for NightCompress
       - name: Install libarchive
         run: |
