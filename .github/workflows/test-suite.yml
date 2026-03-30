@@ -1,0 +1,132 @@
+name: Reusable - Test Suite
+
+on:
+  workflow_call:
+    inputs:
+      checkout_ref:
+        description: 'The ref to check out before running tests'
+        required: true
+        type: string
+      publish_test_results:
+        description: 'Whether to publish test results directly from this workflow'
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      checks: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.checkout_ref }}
+
+      - name: Set Up JDK 25
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Execute Backend Tests
+        id: backend_tests
+        working-directory: ./booklore-api
+        run: |
+          echo "Running backend tests..."
+          ./gradlew test --no-daemon --parallel --build-cache
+        continue-on-error: true
+
+      - name: Publish Backend Test Results
+        uses: EnricoMi/publish-unit-test-result-action@c950f6fb443cb5af20a377fd0dfaa78838901040 # v2
+        if: ${{ always() && inputs.publish_test_results }}
+        with:
+          files: booklore-api/build/test-results/**/*.xml
+          check_name: Backend Test Results
+
+      - name: Upload Backend Test Reports
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        if: always()
+        with:
+          name: backend-test-reports
+          path: |
+            booklore-api/build/reports/tests/
+            booklore-api/build/test-results/
+          retention-days: 30
+
+      - name: Validate Backend Test Results
+        if: steps.backend_tests.outcome == 'failure'
+        run: |
+          echo "❌ Backend tests failed"
+          exit 1
+
+  frontend-tests:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      checks: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.checkout_ref }}
+
+      - name: Set Up Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: booklore-ui/package-lock.json
+
+      - name: Install Frontend Dependencies
+        working-directory: ./booklore-ui
+        run: npm ci
+
+      - name: Audit Frontend Dependencies
+        working-directory: ./booklore-ui
+        run: npm audit --audit-level=critical
+
+      - name: Validate Dependency Tree
+        working-directory: ./booklore-ui
+        run: npm ls --depth=0
+
+      - name: Execute Frontend Tests
+        id: frontend_tests
+        working-directory: ./booklore-ui
+        run: |
+          echo "Running frontend tests..."
+          npx ng test
+        continue-on-error: true
+
+      - name: Publish Frontend Test Results
+        uses: EnricoMi/publish-unit-test-result-action@c950f6fb443cb5af20a377fd0dfaa78838901040 # v2
+        if: ${{ always() && inputs.publish_test_results }}
+        with:
+          files: booklore-ui/test-results/vitest-results.xml
+          check_name: Frontend Test Results
+
+      - name: Upload Frontend Test Reports
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        if: always()
+        with:
+          name: frontend-test-reports
+          path: |
+            booklore-ui/test-results/vitest-results.xml
+          retention-days: 30
+
+      - name: Validate Frontend Test Results
+        if: steps.frontend_tests.outcome == 'failure'
+        run: |
+          echo "❌ Frontend tests failed"
+          exit 1

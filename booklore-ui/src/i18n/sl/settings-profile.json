@@ -1,34 +1,34 @@
 {
-    "title": "Uporabniški profil",
-    "description": "Upravljaj svoje podatke o računu in varnostne nastavitve",
-    "basicInfo": "Osnovni podatki",
-    "username": "Uporabniško ime",
-    "usernamePlaceholder": "Uporabniško ime...",
-    "fullName": "Ime in priimek",
-    "fullNamePlaceholder": "Vnesi ime in priimek...",
-    "email": "E-pošta",
-    "emailPlaceholder": "Vnesi e-pošto...",
-    "editProfile": "Uredi profil",
-    "saveChanges": "Shrani spremembe",
-    "security": "Varnostne nastavitve",
-    "currentPassword": "Trenutno geslo",
-    "newPassword": "Novo geslo",
-    "confirmNewPassword": "Potrdi novo geslo",
-    "changePassword": "Spremeni geslo",
-    "loading": "Nalaganje uporabniških podatkov...",
-    "validation": {
-        "currentPasswordRequired": "Trenutno geslo je obvezno.",
-        "newPasswordRequired": "Novo geslo je obvezno.",
-        "passwordMinLength": "Geslo mora biti dolgo vsaj 8 znakov.",
-        "confirmPasswordRequired": "Prosim, potrdi svoje novo geslo.",
-        "passwordMismatch": "Gesli se ne ujemata."
-    },
-    "toast": {
-        "errorNoUser": "Uporabniški podatki niso na voljo.",
-        "noChanges": "Ni zaznanih sprememb.",
-        "profileUpdated": "Profil je bil uspešno posodobljen",
-        "profileUpdateFailed": "Posodobitev profila ni uspela",
-        "passwordChanged": "Geslo je bilo uspešno spremenjeno",
-        "passwordChangeFailed": "Spreminjanje gesla ni uspelo"
-    }
+  "title": "Uporabniški profil",
+  "description": "Upravljaj svoje podatke o računu in varnostne nastavitve",
+  "basicInfo": "Osnovni podatki",
+  "username": "Uporabniško ime",
+  "usernamePlaceholder": "Uporabniško ime...",
+  "fullName": "Ime in priimek",
+  "fullNamePlaceholder": "Vnesi ime in priimek...",
+  "email": "E-pošta",
+  "emailPlaceholder": "Vnesi e-pošto...",
+  "editProfile": "Uredi profil",
+  "saveChanges": "Shrani spremembe",
+  "security": "Varnostne nastavitve",
+  "currentPassword": "Trenutno geslo",
+  "newPassword": "Novo geslo",
+  "confirmNewPassword": "Potrdi novo geslo",
+  "changePassword": "Spremeni geslo",
+  "loading": "Nalaganje uporabniških podatkov...",
+  "validation": {
+    "currentPasswordRequired": "Trenutno geslo je obvezno.",
+    "newPasswordRequired": "Novo geslo je obvezno.",
+    "passwordMinLength": "Geslo mora biti dolgo vsaj 8 znakov.",
+    "confirmPasswordRequired": "Prosim, potrdi svoje novo geslo.",
+    "passwordMismatch": "Gesli se ne ujemata."
+  },
+  "toast": {
+    "errorNoUser": "Uporabniški podatki niso na voljo.",
+    "noChanges": "Ni zaznanih sprememb.",
+    "profileUpdated": "Profil je bil uspešno posodobljen",
+    "profileUpdateFailed": "Posodobitev profila ni uspela",
+    "passwordChanged": "Geslo je bilo uspešno spremenjeno",
+    "passwordChangeFailed": "Spreminjanje gesla ni uspelo"
+  }
 }

@@ -1,55 +1,55 @@
 {
-    "topbar": {
-        "bookdrop": "Bookdrop",
-        "createNewLibrary": "Neue Bibliothek erstellen",
-        "uploadBook": "Buch hochladen",
-        "charts": "Diagramme",
-        "metadataManager": "Metadaten-Manager",
-        "settings": "Einstellungen",
-        "documentation": "Dokumentation",
-        "profile": "Profil",
-        "logout": "Abmelden",
-        "language": "Sprache",
-        "supportBookLore": "BookLore unterstützen",
-        "notificationAriaLabel": "Benachrichtigungssymbol",
-        "createLibrary": "Bibliothek erstellen",
-        "stats": "Statistiken",
-        "libraryStats": "Bibliotheksstatistiken",
-        "readingStats": "Lesestatistiken"
-    },
-    "menu": {
-        "home": "Startseite",
-        "dashboard": "Dashboard",
-        "allBooks": "Alle Bücher",
-        "libraries": "Bibliotheken",
-        "shelves": "Regale",
-        "magicShelves": "Magische Regale",
-        "unshelved": "Nicht eingeordnet",
-        "series": "Serien",
-        "notebook": "Notizbuch",
-        "update": "(Aktualisierung)",
-        "authors": "Autoren"
-    },
-    "changelog": {
-        "title": "Neuigkeiten",
-        "description": "Neueste Updates und Verbesserungen",
-        "loading": "Änderungsprotokoll wird geladen...",
-        "empty": "Keine Updates verfügbar."
-    },
-    "theme": {
-        "primary": "Primär",
-        "surface": "Oberfläche"
-    },
-    "uploadDialog": {
-        "chooseFile": "Datei auswählen:",
-        "selectImage": "Bild auswählen",
-        "fileNote": "Unterstützte Formate: JPEG, PNG • Maximale Dateigröße: 5 MB",
-        "or": "ODER",
-        "imageUrl": "Bild-URL:",
-        "urlPlaceholder": "Bild-URL hier einfügen",
-        "urlNote": "Unterstützte Formate: JPEG, PNG • Maximale Dateigröße: 5 MB",
-        "errorNoInput": "Bitte wählen Sie eine Datei aus oder fügen Sie eine URL ein.",
-        "errorUploadFailed": "Bild konnte nicht hochgeladen werden.",
-        "errorUploadRetry": "Hochladen fehlgeschlagen. Bitte versuchen Sie es erneut."
-    }
+  "topbar": {
+    "bookdrop": "Bookdrop",
+    "createNewLibrary": "Neue Bibliothek erstellen",
+    "uploadBook": "Buch hochladen",
+    "charts": "Diagramme",
+    "metadataManager": "Metadaten-Manager",
+    "settings": "Einstellungen",
+    "documentation": "Dokumentation",
+    "profile": "Profil",
+    "logout": "Abmelden",
+    "language": "Sprache",
+    "supportGrimmory": "Grimmory unterstützen",
+    "notificationAriaLabel": "Benachrichtigungssymbol",
+    "createLibrary": "Bibliothek erstellen",
+    "stats": "Statistiken",
+    "libraryStats": "Bibliotheksstatistiken",
+    "readingStats": "Lesestatistiken"
+  },
+  "menu": {
+    "home": "Startseite",
+    "dashboard": "Dashboard",
+    "allBooks": "Alle Bücher",
+    "libraries": "Bibliotheken",
+    "shelves": "Regale",
+    "magicShelves": "Magische Regale",
+    "unshelved": "Nicht eingeordnet",
+    "series": "Serien",
+    "notebook": "Notizbuch",
+    "update": "(Aktualisierung)",
+    "authors": "Autoren"
+  },
+  "changelog": {
+    "title": "Neuigkeiten",
+    "description": "Neueste Updates und Verbesserungen",
+    "loading": "Änderungsprotokoll wird geladen...",
+    "empty": "Keine Updates verfügbar."
+  },
+  "theme": {
+    "primary": "Primär",
+    "surface": "Oberfläche"
+  },
+  "uploadDialog": {
+    "chooseFile": "Datei auswählen:",
+    "selectImage": "Bild auswählen",
+    "fileNote": "Unterstützte Formate: JPEG, PNG • Maximale Dateigröße: 5 MB",
+    "or": "ODER",
+    "imageUrl": "Bild-URL:",
+    "urlPlaceholder": "Bild-URL hier einfügen",
+    "urlNote": "Unterstützte Formate: JPEG, PNG • Maximale Dateigröße: 5 MB",
+    "errorNoInput": "Bitte wählen Sie eine Datei aus oder fügen Sie eine URL ein.",
+    "errorUploadFailed": "Bild konnte nicht hochgeladen werden.",
+    "errorUploadRetry": "Hochladen fehlgeschlagen. Bitte versuchen Sie es erneut."
+  }
 }

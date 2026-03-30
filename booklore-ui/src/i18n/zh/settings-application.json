@@ -1,50 +1,40 @@
 {
-    "title": "全局偏好设置",
-    "description": "配置 BookLore 实例的全局设置，包括封面图片处理、搜索偏好和文件上传限制。",
-    "covers": {
-        "sectionTitle": "书籍封面图片",
-        "regenerate": "重新生成封面",
-        "regenerateBtn": "重新生成",
-        "regenerateDesc": "从文件中嵌入的封面重新生成所有书籍的封面图片。",
-        "regenerateStarted": "封面重新生成已开始",
-        "regenerateStartedDetail": "正在重新生成书籍封面。",
-        "regenerateError": "启动封面重新生成失败。",
-        "verticalCropping": "垂直封面裁剪",
-        "verticalCroppingDesc": "自动从顶部裁剪超高图片（如网络漫画），以创建可用的封面缩略图。",
-        "horizontalCropping": "水平封面裁剪",
-        "horizontalCroppingDesc": "自动从左侧裁剪超宽图片，以创建可用的封面缩略图。",
-        "aspectRatio": "宽高比阈值：{{value}}",
-        "aspectRatioDesc": "宽高比超过此阈值的图片将被裁剪。值为 2.5 表示高度（或宽度）超过正常值 2.5 倍的图片将被裁剪。",
-        "smartCropping": "智能裁剪",
-        "smartCroppingDesc": "在确定裁剪位置时跳过纯色区域，将封面图片聚焦在最相关的内容上。"
-    },
-    "search": {
-        "sectionTitle": "搜索与推荐",
-        "autoBookSearch": "自动书籍搜索",
-        "autoBookSearchDesc": "打开书籍信息面板时自动尝试元数据匹配。",
-        "similarBook": "相似书籍推荐",
-        "similarBookDesc": "启用或禁用基于您书库的相似书籍推荐。"
-    },
-    "fileManagement": {
-        "sectionTitle": "文件管理",
-        "maxUploadSize": "最大文件上传大小",
-        "maxUploadPlaceholder": "最大大小",
-        "maxUploadDesc": "定义每个上传文件的最大允许大小（以 MB 为单位）。适用于所有支持的格式。",
-        "restartWarning": "更改将在重启服务器后生效",
-        "invalidInput": "无效输入",
-        "invalidInputDetail": "请输入有效的最大文件上传大小（以 MB 为单位）。"
-    },
-    "telemetry": {
-        "sectionTitle": "遥测",
-        "enableTelemetry": "启用遥测",
-        "telemetryDesc": "通过共享匿名使用统计数据来帮助改进 BookLore。这些数据可以让开发者了解哪些功能最常使用、识别错误和发现性能问题，从而知道下一步该做什么。不会发送任何个人信息、书籍内容或任何可识别的数据。数据每 24 小时自动发送一次到 BookLore 服务器。这完全安全，对开发者非常有帮助。"
-    },
-    "settingsSaved": "设置已保存",
-    "settingsSavedDetail": "设置已成功保存！",
-    "settingsError": "保存设置时出错。",
-    "appearance": {
-        "supportButtonAnimation": "",
-        "supportButtonAnimationDesc": "",
-        "sectionTitle": ""
-    }
+  "title": "全局偏好设置",
+  "description": "配置 Grimmory 实例的全局设置，包括封面图片处理、搜索偏好和文件上传限制。",
+  "covers": {
+    "sectionTitle": "书籍封面图片",
+    "regenerate": "重新生成封面",
+    "regenerateBtn": "重新生成",
+    "regenerateDesc": "从文件中嵌入的封面重新生成所有书籍的封面图片。",
+    "regenerateStarted": "封面重新生成已开始",
+    "regenerateStartedDetail": "正在重新生成书籍封面。",
+    "regenerateError": "启动封面重新生成失败。",
+    "verticalCropping": "垂直封面裁剪",
+    "verticalCroppingDesc": "自动从顶部裁剪超高图片（如网络漫画），以创建可用的封面缩略图。",
+    "horizontalCropping": "水平封面裁剪",
+    "horizontalCroppingDesc": "自动从左侧裁剪超宽图片，以创建可用的封面缩略图。",
+    "aspectRatio": "宽高比阈值：{{value}}",
+    "aspectRatioDesc": "宽高比超过此阈值的图片将被裁剪。值为 2.5 表示高度（或宽度）超过正常值 2.5 倍的图片将被裁剪。",
+    "smartCropping": "智能裁剪",
+    "smartCroppingDesc": "在确定裁剪位置时跳过纯色区域，将封面图片聚焦在最相关的内容上。"
+  },
+  "search": {
+    "sectionTitle": "搜索与推荐",
+    "autoBookSearch": "自动书籍搜索",
+    "autoBookSearchDesc": "打开书籍信息面板时自动尝试元数据匹配。",
+    "similarBook": "相似书籍推荐",
+    "similarBookDesc": "启用或禁用基于您书库的相似书籍推荐。"
+  },
+  "fileManagement": {
+    "sectionTitle": "文件管理",
+    "maxUploadSize": "最大文件上传大小",
+    "maxUploadPlaceholder": "最大大小",
+    "maxUploadDesc": "定义每个上传文件的最大允许大小（以 MB 为单位）。适用于所有支持的格式。",
+    "restartWarning": "更改将在重启服务器后生效",
+    "invalidInput": "无效输入",
+    "invalidInputDetail": "请输入有效的最大文件上传大小（以 MB 为单位）。"
+  },
+  "settingsSaved": "设置已保存",
+  "settingsSavedDetail": "设置已成功保存！",
+  "settingsError": "保存设置时出错。"
 }

@@ -1,50 +1,40 @@
 {
-    "title": "グローバル設定",
-    "description": "カバー画像の処理、検索設定、ファイルアップロード制限など、Bookloreインスタンスのグローバル設定を構成します。",
-    "covers": {
-        "sectionTitle": "ブックカバー画像",
-        "regenerate": "カバーを再生成",
-        "regenerateBtn": "再生成",
-        "regenerateDesc": "すべての本のカバー画像をファイルに埋め込まれたカバーから再生成します。",
-        "regenerateStarted": "カバー再生成を開始しました",
-        "regenerateStartedDetail": "ブックカバーを再生成中です。",
-        "regenerateError": "カバー再生成の開始に失敗しました。",
-        "verticalCropping": "縦方向カバートリミング",
-        "verticalCroppingDesc": "非常に縦長の画像（Webコミックなど）を上部から自動的にトリミングして、使いやすいカバーサムネイルを作成します。",
-        "horizontalCropping": "横方向カバートリミング",
-        "horizontalCroppingDesc": "非常に横長の画像を左側から自動的にトリミングして、使いやすいカバーサムネイルを作成します。",
-        "aspectRatio": "アスペクト比しきい値: {{value}}",
-        "aspectRatioDesc": "このしきい値を超えるアスペクト比の画像がトリミングされます。2.5の値は、通常の2.5倍以上縦長（または横長）の画像がトリミングされることを意味します。",
-        "smartCropping": "スマートトリミング",
-        "smartCroppingDesc": "トリミング位置を決定する際に均一な色の領域をスキップします。カバー画像を最も関連性の高いコンテンツに焦点を当てます。"
-    },
-    "search": {
-        "sectionTitle": "検索とおすすめ",
-        "autoBookSearch": "自動ブック検索",
-        "autoBookSearchDesc": "本の情報パネルを開いたときに、自動的にメタデータマッチングを試みます。",
-        "similarBook": "類似本のおすすめ",
-        "similarBookDesc": "ライブラリに基づいた類似本のおすすめを有効または無効にします。"
-    },
-    "fileManagement": {
-        "sectionTitle": "ファイル管理",
-        "maxUploadSize": "最大ファイルアップロードサイズ",
-        "maxUploadPlaceholder": "最大サイズ",
-        "maxUploadDesc": "アップロードファイルの最大許容サイズ（MB単位）を定義します。EPUB、PDF、CBZ、CBR、CB7形式に適用されます。",
-        "restartWarning": "変更はサーバーの再起動後に有効になります",
-        "invalidInput": "無効な入力",
-        "invalidInputDetail": "有効な最大ファイルアップロードサイズ（MB）を入力してください。"
-    },
-    "telemetry": {
-        "sectionTitle": "テレメトリ",
-        "enableTelemetry": "テレメトリを有効化",
-        "telemetryDesc": "匿名の使用統計を共有してBookloreの改善にご協力ください。このデータにより開発者は、最も使用されている機能の把握、バグの特定、パフォーマンスの問題の発見が可能になり、次に取り組むべきことがわかります。個人情報、本の内容、その他の識別可能なデータは一切送信されません。データは24時間ごとに自動的にBookloreサーバーに送信されます。完全に安全で、開発者にとって非常に有用です。"
-    },
-    "settingsSaved": "設定を保存しました",
-    "settingsSavedDetail": "設定が正常に保存されました！",
-    "settingsError": "設定の保存中にエラーが発生しました。",
-    "appearance": {
-        "supportButtonAnimation": "",
-        "supportButtonAnimationDesc": "",
-        "sectionTitle": ""
-    }
+  "title": "グローバル設定",
+  "description": "カバー画像の処理、検索設定、ファイルアップロード制限など、Grimmoryインスタンスのグローバル設定を構成します。",
+  "covers": {
+    "sectionTitle": "ブックカバー画像",
+    "regenerate": "カバーを再生成",
+    "regenerateBtn": "再生成",
+    "regenerateDesc": "すべての本のカバー画像をファイルに埋め込まれたカバーから再生成します。",
+    "regenerateStarted": "カバー再生成を開始しました",
+    "regenerateStartedDetail": "ブックカバーを再生成中です。",
+    "regenerateError": "カバー再生成の開始に失敗しました。",
+    "verticalCropping": "縦方向カバートリミング",
+    "verticalCroppingDesc": "非常に縦長の画像（Webコミックなど）を上部から自動的にトリミングして、使いやすいカバーサムネイルを作成します。",
+    "horizontalCropping": "横方向カバートリミング",
+    "horizontalCroppingDesc": "非常に横長の画像を左側から自動的にトリミングして、使いやすいカバーサムネイルを作成します。",
+    "aspectRatio": "アスペクト比しきい値: {{value}}",
+    "aspectRatioDesc": "このしきい値を超えるアスペクト比の画像がトリミングされます。2.5の値は、通常の2.5倍以上縦長（または横長）の画像がトリミングされることを意味します。",
+    "smartCropping": "スマートトリミング",
+    "smartCroppingDesc": "トリミング位置を決定する際に均一な色の領域をスキップします。カバー画像を最も関連性の高いコンテンツに焦点を当てます。"
+  },
+  "search": {
+    "sectionTitle": "検索とおすすめ",
+    "autoBookSearch": "自動ブック検索",
+    "autoBookSearchDesc": "本の情報パネルを開いたときに、自動的にメタデータマッチングを試みます。",
+    "similarBook": "類似本のおすすめ",
+    "similarBookDesc": "ライブラリに基づいた類似本のおすすめを有効または無効にします。"
+  },
+  "fileManagement": {
+    "sectionTitle": "ファイル管理",
+    "maxUploadSize": "最大ファイルアップロードサイズ",
+    "maxUploadPlaceholder": "最大サイズ",
+    "maxUploadDesc": "アップロードファイルの最大許容サイズ（MB単位）を定義します。EPUB、PDF、CBZ、CBR、CB7形式に適用されます。",
+    "restartWarning": "変更はサーバーの再起動後に有効になります",
+    "invalidInput": "無効な入力",
+    "invalidInputDetail": "有効な最大ファイルアップロードサイズ（MB）を入力してください。"
+  },
+  "settingsSaved": "設定を保存しました",
+  "settingsSavedDetail": "設定が正常に保存されました！",
+  "settingsError": "設定の保存中にエラーが発生しました。"
 }

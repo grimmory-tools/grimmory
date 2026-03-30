@@ -192,7 +192,6 @@ export interface AppSettings {
   koboSettings: KoboSettings;
   coverCroppingSettings: CoverCroppingSettings;
   metadataDownloadOnBookdrop: boolean;
-  telemetryEnabled: boolean;
   metadataProviderSpecificFields: MetadataProviderSpecificFields;
   oidcSessionDurationHours: number | null;
   oidcGroupSyncMode: string | null;
@@ -242,7 +241,6 @@ export enum AppSettingKey {
   METADATA_PUBLIC_REVIEWS_SETTINGS = 'METADATA_PUBLIC_REVIEWS_SETTINGS',
   KOBO_SETTINGS = 'KOBO_SETTINGS',
   COVER_CROPPING_SETTINGS = 'COVER_CROPPING_SETTINGS',
-  TELEMETRY_ENABLED = 'TELEMETRY_ENABLED',
   METADATA_PROVIDER_SPECIFIC_FIELDS = 'METADATA_PROVIDER_SPECIFIC_FIELDS',
   OIDC_SESSION_DURATION_HOURS = 'OIDC_SESSION_DURATION_HOURS',
   OIDC_GROUP_SYNC_MODE = 'OIDC_GROUP_SYNC_MODE',

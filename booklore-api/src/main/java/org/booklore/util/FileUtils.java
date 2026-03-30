@@ -86,16 +86,19 @@ public class FileUtils {
                 log.warn("Folder does not exist or is not a directory: {}", folderPath.toAbsolutePath());
                 return null;
             }
-            long totalBytes = Files.walk(folderPath)
-                    .filter(Files::isRegularFile)
-                    .mapToLong(p -> {
-                        try {
-                            return Files.size(p);
-                        } catch (IOException e) {
-                            return 0L;
-                        }
-                    })
-                    .sum();
+            long totalBytes;
+            try (var files = Files.walk(folderPath)) {
+                totalBytes = files
+                        .filter(Files::isRegularFile)
+                        .mapToLong(p -> {
+                            try {
+                                return Files.size(p);
+                            } catch (IOException e) {
+                                return 0L;
+                            }
+                        })
+                        .sum();
+            }
             return totalBytes / 1024;
         } catch (IOException e) {
             log.error("Failed to get folder size for path [{}]: {}", folderPath, e.getMessage(), e);
@@ -111,11 +114,13 @@ public class FileUtils {
             if (!Files.exists(folderPath) || !Files.isDirectory(folderPath)) {
                 return Optional.empty();
             }
-            return Files.list(folderPath)
-                    .filter(Files::isRegularFile)
-                    .filter(p -> isAudioFile(p.getFileName().toString()))
-                    .sorted(Comparator.comparing(p -> p.getFileName().toString()))
-                    .findFirst();
+            try (var files = Files.list(folderPath)) {
+                return files
+                        .filter(Files::isRegularFile)
+                        .filter(p -> isAudioFile(p.getFileName().toString()))
+                        .sorted(Comparator.comparing(p -> p.getFileName().toString()))
+                        .findFirst();
+            }
         } catch (IOException e) {
             log.error("Failed to list folder [{}]: {}", folderPath, e.getMessage(), e);
             return Optional.empty();
@@ -166,11 +171,13 @@ public class FileUtils {
             if (!Files.exists(folderPath) || !Files.isDirectory(folderPath)) {
                 return List.of();
             }
-            return Files.list(folderPath)
-                    .filter(Files::isRegularFile)
-                    .filter(p -> isAudioFile(p.getFileName().toString()))
-                    .sorted(Comparator.comparing(p -> p.getFileName().toString()))
-                    .toList();
+            try (var files = Files.list(folderPath)) {
+                return files
+                        .filter(Files::isRegularFile)
+                        .filter(p -> isAudioFile(p.getFileName().toString()))
+                        .sorted(Comparator.comparing(p -> p.getFileName().toString()))
+                        .toList();
+            }
         } catch (IOException e) {
             log.error("Failed to list audio files in folder [{}]: {}", folderPath, e.getMessage(), e);
             return List.of();

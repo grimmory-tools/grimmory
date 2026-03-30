@@ -1,55 +1,55 @@
 {
-    "topbar": {
-        "bookdrop": "书籍投递",
-        "createNewLibrary": "创建新书库",
-        "uploadBook": "上传书籍",
-        "charts": "图表",
-        "metadataManager": "元数据管理器",
-        "settings": "设置",
-        "documentation": "文档",
-        "profile": "个人资料",
-        "logout": "退出登录",
-        "language": "语言",
-        "supportBookLore": "支持 BookLore",
-        "notificationAriaLabel": "统一通知图标",
-        "createLibrary": "创建书库",
-        "stats": "统计",
-        "libraryStats": "书库统计",
-        "readingStats": "阅读统计"
-    },
-    "menu": {
-        "home": "首页",
-        "dashboard": "仪表板",
-        "allBooks": "所有书籍",
-        "libraries": "书库",
-        "shelves": "书架",
-        "magicShelves": "智能书架",
-        "unshelved": "未上架",
-        "series": "系列",
-        "notebook": "笔记本",
-        "update": "（更新）",
-        "authors": "作者"
-    },
-    "changelog": {
-        "title": "最新动态",
-        "description": "最新更新和改进",
-        "loading": "正在加载更新日志...",
-        "empty": "暂无可用更新。"
-    },
-    "theme": {
-        "primary": "主色",
-        "surface": "表面色"
-    },
-    "uploadDialog": {
-        "chooseFile": "选择文件：",
-        "selectImage": "选择图片",
-        "fileNote": "支持的格式：JPEG、PNG • 最大文件大小：5 MB",
-        "or": "或",
-        "imageUrl": "图片 URL：",
-        "urlPlaceholder": "在此粘贴图片 URL",
-        "urlNote": "支持的格式：JPEG、PNG • 最大文件大小：5 MB",
-        "errorNoInput": "请选择一个文件或粘贴一个 URL。",
-        "errorUploadFailed": "图片上传失败。",
-        "errorUploadRetry": "上传失败，请重试。"
-    }
+  "topbar": {
+    "bookdrop": "书籍投递",
+    "createNewLibrary": "创建新书库",
+    "uploadBook": "上传书籍",
+    "charts": "图表",
+    "metadataManager": "元数据管理器",
+    "settings": "设置",
+    "documentation": "文档",
+    "profile": "个人资料",
+    "logout": "退出登录",
+    "language": "语言",
+    "supportGrimmory": "支持 Grimmory",
+    "notificationAriaLabel": "统一通知图标",
+    "createLibrary": "创建书库",
+    "stats": "统计",
+    "libraryStats": "书库统计",
+    "readingStats": "阅读统计"
+  },
+  "menu": {
+    "home": "首页",
+    "dashboard": "仪表板",
+    "allBooks": "所有书籍",
+    "libraries": "书库",
+    "shelves": "书架",
+    "magicShelves": "智能书架",
+    "unshelved": "未上架",
+    "series": "系列",
+    "notebook": "笔记本",
+    "update": "（更新）",
+    "authors": "作者"
+  },
+  "changelog": {
+    "title": "最新动态",
+    "description": "最新更新和改进",
+    "loading": "正在加载更新日志...",
+    "empty": "暂无可用更新。"
+  },
+  "theme": {
+    "primary": "主色",
+    "surface": "表面色"
+  },
+  "uploadDialog": {
+    "chooseFile": "选择文件：",
+    "selectImage": "选择图片",
+    "fileNote": "支持的格式：JPEG、PNG • 最大文件大小：5 MB",
+    "or": "或",
+    "imageUrl": "图片 URL：",
+    "urlPlaceholder": "在此粘贴图片 URL",
+    "urlNote": "支持的格式：JPEG、PNG • 最大文件大小：5 MB",
+    "errorNoInput": "请选择一个文件或粘贴一个 URL。",
+    "errorUploadFailed": "图片上传失败。",
+    "errorUploadRetry": "上传失败，请重试。"
+  }
 }

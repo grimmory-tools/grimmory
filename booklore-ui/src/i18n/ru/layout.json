@@ -1,55 +1,55 @@
 {
-    "topbar": {
-        "bookdrop": "Bookdrop",
-        "createNewLibrary": "Создать новую библиотеку",
-        "uploadBook": "Загрузить книгу",
-        "charts": "Графики",
-        "metadataManager": "Менеджер метаданных",
-        "settings": "Настройки",
-        "documentation": "Документация",
-        "profile": "Профиль",
-        "logout": "Выйти",
-        "language": "Язык",
-        "supportBookLore": "Поддержать BookLore",
-        "notificationAriaLabel": "Значок уведомлений",
-        "createLibrary": "Создать библиотеку",
-        "stats": "Статистика",
-        "libraryStats": "Статистика библиотеки",
-        "readingStats": "Статистика чтения"
-    },
-    "menu": {
-        "home": "Главная",
-        "dashboard": "Панель управления",
-        "allBooks": "Все книги",
-        "libraries": "Библиотеки",
-        "shelves": "Полки",
-        "magicShelves": "Умные полки",
-        "unshelved": "Без полки",
-        "series": "Серии",
-        "notebook": "Блокнот",
-        "update": "(Обновление)",
-        "authors": ""
-    },
-    "changelog": {
-        "title": "Что нового",
-        "description": "Последние обновления и улучшения",
-        "loading": "Загрузка списка изменений...",
-        "empty": "Нет доступных обновлений."
-    },
-    "theme": {
-        "primary": "Основной",
-        "surface": "Поверхность"
-    },
-    "uploadDialog": {
-        "chooseFile": "Выберите файл:",
-        "selectImage": "Выбрать изображение",
-        "fileNote": "Поддерживаемые форматы: JPEG, PNG • Максимальный размер файла: 5 МБ",
-        "or": "ИЛИ",
-        "imageUrl": "URL изображения:",
-        "urlPlaceholder": "Вставьте URL изображения",
-        "urlNote": "Поддерживаемые форматы: JPEG, PNG • Максимальный размер файла: 5 МБ",
-        "errorNoInput": "Пожалуйста, выберите файл или вставьте URL.",
-        "errorUploadFailed": "Не удалось загрузить изображение.",
-        "errorUploadRetry": "Загрузка не удалась. Попробуйте снова."
-    }
+  "topbar": {
+    "bookdrop": "Bookdrop",
+    "createNewLibrary": "Создать новую библиотеку",
+    "uploadBook": "Загрузить книгу",
+    "charts": "Графики",
+    "metadataManager": "Менеджер метаданных",
+    "settings": "Настройки",
+    "documentation": "Документация",
+    "profile": "Профиль",
+    "logout": "Выйти",
+    "language": "Язык",
+    "supportGrimmory": "Поддержать Grimmory",
+    "notificationAriaLabel": "Значок уведомлений",
+    "createLibrary": "Создать библиотеку",
+    "stats": "Статистика",
+    "libraryStats": "Статистика библиотеки",
+    "readingStats": "Статистика чтения"
+  },
+  "menu": {
+    "home": "Главная",
+    "dashboard": "Панель управления",
+    "allBooks": "Все книги",
+    "libraries": "Библиотеки",
+    "shelves": "Полки",
+    "magicShelves": "Умные полки",
+    "unshelved": "Без полки",
+    "series": "Серии",
+    "notebook": "Блокнот",
+    "update": "(Обновление)",
+    "authors": ""
+  },
+  "changelog": {
+    "title": "Что нового",
+    "description": "Последние обновления и улучшения",
+    "loading": "Загрузка списка изменений...",
+    "empty": "Нет доступных обновлений."
+  },
+  "theme": {
+    "primary": "Основной",
+    "surface": "Поверхность"
+  },
+  "uploadDialog": {
+    "chooseFile": "Выберите файл:",
+    "selectImage": "Выбрать изображение",
+    "fileNote": "Поддерживаемые форматы: JPEG, PNG • Максимальный размер файла: 5 МБ",
+    "or": "ИЛИ",
+    "imageUrl": "URL изображения:",
+    "urlPlaceholder": "Вставьте URL изображения",
+    "urlNote": "Поддерживаемые форматы: JPEG, PNG • Максимальный размер файла: 5 МБ",
+    "errorNoInput": "Пожалуйста, выберите файл или вставьте URL.",
+    "errorUploadFailed": "Не удалось загрузить изображение.",
+    "errorUploadRetry": "Загрузка не удалась. Попробуйте снова."
+  }
 }

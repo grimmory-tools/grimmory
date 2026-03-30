@@ -1,50 +1,40 @@
 {
-    "title": "Globale voorkeuren",
-    "description": "Configureer globale instellingen voor uw Booklore-instantie, waaronder omslagafbeeldingbeheer, zoekvoorkeuren en uploadlimieten.",
-    "covers": {
-        "sectionTitle": "Boekomslagafbeelding",
-        "regenerate": "Omslagen opnieuw genereren",
-        "regenerateBtn": "Opnieuw genereren",
-        "regenerateDesc": "",
-        "regenerateStarted": "Omslaggeneratie gestart",
-        "regenerateStartedDetail": "Boekomslagen worden opnieuw gegenereerd.",
-        "regenerateError": "Kon omslaggeneratie niet starten.",
-        "verticalCropping": "Verticaal omslagbijsnijden",
-        "verticalCroppingDesc": "Snijdt automatisch extreem hoge afbeeldingen (zoals webcomics) vanaf de bovenkant bij om bruikbare omslagminiaturen te maken.",
-        "horizontalCropping": "Horizontaal omslagbijsnijden",
-        "horizontalCroppingDesc": "Snijdt automatisch extreem brede afbeeldingen vanaf links bij om bruikbare omslagminiaturen te maken.",
-        "aspectRatio": "Beeldverhoudingsdrempel: {{value}}",
-        "aspectRatioDesc": "Afbeeldingen met een beeldverhouding boven deze drempel worden bijgesneden. Een waarde van 2,5 betekent dat afbeeldingen meer dan 2,5x hoger (of breder) dan normaal worden bijgesneden.",
-        "smartCropping": "Slim bijsnijden",
-        "smartCroppingDesc": "Sla uniforme kleurgebieden over bij het bepalen waar bijgesneden moet worden. Richt de omslagafbeelding op de meest relevante inhoud."
-    },
-    "search": {
-        "sectionTitle": "Zoeken en aanbevelingen",
-        "autoBookSearch": "Automatisch boek zoeken",
-        "autoBookSearchDesc": "Probeert automatisch metadata te matchen wanneer het boekinformatiepaneel wordt geopend.",
-        "similarBook": "Vergelijkbare boekaanbeveling",
-        "similarBookDesc": "Schakelt vergelijkbare boekaanbevelingen in of uit op basis van uw bibliotheek."
-    },
-    "fileManagement": {
-        "sectionTitle": "Bestandsbeheer",
-        "maxUploadSize": "Max. uploadgrootte",
-        "maxUploadPlaceholder": "Max. grootte",
-        "maxUploadDesc": "Bepaalt de maximaal toegestane grootte (in MB) per geüpload bestand. Van toepassing op alle ondersteunde bestandsformaten.",
-        "restartWarning": "Wijzigingen worden van kracht na het herstarten van de server",
-        "invalidInput": "Ongeldige invoer",
-        "invalidInputDetail": "Voer een geldige maximale uploadgrootte in MB in."
-    },
-    "telemetry": {
-        "sectionTitle": "Telemetrie",
-        "enableTelemetry": "Telemetrie inschakelen",
-        "telemetryDesc": "Help Booklore te verbeteren door anonieme gebruiksstatistieken te delen. Deze gegevens laten de ontwikkelaars zien welke functies het meest worden gebruikt, bugs identificeren en prestatieproblemen opsporen zodat ze weten waar ze aan moeten werken. Er worden nooit persoonlijke gegevens, boekinhoud of identificeerbare gegevens verzonden. Gegevens worden automatisch elke 24 uur naar de Booklore-server verzonden. Het is volledig veilig en zeer nuttig voor de ontwikkelaars."
-    },
-    "settingsSaved": "Instellingen opgeslagen",
-    "settingsSavedDetail": "De instellingen zijn succesvol opgeslagen!",
-    "settingsError": "Er is een fout opgetreden bij het opslaan van de instellingen.",
-    "appearance": {
-        "supportButtonAnimation": "",
-        "supportButtonAnimationDesc": "",
-        "sectionTitle": ""
-    }
+  "title": "Globale voorkeuren",
+  "description": "Configureer globale instellingen voor uw Grimmory-instantie, waaronder omslagafbeeldingbeheer, zoekvoorkeuren en uploadlimieten.",
+  "covers": {
+    "sectionTitle": "Boekomslagafbeelding",
+    "regenerate": "Omslagen opnieuw genereren",
+    "regenerateBtn": "Opnieuw genereren",
+    "regenerateDesc": "",
+    "regenerateStarted": "Omslaggeneratie gestart",
+    "regenerateStartedDetail": "Boekomslagen worden opnieuw gegenereerd.",
+    "regenerateError": "Kon omslaggeneratie niet starten.",
+    "verticalCropping": "Verticaal omslagbijsnijden",
+    "verticalCroppingDesc": "Snijdt automatisch extreem hoge afbeeldingen (zoals webcomics) vanaf de bovenkant bij om bruikbare omslagminiaturen te maken.",
+    "horizontalCropping": "Horizontaal omslagbijsnijden",
+    "horizontalCroppingDesc": "Snijdt automatisch extreem brede afbeeldingen vanaf links bij om bruikbare omslagminiaturen te maken.",
+    "aspectRatio": "Beeldverhoudingsdrempel: {{value}}",
+    "aspectRatioDesc": "Afbeeldingen met een beeldverhouding boven deze drempel worden bijgesneden. Een waarde van 2,5 betekent dat afbeeldingen meer dan 2,5x hoger (of breder) dan normaal worden bijgesneden.",
+    "smartCropping": "Slim bijsnijden",
+    "smartCroppingDesc": "Sla uniforme kleurgebieden over bij het bepalen waar bijgesneden moet worden. Richt de omslagafbeelding op de meest relevante inhoud."
+  },
+  "search": {
+    "sectionTitle": "Zoeken en aanbevelingen",
+    "autoBookSearch": "Automatisch boek zoeken",
+    "autoBookSearchDesc": "Probeert automatisch metadata te matchen wanneer het boekinformatiepaneel wordt geopend.",
+    "similarBook": "Vergelijkbare boekaanbeveling",
+    "similarBookDesc": "Schakelt vergelijkbare boekaanbevelingen in of uit op basis van uw bibliotheek."
+  },
+  "fileManagement": {
+    "sectionTitle": "Bestandsbeheer",
+    "maxUploadSize": "Max. uploadgrootte",
+    "maxUploadPlaceholder": "Max. grootte",
+    "maxUploadDesc": "Bepaalt de maximaal toegestane grootte (in MB) per geüpload bestand. Van toepassing op alle ondersteunde bestandsformaten.",
+    "restartWarning": "Wijzigingen worden van kracht na het herstarten van de server",
+    "invalidInput": "Ongeldige invoer",
+    "invalidInputDetail": "Voer een geldige maximale uploadgrootte in MB in."
+  },
+  "settingsSaved": "Instellingen opgeslagen",
+  "settingsSavedDetail": "De instellingen zijn succesvol opgeslagen!",
+  "settingsError": "Er is een fout opgetreden bij het opslaan van de instellingen."
 }

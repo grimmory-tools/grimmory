@@ -1,66 +1,66 @@
 {
-    "main": {
-        "pageTitle": "Pannello di controllo",
-        "welcomeTitle": "Benvenuto in BookLore!",
-        "welcomeSubtitle": "Creiamo la tua prima libreria",
-        "welcomeDescription": "Una libreria è dove vivono tutti i tuoi libri. Inizia a costruire la tua collezione digitale oggi!",
-        "createLibrary": "Crea la tua libreria",
-        "customizeDashboard": "Personalizza pannello di controllo"
+  "main": {
+    "pageTitle": "Pannello di controllo",
+    "welcomeTitle": "Benvenuto in Grimmory!",
+    "welcomeSubtitle": "Creiamo la tua prima libreria",
+    "welcomeDescription": "Una libreria è dove vivono tutti i tuoi libri. Inizia a costruire la tua collezione digitale oggi!",
+    "createLibrary": "Crea la tua libreria",
+    "customizeDashboard": "Personalizza pannello di controllo"
+  },
+  "scroller": {
+    "noBooksFound": "Nessun libro trovato per questo scroller.",
+    "loadError": "Impossibile caricare i libri! Prova ad aggiornare la pagina.",
+    "continueListening": "Continua ad ascoltare",
+    "continueReading": "Continua a leggere",
+    "recentlyAdded": "Aggiunti di recente",
+    "discoverNew": "Scopri qualcosa di nuovo",
+    "magicShelf": "Scaffale magico",
+    "default": "Scroller"
+  },
+  "settings": {
+    "title": "Configurazione pannello di controllo",
+    "description": "Aggiungi fino a 5 scroller da diverse collezioni di libri e personalizza il loro comportamento",
+    "type": "Tipo",
+    "selectType": "Seleziona tipo",
+    "magicShelf": "Scaffale magico",
+    "selectMagicShelf": "Seleziona scaffale magico",
+    "sortField": "Campo di ordinamento",
+    "selectField": "Seleziona campo",
+    "direction": "Direzione",
+    "selectDirection": "Seleziona direzione",
+    "maxItems": "Elementi massimi",
+    "addScroller": "Aggiungi scroller",
+    "resetToDefault": "Ripristina predefiniti",
+    "scrollerTypes": {
+      "lastRead": "Continua a leggere",
+      "lastListened": "Continua ad ascoltare",
+      "latestAdded": "Aggiunti di recente",
+      "random": "Scopri qualcosa di nuovo",
+      "magicShelf": "Scaffale magico",
+      "default": "Scroller"
     },
-    "scroller": {
-        "noBooksFound": "Nessun libro trovato per questo scroller.",
-        "loadError": "Impossibile caricare i libri! Prova ad aggiornare la pagina.",
-        "continueListening": "Continua ad ascoltare",
-        "continueReading": "Continua a leggere",
-        "recentlyAdded": "Aggiunti di recente",
-        "discoverNew": "Scopri qualcosa di nuovo",
-        "magicShelf": "Scaffale magico",
-        "default": "Scroller"
+    "sortFields": {
+      "title": "Titolo",
+      "fileName": "Nome file",
+      "filePath": "Percorso file",
+      "addedOn": "Data aggiunta",
+      "author": "Autore",
+      "authorSurnameVorname": "Autore (Cognome)",
+      "seriesName": "Nome serie",
+      "seriesNumber": "Numero serie",
+      "personalRating": "Valutazione personale",
+      "publisher": "Editore",
+      "publishedDate": "Data di pubblicazione",
+      "lastReadTime": "Ultima lettura",
+      "readStatus": "Stato di lettura",
+      "dateFinished": "Data completamento",
+      "readingProgress": "Progresso di lettura",
+      "bookType": "Tipo di libro",
+      "pageCount": "Pagine"
     },
-    "settings": {
-        "title": "Configurazione pannello di controllo",
-        "description": "Aggiungi fino a 5 scroller da diverse collezioni di libri e personalizza il loro comportamento",
-        "type": "Tipo",
-        "selectType": "Seleziona tipo",
-        "magicShelf": "Scaffale magico",
-        "selectMagicShelf": "Seleziona scaffale magico",
-        "sortField": "Campo di ordinamento",
-        "selectField": "Seleziona campo",
-        "direction": "Direzione",
-        "selectDirection": "Seleziona direzione",
-        "maxItems": "Elementi massimi",
-        "addScroller": "Aggiungi scroller",
-        "resetToDefault": "Ripristina predefiniti",
-        "scrollerTypes": {
-            "lastRead": "Continua a leggere",
-            "lastListened": "Continua ad ascoltare",
-            "latestAdded": "Aggiunti di recente",
-            "random": "Scopri qualcosa di nuovo",
-            "magicShelf": "Scaffale magico",
-            "default": "Scroller"
-        },
-        "sortFields": {
-            "title": "Titolo",
-            "fileName": "Nome file",
-            "filePath": "Percorso file",
-            "addedOn": "Data aggiunta",
-            "author": "Autore",
-            "authorSurnameVorname": "Autore (Cognome)",
-            "seriesName": "Nome serie",
-            "seriesNumber": "Numero serie",
-            "personalRating": "Valutazione personale",
-            "publisher": "Editore",
-            "publishedDate": "Data di pubblicazione",
-            "lastReadTime": "Ultima lettura",
-            "readStatus": "Stato di lettura",
-            "dateFinished": "Data completamento",
-            "readingProgress": "Progresso di lettura",
-            "bookType": "Tipo di libro",
-            "pageCount": "Pagine"
-        },
-        "sortDirections": {
-            "asc": "Crescente",
-            "desc": "Decrescente"
-        }
+    "sortDirections": {
+      "asc": "Crescente",
+      "desc": "Decrescente"
     }
+  }
 }

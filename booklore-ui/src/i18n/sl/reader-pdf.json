@@ -1,10 +1,10 @@
 {
-    "toolbar": {
-        "switchToLightMode": "Preklopi na svetli način",
-        "switchToDarkMode": "Preklopi na temni način",
-        "closePdfReader": "Zapri PDF bralnik"
-    },
-    "toast": {
-        "failedToLoadBook": "Nalaganje knjige ni uspelo"
-    }
+  "toolbar": {
+    "switchToLightMode": "Preklopi na svetli način",
+    "switchToDarkMode": "Preklopi na temni način",
+    "closePdfReader": "Zapri PDF bralnik"
+  },
+  "toast": {
+    "failedToLoadBook": "Nalaganje knjige ni uspelo"
+  }
 }

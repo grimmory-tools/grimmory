@@ -1,0 +1,30 @@
+[Unit]
+Description=Grimmory container
+Requires=grimmory-db.container
+After=grimmory-db.container
+
+[Container]
+ContainerName=grimmory
+Image=ghcr.io/grimmory-tools/grimmory:v0.38.2
+Pod=grimmory.pod
+AutoUpdate=registry
+Pull=always
+
+Volume=grimmory-data:/app/data
+# note the :z is important for selinux systems
+# Volume=YOUR MOUNTS:/books:z
+# Volume=YOUR MOUNTS:/bookdrop:z
+
+
+Environment=TZ=Etc/UTC
+Secret=grimmory_db_pass,type=env,target=DATABASE_PASSWORD
+Environment=DATABASE_URL=jdbc:mariadb://localhost:3306/grimmory
+Environment=DATABASE_USERNAME=grimmory
+HealthCmd=wget -q -O - http://localhost:6060/api/v1/healthcheck
+HealthInterval=1m
+HealthRetries=5
+HealthStartPeriod=1m
+HealthTimeout=10s
+
+[Install]
+WantedBy=default.target

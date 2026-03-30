@@ -123,8 +123,8 @@ public class BookFileEntity {
             return getFullFilePath();
         }
         Path folderPath = getFullFilePath();
-        try {
-            return Files.list(folderPath)
+        try (var files = Files.list(folderPath)) {
+            return files
                     .filter(java.nio.file.Files::isRegularFile)
                     .filter(p -> {
                         String name = p.getFileName().toString().toLowerCase();

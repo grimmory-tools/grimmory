@@ -1,52 +1,42 @@
 {
-    "title": "Globala inställningar",
-    "description": "Konfigurera globala inställningar för din Booklore-instans, inklusive omslagsbildshantering, sökinställningar och filuppladdningsgränser.",
-    "covers": {
-        "sectionTitle": "Bokomslag",
-        "regenerate": "Återskapa omslag",
-        "regenerateBtn": "Återskapa",
-        "regenerateDesc": "Återskapar omslagsbilder för alla böcker från de inbäddade omslagen i filen. Använd \"Regenerera saknade\" för att bara generera omslag för böcker som ännu inte har ett.",
-        "regenerateStarted": "Omslagsåterskapning startad",
-        "regenerateStartedDetail": "Bokomslag håller på att återskapas.",
-        "regenerateError": "Kunde inte starta omslagsåterskapning.",
-        "verticalCropping": "Vertikal omslagsbeskärning",
-        "verticalCroppingDesc": "Beskär automatiskt extremt höga bilder (som webbserier) från toppen för att skapa användbara omslagsminiatyrer.",
-        "horizontalCropping": "Horisontell omslagsbeskärning",
-        "horizontalCroppingDesc": "Beskär automatiskt extremt breda bilder från vänster för att skapa användbara omslagsminiatyrer.",
-        "aspectRatio": "Bildförhållandeströskel: {{value}}",
-        "aspectRatioDesc": "Bilder med bildförhållanden som överstiger detta tröskelvärde beskärs. Värdet 2.5 innebär att bilder som är mer än 2,5x högre (eller bredare) än normalt beskärs.",
-        "smartCropping": "Smart beskärning",
-        "smartCroppingDesc": "Hoppa över enhetliga färgområden vid bestämning av var beskärning ska ske. Fokuserar omslagsbilden på det mest relevanta innehållet.",
-        "regenerateAllBtn": "Regenerera alla",
-        "regenerateMissingBtn": "Regenerera saknade"
-    },
-    "search": {
-        "sectionTitle": "Sök och rekommendationer",
-        "autoBookSearch": "Automatisk boksökning",
-        "autoBookSearchDesc": "Försöker automatiskt matcha metadata när bokinformationspanelen öppnas.",
-        "similarBook": "Liknande bokrekommendationer",
-        "similarBookDesc": "Aktiverar eller inaktiverar rekommendationer av liknande böcker baserat på ditt bibliotek."
-    },
-    "fileManagement": {
-        "sectionTitle": "Filhantering",
-        "maxUploadSize": "Max filuppladdningsstorlek",
-        "maxUploadPlaceholder": "Max storlek",
-        "maxUploadDesc": "Definierar den maximalt tillåtna storleken (i MB) för varje uppladdad fil. Gäller alla filformat som stöds.",
-        "restartWarning": "Ändringar träder i kraft efter omstart av servern",
-        "invalidInput": "Ogiltig inmatning",
-        "invalidInputDetail": "Ange en giltig max filuppladdningsstorlek i MB."
-    },
-    "telemetry": {
-        "sectionTitle": "Telemetri",
-        "enableTelemetry": "Aktivera telemetri",
-        "telemetryDesc": "Hjälp till att förbättra Booklore genom att dela anonym användningsstatistik. Denna data låter utvecklarna se vilka funktioner som används mest, identifiera buggar och upptäcka prestandaproblem så att de vet vad de ska arbeta med härnäst. Ingen personlig information, bokinnehåll eller identifierbar data skickas någonsin. Data skickas till Booklore-servern automatiskt var 24:e timme. Det är helt säkert och mycket hjälpsamt för utvecklarna."
-    },
-    "settingsSaved": "Inställningar sparade",
-    "settingsSavedDetail": "Inställningarna sparades!",
-    "settingsError": "Det uppstod ett fel vid sparning av inställningarna.",
-    "appearance": {
-        "supportButtonAnimation": "Supportknappsanimation",
-        "supportButtonAnimationDesc": "Visa den animerade hjärteffekten för supportknappen på övre menyraden. Om du inaktiverar detta syns knappen fortfarande men animationen tas bort.",
-        "sectionTitle": "Utseende"
-    }
+  "title": "Globala inställningar",
+  "description": "Konfigurera globala inställningar för din Grimmory-instans, inklusive omslagsbildshantering, sökinställningar och filuppladdningsgränser.",
+  "covers": {
+    "sectionTitle": "Bokomslag",
+    "regenerate": "Återskapa omslag",
+    "regenerateBtn": "Återskapa",
+    "regenerateDesc": "Återskapar omslagsbilder för alla böcker från de inbäddade omslagen i filen. Använd \"Regenerera saknade\" för att bara generera omslag för böcker som ännu inte har ett.",
+    "regenerateStarted": "Omslagsåterskapning startad",
+    "regenerateStartedDetail": "Bokomslag håller på att återskapas.",
+    "regenerateError": "Kunde inte starta omslagsåterskapning.",
+    "verticalCropping": "Vertikal omslagsbeskärning",
+    "verticalCroppingDesc": "Beskär automatiskt extremt höga bilder (som webbserier) från toppen för att skapa användbara omslagsminiatyrer.",
+    "horizontalCropping": "Horisontell omslagsbeskärning",
+    "horizontalCroppingDesc": "Beskär automatiskt extremt breda bilder från vänster för att skapa användbara omslagsminiatyrer.",
+    "aspectRatio": "Bildförhållandeströskel: {{value}}",
+    "aspectRatioDesc": "Bilder med bildförhållanden som överstiger detta tröskelvärde beskärs. Värdet 2.5 innebär att bilder som är mer än 2,5x högre (eller bredare) än normalt beskärs.",
+    "smartCropping": "Smart beskärning",
+    "smartCroppingDesc": "Hoppa över enhetliga färgområden vid bestämning av var beskärning ska ske. Fokuserar omslagsbilden på det mest relevanta innehållet.",
+    "regenerateAllBtn": "Regenerera alla",
+    "regenerateMissingBtn": "Regenerera saknade"
+  },
+  "search": {
+    "sectionTitle": "Sök och rekommendationer",
+    "autoBookSearch": "Automatisk boksökning",
+    "autoBookSearchDesc": "Försöker automatiskt matcha metadata när bokinformationspanelen öppnas.",
+    "similarBook": "Liknande bokrekommendationer",
+    "similarBookDesc": "Aktiverar eller inaktiverar rekommendationer av liknande böcker baserat på ditt bibliotek."
+  },
+  "fileManagement": {
+    "sectionTitle": "Filhantering",
+    "maxUploadSize": "Max filuppladdningsstorlek",
+    "maxUploadPlaceholder": "Max storlek",
+    "maxUploadDesc": "Definierar den maximalt tillåtna storleken (i MB) för varje uppladdad fil. Gäller alla filformat som stöds.",
+    "restartWarning": "Ändringar träder i kraft efter omstart av servern",
+    "invalidInput": "Ogiltig inmatning",
+    "invalidInputDetail": "Ange en giltig max filuppladdningsstorlek i MB."
+  },
+  "settingsSaved": "Inställningar sparade",
+  "settingsSavedDetail": "Inställningarna sparades!",
+  "settingsError": "Det uppstod ett fel vid sparning av inställningarna."
 }

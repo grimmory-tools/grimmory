@@ -25,6 +25,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -265,7 +266,7 @@ public class BookService {
             if (Files.exists(coverPath)) {
                 return new UrlResource(coverPath.toUri());
             } else {
-                return new ClassPathResource("static/images/missing-cover.jpg");
+                return getMissingCoverResource();
             }
         } catch (MalformedURLException e) {
             throw new RuntimeException("Failed to load book cover for bookId=" + bookId, e);
@@ -283,7 +284,7 @@ public class BookService {
             if (Files.exists(thumbnailPath)) {
                 return new UrlResource(thumbnailPath.toUri());
             } else {
-                return new ClassPathResource("static/images/missing-cover.jpg");
+                return getMissingCoverResource();
             }
         } catch (MalformedURLException e) {
             throw new RuntimeException("Failed to load audiobook thumbnail for bookId=" + bookId, e);
@@ -296,10 +297,19 @@ public class BookService {
             if (Files.exists(coverPath)) {
                 return new UrlResource(coverPath.toUri());
             } else {
-                return new ClassPathResource("static/images/missing-cover.jpg");
+                return getMissingCoverResource();
             }
         } catch (MalformedURLException e) {
             throw new RuntimeException("Failed to load audiobook cover for bookId=" + bookId, e);
+        }
+    }
+
+    private Resource getMissingCoverResource() {
+        try {
+            byte[] bytes = new ClassPathResource("static/images/missing-cover.jpg").getInputStream().readAllBytes();
+            return new ByteArrayResource(bytes);
+        } catch (IOException e) {
+            throw ApiError.INTERNAL_SERVER_ERROR.createException("Failed to load missing cover image");
         }
     }
 
@@ -516,4 +526,3 @@ public class BookService {
     }
 
 }
-

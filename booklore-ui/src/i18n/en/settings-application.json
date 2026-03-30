@@ -1,6 +1,6 @@
 {
   "title": "Global Preferences",
-  "description": "Configure global settings for your Booklore instance, including cover image handling, search preferences, and file upload limits.",
+  "description": "Configure global settings for your Grimmory instance, including cover image handling, search preferences, and file upload limits.",
   "covers": {
     "sectionTitle": "Book Cover Image",
     "regenerate": "Regenerate Covers",
@@ -34,16 +34,6 @@
     "restartWarning": "Changes will take effect after restarting the server",
     "invalidInput": "Invalid Input",
     "invalidInputDetail": "Please enter a valid max file upload size in MB."
-  },
-  "appearance": {
-    "sectionTitle": "Appearance",
-    "supportButtonAnimation": "Support Button Animation",
-    "supportButtonAnimationDesc": "Show the animated heart effect on the support button in the top bar. Disabling this keeps the button visible but removes the animation."
-  },
-  "telemetry": {
-    "sectionTitle": "Telemetry",
-    "enableTelemetry": "Enable Telemetry",
-    "telemetryDesc": "Help improve Booklore by sharing anonymous usage statistics. This data lets the developers see which features are most used, identify bugs, and spot performance issues so they know what to work on next. No personal information, book content, or any identifiable data is ever sent. Data is sent to the Booklore server automatically once every 24 hours. It's completely safe and very helpful to the developers."
   },
   "settingsSaved": "Settings Saved",
   "settingsSavedDetail": "The settings were successfully saved!",

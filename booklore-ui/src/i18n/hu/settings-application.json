@@ -1,50 +1,40 @@
 {
-    "title": "",
-    "description": "",
-    "covers": {
-        "sectionTitle": "",
-        "regenerate": "",
-        "regenerateBtn": "",
-        "regenerateDesc": "",
-        "regenerateStarted": "",
-        "regenerateStartedDetail": "",
-        "regenerateError": "",
-        "verticalCropping": "",
-        "verticalCroppingDesc": "",
-        "horizontalCropping": "",
-        "horizontalCroppingDesc": "",
-        "aspectRatio": "",
-        "aspectRatioDesc": "",
-        "smartCropping": "",
-        "smartCroppingDesc": ""
-    },
-    "search": {
-        "sectionTitle": "",
-        "autoBookSearch": "",
-        "autoBookSearchDesc": "",
-        "similarBook": "",
-        "similarBookDesc": ""
-    },
-    "fileManagement": {
-        "sectionTitle": "",
-        "maxUploadSize": "",
-        "maxUploadPlaceholder": "",
-        "maxUploadDesc": "",
-        "restartWarning": "",
-        "invalidInput": "",
-        "invalidInputDetail": ""
-    },
-    "telemetry": {
-        "sectionTitle": "",
-        "enableTelemetry": "",
-        "telemetryDesc": ""
-    },
-    "settingsSaved": "",
-    "settingsSavedDetail": "",
-    "settingsError": "",
-    "appearance": {
-        "supportButtonAnimation": "",
-        "supportButtonAnimationDesc": "",
-        "sectionTitle": ""
-    }
+  "title": "",
+  "description": "",
+  "covers": {
+    "sectionTitle": "",
+    "regenerate": "",
+    "regenerateBtn": "",
+    "regenerateDesc": "",
+    "regenerateStarted": "",
+    "regenerateStartedDetail": "",
+    "regenerateError": "",
+    "verticalCropping": "",
+    "verticalCroppingDesc": "",
+    "horizontalCropping": "",
+    "horizontalCroppingDesc": "",
+    "aspectRatio": "",
+    "aspectRatioDesc": "",
+    "smartCropping": "",
+    "smartCroppingDesc": ""
+  },
+  "search": {
+    "sectionTitle": "",
+    "autoBookSearch": "",
+    "autoBookSearchDesc": "",
+    "similarBook": "",
+    "similarBookDesc": ""
+  },
+  "fileManagement": {
+    "sectionTitle": "",
+    "maxUploadSize": "",
+    "maxUploadPlaceholder": "",
+    "maxUploadDesc": "",
+    "restartWarning": "",
+    "invalidInput": "",
+    "invalidInputDetail": ""
+  },
+  "settingsSaved": "",
+  "settingsSavedDetail": "",
+  "settingsError": ""
 }

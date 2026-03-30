@@ -1,17 +1,17 @@
 {
-    "tabs": {
-        "reader": "Bralnik",
-        "view": "Pogled",
-        "metadata1": "Metapodatki 1",
-        "metadata2": "Metapodatki 2",
-        "application": "Aplikacija",
-        "users": "Uporabniki",
-        "email": "E-pošta",
-        "patterns": "Vzorci",
-        "authentication": "OIDC",
-        "tasks": "Opravila",
-        "auditLogs": "Dnevniki revizije",
-        "opds": "OPDS",
-        "devices": "Naprave"
-    }
+  "tabs": {
+    "reader": "Bralnik",
+    "view": "Pogled",
+    "metadata1": "Metapodatki 1",
+    "metadata2": "Metapodatki 2",
+    "application": "Aplikacija",
+    "users": "Uporabniki",
+    "email": "E-pošta",
+    "patterns": "Vzorci",
+    "authentication": "OIDC",
+    "tasks": "Opravila",
+    "auditLogs": "Dnevniki revizije",
+    "opds": "OPDS",
+    "devices": "Naprave"
+  }
 }

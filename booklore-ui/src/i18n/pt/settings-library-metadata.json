@@ -1,34 +1,34 @@
 {
-    "title": "Configuração de Metadados da Biblioteca",
-    "description": "Configure o comportamento de busca de metadados para suas bibliotecas. Defina padrões globais e crie substituições específicas por biblioteca para controlar como os metadados dos livros são recuperados de diferentes provedores.",
-    "defaultSettings": {
-        "sectionTitle": "Configurações Padrão de Metadados",
-        "sectionDesc": "Defina prioridades globais padrão de provedores para campos de metadados de livros. Essas configurações se aplicam a todas as bibliotecas, a menos que sejam substituídas abaixo. O BookLore tenta os provedores da esquerda para a direita (1ª → 2ª → 3ª → 4ª prioridade) para cada campo do livro até encontrar dados. O sistema verifica seu provedor de 1ª prioridade primeiro; se esse provedor não tiver o campo específico (como descrição ou autor), ele automaticamente passa para sua 2ª prioridade, depois 3ª e finalmente 4ª. Deixe uma prioridade vazia para ignorá-la. Por exemplo, se a Amazon (1ª) não tem descrição mas o Google Books (2ª) tem, a descrição do Google será usada. Use as caixas de seleção Ativar para desativar completamente a busca de campos específicos; campos desativados serão ignorados independentemente das configurações do provedor.",
-        "saveButton": "Salvar Configurações Padrão",
-        "saveSuccess": "As opções padrão de metadados foram salvas com sucesso.",
-        "saveFailed": "Falha ao Salvar",
-        "saveError": "Falha ao salvar opções padrão de metadados. Tente novamente."
-    },
-    "libraryOverrides": {
-        "sectionTitle": "Substituições Específicas por Biblioteca",
-        "sectionDesc": "Substitua as configurações de prioridade padrão para bibliotecas específicas. Por exemplo, você pode preferir a Amazon para ficção mas o Google Books para livros técnicos. Cada biblioteca pode ter sua própria ordem de prioridade de provedores, usando os padrões como fallback para campos não especificados. Você também pode ativar ou desativar campos de metadados específicos por biblioteca, útil se certas bibliotecas não precisam de tipos específicos de dados como descrições ou capas.",
-        "customSettings": "Configurações Personalizadas",
-        "defaultSettings": "Configurações Padrão",
-        "exportSidecar": "Exportar Sidecar",
-        "importSidecar": "Importar Sidecar",
-        "exportTooltip": "Gerar arquivos .metadata.json para todos os livros desta biblioteca",
-        "importTooltip": "Importar metadados de arquivos .metadata.json existentes nesta biblioteca",
-        "saveLibraryButton": "Salvar Configurações de {{name}}",
-        "saveSuccess": "As opções de metadados da biblioteca foram salvas com sucesso.",
-        "saveFailed": "Falha ao Salvar",
-        "saveError": "Falha ao salvar opções de metadados da biblioteca. Tente novamente.",
-        "exportSuccess": "Exportados arquivos sidecar para {{count}} livros.",
-        "exportComplete": "Exportação Concluída",
-        "exportFailed": "Exportação Falhou",
-        "exportError": "Falha ao exportar arquivos sidecar. Tente novamente.",
-        "importSuccess": "Importados metadados de {{count}} arquivos sidecar.",
-        "importComplete": "Importação Concluída",
-        "importFailed": "Importação Falhou",
-        "importError": "Falha ao importar de arquivos sidecar. Tente novamente."
-    }
+  "title": "Configuração de Metadados da Biblioteca",
+  "description": "Configure o comportamento de busca de metadados para suas bibliotecas. Defina padrões globais e crie substituições específicas por biblioteca para controlar como os metadados dos livros são recuperados de diferentes provedores.",
+  "defaultSettings": {
+    "sectionTitle": "Configurações Padrão de Metadados",
+    "sectionDesc": "Defina prioridades globais padrão de provedores para campos de metadados de livros. Essas configurações se aplicam a todas as bibliotecas, a menos que sejam substituídas abaixo. O Grimmory tenta os provedores da esquerda para a direita (1ª → 2ª → 3ª → 4ª prioridade) para cada campo do livro até encontrar dados. O sistema verifica seu provedor de 1ª prioridade primeiro; se esse provedor não tiver o campo específico (como descrição ou autor), ele automaticamente passa para sua 2ª prioridade, depois 3ª e finalmente 4ª. Deixe uma prioridade vazia para ignorá-la. Por exemplo, se a Amazon (1ª) não tem descrição mas o Google Books (2ª) tem, a descrição do Google será usada. Use as caixas de seleção Ativar para desativar completamente a busca de campos específicos; campos desativados serão ignorados independentemente das configurações do provedor.",
+    "saveButton": "Salvar Configurações Padrão",
+    "saveSuccess": "As opções padrão de metadados foram salvas com sucesso.",
+    "saveFailed": "Falha ao Salvar",
+    "saveError": "Falha ao salvar opções padrão de metadados. Tente novamente."
+  },
+  "libraryOverrides": {
+    "sectionTitle": "Substituições Específicas por Biblioteca",
+    "sectionDesc": "Substitua as configurações de prioridade padrão para bibliotecas específicas. Por exemplo, você pode preferir a Amazon para ficção mas o Google Books para livros técnicos. Cada biblioteca pode ter sua própria ordem de prioridade de provedores, usando os padrões como fallback para campos não especificados. Você também pode ativar ou desativar campos de metadados específicos por biblioteca, útil se certas bibliotecas não precisam de tipos específicos de dados como descrições ou capas.",
+    "customSettings": "Configurações Personalizadas",
+    "defaultSettings": "Configurações Padrão",
+    "exportSidecar": "Exportar Sidecar",
+    "importSidecar": "Importar Sidecar",
+    "exportTooltip": "Gerar arquivos .metadata.json para todos os livros desta biblioteca",
+    "importTooltip": "Importar metadados de arquivos .metadata.json existentes nesta biblioteca",
+    "saveLibraryButton": "Salvar Configurações de {{name}}",
+    "saveSuccess": "As opções de metadados da biblioteca foram salvas com sucesso.",
+    "saveFailed": "Falha ao Salvar",
+    "saveError": "Falha ao salvar opções de metadados da biblioteca. Tente novamente.",
+    "exportSuccess": "Exportados arquivos sidecar para {{count}} livros.",
+    "exportComplete": "Exportação Concluída",
+    "exportFailed": "Exportação Falhou",
+    "exportError": "Falha ao exportar arquivos sidecar. Tente novamente.",
+    "importSuccess": "Importados metadados de {{count}} arquivos sidecar.",
+    "importComplete": "Importação Concluída",
+    "importFailed": "Importação Falhou",
+    "importError": "Falha ao importar de arquivos sidecar. Tente novamente."
+  }
 }

@@ -148,12 +148,22 @@ public class FileService {
         return Paths.get(appProperties.getPathConfig(), "bookdrop_temp", bookdropFileId + ".jpg").toString();
     }
 
-    public String getToolsKepubifyPath() {
-        return Paths.get(appProperties.getPathConfig(), "tools", "kepubify").toString();
-    }
+    public Path findSystemFile(String filename) {
+        // Search first in the application folder's "local" `tools` / `bin` folders
+        // If not found in those, then search the system $PATH.
+        String systemSearchPath = System.getenv("PATH");
+        String searchPath = systemSearchPath == null ? "bin:tools" : "bin:tools:".concat(systemSearchPath);
+        String[] searchPaths = searchPath.split(":");
 
-    public String getToolsFfprobePath() {
-        return Paths.get(appProperties.getPathConfig(), "tools", "ffprobe").toString();
+        for (String path : searchPaths) {
+            Path possiblePath = Paths.get(path).resolve(filename).toAbsolutePath();
+
+            if (Files.isRegularFile(possiblePath)) {
+                return possiblePath;
+            }
+        }
+
+        return null;
     }
 
 

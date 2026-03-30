@@ -1,0 +1,79 @@
+name: CI - Validate
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+  push:
+    branches:
+      - develop
+
+jobs:
+  upload-event-file:
+    name: Upload Event File
+    if: ${{ github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip ci]') }}
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Upload GitHub Event Payload
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: ci-event-file
+          path: ${{ github.event_path }}
+          retention-days: 7
+
+  migration-check:
+    name: Flyway Migration Check
+    if: ${{ github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip ci]') }}
+    uses: ./.github/workflows/migrations-check.yml
+    with:
+      base_ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+      head_ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+      checkout_ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+
+  test-suite:
+    name: Test Suite
+    if: ${{ (github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip ci]')) && (needs.migration-check.result == 'success' || needs.migration-check.result == 'skipped') }}
+    needs: [migration-check]
+    uses: ./.github/workflows/test-suite.yml
+    permissions:
+      contents: read
+      checks: write
+    with:
+      checkout_ref: ${{ github.sha }}
+      publish_test_results: false
+
+  packaging-smoke-test:
+    name: Packaging Smoke Test
+    if: ${{ (github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip ci]')) && needs.test-suite.result == 'success' }}
+    needs: [migration-check, test-suite]
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Set Up QEMU for Multi-Arch Builds
+        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
+
+      - name: Set Up Docker Buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+
+      - name: Build Runtime Image
+        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
+        with:
+          context: .
+          file: Dockerfile
+          platforms: linux/amd64
+          push: false
+          build-args: |
+            APP_VERSION=ci-${{ github.sha }}
+            APP_REVISION=${{ github.sha }}
+          cache-from: type=gha,scope=image-shared

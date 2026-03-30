@@ -190,7 +190,7 @@
     "title": "Author Universe",
     "description": "Explore your authors by books, ratings, and reading progress",
     "authorsBadge": "{{ count }} authors",
-    "legendNote": "Bubble size = total pages \u2022 Position = books vs rating \u2022 Color = completion %",
+    "legendNote": "Bubble size = total pages • Position = books vs rating • Color = completion %",
     "noData": "No author data available. Authors need at least 2 books to appear.",
     "axisBooks": "Books in Library",
     "axisRating": "Average Rating",
