@@ -181,7 +181,7 @@
       text-transform: none;
       letter-spacing: normal;
       color: var(--text-secondary-color);
-      background: var(--surface-ground);
+      background: var(--ground-background);
       border: 1px solid var(--border-color);
       border-radius: 4px;
       padding: 0.125rem 0.5rem;
@@ -293,7 +293,7 @@
   justify-content: center;
   width: 120px;
   height: 120px;
-  background: var(--surface-ground);
+  background: var(--ground-background);
   border: 1px dashed var(--border-color);
   border-radius: 6px;
   color: var(--text-secondary-color);

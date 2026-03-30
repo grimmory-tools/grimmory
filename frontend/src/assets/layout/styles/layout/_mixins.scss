@@ -1,7 +1,7 @@
 @mixin focus-visible() {
   &:focus-visible {
     outline: 1px solid var(--primary-color);
-    outline-offset: var(--p-focus-ring-offset);
+    outline-offset: var(--focus-ring-offset);
   }
 }
 
@@ -18,5 +18,4 @@
     transition: box-shadow .2s;
     box-shadow: inset var(--focus-ring);
 }
-
 

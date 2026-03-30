@@ -1,33 +1,31 @@
-import {Component, effect, ElementRef, inject, OnDestroy, ViewChild} from '@angular/core';
-import {MenuItem} from 'primeng/api';
-import {LayoutService} from '../layout-main/service/app.layout.service';
-import {Router, RouterLink} from '@angular/router';
-import {DynamicDialogRef} from 'primeng/dynamicdialog';
-import {TooltipModule} from 'primeng/tooltip';
-import {FormsModule} from '@angular/forms';
-import {InputTextModule} from 'primeng/inputtext';
-import {BookSearcherComponent} from '../../../../features/book/components/book-searcher/book-searcher.component';
-import {NgClass, NgStyle} from '@angular/common';
-import {NotificationEventService} from '../../../websocket/notification-event.service';
-import {Button} from 'primeng/button';
-import {StyleClass} from 'primeng/styleclass';
-import {Divider} from 'primeng/divider';
-import {ThemeConfiguratorComponent} from '../theme-configurator/theme-configurator.component';
-import {AuthService} from '../../../service/auth.service';
-import {UserService} from '../../../../features/settings/user-management/user.service';
-import {Popover} from 'primeng/popover';
-import {MetadataProgressService} from '../../../service/metadata-progress.service';
-import {takeUntil} from 'rxjs/operators';
-import {Subject} from 'rxjs';
-import {MetadataBatchProgressNotification} from '../../../model/metadata-batch-progress.model';
-import {BookdropFileService} from '../../../../features/bookdrop/service/bookdrop-file.service';
-import {DialogLauncherService} from '../../../services/dialog-launcher.service';
-import {UnifiedNotificationBoxComponent} from '../../../components/unified-notification-popover/unified-notification-popover-component';
-import {Severity, LogNotification} from '../../../websocket/model/log-notification.model';
-import {Menu} from 'primeng/menu';
-import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
-import {AVAILABLE_LANGS, LANG_LABELS} from '../../../../core/config/transloco-loader';
-import {LANG_STORAGE_KEY} from '../../../../core/config/language-initializer';
+import { Component, effect, inject, OnDestroy, ViewChild } from '@angular/core';
+import { LayoutService } from '../layout-main/service/app.layout.service';
+import { Router, RouterLink } from '@angular/router';
+import { TooltipModule } from 'primeng/tooltip';
+import { FormsModule } from '@angular/forms';
+import { InputTextModule } from 'primeng/inputtext';
+import { BookSearcherComponent } from '../../../../features/book/components/book-searcher/book-searcher.component';
+import { NgClass, NgStyle } from '@angular/common';
+import { NotificationEventService } from '../../../websocket/notification-event.service';
+import { StyleClass } from 'primeng/styleclass';
+import { Divider } from 'primeng/divider';
+import { ThemeConfiguratorComponent } from '../theme-configurator/theme-configurator.component';
+import { AuthService } from '../../../service/auth.service';
+import { UserService } from '../../../../features/settings/user-management/user.service';
+import { Popover } from 'primeng/popover';
+import { MetadataProgressService } from '../../../service/metadata-progress.service';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { MetadataBatchProgressNotification } from '../../../model/metadata-batch-progress.model';
+import { BookdropFileService } from '../../../../features/bookdrop/service/bookdrop-file.service';
+import { DialogLauncherService } from '../../../services/dialog-launcher.service';
+import { UnifiedNotificationBoxComponent } from '../../../components/unified-notification-popover/unified-notification-popover-component';
+import { Severity, LogNotification } from '../../../websocket/model/log-notification.model';
+import { Menu } from 'primeng/menu';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
+import { AVAILABLE_LANGS, LANG_LABELS } from '../../../../core/config/transloco-loader';
+import { LANG_STORAGE_KEY } from '../../../../core/config/language-initializer';
+import { ContextMenuAction, toMenuItems } from '../../model/nav-item.model';
 
 @Component({
   selector: 'app-topbar',
@@ -40,7 +38,6 @@ import {LANG_STORAGE_KEY} from '../../../../core/config/language-initializer';
     FormsModule,
     InputTextModule,
     BookSearcherComponent,
-    Button,
     ThemeConfiguratorComponent,
     StyleClass,
     NgClass,
@@ -53,24 +50,18 @@ import {LANG_STORAGE_KEY} from '../../../../core/config/language-initializer';
   ],
 })
 export class AppTopBarComponent implements OnDestroy {
-  public layoutService = inject(LayoutService);
+  public readonly layoutService = inject(LayoutService);
   protected readonly userService = inject(UserService);
   protected readonly user = this.userService.currentUser;
-  private notificationService = inject(NotificationEventService);
-  private router = inject(Router);
-  private authService = inject(AuthService);
-  private metadataProgressService = inject(MetadataProgressService);
-  private bookdropFileService = inject(BookdropFileService);
-  private dialogLauncher = inject(DialogLauncherService);
-  private translocoService = inject(TranslocoService);
-  items!: MenuItem[];
-  ref?: DynamicDialogRef;
-  statsMenuItems: MenuItem[] = [];
-
-  @ViewChild('menubutton') menuButton!: ElementRef;
-  @ViewChild('topbarmenubutton') topbarMenuButton!: ElementRef;
-  @ViewChild('topbarmenu') menu!: ElementRef;
-  @ViewChild('statsMenu') statsMenu: Menu | undefined;
+  private readonly notificationService = inject(NotificationEventService);
+  private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
+  private readonly metadataProgressService = inject(MetadataProgressService);
+  private readonly bookdropFileService = inject(BookdropFileService);
+  private readonly dialogLauncher = inject(DialogLauncherService);
+  private readonly translocoService = inject(TranslocoService);
+  statsMenuActions: ContextMenuAction[] = [];
+  @ViewChild('statsMenu') statsMenu?: Menu;
 
   isMenuVisible = true;
   progressHighlight = false;
@@ -87,16 +78,11 @@ export class AppTopBarComponent implements OnDestroy {
   private latestHasPendingFiles = false;
   private latestNotificationSeverity?: Severity;
 
-  activeLang = '';
-  langMenuItems: MenuItem[] = [];
+  activeLang = this.translocoService.getActiveLang();
+  langMenuActions: ContextMenuAction[] = [];
 
   constructor() {
-    this.activeLang = this.translocoService.getActiveLang();
-    this.langMenuItems = AVAILABLE_LANGS.map(lang => ({
-      label: LANG_LABELS[lang] || lang,
-      icon: lang === this.activeLang ? 'pi pi-check' : undefined,
-      command: () => this.switchLanguage(lang),
-    }));
+    this.langMenuActions = this.buildLanguageActions(this.activeLang);
 
     this.subscribeToMetadataProgress();
     this.subscribeToNotifications();
@@ -132,7 +118,6 @@ export class AppTopBarComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.ref) this.ref.close();
     clearTimeout(this.eventTimer);
     this.destroy$.next();
     this.destroy$.complete();
@@ -181,11 +166,7 @@ export class AppTopBarComponent implements OnDestroy {
       this.translocoService.setActiveLang(lang);
       localStorage.setItem(LANG_STORAGE_KEY, lang);
       this.activeLang = lang;
-      this.langMenuItems = AVAILABLE_LANGS.map(l => ({
-        label: LANG_LABELS[l] || l,
-        icon: l === lang ? 'pi pi-check' : undefined,
-        command: () => this.switchLanguage(l),
-      }));
+      this.langMenuActions = this.buildLanguageActions(lang);
     });
   }
 
@@ -193,13 +174,13 @@ export class AppTopBarComponent implements OnDestroy {
     this.authService.logout();
   }
 
-  handleStatsButtonClick(event: Event) {
-    if (this.statsMenuItems.length === 0) {
+  handleStatsButtonClick() {
+    if (this.statsMenuActions.length === 0) {
       return;
     }
 
-    if (this.statsMenuItems.length === 1) {
-      this.statsMenuItems[0].command?.({originalEvent: event, item: this.statsMenuItems[0]});
+    if (this.statsMenuActions.length === 1) {
+      this.statsMenuActions[0].action?.();
     }
   }
 
@@ -246,42 +227,51 @@ export class AppTopBarComponent implements OnDestroy {
 
   private initializeStatsMenu() {
     const user = this.user();
-
-    this.statsMenuItems = [];
+    const actions: ContextMenuAction[] = [];
 
     if (user?.permissions?.canAccessLibraryStats || user?.permissions?.admin) {
-      this.statsMenuItems.push({
+      actions.push({
         label: this.translocoService.translate('layout.topbar.libraryStats'),
         icon: 'pi pi-chart-line',
-        command: () => this.navigateToStats()
+        action: () => this.navigateToStats()
       });
     }
 
     if (user?.permissions?.canAccessUserStats || user?.permissions?.admin) {
-      this.statsMenuItems.push({
+      actions.push({
         label: this.translocoService.translate('layout.topbar.readingStats'),
         icon: 'pi pi-users',
-        command: () => this.navigateToUserStats()
+        action: () => this.navigateToUserStats()
       });
     }
+
+    this.statsMenuActions = actions;
   }
 
   get hasStatsAccess(): boolean {
-    return this.statsMenuItems.length > 0;
+    return this.statsMenuActions.length > 0;
   }
 
   get shouldShowStatsMenu(): boolean {
-    return this.statsMenuItems.length > 1;
+    return this.statsMenuActions.length > 1;
   }
 
   get statsTooltip(): string {
-    if (this.statsMenuItems.length === 0) {
+    if (this.statsMenuActions.length === 0) {
       return this.translocoService.translate('layout.topbar.stats');
     }
-    if (this.statsMenuItems.length === 1) {
-      return this.statsMenuItems[0].label || this.translocoService.translate('layout.topbar.stats');
+    if (this.statsMenuActions.length === 1) {
+      return this.statsMenuActions[0].label || this.translocoService.translate('layout.topbar.stats');
     }
     return this.translocoService.translate('layout.topbar.stats');
+  }
+
+  get statsMenuModel() {
+    return toMenuItems(this.statsMenuActions);
+  }
+
+  get langMenuModel() {
+    return toMenuItems(this.langMenuActions);
   }
 
   get iconClass(): string {
@@ -320,5 +310,13 @@ export class AppTopBarComponent implements OnDestroy {
       !this.progressHighlight &&
       !this.showPulse
     );
+  }
+
+  private buildLanguageActions(activeLang: string): ContextMenuAction[] {
+    return AVAILABLE_LANGS.map((lang) => ({
+      label: LANG_LABELS[lang] || lang,
+      icon: lang === activeLang ? 'pi pi-check' : undefined,
+      action: () => this.switchLanguage(lang),
+    }));
   }
 }

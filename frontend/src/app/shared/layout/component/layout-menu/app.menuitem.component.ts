@@ -1,57 +1,29 @@
-import {Component, effect, ElementRef, HostBinding, inject, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {NavigationEnd, Router, RouterLink} from '@angular/router';
-import {animate, state, style, transition, trigger} from '@angular/animations';
-import {Subscription} from 'rxjs';
-import {filter} from 'rxjs/operators';
-import {MenuService} from './service/app.menu.service';
-import {NgClass} from '@angular/common';
-import {Ripple} from 'primeng/ripple';
-import {Button} from 'primeng/button';
-import {Menu} from 'primeng/menu';
-import {UserService} from '../../../../features/settings/user-management/user.service';
-import {DialogLauncherService} from '../../../services/dialog-launcher.service';
-import {BookDialogHelperService} from '../../../../features/book/components/book-browser/book-dialog-helper.service';
-import {IconDisplayComponent} from '../../../components/icon-display/icon-display.component';
-import {Tooltip} from 'primeng/tooltip';
-import {IconSelection} from '../../../service/icon-picker.service';
-import {TranslocoPipe} from '@jsverse/transloco';
-import {MenuItem, MenuItemCommandEvent} from 'primeng/api';
-
-type AppMenuItem = Omit<MenuItem, 'items'> & {
-  items?: AppMenuItem[];
-  label?: string;
-  routerLink?: string[];
-  queryParams?: MenuItem['queryParams'];
-  queryParamsHandling?: MenuItem['queryParamsHandling'];
-  fragment?: string;
-  preserveFragment?: boolean;
-  skipLocationChange?: boolean;
-  replaceUrl?: boolean;
-  state?: MenuItem['state'];
-  target?: string;
-  type?: 'library' | 'magicShelf' | 'shelf' | string;
-  iconType?: IconSelection['type'];
-  icon?: string;
-  disabled?: boolean;
-  command?: (event: MenuItemCommandEvent) => void;
-  class?: string;
-  menu?: MenuItem[];
-  badgeClass?: string;
-  unhealthy?: boolean;
-  bookCount?: number;
-  hasDropDown?: boolean;
-  hasCreate?: boolean;
-};
+import { Component, effect, HostBinding, inject, Input, OnDestroy, OnInit } from '@angular/core';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
+import { animate, state, style, transition, trigger } from '@angular/animations';
+import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
+import { MenuService } from './service/app.menu.service';
+import { NgClass } from '@angular/common';
+import { Menu } from 'primeng/menu';
+import { UserService } from '../../../../features/settings/user-management/user.service';
+import { DialogLauncherService } from '../../../services/dialog-launcher.service';
+import { BookDialogHelperService } from '../../../../features/book/components/book-browser/book-dialog-helper.service';
+import { IconDisplayComponent } from '../../../components/icon-display/icon-display.component';
+import { Tooltip } from 'primeng/tooltip';
+import { IconSelection } from '../../../service/icon-picker.service';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { NavItem, toMenuItems } from '../../model/nav-item.model';
 
 @Component({
-  selector: 'app-menuitem',
+  // Keep this attribute selector so recursive menu items remain valid <li> children.
+  // eslint-disable-next-line @angular-eslint/component-selector
+  selector: '[app-menuitem]',
   templateUrl: './app.menuitem.component.html',
   styleUrls: ['./app.menuitem.component.scss'],
   imports: [
     RouterLink,
     NgClass,
-    Ripple,
-    Button,
     Menu,
     IconDisplayComponent,
     Tooltip,
@@ -70,16 +42,15 @@ type AppMenuItem = Omit<MenuItem, 'items'> & {
   ]
 })
 export class AppMenuitemComponent implements OnInit, OnDestroy {
-  @Input() item!: AppMenuItem;
+  @Input() item!: NavItem;
   @Input() index!: number;
   @Input() @HostBinding('class.layout-root-menuitem') root!: boolean;
   @Input() parentKey!: string;
   @Input() menuKey!: string;
-  @ViewChild('linkRef') linkRef!: ElementRef<HTMLAnchorElement>;
 
   hovered = false;
   active = false;
-  key: string = "";
+  key: string = '';
   canManipulateLibrary: boolean = false;
   admin: boolean = false;
   expandedItems = new Set<string>();
@@ -89,14 +60,14 @@ export class AppMenuitemComponent implements OnInit, OnDestroy {
     return this.router.url.split('?')[0] === this.item.routerLink[0];
   }
 
+  private readonly router = inject(Router);
   private userService = inject(UserService);
-  public router = inject(Router);
-  private menuService = inject(MenuService);
-  private dialogLauncher = inject(DialogLauncherService);
-  private bookDialogHelperService = inject(BookDialogHelperService);
-  menuSourceSubscription: Subscription;
-  menuResetSubscription: Subscription;
-  private routerSubscription: Subscription;
+  private readonly menuService = inject(MenuService);
+  private readonly dialogLauncher = inject(DialogLauncherService);
+  private readonly bookDialogHelperService = inject(BookDialogHelperService);
+  private menuSourceSubscription = Subscription.EMPTY;
+  private menuResetSubscription = Subscription.EMPTY;
+  private routerSubscription = Subscription.EMPTY;
 
   constructor() {
     effect(() => {
@@ -159,12 +130,12 @@ export class AppMenuitemComponent implements OnInit, OnDestroy {
   }
 
   updateActiveStateFromRoute() {
-    const firstRoute = this.item.routerLink?.[0];
-    if (!firstRoute) {
+    const route = this.item.routerLink?.[0];
+    if (!route) {
       return;
     }
 
-    const activeRoute = this.router.isActive(firstRoute, {
+    const activeRoute = this.router.isActive(route, {
       paths: 'exact',
       queryParams: 'ignored',
       matrixParams: 'ignored',
@@ -175,14 +146,7 @@ export class AppMenuitemComponent implements OnInit, OnDestroy {
     }
   }
 
-  itemClick(event: Event) {
-    if (this.item.disabled) {
-      event.preventDefault();
-      return;
-    }
-    if (this.item.command) {
-      this.item.command({originalEvent: event, item: this.item});
-    }
+  itemClick() {
     if (this.item.items) {
       this.active = !this.active;
     } else {
@@ -191,7 +155,7 @@ export class AppMenuitemComponent implements OnInit, OnDestroy {
     this.menuService.onMenuStateChange({key: this.key});
   }
 
-  openDialog(item: AppMenuItem) {
+  openDialog(item: NavItem) {
     if (item.type === 'library' && this.canManipulateLibrary) {
       this.dialogLauncher.openLibraryCreateDialog();
     }
@@ -200,12 +164,6 @@ export class AppMenuitemComponent implements OnInit, OnDestroy {
     }
     if (item.type === 'shelf') {
       this.bookDialogHelperService.openShelfCreatorDialog();
-    }
-  }
-
-  triggerLink() {
-    if (this.item.routerLink && !this.item.items && this.linkRef) {
-      this.linkRef.nativeElement.click();
     }
   }
 
@@ -224,4 +182,18 @@ export class AppMenuitemComponent implements OnInit, OnDestroy {
     };
   }
 
+  get contextMenuItems() {
+    return toMenuItems(this.item.contextMenuActions);
+  }
+
+  hasContextMenu(): boolean {
+    return (this.item.contextMenuActions?.length ?? 0) > 0;
+  }
+
+  shouldShowContextMenuButton(): boolean {
+    return this.hasContextMenu()
+      && (this.item.type !== 'Library' || (this.admin || this.canManipulateLibrary))
+      && this.item.label !== 'Unshelved'
+      && this.item.label !== 'Kobo';
+  }
 }

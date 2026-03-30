@@ -88,7 +88,7 @@
   justify-content: center;
   padding: 3rem 2rem;
   text-align: center;
-  background: var(--surface-ground);
+  background: var(--ground-background);
   border: 1px dashed var(--border-color);
   border-radius: 0.75rem;
 
@@ -147,7 +147,7 @@
 }
 
 .json-viewer {
-  background: var(--surface-ground);
+  background: var(--ground-background);
   border: 1px solid var(--border-color);
   border-radius: 0.5rem;
   overflow: hidden;
@@ -189,7 +189,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  background: var(--surface-ground);
+  background: var(--ground-background);
   border: 1px solid var(--border-color);
   border-radius: 0.5rem;
   font-size: 0.875rem;

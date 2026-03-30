@@ -20,6 +20,16 @@
   }
 }
 
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
 .cover-container {
   position: relative;
   width: 100%;
@@ -32,15 +42,31 @@
   justify-content: center;
 }
 
+.cover-container:not(.loaded) {
+  background: linear-gradient(
+    90deg,
+    var(--ground-background) 25%,
+    var(--surface-hover, rgb(255 255 255 / 8%)) 50%,
+    var(--ground-background) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
 .author-photo {
   width: 100%;
   height: 100%;
   object-fit: cover;
   border-radius: 8px;
-  transition: transform 0.35s ease;
+  opacity: 0;
+  transition: opacity 0.2s ease-in, transform 0.35s ease;
 }
 
-.author-card:hover .author-photo {
+.author-photo.loaded {
+  opacity: 1;
+}
+
+.author-card:hover .author-photo.loaded {
   transform: scale(1.04);
 }
 

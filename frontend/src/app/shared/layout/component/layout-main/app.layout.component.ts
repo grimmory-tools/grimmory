@@ -1,12 +1,14 @@
-import {Component, inject, OnDestroy, OnInit, Renderer2, ViewChild} from '@angular/core';
-import {NavigationEnd, Router, RouterOutlet} from '@angular/router';
-import {filter, Subscription} from 'rxjs';
-import {LayoutService} from "./service/app.layout.service";
-import {AppSidebarComponent} from "../layout-sidebar/app.sidebar.component";
-import {AppTopBarComponent} from '../layout-topbar/app.topbar.component';
-import {NgClass} from '@angular/common';
-import {ToastModule} from 'primeng/toast';
-import {LocalStorageService} from '../../../service/local-storage.service';
+import { DOCUMENT, NgClass } from '@angular/common';
+import { computed, Component, DestroyRef, effect, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs';
+import { LayoutService } from './service/app.layout.service';
+import { AppSidebarComponent } from '../layout-sidebar/app.sidebar.component';
+import { AppTopBarComponent } from '../layout-topbar/app.topbar.component';
+import { ToastModule } from 'primeng/toast';
+import { TranslocoDirective } from '@jsverse/transloco';
+import { LocalStorageService } from '../../../service/local-storage.service';
 
 @Component({
   selector: 'app-layout',
@@ -15,115 +17,49 @@ import {LocalStorageService} from '../../../service/local-storage.service';
     AppSidebarComponent,
     AppTopBarComponent,
     NgClass,
-    ToastModule
+    ToastModule,
+    TranslocoDirective
   ],
   templateUrl: './app.layout.component.html'
 })
-export class AppLayoutComponent implements OnInit, OnDestroy {
-  public layoutService = inject(LayoutService);
-  public renderer = inject(Renderer2);
-  public router = inject(Router);
-  private localStorageService = inject(LocalStorageService);
+export class AppLayoutComponent implements OnInit {
+  readonly layoutService = inject(LayoutService);
+  private readonly router = inject(Router);
+  private readonly localStorageService = inject(LocalStorageService);
+  private readonly document = inject(DOCUMENT);
+  private readonly destroyRef = inject(DestroyRef);
 
-  overlayMenuOpenSubscription!: Subscription;
-
-  menuOutsideClickListener: (() => void) | null = null;
-
-  profileMenuOutsideClickListener: (() => void) | null = null;
-
-  @ViewChild(AppSidebarComponent) appSidebar!: AppSidebarComponent;
-
-  @ViewChild(AppTopBarComponent) appTopbar!: AppTopBarComponent;
+  readonly containerClass = computed(() => ({
+    'layout-static': true,
+    'layout-static-inactive': !this.layoutService.sidebarOpen(),
+    'layout-mobile-active': this.layoutService.mobileSidebarOpen()
+  }));
 
   constructor() {
-    this.overlayMenuOpenSubscription = this.layoutService.overlayOpen$.subscribe(() => {
-      if (!this.menuOutsideClickListener) {
-        this.menuOutsideClickListener = this.renderer.listen('document', 'click', (event) => {
-          if (this.isOutsideClicked(event)) {
-            this.hideMenu();
-          }
-        });
-      }
-
-      if (this.layoutService.state.staticMenuMobileActive) {
-        this.blockBodyScroll();
-      }
+    effect((onCleanup) => {
+      const body = this.document.body;
+      body.classList.toggle('blocked-scroll', this.layoutService.mobileSidebarOpen());
+      onCleanup(() => {
+        body.classList.remove('blocked-scroll');
+      });
     });
 
-    this.router.events.pipe(filter(event => event instanceof NavigationEnd))
+    this.router.events
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef)
+      )
       .subscribe(() => {
-        this.hideMenu();
-        this.hideProfileMenu();
+        this.layoutService.closeMobileSidebar();
       });
   }
 
   ngOnInit(): void {
     const width = this.localStorageService.get<number>('sidebarWidth') ?? 225;
-    document.documentElement.style.setProperty('--sidebar-width', width + 'px');
+    this.document.documentElement.style.setProperty('--sidebar-width', `${width}px`);
   }
 
-  isOutsideClicked(event: MouseEvent): boolean {
-    const sidebarEl = document.querySelector('.layout-sidebar');
-    const topbarEl = document.querySelector('.layout-menu-button');
-    const eventTarget = event.target as Node;
-    const clickedInsideSidebar = sidebarEl?.isSameNode(eventTarget) || sidebarEl?.contains(eventTarget);
-    const clickedInsideTopbar = topbarEl?.isSameNode(eventTarget) || topbarEl?.contains(eventTarget);
-    return !(clickedInsideSidebar || clickedInsideTopbar);
-  }
-
-  hideMenu() {
-    this.layoutService.state.overlayMenuActive = false;
-    this.layoutService.state.staticMenuMobileActive = false;
-    this.layoutService.state.menuHoverActive = false;
-    if (this.menuOutsideClickListener) {
-      this.menuOutsideClickListener();
-      this.menuOutsideClickListener = null;
-    }
-    this.unblockBodyScroll();
-  }
-
-  hideProfileMenu() {
-    this.layoutService.state.profileSidebarVisible = false;
-    if (this.profileMenuOutsideClickListener) {
-      this.profileMenuOutsideClickListener();
-      this.profileMenuOutsideClickListener = null;
-    }
-  }
-
-  blockBodyScroll(): void {
-    if (document.body.classList) {
-      document.body.classList.add('blocked-scroll');
-    } else {
-      document.body.className += ' blocked-scroll';
-    }
-  }
-
-  unblockBodyScroll(): void {
-    if (document.body.classList) {
-      document.body.classList.remove('blocked-scroll');
-    } else {
-      document.body.className = document.body.className.replace(new RegExp('(^|\\b)' +
-        'blocked-scroll'.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
-    }
-  }
-
-  get containerClass() {
-    return {
-      'layout-overlay': this.layoutService.config().menuMode === 'overlay',
-      'layout-static': this.layoutService.config().menuMode === 'static',
-      'layout-static-inactive': this.layoutService.state.staticMenuDesktopInactive && this.layoutService.config().menuMode === 'static',
-      'layout-overlay-active': this.layoutService.state.overlayMenuActive,
-      'layout-mobile-active': this.layoutService.state.staticMenuMobileActive
-    }
-  }
-
-  ngOnDestroy() {
-    if (this.overlayMenuOpenSubscription) {
-      this.overlayMenuOpenSubscription.unsubscribe();
-    }
-
-    if (this.menuOutsideClickListener) {
-      this.menuOutsideClickListener();
-    }
+  closeMobileSidebar(): void {
+    this.layoutService.closeMobileSidebar();
   }
 }

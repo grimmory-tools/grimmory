@@ -37,8 +37,8 @@
 // Search Section
 .search-section {
   flex-shrink: 0;
-  background: var(--surface-ground);
-  border: 1px solid var(--surface-border);
+  background: var(--ground-background);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 1.25rem 1.5rem;
   margin-bottom: 1.5rem;
@@ -123,8 +123,8 @@
   justify-content: center;
   padding: 3rem;
   text-align: center;
-  background: var(--surface-ground);
-  border: 1px dashed var(--surface-border);
+  background: var(--ground-background);
+  border: 1px dashed var(--border-color);
   border-radius: 12px;
 
   h3 {
@@ -181,7 +181,7 @@
   gap: 0.75rem;
   margin-bottom: 1rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--surface-border);
+  border-bottom: 1px solid var(--border-color);
 
   .results-count {
     display: flex;
@@ -224,7 +224,7 @@
     height: 220px;
     border-radius: 8px;
     overflow: hidden;
-    background: var(--surface-ground);
+    background: var(--ground-background);
     border: 2px solid transparent;
 
     &:hover {

@@ -115,12 +115,12 @@
   }
 
   &::-webkit-scrollbar-track {
-    background: var(--surface-ground);
+    background: var(--ground-background);
     border-radius: 4px;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: var(--surface-border);
+    background: var(--border-color);
     border-radius: 4px;
 
     &:hover {
@@ -293,7 +293,7 @@
 
   .review-title-section {
     flex-shrink: 0;
-    border-bottom: 1px solid var(--surface-border);
+    border-bottom: 1px solid var(--border-color);
     padding: 8px 16px 4px;
   }
 
@@ -363,12 +363,12 @@
   }
 
   &::-webkit-scrollbar-track {
-    background: var(--surface-ground);
+    background: var(--ground-background);
     border-radius: 2px;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: var(--surface-border);
+    background: var(--border-color);
     border-radius: 2px;
 
     &:hover {

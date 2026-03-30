@@ -11,13 +11,19 @@
     position: absolute;
     top: 0.125rem;
     right: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    background: none;
     font-size: 0.8rem;
-    color: var(--p-surface-500);
+    color: var(--surface-500);
     cursor: pointer;
     transition: color 0.2s ease;
 
     &:hover {
-      color: var(--p-primary-color);
+      color: var(--primary-color);
     }
   }
 }
@@ -31,7 +37,7 @@
 
   .sidebar-width-popover-label {
     font-size: 0.8rem;
-    color: var(--p-text-muted-color);
+    color: var(--text-muted-color);
     white-space: nowrap;
     min-width: 38px;
     text-align: right;
@@ -67,9 +73,14 @@
 }
 
 .update-link {
+  padding: 0;
+  border: 0;
+  background: none;
   cursor: pointer;
   color: #fb923c;
+  font-family: inherit;
   font-size: 0.75rem;
+  line-height: inherit;
 
   &:hover {
     text-decoration: underline;

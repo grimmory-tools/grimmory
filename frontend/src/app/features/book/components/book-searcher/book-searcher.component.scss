@@ -139,7 +139,7 @@
   object-fit: cover;
   border-radius: 4px;
   box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
-  background-color: var(--surface-ground);
+  background-color: var(--ground-background);
   aspect-ratio: 2/3;
 }
 
@@ -192,7 +192,7 @@
 .search-book-year {
   font-size: 0.8rem;
   color: var(--text-secondary-color);
-  background-color: var(--surface-ground);
+  background-color: var(--ground-background);
   padding: 0.125rem 0.5rem;
   border-radius: 4px;
   white-space: nowrap;

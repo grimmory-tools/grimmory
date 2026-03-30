@@ -1,36 +1,33 @@
-import {Component, computed, effect, inject, OnInit, signal} from '@angular/core';
-import {toSignal} from '@angular/core/rxjs-interop';
-import {AppMenuitemComponent} from './app.menuitem.component';
-import {MenuModule} from 'primeng/menu';
-import {LibraryService} from '../../../../features/book/service/library.service';
-import {LibraryHealthService} from '../../../../features/book/service/library-health.service';
-import {ShelfService} from '../../../../features/book/service/shelf.service';
-import {BookService} from '../../../../features/book/service/book.service';
-import {LibraryShelfMenuService} from '../../../../features/book/service/library-shelf-menu.service';
-import {AppVersion, VersionService} from '../../../service/version.service';
-import {DynamicDialogRef} from 'primeng/dynamicdialog';
-import {UserService} from '../../../../features/settings/user-management/user.service';
-import {MagicShelfService} from '../../../../features/magic-shelf/service/magic-shelf.service';
-import {SeriesDataService} from '../../../../features/series-browser/service/series-data.service';
-import {AuthorService} from '../../../../features/author-browser/service/author.service';
-import {MenuItem} from 'primeng/api';
-import {DialogLauncherService} from '../../../services/dialog-launcher.service';
-import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
-import {Slider} from 'primeng/slider';
-import {FormsModule} from '@angular/forms';
-import {Popover} from 'primeng/popover';
-import {LocalStorageService} from '../../../service/local-storage.service';
+import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { AppMenuitemComponent } from './app.menuitem.component';
+import { LibraryService } from '../../../../features/book/service/library.service';
+import { LibraryHealthService } from '../../../../features/book/service/library-health.service';
+import { ShelfService } from '../../../../features/book/service/shelf.service';
+import { BookService } from '../../../../features/book/service/book.service';
+import { LibraryShelfMenuService } from '../../../../features/book/service/library-shelf-menu.service';
+import { AppVersion, VersionService } from '../../../service/version.service';
+import { UserService } from '../../../../features/settings/user-management/user.service';
+import { MagicShelfService } from '../../../../features/magic-shelf/service/magic-shelf.service';
+import { SeriesDataService } from '../../../../features/series-browser/service/series-data.service';
+import { AuthorService } from '../../../../features/author-browser/service/author.service';
+import { DialogLauncherService } from '../../../services/dialog-launcher.service';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
+import { Slider } from 'primeng/slider';
+import { FormsModule } from '@angular/forms';
+import { Popover } from 'primeng/popover';
+import { LocalStorageService } from '../../../service/local-storage.service';
+import { NavIconType, NavItem } from '../../model/nav-item.model';
 
 @Component({
   selector: 'app-menu',
   standalone: true,
-  imports: [AppMenuitemComponent, MenuModule, TranslocoDirective, Slider, FormsModule, Popover],
+  imports: [AppMenuitemComponent, TranslocoDirective, Slider, FormsModule, Popover],
   templateUrl: './app.menu.component.html',
   styleUrl: './app.menu.component.scss',
 })
 export class AppMenuComponent implements OnInit {
   versionInfo: AppVersion | null = null;
-  dynamicDialogRef: DynamicDialogRef | undefined | null;
 
   private libraryService = inject(LibraryService);
   private libraryHealthService = inject(LibraryHealthService);
@@ -109,7 +106,7 @@ export class AppMenuComponent implements OnInit {
     return counts;
   });
 
-  readonly homeMenu = computed<MenuItem[]>(() => {
+  readonly homeMenu = computed<NavItem[]>(() => {
     this.activeLang();
 
     return [
@@ -152,7 +149,7 @@ export class AppMenuComponent implements OnInit {
     ];
   });
 
-  readonly libraryMenu = computed<MenuItem[]>(() => {
+  readonly libraryMenu = computed<NavItem[]>(() => {
     this.activeLang();
     const libCounts = this.libraryBookCounts();
 
@@ -169,11 +166,11 @@ export class AppMenuComponent implements OnInit {
         hasDropDown: true,
         hasCreate: true,
         items: sortedLibraries.map((library) => ({
-          menu: this.libraryShelfMenuService.initializeLibraryMenuItems(library),
+          contextMenuActions: this.libraryShelfMenuService.initializeLibraryMenuItems(library),
           label: library.name,
           type: 'Library',
           icon: library.icon || undefined,
-          iconType: (library.iconType || undefined) as 'PRIME_NG' | 'CUSTOM_SVG' | undefined,
+          iconType: this.toNavIconType(library.iconType),
           routerLink: [`/library/${library.id}/books`],
           bookCount: libCounts.get(library.id ?? 0) ?? 0,
           unhealthy: this.libraryHealthService.isUnhealthy(library.id ?? 0),
@@ -182,7 +179,7 @@ export class AppMenuComponent implements OnInit {
     ];
   });
 
-  readonly magicShelfMenu = computed<MenuItem[]>(() => {
+  readonly magicShelfMenu = computed<NavItem[]>(() => {
     this.activeLang();
 
     const sortedShelves = this.sortArray(
@@ -201,8 +198,8 @@ export class AppMenuComponent implements OnInit {
           label: shelf.name,
           type: 'magicShelfItem',
           icon: shelf.icon || undefined,
-          iconType: (shelf.iconType || undefined) as 'PRIME_NG' | 'CUSTOM_SVG' | undefined,
-          menu: this.libraryShelfMenuService.initializeMagicShelfMenuItems(shelf),
+          iconType: this.toNavIconType(shelf.iconType),
+          contextMenuActions: this.libraryShelfMenuService.initializeMagicShelfMenuItems(shelf),
           routerLink: [`/magic-shelf/${shelf.id}/books`],
           bookCount: this.magicShelfBookCounts().get(shelf.id ?? 0) ?? 0,
         })),
@@ -210,7 +207,7 @@ export class AppMenuComponent implements OnInit {
     ];
   });
 
-  readonly shelfMenu = computed<MenuItem[]>(() => {
+  readonly shelfMenu = computed<NavItem[]>(() => {
     this.activeLang();
     const shelfCounts = this.shelfBookCounts();
 
@@ -228,20 +225,20 @@ export class AppMenuComponent implements OnInit {
     }
 
     const shelfItems = shelves.map((shelf) => ({
-      menu: this.libraryShelfMenuService.initializeShelfMenuItems(shelf),
+      contextMenuActions: this.libraryShelfMenuService.initializeShelfMenuItems(shelf),
       label: shelf.name,
       type: 'Shelf',
       icon: shelf.icon || undefined,
-      iconType: (shelf.iconType || undefined) as 'PRIME_NG' | 'CUSTOM_SVG' | undefined,
+      iconType: this.toNavIconType(shelf.iconType),
       routerLink: [`/shelf/${shelf.id}/books`],
       bookCount: shelfCounts.get(shelf.id ?? 0) ?? 0,
     }));
 
-    const items: MenuItem[] = [{
+    const items: NavItem[] = [{
       label: this.t.translate('layout.menu.unshelved'),
       type: 'Shelf',
       icon: 'pi pi-inbox',
-      iconType: 'PRIME_NG' as 'PRIME_NG' | 'CUSTOM_SVG',
+      iconType: 'PRIME_NG',
       routerLink: ['/unshelved-books'],
       bookCount: shelfCounts.get(-1) ?? 0,
     }];
@@ -251,7 +248,7 @@ export class AppMenuComponent implements OnInit {
         label: koboShelf.name,
         type: 'Shelf',
         icon: koboShelf.icon || undefined,
-        iconType: (koboShelf.iconType || undefined) as 'PRIME_NG' | 'CUSTOM_SVG' | undefined,
+        iconType: this.toNavIconType(koboShelf.iconType),
         routerLink: [`/shelf/${koboShelf.id}/books`],
         bookCount: shelfCounts.get(koboShelf.id ?? 0) ?? 0,
       });
@@ -345,5 +342,9 @@ export class AppMenuComponent implements OnInit {
 
   private validateSortOrder(order: string): 'asc' | 'desc' {
     return order === 'desc' ? 'desc' : 'asc';
+  }
+
+  private toNavIconType(iconType: string | null | undefined): NavIconType | undefined {
+    return iconType === 'PRIME_NG' || iconType === 'CUSTOM_SVG' ? iconType : undefined;
   }
 }

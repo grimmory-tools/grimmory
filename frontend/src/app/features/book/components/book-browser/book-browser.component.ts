@@ -54,6 +54,7 @@ import {BookBrowserScrollService} from './book-browser-scroll.service';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {MultiSortPopoverComponent} from './sorting/multi-sort-popover/multi-sort-popover.component';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import { toMenuItems } from '../../../../shared/layout/model/nav-item.model';
 
 export enum EntityType {
   LIBRARY = 'Library',
@@ -172,11 +173,13 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
       return [];
     }
 
-    return this.entityService.isLibrary(entity)
+    const actions = this.entityService.isLibrary(entity)
       ? this.libraryShelfMenuService.initializeLibraryMenuItems(entity)
       : this.entityService.isMagicShelf(entity)
         ? this.libraryShelfMenuService.initializeMagicShelfMenuItems(entity)
         : this.libraryShelfMenuService.initializeShelfMenuItems(entity);
+
+    return toMenuItems(actions);
   });
   readonly books = computed(() => {
     const {entityId, entityType} = this.entityInfo();
@@ -999,4 +1002,5 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
       this.mobileColumnCount = saved;
     }
   }
+
 }

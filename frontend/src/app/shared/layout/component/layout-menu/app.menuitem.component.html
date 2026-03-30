@@ -5,27 +5,33 @@
         <div class="root-item-label-container">
           <div>{{ item.label }}</div>
           @if (item.hasCreate) {
-            <i
-              class="pi pi-plus plus-icon"
+            <button
+              type="button"
+              class="plus-icon-button"
+              [attr.aria-label]="item.label"
               (click)="openDialog(item)"
-              (keydown.enter)="openDialog(item)"
-              role="button"
-              tabindex="0"
-            ></i>
+            >
+              <i class="pi pi-plus plus-icon" aria-hidden="true"></i>
+            </button>
           }
         </div>
-        <i
+        <button
+          type="button"
+          class="expand-icon-button"
+          [attr.aria-label]="item.label"
+          [attr.aria-expanded]="isExpanded(key)"
           (click)="toggleExpand(key)"
-          (keydown.enter)="toggleExpand(key)"
-          [ngClass]="{
-          'pi': true,
-          'pi-angle-up': isExpanded(key),
-          'pi-angle-down': !isExpanded(key)
-        }"
-          class="expand-icon"
-          role="button"
-          tabindex="0"
-        ></i>
+        >
+          <i
+            [ngClass]="{
+              'pi': true,
+              'pi-angle-up': isExpanded(key),
+              'pi-angle-down': !isExpanded(key)
+            }"
+            class="expand-icon"
+            aria-hidden="true"
+          ></i>
+        </button>
       </div>
     } @else {
       <div class="layout-menuitem-root-text root-item">
@@ -38,29 +44,14 @@
     <div
       class="menu-item-container"
       [class.active-route-container]="isRouteActive"
-      (click)="triggerLink()"
-      (keydown.enter)="triggerLink()"
-      role="button"
-      tabindex="0"
-      >
-        @if ((item.routerLink && !item.items)) {
-          <a
-          #link
-          (click)="itemClick($event)"
-          [ngClass]="item.class"
+    >
+      @if (item.routerLink && !item.items) {
+        <a
+          (click)="itemClick()"
           class="menu-item-link"
           [class.active-route]="isRouteActive"
           [routerLink]="item.routerLink"
-          [fragment]="item.fragment"
-          [queryParamsHandling]="item.queryParamsHandling"
-          [preserveFragment]="item.preserveFragment"
-          [skipLocationChange]="item.skipLocationChange"
-          [replaceUrl]="item.replaceUrl"
-          [state]="item.state"
-          [queryParams]="item.queryParams"
-          [attr.target]="item.target"
           tabindex="0"
-          pRipple
         >
           @if (item.unhealthy) {
             <span
@@ -76,46 +67,51 @@
             [displayEmpty]="true"
           ></app-icon-display>
           <span class="layout-menuitem-text menu-item-text">
-        {{ item.label }}
-      </span>
+            {{ item.label }}
+          </span>
         </a>
       }
 
       <span class="menu-item-end-content">
-    @if (item.type === 'Library' || item.type === 'Shelf' || item.type === 'magicShelfItem') {
-      @if ((item.type !== 'Library' || (admin || canManipulateLibrary)) && item.label !== 'Unshelved' && item.label !== 'Kobo') {
-        <p-button
-          (click)="entitymenu.toggle($event); $event.stopPropagation()"
-          (mouseover)="hovered = true"
-          (focus)="hovered = true"
-          (mouseleave)="hovered = false"
-          (blur)="hovered = false"
-          (keydown.enter)="entitymenu.toggle($event); $event.stopPropagation()"
-          [text]="true"
-          [outlined]="false"
-          [rounded]="true"
-          [label]="hovered ? '' : item.bookCount?.toString() || ''"
-          [icon]="hovered ? 'pi pi-ellipsis-v' : ''"
-          class="entity-menu-button"
-          tabindex="0"
-        ></p-button>
-      }
-      <p-menu #entitymenu [model]="item.menu" [popup]="true" appendTo="body"></p-menu>
-    }
+        @if (item.type === 'Library' || item.type === 'Shelf' || item.type === 'magicShelfItem') {
+          @if (hasContextMenu()) {
+            @if (shouldShowContextMenuButton()) {
+              <button
+                type="button"
+                class="entity-menu-button"
+                [attr.aria-label]="item.label"
+                (click)="entitymenu.toggle($event); $event.stopPropagation()"
+                (mouseenter)="hovered = true"
+                (mouseleave)="hovered = false"
+                (focus)="hovered = true"
+                (blur)="hovered = false"
+              >
+                <span class="entity-menu-button-content">
+                  @if (hovered) {
+                    <i class="pi pi-ellipsis-v" aria-hidden="true"></i>
+                  } @else {
+                    <span>{{ item.bookCount?.toString() || '' }}</span>
+                  }
+                </span>
+              </button>
+            }
+            <p-menu #entitymenu [model]="contextMenuItems" [popup]="true" appendTo="body"></p-menu>
+          }
+        }
 
         @if (item.type === 'Library' && (!admin && !canManipulateLibrary) || item.type === 'All Books' || item.type === 'Series' || item.type === 'Authors' || item.label === 'Unshelved' || item.label === 'Kobo') {
           <p class="book-count">
-        {{ formatCount(item.bookCount) }}
-      </p>
+            {{ formatCount(item.bookCount) }}
+          </p>
         }
-  </span>
+      </span>
     </div>
 
     <div [@children]="isExpanded(key) ? 'expanded' : 'collapsed'" class="submenu-container">
       @if (item.items) {
         <ul>
           @for (child of item.items; track child.routerLink?.[0] ?? child.label; let i = $index) {
-            <app-menuitem [item]="child" [index]="i" [parentKey]="key" [class]="child.badgeClass"></app-menuitem>
+            <li app-menuitem [item]="child" [index]="i" [parentKey]="key"></li>
           }
         </ul>
       }

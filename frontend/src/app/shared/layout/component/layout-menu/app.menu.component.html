@@ -5,17 +5,16 @@
       <ul class="layout-menu">
         @if (homeMenu(); as homeMenu) {
           @for (item of homeMenu; track item.label; let i = $index) {
-            @if (!item.separator) {
-              <app-menuitem [item]="item" [index]="i" [root]="true" menuKey="home"></app-menuitem>
-            }
+            <li app-menuitem [item]="item" [index]="i" [root]="true" menuKey="home"></li>
           }
         }
       </ul>
-      <i class="pi pi-objects-column sidebar-width-btn"
-         role="button"
-         tabindex="0"
-         (click)="widthPanel.toggle($event)"
-         (keydown.enter)="widthPanel.toggle($event)"></i>
+      <button
+        type="button"
+        class="sidebar-width-btn pi pi-objects-column"
+        [attr.aria-label]="t('adjustSidebarWidth')"
+        (click)="widthPanel.toggle($event)"
+      ></button>
       <p-popover #widthPanel appendTo="body">
         <div class="sidebar-width-popover">
           <span class="sidebar-width-popover-label">{{ sidebarWidth }}px</span>
@@ -34,9 +33,7 @@
     <ul class="layout-menu">
       @if (libraryMenu(); as libraryMenu) {
         @for (item of libraryMenu; track item.label; let i = $index) {
-          @if (!item.separator) {
-            <app-menuitem [item]="item" [index]="i" [root]="true" menuKey="library"></app-menuitem>
-          }
+          <li app-menuitem [item]="item" [index]="i" [root]="true" menuKey="library"></li>
         }
       }
     </ul>
@@ -44,9 +41,7 @@
     <ul class="layout-menu">
       @if (shelfMenu(); as shelfMenu) {
         @for (item of shelfMenu; track item.label; let i = $index) {
-          @if (!item.separator) {
-            <app-menuitem [item]="item" [index]="i" [root]="true" menuKey="shelf"></app-menuitem>
-          }
+          <li app-menuitem [item]="item" [index]="i" [root]="true" menuKey="shelf"></li>
         }
       }
     </ul>
@@ -54,9 +49,7 @@
     <ul class="layout-menu">
       @if (magicShelfMenu(); as shelfMenu) {
         @for (item of shelfMenu; track item.label; let i = $index) {
-          @if (!item.separator) {
-            <app-menuitem [item]="item" [index]="i" [root]="true" menuKey="magicShelf"></app-menuitem>
-          }
+          <li app-menuitem [item]="item" [index]="i" [root]="true" menuKey="magicShelf"></li>
         }
       }
     </ul>
@@ -80,15 +73,13 @@
       </div>
       @if (isSemanticVersion(versionInfo.current) && versionInfo.latest && versionInfo.latest !== versionInfo.current) {
         <div>
-          <a
-            (click)="openChangelogDialog()"
+          <button
+            type="button"
             class="update-link"
-            role="button"
-            tabindex="0"
-            (keydown.enter)="openChangelogDialog()"
-            >
+            (click)="openChangelogDialog()"
+          >
             {{ t('update') }}
-          </a>
+          </button>
         </div>
       }
     </div>

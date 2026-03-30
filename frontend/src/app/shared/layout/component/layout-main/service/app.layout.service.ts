@@ -1,138 +1,39 @@
-import {Injectable, effect, signal} from '@angular/core';
-import {Subject} from 'rxjs';
-
-export interface AppConfig {
-  inputStyle: string;
-  colorScheme: string;
-  theme: string;
-  ripple: boolean;
-  menuMode: string;
-  scale: number;
-}
-
-interface LayoutState {
-  staticMenuDesktopInactive: boolean;
-  overlayMenuActive: boolean;
-  profileSidebarVisible: boolean;
-  configSidebarVisible: boolean;
-  staticMenuMobileActive: boolean;
-  menuHoverActive: boolean;
-}
+import { DOCUMENT } from '@angular/common';
+import { effect, inject, Injectable, signal } from '@angular/core';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LayoutService {
-  _config: AppConfig = {
-    ripple: false,
-    inputStyle: 'outlined',
-    menuMode: 'static',
-    colorScheme: 'light',
-    theme: 'lara-light-indigo',
-    scale: 14,
-  };
+  private readonly document = inject(DOCUMENT);
 
-  config = signal<AppConfig>(this._config);
-
-  state: LayoutState = {
-    staticMenuDesktopInactive: false,
-    overlayMenuActive: false,
-    profileSidebarVisible: false,
-    configSidebarVisible: false,
-    staticMenuMobileActive: false,
-    menuHoverActive: false,
-  };
-
-  private configUpdate = new Subject<AppConfig>();
-  private overlayOpen = new Subject<unknown>();
-  overlayOpen$ = this.overlayOpen.asObservable();
+  readonly scale = signal(14);
+  readonly sidebarOpen = signal(true);
+  readonly mobileSidebarOpen = signal(false);
 
   constructor() {
     effect(() => {
-      const config = this.config();
-      if (this.updateStyle(config)) {
-        this.changeTheme();
-      }
-      this.changeScale(config.scale);
-      this.onConfigUpdate();
+      this.changeScale(this.scale());
     });
   }
 
-  updateStyle(config: AppConfig) {
-    return (
-      config.theme !== this._config.theme ||
-      config.colorScheme !== this._config.colorScheme
-    );
-  }
-
-  onMenuToggle() {
-    if (this.isOverlay()) {
-      this.state.overlayMenuActive = !this.state.overlayMenuActive;
-      if (this.state.overlayMenuActive) {
-        this.overlayOpen.next(null);
-      }
-    }
-
+  onMenuToggle(): void {
     if (this.isDesktop()) {
-      this.state.staticMenuDesktopInactive = !this.state.staticMenuDesktopInactive;
+      this.sidebarOpen.update((value) => !value);
     } else {
-      this.state.staticMenuMobileActive = !this.state.staticMenuMobileActive;
-      if (this.state.staticMenuMobileActive) {
-        this.overlayOpen.next(null);
-      }
+      this.mobileSidebarOpen.update((value) => !value);
     }
   }
 
-  isOverlay() {
-    return this.config().menuMode === 'overlay';
+  closeMobileSidebar(): void {
+    this.mobileSidebarOpen.set(false);
   }
 
-  isDesktop() {
-    return window.innerWidth > 991;
+  isDesktop(): boolean {
+    return (this.document.defaultView?.innerWidth ?? 992) > 991;
   }
 
-  onConfigUpdate() {
-    this._config = {...this.config()};
-    this.configUpdate.next(this.config());
-  }
-
-  changeTheme() {
-    const config = this.config();
-    const themeLink = document.getElementById('theme-css') as HTMLLinkElement;
-    const themeLinkHref = themeLink.getAttribute('href')!;
-    const newHref = themeLinkHref
-      .split('/')
-      .map((el) =>
-        el == this._config.theme
-          ? config.theme
-          : el == `theme-${this._config.colorScheme}`
-            ? `theme-${config.colorScheme}`
-            : el
-      )
-      .join('/');
-
-    this.replaceThemeLink(newHref);
-  }
-
-  replaceThemeLink(href: string) {
-    const id = 'theme-css';
-    const themeLink = document.getElementById(id) as HTMLLinkElement;
-    const cloneLinkElement = themeLink.cloneNode(true) as HTMLLinkElement;
-
-    cloneLinkElement.setAttribute('href', href);
-    cloneLinkElement.setAttribute('id', id + '-clone');
-
-    themeLink.parentNode!.insertBefore(
-      cloneLinkElement,
-      themeLink.nextSibling
-    );
-    cloneLinkElement.addEventListener('load', () => {
-      themeLink.remove();
-      cloneLinkElement.setAttribute('id', id);
-    });
-  }
-
-  changeScale(value: number) {
-    document.documentElement.style.fontSize = `${value}px`;
+  private changeScale(value: number): void {
+    this.document.documentElement.style.fontSize = `${value}px`;
   }
 }

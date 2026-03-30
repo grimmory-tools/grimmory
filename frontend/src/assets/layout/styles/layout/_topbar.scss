@@ -11,7 +11,7 @@
   padding: 0 1rem;
   background-color: color-mix(in srgb, var(--card-background) 25%, transparent);
   border: none;
-  border-bottom: 1px solid var(--p-content-border-color);
+  border-bottom: 1px solid var(--content-border-color);
   transition: left variables.$transition-duration;
   display: flex;
   align-items: center;
@@ -147,6 +147,38 @@
     }
   }
 
+}
+
+.layout-menu-button,
+.mobile-menu-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid var(--border-color);
+  background-color: var(--card-background);
+  cursor: pointer;
+  outline-color: transparent;
+  transition: outline-color .2s, border-color .2s, transform .3s ease-in-out;
+
+  i {
+    color: var(--text-color);
+  }
+
+  &:hover {
+    border-color: var(--primary-color);
+  }
+}
+
+.layout-menu-button {
+  border-radius: 999px;
+}
+
+.mobile-menu-trigger {
+  border-radius: 6px;
 }
 
 .rotate-left {

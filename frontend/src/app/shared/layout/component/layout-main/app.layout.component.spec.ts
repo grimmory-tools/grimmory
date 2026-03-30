@@ -1,16 +1,113 @@
-import {describe, it} from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { Component } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter, Router } from '@angular/router';
+import { TranslocoTestingModule } from '@jsverse/transloco';
+import { AppLayoutComponent } from './app.layout.component';
+import { AppSidebarComponent } from '../layout-sidebar/app.sidebar.component';
+import { AppTopBarComponent } from '../layout-topbar/app.topbar.component';
+import { LocalStorageService } from '../../../service/local-storage.service';
+import { LayoutService } from './service/app.layout.service';
 
-// NOTE(frontend-seam): Honest layout coverage needs a host harness for router events, renderer
-// listeners, overlay subscriptions, body-scroll mutation, and view-child/sidebar interactions.
-// In its current shape the component is mostly runtime orchestration around global DOM listeners.
-describe.skip('AppLayoutComponent', () => {
-  it('needs a router-overlay seam to verify menu hiding on navigation and overlay clicks', () => {
-    // TODO(seam): Cover outside-click detection and overlay subscription behavior after router
-    // events and renderer listeners are exposed behind a testable boundary.
+@Component({
+  selector: 'app-sidebar',
+  standalone: true,
+  template: '',
+})
+class StubSidebarComponent {}
+
+@Component({
+  selector: 'app-topbar',
+  standalone: true,
+  template: '',
+})
+class StubTopBarComponent {}
+
+@Component({
+  standalone: true,
+  template: '',
+})
+class DummyRouteComponent {}
+
+describe('AppLayoutComponent', () => {
+  let fixture: ComponentFixture<AppLayoutComponent>;
+  let router: Router;
+  let layoutService: LayoutService;
+
+  const localStorageService = {
+    get: vi.fn(() => 225),
+  };
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [
+        AppLayoutComponent,
+        TranslocoTestingModule.forRoot({ langs: {} }),
+      ],
+      providers: [
+        provideRouter([
+          { path: '', component: DummyRouteComponent },
+          { path: 'next', component: DummyRouteComponent },
+        ]),
+        { provide: LocalStorageService, useValue: localStorageService },
+      ],
+    });
+
+    TestBed.overrideComponent(AppLayoutComponent, {
+      remove: {
+        imports: [AppSidebarComponent, AppTopBarComponent],
+      },
+      add: {
+        imports: [StubSidebarComponent, StubTopBarComponent],
+      },
+    });
+
+    fixture = TestBed.createComponent(AppLayoutComponent);
+    router = TestBed.inject(Router);
+    layoutService = TestBed.inject(LayoutService);
+
+    fixture.detectChanges();
+    await router.navigateByUrl('/');
+    fixture.detectChanges();
   });
 
-  it('needs a document-style seam to verify sidebar width initialization and body scroll toggling', () => {
-    // TODO(seam): Cover local-storage width hydration and blocked-scroll lifecycle once global
-    // document mutations can be asserted without brittle DOM listener wiring.
+  afterEach(() => {
+    document.body.classList.remove('blocked-scroll');
+    fixture?.destroy();
+    vi.restoreAllMocks();
+  });
+
+  it('closes the mobile sidebar when the mask is clicked', () => {
+    layoutService.mobileSidebarOpen.set(true);
+    fixture.detectChanges();
+
+    const mask = fixture.nativeElement.querySelector('.layout-mask') as HTMLDivElement;
+    mask.click();
+    fixture.detectChanges();
+
+    expect(layoutService.mobileSidebarOpen()).toBe(false);
+  });
+
+  it('toggles the body scroll lock with mobile sidebar state', () => {
+    layoutService.mobileSidebarOpen.set(true);
+    fixture.detectChanges();
+
+    expect(document.body.classList.contains('blocked-scroll')).toBe(true);
+
+    layoutService.mobileSidebarOpen.set(false);
+    fixture.detectChanges();
+
+    expect(document.body.classList.contains('blocked-scroll')).toBe(false);
+  });
+
+  it('closes the mobile sidebar on navigation', async () => {
+    layoutService.mobileSidebarOpen.set(true);
+    fixture.detectChanges();
+
+    await router.navigateByUrl('/next');
+    fixture.detectChanges();
+
+    expect(layoutService.mobileSidebarOpen()).toBe(false);
   });
 });

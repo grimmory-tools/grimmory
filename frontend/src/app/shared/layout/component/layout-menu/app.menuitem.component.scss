@@ -1,11 +1,22 @@
+.plus-icon-button,
+.expand-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
 .plus-icon {
-  color: var(--p-primary-color);
+  color: var(--primary-color);
   transition: color 0.2s ease;
   font-size: 0.8rem;
   cursor: pointer;
 
   &:hover {
-    color: var(--p-green-400);
+    color: var(--primary-hover-color);
   }
 }
 
@@ -26,12 +37,15 @@
 }
 
 .expand-icon {
-  color: var(--p-surface-500);
-  padding-right: 0.75rem;
+  color: var(--surface-500);
 
   &:hover {
-    color: var(--p-surface-200);
+    color: var(--surface-200);
   }
+}
+
+.expand-icon-button {
+  padding-right: 0.75rem;
 }
 
 .root-item {
@@ -47,16 +61,16 @@
   justify-content: space-between;
   border-radius: 8px;
   cursor: pointer;
+  transition: background-color 0.2s ease;
 
   &:hover {
-    background-color: var(--p-surface-800);
+    background-color: var(--surface-hover);
     border-radius: 8px;
   }
 }
 
 .menu-item-container.active-route-container {
-  background-color: color-mix(in srgb, var(--p-primary-300), transparent 93%);
-  border-radius: 8px;
+  background-color: var(--surface-hover);
 }
 
 .menu-item-link {
@@ -64,6 +78,13 @@
   align-items: center;
   gap: 0.5rem;
   width: 100%;
+  min-width: 0;
+  background-color: transparent;
+
+  &:hover,
+  &:focus {
+    background-color: transparent;
+  }
 }
 
 
@@ -78,16 +99,46 @@
 
 .menu-item-end-content {
   display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .entity-menu-button {
-  height: 30px;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 30px;
+  padding: 0 0.55rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--primary-color);
+  cursor: pointer;
+  font: inherit;
+  transition: color 0.2s ease;
+}
+
+.entity-menu-button:hover {
+  background-color: transparent;
+  color: var(--primary-hover-color);
+}
+
+.entity-menu-button-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .book-count {
   color: var(--primary-color);
   padding-right: 0.75rem;
+  transition: color 0.2s ease;
+}
+
+.menu-item-container:hover .book-count,
+.menu-item-container:hover .entity-menu-button {
+  color: var(--primary-hover-color);
 }
 
 .submenu-container {
