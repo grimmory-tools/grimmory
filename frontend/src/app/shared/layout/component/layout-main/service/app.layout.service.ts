@@ -104,9 +104,9 @@ export class LayoutService {
       .split('/')
       .map((el) =>
         el == this._config.theme
-          ? (el = config.theme)
+          ? config.theme
           : el == `theme-${this._config.colorScheme}`
-            ? (el = `theme-${config.colorScheme}`)
+            ? `theme-${config.colorScheme}`
             : el
       )
       .join('/');

@@ -45,6 +45,9 @@ local-scripts/
 ### Dev config, books, and data ###
 booklore-ui/test-results/
 frontend/test-results/
+frontend/output/
+frontend/playwright-report/
+frontend/.playwright-browsers/
 frontend/node_modules/
 booklore-api/src/main/resources/application-local.yaml
 /shared/
@@ -54,3 +57,4 @@ booklore-api/src/main/resources/application-local.yaml
 /frontend/.yarn/
 /tools/release/node_modules
 /tools/release/.yarn/
+.worktrees/
