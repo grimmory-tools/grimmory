@@ -1,118 +1,95 @@
 <ng-container *transloco="let t; prefix: 'book.fileAttacher'">
-<div class="book-file-attacher-container">
-  <div class="panel-header">
-    <div class="header-icon-wrapper">
-      <i class="pi pi-link header-icon"></i>
+  <div class="book-file-attacher-container">
+    <div class="panel-header">
+      <div class="header-icon-wrapper">
+        <i class="pi pi-link header-icon"></i>
+      </div>
+      <div class="header-text">
+        <h2 class="panel-title">{{ isBulkMode ? t('titleBulk') : t('title') }}</h2>
+        <p class="panel-description">{{ isBulkMode ? t('descriptionBulk') : t('description') }}</p>
+      </div>
+      <p-button icon="pi pi-times" [rounded]="true" [text]="true" severity="secondary" (click)="closeDialog()"
+        class="close-button">
+      </p-button>
     </div>
-    <div class="header-text">
-      <h2 class="panel-title">{{ isBulkMode ? t('titleBulk') : t('title') }}</h2>
-      <p class="panel-description">{{ isBulkMode ? t('descriptionBulk') : t('description') }}</p>
-    </div>
-    <p-button
-      icon="pi pi-times"
-      [rounded]="true"
-      [text]="true"
-      severity="secondary"
-      (click)="closeDialog()"
-      class="close-button">
-    </p-button>
-  </div>
 
-  <div class="dialog-content">
-    <!-- Source Book(s) Info -->
-    <div class="source-info">
-      <h3 class="section-title">{{ isBulkMode ? t('sourceBooksLabel', { count: sourceBooks.length }) : t('sourceBookLabel', { count: sourceBooks.length }) }}</h3>
-      <div class="source-books-list">
-        @for (book of sourceBooks; track book.id) {
+    <div class="dialog-content">
+      <!-- Source Book(s) Info -->
+      <div class="source-info">
+        <h3 class="section-title">{{ isBulkMode ? t('sourceBooksLabel', { count: sourceBooks.length }) :
+          t('sourceBookLabel', { count: sourceBooks.length }) }}</h3>
+        <div class="source-books-list">
+          @for (book of sourceBooks; track book.id) {
           <div class="book-info-card">
             <div class="book-title">{{ book.metadata?.title || t('unknownTitle') }}</div>
             @if (book.metadata?.authors?.length) {
-              <div class="book-authors">{{ book.metadata?.authors?.join(', ') }}</div>
+            <div class="book-authors">{{ book.metadata?.authors?.join(', ') }}</div>
             }
             <div class="file-info">
               <i class="pi pi-file"></i>
               <span>{{ getSourceFileInfo(book) }}</span>
             </div>
           </div>
-        }
+          }
+        </div>
       </div>
-    </div>
 
-    <!-- Target Book Selection -->
-    <div class="target-selection">
-      <h3 class="section-title">{{ t('selectTargetBook') }}</h3>
-      <p-autocomplete
-        [(ngModel)]="targetBook"
-        [suggestions]="filteredBooks"
-        (completeMethod)="filterBooks($event)"
-        (onSelect)="onBookSelect($event)"
-        (onClear)="onBookClear()"
-        optionLabel="metadata.title"
-        [dropdown]="true"
-        [showClear]="true"
-        [placeholder]="t('searchPlaceholder')"
-        fluid
-        [disabled]="isAttaching">
-        <ng-template let-book pTemplate="item">
-          <div class="book-suggestion">
-            <div class="suggestion-title">{{ book.metadata?.title || t('unknownTitle') }}</div>
-            @if (book.metadata?.authors?.length) {
+      <!-- Target Book Selection -->
+      <div class="target-selection" #autocompleteWrapper>
+        <h3 class="section-title">{{ t('selectTargetBook') }}</h3>
+        <p-autocomplete [(ngModel)]="targetBook" [suggestions]="filteredBooks" (completeMethod)="filterBooks($event)"
+          (onSelect)="onBookSelect($event)" (onClear)="onBookClear()" optionLabel="metadata.title" [dropdown]="true"
+          [showClear]="true" [placeholder]="t('searchPlaceholder')" [panelStyle]="autocomplePanelStyle" fluid
+          [disabled]="isAttaching">
+          <ng-template let-book pTemplate="item">
+            <div class="book-suggestion">
+              <div class="suggestion-title">{{ book.metadata?.title || t('unknownTitle') }}</div>
+              @if (book.metadata?.authors?.length) {
               <div class="suggestion-authors">{{ book.metadata.authors.join(', ') }}</div>
-            }
-            @if (book.primaryFile) {
-              <div class="suggestion-format">{{ book.primaryFile.extension?.toUpperCase() || book.primaryFile.bookType }}</div>
-            }
-          </div>
-        </ng-template>
-        <ng-template let-book pTemplate="selectedItem">
-          <span>{{ getBookDisplayName(book) }}</span>
-        </ng-template>
-      </p-autocomplete>
-    </div>
-
-    <!-- Options -->
-    <div class="delete-option">
-      <p-checkbox
-        [(ngModel)]="moveFiles"
-        [binary]="true"
-        inputId="moveFiles"
-        [disabled]="isAttaching">
-      </p-checkbox>
-      <label for="moveFiles" class="delete-label">
-        {{ t('moveFilesLabel') }}
-      </label>
-    </div>
-
-    <!-- Warning Message -->
-    <div class="warning-message">
-      <i class="pi pi-info-circle"></i>
-      <div class="warning-text">
-        @if (moveFiles) {
-          <p>{{ isBulkMode ? t('warningMoveBulk') : t('warningMove') }}</p>
-        } @else {
-          <p>{{ isBulkMode ? t('warningNoMoveBulk') : t('warningNoMove') }}</p>
-        }
-        <p>{{ isBulkMode ? t('warningDeleteBulk') : t('warningDelete') }}</p>
+              }
+              @if (book.primaryFile) {
+              <div class="suggestion-format">{{ book.primaryFile.extension?.toUpperCase() || book.primaryFile.bookType
+                }}</div>
+              }
+            </div>
+          </ng-template>
+          <ng-template let-book pTemplate="selectedItem">
+            <span>{{ getBookDisplayName(book) }}</span>
+          </ng-template>
+        </p-autocomplete>
       </div>
-    </div>
 
-    <!-- Action Buttons -->
-    <div class="action-buttons">
-      <p-button
-        [label]="'common.cancel' | transloco"
-        [outlined]="true"
-        severity="secondary"
-        (click)="closeDialog()"
-        [disabled]="isAttaching">
-      </p-button>
-      <p-button
-        [label]="isBulkMode ? t('attachFilesBulk') : t('attachFile')"
-        icon="pi pi-link"
-        (click)="attach()"
-        [disabled]="!canAttach()"
-        [loading]="isAttaching">
-      </p-button>
+      <!-- Options -->
+      <div class="delete-option">
+        <p-checkbox [(ngModel)]="moveFiles" [binary]="true" inputId="moveFiles" [disabled]="isAttaching">
+        </p-checkbox>
+        <label for="moveFiles" class="delete-label">
+          {{ t('moveFilesLabel') }}
+        </label>
+      </div>
+
+      <!-- Warning Message -->
+      <div class="warning-message">
+        <i class="pi pi-info-circle"></i>
+        <div class="warning-text">
+          @if (moveFiles) {
+          <p>{{ isBulkMode ? t('warningMoveBulk') : t('warningMove') }}</p>
+          } @else {
+          <p>{{ isBulkMode ? t('warningNoMoveBulk') : t('warningNoMove') }}</p>
+          }
+          <p>{{ isBulkMode ? t('warningDeleteBulk') : t('warningDelete') }}</p>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <p-button [label]="'common.cancel' | transloco" [outlined]="true" severity="secondary" (click)="closeDialog()"
+          [disabled]="isAttaching">
+        </p-button>
+        <p-button [label]="isBulkMode ? t('attachFilesBulk') : t('attachFile')" icon="pi pi-link" (click)="attach()"
+          [disabled]="!canAttach()" [loading]="isAttaching">
+        </p-button>
+      </div>
     </div>
   </div>
-</div>
 </ng-container>

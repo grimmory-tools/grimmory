@@ -101,14 +101,14 @@ class BookServiceTest {
     @Test
     void getBookDTOs_adminUser_returnsBooksWithProgress() {
         Book book = Book.builder().id(1L).primaryFile(BookFile.builder().bookType(BookFileType.PDF).build()).shelves(Set.of()).build();
-        when(bookQueryService.getAllBooks(anyBoolean())).thenReturn(List.of(book));
+        when(bookQueryService.getAllBooks(anyBoolean(), anyBoolean())).thenReturn(List.of(book));
         when(readingProgressService.fetchUserProgress(anyLong(), anySet())).thenReturn(Map.of(1L, new UserBookProgressEntity()));
         when(authenticationService.getAuthenticatedUser()).thenReturn(testUser);
 
-        List<Book> result = bookService.getBookDTOs(true);
+        List<Book> result = bookService.getBookDTOs(true, false);
 
         assertEquals(1, result.size());
-        verify(bookQueryService).getAllBooks(true);
+        verify(bookQueryService).getAllBooks(true, false);
     }
 
     @Test

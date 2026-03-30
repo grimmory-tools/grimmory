@@ -19,16 +19,6 @@
   }
 }
 
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-
-  100% {
-    background-position: 200% 0;
-  }
-}
-
 .cover-container {
   position: relative;
   width: 100%;
@@ -39,17 +29,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.cover-container:not(.loaded) {
-  background: linear-gradient(
-    90deg,
-    var(--surface-ground) 25%,
-    var(--surface-hover, rgb(255 255 255 / 8%)) 50%,
-    var(--surface-ground) 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
 }
 
 .cover-container.audiobook-cover {
@@ -66,15 +45,10 @@
   width: 100%;
   height: 100%;
   border-radius: 8px 8px 0 0;
-  opacity: 0;
-  transition: opacity 0.2s ease-in, transform 0.35s ease;
+  transition: transform 0.35s ease;
 }
 
-.book-cover.loaded {
-  opacity: 1;
-}
-
-.book-card:hover .book-cover.loaded {
+.book-card:hover .book-cover {
   transform: scale(1.04);
 }
 

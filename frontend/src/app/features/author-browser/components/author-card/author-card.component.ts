@@ -1,5 +1,4 @@
 import {ChangeDetectorRef, Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
-import {NgClass} from '@angular/common';
 import {TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {Tooltip} from 'primeng/tooltip';
 import {CheckboxChangeEvent, CheckboxModule} from 'primeng/checkbox';
@@ -15,7 +14,7 @@ import {AuthorService} from '../../service/author.service';
   standalone: true,
   templateUrl: './author-card.component.html',
   styleUrls: ['./author-card.component.scss'],
-  imports: [NgClass, TranslocoPipe, Tooltip, CheckboxModule, FormsModule, TieredMenu, Button]
+  imports: [TranslocoPipe, Tooltip, CheckboxModule, FormsModule, TieredMenu, Button]
 })
 export class AuthorCardComponent implements OnChanges {
 
@@ -41,7 +40,6 @@ export class AuthorCardComponent implements OnChanges {
   private lastShiftKey = false;
 
   hasPhoto = false;
-  isImageLoaded = false;
   quickMatching = false;
 
   items: MenuItem[] = [];
@@ -53,12 +51,10 @@ export class AuthorCardComponent implements OnChanges {
       const curr = changes['author'].currentValue as AuthorSummary;
       if (!prev || prev.id !== curr.id || prev.hasPhoto !== curr.hasPhoto || prev.asin !== curr.asin) {
         this.hasPhoto = curr.hasPhoto;
-        this.isImageLoaded = false;
       }
     }
     if (changes['cacheBuster'] && !changes['cacheBuster'].firstChange) {
       this.hasPhoto = true;
-      this.isImageLoaded = false;
     }
   }
 
@@ -86,9 +82,6 @@ export class AuthorCardComponent implements OnChanges {
     this.cardClick.emit(this.author);
   }
 
-  onImageLoad(): void {
-    this.isImageLoaded = true;
-  }
 
   onPhotoError(): void {
     this.hasPhoto = false;
@@ -163,7 +156,6 @@ export class AuthorCardComponent implements OnChanges {
         this.quickMatching = false;
         this.author = {...this.author, asin: updated.asin, hasPhoto: true};
         this.hasPhoto = true;
-        this.isImageLoaded = false;
         this.menuInitialized = false;
         this.quickMatched.emit(this.author);
         this.messageService.add({

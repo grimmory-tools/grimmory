@@ -5,16 +5,14 @@
      (click)="onCardClick($event)"
      (keydown.enter)="onCardClick($event)">
 
-  <div class="cover-container" [ngClass]="{ 'center-info-btn': _isSeriesViewActive || !hasDigitalFile(), 'loaded': isImageLoaded, 'audiobook-cover': _isAudiobook, 'square-library-cover': useSquareCovers }">
+  <div class="cover-container" [ngClass]="{ 'center-info-btn': _isSeriesViewActive || !hasDigitalFile(), 'audiobook-cover': _isAudiobook, 'square-library-cover': useSquareCovers }">
     <img
       [src]="coverImageUrl"
       class="book-cover"
-      [class.loaded]="isImageLoaded"
       [class.square-cover]="_isAudiobook || useSquareCovers"
       [alt]="('book.card.alt.cover' | transloco: { title: displayTitle })"
       loading="lazy"
-      decoding="async"
-      (load)="onImageLoad()"/>
+      decoding="async"/>
 
     <div class="top-left-overlay-stack">
       @if ((overlayPreferenceService?.showBookTypePill() ?? true) && getDisplayFormat(); as displayFormat) {
