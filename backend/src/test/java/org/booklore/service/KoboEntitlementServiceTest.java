@@ -577,6 +577,7 @@ class KoboEntitlementServiceTest {
             when(readingStateRepository.findByEntitlementIdAndUserId("1", user.getId()))
                     .thenReturn(Optional.of(existingEntity));
             when(readingStateMapper.toDto(existingEntity)).thenReturn(existingState);
+            when(readingStateBuilder.shouldUseWebReaderProgress(progress)).thenReturn(true);
             when(readingStateBuilder.buildBookmarkFromProgress(eq(progress), isNull(), any(OffsetDateTime.class)))
                     .thenReturn(webReaderBookmark);
             when(readingStateBuilder.buildStatusInfoFromProgress(eq(progress), anyString()))
@@ -590,6 +591,73 @@ class KoboEntitlementServiceTest {
             assertEquals(1, result.size());
             assertEquals(55, result.getFirst().getNewEntitlement().getReadingState().getCurrentBookmark().getProgressPercent());
             verify(readingStateBuilder).buildBookmarkFromProgress(eq(progress), isNull(), any(OffsetDateTime.class));
+        }
+
+        @Test
+        @DisplayName("Should keep stored Kobo bookmark when mirrored EPUB progress is not newer")
+        void generateNewEntitlements_preservesStoredKoboBookmarkWhenKoboIsFreshest() {
+            BookEntity book = createEpubBookEntity(1L);
+            book.setAddedOn(Instant.parse("2025-01-01T00:00:00Z"));
+            book.getPrimaryBookFile().setId(10L);
+
+            UserBookProgressEntity progress = new UserBookProgressEntity();
+            progress.setBook(book);
+            progress.setKoboProgressPercent(55f);
+            progress.setKoboLocation("kobo.12.18");
+            progress.setKoboLocationType("KoboSpan");
+            progress.setKoboLocationSource("OPS/chapter3.xhtml");
+            progress.setKoboProgressReceivedTime(Instant.parse("2025-06-15T12:00:00Z"));
+            progress.setEpubProgressPercent(55f);
+            progress.setLastReadTime(Instant.parse("2025-06-15T12:00:00Z"));
+            progress.setReadStatus(ReadStatus.READING);
+
+            KoboReadingState.CurrentBookmark existingBookmark = KoboReadingState.CurrentBookmark.builder()
+                    .progressPercent(55)
+                    .contentSourceProgressPercent(23)
+                    .location(KoboReadingState.CurrentBookmark.Location.builder()
+                            .value("kobo.12.18")
+                            .type("KoboSpan")
+                            .source("OPS/chapter3.xhtml")
+                            .build())
+                    .lastModified("2025-06-15T12:00:00Z")
+                    .build();
+            KoboReadingState existingState = KoboReadingState.builder()
+                    .entitlementId("1")
+                    .currentBookmark(existingBookmark)
+                    .build();
+            KoboReadingStateEntity existingEntity = new KoboReadingStateEntity();
+
+            KoboSyncSettings settings = new KoboSyncSettings();
+            settings.setTwoWayProgressSync(true);
+
+            when(bookQueryService.findAllWithMetadataByIds(Set.of(1L))).thenReturn(List.of(book));
+            when(koboCompatibilityService.isBookSupportedForKobo(book)).thenReturn(true);
+            when(koboUrlBuilder.downloadUrl("token1", 1L)).thenReturn("http://test.com/download/1");
+            when(appSettingService.getAppSettings()).thenReturn(createAppSettingsWithKoboSettings());
+            when(koboSettingsService.getCurrentUserSettings()).thenReturn(settings);
+            when(progressRepository.findByUserIdAndBookId(user.getId(), 1L)).thenReturn(Optional.of(progress));
+            when(fileProgressRepository.findByUserIdAndBookFileId(user.getId(), 10L)).thenReturn(Optional.empty());
+            when(readingStateRepository.findByEntitlementIdAndUserId("1", user.getId()))
+                    .thenReturn(Optional.of(existingEntity));
+            when(readingStateMapper.toDto(existingEntity)).thenReturn(existingState);
+            when(readingStateBuilder.shouldUseWebReaderProgress(progress)).thenReturn(false);
+            when(readingStateBuilder.buildStatusInfoFromProgress(eq(progress), anyString()))
+                    .thenReturn(KoboReadingState.StatusInfo.builder()
+                            .status(KoboReadStatus.READING)
+                            .timesStartedReading(1)
+                            .build());
+
+            List<NewEntitlement> result = koboEntitlementService.generateNewEntitlements(Set.of(1L), "token1");
+
+            assertEquals(1, result.size());
+            KoboReadingState.CurrentBookmark bookmark = result.getFirst().getNewEntitlement().getReadingState().getCurrentBookmark();
+            assertEquals(55, bookmark.getProgressPercent());
+            assertEquals(23, bookmark.getContentSourceProgressPercent());
+            assertNotNull(bookmark.getLocation());
+            assertEquals("kobo.12.18", bookmark.getLocation().getValue());
+            assertEquals("OPS/chapter3.xhtml", bookmark.getLocation().getSource());
+            verify(readingStateBuilder).shouldUseWebReaderProgress(progress);
+            verify(readingStateBuilder, never()).buildBookmarkFromProgress(eq(progress), isNull(), any(OffsetDateTime.class));
         }
 
         @Test

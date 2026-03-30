@@ -48,13 +48,13 @@ public class KoboReadingStateBuilder {
                                                                       UserBookFileProgressEntity fileProgress,
                                                                       OffsetDateTime defaultTime,
                                                                       Map<Long, KoboSpanPositionMap> preloadedMaps) {
-        if (isWebReaderNewer(progress)) {
+        if (shouldUseWebReaderProgress(progress)) {
             return buildBookmarkFromWebReaderProgress(progress, fileProgress, defaultTime, preloadedMaps);
         }
-        return buildBookmarkFromKoboProgress(progress, defaultTime);
+        return buildBookmarkFromKoboProgress(progress, fileProgress, defaultTime);
     }
 
-    private boolean isWebReaderNewer(UserBookProgressEntity progress) {
+    public boolean shouldUseWebReaderProgress(UserBookProgressEntity progress) {
         if (!koboSettingsService.getCurrentUserSettings().isTwoWayProgressSync()) {
             return false;
         }
@@ -105,6 +105,7 @@ public class KoboReadingStateBuilder {
     }
 
     private KoboReadingState.CurrentBookmark buildBookmarkFromKoboProgress(UserBookProgressEntity progress,
+                                                                           UserBookFileProgressEntity fileProgress,
                                                                            OffsetDateTime defaultTime) {
         KoboReadingState.CurrentBookmark.Location location = Optional.ofNullable(progress.getKoboLocation())
                 .map(koboLocation -> KoboReadingState.CurrentBookmark.Location.builder()
