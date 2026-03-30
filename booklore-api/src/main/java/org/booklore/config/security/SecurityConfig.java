@@ -50,6 +50,8 @@ public class SecurityConfig {
     private static final String[] COMMON_PUBLIC_ENDPOINTS = {
             "/ws/**",                  // WebSocket connections (auth handled in WebSocketAuthInterceptor)
             "/kobo/**",                // Kobo API requests (auth handled in KoboAuthFilter)
+            "/api/docs",               // API documentation UI
+            "/api/openapi.json",       // OpenAPI spec (used by API documentation UI)
             "/api/v1/auth/**",         // Login and token refresh endpoints (must remain public)
             "/api/v1/public-settings", // Public endpoint for checking OIDC or other app settings
             "/api/v1/setup/**",        // Setup wizard endpoints (must remain accessible before initial setup)
