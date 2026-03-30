@@ -10,6 +10,7 @@ import org.booklore.service.reader.CbxReaderService;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.appsettings.AppSettingService;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -27,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Integration tests that feed a real RAR5 archive into the service layer
  */
+@EnabledIf("com.github.gotson.nightcompress.Archive#isAvailable")
 @ExtendWith(MockitoExtension.class)
 class Rar5IntegrationTest {
 

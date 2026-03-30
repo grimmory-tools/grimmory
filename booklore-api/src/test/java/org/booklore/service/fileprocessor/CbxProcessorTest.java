@@ -14,6 +14,7 @@ import org.booklore.service.metadata.sidecar.SidecarMetadataWriter;
 import org.booklore.util.FileService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
@@ -34,6 +35,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@EnabledIf("com.github.gotson.nightcompress.Archive#isAvailable")
 class CbxProcessorTest {
 
     @Mock private BookRepository bookRepository;

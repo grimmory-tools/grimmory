@@ -10,6 +10,7 @@ import org.booklore.service.appsettings.AppSettingService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.mockito.Mockito;
 
 import java.io.File;
@@ -28,6 +29,7 @@ import java.util.zip.ZipOutputStream;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@EnabledIf("com.github.gotson.nightcompress.Archive#isAvailable")
 class CbxComicInfoComplianceTest {
 
     private CbxMetadataWriter writer;

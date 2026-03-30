@@ -9,6 +9,7 @@ import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.io.TempDir;
 
 import javax.imageio.ImageIO;
@@ -23,6 +24,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.*;
 
 @DisplayName("CBX Conversion Integration Test")
+@EnabledIf("com.github.gotson.nightcompress.Archive#isAvailable")
 class CbxConversionIntegrationTest {
 
     @TempDir

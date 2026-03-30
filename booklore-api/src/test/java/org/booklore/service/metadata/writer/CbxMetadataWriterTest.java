@@ -10,6 +10,7 @@ import org.booklore.service.appsettings.AppSettingService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.mockito.Mockito;
 import org.w3c.dom.Document;
 
@@ -34,6 +35,7 @@ import java.util.zip.ZipOutputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@EnabledIf("com.github.gotson.nightcompress.Archive#isAvailable")
 class CbxMetadataWriterTest {
 
     private CbxMetadataWriter writer;

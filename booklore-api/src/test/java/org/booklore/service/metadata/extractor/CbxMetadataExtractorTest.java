@@ -5,6 +5,7 @@ import org.booklore.model.dto.ComicMetadata;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.io.TempDir;
 
 import javax.imageio.ImageIO;
@@ -21,6 +22,7 @@ import java.util.zip.ZipOutputStream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@EnabledIf("com.github.gotson.nightcompress.Archive#isAvailable")
 class CbxMetadataExtractorTest {
 
     private CbxMetadataExtractor extractor;
