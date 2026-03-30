@@ -1,22 +1,19 @@
 package org.booklore.service.koreader;
 
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.security.userdetails.KoreaderUserDetails;
 import org.booklore.exception.ApiError;
 import org.booklore.model.dto.progress.KoreaderProgress;
 import org.booklore.model.entity.*;
 import org.booklore.model.enums.ReadStatus;
-import org.booklore.repository.BookRepository;
-import org.booklore.repository.KoreaderUserRepository;
-import org.booklore.repository.UserBookFileProgressRepository;
-import org.booklore.repository.UserBookProgressRepository;
-import org.booklore.repository.UserRepository;
+import org.booklore.repository.*;
 import org.booklore.service.hardcover.HardcoverSyncService;
 import org.booklore.util.koreader.EpubCfiService;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -68,6 +65,7 @@ public class KoreaderService {
                 .build();
     }
 
+    @Transactional
     public void saveProgress(String bookHash, KoreaderProgress koProgress) {
         KoreaderUserDetails authDetails = getAuthDetailsWithSyncCheck();
         BookEntity book = findBookByHash(bookHash);
@@ -159,7 +157,10 @@ public class KoreaderService {
         updateReadStatus(userProgress, koProgress.getPercentage());
     }
 
-    private void updateReadStatus(UserBookProgressEntity userProgress, double progressFraction) {
+    private void updateReadStatus(UserBookProgressEntity userProgress, Float progressFraction) {
+        if (progressFraction == null) {
+            return;
+        }
         double progressPercent = progressFraction * 100.0;
         if (progressPercent >= 99.5) {
             userProgress.setReadStatus(ReadStatus.READ);

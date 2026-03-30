@@ -1,5 +1,7 @@
 package org.booklore.service.kobo;
 
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.mapper.KoboReadingStateMapper;
 import org.booklore.model.dto.kobo.*;
@@ -13,13 +15,13 @@ import org.booklore.repository.KoboReadingStateRepository;
 import org.booklore.repository.MagicShelfRepository;
 import org.booklore.repository.ShelfRepository;
 import org.booklore.repository.UserBookProgressRepository;
-import org.booklore.service.book.BookQueryService;
 import org.booklore.service.appsettings.AppSettingService;
+import org.booklore.service.book.BookQueryService;
 import org.booklore.service.opds.MagicShelfBookService;
 import org.booklore.util.kobo.KoboUrlBuilder;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -31,6 +33,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Service
 @Slf4j
+@Transactional(readOnly = true)
 public class KoboEntitlementService {
 
     private static final int MAX_MAGIC_SHELF_BOOKS_FOR_KOBO = 250;
@@ -328,7 +331,9 @@ public class KoboEntitlementService {
         boolean isCbxFile = primaryFile.getBookType() == BookFileType.CBX;
 
         if (koboSettings != null) {
-            if (isEpubFile && koboSettings.isConvertToKepub()) {
+            if (isEpubFile && primaryFile.isFixedLayout()) {
+                bookFormat = KoboBookFormat.EPUB3FL;
+            } else if (isEpubFile && koboSettings.isConvertToKepub()) {
                 bookFormat = KoboBookFormat.KEPUB;
             } else if (isCbxFile && koboSettings.isConvertCbxToEpub()) {
                 bookFormat = KoboBookFormat.EPUB3;

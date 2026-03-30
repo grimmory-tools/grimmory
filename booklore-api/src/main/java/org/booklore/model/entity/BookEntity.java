@@ -5,6 +5,7 @@ import lombok.*;
 import org.booklore.convertor.BookRecommendationIdsListConverter;
 import org.booklore.model.dto.BookRecommendationLite;
 import org.booklore.model.enums.BookFileType;
+import org.hibernate.annotations.BatchSize;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -38,11 +39,11 @@ public class BookEntity {
     @Column(name = "metadata_for_write_updated_at")
     private Instant metadataForWriteUpdatedAt;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "library_id", nullable = false)
     private LibraryEntity library;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "library_path_id")
     private LibraryPathEntity libraryPath;
 
@@ -69,6 +70,7 @@ public class BookEntity {
     @Column(name = "deleted_at")
     private Instant deletedAt;
 
+    @BatchSize(size = 20)
     @ManyToMany
     @JoinTable(
             name = "book_shelf_mapping",
@@ -81,11 +83,13 @@ public class BookEntity {
     @Column(name = "similar_books_json", columnDefinition = "TEXT")
     private Set<BookRecommendationLite> similarBooksJson;
 
+    @BatchSize(size = 20)
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @OrderBy("id ASC")
     @Builder.Default
     private List<BookFileEntity> bookFiles = new ArrayList<>();
 
+    @BatchSize(size = 20)
     @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
     private List<UserBookProgressEntity> userBookProgress;
 

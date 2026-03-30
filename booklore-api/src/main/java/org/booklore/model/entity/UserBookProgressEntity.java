@@ -1,8 +1,8 @@
 package org.booklore.model.entity;
 
-import org.booklore.model.enums.ReadStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.booklore.model.enums.ReadStatus;
 
 import java.time.Instant;
 
@@ -19,11 +19,11 @@ public class UserBookProgressEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private BookLoreUserEntity user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id", nullable = false)
     private BookEntity book;
 

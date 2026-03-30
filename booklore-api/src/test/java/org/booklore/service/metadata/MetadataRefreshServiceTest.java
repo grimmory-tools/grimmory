@@ -478,6 +478,89 @@ class MetadataRefreshServiceTest {
     }
 
     @Test
+    void buildFetchMetadata_preservesLockStatesFromExistingMetadata() {
+        BookMetadata existing = BookMetadata.builder()
+                .title("Existing")
+                .titleLocked(true)
+                .descriptionLocked(true)
+                .authorsLocked(true)
+                .coverLocked(true)
+                .allMetadataLocked(false)
+                .build();
+
+        Map<MetadataProvider, BookMetadata> metadataMap = new HashMap<>();
+        metadataMap.put(MetadataProvider.Google, BookMetadata.builder().title("New Title").build());
+
+        MetadataRefreshOptions options = MetadataRefreshOptions.builder()
+                .fieldOptions(MetadataRefreshOptions.FieldOptions.builder()
+                        .title(MetadataRefreshOptions.FieldProvider.builder().p1(MetadataProvider.Google).build())
+                        .build())
+                .enabledFields(MetadataRefreshOptions.EnabledFields.builder().title(true).build())
+                .build();
+
+        BookMetadata result = service.buildFetchMetadata(existing, 1L, options, metadataMap);
+
+        assertThat(result.getTitleLocked()).isTrue();
+        assertThat(result.getDescriptionLocked()).isTrue();
+        assertThat(result.getAuthorsLocked()).isTrue();
+        assertThat(result.getCoverLocked()).isTrue();
+        assertThat(result.getAllMetadataLocked()).isFalse();
+    }
+
+    @Test
+    void buildFetchMetadata_fallsBackToExistingDescriptionWhenNotResolved() {
+        BookMetadata existing = BookMetadata.builder()
+                .description("Existing description")
+                .build();
+
+        Map<MetadataProvider, BookMetadata> metadataMap = new HashMap<>();
+        metadataMap.put(MetadataProvider.Google, BookMetadata.builder().title("Title").build());
+
+        MetadataRefreshOptions options = MetadataRefreshOptions.builder()
+                .fieldOptions(MetadataRefreshOptions.FieldOptions.builder()
+                        .description(MetadataRefreshOptions.FieldProvider.builder().p1(MetadataProvider.Google).build())
+                        .build())
+                .enabledFields(MetadataRefreshOptions.EnabledFields.builder().description(true).build())
+                .build();
+
+        BookMetadata result = service.buildFetchMetadata(existing, 1L, options, metadataMap);
+
+        assertThat(result.getDescription()).isEqualTo("Existing description");
+    }
+
+    @Test
+    void buildFetchMetadata_fallsBackToExistingValuesForUnresolvedFields() {
+        BookMetadata existing = BookMetadata.builder()
+                .title("Existing Title")
+                .subtitle("Existing Sub")
+                .description("Existing Desc")
+                .authors(List.of("Author"))
+                .publisher("Pub")
+                .language("en")
+                .isbn13("978")
+                .build();
+
+        MetadataRefreshOptions options = MetadataRefreshOptions.builder()
+                .fieldOptions(new MetadataRefreshOptions.FieldOptions())
+                .enabledFields(MetadataRefreshOptions.EnabledFields.builder()
+                        .title(false).subtitle(false).description(false).authors(false)
+                        .publisher(false).language(false).isbn13(false)
+                        .build())
+                .replaceMode(MetadataReplaceMode.REPLACE_MISSING)
+                .build();
+
+        BookMetadata result = service.buildFetchMetadata(existing, 1L, options, new HashMap<>());
+
+        assertThat(result.getTitle()).isEqualTo("Existing Title");
+        assertThat(result.getSubtitle()).isEqualTo("Existing Sub");
+        assertThat(result.getDescription()).isEqualTo("Existing Desc");
+        assertThat(result.getAuthors()).containsExactly("Author");
+        assertThat(result.getPublisher()).isEqualTo("Pub");
+        assertThat(result.getLanguage()).isEqualTo("en");
+        assertThat(result.getIsbn13()).isEqualTo("978");
+    }
+
+    @Test
     void getAllCategories_mergesFromAllProviders() {
         Map<MetadataProvider, BookMetadata> metadataMap = new HashMap<>();
         metadataMap.put(MetadataProvider.Amazon, BookMetadata.builder().categories(Set.of("A", "B")).build());

@@ -39,6 +39,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.File;
@@ -57,6 +58,7 @@ import java.util.stream.Stream;
 @Slf4j
 @AllArgsConstructor
 @Service
+@Transactional
 public class BookDropService {
 
     private final BookdropFileRepository bookdropFileRepository;
@@ -465,7 +467,7 @@ public class BookDropService {
                         .orElseThrow(() -> ApiError.INVALID_FILE_FORMAT.createException("Unsupported file extension"))
                         .getType());
 
-        BookEntity bookEntity = bookRepository.findById(fileProcessResult.getBook().getId())
+        BookEntity bookEntity = bookRepository.findByIdWithBookFiles(fileProcessResult.getBook().getId())
                 .orElseThrow(() -> ApiError.FILE_NOT_FOUND.createException("Book ID missing after import"));
 
         notificationService.sendMessage(Topic.BOOK_ADD, fileProcessResult.getBook());

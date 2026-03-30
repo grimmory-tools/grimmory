@@ -26,7 +26,7 @@ public class JwtUtils {
 
     private final JwtSecretService jwtSecretService;
     @Getter
-    public static final long accessTokenExpirationMs = 1000L * 60 * 60 * 10;  // 10 hours
+    public static final long accessTokenExpirationMs = 1000L * 60 * 60 * 2;  // 2 hours
     @Getter
     public static final long refreshTokenExpirationMs = 1000L * 60 * 60 * 24 * 30; // 30 days
 
@@ -39,6 +39,7 @@ public class JwtUtils {
         long expirationTime = isRefreshToken ? refreshTokenExpirationMs : accessTokenExpirationMs;
         Instant now = Instant.now();
         return Jwts.builder()
+                .issuer("booklore")
                 .subject(user.getUsername())
                 .claim("userId", user.getId())
                 .claim("isDefaultPassword", user.isDefaultPassword())
@@ -69,11 +70,21 @@ public class JwtUtils {
     }
 
     public Claims extractClaims(String token) {
-        return Jwts.parser()
+        Claims claims = Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
+
+        // Graceful issuer enforcement: reject tokens with a wrong issuer,
+        // but allow legacy tokens that have no issuer claim (issued before this check).
+        // After a full token rotation cycle (~30 days), switch to hard .requireIssuer().
+        String issuer = claims.getIssuer();
+        if (issuer != null && !"booklore".equals(issuer)) {
+            throw new JwtException("Invalid issuer: " + issuer);
+        }
+
+        return claims;
     }
 
     public String extractUsername(String token) {

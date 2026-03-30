@@ -1,0 +1,346 @@
+<ng-container *transloco="let t; prefix: 'book.bulkIsbnImport'">
+<div class="bulk-isbn-import">
+  <div class="panel-header">
+    <div class="header-icon-wrapper">
+      <i class="pi pi-barcode header-icon"></i>
+    </div>
+    <div class="header-text">
+      <h2 class="panel-title">{{ t('title') }}</h2>
+      <p class="panel-description">{{ t('description') }}</p>
+    </div>
+    <p-button
+      icon="pi pi-times"
+      (click)="close()"
+      severity="secondary"
+      [text]="true"
+      [rounded]="true"
+      class="close-button"
+      [pTooltip]="t('closeTooltip')"
+      tooltipPosition="left"/>
+  </div>
+
+  <!-- Phase 1: Upload & Parse -->
+  @if (phase === 'upload') {
+    <div class="form-container">
+      <div class="form-group highlight-group">
+        <label for="library" class="form-label">
+          <i class="pi pi-folder label-icon"></i>
+          {{ t('libraryLabel') }}
+          <span class="required-indicator">*</span>
+        </label>
+        <p-select
+          id="library"
+          [options]="libraries"
+          [(ngModel)]="selectedLibraryId"
+          optionLabel="name"
+          optionValue="id"
+          [placeholder]="t('libraryPlaceholder')"
+          [style]="{'width': '100%'}"/>
+      </div>
+
+      <div class="gradient-divider"></div>
+
+      @if (entries.length === 0 && skipped.length === 0 && duplicatesRemoved === 0) {
+        <p-tabs value="file">
+          <p-tablist>
+            <p-tab value="file">{{ t('tabFile') }}</p-tab>
+            <p-tab value="paste">{{ t('tabPaste') }}</p-tab>
+          </p-tablist>
+          <p-tabpanels>
+            <p-tabpanel value="file">
+              <div class="upload-section">
+                <p-fileupload
+                  mode="basic"
+                  [auto]="true"
+                  [customUpload]="true"
+                  accept=".txt,.csv,.tsv"
+                  [maxFileSize]="1048576"
+                  (onSelect)="onFileSelect($event)"
+                  [chooseLabel]="t('chooseFile')"
+                  chooseIcon="pi pi-upload"/>
+                <p class="upload-hint">{{ t('fileFormatsHint') }}</p>
+              </div>
+            </p-tabpanel>
+            <p-tabpanel value="paste">
+              <div class="paste-section">
+                <textarea
+                  pTextarea
+                  [(ngModel)]="pasteText"
+                  rows="6"
+                  [placeholder]="t('pastePlaceholder')"
+                  class="input-full"></textarea>
+                <p-button
+                  [label]="t('parseButton')"
+                  icon="pi pi-check"
+                  severity="info"
+                  [outlined]="true"
+                  (onClick)="parsePastedText()"
+                  [disabled]="!pasteText.trim()"/>
+              </div>
+            </p-tabpanel>
+          </p-tabpanels>
+        </p-tabs>
+
+        @if (parseError === 'fileTooLarge') {
+          <div class="parse-error">
+            <i class="pi pi-exclamation-triangle"></i>
+            {{ t('errorFileTooLarge') }}
+          </div>
+        }
+        @if (parseError === 'empty') {
+          <div class="parse-error">
+            <i class="pi pi-exclamation-triangle"></i>
+            {{ t('errorNoIsbns') }}
+          </div>
+        }
+      } @else {
+        <div class="parse-results">
+          <div class="parse-summary">
+            <div class="summary-stat success">
+              <i class="pi pi-check-circle"></i>
+              {{ t('validCount', { count: entries.length }) }}
+            </div>
+            @if (skipped.length > 0) {
+              <div class="summary-stat warn" role="button" tabindex="0" (click)="showSkipped = !showSkipped" (keydown.enter)="showSkipped = !showSkipped">
+                <i class="pi pi-exclamation-triangle"></i>
+                {{ t('skippedCount', { count: skipped.length }) }}
+                <i class="pi" [class.pi-chevron-down]="!showSkipped" [class.pi-chevron-up]="showSkipped"></i>
+              </div>
+            }
+            @if (duplicatesRemoved > 0) {
+              <div class="summary-stat info">
+                <i class="pi pi-copy"></i>
+                {{ t('duplicatesRemoved', { count: duplicatesRemoved }) }}
+              </div>
+            }
+            @if (parseError === 'tooMany') {
+              <div class="summary-stat warn">
+                <i class="pi pi-exclamation-triangle"></i>
+                {{ t('errorTooMany', { max: maxIsbnCount }) }}
+              </div>
+            }
+          </div>
+
+          @if (showSkipped && skipped.length > 0) {
+            <div class="skipped-list">
+              @for (item of skipped; track item.value) {
+                <div class="skipped-item">
+                  <code>{{ item.value }}</code>
+                  <span class="skipped-reason">{{ t('reason.' + item.reason) }}</span>
+                </div>
+              }
+            </div>
+          }
+
+          <div class="isbn-preview">
+            <div class="preview-header">
+              <span class="preview-label">{{ t('previewLabel') }}</span>
+              <p-button
+                [label]="t('clearButton')"
+                icon="pi pi-times"
+                severity="secondary"
+                [text]="true"
+                size="small"
+                (onClick)="clearParsed()"/>
+            </div>
+            <div class="preview-list">
+              @for (entry of entries; track entry.isbn; let i = $index) {
+                <div class="preview-item">
+                  <span class="preview-index">{{ i + 1 }}.</span>
+                  <code class="preview-isbn">{{ entry.isbn }}</code>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="dialog-footer">
+      <div class="validation-status">
+        @if (!selectedLibraryId) {
+          <div class="validation-message error">
+            <i class="pi pi-exclamation-circle"></i>
+            <span>{{ t('validationLibraryRequired') }}</span>
+          </div>
+        } @else if (entries.length === 0) {
+          <div class="validation-message error">
+            <i class="pi pi-exclamation-circle"></i>
+            <span>{{ t('validationNoIsbns') }}</span>
+          </div>
+        } @else {
+          <div class="validation-message success">
+            <i class="pi pi-check-circle"></i>
+            <span>{{ t('validationReady', { count: entries.length }) }}</span>
+          </div>
+        }
+      </div>
+      <div class="footer-actions">
+        <p-button
+          [label]="t('cancelButton')"
+          severity="secondary"
+          [outlined]="true"
+          (onClick)="close()"/>
+        <p-button
+          [label]="t('startImportButton')"
+          icon="pi pi-play"
+          severity="success"
+          (onClick)="startImport()"
+          [disabled]="!canStartImport()"/>
+      </div>
+    </div>
+  }
+
+  <!-- Phase 2: Processing -->
+  @if (phase === 'processing') {
+    <div class="form-container processing-container">
+      <div class="progress-section">
+        <div class="progress-header">
+          <span class="progress-label">{{ t('processingLabel', { current: processedCount, total: entries.length }) }}</span>
+          <span class="progress-percent">{{ progressPercent }}%</span>
+        </div>
+        <p-progressbar [value]="progressPercent" [showValue]="false"/>
+        <div class="progress-stats">
+          <span class="stat-created"><i class="pi pi-check-circle"></i> {{ createdCount }}</span>
+          <span class="stat-no-metadata"><i class="pi pi-exclamation-triangle"></i> {{ noMetadataCount }}</span>
+          <span class="stat-failed"><i class="pi pi-times-circle"></i> {{ failedCount }}</span>
+        </div>
+      </div>
+
+      <div class="isbn-progress-list">
+        @for (entry of entries; track entry.isbn) {
+          <div class="progress-item" [class]="'status-' + entry.status">
+            <div class="progress-item-icon">
+              @switch (entry.status) {
+                @case ('pending') { <i class="pi pi-clock"></i> }
+                @case ('looking-up') { <i class="pi pi-spin pi-spinner"></i> }
+                @case ('created') { <i class="pi pi-check-circle"></i> }
+                @case ('created-no-metadata') { <i class="pi pi-exclamation-triangle"></i> }
+                @case ('failed') { <i class="pi pi-times-circle"></i> }
+              }
+            </div>
+            <code class="progress-item-isbn">{{ entry.isbn }}</code>
+            <span class="progress-item-detail">
+              @if (entry.status === 'created' && entry.title) {
+                {{ entry.title }}
+              } @else if (entry.status === 'created-no-metadata') {
+                {{ t('createdNoMetadata') }}
+              } @else if (entry.status === 'failed') {
+                {{ entry.error || t('unknownError') }}
+              } @else if (entry.status === 'looking-up') {
+                {{ t('lookingUp') }}
+              }
+            </span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="dialog-footer">
+      <div class="validation-status">
+        <div class="validation-message info">
+          <i class="pi pi-info-circle"></i>
+          <span>{{ t('processingHint') }}</span>
+        </div>
+      </div>
+      <div class="footer-actions">
+        <p-button
+          [label]="t('cancelImportButton')"
+          icon="pi pi-stop"
+          severity="danger"
+          [outlined]="true"
+          (onClick)="cancelImport()"/>
+      </div>
+    </div>
+  }
+
+  <!-- Phase 3: Summary -->
+  @if (phase === 'summary') {
+    <div class="form-container">
+      <div class="summary-header-bar">
+        <span class="summary-title">{{ t('summaryTitle') }}</span>
+        @if (selectedLibraryName) {
+          <span class="summary-library">
+            <i class="pi pi-folder"></i>
+            {{ selectedLibraryName }}
+          </span>
+        }
+      </div>
+
+      <div class="summary-results">
+        <div class="summary-card success">
+          <i class="pi pi-check-circle"></i>
+          <div class="summary-card-content">
+            <span class="summary-card-count">{{ createdCount }}</span>
+            <span class="summary-card-label">{{ t('summaryCreated') }}</span>
+          </div>
+        </div>
+        @if (noMetadataCount > 0) {
+          <div class="summary-card warn">
+            <i class="pi pi-exclamation-triangle"></i>
+            <div class="summary-card-content">
+              <span class="summary-card-count">{{ noMetadataCount }}</span>
+              <span class="summary-card-label">{{ t('summaryNoMetadata') }}</span>
+            </div>
+          </div>
+        }
+        @if (failedCount > 0) {
+          <div class="summary-card error">
+            <i class="pi pi-times-circle"></i>
+            <div class="summary-card-content">
+              <span class="summary-card-count">{{ failedCount }}</span>
+              <span class="summary-card-label">{{ t('summaryFailed') }}</span>
+            </div>
+          </div>
+        }
+        @if (cancelled) {
+          <div class="summary-card info">
+            <i class="pi pi-info-circle"></i>
+            <div class="summary-card-content">
+              <span class="summary-card-count">{{ entries.length - processedCount }}</span>
+              <span class="summary-card-label">{{ t('summaryCancelled') }}</span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="summary-detail-list">
+        @for (entry of entries; track entry.isbn) {
+          @if (entry.status !== 'pending') {
+            <div class="summary-detail-item" [class]="'status-' + entry.status">
+              <div class="summary-detail-icon">
+                @switch (entry.status) {
+                  @case ('created') { <i class="pi pi-check-circle"></i> }
+                  @case ('created-no-metadata') { <i class="pi pi-exclamation-triangle"></i> }
+                  @case ('failed') { <i class="pi pi-times-circle"></i> }
+                }
+              </div>
+              <code class="summary-detail-isbn">{{ entry.isbn }}</code>
+              <span class="summary-detail-info">
+                @if (entry.status === 'created' && entry.title) {
+                  {{ entry.title }}
+                } @else if (entry.status === 'created-no-metadata') {
+                  {{ t('createdNoMetadata') }}
+                } @else if (entry.status === 'failed') {
+                  {{ entry.error || t('unknownError') }}
+                }
+              </span>
+            </div>
+          }
+        }
+      </div>
+    </div>
+
+    <div class="dialog-footer">
+      <div class="validation-status"></div>
+      <div class="footer-actions">
+        <p-button
+          [label]="t('doneButton')"
+          icon="pi pi-check"
+          severity="success"
+          (onClick)="close()"/>
+      </div>
+    </div>
+  }
+</div>
+</ng-container>

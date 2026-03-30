@@ -2,6 +2,7 @@
   "name": "grimmory-release-tooling",
   "private": true,
   "description": "Release automation tooling for Grimmory",
+  "packageManager": "yarn@4.10.3",
   "engines": {
     "node": ">=24"
   },

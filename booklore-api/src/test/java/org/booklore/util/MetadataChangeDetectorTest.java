@@ -291,13 +291,12 @@ public class MetadataChangeDetectorTest {
     }
 
     @Test
-    void testHasValueChangesForFileWrite_excludesRatingsForFileWrite() {
-        // Change rating fields that should not be considered for file write
+    void testHasValueChangesForFileWrite_includesRatingsForFileWrite() {
         newMeta.setAmazonRating(4.8);
         newMeta.setGoodreadsRating(4.4);
         newMeta.setHardcoverRating(4.3);
         boolean result = MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags);
-        assertFalse(result, "Should return false when only rating fields change for file write");
+        assertTrue(result, "Should return true when rating fields change for file write");
     }
 
     @Test
@@ -524,39 +523,45 @@ public class MetadataChangeDetectorTest {
     }
 
     @Test
-    @DisplayName("hasValueChangesForFileWrite() excludes certain fields from triggering file writes")
-    void testHasValueChangesForFileWrite_excludesPageCount() {
+    @DisplayName("hasValueChangesForFileWrite() includes booklore-namespace fields that are written to files")
+    void testHasValueChangesForFileWrite_includesPageCount() {
         newMeta.setPageCount(999);
         boolean result = MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags);
-        assertFalse(result, "PageCount should not trigger file write");
+        assertTrue(result, "PageCount should trigger file write");
     }
 
     @Test
-    void testHasValueChangesForFileWrite_excludesMoods() {
+    void testHasValueChangesForFileWrite_includesMoods() {
         newMeta.setMoods(Set.of("New Mood"));
         boolean result = MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags);
-        assertFalse(result, "Moods should not trigger file write");
+        assertTrue(result, "Moods should trigger file write");
     }
 
     @Test
-    void testHasValueChangesForFileWrite_excludesTags() {
+    void testHasValueChangesForFileWrite_includesTags() {
         newMeta.setTags(Set.of("New Tag"));
         boolean result = MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags);
-        assertFalse(result, "Tags should not trigger file write");
+        assertTrue(result, "Tags should trigger file write");
     }
 
     @Test
-    void testHasValueChangesForFileWrite_excludesRatingFields() {
+    void testHasValueChangesForFileWrite_includesRatingFields() {
         newMeta.setAmazonRating(4.9);
         newMeta.setGoodreadsRating(4.8);
         newMeta.setHardcoverRating(4.7);
         newMeta.setAmazonReviewCount(2000);
         newMeta.setGoodreadsReviewCount(35000);
         newMeta.setHardcoverReviewCount(800);
+        boolean result = MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags);
+        assertTrue(result, "Rating and review count fields should trigger file write");
+    }
+
+    @Test
+    void testHasValueChangesForFileWrite_excludesAudiobookFields() {
         newMeta.setAudibleRating(4.6);
         newMeta.setAudibleReviewCount(3000);
         boolean result = MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags);
-        assertFalse(result, "Rating and review count fields should not trigger file write");
+        assertFalse(result, "Audiobook-only fields should not trigger file write");
     }
 
     @Test

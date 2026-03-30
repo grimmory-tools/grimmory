@@ -262,7 +262,7 @@ class BookDropServiceTest {
 
         BookEntity bookEntity = new BookEntity();
         bookEntity.setId(1L);
-        when(bookRepository.findById(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
 
         try (MockedStatic<Files> filesMock = mockStatic(Files.class, withSettings().lenient())) {
             filesMock.when(() -> Files.exists(any(Path.class))).thenReturn(true);
@@ -476,7 +476,7 @@ class BookDropServiceTest {
 
         BookEntity bookEntity = new BookEntity();
         bookEntity.setId(1L);
-        when(bookRepository.findById(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
         
         when(bookRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
 
@@ -594,7 +594,7 @@ class BookDropServiceTest {
 
         BookEntity bookEntity = new BookEntity();
         bookEntity.setId(1L);
-        when(bookRepository.findById(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
 
         doNothing().when(bookdropFileRepository).deleteById(any());
         doNothing().when(bookdropNotificationService).sendBookdropFileSummaryNotification();

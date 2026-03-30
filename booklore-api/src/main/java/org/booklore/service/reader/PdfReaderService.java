@@ -103,7 +103,7 @@ public class PdfReaderService {
     }
 
     private Path getBookPath(Long bookId, String bookType) {
-        BookEntity bookEntity = bookRepository.findById(bookId)
+        BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId)
                 .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
         if (bookType != null) {
             BookFileType requestedType = BookFileType.valueOf(bookType.toUpperCase());
@@ -113,8 +113,7 @@ public class PdfReaderService {
                     .orElseThrow(() -> ApiError.FILE_NOT_FOUND.createException("No file of type " + bookType + " found for book"));
             return bookFile.getFullFilePath();
         }
-        String bookFullPath = FileUtils.getBookFullPath(bookEntity);
-        return Path.of(bookFullPath);
+        return FileUtils.getBookFullPath(bookEntity);
     }
 
     private void validatePageRequest(Long bookId, int page, int pageCount) throws FileNotFoundException {

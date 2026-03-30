@@ -1,26 +1,27 @@
 package org.booklore.service.upload;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.AppProperties;
 import org.booklore.exception.ApiError;
 import org.booklore.mapper.AdditionalFileMapper;
-import org.booklore.model.dto.BookFile;
 import org.booklore.model.dto.Book;
+import org.booklore.model.dto.BookFile;
 import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.BookEntity;
+import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.LibraryEntity;
 import org.booklore.model.entity.LibraryPathEntity;
-import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.BookFileExtension;
+import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.BookAdditionalFileRepository;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.LibraryRepository;
-import org.booklore.service.file.FileFingerprint;
 import org.booklore.service.appsettings.AppSettingService;
+import org.booklore.service.file.FileFingerprint;
 import org.booklore.service.file.FileMovingHelper;
-import org.booklore.service.monitoring.MonitoringRegistrationService;
 import org.booklore.service.metadata.extractor.MetadataExtractorFactory;
+import org.booklore.service.monitoring.MonitoringRegistrationService;
 import org.booklore.util.PathPatternResolver;
 import org.springframework.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -249,7 +250,7 @@ public class FileUploadService {
     }
 
     private BookEntity findBookById(Long bookId) {
-        return bookRepository.findById(bookId)
+        return bookRepository.findByIdWithBookFiles(bookId)
                 .orElseThrow(() -> new IllegalArgumentException("Book not found with id: " + bookId));
     }
 

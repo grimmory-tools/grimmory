@@ -9,6 +9,7 @@ import org.booklore.model.dto.RuleField;
 import org.booklore.model.dto.RuleOperator;
 import org.booklore.model.entity.*;
 import org.booklore.model.enums.ComicCreatorRole;
+import org.booklore.model.enums.ReadStatus;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import tools.jackson.core.type.TypeReference;
@@ -333,10 +334,14 @@ public class BookRuleEvaluatorService {
         Root<BookEntity> subRoot = sub.from(BookEntity.class);
         Join<Object, Object> subProgress = subRoot.join("userBookProgress", JoinType.INNER);
 
+        List<ReadStatus> readStatuses = statuses.stream()
+                .map(ReadStatus::valueOf)
+                .collect(Collectors.toList());
+
         sub.select(cb.literal(1L)).where(
                 cb.equal(subRoot.get("metadata").get("seriesName"), root.get("metadata").get("seriesName")),
                 cb.equal(subProgress.get("user").get("id"), userId),
-                subProgress.get("readStatus").as(String.class).in(statuses)
+                subProgress.get("readStatus").in(readStatuses)
         );
         return cb.exists(sub);
     }
@@ -348,7 +353,7 @@ public class BookRuleEvaluatorService {
         notReadSub.select(cb.literal(1L)).where(
                 cb.equal(nrRoot.get("metadata").get("seriesName"), root.get("metadata").get("seriesName")),
                 cb.equal(nrProgress.get("user").get("id"), userId),
-                cb.notEqual(nrProgress.get("readStatus").as(String.class), "READ")
+                cb.notEqual(nrProgress.get("readStatus"), ReadStatus.READ)
         );
 
         return cb.and(
@@ -478,7 +483,7 @@ public class BookRuleEvaluatorService {
     private Predicate isNextUnread(CriteriaQuery<?> query, CriteriaBuilder cb, Root<BookEntity> root, Join<BookEntity, UserBookProgressEntity> progressJoin, Long userId) {
         Predicate notRead = cb.or(
                 cb.isNull(progressJoin.get("readStatus")),
-                cb.notEqual(progressJoin.get("readStatus").as(String.class), "READ")
+                cb.notEqual(progressJoin.get("readStatus"), ReadStatus.READ)
         );
 
         Subquery<Long> lowerUnreadSub = query.subquery(Long.class);
@@ -490,7 +495,7 @@ public class BookRuleEvaluatorService {
                 cb.lt(luRoot.get("metadata").get("seriesNumber"), root.get("metadata").get("seriesNumber")),
                 cb.or(
                         cb.isNull(luProgress.get("readStatus")),
-                        cb.notEqual(luProgress.get("readStatus").as(String.class), "READ")
+                        cb.notEqual(luProgress.get("readStatus"), ReadStatus.READ)
                 ),
                 cb.or(
                         cb.isNull(luProgress.get("user").get("id")),
@@ -507,7 +512,7 @@ public class BookRuleEvaluatorService {
                 cb.isNotNull(prRoot.get("metadata").get("seriesNumber")),
                 cb.lt(prRoot.get("metadata").get("seriesNumber"), root.get("metadata").get("seriesNumber")),
                 cb.equal(prProgress.get("user").get("id"), userId),
-                cb.equal(prProgress.get("readStatus").as(String.class), "READ")
+                cb.equal(prProgress.get("readStatus"), ReadStatus.READ)
         );
         Predicate hasPriorRead = cb.exists(priorReadSub);
 
@@ -536,7 +541,8 @@ public class BookRuleEvaluatorService {
             if ("UNSET".equals(value.toString())) {
                 return cb.isNull(field);
             }
-            return cb.equal(field, value.toString());
+            ReadStatus status = ReadStatus.valueOf(value.toString());
+            return cb.equal(field, status);
         } else if (value instanceof Number) {
             return cb.equal(field, value);
         }
@@ -737,15 +743,19 @@ public class BookRuleEvaluatorService {
                     .filter(v -> !"UNSET".equals(v))
                     .collect(Collectors.toList());
 
-            if (hasUnset && !nonUnsetValues.isEmpty()) {
+            List<ReadStatus> statuses = nonUnsetValues.stream()
+                    .map(ReadStatus::valueOf)
+                    .collect(Collectors.toList());
+
+            if (hasUnset && !statuses.isEmpty()) {
                 return cb.or(
                         cb.isNull(field),
-                        field.as(String.class).in(nonUnsetValues)
+                        field.in(statuses)
                 );
             } else if (hasUnset) {
                 return cb.isNull(field);
             } else {
-                return field.as(String.class).in(nonUnsetValues);
+                return field.in(statuses);
             }
         }
 

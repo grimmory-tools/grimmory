@@ -1,0 +1,215 @@
+<ng-container *transloco="let t; prefix: 'settingsDevice'">
+<p-toast position="top-right"></p-toast>
+
+<div class="main-container">
+  <div class="settings-header">
+    <h2 class="settings-title">
+      <i class="pi pi-mobile"></i>
+      {{ t('koreader.title') }}
+      <app-external-doc-link docType="koReader"></app-external-doc-link>
+    </h2>
+    <p class="settings-description">
+      {{ t('koreader.description') }}
+    </p>
+  </div>
+
+  @if (hasPermission) {
+    <div class="settings-content">
+      <div class="preferences-section">
+        <div class="section-header">
+          <h3 class="section-title">
+            <i class="pi pi-sync"></i>
+            {{ t('koreader.syncConfig') }}
+          </h3>
+          <p class="section-description">
+            {{ t('koreader.syncConfigDesc') }}
+          </p>
+        </div>
+
+        <div class="settings-card">
+          <form #koreaderForm="ngForm">
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label-row">
+                  <span class="setting-label">{{ t('koreader.enableSync') }}</span>
+                  <p-toggle-switch
+                    name="syncEnabled"
+                    [(ngModel)]="koReaderSyncEnabled"
+                    (ngModelChange)="onToggleEnabled($event)"
+                    inputId="syncEnabled"
+                    [disabled]="!credentialsSaved">
+                  </p-toggle-switch>
+                </div>
+                <p class="setting-description">
+                  {{ t('koreader.enableSyncDesc') }}
+                </p>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label-row">
+                  <span class="setting-label">{{ t('koreader.syncWithGrimmory') }}</span>
+                  <p-toggle-switch
+                    name="syncWithGrimmoryReader"
+                    [(ngModel)]="syncWithGrimmoryReader"
+                    (ngModelChange)="onToggleSyncWithGrimmoryReader($event)"
+                    inputId="syncWithGrimmoryReader"
+                    [disabled]="!credentialsSaved || !koReaderSyncEnabled">
+                  </p-toggle-switch>
+                </div>
+                <p class="setting-description" [innerHTML]="t('koreader.syncWithGrimmoryDesc')">
+                </p>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label-row">
+                  <span class="setting-label">{{ t('koreader.apiPath') }}</span>
+                  <div class="token-input-group">
+                    <input
+                      pInputText
+                      id="koreaderEndpoint"
+                      [value]="koreaderEndpoint"
+                      readonly
+                      class="token-input"/>
+                    <p-button
+                      icon="pi pi-copy"
+                      outlined="true"
+                      severity="info"
+                      size="small"
+                      (onClick)="copyText(koreaderEndpoint, 'API Path')"
+                      [disabled]="!koreaderEndpoint">
+                    </p-button>
+                  </div>
+                </div>
+                <p class="setting-description">
+                  {{ t('koreader.apiPathDesc') }}
+                </p>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label-row">
+                  <span class="setting-label">{{ t('koreader.username') }}</span>
+                  <div class="token-input-group">
+                    <input
+                      pInputText
+                      id="username"
+                      name="username"
+                      required
+                      [(ngModel)]="koReaderUsername"
+                      #usernameModel="ngModel"
+                      [class.p-invalid]="usernameModel.invalid && usernameModel.touched"
+                      [disabled]="editMode"
+                      class="token-input"/>
+                    <p-button
+                      icon="pi pi-copy"
+                      outlined="true"
+                      severity="info"
+                      size="small"
+                      (onClick)="copyText(koReaderUsername, 'Username')"
+                      [disabled]="!koReaderUsername">
+                    </p-button>
+                  </div>
+                </div>
+                <p class="setting-description">
+                  {{ t('koreader.usernameDesc') }}
+                </p>
+                @if (editMode && usernameModel.invalid && usernameModel.touched) {
+                  <small class="error-message">
+                    {{ t('koreader.usernameRequired') }}
+                  </small>
+                }
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label-row">
+                  <span class="setting-label">{{ t('koreader.password') }}</span>
+                  <div class="token-input-group">
+                    <input
+                      pInputText
+                      id="password"
+                      name="password"
+                      required
+                      minlength="6"
+                      [type]="showPassword ? 'text' : 'password'"
+                      [(ngModel)]="koReaderPassword"
+                      #passwordModel="ngModel"
+                      [class.p-invalid]="passwordModel.invalid && passwordModel.touched"
+                      [disabled]="editMode"
+                      class="token-input-password"/>
+                    <p-button
+                      icon="pi pi-copy"
+                      outlined="true"
+                      severity="info"
+                      size="small"
+                      (onClick)="copyText(koReaderPassword, 'Password')"
+                      [disabled]="!koReaderPassword">
+                    </p-button>
+                    <p-button
+                      [icon]="showPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"
+                      outlined="true"
+                      severity="info"
+                      size="small"
+                      (onClick)="toggleShowPassword()"
+                      [disabled]="!koReaderPassword">
+                    </p-button>
+                  </div>
+                </div>
+                <p class="setting-description">
+                  {{ t('koreader.passwordDesc') }}
+                </p>
+                @if (editMode && passwordModel.invalid && passwordModel.touched) {
+                  <small class="error-message">
+                    {{ t('koreader.passwordMinLength') }}
+                  </small>
+                }
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label-row">
+                  <span class="setting-label">{{ t('koreader.settingsManagement') }}</span>
+                  <p-button
+                    [icon]="!editMode ? 'pi pi-save' : 'pi pi-pencil'"
+                    outlined="true"
+                    [severity]="!editMode ? 'success' : 'warn'"
+                    [label]="!editMode ? ('common.save' | transloco) : ('common.edit' | transloco)"
+                    size="small"
+                    (onClick)="onEditSave()"
+                    [disabled]="!editMode && !canSave">
+                  </p-button>
+                </div>
+                <p class="setting-description">
+                  {{ t('koreader.settingsManagementDesc') }}
+                </p>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  } @else {
+    <div class="settings-content">
+      <div class="access-denied-card">
+        <i class="pi pi-lock"></i>
+        <div class="access-denied-content">
+          <h3>{{ t('accessRestricted') }}</h3>
+          <p>
+            {{ t('koreader.accessDenied') }}
+            <br>
+            {{ t('contactAdmin') }}
+          </p>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+</ng-container>

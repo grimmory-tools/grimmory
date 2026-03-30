@@ -1,10 +1,11 @@
 package org.booklore.service.audit;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.net.InetAddress;
 import java.net.URI;
@@ -24,7 +25,7 @@ public class GeoIpService {
     private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(2);
 
     private final HttpClient httpClient;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = JsonMapper.builder().build();
     private final Map<String, String> cache = new ConcurrentHashMap<>();
 
     public String resolveCountryCode(String ip) {

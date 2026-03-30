@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +29,7 @@ public interface BookAdditionalFileRepository extends JpaRepository<BookFileEnti
     List<BookFileEntity> findByLibraryId(@Param("libraryId") Long libraryId);
 
     @Modifying
+    @Transactional
     @Query("""
             UPDATE BookFileEntity bf SET
                 bf.fileName = :fileName,

@@ -689,6 +689,76 @@ public class MetadataRefreshService {
             metadata.setBookReviews(allReviews);
         }
 
+        if (existingMetadata != null) {
+            // Preserve lock states from existing metadata
+            metadata.setAllMetadataLocked(existingMetadata.getAllMetadataLocked());
+            metadata.setTitleLocked(existingMetadata.getTitleLocked());
+            metadata.setSubtitleLocked(existingMetadata.getSubtitleLocked());
+            metadata.setDescriptionLocked(existingMetadata.getDescriptionLocked());
+            metadata.setAuthorsLocked(existingMetadata.getAuthorsLocked());
+            metadata.setPublisherLocked(existingMetadata.getPublisherLocked());
+            metadata.setPublishedDateLocked(existingMetadata.getPublishedDateLocked());
+            metadata.setSeriesNameLocked(existingMetadata.getSeriesNameLocked());
+            metadata.setSeriesNumberLocked(existingMetadata.getSeriesNumberLocked());
+            metadata.setSeriesTotalLocked(existingMetadata.getSeriesTotalLocked());
+            metadata.setIsbn13Locked(existingMetadata.getIsbn13Locked());
+            metadata.setIsbn10Locked(existingMetadata.getIsbn10Locked());
+            metadata.setPageCountLocked(existingMetadata.getPageCountLocked());
+            metadata.setLanguageLocked(existingMetadata.getLanguageLocked());
+            metadata.setCoverLocked(existingMetadata.getCoverLocked());
+            metadata.setAudiobookCoverLocked(existingMetadata.getAudiobookCoverLocked());
+            metadata.setAsinLocked(existingMetadata.getAsinLocked());
+            metadata.setGoodreadsIdLocked(existingMetadata.getGoodreadsIdLocked());
+            metadata.setComicvineIdLocked(existingMetadata.getComicvineIdLocked());
+            metadata.setHardcoverIdLocked(existingMetadata.getHardcoverIdLocked());
+            metadata.setHardcoverBookIdLocked(existingMetadata.getHardcoverBookIdLocked());
+            metadata.setDoubanIdLocked(existingMetadata.getDoubanIdLocked());
+            metadata.setGoogleIdLocked(existingMetadata.getGoogleIdLocked());
+            metadata.setLubimyczytacIdLocked(existingMetadata.getLubimyczytacIdLocked());
+            metadata.setLubimyczytacRatingLocked(existingMetadata.getLubimyczytacRatingLocked());
+            metadata.setRanobedbIdLocked(existingMetadata.getRanobedbIdLocked());
+            metadata.setRanobedbRatingLocked(existingMetadata.getRanobedbRatingLocked());
+            metadata.setAudibleIdLocked(existingMetadata.getAudibleIdLocked());
+            metadata.setAudibleRatingLocked(existingMetadata.getAudibleRatingLocked());
+            metadata.setAudibleReviewCountLocked(existingMetadata.getAudibleReviewCountLocked());
+            metadata.setAmazonRatingLocked(existingMetadata.getAmazonRatingLocked());
+            metadata.setAmazonReviewCountLocked(existingMetadata.getAmazonReviewCountLocked());
+            metadata.setGoodreadsRatingLocked(existingMetadata.getGoodreadsRatingLocked());
+            metadata.setGoodreadsReviewCountLocked(existingMetadata.getGoodreadsReviewCountLocked());
+            metadata.setHardcoverRatingLocked(existingMetadata.getHardcoverRatingLocked());
+            metadata.setHardcoverReviewCountLocked(existingMetadata.getHardcoverReviewCountLocked());
+            metadata.setDoubanRatingLocked(existingMetadata.getDoubanRatingLocked());
+            metadata.setDoubanReviewCountLocked(existingMetadata.getDoubanReviewCountLocked());
+            metadata.setExternalUrlLocked(existingMetadata.getExternalUrlLocked());
+            metadata.setCategoriesLocked(existingMetadata.getCategoriesLocked());
+            metadata.setMoodsLocked(existingMetadata.getMoodsLocked());
+            metadata.setTagsLocked(existingMetadata.getTagsLocked());
+            metadata.setReviewsLocked(existingMetadata.getReviewsLocked());
+            metadata.setNarratorLocked(existingMetadata.getNarratorLocked());
+            metadata.setAbridgedLocked(existingMetadata.getAbridgedLocked());
+            metadata.setAgeRatingLocked(existingMetadata.getAgeRatingLocked());
+            metadata.setContentRatingLocked(existingMetadata.getContentRatingLocked());
+
+            // Fall back to existing values for fields not resolved from providers
+            if (metadata.getTitle() == null) metadata.setTitle(existingMetadata.getTitle());
+            if (metadata.getSubtitle() == null) metadata.setSubtitle(existingMetadata.getSubtitle());
+            if (metadata.getDescription() == null) metadata.setDescription(existingMetadata.getDescription());
+            if (metadata.getAuthors() == null) metadata.setAuthors(existingMetadata.getAuthors());
+            if (metadata.getPublisher() == null) metadata.setPublisher(existingMetadata.getPublisher());
+            if (metadata.getPublishedDate() == null) metadata.setPublishedDate(existingMetadata.getPublishedDate());
+            if (metadata.getSeriesName() == null) metadata.setSeriesName(existingMetadata.getSeriesName());
+            if (metadata.getSeriesNumber() == null) metadata.setSeriesNumber(existingMetadata.getSeriesNumber());
+            if (metadata.getSeriesTotal() == null) metadata.setSeriesTotal(existingMetadata.getSeriesTotal());
+            if (metadata.getIsbn13() == null) metadata.setIsbn13(existingMetadata.getIsbn13());
+            if (metadata.getIsbn10() == null) metadata.setIsbn10(existingMetadata.getIsbn10());
+            if (metadata.getLanguage() == null) metadata.setLanguage(existingMetadata.getLanguage());
+            if (metadata.getPageCount() == null) metadata.setPageCount(existingMetadata.getPageCount());
+            if (metadata.getThumbnailUrl() == null) metadata.setThumbnailUrl(existingMetadata.getThumbnailUrl());
+            if (metadata.getCategories() == null) metadata.setCategories(existingMetadata.getCategories());
+            if (metadata.getMoods() == null) metadata.setMoods(existingMetadata.getMoods());
+            if (metadata.getTags() == null) metadata.setTags(existingMetadata.getTags());
+        }
+
         return metadata;
     }
 

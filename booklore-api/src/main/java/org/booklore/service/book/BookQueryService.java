@@ -1,5 +1,6 @@
 package org.booklore.service.book;
 
+import lombok.RequiredArgsConstructor;
 import org.booklore.mapper.v2.BookMapperV2;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookMetadata;
@@ -7,8 +8,8 @@ import org.booklore.model.dto.ComicMetadata;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.restriction.ContentRestrictionService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
@@ -16,21 +17,22 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class BookQueryService {
 
     private final BookRepository bookRepository;
     private final BookMapperV2 bookMapperV2;
     private final ContentRestrictionService contentRestrictionService;
 
-    public List<Book> getAllBooks(boolean includeDescription) {
+    public List<Book> getAllBooks(boolean includeDescription, boolean stripForListView) {
         List<BookEntity> books = bookRepository.findAllWithMetadata();
-        return mapBooksToDto(books, includeDescription, null, !includeDescription);
+        return mapBooksToDto(books, includeDescription, null, stripForListView);
     }
 
-    public List<Book> getAllBooksByLibraryIds(Set<Long> libraryIds, boolean includeDescription, Long userId) {
+    public List<Book> getAllBooksByLibraryIds(Set<Long> libraryIds, boolean includeDescription, boolean StripForListView, Long userId) {
         List<BookEntity> books = bookRepository.findAllWithMetadataByLibraryIds(libraryIds);
         books = contentRestrictionService.applyRestrictions(books, userId);
-        return mapBooksToDto(books, includeDescription, userId, !includeDescription);
+        return mapBooksToDto(books, includeDescription, userId, StripForListView);
     }
 
     public List<BookEntity> findAllWithMetadataByIds(Set<Long> bookIds) {
@@ -45,6 +47,7 @@ public class BookQueryService {
         return bookRepository.findAllFullBooks();
     }
 
+    @Transactional
     public void saveAll(List<BookEntity> books) {
         bookRepository.saveAll(books);
     }

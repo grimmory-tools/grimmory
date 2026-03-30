@@ -21,8 +21,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -233,10 +235,10 @@ class OidcGroupMappingServiceTest {
     @Test
     void syncUserGroups_onLogin_replacesLibraries() {
         var perms = new UserPermissionsEntity();
-        var librariesHolder = new AtomicReference<List<LibraryEntity>>();
+        var librariesHolder = new AtomicReference<Set<LibraryEntity>>();
         var existingLib = new LibraryEntity();
         existingLib.setId(10L);
-        librariesHolder.set(new ArrayList<>(List.of(existingLib)));
+        librariesHolder.set(new HashSet<>(List.of(existingLib)));
         var user = createMockedUserWithLibraries(perms, librariesHolder);
 
         var mapping = createMapping(false, "[]", "[1,2]");
@@ -277,10 +279,10 @@ class OidcGroupMappingServiceTest {
     @Test
     void syncUserGroups_onLoginAdditive_addsLibrariesToExisting() {
         var perms = new UserPermissionsEntity();
-        var librariesHolder = new AtomicReference<List<LibraryEntity>>();
+        var librariesHolder = new AtomicReference<Set<LibraryEntity>>();
         var existingLib = new LibraryEntity();
         existingLib.setId(10L);
-        librariesHolder.set(new ArrayList<>(List.of(existingLib)));
+        librariesHolder.set(new HashSet<>(List.of(existingLib)));
         var user = createMockedUserWithLibraries(perms, librariesHolder);
 
         var mapping = createMapping(false, "[]", "[1]");
@@ -370,7 +372,7 @@ class OidcGroupMappingServiceTest {
     }
 
     private BookLoreUserEntity createMockedUserWithLibraries(UserPermissionsEntity perms,
-                                                              AtomicReference<List<LibraryEntity>> librariesHolder) {
+                                                              AtomicReference<Set<LibraryEntity>> librariesHolder) {
         var user = mock(BookLoreUserEntity.class);
         lenient().when(user.getUsername()).thenReturn("testuser");
         when(user.getPermissions()).thenReturn(perms);

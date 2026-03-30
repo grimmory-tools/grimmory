@@ -1,5 +1,7 @@
 package org.booklore.service.koreader;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.ApiError;
 import org.booklore.mapper.KoreaderUserMapper;
@@ -9,8 +11,6 @@ import org.booklore.model.entity.KoreaderUserEntity;
 import org.booklore.repository.KoreaderUserRepository;
 import org.booklore.repository.UserRepository;
 import org.booklore.util.Md5Util;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,6 +54,7 @@ public class KoreaderUserService {
         return koreaderUserMapper.toDto(saved);
     }
 
+    @Transactional(readOnly = true)
     public KoreaderUser getUser() {
         Long id = authService.getAuthenticatedUser().getId();
         KoreaderUserEntity user = koreaderUserRepository.findByBookLoreUserId(id)
@@ -61,6 +62,7 @@ public class KoreaderUserService {
         return koreaderUserMapper.toDto(user);
     }
 
+    @Transactional
     public void toggleSync(boolean enabled) {
         Long id = authService.getAuthenticatedUser().getId();
         KoreaderUserEntity user = koreaderUserRepository.findByBookLoreUserId(id)
@@ -69,6 +71,7 @@ public class KoreaderUserService {
         koreaderUserRepository.save(user);
     }
 
+    @Transactional
     public void toggleSyncProgressWithBooklore(boolean enabled) {
         Long id = authService.getAuthenticatedUser().getId();
         KoreaderUserEntity user = koreaderUserRepository.findByBookLoreUserId(id)

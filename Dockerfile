@@ -1,20 +1,24 @@
 FROM --platform=$BUILDPLATFORM node:24-alpine AS frontend-build
 
-WORKDIR /workspace/booklore-ui
+WORKDIR /workspace/frontend
 
-COPY booklore-ui/package.json booklore-ui/package-lock.json ./
-RUN --mount=type=cache,target=/root/.npm \
-    npm ci --no-audit --no-fund
+COPY .yarnrc.yml /workspace/.yarnrc.yml
+COPY frontend/package.json frontend/yarn.lock ./
 
-COPY booklore-ui/ ./
-RUN --mount=type=cache,target=/workspace/booklore-ui/.angular/cache \
-    npm run build --configuration=production
+RUN corepack enable
+RUN --mount=type=cache,target=/workspace/.yarn/cache \
+    corepack yarn install --immutable
+
+COPY frontend/ ./
+RUN --mount=type=cache,target=/workspace/.yarn/cache \
+    --mount=type=cache,target=/workspace/frontend/.angular/cache \
+    CI=1 NG_CLI_ANALYTICS=false corepack yarn build:prod
 
 FROM --platform=$BUILDPLATFORM gradle:9.3.1-jdk25-alpine AS backend-build
 
 WORKDIR /workspace/booklore-api
 
-COPY booklore-api/gradlew booklore-api/gradlew.bat booklore-api/build.gradle booklore-api/settings.gradle ./
+COPY booklore-api/gradlew booklore-api/gradlew.bat booklore-api/build.gradle.kts booklore-api/settings.gradle.kts ./
 COPY booklore-api/gradle ./gradle
 RUN chmod +x ./gradlew
 
@@ -22,7 +26,7 @@ RUN --mount=type=cache,target=/home/gradle/.gradle \
     ./gradlew --no-daemon dependencies
 
 COPY booklore-api/ ./
-COPY --from=frontend-build /workspace/booklore-ui/dist/grimmory/browser /tmp/frontend-dist
+COPY --from=frontend-build /workspace/frontend/dist/grimmory/browser /tmp/frontend-dist
 
 RUN --mount=type=cache,target=/home/gradle/.gradle \
     ./gradlew --no-daemon -PfrontendDistDir=/tmp/frontend-dist bootJar
@@ -58,7 +62,13 @@ ADD \
 FROM kepubify-layer-${TARGETARCH} AS kepubify-layer
 
 FROM eclipse-temurin:25-jre-alpine
-ENV JAVA_TOOL_OPTIONS="-XX:+UseG1GC -XX:+UseCompactObjectHeaders -XX:+UseStringDeduplication -XX:MaxRAMPercentage=75.0 -XX:+ExitOnOutOfMemoryError"
+
+ENV JAVA_TOOL_OPTIONS="-XX:+UseShenandoahGC \
+    -XX:ShenandoahGCHeuristics=compact \
+    -XX:+UseCompactObjectHeaders \
+    -XX:MaxRAMPercentage=60.0 \
+    -XX:InitialRAMPercentage=8.0 \
+    -XX:+ExitOnOutOfMemoryError"
 
 RUN apk add --no-cache su-exec libstdc++ libgcc && \
     mkdir -p /bookdrop

@@ -21,6 +21,7 @@ import org.booklore.service.NotificationService;
 import org.booklore.service.metadata.sidecar.SidecarMetadataWriter;
 import org.booklore.service.monitoring.MonitoringRegistrationService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.nio.file.Path;
@@ -31,6 +32,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Service
 @Slf4j
+@Transactional
 public class FileMoveService {
 
     private static final long EVENT_DRAIN_TIMEOUT_MS = 300;
@@ -80,7 +82,7 @@ public class FileMoveService {
         
         for (FileMoveRequest.Move move : moves) {
             libraryIds.add(move.getTargetLibraryId());
-            bookRepository.findById(move.getBookId())
+            bookRepository.findByIdWithBookFiles(move.getBookId())
                     .ifPresent(book -> libraryIds.add(book.getLibrary().getId()));
         }
         
@@ -235,7 +237,7 @@ public class FileMoveService {
 
             entityManager.clear();
 
-            BookEntity fresh = bookRepository.findById(bookId).orElseThrow();
+            BookEntity fresh = bookRepository.findByIdWithBookFiles(bookId).orElseThrow();
 
             notificationService.sendMessage(Topic.BOOK_UPDATE, bookMapper.toBookWithDescription(fresh, false));
 

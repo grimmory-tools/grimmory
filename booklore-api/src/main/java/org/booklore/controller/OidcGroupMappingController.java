@@ -3,6 +3,7 @@ package org.booklore.controller;
 import lombok.AllArgsConstructor;
 import org.booklore.model.dto.OidcGroupMapping;
 import org.booklore.service.oidc.OidcGroupMappingService;
+import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,12 +23,12 @@ public class OidcGroupMappingController {
     }
 
     @PostMapping
-    public OidcGroupMapping create(@RequestBody OidcGroupMapping mapping) {
+    public OidcGroupMapping create(@Valid @RequestBody OidcGroupMapping mapping) {
         return oidcGroupMappingService.create(mapping);
     }
 
     @PutMapping("/{id}")
-    public OidcGroupMapping update(@PathVariable Long id, @RequestBody OidcGroupMapping mapping) {
+    public OidcGroupMapping update(@PathVariable Long id, @Valid @RequestBody OidcGroupMapping mapping) {
         return oidcGroupMappingService.update(id, mapping);
     }
 

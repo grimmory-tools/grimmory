@@ -1,5 +1,7 @@
 package org.booklore.service.komga;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.booklore.mapper.komga.KomgaMapper;
 import org.booklore.model.dto.MagicShelf;
 import org.booklore.model.dto.komga.*;
@@ -13,11 +15,10 @@ import org.booklore.service.MagicShelfService;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.reader.CbxReaderService;
 import org.booklore.service.reader.PdfReaderService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -31,6 +32,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class KomgaService {
 
     private static final Pattern NON_ALPHANUMERIC_PATTERN = Pattern.compile("[^a-z0-9]+");
@@ -286,13 +288,13 @@ public class KomgaService {
     }
 
     public KomgaBookDto getBookById(Long bookId) {
-        BookEntity book = bookRepository.findById(bookId)
+        BookEntity book = bookRepository.findByIdWithBookFiles(bookId)
                 .orElseThrow(() -> new RuntimeException("Book not found"));
         return komgaMapper.toKomgaBookDto(book);
     }
 
     public List<KomgaPageDto> getBookPages(Long bookId) {
-        BookEntity book = bookRepository.findById(bookId)
+        BookEntity book = bookRepository.findByIdWithBookFiles(bookId)
                 .orElseThrow(() -> new RuntimeException("Book not found"));
         
         BookMetadataEntity metadata = book.getMetadata();
@@ -377,7 +379,7 @@ public class KomgaService {
     public Resource getBookPageImage(Long bookId, Integer pageNumber, boolean convertToPng) throws IOException {
         log.debug("Getting page {} from book {} (convert to PNG: {})", pageNumber, bookId, convertToPng);
         
-        BookEntity book = bookRepository.findById(bookId)
+        BookEntity book = bookRepository.findByIdWithBookFiles(bookId)
                 .orElseThrow(() -> new RuntimeException("Book not found: " + bookId));
 
         boolean isPDF = book.getPrimaryBookFile().getBookType() == BookFileType.PDF;
@@ -388,11 +390,11 @@ public class KomgaService {
 
         // Make sure pages are cached
         if (isPDF) {
-            cbxReaderService.getAvailablePages(bookId);
-            cbxReaderService.streamPageImage(bookId, pageNumber, outputStream);
-        } else {
             pdfReaderService.getAvailablePages(bookId);
             pdfReaderService.streamPageImage(bookId, pageNumber, outputStream);
+        } else {
+            cbxReaderService.getAvailablePages(bookId);
+            cbxReaderService.streamPageImage(bookId, pageNumber, outputStream);
         }
         
         byte[] imageData = outputStream.toByteArray();

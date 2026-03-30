@@ -243,16 +243,21 @@ public class BookMetadataUpdater {
     private void updateAuthorsIfNeeded(BookMetadata m, BookMetadataEntity e, MetadataClearFlags clear, boolean merge, MetadataReplaceMode replaceMode) {
         if (Boolean.TRUE.equals(e.getAuthorsLocked())) return;
 
-        e.setAuthors(Optional.ofNullable(e.getAuthors()).orElseGet(ArrayList::new));
+        // Get or initialize authors collection
+        List<AuthorEntity> authors = e.getAuthors();
+        if (authors == null) {
+            authors = new ArrayList<>();
+            e.setAuthors(authors);
+        }
 
         if (clear.isAuthors()) {
-            e.getAuthors().clear();
+            authors.clear();
             return;
         }
 
         List<String> authorNames = Optional.ofNullable(m.getAuthors()).orElse(Collections.emptyList());
         if (authorNames.isEmpty()) {
-            if (replaceMode == MetadataReplaceMode.REPLACE_ALL) e.getAuthors().clear();
+            if (replaceMode == MetadataReplaceMode.REPLACE_ALL) authors.clear();
             return;
         }
 
@@ -272,8 +277,8 @@ public class BookMetadataUpdater {
                 }
             }
             e.updateSearchText();
-        } else if (replaceMode == MetadataReplaceMode.REPLACE_MISSING && e.getAuthors().isEmpty()) {
-            e.getAuthors().addAll(newAuthors);
+        } else if (replaceMode == MetadataReplaceMode.REPLACE_MISSING && authors.isEmpty()) {
+            authors.addAll(newAuthors);
             e.updateSearchText();
         } else if (replaceMode == null) {
             if (!merge) e.getAuthors().clear();

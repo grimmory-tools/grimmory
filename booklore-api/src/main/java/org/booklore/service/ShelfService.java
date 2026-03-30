@@ -1,5 +1,6 @@
 package org.booklore.service;
 
+import lombok.AllArgsConstructor;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.ApiError;
 import org.booklore.mapper.BookMapper;
@@ -17,14 +18,17 @@ import org.booklore.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.booklore.model.enums.AuditAction;
 import org.booklore.service.audit.AuditService;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 @AllArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class ShelfService {
 
     private final ShelfRepository shelfRepository;
@@ -35,6 +39,7 @@ public class ShelfService {
     private final UserRepository userRepository;
     private final AuditService auditService;
 
+    @Transactional
     public Shelf createShelf(ShelfCreateRequest request) {
         Long userId = getAuthenticatedUserId();
         if (shelfRepository.existsByUserIdAndName(userId, request.getName())) {
@@ -55,10 +60,11 @@ public class ShelfService {
         return result;
     }
 
+    @Transactional
     public Shelf updateShelf(Long id, ShelfCreateRequest request) {
         ShelfEntity shelfEntity = findShelfByIdOrThrow(id);
         if (request.isPublicShelf() && !authenticationService.getAuthenticatedUser().getPermissions().isAdmin()) {
-            throw new org.springframework.security.access.AccessDeniedException("Only admins can create public shelves");
+            throw new AccessDeniedException("Only admins can update shelves to be public");
         }
         shelfEntity.setName(request.getName());
         shelfEntity.setIcon(request.getIcon());
@@ -80,6 +86,7 @@ public class ShelfService {
         return shelfMapper.toShelf(findShelfByIdOrThrow(shelfId));
     }
 
+    @Transactional
     public void deleteShelf(Long shelfId) {
         shelfRepository.deleteById(shelfId);
         auditService.log(AuditAction.SHELF_DELETED, "Shelf", shelfId, "Deleted shelf: " + shelfId);

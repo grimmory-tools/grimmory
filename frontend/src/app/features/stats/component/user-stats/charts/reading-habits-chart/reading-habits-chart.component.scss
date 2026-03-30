@@ -1,0 +1,137 @@
+.reading-habits-container {
+  width: 100%;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+
+  .chart-title {
+    flex: 1;
+
+    h3 {
+      color: var(--text-color, #fff);
+      font-size: 1.25rem;
+      font-weight: 500;
+      margin: 0 0 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .chart-description {
+      color: var(--text-secondary-color);
+      font-size: 0.9rem;
+      margin: 0;
+      line-height: 1.4;
+    }
+  }
+}
+
+.reading-habits-icon {
+  font-size: 1.5rem;
+  color: rgb(156 39 176 / 100%);
+}
+
+.chart-wrapper {
+  position: relative;
+  height: 450px;
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+.habit-insights {
+  margin-top: 2rem;
+
+  h4 {
+    color: var(--text-color, #fff);
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin: 0 0 1rem;
+  }
+
+  .insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+
+  .insight-card {
+    background: rgb(255 255 255 / 5%);
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid rgb(255 255 255 / 10%);
+
+    .insight-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+
+      .insight-trait {
+        color: var(--text-color, #fff);
+        font-weight: 500;
+        font-size: 0.95rem;
+      }
+
+      .insight-score {
+        font-weight: 600;
+        font-size: 1rem;
+      }
+    }
+
+    .insight-progress {
+      height: 6px;
+      background: rgb(255 255 255 / 10%);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+
+      .progress-bar {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.3s ease;
+      }
+    }
+
+    .insight-description {
+      color: var(--text-secondary-color);
+      font-size: 0.85rem;
+      margin: 0;
+      line-height: 1.4;
+    }
+  }
+}
+
+@media (width <= 768px) {
+  .chart-wrapper {
+    height: 350px;
+  }
+
+  .habit-insights {
+    .insights-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+@media (width <= 480px) {
+  .chart-header {
+    .chart-title {
+      h3 {
+        font-size: 1rem;
+      }
+
+      .chart-description {
+        font-size: 0.8rem;
+      }
+    }
+  }
+
+  .chart-wrapper {
+    height: 300px;
+  }
+}
+
