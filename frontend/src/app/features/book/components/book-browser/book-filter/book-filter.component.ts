@@ -65,7 +65,7 @@ export class BookFilterComponent implements OnInit, OnDestroy {
   );
   filterTypes: FilterType[] = Object.keys(this.filterSignals) as FilterType[];
   visibleFilterTypes: FilterType[] = [];
-  expandedPanels: number[] = [0];
+  expandedPanels: number[] = [];
   truncatedFilters: Record<string, boolean> = {};
 
   private _selectedFilterMode: BookFilterMode = 'and';
@@ -128,7 +128,7 @@ export class BookFilterComponent implements OnInit, OnDestroy {
 
   clearActiveFilter(): void {
     this.activeFilters = {};
-    this.expandedPanels = [0];
+    this.expandedPanels = [];
     this.activeFiltersSignal.set(null);
     this.filterSelected.emit(null);
   }
@@ -227,10 +227,10 @@ export class BookFilterComponent implements OnInit, OnDestroy {
   }
 
   private updateExpandedPanels(): void {
-    const panels = new Set(this.expandedPanels);
+    const panels = new Set<number>();
     this.visibleFilterTypes.forEach((type, i) => {
       if (this.activeFilters[type]?.length) panels.add(i);
     });
-    this.expandedPanels = panels.size > 0 ? [...panels] : [0];
+    this.expandedPanels = [...panels];
   }
 }
