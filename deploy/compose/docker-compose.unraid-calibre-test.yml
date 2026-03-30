@@ -1,0 +1,50 @@
+services:
+  grimmory:
+    image: grimmory/grimmory:v2.2.1
+    container_name: grimmory
+    environment:
+      - USER_ID=99
+      - GROUP_ID=100
+      - TZ=Europe/London
+      - DATABASE_URL=jdbc:mariadb://mariadb:3306/grimmory
+      - DATABASE_USERNAME=grimmory
+      - DATABASE_PASSWORD=CHANGE_ME_GRIMMORY_DB_PASSWORD
+      - DISK_TYPE=LOCAL
+      - SWAGGER_ENABLED=false
+      - FORCE_DISABLE_OIDC=false
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    ports:
+      - "6060:6060"
+    volumes:
+      - /mnt/user/appdata/grimmory/data:/app/data
+      - /mnt/user/data/grimmory-test/CalibreLibrary-GrimmoryTest:/books:rw
+      - /mnt/user/data/grimmory-test/bookdrop:/bookdrop:rw
+    healthcheck:
+      test: wget -q -O - http://localhost:6060/api/v1/healthcheck
+      interval: 60s
+      retries: 5
+      start_period: 60s
+      timeout: 10s
+    restart: unless-stopped
+
+  mariadb:
+    image: lscr.io/linuxserver/mariadb:11.4.8
+    container_name: grimmory-mariadb
+    environment:
+      - PUID=99
+      - PGID=100
+      - TZ=Europe/London
+      - MYSQL_ROOT_PASSWORD=CHANGE_ME_MARIADB_ROOT_PASSWORD
+      - MYSQL_DATABASE=grimmory
+      - MYSQL_USER=grimmory
+      - MYSQL_PASSWORD=CHANGE_ME_GRIMMORY_DB_PASSWORD
+    volumes:
+      - /mnt/user/appdata/grimmory-mariadb:/config
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "mariadb-admin", "ping", "-h", "localhost" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10

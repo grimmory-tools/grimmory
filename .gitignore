@@ -58,3 +58,6 @@ booklore-api/src/main/resources/application-local.yaml
 /tools/release/node_modules
 /tools/release/.yarn/
 .worktrees/
+
+# Local deployment credentials
+/docs/private/credentials.md
