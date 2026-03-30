@@ -224,8 +224,8 @@ class KoboReadingStateBuilderTest {
         }
 
         @Test
-        @DisplayName("Should not carry file content progress into Kobo bookmark")
-        void buildBookmarkFromProgress_KoboBookmarkDoesNotReuseFileContentProgress() {
+        @DisplayName("Should carry file content progress into Kobo bookmark")
+        void buildBookmarkFromProgress_KoboBookmarkReusesFileContentProgress() {
             UserBookProgressEntity progress = new UserBookProgressEntity();
             progress.setKoboProgressPercent(44f);
             progress.setKoboProgressReceivedTime(Instant.parse("2025-11-26T10:00:00Z"));
@@ -237,7 +237,7 @@ class KoboReadingStateBuilderTest {
 
             assertNotNull(bookmark);
             assertEquals(44, bookmark.getProgressPercent());
-            assertNull(bookmark.getContentSourceProgressPercent());
+            assertEquals(19, bookmark.getContentSourceProgressPercent());
         }
 
         @Test
@@ -339,7 +339,7 @@ class KoboReadingStateBuilderTest {
 
             assertNotNull(bookmark);
             assertEquals(12, bookmark.getProgressPercent());
-            assertNull(bookmark.getContentSourceProgressPercent());
+            assertEquals(19, bookmark.getContentSourceProgressPercent());
             assertNotNull(bookmark.getLocation());
             assertEquals("kobo.1.1", bookmark.getLocation().getValue());
             assertEquals("KoboSpan", bookmark.getLocation().getType());

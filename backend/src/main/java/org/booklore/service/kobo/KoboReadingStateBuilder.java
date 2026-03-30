@@ -124,6 +124,10 @@ public class KoboReadingStateBuilder {
                 .progressPercent(Optional.ofNullable(progress.getKoboProgressPercent())
                         .map(Math::round)
                         .orElse(null))
+                .contentSourceProgressPercent(Optional.ofNullable(fileProgress)
+                        .map(UserBookFileProgressEntity::getContentSourceProgressPercent)
+                        .map(Math::round)
+                        .orElse(null))
                 .location(location)
                 .lastModified(lastModified)
                 .build();
