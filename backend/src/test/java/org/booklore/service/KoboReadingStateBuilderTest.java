@@ -320,6 +320,33 @@ class KoboReadingStateBuilderTest {
         }
 
         @Test
+        @DisplayName("Should keep inbound Kobo bookmark when mirrored EPUB progress has the same timestamp")
+        void buildBookmarkFromProgress_PrefersKoboWhenTimestampsAreEqual() {
+            UserBookProgressEntity progress = new UserBookProgressEntity();
+            progress.setEpubProgressPercent(54.6f);
+            progress.setLastReadTime(Instant.parse("2025-11-26T10:00:00Z"));
+            progress.setKoboProgressPercent(12f);
+            progress.setKoboLocation("kobo.1.1");
+            progress.setKoboLocationType("KoboSpan");
+            progress.setKoboLocationSource("OPS/chapter1.xhtml");
+            progress.setKoboProgressReceivedTime(Instant.parse("2025-11-26T10:00:00Z"));
+
+            UserBookFileProgressEntity fileProgress = new UserBookFileProgressEntity();
+            fileProgress.setPositionHref("OPS/chapter3.xhtml");
+            fileProgress.setContentSourceProgressPercent(18.6f);
+
+            KoboReadingState.CurrentBookmark bookmark = builder.buildBookmarkFromProgress(progress, fileProgress);
+
+            assertNotNull(bookmark);
+            assertEquals(12, bookmark.getProgressPercent());
+            assertNull(bookmark.getContentSourceProgressPercent());
+            assertNotNull(bookmark.getLocation());
+            assertEquals("kobo.1.1", bookmark.getLocation().getValue());
+            assertEquals("KoboSpan", bookmark.getLocation().getType());
+            assertEquals("OPS/chapter1.xhtml", bookmark.getLocation().getSource());
+        }
+
+        @Test
         @DisplayName("Should prefer web reader bookmark when newer progress has href and percent but no CFI")
         void buildBookmarkFromProgress_UsesWebReaderWithoutCfi() {
             UserBookProgressEntity progress = new UserBookProgressEntity();

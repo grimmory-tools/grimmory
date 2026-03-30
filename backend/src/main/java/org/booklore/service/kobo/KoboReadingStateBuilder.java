@@ -67,7 +67,7 @@ public class KoboReadingStateBuilder {
         if (progress.getKoboProgressReceivedTime() == null) {
             return true;
         }
-        return !progress.getKoboProgressReceivedTime().isAfter(progress.getLastReadTime());
+        return progress.getLastReadTime().isAfter(progress.getKoboProgressReceivedTime());
     }
 
     private KoboReadingState.CurrentBookmark buildBookmarkFromWebReaderProgress(UserBookProgressEntity progress,
