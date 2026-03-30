@@ -12,12 +12,13 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {NotebookService} from '../../service/notebook.service';
 import {NotebookEntry, NotebookPage} from '../../model/notebook.model';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
+import {CoverPlaceholderComponent} from '../../../../shared/components/cover-generator/cover-generator.component';
 import {PageTitleService} from '../../../../shared/service/page-title.service';
 
 interface BookGroup {
   bookId: number;
   bookTitle: string;
-  thumbnailUrl: string;
+  thumbnailUrl: string | null;
   entries: NotebookEntry[];
 }
 
@@ -43,6 +44,7 @@ const EMPTY_PAGE: NotebookPage = {
     TooltipModule,
     Paginator,
     TranslocoDirective,
+    CoverPlaceholderComponent,
   ],
   templateUrl: './notebook.component.html',
   styleUrls: ['./notebook.component.scss'],
