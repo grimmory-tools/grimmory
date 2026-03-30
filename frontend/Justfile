@@ -36,7 +36,31 @@ test:
 
 # Run the frontend tests with a coverage report.
 coverage:
-    {{ yarn }} ng test --coverage
+    {{ yarn }} coverage
+
+# Summarize the latest frontend coverage report by global and feature buckets.
+coverage-summary:
+    {{ yarn }} coverage:summary
+
+# Install the Chromium browser used by the frontend Playwright suite.
+e2e-install:
+    {{ yarn }} e2e:install
+
+# Run the frontend Playwright suite.
+e2e:
+    {{ yarn }} e2e
+
+# Run a single frontend Playwright spec file.
+e2e-file spec:
+    {{ yarn }} e2e {{ spec }}
+
+# List the tests contained in a single frontend Playwright spec file.
+e2e-list spec:
+    {{ yarn }} e2e {{ spec }} --list
+
+# Start the Angular dev server for Playwright against a fixed host and port.
+e2e-dev host='127.0.0.1' port='4301':
+    {{ yarn }} ng serve --host {{ host }} --port {{ port }} --configuration development --watch=false
 
 # Run the frontend linter.
 lint:
