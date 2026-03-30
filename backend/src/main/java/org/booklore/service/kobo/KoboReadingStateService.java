@@ -157,6 +157,7 @@ public class KoboReadingStateService {
             Long bookId = Long.parseLong(entitlementId);
             UserBookFileProgressEntity fileProgress = findSyncedEpubFileProgress(userId, bookId).orElse(null);
             progressRepository.findByUserIdAndBookId(userId, bookId)
+                    .filter(readingStateBuilder::shouldUseWebReaderProgress)
                     .ifPresent(progress -> state.setCurrentBookmark(
                             readingStateBuilder.buildBookmarkFromProgress(progress, fileProgress)));
         } catch (NumberFormatException e) {
