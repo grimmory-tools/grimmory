@@ -103,7 +103,7 @@
 }
 
 .config-modal {
-  background: var(--surface-card, rgb(30 30 30 / 95%));
+  background: var(--card-background, rgb(30 30 30 / 95%));
   border-radius: 12px;
   box-shadow: 0 20px 40px rgb(0 0 0 / 40%);
   border: 1px solid rgb(255 255 255 / 15%);
@@ -120,7 +120,7 @@
     align-items: center;
     padding: 20px 25px;
     border-bottom: 1px solid rgb(255 255 255 / 10%);
-    background: var(--surface-ground, rgb(40 40 40 / 80%));
+    background: var(--ground-background, rgb(40 40 40 / 80%));
 
     h3 {
       color: var(--text-color, #fff);
@@ -167,7 +167,7 @@
     gap: 12px;
     padding: 20px 25px;
     border-bottom: 1px solid rgb(255 255 255 / 10%);
-    background: var(--surface-ground, rgb(35 35 35 / 60%));
+    background: var(--ground-background, rgb(35 35 35 / 60%));
 
     .config-action-btn {
       background: rgb(255 255 255 / 10%);

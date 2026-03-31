@@ -1,5 +1,6 @@
 {
   "topbar": {
+    "toggleNavigation": "Toggle navigation",
     "bookdrop": "Buzón de libros",
     "createNewLibrary": "Crear nueva biblioteca",
     "uploadBook": "Subir libro",
@@ -18,6 +19,7 @@
     "readingStats": "Estadísticas de lectura"
   },
   "menu": {
+    "adjustSidebarWidth": "Adjust sidebar width",
     "home": "Inicio",
     "dashboard": "Panel",
     "allBooks": "Todos los libros",
@@ -30,6 +32,7 @@
     "notebook": "Cuaderno",
     "update": "(Actualizar)"
   },
+  "closeNavigation": "Close navigation",
   "changelog": {
     "title": "Novedades",
     "description": "Últimas actualizaciones y mejoras",

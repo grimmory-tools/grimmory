@@ -1,5 +1,6 @@
 {
   "topbar": {
+    "toggleNavigation": "Toggle navigation",
     "bookdrop": "Bookdrop",
     "createNewLibrary": "Ustvari novo knjižnico",
     "uploadBook": "Naloži knjigo",
@@ -18,6 +19,7 @@
     "readingStats": "Statistika branja"
   },
   "menu": {
+    "adjustSidebarWidth": "Adjust sidebar width",
     "home": "Domov",
     "dashboard": "Nadzorna plošča",
     "allBooks": "Vse knjige",
@@ -30,6 +32,7 @@
     "update": "(Posodobitev)",
     "authors": "Avtorji"
   },
+  "closeNavigation": "Close navigation",
   "changelog": {
     "title": "Kaj je novega",
     "description": "Zadnje posodobitve in izboljšave",

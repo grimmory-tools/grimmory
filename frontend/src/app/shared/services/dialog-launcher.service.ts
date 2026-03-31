@@ -5,7 +5,7 @@ import {BookUploaderComponent} from '../components/book-uploader/book-uploader.c
 import {UserProfileDialogComponent} from '../../features/settings/user-profile-dialog/user-profile-dialog.component';
 import {MagicShelfComponent} from '../../features/magic-shelf/component/magic-shelf-component';
 import {DashboardSettingsComponent} from '../../features/dashboard/components/dashboard-settings/dashboard-settings.component';
-import {VersionChangelogDialogComponent} from '../layout/component/layout-menu/version-changelog-dialog/version-changelog-dialog.component';
+import {VersionChangelogDialogComponent} from '../layout/layout-menu/version-changelog-dialog/version-changelog-dialog.component';
 import {CreateUserDialogComponent} from '../../features/settings/user-management/create-user-dialog/create-user-dialog.component';
 import {CreateEmailRecipientDialogComponent} from '../../features/settings/email-v2/create-email-recipient-dialog/create-email-recipient-dialog.component';
 import {CreateEmailProviderDialogComponent} from '../../features/settings/email-v2/create-email-provider-dialog/create-email-provider-dialog.component';

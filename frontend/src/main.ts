@@ -9,7 +9,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { providePrimeNG } from 'primeng/config';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { AppComponent } from './app/app.component';
-import Aura from '@primeuix/themes/aura';
+import Aura from './app/shared/layout/theme-palette-extend';
 import { routes } from './app/app.routes';
 import { AuthInterceptorService } from './app/core/security/auth-interceptor.service';
 import { AuthService, websocketInitializer } from './app/shared/service/auth.service';

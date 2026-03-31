@@ -1,11 +1,11 @@
 @use "sass:meta";
 @import "primeicons/primeicons.css";
-@include meta.load-css("assets/styles/reset.scss");
-@include meta.load-css("assets/layout/styles/global.scss");
+@include meta.load-css("assets/styles/tokens.css");
+@include meta.load-css("assets/styles/reset");
+@include meta.load-css("assets/layout/styles/global");
 
 html {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
-  Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-family: var(--font-family), "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
 }
 
 :root {
