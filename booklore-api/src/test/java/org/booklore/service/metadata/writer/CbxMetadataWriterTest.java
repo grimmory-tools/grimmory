@@ -6,6 +6,7 @@ import org.booklore.model.dto.settings.MetadataPersistenceSettings;
 import org.booklore.model.entity.*;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.ComicCreatorRole;
+import org.booklore.service.ArchiveService;
 import org.booklore.service.appsettings.AppSettingService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,7 +56,7 @@ class CbxMetadataWriterTest {
         settings.setMetadataPersistenceSettings(persistence);
         Mockito.when(appSettingService.getAppSettings()).thenReturn(settings);
 
-        writer = new CbxMetadataWriter(appSettingService);
+        writer = new CbxMetadataWriter(appSettingService, new ArchiveService());
         tempDir = Files.createTempDirectory("cbx_writer_test_");
     }
 
