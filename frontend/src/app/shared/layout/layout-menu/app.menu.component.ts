@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AppMenuitemComponent } from './app.menuitem.component';
 import { LibraryService } from '../../../features/book/service/library.service';
@@ -6,7 +6,7 @@ import { LibraryHealthService } from '../../../features/book/service/library-hea
 import { ShelfService } from '../../../features/book/service/shelf.service';
 import { BookService } from '../../../features/book/service/book.service';
 import { LibraryShelfMenuService } from '../../../features/book/service/library-shelf-menu.service';
-import { AppVersion, VersionService } from '../../service/version.service';
+import { VersionService } from '../../service/version.service';
 import { UserService } from '../../../features/settings/user-management/user.service';
 import { MagicShelfService } from '../../../features/magic-shelf/service/magic-shelf.service';
 import { SeriesDataService } from '../../../features/series-browser/service/series-data.service';
@@ -21,31 +21,30 @@ import { NavIconType, NavItem } from '../nav-item.model';
 
 @Component({
   selector: 'app-menu',
-  standalone: true,
   imports: [AppMenuitemComponent, TranslocoDirective, Slider, FormsModule, Popover],
   templateUrl: './app.menu.component.html',
   styleUrl: './app.menu.component.scss',
 })
-export class AppMenuComponent implements OnInit {
-  versionInfo: AppVersion | null = null;
+export class AppMenuComponent {
+  private readonly libraryService = inject(LibraryService);
+  private readonly libraryHealthService = inject(LibraryHealthService);
+  private readonly shelfService = inject(ShelfService);
+  private readonly bookService = inject(BookService);
+  private readonly versionService = inject(VersionService);
+  private readonly libraryShelfMenuService = inject(LibraryShelfMenuService);
+  private readonly dialogLauncherService = inject(DialogLauncherService);
+  private readonly userService = inject(UserService);
+  private readonly magicShelfService = inject(MagicShelfService);
+  private readonly seriesDataService = inject(SeriesDataService);
+  private readonly authorService = inject(AuthorService);
+  private readonly t = inject(TranslocoService);
+  private readonly localStorageService = inject(LocalStorageService);
 
-  private libraryService = inject(LibraryService);
-  private libraryHealthService = inject(LibraryHealthService);
-  private shelfService = inject(ShelfService);
-  private bookService = inject(BookService);
-  private versionService = inject(VersionService);
-  private libraryShelfMenuService = inject(LibraryShelfMenuService);
-  private dialogLauncherService = inject(DialogLauncherService);
-  private userService = inject(UserService);
-  private magicShelfService = inject(MagicShelfService);
-  private seriesDataService = inject(SeriesDataService);
-  private authorService = inject(AuthorService);
-  private t = inject(TranslocoService);
-  private localStorageService = inject(LocalStorageService);
-
-  private activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
+  private readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
   private readonly currentUser = this.userService.currentUser;
-  private allAuthors = this.authorService.allAuthors;
+  private readonly allAuthors = this.authorService.allAuthors;
+
+  readonly versionInfo = toSignal(this.versionService.getVersion(), { initialValue: null });
 
   librarySortField = signal<'name' | 'id'>('name');
   librarySortOrder = signal<'asc' | 'desc'>('desc');
@@ -53,7 +52,7 @@ export class AppMenuComponent implements OnInit {
   shelfSortOrder = signal<'asc' | 'desc'>('asc');
   magicShelfSortField = signal<'name' | 'id'>('name');
   magicShelfSortOrder = signal<'asc' | 'desc'>('asc');
-  sidebarWidth = 225;
+  sidebarWidth = this.localStorageService.get<number>('sidebarWidth') ?? 225;
 
   private readonly libraryBookCounts = computed(() => {
     const counts = new Map<number, number>();
@@ -289,15 +288,6 @@ export class AppMenuComponent implements OnInit {
       this.magicShelfSortOrder.set(this.validateSortOrder(user.userSettings.sidebarMagicShelfSorting.order));
     }
   });
-
-  ngOnInit(): void {
-    this.sidebarWidth = this.localStorageService.get<number>('sidebarWidth') ?? 225;
-
-    this.versionService.getVersion().subscribe((data) => {
-      this.versionInfo = data;
-    });
-
-  }
 
   onSidebarWidthChange(): void {
     document.documentElement.style.setProperty('--sidebar-width', this.sidebarWidth + 'px');

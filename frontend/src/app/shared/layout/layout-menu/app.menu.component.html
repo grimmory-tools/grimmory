@@ -47,15 +47,15 @@
     </ul>
 
     <ul class="layout-menu">
-      @if (magicShelfMenu(); as shelfMenu) {
-        @for (item of shelfMenu; track item.label; let i = $index) {
+      @if (magicShelfMenu(); as magicShelfMenu) {
+        @for (item of magicShelfMenu; track item.label; let i = $index) {
           <li app-menuitem [item]="item" [index]="i" [root]="true" menuKey="magicShelf"></li>
         }
       }
     </ul>
   </div>
 
-  @if (versionInfo) {
+  @if (versionInfo(); as versionInfo) {
     <div class="version-info" style="margin-top: auto;">
       <div class="version-text">
         @if (isSemanticVersion(versionInfo.current)) {

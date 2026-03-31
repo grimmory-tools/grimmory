@@ -56,7 +56,7 @@
 }
 
 .version-text {
-  color: #e5e7eb;
+  color: var(--text-color-secondary);
 }
 
 .version-link {
@@ -64,7 +64,7 @@
 
   &:hover {
     text-decoration: underline;
-    color: #f3f4f6;
+    color: var(--high-contrast-text-color);
   }
 }
 
@@ -77,13 +77,13 @@
   border: 0;
   background: none;
   cursor: pointer;
-  color: #fb923c;
+  color: var(--primary-text-color);
   font-family: inherit;
   font-size: 0.75rem;
   line-height: inherit;
 
   &:hover {
     text-decoration: underline;
-    color: #fdba74;
+    color: var(--primary-hover-color);
   }
 }

@@ -48,9 +48,9 @@ export class AppMenuitemComponent implements OnInit {
   @Input() parentKey!: string;
   @Input() menuKey!: string;
 
-  hovered = false;
+  menuOpen = false;
   key: string = '';
-  expandedItems = new Set<string>();
+  expanded = true;
 
   private readonly menuService = inject(MenuService);
   private readonly userService = inject(UserService);
@@ -77,19 +77,10 @@ export class AppMenuitemComponent implements OnInit {
   ngOnInit() {
     const rootKey = this.menuKey ? this.menuKey + '-' : '';
     this.key = this.parentKey ? this.parentKey + '-' + this.index : rootKey + String(this.index);
-    this.expandedItems.add(this.key);
   }
 
-  toggleExpand(key: string) {
-    if (this.expandedItems.has(key)) {
-      this.expandedItems.delete(key);
-    } else {
-      this.expandedItems.add(key);
-    }
-  }
-
-  isExpanded(key: string): boolean {
-    return this.expandedItems.has(key);
+  toggleExpand() {
+    this.expanded = !this.expanded;
   }
 
   openDialog(item: NavItem) {

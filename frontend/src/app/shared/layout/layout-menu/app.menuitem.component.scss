@@ -61,16 +61,14 @@
   justify-content: space-between;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
 
   &:hover {
     background-color: var(--surface-hover);
-    border-radius: 8px;
   }
 }
 
 .menu-item-container.active-route-container {
-  background-color: var(--surface-hover);
+  background-color: color-mix(in srgb, var(--primary-color) 8%, transparent);
 }
 
 .menu-item-link {
@@ -128,6 +126,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.entity-menu-icon {
+  display: none;
+}
+
+.menu-item-container:hover .entity-menu-icon,
+.menu-item-container.menu-open .entity-menu-icon {
+  display: inline;
+}
+
+.menu-item-container:hover .entity-menu-count,
+.menu-item-container.menu-open .entity-menu-count {
+  display: none;
 }
 
 .book-count {
