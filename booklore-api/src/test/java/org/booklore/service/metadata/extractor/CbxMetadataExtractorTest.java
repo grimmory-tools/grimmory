@@ -82,7 +82,7 @@ class CbxMetadataExtractorTest {
     private Path mockEmptyArchive() throws IOException {
         Path path = Path.of("test.cbz");
         when(archiveService.streamEntryNames(path)).thenReturn(Stream.empty());
-        when(archiveService.getEntryBytes(path, any())).thenThrow(IOException.class);
+        when(archiveService.getEntryBytes(eq(path), any())).thenThrow(IOException.class);
         return path;
     }
 
