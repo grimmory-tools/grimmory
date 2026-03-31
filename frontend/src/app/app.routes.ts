@@ -1,5 +1,5 @@
 import {Routes} from '@angular/router';
-import {AppLayoutComponent} from './shared/layout/component/layout-main/app.layout.component';
+import {AppLayoutComponent} from './shared/layout/layout-main/app.layout.component';
 import {LoginComponent} from './shared/components/login/login.component';
 import {AuthGuard} from './core/security/auth.guard';
 import {ChangePasswordComponent} from './shared/components/change-password/change-password.component';

@@ -4,7 +4,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {DynamicDialogRef} from 'primeng/dynamicdialog';
 import {TranslocoService} from '@jsverse/transloco';
 
-import {getTranslocoModule} from '../../../../../core/testing/transloco-testing';
+import {getTranslocoModule} from '../../../../core/testing/transloco-testing';
 import {BackgroundUploadService} from '../background-upload.service';
 import {UploadDialogComponent} from './upload-dialog.component';
 

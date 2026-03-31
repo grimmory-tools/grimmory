@@ -3,8 +3,8 @@ import {of, throwError} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {DynamicDialogRef} from 'primeng/dynamicdialog';
 
-import {getTranslocoModule} from '../../../../../core/testing/transloco-testing';
-import {VersionService} from '../../../../service/version.service';
+import {getTranslocoModule} from '../../../../core/testing/transloco-testing';
+import {VersionService} from '../../../service/version.service';
 import {VersionChangelogDialogComponent} from './version-changelog-dialog.component';
 
 describe('VersionChangelogDialogComponent', () => {

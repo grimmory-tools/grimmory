@@ -1,7 +1,7 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { effect, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { $t } from '@primeuix/themes';
-import Aura from '../layout/component/theme-palette-extend';
+import Aura from '../layout/theme-palette-extend';
 import { AppState } from '../model/app-state.model';
 
 type ColorPalette = Record<string, string>;

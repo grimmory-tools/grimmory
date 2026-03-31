@@ -1,23 +1,23 @@
 import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AppMenuitemComponent } from './app.menuitem.component';
-import { LibraryService } from '../../../../features/book/service/library.service';
-import { LibraryHealthService } from '../../../../features/book/service/library-health.service';
-import { ShelfService } from '../../../../features/book/service/shelf.service';
-import { BookService } from '../../../../features/book/service/book.service';
-import { LibraryShelfMenuService } from '../../../../features/book/service/library-shelf-menu.service';
-import { AppVersion, VersionService } from '../../../service/version.service';
-import { UserService } from '../../../../features/settings/user-management/user.service';
-import { MagicShelfService } from '../../../../features/magic-shelf/service/magic-shelf.service';
-import { SeriesDataService } from '../../../../features/series-browser/service/series-data.service';
-import { AuthorService } from '../../../../features/author-browser/service/author.service';
-import { DialogLauncherService } from '../../../services/dialog-launcher.service';
+import { LibraryService } from '../../../features/book/service/library.service';
+import { LibraryHealthService } from '../../../features/book/service/library-health.service';
+import { ShelfService } from '../../../features/book/service/shelf.service';
+import { BookService } from '../../../features/book/service/book.service';
+import { LibraryShelfMenuService } from '../../../features/book/service/library-shelf-menu.service';
+import { AppVersion, VersionService } from '../../service/version.service';
+import { UserService } from '../../../features/settings/user-management/user.service';
+import { MagicShelfService } from '../../../features/magic-shelf/service/magic-shelf.service';
+import { SeriesDataService } from '../../../features/series-browser/service/series-data.service';
+import { AuthorService } from '../../../features/author-browser/service/author.service';
+import { DialogLauncherService } from '../../services/dialog-launcher.service';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { Slider } from 'primeng/slider';
 import { FormsModule } from '@angular/forms';
 import { Popover } from 'primeng/popover';
-import { LocalStorageService } from '../../../service/local-storage.service';
-import { NavIconType, NavItem } from '../../model/nav-item.model';
+import { LocalStorageService } from '../../service/local-storage.service';
+import { NavIconType, NavItem } from '../nav-item.model';
 
 @Component({
   selector: 'app-menu',

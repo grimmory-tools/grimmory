@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { ReleaseNote, VersionService } from '../../../../service/version.service';
+import { ReleaseNote, VersionService } from '../../../service/version.service';
 
 import showdown from 'showdown';
 import DOMPurify from 'dompurify';

@@ -54,7 +54,7 @@ import {BookBrowserScrollService} from './book-browser-scroll.service';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {MultiSortPopoverComponent} from './sorting/multi-sort-popover/multi-sort-popover.component';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
-import { toMenuItems } from '../../../../shared/layout/model/nav-item.model';
+import { toMenuItems } from '../../../../shared/layout/nav-item.model';
 
 export enum EntityType {
   LIBRARY = 'Library',

@@ -3,11 +3,11 @@ import { computed, Component, DestroyRef, effect, inject, OnInit } from '@angula
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
-import { LayoutService } from './service/app.layout.service';
+import { LayoutService } from '../layout.service';
 import { AppSidebarComponent } from '../layout-sidebar/app.sidebar.component';
 import { AppTopBarComponent } from '../layout-topbar/app.topbar.component';
 import { TranslocoDirective } from '@jsverse/transloco';
-import { LocalStorageService } from '../../../service/local-storage.service';
+import { LocalStorageService } from '../../service/local-storage.service';
 
 @Component({
   selector: 'app-layout',

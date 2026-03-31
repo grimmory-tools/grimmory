@@ -7,7 +7,7 @@ import {ToggleSwitchModule} from 'primeng/toggleswitch';
 
 import Aura from '../theme-palette-extend';
 
-import {AppConfigService} from '../../../service/app-config.service';
+import {AppConfigService} from '../../service/app-config.service';
 import {TranslocoDirective} from '@jsverse/transloco';
 import {FaviconService} from './favicon-service';
 

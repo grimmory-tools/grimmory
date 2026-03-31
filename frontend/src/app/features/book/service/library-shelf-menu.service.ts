@@ -14,7 +14,7 @@ import { finalize } from 'rxjs';
 import { DialogLauncherService } from '../../../shared/services/dialog-launcher.service';
 import { BookDialogHelperService } from '../components/book-browser/book-dialog-helper.service';
 import { TranslocoService } from '@jsverse/transloco';
-import { ContextMenuAction } from '../../../shared/layout/model/nav-item.model';
+import { ContextMenuAction } from '../../../shared/layout/nav-item.model';
 
 @Injectable({
   providedIn: 'root',

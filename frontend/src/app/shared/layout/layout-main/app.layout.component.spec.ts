@@ -6,8 +6,8 @@ import { TranslocoTestingModule } from '@jsverse/transloco';
 import { AppLayoutComponent } from './app.layout.component';
 import { AppSidebarComponent } from '../layout-sidebar/app.sidebar.component';
 import { AppTopBarComponent } from '../layout-topbar/app.topbar.component';
-import { LocalStorageService } from '../../../service/local-storage.service';
-import { LayoutService } from './service/app.layout.service';
+import { LocalStorageService } from '../../service/local-storage.service';
+import { LayoutService } from '../layout.service';
 
 @Component({
   selector: 'app-sidebar',

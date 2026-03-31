@@ -1,7 +1,7 @@
 import {Injectable, inject} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable, map, tap} from 'rxjs';
-import {API_CONFIG} from '../../../../core/config/api-config';
+import {API_CONFIG} from '../../../core/config/api-config';
 
 @Injectable({providedIn: 'root'})
 export class BackgroundUploadService {

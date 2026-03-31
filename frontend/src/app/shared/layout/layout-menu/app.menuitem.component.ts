@@ -1,17 +1,17 @@
 import { ChangeDetectionStrategy, Component, computed, HostBinding, inject, Input, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { MenuService } from './service/app.menu.service';
+import { MenuService } from './app.menu.service';
 import { NgClass } from '@angular/common';
 import { Menu } from 'primeng/menu';
-import { UserService } from '../../../../features/settings/user-management/user.service';
-import { DialogLauncherService } from '../../../services/dialog-launcher.service';
-import { BookDialogHelperService } from '../../../../features/book/components/book-browser/book-dialog-helper.service';
-import { IconDisplayComponent } from '../../../components/icon-display/icon-display.component';
+import { UserService } from '../../../features/settings/user-management/user.service';
+import { DialogLauncherService } from '../../services/dialog-launcher.service';
+import { BookDialogHelperService } from '../../../features/book/components/book-browser/book-dialog-helper.service';
+import { IconDisplayComponent } from '../../components/icon-display/icon-display.component';
 import { Tooltip } from 'primeng/tooltip';
-import { IconSelection } from '../../../service/icon-picker.service';
+import { IconSelection } from '../../service/icon-picker.service';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { NavItem, toMenuItems } from '../../model/nav-item.model';
+import { NavItem, toMenuItems } from '../nav-item.model';
 import type { MenuItem } from 'primeng/api';
 
 @Component({

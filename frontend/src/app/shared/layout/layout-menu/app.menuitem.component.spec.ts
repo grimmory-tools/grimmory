@@ -2,10 +2,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AppMenuitemComponent } from './app.menuitem.component';
-import { MenuService } from './service/app.menu.service';
-import { DialogLauncherService } from '../../../services/dialog-launcher.service';
-import { BookDialogHelperService } from '../../../../features/book/components/book-browser/book-dialog-helper.service';
-import { UserService } from '../../../../features/settings/user-management/user.service';
+import { MenuService } from './app.menu.service';
+import { DialogLauncherService } from '../../services/dialog-launcher.service';
+import { BookDialogHelperService } from '../../../features/book/components/book-browser/book-dialog-helper.service';
+import { UserService } from '../../../features/settings/user-management/user.service';
 
 describe('AppMenuitemComponent', () => {
   let fixture: ComponentFixture<AppMenuitemComponent>;

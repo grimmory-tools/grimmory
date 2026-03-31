@@ -1,4 +1,3 @@
-@use "mixins";
 @use "variables";
 
 .layout-topbar {
@@ -62,8 +61,6 @@
     outline-color: transparent;
     background-color: var(--card-background);
     cursor: pointer;
-
-    // @include focus-visible();
 
     &:hover {
       border-color: var(--primary-color);

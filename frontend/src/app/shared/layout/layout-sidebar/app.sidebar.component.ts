@@ -1,5 +1,5 @@
 import {Component, ElementRef, inject} from '@angular/core';
-import { LayoutService } from "../layout-main/service/app.layout.service";
+import { LayoutService } from '../layout.service';
 import {AppMenuComponent} from '../layout-menu/app.menu.component';
 
 @Component({

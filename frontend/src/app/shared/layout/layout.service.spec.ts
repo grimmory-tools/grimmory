@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { LayoutService } from './app.layout.service';
+import { LayoutService } from './layout.service';
 
 describe('LayoutService', () => {
   let service: LayoutService;
