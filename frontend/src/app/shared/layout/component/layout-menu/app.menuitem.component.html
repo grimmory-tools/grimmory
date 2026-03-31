@@ -100,7 +100,7 @@
           }
         }
 
-        @if (item.type === 'Library' && (!admin() && !canManipulateLibrary()) || item.type === 'All Books' || item.type === 'Series' || item.type === 'Authors' || item.label === 'Unshelved' || item.label === 'Kobo') {
+        @if (!shouldShowContextMenuButton() && item.bookCount !== undefined) {
           <p class="book-count">
             {{ formatCount(item.bookCount) }}
           </p>

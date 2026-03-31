@@ -11,12 +11,17 @@ export interface ContextMenuAction {
   items?: ContextMenuAction[];
 }
 
+export type NavItemType =
+  | 'library' | 'shelf' | 'magicShelf'           // root menu group types
+  | 'Library' | 'Shelf' | 'magicShelfItem'        // child item types
+  | 'All Books' | 'Series' | 'Authors';           // static nav types
+
 export interface NavItem {
   label: string;
   icon?: string;
   iconType?: NavIconType;
   routerLink?: string[];
-  type?: string;
+  type?: NavItemType;
   bookCount?: number;
   unhealthy?: boolean;
   items?: NavItem[];

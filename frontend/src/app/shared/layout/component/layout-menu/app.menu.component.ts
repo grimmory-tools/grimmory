@@ -227,7 +227,7 @@ export class AppMenuComponent implements OnInit {
     const shelfItems = shelves.map((shelf) => ({
       contextMenuActions: this.libraryShelfMenuService.initializeShelfMenuItems(shelf),
       label: shelf.name,
-      type: 'Shelf',
+      type: 'Shelf' as const,
       icon: shelf.icon || undefined,
       iconType: this.toNavIconType(shelf.iconType),
       routerLink: [`/shelf/${shelf.id}/books`],

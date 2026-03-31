@@ -87,11 +87,10 @@ describe('AppMenuitemComponent', () => {
     expect(nestedAction).toHaveBeenCalled();
   });
 
-  it('hides the context menu button for unshelved items', () => {
+  it('hides the context menu button for items without context menu actions', () => {
     component.item = {
       label: 'Unshelved',
       type: 'Shelf',
-      contextMenuActions: [{ label: 'Edit' }],
     };
 
     fixture.detectChanges();

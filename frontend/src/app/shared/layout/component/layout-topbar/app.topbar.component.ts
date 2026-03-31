@@ -26,6 +26,7 @@ import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { AVAILABLE_LANGS, LANG_LABELS } from '../../../../core/config/transloco-loader';
 import { LANG_STORAGE_KEY } from '../../../../core/config/language-initializer';
 import { ContextMenuAction, toMenuItems } from '../../model/nav-item.model';
+import type { MenuItem } from 'primeng/api';
 
 @Component({
   selector: 'app-topbar',
@@ -61,6 +62,10 @@ export class AppTopBarComponent implements OnDestroy {
   private readonly dialogLauncher = inject(DialogLauncherService);
   private readonly translocoService = inject(TranslocoService);
   statsMenuActions: ContextMenuAction[] = [];
+  private _statsMenuSource: ContextMenuAction[] = [];
+  private _statsMenuItems: MenuItem[] = [];
+  private _langMenuSource: ContextMenuAction[] = [];
+  private _langMenuItems: MenuItem[] = [];
   @ViewChild('statsMenu') statsMenu?: Menu;
 
   isMenuVisible = true;
@@ -266,12 +271,20 @@ export class AppTopBarComponent implements OnDestroy {
     return this.translocoService.translate('layout.topbar.stats');
   }
 
-  get statsMenuModel() {
-    return toMenuItems(this.statsMenuActions);
+  get statsMenuModel(): MenuItem[] {
+    if (this.statsMenuActions !== this._statsMenuSource) {
+      this._statsMenuSource = this.statsMenuActions;
+      this._statsMenuItems = toMenuItems(this.statsMenuActions);
+    }
+    return this._statsMenuItems;
   }
 
-  get langMenuModel() {
-    return toMenuItems(this.langMenuActions);
+  get langMenuModel(): MenuItem[] {
+    if (this.langMenuActions !== this._langMenuSource) {
+      this._langMenuSource = this.langMenuActions;
+      this._langMenuItems = toMenuItems(this.langMenuActions);
+    }
+    return this._langMenuItems;
   }
 
   get iconClass(): string {
