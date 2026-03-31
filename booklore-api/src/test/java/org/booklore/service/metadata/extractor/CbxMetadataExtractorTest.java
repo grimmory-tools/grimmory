@@ -1161,7 +1161,7 @@ class CbxMetadataExtractorTest {
                     "image.jpg", expected
             ));
 
-            byte[] actual = extractor.extractCover(cbzPath.toFile());
+            byte[] actual = extractor.extractCover(cbzPath);
 
             assertThat(actual).isEqualTo(expected);
         }
@@ -1173,7 +1173,7 @@ class CbxMetadataExtractorTest {
                     "image.png", expected
             ));
 
-            byte[] actual = extractor.extractCover(cbzPath.toFile());
+            byte[] actual = extractor.extractCover(cbzPath);
 
             assertThat(actual).isEqualTo(expected);
         }
