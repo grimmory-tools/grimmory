@@ -1,5 +1,6 @@
 {
   "topbar": {
+    "toggleNavigation": "Toggle navigation",
     "bookdrop": "ブックドロップ",
     "createNewLibrary": "新規ライブラリ作成",
     "uploadBook": "本をアップロード",
@@ -18,6 +19,7 @@
     "readingStats": "読書統計"
   },
   "menu": {
+    "adjustSidebarWidth": "Adjust sidebar width",
     "home": "ホーム",
     "dashboard": "ダッシュボード",
     "allBooks": "すべての本",
@@ -30,6 +32,7 @@
     "update": "（アップデート）",
     "authors": ""
   },
+  "closeNavigation": "Close navigation",
   "changelog": {
     "title": "新着情報",
     "description": "最新のアップデートと改善",

@@ -1,5 +1,6 @@
 {
   "topbar": {
+    "toggleNavigation": "Toggle navigation",
     "bookdrop": "Bookdrop",
     "createNewLibrary": "Создать новую библиотеку",
     "uploadBook": "Загрузить книгу",
@@ -18,6 +19,7 @@
     "readingStats": "Статистика чтения"
   },
   "menu": {
+    "adjustSidebarWidth": "Adjust sidebar width",
     "home": "Главная",
     "dashboard": "Панель управления",
     "allBooks": "Все книги",
@@ -30,6 +32,7 @@
     "update": "(Обновление)",
     "authors": ""
   },
+  "closeNavigation": "Close navigation",
   "changelog": {
     "title": "Что нового",
     "description": "Последние обновления и улучшения",

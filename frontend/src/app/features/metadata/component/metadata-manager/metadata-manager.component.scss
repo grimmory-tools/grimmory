@@ -257,7 +257,7 @@
   border: 1px solid rgb(128 128 128 / 20%);
   border-radius: 8px;
   overflow: hidden;
-  background: var(--surface-ground);
+  background: var(--ground-background);
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -349,7 +349,7 @@
 
   .delete-info {
     padding: 1rem;
-    background: var(--surface-ground);
+    background: var(--ground-background);
     border-radius: 8px;
     border: 1px solid rgb(128 128 128 / 20%);
 
@@ -394,7 +394,7 @@
 
   .current-value {
     padding: 1rem;
-    background: var(--surface-ground);
+    background: var(--ground-background);
     border: 1px solid rgb(128 128 128 / 20%);
     border-radius: 8px;
     margin-bottom: 1.5rem;

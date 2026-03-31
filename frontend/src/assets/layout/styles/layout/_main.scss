@@ -18,9 +18,6 @@ body {
   min-height: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  --glow-image: url("../../../images/topbar.png"), radial-gradient(50% 50% at center -25px, var(--p-primary-color) 0%, #000 100%);
-  --glow-blend: hard-light, color-dodge;
 }
 
 a {
@@ -32,11 +29,6 @@ a {
   min-height: 100dvh;
   scroll-behavior: smooth;
   background-color: var(--ground-background);
-  background-blend-mode: var(--glow-blend);
-  background-image: var(--glow-image);
-  background-position: top;
-  background-repeat: no-repeat;
-  background-size: auto 20rem;
 }
 
 p {
