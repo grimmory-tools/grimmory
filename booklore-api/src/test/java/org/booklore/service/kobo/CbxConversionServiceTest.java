@@ -6,6 +6,7 @@ import freemarker.template.TemplateException;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.booklore.service.ArchiveService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,7 +38,7 @@ class CbxConversionServiceTest {
 
     @BeforeEach
     void setUp() throws IOException {
-        cbxConversionService = new CbxConversionService();
+        cbxConversionService = new CbxConversionService(new ArchiveService());
         testCbzFile = createTestCbzFile();
         testBookEntity = createTestBookEntity();
     }
