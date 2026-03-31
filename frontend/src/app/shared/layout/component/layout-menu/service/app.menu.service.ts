@@ -1,23 +1,25 @@
-import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
-import { MenuChangeEvent } from '../../../api/menuchangeevent';
+import { inject, Injectable, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter } from 'rxjs';
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root',
 })
 export class MenuService {
+  private readonly router = inject(Router);
 
-    private menuSource = new Subject<MenuChangeEvent>();
-    private resetSource = new Subject();
+  /** Current URL path (without query string), updated once per navigation. */
+  readonly currentPath = signal(this.router.url.split('?')[0]);
 
-    menuSource$ = this.menuSource.asObservable();
-    resetSource$ = this.resetSource.asObservable();
-
-    onMenuStateChange(event: MenuChangeEvent) {
-        this.menuSource.next(event);
-    }
-
-    reset() {
-        this.resetSource.next(true);
-    }
+  constructor() {
+    this.router.events
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntilDestroyed()
+      )
+      .subscribe((event) => {
+        this.currentPath.set(event.urlAfterRedirects.split('?')[0]);
+      });
+  }
 }

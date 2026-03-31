@@ -1,8 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
 import { AppMenuitemComponent } from './app.menuitem.component';
 import { MenuService } from './service/app.menu.service';
 import { DialogLauncherService } from '../../../services/dialog-launcher.service';
@@ -13,20 +11,8 @@ describe('AppMenuitemComponent', () => {
   let fixture: ComponentFixture<AppMenuitemComponent>;
   let component: AppMenuitemComponent;
 
-  const routerEvents = new Subject<unknown>();
-  const menuSource = new Subject<{ key: string; routeEvent?: boolean }>();
-  const menuReset = new Subject<void>();
-
-  const router = {
-    url: '/',
-    events: routerEvents.asObservable(),
-    isActive: vi.fn(() => false),
-  };
-
   const menuService = {
-    menuSource$: menuSource.asObservable(),
-    resetSource$: menuReset.asObservable(),
-    onMenuStateChange: vi.fn(),
+    currentPath: signal('/'),
   };
 
   beforeEach(() => {
@@ -34,7 +20,6 @@ describe('AppMenuitemComponent', () => {
     TestBed.configureTestingModule({
       imports: [AppMenuitemComponent],
       providers: [
-        { provide: Router, useValue: router },
         { provide: MenuService, useValue: menuService },
         {
           provide: DialogLauncherService,
@@ -112,5 +97,37 @@ describe('AppMenuitemComponent', () => {
     fixture.detectChanges();
 
     expect(component.shouldShowContextMenuButton()).toBe(false);
+  });
+
+  it('exposes admin and canManipulateLibrary as computed signals from UserService', () => {
+    component.item = { label: 'Test' };
+    fixture.detectChanges();
+
+    expect(component.admin()).toBe(true);
+    expect(component.canManipulateLibrary()).toBe(true);
+  });
+
+  it('reports route as active when currentPath matches item routerLink', () => {
+    component.item = {
+      label: 'Dashboard',
+      routerLink: ['/dashboard'],
+    };
+
+    menuService.currentPath.set('/dashboard');
+    fixture.detectChanges();
+
+    expect(component.isRouteActive()).toBe(true);
+  });
+
+  it('reports route as inactive when currentPath does not match', () => {
+    component.item = {
+      label: 'Dashboard',
+      routerLink: ['/dashboard'],
+    };
+
+    menuService.currentPath.set('/library/1/books');
+    fixture.detectChanges();
+
+    expect(component.isRouteActive()).toBe(false);
   });
 });

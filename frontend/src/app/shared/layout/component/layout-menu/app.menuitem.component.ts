@@ -1,8 +1,6 @@
-import { Component, effect, HostBinding, inject, Input, OnDestroy, OnInit } from '@angular/core';
-import { NavigationEnd, Router, RouterLink } from '@angular/router';
+import { ChangeDetectionStrategy, Component, computed, HostBinding, inject, Input, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { Subscription } from 'rxjs';
-import { filter } from 'rxjs/operators';
 import { MenuService } from './service/app.menu.service';
 import { NgClass } from '@angular/common';
 import { Menu } from 'primeng/menu';
@@ -14,6 +12,7 @@ import { Tooltip } from 'primeng/tooltip';
 import { IconSelection } from '../../../service/icon-picker.service';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { NavItem, toMenuItems } from '../../model/nav-item.model';
+import type { MenuItem } from 'primeng/api';
 
 @Component({
   // Keep this attribute selector so recursive menu items remain valid <li> children.
@@ -39,9 +38,10 @@ import { NavItem, toMenuItems } from '../../model/nav-item.model';
       })),
       transition('collapsed <=> expanded', animate('400ms cubic-bezier(0.86, 0, 0.07, 1)'))
     ])
-  ]
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppMenuitemComponent implements OnInit, OnDestroy {
+export class AppMenuitemComponent implements OnInit {
   @Input() item!: NavItem;
   @Input() index!: number;
   @Input() @HostBinding('class.layout-root-menuitem') root!: boolean;
@@ -49,72 +49,35 @@ export class AppMenuitemComponent implements OnInit, OnDestroy {
   @Input() menuKey!: string;
 
   hovered = false;
-  active = false;
   key: string = '';
-  canManipulateLibrary: boolean = false;
-  admin: boolean = false;
   expandedItems = new Set<string>();
 
-  get isRouteActive(): boolean {
-    if (!this.item?.routerLink?.[0]) return false;
-    return this.router.url.split('?')[0] === this.item.routerLink[0];
-  }
-
-  private readonly router = inject(Router);
-  private userService = inject(UserService);
   private readonly menuService = inject(MenuService);
+  private readonly userService = inject(UserService);
   private readonly dialogLauncher = inject(DialogLauncherService);
   private readonly bookDialogHelperService = inject(BookDialogHelperService);
-  private menuSourceSubscription = Subscription.EMPTY;
-  private menuResetSubscription = Subscription.EMPTY;
-  private routerSubscription = Subscription.EMPTY;
 
-  constructor() {
-    effect(() => {
-      const user = this.userService.currentUser();
-      if (user) {
-        this.canManipulateLibrary = user.permissions.canManageLibrary;
-        this.admin = user.permissions.admin;
-      }
-    });
+  readonly isRouteActive = computed(() => {
+    const route = this.item?.routerLink?.[0];
+    if (!route) return false;
+    return this.menuService.currentPath() === route;
+  });
 
-    this.menuSourceSubscription = this.menuService.menuSource$.subscribe(value => {
-      Promise.resolve(null).then(() => {
-        if (value.routeEvent) {
-          this.active = (value.key === this.key || value.key.startsWith(this.key + '-')) ? true : false;
-        } else {
-          if (value.key !== this.key && !value.key.startsWith(this.key + '-')) {
-            this.active = false;
-          }
-        }
-      });
-    });
+  readonly canManipulateLibrary = computed(() =>
+    this.userService.currentUser()?.permissions.canManageLibrary ?? false
+  );
 
-    this.menuResetSubscription = this.menuService.resetSource$.subscribe(() => {
-      this.active = false;
-    });
+  readonly admin = computed(() =>
+    this.userService.currentUser()?.permissions.admin ?? false
+  );
 
-    this.routerSubscription = this.router.events.pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe(() => {
-        if (this.item.routerLink) {
-          this.updateActiveStateFromRoute();
-        }
-      });
-  }
+  private _contextMenuItems: MenuItem[] | null = null;
+  private _contextMenuSource: NavItem['contextMenuActions'] | undefined;
 
   ngOnInit() {
     const rootKey = this.menuKey ? this.menuKey + '-' : '';
     this.key = this.parentKey ? this.parentKey + '-' + this.index : rootKey + String(this.index);
     this.expandedItems.add(this.key);
-    if (this.item.routerLink) {
-      this.updateActiveStateFromRoute();
-    }
-  }
-
-  ngOnDestroy() {
-    this.menuSourceSubscription?.unsubscribe();
-    this.menuResetSubscription?.unsubscribe();
-    this.routerSubscription?.unsubscribe();
   }
 
   toggleExpand(key: string) {
@@ -129,34 +92,8 @@ export class AppMenuitemComponent implements OnInit, OnDestroy {
     return this.expandedItems.has(key);
   }
 
-  updateActiveStateFromRoute() {
-    const route = this.item.routerLink?.[0];
-    if (!route) {
-      return;
-    }
-
-    const activeRoute = this.router.isActive(route, {
-      paths: 'exact',
-      queryParams: 'ignored',
-      matrixParams: 'ignored',
-      fragment: 'ignored'
-    });
-    if (activeRoute) {
-      this.menuService.onMenuStateChange({key: this.key, routeEvent: true});
-    }
-  }
-
-  itemClick() {
-    if (this.item.items) {
-      this.active = !this.active;
-    } else {
-      this.active = true;
-    }
-    this.menuService.onMenuStateChange({key: this.key});
-  }
-
   openDialog(item: NavItem) {
-    if (item.type === 'library' && this.canManipulateLibrary) {
+    if (item.type === 'library' && this.canManipulateLibrary()) {
       this.dialogLauncher.openLibraryCreateDialog();
     }
     if (item.type === 'magicShelf') {
@@ -182,8 +119,13 @@ export class AppMenuitemComponent implements OnInit, OnDestroy {
     };
   }
 
-  get contextMenuItems() {
-    return toMenuItems(this.item.contextMenuActions);
+  get contextMenuItems(): MenuItem[] {
+    const source = this.item.contextMenuActions;
+    if (source !== this._contextMenuSource) {
+      this._contextMenuSource = source;
+      this._contextMenuItems = toMenuItems(source);
+    }
+    return this._contextMenuItems!;
   }
 
   hasContextMenu(): boolean {
@@ -192,7 +134,7 @@ export class AppMenuitemComponent implements OnInit, OnDestroy {
 
   shouldShowContextMenuButton(): boolean {
     return this.hasContextMenu()
-      && (this.item.type !== 'Library' || (this.admin || this.canManipulateLibrary))
+      && (this.item.type !== 'Library' || (this.admin() || this.canManipulateLibrary()))
       && this.item.label !== 'Unshelved'
       && this.item.label !== 'Kobo';
   }

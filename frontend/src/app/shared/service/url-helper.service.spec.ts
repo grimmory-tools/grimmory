@@ -77,6 +77,19 @@ describe('UrlHelperService', () => {
     expect(url).toBe('The Testing Atlas|Ada Lovelace, Grace Hopper|portrait');
   });
 
+  it('memoizes generated placeholder covers for repeated requests with the same metadata', () => {
+    bookServiceStub.findBookById.mockReturnValue(bookWithMetadata);
+
+    const generateCoverSpy = vi.spyOn(CoverGeneratorComponent.prototype, 'generateCover').mockImplementation(function (this: CoverGeneratorComponent) {
+      return `${this.title}|${this.author}|${this.isSquare ? 'square' : 'portrait'}`;
+    });
+
+    expect(service.getThumbnailUrl(42)).toBe('The Testing Atlas|Ada Lovelace, Grace Hopper|portrait');
+    expect(service.getThumbnailUrl(42)).toBe('The Testing Atlas|Ada Lovelace, Grace Hopper|portrait');
+
+    expect(generateCoverSpy).toHaveBeenCalledTimes(1);
+  });
+
   it('appends the token to thumbnail urls that already have a cache key', () => {
     const url = service.getThumbnailUrl(42, 'updated-2024');
 

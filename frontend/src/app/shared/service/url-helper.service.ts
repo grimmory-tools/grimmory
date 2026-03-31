@@ -12,6 +12,7 @@ import {Book,BookType} from '../../features/book/model/book.model';
 export class UrlHelperService {
   private readonly baseUrl = API_CONFIG.BASE_URL;
   private readonly mediaBaseUrl = `${this.baseUrl}/api/v1/media`;
+  private readonly generatedCoverCache = new Map<string, string>();
   private authService = inject(AuthService);
   private bookService = inject(BookService);
   private router = inject(Router);
@@ -25,14 +26,44 @@ export class UrlHelperService {
     return token ? `${url}${url.includes('?') ? '&' : '?'}token=${token}` : url;
   }
 
+  private getGeneratedCover(title: string, author: string, isSquare: boolean): string {
+    const cacheKey = `${isSquare ? 'square' : 'portrait'}:${title}:${author}`;
+    const cachedCover = this.generatedCoverCache.get(cacheKey);
+
+    if (cachedCover) {
+      return cachedCover;
+    }
+
+    const coverGenerator = new CoverGeneratorComponent();
+    coverGenerator.title = title;
+    coverGenerator.author = author;
+    coverGenerator.isSquare = isSquare;
+
+    const generatedCover = coverGenerator.generateCover();
+    this.generatedCoverCache.set(cacheKey, generatedCover);
+    return generatedCover;
+  }
+
+  private getGeneratedCoverForBook(bookId: number, isSquare: boolean): string | null {
+    const book = this.bookService.findBookById(bookId);
+
+    if (!book?.metadata) {
+      return null;
+    }
+
+    return this.getGeneratedCover(
+      book.metadata.title || '',
+      (book.metadata.authors || []).join(', '),
+      isSquare
+    );
+  }
+
   getThumbnailUrl(bookId: number, coverUpdatedOn?: string): string {
     if (!coverUpdatedOn) {
-      const book = this.bookService.findBookById(bookId);
-      if (book && book.metadata) {
-        const coverGenerator = new CoverGeneratorComponent();
-        coverGenerator.title = book.metadata.title || '';
-        coverGenerator.author = (book.metadata.authors || []).join(', ');
-        return coverGenerator.generateCover();
+      const generatedCover = this.getGeneratedCoverForBook(bookId, false);
+
+      if (generatedCover) {
+        return generatedCover;
       }
     }
     let url = `${this.mediaBaseUrl}/book/${bookId}/thumbnail`;
@@ -52,12 +83,10 @@ export class UrlHelperService {
 
   getCoverUrl(bookId: number, coverUpdatedOn?: string): string {
     if (!coverUpdatedOn) {
-      const book = this.bookService.findBookById(bookId);
-      if (book && book.metadata) {
-        const coverGenerator = new CoverGeneratorComponent();
-        coverGenerator.title = book.metadata.title || '';
-        coverGenerator.author = (book.metadata.authors || []).join(', ');
-        return coverGenerator.generateCover();
+      const generatedCover = this.getGeneratedCoverForBook(bookId, false);
+
+      if (generatedCover) {
+        return generatedCover;
       }
     }
     let url = `${this.mediaBaseUrl}/book/${bookId}/cover`;
@@ -74,13 +103,10 @@ export class UrlHelperService {
 
   getAudiobookCoverUrl(bookId: number, audiobookCoverUpdatedOn?: string): string {
     if (!audiobookCoverUpdatedOn) {
-      const book = this.bookService.findBookById(bookId);
-      if (book && book.metadata) {
-        const coverGenerator = new CoverGeneratorComponent();
-        coverGenerator.title = book.metadata.title || '';
-        coverGenerator.author = (book.metadata.authors || []).join(', ');
-        coverGenerator.isSquare = true;
-        return coverGenerator.generateCover();
+      const generatedCover = this.getGeneratedCoverForBook(bookId, true);
+
+      if (generatedCover) {
+        return generatedCover;
       }
     }
     let url = `${this.mediaBaseUrl}/book/${bookId}/audiobook-cover`;
@@ -92,13 +118,10 @@ export class UrlHelperService {
 
   getAudiobookThumbnailUrl(bookId: number, audiobookCoverUpdatedOn?: string): string {
     if (!audiobookCoverUpdatedOn) {
-      const book = this.bookService.findBookById(bookId);
-      if (book && book.metadata) {
-        const coverGenerator = new CoverGeneratorComponent();
-        coverGenerator.title = book.metadata.title || '';
-        coverGenerator.author = (book.metadata.authors || []).join(', ');
-        coverGenerator.isSquare = true;
-        return coverGenerator.generateCover();
+      const generatedCover = this.getGeneratedCoverForBook(bookId, true);
+
+      if (generatedCover) {
+        return generatedCover;
       }
     }
     let url = `${this.mediaBaseUrl}/book/${bookId}/audiobook-thumbnail`;

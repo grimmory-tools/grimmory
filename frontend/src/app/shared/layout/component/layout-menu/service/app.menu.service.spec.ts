@@ -1,23 +1,49 @@
-import {describe, expect, it} from 'vitest';
-
-import {MenuService} from './app.menu.service';
+import { describe, expect, it } from 'vitest';
+import { TestBed } from '@angular/core/testing';
+import { Router, NavigationEnd } from '@angular/router';
+import { Subject } from 'rxjs';
+import { MenuService } from './app.menu.service';
 
 describe('MenuService', () => {
-  it('broadcasts menu state changes and reset events', () => {
-    const service = new MenuService();
-    const menuEvents: unknown[] = [];
-    const resets: unknown[] = [];
+  it('exposes the current path from the router URL', () => {
+    const routerEvents = new Subject<unknown>();
 
-    const menuSubscription = service.menuSource$.subscribe(event => menuEvents.push(event));
-    const resetSubscription = service.resetSource$.subscribe(event => resets.push(event));
+    TestBed.configureTestingModule({
+      providers: [
+        MenuService,
+        {
+          provide: Router,
+          useValue: {
+            url: '/dashboard?tab=recent',
+            events: routerEvents.asObservable(),
+          },
+        },
+      ],
+    });
 
-    service.onMenuStateChange({key: 'settings'});
-    service.reset();
+    const service = TestBed.inject(MenuService);
+    expect(service.currentPath()).toBe('/dashboard');
+  });
 
-    expect(menuEvents).toEqual([{key: 'settings'}]);
-    expect(resets).toEqual([true]);
+  it('updates currentPath on NavigationEnd', () => {
+    const routerEvents = new Subject<unknown>();
 
-    menuSubscription.unsubscribe();
-    resetSubscription.unsubscribe();
+    TestBed.configureTestingModule({
+      providers: [
+        MenuService,
+        {
+          provide: Router,
+          useValue: {
+            url: '/',
+            events: routerEvents.asObservable(),
+          },
+        },
+      ],
+    });
+
+    const service = TestBed.inject(MenuService);
+    routerEvents.next(new NavigationEnd(1, '/library/1/books', '/library/1/books'));
+
+    expect(service.currentPath()).toBe('/library/1/books');
   });
 });
