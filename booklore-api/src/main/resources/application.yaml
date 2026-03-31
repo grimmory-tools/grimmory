@@ -2,6 +2,8 @@ app:
   path-config: '/app/data'
   bookdrop-folder: '/bookdrop'
   version: ${APP_VERSION:development}
+  api-docs:
+    enabled: ${API_DOCS_ENABLED:false}
 
   cors:
     # Comma-separated list of allowed CORS origins.
@@ -93,9 +95,8 @@ spring:
 
 springdoc:
   api-docs:
-    enabled: false
-  swagger-ui:
-    enabled: false
+    enabled: ${app.api-docs.enabled:false}
+    path: /api/openapi.json
 
 logging:
   level:
