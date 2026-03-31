@@ -1,12 +1,10 @@
 package org.booklore.service.metadata.extractor;
 
-import com.github.gotson.nightcompress.Archive;
-import com.github.gotson.nightcompress.ArchiveEntry;
-import com.github.gotson.nightcompress.LibArchiveException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.ComicMetadata;
+import org.booklore.service.ArchiveService;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -41,6 +39,12 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
     private static final Pattern AMAZON_URL_PATTERN = Pattern.compile("amazon\\.com/dp/([A-Z0-9]{10})");
     private static final Pattern COMICVINE_URL_PATTERN = Pattern.compile("comicvine\\.gamespot\\.com/issue/(?:[^/]+/)?([\\w-]+)");
     private static final Pattern HARDCOVER_URL_PATTERN = Pattern.compile("hardcover\\.app/books/([\\w-]+)");
+
+    private final ArchiveService archiveService;
+
+    public CbxMetadataExtractor(ArchiveService archiveService) {
+        this.archiveService = archiveService;
+    }
 
     @Override
     public BookMetadata extractMetadata(File file) {
@@ -570,9 +574,7 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
 
     private Stream<String> getComicImageEntryNames(Path cbxPath) {
         try {
-            return Archive.getEntries(cbxPath)
-                    .stream()
-                    .map(ArchiveEntry::getName)
+            return archiveService.streamEntryNames(cbxPath)
                     .filter(this::isImageEntry)
                     .sorted(this::naturalCompare);
         } catch (Exception e) {
@@ -637,9 +639,7 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
 
     private String findComicInfoEntry(Path cbxPath) {
         try {
-            return Archive.getEntries(cbxPath)
-                    .stream()
-                    .map(ArchiveEntry::getName)
+            return archiveService.streamEntryNames(cbxPath)
                     .filter(CbxMetadataExtractor::isComicInfoName)
                     .findFirst()
                     .orElse(null);
@@ -657,9 +657,6 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
             return null;
         }
 
-        // We cannot directly use the NightCompress `InputStream` as it is limited
-        // in its implementation and will cause fatal errors.  Instead, we can read
-        // the full value into memory and pass back a `ByteArrayInputStream`.
         byte[] xmlBytes = readArchiveEntryBytes(cbxPath, comicInfoEntry);
 
         if (xmlBytes == null) {
@@ -670,14 +667,8 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
     }
 
     private byte[] readArchiveEntryBytes(Path cbxPath, String entryName) {
-        try (
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            InputStream inputStream = Archive.getInputStream(cbxPath, entryName)
-        ) {
-            if (inputStream != null) {
-                inputStream.transferTo(baos);
-                return baos.toByteArray();
-            }
+        try {
+            return archiveService.getEntryBytes(cbxPath, entryName);
         } catch (Exception e) {
             log.warn("Failed to read archive {} entry bytes for {}", cbxPath.getFileName(), entryName, e);
         }

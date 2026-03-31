@@ -1,8 +1,5 @@
 package org.booklore.service.metadata.writer;
 
-import com.github.gotson.nightcompress.Archive;
-import com.github.gotson.nightcompress.ArchiveEntry;
-import com.github.gotson.nightcompress.LibArchiveException;
 import jakarta.xml.bind.*;
 
 import javax.xml.XMLConstants;
@@ -10,6 +7,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.sax.SAXSource;
 
+import org.booklore.service.ArchiveService;
 import org.xml.sax.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,6 +53,7 @@ public class CbxMetadataWriter implements MetadataWriter {
     }
 
     private final AppSettingService appSettingService;
+    private final ArchiveService archiveService;
 
     @Override
     public void saveMetadataToFile(File file, BookMetadataEntity metadata, String thumbnailUrl, MetadataClearFlags clearFlags) {
@@ -121,18 +120,9 @@ public class CbxMetadataWriter implements MetadataWriter {
             return new ComicInfo();
         }
 
-        // If we don't read the file to bytes and instead try to pass the InputStream directly to
-        // the parser, an error occurs because something is not implemented in NightCompress.
         byte[] comicInfoXML;
-        try (
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            InputStream inputStream = Archive.getInputStream(path, comicInfoEntry)
-        ) {
-            if (inputStream != null) {
-                inputStream.transferTo(baos);
-            }
-
-            comicInfoXML = baos.toByteArray();
+        try {
+            comicInfoXML = archiveService.getEntryBytes(path, comicInfoEntry);
         } catch (Exception e) {
             log.warn("Could not read archive {}: {}", path, e.getMessage());
             return new ComicInfo();
@@ -150,13 +140,11 @@ public class CbxMetadataWriter implements MetadataWriter {
 
     private String findComicInfoEntryName(Path path) {
         try {
-            return Archive.getEntries(path)
-                    .stream()
-                    .map(ArchiveEntry::getName)
+            return archiveService.streamEntryNames(path)
                     .filter(CbxMetadataWriter::isComicInfoXml)
                     .findFirst()
                     .orElse(null);
-        } catch (LibArchiveException e) {
+        } catch (IOException e) {
             log.warn("Failed to read archive {}: {}", path.getFileName(), e.getMessage());
         }
 
@@ -559,12 +547,9 @@ public class CbxMetadataWriter implements MetadataWriter {
         String comicInfoEntryName = findComicInfoEntryName(sourceArchive);
 
         try (
-                Archive archive = new Archive(sourceArchive);
                 ZipOutputStream zipOutput = new ZipOutputStream(Files.newOutputStream(targetZip))
         ) {
-            ArchiveEntry entry;
-            while ((entry = archive.getNextEntry()) != null) {
-                String entryName = entry.getName();
+            for (String entryName : archiveService.getEntryNames(sourceArchive)) {
                 if (isComicInfoXml(entryName)) {
                     // Skip copying over any existing comic info entry
                     continue;
@@ -576,9 +561,9 @@ public class CbxMetadataWriter implements MetadataWriter {
                 }
 
                 zipOutput.putNextEntry(new ZipEntry(entryName));
-                try (InputStream entryStream = archive.getInputStream()) {
-                    copyStream(entryStream, zipOutput);
-                }
+
+                archiveService.transferEntryTo(sourceArchive, entryName, zipOutput);
+
                 zipOutput.closeEntry();
             }
 
@@ -586,14 +571,6 @@ public class CbxMetadataWriter implements MetadataWriter {
             zipOutput.putNextEntry(new ZipEntry(xmlEntryName));
             zipOutput.write(xmlContent);
             zipOutput.closeEntry();
-        }
-    }
-
-    private void copyStream(InputStream input, OutputStream output) throws IOException {
-        byte[] buffer = new byte[BUFFER_SIZE];
-        int bytesRead;
-        while ((bytesRead = input.read(buffer)) != -1) {
-            output.write(buffer, 0, bytesRead);
         }
     }
 

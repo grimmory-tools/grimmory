@@ -1,11 +1,10 @@
 package org.booklore.service.kobo;
 
-import com.github.gotson.nightcompress.Archive;
-import com.github.gotson.nightcompress.ArchiveEntry;
 import org.booklore.model.entity.AuthorEntity;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.CategoryEntity;
 import org.booklore.model.entity.TagEntity;
+import org.booklore.service.ArchiveService;
 import org.booklore.util.ArchiveUtils;
 import org.booklore.util.FileService;
 import freemarker.cache.ClassTemplateLoader;
@@ -70,9 +69,11 @@ public class CbxConversionService {
     private static final String EXTRACTED_IMAGES_SUBDIR = "cbx_extracted_images";
 
     private final Configuration freemarkerConfig;
+    private final ArchiveService archiveService;
 
-    public CbxConversionService() {
+    public CbxConversionService(ArchiveService archiveService) {
         this.freemarkerConfig = initializeFreemarkerConfiguration();
+        this.archiveService = archiveService;
     }
 
     public record EpubContentFileGroup(String contentKey, String imagePath, String htmlPath) {
@@ -184,27 +185,22 @@ public class CbxConversionService {
     private List<Path> extractImagesFromCbx(File cbxFile, Path extractedImagesDir) throws IOException {
         List<Path> imagePaths = new ArrayList<>();
 
-        try (Archive archive = new Archive(cbxFile.toPath())) {
-            ArchiveEntry entry;
-            while ((entry = archive.getNextEntry()) != null) {
-                if (!isImageFile(entry.getName())) {
-                    continue;
-                }
-
-                validateImageSize(entry.getName(), entry.getSize());
-
-                try (InputStream inputStream = archive.getInputStream()) {
-                    Path outputPath = extractedImagesDir.resolve(extractFileName(entry.getName()));
-                    Files.copy(inputStream, outputPath);
-                    imagePaths.add(outputPath);
-                } catch (Exception e) {
-                    log.warn("Error extracting image {}: {}", entry.getName(), e.getMessage());
-                }
+        for (ArchiveService.Entry entry : archiveService.getEntries(cbxFile.toPath())) {
+            if (!isImageFile(entry.getName())) {
+                continue;
             }
-        } catch (IOException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new IOException("Failed to read archive: " + e.getMessage(), e);
+
+            validateImageSize(entry.getName(), entry.getSize());
+
+            try {
+                Path outputPath = extractedImagesDir.resolve(extractFileName(entry.getName()));
+
+                archiveService.extractEntryToPath(cbxFile.toPath(), entry.getName(), outputPath);
+
+                imagePaths.add(outputPath);
+            } catch (Exception e) {
+                log.warn("Error extracting image {}: {}", entry.getName(), e.getMessage());
+            }
         }
 
         log.debug("Found {} image entries in CBR file", imagePaths.size());

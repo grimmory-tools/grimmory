@@ -1,7 +1,5 @@
 package org.booklore.service.fileprocessor;
 
-import com.github.gotson.nightcompress.Archive;
-import com.github.gotson.nightcompress.ArchiveEntry;
 import org.booklore.mapper.BookMapper;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.ComicMetadata;
@@ -13,6 +11,7 @@ import org.booklore.model.entity.ComicMetadataEntity;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.BookAdditionalFileRepository;
 import org.booklore.repository.BookRepository;
+import org.booklore.service.ArchiveService;
 import org.booklore.service.book.BookCreatorService;
 import org.booklore.service.metadata.MetadataMatchService;
 import org.booklore.service.metadata.extractor.CbxMetadataExtractor;
@@ -29,7 +28,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.nio.file.Path;
-import java.io.InputStream;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -44,6 +42,7 @@ public class CbxProcessor extends AbstractFileProcessor implements BookFileProce
     private static final Pattern UNDERSCORE_HYPHEN_PATTERN = Pattern.compile("[_\\-]");
     private static final Pattern IMAGE_EXTENSION_PATTERN = Pattern.compile(".*\\.(jpg|jpeg|png|webp)");
     private final CbxMetadataExtractor cbxMetadataExtractor;
+    private final ArchiveService archiveService;
 
     public CbxProcessor(BookRepository bookRepository,
                         BookAdditionalFileRepository bookAdditionalFileRepository,
@@ -52,9 +51,11 @@ public class CbxProcessor extends AbstractFileProcessor implements BookFileProce
                         FileService fileService,
                         MetadataMatchService metadataMatchService,
                         SidecarMetadataWriter sidecarMetadataWriter,
-                        CbxMetadataExtractor cbxMetadataExtractor) {
+                        CbxMetadataExtractor cbxMetadataExtractor,
+                        ArchiveService archiveService) {
         super(bookRepository, bookAdditionalFileRepository, bookCreatorService, bookMapper, fileService, metadataMatchService, sidecarMetadataWriter);
         this.cbxMetadataExtractor = cbxMetadataExtractor;
+        this.archiveService = archiveService;
     }
 
     @Override
@@ -117,9 +118,7 @@ public class CbxProcessor extends AbstractFileProcessor implements BookFileProce
         List<String> archiveEntries;
 
         try {
-            archiveEntries = Archive.getEntries(path)
-                    .stream()
-                    .map(ArchiveEntry::getName)
+            archiveEntries = archiveService.streamEntryNames(path)
                     .filter(name -> IMAGE_EXTENSION_PATTERN.matcher(name.toLowerCase()).matches())
                     .sorted()
                     .toList();
@@ -131,12 +130,9 @@ public class CbxProcessor extends AbstractFileProcessor implements BookFileProce
         for (String entryName : archiveEntries) {
             try (
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                InputStream inputStream = Archive.getInputStream(path, entryName)
             ) {
-                if (inputStream != null) {
-                    inputStream.transferTo(outputStream);
-                    return Optional.ofNullable(FileService.readImage(new ByteArrayInputStream(outputStream.toByteArray())));
-                }
+                archiveService.transferEntryTo(path, entryName, outputStream);
+                return Optional.ofNullable(FileService.readImage(new ByteArrayInputStream(outputStream.toByteArray())));
             } catch (Exception e) {
                 log.warn("Error reading archive {} entry {}: {}", path.getFileName(), entryName, e.getMessage());
             }

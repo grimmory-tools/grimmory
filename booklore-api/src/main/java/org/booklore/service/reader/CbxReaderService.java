@@ -1,6 +1,5 @@
 package org.booklore.service.reader;
 
-import com.github.gotson.nightcompress.ArchiveEntry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.exception.ApiError;
@@ -9,9 +8,9 @@ import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.BookRepository;
+import org.booklore.service.ArchiveService;
 import org.booklore.util.FileUtils;
 import org.springframework.stereotype.Service;
-import com.github.gotson.nightcompress.Archive;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -39,6 +38,8 @@ public class CbxReaderService {
 
     private final BookRepository bookRepository;
     private final Map<String, CachedArchiveMetadata> archiveCache = new ConcurrentHashMap<>();
+
+    private final ArchiveService archiveService;
 
     private static class CachedArchiveMetadata {
         final List<String> imageEntries;
@@ -111,7 +112,7 @@ public class CbxReaderService {
         CachedArchiveMetadata metadata = getCachedMetadata(cbxPath);
         validatePageRequest(bookId, page, metadata.imageEntries);
         String entryName = metadata.imageEntries.get(page - 1);
-        streamEntryFromArchive(cbxPath, entryName, outputStream);
+        archiveService.transferEntryTo(cbxPath, entryName, outputStream);
     }
 
     private Path getBookPath(Long bookId, String bookType) {
@@ -178,24 +179,9 @@ public class CbxReaderService {
         return new CachedArchiveMetadata(entries, lastModified);
     }
 
-    private void streamEntryFromArchive(Path cbxPath, String entryName, OutputStream outputStream) throws IOException {
-        try (InputStream inputStream = Archive.getInputStream(cbxPath, entryName)) {
-            if (inputStream != null) {
-                inputStream.transferTo(outputStream);
-                return;
-            }
-        } catch (Exception e) {
-            throw new IOException("Failed to extract from archive: " + e.getMessage(), e);
-        }
-
-        throw new FileNotFoundException("Entry not found in archive: " + entryName);
-    }
-
     private List<String> getImageEntries(Path cbxPath) throws IOException {
         try {
-            return Archive.getEntries(cbxPath)
-                    .stream()
-                    .map(ArchiveEntry::getName)
+            return archiveService.streamEntryNames(cbxPath)
                     .filter(this::isImageFile)
                     .sorted(CbxReaderService::sortNaturally)
                     .toList();

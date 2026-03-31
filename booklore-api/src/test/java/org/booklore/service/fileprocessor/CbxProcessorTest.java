@@ -7,6 +7,7 @@ import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.entity.LibraryPathEntity;
 import org.booklore.repository.BookAdditionalFileRepository;
 import org.booklore.repository.BookRepository;
+import org.booklore.service.ArchiveService;
 import org.booklore.service.book.BookCreatorService;
 import org.booklore.service.metadata.MetadataMatchService;
 import org.booklore.service.metadata.extractor.CbxMetadataExtractor;
@@ -46,6 +47,7 @@ class CbxProcessorTest {
     @Mock private MetadataMatchService metadataMatchService;
     @Mock private SidecarMetadataWriter sidecarMetadataWriter;
     @Mock private CbxMetadataExtractor cbxMetadataExtractor;
+    @Mock private ArchiveService archiveService;
 
     private CbxProcessor cbxProcessor;
 
@@ -62,7 +64,8 @@ class CbxProcessorTest {
                 fileService,
                 metadataMatchService,
                 sidecarMetadataWriter,
-                cbxMetadataExtractor
+                cbxMetadataExtractor,
+                archiveService
         );
     }
 
