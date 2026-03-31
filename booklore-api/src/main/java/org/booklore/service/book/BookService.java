@@ -20,6 +20,7 @@ import org.booklore.service.audit.AuditService;
 import org.booklore.service.metadata.sidecar.SidecarMetadataWriter;
 import org.booklore.service.monitoring.MonitoringRegistrationService;
 import org.booklore.service.progress.ReadingProgressService;
+import org.booklore.util.BookUtils;
 import org.booklore.util.FileService;
 import org.booklore.util.FileUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -522,10 +523,7 @@ public class BookService {
     }
 
     public Set<Shelf> filterShelvesByUserId(Set<Shelf> shelves, Long userId) {
-        if (shelves == null) return Collections.emptySet();
-        return shelves.stream()
-                .filter(shelf -> userId.equals(shelf.getUserId()) || shelf.isPublicShelf())
-                .collect(Collectors.toSet());
+        return BookUtils.filterShelvesByUserId(shelves, userId);
     }
 
 }
