@@ -59,32 +59,32 @@ describe('AppMenuitemComponent', () => {
     component.index = 0;
   });
 
-  it('adapts app-owned context menu actions to Prime menu items', () => {
-    const editAction = vi.fn();
-    const nestedAction = vi.fn();
+  it('passes context menu items through to the template', () => {
+    const editCommand = vi.fn();
+    const nestedCommand = vi.fn();
 
     component.item = {
       label: 'Shelf A',
       type: 'shelf',
-      contextMenuActions: [
-        { label: 'Edit', action: editAction },
+      contextMenuItems: [
+        { label: 'Edit', command: editCommand },
         {
           label: 'More',
-          items: [{ label: 'Delete', action: nestedAction }],
+          items: [{ label: 'Delete', command: nestedCommand }],
         },
       ],
     };
 
     fixture.detectChanges();
 
-    const items = component.contextMenuItems;
+    const items = component.item.contextMenuItems!;
     expect(items[0].label).toBe('Edit');
     items[0].command?.({} as never);
-    expect(editAction).toHaveBeenCalled();
+    expect(editCommand).toHaveBeenCalled();
 
     expect(items[1].items?.[0].label).toBe('Delete');
     items[1].items?.[0].command?.({} as never);
-    expect(nestedAction).toHaveBeenCalled();
+    expect(nestedCommand).toHaveBeenCalled();
   });
 
   it('hides the context menu button for items without context menu actions', () => {

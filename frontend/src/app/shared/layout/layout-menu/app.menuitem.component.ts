@@ -11,8 +11,7 @@ import { IconDisplayComponent } from '../../components/icon-display/icon-display
 import { Tooltip } from 'primeng/tooltip';
 import { IconSelection } from '../../service/icon-picker.service';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { NavItem, toMenuItems } from '../nav-item.model';
-import type { MenuItem } from 'primeng/api';
+import { NavItem } from './app.menu.component';
 
 @Component({
   // Keep this attribute selector so recursive menu items remain valid <li> children.
@@ -71,9 +70,6 @@ export class AppMenuitemComponent implements OnInit {
     this.userService.currentUser()?.permissions.admin ?? false
   );
 
-  private _contextMenuItems: MenuItem[] | null = null;
-  private _contextMenuSource: NavItem['contextMenuActions'] | undefined;
-
   ngOnInit() {
     const rootKey = this.menuKey ? this.menuKey + '-' : '';
     this.key = this.parentKey ? this.parentKey + '-' + this.index : rootKey + String(this.index);
@@ -110,17 +106,8 @@ export class AppMenuitemComponent implements OnInit {
     };
   }
 
-  get contextMenuItems(): MenuItem[] {
-    const source = this.item.contextMenuActions;
-    if (source !== this._contextMenuSource) {
-      this._contextMenuSource = source;
-      this._contextMenuItems = toMenuItems(source);
-    }
-    return this._contextMenuItems!;
-  }
-
   hasContextMenu(): boolean {
-    return (this.item.contextMenuActions?.length ?? 0) > 0;
+    return (this.item.contextMenuItems?.length ?? 0) > 0;
   }
 
   shouldShowContextMenuButton(): boolean {

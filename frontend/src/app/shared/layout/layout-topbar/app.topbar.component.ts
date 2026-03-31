@@ -25,14 +25,12 @@ import { Menu } from 'primeng/menu';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { AVAILABLE_LANGS, LANG_LABELS } from '../../../core/config/transloco-loader';
 import { LANG_STORAGE_KEY } from '../../../core/config/language-initializer';
-import { ContextMenuAction, toMenuItems } from '../nav-item.model';
 import type { MenuItem } from 'primeng/api';
 
 @Component({
   selector: 'app-topbar',
   templateUrl: './app.topbar.component.html',
   styleUrls: ['./app.topbar.component.scss'],
-  standalone: true,
   imports: [
     RouterLink,
     TooltipModule,
@@ -61,11 +59,7 @@ export class AppTopBarComponent implements OnDestroy {
   private readonly bookdropFileService = inject(BookdropFileService);
   private readonly dialogLauncher = inject(DialogLauncherService);
   private readonly translocoService = inject(TranslocoService);
-  statsMenuActions: ContextMenuAction[] = [];
-  private _statsMenuSource: ContextMenuAction[] = [];
-  private _statsMenuItems: MenuItem[] = [];
-  private _langMenuSource: ContextMenuAction[] = [];
-  private _langMenuItems: MenuItem[] = [];
+  statsMenuItems: MenuItem[] = [];
   @ViewChild('statsMenu') statsMenu?: Menu;
 
   isMenuVisible = true;
@@ -84,10 +78,10 @@ export class AppTopBarComponent implements OnDestroy {
   private latestNotificationSeverity?: Severity;
 
   activeLang = this.translocoService.getActiveLang();
-  langMenuActions: ContextMenuAction[] = [];
+  langMenuItems: MenuItem[] = [];
 
   constructor() {
-    this.langMenuActions = this.buildLanguageActions(this.activeLang);
+    this.langMenuItems = this.buildLanguageActions(this.activeLang);
 
     this.subscribeToMetadataProgress();
     this.subscribeToNotifications();
@@ -171,7 +165,7 @@ export class AppTopBarComponent implements OnDestroy {
       this.translocoService.setActiveLang(lang);
       localStorage.setItem(LANG_STORAGE_KEY, lang);
       this.activeLang = lang;
-      this.langMenuActions = this.buildLanguageActions(lang);
+      this.langMenuItems = this.buildLanguageActions(lang);
     });
   }
 
@@ -180,12 +174,12 @@ export class AppTopBarComponent implements OnDestroy {
   }
 
   handleStatsButtonClick() {
-    if (this.statsMenuActions.length === 0) {
+    if (this.statsMenuItems.length === 0) {
       return;
     }
 
-    if (this.statsMenuActions.length === 1) {
-      this.statsMenuActions[0].action?.();
+    if (this.statsMenuItems.length === 1) {
+      this.statsMenuItems[0].command?.({});
     }
   }
 
@@ -232,13 +226,13 @@ export class AppTopBarComponent implements OnDestroy {
 
   private initializeStatsMenu() {
     const user = this.user();
-    const actions: ContextMenuAction[] = [];
+    const actions: MenuItem[] = [];
 
     if (user?.permissions?.canAccessLibraryStats || user?.permissions?.admin) {
       actions.push({
         label: this.translocoService.translate('layout.topbar.libraryStats'),
         icon: 'pi pi-chart-line',
-        action: () => this.navigateToStats()
+        command: () => this.navigateToStats()
       });
     }
 
@@ -246,45 +240,29 @@ export class AppTopBarComponent implements OnDestroy {
       actions.push({
         label: this.translocoService.translate('layout.topbar.readingStats'),
         icon: 'pi pi-users',
-        action: () => this.navigateToUserStats()
+        command: () => this.navigateToUserStats()
       });
     }
 
-    this.statsMenuActions = actions;
+    this.statsMenuItems = actions;
   }
 
   get hasStatsAccess(): boolean {
-    return this.statsMenuActions.length > 0;
+    return this.statsMenuItems.length > 0;
   }
 
   get shouldShowStatsMenu(): boolean {
-    return this.statsMenuActions.length > 1;
+    return this.statsMenuItems.length > 1;
   }
 
   get statsTooltip(): string {
-    if (this.statsMenuActions.length === 0) {
+    if (this.statsMenuItems.length === 0) {
       return this.translocoService.translate('layout.topbar.stats');
     }
-    if (this.statsMenuActions.length === 1) {
-      return this.statsMenuActions[0].label || this.translocoService.translate('layout.topbar.stats');
+    if (this.statsMenuItems.length === 1) {
+      return this.statsMenuItems[0].label || this.translocoService.translate('layout.topbar.stats');
     }
     return this.translocoService.translate('layout.topbar.stats');
-  }
-
-  get statsMenuModel(): MenuItem[] {
-    if (this.statsMenuActions !== this._statsMenuSource) {
-      this._statsMenuSource = this.statsMenuActions;
-      this._statsMenuItems = toMenuItems(this.statsMenuActions);
-    }
-    return this._statsMenuItems;
-  }
-
-  get langMenuModel(): MenuItem[] {
-    if (this.langMenuActions !== this._langMenuSource) {
-      this._langMenuSource = this.langMenuActions;
-      this._langMenuItems = toMenuItems(this.langMenuActions);
-    }
-    return this._langMenuItems;
   }
 
   get iconClass(): string {
@@ -325,11 +303,11 @@ export class AppTopBarComponent implements OnDestroy {
     );
   }
 
-  private buildLanguageActions(activeLang: string): ContextMenuAction[] {
+  private buildLanguageActions(activeLang: string): MenuItem[] {
     return AVAILABLE_LANGS.map((lang) => ({
       label: LANG_LABELS[lang] || lang,
       icon: lang === activeLang ? 'pi pi-check' : undefined,
-      action: () => this.switchLanguage(lang),
+      command: () => this.switchLanguage(lang),
     }));
   }
 }

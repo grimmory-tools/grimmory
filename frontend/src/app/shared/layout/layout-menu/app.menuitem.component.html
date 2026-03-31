@@ -85,7 +85,7 @@
               <span class="entity-menu-count">{{ item.bookCount?.toString() || '' }}</span>
             </span>
           </button>
-          <p-menu #entitymenu [model]="contextMenuItems" [popup]="true" appendTo="body" (onHide)="menuOpen = false"></p-menu>
+          <p-menu #entitymenu [model]="item.contextMenuItems" [popup]="true" appendTo="body" (onHide)="menuOpen = false"></p-menu>
         } @else if (item.bookCount !== undefined) {
           <p class="book-count">
             {{ formatCount(item.bookCount) }}

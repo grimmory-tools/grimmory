@@ -17,7 +17,28 @@ import { Slider } from 'primeng/slider';
 import { FormsModule } from '@angular/forms';
 import { Popover } from 'primeng/popover';
 import { LocalStorageService } from '../../service/local-storage.service';
-import { NavIconType, NavItem } from '../nav-item.model';
+import type { MenuItem } from 'primeng/api';
+
+export type NavIconType = 'PRIME_NG' | 'CUSTOM_SVG';
+
+export type NavItemType =
+  | 'library' | 'shelf' | 'magicShelf'
+  | 'allBooks' | 'series' | 'authors';
+
+export interface NavItem {
+  label: string;
+  icon?: string;
+  iconType?: NavIconType;
+  routerLink?: string[];
+  type?: NavItemType;
+  group?: boolean;
+  bookCount?: number;
+  unhealthy?: boolean;
+  items?: NavItem[];
+  hasDropDown?: boolean;
+  hasCreate?: boolean;
+  contextMenuItems?: MenuItem[];
+}
 
 @Component({
   selector: 'app-menu',
@@ -166,7 +187,7 @@ export class AppMenuComponent {
         hasDropDown: true,
         hasCreate: true,
         items: sortedLibraries.map((library) => ({
-          contextMenuActions: this.libraryShelfMenuService.initializeLibraryMenuItems(library),
+          contextMenuItems: this.libraryShelfMenuService.initializeLibraryMenuItems(library),
           label: library.name,
           type: 'library',
           icon: library.icon || undefined,
@@ -200,7 +221,7 @@ export class AppMenuComponent {
           type: 'magicShelf',
           icon: shelf.icon || undefined,
           iconType: this.toNavIconType(shelf.iconType),
-          contextMenuActions: this.libraryShelfMenuService.initializeMagicShelfMenuItems(shelf),
+          contextMenuItems: this.libraryShelfMenuService.initializeMagicShelfMenuItems(shelf),
           routerLink: [`/magic-shelf/${shelf.id}/books`],
           bookCount: this.magicShelfBookCounts().get(shelf.id ?? 0) ?? 0,
         })),
@@ -226,7 +247,7 @@ export class AppMenuComponent {
     }
 
     const shelfItems = shelves.map((shelf) => ({
-      contextMenuActions: this.libraryShelfMenuService.initializeShelfMenuItems(shelf),
+      contextMenuItems: this.libraryShelfMenuService.initializeShelfMenuItems(shelf),
       label: shelf.name,
       type: 'shelf' as const,
       icon: shelf.icon || undefined,

@@ -14,7 +14,7 @@ import { finalize } from 'rxjs';
 import { DialogLauncherService } from '../../../shared/services/dialog-launcher.service';
 import { BookDialogHelperService } from '../components/book-browser/book-dialog-helper.service';
 import { TranslocoService } from '@jsverse/transloco';
-import { ContextMenuAction } from '../../../shared/layout/nav-item.model';
+import type { MenuItem } from 'primeng/api';
 
 @Injectable({
   providedIn: 'root',
@@ -34,7 +34,7 @@ export class LibraryShelfMenuService {
   private bookDialogHelperService = inject(BookDialogHelperService);
   private readonly t = inject(TranslocoService);
 
-  initializeLibraryMenuItems(entity: Library | null): ContextMenuAction[] {
+  initializeLibraryMenuItems(entity: Library | null): MenuItem[] {
     return [
       {
         label: this.t.translate('book.shelfMenuService.library.optionsLabel'),
@@ -42,14 +42,14 @@ export class LibraryShelfMenuService {
           {
             label: this.t.translate('book.shelfMenuService.library.addPhysicalBook'),
             icon: 'pi pi-book',
-            action: () => {
+            command: () => {
               this.bookDialogHelperService.openAddPhysicalBookDialog(entity?.id as number);
             }
           },
           {
             label: this.t.translate('book.shelfMenuService.library.bulkIsbnImport'),
             icon: 'pi pi-barcode',
-            action: () => {
+            command: () => {
               this.bookDialogHelperService.openBulkIsbnImportDialog(entity?.id as number);
             }
           },
@@ -59,14 +59,14 @@ export class LibraryShelfMenuService {
           {
             label: this.t.translate('book.shelfMenuService.library.editLibrary'),
             icon: 'pi pi-pen-to-square',
-            action: () => {
+            command: () => {
               this.dialogLauncherService.openLibraryEditDialog((entity?.id as number));
             }
           },
           {
             label: this.t.translate('book.shelfMenuService.library.rescanLibrary'),
             icon: 'pi pi-refresh',
-            action: () => {
+            command: () => {
               this.confirmationService.confirm({
                 message: this.t.translate('book.shelfMenuService.confirm.rescanLibraryMessage', {name: entity?.name}),
                 header: this.t.translate('book.shelfMenuService.confirm.header'),
@@ -110,14 +110,14 @@ export class LibraryShelfMenuService {
           {
             label: this.t.translate('book.shelfMenuService.library.customFetchMetadata'),
             icon: 'pi pi-sync',
-            action: () => {
+            command: () => {
               this.dialogLauncherService.openLibraryMetadataFetchDialog((entity?.id as number));
             }
           },
           {
             label: this.t.translate('book.shelfMenuService.library.autoFetchMetadata'),
             icon: 'pi pi-bolt',
-            action: () => {
+            command: () => {
               this.taskHelperService.refreshMetadataTask({
                 refreshType: MetadataRefreshType.LIBRARY,
                 libraryId: entity?.id ?? undefined
@@ -127,7 +127,7 @@ export class LibraryShelfMenuService {
           {
             label: this.t.translate('book.shelfMenuService.library.findDuplicates'),
             icon: 'pi pi-copy',
-            action: () => {
+            command: () => {
               this.bookDialogHelperService.openDuplicateMergerDialog(entity?.id as number);
             }
           },
@@ -137,7 +137,7 @@ export class LibraryShelfMenuService {
           {
             label: this.t.translate('book.shelfMenuService.library.deleteLibrary'),
             icon: 'pi pi-trash',
-            action: () => {
+            command: () => {
               this.confirmationService.confirm({
                 message: this.t.translate('book.shelfMenuService.confirm.deleteLibraryMessage', {name: entity?.name}),
                 header: this.t.translate('book.shelfMenuService.confirm.header'),
@@ -184,7 +184,7 @@ export class LibraryShelfMenuService {
     ];
   }
 
-  initializeShelfMenuItems(entity: Shelf | null): ContextMenuAction[] {
+  initializeShelfMenuItems(entity: Shelf | null): MenuItem[] {
     const user = this.userService.getCurrentUser();
     const isOwner = entity?.userId === user?.id;
     const isPublicShelf = entity?.publicShelf ?? false;
@@ -198,7 +198,7 @@ export class LibraryShelfMenuService {
             label: this.t.translate('book.shelfMenuService.shelf.editShelf'),
             icon: 'pi pi-pen-to-square',
             disabled: disableOptions,
-            action: () => {
+            command: () => {
               this.dialogLauncherService.openShelfEditDialog((entity?.id as number));
             }
           },
@@ -209,7 +209,7 @@ export class LibraryShelfMenuService {
             label: this.t.translate('book.shelfMenuService.shelf.deleteShelf'),
             icon: 'pi pi-trash',
             disabled: disableOptions,
-            action: () => {
+            command: () => {
               this.confirmationService.confirm({
                 message: this.t.translate('book.shelfMenuService.confirm.deleteShelfMessage', {name: entity?.name}),
                 header: this.t.translate('book.shelfMenuService.confirm.header'),
@@ -251,7 +251,7 @@ export class LibraryShelfMenuService {
     ];
   }
 
-  initializeMagicShelfMenuItems(entity: MagicShelf | null): ContextMenuAction[] {
+  initializeMagicShelfMenuItems(entity: MagicShelf | null): MenuItem[] {
     const isAdmin = this.userService.getCurrentUser()?.permissions.admin ?? false;
     const isPublicShelf = entity?.isPublic ?? false;
     const disableOptions = isPublicShelf && !isAdmin;
@@ -264,14 +264,14 @@ export class LibraryShelfMenuService {
             label: this.t.translate('book.shelfMenuService.magicShelf.editMagicShelf'),
             icon: 'pi pi-pen-to-square',
             disabled: disableOptions,
-            action: () => {
+            command: () => {
               this.dialogLauncherService.openMagicShelfEditDialog((entity?.id as number));
             }
           },
           {
             label: this.t.translate('book.shelfMenuService.magicShelf.exportJson'),
             icon: 'pi pi-copy',
-            action: () => {
+            command: () => {
               if (entity?.filterJson) {
                 navigator.clipboard.writeText(entity.filterJson).then(() => {
                   this.messageService.add({severity: 'success', summary: this.t.translate('common.success'), detail: this.t.translate('book.shelfMenuService.toast.magicShelfJsonCopiedDetail')});
@@ -286,7 +286,7 @@ export class LibraryShelfMenuService {
             label: this.t.translate('book.shelfMenuService.magicShelf.deleteMagicShelf'),
             icon: 'pi pi-trash',
             disabled: disableOptions,
-            action: () => {
+            command: () => {
               this.confirmationService.confirm({
                 message: this.t.translate('book.shelfMenuService.confirm.deleteMagicShelfMessage', {name: entity?.name}),
                 header: this.t.translate('book.shelfMenuService.confirm.header'),

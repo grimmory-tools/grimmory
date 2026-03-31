@@ -4,7 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { LayoutService } from '../layout.service';
-import { AppSidebarComponent } from '../layout-sidebar/app.sidebar.component';
+import { AppMenuComponent } from '../layout-menu/app.menu.component';
 import { AppTopBarComponent } from '../layout-topbar/app.topbar.component';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { LocalStorageService } from '../../service/local-storage.service';
@@ -13,7 +13,7 @@ import { LocalStorageService } from '../../service/local-storage.service';
   selector: 'app-layout',
   imports: [
     RouterOutlet,
-    AppSidebarComponent,
+    AppMenuComponent,
     AppTopBarComponent,
     NgClass,
     TranslocoDirective
