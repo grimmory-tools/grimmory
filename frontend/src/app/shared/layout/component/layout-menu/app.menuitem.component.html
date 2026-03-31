@@ -74,7 +74,7 @@
       }
 
       <span class="menu-item-end-content">
-        @if (item.type === 'Library' || item.type === 'Shelf' || item.type === 'magicShelfItem') {
+        @if (item.type && !item.group) {
           @if (hasContextMenu()) {
             @if (shouldShowContextMenuButton()) {
               <button

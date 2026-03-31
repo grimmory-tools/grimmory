@@ -12,9 +12,8 @@ export interface ContextMenuAction {
 }
 
 export type NavItemType =
-  | 'library' | 'shelf' | 'magicShelf'           // root menu group types
-  | 'Library' | 'Shelf' | 'magicShelfItem'        // child item types
-  | 'All Books' | 'Series' | 'Authors';           // static nav types
+  | 'library' | 'shelf' | 'magicShelf'
+  | 'allBooks' | 'series' | 'authors';
 
 export interface NavItem {
   label: string;
@@ -22,6 +21,7 @@ export interface NavItem {
   iconType?: NavIconType;
   routerLink?: string[];
   type?: NavItemType;
+  group?: boolean;
   bookCount?: number;
   unhealthy?: boolean;
   items?: NavItem[];

@@ -65,7 +65,7 @@ describe('AppMenuitemComponent', () => {
 
     component.item = {
       label: 'Shelf A',
-      type: 'Shelf',
+      type: 'shelf',
       contextMenuActions: [
         { label: 'Edit', action: editAction },
         {
@@ -90,7 +90,7 @@ describe('AppMenuitemComponent', () => {
   it('hides the context menu button for items without context menu actions', () => {
     component.item = {
       label: 'Unshelved',
-      type: 'Shelf',
+      type: 'shelf',
     };
 
     fixture.detectChanges();

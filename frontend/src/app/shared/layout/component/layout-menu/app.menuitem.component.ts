@@ -134,6 +134,6 @@ export class AppMenuitemComponent implements OnInit {
 
   shouldShowContextMenuButton(): boolean {
     return this.hasContextMenu()
-      && (this.item.type !== 'Library' || (this.admin() || this.canManipulateLibrary()));
+      && (this.item.type !== 'library' || (this.admin() || this.canManipulateLibrary()));
   }
 }

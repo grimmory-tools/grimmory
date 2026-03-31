@@ -120,21 +120,21 @@ export class AppMenuComponent implements OnInit {
           },
           {
             label: this.t.translate('layout.menu.allBooks'),
-            type: 'All Books',
+            type: 'allBooks',
             icon: 'pi pi-fw pi-book',
             routerLink: ['/all-books'],
             bookCount: this.bookService.books().length,
           },
           {
             label: this.t.translate('layout.menu.series'),
-            type: 'Series',
+            type: 'series',
             icon: 'pi pi-fw pi-objects-column',
             routerLink: ['/series'],
             bookCount: this.seriesDataService.allSeries().length,
           },
           {
             label: this.t.translate('layout.menu.authors'),
-            type: 'Authors',
+            type: 'authors',
             icon: 'pi pi-fw pi-users',
             routerLink: ['/authors'],
             bookCount: this.allAuthors()?.length ?? 0,
@@ -163,12 +163,13 @@ export class AppMenuComponent implements OnInit {
       {
         label: this.t.translate('layout.menu.libraries'),
         type: 'library',
+        group: true,
         hasDropDown: true,
         hasCreate: true,
         items: sortedLibraries.map((library) => ({
           contextMenuActions: this.libraryShelfMenuService.initializeLibraryMenuItems(library),
           label: library.name,
-          type: 'Library',
+          type: 'library',
           icon: library.icon || undefined,
           iconType: this.toNavIconType(library.iconType),
           routerLink: [`/library/${library.id}/books`],
@@ -192,11 +193,12 @@ export class AppMenuComponent implements OnInit {
       {
         label: this.t.translate('layout.menu.magicShelves'),
         type: 'magicShelf',
+        group: true,
         hasDropDown: true,
         hasCreate: true,
         items: sortedShelves.map((shelf) => ({
           label: shelf.name,
-          type: 'magicShelfItem',
+          type: 'magicShelf',
           icon: shelf.icon || undefined,
           iconType: this.toNavIconType(shelf.iconType),
           contextMenuActions: this.libraryShelfMenuService.initializeMagicShelfMenuItems(shelf),
@@ -227,7 +229,7 @@ export class AppMenuComponent implements OnInit {
     const shelfItems = shelves.map((shelf) => ({
       contextMenuActions: this.libraryShelfMenuService.initializeShelfMenuItems(shelf),
       label: shelf.name,
-      type: 'Shelf' as const,
+      type: 'shelf' as const,
       icon: shelf.icon || undefined,
       iconType: this.toNavIconType(shelf.iconType),
       routerLink: [`/shelf/${shelf.id}/books`],
@@ -236,7 +238,7 @@ export class AppMenuComponent implements OnInit {
 
     const items: NavItem[] = [{
       label: this.t.translate('layout.menu.unshelved'),
-      type: 'Shelf',
+      type: 'shelf',
       icon: 'pi pi-inbox',
       iconType: 'PRIME_NG',
       routerLink: ['/unshelved-books'],
@@ -246,7 +248,7 @@ export class AppMenuComponent implements OnInit {
     if (koboShelf) {
       items.push({
         label: koboShelf.name,
-        type: 'Shelf',
+        type: 'shelf',
         icon: koboShelf.icon || undefined,
         iconType: this.toNavIconType(koboShelf.iconType),
         routerLink: [`/shelf/${koboShelf.id}/books`],
@@ -259,6 +261,7 @@ export class AppMenuComponent implements OnInit {
     return [
       {
         type: 'shelf',
+        group: true,
         label: this.t.translate('layout.menu.shelves'),
         hasDropDown: true,
         hasCreate: true,
