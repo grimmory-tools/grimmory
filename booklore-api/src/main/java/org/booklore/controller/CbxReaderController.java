@@ -1,5 +1,6 @@
 package org.booklore.controller;
 
+import org.booklore.model.dto.response.CbxPageDimension;
 import org.booklore.model.dto.response.CbxPageInfo;
 import org.booklore.service.reader.CbxReaderService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,5 +36,14 @@ public class CbxReaderController {
             @Parameter(description = "ID of the book") @PathVariable Long bookId,
             @Parameter(description = "Optional book type for alternative format (e.g., PDF, CBX)") @RequestParam(required = false) String bookType) {
         return cbxReaderService.getPageInfo(bookId, bookType);
+    }
+
+    @Operation(summary = "Get page dimensions for a CBX book", description = "Retrieve width, height, and wide flag for each page in a CBX book.")
+    @ApiResponse(responseCode = "200", description = "Page dimensions returned successfully")
+    @GetMapping("/{bookId}/page-dimensions")
+    public List<CbxPageDimension> getPageDimensions(
+            @Parameter(description = "ID of the book") @PathVariable Long bookId,
+            @Parameter(description = "Optional book type for alternative format (e.g., PDF, CBX)") @RequestParam(required = false) String bookType) {
+        return cbxReaderService.getPageDimensions(bookId, bookType);
     }
 }

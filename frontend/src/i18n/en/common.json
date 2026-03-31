@@ -22,5 +22,7 @@
   "dismiss": "Dismiss",
   "discard": "Discard",
   "review": "Review",
-  "libraryPathInaccessible": "Library path inaccessible"
+  "libraryPathInaccessible": "Library path inaccessible",
+  "on": "On",
+  "off": "Off"
 }

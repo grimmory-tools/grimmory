@@ -153,6 +153,21 @@ public class BookController {
         bookService.streamBookContent(bookId, bookType, request, response);
     }
 
+    @Operation(summary = "Replace book content", description = "Overwrite the primary PDF file for a book with the uploaded content. Used by the document viewer to persist annotation changes.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Book content replaced successfully"),
+            @ApiResponse(responseCode = "404", description = "Book not found")
+    })
+    @PutMapping("/{bookId}/content")
+    @CheckBookAccess(bookIdParam = "bookId")
+    public ResponseEntity<Void> replaceBookContent(
+            @Parameter(description = "ID of the book") @PathVariable long bookId,
+            @Parameter(description = "Optional book type for alternative format") @RequestParam(required = false) String bookType,
+            HttpServletRequest request) throws java.io.IOException {
+        bookService.replaceBookContent(bookId, bookType, request.getInputStream());
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "Download book", description = "Download the book file. Requires download permission or admin.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Book downloaded successfully"),

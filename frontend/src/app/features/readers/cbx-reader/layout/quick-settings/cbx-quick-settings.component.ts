@@ -156,6 +156,23 @@ export class CbxQuickSettingsComponent {
     this.quickSettingsService.emitMagnifierLensSizeChange(size);
   }
 
+  onBrightnessChange(event: Event): void {
+    const value = +(event.target as HTMLInputElement).value;
+    this.quickSettingsService.emitBrightnessChange(value);
+  }
+
+  onEmulateBookToggle(): void {
+    this.quickSettingsService.emitEmulateBookChange(!this.state().emulateBook);
+  }
+
+  onClickToPaginateToggle(): void {
+    this.quickSettingsService.emitClickToPaginateChange(!this.state().clickToPaginate);
+  }
+
+  onAutoCloseMenuToggle(): void {
+    this.quickSettingsService.emitAutoCloseMenuChange(!this.state().autoCloseMenu);
+  }
+
   onOverlayClick(): void {
     this.quickSettingsService.close();
   }

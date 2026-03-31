@@ -148,3 +148,14 @@ foliate-view::part(foot) {
   min-height: 32px;
   box-sizing: border-box;
 }
+
+.reader.immersive {
+  ::ng-deep foliate-view::part(head),
+  ::ng-deep foliate-view::part(foot) {
+    display: none !important;
+  }
+
+  .bookmark-indicator {
+    display: none;
+  }
+}

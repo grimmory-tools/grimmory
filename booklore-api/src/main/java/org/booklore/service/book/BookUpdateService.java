@@ -120,6 +120,7 @@ public class BookUpdateService {
             PdfViewerPreferences pdfSettings = settings.getPdfSettings();
             prefs.setZoom(pdfSettings.getZoom());
             prefs.setSpread(pdfSettings.getSpread());
+            prefs.setIsDarkTheme(pdfSettings.getIsDarkTheme());
             pdfViewerPreferencesRepository.save(prefs);
         }
 

@@ -146,6 +146,48 @@
           </div>
         </div>
       </div>
+
+      <!-- Brightness -->
+      <div class="control">
+        <span>{{ 'readerCbx.quickSettings.brightness' | transloco }}</span>
+        <div class="control-right">
+          <input type="range" min="10" max="100" step="5"
+                 [value]="state().brightness"
+                 (input)="onBrightnessChange($event)"
+                 class="brightness-slider"/>
+          <span class="brightness-value">{{ state().brightness }}%</span>
+        </div>
+      </div>
+
+      <!-- Emulate Book -->
+      <div class="control">
+        <span>{{ 'readerCbx.quickSettings.emulateBook' | transloco }}</span>
+        <div class="control-right">
+          <button class="toggle-btn" [class.active]="state().emulateBook" (click)="onEmulateBookToggle()">
+            {{ state().emulateBook ? ('common.on' | transloco) : ('common.off' | transloco) }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Click to Paginate -->
+      <div class="control">
+        <span>{{ 'readerCbx.quickSettings.clickToPaginate' | transloco }}</span>
+        <div class="control-right">
+          <button class="toggle-btn" [class.active]="state().clickToPaginate" (click)="onClickToPaginateToggle()">
+            {{ state().clickToPaginate ? ('common.on' | transloco) : ('common.off' | transloco) }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Auto Close Menu -->
+      <div class="control">
+        <span>{{ 'readerCbx.quickSettings.autoCloseMenu' | transloco }}</span>
+        <div class="control-right">
+          <button class="toggle-btn" [class.active]="state().autoCloseMenu" (click)="onAutoCloseMenuToggle()">
+            {{ state().autoCloseMenu ? ('common.on' | transloco) : ('common.off' | transloco) }}
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </div>

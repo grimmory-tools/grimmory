@@ -51,6 +51,8 @@
     [class.bg-black]="backgroundColor === CbxBackgroundColor.BLACK"
     [class.bg-gray]="backgroundColor === CbxBackgroundColor.GRAY"
     [class.bg-white]="backgroundColor === CbxBackgroundColor.WHITE"
+    [class.emulate-book]="emulateBook && isTwoPageView"
+    [style.filter]="brightness < 100 ? 'brightness(' + brightness + '%)' : null"
     (scroll)="onScroll($event)">
     @if (!isLoading) {
       @if (pages.length > 0) {
@@ -70,11 +72,32 @@
               </div>
             }
             <div class="current-page-layer" [class.fade-in]="isPageTransitioning && imagesLoaded">
-              @for (url of currentImageUrls; track url; let i = $index) {
-                <img [src]="url" alt="Page Image" class="page-image" (load)="onPageImageLoad($event, currentPage + i)"/>
+              @if (shouldUseCanvasRenderer()) {
+                <app-canvas-renderer
+                  [imageUrl]="currentImageUrls[0]"
+                  [splitState]="canvasSplitState"
+                  [splitOption]="pageSplitOption">
+                </app-canvas-renderer>
+              } @else {
+                @for (url of currentImageUrls; track url; let i = $index) {
+                  <img [src]="url" alt="Page Image" class="page-image" (load)="onPageImageLoad($event, currentPage + i)"/>
+                }
               }
             </div>
           </div>
+          @if (clickToPaginate) {
+            <div class="click-overlay" [class.visible]="showClickOverlay"
+                 [class.rtl-overlay]="readingDirection === CbxReadingDirection.RTL">
+              <div class="click-zone click-zone-prev" (click)="onClickZonePrev($event)">
+                <span class="zone-arrow">&#9664;</span>
+              </div>
+              <div class="click-zone click-zone-menu" (click)="onClickZoneMenu($event)">
+              </div>
+              <div class="click-zone click-zone-next" (click)="onClickZoneNext($event)">
+                <span class="zone-arrow">&#9654;</span>
+              </div>
+            </div>
+          }
           @if (isAtLastPage && nextBookInSeries) {
             <div class="end-of-comic-action">
               <button class="next-book-action-button" (click)="navigateToNextBook()">

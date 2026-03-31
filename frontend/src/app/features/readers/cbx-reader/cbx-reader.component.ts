@@ -6,13 +6,16 @@ import {debounceTime, map, switchMap, takeUntil} from 'rxjs/operators';
 import {PageTitleService} from "../../../shared/service/page-title.service";
 import {CbxReaderService} from '../../book/service/cbx-reader.service';
 import {BookService} from '../../book/service/book.service';
-import {CbxBackgroundColor, CbxFitMode, CbxMagnifierLensSize, CbxMagnifierZoom, CbxPageSpread, CbxPageViewMode, CbxScrollMode, CbxReadingDirection, CbxSlideshowInterval, UserService} from '../../settings/user-management/user.service';
+import {CbxBackgroundColor, CbxFitMode, CbxMagnifierLensSize, CbxMagnifierZoom, CbxPageSpread, CbxPageSplitOption, CbxPageViewMode, CbxScrollMode, CbxReadingDirection, CbxSlideshowInterval, UserService} from '../../settings/user-management/user.service';
+import {CbxPageDimensionService, DoublePairs} from './core/cbx-page-dimension.service';
+import {CbxPageDimension} from './models/cbx-page-dimension.model';
 import {MessageService} from 'primeng/api';
 import {TranslocoService, TranslocoPipe} from '@jsverse/transloco';
 import {Book, BookSetting, BookType} from '../../book/model/book.model';
 import {ProgressSpinner} from 'primeng/progressspinner';
 import {FormsModule} from "@angular/forms";
 import {ReadingSessionService} from '../../../shared/service/reading-session.service';
+import {WakeLockService} from '../../../shared/service/wake-lock.service';
 import {ReaderHeaderFooterVisibilityManager} from '../ebook-reader';
 
 import {CbxHeaderComponent} from './layout/header/cbx-header.component';
@@ -25,6 +28,7 @@ import {CbxQuickSettingsComponent} from './layout/quick-settings/cbx-quick-setti
 import {CbxQuickSettingsService} from './layout/quick-settings/cbx-quick-settings.service';
 import {CbxNoteDialogComponent, CbxNoteDialogData, CbxNoteDialogResult} from './dialogs/cbx-note-dialog.component';
 import {CbxShortcutsHelpComponent} from './dialogs/cbx-shortcuts-help.component';
+import {CanvasRendererComponent} from './renderers/canvas-renderer.component';
 import {BookNoteV2} from '../../../shared/service/book-note-v2.service';
 
 
@@ -41,7 +45,8 @@ import {BookNoteV2} from '../../../shared/service/book-note-v2.service';
     CbxFooterComponent,
     CbxQuickSettingsComponent,
     CbxNoteDialogComponent,
-    CbxShortcutsHelpComponent
+    CbxShortcutsHelpComponent,
+    CanvasRendererComponent
   ],
   providers: [
     CbxHeaderService,
@@ -120,11 +125,44 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   magnifierLensSize: CbxMagnifierLensSize = CbxMagnifierLensSize.MEDIUM;
   private lastMouseEvent: MouseEvent | null = null;
 
-  // Double page detection
+  // Page split option for wide pages
+  pageSplitOption: CbxPageSplitOption = CbxPageSplitOption.NO_SPLIT;
+
+  // Brightness filter (0-100, default 100)
+  brightness = 100;
+
+  // Emulate book mode (spine shadow in two-page view)
+  emulateBook = false;
+
+  // Click-to-paginate overlay
+  clickToPaginate = false;
+  showClickOverlay = false;
+  private clickOverlayTimer: ReturnType<typeof setTimeout> | null = null;
+  private static readonly CLICK_OVERLAY_TIMEOUT = 3000;
+
+  // Auto-close menu after interaction
+  autoCloseMenu = false;
+  private autoCloseMenuTimer: ReturnType<typeof setTimeout> | null = null;
+  private static readonly AUTO_CLOSE_MENU_TIMEOUT = 3000;
+
+  // Page dimensions from backend
+  pageDimensions: CbxPageDimension[] = [];
+  doublePairs: DoublePairs = {};
+
+  // Double page detection (fallback cache for pages without backend dims)
   private pageDimensionsCache = new Map<number, {width: number, height: number}>();
+
+  // Swipe double-action prevention
+  private hasHitRightScroll = false;
+  private hasHitZeroScroll = false;
+  private touchMoveCount = 0;
+
+  // Canvas split state
+  canvasSplitState: 'NO_SPLIT' | 'LEFT_PART' | 'RIGHT_PART' = 'NO_SPLIT';
 
   protected readonly CbxReadingDirection = CbxReadingDirection;
   protected readonly CbxSlideshowInterval = CbxSlideshowInterval;
+  protected readonly CbxPageSplitOption = CbxPageSplitOption;
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -139,6 +177,8 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   private sidebarService = inject(CbxSidebarService);
   private footerService = inject(CbxFooterService);
   private quickSettingsService = inject(CbxQuickSettingsService);
+  private pageDimensionService = inject(CbxPageDimensionService);
+  private wakeLockService = inject(WakeLockService);
 
   protected readonly CbxScrollMode = CbxScrollMode;
   protected readonly CbxFitMode = CbxFitMode;
@@ -177,6 +217,9 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     this.subscribeToSidebarEvents();
     this.subscribeToFooterEvents();
     this.subscribeToQuickSettingsEvents();
+
+    // Enable wake lock after a short delay to not block initial render
+    setTimeout(() => this.wakeLockService.enable(), 1000);
 
     this.route.paramMap.pipe(
       takeUntil(this.destroy$),
@@ -228,11 +271,15 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
             this.loadSeriesNavigation(book);
           }
 
-          const pagesObservable = this.cbxReaderService.getAvailablePages(this.bookId, this.altBookType);
-
-          pagesObservable.subscribe({
-            next: (pages) => {
+          forkJoin([
+            this.cbxReaderService.getAvailablePages(this.bookId, this.altBookType),
+            this.pageDimensionService.getPageDimensions(this.bookId, this.altBookType)
+          ]).subscribe({
+            next: ([pages, dimensions]) => {
               this.pages = pages;
+              this.pageDimensions = dimensions;
+              this.doublePairs = this.pageDimensionService.computeDoublePairs(dimensions);
+
               if (this.bookType === CbxReaderComponent.TYPE_CBX) {
                 const global = userSettings.perBookSetting.cbx === CbxReaderComponent.SETTING_GLOBAL;
                 this.pageViewMode = global
@@ -255,9 +302,27 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
                   ? this.CbxBackgroundColor[userSettings.cbxReaderSetting.backgroundColor as keyof typeof CbxBackgroundColor] || CbxBackgroundColor.GRAY
                   : this.CbxBackgroundColor[bookSettings.cbxSettings?.backgroundColor as keyof typeof CbxBackgroundColor] || this.CbxBackgroundColor[userSettings.cbxReaderSetting.backgroundColor as keyof typeof CbxBackgroundColor] || CbxBackgroundColor.GRAY;
 
+                // Restore new settings from per-book or global
+                const cbxSrc = global ? userSettings.cbxReaderSetting : bookSettings.cbxSettings;
+                if (cbxSrc) {
+                  this.pageSplitOption = (cbxSrc as any).pageSplitOption ?? this.pageSplitOption;
+                  this.brightness = (cbxSrc as any).brightness ?? 100;
+                  this.emulateBook = (cbxSrc as any).emulateBook ?? false;
+                  this.clickToPaginate = (cbxSrc as any).clickToPaginate ?? false;
+                  this.autoCloseMenu = (cbxSrc as any).autoCloseMenu ?? false;
+                }
+
                 this.currentPage = (book.cbxProgress?.page || 1) - 1;
 
-                if (this.scrollMode === CbxScrollMode.INFINITE) {
+                // Auto-detect webtoon and switch to LONG_STRIP if user hasn't explicitly set scroll mode
+                if (dimensions.length > 0) {
+                  const detection = this.pageDimensionService.detectWebtoon(dimensions);
+                  if (detection.isWebtoon && this.scrollMode === CbxScrollMode.PAGINATED) {
+                    this.scrollMode = CbxScrollMode.LONG_STRIP;
+                  }
+                }
+
+                if (this.scrollMode === CbxScrollMode.INFINITE || this.scrollMode === CbxScrollMode.LONG_STRIP) {
                   this.initializeInfiniteScroll();
                 }
               }
@@ -421,6 +486,38 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     this.quickSettingsService.magnifierLensSizeChange$
       .pipe(takeUntil(this.destroy$))
       .subscribe(size => this.onMagnifierLensSizeChange(size));
+
+    this.quickSettingsService.brightnessChange$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(value => {
+        this.brightness = value;
+        this.quickSettingsService.setBrightness(value);
+        this.updateViewerSetting();
+      });
+
+    this.quickSettingsService.emulateBookChange$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(value => {
+        this.emulateBook = value;
+        this.quickSettingsService.setEmulateBook(value);
+        this.updateViewerSetting();
+      });
+
+    this.quickSettingsService.clickToPaginateChange$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(value => {
+        this.clickToPaginate = value;
+        this.quickSettingsService.setClickToPaginate(value);
+        this.updateViewerSetting();
+      });
+
+    this.quickSettingsService.autoCloseMenuChange$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(value => {
+        this.autoCloseMenu = value;
+        this.quickSettingsService.setAutoCloseMenu(value);
+        this.updateViewerSetting();
+      });
   }
 
   private updateServiceStates(): void {
@@ -442,7 +539,11 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
       readingDirection: this.readingDirection,
       slideshowInterval: this.slideshowInterval,
       magnifierZoom: this.magnifierZoom,
-      magnifierLensSize: this.magnifierLensSize
+      magnifierLensSize: this.magnifierLensSize,
+      brightness: this.brightness,
+      emulateBook: this.emulateBook,
+      clickToPaginate: this.clickToPaginate,
+      autoCloseMenu: this.autoCloseMenu
     });
 
     this.headerService.updateState({
@@ -469,8 +570,16 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     const urls: string[] = [];
     urls.push(this.getPageImageUrl(this.currentPage));
 
-    if (this.isTwoPageView && this.currentPage + 1 < this.pages.length) {
-      urls.push(this.getPageImageUrl(this.currentPage + 1));
+    if (this.isTwoPageView) {
+      // Use doublePairs for dimension-aware pairing
+      if (Object.keys(this.doublePairs).length > 0) {
+        const pairedWith = this.doublePairs[this.currentPage];
+        if (pairedWith !== undefined && pairedWith < this.pages.length) {
+          urls.push(this.getPageImageUrl(pairedWith));
+        }
+      } else if (this.currentPage + 1 < this.pages.length) {
+        urls.push(this.getPageImageUrl(this.currentPage + 1));
+      }
     }
 
     this.currentImageUrls = urls;
@@ -654,21 +763,80 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     if (direction > 0) {
       // Forward navigation
       if (this.isTwoPageView) {
-        const effectiveStep = this.shouldShowSinglePage(this.currentPage) ? 1 : step;
-        if (this.currentPage + effectiveStep < this.pages.length) {
-          this.currentPage += effectiveStep;
-        } else if (this.currentPage + 1 < this.pages.length) {
-          this.currentPage += 1;
+        // Use doublePairs for dimension-aware stepping
+        if (Object.keys(this.doublePairs).length > 0) {
+          const pairedWith = this.doublePairs[this.currentPage];
+          if (pairedWith !== undefined) {
+            // Current page is paired — skip past its partner
+            const nextPage = Math.max(this.currentPage, pairedWith) + 1;
+            if (nextPage < this.pages.length) {
+              this.currentPage = nextPage;
+            }
+          } else {
+            // Current page is solo (wide or cover) — advance by 1
+            if (this.currentPage + 1 < this.pages.length) {
+              this.currentPage += 1;
+            }
+          }
+        } else {
+          // Fallback: use old heuristic
+          const effectiveStep = this.shouldShowSinglePage(this.currentPage) ? 1 : step;
+          if (this.currentPage + effectiveStep < this.pages.length) {
+            this.currentPage += effectiveStep;
+          } else if (this.currentPage + 1 < this.pages.length) {
+            this.currentPage += 1;
+          }
         }
       } else if (this.currentPage < this.pages.length - 1) {
+        // Single-page mode: handle canvas split state for wide pages
+        if (this.pageSplitOption !== CbxPageSplitOption.NO_SPLIT && this.isSpreadPage(this.currentPage)) {
+          if (this.canvasSplitState === 'NO_SPLIT' || this.canvasSplitState === 'LEFT_PART') {
+            // Show first half, then second half before advancing
+            this.canvasSplitState = this.canvasSplitState === 'NO_SPLIT' ? 'LEFT_PART' : 'RIGHT_PART';
+            this.updateCurrentImageUrls();
+            return;
+          }
+          // Already showed RIGHT_PART — advance to next page
+          this.canvasSplitState = 'NO_SPLIT';
+        }
         this.currentPage++;
       }
     } else {
       // Backward navigation
       if (this.isTwoPageView) {
-        this.currentPage = Math.max(0, this.currentPage - step);
+        if (Object.keys(this.doublePairs).length > 0) {
+          // Find the page that starts the previous spread
+          const targetPage = this.currentPage - 1;
+          if (targetPage >= 0) {
+            const pairedWith = this.doublePairs[targetPage];
+            if (pairedWith !== undefined) {
+              // Land on the lower-indexed page of the pair
+              this.currentPage = Math.min(targetPage, pairedWith);
+            } else {
+              // Previous page is solo — just go there
+              this.currentPage = targetPage;
+            }
+          }
+        } else {
+          this.currentPage = Math.max(0, this.currentPage - step);
+        }
       } else {
-        this.currentPage = Math.max(0, this.currentPage - 1);
+        // Single-page backward: handle canvas split for wide pages
+        if (this.pageSplitOption !== CbxPageSplitOption.NO_SPLIT && this.isSpreadPage(this.currentPage)) {
+          if (this.canvasSplitState === 'RIGHT_PART') {
+            this.canvasSplitState = 'LEFT_PART';
+            this.updateCurrentImageUrls();
+            return;
+          }
+          this.canvasSplitState = 'NO_SPLIT';
+        }
+        if (this.currentPage > 0) {
+          this.currentPage--;
+          // If landing on a wide page, start at right half
+          if (this.pageSplitOption !== CbxPageSplitOption.NO_SPLIT && this.isSpreadPage(this.currentPage)) {
+            this.canvasSplitState = 'RIGHT_PART';
+          }
+        }
       }
     }
 
@@ -828,6 +996,11 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
         fitMode: this.fitMode,
         scrollMode: this.scrollMode,
         backgroundColor: this.backgroundColor,
+        pageSplitOption: this.pageSplitOption,
+        brightness: this.brightness,
+        emulateBook: this.emulateBook,
+        clickToPaginate: this.clickToPaginate,
+        autoCloseMenu: this.autoCloseMenu,
       }
     };
     this.bookService.updateViewerSetting(bookSetting, this.bookId).subscribe();
@@ -913,6 +1086,18 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
   onImageClick(): void {
     this.visibilityManager.togglePinned();
+    this.scheduleAutoCloseMenu();
+  }
+
+  private scheduleAutoCloseMenu(): void {
+    if (!this.autoCloseMenu) return;
+    if (this.autoCloseMenuTimer) {
+      clearTimeout(this.autoCloseMenuTimer);
+    }
+    this.autoCloseMenuTimer = setTimeout(() => {
+      this.visibilityManager.unpinIfPinned();
+      this.autoCloseMenuTimer = null;
+    }, CbxReaderComponent.AUTO_CLOSE_MENU_TIMEOUT);
   }
 
   @HostListener('window:keydown', ['$event'])
@@ -1046,12 +1231,21 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   @HostListener('touchstart', ['$event'])
   onTouchStart(event: TouchEvent) {
     this.touchStartX = event.changedTouches[0].screenX;
+    this.touchMoveCount = 0;
+  }
+
+  @HostListener('touchmove')
+  onTouchMove() {
+    this.touchMoveCount++;
   }
 
   @HostListener('touchend', ['$event'])
   onTouchEnd(event: TouchEvent) {
     this.touchEndX = event.changedTouches[0].screenX;
-    this.handleSwipeGesture();
+    // Filter tremor/jitter: ignore if fewer than 3 move events
+    if (this.touchMoveCount >= 3) {
+      this.handleSwipeGesture();
+    }
   }
 
   @HostListener('window:resize')
@@ -1081,15 +1275,35 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     if (this.scrollMode === CbxScrollMode.INFINITE || this.scrollMode === CbxScrollMode.LONG_STRIP) return;
 
     const delta = this.touchEndX - this.touchStartX;
-    if (Math.abs(delta) >= 50) {
-      // In RTL mode, swipe directions are reversed
-      const isRtl = this.readingDirection === CbxReadingDirection.RTL;
-      const shouldGoNext = isRtl ? delta > 0 : delta < 0;
-      if (shouldGoNext) {
-        this.nextPage();
-      } else {
-        this.previousPage();
+    const threshold = Math.min(75, window.innerWidth * 0.1);
+    if (Math.abs(delta) < threshold) return;
+
+    const isRtl = this.readingDirection === CbxReadingDirection.RTL;
+    const shouldGoNext = isRtl ? delta > 0 : delta < 0;
+    const shouldGoPrev = !shouldGoNext;
+
+    // Double-action prevention: at boundaries, require two consecutive swipes
+    if (shouldGoNext && this.currentPage >= this.pages.length - 1) {
+      if (!this.hasHitRightScroll) {
+        this.hasHitRightScroll = true;
+        return;
       }
+    }
+    if (shouldGoPrev && this.currentPage <= 0) {
+      if (!this.hasHitZeroScroll) {
+        this.hasHitZeroScroll = true;
+        return;
+      }
+    }
+
+    // Reset boundary flags on successful navigation
+    this.hasHitRightScroll = false;
+    this.hasHitZeroScroll = false;
+
+    if (shouldGoNext) {
+      this.nextPage();
+    } else {
+      this.previousPage();
     }
   }
 
@@ -1323,6 +1537,11 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   }
 
   isSpreadPage(pageIndex: number): boolean {
+    // Prefer backend-provided dimensions
+    if (this.pageDimensions.length > pageIndex) {
+      return this.pageDimensions[pageIndex].wide;
+    }
+    // Fallback to client-side cache
     const dims = this.pageDimensionsCache.get(pageIndex);
     if (!dims) return false;
     return dims.width > dims.height * 1.5;
@@ -1330,6 +1549,27 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
   shouldShowSinglePage(pageIndex: number): boolean {
     return this.isTwoPageView && this.isSpreadPage(pageIndex);
+  }
+
+  shouldUseCanvasRenderer(): boolean {
+    if (this.pageSplitOption === CbxPageSplitOption.NO_SPLIT) return false;
+    if (!this.pageViewMode || this.isTwoPageView) return false;
+    return this.isSpreadPage(this.currentPage) && this.canvasSplitState !== 'NO_SPLIT';
+  }
+
+  onClickZonePrev(event: Event): void {
+    event.stopPropagation();
+    this.previousPage();
+  }
+
+  onClickZoneNext(event: Event): void {
+    event.stopPropagation();
+    this.nextPage();
+  }
+
+  onClickZoneMenu(event: Event): void {
+    event.stopPropagation();
+    this.onImageClick();
   }
 
   private updateMagnifier(event: MouseEvent): void {
@@ -1399,6 +1639,13 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.stopSlideshow();
     this.endReadingSession();
+    this.wakeLockService.disable();
+    if (this.autoCloseMenuTimer) {
+      clearTimeout(this.autoCloseMenuTimer);
+    }
+    if (this.clickOverlayTimer) {
+      clearTimeout(this.clickOverlayTimer);
+    }
     this.destroy$.next();
     this.destroy$.complete();
   }

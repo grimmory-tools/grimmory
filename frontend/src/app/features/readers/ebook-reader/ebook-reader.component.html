@@ -1,12 +1,13 @@
 <div
   class="reader"
+  [class.immersive]="immersiveMode"
   [style.background-color]="readerState().theme.bg ?? ''">
 
   <div class="header-trigger-zone"
-       [class.inactive]="headerVisible"
+       [class.inactive]="headerVisible || immersiveMode"
        (mouseenter)="onHeaderTriggerZoneEnter()"></div>
   <div class="footer-trigger-zone"
-       [class.inactive]="forceNavbarVisible"
+       [class.inactive]="forceNavbarVisible || immersiveMode"
        (mouseenter)="onFooterTriggerZoneEnter()"></div>
 
   @if (isLoading) {

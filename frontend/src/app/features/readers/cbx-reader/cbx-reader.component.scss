@@ -618,3 +618,83 @@
     transform: rotate(360deg);
   }
 }
+
+// Click-to-paginate overlay
+.click-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+
+  &.visible {
+    opacity: 1;
+  }
+
+  .click-zone {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .click-zone-prev {
+    width: 40%;
+    background: rgb(255 255 255 / 3%);
+  }
+
+  .click-zone-menu {
+    width: 20%;
+  }
+
+  .click-zone-next {
+    width: 40%;
+    background: rgb(255 255 255 / 3%);
+  }
+
+  .zone-arrow {
+    font-size: 2rem;
+    color: rgb(255 255 255 / 30%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &.visible .zone-arrow {
+    opacity: 1;
+  }
+
+  // RTL: swap prev/next zones visually
+  &.rtl-overlay {
+    flex-direction: row-reverse;
+  }
+}
+
+// Emulate book mode — spine shadow in two-page view
+.image-container.emulate-book {
+  .pages-wrapper,
+  .current-page-layer {
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 0;
+      z-index: 2;
+      pointer-events: none;
+      box-shadow:
+        -4px 0 12px rgb(0 0 0 / 40%),
+        4px 0 12px rgb(0 0 0 / 40%),
+        -2px 0 6px rgb(0 0 0 / 20%),
+        2px 0 6px rgb(0 0 0 / 20%);
+    }
+  }
+}

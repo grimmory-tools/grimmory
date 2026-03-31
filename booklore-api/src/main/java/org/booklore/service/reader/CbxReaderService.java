@@ -9,6 +9,7 @@ import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.pdfbox.io.IOUtils;
 import org.booklore.exception.ApiError;
+import org.booklore.model.dto.response.CbxPageDimension;
 import org.booklore.model.dto.response.CbxPageInfo;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
@@ -19,6 +20,11 @@ import org.booklore.util.FileUtils;
 import org.booklore.util.UnrarHelper;
 import org.springframework.stereotype.Service;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -111,6 +117,63 @@ public class CbxReaderService {
             log.error("Failed to read archive for book {}", bookId, e);
             throw ApiError.FILE_READ_ERROR.createException("Failed to read archive: " + e.getMessage());
         }
+    }
+
+    public List<CbxPageDimension> getPageDimensions(Long bookId) {
+        return getPageDimensions(bookId, null);
+    }
+
+    public List<CbxPageDimension> getPageDimensions(Long bookId, String bookType) {
+        Path cbxPath = getBookPath(bookId, bookType);
+        try {
+            CachedArchiveMetadata metadata = getCachedMetadata(cbxPath);
+            List<String> imageEntries = metadata.imageEntries;
+            List<CbxPageDimension> dimensions = new ArrayList<>();
+            for (int i = 0; i < imageEntries.size(); i++) {
+                String entryName = imageEntries.get(i);
+                CbxPageDimension dim = readEntryDimension(cbxPath, entryName, metadata, i + 1);
+                dimensions.add(dim);
+            }
+            return dimensions;
+        } catch (IOException e) {
+            log.error("Failed to read page dimensions for book {}", bookId, e);
+            throw ApiError.FILE_READ_ERROR.createException("Failed to read page dimensions: " + e.getMessage());
+        }
+    }
+
+    private CbxPageDimension readEntryDimension(Path cbxPath, String entryName, CachedArchiveMetadata metadata, int pageNumber) {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            streamEntryFromArchive(cbxPath, entryName, baos, metadata);
+            byte[] imageBytes = baos.toByteArray();
+            try (ImageInputStream iis = ImageIO.createImageInputStream(new ByteArrayInputStream(imageBytes))) {
+                Iterator<ImageReader> readers = ImageIO.getImageReaders(iis);
+                if (readers.hasNext()) {
+                    ImageReader reader = readers.next();
+                    try {
+                        reader.setInput(iis);
+                        int width = reader.getWidth(0);
+                        int height = reader.getHeight(0);
+                        return CbxPageDimension.builder()
+                                .pageNumber(pageNumber)
+                                .width(width)
+                                .height(height)
+                                .wide(width > height)
+                                .build();
+                    } finally {
+                        reader.dispose();
+                    }
+                }
+            }
+        } catch (IOException e) {
+            log.warn("Failed to read dimensions for page {} (entry: {}): {}", pageNumber, entryName, e.getMessage());
+        }
+        return CbxPageDimension.builder()
+                .pageNumber(pageNumber)
+                .width(0)
+                .height(0)
+                .wide(false)
+                .build();
     }
 
     private String extractDisplayName(String entryPath) {

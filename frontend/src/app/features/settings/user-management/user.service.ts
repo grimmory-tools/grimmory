@@ -64,6 +64,14 @@ export type BookFilterMode = 'and' | 'or' | 'single' | 'not';
 export enum CbxPageViewMode {
   SINGLE_PAGE = 'SINGLE_PAGE',
   TWO_PAGE = 'TWO_PAGE',
+  TWO_PAGE_REVERSED = 'TWO_PAGE_REVERSED',
+}
+
+export enum CbxPageSplitOption {
+  NO_SPLIT = 'NO_SPLIT',
+  FIT_SPLIT = 'FIT_SPLIT',
+  SPLIT_LEFT_TO_RIGHT = 'SPLIT_LEFT_TO_RIGHT',
+  SPLIT_RIGHT_TO_LEFT = 'SPLIT_RIGHT_TO_LEFT',
 }
 
 export enum CbxPageSpread {
@@ -197,6 +205,11 @@ export interface CbxReaderSetting {
   backgroundColor?: CbxBackgroundColor;
   readingDirection?: CbxReadingDirection;
   slideshowInterval?: CbxSlideshowInterval;
+  pageSplitOption?: CbxPageSplitOption;
+  brightness?: number;
+  emulateBook?: boolean;
+  clickToPaginate?: boolean;
+  autoCloseMenu?: boolean;
 }
 
 export interface TableColumnPreference {
