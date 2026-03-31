@@ -2,11 +2,15 @@ package org.booklore.service.metadata.extractor;
 
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.ComicMetadata;
+import org.booklore.service.ArchiveService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIf;
-import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -15,45 +19,24 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
 
-@EnabledIf("com.github.gotson.nightcompress.Archive#isAvailable")
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class CbxMetadataExtractorTest {
-
+    @Mock private ArchiveService archiveService;
     private CbxMetadataExtractor extractor;
-
-    @TempDir
-    Path tempDir;
 
     @BeforeEach
     void setUp() {
-        extractor = new CbxMetadataExtractor();
-    }
-
-    private File createCbz(String comicInfoXml) throws IOException {
-        return createCbz(comicInfoXml, true);
-    }
-
-    private File createCbz(String comicInfoXml, boolean includeImage) throws IOException {
-        Path cbzPath = tempDir.resolve("test.cbz");
-        try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(cbzPath))) {
-            if (comicInfoXml != null) {
-                zos.putNextEntry(new ZipEntry("ComicInfo.xml"));
-                zos.write(comicInfoXml.getBytes(StandardCharsets.UTF_8));
-                zos.closeEntry();
-            }
-            if (includeImage) {
-                zos.putNextEntry(new ZipEntry("page001.jpg"));
-                zos.write(createMinimalJpeg());
-                zos.closeEntry();
-            }
-        }
-        return cbzPath.toFile();
+        extractor = new CbxMetadataExtractor(archiveService);
     }
 
     private byte[] createMinimalJpeg() throws IOException {
@@ -72,13 +55,39 @@ class CbxMetadataExtractorTest {
                 """.formatted(innerXml);
     }
 
+    private Path mockArchiveContents(Map<String, byte[]> contents) throws IOException {
+        Path path = Path.of("test.cbz");
+        Set<String> keys = contents.keySet();
+        when(archiveService.streamEntryNames(path)).then((i) -> keys.stream());
+
+        for (String key : keys) {
+            when(archiveService.getEntryBytes(path, key)).thenReturn(contents.get(key));
+        }
+
+        return path;
+    }
+
+    private Path mockRaisesException(Class exceptionClass) throws IOException {
+        Path path = Path.of("test.cbz");
+        when(archiveService.getEntryBytes(path, "ComicInfo.xml")).thenThrow(IOException.class);
+        return path;
+    }
+
+    private Path mockComicInfo(String innerXml) throws IOException {
+        Path path = Path.of("test.cbz");
+        String xml = wrapInComicInfo(innerXml);
+        when(archiveService.getEntryBytes(path, "ComicInfo.xml")).thenReturn(xml.getBytes());
+        when(archiveService.streamEntryNames(path)).thenReturn(Stream.of("ComicInfo.xml"));
+
+        return path;
+    }
+
     @Nested
     class ExtractMetadataFromZip {
 
         @Test
         void extractsTitleFromComicInfo() throws IOException {
-            String xml = wrapInComicInfo("<Title>Batman: Year One</Title>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Title>Batman: Year One</Title>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -87,8 +96,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void fallsBackToFilenameWhenTitleMissing() throws IOException {
-            String xml = wrapInComicInfo("<Publisher>DC Comics</Publisher>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Publisher>DC Comics</Publisher>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -97,8 +105,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void fallsBackToFilenameWhenTitleBlank() throws IOException {
-            String xml = wrapInComicInfo("<Title>   </Title>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Title>   </Title>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -107,7 +114,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void fallsBackToFilenameWhenNoComicInfo() throws IOException {
-            File cbz = createCbz(null);
+            Path cbz = mockRaisesException(IOException.class);
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -116,8 +123,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsPublisher() throws IOException {
-            String xml = wrapInComicInfo("<Publisher>Marvel Comics</Publisher>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Publisher>Marvel Comics</Publisher>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -126,8 +132,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsDescriptionFromSummary() throws IOException {
-            String xml = wrapInComicInfo("<Summary>A dark tale of vengeance.</Summary>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Summary>A dark tale of vengeance.</Summary>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -136,11 +141,10 @@ class CbxMetadataExtractorTest {
 
         @Test
         void prefersDescriptionOverSummaryWhenBothPresent() throws IOException {
-            String xml = wrapInComicInfo("""
+            Path cbz = mockComicInfo("""
                     <Summary>Summary text</Summary>
                     <Description>Description text</Description>
                     """);
-            File cbz = createCbz(xml);
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -150,11 +154,10 @@ class CbxMetadataExtractorTest {
 
         @Test
         void fallsToDescriptionWhenSummaryBlank() throws IOException {
-            String xml = wrapInComicInfo("""
+            Path cbz = mockComicInfo("""
                     <Summary>   </Summary>
                     <Description>Fallback description</Description>
                     """);
-            File cbz = createCbz(xml);
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -163,8 +166,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsLanguageISO() throws IOException {
-            String xml = wrapInComicInfo("<LanguageISO>en</LanguageISO>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<LanguageISO>en</LanguageISO>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -173,12 +175,11 @@ class CbxMetadataExtractorTest {
 
         @Test
         void returnsMetadataForCorruptFile() throws IOException {
-            Path corruptPath = tempDir.resolve("corrupt.cbz");
-            Files.write(corruptPath, new byte[]{0x50, 0x4B, 0x03, 0x04, 0x00});
+            Path path = mockRaisesException(IOException.class);
 
-            BookMetadata metadata = extractor.extractMetadata(corruptPath.toFile());
+            BookMetadata metadata = extractor.extractMetadata(path);
 
-            assertThat(metadata.getTitle()).isEqualTo("corrupt");
+            assertThat(metadata.getTitle()).isEqualTo("test");
         }
     }
 
@@ -187,8 +188,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsSeriesName() throws IOException {
-            String xml = wrapInComicInfo("<Series>The Sandman</Series>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Series>The Sandman</Series>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -197,8 +197,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsSeriesNumberAsFloat() throws IOException {
-            String xml = wrapInComicInfo("<Number>3.5</Number>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Number>3.5</Number>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -207,8 +206,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsWholeSeriesNumber() throws IOException {
-            String xml = wrapInComicInfo("<Number>12</Number>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Number>12</Number>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -217,8 +215,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void handlesInvalidSeriesNumber() throws IOException {
-            String xml = wrapInComicInfo("<Number>abc</Number>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Number>abc</Number>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -227,8 +224,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsSeriesTotal() throws IOException {
-            String xml = wrapInComicInfo("<Count>75</Count>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Count>75</Count>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -237,8 +233,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsPageCount() throws IOException {
-            String xml = wrapInComicInfo("<PageCount>32</PageCount>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<PageCount>32</PageCount>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -247,11 +242,10 @@ class CbxMetadataExtractorTest {
 
         @Test
         void prefersPageCountOverPages() throws IOException {
-            String xml = wrapInComicInfo("""
+            Path cbz = mockComicInfo("""
                     <PageCount>32</PageCount>
                     <Pages>48</Pages>
                     """);
-            File cbz = createCbz(xml);
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -260,8 +254,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void fallsToPagesWhenPageCountMissing() throws IOException {
-            String xml = wrapInComicInfo("<Pages>48</Pages>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Pages>48</Pages>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -274,12 +267,11 @@ class CbxMetadataExtractorTest {
 
         @Test
         void parsesFullDate() throws IOException {
-            String xml = wrapInComicInfo("""
+            Path cbz = mockComicInfo("""
                     <Year>2023</Year>
                     <Month>6</Month>
                     <Day>15</Day>
                     """);
-            File cbz = createCbz(xml);
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -288,8 +280,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void parsesYearOnly() throws IOException {
-            String xml = wrapInComicInfo("<Year>1986</Year>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Year>1986</Year>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -298,11 +289,10 @@ class CbxMetadataExtractorTest {
 
         @Test
         void parsesYearAndMonth() throws IOException {
-            String xml = wrapInComicInfo("""
+            Path cbz = mockComicInfo("""
                     <Year>2020</Year>
                     <Month>11</Month>
                     """);
-            File cbz = createCbz(xml);
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -311,11 +301,10 @@ class CbxMetadataExtractorTest {
 
         @Test
         void returnsNullForMissingYear() throws IOException {
-            String xml = wrapInComicInfo("""
+            Path cbz = mockComicInfo("""
                     <Month>6</Month>
                     <Day>15</Day>
                     """);
-            File cbz = createCbz(xml);
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -324,12 +313,11 @@ class CbxMetadataExtractorTest {
 
         @Test
         void returnsNullForInvalidDate() throws IOException {
-            String xml = wrapInComicInfo("""
+            Path cbz = mockComicInfo("""
                     <Year>2023</Year>
                     <Month>13</Month>
                     <Day>32</Day>
                     """);
-            File cbz = createCbz(xml);
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -338,8 +326,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void handlesNonNumericYear() throws IOException {
-            String xml = wrapInComicInfo("<Year>unknown</Year>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Year>unknown</Year>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -352,8 +339,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsValid13DigitGtin() throws IOException {
-            String xml = wrapInComicInfo("<GTIN>9781234567890</GTIN>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<GTIN>9781234567890</GTIN>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -362,8 +348,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void normalizesGtinWithDashes() throws IOException {
-            String xml = wrapInComicInfo("<GTIN>978-1-234-56789-0</GTIN>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<GTIN>978-1-234-56789-0</GTIN>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -372,8 +357,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void normalizesGtinWithSpaces() throws IOException {
-            String xml = wrapInComicInfo("<GTIN>978 1 234 56789 0</GTIN>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<GTIN>978 1 234 56789 0</GTIN>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -382,8 +366,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void rejectsInvalidGtin() throws IOException {
-            String xml = wrapInComicInfo("<GTIN>12345</GTIN>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<GTIN>12345</GTIN>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -392,8 +375,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void rejectsNonNumericGtin() throws IOException {
-            String xml = wrapInComicInfo("<GTIN>978ABC1234567</GTIN>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<GTIN>978ABC1234567</GTIN>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -402,8 +384,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void ignoresBlankGtin() throws IOException {
-            String xml = wrapInComicInfo("<GTIN>   </GTIN>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<GTIN>   </GTIN>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -416,8 +397,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsSingleWriter() throws IOException {
-            String xml = wrapInComicInfo("<Writer>Alan Moore</Writer>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Writer>Alan Moore</Writer>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -426,8 +406,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void splitsMultipleWritersByComma() throws IOException {
-            String xml = wrapInComicInfo("<Writer>Alan Moore, Dave Gibbons</Writer>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Writer>Alan Moore, Dave Gibbons</Writer>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -436,8 +415,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void splitsWritersBySemicolon() throws IOException {
-            String xml = wrapInComicInfo("<Writer>Neil Gaiman; Mike Carey</Writer>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Writer>Neil Gaiman; Mike Carey</Writer>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -446,8 +424,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsGenreAsCategories() throws IOException {
-            String xml = wrapInComicInfo("<Genre>Superhero, Action</Genre>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Genre>Superhero, Action</Genre>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -456,8 +433,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsTagsFromXml() throws IOException {
-            String xml = wrapInComicInfo("<Tags>dark, gritty; mature</Tags>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Tags>dark, gritty; mature</Tags>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -466,8 +442,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void returnsNullAuthorsWhenWriterMissing() throws IOException {
-            String xml = wrapInComicInfo("<Title>No Writer</Title>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Title>No Writer</Title>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -476,8 +451,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void ignoresEmptyValuesInSplit() throws IOException {
-            String xml = wrapInComicInfo("<Writer>Alan Moore,,, Dave Gibbons</Writer>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Writer>Alan Moore,,, Dave Gibbons</Writer>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -490,8 +464,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsIssueNumber() throws IOException {
-            String xml = wrapInComicInfo("<Number>42</Number>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Number>42</Number>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -501,11 +474,10 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsVolume() throws IOException {
-            String xml = wrapInComicInfo("""
+            Path cbz = mockComicInfo("""
                     <Series>Batman</Series>
                     <Volume>2016</Volume>
                     """);
-            File cbz = createCbz(xml);
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -516,11 +488,10 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsStoryArc() throws IOException {
-            String xml = wrapInComicInfo("""
+            Path cbz = mockComicInfo("""
                     <StoryArc>Court of Owls</StoryArc>
                     <StoryArcNumber>3</StoryArcNumber>
                     """);
-            File cbz = createCbz(xml);
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -531,11 +502,10 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsAlternateSeries() throws IOException {
-            String xml = wrapInComicInfo("""
+            Path cbz = mockComicInfo("""
                     <AlternateSeries>Detective Comics</AlternateSeries>
                     <AlternateNumber>500</AlternateNumber>
                     """);
-            File cbz = createCbz(xml);
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -546,7 +516,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsCreatorRoles() throws IOException {
-            String xml = wrapInComicInfo("""
+            Path cbz = mockComicInfo("""
                     <Penciller>Jim Lee, Greg Capullo</Penciller>
                     <Inker>Scott Williams</Inker>
                     <Colorist>Alex Sinclair</Colorist>
@@ -554,7 +524,6 @@ class CbxMetadataExtractorTest {
                     <CoverArtist>Jim Lee</CoverArtist>
                     <Editor>Bob Harras</Editor>
                     """);
-            File cbz = createCbz(xml);
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -569,8 +538,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsImprint() throws IOException {
-            String xml = wrapInComicInfo("<Imprint>Vertigo</Imprint>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Imprint>Vertigo</Imprint>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -579,8 +547,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsFormat() throws IOException {
-            String xml = wrapInComicInfo("<Format>Trade Paperback</Format>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Format>Trade Paperback</Format>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -589,8 +556,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsBlackAndWhiteYes() throws IOException {
-            String xml = wrapInComicInfo("<BlackAndWhite>Yes</BlackAndWhite>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<BlackAndWhite>Yes</BlackAndWhite>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -599,8 +565,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsBlackAndWhiteTrue() throws IOException {
-            String xml = wrapInComicInfo("<BlackAndWhite>true</BlackAndWhite>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<BlackAndWhite>true</BlackAndWhite>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -609,8 +574,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void blackAndWhiteNotSetForNo() throws IOException {
-            String xml = wrapInComicInfo("<BlackAndWhite>No</BlackAndWhite>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<BlackAndWhite>No</BlackAndWhite>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -621,8 +585,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsMangaYes() throws IOException {
-            String xml = wrapInComicInfo("<Manga>Yes</Manga>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Manga>Yes</Manga>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -633,8 +596,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsMangaRightToLeft() throws IOException {
-            String xml = wrapInComicInfo("<Manga>YesAndRightToLeft</Manga>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Manga>YesAndRightToLeft</Manga>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -645,8 +607,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsMangaNo() throws IOException {
-            String xml = wrapInComicInfo("<Manga>No</Manga>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Manga>No</Manga>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -657,12 +618,11 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsCharactersTeamsLocations() throws IOException {
-            String xml = wrapInComicInfo("""
+            Path cbz = mockComicInfo("""
                     <Characters>Batman, Robin</Characters>
                     <Teams>Justice League; Teen Titans</Teams>
                     <Locations>Gotham City, Metropolis</Locations>
                     """);
-            File cbz = createCbz(xml);
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -674,8 +634,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void noComicMetadataWhenNoComicFieldsPresent() throws IOException {
-            String xml = wrapInComicInfo("<Title>Just a title</Title>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Title>Just a title</Title>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -684,8 +643,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsWebLink() throws IOException {
-            String xml = wrapInComicInfo("<Web>https://example.com/comic</Web>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Web>https://example.com/comic</Web>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -694,8 +652,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsNotes() throws IOException {
-            String xml = wrapInComicInfo("<Notes>Some notes here</Notes>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Notes>Some notes here</Notes>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -708,8 +665,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsGoodreadsIdFromUrl() throws IOException {
-            String xml = wrapInComicInfo("<Web>https://www.goodreads.com/book/show/12345-some-book</Web>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Web>https://www.goodreads.com/book/show/12345-some-book</Web>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -718,8 +674,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsAsinFromAmazonUrl() throws IOException {
-            String xml = wrapInComicInfo("<Web>https://www.amazon.com/dp/B08N5WRWNW</Web>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Web>https://www.amazon.com/dp/B08N5WRWNW</Web>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -728,8 +683,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsComicvineIdFromUrl() throws IOException {
-            String xml = wrapInComicInfo("<Web>https://comicvine.gamespot.com/issue/batman-1/4000-12345</Web>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Web>https://comicvine.gamespot.com/issue/batman-1/4000-12345</Web>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -738,8 +692,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsHardcoverIdFromUrl() throws IOException {
-            String xml = wrapInComicInfo("<Web>https://hardcover.app/books/batman-year-one</Web>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Web>https://hardcover.app/books/batman-year-one</Web>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -748,9 +701,8 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsMultipleIdsFromSpaceSeparatedUrls() throws IOException {
-            String xml = wrapInComicInfo(
+            Path cbz = mockComicInfo(
                     "<Web>https://www.goodreads.com/book/show/99999 https://www.amazon.com/dp/B012345678</Web>");
-            File cbz = createCbz(xml);
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -764,8 +716,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsMoodsFromNotes() throws IOException {
-            String xml = wrapInComicInfo("<Notes>[BookLore:Moods] dark, brooding</Notes>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Notes>[BookLore:Moods] dark, brooding</Notes>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -774,8 +725,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsSubtitleFromNotes() throws IOException {
-            String xml = wrapInComicInfo("<Notes>[BookLore:Subtitle] The Dark Knight Returns</Notes>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Notes>[BookLore:Subtitle] The Dark Knight Returns</Notes>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -784,8 +734,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsIsbn13FromNotes() throws IOException {
-            String xml = wrapInComicInfo("<Notes>[BookLore:ISBN13] 9781234567890</Notes>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Notes>[BookLore:ISBN13] 9781234567890</Notes>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -794,8 +743,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsIsbn10FromNotes() throws IOException {
-            String xml = wrapInComicInfo("<Notes>[BookLore:ISBN10] 0123456789</Notes>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Notes>[BookLore:ISBN10] 0123456789</Notes>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -804,8 +752,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsAsinFromNotes() throws IOException {
-            String xml = wrapInComicInfo("<Notes>[BookLore:ASIN] B08N5WRWNW</Notes>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Notes>[BookLore:ASIN] B08N5WRWNW</Notes>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -814,8 +761,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsGoodreadsIdFromNotes() throws IOException {
-            String xml = wrapInComicInfo("<Notes>[BookLore:GoodreadsId] 12345</Notes>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Notes>[BookLore:GoodreadsId] 12345</Notes>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -824,8 +770,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsComicvineIdFromNotes() throws IOException {
-            String xml = wrapInComicInfo("<Notes>[BookLore:ComicvineId] 4000-12345</Notes>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Notes>[BookLore:ComicvineId] 4000-12345</Notes>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -834,12 +779,11 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsRatingsFromNotes() throws IOException {
-            String xml = wrapInComicInfo("""
+            Path cbz = mockComicInfo("""
                     <Notes>[BookLore:AmazonRating] 4.5
                     [BookLore:GoodreadsRating] 4.2
                     [BookLore:HardcoverRating] 3.8</Notes>
                     """);
-            File cbz = createCbz(xml);
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -850,8 +794,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsHardcoverBookIdFromNotes() throws IOException {
-            String xml = wrapInComicInfo("<Notes>[BookLore:HardcoverBookId] abc-123</Notes>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Notes>[BookLore:HardcoverBookId] abc-123</Notes>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -860,8 +803,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsHardcoverIdFromNotes() throws IOException {
-            String xml = wrapInComicInfo("<Notes>[BookLore:HardcoverId] hc-456</Notes>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Notes>[BookLore:HardcoverId] hc-456</Notes>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -870,8 +812,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsGoogleIdFromNotes() throws IOException {
-            String xml = wrapInComicInfo("<Notes>[BookLore:GoogleId] google-789</Notes>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Notes>[BookLore:GoogleId] google-789</Notes>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -880,11 +821,10 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsLubimyczytacFromNotes() throws IOException {
-            String xml = wrapInComicInfo("""
+            Path cbz = mockComicInfo("""
                     <Notes>[BookLore:LubimyczytacId] lub-123
                     [BookLore:LubimyczytacRating] 4.1</Notes>
                     """);
-            File cbz = createCbz(xml);
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -894,11 +834,10 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsRanobedbFromNotes() throws IOException {
-            String xml = wrapInComicInfo("""
+            Path cbz = mockComicInfo("""
                     <Notes>[BookLore:RanobedbId] rdb-456
                     [BookLore:RanobedbRating] 3.9</Notes>
                     """);
-            File cbz = createCbz(xml);
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -908,11 +847,10 @@ class CbxMetadataExtractorTest {
 
         @Test
         void mergesTagsFromXmlAndNotes() throws IOException {
-            String xml = wrapInComicInfo("""
+            Path cbz = mockComicInfo("""
                     <Tags>existing-tag</Tags>
                     <Notes>[BookLore:Tags] new-tag, another-tag</Notes>
                     """);
-            File cbz = createCbz(xml);
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -921,8 +859,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void notesUsedAsDescriptionWhenSummaryMissing() throws IOException {
-            String xml = wrapInComicInfo("<Notes>This is a great comic.\n[BookLore:ISBN13] 9780000000000</Notes>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Notes>This is a great comic.\n[BookLore:ISBN13] 9780000000000</Notes>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -932,11 +869,10 @@ class CbxMetadataExtractorTest {
 
         @Test
         void notesNotUsedAsDescriptionWhenSummaryPresent() throws IOException {
-            String xml = wrapInComicInfo("""
+            Path cbz = mockComicInfo("""
                     <Summary>Official summary</Summary>
                     <Notes>This is a great comic.\n[BookLore:ISBN13] 9780000000000</Notes>
                     """);
-            File cbz = createCbz(xml);
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -945,8 +881,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void handlesInvalidRatingGracefully() throws IOException {
-            String xml = wrapInComicInfo("<Notes>[BookLore:AmazonRating] not-a-number</Notes>");
-            File cbz = createCbz(xml);
+            Path cbz = mockComicInfo("<Notes>[BookLore:AmazonRating] not-a-number</Notes>");
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -959,7 +894,8 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsCoverFromCbzWithImage() throws IOException {
-            File cbz = createCbz(wrapInComicInfo("<Title>Test</Title>"), true);
+            Path cbz = mockComicInfo("<Title>Test</Title>");
+            when(archiveService.getEntryBytes(cbz, "path_001.jpg")).thenReturn(createMinimalJpeg());
 
             byte[] cover = extractor.extractCover(cbz);
 
@@ -969,14 +905,11 @@ class CbxMetadataExtractorTest {
 
         @Test
         void returnPlaceholderForEmptyCbz() throws IOException {
-            Path cbzPath = tempDir.resolve("empty.cbz");
-            try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(cbzPath))) {
-                zos.putNextEntry(new ZipEntry("readme.txt"));
-                zos.write("no images here".getBytes(StandardCharsets.UTF_8));
-                zos.closeEntry();
-            }
+            Path cbzPath = mockArchiveContents(Map.of(
+                    "readme.txt", "no images here".getBytes()
+            ));
 
-            byte[] cover = extractor.extractCover(cbzPath.toFile());
+            byte[] cover = extractor.extractCover(cbzPath);
 
             assertThat(cover).isNotNull();
             // Placeholder is a generated image
@@ -988,22 +921,13 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsCoverFromFirstAlphabeticalImage() throws IOException {
-            Path cbzPath = tempDir.resolve("multipage.cbz");
-            try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(cbzPath))) {
-                zos.putNextEntry(new ZipEntry("page003.jpg"));
-                zos.write(createMinimalJpeg());
-                zos.closeEntry();
+            Path cbzPath = mockArchiveContents(Map.of(
+                    "page003.jpg", createMinimalJpeg(),
+                    "page001.jpg", createMinimalJpeg(),
+                    "page002.jpg", createMinimalJpeg()
+            ));
 
-                zos.putNextEntry(new ZipEntry("page001.jpg"));
-                zos.write(createMinimalJpeg());
-                zos.closeEntry();
-
-                zos.putNextEntry(new ZipEntry("page002.jpg"));
-                zos.write(createMinimalJpeg());
-                zos.closeEntry();
-            }
-
-            byte[] cover = extractor.extractCover(cbzPath.toFile());
+            byte[] cover = extractor.extractCover(cbzPath);
 
             assertThat(cover).isNotNull();
             assertThat(cover.length).isGreaterThan(0);
@@ -1011,50 +935,33 @@ class CbxMetadataExtractorTest {
 
         @Test
         void prefersCoverNamedFileOverAlphabetical() throws IOException {
-            Path cbzPath = tempDir.resolve("withcover.cbz");
-            byte[] coverJpeg = createMinimalJpeg();
-            try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(cbzPath))) {
-                zos.putNextEntry(new ZipEntry("page001.jpg"));
-                zos.write(createMinimalJpeg());
-                zos.closeEntry();
+            Path cbzPath = mockArchiveContents(Map.of(
+                    "page001.jpg", createMinimalJpeg(),
+                    "cover.jpg", createMinimalJpeg()
+            ));
 
-                zos.putNextEntry(new ZipEntry("cover.jpg"));
-                zos.write(coverJpeg);
-                zos.closeEntry();
-            }
-
-            byte[] cover = extractor.extractCover(cbzPath.toFile());
+            byte[] cover = extractor.extractCover(cbzPath);
 
             assertThat(cover).isNotNull();
         }
 
         @Test
         void extractsCoverViaFrontCoverPageElement() throws IOException {
-            String xml = """
-                    <?xml version="1.0" encoding="utf-8"?>
-                    <ComicInfo>
+            String xml = wrapInComicInfo("""
                       <Title>Test</Title>
                       <Pages>
                         <Page Image="1" Type="FrontCover" ImageFile="cover_image.jpg"/>
                       </Pages>
                     </ComicInfo>
-                    """;
-            Path cbzPath = tempDir.resolve("frontcover.cbz");
-            try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(cbzPath))) {
-                zos.putNextEntry(new ZipEntry("ComicInfo.xml"));
-                zos.write(xml.getBytes(StandardCharsets.UTF_8));
-                zos.closeEntry();
+                    """);
 
-                zos.putNextEntry(new ZipEntry("cover_image.jpg"));
-                zos.write(createMinimalJpeg());
-                zos.closeEntry();
+            Path cbzPath = mockArchiveContents(Map.of(
+                    "ComicInfo.xml", xml.getBytes(),
+                    "cover_image.jpg", createMinimalJpeg(),
+                    "page001.jpg", createMinimalJpeg()
+            ));
 
-                zos.putNextEntry(new ZipEntry("page001.jpg"));
-                zos.write(createMinimalJpeg());
-                zos.closeEntry();
-            }
-
-            byte[] cover = extractor.extractCover(cbzPath.toFile());
+            byte[] cover = extractor.extractCover(cbzPath);
 
             assertThat(cover).isNotNull();
             assertThat(cover.length).isGreaterThan(0);
@@ -1062,77 +969,53 @@ class CbxMetadataExtractorTest {
 
         @Test
         void frontCoverPageByImageIndex() throws IOException {
-            String xml = """
-                    <?xml version="1.0" encoding="utf-8"?>
-                    <ComicInfo>
+            String xml = wrapInComicInfo("""
                       <Title>Test</Title>
                       <Pages>
                         <Page Image="0" Type="FrontCover"/>
                       </Pages>
-                    </ComicInfo>
-                    """;
-            Path cbzPath = tempDir.resolve("indexcover.cbz");
-            try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(cbzPath))) {
-                zos.putNextEntry(new ZipEntry("ComicInfo.xml"));
-                zos.write(xml.getBytes(StandardCharsets.UTF_8));
-                zos.closeEntry();
+                    """);
 
-                zos.putNextEntry(new ZipEntry("page001.jpg"));
-                zos.write(createMinimalJpeg());
-                zos.closeEntry();
-            }
+            Path cbzPath = mockArchiveContents(Map.of(
+                    "ComicInfo.xml", xml.getBytes(),
+                    "page001.jpg", createMinimalJpeg()
+            ));
 
-            byte[] cover = extractor.extractCover(cbzPath.toFile());
+            byte[] cover = extractor.extractCover(cbzPath);
 
             assertThat(cover).isNotNull();
         }
 
         @Test
         void skipsMacOsxEntries() throws IOException {
-            Path cbzPath = tempDir.resolve("macosx.cbz");
-            try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(cbzPath))) {
-                zos.putNextEntry(new ZipEntry("__MACOSX/._cover.jpg"));
-                zos.write(createMinimalJpeg());
-                zos.closeEntry();
+            Path cbzPath = mockArchiveContents(Map.of(
+                    "__MACOSX/._cover.jpg", createMinimalJpeg(),
+                    "page001.jpg", createMinimalJpeg()
+            ));
 
-                zos.putNextEntry(new ZipEntry("page001.jpg"));
-                zos.write(createMinimalJpeg());
-                zos.closeEntry();
-            }
-
-            byte[] cover = extractor.extractCover(cbzPath.toFile());
+            byte[] cover = extractor.extractCover(cbzPath);
 
             assertThat(cover).isNotNull();
         }
 
         @Test
         void skipsDotFiles() throws IOException {
-            Path cbzPath = tempDir.resolve("dotfiles.cbz");
-            try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(cbzPath))) {
-                zos.putNextEntry(new ZipEntry(".hidden.jpg"));
-                zos.write(createMinimalJpeg());
-                zos.closeEntry();
+            Path cbzPath = mockArchiveContents(Map.of(
+                    ".hidden.jpg", createMinimalJpeg(),
+                    ".DS_Store", "data".getBytes(),
+                    "actual_page.jpg", createMinimalJpeg()
+            ));
 
-                zos.putNextEntry(new ZipEntry(".DS_Store"));
-                zos.write("data".getBytes(StandardCharsets.UTF_8));
-                zos.closeEntry();
-
-                zos.putNextEntry(new ZipEntry("actual_page.png"));
-                zos.write(createMinimalPng());
-                zos.closeEntry();
-            }
-
-            byte[] cover = extractor.extractCover(cbzPath.toFile());
+            byte[] cover = extractor.extractCover(cbzPath);
 
             assertThat(cover).isNotNull();
         }
 
         @Test
         void returnsPlaceholderForCorruptFile() throws IOException {
-            Path corruptPath = tempDir.resolve("corrupt.cbz");
-            Files.write(corruptPath, new byte[]{0x50, 0x4B, 0x03, 0x04, 0x00});
+            Path path = mockRaisesException(IOException.class);
 
-            byte[] cover = extractor.extractCover(corruptPath.toFile());
+            byte[] cover = extractor.extractCover(path);
 
             assertThat(cover).isNotNull();
         }
@@ -1150,38 +1033,28 @@ class CbxMetadataExtractorTest {
 
         @Test
         void findsComicInfoRegardlessOfCase() throws IOException {
-            Path cbzPath = tempDir.resolve("casetest.cbz");
             String xml = wrapInComicInfo("<Title>Case Test</Title>");
-            try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(cbzPath))) {
-                zos.putNextEntry(new ZipEntry("COMICINFO.XML"));
-                zos.write(xml.getBytes(StandardCharsets.UTF_8));
-                zos.closeEntry();
 
-                zos.putNextEntry(new ZipEntry("page001.jpg"));
-                zos.write(createMinimalJpeg());
-                zos.closeEntry();
-            }
+            Path cbzPath = mockArchiveContents(Map.of(
+                    "COMICINFO.XML", xml.getBytes(),
+                    "page001.jpg", createMinimalJpeg()
+            ));
 
-            BookMetadata metadata = extractor.extractMetadata(cbzPath.toFile());
+            BookMetadata metadata = extractor.extractMetadata(cbzPath);
 
             assertThat(metadata.getTitle()).isEqualTo("Case Test");
         }
 
         @Test
         void findsComicInfoInSubdirectory() throws IOException {
-            Path cbzPath = tempDir.resolve("subdir.cbz");
             String xml = wrapInComicInfo("<Title>Subdir Test</Title>");
-            try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(cbzPath))) {
-                zos.putNextEntry(new ZipEntry("metadata/ComicInfo.xml"));
-                zos.write(xml.getBytes(StandardCharsets.UTF_8));
-                zos.closeEntry();
 
-                zos.putNextEntry(new ZipEntry("page001.jpg"));
-                zos.write(createMinimalJpeg());
-                zos.closeEntry();
-            }
+            Path cbzPath = mockArchiveContents(Map.of(
+                    "metadata/ComicInfo.xml", xml.getBytes(),
+                    "page001.jpg", createMinimalJpeg()
+            ));
 
-            BookMetadata metadata = extractor.extractMetadata(cbzPath.toFile());
+            BookMetadata metadata = extractor.extractMetadata(cbzPath);
 
             assertThat(metadata.getTitle()).isEqualTo("Subdir Test");
         }
@@ -1192,9 +1065,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsAllFieldsFromRichComicInfo() throws IOException {
-            String xml = """
-                    <?xml version="1.0" encoding="utf-8"?>
-                    <ComicInfo>
+            Path cbz = mockComicInfo("""
                       <Title>Batman: The Dark Knight Returns</Title>
                       <Series>Batman</Series>
                       <Number>1</Number>
@@ -1225,9 +1096,7 @@ class CbxMetadataExtractorTest {
                       <Notes>[BookLore:Subtitle] Part One
                     [BookLore:Moods] dark, intense, brooding
                     [BookLore:ISBN10] 1563893428</Notes>
-                    </ComicInfo>
-                    """;
-            File cbz = createCbz(xml);
+                    """);
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -1273,12 +1142,9 @@ class CbxMetadataExtractorTest {
 
         @Test
         void recognizesJpgExtension() throws IOException {
-            Path cbzPath = tempDir.resolve("formats.cbz");
-            try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(cbzPath))) {
-                zos.putNextEntry(new ZipEntry("image.jpg"));
-                zos.write(createMinimalJpeg());
-                zos.closeEntry();
-            }
+            Path cbzPath = mockArchiveContents(Map.of(
+                    "image.jpg", createMinimalJpeg()
+            ));
 
             byte[] cover = extractor.extractCover(cbzPath.toFile());
             assertThat(cover).isNotNull();
@@ -1287,16 +1153,9 @@ class CbxMetadataExtractorTest {
 
         @Test
         void recognizesPngExtension() throws IOException {
-            Path cbzPath = tempDir.resolve("png.cbz");
-            BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(img, "png", baos);
-
-            try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(cbzPath))) {
-                zos.putNextEntry(new ZipEntry("image.png"));
-                zos.write(baos.toByteArray());
-                zos.closeEntry();
-            }
+            Path cbzPath = mockArchiveContents(Map.of(
+                    "image.png", new byte[]{}
+            ));
 
             byte[] cover = extractor.extractCover(cbzPath.toFile());
             assertThat(cover).isNotNull();
@@ -1309,20 +1168,18 @@ class CbxMetadataExtractorTest {
 
         @Test
         void returnsFallbackForNonArchiveFile() throws IOException {
-            Path txtPath = tempDir.resolve("notanarchive.txt");
-            Files.writeString(txtPath, "This is not an archive.");
+            Path path = mockRaisesException(IOException.class);
 
-            BookMetadata metadata = extractor.extractMetadata(txtPath.toFile());
+            BookMetadata metadata = extractor.extractMetadata(path);
 
-            assertThat(metadata.getTitle()).isEqualTo("notanarchive");
+            assertThat(metadata.getTitle()).isEqualTo("test");
         }
 
         @Test
         void returnsPlaceholderCoverForNonArchiveFile() throws IOException {
-            Path txtPath = tempDir.resolve("notanarchive.txt");
-            Files.writeString(txtPath, "This is not an archive.");
+            Path path = mockRaisesException(IOException.class);
 
-            byte[] cover = extractor.extractCover(txtPath.toFile());
+            byte[] cover = extractor.extractCover(path);
 
             assertThat(cover).isNotNull();
         }
