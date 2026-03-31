@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -78,6 +79,13 @@ class CbxMetadataExtractorTest {
         return path;
     }
 
+    private Path mockEmptyArchive() throws IOException {
+        Path path = Path.of("test.cbz");
+        when(archiveService.streamEntryNames(path)).thenReturn(Stream.empty());
+        when(archiveService.getEntryBytes(path, any())).thenThrow(IOException.class);
+        return path;
+    }
+
     private Path mockComicInfo(String innerXml) throws IOException {
         Path path = Path.of("test.cbz");
         String xml = wrapInComicInfo(innerXml);
@@ -119,7 +127,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void fallsBackToFilenameWhenNoComicInfo() throws IOException {
-            Path cbz = mockRaisesException();
+            Path cbz = mockEmptyArchive();
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
