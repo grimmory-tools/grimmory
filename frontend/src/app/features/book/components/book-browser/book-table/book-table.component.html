@@ -51,22 +51,30 @@
         </td>
         <td>
           <a [routerLink]="urlHelper.getBookUrl(book)">
-            <img
-              [attr.src]="urlHelper.getThumbnailUrl(metadata.bookId, metadata.coverUpdatedOn)"
-              [alt]="t('bookCoverAlt')"
-              class="cover-thumbnail"
-              tooltipPosition="left"
-              [pTooltip]="tooltipContent"
-              tooltipStyleClass="cover-tooltip"
-            />
+            @if (urlHelper.getThumbnailUrl(metadata.bookId, metadata.coverUpdatedOn); as coverUrl) {
+              <img
+                [attr.src]="coverUrl"
+                [alt]="t('bookCoverAlt')"
+                class="cover-thumbnail"
+                tooltipPosition="left"
+                [pTooltip]="tooltipContent"
+                tooltipStyleClass="cover-tooltip"
+              />
+            } @else {
+              <app-cover-placeholder class="cover-thumbnail" [title]="metadata.title ?? ''" [author]="(metadata.authors ?? []).join(', ')" size="sm" />
+            }
           </a>
           <ng-template #tooltipContent>
             <div class="tooltip-cover-container">
-              <img
-                [attr.src]="urlHelper.getThumbnailUrl(metadata.bookId, metadata.coverUpdatedOn)"
-                [alt]="t('bookCoverAlt')"
-                class="tooltip-cover-image"
-              />
+              @if (urlHelper.getThumbnailUrl(metadata.bookId, metadata.coverUpdatedOn); as coverUrl) {
+                <img
+                  [attr.src]="coverUrl"
+                  [alt]="t('bookCoverAlt')"
+                  class="tooltip-cover-image"
+                />
+              } @else {
+                <app-cover-placeholder class="tooltip-cover-image" [title]="metadata.title ?? ''" [author]="(metadata.authors ?? []).join(', ')" />
+              }
               <em class="tooltip-cover-title">{{ metadata.title }}</em>
             </div>
           </ng-template>

@@ -73,26 +73,34 @@
               <div class="cover-label">
                 <i class="pi pi-book"></i> {{ t('ebookCover') }}
               </div>
-              <p-image
-                [src]="urlHelper.getCoverUrl(book.id, book.metadata?.coverUpdatedOn)"
-                [alt]="t('ebookCover')"
-                width="200"
-                appendTo="body"
-                [preview]="true">
-              </p-image>
+              @if (urlHelper.getCoverUrl(book.id, book.metadata?.coverUpdatedOn); as coverUrl) {
+                <p-image
+                  [src]="coverUrl"
+                  [alt]="t('ebookCover')"
+                  width="200"
+                  appendTo="body"
+                  [preview]="true">
+                </p-image>
+              } @else {
+                <app-cover-placeholder style="width: 200px; height: 280px;" [title]="book.metadata?.title ?? ''" [author]="(book.metadata?.authors ?? []).join(', ')" size="lg" />
+              }
             </div>
             <div class="cover-item">
               <div class="cover-label audiobook">
                 <i class="pi pi-headphones"></i> {{ t('audiobookCover') }}
               </div>
-              <p-image
-                [src]="urlHelper.getAudiobookCoverUrl(book.id, book.metadata?.audiobookCoverUpdatedOn)"
-                [alt]="t('audiobookCover')"
-                width="200"
-                appendTo="body"
-                [preview]="true"
-                class="square-cover">
-              </p-image>
+              @if (urlHelper.getAudiobookCoverUrl(book.id, book.metadata?.audiobookCoverUpdatedOn); as coverUrl) {
+                <p-image
+                  [src]="coverUrl"
+                  [alt]="t('audiobookCover')"
+                  width="200"
+                  appendTo="body"
+                  [preview]="true"
+                  class="square-cover">
+                </p-image>
+              } @else {
+                <app-cover-placeholder style="width: 200px; height: 200px;" [title]="book.metadata?.title ?? ''" [author]="(book.metadata?.authors ?? []).join(', ')" size="lg" />
+              }
             </div>
           </div>
         </div>

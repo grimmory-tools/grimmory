@@ -4,8 +4,6 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {API_CONFIG} from '../../core/config/api-config';
 import {Book, BookType} from '../../features/book/model/book.model';
-import {BookService} from '../../features/book/service/book.service';
-import {CoverGeneratorComponent} from '../components/cover-generator/cover-generator.component';
 import {AuthService} from './auth.service';
 import {UrlHelperService} from './url-helper.service';
 
@@ -14,23 +12,11 @@ describe('UrlHelperService', () => {
     getInternalAccessToken: vi.fn(),
   };
 
-  const bookServiceStub = {
-    findBookById: vi.fn(),
-  };
-
   const routerStub = {
     createUrlTree: vi.fn((commands: unknown[], extras?: unknown) => ({commands, extras})),
   };
 
   let service: UrlHelperService;
-
-  const bookWithMetadata = {
-    id: 42,
-    metadata: {
-      title: 'The Testing Atlas',
-      authors: ['Ada Lovelace', 'Grace Hopper'],
-    },
-  } as Book;
 
   const supportedReadingRoutes: {bookType: BookType; readerSegment: string}[] = [
     {bookType: 'PDF', readerSegment: 'pdf-reader'},
@@ -44,15 +30,12 @@ describe('UrlHelperService', () => {
 
   beforeEach(() => {
     authServiceStub.getInternalAccessToken.mockReturnValue('token-123');
-    bookServiceStub.findBookById.mockReset();
-    bookServiceStub.findBookById.mockReturnValue(undefined);
     routerStub.createUrlTree.mockClear();
 
     TestBed.configureTestingModule({
       providers: [
         UrlHelperService,
         {provide: AuthService, useValue: authServiceStub},
-        {provide: BookService, useValue: bookServiceStub},
         {provide: Router, useValue: routerStub},
       ],
     });
@@ -64,17 +47,8 @@ describe('UrlHelperService', () => {
     vi.restoreAllMocks();
   });
 
-  it('generates a portrait cover when cached metadata exists and no updated marker is provided', () => {
-    bookServiceStub.findBookById.mockReturnValue(bookWithMetadata);
-
-    const generateCoverSpy = vi.spyOn(CoverGeneratorComponent.prototype, 'generateCover').mockImplementation(function (this: CoverGeneratorComponent) {
-      return `${this.title}|${this.author}|${this.isSquare ? 'square' : 'portrait'}`;
-    });
-
-    const url = service.getThumbnailUrl(42);
-
-    expect(generateCoverSpy).toHaveBeenCalledTimes(1);
-    expect(url).toBe('The Testing Atlas|Ada Lovelace, Grace Hopper|portrait');
+  it('returns null for thumbnail when no coverUpdatedOn is provided', () => {
+    expect(service.getThumbnailUrl(42)).toBeNull();
   });
 
   it('appends the token to thumbnail urls that already have a cache key', () => {
@@ -83,28 +57,27 @@ describe('UrlHelperService', () => {
     expect(url).toBe(`${API_CONFIG.BASE_URL}/api/v1/media/book/42/thumbnail?updated-2024&token=token-123`);
   });
 
+  it('returns null for cover url when no coverUpdatedOn is provided', () => {
+    expect(service.getCoverUrl(42)).toBeNull();
+  });
+
+  it('returns null for audiobook cover when no updated marker is provided', () => {
+    expect(service.getAudiobookCoverUrl(42)).toBeNull();
+  });
+
+  it('returns null for audiobook thumbnail when no updated marker is provided', () => {
+    expect(service.getAudiobookThumbnailUrl(42)).toBeNull();
+  });
+
+  it('uses the audiobook media url when an updated marker is present', () => {
+    expect(service.getAudiobookThumbnailUrl(42, 'updated-2024')).toBe(`${API_CONFIG.BASE_URL}/api/v1/media/book/42/audiobook-thumbnail?updated-2024&token=token-123`);
+  });
+
   it('returns direct thumbnail and backup urls without a token when auth is unavailable', () => {
     authServiceStub.getInternalAccessToken.mockReturnValue(null);
 
     expect(service.getDirectThumbnailUrl(42)).toBe(`${API_CONFIG.BASE_URL}/api/v1/media/book/42/thumbnail`);
     expect(service.getBackupCoverUrl(42)).toBe(`${API_CONFIG.BASE_URL}/api/v1/media/book/42/backup-cover`);
-  });
-
-  it('generates a square audiobook cover when cached metadata exists', () => {
-    bookServiceStub.findBookById.mockReturnValue(bookWithMetadata);
-
-    const generateCoverSpy = vi.spyOn(CoverGeneratorComponent.prototype, 'generateCover').mockImplementation(function (this: CoverGeneratorComponent) {
-      return `${this.title}|${this.author}|${this.isSquare ? 'square' : 'portrait'}`;
-    });
-
-    const url = service.getAudiobookCoverUrl(42);
-
-    expect(generateCoverSpy).toHaveBeenCalledTimes(1);
-    expect(url).toBe('The Testing Atlas|Ada Lovelace, Grace Hopper|square');
-  });
-
-  it('uses the audiobook media url when an updated marker is present', () => {
-    expect(service.getAudiobookThumbnailUrl(42, 'updated-2024')).toBe(`${API_CONFIG.BASE_URL}/api/v1/media/book/42/audiobook-thumbnail?updated-2024&token=token-123`);
   });
 
   it.each(supportedReadingRoutes)('routes %s books to the correct reader path', ({bookType, readerSegment}: {bookType: BookType; readerSegment: string}) => {

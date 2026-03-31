@@ -182,6 +182,8 @@ Create a dev config at `booklore-api/src/main/resources/application-dev.yml`:
 app:
   path-book: '/path/to/booklore-data/books'
   path-config: '/path/to/booklore-data/config'
+  api-docs:
+    enabled: true
 
 spring:
   datasource:
@@ -208,6 +210,14 @@ just ui dev
 ```
 
 The UI will be available at http://localhost:4200 with hot-reload enabled.
+
+---
+
+## API Reference Docs
+
+When enabled, API documentation is available as both an `openapi.json` and as publicly accessible docs. The endpoints are:
+- Scalar UI is available at `http://localhost:6060/api/docs`
+- OpenAPI JSON is available at `http://localhost:6060/api/openapi.json`
 
 ---
 

@@ -75,6 +75,9 @@ DATABASE_URL=jdbc:mariadb://mariadb:3306/grimmory
 DB_USER=grimmory
 DB_PASSWORD=ChangeMe_Grimmory_2025!
 
+# Optional: enable API docs + export OpenAPI JSON (defaults to false)
+API_DOCS_ENABLED=false
+
 # Storage: LOCAL (default) or NETWORK (disables file operations; see Network Storage section)
 DISK_TYPE=LOCAL
 
@@ -117,6 +120,7 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - DATABASE_USERNAME=${DB_USER}
       - DATABASE_PASSWORD=${DB_PASSWORD}
+      - API_DOCS_ENABLED=${API_DOCS_ENABLED}
     depends_on:
       mariadb:
         condition: service_healthy
@@ -191,6 +195,14 @@ just test          # Run backend and frontend tests
 just api test      # Run backend tests only
 just ui dev        # Start the frontend dev server
 ```
+
+---
+
+## API Reference Docs
+
+When enabled, API reference documentation is available as both an `openapi.json` and as publicly accessible docs. The endpoints are:
+- API reference docs are available at `http://localhost:6060/api/docs`
+- OpenAPI JSON is available at `http://localhost:6060/api/openapi.json`
 
 ---
 

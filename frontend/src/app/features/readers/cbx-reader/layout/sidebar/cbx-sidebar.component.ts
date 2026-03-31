@@ -5,13 +5,14 @@ import {TranslocoPipe} from '@jsverse/transloco';
 import {CbxSidebarService, CbxSidebarTab} from './cbx-sidebar.service';
 import {BookNoteV2} from '../../../../../shared/service/book-note-v2.service';
 import {ReaderIconComponent} from '../../../ebook-reader';
+import {CoverPlaceholderComponent} from '../../../../../shared/components/cover-generator/cover-generator.component';
 
 @Component({
   selector: 'app-cbx-sidebar',
   standalone: true,
   templateUrl: './cbx-sidebar.component.html',
   styleUrls: ['./cbx-sidebar.component.scss'],
-  imports: [CommonModule, FormsModule, TranslocoPipe, ReaderIconComponent, DatePipe]
+  imports: [CommonModule, FormsModule, TranslocoPipe, ReaderIconComponent, DatePipe, CoverPlaceholderComponent]
 })
 export class CbxSidebarComponent {
   private readonly sidebarService = inject(CbxSidebarService);
