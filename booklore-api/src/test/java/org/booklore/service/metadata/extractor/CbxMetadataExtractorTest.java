@@ -43,6 +43,13 @@ class CbxMetadataExtractorTest {
         return baos.toByteArray();
     }
 
+    private byte[] createMinimalPng() throws IOException {
+        BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(img, "png", baos);
+        return baos.toByteArray();
+    }
+
     private String wrapInComicInfo(String innerXml) {
         return """
                 <?xml version="1.0" encoding="utf-8"?>
@@ -891,13 +898,15 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsCoverFromCbzWithImage() throws IOException {
-            Path cbz = mockComicInfo("<Title>Test</Title>");
-            when(archiveService.getEntryBytes(cbz, "path_001.jpg")).thenReturn(createMinimalJpeg(1));
+            byte[] expected = createMinimalJpeg(1);
+            Path cbz = mockArchiveContents(Map.of(
+                    "ComicInfo.xml", wrapInComicInfo("<Title>Test</Title>").getBytes(),
+                    "path_001.jpg", expected
+            ));
 
-            byte[] cover = extractor.extractCover(cbz);
+            byte[] actual = extractor.extractCover(cbz);
 
-            assertThat(cover).isNotNull();
-            assertThat(cover.length).isGreaterThan(0);
+            assertThat(actual).isEqualTo(expected);
         }
 
         @Test
@@ -918,16 +927,16 @@ class CbxMetadataExtractorTest {
 
         @Test
         void extractsCoverFromFirstAlphabeticalImage() throws IOException {
+            byte[] expected = createMinimalJpeg(2);
             Path cbzPath = mockArchiveContents(Map.of(
                     "page003.jpg", createMinimalJpeg(1),
-                    "page001.jpg", createMinimalJpeg(2),
+                    "page001.jpg", expected,
                     "page002.jpg", createMinimalJpeg(3)
             ));
 
-            byte[] cover = extractor.extractCover(cbzPath);
+            byte[] actual = extractor.extractCover(cbzPath);
 
-            assertThat(cover).isNotNull();
-            assertThat(cover.length).isGreaterThan(0);
+            assertThat(actual).isEqualTo(expected);
         }
 
         @Test
@@ -1022,13 +1031,6 @@ class CbxMetadataExtractorTest {
             byte[] cover = extractor.extractCover(path);
 
             assertThat(cover).isNotNull();
-        }
-
-        private byte[] createMinimalPng() throws IOException {
-            BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(img, "png", baos);
-            return baos.toByteArray();
         }
     }
 
@@ -1144,24 +1146,26 @@ class CbxMetadataExtractorTest {
 
         @Test
         void recognizesJpgExtension() throws IOException {
+            byte[] expected = createMinimalJpeg(1);
             Path cbzPath = mockArchiveContents(Map.of(
-                    "image.jpg", createMinimalJpeg(1)
+                    "image.jpg", expected
             ));
 
-            byte[] cover = extractor.extractCover(cbzPath.toFile());
-            assertThat(cover).isNotNull();
-            assertThat(cover.length).isGreaterThan(0);
+            byte[] actual = extractor.extractCover(cbzPath.toFile());
+
+            assertThat(actual).isEqualTo(expected);
         }
 
         @Test
         void recognizesPngExtension() throws IOException {
+            byte[] expected = createMinimalPng();
             Path cbzPath = mockArchiveContents(Map.of(
-                    "image.png", new byte[]{}
+                    "image.png", expected
             ));
 
-            byte[] cover = extractor.extractCover(cbzPath.toFile());
-            assertThat(cover).isNotNull();
-            assertThat(cover.length).isGreaterThan(0);
+            byte[] actual = extractor.extractCover(cbzPath.toFile());
+
+            assertThat(actual).isEqualTo(expected);
         }
     }
 
