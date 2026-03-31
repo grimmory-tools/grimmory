@@ -71,8 +71,9 @@ class CbxMetadataExtractorTest {
         return path;
     }
 
-    private Path mockRaisesException(Class exceptionClass) throws IOException {
+    private Path mockRaisesException() throws IOException {
         Path path = Path.of("test.cbz");
+        when(archiveService.streamEntryNames(path)).thenThrow(IOException.class);
         when(archiveService.getEntryBytes(path, "ComicInfo.xml")).thenThrow(IOException.class);
         return path;
     }
@@ -118,7 +119,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void fallsBackToFilenameWhenNoComicInfo() throws IOException {
-            Path cbz = mockRaisesException(IOException.class);
+            Path cbz = mockRaisesException();
 
             BookMetadata metadata = extractor.extractMetadata(cbz);
 
@@ -179,7 +180,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void returnsMetadataForCorruptFile() throws IOException {
-            Path path = mockRaisesException(IOException.class);
+            Path path = mockRaisesException();
 
             BookMetadata metadata = extractor.extractMetadata(path);
 
@@ -1026,7 +1027,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void returnsPlaceholderForCorruptFile() throws IOException {
-            Path path = mockRaisesException(IOException.class);
+            Path path = mockRaisesException();
 
             byte[] cover = extractor.extractCover(path);
 
@@ -1174,7 +1175,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void returnsFallbackForNonArchiveFile() throws IOException {
-            Path path = mockRaisesException(IOException.class);
+            Path path = mockRaisesException();
 
             BookMetadata metadata = extractor.extractMetadata(path);
 
@@ -1183,7 +1184,7 @@ class CbxMetadataExtractorTest {
 
         @Test
         void returnsPlaceholderCoverForNonArchiveFile() throws IOException {
-            Path path = mockRaisesException(IOException.class);
+            Path path = mockRaisesException();
 
             byte[] cover = extractor.extractCover(path);
 
