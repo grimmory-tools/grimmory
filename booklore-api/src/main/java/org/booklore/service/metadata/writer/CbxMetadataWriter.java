@@ -38,8 +38,6 @@ import java.util.zip.ZipOutputStream;
 @RequiredArgsConstructor
 public class CbxMetadataWriter implements MetadataWriter {
     private static final String DEFAULT_COMICINFO_XML = "ComicInfo.xml";
-    private static final Pattern VALID_FILENAME_PATTERN = Pattern.compile("^[\\w./\\\\-]+$");
-    private static final int BUFFER_SIZE = 8192;
 
     // Cache JAXBContext for performance
     private static final JAXBContext JAXB_CONTEXT;
