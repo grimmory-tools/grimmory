@@ -104,7 +104,7 @@
                     <p>{{ t('noBooksFound') }}</p>
                   </div>
                 } @else {
-                  <virtual-scroller #scroll [items]="books" class="books-virtual-scroller">
+                  <virtual-scroller #scroll [items]="books" [bufferAmount]="16" class="books-virtual-scroller">
                     <div class="books-grid" #container
                       [ngStyle]="{'grid-template-columns': 'repeat(auto-fill, minmax(' + gridColumnMinWidth + ', 1fr))'}">
                       @for (book of scroll.viewPortItems; track book.id; let i = $index) {
