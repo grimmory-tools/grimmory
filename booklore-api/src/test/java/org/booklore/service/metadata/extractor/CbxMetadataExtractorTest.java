@@ -35,8 +35,9 @@ class CbxMetadataExtractorTest {
         extractor = new CbxMetadataExtractor(archiveService);
     }
 
-    private byte[] createMinimalJpeg() throws IOException {
+    private byte[] createMinimalJpeg(int rgb) throws IOException {
         BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+        img.setRGB(0, 0, rgb);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(img, "jpg", baos);
         return baos.toByteArray();
@@ -891,7 +892,7 @@ class CbxMetadataExtractorTest {
         @Test
         void extractsCoverFromCbzWithImage() throws IOException {
             Path cbz = mockComicInfo("<Title>Test</Title>");
-            when(archiveService.getEntryBytes(cbz, "path_001.jpg")).thenReturn(createMinimalJpeg());
+            when(archiveService.getEntryBytes(cbz, "path_001.jpg")).thenReturn(createMinimalJpeg(1));
 
             byte[] cover = extractor.extractCover(cbz);
 
@@ -918,9 +919,9 @@ class CbxMetadataExtractorTest {
         @Test
         void extractsCoverFromFirstAlphabeticalImage() throws IOException {
             Path cbzPath = mockArchiveContents(Map.of(
-                    "page003.jpg", createMinimalJpeg(),
-                    "page001.jpg", createMinimalJpeg(),
-                    "page002.jpg", createMinimalJpeg()
+                    "page003.jpg", createMinimalJpeg(1),
+                    "page001.jpg", createMinimalJpeg(2),
+                    "page002.jpg", createMinimalJpeg(3)
             ));
 
             byte[] cover = extractor.extractCover(cbzPath);
@@ -931,14 +932,15 @@ class CbxMetadataExtractorTest {
 
         @Test
         void prefersCoverNamedFileOverAlphabetical() throws IOException {
+            byte[] expected = createMinimalJpeg(1);
             Path cbzPath = mockArchiveContents(Map.of(
-                    "page001.jpg", createMinimalJpeg(),
-                    "cover.jpg", createMinimalJpeg()
+                    "page001.jpg", createMinimalJpeg(2),
+                    "cover.jpg", expected
             ));
 
-            byte[] cover = extractor.extractCover(cbzPath);
+            byte[] actual = extractor.extractCover(cbzPath);
 
-            assertThat(cover).isNotNull();
+            assertThat(actual).isEqualTo(expected);
         }
 
         @Test
@@ -946,21 +948,24 @@ class CbxMetadataExtractorTest {
             String xml = wrapInComicInfo("""
                       <Title>Test</Title>
                       <Pages>
-                        <Page Image="1" Type="FrontCover" ImageFile="cover_image.jpg"/>
+                        <Page Image="1" ImageFile="page001.jpg"/>
+                        <Page Image="2" Type="FrontCover" ImageFile="cover_image.jpg"/>
+                        <Page Image="3" ImageFile="page003.jpg"/>
                       </Pages>
-                    </ComicInfo>
                     """);
+
+            byte[] expected = createMinimalJpeg(1);
 
             Path cbzPath = mockArchiveContents(Map.of(
                     "ComicInfo.xml", xml.getBytes(),
-                    "cover_image.jpg", createMinimalJpeg(),
-                    "page001.jpg", createMinimalJpeg()
+                    "page001.jpg", createMinimalJpeg(2),
+                    "cover_image.jpg", expected,
+                    "page003.jpg", createMinimalJpeg(3)
             ));
 
-            byte[] cover = extractor.extractCover(cbzPath);
+            byte[] actual = extractor.extractCover(cbzPath);
 
-            assertThat(cover).isNotNull();
-            assertThat(cover.length).isGreaterThan(0);
+            assertThat(actual).isEqualTo(expected);
         }
 
         @Test
@@ -972,39 +977,42 @@ class CbxMetadataExtractorTest {
                       </Pages>
                     """);
 
+            byte[] expected = createMinimalJpeg(1);
             Path cbzPath = mockArchiveContents(Map.of(
                     "ComicInfo.xml", xml.getBytes(),
-                    "page001.jpg", createMinimalJpeg()
+                    "page001.jpg", expected
             ));
 
-            byte[] cover = extractor.extractCover(cbzPath);
+            byte[] actual = extractor.extractCover(cbzPath);
 
-            assertThat(cover).isNotNull();
+            assertThat(actual).isEqualTo(expected);
         }
 
         @Test
         void skipsMacOsxEntries() throws IOException {
+            byte[] expected = createMinimalJpeg(1);
             Path cbzPath = mockArchiveContents(Map.of(
-                    "__MACOSX/._cover.jpg", createMinimalJpeg(),
-                    "page001.jpg", createMinimalJpeg()
+                    "__MACOSX/._cover.jpg", createMinimalJpeg(2),
+                    "page001.jpg", expected
             ));
 
-            byte[] cover = extractor.extractCover(cbzPath);
+            byte[] actual = extractor.extractCover(cbzPath);
 
-            assertThat(cover).isNotNull();
+            assertThat(actual).isEqualTo(expected);
         }
 
         @Test
         void skipsDotFiles() throws IOException {
+            byte[] expected = createMinimalJpeg(1);
             Path cbzPath = mockArchiveContents(Map.of(
-                    ".hidden.jpg", createMinimalJpeg(),
+                    ".hidden.jpg", createMinimalJpeg(2),
                     ".DS_Store", "data".getBytes(),
-                    "actual_page.jpg", createMinimalJpeg()
+                    "actual_page.jpg", expected
             ));
 
             byte[] cover = extractor.extractCover(cbzPath);
 
-            assertThat(cover).isNotNull();
+            assertThat(cover).isEqualTo(expected);
         }
 
         @Test
@@ -1032,8 +1040,7 @@ class CbxMetadataExtractorTest {
             String xml = wrapInComicInfo("<Title>Case Test</Title>");
 
             Path cbzPath = mockArchiveContents(Map.of(
-                    "COMICINFO.XML", xml.getBytes(),
-                    "page001.jpg", createMinimalJpeg()
+                    "COMICINFO.XML", xml.getBytes()
             ));
 
             BookMetadata metadata = extractor.extractMetadata(cbzPath);
@@ -1046,8 +1053,7 @@ class CbxMetadataExtractorTest {
             String xml = wrapInComicInfo("<Title>Subdir Test</Title>");
 
             Path cbzPath = mockArchiveContents(Map.of(
-                    "metadata/ComicInfo.xml", xml.getBytes(),
-                    "page001.jpg", createMinimalJpeg()
+                    "metadata/ComicInfo.xml", xml.getBytes()
             ));
 
             BookMetadata metadata = extractor.extractMetadata(cbzPath);
@@ -1139,7 +1145,7 @@ class CbxMetadataExtractorTest {
         @Test
         void recognizesJpgExtension() throws IOException {
             Path cbzPath = mockArchiveContents(Map.of(
-                    "image.jpg", createMinimalJpeg()
+                    "image.jpg", createMinimalJpeg(1)
             ));
 
             byte[] cover = extractor.extractCover(cbzPath.toFile());
