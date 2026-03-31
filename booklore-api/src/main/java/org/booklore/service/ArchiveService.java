@@ -106,11 +106,10 @@ public class ArchiveService {
         }
     }
 
-    public void extractEntryToPath(Path path, String entryName, Path outputPath) throws IOException {
+    public long extractEntryToPath(Path path, String entryName, Path outputPath) throws IOException {
         try (InputStream inputStream = Archive.getInputStream(path, entryName)) {
             if (inputStream != null) {
-                Files.copy(inputStream, outputPath);
-                return;
+                return Files.copy(inputStream, outputPath);
             }
         } catch (Exception e) {
             throw new IOException("Failed to extract from archive: " + e.getMessage(), e);
