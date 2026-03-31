@@ -25,7 +25,7 @@ public class ArchiveService {
         try {
             // We want to check the version early because it allows for
             // NightCompress to preload the libarchive library in a safe
-            // thread that isn't going to block.
+            // thread.  Loading native libraries is not a thread safe operation.
             if (!Archive.isAvailable()) {
                 log.warn("LibArchive is not available");
             }
