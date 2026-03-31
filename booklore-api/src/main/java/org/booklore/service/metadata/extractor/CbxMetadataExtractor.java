@@ -55,8 +55,12 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
         String baseName = FilenameUtils.getBaseName(path.toString());
 
         try (InputStream is = findComicInfoEntryInputStream(path)) {
-            Document document = buildSecureDocument(is);
-            return mapDocumentToMetadata(document, baseName);
+            if (is != null) {
+                Document document = buildSecureDocument(is);
+                return mapDocumentToMetadata(document, baseName);
+            } else {
+                log.warn("No metadata existed in CBR");
+            }
         } catch (Exception e) {
             log.warn("Failed to extract metadata from CBR", e);
         }
