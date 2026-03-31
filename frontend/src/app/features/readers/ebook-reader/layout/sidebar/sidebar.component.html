@@ -15,7 +15,15 @@
             (keydown.enter)="onCoverClick()"
           />
         } @else {
-          <app-cover-placeholder class="book-cover" [title]="bookInfo().title" [author]="bookInfo().authors" size="sm" />
+          <app-cover-placeholder
+            class="book-cover"
+            [title]="bookInfo().title"
+            [author]="bookInfo().authors"
+            size="sm"
+            role="button"
+            tabindex="0"
+            (click)="onCoverClick()"
+            (keydown.enter)="onCoverClick()" />
         }
         <div class="book-meta">
           <h2 class="book-title">{{ bookInfo().title }}</h2>

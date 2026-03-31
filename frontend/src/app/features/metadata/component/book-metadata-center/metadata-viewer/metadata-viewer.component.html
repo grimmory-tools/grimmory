@@ -8,7 +8,7 @@
           @if (getBookCoverUrl(book); as coverUrl) {
             <p-image
               [src]="coverUrl"
-              alt="Image"
+              [alt]="book.metadata?.title ? ('Cover of ' + book.metadata?.title) : ''"
               width="250"
               appendTo="body"
               [preview]="true">

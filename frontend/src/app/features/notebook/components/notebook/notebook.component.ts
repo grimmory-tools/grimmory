@@ -186,7 +186,7 @@ export class NotebookComponent implements OnInit, OnDestroy {
           bookId: entry.bookId,
           bookTitle: entry.bookTitle,
           thumbnailUrl: isAudiobook
-            ? this.urlHelper.getAudiobookThumbnailUrl(entry.bookId)
+            ? this.urlHelper.getDirectAudiobookThumbnailUrl(entry.bookId)
             : this.urlHelper.getDirectThumbnailUrl(entry.bookId),
           entries: [],
         });

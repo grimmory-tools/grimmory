@@ -6,7 +6,7 @@
       alt="Cover of {{ book.metadata?.title }}"
       loading="lazy"/>
   } @else {
-    <app-cover-placeholder [title]="book.metadata?.title ?? ''" [author]="(book.metadata?.authors ?? []).join(', ')" size="sm" />
+    <app-cover-placeholder class="book-cover" [title]="book.metadata?.title ?? ''" [author]="(book.metadata?.authors ?? []).join(', ')" size="sm" />
   }
     
   @if (showSeriesNumber && !book.seriesCount && book.metadata?.seriesNumber !== null && book.metadata?.seriesNumber !== undefined) {

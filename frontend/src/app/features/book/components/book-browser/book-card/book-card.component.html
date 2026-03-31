@@ -15,7 +15,7 @@
         loading="lazy"
         decoding="async"/>
     } @else {
-      <app-cover-placeholder [title]="book.metadata?.title ?? ''" [author]="(book.metadata?.authors ?? []).join(', ')" />
+      <app-cover-placeholder class="book-cover" [class.square-cover]="_isAudiobook || useSquareCovers" [title]="book.metadata?.title ?? ''" [author]="(book.metadata?.authors ?? []).join(', ')" />
     }
 
     <div class="top-left-overlay-stack">

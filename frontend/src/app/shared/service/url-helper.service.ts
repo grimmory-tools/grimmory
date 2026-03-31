@@ -55,6 +55,14 @@ export class UrlHelperService {
     return this.appendToken(`${this.mediaBaseUrl}/book/${bookId}/audiobook-thumbnail?${audiobookCoverUpdatedOn}`);
   }
 
+  getDirectAudiobookThumbnailUrl(bookId: number, audiobookCoverUpdatedOn?: string): string {
+    let url = `${this.mediaBaseUrl}/book/${bookId}/audiobook-thumbnail`;
+    if (audiobookCoverUpdatedOn) {
+      url += `?${audiobookCoverUpdatedOn}`;
+    }
+    return this.appendToken(url);
+  }
+
   getBookdropCoverUrl(bookdropId: number): string {
     const url = `${this.mediaBaseUrl}/bookdrop/${bookdropId}/cover`;
     return this.appendToken(url);
