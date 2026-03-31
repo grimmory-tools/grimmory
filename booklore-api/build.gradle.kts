@@ -35,13 +35,29 @@ repositories {
 }
 
 fun pdfiumNativesClassifier(): String {
-    val osName = System.getProperty("os.name").lowercase()
-    val arch = System.getProperty("os.arch").lowercase()
+    // Support cross-compilation: check for explicit target overrides first
+    val targetPlatform = System.getenv("TARGETPLATFORM")
+        ?: project.findProperty("targetPlatform")?.toString()
+    val targetArch = System.getenv("TARGETARCH")
+        ?: project.findProperty("targetArch")?.toString()
+
+    val osName: String
+    val arch: String
+
+    if (targetPlatform != null) {
+        // Docker TARGETPLATFORM format: linux/amd64, linux/arm64
+        val parts = targetPlatform.split("/")
+        osName = parts.getOrElse(0) { "linux" }
+        arch = parts.getOrElse(1) { "amd64" }
+    } else {
+        osName = System.getProperty("os.name").lowercase()
+        arch = targetArch ?: System.getProperty("os.arch").lowercase()
+    }
 
     val osKey = when {
         "win" in osName -> "windows"
-        "mac" in osName -> "darwin"
-        "nux" in osName -> {
+        "mac" in osName || "darwin" in osName -> "darwin"
+        "nux" in osName || "linux" in osName -> {
             val isMusl = try {
                 val libDir = File("/lib")
                 libDir.exists() && (libDir.listFiles()?.any { f -> f.name.startsWith("ld-musl-") } == true)

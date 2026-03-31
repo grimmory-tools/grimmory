@@ -16,6 +16,8 @@ RUN --mount=type=cache,target=/workspace/.yarn/cache \
 
 FROM --platform=$BUILDPLATFORM gradle:9.3.1-jdk25-alpine AS backend-build
 
+ARG TARGETARCH
+
 WORKDIR /workspace/booklore-api
 
 COPY booklore-api/gradlew booklore-api/gradlew.bat booklore-api/build.gradle.kts booklore-api/settings.gradle.kts ./
@@ -29,7 +31,7 @@ COPY booklore-api/ ./
 COPY --from=frontend-build /workspace/frontend/dist/grimmory/browser /tmp/frontend-dist
 
 RUN --mount=type=cache,target=/home/gradle/.gradle \
-    ./gradlew --no-daemon -PfrontendDistDir=/tmp/frontend-dist bootJar
+    TARGETARCH=${TARGETARCH} ./gradlew --no-daemon -PfrontendDistDir=/tmp/frontend-dist bootJar
 
 RUN set -eux; \
     jar_path="$(find build/libs -maxdepth 1 -name '*.jar' ! -name '*plain.jar' | head -n 1)"; \
@@ -68,7 +70,8 @@ ENV JAVA_TOOL_OPTIONS="-XX:+UseShenandoahGC \
     -XX:+UseCompactObjectHeaders \
     -XX:MaxRAMPercentage=60.0 \
     -XX:InitialRAMPercentage=8.0 \
-    -XX:+ExitOnOutOfMemoryError"
+    -XX:+ExitOnOutOfMemoryError \
+    --enable-native-access=ALL-UNNAMED"
 
 RUN apk add --no-cache su-exec libstdc++ libgcc && \
     mkdir -p /bookdrop

@@ -40,13 +40,13 @@ public class SecureXmlUtils {
         return factory;
     }
 
-    public static DocumentBuilderFactory createSecureDocumentBuilderFactory(boolean namespaceAware) {
+    private static DocumentBuilderFactory getFactory(boolean namespaceAware) {
         return namespaceAware ? NS_AWARE_FACTORY : NON_NS_AWARE_FACTORY;
     }
 
     public static DocumentBuilder createSecureDocumentBuilder(boolean namespaceAware) 
             throws ParserConfigurationException {
-        // newDocumentBuilder() is NOT thread-safe — must create new builder each time
-        return createSecureDocumentBuilderFactory(namespaceAware).newDocumentBuilder();
+        // newDocumentBuilder() is NOT thread-safe must create new builder each time
+        return getFactory(namespaceAware).newDocumentBuilder();
     }
 }

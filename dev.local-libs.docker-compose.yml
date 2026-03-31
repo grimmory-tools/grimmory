@@ -33,8 +33,13 @@ services:
         COPY --from=unrar-layer /usr/bin/unrar-alpine /usr/local/bin/unrar
     command: >
       sh -c "
+        case \"$(uname -m)\" in
+          x86_64|amd64) PDFIUM_PLATFORM=linux-musl-x64 ;;
+          aarch64|arm64) PDFIUM_PLATFORM=linux-musl-arm64 ;;
+          *) echo 'Unsupported architecture' >&2; exit 1 ;;
+        esac &&
         echo '=== Publishing PDFium4j to mavenLocal ===' &&
-        cd /pdfium4j && ./gradlew publishToMavenLocal -x test -x check --no-daemon --max-workers=2 -PpdfiumPlatformFilter=linux-musl-x64 &&
+        cd /pdfium4j && ./gradlew publishToMavenLocal -x test -x check --no-daemon --max-workers=2 -PpdfiumPlatformFilter=$PDFIUM_PLATFORM &&
         echo '=== Publishing epub4j to mavenLocal ===' &&
         cd /epub4j && ./gradlew publishToMavenLocal -x test -x check --no-daemon --max-workers=2 &&
         echo '=== Starting Grimmory with local libs ===' &&

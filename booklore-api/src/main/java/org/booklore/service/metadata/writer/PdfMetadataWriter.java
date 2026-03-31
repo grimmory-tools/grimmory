@@ -132,6 +132,8 @@ public class PdfMetadataWriter implements MetadataWriter {
                 // PDF date format: D:YYYYMMDDHHmmSS
                 String pdfDate = String.format("D:%04d%02d%02d000000", date.getYear(), date.getMonthValue(), date.getDayOfMonth());
                 doc.setMetadata(MetadataTag.CREATION_DATE, pdfDate);
+            } else {
+                doc.setMetadata(MetadataTag.CREATION_DATE, "");
             }
         });
 
@@ -200,8 +202,8 @@ public class PdfMetadataWriter implements MetadataWriter {
         String nowIso = ZonedDateTime.now().format(DateTimeFormatter.ISO_INSTANT);
         customFields.put("MetadataDate", nowIso);
         customFields.put("ModifyDate", nowIso);
-        if (metadata.getPublishedDate() != null) {
-            customFields.put("CreateDate", metadata.getPublishedDate().toString());
+        if (date[0] != null) {
+            customFields.put("CreateDate", date[0]);
         }
 
         // Booklore namespace simple fields
@@ -337,7 +339,7 @@ public class PdfMetadataWriter implements MetadataWriter {
                 .append(BookLoreMetadata.NS_URI).append("\">\n");
         sb.append("  <").append(BookLoreMetadata.NS_PREFIX).append(':').append(localName).append(">\n");
         sb.append("    <rdf:Bag>\n");
-        for (String v : values) {
+        for (String v : values.stream().sorted().toList()) {
             if (v != null && !v.isBlank()) {
                 sb.append("      <rdf:li>").append(escapeXml(v)).append("</rdf:li>\n");
             }
@@ -352,9 +354,15 @@ public class PdfMetadataWriter implements MetadataWriter {
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
     }
 
+    private static final java.util.regex.Pattern TIMESTAMP_PATTERN = java.util.regex.Pattern.compile(
+            "<xmp:(MetadataDate|ModifyDate)>[^<]*</xmp:(MetadataDate|ModifyDate)>");
+
     private boolean isXmpMetadataDifferent(String existingXmp, String newXmp) {
         if (existingXmp == null || existingXmp.isBlank() || newXmp == null) return true;
-        return !existingXmp.equals(newXmp);
+        // Strip regenerated timestamps before comparing so the check is deterministic
+        String normalizedExisting = TIMESTAMP_PATTERN.matcher(existingXmp).replaceAll("");
+        String normalizedNew = TIMESTAMP_PATTERN.matcher(newXmp).replaceAll("");
+        return !normalizedExisting.equals(normalizedNew);
     }
 
     /**

@@ -10,6 +10,7 @@ import org.booklore.util.SecureXmlUtils;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
@@ -17,9 +18,8 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.nio.charset.StandardCharsets;
+import java.io.StringReader;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -32,6 +32,9 @@ public class PdfMetadataExtractor implements FileMetadataExtractor {
 
     private static final Pattern COMMA_AMPERSAND_PATTERN = Pattern.compile("[,&]");
     private static final Pattern ISBN_CLEANUP_PATTERN = Pattern.compile("[^0-9Xx]");
+    private static final Pattern ISO_DATE_PATTERN = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
+    private static final Pattern PDF_DATE_TIME_PATTERN = Pattern.compile("\\d{8,}");
+    private static final Pattern YEAR_MONTH_PATTERN = Pattern.compile("\\d{6}");
 
     @Override
     public byte[] extractCover(File file) {
@@ -116,7 +119,7 @@ public class PdfMetadataExtractor implements FileMetadataExtractor {
             if (StringUtils.isNotBlank(rawXmp)) {
                 try {
                     DocumentBuilder dBuilder = SecureXmlUtils.createSecureDocumentBuilder(true);
-                    Document xmpDoc = dBuilder.parse(new ByteArrayInputStream(rawXmp.getBytes(StandardCharsets.UTF_8)));
+                    Document xmpDoc = dBuilder.parse(new InputSource(new StringReader(rawXmp)));
 
                     XPathFactory xPathfactory = XPathFactory.newInstance();
                     XPath xpath = xPathfactory.newXPath();
@@ -526,18 +529,29 @@ public class PdfMetadataExtractor implements FileMetadataExtractor {
         if (pdfDate == null || pdfDate.isBlank()) return null;
         try {
             String s = pdfDate.startsWith("D:") ? pdfDate.substring(2) : pdfDate;
+            // Try ISO date format first (e.g. "2021-02-17")
+            if (ISO_DATE_PATTERN.matcher(s).matches()) {
+                return LocalDate.parse(s);
+            }
             // Strip timezone info (e.g. +00'00' or Z)
             int tzIdx = s.indexOf('+');
             if (tzIdx < 0) tzIdx = s.indexOf('-', 8); // skip YYYYMMDD
             if (tzIdx < 0) tzIdx = s.indexOf('Z');
             if (tzIdx > 0) s = s.substring(0, tzIdx);
-            if (s.length() >= 8) {
+            if (PDF_DATE_TIME_PATTERN.matcher(s).matches()) {
                 int year = Integer.parseInt(s.substring(0, 4));
                 int month = Integer.parseInt(s.substring(4, 6));
                 int day = Integer.parseInt(s.substring(6, 8));
                 return LocalDate.of(year, month, day);
             }
-            if (s.length() >= 4) {
+            if (YEAR_MONTH_PATTERN.matcher(s).matches()) {
+                return LocalDate.of(
+                        Integer.parseInt(s.substring(0, 4)),
+                        Integer.parseInt(s.substring(4, 6)),
+                        1
+                );
+            }
+            if (s.matches("\\d{4}")) {
                 return LocalDate.of(Integer.parseInt(s.substring(0, 4)), 1, 1);
             }
         } catch (Exception e) {
