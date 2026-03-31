@@ -3,13 +3,14 @@ package org.booklore.service.kobo;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import freemarker.template.TemplateException;
-import com.github.junrar.exception.RarException;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.booklore.service.ArchiveService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.io.TempDir;
 
 import javax.imageio.ImageIO;
@@ -25,6 +26,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.*;
 
 @DisplayName("CBX Conversion Service Tests")
+@EnabledIf("org.booklore.service.ArchiveService#isAvailable")
 class CbxConversionServiceTest {
 
     @TempDir
@@ -36,13 +38,13 @@ class CbxConversionServiceTest {
 
     @BeforeEach
     void setUp() throws IOException {
-        cbxConversionService = new CbxConversionService();
+        cbxConversionService = new CbxConversionService(new ArchiveService());
         testCbzFile = createTestCbzFile();
         testBookEntity = createTestBookEntity();
     }
 
     @Test
-    void convertCbxToEpub_WithValidCbzFile_ShouldGenerateValidEpub() throws IOException, TemplateException, RarException {
+    void convertCbxToEpub_WithValidCbzFile_ShouldGenerateValidEpub() throws IOException, TemplateException {
         File epubFile = cbxConversionService.convertCbxToEpub(testCbzFile, tempDir.toFile(), testBookEntity,85);
 
         assertThat(epubFile).exists();
@@ -94,7 +96,7 @@ class CbxConversionServiceTest {
     }
 
     @Test
-    void convertCbxToEpub_WithNullBookEntity_ShouldUseDefaultMetadata() throws IOException, TemplateException, RarException {
+    void convertCbxToEpub_WithNullBookEntity_ShouldUseDefaultMetadata() throws IOException, TemplateException {
         File epubFile = cbxConversionService.convertCbxToEpub(testCbzFile, tempDir.toFile(), null,85);
 
         assertThat(epubFile).exists();
@@ -102,7 +104,7 @@ class CbxConversionServiceTest {
     }
 
     @Test
-    void convertCbxToEpub_WithMultipleImages_ShouldPreservePageOrder() throws IOException, TemplateException, RarException {
+    void convertCbxToEpub_WithMultipleImages_ShouldPreservePageOrder() throws IOException, TemplateException {
         File multiPageCbzFile = createMultiPageCbzFile();
 
         File epubFile = cbxConversionService.convertCbxToEpub(multiPageCbzFile, tempDir.toFile(), testBookEntity,85);
@@ -112,7 +114,7 @@ class CbxConversionServiceTest {
     }
 
     @Test
-    void convertCbxToEpub_WithZipNamedAsCbr_ShouldGenerateValidEpub() throws IOException, TemplateException, RarException {
+    void convertCbxToEpub_WithZipNamedAsCbr_ShouldGenerateValidEpub() throws IOException, TemplateException {
         File zipAsCbr = new File(tempDir.toFile(), "fake.cbr");
         try (ZipArchiveOutputStream zipOut = new ZipArchiveOutputStream(new FileOutputStream(zipAsCbr))) {
             BufferedImage testImage = createTestImage("Page 1", Color.RED);

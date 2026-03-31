@@ -86,8 +86,8 @@ dependencies {
     // --- Audio Metadata (Audiobook Support) ---
     implementation("com.github.RouHim:jaudiotagger:2.0.19")
 
-    // --- UNRAR Support ---
-    implementation("com.github.junrar:junrar:7.5.8")
+    // --- Archive Support ---
+    implementation("com.github.gotson.nightcompress:nightcompress:1.1.1")
 
     // --- JSON & Web Scraping ---
     implementation("org.jsoup:jsoup:1.22.1")
@@ -139,7 +139,7 @@ hibernate {
 
 tasks.named<Test>("test") {
     useJUnitPlatform()
-    jvmArgs("-XX:+EnableDynamicAgentLoading")
+    jvmArgs("-XX:+EnableDynamicAgentLoading", "--enable-native-access=ALL-UNNAMED")
     finalizedBy(tasks.named("jacocoTestReport"))
 }
 

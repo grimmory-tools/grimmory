@@ -56,6 +56,15 @@ jobs:
           restore-keys: |
             gradle-${{ runner.os }}-
 
+      # Needed for NightCompress
+      - name: Install libarchive
+        run: |
+          sudo apt-get install libarchive-dev --yes
+
+          # Place libarchive somewhere that java looks for it.
+          sudo mkdir -p /usr/java/packages/lib/
+          sudo cp /usr/lib/x86_64-linux-gnu/libarchive.* /usr/java/packages/lib/
+
       - name: Execute Backend Tests
         id: backend_tests
         run: |

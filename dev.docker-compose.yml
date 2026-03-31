@@ -3,10 +3,9 @@ services:
     build:
       context: .
       dockerfile_inline: |
-        FROM linuxserver/unrar:7.1.10 AS unrar-layer
         FROM gradle:9.3.1-jdk25-alpine
-        RUN apk add --no-cache libstdc++ libgcc
-        COPY --from=unrar-layer /usr/bin/unrar-alpine /usr/local/bin/unrar
+        RUN apk add --no-cache libstdc++ libgcc libarchive
+        RUN ln -s /usr/lib/libarchive.so.13 /usr/lib/libarchive.so
     command: sh -c "cd /booklore-api && ./gradlew bootRun"
     ports:
       - "${BACKEND_PORT:-6060}:6060"

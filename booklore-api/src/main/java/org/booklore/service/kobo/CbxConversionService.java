@@ -4,23 +4,17 @@ import org.booklore.model.entity.AuthorEntity;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.CategoryEntity;
 import org.booklore.model.entity.TagEntity;
+import org.booklore.service.ArchiveService;
 import org.booklore.util.ArchiveUtils;
 import org.booklore.util.FileService;
-import org.booklore.util.UnrarHelper;
-import com.github.junrar.Archive;
-import com.github.junrar.exception.RarException;
-import com.github.junrar.rarfile.FileHeader;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
-import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
-import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 
@@ -75,9 +69,11 @@ public class CbxConversionService {
     private static final String EXTRACTED_IMAGES_SUBDIR = "cbx_extracted_images";
 
     private final Configuration freemarkerConfig;
+    private final ArchiveService archiveService;
 
-    public CbxConversionService() {
+    public CbxConversionService(ArchiveService archiveService) {
         this.freemarkerConfig = initializeFreemarkerConfiguration();
+        this.archiveService = archiveService;
     }
 
     public record EpubContentFileGroup(String contentKey, String imagePath, String htmlPath) {
@@ -103,12 +99,11 @@ public class CbxConversionService {
      * @return the converted EPUB file
      * @throws IOException              if file I/O operations fail
      * @throws TemplateException        if EPUB template processing fails
-     * @throws RarException             if RAR extraction fails (for CBR files)
      * @throws IllegalArgumentException if the file format is not supported
      * @throws IllegalStateException    if no valid images are found in the archive
      */
     public File convertCbxToEpub(File cbxFile, File tempDir, BookEntity bookEntity, int compressionPercentage)
-            throws IOException, TemplateException, RarException {
+            throws IOException, TemplateException {
         validateInputs(cbxFile, tempDir);
 
         log.info("Starting CBX to EPUB conversion for: {}", cbxFile.getName());
@@ -121,7 +116,7 @@ public class CbxConversionService {
     }
 
     private File executeCbxConversion(File cbxFile, File tempDir, BookEntity bookEntity, int compressionPercentage)
-            throws IOException, TemplateException, RarException {
+            throws IOException, TemplateException {
 
         Path epubFilePath = Paths.get(tempDir.getAbsolutePath(), cbxFile.getName() + ".epub");
         File epubFile = epubFilePath.toFile();
@@ -187,145 +182,28 @@ public class CbxConversionService {
         return config;
     }
 
-    private List<Path> extractImagesFromCbx(File cbxFile, Path extractedImagesDir) throws IOException, RarException {
-        ArchiveUtils.ArchiveType type = ArchiveUtils.detectArchiveType(cbxFile);
-
-        return switch (type) {
-            case ZIP -> extractImagesFromZip(cbxFile, extractedImagesDir);
-            case RAR -> extractImagesFromRar(cbxFile, extractedImagesDir);
-            case SEVEN_ZIP -> extractImagesFrom7z(cbxFile, extractedImagesDir);
-            default -> throw new IllegalArgumentException("Unsupported archive format: " + cbxFile.getName());
-        };
-    }
-
-    private List<Path> extractImagesFromZip(File cbzFile, Path extractedImagesDir) throws IOException {
-        // Fast path: Try reading from Central Directory
-        try (ZipFile zipFile = ZipFile.builder()
-                .setFile(cbzFile)
-                .setUseUnicodeExtraFields(true)
-                .setIgnoreLocalFileHeader(true)
-                .get()) {
-            List<Path> paths = extractImagesFromZipFile(zipFile, extractedImagesDir);
-            if (!paths.isEmpty())
-                return paths;
-        } catch (Exception e) {
-            log.debug("Fast path extraction failed for {}: {}", cbzFile.getName(), e.getMessage());
-        }
-
-        // Slow path: Fallback to scanning local file headers
-        try (ZipFile zipFile = ZipFile.builder()
-                .setFile(cbzFile)
-                .setUseUnicodeExtraFields(true)
-                .setIgnoreLocalFileHeader(false)
-                .get()) {
-            return extractImagesFromZipFile(zipFile, extractedImagesDir);
-        }
-    }
-
-    private List<Path> extractImagesFromZipFile(ZipFile zipFile, Path extractedImagesDir) {
+    private List<Path> extractImagesFromCbx(File cbxFile, Path extractedImagesDir) throws IOException {
         List<Path> imagePaths = new ArrayList<>();
-        for (ZipArchiveEntry entry : Collections.list(zipFile.getEntries())) {
-            if (entry.isDirectory() || !isImageFile(entry.getName())) {
+
+        for (ArchiveService.Entry entry : archiveService.getEntries(cbxFile.toPath())) {
+            if (!isImageFile(entry.getName())) {
                 continue;
             }
 
+            validateImageSize(entry.getName(), entry.getSize());
+
             try {
-                validateImageSize(entry.getName(), entry.getSize());
                 Path outputPath = extractedImagesDir.resolve(extractFileName(entry.getName()));
-                try (InputStream inputStream = zipFile.getInputStream(entry)) {
-                    Files.copy(inputStream, outputPath);
-                    imagePaths.add(outputPath);
-                }
+
+                archiveService.extractEntryToPath(cbxFile.toPath(), entry.getName(), outputPath);
+
+                imagePaths.add(outputPath);
             } catch (Exception e) {
                 log.warn("Error extracting image {}: {}", entry.getName(), e.getMessage());
             }
         }
 
-        log.debug("Found {} image entries in CBZ file", imagePaths.size());
-        imagePaths.sort(Comparator.comparing(path -> path.getFileName().toString().toLowerCase()));
-        return imagePaths;
-    }
-
-    private List<Path> extractImagesFromRar(File cbrFile, Path extractedImagesDir) throws IOException, RarException {
-        List<Path> imagePaths = new ArrayList<>();
-
-        try (Archive rarFile = new Archive(cbrFile)) {
-            for (FileHeader fileHeader : rarFile) {
-                if (fileHeader.isDirectory() || !isImageFile(fileHeader.getFileName())) {
-                    continue;
-                }
-
-                validateImageSize(fileHeader.getFileName(), fileHeader.getFullUnpackSize());
-
-                try (InputStream inputStream = rarFile.getInputStream(fileHeader)) {
-                    Path outputPath = extractedImagesDir.resolve(extractFileName(fileHeader.getFileName()));
-                    Files.copy(inputStream, outputPath);
-                    imagePaths.add(outputPath);
-                } catch (Exception e) {
-                    log.warn("Error extracting image {}: {}", fileHeader.getFileName(), e.getMessage());
-                }
-            }
-        } catch (Exception e) {
-            if (UnrarHelper.isAvailable()) {
-                log.info("junrar failed for {}, falling back to unrar CLI: {}", cbrFile.getName(), e.getMessage());
-                return extractImagesFromRarViaCli(cbrFile, extractedImagesDir);
-            }
-            if (e instanceof IOException ioe) throw ioe;
-            if (e instanceof RarException re) throw re;
-            throw new IOException("Failed to read RAR archive: " + e.getMessage(), e);
-        }
-
         log.debug("Found {} image entries in CBR file", imagePaths.size());
-        imagePaths.sort(Comparator.comparing(path -> path.getFileName().toString().toLowerCase()));
-        return imagePaths;
-    }
-
-    private List<Path> extractImagesFromRarViaCli(File cbrFile, Path extractedImagesDir) throws IOException {
-        List<Path> imagePaths = new ArrayList<>();
-        List<String> entries = UnrarHelper.listEntries(cbrFile.toPath());
-        for (String entryName : entries) {
-            if (!isImageFile(entryName)) continue;
-            try {
-                byte[] bytes = UnrarHelper.extractEntryBytes(cbrFile.toPath(), entryName);
-                validateImageSize(entryName, bytes.length);
-                Path outputPath = extractedImagesDir.resolve(extractFileName(entryName));
-                Files.write(outputPath, bytes);
-                imagePaths.add(outputPath);
-            } catch (Exception e) {
-                log.warn("Error extracting image via CLI {}: {}", entryName, e.getMessage());
-            }
-        }
-        log.debug("Found {} image entries in CBR file (via unrar CLI)", imagePaths.size());
-        imagePaths.sort(Comparator.comparing(path -> path.getFileName().toString().toLowerCase()));
-        return imagePaths;
-    }
-
-    private List<Path> extractImagesFrom7z(File cb7File, Path extractedImagesDir) throws IOException {
-        List<Path> imagePaths = new ArrayList<>();
-
-        try (SevenZFile sevenZFile = SevenZFile.builder().setFile(cb7File).get()) {
-            SevenZArchiveEntry entry;
-            while ((entry = sevenZFile.getNextEntry()) != null) {
-                if (entry.isDirectory() || !isImageFile(entry.getName())) {
-                    continue;
-                }
-
-                validateImageSize(entry.getName(), entry.getSize());
-
-                try {
-                    Path outputPath = extractedImagesDir.resolve(extractFileName(entry.getName()));
-                    try (InputStream entryInputStream = sevenZFile.getInputStream(entry);
-                            OutputStream fileOutputStream = Files.newOutputStream(outputPath)) {
-                        entryInputStream.transferTo(fileOutputStream);
-                    }
-                    imagePaths.add(outputPath);
-                } catch (Exception e) {
-                    log.warn("Error extracting image {}: {}", entry.getName(), e.getMessage());
-                }
-            }
-        }
-
-        log.debug("Found {} image entries in CB7 file", imagePaths.size());
         imagePaths.sort(Comparator.comparing(path -> path.getFileName().toString().toLowerCase()));
         return imagePaths;
     }

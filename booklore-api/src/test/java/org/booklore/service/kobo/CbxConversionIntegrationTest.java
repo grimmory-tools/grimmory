@@ -3,13 +3,14 @@ package org.booklore.service.kobo;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import freemarker.template.TemplateException;
-import com.github.junrar.exception.RarException;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.booklore.service.ArchiveService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.io.TempDir;
 
 import javax.imageio.ImageIO;
@@ -24,6 +25,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.*;
 
 @DisplayName("CBX Conversion Integration Test")
+@EnabledIf("org.booklore.service.ArchiveService#isAvailable")
 class CbxConversionIntegrationTest {
 
     @TempDir
@@ -33,12 +35,12 @@ class CbxConversionIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        conversionService = new CbxConversionService();
+        conversionService = new CbxConversionService(new ArchiveService());
     }
 
     @Test
     @DisplayName("Should successfully convert CBZ to EPUB with valid structure")
-    void convertCbzToEpub_MainConversionTest() throws IOException, TemplateException, RarException {
+    void convertCbzToEpub_MainConversionTest() throws IOException, TemplateException {
         File testCbzFile = createTestComicCbzFile();
         BookEntity bookMetadata = createTestBookMetadata();
 
