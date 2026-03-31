@@ -1,9 +1,9 @@
 package org.booklore.util.koreader;
 
-import io.documentnode.epub4j.domain.Author;
-import io.documentnode.epub4j.domain.Book;
-import io.documentnode.epub4j.domain.Resource;
-import io.documentnode.epub4j.epub.EpubWriter;
+import org.grimmory.epub4j.domain.Author;
+import org.grimmory.epub4j.domain.Book;
+import org.grimmory.epub4j.domain.Resource;
+import org.grimmory.epub4j.epub.EpubWriter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

@@ -68,7 +68,9 @@ ENV JAVA_TOOL_OPTIONS="-XX:+UseShenandoahGC \
     -XX:+UseCompactObjectHeaders \
     -XX:MaxRAMPercentage=60.0 \
     -XX:InitialRAMPercentage=8.0 \
-    -XX:+ExitOnOutOfMemoryError"
+    -XX:+ExitOnOutOfMemoryError \
+    --enable-native-access=ALL-UNNAMED \
+    --enable-preview"
 
 RUN apk add --no-cache su-exec libstdc++ libgcc && \
     mkdir -p /bookdrop

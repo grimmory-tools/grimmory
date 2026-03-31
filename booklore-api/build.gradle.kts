@@ -26,6 +26,10 @@ java {
     }
 }
 
+tasks.withType<JavaCompile> {
+    options.compilerArgs.add("--enable-preview")
+}
+
 repositories {
     mavenCentral()
     maven(url = "https://jitpack.io")
@@ -81,7 +85,8 @@ dependencies {
     implementation("com.twelvemonkeys.imageio:imageio-webp:3.13.1")
     implementation("com.twelvemonkeys.imageio:imageio-bmp:3.13.1")
 
-    implementation("io.documentnode:epub4j-core:4.2.3")
+    implementation("org.grimmory:epub4j-core:0.4.0")
+    implementation("org.grimmory:epub4j-native:0.4.0")
 
     // --- Audio Metadata (Audiobook Support) ---
     implementation("com.github.RouHim:jaudiotagger:2.0.19")
@@ -139,7 +144,7 @@ hibernate {
 
 tasks.named<Test>("test") {
     useJUnitPlatform()
-    jvmArgs("-XX:+EnableDynamicAgentLoading")
+    jvmArgs("-XX:+EnableDynamicAgentLoading", "--enable-native-access=ALL-UNNAMED", "--enable-preview")
     finalizedBy(tasks.named("jacocoTestReport"))
 }
 
@@ -167,6 +172,7 @@ tasks.named<Copy>("processResources") {
 }
 
 tasks.named<BootRun>("bootRun") {
+    jvmArgs("--enable-native-access=ALL-UNNAMED", "--enable-preview")
     if (System.getenv("REMOTE_DEBUG_ENABLED") == "true") {
         jvmArgs("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005")
     }
