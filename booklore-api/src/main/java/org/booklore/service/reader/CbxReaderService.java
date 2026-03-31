@@ -125,7 +125,7 @@ public class CbxReaderService {
     private CbxPageDimension readEntryDimension(Path cbxPath, String entryName, CachedArchiveMetadata metadata, int pageNumber) {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            streamEntryFromArchive(cbxPath, entryName, baos, metadata);
+            archiveService.transferEntryTo(cbxPath, entryName, baos);
             byte[] imageBytes = baos.toByteArray();
             try (ImageInputStream iis = ImageIO.createImageInputStream(new ByteArrayInputStream(imageBytes))) {
                 Iterator<ImageReader> readers = ImageIO.getImageReaders(iis);
