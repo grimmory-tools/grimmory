@@ -1,7 +1,7 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { effect, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { $t } from '@primeuix/themes';
-import Aura from '@primeuix/themes/aura';
+import Aura from '../layout/theme-palette-extend';
 import { AppState } from '../model/app-state.model';
 
 type ColorPalette = Record<string, string>;
@@ -428,8 +428,72 @@ export class AppConfigService {
   }
 
   onPresetChange(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
     const surfacePalette = this.getSurfacePalette(this.appState().surface ?? 'neutral');
     const preset = this.getPresetExt();
     $t().preset(Aura).preset(preset).surfacePalette(surfacePalette).use({ useDefaultOptions: true });
+    this.applyDesignTokens();
+  }
+
+  private applyDesignTokens(): void {
+    const style = this.document.documentElement.style;
+    const primaryName = this.appState().primary ?? 'green';
+    const surfaceName = this.appState().surface ?? 'ash';
+    const surface = this.getSurfacePalette(surfaceName);
+    const primary = ((Aura.primitive ?? {}) as Record<string, ColorPalette>)[primaryName] ?? {};
+    const isNoir = primaryName === 'noir';
+
+    const primary400 = isNoir ? surface['50'] : primary['400'];
+    const primary500 = isNoir ? surface['50'] : (primary['500'] ?? primary['400']);
+
+    style.setProperty('--primary-color', primary400 ?? '#4ade80');
+    style.setProperty('--primary-color-rgb', this.toRgbChannels(primary500));
+    style.setProperty('--primary-contrast-color', isNoir ? (surface['950'] ?? '#0d1012') : (surface['900'] ?? '#1a1e21'));
+    style.setProperty('--primary-hover-color', isNoir ? (surface['200'] ?? '#d3d8de') : (primary['300'] ?? primary400 ?? '#86efac'));
+    style.setProperty('--primary-text-color', primary400 ?? '#4ade80');
+    style.setProperty('--primary-text-color-dark', isNoir ? (surface['950'] ?? '#0d1012') : (primary['900'] ?? '#14532d'));
+
+    style.setProperty('--ground-background', surface['950'] ?? '#0d1012');
+    style.setProperty('--overlay-background', surface['900'] ?? '#1a1e21');
+    style.setProperty('--card-background', surface['900'] ?? '#1a1e21');
+    style.setProperty('--content-background', surface['900'] ?? '#1a1e21');
+    style.setProperty('--code-background', surface['900'] ?? '#1a1e21');
+
+    style.setProperty('--border-color', surface['700'] ?? '#464f56');
+    style.setProperty('--content-border-color', surface['700'] ?? '#464f56');
+    style.setProperty('--text-color', surface['0'] ?? '#ffffff');
+    style.setProperty('--text-color-secondary', surface['300'] ?? '#b4bcc7');
+    style.setProperty('--text-secondary-color', surface['400'] ?? '#919ca9');
+    style.setProperty('--text-muted-color', surface['400'] ?? '#919ca9');
+    style.setProperty('--high-contrast-text-color', surface['0'] ?? '#ffffff');
+
+    Object.entries(surface).forEach(([stop, value]) => {
+      style.setProperty(`--surface-${stop}`, value);
+    });
+  }
+
+  private toRgbChannels(color: string | undefined): string {
+    if (!color) {
+      return '74, 222, 128';
+    }
+
+    const normalized = color.startsWith('#') ? color.slice(1) : color;
+    const hex = normalized.length === 3
+      ? normalized.split('').map((char) => char + char).join('')
+      : normalized;
+
+    if (hex.length !== 6) {
+      return '74, 222, 128';
+    }
+
+    const value = Number.parseInt(hex, 16);
+    if (Number.isNaN(value)) {
+      return '74, 222, 128';
+    }
+
+    return `${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}`;
   }
 }

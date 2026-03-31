@@ -172,11 +172,13 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
       return [];
     }
 
-    return this.entityService.isLibrary(entity)
+    const actions = this.entityService.isLibrary(entity)
       ? this.libraryShelfMenuService.initializeLibraryMenuItems(entity)
       : this.entityService.isMagicShelf(entity)
         ? this.libraryShelfMenuService.initializeMagicShelfMenuItems(entity)
         : this.libraryShelfMenuService.initializeShelfMenuItems(entity);
+
+    return actions;
   });
   readonly books = computed(() => {
     const {entityId, entityType} = this.entityInfo();
@@ -999,4 +1001,5 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
       this.mobileColumnCount = saved;
     }
   }
+
 }
