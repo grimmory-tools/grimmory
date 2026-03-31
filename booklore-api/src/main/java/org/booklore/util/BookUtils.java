@@ -16,7 +16,7 @@ public class BookUtils {
     public static Set<Shelf> filterShelvesByUserId(Set<Shelf> shelves, Long userId) {
         if (shelves == null) return Collections.emptySet();
         return shelves.stream()
-                .filter(shelf -> userId.equals(shelf.getUserId()) || shelf.isPublicShelf())
+                .filter(shelf -> shelf.isPublicShelf() || userId.equals(shelf.getUserId()))
                 .collect(Collectors.toSet());
     }
 
