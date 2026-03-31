@@ -540,7 +540,7 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
                         continue;
                     }
 
-                    if ("FrontCover".equalsIgnoreCase(page.getAttribute("Type"))) {
+                    if (!"FrontCover".equalsIgnoreCase(page.getAttribute("Type"))) {
                         continue;
                     }
 
