@@ -32,6 +32,11 @@ describe('app routes', () => {
     expect(children.find(route => route.path === 'all-books')?.canActivate).toEqual([AuthGuard]);
     expect(children.find(route => route.path === 'magic-shelf/:magicShelfId/books')?.canActivate).toEqual([AuthGuard]);
     expect(children.find(route => route.path === 'notebook')?.canActivate).toEqual([AuthGuard]);
+    expect(typeof children.find(route => route.path === 'all-books')?.loadComponent).toBe('function');
+    expect(typeof children.find(route => route.path === 'library/:libraryId/books')?.loadComponent).toBe('function');
+    expect(typeof children.find(route => route.path === 'shelf/:shelfId/books')?.loadComponent).toBe('function');
+    expect(typeof children.find(route => route.path === 'unshelved-books')?.loadComponent).toBe('function');
+    expect(typeof children.find(route => route.path === 'magic-shelf/:magicShelfId/books')?.loadComponent).toBe('function');
   });
 
   it('defines guarded lazy routes for metadata, stats, and bookdrop', () => {
