@@ -48,9 +48,13 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
 
     @Override
     public BookMetadata extractMetadata(File file) {
-        String baseName = FilenameUtils.getBaseName(file.getName());
+        return extractMetadata(file.toPath());
+    }
 
-        try (InputStream is = findComicInfoEntryInputStream(file.toPath())) {
+    public BookMetadata extractMetadata(Path path) {
+        String baseName = FilenameUtils.getBaseName(path.toString());
+
+        try (InputStream is = findComicInfoEntryInputStream(path)) {
             Document document = buildSecureDocument(is);
             return mapDocumentToMetadata(document, baseName);
         } catch (Exception e) {
@@ -490,14 +494,16 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
 
     @Override
     public byte[] extractCover(File file) {
-        Path cbxPath = file.toPath();
+        return extractCover(file.toPath());
+    }
 
+    public byte[] extractCover(Path path) {
         return Stream.<Supplier<Stream<String>>>of(
-                        () -> extractCoverEntryNameFromComicInfo(cbxPath),
-                        () -> extractCoverEntryNameFallback(cbxPath)
+                        () -> extractCoverEntryNameFromComicInfo(path),
+                        () -> extractCoverEntryNameFallback(path)
                 )
                 .flatMap(Supplier::get)
-                .map(coverEntry -> readArchiveEntryBytes(cbxPath, coverEntry))
+                .map(coverEntry -> readArchiveEntryBytes(path, coverEntry))
                 .filter(Objects::nonNull)
                 .filter(this::canDecode)
                 .findFirst()
