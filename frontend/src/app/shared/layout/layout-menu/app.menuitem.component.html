@@ -97,7 +97,7 @@
     <div [@children]="expanded ? 'expanded' : 'collapsed'" class="submenu-container">
       @if (item.items) {
         <ul>
-          @for (child of item.items; track child.routerLink?.[0] ?? child.label; let i = $index) {
+          @for (child of item.items; track child.routerLink?.join('/') ?? child.label; let i = $index) {
             <li app-menuitem [item]="child" [index]="i" [parentKey]="key"></li>
           }
         </ul>
