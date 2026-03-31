@@ -110,6 +110,7 @@ public class ArchiveService {
         try (InputStream inputStream = Archive.getInputStream(path, entryName)) {
             if (inputStream != null) {
                 Files.copy(inputStream, outputPath);
+                return;
             }
         } catch (Exception e) {
             throw new IOException("Failed to extract from archive: " + e.getMessage(), e);
