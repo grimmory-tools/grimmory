@@ -24,7 +24,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.*;
 
 @DisplayName("CBX Conversion Integration Test")
-@EnabledIf("com.github.gotson.nightcompress.Archive#isAvailable")
+@EnabledIf("org.booklore.service.ArchiveService#isAvailable")
 class CbxConversionIntegrationTest {
 
     @TempDir

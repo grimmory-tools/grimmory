@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Integration tests that feed a real RAR5 archive into the service layer
  */
-@EnabledIf("com.github.gotson.nightcompress.Archive#isAvailable")
+@EnabledIf("org.booklore.service.ArchiveService#isAvailable")
 @ExtendWith(MockitoExtension.class)
 class Rar5IntegrationTest {
 

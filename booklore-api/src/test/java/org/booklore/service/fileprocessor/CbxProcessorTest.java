@@ -36,7 +36,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-@EnabledIf("com.github.gotson.nightcompress.Archive#isAvailable")
+@EnabledIf("org.booklore.service.ArchiveService#isAvailable")
 class CbxProcessorTest {
 
     @Mock private BookRepository bookRepository;

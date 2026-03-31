@@ -29,7 +29,7 @@ import java.util.zip.ZipOutputStream;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@EnabledIf("com.github.gotson.nightcompress.Archive#isAvailable")
+@EnabledIf("org.booklore.service.ArchiveService#isAvailable")
 class CbxComicInfoComplianceTest {
 
     private CbxMetadataWriter writer;

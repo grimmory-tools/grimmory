@@ -35,7 +35,7 @@ import java.util.zip.ZipOutputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@EnabledIf("com.github.gotson.nightcompress.Archive#isAvailable")
+@EnabledIf("org.booklore.service.ArchiveService#isAvailable")
 class CbxMetadataWriterTest {
 
     private CbxMetadataWriter writer;

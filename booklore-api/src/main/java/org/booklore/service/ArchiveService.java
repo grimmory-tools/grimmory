@@ -34,6 +34,10 @@ public class ArchiveService {
         }
     }
 
+    public static boolean isAvailable() {
+        return Archive.isAvailable();
+    }
+
     public static class Entry {
         private Entry() {}
 
