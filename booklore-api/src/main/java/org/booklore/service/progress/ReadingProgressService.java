@@ -21,6 +21,7 @@ import org.booklore.model.enums.UserPermission;
 import org.booklore.repository.*;
 import org.booklore.service.hardcover.HardcoverSyncService;
 import org.booklore.service.kobo.KoboReadingStateService;
+import org.booklore.util.koreader.EpubCfiService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -38,6 +39,7 @@ public class ReadingProgressService {
 
     private static final float READING_THRESHOLD = 0.1f;
     private static final float COMPLETED_THRESHOLD = 99.5f;
+    private static final String GRIMMORY_DEVICE = "Grimmory";
 
     private final UserBookProgressRepository userBookProgressRepository;
     private final UserBookFileProgressRepository userBookFileProgressRepository;
@@ -47,6 +49,8 @@ public class ReadingProgressService {
     private final AuthenticationService authenticationService;
     private final KoboReadingStateService koboReadingStateService;
     private final HardcoverSyncService hardcoverSyncService;
+    private final KoreaderUserRepository koreaderUserRepository;
+    private final EpubCfiService epubCfiService;
 
     // ==================== Methods from UserProgressService ====================
 
@@ -264,6 +268,10 @@ public class ReadingProgressService {
         }
         if (request.getDateFinished() != null) {
             progress.setDateFinished(request.getDateFinished());
+        }
+
+        if (request.getEpubProgress() != null) {
+            syncProgressToKoreader(progress, book, user.getId());
         }
 
         userBookProgressRepository.save(progress);
@@ -502,5 +510,38 @@ public class ReadingProgressService {
     private BookLoreUserEntity findUserOrThrow(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + userId));
+    }
+
+    // TODO(deprecated-fields): This reads epubProgress / epubProgressPercent which are @Deprecated
+    //  on UserBookProgressEntity. When those fields are removed in favor of UserBookFileProgress,
+    //  this method must be updated to read from the file-level progress table instead.
+    private void syncProgressToKoreader(UserBookProgressEntity progress, BookEntity book, Long userId) {
+        try {
+            KoreaderUserEntity koreaderUser = koreaderUserRepository.findByBookLoreUserId(userId)
+                    .orElse(null);
+            if (koreaderUser == null || !koreaderUser.isSyncWithBookloreReader()) {
+                return;
+            }
+
+            String cfi = progress.getEpubProgress();
+            if (cfi == null) {
+                return;
+            }
+
+            String xpointer = epubCfiService.convertCfiToProgressXPointer(book.getFullFilePath(), cfi);
+            Float epubPercent = progress.getEpubProgressPercent();
+            Float koreaderPercent = (epubPercent != null) ? epubPercent / 100f : null;
+
+            progress.setKoreaderProgress(xpointer);
+            progress.setKoreaderProgressPercent(koreaderPercent);
+            progress.setKoreaderDevice(GRIMMORY_DEVICE);
+            progress.setKoreaderDeviceId(GRIMMORY_DEVICE);
+            progress.setKoreaderLastSyncTime(Instant.now());
+
+            log.info("Synced web reader progress to KOReader columns for userId={} bookId={}", userId, book.getId());
+        } catch (Exception e) {
+            log.warn("Failed to sync web reader progress to KOReader for userId={} bookId={}: {}",
+                    userId, book.getId(), e.getMessage());
+        }
     }
 }
