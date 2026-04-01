@@ -27,13 +27,14 @@ import org.booklore.repository.BookRepository;
 import org.booklore.repository.BookdropFileRepository;
 import org.booklore.repository.LibraryRepository;
 import org.booklore.service.NotificationService;
+import org.booklore.service.event.BookAddedEvent;
 import org.booklore.service.file.FileMovingHelper;
 import org.booklore.service.fileprocessor.BookFileProcessor;
 import org.booklore.service.fileprocessor.BookFileProcessorRegistry;
-import org.booklore.service.kobo.KoboAutoShelfService;
 import org.booklore.service.metadata.MetadataRefreshService;
 import org.booklore.service.monitoring.MonitoringRegistrationService;
 import org.booklore.util.FileUtils;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -74,7 +75,7 @@ public class BookDropService {
     private final ObjectMapper objectMapper;
     private final FileMovingHelper fileMovingHelper;
     private final MonitoringRegistrationService monitoringRegistrationService;
-    private final KoboAutoShelfService koboAutoShelfService;
+    private final ApplicationEventPublisher eventPublisher;
 
     private static final int CHUNK_SIZE = 100;
 
@@ -484,7 +485,7 @@ public class BookDropService {
                 .build();
 
         metadataRefreshService.updateBookMetadata(context);
-        koboAutoShelfService.autoAddBookToKoboShelves(bookEntity.getId());
+        eventPublisher.publishEvent(new BookAddedEvent(fileProcessResult.getBook()));
 
         cleanupBookdropData(bookdropFile);
 

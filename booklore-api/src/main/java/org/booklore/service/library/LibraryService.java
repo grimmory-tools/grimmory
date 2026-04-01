@@ -25,18 +25,14 @@ import org.booklore.repository.UserRepository;
 import org.booklore.service.NotificationService;
 import org.booklore.service.audit.AuditService;
 import org.booklore.service.monitoring.LibraryWatchService;
-import org.booklore.task.options.RescanLibraryContext;
 import org.booklore.util.FileService;
-import org.booklore.util.SecurityContextVirtualThread;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.context.event.EventListener;
-import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -44,7 +40,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -53,21 +48,9 @@ import java.util.stream.Collectors;
 @DependsOnDatabaseInitialization
 public class LibraryService {
 
-    private static final Set<Long> scanningLibraries = ConcurrentHashMap.newKeySet();
-
-    /**
-     * Checks whether a library is currently being scanned.
-     * Can be used by other components (e.g., file watcher) to avoid processing
-     * files while a full scan is in progress.
-     */
-    public static boolean isLibraryScanning(long libraryId) {
-        return scanningLibraries.contains(libraryId);
-    }
-
     private final LibraryRepository libraryRepository;
     private final LibraryPathRepository libraryPathRepository;
     private final BookRepository bookRepository;
-    private final LibraryProcessingService libraryProcessingService;
     private final BookMapper bookMapper;
     private final LibraryMapper libraryMapper;
     private final NotificationService notificationService;
@@ -76,6 +59,7 @@ public class LibraryService {
     private final AuthenticationService authenticationService;
     private final UserRepository userRepository;
     private final AuditService auditService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     @EventListener(ApplicationReadyEvent.class)
@@ -199,28 +183,11 @@ public class LibraryService {
     }
 
     public void rescanLibrary(long libraryId) {
-        LibraryEntity lib = libraryRepository.findById(libraryId).orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
-        auditService.log(AuditAction.LIBRARY_SCANNED, "Library", libraryId, "Scanned library: " + lib.getName());
-
-        SecurityContextVirtualThread.runWithSecurityContext(() -> {
-            if (!scanningLibraries.add(libraryId)) {
-                log.warn("Library {} is already being scanned, skipping duplicate rescan request", libraryId);
-                return;
-            }
-            try {
-                RescanLibraryContext context = RescanLibraryContext.builder()
-                        .libraryId(libraryId)
-                        .build();
-                libraryProcessingService.rescanLibrary(context);
-            } catch (InvalidDataAccessApiUsageException e) {
-                log.debug("InvalidDataAccessApiUsageException - Library id: {}", libraryId);
-            } catch (IOException e) {
-                log.error("Error while parsing library books", e);
-            } finally {
-                scanningLibraries.remove(libraryId);
-            }
-            log.info("Parsing task completed!");
-        });
+        LibraryEntity lib = libraryRepository.findById(libraryId)
+                .orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
+        auditService.log(AuditAction.LIBRARY_SCANNED, "Library", libraryId,
+                "Scanned library: " + lib.getName());
+        eventPublisher.publishEvent(new LibraryScanRequestedEvent(libraryId, true));
     }
 
     @Transactional(readOnly = true)
@@ -353,32 +320,6 @@ public class LibraryService {
     }
 
     private void scheduleBackgroundScanAfterCommit(long libraryId) {
-        if (TransactionSynchronizationManager.isSynchronizationActive()) {
-            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-                @Override
-                public void afterCommit() {
-                    startBackgroundScan(libraryId);
-                }
-            });
-        } else {
-            startBackgroundScan(libraryId);
-        }
-    }
-
-    private void startBackgroundScan(long libraryId) {
-        SecurityContextVirtualThread.runWithSecurityContext(() -> {
-            if (!scanningLibraries.add(libraryId)) {
-                log.warn("Library {} is already being scanned, skipping duplicate process request", libraryId);
-                return;
-            }
-            try {
-                libraryProcessingService.processLibrary(libraryId);
-            } catch (InvalidDataAccessApiUsageException e) {
-                log.debug("InvalidDataAccessApiUsageException - Library id: {}", libraryId);
-            } finally {
-                scanningLibraries.remove(libraryId);
-            }
-            log.info("Parsing task completed!");
-        });
+        eventPublisher.publishEvent(new LibraryScanRequestedEvent(libraryId, false));
     }
 }

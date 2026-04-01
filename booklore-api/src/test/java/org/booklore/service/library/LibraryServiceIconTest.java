@@ -26,6 +26,7 @@ import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.service.NotificationService;
 import org.booklore.service.monitoring.LibraryWatchService;
 import org.booklore.util.FileService;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Collections;
 import java.util.ArrayList;
@@ -63,6 +64,8 @@ class LibraryServiceIconTest {
     private UserRepository userRepository;
     @Mock
     private AuditService auditService;
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private LibraryService libraryService;
