@@ -12,6 +12,79 @@
 </head>
 <body>
 <div id="viewer"></div>
+<script>
+  (function () {
+    const OrigWorker = window.Worker;
+    window.Worker = function PatchedWorker(url, opts) {
+      console.log('[Shim] Worker created, url type=' + typeof url +
+        ', isBlob=' + (typeof url === 'string' && url.startsWith('blob:')) +
+        ', opts=', opts);
+      const w = new OrigWorker(url, opts);
+      if (typeof url === 'string' && url.startsWith('blob:') && opts && opts.type === 'module') {
+        console.log('[Shim] Blob module Worker detected, applying ready-event shim');
+        let wasmInitId = null;
+        let readySent = false;
+        const origPM = w.postMessage.bind(w);
+        w.postMessage = function (msg, xfer) {
+          if (msg && msg.type === 'wasmInit' && msg.id !== undefined) {
+            wasmInitId = msg.id;
+            console.log('[Shim] wasmInit sent with id=' + wasmInitId);
+          }
+          return origPM(msg, xfer);
+        };
+        setTimeout(function () {
+          if (!readySent && wasmInitId !== null) {
+            console.log('[Shim] Timeout: injecting synthetic ready event for id=' + wasmInitId);
+            readySent = true;
+            w.dispatchEvent(new MessageEvent('message', {
+              data: { type: 'ready' }
+            }));
+          }
+        }, 5000);
+        w.addEventListener('message', function (evt) {
+          if (evt.data && evt.data.type === 'ready') {
+            console.log('[Shim] Real ready event received');
+            readySent = true;
+          }
+        });
+        w.addEventListener('error', function (evt) {
+          console.error('[Shim] Worker error event:', evt.message, evt.filename, evt.lineno);
+        });
+      }
+      return w;
+    };
+    window.Worker.prototype = OrigWorker.prototype;
+    Object.setPrototypeOf(window.Worker, OrigWorker);
+
+    const OrigBlob = window.Blob;
+    window.Blob = function PatchedBlob(parts, opts) {
+      if (parts && parts.length >= 1 && typeof parts[0] === 'string') {
+        const hasWasmInit = parts[0].includes('wasmInit');
+        const hasRunnerPrepare = parts[0].includes('runner.prepare()');
+        if (hasWasmInit && hasRunnerPrepare) {
+          console.log('[Shim] Patching PDFium blob source (' + parts[0].length + ' chars)');
+          let patched = parts[0];
+          patched = patched.replace(
+            'self.postMessage({ type: "wasmError", error: message });',
+            'console.error("[Worker] WASM init FAILED:", message);\n' +
+            '      self.postMessage({ type: "wasmError", error: message });'
+          );
+          patched = patched.replace(
+            'await runner.prepare();',
+            'await runner.prepare();\n' +
+            '      console.log("[Worker] prepare() OK, posting ready");\n' +
+            '      self.postMessage({ type: "ready" });'
+          );
+          console.log('[Shim] Blob patch applied, changed=' + (patched !== parts[0]));
+          parts = [patched];
+        }
+      }
+      return new OrigBlob(parts, opts);
+    };
+    window.Blob.prototype = OrigBlob.prototype;
+    Object.setPrototypeOf(window.Blob, OrigBlob);
+  })();
+</script>
 <script type="module">
   import EmbedPDF from '/assets/embedpdf/embedpdf.js';
 
@@ -190,10 +263,13 @@
         type: 'container',
         target,
         src: objectUrl,
-        wasmUrl: msg.wasmUrl || '/assets/pdfium/pdfium.wasm',
-        worker: false,
+        wasmUrl: new URL(msg.wasmUrl || '/assets/pdfium/pdfium.wasm', location.origin).href,
+        worker: true,
+        log: true,
         theme: { preference: msg.theme || 'dark' }
       });
+
+      injectGrimmoryStyles(target);
 
       try {
         registry = await viewer.registry;
@@ -216,8 +292,6 @@
         log('Registry error:', err);
         parent.postMessage({ type: 'documentError', error: String(err) }, myOrigin);
       }
-
-      injectGrimmoryStyles(target);
     }
 
     if (msg.type === 'save') {
