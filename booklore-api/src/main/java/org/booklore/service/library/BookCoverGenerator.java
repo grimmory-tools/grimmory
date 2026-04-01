@@ -94,7 +94,11 @@ public class BookCoverGenerator {
                 originalImage.flush();
 
                 if (saved) {
-                    bookEntity.getMetadata().setAudiobookCoverUpdatedOn(Instant.now());
+                    if (bookEntity.getMetadata() != null) {
+                        bookEntity.getMetadata().setAudiobookCoverUpdatedOn(Instant.now());
+                    } else {
+                        log.debug("Skipping audiobook cover update on metadata for book ID {}: metadata is null", bookEntity.getId());
+                    }
                     bookEntity.setAudiobookCoverHash(BookCoverUtils.generateCoverHash());
                     bookRepository.save(bookEntity);
                     log.info("Generated audiobook cover from additional file: {}", audioFile.getFileName());
@@ -135,7 +139,11 @@ public class BookCoverGenerator {
                 originalImage.flush();
 
                 if (saved) {
-                    FileService.setBookCoverPath(bookEntity.getMetadata());
+                    if (bookEntity.getMetadata() != null) {
+                        FileService.setBookCoverPath(bookEntity.getMetadata());
+                    } else {
+                        log.debug("Skipping ebook cover path update for book ID {}: metadata is null", bookEntity.getId());
+                    }
                     bookEntity.setBookCoverHash(BookCoverUtils.generateCoverHash());
                     bookRepository.save(bookEntity);
                     log.info("Generated ebook cover from additional file: {}", ebookFile.getFileName());
