@@ -58,9 +58,9 @@ public class KoreaderAuthFilter extends OncePerRequestFilter {
 
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 } else {
-                    log.warn("KOReader auth failed: password mismatch for user '{}'", username);
+                    log.warn("KOReader auth failed: password mismatch");
                 }
-            }, () -> log.warn("KOReader user '{}' not found", username));
+            }, () -> log.warn("KOReader user not found"));
         } else {
             log.warn("Missing KOReader headers");
         }

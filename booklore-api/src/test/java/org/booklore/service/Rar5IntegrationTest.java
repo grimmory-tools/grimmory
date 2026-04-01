@@ -9,9 +9,8 @@ import org.booklore.service.metadata.writer.CbxMetadataWriter;
 import org.booklore.service.reader.CbxReaderService;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.appsettings.AppSettingService;
-import org.booklore.util.UnrarHelper;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -20,29 +19,20 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assumptions.assumeThat;
 
 /**
  * Integration tests that feed a real RAR5 archive into the service layer
- * and verify junrar fails then the unrar CLI fallback kicks in.
  */
+@EnabledIf("org.booklore.service.ArchiveService#isAvailable")
 @ExtendWith(MockitoExtension.class)
-class Rar5FallbackIntegrationTest {
+class Rar5IntegrationTest {
 
     private static final Path RAR5_CBR = Path.of("src/test/resources/cbx/test-rar5.cbr");
-
-    @BeforeAll
-    static void checkUnrarAvailable() {
-        assumeThat(UnrarHelper.isAvailable())
-                .as("unrar binary must be on PATH to run these tests")
-                .isTrue();
-    }
 
     // -- CbxMetadataExtractor: extractMetadata fallback --
 
@@ -51,7 +41,7 @@ class Rar5FallbackIntegrationTest {
         Path cbrCopy = tempDir.resolve("test.cbr");
         Files.copy(RAR5_CBR, cbrCopy);
 
-        CbxMetadataExtractor extractor = new CbxMetadataExtractor();
+        CbxMetadataExtractor extractor = new CbxMetadataExtractor(new ArchiveService());
         BookMetadata metadata = extractor.extractMetadata(cbrCopy.toFile());
 
         assertThat(metadata.getTitle()).isEqualTo("Test RAR5 Comic");
@@ -70,13 +60,13 @@ class Rar5FallbackIntegrationTest {
         BookEntity book = new BookEntity();
         book.setId(99L);
         BookRepository mockRepo = org.mockito.Mockito.mock(BookRepository.class);
-        org.mockito.Mockito.when(mockRepo.findById(99L)).thenReturn(java.util.Optional.of(book));
+        org.mockito.Mockito.when(mockRepo.findByIdWithBookFiles(99L)).thenReturn(java.util.Optional.of(book));
 
         try (var fileUtilsStatic = org.mockito.Mockito.mockStatic(org.booklore.util.FileUtils.class)) {
             fileUtilsStatic.when(() -> org.booklore.util.FileUtils.getBookFullPath(book))
                     .thenReturn(cbrCopy);
 
-            CbxReaderService readerService = new CbxReaderService(mockRepo);
+            CbxReaderService readerService = new CbxReaderService(mockRepo, new ArchiveService());
             List<Integer> pages = readerService.getAvailablePages(99L);
 
             assertThat(pages).hasSize(3);
@@ -92,13 +82,15 @@ class Rar5FallbackIntegrationTest {
         BookEntity book = new BookEntity();
         book.setId(99L);
         BookRepository mockRepo = org.mockito.Mockito.mock(BookRepository.class);
-        org.mockito.Mockito.when(mockRepo.findById(99L)).thenReturn(java.util.Optional.of(book));
+        org.mockito.Mockito.when(mockRepo.findByIdWithBookFiles(99L)).thenReturn(java.util.Optional.of(book));
 
-        try (var fileUtilsStatic = org.mockito.Mockito.mockStatic(org.booklore.util.FileUtils.class)) {
+        try (
+            var fileUtilsStatic = org.mockito.Mockito.mockStatic(org.booklore.util.FileUtils.class)
+        ) {
             fileUtilsStatic.when(() -> org.booklore.util.FileUtils.getBookFullPath(book))
                     .thenReturn(cbrCopy);
 
-            CbxReaderService readerService = new CbxReaderService(mockRepo);
+            CbxReaderService readerService = new CbxReaderService(mockRepo, new ArchiveService());
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             readerService.streamPageImage(99L, 1, out);
 
@@ -122,7 +114,7 @@ class Rar5FallbackIntegrationTest {
         meta.setTitle("Test RAR5 Comic");
         book.setMetadata(meta);
 
-        CbxConversionService conversionService = new CbxConversionService();
+        CbxConversionService conversionService = new CbxConversionService(new ArchiveService());
         File epub = conversionService.convertCbxToEpub(cbrCopy.toFile(), tempDir.toFile(), book, 85);
 
         assertThat(epub).exists();
@@ -143,7 +135,7 @@ class Rar5FallbackIntegrationTest {
     // -- CbxMetadataWriter: loadFromRar + convertRarToZipArchive fallback --
 
     @Test
-    void metadataWriter_convertsRar5ToCbzViaFallback(@TempDir Path tempDir) throws Exception {
+    void metadataWriter_convertsRar5ToCbz(@TempDir Path tempDir) throws Exception {
         Path cbrCopy = tempDir.resolve("test.cbr");
         Files.copy(RAR5_CBR, cbrCopy);
 
@@ -159,7 +151,7 @@ class Rar5FallbackIntegrationTest {
         appSettings.setMetadataPersistenceSettings(persistenceSettings);
         org.mockito.Mockito.when(mockSettings.getAppSettings()).thenReturn(appSettings);
 
-        CbxMetadataWriter writer = new CbxMetadataWriter(mockSettings);
+        CbxMetadataWriter writer = new CbxMetadataWriter(mockSettings, new ArchiveService());
 
         BookMetadataEntity metadata = new BookMetadataEntity();
         metadata.setTitle("Updated RAR5 Title");

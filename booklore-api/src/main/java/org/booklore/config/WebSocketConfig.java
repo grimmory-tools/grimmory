@@ -2,13 +2,17 @@ package org.booklore.config;
 
 import org.booklore.config.security.interceptor.WebSocketAuthInterceptor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 
 import java.util.Arrays;
 
@@ -27,9 +31,20 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/queue", "/topic");
+        registry.enableSimpleBroker("/queue", "/topic")
+                .setHeartbeatValue(new long[]{10_000, 10_000})
+                .setTaskScheduler(wsHeartbeatScheduler());
         registry.setApplicationDestinationPrefixes("/app");
         registry.setUserDestinationPrefix("/user");
+    }
+
+    @Bean
+    public TaskScheduler wsHeartbeatScheduler() {
+        ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+        scheduler.setPoolSize(1);
+        scheduler.setThreadNamePrefix("ws-heartbeat-");
+        scheduler.setDaemon(true);
+        return scheduler;
     }
 
     @Override
@@ -41,7 +56,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             log.warn("WebSocket endpoint is configured to allow all origins (*). " +
                     "This is the default for backward compatibility, but it's recommended to set 'app.cors.allowed-origins' to an explicit list.");
         } else if (allowedOrigins.isEmpty()) {
-            // No explicit origins configured: enforce same-origin check (Spring WebSocket default)
             log.info("WebSocket endpoint registered at /ws (same-origin only)");
         } else {
             String[] origins = Arrays.stream(allowedOrigins.split("\\s*,\\s*"))
@@ -50,6 +64,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             endpoint.setAllowedOriginPatterns(origins);
             log.info("WebSocket endpoint registered at /ws with allowed origins: {}", Arrays.toString(origins));
         }
+    }
+
+    @Override
+    public void configureWebSocketTransport(WebSocketTransportRegistration registration) {
+        registration.setSendTimeLimit(15_000)
+                .setSendBufferSizeLimit(512 * 1024)
+                .setMessageSizeLimit(128 * 1024)
+                .setTimeToFirstMessage(30_000);
     }
 
     @Override

@@ -7,6 +7,7 @@ import {TranslocoPipe} from '@jsverse/transloco';
 import {SeriesSummary} from '../../model/series.model';
 import {BookService} from '../../../book/service/book.service';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
+import {CoverPlaceholderComponent} from '../../../../shared/components/cover-generator/cover-generator.component';
 
 @Component({
   selector: 'app-series-card',
@@ -14,7 +15,7 @@ import {UrlHelperService} from '../../../../shared/service/url-helper.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './series-card.component.html',
   styleUrls: ['./series-card.component.scss'],
-  imports: [NgClass, ProgressBar, Button, Tooltip, TranslocoPipe]
+  imports: [NgClass, ProgressBar, Button, Tooltip, TranslocoPipe, CoverPlaceholderComponent]
 })
 export class SeriesCardComponent {
 
@@ -34,9 +35,9 @@ export class SeriesCardComponent {
     return this.series.authors.slice(0, 2).join(', ') + ' +' + (this.series.authors.length - 2);
   }
 
-  getCoverUrl(index: number): string {
+  getCoverUrl(index: number): string | null {
     const book = this.series.coverBooks[index];
-    if (!book) return '';
+    if (!book) return null;
     const isAudiobook = book.primaryFile?.bookType === 'AUDIOBOOK';
     return isAudiobook
       ? this.urlHelper.getAudiobookThumbnailUrl(book.id, book.metadata?.audiobookCoverUpdatedOn)

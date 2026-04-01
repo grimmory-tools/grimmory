@@ -5,13 +5,17 @@
       <div class="cover-section">
         <div class="cover-wrapper">
 
-          <p-image
-            [src]="getBookCoverUrl(book)"
-            alt="Image"
-            width="250"
-            appendTo="body"
-            [preview]="true">
-          </p-image>
+          @if (getBookCoverUrl(book); as coverUrl) {
+            <p-image
+              [src]="coverUrl"
+              [alt]="book.metadata?.title ? ('Cover of ' + book.metadata?.title) : ''"
+              width="250"
+              appendTo="body"
+              [preview]="true">
+            </p-image>
+          } @else {
+            <app-cover-placeholder style="width: 250px; height: 350px;" [title]="book.metadata?.title ?? ''" [author]="(book.metadata?.authors ?? []).join(', ')" size="lg" />
+          }
 
           @if (book?.metadata!.seriesNumber !== null && book?.metadata!.seriesNumber !== undefined) {
             <div class="series-badge">

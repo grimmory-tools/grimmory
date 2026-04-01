@@ -11,6 +11,7 @@ import {CheckboxChangeEvent, CheckboxModule} from 'primeng/checkbox';
 import {FormsModule} from '@angular/forms';
 import {MetadataRefreshType} from '../../../../metadata/model/request/metadata-refresh-type.enum';
 import {UrlHelperService} from '../../../../../shared/service/url-helper.service';
+import {CoverPlaceholderComponent} from '../../../../../shared/components/cover-generator/cover-generator.component';
 import {NgClass} from '@angular/common';
 import {User, UserService} from '../../../../settings/user-management/user.service';
 import {EmailService} from '../../../../settings/email-v2/email.service';
@@ -33,7 +34,7 @@ import {QueryClient} from '@tanstack/angular-query-experimental';
   selector: 'app-book-card',
   templateUrl: './book-card.component.html',
   styleUrls: ['./book-card.component.scss'],
-  imports: [Button, MenuModule, CheckboxModule, FormsModule, NgClass, TieredMenu, ProgressBar, TooltipModule, RouterLink, TranslocoPipe],
+  imports: [Button, MenuModule, CheckboxModule, FormsModule, NgClass, TieredMenu, ProgressBar, TooltipModule, RouterLink, TranslocoPipe, CoverPlaceholderComponent],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -82,7 +83,7 @@ export class BookCardComponent implements OnInit, OnChanges {
   protected _koboProgressPercentage: number | null = null;
   protected _displayTitle: string | undefined = undefined;
   protected _isSeriesViewActive: boolean = false;
-  protected _coverImageUrl: string = '';
+  protected _coverImageUrl: string | null = null;
   protected _readStatusIcon: string = '';
   protected _readStatusClass: string = '';
   protected _readStatusTooltip: string = '';
@@ -214,7 +215,7 @@ export class BookCardComponent implements OnInit, OnChanges {
     return this._displayTitle;
   }
 
-  get coverImageUrl(): string {
+  get coverImageUrl(): string | null {
     return this._coverImageUrl;
   }
 

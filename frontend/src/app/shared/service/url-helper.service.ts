@@ -1,10 +1,8 @@
 import {inject, Injectable} from '@angular/core';
 import {API_CONFIG} from '../../core/config/api-config';
 import {AuthService} from './auth.service';
-import {BookService} from '../../features/book/service/book.service';
-import {CoverGeneratorComponent} from '../components/cover-generator/cover-generator.component';
 import {Router} from '@angular/router';
-import {Book,BookType} from '../../features/book/model/book.model';
+import {Book, BookType} from '../../features/book/model/book.model';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +11,6 @@ export class UrlHelperService {
   private readonly baseUrl = API_CONFIG.BASE_URL;
   private readonly mediaBaseUrl = `${this.baseUrl}/api/v1/media`;
   private authService = inject(AuthService);
-  private bookService = inject(BookService);
   private router = inject(Router);
 
   private getToken(): string | null {
@@ -25,21 +22,9 @@ export class UrlHelperService {
     return token ? `${url}${url.includes('?') ? '&' : '?'}token=${token}` : url;
   }
 
-  getThumbnailUrl(bookId: number, coverUpdatedOn?: string): string {
-    if (!coverUpdatedOn) {
-      const book = this.bookService.findBookById(bookId);
-      if (book && book.metadata) {
-        const coverGenerator = new CoverGeneratorComponent();
-        coverGenerator.title = book.metadata.title || '';
-        coverGenerator.author = (book.metadata.authors || []).join(', ');
-        return coverGenerator.generateCover();
-      }
-    }
-    let url = `${this.mediaBaseUrl}/book/${bookId}/thumbnail`;
-    if (coverUpdatedOn) {
-      url += `?${coverUpdatedOn}`;
-    }
-    return this.appendToken(url);
+  getThumbnailUrl(bookId: number, coverUpdatedOn?: string): string | null {
+    if (!coverUpdatedOn) return null;
+    return this.appendToken(`${this.mediaBaseUrl}/book/${bookId}/thumbnail?${coverUpdatedOn}`);
   }
 
   getDirectThumbnailUrl(bookId: number, coverUpdatedOn?: string): string {
@@ -50,21 +35,9 @@ export class UrlHelperService {
     return this.appendToken(url);
   }
 
-  getCoverUrl(bookId: number, coverUpdatedOn?: string): string {
-    if (!coverUpdatedOn) {
-      const book = this.bookService.findBookById(bookId);
-      if (book && book.metadata) {
-        const coverGenerator = new CoverGeneratorComponent();
-        coverGenerator.title = book.metadata.title || '';
-        coverGenerator.author = (book.metadata.authors || []).join(', ');
-        return coverGenerator.generateCover();
-      }
-    }
-    let url = `${this.mediaBaseUrl}/book/${bookId}/cover`;
-    if (coverUpdatedOn) {
-      url += `?${coverUpdatedOn}`;
-    }
-    return this.appendToken(url);
+  getCoverUrl(bookId: number, coverUpdatedOn?: string): string | null {
+    if (!coverUpdatedOn) return null;
+    return this.appendToken(`${this.mediaBaseUrl}/book/${bookId}/cover?${coverUpdatedOn}`);
   }
 
   getBackupCoverUrl(bookId: number): string {
@@ -72,35 +45,17 @@ export class UrlHelperService {
     return this.appendToken(url);
   }
 
-  getAudiobookCoverUrl(bookId: number, audiobookCoverUpdatedOn?: string): string {
-    if (!audiobookCoverUpdatedOn) {
-      const book = this.bookService.findBookById(bookId);
-      if (book && book.metadata) {
-        const coverGenerator = new CoverGeneratorComponent();
-        coverGenerator.title = book.metadata.title || '';
-        coverGenerator.author = (book.metadata.authors || []).join(', ');
-        coverGenerator.isSquare = true;
-        return coverGenerator.generateCover();
-      }
-    }
-    let url = `${this.mediaBaseUrl}/book/${bookId}/audiobook-cover`;
-    if (audiobookCoverUpdatedOn) {
-      url += `?${audiobookCoverUpdatedOn}`;
-    }
-    return this.appendToken(url);
+  getAudiobookCoverUrl(bookId: number, audiobookCoverUpdatedOn?: string): string | null {
+    if (!audiobookCoverUpdatedOn) return null;
+    return this.appendToken(`${this.mediaBaseUrl}/book/${bookId}/audiobook-cover?${audiobookCoverUpdatedOn}`);
   }
 
-  getAudiobookThumbnailUrl(bookId: number, audiobookCoverUpdatedOn?: string): string {
-    if (!audiobookCoverUpdatedOn) {
-      const book = this.bookService.findBookById(bookId);
-      if (book && book.metadata) {
-        const coverGenerator = new CoverGeneratorComponent();
-        coverGenerator.title = book.metadata.title || '';
-        coverGenerator.author = (book.metadata.authors || []).join(', ');
-        coverGenerator.isSquare = true;
-        return coverGenerator.generateCover();
-      }
-    }
+  getAudiobookThumbnailUrl(bookId: number, audiobookCoverUpdatedOn?: string): string | null {
+    if (!audiobookCoverUpdatedOn) return null;
+    return this.appendToken(`${this.mediaBaseUrl}/book/${bookId}/audiobook-thumbnail?${audiobookCoverUpdatedOn}`);
+  }
+
+  getDirectAudiobookThumbnailUrl(bookId: number, audiobookCoverUpdatedOn?: string): string {
     let url = `${this.mediaBaseUrl}/book/${bookId}/audiobook-thumbnail`;
     if (audiobookCoverUpdatedOn) {
       url += `?${audiobookCoverUpdatedOn}`;

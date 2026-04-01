@@ -179,14 +179,6 @@ $transition-normal: 200ms ease;
     max-height: 240px;
   }
 
-  .placeholder-icon {
-    font-size: 56px;
-    opacity: 0.3;
-
-    @media (width <= 768px) {
-      font-size: 44px;
-    }
-  }
 }
 
 .metadata-section {

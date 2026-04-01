@@ -9,6 +9,7 @@ import {Button} from 'primeng/button';
 import {SlicePipe} from '@angular/common';
 import {Skeleton} from 'primeng/skeleton';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
+import {CoverPlaceholderComponent} from '../../../../shared/components/cover-generator/cover-generator.component';
 import {Router} from '@angular/router';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
@@ -27,6 +28,7 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
     IconField,
     InputIcon,
     TranslocoDirective,
+    CoverPlaceholderComponent,
   ],
   styleUrls: ['./book-searcher.component.scss'],
   standalone: true

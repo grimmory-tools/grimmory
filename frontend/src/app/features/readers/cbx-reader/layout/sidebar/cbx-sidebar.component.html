@@ -8,6 +8,8 @@
             alt="Book cover"
             class="book-cover"
           />
+        } @else {
+          <app-cover-placeholder class="book-cover" [title]="bookInfo().title" [author]="bookInfo().authors" size="sm" />
         }
         <div class="book-meta">
           <h2 class="book-title">{{ bookInfo().title }}</h2>

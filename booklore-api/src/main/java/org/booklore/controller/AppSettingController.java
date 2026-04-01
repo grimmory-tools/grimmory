@@ -42,6 +42,7 @@ public class AppSettingController {
         @ApiResponse(responseCode = "200", description = "Settings updated successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid request")
     })
+    @PreAuthorize("@securityUtil.isAdmin()")
     @PutMapping
     public void updateSettings(@Parameter(description = "List of settings to update") @RequestBody List<SettingRequest> settingRequests) throws JacksonException {
         for (SettingRequest settingRequest : settingRequests) {
