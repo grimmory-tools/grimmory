@@ -1,0 +1,119 @@
+@use "../../../shared/styles/settings-shared" as settings;
+
+.local-settings-container {
+  @include settings.settings-page-container;
+}
+
+@include settings.settings-page-header;
+
+.settings-title {
+  @include settings.settings-page-title;
+
+  margin-bottom: 0.75rem;
+}
+
+.settings-description {
+  @include settings.settings-page-description;
+}
+
+@include settings.settings-section-divider;
+
+.settings-card {
+  @include settings.settings-card;
+}
+
+.section-header {
+  @include settings.settings-section-header;
+
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  @include settings.settings-section-title;
+
+  margin: 0;
+}
+
+.section-description {
+  @include settings.settings-section-description;
+}
+
+.settings-content {
+  @include settings.settings-section-body;
+}
+
+.setting-item {
+  @include settings.settings-item;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+
+  &.action-item {
+    border-left-color: var(--p-orange-500);
+    background: color-mix(
+      in srgb,
+      var(--ground-background) 40%,
+      var(--p-surface-800) 60%
+    );
+
+    &:hover {
+      background: color-mix(
+        in srgb,
+        var(--ground-background) 20%,
+        var(--p-surface-800) 80%
+      );
+    }
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.setting-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.setting-label {
+  @include settings.settings-label;
+}
+
+.setting-description {
+  @include settings.settings-item-description;
+}
+
+.setting-control {
+  flex-shrink: 0;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: flex-end;
+
+  .setting-value {
+    font-weight: 600;
+    color: var(--text-color);
+    white-space: nowrap;
+  }
+
+  &.action-buttons {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    justify-content: flex-start;
+    align-items: flex-start;
+
+    &.action-buttons {
+      justify-content: flex-start;
+    }
+  }
+}

@@ -17,11 +17,13 @@ import {DeviceSettingsComponent} from './device-settings/device-settings-compone
 import {LibraryMetadataSettingsComponent} from './library-metadata-settings/library-metadata-settings.component';
 import {PageTitleService} from "../../shared/service/page-title.service";
 import {EmailV2Component} from './email-v2/email-v2.component';
+import { LocalSettingsComponent } from "./local-settings/local-settings.component";
 import {TranslocoDirective} from '@jsverse/transloco';
 
 export enum SettingsTab {
   ReaderSettings = 'reader',
   ViewPreferences = 'view',
+  LocalSettings = 'local',
   DeviceSettings = 'device',
   UserManagement = 'user',
   EmailSettingsV2 = 'email-v2',
@@ -56,13 +58,13 @@ export enum SettingsTab {
     TaskManagementComponent,
     AuditLogsComponent,
     EmailV2Component,
+    LocalSettingsComponent,
     TranslocoDirective
   ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss'
 })
 export class SettingsComponent implements OnInit, OnDestroy {
-
   protected userService = inject(UserService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
