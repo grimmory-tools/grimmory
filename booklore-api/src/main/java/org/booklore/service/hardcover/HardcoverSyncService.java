@@ -1,7 +1,6 @@
 package org.booklore.service.hardcover;
 
 import lombok.extern.slf4j.Slf4j;
-
 import org.booklore.model.dto.HardcoverSyncSettings;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookMetadataEntity;
