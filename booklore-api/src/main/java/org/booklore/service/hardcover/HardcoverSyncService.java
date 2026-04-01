@@ -167,7 +167,12 @@ public class HardcoverSyncService {
                         log.info("Updating existing reading progress for book {} (user {}), hardcoverBookId={}, hardcoverEditionId={}, progress={}% ({}pages)", 
                             bookId, userId, hardcoverBook.bookId, hardcoverBook.editionId, Math.round(progressPercent), progressPages);
 
-                        updateUserBookRead(userBook.id, readInfo);
+                        boolean updatedRead = updateUserBookRead(userBook.id, readInfo);
+
+                        if (!updatedRead) {
+                          log.warn("Failed to update existing user_book_read entry for book {} (user {})", bookId, userId);
+                          return;
+                        }
                         requiresNewReadEntry = false;
                     }
                 }
@@ -175,12 +180,12 @@ public class HardcoverSyncService {
                 // If the book is not being currently read or there is no matching reading activity, we want to create a new one
                 // This should only happen if the user already has the book in their library and without a reading activity, or the latest reading activity is for another edition.
                 if (requiresNewReadEntry) {
-                    insertUserBookRead(userBook.id, hardcoverBook.editionId, progressPages, isFinished);
-                    requiresNewReadEntry = false;
+                    boolean insertedRead = insertUserBookRead(userBook.id, hardcoverBook.editionId, progressPages, isFinished);
+                    requiresNewReadEntry = !insertedRead;
                 }
 
                 if (requiresNewReadEntry) {
-                    log.warn("Hardcover sync failed: could not update or insert user_book_read entry for book {} (user {})", bookId, userId);
+                    log.warn("Hardcover sync failed: could not update user_book_read entry for book {} (user {})", bookId, userId);
                 } else {
                     log.info("Synced progress to Hardcover: userId={}, book={}, hardcoverBookId={}, hardcoverEditionId={}, progress={}% ({}pages)", 
                         userId, bookId, hardcoverBook.bookId, hardcoverBook.editionId, Math.round(progressPercent), progressPages);
@@ -668,8 +673,9 @@ public class HardcoverSyncService {
      * @param editionId the edition ID to use for the user_book_read entry
      * @param progressPages the number of pages read to set in the user_book_read entry
      * @param isFinished whether to set the user_book_read entry as finished
+     * @return true if the insert was successful, false otherwise
      */
-    private void insertUserBookRead(Integer userBookId, Integer editionId, Integer progressPages, boolean isFinished) {
+    private boolean insertUserBookRead(Integer userBookId, Integer editionId, Integer progressPages, boolean isFinished) {
         String mutation = """
             mutation InsertUserBookRead($userBookId: Int!, $userBookReadObject: DatesReadInput!) {
                 insert_user_book_read(user_book_id: $userBookId, user_book_read: $userBookReadObject) {
@@ -705,26 +711,28 @@ public class HardcoverSyncService {
         try {
             Map<String, Object> response = executeGraphQL(request);
             log.trace("insert_user_book_read response: {}", response);
-            if (response == null) return;
+            if (response == null) return false;
 
             if (response.containsKey("errors")) {
                 log.warn("insert_user_book_read returned errors: {}", response.get("errors"));
-                return;
+                return false;
             }
 
             Map<String, Object> data = (Map<String, Object>) response.get("data");
-            if (data == null) return;
+            if (data == null) return false;
             Map<String, Object> insertResult = (Map<String, Object>) data.get("insert_user_book_read");
-            if (insertResult == null) return;
+            if (insertResult == null) return false;
             String error = (String) insertResult.get("error");
             if (error != null && !error.isBlank()) {
                 log.warn("insert_user_book_read returned error: {}", error);
-                return;
+                return false;
             }
+          return true;
 
         } catch (RestClientException e) {
             log.error("Failed to insert user_book_read: {}", e.getMessage());
         }
+        return false;
     }
 
     /**
@@ -732,8 +740,9 @@ public class HardcoverSyncService {
      * This also updates the user_book entry to set the edition_id and status_id based on the parameters, in case it was missing or needs to be updated.
      * @param userBookId the ID of the existing user_book
      * @param readInfo the entire user_book_read info. We need to pass the entire info because the API requires all fields to update, and we need to update the progress and finished_at fields based on the new progress.
+     * @return true if the update was successful, false otherwise
      */
-    private void updateUserBookRead(Integer userBookId, UserBookReadInfo readInfo) {
+    private boolean updateUserBookRead(Integer userBookId, UserBookReadInfo readInfo) {
         // Updating the user_book edition here, may change the edition on an intermediate user_book_read entry if there are multiple unfinished reads, but there is no way to specify which one to update.
         String mutation = """
             mutation UpdateUserBookRead($userBookId: Int!, $userBookReadId: Int!, $userBookObject: UserBookUpdateInput!, $userBookReadObject: DatesReadInput!) {
@@ -773,10 +782,10 @@ public class HardcoverSyncService {
         Map<String, Object> response = executeGraphQL(request);
 
         log.trace("update_user_book_read response: {}", response);
-        if (response == null) return;
+        if (response == null) return false;
         if (response.containsKey("errors")) {
             log.warn("update_user_book_read returned errors: {}", response.get("errors"));
-            return;
+            return false;
         }
 
         if (response.containsKey("data")) {
@@ -792,6 +801,7 @@ public class HardcoverSyncService {
                 }
             }
         }
+        return true;
     }
 
     private Map<String, Object> executeGraphQL(GraphQLRequest request) {
