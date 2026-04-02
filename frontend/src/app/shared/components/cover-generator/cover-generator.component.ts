@@ -41,7 +41,7 @@ export type CoverPlaceholderSize = 'sm' | 'md' | 'lg';
       display: block;
       width: 100%;
       height: 100%;
-      container-type: size;
+      container-type: inline-size;
     }
 
     .placeholder {
