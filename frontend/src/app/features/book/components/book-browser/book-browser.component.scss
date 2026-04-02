@@ -1,3 +1,66 @@
+// Skeleton loader — opacity animation runs on the compositor thread
+// so it stays smooth while the main thread computes books.
+.skeleton-grid {
+  display: grid;
+  gap: 21px;
+  align-items: start;
+  width: 100%;
+
+  @media (width <= 767px) {
+    gap: 0.5rem 8px;
+    padding: 0 0.5rem;
+  }
+}
+
+.skeleton-card {
+  background: var(--p-content-border-color);
+  border-radius: 8px;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  will-change: opacity;
+}
+
+.table-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+.table-skeleton-header,
+.table-skeleton-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: center;
+}
+
+.table-skeleton-row {
+  min-height: 2.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--p-content-border-color);
+}
+
+.table-skeleton-cell {
+  height: 0.875rem;
+  border-radius: 999px;
+  background: var(--p-content-border-color);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+
+  &.table-skeleton-cell-header {
+    height: 0.75rem;
+    opacity: 0.75;
+  }
+
+  &.table-skeleton-cell-short {
+    width: 70%;
+  }
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
 // Layout containers
 .book-browser-container {
   position: relative;
@@ -537,4 +600,37 @@
 // Book state container
 .book-state-wrapper {
   position: relative;
+}
+
+.books-refresh-indicator {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 0 1rem;
+  pointer-events: none;
+}
+
+.books-refresh-bar {
+  height: 3px;
+  width: 100%;
+  border-radius: 999px;
+  background:
+    linear-gradient(
+      90deg,
+      rgb(0 0 0 / 0%) 0%,
+      var(--primary-color) 50%,
+      rgb(0 0 0 / 0%) 100%
+    );
+  background-size: 200% 100%;
+  animation: books-refresh-slide 1s linear infinite;
+}
+
+@keyframes books-refresh-slide {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
 }
