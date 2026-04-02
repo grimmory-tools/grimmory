@@ -710,7 +710,7 @@ public class OpdsFeedService {
     }
 
     private String escapeXml(String input) {
-        return input == null ? "" : StringEscapeUtils.escapeXml11(input);
+        return input == null ? "" : StringEscapeUtils.escapeXml10(input);
     }
 
     private Long parseLongParam(HttpServletRequest request, String name, Long defaultValue) {
