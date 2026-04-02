@@ -52,7 +52,8 @@ export class KoboSyncSettingsComponent implements OnInit, OnDestroy {
     convertCbxToEpub: false,
     conversionImageCompressionPercentage: 85,
     conversionLimitInMbForCbx: 100,
-    forceEnableHyphenation: false
+    forceEnableHyphenation: false,
+    forwardToKoboStore: false
   };
 
   koboSyncSettings: KoboSyncSettings = {
