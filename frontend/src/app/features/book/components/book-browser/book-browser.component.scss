@@ -79,11 +79,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
   gap: 0.25rem;
   padding: 0.35rem;
   border-radius: 0.75rem 0.75rem 0 0;
   margin-bottom: 0.5rem;
+  margin-right: 2px;
   background-color: var(--card-background);
   border: 1px solid var(--p-content-border-color);
 
@@ -602,35 +602,3 @@
   position: relative;
 }
 
-.books-refresh-indicator {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  padding: 0 1rem;
-  pointer-events: none;
-}
-
-.books-refresh-bar {
-  height: 3px;
-  width: 100%;
-  border-radius: 999px;
-  background:
-    linear-gradient(
-      90deg,
-      rgb(0 0 0 / 0%) 0%,
-      var(--primary-color) 50%,
-      rgb(0 0 0 / 0%) 100%
-    );
-  background-size: 200% 100%;
-  animation: books-refresh-slide 1s linear infinite;
-}
-
-@keyframes books-refresh-slide {
-  from {
-    background-position: 200% 0;
-  }
-
-  to {
-    background-position: -200% 0;
-  }
-}

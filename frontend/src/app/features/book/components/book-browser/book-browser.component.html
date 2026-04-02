@@ -105,6 +105,19 @@
             <p-popover #seriesCollapseOverlay [dismissable]="true" appendTo="body">
               <div class="display-settings-popover">
                 <div class="display-settings-section">
+                  <p-selectbutton
+                    [options]="viewModeOptions"
+                    [ngModel]="currentViewMode"
+                    (ngModelChange)="onViewModeChange($event)"
+                    optionLabel="icon"
+                    optionValue="value"
+                    [style]="{ width: '100%' }">
+                    <ng-template #item let-item>
+                      <i [class]="item.icon"></i>
+                    </ng-template>
+                  </p-selectbutton>
+                </div>
+                <div class="display-settings-section">
                   <div class="display-settings-checkbox-row">
                     <p-checkbox
                       inputId="collapse-series-checkbox"
@@ -189,13 +202,6 @@
             </p-popover>
           </div>
 
-          <a class="topbar-items topbar-item" role="button" tabindex="0" (click)="toggleTableGrid()" (keydown.enter)="toggleTableGrid()">
-            <i
-              [ngClass]="viewIcon"
-              [pTooltip]="t('tooltip.toggleView')"
-              tooltipPosition="top">
-            </i>
-          </a>
         </div>
 
         <!-- MOBILE SEARCH (only visible below md) -->
@@ -256,7 +262,7 @@
 
         <a class="topbar-items topbar-item" role="button" tabindex="0" (click)="toggleSidebar()" (keydown.enter)="toggleSidebar()">
           <i
-            [ngClass]="showFilter() ? 'pi pi-angle-double-right' : 'pi pi-angle-double-left'"
+            [ngClass]="showFilter() ? 'pi pi-filter-fill' : 'pi pi-filter'"
             [pTooltip]="t('tooltip.toggleSidebar')"
             tooltipPosition="top">
           </i>
@@ -297,11 +303,6 @@
       </div>
     } @else if (books(); as books) {
       <div class="book-state-wrapper">
-        @if (isBooksRefreshing()) {
-          <div class="books-refresh-indicator" aria-hidden="true">
-            <div class="books-refresh-bar"></div>
-          </div>
-        }
         @if (books.length === 0 && !isBooksLoading()) {
           <div class="no-books-container">
             <p class="no-books-text">
@@ -329,11 +330,11 @@
                   class="virtual-scroller-item"
                   [ngStyle]="{width: currentCardSize.width + 'px', height: getCardHeight(book) + 'px'}">
                   <app-book-card
-                    [index]="books.indexOf(book)"
+                    [index]="bookIndexById().get(book.id) ?? i"
                     [book]="book"
                     [isCheckboxEnabled]="true"
                     [seriesViewEnabled]="seriesViewEnabled"
-                    [onBookSelect]="handleBookSelect.bind(this)"
+                    [onBookSelect]="onBookCardSelect"
                     [isSeriesCollapsed]="seriesCollapseFilter.seriesCollapsed()"
                     (checkboxClick)="onCheckboxClicked($event)"
                     [isSelected]="selectedBooks().has(book.id)"

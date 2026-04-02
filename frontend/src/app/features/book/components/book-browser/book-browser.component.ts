@@ -33,6 +33,7 @@ import {Checkbox} from 'primeng/checkbox';
 import {Popover} from 'primeng/popover';
 import {Slider} from 'primeng/slider';
 import {Divider} from 'primeng/divider';
+import {SelectButton} from 'primeng/selectbutton';
 import {MultiSelect} from 'primeng/multiselect';
 import {TableColumnPreferenceService} from './table-column-preference.service';
 import {TieredMenu} from 'primeng/tieredmenu';
@@ -49,12 +50,14 @@ import {BookCardOverlayPreferenceService} from './book-card-overlay-preference.s
 import {BookSelectionService, CheckboxClickEvent} from './book-selection.service';
 import {BookBrowserQueryParamsService, VIEW_MODES} from './book-browser-query-params.service';
 import {BookBrowserEntityService, EntityInfo} from './book-browser-entity.service';
-import {BookFilterOrchestrationService} from './book-filter-orchestration.service';
 import {BookBrowserScrollService} from './book-browser-scroll.service';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {MultiSortPopoverComponent} from './sorting/multi-sort-popover/multi-sort-popover.component';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {DeferredRenderState} from './deferred-render-state';
+import {SortService} from '../../service/sort.service';
+import {filterBooksBySearchTerm} from './filters/HeaderFilter';
+import {filterBooksByFilters} from './filters/sidebar-filter';
 
 export enum EntityType {
   LIBRARY = 'Library',
@@ -72,7 +75,7 @@ export enum EntityType {
   imports: [
     Button, VirtualScrollerModule, BookCardComponent, Menu, InputText, FormsModule,
     BookTableComponent, BookFilterComponent, Tooltip, NgClass, NgStyle, Popover,
-    Checkbox, Slider, Divider, MultiSelect, TieredMenu, BadgeModule, MultiSortPopoverComponent, TranslocoDirective
+    Checkbox, Slider, Divider, MultiSelect, TieredMenu, BadgeModule, MultiSortPopoverComponent, TranslocoDirective, SelectButton
   ],
   providers: [SeriesCollapseFilter],
   animations: [
@@ -114,7 +117,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   private bookNavigationService = inject(BookNavigationService);
   private queryParamsService = inject(BookBrowserQueryParamsService);
   private entityService = inject(BookBrowserEntityService);
-  private filterOrchestrationService = inject(BookFilterOrchestrationService);
+  private sortService = inject(SortService);
   private localStorageService = inject(LocalStorageService);
   private scrollService = inject(BookBrowserScrollService);
   private readonly t = inject(TranslocoService);
@@ -181,38 +184,61 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
 
     return actions;
   });
+  // --- Layered pipeline: each computed only recomputes when its direct inputs change ---
+  private readonly entityBooks = computed(() => {
+    const {entityId, entityType} = this.entityInfo();
+    return this.entityService.getBooksByEntity(this.bookService.books(), entityId, entityType);
+  });
+  private readonly searchedBooks = computed(() =>
+    filterBooksBySearchTerm(this.entityBooks(), this.debouncedSearchTerm())
+  );
+  private readonly filteredBooks = computed(() =>
+    filterBooksByFilters(this.searchedBooks(), this.selectedFilter(), this.selectedFilterMode())
+  );
+  private readonly forceExpandSeries = computed(() =>
+    this.queryParamsService.shouldForceExpandSeries(this.queryParamMap())
+  );
+  private readonly collapsedBooks = computed(() =>
+    this.seriesCollapseFilter.collapseBooks(
+      this.filteredBooks(), this.forceExpandSeries(), this.seriesCollapsed()
+    )
+  );
+  private readonly sortedBooks = computed(() =>
+    this.sortService.applyMultiSort(this.collapsedBooks(), this.sortCriteria())
+  );
+
+  // --- Deferred render: lets skeleton/refresh indicator paint before committing ---
   private readonly booksRenderState = new DeferredRenderState<Book[]>();
   readonly books = this.booksRenderState.value;
   readonly hasRenderedBooks = this.booksRenderState.hasValue;
-  readonly isBooksRefreshing = this.booksRenderState.isRefreshing;
+
   private lastBooksContextKey: string | null = null;
   private readonly booksContextKey = computed(() => {
     const {entityId, entityType} = this.entityInfo();
     return Number.isNaN(entityId) ? entityType : `${entityType}:${entityId}`;
   });
-  private readonly computeBooksEffect = effect((onCleanup) => {
+
+  private readonly pipelineInputs = computed(() => ({
+    books: this.bookService.books(),
+    entity: this.entityInfo(),
+    search: this.debouncedSearchTerm(),
+    filter: this.selectedFilter(),
+    filterMode: this.selectedFilterMode(),
+    collapsed: this.seriesCollapsed(),
+    forceExpand: this.forceExpandSeries(),
+    sort: this.sortCriteria(),
+  }));
+
+  private readonly renderBooksEffect = effect((onCleanup) => {
     const contextKey = this.booksContextKey();
-    const {entityId, entityType} = this.entityInfo();
-    const allBooks = this.bookService.books();
-    const searchTerm = this.debouncedSearchTerm();
-    const filters = this.selectedFilter();
-    const filterMode = this.selectedFilterMode();
-    const collapsed = this.seriesCollapsed();
-    const queryParams = this.queryParamMap();
-    const sort = this.sortCriteria();
+    this.pipelineInputs();
+
     const shouldRefreshInPlace = untracked(() => this.hasRenderedBooks()) && contextKey === this.lastBooksContextKey;
     const requestId = this.booksRenderState.begin(shouldRefreshInPlace ? 'refresh' : 'reset');
     this.lastBooksContextKey = contextKey;
 
     const timeout = globalThis.setTimeout(() => {
-      const entityBooks = this.entityService.getBooksByEntity(allBooks, entityId, entityType);
-      const result = this.filterOrchestrationService.applyFilters(
-        entityBooks, searchTerm, filters, filterMode,
-        this.seriesCollapseFilter, collapsed,
-        this.filterOrchestrationService.shouldForceExpandSeries(queryParams),
-        sort
-      );
-      this.booksRenderState.commit(requestId, result);
+      this.booksRenderState.commit(requestId, this.sortedBooks());
     });
 
     onCleanup(() => {
@@ -222,6 +248,15 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   });
   readonly isBooksLoading = this.bookService.isBooksLoading;
   readonly booksError = this.bookService.booksError;
+  readonly bookIndexById = computed(() => {
+    const books = this.books();
+    if (!books) return new Map<number, number>();
+    const map = new Map<number, number>();
+    for (let i = 0; i < books.length; i++) {
+      map.set(books[i].id, i);
+    }
+    return map;
+  });
   protected resetFilterSubject = new Subject<void>();
 
   readonly skeletonSlots = Array.from({length: 24}, (_, index) => index);
@@ -236,6 +271,10 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   visibleColumns: { field: string; header: string }[] = [];
   entityViewPreferences: EntityViewPreferences | undefined;
   currentViewMode: string | undefined;
+  readonly viewModeOptions = [
+    {value: VIEW_MODES.GRID, icon: 'pi pi-objects-column'},
+    {value: VIEW_MODES.TABLE, icon: 'pi pi-table'},
+  ];
   lastAppliedSortCriteria: SortOption[] = [];
   visibleSortOptions: SortOption[] = [];
   screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
@@ -252,6 +291,9 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected metadataMenuItems: MenuItem[] | undefined;
   protected moreActionsMenuItems: MenuItem[] | undefined;
+  protected readonly onBookCardSelect = (book: Book, selected: boolean): void => {
+    this.handleBookSelect(book, selected);
+  };
 
   protected bookSorter = new BookSorter(
     sortCriteria => this.onMultiSortChange(sortCriteria),
@@ -827,6 +869,13 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   toggleTableGrid(): void {
     this.currentViewMode = this.currentViewMode === VIEW_MODES.GRID ? VIEW_MODES.TABLE : VIEW_MODES.GRID;
     this.queryParamsService.updateViewMode(this.currentViewMode as 'grid' | 'table');
+  }
+
+  onViewModeChange(mode: string): void {
+    if (mode && mode !== this.currentViewMode) {
+      this.currentViewMode = mode;
+      this.queryParamsService.updateViewMode(mode as 'grid' | 'table');
+    }
   }
 
   unshelfBooks(): void {
