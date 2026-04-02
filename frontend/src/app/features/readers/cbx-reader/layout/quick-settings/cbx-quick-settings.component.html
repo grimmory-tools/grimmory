@@ -1,5 +1,7 @@
-<div class="quick-settings-overlay" role="button" tabindex="0" (click)="onOverlayClick()" (keydown.enter)="onOverlayClick()">
-  <div class="quick-settings-panel" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
+<div class="quick-settings-overlay" role="button" tabindex="0" (click)="onOverlayClick()"
+  (keydown.enter)="onOverlayClick()">
+  <div class="quick-settings-panel" tabindex="0" (click)="$event.stopPropagation()"
+    (keydown.enter)="$event.stopPropagation()">
     <div class="pointer"></div>
     <div class="panel-body">
       <!-- Fit Mode -->
@@ -8,13 +10,10 @@
         <div class="control-right">
           <div class="button-group">
             @for (option of fitModeOptions; track option.value) {
-              <button
-                class="option-btn"
-                [class.active]="state().fitMode === option.value"
-                (click)="onFitModeSelect(option.value)"
-                [title]="option.label">
-                <app-reader-icon [name]="option.icon" [size]="16" />
-              </button>
+            <button class="option-btn" [class.active]="state().fitMode === option.value"
+              (click)="onFitModeSelect(option.value)" [title]="option.label">
+              <app-reader-icon [name]="option.icon" [size]="16" />
+            </button>
             }
           </div>
         </div>
@@ -26,13 +25,10 @@
         <div class="control-right">
           <div class="button-group text-btns">
             @for (option of scrollModeOptions; track option.value) {
-              <button
-                class="option-btn text-btn"
-                [class.active]="state().scrollMode === option.value"
-                (click)="onScrollModeSelect(option.value)"
-                [title]="option.label">
-                {{ option.label }}
-              </button>
+            <button class="option-btn text-btn" [class.active]="state().scrollMode === option.value"
+              (click)="onScrollModeSelect(option.value)" [title]="option.label">
+              {{ option.label }}
+            </button>
             }
           </div>
         </div>
@@ -40,36 +36,42 @@
 
       <!-- Page View (only in paginated mode) -->
       @if (isPaginated && !isPhonePortrait) {
-        <div class="control">
-          <span>{{ 'readerCbx.quickSettings.pageView' | transloco }}</span>
-          <div class="control-right">
-            <span class="mode-label">{{ isTwoPageView ? ('readerCbx.quickSettings.twoPage' | transloco) : ('readerCbx.quickSettings.single' | transloco) }}</span>
-            <button class="switch" [class.active]="isTwoPageView" (click)="onPageViewToggle()">
-              <span class="slider"></span>
-            </button>
-          </div>
+      <div class="control">
+        <span>{{ 'readerCbx.quickSettings.pageView' | transloco }}</span>
+        <div class="control-right">
+          <span class="mode-label">{{ isTwoPageView ? ('readerCbx.quickSettings.twoPage' | transloco) :
+            ('readerCbx.quickSettings.single' | transloco) }}</span>
+          <button class="switch" [class.active]="isTwoPageView" (click)="onPageViewToggle()">
+            <span class="slider"></span>
+          </button>
         </div>
+      </div>
       }
 
       <!-- Page Spread (only in two-page mode) -->
       @if (isPaginated && isTwoPageView) {
-        <div class="control">
-          <span>{{ 'readerCbx.quickSettings.pageSpread' | transloco }}</span>
-          <div class="control-right">
-            <span class="mode-label">{{ state().pageSpread === CbxPageSpread.ODD ? ('readerCbx.quickSettings.oddFirst' | transloco) : ('readerCbx.quickSettings.evenFirst' | transloco) }}</span>
-            <button class="switch" [class.active]="state().pageSpread === CbxPageSpread.EVEN" (click)="onPageSpreadToggle()">
-              <span class="slider"></span>
-            </button>
-          </div>
+      <div class="control">
+        <span>{{ 'readerCbx.quickSettings.pageSpread' | transloco }}</span>
+        <div class="control-right">
+          <span class="mode-label">{{ state().pageSpread === CbxPageSpread.ODD ? ('readerCbx.quickSettings.oddFirst' |
+            transloco) : ('readerCbx.quickSettings.evenFirst' | transloco) }}</span>
+          <button class="switch" [class.active]="state().pageSpread === CbxPageSpread.EVEN"
+            (click)="onPageSpreadToggle()">
+            <span class="slider"></span>
+          </button>
         </div>
+      </div>
       }
 
       <!-- Reading Direction -->
       <div class="control">
         <span>{{ 'readerCbx.quickSettings.readingDirection' | transloco }}</span>
         <div class="control-right">
-          <span class="mode-label">{{ state().readingDirection === CbxReadingDirection.LTR ? ('readerCbx.quickSettings.leftToRight' | transloco) : ('readerCbx.quickSettings.rightToLeft' | transloco) }}</span>
-          <button class="switch" [class.active]="state().readingDirection === CbxReadingDirection.RTL" (click)="onReadingDirectionToggle()">
+          <span class="mode-label">{{ state().readingDirection === CbxReadingDirection.LTR ?
+            ('readerCbx.quickSettings.leftToRight' | transloco) : ('readerCbx.quickSettings.rightToLeft' | transloco)
+            }}</span>
+          <button class="switch" [class.active]="state().readingDirection === CbxReadingDirection.RTL"
+            (click)="onReadingDirectionToggle()">
             <span class="slider"></span>
           </button>
         </div>
@@ -81,13 +83,10 @@
         <div class="control-right">
           <div class="button-group text-btns">
             @for (option of slideshowIntervalOptions; track option.value) {
-              <button
-                class="option-btn text-btn small"
-                [class.active]="state().slideshowInterval === option.value"
-                (click)="onSlideshowIntervalSelect(option.value)"
-                [title]="option.label">
-                {{ option.label }}
-              </button>
+            <button class="option-btn text-btn small" [class.active]="state().slideshowInterval === option.value"
+              (click)="onSlideshowIntervalSelect(option.value)" [title]="option.label">
+              {{ option.label }}
+            </button>
             }
           </div>
         </div>
@@ -99,13 +98,10 @@
         <div class="control-right">
           <div class="button-group">
             @for (option of backgroundOptions; track option.value) {
-              <button
-                class="option-btn color-btn"
-                [class.active]="state().backgroundColor === option.value"
-                (click)="onBackgroundSelect(option.value)"
-                [title]="option.label">
-                <span class="color-swatch" [style.background]="option.color"></span>
-              </button>
+            <button class="option-btn color-btn" [class.active]="state().backgroundColor === option.value"
+              (click)="onBackgroundSelect(option.value)" [title]="option.label">
+              <span class="color-swatch" [style.background]="option.color"></span>
+            </button>
             }
           </div>
         </div>
@@ -117,13 +113,10 @@
         <div class="control-right">
           <div class="button-group text-btns">
             @for (option of magnifierLensSizeOptions; track option.value) {
-              <button
-                class="option-btn text-btn small"
-                [class.active]="state().magnifierLensSize === option.value"
-                (click)="onMagnifierLensSizeSelect(option.value)"
-                [title]="option.label">
-                {{ option.label }}
-              </button>
+            <button class="option-btn text-btn small" [class.active]="state().magnifierLensSize === option.value"
+              (click)="onMagnifierLensSizeSelect(option.value)" [title]="option.label">
+              {{ option.label }}
+            </button>
             }
           </div>
         </div>
@@ -135,15 +128,58 @@
         <div class="control-right">
           <div class="button-group text-btns">
             @for (option of magnifierZoomOptions; track option.value) {
-              <button
-                class="option-btn text-btn small"
-                [class.active]="state().magnifierZoom === option.value"
-                (click)="onMagnifierZoomSelect(option.value)"
-                [title]="option.label">
-                {{ option.label }}
-              </button>
+            <button class="option-btn text-btn small" [class.active]="state().magnifierZoom === option.value"
+              (click)="onMagnifierZoomSelect(option.value)" [title]="option.label">
+              {{ option.label }}
+            </button>
             }
           </div>
+        </div>
+      </div>
+
+      <!-- Brightness -->
+      <div class="control">
+        <span>{{ 'readerCbx.quickSettings.brightness' | transloco }}</span>
+        <div class="control-right">
+          <input type="range" min="10" max="100" step="5" [value]="state().brightness"
+            (input)="onBrightnessChange($event)" class="brightness-slider" />
+          <span class="brightness-value">{{ state().brightness }}%</span>
+        </div>
+      </div>
+
+      <!-- Emulate Book -->
+      <div class="control">
+        <span>{{ 'readerCbx.quickSettings.emulateBook' | transloco }}</span>
+        <div class="control-right">
+          <span class="mode-label">{{ state().emulateBook ? ('common.on' | transloco) : ('common.off' | transloco)
+            }}</span>
+          <button class="switch" [class.active]="state().emulateBook" (click)="onEmulateBookToggle()">
+            <span class="slider"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Click to Paginate -->
+      <div class="control">
+        <span>{{ 'readerCbx.quickSettings.clickToPaginate' | transloco }}</span>
+        <div class="control-right">
+          <span class="mode-label">{{ state().clickToPaginate ? ('common.on' | transloco) : ('common.off' | transloco)
+            }}</span>
+          <button class="switch" [class.active]="state().clickToPaginate" (click)="onClickToPaginateToggle()">
+            <span class="slider"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Auto Close Menu -->
+      <div class="control">
+        <span>{{ 'readerCbx.quickSettings.autoCloseMenu' | transloco }}</span>
+        <div class="control-right">
+          <span class="mode-label">{{ state().autoCloseMenu ? ('common.on' | transloco) : ('common.off' | transloco)
+            }}</span>
+          <button class="switch" [class.active]="state().autoCloseMenu" (click)="onAutoCloseMenuToggle()">
+            <span class="slider"></span>
+          </button>
         </div>
       </div>
     </div>

@@ -138,7 +138,11 @@
           <div class="settings-card book-group-card">
             <!-- Book Header -->
             <div class="book-group-header" role="button" tabindex="0" (click)="toggleGroup(group.bookId)" (keydown.enter)="toggleGroup(group.bookId)">
-              <img [src]="group.thumbnailUrl" [alt]="group.bookTitle" class="book-thumbnail" />
+              @if (group.thumbnailUrl) {
+                <img [src]="group.thumbnailUrl" [alt]="group.bookTitle" class="book-thumbnail" />
+              } @else {
+                <app-cover-placeholder class="book-thumbnail" [title]="group.bookTitle" size="sm" />
+              }
               <div class="book-info">
                 <span class="book-title">{{ group.bookTitle }}</span>
                 <span class="book-entry-count">

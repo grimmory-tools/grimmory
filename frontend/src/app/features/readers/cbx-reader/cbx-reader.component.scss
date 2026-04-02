@@ -19,6 +19,7 @@
   // RTL reading mode - reverse page order in two-page view
   &.rtl-reading {
     .two-page-view {
+
       .pages-wrapper,
       .previous-page-layer,
       .current-page-layer {
@@ -45,8 +46,13 @@
   }
 
   @keyframes slideshow-fill {
-    from { width: 0; }
-    to { width: 100%; }
+    from {
+      width: 0;
+    }
+
+    to {
+      width: 100%;
+    }
   }
 
   .magnifier-lens {
@@ -184,6 +190,7 @@
       }
 
       &.fit-width {
+
         .pages-wrapper,
         .previous-page-layer,
         .current-page-layer {
@@ -201,6 +208,7 @@
         }
 
         &.two-page-view {
+
           .pages-wrapper,
           .previous-page-layer,
           .current-page-layer {
@@ -217,6 +225,7 @@
       }
 
       &.fit-height {
+
         .pages-wrapper,
         .previous-page-layer,
         .current-page-layer {
@@ -401,70 +410,33 @@
       }
     }
 
-    // Long Strip / Webtoon mode - no gaps between pages
+    // Long-strip (webtoon) mode — gapless vertical strip, always fit-width
     &.long-strip {
       overflow: hidden auto;
       align-items: flex-start;
       touch-action: pan-y;
-      -webkit-overflow-scrolling: touch;
       overscroll-behavior: contain;
 
       .long-strip-wrapper {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 0;
         width: 100%;
-        padding: 0;
+
+        // No gap, no padding — gapless vertical strip
       }
 
-      .page-image {
-        box-shadow: none;
-        border-radius: 0;
-        transition: none;
+      .long-strip-image {
         display: block;
-
-        &:hover {
-          transform: none;
-        }
-      }
-
-      &.fit-width .page-image {
         width: 100%;
         height: auto;
-      }
-
-      &.fit-height .page-image {
-        width: auto;
-        height: auto;
         max-width: 100%;
-      }
+        border: 0;
+        margin: 0;
+        padding: 0;
 
-      &.fit-actual-size {
-        overflow-x: auto;
-
-        .long-strip-wrapper {
-          width: max-content;
-          min-width: 100%;
-        }
-
-        .page-image {
-          width: auto;
-          height: auto;
-        }
-      }
-
-      &.fit-page .page-image,
-      &.fit-auto .page-image {
-        max-width: 100%;
-        width: auto;
-        height: auto;
-      }
-
-      .loading-more {
-        padding: 2rem;
-        display: flex;
-        justify-content: center;
+        // Hardware acceleration (Kavita pattern)
+        transform: translate3d(0, 0, 0);
       }
     }
 
@@ -550,7 +522,7 @@
   }
 }
 
-@media (width <= 768px) {
+@media (width <=768px) {
   .comic-reader-container {
     .slideshow-progress.above-footer {
       bottom: 48px;
@@ -568,8 +540,13 @@
         min-width: 240px;
         padding: 1.5rem 2rem;
 
-        .action-icon { font-size: 2rem; }
-        .action-text { font-size: 1rem; }
+        .action-icon {
+          font-size: 2rem;
+        }
+
+        .action-text {
+          font-size: 1rem;
+        }
 
         .book-title {
           font-size: 0.85rem;
@@ -616,5 +593,92 @@
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+// Click-to-paginate overlay
+.click-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+
+  &.visible {
+    opacity: 1;
+  }
+
+  .click-zone {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .click-zone-prev {
+    width: 40%;
+    background: rgb(255 255 255 / 3%);
+  }
+
+  .click-zone-menu {
+    width: 20%;
+  }
+
+  .click-zone-next {
+    width: 40%;
+    background: rgb(255 255 255 / 3%);
+  }
+
+  .zone-arrow {
+    font-size: 2rem;
+    color: rgb(255 255 255 / 30%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &.visible .zone-arrow {
+    opacity: 1;
+  }
+
+  // RTL: swap prev/next zones visually
+  &.rtl-overlay {
+    flex-direction: row-reverse;
+  }
+
+  // Disable pointer events when magnifier is active so elementFromPoint can reach images
+  &.magnifier-disabled {
+    pointer-events: none;
+
+    .click-zone {
+      pointer-events: none;
+    }
+  }
+}
+
+// Emulate book mode spine shadow in two-page view
+.image-container.emulate-book {
+
+  .pages-wrapper,
+  .current-page-layer {
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 0;
+      z-index: 2;
+      pointer-events: none;
+      box-shadow:
+        -4px 0 12px rgb(0 0 0 / 40%),
+        4px 0 12px rgb(0 0 0 / 40%),
+        -2px 0 6px rgb(0 0 0 / 20%),
+        2px 0 6px rgb(0 0 0 / 20%);
+    }
   }
 }

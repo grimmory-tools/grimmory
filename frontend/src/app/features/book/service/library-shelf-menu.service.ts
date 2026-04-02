@@ -1,19 +1,20 @@
-import {inject, Injectable} from '@angular/core';
-import {ConfirmationService, MenuItem, MessageService} from 'primeng/api';
-import {Router} from '@angular/router';
-import {LibraryService} from './library.service';
-import {ShelfService} from './shelf.service';
-import {Library} from '../model/library.model';
-import {Shelf} from '../model/shelf.model';
-import {MetadataRefreshType} from '../../metadata/model/request/metadata-refresh-type.enum';
-import {MagicShelf, MagicShelfService} from '../../magic-shelf/service/magic-shelf.service';
-import {TaskHelperService} from '../../settings/task-management/task-helper.service';
-import {UserService} from "../../settings/user-management/user.service";
-import {LoadingService} from '../../../core/services/loading.service';
-import {finalize} from 'rxjs';
-import {DialogLauncherService} from '../../../shared/services/dialog-launcher.service';
-import {BookDialogHelperService} from '../components/book-browser/book-dialog-helper.service';
-import {TranslocoService} from '@jsverse/transloco';
+import { inject, Injectable } from '@angular/core';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { Router } from '@angular/router';
+import { LibraryService } from './library.service';
+import { ShelfService } from './shelf.service';
+import { Library } from '../model/library.model';
+import { Shelf } from '../model/shelf.model';
+import { MetadataRefreshType } from '../../metadata/model/request/metadata-refresh-type.enum';
+import { MagicShelf, MagicShelfService } from '../../magic-shelf/service/magic-shelf.service';
+import { TaskHelperService } from '../../settings/task-management/task-helper.service';
+import { UserService } from '../../settings/user-management/user.service';
+import { LoadingService } from '../../../core/services/loading.service';
+import { finalize } from 'rxjs';
+import { DialogLauncherService } from '../../../shared/services/dialog-launcher.service';
+import { BookDialogHelperService } from '../components/book-browser/book-dialog-helper.service';
+import { TranslocoService } from '@jsverse/transloco';
+import type { MenuItem } from 'primeng/api';
 
 @Injectable({
   providedIn: 'root',
@@ -33,7 +34,7 @@ export class LibraryShelfMenuService {
   private bookDialogHelperService = inject(BookDialogHelperService);
   private readonly t = inject(TranslocoService);
 
-  initializeLibraryMenuItems(entity: Library | Shelf | MagicShelf | null): MenuItem[] {
+  initializeLibraryMenuItems(entity: Library | null): MenuItem[] {
     return [
       {
         label: this.t.translate('book.shelfMenuService.library.optionsLabel'),
@@ -85,9 +86,12 @@ export class LibraryShelfMenuService {
                   severity: 'success',
                 },
                 accept: () => {
-                  const entityId = entity?.id;
-                  if (entityId == null) return;
-                  this.libraryService.refreshLibrary(entityId).subscribe({
+                  const libraryId = entity?.id;
+                  if (libraryId == null) {
+                    return;
+                  }
+
+                  this.libraryService.refreshLibrary(libraryId).subscribe({
                     complete: () => {
                       this.messageService.add({severity: 'info', summary: this.t.translate('common.success'), detail: this.t.translate('book.shelfMenuService.toast.libraryRefreshSuccessDetail')});
                     },
@@ -149,13 +153,14 @@ export class LibraryShelfMenuService {
                 },
                 accept: () => {
                   const loader = this.loadingService.show(this.t.translate('book.shelfMenuService.loading.deletingLibrary', {name: entity?.name}));
-                  const entityId = entity?.id;
-                  if (entityId == null) {
+                  const libraryId = entity?.id;
+
+                  if (libraryId == null) {
                     this.loadingService.hide(loader);
                     return;
                   }
 
-                  this.libraryService.deleteLibrary(entityId)
+                  this.libraryService.deleteLibrary(libraryId)
                     .pipe(finalize(() => this.loadingService.hide(loader)))
                     .subscribe({
                       complete: () => {
@@ -219,9 +224,12 @@ export class LibraryShelfMenuService {
                   severity: 'secondary'
                 },
                 accept: () => {
-                  const entityId = entity?.id;
-                  if (entityId == null) return;
-                  this.shelfService.deleteShelf(entityId).subscribe({
+                  const shelfId = entity?.id;
+                  if (shelfId == null) {
+                    return;
+                  }
+
+                  this.shelfService.deleteShelf(shelfId).subscribe({
                     complete: () => {
                       this.router.navigate(['/']);
                       this.messageService.add({severity: 'info', summary: this.t.translate('common.success'), detail: this.t.translate('book.shelfMenuService.toast.shelfDeletedDetail')});
@@ -293,9 +301,12 @@ export class LibraryShelfMenuService {
                   severity: 'secondary'
                 },
                 accept: () => {
-                  const entityId = entity?.id;
-                  if (entityId == null) return;
-                  this.magicShelfService.deleteShelf(entityId).subscribe({
+                  const shelfId = entity?.id;
+                  if (shelfId == null) {
+                    return;
+                  }
+
+                  this.magicShelfService.deleteShelf(shelfId).subscribe({
                     complete: () => {
                       this.router.navigate(['/']);
                       this.messageService.add({severity: 'info', summary: this.t.translate('common.success'), detail: this.t.translate('book.shelfMenuService.toast.magicShelfDeletedDetail')});

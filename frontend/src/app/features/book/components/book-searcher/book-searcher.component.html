@@ -49,11 +49,15 @@
             (click)="onBookClick(book)"
             (keydown.enter)="onBookClick(book)">
             <div class="search-item-content">
-              <img
-                [attr.src]="urlHelper.getThumbnailUrl(book.id, book.metadata?.coverUpdatedOn)"
-                [alt]="t('bookCoverAlt')"
-                class="search-book-cover"
-              />
+              @if (urlHelper.getThumbnailUrl(book.id, book.metadata?.coverUpdatedOn); as coverUrl) {
+                <img
+                  [attr.src]="coverUrl"
+                  [alt]="t('bookCoverAlt')"
+                  class="search-book-cover"
+                />
+              } @else {
+                <app-cover-placeholder class="search-book-cover" [title]="book.metadata?.title ?? ''" [author]="(book.metadata?.authors ?? []).join(', ')" size="sm" />
+              }
               <div class="search-book-details">
                 <div class="search-book-title-container">
                   <p class="search-book-name">

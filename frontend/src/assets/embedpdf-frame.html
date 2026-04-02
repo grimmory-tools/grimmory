@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; overflow: hidden; }
+    #viewer { height: 100%; width: 100%; display: flex; }
+    #viewer embedpdf-container { display: flex; flex: 1; width: 100%; height: 100%; }
+  </style>
+</head>
+<body>
+<div id="viewer"></div>
+<script type="module">
+  import EmbedPDF from '/assets/embedpdf/embedpdf.js';
+
+  let viewer = null;
+  let objectUrl = null;
+  let registry = null;
+  const myOrigin = location.origin;
+
+  function log(...args) {
+    console.log('[EmbedPDF-frame]', ...args);
+    parent.postMessage({
+      type: 'log',
+      args: args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a))
+    }, myOrigin);
+  }
+
+  function injectGrimmoryStyles(targetEl, attempt) {
+    if (attempt === undefined) attempt = 0;
+    const container = targetEl.querySelector('embedpdf-container');
+    const shadow = container?.shadowRoot;
+    if (!shadow) {
+      if (attempt < 25) setTimeout(() => injectGrimmoryStyles(targetEl, attempt + 1), 200);
+      return;
+    }
+    if (shadow.querySelector('style[data-grimmory]')) return;
+
+    const style = document.createElement('style');
+    style.setAttribute('data-grimmory', '');
+    style.textContent = `
+      /* ── Grimmory theme overrides ── */
+
+      :host {
+        --ep-background-app: #1a1a1a;
+        --ep-background-surface: #2d2d2d;
+        --ep-border-default: #404040;
+        --ep-border-subtle: #333333;
+        --ep-foreground-primary: rgba(255,255,255,0.95);
+        --ep-foreground-secondary: rgba(255,255,255,0.60);
+        --ep-accent-primary: #4a90e2;
+      }
+
+      :host([data-color-scheme="light"]) {
+        --ep-background-app: #f5f5f5;
+        --ep-background-surface: #ffffff;
+        --ep-border-default: #d0d0d0;
+        --ep-border-subtle: #e0e0e0;
+        --ep-foreground-primary: rgba(0,0,0,0.87);
+        --ep-foreground-secondary: rgba(0,0,0,0.54);
+      }
+
+      [class*="border-b"][class*="bg-bg-surface"][class*="px-4"][class*="py-2"] {
+        background: linear-gradient(135deg, #2d2d2d 0%, #1f1f1f 100%) !important;
+        border-bottom-color: #404040 !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.30) !important;
+        height: 38px !important;
+        padding-right: 48px !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        box-sizing: border-box !important;
+      }
+
+      :host([data-color-scheme="light"]) [class*="border-b"][class*="bg-bg-surface"][class*="px-4"][class*="py-2"] {
+        background: linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 100%) !important;
+        border-bottom-color: #d0d0d0 !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.10) !important;
+      }
+
+      [class*="border-t"][class*="bg-bg-surface"][class*="px-4"][class*="py-1"] {
+        display: none !important;
+      }
+
+      [data-epdf-i="open-document"],
+      [data-epdf-i="close-document"],
+      button[title="Open Document"],
+      button[title="Close Document"] {
+        display: none !important;
+      }
+      .pdf-btn-open {
+        display: none !important;
+      }
+
+      [role="menu"],
+      [role="dialog"],
+      [class*="rounded-lg"][class*="shadow"],
+      [class*="rounded-md"][class*="shadow"] {
+        background: #2d2d2d !important;
+        border: 1px solid #404040 !important;
+        border-radius: 0 0 8px 8px !important;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.40) !important;
+        color: rgba(255,255,255,0.95) !important;
+      }
+
+      :host([data-color-scheme="light"]) [role="menu"],
+      :host([data-color-scheme="light"]) [role="dialog"],
+      :host([data-color-scheme="light"]) [class*="rounded-lg"][class*="shadow"],
+      :host([data-color-scheme="light"]) [class*="rounded-md"][class*="shadow"] {
+        background: #ffffff !important;
+        border: 1px solid #d0d0d0 !important;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.12) !important;
+        color: rgba(0,0,0,0.87) !important;
+      }
+
+      [role="menuitem"],
+      [role="menuitemcheckbox"],
+      [role="menuitemradio"] {
+        border-radius: 6px !important;
+        transition: background 150ms ease !important;
+      }
+
+      [role="menuitem"]:hover,
+      [role="menuitemcheckbox"]:hover,
+      [role="menuitemradio"]:hover {
+        background: rgba(255,255,255,0.12) !important;
+      }
+
+      :host([data-color-scheme="light"]) [role="menuitem"]:hover,
+      :host([data-color-scheme="light"]) [role="menuitemcheckbox"]:hover,
+      :host([data-color-scheme="light"]) [role="menuitemradio"]:hover {
+        background: rgba(0,0,0,0.06) !important;
+      }
+
+      [role="menuitemcheckbox"][aria-checked="true"],
+      [role="menuitemradio"][aria-checked="true"] {
+        color: #4a90e2 !important;
+        background: rgba(74,144,226,0.15) !important;
+      }
+
+      button[class*="hover:bg-interactive-hover"]:hover {
+        background: rgba(255,255,255,0.12) !important;
+      }
+
+      :host([data-color-scheme="light"]) button[class*="hover:bg-interactive-hover"]:hover {
+        background: rgba(0,0,0,0.06) !important;
+      }
+
+      [role="separator"],
+      [class*="bg-border-default"][class*="h-6"][class*="w-px"] {
+        background: rgba(255,255,255,0.15) !important;
+      }
+
+      :host([data-color-scheme="light"]) [role="separator"],
+      :host([data-color-scheme="light"]) [class*="bg-border-default"][class*="h-6"][class*="w-px"] {
+        background: rgba(0,0,0,0.12) !important;
+      }
+
+      [class*="bg-tooltip-bg"] {
+        background: #2d2d2d !important;
+        color: rgba(255,255,255,0.95) !important;
+        border: 1px solid #404040 !important;
+      }
+
+      :host([data-color-scheme="light"]) [class*="bg-tooltip-bg"] {
+        background: #ffffff !important;
+        color: rgba(0,0,0,0.87) !important;
+        border: 1px solid #d0d0d0 !important;
+      }
+    `;
+    shadow.appendChild(style);
+    targetEl.style.visibility = '';
+  }
+
+  window.addEventListener('message', async (e) => {
+    if (e.origin !== myOrigin) return;
+    const msg = e.data;
+
+    if (msg.type === 'init') {
+      log('Init, buffer:', msg.buffer?.byteLength, 'bytes');
+
+      const blob = new Blob([msg.buffer], { type: 'application/pdf' });
+      objectUrl = URL.createObjectURL(blob);
+
+      const target = document.getElementById('viewer');
+      target.style.visibility = 'hidden';
+
+      viewer = EmbedPDF.init({
+        type: 'container',
+        target,
+        src: objectUrl,
+        wasmUrl: msg.wasmUrl || '/assets/pdfium/pdfium.wasm',
+        worker: false,
+        theme: { preference: msg.theme || 'dark' }
+      });
+
+      try {
+        registry = await viewer.registry;
+        const dm = registry.getPlugin('document-manager')?.provides();
+        if (dm) {
+          dm.onDocumentOpened?.((ev) => {
+            log('Document opened, pages:', ev?.pageCount);
+            parent.postMessage({ type: 'documentOpened', pageCount: ev?.pageCount }, myOrigin);
+          });
+          dm.onDocumentError?.((ev) => {
+            log('Document error:', ev);
+            parent.postMessage({ type: 'documentError', error: String(ev?.message || ev) }, myOrigin);
+          });
+          dm.onDocumentClosed?.((ev) => {
+            log('Document closed:', ev?.documentId);
+          });
+        }
+        parent.postMessage({ type: 'ready' }, myOrigin);
+      } catch (err) {
+        log('Registry error:', err);
+        parent.postMessage({ type: 'documentError', error: String(err) }, myOrigin);
+      }
+
+      injectGrimmoryStyles(target);
+    }
+
+    if (msg.type === 'save') {
+      try {
+        if (!registry) {
+          parent.postMessage({ type: 'saved', buffer: null }, myOrigin);
+          return;
+        }
+        const exportPlugin = registry.plugins.get('export')?.provides();
+        const state = registry.store.getState();
+        const docId = Object.keys(state.core.documents)[0];
+        if (!docId || !exportPlugin) {
+          parent.postMessage({ type: 'saved', buffer: null }, myOrigin);
+          return;
+        }
+        const buffer = await new Promise((resolve, reject) => {
+          exportPlugin.saveAsCopy(docId).wait(resolve, reject);
+        });
+        log('Exported', (buffer.byteLength / 1048576).toFixed(1), 'MB');
+        parent.postMessage({ type: 'saved', buffer }, myOrigin, [buffer]);
+      } catch (err) {
+        log('Save error:', err);
+        parent.postMessage({ type: 'saveError', error: String(err) }, myOrigin);
+      }
+    }
+
+    if (msg.type === 'setTheme') {
+      viewer?.setTheme?.(msg.theme);
+    }
+  });
+
+  log('Frame loaded, waiting for init');
+</script>
+</body>
+</html>

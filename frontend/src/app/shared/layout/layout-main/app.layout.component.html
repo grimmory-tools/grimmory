@@ -1,0 +1,14 @@
+<ng-container *transloco="let t; prefix: 'layout'">
+<div class="layout-wrapper" [ngClass]="containerClass()">
+  <app-topbar></app-topbar>
+  <div class="layout-sidebar">
+    <app-menu></app-menu>
+  </div>
+  <div class="layout-main-container">
+    <div class="layout-main">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+  <button type="button" class="layout-mask" [attr.aria-label]="t('closeNavigation')" (click)="closeMobileSidebar()"></button>
+</div>
+</ng-container>

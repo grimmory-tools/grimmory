@@ -86,8 +86,8 @@ dependencies {
     // --- Audio Metadata (Audiobook Support) ---
     implementation("com.github.RouHim:jaudiotagger:2.0.19")
 
-    // --- UNRAR Support ---
-    implementation("com.github.junrar:junrar:7.5.8")
+    // --- Archive Support ---
+    implementation("com.github.gotson.nightcompress:nightcompress:1.1.1")
 
     // --- JSON & Web Scraping ---
     implementation("org.jsoup:jsoup:1.22.1")
@@ -97,7 +97,7 @@ dependencies {
     annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
 
     // --- API Documentation ---
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.2")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:3.0.2")
     implementation("org.apache.commons:commons-compress:1.28.0")
     implementation("org.tukaani:xz:1.12") // Required by commons-compress for 7z support
     implementation("org.apache.commons:commons-text:1.15.0")
@@ -139,7 +139,7 @@ hibernate {
 
 tasks.named<Test>("test") {
     useJUnitPlatform()
-    jvmArgs("-XX:+EnableDynamicAgentLoading")
+    jvmArgs("-XX:+EnableDynamicAgentLoading", "--enable-native-access=ALL-UNNAMED")
     finalizedBy(tasks.named("jacocoTestReport"))
 }
 

@@ -1,13 +1,13 @@
-import {computed, effect, inject, Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {lastValueFrom, Observable, throwError} from 'rxjs';
-import {API_CONFIG} from '../../../core/config/api-config';
-import {Library} from '../../book/model/library.model';
-import {catchError, map, tap} from 'rxjs/operators';
-import {AuthService} from '../../../shared/service/auth.service';
-import {DashboardConfig} from '../../dashboard/models/dashboard-config.model';
-import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
-import {CURRENT_USER_QUERY_KEY} from './user-query-keys';
+import { computed, effect, inject, Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { lastValueFrom, Observable, throwError } from 'rxjs';
+import { API_CONFIG } from '../../../core/config/api-config';
+import { Library } from '../../book/model/library.model';
+import { catchError, map, tap } from 'rxjs/operators';
+import { AuthService } from '../../../shared/service/auth.service';
+import { DashboardConfig } from '../../dashboard/models/dashboard-config.model';
+import { injectQuery, queryOptions, QueryClient } from '@tanstack/angular-query-experimental';
+import { CURRENT_USER_QUERY_KEY } from './user-query-keys';
 
 export interface EntityViewPreferences {
   global: EntityViewPreference;
@@ -64,6 +64,14 @@ export type BookFilterMode = 'and' | 'or' | 'single' | 'not';
 export enum CbxPageViewMode {
   SINGLE_PAGE = 'SINGLE_PAGE',
   TWO_PAGE = 'TWO_PAGE',
+  TWO_PAGE_REVERSED = 'TWO_PAGE_REVERSED',
+}
+
+export enum CbxPageSplitOption {
+  NO_SPLIT = 'NO_SPLIT',
+  FIT_SPLIT = 'FIT_SPLIT',
+  SPLIT_LEFT_TO_RIGHT = 'SPLIT_LEFT_TO_RIGHT',
+  SPLIT_RIGHT_TO_LEFT = 'SPLIT_RIGHT_TO_LEFT',
 }
 
 export enum CbxPageSpread {
@@ -197,6 +205,11 @@ export interface CbxReaderSetting {
   backgroundColor?: CbxBackgroundColor;
   readingDirection?: CbxReadingDirection;
   slideshowInterval?: CbxSlideshowInterval;
+  pageSplitOption?: CbxPageSplitOption;
+  brightness?: number;
+  emulateBook?: boolean;
+  clickToPaginate?: boolean;
+  autoCloseMenu?: boolean;
 }
 
 export interface TableColumnPreference {
@@ -231,33 +244,33 @@ export const ALL_FILTER_OPTION_VALUES: VisibleFilterType[] = [
 ];
 
 export const ALL_FILTER_OPTIONS: { label: string; value: VisibleFilterType }[] = [
-  {label: 'Author', value: 'author'},
-  {label: 'Genre', value: 'category'},
-  {label: 'Series', value: 'series'},
-  {label: 'Book Type', value: 'bookType'},
-  {label: 'Read Status', value: 'readStatus'},
-  {label: 'Personal Rating', value: 'personalRating'},
-  {label: 'Library', value: 'library'},
-  {label: 'Tag', value: 'tag'},
-  {label: 'Age Rating', value: 'ageRating'},
-  {label: 'Content Rating', value: 'contentRating'},
-  {label: 'Metadata Match Score', value: 'matchScore'},
-  {label: 'Publisher', value: 'publisher'},
-  {label: 'Published Year', value: 'publishedDate'},
-  {label: 'File Size', value: 'fileSize'},
-  {label: 'Shelf', value: 'shelf'},
-  {label: 'Shelf Status', value: 'shelfStatus'},
-  {label: 'Language', value: 'language'},
-  {label: 'Page Count', value: 'pageCount'},
-  {label: 'Mood', value: 'mood'},
-  {label: 'Amazon Rating', value: 'amazonRating'},
-  {label: 'Goodreads Rating', value: 'goodreadsRating'},
-  {label: 'Hardcover Rating', value: 'hardcoverRating'},
-  {label: 'Narrator', value: 'narrator'},
-  {label: 'Comic Character', value: 'comicCharacter'},
-  {label: 'Comic Team', value: 'comicTeam'},
-  {label: 'Comic Location', value: 'comicLocation'},
-  {label: 'Comic Creator', value: 'comicCreator'}
+  { label: 'Author', value: 'author' },
+  { label: 'Genre', value: 'category' },
+  { label: 'Series', value: 'series' },
+  { label: 'Book Type', value: 'bookType' },
+  { label: 'Read Status', value: 'readStatus' },
+  { label: 'Personal Rating', value: 'personalRating' },
+  { label: 'Library', value: 'library' },
+  { label: 'Tag', value: 'tag' },
+  { label: 'Age Rating', value: 'ageRating' },
+  { label: 'Content Rating', value: 'contentRating' },
+  { label: 'Metadata Match Score', value: 'matchScore' },
+  { label: 'Publisher', value: 'publisher' },
+  { label: 'Published Year', value: 'publishedDate' },
+  { label: 'File Size', value: 'fileSize' },
+  { label: 'Shelf', value: 'shelf' },
+  { label: 'Shelf Status', value: 'shelfStatus' },
+  { label: 'Language', value: 'language' },
+  { label: 'Page Count', value: 'pageCount' },
+  { label: 'Mood', value: 'mood' },
+  { label: 'Amazon Rating', value: 'amazonRating' },
+  { label: 'Goodreads Rating', value: 'goodreadsRating' },
+  { label: 'Hardcover Rating', value: 'hardcoverRating' },
+  { label: 'Narrator', value: 'narrator' },
+  { label: 'Comic Character', value: 'comicCharacter' },
+  { label: 'Comic Team', value: 'comicTeam' },
+  { label: 'Comic Location', value: 'comicLocation' },
+  { label: 'Comic Creator', value: 'comicCreator' }
 ];
 
 export const DEFAULT_VISIBLE_SORT_FIELDS: string[] = [
@@ -374,7 +387,7 @@ export class UserService {
     effect(() => {
       const token = this.token();
       if (token === null) {
-        this.queryClient.removeQueries({queryKey: CURRENT_USER_QUERY_KEY});
+        this.queryClient.removeQueries({ queryKey: CURRENT_USER_QUERY_KEY });
       }
     });
   }
@@ -457,13 +470,13 @@ export class UserService {
       value
     };
     this.http.put<void>(`${this.userUrl}/${userId}/settings`, payload, {
-      headers: {'Content-Type': 'application/json'},
+      headers: { 'Content-Type': 'application/json' },
       responseType: 'text' as 'json'
     }).subscribe(() => {
       const currentUser = this.currentUser();
       if (currentUser) {
-        const updatedSettings = {...currentUser.userSettings, [key]: value};
-        const updatedUser = {...currentUser, userSettings: updatedSettings};
+        const updatedSettings = { ...currentUser.userSettings, [key]: value };
+        const updatedUser = { ...currentUser, userSettings: updatedSettings };
         this.queryClient.setQueryData(CURRENT_USER_QUERY_KEY, updatedUser);
       }
     });
@@ -483,7 +496,7 @@ export class UserService {
 
   private serializeUserPayload<T extends object>(payload: T): T {
     const payloadRecord = payload as Record<string, unknown>;
-    const nextPayload: Record<string, unknown> = {...payloadRecord};
+    const nextPayload: Record<string, unknown> = { ...payloadRecord };
 
     if ('permissions' in payloadRecord && payloadRecord['permissions'] && typeof payloadRecord['permissions'] === 'object') {
       const permissions = payloadRecord['permissions'] as User['permissions'];

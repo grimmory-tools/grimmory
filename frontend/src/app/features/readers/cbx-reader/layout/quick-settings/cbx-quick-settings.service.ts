@@ -12,6 +12,10 @@ export interface CbxQuickSettingsState {
   slideshowInterval: CbxSlideshowInterval;
   magnifierZoom: CbxMagnifierZoom;
   magnifierLensSize: CbxMagnifierLensSize;
+  brightness: number;
+  emulateBook: boolean;
+  clickToPaginate: boolean;
+  autoCloseMenu: boolean;
 }
 
 @Injectable()
@@ -25,7 +29,11 @@ export class CbxQuickSettingsService {
     readingDirection: CbxReadingDirection.LTR,
     slideshowInterval: CbxSlideshowInterval.FIVE_SECONDS,
     magnifierZoom: CbxMagnifierZoom.ZOOM_3X,
-    magnifierLensSize: CbxMagnifierLensSize.MEDIUM
+    magnifierLensSize: CbxMagnifierLensSize.MEDIUM,
+    brightness: 100,
+    emulateBook: false,
+    clickToPaginate: false,
+    autoCloseMenu: false
   };
 
   private readonly _state = signal<CbxQuickSettingsState>(this.defaultState);
@@ -60,6 +68,18 @@ export class CbxQuickSettingsService {
 
   private _magnifierLensSizeChange = new Subject<CbxMagnifierLensSize>();
   magnifierLensSizeChange$ = this._magnifierLensSizeChange.asObservable();
+
+  private _brightnessChange = new Subject<number>();
+  brightnessChange$ = this._brightnessChange.asObservable();
+
+  private _emulateBookChange = new Subject<boolean>();
+  emulateBookChange$ = this._emulateBookChange.asObservable();
+
+  private _clickToPaginateChange = new Subject<boolean>();
+  clickToPaginateChange$ = this._clickToPaginateChange.asObservable();
+
+  private _autoCloseMenuChange = new Subject<boolean>();
+  autoCloseMenuChange$ = this._autoCloseMenuChange.asObservable();
 
   show(): void {
     this._visible.set(true);
@@ -109,6 +129,22 @@ export class CbxQuickSettingsService {
     this.updateState({magnifierLensSize: size});
   }
 
+  setBrightness(value: number): void {
+    this.updateState({brightness: value});
+  }
+
+  setEmulateBook(value: boolean): void {
+    this.updateState({emulateBook: value});
+  }
+
+  setClickToPaginate(value: boolean): void {
+    this.updateState({clickToPaginate: value});
+  }
+
+  setAutoCloseMenu(value: boolean): void {
+    this.updateState({autoCloseMenu: value});
+  }
+
   // Actions emitted from component
   emitFitModeChange(mode: CbxFitMode): void {
     this._fitModeChange.next(mode);
@@ -144,6 +180,22 @@ export class CbxQuickSettingsService {
 
   emitMagnifierLensSizeChange(size: CbxMagnifierLensSize): void {
     this._magnifierLensSizeChange.next(size);
+  }
+
+  emitBrightnessChange(value: number): void {
+    this._brightnessChange.next(value);
+  }
+
+  emitEmulateBookChange(value: boolean): void {
+    this._emulateBookChange.next(value);
+  }
+
+  emitClickToPaginateChange(value: boolean): void {
+    this._clickToPaginateChange.next(value);
+  }
+
+  emitAutoCloseMenuChange(value: boolean): void {
+    this._autoCloseMenuChange.next(value);
   }
 
   reset(): void {

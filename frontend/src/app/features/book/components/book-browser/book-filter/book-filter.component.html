@@ -16,10 +16,8 @@
   <div class="filter-content">
     <p-accordion [value]="expandedPanels" [multiple]="true" (valueChange)="onExpandedPanelsChange($event)">
       @for (filterType of visibleFilterTypes; track trackByFilterType(i, filterType); let i = $index) {
-        @if (filterSignals[filterType](); as filters) {
-          @if (filters.length > 0) {
-            <p-accordion-panel [value]="i">
-              <p-accordion-header>
+        <p-accordion-panel [value]="i">
+          <p-accordion-header>
             <span class="filter-type-label">
               <span class="filter-label-text">
                 {{ getFilterLabel(filterType) }}
@@ -30,10 +28,12 @@
                 </span>
               }
             </span>
-              </p-accordion-header>
+          </p-accordion-header>
 
-              <p-accordion-content>
-                @if (expandedPanels.includes(i)) {
+          <p-accordion-content>
+            @if (expandedPanels.includes(i)) {
+              @if (filterSignals[filterType](); as filters) {
+                @if (filters.length > 0) {
                   <cdk-virtual-scroll-viewport
                     [itemSize]="28"
                     [style.height.px]="getVirtualScrollHeight(filters.length)"
@@ -53,16 +53,16 @@
                       <p-badge class="filter-value-badge" [value]="filter.bookCount"></p-badge>
                     </div>
                   </cdk-virtual-scroll-viewport>
-                  @if (truncatedFilters[filterType]) {
-                    <div class="truncation-notice">
-                      {{ t('showingFirst100') }}
-                    </div>
-                  }
                 }
-              </p-accordion-content>
-            </p-accordion-panel>
-          }
-        }
+                @if (truncatedFilters[filterType]) {
+                  <div class="truncation-notice">
+                    {{ t('showingFirst100') }}
+                  </div>
+                }
+              }
+            }
+          </p-accordion-content>
+        </p-accordion-panel>
       }
     </p-accordion>
 

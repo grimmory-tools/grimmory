@@ -1,4 +1,4 @@
-import {describe, expect, it} from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import {
   CbxBackgroundColor,
@@ -11,7 +11,7 @@ import {
   CbxScrollMode,
   CbxSlideshowInterval,
 } from '../../../../settings/user-management/user.service';
-import {CbxQuickSettingsService} from './cbx-quick-settings.service';
+import { CbxQuickSettingsService } from './cbx-quick-settings.service';
 
 describe('CbxQuickSettingsService', () => {
   it('tracks visibility and settings state and resets cleanly', () => {
@@ -27,6 +27,10 @@ describe('CbxQuickSettingsService', () => {
     service.setSlideshowInterval(CbxSlideshowInterval.TEN_SECONDS);
     service.setMagnifierZoom(CbxMagnifierZoom.ZOOM_4X);
     service.setMagnifierLensSize(CbxMagnifierLensSize.EXTRA_LARGE);
+    service.setBrightness(50);
+    service.setEmulateBook(true);
+    service.setClickToPaginate(true);
+    service.setAutoCloseMenu(true);
 
     expect(service.visible()).toBe(true);
     expect(service.state()).toEqual({
@@ -38,7 +42,11 @@ describe('CbxQuickSettingsService', () => {
       readingDirection: CbxReadingDirection.RTL,
       slideshowInterval: CbxSlideshowInterval.TEN_SECONDS,
       magnifierZoom: CbxMagnifierZoom.ZOOM_4X,
-      magnifierLensSize: CbxMagnifierLensSize.EXTRA_LARGE
+      magnifierLensSize: CbxMagnifierLensSize.EXTRA_LARGE,
+      brightness: 50,
+      emulateBook: true,
+      clickToPaginate: true,
+      autoCloseMenu: true
     });
 
     service.close();
@@ -55,7 +63,11 @@ describe('CbxQuickSettingsService', () => {
       readingDirection: CbxReadingDirection.LTR,
       slideshowInterval: CbxSlideshowInterval.FIVE_SECONDS,
       magnifierZoom: CbxMagnifierZoom.ZOOM_3X,
-      magnifierLensSize: CbxMagnifierLensSize.MEDIUM
+      magnifierLensSize: CbxMagnifierLensSize.MEDIUM,
+      brightness: 100,
+      emulateBook: false,
+      clickToPaginate: false,
+      autoCloseMenu: false
     });
   });
 
@@ -82,7 +94,7 @@ describe('CbxQuickSettingsService', () => {
     service.magnifierLensSizeChange$.subscribe(value => lensSizeEvents.push(value));
 
     service.emitFitModeChange(CbxFitMode.ACTUAL_SIZE);
-    service.emitScrollModeChange(CbxScrollMode.LONG_STRIP);
+    service.emitScrollModeChange(CbxScrollMode.INFINITE);
     service.emitPageViewModeChange(CbxPageViewMode.TWO_PAGE);
     service.emitPageSpreadChange(CbxPageSpread.EVEN);
     service.emitBackgroundColorChange(CbxBackgroundColor.WHITE);
@@ -92,7 +104,7 @@ describe('CbxQuickSettingsService', () => {
     service.emitMagnifierLensSizeChange(CbxMagnifierLensSize.LARGE);
 
     expect(fitModeEvents).toEqual([CbxFitMode.ACTUAL_SIZE]);
-    expect(scrollModeEvents).toEqual([CbxScrollMode.LONG_STRIP]);
+    expect(scrollModeEvents).toEqual([CbxScrollMode.INFINITE]);
     expect(pageViewEvents).toEqual([CbxPageViewMode.TWO_PAGE]);
     expect(pageSpreadEvents).toEqual([CbxPageSpread.EVEN]);
     expect(backgroundEvents).toEqual([CbxBackgroundColor.WHITE]);

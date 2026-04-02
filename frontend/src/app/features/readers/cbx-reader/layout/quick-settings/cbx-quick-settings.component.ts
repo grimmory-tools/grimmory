@@ -1,6 +1,6 @@
-import {Component, inject} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {TranslocoService, TranslocoPipe} from '@jsverse/transloco';
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import {
   CbxFitMode,
   CbxScrollMode,
@@ -12,8 +12,8 @@ import {
   CbxMagnifierZoom,
   CbxMagnifierLensSize
 } from '../../../../settings/user-management/user.service';
-import {ReaderIconComponent, ReaderIconName} from '../../../ebook-reader/shared/icon.component';
-import {CbxQuickSettingsService} from './cbx-quick-settings.service';
+import { ReaderIconComponent, ReaderIconName } from '../../../ebook-reader/shared/icon.component';
+import { CbxQuickSettingsService } from './cbx-quick-settings.service';
 
 @Component({
   selector: 'app-cbx-quick-settings',
@@ -38,52 +38,52 @@ export class CbxQuickSettingsComponent {
   protected readonly CbxMagnifierZoom = CbxMagnifierZoom;
   protected readonly CbxMagnifierLensSize = CbxMagnifierLensSize;
 
-  get fitModeOptions(): {value: CbxFitMode, label: string, icon: ReaderIconName}[] {
+  get fitModeOptions(): { value: CbxFitMode, label: string, icon: ReaderIconName }[] {
     return [
-      {value: CbxFitMode.FIT_PAGE, label: this.t.translate('readerCbx.quickSettings.fitPage'), icon: 'fit-page'},
-      {value: CbxFitMode.FIT_WIDTH, label: this.t.translate('readerCbx.quickSettings.fitWidth'), icon: 'fit-width'},
-      {value: CbxFitMode.FIT_HEIGHT, label: this.t.translate('readerCbx.quickSettings.fitHeight'), icon: 'fit-height'},
-      {value: CbxFitMode.ACTUAL_SIZE, label: this.t.translate('readerCbx.quickSettings.actualSize'), icon: 'actual-size'},
-      {value: CbxFitMode.AUTO, label: this.t.translate('readerCbx.quickSettings.automatic'), icon: 'auto-fit'}
+      { value: CbxFitMode.FIT_PAGE, label: this.t.translate('readerCbx.quickSettings.fitPage'), icon: 'fit-page' },
+      { value: CbxFitMode.FIT_WIDTH, label: this.t.translate('readerCbx.quickSettings.fitWidth'), icon: 'fit-width' },
+      { value: CbxFitMode.FIT_HEIGHT, label: this.t.translate('readerCbx.quickSettings.fitHeight'), icon: 'fit-height' },
+      { value: CbxFitMode.ACTUAL_SIZE, label: this.t.translate('readerCbx.quickSettings.actualSize'), icon: 'actual-size' },
+      { value: CbxFitMode.AUTO, label: this.t.translate('readerCbx.quickSettings.automatic'), icon: 'auto-fit' }
     ];
   }
 
-  get scrollModeOptions(): {value: CbxScrollMode, label: string}[] {
+  get scrollModeOptions(): { value: CbxScrollMode, label: string }[] {
     return [
-      {value: CbxScrollMode.PAGINATED, label: this.t.translate('readerCbx.quickSettings.paginated')},
-      {value: CbxScrollMode.INFINITE, label: this.t.translate('readerCbx.quickSettings.infinite')},
-      {value: CbxScrollMode.LONG_STRIP, label: this.t.translate('readerCbx.quickSettings.longStrip')}
+      { value: CbxScrollMode.PAGINATED, label: this.t.translate('readerCbx.quickSettings.paginated') },
+      { value: CbxScrollMode.INFINITE, label: this.t.translate('readerCbx.quickSettings.infinite') }
+      // { value: CbxScrollMode.LONG_STRIP, label: this.t.translate('readerCbx.quickSettings.longStrip') }
     ];
   }
 
-  slideshowIntervalOptions: {value: CbxSlideshowInterval, label: string}[] = [
-    {value: CbxSlideshowInterval.THREE_SECONDS, label: '3s'},
-    {value: CbxSlideshowInterval.FIVE_SECONDS, label: '5s'},
-    {value: CbxSlideshowInterval.TEN_SECONDS, label: '10s'},
-    {value: CbxSlideshowInterval.FIFTEEN_SECONDS, label: '15s'},
-    {value: CbxSlideshowInterval.THIRTY_SECONDS, label: '30s'}
+  slideshowIntervalOptions: { value: CbxSlideshowInterval, label: string }[] = [
+    { value: CbxSlideshowInterval.THREE_SECONDS, label: '3s' },
+    { value: CbxSlideshowInterval.FIVE_SECONDS, label: '5s' },
+    { value: CbxSlideshowInterval.TEN_SECONDS, label: '10s' },
+    { value: CbxSlideshowInterval.FIFTEEN_SECONDS, label: '15s' },
+    { value: CbxSlideshowInterval.THIRTY_SECONDS, label: '30s' }
   ];
 
-  magnifierZoomOptions: {value: CbxMagnifierZoom, label: string}[] = [
-    {value: CbxMagnifierZoom.ZOOM_1_5X, label: '1.5×'},
-    {value: CbxMagnifierZoom.ZOOM_2X, label: '2×'},
-    {value: CbxMagnifierZoom.ZOOM_2_5X, label: '2.5×'},
-    {value: CbxMagnifierZoom.ZOOM_3X, label: '3×'},
-    {value: CbxMagnifierZoom.ZOOM_4X, label: '4×'}
+  magnifierZoomOptions: { value: CbxMagnifierZoom, label: string }[] = [
+    { value: CbxMagnifierZoom.ZOOM_1_5X, label: '1.5×' },
+    { value: CbxMagnifierZoom.ZOOM_2X, label: '2×' },
+    { value: CbxMagnifierZoom.ZOOM_2_5X, label: '2.5×' },
+    { value: CbxMagnifierZoom.ZOOM_3X, label: '3×' },
+    { value: CbxMagnifierZoom.ZOOM_4X, label: '4×' }
   ];
 
-  magnifierLensSizeOptions: {value: CbxMagnifierLensSize, label: string}[] = [
-    {value: CbxMagnifierLensSize.SMALL, label: 'S'},
-    {value: CbxMagnifierLensSize.MEDIUM, label: 'M'},
-    {value: CbxMagnifierLensSize.LARGE, label: 'L'},
-    {value: CbxMagnifierLensSize.EXTRA_LARGE, label: 'XL'}
+  magnifierLensSizeOptions: { value: CbxMagnifierLensSize, label: string }[] = [
+    { value: CbxMagnifierLensSize.SMALL, label: 'S' },
+    { value: CbxMagnifierLensSize.MEDIUM, label: 'M' },
+    { value: CbxMagnifierLensSize.LARGE, label: 'L' },
+    { value: CbxMagnifierLensSize.EXTRA_LARGE, label: 'XL' }
   ];
 
   get backgroundOptions() {
     return [
-      {value: CbxBackgroundColor.BLACK, label: this.t.translate('readerCbx.quickSettings.black'), color: '#000000'},
-      {value: CbxBackgroundColor.GRAY, label: this.t.translate('readerCbx.quickSettings.gray'), color: '#808080'},
-      {value: CbxBackgroundColor.WHITE, label: this.t.translate('readerCbx.quickSettings.white'), color: '#ffffff'}
+      { value: CbxBackgroundColor.BLACK, label: this.t.translate('readerCbx.quickSettings.black'), color: '#000000' },
+      { value: CbxBackgroundColor.GRAY, label: this.t.translate('readerCbx.quickSettings.gray'), color: '#808080' },
+      { value: CbxBackgroundColor.WHITE, label: this.t.translate('readerCbx.quickSettings.white'), color: '#ffffff' }
     ];
   }
 
@@ -93,10 +93,6 @@ export class CbxQuickSettingsComponent {
 
   get isPaginated(): boolean {
     return this.state().scrollMode === CbxScrollMode.PAGINATED;
-  }
-
-  get isLongStrip(): boolean {
-    return this.state().scrollMode === CbxScrollMode.LONG_STRIP;
   }
 
   get isPhonePortrait(): boolean {
@@ -154,6 +150,23 @@ export class CbxQuickSettingsComponent {
 
   onMagnifierLensSizeSelect(size: CbxMagnifierLensSize): void {
     this.quickSettingsService.emitMagnifierLensSizeChange(size);
+  }
+
+  onBrightnessChange(event: Event): void {
+    const value = +(event.target as HTMLInputElement).value;
+    this.quickSettingsService.emitBrightnessChange(value);
+  }
+
+  onEmulateBookToggle(): void {
+    this.quickSettingsService.emitEmulateBookChange(!this.state().emulateBook);
+  }
+
+  onClickToPaginateToggle(): void {
+    this.quickSettingsService.emitClickToPaginateChange(!this.state().clickToPaginate);
+  }
+
+  onAutoCloseMenuToggle(): void {
+    this.quickSettingsService.emitAutoCloseMenuChange(!this.state().autoCloseMenu);
   }
 
   onOverlayClick(): void {

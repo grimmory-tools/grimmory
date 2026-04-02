@@ -125,6 +125,7 @@ public class BookController {
     @Operation(summary = "Get ComicInfo metadata", description = "Retrieve ComicInfo metadata for a specific book.")
     @ApiResponse(responseCode = "200", description = "ComicInfo metadata returned successfully")
     @GetMapping("/{bookId}/cbx/metadata/comicinfo")
+    @CheckBookAccess(bookIdParam = "bookId")
     public ResponseEntity<?> getComicInfoMetadata(
             @Parameter(description = "ID of the book") @PathVariable long bookId) {
         return ResponseEntity.ok(bookMetadataService.getComicInfoMetadata(bookId));
@@ -133,6 +134,7 @@ public class BookController {
     @Operation(summary = "Get file metadata", description = "Extract embedded metadata from the book file.")
     @ApiResponse(responseCode = "200", description = "File metadata returned successfully")
     @GetMapping("/{bookId}/file-metadata")
+    @CheckBookAccess(bookIdParam = "bookId")
     public ResponseEntity<?> getFileMetadata(
             @Parameter(description = "ID of the book") @PathVariable long bookId) {
         return ResponseEntity.ok(bookMetadataService.getFileMetadata(bookId));
@@ -151,6 +153,22 @@ public class BookController {
             HttpServletRequest request,
             HttpServletResponse response) throws java.io.IOException {
         bookService.streamBookContent(bookId, bookType, request, response);
+    }
+
+    @Operation(summary = "Replace book content", description = "Overwrite the primary PDF file for a book with the uploaded content. Used by the document viewer to persist annotation changes.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Book content replaced successfully"),
+            @ApiResponse(responseCode = "404", description = "Book not found")
+    })
+    @PutMapping("/{bookId}/content")
+    @PreAuthorize("@securityUtil.canEditMetadata() or @securityUtil.isAdmin()")
+    @CheckBookAccess(bookIdParam = "bookId")
+    public ResponseEntity<Void> replaceBookContent(
+            @Parameter(description = "ID of the book") @PathVariable long bookId,
+            @Parameter(description = "Optional book type for alternative format") @RequestParam(required = false) String bookType,
+            HttpServletRequest request) throws java.io.IOException {
+        bookService.replaceBookContent(bookId, bookType, request.getInputStream());
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Download book", description = "Download the book file. Requires download permission or admin.")

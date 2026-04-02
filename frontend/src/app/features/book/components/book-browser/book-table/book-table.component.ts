@@ -7,6 +7,7 @@ import {TooltipModule} from "primeng/tooltip";
 import {Book, BookMetadata, ReadStatus} from '../../../model/book.model';
 import {SortOption} from '../../../model/sort.model';
 import {UrlHelperService} from '../../../../../shared/service/url-helper.service';
+import {CoverPlaceholderComponent} from '../../../../../shared/components/cover-generator/cover-generator.component';
 import {Button} from 'primeng/button';
 import {BookService} from '../../../service/book.service';
 import {BookMetadataManageService} from '../../../service/book-metadata-manage.service';
@@ -29,7 +30,8 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
     TooltipModule,
     NgClass,
     RouterLink,
-    TranslocoDirective
+    TranslocoDirective,
+    CoverPlaceholderComponent
   ],
   styleUrls: ['./book-table.component.scss'],
   providers: [DatePipe]

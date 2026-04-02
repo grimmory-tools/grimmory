@@ -2,7 +2,20 @@
   "toolbar": {
     "switchToLightMode": "Switch to Light Mode",
     "switchToDarkMode": "Switch to Dark Mode",
-    "closePdfReader": "Close PDF Reader"
+    "closePdfReader": "Close PDF Reader",
+    "rotatePage": "Rotate Page",
+    "fullscreen": "Fullscreen",
+    "exitFullscreen": "Exit Fullscreen"
+  },
+  "footer": {
+    "firstPage": "First Page",
+    "previousPage": "Previous Page",
+    "nextPage": "Next Page",
+    "lastPage": "Last Page",
+    "of": "of",
+    "pageSlider": "Page Slider",
+    "pagePlaceholder": "Page",
+    "go": "Go"
   },
   "toast": {
     "failedToLoadBook": "Failed to load the book"

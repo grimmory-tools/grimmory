@@ -11,6 +11,7 @@ import {Button} from 'primeng/button';
 import {Tooltip} from 'primeng/tooltip';
 import {Image} from 'primeng/image';
 import {UrlHelperService} from '../../../../../../shared/service/url-helper.service';
+import {CoverPlaceholderComponent} from '../../../../../../shared/components/cover-generator/cover-generator.component';
 import {BookMetadataManageService} from '../../../../../book/service/book-metadata-manage.service';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {AudiobookService} from '../../../../../readers/audiobook-player/audiobook.service';
@@ -73,7 +74,8 @@ export interface DetachBookFileEvent {
     Tooltip,
     UpperCasePipe,
     Image,
-    TranslocoDirective
+    TranslocoDirective,
+    CoverPlaceholderComponent
   ],
   templateUrl: './metadata-tabs.component.html',
   styleUrl: './metadata-tabs.component.scss'

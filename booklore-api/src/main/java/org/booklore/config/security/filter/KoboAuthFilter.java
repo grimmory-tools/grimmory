@@ -53,7 +53,7 @@ public class KoboAuthFilter extends OncePerRequestFilter {
 
         var userTokenOpt = koboUserSettingsRepository.findByToken(token);
         if (userTokenOpt.isEmpty()) {
-            log.warn("Invalid KOBO token: {}", token);
+            log.warn("Invalid KOBO token");
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid KOBO token");
             return;
         }
@@ -62,7 +62,7 @@ public class KoboAuthFilter extends OncePerRequestFilter {
         var userOpt = userRepository.findByIdWithDetails(userToken.getUserId());
 
         if (userOpt.isEmpty()) {
-            log.warn("User not found for token: {}", token);
+            log.warn("User not found for KOBO token");
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User not found");
             return;
         }

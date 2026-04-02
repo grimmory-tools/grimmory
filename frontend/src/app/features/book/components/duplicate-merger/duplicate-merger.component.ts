@@ -15,6 +15,7 @@ import {Book, DuplicateDetectionRequest, DuplicateGroup} from '../../model/book.
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
+import {CoverPlaceholderComponent} from '../../../../shared/components/cover-generator/cover-generator.component';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 
 type PresetMode = 'strict' | 'balanced' | 'aggressive' | 'custom';
@@ -39,6 +40,7 @@ interface DisplayGroup extends DuplicateGroup {
     Paginator,
     TranslocoDirective,
     TranslocoPipe,
+    CoverPlaceholderComponent,
   ],
   templateUrl: './duplicate-merger.component.html',
   styleUrls: ['./duplicate-merger.component.scss']

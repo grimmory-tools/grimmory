@@ -43,6 +43,7 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -205,6 +206,7 @@ public class BookService {
                             .bookId(bookId)
                             .zoom(pdfPref.getZoom())
                             .spread(pdfPref.getSpread())
+                            .isDarkTheme(pdfPref.getIsDarkTheme())
                             .build()));
             newPdfViewerPreferencesRepository.findByBookIdAndUserId(bookId, user.getId())
                     .ifPresent(pdfPref -> settingsBuilder.newPdfSettings(NewPdfViewerPreferences.builder()
@@ -380,6 +382,25 @@ public class BookService {
         };
 
         fileStreamingService.streamWithRangeSupport(path, contentType, request, response);
+    }
+
+    public void replaceBookContent(long bookId, String bookType, java.io.InputStream content) throws IOException {
+        BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId)
+                .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
+
+        Path filePath;
+        if (bookType != null) {
+            BookFileType requestedType = BookFileType.valueOf(bookType.toUpperCase());
+            BookFileEntity bookFile = bookEntity.getBookFiles().stream()
+                    .filter(bf -> bf.getBookType() == requestedType)
+                    .findFirst()
+                    .orElseThrow(() -> ApiError.FILE_NOT_FOUND.createException("No file of type " + bookType + " found for book"));
+            filePath = bookFile.getFullFilePath();
+        } else {
+            filePath = FileUtils.getBookFullPath(bookEntity);
+        }
+
+        Files.copy(content, filePath, StandardCopyOption.REPLACE_EXISTING);
     }
 
     @Transactional

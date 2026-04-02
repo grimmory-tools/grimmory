@@ -1,6 +1,7 @@
 import {ChangeDetectionStrategy, Component, computed, inject, Input} from '@angular/core';
 import {Book} from '../../model/book.model';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
+import {CoverPlaceholderComponent} from '../../../../shared/components/cover-generator/cover-generator.component';
 import {Button} from 'primeng/button';
 import {UserService} from '../../../settings/user-management/user.service';
 import {Router} from '@angular/router';
@@ -14,7 +15,8 @@ import {TooltipModule} from 'primeng/tooltip';
   imports: [
     Button,
     NgClass,
-    TooltipModule
+    TooltipModule,
+    CoverPlaceholderComponent
   ],
   templateUrl: './book-card-lite-component.html',
   styleUrl: './book-card-lite-component.scss'
@@ -40,7 +42,7 @@ export class BookCardLiteComponent {
     return primaryIsAudiobook && !hasEbookAlternative;
   }
 
-  getThumbnailUrl(): string {
+  getThumbnailUrl(): string | null {
     if (this.isAudiobookOnly()) {
       return this.urlHelper.getAudiobookThumbnailUrl(this.book.id, this.book.metadata?.audiobookCoverUpdatedOn);
     }

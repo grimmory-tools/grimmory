@@ -183,12 +183,39 @@ export function filterBooksByFilters(
 
   if (filterEntries.length === 0) return books;
 
-  return books.filter(book => {
-    const matches = filterEntries.map(([filterType, filterValues]) =>
-      doesBookMatchFilter(book, filterType, filterValues, mode)
-    );
-    if (mode === 'not') return matches.every(m => !m);
-    return mode === 'or' ? matches.some(m => m) : matches.every(m => m);
-  });
+  return books.filter(book => matchesAllFilters(book, filterEntries, mode));
 }
 
+function matchesAllFilters(
+  book: Book,
+  filterEntries: [string, unknown[]][],
+  mode: BookFilterMode
+): boolean {
+  if (mode === 'or') {
+    for (const [filterType, filterValues] of filterEntries) {
+      if (doesBookMatchFilter(book, filterType, filterValues, mode)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  if (mode === 'not') {
+    for (const [filterType, filterValues] of filterEntries) {
+      if (doesBookMatchFilter(book, filterType, filterValues, mode)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  for (const [filterType, filterValues] of filterEntries) {
+    if (!doesBookMatchFilter(book, filterType, filterValues, mode)) {
+      return false;
+    }
+  }
+
+  return true;
+}

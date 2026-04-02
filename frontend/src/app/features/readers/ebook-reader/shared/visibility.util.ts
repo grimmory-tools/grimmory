@@ -5,6 +5,7 @@ export interface HeaderFooterVisibilityState {
 
 export class ReaderHeaderFooterVisibilityManager {
   private isPinned = false;
+  private isImmersive = false;
   private mouseY: number;
 
   private readonly HEADER_HEIGHT = 20;
@@ -31,11 +32,13 @@ export class ReaderHeaderFooterVisibilityManager {
 
   handleMouseMove(mouseY: number): void {
     this.mouseY = mouseY;
-    this.updateVisibility();
+    if (!this.isImmersive) {
+      this.updateVisibility();
+    }
   }
 
   handleMouseLeave(): void {
-    if (!this.isPinned) {
+    if (!this.isPinned && !this.isImmersive) {
       this.setHeaderVisible(false);
       this.setFooterVisible(false);
       this.notifyStateChange();
@@ -43,14 +46,14 @@ export class ReaderHeaderFooterVisibilityManager {
   }
 
   handleHeaderZoneEnter(): void {
-    if (!this.isPinned) {
+    if (!this.isPinned && !this.isImmersive) {
       this.setHeaderVisible(true);
       this.notifyStateChange();
     }
   }
 
   handleFooterZoneEnter(): void {
-    if (!this.isPinned) {
+    if (!this.isPinned && !this.isImmersive) {
       this.setFooterVisible(true);
       this.notifyStateChange();
     }
@@ -59,6 +62,37 @@ export class ReaderHeaderFooterVisibilityManager {
   togglePinned(): void {
     this.isPinned = !this.isPinned;
     this.updateVisibility();
+  }
+
+  unpinIfPinned(): void {
+    if (this.isPinned) {
+      this.isPinned = false;
+      this.updateVisibility();
+    }
+  }
+
+  setImmersive(immersive: boolean): void {
+    this.isImmersive = immersive;
+    if (immersive) {
+      this.isPinned = false;
+      this.setHeaderVisible(false);
+      this.setFooterVisible(false);
+      this.notifyStateChange();
+    }
+  }
+
+  temporaryShow(): void {
+    this.setHeaderVisible(true);
+    this.setFooterVisible(true);
+    this.notifyStateChange();
+  }
+
+  hideTemporary(): void {
+    if (this.isImmersive) {
+      this.setHeaderVisible(false);
+      this.setFooterVisible(false);
+      this.notifyStateChange();
+    }
   }
 
   getVisibilityState(): HeaderFooterVisibilityState {

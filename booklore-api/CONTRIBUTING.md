@@ -24,6 +24,15 @@ just api run
 just api check
 ```
 
+## API Docs (`API_DOCS_ENABLED`)
+
+- `application.yaml` binds `app.api-docs.enabled` to `API_DOCS_ENABLED` (default `false`).
+- `application.yaml` binds `springdoc.api-docs.enabled` to `app.api-docs.enabled`.
+- `application-dev.yml` enables docs for local dev profile runs by default.
+- For runtime/container profiles, set `API_DOCS_ENABLED=true` to expose:
+  - `/api/openapi.json`
+  - `/api/docs`
+
 ## Backend Conventions
 
 - Use Spring Data JPA repository methods or JPQL. Do not introduce native queries unless a maintainer has explicitly approved them.
