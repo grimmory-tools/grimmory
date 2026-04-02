@@ -236,8 +236,20 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     this.pipelineInputs();
 
     const shouldRefreshInPlace = untracked(() => this.hasRenderedBooks()) && contextKey === this.lastBooksContextKey;
-    const requestId = this.booksRenderState.begin(shouldRefreshInPlace ? 'refresh' : 'reset');
     this.lastBooksContextKey = contextKey;
+
+    if (shouldRefreshInPlace) {
+      // Same context (sort/filter/search change within the same entity).
+      // Commit synchronously — the memoized computed chain is fast and
+      // skipping the setTimeout avoids a one-frame skeleton flash.
+      const requestId = this.booksRenderState.begin('refresh');
+      this.booksRenderState.commit(requestId, this.sortedBooks());
+      return;
+    }
+
+    // Context changed (navigation between entities or first load).
+    // Defer so the skeleton can paint before the pipeline evaluates.
+    const requestId = this.booksRenderState.begin('reset');
 
     const timeout = globalThis.setTimeout(() => {
       this.booksRenderState.commit(requestId, this.sortedBooks());
