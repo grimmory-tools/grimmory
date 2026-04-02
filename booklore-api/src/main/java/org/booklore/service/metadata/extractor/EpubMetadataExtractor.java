@@ -7,6 +7,7 @@ import org.grimmory.epub4j.domain.MediaType;
 import org.grimmory.epub4j.domain.MediaTypes;
 import org.grimmory.epub4j.domain.Resource;
 import org.grimmory.epub4j.epub.CoverDetector;
+import org.grimmory.epub4j.epub.CoverDetector.CoverDetectionResult;
 import org.grimmory.epub4j.epub.EpubReader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
@@ -89,26 +90,14 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
         // Primary: use epub4j's CoverDetector with native lazy loading
         try {
             Book book = new EpubReader().readEpubLazy(epubFile.toPath(), "UTF-8");
-            Resource coverImage = CoverDetector.detectCoverImage(book);
-            if (coverImage != null) {
-                byte[] data = coverImage.getData();
+            Optional<CoverDetectionResult> detection = CoverDetector.detectCoverImageWithMethod(book);
+            if (detection.isPresent()) {
+                CoverDetectionResult result = detection.get();
+                log.debug("Cover detected for {} via {}: {}",
+                        epubFile.getName(), result.method(), result.resource().getHref());
+                byte[] data = result.resource().getData();
                 if (data != null && data.length > 0) {
                     return data;
-                }
-            }
-
-            // Fallback: search epub4j resources for cover-like items
-            for (Resource res : book.getResources().getAll()) {
-                String id = res.getId();
-                String href = res.getHref();
-                if ((id != null && id.toLowerCase().contains("cover")) ||
-                        (href != null && href.toLowerCase().contains("cover"))) {
-                    if (res.getMediaType() != null && res.getMediaType().name().startsWith("image")) {
-                        byte[] data = res.getData();
-                        if (data != null && data.length > 0) {
-                            return data;
-                        }
-                    }
                 }
             }
         } catch (Exception e) {

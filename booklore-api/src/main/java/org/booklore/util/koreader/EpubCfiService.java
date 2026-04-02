@@ -4,6 +4,8 @@ import org.booklore.util.epub.EpubContentReader;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.extern.slf4j.Slf4j;
+import org.grimmory.epub4j.cfi.CfiConverter;
+import org.grimmory.epub4j.cfi.XPointerResult;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
@@ -27,19 +29,19 @@ public class EpubCfiService {
                 .build();
     }
 
-    public CfiConvertor.XPointerResult convertCfiToXPointer(File epubFile, String cfi) {
-        int spineIndex = CfiConvertor.extractSpineIndex(cfi);
-        CfiConvertor converter = createConverter(epubFile, spineIndex);
+    public XPointerResult convertCfiToXPointer(File epubFile, String cfi) {
+        int spineIndex = CfiConverter.extractSpineIndex(cfi);
+        CfiConverter converter = createConverter(epubFile, spineIndex);
         return converter.cfiToXPointer(cfi);
     }
 
-    public CfiConvertor.XPointerResult convertCfiToXPointer(Path epubPath, String cfi) {
+    public XPointerResult convertCfiToXPointer(Path epubPath, String cfi) {
         return convertCfiToXPointer(epubPath.toFile(), cfi);
     }
 
     public String convertXPointerToCfi(File epubFile, String xpointer) {
-        int spineIndex = CfiConvertor.extractSpineIndex(xpointer);
-        CfiConvertor converter = createConverter(epubFile, spineIndex);
+        int spineIndex = CfiConverter.extractSpineIndex(xpointer);
+        CfiConverter converter = createConverter(epubFile, spineIndex);
         return converter.xPointerToCfi(xpointer);
     }
 
@@ -48,8 +50,8 @@ public class EpubCfiService {
     }
 
     public String convertXPointerRangeToCfi(File epubFile, String startXPointer, String endXPointer) {
-        int spineIndex = CfiConvertor.extractSpineIndex(startXPointer);
-        CfiConvertor converter = createConverter(epubFile, spineIndex);
+        int spineIndex = CfiConverter.extractSpineIndex(startXPointer);
+        CfiConverter converter = createConverter(epubFile, spineIndex);
         return converter.xPointerToCfi(startXPointer, endXPointer);
     }
 
@@ -58,8 +60,8 @@ public class EpubCfiService {
     }
 
     public String convertCfiToProgressXPointer(File epubFile, String cfi) {
-        CfiConvertor.XPointerResult result = convertCfiToXPointer(epubFile, cfi);
-        return CfiConvertor.normalizeProgressXPointer(result.getXpointer());
+        XPointerResult result = convertCfiToXPointer(epubFile, cfi);
+        return CfiConverter.normalizeProgressXPointer(result.getXpointer());
     }
 
     public String convertCfiToProgressXPointer(Path epubPath, String cfi) {
@@ -68,8 +70,8 @@ public class EpubCfiService {
 
     public boolean validateCfi(File epubFile, String cfi) {
         try {
-            int spineIndex = CfiConvertor.extractSpineIndex(cfi);
-            CfiConvertor converter = createConverter(epubFile, spineIndex);
+            int spineIndex = CfiConverter.extractSpineIndex(cfi);
+            CfiConverter converter = createConverter(epubFile, spineIndex);
             return converter.validateCfi(cfi);
         } catch (Exception e) {
             log.debug("CFI validation failed: {}", e.getMessage());
@@ -79,8 +81,8 @@ public class EpubCfiService {
 
     public boolean validateXPointer(File epubFile, String xpointer) {
         try {
-            int spineIndex = CfiConvertor.extractSpineIndex(xpointer);
-            CfiConvertor converter = createConverter(epubFile, spineIndex);
+            int spineIndex = CfiConverter.extractSpineIndex(xpointer);
+            CfiConverter converter = createConverter(epubFile, spineIndex);
             return converter.validateXPointer(xpointer);
         } catch (Exception e) {
             log.debug("XPointer validation failed: {}", e.getMessage());
@@ -89,19 +91,19 @@ public class EpubCfiService {
     }
 
     public int extractSpineIndex(String cfiOrXPointer) {
-        return CfiConvertor.extractSpineIndex(cfiOrXPointer);
+        return CfiConverter.extractSpineIndex(cfiOrXPointer);
     }
 
     public int getSpineSize(File epubFile) {
         return EpubContentReader.getSpineSize(epubFile);
     }
 
-    public CfiConvertor createConverter(File epubFile, int spineIndex) {
+    public CfiConverter createConverter(File epubFile, int spineIndex) {
         Document doc = getCachedDocument(epubFile, spineIndex);
-        return new CfiConvertor(doc, spineIndex);
+        return new CfiConverter(new JsoupDocumentNavigator(doc), spineIndex);
     }
 
-    public CfiConvertor createConverter(Path epubPath, int spineIndex) {
+    public CfiConverter createConverter(Path epubPath, int spineIndex) {
         return createConverter(epubPath.toFile(), spineIndex);
     }
 

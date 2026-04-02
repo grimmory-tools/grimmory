@@ -85,8 +85,8 @@ dependencies {
     implementation("com.twelvemonkeys.imageio:imageio-webp:3.13.1")
     implementation("com.twelvemonkeys.imageio:imageio-bmp:3.13.1")
 
-    implementation("org.grimmory:epub4j-core:0.4.0")
-    implementation("org.grimmory:epub4j-native:0.4.0")
+    implementation("org.grimmory:epub4j-core:1.0.0")
+    implementation("org.grimmory:epub4j-native:1.0.0")
 
     // --- Audio Metadata (Audiobook Support) ---
     implementation("com.github.RouHim:jaudiotagger:2.0.19")

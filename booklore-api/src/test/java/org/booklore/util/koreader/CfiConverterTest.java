@@ -1,5 +1,7 @@
 package org.booklore.util.koreader;
 
+import org.grimmory.epub4j.cfi.CfiConverter;
+import org.grimmory.epub4j.cfi.XPointerResult;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +14,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class CfiConvertorTest {
+class CfiConverterTest {
 
     private Document simpleDocument;
     private Document complexDocument;
@@ -66,42 +68,42 @@ class CfiConvertorTest {
         @Test
         void extractSpineIndex_fromCfi_spineIndex0() {
             String cfi = "epubcfi(/6/2!/4/2)";
-            int result = CfiConvertor.extractSpineIndex(cfi);
+            int result = CfiConverter.extractSpineIndex(cfi);
             assertEquals(0, result);
         }
 
         @Test
         void extractSpineIndex_fromCfi_spineIndex1() {
             String cfi = "epubcfi(/6/4!/4/2)";
-            int result = CfiConvertor.extractSpineIndex(cfi);
+            int result = CfiConverter.extractSpineIndex(cfi);
             assertEquals(1, result);
         }
 
         @Test
         void extractSpineIndex_fromCfi_spineIndex5() {
             String cfi = "epubcfi(/6/12!/4/2:10)";
-            int result = CfiConvertor.extractSpineIndex(cfi);
+            int result = CfiConverter.extractSpineIndex(cfi);
             assertEquals(5, result);
         }
 
         @Test
         void extractSpineIndex_fromXPointer_spineIndex0() {
             String xpointer = "/body/DocFragment[1]/body/div/p";
-            int result = CfiConvertor.extractSpineIndex(xpointer);
+            int result = CfiConverter.extractSpineIndex(xpointer);
             assertEquals(0, result);
         }
 
         @Test
         void extractSpineIndex_fromXPointer_spineIndex2() {
             String xpointer = "/body/DocFragment[3]/body/section/div/p";
-            int result = CfiConvertor.extractSpineIndex(xpointer);
+            int result = CfiConverter.extractSpineIndex(xpointer);
             assertEquals(2, result);
         }
 
         @Test
         void extractSpineIndex_fromXPointer_withTextOffset() {
             String xpointer = "/body/DocFragment[5]/body/p/text().42";
-            int result = CfiConvertor.extractSpineIndex(xpointer);
+            int result = CfiConverter.extractSpineIndex(xpointer);
             assertEquals(4, result);
         }
 
@@ -110,19 +112,19 @@ class CfiConvertorTest {
         @ValueSource(strings = {"  ", "\t", "\n"})
         void extractSpineIndex_nullOrEmpty_throwsException(String input) {
             assertThrows(IllegalArgumentException.class,
-                    () -> CfiConvertor.extractSpineIndex(input));
+                    () -> CfiConverter.extractSpineIndex(input));
         }
 
         @Test
         void extractSpineIndex_invalidFormat_throwsException() {
             assertThrows(IllegalArgumentException.class,
-                    () -> CfiConvertor.extractSpineIndex("invalid/path/here"));
+                    () -> CfiConverter.extractSpineIndex("invalid/path/here"));
         }
 
         @Test
         void extractSpineIndex_malformedCfi_throwsException() {
             assertThrows(IllegalArgumentException.class,
-                    () -> CfiConvertor.extractSpineIndex("epubcfi(malformed)"));
+                    () -> CfiConverter.extractSpineIndex("epubcfi(malformed)"));
         }
     }
 
@@ -131,7 +133,7 @@ class CfiConvertorTest {
 
         @Test
         void xPointerToCfi_simpleElement() {
-            CfiConvertor converter = new CfiConvertor(simpleDocument, 0);
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(simpleDocument), 0);
             String xpointer = "/body/DocFragment[1]/body/div[1]/p[1]";
 
             String cfi = converter.xPointerToCfi(xpointer);
@@ -144,7 +146,7 @@ class CfiConvertorTest {
 
         @Test
         void xPointerToCfi_withTextOffset() {
-            CfiConvertor converter = new CfiConvertor(simpleDocument, 0);
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(simpleDocument), 0);
             String xpointer = "/body/DocFragment[1]/body/div[1]/p[1]/text().5";
 
             String cfi = converter.xPointerToCfi(xpointer);
@@ -156,7 +158,7 @@ class CfiConvertorTest {
 
         @Test
         void xPointerToCfi_differentSpineIndex() {
-            CfiConvertor converter = new CfiConvertor(simpleDocument, 2);
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(simpleDocument), 2);
             String xpointer = "/body/DocFragment[3]/body/div[1]/p[1]";
 
             String cfi = converter.xPointerToCfi(xpointer);
@@ -167,7 +169,7 @@ class CfiConvertorTest {
 
         @Test
         void xPointerToCfi_bodyOnly() {
-            CfiConvertor converter = new CfiConvertor(simpleDocument, 0);
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(simpleDocument), 0);
             String xpointer = "/body/DocFragment[1]/body";
 
             String cfi = converter.xPointerToCfi(xpointer);
@@ -178,7 +180,7 @@ class CfiConvertorTest {
 
         @Test
         void xPointerToCfi_rangeWithStartAndEnd() {
-            CfiConvertor converter = new CfiConvertor(simpleDocument, 0);
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(simpleDocument), 0);
             String startXPointer = "/body/DocFragment[1]/body/div[1]/p[1]/text().0";
             String endXPointer = "/body/DocFragment[1]/body/div[1]/p[1]/text().10";
 
@@ -190,7 +192,7 @@ class CfiConvertorTest {
 
         @Test
         void xPointerToCfi_invalidPath_throwsException() {
-            CfiConvertor converter = new CfiConvertor(simpleDocument, 0);
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(simpleDocument), 0);
 
             assertThrows(IllegalArgumentException.class,
                     () -> converter.xPointerToCfi("/invalid/path"));
@@ -202,10 +204,10 @@ class CfiConvertorTest {
 
         @Test
         void cfiToXPointer_simpleElement() {
-            CfiConvertor converter = new CfiConvertor(simpleDocument, 0);
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(simpleDocument), 0);
             String cfi = "epubcfi(/6/2!/4/2/2)";
 
-            CfiConvertor.XPointerResult result = converter.cfiToXPointer(cfi);
+            XPointerResult result = converter.cfiToXPointer(cfi);
 
             assertNotNull(result);
             assertNotNull(result.getXpointer());
@@ -214,10 +216,10 @@ class CfiConvertorTest {
 
         @Test
         void cfiToXPointer_withTextOffset() {
-            CfiConvertor converter = new CfiConvertor(simpleDocument, 0);
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(simpleDocument), 0);
             String cfi = "epubcfi(/6/2!/4/2/2:5)";
 
-            CfiConvertor.XPointerResult result = converter.cfiToXPointer(cfi);
+            XPointerResult result = converter.cfiToXPointer(cfi);
 
             assertNotNull(result);
             assertTrue(result.getXpointer().contains("/text()."));
@@ -225,7 +227,7 @@ class CfiConvertorTest {
 
         @Test
         void cfiToXPointer_spineIndexMismatch_throwsException() {
-            CfiConvertor converter = new CfiConvertor(simpleDocument, 0);
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(simpleDocument), 0);
             String cfi = "epubcfi(/6/4!/4/2)"; // Spine index 1, but converter is 0
 
             assertThrows(IllegalArgumentException.class,
@@ -234,7 +236,7 @@ class CfiConvertorTest {
 
         @Test
         void cfiToXPointer_invalidCfiFormat_throwsException() {
-            CfiConvertor converter = new CfiConvertor(simpleDocument, 0);
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(simpleDocument), 0);
 
             assertThrows(IllegalArgumentException.class,
                     () -> converter.cfiToXPointer("not-a-valid-cfi"));
@@ -242,7 +244,7 @@ class CfiConvertorTest {
 
         @Test
         void cfiToXPointer_malformedCfi_throwsException() {
-            CfiConvertor converter = new CfiConvertor(simpleDocument, 0);
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(simpleDocument), 0);
 
             assertThrows(IllegalArgumentException.class,
                     () -> converter.cfiToXPointer("epubcfi(invalid)"));
@@ -254,7 +256,7 @@ class CfiConvertorTest {
 
         @Test
         void validateCfi_validCfi_returnsTrue() {
-            CfiConvertor converter = new CfiConvertor(simpleDocument, 0);
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(simpleDocument), 0);
             String cfi = "epubcfi(/6/2!/4/2)";
 
             assertTrue(converter.validateCfi(cfi));
@@ -262,7 +264,7 @@ class CfiConvertorTest {
 
         @Test
         void validateCfi_invalidCfi_returnsFalse() {
-            CfiConvertor converter = new CfiConvertor(simpleDocument, 0);
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(simpleDocument), 0);
 
             assertFalse(converter.validateCfi("invalid"));
             assertFalse(converter.validateCfi("epubcfi(malformed)"));
@@ -270,7 +272,7 @@ class CfiConvertorTest {
 
         @Test
         void validateCfi_wrongSpineIndex_returnsFalse() {
-            CfiConvertor converter = new CfiConvertor(simpleDocument, 0);
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(simpleDocument), 0);
             String cfi = "epubcfi(/6/10!/4/2)"; // Spine index 4, converter is 0
 
             assertFalse(converter.validateCfi(cfi));
@@ -278,7 +280,7 @@ class CfiConvertorTest {
 
         @Test
         void validateXPointer_validXPointer_returnsTrue() {
-            CfiConvertor converter = new CfiConvertor(simpleDocument, 0);
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(simpleDocument), 0);
             String xpointer = "/body/DocFragment[1]/body/div[1]/p[1]";
 
             assertTrue(converter.validateXPointer(xpointer));
@@ -286,7 +288,7 @@ class CfiConvertorTest {
 
         @Test
         void validateXPointer_invalidXPointer_returnsFalse() {
-            CfiConvertor converter = new CfiConvertor(simpleDocument, 0);
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(simpleDocument), 0);
 
             assertFalse(converter.validateXPointer("/invalid/path"));
             assertFalse(converter.validateXPointer("not-an-xpointer"));
@@ -294,11 +296,12 @@ class CfiConvertorTest {
 
         @Test
         void validateXPointer_withPos1_returnsTrue() {
-            CfiConvertor converter = new CfiConvertor(simpleDocument, 0);
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(simpleDocument), 0);
             String pos0 = "/body/DocFragment[1]/body/div[1]/p[1]/text().0";
             String pos1 = "/body/DocFragment[1]/body/div[1]/p[1]/text().10";
 
-            assertTrue(converter.validateXPointer(pos0, pos1));
+            assertTrue(converter.validateXPointer(pos0));
+            assertTrue(converter.validateXPointer(pos1));
         }
     }
 
@@ -309,7 +312,7 @@ class CfiConvertorTest {
         void normalizeProgressXPointer_removesTextOffset() {
             String xpointer = "/body/DocFragment[1]/body/div/p/text().42";
 
-            String result = CfiConvertor.normalizeProgressXPointer(xpointer);
+            String result = CfiConverter.normalizeProgressXPointer(xpointer);
 
             assertEquals("/body/DocFragment[1]/body/div/p", result);
         }
@@ -318,7 +321,7 @@ class CfiConvertorTest {
         void normalizeProgressXPointer_removesNodeSuffix() {
             String xpointer = "/body/DocFragment[1]/body/div/p.5";
 
-            String result = CfiConvertor.normalizeProgressXPointer(xpointer);
+            String result = CfiConverter.normalizeProgressXPointer(xpointer);
 
             assertEquals("/body/DocFragment[1]/body/div/p", result);
         }
@@ -327,7 +330,7 @@ class CfiConvertorTest {
         void normalizeProgressXPointer_removesBothTextOffsetAndNodeSuffix() {
             String xpointer = "/body/DocFragment[1]/body/div/p/text().10.5";
 
-            String result = CfiConvertor.normalizeProgressXPointer(xpointer);
+            String result = CfiConverter.normalizeProgressXPointer(xpointer);
 
             assertEquals("/body/DocFragment[1]/body/div/p", result);
         }
@@ -336,14 +339,14 @@ class CfiConvertorTest {
         void normalizeProgressXPointer_noChangesNeeded() {
             String xpointer = "/body/DocFragment[1]/body/div/p";
 
-            String result = CfiConvertor.normalizeProgressXPointer(xpointer);
+            String result = CfiConverter.normalizeProgressXPointer(xpointer);
 
             assertEquals("/body/DocFragment[1]/body/div/p", result);
         }
 
         @Test
         void normalizeProgressXPointer_nullInput_returnsNull() {
-            assertNull(CfiConvertor.normalizeProgressXPointer(null));
+            assertNull(CfiConverter.normalizeProgressXPointer(null));
         }
 
         @ParameterizedTest
@@ -353,7 +356,7 @@ class CfiConvertorTest {
                 "/body/DocFragment[1]/body/div[2]/p[3]/text().5, /body/DocFragment[1]/body/div[2]/p[3]"
         })
         void normalizeProgressXPointer_variousInputs(String input, String expected) {
-            assertEquals(expected, CfiConvertor.normalizeProgressXPointer(input));
+            assertEquals(expected, CfiConverter.normalizeProgressXPointer(input));
         }
     }
 
@@ -362,7 +365,7 @@ class CfiConvertorTest {
 
         @Test
         void xPointerToCfi_nestedElements() {
-            CfiConvertor converter = new CfiConvertor(complexDocument, 0);
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(complexDocument), 0);
             String xpointer = "/body/DocFragment[1]/body/section[1]/div[1]/p[1]";
 
             String cfi = converter.xPointerToCfi(xpointer);
@@ -373,7 +376,7 @@ class CfiConvertorTest {
 
         @Test
         void xPointerToCfi_deeplyNestedElement() {
-            CfiConvertor converter = new CfiConvertor(complexDocument, 0);
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(complexDocument), 0);
             String xpointer = "/body/DocFragment[1]/body/section[1]/div[1]/h1";
 
             String cfi = converter.xPointerToCfi(xpointer);
@@ -383,7 +386,7 @@ class CfiConvertorTest {
 
         @Test
         void xPointerToCfi_secondSection() {
-            CfiConvertor converter = new CfiConvertor(complexDocument, 0);
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(complexDocument), 0);
             String xpointer = "/body/DocFragment[1]/body/section[2]/div/p";
 
             String cfi = converter.xPointerToCfi(xpointer);
@@ -397,11 +400,11 @@ class CfiConvertorTest {
 
         @Test
         void roundTrip_xPointerToCfiAndBack() {
-            CfiConvertor converter = new CfiConvertor(simpleDocument, 0);
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(simpleDocument), 0);
             String originalXPointer = "/body/DocFragment[1]/body/div[1]/p[1]";
 
             String cfi = converter.xPointerToCfi(originalXPointer);
-            CfiConvertor.XPointerResult result = converter.cfiToXPointer(cfi);
+            XPointerResult result = converter.cfiToXPointer(cfi);
 
             assertNotNull(result.getXpointer());
             // The path should resolve to the same element, though format may differ
@@ -410,10 +413,10 @@ class CfiConvertorTest {
 
         @Test
         void roundTrip_cfiToXPointerAndBack() {
-            CfiConvertor converter = new CfiConvertor(simpleDocument, 0);
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(simpleDocument), 0);
             String originalCfi = "epubcfi(/6/2!/4/2/2)";
 
-            CfiConvertor.XPointerResult xpointerResult = converter.cfiToXPointer(originalCfi);
+            XPointerResult xpointerResult = converter.cfiToXPointer(originalCfi);
             String cfi = converter.xPointerToCfi(xpointerResult.getXpointer());
 
             assertNotNull(cfi);
@@ -427,7 +430,7 @@ class CfiConvertorTest {
 
         @Test
         void constructor_withDefaultSpineIndex() {
-            CfiConvertor converter = new CfiConvertor(simpleDocument);
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(simpleDocument), 0);
 
             // Should work with spine index 0
             String xpointer = "/body/DocFragment[1]/body/div[1]/p[1]";
@@ -439,7 +442,7 @@ class CfiConvertorTest {
 
         @Test
         void xPointerToCfi_elementWithoutIndex() {
-            CfiConvertor converter = new CfiConvertor(simpleDocument, 0);
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(simpleDocument), 0);
             // Using tag without index (implicit [1])
             String xpointer = "/body/DocFragment[1]/body/div/p";
 
@@ -450,7 +453,7 @@ class CfiConvertorTest {
 
         @Test
         void xPointerToCfi_largeSpineIndex() {
-            CfiConvertor converter = new CfiConvertor(simpleDocument, 99);
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(simpleDocument), 99);
             String xpointer = "/body/DocFragment[100]/body/div[1]/p[1]";
 
             String cfi = converter.xPointerToCfi(xpointer);
@@ -461,10 +464,10 @@ class CfiConvertorTest {
 
         @Test
         void xPointerResult_allFieldsPopulated() {
-            CfiConvertor converter = new CfiConvertor(simpleDocument, 0);
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(simpleDocument), 0);
             String cfi = "epubcfi(/6/2!/4/2/2)";
 
-            CfiConvertor.XPointerResult result = converter.cfiToXPointer(cfi);
+            XPointerResult result = converter.cfiToXPointer(cfi);
 
             assertNotNull(result.getXpointer());
             assertNotNull(result.getPos0());
