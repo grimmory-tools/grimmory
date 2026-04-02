@@ -35,13 +35,17 @@ describe('MetadataProviderFieldSelectorComponent', () => {
       },
     } as AppSettings);
 
-    const component = TestBed.runInInjectionContext(() => new MetadataProviderFieldSelectorComponent());
+    const fixture = TestBed.createComponent(MetadataProviderFieldSelectorComponent);
+    fixture.detectChanges();
 
-    expect(component.selectedFields).toEqual(['asin', 'amazonReviewCount']);
+    expect(fixture.componentInstance.selectedFields).toEqual(['asin', 'amazonReviewCount']);
   });
 
   it('adds and removes selected fields while persisting the full field state', () => {
-    const component = TestBed.runInInjectionContext(() => new MetadataProviderFieldSelectorComponent());
+    const fixture = TestBed.createComponent(MetadataProviderFieldSelectorComponent);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+
     component.selectedFields = ['asin'];
 
     component.toggleField('googleId', true);
@@ -59,7 +63,9 @@ describe('MetadataProviderFieldSelectorComponent', () => {
   });
 
   it('translates provider and field labels through Transloco', () => {
-    const component = TestBed.runInInjectionContext(() => new MetadataProviderFieldSelectorComponent());
+    const fixture = TestBed.createComponent(MetadataProviderFieldSelectorComponent);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
 
     expect(component.getProviderLabel('amazon')).toBe('translated:settingsMeta.fieldSelector.providers.amazon');
     expect(component.getFieldLabel('asin')).toBe('translated:settingsMeta.fieldSelector.fields.asin');

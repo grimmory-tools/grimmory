@@ -62,9 +62,9 @@ public class MetadataMatchWeights {
     @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
     private int lubimyczytacRating = 2;
     @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
-    private int audibleRating = 2;
+    private int audibleRating = 0;
     @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
-    private int audibleReviewCount = 1;
+    private int audibleReviewCount = 0;
     @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
     private int coverImage = 5;
 

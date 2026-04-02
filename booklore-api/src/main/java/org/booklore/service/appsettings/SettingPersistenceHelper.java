@@ -244,8 +244,8 @@ public class SettingPersistenceHelper {
                 .doubanReviewCount(2)
                 .ranobedbRating(2)
                 .lubimyczytacRating(2)
-                .audibleRating(2)
-                .audibleReviewCount(1)
+                .audibleRating(0)
+                .audibleReviewCount(0)
                 .coverImage(5)
                 .build();
     }
