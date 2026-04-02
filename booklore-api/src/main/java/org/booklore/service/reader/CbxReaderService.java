@@ -112,7 +112,7 @@ public class CbxReaderService {
             List<CbxPageDimension> dimensions = new ArrayList<>();
             for (int i = 0; i < imageEntries.size(); i++) {
                 String entryName = imageEntries.get(i);
-                CbxPageDimension dim = readEntryDimension(cbxPath, entryName, metadata, i + 1);
+                CbxPageDimension dim = readEntryDimension(cbxPath, entryName, i + 1);
                 dimensions.add(dim);
             }
             return dimensions;
@@ -122,7 +122,7 @@ public class CbxReaderService {
         }
     }
 
-    private CbxPageDimension readEntryDimension(Path cbxPath, String entryName, CachedArchiveMetadata metadata, int pageNumber) {
+    private CbxPageDimension readEntryDimension(Path cbxPath, String entryName, int pageNumber) {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             archiveService.transferEntryTo(cbxPath, entryName, baos);

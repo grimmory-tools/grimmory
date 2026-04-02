@@ -15,6 +15,7 @@ import org.booklore.util.UserPermissionUtils;
 import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,6 @@ import tools.jackson.core.type.TypeReference;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,9 +35,6 @@ public class AppSettingService {
     private final AuthenticationService authenticationService;
     private final AuditService auditService;
 
-    private volatile AppSettings appSettings;
-    private final ReentrantLock lock = new ReentrantLock();
-
     public AppSettingService(AppProperties appProperties, SettingPersistenceHelper settingPersistenceHelper, @Lazy AuthenticationService authenticationService, @Lazy AuditService auditService) {
         this.appProperties = appProperties;
         this.settingPersistenceHelper = settingPersistenceHelper;
@@ -45,21 +42,15 @@ public class AppSettingService {
         this.auditService = auditService;
     }
 
+    @Cacheable("appSettings")
     public AppSettings getAppSettings() {
-        if (appSettings == null) {
-            lock.lock();
-            try {
-                if (appSettings == null) {
-                    appSettings = buildAppSettings();
-                }
-            } finally {
-                lock.unlock();
-            }
-        }
-        return appSettings;
+        return buildAppSettings();
     }
 
-    @CacheEvict(value = "publicSettings", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "appSettings", allEntries = true),
+            @CacheEvict(value = "publicSettings", allEntries = true)
+    })
     @Transactional
     public void updateSetting(AppSettingKey key, Object val) throws JacksonException {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
@@ -77,7 +68,6 @@ public class AppSettingService {
         }
         setting.setVal(settingPersistenceHelper.serializeSettingValue(key, val));
         settingPersistenceHelper.appSettingsRepository.save(setting);
-        refreshCache();
 
         AuditAction action = switch (key) {
             case AppSettingKey k when k == AppSettingKey.OIDC_FORCE_ONLY_MODE -> AuditAction.OIDC_FORCE_ONLY_MODE_CHANGED;
@@ -120,15 +110,6 @@ public class AppSettingService {
     @Cacheable("publicSettings")
     public PublicAppSetting getPublicSettings() {
         return buildPublicSetting();
-    }
-
-    private void refreshCache() {
-        lock.lock();
-        try {
-            appSettings = buildAppSettings();
-        } finally {
-            lock.unlock();
-        }
     }
 
     private Map<String, String> getSettingsMap() {
@@ -217,7 +198,10 @@ public class AppSettingService {
         return setting != null ? setting.getVal() : null;
     }
 
-    @CacheEvict(value = "publicSettings", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "appSettings", allEntries = true),
+            @CacheEvict(value = "publicSettings", allEntries = true)
+    })
     @Transactional
     public void saveSetting(String key, String value) {
         var setting = settingPersistenceHelper.appSettingsRepository.findByName(key);
