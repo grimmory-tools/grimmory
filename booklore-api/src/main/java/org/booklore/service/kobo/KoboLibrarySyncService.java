@@ -65,7 +65,7 @@ public class KoboLibrarySyncService {
     }
 
     @Transactional
-    public ResponseEntity<?> syncLibrary(BookLoreUser user, String token) {
+    public ResponseEntity<List<Entitlement>> syncLibrary(BookLoreUser user, String token) {
         HttpServletRequest request = RequestUtils.getCurrentRequest();
         BookloreSyncToken syncToken = Optional.ofNullable(tokenGenerator.fromRequestHeaders(request)).orElse(new BookloreSyncToken());
 

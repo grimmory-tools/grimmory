@@ -68,7 +68,7 @@ public class KoboController {
     @Operation(summary = "Sync Kobo library", description = "Sync the user's Kobo library.")
     @ApiResponse(responseCode = "200", description = "Library synced successfully")
     @GetMapping("/v1/library/sync")
-    public ResponseEntity<?> syncLibrary(@AuthenticationPrincipal BookLoreUser user) {
+    public ResponseEntity<List<Entitlement>> syncLibrary(@AuthenticationPrincipal BookLoreUser user) {
         return koboLibrarySyncService.syncLibrary(user, token);
     }
 
