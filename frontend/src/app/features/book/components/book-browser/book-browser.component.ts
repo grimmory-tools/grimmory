@@ -33,7 +33,6 @@ import {Checkbox} from 'primeng/checkbox';
 import {Popover} from 'primeng/popover';
 import {Slider} from 'primeng/slider';
 import {Divider} from 'primeng/divider';
-import {SelectButton} from 'primeng/selectbutton';
 import {MultiSelect} from 'primeng/multiselect';
 import {TableColumnPreferenceService} from './table-column-preference.service';
 import {TieredMenu} from 'primeng/tieredmenu';
@@ -76,7 +75,7 @@ export enum EntityType {
   imports: [
     Button, VirtualScrollerModule, BookCardComponent, Menu, InputText, FormsModule,
     BookTableComponent, BookFilterComponent, Tooltip, NgClass, NgStyle, Popover,
-    Checkbox, Slider, Divider, MultiSelect, TieredMenu, BadgeModule, MultiSortPopoverComponent, TranslocoDirective, SelectButton
+    Checkbox, Slider, Divider, MultiSelect, TieredMenu, BadgeModule, MultiSortPopoverComponent, TranslocoDirective
   ],
   providers: [SeriesCollapseFilter],
   animations: [
@@ -285,10 +284,6 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   visibleColumns: { field: string; header: string }[] = [];
   entityViewPreferences: EntityViewPreferences | undefined;
   currentViewMode: string | undefined;
-  readonly viewModeOptions = [
-    {value: VIEW_MODES.GRID, icon: 'pi pi-objects-column'},
-    {value: VIEW_MODES.TABLE, icon: 'pi pi-table'},
-  ];
   lastAppliedSortCriteria: SortOption[] = [];
   visibleSortOptions: SortOption[] = [];
   screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
@@ -438,6 +433,14 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
 
   get showGridLoadingPlaceholder(): boolean {
     return this.showBooksLoadingPlaceholder && this.currentViewMode !== VIEW_MODES.TABLE;
+  }
+
+  get viewIcon(): string {
+    return this.currentViewMode === VIEW_MODES.TABLE ? 'pi pi-table' : 'pi pi-objects-column';
+  }
+
+  get viewModeToggleLabel(): string {
+    return this.t.translate('book.browser.tooltip.toggleView');
   }
 
   get isFilterActive(): boolean {
@@ -874,6 +877,11 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
       this.selectedFilter.set(null);
     }
     this.clearSearch();
+  }
+
+  toggleTableGrid(): void {
+    const nextMode = this.currentViewMode === VIEW_MODES.GRID ? VIEW_MODES.TABLE : VIEW_MODES.GRID;
+    this.onViewModeChange(nextMode);
   }
 
   onViewModeChange(mode: string): void {
