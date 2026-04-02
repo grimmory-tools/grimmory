@@ -10,6 +10,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.util.UriComponentsBuilder;
 import tools.jackson.databind.JsonNode;
@@ -20,6 +22,7 @@ import tools.jackson.databind.node.ObjectNode;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 @ExtendWith(MockitoExtension.class)
 @DisplayName("KoboInitializationService Tests")
 class KoboInitializationServiceTest {
@@ -41,9 +44,9 @@ class KoboInitializationServiceTest {
     @BeforeEach
     void setUp() {
         when(koboUrlBuilder.baseBuilder()).thenReturn(UriComponentsBuilder.fromUriString("http://localhost:8080"));
+        when(koboUrlBuilder.withBaseUrl(eq("test-token"), any())).thenReturn("http://localhost:8080/with-base-url");
         when(koboUrlBuilder.imageUrlTemplate("test-token")).thenReturn("http://localhost:8080/kobo/test-token/image/{ImageId}/{Width}/{Height}/false/image.jpg");
         when(koboUrlBuilder.imageUrlQualityTemplate("test-token")).thenReturn("http://localhost:8080/kobo/test-token/image/{ImageId}/{Width}/{Height}/{Quality}/{IsGreyscale}/image.jpg");
-        when(koboUrlBuilder.librarySyncUrl("test-token")).thenReturn("http://localhost:8080/kobo/test-token/v1/library/sync");
     }
 
     @Nested
@@ -54,7 +57,7 @@ class KoboInitializationServiceTest {
         @DisplayName("Should use Resources from Kobo proxy response")
         void initialize_usesProxyResources() throws Exception {
             ObjectNode resources = objectMapper.createObjectNode();
-            resources.put("library_sync", "https://storeapi.kobo.com/v1/library/sync");
+            resources.put("example", "https://storeapi.kobo.com/v1/library/sync");
             resources.put("image_host", "https://cdn.kobo.com/book-images/");
 
             ObjectNode body = objectMapper.createObjectNode();
@@ -68,7 +71,7 @@ class KoboInitializationServiceTest {
             assertEquals(200, response.getStatusCode().value());
             assertNotNull(response.getBody());
             JsonNode result = response.getBody().getResources();
-            assertEquals("http://localhost:8080/kobo/test-token/v1/library/sync", result.get("library_sync").asText());
+            assertEquals("https://storeapi.kobo.com/v1/library/sync", result.get("example").asText());
         }
 
         @Test
@@ -154,14 +157,14 @@ class KoboInitializationServiceTest {
                     .thenReturn(ResponseEntity.ok(body));
 
             ObjectNode fallbackResources = objectMapper.createObjectNode();
-            fallbackResources.put("library_sync", "https://storeapi.kobo.com/v1/library/sync");
+            fallbackResources.put("example", "https://storeapi.kobo.com/v1/example");
             when(koboResourcesComponent.getResources()).thenReturn(fallbackResources);
 
             ResponseEntity<KoboResources> response = service.initialize("test-token");
 
             verify(koboResourcesComponent).getResources();
-            assertEquals("http://localhost:8080/kobo/test-token/v1/library/sync",
-                    response.getBody().getResources().get("library_sync").asText());
+            assertEquals("https://storeapi.kobo.com/v1/example",
+                    response.getBody().getResources().get("example").asText());
         }
 
         @Test

@@ -44,31 +44,28 @@ public class KoboUrlBuilder {
         return ("http".equals(scheme) && port == 80) || ("https".equals(scheme) && port == 443);
     }
 
-    public String downloadUrl(String token, Long bookId) {
-        return baseBuilder()
-                .pathSegment("api", "kobo", token, "v1", "books", "{bookId}", "download")
-                .buildAndExpand(bookId)
+    public String withBaseUrl(String token, String... pathSegments) {
+        UriComponentsBuilder builder = baseBuilder()
+                .pathSegment("api", "kobo", token);
+
+        for (String p : pathSegments) {
+            builder.pathSegment(p);
+        }
+
+        return builder
+                .build()
                 .toUriString();
+    }
+
+    public String downloadUrl(String token, Long bookId) {
+        return withBaseUrl(token, "v1", "books", bookId.toString(), "download");
     }
 
     public String imageUrlTemplate(String token) {
-        return baseBuilder()
-                .pathSegment("api", "kobo", token, "v1", "books", "{ImageId}", "thumbnail", "{Width}", "{Height}", "false", "image.jpg")
-                .build()
-                .toUriString();
+        return withBaseUrl( token, "v1", "books", "{ImageId}", "thumbnail", "{Width}", "{Height}", "false", "image.jpg");
     }
 
     public String imageUrlQualityTemplate(String token) {
-        return baseBuilder()
-                .pathSegment("api", "kobo", token, "v1", "books", "{ImageId}", "thumbnail", "{Width}", "{Height}", "{Quality}", "{IsGreyscale}", "image.jpg")
-                .build()
-                .toUriString();
-    }
-
-    public String librarySyncUrl(String token) {
-        return baseBuilder()
-                .pathSegment("api", "kobo", token, "v1", "library", "sync")
-                .build()
-                .toUriString();
+        return withBaseUrl( token,  "v1", "books", "{ImageId}", "thumbnail", "{Width}", "{Height}", "{Quality}", "{IsGreyscale}", "image.jpg");
     }
 }
