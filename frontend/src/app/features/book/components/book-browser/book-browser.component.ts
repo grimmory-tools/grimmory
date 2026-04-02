@@ -55,6 +55,7 @@ import {AppSettingsService} from '../../../../shared/service/app-settings.servic
 import {MultiSortPopoverComponent} from './sorting/multi-sort-popover/multi-sort-popover.component';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {DeferredRenderState} from './deferred-render-state';
+
 import {SortService} from '../../service/sort.service';
 import {filterBooksBySearchTerm} from './filters/HeaderFilter';
 import {filterBooksByFilters} from './filters/sidebar-filter';
@@ -211,6 +212,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly booksRenderState = new DeferredRenderState<Book[]>();
   readonly books = this.booksRenderState.value;
   readonly hasRenderedBooks = this.booksRenderState.hasValue;
+  readonly isBooksRefreshing = this.booksRenderState.isRefreshing;
 
   private lastBooksContextKey: string | null = null;
   private readonly booksContextKey = computed(() => {
@@ -414,12 +416,8 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.coverScalePreferenceService.getCardHeight(_book);
   }
 
-  get viewIcon(): string {
-    return this.currentViewMode === VIEW_MODES.GRID ? 'pi pi-objects-column' : 'pi pi-table';
-  }
-
   get showBooksLoadingPlaceholder(): boolean {
-    return this.isBooksLoading() || !this.hasRenderedBooks();
+    return !this.booksError() && (this.isBooksLoading() || !this.hasRenderedBooks());
   }
 
   get showTableLoadingPlaceholder(): boolean {
@@ -864,11 +862,6 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
       this.selectedFilter.set(null);
     }
     this.clearSearch();
-  }
-
-  toggleTableGrid(): void {
-    this.currentViewMode = this.currentViewMode === VIEW_MODES.GRID ? VIEW_MODES.TABLE : VIEW_MODES.GRID;
-    this.queryParamsService.updateViewMode(this.currentViewMode as 'grid' | 'table');
   }
 
   onViewModeChange(mode: string): void {
