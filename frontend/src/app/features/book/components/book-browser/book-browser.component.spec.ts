@@ -375,6 +375,7 @@ describe('BookBrowserComponent', () => {
   it('hides loading placeholders when the books query is in an error state', () => {
     const {component} = createHarness({
       booksError: 'Failed to load books',
+      isBooksLoading: true,
     });
 
     expect(component.showBooksLoadingPlaceholder).toBe(false);
