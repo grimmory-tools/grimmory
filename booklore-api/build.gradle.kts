@@ -140,6 +140,7 @@ hibernate {
 
 tasks.named<Test>("test") {
     useJUnitPlatform()
+    maxHeapSize = "2560m"
     jvmArgs("-XX:+EnableDynamicAgentLoading", "--enable-native-access=ALL-UNNAMED")
     finalizedBy(tasks.named("jacocoTestReport"))
 }
