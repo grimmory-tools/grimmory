@@ -51,6 +51,7 @@ export type CoverPlaceholderSize = 'sm' | 'md' | 'lg';
       align-items: center;
       justify-content: center;
       text-align: center;
+      border-radius: inherit;
     }
 
     .placeholder.size-sm { padding: 0.5rem; }
