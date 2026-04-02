@@ -36,7 +36,6 @@ describe('MetadataProviderFieldSelectorComponent', () => {
     } as AppSettings);
 
     const component = TestBed.runInInjectionContext(() => new MetadataProviderFieldSelectorComponent());
-    component.ngOnInit();
 
     expect(component.selectedFields).toEqual(['asin', 'amazonReviewCount']);
   });
