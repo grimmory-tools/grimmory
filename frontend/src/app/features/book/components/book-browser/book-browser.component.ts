@@ -439,10 +439,6 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.currentViewMode === VIEW_MODES.TABLE ? 'pi pi-table' : 'pi pi-objects-column';
   }
 
-  get viewModeToggleLabel(): string {
-    return this.t.translate('book.browser.tooltip.toggleView');
-  }
-
   get isFilterActive(): boolean {
     const selectedFilter = this.selectedFilter();
     return !!selectedFilter && Object.keys(selectedFilter).length > 0;
@@ -880,8 +876,8 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   toggleTableGrid(): void {
-    const nextMode = this.currentViewMode === VIEW_MODES.GRID ? VIEW_MODES.TABLE : VIEW_MODES.GRID;
-    this.onViewModeChange(nextMode);
+    this.currentViewMode = this.currentViewMode === VIEW_MODES.GRID ? VIEW_MODES.TABLE : VIEW_MODES.GRID;
+    this.queryParamsService.updateViewMode(this.currentViewMode as 'grid' | 'table');
   }
 
   onViewModeChange(mode: string): void {

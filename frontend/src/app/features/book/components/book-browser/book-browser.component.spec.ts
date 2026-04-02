@@ -321,16 +321,17 @@ describe('BookBrowserComponent', () => {
     TestBed.resetTestingModule();
   });
 
-  it('reuses the existing toggle-view translation for the view mode control', () => {
+  it('toggles between grid and table views through the existing toolbar control', () => {
     const {component, queryParamsService} = createHarness();
 
     component.currentViewMode = VIEW_MODES.GRID;
 
-    expect(component.viewModeToggleLabel).toBe('Toggle between Grid and Table view');
+    expect(component.viewIcon).toBe('pi pi-objects-column');
 
     component.toggleTableGrid();
 
     expect(component.currentViewMode).toBe(VIEW_MODES.TABLE);
+    expect(component.viewIcon).toBe('pi pi-table');
     expect(queryParamsService.updateViewMode).toHaveBeenCalledWith(VIEW_MODES.TABLE);
   });
 

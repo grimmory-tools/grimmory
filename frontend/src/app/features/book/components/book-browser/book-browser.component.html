@@ -90,6 +90,13 @@
               </p-popover>
             </div>
           }
+          <a class="topbar-items topbar-item" role="button" tabindex="0" (click)="toggleTableGrid()" (keydown.enter)="toggleTableGrid()">
+            <i
+              [ngClass]="viewIcon"
+              [pTooltip]="t('tooltip.toggleView')"
+              tooltipPosition="top">
+            </i>
+          </a>
           <div>
             <a
               class="topbar-items topbar-item"
@@ -103,17 +110,6 @@
             </a>
             <p-popover #seriesCollapseOverlay [dismissable]="true" appendTo="body">
               <div class="display-settings-popover">
-                <div class="display-settings-section">
-                  <button
-                    type="button"
-                    class="view-mode-toggle-btn"
-                    [attr.aria-label]="viewModeToggleLabel"
-                    [pTooltip]="viewModeToggleLabel"
-                    tooltipPosition="top"
-                    (click)="toggleTableGrid()">
-                    <i [class]="viewIcon" aria-hidden="true"></i>
-                  </button>
-                </div>
                 <div class="display-settings-section">
                   <div class="display-settings-checkbox-row">
                     <p-checkbox
