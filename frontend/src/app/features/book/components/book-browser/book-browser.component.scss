@@ -61,6 +61,14 @@
   50% { opacity: 0.6; }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-card,
+  .table-skeleton-cell {
+    animation: none;
+    will-change: auto;
+  }
+}
+
 // Layout containers
 .book-browser-container {
   position: relative;

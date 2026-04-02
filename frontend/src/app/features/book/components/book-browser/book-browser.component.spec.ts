@@ -258,7 +258,7 @@ function createHarness(options?: {
       },
       {provide: PageTitleService, useValue: {setPageTitle: vi.fn()}},
       {provide: LoadingService, useValue: {show: vi.fn(), hide: vi.fn()}},
-      {provide: LocalStorageService, useValue: {getItem: vi.fn(), setItem: vi.fn()}},
+      {provide: LocalStorageService, useValue: {get: vi.fn(), set: vi.fn()}},
       {
         provide: BookBrowserQueryParamsService,
         useValue: queryParamsService,
@@ -321,17 +321,14 @@ describe('BookBrowserComponent', () => {
     TestBed.resetTestingModule();
   });
 
-  it('toggles between grid and table views through the existing toolbar control', () => {
+  it('switches view mode through the display settings control', () => {
     const {component, queryParamsService} = createHarness();
 
     component.currentViewMode = VIEW_MODES.GRID;
 
-    expect(component.viewIcon).toBe('pi pi-objects-column');
-
-    component.toggleTableGrid();
+    component.onViewModeChange(VIEW_MODES.TABLE);
 
     expect(component.currentViewMode).toBe(VIEW_MODES.TABLE);
-    expect(component.viewIcon).toBe('pi pi-table');
     expect(queryParamsService.updateViewMode).toHaveBeenCalledWith(VIEW_MODES.TABLE);
   });
 
