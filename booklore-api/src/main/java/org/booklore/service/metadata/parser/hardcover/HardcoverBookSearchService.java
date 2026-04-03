@@ -2,7 +2,6 @@ package org.booklore.service.metadata.parser.hardcover;
 
 import org.booklore.service.appsettings.AppSettingService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -27,7 +26,6 @@ public class HardcoverBookSearchService {
     private final AtomicLong lastRequestTime = new AtomicLong(0);
     private final AtomicLong successCount = new AtomicLong(0);
 
-    @Autowired
     public HardcoverBookSearchService(AppSettingService appSettingService) {
         this.appSettingService = appSettingService;
         this.restClient = RestClient.builder()

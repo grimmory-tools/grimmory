@@ -259,10 +259,16 @@ public class SettingPersistenceHelper {
                 .maxFileSizeInMb(250)
                 .build();
 
+        MetadataPersistenceSettings.FormatSettings audiobookSettings = MetadataPersistenceSettings.FormatSettings.builder()
+                .enabled(false)
+                .maxFileSizeInMb(250)
+                .build();
+
         MetadataPersistenceSettings.SaveToOriginalFile saveToOriginalFile = MetadataPersistenceSettings.SaveToOriginalFile.builder()
                 .epub(epubSettings)
                 .pdf(pdfSettings)
                 .cbx(cbxSettings)
+                .audiobook(audiobookSettings)
                 .build();
 
         return MetadataPersistenceSettings.builder()

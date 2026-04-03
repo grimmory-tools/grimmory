@@ -2,13 +2,16 @@ package org.booklore.config;
 
 import org.booklore.config.security.interceptor.WebSocketAuthInterceptor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.web.socket.config.WebSocketMessageBrokerStats;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
@@ -27,6 +30,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public WebSocketConfig(WebSocketAuthInterceptor webSocketAuthInterceptor, Environment env) {
         this.webSocketAuthInterceptor = webSocketAuthInterceptor;
         this.env = env;
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void suppressStatsLogging(ApplicationReadyEvent event) {
+        var stats = event.getApplicationContext().getBean(WebSocketMessageBrokerStats.class);
+        stats.setLoggingPeriod(30 * 24 * 60 * 60 * 1000L); // 30 days
     }
 
     @Override
