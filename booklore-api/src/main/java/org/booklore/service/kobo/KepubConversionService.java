@@ -1,8 +1,8 @@
 package org.booklore.service.kobo;
 
 import org.booklore.util.FileService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -11,10 +11,10 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class KepubConversionService {
 
-    @Autowired
-    private FileService fileService;
+    private final FileService fileService;
 
     public File convertEpubToKepub(File epubFile, File tempDir, boolean forceEnableHyphenation) throws IOException, InterruptedException {
         validateInputs(epubFile);

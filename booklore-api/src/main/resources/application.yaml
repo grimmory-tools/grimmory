@@ -43,7 +43,10 @@ spring:
       fail-on-null-for-primitives: false
   servlet:
     multipart:
-      enabled: false
+      enabled: true
+      max-file-size: 1024MB
+      max-request-size: 1024MB
+      file-size-threshold: 0
   mvc:
     async:
       request-timeout: 600000

@@ -277,9 +277,9 @@ public class SecurityConfig {
             configuration.setAllowedOriginPatterns(origins);
         }
 
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type", "Range", "If-None-Match"));
-        configuration.setExposedHeaders(List.of("Content-Disposition", "Accept-Ranges", "Content-Range", "Content-Length", "ETag", "Date"));
+        configuration.setAllowedMethods(List.of("GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type", "Range", "If-None-Match", "If-Modified-Since"));
+        configuration.setExposedHeaders(List.of("Content-Disposition", "Accept-Ranges", "Content-Range", "Content-Length", "ETag", "Date", "Last-Modified"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
