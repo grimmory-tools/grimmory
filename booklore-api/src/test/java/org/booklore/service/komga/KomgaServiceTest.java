@@ -102,12 +102,11 @@ class KomgaServiceTest {
     @Test
     void shouldReturnAllBooksWhenUnpagedIsTrue() {
         // Given
-        when(bookRepository.findAllWithMetadataByLibraryId(anyLong())).thenReturn(seriesBooks);
-        
-        // Mock mapper.getBookSeriesName to return "test-series" for all books
-        for (BookEntity book : seriesBooks) {
-            when(komgaMapper.getBookSeriesName(book)).thenReturn("test-series");
-        }
+        when(komgaMapper.getUnknownSeriesName()).thenReturn("Unknown Series");
+        when(bookRepository.findDistinctSeriesNamesGroupedByLibraryId(1L, "Unknown Series"))
+                .thenReturn(List.of("Test Series"));
+        when(bookRepository.findBooksBySeriesNameGroupedByLibraryId("Test Series", 1L, "Unknown Series"))
+                .thenReturn(seriesBooks);
         
         // Mock the mapper to return DTOs
         for (BookEntity book : seriesBooks) {
@@ -133,12 +132,11 @@ class KomgaServiceTest {
     @Test
     void shouldReturnPagedBooksWhenUnpagedIsFalse() {
         // Given
-        when(bookRepository.findAllWithMetadataByLibraryId(anyLong())).thenReturn(seriesBooks);
-        
-        // Mock mapper.getBookSeriesName to return "test-series" for all books
-        for (BookEntity book : seriesBooks) {
-            when(komgaMapper.getBookSeriesName(book)).thenReturn("test-series");
-        }
+        when(komgaMapper.getUnknownSeriesName()).thenReturn("Unknown Series");
+        when(bookRepository.findDistinctSeriesNamesGroupedByLibraryId(1L, "Unknown Series"))
+                .thenReturn(List.of("Test Series"));
+        when(bookRepository.findBooksBySeriesNameGroupedByLibraryId("Test Series", 1L, "Unknown Series"))
+                .thenReturn(seriesBooks);
         
         // Mock the mapper to return DTOs (only for the books that will be used)
         for (int i = 0; i < 20; i++) {

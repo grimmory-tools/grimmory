@@ -23,7 +23,7 @@ public class AuthRateLimitService {
     public AuthRateLimitService(AuditService auditService) {
         this.auditService = auditService;
         this.attemptCache = Caffeine.newBuilder()
-                .maximumSize(10000)
+                .maximumSize(1000)
                 .expireAfterWrite(Duration.ofMinutes(15))
                 .build();
     }

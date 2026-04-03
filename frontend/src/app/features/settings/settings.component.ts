@@ -62,7 +62,6 @@ export enum SettingsTab {
   styleUrl: './settings.component.scss'
 })
 export class SettingsComponent implements OnInit, OnDestroy {
-
   protected userService = inject(UserService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);

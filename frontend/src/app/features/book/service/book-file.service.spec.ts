@@ -12,6 +12,7 @@ import {AdditionalFileType} from '../model/book.model';
 import {BOOKS_QUERY_KEY, bookDetailQueryKey} from './book-query-keys';
 import {BookFileService} from './book-file.service';
 import {FileDownloadService} from '../../../shared/service/file-download.service';
+import {LocalSettingsService} from '../../../shared/service/local-settings.service';
 
 type BuildBookOverrides = Omit<Partial<Book>, 'metadata'> & {
   metadata?: Partial<BookMetadata>;
@@ -51,6 +52,7 @@ describe('BookFileService', () => {
   let queryClient: QueryClient;
   let messageService: {add: ReturnType<typeof vi.fn>};
   let fileDownloadService: {downloadFile: ReturnType<typeof vi.fn>};
+  let localSettingsService: {get: ReturnType<typeof vi.fn>};
   let translate: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
@@ -61,6 +63,9 @@ describe('BookFileService', () => {
     };
     fileDownloadService = {
       downloadFile: vi.fn(),
+    };
+    localSettingsService = {
+      get: vi.fn().mockReturnValue({cacheStorageEnabled: false}),
     };
     translate = vi.fn((key: string, params?: Record<string, unknown>) => (
       params ? `${key}:${JSON.stringify(params)}` : key
@@ -75,6 +80,7 @@ describe('BookFileService', () => {
         {provide: MessageService, useValue: messageService},
         {provide: FileDownloadService, useValue: fileDownloadService},
         {provide: TranslocoService, useValue: {translate}},
+        {provide: LocalSettingsService, useValue: localSettingsService},
       ],
     });
 
