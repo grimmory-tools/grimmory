@@ -6,6 +6,7 @@ import org.booklore.model.dto.ProgressPercentDto;
 import org.booklore.model.dto.RatingDistributionDto;
 import org.booklore.model.dto.StatusDistributionDto;
 import org.booklore.model.entity.UserBookProgressEntity;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -202,4 +204,46 @@ public interface UserBookProgressRepository extends JpaRepository<UserBookProgre
             WHERE ubp.user.id = :userId
             """)
     List<ProgressPercentDto> findAllProgressPercentsByUser(@Param("userId") Long userId);
+
+    /**
+     * Returns book IDs for in-progress reading (non-audiobook), ordered by most recently read.
+     */
+    @Query("""
+            SELECT DISTINCT ubp.book.id FROM UserBookProgressEntity ubp
+            JOIN ubp.book b
+            JOIN b.bookFiles bf
+            WHERE ubp.user.id = :userId
+              AND ubp.readStatus IN (org.booklore.model.enums.ReadStatus.READING, org.booklore.model.enums.ReadStatus.RE_READING)
+              AND (b.deleted IS NULL OR b.deleted = false)
+              AND bf.isBookFormat = true
+              AND bf.bookType <> org.booklore.model.enums.BookFileType.AUDIOBOOK
+              AND b.library.id IN :libraryIds
+              AND ubp.lastReadTime IS NOT NULL
+            ORDER BY ubp.lastReadTime DESC
+            """)
+    List<Long> findTopContinueReadingBookIds(
+            @Param("userId") Long userId,
+            @Param("libraryIds") Collection<Long> libraryIds,
+            Pageable pageable);
+
+    /**
+     * Returns book IDs for in-progress listening (audiobook), ordered by most recently read.
+     */
+    @Query("""
+            SELECT DISTINCT ubp.book.id FROM UserBookProgressEntity ubp
+            JOIN ubp.book b
+            JOIN b.bookFiles bf
+            WHERE ubp.user.id = :userId
+              AND ubp.readStatus IN (org.booklore.model.enums.ReadStatus.READING, org.booklore.model.enums.ReadStatus.RE_READING)
+              AND (b.deleted IS NULL OR b.deleted = false)
+              AND bf.isBookFormat = true
+              AND bf.bookType = org.booklore.model.enums.BookFileType.AUDIOBOOK
+              AND b.library.id IN :libraryIds
+              AND ubp.lastReadTime IS NOT NULL
+            ORDER BY ubp.lastReadTime DESC
+            """)
+    List<Long> findTopContinueListeningBookIds(
+            @Param("userId") Long userId,
+            @Param("libraryIds") Collection<Long> libraryIds,
+            Pageable pageable);
 }

@@ -14,7 +14,7 @@ public class OidcStateService {
 
     private static final Cache<String, Boolean> STATE_CACHE = Caffeine.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(5))
-            .maximumSize(10_000)
+            .maximumSize(500)
             .build();
 
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();

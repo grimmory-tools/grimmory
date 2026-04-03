@@ -39,6 +39,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -72,6 +74,14 @@ public class BookController {
             @Parameter(description = "Remove other metadata fields from the response")
             @RequestParam(required = false, defaultValue = "true") boolean stripForListView) {
         return ResponseEntity.ok(bookService.getBookDTOs(withDescription, stripForListView));
+    }
+
+    @Operation(summary = "Get books (paginated)", description = "Retrieve a paginated list of books. Supports sorting via 'sort' parameter (e.g. sort=metadata.title,asc).")
+    @ApiResponse(responseCode = "200", description = "Page of books returned successfully")
+    @GetMapping("/page")
+    public ResponseEntity<Page<Book>> getBooksPaged(
+            @Parameter(hidden = true) Pageable pageable) {
+        return ResponseEntity.ok(bookService.getBookDTOsPaged(pageable));
     }
 
     @Operation(summary = "Get a book by ID", description = "Retrieve details of a specific book by its ID.")
@@ -147,12 +157,11 @@ public class BookController {
     })
     @GetMapping("/{bookId}/content")
     @CheckBookAccess(bookIdParam = "bookId")
-    public void getBookContent(
+    public ResponseEntity<Resource> getBookContent(
             @Parameter(description = "ID of the book") @PathVariable long bookId,
-            @Parameter(description = "Optional book type for alternative format (e.g., EPUB, PDF, MOBI)") @RequestParam(required = false) String bookType,
-            HttpServletRequest request,
-            HttpServletResponse response) throws java.io.IOException {
-        bookService.streamBookContent(bookId, bookType, request, response);
+            @Parameter(description = "Optional book type for alternative format (e.g., EPUB, PDF, MOBI)") @RequestParam(required = false) String bookType
+            ) {
+        return bookService.getBookContent(bookId, bookType);
     }
 
     @Operation(summary = "Replace book content", description = "Overwrite the primary PDF file for a book with the uploaded content. Used by the document viewer to persist annotation changes.")

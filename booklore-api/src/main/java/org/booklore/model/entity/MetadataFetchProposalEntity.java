@@ -4,14 +4,17 @@ import org.booklore.model.enums.FetchedMetadataProposalStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.LazyGroup;
 
 import java.time.Instant;
 
 @Entity
 @Table(name = "metadata_fetch_proposals")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -43,6 +46,8 @@ public class MetadataFetchProposalEntity {
     private FetchedMetadataProposalStatus status;
 
     @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @LazyGroup("lob")
     @Column(name = "metadata_json", columnDefinition = "JSON")
     private String metadataJson;
 }
