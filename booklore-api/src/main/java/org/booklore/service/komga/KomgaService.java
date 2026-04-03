@@ -17,6 +17,9 @@ import org.booklore.service.reader.CbxReaderService;
 import org.booklore.service.reader.PdfReaderService;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -121,11 +124,13 @@ public class KomgaService {
                             seriesName, libraryId);
                     }
                 } else {
-                    // For all libraries, need to load all books and filter (less common case)
-                    List<BookEntity> allBooks = bookRepository.findAllWithMetadata();
-                    seriesBooks = allBooks.stream()
-                            .filter(book -> komgaMapper.getBookSeriesName(book).equals(seriesName))
-                            .collect(Collectors.toList());
+                    // For all libraries without library filter
+                    if (groupUnknown) {
+                        seriesBooks = bookRepository.findBooksBySeriesNameGrouped(
+                            seriesName, komgaMapper.getUnknownSeriesName());
+                    } else {
+                        seriesBooks = bookRepository.findBooksBySeriesNameUngrouped(seriesName);
+                    }
                 }
                 
                 if (!seriesBooks.isEmpty()) {
@@ -165,25 +170,40 @@ public class KomgaService {
         Long libraryId = Long.parseLong(parts[0]);
         String seriesSlug = parts[1];
         
-        // Get books matching the series - optimized to query by series name
-        List<BookEntity> allSeriesBooks = bookRepository.findAllWithMetadataByLibraryId(libraryId);
+        boolean groupUnknown = appSettingService.getAppSettings().isKomgaGroupUnknown();
+        
+        // Get distinct series names for this library to find the matching name by slug
+        List<String> seriesNames;
+        if (groupUnknown) {
+            seriesNames = bookRepository.findDistinctSeriesNamesGroupedByLibraryId(libraryId, komgaMapper.getUnknownSeriesName());
+        } else {
+            seriesNames = bookRepository.findDistinctSeriesNamesUngroupedByLibraryId(libraryId);
+        }
         
         // Find the series name that matches this slug
-        List<BookEntity> seriesBooks = allSeriesBooks.stream()
-                .filter(book -> {
-                    String bookSeriesName = komgaMapper.getBookSeriesName(book);
-                    String bookSeriesSlug = NON_ALPHANUMERIC_PATTERN.matcher(bookSeriesName.toLowerCase()).replaceAll("-");
-                    return bookSeriesSlug.equals(seriesSlug);
+        String matchedSeriesName = seriesNames.stream()
+                .filter(name -> {
+                    String slug = NON_ALPHANUMERIC_PATTERN.matcher(name.toLowerCase()).replaceAll("-");
+                    return slug.equals(seriesSlug);
                 })
-                .collect(Collectors.toList());
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Series not found"));
+        
+        // Load only the books for this specific series
+        List<BookEntity> seriesBooks;
+        if (groupUnknown) {
+            seriesBooks = bookRepository.findBooksBySeriesNameGroupedByLibraryId(
+                    matchedSeriesName, libraryId, komgaMapper.getUnknownSeriesName());
+        } else {
+            seriesBooks = bookRepository.findBooksBySeriesNameUngroupedByLibraryId(
+                    matchedSeriesName, libraryId);
+        }
         
         if (seriesBooks.isEmpty()) {
             throw new RuntimeException("Series not found");
         }
         
-        String seriesName = komgaMapper.getBookSeriesName(seriesBooks.get(0));
-        
-        return komgaMapper.toKomgaSeriesDto(seriesName, libraryId, seriesBooks);
+        return komgaMapper.toKomgaSeriesDto(matchedSeriesName, libraryId, seriesBooks);
     }
 
     public KomgaPageableDto<KomgaBookDto> getBooksBySeries(String seriesId, int page, int size, boolean unpaged) {
@@ -196,23 +216,36 @@ public class KomgaService {
         Long libraryId = Long.parseLong(parts[0]);
         String seriesSlug = parts[1];
         
-        // Get all books for the library once
-        List<BookEntity> allBooks = bookRepository.findAllWithMetadataByLibraryId(libraryId);
+        boolean groupUnknown = appSettingService.getAppSettings().isKomgaGroupUnknown();
         
-        // Filter and sort books for this series
-        List<BookEntity> seriesBooks = allBooks.stream()
-                .filter(book -> {
-                    String bookSeriesName = komgaMapper.getBookSeriesName(book);
-                    String bookSeriesSlug = NON_ALPHANUMERIC_PATTERN.matcher(bookSeriesName.toLowerCase()).replaceAll("-");
-                    return bookSeriesSlug.equals(seriesSlug);
+        // Get distinct series names for this library to find the matching name by slug
+        List<String> seriesNames;
+        if (groupUnknown) {
+            seriesNames = bookRepository.findDistinctSeriesNamesGroupedByLibraryId(libraryId, komgaMapper.getUnknownSeriesName());
+        } else {
+            seriesNames = bookRepository.findDistinctSeriesNamesUngroupedByLibraryId(libraryId);
+        }
+        
+        // Find the series name that matches this slug
+        String matchedSeriesName = seriesNames.stream()
+                .filter(name -> {
+                    String slug = NON_ALPHANUMERIC_PATTERN.matcher(name.toLowerCase()).replaceAll("-");
+                    return slug.equals(seriesSlug);
                 })
-                .sorted(Comparator.comparing(book -> {
-                    BookMetadataEntity metadata = book.getMetadata();
-                    return metadata != null && metadata.getSeriesNumber() != null 
-                         ? metadata.getSeriesNumber() 
-                         : 0f;
-                }))
-                .collect(Collectors.toList());
+                .findFirst()
+                .orElse(null);
+        
+        // Load only the books for this specific series (already sorted by seriesNumber via query ORDER BY)
+        List<BookEntity> seriesBooks;
+        if (matchedSeriesName == null) {
+            seriesBooks = List.of();
+        } else if (groupUnknown) {
+            seriesBooks = bookRepository.findBooksBySeriesNameGroupedByLibraryId(
+                    matchedSeriesName, libraryId, komgaMapper.getUnknownSeriesName());
+        } else {
+            seriesBooks = bookRepository.findBooksBySeriesNameUngroupedByLibraryId(
+                    matchedSeriesName, libraryId);
+        }
         
         // Handle unpaged mode
         int totalElements = seriesBooks.size();
@@ -256,21 +289,16 @@ public class KomgaService {
     }
 
     public KomgaPageableDto<KomgaBookDto> getAllBooks(Long libraryId, int page, int size) {
-        List<BookEntity> books;
+        Pageable pageable = PageRequest.of(page, size);
+        Page<BookEntity> bookPage;
         
         if (libraryId != null) {
-            books = bookRepository.findAllWithMetadataByLibraryId(libraryId);
+            bookPage = bookRepository.findAllWithMetadataByLibraryIdPaged(libraryId, pageable);
         } else {
-            books = bookRepository.findAllWithMetadata();
+            bookPage = bookRepository.findAllWithMetadataPaged(pageable);
         }
         
-        // Manual pagination
-        int totalElements = books.size();
-        int totalPages = (int) Math.ceil((double) totalElements / size);
-        int fromIndex = Math.min(page * size, totalElements);
-        int toIndex = Math.min(fromIndex + size, totalElements);
-        
-        List<KomgaBookDto> content = books.subList(fromIndex, toIndex).stream()
+        List<KomgaBookDto> content = bookPage.getContent().stream()
                 .map(book -> komgaMapper.toKomgaBookDto(book))
                 .collect(Collectors.toList());
         
@@ -279,10 +307,10 @@ public class KomgaService {
                 .number(page)
                 .size(size)
                 .numberOfElements(content.size())
-                .totalElements(totalElements)
-                .totalPages(totalPages)
+                .totalElements((int) bookPage.getTotalElements())
+                .totalPages(bookPage.getTotalPages())
                 .first(page == 0)
-                .last(page >= totalPages - 1)
+                .last(page >= bookPage.getTotalPages() - 1)
                 .empty(content.isEmpty())
                 .build();
     }

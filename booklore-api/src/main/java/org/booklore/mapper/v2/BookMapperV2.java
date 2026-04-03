@@ -29,6 +29,7 @@ public interface BookMapperV2 {
     Book toDTO(BookEntity bookEntity);
 
     @Named("mapMetadata")
+    @Mapping(target = "description", ignore = true)
     @Mapping(target = "authors", source = "authors", qualifiedByName = "mapAuthors")
     @Mapping(target = "categories", source = "categories", qualifiedByName = "mapCategories")
     @Mapping(target = "moods", source = "moods", qualifiedByName = "mapMoods")

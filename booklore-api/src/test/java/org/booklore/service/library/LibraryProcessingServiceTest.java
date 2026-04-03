@@ -8,6 +8,7 @@ import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.LibraryEntity;
 import org.booklore.model.entity.LibraryPathEntity;
 import org.booklore.repository.BookAdditionalFileRepository;
+import org.booklore.repository.BookRepository;
 import org.booklore.repository.LibraryRepository;
 import org.booklore.service.NotificationService;
 import org.booklore.task.options.RescanLibraryContext;
@@ -35,6 +36,8 @@ class LibraryProcessingServiceTest {
     @Mock
     private LibraryRepository libraryRepository;
     @Mock
+    private BookRepository bookRepository;
+    @Mock
     private NotificationService notificationService;
     @Mock
     private BookAdditionalFileRepository bookAdditionalFileRepository;
@@ -59,6 +62,7 @@ class LibraryProcessingServiceTest {
     void setUp() {
         libraryProcessingService = new LibraryProcessingService(
                 libraryRepository,
+                bookRepository,
                 notificationService,
                 bookAdditionalFileRepository,
                 fileAsBookProcessor,
@@ -92,6 +96,7 @@ class LibraryProcessingServiceTest {
         libraryEntity.setBookEntities(List.of(existingBook));
 
         when(libraryRepository.findById(libraryId)).thenReturn(Optional.of(libraryEntity));
+        when(bookRepository.findAllByLibraryIdForRescan(libraryId)).thenReturn(List.of(existingBook));
 
         LibraryFile existingFile = LibraryFile.builder()
                 .libraryEntity(libraryEntity)
@@ -153,6 +158,7 @@ class LibraryProcessingServiceTest {
         libraryEntity.setBookEntities(List.of(existingBook));
 
         when(libraryRepository.findById(libraryId)).thenReturn(Optional.of(libraryEntity));
+        when(bookRepository.findAllByLibraryIdForRescan(libraryId)).thenReturn(List.of(existingBook));
 
         LibraryFile existingFile = LibraryFile.builder()
                 .libraryEntity(libraryEntity)
@@ -186,6 +192,7 @@ class LibraryProcessingServiceTest {
         pathEntity.setPath("/library");
 
         when(libraryRepository.findById(libraryId)).thenReturn(Optional.of(libraryEntity));
+        when(bookRepository.findAllByLibraryIdForRescan(libraryId)).thenReturn(Collections.emptyList());
 
         LibraryFile newFile1 = LibraryFile.builder()
                 .libraryEntity(libraryEntity)
@@ -233,6 +240,7 @@ class LibraryProcessingServiceTest {
         pathEntity.setPath("/library");
 
         when(libraryRepository.findById(libraryId)).thenReturn(Optional.of(libraryEntity));
+        when(bookRepository.findAllByLibraryIdForRescan(libraryId)).thenReturn(Collections.emptyList());
 
         LibraryFile newFileInSub = LibraryFile.builder()
                 .libraryEntity(libraryEntity)
@@ -277,6 +285,7 @@ class LibraryProcessingServiceTest {
         pathEntity.setPath("/library");
 
         when(libraryRepository.findById(libraryId)).thenReturn(Optional.of(libraryEntity));
+        when(bookRepository.findAllByLibraryIdForRescan(libraryId)).thenReturn(Collections.emptyList());
 
         LibraryFile additionalFileAsLibraryFile = LibraryFile.builder()
                 .libraryEntity(libraryEntity)
@@ -349,7 +358,8 @@ class LibraryProcessingServiceTest {
         book.setBookFiles(List.of(epub, pdf, image));
         libraryEntity.setBookEntities(List.of(book));
 
-        when(libraryRepository.findByIdWithBooks(libraryId)).thenReturn(Optional.of(libraryEntity));
+        when(libraryRepository.findByIdWithPaths(libraryId)).thenReturn(Optional.of(libraryEntity));
+        when(bookRepository.findAllByLibraryIdForRescan(libraryId)).thenReturn(List.of(book));
 
         // Only epub exists on disk, pdf was removed
         LibraryFile epubOnDisk = LibraryFile.builder()
@@ -388,7 +398,7 @@ class LibraryProcessingServiceTest {
         libraryEntity.setLibraryPaths(List.of(pathEntity));
         libraryEntity.setBookEntities(Collections.emptyList());
 
-        when(libraryRepository.findByIdWithBooks(libraryId)).thenReturn(Optional.of(libraryEntity));
+        when(libraryRepository.findByIdWithPaths(libraryId)).thenReturn(Optional.of(libraryEntity));
 
         RescanLibraryContext context = RescanLibraryContext.builder().libraryId(libraryId).build();
 
@@ -425,7 +435,8 @@ class LibraryProcessingServiceTest {
         existingBook.getPrimaryBookFile().setFileName("book1.epub");
         libraryEntity.setBookEntities(List.of(existingBook));
 
-        when(libraryRepository.findByIdWithBooks(libraryId)).thenReturn(Optional.of(libraryEntity));
+        when(libraryRepository.findByIdWithPaths(libraryId)).thenReturn(Optional.of(libraryEntity));
+        when(bookRepository.findAllByLibraryIdForRescan(libraryId)).thenReturn(List.of(existingBook));
         when(libraryFileHelper.getAllLibraryFiles(libraryEntity)).thenReturn(Collections.emptyList());
 
         RescanLibraryContext context = RescanLibraryContext.builder().libraryId(libraryId).build();
@@ -470,11 +481,12 @@ class LibraryProcessingServiceTest {
                 .fileName("book1.epub")
                 .build();
 
-        when(libraryRepository.findByIdWithBooks(libraryId)).thenReturn(Optional.of(libraryEntity));
+        when(libraryRepository.findByIdWithPaths(libraryId)).thenReturn(Optional.of(libraryEntity));
+        when(bookRepository.findAllByLibraryIdForRescan(libraryId)).thenReturn(List.of(existingBook));
         when(libraryFileHelper.getAllLibraryFiles(libraryEntity)).thenReturn(List.of(fileOnDisk));
         when(libraryFileHelper.filterByAllowedFormats(anyList(), any())).thenAnswer(inv -> inv.getArgument(0));
         when(bookAdditionalFileRepository.findByLibraryId(libraryId)).thenReturn(Collections.emptyList());
-        when(bookGroupingService.groupForRescan(anyList(), eq(libraryEntity)))
+        when(bookGroupingService.groupForRescan(anyList(), any(LibraryEntity.class)))
                 .thenReturn(new BookGroupingService.GroupingResult(Collections.emptyMap(), Collections.emptyMap()));
 
         RescanLibraryContext context = RescanLibraryContext.builder().libraryId(libraryId).build();
@@ -500,11 +512,12 @@ class LibraryProcessingServiceTest {
         libraryEntity.setLibraryPaths(List.of(pathEntity));
         libraryEntity.setBookEntities(Collections.emptyList());
 
-        when(libraryRepository.findByIdWithBooks(libraryId)).thenReturn(Optional.of(libraryEntity));
+        when(libraryRepository.findByIdWithPaths(libraryId)).thenReturn(Optional.of(libraryEntity));
+        when(bookRepository.findAllByLibraryIdForRescan(libraryId)).thenReturn(Collections.emptyList());
         when(libraryFileHelper.getAllLibraryFiles(libraryEntity)).thenReturn(Collections.emptyList());
         when(libraryFileHelper.filterByAllowedFormats(anyList(), any())).thenAnswer(inv -> inv.getArgument(0));
         when(bookAdditionalFileRepository.findByLibraryId(libraryId)).thenReturn(Collections.emptyList());
-        when(bookGroupingService.groupForRescan(anyList(), eq(libraryEntity)))
+        when(bookGroupingService.groupForRescan(anyList(), any(LibraryEntity.class)))
                 .thenReturn(new BookGroupingService.GroupingResult(Collections.emptyMap(), Collections.emptyMap()));
 
         RescanLibraryContext context = RescanLibraryContext.builder().libraryId(libraryId).build();
@@ -554,9 +567,12 @@ class LibraryProcessingServiceTest {
                 .fileName("book (with parens).epub")
                 .build();
 
-        when(libraryRepository.findByIdWithBooks(libraryId))
+        when(libraryRepository.findByIdWithPaths(libraryId))
                 .thenReturn(Optional.of(libraryEntity))
                 .thenReturn(Optional.of(freshLibraryEntity)); // Second call returns fresh entity
+        when(bookRepository.findAllByLibraryIdForRescan(libraryId))
+                .thenReturn(new ArrayList<>(List.of(existingBook)))
+                .thenReturn(new ArrayList<>(List.of(existingBook)));
         when(libraryFileHelper.getAllLibraryFiles(any(LibraryEntity.class))).thenReturn(List.of(fileOnDisk));
         when(libraryFileHelper.filterByAllowedFormats(anyList(), any())).thenAnswer(inv -> inv.getArgument(0));
         when(bookAdditionalFileRepository.findByLibraryId(libraryId)).thenReturn(Collections.emptyList());
@@ -567,7 +583,8 @@ class LibraryProcessingServiceTest {
 
         libraryProcessingService.rescanLibrary(context);
 
-        verify(libraryRepository, times(2)).findByIdWithBooks(libraryId);
+        verify(libraryRepository, times(2)).findByIdWithPaths(libraryId);
+        verify(bookRepository, times(2)).findAllByLibraryIdForRescan(libraryId);
 
         verify(bookGroupingService).groupForRescan(eq(Collections.emptyList()), any(LibraryEntity.class));
     }

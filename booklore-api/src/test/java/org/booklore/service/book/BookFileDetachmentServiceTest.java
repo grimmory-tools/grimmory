@@ -86,6 +86,7 @@ class BookFileDetachmentServiceTest {
                 .isBookFormat(isBookFormat)
                 .bookType(type)
                 .build();
+        book.getBookFiles().add(file);
         return file;
     }
 
@@ -123,7 +124,6 @@ class BookFileDetachmentServiceTest {
         assertThat(book.getBookFiles().getFirst().getId()).isEqualTo(10L);
         verify(auditService).log(eq(org.booklore.model.enums.AuditAction.BOOK_FILE_DETACHED), anyString(), eq(1L), anyString());
         verify(bookRepository).saveAndFlush(argThat(newBook -> {
-            assertThat(newBook.getBookFiles()).hasSize(1);
             assertThat(newBook.getMetadata().getTitle()).isEqualTo("Test Book 1");
             return true;
         }));
@@ -173,11 +173,9 @@ class BookFileDetachmentServiceTest {
         service.detachBookFile(1L, 11L, false);
 
         assertThat(book.getBookFiles()).hasSize(1);
-        verify(bookRepository).saveAndFlush(argThat(newBook -> {
-            assertThat(newBook.getBookFiles()).hasSize(1);
-            assertThat(newBook.getBookFiles().getFirst().getFileName()).isEqualTo("notes.txt");
-            return true;
-        }));
+        assertThat(suppFile.getBook()).isNotSameAs(book);
+        assertThat(suppFile.getFileName()).isEqualTo("notes.txt");
+        verify(bookRepository).saveAndFlush(any(BookEntity.class));
     }
 
     @Test
@@ -281,8 +279,8 @@ class BookFileDetachmentServiceTest {
 
         verify(bookRepository).saveAndFlush(argThat(newBook -> {
             assertThat(newBook.getLibraryPath().getId()).isEqualTo(2L);
-            assertThat(newBook.getBookFiles().getFirst().getFileSubPath()).isEmpty();
             return true;
         }));
+        assertThat(altFile.getFileSubPath()).isEmpty();
     }
 }

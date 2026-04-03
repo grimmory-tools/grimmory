@@ -24,7 +24,6 @@ app:
   disk-type: ${DISK_TYPE:LOCAL}
 
 server:
-  max-http-header-size: 128KB
   forward-headers-strategy: native
   port: ${BOOKLORE_PORT:6060}
   compression:
@@ -34,8 +33,9 @@ server:
   tomcat:
     relaxed-query-chars: '[,],%,{,},|'
     threads:
-      max: 20                      # Virtual threads handle concurrency; platform threads just overhead
-      min-spare: 4
+      max: 10                      # Virtual threads handle concurrency; platform threads just overhead
+      min-spare: 2
+  max-http-request-header-size: 64KB
 
 spring:
   jackson:
@@ -62,6 +62,7 @@ spring:
     password: ${DATABASE_PASSWORD:${MYSQL_ROOT_PASSWORD}}
     hikari:
       pool-name: BookloreHikariPool
+      auto-commit: false           # Required counterpart to provider_disables_autocommit
       max-lifetime: 580000         # 9.6 minutes (avoid DB-side connection cuts)
       connection-test-query: SELECT 1
       connection-timeout: 30000    # 30s to acquire a connection before timeout
@@ -69,7 +70,7 @@ spring:
       minimum-idle: 2              # Minimal warm connections; virtual threads handle bursts
       idle-timeout: 300000         # 5 minutes before idle connections are closed
   jpa:
-    open-in-view: true # true until we implement proper DTOs and service-layer data fetching
+    open-in-view: false
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
@@ -78,16 +79,21 @@ spring:
       hibernate:
         query:
           timeout: 30              # 30s max for any HQL/JPQL query
-          plan_cache_max_size: 256 # Reduce from 2048 default; ~200 unique queries max
+          plan_cache_max_size: 128 # Reduce from 2048 default; small self-hosted app
+          plan_parameter_metadata_max_size: 32  # Reduce from 128 default
           in_clause_parameter_padding: true  # Pad IN params to power-of-2; fewer unique plan cache entries
+          fail_on_pagination_over_collection_fetch: true  # Fail fast when paginating over collection fetches (in-memory pagination)
         jdbc:
           time_zone: UTC
-          batch_size: 500
+          batch_size: 100
           fetch_size: 50           # Reduce JDBC roundtrips for large result sets
           order_inserts: true
           order_updates: true
           batch_versioned_data: true  # Allow batching UPDATEs on @Version entities
+        connection:
+          provider_disables_autocommit: true  # Skip unnecessary JDBC autocommit check; reduces roundtrips
         default_batch_fetch_size: 16  # Global batch fetch for all lazy collections (prevents N+1)
+        log_slow_query: ${HIBERNATE_SLOW_QUERY_MS:500}  # Log queries taking longer than 500ms (see org.hibernate.SQL_SLOW)
         generate_statistics: ${HIBERNATE_STATISTICS:false}
   threads:
     virtual:

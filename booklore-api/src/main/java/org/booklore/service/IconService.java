@@ -38,7 +38,7 @@ public class IconService {
     private static final String ICONS_DIR = "icons";
     private static final String SVG_DIR = "svg";
     private static final String SVG_EXTENSION = ".svg";
-    private static final int MAX_CACHE_SIZE = 1000;
+    private static final int MAX_CACHE_SIZE = 200;
     private static final String SVG_START_TAG = "<svg";
     private static final String XML_DECLARATION = "<?xml";
     private static final String SVG_END_TAG = "</svg>";

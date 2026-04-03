@@ -33,12 +33,13 @@ public class BookRestorationService {
         if (libraryFiles.isEmpty()) return;
 
         LibraryEntity libraryEntity = libraryFiles.getFirst().getLibraryEntity();
+        Long libraryId = libraryEntity.getId();
         Set<Path> currentPaths = libraryFiles.stream()
                 .map(LibraryFile::getFullPath)
                 .collect(Collectors.toSet());
 
-        List<BookEntity> toRestore = libraryEntity.getBookEntities().stream()
-                .filter(book -> Boolean.TRUE.equals(book.getDeleted()))
+        List<BookEntity> deletedBooks = bookRepository.findDeletedByLibraryIdWithFiles(libraryId);
+        List<BookEntity> toRestore = deletedBooks.stream()
                 .filter(book -> book.getBookFiles() != null && !book.getBookFiles().isEmpty())
                 .filter(book -> currentPaths.contains(book.getFullFilePath()))
                 .collect(Collectors.toList());
