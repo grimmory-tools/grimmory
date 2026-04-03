@@ -133,8 +133,8 @@ dependencies {
 
 hibernate {
     enhancement {
-        enableAssociationManagement = false
-        enableLazyInitialization = true
+        enableAssociationManagement.set(false)
+        enableLazyInitialization.set(true)
     }
 }
 
