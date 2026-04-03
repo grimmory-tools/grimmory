@@ -1,11 +1,13 @@
 package org.booklore.model.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "app_settings")
-@Data
+@Getter
+@Setter
 public class AppSettingEntity {
 
     @Id

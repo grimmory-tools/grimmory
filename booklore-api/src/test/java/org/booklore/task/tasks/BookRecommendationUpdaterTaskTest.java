@@ -2,6 +2,7 @@ package org.booklore.task.tasks;
 
 import org.booklore.exception.APIException;
 import org.booklore.model.dto.BookLoreUser;
+import org.booklore.model.dto.BookRecommendationLite;
 import org.booklore.model.dto.request.TaskCreateRequest;
 import org.booklore.model.dto.response.TaskCreateResponse;
 import org.booklore.model.entity.BookEntity;
@@ -15,13 +16,13 @@ import org.booklore.task.TaskStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -39,6 +40,9 @@ class BookRecommendationUpdaterTaskTest {
 
     @InjectMocks
     private BookRecommendationUpdaterTask task;
+
+    @Captor
+    private ArgumentCaptor<Map<Long, Set<BookRecommendationLite>>> recommendationsCaptor;
 
     private BookLoreUser user;
     private TaskCreateRequest request;
@@ -60,13 +64,15 @@ class BookRecommendationUpdaterTaskTest {
 
     @Test
     void execute_shouldHandleEmptyBookList() {
-        when(bookQueryService.getAllFullBookEntities()).thenReturn(Collections.emptyList());
+        when(bookQueryService.countAllNonDeleted()).thenReturn(0L);
+        when(bookQueryService.getAllFullBookEntitiesBatch(any())).thenReturn(Collections.emptyList());
 
         TaskCreateResponse response = task.execute(request);
 
         assertEquals(TaskType.UPDATE_BOOK_RECOMMENDATIONS, response.getTaskType());
-        verify(bookQueryService).getAllFullBookEntities();
-        verify(bookQueryService).saveAll(anyList()); // Should be called with empty list
+        verify(bookQueryService).countAllNonDeleted();
+        verify(bookQueryService).getAllFullBookEntitiesBatch(any());
+        verify(bookQueryService).saveRecommendationsInBatches(eq(Collections.emptyMap()), anyInt());
         verify(notificationService, atLeastOnce()).sendMessage(eq(Topic.TASK_PROGRESS), any());
     }
 
@@ -76,32 +82,41 @@ class BookRecommendationUpdaterTaskTest {
         BookEntity book2 = BookEntity.builder().id(2L).metadata(BookMetadataEntity.builder().title("B2").build()).build();
         List<BookEntity> books = List.of(book1, book2);
 
-        when(bookQueryService.getAllFullBookEntities()).thenReturn(books);
+        when(bookQueryService.countAllNonDeleted()).thenReturn(2L);
+        when(bookQueryService.getAllFullBookEntitiesBatch(any())).thenReturn(books).thenReturn(Collections.emptyList());
         when(vectorService.generateEmbedding(any())).thenReturn(new double[]{0.1, 0.2});
         when(vectorService.serializeVector(any())).thenReturn("[0.1, 0.2]");
-        // Lenient stubs for similarity calculations
-        lenient().when(vectorService.cosineSimilarity(any(), any())).thenReturn(0.9);
-        lenient().when(vectorService.findTopKSimilar(any(), anyList(), anyInt())).thenReturn(new ArrayList<>());
+        when(vectorService.cosineSimilarity(any(), any())).thenReturn(0.9);
+        when(vectorService.findTopKSimilar(any(), anyList(), anyInt())).thenAnswer(invocation -> {
+            List<BookVectorService.ScoredBook> candidates = invocation.getArgument(1);
+            return candidates.isEmpty() ? new ArrayList<>() : List.of(candidates.getFirst());
+        });
 
         TaskCreateResponse response = task.execute(request);
 
         assertEquals("task-123", response.getTaskId());
         assertEquals(TaskStatus.COMPLETED, response.getStatus());
 
-        org.mockito.ArgumentCaptor<List<BookEntity>> captor = org.mockito.ArgumentCaptor.forClass(List.class);
-        verify(bookQueryService).saveAll(captor.capture());
-        
-        List<BookEntity> savedBooks = captor.getValue();
-        assertEquals(2, savedBooks.size());
-        // Verify embeddings were set
-        assertNotNull(savedBooks.get(0).getMetadata().getEmbeddingVector());
+        verify(bookQueryService).compareAndSaveEmbeddings(any());
         verify(vectorService, times(2)).generateEmbedding(any());
+        verify(bookQueryService).saveRecommendationsInBatches(recommendationsCaptor.capture(), anyInt());
+
+        Map<Long, Set<BookRecommendationLite>> recommendations = recommendationsCaptor.getValue();
+        assertNotNull(recommendations);
+        assertEquals(2, recommendations.size(), "Should have recommendations for both books");
+        assertTrue(recommendations.containsKey(1L), "Should have recommendations for book 1");
+        assertTrue(recommendations.containsKey(2L), "Should have recommendations for book 2");
+        // Each book should recommend the other
+        recommendations.values().forEach(recs ->
+                assertFalse(recs.isEmpty(), "Each book should have at least one recommendation"));
     }
 
     @Test
     void execute_shouldFail_whenEmbeddingGenerationThrows() {
-        BookEntity book1 = BookEntity.builder().id(1L).build();
-        when(bookQueryService.getAllFullBookEntities()).thenReturn(List.of(book1));
+        BookEntity book1 = BookEntity.builder().id(1L).metadata(BookMetadataEntity.builder().title("B1").build()).build();
+
+        when(bookQueryService.countAllNonDeleted()).thenReturn(1L);
+        when(bookQueryService.getAllFullBookEntitiesBatch(any())).thenReturn(List.of(book1));
         when(vectorService.generateEmbedding(any())).thenThrow(new RuntimeException("Embedding failed"));
 
         assertThrows(RuntimeException.class, () -> task.execute(request));
@@ -113,18 +128,15 @@ class BookRecommendationUpdaterTaskTest {
         BookEntity book2 = BookEntity.builder().id(2L).metadata(BookMetadataEntity.builder().title("B2").build()).build();
         List<BookEntity> books = List.of(book1, book2);
 
-        when(bookQueryService.getAllFullBookEntities()).thenReturn(books);
+        when(bookQueryService.countAllNonDeleted()).thenReturn(2L);
+        when(bookQueryService.getAllFullBookEntitiesBatch(any())).thenReturn(books).thenReturn(Collections.emptyList());
         when(vectorService.generateEmbedding(any())).thenReturn(new double[]{0.1});
         when(vectorService.serializeVector(any())).thenReturn("[0.1]");
-        
-        // Mock similarity to throw for first book, pass for second (actually it iterates as target)
-        // target=book1, candidate=book2. 
         when(vectorService.cosineSimilarity(any(), any())).thenThrow(new RuntimeException("Math error"));
 
         TaskCreateResponse response = task.execute(request);
 
         assertEquals(TaskStatus.COMPLETED, response.getStatus());
-        // Should still try to save updates (even if empty list added)
-        verify(bookQueryService).saveAll(anyList());
+        verify(bookQueryService).saveRecommendationsInBatches(any(Map.class), anyInt());
     }
 }

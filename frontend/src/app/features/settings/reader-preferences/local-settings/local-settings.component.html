@@ -1,0 +1,64 @@
+<ng-container *transloco="let t; prefix: 'settingsNaming'">
+  <div class="local-settings-container">
+    <div class="settings-header">
+      <h2 class="settings-title">
+        <i class="pi pi-home"></i>
+        Local Settings
+      </h2>
+      <p class="settings-description">
+        Browser level settings that only affect the current device. These settings are stored in the browser's local
+        storage and will not be synced across devices.
+      </p>
+    </div>
+
+    <div class="settings-card">
+      <div class="section-header">
+        <h3 class="section-title">
+          <i class="pi pi-database"></i>
+          Cache Storage Settings
+        </h3>
+        <p class="section-description">
+          Configure Cache Storage to improve performance and reduce server requests.
+        </p>
+      </div>
+
+      <div class="settings-content">
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label">Enable Cache Storage</span>
+            <span class="setting-description">Store data locally in your browser for faster access</span>
+          </div>
+          <div class="setting-control">
+            <p-checkbox [(ngModel)]="settings.cacheStorageEnabled" [binary]="true" (onChange)="onSettingChange()">
+            </p-checkbox>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label">Cache Storage Usage (MB)</span>
+            <span class="setting-description">Current size occupied by Cache Storage</span>
+          </div>
+          <div class="setting-control action-buttons">
+            <span class="setting-value">{{ cacheStorageUsageMb | number: '1.2-2' }} MB</span>
+            <p-button type="button" label="Refresh" icon="pi pi-refresh" severity="secondary" [outlined]="true"
+              [disabled]="isLoadingCacheStorageUsage" [loading]="isLoadingCacheStorageUsage" (onClick)="loadCacheStorageUsage()">
+            </p-button>
+          </div>
+        </div>
+
+        <div class="setting-item action-item">
+          <div class="setting-info">
+            <span class="setting-label">Clear Cache</span>
+            <span class="setting-description">Remove all data stored in Cache Storage</span>
+          </div>
+          <div class="setting-control">
+            <p-button type="button" label="Clear Cache" icon="pi pi-trash" severity="danger" [outlined]="true"
+              [disabled]="isClearingCacheStorage" [loading]="isClearingCacheStorage" (onClick)="clearCacheStorage()">
+            </p-button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>

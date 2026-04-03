@@ -6,6 +6,7 @@ import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.LibraryEntity;
 import org.booklore.model.entity.LibraryPathEntity;
 import org.booklore.repository.BookAdditionalFileRepository;
+import org.booklore.repository.BookRepository;
 import org.booklore.repository.LibraryRepository;
 import org.booklore.service.NotificationService;
 import org.booklore.task.options.RescanLibraryContext;
@@ -32,6 +33,8 @@ class LibraryProcessingServiceRegressionTest {
     @Mock
     private LibraryRepository libraryRepository;
     @Mock
+    private BookRepository bookRepository;
+    @Mock
     private NotificationService notificationService;
     @Mock
     private BookAdditionalFileRepository bookAdditionalFileRepository;
@@ -54,6 +57,7 @@ class LibraryProcessingServiceRegressionTest {
     void setUp() {
         libraryProcessingService = new LibraryProcessingService(
                 libraryRepository,
+                bookRepository,
                 notificationService,
                 bookAdditionalFileRepository,
                 fileAsBookProcessor,
@@ -88,7 +92,8 @@ class LibraryProcessingServiceRegressionTest {
 
         libraryEntity.setBookEntities(List.of(filelessBook));
 
-        when(libraryRepository.findByIdWithBooks(libraryId)).thenReturn(Optional.of(libraryEntity));
+        when(libraryRepository.findByIdWithPaths(libraryId)).thenReturn(Optional.of(libraryEntity));
+        when(bookRepository.findAllByLibraryIdForRescan(libraryId)).thenReturn(List.of(filelessBook));
         when(libraryFileHelper.getAllLibraryFiles(libraryEntity)).thenReturn(List.of(
             LibraryFile.builder()
                 .libraryPathEntity(pathEntity)

@@ -21,7 +21,7 @@
                 {{ entityType }}: {{ entity()?.name }}{{ (isFilterActive || hasSearchTerm) ? ' ' + t('labels.filteredSuffix') : '' }}
               }
             </p>
-            @if (seriesCollapseFilter.seriesCollapsed() && books(); as books) {
+            @if (!isBooksLoading() && seriesCollapseFilter.seriesCollapsed() && books(); as books) {
               <p class="series-collapsed-info">
                 {{ t('labels.seriesCollapsedInfo', { count: books.length, itemWord: books.length === 1 ? t('labels.item') : t('labels.items') }) }}
               </p>
@@ -36,7 +36,6 @@
                   icon="pi pi-ellipsis-v"
                   [rounded]="true"
                   [text]="true"
-                  severity="info"
                   (click)="entitymenu.toggle($event)">
                 </p-button>
                 <p-menu #entitymenu [model]="entityOptions()" [popup]="true" appendTo="body"></p-menu>
@@ -91,6 +90,13 @@
               </p-popover>
             </div>
           }
+          <a class="topbar-items topbar-item" role="button" tabindex="0" (click)="toggleTableGrid()" (keydown.enter)="toggleTableGrid()">
+            <i
+              [ngClass]="viewIcon"
+              [pTooltip]="t('tooltip.toggleView')"
+              tooltipPosition="top">
+            </i>
+          </a>
           <div>
             <a
               class="topbar-items topbar-item"
@@ -189,13 +195,6 @@
             </p-popover>
           </div>
 
-          <a class="topbar-items topbar-item" role="button" tabindex="0" (click)="toggleTableGrid()" (keydown.enter)="toggleTableGrid()">
-            <i
-              [ngClass]="viewIcon"
-              [pTooltip]="t('tooltip.toggleView')"
-              tooltipPosition="top">
-            </i>
-          </a>
         </div>
 
         <!-- MOBILE SEARCH (only visible below md) -->
@@ -256,7 +255,7 @@
 
         <a class="topbar-items topbar-item" role="button" tabindex="0" (click)="toggleSidebar()" (keydown.enter)="toggleSidebar()">
           <i
-            [ngClass]="showFilter() ? 'pi pi-angle-double-right' : 'pi pi-angle-double-left'"
+            [ngClass]="showFilter() ? 'pi pi-filter-fill' : 'pi pi-filter'"
             [pTooltip]="t('tooltip.toggleSidebar')"
             tooltipPosition="top">
           </i>
@@ -264,21 +263,45 @@
       </div>
     </div>
 
-    @if (books(); as books) {
-      <div>
-        @if (isBooksLoading()) {
-          <div>
-            <p-progressSpinner></p-progressSpinner>
+    @if (showTableLoadingPlaceholder) {
+      <div class="table-skeleton" aria-hidden="true">
+        <div class="table-skeleton-header">
+          @for (column of tableSkeletonColumns; track column) {
+            <div class="table-skeleton-cell table-skeleton-cell-header"></div>
+          }
+        </div>
+
+        @for (row of tableSkeletonRows; track row) {
+          <div class="table-skeleton-row">
+            @for (column of tableSkeletonColumns; track column) {
+              <div class="table-skeleton-cell" [class.table-skeleton-cell-short]="column !== 0"></div>
+            }
           </div>
         }
-        <div class="book-state-wrapper">
-          @if (booksError()) {
-            <div class="no-books-container">
-              <p class="no-books-text">
-                {{ entityType() === EntityType.LIBRARY ? t('labels.failedLibrary') : t('labels.failedShelf') }}
-              </p>
-            </div>
-          } @else if (!isBooksLoading() && books.length === 0) {
+      </div>
+    } @else if (showGridLoadingPlaceholder) {
+      <div class="skeleton-grid"
+        [ngStyle]="{'grid-template-columns': 'repeat(auto-fill, minmax(' + gridColumnMinWidth + ', 1fr))'}">
+        @for (item of skeletonSlots; track item) {
+          <div class="skeleton-card"
+            [ngStyle]="{width: currentCardSize.width + 'px', height: currentCardSize.height + 'px'}">
+          </div>
+        }
+      </div>
+    } @else if (booksError()) {
+      <div class="no-books-container">
+        <p class="no-books-text">
+          {{ entityType() === EntityType.LIBRARY ? t('labels.failedLibrary') : t('labels.failedShelf') }}
+        </p>
+      </div>
+    } @else if (books(); as books) {
+      <div class="book-state-wrapper">
+        <div
+          class="book-state-content"
+          [attr.aria-busy]="isBooksRefreshing() ? 'true' : 'false'"
+          [class.book-state-content-refreshing]="isBooksRefreshing()"
+          [attr.inert]="isBooksRefreshing() ? '' : null">
+          @if (books.length === 0 && !isBooksLoading()) {
             <div class="no-books-container">
               <p class="no-books-text">
                 {{ t('labels.noBooks') }}
@@ -305,11 +328,11 @@
                     class="virtual-scroller-item"
                     [ngStyle]="{width: currentCardSize.width + 'px', height: getCardHeight(book) + 'px'}">
                     <app-book-card
-                      [index]="books.indexOf(book)"
+                      [index]="bookIndexById().get(book.id) ?? i"
                       [book]="book"
                       [isCheckboxEnabled]="true"
                       [seriesViewEnabled]="seriesViewEnabled"
-                      [onBookSelect]="handleBookSelect.bind(this)"
+                      [onBookSelect]="onBookCardSelect"
                       [isSeriesCollapsed]="seriesCollapseFilter.seriesCollapsed()"
                       (checkboxClick)="onCheckboxClicked($event)"
                       [isSelected]="selectedBooks().has(book.id)"
@@ -442,8 +465,8 @@
                   </div>
                   <div class="footer-right"></div>
                 </div>
-              </div>
-            }
+            </div>
+          }
         </div>
       </div>
     }
