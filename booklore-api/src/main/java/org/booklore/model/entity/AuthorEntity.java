@@ -2,9 +2,11 @@ package org.booklore.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
-import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -41,7 +43,9 @@ public class AuthorEntity {
     private boolean photoLocked;
 
     @ManyToMany(mappedBy = "authors", fetch = FetchType.LAZY)
-    private List<BookMetadataEntity> bookMetadataEntityList;
+    @BatchSize(size = 20)
+    @Builder.Default
+    private Set<BookMetadataEntity> bookMetadataEntityList = new HashSet<>();
 
     @Override
     public boolean equals(Object o) {

@@ -149,7 +149,7 @@ class LogoutServiceTest {
         assertThat(token1.getRevocationDate()).isNotNull();
         assertThat(token2.isRevoked()).isTrue();
         assertThat(token2.getRevocationDate()).isNotNull();
-        verify(refreshTokenRepository, times(2)).save(any(RefreshTokenEntity.class));
+        verify(refreshTokenRepository).saveAll(any());
     }
 
     @Test

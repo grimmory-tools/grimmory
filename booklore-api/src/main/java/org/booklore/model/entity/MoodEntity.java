@@ -2,6 +2,7 @@ package org.booklore.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -24,6 +25,7 @@ public class MoodEntity {
     private String name;
 
     @ManyToMany(mappedBy = "moods", fetch = FetchType.LAZY)
+    @BatchSize(size = 20)
     @Builder.Default
     private Set<BookMetadataEntity> bookMetadataEntityList = new HashSet<>();
 

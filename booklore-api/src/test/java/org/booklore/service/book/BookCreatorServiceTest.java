@@ -22,6 +22,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
@@ -68,7 +70,15 @@ class BookCreatorServiceTest {
     void addAuthorsToBook_givenNullOrEmptySet_doesNothing(Set<String> authors) {
         bookCreatorService.addAuthorsToBook(authors, bookEntity);
 
-        assertThat(bookEntity.getMetadata().getAuthors()).isNull();
+        assertTrue(bookEntity.getMetadata().getAuthors().isEmpty());
+        verifyNoInteractions(authorRepository);
+    }
+
+    @Test
+    void addAuthorsToBook_emptyAuthors_doesNothing() {
+        bookCreatorService.addAuthorsToBook(Set.of(), bookEntity);
+
+        assertTrue(bookEntity.getMetadata().getAuthors().isEmpty());
         verifyNoInteractions(authorRepository);
     }
 
@@ -84,12 +94,32 @@ class BookCreatorServiceTest {
                 .containsExactly("Test Author");
     }
 
-    @ParameterizedTest
-    @NullAndEmptySource
-    void addCategoriesToBook_givenNullOrEmptySet_doesNothing(Set<String> categories) {
-        bookCreatorService.addCategoriesToBook(categories, bookEntity);
+    @Test
+    void addAuthorsToBook_nullExistingAuthorsOnEntity_initializesSet() {
+        assertTrue(bookEntity.getMetadata().getAuthors().isEmpty());
 
-        assertThat(bookEntity.getMetadata().getCategories()).isNull();
+        AuthorEntity author = AuthorEntity.builder().name("Author").build();
+        when(authorRepository.findByName("Author")).thenReturn(Optional.of(author));
+
+        bookCreatorService.addAuthorsToBook(Set.of("Author"), bookEntity);
+
+        assertNotNull(bookEntity.getMetadata().getAuthors());
+        assertTrue(bookEntity.getMetadata().getAuthors().contains(author));
+    }
+
+    @Test
+    void addCategoriesToBook_nullCategories_doesNothing() {
+        bookCreatorService.addCategoriesToBook(null, bookEntity);
+
+        assertTrue(bookEntity.getMetadata().getCategories().isEmpty());
+        verifyNoInteractions(categoryRepository);
+    }
+
+    @Test
+    void addCategoriesToBook_emptyCategories_doesNothing() {
+        bookCreatorService.addCategoriesToBook(Set.of(), bookEntity);
+
+        assertTrue(bookEntity.getMetadata().getCategories().isEmpty());
         verifyNoInteractions(categoryRepository);
     }
 
@@ -110,7 +140,15 @@ class BookCreatorServiceTest {
     void addMoodsToBook_givenNullOrEmptySet_doesNothing(Set<String> moods) {
         bookCreatorService.addMoodsToBook(moods, bookEntity);
 
-        assertThat(bookEntity.getMetadata().getMoods()).isNull();
+        assertTrue(bookEntity.getMetadata().getMoods().isEmpty());
+        verifyNoInteractions(moodRepository);
+    }
+
+    @Test
+    void addMoodsToBook_emptyMoods_doesNothing() {
+        bookCreatorService.addMoodsToBook(Set.of(), bookEntity);
+
+        assertTrue(bookEntity.getMetadata().getMoods().isEmpty());
         verifyNoInteractions(moodRepository);
     }
 
@@ -131,7 +169,23 @@ class BookCreatorServiceTest {
     void addTagsToBook_givenNullOrEmptySet_doesNothing(Set<String> tags) {
         bookCreatorService.addTagsToBook(tags, bookEntity);
 
-        assertThat(bookEntity.getMetadata().getTags()).isNull();
+        assertTrue(bookEntity.getMetadata().getTags().isEmpty());
+        verifyNoInteractions(tagRepository);
+    }
+
+    @Test
+    void addTagsToBook_nullTags_doesNothing() {
+        bookCreatorService.addTagsToBook(null, bookEntity);
+
+        assertTrue(bookEntity.getMetadata().getTags().isEmpty());
+        verifyNoInteractions(tagRepository);
+    }
+
+    @Test
+    void addTagsToBook_emptyTags_doesNothing() {
+        bookCreatorService.addTagsToBook(Set.of(), bookEntity);
+
+        assertTrue(bookEntity.getMetadata().getTags().isEmpty());
         verifyNoInteractions(tagRepository);
     }
 
@@ -172,7 +226,7 @@ class BookCreatorServiceTest {
         bookCreatorService.addAuthorsToBook(Set.of("Brand New"), bookEntity);
 
         verify(authorRepository).save(argThat(author -> "Brand New".equals(author.getName())));
-        
+
         assertThat(bookEntity.getMetadata().getAuthors())
                 .isNotNull()
                 .extracting(AuthorEntity::getName)

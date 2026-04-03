@@ -17,6 +17,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class NotebookService {
 
     private static final int EXPORT_LIMIT = 50_000;
@@ -25,7 +26,6 @@ public class NotebookService {
     private final NotebookEntryRepository repository;
     private final AuthenticationService authenticationService;
 
-    @Transactional(readOnly = true)
     public Page<NotebookEntry> getNotebookEntries(int page, int size, Set<String> types, Long bookId,
                                                   String search, String sort) {
         Long userId = authenticationService.getAuthenticatedUser().getId();
@@ -34,7 +34,6 @@ public class NotebookService {
                 .map(NotebookService::toDto);
     }
 
-    @Transactional(readOnly = true)
     public List<NotebookEntry> getAllNotebookEntries(Set<String> types, Long bookId, String search, String sort) {
         Long userId = authenticationService.getAuthenticatedUser().getId();
         Pageable pageable = PageRequest.of(0, EXPORT_LIMIT, toSort(sort));
@@ -43,7 +42,6 @@ public class NotebookService {
                 .getContent();
     }
 
-    @Transactional(readOnly = true)
     public List<NotebookBookOption> getBooksWithAnnotations(String search) {
         Long userId = authenticationService.getAuthenticatedUser().getId();
         return repository.findBooksWithAnnotations(userId, wrapSearch(search), Pageable.ofSize(BOOK_OPTIONS_LIMIT))

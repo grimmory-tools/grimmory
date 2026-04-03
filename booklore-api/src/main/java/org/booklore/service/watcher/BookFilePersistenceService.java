@@ -29,6 +29,7 @@ import static org.booklore.model.enums.PermissionType.MANAGE_LIBRARY;
 @Slf4j
 @Service
 @AllArgsConstructor
+@Transactional(readOnly = true)
 public class BookFilePersistenceService {
 
     private final EntityManager entityManager;
@@ -103,12 +104,10 @@ public class BookFilePersistenceService {
         return books.size();
     }
 
-    @Transactional(readOnly = true)
     public Optional<BookEntity> findByLibraryPathSubPathAndFileName(long libraryPathId, String fileSubPath, String fileName) {
         return bookRepository.findByLibraryPath_IdAndFileSubPathAndFileName(libraryPathId, fileSubPath, fileName);
     }
 
-    @Transactional(readOnly = true)
     public Optional<BookFileEntity> findBookFileByLibraryPathSubPathAndFileName(long libraryPathId, String fileSubPath, String fileName) {
         return bookFileRepository.findByLibraryPathIdAndFileSubPathAndFileName(libraryPathId, fileSubPath, fileName);
     }
@@ -130,7 +129,6 @@ public class BookFilePersistenceService {
         bookRepository.save(book);
     }
 
-    @Transactional(readOnly = true)
     public long countBookFilesByBookId(Long bookId) {
         return bookFileRepository.countByBookId(bookId);
     }

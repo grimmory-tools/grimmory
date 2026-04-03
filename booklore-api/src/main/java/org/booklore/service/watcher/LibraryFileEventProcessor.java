@@ -129,7 +129,7 @@ public class LibraryFileEventProcessor {
         log.info("[PROCESS] '{}' event for '{}'{}", event.eventKind().name(), fileName,
                 event.isDirectory() ? " (directory)" : "");
 
-        LibraryEntity library = libraryRepository.findById(event.libraryId())
+        LibraryEntity library = libraryRepository.findByIdWithPaths(event.libraryId())
                 .orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(event.libraryId()));
 
         if (library.getLibraryPaths().stream().noneMatch(lp -> path.startsWith(lp.getPath()))) {

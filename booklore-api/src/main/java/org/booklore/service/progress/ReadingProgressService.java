@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class ReadingProgressService {
 
     private static final float READING_THRESHOLD = 0.1f;

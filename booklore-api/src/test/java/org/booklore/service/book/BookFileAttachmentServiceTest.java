@@ -99,6 +99,7 @@ class BookFileAttachmentServiceTest {
         Files.createDirectories(dir);
         Files.createFile(dir.resolve(fileName));
 
+        book.getBookFiles().add(file);
         return file;
     }
 
@@ -113,6 +114,7 @@ class BookFileAttachmentServiceTest {
                 .folderBased(false)
                 .bookType(BookFileType.EPUB)
                 .build();
+        book.getBookFiles().add(file);
         return file;
     }
 
@@ -791,6 +793,7 @@ class BookFileAttachmentServiceTest {
             Path sourceDir = tempDir.resolve("other_root/source_dir");
             Files.createDirectories(sourceDir);
             Files.createFile(sourceDir.resolve("source.pdf"));
+            source.getBookFiles().add(sourceFile);
 
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(target));
             when(bookRepository.findByIdWithBookFiles(2L)).thenReturn(Optional.of(source));
@@ -822,6 +825,7 @@ class BookFileAttachmentServiceTest {
                     .build();
             Files.createDirectories(tempDir.resolve("source_dir"));
             Files.createFile(tempDir.resolve("source_dir/noextension"));
+            source.getBookFiles().add(sourceFile);
 
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(target));
             when(bookRepository.findByIdWithBookFiles(2L)).thenReturn(Optional.of(source));

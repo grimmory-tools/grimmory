@@ -8,6 +8,7 @@ import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.entity.LibraryEntity;
 import org.booklore.model.entity.LibraryPathEntity;
 import org.booklore.service.task.TaskCronService;
+import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -44,7 +45,8 @@ import static org.mockito.Mockito.mock;
         "spring.task.scheduling.enabled=false",
         "app.task.scan-library-cron=*/1 * * * * *",
         "app.task.process-bookdrop-cron=*/1 * * * * *",
-        "app.features.oidc-enabled=false"
+        "app.features.oidc-enabled=false",
+        "spring.jpa.properties.hibernate.connection.provider_disables_autocommit=false"
 })
 @Import(BookOpdsRepositoryDataJpaTest.TestConfig.class)
 class BookOpdsRepositoryDataJpaTest {
@@ -59,8 +61,8 @@ class BookOpdsRepositoryDataJpaTest {
     public static class TestConfig {
         @Bean("flyway")
         @Primary
-        public org.flywaydb.core.Flyway flyway() {
-            return mock(org.flywaydb.core.Flyway.class);
+        public Flyway flyway() {
+            return mock(Flyway.class);
         }
 
         @Bean

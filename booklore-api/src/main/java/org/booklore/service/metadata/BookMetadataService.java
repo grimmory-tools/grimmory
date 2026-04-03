@@ -226,7 +226,6 @@ public class BookMetadataService {
                 .build();
 
         bookMetadataUpdater.setBookMetadata(context);
-        bookRepository.save(bookEntity);
         auditService.log(AuditAction.METADATA_UPDATED, "Book", bookId, "Updated metadata for book: " + bookEntity.getMetadata().getTitle());
         return bookMetadataMapper.toBookMetadata(bookEntity.getMetadata(), true);
     }

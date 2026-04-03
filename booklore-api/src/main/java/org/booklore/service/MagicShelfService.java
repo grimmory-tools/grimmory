@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class MagicShelfService {
 
     private final MagicShelfRepository magicShelfRepository;

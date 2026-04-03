@@ -40,6 +40,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.File;
@@ -75,6 +78,7 @@ public class BookDropService {
     private final FileMovingHelper fileMovingHelper;
     private final MonitoringRegistrationService monitoringRegistrationService;
     private final KoboAutoShelfService koboAutoShelfService;
+    private final PlatformTransactionManager transactionManager;
 
     private static final int CHUNK_SIZE = 100;
 
@@ -467,24 +471,32 @@ public class BookDropService {
                         .orElseThrow(() -> ApiError.INVALID_FILE_FORMAT.createException("Unsupported file extension"))
                         .getType());
 
-        BookEntity bookEntity = bookRepository.findByIdWithBookFiles(fileProcessResult.getBook().getId())
-                .orElseThrow(() -> ApiError.FILE_NOT_FOUND.createException("Book ID missing after import"));
+        // Post-processing runs in REQUIRES_NEW so it gets a fresh REPEATABLE_READ snapshot
+        // that can see the book committed by processFile()'s own REQUIRES_NEW transaction
+        TransactionTemplate newTx = new TransactionTemplate(transactionManager);
+        newTx.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+        Long bookId = fileProcessResult.getBook().getId();
+        newTx.executeWithoutResult(status -> {
+            BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId)
+                    .orElseThrow(() -> ApiError.FILE_NOT_FOUND.createException("Book ID missing after import"));
 
-        notificationService.sendMessage(Topic.BOOK_ADD, fileProcessResult.getBook());
-        MetadataUpdateContext context = MetadataUpdateContext.builder()
-                .bookEntity(bookEntity)
-                .metadataUpdateWrapper(MetadataUpdateWrapper.builder()
-                        .metadata(metadata)
-                        .build())
-                .updateThumbnail(metadata.getThumbnailUrl() != null)
-                .mergeCategories(false)
-                .replaceMode(MetadataReplaceMode.REPLACE_WHEN_PROVIDED)
-                .mergeMoods(true)
-                .mergeTags(true)
-                .build();
+            MetadataUpdateContext context = MetadataUpdateContext.builder()
+                    .bookEntity(bookEntity)
+                    .metadataUpdateWrapper(MetadataUpdateWrapper.builder()
+                            .metadata(metadata)
+                            .build())
+                    .updateThumbnail(metadata.getThumbnailUrl() != null)
+                    .mergeCategories(false)
+                    .replaceMode(MetadataReplaceMode.REPLACE_WHEN_PROVIDED)
+                    .mergeMoods(true)
+                    .mergeTags(true)
+                    .build();
 
-        metadataRefreshService.updateBookMetadata(context);
-        koboAutoShelfService.autoAddBookToKoboShelves(bookEntity.getId());
+            metadataRefreshService.updateBookMetadata(context);
+            koboAutoShelfService.autoAddBookToKoboShelves(bookEntity.getId());
+
+            notificationService.sendMessage(Topic.BOOK_ADD, fileProcessResult.getBook());
+        });
 
         cleanupBookdropData(bookdropFile);
 
@@ -639,4 +651,3 @@ public class BookDropService {
     private record FileProcessingContext(Long libraryId, Long pathId, BookMetadata metadata) {
     }
 }
-
