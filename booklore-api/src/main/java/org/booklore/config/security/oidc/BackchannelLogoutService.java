@@ -31,7 +31,7 @@ public class BackchannelLogoutService {
 
     private static final Cache<String, Instant> PROCESSED_JTIS = Caffeine.newBuilder()
             .expireAfterWrite(Duration.ofHours(1))
-            .maximumSize(10_000)
+            .maximumSize(1_000)
             .build();
 
     private final AppSettingService appSettingService;

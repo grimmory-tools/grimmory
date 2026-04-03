@@ -67,8 +67,13 @@ ENV JAVA_TOOL_OPTIONS="-XX:+UseShenandoahGC \
     -XX:MaxRAMPercentage=60.0 \
     -XX:InitialRAMPercentage=8.0 \
     -XX:+ExitOnOutOfMemoryError \
-    --enable-native-access=ALL-UNNAMED \
-    --enable-preview"
+    -XX:MaxMetaspaceSize=192m \
+    -XX:ReservedCodeCacheSize=64m \
+    -Xss512k \
+    -XX:CICompilerCount=2 \
+    -XX:+UnlockExperimentalVMOptions \
+    -XX:ShenandoahUncommitDelay=5000 \
+    -XX:ShenandoahGuaranteedGCInterval=30000"
 
 RUN apk add --no-cache su-exec libstdc++ libgcc libarchive && \
     mkdir -p /bookdrop

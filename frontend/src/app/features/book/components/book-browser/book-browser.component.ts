@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, HostListener, computed, effect, inject, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, HostListener, computed, effect, inject, OnDestroy, OnInit, signal, untracked, ViewChild} from '@angular/core';
 import {toObservable, toSignal} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, NavigationStart, Router} from '@angular/router';
 import {ConfirmationService, MenuItem, MessageService} from 'primeng/api';
@@ -18,7 +18,7 @@ import {Button} from 'primeng/button';
 import {NgClass, NgStyle} from '@angular/common';
 import {VirtualScrollerComponent, VirtualScrollerModule} from '@iharbeck/ngx-virtual-scroller';
 import {BookCardComponent} from './book-card/book-card.component';
-import {ProgressSpinner} from 'primeng/progressspinner';
+
 import {Menu} from 'primeng/menu';
 import {InputText} from 'primeng/inputtext';
 import {FormsModule} from '@angular/forms';
@@ -49,11 +49,15 @@ import {BookCardOverlayPreferenceService} from './book-card-overlay-preference.s
 import {BookSelectionService, CheckboxClickEvent} from './book-selection.service';
 import {BookBrowserQueryParamsService, VIEW_MODES} from './book-browser-query-params.service';
 import {BookBrowserEntityService, EntityInfo} from './book-browser-entity.service';
-import {BookFilterOrchestrationService} from './book-filter-orchestration.service';
 import {BookBrowserScrollService} from './book-browser-scroll.service';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {MultiSortPopoverComponent} from './sorting/multi-sort-popover/multi-sort-popover.component';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {DeferredRenderState} from './deferred-render-state';
+
+import {SortService} from '../../service/sort.service';
+import {filterBooksBySearchTerm} from './filters/HeaderFilter';
+import {filterBooksByFilters} from './filters/sidebar-filter';
 
 export enum EntityType {
   LIBRARY = 'Library',
@@ -69,7 +73,7 @@ export enum EntityType {
   templateUrl: './book-browser.component.html',
   styleUrls: ['./book-browser.component.scss'],
   imports: [
-    Button, VirtualScrollerModule, BookCardComponent, ProgressSpinner, Menu, InputText, FormsModule,
+    Button, VirtualScrollerModule, BookCardComponent, Menu, InputText, FormsModule,
     BookTableComponent, BookFilterComponent, Tooltip, NgClass, NgStyle, Popover,
     Checkbox, Slider, Divider, MultiSelect, TieredMenu, BadgeModule, MultiSortPopoverComponent, TranslocoDirective
   ],
@@ -113,7 +117,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   private bookNavigationService = inject(BookNavigationService);
   private queryParamsService = inject(BookBrowserQueryParamsService);
   private entityService = inject(BookBrowserEntityService);
-  private filterOrchestrationService = inject(BookFilterOrchestrationService);
+  private sortService = inject(SortService);
   private localStorageService = inject(LocalStorageService);
   private scrollService = inject(BookBrowserScrollService);
   private readonly t = inject(TranslocoService);
@@ -180,25 +184,97 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
 
     return actions;
   });
-  readonly books = computed(() => {
+  // --- Layered pipeline: each computed only recomputes when its direct inputs change ---
+  private readonly entityBooks = computed(() => {
     const {entityId, entityType} = this.entityInfo();
-    const books = this.entityService.getBooksByEntity(this.bookService.books(), entityId, entityType);
+    return this.entityService.getBooksByEntity(this.bookService.books(), entityId, entityType);
+  });
+  private readonly searchedBooks = computed(() =>
+    filterBooksBySearchTerm(this.entityBooks(), this.debouncedSearchTerm())
+  );
+  private readonly filteredBooks = computed(() =>
+    filterBooksByFilters(this.searchedBooks(), this.selectedFilter(), this.selectedFilterMode())
+  );
+  private readonly forceExpandSeries = computed(() =>
+    this.queryParamsService.shouldForceExpandSeries(this.queryParamMap())
+  );
+  private readonly collapsedBooks = computed(() =>
+    this.seriesCollapseFilter.collapseBooks(
+      this.filteredBooks(), this.forceExpandSeries(), this.seriesCollapsed()
+    )
+  );
+  private readonly sortedBooks = computed(() =>
+    this.sortService.applyMultiSort(this.collapsedBooks(), this.sortCriteria())
+  );
 
-    return this.filterOrchestrationService.applyFilters(
-      books,
-      this.debouncedSearchTerm(),
-      this.selectedFilter(),
-      this.selectedFilterMode(),
-      this.seriesCollapseFilter,
-      this.seriesCollapsed(),
-      this.filterOrchestrationService.shouldForceExpandSeries(this.queryParamMap()),
-      this.sortCriteria()
-    );
+  // --- Deferred render: lets skeleton/refresh indicator paint before committing ---
+  private readonly booksRenderState = new DeferredRenderState<Book[]>();
+  readonly books = this.booksRenderState.value;
+  readonly hasRenderedBooks = this.booksRenderState.hasValue;
+  readonly isBooksRefreshing = this.booksRenderState.isRefreshing;
+
+  private lastBooksContextKey: string | null = null;
+  private readonly booksContextKey = computed(() => {
+    const {entityId, entityType} = this.entityInfo();
+    return Number.isNaN(entityId) ? entityType : `${entityType}:${entityId}`;
+  });
+
+  private readonly pipelineInputs = computed(() => ({
+    books: this.bookService.books(),
+    entity: this.entityInfo(),
+    search: this.debouncedSearchTerm(),
+    filter: this.selectedFilter(),
+    filterMode: this.selectedFilterMode(),
+    collapsed: this.seriesCollapsed(),
+    forceExpand: this.forceExpandSeries(),
+    sort: this.sortCriteria(),
+  }));
+
+  private readonly renderBooksEffect = effect((onCleanup) => {
+    const contextKey = this.booksContextKey();
+    this.pipelineInputs();
+
+    const shouldRefreshInPlace = untracked(() => this.hasRenderedBooks()) && contextKey === this.lastBooksContextKey;
+    this.lastBooksContextKey = contextKey;
+
+    if (shouldRefreshInPlace) {
+      // Same context (sort/filter/search change within the same entity).
+      // Commit synchronously — the memoized computed chain is fast and
+      // skipping the setTimeout avoids a one-frame skeleton flash.
+      const requestId = this.booksRenderState.begin('refresh');
+      this.booksRenderState.commit(requestId, this.sortedBooks());
+      return;
+    }
+
+    // Context changed (navigation between entities or first load).
+    // Defer so the skeleton can paint before the pipeline evaluates.
+    const requestId = this.booksRenderState.begin('reset');
+
+    const timeout = globalThis.setTimeout(() => {
+      this.booksRenderState.commit(requestId, this.sortedBooks());
+    });
+
+    onCleanup(() => {
+      clearTimeout(timeout);
+      this.booksRenderState.cancel(requestId);
+    });
   });
   readonly isBooksLoading = this.bookService.isBooksLoading;
   readonly booksError = this.bookService.booksError;
+  readonly bookIndexById = computed(() => {
+    const books = this.books();
+    if (!books) return new Map<number, number>();
+    const map = new Map<number, number>();
+    for (let i = 0; i < books.length; i++) {
+      map.set(books[i].id, i);
+    }
+    return map;
+  });
   protected resetFilterSubject = new Subject<void>();
 
+  readonly skeletonSlots = Array.from({length: 24}, (_, index) => index);
+  readonly tableSkeletonRows = Array.from({length: 8}, (_, index) => index);
+  readonly tableSkeletonColumns = Array.from({length: 5}, (_, index) => index);
   parsedFilters: Record<string, string[]> = {};
   bookTitle = '';
   dynamicDialogRef: DynamicDialogRef | undefined | null;
@@ -224,6 +300,9 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected metadataMenuItems: MenuItem[] | undefined;
   protected moreActionsMenuItems: MenuItem[] | undefined;
+  protected readonly onBookCardSelect = (book: Book, selected: boolean): void => {
+    this.handleBookSelect(book, selected);
+  };
 
   protected bookSorter = new BookSorter(
     sortCriteria => this.onMultiSortChange(sortCriteria),
@@ -270,6 +349,12 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   });
   private readonly syncBooksEffect = effect(() => {
     const books = this.books();
+    if (!books) {
+      this.bookSelectionService.setCurrentBooks([]);
+      this.bookNavigationService.setAvailableBookIds([]);
+      return;
+    }
+
     this.bookSelectionService.setCurrentBooks(books);
     this.bookNavigationService.setAvailableBookIds(books.map(book => book.id));
   });
@@ -338,8 +423,20 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.coverScalePreferenceService.getCardHeight(_book);
   }
 
+  get showBooksLoadingPlaceholder(): boolean {
+    return !this.booksError() && (this.isBooksLoading() || !this.hasRenderedBooks());
+  }
+
+  get showTableLoadingPlaceholder(): boolean {
+    return this.showBooksLoadingPlaceholder && this.currentViewMode === VIEW_MODES.TABLE;
+  }
+
+  get showGridLoadingPlaceholder(): boolean {
+    return this.showBooksLoadingPlaceholder && this.currentViewMode !== VIEW_MODES.TABLE;
+  }
+
   get viewIcon(): string {
-    return this.currentViewMode === VIEW_MODES.GRID ? 'pi pi-objects-column' : 'pi pi-table';
+    return this.currentViewMode === VIEW_MODES.TABLE ? 'pi pi-table' : 'pi pi-objects-column';
   }
 
   get isFilterActive(): boolean {
@@ -781,6 +878,13 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   toggleTableGrid(): void {
     this.currentViewMode = this.currentViewMode === VIEW_MODES.GRID ? VIEW_MODES.TABLE : VIEW_MODES.GRID;
     this.queryParamsService.updateViewMode(this.currentViewMode as 'grid' | 'table');
+  }
+
+  onViewModeChange(mode: string): void {
+    if (mode && mode !== this.currentViewMode) {
+      this.currentViewMode = mode;
+      this.queryParamsService.updateViewMode(mode as 'grid' | 'table');
+    }
   }
 
   unshelfBooks(): void {

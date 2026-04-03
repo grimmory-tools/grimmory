@@ -9,6 +9,7 @@ import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.ReadStatus;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.task.TaskCronService;
+import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -45,7 +46,8 @@ import static org.mockito.Mockito.mock;
         "spring.task.scheduling.enabled=false",
         "app.task.scan-library-cron=*/1 * * * * *",
         "app.task.process-bookdrop-cron=*/1 * * * * *",
-        "app.features.oidc-enabled=false"
+        "app.features.oidc-enabled=false",
+        "spring.jpa.properties.hibernate.connection.provider_disables_autocommit=false"
 })
 @Import(BookRuleEvaluatorNumericFieldsTest.TestConfig.class)
 class BookRuleEvaluatorNumericFieldsTest {
@@ -54,8 +56,8 @@ class BookRuleEvaluatorNumericFieldsTest {
     static class TestConfig {
         @Bean("flyway")
         @Primary
-        public org.flywaydb.core.Flyway flyway() {
-            return mock(org.flywaydb.core.Flyway.class);
+        public Flyway flyway() {
+            return mock(Flyway.class);
         }
 
         @Bean
