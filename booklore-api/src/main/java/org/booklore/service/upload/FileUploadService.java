@@ -60,6 +60,7 @@ public class FileUploadService {
     private final MonitoringRegistrationService monitoringRegistrationService;
     private final AuditService auditService;
 
+    @Transactional
     public void uploadFile(MultipartFile file, long libraryId, long pathId) {
         validateFile(file);
 

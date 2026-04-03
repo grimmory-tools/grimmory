@@ -82,7 +82,6 @@ public class MetadataController {
                 .build();
 
         bookMetadataUpdater.setBookMetadata(context);
-        bookRepository.save(bookEntity);
         auditService.log(AuditAction.METADATA_UPDATED, "Book", bookId, "Updated metadata for book: " + bookEntity.getMetadata().getTitle());
         BookMetadata bookMetadata = bookMetadataMapper.toBookMetadata(bookEntity.getMetadata(), true);
         return ResponseEntity.ok(bookMetadata);

@@ -29,6 +29,7 @@ public class MetadataTaskService {
     private final FetchedProposalMapper fetchedProposalMapper;
     private final AuthenticationService authenticationService;
 
+    @Transactional(readOnly = true)
     public Optional<MetadataTaskDetailsResponse> getTaskWithProposals(String taskId) {
         return metadataFetchTaskRepository.findById(taskId)
                 .map(this::buildTaskDetailsResponse);
@@ -64,6 +65,7 @@ public class MetadataTaskService {
                 .orElse(false);
     }
 
+    @Transactional
     public boolean updateProposalStatus(String taskId, Long proposalId, String statusStr) {
         Long userId = authenticationService.getAuthenticatedUser().getId();
         Optional<FetchedMetadataProposalStatus> statusOpt = parseStatus(statusStr);
