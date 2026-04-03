@@ -92,7 +92,7 @@ describe('AudiobookService', () => {
     expect(queryClient.setQueryData).toHaveBeenCalledWith(['books'], expect.any(Function));
   });
 
-  it('maps audiobook progress into a file progress payload when a book file id is present', () => {
+  it('includes both audiobookProgress and fileProgress in the payload when a book file id is present', () => {
     const progress: AudiobookProgress = {
       positionMs: 75_000,
       trackIndex: 5,
@@ -105,6 +105,7 @@ describe('AudiobookService', () => {
     expect(request.request.method).toBe('POST');
     expect(request.request.body).toEqual({
       bookId: 12,
+      audiobookProgress: progress,
       fileProgress: {
         bookFileId: 99,
         positionData: '75000',

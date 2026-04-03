@@ -48,24 +48,21 @@ export class AudiobookService {
   }
 
   saveProgress(bookId: number, progress: AudiobookProgress, bookFileId?: number): Observable<void> {
-    const request$ = bookFileId
-      ? this.http.post<void>(`${this.booksUrl}/progress`, {
-          bookId,
-          fileProgress: {
-            bookFileId,
-            positionData: progress.positionMs.toString(),
-            positionHref: progress.trackIndex?.toString(),
-            progressPercent: progress.percentage
-          } as BookFileProgress
-        })
-      : this.http.post<void>(`${this.booksUrl}/progress`, {bookId, audiobookProgress: progress});
-
-    return request$.pipe(
+    const body: {bookId: number; audiobookProgress: AudiobookProgress; fileProgress?: BookFileProgress} = {
+      bookId,
+      audiobookProgress: progress,
+    };
+    if (bookFileId) {
+      body.fileProgress = {
+        bookFileId,
+        positionData: progress.positionMs.toString(),
+        positionHref: progress.trackIndex?.toString(),
+        progressPercent: progress.percentage,
+      };
+    }
+    return this.http.post<void>(`${this.booksUrl}/progress`, body).pipe(
       tap(() => {
-        patchBookFieldsInCache(this.queryClient, [{
-          bookId,
-          fields: {audiobookProgress: progress}
-        }]);
+        patchBookFieldsInCache(this.queryClient, [{bookId, fields: {audiobookProgress: progress}}]);
       })
     );
   }
