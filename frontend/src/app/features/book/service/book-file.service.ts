@@ -1,11 +1,13 @@
 import {inject, Injectable} from '@angular/core';
-import {Observable, throwError} from 'rxjs';
+import {Observable, throwError, from} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {catchError, tap} from 'rxjs/operators';
 import {AdditionalFile, AdditionalFileType, Book, DetachBookFileResponse, DuplicateDetectionRequest, DuplicateGroup} from '../model/book.model';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {MessageService} from 'primeng/api';
 import {FileDownloadService} from '../../../shared/service/file-download.service';
+import {CacheStorageService} from '../../../shared/service/cache-storage.service';
+import {LocalSettingsService} from '../../../shared/service/local-settings.service';
 import {TranslocoService} from '@jsverse/transloco';
 import {QueryClient} from '@tanstack/angular-query-experimental';
 import {patchBookInCacheWith, patchBooksInCache, removeBooksFromCache} from './book-query-cache';
@@ -21,6 +23,8 @@ export class BookFileService {
   private messageService = inject(MessageService);
   private fileDownloadService = inject(FileDownloadService);
   private queryClient = inject(QueryClient);
+  private cacheStorageService = inject(CacheStorageService);
+  private localSettingsService = inject(LocalSettingsService);
   private readonly t = inject(TranslocoService);
 
   getFileContent(bookId: number, bookType?: string): Observable<Blob> {
@@ -28,6 +32,8 @@ export class BookFileService {
     if (bookType) {
       url += `?bookType=${bookType}`;
     }
+    if (this.localSettingsService.get().cacheStorageEnabled)
+      return from(this.cacheStorageService.getCache(url).then(response => response.blob()));
     return this.http.get<Blob>(url, {responseType: 'blob' as 'json'});
   }
 
