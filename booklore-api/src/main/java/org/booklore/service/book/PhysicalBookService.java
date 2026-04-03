@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
 @AllArgsConstructor
 public class PhysicalBookService {
 
-    private static final Pattern NON_ISBN_CHAR_PATTERN = Pattern.compile("[^0-9X]");
+    private static final Pattern NON_ISBN_CHAR_PATTERN = Pattern.compile("[^0-9Xx]");
     private final BookRepository bookRepository;
     private final LibraryRepository libraryRepository;
     private final AuthorRepository authorRepository;
@@ -117,13 +117,13 @@ public class PhysicalBookService {
 
     private String extractIsbn13(String isbn) {
         if (isbn == null) return null;
-        String cleaned = NON_ISBN_CHAR_PATTERN.matcher(isbn).replaceAll("");
+        String cleaned = NON_ISBN_CHAR_PATTERN.matcher(isbn).replaceAll("").toUpperCase();
         return cleaned.length() == 13 ? cleaned : null;
     }
 
     private String extractIsbn10(String isbn) {
         if (isbn == null) return null;
-        String cleaned = NON_ISBN_CHAR_PATTERN.matcher(isbn).replaceAll("");
+        String cleaned = NON_ISBN_CHAR_PATTERN.matcher(isbn).replaceAll("").toUpperCase();
         return cleaned.length() == 10 ? cleaned : null;
     }
 
