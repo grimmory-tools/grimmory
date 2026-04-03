@@ -87,7 +87,7 @@ export class AppMenuitemComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.ngZone.runOutsideAngular(() => {
       const dragEnter = () => {
-        this.ngZone.run(() => this.bookShelfDragDropService.onShelfDragEnter(element, this.item.entityId));
+        this.bookShelfDragDropService.onShelfDragEnter(element, this.item.entityId);
       };
       const dragOver = (event: Event) => {
         const dragEvent = event as DragEvent;
