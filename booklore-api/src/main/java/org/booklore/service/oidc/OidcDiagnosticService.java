@@ -13,11 +13,14 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
 @AllArgsConstructor
 public class OidcDiagnosticService {
+
+    private static final Pattern TRAILING_SLASH_PATTERN = Pattern.compile("/+$");
 
     public record OidcTestResult(boolean success, List<OidcTestCheck> checks) {}
 
@@ -36,7 +39,7 @@ public class OidcDiagnosticService {
         // 1. Fetch discovery document (uncached)
         Map<String, Object> doc;
         try {
-            String issuerUri = providerDetails.getIssuerUri().replaceAll("/+$", "");
+            String issuerUri = TRAILING_SLASH_PATTERN.matcher(providerDetails.getIssuerUri()).replaceAll("");
             String discoveryUrl = issuerUri + "/.well-known/openid-configuration";
 
             var factory = new SimpleClientHttpRequestFactory();
