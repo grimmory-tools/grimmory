@@ -1026,25 +1026,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@embedpdf/core@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/core@npm:2.11.1"
+"@embedpdf/core@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/core@npm:2.12.1"
   dependencies:
-    "@embedpdf/engines": "npm:2.11.1"
-    "@embedpdf/models": "npm:2.11.1"
+    "@embedpdf/engines": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.12.1"
   peerDependencies:
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/75dd374e25fb8f70d61df545002945f02bd45761a783ff1d9a32aaf4d549699e749e58a7b95a2095c3c1210fecd280d54ba4e9a8a825df8905a46bdd6ec251c9
+  checksum: 10c0/c68fd8ef915ae932849ba782fbd997a32603174a55708aa7f8a7496743e10a6de134fa77c8f9fc33bd92a674a0dd0ed3ef4092663d96749568a5112ba6083694
   languageName: node
   linkType: hard
 
-"@embedpdf/engines@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/engines@npm:2.11.1"
+"@embedpdf/engines@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/engines@npm:2.12.1"
   dependencies:
     "@embedpdf/fonts-arabic": "npm:1.0.0"
     "@embedpdf/fonts-hebrew": "npm:1.0.0"
@@ -1053,15 +1053,15 @@ __metadata:
     "@embedpdf/fonts-latin": "npm:1.0.0"
     "@embedpdf/fonts-sc": "npm:1.0.0"
     "@embedpdf/fonts-tc": "npm:1.0.0"
-    "@embedpdf/models": "npm:2.11.1"
-    "@embedpdf/pdfium": "npm:2.11.1"
+    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/pdfium": "npm:2.12.1"
   peerDependencies:
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/1e010626669dcc8ea0d9a4b8fe397a1a39e7c393706d4c363f42464ef5eb2098027011459b593a79e6cc5504201f49ae12b81ede1bc08d4f39a5004cb0d082e8
+  checksum: 10c0/8082c76d79eaf69633907f3d406d36b50df3b9a434ef83a1db7958b79af5ec57ab56e33d088bab53ad9caa1d9dcb1284bf1bb82f3d9ab67e8712ed67833879c9
   languageName: node
   linkType: hard
 
@@ -1114,534 +1114,534 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@embedpdf/models@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/models@npm:2.11.1"
-  checksum: 10c0/0c8ecde3acd64ccba91db2ea74ed50b4d499a28347ef5f6df655d700f016dffe35940379468d610087c92d5754fb9b1ec5fb7ba588e13b316a8035ac1c051de1
+"@embedpdf/models@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/models@npm:2.12.1"
+  checksum: 10c0/8f01efc5e110f58a281373a767786d768b216156e6845f9b78cd25f15021d22009039301fdfee7876eb6876ac25342e71c1ddefbfec805b21d254ffb8d0bb33f
   languageName: node
   linkType: hard
 
-"@embedpdf/pdfium@npm:2.11.1, @embedpdf/pdfium@npm:^2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/pdfium@npm:2.11.1"
-  checksum: 10c0/ee2521756e0c2bb480baf956a287c0281810962e55b012e5eb39e050f17de3e9f88e2a9f5b341a3dd9756684ff0376cfbfca98cb0a1f5df446e9905c7e06a68c
+"@embedpdf/pdfium@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/pdfium@npm:2.12.1"
+  checksum: 10c0/4b16dc5dbe15fbaac5071ecd0cf301bbc664bf3eed718cce384910363af6746992b109d29d2c56c0b70b6390cfd3869ae21037cc0f038d6c5dae5015c12a0319
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-annotation@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/plugin-annotation@npm:2.11.1"
+"@embedpdf/plugin-annotation@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/plugin-annotation@npm:2.12.1"
   dependencies:
-    "@embedpdf/models": "npm:2.11.1"
-    "@embedpdf/utils": "npm:2.11.1"
+    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/utils": "npm:2.12.1"
   peerDependencies:
-    "@embedpdf/core": 2.11.1
-    "@embedpdf/plugin-history": 2.11.1
-    "@embedpdf/plugin-interaction-manager": 2.11.1
-    "@embedpdf/plugin-scroll": 2.11.1
-    "@embedpdf/plugin-selection": 2.11.1
+    "@embedpdf/core": 2.12.1
+    "@embedpdf/plugin-history": 2.12.1
+    "@embedpdf/plugin-interaction-manager": 2.12.1
+    "@embedpdf/plugin-scroll": 2.12.1
+    "@embedpdf/plugin-selection": 2.12.1
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/6a1e996ea65002268f0d4b75c08f53a9cf744f896b464ad0d23333fb395e642f48b69ebe85e6a2f3291425b01a14093c6d70b207e88a724286cca334041f1672
+  checksum: 10c0/db31e7c9f86d57db6cc70efd48647bcb90fb0c3ba4cd4d4bf557aa689779810974fc64544ac7fb302a54c8528d6a4f84241dd41de9ea34f7bc4ca054111038a9
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-attachment@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/plugin-attachment@npm:2.11.1"
+"@embedpdf/plugin-attachment@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/plugin-attachment@npm:2.12.1"
   dependencies:
-    "@embedpdf/models": "npm:2.11.1"
+    "@embedpdf/models": "npm:2.12.1"
   peerDependencies:
-    "@embedpdf/core": 2.11.1
+    "@embedpdf/core": 2.12.1
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/ef28a71ec8cad9d0b05e31b09423b8c87d00ad40e4caafa7ddd68c122071b2a156d5b25836d8eaef35df4d7f6463cb72df96a464a80ce1c0d7a8fb3e59ea8e60
+  checksum: 10c0/49e9148a75b8e2390bf9db516805400881600e852de5dab1db242ff71614bd78477151ee84a8cf08f0ca8d08d724a85a3a638505386b82ec2199f03823d3c50c
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-bookmark@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/plugin-bookmark@npm:2.11.1"
+"@embedpdf/plugin-bookmark@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/plugin-bookmark@npm:2.12.1"
   dependencies:
-    "@embedpdf/models": "npm:2.11.1"
+    "@embedpdf/models": "npm:2.12.1"
   peerDependencies:
-    "@embedpdf/core": 2.11.1
+    "@embedpdf/core": 2.12.1
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/287c89fcd643dbd138ff3ad3d31d9d873d2cfa95f9951b31a2417115f5e3ce9a224118a234c2cbf837160da5d5e431d7b6aa25c0f8ab753d1aeb26a510b7f2b9
+  checksum: 10c0/7b5e888c5ee43515a92b8f738294ee46c751d181637df4ceac32b862bb6382b588f3b80e9478e9605b88af6e021700c2e80305b8fb7a1956064b701dbf37ceb2
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-capture@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/plugin-capture@npm:2.11.1"
+"@embedpdf/plugin-capture@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/plugin-capture@npm:2.12.1"
   dependencies:
-    "@embedpdf/models": "npm:2.11.1"
+    "@embedpdf/models": "npm:2.12.1"
   peerDependencies:
-    "@embedpdf/core": 2.11.1
-    "@embedpdf/plugin-interaction-manager": 2.11.1
-    "@embedpdf/plugin-render": 2.11.1
+    "@embedpdf/core": 2.12.1
+    "@embedpdf/plugin-interaction-manager": 2.12.1
+    "@embedpdf/plugin-render": 2.12.1
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/ca44ccaedbeee593ee2206dc6f8937dc91ff6e7ee150dbf8c884cb26d84a7562febe5a5975d81c8b2324f88be1caa48daa2f038f362b570878796376e5995f34
+  checksum: 10c0/4d2fd4063e775cd3c198e8e4daa1761953d3c44e1170eeb1d1f5728cf1e571951f1bd0e307bbf9e2c4b34e5332ff8b522e58d39e300bd8f3de12292a7e192874
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-commands@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/plugin-commands@npm:2.11.1"
+"@embedpdf/plugin-commands@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/plugin-commands@npm:2.12.1"
   dependencies:
-    "@embedpdf/models": "npm:2.11.1"
+    "@embedpdf/models": "npm:2.12.1"
   peerDependencies:
-    "@embedpdf/core": 2.11.1
+    "@embedpdf/core": 2.12.1
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/11cadacb9ad9c777b07bdfbdfa5bd24b22e8299a548cdb9f550c4c3797ca44d9c5498704dc583a572a8d21c127b0248cb8979dc2005cddc079cc321f113e3b50
+  checksum: 10c0/45af07dde70285dc63cd0a78883d243c5a724c95a678e423659f084587bf199ec84560d2bf327dee1d1a226f47573d44c48f20cd130125287e98fdb47bfcd7ea
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-document-manager@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/plugin-document-manager@npm:2.11.1"
+"@embedpdf/plugin-document-manager@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/plugin-document-manager@npm:2.12.1"
   dependencies:
-    "@embedpdf/models": "npm:2.11.1"
+    "@embedpdf/models": "npm:2.12.1"
   peerDependencies:
-    "@embedpdf/core": 2.11.1
+    "@embedpdf/core": 2.12.1
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/a8cd9670c4419186cd5cf58906797361038fa46d980f7f85954b5f68ab1fe9ed7e78681f86c14666a637377b3b70beacdded18f339a58946618e77c3895dc6f4
+  checksum: 10c0/ca29f5a0aa3fafe11806f1d21b6dacbc2531e5e511282ec3472938f98584d7ee2f39da19e1a65f4d178ee2773019abbe7a2c4e1f743aa61cfba871eb65f9a49f
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-export@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/plugin-export@npm:2.11.1"
+"@embedpdf/plugin-export@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/plugin-export@npm:2.12.1"
   dependencies:
-    "@embedpdf/models": "npm:2.11.1"
+    "@embedpdf/models": "npm:2.12.1"
   peerDependencies:
-    "@embedpdf/core": 2.11.1
+    "@embedpdf/core": 2.12.1
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/9080f9792b39d097a0975f7d07e1eed9816b842cffa511c2bf2c0acea4fec21bb58bcb4ab47c236abcfc7f8ec27c6f02f7050783dc472a80a682d32baa4115e6
+  checksum: 10c0/e056df6ae870e4d0c7afd4d933162393f6be284c3b1b65831917fd4d33637f506f1da01f563ca45424dead58a2b6d9057c2b883e849c456ffbec1655794fdb2a
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-form@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/plugin-form@npm:2.11.1"
+"@embedpdf/plugin-form@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/plugin-form@npm:2.12.1"
   dependencies:
-    "@embedpdf/models": "npm:2.11.1"
-    "@embedpdf/utils": "npm:2.11.1"
+    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/utils": "npm:2.12.1"
   peerDependencies:
-    "@embedpdf/core": 2.11.1
-    "@embedpdf/plugin-annotation": 2.11.1
-    "@embedpdf/plugin-history": 2.11.1
+    "@embedpdf/core": 2.12.1
+    "@embedpdf/plugin-annotation": 2.12.1
+    "@embedpdf/plugin-history": 2.12.1
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/f286c5350317705cb4176ebe978315a900c66a3a715b41fa513f09b3901573c412f6ac3ad1545e6afecdd8b76d8efc28d2dc0f3bd68c45c7c78a129d3e97318a
+  checksum: 10c0/123335e88d53753655e754a52878f493a38c3c169b7c0c44bd0d4180db2e03e799940e9a15b4384de3e51bdd2d299a9f6668a1dff029d2bc766b0dc706b75b2d
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-fullscreen@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/plugin-fullscreen@npm:2.11.1"
+"@embedpdf/plugin-fullscreen@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/plugin-fullscreen@npm:2.12.1"
   dependencies:
-    "@embedpdf/models": "npm:2.11.1"
+    "@embedpdf/models": "npm:2.12.1"
   peerDependencies:
-    "@embedpdf/core": 2.11.1
+    "@embedpdf/core": 2.12.1
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/9d75152666569ec9829409a8fc3ac1fdd6385b546c70261a7a5fea86303fd0f0d4c0f7cbae64f4c9acb6bb55578aeee7a788e05369076e46b7f2fbcc77413cc8
+  checksum: 10c0/408dad5425b936b8a4dea51b59ee750b0db8d48a94664079a1400bfc13ae367d3379e416c80253c1358bab4598ee8f7ad93e0b5330462704d0df9d79c19fd5ff
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-history@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/plugin-history@npm:2.11.1"
+"@embedpdf/plugin-history@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/plugin-history@npm:2.12.1"
   dependencies:
-    "@embedpdf/models": "npm:2.11.1"
+    "@embedpdf/models": "npm:2.12.1"
   peerDependencies:
-    "@embedpdf/core": 2.11.1
+    "@embedpdf/core": 2.12.1
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/078457ac898fc05a07db44174064f82c27540dc5293926f617207e904ebc1e8b1b0b122bdcc674996c33f287f6cc2420b43a9bdc7e73dd841bec277a6290e666
+  checksum: 10c0/8c6a13da3ded9ce68c31599cd1568aa1d9391516952cee028ac6b2df9d250e47562c5b52fa0743d13a394dc182e484e45dfa1c54a325b580380db4b508eed8a3
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-i18n@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/plugin-i18n@npm:2.11.1"
+"@embedpdf/plugin-i18n@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/plugin-i18n@npm:2.12.1"
   dependencies:
-    "@embedpdf/models": "npm:2.11.1"
+    "@embedpdf/models": "npm:2.12.1"
   peerDependencies:
-    "@embedpdf/core": 2.11.1
+    "@embedpdf/core": 2.12.1
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/5437b687f94a5da79aa39208f706b6822d587f44ba2b7fe5bff3b02c0532f7e74bd7d6e9864dd00b5fc35b75494daf7114900e9c665eed85e50d6fd87a18a662
+  checksum: 10c0/4ced68ef2118b678c32892d3be9aee84714539e10668caaeb2b0d1c5ff98cd94ba10e2ab8a5d33dc2b585d0ea0b3eb1d29af86aabe7bc6c72f02df65ae5942e3
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-interaction-manager@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/plugin-interaction-manager@npm:2.11.1"
+"@embedpdf/plugin-interaction-manager@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/plugin-interaction-manager@npm:2.12.1"
   dependencies:
-    "@embedpdf/models": "npm:2.11.1"
+    "@embedpdf/models": "npm:2.12.1"
   peerDependencies:
-    "@embedpdf/core": 2.11.1
+    "@embedpdf/core": 2.12.1
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/8426bd96892325f573feb7a6d74c2b4d5fe8e1c926e8010549cdf020c7fb3a9c5b33221c8b013e61388be56dd582d78024a5deed45dbf3e859c4dbf4eccf7684
+  checksum: 10c0/1bcfcf5130b2621348a8e4bf0ed5e8ff1d4b28b662da718b30cd5dcb1853c63390d7d0f84b9a0b5bea5865a9de8c1bb725f49e0cb0d49a18878164238a01666a
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-pan@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/plugin-pan@npm:2.11.1"
+"@embedpdf/plugin-pan@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/plugin-pan@npm:2.12.1"
   dependencies:
-    "@embedpdf/models": "npm:2.11.1"
+    "@embedpdf/models": "npm:2.12.1"
   peerDependencies:
-    "@embedpdf/core": 2.11.1
-    "@embedpdf/plugin-interaction-manager": 2.11.1
-    "@embedpdf/plugin-viewport": 2.11.1
+    "@embedpdf/core": 2.12.1
+    "@embedpdf/plugin-interaction-manager": 2.12.1
+    "@embedpdf/plugin-viewport": 2.12.1
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/c32070588d78262ee32e1d16a8304ecb4dce3580ccab289332c02c04eefb56d382fd6e34f729a7bf3d08b26a56f995f4d37c57b9176b2032178c8f05d0086947
+  checksum: 10c0/734729fdf7da709fe9cd77ea6f76894d8bbcf79ddfb41294d2f9b92a6d53ae12e1ed44b69dcd6d8d3a415ad7ac0936cc09358abd286b02de6ea579940a030151
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-print@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/plugin-print@npm:2.11.1"
+"@embedpdf/plugin-print@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/plugin-print@npm:2.12.1"
   dependencies:
-    "@embedpdf/models": "npm:2.11.1"
+    "@embedpdf/models": "npm:2.12.1"
   peerDependencies:
-    "@embedpdf/core": 2.11.1
+    "@embedpdf/core": 2.12.1
     preact: ^10.26.4
     react: ">=18.0.0"
     react-dom: ">=18.0.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/616900052da305b6f72e08832fe76950ebcf10d7886e87a342abbfc641d5687abd38f97c88681205562c2768f8d2e418d074aa7f7b2ba6fb86164d240c479624
+  checksum: 10c0/8c23d649493e422733cdfbdc7915cf258834bbd7f7a8dcce8c9d0c94105f907d995ffba032d5138e4d4e1503f792bfeae93eb93d931feae32e7236a09ca20391
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-redaction@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/plugin-redaction@npm:2.11.1"
+"@embedpdf/plugin-redaction@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/plugin-redaction@npm:2.12.1"
   dependencies:
-    "@embedpdf/models": "npm:2.11.1"
-    "@embedpdf/utils": "npm:2.11.1"
+    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/utils": "npm:2.12.1"
   peerDependencies:
-    "@embedpdf/core": 2.11.1
-    "@embedpdf/plugin-annotation": 2.11.1
-    "@embedpdf/plugin-history": 2.11.1
-    "@embedpdf/plugin-interaction-manager": 2.11.1
-    "@embedpdf/plugin-selection": 2.11.1
+    "@embedpdf/core": 2.12.1
+    "@embedpdf/plugin-annotation": 2.12.1
+    "@embedpdf/plugin-history": 2.12.1
+    "@embedpdf/plugin-interaction-manager": 2.12.1
+    "@embedpdf/plugin-selection": 2.12.1
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/7da6c3b42ee40ce21a242f847493108e56fce6d91e24f902a00b14b3adfbeef439bfd546de31a5bdc4137ddf130f1f1bba01078893bde5393e42036fddad88dd
+  checksum: 10c0/87897f4931cc81410a758b3b13b0dc9635aed8a585835356a7a14192e27e44de17b237f2ac600e022f51f8e98d363ad56a4c6a667cd0f1b29f1c1f5023df419e
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-render@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/plugin-render@npm:2.11.1"
+"@embedpdf/plugin-render@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/plugin-render@npm:2.12.1"
   dependencies:
-    "@embedpdf/models": "npm:2.11.1"
+    "@embedpdf/models": "npm:2.12.1"
   peerDependencies:
-    "@embedpdf/core": 2.11.1
+    "@embedpdf/core": 2.12.1
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/1387451b5bd786d00a6530072488ae7b3938bd15e2662ddd4e98edb47d1bb51b052f73d2fc67a22c9518d0c3641292f1ac89cfa4d6ffcd53132957ac7fb1ea99
+  checksum: 10c0/c05e3e0ded8dae24a5eeb5a90e4c6e5da91cd235c51f3255c5bba962407b08487fe11243f1de4aeb7a27104f584cf4ad0356e84b94c377ff81e9ec91719e52e2
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-rotate@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/plugin-rotate@npm:2.11.1"
+"@embedpdf/plugin-rotate@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/plugin-rotate@npm:2.12.1"
   dependencies:
-    "@embedpdf/models": "npm:2.11.1"
+    "@embedpdf/models": "npm:2.12.1"
   peerDependencies:
-    "@embedpdf/core": 2.11.1
+    "@embedpdf/core": 2.12.1
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/6cb3067ada41d73172ebce1dbc3d4b8cae82c1c8864d3ce02457385cf781cd90dfc70861f20861092e52155b6cb11fafd0c94e4b9548943b2a73fcc61e6456be
+  checksum: 10c0/430a9a5cd01e5bf3b0f92aecbde34450e812215afca9184e10e0828239bc2597fd94ebcade7661dc08892c9479df9642c9bd4223039e345e29850b72199c1dc6
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-scroll@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/plugin-scroll@npm:2.11.1"
+"@embedpdf/plugin-scroll@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/plugin-scroll@npm:2.12.1"
   dependencies:
-    "@embedpdf/models": "npm:2.11.1"
+    "@embedpdf/models": "npm:2.12.1"
   peerDependencies:
-    "@embedpdf/core": 2.11.1
-    "@embedpdf/plugin-viewport": 2.11.1
+    "@embedpdf/core": 2.12.1
+    "@embedpdf/plugin-viewport": 2.12.1
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/b6500e71deb6e400fa5efe0f1a09270e82ff4280535886136e7bd2df41fbfd326f5ae4d018bbcfe76e5aa09b6fbde72c994aaa9fa0605d94e00f78eb7ab6e93b
+  checksum: 10c0/f70d841df78d69ac020b2bdb54b693dc9b47af1b0c7c956e35ee340f0da21a2358765ad1a72cf2820f9fe071bed4d7be43be471959b1753d64d71fe9075c87f6
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-search@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/plugin-search@npm:2.11.1"
+"@embedpdf/plugin-search@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/plugin-search@npm:2.12.1"
   dependencies:
-    "@embedpdf/models": "npm:2.11.1"
+    "@embedpdf/models": "npm:2.12.1"
   peerDependencies:
-    "@embedpdf/core": 2.11.1
+    "@embedpdf/core": 2.12.1
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/ffa9b6f07d9b4868fa7a79b7ea05c790dc4b6ae6461c256c6420c6690260be3d14b7252378ae8593b883764731eb7f360b615b0986c041c423e110a152100160
+  checksum: 10c0/adccb1d6fab6a85a54367b0a11d4eb91696ffdfef103e14aff82722cefe4fb00aa2edfb0b16397364c416f37491b785b386774cb92651bb0b91e139e78cf8b83
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-selection@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/plugin-selection@npm:2.11.1"
+"@embedpdf/plugin-selection@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/plugin-selection@npm:2.12.1"
   dependencies:
-    "@embedpdf/models": "npm:2.11.1"
-    "@embedpdf/utils": "npm:2.11.1"
+    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/utils": "npm:2.12.1"
   peerDependencies:
-    "@embedpdf/core": 2.11.1
-    "@embedpdf/plugin-interaction-manager": 2.11.1
+    "@embedpdf/core": 2.12.1
+    "@embedpdf/plugin-interaction-manager": 2.12.1
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/144c46e1d50dbb07d0136548955d37ff33a1f60099529bb59ff4cbc1b0ad6223ce67b6003a5ff263c86cc67591d4b6f0bb27011fd95ffe8574f337e531415e30
+  checksum: 10c0/f3c5cfe6cea3fa521bedf9add3eeba9649d3200dc6384dd5e0dc0bc4f3cd8a14a38f756f0584ec28634d68ca018189e2e4b45b55e202bb1b9598173e2ca65614
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-spread@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/plugin-spread@npm:2.11.1"
+"@embedpdf/plugin-spread@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/plugin-spread@npm:2.12.1"
   dependencies:
-    "@embedpdf/models": "npm:2.11.1"
+    "@embedpdf/models": "npm:2.12.1"
   peerDependencies:
-    "@embedpdf/core": 2.11.1
+    "@embedpdf/core": 2.12.1
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/b4777a94ca1679d7b8b4c996ef885d9870150ae9106eb2dcf40c5dcbf45781a5e7282fb3014351e7707f12d9ec1612f3e9d4806c67b585437f271ad3e334f090
+  checksum: 10c0/359ca499908490c740f3638211bc231c24ab1b7a3197a45c0e2f0257f22e28f8856f05140b13d834a07234de8369b1c1b536a8a0bd9ea6f2edc1984fe9470e82
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-stamp@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/plugin-stamp@npm:2.11.1"
+"@embedpdf/plugin-stamp@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/plugin-stamp@npm:2.12.1"
   dependencies:
-    "@embedpdf/models": "npm:2.11.1"
+    "@embedpdf/models": "npm:2.12.1"
   peerDependencies:
-    "@embedpdf/core": 2.11.1
-    "@embedpdf/plugin-annotation": 2.11.1
-    "@embedpdf/plugin-i18n": 2.11.1
+    "@embedpdf/core": 2.12.1
+    "@embedpdf/plugin-annotation": 2.12.1
+    "@embedpdf/plugin-i18n": 2.12.1
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/8780c952d70ea2800ac620288188d8d1180081542004d7ef1b60dda030f0b4a521672310ad45f8d725958871b701263d69fb4fbcbd270b1ac95a0f0739d48000
+  checksum: 10c0/37f2c0f2468fb3bd87a44128cd4d7e83fff773581ad2280347d472f26c36f867cf3692add3d585932c58d4a889b18c6f1a4662fd926a6cdf38a68da5669db906
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-thumbnail@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/plugin-thumbnail@npm:2.11.1"
+"@embedpdf/plugin-thumbnail@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/plugin-thumbnail@npm:2.12.1"
   dependencies:
-    "@embedpdf/models": "npm:2.11.1"
+    "@embedpdf/models": "npm:2.12.1"
   peerDependencies:
-    "@embedpdf/core": 2.11.1
-    "@embedpdf/plugin-render": 2.11.1
+    "@embedpdf/core": 2.12.1
+    "@embedpdf/plugin-render": 2.12.1
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/c02ec3032221417416c2776abfbaa96a95c76ce62f3a6865b60aefa46959b2a7708bb3547cfcecf8a6e43130ac274d490fda93205f598b147afadb04b1d3ba06
+  checksum: 10c0/2cc0449f728bf968d07b4c11ad2376509788b0159edb18b9687a527d98cc75c2079f63b378187b30f756cbead57ef1570b1a8de06c0d95db0b109aba4d890f2c
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-tiling@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/plugin-tiling@npm:2.11.1"
+"@embedpdf/plugin-tiling@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/plugin-tiling@npm:2.12.1"
   dependencies:
-    "@embedpdf/models": "npm:2.11.1"
+    "@embedpdf/models": "npm:2.12.1"
   peerDependencies:
-    "@embedpdf/core": 2.11.1
-    "@embedpdf/plugin-render": 2.11.1
-    "@embedpdf/plugin-scroll": 2.11.1
-    "@embedpdf/plugin-viewport": 2.11.1
+    "@embedpdf/core": 2.12.1
+    "@embedpdf/plugin-render": 2.12.1
+    "@embedpdf/plugin-scroll": 2.12.1
+    "@embedpdf/plugin-viewport": 2.12.1
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/85f43a3ee0a73ca7959595ee1c2f9d9e6af6152e8fde84984a9cff8cf2de1d5e7954b2817e5573f2802efd00818f36a80a16d5ad6b2112866bed3baf6afc30de
+  checksum: 10c0/b02f0b1946cfe9f1efc22b063829d69a3e25143a5d5a28a8999674799b8962258a37c59bee236abcb0103bc13452362a82c1def66108642c462a856b78196f17
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-ui@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/plugin-ui@npm:2.11.1"
+"@embedpdf/plugin-ui@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/plugin-ui@npm:2.12.1"
   dependencies:
-    "@embedpdf/models": "npm:2.11.1"
+    "@embedpdf/models": "npm:2.12.1"
   peerDependencies:
-    "@embedpdf/core": 2.11.1
-    "@embedpdf/plugin-render": 2.11.1
-    "@embedpdf/plugin-scroll": 2.11.1
-    "@embedpdf/plugin-viewport": 2.11.1
+    "@embedpdf/core": 2.12.1
+    "@embedpdf/plugin-render": 2.12.1
+    "@embedpdf/plugin-scroll": 2.12.1
+    "@embedpdf/plugin-viewport": 2.12.1
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/38431f2edf9e11129236bc4557528caf8b2af9dfd33dc6ce01e6438c6e29666558539c55ba06c0c6199425b6cdbc1e55d021a0e9d6a4b47e4a6169aeac9a6d3a
+  checksum: 10c0/26fb82c18d99bde1e63b2e73ee6f59f91f26b7450b00c998fe79176faf855aed7cb8e2a045d0781b4858571a2cc700d54e805fb5305181f3c355caa7aeee1948
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-viewport@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/plugin-viewport@npm:2.11.1"
+"@embedpdf/plugin-viewport@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/plugin-viewport@npm:2.12.1"
   dependencies:
-    "@embedpdf/models": "npm:2.11.1"
+    "@embedpdf/models": "npm:2.12.1"
   peerDependencies:
-    "@embedpdf/core": 2.11.1
+    "@embedpdf/core": 2.12.1
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/61116fe5039386eea789cbfcbe8ca73ab62edf732e22cfb85cacc264522bfe0cd37bb57f32fca99d2a434ff6affb20e29e6dce9f0c7616edecbb59d400a97a2d
+  checksum: 10c0/90372a83a134b5218399de50b0daaffbf776e5d8bf500407cd39ef230524a20a41d93330b071471ec8ec5fd03264de91cffe47405669d17c5a43f2633b0fe67a
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-zoom@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/plugin-zoom@npm:2.11.1"
+"@embedpdf/plugin-zoom@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/plugin-zoom@npm:2.12.1"
   dependencies:
-    "@embedpdf/models": "npm:2.11.1"
+    "@embedpdf/models": "npm:2.12.1"
   peerDependencies:
-    "@embedpdf/core": 2.11.1
-    "@embedpdf/plugin-scroll": 2.11.1
-    "@embedpdf/plugin-viewport": 2.11.1
+    "@embedpdf/core": 2.12.1
+    "@embedpdf/plugin-scroll": 2.12.1
+    "@embedpdf/plugin-viewport": 2.12.1
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/5cc8d4d5eab5aed70ca7ef2446cb0f47626268d85eef58ecfea8ac6b0bc08fb3c3f51cda3a536bb8b0578016762687f4bd98b424e4bb58fe83faa04ab3f488cd
+  checksum: 10c0/87a686dac98fbe27b8733be7b7d5d9438907501db57b4c70d156b80cdb9e1a9115304b076853fa8a1b35f0cbe4b9f08c7b91596b54f2ab980e4d56180379a057
   languageName: node
   linkType: hard
 
-"@embedpdf/snippet@npm:^2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/snippet@npm:2.11.1"
+"@embedpdf/snippet@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/snippet@npm:2.12.1"
   dependencies:
-    "@embedpdf/core": "npm:2.11.1"
-    "@embedpdf/engines": "npm:2.11.1"
-    "@embedpdf/models": "npm:2.11.1"
-    "@embedpdf/pdfium": "npm:2.11.1"
-    "@embedpdf/plugin-annotation": "npm:2.11.1"
-    "@embedpdf/plugin-attachment": "npm:2.11.1"
-    "@embedpdf/plugin-bookmark": "npm:2.11.1"
-    "@embedpdf/plugin-capture": "npm:2.11.1"
-    "@embedpdf/plugin-commands": "npm:2.11.1"
-    "@embedpdf/plugin-document-manager": "npm:2.11.1"
-    "@embedpdf/plugin-export": "npm:2.11.1"
-    "@embedpdf/plugin-form": "npm:2.11.1"
-    "@embedpdf/plugin-fullscreen": "npm:2.11.1"
-    "@embedpdf/plugin-history": "npm:2.11.1"
-    "@embedpdf/plugin-i18n": "npm:2.11.1"
-    "@embedpdf/plugin-interaction-manager": "npm:2.11.1"
-    "@embedpdf/plugin-pan": "npm:2.11.1"
-    "@embedpdf/plugin-print": "npm:2.11.1"
-    "@embedpdf/plugin-redaction": "npm:2.11.1"
-    "@embedpdf/plugin-render": "npm:2.11.1"
-    "@embedpdf/plugin-rotate": "npm:2.11.1"
-    "@embedpdf/plugin-scroll": "npm:2.11.1"
-    "@embedpdf/plugin-search": "npm:2.11.1"
-    "@embedpdf/plugin-selection": "npm:2.11.1"
-    "@embedpdf/plugin-spread": "npm:2.11.1"
-    "@embedpdf/plugin-stamp": "npm:2.11.1"
-    "@embedpdf/plugin-thumbnail": "npm:2.11.1"
-    "@embedpdf/plugin-tiling": "npm:2.11.1"
-    "@embedpdf/plugin-ui": "npm:2.11.1"
-    "@embedpdf/plugin-viewport": "npm:2.11.1"
-    "@embedpdf/plugin-zoom": "npm:2.11.1"
+    "@embedpdf/core": "npm:2.12.1"
+    "@embedpdf/engines": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/pdfium": "npm:2.12.1"
+    "@embedpdf/plugin-annotation": "npm:2.12.1"
+    "@embedpdf/plugin-attachment": "npm:2.12.1"
+    "@embedpdf/plugin-bookmark": "npm:2.12.1"
+    "@embedpdf/plugin-capture": "npm:2.12.1"
+    "@embedpdf/plugin-commands": "npm:2.12.1"
+    "@embedpdf/plugin-document-manager": "npm:2.12.1"
+    "@embedpdf/plugin-export": "npm:2.12.1"
+    "@embedpdf/plugin-form": "npm:2.12.1"
+    "@embedpdf/plugin-fullscreen": "npm:2.12.1"
+    "@embedpdf/plugin-history": "npm:2.12.1"
+    "@embedpdf/plugin-i18n": "npm:2.12.1"
+    "@embedpdf/plugin-interaction-manager": "npm:2.12.1"
+    "@embedpdf/plugin-pan": "npm:2.12.1"
+    "@embedpdf/plugin-print": "npm:2.12.1"
+    "@embedpdf/plugin-redaction": "npm:2.12.1"
+    "@embedpdf/plugin-render": "npm:2.12.1"
+    "@embedpdf/plugin-rotate": "npm:2.12.1"
+    "@embedpdf/plugin-scroll": "npm:2.12.1"
+    "@embedpdf/plugin-search": "npm:2.12.1"
+    "@embedpdf/plugin-selection": "npm:2.12.1"
+    "@embedpdf/plugin-spread": "npm:2.12.1"
+    "@embedpdf/plugin-stamp": "npm:2.12.1"
+    "@embedpdf/plugin-thumbnail": "npm:2.12.1"
+    "@embedpdf/plugin-tiling": "npm:2.12.1"
+    "@embedpdf/plugin-ui": "npm:2.12.1"
+    "@embedpdf/plugin-viewport": "npm:2.12.1"
+    "@embedpdf/plugin-zoom": "npm:2.12.1"
     preact: "npm:^10.17.0"
     tailwind-merge: "npm:^3.4.0"
-  checksum: 10c0/dc987e3e42a0b90a41ec71e0b80ef095e823c635d5f5ceac230e6410ed3070f5e311eca4e374ab25ea5ba2f150cee784b7a8ebfd552e3e9556156e75e53e9b13
+  checksum: 10c0/38a530b4b20de7e352280fc416e576b4da0120035b992cf7540020e77632b321f5fc7b1acd57694ced2abf15f2b25365f0e0d98bc4e8443b48ef42a68aa1e98c
   languageName: node
   linkType: hard
 
-"@embedpdf/utils@npm:2.11.1":
-  version: 2.11.1
-  resolution: "@embedpdf/utils@npm:2.11.1"
+"@embedpdf/utils@npm:2.12.1":
+  version: 2.12.1
+  resolution: "@embedpdf/utils@npm:2.12.1"
   peerDependencies:
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/1ef1908070a6dfbf188dc43d4a4f29851a7c54980e1eb76959f4213809aaf7d45c65853e1813bc6dfa160a584b70db6913dbfb4ea1683bc424d5b5df6fdb49b6
+  checksum: 10c0/02db6575a2c9e3a1cd118fed0c80cbd91084c9245f7b44864534c2a831cdddb55a3d3037d9856dc1c117ca257f0d1808ac3d39f7e3cf950769855e334c5a0a22
   languageName: node
   linkType: hard
 
@@ -6049,8 +6049,8 @@ __metadata:
     "@angular/platform-browser-dynamic": "npm:^21.2.6"
     "@angular/router": "npm:^21.2.6"
     "@angular/service-worker": "npm:^21.2.6"
-    "@embedpdf/pdfium": "npm:^2.11.1"
-    "@embedpdf/snippet": "npm:^2.11.1"
+    "@embedpdf/pdfium": "npm:2.12.1"
+    "@embedpdf/snippet": "npm:2.12.1"
     "@eslint/js": "npm:^10.0.1"
     "@iharbeck/ngx-virtual-scroller": "npm:^20.0.0"
     "@jsverse/transloco": "npm:^8.2.1"
