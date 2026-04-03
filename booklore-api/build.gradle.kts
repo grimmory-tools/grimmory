@@ -26,6 +26,10 @@ java {
     }
 }
 
+tasks.withType<JavaCompile>().configureEach {
+    options.compilerArgs.add("--enable-preview")
+}
+
 val useLocalLibs = providers.gradleProperty("useLocalLibs").isPresent
 
 repositories {
@@ -130,6 +134,10 @@ dependencies {
     val epub4jCoords = if (useLocalLibs) "org.grimmory:epub4j-core:+" else "org.grimmory:epub4j-core:1.0.1"
     implementation(epub4jCoords)
 
+    // epub4j-native for native archive parsing
+    val epub4jNativeCoords = if (useLocalLibs) "org.grimmory:epub4j-native:+" else "org.grimmory:epub4j-native:1.0.1"
+    implementation(epub4jNativeCoords)
+
     // --- Audio Metadata (Audiobook Support) ---
     implementation("com.github.RouHim:jaudiotagger:2.0.19")
 
@@ -191,7 +199,7 @@ hibernate {
 tasks.named<Test>("test") {
     useJUnitPlatform()
     maxHeapSize = "2560m"
-    jvmArgs("-XX:+EnableDynamicAgentLoading", "--enable-native-access=ALL-UNNAMED")
+    jvmArgs("-XX:+EnableDynamicAgentLoading", "--enable-native-access=ALL-UNNAMED", "--enable-preview")
     finalizedBy(tasks.named("jacocoTestReport"))
 }
 
@@ -219,7 +227,7 @@ tasks.named<Copy>("processResources") {
 }
 
 tasks.named<BootRun>("bootRun") {
-    jvmArgs("--enable-native-access=ALL-UNNAMED")
+    jvmArgs("--enable-native-access=ALL-UNNAMED", "--enable-preview")
     if (System.getenv("REMOTE_DEBUG_ENABLED") == "true") {
         jvmArgs("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005")
     }
