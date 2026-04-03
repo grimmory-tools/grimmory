@@ -26,13 +26,58 @@ java {
     }
 }
 
-tasks.withType<JavaCompile> {
-    options.compilerArgs.add("--enable-preview")
-}
+val useLocalLibs = providers.gradleProperty("useLocalLibs").isPresent
 
 repositories {
+    if (useLocalLibs) mavenLocal()
     mavenCentral()
     maven(url = "https://jitpack.io")
+}
+
+fun pdfiumNativesClassifier(): String {
+    // Support cross-compilation: check for explicit target overrides first
+    val targetPlatform = System.getenv("TARGETPLATFORM")
+        ?: project.findProperty("targetPlatform")?.toString()
+    val targetArch = System.getenv("TARGETARCH")
+        ?: project.findProperty("targetArch")?.toString()
+
+    val osName: String
+    val arch: String
+
+    if (targetPlatform != null) {
+        // Docker TARGETPLATFORM format: linux/amd64, linux/arm64
+        val parts = targetPlatform.split("/")
+        osName = parts.getOrElse(0) { "linux" }
+        arch = parts.getOrElse(1) { "amd64" }
+    } else {
+        osName = System.getProperty("os.name").lowercase()
+        arch = targetArch ?: System.getProperty("os.arch").lowercase()
+    }
+
+    val osKey = when {
+        "win" in osName -> "windows"
+        "mac" in osName || "darwin" in osName -> "darwin"
+        "nux" in osName || "linux" in osName -> {
+            val isMusl = try {
+                val libDir = File("/lib")
+                libDir.exists() && (libDir.listFiles()?.any { f -> f.name.startsWith("ld-musl-") } == true)
+            } catch (_: Exception) {
+                try {
+                    File("/proc/self/maps").readText().contains("musl")
+                } catch (_: Exception) { false }
+            }
+            if (isMusl) "linux-musl" else "linux"
+        }
+        else -> error("Unsupported OS: $osName")
+    }
+
+    val archKey = when (arch) {
+        "x86_64", "amd64" -> "x64"
+        "aarch64", "arm64" -> "arm64"
+        else -> error("Unsupported architecture: $arch")
+    }
+
+    return "natives-$osKey-$archKey"
 }
 
 configurations {
@@ -71,13 +116,9 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.44")
 
     // --- Book & Image Processing ---
-    implementation("org.apache.pdfbox:pdfbox:3.0.7")
-    implementation("org.apache.pdfbox:pdfbox-io:3.0.7")
-    implementation("org.apache.pdfbox:xmpbox:3.0.7")
-    implementation("org.apache.pdfbox:jbig2-imageio:3.0.4")
-    // Required for JPEG2000 support in PDFBox (not covered by TwelveMonkeys)
-    implementation("com.github.jai-imageio:jai-imageio-core:1.4.0")
-    implementation("com.github.jai-imageio:jai-imageio-jpeg2000:1.4.0")
+    val pdfium4jVersion = if (useLocalLibs) "+" else "0.14.0"
+    implementation("org.grimmory:pdfium4j:$pdfium4jVersion")
+    runtimeOnly("org.grimmory:pdfium4j:$pdfium4jVersion:${pdfiumNativesClassifier()}")
 
     // --- TwelveMonkeys ImageIO ---
     implementation("com.twelvemonkeys.imageio:imageio-jpeg:3.13.1")
@@ -85,8 +126,9 @@ dependencies {
     implementation("com.twelvemonkeys.imageio:imageio-webp:3.13.1")
     implementation("com.twelvemonkeys.imageio:imageio-bmp:3.13.1")
 
-    implementation("org.grimmory:epub4j-core:1.0.1")
-    implementation("org.grimmory:epub4j-native:1.0.1")
+    // epub4j-grimmory fork publishes as org.grimmory:epub4j-core
+    val epub4jCoords = if (useLocalLibs) "org.grimmory:epub4j-core:+" else "io.documentnode:epub4j-core:4.2.3"
+    implementation(epub4jCoords)
 
     // --- Audio Metadata (Audiobook Support) ---
     implementation("com.github.RouHim:jaudiotagger:2.0.19")
@@ -102,7 +144,7 @@ dependencies {
     annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
 
     // --- API Documentation ---
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.2")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:3.0.2")
     implementation("org.apache.commons:commons-compress:1.28.0")
     implementation("org.tukaani:xz:1.12") // Required by commons-compress for 7z support
     implementation("org.apache.commons:commons-text:1.15.0")
@@ -134,6 +176,9 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.27.7")
     testImplementation("org.mockito:mockito-inline:5.2.0")
     testRuntimeOnly("com.h2database:h2")
+
+    // PDFBox for test PDF creation only (production code uses PDFium4j)
+    testImplementation("org.apache.pdfbox:pdfbox:3.0.7")
 }
 
 hibernate {
@@ -146,7 +191,7 @@ hibernate {
 tasks.named<Test>("test") {
     useJUnitPlatform()
     maxHeapSize = "2560m"
-    jvmArgs("-XX:+EnableDynamicAgentLoading", "--enable-native-access=ALL-UNNAMED", "--enable-preview")
+    jvmArgs("-XX:+EnableDynamicAgentLoading", "--enable-native-access=ALL-UNNAMED")
     finalizedBy(tasks.named("jacocoTestReport"))
 }
 
@@ -174,7 +219,7 @@ tasks.named<Copy>("processResources") {
 }
 
 tasks.named<BootRun>("bootRun") {
-    jvmArgs("--enable-native-access=ALL-UNNAMED", "--enable-preview")
+    jvmArgs("--enable-native-access=ALL-UNNAMED")
     if (System.getenv("REMOTE_DEBUG_ENABLED") == "true") {
         jvmArgs("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005")
     }
