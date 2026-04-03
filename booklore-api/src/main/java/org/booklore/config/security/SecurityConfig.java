@@ -44,7 +44,8 @@ public class SecurityConfig {
 
     private static final Pattern ALLOWED = Pattern.compile("\\s*,\\s*");
     private final OpdsUserDetailsService opdsUserDetailsService;
-    private final JwtAuthenticationFilter dualJwtAuthenticationFilter;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final AuthenticationCheckFilter authenticationCheckFilter;
     private final Environment env;
 
     private static final String[] COMMON_PUBLIC_ENDPOINTS = {
@@ -122,7 +123,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
-                .addFilterBefore(koreaderAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(koreaderAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(authenticationCheckFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
@@ -140,7 +142,7 @@ public class SecurityConfig {
 
     @Bean
     @Order(4)
-    public SecurityFilterChain coverJwtApiSecurityChain(HttpSecurity http, CoverJwtFilter coverJwtFilter) throws Exception {
+    public SecurityFilterChain coverJwtApiSecurityChain(HttpSecurity http, QueryParameterJwtFilter queryParameterJwtFilter) throws Exception {
         http
                 .securityMatcher("/api/v1/media/**")
                 .csrf(AbstractHttpConfigurer::disable)
@@ -151,15 +153,15 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .anyRequest().permitAll()
                 )
-                .addFilterBefore(coverJwtFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(dualJwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
+                .addFilterBefore(queryParameterJwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(authenticationCheckFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
     @Bean
     @Order(5)
-    public SecurityFilterChain customFontSecurityChain(HttpSecurity http, CustomFontJwtFilter customFontJwtFilter) throws Exception {
+    public SecurityFilterChain customFontSecurityChain(HttpSecurity http, QueryParameterJwtFilter queryParameterJwtFilter) throws Exception {
         http
                 .securityMatcher("/api/v1/custom-fonts/*/file")
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -168,13 +170,15 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .anyRequest().permitAll()
                 )
-                .addFilterBefore(customFontJwtFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(queryParameterJwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(authenticationCheckFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
     @Bean
     @Order(6)
-    public SecurityFilterChain epubStreamingSecurityChain(HttpSecurity http, EpubStreamingJwtFilter epubStreamingJwtFilter) throws Exception {
+    public SecurityFilterChain epubStreamingSecurityChain(HttpSecurity http, QueryParameterJwtFilter queryParameterJwtFilter) throws Exception {
         http
                 .securityMatcher("/api/v1/epub/*/file/**")
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -183,13 +187,15 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .anyRequest().permitAll()
                 )
-                .addFilterBefore(epubStreamingJwtFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(queryParameterJwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(authenticationCheckFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
     @Bean
     @Order(7)
-    public SecurityFilterChain audiobookStreamingSecurityChain(HttpSecurity http, AudiobookStreamingJwtFilter audiobookStreamingJwtFilter) throws Exception {
+    public SecurityFilterChain audiobookStreamingSecurityChain(HttpSecurity http, QueryParameterJwtFilter queryParameterJwtFilter) throws Exception {
         http
                 .securityMatcher("/api/v1/audiobooks/*/stream/**", "/api/v1/audiobooks/*/track/*/stream/**", "/api/v1/audiobooks/*/cover")
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -198,16 +204,60 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .anyRequest().permitAll()
                 )
-                .addFilterBefore(audiobookStreamingJwtFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(queryParameterJwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(authenticationCheckFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
     @Bean
     @Order(8)
+    public SecurityFilterChain wsSecurityChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/ws")
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .headers(headers -> headers
+                        .referrerPolicy(referrer -> referrer.policy(
+                                ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+                        .contentTypeOptions(contentType -> {})
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
+                )
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll()
+                );
+        return http.build();
+    }
+
+    @Bean
+    @Order(9)
     public SecurityFilterChain jwtApiSecurityChain(HttpSecurity http) throws Exception {
+        final List<String> whitelistedPaths = List.of(
+                "/api/v1/opds",
+                "/api/v2/opds",
+                "/api/v1/auth/refresh",
+                "/api/v1/setup",
+                "/api/kobo"
+        );
+        final List<String> matchPaths = List.of(
+                "/api",
+                "/komga"
+        );
         List<String> publicEndpoints = new ArrayList<>(Arrays.asList(COMMON_PUBLIC_ENDPOINTS));
         http
-                .securityMatcher("/api/**", "/komga/**", "/ws/**")
+                .securityMatcher(request -> {
+                    var path = request.getRequestURI();
+                    if (matchPaths.parallelStream().noneMatch(path::startsWith)) {
+                        return false;
+                    }
+
+                    if (whitelistedPaths.parallelStream().anyMatch(path::startsWith)) {
+                        return false;
+                    }
+
+                    return true;
+                })
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -222,12 +272,13 @@ public class SecurityConfig {
                         .requestMatchers(publicEndpoints.toArray(new String[0])).permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(dualJwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(authenticationCheckFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
     @Bean
-    @Order(9)
+    @Order(10)
     public SecurityFilterChain staticResourcesSecurityChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)

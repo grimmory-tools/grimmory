@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.web.servlet.FilterRegistration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,49 +22,51 @@ import java.util.List;
 @RequiredArgsConstructor
 @Component
 @Slf4j
+@FilterRegistration(enabled = false)
 public class KoreaderAuthFilter extends OncePerRequestFilter {
 
     private final KoreaderUserRepository koreaderUserRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
+        String username = request.getHeader("x-auth-user");
+        String key = request.getHeader("x-auth-key");
 
-        String path = request.getRequestURI();
-        if (!path.startsWith("/api/koreader/")) {
+        if (username == null || key == null) {
+            log.info("Missing KOReader headers");
             chain.doFilter(request, response);
             return;
         }
 
-        String username = request.getHeader("x-auth-user");
-        String key = request.getHeader("x-auth-key");
-
-        if (username != null && key != null) {
-            koreaderUserRepository.findByUsername(username).ifPresentOrElse(user -> {
-                if (user.getPasswordMD5().equalsIgnoreCase(key)) {
-                    Long bookLoreUserId = null;
-                    if (user.getBookLoreUser() != null) {
-                        bookLoreUserId = user.getBookLoreUser().getId();
-                    }
-
-                    UserDetails userDetails = new KoreaderUserDetails(
-                            user.getUsername(),
-                            user.getPasswordMD5(),
-                            user.isSyncEnabled(),
-                            user.isSyncWithBookloreReader(),
-                            bookLoreUserId,
-                            List.of(new SimpleGrantedAuthority("ROLE_USER"))
-                    );
-
-                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-                } else {
-                    log.warn("KOReader auth failed: password mismatch");
-                }
-            }, () -> log.warn("KOReader user not found"));
-        } else {
-            log.warn("Missing KOReader headers");
+        var user = koreaderUserRepository.findByUsername(username).orElse(null);
+        if (user == null) {
+            log.info("KOReader user not found");
+            chain.doFilter(request, response);
+            return;
         }
+
+        if (!user.getPasswordMD5().equalsIgnoreCase(key)) {
+            log.info("KOReader user password not match");
+            chain.doFilter(request, response);
+            return;
+        }
+
+        Long bookLoreUserId = null;
+        if (user.getBookLoreUser() != null) {
+            bookLoreUserId = user.getBookLoreUser().getId();
+        }
+
+        UserDetails userDetails = new KoreaderUserDetails(
+                user.getUsername(),
+                user.getPasswordMD5(),
+                user.isSyncEnabled(),
+                user.isSyncWithBookloreReader(),
+                bookLoreUserId,
+                List.of(new SimpleGrantedAuthority("ROLE_USER"))
+        );
+
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         chain.doFilter(request, response);
     }
