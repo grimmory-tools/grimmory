@@ -6,6 +6,7 @@ import { MenuService } from './app.menu.service';
 import { DialogLauncherService } from '../../services/dialog-launcher.service';
 import { BookDialogHelperService } from '../../../features/book/components/book-browser/book-dialog-helper.service';
 import { UserService } from '../../../features/settings/user-management/user.service';
+import {BookShelfDragDropService} from '../../../features/book/components/book-browser/book-shelf-drag-drop.service';
 
 describe('AppMenuitemComponent', () => {
   let fixture: ComponentFixture<AppMenuitemComponent>;
@@ -45,6 +46,15 @@ describe('AppMenuitemComponent', () => {
             }),
           },
         },
+        {
+          provide: BookShelfDragDropService,
+          useValue: {
+            onShelfDragEnter: vi.fn(),
+            onShelfDragOver: vi.fn(),
+            onShelfDragLeave: vi.fn(),
+            dropOnShelf: vi.fn(),
+          },
+        }
       ],
     });
 
@@ -128,5 +138,28 @@ describe('AppMenuitemComponent', () => {
     fixture.detectChanges();
 
     expect(component.isRouteActive()).toBe(false);
+  });
+
+  it('wires drag handling through the shared shelf drag-drop service', () => {
+    const dnd = TestBed.inject(BookShelfDragDropService) as unknown as {
+      onShelfDragEnter: ReturnType<typeof vi.fn>;
+    };
+    component.item = {
+      label: 'Shelf A',
+      entityId: 12,
+      dropEnabled: true,
+      type: 'shelf',
+    };
+
+    fixture.detectChanges();
+    const nativeElement = document.createElement('div');
+    component.dropTarget = {
+      nativeElement
+    } as never;
+
+    component.ngAfterViewInit();
+    nativeElement.dispatchEvent(new Event('dragenter'));
+
+    expect(dnd.onShelfDragEnter).toHaveBeenCalledWith(nativeElement, 12);
   });
 });

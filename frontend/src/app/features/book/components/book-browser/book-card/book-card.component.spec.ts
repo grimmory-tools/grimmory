@@ -18,6 +18,7 @@ import {BookFileService} from '../../../service/book-file.service';
 import {BookMetadataManageService} from '../../../service/book-metadata-manage.service';
 import {BookNavigationService} from '../../../service/book-navigation.service';
 import {BookService} from '../../../service/book.service';
+import {BookShelfDragDropService} from '../book-shelf-drag-drop.service';
 
 function makeBook(overrides: Partial<Book> = {}): Book {
   return {
@@ -149,6 +150,10 @@ describe('BookCardComponent', () => {
   let cdr: {
     markForCheck: ReturnType<typeof vi.fn>;
   };
+  let bookShelfDragDropService: {
+    startDrag: ReturnType<typeof vi.fn>;
+    endDrag: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
     bookService = {
@@ -208,6 +213,10 @@ describe('BookCardComponent', () => {
     cdr = {
       markForCheck: vi.fn(),
     };
+    bookShelfDragDropService = {
+      startDrag: vi.fn(),
+      endDrag: vi.fn(),
+    };
 
     TestBed.configureTestingModule({
       imports: [BookCardComponent],
@@ -230,6 +239,7 @@ describe('BookCardComponent', () => {
         {provide: QueryClient, useValue: queryClient},
         {provide: QueryClient, useValue: queryClient},
         {provide: BookCardComponent, useValue: BookCardComponent},
+        {provide: BookShelfDragDropService, useValue: bookShelfDragDropService},
         {provide: 'ChangeDetectorRef', useValue: cdr},
       ],
     });
@@ -286,6 +296,18 @@ describe('BookCardComponent', () => {
 
     expect(component.displayTitle).toBe('Volume One');
     expect(component.titleTooltip).toContain('Volume One');
+  });
+
+  it('delegates drag start and end to the shared shelf drag-drop service', () => {
+    const book = makeBook();
+    const event = {dataTransfer: null} as unknown as DragEvent;
+    component.book = book;
+
+    component.onDragStart(event);
+    component.onDragEnd();
+
+    expect(bookShelfDragDropService.startDrag).toHaveBeenCalledWith(event, book);
+    expect(bookShelfDragDropService.endDrag).toHaveBeenCalled();
   });
 
   it('uses forced ebook mode for audiobook reads and falls back to the normal read flow otherwise', () => {

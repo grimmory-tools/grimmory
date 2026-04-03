@@ -30,6 +30,7 @@ export interface NavItem {
   icon?: string;
   iconType?: NavIconType;
   routerLink?: string[];
+  entityId?: number;
   type?: NavItemType;
   group?: boolean;
   bookCount?: number;
@@ -37,6 +38,7 @@ export interface NavItem {
   items?: NavItem[];
   hasDropDown?: boolean;
   hasCreate?: boolean;
+  dropEnabled?: boolean;
   contextMenuItems?: MenuItem[];
 }
 
@@ -248,12 +250,14 @@ export class AppMenuComponent {
 
     const shelfItems = shelves.map((shelf) => ({
       contextMenuItems: this.libraryShelfMenuService.initializeShelfMenuItems(shelf),
+      entityId: shelf.id,
       label: shelf.name,
       type: 'shelf' as const,
       icon: shelf.icon || undefined,
       iconType: this.toNavIconType(shelf.iconType),
       routerLink: [`/shelf/${shelf.id}/books`],
       bookCount: shelfCounts.get(shelf.id ?? 0) ?? 0,
+      dropEnabled: true,
     }));
 
     const items: NavItem[] = [{
@@ -267,12 +271,14 @@ export class AppMenuComponent {
 
     if (koboShelf) {
       items.push({
+        entityId: koboShelf.id,
         label: koboShelf.name,
         type: 'shelf',
         icon: koboShelf.icon || undefined,
         iconType: this.toNavIconType(koboShelf.iconType),
         routerLink: [`/shelf/${koboShelf.id}/books`],
         bookCount: shelfCounts.get(koboShelf.id ?? 0) ?? 0,
+        dropEnabled: true,
       });
     }
 

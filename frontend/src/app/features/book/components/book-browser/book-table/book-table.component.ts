@@ -17,6 +17,7 @@ import {Subject} from 'rxjs';
 import {UserService} from '../../../../settings/user-management/user.service';
 import {ReadStatusHelper} from '../../../helpers/read-status.helper';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {BookShelfDragDropService} from '../book-shelf-drag-drop.service';
 
 @Component({
   selector: 'app-book-table',
@@ -54,6 +55,7 @@ export class BookTableComponent implements OnInit, OnDestroy, OnChanges {
   private datePipe = inject(DatePipe);
   private readStatusHelper = inject(ReadStatusHelper);
   private readonly t = inject(TranslocoService);
+  private readonly bookShelfDragDropService = inject(BookShelfDragDropService);
 
   private metadataCenterViewMode: 'route' | 'dialog' = 'route';
   private destroy$ = new Subject<void>();
@@ -145,6 +147,14 @@ export class BookTableComponent implements OnInit, OnDestroy, OnChanges {
       this.clearSelectedBooks();
     }
     this.selectedBooksChange.emit(this.selectedBookIds);
+  }
+
+  onRowDragStart(event: DragEvent, book: Book): void {
+    this.bookShelfDragDropService.startDrag(event, book);
+  }
+
+  onRowDragEnd(): void {
+    this.bookShelfDragDropService.endDrag();
   }
 
   getStarColor(rating: number): string {

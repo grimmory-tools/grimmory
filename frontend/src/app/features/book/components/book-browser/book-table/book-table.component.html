@@ -34,7 +34,11 @@
 
   <ng-template pTemplate="body" let-book>
     @if (book.metadata; as metadata) {
-      <tr style="height:46px">
+      <tr
+        style="height:46px"
+        draggable="true"
+        (dragstart)="onRowDragStart($event, book)"
+        (dragend)="onRowDragEnd()">
         <td>
           <p-tableCheckbox [value]="book"/>
         </td>

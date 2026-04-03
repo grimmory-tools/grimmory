@@ -29,6 +29,7 @@ import {BookCardOverlayPreferenceService} from '../book-card-overlay-preference.
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
 import {TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {QueryClient} from '@tanstack/angular-query-experimental';
+import {BookShelfDragDropService} from '../book-shelf-drag-drop.service';
 
 @Component({
   selector: 'app-book-card',
@@ -77,6 +78,7 @@ export class BookCardComponent implements OnInit, OnChanges {
   private appSettingsService = inject(AppSettingsService);
   private readonly t = inject(TranslocoService);
   private queryClient = inject(QueryClient);
+  private readonly bookShelfDragDropService = inject(BookShelfDragDropService);
 
   protected _progressPercentage: number | null = null;
   protected _koProgressPercentage: number | null = null;
@@ -251,6 +253,14 @@ export class BookCardComponent implements OnInit, OnChanges {
       this.buildReadStatusMenuItems();
     }
     menu.toggle(event);
+  }
+
+  onDragStart(event: DragEvent): void {
+    this.bookShelfDragDropService.startDrag(event, this.book);
+  }
+
+  onDragEnd(): void {
+    this.bookShelfDragDropService.endDrag();
   }
 
 

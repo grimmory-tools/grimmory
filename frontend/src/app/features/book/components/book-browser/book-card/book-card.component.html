@@ -1,7 +1,10 @@
 <div class="book-card"
      [class.selected]="isSelected"
+     draggable="true"
      role="button"
      tabindex="0"
+     (dragstart)="onDragStart($event)"
+     (dragend)="onDragEnd()"
      (click)="onCardClick($event)"
      (keydown.enter)="onCardClick($event)">
 
