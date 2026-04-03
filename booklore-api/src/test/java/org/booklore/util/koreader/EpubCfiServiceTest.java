@@ -1,5 +1,6 @@
 package org.booklore.util.koreader;
 
+import org.booklore.exception.APIException;
 import org.grimmory.epub4j.cfi.CfiConverter;
 import org.grimmory.epub4j.cfi.XPointerResult;
 import org.grimmory.epub4j.domain.Author;
@@ -205,6 +206,15 @@ class EpubCfiServiceTest {
             String cfi = service.convertXPointerRangeToCfi(testEpubFile.toPath(), startXPointer, endXPointer);
 
             assertNotNull(cfi);
+        }
+
+        @Test
+        void convertXPointerRangeToCfi_mismatchedSpineIndices_throwsAPIException() {
+            String startXPointer = "/body/DocFragment[1]/body/div[1]/p[1]/text().0";
+            String endXPointer = "/body/DocFragment[2]/body/div[1]/p[1]/text().10";
+
+            assertThrows(APIException.class, () ->
+                    service.convertXPointerRangeToCfi(testEpubFile, startXPointer, endXPointer));
         }
     }
 

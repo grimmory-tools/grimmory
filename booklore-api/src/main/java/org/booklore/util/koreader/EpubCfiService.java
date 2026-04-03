@@ -1,5 +1,6 @@
 package org.booklore.util.koreader;
 
+import org.booklore.exception.ApiError;
 import org.booklore.util.epub.EpubContentReader;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -50,8 +51,14 @@ public class EpubCfiService {
     }
 
     public String convertXPointerRangeToCfi(File epubFile, String startXPointer, String endXPointer) {
-        int spineIndex = CfiConverter.extractSpineIndex(startXPointer);
-        CfiConverter converter = createConverter(epubFile, spineIndex);
+        int startSpineIndex = extractSpineIndex(startXPointer);
+        int endSpineIndex = extractSpineIndex(endXPointer);
+
+        if (startSpineIndex != endSpineIndex) {
+            throw ApiError.INVALID_INPUT.createException("Start and end XPointers must reference the same spine index");
+        }
+
+        CfiConverter converter = createConverter(epubFile, startSpineIndex);
         return converter.xPointerToCfi(startXPointer, endXPointer);
     }
 
