@@ -41,7 +41,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@38697555549f1db7851b81482ff19f1fa5c4fedc # v4
+        uses: github/codeql-action/init@c10b8064de6f491fea524254123dbe5e09572f13 # v4
         env:
           CODEQL_OVERLAY_DATABASE_MODE: ${{ github.event_name == 'pull_request' && 'none' || '' }}
         with:
@@ -51,6 +51,6 @@ jobs:
           trap-caching: false
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@38697555549f1db7851b81482ff19f1fa5c4fedc # v4
+        uses: github/codeql-action/analyze@c10b8064de6f491fea524254123dbe5e09572f13 # v4
         with:
           category: /language:${{ matrix.language }}
