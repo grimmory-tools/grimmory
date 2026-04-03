@@ -41,6 +41,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -87,6 +89,8 @@ class BookDropServiceTest {
     private FileMovingHelper fileMovingHelper;
     @Mock
     private KoboAutoShelfService koboAutoShelfService;
+    @Mock
+    private PlatformTransactionManager transactionManager;
 
     @InjectMocks
     private BookDropService bookDropService;
@@ -122,6 +126,9 @@ class BookDropServiceTest {
         bookdropFile.setFileName("test-book.pdf");
 
         Files.createFile(tempDir.resolve("test-book.pdf"));
+
+        TransactionStatus txStatus = mock(TransactionStatus.class);
+        lenient().when(transactionManager.getTransaction(any())).thenReturn(txStatus);
     }
 
     @AfterEach

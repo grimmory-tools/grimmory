@@ -43,6 +43,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ReadingSessionService {
 
     private final AuthenticationService authenticationService;
@@ -84,7 +85,6 @@ public class ReadingSessionService {
         log.info("Reading session persisted successfully: sessionId={}, userId={}, bookId={}, duration={}s", session.getId(), userId, request.getBookId(), request.getDurationSeconds());
     }
 
-    @Transactional(readOnly = true)
     public List<ReadingSessionHeatmapResponse> getSessionHeatmapForYear(int year) {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
         Long userId = authenticatedUser.getId();
@@ -98,7 +98,6 @@ public class ReadingSessionService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public List<ReadingSessionHeatmapResponse> getSessionHeatmapForMonth(int year, int month) {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
         Long userId = authenticatedUser.getId();
@@ -112,7 +111,6 @@ public class ReadingSessionService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public List<ReadingSessionTimelineResponse> getSessionTimelineForWeek(int year, int week) {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
         Long userId = authenticatedUser.getId();
@@ -136,7 +134,6 @@ public class ReadingSessionService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public List<ReadingSpeedResponse> getReadingSpeedForYear(int year) {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
         Long userId = authenticatedUser.getId();
@@ -151,7 +148,6 @@ public class ReadingSessionService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public List<PeakHoursResponse> getPeakReadingHours(Integer year, Integer month) {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
         Long userId = authenticatedUser.getId();
@@ -166,7 +162,6 @@ public class ReadingSessionService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public List<FavoriteReadingDaysResponse> getFavoriteReadingDays(Integer year, Integer month) {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
         Long userId = authenticatedUser.getId();
@@ -184,7 +179,6 @@ public class ReadingSessionService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public List<GenreStatisticsResponse> getGenreStatistics() {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
         Long userId = authenticatedUser.getId();
@@ -207,7 +201,6 @@ public class ReadingSessionService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public List<CompletionTimelineResponse> getCompletionTimeline(int year) {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
         Long userId = authenticatedUser.getId();
@@ -246,7 +239,6 @@ public class ReadingSessionService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public Page<ReadingSessionResponse> getReadingSessionsForBook(Long bookId, int page, int size) {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
         Long userId = authenticatedUser.getId();
@@ -275,7 +267,6 @@ public class ReadingSessionService {
                 .build());
     }
 
-    @Transactional(readOnly = true)
     public List<BookCompletionHeatmapResponse> getBookCompletionHeatmap() {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
         Long userId = authenticatedUser.getId();
@@ -293,7 +284,6 @@ public class ReadingSessionService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public List<PageTurnerScoreResponse> getPageTurnerScores() {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
         Long userId = authenticatedUser.getId();
@@ -377,7 +367,6 @@ public class ReadingSessionService {
 
     private static final int COMPLETION_RACE_BOOK_LIMIT = 10;
 
-    @Transactional(readOnly = true)
     public List<CompletionRaceResponse> getCompletionRace(int year) {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
         Long userId = authenticatedUser.getId();
@@ -409,7 +398,6 @@ public class ReadingSessionService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public List<ReadingSessionHeatmapResponse> getReadingDates() {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
         Long userId = authenticatedUser.getId();
@@ -423,7 +411,6 @@ public class ReadingSessionService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public BookDistributionsResponse getBookDistributions() {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
         Long userId = authenticatedUser.getId();
@@ -497,7 +484,6 @@ public class ReadingSessionService {
         return max;
     }
 
-    @Transactional(readOnly = true)
     public List<SessionScatterResponse> getSessionScatter(int year) {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
         Long userId = authenticatedUser.getId();
@@ -512,7 +498,6 @@ public class ReadingSessionService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public ReadingStreakResponse getReadingStreak() {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
         Long userId = authenticatedUser.getId();
@@ -570,7 +555,6 @@ public class ReadingSessionService {
                 .build();
     }
 
-    @Transactional(readOnly = true)
     public List<BookTimelineResponse> getBookTimeline(int year) {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
         Long userId = authenticatedUser.getId();
@@ -620,7 +604,6 @@ public class ReadingSessionService {
     // Listening (audiobook) stats
     // ========================================================================
 
-    @Transactional(readOnly = true)
     public List<ListeningHeatmapResponse> getListeningHeatmapForMonth(int year, int month) {
         Long userId = authenticationService.getAuthenticatedUser().getId();
         return readingSessionRepository.findListeningSessionsByUserAndMonth(userId, year, month, getTimezoneOffset())
@@ -633,7 +616,6 @@ public class ReadingSessionService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public List<WeeklyListeningTrendResponse> getWeeklyListeningTrend(int weeks) {
         Long userId = authenticationService.getAuthenticatedUser().getId();
         return readingSessionRepository.findWeeklyListeningTrend(userId, weeks, getTimezoneOffset())
@@ -647,7 +629,6 @@ public class ReadingSessionService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public ListeningCompletionResponse getListeningCompletion() {
         Long userId = authenticationService.getAuthenticatedUser().getId();
         var progressList = readingSessionRepository.findAudiobookProgressByUser(userId);
@@ -684,7 +665,6 @@ public class ReadingSessionService {
                 .build();
     }
 
-    @Transactional(readOnly = true)
     public List<MonthlyPaceResponse> getMonthlyListeningPace(int months) {
         Long userId = authenticationService.getAuthenticatedUser().getId();
 
@@ -714,7 +694,6 @@ public class ReadingSessionService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public ListeningFinishFunnelResponse getListeningFinishFunnel() {
         Long userId = authenticationService.getAuthenticatedUser().getId();
         var progressList = readingSessionRepository.findAudiobookProgressByUser(userId);
@@ -745,7 +724,6 @@ public class ReadingSessionService {
                 .build();
     }
 
-    @Transactional(readOnly = true)
     public List<PeakHoursResponse> getListeningPeakHours(Integer year, Integer month) {
         Long userId = authenticationService.getAuthenticatedUser().getId();
         return readingSessionRepository.findListeningPeakHoursByUser(userId, year, month, getTimezoneOffset())
@@ -758,7 +736,6 @@ public class ReadingSessionService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public List<GenreStatisticsResponse> getListeningGenreStatistics() {
         Long userId = authenticationService.getAuthenticatedUser().getId();
         return readingSessionRepository.findListeningGenreStatisticsByUser(userId)
@@ -779,7 +756,6 @@ public class ReadingSessionService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public List<ListeningAuthorResponse> getListeningAuthorStats() {
         Long userId = authenticationService.getAuthenticatedUser().getId();
         return readingSessionRepository.findListeningAuthorStatsByUser(userId)
@@ -793,7 +769,6 @@ public class ReadingSessionService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public List<SessionScatterResponse> getListeningSessionScatter() {
         Long userId = authenticationService.getAuthenticatedUser().getId();
         return readingSessionRepository.findListeningSessionScatterByUser(userId, getTimezoneOffset())
@@ -806,7 +781,6 @@ public class ReadingSessionService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public List<LongestAudiobookResponse> getListeningLongestBooks() {
         Long userId = authenticationService.getAuthenticatedUser().getId();
         return readingSessionRepository.findAudiobookProgressByUser(userId)

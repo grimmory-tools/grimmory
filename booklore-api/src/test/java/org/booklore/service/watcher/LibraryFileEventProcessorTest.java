@@ -68,7 +68,7 @@ class LibraryFileEventProcessorTest {
                 .organizationMode(LibraryOrganizationMode.AUTO_DETECT)
                 .build();
 
-        when(libraryRepository.findById(1L)).thenReturn(Optional.of(library));
+        when(libraryRepository.findByIdWithPaths(1L)).thenReturn(Optional.of(library));
         when(bookFilePersistenceService.findMatchingLibraryPath(eq(library), any(Path.class)))
                 .thenReturn(tempDir.toString());
         when(bookFilePersistenceService.getLibraryPathEntityForFile(eq(library), eq(tempDir.toString())))

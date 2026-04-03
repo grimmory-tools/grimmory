@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { NgxExtendedPdfViewerModule, NgxExtendedPdfViewerService, pdfDefaultOptions, ZoomType } from 'ngx-extended-pdf-viewer';
 import { PageTitleService } from "../../../shared/service/page-title.service";
 import { BookService } from '../../book/service/book.service';
-import { forkJoin, from, Subject, Subscription } from 'rxjs';
+import { forkJoin, from, Observable, of, Subject, Subscription } from "rxjs";
 import { debounceTime, map, switchMap } from 'rxjs/operators';
 import { BookSetting } from '../../book/model/book.model';
 import { UserService } from '../../settings/user-management/user.service';
@@ -15,6 +15,8 @@ import { ReaderIconComponent } from '../../readers/ebook-reader/shared/icon.comp
 import { ProgressSpinner } from 'primeng/progressspinner';
 import { MessageService } from 'primeng/api';
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { CacheStorageService } from '../../../shared/service/cache-storage.service'
+import { LocalSettingsService } from '../../../shared/service/local-settings.service';
 import { ReadingSessionService } from '../../../shared/service/reading-session.service';
 import { WakeLockService } from '../../../shared/service/wake-lock.service';
 import { Location } from '@angular/common';
@@ -38,6 +40,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy, AfterViewInit {
   constructor() {
     pdfDefaultOptions.rangeChunkSize = 512 * 1024;
     pdfDefaultOptions.disableAutoFetch = true;
+    pdfDefaultOptions.disableStream = true;
   }
 
   isLoading = true;
@@ -97,6 +100,8 @@ export class PdfReaderComponent implements OnInit, OnDestroy, AfterViewInit {
   private location = inject(Location);
   private pdfViewerService = inject(NgxExtendedPdfViewerService);
   private pdfAnnotationService = inject(PdfAnnotationService);
+  private cacheStorageService = inject(CacheStorageService);
+  private localSettingsService = inject(LocalSettingsService);
   private readonly t = inject(TranslocoService);
   private wakeLockService = inject(WakeLockService);
   private annotationToolbarObserver?: MutationObserver;
@@ -131,9 +136,14 @@ export class PdfReaderComponent implements OnInit, OnDestroy, AfterViewInit {
             ]).pipe(map(([bookSetting, myself]) => ({ book, bookSetting, myself })));
           })
         );
+      }),
+      switchMap(({book, bookSetting, myself}) => {
+        return this.getBookData(this.bookId.toString(), this.altBookType).pipe(
+          map(bookData => ({book, bookSetting, myself, bookData}))
+        );
       })
     ).subscribe({
-      next: ({ book, bookSetting, myself }) => {
+      next: ({ book, bookSetting, myself, bookData }) => {
         const pdfMeta = book;
         const pdfPrefs = bookSetting;
 
@@ -151,9 +161,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy, AfterViewInit {
         }
         this.canPrint = myself.permissions.canDownload || myself.permissions.admin;
         this.page = pdfMeta.pdfProgress?.page || 1;
-        this.bookData = this.altBookType
-          ? `${API_CONFIG.BASE_URL}/api/v1/books/${this.bookId}/content?bookType=${this.altBookType}`
-          : `${API_CONFIG.BASE_URL}/api/v1/books/${this.bookId}/content`;
+        this.bookData = bookData;
         const token = this.authService.getInternalAccessToken();
         this.authorization = token ? `Bearer ${token}` : '';
         this.isLoading = false;
@@ -474,6 +482,10 @@ export class PdfReaderComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     this.updateProgress();
     document.removeEventListener('fullscreenchange', this.onFullscreenChange);
+
+    if (this.bookData?.startsWith('blob:')) {
+      URL.revokeObjectURL(this.bookData);
+    }
   }
 
   // --- Chrome auto-hide ---
@@ -583,6 +595,20 @@ export class PdfReaderComponent implements OnInit, OnDestroy, AfterViewInit {
       this.readingSessionService.endSession(this.page.toString(), percentage);
     }
     this.location.back();
+  }
+
+  private getBookData(
+    bookId: string,
+    fileType: string | undefined,
+  ): Observable<string> {
+    const uri = fileType
+      ? `${API_CONFIG.BASE_URL}/api/v1/books/${bookId}/content?bookType=${fileType}`
+      : `${API_CONFIG.BASE_URL}/api/v1/books/${bookId}/content`;
+    if (!this.localSettingsService.get().cacheStorageEnabled) return of(uri);
+    return from(this.cacheStorageService.getCache(uri)).pipe(
+      switchMap(res => res.blob()),
+      map(blob => URL.createObjectURL(blob))
+    )
   }
 
   private loadAnnotations(): void {
