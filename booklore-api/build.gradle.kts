@@ -53,9 +53,9 @@ dependencies {
     implementation("io.projectreactor:reactor-core")
 
     // --- Database & Migration ---
-    implementation("org.mariadb.jdbc:mariadb-java-client:3.5.7")
+    implementation("org.mariadb.jdbc:mariadb-java-client:3.5.8")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
-    implementation("org.flywaydb:flyway-mysql:12.2.0")
+    implementation("org.flywaydb:flyway-mysql:12.3.0")
 
     // --- Security & Authentication ---
     implementation("io.jsonwebtoken:jjwt-api:0.13.0")
@@ -110,7 +110,7 @@ dependencies {
     implementation("org.freemarker:freemarker:2.3.34")
 
     // --- Jackson 3 ---
-    implementation(platform("tools.jackson:jackson-bom:3.1.0"))
+    implementation(platform("tools.jackson:jackson-bom:3.1.1"))
     implementation("tools.jackson.core:jackson-core")
     implementation("tools.jackson.core:jackson-databind")
     implementation("tools.jackson.module:jackson-module-blackbird")

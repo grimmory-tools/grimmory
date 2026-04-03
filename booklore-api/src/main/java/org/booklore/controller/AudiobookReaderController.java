@@ -7,17 +7,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.booklore.util.FileUtils;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.nio.file.Path;
 
 @Slf4j
@@ -48,15 +45,13 @@ public class AudiobookReaderController {
     @ApiResponse(responseCode = "416", description = "Range not satisfiable")
     @CheckBookAccess(bookIdParam = "bookId")
     @GetMapping("/{bookId}/stream")
-    public void streamAudiobook(
+    public ResponseEntity<? extends Resource> streamAudiobook(
             @Parameter(description = "ID of the book") @PathVariable Long bookId,
             @Parameter(description = "Optional book type for alternative format") @RequestParam(required = false) String bookType,
-            @Parameter(description = "Track index for folder-based audiobooks (0-indexed)") @RequestParam(required = false) Integer trackIndex,
-            HttpServletRequest request,
-            HttpServletResponse response) throws IOException {
+            @Parameter(description = "Track index for folder-based audiobooks (0-indexed)") @RequestParam(required = false) Integer trackIndex) {
 
         Path audioPath = audiobookReaderService.getAudioFilePath(bookId, bookType, trackIndex);
-        audiobookReaderService.streamWithRangeSupport(audioPath, request, response);
+        return getFile(audioPath);
     }
 
     @Operation(summary = "Stream specific track", description = "Stream a specific track from a folder-based audiobook.")
@@ -65,15 +60,13 @@ public class AudiobookReaderController {
     @ApiResponse(responseCode = "416", description = "Range not satisfiable")
     @CheckBookAccess(bookIdParam = "bookId")
     @GetMapping("/{bookId}/track/{trackIndex}/stream")
-    public void streamTrack(
+    public ResponseEntity<? extends Resource> streamTrack(
             @Parameter(description = "ID of the book") @PathVariable Long bookId,
             @Parameter(description = "Track index (0-indexed)") @PathVariable Integer trackIndex,
-            @Parameter(description = "Optional book type for alternative format") @RequestParam(required = false) String bookType,
-            HttpServletRequest request,
-            HttpServletResponse response) throws IOException {
+            @Parameter(description = "Optional book type for alternative format") @RequestParam(required = false) String bookType) {
 
         Path audioPath = audiobookReaderService.getAudioFilePath(bookId, bookType, trackIndex);
-        audiobookReaderService.streamWithRangeSupport(audioPath, request, response);
+        return getFile(audioPath);
     }
 
     @Operation(summary = "Get embedded cover art",
@@ -99,5 +92,19 @@ public class AudiobookReaderController {
         headers.setCacheControl("public, max-age=86400");
 
         return new ResponseEntity<>(coverData, headers, HttpStatus.OK);
+    }
+
+    private ResponseEntity<FileSystemResource> getFile(Path filePath) {
+        Long lastModified = FileUtils.getFileLastModified(filePath);
+        ResponseEntity.BodyBuilder builder = ResponseEntity.ok();
+
+        if (lastModified != null) {
+            builder.lastModified(lastModified);
+        }
+
+        return builder
+                .cacheControl(CacheControl.noCache().cachePrivate())
+                .contentType(MediaTypeFactory.getMediaType(filePath.toString()).orElse(MediaType.APPLICATION_OCTET_STREAM))
+                .body(new FileSystemResource(filePath));
     }
 }
