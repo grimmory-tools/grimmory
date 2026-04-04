@@ -77,6 +77,14 @@ public class AnnotationSidecarService {
         }
     }
 
+    /**
+     * Converts annotations to a KOReader Lua string without writing to disk.
+     * Used by the KOReader sync API endpoint to return annotations over HTTP.
+     */
+    public String buildAnnotationsLua(Path bookPath, List<AnnotationEntity> annotations) {
+        return buildLua(bookPath, annotations);
+    }
+
     // Visible for testing
     static Path resolveSidecarPath(Path bookPath, String username) {
         Path sdrDir = Path.of(bookPath + ".sdr");

@@ -57,4 +57,12 @@ public class KoreaderController {
         koreaderService.saveProgress(koreaderProgress.getDocument(), koreaderProgress);
         return ResponseEntity.ok(Map.of("status", "progress updated"));
     }
+
+    @Operation(summary = "Get KoReader annotations", description = "Retrieve annotations for a book in KOReader Lua format.")
+    @ApiResponse(responseCode = "200", description = "Annotations returned successfully")
+    @GetMapping("/syncs/annotations/{bookHash}")
+    public ResponseEntity<String> getAnnotations(@Parameter(description = "Book hash") @PathVariable String bookHash) {
+        String lua = koreaderService.getAnnotations(bookHash);
+        return ResponseEntity.ok().contentType(MediaType.TEXT_PLAIN).body(lua);
+    }
 }

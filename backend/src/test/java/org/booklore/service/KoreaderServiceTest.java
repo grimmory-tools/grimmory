@@ -12,11 +12,14 @@ import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.model.entity.KoreaderUserEntity;
 import org.booklore.model.entity.UserBookProgressEntity;
 import org.booklore.model.enums.ReadStatus;
+import org.booklore.model.entity.AnnotationEntity;
+import org.booklore.repository.AnnotationRepository;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserBookProgressRepository;
 import org.booklore.repository.UserRepository;
 import org.booklore.repository.KoreaderUserRepository;
 import org.booklore.service.hardcover.HardcoverSyncService;
+import org.booklore.service.koreader.AnnotationSidecarService;
 import org.booklore.service.koreader.KoreaderService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +32,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.*;
 
 import java.lang.reflect.Method;
+import java.nio.file.Path;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -47,6 +52,10 @@ class KoreaderServiceTest {
     KoreaderUserRepository koreaderUserRepo;
     @Mock
     HardcoverSyncService hardcoverSyncService;
+    @Mock
+    AnnotationRepository annotationRepo;
+    @Mock
+    AnnotationSidecarService annotationSidecarService;
 
     @InjectMocks
     KoreaderService service;
@@ -263,6 +272,56 @@ class KoreaderServiceTest {
         when(details.isSyncEnabled()).thenReturn(false);
         var dto = KoreaderProgress.builder().document("h").build();
         assertThrows(APIException.class, () -> service.saveProgress("h", dto));
+    }
+
+    @Test
+    void getAnnotations_noAnnotations_returnsEmptyLua() {
+        when(details.isSyncEnabled()).thenReturn(true);
+        BookEntity book = new BookEntity();
+        book.setId(55L);
+        when(bookRepo.findByCurrentHash("h")).thenReturn(Optional.of(book));
+        when(annotationRepo.findByBookIdAndUserIdOrderByCreatedAtDesc(55L, 42L))
+                .thenReturn(List.of());
+        when(annotationSidecarService.buildAnnotationsLua(isNull(), eq(List.of())))
+                .thenReturn("-- KOReader bookmark file\n-- version: 1\n{\n    [\"highlights\"] = {\n    },\n    [\"bookmarks\"] = {},\n}\n");
+
+        String lua = service.getAnnotations("h");
+
+        assertNotNull(lua);
+        assertTrue(lua.contains("[\"highlights\"]"));
+        assertTrue(lua.contains("[\"bookmarks\"]"));
+    }
+
+    @Test
+    void getAnnotations_withAnnotations_delegatesToSidecarService() {
+        when(details.isSyncEnabled()).thenReturn(true);
+        BookEntity book = new BookEntity();
+        book.setId(56L);
+        when(bookRepo.findByCurrentHash("h")).thenReturn(Optional.of(book));
+        AnnotationEntity ann = mock(AnnotationEntity.class);
+        when(annotationRepo.findByBookIdAndUserIdOrderByCreatedAtDesc(56L, 42L))
+                .thenReturn(List.of(ann));
+        when(annotationSidecarService.buildAnnotationsLua(isNull(), eq(List.of(ann))))
+                .thenReturn("lua-content");
+
+        String result = service.getAnnotations("h");
+
+        assertEquals("lua-content", result);
+    }
+
+    @Test
+    void getAnnotations_unknownBook_throws() {
+        when(details.isSyncEnabled()).thenReturn(true);
+        when(bookRepo.findByCurrentHash("unknown")).thenReturn(Optional.empty());
+
+        assertThrows(APIException.class, () -> service.getAnnotations("unknown"));
+    }
+
+    @Test
+    void getAnnotations_syncDisabled_throws() {
+        when(details.isSyncEnabled()).thenReturn(false);
+
+        assertThrows(APIException.class, () -> service.getAnnotations("h"));
     }
 
     @Test

@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -32,6 +33,8 @@ public class KoreaderService {
     private final KoreaderUserRepository koreaderUserRepository;
     private final HardcoverSyncService hardcoverSyncService;
     private final EpubCfiService epubCfiService;
+    private final org.booklore.repository.AnnotationRepository annotationRepository;
+    private final AnnotationSidecarService annotationSidecarService;
 
     public ResponseEntity<Map<String, String>> authorizeUser() {
         KoreaderUserDetails authDetails = getAuthDetails();
@@ -63,6 +66,16 @@ public class KoreaderService {
                 .device("BookLore")
                 .device_id("BookLore")
                 .build();
+    }
+
+    public String getAnnotations(String bookHash) {
+        KoreaderUserDetails authDetails = getAuthDetailsWithSyncCheck();
+        BookEntity book = findBookByHash(bookHash);
+        List<org.booklore.model.entity.AnnotationEntity> annotations = annotationRepository
+                .findByBookIdAndUserIdOrderByCreatedAtDesc(book.getId(), authDetails.getBookLoreUserId());
+        log.info("getAnnotations: {} annotations for userId={} bookHash={}",
+                annotations.size(), authDetails.getBookLoreUserId(), bookHash);
+        return annotationSidecarService.buildAnnotationsLua(book.getFullFilePath(), annotations);
     }
 
     @Transactional
