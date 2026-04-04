@@ -69,7 +69,9 @@ public class AnnotationSidecarService {
             String lua = buildLua(bookPath, annotations);
             writeAtomic(sidecarPath, lua);
             log.info("Wrote annotation sidecar ({} annotations) to {}", annotations.size(), sidecarPath);
-        } catch (IOException e) {
+        } catch (Exception e) {
+            // Swallow all exceptions so a sidecar failure never propagates to the caller
+            // or rolls back a surrounding @Transactional.
             log.error("Failed to write annotation sidecar for book {} user {}: {}",
                     book.getId(), user.getUsername(), e.getMessage());
         }

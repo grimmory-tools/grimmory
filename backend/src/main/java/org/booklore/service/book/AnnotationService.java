@@ -12,6 +12,7 @@ import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.repository.AnnotationRepository;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserRepository;
+import org.booklore.service.koreader.AnnotationSidecarService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,7 @@ public class AnnotationService {
     private final UserRepository userRepository;
     private final AuthenticationService authenticationService;
     private final AnnotationMapper mapper;
+    private final AnnotationSidecarService annotationSidecarService;
 
     @Transactional(readOnly = true)
     public List<Annotation> getAnnotationsForBook(Long bookId) {
@@ -67,7 +69,9 @@ public class AnnotationService {
                 .build();
 
         log.info("Creating annotation for book {} by user {}", request.getBookId(), userId);
-        return mapper.toDto(annotationRepository.save(annotation));
+        Annotation saved = mapper.toDto(annotationRepository.save(annotation));
+        refreshSidecar(annotation.getBook(), annotation.getUser());
+        return saved;
     }
 
     @Transactional
@@ -77,7 +81,9 @@ public class AnnotationService {
         applyUpdates(annotation, request);
 
         log.info("Updating annotation {}", annotationId);
-        return mapper.toDto(annotationRepository.save(annotation));
+        Annotation updated = mapper.toDto(annotationRepository.save(annotation));
+        refreshSidecar(annotation.getBook(), annotation.getUser());
+        return updated;
     }
 
     @Transactional
@@ -85,6 +91,11 @@ public class AnnotationService {
         AnnotationEntity annotation = findAnnotationByIdAndUser(annotationId);
         log.info("Deleting annotation {}", annotationId);
         annotationRepository.delete(annotation);
+        BookEntity book = annotation.getBook();
+        BookLoreUserEntity user = annotation.getUser();
+        List<AnnotationEntity> remaining = annotationRepository
+                .findByBookIdAndUserIdOrderByCreatedAtDesc(book.getId(), user.getId());
+        annotationSidecarService.writeSidecar(book, user, remaining);
     }
 
     private Long getCurrentUserId() {
@@ -118,5 +129,11 @@ public class AnnotationService {
         Optional.ofNullable(request.getColor()).ifPresent(annotation::setColor);
         Optional.ofNullable(request.getStyle()).ifPresent(annotation::setStyle);
         Optional.ofNullable(request.getNote()).ifPresent(annotation::setNote);
+    }
+
+    private void refreshSidecar(BookEntity book, BookLoreUserEntity user) {
+        List<AnnotationEntity> all = annotationRepository
+                .findByBookIdAndUserIdOrderByCreatedAtDesc(book.getId(), user.getId());
+        annotationSidecarService.writeSidecar(book, user, all);
     }
 }
