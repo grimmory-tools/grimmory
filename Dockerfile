@@ -71,7 +71,7 @@ ENV JAVA_TOOL_OPTIONS="-XX:+UseShenandoahGC \
     -XX:+ExitOnOutOfMemoryError \
     -XX:+HeapDumpOnOutOfMemoryError \
     -XX:HeapDumpPath=/tmp/heapdump.hprof \
-    -XX:MaxMetaspaceSize=128m \
+    -XX:MaxMetaspaceSize=256m \
     -XX:ReservedCodeCacheSize=48m \
     -Xss512k \
     -XX:CICompilerCount=2 \
@@ -79,7 +79,7 @@ ENV JAVA_TOOL_OPTIONS="-XX:+UseShenandoahGC \
     -XX:+UseStringDeduplication \
     -XX:ShenandoahUncommitDelay=5000 \
     -XX:ShenandoahGuaranteedGCInterval=30000 \
-    -XX:MaxDirectMemorySize=128m"
+    -XX:MaxDirectMemorySize=256m"
 
 RUN apk add --no-cache su-exec libstdc++ libgcc libarchive && \
     mkdir -p /bookdrop
