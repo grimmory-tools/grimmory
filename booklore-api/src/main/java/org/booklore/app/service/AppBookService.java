@@ -99,6 +99,10 @@ public class AppBookService {
                     accessibleLibraryIds, userId, req);
             spec = spec.and(magicShelfBookService.toSpecification(userId, req.magicShelfId()));
 
+            if (Boolean.TRUE.equals(req.unshelved())) {
+                spec = spec.and(AppBookSpecification.unshelved());
+            }
+
             Page<BookEntity> bookPage = bookRepository.findAll(spec, pageable);
             return buildPageResponse(bookPage, userId, pageNum, pageSize);
         }
@@ -302,18 +306,21 @@ public class AppBookService {
 
         var booksPage = magicShelfBookService.getBooksByMagicShelfId(userId, magicShelfId, pageNum, pageSize);
 
-        Set<Long> bookIds = booksPage.getContent().stream()
+        List<Long> orderedBookIds = booksPage.getContent().stream()
                 .map(Book::getId)
-                .collect(Collectors.toSet());
+                .toList();
 
-        if (bookIds.isEmpty()) {
+        if (orderedBookIds.isEmpty()) {
             return AppPageResponse.of(Collections.emptyList(), pageNum, pageSize, 0L);
         }
 
-        List<BookEntity> bookEntities = bookRepository.findAllById(bookIds);
-        Map<Long, UserBookProgressEntity> progressMap = getProgressMapForBooks(userId, bookEntities);
+        Map<Long, BookEntity> bookEntitiesById = bookRepository.findAllById(orderedBookIds).stream()
+                .collect(Collectors.toMap(BookEntity::getId, Function.identity()));
+        Map<Long, UserBookProgressEntity> progressMap = getProgressMap(userId, bookEntitiesById.keySet());
 
-        List<AppBookSummary> summaries = bookEntities.stream()
+        List<AppBookSummary> summaries = orderedBookIds.stream()
+                .map(bookEntitiesById::get)
+                .filter(Objects::nonNull)
                 .filter(BookEntity::hasFiles)
                 .map(bookEntity -> mobileBookMapper.toSummary(bookEntity, progressMap.get(bookEntity.getId())))
                 .collect(Collectors.toList());

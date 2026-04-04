@@ -26,6 +26,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 
+import org.booklore.exception.APIException;
+
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -48,8 +50,8 @@ public class MagicShelfBookService {
 
     @Transactional(readOnly = true)
     public Page<Book> getBooksByMagicShelfId(Long userId, Long magicShelfId, int page, int size) {
+        Specification<BookEntity> specification = toSpecification(userId, magicShelfId);
         try {
-            Specification<BookEntity> specification = toSpecification(userId, magicShelfId);
             Pageable pageable = PageRequest.of(Math.max(page, 0), size);
 
             Page<BookEntity> booksPage = bookRepository.findAll(specification, pageable);
@@ -60,6 +62,8 @@ public class MagicShelfBookService {
                     .map(book -> filterBook(book, userId))
                     .toList();
             return new PageImpl<>(books, pageable, booksPage.getTotalElements());
+        } catch (APIException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Failed to parse or execute magic shelf rules", e);
             throw new RuntimeException("Failed to parse or execute magic shelf rules: " + e.getMessage(), e);
@@ -72,6 +76,8 @@ public class MagicShelfBookService {
             GroupRule groupRule = objectMapper.readValue(access.shelf().getFilterJson(), GroupRule.class);
             Specification<BookEntity> specification = ruleEvaluatorService.toSpecification(groupRule, userId);
             return specification.and(createLibraryFilterSpecification(access.user()));
+        } catch (APIException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Failed to parse magic shelf rules", e);
             throw new RuntimeException("Failed to parse magic shelf rules: " + e.getMessage(), e);
@@ -93,6 +99,8 @@ public class MagicShelfBookService {
             Page<BookEntity> booksPage = bookRepository.findAll(specification, pageable);
             List<BookEntity> filtered = contentRestrictionService.applyRestrictions(booksPage.getContent(), userId);
             return filtered.stream().map(BookEntity::getId).toList();
+        } catch (APIException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Failed to parse or execute magic shelf rules", e);
             throw new RuntimeException("Failed to parse or execute magic shelf rules: " + e.getMessage(), e);
