@@ -31,7 +31,13 @@ services:
       - ./shared/bookdrop:/bookdrop
   frontend:
     image: node:24-alpine
-    command: sh -c "cd /angular-app && corepack enable && corepack yarn install --immutable && corepack yarn ng serve --host 0.0.0.0 --watch --configuration development"
+    command: |-
+      sh -c "\
+      apk update && apk add --no-cache bash just;\
+      cd /angular-app &&\
+      corepack enable &&\
+      corepack yarn install --immutable &&\
+      corepack yarn ng serve --host 0.0.0.0 --watch --configuration development"
     environment:
       - NODE_ENV=development
     stdin_open: true
