@@ -60,7 +60,7 @@ public class DefaultUserSettingsProvider {
 
     private BookLoreUser.UserSettings.PdfReaderSetting buildDefaultPdfReaderSetting() {
         return BookLoreUser.UserSettings.PdfReaderSetting.builder()
-                .pageSpread("odd")
+                .pageSpread("off")
                 .pageZoom("page-fit")
                 .build();
     }

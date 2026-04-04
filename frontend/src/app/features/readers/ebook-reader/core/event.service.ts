@@ -69,7 +69,8 @@ export type ViewEvent =
   | { type: 'go-last-section' }
   | { type: 'toggle-toc' }
   | { type: 'toggle-search' }
-  | { type: 'toggle-notes' };
+  | { type: 'toggle-notes' }
+  | { type: 'toggle-immersive' };
 
 interface ViewCallbacks {
   prev: () => void;
@@ -217,6 +218,9 @@ export class ReaderEventService {
         event.preventDefault();
       } else if (k === 'n' || k === 'N') {
         this.eventSubject.next({type: 'toggle-notes'});
+        event.preventDefault();
+      } else if (k === 'i' || k === 'I') {
+        this.eventSubject.next({type: 'toggle-immersive'});
         event.preventDefault();
       } else if (k === '?') {
         this.eventSubject.next({type: 'toggle-shortcuts-help'});

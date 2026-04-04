@@ -29,4 +29,7 @@ public class PdfViewerPreferencesEntity {
 
     @Column(name = "spread")
     private String spread;
+
+    @Column(name = "is_dark_theme")
+    private Boolean isDarkTheme;
 }

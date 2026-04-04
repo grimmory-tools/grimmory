@@ -70,17 +70,17 @@
 .sidecar-section-header {
   margin-top: 1.5rem;
   padding-top: 1.5rem;
-  border-top: 1px solid var(--surface-border);
+  border-top: 1px solid var(--border-color);
 }
 
 .nested-setting {
   margin-left: 1.5rem;
   padding-left: 1rem;
-  border-left: 2px solid var(--surface-border);
+  border-left: 2px solid var(--border-color);
 }
 
 code {
-  background: var(--surface-ground);
+  background: var(--ground-background);
   padding: 0.125rem 0.375rem;
   border-radius: 4px;
   font-family: monospace;

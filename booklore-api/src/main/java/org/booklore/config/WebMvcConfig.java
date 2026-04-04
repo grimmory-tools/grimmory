@@ -42,9 +42,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
                     @Override
                     protected Resource getResource(String resourcePath, Resource location) throws IOException {
                         Resource resource = location.createRelative(resourcePath);
-                        return resource.exists() && resource.isReadable()
-                                ? resource
-                                : new ClassPathResource("/static/index.html");
+                        if (resource.exists() && resource.isReadable()) {
+                            return resource;
+                        }
+
+                        Resource index = new ClassPathResource("/static/index.html");
+                        return index.exists() && index.isReadable() ? index : null;
                     }
                 });
     }

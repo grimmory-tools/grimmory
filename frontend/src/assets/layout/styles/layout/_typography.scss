@@ -5,7 +5,7 @@ h1, h2, h3, h4, h5, h6 {
     font-family: inherit;
     font-weight: 500;
     line-height: 1.2;
-    color: var(--surface-900);
+    color: var(--high-contrast-text-color);
 
     &:first-child {
         margin-top: 0;
@@ -50,7 +50,7 @@ blockquote {
 }
 
 hr {
-    border-top: solid var(--surface-border);
+    border-top: solid var(--border-color);
     border-width: 1px 0 0;
     margin: 1rem 0;
 }

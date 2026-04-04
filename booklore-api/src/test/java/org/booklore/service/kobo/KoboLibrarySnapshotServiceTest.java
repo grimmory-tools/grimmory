@@ -72,11 +72,11 @@ class KoboLibrarySnapshotServiceTest {
         otherUser = BookLoreUserEntity.builder().id(2L).isDefaultPassword(false).build();
 
         LibraryEntity ownersLibrary = LibraryEntity.builder()
-                .users(List.of(owner))
+                .users(Set.of(owner))
                 .build();
 
         LibraryEntity othersLibrary = LibraryEntity.builder()
-                .users(List.of(otherUser))
+                .users(Set.of(otherUser))
                 .build();
 
         ownersBook = BookEntity.builder()

@@ -73,6 +73,13 @@ export class BookFilterComponent implements OnInit, OnDestroy {
 
   readonly filterLabelKeys = FILTER_LABEL_KEYS;
 
+  private readonly userSettingsEffect = effect(() => {
+    const user = this.userService.currentUser();
+    if (!user) return;
+    this._visibleFilters = user.userSettings.visibleFilters ?? [...DEFAULT_VISIBLE_FILTERS];
+    this.updateVisibleFilterTypes();
+  });
+
   getFilterLabel(type: FilterType): string {
     const key = this.filterLabelKeys[type];
     return key ? this.t.translate(key) : type;
@@ -99,7 +106,6 @@ export class BookFilterComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.updateVisibleFilterTypes();
     this.updateExpandedPanels();
-    this.subscribeToUserSettings();
     this.subscribeToReset();
   }
 
@@ -162,15 +168,6 @@ export class BookFilterComponent implements OnInit, OnDestroy {
       return String(value.name ?? '');
     }
     return String(value ?? '');
-  }
-
-  private subscribeToUserSettings(): void {
-    effect(() => {
-      const user = this.userService.currentUser();
-      if (!user) return;
-      this._visibleFilters = user.userSettings.visibleFilters ?? [...DEFAULT_VISIBLE_FILTERS];
-      this.updateVisibleFilterTypes();
-    });
   }
 
   private updateVisibleFilterTypes(): void {

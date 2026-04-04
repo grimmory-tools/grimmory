@@ -465,47 +465,5 @@ class BookServiceTest {
         Set<Shelf> result = bookService.filterShelvesByUserId(null, 1L);
         assertTrue(result.isEmpty());
     }
-    @Mock
-    private org.booklore.service.FileStreamingService fileStreamingService;
-
-    @Test
-    void streamBookContent_delegatesToStreamingService() throws Exception {
-        BookEntity entity = new BookEntity();
-        entity.setId(15L);
-        BookFileEntity primaryFile = new BookFileEntity();
-        primaryFile.setBook(entity);
-        primaryFile.setBookType(BookFileType.EPUB);
-        primaryFile.setFileSubPath("");
-        primaryFile.setFileName("book.epub");
-        // Ensure bookFiles list is populated to avoid IndexOutOfBounds or similar if logic accesses it
-        entity.setBookFiles(List.of(primaryFile));
-
-        when(bookRepository.findByIdWithBookFiles(15L)).thenReturn(Optional.of(entity));
-
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-
-        // We don't need to mock FileUtils static method if we set up the entity correctly
-        // But streamBookContent calls FileUtils.getBookFullPath(bookEntity) if bookType is null.
-        // Let's passed bookType="EPUB" to hit the specific branch, or null to hit default.
-        // The code uses:
-        // if (bookType != null) { ... } else { filePath = FileUtils.getBookFullPath(bookEntity); }
-        // Let's test the specific type path first as it isolates logic better,
-        // OR test the null path which is likely what the browser uses.
-        // The original error was "Cannot lazily initialize collection... getPrimaryBookFile... FileUtils.getBookFullPath"
-        // So I should test the `bookType = null` case which triggers `FileUtils.getBookFullPath`.
-
-        // However, `FileUtils.getBookFullPath` is static. I may need to mock it or ensure it works with the entity.
-        // `FileUtils.getBookFullPath` calls `book.getPrimaryBookFile()`.
-
-        try (MockedStatic<FileUtils> fileUtilsMock = mockStatic(FileUtils.class)) {
-            fileUtilsMock.when(() -> FileUtils.getBookFullPath(entity)).thenReturn(epubPath);
-
-            bookService.streamBookContent(15L, null, request, response);
-
-            verify(bookRepository).findByIdWithBookFiles(15L);
-            verify(fileStreamingService).streamWithRangeSupport(eq(epubPath), eq("application/epub+zip"), eq(request), eq(response));
-        }
-    }
-
+    
 }

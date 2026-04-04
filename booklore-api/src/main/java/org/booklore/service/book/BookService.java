@@ -1,6 +1,5 @@
 package org.booklore.service.book;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,18 +22,14 @@ import org.booklore.service.progress.ReadingProgressService;
 import org.booklore.util.BookUtils;
 import org.booklore.util.FileService;
 import org.booklore.util.FileUtils;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,12 +39,14 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
 @AllArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class BookService {
 
     private final BookRepository bookRepository;
@@ -72,7 +69,6 @@ public class BookService {
     private final AuditService auditService;
 
 
-    @Transactional(readOnly = true)
     public List<Book> getBookDTOs(boolean includeDescription, boolean stripForListView) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         boolean isAdmin = user.getPermissions().isAdmin();
@@ -105,12 +101,42 @@ public class BookService {
         return books;
     }
 
+    public Page<Book> getBookDTOsPaged(Pageable pageable) {
+        BookLoreUser user = authenticationService.getAuthenticatedUser();
+        boolean isAdmin = user.getPermissions().isAdmin();
+
+        Page<Book> bookPage = isAdmin
+                ? bookQueryService.getAllBooksPaged(pageable)
+                : bookQueryService.getAllBooksByLibraryIdsPaged(
+                getUserLibraryIds(user),
+                user.getId(),
+                pageable
+        );
+
+        Set<Long> bookIds = bookPage.getContent().stream().map(Book::getId).collect(Collectors.toSet());
+        Map<Long, UserBookProgressEntity> progressMap =
+                readingProgressService.fetchUserProgress(user.getId(), bookIds);
+        Map<Long, UserBookFileProgressEntity> fileProgressMap =
+                readingProgressService.fetchUserFileProgress(user.getId(), bookIds);
+
+        bookPage.getContent().forEach(book -> {
+            readingProgressService.enrichBookWithProgress(
+                    book,
+                    progressMap.get(book.getId()),
+                    fileProgressMap.get(book.getId())
+            );
+            Set<Shelf> filtered = filterShelvesByUserId(book.getShelves(), user.getId());
+            book.setShelves(filtered != null && filtered.isEmpty() ? null : filtered);
+        });
+
+        return bookPage;
+    }
+
     private Set<Long> getUserLibraryIds(BookLoreUser user) {
         return user.getAssignedLibraries().stream()
                 .map(Library::getId)
                 .collect(Collectors.toSet());
     }
-    @Transactional(readOnly = true)
     public List<Book> getBooksByIds(Set<Long> bookIds, boolean withDescription) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         boolean isAdmin = user.getPermissions().isAdmin();
@@ -143,7 +169,6 @@ public class BookService {
         }).collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public Book getBook(long bookId, boolean withDescription) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
@@ -168,7 +193,6 @@ public class BookService {
     }
 
 
-    @Transactional(readOnly = true)
     public BookViewerSettings getBookViewerSetting(long bookId, long bookFileId) {
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
         BookLoreUser user = authenticationService.getAuthenticatedUser();
@@ -206,6 +230,7 @@ public class BookService {
                             .bookId(bookId)
                             .zoom(pdfPref.getZoom())
                             .spread(pdfPref.getSpread())
+                            .isDarkTheme(pdfPref.getIsDarkTheme())
                             .build()));
             newPdfViewerPreferencesRepository.findByBookIdAndUserId(bookId, user.getId())
                     .ifPresent(pdfPref -> settingsBuilder.newPdfSettings(NewPdfViewerPreferences.builder()
@@ -232,6 +257,7 @@ public class BookService {
         return settingsBuilder.build();
     }
 
+    @Transactional
     public void updateBookViewerSetting(long bookId, BookViewerSettings bookViewerSettings) {
         bookUpdateService.updateBookViewerSetting(bookId, bookViewerSettings);
     }
@@ -346,41 +372,36 @@ public class BookService {
         if (!file.exists()) {
             throw ApiError.FILE_NOT_FOUND.createException(filePath);
         }
-        Resource resource = new FileSystemResource(file);
-        return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .contentLength(file.length())
-                .body(resource);
+        Long lastModified = FileUtils.getFileLastModified(Path.of(filePath));
+        ResponseEntity.BodyBuilder builder = ResponseEntity.ok();
+
+        if (lastModified != null) {
+            builder.lastModified(lastModified);
+        }
+
+        return builder
+                .cacheControl(CacheControl.noCache().cachePrivate())
+                .contentType(MediaTypeFactory.getMediaType(filePath).orElse(MediaType.APPLICATION_OCTET_STREAM))
+                .body(new FileSystemResource(file));
     }
 
-    public void streamBookContent(long bookId, String bookType, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
-        String filePath;
+    public void replaceBookContent(long bookId, String bookType, java.io.InputStream content) throws IOException {
+        BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId)
+                .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
+
+        Path filePath;
         if (bookType != null) {
             BookFileType requestedType = BookFileType.valueOf(bookType.toUpperCase());
             BookFileEntity bookFile = bookEntity.getBookFiles().stream()
                     .filter(bf -> bf.getBookType() == requestedType)
                     .findFirst()
                     .orElseThrow(() -> ApiError.FILE_NOT_FOUND.createException("No file of type " + bookType + " found for book"));
-            filePath = bookFile.getFullFilePath().toString();
+            filePath = bookFile.getFullFilePath();
         } else {
-            filePath = FileUtils.getBookFullPath(bookEntity).toString();
+            filePath = FileUtils.getBookFullPath(bookEntity);
         }
 
-        Path path = Paths.get(filePath);
-        String fileName = path.getFileName().toString();
-        String extension = fileName.contains(".") ? fileName.substring(fileName.lastIndexOf('.') + 1) : "";
-        String contentType = switch (extension.toLowerCase()) {
-            case "pdf" -> "application/pdf";
-            case "epub" -> "application/epub+zip";
-            case "mobi", "azw3" -> "application/x-mobipocket-ebook";
-            case "cbz" -> "application/vnd.comicbook+zip";
-            case "cbr" -> "application/vnd.comicbook-rar";
-            case "fb2" -> "application/x-fictionbook+xml";
-            default -> "application/octet-stream";
-        };
-
-        fileStreamingService.streamWithRangeSupport(path, contentType, request, response);
+        Files.copy(content, filePath, StandardCopyOption.REPLACE_EXISTING);
     }
 
     @Transactional

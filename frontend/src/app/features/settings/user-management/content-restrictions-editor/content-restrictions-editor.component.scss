@@ -5,10 +5,10 @@
 }
 
 .add-restriction-form {
-  background: var(--surface-ground);
+  background: var(--ground-background);
   border-radius: 8px;
   padding: 1rem;
-  border: 1px solid var(--surface-border);
+  border: 1px solid var(--border-color);
 
   .form-row {
     display: flex;
@@ -76,10 +76,10 @@
 }
 
 .restrictions-group {
-  background: var(--surface-ground);
+  background: var(--ground-background);
   border-radius: 8px;
   padding: 1rem;
-  border: 1px solid var(--surface-border);
+  border: 1px solid var(--border-color);
 
   .group-title {
     display: flex;

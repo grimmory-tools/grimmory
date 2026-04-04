@@ -186,10 +186,14 @@
                         class="delete-checkbox">
                       </p-checkbox>
                     }
-                    <img class="book-cover"
-                         [src]="urlHelper.getThumbnailUrl(book.id, book.metadata?.coverUpdatedOn)"
-                         [alt]="book.metadata?.title || ''"
-                         loading="lazy"/>
+                    @if (urlHelper.getThumbnailUrl(book.id, book.metadata?.coverUpdatedOn); as coverUrl) {
+                      <img class="book-cover"
+                           [src]="coverUrl"
+                           [alt]="book.metadata?.title || ''"
+                           loading="lazy"/>
+                    } @else {
+                      <app-cover-placeholder class="book-cover" [title]="book.metadata?.title ?? ''" [author]="(book.metadata?.authors ?? []).join(', ')" size="sm" />
+                    }
                     <div class="book-info">
                       <div class="book-title">{{ book.metadata?.title || ('book.fileAttacher.unknownTitle' | transloco) }}</div>
                       @if (book.metadata?.authors?.length) {

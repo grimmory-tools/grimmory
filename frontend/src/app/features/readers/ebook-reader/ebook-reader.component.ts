@@ -33,6 +33,7 @@ import {NoteDialogResult, ReaderNoteDialogComponent} from './dialogs/note-dialog
 import {EbookShortcutsHelpComponent} from './dialogs/shortcuts-help.component';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {RelocateProgressData} from './state/progress.service';
+import {WakeLockService} from '../../../shared/service/wake-lock.service';
 
 @Component({
   selector: 'app-ebook-reader',
@@ -83,6 +84,7 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
   private selectionService = inject(ReaderSelectionService);
   private headerService = inject(ReaderHeaderService);
   private noteService = inject(ReaderNoteService);
+  private wakeLockService = inject(WakeLockService);
 
   public sidebarService = inject(ReaderSidebarService);
   public leftSidebarService = inject(ReaderLeftSidebarService);
@@ -108,6 +110,8 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
   sectionFractions: number[] = [];
   isFullscreen = false;
   showShortcutsHelp = false;
+  immersiveMode = false;
+  private immersiveAutoHideTimer?: ReturnType<typeof setTimeout>;
 
   readonly readerState = this.stateService.state;
   readonly selectionState = this.selectionService.state;
@@ -161,6 +165,9 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.showShortcutsHelp = true);
 
+    // Enable wake lock after a short delay
+    setTimeout(() => this.wakeLockService.enable(), 1000);
+
     this.isLoading = true;
     this.initializeFoliate().pipe(
       switchMap(() => this.epubCustomFontService.loadAndCacheFonts()),
@@ -180,6 +187,7 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.wakeLockService.disable();
     this.destroy$.next();
     this.destroy$.complete();
     this.viewManager.destroy();
@@ -193,6 +201,9 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
     this.noteService.reset();
     this.epubCustomFontService.cleanup();
 
+    if (this.immersiveAutoHideTimer) {
+      clearTimeout(this.immersiveAutoHideTimer);
+    }
     if (this._fileUrl) {
       URL.revokeObjectURL(this._fileUrl);
       this._fileUrl = null;
@@ -315,7 +326,11 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
             }, 500);
             break;
           case 'middle-single-tap':
-            this.toggleHeaderNavbarPinned();
+            if (this.immersiveMode) {
+              this.immersiveTemporaryShow();
+            } else {
+              this.toggleHeaderNavbarPinned();
+            }
             break;
           case 'text-selected':
             this.selectionService.handleTextSelected(event.detail, event.popupPosition);
@@ -325,6 +340,9 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
             break;
           case 'toggle-shortcuts-help':
             this.showShortcutsHelp = !this.showShortcutsHelp;
+            break;
+          case 'toggle-immersive':
+            this.toggleImmersiveMode();
             break;
           case 'go-first-section':
             this.viewManager.goToSection(0).subscribe();
@@ -440,6 +458,24 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
 
   onFooterTriggerZoneEnter(): void {
     this.visibilityManager.handleFooterZoneEnter();
+  }
+
+  toggleImmersiveMode(): void {
+    this.immersiveMode = !this.immersiveMode;
+    if (this.immersiveMode) {
+      this.visibilityManager.setImmersive(true);
+    } else {
+      this.visibilityManager.setImmersive(false);
+    }
+  }
+
+  private immersiveTemporaryShow(): void {
+    if (!this.immersiveMode) return;
+    this.visibilityManager.temporaryShow();
+    if (this.immersiveAutoHideTimer) clearTimeout(this.immersiveAutoHideTimer);
+    this.immersiveAutoHideTimer = setTimeout(() => {
+      this.visibilityManager.hideTemporary();
+    }, 3000);
   }
 
   handleSelectionAction(action: TextSelectionAction): void {

@@ -1,5 +1,6 @@
 {
   "topbar": {
+    "toggleNavigation": "Toggle navigation",
     "bookdrop": "书籍投递",
     "createNewLibrary": "创建新书库",
     "uploadBook": "上传书籍",
@@ -18,6 +19,7 @@
     "readingStats": "阅读统计"
   },
   "menu": {
+    "adjustSidebarWidth": "Adjust sidebar width",
     "home": "首页",
     "dashboard": "仪表板",
     "allBooks": "所有书籍",
@@ -30,6 +32,7 @@
     "update": "（更新）",
     "authors": "作者"
   },
+  "closeNavigation": "Close navigation",
   "changelog": {
     "title": "最新动态",
     "description": "最新更新和改进",

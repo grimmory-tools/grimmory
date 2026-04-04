@@ -37,6 +37,7 @@ public class TaskController {
     }
 
     @PostMapping("/start")
+    @PreAuthorize("@securityUtil.canAccessTaskManager() or @securityUtil.isAdmin()")
     public ResponseEntity<TaskCreateResponse> startTask(@RequestBody TaskCreateRequest request) {
         TaskCreateResponse response = service.runAsUser(request);
         if (response.getStatus() == TaskStatus.ACCEPTED) {

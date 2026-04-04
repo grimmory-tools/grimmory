@@ -146,6 +146,7 @@ public class BookCoverController {
     @Operation(summary = "Get cover images for a book", description = "Fetch cover images for a book.")
     @ApiResponse(responseCode = "200", description = "Cover images returned successfully")
     @PostMapping("/{bookId}/metadata/covers")
+    @PreAuthorize("@securityUtil.canEditMetadata() or @securityUtil.isAdmin()")
     public ResponseEntity<List<CoverImage>> getImages(@Parameter(description = "Cover fetch request") @RequestBody CoverFetchRequest request) {
         return ResponseEntity.ok(duckDuckGoCoverService.getCovers(request));
     }
