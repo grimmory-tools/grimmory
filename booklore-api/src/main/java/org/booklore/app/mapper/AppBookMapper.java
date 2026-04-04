@@ -2,6 +2,7 @@ package org.booklore.app.mapper;
 
 import org.booklore.app.dto.AppBookDetail;
 import org.booklore.app.dto.AppBookFile;
+import org.booklore.app.dto.AppBookProgressResponse;
 import org.booklore.app.dto.AppBookSummary;
 import org.booklore.app.dto.AppLibrarySummary;
 import org.booklore.app.dto.AppMagicShelfSummary;
@@ -72,6 +73,20 @@ public interface AppBookMapper {
     @Mapping(target = "audiobookProgress", source = "fileProgress", qualifiedByName = "mapAudiobookProgress")
     @Mapping(target = "koreaderProgress", source = "progress", qualifiedByName = "mapKoreaderProgress")
     AppBookDetail toDetail(BookEntity book, UserBookProgressEntity progress, UserBookFileProgressEntity fileProgress);
+
+    default AppBookProgressResponse toProgressResponse(UserBookProgressEntity progress, UserBookFileProgressEntity fileProgress) {
+        return AppBookProgressResponse.builder()
+                .readProgress(mapReadProgress(progress))
+                .readStatus(progress != null && progress.getReadStatus() != null
+                        ? progress.getReadStatus().name() : null)
+                .lastReadTime(progress != null ? progress.getLastReadTime() : null)
+                .epubProgress(mapEpubProgress(progress))
+                .pdfProgress(mapPdfProgress(progress))
+                .cbxProgress(mapCbxProgress(progress))
+                .audiobookProgress(mapAudiobookProgress(fileProgress))
+                .koreaderProgress(mapKoreaderProgress(progress))
+                .build();
+    }
 
     @Named("mapAuthors")
     default List<String> mapAuthors(List<AuthorEntity> authors) {

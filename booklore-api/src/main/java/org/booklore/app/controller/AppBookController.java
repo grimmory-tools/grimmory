@@ -2,6 +2,7 @@ package org.booklore.app.controller;
 
 import org.booklore.app.dto.*;
 import org.booklore.app.service.AppBookService;
+import org.booklore.model.dto.request.ReadProgressRequest;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.ReadStatus;
 import jakarta.validation.Valid;
@@ -44,6 +45,22 @@ public class AppBookController {
             @PathVariable Long bookId) {
 
         return ResponseEntity.ok(mobileBookService.getBookDetail(bookId));
+    }
+
+    @GetMapping("/{bookId}/progress")
+    public ResponseEntity<AppBookProgressResponse> getBookProgress(
+            @PathVariable Long bookId) {
+
+        return ResponseEntity.ok(mobileBookService.getBookProgress(bookId));
+    }
+
+    @PutMapping("/{bookId}/progress")
+    public ResponseEntity<Void> updateBookProgress(
+            @PathVariable Long bookId,
+            @Valid @RequestBody ReadProgressRequest request) {
+
+        mobileBookService.updateBookProgress(bookId, request);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/search")
