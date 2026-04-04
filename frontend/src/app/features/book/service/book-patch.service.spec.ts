@@ -95,7 +95,8 @@ describe('BookPatchService', () => {
     ]);
 
     expect(queryClient.setQueryData).toHaveBeenCalledWith(BOOKS_QUERY_KEY, expect.any(Function));
-    expect(queryClient.invalidateQueries).toHaveBeenCalledTimes(2);
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: ['app-books']});
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: ['app-filter-options']});
   });
 
   it('updates cached date finished after the backend accepts the change', () => {
@@ -128,7 +129,8 @@ describe('BookPatchService', () => {
     ]);
 
     expect(queryClient.setQueryData).toHaveBeenCalledWith(BOOKS_QUERY_KEY, expect.any(Function));
-    expect(queryClient.invalidateQueries).toHaveBeenCalledTimes(2);
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: ['app-books']});
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: ['app-filter-options']});
   });
 
   it('updates the cached last read timestamp without calling the backend', () => {

@@ -18,6 +18,7 @@ import {
   bookRecommendationsQueryKey,
 } from './book-query-keys';
 import {
+  invalidateAppBooksQueries,
   invalidateBooksQuery,
   patchBooksInCache,
   removeBookQueries,
@@ -137,6 +138,7 @@ export class BookService {
         shelves: book.shelves?.filter(shelf => shelf.id !== shelfId),
       }))
     );
+    invalidateAppBooksQueries(this.queryClient);
   }
 
   /*------------------ Book Retrieval ------------------*/
