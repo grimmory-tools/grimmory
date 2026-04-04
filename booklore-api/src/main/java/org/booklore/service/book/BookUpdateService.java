@@ -1,5 +1,6 @@
 package org.booklore.service.book;
 
+import org.booklore.util.BookUtils;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.ApiError;
 import org.booklore.mapper.BookMapper;
@@ -362,9 +363,6 @@ public class BookUpdateService {
     }
 
     private Set<Shelf> filterShelvesByUserId(Set<Shelf> shelves, Long userId) {
-        if (shelves == null) return Collections.emptySet();
-        return shelves.stream()
-                .filter(shelf -> userId.equals(shelf.getUserId()))
-                .collect(Collectors.toSet());
+        return BookUtils.filterShelvesByUserId(shelves, userId);
     }
 }

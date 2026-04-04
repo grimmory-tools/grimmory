@@ -14,7 +14,7 @@ RUN --mount=type=cache,target=/workspace/.yarn/cache \
     --mount=type=cache,target=/workspace/frontend/.angular/cache \
     CI=1 NG_CLI_ANALYTICS=false corepack yarn build:prod
 
-FROM --platform=$BUILDPLATFORM gradle:9.3.1-jdk25-alpine AS backend-build
+FROM --platform=$BUILDPLATFORM gradle:9.4.1-jdk25-alpine AS backend-build
 
 ARG TARGETARCH
 
