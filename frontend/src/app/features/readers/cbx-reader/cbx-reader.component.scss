@@ -19,7 +19,6 @@
   // RTL reading mode - reverse page order in two-page view
   &.rtl-reading {
     .two-page-view {
-
       .pages-wrapper,
       .previous-page-layer,
       .current-page-layer {
@@ -190,7 +189,6 @@
       }
 
       &.fit-width {
-
         .pages-wrapper,
         .previous-page-layer,
         .current-page-layer {
@@ -208,7 +206,6 @@
         }
 
         &.two-page-view {
-
           .pages-wrapper,
           .previous-page-layer,
           .current-page-layer {
@@ -225,7 +222,6 @@
       }
 
       &.fit-height {
-
         .pages-wrapper,
         .previous-page-layer,
         .current-page-layer {
@@ -660,7 +656,6 @@
 
 // Emulate book mode spine shadow in two-page view
 .image-container.emulate-book {
-
   .pages-wrapper,
   .current-page-layer {
     position: relative;

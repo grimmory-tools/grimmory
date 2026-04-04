@@ -1,4 +1,4 @@
-import {Component, ElementRef, HostListener, computed, inject, signal} from '@angular/core';
+import {Component, ElementRef, HostListener, computed, inject, signal, ViewChild} from '@angular/core';
 import {toObservable, toSignal} from '@angular/core/rxjs-interop';
 import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
 import {Book} from '../../model/book.model';
@@ -15,6 +15,7 @@ import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
 import {filterBooksBySearchTerm} from '../book-browser/filters/HeaderFilter';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {Popover} from 'primeng/popover';
 
 @Component({
   selector: 'app-book-searcher',
@@ -29,6 +30,7 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
     InputIcon,
     TranslocoDirective,
     CoverPlaceholderComponent,
+    Popover,
   ],
   styleUrls: ['./book-searcher.component.scss'],
   standalone: true
@@ -61,6 +63,8 @@ export class BookSearcherComponent {
   private readonly t = inject(TranslocoService);
   private elRef = inject(ElementRef);
 
+  @ViewChild('resultsPopover') resultsPopover?: Popover;
+
   get books(): Book[] {
     return this.filteredBooks();
   }
@@ -91,6 +95,19 @@ export class BookSearcherComponent {
   onSearchInputChange(): void {
     this.searchTerm.set(this.searchQuery.trim());
     this.activeIndex = -1;
+
+    if (this.isDropdownOpen) {
+      setTimeout(() => this.showPopover());
+    } else {
+      this.resultsPopover?.hide();
+    }
+  }
+
+  private showPopover(): void {
+    if (this.resultsPopover) {
+      const inputElement = this.elRef.nativeElement.querySelector('.search-input');
+      this.resultsPopover.show(null, inputElement);
+    }
   }
 
   onBookClick(book: Book): void {
@@ -104,6 +121,7 @@ export class BookSearcherComponent {
     this.searchQuery = '';
     this.searchTerm.set('');
     this.activeIndex = -1;
+    this.resultsPopover?.hide();
   }
 
   get isDropdownOpen(): boolean {
