@@ -1,8 +1,5 @@
 > [!NOTE]
-> This project is in early development. Some links (website, documentation, demo, repositories) are not yet active and will come online as infrastructure is set up.
-
-> [!NOTE]
-> Grimmory is the successor of booklore.
+> Grimmory is an independent community fork of Booklore.
 
 
 Grimmory is a self-hosted application for managing your entire book collection in one place.
@@ -93,7 +90,7 @@ MYSQL_DATABASE=grimmory
 Stable images are published from semantic-release tags on `main` as `vX.Y.Z` plus `latest`. Nightly images are built from `develop` and tagged `nightly`.
 
 > [!NOTE]
-> Upgrading from an existing Booklore container? Keep your current service name, `container_name`, database name/user, ports, and mounted volumes exactly as they are and replace only the `image:` line with `grimmory/grimmory:<tag>` or `ghcr.io/grimmory-tools/grimmory:<tag>`.
+> Migrating from an existing Booklore container? You can keep your current service name, `container_name`, database name and user, ports, and mounted volumes the same. Replace only the `image:` line with `grimmory/grimmory:<tag>` or `ghcr.io/grimmory-tools/grimmory:<tag>`.
 
 ```yaml
 services:
