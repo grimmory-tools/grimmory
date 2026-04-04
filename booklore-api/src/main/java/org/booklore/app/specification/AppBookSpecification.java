@@ -17,6 +17,16 @@ public class AppBookSpecification {
     private AppBookSpecification() {
     }
 
+    @SuppressWarnings("unchecked")
+    private static <X, Y> Join<X, Y> getOrCreateJoin(From<?, X> from, String attribute, JoinType joinType) {
+        for (Join<X, ?> join : from.getJoins()) {
+            if (join.getAttribute().getName().equals(attribute) && join.getJoinType() == joinType) {
+                return (Join<X, Y>) join;
+            }
+        }
+        return from.join(attribute, joinType);
+    }
+
     public static Specification<BookEntity> inLibraries(Collection<Long> libraryIds) {
         return (root, query, cb) -> {
             if (libraryIds == null || libraryIds.isEmpty()) {
@@ -210,7 +220,7 @@ public class AppBookSpecification {
             if (authorName == null || authorName.trim().isEmpty()) {
                 return cb.conjunction();
             }
-            Join<BookEntity, BookMetadataEntity> metadataJoin = root.join("metadata", JoinType.INNER);
+            Join<BookEntity, BookMetadataEntity> metadataJoin = getOrCreateJoin(root, "metadata", JoinType.INNER);
             Join<BookMetadataEntity, AuthorEntity> authorsJoin = metadataJoin.join("authors", JoinType.INNER);
             query.distinct(true);
             return cb.equal(cb.lower(authorsJoin.get("name")), authorName.toLowerCase().trim());
@@ -225,7 +235,7 @@ public class AppBookSpecification {
             if (language == null || language.trim().isEmpty()) {
                 return cb.conjunction();
             }
-            Join<BookEntity, BookMetadataEntity> metadataJoin = root.join("metadata", JoinType.INNER);
+            Join<BookEntity, BookMetadataEntity> metadataJoin = getOrCreateJoin(root, "metadata", JoinType.INNER);
             return cb.equal(cb.lower(metadataJoin.get("language")), language.toLowerCase().trim());
         };
     }
@@ -235,8 +245,8 @@ public class AppBookSpecification {
             if (seriesName == null || seriesName.trim().isEmpty()) {
                 return cb.conjunction();
             }
-            Join<BookEntity, BookMetadataEntity> metadataJoin = root.join("metadata", JoinType.INNER);
-            return cb.equal(metadataJoin.get("seriesName"), seriesName);
+            Join<BookEntity, BookMetadataEntity> metadataJoin = getOrCreateJoin(root, "metadata", JoinType.INNER);
+            return cb.equal(cb.lower(metadataJoin.get("seriesName")), seriesName.toLowerCase().trim());
         };
     }
 
@@ -245,7 +255,7 @@ public class AppBookSpecification {
             if (categoryName == null || categoryName.trim().isEmpty()) {
                 return cb.conjunction();
             }
-            Join<BookEntity, BookMetadataEntity> metadataJoin = root.join("metadata", JoinType.INNER);
+            Join<BookEntity, BookMetadataEntity> metadataJoin = getOrCreateJoin(root, "metadata", JoinType.INNER);
             Join<BookMetadataEntity, CategoryEntity> categoriesJoin = metadataJoin.join("categories", JoinType.INNER);
             query.distinct(true);
             return cb.equal(cb.lower(categoriesJoin.get("name")), categoryName.toLowerCase().trim());
@@ -257,7 +267,7 @@ public class AppBookSpecification {
             if (publisher == null || publisher.trim().isEmpty()) {
                 return cb.conjunction();
             }
-            Join<BookEntity, BookMetadataEntity> metadataJoin = root.join("metadata", JoinType.INNER);
+            Join<BookEntity, BookMetadataEntity> metadataJoin = getOrCreateJoin(root, "metadata", JoinType.INNER);
             return cb.equal(cb.lower(metadataJoin.get("publisher")), publisher.toLowerCase().trim());
         };
     }
@@ -267,7 +277,7 @@ public class AppBookSpecification {
             if (tagName == null || tagName.trim().isEmpty()) {
                 return cb.conjunction();
             }
-            Join<BookEntity, BookMetadataEntity> metadataJoin = root.join("metadata", JoinType.INNER);
+            Join<BookEntity, BookMetadataEntity> metadataJoin = getOrCreateJoin(root, "metadata", JoinType.INNER);
             Join<BookMetadataEntity, TagEntity> tagsJoin = metadataJoin.join("tags", JoinType.INNER);
             query.distinct(true);
             return cb.equal(cb.lower(tagsJoin.get("name")), tagName.toLowerCase().trim());
@@ -279,7 +289,7 @@ public class AppBookSpecification {
             if (moodName == null || moodName.trim().isEmpty()) {
                 return cb.conjunction();
             }
-            Join<BookEntity, BookMetadataEntity> metadataJoin = root.join("metadata", JoinType.INNER);
+            Join<BookEntity, BookMetadataEntity> metadataJoin = getOrCreateJoin(root, "metadata", JoinType.INNER);
             Join<BookMetadataEntity, MoodEntity> moodsJoin = metadataJoin.join("moods", JoinType.INNER);
             query.distinct(true);
             return cb.equal(cb.lower(moodsJoin.get("name")), moodName.toLowerCase().trim());
@@ -291,7 +301,7 @@ public class AppBookSpecification {
             if (narrator == null || narrator.trim().isEmpty()) {
                 return cb.conjunction();
             }
-            Join<BookEntity, BookMetadataEntity> metadataJoin = root.join("metadata", JoinType.INNER);
+            Join<BookEntity, BookMetadataEntity> metadataJoin = getOrCreateJoin(root, "metadata", JoinType.INNER);
             return cb.equal(cb.lower(metadataJoin.get("narrator")), narrator.toLowerCase().trim());
         };
     }
