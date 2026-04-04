@@ -48,7 +48,8 @@ export class CbxReaderPreferencesComponent {
 
   readonly cbxScrollModes = [
     {name: 'Paginated', key: CbxScrollMode.PAGINATED, icon: 'pi pi-book', translationKey: 'paginated'},
-    {name: 'Infinite', key: CbxScrollMode.INFINITE, icon: 'pi pi-sort-alt', translationKey: 'infinite'}
+    {name: 'Infinite', key: CbxScrollMode.INFINITE, icon: 'pi pi-sort-alt', translationKey: 'infinite'},
+    {name: 'Long Strip', key: CbxScrollMode.LONG_STRIP, icon: 'pi pi-bars', translationKey: 'longStrip'}
   ];
 
   readonly cbxBackgroundColors = [

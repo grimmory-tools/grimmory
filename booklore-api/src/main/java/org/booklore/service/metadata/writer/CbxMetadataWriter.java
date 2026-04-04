@@ -1,28 +1,22 @@
 package org.booklore.service.metadata.writer;
 
-import com.github.junrar.Archive;
-import com.github.junrar.rarfile.FileHeader;
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.Marshaller;
-import jakarta.xml.bind.Unmarshaller;
-import jakarta.xml.bind.ValidationEvent;
+import jakarta.xml.bind.*;
+
 import javax.xml.XMLConstants;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.sax.SAXSource;
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLReader;
+
+import org.booklore.service.ArchiveService;
+import org.xml.sax.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
-import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 import org.booklore.model.MetadataClearFlags;
 import org.booklore.model.dto.settings.MetadataPersistenceSettings;
 import org.booklore.model.entity.*;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.ComicCreatorRole;
 import org.booklore.service.appsettings.AppSettingService;
-import org.booklore.util.ArchiveUtils;
-import org.booklore.util.UnrarHelper;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Safelist;
 import org.springframework.stereotype.Component;
@@ -31,24 +25,19 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
 import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class CbxMetadataWriter implements MetadataWriter {
-
-    private static final Pattern VALID_FILENAME_PATTERN = Pattern.compile("^[\\w./\\\\-]+$");
-    private static final int BUFFER_SIZE = 8192;
+    private static final String DEFAULT_COMICINFO_XML = "ComicInfo.xml";
 
     // Cache JAXBContext for performance
     private static final JAXBContext JAXB_CONTEXT;
@@ -62,20 +51,11 @@ public class CbxMetadataWriter implements MetadataWriter {
     }
 
     private final AppSettingService appSettingService;
+    private final ArchiveService archiveService;
 
     @Override
     public void saveMetadataToFile(File file, BookMetadataEntity metadata, String thumbnailUrl, MetadataClearFlags clearFlags) {
         if (!shouldSaveMetadataToFile(file)) {
-            return;
-        }
-
-        ArchiveUtils.ArchiveType type = ArchiveUtils.detectArchiveType(file);
-        boolean isCbz = type == ArchiveUtils.ArchiveType.ZIP;
-        boolean isCbr = type == ArchiveUtils.ArchiveType.RAR;
-        boolean isCb7 = type == ArchiveUtils.ArchiveType.SEVEN_ZIP;
-
-        if (type == ArchiveUtils.ArchiveType.UNKNOWN) {
-            log.warn("Unknown archive type for file: {}", file.getName());
             return;
         }
 
@@ -85,26 +65,14 @@ public class CbxMetadataWriter implements MetadataWriter {
         boolean writeSucceeded = false;
 
         try {
-            ComicInfo comicInfo = loadOrCreateComicInfo(file, isCbz, isCb7, isCbr);
+            ComicInfo comicInfo = loadOrCreateComicInfo(file.toPath());
             applyMetadataChanges(comicInfo, metadata, clearFlags);
             byte[] xmlContent = convertToBytes(comicInfo);
 
-            if (isCbz) {
-                log.debug("CbxMetadataWriter: Writing ComicInfo.xml to CBZ file: {}, XML size: {} bytes", file.getName(), xmlContent.length);
-                tempArchive = updateZipArchive(file, xmlContent);
-                writeSucceeded = true;
-                log.info("CbxMetadataWriter: Successfully wrote metadata to CBZ file: {}", file.getName());
-            } else if (isCb7) {
-                log.debug("CbxMetadataWriter: Converting CB7 to CBZ and writing ComicInfo.xml: {}", file.getName());
-                tempArchive = convert7zToZip(file, xmlContent);
-                writeSucceeded = true;
-                log.info("CbxMetadataWriter: Successfully converted CB7 to CBZ and wrote metadata: {}", file.getName());
-            } else {
-                log.debug("CbxMetadataWriter: Writing ComicInfo.xml to RAR file: {}", file.getName());
-                tempArchive = updateRarArchive(file, xmlContent, extractDir);
-                writeSucceeded = true;
-                log.info("CbxMetadataWriter: Successfully wrote metadata to RAR/CBZ file: {}", file.getName());
-            }
+            log.debug("CbxMetadataWriter: Writing ComicInfo.xml to CBZ file: {}, XML size: {} bytes", file.getName(), xmlContent.length);
+            tempArchive = updateArchive(file, xmlContent);
+            writeSucceeded = true;
+            log.info("CbxMetadataWriter: Successfully wrote metadata to CBZ file: {}", file.getName());
         } catch (Exception e) {
             restoreOriginalFile(backupPath, file);
             log.warn("Failed to write metadata for {}: {}", file.getName(), e.getMessage(), e);
@@ -142,85 +110,43 @@ public class CbxMetadataWriter implements MetadataWriter {
         }
     }
 
-    private ComicInfo loadOrCreateComicInfo(File file, boolean isCbz, boolean isCb7, boolean isCbr) throws Exception {
-        if (isCbz) {
-            return loadFromZip(file);
-        } else if (isCb7) {
-            return loadFrom7z(file);
-        } else {
-            return loadFromRar(file);
-        }
-    }
+    private ComicInfo loadOrCreateComicInfo(Path path) {
+        String comicInfoEntry = findComicInfoEntryName(path);
 
-    private ComicInfo loadFromZip(File file) throws Exception {
-        try (ZipFile zipFile = new ZipFile(file)) {
-            ZipEntry xmlEntry = findComicInfoEntry(zipFile);
-            if (xmlEntry != null) {
-                try (InputStream stream = zipFile.getInputStream(xmlEntry)) {
-                    return parseComicInfo(stream);
-                }
-            }
+        if (comicInfoEntry == null) {
+            // If we can't find a comicInfo entry, bail out.
             return new ComicInfo();
         }
-    }
 
-    private ComicInfo loadFrom7z(File file) throws Exception {
-        try (SevenZFile archive = SevenZFile.builder().setFile(file).get()) {
-            SevenZArchiveEntry xmlEntry = findComicInfoIn7z(archive);
-            if (xmlEntry != null) {
-                try (InputStream stream = archive.getInputStream(xmlEntry)) {
-                    return parseComicInfo(stream);
-                }
-            }
-            return new ComicInfo();
-        }
-    }
-
-    private SevenZArchiveEntry findComicInfoIn7z(SevenZFile archive) {
-        for (SevenZArchiveEntry entry : archive.getEntries()) {
-            if (entry != null && !entry.isDirectory() && isComicInfoXml(entry.getName())) {
-                return entry;
-            }
-        }
-        return null;
-    }
-
-    private ComicInfo loadFromRar(File file) throws Exception {
-        try (Archive archive = new Archive(file)) {
-            FileHeader xmlHeader = findComicInfoInRar(archive);
-            if (xmlHeader != null) {
-                try (ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
-                    extractRarEntry(archive, xmlHeader, buffer);
-                    try (InputStream stream = new ByteArrayInputStream(buffer.toByteArray())) {
-                        return parseComicInfo(stream);
-                    }
-                }
-            }
-            return new ComicInfo();
+        byte[] comicInfoXML;
+        try {
+            comicInfoXML = archiveService.getEntryBytes(path, comicInfoEntry);
         } catch (Exception e) {
-            if (UnrarHelper.isAvailable()) {
-                log.info("junrar failed for {}, falling back to unrar CLI: {}", file.getName(), e.getMessage());
-                return loadFromRarViaCli(file.toPath());
-            }
-            throw e;
+            log.warn("Could not read archive {}: {}", path, e.getMessage());
+            return new ComicInfo();
+        }
+
+        try (
+          ByteArrayInputStream bais = new ByteArrayInputStream(comicInfoXML)
+        ) {
+            return parseComicInfo(bais);
+        } catch (Exception e) {
+            log.warn("Could not parse archive ComicInfo {}: {}", path, e.getMessage());
+            return new ComicInfo();
         }
     }
 
-    private ComicInfo loadFromRarViaCli(Path rarPath) throws Exception {
-        java.util.List<String> entries = UnrarHelper.listEntries(rarPath);
-        String comicInfoEntry = entries.stream()
-                .filter(CbxMetadataWriter::isComicInfoXml)
-                .findFirst()
-                .orElse(null);
-        if (comicInfoEntry != null) {
-            byte[] xmlBytes = UnrarHelper.extractEntryBytes(rarPath, comicInfoEntry);
-            if (xmlBytes != null && xmlBytes.length > 0) {
-                try (InputStream stream = new ByteArrayInputStream(xmlBytes)) {
-                    return parseComicInfo(stream);
-                }
-            }
+    private String findComicInfoEntryName(Path path) {
+        try {
+            return archiveService.streamEntryNames(path)
+                    .filter(CbxMetadataWriter::isComicInfoXml)
+                    .findFirst()
+                    .orElse(null);
+        } catch (IOException e) {
+            log.warn("Failed to read archive {}: {}", path.getFileName(), e.getMessage());
         }
-        return new ComicInfo();
+
+        return null;
     }
 
     private void applyMetadataChanges(ComicInfo info, BookMetadataEntity metadata, MetadataClearFlags clearFlags) {
@@ -472,7 +398,7 @@ public class CbxMetadataWriter implements MetadataWriter {
         return "Early Childhood";
     }
 
-    private ComicInfo parseComicInfo(InputStream xmlStream) throws Exception {
+    private ComicInfo parseComicInfo(InputStream xmlStream) throws SAXException, ParserConfigurationException, JAXBException {
         // Use a SAXSource with an explicitly secured XMLReader to prevent XXE injection.
         // This is more robust than System.setProperty() because it is per-instance and
         // cannot be inadvertently disabled by other code running in the same JVM.
@@ -520,186 +446,27 @@ public class CbxMetadataWriter implements MetadataWriter {
         return outputStream.toByteArray();
     }
 
-    private Path updateZipArchive(File originalFile, byte[] xmlContent) throws Exception {
+    private Path updateArchive(File originalFile, byte[] xmlContent) throws Exception {
         // Create temp file in same directory as original for true atomic move on same filesystem
         Path tempArchive = Files.createTempFile(originalFile.toPath().getParent(), ".cbx_edit_", ".cbz");
-        rebuildZipWithNewXml(originalFile.toPath(), tempArchive, xmlContent);
-        replaceFileAtomic(tempArchive, originalFile.toPath());
-        return null;
-    }
+        rebuildArchiveWithNewXml(originalFile.toPath(), tempArchive, xmlContent);
 
-    private Path convert7zToZip(File original7z, byte[] xmlContent) throws Exception {
-        // Create temp file in same directory as original for true atomic move on same filesystem
-        Path tempZip = Files.createTempFile(original7z.toPath().getParent(), ".cbx_edit_", ".cbz");
-        repack7zToZipWithXml(original7z, tempZip, xmlContent);
+        Path originalPath = originalFile.toPath().toAbsolutePath();
+        Path targetPath = replaceFileExtension(originalPath, "cbz");
 
-        Path targetPath = original7z.toPath().resolveSibling(removeFileExtension(original7z.getName()) + ".cbz");
-        replaceFileAtomic(tempZip, targetPath);
+        replaceFileAtomic(tempArchive, targetPath);
 
-        try {
-            Files.deleteIfExists(original7z.toPath());
-        } catch (Exception ignored) {
-        }
-        return null;
-    }
+        if (!originalPath.equals(targetPath)) {
+            log.debug("Deleting CBX archive after conversion to CBZ: {}", originalPath);
 
-    private void repack7zToZipWithXml(File source7z, Path targetZip, byte[] xmlContent) throws Exception {
-        try (SevenZFile archive = SevenZFile.builder().setFile(source7z).get();
-             ZipOutputStream zipOutput = new ZipOutputStream(Files.newOutputStream(targetZip))) {
-
-            for (SevenZArchiveEntry entry : archive.getEntries()) {
-                if (entry.isDirectory()) continue;
-                String entryName = entry.getName();
-                if (isComicInfoXml(entryName)) continue;
-                if (!isPathSafe(entryName)) {
-                    log.warn("Skipping unsafe 7z entry name: {}", entryName);
-                    continue;
-                }
-
-                zipOutput.putNextEntry(new ZipEntry(entryName));
-                try (InputStream entryStream = archive.getInputStream(entry)) {
-                    if (entryStream != null) copyStream(entryStream, zipOutput);
-                }
-                zipOutput.closeEntry();
+            try {
+                Files.deleteIfExists(originalPath);
+            } catch (Exception e) {
+                log.warn("Unable to delete original CBX archive {}: {}", originalPath, e.getMessage());
             }
-
-            zipOutput.putNextEntry(new ZipEntry("ComicInfo.xml"));
-            zipOutput.write(xmlContent);
-            zipOutput.closeEntry();
-        }
-    }
-
-    private Path updateRarArchive(File originalRar, byte[] xmlContent, Path extractDir) throws Exception {
-        String rarCommand = System.getenv().getOrDefault("BOOKLORE_RAR_BIN", "rar");
-        boolean rarAvailable = checkRarAvailability(rarCommand);
-
-        if (rarAvailable) {
-            return updateRarWithCommand(originalRar, xmlContent, rarCommand, extractDir);
-        } else {
-            log.warn("`rar` binary not found. Falling back to CBZ conversion for {}", originalRar.getName());
-            return convertRarToZipArchive(originalRar, xmlContent);
-        }
-    }
-
-    private Path updateRarWithCommand(File originalRar, byte[] xmlContent, String rarCommand, Path extractDir) throws Exception {
-        extractDir = Files.createTempDirectory("cbx_rar_");
-        extractRarContents(originalRar, extractDir);
-
-        Path xmlPath = extractDir.resolve("ComicInfo.xml");
-        Files.write(xmlPath, xmlContent);
-
-        Path targetRar = originalRar.toPath().toAbsolutePath().normalize();
-        String safeCommand = isExecutableSafe(rarCommand) ? rarCommand : "rar";
-        ProcessBuilder processBuilder = new ProcessBuilder(safeCommand, "a", "-idq", "-ep1", "-ma5", targetRar.toString(), ".");
-        processBuilder.directory(extractDir.toFile());
-        Process process = processBuilder.start();
-        int exitCode = process.waitFor();
-
-        if (exitCode == 0) {
-            return null;
-        } else {
-            log.warn("RAR creation failed with exit code {}. Falling back to CBZ conversion for {}", exitCode, originalRar.getName());
-            return convertRarToZipArchive(originalRar, xmlContent);
-        }
-    }
-
-    private void extractRarContents(File rarFile, Path targetDir) throws Exception {
-        try (Archive archive = new Archive(rarFile)) {
-            for (FileHeader header : archive.getFileHeaders()) {
-                String entryName = header.getFileName();
-                if (entryName == null || entryName.isBlank()) continue;
-                if (!isPathSafe(entryName)) {
-                    log.warn("Skipping unsafe RAR entry name: {}", entryName);
-                    continue;
-                }
-
-                Path outputPath = targetDir.resolve(entryName).normalize();
-                if (!outputPath.startsWith(targetDir)) {
-                    log.warn("Skipping traversal entry outside tempDir: {}", entryName);
-                    continue;
-                }
-
-                if (header.isDirectory()) {
-                    Files.createDirectories(outputPath);
-                } else {
-                    Files.createDirectories(outputPath.getParent());
-                    try (OutputStream fileOutput = Files.newOutputStream(outputPath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-                        extractRarEntry(archive, header, fileOutput);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            if (UnrarHelper.isAvailable()) {
-                log.info("junrar failed for {}, falling back to unrar CLI extractAll: {}", rarFile.getName(), e.getMessage());
-                UnrarHelper.extractAll(rarFile.toPath(), targetDir);
-                return;
-            }
-            throw e;
-        }
-    }
-
-    private Path convertRarToZipArchive(File rarFile, byte[] xmlContent) throws Exception {
-        // Create temp file in same directory as original for true atomic move on same filesystem
-        Path tempZip = Files.createTempFile(rarFile.toPath().getParent(), ".cbx_edit_", ".cbz");
-
-        try (Archive rarArchive = new Archive(rarFile);
-             ZipOutputStream zipOutput = new ZipOutputStream(Files.newOutputStream(tempZip))) {
-
-            for (FileHeader header : rarArchive.getFileHeaders()) {
-                if (header.isDirectory()) continue;
-                String entryName = header.getFileName();
-                if (isComicInfoXml(entryName)) continue;
-                if (!isPathSafe(entryName)) {
-                    log.warn("Skipping unsafe RAR entry name: {}", entryName);
-                    continue;
-                }
-
-                zipOutput.putNextEntry(new ZipEntry(entryName));
-                extractRarEntry(rarArchive, header, zipOutput);
-                zipOutput.closeEntry();
-            }
-
-            zipOutput.putNextEntry(new ZipEntry("ComicInfo.xml"));
-            zipOutput.write(xmlContent);
-            zipOutput.closeEntry();
-        } catch (Exception e) {
-            if (UnrarHelper.isAvailable()) {
-                log.info("junrar failed for {}, falling back to unrar CLI for RAR-to-ZIP: {}", rarFile.getName(), e.getMessage());
-                convertRarToZipViaCli(rarFile.toPath(), tempZip, xmlContent);
-            } else {
-                throw e;
-            }
-        }
-
-        Path targetPath = rarFile.toPath().resolveSibling(removeFileExtension(rarFile.getName()) + ".cbz");
-        replaceFileAtomic(tempZip, targetPath);
-
-        try {
-            Files.deleteIfExists(rarFile.toPath());
-        } catch (Exception ignored) {
         }
 
         return null;
-    }
-
-    private void convertRarToZipViaCli(Path rarPath, Path tempZip, byte[] xmlContent) throws Exception {
-        java.util.List<String> entries = UnrarHelper.listEntries(rarPath);
-        try (ZipOutputStream zipOutput = new ZipOutputStream(Files.newOutputStream(tempZip))) {
-            for (String entryName : entries) {
-                if (isComicInfoXml(entryName)) continue;
-                if (!isPathSafe(entryName)) {
-                    log.warn("Skipping unsafe RAR entry name: {}", entryName);
-                    continue;
-                }
-                byte[] bytes = UnrarHelper.extractEntryBytes(rarPath, entryName);
-                zipOutput.putNextEntry(new ZipEntry(entryName));
-                zipOutput.write(bytes);
-                zipOutput.closeEntry();
-            }
-            zipOutput.putNextEntry(new ZipEntry("ComicInfo.xml"));
-            zipOutput.write(xmlContent);
-            zipOutput.closeEntry();
-        }
     }
 
     private void restoreOriginalFile(Path backupPath, File targetFile) {
@@ -735,24 +502,6 @@ public class CbxMetadataWriter implements MetadataWriter {
         }
     }
 
-    private ZipEntry findComicInfoEntry(ZipFile zipFile) {
-        Enumeration<? extends ZipEntry> entries = zipFile.entries();
-        while (entries.hasMoreElements()) {
-            ZipEntry entry = entries.nextElement();
-            String entryName = entry.getName();
-            if (isComicInfoXml(entryName)) return entry;
-        }
-        return null;
-    }
-
-    private FileHeader findComicInfoInRar(Archive archive) {
-        for (FileHeader header : archive.getFileHeaders()) {
-            String entryName = header.getFileName();
-            if (entryName != null && isComicInfoXml(entryName)) return header;
-        }
-        return null;
-    }
-
     private String joinStrings(Set<String> values) {
         return (values == null || values.isEmpty()) ? null : String.join(", ", values);
     }
@@ -765,10 +514,18 @@ public class CbxMetadataWriter implements MetadataWriter {
 
     private static boolean isComicInfoXml(String entryName) {
         if (entryName == null) return false;
-        String normalized = entryName.replace('\\', '/');
-        if (normalized.endsWith("/")) return false;
-        String lowerCase = normalized.toLowerCase(Locale.ROOT);
-        return "comicinfo.xml".equals(lowerCase) || lowerCase.endsWith("/comicinfo.xml");
+        String normalized = entryName
+                .replace('\\', '/')
+                .toLowerCase(Locale.ROOT);
+
+        if (normalized.endsWith("/")) {
+            // Directories cannot be a comic info XML
+            return false;
+        }
+
+        String comicInfoFilename = CbxMetadataWriter.DEFAULT_COMICINFO_XML.toLowerCase(Locale.ROOT);
+
+        return comicInfoFilename.equals(normalized) || normalized.endsWith("/" + comicInfoFilename);
     }
 
     private static boolean isPathSafe(String entryName) {
@@ -784,45 +541,34 @@ public class CbxMetadataWriter implements MetadataWriter {
         return true;
     }
 
-    private void rebuildZipWithNewXml(Path sourceZip, Path targetZip, byte[] xmlContent) throws Exception {
-        try (ZipFile zipFile = new ZipFile(sourceZip.toFile());
-             ZipOutputStream zipOutput = new ZipOutputStream(Files.newOutputStream(targetZip))) {
-            ZipEntry existingXml = findComicInfoEntry(zipFile);
-            Enumeration<? extends ZipEntry> entries = zipFile.entries();
-            while (entries.hasMoreElements()) {
-                ZipEntry entry = entries.nextElement();
-                String entryName = entry.getName();
-                if (existingXml != null && entryName.equals(existingXml.getName())) {
+    private void rebuildArchiveWithNewXml(Path sourceArchive, Path targetZip, byte[] xmlContent) throws Exception {
+        String comicInfoEntryName = findComicInfoEntryName(sourceArchive);
+
+        try (
+                ZipOutputStream zipOutput = new ZipOutputStream(Files.newOutputStream(targetZip))
+        ) {
+            for (String entryName : archiveService.getEntryNames(sourceArchive)) {
+                if (isComicInfoXml(entryName)) {
+                    // Skip copying over any existing comic info entry
                     continue;
                 }
+
                 if (!isPathSafe(entryName)) {
-                    log.warn("Skipping unsafe ZIP entry name: {}", entryName);
+                    log.warn("Skipping unsafe CBZ entry name: {}", entryName);
                     continue;
                 }
+
                 zipOutput.putNextEntry(new ZipEntry(entryName));
-                try (InputStream entryStream = zipFile.getInputStream(entry)) {
-                    copyStream(entryStream, zipOutput);
-                }
+
+                archiveService.transferEntryTo(sourceArchive, entryName, zipOutput);
+
                 zipOutput.closeEntry();
             }
-            String xmlEntryName = (existingXml != null ? existingXml.getName() : "ComicInfo.xml");
+
+            String xmlEntryName = (comicInfoEntryName != null ? comicInfoEntryName : CbxMetadataWriter.DEFAULT_COMICINFO_XML);
             zipOutput.putNextEntry(new ZipEntry(xmlEntryName));
             zipOutput.write(xmlContent);
             zipOutput.closeEntry();
-        }
-    }
-
-    private void copyStream(InputStream input, OutputStream output) throws IOException {
-        byte[] buffer = new byte[BUFFER_SIZE];
-        int bytesRead;
-        while ((bytesRead = input.read(buffer)) != -1) {
-            output.write(buffer, 0, bytesRead);
-        }
-    }
-
-    private void extractRarEntry(Archive archive, FileHeader fileHeader, OutputStream output) throws Exception {
-        try (InputStream entryStream = archive.getInputStream(fileHeader)) {
-            copyStream(entryStream, output);
         }
     }
 
@@ -834,27 +580,19 @@ public class CbxMetadataWriter implements MetadataWriter {
         }
     }
 
-    private boolean checkRarAvailability(String rarCommand) {
-        try {
-            String safeCommand = isExecutableSafe(rarCommand) ? rarCommand : "rar";
-            Process check = new ProcessBuilder(safeCommand, "--help").redirectErrorStream(true).start();
-            int exitCode = check.waitFor();
-            return (exitCode == 0);
-        } catch (Exception ex) {
-            log.warn("RAR binary check failed: {}", ex.getMessage());
-            return false;
+    private static Path replaceFileExtension(Path path, String extension) {
+        String filename = path.getFileName().toString();
+
+        if (filename.toLowerCase(Locale.ROOT).endsWith("." + extension.toLowerCase())) {
+            // If the file extension is already there, do nothing.
+            return path;
         }
-    }
 
-    private boolean isExecutableSafe(String command) {
-        if (command == null || command.isBlank()) return false;
-        return VALID_FILENAME_PATTERN.matcher(command).matches();
-    }
-
-    private static String removeFileExtension(String filename) {
         int lastDot = filename.lastIndexOf('.');
-        if (lastDot > 0) return filename.substring(0, lastDot);
-        return filename;
+        if (lastDot > 0) {
+            filename = filename.substring(0, lastDot);
+        }
+        return path.resolveSibling(filename + "." + extension);
     }
 
     @Override

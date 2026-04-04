@@ -93,7 +93,7 @@ describe('SeriesCardComponent', () => {
   it('builds thumbnail URLs from ebook and audiobook covers', () => {
     expect(component.getCoverUrl(0)).toBe('thumb:1:2026-03-01');
     expect(component.getCoverUrl(1)).toBe('audio:2:2026-03-02');
-    expect(component.getCoverUrl(99)).toBe('');
+    expect(component.getCoverUrl(99)).toBeNull();
   });
 
   it('emits a card click and stops propagation', () => {

@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Transactional(readOnly = true)
 public class AppBookService {
 
     private static final int DEFAULT_PAGE_SIZE = 20;
@@ -56,7 +57,6 @@ public class AppBookService {
     private final MagicShelfBookService magicShelfBookService;
     private final EntityManager entityManager;
 
-    @Transactional(readOnly = true)
     public AppPageResponse<AppBookSummary> getBooks(
             Integer page,
             Integer size,
@@ -90,7 +90,6 @@ public class AppBookService {
         return buildPageResponse(bookPage, userId, pageNum, pageSize);
     }
 
-    @Transactional(readOnly = true)
     public AppBookDetail getBookDetail(Long bookId) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         Long userId = user.getId();
@@ -182,7 +181,6 @@ public class AppBookService {
         return buildPageResponse(bookPage, userId, pageNum, pageSize);
     }
 
-    @Transactional(readOnly = true)
     public List<AppBookSummary> getContinueReading(Integer limit) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         Long userId = user.getId();
@@ -190,32 +188,12 @@ public class AppBookService {
 
         int maxItems = validateLimit(limit, 10);
 
-        Specification<BookEntity> spec = AppBookSpecification.combine(
-                AppBookSpecification.notDeleted(),
-                AppBookSpecification.hasDigitalFile(),
-                AppBookSpecification.inLibraries(accessibleLibraryIds),
-                AppBookSpecification.inProgress(userId),
-                AppBookSpecification.hasNonAudiobookFile()
-        );
-
-        List<BookEntity> books = bookRepository.findAll(spec);
-        Map<Long, UserBookProgressEntity> progressMap = getProgressMapForBooks(userId, books);
-
-        List<Long> topIds = books.stream()
-                .filter(b -> progressMap.containsKey(b.getId()))
-                .sorted((b1, b2) -> {
-                    Instant t1 = progressMap.get(b1.getId()).getLastReadTime();
-                    Instant t2 = progressMap.get(b2.getId()).getLastReadTime();
-                    if (t1 == null && t2 == null) return 0;
-                    if (t1 == null) return 1;
-                    if (t2 == null) return -1;
-                    return t2.compareTo(t1);
-                })
-                .limit(maxItems)
-                .map(BookEntity::getId)
-                .collect(Collectors.toList());
+        List<Long> topIds = userBookProgressRepository.findTopContinueReadingBookIds(
+                userId, accessibleLibraryIds, PageRequest.of(0, maxItems));
 
         if (topIds.isEmpty()) return Collections.emptyList();
+
+        Map<Long, UserBookProgressEntity> progressMap = getProgressMap(userId, new HashSet<>(topIds));
 
         Map<Long, BookEntity> enrichedMap = bookRepository.findAllForSummaryByIds(topIds)
                 .stream().collect(Collectors.toMap(BookEntity::getId, b -> b));
@@ -226,7 +204,6 @@ public class AppBookService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public List<AppBookSummary> getContinueListening(Integer limit) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         Long userId = user.getId();
@@ -234,32 +211,12 @@ public class AppBookService {
 
         int maxItems = validateLimit(limit, 10);
 
-        Specification<BookEntity> spec = AppBookSpecification.combine(
-                AppBookSpecification.notDeleted(),
-                AppBookSpecification.hasDigitalFile(),
-                AppBookSpecification.inLibraries(accessibleLibraryIds),
-                AppBookSpecification.inProgress(userId),
-                AppBookSpecification.hasAudiobookFile()
-        );
-
-        List<BookEntity> books = bookRepository.findAll(spec);
-        Map<Long, UserBookProgressEntity> progressMap = getProgressMapForBooks(userId, books);
-
-        List<Long> topIds = books.stream()
-                .filter(b -> progressMap.containsKey(b.getId()))
-                .sorted((b1, b2) -> {
-                    Instant t1 = progressMap.get(b1.getId()).getLastReadTime();
-                    Instant t2 = progressMap.get(b2.getId()).getLastReadTime();
-                    if (t1 == null && t2 == null) return 0;
-                    if (t1 == null) return 1;
-                    if (t2 == null) return -1;
-                    return t2.compareTo(t1);
-                })
-                .limit(maxItems)
-                .map(BookEntity::getId)
-                .collect(Collectors.toList());
+        List<Long> topIds = userBookProgressRepository.findTopContinueListeningBookIds(
+                userId, accessibleLibraryIds, PageRequest.of(0, maxItems));
 
         if (topIds.isEmpty()) return Collections.emptyList();
+
+        Map<Long, UserBookProgressEntity> progressMap = getProgressMap(userId, new HashSet<>(topIds));
 
         Map<Long, BookEntity> enrichedMap = bookRepository.findAllForSummaryByIds(topIds)
                 .stream().collect(Collectors.toMap(BookEntity::getId, b -> b));
@@ -270,7 +227,6 @@ public class AppBookService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public List<AppBookSummary> getRecentlyAdded(Integer limit) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         Long userId = user.getId();
@@ -294,7 +250,6 @@ public class AppBookService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public List<AppBookSummary> getRecentlyScanned(Integer limit) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         Long userId = user.getId();
@@ -317,7 +272,6 @@ public class AppBookService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public AppPageResponse<AppBookSummary> getRandomBooks(
             Integer page,
             Integer size,
@@ -347,7 +301,6 @@ public class AppBookService {
         return buildPageResponse(bookPage, userId, pageNum, pageSize);
     }
 
-    @Transactional(readOnly = true)
     public AppPageResponse<AppBookSummary> getBooksByMagicShelf(
             Long magicShelfId,
             Integer page,
@@ -380,7 +333,6 @@ public class AppBookService {
         return AppPageResponse.of(summaries, pageNum, pageSize, booksPage.getTotalElements());
     }
 
-    @Transactional(readOnly = true)
     public AppFilterOptions getFilterOptions(Long libraryId, Long shelfId, Long magicShelfId) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         Long userId = user.getId();

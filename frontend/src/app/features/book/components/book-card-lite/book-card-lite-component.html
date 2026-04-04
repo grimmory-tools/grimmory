@@ -1,9 +1,13 @@
 <div class="book-cover-wrapper" [class.audiobook-only]="isAudiobookOnly()" (mouseenter)="isHovered = true" (mouseleave)="isHovered = false">
-  <img
-    [src]="getThumbnailUrl()"
-    class="book-cover"
-    alt="Cover of {{ book.metadata?.title }}"
-    loading="lazy"/>
+  @if (getThumbnailUrl(); as coverUrl) {
+    <img
+      [src]="coverUrl"
+      class="book-cover"
+      alt="Cover of {{ book.metadata?.title }}"
+      loading="lazy"/>
+  } @else {
+    <app-cover-placeholder class="book-cover" [title]="book.metadata?.title ?? ''" [author]="(book.metadata?.authors ?? []).join(', ')" size="sm" />
+  }
     
   @if (showSeriesNumber && !book.seriesCount && book.metadata?.seriesNumber !== null && book.metadata?.seriesNumber !== undefined) {
     <div class="series-number-overlay">

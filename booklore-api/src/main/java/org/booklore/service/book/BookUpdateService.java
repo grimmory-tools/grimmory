@@ -40,6 +40,7 @@ public class BookUpdateService {
     private final ReadingProgressService readingProgressService;
     private final EbookViewerPreferenceRepository ebookViewerPreferenceRepository;
 
+    @Transactional
     public void updateBookViewerSetting(long bookId, BookViewerSettings bookViewerSettings) {
         BookEntity book = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
         BookLoreUser user = authenticationService.getAuthenticatedUser();
@@ -120,6 +121,7 @@ public class BookUpdateService {
             PdfViewerPreferences pdfSettings = settings.getPdfSettings();
             prefs.setZoom(pdfSettings.getZoom());
             prefs.setSpread(pdfSettings.getSpread());
+            prefs.setIsDarkTheme(pdfSettings.getIsDarkTheme());
             pdfViewerPreferencesRepository.save(prefs);
         }
 

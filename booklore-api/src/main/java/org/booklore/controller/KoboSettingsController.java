@@ -24,6 +24,7 @@ public class KoboSettingsController {
     @Operation(summary = "Get Kobo sync settings", description = "Retrieve the current user's Kobo sync settings.")
     @ApiResponse(responseCode = "200", description = "Settings returned successfully")
     @GetMapping
+    @PreAuthorize("@securityUtil.canSyncKobo() or @securityUtil.isAdmin()")
     public ResponseEntity<KoboSyncSettings> getSettings() {
         KoboSyncSettings settings = koboService.getCurrentUserSettings();
         return ResponseEntity.ok(settings);

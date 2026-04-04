@@ -110,7 +110,11 @@
     "gray": "Gray",
     "white": "White",
     "magnifierLensSize": "Lens Size",
-    "magnifierZoom": "Magnification"
+    "magnifierZoom": "Magnification",
+    "brightness": "Brightness",
+    "emulateBook": "Emulate Book",
+    "clickToPaginate": "Click to Paginate",
+    "autoCloseMenu": "Auto Close Menu"
   },
   "sidebar": {
     "contentTab": "Content",

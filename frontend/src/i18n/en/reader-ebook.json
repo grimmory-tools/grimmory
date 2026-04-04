@@ -152,6 +152,7 @@
     "notesShortcut": "Notes",
     "display": "Display",
     "toggleFullscreen": "Toggle fullscreen",
+    "toggleImmersive": "Toggle immersive mode",
     "exitFullscreenCloseDialogs": "Exit fullscreen / Close dialogs",
     "other": "Other",
     "showHelpDialog": "Show this help dialog",

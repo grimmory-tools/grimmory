@@ -31,6 +31,7 @@ import {animate, style, transition, trigger} from "@angular/animations";
 import {AfterViewChecked, Component, computed, effect, ElementRef, inject, ViewChild} from '@angular/core';
 import {BookCardOverlayPreferenceService} from '../book-browser/book-card-overlay-preference.service';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
+import {CoverPlaceholderComponent} from '../../../../shared/components/cover-generator/cover-generator.component';
 import {injectQuery} from '@tanstack/angular-query-experimental';
 
 interface ReadStatusSegment {
@@ -48,7 +49,7 @@ interface SeriesCompletion {
 
 interface NextUpBook {
   book: Book;
-  thumbnailUrl: string;
+  thumbnailUrl: string | null;
   isReading: boolean;
   progressPercent: number | null;
 }
@@ -88,7 +89,8 @@ interface SeriesStats {
     Tooltip,
     Divider,
     TranslocoDirective,
-    TagComponent
+    TagComponent,
+    CoverPlaceholderComponent
   ],
   animations: [
     trigger('slideInOut', [
@@ -479,7 +481,7 @@ export class SeriesPageComponent implements AfterViewChecked {
     }
   }
 
-  getBookThumbnailUrl(book: Book): string {
+  getBookThumbnailUrl(book: Book): string | null {
     const isAudiobook = book.primaryFile?.bookType === 'AUDIOBOOK';
     return isAudiobook
       ? this.urlHelper.getAudiobookThumbnailUrl(book.id, book.metadata?.audiobookCoverUpdatedOn)

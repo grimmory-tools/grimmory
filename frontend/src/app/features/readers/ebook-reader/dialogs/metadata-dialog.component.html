@@ -12,9 +12,7 @@
           @if (bookCoverUrl) {
             <img [src]="bookCoverUrl" [alt]="metadata?.title || t('unknown')" class="book-cover">
           } @else {
-            <div class="cover-placeholder">
-              <span class="placeholder-icon">&#128218;</span>
-            </div>
+            <app-cover-placeholder class="cover-placeholder" [title]="metadata?.title ?? ''" [author]="(metadata?.authors ?? []).join(', ')" />
           }
         </div>
 

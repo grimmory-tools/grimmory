@@ -1,0 +1,313 @@
+<ng-container *transloco="let t; prefix: 'layout.topbar'">
+<div class="layout-topbar">
+
+  <a class="layout-topbar-logo topbar-logo" routerLink="">
+    <!--
+    <svg class="logo-icon half-title" viewBox="0 0 126 126" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M59 4.79297C71.5051 11.5557 80 24.7854 80 40C80 40.5959 79.987 41.1888 79.9609 41.7783C79.8609 44.0406 81.7355 46 84 46C106.091 46 124 63.9086 124 86C124 108.091 106.091 126 84 126H10C4.47715 126 0 121.523 0 116V39.0068L0.0126953 38.9941C0.357624 25.0252 7.86506 12.8347 19 5.95215V63.832C19 64.8345 20.0676 65.4391 20.9121 64.9902L21.0771 64.8867L38.2227 52.3428C38.6819 52.0068 39.3064 52.0068 39.7656 52.3428L56.9229 64.8945L57.0879 64.998C57.9324 65.447 59 64.8423 59 63.8398V4.79297Z"/>
+      <path
+        d="M40 0C43.8745 0 47.6199 0.552381 51.1631 1.58008V50.9697L44.3926 46.0176L44.0879 45.8037C40.9061 43.6679 36.7098 43.7393 33.5957 46.0176L26.8369 50.9619V2.21875C30.9593 0.782634 35.3881 0 40 0Z"
+        fill="white"/>
+    </svg>
+    -->
+    <span class="logo-text">Grimmory</span>
+  </a>
+
+  <button
+    type="button"
+    class="layout-menu-button"
+    [attr.aria-label]="t('toggleNavigation')"
+    (click)="toggleMenu()"
+    [ngClass]="{ 'rotate-right': !isMenuVisible, 'rotate-left': isMenuVisible }"
+  >
+    <i class="pi pi-bars" aria-hidden="true"></i>
+  </button>
+
+  <div class="topbar-content">
+    <app-book-searcher class="topbar-search"></app-book-searcher>
+    <ul class="topbar-items topbar-desktop-items">
+      <div class="topbar-action-group">
+        @if (user(); as currentUser) {
+          @if (currentUser.permissions.canAccessBookdrop || currentUser.permissions.admin) {
+            <li>
+              <button type="button" class="topbar-item" (click)="navigateToBookdrop()" [pTooltip]="t('bookdrop')" tooltipPosition="bottom">
+                <i class="pi pi-inbox topbar-icon"></i>
+              </button>
+            </li>
+          }
+          @if (currentUser.permissions.canManageLibrary || currentUser.permissions.admin) {
+            <li>
+              <button type="button" class="topbar-item" (click)="openLibraryCreatorDialog()" [pTooltip]="t('createNewLibrary')" tooltipPosition="bottom">
+                <i class="pi pi-plus-circle topbar-icon"></i>
+              </button>
+            </li>
+          }
+          @if (currentUser.permissions.canUpload || currentUser.permissions.admin) {
+            <li>
+              <button type="button" class="topbar-item" (click)="openFileUploadDialog()" [pTooltip]="t('uploadBook')" tooltipPosition="bottom">
+                <i class="pi pi-upload topbar-icon"></i>
+              </button>
+            </li>
+          }
+        }
+        @if (hasStatsAccess) {
+          <li>
+            <button
+              type="button"
+              class="topbar-item"
+              (click)="shouldShowStatsMenu ? statsMenu?.toggle($event) : handleStatsButtonClick()"
+              [pTooltip]="statsTooltip"
+              tooltipPosition="bottom">
+              <svg class="multi-color-chart-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;">
+                <rect x="2" y="13" width="4" height="9" rx="1" fill="#ef4444"/>
+                <rect x="7.5" y="3" width="4" height="19" rx="1" fill="#f59e0b"/>
+                <rect x="13" y="9" width="4" height="13" rx="1" fill="#3b82f6"/>
+                <rect x="18.5" y="5" width="4" height="17" rx="1" fill="#10b981"/>
+              </svg>
+            </button>
+            @if (shouldShowStatsMenu) {
+              <p-menu #statsMenu [model]="statsMenuItems" [popup]="true" appendTo="body"/>
+            }
+          </li>
+        }
+        @if (user(); as currentUser) {
+          @if (currentUser.permissions.canManageLibrary || currentUser.permissions.admin) {
+            <li>
+              <button type="button" class="topbar-item" (click)="navigateToMetadataManager()" [pTooltip]="t('metadataManager')" tooltipPosition="bottom">
+                <i class="pi pi-sparkles topbar-icon"></i>
+              </button>
+            </li>
+          }
+        }
+        <li>
+          <button type="button" class="topbar-item" (click)="navigateToSettings()" [pTooltip]="t('settings')" tooltipPosition="bottom">
+            <i class="pi pi-cog topbar-icon"></i>
+          </button>
+        </li>
+      </div>
+
+      <p-divider layout="vertical"/>
+
+
+      <div class="topbar-action-group">
+        <li class="topbar-item-relative">
+          <button
+            type="button"
+            class="topbar-item"
+            (click)="notificationPopover.toggle($event)"
+          >
+            <i
+              class="pi"
+              [ngClass]="iconClass"
+              [ngStyle]="{ color: iconColor }"
+              style="font-size: 1.25rem"
+              [class.pulsating]="iconPulsating"
+              [attr.aria-label]="t('notificationAriaLabel')"
+            ></i>
+          </button>
+
+          @if (shouldShowNotificationBadge) {
+            <span class="notification-badge">{{ completedTaskCount }}</span>
+          }
+
+          <p-popover #notificationPopover>
+            <app-unified-notification-popover-component></app-unified-notification-popover-component>
+          </p-popover>
+        </li>
+
+        <li class="topbar-item-relative">
+          <button
+            type="button"
+            class="topbar-item"
+            (click)="langMenu.toggle($event)"
+            [pTooltip]="t('language')"
+            tooltipPosition="bottom">
+            <i class="pi pi-language topbar-icon"></i>
+          </button>
+          <p-menu #langMenu [model]="langMenuItems" [popup]="true" appendTo="body"/>
+        </li>
+        <li class="topbar-item-relative">
+          <button type="button"
+                  class="topbar-item config-item"
+                  enterActiveClass="animate-scalein"
+                  enterFromClass="hidden"
+                  leaveActiveClass="animate-fadeout"
+                  leaveToClass="hidden"
+                  pStyleClass="@next" [hideOnOutsideClick]="true">
+            <i class="pi pi-palette"></i>
+          </button>
+          <app-theme-configurator></app-theme-configurator>
+        </li>
+      </div>
+      <p-divider layout="vertical"/>
+      <div class="topbar-action-group">
+        <li>
+          <a class="topbar-item"
+             href="https://grimmory.org/docs/getting-started"
+             target="_blank"
+             rel="noopener noreferrer"
+             [pTooltip]="t('documentation')"
+             tooltipPosition="bottom">
+            <i class="pi pi-info-circle topbar-icon"></i>
+          </a>
+        </li>
+
+        <!-- Show Profile only to non-demo users -->
+        @if (user(); as currentUser) {
+          @if (!currentUser.permissions.demoUser) {
+            <li>
+              <button type="button" class="topbar-item" (click)="openUserProfileDialog()" [pTooltip]="t('profile')" tooltipPosition="bottom">
+                <i class="pi pi-user topbar-icon"></i>
+              </button>
+            </li>
+          }
+        }
+
+        <li>
+          <button type="button" class="topbar-item" (click)="logout()" [pTooltip]="t('logout')" tooltipPosition="left">
+            <i class="pi pi-sign-out topbar-icon"></i>
+          </button>
+        </li>
+      </div>
+    </ul>
+    <!-- Trigger Button -->
+    <div class="mobile-trigger">
+      <button
+        type="button"
+        class="mobile-menu-trigger"
+        [attr.aria-label]="t('toggleNavigation')"
+        (click)="mobileMenu.toggle($event)"
+      >
+        <i class="pi pi-ellipsis-v" aria-hidden="true"></i>
+      </button>
+      <p-popover #mobileMenu>
+        <ul class="mobile-menu-list">
+          @if (user(); as currentUser) {
+            @if (currentUser.permissions.canAccessBookdrop || currentUser.permissions.admin) {
+              <li>
+                <button
+                  class="mobile-menu-item"
+                  (click)="navigateToBookdrop(); mobileMenu.hide()"
+                >
+                  <i class="pi pi-inbox topbar-icon"></i>
+                  {{ t('bookdrop') }}
+                </button>
+              </li>
+            }
+            @if (currentUser.permissions.canManageLibrary || currentUser.permissions.admin) {
+              <li>
+                <button
+                  class="mobile-menu-item"
+                  (click)="openLibraryCreatorDialog(); mobileMenu.hide()"
+                >
+                  <i class="pi pi-plus-circle topbar-icon"></i>
+                  {{ t('createLibrary') }}
+                </button>
+              </li>
+            }
+            @if (currentUser.permissions.canUpload || currentUser.permissions.admin) {
+              <li>
+                <button
+                  class="mobile-menu-item"
+                  (click)="openFileUploadDialog(); mobileMenu.hide()"
+                >
+                  <i class="pi pi-upload topbar-icon"></i>
+                  {{ t('uploadBook') }}
+                </button>
+              </li>
+            }
+            @if (currentUser.permissions.canAccessLibraryStats || currentUser.permissions.admin) {
+              <li>
+                <button
+                  class="mobile-menu-item"
+                  (click)="navigateToStats(); mobileMenu.hide()"
+                >
+                  <i class="pi pi-chart-line topbar-icon"></i>
+                  {{ t('libraryStats') }}
+                </button>
+              </li>
+            }
+            @if (currentUser.permissions.canAccessUserStats || currentUser.permissions.admin) {
+              <li>
+                <button
+                  class="mobile-menu-item"
+                  (click)="navigateToUserStats(); mobileMenu.hide()"
+                >
+                  <i class="pi pi-users topbar-icon"></i>
+                  {{ t('readingStats') }}
+                </button>
+              </li>
+            }
+            @if (currentUser.permissions.canManageLibrary || currentUser.permissions.admin) {
+              <li>
+                <button
+                  class="mobile-menu-item"
+                  (click)="navigateToMetadataManager(); mobileMenu.hide()"
+                >
+                  <i class="pi pi-sparkles topbar-icon"></i>
+                  {{ t('metadataManager') }}
+                </button>
+              </li>
+            }
+          }
+          <li>
+            <button
+              class="mobile-menu-item"
+              (click)="navigateToSettings(); mobileMenu.hide()"
+            >
+              <i class="pi pi-cog topbar-icon"></i>
+              {{ t('settings') }}
+            </button>
+          </li>
+          <li>
+            <a
+              class="mobile-menu-item"
+              href="https://grimmory.org/docs/getting-started"
+              target="_blank"
+              rel="noopener noreferrer">
+              <i class="pi pi-info-circle topbar-icon"></i>
+              {{ t('documentation') }}
+            </a>
+          </li>
+          <li>
+            <button
+              type="button"
+              class="mobile-menu-item"
+              (click)="langMenuMobile.toggle($event)"
+            >
+              <i class="pi pi-language topbar-icon"></i>
+              {{ t('language') }}
+            </button>
+            <p-menu #langMenuMobile [model]="langMenuItems" [popup]="true"/>
+          </li>
+
+          @if (user(); as currentUser) {
+            @if (!currentUser.permissions.demoUser) {
+              <li>
+                <button
+                  class="mobile-menu-item"
+                  (click)="openUserProfileDialog(); mobileMenu.hide()"
+                >
+                  <i class="pi pi-user topbar-icon"></i>
+                  {{ t('profile') }}
+                </button>
+              </li>
+            }
+          }
+
+          <li>
+            <button
+              class="mobile-menu-item"
+              (click)="logout(); mobileMenu.hide()"
+            >
+              <i class="pi pi-sign-out topbar-icon"></i>
+              {{ t('logout') }}
+            </button>
+          </li>
+        </ul>
+      </p-popover>
+    </div>
+  </div>
+</div>
+</ng-container>

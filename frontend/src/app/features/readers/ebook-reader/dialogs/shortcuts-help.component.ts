@@ -53,6 +53,7 @@ export class EbookShortcutsHelpComponent {
         title: this.t.translate('readerEbook.shortcutsHelp.display'),
         shortcuts: [
           {keys: ['F'], description: this.t.translate('readerEbook.shortcutsHelp.toggleFullscreen')},
+          {keys: ['I'], description: this.t.translate('readerEbook.shortcutsHelp.toggleImmersive')},
           {keys: ['Escape'], description: this.t.translate('readerEbook.shortcutsHelp.exitFullscreenCloseDialogs')}
         ]
       },

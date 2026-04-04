@@ -6,10 +6,12 @@ import org.booklore.model.dto.settings.MetadataPersistenceSettings;
 import org.booklore.model.entity.*;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.ComicCreatorRole;
+import org.booklore.service.ArchiveService;
 import org.booklore.service.appsettings.AppSettingService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.mockito.Mockito;
 import org.w3c.dom.Document;
 
@@ -34,6 +36,7 @@ import java.util.zip.ZipOutputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@EnabledIf("org.booklore.service.ArchiveService#isAvailable")
 class CbxMetadataWriterTest {
 
     private CbxMetadataWriter writer;
@@ -53,7 +56,7 @@ class CbxMetadataWriterTest {
         settings.setMetadataPersistenceSettings(persistence);
         Mockito.when(appSettingService.getAppSettings()).thenReturn(settings);
 
-        writer = new CbxMetadataWriter(appSettingService);
+        writer = new CbxMetadataWriter(appSettingService, new ArchiveService());
         tempDir = Files.createTempDirectory("cbx_writer_test_");
     }
 
@@ -260,13 +263,14 @@ class CbxMetadataWriterTest {
     @Test
     void saveMetadataToFile_ZipNamedAsCbr_ShouldUpdateMetadata() throws Exception {
         File zipAsCbr = createCbz(tempDir.resolve("mismatched.cbr"), new String[]{"page1.jpg"});
+        Path zipAsCbz = tempDir.resolve("mismatched.cbz");
 
         BookMetadataEntity meta = new BookMetadataEntity();
         meta.setTitle("Mismatched Title");
 
         writer.saveMetadataToFile(zipAsCbr, meta, null, new MetadataClearFlags());
 
-        try (ZipFile zip = new ZipFile(zipAsCbr)) {
+        try (ZipFile zip = new ZipFile(zipAsCbz.toFile())) {
             ZipEntry ci = zip.getEntry("ComicInfo.xml");
             assertNotNull(ci, "ComicInfo.xml should be present");
             Document doc = parseXml(zip.getInputStream(ci));

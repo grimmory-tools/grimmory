@@ -10,6 +10,7 @@ import org.booklore.model.dto.FileMoveResult;
 import org.booklore.model.dto.Library;
 import org.booklore.model.dto.request.FileMoveRequest;
 import org.booklore.model.entity.BookEntity;
+import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.LibraryEntity;
 import org.booklore.model.entity.LibraryPathEntity;
 import org.booklore.model.websocket.Topic;
@@ -126,6 +127,8 @@ public class FileMoveService {
                 return;
             }
 
+            List<BookFileEntity> bookFiles = bookEntity.getBookFiles().stream().distinct().toList();
+
             Path currentPrimaryFilePath = bookEntity.getFullFilePath();
             String pattern = fileMoveHelper.getFileNamingPattern(targetLibrary);
             Path newFilePath = fileMoveHelper.generateNewFilePath(bookEntity, libraryPathEntity, pattern);
@@ -143,7 +146,7 @@ public class FileMoveService {
             }
 
             // Validate all source paths exist before attempting moves
-            for (var bookFile : bookEntity.getBookFiles()) {
+            for (var bookFile : bookFiles) {
                 Path sourcePath = bookFile.getFullFilePath();
                 if (!fileMoveHelper.validateSourceExists(sourcePath, bookFile.isFolderBased())) {
                     log.warn("Source {} not found: bookId={}, path={}",
@@ -152,7 +155,7 @@ public class FileMoveService {
                 }
             }
 
-            for (var bookFile : bookEntity.getBookFiles()) {
+            for (var bookFile : bookFiles) {
                 Path sourcePath = bookFile.getFullFilePath();
                 Path targetPath;
                 if (bookFile.isBook()) {
@@ -188,7 +191,7 @@ public class FileMoveService {
             // Only update database after all file commits succeed
             try {
                 transactionTemplate.executeWithoutResult(status -> {
-                    for (var bookFile : bookEntity.getBookFiles()) {
+                    for (var bookFile : bookFiles) {
                         String newFileName;
                         if (bookFile.isBook()) {
                             Path targetPath = fileMoveHelper.generateNewFilePath(bookEntity, bookFile, libraryPathEntity, pattern);
@@ -218,8 +221,10 @@ public class FileMoveService {
                     .map(Paths::get)
                     .map(Path::toAbsolutePath)
                     .map(Path::normalize)
-                    .collect(Collectors.toSet());
-            
+                    .collect(Collectors.toCollection(HashSet::new));
+            // Also protect the source library root so cleanup doesn't traverse above it
+            libraryRoots.add(Paths.get(bookEntity.getLibraryPath().getPath()).toAbsolutePath().normalize());
+
             for (Path sourceParent : sourceParentsToCleanup) {
                 fileMoveHelper.deleteEmptyParentDirsUpToLibraryFolders(sourceParent, libraryRoots);
             }
@@ -276,6 +281,8 @@ public class FileMoveService {
                 return FileMoveResult.builder().moved(false).build();
             }
 
+            List<BookFileEntity> bookFiles = bookWithFiles.getBookFiles().stream().distinct().toList();
+
             String pattern = fileMoveHelper.getFileNamingPattern(bookWithFiles.getLibraryPath().getLibrary());
             Path currentPrimaryFilePath = bookWithFiles.getFullFilePath();
             Path expectedPrimaryFilePath = fileMoveHelper.generateNewFilePath(bookWithFiles, bookWithFiles.getLibraryPath(), pattern);
@@ -295,7 +302,7 @@ public class FileMoveService {
             }
 
             // Validate all source paths exist before attempting moves
-            for (var bookFile : bookWithFiles.getBookFiles()) {
+            for (var bookFile : bookFiles) {
                 Path sourcePath = bookFile.getFullFilePath();
                 if (!fileMoveHelper.validateSourceExists(sourcePath, bookFile.isFolderBased())) {
                     log.warn("Source {} not found: bookId={}, path={}",
@@ -311,7 +318,7 @@ public class FileMoveService {
             }
 
             // Stage all files to temp locations
-            for (var bookFile : bookWithFiles.getBookFiles()) {
+            for (var bookFile : bookFiles) {
                 Path sourcePath = bookFile.getFullFilePath();
                 Path targetPath;
                 if (bookFile.isBook()) {
@@ -348,7 +355,7 @@ public class FileMoveService {
             BookEntity finalBookWithFiles = bookWithFiles;
             try {
                 transactionTemplate.executeWithoutResult(status -> {
-                    for (var bookFile : finalBookWithFiles.getBookFiles()) {
+                    for (var bookFile : bookFiles) {
                         String newFileName;
                         if (bookFile.isBook()) {
                             Path targetPath = fileMoveHelper.generateNewFilePath(finalBookWithFiles, bookFile, finalBookWithFiles.getLibraryPath(), pattern);
@@ -377,8 +384,10 @@ public class FileMoveService {
                     .map(Paths::get)
                     .map(Path::toAbsolutePath)
                     .map(Path::normalize)
-                    .collect(Collectors.toSet());
-            
+                    .collect(Collectors.toCollection(HashSet::new));
+            // Also protect the source library root so cleanup doesn't traverse above it
+            libraryRoots.add(Paths.get(bookWithFiles.getLibraryPath().getPath()).toAbsolutePath().normalize());
+
             for (Path sourceParent : sourceParentsToCleanup) {
                 fileMoveHelper.deleteEmptyParentDirsUpToLibraryFolders(sourceParent, libraryRoots);
             }

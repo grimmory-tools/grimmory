@@ -17,9 +17,11 @@ import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.audit.AuditService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.Instant;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -34,6 +36,7 @@ public class LogoutService {
     private final AuditService auditService;
     private final AuthenticationService authenticationService;
 
+    @Transactional
     public LogoutResponse logout(Authentication auth, String refreshToken, String origin) {
         BookLoreUserEntity user = resolveUser(auth, refreshToken);
 
@@ -65,11 +68,12 @@ public class LogoutService {
     }
 
     private void revokeRefreshToken(BookLoreUserEntity user) {
-        refreshTokenRepository.findAllByUserAndRevokedFalse(user).forEach(token -> {
+        List<RefreshTokenEntity> tokens = refreshTokenRepository.findAllByUserAndRevokedFalse(user);
+        tokens.forEach(token -> {
             token.setRevoked(true);
             token.setRevocationDate(Instant.now());
-            refreshTokenRepository.save(token);
         });
+        refreshTokenRepository.saveAll(tokens);
     }
 
     private String buildOidcLogoutUrl(BookLoreUserEntity user, String origin) {

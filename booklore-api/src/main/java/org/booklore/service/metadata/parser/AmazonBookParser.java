@@ -129,50 +129,6 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
         return results;
     }
 
-    private List<BookMetadata> extractSearchPreviews(Document doc) {
-        Element searchResults = doc.select("span[data-component-type=s-search-results]").first();
-        if (searchResults == null) {
-            return Collections.emptyList();
-        }
-        Elements items = searchResults.select("div[role=listitem][data-index]");
-        List<BookMetadata> previews = new ArrayList<>();
-        for (Element item : items) {
-            if (previews.size() >= COUNT_DETAILED_METADATA_TO_GET) break;
-
-            if (item.text().contains("Collects books from")) continue;
-
-            Element titleDiv = item.selectFirst("div[data-cy=title-recipe]");
-            if (titleDiv == null) continue;
-
-            String titleText = titleDiv.text().trim();
-            if (titleText.isEmpty()) continue;
-
-            String lowerTitle = titleText.toLowerCase();
-            if (lowerTitle.contains("books set") || lowerTitle.contains("box set")
-                    || lowerTitle.contains("collection set") || lowerTitle.contains("summary & study guide")) {
-                continue;
-            }
-
-            String asin = extractAmazonBookId(item);
-            if (asin == null || asin.isBlank()) continue;
-
-            String thumbnailUrl = null;
-            Element img = item.selectFirst("img.s-image");
-            if (img != null) {
-                thumbnailUrl = img.attr("src");
-                if (thumbnailUrl.isBlank()) thumbnailUrl = null;
-            }
-
-            previews.add(BookMetadata.builder()
-                    .asin(asin)
-                    .title(titleText)
-                    .thumbnailUrl(thumbnailUrl)
-                    .provider(MetadataProvider.Amazon)
-                    .build());
-        }
-        return previews;
-    }
-
     @Override
     public BookMetadata fetchDetailedMetadata(String asin) {
         return getBookMetadata(asin);

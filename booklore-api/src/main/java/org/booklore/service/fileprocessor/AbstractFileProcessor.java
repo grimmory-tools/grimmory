@@ -53,7 +53,7 @@ public abstract class AbstractFileProcessor implements BookFileProcessor {
         this.sidecarMetadataWriter = sidecarMetadataWriter;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public FileProcessResult processFile(LibraryFile libraryFile) {
         Path path = libraryFile.getFullPath();

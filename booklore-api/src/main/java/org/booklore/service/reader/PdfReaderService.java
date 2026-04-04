@@ -2,14 +2,8 @@ package org.booklore.service.reader;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.pdfbox.Loader;
-import org.apache.pdfbox.io.RandomAccessReadBufferedFile;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDDocumentOutline;
-import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
-import org.apache.pdfbox.rendering.ImageType;
-import org.apache.pdfbox.rendering.PDFRenderer;
+import org.grimmory.pdfium4j.PdfDocument;
+import org.grimmory.pdfium4j.model.Bookmark;
 import org.booklore.exception.ApiError;
 import org.booklore.model.dto.response.PdfBookInfo;
 import org.booklore.model.dto.response.PdfOutlineItem;
@@ -20,8 +14,6 @@ import org.booklore.repository.BookRepository;
 import org.booklore.util.FileUtils;
 import org.springframework.stereotype.Service;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -146,26 +138,21 @@ public class PdfReaderService {
             throw new FileNotFoundException("PDF file is not readable: " + pdfPath);
         }
         long lastModified = Files.getLastModifiedTime(pdfPath).toMillis();
-        try (RandomAccessReadBufferedFile randomAccessRead = new RandomAccessReadBufferedFile(pdfPath.toFile());
-             PDDocument document = Loader.loadPDF(randomAccessRead)) {
-            int pageCount = document.getNumberOfPages();
-            List<PdfOutlineItem> outline = extractOutline(document);
+        try (PdfDocument doc = PdfDocument.open(pdfPath)) {
+            int pageCount = doc.pageCount();
+            List<PdfOutlineItem> outline = extractOutline(doc);
             return new CachedPdfMetadata(pageCount, lastModified, outline);
         }
     }
 
-    private List<PdfOutlineItem> extractOutline(PDDocument document) {
+    private List<PdfOutlineItem> extractOutline(PdfDocument doc) {
         List<PdfOutlineItem> outline = new ArrayList<>();
         try {
-            PDDocumentOutline documentOutline = document.getDocumentCatalog().getDocumentOutline();
-            if (documentOutline != null) {
-                PDOutlineItem item = documentOutline.getFirstChild();
-                while (item != null) {
-                    PdfOutlineItem outlineItem = buildOutlineItem(document, item);
-                    if (outlineItem != null) {
-                        outline.add(outlineItem);
-                    }
-                    item = item.getNextSibling();
+            List<Bookmark> bookmarks = doc.bookmarks();
+            for (Bookmark bookmark : bookmarks) {
+                PdfOutlineItem outlineItem = convertBookmark(bookmark);
+                if (outlineItem != null) {
+                    outline.add(outlineItem);
                 }
             }
         } catch (Exception e) {
@@ -174,34 +161,22 @@ public class PdfReaderService {
         return outline;
     }
 
-    private PdfOutlineItem buildOutlineItem(PDDocument document, PDOutlineItem item) {
+    private PdfOutlineItem convertBookmark(Bookmark bookmark) {
         try {
-            String title = item.getTitle();
+            String title = bookmark.title();
             if (title == null || title.isBlank()) {
                 return null;
             }
 
-            Integer pageNumber = null;
-            try {
-                PDPage page = item.findDestinationPage(document);
-                if (page != null) {
-                    int pageIndex = document.getPages().indexOf(page);
-                    if (pageIndex >= 0) {
-                        pageNumber = pageIndex + 1;
-                    }
-                }
-            } catch (Exception e) {
-                log.debug("Failed to get page for outline item '{}': {}", title, e.getMessage());
-            }
+            // PDFium4j pageIndex is 0-based, PdfOutlineItem.pageNumber is 1-based
+            Integer pageNumber = bookmark.isInternal() ? bookmark.pageIndex() + 1 : null;
 
             List<PdfOutlineItem> children = new ArrayList<>();
-            PDOutlineItem child = item.getFirstChild();
-            while (child != null) {
-                PdfOutlineItem childItem = buildOutlineItem(document, child);
+            for (Bookmark child : bookmark.children()) {
+                PdfOutlineItem childItem = convertBookmark(child);
                 if (childItem != null) {
                     children.add(childItem);
                 }
-                child = child.getNextSibling();
             }
 
             return PdfOutlineItem.builder()
@@ -231,18 +206,10 @@ public class PdfReaderService {
     }
 
     private void renderPageToStream(Path pdfPath, int page, OutputStream outputStream) throws IOException {
-        try (RandomAccessReadBufferedFile randomAccessRead = new RandomAccessReadBufferedFile(pdfPath.toFile());
-             PDDocument document = Loader.loadPDF(randomAccessRead)) {
-            PDFRenderer renderer = new PDFRenderer(document);
-            BufferedImage image = null;
-            try {
-                image = renderer.renderImageWithDPI(page - 1, DEFAULT_DPI, ImageType.RGB);
-                ImageIO.write(image, "JPEG", outputStream);
-            } finally {
-                if (image != null) {
-                    image.flush();
-                }
-            }
+        try (PdfDocument doc = PdfDocument.open(pdfPath)) {
+            // page is 1-based from the API, renderPageToBytes expects 0-based
+            byte[] jpeg = doc.renderPageToBytes(page - 1, (int) DEFAULT_DPI, "jpeg");
+            outputStream.write(jpeg);
         } catch (IOException e) {
             log.error("Failed to render PDF page {} from {}", page, pdfPath, e);
             throw e;

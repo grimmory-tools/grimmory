@@ -32,12 +32,16 @@
                 <div class="series-hero">
                   @if (coverBook(); as coverBook) {
                     <div class="hero-cover-section">
-                      <img
-                        [src]="getBookThumbnailUrl(coverBook)"
-                        class="hero-cover-img"
-                        [alt]="coverBook.metadata?.title || ''"
-                        loading="lazy"
-                        decoding="async"/>
+                      @if (getBookThumbnailUrl(coverBook); as coverUrl) {
+                        <img
+                          [src]="coverUrl"
+                          class="hero-cover-img"
+                          [alt]="coverBook.metadata?.title || ''"
+                          loading="lazy"
+                          decoding="async"/>
+                      } @else {
+                        <app-cover-placeholder class="hero-cover-img" [title]="coverBook.metadata?.title ?? ''" [author]="(coverBook.metadata?.authors ?? []).join(', ')" size="lg" />
+                      }
                     </div>
                   }
 
@@ -186,10 +190,14 @@
                           tabindex="0"
                           (click)="readBook(nextUp.book.id)"
                           (keydown.enter)="readBook(nextUp.book.id)">
-                          <img [src]="nextUp.thumbnailUrl"
-                            [alt]="nextUp.book.metadata?.title || ''"
-                            class="next-up-thumb"
-                            loading="lazy"/>
+                          @if (nextUp.thumbnailUrl) {
+                            <img [src]="nextUp.thumbnailUrl"
+                              [alt]="nextUp.book.metadata?.title || ''"
+                              class="next-up-thumb"
+                              loading="lazy"/>
+                          } @else {
+                            <app-cover-placeholder class="next-up-thumb" [title]="nextUp.book.metadata?.title ?? ''" [author]="(nextUp.book.metadata?.authors ?? []).join(', ')" size="sm" />
+                          }
                           <div class="next-up-info">
                             <span class="next-up-label">
                               <i class="pi pi-bookmark-fill"></i>
@@ -310,10 +318,14 @@
                   {{ book.metadata?.seriesNumber !== null && book.metadata?.seriesNumber !== undefined ? '#' + book.metadata?.seriesNumber : '-' }}
                 </span>
               </div>
-              <img [src]="getBookThumbnailUrl(book)"
-                [alt]="book.metadata?.title || ''"
-                class="list-thumb"
-                loading="lazy"/>
+              @if (getBookThumbnailUrl(book); as coverUrl) {
+                <img [src]="coverUrl"
+                  [alt]="book.metadata?.title || ''"
+                  class="list-thumb"
+                  loading="lazy"/>
+              } @else {
+                <app-cover-placeholder class="list-thumb" [title]="book.metadata?.title ?? ''" [author]="(book.metadata?.authors ?? []).join(', ')" size="sm" />
+              }
               <div class="list-book-info">
                 <span class="list-book-title">{{ book.metadata?.title || '' }}</span>
                 <div class="list-book-meta">

@@ -16,6 +16,8 @@ RUN --mount=type=cache,target=/workspace/.yarn/cache \
 
 FROM --platform=$BUILDPLATFORM gradle:9.3.1-jdk25-alpine AS backend-build
 
+ARG TARGETARCH
+
 WORKDIR /workspace/booklore-api
 
 COPY booklore-api/gradlew booklore-api/gradlew.bat booklore-api/build.gradle.kts booklore-api/settings.gradle.kts ./
@@ -29,13 +31,11 @@ COPY booklore-api/ ./
 COPY --from=frontend-build /workspace/frontend/dist/grimmory/browser /tmp/frontend-dist
 
 RUN --mount=type=cache,target=/home/gradle/.gradle \
-    ./gradlew --no-daemon -PfrontendDistDir=/tmp/frontend-dist bootJar
+    TARGETARCH=${TARGETARCH} ./gradlew --no-daemon -PfrontendDistDir=/tmp/frontend-dist bootJar
 
 RUN set -eux; \
     jar_path="$(find build/libs -maxdepth 1 -name '*.jar' ! -name '*plain.jar' | head -n 1)"; \
     cp "$jar_path" /workspace/booklore-api/app.jar
-
-FROM linuxserver/unrar:7.1.10 AS unrar-layer
 
 FROM mwader/static-ffmpeg:8.1 AS ffprobe-layer
 
@@ -68,15 +68,24 @@ ENV JAVA_TOOL_OPTIONS="-XX:+UseShenandoahGC \
     -XX:+UseCompactObjectHeaders \
     -XX:MaxRAMPercentage=60.0 \
     -XX:InitialRAMPercentage=8.0 \
-    -XX:+ExitOnOutOfMemoryError"
+    -XX:+ExitOnOutOfMemoryError \
+    -XX:MaxMetaspaceSize=192m \
+    -XX:ReservedCodeCacheSize=64m \
+    -Xss512k \
+    -XX:CICompilerCount=2 \
+    -XX:+UnlockExperimentalVMOptions \
+    -XX:ShenandoahUncommitDelay=5000 \
+    -XX:ShenandoahGuaranteedGCInterval=30000"
 
-RUN apk add --no-cache su-exec libstdc++ libgcc && \
+RUN apk add --no-cache su-exec libstdc++ libgcc libarchive && \
     mkdir -p /bookdrop
+
+# Manually link `libarchive.so.13` so java and other libraries can see it
+RUN ln -s /usr/lib/libarchive.so.13 /usr/lib/libarchive.so
 
 COPY packaging/docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-COPY --from=unrar-layer /usr/bin/unrar-alpine /usr/local/bin/unrar
 COPY --from=ffprobe-layer /ffprobe /usr/local/bin/ffprobe
 COPY --from=kepubify-layer /kepubify /usr/local/bin/kepubify
 
@@ -102,4 +111,4 @@ ARG BOOKLORE_PORT=6060
 EXPOSE ${BOOKLORE_PORT}
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["java", "-jar", "/app/app.jar"]
+CMD ["java", "--enable-native-access=ALL-UNNAMED", "-jar", "/app/app.jar"]

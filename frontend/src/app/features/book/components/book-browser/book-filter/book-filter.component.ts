@@ -65,13 +65,20 @@ export class BookFilterComponent implements OnInit, OnDestroy {
   );
   filterTypes: FilterType[] = Object.keys(this.filterSignals) as FilterType[];
   visibleFilterTypes: FilterType[] = [];
-  expandedPanels: number[] = [0];
+  expandedPanels: number[] = [];
   truncatedFilters: Record<string, boolean> = {};
 
   private _selectedFilterMode: BookFilterMode = 'and';
   private _visibleFilters: VisibleFilterType[] = [...DEFAULT_VISIBLE_FILTERS];
 
   readonly filterLabelKeys = FILTER_LABEL_KEYS;
+
+  private readonly userSettingsEffect = effect(() => {
+    const user = this.userService.currentUser();
+    if (!user) return;
+    this._visibleFilters = user.userSettings.visibleFilters ?? [...DEFAULT_VISIBLE_FILTERS];
+    this.updateVisibleFilterTypes();
+  });
 
   getFilterLabel(type: FilterType): string {
     const key = this.filterLabelKeys[type];
@@ -99,7 +106,6 @@ export class BookFilterComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.updateVisibleFilterTypes();
     this.updateExpandedPanels();
-    this.subscribeToUserSettings();
     this.subscribeToReset();
   }
 
@@ -128,7 +134,7 @@ export class BookFilterComponent implements OnInit, OnDestroy {
 
   clearActiveFilter(): void {
     this.activeFilters = {};
-    this.expandedPanels = [0];
+    this.expandedPanels = [];
     this.activeFiltersSignal.set(null);
     this.filterSelected.emit(null);
   }
@@ -162,15 +168,6 @@ export class BookFilterComponent implements OnInit, OnDestroy {
       return String(value.name ?? '');
     }
     return String(value ?? '');
-  }
-
-  private subscribeToUserSettings(): void {
-    effect(() => {
-      const user = this.userService.currentUser();
-      if (!user) return;
-      this._visibleFilters = user.userSettings.visibleFilters ?? [...DEFAULT_VISIBLE_FILTERS];
-      this.updateVisibleFilterTypes();
-    });
   }
 
   private updateVisibleFilterTypes(): void {
@@ -227,10 +224,10 @@ export class BookFilterComponent implements OnInit, OnDestroy {
   }
 
   private updateExpandedPanels(): void {
-    const panels = new Set(this.expandedPanels);
+    const panels = new Set<number>();
     this.visibleFilterTypes.forEach((type, i) => {
       if (this.activeFilters[type]?.length) panels.add(i);
     });
-    this.expandedPanels = panels.size > 0 ? [...panels] : [0];
+    this.expandedPanels = [...panels];
   }
 }
