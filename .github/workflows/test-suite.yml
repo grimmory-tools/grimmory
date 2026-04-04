@@ -59,6 +59,7 @@ jobs:
       # Needed for NightCompress
       - name: Install libarchive
         run: |
+          sudo apt-get update 
           sudo apt-get install libarchive-dev --yes
 
           # Place libarchive somewhere that java looks for it.
