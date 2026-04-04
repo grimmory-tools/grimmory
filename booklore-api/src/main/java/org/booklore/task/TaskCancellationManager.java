@@ -4,14 +4,10 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.stereotype.Component;
 
-import java.time.Duration;
-
 @Component
 public class TaskCancellationManager {
 
     private final Cache<String, Boolean> cancelledTasks = Caffeine.newBuilder()
-            .maximumSize(500)
-            .expireAfterWrite(Duration.ofHours(1))
             .build();
 
     public void cancelTask(String taskId) {

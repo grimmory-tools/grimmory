@@ -46,7 +46,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 @Transactional(readOnly = true)
 public class AppBookService {
 
-    private static final int DEFAULT_PAGE_SIZE = 20;
+    private static final int DEFAULT_PAGE_SIZE = 50;
     private static final int MAX_PAGE_SIZE = 50;
 
     private final BookRepository bookRepository;
@@ -326,19 +326,6 @@ public class AppBookService {
         Long userId = user.getId();
         Set<Long> accessibleLibraryIds = getAccessibleLibraryIds(user);
 
-        Set<Long> magicBookIds = null;
-        if (magicShelfId != null) {
-            magicBookIds = resolveMagicShelfBookIds(magicShelfId, userId);
-            if (magicBookIds.isEmpty()) {
-                return AppFilterOptions.builder()
-                        .authors(Collections.emptyList())
-                        .languages(Collections.emptyList())
-                        .fileTypes(Collections.emptyList())
-                        .readStatuses(getReadStatusOptions())
-                        .build();
-            }
-        }
-
         // Validate library access
         if (libraryId != null && accessibleLibraryIds != null && !accessibleLibraryIds.contains(libraryId)) {
             throw ApiError.FORBIDDEN.createException("Access denied to library " + libraryId);
@@ -358,6 +345,27 @@ public class AppBookService {
         AppFilterOptions cached = filterOptionsCache.getIfPresent(cacheKey);
         if (cached != null) {
             return cached;
+        }
+
+        Set<Long> magicBookIds = null;
+        if (magicShelfId != null) {
+            magicBookIds = resolveMagicShelfBookIds(magicShelfId, userId);
+            if (magicBookIds.isEmpty()) {
+                AppFilterOptions empty = AppFilterOptions.builder()
+                        .authors(Collections.emptyList())
+                        .languages(Collections.emptyList())
+                        .fileTypes(Collections.emptyList())
+                        .readStatuses(getReadStatusOptions())
+                        .categories(Collections.emptyList())
+                        .publishers(Collections.emptyList())
+                        .series(Collections.emptyList())
+                        .tags(Collections.emptyList())
+                        .moods(Collections.emptyList())
+                        .narrators(Collections.emptyList())
+                        .build();
+                filterOptionsCache.put(cacheKey, empty);
+                return empty;
+            }
         }
 
         // Build scoping clauses
@@ -488,8 +496,6 @@ public class AppBookService {
         }
     }
 
-    private static final int MAX_MAGIC_SHELF_IDS = 10_000;
-
     private Set<Long> resolveMagicShelfBookIds(Long magicShelfId, Long userId) {
         Specification<BookEntity> spec = magicShelfBookService.toSpecification(userId, magicShelfId);
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
@@ -498,7 +504,6 @@ public class AppBookService {
         cq.select(root.get("id"));
         cq.where(spec.toPredicate(root, cq, cb));
         return new HashSet<>(entityManager.createQuery(cq)
-                .setMaxResults(MAX_MAGIC_SHELF_IDS)
                 .getResultList());
     }
 

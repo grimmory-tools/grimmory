@@ -46,11 +46,8 @@ public class MagicShelfBookService {
 
     @Transactional(readOnly = true)
     public Page<Book> getBooksByMagicShelfId(Long userId, Long magicShelfId, int page, int size) {
-        MagicShelfEntity shelf = validateMagicShelfAccess(userId, magicShelfId);
         try {
-            GroupRule groupRule = objectMapper.readValue(shelf.getFilterJson(), GroupRule.class);
-            Specification<BookEntity> specification = ruleEvaluatorService.toSpecification(groupRule, userId);
-            specification = specification.and(createLibraryFilterSpecification(userId));
+            Specification<BookEntity> specification = toSpecification(userId, magicShelfId);
             Pageable pageable = PageRequest.of(Math.max(page, 0), size);
 
             Page<BookEntity> booksPage = bookRepository.findAll(specification, pageable);

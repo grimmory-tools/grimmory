@@ -106,8 +106,8 @@ export class AppBooksApiService {
 
   /** Invalidate the books query to force a refresh from the server. */
   invalidate(): void {
-    this.queryClient.invalidateQueries({queryKey: ['app-books']});
-    this.queryClient.invalidateQueries({queryKey: ['app-filter-options']});
+    void this.queryClient.invalidateQueries({queryKey: ['app-books']});
+    void this.queryClient.invalidateQueries({queryKey: ['app-filter-options']});
   }
 
   private buildParams(page: number): HttpParams {
@@ -157,6 +157,7 @@ function summaryToBook(summary: AppBookSummary): Book {
     lastReadTime: summary.lastReadTime,
     isPhysical: summary.isPhysical ?? false,
     metadata: {
+      bookId: summary.id,
       title: summary.title,
       authors: summary.authors ?? [],
       seriesName: summary.seriesName,
@@ -168,11 +169,10 @@ function summaryToBook(summary: AppBookSummary): Book {
       ? {bookType: summary.primaryFileType as BookType}
       : null,
     pdfProgress: summary.readProgress != null
-      ? {percentage: summary.readProgress}
+      ? {page: 0, percentage: summary.readProgress}
       : null,
     epubProgress: null,
     cbxProgress: null,
     shelves: [],
-    bookFiles: [],
   } as unknown as Book;
 }

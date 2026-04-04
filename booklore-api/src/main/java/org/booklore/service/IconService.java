@@ -257,7 +257,13 @@ public class IconService {
                             String filename = path.getFileName().toString();
                             String iconName = filename.replace(SVG_EXTENSION, "");
                             String cached = svgCache.getIfPresent(filename);
-                            String content = cached != null ? cached : Files.readString(path);
+                            String content;
+                            if (cached != null) {
+                                content = cached;
+                            } else {
+                                content = Files.readString(path);
+                                svgCache.put(filename, content);
+                            }
                             iconMap.put(iconName, content);
                         } catch (IOException e) {
                             log.warn("Failed to read icon: {}", path.getFileName(), e);

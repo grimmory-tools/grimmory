@@ -174,7 +174,7 @@ class IconServiceTest {
         }
         assertEquals(1002, iconService.getIconNames(0, 2000).getContent().size());
         iconService.getSvgCache().cleanUp();
-        assertTrue(iconService.getSvgCache().estimatedSize() <= 1000);
+        assertTrue(iconService.getSvgCache().estimatedSize() <= 200);
     }
 
     @Test
