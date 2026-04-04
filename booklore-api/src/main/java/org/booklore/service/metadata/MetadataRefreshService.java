@@ -12,6 +12,7 @@ import org.booklore.model.dto.request.FetchMetadataRequest;
 import org.booklore.model.dto.request.MetadataRefreshOptions;
 import org.booklore.model.dto.request.MetadataRefreshRequest;
 import org.booklore.model.dto.settings.AppSettings;
+import org.booklore.util.BookUtils;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.LibraryEntity;
 import org.booklore.model.entity.MetadataFetchJobEntity;
@@ -847,9 +848,6 @@ public class MetadataRefreshService {
     }
 
     private Set<Shelf> filterShelvesByUserId(Set<Shelf> shelves, Long userId) {
-        if (shelves == null) return Collections.emptySet();
-        return shelves.stream()
-                .filter(shelf -> userId.equals(shelf.getUserId()))
-                .collect(Collectors.toSet());
+        return BookUtils.filterShelvesByUserId(shelves, userId);
     }
 }

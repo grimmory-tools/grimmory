@@ -1,13 +1,24 @@
 package org.booklore.util;
 
+import org.booklore.model.dto.Shelf;
 import org.booklore.model.entity.AuthorEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import lombok.experimental.UtilityClass;
 
+import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.regex.Pattern;
 
 @UtilityClass
 public class BookUtils {
+
+    public static Set<Shelf> filterShelvesByUserId(Set<Shelf> shelves, Long userId) {
+        if (shelves == null) return Collections.emptySet();
+        return shelves.stream()
+                .filter(shelf -> shelf.isPublicShelf() || userId.equals(shelf.getUserId()))
+                .collect(Collectors.toSet());
+    }
 
     private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
     private static final Pattern SPECIAL_CHARACTERS_PATTERN = Pattern.compile("[!@$%^&*_=|~`<>?/\"]");
