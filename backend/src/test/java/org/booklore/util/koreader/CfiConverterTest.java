@@ -396,6 +396,79 @@ class CfiConverterTest {
     }
 
     @Nested
+    class RangeCfiTests {
+
+        @Test
+        void rangeCfi_roundTrip_pos0AndPos1AreDifferent() {
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(simpleDocument), 0);
+            String start = "/body/DocFragment[1]/body/div[1]/p[1]/text().3";
+            String end = "/body/DocFragment[1]/body/div[1]/p[1]/text().15";
+
+            String rangeCfi = converter.xPointerToCfi(start, end);
+            XPointerResult result = converter.cfiToXPointer(rangeCfi);
+
+            assertNotNull(result.getPos0());
+            assertNotNull(result.getPos1());
+            assertNotEquals(result.getPos0(), result.getPos1());
+        }
+
+        @Test
+        void rangeCfi_roundTrip_xpointerEqualsPos0() {
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(simpleDocument), 0);
+            String start = "/body/DocFragment[1]/body/div[1]/p[1]/text().3";
+            String end = "/body/DocFragment[1]/body/div[1]/p[1]/text().15";
+
+            String rangeCfi = converter.xPointerToCfi(start, end);
+            XPointerResult result = converter.cfiToXPointer(rangeCfi);
+
+            assertEquals(result.getXpointer(), result.getPos0());
+        }
+
+        // Compact form (commonPath,relativeStart,relativeEnd) — format epub.js generates
+        @Test
+        void rangeCfi_compactForm_pos0AndPos1AreDifferent() {
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(simpleDocument), 0);
+            // epubcfi(/6/2!/4/2/2,/1:3,/1:10): common=/4/2/2, start=/1:3, end=/1:10
+            String compactRangeCfi = "epubcfi(/6/2!/4/2/2,/1:3,/1:10)";
+
+            XPointerResult result = converter.cfiToXPointer(compactRangeCfi);
+
+            assertNotNull(result.getPos0());
+            assertNotNull(result.getPos1());
+            assertNotEquals(result.getPos0(), result.getPos1());
+        }
+
+        @Test
+        void rangeCfi_compactForm_xpointerEqualsPos0() {
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(simpleDocument), 0);
+            String compactRangeCfi = "epubcfi(/6/2!/4/2/2,/1:3,/1:10)";
+
+            XPointerResult result = converter.cfiToXPointer(compactRangeCfi);
+
+            assertEquals(result.getXpointer(), result.getPos0());
+        }
+
+        @Test
+        void pointCfi_pos0EqualsPos1_regressionGuard() {
+            CfiConverter converter = new CfiConverter(new JsoupDocumentNavigator(simpleDocument), 0);
+            String pointCfi = "epubcfi(/6/2!/4/2/2)";
+
+            XPointerResult result = converter.cfiToXPointer(pointCfi);
+
+            assertEquals(result.getPos0(), result.getPos1());
+        }
+
+        @Test
+        void extractSpineIndex_rangeCfi_returnsCorrectIndex() {
+            String rangeCfi = "epubcfi(/6/4!/4/2/2/1:3,/4/2/2/1:15)";
+
+            int spineIndex = CfiConverter.extractSpineIndex(rangeCfi);
+
+            assertEquals(1, spineIndex);
+        }
+    }
+
+    @Nested
     class RoundTripTests {
 
         @Test
