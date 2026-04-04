@@ -771,7 +771,7 @@ public class BookRuleEvaluatorService {
             case DATE_FINISHED -> progressJoin.get("dateFinished");
             case LAST_READ_TIME -> progressJoin.get("lastReadTime");
             case PERSONAL_RATING -> progressJoin.get("personalRating");
-            case FILE_SIZE -> root.get("fileSizeKb");
+            case FILE_SIZE -> root.join("bookFiles", JoinType.LEFT).get("fileSizeKb");
             case METADATA_SCORE -> root.get("metadataMatchScore");
             case TITLE -> root.get("metadata").get("title");
             case SUBTITLE -> root.get("metadata").get("subtitle");
@@ -814,7 +814,7 @@ public class BookRuleEvaluatorService {
                 yield cb.function("GREATEST", Float.class, koreader, kobo, pdf, epub, cbx);
             }
             case FILE_TYPE -> cb.function("SUBSTRING_INDEX", String.class,
-                    root.get("fileName"), cb.literal("."), cb.literal(-1));
+                    root.join("bookFiles", JoinType.LEFT).get("fileName"), cb.literal("."), cb.literal(-1));
             default -> null;
         };
     }
