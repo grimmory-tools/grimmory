@@ -115,12 +115,17 @@ function convertHighlight(legacy: Record<string, unknown>): AnnotationTransferIt
   if (!rect || rect.length < 4) return null;
 
   const hexColor = color ? rgbArrayToHex(color) : '#FFFF00';
+  const x = rect[0];
+  const y = rect[1];
+  const w = rect[2] - rect[0];
+  const h = rect[3] - rect[1];
 
   return {
     annotation: {
-      annotationType: 8, // PdfAnnotationSubtype.Highlight
+      type: 9, // PdfAnnotationSubtype.HIGHLIGHT
       pageIndex,
-      rect: {x: rect[0], y: rect[1], width: rect[2] - rect[0], height: rect[3] - rect[1]},
+      rect: {origin: {x, y}, size: {width: w, height: h}},
+      segmentRects: [{origin: {x, y}, size: {width: w, height: h}}],
       color: hexColor,
       opacity: (legacy['opacity'] as number) ?? 1,
       id: crypto.randomUUID(),
@@ -139,12 +144,12 @@ function convertInk(legacy: Record<string, unknown>): AnnotationTransferItem | n
   const hexColor = color ? rgbArrayToHex(color) : '#000000';
 
   // pdf.js ink paths can be bezier arrays or point arrays
-  const inkLists: {x: number; y: number}[][] = [];
+  const inkList: {points: {x: number; y: number}[]}[] = [];
   for (const path of paths) {
     if (Array.isArray(path) && Array.isArray(path[0])) {
       // Array of point pairs
       const points = (path as number[][]).map(p => ({x: p[0], y: p[1]}));
-      inkLists.push(points);
+      inkList.push({points});
     } else if (typeof path === 'object' && 'bezier' in (path as Record<string, unknown>)) {
       // Bezier curve data - extract control points
       const bezier = (path as {bezier: number[]}).bezier;
@@ -152,19 +157,21 @@ function convertInk(legacy: Record<string, unknown>): AnnotationTransferItem | n
       for (let i = 0; i < bezier.length; i += 2) {
         points.push({x: bezier[i], y: bezier[i + 1]});
       }
-      inkLists.push(points);
+      inkList.push({points});
     }
   }
 
-  if (inkLists.length === 0) return null;
+  if (inkList.length === 0) return null;
 
   return {
     annotation: {
-      annotationType: 15, // PdfAnnotationSubtype.Ink
+      type: 15, // PdfAnnotationSubtype.INK
       pageIndex,
+      rect: {origin: {x: 0, y: 0}, size: {width: 0, height: 0}},
       color: hexColor,
-      borderWidth: thickness,
-      inkLists,
+      strokeWidth: thickness,
+      opacity: 1,
+      inkList,
       id: crypto.randomUUID(),
     } as never,
   };
@@ -179,14 +186,19 @@ function convertFreeText(legacy: Record<string, unknown>): AnnotationTransferIte
 
   if (!rect || rect.length < 4) return null;
 
+  const x = rect[0];
+  const y = rect[1];
+  const w = rect[2] - rect[0];
+  const h = rect[3] - rect[1];
+
   return {
     annotation: {
-      annotationType: 2, // PdfAnnotationSubtype.FreeText
+      type: 3, // PdfAnnotationSubtype.FREETEXT
       pageIndex,
-      rect: {x: rect[0], y: rect[1], width: rect[2] - rect[0], height: rect[3] - rect[1]},
+      rect: {origin: {x, y}, size: {width: w, height: h}},
       contents: value,
       fontSize,
-      color: color ? rgbArrayToHex(color) : '#000000',
+      fontColor: color ? rgbArrayToHex(color) : '#000000',
       id: crypto.randomUUID(),
     } as never,
   };

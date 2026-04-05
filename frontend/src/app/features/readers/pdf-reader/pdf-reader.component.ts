@@ -493,8 +493,8 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
         return {
           id: String(ann['id'] || ''),
           pageIndex: (ann['pageIndex'] as number) ?? 0,
-          type: this.getAnnotationTypeName(ann['annotationType'] as number),
-          color: ann['color'] as string | undefined,
+          type: this.getAnnotationTypeName(ann['type'] as number),
+          color: (ann['strokeColor'] ?? ann['color']) as string | undefined,
           text: ann['contents'] as string | undefined,
         };
       });
@@ -505,9 +505,9 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
 
   private getAnnotationTypeName(type: number): string {
     switch (type) {
-      case 8: return 'Highlight';
+      case 9: return 'Highlight';
       case 15: return 'Ink';
-      case 2: return 'Text';
+      case 3: return 'Text';
       default: return 'Annotation';
     }
   }

@@ -61,6 +61,7 @@ export class EmbedPdfBookService {
   async init(target: HTMLElement, pdfUrl: string, theme: 'dark' | 'light'): Promise<void> {
     this.applyWorkerShims();
     this.ensureHighDpiRendering();
+    this.patchReleasePointerCapture();
 
     const EmbedPDF = (await import('@embedpdf/snippet')).default;
 
@@ -83,6 +84,7 @@ export class EmbedPdfBookService {
         'document-open',
         'document-close',
         'link',
+        'annotation-link',
       ],
       annotations: {
         autoCommit: true,
@@ -218,19 +220,36 @@ export class EmbedPdfBookService {
   searchAllPages(keyword: string): void {
     if (!this.search) return;
     const docId = this.currentDocumentId || undefined;
-    this.search.searchAllPages(keyword, docId);
+    const task = this.search.searchAllPages(keyword, docId);
+    // After search completes, scroll to the first result
+    task.wait(() => {
+      this.scrollToActiveSearchResult();
+    }, () => { /* search failed or cancelled */ });
   }
 
   nextSearchResult(): void {
     if (!this.search) return;
     const docId = this.currentDocumentId || undefined;
     this.search.nextResult(docId);
+    this.scrollToActiveSearchResult();
   }
 
   previousSearchResult(): void {
     if (!this.search) return;
     const docId = this.currentDocumentId || undefined;
     this.search.previousResult(docId);
+    this.scrollToActiveSearchResult();
+  }
+
+  private scrollToActiveSearchResult(): void {
+    if (!this.search) return;
+    const docId = this.currentDocumentId || undefined;
+    const state = this.search.getState(docId);
+    if (!state || state.results.length === 0 || state.activeResultIndex < 0) return;
+    const result = state.results[state.activeResultIndex];
+    if (result) {
+      this.scrollToPage(result.pageIndex + 1, 'smooth');
+    }
   }
 
   // --- Spread/Layout ---
@@ -314,6 +333,7 @@ export class EmbedPdfBookService {
     this.currentDocumentId = null;
 
     this.restoreWorkerShims();
+    this.restoreReleasePointerCapture();
   }
 
   private convertBookmarks(items: unknown[]): PdfOutlineItem[] {
@@ -430,6 +450,36 @@ export class EmbedPdfBookService {
     delete w.__grimmoryShimsApplied;
   }
 
+  /**
+   * Patch Element.prototype.releasePointerCapture to swallow "Invalid pointer id"
+   * DOMExceptions thrown by EmbedPDF's internal Svelte rendering during
+   * annotation drag/resize interactions. The error is benign—the pointer has
+   * already been released by the time the cleanup call fires.
+   */
+  private patchReleasePointerCapture(): void {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const w = window as any;
+    if (w.__grimmoryOrigRelease) return;
+    const orig = Element.prototype.releasePointerCapture;
+    w.__grimmoryOrigRelease = orig;
+    Element.prototype.releasePointerCapture = function (pointerId: number) {
+      try {
+        orig.call(this, pointerId);
+      } catch (e) {
+        if (!(e instanceof DOMException && e.message.includes('pointer'))) throw e;
+      }
+    };
+  }
+
+  private restoreReleasePointerCapture(): void {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const w = window as any;
+    if (w.__grimmoryOrigRelease) {
+      Element.prototype.releasePointerCapture = w.__grimmoryOrigRelease;
+      delete w.__grimmoryOrigRelease;
+    }
+  }
+
   private injectBookModeStyles(target: HTMLElement): void {
     const waitForShadow = (attempt = 0): void => {
       const epContainer = target.querySelector('embedpdf-container');
@@ -504,6 +554,14 @@ export class EmbedPdfBookService {
         [data-epdf-i="add-link"],
         button[title*="Link"] {
           display: none !important;
+        }
+
+        /* Improve annotation layer rendering on touch devices.
+           FreeText annotation overlays can bleed through when the
+           appearance-stream image has not finished loading. Prevent the
+           interactive text span from blocking the rendered image. */
+        [role="textbox"][contenteditable="false"] {
+          pointer-events: none;
         }
       `;
       shadow.appendChild(style);

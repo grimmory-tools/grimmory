@@ -726,23 +726,8 @@ $transition-fast: 150ms ease;
 
 // --- Responsive ---
 
-// Tablet (portrait)
+// Tablet (portrait) switches to mobile toolbar layout
 @media (width <= 1024px) {
-  .pdf-footer {
-    gap: 8px;
-  }
-
-  .goto-page {
-    display: none;
-  }
-
-  .viewer-mode-toggle .toggle-btn span {
-    display: none;
-  }
-}
-
-// Mobile
-@media (width <= 768px) {
   .pdf-header-toolbar {
     height: $header-height + 4px;
     padding: 0 8px;
