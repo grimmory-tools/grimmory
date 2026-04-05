@@ -140,7 +140,7 @@
         border-bottom-color: #404040 !important;
         box-shadow: 0 2px 8px rgba(0,0,0,0.30) !important;
         height: 38px !important;
-        padding-right: 48px !important;
+        padding-right: 88px !important;
         padding-top: 0 !important;
         padding-bottom: 0 !important;
         box-sizing: border-box !important;
@@ -292,7 +292,7 @@
           'link',
           'annotation-link',
         ],
-        render: { defaultImageQuality: 1 },
+        render: { defaultImageQuality: 2 },
         tiling: { tileSize: 1024, overlapPx: 2, extraRings: 1 },
       });
 
@@ -315,6 +315,19 @@
           });
         }
         parent.postMessage({ type: 'ready' }, myOrigin);
+
+        if (typeof ResizeObserver !== 'undefined') {
+          const observer = new ResizeObserver(() => {
+            const zoomPlugin = registry.getPlugin('zoom')?.provides();
+            if (zoomPlugin) {
+              const state = zoomPlugin.getState();
+              if (state.zoomLevel === 'fit-page') {
+                zoomPlugin.requestZoom('fit-page');
+              }
+            }
+          });
+          observer.observe(target);
+        }
       } catch (err) {
         log('Registry error:', err);
         parent.postMessage({ type: 'documentError', error: String(err) }, myOrigin);

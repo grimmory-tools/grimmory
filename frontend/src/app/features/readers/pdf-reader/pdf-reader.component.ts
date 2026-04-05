@@ -61,6 +61,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   isFullscreen = false;
   viewerMode: 'book' | 'document' = 'book';
   isDocViewerInfoVisible = false;
+  docViewerReady = false;
   private readonly DOC_VIEWER_DISMISSED_KEY = 'grimmory_doc_viewer_info_dismissed';
 
   // Doc mode (iframe) state
@@ -69,6 +70,9 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   private embedPdfSaveResolve?: (buffer: ArrayBuffer | null) => void;
   private embedPdfSaveTimer?: ReturnType<typeof setTimeout>;
   private embedPdfInitTime = 0;
+  private initTimeout?: ReturnType<typeof setTimeout>;
+  private isInitializingBookViewer = false;
+  private pdfFetchAbortController?: AbortController;
 
   // Book mode state
   private bookViewerInitialized = false;
@@ -316,7 +320,8 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
         this.isLoading = false;
 
         // Initialize book viewer after loading completes
-        setTimeout(() => this.initBookViewer(), 50);
+        if (this.initTimeout) clearTimeout(this.initTimeout);
+        this.initTimeout = setTimeout(() => this.initBookViewer(), 50);
       },
       error: () => {
         this.messageService.add({ severity: 'error', summary: this.t.translate('common.error'), detail: this.t.translate('readerPdf.toast.failedToLoadBook') });
@@ -333,18 +338,35 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   // --- Book viewer (EmbedPDF direct) ---
 
   private async initBookViewer(): Promise<void> {
-    if (this.viewerMode !== 'book' || this.bookViewerInitialized) return;
+    if (this.viewerMode !== 'book' || this.bookViewerInitialized || this.isInitializingBookViewer) return;
 
     const targetEl = document.getElementById('book-viewer');
     if (!targetEl) return;
 
+    this.isInitializingBookViewer = true;
+
+    // Capture current book state to ensure consistency across async calls
+    const currentBookId = this.bookId;
+    const currentBookData = this.bookData;
+
     try {
+      // Abort any pending fetch from a previous (stale) initialization attempt
+      if (this.pdfFetchAbortController) {
+        this.pdfFetchAbortController.abort();
+      }
+      this.pdfFetchAbortController = new AbortController();
+
       let pdfUrl: string;
-      if (this.bookData.startsWith('blob:')) {
-        pdfUrl = this.bookData;
+      if (currentBookData.startsWith('blob:')) {
+        pdfUrl = currentBookData;
       } else {
-        pdfUrl = await this.fetchAsObjectUrl(this.bookData);
+        pdfUrl = await this.fetchAsObjectUrl(currentBookData, this.pdfFetchAbortController.signal);
         this.pdfBlobUrl = pdfUrl;
+      }
+
+      // Check if we were aborted or navigated away during the fetch
+      if (this.pdfFetchAbortController.signal.aborted || currentBookId !== this.bookId) {
+        return;
       }
 
       await this.embedPdfBook.init(
@@ -424,18 +446,28 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
         summary: this.t.translate('common.error'),
         detail: this.t.translate('readerPdf.toast.failedToLoadBook')
       });
+    } finally {
+      this.isInitializingBookViewer = false;
     }
   }
 
-  private async fetchAsObjectUrl(url: string): Promise<string> {
+  private async fetchAsObjectUrl(url: string, signal?: AbortSignal): Promise<string> {
     const headers: Record<string, string> = {};
     if (this.authorization) {
       headers['Authorization'] = this.authorization;
     }
-    const response = await fetch(url, { headers, credentials: 'include' });
-    if (!response.ok) throw new Error(`PDF fetch failed: ${response.status}`);
-    const blob = await response.blob();
-    return URL.createObjectURL(blob);
+    try {
+      const response = await fetch(url, { headers, credentials: 'include', signal });
+      if (!response.ok) throw new Error(`PDF fetch failed: ${response.status}`);
+      const blob = await response.blob();
+      return URL.createObjectURL(blob);
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        console.info('[PDF Reader] Fetch aborted for:', url);
+        return '';
+      }
+      throw err;
+    }
   }
 
   private destroyBookViewer(): void {
@@ -643,6 +675,8 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   async setViewerMode(mode: 'book' | 'document') {
     if (mode === this.viewerMode) return;
 
+    this.viewerMode = mode;
+    this.docViewerReady = false;
     if (mode === 'document') {
       // Save annotations before switching
       await this.persistAnnotations();
@@ -719,6 +753,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   private handleEmbedPdfMessage(msg: EmbedPdfMessage): void {
     switch (msg.type) {
       case 'ready':
+        this.docViewerReady = true;
         break;
       case 'documentOpened':
         break;
@@ -846,6 +881,8 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.initTimeout) clearTimeout(this.initTimeout);
+    if (this.pdfFetchAbortController) this.pdfFetchAbortController.abort();
     this.wakeLockService.disable();
     if (this.chromeAutoHideTimer) clearTimeout(this.chromeAutoHideTimer);
 

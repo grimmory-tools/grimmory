@@ -15,23 +15,24 @@
   <div class="header-trigger-zone" [class.inactive]="headerVisible" (mouseenter)="onHeaderTriggerZoneEnter()"></div>
   }
 
-  <!-- Document Viewer (iframe EmbedPDF) -->
   @if (viewerMode === 'document') {
-  <button class="embed-close-btn icon-btn close-btn" [title]="'readerPdf.toolbar.closePdfReader' | transloco"
-    (click)="closeReader()">
-    <app-reader-icon name="close" [size]="20" />
-  </button>
-
-  @if (isDocViewerInfoVisible) {
-  <div class="doc-viewer-info">
-    <span>{{ 'readerPdf.docViewer.changesSavedInfo' | transloco }}</span>
-    <button class="dismiss-btn" (click)="dismissDocViewerInfo()">
-      <app-reader-icon name="close" [size]="14" />
+    @if (docViewerReady) {
+    <button class="embed-close-btn icon-btn" [title]="'readerPdf.toolbar.closePdfReader' | transloco"
+      (click)="closeReader()">
+      <app-reader-icon name="close" [size]="18" />
     </button>
-  </div>
-  }
+    }
 
-  <div id="embedpdf-viewer"></div>
+    @if (isDocViewerInfoVisible) {
+    <div class="doc-viewer-info">
+      <span>{{ 'readerPdf.docViewer.changesSavedInfo' | transloco }}</span>
+      <button class="dismiss-btn" (click)="dismissDocViewerInfo()">
+        <app-reader-icon name="close" [size]="14" />
+      </button>
+    </div>
+    }
+
+    <div id="embedpdf-viewer"></div>
   }
 
   <!-- Book Viewer (direct EmbedPDF) -->

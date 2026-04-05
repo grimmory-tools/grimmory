@@ -538,15 +538,29 @@ $transition-fast: 150ms ease;
 
 .embed-close-btn {
   position: fixed;
-  top: 4px;
-  right: 4px;
+  top: 0;
+  right: 0;
   z-index: 11000;
-  color: $text-primary;
-  padding: 7px;
-  background: rgb(30 30 30 / 85%);
-  border-radius: 50%;
-  backdrop-filter: blur(4px);
-  border: 1px solid $border-color;
+  color: #fff;
+  width: 44px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2d2d2d;
+  border: none;
+  border-bottom: 1px solid #404040;
+  cursor: pointer;
+  padding: 0;
+  transition: background $transition-fast;
+
+  &:hover {
+    background: #3a3a3a;
+  }
+
+  &:active {
+    background: #444;
+  }
 }
 
 .doc-viewer-info {
