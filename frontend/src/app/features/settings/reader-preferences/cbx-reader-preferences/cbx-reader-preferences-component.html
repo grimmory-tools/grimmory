@@ -96,6 +96,29 @@
 
     <div class="setting-item">
       <div class="setting-info">
+        <div class="setting-label-row strip-width-row">
+          <span class="setting-label">{{ t('stripMaxWidth') }}</span>
+          <div class="strip-width-control">
+            <input
+              type="range"
+              min="50"
+              max="100"
+              step="5"
+              [value]="selectedCbxStripMaxWidthPercent"
+              (input)="onStripMaxWidthInput($event)"
+              [attr.aria-valuetext]="selectedCbxStripMaxWidthPercent + '%'"
+            />
+            <span class="strip-width-value">{{ selectedCbxStripMaxWidthPercent }}%</span>
+          </div>
+        </div>
+        <p class="setting-description">
+          {{ t('stripMaxWidthDesc') }}
+        </p>
+      </div>
+    </div>
+
+    <div class="setting-item">
+      <div class="setting-info">
         <div class="setting-label-row">
           <span class="setting-label">{{ t('backgroundColor') }}</span>
           <div class="theme-selector">
