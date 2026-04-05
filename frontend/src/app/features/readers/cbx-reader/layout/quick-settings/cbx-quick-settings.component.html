@@ -36,10 +36,11 @@
 
       @if (showStripWidthControl) {
       <div class="control">
-        <span>{{ 'readerCbx.quickSettings.stripMaxWidth' | transloco }}</span>
+        <span id="cbx-quick-strip-width-label">{{ 'readerCbx.quickSettings.stripMaxWidth' | transloco }}</span>
         <div class="control-right strip-width-row">
           <input type="range" min="50" max="100" step="5" [value]="state().stripMaxWidthPercent"
-            (input)="onStripMaxWidthInput($event)" class="brightness-slider" />
+            (input)="onStripMaxWidthInput($event)" class="brightness-slider"
+            aria-labelledby="cbx-quick-strip-width-label" />
           <span class="brightness-value">{{ state().stripMaxWidthPercent }}%</span>
         </div>
       </div>

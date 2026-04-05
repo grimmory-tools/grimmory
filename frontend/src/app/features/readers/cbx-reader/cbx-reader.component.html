@@ -108,8 +108,7 @@
           {{ 'readerCbx.continuation.scrollForNext' | transloco }}
         </div>
         }
-        @if (longStripImages.length > 0 && longStripImages[longStripImages.length - 1].page >= pages.length - 1 &&
-        nextBookInSeries) {
+        @if (isAtEndOfLongStrip && nextBookInSeries) {
       <div class="end-of-comic-action">
         <button class="next-book-action-button" (click)="navigateToNextBook()">
           <span class="action-icon">📖</span>
@@ -140,8 +139,7 @@
           {{ 'readerCbx.continuation.scrollForNext' | transloco }}
         </div>
         }
-        @if (infiniteScrollPages.length > 0 && infiniteScrollPages[infiniteScrollPages.length - 1] >= pages.length - 1 &&
-        nextBookInSeries) {
+        @if (isAtEndOfInfiniteScroll && nextBookInSeries) {
       <div class="end-of-comic-action">
         <button class="next-book-action-button" (click)="navigateToNextBook()">
           <span class="action-icon">📖</span>

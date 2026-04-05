@@ -1,3 +1,30 @@
+@mixin cbx-reader-continuation-affordance {
+  .cbx-continuation-spacer {
+    flex: 0 0 auto;
+    min-height: 28vh;
+    width: 100%;
+    pointer-events: none;
+  }
+
+  .cbx-continuation-hint {
+    flex: 0 0 auto;
+    width: 100%;
+    text-align: center;
+    font-size: 0.88rem;
+    color: rgb(255 255 255 / 45%);
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.35s ease, transform 0.35s ease, color 0.35s ease;
+    pointer-events: none;
+
+    &.visible {
+      opacity: 1;
+      transform: translateY(0);
+      color: rgb(255 255 255 / 72%);
+    }
+  }
+}
+
 .comic-reader-container {
   display: flex;
   flex-direction: column;
@@ -418,30 +445,10 @@
         gap: 1rem;
       }
 
-      .cbx-continuation-spacer {
-        flex: 0 0 auto;
-        min-height: 28vh;
-        width: 100%;
-        pointer-events: none;
-      }
+      @include cbx-reader-continuation-affordance;
 
       .cbx-continuation-hint {
-        flex: 0 0 auto;
-        width: 100%;
-        text-align: center;
         padding: 0.5rem 1rem 1rem;
-        font-size: 0.88rem;
-        color: rgb(255 255 255 / 45%);
-        opacity: 0;
-        transform: translateY(6px);
-        transition: opacity 0.35s ease, transform 0.35s ease, color 0.35s ease;
-        pointer-events: none;
-
-        &.visible {
-          opacity: 1;
-          transform: translateY(0);
-          color: rgb(255 255 255 / 72%);
-        }
       }
 
       .page-image {
@@ -476,6 +483,7 @@
 
         .infinite-scroll-wrapper {
           align-items: center;
+
           // Stable width so strip max-width % resolves against the reader scrollport, not max-content.
           width: 100%;
           min-width: 0;
@@ -549,30 +557,10 @@
         align-items: center;
       }
 
-      .cbx-continuation-spacer {
-        flex: 0 0 auto;
-        min-height: 28vh;
-        width: 100%;
-        pointer-events: none;
-      }
+      @include cbx-reader-continuation-affordance;
 
       .cbx-continuation-hint {
-        flex: 0 0 auto;
-        width: 100%;
-        text-align: center;
         padding: 0.75rem 1rem 1.25rem;
-        font-size: 0.88rem;
-        color: rgb(255 255 255 / 45%);
-        opacity: 0;
-        transform: translateY(6px);
-        transition: opacity 0.35s ease, transform 0.35s ease, color 0.35s ease;
-        pointer-events: none;
-
-        &.visible {
-          opacity: 1;
-          transform: translateY(0);
-          color: rgb(255 255 255 / 72%);
-        }
       }
 
       .long-strip-image {

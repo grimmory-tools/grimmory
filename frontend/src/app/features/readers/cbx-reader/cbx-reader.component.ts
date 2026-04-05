@@ -2,7 +2,7 @@ import { Component, effect, ElementRef, HostListener, inject, OnDestroy, OnInit,
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { forkJoin, from, Subject } from 'rxjs';
-import { debounceTime, map, switchMap, takeUntil } from 'rxjs/operators';
+import { debounceTime, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { PageTitleService } from "../../../shared/service/page-title.service";
 import { CbxReaderService } from '../../book/service/cbx-reader.service';
 import { BookService } from '../../book/service/book.service';
@@ -601,13 +601,13 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
       });
 
     this.quickSettingsService.stripMaxWidthChange$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((value) => {
-        this.stripMaxWidthPercent = value;
-      });
-
-    this.quickSettingsService.stripMaxWidthChange$
-      .pipe(debounceTime(CbxReaderComponent.STRIP_WIDTH_PERSIST_DEBOUNCE_MS), takeUntil(this.destroy$))
+      .pipe(
+        tap((value) => {
+          this.stripMaxWidthPercent = value;
+        }),
+        debounceTime(CbxReaderComponent.STRIP_WIDTH_PERSIST_DEBOUNCE_MS),
+        takeUntil(this.destroy$)
+      )
       .subscribe((value) => this.persistStripMaxWidth(value));
   }
 
@@ -1881,6 +1881,20 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
   get isAtLastPage(): boolean {
     return this.currentPage >= this.pages.length - 1;
+  }
+
+  /** Last loaded long-strip page is the archive's final page (show next-book CTA when in series). */
+  get isAtEndOfLongStrip(): boolean {
+    if (this.longStripImages.length === 0) return false;
+    const last = this.longStripImages[this.longStripImages.length - 1];
+    return last.page >= this.pages.length - 1;
+  }
+
+  /** Last loaded infinite-scroll index is the archive's final page (show next-book CTA when in series). */
+  get isAtEndOfInfiniteScroll(): boolean {
+    if (this.infiniteScrollPages.length === 0) return false;
+    const lastIdx = this.infiniteScrollPages[this.infiniteScrollPages.length - 1];
+    return lastIdx >= this.pages.length - 1;
   }
 
   navigateToPreviousBook(): void {
