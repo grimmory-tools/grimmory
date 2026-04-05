@@ -10,14 +10,19 @@ export class CacheStorageService {
 
   private http = inject(HttpClient);
 
+  private get cacheAvailable(): boolean {
+    return typeof caches !== 'undefined';
+  }
+
   async getCache(uri: string, noValidate: boolean = false): Promise<Response> {
-    const cachedResponse = await this.attemptToGetAndValidateCache(uri, noValidate);
-    if (cachedResponse) {
-      return cachedResponse;
+    if (this.cacheAvailable) {
+      const cachedResponse = await this.attemptToGetAndValidateCache(uri, noValidate);
+      if (cachedResponse) {
+        return cachedResponse;
+      }
     }
 
-    // Cache stale or failed to get, fetch from uri
-
+    // Cache unavailable, stale, or failed to get fetch from uri
     const httpResponse = await this.fetchFromUri(uri);
     const headers = new Headers();
     httpResponse.headers.keys().forEach((key) => {
@@ -29,10 +34,12 @@ export class CacheStorageService {
       status: httpResponse.status,
       statusText: httpResponse.statusText,
     });
-    
-    this.put(uri, res.clone()).catch((error) => {
-      console.error("Error caching response:", error);
-    });
+
+    if (this.cacheAvailable) {
+      this.put(uri, res.clone()).catch((error) => {
+        console.error("Error caching response:", error);
+      });
+    }
 
     return res;
   }
@@ -95,24 +102,29 @@ export class CacheStorageService {
   }
 
   match(uri: string): Promise<Response | undefined> {
+    if (!this.cacheAvailable) return Promise.resolve(undefined);
     return this.cache().then((cache) => cache.match(uri));
   }
 
   has(uri: string): Promise<boolean> {
+    if (!this.cacheAvailable) return Promise.resolve(false);
     return this.cache().then((cache) =>
       cache.match(uri).then((response) => !!response),
     );
   }
 
   put(uri: string, entry: Response): Promise<void> {
+    if (!this.cacheAvailable) return Promise.resolve();
     return this.cache().then((cache) => cache.put(uri, entry));
   }
 
   delete(uri: string): Promise<boolean> {
+    if (!this.cacheAvailable) return Promise.resolve(false);
     return this.cache().then((cache) => cache.delete(uri));
   }
 
   clear(): Promise<void> {
+    if (!this.cacheAvailable) return Promise.resolve();
     return this.cache()
       .then((cache) => cache.keys())
       .then((keys) => Promise.all(keys.map((key) => this.delete(key.url))))
@@ -120,6 +132,7 @@ export class CacheStorageService {
   }
 
   getCacheSizeInBytes(): Promise<number> {
+    if (!this.cacheAvailable) return Promise.resolve(0);
     return this.cache()
       .then((cache) => cache.keys())
       .then((keys) => keys.map((key) => this.match(key.url)))
@@ -130,6 +143,9 @@ export class CacheStorageService {
 
 
   private cache(): Promise<Cache> {
+    if (typeof caches === 'undefined') {
+      return Promise.reject(new Error('Cache API is not available (requires secure context)'));
+    }
     return caches.open(CacheStorageService.CACHE_NAME);
   }
 }
