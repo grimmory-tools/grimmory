@@ -57,6 +57,13 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   });
 
+  private readonly authenticatedEffect = effect(() => {
+    const isAuthenticated = this.authService.isAuthenticated();
+    if (isAuthenticated) {
+      this.libraryHealthService.fetchHealth();
+    }
+  })
+
   ngOnInit(): void {
     window.addEventListener('online', this.onOnline);
     window.addEventListener('offline', this.onOffline);
