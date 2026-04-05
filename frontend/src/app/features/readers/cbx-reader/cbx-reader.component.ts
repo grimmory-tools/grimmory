@@ -294,6 +294,10 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
         this.showWebtoonSuggestion = false;
         this.continuationHintVisible = false;
+        if (this.infiniteScrollPageDebounceTimer) {
+          clearTimeout(this.infiniteScrollPageDebounceTimer);
+          this.infiniteScrollPageDebounceTimer = null;
+        }
         this.bumpReaderLayoutGeneration();
 
         this.previousBookInSeries = null;
@@ -1141,8 +1145,12 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     if (this.infiniteScrollPageDebounceTimer) {
       clearTimeout(this.infiniteScrollPageDebounceTimer);
     }
+    const layoutGen = this.readerLayoutGeneration;
     this.infiniteScrollPageDebounceTimer = setTimeout(() => {
       this.infiniteScrollPageDebounceTimer = null;
+      if (layoutGen !== this.readerLayoutGeneration || this.scrollMode !== CbxScrollMode.INFINITE) {
+        return;
+      }
       this.updateCurrentPageFromScroll(container);
     }, CbxReaderComponent.INFINITE_SCROLL_PAGE_DEBOUNCE_MS);
 
