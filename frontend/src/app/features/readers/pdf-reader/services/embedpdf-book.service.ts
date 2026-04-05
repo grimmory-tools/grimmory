@@ -37,7 +37,10 @@ export class EmbedPdfBookService {
   private spread: SpreadCapability | null = null;
   private rotate: RotateCapability | null = null;
 
+  private currentDocumentId: string | null = null;
+
   private pageChangeUnsub?: () => void;
+
   private annotationEventUnsub?: () => void;
   private layoutReadyUnsub?: () => void;
   private documentOpenedUnsub?: () => void;
@@ -146,8 +149,9 @@ export class EmbedPdfBookService {
     const dm = dmPlugin?.provides?.() as Record<string, unknown> | null;
     if (dm && typeof dm['onDocumentOpened'] === 'function') {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      this.documentOpenedUnsub = (dm['onDocumentOpened'] as (cb: (ev: any) => void) => () => void)((ev: {pageCount?: number}) => {
+      this.documentOpenedUnsub = (dm['onDocumentOpened'] as (cb: (ev: any) => void) => () => void)((ev: {id: string, pageCount?: number}) => {
         this.zone.run(() => {
+          this.currentDocumentId = ev.id;
           this.documentOpened$.next({pageCount: ev?.pageCount ?? this.scroll?.getTotalPages() ?? 0});
         });
       });
@@ -212,15 +216,21 @@ export class EmbedPdfBookService {
   }
 
   searchAllPages(keyword: string): void {
-    this.search?.searchAllPages(keyword);
+    if (!this.search) return;
+    const docId = this.currentDocumentId || undefined;
+    this.search.searchAllPages(keyword, docId);
   }
 
   nextSearchResult(): void {
-    this.search?.nextResult();
+    if (!this.search) return;
+    const docId = this.currentDocumentId || undefined;
+    this.search.nextResult(docId);
   }
 
   previousSearchResult(): void {
-    this.search?.previousResult();
+    if (!this.search) return;
+    const docId = this.currentDocumentId || undefined;
+    this.search.previousResult(docId);
   }
 
   // --- Spread/Layout ---
@@ -301,6 +311,7 @@ export class EmbedPdfBookService {
     this.search = null;
     this.spread = null;
     this.rotate = null;
+    this.currentDocumentId = null;
 
     this.restoreWorkerShims();
   }

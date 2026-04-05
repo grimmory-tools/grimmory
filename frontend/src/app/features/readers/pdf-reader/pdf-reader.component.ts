@@ -109,6 +109,8 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   // Search
   isSearchOpen = false;
   searchQuery = '';
+  private readonly searchQuery$ = new Subject<string>();
+
 
   // Zoom presets
   readonly zoomPresets: { label: string; value: string }[] = [
@@ -242,7 +244,18 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       .pipe(debounceTime(1500))
       .subscribe(() => this.persistAnnotations());
 
+    // Debounced search
+    this.searchQuery$.pipe(
+      takeUntil(this.destroy$),
+      debounceTime(400)
+    ).subscribe(query => {
+      if (query.length > 1) {
+        this.embedPdfBook.searchAllPages(query);
+      }
+    });
+
     // Keep lastAnnotationData warm so persistAnnotationsSync() always has fresh data
+
     this.annotationCacheSubscription = this.annotationCacheSubject
       .pipe(debounceTime(500))
       .subscribe(() => this.cacheAnnotationData());
@@ -534,10 +547,9 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   }
 
   onSearchInput(): void {
-    if (this.searchQuery.length > 1) {
-      this.embedPdfBook.searchAllPages(this.searchQuery);
-    }
+    this.searchQuery$.next(this.searchQuery);
   }
+
 
   onSearchNext(): void {
     this.embedPdfBook.nextSearchResult();
