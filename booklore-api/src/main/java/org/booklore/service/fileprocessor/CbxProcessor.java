@@ -40,9 +40,7 @@ import static org.booklore.util.FileService.truncate;
 public class CbxProcessor extends AbstractFileProcessor implements BookFileProcessor {
 
     private static final Pattern UNDERSCORE_HYPHEN_PATTERN = Pattern.compile("[_\\-]");
-    private static final Pattern IMAGE_EXTENSION_PATTERN = Pattern.compile(".*\\.(jpg|jpeg|png|webp)");
     private final CbxMetadataExtractor cbxMetadataExtractor;
-    private final ArchiveService archiveService;
 
     public CbxProcessor(BookRepository bookRepository,
                         BookAdditionalFileRepository bookAdditionalFileRepository,
@@ -51,11 +49,9 @@ public class CbxProcessor extends AbstractFileProcessor implements BookFileProce
                         FileService fileService,
                         MetadataMatchService metadataMatchService,
                         SidecarMetadataWriter sidecarMetadataWriter,
-                        CbxMetadataExtractor cbxMetadataExtractor,
-                        ArchiveService archiveService) {
+                        CbxMetadataExtractor cbxMetadataExtractor) {
         super(bookRepository, bookAdditionalFileRepository, bookCreatorService, bookMapper, fileService, metadataMatchService, sidecarMetadataWriter);
         this.cbxMetadataExtractor = cbxMetadataExtractor;
-        this.archiveService = archiveService;
     }
 
     @Override
@@ -115,27 +111,12 @@ public class CbxProcessor extends AbstractFileProcessor implements BookFileProce
     }
 
     private Optional<BufferedImage> extractImagesFromArchive(Path path) {
-        List<String> archiveEntries;
+        try{
+            byte[] coverBytes = cbxMetadataExtractor.extractCover(path);
 
-        try {
-            archiveEntries = archiveService.streamEntryNames(path)
-                    .filter(name -> IMAGE_EXTENSION_PATTERN.matcher(name.toLowerCase()).matches())
-                    .sorted()
-                    .toList();
+            return Optional.ofNullable(FileService.readImage(new ByteArrayInputStream(coverBytes)));
         } catch (Exception e) {
-            log.warn("Error reading archive {}: {}", path.getFileName(), e.getMessage());
-            return Optional.empty();
-        }
-
-        for (String entryName : archiveEntries) {
-            try (
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            ) {
-                archiveService.transferEntryTo(path, entryName, outputStream);
-                return Optional.ofNullable(FileService.readImage(new ByteArrayInputStream(outputStream.toByteArray())));
-            } catch (Exception e) {
-                log.warn("Error reading archive {} entry {}: {}", path.getFileName(), entryName, e.getMessage());
-            }
+            log.warn("Error reading archive cover {}: {}", path.getFileName(), e.getMessage());
         }
 
         return Optional.empty();
