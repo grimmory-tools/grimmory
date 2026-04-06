@@ -489,15 +489,15 @@ export class ReaderEventService {
   }
 
   private getLinkUrl(range: Range, selection: Selection): string | undefined {
-    const getLinkFromNode = (node: Node | null): string | undefined => {
-      let current: Node | null = node;
+    const getLinkFromNode = (node: Node | null | undefined): string | undefined => {
+      let current: Node | null | undefined = node;
       while (current && current.nodeType !== Node.DOCUMENT_NODE) {
         if (current.nodeType === Node.ELEMENT_NODE) {
           const element = current as HTMLElement;
-          if (element.tagName.toLowerCase() === 'a') {
+          if (element.tagName?.toLowerCase() === 'a') {
             return element.getAttribute('href') || undefined;
           }
-          const closestLink = element.closest('a');
+          const closestLink = typeof element.closest === 'function' ? element.closest('a') : null;
           if (closestLink?.getAttribute('href')) {
             return closestLink.getAttribute('href')!;
           }
@@ -515,13 +515,15 @@ export class ReaderEventService {
                  getLinkFromNode(selection.focusNode);
 
     // If still not found, check if the range contains any links
-    if (!linkUrl && range.commonAncestorContainer.nodeType === Node.ELEMENT_NODE) {
+    if (!linkUrl && range.commonAncestorContainer?.nodeType === Node.ELEMENT_NODE) {
       const containerElement = range.commonAncestorContainer as HTMLElement;
       // Find all links in the container
-      const links = Array.from(containerElement.querySelectorAll('a'));
-      // Find the first link that intersects with the selection range
-      const internalLink = links.find(link => range.intersectsNode(link));
-      linkUrl = internalLink?.getAttribute('href') || undefined;
+      if (typeof containerElement.querySelectorAll === 'function') {
+        const links = Array.from(containerElement.querySelectorAll('a'));
+        // Find the first link that intersects with the selection range
+        const internalLink = links.find(link => typeof range.intersectsNode === 'function' && range.intersectsNode(link));
+        linkUrl = internalLink?.getAttribute('href') || undefined;
+      }
     }
 
     return linkUrl;
