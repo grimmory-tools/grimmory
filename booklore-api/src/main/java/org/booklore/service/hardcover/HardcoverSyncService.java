@@ -135,10 +135,10 @@ public class HardcoverSyncService {
                         userId, bookId);
                     return;
                 } else {
-                    // If the user already has the book in their library, check if it is not Currently Reading status.
+                    // If the user already has the book in their library, check if it is not Currently Reading status or if the edition is different from the one we are syncing.
                     // If it's not Currently Reading, we need to update the user_book status to Currently Reading to be able to update the reading progress. This will create a new user_book_read entry with 0 progress, which we will then update with the correct progress below.
-                    if (userBook.statusId != STATUS_CURRENTLY_READING) {
-                        userBook = updateUserBook(userBook.id, hardcoverBook.editionId, isFinished);
+                    if (userBook.statusId != STATUS_CURRENTLY_READING || userBook.editionId == null || !userBook.editionId.equals(hardcoverBook.editionId)) {
+                        userBook = updateUserBook(userBook.id, hardcoverBook.editionId);
                     }
                 }
 
@@ -592,13 +592,13 @@ public class HardcoverSyncService {
      * Notes: When updating the user_book status to "Currently Reading", Hardcover automatically creates a new user_book_read entry with 0 progress. When setting to "Read", it also sets the finished_at date on that user_book_read entry, but progress stays unchanged. 
      * @param userBookId the ID of the existing user_book
      * @param editionId the edition ID to use for the user_book_read entry
-     * @param isFinished whether to set the user_book as Currently Reading or Read
      * @return the updated UserBookWithReads object, or null if the update failed
      */
-    private UserBookWithReads updateUserBook(Integer userBookId, Integer editionId, boolean isFinished) {
+    private UserBookWithReads updateUserBook(Integer userBookId, Integer editionId) {
         // Updating the user book on Hardcover has some quirky behavior that we need to account for:
         // - If edition_id is changed, Hardcover updates the first non-finished user_book_read entry with the new edition_id.
         // - If status is changed to "Read", Hardcover sets the finished_at date on the last user_book_read entry, but does not update the progress or progress_pages.
+        // Because we may be inserting a new user_book_read entry, we never set the book to finished and let the insertUserBookRead mutation handle the read status update.
         String mutation = """
             mutation UpdateUserBook($userBookId: Int!, $userBookObject: UserBookUpdateInput!) {
                 update_user_book(id: $userBookId, object: $userBookObject) {
@@ -737,29 +737,20 @@ public class HardcoverSyncService {
 
     /**
      * Updates an existing user_book_read entry with new progress information. This is used when there is already reading progress for the book, and we want to update it with new progress (e.g. user continued reading).
-     * This also updates the user_book entry to set the edition_id and status_id based on the parameters, in case it was missing or needs to be updated.
+     * If the user_book_read is being updated to finished, the user_book status is automatically updated to "Read" by Hardcover.
      * @param userBookId the ID of the existing user_book
      * @param readInfo the entire user_book_read info. We need to pass the entire info because the API requires all fields to update, and we need to update the progress and finished_at fields based on the new progress.
      * @return true if the update was successful, false otherwise
      */
     private boolean updateUserBookRead(Integer userBookId, UserBookReadInfo readInfo) {
-        // Updating the user_book edition here, may change the edition on an intermediate user_book_read entry if there are multiple unfinished reads, but there is no way to specify which one to update.
         String mutation = """
-            mutation UpdateUserBookRead($userBookId: Int!, $userBookReadId: Int!, $userBookObject: UserBookUpdateInput!, $userBookReadObject: DatesReadInput!) {
-                update_user_book(id: $userBookId, object: $userBookObject) {
-                    id
-                    error
-                }
+            mutation UpdateUserBookRead($userBookReadId: Int!, $userBookReadObject: DatesReadInput!) {
                 update_user_book_read(id: $userBookReadId, object: $userBookReadObject) {
                     id
                     error
                 }
             }
             """;
-
-        Map<String, Object> bookInput = new java.util.HashMap<>();
-        bookInput.put("edition_id", readInfo.editionId);
-        bookInput.put("status_id", readInfo.finishedAt != null ? STATUS_READ : STATUS_CURRENTLY_READING);
 
         Map<String, Object> readInput = new java.util.HashMap<>();
         readInput.put("edition_id", readInfo.editionId);
@@ -773,9 +764,7 @@ public class HardcoverSyncService {
         GraphQLRequest request = new GraphQLRequest();
         request.setQuery(mutation);
         request.setVariables(Map.of(
-            "userBookId", userBookId,
             "userBookReadId", readInfo.id,
-            "userBookObject", bookInput,
             "userBookReadObject", readInput
         ));
 
@@ -791,10 +780,6 @@ public class HardcoverSyncService {
         if (response.containsKey("data")) {
             Map<String, Object> data = (Map<String, Object>) response.get("data");
             if (data != null) {
-                Map<String, Object> updateUserBookResult = (Map<String, Object>) data.get("update_user_book");
-                if (updateUserBookResult != null && updateUserBookResult.get("error") != null) {
-                    log.warn("update_user_book returned error: {}", updateUserBookResult.get("error"));
-                }
                 Map<String, Object> updateUserBookReadResult = (Map<String, Object>) data.get("update_user_book_read");
                 if (updateUserBookReadResult != null && updateUserBookReadResult.get("error") != null) {
                     log.warn("update_user_book_read returned error: {}", updateUserBookReadResult.get("error"));
