@@ -385,6 +385,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
         pdfUrl = currentBookData;
       } else {
         pdfUrl = await this.fetchAsObjectUrl(currentBookData, this.pdfFetchAbortController.signal);
+        this.revokePdfBlobUrl();
         this.pdfBlobUrl = pdfUrl;
       }
 
@@ -514,6 +515,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   private destroyBookViewer(): void {
     this.embedPdfBook.destroy();
     this.bookViewerInitialized = false;
+    this.revokePdfBlobUrl();
   }
 
   private async loadOutline(): Promise<void> {
@@ -752,22 +754,31 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   async setViewerMode(mode: 'book' | 'document') {
     if (mode === this.viewerMode) return;
 
-    this.viewerMode = mode;
     this.docViewerReady = false;
+    if (this.initTimeout) {
+      clearTimeout(this.initTimeout);
+      this.initTimeout = undefined;
+    }
+
     if (mode === 'document') {
       // Save annotations before switching
-      if (this.initTimeout) clearTimeout(this.initTimeout);
       await this.persistAnnotations();
       this.destroyBookViewer();
       this.viewerMode = mode;
-      setTimeout(() => this.initDocViewerIframe(), 100);
+      this.initTimeout = setTimeout(() => {
+        this.initTimeout = undefined;
+        this.initDocViewerIframe();
+      }, 100);
     } else {
       // Switching from doc to book — save in background, don't block the switch
       if (this.embedPdfIframe) {
         this.saveEmbedPdfDocument().finally(() => this.destroyDocViewerIframe());
       }
       this.viewerMode = mode;
-      setTimeout(() => this.initBookViewer(), 150);
+      this.initTimeout = setTimeout(() => {
+        this.initTimeout = undefined;
+        this.initBookViewer();
+      }, 150);
     }
   }
 
@@ -994,14 +1005,19 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     this.keydownCleanup?.();
     this.touchCleanup?.();
 
-    if (this.pdfBlobUrl) {
-      URL.revokeObjectURL(this.pdfBlobUrl);
-    }
+    this.revokePdfBlobUrl();
     if (this.bookData?.startsWith('blob:')) {
       URL.revokeObjectURL(this.bookData);
     }
 
     this.pdfBookmarkService.reset();
+  }
+
+  private revokePdfBlobUrl(): void {
+    if (this.pdfBlobUrl) {
+      URL.revokeObjectURL(this.pdfBlobUrl);
+      this.pdfBlobUrl = null;
+    }
   }
 
   // --- Chrome auto-hide ---

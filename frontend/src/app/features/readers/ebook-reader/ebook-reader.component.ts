@@ -484,7 +484,9 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
     } else if (action.type === 'go-to-link') {
       const linkUrl = this.selectionState().linkUrl;
       if (linkUrl) {
-        this.viewManager.goTo(linkUrl).subscribe();
+        this.viewManager.goTo(linkUrl)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe();
       }
       this.selectionService.handleAction(action);
     } else {

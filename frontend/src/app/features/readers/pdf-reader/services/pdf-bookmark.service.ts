@@ -75,6 +75,10 @@ export class PdfBookmarkService {
       }),
       catchError(error => {
         const isDuplicate = error?.status === 409;
+        if (isDuplicate) {
+          // Hydrate cache: server already has this bookmark
+          this.loadBookmarks().subscribe();
+        }
         this.messageService.add(
           isDuplicate
             ? {severity: 'warn', summary: this.t.translate('readerPdf.toast.bookmarkExists')}

@@ -47,10 +47,10 @@ export class EmbedPdfBookService {
   private layoutReadyUnsub?: () => void;
   private documentOpenedUnsub?: () => void;
 
-  readonly pageChange$ = new Subject<PageChangeEvent>();
-  readonly annotationEvent$ = new Subject<AnnotationEvent>();
-  readonly documentOpened$ = new ReplaySubject<{pageCount: number}>(1);
-  readonly layoutReady$ = new ReplaySubject<void>(1);
+  pageChange$ = new Subject<PageChangeEvent>();
+  annotationEvent$ = new Subject<AnnotationEvent>();
+  documentOpened$ = new ReplaySubject<{pageCount: number}>(1);
+  layoutReady$ = new ReplaySubject<void>(1);
 
   get currentPage(): number {
     return this.scroll?.getCurrentPage() ?? 1;
@@ -61,6 +61,12 @@ export class EmbedPdfBookService {
   }
 
   async init(target: HTMLElement, pdfUrl: string, theme: 'dark' | 'light'): Promise<void> {
+    // Recreate event streams so the service is reusable after destroy()
+    this.pageChange$ = new Subject<PageChangeEvent>();
+    this.annotationEvent$ = new Subject<AnnotationEvent>();
+    this.documentOpened$ = new ReplaySubject<{pageCount: number}>(1);
+    this.layoutReady$ = new ReplaySubject<void>(1);
+
     this.applyWorkerShims();
     this.ensureHighDpiRendering();
     this.patchReleasePointerCapture();
@@ -365,6 +371,7 @@ export class EmbedPdfBookService {
 
     this.restoreWorkerShims();
     this.restoreReleasePointerCapture();
+    this.restoreDevicePixelRatio();
   }
 
   private convertBookmarks(items: unknown[]): PdfOutlineItem[] {
@@ -415,6 +422,9 @@ export class EmbedPdfBookService {
   private ensureHighDpiRendering(): void {
     const MIN_DPR = 2;
     if (window.devicePixelRatio < MIN_DPR) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const w = window as any;
+      w.__grimmoryOrigDprDescriptor = Object.getOwnPropertyDescriptor(window, 'devicePixelRatio');
       Object.defineProperty(window, 'devicePixelRatio', {
         get: () => MIN_DPR,
         configurable: true,
@@ -534,6 +544,18 @@ export class EmbedPdfBookService {
     if (w.__grimmoryOrigRelease) {
       Element.prototype.releasePointerCapture = w.__grimmoryOrigRelease;
       delete w.__grimmoryOrigRelease;
+    }
+  }
+
+  private restoreDevicePixelRatio(): void {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const w = window as any;
+    if (w.__grimmoryOrigDprDescriptor) {
+      Object.defineProperty(window, 'devicePixelRatio', w.__grimmoryOrigDprDescriptor);
+      delete w.__grimmoryOrigDprDescriptor;
+    } else if (Object.getOwnPropertyDescriptor(window, 'devicePixelRatio')?.configurable) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      delete (window as any)['devicePixelRatio'];
     }
   }
 

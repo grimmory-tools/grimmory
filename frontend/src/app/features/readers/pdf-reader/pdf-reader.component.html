@@ -26,7 +26,7 @@
     @if (isDocViewerInfoVisible) {
     <div class="doc-viewer-info">
       <span>{{ 'readerPdf.docViewer.changesSavedInfo' | transloco }}</span>
-      <button class="dismiss-btn" (click)="dismissDocViewerInfo()">
+      <button class="dismiss-btn" [attr.aria-label]="'readerPdf.docViewer.dismiss' | transloco" (click)="dismissDocViewerInfo()">
         <app-reader-icon name="close" [size]="14" />
       </button>
     </div>
@@ -208,6 +208,7 @@
       <!-- Mobile: bookmark + overflow menu (shown on mobile only) -->
       <div class="mobile-actions">
         <button class="icon-btn bookmark-btn" [class.bookmarked]="isCurrentPageBookmarked"
+          [attr.aria-label]="isCurrentPageBookmarked ? ('readerPdf.toolbar.removeBookmark' | transloco) : ('readerPdf.toolbar.addBookmark' | transloco)"
           (click)="toggleBookmark()">
           @if (isCurrentPageBookmarked) {
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -222,7 +223,7 @@
           }
         </button>
 
-        <button class="icon-btn overflow-btn" (click)="toggleToolbarOverflow()">
+        <button class="icon-btn overflow-btn" [attr.aria-label]="'readerPdf.toolbar.moreOptions' | transloco" (click)="toggleToolbarOverflow()">
           <!-- More/ellipsis icon -->
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -345,7 +346,7 @@
     <button class="icon-btn search-nav-btn" [title]="'readerPdf.toolbar.searchNext' | transloco" (click)="onSearchNext()">
       <app-reader-icon name="chevron-right" [size]="14" />
     </button>
-    <button class="icon-btn search-close" (click)="closeSearch()">
+    <button class="icon-btn search-close" [attr.aria-label]="'readerPdf.toolbar.closeSearch' | transloco" (click)="closeSearch()">
       <app-reader-icon name="close" [size]="14" />
     </button>
   </div>

@@ -71,7 +71,7 @@
 
     @if (overlappingAnnotationId) {
       <div class="divider"></div>
-      <button class="action-btn delete-btn" (click)="onDelete()" [title]="linkUrl ? t('removeLink') : t('deleteAnnotation')">
+      <button class="action-btn delete-btn" (click)="onDelete()" [title]="t('deleteAnnotation')">
         <app-reader-icon name="trash" [size]="16"></app-reader-icon>
       </button>
     }

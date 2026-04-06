@@ -25,7 +25,9 @@
     "draw": "Free Draw",
     "annotationColor": "Annotation Color",
     "deselectTool": "Deselect Tool",
-    "pan": "Pan Mode"
+    "pan": "Pan Mode",
+    "moreOptions": "More options",
+    "closeSearch": "Close search"
   },
   "footer": {
     "firstPage": "First Page",
@@ -63,6 +65,7 @@
     "annotationFailed": "Failed to save annotations"
   },
   "docViewer": {
-    "changesSavedInfo": "Changes are written to file here"
+    "changesSavedInfo": "Changes are written to file here",
+    "dismiss": "Dismiss"
   }
 }
