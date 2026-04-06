@@ -481,6 +481,12 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
   handleSelectionAction(action: TextSelectionAction): void {
     if (action.type === 'note') {
       this.noteService.openNewNoteDialog();
+    } else if (action.type === 'go-to-link') {
+      const linkUrl = this.selectionState().linkUrl;
+      if (linkUrl) {
+        this.viewManager.goTo(linkUrl).subscribe();
+      }
+      this.selectionService.handleAction(action);
     } else {
       this.selectionService.handleAction(action);
     }

@@ -84,8 +84,6 @@ export class EmbedPdfBookService {
         'document-export',
         'document-open',
         'document-close',
-        'link',
-        'annotation-link',
       ],
       annotations: {
         autoCommit: true,
@@ -608,12 +606,15 @@ export class EmbedPdfBookService {
         button[title="Close Document"] {
           display: none !important;
         }
-
-        /* Hide Add Link tool in selection popup */
-        [data-epdf-i="add-link"],
-        button[title*="Link"] {
+ 
+        /* Hide delete button in selection popup specifically when a link is present.
+           We target containers (div/toolbar) that have both a link button and a delete button. */
+        div:has(> [data-epdf-i*="link"]):has(> [data-epdf-i*="delete"]) [data-epdf-i*="delete"],
+        [role="toolbar"]:has([data-epdf-i*="link"]) [data-epdf-i*="delete"],
+        [role="menu"]:has([data-epdf-i*="link"]) [data-epdf-i*="delete"] {
           display: none !important;
         }
+
 
         /* Improve annotation layer rendering on touch devices.
            FreeText annotation overlays can bleed through when the

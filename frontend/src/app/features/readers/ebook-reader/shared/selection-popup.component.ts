@@ -6,7 +6,7 @@ import {ReaderIconComponent} from './icon.component';
 export type AnnotationStyle = 'highlight' | 'underline' | 'strikethrough' | 'squiggly';
 
 export interface TextSelectionAction {
-  type: 'select' | 'annotate' | 'delete' | 'dismiss' | 'preview' | 'search' | 'note';
+  type: 'select' | 'annotate' | 'delete' | 'dismiss' | 'preview' | 'search' | 'note' | 'go-to-link';
   color?: string;
   style?: AnnotationStyle;
   annotationId?: number;
@@ -37,6 +37,7 @@ export class TextSelectionPopupComponent {
   @Input() showBelow = false;
   @Input() overlappingAnnotationId: number | null = null;
   @Input() selectedText = '';
+  @Input() linkUrl?: string;
   @Output() action = new EventEmitter<TextSelectionAction>();
 
   showAnnotationOptions = false;
@@ -120,6 +121,12 @@ export class TextSelectionPopupComponent {
     this.action.emit({type: 'search', searchText: this.selectedText});
     this.showAnnotationOptions = false;
     this.hasPreview = false;
+  }
+
+  onGoToLink(): void {
+    if (this.linkUrl) {
+      this.action.emit({type: 'go-to-link'});
+    }
   }
 
   onNote(): void {

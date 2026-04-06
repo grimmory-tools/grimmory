@@ -123,12 +123,12 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   readonly zoomPresets: { label: string; value: string }[] = [
     { label: 'Fit Page', value: 'fit-page' },
     { label: 'Fit Width', value: 'fit-width' },
-    { label: '50%', value: '50' },
-    { label: '75%', value: '75' },
-    { label: '100%', value: '100' },
-    { label: '125%', value: '125' },
-    { label: '150%', value: '150' },
-    { label: '200%', value: '200' },
+    { label: '50%', value: '50%' },
+    { label: '75%', value: '75%' },
+    { label: '100%', value: '100%' },
+    { label: '125%', value: '125%' },
+    { label: '150%', value: '150%' },
+    { label: '200%', value: '200%' },
   ];
   isZoomMenuOpen = false;
 
@@ -1278,6 +1278,11 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       'page-fit': 'fit-page',
       'page-width': 'fit-width',
     };
-    return map[zoom] ?? zoom;
+    const mapped = map[zoom] ?? zoom;
+    // Ensure numerical zoom has % suffix for EmbedPDF
+    if (mapped && /^\d+$/.test(mapped)) {
+      return mapped + '%';
+    }
+    return mapped;
   }
 }
