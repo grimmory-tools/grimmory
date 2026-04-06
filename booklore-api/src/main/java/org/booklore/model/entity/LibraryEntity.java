@@ -9,6 +9,7 @@ import org.booklore.model.enums.LibraryOrganizationMode;
 import org.booklore.model.enums.MetadataSource;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.*;
 
@@ -35,6 +36,7 @@ public class LibraryEntity {
     private List<BookEntity> bookEntities = new ArrayList<>();
 
     @OneToMany(mappedBy = "library", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @BatchSize(size = 20)
     @Builder.Default
     private List<LibraryPathEntity> libraryPaths = new ArrayList<>();
 

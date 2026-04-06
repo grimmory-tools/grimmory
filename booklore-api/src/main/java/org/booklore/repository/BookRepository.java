@@ -34,6 +34,10 @@ public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpec
     @Query("SELECT b FROM BookEntity b WHERE b.id = :id AND (b.deleted IS NULL OR b.deleted = false)")
     Optional<BookEntity> findByIdFull(@Param("id") Long id);
 
+    @EntityGraph(attributePaths = { "metadata", "metadata.authors", "metadata.categories", "metadata.tags", "metadata.comicMetadata", "libraryPath", "bookFiles" })
+    @Query("SELECT b FROM BookEntity b WHERE b.id = :id AND (b.deleted IS NULL OR b.deleted = false)")
+    Optional<BookEntity> findByIdForKoboDownload(@Param("id") Long id);
+
     // Minimal graph for summary mapping: metadata (OneToOne), library (ManyToOne), bookFiles (OneToMany).
     // metadata.authors is intentionally excluded — @BatchSize on BookMetadataEntity.authors
     // triggers a batched query when first accessed, so no N+1 occurs.

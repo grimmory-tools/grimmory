@@ -20,6 +20,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
@@ -40,6 +41,7 @@ import java.util.zip.ZipOutputStream;
 @Slf4j
 @AllArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class BookDownloadService {
 
     private static final Pattern NON_ASCII_PATTERN = Pattern.compile("[^\\x00-\\x7F]");
@@ -234,7 +236,7 @@ public class BookDownloadService {
     }
 
     public void downloadKoboBook(Long bookId, HttpServletResponse response) {
-        BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
+        BookEntity bookEntity = bookRepository.findByIdForKoboDownload(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
         var primaryFile = bookEntity.getPrimaryBookFile();
         if (primaryFile == null) {

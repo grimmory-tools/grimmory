@@ -67,6 +67,28 @@ public class BookMetadataService {
     private final PlatformTransactionManager transactionManager;
     private final AppSettingService appSettingService;
 
+    @Transactional
+    public BookMetadata updateBookMetadata(long bookId, MetadataUpdateWrapper metadataUpdateWrapper,
+                                           boolean mergeCategories, MetadataReplaceMode replaceMode) {
+        BookEntity bookEntity = bookRepository.findAllWithMetadataByIds(Collections.singleton(bookId)).stream()
+                .findFirst()
+                .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
+
+        MetadataUpdateContext context = MetadataUpdateContext.builder()
+                .bookEntity(bookEntity)
+                .metadataUpdateWrapper(metadataUpdateWrapper)
+                .updateThumbnail(true)
+                .mergeCategories(mergeCategories)
+                .replaceMode(replaceMode)
+                .mergeMoods(false)
+                .mergeTags(false)
+                .build();
+
+        bookMetadataUpdater.setBookMetadata(context);
+        auditService.log(AuditAction.METADATA_UPDATED, "Book", bookId,
+                "Updated metadata for book: " + bookEntity.getMetadata().getTitle());
+        return bookMetadataMapper.toBookMetadata(bookEntity.getMetadata(), true);
+    }
 
     @Transactional(readOnly = true)
     public Flux<BookMetadata> getProspectiveMetadataListForBookId(long bookId, FetchMetadataRequest request) {
