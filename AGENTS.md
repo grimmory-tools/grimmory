@@ -94,7 +94,7 @@ just ui check       # run frontend verification
   - seeding root: `/mnt/m2cache/MAM-QBTorrent`
   - new-completion hardlinks into `/mnt/m2cache/grimmory-test/bookdrop`
 - If rollback is required, re-enable exactly one Calibre-side writer against the retained legacy tree:
-  - Calibre-Web edits
+  - Calibre-Web
   - full Calibre desktop
   - `calibredb` or tag refresh scripts
   - enrichment or recovery scripts

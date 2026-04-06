@@ -2,6 +2,13 @@
 
 This guide describes how to promote the Grimmory-managed clone if the unRAID test succeeds.
 
+Current status on 2026-04-06:
+
+- Grimmory is the active primary library on unRAID at `/mnt/m2cache/grimmory-test/CalibreLibrary-GrimmoryTest`
+- `calibre-web` and `calibre-desktop` are retained in a stopped rollback state
+- the retained legacy Calibre library at `/mnt/m2cache/calibre-cleanup-0326/CalibreLibrary-New` is no longer the source of truth
+- cutover backups were captured at `/mnt/m2cache/grimmory-cutover-backups/20260406_152236`
+
 ## Goal
 
 The end state is:
@@ -84,6 +91,50 @@ If Grimmory still has workflow gaps:
 - stop treating the live Calibre tree as authoritative
 - stop using Calibre-Web and Calibre desktop for new writes
 - keep a rollback window long enough to restore from the Calibre backup if you discover a late issue
+- during the rollback window, keep `calibre-web` and `calibre-desktop` stopped and retain their appdata for reference only
+
+## Recommended Rollback Retention
+
+- retain the legacy Calibre library and disabled Calibre containers for 30 days
+- do not delete `/mnt/m2cache/calibre-cleanup-0326/CalibreLibrary-New` until the rollback window expires and backups are confirmed usable
+- keep stale qBittorrent leftovers for a separate cleanup pass after the rollback window
+
+## Keep / Disable / Delete Matrix
+
+Keep as the active primary stack:
+
+- container `grimmory`
+- container `grimmory-mariadb`
+- container `MAM-QBTorrent`
+- `/mnt/m2cache/grimmory-test/CalibreLibrary-GrimmoryTest`
+- `/mnt/m2cache/grimmory-test/bookdrop`
+- `/mnt/m2cache/grimmory-test/audiobooks`
+- `/mnt/user/appdata/grimmory`
+- `/mnt/user/appdata/grimmory-mariadb`
+- `/mnt/user/appdata/MAM-QBTorrent`
+- `/mnt/m2cache/MAM-QBTorrent`
+
+Disable now and delete only after the 30-day rollback window if no rollback is needed:
+
+- container `calibre-web`
+- container `calibre-desktop`
+- `/mnt/user/appdata/calibre-web`
+- `/mnt/user/appdata/calibre-desktop`
+
+Retain as rollback or archive-only surfaces during the cutover window:
+
+- `/mnt/m2cache/calibre-cleanup-0326/CalibreLibrary-New`
+- `/mnt/m2cache/calibre-cleanup-0326/Backups/metadata-db`
+- container `calibre-sandbox`
+- `/mnt/user/appdata/calibre-sandbox`
+- `/mnt/m2cache/calibre-cleanup-0326/BookLibrary`
+- `/mnt/m2cache/calibre-cleanup-0326/CC-backup300326`
+
+Mark for later cleanup after the rollback window:
+
+- container `qbittorrent-1`
+- `/mnt/user/appdata/qbittorrent2-3070`
+- `/mnt/m2cache/calibre-cleanup-0326/BookLibrary/qbittorrent`
 
 ## Rollback
 

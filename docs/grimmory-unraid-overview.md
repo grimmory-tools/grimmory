@@ -1,26 +1,28 @@
 # Grimmory on unRAID: Overview
 
-This setup is a controlled adoption test for Grimmory on unRAID.
+This setup has now been promoted from a controlled adoption test to the primary Grimmory library on unRAID.
 
-The goal is not to make Grimmory and Calibre share one live library forever. The goal is to prove that Grimmory can replace Calibre for your real workflow. If the test works well, the Grimmory-managed clone becomes the promotion candidate for your future primary library.
+The goal is still not to make Grimmory and Calibre share one live library forever. Grimmory is now the active system of record for the primary library, and the old Calibre surfaces are retained only as a short rollback reference.
 
-## What We Are Testing
+## Current Primary State
 
-- Grimmory can scan and use a cloned copy of the rebuilt Calibre library
-- Grimmory can read representative EPUB and PDF titles successfully
-- Grimmory can import new files through BookDrop
-- Grimmory can perform real file operations safely on the clone
-- Grimmory can preserve state cleanly across container restarts
+- Grimmory runs against the primary library at `/mnt/m2cache/grimmory-test/CalibreLibrary-GrimmoryTest`
+- Grimmory imports new content through BookDrop at `/mnt/m2cache/grimmory-test/bookdrop`
+- MAM/qBittorrent seeds from `/mnt/m2cache/MAM-QBTorrent` and hardlinks newly completed torrents into BookDrop
+- Calibre-Web and Calibre desktop are no longer active writers for the primary library
 
 ## What We Are Not Doing
 
-- We are not pointing Grimmory at the live Calibre library for write testing
 - We are not designing a permanent shared-write setup between Calibre and Grimmory
-- We are not using the unRAID Docker template UI for this phase
+- We are not writing to the retained legacy Calibre tree during the rollback window
 
 ## Source Of Truth
 
-The current live Calibre rebuild lives at:
+The current primary Grimmory library lives at:
+
+- `/mnt/m2cache/grimmory-test/CalibreLibrary-GrimmoryTest`
+
+The retained legacy Calibre library for rollback only lives at:
 
 - `/mnt/m2cache/calibre-cleanup-0326/CalibreLibrary-New`
 
@@ -30,37 +32,32 @@ Relevant operating notes came from:
 - `/Users/petetreadaway/Projects/new-calibre-library-import/docs/calibre-web.md`
 - `/Users/petetreadaway/Projects/new-calibre-library-import/docs/calibre-remaining-metadata-handover.md`
 
-## Test Layout
+## Active Layout
 
-Use a dedicated Grimmory test workspace on unRAID:
+Use the existing Grimmory workspace on unRAID as the primary layout:
 
-- cloned Grimmory test library:
-  `/mnt/user/data/grimmory-test/CalibreLibrary-GrimmoryTest`
+- primary Grimmory library:
+  `/mnt/m2cache/grimmory-test/CalibreLibrary-GrimmoryTest`
 - BookDrop folder:
-  `/mnt/user/data/grimmory-test/bookdrop`
+  `/mnt/m2cache/grimmory-test/bookdrop`
 
 Keep BookDrop as a sibling of the cloned library, not inside the library root. That avoids double-discovery where Grimmory could see the same files both as library content and as pending BookDrop imports.
 
-## Existing Live Calibre Services
+## Retained Legacy Calibre Services
 
-The live Calibre interfaces remain unchanged during testing:
+The old Calibre interfaces are retained only for rollback:
 
 - Calibre-Web: `http://100.85.214.86:8083`
 - Calibre desktop admin: `https://100.85.214.86:8181`
 
-Those services continue to point at the live Calibre library while Grimmory points at the clone.
+Those services point at the retained legacy Calibre library and should remain stopped unless rollback work is required.
 
-## Success Criteria
+## Operational Expectations
 
-The test is good enough to consider promotion if all of the following are true:
-
-- Grimmory stack starts cleanly on unRAID
-- initial library scan succeeds
-- sample books open correctly
-- BookDrop ingest works end to end
-- rename/move/delete-style tests work on sacrificial titles in the clone
-- restarts do not break the library or BookDrop state
-- the live Calibre deployment remains untouched during the test
+- Grimmory remains the only active writer for the primary library
+- BookDrop ingest stays one-way from qBittorrent into Grimmory
+- The retained Calibre tree is used only if rollback becomes necessary
+- The rollback window should expire before any permanent deletion of the retained Calibre surfaces
 
 ## Next Docs
 
