@@ -72,11 +72,11 @@ public class KoreaderUserService {
     }
 
     @Transactional
-    public void toggleSyncProgressWithBooklore(boolean enabled) {
+    public void toggleSyncProgressWithGrimmory(boolean enabled) {
         Long id = authService.getAuthenticatedUser().getId();
         KoreaderUserEntity user = koreaderUserRepository.findByBookLoreUserId(id)
                 .orElseThrow(() -> ApiError.GENERIC_NOT_FOUND.createException("Koreader user not found for BookLore user ID: " + id));
-        user.setSyncWithBookloreReader(enabled);
+        user.setSyncWithGrimmoryReader(enabled);
         koreaderUserRepository.save(user);
     }
 }
