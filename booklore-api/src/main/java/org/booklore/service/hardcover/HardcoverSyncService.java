@@ -783,6 +783,7 @@ public class HardcoverSyncService {
                 Map<String, Object> updateUserBookReadResult = (Map<String, Object>) data.get("update_user_book_read");
                 if (updateUserBookReadResult != null && updateUserBookReadResult.get("error") != null) {
                     log.warn("update_user_book_read returned error: {}", updateUserBookReadResult.get("error"));
+                    return false;
                 }
             }
         }
