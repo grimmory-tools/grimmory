@@ -58,6 +58,14 @@ public enum TaskType {
             true,
             "Refresh Metadata",
             "Updates metadata information for your selected books."
+    ),
+    IMPORT_SIDECAR_ANNOTATIONS(
+            false,
+            true,
+            false,
+            false,
+            "Import Sidecar Annotations",
+            "Scans book sidecar files (.sdr/) and imports any highlights and notes not already in the database. Safe to run multiple times."
     );
 
     @Getter
