@@ -2,7 +2,6 @@ package org.booklore.model.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.Setter;
 import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.Subselect;
 import org.hibernate.annotations.Synchronize;
@@ -11,7 +10,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
 @Entity
 @Immutable
 @Subselect("""

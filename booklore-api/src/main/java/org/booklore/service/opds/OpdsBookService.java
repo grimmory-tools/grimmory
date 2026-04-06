@@ -161,6 +161,10 @@ public class OpdsBookService {
     }
 
     public List<Book> getRandomBooks(Long userId, int count) {
+        if (count < 1) {
+            return List.of();
+        }
+
         List<Library> accessibleLibraries = getAccessibleLibraries(userId);
         if (accessibleLibraries == null || accessibleLibraries.isEmpty()) {
             return List.of();

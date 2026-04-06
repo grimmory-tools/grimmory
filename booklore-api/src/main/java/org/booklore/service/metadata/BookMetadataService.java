@@ -233,26 +233,6 @@ public class BookMetadataService {
     }
 
     @Transactional
-    public BookMetadata updateMetadata(long bookId, MetadataUpdateWrapper wrapper, boolean mergeCategories) {
-        BookEntity bookEntity = bookRepository.findByIdFull(bookId)
-                .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
-
-        MetadataUpdateContext context = MetadataUpdateContext.builder()
-                .bookEntity(bookEntity)
-                .metadataUpdateWrapper(wrapper)
-                .updateThumbnail(true)
-                .mergeCategories(mergeCategories)
-                .replaceMode(MetadataReplaceMode.REPLACE_ALL)
-                .mergeMoods(false)
-                .mergeTags(false)
-                .build();
-
-        bookMetadataUpdater.setBookMetadata(context);
-        auditService.log(AuditAction.METADATA_UPDATED, "Book", bookId, "Updated metadata for book: " + bookEntity.getMetadata().getTitle());
-        return bookMetadataMapper.toBookMetadata(bookEntity.getMetadata(), true);
-    }
-
-    @Transactional
     public void bulkUpdateMetadata(BulkMetadataUpdateRequest request, boolean mergeCategories, boolean mergeMoods, boolean mergeTags) {
         MetadataClearFlags clearFlags = metadataClearFlagsMapper.toClearFlags(request);
 

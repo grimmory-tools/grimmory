@@ -179,6 +179,7 @@ public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpec
           AND bf.fileSubPath = :fileSubPath
           AND bf.fileName = :fileName
           AND bf.isBookFormat = true
+        ORDER BY b.id ASC
         """)
     List<BookEntity> findByLibraryIdAndLibraryPathIdAndFileSubPathAndFileName(
             @Param("libraryId") Long libraryId,
