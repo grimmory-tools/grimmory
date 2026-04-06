@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
-
+    private static final Pattern ASIN_PATTERN = Pattern.compile("([A-Z0-9]{10})");
     private static final Pattern TRAILING_BR_TAGS_PATTERN = Pattern.compile("(\\s*<br\\s*/?>\\s*)+$");
     private static final Pattern LEADING_BR_TAGS_PATTERN = Pattern.compile("^(\\s*<br\\s*/?>\\s*)+");
     private static final Pattern MULTIPLE_BR_TAGS_PATTERN = Pattern.compile("(<br\\s*/?>\\s*){3,}");
@@ -51,7 +51,7 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
     private static final Pattern SERIES_FORMAT_PATTERN = Pattern.compile("Book (\\d+(?:\\.\\d+)?) of (\\d+)");
     private static final Pattern PARENTHESES_WITH_WHITESPACE_PATTERN = Pattern.compile("\\s*\\(.*?\\)");
     private static final Pattern NON_ALPHANUMERIC_PATTERN = Pattern.compile("[^\\p{L}\\p{M}0-9]");
-    private static final Pattern DP_SEPARATOR_PATTERN = Pattern.compile("/dp/");
+    private static final Pattern ASIN_PATH_PATTERN = Pattern.compile("/dp/([A-Z0-9]{10})");
     private static final Pattern REVIEWED_IN_ON_PATTERN = Pattern.compile("(?i)(?:Reviewed in|Rezension aus|Beoordeeld in|Recensie uit|Commenté en|Recensito in|Revisado en)\\s+(.+?)\\s+(?:on|vom|op|le|il|el)\\s+(.+)");
     private static final Pattern JAPANESE_REVIEW_DATE_PATTERN = Pattern.compile("(\\d{4}年\\d{1,2}月\\d{1,2}日).+");
     private static final String[] TITLE_SELECTORS = {"#productTitle", "#ebooksProductTitle", "h1#title", "span#productTitle"};
@@ -96,17 +96,17 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
 
     @Override
     public BookMetadata fetchTopMetadata(Book book, FetchMetadataRequest fetchMetadataRequest) {
-        LinkedList<String> amazonBookIds = getAmazonBookIds(book, fetchMetadataRequest);
-        if (amazonBookIds == null || amazonBookIds.isEmpty()) {
+        String amazonBookId = getTopAmazonBookId(book, fetchMetadataRequest);
+        if (amazonBookId == null) {
             return null;
         }
-        return getBookMetadata(amazonBookIds.getFirst());
+        return getBookMetadata(amazonBookId);
     }
 
     @Override
     public List<BookMetadata> fetchMetadata(Book book, FetchMetadataRequest fetchMetadataRequest) {
-        LinkedList<String> amazonBookIds = getAmazonBookIds(book, fetchMetadataRequest);
-        if (amazonBookIds == null || amazonBookIds.isEmpty()) {
+        List<String> amazonBookIds = getAmazonBookIds(book, fetchMetadataRequest);
+        if (amazonBookIds.isEmpty()) {
             return Collections.emptyList();
         }
         List<BookMetadata> results = new ArrayList<>();
@@ -134,11 +134,47 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
         return getBookMetadata(asin);
     }
 
-    private LinkedList<String> getAmazonBookIds(Book book, FetchMetadataRequest request) {
+    private String getExistingAsin(Book book) {
+        if (book == null) {
+            return null;
+        }
+
+        BookMetadata metadata = book.getMetadata();
+        if (metadata == null) {
+            return null;
+        }
+        String asin = metadata.getAsin();
+        if (asin == null) {
+            return null;
+        }
+
+        Matcher matcher = AmazonBookParser.ASIN_PATTERN.matcher(asin);
+        if (!matcher.find()) {
+            return null;
+        }
+
+        return matcher.group(1);
+    }
+
+    private String getTopAmazonBookId(Book book, FetchMetadataRequest request) {
+        String storedBookId = getExistingAsin(book);
+        if (storedBookId != null) {
+            return storedBookId;
+        }
+
+        List<String> amazonBookIds = getAmazonBookIds(book, request);
+        if (!amazonBookIds.isEmpty() && !amazonBookIds.getFirst().isEmpty()) {
+            return amazonBookIds.getFirst();
+        }
+
+        return null;
+    }
+
+    private List<String> getAmazonBookIds(Book book, FetchMetadataRequest request) {
         String queryUrl = buildQueryUrl(request, book);
         if (queryUrl == null) {
             log.error("Query URL is null, cannot proceed.");
-            return null;
+            return Collections.emptyList();
         }
         LinkedList<String> bookIds = new LinkedList<>();
         try {
@@ -146,7 +182,7 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
             Element searchResults = doc.select("span[data-component-type=s-search-results]").first();
             if (searchResults == null) {
                 log.error("No search results found for query: {}", queryUrl);
-                return null;
+                return Collections.emptyList();
             }
             Elements items = searchResults.select("div[role=listitem][data-index]");
             if (items.isEmpty()) {
@@ -174,12 +210,16 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
                         log.debug("Skipping box set item (matched filtered phrase) in title: {}", extractAmazonBookId(item));
                         continue;
                     }
-                    bookIds.add(extractAmazonBookId(item));
+                    String bookId = extractAmazonBookId(item);
+                    if (bookId == null || bookIds.contains(bookId)) {
+                        continue;
+                    }
+                    bookIds.add(bookId);
                 }
             }
         } catch (AmazonAntiScrapingException e) {
             log.debug("Aborting Amazon search due to anti-scraping (503).");
-            return null;
+            return Collections.emptyList();
         } catch (Exception e) {
             log.error("Failed to get asin: {}", e.getMessage(), e);
         }
@@ -196,18 +236,26 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
                 break;
             }
         }
+
         if (bookLink != null) {
             return extractAsinFromUrl(bookLink);
-        } else {
-            return item.attr("data-asin");
         }
+
+        String dataAsin = item.attr("data-asin");
+        if (ASIN_PATTERN.matcher(dataAsin).matches()) {
+            return dataAsin;
+        }
+
+        return null;
     }
 
     private String extractAsinFromUrl(String url) {
-        String[] parts = DP_SEPARATOR_PATTERN.split(url);
-        if (parts.length > 1) {
-            String[] asinParts = parts[1].split("/");
-            return asinParts[0];
+        Matcher matcher = ASIN_PATH_PATTERN.matcher(url);
+        if (matcher.find()) {
+            String asin = matcher.group(1);
+            if (asin != null && !asin.isEmpty()) {
+                return asin;
+            }
         }
         return null;
     }

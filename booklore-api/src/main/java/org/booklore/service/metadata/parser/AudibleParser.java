@@ -41,7 +41,8 @@ public class AudibleParser implements BookParser, DetailedMetadataProvider {
     private static final String DEFAULT_DOMAIN = "com";
 
     private static final Pattern NON_ALPHANUMERIC_PATTERN = Pattern.compile("[^\\p{L}\\p{M}0-9]");
-    private static final Pattern ASIN_PATTERN = Pattern.compile("/pd/[^/]+/([A-Z0-9]{10})");
+    private static final Pattern ASIN_PATTERN = Pattern.compile("([A-Z0-9]{10})");
+    private static final Pattern ASIN_PATH_PATTERN = Pattern.compile("/pd/[^/]+/([A-Z0-9]{10})");
     private static final Pattern SERIES_BOOK_PATTERN = Pattern.compile(",?\\s*Book\\s*(\\d+(?:\\.\\d+)?)$");
 
     private static final Map<String, LocaleInfo> DOMAIN_LOCALE_MAP = Map.ofEntries(
@@ -67,17 +68,17 @@ public class AudibleParser implements BookParser, DetailedMetadataProvider {
 
     @Override
     public BookMetadata fetchTopMetadata(Book book, FetchMetadataRequest fetchMetadataRequest) {
-        List<String> audibleIds = getAudibleIds(book, fetchMetadataRequest);
-        if (audibleIds == null || audibleIds.isEmpty()) {
+        String audibleId = getTopAudibleId(book, fetchMetadataRequest);
+        if (audibleId == null || audibleId.isEmpty()) {
             return null;
         }
-        return getBookMetadata(audibleIds.getFirst());
+        return getBookMetadata(audibleId);
     }
 
     @Override
     public List<BookMetadata> fetchMetadata(Book book, FetchMetadataRequest fetchMetadataRequest) {
         List<String> audibleIds = getAudibleIds(book, fetchMetadataRequest);
-        if (audibleIds == null || audibleIds.isEmpty()) {
+        if (audibleIds.isEmpty()) {
             return Collections.emptyList();
         }
         List<BookMetadata> results = new ArrayList<>();
@@ -105,11 +106,47 @@ public class AudibleParser implements BookParser, DetailedMetadataProvider {
         return getBookMetadata(audibleId);
     }
 
+    private String getExistingAsin(Book book) {
+        if (book == null) {
+            return null;
+        }
+
+        BookMetadata metadata = book.getMetadata();
+        if (metadata == null) {
+            return null;
+        }
+        String asin = metadata.getAsin();
+        if (asin == null) {
+            return null;
+        }
+
+        Matcher matcher = AudibleParser.ASIN_PATTERN.matcher(asin);
+        if (!matcher.find()) {
+            return null;
+        }
+
+        return matcher.group(1);
+    }
+
+    private String getTopAudibleId(Book book, FetchMetadataRequest request) {
+        String storedBookId = getExistingAsin(book);
+        if (storedBookId != null) {
+            return storedBookId;
+        }
+
+        List<String> bookIds = getAudibleIds(book, request);
+        if (!bookIds.isEmpty() && !bookIds.getFirst().isEmpty()) {
+            return bookIds.getFirst();
+        }
+
+        return null;
+    }
+
     private List<String> getAudibleIds(Book book, FetchMetadataRequest request) {
         String queryUrl = buildQueryUrl(request, book);
         if (queryUrl == null) {
             log.error("Query URL is null, cannot proceed with Audible search.");
-            return null;
+            return Collections.emptyList();
         }
 
         List<String> bookIds = new ArrayList<>();
@@ -120,10 +157,10 @@ public class AudibleParser implements BookParser, DetailedMetadataProvider {
             Elements allLinks = doc.select("a[href*='/pd/']");
             for (Element link : allLinks) {
                 String href = link.attr("href");
-                Matcher matcher = ASIN_PATTERN.matcher(href);
+                Matcher matcher = ASIN_PATH_PATTERN.matcher(href);
                 if (matcher.find()) {
                     String asin = matcher.group(1);
-                    if (!bookIds.contains(asin)) {
+                    if (asin != null && !asin.isEmpty() && !bookIds.contains(asin)) {
                         bookIds.add(asin);
                     }
                 }
