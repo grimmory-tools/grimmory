@@ -2,9 +2,8 @@ package org.booklore.model.dto;
 
 import java.time.LocalDate;
 
-public interface FavoriteReadingDayDto {
+public interface DailyListeningDto {
     LocalDate getSessionDate();
-    Long getSessionCount();
     Long getTotalDurationSeconds();
+    Long getSessions();
 }
-

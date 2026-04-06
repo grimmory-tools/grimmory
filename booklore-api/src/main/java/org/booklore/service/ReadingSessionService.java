@@ -6,9 +6,8 @@ import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.ApiError;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.CompletionRaceSessionDto;
-import org.booklore.model.dto.request.ReadingSessionRequest;
 import org.booklore.model.dto.PageTurnerSessionDto;
-import org.booklore.model.dto.BookTimelineDto;
+import org.booklore.model.dto.request.ReadingSessionRequest;
 import org.booklore.model.dto.ProgressPercentDto;
 import org.booklore.model.dto.ReadingSessionCountDto;
 import org.booklore.model.dto.response.*;
@@ -34,6 +33,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.WeekFields;
@@ -52,9 +52,30 @@ public class ReadingSessionService {
     private final UserRepository userRepository;
     private final UserBookProgressRepository userBookProgressRepository;
 
-    private String getTimezoneOffset() {
-        ZoneOffset offset = ZoneId.systemDefault().getRules().getOffset(Instant.now());
-        return offset.getId().equals("Z") ? "+00:00" : offset.getId();
+    private int getTimezoneOffsetSeconds() {
+        return ZoneId.systemDefault().getRules().getOffset(Instant.now()).getTotalSeconds();
+    }
+
+    record PeriodBounds(Instant start, Instant end) {}
+
+    private PeriodBounds computeYearBounds(int year) {
+        ZoneId zone = ZoneId.systemDefault();
+        Instant start = LocalDate.of(year, 1, 1).atStartOfDay(zone).toInstant();
+        Instant end = LocalDate.of(year + 1, 1, 1).atStartOfDay(zone).toInstant();
+        return new PeriodBounds(start, end);
+    }
+
+    private PeriodBounds computeMonthBounds(int year, int month) {
+        ZoneId zone = ZoneId.systemDefault();
+        Instant start = LocalDate.of(year, month, 1).atStartOfDay(zone).toInstant();
+        Instant end = LocalDate.of(year, month, 1).plusMonths(1).atStartOfDay(zone).toInstant();
+        return new PeriodBounds(start, end);
+    }
+
+    private PeriodBounds computeOptionalBounds(Integer year, Integer month) {
+        if (year == null) return new PeriodBounds(null, null);
+        if (month == null) return computeYearBounds(year);
+        return computeMonthBounds(year, month);
     }
 
     @Transactional
@@ -88,8 +109,9 @@ public class ReadingSessionService {
     public List<ReadingSessionHeatmapResponse> getSessionHeatmapForYear(int year) {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
         Long userId = authenticatedUser.getId();
+        PeriodBounds bounds = computeYearBounds(year);
 
-        return readingSessionRepository.findSessionCountsByUserAndYear(userId, year, getTimezoneOffset())
+        return readingSessionRepository.findSessionCountsByUserAndPeriod(userId, bounds.start(), bounds.end(), getTimezoneOffsetSeconds())
                 .stream()
                 .map(dto -> ReadingSessionHeatmapResponse.builder()
                         .date(dto.getDate())
@@ -101,8 +123,9 @@ public class ReadingSessionService {
     public List<ReadingSessionHeatmapResponse> getSessionHeatmapForMonth(int year, int month) {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
         Long userId = authenticatedUser.getId();
+        PeriodBounds bounds = computeMonthBounds(year, month);
 
-        return readingSessionRepository.findSessionCountsByUserAndYearAndMonth(userId, year, month, getTimezoneOffset())
+        return readingSessionRepository.findSessionCountsByUserAndPeriod(userId, bounds.start(), bounds.end(), getTimezoneOffsetSeconds())
                 .stream()
                 .map(dto -> ReadingSessionHeatmapResponse.builder()
                         .date(dto.getDate())
@@ -138,7 +161,10 @@ public class ReadingSessionService {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
         Long userId = authenticatedUser.getId();
 
-        return readingSessionRepository.findReadingSpeedByUserAndYear(userId, year)
+        LocalDateTime periodStart = LocalDateTime.of(year, 1, 1, 0, 0);
+        LocalDateTime periodEnd = LocalDateTime.of(year + 1, 1, 1, 0, 0);
+
+        return readingSessionRepository.findReadingSpeedByUserAndYear(userId, periodStart, periodEnd)
                 .stream()
                 .map(dto -> ReadingSpeedResponse.builder()
                         .date(dto.getDate())
@@ -151,8 +177,9 @@ public class ReadingSessionService {
     public List<PeakHoursResponse> getPeakReadingHours(Integer year, Integer month) {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
         Long userId = authenticatedUser.getId();
+        PeriodBounds bounds = computeOptionalBounds(year, month);
 
-        return readingSessionRepository.findPeakReadingHoursByUser(userId, year, month, getTimezoneOffset())
+        return readingSessionRepository.findPeakReadingHoursByUser(userId, bounds.start(), bounds.end(), getTimezoneOffsetSeconds())
                 .stream()
                 .map(dto -> PeakHoursResponse.builder()
                         .hourOfDay(dto.getHourOfDay())
@@ -166,16 +193,30 @@ public class ReadingSessionService {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
         Long userId = authenticatedUser.getId();
 
-        String[] dayNames = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+        PeriodBounds bounds = computeOptionalBounds(year, month);
 
-        return readingSessionRepository.findFavoriteReadingDaysByUser(userId, year, month, getTimezoneOffset())
-                .stream()
-                .map(dto -> FavoriteReadingDaysResponse.builder()
-                        .dayOfWeek(dto.getDayOfWeek())
-                        .dayName(dayNames[dto.getDayOfWeek() - 1])
-                        .sessionCount(dto.getSessionCount())
-                        .totalDurationSeconds(dto.getTotalDurationSeconds())
-                        .build())
+        var dailyResults = readingSessionRepository.findFavoriteReadingDaysByUser(userId, bounds.start(), bounds.end(), getTimezoneOffsetSeconds());
+
+        // Aggregate per-date results by ISO day-of-week (Mon=1, Sun=7) in Java for dialect portability
+        Map<DayOfWeek, long[]> weekdayTotals = new EnumMap<>(DayOfWeek.class);
+        for (var dto : dailyResults) {
+            DayOfWeek dow = dto.getSessionDate().getDayOfWeek();
+            weekdayTotals.merge(dow,
+                    new long[]{dto.getSessionCount(), dto.getTotalDurationSeconds()},
+                    (a, b) -> new long[]{a[0] + b[0], a[1] + b[1]});
+        }
+
+        return weekdayTotals.entrySet().stream()
+                .map(entry -> {
+                    DayOfWeek dow = entry.getKey();
+                    return FavoriteReadingDaysResponse.builder()
+                            .dayOfWeek(dow.getValue())
+                            .dayName(dow.getDisplayName(TextStyle.FULL, Locale.ENGLISH))
+                            .sessionCount(entry.getValue()[0])
+                            .totalDurationSeconds(entry.getValue()[1])
+                            .build();
+                })
+                .sorted(Comparator.comparingInt(FavoriteReadingDaysResponse::getDayOfWeek))
                 .collect(Collectors.toList());
     }
 
@@ -402,7 +443,7 @@ public class ReadingSessionService {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
         Long userId = authenticatedUser.getId();
 
-        return readingSessionRepository.findAllSessionCountsByUser(userId, getTimezoneOffset())
+        return readingSessionRepository.findAllSessionCountsByUser(userId, getTimezoneOffsetSeconds())
                 .stream()
                 .map(dto -> ReadingSessionHeatmapResponse.builder()
                         .date(dto.getDate())
@@ -488,12 +529,15 @@ public class ReadingSessionService {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
         Long userId = authenticatedUser.getId();
 
-        return readingSessionRepository.findSessionScatterByUserAndYear(userId, year, getTimezoneOffset())
+        PeriodBounds bounds = computeYearBounds(year);
+
+        return readingSessionRepository.findSessionScatterByUserAndYear(userId, bounds.start(), bounds.end(), getTimezoneOffsetSeconds(),
+                        PageRequest.of(0, 500))
                 .stream()
                 .map(dto -> SessionScatterResponse.builder()
                         .hourOfDay(dto.getHourOfDay())
                         .durationMinutes(dto.getDurationMinutes())
-                        .dayOfWeek(dto.getDayOfWeek())
+                        .dayOfWeek(dto.getSessionDate().getDayOfWeek().getValue())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -502,7 +546,7 @@ public class ReadingSessionService {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
         Long userId = authenticatedUser.getId();
 
-        List<ReadingSessionCountDto> allDates = readingSessionRepository.findAllSessionCountsByUser(userId, getTimezoneOffset());
+        List<ReadingSessionCountDto> allDates = readingSessionRepository.findAllSessionCountsByUser(userId, getTimezoneOffsetSeconds());
         Set<LocalDate> readingDays = allDates.stream()
                 .map(ReadingSessionCountDto::getDate)
                 .collect(Collectors.toCollection(TreeSet::new));
@@ -558,11 +602,11 @@ public class ReadingSessionService {
     public List<BookTimelineResponse> getBookTimeline(int year) {
         BookLoreUser authenticatedUser = authenticationService.getAuthenticatedUser();
         Long userId = authenticatedUser.getId();
-        String tzOffset = getTimezoneOffset();
+        int tzOffsetSeconds = getTimezoneOffsetSeconds();
 
-        ZoneId zone = ZoneId.systemDefault();
+        PeriodBounds bounds = computeYearBounds(year);
 
-        return readingSessionRepository.findBookTimelineByUserAndYear(userId, year, tzOffset)
+        return readingSessionRepository.findBookTimelineByUserAndYear(userId, bounds.start(), bounds.end(), tzOffsetSeconds)
                 .stream()
                 .map(dto -> BookTimelineResponse.builder()
                         .bookId(dto.getBookId())
@@ -606,7 +650,9 @@ public class ReadingSessionService {
 
     public List<ListeningHeatmapResponse> getListeningHeatmapForMonth(int year, int month) {
         Long userId = authenticationService.getAuthenticatedUser().getId();
-        return readingSessionRepository.findListeningSessionsByUserAndMonth(userId, year, month, getTimezoneOffset())
+        PeriodBounds bounds = computeMonthBounds(year, month);
+
+        return readingSessionRepository.findListeningSessionsByUserAndMonth(userId, bounds.start(), bounds.end(), getTimezoneOffsetSeconds())
                 .stream()
                 .map(dto -> ListeningHeatmapResponse.builder()
                         .date(dto.getDate())
@@ -618,14 +664,30 @@ public class ReadingSessionService {
 
     public List<WeeklyListeningTrendResponse> getWeeklyListeningTrend(int weeks) {
         Long userId = authenticationService.getAuthenticatedUser().getId();
-        return readingSessionRepository.findWeeklyListeningTrend(userId, weeks, getTimezoneOffset())
-                .stream()
-                .map(dto -> WeeklyListeningTrendResponse.builder()
-                        .year(dto.getYear())
-                        .week(dto.getWeek())
-                        .totalDurationSeconds(dto.getTotalDurationSeconds())
-                        .sessions(dto.getSessions())
-                        .build())
+        Instant cutoffDate = Instant.now().minus(weeks * 7L, ChronoUnit.DAYS);
+        var dailyResults = readingSessionRepository.findDailyListeningByUserSince(userId, cutoffDate, getTimezoneOffsetSeconds());
+
+        // Aggregate daily results by ISO year+week
+        Map<String, long[]> weeklyMap = new LinkedHashMap<>();
+        for (var dto : dailyResults) {
+            LocalDate date = dto.getSessionDate();
+            int isoYear = date.get(WeekFields.ISO.weekBasedYear());
+            int isoWeek = date.get(WeekFields.ISO.weekOfWeekBasedYear());
+            String key = isoYear + "-" + isoWeek;
+            weeklyMap.merge(key, new long[]{dto.getTotalDurationSeconds(), dto.getSessions()},
+                    (a, b) -> new long[]{a[0] + b[0], a[1] + b[1]});
+        }
+
+        return weeklyMap.entrySet().stream()
+                .map(entry -> {
+                    String[] parts = entry.getKey().split("-");
+                    return WeeklyListeningTrendResponse.builder()
+                            .year(Integer.parseInt(parts[0]))
+                            .week(Integer.parseInt(parts[1]))
+                            .totalDurationSeconds(entry.getValue()[0])
+                            .sessions(entry.getValue()[1])
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
 
@@ -672,7 +734,7 @@ public class ReadingSessionService {
         var completedByMonth = readingSessionRepository.findMonthlyCompletedAudiobooks(userId);
 
         // Get listening durations by month
-        var durationsByMonth = readingSessionRepository.findMonthlyListeningDurations(userId, getTimezoneOffset());
+        var durationsByMonth = readingSessionRepository.findMonthlyListeningDurations(userId, getTimezoneOffsetSeconds());
         Map<String, Long> durationMap = new HashMap<>();
         for (var durDto : durationsByMonth) {
             durationMap.put(durDto.getYear() + "-" + durDto.getMonth(), durDto.getTotalDurationSeconds());
@@ -726,7 +788,9 @@ public class ReadingSessionService {
 
     public List<PeakHoursResponse> getListeningPeakHours(Integer year, Integer month) {
         Long userId = authenticationService.getAuthenticatedUser().getId();
-        return readingSessionRepository.findListeningPeakHoursByUser(userId, year, month, getTimezoneOffset())
+        PeriodBounds bounds = computeOptionalBounds(year, month);
+
+        return readingSessionRepository.findListeningPeakHoursByUser(userId, bounds.start(), bounds.end(), getTimezoneOffsetSeconds())
                 .stream()
                 .map(dto -> PeakHoursResponse.builder()
                         .hourOfDay(dto.getHourOfDay())
@@ -771,12 +835,13 @@ public class ReadingSessionService {
 
     public List<SessionScatterResponse> getListeningSessionScatter() {
         Long userId = authenticationService.getAuthenticatedUser().getId();
-        return readingSessionRepository.findListeningSessionScatterByUser(userId, getTimezoneOffset())
+        return readingSessionRepository.findListeningSessionScatterByUser(userId, getTimezoneOffsetSeconds(),
+                        PageRequest.of(0, 500))
                 .stream()
                 .map(dto -> SessionScatterResponse.builder()
                         .hourOfDay(dto.getHourOfDay())
                         .durationMinutes(dto.getDurationMinutes())
-                        .dayOfWeek(dto.getDayOfWeek())
+                        .dayOfWeek(dto.getSessionDate().getDayOfWeek().getValue())
                         .build())
                 .collect(Collectors.toList());
     }

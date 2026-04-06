@@ -60,19 +60,19 @@ public class BookCreatorService {
     }
 
     public BookEntity createShellBook(LibraryFile libraryFile, BookFileType bookFileType) {
-        Optional<BookEntity> existingBookOpt = bookRepository.findByLibraryIdAndLibraryPathIdAndFileSubPathAndFileName(
+        Optional<BookEntity> existing = bookRepository.findFirstByLibraryIdAndLibraryPathIdAndFileSubPathAndFileName(
                 libraryFile.getLibraryEntity().getId(),
                 libraryFile.getLibraryPathEntity().getId(),
                 libraryFile.getFileSubPath(),
                 libraryFile.getFileName());
 
-        if (existingBookOpt.isPresent()) {
+        if (existing.isPresent()) {
             log.warn("Book already exists for file: {}", libraryFile.getFileName());
             long fileSizeKb = calculateFileSize(libraryFile);
             String newHash = libraryFile.isFolderBased()
                     ? FileFingerprint.generateFolderHash(libraryFile.getFullPath())
                     : FileFingerprint.generateHash(libraryFile.getFullPath());
-            BookEntity existingBook = existingBookOpt.get();
+            BookEntity existingBook = existing.get();
             BookFileEntity primaryFile = existingBook.getPrimaryBookFile();
             primaryFile.setCurrentHash(newHash);
             primaryFile.setInitialHash(newHash);

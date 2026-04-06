@@ -35,6 +35,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -179,6 +180,7 @@ class FileMoveServiceOrderingTest {
         mockStandardBehavior(book, target);
         when(monitoringRegistrationService.isLibraryMonitored(1L)).thenReturn(true);
         when(monitoringRegistrationService.getPathsForLibraries(Set.of(1L))).thenReturn(Set.of(Paths.get("/library")));
+        when(libraryRepository.findByIdWithPaths(1L)).thenReturn(Optional.of(library));
         Library dto = Library.builder().build();
         when(libraryMapper.toLibrary(any(LibraryEntity.class))).thenReturn(dto);
 
@@ -315,6 +317,7 @@ class FileMoveServiceOrderingTest {
         doThrow(new IOException("fail")).when(fileMoveHelper).commitMove(any(), any());
         when(monitoringRegistrationService.isLibraryMonitored(1L)).thenReturn(true);
         when(monitoringRegistrationService.getPathsForLibraries(Set.of(1L))).thenReturn(Set.of(Paths.get("/library")));
+        when(libraryRepository.findByIdWithPaths(1L)).thenReturn(Optional.of(library));
         Library dto = Library.builder().build();
         when(libraryMapper.toLibrary(any(LibraryEntity.class))).thenReturn(dto);
 

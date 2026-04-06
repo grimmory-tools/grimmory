@@ -71,7 +71,7 @@ public class FileMoveService {
             sleep(EVENT_DRAIN_TIMEOUT_MS);
         } finally {
             for (Long libraryId : allAffectedLibraryIds) {
-                libraryRepository.findById(libraryId)
+                libraryRepository.findByIdWithPaths(libraryId)
                         .ifPresent(library -> monitoringRegistrationService.registerLibrary(libraryMapper.toLibrary(library)));
             }
         }
@@ -101,7 +101,7 @@ public class FileMoveService {
 
         try {
             Optional<BookEntity> optionalBook = bookRepository.findByIdWithBookFiles(bookId);
-            Optional<LibraryEntity> optionalLibrary = libraryRepository.findById(targetLibraryId);
+            Optional<LibraryEntity> optionalLibrary = libraryRepository.findByIdWithPaths(targetLibraryId);
             if (optionalBook.isEmpty()) {
                 log.warn("Book not found for move operation: bookId={}", bookId);
                 return;
@@ -392,13 +392,17 @@ public class FileMoveService {
                 throw e;
             }
 
-            // Clean up empty parent directories
-            Set<Path> libraryRoots = bookWithFiles.getLibraryPath().getLibrary().getLibraryPaths().stream()
-                    .map(LibraryPathEntity::getPath)
-                    .map(Paths::get)
-                    .map(Path::toAbsolutePath)
-                    .map(Path::normalize)
-                    .collect(Collectors.toCollection(HashSet::new));
+            // Clean up empty parent directories – load library paths via a separate query
+            // to avoid LazyInitializationException (OSIV is disabled) and MultipleBagFetchException
+            // (cannot eagerly fetch both bookFiles and libraryPaths in the same EntityGraph).
+            Set<Path> libraryRoots = libraryRepository.findByIdWithPaths(libraryId)
+                    .map(lib -> lib.getLibraryPaths().stream()
+                            .map(LibraryPathEntity::getPath)
+                            .map(Paths::get)
+                            .map(Path::toAbsolutePath)
+                            .map(Path::normalize)
+                            .collect(Collectors.toCollection(HashSet::new)))
+                    .orElseGet(HashSet::new);
             // Also protect the source library root so cleanup doesn't traverse above it
             libraryRoots.add(Paths.get(bookWithFiles.getLibraryPath().getPath()).toAbsolutePath().normalize());
 
@@ -434,10 +438,11 @@ public class FileMoveService {
 
             if (isLibraryMonitoredWhenCalled) {
                 log.debug("Registering library paths for library {} with root {}", libraryId, libraryRoot);
-                LibraryEntity libraryEntity = bookEntity.getLibraryPath().getLibrary();
-                Library library = libraryMapper.toLibrary(libraryEntity);
-                library.setWatch(true);
-                monitoringRegistrationService.registerLibrary(library);
+                libraryRepository.findByIdWithPaths(libraryId).ifPresent(lib -> {
+                    Library library = libraryMapper.toLibrary(lib);
+                    library.setWatch(true);
+                    monitoringRegistrationService.registerLibrary(library);
+                });
             }
         }
 

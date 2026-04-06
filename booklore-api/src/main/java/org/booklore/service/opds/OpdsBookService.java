@@ -167,13 +167,13 @@ public class OpdsBookService {
         }
 
         List<Long> libraryIds = accessibleLibraries.stream().map(Library::getId).toList();
-        List<Long> ids = bookOpdsRepository.findRandomBookIdsByLibraryIds(libraryIds);
+        List<Long> ids = bookOpdsRepository.findRandomBookIdsByLibraryIds(libraryIds, PageRequest.of(0, count));
 
         if (ids.isEmpty()) {
             return List.of();
         }
 
-        List<BookEntity> books = bookOpdsRepository.findAllWithMetadataByIds(ids.stream().limit(count).toList());
+        List<BookEntity> books = bookOpdsRepository.findAllWithMetadataByIds(ids);
         if (userId != null) {
             books = contentRestrictionService.applyRestrictions(books, userId);
         }
