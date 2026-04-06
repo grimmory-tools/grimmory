@@ -323,8 +323,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
         this.isLoading = false;
 
         // Initialize book viewer after loading completes
-        if (this.initTimeout) clearTimeout(this.initTimeout);
-        this.initTimeout = setTimeout(() => this.initBookViewer(), 50);
+        this.ngZone.runOutsideAngular(() => this.ensureViewerElementAndInitialize());
       },
       error: () => {
         this.messageService.add({ severity: 'error', summary: this.t.translate('common.error'), detail: this.t.translate('readerPdf.toast.failedToLoadBook') });
@@ -339,6 +338,28 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   }
 
   // --- Book viewer (EmbedPDF direct) ---
+
+  private async ensureViewerElementAndInitialize(attempt = 0): Promise<void> {
+    const targetEl = document.getElementById('book-viewer');
+    if (!targetEl) {
+      if (attempt < 20) {
+        setTimeout(() => this.ensureViewerElementAndInitialize(attempt + 1), 50);
+      } else {
+        console.error('[BookViewer] Failed to find #book-viewer element after 20 attempts');
+        this.ngZone.run(() => {
+          this.isLoading = false;
+          this.messageService.add({
+            severity: 'error',
+            summary: this.t.translate('common.error'),
+            detail: this.t.translate('readerPdf.toast.failedToLoadBook')
+          });
+        });
+      }
+      return;
+    }
+
+    this.ngZone.run(() => this.initBookViewer());
+  }
 
   private async initBookViewer(): Promise<void> {
     if (this.viewerMode !== 'book' || this.bookViewerInitialized || this.isInitializingBookViewer) return;
