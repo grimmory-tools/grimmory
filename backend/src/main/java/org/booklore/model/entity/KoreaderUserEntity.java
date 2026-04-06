@@ -38,9 +38,9 @@ public class KoreaderUserEntity {
     @Builder.Default
     private boolean syncEnabled = false;
 
-    @Column(name = "sync_with_booklore_reader", nullable = false)
+    @Column(name = "sync_with_grimmory_reader", nullable = false)
     @Builder.Default
-    private boolean syncWithBookloreReader = false;
+    private boolean syncWithGrimmoryReader = false;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "booklore_user_id")

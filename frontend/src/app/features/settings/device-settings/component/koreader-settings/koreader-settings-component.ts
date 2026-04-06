@@ -70,7 +70,7 @@ export class KoreaderSettingsComponent {
         this.koReaderUsername = koreaderUser.username;
         this.koReaderPassword = koreaderUser.password;
         this.koReaderSyncEnabled = koreaderUser.syncEnabled;
-        this.syncWithGrimmoryReader = koreaderUser.syncWithGrimmoryReader ?? koreaderUser.syncWithBookloreReader ?? false;
+        this.syncWithGrimmoryReader = koreaderUser.syncWithGrimmoryReader ?? false;
         this.credentialsSaved = true;
       },
       error: err => {

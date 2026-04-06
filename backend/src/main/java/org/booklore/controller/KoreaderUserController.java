@@ -51,13 +51,13 @@ public class KoreaderUserController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Toggle sync progress with Booklore reader", description = "Enable or disable syncing reading progress with Booklore reader.")
+    @Operation(summary = "Toggle sync progress with Grimmory reader", description = "Enable or disable syncing reading progress with Grimmory reader.")
     @ApiResponse(responseCode = "204", description = "Sync progress toggled successfully")
-    @PatchMapping("/me/sync-progress-with-booklore")
+    @PatchMapping("/me/sync-progress-with-grimmory")
     @PreAuthorize("@securityUtil.canSyncKoReader() or @securityUtil.isAdmin()")
-    public ResponseEntity<Void> toggleSyncProgressWithBooklore(
+    public ResponseEntity<Void> toggleSyncProgressWithGrimmory(
             @Parameter(description = "Enable or disable sync progress") @RequestParam boolean enabled) {
-        koreaderUserService.toggleSyncProgressWithBooklore(enabled);
+        koreaderUserService.toggleSyncProgressWithGrimmory(enabled);
         return ResponseEntity.noContent().build();
     }
 }

@@ -91,24 +91,19 @@ describe('KoreaderService', () => {
     request.flush(null);
   });
 
-  it('uses the Grimmory sync-progress endpoint before falling back to the legacy Booklore route', () => {
+  it('patches the Grimmory sync-progress toggle using the enabled query parameter', () => {
     let completed = false;
 
     service.toggleSyncProgressWithGrimmoryReader(false).subscribe(() => {
       completed = true;
     });
 
-    const grimmoryRequest = httpTestingController.expectOne(req =>
+    const request = httpTestingController.expectOne(req =>
       req.method === 'PATCH' && req.url.endsWith('/api/v1/koreader-users/me/sync-progress-with-grimmory')
     );
-    expect(grimmoryRequest.request.params.get('enabled')).toBe('false');
-    grimmoryRequest.flush('missing route', {status: 404, statusText: 'Not Found'});
-
-    const legacyRequest = httpTestingController.expectOne(req =>
-      req.method === 'PATCH' && req.url.endsWith('/api/v1/koreader-users/me/sync-progress-with-booklore')
-    );
-    expect(legacyRequest.request.params.get('enabled')).toBe('false');
-    legacyRequest.flush(null);
+    expect(request.request.params.get('enabled')).toBe('false');
+    expect(request.request.body).toBeNull();
+    request.flush(null);
 
     expect(completed).toBe(true);
   });
