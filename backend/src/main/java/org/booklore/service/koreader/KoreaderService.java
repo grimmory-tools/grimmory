@@ -75,7 +75,9 @@ public class KoreaderService {
                 .findByBookIdAndUserIdOrderByCreatedAtDesc(book.getId(), authDetails.getBookLoreUserId());
         log.info("getAnnotations: {} annotations for userId={} bookHash={}",
                 annotations.size(), authDetails.getBookLoreUserId(), bookHash);
-        return annotationSidecarService.buildAnnotationsLua(book.getFullFilePath(), annotations);
+        return annotationSidecarService.buildAnnotationsLua(
+                book.getFullFilePath(), annotations,
+                authDetails.getUsername(), authDetails.getBookLoreUserId(), book.getId());
     }
 
     @Transactional

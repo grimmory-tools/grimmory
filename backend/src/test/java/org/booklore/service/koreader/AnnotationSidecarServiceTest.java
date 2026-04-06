@@ -57,6 +57,7 @@ class AnnotationSidecarServiceTest {
     private BookLoreUserEntity user(String username) {
         BookLoreUserEntity u = mock(BookLoreUserEntity.class);
         when(u.getUsername()).thenReturn(username);
+        when(u.getId()).thenReturn(7L);
         return u;
     }
 
@@ -66,6 +67,9 @@ class AnnotationSidecarServiceTest {
         when(ann.getCfi()).thenReturn(cfi);
         when(ann.getText()).thenReturn(text);
         when(ann.getStyle()).thenReturn(style);
+        when(ann.getColor()).thenReturn("#FFFF00");
+        when(ann.getNote()).thenReturn("a personal note");
+        when(ann.getVersion()).thenReturn(1L);
         when(ann.getChapterTitle()).thenReturn("Chapter One");
         when(ann.getCreatedAt()).thenReturn(LocalDateTime.of(2024, 1, 15, 10, 30, 0));
         return ann;
@@ -146,12 +150,27 @@ class AnnotationSidecarServiceTest {
                 List.of(annotation("rangeCfi", "highlighted text", "highlight")));
 
         String lua = Files.readString(tempDir.resolve("book.epub.sdr/metadata.epub.alice.lua"));
+        // KOReader fields
         assertThat(lua).contains("[\"pos0\"] = \"/body/DocFragment[1]/body/p/text().5\"");
         assertThat(lua).contains("[\"pos1\"] = \"/body/DocFragment[1]/body/p/text().20\"");
         assertThat(lua).contains("[\"drawer\"] = \"lighten\"");
         assertThat(lua).contains("[\"datetime\"] = \"2024-01-15 10:30:00\"");
         assertThat(lua).contains("[\"notes\"] = \"highlighted text\"");
         assertThat(lua).contains("[\"chapter\"] = \"Chapter One\"");
+        // booklore_meta header
+        assertThat(lua).contains("[\"booklore_meta\"]");
+        assertThat(lua).contains("[\"username\"] = \"alice\"");
+        assertThat(lua).contains("[\"user_id\"] = 7");
+        assertThat(lua).contains("[\"book_id\"] = 1");
+        assertThat(lua).contains("[\"schema_version\"] = 1");
+        assertThat(lua).contains("-- booklore:schema_version=1");
+        // per-entry booklore extension block
+        assertThat(lua).contains("[\"booklore\"]");
+        assertThat(lua).contains("[\"id\"] = 42");
+        assertThat(lua).contains("[\"color\"] = \"#FFFF00\"");
+        assertThat(lua).contains("[\"style\"] = \"highlight\"");
+        assertThat(lua).contains("[\"note\"] = \"a personal note\"");
+        assertThat(lua).contains("[\"version\"] = 1");
     }
 
     @Test

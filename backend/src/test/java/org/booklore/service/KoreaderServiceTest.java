@@ -282,7 +282,7 @@ class KoreaderServiceTest {
         when(bookRepo.findByCurrentHash("h")).thenReturn(Optional.of(book));
         when(annotationRepo.findByBookIdAndUserIdOrderByCreatedAtDesc(55L, 42L))
                 .thenReturn(List.of());
-        when(annotationSidecarService.buildAnnotationsLua(isNull(), eq(List.of())))
+        when(annotationSidecarService.buildAnnotationsLua(isNull(), eq(List.of()), eq("u"), eq(42L), eq(55L)))
                 .thenReturn("-- KOReader bookmark file\n-- version: 1\n{\n    [\"highlights\"] = {\n    },\n    [\"bookmarks\"] = {},\n}\n");
 
         String lua = service.getAnnotations("h");
@@ -301,7 +301,7 @@ class KoreaderServiceTest {
         AnnotationEntity ann = mock(AnnotationEntity.class);
         when(annotationRepo.findByBookIdAndUserIdOrderByCreatedAtDesc(56L, 42L))
                 .thenReturn(List.of(ann));
-        when(annotationSidecarService.buildAnnotationsLua(isNull(), eq(List.of(ann))))
+        when(annotationSidecarService.buildAnnotationsLua(isNull(), eq(List.of(ann)), eq("u"), eq(42L), eq(56L)))
                 .thenReturn("lua-content");
 
         String result = service.getAnnotations("h");
