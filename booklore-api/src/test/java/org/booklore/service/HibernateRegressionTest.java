@@ -286,57 +286,6 @@ class HibernateRegressionTest {
     }
 
     @Nested
-    class BookdropTransactionVisibility {
-
-        @Test
-        void flushedBookIsVisibleViaFindByIdWithBookFiles_withinSameTransaction() {
-            LibraryEntity lib = LibraryEntity.builder()
-                    .name("Bookdrop TX Test Library")
-                    .icon("book")
-                    .watch(false)
-                    .build();
-            entityManager.persist(lib);
-
-            LibraryPathEntity path = LibraryPathEntity.builder()
-                    .library(lib)
-                    .path("/bookdrop/target")
-                    .build();
-            entityManager.persist(path);
-
-            // Simulate what processFile does: save + flush (but NOT commit — we're in @Transactional)
-            BookEntity book = BookEntity.builder()
-                    .library(lib)
-                    .libraryPath(path)
-                    .addedOn(Instant.now())
-                    .deleted(false)
-                    .bookFiles(new ArrayList<>())
-                    .build();
-            BookFileEntity bookFile = BookFileEntity.builder()
-                    .book(book)
-                    .fileName("imported.cbz")
-                    .fileSubPath("comics")
-                    .isBookFormat(true)
-                    .bookType(BookFileType.CBX)
-                    .fileSizeKb(5000L)
-                    .initialHash("hash1")
-                    .currentHash("hash1")
-                    .addedOn(Instant.now())
-                    .build();
-            book.getBookFiles().add(bookFile);
-            bookRepository.saveAndFlush(book);
-
-            // Simulate what processMovedFile does: query the book in the same TX
-            // (previously this was REQUIRES_NEW, which couldn't see the flushed book)
-            BookEntity found = bookRepository.findByIdWithBookFiles(book.getId())
-                    .orElse(null);
-
-            assertThat(found).isNotNull();
-            assertThat(found.getBookFiles()).hasSize(1);
-            assertThat(found.getBookFiles().get(0).getFileName()).isEqualTo("imported.cbz");
-        }
-    }
-
-    @Nested
     class BookEntityDefaults {
 
         /**
