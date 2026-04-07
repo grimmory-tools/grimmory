@@ -31,16 +31,16 @@ describe('LibraryHealthService', () => {
     service = TestBed.inject(LibraryHealthService);
   });
 
-  async function initializeService(): Promise<void> {
+  async function fetchHealth(): Promise<void> {
     const fetchQuerySpy = vi.spyOn(queryClient, 'fetchQuery');
-    service.initialize();
+    service.fetchHealth();
     await fetchQuerySpy.mock.results[0]?.value;
   }
 
-  it('fetches initial health on initialize', async () => {
+  it('fetches health', async () => {
     httpGetSpy.mockReturnValue(of({1: true, 2: false}));
 
-    await initializeService();
+    await fetchHealth();
 
     expect(httpGetSpy).toHaveBeenCalledOnce();
     expect(service.health()).toEqual({1: true, 2: false});
@@ -49,7 +49,7 @@ describe('LibraryHealthService', () => {
   it('reports unhealthy for a library with false health', async () => {
     httpGetSpy.mockReturnValue(of({1: true, 2: false}));
 
-    await initializeService();
+    await fetchHealth();
 
     expect(service.isUnhealthy(2)).toBe(true);
   });
@@ -57,7 +57,7 @@ describe('LibraryHealthService', () => {
   it('reports healthy for a library with true health', async () => {
     httpGetSpy.mockReturnValue(of({1: true}));
 
-    await initializeService();
+    await fetchHealth();
 
     expect(service.isUnhealthy(1)).toBe(false);
   });
@@ -65,15 +65,13 @@ describe('LibraryHealthService', () => {
   it('reports false for an unknown library', async () => {
     httpGetSpy.mockReturnValue(of({}));
 
-    await initializeService();
+    await fetchHealth();
 
     expect(service.isUnhealthy(99)).toBe(false);
   });
 
   it('updates state from websocket messages', async () => {
-    httpGetSpy.mockReturnValue(of({1: true}));
-
-    await initializeService();
+    service.initWebsocket();
     wsSubject.next({body: JSON.stringify({libraryHealth: {1: false}})} as IMessage);
 
     expect(service.isUnhealthy(1)).toBe(true);

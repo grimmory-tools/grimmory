@@ -44,12 +44,12 @@ describe("AppComponent", () => {
   };
   let bookdropFileService: { handleIncomingFile: ReturnType<typeof vi.fn> };
   let taskService: { handleTaskProgress: ReturnType<typeof vi.fn> };
-  let libraryHealthService: { initialize: ReturnType<typeof vi.fn> };
+  let libraryHealthService: { initWebsocket: ReturnType<typeof vi.fn>, fetchHealth: ReturnType<typeof vi.fn> };
   let libraryLoadingService: {
     showBookLoadingProgress: ReturnType<typeof vi.fn>;
     hide: ReturnType<typeof vi.fn>;
   };
-  let authService: { forceLogout: ReturnType<typeof vi.fn> };
+  let authService: { forceLogout: ReturnType<typeof vi.fn>, isAuthenticated: ReturnType<typeof signal> };
   let libraryService: {
     largeLibraryLoading: ReturnType<typeof signal>;
     setLargeLibraryLoading: ReturnType<typeof vi.fn>;
@@ -62,7 +62,7 @@ describe("AppComponent", () => {
   }
 
   function configureComponent(
-    authReady = true,
+    auth = { ready: true, authenticated: true },
     largeLibraryLoading = { isLoading: false, expectedCount: 0 },
   ): void {
     topics = new Map();
@@ -82,12 +82,12 @@ describe("AppComponent", () => {
     metadataProgressService = { handleIncomingProgress: vi.fn() };
     bookdropFileService = { handleIncomingFile: vi.fn() };
     taskService = { handleTaskProgress: vi.fn() };
-    libraryHealthService = { initialize: vi.fn() };
+    libraryHealthService = { initWebsocket: vi.fn(), fetchHealth: vi.fn() };
     libraryLoadingService = {
       showBookLoadingProgress: vi.fn(),
       hide: vi.fn(),
     };
-    authService = { forceLogout: vi.fn() };
+    authService = { forceLogout: vi.fn(), isAuthenticated: signal(auth.authenticated) };
     libraryService = {
       largeLibraryLoading: signal(largeLibraryLoading),
       setLargeLibraryLoading: vi.fn(),
@@ -98,7 +98,7 @@ describe("AppComponent", () => {
       providers: [
         {
           provide: AuthInitializationService,
-          useValue: { initialized: signal(authReady) },
+          useValue: { initialized: signal(auth.ready) },
         },
         { provide: RxStompService, useValue: rxStompService },
         { provide: BookService, useValue: bookService },
@@ -135,18 +135,27 @@ describe("AppComponent", () => {
   });
 
   it("boots the websocket wiring when auth initialization is ready", () => {
-    configureComponent(true);
+    configureComponent();
 
     expect(component.loading).toBe(false);
-    expect(libraryHealthService.initialize).toHaveBeenCalledOnce();
+    expect(libraryHealthService.initWebsocket).toHaveBeenCalledOnce();
+    expect(libraryHealthService.fetchHealth).toHaveBeenCalledOnce();
     expect(rxStompService.watch).toHaveBeenCalledWith("/user/queue/book-add");
     expect(rxStompService.watch).toHaveBeenCalledWith(
       "/user/queue/session-revoked",
     );
   });
 
+  it("boots the websocket wiring but don't fetch library health when not authenticated", () => {
+    configureComponent({ ready: true, authenticated: false });
+
+    expect(component.loading).toBe(false);
+    expect(libraryHealthService.initWebsocket).toHaveBeenCalledOnce();
+    expect(libraryHealthService.fetchHealth).not.toHaveBeenCalled();
+  });
+
   it("routes websocket book notifications through the large library loading branch", () => {
-    configureComponent(true, { isLoading: true, expectedCount: 2 });
+    configureComponent({ ready: true, authenticated: true }, { isLoading: true, expectedCount: 2 });
 
     topics
       .get("/user/queue/book-add")
@@ -169,7 +178,7 @@ describe("AppComponent", () => {
   });
 
   it("forwards websocket updates to the matching root services", () => {
-    configureComponent(true);
+    configureComponent();
 
     topics
       .get("/user/queue/book-update")
@@ -226,7 +235,7 @@ describe("AppComponent", () => {
   });
 
   it("forces logout when the session is revoked", () => {
-    configureComponent(true);
+    configureComponent();
 
     topics.get("/user/queue/session-revoked")?.next({ body: "" });
 
@@ -234,7 +243,7 @@ describe("AppComponent", () => {
   });
 
   it("unsubscribes and hides the loading overlay when destroyed", () => {
-    configureComponent(true);
+    configureComponent();
 
     component.ngOnDestroy();
 

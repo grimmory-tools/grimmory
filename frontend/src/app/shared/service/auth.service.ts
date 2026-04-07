@@ -1,4 +1,4 @@
-import {inject, Injectable, Injector, signal} from '@angular/core';
+import {computed, inject, Injectable, Injector, signal} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable, tap} from 'rxjs';
 import {RxStompService} from '../websocket/rx-stomp.service';
@@ -22,6 +22,7 @@ export class AuthService {
   private postLoginInitializer = inject(PostLoginInitializerService);
 
   readonly token = signal<string | null>(this.getInternalAccessToken());
+  readonly isAuthenticated = computed(() => !!this.token());
 
   internalLogin(credentials: { username: string; password: string }): Observable<{ accessToken: string; refreshToken: string, isDefaultPassword: string }> {
     return this.http.post<{ accessToken: string; refreshToken: string, isDefaultPassword: string }>(`${this.apiUrl}/login`, credentials).pipe(
