@@ -9,10 +9,9 @@ import org.booklore.model.websocket.Topic;
 import org.booklore.repository.BookdropFileRepository;
 import org.booklore.service.NotificationService;
 import org.booklore.service.appsettings.AppSettingService;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -27,8 +26,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
-public class BookdropEventHandlerService {
+public class BookdropEventHandlerService implements SmartLifecycle {
+
+    private static final int LIFECYCLE_PHASE = 10;
 
     private final BookdropFileRepository bookdropFileRepository;
     private final NotificationService notificationService;
@@ -41,21 +41,59 @@ public class BookdropEventHandlerService {
     private static final long STABILITY_MAX_WAIT_MS = 30_000;
 
     private final BlockingQueue<BookDropFileEvent> fileQueue = new LinkedBlockingQueue<>();
-    private volatile boolean running = true;
+    private volatile boolean running;
     private Thread workerThread;
 
-    @PostConstruct
-    public void init() {
+    public BookdropEventHandlerService(
+            BookdropFileRepository bookdropFileRepository,
+            NotificationService notificationService,
+            BookdropNotificationService bookdropNotificationService,
+            AppSettingService appSettingService,
+            BookdropMetadataService bookdropMetadataService) {
+        this.bookdropFileRepository = bookdropFileRepository;
+        this.notificationService = notificationService;
+        this.bookdropNotificationService = bookdropNotificationService;
+        this.appSettingService = appSettingService;
+        this.bookdropMetadataService = bookdropMetadataService;
+    }
+
+    @Override
+    public void start() {
+        running = true;
         workerThread = new Thread(this::processQueue, "BookdropFileProcessor");
         workerThread.start();
     }
 
-    @PreDestroy
-    public void shutdown() {
+    @Override
+    public void stop() {
+        stop(() -> {});
+    }
+
+    @Override
+    public void stop(Runnable callback) {
+        log.info("Stopping BookdropEventHandlerService...");
         running = false;
         if (workerThread != null) {
             workerThread.interrupt();
+            try {
+                workerThread.join(5000);
+            } catch (InterruptedException e) {
+                log.warn("Interrupted while waiting for BookdropEventHandlerService workerThread to stop");
+                Thread.currentThread().interrupt();
+            }
         }
+        log.info("Stopped BookdropEventHandlerService");
+        callback.run();
+    }
+
+    @Override
+    public boolean isRunning() {
+        return running;
+    }
+
+    @Override
+    public int getPhase() {
+        return LIFECYCLE_PHASE;
     }
 
     public void enqueueFile(Path file, WatchEvent.Kind<?> kind) {

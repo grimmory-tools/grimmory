@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Executor;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -63,6 +64,8 @@ class LibraryServiceIconTest {
     private UserRepository userRepository;
     @Mock
     private AuditService auditService;
+    @Mock
+    private Executor taskExecutor;
 
     @InjectMocks
     private LibraryService libraryService;

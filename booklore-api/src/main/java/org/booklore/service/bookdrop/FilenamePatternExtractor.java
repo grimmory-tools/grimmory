@@ -11,7 +11,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.PreDestroy;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.YearMonth;
@@ -31,11 +30,7 @@ public class FilenamePatternExtractor {
     private static final Pattern PATTERN = Pattern.compile("[,;&]");
     private final BookdropFileRepository bookdropFileRepository;
     private final BookdropMetadataHelper metadataHelper;
-    private final ExecutorService regexExecutor = Executors.newCachedThreadPool(runnable -> {
-        Thread thread = new Thread(runnable);
-        thread.setDaemon(true);
-        return thread;
-    });
+    private final ExecutorService regexExecutor;
     
     private static final int PREVIEW_FILE_LIMIT = 5;
     private static final long REGEX_TIMEOUT_SECONDS = 5;
@@ -216,18 +211,6 @@ public class FilenamePatternExtractor {
         }
     }
 
-    @PreDestroy
-    public void shutdownRegexExecutor() {
-        regexExecutor.shutdown();
-        try {
-            if (!regexExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
-                regexExecutor.shutdownNow();
-            }
-        } catch (InterruptedException e) {
-            regexExecutor.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
-    }
 
     private BookdropPatternExtractResult.FileExtractionResult extractFromFile(
             BookdropFileEntity file, 

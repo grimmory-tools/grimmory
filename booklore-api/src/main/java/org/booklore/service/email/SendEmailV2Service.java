@@ -17,7 +17,6 @@ import org.booklore.repository.EmailRecipientV2Repository;
 import org.booklore.repository.UserEmailProviderPreferenceRepository;
 import org.booklore.service.NotificationService;
 import org.booklore.util.FileUtils;
-import org.booklore.util.SecurityContextVirtualThread;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.AllArgsConstructor;
@@ -32,6 +31,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.concurrent.Executor;
 
 @Slf4j
 @Service
@@ -45,6 +45,7 @@ public class SendEmailV2Service {
     private final NotificationService notificationService;
     private final AuthenticationService authenticationService;
     private final AuditService auditService;
+    private final Executor taskExecutor;
 
     public void emailBookQuick(Long bookId) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
@@ -73,7 +74,7 @@ public class SendEmailV2Service {
         String logMessage = "Email dispatch initiated for book: " + bookTitle + " to " + recipientEmail;
         notificationService.sendMessage(Topic.LOG, LogNotification.info(logMessage));
         log.info(logMessage);
-        SecurityContextVirtualThread.runWithSecurityContext(() -> {
+        taskExecutor.execute(() -> {
             try {
                 sendEmail(emailProvider, recipientEmail, book, bookFile);
                 auditService.log(AuditAction.BOOK_SENT, "Book", book.getId(), "Sent book: " + bookTitle + " to " + recipientEmail);
