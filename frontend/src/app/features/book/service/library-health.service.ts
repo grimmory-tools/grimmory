@@ -1,4 +1,5 @@
-import {computed, inject, Injectable} from '@angular/core';
+import {computed, inject, Injectable, DestroyRef} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {HttpClient} from '@angular/common/http';
 import {lastValueFrom} from 'rxjs';
 import {RxStompService} from '../../../shared/websocket/rx-stomp.service';
@@ -13,6 +14,9 @@ export class LibraryHealthService {
   private http = inject(HttpClient);
   private rxStompService = inject(RxStompService);
   private queryClient = inject(QueryClient);
+  private destroyRef = inject(DestroyRef);
+
+  private socketInitialized = false;
 
   private healthQuery = injectQuery(() => ({
     ...this.getHealthQueryOptions(),
@@ -33,10 +37,15 @@ export class LibraryHealthService {
   }
 
   initWebsocket(): void {
-    this.rxStompService.watch('/topic/library-health').subscribe(msg => {
-      const payload = JSON.parse(msg.body);
-      this.queryClient.setQueryData(LIBRARY_HEALTH_QUERY_KEY, payload.libraryHealth);
-    });
+    if (this.socketInitialized) return;
+
+    this.rxStompService.watch('/topic/library-health')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(msg => {
+        const payload = JSON.parse(msg.body);
+        this.queryClient.setQueryData(LIBRARY_HEALTH_QUERY_KEY, payload.libraryHealth);
+      });
+    this.socketInitialized = true;
   }
 
   isUnhealthy(libraryId: number): boolean {
