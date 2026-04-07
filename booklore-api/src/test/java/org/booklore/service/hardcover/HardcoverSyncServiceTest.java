@@ -333,6 +333,132 @@ class HardcoverSyncServiceTest {
         verify(restClient, never()).post();
     }
 
+    // === Tests for sync behavior (after book resolution) ===
+
+    @Test
+    @DisplayName("Should skip progress update when book is already READ on Hardcover and progress is finished")
+    void syncProgressToHardcover_whenBookAlreadyReadAndProgressFinished_shouldSkip() {
+        testMetadata.setHardcoverBookId("12345");
+        testMetadata.setPageCount(300);
+
+        when(responseSpec.body(Map.class))
+                .thenReturn(createBookByIdResponse(12345, 300, edition(10, 300), null, null))
+                .thenReturn(createGetUserBookAndReadsResponse(5001, 3, 10, List.of()));
+
+        service.syncProgressToHardcover(TEST_BOOK_ID, 99.0f, TEST_USER_ID);
+
+        // Resolves book (1) + fetches user book (2), then skips — no insert/update calls
+        verify(restClient, times(2)).post();
+    }
+
+    @Test
+    @DisplayName("Should proceed when book is READ but progress is not finished")
+    void syncProgressToHardcover_whenBookAlreadyReadAndProgressNotFinished_shouldProceed() {
+        testMetadata.setHardcoverBookId("12345");
+        testMetadata.setPageCount(300);
+
+        when(responseSpec.body(Map.class))
+                .thenReturn(createBookByIdResponse(12345, 300, edition(10, 300), null, null))
+                .thenReturn(createGetUserBookAndReadsResponse(5001, 3, 10, List.of()))
+                .thenReturn(createUpdateUserBookResponse(5001, 2, 10, List.of()))
+                .thenReturn(createInsertUserBookReadResponse());
+
+        service.syncProgressToHardcover(TEST_BOOK_ID, 50.0f, TEST_USER_ID);
+
+        // More than 2 API calls — did not skip
+        verify(restClient, atLeast(3)).post();
+    }
+
+    @Test
+    @DisplayName("Should skip when resolved book has zero pages")
+    void syncProgressToHardcover_whenResolvedBookHasZeroPages_shouldSkip() {
+        testMetadata.setHardcoverBookId("12345");
+
+        when(responseSpec.body(Map.class))
+                .thenReturn(createBookByIdResponse(12345, 0, edition(10, 0), null, null));
+
+        service.syncProgressToHardcover(TEST_BOOK_ID, 50.0f, TEST_USER_ID);
+
+        // Only resolveHardcoverBook is called; page guard returns early
+        verify(restClient, times(1)).post();
+    }
+
+    @Test
+    @DisplayName("Should call updateUserBook when user_book exists but status is not CURRENTLY_READING")
+    void syncProgressToHardcover_whenUserBookExistsWithWantToReadStatus_shouldCallUpdateUserBook() {
+        testMetadata.setHardcoverBookId("12345");
+        testMetadata.setPageCount(300);
+
+        // Status 1 = Want to Read (not currently reading, not read)
+        when(responseSpec.body(Map.class))
+                .thenReturn(createBookByIdResponse(12345, 300, edition(10, 300), null, null))
+                .thenReturn(createGetUserBookAndReadsResponse(5001, 1, 10, List.of()))
+                .thenReturn(createUpdateUserBookResponse(5001, 2, 10, List.of()))
+                .thenReturn(createInsertUserBookReadResponse());
+
+        service.syncProgressToHardcover(TEST_BOOK_ID, 50.0f, TEST_USER_ID);
+
+        // Resolve (1) + getUserBookAndReads (2) + updateUserBook (3) + insertUserBookRead (4)
+        verify(restClient, times(4)).post();
+    }
+
+    @Test
+    @DisplayName("Should update existing read when currently reading and edition matches")
+    void syncProgressToHardcover_whenCurrentlyReadingWithMatchingEdition_shouldUpdateRead() {
+        testMetadata.setHardcoverBookId("12345");
+        testMetadata.setPageCount(300);
+
+        Map<String, Object> existingRead = existingUserBookRead(6001, 10, "2024-01-01", null, 50);
+
+        when(responseSpec.body(Map.class))
+                .thenReturn(createBookByIdResponse(12345, 300, edition(10, 300), null, null))
+                .thenReturn(createGetUserBookAndReadsResponse(5001, 2, 10, List.of(existingRead)))
+                .thenReturn(createUpdateUserBookReadResponse());
+
+        service.syncProgressToHardcover(TEST_BOOK_ID, 50.0f, TEST_USER_ID);
+
+        // Resolve (1) + getUserBookAndReads (2) + updateUserBookRead (3)
+        verify(restClient, times(3)).post();
+    }
+
+    @Test
+    @DisplayName("Should insert new read when currently reading but edition does not match")
+    void syncProgressToHardcover_whenCurrentlyReadingWithDifferentEdition_shouldInsertRead() {
+        testMetadata.setHardcoverBookId("12345");
+        testMetadata.setPageCount(300);
+
+        // Existing read has edition_id=99, but resolved edition is 10 — no match
+        Map<String, Object> existingRead = existingUserBookRead(6001, 99, "2024-01-01", null, 50);
+
+        when(responseSpec.body(Map.class))
+                .thenReturn(createBookByIdResponse(12345, 300, edition(10, 300), null, null))
+                .thenReturn(createGetUserBookAndReadsResponse(5001, 2, 10, List.of(existingRead)))
+                .thenReturn(createInsertUserBookReadResponse());
+
+        service.syncProgressToHardcover(TEST_BOOK_ID, 50.0f, TEST_USER_ID);
+
+        // Resolve (1) + getUserBookAndReads (2) + insertUserBookRead (3)
+        verify(restClient, times(3)).post();
+    }
+
+    @Test
+    @DisplayName("Should abort sync when insertUserBook returns null")
+    void syncProgressToHardcover_whenInsertUserBookFails_shouldAbortSync() {
+        testMetadata.setHardcoverBookId("12345");
+        testMetadata.setPageCount(300);
+
+        // getUserBookAndReads returns no user_book; insertUserBook also returns null (empty response)
+        when(responseSpec.body(Map.class))
+                .thenReturn(createBookByIdResponse(12345, 300, edition(10, 300), null, null))
+                .thenReturn(createEmptyBooksResponse())  // getUserBookAndReads: no me entry -> null
+                .thenReturn(null);                       // insertUserBook: null response -> null
+
+        service.syncProgressToHardcover(TEST_BOOK_ID, 50.0f, TEST_USER_ID);
+
+        // Resolve (1) + getUserBookAndReads (2) + insertUserBook attempt (3) — then stops
+        verify(restClient, times(3)).post();
+    }
+
     // === resolveHardcoverBook ===
     @Test
     @DisplayName("Returns null when all identifiers are blank")
@@ -586,5 +712,56 @@ class HardcoverSyncServiceTest {
         Field field = target.getClass().getDeclaredField(fieldName);
         field.setAccessible(true);
         return (Integer) field.get(target);
+    }
+
+    /**
+     * Creates a mock response for the getUserBookAndReads query.
+     * The Hardcover API returns 'me' as a list; this matches that structure.
+     */
+    private Map<String, Object> createGetUserBookAndReadsResponse(
+            Integer userBookId, Integer statusId, Integer editionId,
+            List<Map<String, Object>> reads) {
+        Map<String, Object> userBook = new HashMap<>();
+        if (userBookId != null) userBook.put("id", userBookId);
+        if (statusId != null) userBook.put("status_id", statusId);
+        if (editionId != null) userBook.put("edition_id", editionId);
+        userBook.put("user_book_reads", reads != null ? reads : List.of());
+
+        Map<String, Object> me = new HashMap<>();
+        me.put("user_books", List.of(userBook));
+
+        return Map.of("data", Map.of("me", List.of(me)));
+    }
+
+    /**
+     * Creates a mock response for the updateUserBook mutation.
+     */
+    private Map<String, Object> createUpdateUserBookResponse(
+            Integer userBookId, Integer statusId, Integer editionId,
+            List<Map<String, Object>> reads) {
+        Map<String, Object> userBook = new HashMap<>();
+        if (userBookId != null) userBook.put("id", userBookId);
+        if (statusId != null) userBook.put("status_id", statusId);
+        if (editionId != null) userBook.put("edition_id", editionId);
+        userBook.put("user_book_reads", reads != null ? reads : List.of());
+
+        Map<String, Object> updateResult = new HashMap<>();
+        updateResult.put("user_book", userBook);
+
+        return Map.of("data", Map.of("update_user_book", updateResult));
+    }
+
+    /**
+     * Builds a user_book_read map as returned inside getUserBookAndReads.
+     */
+    private Map<String, Object> existingUserBookRead(
+            Integer id, Integer editionId, String startedAt, String finishedAt, Integer progressPages) {
+        Map<String, Object> read = new HashMap<>();
+        if (id != null) read.put("id", id);
+        if (editionId != null) read.put("edition_id", editionId);
+        if (startedAt != null) read.put("started_at", startedAt);
+        if (finishedAt != null) read.put("finished_at", finishedAt);
+        if (progressPages != null) read.put("progress_pages", progressPages);
+        return read;
     }
 }
