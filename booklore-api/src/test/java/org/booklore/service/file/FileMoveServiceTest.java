@@ -1116,6 +1116,47 @@ class FileMoveServiceTest {
     }
 
     @Nested
+    @DisplayName("moveSingleFile - L1 Cache Eviction")
+    class MoveSingleFileL1CacheEviction {
+
+        @Test
+        @DisplayName("evicts L1-cached LibraryEntity before file move to avoid LazyInitializationException")
+        void evictsCachedLibraryWhenPresentInPersistenceContext() throws IOException {
+            BookFileEntity epub = createBookFile(1L, "Book.epub", "path", true, false);
+            BookEntity book = createBook(List.of(epub));
+            Path target = Paths.get("/library/new/path/NewName.epub");
+
+            when(entityManager.contains(library)).thenReturn(true);
+
+            mockStandardBehavior(book, target);
+            mockUnmonitoredLibrary();
+
+            service.moveSingleFile(book);
+
+            verify(entityManager).contains(library);
+            verify(entityManager).detach(library);
+        }
+
+        @Test
+        @DisplayName("skips eviction when LibraryEntity is not in persistence context")
+        void skipsEvictionWhenNotInPersistenceContext() throws IOException {
+            BookFileEntity epub = createBookFile(1L, "Book.epub", "path", true, false);
+            BookEntity book = createBook(List.of(epub));
+            Path target = Paths.get("/library/new/path/NewName.epub");
+
+            when(entityManager.contains(library)).thenReturn(false);
+
+            mockStandardBehavior(book, target);
+            mockUnmonitoredLibrary();
+
+            service.moveSingleFile(book);
+
+            verify(entityManager).contains(library);
+            verify(entityManager, never()).detach(any());
+        }
+    }
+
+    @Nested
     @DisplayName("NetworkStorageGating")
     class NetworkStorageGating {
 

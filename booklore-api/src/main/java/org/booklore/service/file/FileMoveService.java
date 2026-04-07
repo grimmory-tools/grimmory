@@ -268,6 +268,17 @@ public class FileMoveService {
 
         Long libraryId = bookEntity.getLibraryPath().getLibrary().getId();
         Path libraryRoot = Paths.get(bookEntity.getLibraryPath().getPath()).toAbsolutePath().normalize();
+
+        // Evict the L1-cached LibraryEntity so that findByIdWithPaths() returns a fresh
+        // instance with libraryPaths eagerly loaded.  Without this, the caller's EntityGraph
+        // (e.g. findAllWithMetadataByIds) may have loaded the LibraryEntity without
+        // libraryPaths, poisoning the L1 cache and causing a LazyInitializationException
+        // when libraryPaths is accessed later (OSIV is disabled).
+        LibraryEntity cachedLibrary = bookEntity.getLibraryPath().getLibrary();
+        if (entityManager.contains(cachedLibrary)) {
+            entityManager.detach(cachedLibrary);
+        }
+
         boolean isLibraryMonitoredWhenCalled = false;
         Map<Long, PlannedMove> plannedMovesByBookFileId = new HashMap<>();
         Set<Path> sourceParentsToCleanup = new HashSet<>();
