@@ -60,4 +60,12 @@ class KoreaderUserControllerTest {
         assertEquals(HttpStatus.NO_CONTENT, resp.getStatusCode());
         assertNull(resp.getBody());
     }
+
+    @Test
+    void toggleSyncProgressWithGrimmory_returnsNoContent() {
+        doNothing().when(koreaderUserService).toggleSyncProgressWithGrimmory(true);
+        ResponseEntity<Void> resp = controller.toggleSyncProgressWithGrimmory(true);
+        assertEquals(HttpStatus.NO_CONTENT, resp.getStatusCode());
+        assertNull(resp.getBody());
+    }
 }
