@@ -18,13 +18,14 @@ import org.booklore.repository.BookdropFileRepository;
 import org.booklore.repository.LibraryPathRepository;
 import org.booklore.repository.LibraryRepository;
 import org.booklore.service.NotificationService;
+import org.booklore.service.event.BookAddedEvent;
 import org.booklore.service.file.FileMovingHelper;
 import org.booklore.service.fileprocessor.BookFileProcessor;
 import org.booklore.service.fileprocessor.BookFileProcessorRegistry;
-import org.booklore.service.kobo.KoboAutoShelfService;
 import org.booklore.service.metadata.MetadataRefreshService;
 import org.booklore.service.monitoring.MonitoringRegistrationService;
 import org.junit.jupiter.api.AfterEach;
+import org.springframework.context.ApplicationEventPublisher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -88,7 +89,7 @@ class BookDropServiceTest {
     @Mock
     private FileMovingHelper fileMovingHelper;
     @Mock
-    private KoboAutoShelfService koboAutoShelfService;
+    private ApplicationEventPublisher eventPublisher;
     @Mock
     private PlatformTransactionManager transactionManager;
 

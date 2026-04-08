@@ -126,10 +126,6 @@ public class SettingPersistenceHelper {
                 .p2(MetadataProvider.Google)
                 .build();
 
-        MetadataRefreshOptions.FieldProvider amazonProvider = MetadataRefreshOptions.FieldProvider.builder()
-                .p1(MetadataProvider.Amazon)
-                .build();
-
         MetadataRefreshOptions.FieldProvider nullProvider = MetadataRefreshOptions.FieldProvider.builder()
                 .build();
 
@@ -153,6 +149,7 @@ public class SettingPersistenceHelper {
                 .goodreadsId(nullProvider)
                 .comicvineId(nullProvider)
                 .hardcoverId(nullProvider)
+                .hardcoverBookId(nullProvider)
                 .googleId(nullProvider)
                 .lubimyczytacId(nullProvider)
                 .amazonRating(nullProvider)
@@ -164,6 +161,9 @@ public class SettingPersistenceHelper {
                 .lubimyczytacRating(nullProvider)
                 .ranobedbId(nullProvider)
                 .ranobedbRating(nullProvider)
+                .audibleId(nullProvider)
+                .audibleRating(nullProvider)
+                .audibleReviewCount(nullProvider)
                 .moods(nullProvider)
                 .tags(nullProvider)
                 .build();
@@ -188,6 +188,7 @@ public class SettingPersistenceHelper {
                 .goodreadsId(true)
                 .comicvineId(true)
                 .hardcoverId(true)
+                .hardcoverBookId(true)
                 .googleId(true)
                 .lubimyczytacId(true)
                 .amazonRating(true)
@@ -199,6 +200,9 @@ public class SettingPersistenceHelper {
                 .lubimyczytacRating(true)
                 .ranobedbId(false)
                 .ranobedbRating(false)
+                .audibleId(true)
+                .audibleRating(true)
+                .audibleReviewCount(true)
                 .moods(true)
                 .tags(true)
                 .build();
@@ -239,6 +243,9 @@ public class SettingPersistenceHelper {
                 .doubanRating(3)
                 .doubanReviewCount(2)
                 .ranobedbRating(2)
+                .lubimyczytacRating(2)
+                .audibleRating(0)
+                .audibleReviewCount(0)
                 .coverImage(5)
                 .build();
     }
@@ -338,8 +345,10 @@ public class SettingPersistenceHelper {
         fields.setComicvineId(true);
         fields.setLubimyczytacId(true);
         fields.setLubimyczytacRating(true);
-        fields.setRanobedbId(true);
         fields.setRanobedbRating(true);
+        fields.setAudibleId(true);
+        fields.setAudibleRating(true);
+        fields.setAudibleReviewCount(true);
         return fields;
     }
 }

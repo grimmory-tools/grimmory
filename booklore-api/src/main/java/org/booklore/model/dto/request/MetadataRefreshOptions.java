@@ -57,6 +57,7 @@ public class MetadataRefreshOptions {
         private FieldProvider goodreadsId;
         private FieldProvider comicvineId;
         private FieldProvider hardcoverId;
+        private FieldProvider hardcoverBookId;
         private FieldProvider googleId;
         private FieldProvider lubimyczytacId;
         private FieldProvider amazonRating;
@@ -68,6 +69,9 @@ public class MetadataRefreshOptions {
         private FieldProvider lubimyczytacRating;
         private FieldProvider ranobedbId;
         private FieldProvider ranobedbRating;
+        private FieldProvider audibleId;
+        private FieldProvider audibleRating;
+        private FieldProvider audibleReviewCount;
         private FieldProvider moods;
         private FieldProvider tags;
     }
@@ -132,6 +136,8 @@ public class MetadataRefreshOptions {
         @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
         private boolean hardcoverId = true;
         @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
+        private boolean hardcoverBookId = true;
+        @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
         private boolean googleId = true;
         @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
         private boolean lubimyczytacId = true;
@@ -153,6 +159,12 @@ public class MetadataRefreshOptions {
         private boolean ranobedbId = true;
         @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
         private boolean ranobedbRating = true;
+        @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
+        private boolean audibleId = true;
+        @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
+        private boolean audibleRating = true;
+        @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
+        private boolean audibleReviewCount = true;
         @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
         private boolean moods = true;
         @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
@@ -182,6 +194,7 @@ public class MetadataRefreshOptions {
             this.goodreadsId = true;
             this.comicvineId = true;
             this.hardcoverId = true;
+            this.hardcoverBookId = true;
             this.googleId = true;
             this.lubimyczytacId = true;
             this.amazonRating = true;
@@ -193,6 +206,9 @@ public class MetadataRefreshOptions {
             this.lubimyczytacRating = true;
             this.ranobedbId = true;
             this.ranobedbRating = true;
+            this.audibleId = true;
+            this.audibleRating = true;
+            this.audibleReviewCount = true;
             this.moods = true;
             this.tags = true;
         }

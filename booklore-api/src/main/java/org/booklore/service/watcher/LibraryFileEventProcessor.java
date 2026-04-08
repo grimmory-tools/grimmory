@@ -12,6 +12,7 @@ import org.booklore.repository.BookRepository;
 import org.booklore.repository.LibraryRepository;
 import org.booklore.service.file.FileFingerprint;
 import org.booklore.service.library.LibraryProcessingService;
+import org.booklore.service.library.LibraryScanListener;
 import org.booklore.util.FileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +46,7 @@ public class LibraryFileEventProcessor implements SmartLifecycle {
     private final BookFileTransactionalHandler bookFileTransactionalHandler;
     private final BookFilePersistenceService bookFilePersistenceService;
     private final LibraryProcessingService libraryProcessingService;
+    private final LibraryScanListener libraryScanListener;
     private final PendingDeletionPool pendingDeletionPool;
 
     private ScheduledExecutorService scheduler;
@@ -104,6 +106,11 @@ public class LibraryFileEventProcessor implements SmartLifecycle {
     }
 
     public void processEvent(WatchEvent.Kind<?> eventKind, long libraryId, Path fullPath, boolean isDirectory) {
+        if (libraryScanListener.isScanning(libraryId)) {
+            log.debug("[SKIP] Library {} is currently being scanned, ignoring file event for '{}'", libraryId, fullPath);
+            return;
+        }
+
         Path path = fullPath.toAbsolutePath().normalize();
 
         if (eventKind == StandardWatchEventKinds.ENTRY_DELETE) {
