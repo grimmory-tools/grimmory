@@ -2,7 +2,7 @@ import { Component, effect, ElementRef, HostListener, inject, OnDestroy, OnInit,
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { forkJoin, from, Subject } from 'rxjs';
-import { debounceTime, map, switchMap, takeUntil } from 'rxjs/operators';
+import { debounceTime, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { PageTitleService } from "../../../shared/service/page-title.service";
 import { CbxReaderService } from '../../book/service/cbx-reader.service';
 import { BookService } from '../../book/service/book.service';
@@ -30,6 +30,15 @@ import { CbxNoteDialogComponent, CbxNoteDialogData, CbxNoteDialogResult } from '
 import { CbxShortcutsHelpComponent } from './dialogs/cbx-shortcuts-help.component';
 import { CanvasRendererComponent } from './renderers/canvas-renderer.component';
 import { BookNoteV2 } from '../../../shared/service/book-note-v2.service';
+import { ReaderPreferencesService } from '../../settings/reader-preferences/reader-preferences.service';
+import {
+  clampStripMaxWidthPercent,
+  dismissWebtoonHintForSession,
+  dismissWebtoonHintForever,
+  readStripWidthPercent,
+  shouldOfferWebtoonHint,
+  writeStripWidthPercentPerBook
+} from './core/cbx-reader-storage';
 
 
 @Component({
@@ -58,6 +67,15 @@ import { BookNoteV2 } from '../../../shared/service/book-note-v2.service';
   styleUrl: './cbx-reader.component.scss'
 })
 export class CbxReaderComponent implements OnInit, OnDestroy {
+  private static readonly PRELOAD_PAGE_WINDOW = 5;
+  private static readonly INFINITE_SCROLL_PAGE_DEBOUNCE_MS = 80;
+  private static readonly STRIP_WIDTH_PERSIST_DEBOUNCE_MS = 400;
+  private static readonly READER_LAYOUT_GRACE_MS = 1000;
+  private static readonly CONTINUATION_HINT_SHOW_PX = 220;
+  private static readonly CONTINUATION_HINT_HIDE_PX = 380;
+  private static readonly LONG_STRIP_BUFFER = 7;
+  private static readonly AUTO_CLOSE_MENU_TIMEOUT = 3000;
+
   private destroy$ = new Subject<void>();
   private progressSaveSubject$ = new Subject<void>();
 
@@ -83,11 +101,12 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   previousBookInSeries: Book | null = null;
 
   infiniteScrollPages: number[] = [];
-  preloadCount: number = 3;
+  preloadCount: number = CbxReaderComponent.PRELOAD_PAGE_WINDOW;
+  /** True while a chunk of pages is being prepended/appended (does not block scroll UX). */
   isLoadingMore: boolean = false;
+  private infiniteScrollPageDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
   // Long-strip state (Kavita-inspired webtoon reader)
-  private static readonly LONG_STRIP_BUFFER = 5;
   longStripImages: { src: string; page: number }[] = [];
   private longStripLoadedPages = new Set<number>();
   private longStripIntersectionObserver: IntersectionObserver | null = null;
@@ -135,6 +154,8 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   // Magnifier
   isMagnifierActive = false;
   @ViewChild('magnifierLens', { static: true }) private magnifierLensRef!: ElementRef<HTMLDivElement>;
+  @ViewChild('readerRoot', { read: ElementRef }) private readerRootRef?: ElementRef<HTMLElement>;
+  @ViewChild('imageScrollHost', { read: ElementRef }) private imageScrollHostRef?: ElementRef<HTMLElement>;
   magnifierZoom: CbxMagnifierZoom = CbxMagnifierZoom.ZOOM_3X;
   magnifierLensSize: CbxMagnifierLensSize = CbxMagnifierLensSize.MEDIUM;
   private lastMouseEvent: MouseEvent | null = null;
@@ -145,6 +166,22 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   // Brightness filter (0-100, default 100)
   brightness = 100;
 
+  /** 50–100: max width of strip column (infinite / long strip). */
+  stripMaxWidthPercent = 100;
+
+  /** Kavita-style hint when archive looks like vertical webtoon strips. */
+  showWebtoonSuggestion = false;
+
+  /** Near bottom of strip + next in series: show subtle continuation hint. */
+  continuationHintVisible = false;
+
+  private cbxSettingsUsesGlobal = true;
+  private readerLayoutGraceUntilMs = 0;
+  /** Invalidates delayed scroll/layout work after book or scroll-mode changes. */
+  private readerLayoutGeneration = 0;
+  /** Avoid continuation hint flicker when scroll height changes (hysteresis). */
+  private continuationHintLatched = false;
+
   // Emulate book mode (spine shadow in two-page view)
   emulateBook = false;
 
@@ -154,7 +191,6 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   // Auto-close menu after interaction
   autoCloseMenu = false;
   private autoCloseMenuTimer: ReturnType<typeof setTimeout> | null = null;
-  private static readonly AUTO_CLOSE_MENU_TIMEOUT = 3000;
 
   // Page dimensions from backend
   pageDimensions: CbxPageDimension[] = [];
@@ -188,8 +224,11 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   private sidebarService = inject(CbxSidebarService);
   private footerService = inject(CbxFooterService);
   private quickSettingsService = inject(CbxQuickSettingsService);
+  /** Template reads this signal so strip width tracks the slider (same source as quick settings panel). */
+  protected readonly cbxQuickSettingsState = this.quickSettingsService.state;
   private pageDimensionService = inject(CbxPageDimensionService);
   private wakeLockService = inject(WakeLockService);
+  private readerPreferencesService = inject(ReaderPreferencesService);
 
   protected readonly CbxScrollMode = CbxScrollMode;
   protected readonly CbxFitMode = CbxFitMode;
@@ -199,6 +238,20 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
   private static readonly TYPE_CBX = 'CBX';
   private static readonly SETTING_GLOBAL = 'Global';
+
+  private bumpReaderLayoutGeneration(): void {
+    this.readerLayoutGeneration++;
+    this.continuationHintLatched = false;
+  }
+
+  private getImageScrollContainer(): HTMLElement | null {
+    return this.imageScrollHostRef?.nativeElement ?? null;
+  }
+
+  /** Run after the browser has applied layout (two frames — common Angular/DOM pattern). */
+  private afterNextPaint(fn: () => void): void {
+    requestAnimationFrame(() => requestAnimationFrame(fn));
+  }
 
   constructor() {
     effect(() => {
@@ -238,6 +291,14 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
         this.isLoading = true;
         this.bookId = +params.get('bookId')!;
         this.altBookType = this.route.snapshot.queryParamMap.get('bookType') ?? undefined;
+
+        this.showWebtoonSuggestion = false;
+        this.continuationHintVisible = false;
+        if (this.infiniteScrollPageDebounceTimer) {
+          clearTimeout(this.infiniteScrollPageDebounceTimer);
+          this.infiniteScrollPageDebounceTimer = null;
+        }
+        this.bumpReaderLayoutGeneration();
 
         this.previousBookInSeries = null;
         this.nextBookInSeries = null;
@@ -293,6 +354,13 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
             if (this.bookType === CbxReaderComponent.TYPE_CBX) {
               const global = userSettings.perBookSetting.cbx === CbxReaderComponent.SETTING_GLOBAL;
+              this.cbxSettingsUsesGlobal = global;
+              this.stripMaxWidthPercent = readStripWidthPercent(
+                this.bookId,
+                global,
+                userSettings.cbxReaderSetting.stripMaxWidthPercent,
+                myself.id
+              );
               this.pageViewMode = global
                 ? this.CbxPageViewMode[userSettings.cbxReaderSetting.pageViewMode as keyof typeof CbxPageViewMode] || this.CbxPageViewMode.SINGLE_PAGE
                 : this.CbxPageViewMode[bookSettings.cbxSettings?.pageViewMode as keyof typeof CbxPageViewMode] || this.CbxPageViewMode[userSettings.cbxReaderSetting.pageViewMode as keyof typeof CbxPageViewMode] || this.CbxPageViewMode.SINGLE_PAGE;
@@ -325,10 +393,6 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
               this.currentPage = (book.cbxProgress?.page || 1) - 1;
 
-              if (this.scrollMode as string === 'LONG_STRIP') {
-                this.scrollMode = CbxScrollMode.INFINITE;
-              }
-
               if (this.scrollMode === CbxScrollMode.INFINITE) {
                 this.initializeInfiniteScroll();
               } else if (this.scrollMode === CbxScrollMode.LONG_STRIP) {
@@ -337,6 +401,18 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
             }
 
             this.alignCurrentPageToParity();
+
+            this.readerLayoutGraceUntilMs = Date.now() + CbxReaderComponent.READER_LAYOUT_GRACE_MS;
+            if (this.bookType === CbxReaderComponent.TYPE_CBX) {
+              const webtoon = this.pageDimensionService.detectWebtoon(dimensions);
+              this.showWebtoonSuggestion =
+                webtoon.isWebtoon &&
+                this.scrollMode !== CbxScrollMode.LONG_STRIP &&
+                shouldOfferWebtoonHint(this.bookId);
+            } else {
+              this.showWebtoonSuggestion = false;
+            }
+
             this.updateServiceStates();
             this.updateBookmarkState();
             this.updateNotesState();
@@ -527,6 +603,16 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
         this.quickSettingsService.setAutoCloseMenu(value);
         this.updateViewerSetting();
       });
+
+    this.quickSettingsService.stripMaxWidthChange$
+      .pipe(
+        tap((value) => {
+          this.stripMaxWidthPercent = value;
+        }),
+        debounceTime(CbxReaderComponent.STRIP_WIDTH_PERSIST_DEBOUNCE_MS),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((value) => this.persistStripMaxWidth(value));
   }
 
   private updateServiceStates(): void {
@@ -552,7 +638,8 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
       brightness: this.brightness,
       emulateBook: this.emulateBook,
       clickToPaginate: this.clickToPaginate,
-      autoCloseMenu: this.autoCloseMenu
+      autoCloseMenu: this.autoCloseMenu,
+      stripMaxWidthPercent: this.stripMaxWidthPercent
     });
 
     this.headerService.updateState({
@@ -561,6 +648,72 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     });
 
     this.sidebarService.setCurrentPage(this.currentPage + 1);
+  }
+
+  private persistStripMaxWidth(value: number): void {
+    const v = clampStripMaxWidthPercent(value);
+    const u = this.userService.currentUser();
+    if (this.cbxSettingsUsesGlobal) {
+      if (u) {
+        this.readerPreferencesService.updatePreference(
+          ['cbxReaderSetting', 'stripMaxWidthPercent'],
+          v,
+          { silent: true }
+        );
+      }
+    } else {
+      writeStripWidthPercentPerBook(this.bookId, v, u?.id);
+    }
+  }
+
+  private updateContinuationHint(container: HTMLElement): void {
+    if (!this.nextBookInSeries) {
+      this.continuationHintLatched = false;
+      this.continuationHintVisible = false;
+      return;
+    }
+    if (this.scrollMode !== CbxScrollMode.INFINITE && this.scrollMode !== CbxScrollMode.LONG_STRIP) {
+      this.continuationHintLatched = false;
+      this.continuationHintVisible = false;
+      return;
+    }
+    if (Date.now() < this.readerLayoutGraceUntilMs) {
+      this.continuationHintVisible = false;
+      return;
+    }
+    const edge = container.scrollTop + container.clientHeight;
+    const bottom = container.scrollHeight;
+    const showPx = CbxReaderComponent.CONTINUATION_HINT_SHOW_PX;
+    const hidePx = CbxReaderComponent.CONTINUATION_HINT_HIDE_PX;
+
+    if (this.continuationHintLatched) {
+      if (edge < bottom - hidePx) {
+        this.continuationHintLatched = false;
+        this.continuationHintVisible = false;
+      } else {
+        this.continuationHintVisible = true;
+      }
+    } else if (edge >= bottom - showPx) {
+      this.continuationHintLatched = true;
+      this.continuationHintVisible = true;
+    } else {
+      this.continuationHintVisible = false;
+    }
+  }
+
+  onWebtoonSuggestSwitchToLongStrip(): void {
+    this.showWebtoonSuggestion = false;
+    this.onScrollModeChange(CbxScrollMode.LONG_STRIP);
+  }
+
+  onWebtoonSuggestDismiss(): void {
+    this.showWebtoonSuggestion = false;
+    dismissWebtoonHintForSession(this.bookId);
+  }
+
+  onWebtoonSuggestNever(): void {
+    this.showWebtoonSuggestion = false;
+    dismissWebtoonHintForever();
   }
 
   private updateFooterPage(): void {
@@ -905,20 +1058,31 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   }
 
   onScrollModeChange(mode: CbxScrollMode): void {
+    this.bumpReaderLayoutGeneration();
     const previousMode = this.scrollMode;
     this.scrollMode = mode;
     this.quickSettingsService.setScrollMode(mode);
+    if (mode === CbxScrollMode.LONG_STRIP) {
+      this.showWebtoonSuggestion = false;
+    }
     this.updateViewerSetting();
 
     // Teardown previous mode
     if (previousMode === CbxScrollMode.LONG_STRIP) {
       this.teardownLongStrip();
     }
+    if (previousMode === CbxScrollMode.INFINITE) {
+      if (this.infiniteScrollPageDebounceTimer) {
+        clearTimeout(this.infiniteScrollPageDebounceTimer);
+        this.infiniteScrollPageDebounceTimer = null;
+      }
+      this.infiniteScrollPages = [];
+      this.isLoadingMore = false;
+    }
 
     if (this.scrollMode === CbxScrollMode.INFINITE) {
       this.initializeInfiniteScroll();
-      // Use instant scroll for mode switch to prevent teleportation feel
-      setTimeout(() => this.scrollToPage(this.currentPage, 'auto'), 50);
+      this.scrollToPage(this.currentPage, 'auto');
     } else if (this.scrollMode === CbxScrollMode.LONG_STRIP) {
       this.initializeLongStrip();
     } else {
@@ -963,56 +1127,119 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   }
 
   onScroll(event: Event): void {
-    if (this.scrollMode !== CbxScrollMode.INFINITE || this.isLoadingMore) return;
+    if (this.scrollMode !== CbxScrollMode.INFINITE) return;
 
     const container = event.target as HTMLElement;
     const scrollPosition = container.scrollTop + container.clientHeight;
     const scrollHeight = container.scrollHeight;
 
-    if (scrollPosition >= scrollHeight * 0.8) {
-      this.loadMorePages();
+    if (!this.isLoadingMore) {
+      if (scrollPosition >= scrollHeight * 0.82) {
+        this.loadMorePages();
+      }
+      if (container.scrollTop <= container.clientHeight * 0.18 && this.infiniteScrollPages.length > 0) {
+        this.loadPreviousPages(container);
+      }
     }
 
-    this.updateCurrentPageFromScroll(container);
+    if (this.infiniteScrollPageDebounceTimer) {
+      clearTimeout(this.infiniteScrollPageDebounceTimer);
+    }
+    const layoutGen = this.readerLayoutGeneration;
+    this.infiniteScrollPageDebounceTimer = setTimeout(() => {
+      this.infiniteScrollPageDebounceTimer = null;
+      if (layoutGen !== this.readerLayoutGeneration || this.scrollMode !== CbxScrollMode.INFINITE) {
+        return;
+      }
+      this.updateCurrentPageFromScroll(container);
+    }, CbxReaderComponent.INFINITE_SCROLL_PAGE_DEBOUNCE_MS);
+
+    this.updateContinuationHint(container);
   }
 
   private loadMorePages(): void {
     if (this.isLoadingMore) return;
 
     const lastLoadedIndex = this.infiniteScrollPages[this.infiniteScrollPages.length - 1];
-    if (lastLoadedIndex >= this.pages.length - 1) return;
+    if (lastLoadedIndex === undefined || lastLoadedIndex >= this.pages.length - 1) return;
 
     this.isLoadingMore = true;
     const endIndex = Math.min(lastLoadedIndex + this.preloadCount + 1, this.pages.length);
 
-    setTimeout(() => {
+    requestAnimationFrame(() => {
       for (let i = lastLoadedIndex + 1; i < endIndex; i++) {
         this.infiniteScrollPages.push(i);
       }
       this.isLoadingMore = false;
-    }, 100);
+    });
+  }
+
+  /**
+   * Prefetch upward when the user scrolls near the top.
+   * Preserves scroll position relative to the first previously visible page.
+   */
+  private loadPreviousPages(container: HTMLElement): void {
+    if (this.isLoadingMore) return;
+
+    const first = this.infiniteScrollPages[0];
+    if (first === undefined || first <= 0) return;
+
+    const anchorEl = container.querySelector(
+      `.infinite-scroll-wrapper img.page-image[data-page="${first}"]`
+    ) as HTMLElement | null;
+    if (!anchorEl) return;
+
+    const beforeTop = anchorEl.getBoundingClientRect().top;
+
+    this.isLoadingMore = true;
+    const newFirst = Math.max(0, first - this.preloadCount);
+    const added: number[] = [];
+    for (let p = newFirst; p < first; p++) {
+      added.push(p);
+    }
+    this.infiniteScrollPages = [...added, ...this.infiniteScrollPages];
+
+    this.afterNextPaint(() => {
+      const afterTop = anchorEl.getBoundingClientRect().top;
+      container.scrollTop += afterTop - beforeTop;
+      this.isLoadingMore = false;
+    });
   }
 
   private updateCurrentPageFromScroll(container: HTMLElement): void {
-    const images = container.querySelectorAll('.page-image');
+    const images = Array.from(
+      container.querySelectorAll('.infinite-scroll-wrapper img.page-image[data-page]')
+    ) as HTMLElement[];
+    if (!images.length) return;
+
     const containerRect = container.getBoundingClientRect();
+    const midY = containerRect.top + containerRect.height / 2;
 
-    for (let i = 0; i < images.length; i++) {
-      const img = images[i] as HTMLElement;
+    let best: HTMLElement | null = null;
+    let bestDist = Number.MAX_VALUE;
+    for (const img of images) {
       const rect = img.getBoundingClientRect();
-
-      if (rect.top <= containerRect.top + containerRect.height / 2 &&
-        rect.bottom >= containerRect.top + containerRect.height / 2) {
-        const newPage = this.infiniteScrollPages[i];
-        if (newPage !== this.currentPage) {
-          this.currentPage = newPage;
-          this.progressSaveSubject$.next();
-          this.updateSessionProgress();
-          this.updateFooterPage();
-        }
-        break;
+      if (rect.bottom < containerRect.top || rect.top > containerRect.bottom) {
+        continue;
+      }
+      const imgCenterY = rect.top + rect.height / 2;
+      const dist = Math.abs(imgCenterY - midY);
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = img;
       }
     }
+
+    if (!best) return;
+
+    const attr = best.getAttribute('data-page');
+    const newPage = attr != null ? parseInt(attr, 10) : NaN;
+    if (Number.isNaN(newPage) || newPage === this.currentPage) return;
+
+    this.currentPage = newPage;
+    this.progressSaveSubject$.next();
+    this.updateSessionProgress();
+    this.updateFooterPage();
   }
 
   getPageImageUrl(pageIndex: number): string {
@@ -1038,11 +1265,15 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
       { threshold: 0.01 }
     );
 
-    // Attach scroll listeners after a tick so the DOM is ready
+    const layoutGen = this.readerLayoutGeneration;
     setTimeout(() => {
+      if (layoutGen !== this.readerLayoutGeneration) return;
       this.longStripAttachScrollListeners();
-      this.longStripScrollToPage(this.currentPage);
-    }, 50);
+      this.afterNextPaint(() => {
+        if (layoutGen !== this.readerLayoutGeneration) return;
+        this.longStripWaitForImagesAndScroll(0, layoutGen);
+      });
+    }, 0);
   }
 
   private teardownLongStrip(): void {
@@ -1087,56 +1318,97 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     if (this.longStripIntersectionObserver) {
       this.longStripIntersectionObserver.observe(img);
     }
-
-    // Check if this is the current page's image — if so, scroll to it on first load
-    if (pageIndex === this.currentPage && !this.longStripInitFinished) {
-      this.longStripWaitForImagesAndScroll();
-    }
   }
 
-  private longStripWaitForImagesAndScroll(): void {
-    // Wait for all currently-in-DOM images to load, then scroll
-    const container = document.querySelector('.image-container.long-strip');
-    if (!container) return;
+  /**
+   * Positions the strip once the current page's image exists (matches infinite scroll: no smooth jump on mode switch).
+   * Only waits for the active page, not the whole prefetch window.
+   * Retries until the img node exists single finish() guarantees one scroll.
+   */
+  private longStripWaitForImagesAndScroll(attempt: number, layoutGen: number): void {
+    if (layoutGen !== this.readerLayoutGeneration) return;
+    if (this.scrollMode !== CbxScrollMode.LONG_STRIP) return;
+    if (this.longStripInitFinished) return;
 
-    const imgs = Array.from(container.querySelectorAll('img[data-page]')) as HTMLImageElement[];
-    const pending = imgs.filter(img => !img.complete);
-
-    if (pending.length === 0) {
-      this.longStripAllImagesLoaded = true;
-      this.longStripDoScroll(this.currentPage);
-      this.longStripInitFinished = true;
+    const container = this.getImageScrollContainer();
+    if (!container) {
+      if (attempt < 30) {
+        requestAnimationFrame(() => this.longStripWaitForImagesAndScroll(attempt + 1, layoutGen));
+      }
       return;
     }
 
-    Promise.all(pending.map(img => new Promise<void>(resolve => {
-      img.onload = () => resolve();
-      img.onerror = () => resolve();
-    }))).then(() => {
+    const img = container.querySelector(`img[data-page="${this.currentPage}"]`) as HTMLImageElement | null;
+    if (!img) {
+      if (attempt < 30) {
+        requestAnimationFrame(() => this.longStripWaitForImagesAndScroll(attempt + 1, layoutGen));
+      }
+      return;
+    }
+
+    const finish = (): void => {
+      if (layoutGen !== this.readerLayoutGeneration) return;
+      if (this.longStripInitFinished) return;
       this.longStripAllImagesLoaded = true;
-      this.longStripDoScroll(this.currentPage);
+      this.longStripDoScroll(this.currentPage, 'instant', layoutGen);
       this.longStripInitFinished = true;
-    });
+    };
+
+    if (img.complete) {
+      this.afterNextPaint(finish);
+      return;
+    }
+
+    const scheduleFinish = (): void => this.afterNextPaint(finish);
+    img.addEventListener('load', scheduleFinish, { once: true });
+    img.addEventListener('error', scheduleFinish, { once: true });
   }
 
-  private longStripDoScroll(pageNum: number): void {
-    const el = document.querySelector(`img[data-page="${pageNum}"]`);
-    if (!el) return;
+  /**
+   * One-step scroll within a container avoids scrollIntoView + reflow (double teleport) on mode switches.
+   */
+  private snapScrollContainerToElement(
+    container: HTMLElement,
+    el: Element,
+    block: 'start' | 'center'
+  ): void {
+    const cRect = container.getBoundingClientRect();
+    const eRect = el.getBoundingClientRect();
+    const delta =
+      block === 'center'
+        ? (eRect.top + eRect.height / 2) - (cRect.top + cRect.height / 2)
+        : eRect.top - cRect.top;
+    container.scrollTop += delta;
+  }
+
+  private longStripDoScroll(pageNum: number, behavior: ScrollBehavior = 'smooth', layoutGen?: number): void {
+    const gen = layoutGen ?? this.readerLayoutGeneration;
+    const container = this.getImageScrollContainer();
+    const el = container?.querySelector(`img[data-page="${pageNum}"]`) ?? null;
+    if (!container || !el) return;
 
     this.longStripIsScrolling = true;
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (behavior === 'instant' || behavior === 'auto') {
+      this.snapScrollContainerToElement(container, el, 'center');
+    } else {
+      el.scrollIntoView({ behavior, block: 'start', inline: 'nearest' });
+    }
 
-    // Clear the scrolling flag once the target is visible
+    const settleMs = behavior === 'instant' || behavior === 'auto' ? 80 : 600;
     setTimeout(() => {
+      if (gen !== this.readerLayoutGeneration) return;
       this.longStripIsScrolling = false;
-    }, 600);
+    }, settleMs);
   }
 
-  private longStripScrollToPage(pageNum: number): void {
+  private longStripScrollToPage(pageNum: number, behavior: ScrollBehavior = 'smooth'): void {
     this.longStripPrefetchAround(pageNum);
 
-    // Wait a tick for new images to render in DOM, then scroll
-    setTimeout(() => this.longStripDoScroll(pageNum), 50);
+    const layoutGen = this.readerLayoutGeneration;
+    setTimeout(() => {
+      if (layoutGen !== this.readerLayoutGeneration) return;
+      this.longStripDoScroll(pageNum, behavior, layoutGen);
+    }, 50);
   }
 
   private longStripHandleIntersection(entries: IntersectionObserverEntry[]): void {
@@ -1155,7 +1427,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   }
 
   private longStripAttachScrollListeners(): void {
-    const container = document.querySelector('.image-container.long-strip') as HTMLElement;
+    const container = this.getImageScrollContainer();
     if (!container) return;
 
     this.longStripScrollHandler = () => {
@@ -1182,7 +1454,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   }
 
   private longStripDetachScrollListeners(): void {
-    const container = document.querySelector('.image-container.long-strip') as HTMLElement;
+    const container = this.getImageScrollContainer();
     if (!container) return;
 
     if (this.longStripScrollHandler) {
@@ -1215,19 +1487,20 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
     // If performing a programmatic scroll, check if target is visible
     if (this.longStripIsScrolling) {
-      const target = document.querySelector(`img[data-page="${this.currentPage}"]`);
+      const target = container.querySelector(`img[data-page="${this.currentPage}"]`);
       if (target && this.longStripIsElementVisible(target, container)) {
         this.longStripIsScrolling = false;
       }
     }
+
+    this.updateContinuationHint(container);
   }
 
   private longStripOnScrollEnd(container: HTMLElement): void {
     if (this.longStripIsScrolling) return;
 
-    // Find the image closest to the top of the viewport
-    const images = Array.from(container.querySelectorAll('img[data-page]')) as HTMLImageElement[];
-    const closest = this.longStripFindClosestImage(images);
+    const images = Array.from(container.querySelectorAll('.long-strip-wrapper img[data-page]')) as HTMLImageElement[];
+    const closest = this.longStripFindClosestImage(images, container);
 
     if (closest) {
       const page = parseInt(closest.getAttribute('data-page') ?? '0', 10);
@@ -1238,15 +1511,23 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
         this.updateFooterPage();
       }
     }
+
+    this.updateContinuationHint(container);
   }
 
-  private longStripFindClosestImage(images: HTMLImageElement[]): HTMLImageElement | null {
+  private longStripFindClosestImage(images: HTMLImageElement[], container: HTMLElement): HTMLImageElement | null {
     let closest: HTMLImageElement | null = null;
     let closestDist = Number.MAX_VALUE;
+    const containerRect = container.getBoundingClientRect();
+    const midY = containerRect.top + containerRect.height / 2;
 
     for (const img of images) {
       const rect = img.getBoundingClientRect();
-      const dist = Math.abs(rect.top);
+      if (rect.bottom < containerRect.top || rect.top > containerRect.bottom) {
+        continue;
+      }
+      const imgCenterY = rect.top + rect.height / 2;
+      const dist = Math.abs(imgCenterY - midY);
       if (dist < closestDist) {
         closestDist = dist;
         closest = img;
@@ -1338,18 +1619,19 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   private scrollToPage(pageIndex: number, behavior: ScrollBehavior = 'smooth'): void {
     this.ensurePageLoaded(pageIndex);
 
+    const layoutGen = this.readerLayoutGeneration;
     setTimeout(() => {
-      const container = document.querySelector('.image-container.infinite-scroll') as HTMLElement;
+      if (layoutGen !== this.readerLayoutGeneration) return;
+      const container = this.getImageScrollContainer();
       if (!container) return;
 
-      const images = container.querySelectorAll('.page-image');
-      const indexInScroll = this.infiniteScrollPages.indexOf(pageIndex);
+      const targetImage = container.querySelector(
+        `.infinite-scroll-wrapper img.page-image[data-page="${pageIndex}"]`
+      ) as HTMLElement | null;
 
-      if (indexInScroll >= 0 && indexInScroll < images.length) {
-        const targetImage = images[indexInScroll] as HTMLElement;
-        targetImage.scrollIntoView({ behavior: behavior, block: 'start' });
+      if (targetImage) {
+        targetImage.scrollIntoView({ behavior, block: 'start' });
       } else if (behavior === 'auto') {
-        // Fallback for instant scroll: just go to top
         container.scrollTop = 0;
       }
     }, 50);
@@ -1508,7 +1790,8 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
   @HostListener('document:fullscreenchange')
   onFullscreenChange(): void {
-    this.isFullscreen = !!document.fullscreenElement;
+    const target = this.readerRootRef?.nativeElement ?? document.documentElement;
+    this.isFullscreen = document.fullscreenElement === target;
     this.headerService.updateState({ isFullscreen: this.isFullscreen, isSlideshowActive: this.isSlideshowActive });
   }
 
@@ -1608,6 +1891,20 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     return this.currentPage >= this.pages.length - 1;
   }
 
+  /** Last loaded long-strip page is the archive's final page (show next-book CTA when in series). */
+  get isAtEndOfLongStrip(): boolean {
+    if (this.longStripImages.length === 0) return false;
+    const last = this.longStripImages[this.longStripImages.length - 1];
+    return last.page >= this.pages.length - 1;
+  }
+
+  /** Last loaded infinite-scroll index is the archive's final page (show next-book CTA when in series). */
+  get isAtEndOfInfiniteScroll(): boolean {
+    if (this.infiniteScrollPages.length === 0) return false;
+    const lastIdx = this.infiniteScrollPages[this.infiniteScrollPages.length - 1];
+    return lastIdx >= this.pages.length - 1;
+  }
+
   navigateToPreviousBook(): void {
     if (this.previousBookInSeries) {
       this.endReadingSession();
@@ -1682,7 +1979,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   }
 
   private enterFullscreen(): void {
-    const elem = document.documentElement;
+    const elem = this.readerRootRef?.nativeElement ?? document.documentElement;
     if (elem.requestFullscreen) {
       void elem.requestFullscreen().catch(() => undefined);
     }
@@ -1844,7 +2141,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   onClickZonePrev(event: Event): void {
     event.stopPropagation();
     if (this.scrollMode === CbxScrollMode.INFINITE) {
-      const container = document.querySelector('.image-container.infinite-scroll');
+      const container = this.getImageScrollContainer();
       if (container) {
         container.scrollBy({ top: -container.clientHeight * 0.9, behavior: 'smooth' });
       }
@@ -1856,7 +2153,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   onClickZoneNext(event: Event): void {
     event.stopPropagation();
     if (this.scrollMode === CbxScrollMode.INFINITE) {
-      const container = document.querySelector('.image-container.infinite-scroll');
+      const container = this.getImageScrollContainer();
       if (container) {
         container.scrollBy({ top: container.clientHeight * 0.9, behavior: 'smooth' });
       }
@@ -1933,6 +2230,10 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.stopSlideshow();
+    if (this.infiniteScrollPageDebounceTimer) {
+      clearTimeout(this.infiniteScrollPageDebounceTimer);
+      this.infiniteScrollPageDebounceTimer = null;
+    }
     this.teardownLongStrip();
     this.endReadingSession();
     this.wakeLockService.disable();

@@ -1,6 +1,7 @@
 import {Component, inject, Input} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {TranslocoDirective} from '@jsverse/transloco';
+import {clampStripMaxWidthPercent} from '../../../readers/cbx-reader/core/cbx-reader-storage';
 import {CbxBackgroundColor, CbxFitMode, CbxPageSpread, CbxPageViewMode, CbxScrollMode, UserSettings} from '../../user-management/user.service';
 import {ReaderPreferencesService} from '../reader-preferences.service';
 import {TooltipModule} from 'primeng/tooltip';
@@ -27,6 +28,7 @@ export class CbxReaderPreferencesComponent {
   private static readonly PROP_FIT_MODE = 'fitMode';
   private static readonly PROP_SCROLL_MODE = 'scrollMode';
   private static readonly PROP_BACKGROUND_COLOR = 'backgroundColor';
+  private static readonly PROP_STRIP_MAX_WIDTH_PERCENT = 'stripMaxWidthPercent';
 
   readonly cbxSpreads = [
     {name: 'Even', key: CbxPageSpread.EVEN, icon: 'pi pi-align-left', translationKey: 'even'},
@@ -101,5 +103,24 @@ export class CbxReaderPreferencesComponent {
   set selectedCbxBackgroundColor(value: CbxBackgroundColor) {
     this.userSettings.cbxReaderSetting.backgroundColor = value;
     this.readerPreferencesService.updatePreference([CbxReaderPreferencesComponent.SETTING_ROOT, CbxReaderPreferencesComponent.PROP_BACKGROUND_COLOR], value);
+  }
+
+  get selectedCbxStripMaxWidthPercent(): number {
+    return clampStripMaxWidthPercent(this.userSettings.cbxReaderSetting.stripMaxWidthPercent);
+  }
+
+  set selectedCbxStripMaxWidthPercent(value: number) {
+    const v = clampStripMaxWidthPercent(value);
+    this.userSettings.cbxReaderSetting.stripMaxWidthPercent = v;
+    this.readerPreferencesService.updatePreference(
+      [CbxReaderPreferencesComponent.SETTING_ROOT, CbxReaderPreferencesComponent.PROP_STRIP_MAX_WIDTH_PERCENT],
+      v,
+      { silent: true }
+    );
+  }
+
+  onStripMaxWidthInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.selectedCbxStripMaxWidthPercent = Number(input.value);
   }
 }

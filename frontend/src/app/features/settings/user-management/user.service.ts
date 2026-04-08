@@ -210,6 +210,8 @@ export interface CbxReaderSetting {
   emulateBook?: boolean;
   clickToPaginate?: boolean;
   autoCloseMenu?: boolean;
+  /** 50–100: max width % of reader for infinite / long-strip (global setting). */
+  stripMaxWidthPercent?: number;
 }
 
 export interface TableColumnPreference {

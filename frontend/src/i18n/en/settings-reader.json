@@ -80,6 +80,8 @@
     "fitModeDesc": "Select how images should be scaled to fit the reader window.",
     "scrollMode": "Scroll Mode",
     "scrollModeDesc": "Choose between paginated or infinite scroll reading experience.",
+    "stripMaxWidth": "Strip max width",
+    "stripMaxWidthDesc": "Maximum width for infinite scroll and long strip (percent of the reader). Narrower columns can make tall webtoon pages easier to read.",
     "backgroundColor": "Background Color",
     "backgroundColorDesc": "Set the background color for the comic reader.",
     "even": "Even",
@@ -93,6 +95,7 @@
     "automatic": "Automatic",
     "paginated": "Paginated",
     "infinite": "Infinite",
+    "longStrip": "Long Strip",
     "gray": "Gray",
     "black": "Black",
     "white": "White"

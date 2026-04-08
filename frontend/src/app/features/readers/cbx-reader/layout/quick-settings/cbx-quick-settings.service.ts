@@ -1,6 +1,7 @@
 import {Injectable, signal} from '@angular/core';
 import {Subject} from 'rxjs';
 import {CbxBackgroundColor, CbxFitMode, CbxMagnifierLensSize, CbxMagnifierZoom, CbxPageSpread, CbxPageViewMode, CbxScrollMode, CbxReadingDirection, CbxSlideshowInterval} from '../../../../settings/user-management/user.service';
+import {clampStripMaxWidthPercent} from '../../core/cbx-reader-storage';
 
 export interface CbxQuickSettingsState {
   fitMode: CbxFitMode;
@@ -13,6 +14,7 @@ export interface CbxQuickSettingsState {
   magnifierZoom: CbxMagnifierZoom;
   magnifierLensSize: CbxMagnifierLensSize;
   brightness: number;
+  stripMaxWidthPercent: number;
   emulateBook: boolean;
   clickToPaginate: boolean;
   autoCloseMenu: boolean;
@@ -31,6 +33,7 @@ export class CbxQuickSettingsService {
     magnifierZoom: CbxMagnifierZoom.ZOOM_3X,
     magnifierLensSize: CbxMagnifierLensSize.MEDIUM,
     brightness: 100,
+    stripMaxWidthPercent: 100,
     emulateBook: false,
     clickToPaginate: false,
     autoCloseMenu: false
@@ -80,6 +83,9 @@ export class CbxQuickSettingsService {
 
   private _autoCloseMenuChange = new Subject<boolean>();
   autoCloseMenuChange$ = this._autoCloseMenuChange.asObservable();
+
+  private _stripMaxWidthChange = new Subject<number>();
+  stripMaxWidthChange$ = this._stripMaxWidthChange.asObservable();
 
   show(): void {
     this._visible.set(true);
@@ -131,6 +137,12 @@ export class CbxQuickSettingsService {
 
   setBrightness(value: number): void {
     this.updateState({brightness: value});
+  }
+
+  setStripMaxWidthPercent(value: number): void {
+    const v = clampStripMaxWidthPercent(value);
+    this.updateState({stripMaxWidthPercent: v});
+    this._stripMaxWidthChange.next(v);
   }
 
   setEmulateBook(value: boolean): void {

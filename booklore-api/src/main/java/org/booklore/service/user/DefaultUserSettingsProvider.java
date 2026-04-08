@@ -101,6 +101,7 @@ public class DefaultUserSettingsProvider {
                 .fitMode(CbxPageFitMode.FIT_HEIGHT)
                 .scrollMode(CbxPageScrollMode.PAGINATED)
                 .backgroundColor(CbxBackgroundColor.GRAY)
+                .stripMaxWidthPercent(100)
                 .build();
     }
 

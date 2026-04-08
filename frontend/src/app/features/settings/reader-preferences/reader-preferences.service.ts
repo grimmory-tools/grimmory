@@ -21,7 +21,7 @@ export class ReaderPreferencesService {
     });
   }
 
-  updatePreference(path: string[], value: unknown): void {
+  updatePreference(path: string[], value: unknown, options?: { silent?: boolean }): void {
     if (!this.currentUser) return;
 
     let target = this.currentUser.userSettings as unknown as MutableSettingsBranch;
@@ -38,11 +38,13 @@ export class ReaderPreferencesService {
     const updatedValue = this.currentUser.userSettings[rootKey as keyof UserSettings];
 
     this.userService.updateUserSetting(this.currentUser.id, rootKey, updatedValue);
-    this.messageService.add({
-      severity: 'success',
-      summary: this.t.translate('settingsReader.toast.preferencesUpdated'),
-      detail: this.t.translate('settingsReader.toast.preferencesUpdatedDetail'),
-      life: 2000
-    });
+    if (!options?.silent) {
+      this.messageService.add({
+        severity: 'success',
+        summary: this.t.translate('settingsReader.toast.preferencesUpdated'),
+        detail: this.t.translate('settingsReader.toast.preferencesUpdatedDetail'),
+        life: 2000
+      });
+    }
   }
 }

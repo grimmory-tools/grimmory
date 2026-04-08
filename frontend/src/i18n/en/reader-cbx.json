@@ -114,7 +114,18 @@
     "brightness": "Brightness",
     "emulateBook": "Emulate Book",
     "clickToPaginate": "Click to Paginate",
-    "autoCloseMenu": "Auto Close Menu"
+    "autoCloseMenu": "Auto Close Menu",
+    "stripMaxWidth": "Strip width"
+  },
+  "webtoonHint": {
+    "regionLabel": "Webtoon reading suggestion",
+    "message": "These pages look like a vertical webtoon. Long strip mode removes gaps and scrolls the whole chapter smoothly.",
+    "switch": "Use long strip",
+    "dismiss": "Hide for now",
+    "never": "Don't ask again"
+  },
+  "continuation": {
+    "scrollForNext": "Keep scrolling for the next book in this series"
   },
   "sidebar": {
     "contentTab": "Content",

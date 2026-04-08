@@ -202,6 +202,8 @@ public class BookLoreUser {
             private CbxPageFitMode fitMode;
             private CbxPageScrollMode scrollMode;
             private CbxBackgroundColor backgroundColor;
+            /** Max width (percent of reader) for infinite / long-strip modes; null means 100. */
+            private Integer stripMaxWidthPercent;
         }
 
         @Data
