@@ -568,7 +568,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
         if (response?.data) {
           const allItems = parseStoredAnnotations(response.data);
           this.dbAnnotationIds = new Set(allItems.map(i => i.annotation.id));
-          
+
           // Deduplicate items based on animation ID to heal previous corruption
           const seenIds = new Set<string>();
           const items = allItems.filter(item => {
@@ -970,13 +970,14 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
 
   // --- Common viewer methods ---
 
-  onPageChange(page: number): void {
-    if (page !== this.page) {
-      this.page = page;
-      this.updateProgress();
-      const percentage = this.totalPages > 0 ? Math.round((this.page / this.totalPages) * 1000) / 10 : 0;
-      this.readingSessionService.updateProgress(this.page.toString(), percentage);
+  onPageChange(page: number | undefined): void {
+    if (page == null || page === this.page) {
+      return;
     }
+    this.page = page;
+    this.updateProgress();
+    const percentage = this.totalPages > 0 ? Math.round((this.page / this.totalPages) * 1000) / 10 : 0;
+    this.readingSessionService.updateProgress(this.page.toString(), percentage);
   }
 
   toggleDarkTheme(): void {
@@ -1341,7 +1342,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       const ann = item.annotation;
       const id = ann?.id;
       if (!id || seenIds.has(id)) return false;
-      
+
       // Strict whitelist check
       const type = ann?.type as number;
       if (!allowedSubtypes.has(type)) return false;
