@@ -511,7 +511,7 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
                 .filter(Objects::nonNull)
                 .filter(this::canDecode)
                 .findFirst()
-                .orElseGet(() -> generatePlaceholderCover(250, 350));
+                .orElse(null);
     }
 
     private boolean canDecode(byte[] bytes) {
@@ -614,37 +614,6 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
         if (base.startsWith(".")) return false;
         if (".ds_store".equalsIgnoreCase(base)) return false;
         return true;
-    }
-
-    private byte[] generatePlaceholderCover(int width, int height) {
-        BufferedImage image = new BufferedImage(
-                width,
-                height,
-                BufferedImage.TYPE_INT_RGB
-        );
-        Graphics2D g = image.createGraphics();
-
-        g.setColor(Color.LIGHT_GRAY);
-        g.fillRect(0, 0, width, height);
-
-        g.setColor(Color.DARK_GRAY);
-        g.setFont(new Font("SansSerif", Font.BOLD, width / 10));
-        FontMetrics fm = g.getFontMetrics();
-        String text = "Preview Unavailable";
-
-        int textWidth = fm.stringWidth(text);
-        int textHeight = fm.getAscent();
-        g.drawString(text, (width - textWidth) / 2, (height + textHeight) / 2);
-
-        g.dispose();
-
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            ImageIO.write(image, "jpg", baos);
-            return baos.toByteArray();
-        } catch (IOException e) {
-            log.warn("Failed to generate placeholder image", e);
-            return null;
-        }
     }
 
     private String findComicInfoEntry(Path cbxPath) {

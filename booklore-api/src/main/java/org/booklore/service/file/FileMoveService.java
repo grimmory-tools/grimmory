@@ -123,11 +123,22 @@ public class FileMoveService {
             LibraryPathEntity libraryPathEntity = optionalLibraryPathEntity.get();
 
             if (bookEntity.getBookFiles() == null || bookEntity.getBookFiles().isEmpty()) {
-                log.warn("Book has no files to move: bookId={}", bookId);
+                if (Boolean.TRUE.equals(bookEntity.getIsPhysical())) {
+                    log.info("Moving physical book (no files): bookId={}", bookId);
+                    bookRepository.updateLibrary(bookEntity.getId(), targetLibrary.getId(), libraryPathEntity);
+                    entityManager.clear();
+                    BookEntity fresh = bookRepository.findByIdWithBookFiles(bookId).orElseThrow();
+                    notificationService.sendMessage(Topic.BOOK_UPDATE, bookMapper.toBookWithDescription(fresh, false));
+                } else {
+                    log.warn("Book has no files to move: bookId={}", bookId);
+                }
                 return;
             }
 
-            List<BookFileEntity> bookFiles = bookEntity.getBookFiles().stream().distinct().toList();
+            List<BookFileEntity> bookFiles = bookEntity.getBookFiles().stream()
+                    .filter(f -> f.getId() != null)
+                    .collect(Collectors.toMap(BookFileEntity::getId, f -> f, (a, b) -> a, LinkedHashMap::new))
+                    .values().stream().toList();
 
             Path currentPrimaryFilePath = bookEntity.getFullFilePath();
             String pattern = fileMoveHelper.getFileNamingPattern(targetLibrary);
@@ -281,7 +292,10 @@ public class FileMoveService {
                 return FileMoveResult.builder().moved(false).build();
             }
 
-            List<BookFileEntity> bookFiles = bookWithFiles.getBookFiles().stream().distinct().toList();
+            List<BookFileEntity> bookFiles = bookWithFiles.getBookFiles().stream()
+                    .filter(f -> f.getId() != null)
+                    .collect(Collectors.toMap(BookFileEntity::getId, f -> f, (a, b) -> a, LinkedHashMap::new))
+                    .values().stream().toList();
 
             String pattern = fileMoveHelper.getFileNamingPattern(bookWithFiles.getLibraryPath().getLibrary());
             Path currentPrimaryFilePath = bookWithFiles.getFullFilePath();

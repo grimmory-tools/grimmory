@@ -1,0 +1,248 @@
+import type {AnnotationTransferItem} from '@embedpdf/snippet';
+
+/**
+ * Stored annotation wrapper format.
+ * Legacy pdf.js annotations are raw arrays with `annotationType` keys.
+ * New format wraps EmbedPDF AnnotationTransferItem[] in a versioned envelope.
+ */
+export interface StoredAnnotations {
+  format: 'embedpdf';
+  version: 1;
+  annotations: AnnotationTransferItem[];
+}
+
+/**
+ * Detect and parse stored annotation data.
+ * Returns EmbedPDF AnnotationTransferItems ready for import, or empty array.
+ */
+export function parseStoredAnnotations(jsonString: string | null | undefined): AnnotationTransferItem[] {
+  if (!jsonString) return [];
+
+  try {
+    const parsed = JSON.parse(jsonString);
+
+    // New format: { format: 'embedpdf', version: 1, annotations: [...] }
+    if (parsed && parsed.format === 'embedpdf' && Array.isArray(parsed.annotations)) {
+      return parsed.annotations.map(restoreArrayBuffers);
+    }
+
+    // Legacy pdf.js format: raw array of editor annotations
+    if (Array.isArray(parsed)) {
+      return convertLegacyAnnotations(parsed);
+    }
+
+    return [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Wrap EmbedPDF annotations in the versioned envelope for storage.
+ * Handles ArrayBuffer fields (e.g. stamp ctx.data) by encoding to base64.
+ */
+export function serializeAnnotations(items: AnnotationTransferItem[]): string {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const serializable = items.map((item: any) => {
+    if (item.ctx?.data instanceof ArrayBuffer) {
+      return {
+        ...item,
+        ctx: {
+          ...item.ctx,
+          data: arrayBufferToBase64(item.ctx.data),
+          _dataEncoding: 'base64',
+        },
+      };
+    }
+    return item;
+  });
+  const wrapped = {
+    format: 'embedpdf' as const,
+    version: 1 as const,
+    annotations: serializable as AnnotationTransferItem[],
+  };
+  return JSON.stringify(wrapped);
+}
+
+/**
+ * Best-effort conversion of legacy pdf.js editor annotations.
+ * These are the serialized annotations from ngx-extended-pdf-viewer's
+ * getSerializedAnnotations() which outputs pdf.js editor format.
+ *
+ * This is a lossy conversion not all annotation types or properties
+ * can be fully mapped. After the first save in the new format,
+ * legacy data is overwritten.
+ */
+function convertLegacyAnnotations(legacyAnnotations: Record<string, unknown>[]): AnnotationTransferItem[] {
+  const items: AnnotationTransferItem[] = [];
+
+  for (const legacy of legacyAnnotations) {
+    try {
+      const item = convertSingleAnnotation(legacy);
+      if (item) {
+        items.push(item);
+      }
+    } catch {
+      // Skip annotations that can't be converted
+    }
+  }
+
+  return items;
+}
+
+function convertSingleAnnotation(legacy: Record<string, unknown>): AnnotationTransferItem | null {
+  const annotationType = legacy['annotationType'] as number | undefined;
+
+  // pdf.js annotation editor types:
+  // 3 = freetext, 9 = highlight, 15 = ink
+  switch (annotationType) {
+    case 9: // highlight
+      return convertHighlight(legacy);
+    case 15: // ink
+      return convertInk(legacy);
+    case 3: // freetext
+      return convertFreeText(legacy);
+    default:
+      return null;
+  }
+}
+
+function convertHighlight(legacy: Record<string, unknown>): AnnotationTransferItem | null {
+  const color = legacy['color'] as number[] | undefined;
+  const pageIndex = (legacy['pageIndex'] as number) ?? 0;
+  const rect = legacy['rect'] as number[] | undefined;
+
+  if (!rect || rect.length < 4) return null;
+
+  const hexColor = color ? rgbArrayToHex(color) : '#FFFF00';
+  const x = rect[0];
+  const y = rect[1];
+  const w = rect[2] - rect[0];
+  const h = rect[3] - rect[1];
+
+  return {
+    annotation: {
+      type: 9, // PdfAnnotationSubtype.HIGHLIGHT
+      pageIndex,
+      rect: {origin: {x, y}, size: {width: w, height: h}},
+      segmentRects: [{origin: {x, y}, size: {width: w, height: h}}],
+      color: hexColor,
+      opacity: (legacy['opacity'] as number) ?? 1,
+      id: crypto.randomUUID(),
+    } as never,
+  };
+}
+
+function convertInk(legacy: Record<string, unknown>): AnnotationTransferItem | null {
+  const color = legacy['color'] as number[] | undefined;
+  const pageIndex = (legacy['pageIndex'] as number) ?? 0;
+  const paths = legacy['paths'] as {bezier: number[]}[] | number[][][] | undefined;
+  const thickness = (legacy['thickness'] as number) ?? 1;
+
+  if (!paths) return null;
+
+  const hexColor = color ? rgbArrayToHex(color) : '#000000';
+
+  // pdf.js ink paths can be bezier arrays or point arrays
+  const inkList: {points: {x: number; y: number}[]}[] = [];
+  for (const path of paths) {
+    if (Array.isArray(path) && Array.isArray(path[0])) {
+      // Array of point pairs
+      const points = (path as number[][]).map(p => ({x: p[0], y: p[1]}));
+      inkList.push({points});
+    } else if (typeof path === 'object' && 'bezier' in (path as Record<string, unknown>)) {
+      // Bezier curve data - extract control points
+      const bezier = (path as {bezier: number[]}).bezier;
+      const points: {x: number; y: number}[] = [];
+      for (let i = 0; i < bezier.length; i += 2) {
+        points.push({x: bezier[i], y: bezier[i + 1]});
+      }
+      inkList.push({points});
+    }
+  }
+
+  if (inkList.length === 0) return null;
+
+  return {
+    annotation: {
+      type: 15, // PdfAnnotationSubtype.INK
+      pageIndex,
+      rect: {origin: {x: 0, y: 0}, size: {width: 0, height: 0}},
+      color: hexColor,
+      strokeWidth: thickness,
+      opacity: 1,
+      inkList,
+      id: crypto.randomUUID(),
+    } as never,
+  };
+}
+
+function convertFreeText(legacy: Record<string, unknown>): AnnotationTransferItem | null {
+  const pageIndex = (legacy['pageIndex'] as number) ?? 0;
+  const rect = legacy['rect'] as number[] | undefined;
+  const value = (legacy['value'] as string) ?? '';
+  const fontSize = (legacy['fontSize'] as number) ?? 12;
+  const color = legacy['color'] as number[] | undefined;
+
+  if (!rect || rect.length < 4) return null;
+
+  const x = rect[0];
+  const y = rect[1];
+  const w = rect[2] - rect[0];
+  const h = rect[3] - rect[1];
+
+  return {
+    annotation: {
+      type: 3, // PdfAnnotationSubtype.FREETEXT
+      pageIndex,
+      rect: {origin: {x, y}, size: {width: w, height: h}},
+      contents: value,
+      fontSize,
+      fontColor: color ? rgbArrayToHex(color) : '#000000',
+      id: crypto.randomUUID(),
+    } as never,
+  };
+}
+
+function rgbArrayToHex(rgb: number[]): string {
+  const r = Math.round(Math.min(255, Math.max(0, rgb[0] * 255)));
+  const g = Math.round(Math.min(255, Math.max(0, rgb[1] * 255)));
+  const b = Math.round(Math.min(255, Math.max(0, rgb[2] * 255)));
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`.toUpperCase();
+}
+
+// --- ArrayBuffer <-> base64 helpers ---
+
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte);
+  }
+  return btoa(binary);
+}
+
+function base64ToArrayBuffer(base64: string): ArrayBuffer {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function restoreArrayBuffers(item: any): AnnotationTransferItem {
+  if (item.ctx?._dataEncoding === 'base64' && typeof item.ctx.data === 'string') {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const {_dataEncoding: _, ...rest} = item.ctx;
+    return {
+      ...item,
+      ctx: {
+        ...rest,
+        data: base64ToArrayBuffer(item.ctx.data),
+      },
+    };
+  }
+  return item;
+}

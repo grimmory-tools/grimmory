@@ -1,6 +1,6 @@
 @use 'sass:color';
 
-/* stylelint-disable selector-id-pattern, selector-class-pattern -- targets ngx-extended-pdf-viewer / pdf.js internals */
+/* stylelint-disable selector-id-pattern, selector-class-pattern */
 
 // Design tokens matching CBX/E-Book readers
 $header-height: 38px;
@@ -28,10 +28,15 @@ $transition-fast: 150ms ease;
 .pdf-reader-container {
   position: fixed;
   inset: 0;
-  display: flex;
-  flex-direction: column;
+  height: 100dvh;
   background: #1a1a1a;
   z-index: 900;
+  overflow: hidden;
+  box-sizing: border-box;
+
+  * {
+    box-sizing: border-box;
+  }
 }
 
 // --- Trigger zones ---
@@ -62,10 +67,35 @@ $transition-fast: 150ms ease;
   }
 }
 
-// --- Header ---
-// Child element styles for .pdf-header-toolbar (positioning is in ::ng-deep #toolbarViewer)
+// --- Header toolbar ---
 
 .pdf-header-toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: $header-height;
+  box-sizing: border-box;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 1002;
+  background: $gradient-bg;
+  border-bottom: 1px solid $border-color;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 30%);
+  color: #fff;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+  transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+
+  &.chrome-hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-100%);
+  }
+
   .header-left,
   .header-right {
     display: flex;
@@ -73,40 +103,6 @@ $transition-fast: 150ms ease;
     gap: 2px;
     z-index: 1;
     flex-shrink: 0;
-  }
-
-  .header-right {
-    // Style zoom toolbar within header
-    ::ng-deep {
-      pdf-zoom-toolbar {
-        display: flex;
-        align-items: center;
-      }
-
-      .zoom {
-        display: flex;
-        align-items: center;
-        gap: 2px;
-      }
-
-      #scaleSelect {
-        background: rgb(255 255 255 / 8%) !important;
-        color: #fff !important;
-        border: 1px solid rgb(255 255 255 / 15%) !important;
-        border-radius: 4px !important;
-        padding: 2px 4px !important;
-        font-size: 12px !important;
-        cursor: pointer;
-        height: 26px !important;
-        max-width: 85px;
-        appearance: none;
-
-        option {
-          background: #2d2d2d;
-          color: #fff;
-        }
-      }
-    }
   }
 
   .book-title {
@@ -156,46 +152,140 @@ $transition-fast: 150ms ease;
     background: rgb(239 68 68 / 20%);
     color: #ef4444;
   }
+
+  &.annotation-tool-btn.active {
+    color: $active-color;
+    background: rgb(74 144 226 / 15%);
+  }
+
+  &.bookmark-btn.bookmarked {
+    color: #f59e0b;
+  }
 }
 
-// --- Override pdf.js component button styles ---
+// --- Search bar ---
 
-::ng-deep .pdf-btn-wrap {
-  button {
-    background: none !important;
-    border: none !important;
-    color: #fff !important;
+.search-bar {
+  position: fixed;
+  top: $header-height;
+  left: 0;
+  right: 0;
+  height: 36px;
+  z-index: 1002;
+  background: color.adjust(#2d2d2d, $lightness: -3%);
+  border-bottom: 1px solid $border-color;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 8px;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+
+  &.chrome-hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-100%);
+  }
+
+  .search-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    max-width: 360px;
+    background: #404040;
+    border-radius: 4px;
+    padding: 0 8px;
+    color: $text-secondary;
+  }
+
+  .search-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: $text-primary;
+    font-size: 13px;
+    padding: 5px 0;
+    outline: none;
+
+    &::placeholder {
+      color: rgb(255 255 255 / 30%);
+    }
+  }
+
+  .search-close {
+    padding: 4px;
+  }
+}
+
+// --- Zoom menu ---
+
+.zoom-menu-wrapper {
+  position: relative;
+}
+
+.zoom-label-btn {
+  padding: 4px 6px !important;
+
+  .zoom-label {
+    font-size: 12px;
+    font-weight: 500;
+    min-width: 50px;
+    text-align: center;
+  }
+}
+
+.zoom-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 4px;
+  background: #333;
+  border: 1px solid $border-color;
+  border-radius: 6px;
+  padding: 4px 0;
+  min-width: 120px;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 40%);
+  z-index: 1010;
+
+  .zoom-option {
+    display: block;
+    width: 100%;
+    padding: 6px 16px;
+    border: none;
+    background: none;
+    color: $text-primary;
+    font-size: 13px;
+    text-align: left;
     cursor: pointer;
-    width: 30px !important;
-    height: 30px !important;
-    padding: 0 !important;
-    border-radius: 6px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    transition: background $transition-fast !important;
-    margin: 0 !important;
-    box-shadow: none !important;
-    opacity: 1 !important;
+    transition: background $transition-fast;
 
     &:hover {
-      background: $hover-bg !important;
+      background: $hover-bg;
     }
 
-    &.toggled,
-    &[aria-pressed="true"] {
-      color: $active-color !important;
-      background: rgb(74 144 226 / 15%) !important;
+    &.active {
+      color: $active-color;
+      font-weight: 600;
     }
+  }
+}
 
-    span {
-      display: none !important;
-    }
+// --- Book viewer container ---
 
-    &::before {
-      color: inherit !important;
-      opacity: 1 !important;
-    }
+.book-viewer-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+
+  embedpdf-container {
+    width: 100%;
+    height: 100%;
+    display: block;
   }
 }
 
@@ -448,17 +538,85 @@ $transition-fast: 150ms ease;
 
 .embed-close-btn {
   position: fixed;
-  top: 4px;
+  top: 0;
+  right: 0;
+  z-index: 11000;
+  color: #fff;
+  width: 44px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2d2d2d;
+  border: none;
+  border-bottom: 1px solid #404040;
+  cursor: pointer;
+  padding: 0;
+  transition: background $transition-fast;
+
+  &:hover {
+    background: #3a3a3a;
+  }
+
+  &:active {
+    background: #444;
+  }
+}
+
+.doc-viewer-info {
+  position: fixed;
+  top: 48px;
   right: 12px;
   z-index: 1010;
+  background: rgb(45 45 45 / 90%);
   color: $text-primary;
-  padding: 7px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid $border-color;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 30%);
+  backdrop-filter: blur(4px);
+  animation: doc-viewer-info-fade-in 0.3s ease-out;
+
+  .dismiss-btn {
+    background: none;
+    border: none;
+    color: $text-secondary;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 2px;
+    border-radius: 50%;
+    transition: all 0.2s;
+
+    &:hover {
+      color: #fff;
+      background: rgb(255 255 255 / 10%);
+    }
+  }
+}
+
+@keyframes doc-viewer-info-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 #embedpdf-viewer {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  flex: 1;
   display: flex;
 
   iframe {
@@ -521,331 +679,90 @@ $transition-fast: 150ms ease;
   }
 }
 
-// --- Override pdf.js viewer inner styles ---
+// --- Mobile actions (hidden on desktop) ---
 
-::ng-deep {
-  // Make pdf viewer fill container
-  ngx-extended-pdf-viewer {
-    flex: 1;
-    display: block;
-    overflow: hidden;
+.mobile-actions {
+  display: none;
+  align-items: center;
+  gap: 2px;
+}
 
-    #mainContainer {
-      background: #1a1a1a !important;
+// --- Desktop actions ---
+
+.desktop-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+// --- Toolbar overflow menu (mobile) ---
+
+.toolbar-overflow-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1009;
+  background: rgb(0 0 0 / 40%);
+}
+
+.toolbar-overflow-menu {
+  position: fixed;
+  top: $header-height;
+  right: 8px;
+  z-index: 1010;
+  background: #2d2d2d;
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  padding: 4px 0;
+  min-width: 200px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 50%);
+
+  .overflow-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 16px;
+    border: none;
+    background: none;
+    color: $text-primary;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background $transition-fast;
+
+    &:hover {
+      background: $hover-bg;
     }
 
-    // Override pdf.js defaults on #toolbarViewer - our custom fixed header
-    #toolbarViewer {
-      position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
-      right: 0 !important;
-      height: $header-height !important;
-      min-height: 0 !important;
-      box-sizing: border-box !important;
-      padding: 0 16px !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: space-between !important;
-      z-index: 1002 !important;
-      background: $gradient-bg !important;
-      border-bottom: 1px solid $border-color !important;
-      box-shadow: 0 2px 8px rgb(0 0 0 / 30%) !important;
-      color: #fff !important;
-      opacity: 1 !important;
-      pointer-events: auto !important;
-      transform: translateY(0) !important;
-      transition: opacity 0.25s ease-out, transform 0.25s ease-out !important;
-
-      &.chrome-hidden {
-        opacity: 0 !important;
-        pointer-events: none !important;
-        transform: translateY(-100%) !important;
-      }
+    svg,
+    app-reader-icon {
+      flex-shrink: 0;
     }
+  }
 
-    // Style the annotation editor params toolbars (color picker, thickness, etc.)
-    .editorParamsToolbar {
-      position: fixed !important;
-      top: $header-height !important;
-      right: 8px !important;
-      left: auto !important;
-      z-index: 1003 !important;
-      background: #2d2d2d !important;
-      border: 1px solid $border-color !important;
-      border-radius: 0 0 8px 8px !important;
-      box-shadow: 0 4px 12px rgb(0 0 0 / 40%) !important;
-      padding: 8px 12px !important;
-      color: #fff !important;
-      min-width: 180px !important;
-
-      .editorParamsToolbarContainer {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-
-      .editorParamsLabel {
-        color: $text-secondary !important;
-        font-size: 12px !important;
-      }
-
-      .editorParamsSetter {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .editorParamsSlider {
-        flex: 1;
-        accent-color: $active-color;
-      }
-
-      .editorParamsColor {
-        border: 1px solid #555 !important;
-        border-radius: 4px !important;
-        cursor: pointer !important;
-      }
-
-      // Highlight color picker dots
-      .colorPicker {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        flex-wrap: wrap;
-
-        button {
-          width: 24px !important;
-          height: 24px !important;
-          min-width: 24px !important;
-          border-radius: 50% !important;
-          border: 2px solid transparent !important;
-          padding: 0 !important;
-          cursor: pointer !important;
-
-          &[aria-selected="true"],
-          &.selected {
-            border-color: #fff !important;
-            box-shadow: 0 0 4px rgb(255 255 255 / 40%) !important;
-          }
-        }
-      }
-
-      // Toggle button for "show all highlights"
-      .toggle-button {
-        background: #555 !important;
-        border: none !important;
-        border-radius: 12px !important;
-        width: 36px !important;
-        height: 20px !important;
-        cursor: pointer !important;
-        position: relative !important;
-
-        &[aria-pressed="true"] {
-          background: $active-color !important;
-        }
-      }
-
-      .thicknessPicker {
-        flex: 1;
-      }
-
-      .toggler {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-      }
-
-      .divider {
-        height: 1px;
-        background: $border-color;
-        margin: 4px 0;
-      }
-
-      // Generic button styling inside params toolbars
-      button.secondaryToolbarButton,
-      button.toolbarButton {
-        background: none !important;
-        color: #fff !important;
-        border: none !important;
-        border-radius: 6px !important;
-        padding: 6px 10px !important;
-        cursor: pointer !important;
-        display: flex !important;
-        align-items: center !important;
-        gap: 6px !important;
-        width: 100% !important;
-
-        &:hover {
-          background: $hover-bg !important;
-        }
-
-        span {
-          display: inline !important;
-          color: inherit !important;
-        }
-      }
-
-      // Injected close button wrapper
-      .custom-close-btn-wrapper {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        width: 100%;
-        margin-bottom: 6px;
-        border-bottom: 1px solid rgb(255 255 255 / 10%);
-        padding-bottom: 6px;
-      }
-
-      // Injected close button
-      .custom-close-btn {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        width: 34px !important;
-        height: 34px !important;
-        padding: 0 !important;
-        background: transparent !important;
-        border: none !important;
-        border-radius: 4px !important;
-
-        svg {
-          display: block;
-        }
-
-        &:hover {
-          background: rgb(239 68 68 / 20%) !important;
-          color: #ef4444 !important;
-        }
-      }
-    }
-
-    // Style the secondary toolbar dropdown
-    #secondaryToolbar {
-      top: $header-height !important;
-      background: #2d2d2d !important;
-      border: 1px solid $border-color !important;
-      border-radius: 0 0 8px 8px !important;
-      box-shadow: 0 4px 16px rgb(0 0 0 / 40%) !important;
-      padding: 4px !important;
-
-      button {
-        background: none !important;
-        border: none !important;
-        color: #fff !important;
-        border-radius: 6px !important;
-        padding: 8px 12px !important;
-        font-size: 13px !important;
-        width: 100% !important;
-        text-align: left !important;
-        display: flex !important;
-        align-items: center !important;
-        gap: 8px !important;
-
-        &:hover {
-          background: $hover-bg !important;
-        }
-
-        &[aria-pressed="true"],
-        &.toggled {
-          color: $active-color !important;
-          background: rgb(74 144 226 / 15%) !important;
-        }
-
-        span {
-          display: inline !important;
-          color: inherit !important;
-        }
-      }
-    }
-
-    // Style the find bar
-    #findbar {
-      background: #2d2d2d !important;
-      border: 1px solid $border-color !important;
-      border-radius: 0 0 8px 8px !important;
-      box-shadow: 0 4px 12px rgb(0 0 0 / 30%) !important;
-      padding: 8px !important;
-      top: 0 !important;
-
-      input {
-        background: #404040 !important;
-        color: #fff !important;
-        border: 1px solid #555 !important;
-        border-radius: 4px !important;
-        padding: 4px 8px !important;
-      }
-
-      button {
-        background: none !important;
-        color: #fff !important;
-        border: none !important;
-        border-radius: 4px !important;
-
-        &:hover {
-          background: $hover-bg !important;
-        }
-      }
-
-      label {
-        color: $text-secondary !important;
-      }
-    }
-
-    // Style the sidebar
-    #sidebarContainer {
-      background: #1f1f1f !important;
-      border-right: 1px solid $border-color !important;
-
-      #toolbarSidebar {
-        background: #2d2d2d !important;
-        border-bottom: 1px solid $border-color !important;
-
-        button {
-          color: #fff !important;
-
-          &.toggled {
-            color: $active-color !important;
-          }
-        }
-      }
-
-      #sidebarContent {
-        background: #1f1f1f !important;
-      }
-
-      .treeItem {
-        color: #fff !important;
-
-        >a {
-          color: #fff !important;
-
-          &:hover {
-            background: $hover-bg !important;
-          }
-        }
-      }
-    }
-
-    // Hide the default toolbar container chrome completely - our custom toolbar is positioned fixed
-    #toolbarContainer {
-      position: absolute !important;
-      height: 0 !important;
-      min-height: 0 !important;
-      max-height: 0 !important;
-      padding: 0 !important;
-      margin: 0 !important;
-      border: none !important;
-      background: transparent !important;
-      overflow: visible !important;
-    }
+  .overflow-divider {
+    height: 1px;
+    background: $border-color;
+    margin: 4px 0;
   }
 }
 
 // --- Responsive ---
 
-@media (width <= 768px) {
+// Tablet (portrait) switches to mobile toolbar layout
+@media (width <= 1024px) {
+  .pdf-header-toolbar {
+    height: $header-height + 4px;
+    padding: 0 8px;
+  }
+
+  .desktop-actions {
+    display: none;
+  }
+
+  .mobile-actions {
+    display: flex;
+  }
+
   .pdf-footer {
     height: auto;
     padding: 8px 12px;
@@ -862,17 +779,97 @@ $transition-fast: 150ms ease;
     display: none;
   }
 
-  .zoom-controls {
+  .footer-spacer {
     display: none;
   }
 
-  .header-right {
-    ::ng-deep pdf-zoom-toolbar {
-      display: none !important;
+  .page-nav-left {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .viewer-mode-toggle {
+    .toggle-btn span {
+      display: none;
     }
+  }
+
+  .search-bar {
+    .search-input-wrapper {
+      max-width: none;
+    }
+  }
+
+  .doc-viewer-info {
+    right: 12px;
+    left: 12px;
+    top: 48px;
+    justify-content: center;
   }
 
   .book-title {
     display: none;
+  }
+
+  // Larger touch targets for trigger zones
+  .header-trigger-zone {
+    height: 40px;
+  }
+
+  .footer-trigger-zone {
+    height: 50px;
+  }
+}
+
+// Small phones
+@media (width <= 480px) {
+  .pdf-header-toolbar {
+    padding: 0 6px;
+  }
+
+  .pdf-footer {
+    padding: 6px 8px;
+  }
+
+  .page-nav-left {
+    gap: 4px;
+  }
+
+  .nav-btn {
+    padding: 8px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  .page-info {
+    min-width: 70px;
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+
+  .slider-wrapper {
+    .page-slider {
+      &::-webkit-slider-thumb {
+        width: 22px;
+        height: 22px;
+        margin-top: calc((6px - 22px) / 2);
+      }
+
+      &::-moz-range-thumb {
+        width: 22px;
+        height: 22px;
+      }
+    }
+  }
+
+  .viewer-mode-toggle .toggle-btn {
+    padding: 0 8px;
+    height: 34px;
+  }
+
+  .icon-btn {
+    padding: 8px;
+    min-width: 36px;
+    min-height: 36px;
   }
 }

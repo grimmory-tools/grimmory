@@ -1,5 +1,6 @@
 package org.booklore.model.dto;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,6 +22,10 @@ public class CreateBookMarkRequest {
     private Long positionMs;
     private Integer trackIndex;
 
+    // For PDF bookmarks
+    @Min(value = 1, message = "Page number must be at least 1")
+    private Integer pageNumber;
+
     private String title;
 
     /**
@@ -28,5 +33,12 @@ public class CreateBookMarkRequest {
      */
     public boolean isAudiobookBookmark() {
         return positionMs != null;
+    }
+
+    /**
+     * Check if this is a PDF bookmark (has pageNumber, no cfi or positionMs)
+     */
+    public boolean isPdfBookmark() {
+        return pageNumber != null && cfi == null && positionMs == null;
     }
 }

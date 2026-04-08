@@ -11,7 +11,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -39,8 +38,7 @@ public class Fb2MetadataExtractor implements FileMetadataExtractor {
     @Override
     public byte[] extractCover(File file) {
         try (InputStream inputStream = getInputStream(file)) {
-            DocumentBuilderFactory dbf = SecureXmlUtils.createSecureDocumentBuilderFactory(true);
-            DocumentBuilder builder = dbf.newDocumentBuilder();
+            DocumentBuilder builder = SecureXmlUtils.createSecureDocumentBuilder(true);
             Document doc = builder.parse(inputStream);
 
             // Look for cover image in binary elements
@@ -93,8 +91,7 @@ public class Fb2MetadataExtractor implements FileMetadataExtractor {
     @Override
     public BookMetadata extractMetadata(File file) {
         try (InputStream inputStream = getInputStream(file)) {
-            DocumentBuilderFactory dbf = SecureXmlUtils.createSecureDocumentBuilderFactory(true);
-            DocumentBuilder builder = dbf.newDocumentBuilder();
+            DocumentBuilder builder = SecureXmlUtils.createSecureDocumentBuilder(true);
             Document doc = builder.parse(inputStream);
 
             BookMetadata.BookMetadataBuilder metadataBuilder = BookMetadata.builder();

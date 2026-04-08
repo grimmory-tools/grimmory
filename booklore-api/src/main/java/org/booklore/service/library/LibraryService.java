@@ -27,7 +27,6 @@ import org.booklore.service.audit.AuditService;
 import org.booklore.service.monitoring.LibraryWatchService;
 import org.booklore.task.options.RescanLibraryContext;
 import org.booklore.util.FileService;
-import org.booklore.util.SecurityContextVirtualThread;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.context.event.EventListener;
@@ -45,6 +44,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -77,6 +77,7 @@ public class LibraryService {
     private final AuthenticationService authenticationService;
     private final UserRepository userRepository;
     private final AuditService auditService;
+    private final Executor taskExecutor;
 
     @Transactional
     @EventListener(ApplicationReadyEvent.class)
@@ -209,7 +210,7 @@ public class LibraryService {
         LibraryEntity lib = libraryRepository.findById(libraryId).orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
         auditService.log(AuditAction.LIBRARY_SCANNED, "Library", libraryId, "Scanned library: " + lib.getName());
 
-        SecurityContextVirtualThread.runWithSecurityContext(() -> {
+        taskExecutor.execute(() -> {
             if (!scanningLibraries.add(libraryId)) {
                 log.warn("Library {} is already being scanned, skipping duplicate rescan request", libraryId);
                 return;
@@ -367,7 +368,7 @@ public class LibraryService {
     }
 
     private void startBackgroundScan(long libraryId) {
-        SecurityContextVirtualThread.runWithSecurityContext(() -> {
+        taskExecutor.execute(() -> {
             if (!scanningLibraries.add(libraryId)) {
                 log.warn("Library {} is already being scanned, skipping duplicate process request", libraryId);
                 return;

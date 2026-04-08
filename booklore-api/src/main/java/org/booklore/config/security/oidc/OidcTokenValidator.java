@@ -17,6 +17,7 @@ import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.exception.ApiError;
+import org.booklore.util.FileUtils;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -102,8 +103,8 @@ public class OidcTokenValidator {
 
     private void validateIssuer(JWTClaimsSet claims, String expectedIssuer) {
         String issuer = claims.getIssuer();
-        String normalizedExpected = expectedIssuer.replaceAll("/+$", "");
-        String normalizedActual = issuer != null ? issuer.replaceAll("/+$", "") : "";
+        String normalizedExpected = FileUtils.trimTrailingSlashes(expectedIssuer);
+        String normalizedActual = issuer != null ? FileUtils.trimTrailingSlashes(issuer) : "";
 
         if (!normalizedExpected.equals(normalizedActual)) {
             throw ApiError.OIDC_INVALID_TOKEN.createException("ID token issuer mismatch");

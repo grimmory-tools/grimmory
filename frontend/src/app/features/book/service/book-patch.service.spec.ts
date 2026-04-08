@@ -56,6 +56,9 @@ describe('BookPatchService', () => {
       },
     });
     request.flush(null);
+
+    expect(queryClient.setQueryData).toHaveBeenCalledWith(BOOKS_QUERY_KEY, expect.any(Function));
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: ['books', 'detail', 11]});
   });
 
   it('deduplicates identical EPUB progress updates before posting', () => {
@@ -80,6 +83,8 @@ describe('BookPatchService', () => {
     request.flush(null);
 
     httpTestingController.expectNone(req => req.url.endsWith('/api/v1/books/progress'));
+    expect(queryClient.setQueryData).toHaveBeenCalledWith(BOOKS_QUERY_KEY, expect.any(Function));
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: ['books', 'detail', 7]});
   });
 
   it('patches cached progress fields when resetting kobo progress', () => {

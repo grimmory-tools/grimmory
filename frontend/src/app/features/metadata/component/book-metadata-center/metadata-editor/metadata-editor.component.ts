@@ -385,6 +385,13 @@ export class MetadataEditorComponent implements OnInit {
       this.metadataForm.addControl(field.controlName, new FormControl(defaultValue));
       this.metadataForm.addControl(field.lockedKey, new FormControl(false));
     }
+
+    this.syncProviderFieldsEffect = effect(() => {
+      const settings = this.appSettingsService.appSettings();
+      if (settings?.metadataProviderSpecificFields) {
+        this.providerSpecificFields = settings.metadataProviderSpecificFields;
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -393,13 +400,6 @@ export class MetadataEditorComponent implements OnInit {
       this.metadataCenterViewMode = user.userSettings.metadataCenterViewMode ?? 'route';
       this.autoSaveEnabled = user.userSettings.autoSaveMetadata ?? false;
     }
-
-    this.syncProviderFieldsEffect = effect(() => {
-      const settings = this.appSettingsService.appSettings();
-      if (settings?.metadataProviderSpecificFields) {
-        this.providerSpecificFields = settings.metadataProviderSpecificFields;
-      }
-    });
   }
 
   private populateFormFromMetadata(metadata: BookMetadata): void {

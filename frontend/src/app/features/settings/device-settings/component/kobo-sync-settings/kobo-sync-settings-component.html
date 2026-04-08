@@ -309,6 +309,24 @@
                 </p>
               </div>
             </div>
+
+            <p-divider></p-divider>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-label-row">
+                  <span class="setting-label">{{ t('kobo.forwardToKoboStore') }}</span>
+                  <p-toggle-switch
+                    id="forwardToKoboStore"
+                    [(ngModel)]="koboSettings.forwardToKoboStore"
+                    (ngModelChange)="onToggleChange()">
+                  </p-toggle-switch>
+                </div>
+                <p class="setting-description">
+                  {{ t('kobo.forwardToKoboStoreDesc') }}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       }

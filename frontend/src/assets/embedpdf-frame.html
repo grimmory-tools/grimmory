@@ -12,6 +12,79 @@
 </head>
 <body>
 <div id="viewer"></div>
+<script>
+  (function () {
+    const OrigWorker = window.Worker;
+    window.Worker = function PatchedWorker(url, opts) {
+      console.log('[Shim] Worker created, url type=' + typeof url +
+        ', isBlob=' + (typeof url === 'string' && url.startsWith('blob:')) +
+        ', opts=', opts);
+      const w = new OrigWorker(url, opts);
+      if (typeof url === 'string' && url.startsWith('blob:') && opts && opts.type === 'module') {
+        console.log('[Shim] Blob module Worker detected, applying ready-event shim');
+        let wasmInitId = null;
+        let readySent = false;
+        const origPM = w.postMessage.bind(w);
+        w.postMessage = function (msg, xfer) {
+          if (msg && msg.type === 'wasmInit' && msg.id !== undefined) {
+            wasmInitId = msg.id;
+            console.log('[Shim] wasmInit sent with id=' + wasmInitId);
+          }
+          return origPM(msg, xfer);
+        };
+        setTimeout(function () {
+          if (!readySent && wasmInitId !== null) {
+            console.log('[Shim] Timeout: injecting synthetic ready event for id=' + wasmInitId);
+            readySent = true;
+            w.dispatchEvent(new MessageEvent('message', {
+              data: { type: 'ready' }
+            }));
+          }
+        }, 5000);
+        w.addEventListener('message', function (evt) {
+          if (evt.data && evt.data.type === 'ready') {
+            console.log('[Shim] Real ready event received');
+            readySent = true;
+          }
+        });
+        w.addEventListener('error', function (evt) {
+          console.error('[Shim] Worker error event:', evt.message, evt.filename, evt.lineno);
+        });
+      }
+      return w;
+    };
+    window.Worker.prototype = OrigWorker.prototype;
+    Object.setPrototypeOf(window.Worker, OrigWorker);
+
+    const OrigBlob = window.Blob;
+    window.Blob = function PatchedBlob(parts, opts) {
+      if (parts && parts.length >= 1 && typeof parts[0] === 'string') {
+        const hasWasmInit = parts[0].includes('wasmInit');
+        const hasRunnerPrepare = parts[0].includes('runner.prepare()');
+        if (hasWasmInit && hasRunnerPrepare) {
+          console.log('[Shim] Patching PDFium blob source (' + parts[0].length + ' chars)');
+          let patched = parts[0];
+          patched = patched.replace(
+            'self.postMessage({ type: "wasmError", error: message });',
+            'console.error("[Worker] WASM init FAILED:", message);\n' +
+            '      self.postMessage({ type: "wasmError", error: message });'
+          );
+          patched = patched.replace(
+            'await runner.prepare();',
+            'await runner.prepare();\n' +
+            '      console.log("[Worker] prepare() OK, posting ready");\n' +
+            '      self.postMessage({ type: "ready" });'
+          );
+          console.log('[Shim] Blob patch applied, changed=' + (patched !== parts[0]));
+          parts = [patched];
+        }
+      }
+      return new OrigBlob(parts, opts);
+    };
+    window.Blob.prototype = OrigBlob.prototype;
+    Object.setPrototypeOf(window.Blob, OrigBlob);
+  })();
+</script>
 <script type="module">
   import EmbedPDF from '/assets/embedpdf/embedpdf.js';
 
@@ -67,7 +140,7 @@
         border-bottom-color: #404040 !important;
         box-shadow: 0 2px 8px rgba(0,0,0,0.30) !important;
         height: 38px !important;
-        padding-right: 48px !important;
+        padding-right: 88px !important;
         padding-top: 0 !important;
         padding-bottom: 0 !important;
         box-sizing: border-box !important;
@@ -89,6 +162,7 @@
       button[title="Close Document"] {
         display: none !important;
       }
+
       .pdf-btn-open {
         display: none !important;
       }
@@ -168,32 +242,68 @@
         color: rgba(0,0,0,0.87) !important;
         border: 1px solid #d0d0d0 !important;
       }
+
+      /* Force high-quality image rendering for PDF tiles */
+      img {
+        image-rendering: high-quality;
+        -webkit-font-smoothing: antialiased;
+      }
+      /* ── Silence non-editable selection menus EXCEPT for navigation links ── */
+
+      /* If the menu has no user-editing tools OR navigation, hide the whole menu. */
+      [role="toolbar"]:not(:has([data-epdf-i*="appearance"])):not(:has([data-epdf-i*="comment"])):not(:has([data-epdf-i*="navigate"])),
+      [role="menu"]:not(:has([data-epdf-i*="appearance"])):not(:has([data-epdf-i*="comment"])):not(:has([data-epdf-i*="navigate"])) {
+        display: none !important;
+      }
+
+      /* Hide the 'Add Link' tool to prevent manual link creation */
+      [data-epdf-i="link"] {
+        display: none !important;
+      }
+
+      /* If the selection menu has a 'navigate' icon (Go to Link), hide the 'remove' (trash) button */
+      [role="toolbar"]:has([data-epdf-i*="navigate"]) [data-epdf-i*="remove"],
+      [role="menu"]:has([data-epdf-i*="navigate"]) [data-epdf-i*="remove"] {
+        display: none !important;
+      }
     `;
     shadow.appendChild(style);
-    targetEl.style.visibility = '';
   }
 
-  window.addEventListener('message', async (e) => {
-    if (e.origin !== myOrigin) return;
-    const msg = e.data;
+  window.addEventListener('message', async (event) => {
+    const msg = event.data;
 
     if (msg.type === 'init') {
-      log('Init, buffer:', msg.buffer?.byteLength, 'bytes');
-
-      const blob = new Blob([msg.buffer], { type: 'application/pdf' });
-      objectUrl = URL.createObjectURL(blob);
-
+      log('Init requested');
       const target = document.getElementById('viewer');
-      target.style.visibility = 'hidden';
+      if (viewer) {
+        viewer.destroy();
+        viewer = null;
+      }
 
       viewer = EmbedPDF.init({
         type: 'container',
-        target,
-        src: objectUrl,
-        wasmUrl: msg.wasmUrl || '/assets/pdfium/pdfium.wasm',
-        worker: false,
-        theme: { preference: msg.theme || 'dark' }
+        target: target,
+        disabledCategories: [
+          'redaction',
+          'stamp',
+          'document-print',
+          'document-export',
+          'document-open',
+          'document-close',
+        ],
+        annotations: {
+          autoCommit: true,
+          autoOpenLinks: false,
+        },
+        zoom: {
+          defaultZoomLevel: 'fit-page',
+        },
+        render: { defaultImageQuality: 2 },
+        tiling: { tileSize: 1024, overlapPx: 2, extraRings: 1 },
       });
+
+      injectGrimmoryStyles(target);
 
       try {
         registry = await viewer.registry;
@@ -211,13 +321,58 @@
             log('Document closed:', ev?.documentId);
           });
         }
+
+        const scrollPlugin = registry.getPlugin('scroll')?.provides();
+        if (scrollPlugin) {
+          scrollPlugin.onPageChange((ev) => {
+            parent.postMessage({
+              type: 'pageChange',
+              pageNumber: ev.pageNumber,
+              totalPages: ev.totalPages
+            }, myOrigin);
+          });
+        }
+
         parent.postMessage({ type: 'ready' }, myOrigin);
+
+        if (typeof ResizeObserver !== 'undefined') {
+          const observer = new ResizeObserver(() => {
+            const zoomPlugin = registry.getPlugin('zoom')?.provides();
+            if (zoomPlugin) {
+              const state = zoomPlugin.getState();
+              if (state.zoomLevel === 'fit-page') {
+                zoomPlugin.requestZoom('fit-page');
+              }
+            }
+          });
+          observer.observe(target);
+        }
       } catch (err) {
         log('Registry error:', err);
         parent.postMessage({ type: 'documentError', error: String(err) }, myOrigin);
       }
+    }
 
-      injectGrimmoryStyles(target);
+    if (msg.type === 'load') {
+      try {
+        if (!viewer) {
+          log('Load requested before init');
+          return;
+        }
+        const dm = registry.getPlugin('document-manager')?.provides();
+        if (!dm) {
+          log('Document manager plugin not found');
+          return;
+        }
+
+        if (objectUrl) URL.revokeObjectURL(objectUrl);
+        objectUrl = URL.createObjectURL(new Blob([msg.buffer], { type: 'application/pdf' }));
+        log('Loading PDF buffer into viewer');
+        await dm.loadUrl(objectUrl);
+      } catch (err) {
+        log('Load error:', err);
+        parent.postMessage({ type: 'documentError', error: String(err) }, myOrigin);
+      }
     }
 
     if (msg.type === 'save') {
@@ -246,6 +401,21 @@
 
     if (msg.type === 'setTheme') {
       viewer?.setTheme?.(msg.theme);
+    }
+
+    if (msg.type === 'scrollToPage') {
+      const scrollPlugin = registry?.getPlugin('scroll')?.provides();
+      scrollPlugin?.scrollToPage({ pageNumber: msg.pageNumber, behavior: 'smooth' });
+    }
+
+    if (msg.type === 'nextPage') {
+      const scrollPlugin = registry?.getPlugin('scroll')?.provides();
+      scrollPlugin?.scrollToNextPage('smooth');
+    }
+
+    if (msg.type === 'prevPage') {
+      const scrollPlugin = registry?.getPlugin('scroll')?.provides();
+      scrollPlugin?.scrollToPreviousPage('smooth');
     }
   });
 

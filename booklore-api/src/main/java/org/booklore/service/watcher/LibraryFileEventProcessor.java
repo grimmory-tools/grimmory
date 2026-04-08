@@ -13,10 +13,9 @@ import org.booklore.repository.LibraryRepository;
 import org.booklore.service.file.FileFingerprint;
 import org.booklore.service.library.LibraryProcessingService;
 import org.booklore.util.FileUtils;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -29,9 +28,10 @@ import java.util.concurrent.*;
 
 @Slf4j
 @Service
-@AllArgsConstructor
-public class LibraryFileEventProcessor {
+@RequiredArgsConstructor
+public class LibraryFileEventProcessor implements SmartLifecycle {
 
+    private static final int LIFECYCLE_PHASE = 10;
     private static final long DEBOUNCE_MS = 500L;
     private static final long FOLDER_CREATE_DEBOUNCE_MS = 5000L;
     private static final long PENDING_DELETION_GRACE_MS = 8000L;
@@ -47,16 +47,28 @@ public class LibraryFileEventProcessor {
     private final LibraryProcessingService libraryProcessingService;
     private final PendingDeletionPool pendingDeletionPool;
 
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private ScheduledExecutorService scheduler;
     private final ConcurrentMap<Path, ScheduledFuture<?>> pendingDeletes = new ConcurrentHashMap<>();
     private final ConcurrentMap<Path, ScheduledFuture<?>> pendingFolderCreates = new ConcurrentHashMap<>();
     private final Set<Path> filesFromPendingFolder = ConcurrentHashMap.newKeySet();
+    private volatile boolean running;
+    private Thread workerThread;
 
-    @PostConstruct
-    public void init() {
-        Thread.ofVirtual().start(() -> {
+    @Override
+    public void start() {
+        if (running && workerThread != null && workerThread.isAlive()) {
+            log.info("LibraryFileEventProcessor is already running.");
+            return;
+        }
+
+        if (scheduler == null || scheduler.isShutdown()) {
+            scheduler = Executors.newScheduledThreadPool(1);
+        }
+
+        running = true;
+        workerThread = Thread.ofVirtual().name("lib-event-processor").start(() -> {
             log.info("LibraryFileEventProcessor virtual thread started.");
-            while (!Thread.currentThread().isInterrupted()) {
+            while (running && !Thread.currentThread().isInterrupted()) {
                 try {
                     handleEvent(eventQueue.take());
                 } catch (InterruptedException e) {
@@ -67,6 +79,28 @@ public class LibraryFileEventProcessor {
                 }
             }
         });
+    }
+
+    @Override
+    public void stop() {
+        log.info("Shutting down LibraryFileEventProcessor...");
+        running = false;
+        if (scheduler != null) {
+            scheduler.shutdownNow();
+        }
+        if (workerThread != null) {
+            workerThread.interrupt();
+        }
+    }
+
+    @Override
+    public boolean isRunning() {
+        return running;
+    }
+
+    @Override
+    public int getPhase() {
+        return LIFECYCLE_PHASE;
     }
 
     public void processEvent(WatchEvent.Kind<?> eventKind, long libraryId, Path fullPath, boolean isDirectory) {
@@ -540,12 +574,6 @@ public class LibraryFileEventProcessor {
             log.debug("[STABILITY] Error checking mtime for '{}': {}", path, e.getMessage());
             onStable.run();
         }
-    }
-
-    @PreDestroy
-    public void shutdown() {
-        scheduler.shutdownNow();
-        log.info("Shutting down LibraryFileEventProcessor...");
     }
 
     public boolean hasPendingEventsForPaths(Set<Path> paths) {

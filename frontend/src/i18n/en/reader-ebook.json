@@ -136,6 +136,8 @@
     "searchInBook": "Search in book",
     "annotate": "Annotate",
     "addNote": "Add Note",
+    "goToLink": "Go to Link",
+    "removeLink": "Remove Link",
     "deleteAnnotation": "Delete Annotation"
   },
   "shortcutsHelp": {

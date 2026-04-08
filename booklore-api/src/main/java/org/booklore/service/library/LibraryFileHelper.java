@@ -152,7 +152,7 @@ public class LibraryFileHelper {
         if (allowedFormats == null || allowedFormats.isEmpty()) {
             return files;
         }
-        Set<BookFileType> allowed = new HashSet<>(allowedFormats);
+        Set<BookFileType> allowed = EnumSet.copyOf(allowedFormats);
         return files.stream()
                 .filter(file -> allowed.contains(file.getBookFileType()))
                 .collect(java.util.stream.Collectors.toList());

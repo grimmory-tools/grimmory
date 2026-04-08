@@ -230,7 +230,7 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
     this.bookId = +this.route.snapshot.paramMap.get('bookId')!;
     this.altBookType = this.route.snapshot.queryParamMap.get('bookType') ?? undefined;
 
-    return from(this.bookService.ensureBookDetail(this.bookId, false)).pipe(
+    return from(this.bookService.fetchFreshBookDetail(this.bookId, false)).pipe(
       switchMap((book) => {
         this.book = book;
 
@@ -345,12 +345,12 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
             this.toggleImmersiveMode();
             break;
           case 'go-first-section':
-            this.viewManager.goToSection(0).subscribe();
+            this.viewManager.goToSection(0).pipe(catchError(() => of(undefined))).subscribe();
             break;
           case 'go-last-section': {
             const s = this.progressService.currentProgressData?.section;
             if (s && s.total > 0) {
-              this.viewManager.goToSection(s.total - 1).subscribe();
+              this.viewManager.goToSection(s.total - 1).pipe(catchError(() => of(undefined))).subscribe();
             }
             break;
           }
@@ -429,7 +429,10 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
 
   onProgressChange(fraction: number): void {
     this.viewManager.goToFraction(fraction)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError(() => of(undefined))
+      )
       .subscribe();
   }
 
@@ -481,6 +484,17 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
   handleSelectionAction(action: TextSelectionAction): void {
     if (action.type === 'note') {
       this.noteService.openNewNoteDialog();
+    } else if (action.type === 'go-to-link') {
+      const linkUrl = this.selectionState().linkUrl;
+      if (linkUrl) {
+        this.viewManager.goTo(linkUrl)
+          .pipe(
+            takeUntil(this.destroy$),
+            catchError(() => of(undefined))
+          )
+          .subscribe();
+      }
+      this.selectionService.handleAction(action);
     } else {
       this.selectionService.handleAction(action);
     }
