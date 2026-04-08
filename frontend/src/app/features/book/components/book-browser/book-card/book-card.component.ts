@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
 import {TooltipModule} from "primeng/tooltip";
 import {AdditionalFile, Book, BookType, ReadStatus} from '../../../model/book.model';
 import {Button} from 'primeng/button';
@@ -38,7 +38,7 @@ import {QueryClient} from '@tanstack/angular-query-experimental';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BookCardComponent implements OnInit, OnChanges {
+export class BookCardComponent implements OnInit, OnChanges, OnDestroy {
 
   @Output() checkboxClick = new EventEmitter<{ index: number; book: Book; selected: boolean; shiftKey: boolean }>();
   @Output() menuToggled = new EventEmitter<boolean>();
@@ -115,6 +115,10 @@ export class BookCardComponent implements OnInit, OnChanges {
       this.diskType = settings.diskType ?? 'LOCAL';
     }
 
+  }
+
+  ngOnDestroy(): void {
+    this._coverImageUrl = null;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
