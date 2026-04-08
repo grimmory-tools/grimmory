@@ -28,6 +28,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.util.*;
 import java.util.concurrent.Executor;
 
@@ -396,9 +397,9 @@ class BookCoverServiceTest {
 
             MultipartFile file = mock(MultipartFile.class);
             when(file.isEmpty()).thenReturn(false);
-            when(file.getContentType()).thenReturn("image/jpeg");
             when(file.getSize()).thenReturn(1024L);
             try {
+                when(file.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0})); // JPEG
                 when(file.getBytes()).thenReturn(new byte[]{1, 2, 3});
             } catch (Exception ignored) {}
 
@@ -422,10 +423,11 @@ class BookCoverServiceTest {
         }
 
         @Test
-        void rejectsNonImageContentType() {
+        void rejectsNonImageContentType() throws Exception {
             MultipartFile file = mock(MultipartFile.class);
             when(file.isEmpty()).thenReturn(false);
-            when(file.getContentType()).thenReturn("application/pdf");
+            when(file.getSize()).thenReturn(1024L);
+            when(file.getInputStream()).thenReturn(new java.io.ByteArrayInputStream(new byte[]{1, 2, 3}));
 
             assertThatThrownBy(() -> service.updateCoverFromFileForBooks(Set.of(1L), file))
                     .isInstanceOf(APIException.class)
@@ -436,7 +438,6 @@ class BookCoverServiceTest {
         void rejectsFileLargerThan5MB() {
             MultipartFile file = mock(MultipartFile.class);
             when(file.isEmpty()).thenReturn(false);
-            when(file.getContentType()).thenReturn("image/jpeg");
             when(file.getSize()).thenReturn(6L * 1024 * 1024);
 
             assertThatThrownBy(() -> service.updateCoverFromFileForBooks(Set.of(1L), file))
@@ -448,9 +449,9 @@ class BookCoverServiceTest {
         void acceptsJpegFile() {
             MultipartFile file = mock(MultipartFile.class);
             when(file.isEmpty()).thenReturn(false);
-            when(file.getContentType()).thenReturn("image/jpeg");
             when(file.getSize()).thenReturn(1024L);
             try {
+                when(file.getInputStream()).thenReturn(new java.io.ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0}));
                 when(file.getBytes()).thenReturn(new byte[]{1, 2, 3});
             } catch (Exception ignored) {}
 
@@ -463,9 +464,9 @@ class BookCoverServiceTest {
         void acceptsPngFile() {
             MultipartFile file = mock(MultipartFile.class);
             when(file.isEmpty()).thenReturn(false);
-            when(file.getContentType()).thenReturn("image/png");
             when(file.getSize()).thenReturn(1024L);
             try {
+                when(file.getInputStream()).thenReturn(new java.io.ByteArrayInputStream(new byte[]{(byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}));
                 when(file.getBytes()).thenReturn(new byte[]{1, 2, 3});
             } catch (Exception ignored) {}
 
@@ -475,13 +476,15 @@ class BookCoverServiceTest {
         }
 
         @Test
-        void rejectsNullContentType() {
+        void rejectsIOExceptionOnRead() throws Exception {
             MultipartFile file = mock(MultipartFile.class);
             when(file.isEmpty()).thenReturn(false);
-            when(file.getContentType()).thenReturn(null);
+            when(file.getSize()).thenReturn(1024L);
+            when(file.getInputStream()).thenThrow(new java.io.IOException("Test error"));
 
             assertThatThrownBy(() -> service.updateCoverFromFileForBooks(Set.of(1L), file))
-                    .isInstanceOf(APIException.class);
+                    .isInstanceOf(APIException.class)
+                    .hasMessageContaining("Failed to read");
         }
     }
 
@@ -710,8 +713,8 @@ class BookCoverServiceTest {
 
             MultipartFile file = mock(MultipartFile.class);
             when(file.isEmpty()).thenReturn(false);
-            when(file.getContentType()).thenReturn("image/png");
             when(file.getSize()).thenReturn(1024L);
+            when(file.getInputStream()).thenReturn(new java.io.ByteArrayInputStream(new byte[]{(byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}));
             when(file.getBytes()).thenReturn(new byte[]{1, 2, 3});
 
             doAnswer(inv -> {

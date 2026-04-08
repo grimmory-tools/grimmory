@@ -30,7 +30,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -59,7 +58,8 @@ public class BookDownloadService {
             if (primaryFile == null) {
                 throw ApiError.FAILED_TO_DOWNLOAD_FILE.createException(bookId);
             }
-            Path file = FileUtils.getBookFullPath(bookEntity).toAbsolutePath().normalize();
+            Path libraryRoot = Path.of(bookEntity.getLibraryPath().getPath());
+            Path file = FileUtils.requirePathWithinBase(primaryFile.getFullFilePath(), libraryRoot);
 
             if (!Files.exists(file)) {
                 throw ApiError.FAILED_TO_DOWNLOAD_FILE.createException(bookId);
@@ -104,7 +104,8 @@ public class BookDownloadService {
                 throw ApiError.FILE_NOT_FOUND.createException(fileId);
             }
 
-            Path file = bookFileEntity.getFullFilePath().toAbsolutePath().normalize();
+            Path libraryRoot = Path.of(bookFileEntity.getBook().getLibraryPath().getPath());
+            Path file = FileUtils.requirePathWithinBase(bookFileEntity.getFullFilePath(), libraryRoot);
 
             if (!Files.exists(file)) {
                 throw ApiError.FAILED_TO_DOWNLOAD_FILE.createException(fileId);
@@ -146,10 +147,12 @@ public class BookDownloadService {
             throw ApiError.FILE_NOT_FOUND.createException(bookId);
         }
 
+        Path libraryRoot = Path.of(bookEntity.getLibraryPath().getPath());
+
         // If only one file and it's not folder-based, download it directly
         if (allFiles.size() == 1) {
             BookFileEntity singleFile = allFiles.get(0);
-            Path filePath = singleFile.getFullFilePath();
+            Path filePath = FileUtils.requirePathWithinBase(singleFile.getFullFilePath(), libraryRoot);
 
             if (!Files.exists(filePath)) {
                 throw ApiError.FAILED_TO_DOWNLOAD_FILE.createException(bookId);
@@ -183,7 +186,7 @@ public class BookDownloadService {
 
         try (ZipOutputStream zos = new ZipOutputStream(response.getOutputStream())) {
             for (BookFileEntity bookFile : allFiles) {
-                Path filePath = bookFile.getFullFilePath();
+                Path filePath = FileUtils.requirePathWithinBase(bookFile.getFullFilePath(), libraryRoot);
 
                 if (!Files.exists(filePath)) {
                     log.warn("Skipping missing file during ZIP creation: {}", filePath);
@@ -258,7 +261,9 @@ public class BookDownloadService {
         int compressionPercentage = koboSettings.getConversionImageCompressionPercentage();
         Path tempDir = null;
         try {
-            File inputFile = FileUtils.getBookFullPath(bookEntity).toFile();
+            Path libraryRoot = Path.of(bookEntity.getLibraryPath().getPath());
+            Path normalizedInputPath = FileUtils.requirePathWithinBase(primaryFile.getFullFilePath(), libraryRoot);
+            File inputFile = normalizedInputPath.toFile();
             File fileToSend = inputFile;
 
             if (convertCbxToEpub || convertEpubToKepub) {

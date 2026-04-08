@@ -7,6 +7,7 @@ import org.booklore.model.entity.TagEntity;
 import org.booklore.service.ArchiveService;
 import org.booklore.util.ArchiveUtils;
 import org.booklore.util.FileService;
+import org.booklore.util.MimeDetector;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -247,14 +248,13 @@ public class CbxConversionService {
     }
 
     private boolean isJpegFile(Path path) {
-        Set<String> jpegExtensions = Set.of(".jpg", ".jpeg");
-        String fileName = path.getFileName().toString().toLowerCase();
-        int lastDot = fileName.lastIndexOf('.');
-        if (lastDot > 0) {
-            String extension = fileName.substring(lastDot);
-            return jpegExtensions.contains(extension);
+        try {
+            String mime = MimeDetector.detect(path);
+            return "image/jpeg".equals(mime);
+        } catch (IOException e) {
+            log.debug("Failed to detect MIME for {}: {}", path, e.getMessage());
+            return false;
         }
-        return false;
     }
 
     private void addMimetypeEntry(ZipArchiveOutputStream zipOut) throws IOException {

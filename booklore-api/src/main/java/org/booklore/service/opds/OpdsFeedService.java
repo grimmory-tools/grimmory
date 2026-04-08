@@ -3,6 +3,7 @@ package org.booklore.service.opds;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.text.StringEscapeUtils;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.ApiError;
 import org.booklore.config.security.userdetails.OpdsUserDetails;
@@ -16,8 +17,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,6 +31,9 @@ public class OpdsFeedService {
 
     private static final int DEFAULT_PAGE_SIZE = 50;
     private static final int MAX_PAGE_SIZE = 100;
+    private static final List<String> PAGINATION_QUERY_WHITELIST = List.of(
+            "q", "libraryId", "shelfId", "shelfIds", "magicShelfId", "author", "series"
+    );
 
     private final AuthenticationService authenticationService;
     private final OpdsBookService opdsBookService;
@@ -358,7 +363,7 @@ public class OpdsFeedService {
                   <link rel="start" href="/api/v1/opds" type="application/atom+xml;profile=opds-catalog;kind=navigation"/>
                   <link rel="search" type="application/opensearchdescription+xml" title="Search" href="/api/v1/opds/search.opds"/>
                 """.formatted(
-                feedId,
+                escapeXml(feedId),
                 escapeXml(feedTitle),
                 now(),
                 booksPage.getTotalElements(),
@@ -472,11 +477,16 @@ public class OpdsFeedService {
         String url = request.getRequestURI();
         StringBuilder result = new StringBuilder(url).append("?");
 
-        String queryString = request.getQueryString();
-        if (queryString != null) {
-            Arrays.stream(queryString.split("&"))
-                    .filter(param -> !param.startsWith("page=") && !param.startsWith("size="))
-                    .forEach(param -> result.append(param).append("&"));
+        for (String key : PAGINATION_QUERY_WHITELIST) {
+            String value = request.getParameter(key);
+            if (value == null || value.isBlank()) {
+                continue;
+            }
+
+            result.append(URLEncoder.encode(key, StandardCharsets.UTF_8))
+                    .append("=")
+                    .append(URLEncoder.encode(value, StandardCharsets.UTF_8))
+                    .append("&");
         }
 
         result.append("page=").append(page).append("&size=").append(size);
@@ -694,12 +704,7 @@ public class OpdsFeedService {
     }
 
     private String escapeXml(String input) {
-        return input == null ? "" :
-                input.replace("&", "&amp;")
-                        .replace("<", "&lt;")
-                        .replace(">", "&gt;")
-                        .replace("\"", "&quot;")
-                        .replace("'", "&apos;");
+        return input == null ? "" : StringEscapeUtils.escapeXml10(input);
     }
 
     private Long parseLongParam(HttpServletRequest request, String name, Long defaultValue) {

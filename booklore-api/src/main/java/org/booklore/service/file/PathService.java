@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -23,7 +24,20 @@ public class PathService {
     );
 
     public List<String> getFoldersAtPath(String path) {
-        Path directory = Paths.get(path).toAbsolutePath().normalize();
+        if (path == null || path.isBlank() || path.indexOf('\0') >= 0) {
+            log.warn("Blocked invalid path input");
+            throw ApiError.GENERIC_BAD_REQUEST.createException("Invalid path");
+        }
+
+        final Path rawPath;
+        try {
+            rawPath = Paths.get(path.trim());
+        } catch (InvalidPathException e) {
+            log.warn("Invalid path syntax: {}", path);
+            throw ApiError.GENERIC_BAD_REQUEST.createException("Invalid path");
+        }
+
+        Path directory = rawPath.toAbsolutePath().normalize();
         String normalized = directory.toString();
 
         if (BLOCKED_PATHS.stream().anyMatch(blocked -> normalized.equals(blocked) || normalized.startsWith(blocked + "/"))) {

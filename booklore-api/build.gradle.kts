@@ -149,6 +149,9 @@ dependencies {
     implementation("org.tukaani:xz:1.12") // Required by commons-compress for 7z support
     implementation("org.apache.commons:commons-text:1.15.0")
 
+    // --- MIME Detection ---
+    implementation("org.apache.tika:tika-core:3.3.0")
+
     // --- XML Support (JAXB) ---
     implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.5")
     runtimeOnly("org.glassfish.jaxb:jaxb-runtime:4.0.7")

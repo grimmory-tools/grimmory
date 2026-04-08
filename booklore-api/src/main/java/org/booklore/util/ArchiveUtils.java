@@ -4,6 +4,7 @@ import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
+import java.nio.file.Path;
 
 @Slf4j
 @UtilityClass
@@ -16,43 +17,30 @@ public class ArchiveUtils {
         UNKNOWN
     }
 
-    private static final byte[] ZIP_MAGIC = {0x50, 0x4B, 0x03, 0x04};
-    // RAR 5.0 signature: 0x52 0x61 0x72 0x21 0x1A 0x07 0x01 0x00
-    private static final byte[] RAR_MAGIC_V5 = {0x52, 0x61, 0x72, 0x21, 0x1A, 0x07, 0x01, 0x00};
-    // RAR 4.x signature: 0x52 0x61 0x72 0x21 0x1A 0x07 0x00
-    private static final byte[] RAR_MAGIC_V4 = {0x52, 0x61, 0x72, 0x21, 0x1A, 0x07, 0x00};
-    // Generic RAR signature (first 4 bytes): 0x52 0x61 0x72 0x21
-    private static final byte[] SEVEN_ZIP_MAGIC = {0x37, 0x7A, (byte) 0xBC, (byte) 0xAF, 0x27, 0x1C};
-
+    /**
+     * Detects the archive type of a file using content-based MIME detection via Apache Tika.
+     * Falls back to extension-based detection only when Tika cannot determine the type.
+     */
     public static ArchiveType detectArchiveType(File file) {
         if (file == null || !file.exists() || !file.isFile()) {
             return ArchiveType.UNKNOWN;
         }
 
-        try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
-            byte[] buffer = new byte[8];
-            int bytesRead = is.read(buffer);
-            if (bytesRead < 4) {
-                return detectArchiveTypeByExtension(file.getName());
-            }
-
-            if (startsWith(buffer, ZIP_MAGIC)) {
-                return ArchiveType.ZIP;
-            }
-            if (startsWith(buffer, RAR_MAGIC_V5)) {
-                return ArchiveType.RAR;
-            }
-            if (startsWith(buffer, RAR_MAGIC_V4)) {
-                return ArchiveType.RAR;
-            }
-            if (startsWith(buffer, SEVEN_ZIP_MAGIC)) {
-                return ArchiveType.SEVEN_ZIP;
+        try {
+            String mime = MimeDetector.detect(file.toPath());
+            ArchiveType fromContent = mapMimeToArchiveType(mime);
+            if (fromContent != ArchiveType.UNKNOWN) {
+                return fromContent;
             }
         } catch (IOException e) {
             log.warn("Failed to detect archive type by content for file: {}", file.getAbsolutePath());
         }
 
         return detectArchiveTypeByExtension(file.getName());
+    }
+
+    public static ArchiveType detectArchiveType(Path path) {
+        return detectArchiveType(path.toFile());
     }
 
     public static ArchiveType detectArchiveTypeByExtension(String fileName) {
@@ -72,15 +60,15 @@ public class ArchiveUtils {
         return ArchiveType.UNKNOWN;
     }
 
-    private static boolean startsWith(byte[] buffer, byte[] magic) {
-        if (buffer.length < magic.length) {
-            return false;
-        }
-        for (int i = 0; i < magic.length; i++) {
-            if (buffer[i] != magic[i]) {
-                return false;
-            }
-        }
-        return true;
+    private static ArchiveType mapMimeToArchiveType(String mime) {
+        if (mime == null) return ArchiveType.UNKNOWN;
+        // Tika MIME types:
+        //   ZIP:  application/zip
+        //   RAR:  application/x-rar-compressed  or  application/vnd.rar
+        //   7z:   application/x-7z-compressed
+        if (mime.contains("zip")) return ArchiveType.ZIP;
+        if (mime.contains("rar")) return ArchiveType.RAR;
+        if (mime.contains("7z")) return ArchiveType.SEVEN_ZIP;
+        return ArchiveType.UNKNOWN;
     }
 }

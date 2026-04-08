@@ -2,6 +2,7 @@ package org.booklore.service.migration.migrations;
 
 import org.booklore.service.migration.Migration;
 import org.booklore.util.FileService;
+import org.booklore.util.FileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -41,6 +42,7 @@ public class MoveIconsToDataFolderMigration implements Migration {
             String targetFolder = fileService.getIconsSvgFolder();
             Path targetDir = Paths.get(targetFolder);
             Files.createDirectories(targetDir);
+            Path normalizedTargetDir = FileUtils.normalizeAbsolutePath(targetDir);
 
             PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
             Resource[] resources = resolver.getResources("classpath:static/images/icons/svg/*.svg");
@@ -50,7 +52,18 @@ public class MoveIconsToDataFolderMigration implements Migration {
                 String filename = resource.getFilename();
                 if (filename == null) continue;
 
-                Path targetFile = targetDir.resolve(filename);
+                if (filename.contains("/") || filename.contains("\\") || filename.contains("..")) {
+                    log.warn("Skipping suspicious icon filename during migration: {}", filename);
+                    continue;
+                }
+
+                Path targetFile;
+                try {
+                    targetFile = FileUtils.resolvePathWithinBase(normalizedTargetDir, filename);
+                } catch (IllegalArgumentException ex) {
+                    log.warn("Skipping icon outside target directory: {}", filename);
+                    continue;
+                }
 
                 try (var inputStream = resource.getInputStream()) {
                     Files.copy(inputStream, targetFile, StandardCopyOption.REPLACE_EXISTING);

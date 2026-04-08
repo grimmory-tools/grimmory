@@ -1,6 +1,7 @@
 package org.booklore.service.reader;
 
 import lombok.extern.slf4j.Slf4j;
+import org.booklore.util.MimeDetector;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -49,18 +50,10 @@ public class AudioFileUtilityService {
     }
 
     /**
-     * Get the MIME content type for an audio file.
+     * Get the MIME content type for an audio file using content-based detection via Apache Tika.
      */
     public String getContentType(Path audioPath) {
-        String fileName = audioPath.getFileName().toString().toLowerCase();
-        if (fileName.endsWith(".m4b") || fileName.endsWith(".m4a")) {
-            return "audio/mp4";
-        } else if (fileName.endsWith(".mp3")) {
-            return "audio/mpeg";
-        } else if (fileName.endsWith(".opus")) {
-            return "audio/opus";
-        }
-        return "application/octet-stream";
+        return MimeDetector.detectSafe(audioPath);
     }
 
     /**

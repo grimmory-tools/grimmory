@@ -24,6 +24,116 @@ public class FileUtils {
 
     private final String FILE_NOT_FOUND_MESSAGE = "File does not exist: ";
 
+    /**
+     * Normalize a path to its absolute form with all {@code .} and {@code ..} segments resolved.
+     * Delegates to {@link Path#toAbsolutePath()} and {@link Path#normalize()}.
+     */
+    public Path normalizeAbsolutePath(Path path) {
+        if (path == null) {
+            throw new IllegalArgumentException("Path cannot be null");
+        }
+        return path.toAbsolutePath().normalize();
+    }
+
+    /**
+     * Require that {@code candidatePath} resolves within {@code basePath}.
+     * <p>
+     * Uses the standard JDK approach: {@link Path#normalize()} + {@link Path#startsWith(Path)}
+     * for logical containment, then {@link Path#toRealPath()} to resolve symlinks on existing
+     * paths. Rejects null-byte injection via {@link Path#of} (JDK throws InvalidPathException).
+     *
+     * @throws IllegalArgumentException if the candidate escapes the base
+     */
+    public Path requirePathWithinBase(Path candidatePath, Path basePath) {
+        if (basePath == null || candidatePath == null) {
+            throw new IllegalArgumentException("Base path and candidate path cannot be null");
+        }
+
+        Path normalizedBase = basePath.toAbsolutePath().normalize();
+        Path normalizedCandidate = candidatePath.toAbsolutePath().normalize();
+
+        if (!normalizedCandidate.startsWith(normalizedBase)) {
+            throw new IllegalArgumentException("Resolved path escapes configured base path");
+        }
+
+        verifyRealPathWithinBase(normalizedCandidate, normalizedBase);
+        return normalizedCandidate;
+    }
+
+    /**
+     * Resolve a user-supplied relative path against a trusted base and verify containment.
+     * <p>
+     * Uses {@link Path#resolve(Path)} + {@link Path#normalize()} + {@link Path#startsWith(Path)},
+     * the standard JDK pattern for safe path resolution. Any {@code ..} segments that escape the
+     * base are caught by the {@code startsWith} check after normalization.
+     *
+     * @throws IllegalArgumentException if the relative path is absolute, blank, or escapes the base
+     */
+    public Path resolvePathWithinBase(Path basePath, String relativePath) {
+        if (relativePath == null || relativePath.isBlank()) {
+            throw new IllegalArgumentException("Relative path cannot be blank");
+        }
+
+        Path normalizedBase = basePath.toAbsolutePath().normalize();
+        Path rawRelative = Path.of(relativePath);
+
+        if (rawRelative.isAbsolute()) {
+            throw new IllegalArgumentException("Relative path must not be absolute");
+        }
+
+        Path resolved = normalizedBase.resolve(rawRelative).normalize();
+
+        if (!resolved.startsWith(normalizedBase)) {
+            throw new IllegalArgumentException("Resolved path escapes configured base path");
+        }
+
+        verifyRealPathWithinBase(resolved, normalizedBase);
+        return resolved;
+    }
+
+    /**
+     * After the logical {@code startsWith} check passes, resolve symlinks on the nearest existing
+     * ancestor via {@link Path#toRealPath()} and verify it still falls within the base.
+     * This prevents symlink-based escapes where a link inside the base points outside it.
+     */
+    private void verifyRealPathWithinBase(Path normalizedCandidate, Path normalizedBase) {
+        try {
+            if (!Files.exists(normalizedBase)) {
+                return;
+            }
+            Path realBase = normalizedBase.toRealPath();
+
+            // Explicit symlink target check, catches broken symlinks that toRealPath cannot follow
+            if (Files.isSymbolicLink(normalizedCandidate)) {
+                Path linkTarget = Files.readSymbolicLink(normalizedCandidate);
+                Path resolvedTarget = linkTarget.isAbsolute()
+                        ? linkTarget.normalize()
+                        : normalizedCandidate.getParent().resolve(linkTarget).normalize();
+                if (!resolvedTarget.startsWith(realBase)) {
+                    throw new IllegalArgumentException("Symlink target escapes configured base path");
+                }
+            }
+
+            // Walk up to the first existing ancestor and verify its real path
+            Path anchor = normalizedCandidate;
+            while (anchor != null && !Files.exists(anchor)) {
+                anchor = anchor.getParent();
+            }
+            if (anchor == null) {
+                return;
+            }
+
+            Path realAnchor = anchor.toRealPath();
+            if (!realAnchor.startsWith(realBase)) {
+                throw new IllegalArgumentException("Resolved real path escapes configured base path");
+            }
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Failed to resolve filesystem path for validation", e);
+        }
+    }
+
     public Path getBookFullPath(BookEntity bookEntity) {
         BookFileEntity bookFile = bookEntity.getPrimaryBookFile();
         return getBookFullPath(bookEntity, bookFile);
