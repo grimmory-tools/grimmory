@@ -52,6 +52,8 @@ class LibraryProcessingServiceTest {
     @Mock
     private BookGroupingService bookGroupingService;
     @Mock
+    private BookCoverGenerator bookCoverGenerator;
+    @Mock
     private EntityManager entityManager;
 
     private LibraryProcessingService libraryProcessingService;
@@ -68,6 +70,7 @@ class LibraryProcessingServiceTest {
                 bookDeletionService,
                 libraryFileHelper,
                 bookGroupingService,
+                bookCoverGenerator,
                 entityManager
         );
     }
