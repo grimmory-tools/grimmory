@@ -126,7 +126,7 @@ public class ReadingProgressService {
             book.setEpubProgress(EpubProgress.builder()
                     .cfi(progress.getEpubProgress())
                     .href(progress.getEpubProgressHref())
-                    .percentage(roundToOneDecimal(progress.getEpubProgressPercent()))
+                    .percentage(roundToTwoDecimals(progress.getEpubProgressPercent()))
                     .build());
         }
 
@@ -153,7 +153,7 @@ public class ReadingProgressService {
             case EPUB, FB2, MOBI, AZW3 -> book.setEpubProgress(EpubProgress.builder()
                     .cfi(fileProgress.getPositionData())
                     .href(fileProgress.getPositionHref())
-                    .percentage(roundToOneDecimal(fileProgress.getProgressPercent()))
+                    .percentage(roundToTwoDecimals(fileProgress.getProgressPercent()))
                     .ttsPositionCfi(fileProgress.getTtsPositionCfi())
                     .build());
             case PDF -> book.setPdfProgress(PdfProgress.builder()
@@ -192,6 +192,10 @@ public class ReadingProgressService {
 
     private Float roundToOneDecimal(Float value) {
         return value != null ? Math.round(value * 10f) / 10f : null;
+    }
+
+    private Float roundToTwoDecimals(Float value) {
+        return value != null ? Math.round(value * 100f) / 100f : null;
     }
 
     // ==================== Methods from BookUpdateService ====================
@@ -383,8 +387,8 @@ public class ReadingProgressService {
         progress.setEpubProgress(epubProgress.getCfi());
         progress.setEpubProgressHref(epubProgress.getHref());
 
-        float percentage = epubProgress.getPercentage();
-        return Math.round(percentage * 10f) / 10f;
+        if (epubProgress.getPercentage() == null) return null;
+        return roundToTwoDecimals(epubProgress.getPercentage());
     }
 
     private Float updatePdfProgress(UserBookProgressEntity progress, PdfProgress pdfProgress) {

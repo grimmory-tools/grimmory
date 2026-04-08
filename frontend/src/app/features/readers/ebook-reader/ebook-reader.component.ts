@@ -277,11 +277,17 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
           switchMap(() => {
             if (!this.hasLoadedOnce) {
               this.hasLoadedOnce = true;
-              // Navigate to saved position if progress exists, otherwise go to first page
-              if (book.epubProgress?.cfi) {
-                return this.viewManager.goTo(book.epubProgress.cfi);
-              } else if (book.epubProgress?.percentage && book.epubProgress.percentage > 0) {
-                return this.viewManager.goToFraction(book.epubProgress.percentage / 100);
+              const progress = book.epubProgress;
+              const cfi = progress?.cfi;
+              const href = progress?.href;
+              const percentage = progress?.percentage;
+
+              if (cfi && cfi.startsWith('epubcfi(')) {
+                return this.viewManager.goTo(cfi);
+              } else if (href) {
+                return this.viewManager.goTo(href);
+              } else if (percentage && percentage > 0) {
+                return this.viewManager.goToFraction(percentage / 100);
               } else {
                 return this.viewManager.goTo(0);
               }

@@ -83,7 +83,7 @@ export class BookPatchService {
         tap(() => {
           patchBookFieldsInCache(this.queryClient, [{
             bookId: payload.bookId,
-            fields: {epubProgress: {cfi: payload.cfi, percentage: payload.percentage}}
+            fields: {epubProgress: {cfi: payload.cfi, href: payload.href, percentage: payload.percentage}}
           }]);
         })
       );
