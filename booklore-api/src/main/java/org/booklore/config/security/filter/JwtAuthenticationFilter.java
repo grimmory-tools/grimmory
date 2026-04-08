@@ -12,6 +12,7 @@ import org.booklore.mapper.custom.BookLoreUserTransformer;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.repository.UserRepository;
+import org.springframework.boot.web.servlet.FilterRegistration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -24,30 +25,21 @@ import java.util.List;
 @Slf4j
 @Component
 @AllArgsConstructor
+@FilterRegistration(enabled = false)
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final BookLoreUserTransformer bookLoreUserTransformer;
     private final JwtUtils jwtUtils;
     private final UserRepository userRepository;
 
-    private static final List<String> WHITELISTED_PATHS = List.of(
-            "/api/v1/opds/",
-            "/api/v2/opds/",
-            "/api/v1/auth/refresh",
-            "/api/v1/setup/",
-            "/api/kobo/"
-    );
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String token = extractToken(request);
-        String path = request.getRequestURI();
-
-        boolean isWhitelisted = WHITELISTED_PATHS.stream().anyMatch(path::startsWith);
-        if (isWhitelisted) {
+        if (SecurityContextHolder.getContext().getAuthentication() != null &&
+                SecurityContextHolder.getContext().getAuthentication().isAuthenticated()) {
             chain.doFilter(request, response);
             return;
         }
+        String token = extractToken(request);
 
         if (token == null) {
             chain.doFilter(request, response);
@@ -59,13 +51,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 authenticateUser(token, request);
             } else {
                 log.debug("Invalid token. Rejecting request.");
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                return;
             }
         } catch (Exception ex) {
             log.error("Authentication error: {}", ex.getMessage(), ex);
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
         }
         chain.doFilter(request, response);
     }

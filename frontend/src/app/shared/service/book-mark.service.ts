@@ -10,6 +10,7 @@ export interface BookMark {
   cfi?: string;          // For EPUB bookmarks
   positionMs?: number;   // For audiobook bookmarks
   trackIndex?: number;   // For folder-based audiobooks
+  pageNumber?: number;   // For PDF bookmarks
   title: string;
   color?: string;
   notes?: string;
@@ -23,12 +24,14 @@ export interface CreateBookMarkRequest {
   cfi?: string;          // For EPUB bookmarks
   positionMs?: number;   // For audiobook bookmarks
   trackIndex?: number;   // For folder-based audiobooks
+  pageNumber?: number;   // For PDF bookmarks
   title?: string;
 }
 
 export interface UpdateBookMarkRequest {
   title?: string;
   cfi?: string;
+  pageNumber?: number;
   color?: string;
   notes?: string;
   priority?: number;

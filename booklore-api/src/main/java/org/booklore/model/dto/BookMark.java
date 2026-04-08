@@ -18,6 +18,7 @@ public class BookMark {
     private String cfi;           // For EPUB bookmarks
     private Long positionMs;      // For audiobook bookmarks
     private Integer trackIndex;   // For folder-based audiobooks
+    private Integer pageNumber;    // For PDF bookmarks
     private String title;
     private String color;
     private String notes;

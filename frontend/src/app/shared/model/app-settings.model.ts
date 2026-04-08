@@ -151,6 +151,7 @@ export interface KoboSettings {
   convertCbxToEpub: boolean;
   conversionLimitInMbForCbx: number;
   forceEnableHyphenation: boolean;
+  forwardToKoboStore: boolean;
 }
 
 export interface CoverCroppingSettings {

@@ -12,12 +12,18 @@ interface TestView extends HTMLDivElement {
 interface RangeLike {
   toString: () => string;
   getBoundingClientRect: () => DOMRect;
+  commonAncestorContainer: Node;
+  startContainer: Node;
+  endContainer: Node;
+  intersectsNode: (node: Node) => boolean;
 }
 
 interface TestSelection {
   isCollapsed: boolean;
   rangeCount: number;
   getRangeAt: (index: number) => RangeLike;
+  anchorNode: Node | null;
+  focusNode: Node | null;
 }
 
 interface PrivateReaderEventService {
@@ -138,7 +144,13 @@ describe('ReaderEventService', () => {
       getRangeAt: () => ({
         toString: () => '',
         getBoundingClientRect: () => new DOMRect(0, 0, 0, 0),
+        commonAncestorContainer: doc.body,
+        startContainer: doc.body,
+        endContainer: doc.body,
+        intersectsNode: () => false,
       }),
+      anchorNode: null,
+      focusNode: null,
     };
     defaultView = {
       frameElement: iframe,
@@ -296,11 +308,17 @@ describe('ReaderEventService', () => {
     const selectedRange: RangeLike = {
       toString: () => 'Highlighted text',
       getBoundingClientRect: () => new DOMRect(20, 15, 80, 20),
+      commonAncestorContainer: doc.body,
+      startContainer: doc.body,
+      endContainer: doc.body,
+      intersectsNode: () => false,
     };
     installSelection(doc, {
       isCollapsed: false,
       rangeCount: 1,
       getRangeAt: () => selectedRange,
+      anchorNode: doc.body,
+      focusNode: doc.body,
     });
     getContents.mockReturnValue([{index: 7, doc}]);
     getCFI.mockReturnValue('epubcfi(/6/2!/4/2:0)');
@@ -324,11 +342,17 @@ describe('ReaderEventService', () => {
     const emptyRange: RangeLike = {
       toString: () => '   ',
       getBoundingClientRect: () => new DOMRect(0, 0, 0, 0),
+      commonAncestorContainer: doc.body,
+      startContainer: doc.body,
+      endContainer: doc.body,
+      intersectsNode: () => false,
     };
     installSelection(doc, {
       isCollapsed: false,
       rangeCount: 1,
       getRangeAt: () => emptyRange,
+      anchorNode: doc.body,
+      focusNode: doc.body,
     });
 
     privateService.handleSelectionChange(doc);
@@ -338,11 +362,17 @@ describe('ReaderEventService', () => {
     const visibleRange: RangeLike = {
       toString: () => 'Visible note',
       getBoundingClientRect: () => new DOMRect(10, 10, 60, 25),
+      commonAncestorContainer: doc.body,
+      startContainer: doc.body,
+      endContainer: doc.body,
+      intersectsNode: () => false,
     };
     installSelection(doc, {
       isCollapsed: false,
       rangeCount: 1,
       getRangeAt: () => visibleRange,
+      anchorNode: doc.body,
+      focusNode: doc.body,
     });
     getContents.mockReturnValue([{index: 3, doc}]);
     getCFI.mockReturnValueOnce(null).mockReturnValueOnce('epubcfi(/6/8!/4/2:0)');

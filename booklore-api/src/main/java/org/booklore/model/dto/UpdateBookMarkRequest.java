@@ -30,4 +30,7 @@ public class UpdateBookMarkRequest {
     @Min(value = 1, message = "Priority must be at least 1")
     @Max(value = 5, message = "Priority must not exceed 5")
     private Integer priority;
+
+    @Min(value = 1, message = "Page number must be at least 1")
+    private Integer pageNumber;
 }

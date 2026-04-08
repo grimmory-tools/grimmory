@@ -10,6 +10,13 @@
       <app-reader-icon name="copy" [size]="16"></app-reader-icon>
     </button>
 
+    @if (linkUrl) {
+      <div class="divider"></div>
+      <button class="action-btn" (click)="onGoToLink()" [title]="t('goToLink')">
+        <app-reader-icon name="link" [size]="16"></app-reader-icon>
+      </button>
+    }
+
     <div class="divider"></div>
 
     <button class="action-btn" (click)="onSearch()" [title]="t('searchInBook')">

@@ -14,11 +14,9 @@ describe('BookRuleEvaluatorService', () => {
 
   const createBook = (overrides: Partial<Book> = {}): Book => ({
     id: 1,
-    bookType: 'EPUB',
+    primaryFile: {id: 1, bookId: 1, bookType: 'EPUB', fileName: 'test.epub', filePath: '/path/to/test.epub', fileSizeKb: 1024},
     libraryId: 1,
     libraryName: 'Test Library',
-    fileName: 'test.epub',
-    filePath: '/path/to/test.epub',
     readStatus: ReadStatus.UNREAD,
     shelves: [],
     metadata: {
@@ -33,7 +31,7 @@ describe('BookRuleEvaluatorService', () => {
 
   describe('fileType filtering', () => {
     it('should filter EPUB books correctly when rule uses "epub"', () => {
-      const book = createBook({bookType: 'EPUB'});
+      const book = createBook({primaryFile: {id: 1, bookId: 1, bookType: 'EPUB'}});
       const group: GroupRule = {
         name: 'test',
         type: 'group',
@@ -52,7 +50,7 @@ describe('BookRuleEvaluatorService', () => {
     });
 
     it('should filter PDF books correctly when rule uses "pdf"', () => {
-      const book = createBook({bookType: 'PDF'});
+      const book = createBook({primaryFile: {id: 1, bookId: 1, bookType: 'PDF'}});
       const group: GroupRule = {
         name: 'test',
         type: 'group',
@@ -71,7 +69,7 @@ describe('BookRuleEvaluatorService', () => {
     });
 
     it('should handle CBX books correctly for cbr, cbz, and cb7 rules', () => {
-      const book = createBook({bookType: 'CBX'});
+      const book = createBook({primaryFile: {id: 1, bookId: 1, bookType: 'CBX'}});
 
       const cbrGroup: GroupRule = {
         name: 'test',
@@ -117,7 +115,7 @@ describe('BookRuleEvaluatorService', () => {
     });
 
     it('should handle not_equals operator correctly', () => {
-      const epubBook = createBook({bookType: 'EPUB'});
+      const epubBook = createBook({primaryFile: {id: 1, bookId: 1, bookType: 'EPUB'}});
       const group: GroupRule = {
         name: 'test',
         type: 'group',
@@ -134,14 +132,14 @@ describe('BookRuleEvaluatorService', () => {
       const result = service.evaluateGroup(epubBook, group);
       expect(result).toBe(true);
 
-      const pdfBook = createBook({bookType: 'PDF'});
+      const pdfBook = createBook({primaryFile: {id: 1, bookId: 1, bookType: 'PDF'}});
       const result2 = service.evaluateGroup(pdfBook, group);
       expect(result2).toBe(false);
     });
 
     it('should filter EPUB books correctly when rule uses "not_equals" with "epub"', () => {
-      const epubBook = createBook({bookType: 'EPUB'});
-      const pdfBook = createBook({bookType: 'PDF'});
+      const epubBook = createBook({primaryFile: {id: 1, bookId: 1, bookType: 'EPUB'}});
+      const pdfBook = createBook({primaryFile: {id: 1, bookId: 1, bookType: 'PDF'}});
 
       const group: GroupRule = {
         name: 'test',
@@ -165,7 +163,7 @@ describe('BookRuleEvaluatorService', () => {
   describe('evaluateGroup', () => {
     it('should evaluate group rules with AND logic', () => {
       const book = createBook({
-        bookType: 'EPUB'
+        primaryFile: {id: 1, bookId: 1, bookType: 'EPUB'}
       });
 
       const group: GroupRule = {
@@ -183,7 +181,7 @@ describe('BookRuleEvaluatorService', () => {
     });
 
     it('should evaluate group rules with OR logic', () => {
-      const book = createBook({bookType: 'PDF'});
+      const book = createBook({primaryFile: {id: 1, bookId: 1, bookType: 'PDF'}});
 
       const group: GroupRule = {
         name: 'test',
@@ -1177,7 +1175,7 @@ describe('BookRuleEvaluatorService', () => {
     });
 
     it('should handle includes_any with fileType mapping', () => {
-      const book = createBook({bookType: 'CBX'});
+      const book = createBook({primaryFile: {id: 1, bookId: 1, bookType: 'CBX'}});
       expect(service.evaluateGroup(book, rule('fileType', 'includes_any', ['cbr', 'pdf']))).toBe(true);
     });
 
@@ -1189,17 +1187,17 @@ describe('BookRuleEvaluatorService', () => {
 
   describe('fileType mapping edge cases', () => {
     it('should map azw to azw3', () => {
-      const book = createBook({bookType: 'AZW3'});
+      const book = createBook({primaryFile: {id: 1, bookId: 1, bookType: 'AZW3'}});
       expect(service.evaluateGroup(book, rule('fileType', 'equals', 'azw'))).toBe(true);
     });
 
     it('should handle MOBI bookType', () => {
-      const book = createBook({bookType: 'MOBI'});
+      const book = createBook({primaryFile: {id: 1, bookId: 1, bookType: 'MOBI'}});
       expect(service.evaluateGroup(book, rule('fileType', 'equals', 'mobi'))).toBe(true);
     });
 
     it('should handle not_equals with fileType cbr mapping', () => {
-      const book = createBook({bookType: 'PDF'});
+      const book = createBook({primaryFile: {id: 1, bookId: 1, bookType: 'PDF'}});
       expect(service.evaluateGroup(book, rule('fileType', 'not_equals', 'cbr'))).toBe(true);
     });
   });
