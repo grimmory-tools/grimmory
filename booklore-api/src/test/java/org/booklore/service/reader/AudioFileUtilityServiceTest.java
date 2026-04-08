@@ -13,6 +13,9 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mockStatic;
+import org.mockito.MockedStatic;
+import org.booklore.util.MimeDetector;
 
 class AudioFileUtilityServiceTest {
 
@@ -161,7 +164,10 @@ class AudioFileUtilityServiceTest {
     })
     void getContentType_returnsCorrectMimeType(String filename, String expectedMimeType) {
         Path file = tempDir.resolve(filename);
-        assertEquals(expectedMimeType, audioFileUtility.getContentType(file));
+        try (MockedStatic<MimeDetector> mockedMime = mockStatic(MimeDetector.class)) {
+            mockedMime.when(() -> MimeDetector.detectSafe(file)).thenReturn(expectedMimeType);
+            assertEquals(expectedMimeType, audioFileUtility.getContentType(file));
+        }
     }
 
     @ParameterizedTest
@@ -171,19 +177,28 @@ class AudioFileUtilityServiceTest {
     })
     void getContentType_isCaseInsensitive(String filename, String expectedMimeType) {
         Path file = tempDir.resolve(filename);
-        assertEquals(expectedMimeType, audioFileUtility.getContentType(file));
+        try (MockedStatic<MimeDetector> mockedMime = mockStatic(MimeDetector.class)) {
+            mockedMime.when(() -> MimeDetector.detectSafe(file)).thenReturn(expectedMimeType);
+            assertEquals(expectedMimeType, audioFileUtility.getContentType(file));
+        }
     }
 
     @Test
     void getContentType_returnsOctetStreamForUnknownExtension() {
         Path file = tempDir.resolve("unknown.xyz");
-        assertEquals("application/octet-stream", audioFileUtility.getContentType(file));
+        try (MockedStatic<MimeDetector> mockedMime = mockStatic(MimeDetector.class)) {
+            mockedMime.when(() -> MimeDetector.detectSafe(file)).thenReturn("application/octet-stream");
+            assertEquals("application/octet-stream", audioFileUtility.getContentType(file));
+        }
     }
 
     @Test
     void getContentType_returnsOctetStreamForNoExtension() {
         Path file = tempDir.resolve("noextension");
-        assertEquals("application/octet-stream", audioFileUtility.getContentType(file));
+        try (MockedStatic<MimeDetector> mockedMime = mockStatic(MimeDetector.class)) {
+            mockedMime.when(() -> MimeDetector.detectSafe(file)).thenReturn("application/octet-stream");
+            assertEquals("application/octet-stream", audioFileUtility.getContentType(file));
+        }
     }
 
     // ==================== getTrackTitleFromFilename tests ====================

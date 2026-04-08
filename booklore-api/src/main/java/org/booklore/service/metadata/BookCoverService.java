@@ -22,12 +22,14 @@ import org.booklore.service.metadata.writer.MetadataWriter;
 import org.booklore.service.metadata.writer.MetadataWriterFactory;
 import org.booklore.util.BookCoverUtils;
 import org.booklore.util.FileService;
+import org.booklore.util.MimeDetector;
 import org.booklore.config.AppProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -492,13 +494,18 @@ public class BookCoverService {
         if (file.isEmpty()) {
             throw ApiError.INVALID_INPUT.createException("Uploaded file is empty");
         }
-        String contentType = file.getContentType();
-        if (contentType == null || (!contentType.toLowerCase().startsWith("image/jpeg") && !contentType.toLowerCase().startsWith("image/png"))) {
-            throw ApiError.INVALID_INPUT.createException("Only JPEG and PNG files are allowed");
-        }
         long maxFileSize = 5L * 1024 * 1024;
         if (file.getSize() > maxFileSize) {
             throw ApiError.FILE_TOO_LARGE.createException(5);
+        }
+        // Detect MIME from content byte never trust the client-supplied Content-Type header
+        try (var inputStream = file.getInputStream()) {
+            String detectedMime = MimeDetector.detect(inputStream);
+            if (!"image/jpeg".equals(detectedMime) && !"image/png".equals(detectedMime)) {
+                throw ApiError.INVALID_INPUT.createException("Only JPEG and PNG files are allowed (detected: " + detectedMime + ")");
+            }
+        } catch (IOException e) {
+            throw ApiError.INVALID_INPUT.createException("Failed to read uploaded file for MIME detection");
         }
     }
 
