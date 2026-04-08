@@ -43,7 +43,11 @@ class MetadataMatchServiceTest {
 
     @BeforeEach
     void setUp() {
-        defaultWeights = MetadataMatchWeights.builder().build();
+        defaultWeights = MetadataMatchWeights.builder()
+                .lubimyczytacRating(0)
+                .audibleRating(0)
+                .audibleReviewCount(0)
+                .build();
     }
 
     private void stubWeights(MetadataMatchWeights weights) {
@@ -93,7 +97,7 @@ class MetadataMatchServiceTest {
                     .isbn13(0).isbn10(0).language(0).pageCount(0).categories(0)
                     .amazonRating(0).amazonReviewCount(0).goodreadsRating(0)
                     .goodreadsReviewCount(0).hardcoverRating(0).hardcoverReviewCount(0)
-                    .doubanRating(0).doubanReviewCount(0).ranobedbRating(0)
+                    .doubanRating(0).doubanReviewCount(0).ranobedbRating(0).lubimyczytacRating(0)
                     .audibleRating(0).audibleReviewCount(0).coverImage(0)
                     .build();
             stubWeights(zeroWeights);
@@ -121,7 +125,7 @@ class MetadataMatchServiceTest {
                     .isbn13(0).isbn10(0).language(0).pageCount(0).categories(0)
                     .amazonRating(0).amazonReviewCount(0).goodreadsRating(0)
                     .goodreadsReviewCount(0).hardcoverRating(0).hardcoverReviewCount(0)
-                    .doubanRating(0).doubanReviewCount(0).ranobedbRating(0)
+                    .doubanRating(0).doubanReviewCount(0).ranobedbRating(0).lubimyczytacRating(0)
                     .audibleRating(0).audibleReviewCount(0).coverImage(0)
                     .build();
             stubWeights(weights);
@@ -138,7 +142,7 @@ class MetadataMatchServiceTest {
                     .isbn13(0).isbn10(0).language(0).pageCount(0).categories(0)
                     .amazonRating(0).amazonReviewCount(0).goodreadsRating(0)
                     .goodreadsReviewCount(0).hardcoverRating(0).hardcoverReviewCount(0)
-                    .doubanRating(0).doubanReviewCount(0).ranobedbRating(0)
+                    .doubanRating(0).doubanReviewCount(0).ranobedbRating(0).lubimyczytacRating(0)
                     .audibleRating(0).audibleReviewCount(0).coverImage(0)
                     .build();
             stubWeights(weights);
@@ -206,7 +210,7 @@ class MetadataMatchServiceTest {
                     .isbn13(0).isbn10(0).language(0).pageCount(0).categories(0)
                     .amazonRating(0).amazonReviewCount(0).goodreadsRating(0)
                     .goodreadsReviewCount(0).hardcoverRating(0).hardcoverReviewCount(0)
-                    .doubanRating(0).doubanReviewCount(0).ranobedbRating(0)
+                    .doubanRating(0).doubanReviewCount(0).ranobedbRating(0).lubimyczytacRating(0)
                     .audibleRating(0).audibleReviewCount(0).coverImage(0)
                     .build();
             stubWeights(weights);
@@ -223,7 +227,7 @@ class MetadataMatchServiceTest {
                     .isbn13(0).isbn10(0).language(0).pageCount(10).categories(0)
                     .amazonRating(0).amazonReviewCount(0).goodreadsRating(0)
                     .goodreadsReviewCount(0).hardcoverRating(0).hardcoverReviewCount(0)
-                    .doubanRating(0).doubanReviewCount(0).ranobedbRating(0)
+                    .doubanRating(0).doubanReviewCount(0).ranobedbRating(0).lubimyczytacRating(0)
                     .audibleRating(0).audibleReviewCount(0).coverImage(0)
                     .build();
             stubWeights(weights);
@@ -240,7 +244,7 @@ class MetadataMatchServiceTest {
                     .isbn13(0).isbn10(0).language(0).pageCount(0).categories(0)
                     .amazonRating(10).amazonReviewCount(0).goodreadsRating(0)
                     .goodreadsReviewCount(0).hardcoverRating(0).hardcoverReviewCount(0)
-                    .doubanRating(0).doubanReviewCount(0).ranobedbRating(0)
+                    .doubanRating(0).doubanReviewCount(0).ranobedbRating(0).lubimyczytacRating(0)
                     .audibleRating(0).audibleReviewCount(0).coverImage(0)
                     .build();
             stubWeights(weights);
@@ -257,7 +261,7 @@ class MetadataMatchServiceTest {
                     .isbn13(0).isbn10(0).language(0).pageCount(0).categories(0)
                     .amazonRating(0).amazonReviewCount(0).goodreadsRating(0)
                     .goodreadsReviewCount(0).hardcoverRating(0).hardcoverReviewCount(0)
-                    .doubanRating(0).doubanReviewCount(0).ranobedbRating(0)
+                    .doubanRating(0).doubanReviewCount(0).ranobedbRating(0).lubimyczytacRating(0)
                     .audibleRating(0).audibleReviewCount(0).coverImage(0)
                     .build();
             stubWeights(weights);
@@ -278,7 +282,7 @@ class MetadataMatchServiceTest {
                     .isbn13(0).isbn10(0).language(0).pageCount(0).categories(0)
                     .amazonRating(0).amazonReviewCount(0).goodreadsRating(0)
                     .goodreadsReviewCount(0).hardcoverRating(0).hardcoverReviewCount(0)
-                    .doubanRating(0).doubanReviewCount(0).ranobedbRating(0)
+                    .doubanRating(0).doubanReviewCount(0).ranobedbRating(0).lubimyczytacRating(0)
                     .audibleRating(0).audibleReviewCount(0).coverImage(0)
                     .build();
             stubWeights(weights);
@@ -299,7 +303,7 @@ class MetadataMatchServiceTest {
                     .isbn13(0).isbn10(0).language(0).pageCount(0).categories(0)
                     .amazonRating(0).amazonReviewCount(0).goodreadsRating(0)
                     .goodreadsReviewCount(0).hardcoverRating(0).hardcoverReviewCount(0)
-                    .doubanRating(0).doubanReviewCount(0).ranobedbRating(0)
+                    .doubanRating(0).doubanReviewCount(0).ranobedbRating(0).lubimyczytacRating(0)
                     .audibleRating(0).audibleReviewCount(0).coverImage(0)
                     .build();
             stubWeights(weights);
@@ -320,8 +324,8 @@ class MetadataMatchServiceTest {
                     .isbn13(0).isbn10(0).language(0).pageCount(0).categories(0)
                     .amazonRating(0).amazonReviewCount(0).goodreadsRating(0)
                     .goodreadsReviewCount(0).hardcoverRating(0).hardcoverReviewCount(0)
-                    .doubanRating(0).doubanReviewCount(0).ranobedbRating(0)
-                    .audibleRating(0).audibleReviewCount(0).coverImage(10)
+                    .doubanRating(0).doubanReviewCount(0).ranobedbRating(0).lubimyczytacRating(0)
+                    .lubimyczytacRating(0).audibleRating(0).audibleReviewCount(0).coverImage(10)
                     .build();
             stubWeights(weights);
 
@@ -341,7 +345,7 @@ class MetadataMatchServiceTest {
                     .isbn13(0).isbn10(0).language(0).pageCount(0).categories(0)
                     .amazonRating(0).amazonReviewCount(0).goodreadsRating(0)
                     .goodreadsReviewCount(0).hardcoverRating(0).hardcoverReviewCount(0)
-                    .doubanRating(0).doubanReviewCount(0).ranobedbRating(0)
+                    .doubanRating(0).doubanReviewCount(0).ranobedbRating(0).lubimyczytacRating(0)
                     .audibleRating(0).audibleReviewCount(0).coverImage(0)
                     .build();
             stubWeights(weights);
@@ -362,7 +366,7 @@ class MetadataMatchServiceTest {
                     .isbn13(0).isbn10(0).language(0).pageCount(0).categories(0)
                     .amazonRating(0).amazonReviewCount(0).goodreadsRating(0)
                     .goodreadsReviewCount(0).hardcoverRating(0).hardcoverReviewCount(0)
-                    .doubanRating(0).doubanReviewCount(0).ranobedbRating(0)
+                    .doubanRating(0).doubanReviewCount(0).ranobedbRating(0).lubimyczytacRating(0)
                     .audibleRating(0).audibleReviewCount(0).coverImage(0)
                     .build();
             stubWeights(weights);

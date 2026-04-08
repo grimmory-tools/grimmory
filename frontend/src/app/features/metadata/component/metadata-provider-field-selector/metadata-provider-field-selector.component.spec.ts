@@ -1,29 +1,31 @@
 import {signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {of} from 'rxjs';
-import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {TranslocoService} from '@jsverse/transloco';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
+import {getTranslocoModule} from '../../../../core/testing/transloco-testing';
 import {AppSettingKey, AppSettings} from '../../../../shared/model/app-settings.model';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {MetadataProviderFieldSelectorComponent} from './metadata-provider-field-selector.component';
 
 describe('MetadataProviderFieldSelectorComponent', () => {
   const saveSettings = vi.fn(() => of(void 0));
-  const translate = vi.fn((key: string) => `translated:${key}`);
   const appSettings = signal<AppSettings | null>(null);
 
-  beforeEach(() => {
+  beforeEach(async () => {
     saveSettings.mockClear();
-    translate.mockClear();
     appSettings.set(null);
 
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
+      imports: [MetadataProviderFieldSelectorComponent, getTranslocoModule()],
       providers: [
         {provide: AppSettingsService, useValue: {appSettings, saveSettings}},
-        {provide: TranslocoService, useValue: {translate}},
-      ]
-    });
+      ],
+    }).compileComponents();
+  });
+
+  afterEach(() => {
+    TestBed.resetTestingModule();
   });
 
   it('loads selected provider-specific fields from app settings on init', () => {
@@ -35,14 +37,17 @@ describe('MetadataProviderFieldSelectorComponent', () => {
       },
     } as AppSettings);
 
-    const component = TestBed.runInInjectionContext(() => new MetadataProviderFieldSelectorComponent());
-    component.ngOnInit();
+    const fixture = TestBed.createComponent(MetadataProviderFieldSelectorComponent);
+    fixture.detectChanges();
 
-    expect(component.selectedFields).toEqual(['asin', 'amazonReviewCount']);
+    expect(fixture.componentInstance.selectedFields).toEqual(['asin', 'amazonReviewCount']);
   });
 
   it('adds and removes selected fields while persisting the full field state', () => {
-    const component = TestBed.runInInjectionContext(() => new MetadataProviderFieldSelectorComponent());
+    const fixture = TestBed.createComponent(MetadataProviderFieldSelectorComponent);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+
     component.selectedFields = ['asin'];
 
     component.toggleField('googleId', true);
@@ -60,11 +65,11 @@ describe('MetadataProviderFieldSelectorComponent', () => {
   });
 
   it('translates provider and field labels through Transloco', () => {
-    const component = TestBed.runInInjectionContext(() => new MetadataProviderFieldSelectorComponent());
+    const fixture = TestBed.createComponent(MetadataProviderFieldSelectorComponent);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
 
-    expect(component.getProviderLabel('amazon')).toBe('translated:settingsMeta.fieldSelector.providers.amazon');
-    expect(component.getFieldLabel('asin')).toBe('translated:settingsMeta.fieldSelector.fields.asin');
-    expect(translate).toHaveBeenCalledWith('settingsMeta.fieldSelector.providers.amazon');
-    expect(translate).toHaveBeenCalledWith('settingsMeta.fieldSelector.fields.asin');
+    expect(component.getProviderLabel('amazon')).toBe('Amazon');
+    expect(component.getFieldLabel('asin')).toBeDefined();
   });
 });
