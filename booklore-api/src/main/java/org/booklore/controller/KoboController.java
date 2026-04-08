@@ -176,11 +176,9 @@ public class KoboController {
     public void downloadBook(@Parameter(description = "Book ID") @PathVariable String bookId, HttpServletResponse response) {
         if (StringUtils.isNumeric(bookId)) {
             bookDownloadService.downloadKoboBook(Long.parseLong(bookId), response);
-        } else if (isForwardingToKoboStore()) {
-            koboServerProxy.proxyCurrentRequest(null, false);
-        } else {
-            throw ApiError.GENERIC_NOT_FOUND.createException("Not Found");
         }
+
+        throw ApiError.GENERIC_NOT_FOUND.createException("Not Found");
     }
 
     @Operation(summary = "Delete book from Kobo library", description = "Delete a book from the user's Kobo library.")
