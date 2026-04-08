@@ -216,20 +216,22 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     if (sidebarFilters) {
       for (const [type, values] of Object.entries(sidebarFilters)) {
         if (!values || values.length === 0) continue;
-        const firstValue = values[0];
+        const strValues = values.map(String);
         switch (type) {
-          case 'author': scopeFilters.authors = firstValue; break;
-          case 'category': scopeFilters.category = firstValue; break;
-          case 'series': scopeFilters.series = firstValue; break;
-          case 'publisher': scopeFilters.publisher = firstValue; break;
-          case 'tag': scopeFilters.tag = firstValue; break;
-          case 'mood': scopeFilters.mood = firstValue; break;
-          case 'narrator': scopeFilters.narrator = firstValue; break;
-          case 'language': scopeFilters.language = firstValue; break;
-          case 'readStatus': scopeFilters.status = firstValue; break;
-          case 'bookType': scopeFilters.fileType = firstValue; break;
+          case 'author': scopeFilters.authors = strValues; break;
+          case 'category': scopeFilters.category = strValues; break;
+          case 'series': scopeFilters.series = strValues; break;
+          case 'publisher': scopeFilters.publisher = strValues; break;
+          case 'tag': scopeFilters.tag = strValues; break;
+          case 'mood': scopeFilters.mood = strValues; break;
+          case 'narrator': scopeFilters.narrator = strValues; break;
+          case 'language': scopeFilters.language = strValues; break;
+          case 'readStatus': scopeFilters.status = strValues[0]; break;
+          case 'bookType': scopeFilters.fileType = strValues[0]; break;
         }
       }
+      const mode = this.selectedFilterMode();
+      scopeFilters.filterMode = mode === 'single' ? 'or' : mode;
     }
 
     this.appBooksApi.setFilters(scopeFilters);

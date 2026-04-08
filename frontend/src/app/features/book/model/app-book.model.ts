@@ -61,14 +61,15 @@ export interface AppBookFilters {
   fileType?: string;
   minRating?: number;
   maxRating?: number;
-  authors?: string;
-  language?: string;
-  series?: string;
-  category?: string;
-  publisher?: string;
-  tag?: string;
-  mood?: string;
-  narrator?: string;
+  authors?: string[];
+  language?: string[];
+  series?: string[];
+  category?: string[];
+  publisher?: string[];
+  tag?: string[];
+  mood?: string[];
+  narrator?: string[];
+  filterMode?: 'and' | 'or' | 'not';
 }
 
 export interface AppBookSort {

@@ -130,14 +130,26 @@ export class AppBooksApiService {
     if (filters.fileType) params = params.set('fileType', filters.fileType);
     if (filters.minRating != null) params = params.set('minRating', filters.minRating.toString());
     if (filters.maxRating != null) params = params.set('maxRating', filters.maxRating.toString());
-    if (filters.authors) params = params.set('authors', filters.authors);
-    if (filters.language) params = params.set('language', filters.language);
-    if (filters.series) params = params.set('series', filters.series);
-    if (filters.category) params = params.set('category', filters.category);
-    if (filters.publisher) params = params.set('publisher', filters.publisher);
-    if (filters.tag) params = params.set('tag', filters.tag);
-    if (filters.mood) params = params.set('mood', filters.mood);
-    if (filters.narrator) params = params.set('narrator', filters.narrator);
+    if (filters.filterMode) params = params.set('filterMode', filters.filterMode);
+
+    // Array filters: use append() to produce repeated query params (e.g. ?authors=A&authors=B)
+    const arrayFilters: [string, string[] | undefined][] = [
+      ['authors', filters.authors],
+      ['language', filters.language],
+      ['series', filters.series],
+      ['category', filters.category],
+      ['publisher', filters.publisher],
+      ['tag', filters.tag],
+      ['mood', filters.mood],
+      ['narrator', filters.narrator],
+    ];
+    for (const [key, values] of arrayFilters) {
+      if (values?.length) {
+        for (const v of values) {
+          params = params.append(key, v);
+        }
+      }
+    }
 
     return params;
   }

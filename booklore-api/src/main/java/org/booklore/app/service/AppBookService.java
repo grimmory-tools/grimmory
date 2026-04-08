@@ -644,36 +644,60 @@ public class AppBookService {
             specs.add(AppBookSpecification.withMaxRating(req.maxRating(), userId));
         }
 
-        if (req.authors() != null && !req.authors().trim().isEmpty()) {
-            specs.add(AppBookSpecification.withAuthor(req.authors().trim()));
+        if (req.authors() != null && !req.authors().isEmpty()) {
+            List<String> cleaned = BookListRequest.cleanValues(req.authors());
+            if (!cleaned.isEmpty()) {
+                specs.add(AppBookSpecification.withAuthors(cleaned, req.effectiveFilterMode()));
+            }
         }
 
-        if (req.language() != null && !req.language().trim().isEmpty()) {
-            specs.add(AppBookSpecification.withLanguage(req.language().trim()));
+        if (req.language() != null && !req.language().isEmpty()) {
+            List<String> cleaned = BookListRequest.cleanValues(req.language());
+            if (!cleaned.isEmpty()) {
+                specs.add(AppBookSpecification.withLanguages(cleaned, req.effectiveFilterMode()));
+            }
         }
 
-        if (req.series() != null && !req.series().trim().isEmpty()) {
-            specs.add(AppBookSpecification.inSeries(req.series().trim()));
+        if (req.series() != null && !req.series().isEmpty()) {
+            List<String> cleaned = BookListRequest.cleanValues(req.series());
+            if (!cleaned.isEmpty()) {
+                specs.add(AppBookSpecification.inSeriesMulti(cleaned, req.effectiveFilterMode()));
+            }
         }
 
-        if (req.category() != null && !req.category().trim().isEmpty()) {
-            specs.add(AppBookSpecification.withCategory(req.category().trim()));
+        if (req.category() != null && !req.category().isEmpty()) {
+            List<String> cleaned = BookListRequest.cleanValues(req.category());
+            if (!cleaned.isEmpty()) {
+                specs.add(AppBookSpecification.withCategories(cleaned, req.effectiveFilterMode()));
+            }
         }
 
-        if (req.publisher() != null && !req.publisher().trim().isEmpty()) {
-            specs.add(AppBookSpecification.withPublisher(req.publisher().trim()));
+        if (req.publisher() != null && !req.publisher().isEmpty()) {
+            List<String> cleaned = BookListRequest.cleanValues(req.publisher());
+            if (!cleaned.isEmpty()) {
+                specs.add(AppBookSpecification.withPublishers(cleaned, req.effectiveFilterMode()));
+            }
         }
 
-        if (req.tag() != null && !req.tag().trim().isEmpty()) {
-            specs.add(AppBookSpecification.withTag(req.tag().trim()));
+        if (req.tag() != null && !req.tag().isEmpty()) {
+            List<String> cleaned = BookListRequest.cleanValues(req.tag());
+            if (!cleaned.isEmpty()) {
+                specs.add(AppBookSpecification.withTags(cleaned, req.effectiveFilterMode()));
+            }
         }
 
-        if (req.mood() != null && !req.mood().trim().isEmpty()) {
-            specs.add(AppBookSpecification.withMood(req.mood().trim()));
+        if (req.mood() != null && !req.mood().isEmpty()) {
+            List<String> cleaned = BookListRequest.cleanValues(req.mood());
+            if (!cleaned.isEmpty()) {
+                specs.add(AppBookSpecification.withMoods(cleaned, req.effectiveFilterMode()));
+            }
         }
 
-        if (req.narrator() != null && !req.narrator().trim().isEmpty()) {
-            specs.add(AppBookSpecification.withNarrator(req.narrator().trim()));
+        if (req.narrator() != null && !req.narrator().isEmpty()) {
+            List<String> cleaned = BookListRequest.cleanValues(req.narrator());
+            if (!cleaned.isEmpty()) {
+                specs.add(AppBookSpecification.withNarrators(cleaned, req.effectiveFilterMode()));
+            }
         }
 
         return AppBookSpecification.combine(specs.toArray(new Specification[0]));
