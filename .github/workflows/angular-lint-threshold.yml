@@ -22,7 +22,7 @@ jobs:
     env:
       LINT_WARNING_THRESHOLD: 0
       LINT_ERROR_THRESHOLD: 0
-      BUILD_WARNING_THRESHOLD: 24
+      BUILD_WARNING_THRESHOLD: 0
 
     steps:
       - name: Checkout Repository
