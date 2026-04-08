@@ -1,4 +1,4 @@
-import {Component, inject, Input, OnInit} from '@angular/core';
+import {Component, effect, inject, Input} from '@angular/core';
 import {ToggleSwitchModule} from 'primeng/toggleswitch';
 import {FormsModule} from '@angular/forms';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
@@ -12,7 +12,7 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
   templateUrl: './metadata-provider-field-selector.component.html',
   styleUrl: './metadata-provider-field-selector.component.scss'
 })
-export class MetadataProviderFieldSelectorComponent implements OnInit {
+export class MetadataProviderFieldSelectorComponent {
   @Input() selectedFields: string[] = [];
 
   private appSettingsService = inject(AppSettingsService);
@@ -48,12 +48,12 @@ export class MetadataProviderFieldSelectorComponent implements OnInit {
     'audibleId', 'audibleRating', 'audibleReviewCount'
   ];
 
-  ngOnInit(): void {
+  private readonly syncSettingsEffect = effect(() => {
     const settings = this.appSettingsService.appSettings();
     if (settings?.metadataProviderSpecificFields) {
       this.selectedFields = this.toFieldArray(settings.metadataProviderSpecificFields);
     }
-  }
+  });
 
   toggleField(field: string, checked: boolean) {
     this.selectedFields = checked
