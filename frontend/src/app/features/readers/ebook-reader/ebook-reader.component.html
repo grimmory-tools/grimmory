@@ -1,16 +1,16 @@
 <div
   class="reader"
-  [class.immersive]="immersiveMode"
+  [class.immersive]="immersiveMode()"
   [style.background-color]="readerState().theme.bg ?? ''">
 
   <div class="header-trigger-zone"
-       [class.inactive]="headerVisible || immersiveMode"
+       [class.inactive]="headerVisible() || immersiveMode()"
        (mouseenter)="onHeaderTriggerZoneEnter()"></div>
   <div class="footer-trigger-zone"
-       [class.inactive]="forceNavbarVisible || immersiveMode"
+       [class.inactive]="forceNavbarVisible() || immersiveMode()"
        (mouseenter)="onFooterTriggerZoneEnter()"></div>
 
-  @if (isLoading) {
+  @if (isLoading()) {
     <div class="loader-overlay">
       <div class="loader-content">
         <div class="spinner"></div>
@@ -33,37 +33,37 @@
   </div>
 
   <app-reader-navbar
-    [progressData]="currentProgressData"
-    [forceVisible]="forceNavbarVisible"
-    [sectionFractions]="sectionFractions"
+    [progressData]="progressData()"
+    [forceVisible]="forceNavbarVisible()"
+    [sectionFractions]="sectionFractions()"
     (progressChange)="onProgressChange($event)">
   </app-reader-navbar>
 
   <app-reader-sidebar></app-reader-sidebar>
   <app-reader-left-sidebar></app-reader-left-sidebar>
 
-  @if (showQuickSettings) {
+  @if (showQuickSettings()) {
     <app-reader-quick-settings
       [stateService]="stateService"
       [bookId]="bookId"
-      (closed)="showQuickSettings = false"
-      (openFullSettings)="showControls = true">
+      (closed)="showQuickSettings.set(false)"
+      (openFullSettings)="showControls.set(true)">
     </app-reader-quick-settings>
   }
 
-  @if (showControls) {
+  @if (showControls()) {
     <app-settings-dialog
       [stateService]="stateService"
       [viewManager]="viewManager"
       [bookId]="bookId"
-      (closed)="showControls = false">
+      (closed)="showControls.set(false)">
     </app-settings-dialog>
   }
 
-  @if (showMetadata) {
+  @if (showMetadata()) {
     <app-reader-book-metadata-dialog
-      [book]="book"
-      (closed)="showMetadata = false"
+      [book]="book()"
+      (closed)="showMetadata.set(false)"
     ></app-reader-book-metadata-dialog>
   }
 
@@ -85,7 +85,7 @@
     ></app-reader-note-dialog>
   }
 
-  @if (showShortcutsHelp) {
-    <app-ebook-shortcuts-help (closed)="showShortcutsHelp = false"></app-ebook-shortcuts-help>
+  @if (showShortcutsHelp()) {
+    <app-ebook-shortcuts-help (closed)="showShortcutsHelp.set(false)"></app-ebook-shortcuts-help>
   }
 </div>

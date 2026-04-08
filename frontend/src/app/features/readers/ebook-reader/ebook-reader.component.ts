@@ -1,4 +1,4 @@
-import {Component, CUSTOM_ELEMENTS_SCHEMA, effect, HostListener, inject, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, CUSTOM_ELEMENTS_SCHEMA, DestroyRef, effect, HostListener, inject, OnInit, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {from, Observable, of, Subject, throwError} from 'rxjs';
 import {catchError, map, switchMap, takeUntil, tap} from 'rxjs/operators';
@@ -69,10 +69,12 @@ import {WakeLockService} from '../../../shared/service/wake-lock.service';
     ReaderNoteService
   ],
   templateUrl: './ebook-reader.component.html',
-  styleUrls: ['./ebook-reader.component.scss']
+  styleUrls: ['./ebook-reader.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class EbookReaderComponent implements OnInit, OnDestroy {
+export class EbookReaderComponent implements OnInit {
   private destroy$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
   private loaderService = inject(ReaderLoaderService);
   private styleService = inject(ReaderStyleService);
   private bookService = inject(BookService);
@@ -100,18 +102,19 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
   private relocateTimeout?: ReturnType<typeof setTimeout>;
   private sectionFractionsTimeout?: ReturnType<typeof setTimeout>;
 
-  isLoading = true;
-  showQuickSettings = false;
-  showControls = false;
-  showMetadata = false;
-  forceNavbarVisible = false;
-  headerVisible = false;
-  book: Book | null = null;
-  sectionFractions: number[] = [];
-  isFullscreen = false;
-  showShortcutsHelp = false;
-  immersiveMode = false;
+  isLoading = signal(true);
+  showQuickSettings = signal(false);
+  showControls = signal(false);
+  showMetadata = signal(false);
+  forceNavbarVisible = signal(false);
+  headerVisible = signal(false);
+  book = signal<Book | null>(null);
+  sectionFractions = signal<number[]>([]);
+  isFullscreen = signal(false);
+  showShortcutsHelp = signal(false);
+  immersiveMode = signal(false);
   private immersiveAutoHideTimer?: ReturnType<typeof setTimeout>;
+  protected progressData = signal<RelocateProgressData | null>(null);
 
   readonly readerState = this.stateService.state;
   readonly selectionState = this.selectionService.state;
@@ -119,6 +122,32 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
   readonly isCurrentCfiBookmarked = this.headerService.isCurrentCfiBookmarked;
 
   constructor() {
+    this.destroyRef.onDestroy(() => {
+      this.destroy$.next();
+      this.destroy$.complete();
+
+      this.wakeLockService.disable();
+      this.viewManager.destroy();
+      this.annotationService.reset();
+      this.progressService.endSession();
+      this.progressService.reset();
+      this.selectionService.reset();
+      this.sidebarService.reset();
+      this.leftSidebarService.reset();
+      this.headerService.reset();
+      this.noteService.reset();
+      this.epubCustomFontService.cleanup();
+
+      if (this.immersiveAutoHideTimer) clearTimeout(this.immersiveAutoHideTimer);
+      if (this.relocateTimeout) clearTimeout(this.relocateTimeout);
+      if (this.sectionFractionsTimeout) clearTimeout(this.sectionFractionsTimeout);
+
+      if (this._fileUrl) {
+        URL.revokeObjectURL(this._fileUrl);
+        this._fileUrl = null;
+      }
+    });
+
     effect(() => {
       this.stateService.state();
       this.applyStyles();
@@ -133,29 +162,25 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
     );
   }
 
-  get currentProgressData(): RelocateProgressData | null {
-    return this.progressService.currentProgressData;
-  }
-
   ngOnInit() {
     this.visibilityManager = new ReaderHeaderFooterVisibilityManager(window.innerHeight);
     this.visibilityManager.onStateChange((state) => {
-      this.headerVisible = state.headerVisible;
+      this.headerVisible.set(state.headerVisible);
       this.headerService.setForceVisible(state.headerVisible);
-      this.forceNavbarVisible = state.footerVisible;
+      this.forceNavbarVisible.set(state.footerVisible);
     });
 
     this.sidebarService.showMetadata$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.showMetadata = true);
+      .subscribe(() => this.showMetadata.set(true));
 
     this.headerService.showControls$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.showQuickSettings = true);
+      .subscribe(() => this.showQuickSettings.set(true));
 
     this.headerService.showMetadata$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.showMetadata = true);
+      .subscribe(() => this.showMetadata.set(true));
 
     this.headerService.toggleFullscreen$
       .pipe(takeUntil(this.destroy$))
@@ -163,12 +188,12 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
 
     this.headerService.showShortcutsHelp$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.showShortcutsHelp = true);
+      .subscribe(() => this.showShortcutsHelp.set(true));
 
     // Enable wake lock after a short delay
     setTimeout(() => this.wakeLockService.enable(), 1000);
 
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.initializeFoliate().pipe(
       switchMap(() => this.epubCustomFontService.loadAndCacheFonts()),
       tap(() => this.stateService.refreshCustomFonts()),
@@ -177,37 +202,13 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
         this.subscribeToViewEvents();
       }),
       switchMap(() => this.loadBookFromAPI()),
-      tap(() => this.isLoading = false),
+      tap(() => this.isLoading.set(false)),
       catchError(() => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         return of(null);
       }),
       takeUntil(this.destroy$)
     ).subscribe();
-  }
-
-  ngOnDestroy(): void {
-    this.wakeLockService.disable();
-    this.destroy$.next();
-    this.destroy$.complete();
-    this.viewManager.destroy();
-    this.annotationService.reset();
-    this.progressService.endSession();
-    this.progressService.reset();
-    this.selectionService.reset();
-    this.sidebarService.reset();
-    this.leftSidebarService.reset();
-    this.headerService.reset();
-    this.noteService.reset();
-    this.epubCustomFontService.cleanup();
-
-    if (this.immersiveAutoHideTimer) {
-      clearTimeout(this.immersiveAutoHideTimer);
-    }
-    if (this._fileUrl) {
-      URL.revokeObjectURL(this._fileUrl);
-      this._fileUrl = null;
-    }
   }
 
   private initializeFoliate(): Observable<void> {
@@ -232,7 +233,7 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
 
     return from(this.bookService.fetchFreshBookDetail(this.bookId, false)).pipe(
       switchMap((book) => {
-        this.book = book;
+        this.book.set(book);
 
         // Use alternative bookType from query param if provided, otherwise use primary
         const bookType = (this.altBookType as BookType | undefined) ?? book.primaryFile?.bookType;
@@ -317,6 +318,7 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
             if (this.relocateTimeout) clearTimeout(this.relocateTimeout);
             this.relocateTimeout = setTimeout(() => {
               this.progressService.handleRelocateEvent(event.detail);
+              this.progressData.set(this.progressService.currentProgressData);
               this.updateBookmarkIndicator();
             }, 100);
 
@@ -326,7 +328,7 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
             }, 500);
             break;
           case 'middle-single-tap':
-            if (this.immersiveMode) {
+            if (this.immersiveMode()) {
               this.immersiveTemporaryShow();
             } else {
               this.toggleHeaderNavbarPinned();
@@ -339,7 +341,7 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
             this.toggleFullscreen();
             break;
           case 'toggle-shortcuts-help':
-            this.showShortcutsHelp = !this.showShortcutsHelp;
+            this.showShortcutsHelp.update(v => !v);
             break;
           case 'toggle-immersive':
             this.toggleImmersiveMode();
@@ -364,17 +366,17 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
             this.leftSidebarService.toggle('notes');
             break;
           case 'escape-pressed':
-            if (this.showShortcutsHelp) {
-              this.showShortcutsHelp = false;
+            if (this.showShortcutsHelp()) {
+              this.showShortcutsHelp.set(false);
             } else if (this.noteDialogState().visible) {
               this.noteService.closeDialog();
-            } else if (this.showControls) {
-              this.showControls = false;
-            } else if (this.showQuickSettings) {
-              this.showQuickSettings = false;
-            } else if (this.showMetadata) {
-              this.showMetadata = false;
-            } else if (this.isFullscreen) {
+            } else if (this.showControls()) {
+              this.showControls.set(false);
+            } else if (this.showQuickSettings()) {
+              this.showQuickSettings.set(false);
+            } else if (this.showMetadata()) {
+              this.showMetadata.set(false);
+            } else if (this.isFullscreen()) {
               this.exitFullscreen();
             }
             break;
@@ -383,7 +385,7 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
   }
 
   private updateSectionFractions(): void {
-    this.sectionFractions = this.viewManager.getSectionFractions();
+    this.sectionFractions.set(this.viewManager.getSectionFractions());
   }
 
   private updateBookmarkIndicator(): void {
@@ -407,8 +409,8 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
 
   @HostListener('document:fullscreenchange')
   onFullscreenChange(): void {
-    this.isFullscreen = !!document.fullscreenElement;
-    this.headerService.setFullscreen(this.isFullscreen);
+    this.isFullscreen.set(!!document.fullscreenElement);
+    this.headerService.setFullscreen(this.isFullscreen());
   }
 
   toggleFullscreen(): void {
@@ -464,16 +466,13 @@ export class EbookReaderComponent implements OnInit, OnDestroy {
   }
 
   toggleImmersiveMode(): void {
-    this.immersiveMode = !this.immersiveMode;
-    if (this.immersiveMode) {
-      this.visibilityManager.setImmersive(true);
-    } else {
-      this.visibilityManager.setImmersive(false);
-    }
+    const newValue = !this.immersiveMode();
+    this.immersiveMode.set(newValue);
+    this.visibilityManager.setImmersive(newValue);
   }
 
   private immersiveTemporaryShow(): void {
-    if (!this.immersiveMode) return;
+    if (!this.immersiveMode()) return;
     this.visibilityManager.temporaryShow();
     if (this.immersiveAutoHideTimer) clearTimeout(this.immersiveAutoHideTimer);
     this.immersiveAutoHideTimer = setTimeout(() => {
