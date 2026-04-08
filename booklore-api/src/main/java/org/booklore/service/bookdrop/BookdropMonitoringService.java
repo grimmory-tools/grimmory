@@ -4,9 +4,8 @@ import org.booklore.config.AppProperties;
 import org.booklore.model.enums.BookFileExtension;
 import org.booklore.repository.BookdropFileRepository;
 import org.booklore.util.FileUtils;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -20,7 +19,9 @@ import java.util.stream.Stream;
 
 @Slf4j
 @Service
-public class BookdropMonitoringService {
+public class BookdropMonitoringService implements SmartLifecycle {
+
+    private static final int LIFECYCLE_PHASE = 20;
 
     private final AppProperties appProperties;
     private final BookdropEventHandlerService eventHandler;
@@ -45,7 +46,7 @@ public class BookdropMonitoringService {
         this.bookdropFileRepository = bookdropFileRepository;
     }
 
-    @PostConstruct
+    @Override
     public void start() {
         bookdrop = Path.of(appProperties.getBookdropFolder());
         if (Files.notExists(bookdrop)) {
@@ -72,17 +73,30 @@ public class BookdropMonitoringService {
             this.watchThread.setDaemon(true);
             this.watchThread.start();
             scanExistingBookdropFiles();
+            this.disabled = false;
         } catch (IOException e) {
             log.warn("Failed to start bookdrop folder monitor. Bookdrop monitoring is disabled.", e);
             this.disabled = true;
         }
     }
 
-    @PreDestroy
+    @Override
     public void stop() {
+        stop(() -> {});
+    }
+
+    @Override
+    public void stop(Runnable callback) {
+        log.info("Stopping bookdrop folder monitor...");
         running = false;
         if (watchThread != null) {
             watchThread.interrupt();
+            try {
+                watchThread.join(5000);
+            } catch (InterruptedException e) {
+                log.warn("Interrupted while waiting for watchThread to stop");
+                Thread.currentThread().interrupt();
+            }
         }
         if (watchService != null) {
             try {
@@ -92,6 +106,17 @@ public class BookdropMonitoringService {
             }
         }
         log.info("Stopped bookdrop folder monitor");
+        callback.run();
+    }
+
+    @Override
+    public boolean isRunning() {
+        return running;
+    }
+
+    @Override
+    public int getPhase() {
+        return LIFECYCLE_PHASE;
     }
 
     public void pauseMonitoring() {

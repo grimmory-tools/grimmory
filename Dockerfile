@@ -14,7 +14,9 @@ RUN --mount=type=cache,target=/workspace/.yarn/cache \
     --mount=type=cache,target=/workspace/frontend/.angular/cache \
     CI=1 NG_CLI_ANALYTICS=false corepack yarn build:prod
 
-FROM --platform=$BUILDPLATFORM gradle:9.3.1-jdk25-alpine AS backend-build
+FROM --platform=$BUILDPLATFORM gradle:9.4.1-jdk25-alpine AS backend-build
+
+ARG TARGETARCH
 
 WORKDIR /workspace/booklore-api
 
@@ -29,7 +31,7 @@ COPY booklore-api/ ./
 COPY --from=frontend-build /workspace/frontend/dist/grimmory/browser /tmp/frontend-dist
 
 RUN --mount=type=cache,target=/home/gradle/.gradle \
-    ./gradlew --no-daemon -PfrontendDistDir=/tmp/frontend-dist bootJar
+    TARGETARCH=${TARGETARCH} ./gradlew --no-daemon -PfrontendDistDir=/tmp/frontend-dist bootJar
 
 RUN set -eux; \
     jar_path="$(find build/libs -maxdepth 1 -name '*.jar' ! -name '*plain.jar' | head -n 1)"; \
@@ -66,7 +68,14 @@ ENV JAVA_TOOL_OPTIONS="-XX:+UseShenandoahGC \
     -XX:+UseCompactObjectHeaders \
     -XX:MaxRAMPercentage=60.0 \
     -XX:InitialRAMPercentage=8.0 \
-    -XX:+ExitOnOutOfMemoryError"
+    -XX:+ExitOnOutOfMemoryError \
+    -XX:MaxMetaspaceSize=192m \
+    -XX:ReservedCodeCacheSize=64m \
+    -Xss512k \
+    -XX:CICompilerCount=2 \
+    -XX:+UnlockExperimentalVMOptions \
+    -XX:ShenandoahUncommitDelay=5000 \
+    -XX:ShenandoahGuaranteedGCInterval=30000"
 
 RUN apk add --no-cache su-exec libstdc++ libgcc libarchive && \
     mkdir -p /bookdrop

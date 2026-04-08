@@ -172,11 +172,10 @@ public class AppSeriesService {
                 .map(t -> t.get(0, String.class))
                 .toList();
 
-        // Phase 2: Fetch books for enrichment
+        // Phase 2: Fetch books for enrichment (only ToOne joins; collections loaded via @BatchSize)
         String libraryClause = buildLibraryClause(accessibleLibraryIds, libraryId);
         String booksQuery = "SELECT b FROM BookEntity b"
-                + " JOIN FETCH b.metadata m LEFT JOIN FETCH m.authors"
-                + " LEFT JOIN FETCH b.bookFiles"
+                + " JOIN FETCH b.metadata m"
                 + " WHERE m.seriesName IN :seriesNames"
                 + " AND (b.deleted IS NULL OR b.deleted = false)"
                 + " AND b.bookFiles IS NOT EMPTY"

@@ -17,11 +17,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -73,15 +73,15 @@ public class AuthenticationController {
     })
     @GetMapping("/remote")
     public ResponseEntity<Map<String, String>> loginRemote(
-            @Parameter(description = "Authentication headers") @RequestHeader Map<String, String> headers) {
+            @Parameter(description = "Authentication headers") @RequestHeader HttpHeaders headers) {
         if (!appProperties.getRemoteAuth().isEnabled()) {
             throw ApiError.REMOTE_AUTH_DISABLED.createException();
         }
 
-        String name = headers.get(appProperties.getRemoteAuth().getHeaderName().toLowerCase(Locale.ROOT));
-        String username = headers.get(appProperties.getRemoteAuth().getHeaderUser().toLowerCase(Locale.ROOT));
-        String email = headers.get(appProperties.getRemoteAuth().getHeaderEmail().toLowerCase(Locale.ROOT));
-        String groups = headers.get(appProperties.getRemoteAuth().getHeaderGroups().toLowerCase(Locale.ROOT));
+        String name = headers.getFirst(appProperties.getRemoteAuth().getHeaderName());
+        String username = headers.getFirst(appProperties.getRemoteAuth().getHeaderUser());
+        String email = headers.getFirst(appProperties.getRemoteAuth().getHeaderEmail());
+        String groups = headers.getFirst(appProperties.getRemoteAuth().getHeaderGroups());
         log.debug("Remote-Auth: header values present name: {}, username: {}, email: {}, groups: {}",
                 name != null, username != null, email != null, groups != null);
 

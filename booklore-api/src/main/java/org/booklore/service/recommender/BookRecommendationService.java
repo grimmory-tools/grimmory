@@ -10,6 +10,7 @@ import org.booklore.model.entity.AuthorEntity;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.repository.BookRepository;
+import org.booklore.repository.projection.BookEmbeddingProjection;
 import org.booklore.service.book.BookQueryService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 public class BookRecommendationService {
 
     private final BookSimilarityService similarityService;
+    private final BookVectorService vectorService;
     private final BookRepository bookRepository;
     private final BookQueryService bookQueryService;
     private final BookMapper bookMapper;
@@ -92,7 +94,74 @@ public class BookRecommendationService {
     protected List<BookRecommendation> findSimilarBooks(Long bookId, int limit) {
         BookEntity target = bookRepository.findByIdWithMetadata(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
-        List<BookEntity> candidates = bookQueryService.getAllFullBookEntities();
+        String targetVectorJson = Optional.ofNullable(target.getMetadata())
+                .map(BookMetadataEntity::getEmbeddingVector)
+                .orElse(null);
+
+        if (targetVectorJson != null) {
+            double[] targetVector = vectorService.deserializeVector(targetVectorJson);
+            if (targetVector != null) {
+                return findSimilarBooksViaEmbeddings(bookId, target, targetVector, limit);
+            }
+        }
+
+        // Fallback: entity-based similarity (loads all candidates)
+        return findSimilarBooksViaEntities(bookId, target, limit);
+    }
+
+    private List<BookRecommendation> findSimilarBooksViaEmbeddings(Long bookId, BookEntity target, double[] targetVector, int limit) {
+        String targetSeriesName = Optional.ofNullable(target.getMetadata())
+                .map(BookMetadataEntity::getSeriesName)
+                .map(String::toLowerCase)
+                .orElse(null);
+
+        List<BookEmbeddingProjection> projections = bookRepository.findAllEmbeddingsForRecommendation(bookId);
+
+        List<SimpleEntry<Long, Double>> scored = projections.stream()
+                .filter(p -> {
+                    if (targetSeriesName == null) return true;
+                    String candidateSeries = Optional.ofNullable(p.getSeriesName())
+                            .map(String::toLowerCase)
+                            .orElse(null);
+                    return !targetSeriesName.equals(candidateSeries);
+                })
+                .map(p -> {
+                    double[] candidateVector = vectorService.deserializeVector(p.getEmbeddingVector());
+                    double similarity = candidateVector != null
+                            ? vectorService.cosineSimilarity(targetVector, candidateVector)
+                            : 0.0;
+                    return new SimpleEntry<>(p.getBookId(), similarity);
+                })
+                .filter(entry -> entry.getValue() > 0.1)
+                .sorted(Map.Entry.<Long, Double>comparingByValue().reversed())
+                .limit(limit * 3L)
+                .toList();
+
+        Set<Long> topBookIds = scored.stream().map(SimpleEntry::getKey).collect(Collectors.toSet());
+        Map<Long, BookEntity> bookMap = bookQueryService.findAllWithMetadataByIds(topBookIds).stream()
+                .collect(Collectors.toMap(BookEntity::getId, Function.identity()));
+
+        Map<String, Integer> authorCounts = new HashMap<>();
+        List<BookRecommendation> recommendations = new ArrayList<>();
+
+        for (SimpleEntry<Long, Double> entry : scored) {
+            if (recommendations.size() >= limit) break;
+            BookEntity bookEntity = bookMap.get(entry.getKey());
+            if (bookEntity == null) continue;
+            Set<String> authorNames = getAuthorNames(bookEntity);
+            boolean allowed = authorNames.stream()
+                    .allMatch(name -> authorCounts.getOrDefault(name, 0) < MAX_BOOKS_PER_AUTHOR);
+            if (allowed) {
+                recommendations.add(new BookRecommendation(bookMapper.toBookWithDescription(bookEntity, false), entry.getValue()));
+                authorNames.forEach(name -> authorCounts.merge(name, 1, Integer::sum));
+            }
+        }
+
+        return recommendations;
+    }
+
+    private List<BookRecommendation> findSimilarBooksViaEntities(Long bookId, BookEntity target, int limit) {
+        List<BookEntity> candidates = bookRepository.findAllForRecommendation(bookId);
 
         String targetSeriesName = Optional.ofNullable(target.getMetadata())
                 .map(BookMetadataEntity::getSeriesName)
@@ -100,7 +169,6 @@ public class BookRecommendationService {
                 .orElse(null);
 
         List<SimpleEntry<BookEntity, Double>> scored = candidates.stream()
-                .filter(candidate -> !candidate.getId().equals(bookId))
                 .filter(candidate -> {
                     String candidateSeriesName = Optional.ofNullable(candidate.getMetadata())
                             .map(BookMetadataEntity::getSeriesName)

@@ -24,4 +24,6 @@ public class KoboSettings {
     private boolean forceEnableHyphenation = false;
     @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
     private int conversionImageCompressionPercentage = 85;
+    @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
+    private boolean forwardToKoboStore = false;
 }

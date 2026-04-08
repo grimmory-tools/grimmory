@@ -28,6 +28,7 @@ describe('CbxQuickSettingsService', () => {
     service.setMagnifierZoom(CbxMagnifierZoom.ZOOM_4X);
     service.setMagnifierLensSize(CbxMagnifierLensSize.EXTRA_LARGE);
     service.setBrightness(50);
+    service.setStripMaxWidthPercent(85);
     service.setEmulateBook(true);
     service.setClickToPaginate(true);
     service.setAutoCloseMenu(true);
@@ -44,6 +45,7 @@ describe('CbxQuickSettingsService', () => {
       magnifierZoom: CbxMagnifierZoom.ZOOM_4X,
       magnifierLensSize: CbxMagnifierLensSize.EXTRA_LARGE,
       brightness: 50,
+      stripMaxWidthPercent: 85,
       emulateBook: true,
       clickToPaginate: true,
       autoCloseMenu: true
@@ -65,6 +67,7 @@ describe('CbxQuickSettingsService', () => {
       magnifierZoom: CbxMagnifierZoom.ZOOM_3X,
       magnifierLensSize: CbxMagnifierLensSize.MEDIUM,
       brightness: 100,
+      stripMaxWidthPercent: 100,
       emulateBook: false,
       clickToPaginate: false,
       autoCloseMenu: false
@@ -112,5 +115,16 @@ describe('CbxQuickSettingsService', () => {
     expect(slideshowEvents).toEqual([CbxSlideshowInterval.FIFTEEN_SECONDS]);
     expect(zoomEvents).toEqual([CbxMagnifierZoom.ZOOM_2X]);
     expect(lensSizeEvents).toEqual([CbxMagnifierLensSize.LARGE]);
+  });
+
+  it('emits strip width changes when setStripMaxWidthPercent is called', () => {
+    const service = new CbxQuickSettingsService();
+    const stripEvents: number[] = [];
+    service.stripMaxWidthChange$.subscribe((v) => stripEvents.push(v));
+
+    service.setStripMaxWidthPercent(72);
+
+    expect(stripEvents).toEqual([72]);
+    expect(service.state().stripMaxWidthPercent).toBe(72);
   });
 });

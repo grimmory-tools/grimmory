@@ -1,10 +1,13 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { API_CONFIG } from '../../../core/config/api-config';
 import { AudiobookInfo, AudiobookProgress } from './audiobook.model';
 import { AuthService } from '../../../shared/service/auth.service';
 import { BookFileProgress } from '../../book/model/book.model';
+import { QueryClient } from '@tanstack/angular-query-experimental';
+import { patchBookFieldsInCache } from '../../book/service/book-query-cache';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +18,7 @@ export class AudiobookService {
 
   private http = inject(HttpClient);
   private authService = inject(AuthService);
+  private queryClient = inject(QueryClient);
 
   getAudiobookInfo(bookId: number, bookType?: string): Observable<AudiobookInfo> {
     const params: Record<string, string> = {};
@@ -44,21 +48,22 @@ export class AudiobookService {
   }
 
   saveProgress(bookId: number, progress: AudiobookProgress, bookFileId?: number): Observable<void> {
+    const body: {bookId: number; audiobookProgress: AudiobookProgress; fileProgress?: BookFileProgress} = {
+      bookId,
+      audiobookProgress: progress,
+    };
     if (bookFileId) {
-      const fileProgress: BookFileProgress = {
-        bookFileId: bookFileId,
+      body.fileProgress = {
+        bookFileId,
         positionData: progress.positionMs.toString(),
         positionHref: progress.trackIndex?.toString(),
-        progressPercent: progress.percentage
+        progressPercent: progress.percentage,
       };
-      return this.http.post<void>(`${this.booksUrl}/progress`, {
-        bookId,
-        fileProgress
-      });
     }
-    return this.http.post<void>(`${this.booksUrl}/progress`, {
-      bookId,
-      audiobookProgress: progress
-    });
+    return this.http.post<void>(`${this.booksUrl}/progress`, body).pipe(
+      tap(() => {
+        patchBookFieldsInCache(this.queryClient, [{bookId, fields: {audiobookProgress: progress}}]);
+      })
+    );
   }
 }

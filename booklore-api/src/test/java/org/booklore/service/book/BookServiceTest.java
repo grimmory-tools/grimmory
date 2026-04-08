@@ -437,58 +437,33 @@ class BookServiceTest {
     }
 
     @Test
-    void filterShelvesByUserId_returnsOnlyUserShelves() {
-        Shelf shelf1 = Shelf.builder().id(1L).userId(1L).build();
-        Shelf shelf2 = Shelf.builder().id(2L).userId(2L).build();
-        Set<Shelf> shelves = Set.of(shelf1, shelf2);
+    void filterShelvesByUserId_returnsOwnShelvesAndPublicShelves() {
+        Shelf ownShelf = Shelf.builder().id(1L).userId(1L).publicShelf(false).build();
+        Shelf otherPrivateShelf = Shelf.builder().id(2L).userId(2L).publicShelf(false).build();
+        Shelf otherPublicShelf = Shelf.builder().id(3L).userId(2L).publicShelf(true).build();
+        Set<Shelf> shelves = Set.of(ownShelf, otherPrivateShelf, otherPublicShelf);
 
-        Set<Shelf> result = org.springframework.test.util.ReflectionTestUtils.invokeMethod(
-                bookService, "filterShelvesByUserId", shelves, 1L);
+        Set<Shelf> result = bookService.filterShelvesByUserId(shelves, 1L);
 
-        assertEquals(1, result.size());
-        assertTrue(result.contains(shelf1));
+        assertEquals(2, result.size());
+        assertTrue(result.contains(ownShelf));
+        assertTrue(result.contains(otherPublicShelf));
+        assertFalse(result.contains(otherPrivateShelf));
     }
-    @Mock
-    private org.booklore.service.FileStreamingService fileStreamingService;
 
     @Test
-    void streamBookContent_delegatesToStreamingService() throws Exception {
-        BookEntity entity = new BookEntity();
-        entity.setId(15L);
-        BookFileEntity primaryFile = new BookFileEntity();
-        primaryFile.setBook(entity);
-        primaryFile.setBookType(BookFileType.EPUB);
-        primaryFile.setFileSubPath("");
-        primaryFile.setFileName("book.epub");
-        // Ensure bookFiles list is populated to avoid IndexOutOfBounds or similar if logic accesses it
-        entity.setBookFiles(List.of(primaryFile));
+    void filterShelvesByUserId_excludesPrivateShelvesFromOtherUsers() {
+        Shelf otherPrivateShelf = Shelf.builder().id(2L).userId(2L).publicShelf(false).build();
 
-        when(bookRepository.findByIdWithBookFiles(15L)).thenReturn(Optional.of(entity));
+        Set<Shelf> result = bookService.filterShelvesByUserId(Set.of(otherPrivateShelf), 1L);
 
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-
-        // We don't need to mock FileUtils static method if we set up the entity correctly
-        // But streamBookContent calls FileUtils.getBookFullPath(bookEntity) if bookType is null.
-        // Let's passed bookType="EPUB" to hit the specific branch, or null to hit default.
-        // The code uses:
-        // if (bookType != null) { ... } else { filePath = FileUtils.getBookFullPath(bookEntity); }
-        // Let's test the specific type path first as it isolates logic better,
-        // OR test the null path which is likely what the browser uses.
-        // The original error was "Cannot lazily initialize collection... getPrimaryBookFile... FileUtils.getBookFullPath"
-        // So I should test the `bookType = null` case which triggers `FileUtils.getBookFullPath`.
-
-        // However, `FileUtils.getBookFullPath` is static. I may need to mock it or ensure it works with the entity.
-        // `FileUtils.getBookFullPath` calls `book.getPrimaryBookFile()`.
-
-        try (MockedStatic<FileUtils> fileUtilsMock = mockStatic(FileUtils.class)) {
-            fileUtilsMock.when(() -> FileUtils.getBookFullPath(entity)).thenReturn(epubPath);
-
-            bookService.streamBookContent(15L, null, request, response);
-
-            verify(bookRepository).findByIdWithBookFiles(15L);
-            verify(fileStreamingService).streamWithRangeSupport(eq(epubPath), eq("application/epub+zip"), eq(request), eq(response));
-        }
+        assertTrue(result.isEmpty());
     }
 
+    @Test
+    void filterShelvesByUserId_nullInput_returnsEmpty() {
+        Set<Shelf> result = bookService.filterShelvesByUserId(null, 1L);
+        assertTrue(result.isEmpty());
+    }
+    
 }

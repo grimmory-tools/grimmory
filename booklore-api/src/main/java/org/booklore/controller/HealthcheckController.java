@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/v1/healthcheck")
-@Tag(name = "Healthcheck", description = "Endpoints for checking the healch of the application")
+@Tag(name = "Healthcheck", description = "Endpoints for checking the health of the application")
 public class HealthcheckController {
 
   @Value("${app.version}")

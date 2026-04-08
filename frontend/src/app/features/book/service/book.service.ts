@@ -101,7 +101,8 @@ export class BookService {
   private getBooksQueryOptions() {
     return queryOptions({
       queryKey: BOOKS_QUERY_KEY,
-      queryFn: () => lastValueFrom(this.http.get<Book[]>(this.url, {params: {stripForListView: false}}))
+      queryFn: () => lastValueFrom(this.http.get<Book[]>(this.url, {params: {stripForListView: false}})),
+      staleTime: 30_000,
     });
   }
 
@@ -118,6 +119,20 @@ export class BookService {
 
   ensureBookDetail(bookId: number, withDescription: boolean): Promise<Book> {
     return this.queryClient.ensureQueryData(this.bookDetailQueryOptions(bookId, withDescription));
+  }
+
+  /**
+   * Always fetches book detail from the server, bypassing the cache.
+   *
+   * Used by reader components on initialization to guarantee the latest reading position.
+   * While optimistic cache updates keep progress current within a single session,
+   * this network request is necessary to pick up progress saved on another device or browser.
+   */
+  fetchFreshBookDetail(bookId: number, withDescription: boolean): Promise<Book> {
+    return this.queryClient.fetchQuery({
+      ...this.bookDetailQueryOptions(bookId, withDescription),
+      staleTime: 0,
+    });
   }
 
   private getBookRecommendationsQueryOptions(bookId: number, limit: number) {

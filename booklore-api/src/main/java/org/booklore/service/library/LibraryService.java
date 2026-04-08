@@ -27,7 +27,6 @@ import org.booklore.service.audit.AuditService;
 import org.booklore.service.monitoring.LibraryWatchService;
 import org.booklore.task.options.RescanLibraryContext;
 import org.booklore.util.FileService;
-import org.booklore.util.SecurityContextVirtualThread;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.context.event.EventListener;
@@ -45,12 +44,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @AllArgsConstructor
 @DependsOnDatabaseInitialization
+@Transactional(readOnly = true)
 public class LibraryService {
 
     private static final Set<Long> scanningLibraries = ConcurrentHashMap.newKeySet();
@@ -76,6 +77,7 @@ public class LibraryService {
     private final AuthenticationService authenticationService;
     private final UserRepository userRepository;
     private final AuditService auditService;
+    private final Executor taskExecutor;
 
     @Transactional
     @EventListener(ApplicationReadyEvent.class)
@@ -161,7 +163,8 @@ public class LibraryService {
     @Transactional
     public Library createLibrary(CreateLibraryRequest request) {
         BookLoreUser bookLoreUser = authenticationService.getAuthenticatedUser();
-        Optional<BookLoreUserEntity> user = userRepository.findById(bookLoreUser.getId());
+        BookLoreUserEntity userEntity = userRepository.findById(bookLoreUser.getId())
+                .orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(bookLoreUser.getId()));
 
         LibraryEntity libraryEntity = LibraryEntity.builder()
                 .name(request.getName())
@@ -179,8 +182,12 @@ public class LibraryService {
                 .allowedFormats(request.getAllowedFormats())
                 .metadataSource(request.getMetadataSource())
                 .organizationMode(request.getOrganizationMode())
-                .users(List.of(user.get()))
+                .users(new HashSet<>(Set.of(userEntity)))
                 .build();
+
+        for (LibraryPathEntity p : libraryEntity.getLibraryPaths()) {
+            p.setLibrary(libraryEntity);
+        }
 
         libraryEntity = libraryRepository.save(libraryEntity);
         Long libraryId = libraryEntity.getId();
@@ -198,11 +205,12 @@ public class LibraryService {
         return libraryMapper.toLibrary(libraryEntity);
     }
 
+    @Transactional
     public void rescanLibrary(long libraryId) {
         LibraryEntity lib = libraryRepository.findById(libraryId).orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
         auditService.log(AuditAction.LIBRARY_SCANNED, "Library", libraryId, "Scanned library: " + lib.getName());
 
-        SecurityContextVirtualThread.runWithSecurityContext(() -> {
+        taskExecutor.execute(() -> {
             if (!scanningLibraries.add(libraryId)) {
                 log.warn("Library {} is already being scanned, skipping duplicate rescan request", libraryId);
                 return;
@@ -223,19 +231,16 @@ public class LibraryService {
         });
     }
 
-    @Transactional(readOnly = true)
     public Library getLibrary(long libraryId) {
         LibraryEntity libraryEntity = libraryRepository.findById(libraryId).orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
         return libraryMapper.toLibrary(libraryEntity);
     }
 
-    @Transactional(readOnly = true)
     public List<Library> getAllLibraries() {
         List<LibraryEntity> libraries = libraryRepository.findAll();
         return libraries.stream().map(libraryMapper::toLibrary).toList();
     }
 
-    @Transactional(readOnly = true)
     public List<Library> getLibraries() {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         BookLoreUserEntity userEntity = userRepository.findByIdWithLibraries(user.getId()).orElseThrow(() -> new UsernameNotFoundException("User not found"));
@@ -251,10 +256,10 @@ public class LibraryService {
 
     @Transactional
     public void deleteLibrary(long id) {
-        LibraryEntity library = libraryRepository.findByIdWithBooks(id)
+        LibraryEntity library = libraryRepository.findById(id)
                 .orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(id));
         libraryWatchService.unregisterLibrary(id);
-        Set<Long> bookIds = library.getBookEntities().stream().map(BookEntity::getId).collect(Collectors.toSet());
+        Set<Long> bookIds = bookRepository.findBookIdsByLibraryId(id);
         fileService.deleteBookCovers(bookIds);
         String libraryName = library.getName();
         libraryRepository.deleteById(id);
@@ -262,14 +267,12 @@ public class LibraryService {
         log.info("Library deleted successfully: {}", id);
     }
 
-    @Transactional(readOnly = true)
     public Book getBook(long libraryId, long bookId) {
         libraryRepository.findById(libraryId).orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).filter(b -> b.getLibrary().getId() == libraryId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
         return bookMapper.toBook(bookEntity);
     }
 
-    @Transactional(readOnly = true)
     public List<Book> getBooks(long libraryId) {
         libraryRepository.findById(libraryId).orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
         List<BookEntity> bookEntities = bookRepository.findAllWithMetadataByLibraryId(libraryId);
@@ -285,7 +288,6 @@ public class LibraryService {
         return result;
     }
 
-    @Transactional(readOnly = true)
     public Map<String, Long> getBookCountsByFormat(long libraryId) {
         libraryRepository.findById(libraryId).orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
         Map<String, Long> counts = new HashMap<>();
@@ -366,7 +368,7 @@ public class LibraryService {
     }
 
     private void startBackgroundScan(long libraryId) {
-        SecurityContextVirtualThread.runWithSecurityContext(() -> {
+        taskExecutor.execute(() -> {
             if (!scanningLibraries.add(libraryId)) {
                 log.warn("Library {} is already being scanned, skipping duplicate process request", libraryId);
                 return;

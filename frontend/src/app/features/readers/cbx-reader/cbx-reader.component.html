@@ -1,9 +1,27 @@
-<div class="comic-reader-container" tabindex="0" [class.rtl-reading]="readingDirection === CbxReadingDirection.RTL"
+<div #readerRoot class="comic-reader-container" tabindex="0"
+  [class.rtl-reading]="readingDirection === CbxReadingDirection.RTL"
   [class.fullscreen-mode]="isFullscreen" [class.slideshow-active]="isSlideshowActive">
   <app-cbx-header [isCurrentPageBookmarked]="isCurrentPageBookmarked"
     [currentPageHasNotes]="currentPageHasNotes"></app-cbx-header>
 
   <app-cbx-sidebar></app-cbx-sidebar>
+
+  @if (showWebtoonSuggestion) {
+  <div class="webtoon-suggestion-banner" role="region" [attr.aria-label]="'readerCbx.webtoonHint.regionLabel' | transloco">
+    <p class="webtoon-suggestion-text">{{ 'readerCbx.webtoonHint.message' | transloco }}</p>
+    <div class="webtoon-suggestion-actions">
+      <button type="button" class="webtoon-btn primary" (click)="onWebtoonSuggestSwitchToLongStrip()">
+        {{ 'readerCbx.webtoonHint.switch' | transloco }}
+      </button>
+      <button type="button" class="webtoon-btn" (click)="onWebtoonSuggestDismiss()">
+        {{ 'readerCbx.webtoonHint.dismiss' | transloco }}
+      </button>
+      <button type="button" class="webtoon-btn subtle" (click)="onWebtoonSuggestNever()">
+        {{ 'readerCbx.webtoonHint.never' | transloco }}
+      </button>
+    </div>
+  </div>
+  }
 
   @if (showQuickSettings) {
   <app-cbx-quick-settings></app-cbx-quick-settings>
@@ -33,7 +51,7 @@
 
   <div #magnifierLens class="magnifier-lens"></div>
 
-  <div class="image-container" [class.magnifier-active]="isMagnifierActive"
+  <div #imageScrollHost class="image-container" [class.magnifier-active]="isMagnifierActive"
     [class.two-page-view]="isTwoPageView && scrollMode === CbxScrollMode.PAGINATED"
     [class.infinite-scroll]="scrollMode === CbxScrollMode.INFINITE"
     [class.long-strip]="scrollMode === CbxScrollMode.LONG_STRIP"
@@ -79,12 +97,18 @@
     } @else if (scrollMode === CbxScrollMode.LONG_STRIP) {
     <div class="long-strip-wrapper" role="button" tabindex="0" (click)="onImageClick()"
       (keydown.enter)="onImageClick()">
-      @for (item of longStripImages; track item.page) {
-      <img [src]="item.src" alt="Page {{ item.page + 1 }}" class="long-strip-image" [attr.data-page]="item.page"
-        (load)="onLongStripImageLoad($event, item.page)" />
-      }
-      @if (longStripImages.length > 0 && longStripImages[longStripImages.length - 1].page >= pages.length - 1 &&
-      nextBookInSeries) {
+      <div class="strip-width-constrain" [style.width]="cbxQuickSettingsState().stripMaxWidthPercent + '%'">
+        @for (item of longStripImages; track item.page) {
+        <img [src]="item.src" alt="Page {{ item.page + 1 }}" class="long-strip-image" [attr.data-page]="item.page"
+          draggable="false" (load)="onLongStripImageLoad($event, item.page)" />
+        }
+        @if (nextBookInSeries) {
+        <div class="cbx-continuation-spacer" aria-hidden="true"></div>
+        <div class="cbx-continuation-hint" [class.visible]="continuationHintVisible" aria-live="polite">
+          {{ 'readerCbx.continuation.scrollForNext' | transloco }}
+        </div>
+        }
+        @if (isAtEndOfLongStrip && nextBookInSeries) {
       <div class="end-of-comic-action">
         <button class="next-book-action-button" (click)="navigateToNextBook()">
           <span class="action-icon">📖</span>
@@ -92,22 +116,30 @@
           <span class="book-title">{{ getBookDisplayTitle(nextBookInSeries) }}</span>
         </button>
       </div>
-      }
+        }
+      </div>
     </div>
     } @else {
     <div class="infinite-scroll-wrapper">
-      @for (pageIdx of infiniteScrollPages; track pageIdx; let i = $index) {
-      <img [src]="getPageImageUrl(pageIdx)" alt="Page {{ pageIdx + 1 }}" class="page-image" role="button" tabindex="0"
-        (click)="onImageClick()" (keydown.enter)="onImageClick()" (dblclick)="onImageDoubleClick()"
-        (load)="onPageImageLoad($event, pageIdx)" />
-      }
-      @if (isLoadingMore) {
-      <div class="loading-more">
-        <p-progressSpinner class="small-spinner"></p-progressSpinner>
-      </div>
-      }
-      @if (infiniteScrollPages.length > 0 && infiniteScrollPages[infiniteScrollPages.length - 1] >= pages.length - 1 &&
-      nextBookInSeries) {
+      <div class="strip-width-constrain" [style.width]="cbxQuickSettingsState().stripMaxWidthPercent + '%'">
+        @for (pageIdx of infiniteScrollPages; track pageIdx) {
+        <img [src]="getPageImageUrl(pageIdx)" alt="Page {{ pageIdx + 1 }}" class="page-image"
+          [attr.data-page]="pageIdx" role="button" tabindex="0" draggable="false"
+          (click)="onImageClick()" (keydown.enter)="onImageClick()" (dblclick)="onImageDoubleClick()"
+          (load)="onPageImageLoad($event, pageIdx)" />
+        }
+        @if (isLoadingMore) {
+        <div class="loading-more">
+          <p-progressSpinner class="small-spinner"></p-progressSpinner>
+        </div>
+        }
+        @if (nextBookInSeries) {
+        <div class="cbx-continuation-spacer" aria-hidden="true"></div>
+        <div class="cbx-continuation-hint" [class.visible]="continuationHintVisible" aria-live="polite">
+          {{ 'readerCbx.continuation.scrollForNext' | transloco }}
+        </div>
+        }
+        @if (isAtEndOfInfiniteScroll && nextBookInSeries) {
       <div class="end-of-comic-action">
         <button class="next-book-action-button" (click)="navigateToNextBook()">
           <span class="action-icon">📖</span>
@@ -115,7 +147,8 @@
           <span class="book-title">{{ getBookDisplayTitle(nextBookInSeries) }}</span>
         </button>
       </div>
-      }
+        }
+      </div>
     </div>
     }
 

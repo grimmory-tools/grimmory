@@ -12,6 +12,7 @@ import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.entity.UserPermissionsEntity;
 import org.booklore.repository.KoboUserSettingsRepository;
 import org.booklore.repository.UserRepository;
+import org.springframework.boot.web.servlet.FilterRegistration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -26,6 +27,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Component
+@FilterRegistration(enabled = false)
 public class KoboAuthFilter extends OncePerRequestFilter {
 
     private final KoboUserSettingsRepository koboUserSettingsRepository;
@@ -36,12 +38,6 @@ public class KoboAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         String path = request.getRequestURI();
-
-        if (!path.startsWith("/api/kobo/")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         String[] parts = path.split("/");
         if (parts.length < 4) {
             log.warn("KOBO token missing in path");

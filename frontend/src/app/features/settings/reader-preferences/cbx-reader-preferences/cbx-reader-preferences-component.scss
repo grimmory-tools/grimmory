@@ -49,6 +49,26 @@
     }
   }
 
+  .strip-width-control {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    min-width: 0;
+
+    input[type='range'] {
+      flex: 1;
+      min-width: 120px;
+      max-width: 280px;
+    }
+  }
+
+  .strip-width-value {
+    font-size: 0.9rem;
+    color: var(--p-text-muted-color);
+    min-width: 2.75rem;
+  }
+
   .setting-description {
     color: var(--p-text-muted-color);
     font-size: settings.$settings-section-description-size;

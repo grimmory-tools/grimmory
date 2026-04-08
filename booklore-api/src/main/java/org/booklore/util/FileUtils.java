@@ -144,6 +144,21 @@ public class FileUtils {
     }
 
     /**
+     * Get last modified time of the file in milliseconds since the
+     * epoch (00:00:00 GMT, January 1, 1970).
+     * @param filePath the path to the file
+     * @return milliseconds since the epoch, or null if an I/O error occurs
+     */
+    public Long getFileLastModified(Path filePath) {
+        try {
+            return Files.getLastModifiedTime(filePath).toMillis();
+        } catch (IOException e) {
+            log.error("Failed to get last modified for path [{}]: {}", filePath, e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
      * Calculate total size of all files in a folder (for folder-based audiobooks).
      */
     public Long getFolderSizeInKb(Path folderPath) {
@@ -361,5 +376,19 @@ public class FileUtils {
             }
         }
         return false;
+    }
+
+    /**
+     * Efficiently remove all trailing slashes from a string without using regex.
+     */
+    public String trimTrailingSlashes(String input) {
+        if (input == null) {
+            return "";
+        }
+        int len = input.length();
+        while (len > 0 && input.charAt(len - 1) == '/') {
+            len--;
+        }
+        return input.substring(0, len);
     }
 }

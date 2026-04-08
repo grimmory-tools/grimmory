@@ -23,7 +23,6 @@ import org.booklore.service.metadata.writer.MetadataWriterFactory;
 import org.booklore.util.BookCoverUtils;
 import org.booklore.util.FileService;
 import org.booklore.config.AppProperties;
-import org.booklore.util.SecurityContextVirtualThread;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -33,6 +32,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
@@ -53,6 +53,7 @@ public class BookCoverService {
     private final BookQueryService bookQueryService;
     private final CoverImageGenerator coverImageGenerator;
     private final MetadataWriterFactory metadataWriterFactory;
+    private final Executor taskExecutor;
     private final TransactionTemplate transactionTemplate;
 
     private record BookCoverInfo(Long id, String title) {
@@ -216,7 +217,7 @@ public class BookCoverService {
         validateCoverFile(file);
         byte[] coverImageBytes = extractBytesFromMultipartFile(file);
         List<BookCoverInfo> unlockedBooks = getUnlockedBookCoverInfos(bookIds);
-        SecurityContextVirtualThread.runWithSecurityContext(() -> processBulkCoverUpdate(unlockedBooks, coverImageBytes));
+        taskExecutor.execute(() -> processBulkCoverUpdate(unlockedBooks, coverImageBytes));
     }
 
     // =========================
@@ -284,7 +285,7 @@ public class BookCoverService {
      */
     public void regenerateCoversForBooks(Set<Long> bookIds) {
         List<BookRegenerationInfo> unlockedBooks = getUnlockedBookRegenerationInfos(bookIds);
-        SecurityContextVirtualThread.runWithSecurityContext(() -> processBulkCoverRegeneration(unlockedBooks));
+        taskExecutor.execute(() -> processBulkCoverRegeneration(unlockedBooks));
     }
 
     /**
@@ -292,14 +293,14 @@ public class BookCoverService {
      */
     public void generateCustomCoversForBooks(Set<Long> bookIds) {
         List<BookCoverInfo> unlockedBooks = getUnlockedBookCoverInfos(bookIds);
-        SecurityContextVirtualThread.runWithSecurityContext(() -> processBulkCustomCoverGeneration(unlockedBooks));
+        taskExecutor.execute(() -> processBulkCustomCoverGeneration(unlockedBooks));
     }
 
     /**
      * Regenerate covers for all books, optionally only for books with missing covers.
      */
     public void regenerateCovers(boolean missingOnly) {
-        SecurityContextVirtualThread.runWithSecurityContext(() -> {
+        taskExecutor.execute(() -> {
             try {
                 List<BookRegenerationInfo> books = bookQueryService.getAllFullBookEntities().stream()
                         .filter(book -> !isCoverLocked(book))

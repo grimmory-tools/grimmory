@@ -45,6 +45,10 @@ public class BookMarkEntity {
     @Column(name = "track_index")
     private Integer trackIndex;
 
+    // For PDF bookmarks
+    @Column(name = "page_number")
+    private Integer pageNumber;
+
     @Column(name = "title")
     private String title;
 

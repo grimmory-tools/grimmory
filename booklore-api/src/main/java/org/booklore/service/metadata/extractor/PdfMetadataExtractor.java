@@ -2,38 +2,25 @@ package org.booklore.service.metadata.extractor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.pdfbox.Loader;
-import org.apache.pdfbox.cos.COSDictionary;
-import org.apache.pdfbox.cos.COSName;
-import org.apache.pdfbox.io.RandomAccessReadBufferedFile;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDDocumentInformation;
-import org.apache.pdfbox.pdmodel.common.PDMetadata;
-import org.apache.pdfbox.rendering.ImageType;
-import org.apache.pdfbox.rendering.PDFRenderer;
+import org.grimmory.pdfium4j.PdfDocument;
+import org.grimmory.pdfium4j.model.MetadataTag;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.util.SecureXmlUtils;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
-import javax.imageio.ImageIO;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import java.io.StringReader;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -45,24 +32,17 @@ public class PdfMetadataExtractor implements FileMetadataExtractor {
 
     private static final Pattern COMMA_AMPERSAND_PATTERN = Pattern.compile("[,&]");
     private static final Pattern ISBN_CLEANUP_PATTERN = Pattern.compile("[^0-9Xx]");
+    private static final Pattern ISO_DATE_PATTERN = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
+    private static final Pattern PDF_DATE_TIME_PATTERN = Pattern.compile("\\d{8,}");
+    private static final Pattern YEAR_MONTH_PATTERN = Pattern.compile("\\d{6}");
 
     @Override
     public byte[] extractCover(File file) {
-        BufferedImage coverImage = null;
-        try (RandomAccessReadBufferedFile randomAccessRead = new RandomAccessReadBufferedFile(file);
-             PDDocument pdf = Loader.loadPDF(randomAccessRead)) {
-            coverImage = new PDFRenderer(pdf).renderImageWithDPI(0, 300, ImageType.RGB);
-            try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-                ImageIO.write(coverImage, "jpg", baos);
-                return baos.toByteArray();
-            }
+        try (PdfDocument doc = PdfDocument.open(file.toPath())) {
+            return doc.renderPageToBytes(0, 300, "jpeg");
         } catch (Exception e) {
             log.warn("Failed to extract cover from PDF: {}", file.getAbsolutePath(), e);
             return null;
-        } finally {
-            if (coverImage != null) {
-                coverImage.flush(); // Release native resources
-            }
         }
     }
 
@@ -75,167 +55,157 @@ public class PdfMetadataExtractor implements FileMetadataExtractor {
 
         BookMetadata.BookMetadataBuilder metadataBuilder = BookMetadata.builder();
 
-        try (RandomAccessReadBufferedFile randomAccessRead = new RandomAccessReadBufferedFile(file);
-             PDDocument pdf = Loader.loadPDF(randomAccessRead)) {
-            PDDocumentInformation info = pdf.getDocumentInformation();
+        try (PdfDocument doc = PdfDocument.open(file.toPath())) {
 
-            if (info != null) {
-                if (StringUtils.isNotBlank(info.getTitle())) {
-                    metadataBuilder.title(info.getTitle());
-                } else {
-                    metadataBuilder.title(FilenameUtils.getBaseName(file.getName()));
-                }
+            String title = doc.metadata(MetadataTag.TITLE).orElse(null);
+            if (StringUtils.isNotBlank(title)) {
+                metadataBuilder.title(title);
+            } else {
+                metadataBuilder.title(FilenameUtils.getBaseName(file.getName()));
+            }
 
-                if (StringUtils.isNotBlank(info.getAuthor())) {
-                    List<String> authors = parseAuthors(info.getAuthor());
-                    if (!authors.isEmpty()) {
-                        metadataBuilder.authors(authors);
-                    }
-                }
-
-                if (StringUtils.isNotBlank(info.getSubject())) {
-                    metadataBuilder.description(info.getSubject());
-                }
-
-                COSDictionary cosDict = info.getCOSObject();
-                if (cosDict != null && cosDict.containsKey(COSName.getPDFName("EBX_PUBLISHER"))) {
-                    String ebxPublisher = cosDict.getString(COSName.getPDFName("EBX_PUBLISHER"));
-                    if (StringUtils.isNotBlank(ebxPublisher)) {
-                        metadataBuilder.publisher(ebxPublisher);
-                    }
-                }
-
-                if (info.getCreationDate() != null) {
-                    LocalDate createdDate = convertCalendarToLocalDate(info.getCreationDate());
-                    if (createdDate != null) {
-                        metadataBuilder.publishedDate(createdDate);
-                    }
-                }
-
-                metadataBuilder.pageCount(pdf.getNumberOfPages());
-
-                if (StringUtils.isNotBlank(info.getKeywords())) {
-                    String keywords = info.getKeywords();
-                    String[] parts;
-                    if (keywords.contains(";")) {
-                        parts = keywords.split(";");
-                    } else {
-                        parts = keywords.split(",");
-                    }
-                    Set<String> categories = Arrays.stream(parts)
-                            .map(String::trim)
-                            .filter(StringUtils::isNotBlank)
-                            .collect(Collectors.toSet());
-                    if (!categories.isEmpty()) {
-                        metadataBuilder.categories(categories);
-                    }
-                }
-
-                String languageValue = info.getCustomMetadataValue("Language");
-                if (StringUtils.isNotBlank(languageValue)) {
-                    metadataBuilder.language(languageValue);
+            String author = doc.metadata(MetadataTag.AUTHOR).orElse(null);
+            if (StringUtils.isNotBlank(author)) {
+                List<String> authors = parseAuthors(author);
+                if (!authors.isEmpty()) {
+                    metadataBuilder.authors(authors);
                 }
             }
 
-            PDMetadata metadata = pdf.getDocumentCatalog().getMetadata();
+            String subject = doc.metadata(MetadataTag.SUBJECT).orElse(null);
+            if (StringUtils.isNotBlank(subject)) {
+                metadataBuilder.description(subject);
+            }
 
-            if (metadata != null) {
-                try (InputStream is = metadata.createInputStream()) {
-                    if (is == null) {
-                        log.warn("PDMetadata InputStream is null");
-                    } else {
-                        String rawXmp = IOUtils.toString(is, StandardCharsets.UTF_8);
-                        if (StringUtils.isNotBlank(rawXmp)) {
-                            DocumentBuilder dBuilder = SecureXmlUtils.createSecureDocumentBuilder(true);
-                            Document doc = dBuilder.parse(new ByteArrayInputStream(rawXmp.getBytes(StandardCharsets.UTF_8)));
+            String ebxPublisher = doc.metadata("EBX_PUBLISHER").orElse(null);
+            if (StringUtils.isNotBlank(ebxPublisher)) {
+                metadataBuilder.publisher(ebxPublisher);
+            }
 
-                            XPathFactory xPathfactory = XPathFactory.newInstance();
-                            XPath xpath = xPathfactory.newXPath();
-                            xpath.setNamespaceContext(new XmpNamespaceContext());
+            String creationDate = doc.metadata(MetadataTag.CREATION_DATE).orElse(null);
+            if (StringUtils.isNotBlank(creationDate)) {
+                LocalDate date = parsePdfDate(creationDate);
+                if (date != null) {
+                    metadataBuilder.publishedDate(date);
+                }
+            }
 
-                            extractDublinCoreMetadata(xpath, doc, metadataBuilder);
-                            extractCalibreMetadata(xpath, doc, metadataBuilder);
-                            extractBookloreMetadata(xpath, doc, metadataBuilder);
-                            
-                            // Debug logging for troubleshooting extraction issues
-                            if (log.isDebugEnabled()) {
-                                BookMetadata debugMeta = metadataBuilder.build();
-                                log.debug("PDF XMP extraction results - subtitle: '{}', moods: {}, tags: {}", 
-                                    debugMeta.getSubtitle(), debugMeta.getMoods(), debugMeta.getTags());
+            metadataBuilder.pageCount(doc.pageCount());
+
+            String keywords = doc.metadata(MetadataTag.KEYWORDS).orElse(null);
+            if (StringUtils.isNotBlank(keywords)) {
+                String[] parts;
+                if (keywords.contains(";")) {
+                    parts = keywords.split(";");
+                } else {
+                    parts = keywords.split(",");
+                }
+                Set<String> categories = Arrays.stream(parts)
+                        .map(String::trim)
+                        .filter(StringUtils::isNotBlank)
+                        .collect(java.util.stream.Collectors.toSet());
+                if (!categories.isEmpty()) {
+                    metadataBuilder.categories(categories);
+                }
+            }
+
+            String languageValue = doc.metadata("Language").orElse(null);
+            if (StringUtils.isNotBlank(languageValue)) {
+                metadataBuilder.language(languageValue);
+            }
+
+            String rawXmp = doc.xmpMetadataString();
+
+            if (StringUtils.isNotBlank(rawXmp)) {
+                try {
+                    DocumentBuilder dBuilder = SecureXmlUtils.createSecureDocumentBuilder(true);
+                    Document xmpDoc = dBuilder.parse(new InputSource(new StringReader(rawXmp)));
+
+                    XPathFactory xPathfactory = XPathFactory.newInstance();
+                    XPath xpath = xPathfactory.newXPath();
+                    xpath.setNamespaceContext(new XmpNamespaceContext());
+
+                    extractDublinCoreMetadata(xpath, xmpDoc, metadataBuilder);
+                    extractCalibreMetadata(xpath, xmpDoc, metadataBuilder);
+                    extractBookloreMetadata(xpath, xmpDoc, metadataBuilder);
+                    
+                    // Debug logging for troubleshooting extraction issues
+                    if (log.isDebugEnabled()) {
+                        BookMetadata debugMeta = metadataBuilder.build();
+                        log.debug("PDF XMP extraction results - subtitle: '{}', moods: {}, tags: {}", 
+                            debugMeta.getSubtitle(), debugMeta.getMoods(), debugMeta.getTags());
+                    }
+
+                    Map<String, String> identifiers = extractIdentifiers(xpath, xmpDoc);
+                    if (!identifiers.isEmpty()) {
+                        // Extract generic ISBN first
+                        String isbn = identifiers.get("isbn");
+                        if (StringUtils.isNotBlank(isbn)) {
+                            isbn = ISBN_CLEANUP_PATTERN.matcher(isbn).replaceAll("");
+                            if (isbn.length() == 10) {
+                                metadataBuilder.isbn10(isbn);
+                            } else if (isbn.length() == 13) {
+                                metadataBuilder.isbn13(isbn);
+                            } else {
+                                metadataBuilder.isbn13(isbn); // Fallback
                             }
+                        }
 
-                            Map<String, String> identifiers = extractIdentifiers(xpath, doc);
-                            if (!identifiers.isEmpty()) {
-                                // Extract generic ISBN first
-                                String isbn = identifiers.get("isbn");
-                                if (StringUtils.isNotBlank(isbn)) {
-                                    isbn = ISBN_CLEANUP_PATTERN.matcher(isbn).replaceAll("");
-                                    if (isbn.length() == 10) {
-                                        metadataBuilder.isbn10(isbn);
-                                    } else if (isbn.length() == 13) {
-                                        metadataBuilder.isbn13(isbn);
-                                    } else {
-                                        metadataBuilder.isbn13(isbn); // Fallback
-                                    }
-                                }
-
-                                // Extract specific ISBN schemes (overwrites generic only if valid)
-                                String isbn13 = identifiers.get("isbn13");
-                                if (StringUtils.isNotBlank(isbn13)) {
-                                    String cleaned = ISBN_CLEANUP_PATTERN.matcher(isbn13).replaceAll("");
-                                    if (!cleaned.isBlank()) {
-                                        metadataBuilder.isbn13(cleaned);
-                                    }
-                                }
-
-                                String isbn10 = identifiers.get("isbn10");
-                                if (StringUtils.isNotBlank(isbn10)) {
-                                    String cleaned = ISBN_CLEANUP_PATTERN.matcher(isbn10).replaceAll("");
-                                    if (!cleaned.isBlank()) {
-                                        metadataBuilder.isbn10(cleaned);
-                                    }
-                                }
-
-                                String google = identifiers.get("google");
-                                if (StringUtils.isNotBlank(google)) {
-                                    metadataBuilder.googleId(google);
-                                }
-
-                                String amazon = identifiers.get("amazon");
-                                if (StringUtils.isNotBlank(amazon)) {
-                                    metadataBuilder.asin(amazon);
-                                }
-
-                                String goodreads = identifiers.get("goodreads");
-                                if (StringUtils.isNotBlank(goodreads)) {
-                                    metadataBuilder.goodreadsId(goodreads);
-                                }
-
-                                String comicvine = identifiers.get("comicvine");
-                                if (StringUtils.isNotBlank(comicvine)) {
-                                    metadataBuilder.comicvineId(comicvine);
-                                }
-
-                                String ranobedb = identifiers.get("ranobedb");
-                                if (StringUtils.isNotBlank(ranobedb)) {
-                                    metadataBuilder.ranobedbId(ranobedb);
-                                }
-
-                                String hardcover = identifiers.get("hardcover");
-                                if (StringUtils.isNotBlank(hardcover)) {
-                                    metadataBuilder.hardcoverId(hardcover);
-                                }
-
-                                String hardcoverBookId = identifiers.get("hardcover_book_id");
-                                if (StringUtils.isNotBlank(hardcoverBookId)) {
-                                    metadataBuilder.hardcoverBookId(hardcoverBookId);
-                                }
-
-                                String lubimyczytac = identifiers.get("lubimyczytac");
-                                if (StringUtils.isNotBlank(lubimyczytac)) {
-                                    metadataBuilder.lubimyczytacId(lubimyczytac);
-                                }
+                        // Extract specific ISBN schemes (overwrites generic only if valid)
+                        String isbn13 = identifiers.get("isbn13");
+                        if (StringUtils.isNotBlank(isbn13)) {
+                            String cleaned = ISBN_CLEANUP_PATTERN.matcher(isbn13).replaceAll("");
+                            if (!cleaned.isBlank()) {
+                                metadataBuilder.isbn13(cleaned);
                             }
+                        }
+
+                        String isbn10 = identifiers.get("isbn10");
+                        if (StringUtils.isNotBlank(isbn10)) {
+                            String cleaned = ISBN_CLEANUP_PATTERN.matcher(isbn10).replaceAll("");
+                            if (!cleaned.isBlank()) {
+                                metadataBuilder.isbn10(cleaned);
+                            }
+                        }
+
+                        String google = identifiers.get("google");
+                        if (StringUtils.isNotBlank(google)) {
+                            metadataBuilder.googleId(google);
+                        }
+
+                        String amazon = identifiers.get("amazon");
+                        if (StringUtils.isNotBlank(amazon)) {
+                            metadataBuilder.asin(amazon);
+                        }
+
+                        String goodreads = identifiers.get("goodreads");
+                        if (StringUtils.isNotBlank(goodreads)) {
+                            metadataBuilder.goodreadsId(goodreads);
+                        }
+
+                        String comicvine = identifiers.get("comicvine");
+                        if (StringUtils.isNotBlank(comicvine)) {
+                            metadataBuilder.comicvineId(comicvine);
+                        }
+
+                        String ranobedb = identifiers.get("ranobedb");
+                        if (StringUtils.isNotBlank(ranobedb)) {
+                            metadataBuilder.ranobedbId(ranobedb);
+                        }
+
+                        String hardcover = identifiers.get("hardcover");
+                        if (StringUtils.isNotBlank(hardcover)) {
+                            metadataBuilder.hardcoverId(hardcover);
+                        }
+
+                        String hardcoverBookId = identifiers.get("hardcover_book_id");
+                        if (StringUtils.isNotBlank(hardcoverBookId)) {
+                            metadataBuilder.hardcoverBookId(hardcoverBookId);
+                        }
+
+                        String lubimyczytac = identifiers.get("lubimyczytac");
+                        if (StringUtils.isNotBlank(lubimyczytac)) {
+                            metadataBuilder.lubimyczytacId(lubimyczytac);
                         }
                     }
                 } catch (Exception e) {
@@ -551,9 +521,43 @@ public class PdfMetadataExtractor implements FileMetadataExtractor {
                 .toList();
     }
 
-    private LocalDate convertCalendarToLocalDate(Calendar calendar) {
-        if (calendar == null) return null;
-        return calendar.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    /**
+     * Parses PDF date strings in the standard D:YYYYMMDDHHmmSS format.
+     * Falls back to ISO date parsing if the D: prefix is not present.
+     */
+    private LocalDate parsePdfDate(String pdfDate) {
+        if (pdfDate == null || pdfDate.isBlank()) return null;
+        try {
+            String s = pdfDate.startsWith("D:") ? pdfDate.substring(2) : pdfDate;
+            // Try ISO date format first (e.g. "2021-02-17")
+            if (ISO_DATE_PATTERN.matcher(s).matches()) {
+                return LocalDate.parse(s);
+            }
+            // Strip timezone info (e.g. +00'00' or Z)
+            int tzIdx = s.indexOf('+');
+            if (tzIdx < 0) tzIdx = s.indexOf('-', 8); // skip YYYYMMDD
+            if (tzIdx < 0) tzIdx = s.indexOf('Z');
+            if (tzIdx > 0) s = s.substring(0, tzIdx);
+            if (PDF_DATE_TIME_PATTERN.matcher(s).matches()) {
+                int year = Integer.parseInt(s.substring(0, 4));
+                int month = Integer.parseInt(s.substring(4, 6));
+                int day = Integer.parseInt(s.substring(6, 8));
+                return LocalDate.of(year, month, day);
+            }
+            if (YEAR_MONTH_PATTERN.matcher(s).matches()) {
+                return LocalDate.of(
+                        Integer.parseInt(s.substring(0, 4)),
+                        Integer.parseInt(s.substring(4, 6)),
+                        1
+                );
+            }
+            if (s.matches("\\d{4}")) {
+                return LocalDate.of(Integer.parseInt(s.substring(0, 4)), 1, 1);
+            }
+        } catch (Exception e) {
+            log.debug("Failed to parse PDF date '{}': {}", pdfDate, e.getMessage());
+        }
+        return null;
     }
 
     private String xpathEvaluate(XPath xpath, Document doc, String expression) throws XPathExpressionException {

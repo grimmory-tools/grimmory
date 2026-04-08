@@ -16,38 +16,162 @@
   }
 
   @if (viewerMode === 'document') {
-  <button class="embed-close-btn icon-btn close-btn" [title]="'readerPdf.toolbar.closePdfReader' | transloco"
-    (click)="closeReader()">
-    <app-reader-icon name="close" [size]="20" />
-  </button>
-  <div id="embedpdf-viewer"></div>
+    @if (docViewerReady) {
+    <button class="embed-close-btn icon-btn" [title]="'readerPdf.toolbar.closePdfReader' | transloco"
+      (click)="closeReader()">
+      <app-reader-icon name="close" [size]="18" />
+    </button>
+    }
+
+    @if (isDocViewerInfoVisible) {
+    <div class="doc-viewer-info">
+      <span>{{ 'readerPdf.docViewer.changesSavedInfo' | transloco }}</span>
+      <button class="dismiss-btn" [attr.aria-label]="'readerPdf.docViewer.dismiss' | transloco" (click)="dismissDocViewerInfo()">
+        <app-reader-icon name="close" [size]="14" />
+      </button>
+    </div>
+    }
+
+    <div id="embedpdf-viewer"></div>
   }
 
-  <!-- Book PDF Viewer -->
+  <!-- Book Viewer (direct EmbedPDF) -->
   @if (viewerMode === 'book') {
-  <ngx-extended-pdf-viewer [src]="bookData" [authorization]="authorization" [textLayer]="true"
-    [showHandToolButton]="true" [height]="'100%'" [theme]="isDarkTheme ? 'dark' : 'light'" [page]="page"
-    [rotation]="rotation" [zoom]="zoom" [spread]="spread" [enablePrint]="canPrint" [customToolbar]="pdfToolbar"
-    (pagesLoaded)="onPdfPagesLoaded($event)" (pageChange)="onPageChange($event)" (zoomChange)="onZoomChange($event)"
-    (spreadChange)="onSpreadChange($event)" (annotationEditorEvent)="onAnnotationEditorEvent()">
-  </ngx-extended-pdf-viewer>
-  }
 
+  <!-- Book header toolbar -->
+  <div class="pdf-header-toolbar" [class.chrome-hidden]="!headerVisible">
+    <div class="header-left">
+      <button class="icon-btn" [title]="'readerPdf.toolbar.sidebar' | transloco" (click)="toggleSidebar()">
+        <!-- sidebar/menu icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="18" height="18" x="3" y="3" rx="2" /><path d="M9 3v18" />
+        </svg>
+      </button>
+    </div>
 
-  <ng-template #pdfToolbar>
-    <div id="toolbarViewer" class="pdf-header-toolbar" [class.chrome-hidden]="!headerVisible">
-      <div class="header-left">
-        <pdf-toggle-sidebar></pdf-toggle-sidebar>
-        <pdf-find-button></pdf-find-button>
-      </div>
-      <span class="book-title">{{ bookTitle }}</span>
-      <div class="header-right">
-        <pdf-highlight-editor></pdf-highlight-editor>
-        <pdf-text-editor></pdf-text-editor>
-        <pdf-draw-editor></pdf-draw-editor>
+    <span class="book-title">{{ bookTitle }}</span>
+
+    <div class="header-right">
+      <!-- Desktop toolbar actions (hidden on mobile) -->
+      <div class="desktop-actions">
+        <!-- Search -->
+        <button class="icon-btn" [class.active]="isSearchOpen"
+          [title]="'readerPdf.toolbar.search' | transloco" (click)="toggleSearch()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+          </svg>
+        </button>
+
         <div class="separator"></div>
-        <pdf-zoom-toolbar></pdf-zoom-toolbar>
+
+        <!-- Annotation tools -->
+        <button class="icon-btn annotation-tool-btn" [class.active]="activeAnnotationTool === 'highlight'"
+          [title]="'readerPdf.toolbar.highlight' | transloco" (click)="toggleAnnotationTool('highlight')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m9 11-6 6v3h9l3-3" /><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4" />
+          </svg>
+        </button>
+        <button class="icon-btn annotation-tool-btn" [class.active]="activeAnnotationTool === 'freeText'"
+          [title]="'readerPdf.toolbar.freeText' | transloco" (click)="toggleAnnotationTool('freeText')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 6.1H3" /><path d="M21 12.1H3" /><path d="M15.1 18H3" />
+          </svg>
+        </button>
+        <button class="icon-btn annotation-tool-btn" [class.active]="activeAnnotationTool === 'ink'"
+          [title]="'readerPdf.toolbar.draw' | transloco" (click)="toggleAnnotationTool('ink')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+          </svg>
+        </button>
+        <button class="icon-btn annotation-tool-btn" [class.active]="isPanActive"
+          [title]="'readerPdf.toolbar.pan' | transloco" (click)="togglePanMode()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" /><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v10" />
+            <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8" />
+            <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.8-6.6-3.3l-4.7-5.3a2 2 0 0 1 0-2.8l.3-.3a2 2 0 0 1 2.8 0L8 14" />
+          </svg>
+        </button>
+
         <div class="separator"></div>
+
+        <!-- Bookmark toggle -->
+        <button class="icon-btn bookmark-btn" [class.bookmarked]="isCurrentPageBookmarked"
+          [title]="isCurrentPageBookmarked ? ('readerPdf.toolbar.removeBookmark' | transloco) : ('readerPdf.toolbar.addBookmark' | transloco)"
+          (click)="toggleBookmark()">
+          @if (isCurrentPageBookmarked) {
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+            fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+          </svg>
+          } @else {
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+          </svg>
+          }
+        </button>
+
+        <div class="separator"></div>
+
+        <!-- Zoom controls -->
+        <button class="icon-btn" [title]="'readerPdf.toolbar.zoomOut' | transloco" (click)="embedPdfBook.zoomOut()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /><path d="M8 11h6" />
+          </svg>
+        </button>
+        <div class="zoom-menu-wrapper">
+          <button class="icon-btn zoom-label-btn" (click)="toggleZoomMenu()">
+            <span class="zoom-label">{{ zoom }}</span>
+          </button>
+          @if (isZoomMenuOpen) {
+          <div class="zoom-dropdown">
+            @for (preset of zoomPresets; track preset.value) {
+            <button class="zoom-option" [class.active]="zoom === preset.value" (click)="setZoomPreset(preset.value)">
+              {{ preset.label }}
+            </button>
+            }
+          </div>
+          }
+        </div>
+        <button class="icon-btn" [title]="'readerPdf.toolbar.zoomIn' | transloco" (click)="embedPdfBook.zoomIn()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /><path d="M11 8v6" /><path d="M8 11h6" />
+          </svg>
+        </button>
+
+        <div class="separator"></div>
+
+        <!-- Spread mode -->
+        <button class="icon-btn" [title]="'readerPdf.toolbar.spreadMode' | transloco" (click)="cycleSpreadMode()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            @if (spreadMode === 'none') {
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            } @else {
+            <rect x="2" y="3" width="9" height="18" rx="1" /><rect x="13" y="3" width="9" height="18" rx="1" />
+            }
+          </svg>
+        </button>
+
+        <!-- Rotate -->
+        <button class="icon-btn" [title]="'readerPdf.toolbar.rotatePage' | transloco" (click)="rotateClockwise()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" />
+          </svg>
+        </button>
+
+        <div class="separator"></div>
+
+        <!-- Theme toggle -->
         <button class="icon-btn"
           [title]="isDarkTheme ? ('readerPdf.toolbar.switchToLightMode' | transloco) : ('readerPdf.toolbar.switchToDarkMode' | transloco)"
           (click)="toggleDarkTheme()">
@@ -55,14 +179,10 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="4" />
-            <path d="M12 2v2" />
-            <path d="M12 20v2" />
-            <path d="m4.93 4.93 1.41 1.41" />
-            <path d="m17.66 17.66 1.41 1.41" />
-            <path d="M2 12h2" />
-            <path d="M20 12h2" />
-            <path d="m6.34 17.66-1.41 1.41" />
-            <path d="m19.07 4.93-1.41 1.41" />
+            <path d="M12 2v2" /><path d="M12 20v2" />
+            <path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" />
+            <path d="M2 12h2" /><path d="M20 12h2" />
+            <path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" />
           </svg>
           } @else {
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
@@ -71,6 +191,8 @@
           </svg>
           }
         </button>
+
+        <!-- Fullscreen -->
         <button class="icon-btn" (click)="toggleFullscreen()"
           [title]="isFullscreen ? ('readerPdf.toolbar.exitFullscreen' | transloco) : ('readerPdf.toolbar.fullscreen' | transloco)">
           @if (isFullscreen) {
@@ -79,15 +201,173 @@
           <app-reader-icon name="fullscreen" [size]="18" />
           }
         </button>
+
         <div class="separator"></div>
-        <pdf-toggle-secondary-toolbar></pdf-toggle-secondary-toolbar>
-        <button class="icon-btn close-btn" [title]="'readerPdf.toolbar.closePdfReader' | transloco"
-          (click)="closeReader()">
-          <app-reader-icon name="close" [size]="20" />
+      </div>
+
+      <!-- Mobile: bookmark + overflow menu (shown on mobile only) -->
+      <div class="mobile-actions">
+        <button class="icon-btn bookmark-btn" [class.bookmarked]="isCurrentPageBookmarked"
+          [attr.aria-label]="isCurrentPageBookmarked ? ('readerPdf.toolbar.removeBookmark' | transloco) : ('readerPdf.toolbar.addBookmark' | transloco)"
+          (click)="toggleBookmark()">
+          @if (isCurrentPageBookmarked) {
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+            fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+          </svg>
+          } @else {
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+          </svg>
+          }
+        </button>
+
+        <button class="icon-btn overflow-btn" [attr.aria-label]="'readerPdf.toolbar.moreOptions' | transloco" (click)="toggleToolbarOverflow()">
+          <!-- More/ellipsis icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" />
+          </svg>
         </button>
       </div>
+
+      <!-- Close button (always visible) -->
+      <button class="icon-btn close-btn" [title]="'readerPdf.toolbar.closePdfReader' | transloco"
+        (click)="closeReader()">
+        <app-reader-icon name="close" [size]="20" />
+      </button>
     </div>
-  </ng-template>
+  </div>
+
+  <!-- Mobile overflow menu -->
+  @if (isToolbarOverflowOpen) {
+  <div class="toolbar-overflow-backdrop" role="presentation" (click)="closeToolbarOverflow()"></div>
+  <div class="toolbar-overflow-menu" tabindex="-1" (keydown.escape)="closeToolbarOverflow()" #overflowMenu>
+    <button class="overflow-item" (click)="toggleSearch(); closeToolbarOverflow()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+      </svg>
+      <span>{{ 'readerPdf.toolbar.search' | transloco }}</span>
+    </button>
+    <button class="overflow-item" (click)="toggleAnnotationTool('highlight'); closeToolbarOverflow()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m9 11-6 6v3h9l3-3" /><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4" />
+      </svg>
+      <span>{{ 'readerPdf.toolbar.highlight' | transloco }}</span>
+    </button>
+    <button class="overflow-item" (click)="toggleAnnotationTool('ink'); closeToolbarOverflow()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+      </svg>
+      <span>{{ 'readerPdf.toolbar.draw' | transloco }}</span>
+    </button>
+    <button class="overflow-item" [class.active]="isPanActive" (click)="togglePanMode(); closeToolbarOverflow()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" /><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v10" />
+        <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8" />
+        <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.8-6.6-3.3l-4.7-5.3a2 2 0 0 1 0-2.8l.3-.3a2 2 0 0 1 2.8 0L8 14" />
+      </svg>
+      <span>{{ 'readerPdf.toolbar.pan' | transloco }}</span>
+    </button>
+    <div class="overflow-divider"></div>
+    <button class="overflow-item" (click)="toggleDarkTheme(); closeToolbarOverflow()">
+      @if (isDarkTheme) {
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2v2" /><path d="M12 20v2" />
+        <path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" />
+        <path d="M2 12h2" /><path d="M20 12h2" />
+        <path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" />
+      </svg>
+      } @else {
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+      </svg>
+      }
+      <span>{{ isDarkTheme ? ('readerPdf.toolbar.switchToLightMode' | transloco) : ('readerPdf.toolbar.switchToDarkMode' | transloco) }}</span>
+    </button>
+    <button class="overflow-item" (click)="rotateClockwise(); closeToolbarOverflow()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" />
+      </svg>
+      <span>{{ 'readerPdf.toolbar.rotatePage' | transloco }}</span>
+    </button>
+    <button class="overflow-item" (click)="embedPdfBook.zoomIn(); closeToolbarOverflow()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /><path d="M11 8v6" /><path d="M8 11h6" />
+      </svg>
+      <span>{{ 'readerPdf.toolbar.zoomIn' | transloco }}</span>
+    </button>
+    <button class="overflow-item" (click)="embedPdfBook.zoomOut(); closeToolbarOverflow()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /><path d="M8 11h6" />
+      </svg>
+      <span>{{ 'readerPdf.toolbar.zoomOut' | transloco }}</span>
+    </button>
+    <button class="overflow-item" (click)="toggleFullscreen(); closeToolbarOverflow()">
+      @if (isFullscreen) {
+      <app-reader-icon name="fullscreen-exit" [size]="18" />
+      } @else {
+      <app-reader-icon name="fullscreen" [size]="18" />
+      }
+      <span>{{ isFullscreen ? ('readerPdf.toolbar.exitFullscreen' | transloco) : ('readerPdf.toolbar.fullscreen' | transloco) }}</span>
+    </button>
+  </div>
+  }
+
+  <!-- Search bar (slides below header) -->
+  @if (isSearchOpen) {
+  <div class="search-bar" [class.chrome-hidden]="!headerVisible">
+    <div class="search-input-wrapper">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+      </svg>
+      <input type="text" class="search-input" #searchInput [(ngModel)]="searchQuery"
+        [attr.aria-label]="'readerPdf.toolbar.searchPlaceholder' | transloco"
+        [placeholder]="'readerPdf.toolbar.searchPlaceholder' | transloco"
+        (input)="onSearchInput()"
+        (keyup.enter)="onSearchNext()"
+        (keyup.escape)="closeSearch()" />
+    </div>
+    <button class="icon-btn search-nav-btn" [title]="'readerPdf.toolbar.searchPrevious' | transloco" (click)="onSearchPrevious()">
+      <app-reader-icon name="chevron-left" [size]="14" />
+    </button>
+    <button class="icon-btn search-nav-btn" [title]="'readerPdf.toolbar.searchNext' | transloco" (click)="onSearchNext()">
+      <app-reader-icon name="chevron-right" [size]="14" />
+    </button>
+    <button class="icon-btn search-close" [attr.aria-label]="'readerPdf.toolbar.closeSearch' | transloco" (click)="closeSearch()">
+      <app-reader-icon name="close" [size]="14" />
+    </button>
+  </div>
+  }
+
+  <!-- Book viewer container -->
+  <div id="book-viewer" class="book-viewer-container"></div>
+
+  <!-- Sidebar -->
+  <app-pdf-sidebar
+    [isOpen]="sidebarOpen"
+    [outline]="outline"
+    [bookmarks]="pdfBookmarks"
+    [annotations]="annotationListItems"
+    (closed)="onSidebarClosed()"
+    (navigateToPage)="onSidebarNavigateToPage($event)"
+    (deleteBookmark)="onDeleteBookmark($event)"
+    (deleteAnnotation)="onDeleteAnnotation($event)"
+  />
+
+  }
 
   <!-- Footer (shared across both viewer modes) -->
   <div class="pdf-footer" [class.visible]="footerVisible">
@@ -140,10 +420,10 @@
 
     <div class="viewer-mode-toggle">
       <button class="toggle-btn toggle-book" [class.active]="viewerMode === 'book'" (click)="setViewerMode('book')">
-        <i class="pi pi-book"></i><span>Book Viewer</span>
+        <i class="pi pi-book"></i><span>{{ 'readerPdf.footer.bookViewer' | transloco }}</span>
       </button>
       <button class="toggle-btn toggle-doc" [class.active]="viewerMode === 'document'" (click)="setViewerMode('document')">
-        <i class="pi pi-file"></i><span>Doc Viewer</span>
+        <i class="pi pi-file"></i><span>{{ 'readerPdf.footer.docViewer' | transloco }}</span>
       </button>
     </div>
   </div>

@@ -68,19 +68,19 @@ class LibraryFileEventProcessorTest {
                 .organizationMode(LibraryOrganizationMode.AUTO_DETECT)
                 .build();
 
-        when(libraryRepository.findById(1L)).thenReturn(Optional.of(library));
+        when(libraryRepository.findByIdWithPaths(1L)).thenReturn(Optional.of(library));
         when(bookFilePersistenceService.findMatchingLibraryPath(eq(library), any(Path.class)))
                 .thenReturn(tempDir.toString());
         when(bookFilePersistenceService.getLibraryPathEntityForFile(eq(library), eq(tempDir.toString())))
                 .thenReturn(libraryPath);
 
-        // Start the event processing thread (normally done by @PostConstruct)
-        processor.init();
+        // Start the event processing thread (normally done by SmartLifecycle)
+        processor.start();
     }
 
     @AfterEach
     void tearDown() throws Exception {
-        processor.shutdown();
+        processor.stop();
         mocks.close();
     }
 
@@ -392,9 +392,9 @@ class LibraryFileEventProcessorTest {
     class Shutdown {
 
         @Test
-        void shutdownCompletesCleanly() {
-            // Just verify shutdown doesn't throw
-            processor.shutdown();
+        void stopCompletesCleanly() {
+            // Just verify stop doesn't throw
+            processor.stop();
 
             // Reinitialize so tearDown's shutdown doesn't fail
             processor = new LibraryFileEventProcessor(

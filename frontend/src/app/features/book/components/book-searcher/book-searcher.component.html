@@ -24,10 +24,9 @@
     }
   </p-iconfield>
 
-  @if (books.length > 0 || searchQuery) {
+  <p-popover #resultsPopover [appendTo]="'body'" [styleClass]="'search-results-popover'">
     <div
-      class="search-dropdown layout-menu"
-      [class.show]="isDropdownOpen"
+      class="search-dropdown layout-menu show"
     >
       @if (isLoading) {
         @for (i of [1,2,3]; track i) {
@@ -88,6 +87,6 @@
         </div>
       }
     </div>
-  }
+  </p-popover>
 </div>
 </ng-container>

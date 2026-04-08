@@ -2,11 +2,8 @@ package org.booklore.service.fileprocessor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.pdfbox.Loader;
-import org.apache.pdfbox.io.RandomAccessReadBufferedFile;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.rendering.ImageType;
-import org.apache.pdfbox.rendering.PDFRenderer;
+import org.grimmory.pdfium4j.PdfDocument;
+import org.grimmory.pdfium4j.PdfPage;
 import org.booklore.mapper.BookMapper;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.settings.LibraryFile;
@@ -75,9 +72,8 @@ public class PdfProcessor extends AbstractFileProcessor implements BookFileProce
     @Override
     public boolean generateCover(BookEntity bookEntity, BookFileEntity bookFile) {
         File pdfFile = FileUtils.getBookFullPath(bookEntity, bookFile).toFile();
-        try (RandomAccessReadBufferedFile randomAccessRead = new RandomAccessReadBufferedFile(pdfFile);
-             PDDocument pdf = Loader.loadPDF(randomAccessRead)) {
-            return generateCoverImageAndSave(bookEntity.getId(), pdf);
+        try (PdfDocument doc = PdfDocument.open(pdfFile.toPath())) {
+            return generateCoverImageAndSave(bookEntity.getId(), doc);
         } catch (OutOfMemoryError e) {
             // Note: Catching OOM is generally discouraged, but for batch processing
             // of potentially large/corrupted PDFs, we prefer graceful degradation
@@ -208,10 +204,10 @@ public class PdfProcessor extends AbstractFileProcessor implements BookFileProce
         }
     }
 
-    private boolean generateCoverImageAndSave(Long bookId, PDDocument document) throws IOException {
+    private boolean generateCoverImageAndSave(Long bookId, PdfDocument doc) throws IOException {
         BufferedImage coverImage = null;
-        try {
-            coverImage = new PDFRenderer(document).renderImageWithDPI(0, 150, ImageType.RGB);
+        try (PdfPage page = doc.page(0)) {
+            coverImage = page.render(150).toBufferedImage();
             return fileService.saveCoverImages(coverImage, bookId);
         } catch (OutOfMemoryError e) {
             log.error("Out of memory (heap space exhausted) while generating cover for bookId {}. Skipping cover generation.", bookId);

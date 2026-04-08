@@ -14,6 +14,7 @@ export interface SelectionState {
   showBelow: boolean;
   overlappingAnnotationId: number | null;
   selectedText: string;
+  linkUrl?: string;
 }
 
 export interface SelectionDetail {
@@ -21,6 +22,7 @@ export interface SelectionDetail {
   cfi: string;
   range: Range;
   index: number;
+  linkUrl?: string;
 }
 
 @Injectable()
@@ -48,7 +50,8 @@ export class ReaderSelectionService {
     position: {x: 0, y: 0},
     showBelow: false,
     overlappingAnnotationId: null,
-    selectedText: ''
+    selectedText: '',
+    linkUrl: undefined
   };
 
   private readonly _state = signal<SelectionState>(this.defaultState);
@@ -121,6 +124,10 @@ export class ReaderSelectionService {
         action.color || '#FFFF00',
         action.style || 'highlight'
       );
+    } else if (action.type === 'go-to-link' && this.currentSelection?.linkUrl) {
+      // Handled by component, but we clear state here
+      this.clearPreview();
+      this.viewManager.clearSelection();
     }
 
     this.currentSelection = null;
@@ -283,7 +290,8 @@ export class ReaderSelectionService {
       position: this._position,
       showBelow: this._showBelow,
       overlappingAnnotationId: this._overlappingAnnotationId,
-      selectedText: this.currentSelection?.text || ''
+      selectedText: this.currentSelection?.text || '',
+      linkUrl: this.currentSelection?.linkUrl
     });
   }
 
