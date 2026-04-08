@@ -74,7 +74,11 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   private static readonly CONTINUATION_HINT_SHOW_PX = 220;
   private static readonly CONTINUATION_HINT_HIDE_PX = 380;
   private static readonly LONG_STRIP_BUFFER = 7;
+  /** Max pages kept in DOM for long strip; pages outside ±EVICTION_WINDOW are removed. */
+  private static readonly LONG_STRIP_EVICTION_WINDOW = 15;
   private static readonly AUTO_CLOSE_MENU_TIMEOUT = 3000;
+  /** Max pages kept in DOM for infinite scroll; pages outside this window are removed. */
+  private static readonly INFINITE_SCROLL_MAX_DOM_PAGES = 18;
 
   private destroy$ = new Subject<void>();
   private progressSaveSubject$ = new Subject<void>();
@@ -789,8 +793,9 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     const keepUrls = new Set(keepPages.map(p => this.getPageImageUrl(p)));
     this.currentImageUrls.forEach(url => keepUrls.add(url));
 
-    for (const url of this.preloadedImages.keys()) {
+    for (const [url, img] of this.preloadedImages.entries()) {
       if (!keepUrls.has(url)) {
+        img.src = '';
         this.preloadedImages.delete(url);
       }
     }
@@ -1170,6 +1175,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
       for (let i = lastLoadedIndex + 1; i < endIndex; i++) {
         this.infiniteScrollPages.push(i);
       }
+      this.trimInfiniteScrollPages('tail');
       this.isLoadingMore = false;
     });
   }
@@ -1198,12 +1204,29 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
       added.push(p);
     }
     this.infiniteScrollPages = [...added, ...this.infiniteScrollPages];
+    this.trimInfiniteScrollPages('head');
 
     this.afterNextPaint(() => {
       const afterTop = anchorEl.getBoundingClientRect().top;
       container.scrollTop += afterTop - beforeTop;
       this.isLoadingMore = false;
     });
+  }
+
+  /**
+   * Caps the infinite scroll DOM to INFINITE_SCROLL_MAX_DOM_PAGES pages.
+   * When appending ('tail'), oldest pages at the head are dropped.
+   * When prepending ('head'), newest pages at the tail are dropped.
+   */
+  private trimInfiniteScrollPages(growingSide: 'head' | 'tail'): void {
+    const max = CbxReaderComponent.INFINITE_SCROLL_MAX_DOM_PAGES;
+    if (this.infiniteScrollPages.length <= max) return;
+
+    if (growingSide === 'tail') {
+      this.infiniteScrollPages = this.infiniteScrollPages.slice(-max);
+    } else {
+      this.infiniteScrollPages = this.infiniteScrollPages.slice(0, max);
+    }
   }
 
   private updateCurrentPageFromScroll(container: HTMLElement): void {
@@ -1299,6 +1322,16 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
         this.longStripImages.push({ src: this.getPageImageUrl(i), page: i });
       }
     }
+
+    // Evict pages far from the current viewport to cap DOM size
+    const evictionWindow = CbxReaderComponent.LONG_STRIP_EVICTION_WINDOW;
+    const keepStart = Math.max(0, pageNum - evictionWindow);
+    const keepEnd = Math.min(this.pages.length - 1, pageNum + evictionWindow);
+    this.longStripImages = this.longStripImages.filter(item => {
+      if (item.page >= keepStart && item.page <= keepEnd) return true;
+      this.longStripLoadedPages.delete(item.page);
+      return false;
+    });
 
     // Keep sorted by page number
     this.longStripImages.sort((a, b) => a.page - b.page);
@@ -2240,6 +2273,18 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     if (this.autoCloseMenuTimer) {
       clearTimeout(this.autoCloseMenuTimer);
     }
+
+    // Release all preloaded image memory
+    for (const img of this.preloadedImages.values()) {
+      img.src = '';
+    }
+    this.preloadedImages.clear();
+
+    // Clear infinite scroll DOM references
+    this.infiniteScrollPages = [];
+    this.currentImageUrls = [];
+    this.previousImageUrls = [];
+
     this.destroy$.next();
     this.destroy$.complete();
   }

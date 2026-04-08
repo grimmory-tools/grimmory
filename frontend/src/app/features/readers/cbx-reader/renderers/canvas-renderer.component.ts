@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, SimpleChanges, ViewChild, ElementRef, AfterViewInit} from '@angular/core';
+import {Component, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild, ElementRef, AfterViewInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {CbxPageSplitOption} from '../../../settings/user-management/user.service';
 
@@ -42,7 +42,7 @@ export type CanvasSplitState = 'NO_SPLIT' | 'LEFT_PART' | 'RIGHT_PART';
     }
   `]
 })
-export class CanvasRendererComponent implements OnChanges, AfterViewInit {
+export class CanvasRendererComponent implements OnChanges, AfterViewInit, OnDestroy {
   @Input() imageUrl = '';
   @Input() splitState: CanvasSplitState = 'NO_SPLIT';
   @Input() splitOption: CbxPageSplitOption = CbxPageSplitOption.NO_SPLIT;
@@ -58,6 +58,19 @@ export class CanvasRendererComponent implements OnChanges, AfterViewInit {
   ngAfterViewInit(): void {
     if (this.imageUrl) {
       this.loadAndDraw();
+    }
+  }
+
+  ngOnDestroy(): void {
+    // Release canvas memory
+    const canvas = this.canvasRef?.nativeElement;
+    if (canvas) {
+      canvas.width = 0;
+      canvas.height = 0;
+    }
+    if (this.currentImage) {
+      this.currentImage.src = '';
+      this.currentImage = null;
     }
   }
 
