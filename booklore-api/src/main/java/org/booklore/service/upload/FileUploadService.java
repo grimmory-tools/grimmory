@@ -3,6 +3,7 @@ package org.booklore.service.upload;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.AppProperties;
+import org.booklore.exception.APIException;
 import org.booklore.exception.ApiError;
 import org.booklore.mapper.AdditionalFileMapper;
 import org.booklore.model.dto.Book;
@@ -346,11 +347,17 @@ public class FileUploadService {
         }
 
         try {
-            Path parsed = Path.of(relativePath).normalize();
-            if (parsed.isAbsolute() || FileUtils.containsParentTraversal(parsed)) {
+            Path parsed = Path.of(relativePath);
+            if (parsed.isAbsolute()) {
                 throw ApiError.GENERIC_BAD_REQUEST.createException("Invalid upload target path");
             }
-            return parsed;
+            Path normalized = parsed.normalize();
+            if (normalized.getNameCount() == 0 || normalized.startsWith("..")) {
+                throw ApiError.GENERIC_BAD_REQUEST.createException("Invalid upload target path");
+            }
+            return normalized;
+        } catch (APIException e) {
+            throw e;
         } catch (RuntimeException e) {
             throw ApiError.GENERIC_BAD_REQUEST.createException("Invalid upload target path");
         }
@@ -368,7 +375,7 @@ public class FileUploadService {
 
         Path safeSubPath = toSafeRelativePath(subPath);
         Path combined = safeSubPath.resolve(safeFileNamePath).normalize();
-        if (combined.isAbsolute() || FileUtils.containsParentTraversal(combined)) {
+        if (combined.isAbsolute() || combined.startsWith("..")) {
             throw ApiError.GENERIC_BAD_REQUEST.createException("Invalid upload target path");
         }
 

@@ -52,15 +52,11 @@ public class FileFingerprint {
     public static String generateFolderHash(Path folderPath) {
         Path normalizedFolderPath = validateReadableFolderPath(folderPath);
         try {
-            if (!Files.exists(normalizedFolderPath) || !Files.isDirectory(normalizedFolderPath)) {
-                throw new RuntimeException("Folder does not exist: " + normalizedFolderPath);
-            }
-
             List<Path> audioFiles;
             try (var files = Files.list(normalizedFolderPath)) {
                 audioFiles = files
                         .filter(Files::isRegularFile)
-                        .filter(p -> isAudioFile(p.getFileName().toString()))
+                        .filter(p -> FileUtils.isAudioFile(p.getFileName().toString()))
                         .sorted(Comparator.comparing(p -> p.getFileName().toString()))
                         .toList();
             }
@@ -93,11 +89,8 @@ public class FileFingerprint {
         if (filePath == null) {
             throw new RuntimeException("File path cannot be null");
         }
-        if (FileUtils.containsParentTraversal(filePath)) {
-            throw new RuntimeException("Invalid file path: traversal detected");
-        }
 
-        Path normalizedPath = FileUtils.normalizeAbsolutePath(filePath);
+        Path normalizedPath = filePath.toAbsolutePath().normalize();
         if (!Files.exists(normalizedPath) || !Files.isRegularFile(normalizedPath)) {
             throw new RuntimeException("File does not exist or is not a regular file");
         }
@@ -109,11 +102,8 @@ public class FileFingerprint {
         if (folderPath == null) {
             throw new RuntimeException("Folder path cannot be null");
         }
-        if (FileUtils.containsParentTraversal(folderPath)) {
-            throw new RuntimeException("Invalid folder path: traversal detected");
-        }
 
-        Path normalizedPath = FileUtils.normalizeAbsolutePath(folderPath);
+        Path normalizedPath = folderPath.toAbsolutePath().normalize();
         if (!Files.exists(normalizedPath) || !Files.isDirectory(normalizedPath)) {
             throw new RuntimeException("Folder does not exist or is not a directory");
         }
@@ -121,9 +111,4 @@ public class FileFingerprint {
         return normalizedPath;
     }
 
-    private static boolean isAudioFile(String fileName) {
-        if (fileName == null) return false;
-        String lower = fileName.toLowerCase();
-        return lower.endsWith(".mp3") || lower.endsWith(".m4a") || lower.endsWith(".m4b") || lower.endsWith(".opus");
-    }
 }

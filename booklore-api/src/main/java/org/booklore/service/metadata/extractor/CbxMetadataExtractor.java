@@ -6,13 +6,11 @@ import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.ComicMetadata;
 import org.booklore.service.ArchiveService;
 import org.springframework.stereotype.Component;
+import org.booklore.util.SecureXmlUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
 import javax.imageio.ImageIO;
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -68,34 +66,8 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
         return BookMetadata.builder().title(baseName).build();
     }
 
-    /**
-     * Builds a secure XML document parser with protection against XXE attacks.
-     * Configures the DocumentBuilderFactory with security features to prevent:
-     * - External entity injection
-     * - DTD processing vulnerabilities
-     * - Schema injection attacks
-     *
-     * @param is InputStream containing XML data to parse
-     * @return Parsed Document object
-     * @throws Exception if XML parsing fails or security features cannot be configured
-     */
     private Document buildSecureDocument(InputStream is) throws Exception {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setNamespaceAware(true);  // Enable namespace awareness
-        factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-        try {
-            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-            factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-            factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-        } catch (Exception ex) {
-            log.warn("XML factory secure features not supported, XXE protection may be compromised: {}", ex.getMessage());
-            throw ex;  // Re-throw to fail fast if security features can't be enabled
-        }
-        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-        factory.setExpandEntityReferences(false);
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        return builder.parse(is);
+        return SecureXmlUtils.createSecureDocumentBuilder(true).parse(is);
     }
 
     /**

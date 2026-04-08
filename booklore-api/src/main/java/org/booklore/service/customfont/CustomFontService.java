@@ -9,6 +9,7 @@ import org.booklore.model.entity.CustomFontEntity;
 import org.booklore.model.enums.FontFormat;
 import org.booklore.repository.CustomFontRepository;
 import org.booklore.repository.UserRepository;
+import org.booklore.util.MimeDetector;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
@@ -254,54 +255,42 @@ public class CustomFontService {
     }
 
     /**
-     * Validates font file format by checking magic bytes.
+     * Validates font file format by detecting MIME type from content via Apache Tika.
      * Prevents malicious files from being uploaded with font extensions.
      */
     private void validateFontMagicBytes(Path fontPath, FontFormat expectedFormat) throws IOException {
-        byte[] header = new byte[4];
+        String detectedMime = MimeDetector.detect(fontPath);
 
-        try (var inputStream = Files.newInputStream(fontPath)) {
-            int bytesRead = inputStream.read(header);
+        FontFormat detectedFormat = null;
+        try {
+            detectedFormat = FontFormat.fromMimeType(detectedMime);
+        } catch (IllegalArgumentException ignored) {
+            // Tika may return a generic MIME treated as unknown format below
+        }
 
-            if (bytesRead < 4) {
-                throw new IllegalArgumentException("Invalid font file: file too small");
+        // Also accept application/x-font-ttf / application/x-font-otf variants
+        if (detectedFormat == null) {
+            if (detectedMime.contains("ttf") || detectedMime.equals("application/x-font-truetype")) {
+                detectedFormat = FontFormat.TTF;
+            } else if (detectedMime.contains("otf") || detectedMime.equals("application/x-font-opentype")) {
+                detectedFormat = FontFormat.OTF;
+            } else if (detectedMime.contains("woff2")) {
+                detectedFormat = FontFormat.WOFF2;
+            } else if (detectedMime.contains("woff")) {
+                detectedFormat = FontFormat.WOFF;
             }
         }
 
-        boolean isValid = false;
-        String detectedFormat = "Unknown";
-
-        // Check TTF signature: 0x00 0x01 0x00 0x00 or "true" (0x74 0x72 0x75 0x65)
-        if ((header[0] == 0x00 && header[1] == 0x01 && header[2] == 0x00 && header[3] == 0x00) ||
-            (header[0] == 0x74 && header[1] == 0x72 && header[2] == 0x75 && header[3] == 0x65)) {
-            isValid = (expectedFormat == FontFormat.TTF);
-            detectedFormat = "TTF";
-        }
-        // Check OTF signature: "OTTO" (0x4F 0x54 0x54 0x4F)
-        else if (header[0] == 0x4F && header[1] == 0x54 && header[2] == 0x54 && header[3] == 0x4F) {
-            isValid = (expectedFormat == FontFormat.OTF);
-            detectedFormat = "OTF";
-        }
-        // Check WOFF signature: "wOFF" (0x77 0x4F 0x46 0x46)
-        else if (header[0] == 0x77 && header[1] == 0x4F && header[2] == 0x46 && header[3] == 0x46) {
-            isValid = (expectedFormat == FontFormat.WOFF);
-            detectedFormat = "WOFF";
-        }
-        // Check WOFF2 signature: "wOF2" (0x77 0x4F 0x46 0x32)
-        else if (header[0] == 0x77 && header[1] == 0x4F && header[2] == 0x46 && header[3] == 0x32) {
-            isValid = (expectedFormat == FontFormat.WOFF2);
-            detectedFormat = "WOFF2";
-        }
-
-        if (!isValid) {
-            log.error("Font file magic bytes validation failed. Expected: {}, Detected: {}", expectedFormat, detectedFormat);
+        if (detectedFormat != expectedFormat) {
+            log.error("Font file MIME validation failed. Expected: {}, Detected MIME: {} (mapped: {})",
+                    expectedFormat, detectedMime, detectedFormat);
             throw new IllegalArgumentException(
-                String.format("Invalid font file format. File appears to be %s but extension indicates %s",
-                              detectedFormat, expectedFormat)
+                    String.format("Invalid font file format. File appears to be %s but extension indicates %s",
+                            detectedFormat != null ? detectedFormat : "Unknown", expectedFormat)
             );
         }
 
-        log.debug("Font file magic bytes validated successfully: {}", detectedFormat);
+        log.debug("Font file validated successfully via Tika: {} (MIME: {})", detectedFormat, detectedMime);
     }
 
     /**

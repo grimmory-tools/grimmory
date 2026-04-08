@@ -2,7 +2,6 @@ package org.booklore.service.file;
 
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.exception.ApiError;
-import org.booklore.util.FileUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -38,12 +37,7 @@ public class PathService {
             throw ApiError.GENERIC_BAD_REQUEST.createException("Invalid path");
         }
 
-        if (FileUtils.containsParentTraversal(rawPath)) {
-            log.warn("Blocked traversal path input: {}", path);
-            throw ApiError.GENERIC_BAD_REQUEST.createException("Invalid path");
-        }
-
-        Path directory = FileUtils.normalizeAbsolutePath(rawPath);
+        Path directory = rawPath.toAbsolutePath().normalize();
         String normalized = directory.toString();
 
         if (BLOCKED_PATHS.stream().anyMatch(blocked -> normalized.equals(blocked) || normalized.startsWith(blocked + "/"))) {

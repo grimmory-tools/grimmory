@@ -478,21 +478,15 @@ public class OpdsFeedService {
         StringBuilder result = new StringBuilder(url).append("?");
 
         for (String key : PAGINATION_QUERY_WHITELIST) {
-            String[] values = request.getParameterValues(key);
-            if (values == null) {
+            String value = request.getParameter(key);
+            if (value == null || value.isBlank()) {
                 continue;
             }
 
-            for (String value : values) {
-                if (value == null || value.isBlank()) {
-                    continue;
-                }
-
-                result.append(URLEncoder.encode(key, StandardCharsets.UTF_8))
-                        .append("=")
-                        .append(URLEncoder.encode(value, StandardCharsets.UTF_8))
-                        .append("&");
-            }
+            result.append(URLEncoder.encode(key, StandardCharsets.UTF_8))
+                    .append("=")
+                    .append(URLEncoder.encode(value, StandardCharsets.UTF_8))
+                    .append("&");
         }
 
         result.append("page=").append(page).append("&size=").append(size);
