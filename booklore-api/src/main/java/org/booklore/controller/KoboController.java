@@ -179,7 +179,6 @@ public class KoboController {
         }
 
         bookDownloadService.downloadKoboBook(Long.parseLong(bookId), response);
-
     }
 
     @Operation(summary = "Delete book from Kobo library", description = "Delete a book from the user's Kobo library.")
