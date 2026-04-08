@@ -13,7 +13,6 @@ import org.booklore.model.enums.TaskType;
 import org.booklore.task.TaskCancellationManager;
 import org.booklore.task.TaskStatus;
 import org.booklore.task.tasks.Task;
-import org.booklore.util.SecurityContextVirtualThread;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.TaskScheduler;
@@ -188,11 +187,8 @@ public class TaskService {
                 .taskType(taskType)
                 .status(TaskStatus.ACCEPTED)
                 .build();
-        SecurityContext securityContext = SecurityContextHolder.getContext();
         taskExecutor.execute(() ->
-                SecurityContextVirtualThread.runWithSecurityContext(securityContext, () ->
                         executeAsyncTask(taskId, request, taskType)
-                )
         );
         return response;
     }

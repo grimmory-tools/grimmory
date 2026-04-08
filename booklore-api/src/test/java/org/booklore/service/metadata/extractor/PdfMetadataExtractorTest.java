@@ -26,6 +26,9 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.booklore.test.RequiresPdfium;
+
+@RequiresPdfium
 class PdfMetadataExtractorTest {
 
     private PdfMetadataExtractor extractor;

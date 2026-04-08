@@ -179,7 +179,7 @@ export class AudiobookPlayerComponent implements OnInit, OnDestroy {
         this.loadBookmarks();
       }),
       switchMap(info =>
-        from(this.bookService.ensureBookDetail(bookId, false)).pipe(
+        from(this.bookService.fetchFreshBookDetail(bookId, false)).pipe(
           tap(book => this.applyBookDetails(book, info)),
           map(() => void 0),
           catchError(() => of(void 0))

@@ -1,0 +1,478 @@
+$sidebar-width: 320px;
+$sidebar-bg: #141414;
+$sidebar-bg-light: #fff;
+$text-primary: #fff;
+$text-primary-light: #1a1a1a;
+$text-secondary: rgb(255 255 255 / 70%);
+$text-secondary-light: rgb(0 0 0 / 60%);
+$text-muted: rgb(255 255 255 / 45%);
+$text-muted-light: rgb(0 0 0 / 40%);
+$border-color: rgb(255 255 255 / 10%);
+$border-color-light: rgb(0 0 0 / 8%);
+$hover-bg: rgb(255 255 255 / 6%);
+$hover-bg-light: rgb(0 0 0 / 4%);
+$active-bg: #3b82f6;
+$active-color: #3b82f6;
+$transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+$transition-fast: 150ms ease;
+
+:host {
+  display: block;
+}
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 60%);
+  z-index: 12000;
+  animation: fade-in 300ms ease;
+
+  &.closing {
+    animation: fade-out 300ms ease forwards;
+  }
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: $sidebar-width;
+  background: $sidebar-bg;
+  color: $text-primary;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 12px 0 32px rgb(0 0 0 / 40%);
+  animation: slide-in $transition-base;
+  overflow: hidden;
+  border-right: 1px solid $border-color;
+
+  &.closing {
+    animation: slide-out $transition-base forwards;
+  }
+
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    background: rgb(255 255 255 / 2%);
+    border-bottom: 1px solid $border-color;
+    flex-shrink: 0;
+    
+    .sidebar-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: $text-muted;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .sidebar-close-btn {
+      background: none;
+      border: none;
+      color: $text-muted;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all $transition-fast;
+
+      &:hover {
+        color: $text-primary;
+        background: $hover-bg;
+      }
+    }
+  }
+}
+
+.tabs {
+  display: flex;
+  padding: 0 12px;
+  background: rgb(255 255 255 / 1%);
+  border-bottom: 1px solid $border-color;
+  gap: 4px;
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 14px 2px;
+  background: none;
+  border: none;
+  position: relative;
+  color: $text-secondary;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all $transition-fast;
+  min-width: 0;
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 12px;
+    right: 12px;
+    height: 3px;
+    background: transparent;
+    border-radius: 3px 3px 0 0;
+    transition: all $transition-fast;
+  }
+
+  &:hover {
+    color: $text-primary;
+    background: rgb(255 255 255 / 3%);
+  }
+
+  &.active {
+    color: $active-color;
+    
+    &::after {
+      background: $active-color;
+      box-shadow: 0 -4px 10px rgb(59 130 246 / 40%);
+    }
+  }
+
+  .tab-icon {
+    font-size: 14px;
+    opacity: 0.8;
+    flex-shrink: 0;
+  }
+}
+
+.badge {
+  background: rgb(59 130 246 / 15%);
+  color: $active-color;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 20px;
+  margin-left: 2px;
+  flex-shrink: 0;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 0;
+  overscroll-behavior: contain;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgb(255 255 255 / 15%);
+    border-radius: 10px;
+    
+    &:hover {
+      background: rgb(255 255 255 / 25%);
+    }
+  }
+}
+
+// --- Outline / Chapter list ---
+
+.chapter-list,
+.subchapter-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.chapter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px 24px 12px calc(24px + var(--depth, 0) * 20px);
+  background: none;
+  border: none;
+  color: $text-secondary;
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all $transition-fast;
+  text-align: left;
+  line-height: 1.4;
+
+  &:hover {
+    background: $hover-bg;
+    color: $text-primary;
+  }
+
+  .chapter-label {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .chapter-page {
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 700;
+    color: $text-muted;
+    margin-left: 12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  }
+}
+
+// --- Item lists (bookmarks, annotations) ---
+
+.item-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  background: rgb(255 255 255 / 1%);
+  border: 1px solid transparent;
+  transition: all $transition-fast;
+
+  &:hover {
+    background: $hover-bg;
+    border-color: $border-color;
+    transform: translateY(-1px);
+
+    .delete-btn {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  &.highlight-item {
+    padding-left: 0;
+    overflow: hidden;
+
+    .highlight-bar {
+      width: 4px;
+      margin-right: 12px;
+      flex-shrink: 0;
+      align-self: stretch;
+    }
+    
+    .item-content {
+      padding: 2px 0;
+    }
+  }
+}
+
+.item-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.item-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: $text-primary;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item-meta {
+  font-size: 11px;
+  font-weight: 600;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.highlight-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: $text-secondary;
+  font-style: italic;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: break-word;
+}
+
+.delete-btn {
+  background: rgb(239 68 68 / 10%);
+  border: none;
+  color: #ef4444;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateX(8px);
+  transition: all $transition-fast;
+  flex-shrink: 0;
+
+  &:hover {
+    background: #ef4444;
+    color: white;
+    box-shadow: 0 4px 12px rgb(239 68 68 / 30%);
+  }
+}
+
+// --- Empty state ---
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 32px;
+  text-align: center;
+
+  .empty-icon {
+    color: $text-muted;
+    margin-bottom: 20px;
+    opacity: 0.3;
+    filter: drop-shadow(0 8px 16px rgb(0 0 0 / 20%));
+  }
+
+  p {
+    font-size: 15px;
+    font-weight: 600;
+    color: $text-secondary;
+    margin: 0 0 8px;
+  }
+
+  .empty-hint {
+    font-size: 13px;
+    color: $text-muted;
+    line-height: 1.6;
+  }
+}
+
+// --- Animations ---
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes slide-in {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes slide-out {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+
+// --- Light Theme Support ---
+
+:host-context([data-color-scheme="light"]) {
+  .sidebar-overlay {
+    background: rgb(0 0 0 / 20%);
+  }
+  
+  .sidebar {
+    background: $sidebar-bg-light;
+    color: $text-primary-light;
+    border-right-color: $border-color-light;
+    box-shadow: 12px 0 32px rgb(0 0 0 / 10%);
+
+    .sidebar-header {
+      background: rgb(0 0 0 / 1%);
+      border-bottom-color: $border-color-light;
+      
+      .sidebar-title {
+        color: $text-muted-light;
+      }
+    }
+  }
+
+  .tabs {
+    border-bottom-color: $border-color-light;
+  }
+
+  .tab {
+    color: $text-secondary-light;
+
+    &:hover {
+      background: $hover-bg-light;
+      color: $text-primary-light;
+    }
+  }
+
+  .tab-item:hover, .chapter-row:hover {
+    background: $hover-bg-light;
+  }
+
+  .chapter-row {
+    color: $text-secondary-light;
+
+    &:hover {
+      color: $text-primary-light;
+    }
+
+    .chapter-page {
+      color: $text-muted-light;
+    }
+  }
+
+  .list-item {
+    background: rgb(0 0 0 / 2%);
+
+    &:hover {
+      background: $hover-bg-light;
+      border-color: $border-color-light;
+    }
+  }
+
+  .item-title {
+    color: $text-primary-light;
+  }
+  
+  .item-meta {
+    color: $text-muted-light;
+  }
+
+  .highlight-text {
+    color: $text-secondary-light;
+  }
+
+  .content::-webkit-scrollbar-thumb {
+    background: rgb(0 0 0 / 10%);
+
+    &:hover {
+      background: rgb(0 0 0 / 20%);
+    }
+  }
+}

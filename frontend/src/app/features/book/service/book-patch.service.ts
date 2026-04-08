@@ -79,7 +79,14 @@ export class BookPatchService {
           progressPercent: payload.percentage
         };
       }
-      return this.http.post<void>(`${this.url}/progress`, body);
+      return this.http.post<void>(`${this.url}/progress`, body).pipe(
+        tap(() => {
+          patchBookFieldsInCache(this.queryClient, [{
+            bookId: payload.bookId,
+            fields: {epubProgress: {cfi: payload.cfi, percentage: payload.percentage}}
+          }]);
+        })
+      );
     }),
     share()
   );
@@ -127,7 +134,14 @@ export class BookPatchService {
         progressPercent: percentage
       };
     }
-    return this.http.post<void>(`${this.url}/progress`, body);
+    return this.http.post<void>(`${this.url}/progress`, body).pipe(
+      tap(() => {
+        patchBookFieldsInCache(this.queryClient, [{
+          bookId,
+          fields: {pdfProgress: {page, percentage}}
+        }]);
+      })
+    );
   }
 
   saveEpubProgress(bookId: number, cfi: string, href: string, percentage: number, bookFileId?: number): void {
@@ -160,7 +174,14 @@ export class BookPatchService {
         progressPercent: percentage
       };
     }
-    return this.http.post<void>(`${this.url}/progress`, body);
+    return this.http.post<void>(`${this.url}/progress`, body).pipe(
+      tap(() => {
+        patchBookFieldsInCache(this.queryClient, [{
+          bookId,
+          fields: {cbxProgress: {page, percentage}}
+        }]);
+      })
+    );
   }
 
   saveFileProgress(bookId: number, fileProgress: BookFileProgress): Observable<void> {

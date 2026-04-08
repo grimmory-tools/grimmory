@@ -102,7 +102,9 @@
     "autoAddEnabled": "New books will be automatically added to Kobo shelf",
     "autoAddDisabled": "Auto-add to Kobo shelf disabled",
     "pros": "Pros:",
-    "cons": "Cons:"
+    "cons": "Cons:",
+    "forwardToKoboStore": "Forward to Rakuten Kobo Store",
+    "forwardToKoboStoreDesc": "Combines your Grimmory requests with requests from the Rakuten Kobo Store, so users can still access purchased books and get recommendations."
   },
   "hardcover": {
     "title": "Hardcover Integration",

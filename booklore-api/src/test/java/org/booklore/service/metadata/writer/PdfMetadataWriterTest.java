@@ -1,9 +1,7 @@
 package org.booklore.service.metadata.writer;
 
-import org.apache.pdfbox.Loader;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.common.PDMetadata;
+import org.grimmory.pdfium4j.PdfDocument;
+import org.grimmory.pdfium4j.model.PageSize;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.settings.AppSettings;
 import org.booklore.model.dto.settings.MetadataPersistenceSettings;
@@ -21,7 +19,6 @@ import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
@@ -33,6 +30,9 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.booklore.test.RequiresPdfium;
+
+@RequiresPdfium
 class PdfMetadataWriterTest {
 
     private PdfMetadataWriter writer;
@@ -375,9 +375,9 @@ class PdfMetadataWriterTest {
 
     private File createEmptyPdf(String name) throws IOException {
         File pdf = tempDir.resolve(name).toFile();
-        try (PDDocument doc = new PDDocument()) {
-            doc.addPage(new PDPage());
-            doc.save(pdf);
+        try (PdfDocument doc = PdfDocument.create()) {
+            doc.insertBlankPage(0, new PageSize(612, 792));
+            doc.save(pdf.toPath());
         }
         return pdf;
     }
@@ -389,12 +389,9 @@ class PdfMetadataWriterTest {
     }
 
     private String readXmpContent(File pdf) throws IOException {
-        try (PDDocument doc = Loader.loadPDF(pdf)) {
-            PDMetadata metadata = doc.getDocumentCatalog().getMetadata();
-            if (metadata == null) {
-                return "";
-            }
-            return new String(metadata.toByteArray(), StandardCharsets.UTF_8);
+        try (PdfDocument doc = PdfDocument.open(pdf.toPath())) {
+            String xmp = doc.xmpMetadataString();
+            return xmp != null ? xmp : "";
         }
     }
 }

@@ -13,6 +13,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.booklore.util.FileUtils;
 
 @Slf4j
 @Service
@@ -36,7 +37,7 @@ public class OidcDiagnosticService {
         // 1. Fetch discovery document (uncached)
         Map<String, Object> doc;
         try {
-            String issuerUri = providerDetails.getIssuerUri().replaceAll("/+$", "");
+            String issuerUri = FileUtils.trimTrailingSlashes(providerDetails.getIssuerUri());
             String discoveryUrl = issuerUri + "/.well-known/openid-configuration";
 
             var factory = new SimpleClientHttpRequestFactory();

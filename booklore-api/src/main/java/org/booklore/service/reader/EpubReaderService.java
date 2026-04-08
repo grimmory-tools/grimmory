@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
-import org.apache.pdfbox.io.IOUtils;
 import org.booklore.exception.ApiError;
 import org.booklore.model.dto.response.EpubBookInfo;
 import org.booklore.model.dto.response.EpubManifestItem;
@@ -745,7 +744,7 @@ public class EpubReaderService {
             ZipArchiveEntry entry = zipFile.getEntry(entryName);
             if (entry != null) {
                 try (InputStream in = new BufferedInputStream(zipFile.getInputStream(entry), BUFFER_SIZE)) {
-                    IOUtils.copy(in, outputStream);
+                    in.transferTo(outputStream);
                 }
                 return true;
             }

@@ -3,9 +3,31 @@
     "switchToLightMode": "Switch to Light Mode",
     "switchToDarkMode": "Switch to Dark Mode",
     "closePdfReader": "Close PDF Reader",
-    "rotatePage": "Rotate Page",
     "fullscreen": "Fullscreen",
-    "exitFullscreen": "Exit Fullscreen"
+    "exitFullscreen": "Exit Fullscreen",
+    "sidebar": "Contents",
+    "search": "Search",
+    "searchPlaceholder": "Search in document...",
+    "searchNext": "Next Result",
+    "searchPrevious": "Previous Result",
+    "zoomIn": "Zoom In",
+    "zoomOut": "Zoom Out",
+    "spreadMode": "Page Layout",
+    "rotatePage": "Rotate Page",
+    "bookmarkAdd": "Add Bookmark",
+    "bookmarkRemove": "Remove Bookmark",
+    "addBookmark": "Add Bookmark",
+    "removeBookmark": "Remove Bookmark",
+    "freeText": "Text Note",
+    "highlight": "Highlight",
+    "textNote": "Text Note",
+    "ink": "Free Draw",
+    "draw": "Free Draw",
+    "annotationColor": "Annotation Color",
+    "deselectTool": "Deselect Tool",
+    "pan": "Pan Mode",
+    "moreOptions": "More options",
+    "closeSearch": "Close search"
   },
   "footer": {
     "firstPage": "First Page",
@@ -15,9 +37,35 @@
     "of": "of",
     "pageSlider": "Page Slider",
     "pagePlaceholder": "Page",
-    "go": "Go"
+    "go": "Go",
+    "bookViewer": "Book Viewer",
+    "docViewer": "Doc Viewer"
+  },
+  "sidebar": {
+    "title": "Sidebar",
+    "close": "Close sidebar",
+    "contentsTab": "Contents",
+    "bookmarksTab": "Bookmarks",
+    "annotationsTab": "Annotations",
+    "noContents": "No table of contents available",
+    "noBookmarks": "No bookmarks yet",
+    "bookmarkHint": "Tap the bookmark icon to save your place",
+    "noAnnotations": "No annotations yet",
+    "annotationHint": "Use the highlight tool to annotate text",
+    "deleteBookmark": "Delete bookmark",
+    "deleteAnnotation": "Delete annotation",
+    "page": "Page"
   },
   "toast": {
-    "failedToLoadBook": "Failed to load the book"
+    "failedToLoadBook": "Failed to load the book",
+    "bookmarkAdded": "Bookmark Added",
+    "bookmarkRemoved": "Bookmark Removed",
+    "bookmarkExists": "Bookmark already exists on this page",
+    "annotationSaved": "Annotations Saved",
+    "annotationFailed": "Failed to save annotations"
+  },
+  "docViewer": {
+    "changesSavedInfo": "Changes are written to file here",
+    "dismiss": "Dismiss"
   }
 }

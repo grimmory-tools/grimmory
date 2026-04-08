@@ -6,27 +6,30 @@
 
   @media (width >= 768px) {
     margin-left: 1.25rem;
-    max-width: 315px;
-    transition: max-width 0.3s ease;
-  }
-
-  &:has(.search-iconfield.focused),
-  &:has(.search-iconfield.has-results) {
-    @media (width >= 768px) {
-      max-width: 100%;
-    }
+    width: var(--app-search-width-desktop);
+    max-width: 100%;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
+// Popover styles moved to global src/styles.scss due to appendTo="body"
+
 .search-iconfield {
   width: 100%;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 8px;
 
   @media (width >= 640px) {
     display: flex;
   }
 
-  @media (width >= 768px) {
-    transition: all 0.3s ease;
+  &.focused {
+    background: color-mix(in srgb, var(--primary-color) 5%, transparent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-color) 20%, transparent);
+
+    .search-input {
+      border-color: var(--primary-color);
+    }
   }
 }
 
@@ -36,6 +39,14 @@
   height: 2.5rem;
   line-height: 2.5rem;
   font-size: 1rem;
+  background: var(--surface-800) !important;
+  border: 1px solid var(--surface-600);
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--surface-500);
+    background: var(--surface-700) !important;
+  }
 }
 
 .clear-search-btn {
@@ -51,24 +62,14 @@
 }
 
 .search-dropdown {
-  position: absolute;
-  top: calc(100% + 0.5rem);
-  left: 0;
   width: 100%;
-  max-width: 600px;
-  background-color: var(--card-background);
-  border: 1px solid var(--border-color);
+  background: transparent; // Glassmorphism handled by parent .search-results-popover
+  border: none;
   border-radius: 8px;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 10%),
-  0 2px 4px -1px rgb(0 0 0 / 6%),
-  0 10px 15px -3px rgb(0 0 0 / 10%);
-  z-index: 1000;
   max-height: min(70vh, calc(100dvh - 4rem));
   overflow-y: auto;
-  opacity: 0;
-  height: 0;
-  transform: translateY(-10px);
-  transition: opacity 0.2s ease, transform 0.2s ease, height 0.2s ease;
+
+  // Desktop width constraints moved to src/styles.scss for body-appended elements
 
   &::-webkit-scrollbar {
     width: 8px;
@@ -88,11 +89,7 @@
   }
 }
 
-.search-dropdown.show {
-  opacity: 1;
-  height: auto;
-  transform: translateY(0);
-}
+// .show class no longer needed as popover handles visibility
 
 .search-dropdown-item {
   display: flex;
@@ -160,12 +157,12 @@
   font-weight: 600;
   font-size: 0.95rem;
   line-height: 1.4;
-  color: var(--text-color);
-  overflow: hidden;
-  text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
   overflow-wrap: anywhere;
   margin: 0;
 }

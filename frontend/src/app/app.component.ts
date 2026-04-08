@@ -52,10 +52,18 @@ export class AppComponent implements OnInit, OnDestroy {
 
     if (ready && !this.subscriptionsInitialized) {
       this.setupWebSocketSubscriptions();
-      this.libraryHealthService.initialize();
+      this.libraryHealthService.initWebsocket();
       this.subscriptionsInitialized = true;
     }
   });
+
+  private readonly authenticatedEffect = effect(() => {
+    const authInitialized = this.authInit.initialized();
+    const isAuthenticated = this.authService.isAuthenticated();
+    if (authInitialized && isAuthenticated) {
+      this.libraryHealthService.fetchHealth();
+    }
+  })
 
   ngOnInit(): void {
     window.addEventListener('online', this.onOnline);

@@ -302,4 +302,18 @@ public class FileUtils {
         }
         return false;
     }
+
+    /**
+     * Efficiently remove all trailing slashes from a string without using regex.
+     */
+    public String trimTrailingSlashes(String input) {
+        if (input == null) {
+            return "";
+        }
+        int len = input.length();
+        while (len > 0 && input.charAt(len - 1) == '/') {
+            len--;
+        }
+        return input.substring(0, len);
+    }
 }

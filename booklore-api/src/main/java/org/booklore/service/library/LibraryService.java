@@ -26,7 +26,6 @@ import org.booklore.service.NotificationService;
 import org.booklore.service.audit.AuditService;
 import org.booklore.service.monitoring.LibraryWatchService;
 import org.booklore.util.FileService;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.context.event.EventListener;
@@ -40,6 +39,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -60,7 +61,6 @@ public class LibraryService {
     private final AuthenticationService authenticationService;
     private final UserRepository userRepository;
     private final AuditService auditService;
-    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     @EventListener(ApplicationReadyEvent.class)
@@ -190,11 +190,28 @@ public class LibraryService {
 
     @Transactional
     public void rescanLibrary(long libraryId) {
-        LibraryEntity lib = libraryRepository.findById(libraryId)
-                .orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
-        auditService.log(AuditAction.LIBRARY_SCANNED, "Library", libraryId,
-                "Scanned library: " + lib.getName());
-        eventPublisher.publishEvent(new LibraryScanRequestedEvent(libraryId, true));
+        LibraryEntity lib = libraryRepository.findById(libraryId).orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
+        auditService.log(AuditAction.LIBRARY_SCANNED, "Library", libraryId, "Scanned library: " + lib.getName());
+
+        taskExecutor.execute(() -> {
+            if (!scanningLibraries.add(libraryId)) {
+                log.warn("Library {} is already being scanned, skipping duplicate rescan request", libraryId);
+                return;
+            }
+            try {
+                RescanLibraryContext context = RescanLibraryContext.builder()
+                        .libraryId(libraryId)
+                        .build();
+                libraryProcessingService.rescanLibrary(context);
+            } catch (InvalidDataAccessApiUsageException e) {
+                log.debug("InvalidDataAccessApiUsageException - Library id: {}", libraryId);
+            } catch (IOException e) {
+                log.error("Error while parsing library books", e);
+            } finally {
+                scanningLibraries.remove(libraryId);
+            }
+            log.info("Parsing task completed!");
+        });
     }
 
     public Library getLibrary(long libraryId) {
@@ -321,6 +338,32 @@ public class LibraryService {
     }
 
     private void scheduleBackgroundScanAfterCommit(long libraryId) {
-        eventPublisher.publishEvent(new LibraryScanRequestedEvent(libraryId, false));
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    startBackgroundScan(libraryId);
+                }
+            });
+        } else {
+            startBackgroundScan(libraryId);
+        }
+    }
+
+    private void startBackgroundScan(long libraryId) {
+        taskExecutor.execute(() -> {
+            if (!scanningLibraries.add(libraryId)) {
+                log.warn("Library {} is already being scanned, skipping duplicate process request", libraryId);
+                return;
+            }
+            try {
+                libraryProcessingService.processLibrary(libraryId);
+            } catch (InvalidDataAccessApiUsageException e) {
+                log.debug("InvalidDataAccessApiUsageException - Library id: {}", libraryId);
+            } finally {
+                scanningLibraries.remove(libraryId);
+            }
+            log.info("Parsing task completed!");
+        });
     }
 }
