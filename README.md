@@ -197,7 +197,7 @@ just ui dev        # Start the frontend dev server
 
 ## API Reference Docs
 
-When enabled, API reference documentation is available as both an `openapi.json` and as publicly accessible docs. The endpoints are:
+When enabled via `API_DOCS_ENABLED`, API reference documentation is available as both an `openapi.json` and as publicly accessible docs. The endpoints are:
 - API reference docs are available at `http://localhost:6060/api/docs`
 - OpenAPI JSON is available at `http://localhost:6060/api/openapi.json`
 
