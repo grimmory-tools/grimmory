@@ -4,7 +4,7 @@
   margin-bottom: 2rem;
   position: relative;
   overflow: hidden;
-  backdrop-filter: blur(20px);
+  background: rgb(30 30 45 / 40%);
   border: color-mix(in srgb, var(--p-surface-500), transparent 50%) 1px solid;
 }
 
@@ -70,59 +70,36 @@
   }
 }
 
-.dashboard-scroller-infinite {
+.dashboard-scroller-strip {
   display: flex;
   overflow: auto hidden;
   scroll-snap-type: x mandatory;
   padding: 1rem 0.5rem;
   gap: 2rem;
-  height: 100%;
   width: 100%;
   position: relative;
   z-index: 2;
-  scrollbar-color: var(--primary-color) rgb(20 20 30 / 50%);
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .dashboard-scroller-card {
-  height: 200px;
   width: 116px;
   flex: 0 0 124px;
   scroll-snap-align: start;
-  transition: transform 0.25s ease;
   position: relative;
+  transition: transform 0.15s ease;
 
   &.square-card {
     width: 160px;
-    height: auto;
     flex-basis: 160px;
-
-    ::ng-deep .cover-container.audiobook-cover {
-      aspect-ratio: 1/1 !important;
-      flex: none;
-    }
   }
 
-  &:hover, &.menu-open {
+  &:hover {
     transform: translateY(-2px);
-  }
-
-  // Audiobook covers should fill the container height
-  ::ng-deep {
-    app-book-card {
-      display: block;
-      height: 100%;
-    }
-
-    .book-card {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .cover-container.audiobook-cover {
-      aspect-ratio: unset;
-      flex: 1;
-    }
   }
 }
 

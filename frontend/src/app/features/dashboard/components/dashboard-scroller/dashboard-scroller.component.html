@@ -16,22 +16,16 @@
       </div>
     }
 
-    @if (books) {
-      <div class="dashboard-scroller-infinite"
-        infiniteScroll
-        [infiniteScrollDistance]="2"
-        [infiniteScrollThrottle]="50"
-        #scrollContainer
-        [horizontal]="true">
-        @for (book of books; track book.id) {
-          <div class="dashboard-scroller-card" [ngClass]="{'menu-open': openMenuBookId === book.id, 'square-card': useSquareCovers}">
+    @if (books && books.length > 0) {
+      <div class="dashboard-scroller-strip">
+        @for (book of books; track book.id; let i = $index) {
+          <div class="dashboard-scroller-card" [ngClass]="{'square-card': useSquareCovers}">
             <app-book-card
               [book]="book"
-              [isCheckboxEnabled]="false"
+              [index]="i"
               [forceEbookMode]="forceEbookMode"
-              (menuToggled)="handleMenuToggle(book.id, $event)"
-              [overlayPreferenceService]="bookCardOverlayPreferenceService"
-            ></app-book-card>
+              [useSquareCovers]="useSquareCovers">
+            </app-book-card>
           </div>
         }
       </div>

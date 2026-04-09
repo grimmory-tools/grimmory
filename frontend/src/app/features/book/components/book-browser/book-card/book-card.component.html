@@ -1,115 +1,115 @@
 <div class="book-card"
-     [class.selected]="isSelected"
+     [class.selected]="isSelected()"
      role="button"
      tabindex="0"
      (click)="onCardClick($event)"
      (keydown.enter)="onCardClick($event)">
 
-  <div class="cover-container" [ngClass]="{ 'center-info-btn': _isSeriesViewActive || !hasDigitalFile(), 'audiobook-cover': _isAudiobook, 'square-library-cover': useSquareCovers }">
-    @if (coverImageUrl) {
+  <div class="cover-container" [ngClass]="{ 'center-info-btn': isSeriesViewActive() || !hasDigitalFile(), 'audiobook-cover': isAudiobook(), 'square-library-cover': useSquareCovers() }">
+    @if (coverImageUrl(); as url) {
       <img
-        [src]="coverImageUrl"
+        [src]="url"
         class="book-cover"
-        [class.square-cover]="_isAudiobook || useSquareCovers"
-        [alt]="('book.card.alt.cover' | transloco: { title: displayTitle })"
+        [class.square-cover]="isAudiobook() || useSquareCovers()"
+        [alt]="('book.card.alt.cover' | transloco: { title: displayTitle() })"
         loading="lazy"
         decoding="async"/>
     } @else {
-      <app-cover-placeholder class="book-cover" [class.square-cover]="_isAudiobook || useSquareCovers" [title]="book.metadata?.title ?? ''" [author]="(book.metadata?.authors ?? []).join(', ')" />
+      <app-cover-placeholder class="book-cover" [class.square-cover]="isAudiobook() || useSquareCovers()" [title]="book().metadata?.title ?? ''" [author]="(book().metadata?.authors ?? []).join(', ')" />
     }
 
     <div class="top-left-overlay-stack">
-      @if ((overlayPreferenceService?.showBookTypePill() ?? true) && getDisplayFormat(); as displayFormat) {
-        <div class="book-type-pill-overlay" [ngClass]="'book-type-' + displayFormat.toLowerCase()">
-          {{ displayFormat }}
+      @if ((overlayPreferenceService()?.showBookTypePill() ?? true) && displayFormat(); as fmt) {
+        <div class="book-type-pill-overlay" [ngClass]="'book-type-' + fmt.toLowerCase()">
+          {{ fmt }}
         </div>
       }
-      @if (!book.seriesCount && book.metadata?.seriesNumber !== null && book.metadata?.seriesNumber !== undefined) {
+      @if (!book().seriesCount && book().metadata?.seriesNumber !== null && book().metadata?.seriesNumber !== undefined) {
         <div class="series-number-overlay">
-          #{{ book.metadata?.seriesNumber }}
+          #{{ book().metadata?.seriesNumber }}
         </div>
       }
-      @if (book.seriesCount && book.seriesCount >= 1) {
+      @if (book().seriesCount && book().seriesCount! >= 1) {
         <div class="series-items-count-overlay">
-          <i class="pi pi-book series-items-count-icon"></i>{{ book.seriesCount }}
+          <i class="pi pi-book series-items-count-icon"></i>{{ book().seriesCount }}
         </div>
       }
     </div>
 
-    @if (_isSeriesViewActive) {
+    @if (isSeriesViewActive()) {
       <p-button [rounded]="true" icon="pi pi-info" class="info-btn" (click)="openSeriesInfo()" [ariaLabel]="'book.card.alt.viewSeriesInfo' | transloco"></p-button>
     } @else {
-      <p-button [rounded]="true" icon="pi pi-info" class="info-btn" (click)="openBookInfo(book)" [ariaLabel]="'book.card.alt.viewDetails' | transloco">
+      <p-button [rounded]="true" icon="pi pi-info" class="info-btn" (click)="openBookInfo(book())" [ariaLabel]="'book.card.alt.viewDetails' | transloco">
       </p-button>
     }
 
-    @if (!_isSeriesViewActive && hasDigitalFile()) {
-      <a [routerLink]="urlHelper.getBookPrimaryReadingUrl(book)" (click)="readBook(book)"><p-button [rounded]="true" [icon]="readButtonIcon" class="read-btn" (click)="readBook(book)"
-        [pTooltip]="_isContinueReading ? ('book.card.alt.continueReading' | transloco) : ''"
+    @if (!isSeriesViewActive() && hasDigitalFile()) {
+      <a [routerLink]="readingUrl()" (click)="readBook(book())"><p-button [rounded]="true" [icon]="readButtonIcon()" class="read-btn" (click)="readBook(book())"
+        [pTooltip]="isContinueReading() ? ('book.card.alt.continueReading' | transloco) : ''"
         tooltipPosition="bottom"
-        [ariaLabel]="_isContinueReading ? ('book.card.alt.continueReading' | transloco) : (_isAudiobook ? ('book.card.alt.playAudiobook' | transloco) : ('book.card.alt.readBook' | transloco))"></p-button></a>
+        [ariaLabel]="isContinueReading() ? ('book.card.alt.continueReading' | transloco) : (isAudiobook() ? ('book.card.alt.playAudiobook' | transloco) : ('book.card.alt.readBook' | transloco))"></p-button></a>
     }
 
-    @if (isCheckboxEnabled) {
+    @if (isCheckboxEnabled()) {
       <p-checkbox
         [binary]="true"
         class="select-checkbox"
         (click)="captureMouseEvent($event)"
-        [ngModel]="isSelected"
+        [ngModel]="isSelected()"
         (onChange)="toggleSelection($event)">
       </p-checkbox>
     }
 
-    @if (hasProgress) {
-      <div class="cover-progress-bar-container" [pTooltip]="progressTooltip" tooltipPosition="top">
-        @if (_progressPercentage !== null) {
+    @if (hasProgress()) {
+      <div class="cover-progress-bar-container" [pTooltip]="progressTooltip()" tooltipPosition="top">
+        @if (progressPercentage() !== null) {
           <p-progressBar
-            [value]="_progressPercentage"
+            [value]="progressPercentage()!"
             [showValue]="false"
             class="cover-progress-bar"
-            [ngClass]="{ 'progress-complete': _progressPercentage === 100, 'progress-incomplete': _progressPercentage < 100 }">
+            [ngClass]="{ 'progress-complete': progressPercentage() === 100, 'progress-incomplete': progressPercentage()! < 100 }">
           </p-progressBar>
         }
-        @if (_koProgressPercentage !== null) {
+        @if (koProgressPercentage() !== null) {
           <p-progressBar
-            [value]="_koProgressPercentage"
+            [value]="koProgressPercentage()!"
             [showValue]="false"
             class="cover-progress-bar"
-            [ngClass]="_koProgressPercentage === 100 ? 'progress-complete-ko' : 'progress-incomplete-ko'">
+            [ngClass]="koProgressPercentage() === 100 ? 'progress-complete-ko' : 'progress-incomplete-ko'">
           </p-progressBar>
         }
-        @if (_koboProgressPercentage !== null) {
+        @if (koboProgressPercentage() !== null) {
           <p-progressBar
-            [value]="_koboProgressPercentage"
+            [value]="koboProgressPercentage()!"
             [showValue]="false"
             class="cover-progress-bar"
-            [ngClass]="_koboProgressPercentage === 100 ? 'progress-complete-kobo' : 'progress-incomplete-kobo'">
+            [ngClass]="koboProgressPercentage() === 100 ? 'progress-complete-kobo' : 'progress-incomplete-kobo'">
           </p-progressBar>
         }
       </div>
     }
   </div>
 
-  @if (!bottomBarHidden) {
+  @if (!bottomBarHidden()) {
     <div class="book-title-container">
       <div class="read-status-indicator"
-           [ngClass]="_readStatusClass"
-           [pTooltip]="readStatusTooltip"
+           [ngClass]="readStatusClass()"
+           [pTooltip]="readStatusTooltip()"
            tooltipPosition="bottom"
            (click)="toggleReadStatusMenu($event, readStatusMenu)"
            (keydown.enter)="toggleReadStatusMenu($event, readStatusMenu)"
            role="button"
            tabindex="0"
            [attr.aria-label]="'book.card.alt.readStatusMenu' | transloco">
-        <i [class]="_readStatusIcon" style="font-size: 0.9rem"></i>
+        <i [class]="readStatusIcon()" style="font-size: 0.9rem"></i>
       </div>
-      <p-tieredmenu #readStatusMenu [model]="readStatusMenuItems" [popup]="true" appendTo="body"></p-tieredmenu>
+      <p-tieredmenu #readStatusMenu [model]="readStatusMenuItems()" [popup]="true" appendTo="body"></p-tieredmenu>
       <h4 class="book-title"
           tooltipPosition="bottom"
-          [pTooltip]="titleTooltip">
-        {{ displayTitle }}
+          [pTooltip]="titleTooltip()">
+        {{ displayTitle() }}
       </h4>
-      <p-tieredmenu #menu [model]="items" [popup]="true" appendTo="body" (onShow)="onMenuShow()" (onHide)="onMenuHide()"></p-tieredmenu>
+      <p-tieredmenu #menu [model]="items()" [popup]="true" appendTo="body" (onShow)="onMenuShow()" (onHide)="onMenuHide()"></p-tieredmenu>
       <p-button
         class="custom-button-padding"
         size="small"

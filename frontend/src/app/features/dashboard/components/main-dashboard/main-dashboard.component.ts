@@ -1,4 +1,4 @@
-import {Component, computed, inject, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, OnInit} from '@angular/core';
 import {Button} from 'primeng/button';
 import {DashboardScrollerComponent} from '../dashboard-scroller/dashboard-scroller.component';
 import {BookService} from '../../../book/service/book.service';
@@ -22,6 +22,7 @@ const DEFAULT_MAX_ITEMS = 20;
 
 @Component({
   selector: 'app-main-dashboard',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './main-dashboard.component.html',
   styleUrls: ['./main-dashboard.component.scss'],
   imports: [

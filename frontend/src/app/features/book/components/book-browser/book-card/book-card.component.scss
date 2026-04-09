@@ -105,7 +105,6 @@
   visibility: hidden;
   transition: opacity 0.15s ease, visibility 0.15s ease;
   z-index: 2;
-  will-change: opacity, visibility;
 
   ::ng-deep .p-button {
     box-shadow:
@@ -160,7 +159,6 @@
   visibility: hidden;
   transition: opacity 0.15s ease, visibility 0.15s ease;
   z-index: 2;
-  will-change: opacity, visibility;
 
   @media (width <= 767px) {
     top: 4px;
@@ -400,40 +398,4 @@
 
 .status-unset {
   color: var(--text-color-secondary);
-}
-
-::ng-deep .progress-incomplete .p-progressbar-value {
-  background-color: #3b82f6;
-}
-
-::ng-deep .progress-complete .p-progressbar-value {
-  background-color: #22c55e;
-}
-
-::ng-deep .progress-incomplete-ko .p-progressbar-value {
-  background-color: #fbbf24;
-}
-
-::ng-deep .progress-complete-ko .p-progressbar-value {
-  background-color: #8b5cf6;
-}
-
-::ng-deep .progress-incomplete-kobo .p-progressbar-value {
-  background-color: #bf0000;
-}
-
-::ng-deep .progress-complete-kobo .p-progressbar-value {
-  background-color: #f65c9c;
-}
-
-::ng-deep .cover-progress-bar {
-  --p-progressbar-border-radius: 0 !important;
-}
-
-::ng-deep .custom-button-padding .p-button {
-  padding-block: 0.25rem !important;
-}
-
-::ng-deep .book-details-dialog .p-dialog-header {
-  padding: 1rem 1.25rem !important;
 }

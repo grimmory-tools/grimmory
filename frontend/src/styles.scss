@@ -115,3 +115,39 @@ html {
     }
   }
 }
+
+.progress-incomplete .p-progressbar-value {
+  background-color: #3b82f6;
+}
+
+.progress-complete .p-progressbar-value {
+  background-color: #22c55e;
+}
+
+.progress-incomplete-ko .p-progressbar-value {
+  background-color: #fbbf24;
+}
+
+.progress-complete-ko .p-progressbar-value {
+  background-color: #8b5cf6;
+}
+
+.progress-incomplete-kobo .p-progressbar-value {
+  background-color: #bf0000;
+}
+
+.progress-complete-kobo .p-progressbar-value {
+  background-color: #f65c9c;
+}
+
+.cover-progress-bar {
+  --p-progressbar-border-radius: 0 !important;
+}
+
+.custom-button-padding .p-button {
+  padding-block: 0.25rem !important;
+}
+
+.book-details-dialog .p-dialog-header {
+  padding: 1rem 1.25rem !important;
+}

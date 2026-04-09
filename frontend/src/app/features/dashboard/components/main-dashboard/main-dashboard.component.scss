@@ -3,14 +3,6 @@
   overflow-y: auto;
   position: relative;
 
-  &::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-  }
-
   &::-webkit-scrollbar {
     width: 12px;
   }
@@ -78,7 +70,6 @@
   background: var(--p-surface-900);
   border-radius: 24px;
   border: 1px solid var(--p-content-border-color);
-  backdrop-filter: blur(20px);
   position: relative;
   overflow: hidden;
 }
@@ -89,7 +80,6 @@
 
 ::ng-deep .p-dialog-mask {
   background-color: rgb(0 0 0 / 50%);
-  backdrop-filter: blur(3px);
 }
 
 .dashboard-settings-button {
@@ -100,7 +90,6 @@
 
   ::ng-deep .p-button {
     box-shadow: 0 4px 12px rgb(0 0 0 / 30%);
-    backdrop-filter: blur(10px);
     background: rgb(var(--p-surface-900-rgb), 80%);
     border: 1px solid var(--p-content-border-color);
 
@@ -122,4 +111,9 @@
       height: 2.5rem;
     }
   }
+}
+
+.scroller-placeholder {
+  height: 260px;
+  margin-bottom: 2rem;
 }

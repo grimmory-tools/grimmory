@@ -1,10 +1,9 @@
-import {NO_ERRORS_SCHEMA, SimpleChange, SimpleChanges} from '@angular/core';
-import {TestBed} from '@angular/core/testing';
-import {Router} from '@angular/router';
+import {ComponentRef, NO_ERRORS_SCHEMA} from '@angular/core';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {ActivatedRoute, Router} from '@angular/router';
 import {QueryClient} from '@tanstack/angular-query-experimental';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
-import {TranslocoService} from '@jsverse/transloco';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {TaskHelperService} from '../../../../settings/task-management/task-helper.service';
 import {EmailService} from '../../../../settings/email-v2/email.service';
@@ -18,6 +17,7 @@ import {BookFileService} from '../../../service/book-file.service';
 import {BookMetadataManageService} from '../../../service/book-metadata-manage.service';
 import {BookNavigationService} from '../../../service/book-navigation.service';
 import {BookService} from '../../../service/book.service';
+import {getTranslocoModule} from '../../../../../core/testing/transloco-testing';
 
 function makeBook(overrides: Partial<Book> = {}): Book {
   return {
@@ -92,6 +92,8 @@ function makeUser(metadataCenterViewMode: 'route' | 'dialog'): User {
 
 describe('BookCardComponent', () => {
   let component: BookCardComponent;
+  let fixture: ComponentFixture<BookCardComponent>;
+  let ref: ComponentRef<BookCardComponent>;
   let bookService: {
     readBook: ReturnType<typeof vi.fn>;
   };
@@ -122,6 +124,7 @@ describe('BookCardComponent', () => {
   let urlHelper: {
     getThumbnailUrl: ReturnType<typeof vi.fn>;
     getAudiobookThumbnailUrl: ReturnType<typeof vi.fn>;
+    getBookPrimaryReadingUrl: ReturnType<typeof vi.fn>;
   };
   let confirmationService: {
     confirm: ReturnType<typeof vi.fn>;
@@ -140,14 +143,8 @@ describe('BookCardComponent', () => {
   let appSettingsService: {
     appSettings: ReturnType<typeof vi.fn>;
   };
-  let translocoService: {
-    translate: ReturnType<typeof vi.fn>;
-  };
   let queryClient: {
     fetchQuery: ReturnType<typeof vi.fn>;
-  };
-  let cdr: {
-    markForCheck: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(() => {
@@ -181,6 +178,7 @@ describe('BookCardComponent', () => {
     urlHelper = {
       getThumbnailUrl: vi.fn((bookId: number, coverUpdatedOn?: string) => `thumb:${bookId}:${coverUpdatedOn ?? 'none'}`),
       getAudiobookThumbnailUrl: vi.fn((bookId: number, audiobookCoverUpdatedOn?: string) => `audio-thumb:${bookId}:${audiobookCoverUpdatedOn ?? 'none'}`),
+      getBookPrimaryReadingUrl: vi.fn((book: Book) => `/read/${book.id}`),
     };
     confirmationService = {
       confirm: vi.fn(),
@@ -199,20 +197,15 @@ describe('BookCardComponent', () => {
     appSettingsService = {
       appSettings: vi.fn(() => ({diskType: 'LOCAL'})),
     };
-    translocoService = {
-      translate: vi.fn((key: string, params?: Record<string, unknown>) => (params ? `${key}:${JSON.stringify(params)}` : key)),
-    };
     queryClient = {
       fetchQuery: vi.fn(),
     };
-    cdr = {
-      markForCheck: vi.fn(),
-    };
 
     TestBed.configureTestingModule({
-      imports: [BookCardComponent],
+      imports: [BookCardComponent, getTranslocoModule()],
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
+        {provide: ActivatedRoute, useValue: {}},
         {provide: BookService, useValue: bookService},
         {provide: BookFileService, useValue: bookFileService},
         {provide: BookMetadataManageService, useValue: bookMetadataManageService},
@@ -226,16 +219,18 @@ describe('BookCardComponent', () => {
         {provide: BookDialogHelperService, useValue: bookDialogHelperService},
         {provide: BookNavigationService, useValue: bookNavigationService},
         {provide: AppSettingsService, useValue: appSettingsService},
-        {provide: TranslocoService, useValue: translocoService},
         {provide: QueryClient, useValue: queryClient},
-        {provide: QueryClient, useValue: queryClient},
-        {provide: BookCardComponent, useValue: BookCardComponent},
-        {provide: 'ChangeDetectorRef', useValue: cdr},
       ],
     });
 
-    component = TestBed.createComponent(BookCardComponent).componentInstance;
-    (component as unknown as {cdr: typeof cdr}).cdr = cdr;
+    fixture = TestBed.createComponent(BookCardComponent);
+    ref = fixture.componentRef;
+    component = fixture.componentInstance;
+
+    // Set required inputs before first change detection
+    ref.setInput('book', makeBook());
+    ref.setInput('index', 0);
+    fixture.detectChanges();
   });
 
   afterEach(() => {
@@ -243,8 +238,8 @@ describe('BookCardComponent', () => {
     TestBed.resetTestingModule();
   });
 
-  it('derives progress, audiobook, and series display state from inputs and changes', () => {
-    component.book = makeBook({
+  it('derives progress, audiobook, and series display state from inputs', () => {
+    ref.setInput('book', makeBook({
       id: 8,
       metadata: {
         bookId: 8,
@@ -265,27 +260,24 @@ describe('BookCardComponent', () => {
       koreaderProgress: {percentage: 11},
       koboProgress: {percentage: 7},
       readStatus: ReadStatus.READING,
-    });
-    component.seriesViewEnabled = true;
-    component.isSeriesCollapsed = true;
-    component.forceEbookMode = false;
+    }));
+    ref.setInput('seriesViewEnabled', true);
+    ref.setInput('isSeriesCollapsed', true);
+    ref.setInput('forceEbookMode', false);
+    fixture.detectChanges();
 
-    component.ngOnInit();
+    expect(component.hasProgress()).toBe(true);
+    expect(component.displayTitle()).toBe('Series Saga');
+    expect(component.titleTooltip()).toContain('Series Saga');
+    expect(component.coverImageUrl()).toBe('audio-thumb:8:2024-04-02');
+    expect(component.progressTooltip()).toBe('42% (Grimmory) | 11% (KOReader) | 7% (Kobo)');
+    expect(component.readButtonIcon()).toBe('pi pi-forward');
 
-    expect(component.hasProgress).toBe(true);
-    expect(component.displayTitle).toBe('Series Saga');
-    expect(component.titleTooltip).toContain('Series Saga');
-    expect(component.coverImageUrl).toBe('audio-thumb:8:2024-04-02');
-    expect(component.progressTooltip).toBe('42% (Grimmory) | 11% (KOReader) | 7% (Kobo)');
-    expect(component.readButtonIcon).toBe('pi pi-forward');
+    ref.setInput('isSeriesCollapsed', false);
+    fixture.detectChanges();
 
-    component.isSeriesCollapsed = false;
-    component.ngOnChanges({
-      isSeriesCollapsed: new SimpleChange(true, false, false),
-    } as SimpleChanges);
-
-    expect(component.displayTitle).toBe('Volume One');
-    expect(component.titleTooltip).toContain('Volume One');
+    expect(component.displayTitle()).toBe('Volume One');
+    expect(component.titleTooltip()).toContain('Volume One');
   });
 
   it('uses forced ebook mode for audiobook reads and falls back to the normal read flow otherwise', () => {
@@ -310,23 +302,26 @@ describe('BookCardComponent', () => {
       ],
     });
 
-    component.forceEbookMode = true;
+    ref.setInput('forceEbookMode', true);
+    fixture.detectChanges();
     component.readBook(audiobookWithAlternativeFormat);
 
     expect(bookService.readBook).toHaveBeenCalledWith(12, undefined, 'PDF');
 
-    component.forceEbookMode = false;
+    ref.setInput('forceEbookMode', false);
+    fixture.detectChanges();
     component.readBook(makeBook({id: 13}));
 
     expect(bookService.readBook).toHaveBeenCalledWith(13);
   });
 
   it('derives display format from missing primary files, extensions, paths, and forced audiobook ebook types', () => {
-    component.book = makeBook({id: 20, primaryFile: undefined});
-    component.forceEbookMode = false;
-    expect(component.getDisplayFormat()).toBe('PHY');
+    ref.setInput('book', makeBook({id: 20, primaryFile: undefined}));
+    ref.setInput('forceEbookMode', false);
+    fixture.detectChanges();
+    expect(component.displayFormat()).toBe('PHY');
 
-    component.book = makeBook({
+    ref.setInput('book', makeBook({
       id: 21,
       primaryFile: {
         id: 211,
@@ -335,10 +330,11 @@ describe('BookCardComponent', () => {
         extension: 'pdf',
         filePath: 'books/volume-one.pdf',
       },
-    });
-    expect(component.getDisplayFormat()).toBe('PDF');
+    }));
+    fixture.detectChanges();
+    expect(component.displayFormat()).toBe('PDF');
 
-    component.book = makeBook({
+    ref.setInput('book', makeBook({
       id: 22,
       primaryFile: {
         id: 221,
@@ -346,10 +342,11 @@ describe('BookCardComponent', () => {
         bookType: 'EPUB',
         filePath: 'books/volume-one.mobi',
       },
-    });
-    expect(component.getDisplayFormat()).toBe('MOBI');
+    }));
+    fixture.detectChanges();
+    expect(component.displayFormat()).toBe('MOBI');
 
-    component.book = makeBook({
+    ref.setInput('book', makeBook({
       id: 23,
       primaryFile: {
         id: 231,
@@ -358,40 +355,45 @@ describe('BookCardComponent', () => {
         filePath: 'books/volume-one.m4b',
       },
       epubProgress: {cfi: 'epub', percentage: 73},
-    });
-    component.forceEbookMode = true;
-    expect(component.getDisplayFormat()).toBe('EPUB');
+    }));
+    ref.setInput('forceEbookMode', true);
+    fixture.detectChanges();
+    expect(component.displayFormat()).toBe('EPUB');
   });
 
-  it('guards card selection and preserves shift metadata for ctrl-initiated changes only', () => {
-    component.book = makeBook({id: 30});
-    component.index = 4;
-    component.isCheckboxEnabled = false;
-    component.isSelected = false;
-    component.onBookSelect = vi.fn();
+  it('guards card selection and emits checkbox events for ctrl-initiated changes only', () => {
+    ref.setInput('book', makeBook({id: 30}));
+    ref.setInput('index', 4);
+    ref.setInput('isCheckboxEnabled', false);
+    ref.setInput('isSelected', false);
+    const selectFn = vi.fn();
+    ref.setInput('onBookSelect', selectFn);
+    fixture.detectChanges();
 
-    const emitSpy = vi.spyOn(component.checkboxClick, 'emit');
+    const emitted: unknown[] = [];
+    component.checkboxClick.subscribe(e => emitted.push(e));
 
     component.toggleCardSelection(true);
-    expect(emitSpy).not.toHaveBeenCalled();
-    expect(component.onBookSelect).not.toHaveBeenCalled();
+    expect(emitted).toHaveLength(0);
+    expect(selectFn).not.toHaveBeenCalled();
 
-    component.isCheckboxEnabled = true;
+    ref.setInput('isCheckboxEnabled', true);
+    fixture.detectChanges();
     component.captureMouseEvent(new MouseEvent('mousedown', {shiftKey: true}));
 
     component.onCardClick(new MouseEvent('click', {ctrlKey: false}));
-    expect(emitSpy).not.toHaveBeenCalled();
+    expect(emitted).toHaveLength(0);
 
     component.onCardClick(new MouseEvent('click', {ctrlKey: true}));
 
-    expect(component.isSelected).toBe(true);
-    expect(emitSpy).toHaveBeenCalledWith({
+    expect(emitted).toHaveLength(1);
+    expect(emitted[0]).toEqual({
       index: 4,
-      book: component.book,
+      book: component.book(),
       selected: true,
       shiftKey: true,
     });
-    expect(component.onBookSelect).toHaveBeenCalledWith(component.book, true);
+    expect(selectFn).toHaveBeenCalledWith(component.book(), true);
   });
 
   it('routes series info and book details through the correct destination', () => {
@@ -407,15 +409,16 @@ describe('BookCardComponent', () => {
     });
 
     userService.currentUser.mockReturnValue(makeUser('route'));
-    component.book = book;
-    component.isSeriesCollapsed = true;
-    component.ngOnInit();
+    ref.setInput('book', book);
+    ref.setInput('isSeriesCollapsed', true);
+    fixture.detectChanges();
 
     component.openSeriesInfo();
     expect(router.navigate).toHaveBeenCalledWith(['/series', 'The Series']);
 
     bookNavigationService.availableBookIds.mockReturnValue([2, 44, 77]);
-    component.isSeriesCollapsed = false;
+    ref.setInput('isSeriesCollapsed', false);
+    fixture.detectChanges();
     component.openSeriesInfo();
 
     expect(bookNavigationService.setNavigationContext).toHaveBeenCalledWith([2, 44, 77], 44);

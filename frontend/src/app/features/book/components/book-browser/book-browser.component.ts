@@ -5,7 +5,7 @@ import {ConfirmationService, MenuItem, MessageService} from 'primeng/api';
 import {PageTitleService} from '../../../../shared/service/page-title.service';
 import {BookService} from '../../service/book.service';
 import {BookMetadataManageService} from '../../service/book-metadata-manage.service';
-import {debounceTime, distinctUntilChanged, filter, map, takeUntil} from 'rxjs/operators';
+import {debounceTime, distinctUntilChanged, filter, map, take, takeUntil} from 'rxjs/operators';
 import {combineLatest, finalize, Subject} from 'rxjs';
 import {DynamicDialogRef} from 'primeng/dynamicdialog';
 import {Library} from '../../model/library.model';
@@ -910,7 +910,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   openShelfAssigner(): void {
     this.dynamicDialogRef = this.dialogHelperService.openShelfAssignerDialog(null, this.selectedBooks());
     if (this.dynamicDialogRef) {
-      this.dynamicDialogRef.onClose.subscribe(result => {
+      this.dynamicDialogRef.onClose.pipe(take(1)).subscribe(result => {
         if (result.assigned) {
           this.bookSelectionService.deselectAll();
         }
@@ -921,7 +921,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   lockUnlockMetadata(): void {
     this.dynamicDialogRef = this.dialogHelperService.openLockUnlockMetadataDialog(this.selectedBooks());
     if (this.dynamicDialogRef) {
-      this.dynamicDialogRef.onClose.subscribe(() => {
+      this.dynamicDialogRef.onClose.pipe(take(1)).subscribe(() => {
         this.bookSelectionService.deselectAll();
       });
     }
@@ -943,7 +943,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   bulkEditMetadata(): void {
     this.dynamicDialogRef = this.dialogHelperService.openBulkMetadataEditDialog(this.selectedBooks());
     if (this.dynamicDialogRef) {
-      this.dynamicDialogRef.onClose.subscribe(() => {
+      this.dynamicDialogRef.onClose.pipe(take(1)).subscribe(() => {
         this.bookSelectionService.deselectAll();
       });
     }
@@ -952,7 +952,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   multiBookEditMetadata(): void {
     this.dynamicDialogRef = this.dialogHelperService.openMultibookMetadataEditorDialog(this.selectedBooks());
     if (this.dynamicDialogRef) {
-      this.dynamicDialogRef.onClose.subscribe(() => {
+      this.dynamicDialogRef.onClose.pipe(take(1)).subscribe(() => {
         this.bookSelectionService.deselectAll();
       });
     }
@@ -1072,7 +1072,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.dynamicDialogRef = this.dialogHelperService.openBulkBookFileAttacherDialog(sourceBooks);
     if (this.dynamicDialogRef) {
-      this.dynamicDialogRef.onClose.subscribe(result => {
+      this.dynamicDialogRef.onClose.pipe(take(1)).subscribe(result => {
         if (result?.success) {
           this.bookSelectionService.deselectAll();
         }
