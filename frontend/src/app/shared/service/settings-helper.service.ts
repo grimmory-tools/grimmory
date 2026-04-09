@@ -2,6 +2,7 @@ import {Injectable, inject} from '@angular/core';
 import {AppSettingsService} from './app-settings.service';
 import {MessageService} from 'primeng/api';
 import {TranslocoService} from '@jsverse/transloco';
+import {defaultIfEmpty, map} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -13,12 +14,16 @@ export class SettingsHelperService {
   private readonly t = inject(TranslocoService);
 
   saveSetting(key: string, value: unknown): void {
-    this.appSettingsService.saveSettings([{key, newValue: value}]).subscribe({
-      next: () => this.showSuccessMessage(),
-      error: (error) => {
-        console.error('Failed to save setting:', error);
-        this.showErrorMessage();
+    this.appSettingsService.saveSettings([{key, newValue: value}]).pipe(
+      map(() => true),
+      defaultIfEmpty(false)
+    ).subscribe((saved) => {
+      if (saved) {
+        this.showSuccessMessage();
+        return;
       }
+      console.error('Failed to save setting');
+      this.showErrorMessage();
     });
   }
 
