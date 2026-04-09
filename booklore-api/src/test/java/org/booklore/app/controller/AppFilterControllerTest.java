@@ -43,8 +43,8 @@ class AppFilterControllerTest {
         ResponseEntity<AppFilterOptions> response = controller.getFilterOptions(5L, null, null);
 
         assertEquals(200, response.getStatusCode().value());
-        assertEquals(1, response.getBody().getAuthors().size());
-        assertEquals("Author B", response.getBody().getAuthors().getFirst().getName());
+        assertEquals(1, response.getBody().authors().size());
+        assertEquals("Author B", response.getBody().authors().getFirst().name());
         verify(mobileBookService).getFilterOptions(5L, null, null);
     }
 
@@ -56,7 +56,7 @@ class AppFilterControllerTest {
         ResponseEntity<AppFilterOptions> response = controller.getFilterOptions(null, 10L, null);
 
         assertEquals(200, response.getStatusCode().value());
-        assertTrue(response.getBody().getAuthors().isEmpty());
+        assertTrue(response.getBody().authors().isEmpty());
         verify(mobileBookService).getFilterOptions(null, 10L, null);
     }
 
@@ -68,16 +68,16 @@ class AppFilterControllerTest {
         ResponseEntity<AppFilterOptions> response = controller.getFilterOptions(null, null, 7L);
 
         assertEquals(200, response.getStatusCode().value());
-        assertEquals("Author C", response.getBody().getAuthors().getFirst().getName());
+        assertEquals("Author C", response.getBody().authors().getFirst().name());
         verify(mobileBookService).getFilterOptions(null, null, 7L);
     }
 
     private AppFilterOptions buildOptions(List<String> authorNames, List<String> fileTypes, List<String> langCodes) {
-        List<AppFilterOptions.AuthorOption> authors = authorNames.stream()
-                .map(name -> AppFilterOptions.AuthorOption.builder().name(name).count(1L).build())
+        List<AppFilterOptions.CountedOption> authors = authorNames.stream()
+                .map(name -> new AppFilterOptions.CountedOption(name, 1L))
                 .toList();
         List<AppFilterOptions.LanguageOption> languages = langCodes.stream()
-                .map(code -> AppFilterOptions.LanguageOption.builder().code(code).label(code).count(1L).build())
+                .map(code -> new AppFilterOptions.LanguageOption(code, code, 1L))
                 .toList();
         return AppFilterOptions.builder()
                 .authors(authors)

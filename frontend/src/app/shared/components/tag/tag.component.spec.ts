@@ -58,6 +58,7 @@ describe('TagComponent', () => {
     host.variant = 'pill';
     host.rounded = true;
     host.pill = true;
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
 
     const tag = fixture.nativeElement.querySelector('span') as HTMLSpanElement;

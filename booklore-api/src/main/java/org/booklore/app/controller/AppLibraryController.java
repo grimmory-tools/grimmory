@@ -1,5 +1,7 @@
 package org.booklore.app.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.app.dto.AppLibrarySummary;
 import org.booklore.app.mapper.AppBookMapper;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/v1/app/libraries")
+@Tag(name = "App Libraries", description = "Endpoints for retrieving libraries in the app experience")
 public class AppLibraryController {
 
     private final AuthenticationService authenticationService;
@@ -27,6 +30,11 @@ public class AppLibraryController {
     private final BookRepository bookRepository;
     private final AppBookMapper mobileBookMapper;
 
+    @Operation(
+            summary = "List app libraries",
+            description = "Retrieve libraries visible to the current app user, including per-library book counts.",
+            operationId = "appGetLibraries"
+    )
     @GetMapping
     public ResponseEntity<List<AppLibrarySummary>> getLibraries() {
         BookLoreUser user = authenticationService.getAuthenticatedUser();

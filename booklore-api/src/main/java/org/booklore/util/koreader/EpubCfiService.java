@@ -23,7 +23,6 @@ public class EpubCfiService {
         this.documentCache = Caffeine.newBuilder()
                 .maximumSize(10)
                 .expireAfterAccess(Duration.ofMinutes(5))
-                .softValues()
                 .build();
     }
 

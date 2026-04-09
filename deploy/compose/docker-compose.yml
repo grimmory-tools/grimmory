@@ -21,7 +21,9 @@ services:
       - SWAGGER_ENABLED=false
       - FORCE_DISABLE_OIDC=false
       # ALLOWED_ORIGINS=
-      # JAVA_TOOL_OPTIONS=-XX:+UseSerialGC -Xmx256m -XX:+UseCompactObjectHeaders -XX:+ExitOnOutOfMemoryError
+      # Override JVM memory defaults (the image ships sensible defaults for ~512 MB heap).
+      # Uncomment and adjust if you want a tighter or looser cap:
+      # JAVA_TOOL_OPTIONS=-Xmx256m
     depends_on:
       mariadb:
         condition: service_healthy

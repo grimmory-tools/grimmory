@@ -1,0 +1,190 @@
+import {computed, inject, Injectable, signal} from '@angular/core';
+import {HttpClient, HttpParams} from '@angular/common/http';
+import {lastValueFrom} from 'rxjs';
+import {injectInfiniteQuery, injectQuery, QueryClient} from '@tanstack/angular-query-experimental';
+import {API_CONFIG} from '../../../core/config/api-config';
+import {AuthService} from '../../../shared/service/auth.service';
+import {
+  AppBookFilters,
+  AppBookSort,
+  AppBookSummary,
+  AppFilterOptions,
+  AppPageResponse,
+} from '../model/app-book.model';
+import {Book, BookType, ReadStatus} from '../model/book.model';
+
+const PAGE_SIZE = 50;
+
+@Injectable({providedIn: 'root'})
+export class AppBooksApiService {
+
+  private readonly http = inject(HttpClient);
+  private readonly authService = inject(AuthService);
+  private readonly queryClient = inject(QueryClient);
+
+  private readonly booksUrl = `${API_CONFIG.BASE_URL}/api/v1/app/books`;
+  private readonly filterOptionsUrl = `${API_CONFIG.BASE_URL}/api/v1/app/filter-options`;
+  private readonly token = this.authService.token;
+
+  private readonly _filters = signal<AppBookFilters>({});
+  private readonly _sort = signal<AppBookSort>({field: 'addedOn', dir: 'desc'});
+  private readonly _search = signal('');
+
+  readonly booksQuery = injectInfiniteQuery(() => ({
+    queryKey: ['app-books', this._filters(), this._sort(), this._search()] as const,
+    queryFn: ({pageParam}: {pageParam: number}) => {
+      const params = this.buildParams(pageParam);
+      return lastValueFrom(this.http.get<AppPageResponse<AppBookSummary>>(this.booksUrl, {params}));
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage: AppPageResponse<AppBookSummary>) =>
+      lastPage.hasNext ? lastPage.page + 1 : undefined,
+    enabled: !!this.token(),
+    staleTime: 30_000,
+  }));
+
+  readonly filterOptionsQuery = injectQuery(() => ({
+    queryKey: ['app-filter-options', this._filters().libraryId, this._filters().shelfId, this._filters().magicShelfId] as const,
+    queryFn: () => {
+      const filters = this._filters();
+      let params = new HttpParams();
+      if (filters.libraryId) params = params.set('libraryId', filters.libraryId.toString());
+      if (filters.shelfId) params = params.set('shelfId', filters.shelfId.toString());
+      if (filters.magicShelfId) params = params.set('magicShelfId', filters.magicShelfId.toString());
+      return lastValueFrom(this.http.get<AppFilterOptions>(this.filterOptionsUrl, {params}));
+    },
+    enabled: !!this.token(),
+    staleTime: 60_000,
+  }));
+
+  /** Accumulated books from all loaded pages, mapped to the Book interface. */
+  readonly books = computed<Book[]>(() => {
+    const data = this.booksQuery.data();
+    if (!data) return [];
+    return data.pages.flatMap(page => page.content.map(summaryToBook));
+  });
+
+  readonly totalElements = computed(() => {
+    const data = this.booksQuery.data();
+    if (!data || data.pages.length === 0) return 0;
+    return data.pages[0].totalElements;
+  });
+
+  readonly hasNextPage = computed(() => this.booksQuery.hasNextPage());
+  readonly isLoading = computed(() => this.booksQuery.isPending());
+  readonly isFetchingNextPage = computed(() => this.booksQuery.isFetchingNextPage());
+  readonly isError = computed(() => this.booksQuery.isError());
+  readonly error = computed<string | null>(() => {
+    if (!this.booksQuery.isError()) return null;
+    const err = this.booksQuery.error();
+    return err instanceof Error ? err.message : 'Failed to load books';
+  });
+  readonly filterOptions = computed(() => this.filterOptionsQuery.data() ?? null);
+
+  setFilters(filters: AppBookFilters): void {
+    if (JSON.stringify(this._filters()) !== JSON.stringify(filters)) {
+      this._filters.set(filters);
+    }
+  }
+
+  setSort(sort: AppBookSort): void {
+    const current = this._sort();
+    if (current.field !== sort.field || current.dir !== sort.dir) {
+      this._sort.set(sort);
+    }
+  }
+
+  setSearch(search: string): void {
+    if (this._search() !== search) {
+      this._search.set(search);
+    }
+  }
+
+  fetchNextPage(): void {
+    this.booksQuery.fetchNextPage();
+  }
+
+  /** Invalidate the books query to force a refresh from the server. */
+  invalidate(): void {
+    void this.queryClient.invalidateQueries({queryKey: ['app-books']});
+    void this.queryClient.invalidateQueries({queryKey: ['app-filter-options']});
+  }
+
+  private buildParams(page: number): HttpParams {
+    const filters = this._filters();
+    const sort = this._sort();
+    const search = this._search();
+
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', PAGE_SIZE.toString())
+      .set('sort', sort.field)
+      .set('dir', sort.dir);
+
+    if (search) params = params.set('search', search);
+    if (filters.libraryId) params = params.set('libraryId', filters.libraryId.toString());
+    if (filters.shelfId) params = params.set('shelfId', filters.shelfId.toString());
+    if (filters.magicShelfId) params = params.set('magicShelfId', filters.magicShelfId.toString());
+    if (filters.unshelved) params = params.set('unshelved', 'true');
+    if (filters.status) params = params.set('status', filters.status);
+    if (filters.fileType) params = params.set('fileType', filters.fileType);
+    if (filters.minRating != null) params = params.set('minRating', filters.minRating.toString());
+    if (filters.maxRating != null) params = params.set('maxRating', filters.maxRating.toString());
+    if (filters.filterMode) params = params.set('filterMode', filters.filterMode);
+
+    // Array filters: use append() to produce repeated query params (e.g. ?authors=A&authors=B)
+    const arrayFilters: [string, string[] | undefined][] = [
+      ['authors', filters.authors],
+      ['language', filters.language],
+      ['series', filters.series],
+      ['category', filters.category],
+      ['publisher', filters.publisher],
+      ['tag', filters.tag],
+      ['mood', filters.mood],
+      ['narrator', filters.narrator],
+    ];
+    for (const [key, values] of arrayFilters) {
+      if (values?.length) {
+        for (const v of values) {
+          params = params.append(key, v);
+        }
+      }
+    }
+
+    return params;
+  }
+}
+
+/**
+ * Maps a server-side AppBookSummary to a Book-shaped object
+ * compatible with BookCardComponent's @Input() book property.
+ */
+function summaryToBook(summary: AppBookSummary): Book {
+  return {
+    id: summary.id,
+    libraryId: summary.libraryId,
+    readStatus: (summary.readStatus as ReadStatus) ?? ReadStatus.UNSET,
+    personalRating: summary.personalRating ?? 0,
+    addedOn: summary.addedOn,
+    lastReadTime: summary.lastReadTime,
+    isPhysical: summary.isPhysical ?? false,
+    metadata: {
+      bookId: summary.id,
+      title: summary.title,
+      authors: summary.authors ?? [],
+      seriesName: summary.seriesName,
+      seriesNumber: summary.seriesNumber,
+      coverUpdatedOn: summary.coverUpdatedOn,
+      audiobookCoverUpdatedOn: summary.audiobookCoverUpdatedOn,
+    },
+    primaryFile: summary.primaryFileType
+      ? {bookType: summary.primaryFileType as BookType}
+      : null,
+    pdfProgress: summary.readProgress != null
+      ? {page: 0, percentage: summary.readProgress}
+      : null,
+    epubProgress: null,
+    cbxProgress: null,
+    shelves: [],
+  } as unknown as Book;
+}

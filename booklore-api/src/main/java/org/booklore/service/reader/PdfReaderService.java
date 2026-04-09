@@ -19,36 +19,38 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class PdfReaderService {
 
-    private static final int MAX_CACHE_ENTRIES = 50;
+    private static final int MAX_CACHE_ENTRIES = 15;
     private static final float DEFAULT_DPI = 200f;
 
     private final BookRepository bookRepository;
-    private final Map<String, CachedPdfMetadata> metadataCache = new ConcurrentHashMap<>();
+    private final Cache<String, CachedPdfMetadata> metadataCache = Caffeine.newBuilder()
+            .maximumSize(MAX_CACHE_ENTRIES)
+            .expireAfterAccess(Duration.ofMinutes(30))
+            .build();
 
     private static class CachedPdfMetadata {
         final int pageCount;
         final long lastModified;
         final List<PdfOutlineItem> outline;
-        volatile long lastAccessed;
 
         CachedPdfMetadata(int pageCount, long lastModified, List<PdfOutlineItem> outline) {
             this.pageCount = pageCount;
             this.lastModified = lastModified;
             this.outline = outline;
-            this.lastAccessed = System.currentTimeMillis();
         }
     }
 
@@ -120,16 +122,14 @@ public class PdfReaderService {
     private CachedPdfMetadata getCachedMetadata(Path pdfPath) throws IOException {
         String cacheKey = pdfPath.toString();
         long currentModified = Files.getLastModifiedTime(pdfPath).toMillis();
-        CachedPdfMetadata cached = metadataCache.get(cacheKey);
+        CachedPdfMetadata cached = metadataCache.getIfPresent(cacheKey);
         if (cached != null && cached.lastModified == currentModified) {
-            cached.lastAccessed = System.currentTimeMillis();
             log.debug("Cache hit for PDF: {}", pdfPath.getFileName());
             return cached;
         }
         log.debug("Cache miss for PDF: {}, scanning...", pdfPath.getFileName());
         CachedPdfMetadata newMetadata = scanPdfMetadata(pdfPath);
         metadataCache.put(cacheKey, newMetadata);
-        evictOldestCacheEntries();
         return newMetadata;
     }
 
@@ -188,21 +188,6 @@ public class PdfReaderService {
             log.debug("Failed to process outline item: {}", e.getMessage());
             return null;
         }
-    }
-
-    private void evictOldestCacheEntries() {
-        if (metadataCache.size() <= MAX_CACHE_ENTRIES) {
-            return;
-        }
-        List<String> keysToRemove = metadataCache.entrySet().stream()
-                .sorted(Comparator.comparingLong(e -> e.getValue().lastAccessed))
-                .limit(metadataCache.size() - MAX_CACHE_ENTRIES)
-                .map(Map.Entry::getKey)
-                .toList();
-        keysToRemove.forEach(key -> {
-            metadataCache.remove(key);
-            log.debug("Evicted cache entry: {}", key);
-        });
     }
 
     private void renderPageToStream(Path pdfPath, int page, OutputStream outputStream) throws IOException {

@@ -9,7 +9,7 @@ import org.booklore.model.enums.LibraryOrganizationMode;
 import org.booklore.model.enums.MetadataSource;
 import jakarta.persistence.*;
 import lombok.*;
-
+import org.hibernate.annotations.BatchSize;
 import java.util.*;
 
 @Entity
@@ -19,6 +19,7 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "library")
+@BatchSize(size = 20)
 public class LibraryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
