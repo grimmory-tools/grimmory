@@ -4,6 +4,7 @@ import {QueryClient} from '@tanstack/angular-query-experimental';
 import {BOOKS_QUERY_KEY} from './book-query-keys';
 import {
   addBookToCache,
+  invalidateAppBooksQueries,
   invalidateBookDetailQueries,
   invalidateBooksQuery,
   patchBooksInCache,
@@ -50,5 +51,6 @@ export class BookSocketService {
       })
     );
     invalidateBookDetailQueries(this.queryClient, patches.map(p => p.id));
+    invalidateAppBooksQueries(this.queryClient);
   }
 }

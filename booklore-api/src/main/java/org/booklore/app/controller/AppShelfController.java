@@ -1,5 +1,7 @@
 package org.booklore.app.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.app.dto.AppBookSummary;
 import org.booklore.app.dto.AppMagicShelfSummary;
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/v1/app/shelves")
+@Tag(name = "App Shelves", description = "Endpoints for browsing shelves and magic shelves in the app experience")
 public class AppShelfController {
 
     private final AuthenticationService authenticationService;
@@ -33,6 +36,11 @@ public class AppShelfController {
     private final AppBookMapper mobileBookMapper;
     private final AppBookService mobileBookService;
 
+    @Operation(
+            summary = "List app shelves",
+            description = "Retrieve all regular shelves visible to the current app user.",
+            operationId = "appGetShelves"
+    )
     @GetMapping
     public ResponseEntity<List<AppShelfSummary>> getShelves() {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
@@ -47,6 +55,11 @@ public class AppShelfController {
         return ResponseEntity.ok(summaries);
     }
 
+    @Operation(
+            summary = "List app magic shelves",
+            description = "Retrieve all magic shelves visible to the current app user.",
+            operationId = "appGetMagicShelves"
+    )
     @GetMapping("/magic")
     public ResponseEntity<List<AppMagicShelfSummary>> getMagicShelves() {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
@@ -80,6 +93,11 @@ public class AppShelfController {
         return ResponseEntity.ok(summaries);
     }
 
+    @Operation(
+            summary = "List books in app magic shelf",
+            description = "Retrieve paginated books contained in a specific magic shelf for the app.",
+            operationId = "appGetBooksByMagicShelf"
+    )
     @GetMapping("/magic/{magicShelfId}/books")
     public ResponseEntity<AppPageResponse<AppBookSummary>> getBooksByMagicShelf(
             @PathVariable Long magicShelfId,

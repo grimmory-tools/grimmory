@@ -1,5 +1,7 @@
 package org.booklore.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.booklore.config.security.annotation.CheckBookAccess;
 import org.booklore.model.dto.BookFile;
 import org.booklore.model.dto.request.DetachBookFileRequest;
@@ -21,12 +23,18 @@ import java.util.List;
 @RequestMapping("/api/v1/books/{bookId}/files")
 @RestController
 @AllArgsConstructor
+@Tag(name = "Book Files", description = "Endpoints for managing additional files attached to books")
 public class AdditionalFileController {
 
     private final AdditionalFileService additionalFileService;
     private final FileUploadService fileUploadService;
     private final BookFileDetachmentService bookFileDetachmentService;
 
+    @Operation(
+            summary = "List additional book files",
+            description = "Retrieve additional files for a specific book.",
+            operationId = "additionalFileGetAdditionalFiles"
+    )
     @GetMapping
     @CheckBookAccess(bookIdParam = "bookId")
     public ResponseEntity<List<BookFile>> getAdditionalFiles(@PathVariable Long bookId) {
@@ -34,6 +42,11 @@ public class AdditionalFileController {
         return ResponseEntity.ok(files);
     }
 
+    @Operation(
+            summary = "List additional files by type",
+            description = "Retrieve additional files for a specific book filtered by whether they are primary book files.",
+            operationId = "additionalFileGetFilesByIsBook"
+    )
     @GetMapping(params = "isBook")
     @CheckBookAccess(bookIdParam = "bookId")
     public ResponseEntity<List<BookFile>> getFilesByIsBook(
@@ -43,6 +56,11 @@ public class AdditionalFileController {
         return ResponseEntity.ok(files);
     }
 
+    @Operation(
+            summary = "Upload additional book file",
+            description = "Upload and attach a new additional file to a specific book.",
+            operationId = "additionalFileUploadAdditionalFile"
+    )
     @PostMapping(consumes = "multipart/form-data")
     @CheckBookAccess(bookIdParam = "bookId")
     @PreAuthorize("@securityUtil.canUpload() or @securityUtil.isAdmin()")
@@ -56,6 +74,11 @@ public class AdditionalFileController {
         return ResponseEntity.ok(additionalFile);
     }
 
+    @Operation(
+            summary = "Download additional book file",
+            description = "Download a specific additional file attached to a book.",
+            operationId = "additionalFileDownloadAdditionalFile"
+    )
     @GetMapping("/{fileId}/download")
     @CheckBookAccess(bookIdParam = "bookId")
     public ResponseEntity<Resource> downloadAdditionalFile(
@@ -64,6 +87,11 @@ public class AdditionalFileController {
         return additionalFileService.downloadAdditionalFile(fileId);
     }
 
+    @Operation(
+            summary = "Delete additional book file",
+            description = "Delete a specific additional file attached to a book.",
+            operationId = "additionalFileDeleteAdditionalFile"
+    )
     @DeleteMapping("/{fileId}")
     @CheckBookAccess(bookIdParam = "bookId")
     @PreAuthorize("@securityUtil.canDeleteBook() or @securityUtil.isAdmin()")
@@ -74,6 +102,11 @@ public class AdditionalFileController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(
+            summary = "Detach additional book file",
+            description = "Detach a specific additional file from a book and optionally copy metadata.",
+            operationId = "additionalFileDetachFile"
+    )
     @PostMapping("/{fileId}/detach")
     @CheckBookAccess(bookIdParam = "bookId")
     @PreAuthorize("@securityUtil.canManageLibrary() or @securityUtil.isAdmin()")

@@ -318,7 +318,7 @@
             ></app-book-table>
           }
           @if (currentViewMode === 'grid') {
-            <virtual-scroller class="virtual-scroller" #scroll [items]="books" [bufferAmount]="16">
+            <virtual-scroller class="virtual-scroller" #scroll [items]="books" [bufferAmount]="16" (vsEnd)="onScrollEnd()">
               <div
                 class="grid"
                 #container

@@ -23,6 +23,7 @@ import java.util.Set;
 @AllArgsConstructor
 @DynamicUpdate
 @Table(name = "book_metadata")
+@BatchSize(size = 20)
 public class BookMetadataEntity {
 
     @Id

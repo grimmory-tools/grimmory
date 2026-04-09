@@ -1,5 +1,7 @@
 package org.booklore.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -26,6 +28,7 @@ import java.util.Map;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/v1/auth/oidc")
+@Tag(name = "OIDC Authentication", description = "Endpoints for OIDC state generation, callbacks, and logout flows")
 public class OidcAuthController {
 
     private final OidcAuthService oidcAuthService;
@@ -33,11 +36,21 @@ public class OidcAuthController {
     private final OidcStateService oidcStateService;
     private final AuditService auditService;
 
+    @Operation(
+            summary = "Generate OIDC state",
+            description = "Generate a one-time state value for initiating an OIDC authentication flow.",
+            operationId = "oidcGenerateState"
+    )
     @GetMapping("/state")
     public ResponseEntity<Map<String, String>> generateState() {
         return ResponseEntity.ok(Map.of("state", oidcStateService.generateState()));
     }
 
+    @Operation(
+            summary = "Handle OIDC callback",
+            description = "Process the OIDC callback payload and exchange authorization code for tokens.",
+            operationId = "oidcHandleCallback"
+    )
     @PostMapping("/callback")
     public ResponseEntity<Map<String, String>> handleCallback(
             @RequestBody @Valid OidcCallbackRequest request,
@@ -58,6 +71,11 @@ public class OidcAuthController {
         }
     }
 
+    @Operation(
+            summary = "Handle OIDC redirect callback",
+            description = "Handle redirect-based OIDC callback and redirect back to the app with token information.",
+            operationId = "oidcHandleRedirect"
+    )
     @GetMapping("/redirect")
     public ResponseEntity<Void> handleRedirect(
             @RequestParam("code") String code,
@@ -104,6 +122,11 @@ public class OidcAuthController {
         }
     }
 
+    @Operation(
+            summary = "Handle OIDC mobile callback",
+            description = "Process mobile OIDC callback parameters and exchange authorization code for tokens.",
+            operationId = "oidcHandleMobileCallback"
+    )
     @PostMapping("/mobile/callback")
     public ResponseEntity<Map<String, String>> handleMobileCallback(
             @RequestParam("code") String code,
@@ -122,6 +145,11 @@ public class OidcAuthController {
         }
     }
 
+    @Operation(
+            summary = "Handle OIDC backchannel logout",
+            description = "Process OIDC backchannel logout token and invalidate matching session state.",
+            operationId = "oidcBackchannelLogout"
+    )
     @PostMapping(value = "/backchannel-logout", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResponseEntity<Void> backchannelLogout(@RequestParam("logout_token") String logoutToken) {
         try {

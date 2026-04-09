@@ -56,8 +56,8 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {DeferredRenderState} from './deferred-render-state';
 
 import {SortService} from '../../service/sort.service';
-import {filterBooksBySearchTerm} from './filters/HeaderFilter';
-import {filterBooksByFilters} from './filters/sidebar-filter';
+import {AppBooksApiService} from '../../service/app-books-api.service';
+import {AppBookFilters} from '../../model/app-book.model';
 
 export enum EntityType {
   LIBRARY = 'Library',
@@ -118,6 +118,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   private queryParamsService = inject(BookBrowserQueryParamsService);
   private entityService = inject(BookBrowserEntityService);
   private sortService = inject(SortService);
+  private appBooksApi = inject(AppBooksApiService);
   private localStorageService = inject(LocalStorageService);
   private scrollService = inject(BookBrowserScrollService);
   private readonly t = inject(TranslocoService);
@@ -184,28 +185,64 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
 
     return actions;
   });
-  // --- Layered pipeline: each computed only recomputes when its direct inputs change ---
-  private readonly entityBooks = computed(() => {
-    const {entityId, entityType} = this.entityInfo();
-    return this.entityService.getBooksByEntity(this.bookService.books(), entityId, entityType);
-  });
-  private readonly searchedBooks = computed(() =>
-    filterBooksBySearchTerm(this.entityBooks(), this.debouncedSearchTerm())
-  );
-  private readonly filteredBooks = computed(() =>
-    filterBooksByFilters(this.searchedBooks(), this.selectedFilter(), this.selectedFilterMode())
-  );
+  // --- Server-side data pipeline: delegates filtering, sorting, searching to the API ---
   private readonly forceExpandSeries = computed(() =>
     this.queryParamsService.shouldForceExpandSeries(this.queryParamMap())
   );
-  private readonly collapsedBooks = computed(() =>
-    this.seriesCollapseFilter.collapseBooks(
-      this.filteredBooks(), this.forceExpandSeries(), this.seriesCollapsed()
-    )
-  );
-  private readonly sortedBooks = computed(() =>
-    this.sortService.applyMultiSort(this.collapsedBooks(), this.sortCriteria())
-  );
+
+  /** Sync entity scope, filters, search, and sort to the API service. */
+  private readonly syncApiStateEffect = effect(() => {
+    const {entityId, entityType} = this.entityInfo();
+    const search = this.debouncedSearchTerm();
+    const sidebarFilters = this.selectedFilter();
+    const sortCriteria = this.sortCriteria();
+
+    const scopeFilters: AppBookFilters = {};
+    switch (entityType) {
+      case EntityType.LIBRARY:
+        if (!Number.isNaN(entityId)) scopeFilters.libraryId = entityId;
+        break;
+      case EntityType.SHELF:
+        if (!Number.isNaN(entityId)) scopeFilters.shelfId = entityId;
+        break;
+      case EntityType.MAGIC_SHELF:
+        if (!Number.isNaN(entityId)) scopeFilters.magicShelfId = entityId;
+        break;
+      case EntityType.UNSHELVED:
+        scopeFilters.unshelved = true;
+        break;
+    }
+
+    if (sidebarFilters) {
+      for (const [type, values] of Object.entries(sidebarFilters)) {
+        if (!values || values.length === 0) continue;
+        const strValues = values.map(String);
+        switch (type) {
+          case 'author': scopeFilters.authors = strValues; break;
+          case 'category': scopeFilters.category = strValues; break;
+          case 'series': scopeFilters.series = strValues; break;
+          case 'publisher': scopeFilters.publisher = strValues; break;
+          case 'tag': scopeFilters.tag = strValues; break;
+          case 'mood': scopeFilters.mood = strValues; break;
+          case 'narrator': scopeFilters.narrator = strValues; break;
+          case 'language': scopeFilters.language = strValues; break;
+          case 'readStatus': scopeFilters.status = strValues[0]; break;
+          case 'bookType': scopeFilters.fileType = strValues[0]; break;
+        }
+      }
+      const mode = this.selectedFilterMode();
+      scopeFilters.filterMode = mode === 'single' ? 'or' : mode;
+    }
+
+    this.appBooksApi.setFilters(scopeFilters);
+    this.appBooksApi.setSearch(search);
+
+    if (sortCriteria.length > 0) {
+      const primary = sortCriteria[0];
+      const dir = primary.direction === SortDirection.ASCENDING ? 'asc' as const : 'desc' as const;
+      this.appBooksApi.setSort({field: primary.field, dir});
+    }
+  });
 
   // --- Deferred render: lets skeleton/refresh indicator paint before committing ---
   private readonly booksRenderState = new DeferredRenderState<Book[]>();
@@ -220,7 +257,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   });
 
   private readonly pipelineInputs = computed(() => ({
-    books: this.bookService.books(),
+    books: this.appBooksApi.books(),
     entity: this.entityInfo(),
     search: this.debouncedSearchTerm(),
     filter: this.selectedFilter(),
@@ -238,20 +275,15 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     this.lastBooksContextKey = contextKey;
 
     if (shouldRefreshInPlace) {
-      // Same context (sort/filter/search change within the same entity).
-      // Commit synchronously — the memoized computed chain is fast and
-      // skipping the setTimeout avoids a one-frame skeleton flash.
       const requestId = this.booksRenderState.begin('refresh');
-      this.booksRenderState.commit(requestId, this.sortedBooks());
+      this.booksRenderState.commit(requestId, this.appBooksApi.books());
       return;
     }
 
-    // Context changed (navigation between entities or first load).
-    // Defer so the skeleton can paint before the pipeline evaluates.
     const requestId = this.booksRenderState.begin('reset');
 
     const timeout = globalThis.setTimeout(() => {
-      this.booksRenderState.commit(requestId, this.sortedBooks());
+      this.booksRenderState.commit(requestId, this.appBooksApi.books());
     });
 
     onCleanup(() => {
@@ -259,8 +291,8 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
       this.booksRenderState.cancel(requestId);
     });
   });
-  readonly isBooksLoading = this.bookService.isBooksLoading;
-  readonly booksError = this.bookService.booksError;
+  readonly isBooksLoading = computed(() => this.appBooksApi.isLoading());
+  readonly booksError = this.appBooksApi.error;
   readonly bookIndexById = computed(() => {
     const books = this.books();
     if (!books) return new Map<number, number>();
@@ -1046,7 +1078,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
 
   attachFilesToBook(): void {
     const selectedBookIds = Array.from(this.selectedBooks());
-    const sourceBooks = this.bookService.books().filter(book =>
+    const sourceBooks = (this.books() ?? []).filter(book =>
       selectedBookIds.includes(book.id)
     );
 
@@ -1084,7 +1116,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     const selectedBookIds = Array.from(this.selectedBooks());
     if (selectedBookIds.length === 0) return false;
 
-    const selectedBooks = this.bookService.books().filter(book =>
+    const selectedBooks = (this.books() ?? []).filter(book =>
       selectedBookIds.includes(book.id)
     );
 
@@ -1106,4 +1138,9 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  onScrollEnd(): void {
+    if (this.appBooksApi.hasNextPage() && !this.appBooksApi.isFetchingNextPage()) {
+      this.appBooksApi.fetchNextPage();
+    }
+  }
 }
