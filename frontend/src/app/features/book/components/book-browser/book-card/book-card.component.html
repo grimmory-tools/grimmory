@@ -44,7 +44,7 @@
     }
 
     @if (!isSeriesViewActive() && hasDigitalFile()) {
-      <a [routerLink]="readingUrl()" (click)="readBook(book())"><p-button [rounded]="true" [icon]="readButtonIcon()" class="read-btn" (click)="readBook(book())"
+      <a [routerLink]="readingUrl()" (click)="readBook(book())"><p-button [rounded]="true" [icon]="readButtonIcon()" class="read-btn"
         [pTooltip]="isContinueReading() ? ('book.card.alt.continueReading' | transloco) : ''"
         tooltipPosition="bottom"
         [ariaLabel]="isContinueReading() ? ('book.card.alt.continueReading' | transloco) : (isAudiobook() ? ('book.card.alt.playAudiobook' | transloco) : ('book.card.alt.readBook' | transloco))"></p-button></a>

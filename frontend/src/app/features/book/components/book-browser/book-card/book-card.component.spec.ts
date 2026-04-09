@@ -427,8 +427,6 @@ describe('BookCardComponent', () => {
     });
 
     userService.currentUser.mockReturnValue(makeUser('dialog'));
-    const dialogComponent = component as unknown as {metadataCenterViewMode: 'route' | 'dialog'};
-    dialogComponent.metadataCenterViewMode = 'dialog';
     router.navigate.mockClear();
     bookNavigationService.setNavigationContext.mockClear();
 

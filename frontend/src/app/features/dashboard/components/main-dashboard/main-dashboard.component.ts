@@ -64,6 +64,10 @@ export class MainDashboardComponent implements OnInit {
     return scrollerMap;
   });
 
+  readonly enabledScrollers = computed(() => {
+    return this.dashboardConfig().scrollers.filter(s => s.enabled);
+  });
+
   ScrollerType = ScrollerType;
 
   ngOnInit(): void {

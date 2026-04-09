@@ -43,6 +43,10 @@ if (!globalThis.matchMedia) {
   });
 }
 
+if (!window.matchMedia) {
+  window.matchMedia = globalThis.matchMedia;
+}
+
 if (!globalThis.ResizeObserver) {
   globalThis.ResizeObserver = MockResizeObserver as typeof ResizeObserver;
 }

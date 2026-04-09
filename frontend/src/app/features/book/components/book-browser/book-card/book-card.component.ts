@@ -80,9 +80,9 @@ export class BookCardComponent {
   private queryClient = inject(QueryClient);
   private readStatusHelper = inject(ReadStatusHelper);
 
-  private readonly user: User | null = this.userService.currentUser() ?? null;
-  private readonly metadataCenterViewMode: 'route' | 'dialog' = this.user?.userSettings?.metadataCenterViewMode ?? 'route';
-  private readonly diskType: string = this.appSettingsService.appSettings()?.diskType ?? 'LOCAL';
+  get user(): User | null { return this.userService.currentUser() ?? null; }
+  get metadataCenterViewMode(): 'route' | 'dialog' { return this.user?.userSettings?.metadataCenterViewMode ?? 'route'; }
+  get diskType(): string { return this.appSettingsService.appSettings()?.diskType ?? 'LOCAL'; }
 
   readonly progressPercentage = computed(() => {
     const b = this.book();
