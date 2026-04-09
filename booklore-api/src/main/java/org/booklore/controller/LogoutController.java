@@ -25,7 +25,7 @@ public class LogoutController {
     @Operation(
             summary = "Logout user",
             description = "Logout the current user and invalidate refresh token state when provided.",
-            operationId = "logoutUser"
+            operationId = "logout"
     )
     @PostMapping("/logout")
     public ResponseEntity<LogoutResponse> logout(Authentication auth,

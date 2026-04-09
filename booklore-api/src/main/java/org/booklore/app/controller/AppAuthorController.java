@@ -21,7 +21,7 @@ public class AppAuthorController {
     @Operation(
             summary = "List app authors",
             description = "Retrieve paginated authors for the app with optional filtering and sorting.",
-            operationId = "appListAuthors"
+            operationId = "appGetAuthors"
     )
     @GetMapping
     public ResponseEntity<AppPageResponse<AppAuthorSummary>> getAuthors(

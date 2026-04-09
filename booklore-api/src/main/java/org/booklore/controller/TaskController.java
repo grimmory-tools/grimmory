@@ -35,7 +35,7 @@ public class TaskController {
     @Operation(
             summary = "List available tasks",
             description = "Retrieve all task types available to the current user.",
-            operationId = "listAvailableTasks"
+            operationId = "taskGetAvailableTasks"
     )
     @GetMapping
     @PreAuthorize("@securityUtil.canAccessTaskManager() or @securityUtil.isAdmin()")
@@ -47,7 +47,7 @@ public class TaskController {
     @Operation(
             summary = "Start task",
             description = "Start a task immediately with the provided task request payload.",
-            operationId = "startTask"
+            operationId = "taskStartTask"
     )
     @PostMapping("/start")
     @PreAuthorize("@securityUtil.canAccessTaskManager() or @securityUtil.isAdmin()")
@@ -62,7 +62,7 @@ public class TaskController {
     @Operation(
             summary = "Cancel task",
             description = "Cancel an in-progress task by task ID.",
-            operationId = "cancelTask"
+            operationId = "taskCancelTask"
     )
     @DeleteMapping("/{taskId}/cancel")
     @PreAuthorize("@securityUtil.canAccessTaskManager() or @securityUtil.isAdmin()")
@@ -74,7 +74,7 @@ public class TaskController {
     @Operation(
             summary = "Get latest tasks by type",
             description = "Retrieve the latest task execution entry for each task type.",
-            operationId = "getLatestTasksByType"
+            operationId = "taskGetLatestTasksForEachType"
     )
     @GetMapping("/last")
     @PreAuthorize("@securityUtil.canAccessTaskManager() or @securityUtil.isAdmin()")
@@ -86,7 +86,7 @@ public class TaskController {
     @Operation(
             summary = "Update task cron configuration",
             description = "Patch cron schedule configuration for a task type and reschedule execution.",
-            operationId = "updateTaskCronConfig"
+            operationId = "taskPatchCronConfig"
     )
     @PatchMapping("/{taskType}/cron")
     @PreAuthorize("@securityUtil.canAccessTaskManager() or @securityUtil.isAdmin()")

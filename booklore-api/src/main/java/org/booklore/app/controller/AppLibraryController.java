@@ -33,7 +33,7 @@ public class AppLibraryController {
     @Operation(
             summary = "List app libraries",
             description = "Retrieve libraries visible to the current app user, including per-library book counts.",
-            operationId = "appListLibraries"
+            operationId = "appGetLibraries"
     )
     @GetMapping
     public ResponseEntity<List<AppLibrarySummary>> getLibraries() {

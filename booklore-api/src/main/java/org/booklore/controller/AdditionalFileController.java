@@ -33,7 +33,7 @@ public class AdditionalFileController {
     @Operation(
             summary = "List additional book files",
             description = "Retrieve additional files for a specific book.",
-            operationId = "listAdditionalBookFiles"
+            operationId = "additionalFileGetAdditionalFiles"
     )
     @GetMapping
     @CheckBookAccess(bookIdParam = "bookId")
@@ -45,7 +45,7 @@ public class AdditionalFileController {
     @Operation(
             summary = "List additional files by type",
             description = "Retrieve additional files for a specific book filtered by whether they are primary book files.",
-            operationId = "listAdditionalBookFilesByType"
+            operationId = "additionalFileGetFilesByIsBook"
     )
     @GetMapping(params = "isBook")
     @CheckBookAccess(bookIdParam = "bookId")
@@ -59,7 +59,7 @@ public class AdditionalFileController {
     @Operation(
             summary = "Upload additional book file",
             description = "Upload and attach a new additional file to a specific book.",
-            operationId = "uploadAdditionalBookFile"
+            operationId = "additionalFileUploadAdditionalFile"
     )
     @PostMapping(consumes = "multipart/form-data")
     @CheckBookAccess(bookIdParam = "bookId")
@@ -77,7 +77,7 @@ public class AdditionalFileController {
     @Operation(
             summary = "Download additional book file",
             description = "Download a specific additional file attached to a book.",
-            operationId = "downloadAdditionalBookFile"
+            operationId = "additionalFileDownloadAdditionalFile"
     )
     @GetMapping("/{fileId}/download")
     @CheckBookAccess(bookIdParam = "bookId")
@@ -90,7 +90,7 @@ public class AdditionalFileController {
     @Operation(
             summary = "Delete additional book file",
             description = "Delete a specific additional file attached to a book.",
-            operationId = "deleteAdditionalBookFile"
+            operationId = "additionalFileDeleteAdditionalFile"
     )
     @DeleteMapping("/{fileId}")
     @CheckBookAccess(bookIdParam = "bookId")
@@ -105,7 +105,7 @@ public class AdditionalFileController {
     @Operation(
             summary = "Detach additional book file",
             description = "Detach a specific additional file from a book and optionally copy metadata.",
-            operationId = "detachAdditionalBookFile"
+            operationId = "additionalFileDetachFile"
     )
     @PostMapping("/{fileId}/detach")
     @CheckBookAccess(bookIdParam = "bookId")

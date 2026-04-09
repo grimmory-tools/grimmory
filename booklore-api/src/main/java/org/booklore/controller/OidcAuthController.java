@@ -39,7 +39,7 @@ public class OidcAuthController {
     @Operation(
             summary = "Generate OIDC state",
             description = "Generate a one-time state value for initiating an OIDC authentication flow.",
-            operationId = "generateOidcState"
+            operationId = "oidcGenerateState"
     )
     @GetMapping("/state")
     public ResponseEntity<Map<String, String>> generateState() {
@@ -49,7 +49,7 @@ public class OidcAuthController {
     @Operation(
             summary = "Handle OIDC callback",
             description = "Process the OIDC callback payload and exchange authorization code for tokens.",
-            operationId = "handleOidcCallback"
+            operationId = "oidcHandleCallback"
     )
     @PostMapping("/callback")
     public ResponseEntity<Map<String, String>> handleCallback(
@@ -74,7 +74,7 @@ public class OidcAuthController {
     @Operation(
             summary = "Handle OIDC redirect callback",
             description = "Handle redirect-based OIDC callback and redirect back to the app with token information.",
-            operationId = "handleOidcRedirectCallback"
+            operationId = "oidcHandleRedirect"
     )
     @GetMapping("/redirect")
     public ResponseEntity<Void> handleRedirect(
@@ -125,7 +125,7 @@ public class OidcAuthController {
     @Operation(
             summary = "Handle OIDC mobile callback",
             description = "Process mobile OIDC callback parameters and exchange authorization code for tokens.",
-            operationId = "handleOidcMobileCallback"
+            operationId = "oidcHandleMobileCallback"
     )
     @PostMapping("/mobile/callback")
     public ResponseEntity<Map<String, String>> handleMobileCallback(
@@ -148,7 +148,7 @@ public class OidcAuthController {
     @Operation(
             summary = "Handle OIDC backchannel logout",
             description = "Process OIDC backchannel logout token and invalidate matching session state.",
-            operationId = "handleOidcBackchannelLogout"
+            operationId = "oidcBackchannelLogout"
     )
     @PostMapping(value = "/backchannel-logout", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResponseEntity<Void> backchannelLogout(@RequestParam("logout_token") String logoutToken) {

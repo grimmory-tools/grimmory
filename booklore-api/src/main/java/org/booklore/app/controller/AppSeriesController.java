@@ -21,7 +21,7 @@ public class AppSeriesController {
     @Operation(
             summary = "List app series",
             description = "Retrieve paginated series for the app with optional filtering and sorting.",
-            operationId = "appListSeries"
+            operationId = "appGetSeries"
     )
     @GetMapping
     public ResponseEntity<AppPageResponse<AppSeriesSummary>> getSeries(
@@ -44,7 +44,7 @@ public class AppSeriesController {
     @Operation(
             summary = "List books in app series",
             description = "Retrieve paginated books belonging to a specific series for the app.",
-            operationId = "appListSeriesBooks"
+            operationId = "appGetSeriesBooks"
     )
     @GetMapping("/{seriesName}/books")
     public ResponseEntity<AppPageResponse<AppBookSummary>> getSeriesBooks(

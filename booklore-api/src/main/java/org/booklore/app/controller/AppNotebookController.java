@@ -25,7 +25,7 @@ public class AppNotebookController {
     @Operation(
             summary = "List notebook books",
             description = "Retrieve paginated books that contain notebook entries in the app.",
-            operationId = "appListNotebookBooks"
+            operationId = "appGetBooksWithAnnotations"
     )
     @GetMapping("/books")
     public ResponseEntity<AppPageResponse<AppNotebookBookSummary>> getBooksWithAnnotations(
@@ -39,7 +39,7 @@ public class AppNotebookController {
     @Operation(
             summary = "List notebook entries for book",
             description = "Retrieve paginated notebook entries for a specific book in the app.",
-            operationId = "appListNotebookEntriesForBook"
+            operationId = "appGetEntriesForBook"
     )
     @GetMapping("/books/{bookId}/entries")
     public ResponseEntity<AppPageResponse<AppNotebookEntry>> getEntriesForBook(
@@ -56,7 +56,7 @@ public class AppNotebookController {
     @Operation(
             summary = "Update notebook entry",
             description = "Update an existing notebook entry in the app.",
-            operationId = "appUpdateNotebookEntry"
+            operationId = "appUpdateEntry"
     )
     @PutMapping("/entries/{entryId}")
     public ResponseEntity<AppNotebookEntry> updateEntry(
@@ -70,7 +70,7 @@ public class AppNotebookController {
     @Operation(
             summary = "Delete notebook entry",
             description = "Delete an existing notebook entry in the app.",
-            operationId = "appDeleteNotebookEntry"
+            operationId = "appDeleteEntry"
     )
     @DeleteMapping("/entries/{entryId}")
     public ResponseEntity<Void> deleteEntry(
