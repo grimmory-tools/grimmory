@@ -283,7 +283,11 @@ public class UserStatsController {
         return ResponseEntity.ok(readingSessionService.getListeningFinishFunnel());
     }
 
-    @Operation(summary = "Get listening peak hours", description = "Returns listening activity distribution by hour of day. Can be filtered by year and/or month.", operationId = "getListeningPeakHours")
+    @Operation(
+            summary = "Get listening peak hours",
+            description = "Returns listening activity distribution by hour of day. Can be filtered by year and/or month.",
+            operationId = "getListeningPeakHours"
+    )
     @GetMapping("/listening/peak-hours")
     @PreAuthorize("@securityUtil.canAccessUserStats() or @securityUtil.isAdmin()")
     public ResponseEntity<List<PeakHoursResponse>> getListeningPeakHours(
@@ -292,28 +296,44 @@ public class UserStatsController {
         return ResponseEntity.ok(readingSessionService.getListeningPeakHours(year, month));
     }
 
-    @Operation(summary = "Get listening genre statistics", description = "Returns listening statistics grouped by audiobook genres/categories.", operationId = "getListeningGenreStatistics")
+    @Operation(
+            summary = "Get listening genre statistics",
+            description = "Returns listening statistics grouped by audiobook genres/categories.",
+            operationId = "getListeningGenreStatistics"
+    )
     @GetMapping("/listening/genres")
     @PreAuthorize("@securityUtil.canAccessUserStats() or @securityUtil.isAdmin()")
     public ResponseEntity<List<GenreStatisticsResponse>> getListeningGenreStatistics() {
         return ResponseEntity.ok(readingSessionService.getListeningGenreStatistics());
     }
 
-    @Operation(summary = "Get listening author statistics", description = "Returns listening statistics grouped by audiobook authors.", operationId = "getListeningAuthorStats")
+    @Operation(
+            summary = "Get listening author statistics",
+            description = "Returns listening statistics grouped by audiobook authors.",
+            operationId = "getListeningAuthorStats"
+    )
     @GetMapping("/listening/authors")
     @PreAuthorize("@securityUtil.canAccessUserStats() or @securityUtil.isAdmin()")
     public ResponseEntity<List<ListeningAuthorResponse>> getListeningAuthorStats() {
         return ResponseEntity.ok(readingSessionService.getListeningAuthorStats());
     }
 
-    @Operation(summary = "Get listening session scatter data", description = "Returns individual listening session points for scatter plot visualizations.", operationId = "getListeningSessionScatter")
+    @Operation(
+            summary = "Get listening session scatter data",
+            description = "Returns individual listening session points for scatter plot visualizations.",
+            operationId = "getListeningSessionScatter"
+    )
     @GetMapping("/listening/session-scatter")
     @PreAuthorize("@securityUtil.canAccessUserStats() or @securityUtil.isAdmin()")
     public ResponseEntity<List<SessionScatterResponse>> getListeningSessionScatter() {
         return ResponseEntity.ok(readingSessionService.getListeningSessionScatter());
     }
 
-    @Operation(summary = "Get longest listened audiobooks", description = "Returns longest audiobooks ranked by listening duration.", operationId = "getListeningLongestBooks")
+    @Operation(
+            summary = "Get longest listened audiobooks",
+            description = "Returns longest audiobooks ranked by listening duration.",
+            operationId = "getListeningLongestBooks"
+    )
     @GetMapping("/listening/longest-books")
     @PreAuthorize("@securityUtil.canAccessUserStats() or @securityUtil.isAdmin()")
     public ResponseEntity<List<LongestAudiobookResponse>> getListeningLongestBooks() {

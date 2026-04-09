@@ -39,7 +39,8 @@ public class OidcAuthController {
     @Operation(
             summary = "Generate OIDC state",
             description = "Generate a one-time state value for initiating an OIDC authentication flow.",
-            operationId = "generateOidcState")
+            operationId = "generateOidcState"
+    )
     @GetMapping("/state")
     public ResponseEntity<Map<String, String>> generateState() {
         return ResponseEntity.ok(Map.of("state", oidcStateService.generateState()));
@@ -48,7 +49,8 @@ public class OidcAuthController {
     @Operation(
             summary = "Handle OIDC callback",
             description = "Process the OIDC callback payload and exchange authorization code for tokens.",
-            operationId = "handleOidcCallback")
+            operationId = "handleOidcCallback"
+    )
     @PostMapping("/callback")
     public ResponseEntity<Map<String, String>> handleCallback(
             @RequestBody @Valid OidcCallbackRequest request,
@@ -72,7 +74,8 @@ public class OidcAuthController {
     @Operation(
             summary = "Handle OIDC redirect callback",
             description = "Handle redirect-based OIDC callback and redirect back to the app with token information.",
-            operationId = "handleOidcRedirectCallback")
+            operationId = "handleOidcRedirectCallback"
+    )
     @GetMapping("/redirect")
     public ResponseEntity<Void> handleRedirect(
             @RequestParam("code") String code,
@@ -122,7 +125,8 @@ public class OidcAuthController {
     @Operation(
             summary = "Handle OIDC mobile callback",
             description = "Process mobile OIDC callback parameters and exchange authorization code for tokens.",
-            operationId = "handleOidcMobileCallback")
+            operationId = "handleOidcMobileCallback"
+    )
     @PostMapping("/mobile/callback")
     public ResponseEntity<Map<String, String>> handleMobileCallback(
             @RequestParam("code") String code,
@@ -144,7 +148,8 @@ public class OidcAuthController {
     @Operation(
             summary = "Handle OIDC backchannel logout",
             description = "Process OIDC backchannel logout token and invalidate matching session state.",
-            operationId = "handleOidcBackchannelLogout")
+            operationId = "handleOidcBackchannelLogout"
+    )
     @PostMapping(value = "/backchannel-logout", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResponseEntity<Void> backchannelLogout(@RequestParam("logout_token") String logoutToken) {
         try {

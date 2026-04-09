@@ -24,7 +24,8 @@ public class AppUserController {
     @Operation(
             summary = "Get current app user",
             description = "Retrieve current user flags and capability information used by the app experience.",
-            operationId = "appGetCurrentUser")
+            operationId = "appGetCurrentUser"
+    )
     @GetMapping("/me")
     public ResponseEntity<AppUserInfo> getCurrentUser() {
         BookLoreUser user = authenticationService.getAuthenticatedUser();

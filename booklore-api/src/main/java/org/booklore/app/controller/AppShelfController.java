@@ -39,7 +39,8 @@ public class AppShelfController {
     @Operation(
             summary = "List app shelves",
             description = "Retrieve all regular shelves visible to the current app user.",
-            operationId = "appListShelves")
+            operationId = "appListShelves"
+    )
     @GetMapping
     public ResponseEntity<List<AppShelfSummary>> getShelves() {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
@@ -57,7 +58,8 @@ public class AppShelfController {
     @Operation(
             summary = "List app magic shelves",
             description = "Retrieve all magic shelves visible to the current app user.",
-            operationId = "appListMagicShelves")
+            operationId = "appListMagicShelves"
+    )
     @GetMapping("/magic")
     public ResponseEntity<List<AppMagicShelfSummary>> getMagicShelves() {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
@@ -94,7 +96,8 @@ public class AppShelfController {
     @Operation(
             summary = "List books in app magic shelf",
             description = "Retrieve paginated books contained in a specific magic shelf for the app.",
-            operationId = "appListMagicShelfBooks")
+            operationId = "appListMagicShelfBooks"
+    )
     @GetMapping("/magic/{magicShelfId}/books")
     public ResponseEntity<AppPageResponse<AppBookSummary>> getBooksByMagicShelf(
             @PathVariable Long magicShelfId,

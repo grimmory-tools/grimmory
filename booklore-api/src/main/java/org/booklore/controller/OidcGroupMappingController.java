@@ -23,7 +23,8 @@ public class OidcGroupMappingController {
     @Operation(
             summary = "List OIDC group mappings",
             description = "Retrieve all configured OIDC group mappings.",
-            operationId = "listOidcGroupMappings")
+            operationId = "listOidcGroupMappings"
+    )
     @GetMapping
     public List<OidcGroupMapping> getAll() {
         return oidcGroupMappingService.getAll();
@@ -32,7 +33,8 @@ public class OidcGroupMappingController {
     @Operation(
             summary = "Create OIDC group mapping",
             description = "Create a new OIDC group mapping.",
-            operationId = "createOidcGroupMapping")
+            operationId = "createOidcGroupMapping"
+    )
     @PostMapping
     public OidcGroupMapping create(@Valid @RequestBody OidcGroupMapping mapping) {
         return oidcGroupMappingService.create(mapping);
@@ -41,7 +43,8 @@ public class OidcGroupMappingController {
     @Operation(
             summary = "Update OIDC group mapping",
             description = "Update an existing OIDC group mapping by ID.",
-            operationId = "updateOidcGroupMapping")
+            operationId = "updateOidcGroupMapping"
+    )
     @PutMapping("/{id}")
     public OidcGroupMapping update(@PathVariable Long id, @Valid @RequestBody OidcGroupMapping mapping) {
         return oidcGroupMappingService.update(id, mapping);
@@ -50,7 +53,8 @@ public class OidcGroupMappingController {
     @Operation(
             summary = "Delete OIDC group mapping",
             description = "Delete an OIDC group mapping by ID.",
-            operationId = "deleteOidcGroupMapping")
+            operationId = "deleteOidcGroupMapping"
+    )
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         oidcGroupMappingService.delete(id);

@@ -22,7 +22,8 @@ public class AppFilterController {
     @Operation(
             summary = "Get app filter options",
             description = "Retrieve available filter values for app book browsing.",
-            operationId = "appGetFilterOptions")
+            operationId = "appGetFilterOptions"
+    )
     @GetMapping("/filter-options")
     public ResponseEntity<AppFilterOptions> getFilterOptions(
             @RequestParam(required = false) Long libraryId,

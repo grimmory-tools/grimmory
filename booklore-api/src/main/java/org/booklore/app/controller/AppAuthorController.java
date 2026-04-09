@@ -21,7 +21,8 @@ public class AppAuthorController {
     @Operation(
             summary = "List app authors",
             description = "Retrieve paginated authors for the app with optional filtering and sorting.",
-            operationId = "appListAuthors")
+            operationId = "appListAuthors"
+    )
     @GetMapping
     public ResponseEntity<AppPageResponse<AppAuthorSummary>> getAuthors(
             @RequestParam(required = false, defaultValue = "0") Integer page,
@@ -38,7 +39,8 @@ public class AppAuthorController {
     @Operation(
             summary = "Get app author details",
             description = "Retrieve detailed app-facing information for a single author.",
-            operationId = "appGetAuthorDetail")
+            operationId = "appGetAuthorDetail"
+    )
     @GetMapping("/{authorId}")
     public ResponseEntity<AppAuthorDetail> getAuthorDetail(
             @PathVariable Long authorId) {
