@@ -174,13 +174,11 @@ public class KoboController {
     @ApiResponse(responseCode = "200", description = "Book downloaded successfully")
     @GetMapping("/v1/books/{bookId}/download")
     public void downloadBook(@Parameter(description = "Book ID") @PathVariable String bookId, HttpServletResponse response) {
-        if (StringUtils.isNumeric(bookId)) {
-            bookDownloadService.downloadKoboBook(Long.parseLong(bookId), response);
-        } else if (isForwardingToKoboStore()) {
-            koboServerProxy.proxyCurrentRequest(null, false);
-        } else {
+        if (!StringUtils.isNumeric(bookId)) {
             throw ApiError.GENERIC_NOT_FOUND.createException("Not Found");
         }
+
+        bookDownloadService.downloadKoboBook(Long.parseLong(bookId), response);
     }
 
     @Operation(summary = "Delete book from Kobo library", description = "Delete a book from the user's Kobo library.")

@@ -176,9 +176,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@analogjs/vite-plugin-angular@npm:^2.3.1":
-  version: 2.3.1
-  resolution: "@analogjs/vite-plugin-angular@npm:2.3.1"
+"@analogjs/vite-plugin-angular@npm:^2.4.0":
+  version: 2.4.0
+  resolution: "@analogjs/vite-plugin-angular@npm:2.4.0"
   dependencies:
     tinyglobby: "npm:^0.2.14"
     ts-morph: "npm:^21.0.0"
@@ -190,13 +190,13 @@ __metadata:
       optional: true
     "@angular/build":
       optional: true
-  checksum: 10c0/14171ccbdcf325a4528ab6c491f29604c0b952904b0b3ef79caffdecc2da0f3ade731cbf3ce0ad9efe5c2c1e726d2b7b26c932214f5b2428c4e4df944005301c
+  checksum: 10c0/e84ecce9e08dc607bd0af2483a29b68d63ea9e962537c15a213a32c0184a1b58ae7ade6843309bb8a271bda220aef79d745cd9f2ed945f1db48cd4db35af3c78
   languageName: node
   linkType: hard
 
-"@analogjs/vitest-angular@npm:^2.3.1":
-  version: 2.3.1
-  resolution: "@analogjs/vitest-angular@npm:2.3.1"
+"@analogjs/vitest-angular@npm:^2.4.0":
+  version: 2.4.0
+  resolution: "@analogjs/vitest-angular@npm:2.4.0"
   peerDependencies:
     "@analogjs/vite-plugin-angular": "*"
     "@angular-devkit/architect": ">=0.1500.0 < 0.2200.0"
@@ -206,19 +206,19 @@ __metadata:
   peerDependenciesMeta:
     zone.js:
       optional: true
-  checksum: 10c0/2c7b6821bcba0c716f256b9aafcde833787ff90b80ae9fdeb277bcc25a7e16d295d0c4a89cba753c94a901f4d36093f3f0f25449fbebcec111ec58cfab331d41
+  checksum: 10c0/7811244488365787baf7e17a2864382dd08158de88ae4016f4edcd8b26e1a7fd685bae4b6dedf450d43e4a49f24686cd62ec990c092a62984ab23cdd3a5ba484
   languageName: node
   linkType: hard
 
-"@angular-devkit/architect@npm:0.2102.4":
-  version: 0.2102.4
-  resolution: "@angular-devkit/architect@npm:0.2102.4"
+"@angular-devkit/architect@npm:0.2102.6":
+  version: 0.2102.6
+  resolution: "@angular-devkit/architect@npm:0.2102.6"
   dependencies:
-    "@angular-devkit/core": "npm:21.2.4"
+    "@angular-devkit/core": "npm:21.2.6"
     rxjs: "npm:7.8.2"
   bin:
     architect: bin/cli.js
-  checksum: 10c0/c433769fcce3c36ef58d019971c85ad04b1e640467748012295f943277e8fa4de6e4e6c44ee39df1de689abb49273dfb79b613b06228d64584dfe010c527b6b8
+  checksum: 10c0/55c7f00b3097db16db4760172d7bd2e92a71c9b042d9131db5ba619833da25c4d4dea8d60304ff9d9d2753e20e79e1e1b55688af2bade1f69947edc1dc2b40a3
   languageName: node
   linkType: hard
 
@@ -253,14 +253,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular-devkit/core@npm:21.2.4":
-  version: 21.2.4
-  resolution: "@angular-devkit/core@npm:21.2.4"
+"@angular-devkit/core@npm:21.2.6":
+  version: 21.2.6
+  resolution: "@angular-devkit/core@npm:21.2.6"
   dependencies:
     ajv: "npm:8.18.0"
     ajv-formats: "npm:3.0.1"
     jsonc-parser: "npm:3.3.1"
-    picomatch: "npm:4.0.3"
+    picomatch: "npm:4.0.4"
     rxjs: "npm:7.8.2"
     source-map: "npm:0.7.6"
   peerDependencies:
@@ -268,20 +268,20 @@ __metadata:
   peerDependenciesMeta:
     chokidar:
       optional: true
-  checksum: 10c0/21df09004478e64deaeed5c223c3887c4ee1aad56bcb7709f2fa697496fe57fa9a0f4994fcc7387d307a2b090517f18a3ac95ad832ff4b1431aed4b637ba6ef4
+  checksum: 10c0/48f4bfd5f9a2804f0d1aa3528e7adef4f77138256911086007bae195ef46d1daeab05bb33b9714f250831121df52e79db7f9be39631ad612386e0e07f6872bd5
   languageName: node
   linkType: hard
 
-"@angular-devkit/schematics@npm:21.2.4":
-  version: 21.2.4
-  resolution: "@angular-devkit/schematics@npm:21.2.4"
+"@angular-devkit/schematics@npm:21.2.6":
+  version: 21.2.6
+  resolution: "@angular-devkit/schematics@npm:21.2.6"
   dependencies:
-    "@angular-devkit/core": "npm:21.2.4"
+    "@angular-devkit/core": "npm:21.2.6"
     jsonc-parser: "npm:3.3.1"
     magic-string: "npm:0.30.21"
     ora: "npm:9.3.0"
     rxjs: "npm:7.8.2"
-  checksum: 10c0/1af6d8f6a72dadf8e2ed70b4fb7965d032e7da0ebcd5aa5a03e03343c7bba3cd7529eec0c70946ed5eb9aea12d89719e211338f3165bd6727e0a708ac98a7643
+  checksum: 10c0/b286dc6dca144a389ec162ec118588ca77a5b11bc8f895e00ff7ed6fabd210ad96ab24830831de7947c2988edbb81dbfa19d9d055e13614bb21cf385d07cda0e
   languageName: node
   linkType: hard
 
@@ -395,23 +395,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular/animations@npm:^21.2.6":
-  version: 21.2.6
-  resolution: "@angular/animations@npm:21.2.6"
+"@angular/animations@npm:^21.2.7":
+  version: 21.2.7
+  resolution: "@angular/animations@npm:21.2.7"
   dependencies:
     tslib: "npm:^2.3.0"
   peerDependencies:
-    "@angular/core": 21.2.6
-  checksum: 10c0/5e111f805a2ba5b96c0488a50589c07f810676320c87b3d9bb53ac30007df1a546cccd1ee88b8c270260adfe79f45136c3eaa8b8fba10a84733116a6b91aaf38
+    "@angular/core": 21.2.7
+  checksum: 10c0/6483d5d9857cb491efbfb7a023269084849a1eaeff4fcd09b34cd441fc6cc8690fb9eb34015bfff806087c1ab10e786de8dc587137030d8ea80bc6c337cd8144
   languageName: node
   linkType: hard
 
-"@angular/build@npm:^21.2.4":
-  version: 21.2.4
-  resolution: "@angular/build@npm:21.2.4"
+"@angular/build@npm:^21.2.6":
+  version: 21.2.6
+  resolution: "@angular/build@npm:21.2.6"
   dependencies:
     "@ampproject/remapping": "npm:2.3.0"
-    "@angular-devkit/architect": "npm:0.2102.4"
+    "@angular-devkit/architect": "npm:0.2102.6"
     "@babel/core": "npm:7.29.0"
     "@babel/helper-annotate-as-pure": "npm:7.27.3"
     "@babel/helper-split-export-declaration": "npm:7.24.7"
@@ -428,7 +428,7 @@ __metadata:
     magic-string: "npm:0.30.21"
     mrmime: "npm:2.0.1"
     parse5-html-rewriting-stream: "npm:8.0.0"
-    picomatch: "npm:4.0.3"
+    picomatch: "npm:4.0.4"
     piscina: "npm:5.1.4"
     rolldown: "npm:1.0.0-rc.4"
     sass: "npm:1.97.3"
@@ -446,7 +446,7 @@ __metadata:
     "@angular/platform-browser": ^21.0.0
     "@angular/platform-server": ^21.0.0
     "@angular/service-worker": ^21.0.0
-    "@angular/ssr": ^21.2.4
+    "@angular/ssr": ^21.2.6
     karma: ^6.4.0
     less: ^4.2.0
     ng-packagr: ^21.0.0
@@ -483,13 +483,13 @@ __metadata:
       optional: true
     vitest:
       optional: true
-  checksum: 10c0/19bbdd15f6e606c6b1b6e293840012d6f988da541cda54b15f22ef63be11eaae80f18ea07a35470d9143811c935b5e409abca58252363c58f8719386166aac46
+  checksum: 10c0/d197a3c521546b5f7f7b98f540f052d217e3e12945fc2f2358b824302e9bf53321ffb0554ba02e3996b8bbf89aaa2d45f7f8202551ea5145a8e7bf7706b6c8df
   languageName: node
   linkType: hard
 
-"@angular/cdk@npm:^21.2.4":
-  version: 21.2.4
-  resolution: "@angular/cdk@npm:21.2.4"
+"@angular/cdk@npm:^21.2.5":
+  version: 21.2.5
+  resolution: "@angular/cdk@npm:21.2.5"
   dependencies:
     parse5: "npm:^8.0.0"
     tslib: "npm:^2.3.0"
@@ -498,21 +498,21 @@ __metadata:
     "@angular/core": ^21.0.0 || ^22.0.0
     "@angular/platform-browser": ^21.0.0 || ^22.0.0
     rxjs: ^6.5.3 || ^7.4.0
-  checksum: 10c0/d1dccbf3742cc4df6ee4606483729513363f1bc0a43458e77bd0d1165f52ffc31064a2b401cc833006614f00fe8a2389ca75a759ce2669d8c98e8e4c42033873
+  checksum: 10c0/62f0aaa823f9cf6bc02349c388849aa96b208baf4f5dafd9cf83105cd562698061e1c4a4239e04b28e426317743629e154e57509f2034b2afcb8c52fc07f3295
   languageName: node
   linkType: hard
 
-"@angular/cli@npm:^21.2.4":
-  version: 21.2.4
-  resolution: "@angular/cli@npm:21.2.4"
+"@angular/cli@npm:^21.2.6":
+  version: 21.2.6
+  resolution: "@angular/cli@npm:21.2.6"
   dependencies:
-    "@angular-devkit/architect": "npm:0.2102.4"
-    "@angular-devkit/core": "npm:21.2.4"
-    "@angular-devkit/schematics": "npm:21.2.4"
+    "@angular-devkit/architect": "npm:0.2102.6"
+    "@angular-devkit/core": "npm:21.2.6"
+    "@angular-devkit/schematics": "npm:21.2.6"
     "@inquirer/prompts": "npm:7.10.1"
     "@listr2/prompt-adapter-inquirer": "npm:3.0.5"
     "@modelcontextprotocol/sdk": "npm:1.26.0"
-    "@schematics/angular": "npm:21.2.4"
+    "@schematics/angular": "npm:21.2.6"
     "@yarnpkg/lockfile": "npm:1.1.0"
     algoliasearch: "npm:5.48.1"
     ini: "npm:6.0.0"
@@ -526,25 +526,25 @@ __metadata:
     zod: "npm:4.3.6"
   bin:
     ng: bin/ng.js
-  checksum: 10c0/e6e83b3ca10f8e4bd846bf244f8d87216012fa56d7329307bad4330170a9e5051172a7cea91da1f940d899a556b7ad4a0edd75daba7ce06494dcd0573015e018
+  checksum: 10c0/ca806e6b47bfbbe6db5ed04ab2410ca30ca21d5177c05ee3d80f0b1db734a1d8780cb4b686f060211d64db45e5b1d3e622d08129809bfb6f5a920bc399b791d0
   languageName: node
   linkType: hard
 
-"@angular/common@npm:^21.2.6":
-  version: 21.2.6
-  resolution: "@angular/common@npm:21.2.6"
+"@angular/common@npm:^21.2.7":
+  version: 21.2.7
+  resolution: "@angular/common@npm:21.2.7"
   dependencies:
     tslib: "npm:^2.3.0"
   peerDependencies:
-    "@angular/core": 21.2.6
+    "@angular/core": 21.2.7
     rxjs: ^6.5.3 || ^7.4.0
-  checksum: 10c0/e446878beede7fe88ad1225a8b503def77870d3746ad4878c407d9bdfcabf35a91feb32d0a0e06c22b23c7039e4899e063fd10d18e2b2040a599960c1782ec14
+  checksum: 10c0/3d365406cc12a479e1bb3c7b4656621a9b65dba370c45c24a76323eb9874d1b7d2ff5c2621fd9bc98419dec1f7531c84a649afd5e7d8f12c77e72b50625ae96d
   languageName: node
   linkType: hard
 
-"@angular/compiler-cli@npm:^21.2.6":
-  version: 21.2.6
-  resolution: "@angular/compiler-cli@npm:21.2.6"
+"@angular/compiler-cli@npm:^21.2.7":
+  version: 21.2.7
+  resolution: "@angular/compiler-cli@npm:21.2.7"
   dependencies:
     "@babel/core": "npm:7.29.0"
     "@jridgewell/sourcemap-codec": "npm:^1.4.14"
@@ -555,7 +555,7 @@ __metadata:
     tslib: "npm:^2.3.0"
     yargs: "npm:^18.0.0"
   peerDependencies:
-    "@angular/compiler": 21.2.6
+    "@angular/compiler": 21.2.7
     typescript: ">=5.9 <6.1"
   peerDependenciesMeta:
     typescript:
@@ -563,26 +563,26 @@ __metadata:
   bin:
     ng-xi18n: bundles/src/bin/ng_xi18n.js
     ngc: bundles/src/bin/ngc.js
-  checksum: 10c0/cd88331cbcaa0d6be577b5126722b8ef3a765809c33c5a0d19498b3b1736d951a18529a79bfe2eb8676f13774729b69e09cca27b250ad99acd63eb7c1b911943
+  checksum: 10c0/c63ea08186defed54b7ce7f7221a889b7af04cbf31cfaae10616c9f86ca74433ecccf5eec27175a7c1720ed0083ae80fc4e18125e2ff6eb2cbe76ec141690702
   languageName: node
   linkType: hard
 
-"@angular/compiler@npm:^21.2.6":
-  version: 21.2.6
-  resolution: "@angular/compiler@npm:21.2.6"
+"@angular/compiler@npm:^21.2.7":
+  version: 21.2.7
+  resolution: "@angular/compiler@npm:21.2.7"
   dependencies:
     tslib: "npm:^2.3.0"
-  checksum: 10c0/4c857d61856e9bed86bf81d7e442a6ce513667860d122159ba95dd5b6daed1cd248183645353f80f5872a936325e6142063f74fc5f3cc430294ef8bca1fcc167
+  checksum: 10c0/8970060026a70164533327ba9b2bbc91fef98779656ac39f4be6f1f1e64db076936dd1de7f1e07b2352ce87b9b5259a9c621c9130e388dc01eaffccba4b95dab
   languageName: node
   linkType: hard
 
-"@angular/core@npm:^21.2.6":
-  version: 21.2.6
-  resolution: "@angular/core@npm:21.2.6"
+"@angular/core@npm:^21.2.7":
+  version: 21.2.7
+  resolution: "@angular/core@npm:21.2.7"
   dependencies:
     tslib: "npm:^2.3.0"
   peerDependencies:
-    "@angular/compiler": 21.2.6
+    "@angular/compiler": 21.2.7
     rxjs: ^6.5.3 || ^7.4.0
     zone.js: ~0.15.0 || ~0.16.0
   peerDependenciesMeta:
@@ -590,80 +590,80 @@ __metadata:
       optional: true
     zone.js:
       optional: true
-  checksum: 10c0/270d5c2e562720d95c8bb8de4c76fb4446ad588ef4eeb226b258bb33f24d0d608170990e107302ffc74cb68ec46724fc657bcba26cff154e74da3d7cb2a0513d
+  checksum: 10c0/33b2593f4631cab0c3f39e8d7e1a760b466f2253a7c5508e161ad22212c85965e6e898104c4a029f55e10df35439208e119b53cba3c20085c9bc12a28a609d71
   languageName: node
   linkType: hard
 
-"@angular/forms@npm:^21.2.6":
-  version: 21.2.6
-  resolution: "@angular/forms@npm:21.2.6"
+"@angular/forms@npm:^21.2.7":
+  version: 21.2.7
+  resolution: "@angular/forms@npm:21.2.7"
   dependencies:
     "@standard-schema/spec": "npm:^1.0.0"
     tslib: "npm:^2.3.0"
   peerDependencies:
-    "@angular/common": 21.2.6
-    "@angular/core": 21.2.6
-    "@angular/platform-browser": 21.2.6
+    "@angular/common": 21.2.7
+    "@angular/core": 21.2.7
+    "@angular/platform-browser": 21.2.7
     rxjs: ^6.5.3 || ^7.4.0
-  checksum: 10c0/43a062f78bd300a240a2f73b90731bc4bd3ed1125460a5d8947676e3509c7cb3c3bd1852e56def643929a098b8b7254733607efc5af6a34f03429dac36f1e9b8
+  checksum: 10c0/e2ede117d7c0e46c1b0c89f2e3e658bbcc6e6db48f326fa161e34397e1cfce38dfb1a14eec8e3a71ceff3c824360c48681e5dbdc7e4deaf00222a981104aca9f
   languageName: node
   linkType: hard
 
-"@angular/platform-browser-dynamic@npm:^21.2.6":
-  version: 21.2.6
-  resolution: "@angular/platform-browser-dynamic@npm:21.2.6"
+"@angular/platform-browser-dynamic@npm:^21.2.7":
+  version: 21.2.7
+  resolution: "@angular/platform-browser-dynamic@npm:21.2.7"
   dependencies:
     tslib: "npm:^2.3.0"
   peerDependencies:
-    "@angular/common": 21.2.6
-    "@angular/compiler": 21.2.6
-    "@angular/core": 21.2.6
-    "@angular/platform-browser": 21.2.6
-  checksum: 10c0/9ebc3ca30125bd5a9a1ff6bd3162d329dd332b36290d5dd97c9331b5e4794ee68aa41fed58ddf27d9bf53a5ed7805bf3562aee2fffb2bd71b328ed9fe422a8ae
+    "@angular/common": 21.2.7
+    "@angular/compiler": 21.2.7
+    "@angular/core": 21.2.7
+    "@angular/platform-browser": 21.2.7
+  checksum: 10c0/90172dad15019b997f66e058dae1817200eaf419d20ec50c4a6098d9fdc067d9fb0d659270e06c2dfc3e9d5c180d6c0fc9bc64cb614d3c95da88aedbb5b22159
   languageName: node
   linkType: hard
 
-"@angular/platform-browser@npm:^21.2.6":
-  version: 21.2.6
-  resolution: "@angular/platform-browser@npm:21.2.6"
+"@angular/platform-browser@npm:^21.2.7":
+  version: 21.2.7
+  resolution: "@angular/platform-browser@npm:21.2.7"
   dependencies:
     tslib: "npm:^2.3.0"
   peerDependencies:
-    "@angular/animations": 21.2.6
-    "@angular/common": 21.2.6
-    "@angular/core": 21.2.6
+    "@angular/animations": 21.2.7
+    "@angular/common": 21.2.7
+    "@angular/core": 21.2.7
   peerDependenciesMeta:
     "@angular/animations":
       optional: true
-  checksum: 10c0/b6a51972da6cc024292296a5159305de43739842eeedcd942a64419a5f4c853f5e07c8f6644864ecb6387917708a036ac3a4939ffa03ec363d845a83eacd9e12
+  checksum: 10c0/985d4a0a2f659b31f41d58a3025d60d6e8b7ecd039731000dc8d5340537e8ae0411472d3d16926be9e815a81b912c60ff797f13004ad4c5ab812e9afbd124c07
   languageName: node
   linkType: hard
 
-"@angular/router@npm:^21.2.6":
-  version: 21.2.6
-  resolution: "@angular/router@npm:21.2.6"
+"@angular/router@npm:^21.2.7":
+  version: 21.2.7
+  resolution: "@angular/router@npm:21.2.7"
   dependencies:
     tslib: "npm:^2.3.0"
   peerDependencies:
-    "@angular/common": 21.2.6
-    "@angular/core": 21.2.6
-    "@angular/platform-browser": 21.2.6
+    "@angular/common": 21.2.7
+    "@angular/core": 21.2.7
+    "@angular/platform-browser": 21.2.7
     rxjs: ^6.5.3 || ^7.4.0
-  checksum: 10c0/083da0921865b57bc78b33621a905e90bea48c4d198a48e066e56334bf7f75bc466426b9fb5cfe6459b524b383451dc6ed8d12228452e1f7ce8ac2f0159ddd8d
+  checksum: 10c0/ac451bee1b4f322a7a3c44930bc578c662338e1ce3c38049c55ba4857f8dc9a85eea97659086e66344326e92a994897e7d870c9620e1b89226dcffebc52f4c77
   languageName: node
   linkType: hard
 
-"@angular/service-worker@npm:^21.2.6":
-  version: 21.2.6
-  resolution: "@angular/service-worker@npm:21.2.6"
+"@angular/service-worker@npm:^21.2.7":
+  version: 21.2.7
+  resolution: "@angular/service-worker@npm:21.2.7"
   dependencies:
     tslib: "npm:^2.3.0"
   peerDependencies:
-    "@angular/core": 21.2.6
+    "@angular/core": 21.2.7
     rxjs: ^6.5.3 || ^7.4.0
   bin:
     ngsw-config: ngsw-config.js
-  checksum: 10c0/a8fdf842c5d3e9900f921c8b0e619f60a3712b4f9baa40914879ff01278afb3b19259c0cf076752050c8bc7ea324bcc9707bbe50f9e8c66d14ae9f323f818441
+  checksum: 10c0/b6e45fd41bbf97ca45df39ab71541c947ed4bf1b78663c8a546298fa302fc5b62be7ff25b2d42bebdc95372612cdf887f2673a6fcbc531781a636f0f0c5cce3f
   languageName: node
   linkType: hard
 
@@ -1026,25 +1026,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@embedpdf/core@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/core@npm:2.12.1"
+"@embedpdf/core@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/core@npm:2.14.0"
   dependencies:
-    "@embedpdf/engines": "npm:2.12.1"
-    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/engines": "npm:2.14.0"
+    "@embedpdf/models": "npm:2.14.0"
   peerDependencies:
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/c68fd8ef915ae932849ba782fbd997a32603174a55708aa7f8a7496743e10a6de134fa77c8f9fc33bd92a674a0dd0ed3ef4092663d96749568a5112ba6083694
+  checksum: 10c0/168c547b28a62c622f0ad5d8fa33061b35861bc6d3a22637d97b4c8d19d70e20e84dc3d34c0cbee0432393d075d6b8e5af8fac162a0c705828f7c5b0179470da
   languageName: node
   linkType: hard
 
-"@embedpdf/engines@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/engines@npm:2.12.1"
+"@embedpdf/engines@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/engines@npm:2.14.0"
   dependencies:
     "@embedpdf/fonts-arabic": "npm:1.0.0"
     "@embedpdf/fonts-hebrew": "npm:1.0.0"
@@ -1053,15 +1053,15 @@ __metadata:
     "@embedpdf/fonts-latin": "npm:1.0.0"
     "@embedpdf/fonts-sc": "npm:1.0.0"
     "@embedpdf/fonts-tc": "npm:1.0.0"
-    "@embedpdf/models": "npm:2.12.1"
-    "@embedpdf/pdfium": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.14.0"
+    "@embedpdf/pdfium": "npm:2.14.0"
   peerDependencies:
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/8082c76d79eaf69633907f3d406d36b50df3b9a434ef83a1db7958b79af5ec57ab56e33d088bab53ad9caa1d9dcb1284bf1bb82f3d9ab67e8712ed67833879c9
+  checksum: 10c0/a76d3d46df1b83646d46f38feb4e56ee1d5ed6644e9a01ea6d5c80d33936a27242299b315915226ed59a14576ebdbfe3b6892446144a2303a045c250f27c2f3d
   languageName: node
   linkType: hard
 
@@ -1114,534 +1114,552 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@embedpdf/models@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/models@npm:2.12.1"
-  checksum: 10c0/8f01efc5e110f58a281373a767786d768b216156e6845f9b78cd25f15021d22009039301fdfee7876eb6876ac25342e71c1ddefbfec805b21d254ffb8d0bb33f
+"@embedpdf/models@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/models@npm:2.14.0"
+  checksum: 10c0/ee1d31288483e042147fdf8a888152f8f68581a2c04bf6d0c49b2b273ffc68ec1f0a14a864bbb8627441eb3b5442419343908d2259cb64f6f0558fc3ee143b4e
   languageName: node
   linkType: hard
 
-"@embedpdf/pdfium@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/pdfium@npm:2.12.1"
-  checksum: 10c0/4b16dc5dbe15fbaac5071ecd0cf301bbc664bf3eed718cce384910363af6746992b109d29d2c56c0b70b6390cfd3869ae21037cc0f038d6c5dae5015c12a0319
+"@embedpdf/pdfium@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/pdfium@npm:2.14.0"
+  checksum: 10c0/3f44ca17fc01e941a1dee889b580026535e7a79544468302ce81d4ad6de9f9dede80be48ca5933e4601813d01a4e8125b935520604d2c7691bf157fe245b393b
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-annotation@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/plugin-annotation@npm:2.12.1"
+"@embedpdf/plugin-annotation@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/plugin-annotation@npm:2.14.0"
   dependencies:
-    "@embedpdf/models": "npm:2.12.1"
-    "@embedpdf/utils": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.14.0"
+    "@embedpdf/utils": "npm:2.14.0"
   peerDependencies:
-    "@embedpdf/core": 2.12.1
-    "@embedpdf/plugin-history": 2.12.1
-    "@embedpdf/plugin-interaction-manager": 2.12.1
-    "@embedpdf/plugin-scroll": 2.12.1
-    "@embedpdf/plugin-selection": 2.12.1
+    "@embedpdf/core": 2.14.0
+    "@embedpdf/plugin-history": 2.14.0
+    "@embedpdf/plugin-interaction-manager": 2.14.0
+    "@embedpdf/plugin-scroll": 2.14.0
+    "@embedpdf/plugin-selection": 2.14.0
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/db31e7c9f86d57db6cc70efd48647bcb90fb0c3ba4cd4d4bf557aa689779810974fc64544ac7fb302a54c8528d6a4f84241dd41de9ea34f7bc4ca054111038a9
+  checksum: 10c0/049fc6f8e9b973b45341f63b295aa89e959198e6d7dd989ae0a62333698ade77e0debad065f264bd2444d24fbec8cf0b4bb678b36e1bed9c032d15f358feafbe
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-attachment@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/plugin-attachment@npm:2.12.1"
+"@embedpdf/plugin-attachment@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/plugin-attachment@npm:2.14.0"
   dependencies:
-    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.14.0"
   peerDependencies:
-    "@embedpdf/core": 2.12.1
+    "@embedpdf/core": 2.14.0
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/49e9148a75b8e2390bf9db516805400881600e852de5dab1db242ff71614bd78477151ee84a8cf08f0ca8d08d724a85a3a638505386b82ec2199f03823d3c50c
+  checksum: 10c0/975ff57eb0544bd380594e793134279805961554a7dbb222ff9f064ecae8b4b4c190dffeb21d9d86bcafe5a7127f8a3ecd36d4be6f3cdf34463f9f6f5fcee920
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-bookmark@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/plugin-bookmark@npm:2.12.1"
+"@embedpdf/plugin-bookmark@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/plugin-bookmark@npm:2.14.0"
   dependencies:
-    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.14.0"
   peerDependencies:
-    "@embedpdf/core": 2.12.1
+    "@embedpdf/core": 2.14.0
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/7b5e888c5ee43515a92b8f738294ee46c751d181637df4ceac32b862bb6382b588f3b80e9478e9605b88af6e021700c2e80305b8fb7a1956064b701dbf37ceb2
+  checksum: 10c0/2e9f7278be79619cd9d6c772294901bee880edef5055be2d7abe4c0488562faaa49a549dea5434d44e489ac40f70e683a354b9801a2d5d3b2b70c58bb89eb6af
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-capture@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/plugin-capture@npm:2.12.1"
+"@embedpdf/plugin-capture@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/plugin-capture@npm:2.14.0"
   dependencies:
-    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.14.0"
   peerDependencies:
-    "@embedpdf/core": 2.12.1
-    "@embedpdf/plugin-interaction-manager": 2.12.1
-    "@embedpdf/plugin-render": 2.12.1
+    "@embedpdf/core": 2.14.0
+    "@embedpdf/plugin-interaction-manager": 2.14.0
+    "@embedpdf/plugin-render": 2.14.0
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/4d2fd4063e775cd3c198e8e4daa1761953d3c44e1170eeb1d1f5728cf1e571951f1bd0e307bbf9e2c4b34e5332ff8b522e58d39e300bd8f3de12292a7e192874
+  checksum: 10c0/1c14826e88ba4ec5e7a47415920585290760efb43e0bacc34732b6e327aa5a635fa676d7c6c6797f15a632c7bf14c1d575606f413e796851eba44d2024a52153
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-commands@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/plugin-commands@npm:2.12.1"
+"@embedpdf/plugin-commands@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/plugin-commands@npm:2.14.0"
   dependencies:
-    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.14.0"
   peerDependencies:
-    "@embedpdf/core": 2.12.1
+    "@embedpdf/core": 2.14.0
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/45af07dde70285dc63cd0a78883d243c5a724c95a678e423659f084587bf199ec84560d2bf327dee1d1a226f47573d44c48f20cd130125287e98fdb47bfcd7ea
+  checksum: 10c0/1ad61da875e9338271733c6a8a520476c6156250d91a03a09ee0e78fba65be4b749a9af1e4b50dd1fd9d8a7618b9cad811f1322599fa276d3b6183904a399d36
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-document-manager@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/plugin-document-manager@npm:2.12.1"
+"@embedpdf/plugin-document-manager@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/plugin-document-manager@npm:2.14.0"
   dependencies:
-    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.14.0"
   peerDependencies:
-    "@embedpdf/core": 2.12.1
+    "@embedpdf/core": 2.14.0
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/ca29f5a0aa3fafe11806f1d21b6dacbc2531e5e511282ec3472938f98584d7ee2f39da19e1a65f4d178ee2773019abbe7a2c4e1f743aa61cfba871eb65f9a49f
+  checksum: 10c0/7d4063141e828eb09f913eb79ab61f4f2feb4cb923ea716b8acdd471a607e9d79ec3d79279fe54ddf6bd7c765600e3213b27d82c051df530172c6e97fc521d9d
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-export@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/plugin-export@npm:2.12.1"
+"@embedpdf/plugin-export@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/plugin-export@npm:2.14.0"
   dependencies:
-    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.14.0"
   peerDependencies:
-    "@embedpdf/core": 2.12.1
+    "@embedpdf/core": 2.14.0
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/e056df6ae870e4d0c7afd4d933162393f6be284c3b1b65831917fd4d33637f506f1da01f563ca45424dead58a2b6d9057c2b883e849c456ffbec1655794fdb2a
+  checksum: 10c0/5a071e80d086835627ac92deea2a5943131a2d4b65cf46491c1b677f9de640d997b8c471f240c662008e130f00dfc7493a26bcee39c048056a3e1f1ea78c79d4
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-form@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/plugin-form@npm:2.12.1"
+"@embedpdf/plugin-form@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/plugin-form@npm:2.14.0"
   dependencies:
-    "@embedpdf/models": "npm:2.12.1"
-    "@embedpdf/utils": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.14.0"
+    "@embedpdf/utils": "npm:2.14.0"
   peerDependencies:
-    "@embedpdf/core": 2.12.1
-    "@embedpdf/plugin-annotation": 2.12.1
-    "@embedpdf/plugin-history": 2.12.1
+    "@embedpdf/core": 2.14.0
+    "@embedpdf/plugin-annotation": 2.14.0
+    "@embedpdf/plugin-history": 2.14.0
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/123335e88d53753655e754a52878f493a38c3c169b7c0c44bd0d4180db2e03e799940e9a15b4384de3e51bdd2d299a9f6668a1dff029d2bc766b0dc706b75b2d
+  checksum: 10c0/1d3f8961cf263b52fe9087c181ec9c1c5706f5b451ee6a361d26e6e1affdf6656e40a8645fac913f6acf2bc820a6ccbc154cc4baeebf29011abd868b21d113ff
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-fullscreen@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/plugin-fullscreen@npm:2.12.1"
+"@embedpdf/plugin-fullscreen@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/plugin-fullscreen@npm:2.14.0"
   dependencies:
-    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.14.0"
   peerDependencies:
-    "@embedpdf/core": 2.12.1
+    "@embedpdf/core": 2.14.0
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/408dad5425b936b8a4dea51b59ee750b0db8d48a94664079a1400bfc13ae367d3379e416c80253c1358bab4598ee8f7ad93e0b5330462704d0df9d79c19fd5ff
+  checksum: 10c0/1be496db4e4c988cfd69cadff4901d1e724b12f3ad2773d0f204fead36194f0ffe4a74473fdead6a5f03f403ada073be777e305fbc387e99adb895d34e574681
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-history@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/plugin-history@npm:2.12.1"
+"@embedpdf/plugin-history@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/plugin-history@npm:2.14.0"
   dependencies:
-    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.14.0"
   peerDependencies:
-    "@embedpdf/core": 2.12.1
+    "@embedpdf/core": 2.14.0
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/8c6a13da3ded9ce68c31599cd1568aa1d9391516952cee028ac6b2df9d250e47562c5b52fa0743d13a394dc182e484e45dfa1c54a325b580380db4b508eed8a3
+  checksum: 10c0/ee2bf48c23674e1da84a3c0945aadf238824fdd995bc2d66d65b1af08cdd9da7fab93b274044f044db8cf4d1b93bf0733b97a5e04324a4eaa1b68b740fb8369c
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-i18n@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/plugin-i18n@npm:2.12.1"
+"@embedpdf/plugin-i18n@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/plugin-i18n@npm:2.14.0"
   dependencies:
-    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.14.0"
   peerDependencies:
-    "@embedpdf/core": 2.12.1
+    "@embedpdf/core": 2.14.0
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/4ced68ef2118b678c32892d3be9aee84714539e10668caaeb2b0d1c5ff98cd94ba10e2ab8a5d33dc2b585d0ea0b3eb1d29af86aabe7bc6c72f02df65ae5942e3
+  checksum: 10c0/51cec1986a7188198d05d1e46bb8c2f56271a0c2d3d585d08b75747ba639145c23fa708a3e8af7309bd2f2e254d671bedce083c9ac8a086fb126370f79b87a79
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-interaction-manager@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/plugin-interaction-manager@npm:2.12.1"
+"@embedpdf/plugin-interaction-manager@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/plugin-interaction-manager@npm:2.14.0"
   dependencies:
-    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.14.0"
   peerDependencies:
-    "@embedpdf/core": 2.12.1
+    "@embedpdf/core": 2.14.0
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/1bcfcf5130b2621348a8e4bf0ed5e8ff1d4b28b662da718b30cd5dcb1853c63390d7d0f84b9a0b5bea5865a9de8c1bb725f49e0cb0d49a18878164238a01666a
+  checksum: 10c0/087f2717462173c8678d7313d42f268a50ffd4764334a56393f45b925ebc770f3a769800b84d9c27423610e7c3880f61895350fecfd9605c533dbb6f045c2daf
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-pan@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/plugin-pan@npm:2.12.1"
+"@embedpdf/plugin-pan@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/plugin-pan@npm:2.14.0"
   dependencies:
-    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.14.0"
   peerDependencies:
-    "@embedpdf/core": 2.12.1
-    "@embedpdf/plugin-interaction-manager": 2.12.1
-    "@embedpdf/plugin-viewport": 2.12.1
+    "@embedpdf/core": 2.14.0
+    "@embedpdf/plugin-interaction-manager": 2.14.0
+    "@embedpdf/plugin-viewport": 2.14.0
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/734729fdf7da709fe9cd77ea6f76894d8bbcf79ddfb41294d2f9b92a6d53ae12e1ed44b69dcd6d8d3a415ad7ac0936cc09358abd286b02de6ea579940a030151
+  checksum: 10c0/cbd35204977e2c65404db18ce56002dc6f58ef508d09a8ca0b85a0e4e25284a1d2afb46c664dbd01178667d543d47ba49db9c3dd9b6d127acb826f4bfe353949
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-print@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/plugin-print@npm:2.12.1"
+"@embedpdf/plugin-print@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/plugin-print@npm:2.14.0"
   dependencies:
-    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.14.0"
   peerDependencies:
-    "@embedpdf/core": 2.12.1
+    "@embedpdf/core": 2.14.0
     preact: ^10.26.4
     react: ">=18.0.0"
     react-dom: ">=18.0.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/8c23d649493e422733cdfbdc7915cf258834bbd7f7a8dcce8c9d0c94105f907d995ffba032d5138e4d4e1503f792bfeae93eb93d931feae32e7236a09ca20391
+  checksum: 10c0/24bf7b324c07971dfa785e433a8dddadfb6e6fc5c18cc549a2ce595828b213ff5d562134e1feb5f646e21ef74be1de28a863c05e4b5210d0405b63c92bbf35bc
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-redaction@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/plugin-redaction@npm:2.12.1"
+"@embedpdf/plugin-redaction@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/plugin-redaction@npm:2.14.0"
   dependencies:
-    "@embedpdf/models": "npm:2.12.1"
-    "@embedpdf/utils": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.14.0"
+    "@embedpdf/utils": "npm:2.14.0"
   peerDependencies:
-    "@embedpdf/core": 2.12.1
-    "@embedpdf/plugin-annotation": 2.12.1
-    "@embedpdf/plugin-history": 2.12.1
-    "@embedpdf/plugin-interaction-manager": 2.12.1
-    "@embedpdf/plugin-selection": 2.12.1
+    "@embedpdf/core": 2.14.0
+    "@embedpdf/plugin-annotation": 2.14.0
+    "@embedpdf/plugin-history": 2.14.0
+    "@embedpdf/plugin-interaction-manager": 2.14.0
+    "@embedpdf/plugin-selection": 2.14.0
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/87897f4931cc81410a758b3b13b0dc9635aed8a585835356a7a14192e27e44de17b237f2ac600e022f51f8e98d363ad56a4c6a667cd0f1b29f1c1f5023df419e
+  checksum: 10c0/924187b9ca3e886b6e4077377bea5b0c1078beb58b47b30d5d374e9a443d7b683d23ff434fb8898bf8708228f2e78979b93988e2d8a1194f83c5a8bc2fc9dfff
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-render@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/plugin-render@npm:2.12.1"
+"@embedpdf/plugin-render@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/plugin-render@npm:2.14.0"
   dependencies:
-    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.14.0"
   peerDependencies:
-    "@embedpdf/core": 2.12.1
+    "@embedpdf/core": 2.14.0
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/c05e3e0ded8dae24a5eeb5a90e4c6e5da91cd235c51f3255c5bba962407b08487fe11243f1de4aeb7a27104f584cf4ad0356e84b94c377ff81e9ec91719e52e2
+  checksum: 10c0/10665d150eb06b517e0ee55e6d76d0dd9f2c68d1e79f801d291e4cb129212aeabcfe763f69f88ee274e41622e57d4a97c27d29581d25509ca1e9023276503fea
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-rotate@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/plugin-rotate@npm:2.12.1"
+"@embedpdf/plugin-rotate@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/plugin-rotate@npm:2.14.0"
   dependencies:
-    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.14.0"
   peerDependencies:
-    "@embedpdf/core": 2.12.1
+    "@embedpdf/core": 2.14.0
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/430a9a5cd01e5bf3b0f92aecbde34450e812215afca9184e10e0828239bc2597fd94ebcade7661dc08892c9479df9642c9bd4223039e345e29850b72199c1dc6
+  checksum: 10c0/2251c7aae58d8f1a9a23a8525e3e79ed15f173452bc5ab34d94e25da9208292d8e4bd2733c283bceb99ab34d1ff41617ec89c380513bf0d1299fa92cb2455d8c
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-scroll@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/plugin-scroll@npm:2.12.1"
+"@embedpdf/plugin-scroll@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/plugin-scroll@npm:2.14.0"
   dependencies:
-    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.14.0"
   peerDependencies:
-    "@embedpdf/core": 2.12.1
-    "@embedpdf/plugin-viewport": 2.12.1
+    "@embedpdf/core": 2.14.0
+    "@embedpdf/plugin-viewport": 2.14.0
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/f70d841df78d69ac020b2bdb54b693dc9b47af1b0c7c956e35ee340f0da21a2358765ad1a72cf2820f9fe071bed4d7be43be471959b1753d64d71fe9075c87f6
+  checksum: 10c0/bffb2eaa76c7ca66064147a261403ec16c6fbaab7a9f957bd4068b0cdabc5b46c209511da529f475e8cebe84b224563896fc65d4db9e1ba4def17680f6d79161
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-search@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/plugin-search@npm:2.12.1"
+"@embedpdf/plugin-search@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/plugin-search@npm:2.14.0"
   dependencies:
-    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.14.0"
   peerDependencies:
-    "@embedpdf/core": 2.12.1
+    "@embedpdf/core": 2.14.0
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/adccb1d6fab6a85a54367b0a11d4eb91696ffdfef103e14aff82722cefe4fb00aa2edfb0b16397364c416f37491b785b386774cb92651bb0b91e139e78cf8b83
+  checksum: 10c0/40d52eac4d36ce1380121b6128fb3b78668e09453825c9cf86ba404f9267f5b05c149c4f333becfc33dec8fb5cf4fe3a3bee94722d02cd82a814211f60416591
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-selection@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/plugin-selection@npm:2.12.1"
+"@embedpdf/plugin-selection@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/plugin-selection@npm:2.14.0"
   dependencies:
-    "@embedpdf/models": "npm:2.12.1"
-    "@embedpdf/utils": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.14.0"
+    "@embedpdf/utils": "npm:2.14.0"
   peerDependencies:
-    "@embedpdf/core": 2.12.1
-    "@embedpdf/plugin-interaction-manager": 2.12.1
+    "@embedpdf/core": 2.14.0
+    "@embedpdf/plugin-interaction-manager": 2.14.0
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/f3c5cfe6cea3fa521bedf9add3eeba9649d3200dc6384dd5e0dc0bc4f3cd8a14a38f756f0584ec28634d68ca018189e2e4b45b55e202bb1b9598173e2ca65614
+  checksum: 10c0/485744ec0ef3e005f403d2ec0c5f6ef2433a9aa0644f69510797758f6cf7b34dd051714bd3735139895402446b6de22e995deeed43dc91555573d90a51ac4bef
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-spread@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/plugin-spread@npm:2.12.1"
+"@embedpdf/plugin-signature@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/plugin-signature@npm:2.14.0"
   dependencies:
-    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.14.0"
   peerDependencies:
-    "@embedpdf/core": 2.12.1
+    "@embedpdf/core": 2.14.0
+    "@embedpdf/plugin-annotation": 2.14.0
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/359ca499908490c740f3638211bc231c24ab1b7a3197a45c0e2f0257f22e28f8856f05140b13d834a07234de8369b1c1b536a8a0bd9ea6f2edc1984fe9470e82
+  checksum: 10c0/f1b674b837f0032943a3b57aef5202a6c98d561938df4108ce92e10206634136dc95d7b98bc04259af56f7ddd5dbe8632b77dddbddc5241149b4d60c52af7c69
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-stamp@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/plugin-stamp@npm:2.12.1"
+"@embedpdf/plugin-spread@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/plugin-spread@npm:2.14.0"
   dependencies:
-    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.14.0"
   peerDependencies:
-    "@embedpdf/core": 2.12.1
-    "@embedpdf/plugin-annotation": 2.12.1
-    "@embedpdf/plugin-i18n": 2.12.1
+    "@embedpdf/core": 2.14.0
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/37f2c0f2468fb3bd87a44128cd4d7e83fff773581ad2280347d472f26c36f867cf3692add3d585932c58d4a889b18c6f1a4662fd926a6cdf38a68da5669db906
+  checksum: 10c0/e3f2c5107b4d4c57566235d1a52d80660b9a84f4529c8e1e8175f3d02ad51b5f90f0e5627157dc1e13f498db07c077cdac56354be3b06f7fd37360cf23f3b32f
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-thumbnail@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/plugin-thumbnail@npm:2.12.1"
+"@embedpdf/plugin-stamp@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/plugin-stamp@npm:2.14.0"
   dependencies:
-    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.14.0"
   peerDependencies:
-    "@embedpdf/core": 2.12.1
-    "@embedpdf/plugin-render": 2.12.1
+    "@embedpdf/core": 2.14.0
+    "@embedpdf/plugin-annotation": 2.14.0
+    "@embedpdf/plugin-i18n": 2.14.0
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/2cc0449f728bf968d07b4c11ad2376509788b0159edb18b9687a527d98cc75c2079f63b378187b30f756cbead57ef1570b1a8de06c0d95db0b109aba4d890f2c
+  checksum: 10c0/8ae281d75d802a881cf9c2c2c285834e94d8aa5607717be6f96cf3ce52bbcf4ca8e1dd923b33f35ad780998a88a5b8017931a4007e685b5214c0e6d8361d6e4d
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-tiling@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/plugin-tiling@npm:2.12.1"
+"@embedpdf/plugin-thumbnail@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/plugin-thumbnail@npm:2.14.0"
   dependencies:
-    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.14.0"
   peerDependencies:
-    "@embedpdf/core": 2.12.1
-    "@embedpdf/plugin-render": 2.12.1
-    "@embedpdf/plugin-scroll": 2.12.1
-    "@embedpdf/plugin-viewport": 2.12.1
+    "@embedpdf/core": 2.14.0
+    "@embedpdf/plugin-render": 2.14.0
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/b02f0b1946cfe9f1efc22b063829d69a3e25143a5d5a28a8999674799b8962258a37c59bee236abcb0103bc13452362a82c1def66108642c462a856b78196f17
+  checksum: 10c0/0812fe8a8054687ec5d4d6f9347008131c53fbbac8edd5ef473b6118c8a4a774b192ef00f7735b478c4f5bb45b5f0f21107d25771043ea899814f417cbbdd285
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-ui@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/plugin-ui@npm:2.12.1"
+"@embedpdf/plugin-tiling@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/plugin-tiling@npm:2.14.0"
   dependencies:
-    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.14.0"
   peerDependencies:
-    "@embedpdf/core": 2.12.1
-    "@embedpdf/plugin-render": 2.12.1
-    "@embedpdf/plugin-scroll": 2.12.1
-    "@embedpdf/plugin-viewport": 2.12.1
+    "@embedpdf/core": 2.14.0
+    "@embedpdf/plugin-render": 2.14.0
+    "@embedpdf/plugin-scroll": 2.14.0
+    "@embedpdf/plugin-viewport": 2.14.0
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/26fb82c18d99bde1e63b2e73ee6f59f91f26b7450b00c998fe79176faf855aed7cb8e2a045d0781b4858571a2cc700d54e805fb5305181f3c355caa7aeee1948
+  checksum: 10c0/893a0fac2e9fc3ae98f552274cdc7fd6fc0655334d3ebec93e1c997d48b1aaf5c2619d9d53137a7dd1e11b13631cc13656c0d9a16a11af0bb7ad914d8360dd4c
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-viewport@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/plugin-viewport@npm:2.12.1"
+"@embedpdf/plugin-ui@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/plugin-ui@npm:2.14.0"
   dependencies:
-    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.14.0"
   peerDependencies:
-    "@embedpdf/core": 2.12.1
+    "@embedpdf/core": 2.14.0
+    "@embedpdf/plugin-render": 2.14.0
+    "@embedpdf/plugin-scroll": 2.14.0
+    "@embedpdf/plugin-viewport": 2.14.0
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/90372a83a134b5218399de50b0daaffbf776e5d8bf500407cd39ef230524a20a41d93330b071471ec8ec5fd03264de91cffe47405669d17c5a43f2633b0fe67a
+  checksum: 10c0/9de75914b9d6ce40e52ffda358a5edd8d7b8ffbe3626cab103cfe331b16c09f5a07ea252da5b33edfafde176284aa08dbc6b801c8f5fb0eac634c459a1f4b4f6
   languageName: node
   linkType: hard
 
-"@embedpdf/plugin-zoom@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/plugin-zoom@npm:2.12.1"
+"@embedpdf/plugin-viewport@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/plugin-viewport@npm:2.14.0"
   dependencies:
-    "@embedpdf/models": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.14.0"
   peerDependencies:
-    "@embedpdf/core": 2.12.1
-    "@embedpdf/plugin-scroll": 2.12.1
-    "@embedpdf/plugin-viewport": 2.12.1
+    "@embedpdf/core": 2.14.0
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/87a686dac98fbe27b8733be7b7d5d9438907501db57b4c70d156b80cdb9e1a9115304b076853fa8a1b35f0cbe4b9f08c7b91596b54f2ab980e4d56180379a057
+  checksum: 10c0/13ddb7672a27e57f8747123a96ad5d9494fcd39c9d20184bb8b1e2ea2dceeafc89377d83ffbf1528948fec6c964f0b20fcc5393130ee07270e4e802a4bce4528
   languageName: node
   linkType: hard
 
-"@embedpdf/snippet@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/snippet@npm:2.12.1"
+"@embedpdf/plugin-zoom@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/plugin-zoom@npm:2.14.0"
   dependencies:
-    "@embedpdf/core": "npm:2.12.1"
-    "@embedpdf/engines": "npm:2.12.1"
-    "@embedpdf/models": "npm:2.12.1"
-    "@embedpdf/pdfium": "npm:2.12.1"
-    "@embedpdf/plugin-annotation": "npm:2.12.1"
-    "@embedpdf/plugin-attachment": "npm:2.12.1"
-    "@embedpdf/plugin-bookmark": "npm:2.12.1"
-    "@embedpdf/plugin-capture": "npm:2.12.1"
-    "@embedpdf/plugin-commands": "npm:2.12.1"
-    "@embedpdf/plugin-document-manager": "npm:2.12.1"
-    "@embedpdf/plugin-export": "npm:2.12.1"
-    "@embedpdf/plugin-form": "npm:2.12.1"
-    "@embedpdf/plugin-fullscreen": "npm:2.12.1"
-    "@embedpdf/plugin-history": "npm:2.12.1"
-    "@embedpdf/plugin-i18n": "npm:2.12.1"
-    "@embedpdf/plugin-interaction-manager": "npm:2.12.1"
-    "@embedpdf/plugin-pan": "npm:2.12.1"
-    "@embedpdf/plugin-print": "npm:2.12.1"
-    "@embedpdf/plugin-redaction": "npm:2.12.1"
-    "@embedpdf/plugin-render": "npm:2.12.1"
-    "@embedpdf/plugin-rotate": "npm:2.12.1"
-    "@embedpdf/plugin-scroll": "npm:2.12.1"
-    "@embedpdf/plugin-search": "npm:2.12.1"
-    "@embedpdf/plugin-selection": "npm:2.12.1"
-    "@embedpdf/plugin-spread": "npm:2.12.1"
-    "@embedpdf/plugin-stamp": "npm:2.12.1"
-    "@embedpdf/plugin-thumbnail": "npm:2.12.1"
-    "@embedpdf/plugin-tiling": "npm:2.12.1"
-    "@embedpdf/plugin-ui": "npm:2.12.1"
-    "@embedpdf/plugin-viewport": "npm:2.12.1"
-    "@embedpdf/plugin-zoom": "npm:2.12.1"
+    "@embedpdf/models": "npm:2.14.0"
+  peerDependencies:
+    "@embedpdf/core": 2.14.0
+    "@embedpdf/plugin-scroll": 2.14.0
+    "@embedpdf/plugin-viewport": 2.14.0
+    preact: ^10.26.4
+    react: ">=16.8.0"
+    react-dom: ">=16.8.0"
+    svelte: ">=5 <6"
+    vue: ">=3.2.0"
+  checksum: 10c0/38e44e4b71e1d6a051832ee60630566d0eceac6d41566465da9ebd61f3f514f2ac68f045d6226e041a1acb7017708f2885a0a15f0d0695099c83a45eb568d39e
+  languageName: node
+  linkType: hard
+
+"@embedpdf/snippet@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/snippet@npm:2.14.0"
+  dependencies:
+    "@embedpdf/core": "npm:2.14.0"
+    "@embedpdf/engines": "npm:2.14.0"
+    "@embedpdf/models": "npm:2.14.0"
+    "@embedpdf/pdfium": "npm:2.14.0"
+    "@embedpdf/plugin-annotation": "npm:2.14.0"
+    "@embedpdf/plugin-attachment": "npm:2.14.0"
+    "@embedpdf/plugin-bookmark": "npm:2.14.0"
+    "@embedpdf/plugin-capture": "npm:2.14.0"
+    "@embedpdf/plugin-commands": "npm:2.14.0"
+    "@embedpdf/plugin-document-manager": "npm:2.14.0"
+    "@embedpdf/plugin-export": "npm:2.14.0"
+    "@embedpdf/plugin-form": "npm:2.14.0"
+    "@embedpdf/plugin-fullscreen": "npm:2.14.0"
+    "@embedpdf/plugin-history": "npm:2.14.0"
+    "@embedpdf/plugin-i18n": "npm:2.14.0"
+    "@embedpdf/plugin-interaction-manager": "npm:2.14.0"
+    "@embedpdf/plugin-pan": "npm:2.14.0"
+    "@embedpdf/plugin-print": "npm:2.14.0"
+    "@embedpdf/plugin-redaction": "npm:2.14.0"
+    "@embedpdf/plugin-render": "npm:2.14.0"
+    "@embedpdf/plugin-rotate": "npm:2.14.0"
+    "@embedpdf/plugin-scroll": "npm:2.14.0"
+    "@embedpdf/plugin-search": "npm:2.14.0"
+    "@embedpdf/plugin-selection": "npm:2.14.0"
+    "@embedpdf/plugin-signature": "npm:2.14.0"
+    "@embedpdf/plugin-spread": "npm:2.14.0"
+    "@embedpdf/plugin-stamp": "npm:2.14.0"
+    "@embedpdf/plugin-thumbnail": "npm:2.14.0"
+    "@embedpdf/plugin-tiling": "npm:2.14.0"
+    "@embedpdf/plugin-ui": "npm:2.14.0"
+    "@embedpdf/plugin-viewport": "npm:2.14.0"
+    "@embedpdf/plugin-zoom": "npm:2.14.0"
     preact: "npm:^10.17.0"
     tailwind-merge: "npm:^3.4.0"
-  checksum: 10c0/38a530b4b20de7e352280fc416e576b4da0120035b992cf7540020e77632b321f5fc7b1acd57694ced2abf15f2b25365f0e0d98bc4e8443b48ef42a68aa1e98c
+  checksum: 10c0/03e8f09246acec809b3bdb082c268fe41f210218fe65b9beacc68a2d8958a8d3f3c3ec58ff52b97652779b395feaa099c1a4653f8c3d572b91910011ccea5003
   languageName: node
   linkType: hard
 
-"@embedpdf/utils@npm:2.12.1":
-  version: 2.12.1
-  resolution: "@embedpdf/utils@npm:2.12.1"
+"@embedpdf/utils@npm:2.14.0":
+  version: 2.14.0
+  resolution: "@embedpdf/utils@npm:2.14.0"
   peerDependencies:
     preact: ^10.26.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     svelte: ">=5 <6"
     vue: ">=3.2.0"
-  checksum: 10c0/02db6575a2c9e3a1cd118fed0c80cbd91084c9245f7b44864534c2a831cdddb55a3d3037d9856dc1c117ca257f0d1808ac3d39f7e3cf950769855e334c5a0a22
+  checksum: 10c0/39b77b3dcb5873010e84caa1ae536315181407ab50f0980e59a3e0347fbf9608878bbf3ef0f7e4624a24a06b444cab05bf2b670638451bf046663b5d680fda83
   languageName: node
   linkType: hard
 
@@ -2055,32 +2073,32 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/config-array@npm:^0.23.3":
-  version: 0.23.3
-  resolution: "@eslint/config-array@npm:0.23.3"
+"@eslint/config-array@npm:^0.23.4":
+  version: 0.23.4
+  resolution: "@eslint/config-array@npm:0.23.4"
   dependencies:
-    "@eslint/object-schema": "npm:^3.0.3"
+    "@eslint/object-schema": "npm:^3.0.4"
     debug: "npm:^4.3.1"
     minimatch: "npm:^10.2.4"
-  checksum: 10c0/7c19027acf9110cc542513ff9f3ca73a61d127e900c24f0e8e4d5e18aa22baf08d1d5bc386563d2f9311095f3b7898fe9b627b590fe9232b745ef60d4443cf9f
+  checksum: 10c0/813ce3588e67d615218219e77526ca4c742405c293f209f5c0ff945fec50a9a8007c7d82c5af8fa82c1a506b57f4dc37cef0e96b2366c41c257dd267862ece95
   languageName: node
   linkType: hard
 
-"@eslint/config-helpers@npm:^0.5.3":
-  version: 0.5.3
-  resolution: "@eslint/config-helpers@npm:0.5.3"
+"@eslint/config-helpers@npm:^0.5.4":
+  version: 0.5.4
+  resolution: "@eslint/config-helpers@npm:0.5.4"
   dependencies:
-    "@eslint/core": "npm:^1.1.1"
-  checksum: 10c0/c836476e839a79dcdc9f7e0013057cfe0341162180d50e5a08668edb4b4b6c520a3174011469f6ef02efd2affd092263c020e89d0a3452c801427b0ac003549a
+    "@eslint/core": "npm:^1.2.0"
+  checksum: 10c0/211bbfaba53fde341768eafbfdcceeca5587264c0a952d4c70b8b72c440df60e5b0e9bac33893c671dc556275a1b0c5d28c8023e843a127be216a773a11ae762
   languageName: node
   linkType: hard
 
-"@eslint/core@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "@eslint/core@npm:1.1.1"
+"@eslint/core@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@eslint/core@npm:1.2.0"
   dependencies:
     "@types/json-schema": "npm:^7.0.15"
-  checksum: 10c0/129c654c78afc1f6d61dccb0ce841be667f09f052f7d5642614b6ba5eeebd579ca6cc336d7b750d88625e61f7aad22fdd62bf83847fbfc10cc3e58cfe6c5072e
+  checksum: 10c0/e564945218f7f3910dfd0f57bf7852072060f560c241f5ed96a7b13e9f7fed4cc5707ee5eb44653f2bf4f9576ee7b7921f55cc5ac96f72343d0c5e80818fe2bf
   languageName: node
   linkType: hard
 
@@ -2096,20 +2114,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/object-schema@npm:^3.0.3":
-  version: 3.0.3
-  resolution: "@eslint/object-schema@npm:3.0.3"
-  checksum: 10c0/4abbb7cba5419dce46ae8aa8e979fa190f2e906a8e1b5a8e22e4489f62a68dea3967679f66acbc0c3ef89f33252a7460e39fc2d6f2b4f616a137f3514eda4784
+"@eslint/object-schema@npm:^3.0.4":
+  version: 3.0.4
+  resolution: "@eslint/object-schema@npm:3.0.4"
+  checksum: 10c0/fedfc0acf5d899c9f58106c9d718fae4f4d5e6e21f0aa33b2333c746873d979ff9e295a09668bd7bf2a41f82dd886ebd3a73d023ce3c8722a1f24bd143842162
   languageName: node
   linkType: hard
 
-"@eslint/plugin-kit@npm:^0.6.1":
-  version: 0.6.1
-  resolution: "@eslint/plugin-kit@npm:0.6.1"
+"@eslint/plugin-kit@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "@eslint/plugin-kit@npm:0.7.0"
   dependencies:
-    "@eslint/core": "npm:^1.1.1"
+    "@eslint/core": "npm:^1.2.0"
     levn: "npm:^0.4.1"
-  checksum: 10c0/f8354a7b92cc41e7a55d51986d192134be84f9dc0c91b5e649d075d733b56981c4ca8bf4460d54120c4c87b47984167bad2cb9bceb303f11b0a3bad22b3ed06a
+  checksum: 10c0/ea96c393dc1424f1a74fdd253478eda6cf864f31527d9472bd379decc5195da0b141fcb2dc767d7fe296184a3f26c91a19b2e5445be9b6a9b48b1bed9d18b737
   languageName: node
   linkType: hard
 
@@ -3204,14 +3222,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@playwright/test@npm:^1.58.2":
-  version: 1.58.2
-  resolution: "@playwright/test@npm:1.58.2"
+"@playwright/test@npm:^1.59.1":
+  version: 1.59.1
+  resolution: "@playwright/test@npm:1.59.1"
   dependencies:
-    playwright: "npm:1.58.2"
+    playwright: "npm:1.59.1"
   bin:
     playwright: cli.js
-  checksum: 10c0/2164c03ad97c3653ff02e8818a71f3b2bbc344ac07924c9d8e31cd57505d6d37596015a41f51396b3ed8de6840f59143eaa9c21bf65515963da20740119811da
+  checksum: 10c0/8c2d94a860d3c254a0b114df2f888ad0a0e9310f45b6059bd5d4da196d965cadf6922267cef0881cfa9784d4bef6d78363d2c2d94caa64be67ff644c41162137
   languageName: node
   linkType: hard
 
@@ -3647,14 +3665,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@schematics/angular@npm:21.2.4":
-  version: 21.2.4
-  resolution: "@schematics/angular@npm:21.2.4"
+"@schematics/angular@npm:21.2.6":
+  version: 21.2.6
+  resolution: "@schematics/angular@npm:21.2.6"
   dependencies:
-    "@angular-devkit/core": "npm:21.2.4"
-    "@angular-devkit/schematics": "npm:21.2.4"
+    "@angular-devkit/core": "npm:21.2.6"
+    "@angular-devkit/schematics": "npm:21.2.6"
     jsonc-parser: "npm:3.3.1"
-  checksum: 10c0/31b505a8e3986cf0824292555861f77e152669ad4e6eaf4ad85bc773fdb0ac7b90896a80cc8e5e8deb28f266fff0580d8c20d735b2398ba82f2c9a46ecd4ef4f
+  checksum: 10c0/1f458793db0a5fe943950b80c3f646140f8279d69597a01203e2ec0b2a54767acbf224a7e79f0be4ace54f12b379a5c8481bc37d5433a0c244d420c134ea345a
   languageName: node
   linkType: hard
 
@@ -3748,33 +3766,33 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/angular-query-experimental@npm:5.95.2":
-  version: 5.95.2
-  resolution: "@tanstack/angular-query-experimental@npm:5.95.2"
+"@tanstack/angular-query-experimental@npm:5.96.2":
+  version: 5.96.2
+  resolution: "@tanstack/angular-query-experimental@npm:5.96.2"
   dependencies:
-    "@tanstack/query-core": "npm:5.95.2"
-    "@tanstack/query-devtools": "npm:5.95.2"
+    "@tanstack/query-core": "npm:5.96.2"
+    "@tanstack/query-devtools": "npm:5.96.2"
   peerDependencies:
     "@angular/common": ">=16.0.0"
     "@angular/core": ">=16.0.0"
   dependenciesMeta:
     "@tanstack/query-devtools":
       optional: true
-  checksum: 10c0/1c725a9d3e9b5e7f14c9c7b32a47be4c94c540de03ddac2585e372da02abab0ee5f8567a080df2d71eb22d41b8c8cc17c9b6217edd47447aaa32e351702bdd7b
+  checksum: 10c0/0064498a19999fb3c672d2d73deecbbadf5164c7964e9d1d0adaea5f87ea2d29567dd8ada0cc8b3ca0e5aead74a842b270c568730c4f71268bd9d1ac8608b746
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:5.95.2":
-  version: 5.95.2
-  resolution: "@tanstack/query-core@npm:5.95.2"
-  checksum: 10c0/6559483b30dd9ce7fc5d466d54a7ebfe4ca5b5d7f8ce37833a4048516b55565d3072526d74264fa974afbe49a0ae11c9a99ecc1d9ab525966360565ebc600083
+"@tanstack/query-core@npm:5.96.2":
+  version: 5.96.2
+  resolution: "@tanstack/query-core@npm:5.96.2"
+  checksum: 10c0/a856fb9f35ae994e855023d980ac32ce4a1eec5fd94afa3e360cc795f84494a950d0afbf465f726bd8186889d3c457762ec2f627c2fd84fc23f5f4e1d3491d89
   languageName: node
   linkType: hard
 
-"@tanstack/query-devtools@npm:5.95.2":
-  version: 5.95.2
-  resolution: "@tanstack/query-devtools@npm:5.95.2"
-  checksum: 10c0/33b9dc74b4807a9316d3c43df9acf3b99c19e72424f3efd78984350f114d6b03ccba3ca3a01e5ad01d9fb78c32b719fee4aa5dfd2c62c641430838903e2f7576
+"@tanstack/query-devtools@npm:5.96.2":
+  version: 5.96.2
+  resolution: "@tanstack/query-devtools@npm:5.96.2"
+  checksum: 10c0/9b47c5182ab8925f3000a17d340a19602e7e7b11cc48c77a6f6c7863b830191ab8e6e48ee5ed6278a1cc380e70d2061708de2f30fdb62cb6785c57f07d61c589
   languageName: node
   linkType: hard
 
@@ -3931,12 +3949,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^25.5.0":
-  version: 25.5.0
-  resolution: "@types/node@npm:25.5.0"
+"@types/node@npm:^25.5.2":
+  version: 25.5.2
+  resolution: "@types/node@npm:25.5.2"
   dependencies:
     undici-types: "npm:~7.18.0"
-  checksum: 10c0/70c508165b6758c4f88d4f91abca526c3985eee1985503d4c2bd994dbaf588e52ac57e571160f18f117d76e963570ac82bd20e743c18987e82564312b3b62119
+  checksum: 10c0/11e41a85401724cd1a4de6fb7bd4264ec46db10c09fc8cf8d41de4ede0a7063db458348f859ead4ec0929906aa26aaf45a5fef3aa59742ca0521cda9cee52377
   languageName: node
   linkType: hard
 
@@ -3961,39 +3979,39 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/eslint-plugin@npm:8.57.2":
-  version: 8.57.2
-  resolution: "@typescript-eslint/eslint-plugin@npm:8.57.2"
+"@typescript-eslint/eslint-plugin@npm:8.58.0":
+  version: 8.58.0
+  resolution: "@typescript-eslint/eslint-plugin@npm:8.58.0"
   dependencies:
     "@eslint-community/regexpp": "npm:^4.12.2"
-    "@typescript-eslint/scope-manager": "npm:8.57.2"
-    "@typescript-eslint/type-utils": "npm:8.57.2"
-    "@typescript-eslint/utils": "npm:8.57.2"
-    "@typescript-eslint/visitor-keys": "npm:8.57.2"
+    "@typescript-eslint/scope-manager": "npm:8.58.0"
+    "@typescript-eslint/type-utils": "npm:8.58.0"
+    "@typescript-eslint/utils": "npm:8.58.0"
+    "@typescript-eslint/visitor-keys": "npm:8.58.0"
     ignore: "npm:^7.0.5"
     natural-compare: "npm:^1.4.0"
-    ts-api-utils: "npm:^2.4.0"
+    ts-api-utils: "npm:^2.5.0"
   peerDependencies:
-    "@typescript-eslint/parser": ^8.57.2
+    "@typescript-eslint/parser": ^8.58.0
     eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
-    typescript: ">=4.8.4 <6.0.0"
-  checksum: 10c0/92f3a45f6c2104cef5294bfba972c475b1d3fafb6070efa1178b38cb951e7dfbaf89eae50bfd95f4a476fe51783e218b115bd7cbc09fc9bc7c0ca6c5233861d2
+    typescript: ">=4.8.4 <6.1.0"
+  checksum: 10c0/ac45c30f6ba9e188a01144708aa845e7ee8bb8a4d4f9aa6d2dce7784852d0821d42b031fee6832069935c3b885feff6d4014e30145b99693d25d7f563266a9f8
   languageName: node
   linkType: hard
 
-"@typescript-eslint/parser@npm:8.57.2":
-  version: 8.57.2
-  resolution: "@typescript-eslint/parser@npm:8.57.2"
+"@typescript-eslint/parser@npm:8.58.0":
+  version: 8.58.0
+  resolution: "@typescript-eslint/parser@npm:8.58.0"
   dependencies:
-    "@typescript-eslint/scope-manager": "npm:8.57.2"
-    "@typescript-eslint/types": "npm:8.57.2"
-    "@typescript-eslint/typescript-estree": "npm:8.57.2"
-    "@typescript-eslint/visitor-keys": "npm:8.57.2"
+    "@typescript-eslint/scope-manager": "npm:8.58.0"
+    "@typescript-eslint/types": "npm:8.58.0"
+    "@typescript-eslint/typescript-estree": "npm:8.58.0"
+    "@typescript-eslint/visitor-keys": "npm:8.58.0"
     debug: "npm:^4.4.3"
   peerDependencies:
     eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
-    typescript: ">=4.8.4 <6.0.0"
-  checksum: 10c0/afd8a30bd42ac56b212f3182d1b60e4556542eb22147b5b7a9a606d3c79ee35e596baf0bd7672d7e236472d246efc86e06265a46be26150ac12b05e4c45d16a6
+    typescript: ">=4.8.4 <6.1.0"
+  checksum: 10c0/56c7ec21675cec4730760bfa37c29e42e80b4d6444e2beca55fad9ef53731392270d142797482ea798405be0d7e28ec6c9c16a1ee2ee1c94f73d3bf0ed29763c
   languageName: node
   linkType: hard
 
@@ -4010,6 +4028,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@typescript-eslint/project-service@npm:8.58.0":
+  version: 8.58.0
+  resolution: "@typescript-eslint/project-service@npm:8.58.0"
+  dependencies:
+    "@typescript-eslint/tsconfig-utils": "npm:^8.58.0"
+    "@typescript-eslint/types": "npm:^8.58.0"
+    debug: "npm:^4.4.3"
+  peerDependencies:
+    typescript: ">=4.8.4 <6.1.0"
+  checksum: 10c0/e6d0cb2f7708ccb31a2ff9eb35817d4999c26e1f1cd3c607539e21d0c73a234daa77c73ee1163bc4e8b139252d619823c444759f1ddabdd138cab4885e9c9794
+  languageName: node
+  linkType: hard
+
 "@typescript-eslint/scope-manager@npm:8.57.2":
   version: 8.57.2
   resolution: "@typescript-eslint/scope-manager@npm:8.57.2"
@@ -4017,6 +4048,16 @@ __metadata:
     "@typescript-eslint/types": "npm:8.57.2"
     "@typescript-eslint/visitor-keys": "npm:8.57.2"
   checksum: 10c0/532b1a97a5c2fce51400fa1a94e09615b4df84ce1f2d107206a3f3935074cada396a3e30f155582a698981832868e1afea1641ff779ad9456fdc94169b7def64
+  languageName: node
+  linkType: hard
+
+"@typescript-eslint/scope-manager@npm:8.58.0":
+  version: 8.58.0
+  resolution: "@typescript-eslint/scope-manager@npm:8.58.0"
+  dependencies:
+    "@typescript-eslint/types": "npm:8.58.0"
+    "@typescript-eslint/visitor-keys": "npm:8.58.0"
+  checksum: 10c0/bd5c16780f22d62359af0f69909f38a15fa3c55e609124a7cd5c2a04322fe41e586d81066f3ad1dcc3c1eff24dbcb48b78d099626d611fbd680c20c005d48f1d
   languageName: node
   linkType: hard
 
@@ -4029,19 +4070,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/type-utils@npm:8.57.2":
-  version: 8.57.2
-  resolution: "@typescript-eslint/type-utils@npm:8.57.2"
+"@typescript-eslint/tsconfig-utils@npm:8.58.0, @typescript-eslint/tsconfig-utils@npm:^8.58.0":
+  version: 8.58.0
+  resolution: "@typescript-eslint/tsconfig-utils@npm:8.58.0"
+  peerDependencies:
+    typescript: ">=4.8.4 <6.1.0"
+  checksum: 10c0/0a07fe1a28b2513e625882bc8d4c4e0c5a105cdbcb987beae12fc66dbe71dc9638013e4d1fa8ad10d828a2acd5e3fed987c189c00d41fed0e880009f99adf1b2
+  languageName: node
+  linkType: hard
+
+"@typescript-eslint/type-utils@npm:8.58.0":
+  version: 8.58.0
+  resolution: "@typescript-eslint/type-utils@npm:8.58.0"
   dependencies:
-    "@typescript-eslint/types": "npm:8.57.2"
-    "@typescript-eslint/typescript-estree": "npm:8.57.2"
-    "@typescript-eslint/utils": "npm:8.57.2"
+    "@typescript-eslint/types": "npm:8.58.0"
+    "@typescript-eslint/typescript-estree": "npm:8.58.0"
+    "@typescript-eslint/utils": "npm:8.58.0"
     debug: "npm:^4.4.3"
-    ts-api-utils: "npm:^2.4.0"
+    ts-api-utils: "npm:^2.5.0"
   peerDependencies:
     eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
-    typescript: ">=4.8.4 <6.0.0"
-  checksum: 10c0/9c479cd0e809d26b7da7b31e830520bc016aaf528bc10a8b8279374808cb76a27f1b4adc77c84156417dc70f6a9e8604f47717b555a27293da2b9b5cfda70411
+    typescript: ">=4.8.4 <6.1.0"
+  checksum: 10c0/1223733d41f8463be92ef1ad048d546f9663152212b22dc968abbd9f8e4486bd4082e16baa51d2d281e0d4815563bc4b1ecf01684e2940b7897ba17aa26d1196
   languageName: node
   linkType: hard
 
@@ -4049,6 +4099,13 @@ __metadata:
   version: 8.57.2
   resolution: "@typescript-eslint/types@npm:8.57.2"
   checksum: 10c0/3cd87dd77d28b3ac2fed56a17909b0d11633628d4d733aa148dfd7af72e2cc3ec0e6114b72fac0ff538e8a47e907b4b10dab4095170ae1bd73719ef0b8eaf2e7
+  languageName: node
+  linkType: hard
+
+"@typescript-eslint/types@npm:8.58.0, @typescript-eslint/types@npm:^8.58.0":
+  version: 8.58.0
+  resolution: "@typescript-eslint/types@npm:8.58.0"
+  checksum: 10c0/f2fe1321758a04591c20d77caba956ae76b77cff0b976a0224b37077d80b1ebd826874d15ec79c3a3b7d57ee5679e5d10756db1b082bde3d51addbd3a8431d38
   languageName: node
   linkType: hard
 
@@ -4071,7 +4128,41 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/utils@npm:8.57.2, @typescript-eslint/utils@npm:^8.0.0":
+"@typescript-eslint/typescript-estree@npm:8.58.0":
+  version: 8.58.0
+  resolution: "@typescript-eslint/typescript-estree@npm:8.58.0"
+  dependencies:
+    "@typescript-eslint/project-service": "npm:8.58.0"
+    "@typescript-eslint/tsconfig-utils": "npm:8.58.0"
+    "@typescript-eslint/types": "npm:8.58.0"
+    "@typescript-eslint/visitor-keys": "npm:8.58.0"
+    debug: "npm:^4.4.3"
+    minimatch: "npm:^10.2.2"
+    semver: "npm:^7.7.3"
+    tinyglobby: "npm:^0.2.15"
+    ts-api-utils: "npm:^2.5.0"
+  peerDependencies:
+    typescript: ">=4.8.4 <6.1.0"
+  checksum: 10c0/a8cb94cb765b27740a54f9b5378bd8f0dc49e301ceed99a0791dc9d1f61c2a54e3212f7ed9120c8c2df80104ad3117150cf5e7fe8a0b7eec3ed04969a79b103e
+  languageName: node
+  linkType: hard
+
+"@typescript-eslint/utils@npm:8.58.0":
+  version: 8.58.0
+  resolution: "@typescript-eslint/utils@npm:8.58.0"
+  dependencies:
+    "@eslint-community/eslint-utils": "npm:^4.9.1"
+    "@typescript-eslint/scope-manager": "npm:8.58.0"
+    "@typescript-eslint/types": "npm:8.58.0"
+    "@typescript-eslint/typescript-estree": "npm:8.58.0"
+  peerDependencies:
+    eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
+    typescript: ">=4.8.4 <6.1.0"
+  checksum: 10c0/457e01a6e6d954dbfe13c49ece3cf8a55e5d8cf19ea9ae7086c0e205d89e3cdbb91153062ab440d2e78ad3f077b174adc42bfb1b6fc24299020a0733e7f9c11c
+  languageName: node
+  linkType: hard
+
+"@typescript-eslint/utils@npm:^8.0.0":
   version: 8.57.2
   resolution: "@typescript-eslint/utils@npm:8.57.2"
   dependencies:
@@ -4093,6 +4184,16 @@ __metadata:
     "@typescript-eslint/types": "npm:8.57.2"
     eslint-visitor-keys: "npm:^5.0.0"
   checksum: 10c0/8ceb8c228bf97b3e4b343bf6e42a91998d2522f459eb6b53c6bfad4898a9df74295660893dee6b698bdbbda537e968bfc13a3c56fc341089ebfba13db766a574
+  languageName: node
+  linkType: hard
+
+"@typescript-eslint/visitor-keys@npm:8.58.0":
+  version: 8.58.0
+  resolution: "@typescript-eslint/visitor-keys@npm:8.58.0"
+  dependencies:
+    "@typescript-eslint/types": "npm:8.58.0"
+    eslint-visitor-keys: "npm:^5.0.0"
+  checksum: 10c0/75f3c9c097a308cc6450822a0f81d44c8b79b524e99dd2c41ded347b12f148ab3bd459ce9cc6bd00f8f0725c5831baab6d2561596ead3394ab76dddbeb32cce1
   languageName: node
   linkType: hard
 
@@ -5242,6 +5343,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"es-toolkit@npm:^1.39.7":
+  version: 1.45.1
+  resolution: "es-toolkit@npm:1.45.1"
+  dependenciesMeta:
+    "@trivago/prettier-plugin-sort-imports@4.3.0":
+      unplugged: true
+    prettier-plugin-sort-re-exports@0.0.1:
+      unplugged: true
+  checksum: 10c0/b19180c778af8fe2fb450e8e05a5793166c91e0aa66b87d9fcfcc5618bd33e6ceec9c103e074458d32b2044972dc4fc63631b3b615834fde261917e9561f6f59
+  languageName: node
+  linkType: hard
+
 "esbuild@npm:0.27.3":
   version: 0.27.3
   resolution: "esbuild@npm:0.27.3"
@@ -5467,16 +5580,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^10.1.0":
-  version: 10.1.0
-  resolution: "eslint@npm:10.1.0"
+"eslint@npm:^10.2.0":
+  version: 10.2.0
+  resolution: "eslint@npm:10.2.0"
   dependencies:
     "@eslint-community/eslint-utils": "npm:^4.8.0"
     "@eslint-community/regexpp": "npm:^4.12.2"
-    "@eslint/config-array": "npm:^0.23.3"
-    "@eslint/config-helpers": "npm:^0.5.3"
-    "@eslint/core": "npm:^1.1.1"
-    "@eslint/plugin-kit": "npm:^0.6.1"
+    "@eslint/config-array": "npm:^0.23.4"
+    "@eslint/config-helpers": "npm:^0.5.4"
+    "@eslint/core": "npm:^1.2.0"
+    "@eslint/plugin-kit": "npm:^0.7.0"
     "@humanfs/node": "npm:^0.16.6"
     "@humanwhocodes/module-importer": "npm:^1.0.1"
     "@humanwhocodes/retry": "npm:^0.4.2"
@@ -5508,7 +5621,7 @@ __metadata:
       optional: true
   bin:
     eslint: bin/eslint.js
-  checksum: 10c0/b784ac18905b663fa4a801b0baa7bfa636c2d7ac08dad60690b15338c9b2126c5fa9fd4f9269b4f584cb0b426e428c1e353e23ff5ab6d8f8c610a0bb365831d6
+  checksum: 10c0/c275115f8937c243125986bf8f7d5c09bdc083f4a9fba8a77ad15a15989f05732f5037fe990cc1bc22dd887cf16060f57b8949dc5f1055d5020689adff49e219
   languageName: node
   linkType: hard
 
@@ -6032,40 +6145,40 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "grimmory@workspace:."
   dependencies:
-    "@analogjs/vite-plugin-angular": "npm:^2.3.1"
-    "@analogjs/vitest-angular": "npm:^2.3.1"
-    "@angular-devkit/architect": "npm:0.2102.4"
-    "@angular-devkit/schematics": "npm:21.2.4"
-    "@angular/animations": "npm:^21.2.6"
-    "@angular/build": "npm:^21.2.4"
-    "@angular/cdk": "npm:^21.2.4"
-    "@angular/cli": "npm:^21.2.4"
-    "@angular/common": "npm:^21.2.6"
-    "@angular/compiler": "npm:^21.2.6"
-    "@angular/compiler-cli": "npm:^21.2.6"
-    "@angular/core": "npm:^21.2.6"
-    "@angular/forms": "npm:^21.2.6"
-    "@angular/platform-browser": "npm:^21.2.6"
-    "@angular/platform-browser-dynamic": "npm:^21.2.6"
-    "@angular/router": "npm:^21.2.6"
-    "@angular/service-worker": "npm:^21.2.6"
-    "@embedpdf/pdfium": "npm:2.12.1"
-    "@embedpdf/snippet": "npm:2.12.1"
+    "@analogjs/vite-plugin-angular": "npm:^2.4.0"
+    "@analogjs/vitest-angular": "npm:^2.4.0"
+    "@angular-devkit/architect": "npm:0.2102.6"
+    "@angular-devkit/schematics": "npm:21.2.6"
+    "@angular/animations": "npm:^21.2.7"
+    "@angular/build": "npm:^21.2.6"
+    "@angular/cdk": "npm:^21.2.5"
+    "@angular/cli": "npm:^21.2.6"
+    "@angular/common": "npm:^21.2.7"
+    "@angular/compiler": "npm:^21.2.7"
+    "@angular/compiler-cli": "npm:^21.2.7"
+    "@angular/core": "npm:^21.2.7"
+    "@angular/forms": "npm:^21.2.7"
+    "@angular/platform-browser": "npm:^21.2.7"
+    "@angular/platform-browser-dynamic": "npm:^21.2.7"
+    "@angular/router": "npm:^21.2.7"
+    "@angular/service-worker": "npm:^21.2.7"
+    "@embedpdf/pdfium": "npm:2.14.0"
+    "@embedpdf/snippet": "npm:2.14.0"
     "@eslint/js": "npm:^10.0.1"
     "@iharbeck/ngx-virtual-scroller": "npm:^20.0.0"
     "@jsverse/transloco": "npm:^8.2.1"
-    "@playwright/test": "npm:^1.58.2"
+    "@playwright/test": "npm:^1.59.1"
     "@primeuix/themes": "npm:^2.0.3"
     "@stomp/rx-stomp": "npm:^2.3.0"
     "@stomp/stompjs": "npm:^7.3.0"
-    "@tanstack/angular-query-experimental": "npm:5.95.2"
+    "@tanstack/angular-query-experimental": "npm:5.96.2"
     "@testing-library/angular": "npm:^19.2.1"
     "@testing-library/dom": "npm:^10.4.1"
     "@testing-library/jest-dom": "npm:^6.9.1"
     "@testing-library/user-event": "npm:^14.6.1"
     "@tweenjs/tween.js": "npm:^25.0.0"
     "@types/dompurify": "npm:^3.2.0"
-    "@types/node": "npm:^25.5.0"
+    "@types/node": "npm:^25.5.2"
     "@types/showdown": "npm:^2.0.6"
     "@vitest/coverage-v8": "npm:^4.1.2"
     angular-eslint: "npm:^21.3.1"
@@ -6074,27 +6187,27 @@ __metadata:
     chartjs-plugin-datalabels: "npm:^2.2.0"
     date-fns: "npm:^4.1.0"
     dompurify: "npm:^3.3.3"
-    eslint: "npm:^10.1.0"
+    eslint: "npm:^10.2.0"
     jsdom: "npm:^29.0.1"
     jwt-decode: "npm:^4.0.0"
     msw: "npm:^2.12.14"
     ng-lazyload-image: "npm:^9.1.3"
     ng-mocks: "npm:^14.15.2"
-    ng2-charts: "npm:^8.0.0"
-    ngx-extended-pdf-viewer: "npm:^25.6.4"
+    ng2-charts: "npm:^10.0.0"
+    ngx-extended-pdf-viewer: "npm:^26.0.0"
     ngx-infinite-scroll: "npm:^21.0.0"
-    ngx-sse-client: "npm:^20.0.1"
+    ngx-sse-client: "npm:^21.0.0"
     postcss: "npm:^8.5.8"
     primeicons: "npm:^7.0.0"
-    primeng: "npm:^21.1.3"
+    primeng: "npm:^21.1.5"
     rxjs: "npm:^7.8.2"
     showdown: "npm:^2.1.0"
     stylelint: "npm:^17.6.0"
     stylelint-config-standard-scss: "npm:^17.0.0"
     tslib: "npm:^2.8.1"
     typescript: "npm:~5.9.3"
-    typescript-eslint: "npm:^8.57.2"
-    uuid: "npm:^11.0.0"
+    typescript-eslint: "npm:^8.58.0"
+    uuid: "npm:^11.1.0"
     vitest: "npm:^4.1.2"
     vitest-canvas-mock: "npm:^1.1.4"
     ws: "npm:^8.20.0"
@@ -6893,13 +7006,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash-es@npm:^4.17.15":
-  version: 4.18.1
-  resolution: "lodash-es@npm:4.18.1"
-  checksum: 10c0/35d4dcf87ef07f8d090f409447575800108057e360b445f590d0d25d09e3d1e33a163d2fc100d4d072b0f901d5e2fc533cd7c4bfd8eeb38a06abec693823c8b8
-  languageName: node
-  linkType: hard
-
 "lodash.truncate@npm:^4.4.2":
   version: 4.4.2
   resolution: "lodash.truncate@npm:4.4.2"
@@ -7350,32 +7456,32 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ng2-charts@npm:^8.0.0":
-  version: 8.0.0
-  resolution: "ng2-charts@npm:8.0.0"
+"ng2-charts@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "ng2-charts@npm:10.0.0"
   dependencies:
-    lodash-es: "npm:^4.17.15"
+    es-toolkit: "npm:^1.39.7"
     tslib: "npm:^2.3.0"
   peerDependencies:
-    "@angular/cdk": ">=19.0.0"
-    "@angular/common": ">=19.0.0"
-    "@angular/core": ">=19.0.0"
-    "@angular/platform-browser": ">=19.0.0"
+    "@angular/cdk": ">=21.0.0"
+    "@angular/common": ">=21.0.0"
+    "@angular/core": ">=21.0.0"
+    "@angular/platform-browser": ">=21.0.0"
     chart.js: ^3.4.0 || ^4.0.0
     rxjs: ^6.5.3 || ^7.4.0
-  checksum: 10c0/15b3a9d382017e9db3dfdbfd28230f4702dd7d60180bfb998de2a3d1752c33aaed79f2e9270a9056cdaf406f5f2dabb3549ca3db365bb82fea815706f5f437be
+  checksum: 10c0/c39a9350fd31c4517f486d38b7c70009236fcb4c824ff531cd903c2fb1e8fd3ed65017a2b00376742a682704e5e27523ce6377c843ce86a6cbfdba00910a4477
   languageName: node
   linkType: hard
 
-"ngx-extended-pdf-viewer@npm:^25.6.4":
-  version: 25.6.4
-  resolution: "ngx-extended-pdf-viewer@npm:25.6.4"
+"ngx-extended-pdf-viewer@npm:^26.0.0":
+  version: 26.0.0
+  resolution: "ngx-extended-pdf-viewer@npm:26.0.0"
   dependencies:
     tslib: "npm:^2.3.0"
   peerDependencies:
-    "@angular/common": ">=17.0.0 <22.0.0"
-    "@angular/core": ">=17.0.0 <22.0.0"
-  checksum: 10c0/0069cdf4620488a61bae740b059d8c3b488c58bcbc9fb55f28a5a5e8fe6b9a7872d3ca92ed7ea2d05bab94d52ec6d6ef957010d64c1616255fe659fc957a9329
+    "@angular/common": ">=19.0.0 <22.0.0"
+    "@angular/core": ">=19.0.0 <22.0.0"
+  checksum: 10c0/7595b07e29aae95335c09256db1fcb0c1b4f3101545d912e92eb08d181209bbecfef5e058d24859fbbf8e9379a8e4b20d61790b46ae314a2150cb04f8c352ecb
   languageName: node
   linkType: hard
 
@@ -7391,15 +7497,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ngx-sse-client@npm:^20.0.1":
-  version: 20.0.1
-  resolution: "ngx-sse-client@npm:20.0.1"
+"ngx-sse-client@npm:^21.0.0":
+  version: 21.0.0
+  resolution: "ngx-sse-client@npm:21.0.0"
   dependencies:
     tslib: "npm:^2.8.1"
   peerDependencies:
-    "@angular/common": ">=20.0.0"
-    "@angular/core": ">=20.0.0"
-  checksum: 10c0/9f250c3f743e4ec6299b10639ce1685f89cbb910bda9752fa1dd1da5dbb1d9730a06f440cf7e10dd1e40761b133a959cc1bb74313ef119ec2c5fb3115476200b
+    "@angular/common": ">=21.0.0"
+    "@angular/core": ">=21.0.0"
+  checksum: 10c0/d565473167a855ab0cd80faf4d3d2ab4bbb2b16a46f15c2d60e089626504c5b3373b553a2db4d0cf0e5062aebea8607fcb67c222aadb74aed61d49b760a3130e
   languageName: node
   linkType: hard
 
@@ -7837,17 +7943,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"picomatch@npm:4.0.4, picomatch@npm:^4.0.3":
+  version: 4.0.4
+  resolution: "picomatch@npm:4.0.4"
+  checksum: 10c0/e2c6023372cc7b5764719a5ffb9da0f8e781212fa7ca4bd0562db929df8e117460f00dff3cb7509dacfc06b86de924b247f504d0ce1806a37fac4633081466b0
+  languageName: node
+  linkType: hard
+
 "picomatch@npm:^2.3.1":
   version: 2.3.2
   resolution: "picomatch@npm:2.3.2"
   checksum: 10c0/a554d1709e59be97d1acb9eaedbbc700a5c03dbd4579807baed95100b00420bc729335440ef15004ae2378984e2487a7c1cebd743cfdb72b6fa9ab69223c0d61
-  languageName: node
-  linkType: hard
-
-"picomatch@npm:^4.0.3":
-  version: 4.0.4
-  resolution: "picomatch@npm:4.0.4"
-  checksum: 10c0/e2c6023372cc7b5764719a5ffb9da0f8e781212fa7ca4bd0562db929df8e117460f00dff3cb7509dacfc06b86de924b247f504d0ce1806a37fac4633081466b0
   languageName: node
   linkType: hard
 
@@ -7870,27 +7976,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"playwright-core@npm:1.58.2":
-  version: 1.58.2
-  resolution: "playwright-core@npm:1.58.2"
+"playwright-core@npm:1.59.1":
+  version: 1.59.1
+  resolution: "playwright-core@npm:1.59.1"
   bin:
     playwright-core: cli.js
-  checksum: 10c0/5aa15b2b764e6ffe738293a09081a6f7023847a0dbf4cd05fe10eed2e25450d321baf7482f938f2d2eb330291e197fa23e57b29a5b552b89927ceb791266225b
+  checksum: 10c0/d41a74d9681ce3beb3d5239e9ed577710b4ad099a6ca2476219c6599d51e9cb4b80bd72ed82c528da6a5d929c18ae3b872cf02bb83f78fa1c2cb9199c501abee
   languageName: node
   linkType: hard
 
-"playwright@npm:1.58.2":
-  version: 1.58.2
-  resolution: "playwright@npm:1.58.2"
+"playwright@npm:1.59.1":
+  version: 1.59.1
+  resolution: "playwright@npm:1.59.1"
   dependencies:
     fsevents: "npm:2.3.2"
-    playwright-core: "npm:1.58.2"
+    playwright-core: "npm:1.59.1"
   dependenciesMeta:
     fsevents:
       optional: true
   bin:
     playwright: cli.js
-  checksum: 10c0/d060d9b7cc124bd8b5dffebaab5e84f6b34654a553758fe7b19cc598dfbee93f6ecfbdc1832b40a6380ae04eade86ef3285ba03aa0b136799e83402246dc0727
+  checksum: 10c0/dfe38396e616e5c4f98825ce90037bb96e477c5a2bd9258a24854f8ce72a8a41427b19098863866f85aa0216e70287dd537c4438d761aca93995e31ae099c533
   languageName: node
   linkType: hard
 
@@ -7986,9 +8092,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"primeng@npm:^21.1.3":
-  version: 21.1.3
-  resolution: "primeng@npm:21.1.3"
+"primeng@npm:^21.1.5":
+  version: 21.1.5
+  resolution: "primeng@npm:21.1.5"
   dependencies:
     "@primeuix/motion": "npm:^0.0.10"
     "@primeuix/styled": "npm:^0.7.4"
@@ -8003,7 +8109,7 @@ __metadata:
     "@angular/platform-browser": ^21.0.0
     "@angular/router": ^21.0.0
     rxjs: ^6.0.0 || ^7.8.1
-  checksum: 10c0/b788deb343410e13f7f34d54e5dc71bd937e0446a942d7d58701880a328cd94557b719cfd407022e76e4e86ad6dd1c4e3b55ab75c8f26325f6132e11f7f23032
+  checksum: 10c0/b5fa8fd6e60d837b13fcca283b2cdb854f7aa4edba9dfaba6c358c02cfaa9eefef09af654f0c15e21ac1e4ca73d5cead87d1ade8f879530bae2c73df86e9c90d
   languageName: node
   linkType: hard
 
@@ -9116,7 +9222,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-api-utils@npm:^2.1.0, ts-api-utils@npm:^2.4.0":
+"ts-api-utils@npm:^2.1.0, ts-api-utils@npm:^2.4.0, ts-api-utils@npm:^2.5.0":
   version: 2.5.0
   resolution: "ts-api-utils@npm:2.5.0"
   peerDependencies:
@@ -9182,18 +9288,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript-eslint@npm:^8.57.2":
-  version: 8.57.2
-  resolution: "typescript-eslint@npm:8.57.2"
+"typescript-eslint@npm:^8.58.0":
+  version: 8.58.0
+  resolution: "typescript-eslint@npm:8.58.0"
   dependencies:
-    "@typescript-eslint/eslint-plugin": "npm:8.57.2"
-    "@typescript-eslint/parser": "npm:8.57.2"
-    "@typescript-eslint/typescript-estree": "npm:8.57.2"
-    "@typescript-eslint/utils": "npm:8.57.2"
+    "@typescript-eslint/eslint-plugin": "npm:8.58.0"
+    "@typescript-eslint/parser": "npm:8.58.0"
+    "@typescript-eslint/typescript-estree": "npm:8.58.0"
+    "@typescript-eslint/utils": "npm:8.58.0"
   peerDependencies:
     eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
-    typescript: ">=4.8.4 <6.0.0"
-  checksum: 10c0/b657195d7f080eae54527354f847af0300f7f3d7126515c692b92f5d4a880bc40b11a350ea98e1decf62846cce085c072005eb867019b3b7e8a76b4f0ec18713
+    typescript: ">=4.8.4 <6.1.0"
+  checksum: 10c0/85b56c1d209d0d6e07c09f05d30e1da4fec88285f96edc22a9b09321c41dc0572d686ee33532747bcf40cc071927f5b9a6b91f2fbe14dc1c45111a490394ab41
   languageName: node
   linkType: hard
 
@@ -9289,7 +9395,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:^11.0.0":
+"uuid@npm:^11.1.0":
   version: 11.1.0
   resolution: "uuid@npm:11.1.0"
   bin:

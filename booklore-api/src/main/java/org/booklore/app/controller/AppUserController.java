@@ -1,5 +1,7 @@
 package org.booklore.app.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.app.dto.AppUserInfo;
 import org.booklore.model.dto.BookLoreUser;
@@ -13,11 +15,17 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/v1/app/users")
+@Tag(name = "App Users", description = "Endpoints for retrieving app user capabilities and profile information")
 public class AppUserController {
 
     private final AuthenticationService authenticationService;
     private final AppSettingService appSettingService;
 
+    @Operation(
+            summary = "Get current app user",
+            description = "Retrieve current user flags and capability information used by the app experience.",
+            operationId = "appGetCurrentUser"
+    )
     @GetMapping("/me")
     public ResponseEntity<AppUserInfo> getCurrentUser() {
         BookLoreUser user = authenticationService.getAuthenticatedUser();

@@ -20,6 +20,7 @@ class MockIntersectionObserver {
   readonly root = null;
   readonly rootMargin = '';
   readonly thresholds = [0];
+  readonly scrollMargin = '';
 
   observe(): undefined { return undefined; }
   unobserve(): undefined { return undefined; }

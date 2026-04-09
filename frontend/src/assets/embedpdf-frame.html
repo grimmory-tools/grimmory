@@ -285,10 +285,6 @@
         type: 'container',
         target: target,
         disabledCategories: [
-          'redaction',
-          'stamp',
-          'document-print',
-          'document-export',
           'document-open',
           'document-close',
         ],
@@ -337,13 +333,15 @@
 
         if (typeof ResizeObserver !== 'undefined') {
           const observer = new ResizeObserver(() => {
-            const zoomPlugin = registry.getPlugin('zoom')?.provides();
-            if (zoomPlugin) {
-              const state = zoomPlugin.getState();
-              if (state.zoomLevel === 'fit-page') {
-                zoomPlugin.requestZoom('fit-page');
+            try {
+              const zoomPlugin = registry.getPlugin('zoom')?.provides();
+              if (zoomPlugin) {
+                const state = zoomPlugin.getState();
+                if (state.zoomLevel === 'fit-page') {
+                  zoomPlugin.requestZoom('fit-page');
+                }
               }
-            }
+            } catch (_) { /* no active document yet */ }
           });
           observer.observe(target);
         }
@@ -365,10 +363,8 @@
           return;
         }
 
-        if (objectUrl) URL.revokeObjectURL(objectUrl);
-        objectUrl = URL.createObjectURL(new Blob([msg.buffer], { type: 'application/pdf' }));
         log('Loading PDF buffer into viewer');
-        await dm.loadUrl(objectUrl);
+        dm.openDocumentBuffer({ buffer: msg.buffer, name: 'document.pdf' });
       } catch (err) {
         log('Load error:', err);
         parent.postMessage({ type: 'documentError', error: String(err) }, myOrigin);
