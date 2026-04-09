@@ -18,7 +18,7 @@
               } @else if (entityType === EntityType.UNSHELVED) {
                 {{ (isFilterActive || hasSearchTerm) ? t('labels.unshelvedBooksFiltered') : t('labels.unshelvedBooks') }}
               } @else {
-                {{ entityType }}: {{ entity()?.name }}{{ (isFilterActive || hasSearchTerm) ? ' ' + t('labels.filteredSuffix') : '' }}
+                {{ t('entityTypes.' + getEntityTypeLabelKey(entityType)) }}: {{ entity()?.name }}{{ (isFilterActive || hasSearchTerm) ? ' ' + t('labels.filteredSuffix') : '' }}
               }
             </p>
             @if (!isBooksLoading() && seriesCollapseFilter.seriesCollapsed() && books(); as books) {

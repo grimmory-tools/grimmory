@@ -455,7 +455,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (filterEntries.length === 1) {
       const [filterType, values] = filterEntries[0];
-      const filterName = FilterLabelHelper.getFilterTypeName(filterType);
+      const filterName = this.t.translate(`book.filter.labels.${filterType}`);
 
       if (values.length === 1) {
         const displayValue = FilterLabelHelper.getFilterDisplayValue(filterType, values[0]);
@@ -466,7 +466,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     const filterSummary = filterEntries
-      .map(([type, values]) => `${FilterLabelHelper.getFilterTypeName(type)} (${values.length})`)
+      .map(([type, values]) => `${this.t.translate(`book.filter.labels.${type}`)} (${values.length})`)
       .join(', ');
 
     return filterSummary.length > 50
@@ -498,6 +498,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     this.setupRouteChangeHandlers();
     this.setupQueryParamSubscription();
     this.setupScrollPositionTracking();
+    this.setupLanguageChangeSubscription();
   }
 
   ngAfterViewInit(): void {
@@ -638,6 +639,19 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  private setupLanguageChangeSubscription(): void {
+    this.t.langChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (this.isFilterActive) {
+          this.currentFilterLabel = this.computedFilterLabel;
+          return;
+        }
+
+        this.currentFilterLabel = this.t.translate('book.browser.labels.allBooks');
+      });
+  }
+
   onFilterSelected(filters: Record<string, unknown> | null): void {
     if (this.settingFiltersFromUrl) return;
 
@@ -675,6 +689,22 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     this.visibleColumns = selected.sort(
       (a, b) => allFields.indexOf(a.field) - allFields.indexOf(b.field)
     );
+  }
+
+  getEntityTypeLabelKey(entityType: EntityType): 'library' | 'shelf' | 'magicShelf' | 'allBooks' | 'unshelvedBooks' {
+    switch (entityType) {
+      case EntityType.LIBRARY:
+        return 'library';
+      case EntityType.SHELF:
+        return 'shelf';
+      case EntityType.MAGIC_SHELF:
+        return 'magicShelf';
+      case EntityType.UNSHELVED:
+        return 'unshelvedBooks';
+      case EntityType.ALL_BOOKS:
+      default:
+        return 'allBooks';
+    }
   }
 
   onCheckboxClicked(event: CheckboxClickEvent): void {

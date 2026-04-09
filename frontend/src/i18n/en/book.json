@@ -50,6 +50,13 @@
       "failedShelf": "Failed to load shelf's books!",
       "activeFilters": "{{ count }} Active Filters"
     },
+    "entityTypes": {
+      "library": "Library",
+      "shelf": "Shelf",
+      "magicShelf": "Magic Shelf",
+      "allBooks": "All Books",
+      "unshelvedBooks": "Unshelved Books"
+    },
     "tooltip": {
       "clearFilters": "Clear applied filters",
       "visibleColumns": "Visible columns",

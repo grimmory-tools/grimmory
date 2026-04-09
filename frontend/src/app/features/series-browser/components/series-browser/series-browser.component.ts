@@ -1,6 +1,7 @@
-import {Component, HostListener, computed, inject, OnInit, signal} from '@angular/core';
+import {Component, DestroyRef, HostListener, computed, inject, OnInit, signal} from '@angular/core';
 import {NgStyle} from '@angular/common';
 import {FormsModule} from '@angular/forms';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ProgressSpinner} from 'primeng/progressspinner';
 import {InputText} from 'primeng/inputtext';
 import {Select} from 'primeng/select';
@@ -57,6 +58,7 @@ export class SeriesBrowserComponent implements OnInit {
   private pageTitle = inject(PageTitleService);
   private t = inject(TranslocoService);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
   protected seriesScaleService = inject(SeriesScalePreferenceService);
 
   readonly isBooksLoading = this.bookService.isBooksLoading;
@@ -123,7 +125,6 @@ export class SeriesBrowserComponent implements OnInit {
 
   ngOnInit(): void {
     this.pageTitle.setPageTitle(this.t.translate('seriesBrowser.pageTitle'));
-
     this.filterOptions = [
       {label: this.t.translate('seriesBrowser.filters.all'), value: 'all'},
       {label: this.t.translate('seriesBrowser.filters.notStarted'), value: 'not-started'},
@@ -131,7 +132,6 @@ export class SeriesBrowserComponent implements OnInit {
       {label: this.t.translate('seriesBrowser.filters.completed'), value: 'completed'},
       {label: this.t.translate('seriesBrowser.filters.abandoned'), value: 'abandoned'}
     ];
-
     this.sortOptions = [
       {label: this.t.translate('seriesBrowser.sort.nameAsc'), value: 'name-asc'},
       {label: this.t.translate('seriesBrowser.sort.nameDesc'), value: 'name-desc'},
@@ -140,6 +140,26 @@ export class SeriesBrowserComponent implements OnInit {
       {label: this.t.translate('seriesBrowser.sort.recentlyRead'), value: 'recently-read'},
       {label: this.t.translate('seriesBrowser.sort.recentlyAdded'), value: 'recently-added'}
     ];
+
+    this.t.langChanges$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.filterOptions = [
+          {label: this.t.translate('seriesBrowser.filters.all'), value: 'all'},
+          {label: this.t.translate('seriesBrowser.filters.notStarted'), value: 'not-started'},
+          {label: this.t.translate('seriesBrowser.filters.inProgress'), value: 'in-progress'},
+          {label: this.t.translate('seriesBrowser.filters.completed'), value: 'completed'},
+          {label: this.t.translate('seriesBrowser.filters.abandoned'), value: 'abandoned'}
+        ];
+        this.sortOptions = [
+          {label: this.t.translate('seriesBrowser.sort.nameAsc'), value: 'name-asc'},
+          {label: this.t.translate('seriesBrowser.sort.nameDesc'), value: 'name-desc'},
+          {label: this.t.translate('seriesBrowser.sort.bookCount'), value: 'book-count'},
+          {label: this.t.translate('seriesBrowser.sort.progress'), value: 'progress'},
+          {label: this.t.translate('seriesBrowser.sort.recentlyRead'), value: 'recently-read'},
+          {label: this.t.translate('seriesBrowser.sort.recentlyAdded'), value: 'recently-added'}
+        ];
+      });
   }
 
   onSearchChange(value: string): void {

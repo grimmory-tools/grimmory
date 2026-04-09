@@ -13,6 +13,7 @@ import {TabsModule} from 'primeng/tabs';
 import {UserService} from '../../../features/settings/user-management/user.service';
 import {from, of} from 'rxjs';
 import {catchError, mergeMap, toArray} from 'rxjs/operators';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 interface SvgEntry {
   name: string;
@@ -39,7 +40,8 @@ interface SvgIconBatchResponse {
   imports: [
     FormsModule,
     Button,
-    TabsModule
+    TabsModule,
+    TranslocoDirective
   ],
   templateUrl: './icon-picker-component.html',
   styleUrl: './icon-picker-component.scss'
@@ -51,18 +53,6 @@ export class IconPickerComponent implements OnInit {
   private readonly MAX_ICON_NAME_LENGTH = 255;
   private readonly MAX_SVG_SIZE = 1048576; // 1MB
   private readonly ICON_NAME_PATTERN = /^[a-zA-Z0-9_-]+$/;
-  private readonly ERROR_MESSAGES = {
-    NO_CONTENT: 'Please paste SVG content',
-    NO_NAME: 'Please provide a name for the icon',
-    INVALID_NAME: 'Icon name can only contain alphanumeric characters and hyphens',
-    NAME_TOO_LONG: `Icon name must not exceed ${this.MAX_ICON_NAME_LENGTH} characters`,
-    INVALID_SVG: 'Invalid SVG content. Please paste valid SVG code.',
-    MISSING_SVG_TAG: 'Content must include <svg> tag',
-    SVG_TOO_LARGE: 'SVG content must not exceed 1MB',
-    PARSE_ERROR: 'Failed to parse SVG content',
-    LOAD_ICONS_ERROR: 'Failed to load SVG icons. Please try again.',
-    DELETE_ERROR: 'Failed to delete icon. Please try again.'
-  };
 
   ref = inject(DynamicDialogRef);
   iconService = inject(IconService);
@@ -71,6 +61,7 @@ export class IconPickerComponent implements OnInit {
   urlHelper = inject(UrlHelperService);
   messageService = inject(MessageService);
   userService = inject(UserService);
+  private readonly t = inject(TranslocoService);
 
   searchText: string = '';
   selectedIcon: string | null = null;
@@ -162,7 +153,7 @@ export class IconPickerComponent implements OnInit {
       error: () => {
         this.isLoadingSvgIcons = false;
         this.hasLoadedSvgIcons = false;
-        this.svgIconsError = this.ERROR_MESSAGES.LOAD_ICONS_ERROR;
+        this.svgIconsError = this.translateError('loadIcons');
       }
     });
   }
@@ -187,7 +178,7 @@ export class IconPickerComponent implements OnInit {
     const trimmedContent = this.svgContent.trim();
     if (!trimmedContent.includes('<svg')) {
       this.svgPreview = null;
-      this.errorMessage = this.ERROR_MESSAGES.MISSING_SVG_TAG;
+      this.errorMessage = this.translateError('missingSvgTag');
       return;
     }
 
@@ -199,7 +190,7 @@ export class IconPickerComponent implements OnInit {
       this.svgPreview = this.sanitizer.bypassSecurityTrustHtml(sanitized);
     } catch {
       this.svgPreview = null;
-      this.errorMessage = this.ERROR_MESSAGES.PARSE_ERROR;
+      this.errorMessage = this.translateError('parseError');
     }
   }
 
@@ -242,7 +233,7 @@ export class IconPickerComponent implements OnInit {
 
   saveAllSvgs(): void {
     if (this.svgEntries.length === 0) {
-      this.batchErrorMessage = 'No SVG icons to save';
+      this.batchErrorMessage = this.t.translate('shared.iconPicker.errors.noIconsToSave');
       return;
     }
 
@@ -276,22 +267,22 @@ export class IconPickerComponent implements OnInit {
         if (successCount > 0 && failureCount === 0) {
           this.messageService.add({
             severity: 'success',
-            summary: 'Icons Saved',
-            detail: `${successCount} SVG icon${successCount > 1 ? 's' : ''} saved successfully.`,
+            summary: this.t.translate('shared.iconPicker.toast.saveSuccessSummary'),
+            detail: this.t.translate('shared.iconPicker.toast.saveSuccessDetail', {count: successCount}),
             life: 2500
           });
         } else if (successCount > 0 && failureCount > 0) {
           this.messageService.add({
             severity: 'warn',
-            summary: 'Partial Success',
-            detail: `${successCount} SVG icon${successCount > 1 ? 's' : ''} saved, ${failureCount} failed.`,
+            summary: this.t.translate('shared.iconPicker.toast.partialSuccessSummary'),
+            detail: this.t.translate('shared.iconPicker.toast.partialSuccessDetail', {successCount, failureCount}),
             life: 3500
           });
         } else if (failureCount > 0) {
           this.messageService.add({
             severity: 'error',
-            summary: 'Save Failed',
-            detail: `Failed to save ${failureCount} SVG icon${failureCount > 1 ? 's' : ''}.`,
+            summary: this.t.translate('shared.iconPicker.toast.saveFailedSummary'),
+            detail: this.t.translate('shared.iconPicker.toast.saveFailedDetail', {count: failureCount}),
             life: 4000
           });
         }
@@ -302,7 +293,7 @@ export class IconPickerComponent implements OnInit {
       },
       error: () => {
         this.isSavingBatch = false;
-        this.batchErrorMessage = 'Failed to save SVG icons. Please try again.';
+        this.batchErrorMessage = this.translateError('saveError');
       }
     });
   }
@@ -314,8 +305,8 @@ export class IconPickerComponent implements OnInit {
       next: () => {
         this.messageService.add({
           severity: 'success',
-          summary: 'Icon Deleted',
-          detail: 'SVG icon deleted successfully.',
+          summary: this.t.translate('shared.iconPicker.toast.deleteSuccessSummary'),
+          detail: this.t.translate('shared.iconPicker.toast.deleteSuccessDetail'),
           life: 2500
         });
 
@@ -326,8 +317,8 @@ export class IconPickerComponent implements OnInit {
         this.isLoadingSvgIcons = false;
         this.messageService.add({
           severity: 'error',
-          summary: 'Delete Failed',
-          detail: error.error?.message || this.ERROR_MESSAGES.DELETE_ERROR,
+          summary: this.t.translate('shared.iconPicker.toast.deleteFailedSummary'),
+          detail: error.error?.message || this.translateError('deleteError'),
           life: 4000
         });
       }
@@ -336,27 +327,31 @@ export class IconPickerComponent implements OnInit {
 
   private validateSvgInput(): string | null {
     if (!this.svgContent.trim()) {
-      return this.ERROR_MESSAGES.NO_CONTENT;
+      return this.translateError('noContent');
     }
 
     if (!this.svgName.trim()) {
-      return this.ERROR_MESSAGES.NO_NAME;
+      return this.translateError('noName');
     }
 
     if (this.svgName.length > this.MAX_ICON_NAME_LENGTH) {
-      return this.ERROR_MESSAGES.NAME_TOO_LONG;
+      return this.translateError('nameTooLong', {max: this.MAX_ICON_NAME_LENGTH});
     }
 
     if (!this.ICON_NAME_PATTERN.test(this.svgName)) {
-      return this.ERROR_MESSAGES.INVALID_NAME;
+      return this.translateError('invalidName');
     }
 
     const svgSize = new Blob([this.svgContent]).size;
     if (svgSize > this.MAX_SVG_SIZE) {
-      return this.ERROR_MESSAGES.SVG_TOO_LARGE;
+      return this.translateError('svgTooLarge');
     }
 
     return null;
+  }
+
+  private translateError(key: string, params?: Record<string, string | number>): string {
+    return this.t.translate(`shared.iconPicker.errors.${key}`, params);
   }
 
   private resetSvgForm(): void {

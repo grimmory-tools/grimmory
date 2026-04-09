@@ -1,11 +1,14 @@
 import {Component, computed, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
+import {toSignal} from '@angular/core/rxjs-interop';
 import {BaseChartDirective} from 'ng2-charts';
 import {ChartConfiguration, ChartData} from 'chart.js';
 import {LibraryFilterService} from '../../service/library-filter.service';
 import {BookService} from '../../../../../book/service/book.service';
 import {Book} from '../../../../../book/model/book.model';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {of} from 'rxjs';
+import {startWith} from 'rxjs/operators';
 
 interface LanguageStats {
   language: string;
@@ -137,6 +140,12 @@ export class LanguageChartComponent {
   private readonly bookService = inject(BookService);
   private readonly libraryFilterService = inject(LibraryFilterService);
   private readonly t = inject(TranslocoService);
+  private readonly activeLang = toSignal(
+    (this.t.langChanges$ ?? of(this.getActiveLang())).pipe(
+      startWith(this.getActiveLang())
+    ),
+    {initialValue: this.getActiveLang()}
+  );
   private readonly filteredBooks = computed(() => {
     if (this.bookService.isBooksLoading()) {
       return [];
@@ -146,7 +155,10 @@ export class LanguageChartComponent {
   });
 
   public readonly chartType = 'pie' as const;
-  public readonly languageStats = computed(() => this.calculateLanguageStats(this.filteredBooks()));
+  public readonly languageStats = computed(() => {
+    this.activeLang();
+    return this.calculateLanguageStats(this.filteredBooks());
+  });
   public readonly totalBooks = computed(() => this.filteredBooks().length);
   public readonly booksWithLanguage = computed(() => this.languageStats().reduce((sum, s) => sum + s.count, 0));
 
@@ -262,10 +274,33 @@ export class LanguageChartComponent {
 
   private getDisplayName(language: string): string {
     const lower = language.toLowerCase();
+    if (this.isLanguageCode(lower)) {
+      try {
+        const displayNames = new Intl.DisplayNames([this.getActiveLang()], {type: 'language'});
+        const displayName = displayNames.of(lower);
+        if (displayName) {
+          return this.capitalize(displayName);
+        }
+      } catch {
+        // Fall through to existing mapping behavior.
+      }
+    }
+
     if (LANGUAGE_NAMES[lower]) {
       return LANGUAGE_NAMES[lower];
     }
-    // Capitalize first letter if no mapping found
-    return language.charAt(0).toUpperCase() + language.slice(1);
+    return this.capitalize(language);
+  }
+
+  private isLanguageCode(value: string): boolean {
+    return /^[a-z]{2,3}(-[a-z0-9]{2,8})*$/i.test(value);
+  }
+
+  private capitalize(value: string): string {
+    return value.length === 0 ? value : value.charAt(0).toUpperCase() + value.slice(1);
+  }
+
+  private getActiveLang(): string {
+    return typeof this.t.getActiveLang === 'function' ? this.t.getActiveLang() : 'en';
   }
 }
