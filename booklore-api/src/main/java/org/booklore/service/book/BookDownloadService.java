@@ -16,6 +16,7 @@ import org.booklore.service.kobo.KepubConversionService;
 import org.booklore.util.FileUtils;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -136,12 +137,13 @@ public class BookDownloadService {
     }
 
     private String getContentDisposition(String filename) {
-        String encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8)
-                .replace("+", "%20");
         String fallbackFilename = NON_ASCII_PATTERN.matcher(filename).replaceAll("_");
 
-        return String.format("attachment; filename=\"%s\"; filename*=UTF-8''%s",
-                fallbackFilename, encodedFilename);
+        return ContentDisposition.builder("attachment")
+                .filename(fallbackFilename)
+                .filename(filename, StandardCharsets.UTF_8)
+                .build()
+                .toString();
     }
 
     public void downloadAllBookFiles(Long bookId, HttpServletResponse response) {
