@@ -1,9 +1,12 @@
 package org.booklore.util.koreader;
 
-import io.documentnode.epub4j.domain.Author;
-import io.documentnode.epub4j.domain.Book;
-import io.documentnode.epub4j.domain.Resource;
-import io.documentnode.epub4j.epub.EpubWriter;
+import org.booklore.exception.APIException;
+import org.grimmory.epub4j.cfi.CfiConverter;
+import org.grimmory.epub4j.cfi.XPointerResult;
+import org.grimmory.epub4j.domain.Author;
+import org.grimmory.epub4j.domain.Book;
+import org.grimmory.epub4j.domain.Resource;
+import org.grimmory.epub4j.epub.EpubWriter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -99,22 +102,22 @@ class EpubCfiServiceTest {
 
         @Test
         void createConverter_validFile_returnsConverter() {
-            CfiConvertor converter = service.createConverter(testEpubFile, 0);
+            CfiConverter converter = service.createConverter(testEpubFile, 0);
 
             assertNotNull(converter);
         }
 
         @Test
         void createConverter_withPath_returnsConverter() {
-            CfiConvertor converter = service.createConverter(testEpubFile.toPath(), 0);
+            CfiConverter converter = service.createConverter(testEpubFile.toPath(), 0);
 
             assertNotNull(converter);
         }
 
         @Test
         void createConverter_differentSpineIndices_returnsDifferentConverters() {
-            CfiConvertor converter0 = service.createConverter(testEpubFile, 0);
-            CfiConvertor converter1 = service.createConverter(testEpubFile, 1);
+            CfiConverter converter0 = service.createConverter(testEpubFile, 0);
+            CfiConverter converter1 = service.createConverter(testEpubFile, 1);
 
             assertNotNull(converter0);
             assertNotNull(converter1);
@@ -163,7 +166,7 @@ class EpubCfiServiceTest {
         void convertCfiToXPointer_validCfi_returnsXPointerResult() {
             String cfi = "epubcfi(/6/2!/4/2/2)";
 
-            CfiConvertor.XPointerResult result = service.convertCfiToXPointer(testEpubFile, cfi);
+            XPointerResult result = service.convertCfiToXPointer(testEpubFile, cfi);
 
             assertNotNull(result);
             assertNotNull(result.getXpointer());
@@ -174,7 +177,7 @@ class EpubCfiServiceTest {
         void convertCfiToXPointer_withPath_returnsXPointerResult() {
             String cfi = "epubcfi(/6/2!/4/2/2)";
 
-            CfiConvertor.XPointerResult result = service.convertCfiToXPointer(testEpubFile.toPath(), cfi);
+            XPointerResult result = service.convertCfiToXPointer(testEpubFile.toPath(), cfi);
 
             assertNotNull(result);
             assertNotNull(result.getXpointer());
@@ -203,6 +206,15 @@ class EpubCfiServiceTest {
             String cfi = service.convertXPointerRangeToCfi(testEpubFile.toPath(), startXPointer, endXPointer);
 
             assertNotNull(cfi);
+        }
+
+        @Test
+        void convertXPointerRangeToCfi_mismatchedSpineIndices_throwsAPIException() {
+            String startXPointer = "/body/DocFragment[1]/body/div[1]/p[1]/text().0";
+            String endXPointer = "/body/DocFragment[2]/body/div[1]/p[1]/text().10";
+
+            assertThrows(APIException.class, () ->
+                    service.convertXPointerRangeToCfi(testEpubFile, startXPointer, endXPointer));
         }
     }
 
@@ -306,8 +318,8 @@ class EpubCfiServiceTest {
 
         @Test
         void createConverter_calledTwice_usesCachedDocument() {
-            CfiConvertor converter1 = service.createConverter(testEpubFile, 0);
-            CfiConvertor converter2 = service.createConverter(testEpubFile, 0);
+            CfiConverter converter1 = service.createConverter(testEpubFile, 0);
+            CfiConverter converter2 = service.createConverter(testEpubFile, 0);
 
             assertNotNull(converter1);
             assertNotNull(converter2);
@@ -320,7 +332,7 @@ class EpubCfiServiceTest {
 
             service.evictCache(testEpubFile);
 
-            CfiConvertor converter = service.createConverter(testEpubFile, 0);
+            CfiConverter converter = service.createConverter(testEpubFile, 0);
             assertNotNull(converter);
         }
 
@@ -331,7 +343,7 @@ class EpubCfiServiceTest {
 
             service.clearCache();
 
-            CfiConvertor converter = service.createConverter(testEpubFile, 0);
+            CfiConverter converter = service.createConverter(testEpubFile, 0);
             assertNotNull(converter);
         }
 
@@ -341,9 +353,9 @@ class EpubCfiServiceTest {
             service.createConverter(testEpubFile, 1);
             service.createConverter(testEpubFile, 2);
 
-            CfiConvertor converter0 = service.createConverter(testEpubFile, 0);
-            CfiConvertor converter1 = service.createConverter(testEpubFile, 1);
-            CfiConvertor converter2 = service.createConverter(testEpubFile, 2);
+            CfiConverter converter0 = service.createConverter(testEpubFile, 0);
+            CfiConverter converter1 = service.createConverter(testEpubFile, 1);
+            CfiConverter converter2 = service.createConverter(testEpubFile, 2);
 
             assertNotNull(converter0);
             assertNotNull(converter1);
@@ -359,7 +371,7 @@ class EpubCfiServiceTest {
             String originalXPointer = "/body/DocFragment[1]/body/div[1]/p[1]";
 
             String cfi = service.convertXPointerToCfi(testEpubFile, originalXPointer);
-            CfiConvertor.XPointerResult result = service.convertCfiToXPointer(testEpubFile, cfi);
+            XPointerResult result = service.convertCfiToXPointer(testEpubFile, cfi);
 
             assertNotNull(result.getXpointer());
             assertTrue(result.getXpointer().contains("/body/DocFragment[1]/body"));
@@ -369,7 +381,7 @@ class EpubCfiServiceTest {
         void roundTrip_cfiToXPointerAndBack() {
             String originalCfi = "epubcfi(/6/2!/4/2/2)";
 
-            CfiConvertor.XPointerResult xpointerResult = service.convertCfiToXPointer(testEpubFile, originalCfi);
+            XPointerResult xpointerResult = service.convertCfiToXPointer(testEpubFile, originalCfi);
             String cfi = service.convertXPointerToCfi(testEpubFile, xpointerResult.getXpointer());
 
             assertNotNull(cfi);
@@ -388,8 +400,8 @@ class EpubCfiServiceTest {
             service.createConverter(testEpubFile, 0);
             service.createConverter(secondEpub, 0);
 
-            CfiConvertor converter1 = service.createConverter(testEpubFile, 0);
-            CfiConvertor converter2 = service.createConverter(secondEpub, 0);
+            CfiConverter converter1 = service.createConverter(testEpubFile, 0);
+            CfiConverter converter2 = service.createConverter(secondEpub, 0);
 
             assertNotNull(converter1);
             assertNotNull(converter2);
@@ -404,7 +416,7 @@ class EpubCfiServiceTest {
 
             service.evictCache(testEpubFile);
 
-            CfiConvertor converter = service.createConverter(secondEpub, 0);
+            CfiConverter converter = service.createConverter(secondEpub, 0);
             assertNotNull(converter);
         }
     }

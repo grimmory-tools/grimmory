@@ -1,5 +1,7 @@
 package org.booklore.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.booklore.config.security.service.LogoutService;
 import org.booklore.model.dto.request.LogoutRequest;
@@ -15,10 +17,16 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/v1/auth")
+@Tag(name = "Authentication", description = "Endpoints for user authentication, registration, and token management")
 public class LogoutController {
 
     private final LogoutService logoutService;
 
+    @Operation(
+            summary = "Logout user",
+            description = "Logout the current user and invalidate refresh token state when provided.",
+            operationId = "logout"
+    )
     @PostMapping("/logout")
     public ResponseEntity<LogoutResponse> logout(Authentication auth,
                                                   @RequestBody(required = false) LogoutRequest request,

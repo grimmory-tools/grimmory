@@ -9,6 +9,7 @@ import {BookStatusUpdateResponse, PersonalRatingUpdateResponse} from '../model/b
 import {QueryClient} from '@tanstack/angular-query-experimental';
 import {BOOKS_QUERY_KEY} from './book-query-keys';
 import {
+  invalidateAppBooksQueries,
   patchBooksInCache,
   patchBookFieldsInCache,
 } from './book-query-cache';
@@ -270,5 +271,6 @@ export class BookPatchService {
         book.id === bookId ? {...book, lastReadTime: timestamp} : book
       )
     );
+    invalidateAppBooksQueries(this.queryClient);
   }
 }

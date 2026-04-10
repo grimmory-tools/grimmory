@@ -18,6 +18,7 @@ import {
   bookRecommendationsQueryKey,
 } from './book-query-keys';
 import {
+  invalidateAppBooksQueries,
   invalidateBooksQuery,
   patchBooksInCache,
   removeBookQueries,
@@ -151,6 +152,7 @@ export class BookService {
         shelves: book.shelves?.filter(shelf => shelf.id !== shelfId),
       }))
     );
+    invalidateAppBooksQueries(this.queryClient);
   }
 
   /*------------------ Book Retrieval ------------------*/
@@ -259,10 +261,19 @@ export class BookService {
   readBook(bookId: number, reader?: 'epub-streaming', explicitBookType?: BookType): void {
     const book = this.findBookById(bookId);
 
-    if (!book) {
-      console.error('Book not found');
+    if (book) {
+      this.navigateToReader(book, bookId, reader, explicitBookType);
       return;
     }
+
+    this.ensureBookDetail(bookId, false).then(detail => {
+      this.navigateToReader(detail, bookId, reader, explicitBookType);
+    }).catch(() => {
+      console.error('Book not found:', bookId);
+    });
+  }
+
+  private navigateToReader(book: Book, bookId: number, reader?: 'epub-streaming', explicitBookType?: BookType): void {
 
     const bookType: BookType | undefined = explicitBookType ?? book.primaryFile?.bookType;
     const isAlternativeFormat = explicitBookType && explicitBookType !== book.primaryFile?.bookType;

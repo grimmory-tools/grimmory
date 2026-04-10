@@ -7,12 +7,11 @@ import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.APIException;
 import org.booklore.app.dto.AppFilterOptions;
 import org.booklore.app.mapper.AppBookMapper;
-import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.Library;
 import org.booklore.model.entity.BookLoreUserEntity;
+import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.ShelfEntity;
-import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.ShelfRepository;
 import org.booklore.repository.UserBookFileProgressRepository;
@@ -25,9 +24,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Root;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -75,10 +77,10 @@ class AppBookServiceFilterOptionsTest {
         AppFilterOptions result = service.getFilterOptions(null, null, null);
 
         assertNotNull(result);
-        assertNotNull(result.getAuthors());
-        assertNotNull(result.getLanguages());
-        assertNotNull(result.getFileTypes());
-        assertFalse(result.getReadStatuses().isEmpty());
+        assertNotNull(result.authors());
+        assertNotNull(result.languages());
+        assertNotNull(result.fileTypes());
+        assertNotNull(result.readStatuses());
     }
 
     // -------------------------------------------------------------------------
@@ -93,7 +95,7 @@ class AppBookServiceFilterOptionsTest {
         AppFilterOptions result = service.getFilterOptions(5L, null, null);
 
         assertNotNull(result);
-        verify(entityManager, times(3)).createQuery(anyString(), any(Class.class));
+        verify(entityManager, times(10)).createQuery(anyString(), any(Class.class));
     }
 
     @Test
@@ -168,35 +170,33 @@ class AppBookServiceFilterOptionsTest {
     @Test
     void getFilterOptions_withMagicShelfId_emptyResult_returnsEmptyOptions() {
         mockAdminUser();
-        mockMagicShelfBooks(7L, Collections.emptyList());
+        mockMagicShelfSpec(7L, Collections.emptyList());
 
         AppFilterOptions result = service.getFilterOptions(null, null, 7L);
 
         assertNotNull(result);
-        assertTrue(result.getAuthors().isEmpty());
-        assertTrue(result.getLanguages().isEmpty());
-        assertTrue(result.getFileTypes().isEmpty());
-        assertFalse(result.getReadStatuses().isEmpty());
+        assertTrue(result.authors().isEmpty());
+        assertTrue(result.languages().isEmpty());
+        assertTrue(result.fileTypes().isEmpty());
+        assertTrue(result.readStatuses().isEmpty());
     }
 
     @Test
     void getFilterOptions_withMagicShelfId_withBooks_returnsFilteredOptions() {
         mockAdminUser();
-        Book book1 = Book.builder().id(100L).build();
-        Book book2 = Book.builder().id(200L).build();
-        mockMagicShelfBooks(7L, List.of(book1, book2));
+        mockMagicShelfSpec(7L, List.of(100L, 200L));
         mockJpqlQueries();
 
         AppFilterOptions result = service.getFilterOptions(null, null, 7L);
 
         assertNotNull(result);
-        verify(magicShelfBookService).getBooksByMagicShelfId(eq(userId), eq(7L), eq(0), anyInt());
+        verify(magicShelfBookService).toSpecification(eq(userId), eq(7L));
     }
 
     @Test
     void getFilterOptions_withMagicShelfId_serviceThrows_propagatesException() {
         mockAdminUser();
-        when(magicShelfBookService.getBooksByMagicShelfId(eq(userId), eq(7L), eq(0), anyInt()))
+        when(magicShelfBookService.toSpecification(eq(userId), eq(7L)))
                 .thenThrow(new RuntimeException("Magic shelf not found"));
 
         assertThrows(RuntimeException.class, () -> service.getFilterOptions(null, null, 7L));
@@ -230,31 +230,39 @@ class AppBookServiceFilterOptionsTest {
         when(authenticationService.getAuthenticatedUser()).thenReturn(user);
     }
 
-    private void mockMagicShelfBooks(Long magicShelfId, List<Book> books) {
-        var page = new PageImpl<>(books, PageRequest.of(0, Math.max(books.size(), 1)), books.size());
-        when(magicShelfBookService.getBooksByMagicShelfId(eq(userId), eq(magicShelfId), eq(0), anyInt()))
-                .thenReturn(page);
+    @SuppressWarnings("unchecked")
+    private void mockMagicShelfSpec(Long magicShelfId, List<Long> bookIds) {
+        Specification<BookEntity> mockSpec = mock(Specification.class);
+        when(magicShelfBookService.toSpecification(eq(userId), eq(magicShelfId)))
+                .thenReturn(mockSpec);
+
+        jakarta.persistence.criteria.Predicate mockPredicate = mock(jakarta.persistence.criteria.Predicate.class);
+        CriteriaBuilder cb = mock(CriteriaBuilder.class);
+        CriteriaQuery<Long> cq = mock(CriteriaQuery.class);
+        Root<BookEntity> root = mock(Root.class);
+        Path<Long> idPath = mock(Path.class);
+        jakarta.persistence.TypedQuery<Long> typedQuery = mock(jakarta.persistence.TypedQuery.class);
+
+        when(entityManager.getCriteriaBuilder()).thenReturn(cb);
+        when(cb.createQuery(Long.class)).thenReturn(cq);
+        when(cq.from(BookEntity.class)).thenReturn(root);
+        when(root.get("id")).thenReturn((Path) idPath);
+        when(cq.select(idPath)).thenReturn(cq);
+        when(mockSpec.toPredicate(root, cq, cb)).thenReturn(mockPredicate);
+        when(cq.where(mockPredicate)).thenReturn(cq);
+        when(entityManager.createQuery(cq)).thenReturn(typedQuery);
+        when(typedQuery.setMaxResults(anyInt())).thenReturn(typedQuery);
+        when(typedQuery.getResultList()).thenReturn(bookIds);
     }
 
     @SuppressWarnings("unchecked")
     private void mockJpqlQueries() {
-        TypedQuery<Tuple> authorQuery = mock(TypedQuery.class);
-        when(authorQuery.setMaxResults(anyInt())).thenReturn(authorQuery);
-        when(authorQuery.setParameter(anyString(), any())).thenReturn(authorQuery);
-        when(authorQuery.getResultList()).thenReturn(Collections.emptyList());
-
-        TypedQuery<Tuple> langQuery = mock(TypedQuery.class);
-        when(langQuery.setParameter(anyString(), any())).thenReturn(langQuery);
-        when(langQuery.getResultList()).thenReturn(Collections.emptyList());
-
-        TypedQuery<BookFileType> ftQuery = mock(TypedQuery.class);
-        when(ftQuery.setParameter(anyString(), any())).thenReturn(ftQuery);
-        when(ftQuery.getResultList()).thenReturn(Collections.emptyList());
+        TypedQuery<Tuple> tupleQuery = mock(TypedQuery.class);
+        when(tupleQuery.setParameter(anyString(), any())).thenReturn(tupleQuery);
+        when(tupleQuery.setMaxResults(anyInt())).thenReturn(tupleQuery);
+        when(tupleQuery.getResultList()).thenReturn(Collections.emptyList());
 
         when(entityManager.createQuery(anyString(), eq(Tuple.class)))
-                .thenReturn(authorQuery)
-                .thenReturn(langQuery);
-        when(entityManager.createQuery(anyString(), eq(BookFileType.class)))
-                .thenReturn(ftQuery);
+                .thenReturn(tupleQuery);
     }
 }

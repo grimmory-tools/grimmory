@@ -85,6 +85,7 @@ describe('SecureSrcDirective', () => {
     expect(errorSpy).not.toHaveBeenCalled();
 
     fixture.componentInstance.src = '/covers/3';
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
 
     const secondRequest = httpTestingController.expectOne('/covers/3');
@@ -104,6 +105,7 @@ describe('SecureSrcDirective', () => {
     httpTestingController.expectOne('/covers/4').flush(new Blob(['first']));
 
     fixture.componentInstance.src = '/covers/5';
+    fixture.changeDetectorRef.markForCheck();
     fixture.detectChanges();
 
     expect(revokeSpy).toHaveBeenCalledWith('blob:first');

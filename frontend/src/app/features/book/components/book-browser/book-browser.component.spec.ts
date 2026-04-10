@@ -1,4 +1,4 @@
-import {signal, WritableSignal} from '@angular/core';
+import {computed, signal, WritableSignal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {ActivatedRoute, convertToParamMap, ParamMap, Router} from '@angular/router';
 import {BehaviorSubject, Subject} from 'rxjs';
@@ -31,6 +31,8 @@ import {AppSettingsService} from '../../../../shared/service/app-settings.servic
 import {BookBrowserComponent, EntityType} from './book-browser.component';
 import {SortService} from '../../service/sort.service';
 import {TranslocoService} from '@jsverse/transloco';
+import {AppBooksApiService} from '../../service/app-books-api.service';
+import {AppBookFilters, AppBookSort} from '../../model/app-book.model';
 
 function makeBook(id: number, libraryId: number, title: string, addedOn: string): Book {
   return {
@@ -237,6 +239,45 @@ function createHarness(options?: {
           books: books.asReadonly(),
           isBooksLoading: isBooksLoading.asReadonly(),
           booksError: booksError.asReadonly(),
+        },
+      },
+      {
+        provide: AppBooksApiService,
+        useFactory: () => {
+          const _filters = signal<AppBookFilters>({});
+          const _sort = signal<AppBookSort>({field: 'addedOn', dir: 'desc'});
+          const _search = signal('');
+
+          const filteredSortedBooks = computed(() => {
+            let result = books();
+            const f = _filters();
+            if (f.libraryId) result = result.filter(b => b.libraryId === f.libraryId);
+
+            const s = _sort();
+            const dir = s.dir === 'asc' ? 1 : -1;
+            result = [...result].sort((a, b) => {
+              if (s.field === 'title') return dir * ((a.metadata?.title ?? '') as string).localeCompare((b.metadata?.title ?? '') as string);
+              if (s.field === 'addedOn') return dir * (a.addedOn ?? '').localeCompare(b.addedOn ?? '');
+              return 0;
+            });
+            return result;
+          });
+
+          return {
+            books: filteredSortedBooks,
+            totalElements: computed(() => filteredSortedBooks().length),
+            hasNextPage: computed(() => false),
+            isLoading: isBooksLoading.asReadonly(),
+            isFetchingNextPage: computed(() => false),
+            isError: computed(() => !!booksError()),
+            error: computed(() => booksError()),
+            filterOptions: computed(() => null),
+            setFilters: (f: AppBookFilters) => _filters.set(f),
+            setSort: (s: AppBookSort) => _sort.set(s),
+            setSearch: (s: string) => _search.set(s),
+            fetchNextPage: vi.fn(),
+            invalidate: vi.fn(),
+          };
         },
       },
       {provide: BookMetadataManageService, useValue: {}},
