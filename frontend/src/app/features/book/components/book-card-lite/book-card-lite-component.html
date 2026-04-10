@@ -4,7 +4,11 @@
       [src]="coverUrl"
       class="book-cover"
       alt="Cover of {{ book.metadata?.title }}"
-      loading="lazy"/>
+      width="250"
+      height="350"
+      loading="lazy"
+      decoding="async"
+      fetchpriority="low"/>
   } @else {
     <app-cover-placeholder class="book-cover" [title]="book.metadata?.title ?? ''" [author]="(book.metadata?.authors ?? []).join(', ')" size="sm" />
   }

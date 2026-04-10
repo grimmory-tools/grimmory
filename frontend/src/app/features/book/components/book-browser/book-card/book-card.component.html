@@ -12,8 +12,11 @@
         class="book-cover"
         [class.square-cover]="_isAudiobook || useSquareCovers"
         [alt]="('book.card.alt.cover' | transloco: { title: displayTitle })"
+        width="250"
+        [height]="(_isAudiobook || useSquareCovers) ? 250 : 350"
         loading="lazy"
-        decoding="async"/>
+        decoding="async"
+        fetchpriority="low"/>
     } @else {
       <app-cover-placeholder class="book-cover" [class.square-cover]="_isAudiobook || useSquareCovers" [title]="book.metadata?.title ?? ''" [author]="(book.metadata?.authors ?? []).join(', ')" />
     }

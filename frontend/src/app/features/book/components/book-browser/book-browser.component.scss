@@ -440,6 +440,8 @@
   padding: 1rem;
   box-sizing: border-box;
   overflow-y: auto;
+  will-change: scroll-position;
+  overflow-anchor: none;
 
   @media (width <= 768px) {
     height: calc(100dvh - 9rem);
@@ -452,6 +454,7 @@
   column-gap: 21px;
   align-items: start;
   width: 100%;
+  contain: layout style;
 
   // Mobile: fixed 2 or 3 columns based on phone width
   @media (width <= 767px) {
@@ -463,7 +466,9 @@
 .virtual-scroller-item {
   position: relative;
   margin-bottom: 21px; // Whole px to avoid parseInt truncation in ngx-virtual-scroller
-  transition: width 0.2s ease, height 0.2s ease;
+  contain: strict;
+  content-visibility: auto;
+  contain-intrinsic-size: auto var(--virtual-scroller-item-height, 220px);
 
   @media (width <= 767px) {
     margin-bottom: 0.5rem;

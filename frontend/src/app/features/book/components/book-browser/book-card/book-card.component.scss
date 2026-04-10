@@ -7,7 +7,7 @@
   display: flex;
   flex-direction: column;
   box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
-  transition: box-shadow 0.25s ease, transform 0.25s ease;
+  contain: layout style;
 
   &:hover {
     box-shadow: 0 8px 24px rgb(0 0 0 / 30%);
@@ -45,11 +45,6 @@
   width: 100%;
   height: 100%;
   border-radius: 8px 8px 0 0;
-  transition: transform 0.35s ease;
-}
-
-.book-card:hover .book-cover {
-  transform: scale(1.04);
 }
 
 .book-cover.square-cover {
