@@ -17,19 +17,16 @@ import java.util.List;
 public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEntity, Long> {
 
     @Query("""
-            SELECT cast(timestampadd(second, :tzOffsetSeconds, rs.startTime) as LocalDate) as date,
-                   count(rs) as count
+            SELECT rs.startTime
             FROM ReadingSessionEntity rs
             WHERE rs.user.id = :userId
             AND rs.startTime >= :periodStart AND rs.startTime < :periodEnd
-            GROUP BY date
-            ORDER BY date
+            ORDER BY rs.startTime
             """)
-    List<ReadingSessionCountDto> findSessionCountsByUserAndPeriod(
+    List<Instant> findSessionStartTimesByUserAndPeriod(
             @Param("userId") Long userId,
             @Param("periodStart") Instant periodStart,
-            @Param("periodEnd") Instant periodEnd,
-            @Param("tzOffsetSeconds") int tzOffsetSeconds);
+            @Param("periodEnd") Instant periodEnd);
 
     @Query("""
             SELECT
@@ -72,40 +69,32 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
             @Param("periodEnd") java.time.LocalDateTime periodEnd);
 
     @Query("""
-            SELECT
-                extract(hour from timestampadd(second, :tzOffsetSeconds, rs.startTime)) as hourOfDay,
-                count(rs) as sessionCount,
-                sum(rs.durationSeconds) as totalDurationSeconds
+            SELECT rs.startTime as startTime,
+                   coalesce(rs.durationSeconds, 0) as durationSeconds
             FROM ReadingSessionEntity rs
             WHERE rs.user.id = :userId
             AND (:periodStart IS NULL OR rs.startTime >= :periodStart)
             AND (:periodEnd IS NULL OR rs.startTime < :periodEnd)
-            GROUP BY hourOfDay
-            ORDER BY hourOfDay
+            ORDER BY rs.startTime
             """)
-    List<PeakReadingHourDto> findPeakReadingHoursByUser(
+    List<SessionTimestampDto> findSessionTimestampsByUser(
             @Param("userId") Long userId,
             @Param("periodStart") Instant periodStart,
-            @Param("periodEnd") Instant periodEnd,
-            @Param("tzOffsetSeconds") int tzOffsetSeconds);
+            @Param("periodEnd") Instant periodEnd);
 
     @Query("""
-            SELECT
-                cast(timestampadd(second, :tzOffsetSeconds, rs.startTime) as LocalDate) as sessionDate,
-                count(rs) as sessionCount,
-                coalesce(sum(rs.durationSeconds), 0L) as totalDurationSeconds
+            SELECT rs.startTime as startTime,
+                   coalesce(rs.durationSeconds, 0) as durationSeconds
             FROM ReadingSessionEntity rs
             WHERE rs.user.id = :userId
-            AND (:periodStart IS NULL OR rs.startTime >= :periodStart)
-            AND (:periodEnd IS NULL OR rs.startTime < :periodEnd)
-            GROUP BY sessionDate
-            ORDER BY sessionDate
+            AND rs.startTime >= :periodStart AND rs.startTime < :periodEnd
+            ORDER BY rs.startTime DESC
             """)
-    List<FavoriteReadingDayDto> findFavoriteReadingDaysByUser(
+    List<SessionTimestampDto> findSessionTimestampsByUserInPeriod(
             @Param("userId") Long userId,
             @Param("periodStart") Instant periodStart,
             @Param("periodEnd") Instant periodEnd,
-            @Param("tzOffsetSeconds") int tzOffsetSeconds);
+            Pageable pageable);
 
     @Query("""
             SELECT
@@ -151,7 +140,7 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
                 coalesce(ubp.dateFinished, ubp.readStatusModifiedTime, ubp.lastReadTime) as dateFinished,
                 rs.startTime as startTime,
                 rs.endTime as endTime,
-                rs.durationSeconds as durationSeconds
+                coalesce(rs.durationSeconds, 0) as durationSeconds
             FROM ReadingSessionEntity rs
             JOIN rs.book b
             JOIN UserBookProgressEntity ubp ON ubp.book.id = b.id AND ubp.user.id = rs.user.id
@@ -182,71 +171,43 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
             @Param("year") int year);
 
     @Query("""
-            SELECT cast(timestampadd(second, :tzOffsetSeconds, rs.startTime) as LocalDate) as date,
-                   count(rs) as count
+            SELECT rs.startTime
             FROM ReadingSessionEntity rs
             WHERE rs.user.id = :userId
-            GROUP BY date
-            ORDER BY date
+            ORDER BY rs.startTime
             """)
-    List<ReadingSessionCountDto> findAllSessionCountsByUser(
-            @Param("userId") Long userId,
-            @Param("tzOffsetSeconds") int tzOffsetSeconds);
-
-    @Query("""
-            SELECT
-                extract(hour from timestampadd(second, :tzOffsetSeconds, rs.startTime))
-                    + extract(minute from timestampadd(second, :tzOffsetSeconds, rs.startTime)) / 60.0 as hourOfDay,
-                rs.durationSeconds / 60.0 as durationMinutes,
-                cast(timestampadd(second, :tzOffsetSeconds, rs.startTime) as LocalDate) as sessionDate
-            FROM ReadingSessionEntity rs
-            WHERE rs.user.id = :userId
-            AND rs.startTime >= :periodStart AND rs.startTime < :periodEnd
-            ORDER BY rs.startTime DESC
-            """)
-    List<SessionScatterDto> findSessionScatterByUserAndYear(
-            @Param("userId") Long userId,
-            @Param("periodStart") Instant periodStart,
-            @Param("periodEnd") Instant periodEnd,
-            @Param("tzOffsetSeconds") int tzOffsetSeconds,
-            Pageable pageable);
+    List<Instant> findAllSessionStartTimesByUser(@Param("userId") Long userId);
 
     // ========================================================================
     // Listening (audiobook) stats
     // ========================================================================
 
     @Query("""
-            SELECT cast(timestampadd(second, :tzOffsetSeconds, rs.startTime) as LocalDate) as date,
-                   count(rs) as sessions,
-                   coalesce(round(sum(rs.durationSeconds) / 60.0), 0L) as durationMinutes
+            SELECT rs.startTime as startTime,
+                   coalesce(rs.durationSeconds, 0) as durationSeconds
             FROM ReadingSessionEntity rs
             WHERE rs.user.id = :userId
             AND rs.bookType = org.booklore.model.enums.BookFileType.AUDIOBOOK
-            AND rs.startTime >= :periodStart AND rs.startTime < :periodEnd
-            GROUP BY date
-            ORDER BY date
+            AND (:periodStart IS NULL OR rs.startTime >= :periodStart)
+            AND (:periodEnd IS NULL OR rs.startTime < :periodEnd)
+            ORDER BY rs.startTime
             """)
-    List<ListeningHeatmapDto> findListeningSessionsByUserAndMonth(
+    List<SessionTimestampDto> findListeningTimestampsByUser(
             @Param("userId") Long userId,
             @Param("periodStart") Instant periodStart,
-            @Param("periodEnd") Instant periodEnd,
-            @Param("tzOffsetSeconds") int tzOffsetSeconds);
+            @Param("periodEnd") Instant periodEnd);
 
     @Query("""
-            SELECT cast(timestampadd(second, :tzOffsetSeconds, rs.startTime) as LocalDate) as sessionDate,
-                   coalesce(sum(rs.durationSeconds), 0L) as totalDurationSeconds,
-                   count(rs) as sessions
+            SELECT rs.startTime as startTime,
+                   coalesce(rs.durationSeconds, 0) as durationSeconds
             FROM ReadingSessionEntity rs
             WHERE rs.user.id = :userId
             AND rs.bookType = org.booklore.model.enums.BookFileType.AUDIOBOOK
-            AND rs.startTime >= :cutoffDate
-            GROUP BY sessionDate
-            ORDER BY sessionDate
+            ORDER BY rs.startTime DESC
             """)
-    List<DailyListeningDto> findDailyListeningByUserSince(
+    List<SessionTimestampDto> findListeningTimestampsByUserPaged(
             @Param("userId") Long userId,
-            @Param("cutoffDate") Instant cutoffDate,
-            @Param("tzOffsetSeconds") int tzOffsetSeconds);
+            Pageable pageable);
 
     @Query("""
             SELECT b.id as bookId,
@@ -285,39 +246,6 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
     List<MonthlyCompletedAudiobookDto> findMonthlyCompletedAudiobooks(@Param("userId") Long userId);
 
     @Query("""
-            SELECT year(timestampadd(second, :tzOffsetSeconds, rs.startTime)) as year,
-                   month(timestampadd(second, :tzOffsetSeconds, rs.startTime)) as month,
-                   coalesce(sum(rs.durationSeconds), 0L) as totalDurationSeconds
-            FROM ReadingSessionEntity rs
-            WHERE rs.user.id = :userId
-            AND rs.bookType = org.booklore.model.enums.BookFileType.AUDIOBOOK
-            GROUP BY year, month
-            ORDER BY year DESC, month DESC
-            """)
-    List<MonthlyListeningDurationDto> findMonthlyListeningDurations(
-            @Param("userId") Long userId,
-            @Param("tzOffsetSeconds") int tzOffsetSeconds);
-
-    @Query("""
-            SELECT
-                extract(hour from timestampadd(second, :tzOffsetSeconds, rs.startTime)) as hourOfDay,
-                count(rs) as sessionCount,
-                sum(rs.durationSeconds) as totalDurationSeconds
-            FROM ReadingSessionEntity rs
-            WHERE rs.user.id = :userId
-            AND rs.bookType = org.booklore.model.enums.BookFileType.AUDIOBOOK
-            AND (:periodStart IS NULL OR rs.startTime >= :periodStart)
-            AND (:periodEnd IS NULL OR rs.startTime < :periodEnd)
-            GROUP BY hourOfDay
-            ORDER BY hourOfDay
-            """)
-    List<PeakReadingHourDto> findListeningPeakHoursByUser(
-            @Param("userId") Long userId,
-            @Param("periodStart") Instant periodStart,
-            @Param("periodEnd") Instant periodEnd,
-            @Param("tzOffsetSeconds") int tzOffsetSeconds);
-
-    @Query("""
             SELECT
                 c.name as genre,
                 count(distinct b.id) as bookCount,
@@ -350,27 +278,11 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
     List<ListeningAuthorDto> findListeningAuthorStatsByUser(@Param("userId") Long userId);
 
     @Query("""
-            SELECT
-                extract(hour from timestampadd(second, :tzOffsetSeconds, rs.startTime))
-                    + extract(minute from timestampadd(second, :tzOffsetSeconds, rs.startTime)) / 60.0 as hourOfDay,
-                rs.durationSeconds / 60.0 as durationMinutes,
-                cast(timestampadd(second, :tzOffsetSeconds, rs.startTime) as LocalDate) as sessionDate
-            FROM ReadingSessionEntity rs
-            WHERE rs.user.id = :userId
-            AND rs.bookType = org.booklore.model.enums.BookFileType.AUDIOBOOK
-            ORDER BY rs.startTime DESC
-            """)
-    List<SessionScatterDto> findListeningSessionScatterByUser(
-            @Param("userId") Long userId,
-            @Param("tzOffsetSeconds") int tzOffsetSeconds,
-            Pageable pageable);
-
-    @Query("""
             SELECT b.id as bookId,
                    coalesce(bm.title, 'Unknown') as title,
                    bm.pageCount as pageCount,
-                   min(timestampadd(second, :tzOffsetSeconds, rs.startTime)) as firstSessionDate,
-                   max(timestampadd(second, :tzOffsetSeconds, rs.endTime)) as lastSessionDate,
+                   min(rs.startTime) as firstSessionStart,
+                   max(rs.endTime) as lastSessionEnd,
                    count(rs) as totalSessions,
                    coalesce(sum(rs.durationSeconds), 0L) as totalDurationSeconds,
                    coalesce(max(rs.endProgress), 0.0) / 100.0 as maxProgress,
@@ -382,11 +294,10 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
             WHERE rs.user.id = :userId
             AND rs.startTime >= :periodStart AND rs.startTime < :periodEnd
             GROUP BY b.id, bm.title, bm.pageCount, ubp.readStatus
-            ORDER BY firstSessionDate
+            ORDER BY firstSessionStart
             """)
     List<BookTimelineDto> findBookTimelineByUserAndYear(
             @Param("userId") Long userId,
             @Param("periodStart") Instant periodStart,
-            @Param("periodEnd") Instant periodEnd,
-            @Param("tzOffsetSeconds") int tzOffsetSeconds);
+            @Param("periodEnd") Instant periodEnd);
 }
