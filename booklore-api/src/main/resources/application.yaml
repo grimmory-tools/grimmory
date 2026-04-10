@@ -66,8 +66,8 @@ spring:
       max-lifetime: 580000         # 9.6 minutes (avoid DB-side connection cuts)
       connection-test-query: SELECT 1
       connection-timeout: 30000    # 30s to acquire a connection before timeout
-      maximum-pool-size: 10        # Virtual threads don't need large pools
-      minimum-idle: 2              # Minimal warm connections; virtual threads handle bursts
+      maximum-pool-size: 5         # Virtual threads don't need large pools; 5 is enough for a self-hosted app
+      minimum-idle: 1              # Minimal warm connections; virtual threads handle bursts
       idle-timeout: 300000         # 5 minutes before idle connections are closed
   jpa:
     open-in-view: false

@@ -3,6 +3,7 @@ package org.booklore.service.upload;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.AppProperties;
+import org.booklore.exception.APIException;
 import org.booklore.exception.ApiError;
 import org.booklore.mapper.AdditionalFileMapper;
 import org.booklore.model.dto.Book;
@@ -21,6 +22,7 @@ import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.file.FileFingerprint;
 import org.booklore.service.file.FileMovingHelper;
 import org.booklore.service.metadata.extractor.MetadataExtractorFactory;
+import org.booklore.util.FileUtils;
 import org.booklore.service.monitoring.MonitoringRegistrationService;
 import org.booklore.util.PathPatternResolver;
 import org.springframework.util.StringUtils;
@@ -33,7 +35,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.Optional;
 import org.booklore.model.enums.AuditAction;
@@ -66,6 +67,7 @@ public class FileUploadService {
 
         final LibraryEntity libraryEntity = findLibraryById(libraryId);
         final LibraryPathEntity libraryPathEntity = findLibraryPathById(libraryEntity, pathId);
+        final Path libraryRoot = FileUtils.normalizeAbsolutePath(Path.of(libraryPathEntity.getPath()));
         final String originalFileName = getValidatedFileName(file);
         final BookFileExtension fileExtension = getFileExtension(originalFileName);
         validateAllowedFormat(libraryEntity, fileExtension.getType());
@@ -78,10 +80,10 @@ public class FileUploadService {
             final String uploadPattern = fileMovingHelper.getFileNamingPattern(libraryEntity);
 
             final String relativePath = PathPatternResolver.resolvePattern(metadata, uploadPattern, originalFileName);
-            final Path finalPath = Paths.get(libraryPathEntity.getPath(), relativePath);
+            final Path finalPath = resolvePathWithinRoot(libraryRoot, relativePath);
 
-            validateFinalPath(finalPath);
-            moveFileToFinalLocation(tempPath, finalPath);
+            validateFinalPath(finalPath, libraryRoot);
+            moveFileToFinalLocation(tempPath, finalPath, libraryRoot);
 
             log.info("File uploaded to final location: {}", finalPath);
             auditService.log(AuditAction.BOOK_UPLOADED, "Library", libraryId, "Uploaded file: " + originalFileName);
@@ -114,6 +116,7 @@ public class FileUploadService {
             }
 
             final Path finalPath;
+            final Path finalRootPath;
             final String finalFileName;
             final String fileSubPath;
             final BookFileType effectiveBookType;
@@ -128,19 +131,23 @@ public class FileUploadService {
 
                 String pattern = fileMovingHelper.getFileNamingPattern(book.getLibrary());
                 String resolvedRelativePath = PathPatternResolver.resolvePattern(book.getMetadata(), pattern, sanitizedFileName);
-                finalFileName = Paths.get(resolvedRelativePath).getFileName().toString();
-                fileSubPath = Paths.get(resolvedRelativePath).getParent() != null
-                        ? Paths.get(resolvedRelativePath).getParent().toString()
+                Path safeRelativePath = toSafeRelativePath(resolvedRelativePath);
+                finalFileName = safeRelativePath.getFileName().toString();
+                fileSubPath = safeRelativePath.getParent() != null
+                    ? safeRelativePath.getParent().toString()
                         : "";
-                finalPath = Paths.get(libraryPath.getPath(), resolvedRelativePath);
+                finalRootPath = FileUtils.normalizeAbsolutePath(Path.of(libraryPath.getPath()));
+                finalPath = resolvePathWithinRoot(finalRootPath, safeRelativePath.toString());
                 String extension = sanitizedFileName.substring(sanitizedFileName.lastIndexOf('.') + 1);
                 effectiveBookType = BookFileType.fromExtension(extension)
                         .orElseThrow(() -> ApiError.INVALID_FILE_FORMAT.createException("Unsupported book file extension: " + extension));
             } else if (isBook) {
                 String pattern = fileMovingHelper.getFileNamingPattern(book.getLibrary());
                 String resolvedRelativePath = PathPatternResolver.resolvePattern(book.getMetadata(), pattern, sanitizedFileName);
-                finalFileName = Paths.get(resolvedRelativePath).getFileName().toString();
+                Path safeRelativePath = toSafeRelativePath(resolvedRelativePath);
+                finalFileName = safeRelativePath.getFileName().toString();
                 fileSubPath = book.getPrimaryBookFile().getFileSubPath();
+                finalRootPath = FileUtils.normalizeAbsolutePath(Path.of(book.getLibraryPath().getPath()));
                 finalPath = buildAdditionalFilePath(book, finalFileName);
                 String extension = sanitizedFileName.substring(sanitizedFileName.lastIndexOf('.') + 1);
                 effectiveBookType = BookFileType.fromExtension(extension)
@@ -148,17 +155,18 @@ public class FileUploadService {
             } else {
                 finalFileName = sanitizedFileName;
                 fileSubPath = book.getPrimaryBookFile().getFileSubPath();
+                finalRootPath = FileUtils.normalizeAbsolutePath(Path.of(book.getLibraryPath().getPath()));
                 finalPath = buildAdditionalFilePath(book, sanitizedFileName);
                 effectiveBookType = bookType;
             }
-            validateFinalPath(finalPath);
+            validateFinalPath(finalPath, finalRootPath);
 
             if (libraryId != null) {
                 log.debug("Unregistering library {} for monitoring", libraryId);
                 monitoringRegistrationService.unregisterLibrary(libraryId);
                 monitoringUnregistered = true;
             }
-            moveFileToFinalLocation(tempPath, finalPath);
+            moveFileToFinalLocation(tempPath, finalPath, finalRootPath);
 
             log.info("Additional file uploaded to final location: {}", finalPath);
 
@@ -214,7 +222,7 @@ public class FileUploadService {
     public Book uploadFileBookDrop(MultipartFile file) throws IOException {
         validateFile(file);
 
-        final Path dropFolder = Paths.get(appProperties.getBookdropFolder());
+        final Path dropFolder = FileUtils.normalizeAbsolutePath(Path.of(appProperties.getBookdropFolder()));
         Files.createDirectories(dropFolder);
 
         final String originalFilename = getValidatedFileName(file);
@@ -225,9 +233,9 @@ public class FileUploadService {
             tempPath = createTempFile(BOOKDROP_TEMP_PREFIX, sanitizedFilename);
             file.transferTo(tempPath);
 
-            final Path finalPath = dropFolder.resolve(sanitizedFilename);
-            validateFinalPath(finalPath);
-            Files.move(tempPath, finalPath);
+            final Path finalPath = resolvePathWithinRoot(dropFolder, sanitizedFilename);
+            validateFinalPath(finalPath, dropFolder);
+            moveFileToFinalLocation(tempPath, finalPath, dropFolder);
 
             log.info("File moved to book-drop folder: {}", finalPath);
             return null;
@@ -283,15 +291,19 @@ public class FileUploadService {
         return Files.createTempFile(prefix, suffix);
     }
 
-    private void validateFinalPath(Path finalPath) {
-        if (Files.exists(finalPath)) {
+    private void validateFinalPath(Path finalPath, Path expectedRoot) {
+        Path safeFinalPath = requirePathWithinRoot(finalPath, expectedRoot, "Invalid upload target path");
+        if (Files.exists(safeFinalPath)) {
             throw ApiError.FILE_ALREADY_EXISTS.createException();
         }
     }
 
-    private void moveFileToFinalLocation(Path sourcePath, Path targetPath) throws IOException {
-        Files.createDirectories(targetPath.getParent());
-        Files.move(sourcePath, targetPath);
+    private void moveFileToFinalLocation(Path sourcePath, Path targetPath, Path expectedRoot) throws IOException {
+        Path safeSourcePath = requirePathWithinSystemTemp(sourcePath);
+        Path safeTargetPath = requirePathWithinRoot(targetPath, expectedRoot, "Invalid upload target path");
+
+        Files.createDirectories(safeTargetPath.getParent());
+        Files.move(safeSourcePath, safeTargetPath);
     }
 
     private void validateAlternativeFormatDuplicate(String fileHash) {
@@ -303,33 +315,84 @@ public class FileUploadService {
 
     private Path buildAdditionalFilePath(BookEntity book, String fileName) {
         final BookFileEntity primaryFile = book.getPrimaryBookFile();
-        return Paths.get(book.getLibraryPath().getPath(), primaryFile.getFileSubPath(), fileName);
-    }
-
-    private BookFileEntity createAdditionalFileEntity(BookEntity book, String fileName, boolean isBook, BookFileType bookType, long fileSize, String fileHash, String description) {
-        final BookFileEntity primaryFile = book.getPrimaryBookFile();
-        return BookFileEntity.builder()
-                .book(book)
-                .fileName(fileName)
-                .fileSubPath(primaryFile.getFileSubPath())
-                .isBookFormat(isBook)
-                .bookType(bookType)
-                .fileSizeKb(fileSize / BYTES_TO_KB_DIVISOR)
-                .initialHash(fileHash)
-                .currentHash(fileHash)
-                .description(description)
-                .addedOn(Instant.now())
-                .build();
+        final Path libraryRoot = FileUtils.normalizeAbsolutePath(Path.of(book.getLibraryPath().getPath()));
+        final String safeRelativePath = buildSafeRelativePath(primaryFile.getFileSubPath(), fileName);
+        return resolvePathWithinRoot(libraryRoot, safeRelativePath);
     }
 
     private void cleanupTempFile(Path tempPath) {
         if (tempPath != null) {
             try {
-                Files.deleteIfExists(tempPath);
+                Path safeTempPath = requirePathWithinSystemTemp(tempPath);
+                Files.deleteIfExists(safeTempPath);
+            } catch (RuntimeException e) {
+                log.warn("Skipping cleanup for suspicious temp file path: {}", tempPath);
             } catch (IOException e) {
                 log.warn("Failed to cleanup temp file: {}", tempPath, e);
             }
         }
+    }
+
+    private Path resolvePathWithinRoot(Path rootPath, String relativePath) {
+        try {
+            return FileUtils.resolvePathWithinBase(rootPath, relativePath);
+        } catch (IllegalArgumentException e) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("Invalid upload target path");
+        }
+    }
+
+    private Path toSafeRelativePath(String relativePath) {
+        if (!StringUtils.hasText(relativePath)) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("Invalid upload target path");
+        }
+
+        try {
+            Path parsed = Path.of(relativePath);
+            if (parsed.isAbsolute()) {
+                throw ApiError.GENERIC_BAD_REQUEST.createException("Invalid upload target path");
+            }
+            Path normalized = parsed.normalize();
+            if (normalized.getNameCount() == 0 || normalized.startsWith("..")) {
+                throw ApiError.GENERIC_BAD_REQUEST.createException("Invalid upload target path");
+            }
+            return normalized;
+        } catch (APIException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("Invalid upload target path");
+        }
+    }
+
+    private String buildSafeRelativePath(String subPath, String fileName) {
+        Path safeFileNamePath = toSafeRelativePath(fileName);
+        if (safeFileNamePath.getNameCount() != 1) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("Invalid upload target path");
+        }
+
+        if (!StringUtils.hasText(subPath)) {
+            return safeFileNamePath.toString();
+        }
+
+        Path safeSubPath = toSafeRelativePath(subPath);
+        Path combined = safeSubPath.resolve(safeFileNamePath).normalize();
+        if (combined.isAbsolute() || combined.startsWith("..")) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("Invalid upload target path");
+        }
+
+        return combined.toString();
+    }
+
+    private Path requirePathWithinRoot(Path candidatePath, Path rootPath, String errorMessage) {
+        try {
+            return FileUtils.requirePathWithinBase(candidatePath, rootPath);
+        } catch (IllegalArgumentException e) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException(errorMessage);
+        }
+    }
+
+    private Path requirePathWithinSystemTemp(Path candidatePath) {
+        Path tempRoot = FileUtils.normalizeAbsolutePath(Path.of(System.getProperty("java.io.tmpdir")));
+        return requirePathWithinRoot(candidatePath, tempRoot, "Invalid temporary file path");
     }
 
     private BookMetadata extractMetadata(BookFileExtension fileExt, File file, String originalFileName) {

@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.nio.charset.StandardCharsets;
+
 @Tag(name = "OPDS", description = "Endpoints for OPDS catalog feeds, book downloads, covers, and search description")
 @Slf4j
 @RestController
@@ -135,21 +137,23 @@ public class OpdsController {
     @Operation(summary = "Get OPDS catalog feed", description = "Retrieve the OPDS acquisition catalog feed.")
     @ApiResponse(responseCode = "200", description = "Catalog feed returned successfully")
     @GetMapping(value = "/catalog", produces = OPDS_ACQUISITION_MEDIA_TYPE)
-    public ResponseEntity<String> getCatalog(@Parameter(hidden = true) HttpServletRequest request) {
+    public ResponseEntity<byte[]> getCatalog(@Parameter(hidden = true) HttpServletRequest request) {
         String feed = opdsFeedService.generateCatalogFeed(request);
+        byte[] payload = feed.getBytes(StandardCharsets.UTF_8);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(OPDS_ACQUISITION_MEDIA_TYPE))
-                .body(feed);
+                .body(payload);
     }
 
     @Operation(summary = "Get recent books feed", description = "Retrieve the OPDS feed for recently added books.")
     @ApiResponse(responseCode = "200", description = "Recent books feed returned successfully")
     @GetMapping(value = "/recent", produces = OPDS_ACQUISITION_MEDIA_TYPE)
-    public ResponseEntity<String> getRecentBooks(@Parameter(hidden = true) HttpServletRequest request) {
+    public ResponseEntity<byte[]> getRecentBooks(@Parameter(hidden = true) HttpServletRequest request) {
         String feed = opdsFeedService.generateRecentFeed(request);
+        byte[] payload = feed.getBytes(StandardCharsets.UTF_8);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(OPDS_ACQUISITION_MEDIA_TYPE))
-                .body(feed);
+                .body(payload);
     }
 
     @Operation(summary = "Get surprise feed", description = "Retrieve the OPDS feed for surprise/random books.")

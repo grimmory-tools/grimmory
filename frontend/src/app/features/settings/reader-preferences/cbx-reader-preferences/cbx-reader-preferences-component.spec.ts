@@ -57,6 +57,7 @@ describe('CbxReaderPreferencesComponent', () => {
     expect(component.selectedCbxFitMode).toBe(CbxFitMode.AUTO);
     expect(component.selectedCbxScrollMode).toBe(CbxScrollMode.PAGINATED);
     expect(component.selectedCbxBackgroundColor).toBe(CbxBackgroundColor.GRAY);
+    expect(component.selectedCbxStripMaxWidthPercent).toBe(100);
   });
 
   it('persists each CBX reader preference through the shared preferences service', () => {
@@ -73,5 +74,17 @@ describe('CbxReaderPreferencesComponent', () => {
     expect(updatePreference).toHaveBeenNthCalledWith(3, ['cbxReaderSetting', 'fitMode'], CbxFitMode.FIT_WIDTH);
     expect(updatePreference).toHaveBeenNthCalledWith(4, ['cbxReaderSetting', 'scrollMode'], CbxScrollMode.INFINITE);
     expect(updatePreference).toHaveBeenNthCalledWith(5, ['cbxReaderSetting', 'backgroundColor'], CbxBackgroundColor.BLACK);
+  });
+
+  it('persists strip max width with silent preference updates', () => {
+    const component = fixture.componentInstance;
+
+    component.selectedCbxStripMaxWidthPercent = 75;
+
+    expect(updatePreference).toHaveBeenCalledWith(
+      ['cbxReaderSetting', 'stripMaxWidthPercent'],
+      75,
+      { silent: true }
+    );
   });
 });

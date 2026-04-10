@@ -1,6 +1,7 @@
 package org.booklore.service.reader;
 
 import lombok.extern.slf4j.Slf4j;
+import org.booklore.util.MimeDetector;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -9,6 +10,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 /**
@@ -22,6 +24,7 @@ public class AudioFileUtilityService {
     private static final Set<String> AUDIO_EXTENSIONS = Set.of(
             ".mp3", ".m4a", ".m4b", ".opus"
     );
+    private static final Pattern SEPARATOR_PATTERN = Pattern.compile("[_-]+");
 
     /**
      * List all audio files in a folder, sorted naturally (Track 1, Track 2, ... Track 10).
@@ -47,18 +50,10 @@ public class AudioFileUtilityService {
     }
 
     /**
-     * Get the MIME content type for an audio file.
+     * Get the MIME content type for an audio file using content-based detection via Apache Tika.
      */
     public String getContentType(Path audioPath) {
-        String fileName = audioPath.getFileName().toString().toLowerCase();
-        if (fileName.endsWith(".m4b") || fileName.endsWith(".m4a")) {
-            return "audio/mp4";
-        } else if (fileName.endsWith(".mp3")) {
-            return "audio/mpeg";
-        } else if (fileName.endsWith(".opus")) {
-            return "audio/opus";
-        }
-        return "application/octet-stream";
+        return MimeDetector.detectSafe(audioPath);
     }
 
     /**
@@ -70,7 +65,7 @@ public class AudioFileUtilityService {
         if (lastDot > 0) {
             filename = filename.substring(0, lastDot);
         }
-        return filename.replaceAll("[_-]+", " ").trim();
+        return SEPARATOR_PATTERN.matcher(filename).replaceAll(" ").trim();
     }
 
     /**

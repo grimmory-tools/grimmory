@@ -1,0 +1,141 @@
+<ng-container *transloco="let t; prefix: 'readerPdf.sidebar'">
+@if (visible()) {
+  <div class="sidebar-overlay" role="button" tabindex="0" (click)="onOverlayClick()" (keydown.enter)="onOverlayClick()" [class.closing]="closing()">
+    <aside class="sidebar" role="button" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()" [class.closing]="closing()">
+
+      <!-- Sidebar Header -->
+      <header class="sidebar-header">
+        <h2 class="sidebar-title">{{ t('title') }}</h2>
+        <button class="sidebar-close-btn" (click)="closed.emit()" [attr.aria-label]="t('close')">
+          <app-reader-icon name="close" [size]="18"></app-reader-icon>
+        </button>
+      </header>
+
+      <!-- Tab navigation -->
+      <nav class="tabs">
+        <button
+          class="tab"
+          [class.active]="activeTab() === 'contents'"
+          (click)="setActiveTab('contents')">
+          <app-reader-icon name="book" class="tab-icon"></app-reader-icon>
+          <span>{{ t('contentsTab') }}</span>
+        </button>
+        <button
+          class="tab"
+          [class.active]="activeTab() === 'bookmarks'"
+          (click)="setActiveTab('bookmarks')">
+          <app-reader-icon name="bookmark" class="tab-icon"></app-reader-icon>
+          <span>{{ t('bookmarksTab') }}</span>
+          @if (bookmarks().length > 0) {
+            <span class="badge">{{ bookmarks().length }}</span>
+          }
+        </button>
+        <button
+          class="tab"
+          [class.active]="activeTab() === 'annotations'"
+          (click)="setActiveTab('annotations')">
+          <app-reader-icon name="edit" class="tab-icon"></app-reader-icon>
+          <span>{{ t('annotationsTab') }}</span>
+          @if (annotations().length > 0) {
+            <span class="badge">{{ annotations().length }}</span>
+          }
+        </button>
+      </nav>
+
+      <!-- Tab content -->
+      <div class="content">
+        @switch (activeTab()) {
+          @case ('contents') {
+            @if (outline().length > 0) {
+              <ul class="chapter-list" role="tree">
+                @for (item of outline(); track item.title) {
+                  <ng-container *ngTemplateOutlet="outlineItem; context: { $implicit: item, depth: 0 }"/>
+                }
+              </ul>
+
+              <ng-template #outlineItem let-item let-depth="depth">
+                <li role="treeitem" [attr.aria-selected]="false">
+                  <button
+                    class="chapter-row"
+                    [style.--depth]="depth"
+                    (click)="onOutlineClick(item)">
+                    <span class="chapter-label">{{ item.title }}</span>
+                    <span class="chapter-page">{{ t('page') }} {{ item.pageIndex + 1 }}</span>
+                  </button>
+                  @if (item.children?.length) {
+                    <ul class="subchapter-list" role="group">
+                      @for (child of item.children; track child.title) {
+                        <ng-container *ngTemplateOutlet="outlineItem; context: { $implicit: child, depth: depth + 1 }"/>
+                      }
+                    </ul>
+                  }
+                </li>
+              </ng-template>
+            } @else {
+              <div class="empty-state">
+                <app-reader-icon name="book" class="empty-icon" [size]="48" [strokeWidth]="1.5"></app-reader-icon>
+                <p>{{ t('noContents') }}</p>
+              </div>
+            }
+          }
+
+          @case ('bookmarks') {
+            @if (bookmarks().length > 0) {
+              <ul class="item-list">
+                @for (bookmark of bookmarks(); track bookmark.id) {
+                  <li class="list-item" role="button" tabindex="0" (click)="onBookmarkClick(bookmark)" (keydown.enter)="onBookmarkClick(bookmark)">
+                    <div class="item-content">
+                      <span class="item-title">{{ bookmark.title }}</span>
+                      <span class="item-meta">{{ t('page') }} {{ bookmark.pageNumber }}</span>
+                    </div>
+                    <button class="delete-btn" (click)="onDeleteBookmark($event, bookmark.id)" [attr.aria-label]="t('deleteBookmark')">
+                      <app-reader-icon name="trash" [size]="16"></app-reader-icon>
+                    </button>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <div class="empty-state">
+                <app-reader-icon name="bookmark" class="empty-icon" [size]="48" [strokeWidth]="1.5"></app-reader-icon>
+                <p>{{ t('noBookmarks') }}</p>
+                <span class="empty-hint">{{ t('bookmarkHint') }}</span>
+              </div>
+            }
+          }
+
+          @case ('annotations') {
+            @if (annotations().length > 0) {
+              <ul class="item-list">
+                @for (annotation of annotations(); track annotation.id) {
+                  <li class="list-item highlight-item" role="button" tabindex="0" (click)="onAnnotationClick(annotation)" (keydown.enter)="onAnnotationClick(annotation)">
+                    @if (annotation.color) {
+                      <div class="highlight-bar" [style.background-color]="annotation.color"></div>
+                    }
+                    <div class="item-content">
+                      <div class="item-header">
+                        <span class="item-meta">{{ t('page') }} {{ annotation.pageIndex + 1 }} · {{ annotation.type }}</span>
+                      </div>
+                      @if (annotation.text) {
+                        <p class="highlight-text">"{{ annotation.text }}"</p>
+                      }
+                    </div>
+                    <button class="delete-btn" (click)="onDeleteAnnotation($event, annotation.id)" [attr.aria-label]="t('deleteAnnotation')">
+                      <app-reader-icon name="trash" [size]="14"></app-reader-icon>
+                    </button>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <div class="empty-state">
+                <app-reader-icon name="edit" class="empty-icon" [size]="48" [strokeWidth]="1.5"></app-reader-icon>
+                <p>{{ t('noAnnotations') }}</p>
+                <span class="empty-hint">{{ t('annotationHint') }}</span>
+              </div>
+            }
+          }
+        }
+      </div>
+    </aside>
+  </div>
+}
+</ng-container>

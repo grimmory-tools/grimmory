@@ -12,11 +12,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.ObjectMapper;
 
-import java.util.Collections;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.time.Duration;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 @RequiredArgsConstructor
 @Service
@@ -26,25 +28,28 @@ public class DefaultSettingInitializer {
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
     private final DefaultUserSettingsProvider settingsProvider;
-    private static final Set<Long> initializedUsers = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private static final Cache<Long, Boolean> initializedUsers = Caffeine.newBuilder()
+            .maximumSize(1000)
+            .expireAfterWrite(Duration.ofHours(24))
+            .build();
     private static final ConcurrentHashMap<Long, Lock> userLocks = new ConcurrentHashMap<>();
 
     @Transactional
     public void ensureDefaultSettings(BookLoreUser bookLoreUser) {
-        if (initializedUsers.contains(bookLoreUser.getId())) {
+        if (initializedUsers.getIfPresent(bookLoreUser.getId()) != null) {
             return;
         }
         Lock lock = userLocks.computeIfAbsent(bookLoreUser.getId(), _ -> new ReentrantLock());
         lock.lock();
         try {
-            if (initializedUsers.contains(bookLoreUser.getId())) return;
+            if (initializedUsers.getIfPresent(bookLoreUser.getId()) != null) return;
             BookLoreUserEntity user = userRepository.findByIdWithSettings(bookLoreUser.getId()).orElseThrow(() -> new UsernameNotFoundException("User not found"));
             for (UserSettingKey key : settingsProvider.getAllKeys()) {
                 addSettingIfMissing(user, key, settingsProvider.getDefaultValue(key));
             }
             patchPerBookSetting(user);
             userRepository.save(user);
-            initializedUsers.add(bookLoreUser.getId());
+            initializedUsers.put(bookLoreUser.getId(), Boolean.TRUE);
         } finally {
             lock.unlock();
             userLocks.remove(bookLoreUser.getId());
@@ -90,4 +95,3 @@ public class DefaultSettingInitializer {
                 });
     }
 }
-

@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
@@ -213,7 +214,7 @@ public class CbxMetadataWriter implements MetadataWriter {
         // CommunityRating - normalized to 0-5 scale
         helper.copyRating(false, rating -> {
             if (rating != null) {
-                double normalized = Math.min(5.0, Math.max(0.0, rating / 2.0));
+                double normalized = Math.clamp(rating / 2.0, 0.0, 5.0);
                 info.setCommunityRating(String.format(Locale.US, "%.1f", normalized));
             } else {
                 info.setCommunityRating(null);
@@ -375,7 +376,7 @@ public class CbxMetadataWriter implements MetadataWriter {
             info.setAgeRating(mapAgeRatingToComicInfo(metadata.getAgeRating()));
         }
         
-        info.setNotes(notesBuilder.length() > 0 ? notesBuilder.toString() : null);
+        info.setNotes(!notesBuilder.isEmpty() ? notesBuilder.toString() : null);
     }
     
     private String getCreatorsByRole(ComicMetadataEntity comic, ComicCreatorRole role) {
@@ -528,17 +529,28 @@ public class CbxMetadataWriter implements MetadataWriter {
         return comicInfoFilename.equals(normalized) || normalized.endsWith("/" + comicInfoFilename);
     }
 
-    private static boolean isPathSafe(String entryName) {
+    /**
+     * Validates a ZIP entry name is safe against zip-slip attacks.
+     * Uses {@link Path#normalize()} to collapse traversal segments and rejects entries
+     * that are absolute or escape the archive root.
+     */
+    static boolean isPathSafe(String entryName) {
         if (entryName == null || entryName.isBlank()) return false;
-        String normalized = entryName.replace('\\', '/');
-        if (normalized.startsWith("/")) return false;
-        if (normalized.contains("\0")) return false;
-        // Check each path component for ".." traversal. Splitting with -1 limit catches
-        // trailing separators and avoids missing ".." at the end of a path (e.g. "foo/..").
-        for (String component : normalized.split("/", -1)) {
-            if ("..".equals(component)) return false;
+        if (entryName.contains("\0")) return false;
+        try {
+            String sanitized = entryName.replace('\\', '/');
+            // Reject any entry containing ".." as a path segment even if normalization
+            // would collapse it to something safe, legitimate ZIP entries never use "..".
+            for (String segment : sanitized.split("/", -1)) {
+                if ("..".equals(segment)) return false;
+            }
+            Path parsed = Path.of(sanitized).normalize();
+            return !parsed.isAbsolute()
+                    && !parsed.toString().isEmpty()
+                    && !parsed.startsWith("..");
+        } catch (InvalidPathException e) {
+            return false;
         }
-        return true;
     }
 
     private void rebuildArchiveWithNewXml(Path sourceArchive, Path targetZip, byte[] xmlContent) throws Exception {

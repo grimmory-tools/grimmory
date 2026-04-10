@@ -1,14 +1,14 @@
 package org.booklore.util.epub;
 
-import io.documentnode.epub4j.domain.Book;
-import io.documentnode.epub4j.domain.MediaType;
-import io.documentnode.epub4j.domain.MediaTypes;
-import io.documentnode.epub4j.domain.Resource;
-import io.documentnode.epub4j.domain.Spine;
-import io.documentnode.epub4j.epub.EpubReader;
+import org.grimmory.epub4j.domain.Book;
+import org.grimmory.epub4j.domain.MediaType;
+import org.grimmory.epub4j.domain.MediaTypes;
+import org.grimmory.epub4j.domain.Resource;
+import org.grimmory.epub4j.domain.Spine;
+import org.grimmory.epub4j.epub.EpubReader;
 import lombok.extern.slf4j.Slf4j;
-import net.lingala.zip4j.ZipFile;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -30,8 +30,8 @@ public class EpubContentReader {
     }
 
     public static String getSpineItemContent(File epubFile, int spineIndex) {
-        try (ZipFile zip = new ZipFile(epubFile)) {
-            Book epub = new EpubReader().readEpubLazy(zip, "UTF-8", MEDIA_TYPES);
+        try {
+            Book epub = new EpubReader().readEpubLazy(epubFile.toPath(), "UTF-8", MEDIA_TYPES);
 
             Spine spine = epub.getSpine();
             if (spine == null || spine.size() == 0) {
@@ -50,7 +50,9 @@ public class EpubContentReader {
                         String.format("Spine item %d has no resource in: %s", spineIndex, epubFile.getName()));
             }
 
-            return new String(resource.getData(), StandardCharsets.UTF_8);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            resource.writeTo(baos);
+            return baos.toString(StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new EpubReadException("Failed to read EPUB file: " + epubFile.getName(), e);
         }
@@ -61,8 +63,8 @@ public class EpubContentReader {
     }
 
     public static int getSpineSize(File epubFile) {
-        try (ZipFile zip = new ZipFile(epubFile)) {
-            Book epub = new EpubReader().readEpubLazy(zip, "UTF-8", MEDIA_TYPES);
+        try {
+            Book epub = new EpubReader().readEpubLazy(epubFile.toPath(), "UTF-8", MEDIA_TYPES);
             Spine spine = epub.getSpine();
             return spine != null ? spine.size() : 0;
         } catch (IOException e) {
@@ -71,8 +73,8 @@ public class EpubContentReader {
     }
 
     public static String getSpineItemHref(File epubFile, int spineIndex) {
-        try (ZipFile zip = new ZipFile(epubFile)) {
-            Book epub = new EpubReader().readEpubLazy(zip, "UTF-8", MEDIA_TYPES);
+        try {
+            Book epub = new EpubReader().readEpubLazy(epubFile.toPath(), "UTF-8", MEDIA_TYPES);
 
             Spine spine = epub.getSpine();
             if (spine == null || spineIndex < 0 || spineIndex >= spine.size()) {
@@ -89,8 +91,8 @@ public class EpubContentReader {
 
     public static List<String> getAllSpineItemHrefs(File epubFile) {
         List<String> hrefs = new ArrayList<>();
-        try (ZipFile zip = new ZipFile(epubFile)) {
-            Book epub = new EpubReader().readEpubLazy(zip, "UTF-8", MEDIA_TYPES);
+        try {
+            Book epub = new EpubReader().readEpubLazy(epubFile.toPath(), "UTF-8", MEDIA_TYPES);
 
             Spine spine = epub.getSpine();
             if (spine != null) {

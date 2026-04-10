@@ -9,6 +9,7 @@ import {BookStatusUpdateResponse, PersonalRatingUpdateResponse} from '../model/b
 import {QueryClient} from '@tanstack/angular-query-experimental';
 import {BOOKS_QUERY_KEY} from './book-query-keys';
 import {
+  invalidateAppBooksQueries,
   patchBooksInCache,
   patchBookFieldsInCache,
 } from './book-query-cache';
@@ -79,7 +80,14 @@ export class BookPatchService {
           progressPercent: payload.percentage
         };
       }
-      return this.http.post<void>(`${this.url}/progress`, body);
+      return this.http.post<void>(`${this.url}/progress`, body).pipe(
+        tap(() => {
+          patchBookFieldsInCache(this.queryClient, [{
+            bookId: payload.bookId,
+            fields: {epubProgress: {cfi: payload.cfi, percentage: payload.percentage}}
+          }]);
+        })
+      );
     }),
     share()
   );
@@ -127,7 +135,14 @@ export class BookPatchService {
         progressPercent: percentage
       };
     }
-    return this.http.post<void>(`${this.url}/progress`, body);
+    return this.http.post<void>(`${this.url}/progress`, body).pipe(
+      tap(() => {
+        patchBookFieldsInCache(this.queryClient, [{
+          bookId,
+          fields: {pdfProgress: {page, percentage}}
+        }]);
+      })
+    );
   }
 
   saveEpubProgress(bookId: number, cfi: string, href: string, percentage: number, bookFileId?: number): void {
@@ -160,7 +175,14 @@ export class BookPatchService {
         progressPercent: percentage
       };
     }
-    return this.http.post<void>(`${this.url}/progress`, body);
+    return this.http.post<void>(`${this.url}/progress`, body).pipe(
+      tap(() => {
+        patchBookFieldsInCache(this.queryClient, [{
+          bookId,
+          fields: {cbxProgress: {page, percentage}}
+        }]);
+      })
+    );
   }
 
   saveFileProgress(bookId: number, fileProgress: BookFileProgress): Observable<void> {
@@ -249,5 +271,6 @@ export class BookPatchService {
         book.id === bookId ? {...book, lastReadTime: timestamp} : book
       )
     );
+    invalidateAppBooksQueries(this.queryClient);
   }
 }

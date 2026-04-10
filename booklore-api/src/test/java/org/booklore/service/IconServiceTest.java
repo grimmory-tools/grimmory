@@ -46,7 +46,7 @@ class IconServiceTest {
                 Files.deleteIfExists(entry);
             }
         }
-        iconService.getSvgCache().clear();
+        iconService.getSvgCache().invalidateAll();
     }
 
     @AfterAll
@@ -164,7 +164,7 @@ class IconServiceTest {
 
     @Test
     void cacheEviction_worksWhenMaxSizeExceeded() {
-        iconService.getSvgCache().clear();
+        iconService.getSvgCache().invalidateAll();
 
         for (int i = 0; i < 1002; i++) {
             SvgIconCreateRequest req = new SvgIconCreateRequest();
@@ -173,7 +173,8 @@ class IconServiceTest {
             iconService.saveSvgIcon(req);
         }
         assertEquals(1002, iconService.getIconNames(0, 2000).getContent().size());
-        assertTrue(iconService.getSvgCache().size() <= 1000);
+        iconService.getSvgCache().cleanUp();
+        assertTrue(iconService.getSvgCache().estimatedSize() <= 200);
     }
 
     @Test
@@ -183,11 +184,11 @@ class IconServiceTest {
         req.setSvgData(SVG_DATA);
         iconService.saveSvgIcon(req);
 
-        int initialSize = iconService.getSvgCache().size();
+        long initialSize = iconService.getSvgCache().estimatedSize();
 
         req.setSvgData("<svg><circle r=\"50\"/></svg>");
         assertThrows(APIException.class, () -> iconService.saveSvgIcon(req));
 
-        assertEquals(initialSize, iconService.getSvgCache().size());
+        assertEquals(initialSize, iconService.getSvgCache().estimatedSize());
     }
 }

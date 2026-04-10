@@ -5,14 +5,18 @@ import org.booklore.model.dto.request.BookdropPatternExtractRequest;
 import org.booklore.model.dto.response.BookdropPatternExtractResult;
 import org.booklore.model.entity.BookdropFileEntity;
 import org.booklore.repository.BookdropFileRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -26,8 +30,16 @@ class FilenamePatternExtractorTest {
     @Mock
     private BookdropMetadataHelper metadataHelper;
 
+    @Spy
+    private ExecutorService regexExecutor = Executors.newVirtualThreadPerTaskExecutor();
+
     @InjectMocks
     private FilenamePatternExtractor extractor;
+
+    @AfterEach
+    void tearDown() {
+        regexExecutor.shutdownNow();
+    }
 
     private BookdropFileEntity createFileEntity(Long id, String fileName) {
         BookdropFileEntity entity = new BookdropFileEntity();

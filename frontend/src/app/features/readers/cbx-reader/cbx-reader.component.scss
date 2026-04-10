@@ -1,3 +1,30 @@
+@mixin cbx-reader-continuation-affordance {
+  .cbx-continuation-spacer {
+    flex: 0 0 auto;
+    min-height: 28vh;
+    width: 100%;
+    pointer-events: none;
+  }
+
+  .cbx-continuation-hint {
+    flex: 0 0 auto;
+    width: 100%;
+    text-align: center;
+    font-size: 0.88rem;
+    color: rgb(255 255 255 / 45%);
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.35s ease, transform 0.35s ease, color 0.35s ease;
+    pointer-events: none;
+
+    &.visible {
+      opacity: 1;
+      transform: translateY(0);
+      color: rgb(255 255 255 / 72%);
+    }
+  }
+}
+
 .comic-reader-container {
   display: flex;
   flex-direction: column;
@@ -14,6 +41,78 @@
 
   &:focus {
     outline: none;
+  }
+
+  &:fullscreen {
+    height: 100%;
+    width: 100%;
+    max-height: 100%;
+  }
+
+  .webtoon-suggestion-banner {
+    flex: 0 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1rem;
+    padding: 0.65rem 1rem;
+    margin: 0 0.5rem;
+    background: rgb(30 40 55 / 95%);
+    border: 1px solid rgb(255 255 255 / 12%);
+    border-radius: 8px;
+    z-index: 900;
+    box-shadow: 0 4px 16px rgb(0 0 0 / 35%);
+  }
+
+  .webtoon-suggestion-text {
+    margin: 0;
+    flex: 1 1 200px;
+    font-size: 0.9rem;
+    line-height: 1.35;
+    color: rgb(255 255 255 / 88%);
+  }
+
+  .webtoon-suggestion-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .webtoon-btn {
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    border: 1px solid rgb(255 255 255 / 20%);
+    background: rgb(255 255 255 / 8%);
+    color: #fff;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+
+    &:hover {
+      background: rgb(255 255 255 / 14%);
+    }
+
+    &.primary {
+      border-color: #4a90e2;
+      background: rgb(74 144 226 / 25%);
+
+      &:hover {
+        background: rgb(74 144 226 / 38%);
+      }
+    }
+
+    &.subtle {
+      border-color: transparent;
+      background: transparent;
+      color: rgb(255 255 255 / 55%);
+      font-size: 0.8rem;
+
+      &:hover {
+        color: rgb(255 255 255 / 85%);
+      }
+    }
   }
 
   // RTL reading mode - reverse page order in two-page view
@@ -328,7 +427,28 @@
         align-items: center;
         gap: 1rem;
         width: 100%;
+        min-width: 0;
         padding: 1rem 0;
+        overflow-anchor: none;
+      }
+
+      .strip-width-constrain {
+        // Width set inline from quick-settings signal (% of wrapper). Center column when < 100%.
+        flex-shrink: 0;
+        min-width: 0;
+        max-width: 100%;
+        margin-inline: auto;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      @include cbx-reader-continuation-affordance;
+
+      .cbx-continuation-hint {
+        padding: 0.5rem 1rem 1rem;
       }
 
       .page-image {
@@ -363,8 +483,10 @@
 
         .infinite-scroll-wrapper {
           align-items: center;
-          width: max-content;
-          min-width: 100%;
+
+          // Stable width so strip max-width % resolves against the reader scrollport, not max-content.
+          width: 100%;
+          min-width: 0;
         }
 
         .page-image {
@@ -406,7 +528,8 @@
       }
     }
 
-    // Long-strip (webtoon) mode — gapless vertical strip, always fit-width
+    // Long-strip: same fit semantics as infinite scroll (width:100% only for fit-width),
+    // so switching scroll modes does not change zoom.
     &.long-strip {
       overflow: hidden auto;
       align-items: flex-start;
@@ -418,21 +541,97 @@
         flex-direction: column;
         align-items: center;
         width: 100%;
+        min-width: 0;
 
         // No gap, no padding — gapless vertical strip
       }
 
+      .strip-width-constrain {
+        flex-shrink: 0;
+        min-width: 0;
+        max-width: 100%;
+        margin-inline: auto;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      @include cbx-reader-continuation-affordance;
+
+      .cbx-continuation-hint {
+        padding: 0.75rem 1rem 1.25rem;
+      }
+
       .long-strip-image {
         display: block;
-        width: 100%;
-        height: auto;
-        max-width: 100%;
+        object-fit: contain;
         border: 0;
         margin: 0;
         padding: 0;
 
         // Hardware acceleration (Kavita pattern)
         transform: translate3d(0, 0, 0);
+      }
+
+      &.fit-width .long-strip-image {
+        width: 100%;
+        height: auto;
+        max-width: 100%;
+      }
+
+      &.fit-height {
+        .long-strip-wrapper {
+          min-height: 100%;
+        }
+
+        .long-strip-image {
+          width: auto;
+          height: calc(100vh - 2rem);
+          max-width: 100%;
+        }
+      }
+
+      &.fit-actual-size {
+        overflow-x: auto;
+
+        .long-strip-wrapper {
+          align-items: center;
+          width: 100%;
+          min-width: 0;
+        }
+
+        .long-strip-image {
+          width: auto;
+          height: auto;
+          max-width: none;
+        }
+      }
+
+      &.fit-page {
+        .long-strip-wrapper {
+          min-height: 100%;
+        }
+
+        .long-strip-image {
+          max-width: 100%;
+          max-height: calc(100vh - 2rem);
+          width: auto;
+          height: auto;
+        }
+      }
+
+      &.fit-auto {
+        .long-strip-wrapper {
+          min-height: 100%;
+        }
+
+        .long-strip-image {
+          max-width: 100%;
+          max-height: calc(100vh - 2rem);
+          width: auto;
+          height: auto;
+        }
       }
     }
 

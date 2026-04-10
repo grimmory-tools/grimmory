@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.util.FileUtils;
+import org.booklore.util.MimeDetector;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.*;
@@ -104,7 +105,7 @@ public class AudiobookReaderController {
 
         return builder
                 .cacheControl(CacheControl.noCache().cachePrivate())
-                .contentType(MediaTypeFactory.getMediaType(filePath.toString()).orElse(MediaType.APPLICATION_OCTET_STREAM))
+                .contentType(MediaType.parseMediaType(MimeDetector.detectSafe(filePath)))
                 .body(new FileSystemResource(filePath));
     }
 }

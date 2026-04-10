@@ -920,19 +920,14 @@ class CbxMetadataExtractorTest {
         }
 
         @Test
-        void returnPlaceholderForEmptyCbz() throws IOException {
+        void returnNullForEmptyCbz() throws IOException {
             Path cbzPath = mockArchiveContents(Map.of(
                     "readme.txt", "no images here".getBytes()
             ));
 
             byte[] cover = extractor.extractCover(cbzPath);
 
-            assertThat(cover).isNotNull();
-            // Placeholder is a generated image
-            BufferedImage img = ImageIO.read(new ByteArrayInputStream(cover));
-            assertThat(img).isNotNull();
-            assertThat(img.getWidth()).isEqualTo(250);
-            assertThat(img.getHeight()).isEqualTo(350);
+            assertThat(cover).isNull();
         }
 
         @Test
@@ -1040,7 +1035,7 @@ class CbxMetadataExtractorTest {
 
             byte[] cover = extractor.extractCover(path);
 
-            assertThat(cover).isNotNull();
+            assertThat(cover).isNull();
         }
     }
 
@@ -1197,7 +1192,7 @@ class CbxMetadataExtractorTest {
 
             byte[] cover = extractor.extractCover(path);
 
-            assertThat(cover).isNotNull();
+            assertThat(cover).isNull();
         }
     }
 }

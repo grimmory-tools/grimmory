@@ -17,7 +17,6 @@ import org.booklore.service.metadata.writer.MetadataWriter;
 import org.booklore.service.metadata.writer.MetadataWriterFactory;
 import org.booklore.service.file.FileFingerprint;
 import org.booklore.util.FileService;
-import org.booklore.util.SecurityContextVirtualThread;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -29,7 +28,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.util.*;
+import java.util.concurrent.Executor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -49,6 +50,7 @@ class BookCoverServiceTest {
     @Mock private CoverImageGenerator coverImageGenerator;
     @Mock private MetadataWriterFactory metadataWriterFactory;
     @Mock private TransactionTemplate transactionTemplate;
+    @Mock private Executor taskExecutor;
 
     @InjectMocks
     private BookCoverService service;
@@ -395,9 +397,9 @@ class BookCoverServiceTest {
 
             MultipartFile file = mock(MultipartFile.class);
             when(file.isEmpty()).thenReturn(false);
-            when(file.getContentType()).thenReturn("image/jpeg");
             when(file.getSize()).thenReturn(1024L);
             try {
+                when(file.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0})); // JPEG
                 when(file.getBytes()).thenReturn(new byte[]{1, 2, 3});
             } catch (Exception ignored) {}
 
@@ -421,10 +423,11 @@ class BookCoverServiceTest {
         }
 
         @Test
-        void rejectsNonImageContentType() {
+        void rejectsNonImageContentType() throws Exception {
             MultipartFile file = mock(MultipartFile.class);
             when(file.isEmpty()).thenReturn(false);
-            when(file.getContentType()).thenReturn("application/pdf");
+            when(file.getSize()).thenReturn(1024L);
+            when(file.getInputStream()).thenReturn(new java.io.ByteArrayInputStream(new byte[]{1, 2, 3}));
 
             assertThatThrownBy(() -> service.updateCoverFromFileForBooks(Set.of(1L), file))
                     .isInstanceOf(APIException.class)
@@ -435,7 +438,6 @@ class BookCoverServiceTest {
         void rejectsFileLargerThan5MB() {
             MultipartFile file = mock(MultipartFile.class);
             when(file.isEmpty()).thenReturn(false);
-            when(file.getContentType()).thenReturn("image/jpeg");
             when(file.getSize()).thenReturn(6L * 1024 * 1024);
 
             assertThatThrownBy(() -> service.updateCoverFromFileForBooks(Set.of(1L), file))
@@ -447,9 +449,9 @@ class BookCoverServiceTest {
         void acceptsJpegFile() {
             MultipartFile file = mock(MultipartFile.class);
             when(file.isEmpty()).thenReturn(false);
-            when(file.getContentType()).thenReturn("image/jpeg");
             when(file.getSize()).thenReturn(1024L);
             try {
+                when(file.getInputStream()).thenReturn(new java.io.ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0}));
                 when(file.getBytes()).thenReturn(new byte[]{1, 2, 3});
             } catch (Exception ignored) {}
 
@@ -462,9 +464,9 @@ class BookCoverServiceTest {
         void acceptsPngFile() {
             MultipartFile file = mock(MultipartFile.class);
             when(file.isEmpty()).thenReturn(false);
-            when(file.getContentType()).thenReturn("image/png");
             when(file.getSize()).thenReturn(1024L);
             try {
+                when(file.getInputStream()).thenReturn(new java.io.ByteArrayInputStream(new byte[]{(byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}));
                 when(file.getBytes()).thenReturn(new byte[]{1, 2, 3});
             } catch (Exception ignored) {}
 
@@ -474,13 +476,15 @@ class BookCoverServiceTest {
         }
 
         @Test
-        void rejectsNullContentType() {
+        void rejectsIOExceptionOnRead() throws Exception {
             MultipartFile file = mock(MultipartFile.class);
             when(file.isEmpty()).thenReturn(false);
-            when(file.getContentType()).thenReturn(null);
+            when(file.getSize()).thenReturn(1024L);
+            when(file.getInputStream()).thenThrow(new java.io.IOException("Test error"));
 
             assertThatThrownBy(() -> service.updateCoverFromFileForBooks(Set.of(1L), file))
-                    .isInstanceOf(APIException.class);
+                    .isInstanceOf(APIException.class)
+                    .hasMessageContaining("Failed to read");
         }
     }
 
@@ -654,7 +658,7 @@ class BookCoverServiceTest {
     class BulkRegenerateCoversForBooks {
 
         @Test
-        void delegatesToVirtualThreadWithUnlockedBooks() {
+        void delegatesToAsyncExecutorWithUnlockedBooks() {
             BookEntity unlocked = buildBook(1L, false);
             unlocked.setBookFiles(List.of(BookFileEntity.builder().bookType(BookFileType.EPUB).isBookFormat(true).build()));
             unlocked.setLibrary(LibraryEntity.builder().build());
@@ -663,17 +667,14 @@ class BookCoverServiceTest {
             when(bookQueryService.findAllWithMetadataByIds(Set.of(1L, 2L)))
                     .thenReturn(List.of(unlocked, locked));
 
-            try (MockedStatic<SecurityContextVirtualThread> secMock = mockStatic(SecurityContextVirtualThread.class)) {
-                secMock.when(() -> SecurityContextVirtualThread.runWithSecurityContext(any(Runnable.class)))
-                        .thenAnswer(inv -> {
-                            inv.<Runnable>getArgument(0).run();
-                            return null;
-                        });
+            doAnswer(inv -> {
+                inv.<Runnable>getArgument(0).run();
+                return null;
+            }).when(taskExecutor).execute(any(Runnable.class));
 
-                service.regenerateCoversForBooks(Set.of(1L, 2L));
+            service.regenerateCoversForBooks(Set.of(1L, 2L));
 
-                secMock.verify(() -> SecurityContextVirtualThread.runWithSecurityContext(any(Runnable.class)));
-            }
+            verify(taskExecutor).execute(any(Runnable.class));
         }
     }
 
@@ -681,24 +682,21 @@ class BookCoverServiceTest {
     class BulkGenerateCustomCoversForBooks {
 
         @Test
-        void delegatesToVirtualThreadWithUnlockedBooks() {
+        void delegatesToAsyncExecutorWithUnlockedBooks() {
             BookEntity unlocked = buildBook(1L, false);
             BookEntity locked = buildBook(2L, true);
 
             when(bookQueryService.findAllWithMetadataByIds(Set.of(1L, 2L)))
                     .thenReturn(List.of(unlocked, locked));
 
-            try (MockedStatic<SecurityContextVirtualThread> secMock = mockStatic(SecurityContextVirtualThread.class)) {
-                secMock.when(() -> SecurityContextVirtualThread.runWithSecurityContext(any(Runnable.class)))
-                        .thenAnswer(inv -> {
-                            inv.<Runnable>getArgument(0).run();
-                            return null;
-                        });
+            doAnswer(inv -> {
+                inv.<Runnable>getArgument(0).run();
+                return null;
+            }).when(taskExecutor).execute(any(Runnable.class));
 
-                service.generateCustomCoversForBooks(Set.of(1L, 2L));
+            service.generateCustomCoversForBooks(Set.of(1L, 2L));
 
-                secMock.verify(() -> SecurityContextVirtualThread.runWithSecurityContext(any(Runnable.class)));
-            }
+            verify(taskExecutor).execute(any(Runnable.class));
         }
     }
 
@@ -715,21 +713,18 @@ class BookCoverServiceTest {
 
             MultipartFile file = mock(MultipartFile.class);
             when(file.isEmpty()).thenReturn(false);
-            when(file.getContentType()).thenReturn("image/png");
             when(file.getSize()).thenReturn(1024L);
+            when(file.getInputStream()).thenReturn(new java.io.ByteArrayInputStream(new byte[]{(byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}));
             when(file.getBytes()).thenReturn(new byte[]{1, 2, 3});
 
-            try (MockedStatic<SecurityContextVirtualThread> secMock = mockStatic(SecurityContextVirtualThread.class)) {
-                secMock.when(() -> SecurityContextVirtualThread.runWithSecurityContext(any(Runnable.class)))
-                        .thenAnswer(inv -> {
-                            inv.<Runnable>getArgument(0).run();
-                            return null;
-                        });
+            doAnswer(inv -> {
+                inv.<Runnable>getArgument(0).run();
+                return null;
+            }).when(taskExecutor).execute(any(Runnable.class));
 
-                service.updateCoverFromFileForBooks(Set.of(1L, 2L), file);
+            service.updateCoverFromFileForBooks(Set.of(1L, 2L), file);
 
-                secMock.verify(() -> SecurityContextVirtualThread.runWithSecurityContext(any(Runnable.class)));
-            }
+            verify(taskExecutor).execute(any(Runnable.class));
         }
     }
 
@@ -756,18 +751,15 @@ class BookCoverServiceTest {
             when(processor.generateCover(book)).thenReturn(true);
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
 
-            try (MockedStatic<SecurityContextVirtualThread> secMock = mockStatic(SecurityContextVirtualThread.class)) {
-                secMock.when(() -> SecurityContextVirtualThread.runWithSecurityContext(any(Runnable.class)))
-                        .thenAnswer(inv -> {
-                            inv.<Runnable>getArgument(0).run();
-                            return null;
-                        });
+            doAnswer(inv -> {
+                inv.<Runnable>getArgument(0).run();
+                return null;
+            }).when(taskExecutor).execute(any(Runnable.class));
 
-                service.regenerateCovers(false);
+            service.regenerateCovers(false);
 
-                verify(bookRepository).save(book);
-                assertThat(book.getMetadata().getCoverUpdatedOn()).isNotNull();
-            }
+            verify(bookRepository).save(book);
+            assertThat(book.getMetadata().getCoverUpdatedOn()).isNotNull();
         }
 
         @Test
@@ -780,17 +772,14 @@ class BookCoverServiceTest {
 
             when(bookQueryService.getAllFullBookEntities()).thenReturn(List.of(locked));
 
-            try (MockedStatic<SecurityContextVirtualThread> secMock = mockStatic(SecurityContextVirtualThread.class)) {
-                secMock.when(() -> SecurityContextVirtualThread.runWithSecurityContext(any(Runnable.class)))
-                        .thenAnswer(inv -> {
-                            inv.<Runnable>getArgument(0).run();
-                            return null;
-                        });
+            doAnswer(inv -> {
+                inv.<Runnable>getArgument(0).run();
+                return null;
+            }).when(taskExecutor).execute(any(Runnable.class));
 
-                service.regenerateCovers(false);
+            service.regenerateCovers(false);
 
-                verify(bookRepository, never()).save(any());
-            }
+            verify(bookRepository, never()).save(any());
         }
 
         @Test
@@ -821,19 +810,16 @@ class BookCoverServiceTest {
             when(processor.generateCover(withoutCover)).thenReturn(true);
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
 
-            try (MockedStatic<SecurityContextVirtualThread> secMock = mockStatic(SecurityContextVirtualThread.class)) {
-                secMock.when(() -> SecurityContextVirtualThread.runWithSecurityContext(any(Runnable.class)))
-                        .thenAnswer(inv -> {
-                            inv.<Runnable>getArgument(0).run();
-                            return null;
-                        });
+            doAnswer(inv -> {
+                inv.<Runnable>getArgument(0).run();
+                return null;
+            }).when(taskExecutor).execute(any(Runnable.class));
 
-                service.regenerateCovers(true);
+            service.regenerateCovers(true);
 
-                verify(transactionTemplate, times(1)).execute(any());
-                verify(bookRepository).save(withoutCover);
-                verify(bookRepository, never()).findById(1L);
-            }
+            verify(transactionTemplate, times(1)).execute(any());
+            verify(bookRepository).save(withoutCover);
+            verify(bookRepository, never()).findById(1L);
         }
 
         @Test
@@ -843,17 +829,14 @@ class BookCoverServiceTest {
 
             when(bookQueryService.getAllFullBookEntities()).thenReturn(List.of(book));
 
-            try (MockedStatic<SecurityContextVirtualThread> secMock = mockStatic(SecurityContextVirtualThread.class)) {
-                secMock.when(() -> SecurityContextVirtualThread.runWithSecurityContext(any(Runnable.class)))
-                        .thenAnswer(inv -> {
-                            inv.<Runnable>getArgument(0).run();
-                            return null;
-                        });
+            doAnswer(inv -> {
+                inv.<Runnable>getArgument(0).run();
+                return null;
+            }).when(taskExecutor).execute(any(Runnable.class));
 
-                service.regenerateCovers(false);
+            service.regenerateCovers(false);
 
-                verify(transactionTemplate, never()).execute(any());
-            }
+            verify(transactionTemplate, never()).execute(any());
         }
     }
 

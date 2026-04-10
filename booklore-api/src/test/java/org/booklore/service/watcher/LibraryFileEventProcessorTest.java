@@ -9,11 +9,10 @@ import org.booklore.model.enums.LibraryOrganizationMode;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.LibraryRepository;
 import org.booklore.service.library.LibraryProcessingService;
-import org.booklore.util.FileUtils;
+import org.booklore.service.library.LibraryScanListener;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
@@ -24,8 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
@@ -38,6 +35,7 @@ class LibraryFileEventProcessorTest {
     @Mock private BookFileTransactionalHandler bookFileTransactionalHandler;
     @Mock private BookFilePersistenceService bookFilePersistenceService;
     @Mock private LibraryProcessingService libraryProcessingService;
+    @Mock private LibraryScanListener libraryScanListener;
     @Mock private PendingDeletionPool pendingDeletionPool;
 
     private LibraryFileEventProcessor processor;
@@ -55,7 +53,7 @@ class LibraryFileEventProcessorTest {
         mocks = MockitoAnnotations.openMocks(this);
         processor = new LibraryFileEventProcessor(
                 libraryRepository, bookRepository, bookFileTransactionalHandler,
-                bookFilePersistenceService, libraryProcessingService, pendingDeletionPool);
+                bookFilePersistenceService, libraryProcessingService, libraryScanListener, pendingDeletionPool);
 
         libraryPath = new LibraryPathEntity();
         libraryPath.setId(1L);
@@ -74,13 +72,13 @@ class LibraryFileEventProcessorTest {
         when(bookFilePersistenceService.getLibraryPathEntityForFile(eq(library), eq(tempDir.toString())))
                 .thenReturn(libraryPath);
 
-        // Start the event processing thread (normally done by @PostConstruct)
-        processor.init();
+        // Start the event processing thread (normally done by SmartLifecycle)
+        processor.start();
     }
 
     @AfterEach
     void tearDown() throws Exception {
-        processor.shutdown();
+        processor.stop();
         mocks.close();
     }
 
@@ -392,14 +390,14 @@ class LibraryFileEventProcessorTest {
     class Shutdown {
 
         @Test
-        void shutdownCompletesCleanly() {
-            // Just verify shutdown doesn't throw
-            processor.shutdown();
+        void stopCompletesCleanly() {
+            // Just verify stop doesn't throw
+            processor.stop();
 
             // Reinitialize so tearDown's shutdown doesn't fail
             processor = new LibraryFileEventProcessor(
                     libraryRepository, bookRepository, bookFileTransactionalHandler,
-                    bookFilePersistenceService, libraryProcessingService, pendingDeletionPool);
+                    bookFilePersistenceService, libraryProcessingService, libraryScanListener, pendingDeletionPool);
         }
     }
 }

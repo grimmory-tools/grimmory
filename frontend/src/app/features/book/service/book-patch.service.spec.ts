@@ -56,6 +56,9 @@ describe('BookPatchService', () => {
       },
     });
     request.flush(null);
+
+    expect(queryClient.setQueryData).toHaveBeenCalledWith(BOOKS_QUERY_KEY, expect.any(Function));
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: ['books', 'detail', 11]});
   });
 
   it('deduplicates identical EPUB progress updates before posting', () => {
@@ -80,6 +83,8 @@ describe('BookPatchService', () => {
     request.flush(null);
 
     httpTestingController.expectNone(req => req.url.endsWith('/api/v1/books/progress'));
+    expect(queryClient.setQueryData).toHaveBeenCalledWith(BOOKS_QUERY_KEY, expect.any(Function));
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: ['books', 'detail', 7]});
   });
 
   it('patches cached progress fields when resetting kobo progress', () => {
@@ -95,7 +100,8 @@ describe('BookPatchService', () => {
     ]);
 
     expect(queryClient.setQueryData).toHaveBeenCalledWith(BOOKS_QUERY_KEY, expect.any(Function));
-    expect(queryClient.invalidateQueries).toHaveBeenCalledTimes(2);
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: ['app-books']});
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: ['app-filter-options']});
   });
 
   it('updates cached date finished after the backend accepts the change', () => {
@@ -128,7 +134,8 @@ describe('BookPatchService', () => {
     ]);
 
     expect(queryClient.setQueryData).toHaveBeenCalledWith(BOOKS_QUERY_KEY, expect.any(Function));
-    expect(queryClient.invalidateQueries).toHaveBeenCalledTimes(2);
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: ['app-books']});
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: ['app-filter-options']});
   });
 
   it('updates the cached last read timestamp without calling the backend', () => {

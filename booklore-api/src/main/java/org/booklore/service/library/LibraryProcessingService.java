@@ -46,6 +46,7 @@ public class LibraryProcessingService {
     private final BookDeletionService bookDeletionService;
     private final LibraryFileHelper libraryFileHelper;
     private final BookGroupingService bookGroupingService;
+    private final BookCoverGenerator bookCoverGenerator;
     @PersistenceContext
     private final EntityManager entityManager;
 
@@ -222,7 +223,7 @@ public class LibraryProcessingService {
             bookAdditionalFileRepository.save(additionalFile);
             String primaryFileName = book.hasFiles() ? book.getPrimaryBookFile().getFileName() : "book#" + book.getId();
             log.info("Auto-attached new format {} to existing book: {}", file.getFileName(), primaryFileName);
-            fileAsBookProcessor.generateCoverFromAdditionalFile(book, file);
+            bookCoverGenerator.generateCoverFromAdditionalFile(book, file);
         } catch (Exception e) {
             log.error("Error auto-attaching file {}: {}", file.getFileName(), e.getMessage());
         }

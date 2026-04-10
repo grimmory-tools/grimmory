@@ -1,11 +1,10 @@
 package org.booklore.service.monitoring;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.model.dto.Library;
 import org.booklore.model.enums.BookFileExtension;
 import org.booklore.service.watcher.LibraryFileEventProcessor;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -21,28 +20,62 @@ import java.util.stream.Stream;
 
 @Slf4j
 @Service
-public class LibraryWatchService {
+public class LibraryWatchService implements SmartLifecycle {
+
+    private static final int LIFECYCLE_PHASE = 20;
 
     private final LibraryFileEventProcessor eventProcessor;
-    private final WatchService watchService;
-    private final ExecutorService registrationExecutor;
+    private WatchService watchService;
+    private ExecutorService registrationExecutor;
 
     private final ConcurrentHashMap<Path, WatchEntry> watches = new ConcurrentHashMap<>();
     private final Map<Long, Boolean> libraryWatchStatus = new ConcurrentHashMap<>();
     private final Lock watchLock = new ReentrantLock();
+    private volatile boolean running;
 
     private record WatchEntry(WatchKey key, long libraryId) {}
 
-    public LibraryWatchService(LibraryFileEventProcessor eventProcessor) throws IOException {
+    public LibraryWatchService(LibraryFileEventProcessor eventProcessor) {
         this.eventProcessor = eventProcessor;
-        this.watchService = FileSystems.getDefault().newWatchService();
-        this.registrationExecutor = Executors.newSingleThreadExecutor(
-                Thread.ofVirtual().name("watch-registrar").factory());
     }
 
-    @PostConstruct
+    @Override
     public void start() {
-        Thread.ofVirtual().name("watch-poll").start(this::pollLoop);
+        try {
+            if (watchService == null) {
+                this.watchService = FileSystems.getDefault().newWatchService();
+            }
+            if (registrationExecutor == null || registrationExecutor.isShutdown()) {
+                this.registrationExecutor = Executors.newSingleThreadExecutor(
+                        Thread.ofVirtual().name("watch-registrar").factory());
+            }
+            running = true;
+            Thread.ofVirtual().name("watch-poll").start(this::pollLoop);
+        } catch (IOException e) {
+            log.error("Failed to start LibraryWatchService", e);
+        }
+    }
+
+    @Override
+    public void stop() {
+        log.info("Shutting down LibraryWatchService...");
+        running = false;
+        registrationExecutor.shutdownNow();
+        try {
+            watchService.close();
+        } catch (IOException e) {
+            log.error("Failed to close WatchService", e);
+        }
+    }
+
+    @Override
+    public boolean isRunning() {
+        return running;
+    }
+
+    @Override
+    public int getPhase() {
+        return LIFECYCLE_PHASE;
     }
 
     private void pollLoop() {
@@ -284,16 +317,5 @@ public class LibraryWatchService {
 
         log.warn("Timeout waiting for events to drain for {} paths", paths.size());
         return false;
-    }
-
-    @PreDestroy
-    public void shutdown() {
-        log.info("Shutting down LibraryWatchService...");
-        registrationExecutor.shutdownNow();
-        try {
-            watchService.close();
-        } catch (IOException e) {
-            log.error("Failed to close WatchService", e);
-        }
     }
 }

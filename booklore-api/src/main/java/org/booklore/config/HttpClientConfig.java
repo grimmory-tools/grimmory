@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.net.http.HttpClient;
 import java.time.Duration;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Configuration
@@ -18,5 +19,10 @@ public class HttpClientConfig {
                 .followRedirects(HttpClient.Redirect.NORMAL)
                 .executor(Executors.newVirtualThreadPerTaskExecutor())
                 .build();
+    }
+
+    @Bean
+    public ExecutorService regexExecutor() {
+        return Executors.newVirtualThreadPerTaskExecutor();
     }
 }

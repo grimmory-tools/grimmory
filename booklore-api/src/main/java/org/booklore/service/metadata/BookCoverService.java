@@ -22,17 +22,19 @@ import org.booklore.service.metadata.writer.MetadataWriter;
 import org.booklore.service.metadata.writer.MetadataWriterFactory;
 import org.booklore.util.BookCoverUtils;
 import org.booklore.util.FileService;
+import org.booklore.util.MimeDetector;
 import org.booklore.config.AppProperties;
-import org.booklore.util.SecurityContextVirtualThread;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
@@ -53,6 +55,7 @@ public class BookCoverService {
     private final BookQueryService bookQueryService;
     private final CoverImageGenerator coverImageGenerator;
     private final MetadataWriterFactory metadataWriterFactory;
+    private final Executor taskExecutor;
     private final TransactionTemplate transactionTemplate;
 
     private record BookCoverInfo(Long id, String title) {
@@ -216,7 +219,7 @@ public class BookCoverService {
         validateCoverFile(file);
         byte[] coverImageBytes = extractBytesFromMultipartFile(file);
         List<BookCoverInfo> unlockedBooks = getUnlockedBookCoverInfos(bookIds);
-        SecurityContextVirtualThread.runWithSecurityContext(() -> processBulkCoverUpdate(unlockedBooks, coverImageBytes));
+        taskExecutor.execute(() -> processBulkCoverUpdate(unlockedBooks, coverImageBytes));
     }
 
     // =========================
@@ -284,7 +287,7 @@ public class BookCoverService {
      */
     public void regenerateCoversForBooks(Set<Long> bookIds) {
         List<BookRegenerationInfo> unlockedBooks = getUnlockedBookRegenerationInfos(bookIds);
-        SecurityContextVirtualThread.runWithSecurityContext(() -> processBulkCoverRegeneration(unlockedBooks));
+        taskExecutor.execute(() -> processBulkCoverRegeneration(unlockedBooks));
     }
 
     /**
@@ -292,14 +295,14 @@ public class BookCoverService {
      */
     public void generateCustomCoversForBooks(Set<Long> bookIds) {
         List<BookCoverInfo> unlockedBooks = getUnlockedBookCoverInfos(bookIds);
-        SecurityContextVirtualThread.runWithSecurityContext(() -> processBulkCustomCoverGeneration(unlockedBooks));
+        taskExecutor.execute(() -> processBulkCustomCoverGeneration(unlockedBooks));
     }
 
     /**
      * Regenerate covers for all books, optionally only for books with missing covers.
      */
     public void regenerateCovers(boolean missingOnly) {
-        SecurityContextVirtualThread.runWithSecurityContext(() -> {
+        taskExecutor.execute(() -> {
             try {
                 List<BookRegenerationInfo> books = bookQueryService.getAllFullBookEntities().stream()
                         .filter(book -> !isCoverLocked(book))
@@ -491,13 +494,18 @@ public class BookCoverService {
         if (file.isEmpty()) {
             throw ApiError.INVALID_INPUT.createException("Uploaded file is empty");
         }
-        String contentType = file.getContentType();
-        if (contentType == null || (!contentType.toLowerCase().startsWith("image/jpeg") && !contentType.toLowerCase().startsWith("image/png"))) {
-            throw ApiError.INVALID_INPUT.createException("Only JPEG and PNG files are allowed");
-        }
         long maxFileSize = 5L * 1024 * 1024;
         if (file.getSize() > maxFileSize) {
             throw ApiError.FILE_TOO_LARGE.createException(5);
+        }
+        // Detect MIME from content byte never trust the client-supplied Content-Type header
+        try (var inputStream = file.getInputStream()) {
+            String detectedMime = MimeDetector.detect(inputStream);
+            if (!"image/jpeg".equals(detectedMime) && !"image/png".equals(detectedMime)) {
+                throw ApiError.INVALID_INPUT.createException("Only JPEG and PNG files are allowed (detected: " + detectedMime + ")");
+            }
+        } catch (IOException e) {
+            throw ApiError.INVALID_INPUT.createException("Failed to read uploaded file for MIME detection");
         }
     }
 

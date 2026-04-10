@@ -437,16 +437,33 @@ class BookServiceTest {
     }
 
     @Test
-    void filterShelvesByUserId_returnsOnlyUserShelves() {
-        Shelf shelf1 = Shelf.builder().id(1L).userId(1L).build();
-        Shelf shelf2 = Shelf.builder().id(2L).userId(2L).build();
-        Set<Shelf> shelves = Set.of(shelf1, shelf2);
+    void filterShelvesByUserId_returnsOwnShelvesAndPublicShelves() {
+        Shelf ownShelf = Shelf.builder().id(1L).userId(1L).publicShelf(false).build();
+        Shelf otherPrivateShelf = Shelf.builder().id(2L).userId(2L).publicShelf(false).build();
+        Shelf otherPublicShelf = Shelf.builder().id(3L).userId(2L).publicShelf(true).build();
+        Set<Shelf> shelves = Set.of(ownShelf, otherPrivateShelf, otherPublicShelf);
 
-        Set<Shelf> result = org.springframework.test.util.ReflectionTestUtils.invokeMethod(
-                bookService, "filterShelvesByUserId", shelves, 1L);
+        Set<Shelf> result = bookService.filterShelvesByUserId(shelves, 1L);
 
-        assertEquals(1, result.size());
-        assertTrue(result.contains(shelf1));
+        assertEquals(2, result.size());
+        assertTrue(result.contains(ownShelf));
+        assertTrue(result.contains(otherPublicShelf));
+        assertFalse(result.contains(otherPrivateShelf));
+    }
+
+    @Test
+    void filterShelvesByUserId_excludesPrivateShelvesFromOtherUsers() {
+        Shelf otherPrivateShelf = Shelf.builder().id(2L).userId(2L).publicShelf(false).build();
+
+        Set<Shelf> result = bookService.filterShelvesByUserId(Set.of(otherPrivateShelf), 1L);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void filterShelvesByUserId_nullInput_returnsEmpty() {
+        Set<Shelf> result = bookService.filterShelvesByUserId(null, 1L);
+        assertTrue(result.isEmpty());
     }
     
 }

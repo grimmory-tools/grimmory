@@ -3,8 +3,8 @@ package org.booklore.service.kobo;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import tools.jackson.core.JacksonException;
-import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 @AllArgsConstructor
 @Component
@@ -12,8 +12,8 @@ public class KoboResourcesComponent {
 
     private final ObjectMapper objectMapper;
 
-    public JsonNode getResources() throws JacksonException {
-        return objectMapper.readTree(
+    public ObjectNode getResources() throws JacksonException {
+        return (ObjectNode) objectMapper.readTree(
                 """
                          {
                              "account_page": "https://www.kobo.com/account/settings",

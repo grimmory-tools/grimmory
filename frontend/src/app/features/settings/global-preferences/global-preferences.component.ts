@@ -10,7 +10,6 @@ import {BookMetadataManageService} from '../../book/service/book-metadata-manage
 import {AppSettingKey, CoverCroppingSettings} from '../../../shared/model/app-settings.model';
 import {InputText} from 'primeng/inputtext';
 import {Slider} from 'primeng/slider';
-import {ExternalDocLinkComponent} from '../../../shared/components/external-doc-link/external-doc-link.component';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 
 @Component({
@@ -23,7 +22,6 @@ import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/tran
     InputText,
     Slider,
     SplitButton,
-    ExternalDocLinkComponent,
     TranslocoDirective,
     TranslocoPipe
   ],

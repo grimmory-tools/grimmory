@@ -1,25 +1,29 @@
 package org.booklore.task;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.stereotype.Component;
 
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.time.Duration;
 
 @Component
 public class TaskCancellationManager {
 
-    private final Set<String> cancelledTasks = ConcurrentHashMap.newKeySet();
+    private final Cache<String, Boolean> cancelledTasks = Caffeine.newBuilder()
+            .maximumSize(10_000)
+            .expireAfterWrite(Duration.ofHours(24))
+            .build();
 
     public void cancelTask(String taskId) {
-        cancelledTasks.add(taskId);
+        cancelledTasks.put(taskId, Boolean.TRUE);
     }
 
     public boolean isTaskCancelled(String taskId) {
-        return cancelledTasks.contains(taskId);
+        return cancelledTasks.getIfPresent(taskId) != null;
     }
 
     public void clearCancellation(String taskId) {
-        cancelledTasks.remove(taskId);
+        cancelledTasks.invalidate(taskId);
     }
 }
 

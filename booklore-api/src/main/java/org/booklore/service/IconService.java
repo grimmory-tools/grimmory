@@ -21,9 +21,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -33,12 +35,14 @@ public class IconService {
     private static final Pattern INVALID_FILENAME_CHARS_PATTERN = Pattern.compile("[^a-zA-Z0-9._-]");
     private final AppProperties appProperties;
 
-    private final ConcurrentHashMap<String, String> svgCache = new ConcurrentHashMap<>();
+    private final Cache<String, String> svgCache = Caffeine.newBuilder()
+            .maximumSize(200)
+            .expireAfterAccess(java.time.Duration.ofHours(1))
+            .build();
 
     private static final String ICONS_DIR = "icons";
     private static final String SVG_DIR = "svg";
     private static final String SVG_EXTENSION = ".svg";
-    private static final int MAX_CACHE_SIZE = 200;
     private static final String SVG_START_TAG = "<svg";
     private static final String XML_DECLARATION = "<?xml";
     private static final String SVG_END_TAG = "</svg>";
@@ -109,7 +113,7 @@ public class IconService {
 
     public String getSvgIcon(String name) {
         String filename = normalizeFilename(name);
-        String cachedSvg = svgCache.get(filename);
+        String cachedSvg = svgCache.getIfPresent(filename);
 
         if (cachedSvg != null) {
             return cachedSvg;
@@ -146,7 +150,7 @@ public class IconService {
             }
 
             Files.delete(filePath);
-            svgCache.remove(filename);
+            svgCache.invalidate(filename);
 
             log.info("SVG icon deleted successfully: {}", filename);
         } catch (IOException e) {
@@ -192,10 +196,6 @@ public class IconService {
     }
 
     private void updateCache(String filename, String content) {
-        if (!svgCache.containsKey(filename) && svgCache.size() >= MAX_CACHE_SIZE) {
-            String firstKey = svgCache.keys().nextElement();
-            svgCache.remove(firstKey);
-        }
         svgCache.put(filename, content);
     }
 
@@ -236,7 +236,7 @@ public class IconService {
         return sanitized.endsWith(SVG_EXTENSION) ? sanitized : sanitized + SVG_EXTENSION;
     }
 
-    ConcurrentHashMap<String, String> getSvgCache() {
+    Cache<String, String> getSvgCache() {
         return svgCache;
     }
 
@@ -256,7 +256,14 @@ public class IconService {
                         try {
                             String filename = path.getFileName().toString();
                             String iconName = filename.replace(SVG_EXTENSION, "");
-                            String content = svgCache.getOrDefault(filename, Files.readString(path));
+                            String cached = svgCache.getIfPresent(filename);
+                            String content;
+                            if (cached != null) {
+                                content = cached;
+                            } else {
+                                content = Files.readString(path);
+                                svgCache.put(filename, content);
+                            }
                             iconMap.put(iconName, content);
                         } catch (IOException e) {
                             log.warn("Failed to read icon: {}", path.getFileName(), e);

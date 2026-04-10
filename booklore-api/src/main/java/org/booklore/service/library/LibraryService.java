@@ -27,16 +27,15 @@ import org.booklore.service.audit.AuditService;
 import org.booklore.service.monitoring.LibraryWatchService;
 import org.booklore.task.options.RescanLibraryContext;
 import org.booklore.util.FileService;
-import org.booklore.util.SecurityContextVirtualThread;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.context.event.EventListener;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -45,6 +44,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -54,21 +54,9 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class LibraryService {
 
-    private static final Set<Long> scanningLibraries = ConcurrentHashMap.newKeySet();
-
-    /**
-     * Checks whether a library is currently being scanned.
-     * Can be used by other components (e.g., file watcher) to avoid processing
-     * files while a full scan is in progress.
-     */
-    public static boolean isLibraryScanning(long libraryId) {
-        return scanningLibraries.contains(libraryId);
-    }
-
     private final LibraryRepository libraryRepository;
     private final LibraryPathRepository libraryPathRepository;
     private final BookRepository bookRepository;
-    private final LibraryProcessingService libraryProcessingService;
     private final BookMapper bookMapper;
     private final LibraryMapper libraryMapper;
     private final NotificationService notificationService;
@@ -77,6 +65,9 @@ public class LibraryService {
     private final AuthenticationService authenticationService;
     private final UserRepository userRepository;
     private final AuditService auditService;
+    private final LibraryProcessingService libraryProcessingService;
+    private final Executor taskExecutor;
+    private final Set<Long> scanningLibraries = ConcurrentHashMap.newKeySet();
 
     @Transactional
     @EventListener(ApplicationReadyEvent.class)
@@ -209,7 +200,7 @@ public class LibraryService {
         LibraryEntity lib = libraryRepository.findById(libraryId).orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
         auditService.log(AuditAction.LIBRARY_SCANNED, "Library", libraryId, "Scanned library: " + lib.getName());
 
-        SecurityContextVirtualThread.runWithSecurityContext(() -> {
+        taskExecutor.execute(() -> {
             if (!scanningLibraries.add(libraryId)) {
                 log.warn("Library {} is already being scanned, skipping duplicate rescan request", libraryId);
                 return;
@@ -367,7 +358,7 @@ public class LibraryService {
     }
 
     private void startBackgroundScan(long libraryId) {
-        SecurityContextVirtualThread.runWithSecurityContext(() -> {
+        taskExecutor.execute(() -> {
             if (!scanningLibraries.add(libraryId)) {
                 log.warn("Library {} is already being scanned, skipping duplicate process request", libraryId);
                 return;

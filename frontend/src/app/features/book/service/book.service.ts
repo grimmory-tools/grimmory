@@ -18,6 +18,7 @@ import {
   bookRecommendationsQueryKey,
 } from './book-query-keys';
 import {
+  invalidateAppBooksQueries,
   invalidateBooksQuery,
   patchBooksInCache,
   removeBookQueries,
@@ -121,6 +122,20 @@ export class BookService {
     return this.queryClient.ensureQueryData(this.bookDetailQueryOptions(bookId, withDescription));
   }
 
+  /**
+   * Always fetches book detail from the server, bypassing the cache.
+   *
+   * Used by reader components on initialization to guarantee the latest reading position.
+   * While optimistic cache updates keep progress current within a single session,
+   * this network request is necessary to pick up progress saved on another device or browser.
+   */
+  fetchFreshBookDetail(bookId: number, withDescription: boolean): Promise<Book> {
+    return this.queryClient.fetchQuery({
+      ...this.bookDetailQueryOptions(bookId, withDescription),
+      staleTime: 0,
+    });
+  }
+
   private getBookRecommendationsQueryOptions(bookId: number, limit: number) {
     return queryOptions({
       queryKey: bookRecommendationsQueryKey(bookId, limit),
@@ -137,6 +152,7 @@ export class BookService {
         shelves: book.shelves?.filter(shelf => shelf.id !== shelfId),
       }))
     );
+    invalidateAppBooksQueries(this.queryClient);
   }
 
   /*------------------ Book Retrieval ------------------*/
@@ -245,10 +261,19 @@ export class BookService {
   readBook(bookId: number, reader?: 'epub-streaming', explicitBookType?: BookType): void {
     const book = this.findBookById(bookId);
 
-    if (!book) {
-      console.error('Book not found');
+    if (book) {
+      this.navigateToReader(book, bookId, reader, explicitBookType);
       return;
     }
+
+    this.ensureBookDetail(bookId, false).then(detail => {
+      this.navigateToReader(detail, bookId, reader, explicitBookType);
+    }).catch(() => {
+      console.error('Book not found:', bookId);
+    });
+  }
+
+  private navigateToReader(book: Book, bookId: number, reader?: 'epub-streaming', explicitBookType?: BookType): void {
 
     const bookType: BookType | undefined = explicitBookType ?? book.primaryFile?.bookType;
     const isAlternativeFormat = explicitBookType && explicitBookType !== book.primaryFile?.bookType;

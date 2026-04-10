@@ -6,13 +6,11 @@ import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.ComicMetadata;
 import org.booklore.service.ArchiveService;
 import org.springframework.stereotype.Component;
+import org.booklore.util.SecureXmlUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
 import javax.imageio.ImageIO;
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -68,34 +66,8 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
         return BookMetadata.builder().title(baseName).build();
     }
 
-    /**
-     * Builds a secure XML document parser with protection against XXE attacks.
-     * Configures the DocumentBuilderFactory with security features to prevent:
-     * - External entity injection
-     * - DTD processing vulnerabilities
-     * - Schema injection attacks
-     *
-     * @param is InputStream containing XML data to parse
-     * @return Parsed Document object
-     * @throws Exception if XML parsing fails or security features cannot be configured
-     */
     private Document buildSecureDocument(InputStream is) throws Exception {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setNamespaceAware(true);  // Enable namespace awareness
-        factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-        try {
-            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-            factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-            factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-        } catch (Exception ex) {
-            log.warn("XML factory secure features not supported, XXE protection may be compromised: {}", ex.getMessage());
-            throw ex;  // Re-throw to fail fast if security features can't be enabled
-        }
-        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-        factory.setExpandEntityReferences(false);
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        return builder.parse(is);
+        return SecureXmlUtils.createSecureDocumentBuilder(true).parse(is);
     }
 
     /**
@@ -511,7 +483,7 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
                 .filter(Objects::nonNull)
                 .filter(this::canDecode)
                 .findFirst()
-                .orElseGet(() -> generatePlaceholderCover(250, 350));
+                .orElse(null);
     }
 
     private boolean canDecode(byte[] bytes) {
@@ -614,37 +586,6 @@ public class CbxMetadataExtractor implements FileMetadataExtractor {
         if (base.startsWith(".")) return false;
         if (".ds_store".equalsIgnoreCase(base)) return false;
         return true;
-    }
-
-    private byte[] generatePlaceholderCover(int width, int height) {
-        BufferedImage image = new BufferedImage(
-                width,
-                height,
-                BufferedImage.TYPE_INT_RGB
-        );
-        Graphics2D g = image.createGraphics();
-
-        g.setColor(Color.LIGHT_GRAY);
-        g.fillRect(0, 0, width, height);
-
-        g.setColor(Color.DARK_GRAY);
-        g.setFont(new Font("SansSerif", Font.BOLD, width / 10));
-        FontMetrics fm = g.getFontMetrics();
-        String text = "Preview Unavailable";
-
-        int textWidth = fm.stringWidth(text);
-        int textHeight = fm.getAscent();
-        g.drawString(text, (width - textWidth) / 2, (height + textHeight) / 2);
-
-        g.dispose();
-
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            ImageIO.write(image, "jpg", baos);
-            return baos.toByteArray();
-        } catch (IOException e) {
-            log.warn("Failed to generate placeholder image", e);
-            return null;
-        }
     }
 
     private String findComicInfoEntry(Path cbxPath) {

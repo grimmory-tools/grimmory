@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, HostListener, computed, effect, inject, OnDestroy, OnInit, signal, untracked, ViewChild} from '@angular/core';
+import {AfterViewInit, ChangeDetectionStrategy, Component, HostListener, computed, effect, inject, OnDestroy, OnInit, signal, untracked, ViewChild} from '@angular/core';
 import {toObservable, toSignal} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, NavigationStart, Router} from '@angular/router';
 import {ConfirmationService, MenuItem, MessageService} from 'primeng/api';
@@ -56,8 +56,8 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {DeferredRenderState} from './deferred-render-state';
 
 import {SortService} from '../../service/sort.service';
-import {filterBooksBySearchTerm} from './filters/HeaderFilter';
-import {filterBooksByFilters} from './filters/sidebar-filter';
+import {AppBooksApiService} from '../../service/app-books-api.service';
+import {AppBookFilters} from '../../model/app-book.model';
 
 export enum EntityType {
   LIBRARY = 'Library',
@@ -72,6 +72,7 @@ export enum EntityType {
   standalone: true,
   templateUrl: './book-browser.component.html',
   styleUrls: ['./book-browser.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     Button, VirtualScrollerModule, BookCardComponent, Menu, InputText, FormsModule,
     BookTableComponent, BookFilterComponent, Tooltip, NgClass, NgStyle, Popover,
@@ -118,6 +119,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   private queryParamsService = inject(BookBrowserQueryParamsService);
   private entityService = inject(BookBrowserEntityService);
   private sortService = inject(SortService);
+  private appBooksApi = inject(AppBooksApiService);
   private localStorageService = inject(LocalStorageService);
   private scrollService = inject(BookBrowserScrollService);
   private readonly t = inject(TranslocoService);
@@ -184,28 +186,64 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
 
     return actions;
   });
-  // --- Layered pipeline: each computed only recomputes when its direct inputs change ---
-  private readonly entityBooks = computed(() => {
-    const {entityId, entityType} = this.entityInfo();
-    return this.entityService.getBooksByEntity(this.bookService.books(), entityId, entityType);
-  });
-  private readonly searchedBooks = computed(() =>
-    filterBooksBySearchTerm(this.entityBooks(), this.debouncedSearchTerm())
-  );
-  private readonly filteredBooks = computed(() =>
-    filterBooksByFilters(this.searchedBooks(), this.selectedFilter(), this.selectedFilterMode())
-  );
+  // --- Server-side data pipeline: delegates filtering, sorting, searching to the API ---
   private readonly forceExpandSeries = computed(() =>
     this.queryParamsService.shouldForceExpandSeries(this.queryParamMap())
   );
-  private readonly collapsedBooks = computed(() =>
-    this.seriesCollapseFilter.collapseBooks(
-      this.filteredBooks(), this.forceExpandSeries(), this.seriesCollapsed()
-    )
-  );
-  private readonly sortedBooks = computed(() =>
-    this.sortService.applyMultiSort(this.collapsedBooks(), this.sortCriteria())
-  );
+
+  /** Sync entity scope, filters, search, and sort to the API service. */
+  private readonly syncApiStateEffect = effect(() => {
+    const {entityId, entityType} = this.entityInfo();
+    const search = this.debouncedSearchTerm();
+    const sidebarFilters = this.selectedFilter();
+    const sortCriteria = this.sortCriteria();
+
+    const scopeFilters: AppBookFilters = {};
+    switch (entityType) {
+      case EntityType.LIBRARY:
+        if (!Number.isNaN(entityId)) scopeFilters.libraryId = entityId;
+        break;
+      case EntityType.SHELF:
+        if (!Number.isNaN(entityId)) scopeFilters.shelfId = entityId;
+        break;
+      case EntityType.MAGIC_SHELF:
+        if (!Number.isNaN(entityId)) scopeFilters.magicShelfId = entityId;
+        break;
+      case EntityType.UNSHELVED:
+        scopeFilters.unshelved = true;
+        break;
+    }
+
+    if (sidebarFilters) {
+      for (const [type, values] of Object.entries(sidebarFilters)) {
+        if (!values || values.length === 0) continue;
+        const strValues = values.map(String);
+        switch (type) {
+          case 'author': scopeFilters.authors = strValues; break;
+          case 'category': scopeFilters.category = strValues; break;
+          case 'series': scopeFilters.series = strValues; break;
+          case 'publisher': scopeFilters.publisher = strValues; break;
+          case 'tag': scopeFilters.tag = strValues; break;
+          case 'mood': scopeFilters.mood = strValues; break;
+          case 'narrator': scopeFilters.narrator = strValues; break;
+          case 'language': scopeFilters.language = strValues; break;
+          case 'readStatus': scopeFilters.status = strValues; break;
+          case 'bookType': scopeFilters.fileType = strValues; break;
+        }
+      }
+      const mode = this.selectedFilterMode();
+      scopeFilters.filterMode = mode === 'single' ? 'or' : mode;
+    }
+
+    this.appBooksApi.setFilters(scopeFilters);
+    this.appBooksApi.setSearch(search);
+
+    if (sortCriteria.length > 0) {
+      const primary = sortCriteria[0];
+      const dir = primary.direction === SortDirection.ASCENDING ? 'asc' as const : 'desc' as const;
+      this.appBooksApi.setSort({field: primary.field, dir});
+    }
+  });
 
   // --- Deferred render: lets skeleton/refresh indicator paint before committing ---
   private readonly booksRenderState = new DeferredRenderState<Book[]>();
@@ -219,39 +257,24 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     return Number.isNaN(entityId) ? entityType : `${entityType}:${entityId}`;
   });
 
-  private readonly pipelineInputs = computed(() => ({
-    books: this.bookService.books(),
-    entity: this.entityInfo(),
-    search: this.debouncedSearchTerm(),
-    filter: this.selectedFilter(),
-    filterMode: this.selectedFilterMode(),
-    collapsed: this.seriesCollapsed(),
-    forceExpand: this.forceExpandSeries(),
-    sort: this.sortCriteria(),
-  }));
+  private readonly pipelineInputs = computed(() => this.appBooksApi.books());
 
   private readonly renderBooksEffect = effect((onCleanup) => {
     const contextKey = this.booksContextKey();
-    this.pipelineInputs();
+    const books = this.pipelineInputs();
 
     const shouldRefreshInPlace = untracked(() => this.hasRenderedBooks()) && contextKey === this.lastBooksContextKey;
     this.lastBooksContextKey = contextKey;
 
     if (shouldRefreshInPlace) {
-      // Same context (sort/filter/search change within the same entity).
-      // Commit synchronously — the memoized computed chain is fast and
-      // skipping the setTimeout avoids a one-frame skeleton flash.
-      const requestId = this.booksRenderState.begin('refresh');
-      this.booksRenderState.commit(requestId, this.sortedBooks());
+      this.booksRenderState.update(books);
       return;
     }
 
-    // Context changed (navigation between entities or first load).
-    // Defer so the skeleton can paint before the pipeline evaluates.
     const requestId = this.booksRenderState.begin('reset');
 
     const timeout = globalThis.setTimeout(() => {
-      this.booksRenderState.commit(requestId, this.sortedBooks());
+      this.booksRenderState.commit(requestId, books);
     });
 
     onCleanup(() => {
@@ -259,8 +282,8 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
       this.booksRenderState.cancel(requestId);
     });
   });
-  readonly isBooksLoading = this.bookService.isBooksLoading;
-  readonly booksError = this.bookService.booksError;
+  readonly isBooksLoading = computed(() => this.appBooksApi.isLoading());
+  readonly booksError = this.appBooksApi.error;
   readonly bookIndexById = computed(() => {
     const books = this.books();
     if (!books) return new Map<number, number>();
@@ -270,6 +293,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     return map;
   });
+  readonly compareBookItems = (a: Book, b: Book): boolean => a?.id === b?.id;
   protected resetFilterSubject = new Subject<void>();
 
   readonly skeletonSlots = Array.from({length: 24}, (_, index) => index);
@@ -1046,7 +1070,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
 
   attachFilesToBook(): void {
     const selectedBookIds = Array.from(this.selectedBooks());
-    const sourceBooks = this.bookService.books().filter(book =>
+    const sourceBooks = (this.books() ?? []).filter(book =>
       selectedBookIds.includes(book.id)
     );
 
@@ -1084,7 +1108,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     const selectedBookIds = Array.from(this.selectedBooks());
     if (selectedBookIds.length === 0) return false;
 
-    const selectedBooks = this.bookService.books().filter(book =>
+    const selectedBooks = (this.books() ?? []).filter(book =>
       selectedBookIds.includes(book.id)
     );
 
@@ -1106,4 +1130,9 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  onScrollEnd(): void {
+    if (this.appBooksApi.hasNextPage() && !this.appBooksApi.isFetchingNextPage()) {
+      this.appBooksApi.fetchNextPage();
+    }
+  }
 }
