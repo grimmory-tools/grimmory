@@ -1,5 +1,5 @@
 import {Component, DestroyRef, inject, OnInit} from '@angular/core';
-import {Tab, TabList, Tabs} from 'primeng/tabs';
+import {Tab, TabList, TabPanel, TabPanels, Tabs} from 'primeng/tabs';
 import {UserService} from './user-management/user.service';
 import {GlobalPreferencesComponent} from './global-preferences/global-preferences.component';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -41,6 +41,8 @@ export enum SettingsTab {
     Tabs,
     TabList,
     Tab,
+    TabPanels,
+    TabPanel,
     GlobalPreferencesComponent,
     UserManagementComponent,
     AuthenticationSettingsComponent,
