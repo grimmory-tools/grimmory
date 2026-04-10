@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, SimpleChanges, ViewChild, ElementRef, AfterViewInit} from '@angular/core';
+import {Component, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild, ElementRef, AfterViewInit} from '@angular/core';
 import {CbxPageSplitOption} from '../../../settings/user-management/user.service';
 
 export type CanvasSplitState = 'NO_SPLIT' | 'LEFT_PART' | 'RIGHT_PART';
@@ -41,7 +41,7 @@ export type CanvasSplitState = 'NO_SPLIT' | 'LEFT_PART' | 'RIGHT_PART';
     }
   `]
 })
-export class CanvasRendererComponent implements OnChanges, AfterViewInit {
+export class CanvasRendererComponent implements OnChanges, AfterViewInit, OnDestroy {
   @Input() imageUrl = '';
   @Input() splitState: CanvasSplitState = 'NO_SPLIT';
   @Input() splitOption: CbxPageSplitOption = CbxPageSplitOption.NO_SPLIT;
@@ -50,6 +50,7 @@ export class CanvasRendererComponent implements OnChanges, AfterViewInit {
 
   imageLoaded = false;
   private currentImage: HTMLImageElement | null = null;
+  private pendingImage: HTMLImageElement | null = null;
 
   private static readonly MAX_CANVAS_SAFARI = 4096;
   private static readonly MAX_CANVAS_OTHER = 16384;
@@ -57,6 +58,22 @@ export class CanvasRendererComponent implements OnChanges, AfterViewInit {
   ngAfterViewInit(): void {
     if (this.imageUrl) {
       this.loadAndDraw();
+    }
+  }
+
+  ngOnDestroy(): void {
+    // Release canvas memory
+    const canvas = this.canvasRef?.nativeElement;
+    if (canvas) {
+      canvas.width = 0;
+      canvas.height = 0;
+    }
+    this.cancelPendingImage();
+    if (this.currentImage) {
+      this.currentImage.onload = null;
+      this.currentImage.onerror = null;
+      this.currentImage.src = '';
+      this.currentImage = null;
     }
   }
 
@@ -73,15 +90,30 @@ export class CanvasRendererComponent implements OnChanges, AfterViewInit {
   private loadAndDraw(): void {
     if (!this.imageUrl) return;
 
+    this.cancelPendingImage();
+
     this.imageLoaded = false;
     const img = new Image();
     img.crossOrigin = 'anonymous';
+    this.pendingImage = img;
     img.onload = () => {
-      this.currentImage = img;
-      this.drawImage(img);
-      this.imageLoaded = true;
+      if (this.pendingImage === img) {
+        this.currentImage = img;
+        this.drawImage(img);
+        this.imageLoaded = true;
+        this.pendingImage = null;
+      }
     };
     img.src = this.imageUrl;
+  }
+
+  private cancelPendingImage(): void {
+    if (this.pendingImage) {
+      this.pendingImage.onload = null;
+      this.pendingImage.onerror = null;
+      this.pendingImage.src = '';
+      this.pendingImage = null;
+    }
   }
 
   private drawImage(img: HTMLImageElement): void {

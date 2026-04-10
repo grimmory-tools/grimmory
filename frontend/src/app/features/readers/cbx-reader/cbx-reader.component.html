@@ -100,7 +100,7 @@
       <div class="strip-width-constrain" [style.width]="cbxQuickSettingsState().stripMaxWidthPercent + '%'">
         @for (item of longStripImages; track item.page) {
         <img [src]="item.src" alt="Page {{ item.page + 1 }}" class="long-strip-image" [attr.data-page]="item.page"
-          draggable="false" (load)="onLongStripImageLoad($event, item.page)" />
+          draggable="false" [attr.loading]="item.page === currentPage ? 'eager' : 'lazy'" decoding="async" (load)="onLongStripImageLoad($event, item.page)" />
         }
         @if (nextBookInSeries) {
         <div class="cbx-continuation-spacer" aria-hidden="true"></div>
@@ -125,6 +125,7 @@
         @for (pageIdx of infiniteScrollPages; track pageIdx) {
         <img [src]="getPageImageUrl(pageIdx)" alt="Page {{ pageIdx + 1 }}" class="page-image"
           [attr.data-page]="pageIdx" role="button" tabindex="0" draggable="false"
+          [attr.loading]="pageIdx === currentPage ? 'eager' : 'lazy'" decoding="async"
           (click)="onImageClick()" (keydown.enter)="onImageClick()" (dblclick)="onImageDoubleClick()"
           (load)="onPageImageLoad($event, pageIdx)" />
         }
