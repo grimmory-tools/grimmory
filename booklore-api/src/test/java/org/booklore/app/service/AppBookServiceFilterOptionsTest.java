@@ -12,7 +12,6 @@ import org.booklore.model.dto.Library;
 import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.ShelfEntity;
-import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.ShelfRepository;
 import org.booklore.repository.UserBookFileProgressRepository;
@@ -81,7 +80,7 @@ class AppBookServiceFilterOptionsTest {
         assertNotNull(result.authors());
         assertNotNull(result.languages());
         assertNotNull(result.fileTypes());
-        assertFalse(result.readStatuses().isEmpty());
+        assertNotNull(result.readStatuses());
     }
 
     // -------------------------------------------------------------------------
@@ -96,7 +95,7 @@ class AppBookServiceFilterOptionsTest {
         AppFilterOptions result = service.getFilterOptions(5L, null, null);
 
         assertNotNull(result);
-        verify(entityManager, times(9)).createQuery(anyString(), any(Class.class));
+        verify(entityManager, times(10)).createQuery(anyString(), any(Class.class));
     }
 
     @Test
@@ -179,7 +178,7 @@ class AppBookServiceFilterOptionsTest {
         assertTrue(result.authors().isEmpty());
         assertTrue(result.languages().isEmpty());
         assertTrue(result.fileTypes().isEmpty());
-        assertFalse(result.readStatuses().isEmpty());
+        assertTrue(result.readStatuses().isEmpty());
     }
 
     @Test
@@ -263,13 +262,7 @@ class AppBookServiceFilterOptionsTest {
         when(tupleQuery.setMaxResults(anyInt())).thenReturn(tupleQuery);
         when(tupleQuery.getResultList()).thenReturn(Collections.emptyList());
 
-        TypedQuery<BookFileType> ftQuery = mock(TypedQuery.class);
-        when(ftQuery.setParameter(anyString(), any())).thenReturn(ftQuery);
-        when(ftQuery.getResultList()).thenReturn(Collections.emptyList());
-
         when(entityManager.createQuery(anyString(), eq(Tuple.class)))
                 .thenReturn(tupleQuery);
-        when(entityManager.createQuery(anyString(), eq(BookFileType.class)))
-                .thenReturn(ftQuery);
     }
 }

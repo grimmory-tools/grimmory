@@ -152,15 +152,9 @@ export class BookFilterService {
           bookCount: lang.count,
         }));
       case 'readStatus':
-        return (options.readStatuses ?? []).map((status: string) => ({
-          value: {id: status, name: status},
-          bookCount: 0,
-        }));
+        return this.countedToFilters(options.readStatuses);
       case 'bookType':
-        return (options.fileTypes ?? []).map((ft: string) => ({
-          value: {id: ft, name: ft},
-          bookCount: 0,
-        }));
+        return this.countedToFilters(options.fileTypes);
       default:
         return [];
     }

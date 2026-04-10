@@ -1,8 +1,6 @@
 package org.booklore.app.dto;
 
 import jakarta.validation.constraints.Size;
-import org.booklore.model.enums.BookFileType;
-import org.booklore.model.enums.ReadStatus;
 
 import java.util.List;
 
@@ -13,9 +11,9 @@ public record BookListRequest(
         String dir,
         Long libraryId,
         Long shelfId,
-        ReadStatus status,
+        @Size(max = 20) List<String> status,
         String search,
-        BookFileType fileType,
+        @Size(max = 20) List<String> fileType,
         Integer minRating,
         Integer maxRating,
         @Size(max = 20) List<String> authors,

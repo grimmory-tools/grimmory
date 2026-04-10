@@ -2,9 +2,6 @@ package org.booklore.service.metadata.writer;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.lingala.zip4j.ZipFile;
-import net.lingala.zip4j.model.ZipParameters;
-import net.lingala.zip4j.model.enums.CompressionMethod;
 import org.apache.commons.lang3.StringUtils;
 import org.booklore.model.MetadataClearFlags;
 import org.booklore.model.dto.settings.MetadataPersistenceSettings;
@@ -35,6 +32,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -43,6 +41,12 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.zip.CRC32;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import org.grimmory.epub4j.archive.EpubContainer;
+import org.grimmory.epub4j.archive.EpubContainers;
 
 @Slf4j
 @Component
@@ -68,9 +72,7 @@ public class EpubMetadataWriter implements MetadataWriter {
         Path tempDir = null;
         try {
             tempDir = Files.createTempDirectory("epub_edit_" + UUID.randomUUID());
-            try (ZipFile zipFile = new ZipFile(epubFile)) {
-                zipFile.extractAll(tempDir.toString());
-            }
+            extractZipToDirectory(epubFile, tempDir);
 
             File opfFile = findOpfFile(tempDir.toFile());
             if (opfFile == null) {
@@ -225,9 +227,7 @@ public class EpubMetadataWriter implements MetadataWriter {
                 transformer.transform(new DOMSource(opfDoc), new StreamResult(opfFile));
 
                 File tempEpub = new File(epubFile.getParentFile(), epubFile.getName() + ".tmp");
-                try (ZipFile tempZipFile = new ZipFile(tempEpub)) {
-                    addFolderContentsToZip(tempZipFile, tempDir.toFile(), tempDir.toFile());
-                }
+                createEpubZipFromDirectory(tempDir, tempEpub.toPath());
 
                 if (!epubFile.delete()) throw new IOException("Could not delete original EPUB");
                 if (!tempEpub.renameTo(epubFile)) throw new IOException("Could not rename temp EPUB");
@@ -361,9 +361,7 @@ public class EpubMetadataWriter implements MetadataWriter {
             File epubFile = new File(bookEntity.getFullFilePath().toUri());
             tempDir = Files.createTempDirectory("epub_cover_" + UUID.randomUUID());
 
-            try (ZipFile zipFile = new ZipFile(epubFile)) {
-                zipFile.extractAll(tempDir.toString());
-            }
+            extractZipToDirectory(epubFile, tempDir);
 
             File opfFile = findOpfFile(tempDir.toFile());
             if (opfFile == null) {
@@ -383,9 +381,7 @@ public class EpubMetadataWriter implements MetadataWriter {
             transformer.transform(new DOMSource(opfDoc), new StreamResult(opfFile));
 
             File tempEpub = new File(epubFile.getParentFile(), epubFile.getName() + ".tmp");
-            try (ZipFile tempZipFile = new ZipFile(tempEpub)) {
-                addFolderContentsToZip(tempZipFile, tempDir.toFile(), tempDir.toFile());
-            }
+            createEpubZipFromDirectory(tempDir, tempEpub.toPath());
 
             if (!epubFile.delete()) throw new IOException("Could not delete original EPUB");
             if (!tempEpub.renameTo(epubFile)) throw new IOException("Could not rename temp EPUB");
@@ -526,33 +522,61 @@ public class EpubMetadataWriter implements MetadataWriter {
         }
     }
 
-    private void addFolderContentsToZip(ZipFile zipFile, File baseDir, File currentDir) throws IOException {
-        // EPUB spec requires mimetype to be the first entry in the ZIP, uncompressed (STORED)
-        if (baseDir.equals(currentDir)) {
-            File mimetypeFile = new File(baseDir, "mimetype");
-            if (mimetypeFile.exists()) {
-                ZipParameters mimetypeParams = new ZipParameters();
-                mimetypeParams.setFileNameInZip("mimetype");
-                mimetypeParams.setCompressionMethod(CompressionMethod.STORE);
-                zipFile.addFile(mimetypeFile, mimetypeParams);
+    private void extractZipToDirectory(File zipSource, Path targetDir) throws IOException {
+        try (EpubContainer container = EpubContainers.open(zipSource.toPath())) {
+            for (String name : container.listAllFiles()) {
+                Path entryPath = targetDir.resolve(name).normalize();
+                if (!entryPath.startsWith(targetDir)) {
+                    throw new IOException("ZIP entry outside target directory: " + name);
+                }
+                Files.createDirectories(entryPath.getParent());
+                try (OutputStream out = Files.newOutputStream(entryPath)) {
+                    container.streamTo(name, out);
+                }
+            }
+        }
+    }
+
+    private void createEpubZipFromDirectory(Path sourceDir, Path targetZip) throws IOException {
+        try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(targetZip))) {
+            // EPUB spec requires mimetype to be the first entry in the ZIP, uncompressed (STORED)
+            Path mimetypeFile = sourceDir.resolve("mimetype");
+            if (Files.exists(mimetypeFile)) {
+                byte[] mimetypeData = Files.readAllBytes(mimetypeFile);
+                ZipEntry mimetypeEntry = new ZipEntry("mimetype");
+                mimetypeEntry.setMethod(ZipEntry.STORED);
+                mimetypeEntry.setSize(mimetypeData.length);
+                mimetypeEntry.setCompressedSize(mimetypeData.length);
+                CRC32 crc = new CRC32();
+                crc.update(mimetypeData);
+                mimetypeEntry.setCrc(crc.getValue());
+                zos.putNextEntry(mimetypeEntry);
+                zos.write(mimetypeData);
+                zos.closeEntry();
             } else {
                 log.warn("EPUB mimetype file not found in extracted directory — output may be spec-invalid");
             }
-        }
 
-        File[] files = Objects.requireNonNull(currentDir.listFiles());
-        for (File file : files) {
-            if (file.isDirectory()) {
-                addFolderContentsToZip(zipFile, baseDir, file);
-            } else {
-                // Skip mimetype — already added as the first entry
-                String relativePath = baseDir.toPath().relativize(file.toPath()).toString().replace(File.separatorChar, '/');
-                if ("mimetype".equals(relativePath)) {
-                    continue;
-                }
-                ZipParameters params = new ZipParameters();
-                params.setFileNameInZip(relativePath);
-                zipFile.addFile(file, params);
+            try (var pathStream = Files.walk(sourceDir)) {
+                pathStream
+                    .filter(path -> !path.equals(sourceDir))
+                    .filter(path -> !path.equals(mimetypeFile))
+                    .sorted()
+                    .forEach(path -> {
+                        try {
+                            String relativePath = sourceDir.relativize(path).toString().replace(File.separatorChar, '/');
+                            if (Files.isDirectory(path)) {
+                                zos.putNextEntry(new ZipEntry(relativePath + "/"));
+                                zos.closeEntry();
+                            } else {
+                                zos.putNextEntry(new ZipEntry(relativePath));
+                                Files.copy(path, zos);
+                                zos.closeEntry();
+                            }
+                        } catch (IOException e) {
+                            throw new java.io.UncheckedIOException(e);
+                        }
+                    });
             }
         }
     }
