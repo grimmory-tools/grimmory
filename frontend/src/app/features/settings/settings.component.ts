@@ -1,9 +1,9 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit} from '@angular/core';
 import {Tab, TabList, TabPanel, TabPanels, Tabs} from 'primeng/tabs';
 import {UserService} from './user-management/user.service';
 import {GlobalPreferencesComponent} from './global-preferences/global-preferences.component';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Subscription} from 'rxjs';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {UserManagementComponent} from './user-management/user-management.component';
 import {AuthenticationSettingsComponent} from '../../core/security/oauth2-management/authentication-settings.component';
 import {ViewPreferencesParentComponent} from './view-preferences-parent/view-preferences-parent.component';
@@ -61,13 +61,12 @@ export enum SettingsTab {
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss'
 })
-export class SettingsComponent implements OnInit, OnDestroy {
+export class SettingsComponent implements OnInit {
   protected userService = inject(UserService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private pageTitle = inject(PageTitleService);
-
-  private routeSub!: Subscription;
+  private destroyRef = inject(DestroyRef);
 
   SettingsTab = SettingsTab;
 
@@ -91,7 +90,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.pageTitle.setPageTitle('Settings');
 
-    this.routeSub = this.route.queryParams.subscribe(params => {
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       const tabParam = params['tab'];
       if (this.validTabs.includes(tabParam)) {
         this._activeTab = tabParam as SettingsTab;
@@ -105,9 +104,5 @@ export class SettingsComponent implements OnInit, OnDestroy {
         });
       }
     });
-  }
-
-  ngOnDestroy(): void {
-    this.routeSub.unsubscribe();
   }
 }

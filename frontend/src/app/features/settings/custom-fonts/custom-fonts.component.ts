@@ -1,6 +1,5 @@
 import {Component, DestroyRef, inject, OnInit} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {take} from 'rxjs/operators';
 import {Button} from 'primeng/button';
 import {MessageService} from 'primeng/api';
 import {CustomFontService} from '../../../shared/service/custom-font.service';
@@ -86,7 +85,9 @@ export class CustomFontsComponent implements OnInit {
     });
 
     if (this.uploadDialogRef) {
-      this.uploadDialogRef.onClose.pipe(take(1), takeUntilDestroyed(this.destroyRef)).subscribe((font: CustomFont | null) => {
+      this.uploadDialogRef.onClose.pipe(
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe((font: CustomFont | null) => {
         if (font) {
           this.customFonts.push(font);
         }
@@ -101,7 +102,9 @@ export class CustomFontsComponent implements OnInit {
       header: this.t.translate('settingsReader.fonts.deleteFontHeader'),
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.customFontService.deleteFont(font.id).subscribe({
+        this.customFontService.deleteFont(font.id).pipe(
+          takeUntilDestroyed(this.destroyRef)
+        ).subscribe({
           next: () => {
             this.customFonts = this.customFonts.filter(f => f.id !== font.id);
             this.messageService.add({

@@ -1,7 +1,7 @@
 import {computed, effect, inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {lastValueFrom, Observable, of} from 'rxjs';
-import {catchError, map, switchMap} from 'rxjs/operators';
+import {lastValueFrom, Observable} from 'rxjs';
+import {map, switchMap} from 'rxjs/operators';
 import {API_CONFIG} from '../../core/config/api-config';
 import {AppSettings, OidcProviderDetails, OidcTestResult} from '../model/app-settings.model';
 import {AuthService} from './auth.service';
@@ -99,15 +99,8 @@ export class AppSettingsService {
     }));
 
     return this.http.put<void>(this.apiUrl, payload).pipe(
-      switchMap(() => {
-        void this.queryClient.invalidateQueries({queryKey: APP_SETTINGS_QUERY_KEY});
-        return of(void 0);
-      }),
-      map(() => void 0),
-      catchError(err => {
-        console.error('Error saving settings:', err);
-        return of();
-      })
+      switchMap(() => this.queryClient.invalidateQueries({queryKey: APP_SETTINGS_QUERY_KEY})),
+      map(() => void 0)
     );
   }
 
@@ -121,10 +114,6 @@ export class AppSettingsService {
           this.queryClient.setQueryData(APP_SETTINGS_QUERY_KEY, updated);
           this.syncPublicSettings(updated);
         }
-      }),
-      catchError(err => {
-        console.error('Error toggling OIDC:', err);
-        return of();
       })
     );
   }

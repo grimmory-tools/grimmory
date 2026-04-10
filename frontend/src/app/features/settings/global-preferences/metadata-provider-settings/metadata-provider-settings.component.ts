@@ -1,4 +1,5 @@
-import {Component, effect, inject} from '@angular/core';
+import {Component, DestroyRef, effect, inject} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {TableModule} from 'primeng/table';
 import {InputText} from 'primeng/inputtext';
@@ -100,6 +101,7 @@ export class MetadataProviderSettingsComponent {
   private appSettingsService = inject(AppSettingsService);
   private messageService = inject(MessageService);
   private t = inject(TranslocoService);
+  private destroyRef = inject(DestroyRef);
 
   private readonly syncSettingsEffect = effect(() => {
     const settings = this.appSettingsService.appSettings();
@@ -174,7 +176,9 @@ export class MetadataProviderSettingsComponent {
       }
     ];
 
-    this.appSettingsService.saveSettings(payload).subscribe({
+    this.appSettingsService.saveSettings(payload).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: () =>
         this.messageService.add({
           severity: 'success',

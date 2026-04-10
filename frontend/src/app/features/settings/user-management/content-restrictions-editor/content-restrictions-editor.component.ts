@@ -1,4 +1,5 @@
-import {Component, computed, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
+import {Component, computed, DestroyRef, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {Button} from 'primeng/button';
 import {Select} from 'primeng/select';
@@ -38,6 +39,7 @@ export class ContentRestrictionsEditorComponent implements OnInit, OnChanges {
   private bookService = inject(BookService);
   private messageService = inject(MessageService);
   private t = inject(TranslocoService);
+  private destroyRef = inject(DestroyRef);
   private readonly sortedMetadata = computed(() => {
     const md = this.bookService.uniqueMetadata();
     return {
@@ -87,7 +89,9 @@ export class ContentRestrictionsEditorComponent implements OnInit, OnChanges {
   loadRestrictions() {
     if (!this.userId) return;
 
-    this.contentRestrictionService.getUserRestrictions(this.userId).subscribe({
+    this.contentRestrictionService.getUserRestrictions(this.userId).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (restrictions) => {
         this.restrictions = restrictions;
         this.restrictionsChanged.emit(this.restrictions);
@@ -150,7 +154,9 @@ export class ContentRestrictionsEditorComponent implements OnInit, OnChanges {
       value: this.newRestriction.value!
     };
 
-    this.contentRestrictionService.addRestriction(this.userId, restriction).subscribe({
+    this.contentRestrictionService.addRestriction(this.userId, restriction).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (added) => {
         this.restrictions.push(added);
         this.restrictionsChanged.emit(this.restrictions);
@@ -174,7 +180,9 @@ export class ContentRestrictionsEditorComponent implements OnInit, OnChanges {
   removeRestriction(restriction: ContentRestriction) {
     if (!restriction.id) return;
 
-    this.contentRestrictionService.deleteRestriction(this.userId, restriction.id).subscribe({
+    this.contentRestrictionService.deleteRestriction(this.userId, restriction.id).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: () => {
         this.restrictions = this.restrictions.filter(r => r.id !== restriction.id);
         this.restrictionsChanged.emit(this.restrictions);

@@ -1,4 +1,5 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {Button} from 'primeng/button';
 import {DynamicDialogRef} from 'primeng/dynamicdialog';
@@ -13,7 +14,6 @@ import {LibraryService} from '../../book/service/library.service';
 import {Dialog} from 'primeng/dialog';
 import {Password} from 'primeng/password';
 import {InputText} from 'primeng/inputtext';
-import {Subject} from 'rxjs';
 import {Tooltip} from 'primeng/tooltip';
 import {DialogLauncherService} from '../../../shared/services/dialog-launcher.service';
 import {ContentRestrictionsEditorComponent} from './content-restrictions-editor/content-restrictions-editor.component';
@@ -46,14 +46,14 @@ interface UserWithEditing extends User {
   templateUrl: './user-management.component.html',
   styleUrls: ['./user-management.component.scss'],
 })
-export class UserManagementComponent implements OnInit, OnDestroy {
+export class UserManagementComponent implements OnInit {
   ref: DynamicDialogRef | undefined | null;
   private dialogLauncherService = inject(DialogLauncherService);
   private userService = inject(UserService);
   private libraryService = inject(LibraryService);
   private messageService = inject(MessageService);
   private t = inject(TranslocoService);
-  private readonly destroy$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
   get allLibraries() { return this.libraryService.libraries(); }
 
   users: UserWithEditing[] = [];
@@ -78,14 +78,9 @@ export class UserManagementComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
 
   loadUsers() {
-    this.userService.getUsers().subscribe({
+    this.userService.getUsers().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
         this.users = data.map((user) => ({
           ...user,
@@ -107,7 +102,7 @@ export class UserManagementComponent implements OnInit, OnDestroy {
 
   openCreateUserDialog() {
     this.ref = this.dialogLauncherService.openCreateUserDialog();
-    this.ref?.onClose.subscribe((result) => {
+    this.ref?.onClose.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
       if (result) {
         this.loadUsers();
       }

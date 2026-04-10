@@ -1,4 +1,5 @@
 import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Button} from 'primeng/button';
 import {ProgressBar} from 'primeng/progressbar';
 import {MessageService} from 'primeng/api';
@@ -19,7 +20,6 @@ import {
 } from './task.service';
 import {MetadataRefreshRequest} from '../../metadata/model/request/metadata-refresh-request.model';
 import {finalize, forkJoin} from 'rxjs';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ExternalDocLinkComponent} from '../../../shared/components/external-doc-link/external-doc-link.component';
 import {ToggleSwitch} from 'primeng/toggleswitch';
 import {Tooltip} from 'primeng/tooltip';

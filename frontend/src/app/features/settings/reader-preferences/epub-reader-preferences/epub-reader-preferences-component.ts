@@ -1,5 +1,5 @@
 import {DecimalPipe} from '@angular/common';
-import {Component, effect, inject, Input, OnDestroy} from '@angular/core';
+import {Component, effect, inject, Input} from '@angular/core';
 import {Button} from 'primeng/button';
 import {FormsModule} from '@angular/forms';
 import {TranslocoDirective} from '@jsverse/transloco';
@@ -8,7 +8,6 @@ import {UserSettings} from '../../user-management/user.service';
 import {Tooltip} from 'primeng/tooltip';
 import {CustomFontService} from '../../../../shared/service/custom-font.service';
 import {CustomFont} from '../../../../shared/model/custom-font.model';
-import {Subject} from 'rxjs';
 import {addCustomFontsToDropdown} from '../../../../shared/util/custom-font.util';
 import {Skeleton} from 'primeng/skeleton';
 import {themes} from '../../../readers/ebook-reader/state/themes.constant';
@@ -26,13 +25,12 @@ import {themes} from '../../../readers/ebook-reader/state/themes.constant';
   templateUrl: './epub-reader-preferences-component.html',
   styleUrl: './epub-reader-preferences-component.scss'
 })
-export class EpubReaderPreferencesComponent implements OnDestroy {
+export class EpubReaderPreferencesComponent {
 
   @Input() userSettings!: UserSettings;
 
   private readonly readerPreferencesService = inject(ReaderPreferencesService);
   private readonly customFontService = inject(CustomFontService);
-  private readonly destroy$ = new Subject<void>();
 
   customFonts: CustomFont[] = [];
 
@@ -58,11 +56,6 @@ export class EpubReaderPreferencesComponent implements OnDestroy {
       this.onFontsChanged(fonts);
     }
   });
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 
   private async onFontsChanged(fonts: CustomFont[]): Promise<void> {
     try {

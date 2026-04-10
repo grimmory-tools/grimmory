@@ -1,4 +1,5 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Button} from 'primeng/button';
 import {Checkbox} from 'primeng/checkbox';
 import {MessageService} from 'primeng/api';
@@ -38,6 +39,7 @@ export class EmailV2ProviderComponent implements OnInit {
   private messageService = inject(MessageService);
   private userService = inject(UserService);
   private t = inject(TranslocoService);
+  private destroyRef = inject(DestroyRef);
   defaultProviderId: unknown;
   currentUserId: number | null = null;
   isAdmin: boolean = false;
@@ -54,7 +56,9 @@ export class EmailV2ProviderComponent implements OnInit {
   }
 
   loadEmailProviders(): void {
-    this.emailProvidersService.getEmailProviders().subscribe({
+    this.emailProvidersService.getEmailProviders().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (emailProviders: EmailProvider[]) => {
         this.emailProviders = emailProviders.map((provider) => ({
           ...provider,
@@ -83,7 +87,9 @@ export class EmailV2ProviderComponent implements OnInit {
   }
 
   saveProvider(provider: EmailProvider): void {
-    this.emailProvidersService.updateProvider(provider).subscribe({
+    this.emailProvidersService.updateProvider(provider).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: () => {
         provider.isEditing = false;
         this.messageService.add({
@@ -105,7 +111,9 @@ export class EmailV2ProviderComponent implements OnInit {
 
   deleteProvider(provider: EmailProvider): void {
     if (confirm(this.t.translate('settingsEmail.provider.deleteConfirm', {name: provider.name}))) {
-      this.emailProvidersService.deleteProvider(provider.id).subscribe({
+      this.emailProvidersService.deleteProvider(provider.id).pipe(
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe({
         next: () => {
           this.messageService.add({
             severity: 'success',
@@ -127,7 +135,7 @@ export class EmailV2ProviderComponent implements OnInit {
 
   openCreateProviderDialog() {
     this.ref = this.dialogLauncherService.openEmailProviderDialog();
-    this.ref?.onClose.subscribe((result) => {
+    this.ref?.onClose.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
       if (result) {
         this.loadEmailProviders();
       }
@@ -135,7 +143,9 @@ export class EmailV2ProviderComponent implements OnInit {
   }
 
   setDefaultProvider(provider: EmailProvider) {
-    this.emailProvidersService.setDefaultProvider(provider.id).subscribe({
+    this.emailProvidersService.setDefaultProvider(provider.id).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: () => {
         this.defaultProviderId = provider.id;
         this.messageService.add({
@@ -160,7 +170,9 @@ export class EmailV2ProviderComponent implements OnInit {
   }
 
   toggleShared(provider: EmailProvider): void {
-    this.emailProvidersService.updateProvider(provider).subscribe({
+    this.emailProvidersService.updateProvider(provider).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: () => {
         const status = this.t.translate(provider.shared ? 'settingsEmail.provider.sharedStatusOn' : 'settingsEmail.provider.sharedStatusOff');
         this.messageService.add({

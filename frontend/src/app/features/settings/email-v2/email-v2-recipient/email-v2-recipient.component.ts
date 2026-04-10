@@ -1,4 +1,5 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Button} from 'primeng/button';
 import {MessageService} from 'primeng/api';
 import {RadioButton} from 'primeng/radiobutton';
@@ -34,6 +35,7 @@ export class EmailV2RecipientComponent implements OnInit {
   private emailRecipientService = inject(EmailV2RecipientService);
   private messageService = inject(MessageService);
   private t = inject(TranslocoService);
+  private destroyRef = inject(DestroyRef);
   defaultRecipientId: unknown;
 
   ngOnInit(): void {
@@ -41,7 +43,9 @@ export class EmailV2RecipientComponent implements OnInit {
   }
 
   loadRecipientEmails(): void {
-    this.emailRecipientService.getRecipients().subscribe({
+    this.emailRecipientService.getRecipients().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (recipients: EmailRecipient[]) => {
         this.recipientEmails = recipients.map((recipient) => ({
           ...recipient,
@@ -70,7 +74,9 @@ export class EmailV2RecipientComponent implements OnInit {
   }
 
   saveRecipient(recipient: EmailRecipient): void {
-    this.emailRecipientService.updateRecipient(recipient).subscribe({
+    this.emailRecipientService.updateRecipient(recipient).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: () => {
         recipient.isEditing = false;
         this.messageService.add({
@@ -92,7 +98,9 @@ export class EmailV2RecipientComponent implements OnInit {
 
   deleteRecipient(recipient: EmailRecipient): void {
     if (confirm(this.t.translate('settingsEmail.recipient.deleteConfirm', {email: recipient.email}))) {
-      this.emailRecipientService.deleteRecipient(recipient.id).subscribe({
+      this.emailRecipientService.deleteRecipient(recipient.id).pipe(
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe({
         next: () => {
           this.messageService.add({
             severity: 'success',
@@ -114,7 +122,7 @@ export class EmailV2RecipientComponent implements OnInit {
 
   openAddRecipientDialog() {
     this.ref = this.dialogLauncherService.openEmailRecipientDialog();
-    this.ref?.onClose.subscribe((result) => {
+    this.ref?.onClose.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
       if (result) {
         this.loadRecipientEmails();
       }
@@ -122,7 +130,9 @@ export class EmailV2RecipientComponent implements OnInit {
   }
 
   setDefaultRecipient(recipient: EmailRecipient) {
-    this.emailRecipientService.setDefaultRecipient(recipient.id).subscribe(() => {
+    this.emailRecipientService.setDefaultRecipient(recipient.id).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => {
       this.defaultRecipientId = recipient.id;
       this.messageService.add({
         severity: 'success',

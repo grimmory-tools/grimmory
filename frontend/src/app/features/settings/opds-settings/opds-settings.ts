@@ -1,4 +1,5 @@
-import {Component, effect, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, DestroyRef, effect, inject, OnInit} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 import {Button} from 'primeng/button';
 import {InputText} from 'primeng/inputtext';
@@ -10,9 +11,9 @@ import {FormsModule} from '@angular/forms';
 import {ConfirmDialog} from 'primeng/confirmdialog';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {OpdsService, OpdsSortOrder, OpdsUserV2, OpdsUserV2CreateRequest} from './opds.service';
-import {catchError, takeUntil} from 'rxjs/operators';
+import {catchError} from 'rxjs/operators';
 import {UserService} from '../user-management/user.service';
-import {of, Subject} from 'rxjs';
+import {of} from 'rxjs';
 import {ToggleSwitch} from 'primeng/toggleswitch';
 import {AppSettingsService} from '../../../shared/service/app-settings.service';
 import {AppSettingKey} from '../../../shared/model/app-settings.model';
@@ -40,7 +41,7 @@ import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/tran
   templateUrl: './opds-settings.html',
   styleUrl: './opds-settings.scss'
 })
-export class OpdsSettings implements OnInit, OnDestroy {
+export class OpdsSettings implements OnInit {
 
   opdsEndpoint = `${API_CONFIG.BASE_URL}/api/v1/opds`;
   komgaEndpoint = `${API_CONFIG.BASE_URL}/komga`;
@@ -65,7 +66,7 @@ export class OpdsSettings implements OnInit, OnDestroy {
   editingUserId: number | null = null;
   editingSortOrder: OpdsSortOrder | null = null;
 
-  private readonly destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
   dummyPassword: string = "***********************";
 
   sortOrderOptions = [
@@ -113,7 +114,7 @@ export class OpdsSettings implements OnInit, OnDestroy {
 
   private loadUsers(): void {
     this.opdsService.getUser().pipe(
-      takeUntil(this.destroy$),
+      takeUntilDestroyed(this.destroyRef),
       catchError(err => {
         console.error('Error loading users:', err);
         this.showMessage('error', this.t.translate('common.error'), this.t.translate('settingsOpds.loadError'));
@@ -130,7 +131,7 @@ export class OpdsSettings implements OnInit, OnDestroy {
     if (!this.newUser.username || !this.newUser.password) return;
 
     this.opdsService.createUser(this.newUser).pipe(
-      takeUntil(this.destroy$)
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: user => {
         this.users.push(user);
@@ -159,7 +160,7 @@ export class OpdsSettings implements OnInit, OnDestroy {
     if (!user.id) return;
 
     this.opdsService.deleteCredential(user.id).pipe(
-      takeUntil(this.destroy$),
+      takeUntilDestroyed(this.destroyRef),
       catchError(err => {
         console.error('Error deleting user:', err);
         this.showMessage('error', this.t.translate('common.error'), this.t.translate('settingsOpds.deleteError'));
@@ -206,7 +207,9 @@ export class OpdsSettings implements OnInit, OnDestroy {
   }
 
   toggleKomgaGroupUnknown(): void {
-    this.appSettingsService.saveSettings([{key: AppSettingKey.KOMGA_GROUP_UNKNOWN, newValue: this.komgaGroupUnknown}]).subscribe({
+    this.appSettingsService.saveSettings([{key: AppSettingKey.KOMGA_GROUP_UNKNOWN, newValue: this.komgaGroupUnknown}]).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: () => {
         const successMessage = (this.komgaGroupUnknown === true)
           ? this.t.translate('settingsOpds.groupEnabled')
@@ -220,7 +223,9 @@ export class OpdsSettings implements OnInit, OnDestroy {
   }
 
   private saveSetting(key: string, value: unknown): void {
-    this.appSettingsService.saveSettings([{key, newValue: value}]).subscribe({
+    this.appSettingsService.saveSettings([{key, newValue: value}]).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: () => {
         const successMessage = (value === true)
           ? this.t.translate('settingsOpds.opdsEnabled')
@@ -234,7 +239,9 @@ export class OpdsSettings implements OnInit, OnDestroy {
   }
 
   private saveKomgaSetting(key: string, value: unknown): void {
-    this.appSettingsService.saveSettings([{key, newValue: value}]).subscribe({
+    this.appSettingsService.saveSettings([{key, newValue: value}]).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: () => {
         const successMessage = (value === true)
           ? this.t.translate('settingsOpds.komgaEnabled')
@@ -276,7 +283,7 @@ export class OpdsSettings implements OnInit, OnDestroy {
     if (!this.editingSortOrder || !user.id) return;
 
     this.opdsService.updateUser(user.id, this.editingSortOrder).pipe(
-      takeUntil(this.destroy$),
+      takeUntilDestroyed(this.destroyRef),
       catchError(err => {
         console.error('Error updating sort order:', err);
         this.showMessage('error', this.t.translate('common.error'), this.t.translate('settingsOpds.sortUpdateError'));
@@ -292,10 +299,5 @@ export class OpdsSettings implements OnInit, OnDestroy {
       }
       this.cancelEdit();
     });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }
