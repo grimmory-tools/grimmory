@@ -10,8 +10,8 @@ import java.util.List;
 public record AppFilterOptions(
         List<CountedOption> authors,
         List<LanguageOption> languages,
-        List<String> readStatuses,
-        List<String> fileTypes,
+        List<CountedOption> readStatuses,
+        List<CountedOption> fileTypes,
         List<CountedOption> categories,
         List<CountedOption> publishers,
         List<CountedOption> series,

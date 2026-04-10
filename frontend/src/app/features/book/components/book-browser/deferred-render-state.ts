@@ -26,6 +26,12 @@ export class DeferredRenderState<T> {
     return this.activeRequestId;
   }
 
+  /** Direct update without refresh animation used for in-place data swaps. */
+  update(value: T): void {
+    this._value.set(value);
+    this._isRefreshing.set(false);
+  }
+
   commit(requestId: number, value: T): boolean {
     if (requestId !== this.activeRequestId) {
       return false;

@@ -30,8 +30,8 @@ export interface AppBookSummary {
 export interface AppFilterOptions {
   authors: CountedOption[];
   languages: LanguageOption[];
-  readStatuses: string[];
-  fileTypes: string[];
+  readStatuses: CountedOption[];
+  fileTypes: CountedOption[];
   categories: CountedOption[];
   publishers: CountedOption[];
   series: CountedOption[];
@@ -56,9 +56,9 @@ export interface AppBookFilters {
   shelfId?: number;
   magicShelfId?: number;
   unshelved?: boolean;
-  status?: string;
+  status?: string[];
   search?: string;
-  fileType?: string;
+  fileType?: string[];
   minRating?: number;
   maxRating?: number;
   authors?: string[];

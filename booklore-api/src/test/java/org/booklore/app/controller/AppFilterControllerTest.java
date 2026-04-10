@@ -79,11 +79,17 @@ class AppFilterControllerTest {
         List<AppFilterOptions.LanguageOption> languages = langCodes.stream()
                 .map(code -> new AppFilterOptions.LanguageOption(code, code, 1L))
                 .toList();
+        List<AppFilterOptions.CountedOption> fileTypeOptions = fileTypes.stream()
+                .map(ft -> new AppFilterOptions.CountedOption(ft, 1L))
+                .toList();
+        List<AppFilterOptions.CountedOption> readStatusOptions = List.of("READ", "READING", "UNREAD").stream()
+                .map(rs -> new AppFilterOptions.CountedOption(rs, 1L))
+                .toList();
         return AppFilterOptions.builder()
                 .authors(authors)
                 .languages(languages)
-                .fileTypes(fileTypes)
-                .readStatuses(List.of("READ", "READING", "UNREAD"))
+                .fileTypes(fileTypeOptions)
+                .readStatuses(readStatusOptions)
                 .build();
     }
 }

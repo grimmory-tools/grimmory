@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, HostListener, computed, effect, inject, OnDestroy, OnInit, signal, untracked, ViewChild} from '@angular/core';
+import {AfterViewInit, ChangeDetectionStrategy, Component, HostListener, computed, effect, inject, OnDestroy, OnInit, signal, untracked, ViewChild} from '@angular/core';
 import {toObservable, toSignal} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, NavigationStart, Router} from '@angular/router';
 import {ConfirmationService, MenuItem, MessageService} from 'primeng/api';
@@ -72,6 +72,7 @@ export enum EntityType {
   standalone: true,
   templateUrl: './book-browser.component.html',
   styleUrls: ['./book-browser.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     Button, VirtualScrollerModule, BookCardComponent, Menu, InputText, FormsModule,
     BookTableComponent, BookFilterComponent, Tooltip, NgClass, NgStyle, Popover,
@@ -226,8 +227,8 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
           case 'mood': scopeFilters.mood = strValues; break;
           case 'narrator': scopeFilters.narrator = strValues; break;
           case 'language': scopeFilters.language = strValues; break;
-          case 'readStatus': scopeFilters.status = strValues[0]; break;
-          case 'bookType': scopeFilters.fileType = strValues[0]; break;
+          case 'readStatus': scopeFilters.status = strValues; break;
+          case 'bookType': scopeFilters.fileType = strValues; break;
         }
       }
       const mode = this.selectedFilterMode();
@@ -256,34 +257,24 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     return Number.isNaN(entityId) ? entityType : `${entityType}:${entityId}`;
   });
 
-  private readonly pipelineInputs = computed(() => ({
-    books: this.appBooksApi.books(),
-    entity: this.entityInfo(),
-    search: this.debouncedSearchTerm(),
-    filter: this.selectedFilter(),
-    filterMode: this.selectedFilterMode(),
-    collapsed: this.seriesCollapsed(),
-    forceExpand: this.forceExpandSeries(),
-    sort: this.sortCriteria(),
-  }));
+  private readonly pipelineInputs = computed(() => this.appBooksApi.books());
 
   private readonly renderBooksEffect = effect((onCleanup) => {
     const contextKey = this.booksContextKey();
-    this.pipelineInputs();
+    const books = this.pipelineInputs();
 
     const shouldRefreshInPlace = untracked(() => this.hasRenderedBooks()) && contextKey === this.lastBooksContextKey;
     this.lastBooksContextKey = contextKey;
 
     if (shouldRefreshInPlace) {
-      const requestId = this.booksRenderState.begin('refresh');
-      this.booksRenderState.commit(requestId, this.appBooksApi.books());
+      this.booksRenderState.update(books);
       return;
     }
 
     const requestId = this.booksRenderState.begin('reset');
 
     const timeout = globalThis.setTimeout(() => {
-      this.booksRenderState.commit(requestId, this.appBooksApi.books());
+      this.booksRenderState.commit(requestId, books);
     });
 
     onCleanup(() => {
@@ -302,6 +293,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     return map;
   });
+  readonly compareBookItems = (a: Book, b: Book): boolean => a?.id === b?.id;
   protected resetFilterSubject = new Subject<void>();
 
   readonly skeletonSlots = Array.from({length: 24}, (_, index) => index);

@@ -62,6 +62,14 @@ export class AppBooksApiService {
     const data = this.booksQuery.data();
     if (!data) return [];
     return data.pages.flatMap(page => page.content.map(summaryToBook));
+  }, {
+    equal: (a, b) => {
+      if (a.length !== b.length) return false;
+      for (let i = 0; i < a.length; i++) {
+        if (a[i].id !== b[i].id) return false;
+      }
+      return true;
+    }
   });
 
   readonly totalElements = computed(() => {
@@ -126,8 +134,6 @@ export class AppBooksApiService {
     if (filters.shelfId) params = params.set('shelfId', filters.shelfId.toString());
     if (filters.magicShelfId) params = params.set('magicShelfId', filters.magicShelfId.toString());
     if (filters.unshelved) params = params.set('unshelved', 'true');
-    if (filters.status) params = params.set('status', filters.status);
-    if (filters.fileType) params = params.set('fileType', filters.fileType);
     if (filters.minRating != null) params = params.set('minRating', filters.minRating.toString());
     if (filters.maxRating != null) params = params.set('maxRating', filters.maxRating.toString());
     if (filters.filterMode) params = params.set('filterMode', filters.filterMode);
@@ -142,6 +148,8 @@ export class AppBooksApiService {
       ['tag', filters.tag],
       ['mood', filters.mood],
       ['narrator', filters.narrator],
+      ['status', filters.status],
+      ['fileType', filters.fileType],
     ];
     for (const [key, values] of arrayFilters) {
       if (values?.length) {
@@ -178,7 +186,7 @@ function summaryToBook(summary: AppBookSummary): Book {
       audiobookCoverUpdatedOn: summary.audiobookCoverUpdatedOn,
     },
     primaryFile: summary.primaryFileType
-      ? {bookType: summary.primaryFileType as BookType}
+      ? {bookType: summary.primaryFileType as BookType, extension: summary.primaryFileType.toLowerCase()}
       : null,
     pdfProgress: summary.readProgress != null
       ? {page: 0, percentage: summary.readProgress}

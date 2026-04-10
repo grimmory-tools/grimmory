@@ -1,16 +1,19 @@
 package org.booklore.app.specification;
 
+import org.booklore.exception.APIException;
 import org.booklore.model.entity.*;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.ReadStatus;
 import jakarta.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 public class AppBookSpecification {
 
@@ -169,6 +172,100 @@ public class AppBookSpecification {
             subquery.select(bookFileRoot.get("book").get("id"))
                     .where(cb.equal(bookFileRoot.get("bookType"), fileType));
             return root.get("id").in(subquery);
+        };
+    }
+
+    /**
+     * Filter books by multiple file types with mode support.
+     * OR  = books with at least one file of ANY listed type
+     * AND = books with files of ALL listed types
+     * NOT = books with NONE of the listed file types
+     */
+    public static Specification<BookEntity> withFileTypes(List<String> fileTypes, String mode) {
+        return (root, query, cb) -> {
+            List<String> unknown = new ArrayList<>();
+            List<BookFileType> parsed = fileTypes.stream()
+                    .filter(s -> s != null && !s.isBlank())
+                    .map(s -> {
+                        String trimmed = s.trim().toUpperCase();
+                        try {
+                            return BookFileType.valueOf(trimmed);
+                        } catch (IllegalArgumentException e) {
+                            unknown.add(s.trim());
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .toList();
+            if (!unknown.isEmpty()) {
+                throw new APIException("Invalid fileType values: " + unknown + ". Valid values: " + List.of(BookFileType.values()), HttpStatus.BAD_REQUEST);
+            }
+            if (parsed.isEmpty()) return cb.conjunction();
+
+            if ("and".equals(mode)) {
+                List<Predicate> predicates = new ArrayList<>();
+                for (BookFileType ft : parsed) {
+                    Subquery<Long> sub = query.subquery(Long.class);
+                    Root<BookFileEntity> bfRoot = sub.from(BookFileEntity.class);
+                    sub.select(bfRoot.get("book").get("id"))
+                            .where(cb.equal(bfRoot.get("bookType"), ft));
+                    predicates.add(root.get("id").in(sub));
+                }
+                return cb.and(predicates.toArray(new Predicate[0]));
+            }
+
+            Subquery<Long> sub = query.subquery(Long.class);
+            Root<BookFileEntity> bfRoot = sub.from(BookFileEntity.class);
+            sub.select(bfRoot.get("book").get("id"))
+                    .where(bfRoot.get("bookType").in(parsed));
+
+            if ("not".equals(mode)) {
+                return cb.not(root.get("id").in(sub));
+            }
+            return root.get("id").in(sub);
+        };
+    }
+
+    /**
+     * Filter books by multiple read statuses with mode support (per-user).
+     * OR  = books with ANY of the listed read statuses
+     * AND = impossible for a single-value field, treated as OR
+     * NOT = books with NONE of the listed read statuses
+     */
+    public static Specification<BookEntity> withReadStatuses(List<String> statuses, Long userId, String mode) {
+        return (root, query, cb) -> {
+            if (userId == null) return cb.conjunction();
+            List<String> unknown = new ArrayList<>();
+            List<ReadStatus> parsed = statuses.stream()
+                    .filter(s -> s != null && !s.isBlank())
+                    .map(s -> {
+                        String trimmed = s.trim().toUpperCase();
+                        try {
+                            return ReadStatus.valueOf(trimmed);
+                        } catch (IllegalArgumentException e) {
+                            unknown.add(s.trim());
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .toList();
+            if (!unknown.isEmpty()) {
+                throw new APIException("Invalid status values: " + unknown + ". Valid values: " + List.of(ReadStatus.values()), HttpStatus.BAD_REQUEST);
+            }
+            if (parsed.isEmpty()) return cb.conjunction();
+
+            Subquery<Long> sub = query.subquery(Long.class);
+            Root<UserBookProgressEntity> progressRoot = sub.from(UserBookProgressEntity.class);
+            sub.select(progressRoot.get("book").get("id"))
+                    .where(
+                            cb.equal(progressRoot.get("user").get("id"), userId),
+                            progressRoot.get("readStatus").in(parsed)
+                    );
+
+            if ("not".equals(mode)) {
+                return cb.not(root.get("id").in(sub));
+            }
+            return root.get("id").in(sub);
         };
     }
 

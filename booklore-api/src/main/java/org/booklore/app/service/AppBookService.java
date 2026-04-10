@@ -362,7 +362,7 @@ public class AppBookService {
                         .authors(Collections.emptyList())
                         .languages(Collections.emptyList())
                         .fileTypes(Collections.emptyList())
-                        .readStatuses(getReadStatusOptions())
+                        .readStatuses(Collections.emptyList())
                         .categories(Collections.emptyList())
                         .publishers(Collections.emptyList())
                         .series(Collections.emptyList())
@@ -409,15 +409,20 @@ public class AppBookService {
                         c.count()))
                 .toList();
 
-        String fileTypeQuery = "SELECT DISTINCT bf.bookType FROM BookEntity b"
+        String fileTypeQuery = "SELECT bf.bookType, COUNT(DISTINCT b.id) FROM BookEntity b"
                 + " JOIN b.bookFiles bf"
                 + " WHERE (b.deleted IS NULL OR b.deleted = false)"
                 + " AND b.bookFiles IS NOT EMPTY"
                 + " AND bf.isBookFormat = true"
-                + scopeClause;
-        var ftQ = entityManager.createQuery(fileTypeQuery, BookFileType.class);
+                + scopeClause
+                + " GROUP BY bf.bookType ORDER BY COUNT(DISTINCT b.id) DESC";
+        var ftQ = entityManager.createQuery(fileTypeQuery, Tuple.class);
         setFilterQueryParams(ftQ, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
-        List<String> fileTypes = ftQ.getResultList().stream().map(Enum::name).sorted().toList();
+        List<AppFilterOptions.CountedOption> fileTypes = ftQ.getResultList().stream()
+                .map(t -> new AppFilterOptions.CountedOption(
+                        t.get(0, BookFileType.class).name(),
+                        t.get(1, Long.class)))
+                .toList();
 
         List<AppFilterOptions.CountedOption> categories = queryCountedOptions(
                 "c.name", "JOIN b.metadata m JOIN m.categories c", "",
@@ -446,11 +451,14 @@ public class AppBookService {
                 "AND m.narrator IS NOT NULL AND m.narrator <> ''",
                 scopeClause, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
 
+        List<AppFilterOptions.CountedOption> readStatuses = queryReadStatusCounts(
+                userId, scopeClause, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
+
         AppFilterOptions result = AppFilterOptions.builder()
                 .authors(authors)
                 .languages(languages)
                 .fileTypes(fileTypes)
-                .readStatuses(getReadStatusOptions())
+                .readStatuses(readStatuses)
                 .categories(categories)
                 .publishers(publishers)
                 .series(seriesOptions)
@@ -514,10 +522,26 @@ public class AppBookService {
                 .getResultList());
     }
 
-    private List<String> getReadStatusOptions() {
-        return Arrays.stream(ReadStatus.values())
-                .filter(s -> s != ReadStatus.UNSET)
-                .map(Enum::name)
+    private List<AppFilterOptions.CountedOption> queryReadStatusCounts(
+            Long userId, String scopeClause, Set<Long> accessibleLibraryIds,
+            Long libraryId, Long shelfId, Set<Long> magicBookIds) {
+        String jpql = "SELECT ubp.readStatus, COUNT(DISTINCT ubp.book.id) FROM UserBookProgressEntity ubp"
+                + " WHERE ubp.user.id = :userId"
+                + " AND ubp.readStatus <> org.booklore.model.enums.ReadStatus.UNSET"
+                + " AND ubp.book.id IN ("
+                + "   SELECT b.id FROM BookEntity b"
+                + "   WHERE (b.deleted IS NULL OR b.deleted = false)"
+                + "   AND b.bookFiles IS NOT EMPTY"
+                + scopeClause
+                + " )"
+                + " GROUP BY ubp.readStatus ORDER BY COUNT(DISTINCT ubp.book.id) DESC";
+        var q = entityManager.createQuery(jpql, Tuple.class);
+        q.setParameter("userId", userId);
+        setFilterQueryParams(q, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
+        return q.getResultList().stream()
+                .map(t -> new AppFilterOptions.CountedOption(
+                        t.get(0, ReadStatus.class).name(),
+                        t.get(1, Long.class)))
                 .toList();
     }
 
@@ -624,16 +648,22 @@ public class AppBookService {
             specs.add(AppBookSpecification.inShelf(req.shelfId()));
         }
 
-        if (req.status() != null) {
-            specs.add(AppBookSpecification.withReadStatus(req.status(), userId));
+        if (req.status() != null && !req.status().isEmpty()) {
+            List<String> cleaned = BookListRequest.cleanValues(req.status());
+            if (!cleaned.isEmpty()) {
+                specs.add(AppBookSpecification.withReadStatuses(cleaned, userId, req.effectiveFilterMode()));
+            }
         }
 
         if (req.search() != null && !req.search().trim().isEmpty()) {
             specs.add(AppBookSpecification.searchText(req.search()));
         }
 
-        if (req.fileType() != null) {
-            specs.add(AppBookSpecification.withFileType(req.fileType()));
+        if (req.fileType() != null && !req.fileType().isEmpty()) {
+            List<String> cleaned = BookListRequest.cleanValues(req.fileType());
+            if (!cleaned.isEmpty()) {
+                specs.add(AppBookSpecification.withFileTypes(cleaned, req.effectiveFilterMode()));
+            }
         }
 
         if (req.minRating() != null) {

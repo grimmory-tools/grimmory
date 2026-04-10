@@ -318,7 +318,11 @@
             ></app-book-table>
           }
           @if (currentViewMode === 'grid') {
-            <virtual-scroller class="virtual-scroller" #scroll [items]="books" [bufferAmount]="16" (vsEnd)="onScrollEnd()">
+            <virtual-scroller class="virtual-scroller" #scroll
+              [items]="books"
+              [bufferAmount]="16"
+              [compareItems]="compareBookItems"
+              (vsEnd)="onScrollEnd()">
               <div
                 class="grid"
                 #container
@@ -326,7 +330,7 @@
                 @for (book of scroll.viewPortItems; let i = $index; track book.id) {
                   <div
                     class="virtual-scroller-item"
-                    [ngStyle]="{width: currentCardSize.width + 'px', height: getCardHeight(book) + 'px'}">
+                    [ngStyle]="{width: currentCardSize.width + 'px', height: currentCardSize.height + 'px'}">
                     <app-book-card
                       [index]="bookIndexById().get(book.id) ?? i"
                       [book]="book"
