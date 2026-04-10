@@ -290,6 +290,7 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
   }
 
   private getProviderFromMetadata(metadata: BookMetadata): string | null {
+    if (metadata.audibleId) return 'audible'; // Audible has to come before Amazon because they both have an ASIN.
     if (metadata.asin) return 'amazon';
     if (metadata.goodreadsId) return 'goodreads';
     if (metadata.googleId) return 'google';
@@ -298,7 +299,6 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
     if (metadata['lubimyczytacId']) return 'lubimyczytac';
     if (metadata.comicvineId) return 'comicvine';
     if (metadata.ranobedbId) return 'ranobedb';
-    if (metadata.audibleId) return 'audible';
     return metadata.provider?.toLowerCase() || null;
   }
 
@@ -411,11 +411,12 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
     if (metadata.goodreadsId && !metadata.description) {
       return {provider: 'GoodReads', id: metadata.goodreadsId};
     }
-    if (metadata.asin && !metadata.description) {
-      return {provider: 'Amazon', id: metadata.asin};
-    }
+    // Audible has to come before Amazon in this check as they both have ASIN
     if (metadata.audibleId && !metadata.description) {
       return {provider: 'Audible', id: metadata.audibleId};
+    }
+    if (metadata.asin && !metadata.description) {
+      return {provider: 'Amazon', id: metadata.asin};
     }
     return null;
   }
@@ -446,7 +447,10 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
   }
 
   buildProviderLink(metadata: BookMetadata): string {
-    if (metadata.asin) {
+    if (metadata.audibleId) {
+      // Audible has to come before Amazon because they both have an ASIN.
+      return `<a href="https://www.audible.com/pd/${metadata.audibleId}" target="_blank">Audible</a>`;
+    } else if (metadata.asin) {
       return `<a href="https://www.amazon.com/dp/${metadata.asin}" target="_blank">Amazon</a>`;
     } else if (metadata.goodreadsId) {
       return `<a href="https://www.goodreads.com/book/show/${metadata.goodreadsId}" target="_blank">Goodreads</a>`;
@@ -465,8 +469,6 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
       return `<a href="https://comicvine.gamespot.com/4050-${metadata.comicvineId}/" target="_blank">Comicvine</a>`;
     } else if (metadata.ranobedbId) {
       return `<a href="https://ranobedb.org/book/${metadata.ranobedbId}" target="_blank">RanobeDB</a>`;
-    } else if (metadata.audibleId) {
-      return `<a href="https://www.audible.com/pd/${metadata.audibleId}" target="_blank">Audible</a>`;
     } else if (metadata.externalUrl) {
       const providerName = metadata.provider || 'Link';
       return `<a href="${metadata.externalUrl}" target="_blank">${providerName}</a>`;
