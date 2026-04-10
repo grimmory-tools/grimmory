@@ -106,15 +106,17 @@ export class BookTableComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges() {
-    const wrapperElements: HTMLCollection = document.getElementsByClassName('p-virtualscroller');
-    Array.prototype.forEach.call(wrapperElements, function (wrapperElement) {
-      wrapperElement.style["height"] = 'calc(100dvh - 160px)';
+    const wrapperElements = this.elementRef.nativeElement.querySelectorAll('.p-virtualscroller');
+    wrapperElements.forEach((wrapperElement: Element) => {
+      if (wrapperElement instanceof HTMLElement) {
+        wrapperElement.style.height = 'calc(100dvh - 160px)';
+      }
     });
   }
 
   scrollToTop(): void {
     const tableElement = this.elementRef.nativeElement.querySelector('.p-datatable-wrapper');
-    if (tableElement) {
+    if (tableElement instanceof HTMLElement) {
       tableElement.scrollTop = 0;
     }
   }

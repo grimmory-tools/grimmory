@@ -94,7 +94,12 @@
       </span>
     </div>
 
-    <div class="submenu-container" [class.expanded]="expanded" [attr.aria-hidden]="!expanded" [attr.inert]="expanded ? null : true">
+    <div
+      class="submenu-container"
+      [class.expanded]="expanded"
+      [attr.aria-hidden]="!expanded"
+      [attr.inert]="expanded ? null : ''"
+    >
       @if (item.items) {
         <ul>
           @for (child of item.items; track child.routerLink?.join('/') ?? child.label; let i = $index) {

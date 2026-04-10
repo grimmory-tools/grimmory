@@ -47,7 +47,7 @@ export class BookCardComponent {
   readonly isSeriesCollapsed = input(false);
   readonly overlayPreferenceService = input<BookCardOverlayPreferenceService | undefined>();
   private readonly overlayService = inject(BookCardOverlayPreferenceService);
-  readonly showBookTypePill = computed(() => this.overlayPreferenceService()?.showBookTypePill() ?? this.overlayService.showBookTypePill());
+  readonly showBookTypePill = computed(() => (this.overlayPreferenceService() ?? this.overlayService).showBookTypePill());
   readonly forceEbookMode = input(false);
   readonly useSquareCovers = input(false);
 

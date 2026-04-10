@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit} from '@angular/core';
 import {Button} from 'primeng/button';
 import {ProgressBar} from 'primeng/progressbar';
 import {MessageService} from 'primeng/api';
@@ -18,7 +18,8 @@ import {
   TaskType
 } from './task.service';
 import {MetadataRefreshRequest} from '../../metadata/model/request/metadata-refresh-request.model';
-import {finalize, forkJoin, Subscription} from 'rxjs';
+import {finalize, forkJoin} from 'rxjs';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ExternalDocLinkComponent} from '../../../shared/components/external-doc-link/external-doc-link.component';
 import {ToggleSwitch} from 'primeng/toggleswitch';
 import {Tooltip} from 'primeng/tooltip';
@@ -43,18 +44,18 @@ import {NgClass} from '@angular/common';
   templateUrl: './task-management.component.html',
   styleUrl: './task-management.component.scss'
 })
-export class TaskManagementComponent implements OnInit, OnDestroy {
+export class TaskManagementComponent implements OnInit {
   // Services
   private messageService = inject(MessageService);
   private taskService = inject(TaskService);
   private t = inject(TranslocoService);
+  private readonly destroyRef = inject(DestroyRef);
 
   // State
   taskInfos: TaskInfo[] = [];
   taskHistories = new Map<string, TaskHistory>();
   loading = false;
   executingTasks = new Set<string>();
-  private subscription?: Subscription;
 
   // Metadata Replace Options
   metadataReplaceOptions = [
@@ -92,10 +93,6 @@ export class TaskManagementComponent implements OnInit, OnDestroy {
     this.subscribeToTaskProgress();
   }
 
-  ngOnDestroy(): void {
-    this.subscription?.unsubscribe();
-  }
-
   // ============================================================================
   // Data Loading & Real-time Updates
   // ============================================================================
@@ -124,11 +121,13 @@ export class TaskManagementComponent implements OnInit, OnDestroy {
   }
 
   private subscribeToTaskProgress(): void {
-    this.subscription = this.taskService.taskProgress$.subscribe(progress => {
-      if (progress) {
-        this.updateTaskWithProgress(progress);
-      }
-    });
+    this.taskService.taskProgress$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(progress => {
+        if (progress) {
+          this.updateTaskWithProgress(progress);
+        }
+      });
   }
 
   private updateTaskWithProgress(progress: TaskProgressPayload): void {
