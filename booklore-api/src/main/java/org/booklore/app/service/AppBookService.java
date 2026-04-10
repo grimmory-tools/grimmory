@@ -8,6 +8,7 @@ import org.booklore.app.dto.AppBookProgressResponse;
 import org.booklore.app.dto.AppBookSummary;
 import org.booklore.app.dto.AppFilterOptions;
 import org.booklore.app.dto.AppPageResponse;
+import org.booklore.app.dto.UpdateProgressRequest;
 import org.booklore.app.mapper.AppBookMapper;
 import org.booklore.app.specification.AppBookSpecification;
 import org.booklore.model.dto.Book;
@@ -138,7 +139,7 @@ public class AppBookService {
     }
 
     @Transactional
-    public void updateBookProgress(Long bookId, ReadProgressRequest request) {
+    public void updateBookProgress(Long bookId, UpdateProgressRequest request) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         Set<Long> accessibleLibraryIds = getAccessibleLibraryIds(user);
 
@@ -147,8 +148,16 @@ public class AppBookService {
 
         validateLibraryAccess(accessibleLibraryIds, book.getLibrary().getId());
 
-        request.setBookId(bookId);
-        bookService.updateReadProgress(request);
+        ReadProgressRequest progressRequest = new ReadProgressRequest();
+        progressRequest.setBookId(bookId);
+        progressRequest.setFileProgress(request.getFileProgress());
+        progressRequest.setEpubProgress(request.getEpubProgress());
+        progressRequest.setPdfProgress(request.getPdfProgress());
+        progressRequest.setCbxProgress(request.getCbxProgress());
+        progressRequest.setAudiobookProgress(request.getAudiobookProgress());
+        progressRequest.setDateFinished(request.getDateFinished());
+
+        bookService.updateReadProgress(progressRequest);
     }
 
     @Transactional(readOnly = true)
