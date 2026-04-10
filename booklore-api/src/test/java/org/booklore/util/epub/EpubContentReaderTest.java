@@ -1,8 +1,8 @@
 package org.booklore.util.epub;
 
-import io.documentnode.epub4j.domain.Book;
-import io.documentnode.epub4j.domain.Resource;
-import io.documentnode.epub4j.epub.EpubWriter;
+import org.grimmory.epub4j.domain.Book;
+import org.grimmory.epub4j.domain.Resource;
+import org.grimmory.epub4j.epub.EpubWriter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -71,7 +71,7 @@ class EpubContentReaderTest {
     private File createTestEpub(String filename, boolean withSpine) throws IOException {
         Book book = new Book();
         book.getMetadata().addTitle("Test Book");
-        book.getMetadata().addAuthor(new io.documentnode.epub4j.domain.Author("Test Author"));
+        book.getMetadata().addAuthor(new org.grimmory.epub4j.domain.Author("Test Author"));
 
         if (withSpine) {
             Resource chapter1 = new Resource(CHAPTER1_CONTENT.getBytes(StandardCharsets.UTF_8), "chapter1.xhtml");
@@ -198,12 +198,13 @@ class EpubContentReaderTest {
         }
 
         @Test
-        void getSpineSize_nonExistentFile_returnsZero() {
+        void getSpineSize_nonExistentFile_throwsException() {
             File nonExistent = new File(tempDir.toFile(), "nonexistent.epub");
 
-            int size = EpubContentReader.getSpineSize(nonExistent);
-
-            assertEquals(0, size);
+            assertThrows(
+                    EpubContentReader.EpubReadException.class,
+                    () -> EpubContentReader.getSpineSize(nonExistent)
+            );
         }
     }
 
