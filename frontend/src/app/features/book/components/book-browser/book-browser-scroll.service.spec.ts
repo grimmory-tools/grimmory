@@ -19,4 +19,15 @@ describe('BookBrowserScrollService', () => {
     service.clearPosition('books');
     expect(service.getPosition('books')).toBeUndefined();
   });
+
+  it('clearAll removes all stored positions', () => {
+    const fresh = new BookBrowserScrollService();
+    fresh.savePosition('a', 10);
+    fresh.savePosition('b', 20);
+
+    fresh.clearAll();
+
+    expect(fresh.getPosition('a')).toBeUndefined();
+    expect(fresh.getPosition('b')).toBeUndefined();
+  });
 });

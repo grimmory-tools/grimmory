@@ -18,6 +18,10 @@ export class BookBrowserScrollService {
     this.scrollPositions.delete(key);
   }
 
+  clearAll(): void {
+    this.scrollPositions.clear();
+  }
+
   createKey(path: string, params: Record<string, string>): string {
     const paramValues = Object.values(params).join('-');
     return paramValues ? `${path}:${paramValues}` : path;

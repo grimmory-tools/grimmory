@@ -17,6 +17,7 @@ import {SortService} from '../../../book/service/sort.service';
 import {PageTitleService} from '../../../../shared/service/page-title.service';
 import {SortDirection, SortOption} from '../../../book/model/sort.model';
 import {LibraryService} from '../../../book/service/library.service';
+import {BookCardOverlayPreferenceService} from '../../../book/components/book-browser/book-card-overlay-preference.service';
 
 const DEFAULT_MAX_ITEMS = 20;
 
@@ -46,13 +47,19 @@ export class MainDashboardComponent implements OnInit {
   private sortService = inject(SortService);
   private pageTitle = inject(PageTitleService);
   private readonly t = inject(TranslocoService);
+  protected overlayPreferenceService = inject(BookCardOverlayPreferenceService);
 
   readonly dashboardConfig = this.dashboardConfigService.config;
   readonly isBooksLoading = this.bookService.isBooksLoading;
   readonly isLibrariesEmpty = computed(() =>
     !this.libraryService.isLibrariesLoading() && this.libraryService.libraries().length === 0
   );
-  readonly scrollerBooks = computed(() => {
+
+  readonly enabledScrollers = computed(() => {
+    return this.dashboardConfig().scrollers.filter(s => s.enabled);
+  });
+
+  private readonly scrollerBooksMap = computed(() => {
     const config = this.dashboardConfig();
     const books = this.bookService.books();
     const scrollerMap = new Map<string, Book[]>();
@@ -64,10 +71,6 @@ export class MainDashboardComponent implements OnInit {
     return scrollerMap;
   });
 
-  readonly enabledScrollers = computed(() => {
-    return this.dashboardConfig().scrollers.filter(s => s.enabled);
-  });
-
   ScrollerType = ScrollerType;
 
   ngOnInit(): void {
@@ -75,7 +78,7 @@ export class MainDashboardComponent implements OnInit {
   }
 
   getBooksForScroller(config: ScrollerConfig): Book[] {
-    return this.scrollerBooks().get(config.id) ?? [];
+    return this.scrollerBooksMap().get(config.id) ?? [];
   }
 
   private getBooksForConfig(config: ScrollerConfig, books: Book[], magicShelves: {id?: number | null; filterJson: string}[]): Book[] {

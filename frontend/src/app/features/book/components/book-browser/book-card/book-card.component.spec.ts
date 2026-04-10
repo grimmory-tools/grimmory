@@ -1,4 +1,4 @@
-import {ComponentRef, NO_ERRORS_SCHEMA} from '@angular/core';
+import {ComponentRef, NO_ERRORS_SCHEMA, signal, WritableSignal} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {ActivatedRoute, Router} from '@angular/router';
 import {QueryClient} from '@tanstack/angular-query-experimental';
@@ -110,7 +110,7 @@ describe('BookCardComponent', () => {
     refreshMetadataTask: ReturnType<typeof vi.fn>;
   };
   let userService: {
-    currentUser: ReturnType<typeof vi.fn>;
+    currentUser: WritableSignal<User | null>;
   };
   let emailService: {
     emailBookQuick: ReturnType<typeof vi.fn>;
@@ -164,7 +164,7 @@ describe('BookCardComponent', () => {
       refreshMetadataTask: vi.fn(),
     };
     userService = {
-      currentUser: vi.fn(() => null),
+      currentUser: signal<User | null>(null),
     };
     emailService = {
       emailBookQuick: vi.fn(),
@@ -424,7 +424,7 @@ describe('BookCardComponent', () => {
       },
     });
 
-    userService.currentUser.mockReturnValue(makeUser('route'));
+    userService.currentUser.set(makeUser('route'));
     ref.setInput('book', book);
     ref.setInput('isSeriesCollapsed', true);
     fixture.detectChanges();
@@ -442,7 +442,7 @@ describe('BookCardComponent', () => {
       queryParams: {tab: 'view'},
     });
 
-    userService.currentUser.mockReturnValue(makeUser('dialog'));
+    userService.currentUser.set(makeUser('dialog'));
     router.navigate.mockClear();
     bookNavigationService.setNavigationContext.mockClear();
 

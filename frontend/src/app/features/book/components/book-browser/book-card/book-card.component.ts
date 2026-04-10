@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, input, output, signal} from '@angular/core';
 import {TooltipModule} from 'primeng/tooltip';
 import {AdditionalFile, Book, BookType, ReadStatus} from '../../../model/book.model';
 import {Button} from 'primeng/button';
@@ -13,7 +13,7 @@ import {MetadataRefreshType} from '../../../../metadata/model/request/metadata-r
 import {UrlHelperService} from '../../../../../shared/service/url-helper.service';
 import {CoverPlaceholderComponent} from '../../../../../shared/components/cover-generator/cover-generator.component';
 import {NgClass} from '@angular/common';
-import {User, UserService} from '../../../../settings/user-management/user.service';
+import {UserService} from '../../../../settings/user-management/user.service';
 import {EmailService} from '../../../../settings/email-v2/email.service';
 import {TieredMenu} from 'primeng/tieredmenu';
 import {Router, RouterLink} from '@angular/router';
@@ -37,7 +37,7 @@ import {QueryClient} from '@tanstack/angular-query-experimental';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BookCardComponent implements OnInit, OnChanges {
+export class BookCardComponent {
 
   // --- Inputs ---
   readonly book = input.required<Book>();
@@ -59,9 +59,9 @@ export class BookCardComponent implements OnInit, OnChanges {
   readonly readStatusMenuItems = signal<MenuItem[]>([]);
   readonly isSubMenuLoading = signal(false);
   private readonly additionalFilesLoaded = signal(false);
-  private menuInitialized = false;
   /** Tracks the book id for which the menu was last built, to auto-rebuild on virtual-scroller reuse. */
   private menuBookId: number | undefined;
+  private menuInitialized = false;
 
   private bookService = inject(BookService);
   private bookFileService = inject(BookFileService);
@@ -78,68 +78,13 @@ export class BookCardComponent implements OnInit, OnChanges {
   private appSettingsService = inject(AppSettingsService);
   private readonly t = inject(TranslocoService);
   private queryClient = inject(QueryClient);
-  protected _progressPercentage: number | null = null;
-  protected _koProgressPercentage: number | null = null;
-  protected _koboProgressPercentage: number | null = null;
-  protected _displayTitle: string | undefined = undefined;
-  protected _isSeriesViewActive: boolean = false;
-  protected _coverImageUrl: string | null = null;
-  protected _readStatusIcon: string = '';
-  protected _readStatusClass: string = '';
-  protected _readStatusTooltip: string = '';
-  protected _shouldShowStatusIcon: boolean = false;
-  protected _seriesCountTooltip: string = '';
-  protected _titleTooltip: string = '';
-  protected _hasProgress: boolean = false;
-  protected _isAudiobook: boolean = false;
-  protected _progressTooltip: string = '';
-  protected _isContinueReading: boolean = false;
-  protected _readButtonIcon: string = 'pi pi-book';
-
-  private metadataCenterViewMode: 'route' | 'dialog' = 'route';
   protected readStatusHelper = inject(ReadStatusHelper);
-  private user: User | null = null;
-  private diskType: string = 'LOCAL';
-  private menuInitialized = false;
 
-  ngOnInit(): void {
-    this.computeAllMemoizedValues();
-    const currentUser = this.userService.currentUser();
-    if (currentUser) {
-      this.user = currentUser;
-      this.metadataCenterViewMode = currentUser.userSettings?.metadataCenterViewMode ?? 'route';
-    }
+  private readonly currentUser = computed(() => this.userService.currentUser());
+  private readonly metadataCenterViewMode = computed(() => this.currentUser()?.userSettings?.metadataCenterViewMode ?? 'route' as 'route' | 'dialog');
+  private readonly diskType = computed(() => this.appSettingsService.appSettings()?.diskType ?? 'LOCAL');
 
-    const settings = this.appSettingsService.appSettings();
-    if (settings) {
-      this.diskType = settings.diskType ?? 'LOCAL';
-    }
 
-  }
-
-  ngOnDestroy(): void {
-    this._coverImageUrl = null;
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['book'] || changes['forceEbookMode'] || changes['useSquareCovers']) {
-      this.computeAllMemoizedValues();
-      if (changes['book'] && !changes['book'].firstChange && this.menuInitialized) {
-        this.additionalFilesLoaded = false;
-        this.initMenu();
-      }
-    }
-
-    if (changes['seriesViewEnabled'] || changes['isSeriesCollapsed']) {
-      this._isSeriesViewActive = this.seriesViewEnabled && !!this.book.seriesCount && this.book.seriesCount >= 1;
-      this._displayTitle = (this.isSeriesCollapsed && this.book.metadata?.seriesName) ? this.book.metadata?.seriesName : this.book.metadata?.title;
-      this._titleTooltip = this.t.translate('book.card.alt.titleTooltip', { title: this._displayTitle });
-    }
-  }
-
-  get user(): User | null { return this.userService.currentUser() ?? null; }
-  get metadataCenterViewMode(): 'route' | 'dialog' { return this.user?.userSettings?.metadataCenterViewMode ?? 'route'; }
-  get diskType(): string { return this.appSettingsService.appSettings()?.diskType ?? 'LOCAL'; }
 
   readonly progressPercentage = computed(() => {
     const b = this.book();
@@ -325,8 +270,8 @@ export class BookCardComponent implements OnInit, OnChanges {
     const b = this.book();
     const hasNoAlternativeFormats = !b.alternativeFormats || b.alternativeFormats.length === 0;
     const hasNoSupplementaryFiles = !b.supplementaryFiles || b.supplementaryFiles.length === 0;
-    const canDownload = !!this.user?.permissions.canDownload;
-    const canDeleteBook = !!this.user?.permissions.canDeleteBook;
+    const canDownload = !!this.currentUser()?.permissions.canDownload;
+    const canDeleteBook = !!this.currentUser()?.permissions.canDeleteBook;
     return (canDownload || canDeleteBook) && hasNoAlternativeFormats && hasNoSupplementaryFiles;
   }
 
@@ -355,7 +300,7 @@ export class BookCardComponent implements OnInit, OnChanges {
   private getPermissionBasedMenuItems(b: Book): MenuItem[] {
     const items: MenuItem[] = [];
 
-    if (this.user?.permissions.canDownload) {
+    if (this.currentUser()?.permissions.canDownload) {
       const hasAdditional = (b.alternativeFormats && b.alternativeFormats.length > 0) ||
         (b.supplementaryFiles && b.supplementaryFiles.length > 0);
 
@@ -380,7 +325,7 @@ export class BookCardComponent implements OnInit, OnChanges {
       }
     }
 
-    if (this.user?.permissions.canDeleteBook) {
+    if (this.currentUser()?.permissions.canDeleteBook) {
       const hasAdditional = (b.alternativeFormats && b.alternativeFormats.length > 0) ||
         (b.supplementaryFiles && b.supplementaryFiles.length > 0);
 
@@ -420,7 +365,7 @@ export class BookCardComponent implements OnInit, OnChanges {
       }
     }
 
-    if (this.user?.permissions.canEmailBook) {
+    if (this.currentUser()?.permissions.canEmailBook) {
       items.push({
         label: this.t.translate('book.card.menu.emailBook'),
         icon: 'pi pi-envelope',
@@ -474,7 +419,7 @@ export class BookCardComponent implements OnInit, OnChanges {
       });
     }
 
-    if (this.user?.permissions.canEditMetadata) {
+    if (this.currentUser()?.permissions.canEditMetadata) {
       items.push({
         label: this.t.translate('book.card.menu.metadata'),
         icon: 'pi pi-database',
@@ -550,7 +495,7 @@ export class BookCardComponent implements OnInit, OnChanges {
     const items: MenuItem[] = [];
     const moreActions: MenuItem[] = [];
 
-    if (this.user?.permissions.canMoveOrganizeFiles && this.diskType === 'LOCAL') {
+    if (this.currentUser()?.permissions.canMoveOrganizeFiles && this.diskType() === 'LOCAL') {
       moreActions.push({
         label: this.t.translate('book.card.menu.organizeFile'),
         icon: 'pi pi-arrows-h',
@@ -665,7 +610,7 @@ export class BookCardComponent implements OnInit, OnChanges {
       this.bookNavigationService.setNavigationContext(allBookIds, book.id);
     }
 
-    if (this.metadataCenterViewMode === 'route') {
+    if (this.metadataCenterViewMode() === 'route') {
       this.router.navigate(['/book', book.id], {
         queryParams: {tab: 'view'}
       });

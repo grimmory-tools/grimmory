@@ -13,7 +13,7 @@
         [class.square-cover]="isAudiobook() || useSquareCovers()"
         [alt]="('book.card.alt.cover' | transloco: { title: displayTitle() })"
         width="250"
-        [height]="(_isAudiobook || useSquareCovers) ? 250 : 350"
+        [height]="(isAudiobook() || useSquareCovers()) ? 250 : 350"
         loading="lazy"
         decoding="async"
         fetchpriority="low"/>

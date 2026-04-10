@@ -3,6 +3,7 @@ import {NgClass} from '@angular/common';
 import {Book} from '../../../book/model/book.model';
 import {ScrollerType} from '../../models/dashboard-config.model';
 import {BookCardComponent} from '../../../book/components/book-browser/book-card/book-card.component';
+import {BookCardOverlayPreferenceService} from '../../../book/components/book-browser/book-card-overlay-preference.service';
 import {TranslocoDirective, TranslocoPipe} from '@jsverse/transloco';
 
 @Component({
@@ -25,6 +26,7 @@ export class DashboardScrollerComponent {
   @Input() books!: Book[] | null;
   @Input() isMagicShelf: boolean = false;
   @Input() useSquareCovers: boolean = false;
+  @Input() overlayPreferenceService!: BookCardOverlayPreferenceService;
 
   get forceEbookMode(): boolean {
     return this.bookListType === ScrollerType.LAST_READ;

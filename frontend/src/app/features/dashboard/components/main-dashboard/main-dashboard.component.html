@@ -51,28 +51,28 @@
             </div>
 
             @if (dashboardConfig(); as config) {
-              @for (scroller of config.scrollers; track scroller.id; let idx = $index) {
-                @if (scroller.enabled) {
-                  @if (idx < 2) {
+              @for (scroller of enabledScrollers(); track scroller.id; let idx = $index) {
+                @if (idx < 2) {
+                  <app-dashboard-scroller
+                    [bookListType]="scroller.type"
+                    [title]="scroller.title"
+                    [isMagicShelf]="scroller.type === ScrollerType.MAGIC_SHELF"
+                    [useSquareCovers]="scroller.type === ScrollerType.LAST_LISTENED"
+                    [books]="getBooksForScroller(scroller)"
+                    [overlayPreferenceService]="overlayPreferenceService">
+                  </app-dashboard-scroller>
+                } @else {
+                  @defer (on viewport) {
                     <app-dashboard-scroller
                       [bookListType]="scroller.type"
                       [title]="scroller.title"
                       [isMagicShelf]="scroller.type === ScrollerType.MAGIC_SHELF"
                       [useSquareCovers]="scroller.type === ScrollerType.LAST_LISTENED"
-                      [books]="getBooksForScroller(scroller)">
+                      [books]="getBooksForScroller(scroller)"
+                      [overlayPreferenceService]="overlayPreferenceService">
                     </app-dashboard-scroller>
-                  } @else {
-                    @defer (on viewport) {
-                      <app-dashboard-scroller
-                        [bookListType]="scroller.type"
-                        [title]="scroller.title"
-                        [isMagicShelf]="scroller.type === ScrollerType.MAGIC_SHELF"
-                        [useSquareCovers]="scroller.type === ScrollerType.LAST_LISTENED"
-                        [books]="getBooksForScroller(scroller)">
-                      </app-dashboard-scroller>
-                    } @placeholder {
-                      <div class="scroller-placeholder"></div>
-                    }
+                  } @placeholder {
+                    <div class="scroller-placeholder"></div>
                   }
                 }
               }

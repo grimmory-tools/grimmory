@@ -3,11 +3,24 @@ import {ActivatedRouteSnapshot, DetachedRouteHandle, RouteReuseStrategy} from '@
 import {BookBrowserScrollService} from '../features/book/components/book-browser/book-browser-scroll.service';
 import {BookSelectionService} from '../features/book/components/book-browser/book-selection.service';
 
+/**
+ * Maximum number of detached BookBrowser routes kept in memory.
+ * Each cached route retains its full component tree (book cards, images,
+ * event listeners, virtual-scroller instance) so an unbounded cache leads
+ * to severe memory growth when the user switches between libraries.
+ *
+ * 3 slots is enough for productive back-navigation while keeping memory
+ * usage under control.
+ */
+const MAX_STORED_ROUTES = 3;
+
 @Injectable({
   providedIn: 'root',
 })
 export class CustomReuseStrategy implements RouteReuseStrategy {
   private storedRoutes = new Map<string, DetachedRouteHandle>();
+  /** Insertion-order queue so we can evict the oldest entry (LRU). */
+  private insertionOrder: string[] = [];
   private scrollService = inject(BookBrowserScrollService);
   private bookSelectionService = inject(BookSelectionService);
 
@@ -40,8 +53,24 @@ export class CustomReuseStrategy implements RouteReuseStrategy {
   store(route: ActivatedRouteSnapshot, handle: DetachedRouteHandle | null): void {
     if (handle && this.isBookBrowserRoute(route)) {
       const key = this.getRouteKey(route);
+
+      // If the key already exists, remove it from insertion order so it
+      // can be re-appended at the end (most-recently-used).
+      const existingIdx = this.insertionOrder.indexOf(key);
+      if (existingIdx !== -1) {
+        this.insertionOrder.splice(existingIdx, 1);
+      }
+
       this.storedRoutes.set(key, handle);
+      this.insertionOrder.push(key);
       this.bookSelectionService.deselectAll();
+
+      // Evict oldest routes when we exceed the budget.
+      while (this.insertionOrder.length > MAX_STORED_ROUTES) {
+        const evictKey = this.insertionOrder.shift()!;
+        this.storedRoutes.delete(evictKey);
+        this.scrollService.clearPosition(evictKey);
+      }
     }
   }
 
