@@ -6,6 +6,7 @@ import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.LibraryPathEntity;
 import org.booklore.repository.BookAdditionalFileRepository;
+import org.booklore.repository.BookFileRepository;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.file.AdditionalFileService;
 import org.booklore.service.monitoring.MonitoringRegistrationService;
@@ -41,6 +42,9 @@ class AdditionalFileServiceTest {
 
     @Mock
     private BookRepository bookRepository;
+
+    @Mock
+    private BookFileRepository bookFileRepository;
 
     @Mock
     private AdditionalFileMapper additionalFileMapper;
@@ -150,7 +154,7 @@ class AdditionalFileServiceTest {
     @Test
     void deleteAdditionalFile_WhenFileNotFound_ShouldThrowException() {
         Long fileId = 1L;
-        when(additionalFileRepository.findById(fileId)).thenReturn(Optional.empty());
+        when(bookFileRepository.findByIdWithBookAndLibraryPath(fileId)).thenReturn(Optional.empty());
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -158,7 +162,7 @@ class AdditionalFileServiceTest {
         );
 
         assertEquals("Additional file not found with id: 1", exception.getMessage());
-        verify(additionalFileRepository).findById(fileId);
+        verify(bookFileRepository).findByIdWithBookAndLibraryPath(fileId);
         verify(additionalFileRepository, never()).delete(any());
         verify(monitoringRegistrationService, never()).unregisterSpecificPath(any());
     }
@@ -168,14 +172,14 @@ class AdditionalFileServiceTest {
         Long fileId = 1L;
         Path parentPath = fileEntity.getFullFilePath().getParent();
 
-        when(additionalFileRepository.findById(fileId)).thenReturn(Optional.of(fileEntity));
+        when(bookFileRepository.findByIdWithBookAndLibraryPath(fileId)).thenReturn(Optional.of(fileEntity));
 
         try (MockedStatic<Files> filesMock = mockStatic(Files.class)) {
             filesMock.when(() -> Files.deleteIfExists(fileEntity.getFullFilePath())).thenReturn(true);
 
             additionalFileService.deleteAdditionalFile(fileId);
 
-            verify(additionalFileRepository).findById(fileId);
+            verify(bookFileRepository).findByIdWithBookAndLibraryPath(fileId);
             verify(monitoringRegistrationService).unregisterSpecificPath(parentPath);
             filesMock.verify(() -> Files.deleteIfExists(fileEntity.getFullFilePath()));
             verify(additionalFileRepository).delete(fileEntity);
@@ -188,14 +192,14 @@ class AdditionalFileServiceTest {
         Long fileId = 1L;
         Path parentPath = fileEntity.getFullFilePath().getParent();
 
-        when(additionalFileRepository.findById(fileId)).thenReturn(Optional.of(fileEntity));
+        when(bookFileRepository.findByIdWithBookAndLibraryPath(fileId)).thenReturn(Optional.of(fileEntity));
 
         try (MockedStatic<Files> filesMock = mockStatic(Files.class)) {
             filesMock.when(() -> Files.deleteIfExists(fileEntity.getFullFilePath())).thenThrow(new IOException("File access error"));
 
             additionalFileService.deleteAdditionalFile(fileId);
 
-            verify(additionalFileRepository).findById(fileId);
+            verify(bookFileRepository).findByIdWithBookAndLibraryPath(fileId);
             verify(monitoringRegistrationService).unregisterSpecificPath(parentPath);
             filesMock.verify(() -> Files.deleteIfExists(fileEntity.getFullFilePath()));
             verify(additionalFileRepository).delete(fileEntity);
@@ -209,14 +213,14 @@ class AdditionalFileServiceTest {
         BookFileEntity invalidEntity = new BookFileEntity();
         invalidEntity.setId(fileId);
 
-        when(additionalFileRepository.findById(fileId)).thenReturn(Optional.of(invalidEntity));
+        when(bookFileRepository.findByIdWithBookAndLibraryPath(fileId)).thenReturn(Optional.of(invalidEntity));
 
         assertThrows(
                 IllegalStateException.class,
                 () -> additionalFileService.deleteAdditionalFile(fileId)
         );
 
-        verify(additionalFileRepository).findById(fileId);
+        verify(bookFileRepository).findByIdWithBookAndLibraryPath(fileId);
         verify(additionalFileRepository, never()).delete(any());
         verify(monitoringRegistrationService, never()).unregisterSpecificPath(any());
     }
@@ -224,13 +228,13 @@ class AdditionalFileServiceTest {
     @Test
     void downloadAdditionalFile_WhenFileNotFound_ShouldReturnNotFound() throws IOException {
         Long fileId = 1L;
-        when(additionalFileRepository.findById(fileId)).thenReturn(Optional.empty());
+        when(bookFileRepository.findByIdWithBookAndLibraryPath(fileId)).thenReturn(Optional.empty());
 
         ResponseEntity<Resource> result = additionalFileService.downloadAdditionalFile(fileId);
 
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
         assertNull(result.getBody());
-        verify(additionalFileRepository).findById(fileId);
+        verify(bookFileRepository).findByIdWithBookAndLibraryPath(fileId);
     }
 
     @Test
@@ -243,7 +247,7 @@ class AdditionalFileServiceTest {
         entityWithNonExistentFile.setFileName("non-existent.pdf");
         entityWithNonExistentFile.setFileSubPath(".");
 
-        when(additionalFileRepository.findById(fileId)).thenReturn(Optional.of(entityWithNonExistentFile));
+        when(bookFileRepository.findByIdWithBookAndLibraryPath(fileId)).thenReturn(Optional.of(entityWithNonExistentFile));
 
         try (MockedStatic<Files> filesMock = mockStatic(Files.class)) {
             Path actualPath = entityWithNonExistentFile.getFullFilePath();
@@ -253,7 +257,7 @@ class AdditionalFileServiceTest {
 
             assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
             assertNull(result.getBody());
-            verify(additionalFileRepository).findById(fileId);
+            verify(bookFileRepository).findByIdWithBookAndLibraryPath(fileId);
             filesMock.verify(() -> Files.exists(actualPath));
         }
     }
@@ -261,7 +265,7 @@ class AdditionalFileServiceTest {
     @Test
     void downloadAdditionalFile_WhenFileExists_ShouldReturnFileResource() throws Exception {
         Long fileId = 1L;
-        when(additionalFileRepository.findById(fileId)).thenReturn(Optional.of(fileEntity));
+        when(bookFileRepository.findByIdWithBookAndLibraryPath(fileId)).thenReturn(Optional.of(fileEntity));
 
         try (MockedStatic<Files> filesMock = mockStatic(Files.class)) {
             filesMock.when(() -> Files.exists(fileEntity.getFullFilePath())).thenReturn(true);
@@ -274,7 +278,7 @@ class AdditionalFileServiceTest {
             assertTrue(result.getHeaders().getFirst(HttpHeaders.CONTENT_DISPOSITION).contains("test-file.pdf"));
             assertEquals(MediaType.APPLICATION_OCTET_STREAM, result.getHeaders().getContentType());
 
-            verify(additionalFileRepository).findById(fileId);
+            verify(bookFileRepository).findByIdWithBookAndLibraryPath(fileId);
             filesMock.verify(() -> Files.exists(fileEntity.getFullFilePath()));
         }
     }
@@ -285,13 +289,13 @@ class AdditionalFileServiceTest {
         BookFileEntity invalidEntity = new BookFileEntity();
         invalidEntity.setId(fileId);
 
-        when(additionalFileRepository.findById(fileId)).thenReturn(Optional.of(invalidEntity));
+        when(bookFileRepository.findByIdWithBookAndLibraryPath(fileId)).thenReturn(Optional.of(invalidEntity));
 
         assertThrows(
                 IllegalStateException.class,
                 () -> additionalFileService.downloadAdditionalFile(fileId)
         );
 
-        verify(additionalFileRepository).findById(fileId);
+        verify(bookFileRepository).findByIdWithBookAndLibraryPath(fileId);
     }
 }

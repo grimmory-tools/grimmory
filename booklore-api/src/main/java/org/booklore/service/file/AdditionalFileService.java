@@ -5,6 +5,7 @@ import org.booklore.model.dto.BookFile;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
 import org.booklore.repository.BookAdditionalFileRepository;
+import org.booklore.repository.BookFileRepository;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.monitoring.MonitoringRegistrationService;
 import lombok.AllArgsConstructor;
@@ -39,6 +40,7 @@ public class AdditionalFileService {
     private static final Pattern NON_ASCII = Pattern.compile("[^\\x00-\\x7F]");
 
     private final BookAdditionalFileRepository additionalFileRepository;
+    private final BookFileRepository bookFileRepository;
     private final BookRepository bookRepository;
     private final AdditionalFileMapper additionalFileMapper;
     private final MonitoringRegistrationService monitoringRegistrationService;
@@ -55,7 +57,7 @@ public class AdditionalFileService {
 
     @Transactional
     public void deleteAdditionalFile(Long fileId) {
-        Optional<BookFileEntity> fileOpt = additionalFileRepository.findById(fileId);
+        Optional<BookFileEntity> fileOpt = bookFileRepository.findByIdWithBookAndLibraryPath(fileId);
         if (fileOpt.isEmpty()) {
             throw new IllegalArgumentException("Additional file not found with id: " + fileId);
         }
@@ -97,7 +99,7 @@ public class AdditionalFileService {
     }
 
     public ResponseEntity<Resource> downloadAdditionalFile(Long fileId) throws IOException {
-        Optional<BookFileEntity> fileOpt = additionalFileRepository.findById(fileId);
+        Optional<BookFileEntity> fileOpt = bookFileRepository.findByIdWithBookAndLibraryPath(fileId);
         if (fileOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
