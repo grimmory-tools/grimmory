@@ -77,6 +77,7 @@ $transition-fast: 150ms ease;
   height: $header-height;
   box-sizing: border-box;
   padding: 0 16px;
+  padding-top: env(safe-area-inset-top);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -298,6 +299,7 @@ $transition-fast: 150ms ease;
   right: 0;
   height: $footer-height;
   padding: 0 16px;
+  padding-bottom: env(safe-area-inset-bottom);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -751,8 +753,9 @@ $transition-fast: 150ms ease;
 // Tablet (portrait) switches to mobile toolbar layout
 @media (width <= 1024px) {
   .pdf-header-toolbar {
-    height: $header-height + 4px;
+    height: calc(#{$header-height} + 4px + env(safe-area-inset-top));
     padding: 0 8px;
+    padding-top: env(safe-area-inset-top);
   }
 
   .desktop-actions {
@@ -766,6 +769,7 @@ $transition-fast: 150ms ease;
   .pdf-footer {
     height: auto;
     padding: 8px 12px;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
     flex-wrap: wrap;
     gap: 8px;
   }
@@ -795,6 +799,8 @@ $transition-fast: 150ms ease;
   }
 
   .search-bar {
+    top: calc(#{$header-height} + 4px + env(safe-area-inset-top));
+
     .search-input-wrapper {
       max-width: none;
     }
@@ -819,57 +825,97 @@ $transition-fast: 150ms ease;
   .footer-trigger-zone {
     height: 50px;
   }
+
+  .toolbar-overflow-menu {
+    top: calc(#{$header-height} + 4px + env(safe-area-inset-top));
+    right: 4px;
+    left: 4px;
+    min-width: unset;
+
+    .overflow-item {
+      padding: 12px 16px;
+      font-size: 15px;
+      min-height: 44px;
+    }
+  }
+
+  .slider-wrapper {
+    .page-slider {
+      &::-webkit-slider-thumb {
+        width: 24px;
+        height: 24px;
+        margin-top: calc((6px - 24px) / 2);
+      }
+
+      &::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+      }
+    }
+  }
 }
 
 // Small phones
 @media (width <= 480px) {
   .pdf-header-toolbar {
     padding: 0 6px;
+    padding-top: env(safe-area-inset-top);
   }
 
   .pdf-footer {
     padding: 6px 8px;
+    padding-bottom: calc(6px + env(safe-area-inset-bottom));
+    gap: 6px;
   }
 
   .page-nav-left {
-    gap: 4px;
+    gap: 2px;
   }
 
   .nav-btn {
     padding: 8px;
-    min-width: 36px;
-    min-height: 36px;
+    min-width: 40px;
+    min-height: 40px;
   }
 
   .page-info {
-    min-width: 70px;
+    min-width: 60px;
     font-size: 12px;
-    padding: 4px 8px;
+    padding: 4px 6px;
   }
 
   .slider-wrapper {
     .page-slider {
       &::-webkit-slider-thumb {
-        width: 22px;
-        height: 22px;
-        margin-top: calc((6px - 22px) / 2);
+        width: 28px;
+        height: 28px;
+        margin-top: calc((6px - 28px) / 2);
       }
 
       &::-moz-range-thumb {
-        width: 22px;
-        height: 22px;
+        width: 28px;
+        height: 28px;
       }
     }
   }
 
   .viewer-mode-toggle .toggle-btn {
     padding: 0 8px;
-    height: 34px;
+    height: 36px;
+    min-width: 36px;
   }
 
   .icon-btn {
     padding: 8px;
-    min-width: 36px;
-    min-height: 36px;
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .page-controls {
+    // Give slider full width on small screens
+    .slider-wrapper {
+      flex: 1;
+      min-width: 0;
+    }
   }
 }
