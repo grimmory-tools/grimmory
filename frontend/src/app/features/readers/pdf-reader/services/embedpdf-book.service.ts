@@ -16,7 +16,19 @@ import type {
   SpreadMode,
   RotateCapability,
   PanCapability,
+  I18nCapability,
+  Locale,
 } from '@embedpdf/snippet';
+import {
+  englishTranslations,
+  germanTranslations,
+  dutchTranslations,
+  frenchTranslations,
+  spanishTranslations,
+  simplifiedChineseTranslations,
+  swedishTranslations,
+  japaneseTranslations,
+} from '@embedpdf/snippet/dist/config/translations';
 
 export interface PdfOutlineItem {
   title: string;
@@ -26,6 +38,17 @@ export interface PdfOutlineItem {
 
 @Injectable()
 export class EmbedPdfBookService {
+  private static readonly EMBED_PDF_LOCALES: Record<string, Locale> = {
+    en: englishTranslations,
+    de: germanTranslations,
+    nl: dutchTranslations,
+    fr: frenchTranslations,
+    es: spanishTranslations,
+    zh: simplifiedChineseTranslations,
+    sv: swedishTranslations,
+    ja: japaneseTranslations,
+  };
+
   private zone = inject(NgZone);
 
   private container: EmbedPdfContainer | null = null;
@@ -38,6 +61,7 @@ export class EmbedPdfBookService {
   private spread: SpreadCapability | null = null;
   private rotate: RotateCapability | null = null;
   private pan: PanCapability | null = null;
+  private i18n: I18nCapability | null = null;
 
   private currentDocumentId: string | null = null;
 
@@ -61,7 +85,7 @@ export class EmbedPdfBookService {
     return this.scroll?.getTotalPages() ?? 0;
   }
 
-  async init(target: HTMLElement, pdfUrl: string, theme: 'dark' | 'light'): Promise<void> {
+  async init(target: HTMLElement, pdfUrl: string, theme: 'dark' | 'light', localeCode: string): Promise<void> {
     // Recreate event streams so the service is reusable after destroy()
     this.pageChange$ = new Subject<PageChangeEvent>();
     this.annotationEvent$ = new Subject<AnnotationEvent>();
@@ -75,6 +99,7 @@ export class EmbedPdfBookService {
     const EmbedPDF = (await import('@embedpdf/snippet')).default;
 
     const wasmUrl = new URL('/assets/pdfium/pdfium.wasm', location.origin).href;
+    const resolvedLocale = this.resolveLocale(localeCode);
 
     this.container = EmbedPDF.init({
       type: 'container',
@@ -83,6 +108,11 @@ export class EmbedPdfBookService {
       wasmUrl,
       worker: true,
       log: false,
+      i18n: {
+        defaultLocale: resolvedLocale,
+        fallbackLocale: 'en',
+        locales: Object.values(EmbedPdfBookService.EMBED_PDF_LOCALES),
+      },
       theme: {preference: theme},
       disabledCategories: [
         'redaction',
@@ -144,6 +174,10 @@ export class EmbedPdfBookService {
     const panPlugin = this.registry.getPlugin('pan');
     this.pan = panPlugin?.provides?.() as PanCapability ?? null;
 
+    const i18nPlugin = this.registry.getPlugin('i18n');
+    this.i18n = i18nPlugin?.provides?.() as I18nCapability ?? null;
+    this.i18n?.setLocale(resolvedLocale);
+
     // wire events
     if (this.scroll) {
       this.pageChangeUnsub = this.scroll.onPageChange((ev: PageChangeEvent) => {
@@ -194,6 +228,10 @@ export class EmbedPdfBookService {
 
   setTheme(theme: 'dark' | 'light'): void {
     this.container?.setTheme(theme);
+  }
+
+  setLocale(localeCode: string): void {
+    this.i18n?.setLocale(this.resolveLocale(localeCode));
   }
 
   scrollToPage(pageNumber: number, behavior: 'instant' | 'smooth' = 'smooth'): void {
@@ -371,11 +409,25 @@ export class EmbedPdfBookService {
     this.spread = null;
     this.rotate = null;
     this.pan = null;
+    this.i18n = null;
     this.currentDocumentId = null;
 
     this.restoreWorkerShims();
     this.restoreReleasePointerCapture();
     this.restoreDevicePixelRatio();
+  }
+
+  private resolveLocale(localeCode: string): string {
+    if (EmbedPdfBookService.EMBED_PDF_LOCALES[localeCode]) {
+      return localeCode;
+    }
+
+    const baseLocale = localeCode.split('-')[0];
+    if (EmbedPdfBookService.EMBED_PDF_LOCALES[baseLocale]) {
+      return baseLocale;
+    }
+
+    return 'en';
   }
 
   private convertBookmarks(items: unknown[]): PdfOutlineItem[] {
