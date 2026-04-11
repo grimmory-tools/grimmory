@@ -80,7 +80,6 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   private static readonly INFINITE_SCROLL_MAX_DOM_PAGES = 18;
 
   private readonly destroyRef = inject(DestroyRef);
-  private destroy$ = new Subject<void>();
   private progressSaveSubject$ = new Subject<void>();
 
   bookType = signal<BookType | null>(null);
@@ -380,7 +379,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
         this.headerService.initialize(title);
         // Using this.destroyRef.onDestroy logic (handled inside sidebarService.initialize usually, but if it takes a subject, I should check)
         // For now, keeping this.destroy$ as a Subject if it's still needed for sub-initializations, but I'll check sidebarService.
-        this.sidebarService.initialize(this.bookId()!, book, new Subject<void>(), this.altBookType()); // TODO: Refactor sidebarService to use DestroyRef
+        this.sidebarService.initialize(this.bookId()!, book, this.altBookType());
 
         if (book.metadata?.seriesName) {
           this.loadSeriesNavigation(book);
@@ -642,7 +641,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
           this.stripMaxWidthPercent.set(value as number);
         }),
         debounceTime(CbxReaderComponent.STRIP_WIDTH_PERSIST_DEBOUNCE_MS),
-        takeUntil(this.destroy$)
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe((value) => this.persistStripMaxWidth(value as number));
   }
