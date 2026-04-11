@@ -72,6 +72,27 @@
   font-size: 0.875rem;
 }
 
+.version-copy-trigger {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  line-height: inherit;
+  cursor: pointer;
+  user-select: text;
+
+  &:hover {
+    text-decoration: underline;
+    color: var(--high-contrast-text-color);
+  }
+
+  &:focus-visible {
+    outline: 1px solid var(--primary-color);
+    outline-offset: 0.2rem;
+    border-radius: 0.25rem;
+  }
+}
+
 .update-link {
   padding: 0;
   border: 0;
