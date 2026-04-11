@@ -6,7 +6,6 @@ import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.LibraryPathEntity;
 import org.booklore.repository.BookAdditionalFileRepository;
-import org.booklore.repository.BookRepository;
 import org.booklore.service.file.AdditionalFileService;
 import org.booklore.service.monitoring.MonitoringRegistrationService;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -38,9 +38,6 @@ class AdditionalFileServiceTest {
 
     @Mock
     private BookAdditionalFileRepository additionalFileRepository;
-
-    @Mock
-    private BookRepository bookRepository;
 
     @Mock
     private AdditionalFileMapper additionalFileMapper;
@@ -77,6 +74,7 @@ class AdditionalFileServiceTest {
         fileEntity.setFileName("test-file.pdf");
         fileEntity.setFileSubPath(".");
         fileEntity.setBookFormat(true);
+        bookEntity.setBookFiles(new ArrayList<>(List.of(fileEntity)));
 
         additionalFile = mock(BookFile.class);
     }
@@ -149,92 +147,100 @@ class AdditionalFileServiceTest {
 
     @Test
     void deleteAdditionalFile_WhenFileNotFound_ShouldThrowException() {
+        Long bookId = 100L;
         Long fileId = 1L;
-        when(additionalFileRepository.findById(fileId)).thenReturn(Optional.empty());
+        when(additionalFileRepository.findByIdAndBookIdWithBookAndLibraryPath(fileId, bookId)).thenReturn(Optional.empty());
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> additionalFileService.deleteAdditionalFile(fileId)
+                () -> additionalFileService.deleteAdditionalFile(bookId, fileId)
         );
 
         assertEquals("Additional file not found with id: 1", exception.getMessage());
-        verify(additionalFileRepository).findById(fileId);
+        verify(additionalFileRepository).findByIdAndBookIdWithBookAndLibraryPath(fileId, bookId);
         verify(additionalFileRepository, never()).delete(any());
         verify(monitoringRegistrationService, never()).unregisterSpecificPath(any());
     }
 
     @Test
     void deleteAdditionalFile_WhenFileExists_ShouldDeleteSuccessfully() {
+        Long bookId = 100L;
         Long fileId = 1L;
         Path parentPath = fileEntity.getFullFilePath().getParent();
+        BookFileEntity primaryFile = createBookFile(2L, "primary.epub");
+        bookEntity.setBookFiles(new ArrayList<>(List.of(primaryFile, fileEntity)));
 
-        when(additionalFileRepository.findById(fileId)).thenReturn(Optional.of(fileEntity));
+        when(additionalFileRepository.findByIdAndBookIdWithBookAndLibraryPath(fileId, bookId)).thenReturn(Optional.of(fileEntity));
 
         try (MockedStatic<Files> filesMock = mockStatic(Files.class)) {
             filesMock.when(() -> Files.deleteIfExists(fileEntity.getFullFilePath())).thenReturn(true);
 
-            additionalFileService.deleteAdditionalFile(fileId);
+            additionalFileService.deleteAdditionalFile(bookId, fileId);
 
-            verify(additionalFileRepository).findById(fileId);
+            verify(additionalFileRepository).findByIdAndBookIdWithBookAndLibraryPath(fileId, bookId);
             verify(monitoringRegistrationService).unregisterSpecificPath(parentPath);
             filesMock.verify(() -> Files.deleteIfExists(fileEntity.getFullFilePath()));
             verify(additionalFileRepository).delete(fileEntity);
-            verify(bookRepository, never()).save(any());
         }
     }
 
     @Test
     void deleteAdditionalFile_WhenIOExceptionOccurs_ShouldStillDeleteFromRepository() {
+        Long bookId = 100L;
         Long fileId = 1L;
         Path parentPath = fileEntity.getFullFilePath().getParent();
+        BookFileEntity primaryFile = createBookFile(2L, "primary.epub");
+        bookEntity.setBookFiles(new ArrayList<>(List.of(primaryFile, fileEntity)));
 
-        when(additionalFileRepository.findById(fileId)).thenReturn(Optional.of(fileEntity));
+        when(additionalFileRepository.findByIdAndBookIdWithBookAndLibraryPath(fileId, bookId)).thenReturn(Optional.of(fileEntity));
 
         try (MockedStatic<Files> filesMock = mockStatic(Files.class)) {
             filesMock.when(() -> Files.deleteIfExists(fileEntity.getFullFilePath())).thenThrow(new IOException("File access error"));
 
-            additionalFileService.deleteAdditionalFile(fileId);
+            additionalFileService.deleteAdditionalFile(bookId, fileId);
 
-            verify(additionalFileRepository).findById(fileId);
+            verify(additionalFileRepository).findByIdAndBookIdWithBookAndLibraryPath(fileId, bookId);
             verify(monitoringRegistrationService).unregisterSpecificPath(parentPath);
             filesMock.verify(() -> Files.deleteIfExists(fileEntity.getFullFilePath()));
             verify(additionalFileRepository).delete(fileEntity);
-            verify(bookRepository, never()).save(any());
         }
     }
 
     @Test
     void deleteAdditionalFile_WhenEntityRelationshipsMissing_ShouldThrowIllegalStateException() {
+        Long bookId = 100L;
         Long fileId = 1L;
         BookFileEntity invalidEntity = new BookFileEntity();
         invalidEntity.setId(fileId);
 
-        when(additionalFileRepository.findById(fileId)).thenReturn(Optional.of(invalidEntity));
+        when(additionalFileRepository.findByIdAndBookIdWithBookAndLibraryPath(fileId, bookId)).thenReturn(Optional.of(invalidEntity));
 
         assertThrows(
                 IllegalStateException.class,
-                () -> additionalFileService.deleteAdditionalFile(fileId)
+                () -> additionalFileService.deleteAdditionalFile(bookId, fileId)
         );
 
-        verify(additionalFileRepository).findById(fileId);
+        verify(additionalFileRepository).findByIdAndBookIdWithBookAndLibraryPath(fileId, bookId);
         verify(additionalFileRepository, never()).delete(any());
         verify(monitoringRegistrationService, never()).unregisterSpecificPath(any());
     }
 
     @Test
     void downloadAdditionalFile_WhenFileNotFound_ShouldReturnNotFound() throws IOException {
+        Long bookId = 100L;
         Long fileId = 1L;
-        when(additionalFileRepository.findById(fileId)).thenReturn(Optional.empty());
+        when(additionalFileRepository.findByIdAndBookIdWithBookAndLibraryPath(fileId, bookId)).thenReturn(Optional.empty());
 
-        ResponseEntity<Resource> result = additionalFileService.downloadAdditionalFile(fileId);
+        ResponseEntity<Resource> result = additionalFileService.downloadAdditionalFile(bookId, fileId);
 
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
         assertNull(result.getBody());
-        verify(additionalFileRepository).findById(fileId);
+        verify(additionalFileRepository).findByIdAndBookIdWithBookAndLibraryPath(fileId, bookId);
     }
 
     @Test
     void downloadAdditionalFile_WhenPhysicalFileNotExists_ShouldReturnNotFound() throws IOException {
+        Long bookId = 100L;
         Long fileId = 1L;
 
         BookFileEntity entityWithNonExistentFile = new BookFileEntity();
@@ -242,31 +248,36 @@ class AdditionalFileServiceTest {
         entityWithNonExistentFile.setBook(bookEntity);
         entityWithNonExistentFile.setFileName("non-existent.pdf");
         entityWithNonExistentFile.setFileSubPath(".");
+        BookFileEntity primaryFile = createBookFile(2L, "primary.epub");
+        bookEntity.setBookFiles(new ArrayList<>(List.of(primaryFile, entityWithNonExistentFile)));
 
-        when(additionalFileRepository.findById(fileId)).thenReturn(Optional.of(entityWithNonExistentFile));
+        when(additionalFileRepository.findByIdAndBookIdWithBookAndLibraryPath(fileId, bookId)).thenReturn(Optional.of(entityWithNonExistentFile));
 
         try (MockedStatic<Files> filesMock = mockStatic(Files.class)) {
             Path actualPath = entityWithNonExistentFile.getFullFilePath();
             filesMock.when(() -> Files.exists(actualPath)).thenReturn(false);
 
-            ResponseEntity<Resource> result = additionalFileService.downloadAdditionalFile(fileId);
+            ResponseEntity<Resource> result = additionalFileService.downloadAdditionalFile(bookId, fileId);
 
             assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
             assertNull(result.getBody());
-            verify(additionalFileRepository).findById(fileId);
+            verify(additionalFileRepository).findByIdAndBookIdWithBookAndLibraryPath(fileId, bookId);
             filesMock.verify(() -> Files.exists(actualPath));
         }
     }
 
     @Test
     void downloadAdditionalFile_WhenFileExists_ShouldReturnFileResource() throws Exception {
+        Long bookId = 100L;
         Long fileId = 1L;
-        when(additionalFileRepository.findById(fileId)).thenReturn(Optional.of(fileEntity));
+        BookFileEntity primaryFile = createBookFile(2L, "primary.epub");
+        bookEntity.setBookFiles(new ArrayList<>(List.of(primaryFile, fileEntity)));
+        when(additionalFileRepository.findByIdAndBookIdWithBookAndLibraryPath(fileId, bookId)).thenReturn(Optional.of(fileEntity));
 
         try (MockedStatic<Files> filesMock = mockStatic(Files.class)) {
             filesMock.when(() -> Files.exists(fileEntity.getFullFilePath())).thenReturn(true);
 
-            ResponseEntity<Resource> result = additionalFileService.downloadAdditionalFile(fileId);
+            ResponseEntity<Resource> result = additionalFileService.downloadAdditionalFile(bookId, fileId);
 
             assertEquals(HttpStatus.OK, result.getStatusCode());
             assertNotNull(result.getBody());
@@ -274,24 +285,67 @@ class AdditionalFileServiceTest {
             assertTrue(result.getHeaders().getFirst(HttpHeaders.CONTENT_DISPOSITION).contains("test-file.pdf"));
             assertEquals(MediaType.APPLICATION_OCTET_STREAM, result.getHeaders().getContentType());
 
-            verify(additionalFileRepository).findById(fileId);
+            verify(additionalFileRepository).findByIdAndBookIdWithBookAndLibraryPath(fileId, bookId);
             filesMock.verify(() -> Files.exists(fileEntity.getFullFilePath()));
         }
     }
 
     @Test
     void downloadAdditionalFile_WhenEntityRelationshipsMissing_ShouldThrowIllegalStateException() {
+        Long bookId = 100L;
         Long fileId = 1L;
         BookFileEntity invalidEntity = new BookFileEntity();
         invalidEntity.setId(fileId);
 
-        when(additionalFileRepository.findById(fileId)).thenReturn(Optional.of(invalidEntity));
+        when(additionalFileRepository.findByIdAndBookIdWithBookAndLibraryPath(fileId, bookId)).thenReturn(Optional.of(invalidEntity));
 
         assertThrows(
                 IllegalStateException.class,
-                () -> additionalFileService.downloadAdditionalFile(fileId)
+                () -> additionalFileService.downloadAdditionalFile(bookId, fileId)
         );
 
-        verify(additionalFileRepository).findById(fileId);
+        verify(additionalFileRepository).findByIdAndBookIdWithBookAndLibraryPath(fileId, bookId);
+    }
+
+    @Test
+    void deleteAdditionalFile_WhenFileIsPrimaryBookFile_ShouldThrowException() {
+        Long bookId = 100L;
+        Long fileId = 1L;
+        bookEntity.setBookFiles(new ArrayList<>(List.of(fileEntity)));
+        when(additionalFileRepository.findByIdAndBookIdWithBookAndLibraryPath(fileId, bookId)).thenReturn(Optional.of(fileEntity));
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> additionalFileService.deleteAdditionalFile(bookId, fileId)
+        );
+
+        assertEquals("Primary book file cannot be processed as an additional file: 1", exception.getMessage());
+        verify(additionalFileRepository, never()).delete(any());
+        verify(monitoringRegistrationService, never()).unregisterSpecificPath(any());
+    }
+
+    @Test
+    void downloadAdditionalFile_WhenFileIsPrimaryBookFile_ShouldThrowException() {
+        Long bookId = 100L;
+        Long fileId = 1L;
+        bookEntity.setBookFiles(new ArrayList<>(List.of(fileEntity)));
+        when(additionalFileRepository.findByIdAndBookIdWithBookAndLibraryPath(fileId, bookId)).thenReturn(Optional.of(fileEntity));
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> additionalFileService.downloadAdditionalFile(bookId, fileId)
+        );
+
+        assertEquals("Primary book file cannot be processed as an additional file: 1", exception.getMessage());
+    }
+
+    private BookFileEntity createBookFile(Long id, String fileName) {
+        BookFileEntity entity = new BookFileEntity();
+        entity.setId(id);
+        entity.setBook(bookEntity);
+        entity.setFileName(fileName);
+        entity.setFileSubPath(".");
+        entity.setBookFormat(true);
+        return entity;
     }
 }
