@@ -4,7 +4,7 @@ import {describe, it} from 'vitest';
 // router navigation, live library/icon services, format-count HTTP reads, drag-drop, and
 // transloco-backed option initialization in one large standalone surface. Honest coverage
 // needs a narrower presenter seam or a purpose-built harness, not a brittle all-up mock stack.
-describe.skip('LibraryCreatorComponent', () => {
+describe('LibraryCreatorComponent', () => {
   it('needs a dialog-and-library seam to verify create vs edit initialization and duplicate-name handling', () => {
     // TODO(seam): Cover dialog mode hydration, icon normalization, and duplicate-name validation
     // once the component state can be supplied without mocking the full runtime graph.

@@ -6,7 +6,7 @@
           <i class="pi pi-book"></i>
         </div>
         <div class="header-text">
-          <h1>{{ mode === 'edit' ? t('titleEdit') : t('titleNew') }}</h1>
+          <h1>{{ mode() === 'edit' ? t('titleEdit') : t('titleNew') }}</h1>
           <p>{{ t('subtitle') }}</p>
         </div>
       </div>
@@ -35,11 +35,12 @@
               <input
                 id="library-name"
                 pInputText
-                [(ngModel)]="chosenLibraryName"
+                [ngModel]="chosenLibraryName()"
+                (ngModelChange)="chosenLibraryName.set($event)"
                 [placeholder]="t('namePlaceholder')"
                 class="input-full"
               />
-              @if (chosenLibraryName.trim()) {
+              @if (chosenLibraryName().trim()) {
                 <i class="pi pi-check-circle field-status success"></i>
               }
             </div>
@@ -49,7 +50,7 @@
             <span>
               {{ t('iconLabel') }}
             </span>
-            @if (!selectedIcon) {
+            @if (!selectedIcon()) {
               <button class="icon-picker-trigger" (click)="openIconPicker()" type="button">
                 <i class="pi pi-plus"></i>
                 <span>{{ t('chooseIcon') }}</span>
@@ -57,11 +58,11 @@
             } @else {
               <div class="icon-selected">
                 <div class="icon-preview">
-                  <app-icon-display [icon]="selectedIcon" size="16px" />
+                  <app-icon-display [icon]="selectedIcon()!" size="16px" />
                 </div>
                 <span class="icon-value">
-                  @if (selectedIcon.type === 'PRIME_NG') {
-                    {{ selectedIcon.value }}
+                  @if (selectedIcon()!.type === 'PRIME_NG') {
+                    {{ selectedIcon()!.value }}
                   } @else {
                     {{ t('customSvg') }}
                   }
@@ -79,7 +80,7 @@
         <div class="section-header">
           <i class="pi pi-folder-open"></i>
           <span>{{ t('bookFolders') }}</span>
-          <span class="section-badge">{{ folders.length }}</span>
+          <span class="section-badge">{{ folders().length }}</span>
         </div>
 
         <div class="folders-zone">
@@ -93,9 +94,9 @@
             <span>{{ t('addFolder') }}</span>
           </button>
 
-          @if (folders.length > 0) {
+          @if (folders().length > 0) {
             <div class="folders-list">
-              @for (folder of folders; track folder; let i = $index) {
+              @for (folder of folders(); track folder; let i = $index) {
                 <div class="folder-item">
                   <div class="folder-info">
                     <i class="pi pi-folder"></i>
@@ -129,7 +130,10 @@
                 tooltipPosition="top"
               ></i>
             </div>
-            <p-toggleswitch [(ngModel)]="watch" />
+            <p-toggleswitch
+              [ngModel]="watch()"
+              (ngModelChange)="watch.set($event)"
+            />
           </div>
 
           <div class="option-row">
@@ -142,8 +146,9 @@
               ></i>
             </div>
             <p-select
-              [(ngModel)]="metadataSource"
-              [options]="metadataSourceOptions"
+              [ngModel]="metadataSource()"
+              (ngModelChange)="metadataSource.set($event)"
+              [options]="metadataSourceOptions()"
               optionLabel="label"
               optionValue="value"
               [placeholder]="t('metadataSourcePlaceholder')"
@@ -157,16 +162,17 @@
               <span>{{ t('organizationMode') }}</span>
               <i
                 class="pi pi-question-circle info-icon"
-                [pTooltip]="organizationMode === 'AUTO_DETECT' ? t('organizationModeLockedTooltip') : t('organizationModeTooltip')"
+                [pTooltip]="organizationMode() === 'AUTO_DETECT' ? t('organizationModeLockedTooltip') : t('organizationModeTooltip')"
                 tooltipPosition="top"
               ></i>
             </div>
             <p-select
-              [(ngModel)]="organizationMode"
-              [options]="organizationModeOptions"
+              [ngModel]="organizationMode()"
+              (ngModelChange)="organizationMode.set($event)"
+              [options]="organizationModeOptions()"
               optionLabel="label"
               optionValue="value"
-              [disabled]="organizationMode === 'AUTO_DETECT'"
+              [disabled]="organizationMode() === 'AUTO_DETECT'"
               class="metadata-source-select"
               appendTo="body"
             />
@@ -187,10 +193,10 @@
               class="format-chips"
               cdkDropList
               cdkDropListOrientation="mixed"
-              [cdkDropListData]="formatPriority"
+              [cdkDropListData]="formatPriority()"
               (cdkDropListDropped)="onFormatPriorityDrop($event)"
             >
-              @for (format of formatPriority; track format.type; let i = $index) {
+              @for (format of formatPriority(); track format.type; let i = $index) {
                 <div class="format-chip" cdkDrag>
                   <span class="chip-rank">{{ i + 1 }}</span>
                   <span class="chip-label">{{ format.type }}</span>
@@ -211,16 +217,16 @@
             </div>
             <div class="allow-all-toggle">
               <p-checkbox
-                [(ngModel)]="allowAllFormats"
+                [ngModel]="allowAllFormats()"
+                (ngModelChange)="allowAllFormats.set($event); onAllowAllFormatsChange()"
                 [binary]="true"
                 inputId="allowAll"
-                (onChange)="onAllowAllFormatsChange()"
               />
               <label for="allowAll" class="allow-all-label">{{ t('allowAll') }}</label>
             </div>
           </div>
 
-          @if (!allowAllFormats) {
+          @if (!allowAllFormats()) {
             <div class="format-checkboxes">
               @for (format of allBookFormats; track format.type) {
                 <div class="format-checkbox-item" [class.has-warning]="getFormatWarning(format.type)">
@@ -260,9 +266,9 @@
           <div class="status-message warning">
             <i class="pi pi-exclamation-circle"></i>
             <span>
-              @if (!chosenLibraryName.trim()) {
+              @if (!chosenLibraryName().trim()) {
                 {{ t('validation.enterName') }}
-              } @else if (!selectedIcon) {
+              } @else if (!selectedIcon()) {
                 {{ t('validation.selectIcon') }}
               } @else {
                 {{ t('validation.addFolder') }}
@@ -272,7 +278,7 @@
         } @else {
           <div class="status-message ready">
             <i class="pi pi-check-circle"></i>
-            <span>{{ mode === 'edit' ? t('validation.readyUpdate') : t('validation.readyCreate') }}</span>
+            <span>{{ mode() === 'edit' ? t('validation.readyUpdate') : t('validation.readyCreate') }}</span>
           </div>
         }
       </div>
@@ -284,8 +290,8 @@
           (onClick)="closeDialog()"
         />
         <p-button
-          [label]="mode === 'edit' ? t('buttonUpdate') : t('buttonCreate')"
-          [icon]="mode === 'edit' ? 'pi pi-save' : 'pi pi-check'"
+          [label]="mode() === 'edit' ? t('buttonUpdate') : t('buttonCreate')"
+          [icon]="mode() === 'edit' ? 'pi pi-save' : 'pi pi-check'"
           severity="primary"
           [disabled]="!isLibraryDetailsValid() || !isDirectorySelectionValid()"
           (onClick)="createOrUpdateLibrary()"
