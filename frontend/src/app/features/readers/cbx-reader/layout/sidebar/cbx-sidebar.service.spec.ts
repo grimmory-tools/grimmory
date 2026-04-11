@@ -1,6 +1,6 @@
 import {TestBed} from '@angular/core/testing';
 import {TranslocoService} from '@jsverse/transloco';
-import {of, Subject} from 'rxjs';
+import {of} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {CbxPageInfo, CbxReaderService} from '../../../../book/service/cbx-reader.service';
@@ -12,7 +12,6 @@ import {CbxSidebarService} from './cbx-sidebar.service';
 
 describe('CbxSidebarService', () => {
   let service: CbxSidebarService;
-  let destroy$: Subject<void>;
 
   const pageInfo: CbxPageInfo[] = [
     {pageNumber: 1, displayName: 'Page 1'},
@@ -76,7 +75,6 @@ describe('CbxSidebarService', () => {
   } as Book);
 
   beforeEach(() => {
-    destroy$ = new Subject<void>();
     cbxReaderService.getPageInfo.mockReset();
     cbxReaderService.getPageInfo.mockReturnValue(of(pageInfo));
     bookMarkService.getBookmarksForBook.mockReset();
@@ -112,12 +110,11 @@ describe('CbxSidebarService', () => {
   });
 
   afterEach(() => {
-    destroy$.complete();
     TestBed.resetTestingModule();
   });
 
   it('initializes book info and loads pages, bookmarks, and notes', () => {
-    service.initialize(7, createBook(), destroy$, 'CBX');
+    service.initialize(7, createBook(), 'CBX');
 
     expect(cbxReaderService.getPageInfo).toHaveBeenCalledWith(7, 'CBX');
     expect(bookMarkService.getBookmarksForBook).toHaveBeenCalledWith(7);
@@ -135,7 +132,7 @@ describe('CbxSidebarService', () => {
   });
 
   it('falls back to translated untitled book info when metadata is missing', () => {
-    service.initialize(7, createBook({metadata: undefined, fileName: undefined}), destroy$);
+    service.initialize(7, createBook({metadata: undefined, fileName: undefined}));
 
     expect(service.bookInfo()).toEqual({
       id: 7,
@@ -161,7 +158,7 @@ describe('CbxSidebarService', () => {
   });
 
   it('supports bookmark lookups, creation, deletion, and toggle branches', () => {
-    service.initialize(7, createBook(), destroy$);
+    service.initialize(7, createBook());
 
     expect(service.isPageBookmarked(2)).toBe(true);
     expect(service.isPageBookmarked(9)).toBe(false);
@@ -192,7 +189,7 @@ describe('CbxSidebarService', () => {
   });
 
   it('filters notes by content or chapter title and clears the query', () => {
-    service.initialize(7, createBook(), destroy$);
+    service.initialize(7, createBook());
 
     service.setNotesSearchQuery('battle');
     expect(service.filteredNotes()).toEqual([notes[0]]);
@@ -209,7 +206,7 @@ describe('CbxSidebarService', () => {
     const editEvents: BookNoteV2[] = [];
     service.navigateToPage$.subscribe(value => pageEvents.push(value));
     service.editNote$.subscribe(value => editEvents.push(value));
-    service.initialize(7, createBook(), destroy$);
+    service.initialize(7, createBook());
 
     service.createNote(6, 'Remember this', '#fff000');
     expect(bookNoteV2Service.createNote).toHaveBeenCalledWith({

@@ -1,5 +1,5 @@
 import {TestBed} from '@angular/core/testing';
-import {of, Subject} from 'rxjs';
+import {of} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {Annotation} from '../../../../../shared/service/annotation.service';
@@ -9,7 +9,6 @@ import {ReaderViewManagerService} from '../../core/view-manager.service';
 import {ReaderSelectionService} from './selection.service';
 
 describe('ReaderSelectionService', () => {
-  const destroy$ = new Subject<void>();
 
   const viewManager = {
     addAnnotation: vi.fn(() => of({index: 1, label: 'Annotation 1'})),
@@ -49,7 +48,7 @@ describe('ReaderSelectionService', () => {
     });
 
     service = TestBed.inject(ReaderSelectionService);
-    service.initialize(41, destroy$);
+    service.initialize(41);
   });
 
   afterEach(() => {

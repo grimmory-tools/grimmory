@@ -53,10 +53,8 @@ describe('ReaderNoteService', () => {
   };
 
   let service: ReaderNoteService;
-  let destroy$: Subject<void>;
 
   beforeEach(() => {
-    destroy$ = new Subject<void>();
     bookNoteV2Service.createNote.mockReset();
     bookNoteV2Service.updateNote.mockReset();
     messageService.add.mockReset();
@@ -80,12 +78,10 @@ describe('ReaderNoteService', () => {
     });
 
     service = TestBed.inject(ReaderNoteService);
-    service.initialize(14, destroy$);
+    service.initialize(14);
   });
 
   afterEach(() => {
-    destroy$.next();
-    destroy$.complete();
     TestBed.resetTestingModule();
   });
 

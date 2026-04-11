@@ -1,5 +1,5 @@
 import {TestBed} from '@angular/core/testing';
-import {of, Subject} from 'rxjs';
+import {of} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {BookNoteV2, BookNoteV2Service} from '../../../../../shared/service/book-note-v2.service';
@@ -8,7 +8,6 @@ import {ReaderLeftSidebarService} from './panel.service';
 
 describe('ReaderLeftSidebarService', () => {
   let service: ReaderLeftSidebarService;
-  let destroy$: Subject<void>;
 
   const notes = [
     {id: 1, bookId: 9, cfi: 'epubcfi(/6/2)', noteContent: 'Alpha', selectedText: 'Quote', chapterTitle: 'Intro', createdAt: '2026-03-26T00:00:00Z'},
@@ -41,7 +40,6 @@ describe('ReaderLeftSidebarService', () => {
   };
 
   beforeEach(() => {
-    destroy$ = new Subject<void>();
     bookNoteV2Service.getNotesForBook.mockReset();
     bookNoteV2Service.getNotesForBook.mockReturnValue(of(notes));
     bookNoteV2Service.deleteNote.mockReset();
@@ -61,13 +59,11 @@ describe('ReaderLeftSidebarService', () => {
     });
 
     service = TestBed.inject(ReaderLeftSidebarService);
-    service.initialize(9, destroy$);
+    service.initialize(9);
   });
 
   afterEach(() => {
     vi.useRealTimers();
-    destroy$.next();
-    destroy$.complete();
     TestBed.resetTestingModule();
   });
 
