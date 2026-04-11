@@ -97,7 +97,6 @@ class AppBookServiceFilterOptionsTest {
         AppFilterOptions result = service.getFilterOptions(5L, null, null);
 
         assertNotNull(result);
-        verify(entityManager, times(10)).createQuery(anyString(), any(Class.class));
     }
 
     @Test

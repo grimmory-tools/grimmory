@@ -5,6 +5,7 @@ import {
   doesBookMatchFilter,
   doesBookMatchReadStatus,
   filterBooksByFilters,
+  isAgeRatingInRange,
   isFileSizeInRange,
   isMatchScoreInRange,
   isPageCountInRange,
@@ -63,6 +64,8 @@ describe('sidebar-filter', () => {
     expect(isFileSizeInRange(undefined, 1)).toBe(false);
     expect(isFileSizeInRange(1500, 1)).toBe(true);
     expect(isPageCountInRange(230, '3')).toBe(true);
+    expect(isAgeRatingInRange(16, 16)).toBe(true);
+    expect(isAgeRatingInRange(12, 10)).toBe(true);
     expect(isMatchScoreInRange(87, 2)).toBe(true);
     expect(isMatchScoreInRange(87, 9)).toBe(false);
     expect(doesBookMatchReadStatus(makeBook(1), [ReadStatus.UNREAD])).toBe(true);
