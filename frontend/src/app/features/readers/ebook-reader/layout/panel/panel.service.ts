@@ -1,6 +1,6 @@
-import {computed, inject, Injectable, signal} from '@angular/core';
+import {computed, DestroyRef, inject, Injectable, signal} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
 import {BookNoteV2, BookNoteV2Service} from '../../../../../shared/service/book-note-v2.service';
 import {ReaderViewManagerService} from '../../core/view-manager.service';
 import {SearchResult, SearchState} from '../sidebar/sidebar.service';
@@ -17,7 +17,7 @@ export class ReaderLeftSidebarService {
   private viewManager = inject(ReaderViewManagerService);
   private bookNoteV2Service = inject(BookNoteV2Service);
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
   private bookId!: number;
 
   private readonly _isOpen = signal(false);
@@ -58,16 +58,15 @@ export class ReaderLeftSidebarService {
   private _editNote = new Subject<BookNoteV2>();
   editNote$ = this._editNote.asObservable();
 
-  initialize(bookId: number, destroy$: Subject<void>): void {
+  initialize(bookId: number): void {
     this.bookId = bookId;
-    this.destroy$ = destroy$;
 
     this.loadNotes();
   }
 
   private loadNotes(): void {
     this.bookNoteV2Service.getNotesForBook(this.bookId)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(notes => this._notes.set(notes));
   }
 
@@ -106,13 +105,13 @@ export class ReaderLeftSidebarService {
 
   navigateToNote(cfi: string): void {
     this.viewManager.goTo(cfi)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.close());
   }
 
   deleteNote(noteId: number): void {
     this.bookNoteV2Service.deleteNote(noteId)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this._notes.update(notes => notes.filter(note => note.id !== noteId));
       });
@@ -204,7 +203,7 @@ export class ReaderLeftSidebarService {
 
   navigateToSearchResult(cfi: string): void {
     this.viewManager.goTo(cfi)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.close());
   }
 

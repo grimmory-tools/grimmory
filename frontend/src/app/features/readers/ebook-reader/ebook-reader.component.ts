@@ -321,7 +321,7 @@ export class EbookReaderComponent implements OnInit {
       }),
       switchMap(({book, bookType, bookFileId}) => {
         this.progressService.initialize(this.bookId, bookType, bookFileId);
-        this.selectionService.initialize(this.bookId, this.destroy$);
+        this.selectionService.initialize(this.bookId);
         this.headerService.initialize(this.bookId, book.metadata?.title || '');
 
         // Use streaming for EPUB if query param is set, blob loading otherwise (default)
@@ -333,9 +333,9 @@ export class EbookReaderComponent implements OnInit {
         return loadBook$.pipe(
           tap(() => {
             this.applyStyles();
-            this.sidebarService.initialize(this.bookId, book, this.destroy$);
-            this.leftSidebarService.initialize(this.bookId, this.destroy$);
-            this.noteService.initialize(this.bookId, this.destroy$);
+            this.sidebarService.initialize(this.bookId, book);
+            this.leftSidebarService.initialize(this.bookId);
+            this.noteService.initialize(this.bookId);
           }),
           switchMap(() => this.viewManager.getMetadata()),
           switchMap(() => {

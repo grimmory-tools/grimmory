@@ -1,6 +1,6 @@
-import {inject, Injectable, Injector, signal} from '@angular/core';
+import {DestroyRef, inject, Injectable, Injector, signal} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
 import {TocItem} from 'epubjs';
 import {BookMark, BookMarkService} from '../../../../../shared/service/book-mark.service';
 import {Annotation} from '../../../../../shared/service/annotation.service';
@@ -48,7 +48,7 @@ export class ReaderSidebarService {
   private bookMarkHttpService = inject(BookMarkService);
   private annotationService = inject(ReaderAnnotationHttpService);
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
   private bookId!: number;
   private selectionService: ReaderSelectionService | null = null;
 
@@ -84,9 +84,8 @@ export class ReaderSidebarService {
     return this.progressService.currentChapterHref;
   }
 
-  initialize(bookId: number, book: Book, destroy$: Subject<void>): void {
+  initialize(bookId: number, book: Book): void {
     this.bookId = bookId;
-    this.destroy$ = destroy$;
 
     this._bookInfo.set({
       id: book.id,
@@ -110,7 +109,7 @@ export class ReaderSidebarService {
     }
 
     this.selectionService.annotationsChanged$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(annotations => {
         this._annotations.set(annotations);
       });
@@ -118,7 +117,7 @@ export class ReaderSidebarService {
 
   private loadAnnotations(): void {
     this.annotationService.getAnnotations(this.bookId)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(annotations => {
         this._annotations.set(annotations);
         if (!this.selectionService) {
@@ -166,7 +165,7 @@ export class ReaderSidebarService {
 
   navigateToChapter(href: string): void {
     this.viewManager.goTo(href)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.close());
   }
 
@@ -223,19 +222,19 @@ export class ReaderSidebarService {
 
   private loadBookmarks(): void {
     this.bookMarkHttpService.getBookmarksForBook(this.bookId)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(bookmarks => this._bookmarks.set(bookmarks));
   }
 
   navigateToBookmark(cfi: string): void {
     this.viewManager.goTo(cfi)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.close());
   }
 
   createBookmark(): void {
     this.bookmarkService.createBookmarkAtCurrentPosition(this.bookId)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(success => {
         if (success) {
           this.loadBookmarks();
@@ -257,13 +256,13 @@ export class ReaderSidebarService {
 
   deleteBookmark(bookmarkId: number): void {
     this.bookMarkHttpService.deleteBookmark(bookmarkId)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.loadBookmarks());
   }
 
   navigateToAnnotation(cfi: string): void {
     this.viewManager.goTo(cfi)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.close());
   }
 
@@ -273,11 +272,11 @@ export class ReaderSidebarService {
     if (!annotation) return;
 
     this.annotationService.deleteAnnotation(annotationId)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(success => {
         if (success) {
           this.viewManager.deleteAnnotation(annotation.cfi)
-            .pipe(takeUntil(this.destroy$))
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe();
           const updatedAnnotations = annotations.filter(a => a.id !== annotationId);
           this._annotations.set(updatedAnnotations);

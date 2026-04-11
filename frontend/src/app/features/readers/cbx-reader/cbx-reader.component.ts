@@ -2,7 +2,7 @@ import { Component, computed, DestroyRef, effect, ElementRef, HostListener, inje
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { forkJoin, from, Subject } from 'rxjs';
-import { debounceTime, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { debounceTime, map, switchMap, tap } from 'rxjs/operators';
 import { PageTitleService } from "../../../shared/service/page-title.service";
 import { CbxReaderService } from '../../book/service/cbx-reader.service';
 import { BookService } from '../../book/service/book.service';
@@ -2285,9 +2285,6 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     this.infiniteScrollPages.set([]);
     this.currentImageUrls.set([]);
     this.previousImageUrls.set([]);
-
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   private endReadingSession(): void {
