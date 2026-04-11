@@ -232,7 +232,7 @@ export class EbookReaderComponent implements OnInit {
       switchMap(([, , {book, bookType, bookFileId}]) => {
         this.progressService.initialize(this.bookId, bookType, bookFileId);
         // Using new Subject<void>() for legacy initializations that haven't been refactored yet.
-        this.selectionService.initialize(this.bookId, new Subject<void>());
+        this.selectionService.initialize(this.bookId);
         this.headerService.initialize(this.bookId, book.metadata?.title || '');
 
         const useStreaming = this.route.snapshot.queryParamMap.get('streaming') === 'true';
@@ -243,9 +243,9 @@ export class EbookReaderComponent implements OnInit {
         return loadBook$.pipe(
           tap(() => {
             this.applyStyles();
-            this.sidebarService.initialize(this.bookId, book, new Subject<void>());
-            this.leftSidebarService.initialize(this.bookId, new Subject<void>());
-            this.noteService.initialize(this.bookId, new Subject<void>());
+            this.sidebarService.initialize(this.bookId, book);
+            this.leftSidebarService.initialize(this.bookId);
+            this.noteService.initialize(this.bookId);
           }),
           switchMap(() => this.viewManager.getMetadata()),
           switchMap(() => {
