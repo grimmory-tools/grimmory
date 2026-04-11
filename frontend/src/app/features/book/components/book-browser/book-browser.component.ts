@@ -1024,13 +1024,14 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   toggleTableGrid(): void {
-    this.currentViewMode = this.currentViewMode === VIEW_MODES.GRID ? VIEW_MODES.TABLE : VIEW_MODES.GRID;
-    this.queryParamsService.updateViewMode(this.currentViewMode as 'grid' | 'table');
+    const newMode = this.currentViewMode() === VIEW_MODES.GRID ? VIEW_MODES.TABLE : VIEW_MODES.GRID;
+    this.currentViewMode.set(newMode);
+    this.queryParamsService.updateViewMode(newMode as 'grid' | 'table');
   }
 
   onViewModeChange(mode: string): void {
-    if (mode && mode !== this.currentViewMode) {
-      this.currentViewMode = mode;
+    if (mode && mode !== this.currentViewMode()) {
+      this.currentViewMode.set(mode);
       this.queryParamsService.updateViewMode(mode as 'grid' | 'table');
     }
   }
@@ -1243,14 +1244,14 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   setMobileColumns(columns: number): void {
-    this.mobileColumnCount = columns;
+    this.mobileColumnCount.set(columns);
     this.localStorageService.set(this.MOBILE_COLUMNS_STORAGE_KEY, columns);
   }
 
   private loadMobileColumnsPreference(): void {
     const saved = this.localStorageService.get<number>(this.MOBILE_COLUMNS_STORAGE_KEY);
     if (saved !== null && [2, 3, 4].includes(saved)) {
-      this.mobileColumnCount = saved;
+      this.mobileColumnCount.set(saved);
     }
   }
 }
