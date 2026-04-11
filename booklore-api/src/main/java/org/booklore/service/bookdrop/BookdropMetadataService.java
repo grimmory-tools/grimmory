@@ -153,6 +153,7 @@ public class BookdropMetadataService {
 
                 // External IDs
                 .asin(truncate(extracted.getAsin(), 10))
+                .audibleId(truncate(extracted.getAudibleId(), 10))
                 .goodreadsId(truncate(extracted.getGoodreadsId(), 100))
                 .hardcoverId(truncate(extracted.getHardcoverId(), 100))
                 .hardcoverBookId(truncate(extracted.getHardcoverBookId(), 100))
@@ -160,8 +161,11 @@ public class BookdropMetadataService {
                 .comicvineId(truncate(extracted.getComicvineId(), 100))
                 .lubimyczytacId(truncate(extracted.getLubimyczytacId(), 100))
                 .ranobedbId(truncate(extracted.getRanobedbId(), 100))
+                .doubanId(truncate(extracted.getDoubanId(), 100))
 
                 // Ratings
+                .audibleRating(extracted.getAudibleRating())
+                .audibleReviewCount(extracted.getAudibleReviewCount())
                 .amazonRating(extracted.getAmazonRating())
                 .amazonReviewCount(extracted.getAmazonReviewCount())
                 .goodreadsRating(extracted.getGoodreadsRating())
@@ -170,6 +174,8 @@ public class BookdropMetadataService {
                 .hardcoverReviewCount(extracted.getHardcoverReviewCount())
                 .lubimyczytacRating(extracted.getLubimyczytacRating())
                 .ranobedbRating(extracted.getRanobedbRating())
+                .doubanRating(extracted.getDoubanRating())
+                .doubanReviewCount(extracted.getDoubanReviewCount())
 
                 // Relationships
                 .authors(extracted.getAuthors())
