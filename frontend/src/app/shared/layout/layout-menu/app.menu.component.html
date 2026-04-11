@@ -68,7 +68,13 @@
             {{ versionInfo.current }}
           </a>
         } @else {
-          <span class="version-label">{{ versionInfo.current }}</span>
+          <button
+            type="button"
+            class="version-label version-copy-trigger"
+            (click)="copyVersion(versionInfo.current)"
+          >
+            {{ versionInfo.current }}
+          </button>
         }
       </div>
       @if (isSemanticVersion(versionInfo.current) && versionInfo.latest && versionInfo.latest !== versionInfo.current) {
