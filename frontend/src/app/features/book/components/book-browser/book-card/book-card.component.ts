@@ -111,8 +111,14 @@ export class BookCardComponent {
     this.book().primaryFile?.bookType === 'AUDIOBOOK' && !this.forceEbookMode()
   );
 
+  readonly hasAudiobookFormat = computed(() => {
+    const primaryFile = this.book().primaryFile;
+    const alternativeFormats = this.book().alternativeFormats ?? [];
+    return primaryFile?.bookType === 'AUDIOBOOK' || alternativeFormats.some(file => file.bookType === 'AUDIOBOOK');
+  });
+
   readonly coverImageUrl = computed(() =>
-    this.isAudiobook()
+    (this.isAudiobook() || (this.useSquareCovers() && this.hasAudiobookFormat()))
       ? this.urlHelper.getAudiobookThumbnailUrl(this.book().id, this.book().metadata?.audiobookCoverUpdatedOn)
       : this.urlHelper.getThumbnailUrl(this.book().id, this.book().metadata?.coverUpdatedOn)
   );

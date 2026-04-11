@@ -299,6 +299,37 @@ describe('BookCardComponent', () => {
     expect(component.titleTooltip()).toContain('Volume One');
   });
 
+  it('prefers the audiobook thumbnail for square covers when the book has an audiobook format', () => {
+    ref.setInput('book', makeBook({
+      id: 9,
+      primaryFile: {
+        id: 91,
+        bookId: 9,
+        bookType: 'EPUB',
+        extension: 'epub',
+        filePath: 'books/volume-nine.epub',
+      },
+      alternativeFormats: [
+        {
+          id: 92,
+          bookId: 9,
+          bookType: 'AUDIOBOOK',
+          extension: 'm4b',
+          filePath: 'books/volume-nine.m4b',
+        } as AdditionalFile,
+      ],
+    }));
+    ref.setInput('useSquareCovers', true);
+    fixture.detectChanges();
+
+    expect(component.coverImageUrl()).toBe('audio-thumb:9:2024-01-02');
+
+    ref.setInput('useSquareCovers', false);
+    fixture.detectChanges();
+
+    expect(component.coverImageUrl()).toBe('thumb:9:2024-01-01');
+  });
+
   it('uses forced ebook mode for audiobook reads and falls back to the normal read flow otherwise', () => {
     const audiobookWithAlternativeFormat = makeBook({
       id: 12,
