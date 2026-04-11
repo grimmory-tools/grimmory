@@ -107,7 +107,7 @@ export class EmbedPdfBookService {
         defaultZoomLevel: 'fit-page' as ZoomMode,
       },
       render: {
-        defaultImageQuality: 2,
+        defaultImageQuality: 4,
       },
       tiling: {
         tileSize: 1024,
@@ -451,7 +451,7 @@ export class EmbedPdfBookService {
    * PDF pages appear noticeably pixelated.
    */
   private ensureHighDpiRendering(): void {
-    const MIN_DPR = 2;
+    const MIN_DPR = 2.5;
     if (window.devicePixelRatio < MIN_DPR) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const w = window as any;
