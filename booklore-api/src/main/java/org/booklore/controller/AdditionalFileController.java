@@ -84,7 +84,7 @@ public class AdditionalFileController {
     public ResponseEntity<Resource> downloadAdditionalFile(
             @PathVariable Long bookId,
             @PathVariable Long fileId) throws IOException {
-        return additionalFileService.downloadAdditionalFile(fileId);
+        return additionalFileService.downloadAdditionalFile(bookId, fileId);
     }
 
     @Operation(
@@ -98,7 +98,7 @@ public class AdditionalFileController {
     public ResponseEntity<Void> deleteAdditionalFile(
             @PathVariable Long bookId,
             @PathVariable Long fileId) {
-        additionalFileService.deleteAdditionalFile(fileId);
+        additionalFileService.deleteAdditionalFile(bookId, fileId);
         return ResponseEntity.noContent().build();
     }
 

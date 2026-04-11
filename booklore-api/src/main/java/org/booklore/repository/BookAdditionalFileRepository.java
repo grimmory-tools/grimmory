@@ -28,6 +28,20 @@ public interface BookAdditionalFileRepository extends JpaRepository<BookFileEnti
     @Query("SELECT bf FROM BookFileEntity bf WHERE bf.book.library.id = :libraryId")
     List<BookFileEntity> findByLibraryId(@Param("libraryId") Long libraryId);
 
+    @Query("""
+            SELECT DISTINCT bf FROM BookFileEntity bf
+            LEFT JOIN FETCH bf.book b
+            LEFT JOIN FETCH b.libraryPath
+            LEFT JOIN FETCH b.library
+            LEFT JOIN FETCH b.bookFiles
+            WHERE bf.id = :id
+            AND b.id = :bookId
+            """)
+    Optional<BookFileEntity> findByIdAndBookIdWithBookAndLibraryPath(
+            @Param("id") Long id,
+            @Param("bookId") Long bookId
+    );
+
     @Modifying
     @Transactional
     @Query("""
