@@ -87,37 +87,22 @@
 </script>
 <script type="module">
   import EmbedPDF from '/assets/embedpdf/embedpdf.js';
-  import {
-    englishTranslations,
-    germanTranslations,
-    dutchTranslations,
-    frenchTranslations,
-    spanishTranslations,
-    simplifiedChineseTranslations,
-    swedishTranslations,
-    japaneseTranslations,
-  } from '/assets/embedpdf/embedpdf.js';
 
   let viewer = null;
   let objectUrl = null;
   let registry = null;
   const myOrigin = location.origin;
-  const embedPdfLocales = {
-    en: englishTranslations,
-    de: germanTranslations,
-    nl: dutchTranslations,
-    fr: frenchTranslations,
-    es: spanishTranslations,
-    zh: simplifiedChineseTranslations,
-    sv: swedishTranslations,
-    ja: japaneseTranslations,
-  };
 
-  function resolveLocale(locale) {
-    if (embedPdfLocales[locale]) return locale;
-    const baseLocale = (locale || '').split('-')[0];
-    if (embedPdfLocales[baseLocale]) return baseLocale;
-    return 'en';
+  function applyLocale(i18n, locale) {
+    if (!i18n) return;
+
+    const requestedLocale = locale || 'en';
+    if (i18n.hasLocale?.(requestedLocale)) {
+      i18n.setLocale?.(requestedLocale);
+      return;
+    }
+
+    i18n.setLocale?.('en');
   }
 
   function log(...args) {
@@ -312,9 +297,8 @@
         type: 'container',
         target: target,
         i18n: {
-          defaultLocale: resolveLocale(msg.locale),
+          defaultLocale: msg.locale || 'en',
           fallbackLocale: 'en',
-          locales: Object.values(embedPdfLocales),
         },
         disabledCategories: [
           'document-open',
@@ -335,7 +319,7 @@
 
       try {
         registry = await viewer.registry;
-        registry.getPlugin('i18n')?.provides()?.setLocale?.(resolveLocale(msg.locale));
+        applyLocale(registry.getPlugin('i18n')?.provides?.(), msg.locale);
         const dm = registry.getPlugin('document-manager')?.provides();
         if (dm) {
           dm.onDocumentOpened?.((ev) => {
@@ -433,7 +417,7 @@
     }
 
     if (msg.type === 'setLocale') {
-      registry?.getPlugin('i18n')?.provides()?.setLocale?.(resolveLocale(msg.locale));
+      applyLocale(registry?.getPlugin('i18n')?.provides?.(), msg.locale);
     }
 
     if (msg.type === 'scrollToPage') {

@@ -17,18 +17,7 @@ import type {
   RotateCapability,
   PanCapability,
   I18nCapability,
-  Locale,
 } from '@embedpdf/snippet';
-import {
-  englishTranslations,
-  germanTranslations,
-  dutchTranslations,
-  frenchTranslations,
-  spanishTranslations,
-  simplifiedChineseTranslations,
-  swedishTranslations,
-  japaneseTranslations,
-} from '@embedpdf/snippet/dist/config/translations';
 
 export interface PdfOutlineItem {
   title: string;
@@ -38,17 +27,6 @@ export interface PdfOutlineItem {
 
 @Injectable()
 export class EmbedPdfBookService {
-  private static readonly EMBED_PDF_LOCALES: Record<string, Locale> = {
-    en: englishTranslations,
-    de: germanTranslations,
-    nl: dutchTranslations,
-    fr: frenchTranslations,
-    es: spanishTranslations,
-    zh: simplifiedChineseTranslations,
-    sv: swedishTranslations,
-    ja: japaneseTranslations,
-  };
-
   private zone = inject(NgZone);
 
   private container: EmbedPdfContainer | null = null;
@@ -99,7 +77,7 @@ export class EmbedPdfBookService {
     const EmbedPDF = (await import('@embedpdf/snippet')).default;
 
     const wasmUrl = new URL('/assets/pdfium/pdfium.wasm', location.origin).href;
-    const resolvedLocale = this.resolveLocale(localeCode);
+    const requestedLocale = localeCode || 'en';
 
     this.container = EmbedPDF.init({
       type: 'container',
@@ -109,9 +87,8 @@ export class EmbedPdfBookService {
       worker: true,
       log: false,
       i18n: {
-        defaultLocale: resolvedLocale,
+        defaultLocale: requestedLocale,
         fallbackLocale: 'en',
-        locales: Object.values(EmbedPdfBookService.EMBED_PDF_LOCALES),
       },
       theme: {preference: theme},
       disabledCategories: [
@@ -176,7 +153,7 @@ export class EmbedPdfBookService {
 
     const i18nPlugin = this.registry.getPlugin('i18n');
     this.i18n = i18nPlugin?.provides?.() as I18nCapability ?? null;
-    this.i18n?.setLocale(resolvedLocale);
+    this.applyLocale(requestedLocale);
 
     // wire events
     if (this.scroll) {
@@ -231,7 +208,7 @@ export class EmbedPdfBookService {
   }
 
   setLocale(localeCode: string): void {
-    this.i18n?.setLocale(this.resolveLocale(localeCode));
+    this.applyLocale(localeCode || 'en');
   }
 
   scrollToPage(pageNumber: number, behavior: 'instant' | 'smooth' = 'smooth'): void {
@@ -417,17 +394,15 @@ export class EmbedPdfBookService {
     this.restoreDevicePixelRatio();
   }
 
-  private resolveLocale(localeCode: string): string {
-    if (EmbedPdfBookService.EMBED_PDF_LOCALES[localeCode]) {
-      return localeCode;
+  private applyLocale(localeCode: string): void {
+    if (!this.i18n) return;
+
+    if (this.i18n.hasLocale(localeCode)) {
+      this.i18n.setLocale(localeCode);
+      return;
     }
 
-    const baseLocale = localeCode.split('-')[0];
-    if (EmbedPdfBookService.EMBED_PDF_LOCALES[baseLocale]) {
-      return baseLocale;
-    }
-
-    return 'en';
+    this.i18n.setLocale('en');
   }
 
   private convertBookmarks(items: unknown[]): PdfOutlineItem[] {
