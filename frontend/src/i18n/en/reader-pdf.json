@@ -65,7 +65,7 @@
     "annotationFailed": "Failed to save annotations"
   },
   "docViewer": {
-    "changesSavedInfo": "Changes are written to file here",
+    "changesSavedInfo": "Edits in the Document Viewer are automatically saved to the PDF.",
     "dismiss": "Dismiss"
   }
 }

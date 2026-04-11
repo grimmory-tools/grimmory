@@ -188,6 +188,16 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     this.startChromeAutoHide();
     document.addEventListener('fullscreenchange', this.onFullscreenChange);
 
+    this.t.langChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(lang => {
+        if (this.viewerMode === 'book') {
+          this.embedPdfBook.setLocale(lang);
+        } else if (this.embedPdfIframe?.contentWindow) {
+          this.embedPdfIframe.contentWindow.postMessage({ type: 'setLocale', locale: lang }, location.origin);
+        }
+      });
+
     // Listen for mousemove outside Angular zone to avoid constant change detection
     this.ngZone.runOutsideAngular(() => {
       const mouseMoveHandler = () => {
@@ -427,7 +437,8 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       await this.embedPdfBook.init(
         targetEl,
         pdfUrl,
-        this.isDarkTheme ? 'dark' : 'light'
+        this.isDarkTheme ? 'dark' : 'light',
+        this.t.getActiveLang()
       );
       this.bookViewerInitialized = true;
 
@@ -861,7 +872,8 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       iframe.contentWindow!.postMessage({
         type: 'init',
         wasmUrl: '/assets/pdfium/pdfium.wasm',
-        theme: this.isDarkTheme ? 'dark' : 'light'
+        theme: this.isDarkTheme ? 'dark' : 'light',
+        locale: this.t.getActiveLang()
       }, location.origin);
 
     } catch (err) {
