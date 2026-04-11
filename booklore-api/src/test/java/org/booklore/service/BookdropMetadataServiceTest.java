@@ -19,6 +19,7 @@ import org.booklore.util.FileService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -123,13 +124,40 @@ class BookdropMetadataServiceTest {
 
         when(bookdropFileRepository.findById(1L)).thenReturn(Optional.of(sampleFile));
         when(metadataExtractorFactory.extractMetadata(eq(BookFileExtension.EPUB), any(File.class))).thenReturn(metadata);
-        when(objectMapper.writeValueAsString(metadata)).thenReturn("{\"title\":\"No Cover Book\"}");
+        when(objectMapper.writeValueAsString(any())).thenReturn("{\"title\":\"No Cover Book\"}");
         when(bookdropFileRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         BookdropFileEntity result = bookdropMetadataService.attachInitialMetadata(1L);
 
         assertThat(result.getOriginalMetadata()).contains("No Cover Book");
         verify(bookdropFileRepository).save(result);
+    }
+
+    @Test()
+    void attachInitialMetadata_shouldTruncateFields() throws Exception {
+        BookMetadata metadata = BookMetadata.builder()
+                .asin("SAMPLEASINTOOLONG")
+                .isbn10("00000000000000000000000000000")
+                .isbn13("00000000000000000000000000000")
+                .language("US EnglishTOOLONG")
+                .build();
+
+        when(bookdropFileRepository.findById(1L)).thenReturn(Optional.of(sampleFile));
+        when(metadataExtractorFactory.extractMetadata(eq(BookFileExtension.EPUB), any(File.class))).thenReturn(metadata);
+        when(objectMapper.writeValueAsString(any())).thenReturn("{\"title\":\"No Cover Book\"}");
+        when(bookdropFileRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        bookdropMetadataService.attachInitialMetadata(1L);
+
+        ArgumentCaptor<BookMetadata> argument = ArgumentCaptor.forClass(BookMetadata.class);
+        verify(objectMapper).writeValueAsString(argument.capture());
+
+        BookMetadata actual = argument.getValue();
+
+        assertThat(actual.getAsin()).isEqualTo("SAMPLEASIN");
+        assertThat(actual.getIsbn10()).isEqualTo("0000000000");
+        assertThat(actual.getIsbn13()).isEqualTo("0000000000000");
+        assertThat(actual.getLanguage()).isEqualTo("US English");
     }
 
     @Test
