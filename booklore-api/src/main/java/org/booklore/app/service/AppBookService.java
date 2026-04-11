@@ -74,6 +74,7 @@ public class AppBookService {
                           ShelfRepository shelfRepository,
                           AuthenticationService authenticationService,
                           AppBookMapper mobileBookMapper,
+                          BookService bookService,
                           MagicShelfBookService magicShelfBookService,
                           EntityManager entityManager) {
         this.bookRepository = bookRepository;
@@ -82,6 +83,7 @@ public class AppBookService {
         this.shelfRepository = shelfRepository;
         this.authenticationService = authenticationService;
         this.mobileBookMapper = mobileBookMapper;
+        this.bookService = bookService;
         this.magicShelfBookService = magicShelfBookService;
         this.entityManager = entityManager;
     }
