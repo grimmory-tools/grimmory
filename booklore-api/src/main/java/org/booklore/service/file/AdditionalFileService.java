@@ -5,7 +5,6 @@ import org.booklore.model.dto.BookFile;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
 import org.booklore.repository.BookAdditionalFileRepository;
-import org.booklore.repository.BookRepository;
 import org.booklore.service.monitoring.MonitoringRegistrationService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +38,6 @@ public class AdditionalFileService {
     private static final Pattern NON_ASCII = Pattern.compile("[^\\x00-\\x7F]");
 
     private final BookAdditionalFileRepository additionalFileRepository;
-    private final BookRepository bookRepository;
     private final AdditionalFileMapper additionalFileMapper;
     private final MonitoringRegistrationService monitoringRegistrationService;
 
@@ -54,14 +52,15 @@ public class AdditionalFileService {
     }
 
     @Transactional
-    public void deleteAdditionalFile(Long fileId) {
-        Optional<BookFileEntity> fileOpt = additionalFileRepository.findById(fileId);
+    public void deleteAdditionalFile(Long bookId, Long fileId) {
+        Optional<BookFileEntity> fileOpt = additionalFileRepository.findByIdAndBookIdWithBookAndLibraryPath(fileId, bookId);
         if (fileOpt.isEmpty()) {
             throw new IllegalArgumentException("Additional file not found with id: " + fileId);
         }
 
         BookFileEntity file = fileOpt.get();
         BookEntity book = file.getBook();
+        validateAdditionalFile(file, book);
 
         try {
             monitoringRegistrationService.unregisterSpecificPath(file.getFullFilePath().getParent());
@@ -96,13 +95,14 @@ public class AdditionalFileService {
         }
     }
 
-    public ResponseEntity<Resource> downloadAdditionalFile(Long fileId) throws IOException {
-        Optional<BookFileEntity> fileOpt = additionalFileRepository.findById(fileId);
+    public ResponseEntity<Resource> downloadAdditionalFile(Long bookId, Long fileId) throws IOException {
+        Optional<BookFileEntity> fileOpt = additionalFileRepository.findByIdAndBookIdWithBookAndLibraryPath(fileId, bookId);
         if (fileOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
         BookFileEntity file = fileOpt.get();
+        validateAdditionalFile(file, file.getBook());
         Path filePath = file.getFullFilePath();
 
         if (!Files.exists(filePath)) {
@@ -158,5 +158,11 @@ public class AdditionalFileService {
                 .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
                 .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(zipBytes.length))
                 .body(resource);
+    }
+
+    private void validateAdditionalFile(BookFileEntity file, BookEntity book) {
+        if (book != null && book.getPrimaryBookFile() != null && file.getId().equals(book.getPrimaryBookFile().getId())) {
+            throw new IllegalArgumentException("Primary book file cannot be processed as an additional file: " + file.getId());
+        }
     }
 }
