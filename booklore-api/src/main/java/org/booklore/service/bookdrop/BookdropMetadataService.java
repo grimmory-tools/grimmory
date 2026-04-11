@@ -133,7 +133,10 @@ public class BookdropMetadataService {
             return null;
         }
 
-        return BookMetadata.builder()
+        // Created a builder from `extracted` to perform a shallow clone
+        // where we overwrite only truncated fields.
+
+        return extracted.toBuilder()
 
                 // Basic Fields
                 .title(truncate(extracted.getTitle(), 1000))
@@ -142,9 +145,6 @@ public class BookdropMetadataService {
                 .publisher(truncate(extracted.getPublisher(), 1000))
                 .publishedDate(extracted.getPublishedDate())
                 .seriesName(truncate(extracted.getSeriesName(), 1000))
-                .seriesNumber(extracted.getSeriesNumber())
-                .seriesTotal(extracted.getSeriesTotal())
-                .pageCount(extracted.getPageCount())
                 .language(truncate(extracted.getLanguage(), 10))
 
                 // ISBN
@@ -163,25 +163,6 @@ public class BookdropMetadataService {
                 .ranobedbId(truncate(extracted.getRanobedbId(), 100))
                 .doubanId(truncate(extracted.getDoubanId(), 100))
 
-                // Ratings
-                .audibleRating(extracted.getAudibleRating())
-                .audibleReviewCount(extracted.getAudibleReviewCount())
-                .amazonRating(extracted.getAmazonRating())
-                .amazonReviewCount(extracted.getAmazonReviewCount())
-                .goodreadsRating(extracted.getGoodreadsRating())
-                .goodreadsReviewCount(extracted.getGoodreadsReviewCount())
-                .hardcoverRating(extracted.getHardcoverRating())
-                .hardcoverReviewCount(extracted.getHardcoverReviewCount())
-                .lubimyczytacRating(extracted.getLubimyczytacRating())
-                .ranobedbRating(extracted.getRanobedbRating())
-                .doubanRating(extracted.getDoubanRating())
-                .doubanReviewCount(extracted.getDoubanReviewCount())
-
-                // Relationships
-                .authors(extracted.getAuthors())
-                .categories(extracted.getCategories())
-                .moods(extracted.getMoods())
-                .tags(extracted.getTags())
                 .build();
     }
 
