@@ -108,14 +108,14 @@ public class Fb2Processor extends AbstractFileProcessor implements BookFileProce
         metadata.setSeriesName(truncate(fb2Metadata.getSeriesName(), 1000));
         metadata.setSeriesNumber(fb2Metadata.getSeriesNumber());
         metadata.setSeriesTotal(fb2Metadata.getSeriesTotal());
-        metadata.setIsbn13(truncate(fb2Metadata.getIsbn13(), 64));
-        metadata.setIsbn10(truncate(fb2Metadata.getIsbn10(), 64));
+        metadata.setIsbn13(truncate(fb2Metadata.getIsbn13(), 13));
+        metadata.setIsbn10(truncate(fb2Metadata.getIsbn10(), 10));
         metadata.setPageCount(fb2Metadata.getPageCount());
 
         String lang = fb2Metadata.getLanguage();
-        metadata.setLanguage(truncate((lang == null || "UND".equalsIgnoreCase(lang)) ? "en" : lang, 1000));
+        metadata.setLanguage(truncate((lang == null || "UND".equalsIgnoreCase(lang)) ? "en" : lang, 10));
 
-        metadata.setAsin(truncate(fb2Metadata.getAsin(), 20));
+        metadata.setAsin(truncate(fb2Metadata.getAsin(), 10));
         metadata.setAmazonRating(fb2Metadata.getAmazonRating());
         metadata.setAmazonReviewCount(fb2Metadata.getAmazonReviewCount());
         metadata.setGoodreadsId(truncate(fb2Metadata.getGoodreadsId(), 100));

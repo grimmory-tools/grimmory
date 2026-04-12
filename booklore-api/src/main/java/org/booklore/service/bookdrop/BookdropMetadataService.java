@@ -31,6 +31,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
 
 import static org.booklore.model.entity.BookdropFileEntity.Status.PENDING_REVIEW;
+import static org.booklore.util.FileService.truncate;
 
 @Slf4j
 @AllArgsConstructor
@@ -127,11 +128,49 @@ public class BookdropMetadataService {
         return bookdropFileRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Bookdrop file not found: " + id));
     }
 
+    private BookMetadata cleanInitialMetadata(BookMetadata extracted) {
+        if (extracted == null) {
+            return null;
+        }
+
+        // Created a builder from `extracted` to perform a shallow clone
+        // where we overwrite only truncated fields.
+
+        return extracted.toBuilder()
+
+                // Basic Fields
+                .title(truncate(extracted.getTitle(), 1000))
+                .subtitle(truncate(extracted.getSubtitle(), 1000))
+                .description(truncate(extracted.getDescription(), 5000))
+                .publisher(truncate(extracted.getPublisher(), 1000))
+                .publishedDate(extracted.getPublishedDate())
+                .seriesName(truncate(extracted.getSeriesName(), 1000))
+                .language(truncate(extracted.getLanguage(), 10))
+
+                // ISBN
+                .isbn10(truncate(extracted.getIsbn10(), 10))
+                .isbn13(truncate(extracted.getIsbn13(), 13))
+
+                // External IDs
+                .asin(truncate(extracted.getAsin(), 10))
+                .audibleId(truncate(extracted.getAudibleId(), 10))
+                .goodreadsId(truncate(extracted.getGoodreadsId(), 100))
+                .hardcoverId(truncate(extracted.getHardcoverId(), 100))
+                .hardcoverBookId(truncate(extracted.getHardcoverBookId(), 100))
+                .googleId(truncate(extracted.getGoogleId(), 100))
+                .comicvineId(truncate(extracted.getComicvineId(), 100))
+                .lubimyczytacId(truncate(extracted.getLubimyczytacId(), 100))
+                .ranobedbId(truncate(extracted.getRanobedbId(), 100))
+                .doubanId(truncate(extracted.getDoubanId(), 100))
+
+                .build();
+    }
+
     private BookMetadata extractInitialMetadata(BookdropFileEntity entity) {
         File file = new File(entity.getFilePath());
         BookFileExtension fileExt = BookFileExtension.fromFileName(file.getName())
             .orElseThrow(() -> ApiError.INVALID_FILE_FORMAT.createException("Unsupported file extension"));
-        return metadataExtractorFactory.extractMetadata(fileExt, file);
+        return cleanInitialMetadata(metadataExtractorFactory.extractMetadata(fileExt, file));
     }
 
     private void extractAndSaveCover(BookdropFileEntity entity) {

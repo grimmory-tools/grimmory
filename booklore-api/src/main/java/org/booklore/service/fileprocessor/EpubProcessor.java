@@ -120,14 +120,14 @@ public class EpubProcessor extends AbstractFileProcessor implements BookFileProc
         metadata.setSeriesName(truncate(epubMetadata.getSeriesName(), 1000));
         metadata.setSeriesNumber(epubMetadata.getSeriesNumber());
         metadata.setSeriesTotal(epubMetadata.getSeriesTotal());
-        metadata.setIsbn13(truncate(epubMetadata.getIsbn13(), 64));
-        metadata.setIsbn10(truncate(epubMetadata.getIsbn10(), 64));
+        metadata.setIsbn13(truncate(epubMetadata.getIsbn13(), 13));
+        metadata.setIsbn10(truncate(epubMetadata.getIsbn10(), 10));
         metadata.setPageCount(epubMetadata.getPageCount());
 
         String lang = epubMetadata.getLanguage();
-        metadata.setLanguage(truncate((lang == null || "UND".equalsIgnoreCase(lang)) ? "en" : lang, 1000));
+        metadata.setLanguage(truncate((lang == null || "UND".equalsIgnoreCase(lang)) ? "en" : lang, 10));
 
-        metadata.setAsin(truncate(epubMetadata.getAsin(), 20));
+        metadata.setAsin(truncate(epubMetadata.getAsin(), 10));
         metadata.setAmazonRating(epubMetadata.getAmazonRating());
         metadata.setAmazonReviewCount(epubMetadata.getAmazonReviewCount());
         metadata.setGoodreadsId(truncate(epubMetadata.getGoodreadsId(), 100));

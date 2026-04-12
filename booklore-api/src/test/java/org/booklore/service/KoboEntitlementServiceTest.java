@@ -52,6 +52,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -135,6 +136,26 @@ class KoboEntitlementServiceTest {
         assertNotNull(result);
         assertEquals("Test CBX Book", result.getTitle());
         verify(koboCompatibilityService).isBookSupportedForKobo(cbxBook);
+    }
+
+    @Test
+    void getMetadataForBook_shouldReturnNullWhenNoBook() {
+        long bookId = 1L;
+        String token = "test-token";
+
+        BookEntity cbxBook = createCbxBookEntity(bookId);
+        when(bookQueryService.findAllWithMetadataByIds(Set.of(bookId)))
+                .thenReturn(Collections.emptyList());
+        when(koboCompatibilityService.isBookSupportedForKobo(cbxBook))
+                .thenReturn(true);
+        when(koboUrlBuilder.downloadUrl(token, bookId))
+                .thenReturn("http://test.com/download/" + bookId);
+        when(appSettingService.getAppSettings())
+                .thenReturn(createAppSettingsWithKoboSettings());
+
+        KoboBookMetadata result = koboEntitlementService.getMetadataForBook(bookId, token);
+
+        assertNull(result);
     }
 
     @Test
