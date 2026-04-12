@@ -33,7 +33,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import jakarta.validation.Valid;
+
+import java.io.IOException;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
@@ -175,7 +178,7 @@ public class BookController {
     public ResponseEntity<Void> replaceBookContent(
             @Parameter(description = "ID of the book") @PathVariable long bookId,
             @Parameter(description = "Optional book type for alternative format") @RequestParam(required = false) String bookType,
-            HttpServletRequest request) throws java.io.IOException {
+            HttpServletRequest request) throws IOException {
         bookService.replaceBookContent(bookId, bookType, request.getInputStream());
         return ResponseEntity.noContent().build();
     }
@@ -188,7 +191,7 @@ public class BookController {
     @GetMapping("/{bookId}/download")
     @PreAuthorize("@securityUtil.canDownload() or @securityUtil.isAdmin()")
     @CheckBookAccess(bookIdParam = "bookId")
-    public ResponseEntity<Resource> downloadBook(@Parameter(description = "ID of the book to download") @PathVariable("bookId") Long bookId) {
+    public ResponseEntity<?> downloadBook(@Parameter(description = "ID of the book to download") @PathVariable("bookId") Long bookId) {
         return bookService.downloadBook(bookId);
     }
 

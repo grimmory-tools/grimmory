@@ -377,7 +377,7 @@ public class BookMetadataEntity {
             name = "book_metadata_author_mapping",
             joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "author_id"))
-    @BatchSize(size = 20)
+    @BatchSize(size = 100)
     @OrderColumn(name = "sort_order")
     @Builder.Default
     private List<AuthorEntity> authors = new ArrayList<>();
@@ -388,7 +388,7 @@ public class BookMetadataEntity {
             joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )
-    @BatchSize(size = 20)
+    @BatchSize(size = 100)
     @Builder.Default
     private Set<CategoryEntity> categories = new HashSet<>();
 
@@ -398,7 +398,7 @@ public class BookMetadataEntity {
             joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "mood_id")
     )
-    @BatchSize(size = 20)
+    @BatchSize(size = 100)
     @Builder.Default
     private Set<MoodEntity> moods = new HashSet<>();
 
@@ -408,12 +408,12 @@ public class BookMetadataEntity {
             joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
-    @BatchSize(size = 20)
+    @BatchSize(size = 100)
     @Builder.Default
     private Set<TagEntity> tags = new HashSet<>();
 
     @OneToMany(mappedBy = "bookMetadata", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @BatchSize(size = 20)
+    @BatchSize(size = 100)
     @Builder.Default
     private Set<BookReviewEntity> reviews = new HashSet<>();
 

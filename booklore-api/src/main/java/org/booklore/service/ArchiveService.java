@@ -38,23 +38,10 @@ public class ArchiveService {
         return Archive.isAvailable();
     }
 
-    public static class Entry {
-        private Entry() {}
-
-        @Getter
-        private String name;
-
-        @Getter
-        private long size;
-    }
+    public record Entry(String name, long size) {}
 
     private Entry getEntryFromArchiveEntry(ArchiveEntry archiveEntry) {
-        Entry entry = new Entry();
-
-        entry.name = archiveEntry.getName();
-        entry.size = archiveEntry.getSize();
-
-        return entry;
+        return new Entry(archiveEntry.getName(), archiveEntry.getSize());
     }
 
     public List<Entry> getEntries(Path path) throws IOException {

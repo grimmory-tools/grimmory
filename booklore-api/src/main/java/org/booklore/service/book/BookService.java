@@ -13,8 +13,10 @@ import org.booklore.model.dto.response.BookStatusUpdateResponse;
 import org.booklore.model.entity.*;
 import org.booklore.model.enums.AuditAction;
 import org.booklore.model.enums.BookFileType;
+import org.booklore.model.websocket.Topic;
 import org.booklore.repository.*;
 import org.booklore.service.FileStreamingService;
+import org.booklore.service.NotificationService;
 import org.booklore.service.audit.AuditService;
 import org.booklore.service.metadata.sidecar.SidecarMetadataWriter;
 import org.booklore.service.monitoring.MonitoringRegistrationService;
@@ -35,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -48,6 +51,8 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(readOnly = true)
 public class BookService {
+
+    private static final Resource MISSING_COVER = new ClassPathResource("static/images/missing-cover.jpg");
 
     private final BookRepository bookRepository;
     private final BookFileRepository bookFileRepository;
@@ -67,6 +72,7 @@ public class BookService {
     private final SidecarMetadataWriter sidecarMetadataWriter;
     private final FileStreamingService fileStreamingService;
     private final AuditService auditService;
+    private final NotificationService notificationService;
 
 
     public List<Book> getBookDTOs(boolean includeDescription, boolean stripForListView) {
@@ -283,7 +289,7 @@ public class BookService {
             if (Files.exists(thumbnailPath)) {
                 return new UrlResource(thumbnailPath.toUri());
             } else {
-                return new ClassPathResource("static/images/missing-cover.jpg");
+                return MISSING_COVER;
             }
         } catch (MalformedURLException e) {
             throw new RuntimeException("Failed to load book cover for bookId=" + bookId, e);
@@ -296,7 +302,7 @@ public class BookService {
             if (Files.exists(coverPath)) {
                 return new UrlResource(coverPath.toUri());
             } else {
-                return getMissingCoverResource();
+                return MISSING_COVER;
             }
         } catch (MalformedURLException e) {
             throw new RuntimeException("Failed to load book cover for bookId=" + bookId, e);
@@ -314,7 +320,7 @@ public class BookService {
             if (Files.exists(thumbnailPath)) {
                 return new UrlResource(thumbnailPath.toUri());
             } else {
-                return getMissingCoverResource();
+                return MISSING_COVER;
             }
         } catch (MalformedURLException e) {
             throw new RuntimeException("Failed to load audiobook thumbnail for bookId=" + bookId, e);
@@ -327,23 +333,14 @@ public class BookService {
             if (Files.exists(coverPath)) {
                 return new UrlResource(coverPath.toUri());
             } else {
-                return getMissingCoverResource();
+                return MISSING_COVER;
             }
         } catch (MalformedURLException e) {
             throw new RuntimeException("Failed to load audiobook cover for bookId=" + bookId, e);
         }
     }
 
-    private Resource getMissingCoverResource() {
-        try {
-            byte[] bytes = new ClassPathResource("static/images/missing-cover.jpg").getInputStream().readAllBytes();
-            return new ByteArrayResource(bytes);
-        } catch (IOException e) {
-            throw ApiError.INTERNAL_SERVER_ERROR.createException("Failed to load missing cover image");
-        }
-    }
-
-    public ResponseEntity<Resource> downloadBook(Long bookId) {
+    public ResponseEntity<?> downloadBook(Long bookId) {
         return bookDownloadService.downloadBook(bookId);
     }
 
@@ -385,7 +382,7 @@ public class BookService {
                 .body(new FileSystemResource(file));
     }
 
-    public void replaceBookContent(long bookId, String bookType, java.io.InputStream content) throws IOException {
+    public void replaceBookContent(long bookId, String bookType, InputStream content) throws IOException {
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId)
                 .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
@@ -461,6 +458,7 @@ public class BookService {
 
         bookRepository.deleteAllInBatch(books);
         auditService.log(AuditAction.BOOK_DELETED, "Deleted " + ids.size() + " book(s)");
+        notificationService.sendMessage(Topic.BOOKS_REMOVE, new ArrayList<>(ids));
         BookDeletionResponse response = new BookDeletionResponse(ids, failedFileDeletions);
         return failedFileDeletions.isEmpty()
                 ? ResponseEntity.ok(response)

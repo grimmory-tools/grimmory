@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -24,6 +25,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class AudiobookReaderService {
 
     private final BookRepository bookRepository;
@@ -34,6 +36,7 @@ public class AudiobookReaderService {
     /**
      * Get audiobook information including metadata, chapters, and tracks.
      */
+    @Transactional
     public AudiobookInfo getAudiobookInfo(Long bookId, String bookType) {
         BookFileEntity bookFile = getAudiobookFile(bookId, bookType);
         Path audioPath = bookFile.getFullFilePath();
@@ -101,7 +104,7 @@ public class AudiobookReaderService {
     }
 
     private BookFileEntity getAudiobookFile(Long bookId, String bookType) {
-        BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId)
+        BookEntity bookEntity = bookRepository.findByIdForAudiobook(bookId)
                 .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
         if (bookType != null) {

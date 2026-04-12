@@ -48,7 +48,7 @@ public class OpdsController {
         @ApiResponse(responseCode = "404", description = "Book not found")
     })
     @GetMapping("/{bookId}/download")
-    public ResponseEntity<Resource> downloadBook(
+    public ResponseEntity<?> downloadBook(
             @Parameter(description = "ID of the book to download") @PathVariable("bookId") Long bookId,
             @Parameter(description = "Optional ID of a specific file format to download") @RequestParam(required = false) Long fileId) {
         opdsBookService.validateBookContentAccess(bookId, getOpdsUserId());

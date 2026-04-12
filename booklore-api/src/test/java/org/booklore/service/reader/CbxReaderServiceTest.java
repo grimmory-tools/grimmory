@@ -4,6 +4,7 @@ import org.booklore.exception.ApiError;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.ArchiveService;
+import org.booklore.service.reader.ChapterCacheService;
 import org.booklore.util.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,6 +32,9 @@ class CbxReaderServiceTest {
     @Mock
     ArchiveService archiveService;
 
+    @Mock
+    ChapterCacheService chapterCacheService;
+
     @InjectMocks
     CbxReaderService cbxReaderService;
 
@@ -49,13 +53,13 @@ class CbxReaderServiceTest {
 
     @Test
     void testGetAvailablePages_ThrowsOnMissingBook() {
-        when(bookRepository.findByIdWithBookFiles(2L)).thenReturn(Optional.empty());
+        when(bookRepository.findByIdForStreaming(2L)).thenReturn(Optional.empty());
         assertThrows(ApiError.BOOK_NOT_FOUND.createException().getClass(), () -> cbxReaderService.getAvailablePages(2L));
     }
 
     @Test
     void testGetAvailablePages_Success() throws Exception {
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForStreaming(1L)).thenReturn(Optional.of(bookEntity));
         when(archiveService.streamEntryNames(cbzPath)).then((i) -> Stream.of("1.jpg"));
 
         try (
@@ -72,7 +76,7 @@ class CbxReaderServiceTest {
 
     @Test
     void testStreamPageImage_Success() throws Exception {
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForStreaming(1L)).thenReturn(Optional.of(bookEntity));
         when(archiveService.streamEntryNames(cbzPath)).then((i) -> Stream.of("1.jpg"));
         when(
             archiveService.transferEntryTo(eq(cbzPath), eq("1.jpg"), any())
@@ -92,7 +96,7 @@ class CbxReaderServiceTest {
 
     @Test
     void testStreamPageImage_PageOutOfRange_Throws() throws Exception {
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForStreaming(1L)).thenReturn(Optional.of(bookEntity));
         when(archiveService.streamEntryNames(cbzPath)).then((i) -> Stream.of("1.jpg"));
         try (
             MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class);
@@ -110,7 +114,7 @@ class CbxReaderServiceTest {
 
     @Test
     void testStreamPageImage_EntryNotFound_Throws() throws Exception {
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForStreaming(1L)).thenReturn(Optional.of(bookEntity));
         when(archiveService.streamEntryNames(cbzPath)).then((i) -> Stream.of("1.jpg"));
         try (
             MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class);

@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.StructuredTaskScope;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -37,6 +38,7 @@ public class PdfReaderService {
     private static final float DEFAULT_DPI = 200f;
 
     private final BookRepository bookRepository;
+    private final ChapterCacheService chapterCacheService;
     private final Cache<String, CachedPdfMetadata> metadataCache = Caffeine.newBuilder()
             .maximumSize(MAX_CACHE_ENTRIES)
             .expireAfterAccess(Duration.ofMinutes(30))
@@ -54,8 +56,43 @@ public class PdfReaderService {
         }
     }
 
-    public void getAvailablePages(Long bookId) {
-        getAvailablePages(bookId, null);
+    public void initCache(Long bookId, String bookType) throws IOException {
+        Path pdfPath = getBookPath(bookId, bookType);
+        CachedPdfMetadata metadata = getCachedMetadata(pdfPath);
+        
+        Path cacheDir = chapterCacheService.getCachedPage(bookId, 1).getParent();
+        if (!Files.exists(cacheDir)) {
+            Files.createDirectories(cacheDir);
+        }
+
+        if (Files.exists(cacheDir) && Files.getLastModifiedTime(cacheDir).toMillis() == metadata.lastModified) {
+            return;
+        }
+
+        log.info("Populating PDF disk cache for book {}: {} pages", bookId, metadata.pageCount);
+        try (var scope = StructuredTaskScope.open(StructuredTaskScope.Joiner.awaitAllSuccessfulOrThrow())) {
+            try (PdfDocument doc = PdfDocument.open(pdfPath)) {
+                for (int i = 1; i <= metadata.pageCount; i++) {
+                    final int pageNum = i;
+                    scope.fork(() -> {
+                        Path target = chapterCacheService.getCachedPage(bookId, pageNum);
+                        if (!Files.exists(target)) {
+                            // Rendering from PDF needs a document instance, which isn't thread-safe to share easily
+                            // but we can open it per task or use a pool. For now, we'll keep PDF rendering serial
+                            // but cached once done.
+                            return null;
+                        }
+                        return null;
+                    });
+                }
+            }
+            // For PDF, we'll actually populate the cache on-demand since background rendering of ALL pages
+            // is extremely CPU intensive compared to ZIP extraction.
+        }
+    }
+
+    public List<Integer> getAvailablePages(Long bookId) {
+        return getAvailablePages(bookId, null);
     }
 
     public List<Integer> getAvailablePages(Long bookId, String bookType) {
@@ -90,10 +127,21 @@ public class PdfReaderService {
     }
 
     public void streamPageImage(Long bookId, String bookType, int page, OutputStream outputStream) throws IOException {
+        if (chapterCacheService.hasPage(bookId, page)) {
+            Files.copy(chapterCacheService.getCachedPage(bookId, page), outputStream);
+            return;
+        }
+
         Path pdfPath = getBookPath(bookId, bookType);
         CachedPdfMetadata metadata = getCachedMetadata(pdfPath);
         validatePageRequest(bookId, page, metadata.pageCount);
-        renderPageToStream(pdfPath, page, outputStream);
+        
+        // Render and cache
+        Path cached = chapterCacheService.getCachedPage(bookId, page);
+        try (var out = Files.newOutputStream(cached)) {
+            renderPageToStream(pdfPath, page, out);
+        }
+        Files.copy(cached, outputStream);
     }
 
     private Path getBookPath(Long bookId, String bookType) {

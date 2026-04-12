@@ -57,7 +57,7 @@ public class BookDownloadServiceTest {
         String expected = "attachment; filename=\"example.epub\"";
 
         BookEntity bookEntity = getSampleBook("example.epub");
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForStreaming(1L)).thenReturn(Optional.of(bookEntity));
 
         mockFiles.when(() -> Files.exists(bookEntity.getFullFilePath())).thenReturn(true);
         mockFiles.when(() -> Files.isDirectory(bookEntity.getFullFilePath())).thenReturn(false);
@@ -74,7 +74,7 @@ public class BookDownloadServiceTest {
         String expected = "attachment; filename=\"=?UTF-8?Q?=C9=87xample.epub?=\"; filename*=UTF-8''%C9%87xample.epub";
 
         BookEntity bookEntity = getSampleBook("ɇxample.epub");
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForStreaming(1L)).thenReturn(Optional.of(bookEntity));
 
         mockFiles.when(() -> Files.exists(bookEntity.getFullFilePath())).thenReturn(true);
         mockFiles.when(() -> Files.isDirectory(bookEntity.getFullFilePath())).thenReturn(false);

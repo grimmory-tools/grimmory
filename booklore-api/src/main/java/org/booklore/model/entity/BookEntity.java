@@ -72,7 +72,7 @@ public class BookEntity {
     @Column(name = "deleted_at")
     private Instant deletedAt;
 
-    @BatchSize(size = 20)
+    @BatchSize(size = 100)
     @ManyToMany
     @JoinTable(
             name = "book_shelf_mapping",
@@ -88,13 +88,13 @@ public class BookEntity {
     @Column(name = "similar_books_json", columnDefinition = "TEXT")
     private Set<BookRecommendationLite> similarBooksJson;
 
-    @BatchSize(size = 20)
+    @BatchSize(size = 100)
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @OrderBy("id ASC")
     @Builder.Default
     private List<BookFileEntity> bookFiles = new ArrayList<>();
 
-    @BatchSize(size = 20)
+    @BatchSize(size = 100)
     @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
     @Builder.Default
     private List<UserBookProgressEntity> userBookProgress = new ArrayList<>();

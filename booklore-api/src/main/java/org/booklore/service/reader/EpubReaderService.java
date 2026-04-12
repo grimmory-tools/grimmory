@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -71,38 +72,36 @@ public class EpubReaderService {
     }
 
     private final BookRepository bookRepository;
-    private final Map<String, CachedEpubMetadata> metadataCache = new ConcurrentHashMap<>();
+    private final com.github.benmanes.caffeine.cache.Cache<String, CachedEpubMetadata> metadataCache = com.github.benmanes.caffeine.cache.Caffeine.newBuilder()
+            .maximumSize(MAX_CACHE_ENTRIES)
+            .expireAfterAccess(Duration.ofMinutes(30))
+            .build();
 
-    private static class CachedEpubMetadata {
-        final EpubBookInfo bookInfo;
-        final long lastModified;
-        final Set<String> validPaths;
-        final Map<String, EpubManifestItem> manifestByHref;
-        volatile long lastAccessed;
-
+    private record CachedEpubMetadata(EpubBookInfo bookInfo, long lastModified,
+                                      Set<String> validPaths,
+                                      Map<String, EpubManifestItem> manifestByHref) {
         CachedEpubMetadata(EpubBookInfo bookInfo, long lastModified) {
-            this.bookInfo = bookInfo;
-            this.lastModified = lastModified;
-            this.lastAccessed = System.currentTimeMillis();
+            this(bookInfo, lastModified, buildValidPaths(bookInfo), buildManifestByHref(bookInfo));
+        }
 
+        private static Set<String> buildValidPaths(EpubBookInfo bookInfo) {
             Set<String> paths = new HashSet<>(bookInfo.getManifest().size() + 2);
             paths.add(CONTAINER_PATH);
             if (bookInfo.getContainerPath() != null) {
                 paths.add(bookInfo.getContainerPath());
             }
-
-            Map<String, EpubManifestItem> byHref = new HashMap<>(bookInfo.getManifest().size());
             for (EpubManifestItem item : bookInfo.getManifest()) {
                 paths.add(item.getHref());
-                byHref.put(item.getHref(), item);
             }
-
-            this.validPaths = Collections.unmodifiableSet(paths);
-            this.manifestByHref = Collections.unmodifiableMap(byHref);
+            return Collections.unmodifiableSet(paths);
         }
 
-        void touch() {
-            this.lastAccessed = System.currentTimeMillis();
+        private static Map<String, EpubManifestItem> buildManifestByHref(EpubBookInfo bookInfo) {
+            Map<String, EpubManifestItem> byHref = new HashMap<>(bookInfo.getManifest().size());
+            for (EpubManifestItem item : bookInfo.getManifest()) {
+                byHref.put(item.getHref(), item);
+            }
+            return Collections.unmodifiableMap(byHref);
         }
     }
 
@@ -152,7 +151,6 @@ public class EpubReaderService {
         Path epubPath = getBookPath(bookId, bookType);
         try {
             CachedEpubMetadata metadata = getCachedMetadata(epubPath);
-            metadata.touch();
             String normalizedPath = normalizePath(filePath, metadata.bookInfo.getRootPath());
             EpubManifestItem item = metadata.manifestByHref.get(normalizedPath);
             return item != null ? item.getMediaType() : guessContentType(filePath);
@@ -169,7 +167,6 @@ public class EpubReaderService {
         Path epubPath = getBookPath(bookId, bookType);
         try {
             CachedEpubMetadata metadata = getCachedMetadata(epubPath);
-            metadata.touch();
             String normalizedPath = normalizePath(filePath, metadata.bookInfo.getRootPath());
 
             // O(1) lookup instead of O(n) stream filter
@@ -181,7 +178,7 @@ public class EpubReaderService {
     }
 
     private Path getBookPath(Long bookId, String bookType) {
-        BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId)
+        BookEntity bookEntity = bookRepository.findByIdForStreaming(bookId)
                 .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
         if (bookType != null) {
             BookFileType requestedType = BookFileType.valueOf(bookType.toUpperCase());
@@ -197,10 +194,9 @@ public class EpubReaderService {
     private CachedEpubMetadata getCachedMetadata(Path epubPath) throws IOException {
         String cacheKey = epubPath.toString();
         long currentModified = Files.getLastModifiedTime(epubPath).toMillis();
-        CachedEpubMetadata cached = metadataCache.get(cacheKey);
+        CachedEpubMetadata cached = metadataCache.getIfPresent(cacheKey);
 
-        if (cached != null && cached.lastModified == currentModified) {
-            cached.lastAccessed = System.currentTimeMillis();
+        if (cached != null && cached.lastModified() == currentModified) {
             log.debug("Cache hit for EPUB: {}", epubPath.getFileName());
             return cached;
         }
@@ -208,23 +204,7 @@ public class EpubReaderService {
         log.debug("Cache miss for EPUB: {}, parsing...", epubPath.getFileName());
         CachedEpubMetadata newMetadata = parseEpubMetadata(epubPath, currentModified);
         metadataCache.put(cacheKey, newMetadata);
-        evictOldestCacheEntries();
         return newMetadata;
-    }
-
-    private void evictOldestCacheEntries() {
-        if (metadataCache.size() <= MAX_CACHE_ENTRIES) {
-            return;
-        }
-        List<String> keysToRemove = metadataCache.entrySet().stream()
-                .sorted(Comparator.comparingLong(e -> e.getValue().lastAccessed))
-                .limit(metadataCache.size() - MAX_CACHE_ENTRIES)
-                .map(Map.Entry::getKey)
-                .toList();
-        keysToRemove.forEach(key -> {
-            metadataCache.remove(key);
-            log.debug("Evicted EPUB cache entry: {}", key);
-        });
     }
 
     private CachedEpubMetadata parseEpubMetadata(Path epubPath, long lastModified) throws IOException {

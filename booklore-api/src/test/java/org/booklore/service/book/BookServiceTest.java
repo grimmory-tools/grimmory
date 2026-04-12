@@ -13,6 +13,9 @@ import org.booklore.model.entity.*;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.*;
 import org.booklore.service.audit.AuditService;
+import org.booklore.service.metadata.sidecar.SidecarMetadataWriter;
+import org.booklore.service.FileStreamingService;
+import org.booklore.service.NotificationService;
 import org.booklore.service.monitoring.MonitoringRegistrationService;
 import org.booklore.service.progress.ReadingProgressService;
 import org.booklore.util.FileService;
@@ -48,6 +51,8 @@ class BookServiceTest {
     @Mock
     private BookRepository bookRepository;
     @Mock
+    private BookFileRepository bookFileRepository;
+    @Mock
     private PdfViewerPreferencesRepository pdfViewerPreferencesRepository;
     @Mock
     private EbookViewerPreferenceRepository ebookViewerPreferenceRepository;
@@ -74,7 +79,13 @@ class BookServiceTest {
     @Mock
     private BookUpdateService bookUpdateService;
     @Mock
+    private SidecarMetadataWriter sidecarMetadataWriter;
+    @Mock
+    private FileStreamingService fileStreamingService;
+    @Mock
     private AuditService auditService;
+    @Mock
+    private NotificationService notificationService;
 
     @InjectMocks
     private BookService bookService;
@@ -305,10 +316,10 @@ class BookServiceTest {
     }
 
     @Test
-    void getBookCover_fileMissing_returnsByteArrayResource() {
+    void getBookCover_fileMissing_returnsMissingCover() {
         when(fileService.getCoverFile(1L)).thenReturn("/tmp/nonexistent2.jpg");
         Resource res = bookService.getBookCover(1L);
-        assertTrue(res instanceof ByteArrayResource);
+        assertTrue(res instanceof ClassPathResource);
     }
 
     @Test
@@ -319,10 +330,10 @@ class BookServiceTest {
 
     @Test
     void downloadBook_delegatesToDownloadService() {
-        ResponseEntity<Resource> response = ResponseEntity.ok(mock(Resource.class));
-        when(bookDownloadService.downloadBook(1L)).thenReturn(response);
+        ResponseEntity<?> response = ResponseEntity.ok(mock(Resource.class));
+        doReturn(response).when(bookDownloadService).downloadBook(1L);
 
-        ResponseEntity<Resource> result = bookService.downloadBook(1L);
+        ResponseEntity<?> result = bookService.downloadBook(1L);
 
         assertEquals(response, result);
     }

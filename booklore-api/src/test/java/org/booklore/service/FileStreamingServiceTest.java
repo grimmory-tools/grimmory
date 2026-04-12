@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -46,10 +48,10 @@ class FileStreamingServiceTest {
 
     @Test
     void streamWithRangeSupport_noRangeHeader_streamsFullFile() throws IOException {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ServletOutputStream servletOutputStream = createServletOutputStream(outputStream);
+        var request = mock(HttpServletRequest.class);
+        var response = mock(HttpServletResponse.class);
+        var outputStream = new ByteArrayOutputStream();
+        var servletOutputStream = createServletOutputStream(outputStream);
 
         when(request.getHeader("Range")).thenReturn(null);
         when(response.getOutputStream()).thenReturn(servletOutputStream);
@@ -65,8 +67,8 @@ class FileStreamingServiceTest {
 
     @Test
     void streamWithRangeSupport_fileNotFound_sends404() throws IOException {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
+        var request = mock(HttpServletRequest.class);
+        var response = mock(HttpServletResponse.class);
 
         Path nonexistent = tempDir.resolve("nonexistent.bin");
 
@@ -79,10 +81,10 @@ class FileStreamingServiceTest {
 
     @Test
     void streamWithRangeSupport_fullRange_streamsPartialContent() throws IOException {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ServletOutputStream servletOutputStream = createServletOutputStream(outputStream);
+        var request = mock(HttpServletRequest.class);
+        var response = mock(HttpServletResponse.class);
+        var outputStream = new ByteArrayOutputStream();
+        var servletOutputStream = createServletOutputStream(outputStream);
 
         when(request.getHeader("Range")).thenReturn("bytes=0-99");
         when(response.getOutputStream()).thenReturn(servletOutputStream);
@@ -100,10 +102,10 @@ class FileStreamingServiceTest {
 
     @Test
     void streamWithRangeSupport_openEndedRange_streamsToEnd() throws IOException {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ServletOutputStream servletOutputStream = createServletOutputStream(outputStream);
+        var request = mock(HttpServletRequest.class);
+        var response = mock(HttpServletResponse.class);
+        var outputStream = new ByteArrayOutputStream();
+        var servletOutputStream = createServletOutputStream(outputStream);
 
         when(request.getHeader("Range")).thenReturn("bytes=9900-");
         when(response.getOutputStream()).thenReturn(servletOutputStream);
@@ -121,10 +123,10 @@ class FileStreamingServiceTest {
 
     @Test
     void streamWithRangeSupport_suffixRange_streamsLastNBytes() throws IOException {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ServletOutputStream servletOutputStream = createServletOutputStream(outputStream);
+        var request = mock(HttpServletRequest.class);
+        var response = mock(HttpServletResponse.class);
+        var outputStream = new ByteArrayOutputStream();
+        var servletOutputStream = createServletOutputStream(outputStream);
 
         when(request.getHeader("Range")).thenReturn("bytes=-500");
         when(response.getOutputStream()).thenReturn(servletOutputStream);
@@ -142,8 +144,8 @@ class FileStreamingServiceTest {
 
     @Test
     void streamWithRangeSupport_invalidRange_sends416() throws IOException {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
+        var request = mock(HttpServletRequest.class);
+        var response = mock(HttpServletResponse.class);
 
         when(request.getHeader("Range")).thenReturn("bytes=50000-60000"); // Beyond file size
 
@@ -155,10 +157,10 @@ class FileStreamingServiceTest {
 
     @Test
     void streamWithRangeSupport_rangeEndBeyondFileSize_clampsToFileSize() throws IOException {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ServletOutputStream servletOutputStream = createServletOutputStream(outputStream);
+        var request = mock(HttpServletRequest.class);
+        var response = mock(HttpServletResponse.class);
+        var outputStream = new ByteArrayOutputStream();
+        var servletOutputStream = createServletOutputStream(outputStream);
 
         when(request.getHeader("Range")).thenReturn("bytes=9990-99999"); // End beyond file
         when(response.getOutputStream()).thenReturn(servletOutputStream);
@@ -169,20 +171,123 @@ class FileStreamingServiceTest {
         verify(response).setContentLengthLong(10); // 9990 to 9999
         verify(response).setHeader("Content-Range", "bytes 9990-9999/" + testContent.length);
     }
-
     @Test
-    void streamWithRangeSupport_setsCacheControlHeader() throws IOException {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ServletOutputStream servletOutputStream = createServletOutputStream(outputStream);
+    void streamWithRangeSupport_setsETagAndCacheHeaders() throws IOException {
+        var request = mock(HttpServletRequest.class);
+        var response = mock(HttpServletResponse.class);
+        var outputStream = new ByteArrayOutputStream();
+        var servletOutputStream = createServletOutputStream(outputStream);
 
         when(request.getHeader("Range")).thenReturn(null);
         when(response.getOutputStream()).thenReturn(servletOutputStream);
 
         fileStreamingService.streamWithRangeSupport(testFile, "audio/mp4", request, response);
 
-        verify(response).setHeader("Cache-Control", "no-store");
+        String expectedETag = computeExpectedETag(testFile);
+        verify(response).setHeader("ETag", expectedETag);
+        verify(response).setHeader("Cache-Control", "no-cache");
+        verify(response, never()).setHeader(eq("Pragma"), any());
+    }
+
+    @Test
+    void streamWithRangeSupport_ifNoneMatchMatchingEtag_returns304() throws IOException {
+        var request = mock(HttpServletRequest.class);
+        var response = mock(HttpServletResponse.class);
+
+        String etag = computeExpectedETag(testFile);
+        when(request.getHeader("If-None-Match")).thenReturn(etag);
+
+        fileStreamingService.streamWithRangeSupport(testFile, "audio/mp4", request, response);
+
+        verify(response).setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+        verify(response, never()).getOutputStream();
+    }
+
+    @Test
+    void streamWithRangeSupport_ifNoneMatchStaleEtag_streamsNormally() throws IOException {
+        var request = mock(HttpServletRequest.class);
+        var response = mock(HttpServletResponse.class);
+        var outputStream = new ByteArrayOutputStream();
+        var servletOutputStream = createServletOutputStream(outputStream);
+
+        when(request.getHeader("If-None-Match")).thenReturn("\"stale-etag\"");
+        when(request.getHeader("Range")).thenReturn(null);
+        when(response.getOutputStream()).thenReturn(servletOutputStream);
+
+        fileStreamingService.streamWithRangeSupport(testFile, "audio/mp4", request, response);
+
+        verify(response).setStatus(HttpServletResponse.SC_OK);
+        assertArrayEquals(testContent, outputStream.toByteArray());
+    }
+
+    @Test
+    void streamWithRangeSupport_headRequest_returns200WithContentLength() throws IOException {
+        var request = mock(HttpServletRequest.class);
+        var response = mock(HttpServletResponse.class);
+
+        when(request.getMethod()).thenReturn("HEAD");
+
+        fileStreamingService.streamWithRangeSupport(testFile, "audio/mp4", request, response);
+
+        verify(response).setStatus(HttpServletResponse.SC_OK);
+        verify(response).setContentLengthLong(testContent.length);
+        verify(response).setHeader("Accept-Ranges", "bytes");
+        verify(response, never()).getOutputStream();
+    }
+
+    @Test
+    void streamWithRangeSupport_ifRangeMatchingEtag_servesRange() throws IOException {
+        var request = mock(HttpServletRequest.class);
+        var response = mock(HttpServletResponse.class);
+        var outputStream = new ByteArrayOutputStream();
+        var servletOutputStream = createServletOutputStream(outputStream);
+
+        String etag = computeExpectedETag(testFile);
+        when(request.getHeader("Range")).thenReturn("bytes=0-99");
+        when(request.getHeader("If-Range")).thenReturn(etag);
+        when(response.getOutputStream()).thenReturn(servletOutputStream);
+
+        fileStreamingService.streamWithRangeSupport(testFile, "audio/mp4", request, response);
+
+        verify(response).setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+        verify(response).setContentLengthLong(100);
+        assertEquals(100, outputStream.size());
+    }
+
+    @Test
+    void streamWithRangeSupport_ifRangeStaleEtag_servesFullFile() throws IOException {
+        var request = mock(HttpServletRequest.class);
+        var response = mock(HttpServletResponse.class);
+        var outputStream = new ByteArrayOutputStream();
+        var servletOutputStream = createServletOutputStream(outputStream);
+
+        when(request.getHeader("Range")).thenReturn("bytes=0-99");
+        when(request.getHeader("If-Range")).thenReturn("\"stale-etag\"");
+        when(response.getOutputStream()).thenReturn(servletOutputStream);
+
+        fileStreamingService.streamWithRangeSupport(testFile, "audio/mp4", request, response);
+
+        // Stale If-Range ignore range, return full file
+        verify(response).setStatus(HttpServletResponse.SC_OK);
+        verify(response).setContentLengthLong(testContent.length);
+        assertArrayEquals(testContent, outputStream.toByteArray());
+    }
+
+    @Test
+    void streamWithRangeSupport_setsLastModifiedHeader() throws IOException {
+        var request = mock(HttpServletRequest.class);
+        var response = mock(HttpServletResponse.class);
+        var outputStream = new ByteArrayOutputStream();
+        var servletOutputStream = createServletOutputStream(outputStream);
+
+        when(request.getHeader("Range")).thenReturn(null);
+        when(response.getOutputStream()).thenReturn(servletOutputStream);
+
+        fileStreamingService.streamWithRangeSupport(testFile, "audio/mp4", request, response);
+
+        var attrs = Files.readAttributes(testFile, BasicFileAttributes.class);
+        long expectedMs = attrs.lastModifiedTime().toInstant().toEpochMilli();
+        verify(response).setDateHeader("Last-Modified", expectedMs);
     }
 
     // ==================== parseRange tests ====================
@@ -263,7 +368,6 @@ class FileStreamingServiceTest {
 
     @Test
     void parseRange_withLeadingTrailingWhitespace_parsesCorrectly() {
-        // Leading/trailing whitespace around the range spec is trimmed
         var result = fileStreamingService.parseRange("bytes=100-199", 1000);
 
         assertNotNull(result);
@@ -307,7 +411,6 @@ class FileStreamingServiceTest {
 
     @Test
     void isClientDisconnect_nullMessage_checksClassName() {
-        // Create an IOException with null message but class name containing "Timeout"
         IOException timeoutException = new SocketTimeoutException();
         assertTrue(fileStreamingService.isClientDisconnect(timeoutException));
     }
@@ -324,15 +427,14 @@ class FileStreamingServiceTest {
         Path emptyFile = tempDir.resolve("empty.bin");
         Files.createFile(emptyFile);
 
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ServletOutputStream servletOutputStream = createServletOutputStream(outputStream);
+        var request = mock(HttpServletRequest.class);
+        var response = mock(HttpServletResponse.class);
+        var outputStream = new ByteArrayOutputStream();
+        var servletOutputStream = createServletOutputStream(outputStream);
 
         when(request.getHeader("Range")).thenReturn(null);
         when(response.getOutputStream()).thenReturn(servletOutputStream);
 
-        // This should handle empty file gracefully - the stream will be empty
         fileStreamingService.streamWithRangeSupport(emptyFile, "audio/mp4", request, response);
 
         verify(response).setStatus(HttpServletResponse.SC_OK);
@@ -341,10 +443,10 @@ class FileStreamingServiceTest {
 
     @Test
     void streamWithRangeSupport_singleByteRange_streamsOneByte() throws IOException {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ServletOutputStream servletOutputStream = createServletOutputStream(outputStream);
+        var request = mock(HttpServletRequest.class);
+        var response = mock(HttpServletResponse.class);
+        var outputStream = new ByteArrayOutputStream();
+        var servletOutputStream = createServletOutputStream(outputStream);
 
         when(request.getHeader("Range")).thenReturn("bytes=50-50");
         when(response.getOutputStream()).thenReturn(servletOutputStream);
@@ -365,10 +467,10 @@ class FileStreamingServiceTest {
             "9999, 9999"
     })
     void streamWithRangeSupport_variousValidRanges_streamsCorrectContent(int start, int end) throws IOException {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ServletOutputStream servletOutputStream = createServletOutputStream(outputStream);
+        var request = mock(HttpServletRequest.class);
+        var response = mock(HttpServletResponse.class);
+        var outputStream = new ByteArrayOutputStream();
+        var servletOutputStream = createServletOutputStream(outputStream);
 
         when(request.getHeader("Range")).thenReturn("bytes=" + start + "-" + end);
         when(response.getOutputStream()).thenReturn(servletOutputStream);
@@ -383,7 +485,14 @@ class FileStreamingServiceTest {
         assertArrayEquals(expected, outputStream.toByteArray());
     }
 
-    // Helper method to create a mock ServletOutputStream
+    // ==================== Helpers ====================
+
+    private String computeExpectedETag(Path file) throws IOException {
+        var attrs = Files.readAttributes(file, BasicFileAttributes.class);
+        return fileStreamingService.generateETag(
+                attrs.size(), attrs.lastModifiedTime().toInstant());
+    }
+
     private ServletOutputStream createServletOutputStream(ByteArrayOutputStream outputStream) {
         return new ServletOutputStream() {
             @Override

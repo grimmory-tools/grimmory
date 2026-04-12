@@ -66,7 +66,7 @@ class Rar5IntegrationTest {
             fileUtilsStatic.when(() -> org.booklore.util.FileUtils.getBookFullPath(book))
                     .thenReturn(cbrCopy);
 
-            CbxReaderService readerService = new CbxReaderService(mockRepo, new ArchiveService());
+            CbxReaderService readerService = new CbxReaderService(mockRepo, new ArchiveService(), null);
             List<Integer> pages = readerService.getAvailablePages(99L);
 
             assertThat(pages).hasSize(3);
@@ -90,7 +90,7 @@ class Rar5IntegrationTest {
             fileUtilsStatic.when(() -> org.booklore.util.FileUtils.getBookFullPath(book))
                     .thenReturn(cbrCopy);
 
-            CbxReaderService readerService = new CbxReaderService(mockRepo, new ArchiveService());
+            CbxReaderService readerService = new CbxReaderService(mockRepo, new ArchiveService(), null);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             readerService.streamPageImage(99L, 1, out);
 
