@@ -147,11 +147,11 @@
                   <p-select [options]="datePeriodOptions" formControlName="value" [placeholder]="t('placeholders.selectPeriod')" appendTo="body" class="value-input"></p-select>
                 } @else if (ruleCtrl.get('operator')?.value === 'in_between') {
                   @if (ruleCtrl.get('field')?.value === 'publishedDate') {
-                    <p-datepicker [formControl]="ruleCtrl.get('valueStart')" dateFormat="dd-M-yy" [placeholder]="t('placeholders.startYear')" appendTo="body" fluid class="value-input"></p-datepicker>
-                    <p-datepicker [formControl]="ruleCtrl.get('valueEnd')" dateFormat="dd-M-yy" [placeholder]="t('placeholders.endYear')" appendTo="body" fluid class="value-input"></p-datepicker>
+                    <p-datepicker [formControl]="ruleCtrl.get('valueStart')" dateFormat="yy-mm-dd" [placeholder]="t('placeholders.startYear')" appendTo="body" fluid class="value-input"></p-datepicker>
+                    <p-datepicker [formControl]="ruleCtrl.get('valueEnd')" dateFormat="yy-mm-dd" [placeholder]="t('placeholders.endYear')" appendTo="body" fluid class="value-input"></p-datepicker>
                   } @else if (['dateFinished', 'addedOn', 'lastReadTime'].includes(ruleCtrl.get('field')?.value)) {
-                    <p-datepicker [formControl]="ruleCtrl.get('valueStart')" dateFormat="dd-M-yy" [placeholder]="t('placeholders.startDate')" appendTo="body" fluid class="value-input"></p-datepicker>
-                    <p-datepicker [formControl]="ruleCtrl.get('valueEnd')" dateFormat="dd-M-yy" [placeholder]="t('placeholders.endDate')" appendTo="body" fluid class="value-input"></p-datepicker>
+                    <p-datepicker [formControl]="ruleCtrl.get('valueStart')" dateFormat="yy-mm-dd" [placeholder]="t('placeholders.startDate')" appendTo="body" fluid class="value-input"></p-datepicker>
+                    <p-datepicker [formControl]="ruleCtrl.get('valueEnd')" dateFormat="yy-mm-dd" [placeholder]="t('placeholders.endDate')" appendTo="body" fluid class="value-input"></p-datepicker>
                   } @else if (numericFieldConfigMap.get(ruleCtrl.get('field')?.value)?.type === 'number') {
                     <p-inputNumber [formControl]="ruleCtrl.get('valueStart')" [min]="0" class="value-input" [placeholder]="t('placeholders.startValue')" [showButtons]="true"></p-inputNumber>
                     <p-inputNumber [formControl]="ruleCtrl.get('valueEnd')" [min]="0" class="value-input" [placeholder]="t('placeholders.endValue')" [showButtons]="true"></p-inputNumber>
@@ -164,9 +164,9 @@
                   }
                 } @else {
                   @if (ruleCtrl.get('field')?.value === 'publishedDate') {
-                    <p-datepicker formControlName="value" dateFormat="dd-M-yy" appendTo="body" fluid class="value-input"></p-datepicker>
+                    <p-datepicker formControlName="value" dateFormat="yy-mm-dd" appendTo="body" fluid class="value-input"></p-datepicker>
                   } @else if (['dateFinished', 'addedOn', 'lastReadTime'].includes(ruleCtrl.get('field')?.value)) {
-                    <p-datepicker formControlName="value" dateFormat="dd-M-yy" appendTo="body" fluid class="value-input"></p-datepicker>
+                    <p-datepicker formControlName="value" dateFormat="yy-mm-dd" appendTo="body" fluid class="value-input"></p-datepicker>
                   } @else if (numericFieldConfigMap.get(ruleCtrl.get('field')?.value)?.type === 'boolean') {
                     <p-select [options]="booleanOptions" formControlName="value" [placeholder]="t('placeholders.selectValue')" appendTo="body" class="value-input"></p-select>
                   } @else if (numericFieldConfigMap.get(ruleCtrl.get('field')?.value)?.type === 'number') {
