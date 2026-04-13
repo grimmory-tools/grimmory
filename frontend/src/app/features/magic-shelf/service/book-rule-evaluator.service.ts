@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {Book} from '../../book/model/book.model';
 import {GroupRule, Rule, RuleField} from '../component/magic-shelf-component';
+import {parseValue} from './magic-shelf-utils';
 
 @Injectable({providedIn: 'root'})
 export class BookRuleEvaluatorService {
@@ -32,8 +33,8 @@ export class BookRuleEvaluatorService {
       if (val instanceof Date) return val;
       if (typeof val === 'boolean') return String(val);
       if (typeof val === 'string') {
-        const date = new Date(val);
-        if (!isNaN(date.getTime())) return date;
+        const date = parseValue(val, 'date');
+        if (date != null) return date;
         return val.toLowerCase();
       }
       return val;
@@ -297,7 +298,7 @@ export class BookRuleEvaluatorService {
       case 'publisher':
         return book.metadata?.publisher?.toLowerCase() ?? null;
       case 'publishedDate':
-        return book.metadata?.publishedDate ? new Date(book.metadata.publishedDate) : null;
+        return parseValue(book.metadata?.publishedDate, 'date') ?? null;
       case 'dateFinished':
         return book.dateFinished ? new Date(book.dateFinished) : null;
       case 'lastReadTime':
