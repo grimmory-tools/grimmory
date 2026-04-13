@@ -92,7 +92,7 @@
               <i class="pi pi-list"></i>
               {{ t('searchResults') }}
             </h3>
-            <span class="results-count">{{ t('booksFound', { count: filteredMetadata.length }) }}</span>
+            <span class="results-count">{{ t('booksFound', { count: filteredMetadata().length }) }}</span>
           </div>
           @if (loading) {
             <span class="fetching-badge">
@@ -129,7 +129,7 @@
       </div>
     }
 
-    @if (!searchTriggered && allFetchedMetadata.length === 0) {
+    @if (!searchTriggered && allFetchedMetadata().length === 0) {
       <div class="empty-state">
         <div class="empty-icon">
           <i class="pi pi-search"></i>
@@ -139,7 +139,7 @@
       </div>
     }
 
-    @if (searchTriggered && allFetchedMetadata.length === 0 && !loading) {
+    @if (searchTriggered && allFetchedMetadata().length === 0 && !loading) {
       <div class="empty-state">
         <div class="empty-icon no-results">
           <i class="pi pi-inbox"></i>
@@ -149,10 +149,10 @@
       </div>
     }
 
-    @if (allFetchedMetadata.length > 0) {
+    @if (allFetchedMetadata().length > 0) {
       <div class="results-section">
         <div class="results-grid">
-          @for (metadata of filteredMetadata; track trackByMetadata($index, metadata)) {
+          @for (metadata of filteredMetadata(); track trackByMetadata($index, metadata)) {
             <div
               class="metadata-card"
               role="button"
