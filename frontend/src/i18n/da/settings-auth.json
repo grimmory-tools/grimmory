@@ -83,17 +83,6 @@
     "permissionsLabel": "",
     "librariesLabel": ""
   },
-  "perms": {
-    "uploadBooks": "",
-    "downloadBooks": "",
-    "editMetadata": "",
-    "manageLibrary": "",
-    "emailBook": "",
-    "deleteBook": "",
-    "koreaderSync": "",
-    "koboSync": "",
-    "accessOpds": ""
-  },
   "infoPanel": {
     "sectionTitle": "",
     "sectionDesc": "",

@@ -60,17 +60,6 @@
     "linkLocalDesc": "Wenn diese Option aktiviert ist, werden lokal erstellte Benutzer bei der ersten OIDC-Anmeldung automatisch mit ihrer OIDC-Identität verknüpft, sofern die Benutzernamen übereinstimmen. Wenn diese Option deaktiviert ist, können nur Benutzer, die ursprünglich über OIDC erstellt wurden, anhand ihres Benutzernamens abgeglichen werden.",
     "linkLocalWarning": "Bitte erwägen Sie, diese Option zu deaktivieren, nachdem sich alle bestehenden Benutzer mindestens einmal über OIDC angemeldet haben. Wenn Sie diese Option aktiviert lassen, kann jeder mit einem übereinstimmenden Benutzernamen in Ihrem OIDC-Anbieter ein lokales Konto übernehmen."
   },
-  "perms": {
-    "uploadBooks": "Bücher hochladen",
-    "downloadBooks": "Bücher herunterladen",
-    "editMetadata": "Buchmetadaten bearbeiten",
-    "manageLibrary": "Bibliothek verwalten",
-    "emailBook": "Buch per E-Mail senden",
-    "deleteBook": "Buch löschen",
-    "koreaderSync": "KOReader-Synchronisierung",
-    "koboSync": "Kobo-Synchronisierung",
-    "accessOpds": "OPDS-Zugriff"
-  },
   "toast": {
     "saved": "Gespeichert",
     "oidcUpdated": "OIDC-Einstellung aktualisiert.",

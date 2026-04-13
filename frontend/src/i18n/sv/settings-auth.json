@@ -63,17 +63,6 @@
     "linkLocalDesc": "När det är aktiverat kommer befintliga lokalt skapade användare automatiskt att länkas till sin OIDC-identitet vid första OIDC-inloggningen om användarnamnen matchar. När det är inaktiverat kan endast användare som ursprungligen skapades via OIDC matchas med användarnamn.",
     "linkLocalWarning": "Överväg att inaktivera detta efter att alla befintliga användare har loggat in via OIDC minst en gång. Om du lämnar det påslaget kan alla med ett matchande användarnamn hos din OIDC-leverantör ta över ett lokalt konto."
   },
-  "perms": {
-    "uploadBooks": "Ladda upp böcker",
-    "downloadBooks": "Ladda ner böcker",
-    "editMetadata": "Redigera bokmetadata",
-    "manageLibrary": "Hantera bibliotek",
-    "emailBook": "Skicka bok via e-post",
-    "deleteBook": "Radera bok",
-    "koreaderSync": "KOReader-synk",
-    "koboSync": "Kobo-synk",
-    "accessOpds": "Åtkomst till OPDS"
-  },
   "toast": {
     "saved": "Sparat",
     "oidcUpdated": "OIDC-inställning uppdaterad.",

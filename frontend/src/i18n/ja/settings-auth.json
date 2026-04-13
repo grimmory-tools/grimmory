@@ -53,17 +53,6 @@
     "defaultLibraryAccess": "デフォルトライブラリアクセス",
     "selectLibraries": "新しいユーザーがアクセスできるライブラリを選択"
   },
-  "perms": {
-    "uploadBooks": "本をアップロード",
-    "downloadBooks": "本をダウンロード",
-    "editMetadata": "ブックメタデータを編集",
-    "manageLibrary": "ライブラリを管理",
-    "emailBook": "本をメール送信",
-    "deleteBook": "本を削除",
-    "koreaderSync": "KOReader同期",
-    "koboSync": "Kobo同期",
-    "accessOpds": "OPDSアクセス"
-  },
   "toast": {
     "saved": "保存しました",
     "oidcUpdated": "OIDC設定が更新されました。",

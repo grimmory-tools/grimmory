@@ -53,17 +53,6 @@
     "defaultLibraryAccess": "Acesso Padrão às Bibliotecas",
     "selectLibraries": "Selecione as bibliotecas que os novos usuários podem acessar"
   },
-  "perms": {
-    "uploadBooks": "Enviar Livros",
-    "downloadBooks": "Baixar Livros",
-    "editMetadata": "Editar Metadados de Livros",
-    "manageLibrary": "Gerenciar Biblioteca",
-    "emailBook": "Enviar Livro por Email",
-    "deleteBook": "Excluir Livro",
-    "koreaderSync": "Sincronização KOReader",
-    "koboSync": "Sincronização Kobo",
-    "accessOpds": "Acessar OPDS"
-  },
   "toast": {
     "saved": "Salvo",
     "oidcUpdated": "Configuração OIDC atualizada.",

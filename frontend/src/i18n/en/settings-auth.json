@@ -83,17 +83,6 @@
     "permissionsLabel": "Permissions",
     "librariesLabel": "Library Access"
   },
-  "perms": {
-    "uploadBooks": "Upload Books",
-    "downloadBooks": "Download Books",
-    "editMetadata": "Edit Book Metadata",
-    "manageLibrary": "Manage Library",
-    "emailBook": "Email Book",
-    "deleteBook": "Delete Book",
-    "koreaderSync": "KOReader Sync",
-    "koboSync": "Kobo Sync",
-    "accessOpds": "Access OPDS"
-  },
   "infoPanel": {
     "sectionTitle": "Provider Configuration Reference",
     "sectionDesc": "Use these values when configuring your OIDC provider's client settings.",

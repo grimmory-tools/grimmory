@@ -53,17 +53,6 @@
     "defaultLibraryAccess": "",
     "selectLibraries": ""
   },
-  "perms": {
-    "uploadBooks": "Boeken uploaden",
-    "downloadBooks": "Boeken downloaden",
-    "editMetadata": "",
-    "manageLibrary": "Bibliotheek beheren",
-    "emailBook": "",
-    "deleteBook": "",
-    "koreaderSync": "KOReader-synchronisatie",
-    "koboSync": "Kobo-synchronisatie",
-    "accessOpds": ""
-  },
   "toast": {
     "saved": "",
     "oidcUpdated": "",
