@@ -82,6 +82,7 @@ export class CoverSearchComponent implements OnInit {
       this.loading = true;
       this.coverImages = [];
       const request: CoverFetchRequest = {
+        bookId: this.bookId,
         title: this.searchForm.value.title,
         author: this.searchForm.value.author,
         coverType: this.coverType

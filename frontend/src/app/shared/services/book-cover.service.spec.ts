@@ -35,6 +35,7 @@ describe('BookCoverService', () => {
 
   it('streams covers over SSE with auth headers', async () => {
     const requestBody: CoverFetchRequest = {
+      bookId: 123,
       title: 'Dune',
       author: 'Frank Herbert',
       coverType: 'ebook',
@@ -69,7 +70,7 @@ describe('BookCoverService', () => {
     await new Promise(resolve => setTimeout(resolve, 0));
 
     expect(fetchSpy).toHaveBeenCalledWith(
-      expect.stringMatching(/\/api\/v1\/books\/1\/metadata\/covers$/),
+      expect.stringMatching(/\/api\/v1\/books\/123\/metadata\/covers$/),
       expect.objectContaining({
         method: 'POST',
         headers: {

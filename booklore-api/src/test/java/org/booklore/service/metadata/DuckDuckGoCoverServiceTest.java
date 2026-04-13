@@ -1,5 +1,6 @@
 package org.booklore.service.metadata;
 
+import org.booklore.exception.APIException;
 import org.booklore.model.dto.CoverImage;
 import org.booklore.model.dto.request.CoverFetchRequest;
 import org.jsoup.Connection;
@@ -579,8 +580,8 @@ class DuckDuckGoCoverServiceTest {
                         .title("Test").coverType("ebook").build();
 
                 assertThatThrownBy(() -> service.getCovers(request).collectList().block())
-                        .isInstanceOf(RuntimeException.class)
-                        .hasCauseInstanceOf(IOException.class);
+                        .isInstanceOf(APIException.class)
+                        .hasMessageContaining("Error fetching URL:");
             }
         }
     }
@@ -600,8 +601,8 @@ class DuckDuckGoCoverServiceTest {
                         .title("Test").coverType("ebook").build();
 
                 assertThatThrownBy(() -> service.getCovers(request).collectList().block())
-                        .isInstanceOf(RuntimeException.class)
-                        .hasCauseInstanceOf(IOException.class);
+                        .isInstanceOf(APIException.class)
+                        .hasMessageContaining("Error parsing response");
             }
         }
     }
@@ -610,7 +611,7 @@ class DuckDuckGoCoverServiceTest {
     class FetchImagesFromApi {
 
         @Test
-        void returnsEmptyListOnApiException() throws Exception {
+        void throwsRuntimeExceptionOnApiException() throws Exception {
             String htmlWithToken = "<html>vqd=\"12345-67890\"</html>";
 
             try (MockedStatic<Jsoup> jsoupMock = mockStatic(Jsoup.class, CALLS_REAL_METHODS)) {
@@ -619,16 +620,14 @@ class DuckDuckGoCoverServiceTest {
                 Connection.Response htmlResp = buildHtmlResponse(htmlWithToken, Map.of());
                 when(connection.execute())
                         .thenReturn(htmlResp)
-                        .thenThrow(new IOException("api error"))
-                        .thenReturn(htmlResp)
                         .thenThrow(new IOException("api error"));
 
                 CoverFetchRequest request = CoverFetchRequest.builder()
                         .title("Test").coverType("ebook").build();
 
-                List<CoverImage> result = service.getCovers(request).collectList().block();
-
-                assertThat(result).isEmpty();
+                assertThatThrownBy(() -> service.getCovers(request).collectList().block())
+                        .isInstanceOf(APIException.class)
+                        .hasMessageContaining("DuckDuckGo image fetch failed");
             }
         }
 

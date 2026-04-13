@@ -137,8 +137,10 @@ public class DuckDuckGoCoverService implements BookCoverProvider {
                     for (CoverImage img : generalBookImages) {
                         if (sink.isCancelled()) return;
                         if (count >= 10) break;
+                        if (emittedUrls.contains(img.getUrl())) continue;
                         CoverImage indexedImg = new CoverImage(img.getUrl(), img.getWidth(), img.getHeight(), index.getAndIncrement());
                         sink.next(indexedImg);
+                        emittedUrls.add(img.getUrl());
                         count++;
                     }
                 }
@@ -224,6 +226,7 @@ public class DuckDuckGoCoverService implements BookCoverProvider {
             }
         } catch (Exception e) {
             log.error("Error fetching images from DuckDuckGo", e);
+            throw org.booklore.exception.ApiError.INTERNAL_SERVER_ERROR.createException("DuckDuckGo image fetch failed");
         }
         List<CoverImage> all = new ArrayList<>(priority);
         all.addAll(others);
@@ -240,7 +243,7 @@ public class DuckDuckGoCoverService implements BookCoverProvider {
                     .execute();
         } catch (IOException e) {
             log.error("Error fetching url: {}", url, e);
-            throw new RuntimeException(e);
+            throw ApiError.INTERNAL_SERVER_ERROR.createException("Error fetching URL: " + url);
         }
     }
 
@@ -249,7 +252,7 @@ public class DuckDuckGoCoverService implements BookCoverProvider {
             return response.parse();
         } catch (IOException e) {
             log.error("Error parsing response", e);
-            throw new RuntimeException(e);
+            throw ApiError.INTERNAL_SERVER_ERROR.createException("Error parsing response");
         }
     }
 

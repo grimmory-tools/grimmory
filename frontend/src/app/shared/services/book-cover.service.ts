@@ -13,6 +13,7 @@ export interface CoverImage {
 }
 
 export interface CoverFetchRequest {
+  bookId?: number;
   title?: string;
   author?: string;
   coverType?: 'ebook' | 'audiobook';
@@ -31,9 +32,14 @@ export class BookCoverService {
     const token = this.authService.getInternalAccessToken();
 
     return new Observable<CoverImage>(subscriber => {
+      if (!request.bookId) {
+        subscriber.error(new Error('bookId is required for fetching covers'));
+        return;
+      }
+
       const abortController = new AbortController();
 
-      fetch(`${this.baseUrl}/1/metadata/covers`, {
+      fetch(`${this.baseUrl}/${request.bookId}/metadata/covers`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
