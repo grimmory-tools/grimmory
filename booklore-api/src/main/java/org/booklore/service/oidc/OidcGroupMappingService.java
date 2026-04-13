@@ -18,7 +18,6 @@ import org.booklore.service.audit.AuditService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -128,8 +127,36 @@ public class OidcGroupMappingService {
     }
 
     private void applyPermissions(UserPermissionsEntity perms, Set<String> permissions, boolean isAdmin, boolean additive) {
-        if (!additive) {
-            perms.setPermissionAdmin(isAdmin);
+        if (isAdmin) {
+            // If a user is an admin they get all permissions
+            perms.setPermissionAdmin(true);
+            perms.setPermissionUpload(true);
+            perms.setPermissionDownload(true);
+            perms.setPermissionEditMetadata(true);
+            perms.setPermissionManageLibrary(true);
+            perms.setPermissionEmailBook(true);
+            perms.setPermissionDeleteBook(true);
+            perms.setPermissionAccessOpds(true);
+            perms.setPermissionSyncKoreader(true);
+            perms.setPermissionSyncKobo(true);
+            perms.setPermissionManageMetadataConfig(true);
+            perms.setPermissionAccessBookdrop(true);
+            perms.setPermissionAccessLibraryStats(true);
+            perms.setPermissionAccessUserStats(true);
+            perms.setPermissionAccessTaskManager(true);
+            perms.setPermissionManageGlobalPreferences(true);
+            perms.setPermissionManageIcons(true);
+            perms.setPermissionManageFonts(true);
+            perms.setPermissionBulkAutoFetchMetadata(true);
+            perms.setPermissionBulkCustomFetchMetadata(true);
+            perms.setPermissionBulkEditMetadata(true);
+            perms.setPermissionBulkRegenerateCover(true);
+            perms.setPermissionMoveOrganizeFiles(true);
+            perms.setPermissionBulkLockUnlockMetadata(true);
+            perms.setPermissionBulkResetBookloreReadProgress(true);
+            perms.setPermissionBulkResetKoReaderReadProgress(true);
+            perms.setPermissionBulkResetBookReadStatus(true);
+        } else if (!additive) {
             perms.setPermissionUpload(permissions.contains("permissionUpload"));
             perms.setPermissionDownload(permissions.contains("permissionDownload"));
             perms.setPermissionEditMetadata(permissions.contains("permissionEditMetadata"));
@@ -157,7 +184,6 @@ public class OidcGroupMappingService {
             perms.setPermissionBulkResetKoReaderReadProgress(permissions.contains("permissionBulkResetKoReaderReadProgress"));
             perms.setPermissionBulkResetBookReadStatus(permissions.contains("permissionBulkResetBookReadStatus"));
         } else {
-            if (isAdmin) perms.setPermissionAdmin(true);
             if (permissions.contains("permissionUpload")) perms.setPermissionUpload(true);
             if (permissions.contains("permissionDownload")) perms.setPermissionDownload(true);
             if (permissions.contains("permissionEditMetadata")) perms.setPermissionEditMetadata(true);
