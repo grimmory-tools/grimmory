@@ -22,7 +22,15 @@ import java.util.stream.Stream;
 @Service
 public class ArchiveService {
     private final ConcurrentHashMap<String, ReentrantLock> fileLocks = new ConcurrentHashMap<>();
-    private volatile boolean available;
+    private volatile boolean available = safeCheckAvailable();
+
+    private static boolean safeCheckAvailable() {
+        try {
+            return Archive.isAvailable();
+        } catch (Throwable e) {
+            return false;
+        }
+    }
 
     private ReentrantLock getFileLock(Path path) {
         String key = path.toAbsolutePath().normalize().toString();
@@ -31,19 +39,14 @@ public class ArchiveService {
 
     @PostConstruct
     public void initLibArchive() {
-        try {
-            // Eagerly load the native library on the Spring startup thread.
-            // Loading native libraries is not a thread-safe operation, so this
-            // must happen before any concurrent HTTP request can access it.
-            available = Archive.isAvailable();
-            if (available) {
-                log.info("LibArchive loaded successfully");
-            } else {
-                log.error("LibArchive is not available – CBX/archive features will not work");
-            }
-        } catch (Throwable e) {
-            log.error("LibArchive could not be loaded", e);
-            available = false;
+        // Log the availability result that was already determined at construction
+        // time.  The @PostConstruct runs on the Spring startup thread which also
+        // ensures the native library is fully loaded before any concurrent HTTP
+        // request thread can call into it.
+        if (available) {
+            log.info("LibArchive loaded successfully");
+        } else {
+            log.error("LibArchive is not available – CBX/archive features will not work");
         }
     }
 
