@@ -103,7 +103,8 @@ describe('BookMetadataService', () => {
       status: 500
     };
 
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(mockResponse));
+    const fetchSpy = vi.fn().mockResolvedValue(mockResponse);
+    vi.stubGlobal('fetch', fetchSpy);
 
     let error: Error | undefined;
     service.fetchBookMetadata(7, fetchRequest).subscribe({

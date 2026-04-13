@@ -174,11 +174,32 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
                 }
 
                 if (fetchMetadataRequest.getTitle() != null && !fetchMetadataRequest.getTitle().isBlank()
-                        && fetchMetadataRequest.getAuthor() != null && !fetchMetadataRequest.getAuthor().isBlank()) {
+                        && fetchMetadataRequest.getAuthor() != null && !fetchMetadataRequest.getAuthor().isBlank()
+                        && previews.isEmpty()) {
 
-                    // Check if we need to retry with title only (no results so far)
-                    // This is a bit tricky with Flux, but we can check if we want to continue.
-                    // For simplicity, we only retry if we have 0 results so far from this specific provider.
+                    log.info("GoodReads: No hits for Title + Author search, retrying with Title only: {}", fetchMetadataRequest.getTitle());
+                    FetchMetadataRequest titleOnlyRequest = FetchMetadataRequest.builder()
+                            .title(fetchMetadataRequest.getTitle())
+                            .build();
+
+                    List<BookMetadata> titleOnlyPreviews = fetchMetadataPreviews(book, titleOnlyRequest).stream()
+                            .limit(COUNT_DETAILED_METADATA_TO_GET_RETRY)
+                            .toList();
+
+                    for (BookMetadata preview : titleOnlyPreviews) {
+                        if (sink.isCancelled()) return;
+                        log.info("GoodReads: Fetching metadata (Title only hit) for: {}", preview.getTitle());
+                        try {
+                            Document document = fetchDoc(BASE_BOOK_URL + preview.getGoodreadsId());
+                            BookMetadata detailedMetadata = parseBookDetails(document, preview.getGoodreadsId());
+                            if (detailedMetadata != null) {
+                                sink.next(detailedMetadata);
+                            }
+                            Thread.sleep(ThreadLocalRandom.current().nextLong(500, 1501));
+                        } catch (Exception e) {
+                            log.error("Error fetching metadata for book (Title only retry): {}", preview.getGoodreadsId(), e);
+                        }
+                    }
                 }
 
                 sink.complete();

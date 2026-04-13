@@ -75,7 +75,7 @@ public class BookMetadataService {
 
         return Flux.fromIterable(request.getProviders())
                 .flatMap(provider ->
-                    getParser(provider).fetchMetadataStream(book, request)
+                    Flux.defer(() -> getParser(provider).fetchMetadataStream(book, request))
                             .subscribeOn(Schedulers.boundedElastic())
                             .onErrorResume(e -> {
                                 log.error("Error fetching metadata from provider: {}", provider, e);

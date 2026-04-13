@@ -81,6 +81,9 @@ export class BookMetadataService {
           }
         })
         .catch((error) => {
+          if (error instanceof Error && error.name === 'AbortError') {
+            return;
+          }
           subscriber.error(error);
         });
 
