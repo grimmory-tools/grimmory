@@ -22,6 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -444,11 +445,15 @@ public class KomgaService {
                 .build();
     }
     
-    public org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody getBookPageImage(Long bookId, Integer pageNumber, boolean convertToPng) throws IOException {
+    public StreamingResponseBody getBookPageImage(Long bookId, Integer pageNumber, boolean convertToPng) throws IOException {
         log.debug("Getting page {} from book {} (convert to PNG: {})", pageNumber, bookId, convertToPng);
         
         BookEntity book = bookRepository.findByIdForStreaming(bookId)
                 .orElseThrow(() -> new RuntimeException("Book not found: " + bookId));
+
+        if (book.getPrimaryBookFile() == null) {
+            throw new RuntimeException("Primary book file missing for book: " + bookId);
+        }
 
         boolean isPDF = book.getPrimaryBookFile().getBookType() == org.booklore.model.enums.BookFileType.PDF;
      

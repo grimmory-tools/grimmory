@@ -440,8 +440,8 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
       error: (err) => {
         const errorMessage = err?.error?.message || this.t.translate('shared.reader.failedToLoadBook');
         this.messageService.add({ severity: 'error', summary: this.t.translate('common.error'), detail: errorMessage });
-        this.cdr.markForCheck();
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     });
   }

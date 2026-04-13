@@ -1,9 +1,10 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, ElementRef, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {Location} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
 import {FormsModule} from '@angular/forms';
-import {from, Observable, of, Subject} from 'rxjs';
-import {catchError, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
+import {from, Observable, of} from 'rxjs';
+import {catchError, filter, map, switchMap, tap} from 'rxjs/operators';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 import {Button} from 'primeng/button';
 import {Slider, SliderChangeEvent} from 'primeng/slider';
@@ -44,7 +45,7 @@ import {API_CONFIG} from '../../../core/config/api-config';
 export class AudiobookPlayerComponent implements OnInit, OnDestroy {
   @ViewChild('audioElement') audioElement!: ElementRef<HTMLAudioElement>;
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
   private audiobookService = inject(AudiobookService);
   private bookService = inject(BookService);
   private bookMarkService = inject(BookMarkService);
@@ -120,7 +121,7 @@ export class AudiobookPlayerComponent implements OnInit, OnDestroy {
     ];
 
     this.route.paramMap.pipe(
-      takeUntil(this.destroy$),
+      takeUntilDestroyed(this.destroyRef),
       map(params => Number(params.get('bookId'))),
       filter(bookId => !Number.isNaN(bookId)),
       switchMap(bookId => this.loadAudiobook(bookId))
@@ -128,9 +129,6 @@ export class AudiobookPlayerComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-
     if (this.progressSaveInterval) {
       clearInterval(this.progressSaveInterval);
     }
@@ -984,7 +982,7 @@ export class AudiobookPlayerComponent implements OnInit, OnDestroy {
 
   loadBookmarks(): void {
     this.bookMarkService.getBookmarksForBook(this.bookId)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(bookmarks => {
         this.bookmarks = bookmarks;
         this.cdr.markForCheck();
@@ -1018,7 +1016,7 @@ export class AudiobookPlayerComponent implements OnInit, OnDestroy {
     };
 
     this.bookMarkService.createBookmark(request)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (bookmark) => {
           this.bookmarks = [...this.bookmarks, bookmark];
@@ -1120,7 +1118,7 @@ export class AudiobookPlayerComponent implements OnInit, OnDestroy {
   deleteBookmark(event: MouseEvent, bookmarkId: number): void {
     event.stopPropagation();
     this.bookMarkService.deleteBookmark(bookmarkId)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.bookmarks = this.bookmarks.filter(b => b.id !== bookmarkId);
         this.messageService.add({

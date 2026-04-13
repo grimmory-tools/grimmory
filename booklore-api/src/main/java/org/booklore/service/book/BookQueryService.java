@@ -129,7 +129,11 @@ public class BookQueryService {
         }
 
         if (stripForListView) {
-            stripFieldsForListView(dto);
+            try {
+                stripFieldsForListView(dto);
+            } finally {
+                KomgaCleanContext.clear();
+            }
         }
 
         return dto;

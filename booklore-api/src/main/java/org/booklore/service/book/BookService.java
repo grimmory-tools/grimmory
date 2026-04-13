@@ -455,10 +455,14 @@ public class BookService {
             }
         }
 
+        Set<Long> deletedIds = books.stream()
+                .map(BookEntity::getId)
+                .collect(Collectors.toSet());
+
         bookRepository.deleteAllInBatch(books);
-        auditService.log(AuditAction.BOOK_DELETED, "Deleted " + ids.size() + " book(s)");
-        notificationService.sendMessage(Topic.BOOKS_REMOVE, new ArrayList<>(ids));
-        BookDeletionResponse response = new BookDeletionResponse(ids, failedFileDeletions);
+        auditService.log(AuditAction.BOOK_DELETED, "Deleted " + deletedIds.size() + " book(s)");
+        notificationService.sendMessage(Topic.BOOKS_REMOVE, new ArrayList<>(deletedIds));
+        BookDeletionResponse response = new BookDeletionResponse(deletedIds, failedFileDeletions);
         return failedFileDeletions.isEmpty()
                 ? ResponseEntity.ok(response)
                 : ResponseEntity.status(HttpStatus.MULTI_STATUS).body(response);

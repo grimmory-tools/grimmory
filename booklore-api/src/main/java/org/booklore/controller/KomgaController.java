@@ -24,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.Instant;
@@ -150,7 +151,7 @@ public class KomgaController {
 
     @Operation(summary = "Get book page image")
     @GetMapping("/v1/books/{bookId}/pages/{pageNumber}")
-    public ResponseEntity<org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody> getBookPage(
+    public ResponseEntity<StreamingResponseBody> getBookPage(
             @Parameter(description = "Book ID") @PathVariable Long bookId,
             @Parameter(description = "Page number") @PathVariable Integer pageNumber,
             @Parameter(description = "Convert image format (e.g., 'png')") @RequestParam(required = false) String convert,
@@ -164,7 +165,7 @@ public class KomgaController {
 
         try {
             boolean convertToPng = "png".equalsIgnoreCase(convert);
-            org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody body = komgaService.getBookPageImage(bookId, pageNumber, convertToPng);
+            StreamingResponseBody body = komgaService.getBookPageImage(bookId, pageNumber, convertToPng);
             // Note: When not converting, we assume JPEG as most CBZ files contain JPEG images,
             // but the actual format may vary (PNG, WebP, etc.)
             String contentType = convertToPng ? "image/png" : "image/jpeg";

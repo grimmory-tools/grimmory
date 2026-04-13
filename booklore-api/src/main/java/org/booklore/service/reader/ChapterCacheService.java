@@ -11,6 +11,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Service for managing the on-disk extraction cache for reader chapters.
@@ -20,8 +22,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChapterCacheService {
 
+    private static final long MTIME_TOLERANCE_MS = 2000;
+
     private final AppProperties appProperties;
     private final ArchiveService archiveService;
+    private final ConcurrentHashMap<Long, ReentrantLock> cacheLocks = new ConcurrentHashMap<>();
 
     /**
      * Ensures all pages of a CBX archive are extracted to the disk cache.
@@ -29,26 +34,32 @@ public class ChapterCacheService {
      * which can cause SIGSEGV / out-of-memory crashes in the native heap.
      */
     public void prepareCbxCache(Long bookId, Path cbxPath, List<String> entries) throws IOException {
-        Path cacheDir = getCacheDir(bookId);
-        if (!Files.exists(cacheDir)) {
-            Files.createDirectories(cacheDir);
-        }
-
-        // Only extract if the cache is empty or stale
-        if (isCacheStale(cacheDir, cbxPath)) {
-            log.info("Populating disk cache for book {}: {} pages", bookId, entries.size());
-
-            for (int i = 0; i < entries.size(); i++) {
-                Path target = cacheDir.resolve("page_" + (i + 1) + ".jpg");
-                if (!Files.exists(target)) {
-                    try (var out = Files.newOutputStream(target)) {
-                        archiveService.transferEntryTo(cbxPath, entries.get(i), out);
-                    }
-                }
+        ReentrantLock lock = cacheLocks.computeIfAbsent(bookId, _ -> new ReentrantLock());
+        lock.lock();
+        try {
+            Path cacheDir = getCacheDir(bookId);
+            if (!Files.exists(cacheDir)) {
+                Files.createDirectories(cacheDir);
             }
 
-            // Mark cache as fresh by setting its mtime to match the archive
-            Files.setLastModifiedTime(cacheDir, Files.getLastModifiedTime(cbxPath));
+            // Only extract if the cache is empty or stale
+            if (isCacheStale(cacheDir, cbxPath)) {
+                log.info("Populating disk cache for book {}: {} pages", bookId, entries.size());
+
+                for (int i = 0; i < entries.size(); i++) {
+                    Path target = cacheDir.resolve("page_" + (i + 1) + ".jpg");
+                    if (!Files.exists(target)) {
+                        try (var out = Files.newOutputStream(target)) {
+                            archiveService.transferEntryTo(cbxPath, entries.get(i), out);
+                        }
+                    }
+                }
+
+                // Mark cache as fresh by setting its mtime to match the archive
+                Files.setLastModifiedTime(cacheDir, Files.getLastModifiedTime(cbxPath));
+            }
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -69,6 +80,8 @@ public class ChapterCacheService {
         try (var stream = Files.list(cacheDir)) {
             if (stream.findAny().isEmpty()) return true;
         }
-        return Files.getLastModifiedTime(cacheDir).toMillis() != Files.getLastModifiedTime(sourcePath).toMillis();
+        long cacheMtime = Files.getLastModifiedTime(cacheDir).toMillis();
+        long sourceMtime = Files.getLastModifiedTime(sourcePath).toMillis();
+        return Math.abs(cacheMtime - sourceMtime) > MTIME_TOLERANCE_MS;
     }
 }

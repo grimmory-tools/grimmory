@@ -14,14 +14,17 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @Slf4j
 @Service
 public class ArchiveService {
-    private final ConcurrentHashMap<String, ReentrantLock> fileLocks = new ConcurrentHashMap<>();
+    private static final int LOCK_STRIPE_COUNT = 256;
+    private final ReentrantLock[] lockStripes = IntStream.range(0, LOCK_STRIPE_COUNT)
+            .mapToObj(_ -> new ReentrantLock())
+            .toArray(ReentrantLock[]::new);
     private volatile boolean available = safeCheckAvailable();
 
     private static boolean safeCheckAvailable() {
@@ -33,8 +36,8 @@ public class ArchiveService {
     }
 
     private ReentrantLock getFileLock(Path path) {
-        String key = path.toAbsolutePath().normalize().toString();
-        return fileLocks.computeIfAbsent(key, k -> new ReentrantLock());
+        int hash = path.toAbsolutePath().normalize().toString().hashCode();
+        return lockStripes[Math.floorMod(hash, LOCK_STRIPE_COUNT)];
     }
 
     @PostConstruct

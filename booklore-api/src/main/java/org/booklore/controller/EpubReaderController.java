@@ -71,7 +71,7 @@ public class EpubReaderController {
         response.setHeader("Cache-Control", "public, max-age=3600");
 
         try {
-            epubReaderService.streamFile(bookId, bookType, filePath, response.getOutputStream());
+            epubReaderService.streamFile(bookId, bookType, cleanPath, response.getOutputStream());
         } catch (FileNotFoundException e) {
             response.reset();
             response.sendError(HttpServletResponse.SC_NOT_FOUND);

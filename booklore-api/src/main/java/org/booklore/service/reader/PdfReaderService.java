@@ -119,6 +119,7 @@ public class PdfReaderService {
         
         // Render and cache
         Path cached = chapterCacheService.getCachedPage(bookId, page);
+        Files.createDirectories(cached.getParent());
         try (var out = Files.newOutputStream(cached)) {
             renderPageToStream(pdfPath, page, out);
         }

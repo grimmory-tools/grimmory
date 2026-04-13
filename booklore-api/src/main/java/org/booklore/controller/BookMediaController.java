@@ -43,7 +43,7 @@ public class BookMediaController {
                     return null;
                 }
                 return ResponseEntity.ok()
-                        .header(HttpHeaders.CACHE_CONTROL, "private, max-age=86400, stale-while-revalidate=3600, immutable")
+                        .header(HttpHeaders.CACHE_CONTROL, "private, max-age=86400, stale-while-revalidate=3600")
                         .lastModified(lastModified)
                         .contentType(MediaType.IMAGE_JPEG)
                         .body(resource);

@@ -141,7 +141,7 @@ public class FileStreamingService {
      * Sufficient for static-file identity without content hashing overhead.
      */
     String generateETag(long fileSize, Instant lastModified) {
-        return "\"" + Long.toHexString(fileSize) + "-" + Long.toHexString(lastModified.toEpochMilli()) + "\"";
+        return "W/\"" + Long.toHexString(fileSize) + "-" + Long.toHexString(lastModified.toEpochMilli()) + "\"";
     }
 
     // RANGE PARSER (not) RFC 7233 compliant

@@ -36,7 +36,6 @@ public class AudiobookReaderService {
     /**
      * Get audiobook information including metadata, chapters, and tracks.
      */
-    @Transactional
     public AudiobookInfo getAudiobookInfo(Long bookId, String bookType) {
         BookFileEntity bookFile = getAudiobookFile(bookId, bookType);
         Path audioPath = bookFile.getFullFilePath();

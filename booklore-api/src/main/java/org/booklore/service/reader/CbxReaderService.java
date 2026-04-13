@@ -53,10 +53,10 @@ public class CbxReaderService {
     private final ChapterCacheService chapterCacheService;
 
     // L1 Cache: Open ZipFile handles for active reading sessions (TTL 30m)
-    private final com.github.benmanes.caffeine.cache.Cache<Long, java.util.zip.ZipFile> zipHandleCache = com.github.benmanes.caffeine.cache.Caffeine.newBuilder()
+    private final com.github.benmanes.caffeine.cache.Cache<String, java.util.zip.ZipFile> zipHandleCache = com.github.benmanes.caffeine.cache.Caffeine.newBuilder()
             .maximumSize(MAX_CACHE_ENTRIES)
             .expireAfterAccess(Duration.ofMinutes(30))
-            .removalListener((Long key, java.util.zip.ZipFile value, com.github.benmanes.caffeine.cache.RemovalCause cause) -> {
+            .removalListener((String key, java.util.zip.ZipFile value, com.github.benmanes.caffeine.cache.RemovalCause cause) -> {
                 if (value != null) {
                     try { value.close(); } catch (IOException ignored) {}
                 }
@@ -267,14 +267,15 @@ public class CbxReaderService {
     }
 
     private java.util.zip.ZipFile getZipFile(Long bookId, String bookType) {
-        return zipHandleCache.get(bookId, id -> {
+        String cacheKey = bookId + ":" + bookType;
+        return zipHandleCache.get(cacheKey, key -> {
             try {
-                Path path = getBookPath(id, bookType);
+                Path path = getBookPath(bookId, bookType);
                 if (path.toString().toLowerCase().endsWith(".cbz") || path.toString().toLowerCase().endsWith(".zip")) {
                     return new java.util.zip.ZipFile(path.toFile());
                 }
             } catch (IOException e) {
-                log.warn("Failed to open ZipFile for book {}: {}", id, e.getMessage());
+                log.warn("Failed to open ZipFile for book {}: {}", bookId, e.getMessage());
             }
             return null;
         });
