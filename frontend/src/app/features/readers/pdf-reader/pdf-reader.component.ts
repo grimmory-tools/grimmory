@@ -2,7 +2,7 @@ import { Component, ElementRef, inject, Injector, NgZone, OnDestroy, OnInit, aft
 import { ActivatedRoute, Router } from '@angular/router';
 import { PageTitleService } from "../../../shared/service/page-title.service";
 import { BookService } from '../../book/service/book.service';
-import { forkJoin, firstValueFrom, from, Observable, of, Subject, Subscription } from "rxjs";
+import { forkJoin, from, Observable, of, Subject, Subscription } from "rxjs";
 import { debounceTime, filter, map, switchMap } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BookSetting } from '../../book/model/book.model';
@@ -407,7 +407,9 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       this.pdfFetchAbortController = new AbortController();
 
       let pdfUrl: string;
-      if (currentBookData.startsWith('blob:')) {
+      if (this.pdfBlobUrl) {
+        pdfUrl = this.pdfBlobUrl;
+      } else if (currentBookData.startsWith('blob:')) {
         pdfUrl = currentBookData;
       } else {
         pdfUrl = await this.fetchAsObjectUrl(currentBookData, this.pdfFetchAbortController.signal);
@@ -544,10 +546,12 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  private destroyBookViewer(): void {
+  private destroyBookViewer(revoke = true): void {
     this.embedPdfBook.destroy();
     this.bookViewerInitialized = false;
-    this.revokePdfBlobUrl();
+    if (revoke) {
+      this.revokePdfBlobUrl();
+    }
   }
 
   private async loadOutline(): Promise<void> {
@@ -792,9 +796,9 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     }
 
     if (mode === 'document') {
-      // Save annotations before switching
+      // Ensure annotations are captured before destroying the book viewer
       await this.persistAnnotations();
-      this.destroyBookViewer();
+      this.destroyBookViewer(false); // Do not revoke blob URL
       this.viewerMode.set(mode);
       this.initTimeout = setTimeout(() => {
         this.initTimeout = undefined;
@@ -822,18 +826,25 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     this.embedPdfInitTime = t0;
 
     try {
-      const headers: Record<string, string> = {};
-      const token = this.authService.getInternalAccessToken();
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
+      const source = this.pdfBlobUrl || this.bookData;
+      let pdfBuffer: ArrayBuffer;
 
-      const response = await fetch(this.bookData, { headers, credentials: 'include' });
-      if (!response.ok) throw new Error(`PDF fetch failed: ${response.status}`);
+      if (source.startsWith('blob:')) {
+        const res = await fetch(source);
+        pdfBuffer = await res.arrayBuffer();
+      } else {
+        const headers: Record<string, string> = {};
+        const token = this.authService.getInternalAccessToken();
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        const response = await fetch(source, { headers, credentials: 'include' });
+        if (!response.ok) throw new Error(`PDF fetch failed: ${response.status}`);
+        pdfBuffer = await response.arrayBuffer();
+      }
 
       if (this.viewerMode() !== 'document') return;
 
-      const pdfBuffer = await response.arrayBuffer();
       const targetEl = document.getElementById('embedpdf-viewer');
       if (!targetEl) throw new Error('#embedpdf-viewer not found');
 
@@ -1296,8 +1307,9 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       const data = serializeAnnotations(items);
       this.lastAnnotationData = data;
       this.annotationsDirty = false;
-      await firstValueFrom(this.pdfAnnotationService.saveAnnotations(this.bookId, data));
-      console.info('[PDF Annotations] Saved', items.length, 'annotations for book', this.bookId);
+      // Fire-and-forget the actual save call to keep the UI responsive
+      this.pdfAnnotationService.saveAnnotations(this.bookId, data).subscribe();
+      console.info('[PDF Annotations] Exported and background saving', items.length, 'annotations for book', this.bookId);
     } catch (e) {
       console.error('[PDF Annotations] Failed to save annotations:', e);
     }
