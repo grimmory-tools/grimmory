@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.model.dto.AudiobookMetadata;
@@ -378,8 +379,8 @@ public class AudioMetadataService {
 
   private Integer parseChannels(String channels) {
     if (channels == null) return null;
-    if (channels.toLowerCase().contains("stereo")) return 2;
-    if (channels.toLowerCase().contains("mono")) return 1;
+    if (channels.toLowerCase(Locale.ROOT).contains("stereo")) return 2;
+    if (channels.toLowerCase(Locale.ROOT).contains("mono")) return 1;
     try {
       return Integer.parseInt(channels.replaceAll("[^0-9]", ""));
     } catch (NumberFormatException e) {

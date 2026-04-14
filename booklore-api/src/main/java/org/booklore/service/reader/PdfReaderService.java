@@ -47,21 +47,28 @@ public class PdfReaderService {
     public void initCache(Long bookId, String bookType) throws IOException {
         Path pdfPath = getBookPath(bookId, bookType);
         CachedPdfMetadata metadata = getCachedMetadata(pdfPath);
+        String cacheKey = getCacheKey(bookId, bookType, metadata.lastModified);
 
-        Path cacheDir = chapterCacheService.getCachedPage(bookId, 1).getParent();
+        Path cacheDir = chapterCacheService.getCachedPage(cacheKey, 1).getParent();
         if (!Files.exists(cacheDir)) {
             Files.createDirectories(cacheDir);
         }
 
-        if (Files.exists(cacheDir) && Files.getLastModifiedTime(cacheDir).toMillis() == metadata.lastModified) {
+        long cacheMtime = Files.getLastModifiedTime(cacheDir).toMillis();
+        boolean cacheEmpty;
+        try (var stream = Files.list(cacheDir)) {
+            cacheEmpty = stream.findAny().isEmpty();
+        }
+
+        if (!cacheEmpty && cacheMtime == metadata.lastModified) {
             return;
         }
 
-        log.info("Populating PDF disk cache for book {}: {} pages", bookId, metadata.pageCount);
+        log.info("Populating PDF disk cache for {}: {} pages", cacheKey, metadata.pageCount);
         // PdfDocument is not thread-safe render pages serially then cache
         try (PdfDocument doc = PdfDocument.open(pdfPath)) {
             for (int i = 1; i <= metadata.pageCount; i++) {
-                Path target = chapterCacheService.getCachedPage(bookId, i);
+                Path target = chapterCacheService.getCachedPage(cacheKey, i);
                 if (!Files.exists(target)) {
                     byte[] jpeg = doc.renderPageToBytes(i - 1, (int) DEFAULT_DPI, "jpeg");
                     Files.write(target, jpeg);
@@ -108,22 +115,28 @@ public class PdfReaderService {
     }
 
     public void streamPageImage(Long bookId, String bookType, int page, OutputStream outputStream) throws IOException {
-        if (chapterCacheService.hasPage(bookId, page)) {
-            Files.copy(chapterCacheService.getCachedPage(bookId, page), outputStream);
+        Path pdfPath = getBookPath(bookId, bookType);
+        CachedPdfMetadata metadata = getCachedMetadata(pdfPath);
+        String cacheKey = getCacheKey(bookId, bookType, metadata.lastModified);
+
+        if (chapterCacheService.hasPage(cacheKey, page)) {
+            Files.copy(chapterCacheService.getCachedPage(cacheKey, page), outputStream);
             return;
         }
 
-        Path pdfPath = getBookPath(bookId, bookType);
-        CachedPdfMetadata metadata = getCachedMetadata(pdfPath);
         validatePageRequest(bookId, page, metadata.pageCount);
         
         // Render and cache
-        Path cached = chapterCacheService.getCachedPage(bookId, page);
+        Path cached = chapterCacheService.getCachedPage(cacheKey, page);
         Files.createDirectories(cached.getParent());
         try (var out = Files.newOutputStream(cached)) {
             renderPageToStream(pdfPath, page, out);
         }
         Files.copy(cached, outputStream);
+    }
+
+    private String getCacheKey(Long bookId, String bookType, long lastModified) {
+        return bookId + (bookType != null ? "_" + bookType : "") + "_" + lastModified;
     }
 
     private Path getBookPath(Long bookId, String bookType) {

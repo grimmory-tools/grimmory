@@ -25,7 +25,6 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class AudiobookReaderService {
 
     private final BookRepository bookRepository;
@@ -36,6 +35,7 @@ public class AudiobookReaderService {
     /**
      * Get audiobook information including metadata, chapters, and tracks.
      */
+    @Transactional
     public AudiobookInfo getAudiobookInfo(Long bookId, String bookType) {
         BookFileEntity bookFile = getAudiobookFile(bookId, bookType);
         Path audioPath = bookFile.getFullFilePath();
@@ -52,6 +52,7 @@ public class AudiobookReaderService {
      * Get the path to an audio file for streaming.
      * For folder-based audiobooks, returns the path to a specific track.
      */
+    @Transactional(readOnly = true)
     public Path getAudioFilePath(Long bookId, String bookType, Integer trackIndex) {
         BookFileEntity bookFile = getAudiobookFile(bookId, bookType);
 
@@ -80,6 +81,7 @@ public class AudiobookReaderService {
     /**
      * Get embedded cover art from an audiobook file.
      */
+    @Transactional(readOnly = true)
     public byte[] getEmbeddedCoverArt(Long bookId, String bookType) {
         BookFileEntity bookFile = getAudiobookFile(bookId, bookType);
         Path audioPath = bookFile.isFolderBased() ? bookFile.getFirstAudioFile() : bookFile.getFullFilePath();
@@ -89,6 +91,7 @@ public class AudiobookReaderService {
     /**
      * Get the MIME type of embedded cover art.
      */
+    @Transactional(readOnly = true)
     public String getCoverArtMimeType(Long bookId, String bookType) {
         BookFileEntity bookFile = getAudiobookFile(bookId, bookType);
         Path audioPath = bookFile.isFolderBased() ? bookFile.getFirstAudioFile() : bookFile.getFullFilePath();
@@ -102,7 +105,8 @@ public class AudiobookReaderService {
         return audioFileUtility.getContentType(audioPath);
     }
 
-    private BookFileEntity getAudiobookFile(Long bookId, String bookType) {
+    @Transactional(readOnly = true)
+    protected BookFileEntity getAudiobookFile(Long bookId, String bookType) {
         BookEntity bookEntity = bookRepository.findByIdForAudiobook(bookId)
                 .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 

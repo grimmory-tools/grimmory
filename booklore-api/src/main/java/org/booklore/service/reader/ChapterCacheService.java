@@ -26,25 +26,25 @@ public class ChapterCacheService {
 
     private final AppProperties appProperties;
     private final ArchiveService archiveService;
-    private final ConcurrentHashMap<Long, ReentrantLock> cacheLocks = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, ReentrantLock> cacheLocks = new ConcurrentHashMap<>();
 
     /**
      * Ensures all pages of a CBX archive are extracted to the disk cache.
      * Extracts pages sequentially to avoid concurrent native libarchive access
      * which can cause SIGSEGV / out-of-memory crashes in the native heap.
      */
-    public void prepareCbxCache(Long bookId, Path cbxPath, List<String> entries) throws IOException {
-        ReentrantLock lock = cacheLocks.computeIfAbsent(bookId, _ -> new ReentrantLock());
+    public void prepareCbxCache(String cacheKey, Path cbxPath, List<String> entries) throws IOException {
+        ReentrantLock lock = cacheLocks.computeIfAbsent(cacheKey, _ -> new ReentrantLock());
         lock.lock();
         try {
-            Path cacheDir = getCacheDir(bookId);
+            Path cacheDir = getCacheDir(cacheKey);
             if (!Files.exists(cacheDir)) {
                 Files.createDirectories(cacheDir);
             }
 
             // Only extract if the cache is empty or stale
             if (isCacheStale(cacheDir, cbxPath)) {
-                log.info("Populating disk cache for book {}: {} pages", bookId, entries.size());
+                log.info("Populating disk cache for {}: {} pages", cacheKey, entries.size());
 
                 for (int i = 0; i < entries.size(); i++) {
                     Path target = cacheDir.resolve("page_" + (i + 1) + ".jpg");
@@ -63,16 +63,17 @@ public class ChapterCacheService {
         }
     }
 
-    public Path getCachedPage(Long bookId, int pageNumber) {
-        return getCacheDir(bookId).resolve("page_" + pageNumber + ".jpg");
+    public Path getCachedPage(String cacheKey, int pageNumber) {
+        return getCacheDir(cacheKey).resolve("page_" + pageNumber + ".jpg");
     }
 
-    public boolean hasPage(Long bookId, int pageNumber) {
-        return Files.exists(getCachedPage(bookId, pageNumber));
+    public boolean hasPage(String cacheKey, int pageNumber) {
+        Path pagePath = getCachedPage(cacheKey, pageNumber);
+        return Files.exists(pagePath);
     }
 
-    private Path getCacheDir(Long bookId) {
-        return Paths.get(appProperties.getPathConfig(), "cache", "chapters", String.valueOf(bookId));
+    private Path getCacheDir(String cacheKey) {
+        return Paths.get(appProperties.getPathConfig(), "cache", "chapters", cacheKey);
     }
 
     private boolean isCacheStale(Path cacheDir, Path sourcePath) throws IOException {

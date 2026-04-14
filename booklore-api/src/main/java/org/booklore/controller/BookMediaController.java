@@ -1,5 +1,6 @@
 package org.booklore.controller;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.booklore.service.AuthorMetadataService;
 import org.booklore.config.security.annotation.CheckBookAccess;
 import org.booklore.service.book.BookService;
@@ -61,7 +62,18 @@ public class BookMediaController {
     }
 
     private String generatePlaceholderSvg(String title) {
-        String label = (title == null || title.isBlank()) ? "B" : title.trim().substring(0, 1).toUpperCase();
+        String label;
+        if (title == null || title.isBlank()) {
+            label = "B";
+        } else {
+            String trimmed = title.trim();
+            int codePoint = trimmed.codePointAt(0);
+            label = new String(Character.toChars(Character.toUpperCase(codePoint)));
+        }
+
+        // Escape for XML/SVG
+        label = StringEscapeUtils.escapeXml11(label);
+
         int hue = (title == null) ? 200 : Math.abs(title.hashCode() % 360);
         
         return String.format(

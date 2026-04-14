@@ -127,10 +127,16 @@ public class FileStreamingService {
         WritableByteChannel destination = Channels.newChannel(out);
         long remaining = count;
         long currentPos = position;
+        int zeroTransferCount = 0;
 
         while (remaining > 0) {
             long transferred = source.transferTo(currentPos, remaining, destination);
-            if (transferred <= 0) break;
+            if (transferred <= 0) {
+                if (++zeroTransferCount > 100) break; // Give up after repeated zeros
+                Thread.onSpinWait();
+                continue;
+            }
+            zeroTransferCount = 0;
             currentPos += transferred;
             remaining -= transferred;
         }

@@ -254,7 +254,10 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
   /** Run after the browser has applied layout (two frames — common Angular/DOM pattern). */
   private afterNextPaint(fn: () => void): void {
-    requestAnimationFrame(() => requestAnimationFrame(fn));
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      fn();
+      this.cdr.markForCheck();
+    }));
   }
 
   constructor() {
@@ -874,7 +877,9 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
           setTimeout(() => {
             this.isPageTransitioning = false;
             this.previousImageUrls = [];
+            this.cdr.markForCheck();
           }, 150);
+          this.cdr.markForCheck();
         }
       };
       img.onerror = () => {
@@ -884,6 +889,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
           this.imagesLoaded = true;
           this.isPageTransitioning = false;
           this.previousImageUrls = [];
+          this.cdr.markForCheck();
         }
       };
       img.src = url;
@@ -892,6 +898,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
   onImageLoad(): void {
     this.imagesLoaded = true;
+    this.cdr.markForCheck();
   }
 
   get isTwoPageView(): boolean {
@@ -1366,6 +1373,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     if (this.longStripIntersectionObserver) {
       this.longStripIntersectionObserver.observe(img);
     }
+    this.cdr.markForCheck();
   }
 
   /**
@@ -1400,6 +1408,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
       this.longStripAllImagesLoaded = true;
       this.longStripDoScroll(this.currentPage, 'instant', layoutGen);
       this.longStripInitFinished = true;
+      this.cdr.markForCheck();
     };
 
     if (img.complete) {
@@ -1462,6 +1471,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   private longStripHandleIntersection(entries: IntersectionObserverEntry[]): void {
     if (!this.longStripAllImagesLoaded || this.longStripIsScrolling) return;
 
+    let changed = false;
     for (const entry of entries) {
       if (entry.isIntersecting) {
         const pageAttr = entry.target.getAttribute('data-page');
@@ -1469,8 +1479,12 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
           const page = parseInt(pageAttr, 10);
           // Prefetch more images when a page enters the viewport
           this.longStripPrefetchAround(page);
+          changed = true;
         }
       }
+    }
+    if (changed) {
+      this.cdr.markForCheck();
     }
   }
 
@@ -1482,6 +1496,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
       if (this.longStripScrollDebounceTimer) clearTimeout(this.longStripScrollDebounceTimer);
       this.longStripScrollDebounceTimer = setTimeout(() => {
         this.longStripOnScroll(container);
+        this.cdr.markForCheck();
       }, 20);
     };
 
@@ -1490,6 +1505,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
       if (this.longStripScrollEndDebounceTimer) clearTimeout(this.longStripScrollEndDebounceTimer);
       this.longStripScrollEndDebounceTimer = setTimeout(() => {
         this.longStripOnScrollEnd(container);
+        this.cdr.markForCheck();
       }, supportsScrollEnd ? 20 : 100);
     };
 
