@@ -187,20 +187,20 @@ public class CbxConversionService {
         List<Path> imagePaths = new ArrayList<>();
 
         for (ArchiveService.Entry entry : archiveService.getEntries(cbxFile.toPath())) {
-            if (!isImageFile(entry.getName())) {
+            if (!isImageFile(entry.name())) {
                 continue;
             }
 
-            validateImageSize(entry.getName(), entry.getSize());
+            validateImageSize(entry.name(), entry.size());
 
             try {
-                Path outputPath = extractedImagesDir.resolve(extractFileName(entry.getName()));
+                Path outputPath = extractedImagesDir.resolve(extractFileName(entry.name()));
 
-                archiveService.extractEntryToPath(cbxFile.toPath(), entry.getName(), outputPath);
+                archiveService.extractEntryToPath(cbxFile.toPath(), entry.name(), outputPath);
 
                 imagePaths.add(outputPath);
             } catch (Exception e) {
-                log.warn("Error extracting image {}: {}", entry.getName(), e.getMessage());
+                log.warn("Error extracting image {}: {}", entry.name(), e.getMessage());
             }
         }
 

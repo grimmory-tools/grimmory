@@ -174,7 +174,7 @@ public class AppSettingService {
         if (sessionDurationStr != null && !sessionDurationStr.isBlank()) {
             try {
                 builder.oidcSessionDurationHours(Integer.parseInt(sessionDurationStr));
-            } catch (NumberFormatException _) {
+            } catch (NumberFormatException ignored) {
             }
         }
 

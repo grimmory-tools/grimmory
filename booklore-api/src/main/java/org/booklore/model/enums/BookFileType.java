@@ -27,6 +27,13 @@ public enum BookFileType {
         return extensions.contains(extension.toLowerCase());
     }
 
+    public static Optional<BookFileType> fromName(String name) {
+        if (name == null) return Optional.empty();
+        return Arrays.stream(values())
+                .filter(type -> type.name().equalsIgnoreCase(name))
+                .findFirst();
+    }
+
     public static Optional<BookFileType> fromExtension(String extension) {
         String ext = extension.toLowerCase();
         return Arrays.stream(values())
