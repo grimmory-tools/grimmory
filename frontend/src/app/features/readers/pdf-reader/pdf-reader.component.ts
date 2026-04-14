@@ -117,6 +117,8 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   private initTimeout?: ReturnType<typeof setTimeout>;
   private isInitializingBookViewer = false;
   private pdfFetchAbortController?: AbortController;
+  private cachedPdfBuffer: ArrayBuffer | null = null;
+  private suppressProgressSave = false;
 
   // Book mode state
   private bookViewerInitialized = false;
@@ -429,6 +431,16 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
         this.t.getActiveLang()
       );
       this.bookViewerInitialized = true;
+
+      // Cache the raw PDF bytes so the doc-viewer switch never needs a network request
+      if (!this.cachedPdfBuffer) {
+        const blobSrc = this.pdfBlobUrl || (this.bookData.startsWith('blob:') ? this.bookData : null);
+        if (blobSrc) {
+          fetch(blobSrc).then(r => r.arrayBuffer()).then(buf => {
+            this.cachedPdfBuffer = buf;
+          }).catch(() => { /* caching is best-effort */ });
+        }
+      }
 
       // Initialize bookmark service early so toggleBookmark works before documentOpened$
       this.pdfBookmarkService.initialize(this.bookId);
@@ -796,6 +808,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     }
 
     if (mode === 'document') {
+      this.suppressProgressSave = true;
       // Ensure annotations are captured before destroying the book viewer
       await this.persistAnnotations();
       this.destroyBookViewer(false); // Do not revoke blob URL
@@ -826,21 +839,26 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     this.embedPdfInitTime = t0;
 
     try {
-      const source = this.pdfBlobUrl || this.bookData;
       let pdfBuffer: ArrayBuffer;
 
-      if (source.startsWith('blob:')) {
-        const res = await fetch(source);
-        pdfBuffer = await res.arrayBuffer();
+      if (this.cachedPdfBuffer) {
+        // Use the in-memory cache — completely network-free
+        pdfBuffer = this.cachedPdfBuffer.slice(0);
       } else {
-        const headers: Record<string, string> = {};
-        const token = this.authService.getInternalAccessToken();
-        if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
+        const source = this.pdfBlobUrl || this.bookData;
+        if (source.startsWith('blob:')) {
+          const res = await fetch(source);
+          pdfBuffer = await res.arrayBuffer();
+        } else {
+          const headers: Record<string, string> = {};
+          const token = this.authService.getInternalAccessToken();
+          if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+          }
+          const response = await fetch(source, { headers, credentials: 'include' });
+          if (!response.ok) throw new Error(`PDF fetch failed: ${response.status}`);
+          pdfBuffer = await response.arrayBuffer();
         }
-        const response = await fetch(source, { headers, credentials: 'include' });
-        if (!response.ok) throw new Error(`PDF fetch failed: ${response.status}`);
-        pdfBuffer = await response.arrayBuffer();
       }
 
       if (this.viewerMode() !== 'document') return;
@@ -900,6 +918,14 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
         }
         break;
       case 'documentOpened':
+        // Scroll to the page the user was on in book mode and re-enable progress saving
+        if (this.embedPdfIframe?.contentWindow && this.page() > 1) {
+          this.embedPdfIframe.contentWindow.postMessage(
+            { type: 'scrollToPage', pageNumber: this.page() },
+            location.origin
+          );
+        }
+        setTimeout(() => { this.suppressProgressSave = false; }, 500);
         break;
       case 'documentError':
         console.error('[EmbedPDF] Document error:', msg.error);
@@ -1029,6 +1055,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   }
 
   updateProgress(): void {
+    if (this.suppressProgressSave) return;
     const currentPage = this.page();
     const total = this.totalPages();
     const percentage = total > 0 ? Math.round((currentPage / total) * 1000) / 10 : 0;
@@ -1068,6 +1095,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     this.touchCleanup?.();
 
     this.revokePdfBlobUrl();
+    this.cachedPdfBuffer = null;
     if (this.bookData?.startsWith('blob:')) {
       URL.revokeObjectURL(this.bookData);
     }
@@ -1307,11 +1335,13 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       const data = serializeAnnotations(items);
       this.lastAnnotationData = data;
 
-      // Keep the request non-blocking, but only mark clean after success.
+      // Fire-and-forget: keep annotations save non-blocking so a 401 can never
+      // stall or abort the viewer-mode switch (the interceptor's forceLogout
+      // would navigate to /login if we awaited and the refresh also failed).
       this.pdfAnnotationService.saveAnnotations(this.bookId, data).subscribe({
         next: () => {
           this.annotationsDirty = false;
-          console.info('[PDF Annotations] Exported and saved', items.length, 'annotations for book', this.bookId);
+          console.info('[PDF Annotations] Saved', items.length, 'annotations for book', this.bookId);
         },
         error: (err) => {
           this.annotationsDirty = true;
