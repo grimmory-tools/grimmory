@@ -53,17 +53,6 @@
     "defaultLibraryAccess": "Доступ к библиотекам по умолчанию",
     "selectLibraries": "Выберите библиотеки, доступные новым пользователям"
   },
-  "perms": {
-    "uploadBooks": "Загрузка книг",
-    "downloadBooks": "Скачивание книг",
-    "editMetadata": "Редактирование метаданных книг",
-    "manageLibrary": "Управление библиотекой",
-    "emailBook": "Отправка книг по email",
-    "deleteBook": "Удаление книг",
-    "koreaderSync": "Синхронизация KOReader",
-    "koboSync": "Синхронизация Kobo",
-    "accessOpds": "Доступ к OPDS"
-  },
   "toast": {
     "saved": "Сохранено",
     "oidcUpdated": "Настройка OIDC обновлена.",

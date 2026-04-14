@@ -426,6 +426,7 @@
                   </p-checkbox>
                   <label for="permissionRead">{{ t('provisioning.readBooks') }}</label>
                 </div>
+                <ng-container *transloco="let a; prefix: 'settingsUsers'">
                 @for (perm of availablePermissions; track perm) {
                   <div class="permission-item">
                     <p-checkbox
@@ -433,9 +434,10 @@
                       [binary]="true"
                       [inputId]="perm.value">
                     </p-checkbox>
-                    <label [for]="perm.value">{{ t(perm.translationKey) }}</label>
+                    <label [for]="perm.value">{{ a(perm.translationKey) }}</label>
                   </div>
                 }
+                </ng-container>
               </div>
             </div>
 
@@ -591,12 +593,14 @@
               <p-checkbox [binary]="true" [disabled]="true" [ngModel]="true" inputId="gmPermRead"></p-checkbox>
               <label for="gmPermRead">{{ t('provisioning.readBooks') }}</label>
             </div>
+            <ng-container *transloco="let a; prefix: 'settingsUsers'">
             @for (perm of editingGroupMappingPerms; track perm) {
               <div class="permission-item">
                 <p-checkbox [(ngModel)]="perm.selected" [binary]="true" [inputId]="'gm_' + perm.value"></p-checkbox>
-                <label [for]="'gm_' + perm.value">{{ t(perm.translationKey) }}</label>
+                <label [for]="'gm_' + perm.value">{{ a(perm.translationKey) }}</label>
               </div>
             }
+            </ng-container>
           </div>
         </div>
         <div class="config-item full-width">

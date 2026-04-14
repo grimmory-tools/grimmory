@@ -83,17 +83,6 @@
     "permissionsLabel": "Permisos",
     "librariesLabel": "Acceso a bibliotecas"
   },
-  "perms": {
-    "uploadBooks": "Subir libros",
-    "downloadBooks": "Descargar libros",
-    "editMetadata": "Editar metadatos de libros",
-    "manageLibrary": "Gestionar biblioteca",
-    "emailBook": "Enviar libro por correo",
-    "deleteBook": "Eliminar libro",
-    "koreaderSync": "Sincronización KOReader",
-    "koboSync": "Sincronización Kobo",
-    "accessOpds": "Acceder a OPDS"
-  },
   "infoPanel": {
     "sectionTitle": "Referencia de configuración del proveedor",
     "sectionDesc": "Usa estos valores al configurar los ajustes del cliente en tu proveedor OIDC.",

@@ -53,17 +53,6 @@
     "defaultLibraryAccess": "Domyślny dostęp do biblioteki",
     "selectLibraries": "Wybierz biblioteki, do których nowi użytkownicy będą mieli dostęp"
   },
-  "perms": {
-    "uploadBooks": "Przesyłanie książek",
-    "downloadBooks": "Pobieranie książek",
-    "editMetadata": "Edycja metadanych książek",
-    "manageLibrary": "Zarządzanie biblioteką",
-    "emailBook": "Wysyłanie książek e-mailem",
-    "deleteBook": "Usuwanie książek",
-    "koreaderSync": "Synchronizacja KOReader",
-    "koboSync": "Synchronizacja Kobo",
-    "accessOpds": "Dostęp do OPDS"
-  },
   "toast": {
     "saved": "Zapisano",
     "oidcUpdated": "Ustawienie OIDC zaktualizowane.",
