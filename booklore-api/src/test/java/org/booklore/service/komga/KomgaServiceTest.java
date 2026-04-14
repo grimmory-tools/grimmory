@@ -16,6 +16,7 @@ import org.booklore.repository.LibraryRepository;
 import org.booklore.service.MagicShelfService;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.reader.CbxReaderService;
+import org.booklore.service.reader.PdfReaderService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -52,6 +53,9 @@ class KomgaServiceTest {
     
     @Mock
     private AppSettingService appSettingService;
+    
+    @Mock
+    private PdfReaderService pdfReaderService;
 
     @InjectMocks
     private KomgaService komgaService;
@@ -172,7 +176,7 @@ class KomgaServiceTest {
         book.setId(100L);
         book.setMetadata(metadata);
 
-        when(bookRepository.findByIdWithBookFiles(100L)).thenReturn(Optional.of(book));
+        when(bookRepository.findByIdForStreaming(100L)).thenReturn(Optional.of(book));
 
         // When: Get book pages
         List<KomgaPageDto> pages = komgaService.getBookPages(100L);
@@ -194,7 +198,7 @@ class KomgaServiceTest {
         book.setId(100L);
         book.setMetadata(metadata);
 
-        when(bookRepository.findByIdWithBookFiles(100L)).thenReturn(Optional.of(book));
+        when(bookRepository.findByIdForStreaming(100L)).thenReturn(Optional.of(book));
 
         // When: Get book pages
         List<KomgaPageDto> pages = komgaService.getBookPages(100L);

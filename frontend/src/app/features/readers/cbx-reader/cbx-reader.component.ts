@@ -1,4 +1,4 @@
-import { Component, effect, ElementRef, HostListener, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, ElementRef, HostListener, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, from, Subject } from 'rxjs';
 import { debounceTime, map, switchMap, takeUntil, tap } from 'rxjs/operators';
@@ -62,7 +62,8 @@ import {
     CbxQuickSettingsService
   ],
   templateUrl: './cbx-reader.component.html',
-  styleUrl: './cbx-reader.component.scss'
+  styleUrl: './cbx-reader.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CbxReaderComponent implements OnInit, OnDestroy {
   private static readonly PRELOAD_PAGE_WINDOW = 5;
@@ -230,6 +231,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   protected readonly cbxQuickSettingsState = this.quickSettingsService.state;
   private pageDimensionService = inject(CbxPageDimensionService);
   private wakeLockService = inject(WakeLockService);
+  private cdr = inject(ChangeDetectorRef);
   private readerPreferencesService = inject(ReaderPreferencesService);
 
   protected readonly CbxScrollMode = CbxScrollMode;
@@ -425,11 +427,13 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
             const percentage = this.pages.length > 0 ? Math.round(((this.currentPage + 1) / this.pages.length) * 1000) / 10 : 0;
             this.readingSessionService.startSession(this.bookId, "CBX", (this.currentPage + 1).toString(), percentage);
+            this.cdr.markForCheck();
           },
           error: (err) => {
             const errorMessage = err?.error?.message || this.t.translate('shared.reader.failedToLoadPages');
             this.messageService.add({ severity: 'error', summary: this.t.translate('common.error'), detail: errorMessage });
             this.isLoading = false;
+            this.cdr.markForCheck();
           }
         });
       },
@@ -437,6 +441,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
         const errorMessage = err?.error?.message || this.t.translate('shared.reader.failedToLoadBook');
         this.messageService.add({ severity: 'error', summary: this.t.translate('common.error'), detail: errorMessage });
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -486,6 +491,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.showShortcutsHelp = true;
+        this.cdr.markForCheck();
       });
   }
 
@@ -580,6 +586,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
         this.brightness = value;
         this.quickSettingsService.setBrightness(value);
         this.updateViewerSetting();
+        this.cdr.markForCheck();
       });
 
     this.quickSettingsService.emulateBookChange$
@@ -588,6 +595,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
         this.emulateBook = value;
         this.quickSettingsService.setEmulateBook(value);
         this.updateViewerSetting();
+        this.cdr.markForCheck();
       });
 
     this.quickSettingsService.clickToPaginateChange$
@@ -596,6 +604,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
         this.clickToPaginate = value;
         this.quickSettingsService.setClickToPaginate(value);
         this.updateViewerSetting();
+        this.cdr.markForCheck();
       });
 
     this.quickSettingsService.autoCloseMenuChange$
@@ -604,6 +613,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
         this.autoCloseMenu = value;
         this.quickSettingsService.setAutoCloseMenu(value);
         this.updateViewerSetting();
+        this.cdr.markForCheck();
       });
 
     this.quickSettingsService.stripMaxWidthChange$
@@ -1029,6 +1039,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     if (this.isSlideshowActive && this.currentPage >= this.pages.length - 1) {
       this.stopSlideshow();
     }
+    this.cdr.markForCheck();
   }
 
   private getPageStep(): number {
@@ -1059,6 +1070,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     this.fitMode = mode;
     this.quickSettingsService.setFitMode(mode);
     this.updateViewerSetting();
+    this.cdr.markForCheck();
   }
 
   onScrollModeChange(mode: CbxScrollMode): void {
@@ -1093,6 +1105,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
       this.updateCurrentImageUrls();
       this.preloadAdjacentPages();
     }
+    this.cdr.markForCheck();
   }
 
   onPageViewModeChange(mode: CbxPageViewMode): void {
@@ -1104,6 +1117,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     this.preloadAdjacentPages();
     this.footerService.setTwoPageView(this.isTwoPageView);
     this.updateViewerSetting();
+    this.cdr.markForCheck();
   }
 
   onPageSpreadChange(spread: CbxPageSpread): void {
@@ -1113,12 +1127,14 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     this.updateCurrentImageUrls();
     this.preloadAdjacentPages();
     this.updateViewerSetting();
+    this.cdr.markForCheck();
   }
 
   onBackgroundColorChange(color: CbxBackgroundColor): void {
     this.backgroundColor = color;
     this.quickSettingsService.setBackgroundColor(color);
     this.updateViewerSetting();
+    this.cdr.markForCheck();
   }
 
   private initializeInfiniteScroll(): void {
@@ -1638,6 +1654,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
       this.updateSessionProgress();
       this.updateFooterPage();
     }
+    this.cdr.markForCheck();
   }
 
   firstPage(): void {
@@ -1970,6 +1987,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
         this.footerService.setSeriesBooks(this.previousBookInSeries, this.nextBookInSeries);
         this.footerService.setHasSeries(true);
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('[SeriesNav] Failed to load series information:', err);

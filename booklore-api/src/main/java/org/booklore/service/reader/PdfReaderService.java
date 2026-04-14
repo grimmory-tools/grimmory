@@ -22,7 +22,6 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import com.github.benmanes.caffeine.cache.Cache;
@@ -37,25 +36,44 @@ public class PdfReaderService {
     private static final float DEFAULT_DPI = 200f;
 
     private final BookRepository bookRepository;
+    private final ChapterCacheService chapterCacheService;
     private final Cache<String, CachedPdfMetadata> metadataCache = Caffeine.newBuilder()
             .maximumSize(MAX_CACHE_ENTRIES)
             .expireAfterAccess(Duration.ofMinutes(30))
             .build();
 
-    private static class CachedPdfMetadata {
-        final int pageCount;
-        final long lastModified;
-        final List<PdfOutlineItem> outline;
+    private record CachedPdfMetadata(int pageCount, long lastModified, List<PdfOutlineItem> outline) {}
 
-        CachedPdfMetadata(int pageCount, long lastModified, List<PdfOutlineItem> outline) {
-            this.pageCount = pageCount;
-            this.lastModified = lastModified;
-            this.outline = outline;
+    public void initCache(Long bookId, String bookType) throws IOException {
+        Path pdfPath = getBookPath(bookId, bookType);
+        CachedPdfMetadata metadata = getCachedMetadata(pdfPath);
+
+        Path cacheDir = chapterCacheService.getCachedPage(bookId, 1).getParent();
+        if (!Files.exists(cacheDir)) {
+            Files.createDirectories(cacheDir);
         }
+
+        if (Files.exists(cacheDir) && Files.getLastModifiedTime(cacheDir).toMillis() == metadata.lastModified) {
+            return;
+        }
+
+        log.info("Populating PDF disk cache for book {}: {} pages", bookId, metadata.pageCount);
+        // PdfDocument is not thread-safe render pages serially then cache
+        try (PdfDocument doc = PdfDocument.open(pdfPath)) {
+            for (int i = 1; i <= metadata.pageCount; i++) {
+                Path target = chapterCacheService.getCachedPage(bookId, i);
+                if (!Files.exists(target)) {
+                    byte[] jpeg = doc.renderPageToBytes(i - 1, (int) DEFAULT_DPI, "jpeg");
+                    Files.write(target, jpeg);
+                }
+            }
+        }
+
+        Files.setLastModifiedTime(cacheDir, Files.getLastModifiedTime(pdfPath));
     }
 
-    public void getAvailablePages(Long bookId) {
-        getAvailablePages(bookId, null);
+    public List<Integer> getAvailablePages(Long bookId) {
+        return getAvailablePages(bookId, null);
     }
 
     public List<Integer> getAvailablePages(Long bookId, String bookType) {
@@ -64,7 +82,7 @@ public class PdfReaderService {
             CachedPdfMetadata metadata = getCachedMetadata(pdfPath);
             return IntStream.rangeClosed(1, metadata.pageCount)
                     .boxed()
-                    .collect(Collectors.toList());
+                    .toList();
         } catch (IOException e) {
             log.error("Failed to read PDF for book {}", bookId, e);
             throw ApiError.FILE_READ_ERROR.createException("Failed to read PDF: " + e.getMessage());
@@ -90,10 +108,22 @@ public class PdfReaderService {
     }
 
     public void streamPageImage(Long bookId, String bookType, int page, OutputStream outputStream) throws IOException {
+        if (chapterCacheService.hasPage(bookId, page)) {
+            Files.copy(chapterCacheService.getCachedPage(bookId, page), outputStream);
+            return;
+        }
+
         Path pdfPath = getBookPath(bookId, bookType);
         CachedPdfMetadata metadata = getCachedMetadata(pdfPath);
         validatePageRequest(bookId, page, metadata.pageCount);
-        renderPageToStream(pdfPath, page, outputStream);
+        
+        // Render and cache
+        Path cached = chapterCacheService.getCachedPage(bookId, page);
+        Files.createDirectories(cached.getParent());
+        try (var out = Files.newOutputStream(cached)) {
+            renderPageToStream(pdfPath, page, out);
+        }
+        Files.copy(cached, outputStream);
     }
 
     private Path getBookPath(Long bookId, String bookType) {

@@ -8,6 +8,7 @@ import org.booklore.model.dto.komga.*;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.entity.LibraryEntity;
+import org.booklore.model.dto.response.CbxPageDimension;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.LibraryRepository;
@@ -15,22 +16,23 @@ import org.booklore.service.MagicShelfService;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.reader.CbxReaderService;
 import org.booklore.service.reader.PdfReaderService;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+
 
 @Slf4j
 @Service
@@ -50,13 +52,19 @@ public class KomgaService {
     public List<KomgaLibraryDto> getAllLibraries() {
         return libraryRepository.findAll().stream()
                 .map(komgaMapper::toKomgaLibraryDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public KomgaLibraryDto getLibraryById(Long libraryId) {
         LibraryEntity library = libraryRepository.findById(libraryId)
                 .orElseThrow(() -> new RuntimeException("Library not found"));
         return komgaMapper.toKomgaLibraryDto(library);
+    }
+
+    public Instant getBookLastModified(Long bookId) {
+        return bookRepository.findById(bookId)
+                .map(b -> b.getMetadataUpdatedAt() != null ? b.getMetadataUpdatedAt() : b.getAddedOn())
+                .orElse(Instant.now());
     }
 
     public KomgaPageableDto<KomgaSeriesDto> getAllSeries(Long libraryId, int page, int size, boolean unpaged) {
@@ -257,8 +265,8 @@ public class KomgaService {
         if (unpaged) {
             // Return all books without pagination
             content = seriesBooks.stream()
-                    .map(book -> komgaMapper.toKomgaBookDto(book))
-                    .collect(Collectors.toList());
+                    .map(komgaMapper::toKomgaBookDto)
+                    .toList();
             actualPage = 0;
             actualSize = totalElements;
             totalPages = totalElements > 0 ? 1 : 0;
@@ -267,10 +275,10 @@ public class KomgaService {
             totalPages = (int) Math.ceil((double) totalElements / size);
             int fromIndex = Math.min(page * size, totalElements);
             int toIndex = Math.min(fromIndex + size, totalElements);
-            
+
             content = seriesBooks.subList(fromIndex, toIndex).stream()
-                    .map(book -> komgaMapper.toKomgaBookDto(book))
-                    .collect(Collectors.toList());
+                    .map(komgaMapper::toKomgaBookDto)
+                    .toList();
             actualPage = page;
             actualSize = size;
         }
@@ -299,8 +307,8 @@ public class KomgaService {
         }
         
         List<KomgaBookDto> content = bookPage.getContent().stream()
-                .map(book -> komgaMapper.toKomgaBookDto(book))
-                .collect(Collectors.toList());
+                .map(komgaMapper::toKomgaBookDto)
+                .toList();
         
         return KomgaPageableDto.<KomgaBookDto>builder()
                 .content(content)
@@ -322,19 +330,52 @@ public class KomgaService {
     }
 
     public List<KomgaPageDto> getBookPages(Long bookId) {
-        BookEntity book = bookRepository.findByIdWithBookFiles(bookId)
+        BookEntity book = bookRepository.findByIdForStreaming(bookId)
                 .orElseThrow(() -> new RuntimeException("Book not found"));
         
         BookMetadataEntity metadata = book.getMetadata();
         Integer pageCount = metadata != null && metadata.getPageCount() != null ? metadata.getPageCount() : 0;
         
+        boolean isCBX = book.getPrimaryBookFile() != null && 
+                        book.getPrimaryBookFile().getBookType() == BookFileType.CBX;
+        boolean isPDF = book.getPrimaryBookFile() != null && 
+                        book.getPrimaryBookFile().getBookType() == BookFileType.PDF;
+        
+        List<CbxPageDimension> dimensions = null;
+        if (isCBX && pageCount > 0) {
+            try {
+                // Background extraction trigger
+                cbxReaderService.initCache(bookId, null);
+                dimensions = cbxReaderService.getPageDimensions(bookId);
+            } catch (Exception e) {
+                log.warn("Failed to load page dimensions for book {}", bookId, e);
+            }
+        } else if (isPDF && pageCount > 0) {
+            try {
+                // Background preparation trigger
+                pdfReaderService.initCache(bookId, null);
+            } catch (Exception e) {
+                log.warn("Failed to initialize PDF cache for book {}", bookId, e);
+            }
+        }
+        
         List<KomgaPageDto> pages = new ArrayList<>();
         if (pageCount > 0) {
             for (int i = 1; i <= pageCount; i++) {
+                Integer width = null;
+                Integer height = null;
+                if (dimensions != null && i - 1 < dimensions.size()) {
+                    CbxPageDimension dim = dimensions.get(i - 1);
+                    width = dim.getWidth() > 0 ? dim.getWidth() : null;
+                    height = dim.getHeight() > 0 ? dim.getHeight() : null;
+                }
+                
                 pages.add(KomgaPageDto.builder()
                         .number(i)
                         .fileName("page-" + i)
                         .mediaType("image/jpeg")
+                        .width(width)
+                        .height(height)
                         .build());
             }
         }
@@ -364,7 +405,7 @@ public class KomgaService {
         List<KomgaCollectionDto> allCollections = magicShelves.stream()
                 .map(shelf -> komgaMapper.toKomgaCollectionDto(shelf, 0))
                 .sorted(Comparator.comparing(KomgaCollectionDto::getName))
-                .collect(Collectors.toList());
+                .toList();
         
         log.debug("Mapped to {} collection DTOs", allCollections.size());
         
@@ -404,35 +445,36 @@ public class KomgaService {
                 .build();
     }
     
-    public Resource getBookPageImage(Long bookId, Integer pageNumber, boolean convertToPng) throws IOException {
+    public StreamingResponseBody getBookPageImage(Long bookId, Integer pageNumber, boolean convertToPng) throws IOException {
         log.debug("Getting page {} from book {} (convert to PNG: {})", pageNumber, bookId, convertToPng);
         
-        BookEntity book = bookRepository.findByIdWithBookFiles(bookId)
+        BookEntity book = bookRepository.findByIdForStreaming(bookId)
                 .orElseThrow(() -> new RuntimeException("Book not found: " + bookId));
 
-        boolean isPDF = book.getPrimaryBookFile().getBookType() == BookFileType.PDF;
-     
-        // Stream the page to a ByteArrayOutputStream
-        // streamPageImage will throw if page does not exist
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        if (book.getPrimaryBookFile() == null) {
+            throw new RuntimeException("Primary book file missing for book: " + bookId);
+        }
 
-        // Make sure pages are cached
-        if (isPDF) {
-            pdfReaderService.getAvailablePages(bookId);
-            pdfReaderService.streamPageImage(bookId, pageNumber, outputStream);
-        } else {
-            cbxReaderService.getAvailablePages(bookId);
-            cbxReaderService.streamPageImage(bookId, pageNumber, outputStream);
-        }
-        
-        byte[] imageData = outputStream.toByteArray();
-        
-        // If conversion to PNG is requested, convert the image
-        if (convertToPng) {
-            imageData = convertImageToPng(imageData);
-        }
-        
-        return new ByteArrayResource(imageData);
+        boolean isPDF = book.getPrimaryBookFile().getBookType() == org.booklore.model.enums.BookFileType.PDF;
+     
+        return outputStream -> {
+            if (convertToPng) {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                if (isPDF) {
+                    pdfReaderService.streamPageImage(bookId, pageNumber, baos);
+                } else {
+                    cbxReaderService.streamPageImage(bookId, pageNumber, baos);
+                }
+                byte[] pngData = convertImageToPng(baos.toByteArray());
+                outputStream.write(pngData);
+            } else {
+                if (isPDF) {
+                    pdfReaderService.streamPageImage(bookId, pageNumber, outputStream);
+                } else {
+                    cbxReaderService.streamPageImage(bookId, pageNumber, outputStream);
+                }
+            }
+        };
     }
     
     private byte[] convertImageToPng(byte[] imageData) throws IOException {

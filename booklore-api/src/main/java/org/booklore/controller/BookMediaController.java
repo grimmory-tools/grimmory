@@ -11,13 +11,18 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 
 @Tag(name = "Book Media", description = "Endpoints for retrieving book media such as covers, thumbnails, and pages")
 @AllArgsConstructor
@@ -30,20 +35,65 @@ public class BookMediaController {
     private final BookDropService bookDropService;
     private final AuthorMetadataService authorMetadataService;
 
+    private ResponseEntity<Resource> serveResourceWithCaching(Resource resource, WebRequest request, String title) {
+        try {
+            if (resource.exists()) {
+                long lastModified = resource.lastModified();
+                if (request.checkNotModified(lastModified)) {
+                    return null;
+                }
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CACHE_CONTROL, "private, max-age=86400, stale-while-revalidate=3600")
+                        .lastModified(lastModified)
+                        .contentType(MediaType.IMAGE_JPEG)
+                        .body(resource);
+            } else {
+                // Return a deterministic placeholder SVG instead of a broken image or 404
+                String svg = generatePlaceholderSvg(title);
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CACHE_CONTROL, "private, max-age=86400") // Cache placeholders longer
+                        .contentType(MediaType.valueOf("image/svg+xml"))
+                        .body(new ByteArrayResource(svg.getBytes(StandardCharsets.UTF_8)));
+            }
+        } catch (IOException e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    private String generatePlaceholderSvg(String title) {
+        String label = (title == null || title.isBlank()) ? "B" : title.trim().substring(0, 1).toUpperCase();
+        int hue = (title == null) ? 200 : Math.abs(title.hashCode() % 360);
+        
+        return String.format(
+            "<svg width=\"250\" height=\"350\" xmlns=\"http://www.w3.org/2000/svg\">" +
+            "<rect width=\"100%%\" height=\"100%%\" fill=\"hsl(%d, 40%%, 40%%)\"/>" +
+            "<text x=\"50%%\" y=\"50%%\" font-family=\"Arial, sans-serif\" font-size=\"80\" " +
+            "fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"central\">%s</text>" +
+            "</svg>", hue, label);
+    }
+
     @Operation(summary = "Get book thumbnail", description = "Retrieve the thumbnail image for a specific book.")
     @ApiResponse(responseCode = "200", description = "Book thumbnail returned successfully")
     @GetMapping("/book/{bookId}/thumbnail")
     @CheckBookAccess(bookIdParam = "bookId")
-    public ResponseEntity<Resource> getBookThumbnail(@Parameter(description = "ID of the book") @PathVariable long bookId) {
-        return ResponseEntity.ok(bookService.getBookThumbnail(bookId));
+    public ResponseEntity<Resource> getBookThumbnail(
+            @Parameter(description = "ID of the book") @PathVariable long bookId,
+            WebRequest request) {
+        Resource resource = bookService.getBookThumbnail(bookId);
+        String title = bookService.getBook(bookId, false).getTitle();
+        return serveResourceWithCaching(resource, request, title);
     }
 
     @Operation(summary = "Get book cover", description = "Retrieve the cover image for a specific book.")
     @ApiResponse(responseCode = "200", description = "Book cover returned successfully")
     @GetMapping("/book/{bookId}/cover")
     @CheckBookAccess(bookIdParam = "bookId")
-    public ResponseEntity<Resource> getBookCover(@Parameter(description = "ID of the book") @PathVariable long bookId) {
-        return ResponseEntity.ok(bookService.getBookCover(bookId));
+    public ResponseEntity<Resource> getBookCover(
+            @Parameter(description = "ID of the book") @PathVariable long bookId,
+            WebRequest request) {
+        Resource resource = bookService.getBookCover(bookId);
+        String title = bookService.getBook(bookId, false).getTitle();
+        return serveResourceWithCaching(resource, request, title);
     }
 
     @Operation(summary = "Get audiobook thumbnail", description = "Retrieve the audiobook thumbnail image for a specific book.")
@@ -59,7 +109,10 @@ public class BookMediaController {
     @GetMapping("/book/{bookId}/audiobook-cover")
     @CheckBookAccess(bookIdParam = "bookId")
     public ResponseEntity<Resource> getAudiobookCover(@Parameter(description = "ID of the book") @PathVariable long bookId) {
-        return ResponseEntity.ok(bookService.getAudiobookCover(bookId));
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(Duration.ofHours(1)).cachePrivate())
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(bookService.getAudiobookCover(bookId));
     }
 
     @Operation(summary = "Get CBX page as image", description = "Retrieve a specific page from a CBX book as an image.")
@@ -70,7 +123,13 @@ public class BookMediaController {
             @Parameter(description = "ID of the book") @PathVariable Long bookId,
             @Parameter(description = "Page number to retrieve") @PathVariable int pageNumber,
             @Parameter(description = "Optional book type for alternative format (e.g., PDF, CBX)") @RequestParam(required = false) String bookType,
+            WebRequest webRequest,
             HttpServletResponse response) throws IOException {
+        long lastModified = cbxReaderService.getArchiveLastModified(bookId, bookType);
+        String etag = "W/\"" + bookId + "-" + pageNumber + "-" + lastModified + "\"";
+        if (webRequest.checkNotModified(etag, lastModified)) {
+            return;
+        }
         response.setContentType(MediaType.IMAGE_JPEG_VALUE);
         cbxReaderService.streamPageImage(bookId, bookType, pageNumber, response.getOutputStream());
     }
@@ -83,7 +142,10 @@ public class BookMediaController {
         if (photo == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(photo);
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(Duration.ofHours(1)).cachePrivate())
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(photo);
     }
 
     @Operation(summary = "Get author thumbnail", description = "Retrieve the thumbnail for a specific author.")
@@ -94,7 +156,10 @@ public class BookMediaController {
         if (thumbnail == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(thumbnail);
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(Duration.ofHours(1)).cachePrivate())
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(thumbnail);
     }
 
     @Operation(summary = "Get bookdrop cover", description = "Retrieve the cover image for a specific bookdrop file.")
@@ -105,6 +170,7 @@ public class BookMediaController {
         String contentDisposition = "inline; filename=\"cover.jpg\"; filename*=UTF-8''cover.jpg";
         return (file != null)
                 ? ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(Duration.ofHours(1)).cachePrivate())
                 .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(file)

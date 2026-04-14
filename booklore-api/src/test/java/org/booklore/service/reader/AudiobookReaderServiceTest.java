@@ -102,7 +102,7 @@ class AudiobookReaderServiceTest {
                 .durationMs(3600000L)
                 .build();
 
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForAudiobook(1L)).thenReturn(Optional.of(bookEntity));
         when(audioMetadataService.getMetadata(audiobookFileEntity, audioPath)).thenReturn(expectedInfo);
 
         AudiobookInfo result = audiobookReaderService.getAudiobookInfo(1L, null);
@@ -124,7 +124,7 @@ class AudiobookReaderServiceTest {
 
         AudiobookInfo expectedInfo = AudiobookInfo.builder().bookId(1L).build();
 
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForAudiobook(1L)).thenReturn(Optional.of(bookEntity));
         when(audioMetadataService.getMetadata(audiobookFileEntity, audioPath)).thenReturn(expectedInfo);
 
         AudiobookInfo result = audiobookReaderService.getAudiobookInfo(1L, "AUDIOBOOK");
@@ -135,7 +135,7 @@ class AudiobookReaderServiceTest {
 
     @Test
     void getAudiobookInfo_throwsExceptionWhenBookNotFound() {
-        when(bookRepository.findByIdWithBookFiles(999L)).thenReturn(Optional.empty());
+        when(bookRepository.findByIdForAudiobook(999L)).thenReturn(Optional.empty());
 
         assertThrows(ApiError.BOOK_NOT_FOUND.createException().getClass(),
                 () -> audiobookReaderService.getAudiobookInfo(999L, null));
@@ -150,7 +150,7 @@ class AudiobookReaderServiceTest {
         bookFiles.add(epubFile);
         when(bookEntity.getBookFiles()).thenReturn(bookFiles);
 
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForAudiobook(1L)).thenReturn(Optional.of(bookEntity));
 
         assertThrows(ApiError.FILE_NOT_FOUND.createException().getClass(),
                 () -> audiobookReaderService.getAudiobookInfo(1L, null));
@@ -158,7 +158,7 @@ class AudiobookReaderServiceTest {
 
     @Test
     void getAudiobookInfo_throwsExceptionWhenRequestedTypeNotFound() {
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForAudiobook(1L)).thenReturn(Optional.of(bookEntity));
 
         assertThrows(ApiError.FILE_NOT_FOUND.createException().getClass(),
                 () -> audiobookReaderService.getAudiobookInfo(1L, "EPUB"));
@@ -166,7 +166,7 @@ class AudiobookReaderServiceTest {
 
     @Test
     void getAudiobookInfo_wrapsMetadataServiceException() throws Exception {
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForAudiobook(1L)).thenReturn(Optional.of(bookEntity));
         when(audioMetadataService.getMetadata(any(), any())).thenThrow(new RuntimeException("Parse error"));
 
         assertThrows(ApiError.FILE_READ_ERROR.createException().getClass(),
@@ -177,7 +177,7 @@ class AudiobookReaderServiceTest {
 
     @Test
     void getAudioFilePath_singleFile_returnsFilePath() {
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForAudiobook(1L)).thenReturn(Optional.of(bookEntity));
 
         Path result = audiobookReaderService.getAudioFilePath(1L, null, null);
 
@@ -186,7 +186,7 @@ class AudiobookReaderServiceTest {
 
     @Test
     void getAudioFilePath_singleFile_ignoresTrackIndex() {
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForAudiobook(1L)).thenReturn(Optional.of(bookEntity));
 
         Path result = audiobookReaderService.getAudioFilePath(1L, null, 5);
 
@@ -204,7 +204,7 @@ class AudiobookReaderServiceTest {
         Files.createFile(track1);
         Files.createFile(track2);
 
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForAudiobook(1L)).thenReturn(Optional.of(bookEntity));
         when(audioFileUtility.listAudioFiles(folderPath)).thenReturn(List.of(track1, track2));
 
         Path result = audiobookReaderService.getAudioFilePath(1L, null, 1);
@@ -221,7 +221,7 @@ class AudiobookReaderServiceTest {
         Path track1 = folderPath.resolve("track1.mp3");
         Files.createFile(track1);
 
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForAudiobook(1L)).thenReturn(Optional.of(bookEntity));
         when(audioFileUtility.listAudioFiles(folderPath)).thenReturn(List.of(track1));
 
         Path result = audiobookReaderService.getAudioFilePath(1L, null, null);
@@ -238,7 +238,7 @@ class AudiobookReaderServiceTest {
         Path track1 = folderPath.resolve("track1.mp3");
         Files.createFile(track1);
 
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForAudiobook(1L)).thenReturn(Optional.of(bookEntity));
         when(audioFileUtility.listAudioFiles(folderPath)).thenReturn(List.of(track1));
 
         assertThrows(ApiError.FILE_NOT_FOUND.createException().getClass(),
@@ -254,7 +254,7 @@ class AudiobookReaderServiceTest {
         Path track1 = folderPath.resolve("track1.mp3");
         Files.createFile(track1);
 
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForAudiobook(1L)).thenReturn(Optional.of(bookEntity));
         when(audioFileUtility.listAudioFiles(folderPath)).thenReturn(List.of(track1));
 
         assertThrows(ApiError.FILE_NOT_FOUND.createException().getClass(),
@@ -297,7 +297,7 @@ class AudiobookReaderServiceTest {
     void getEmbeddedCoverArt_delegatesToMetadataService() {
         byte[] expectedData = new byte[]{0x01, 0x02, 0x03};
 
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForAudiobook(1L)).thenReturn(Optional.of(bookEntity));
         when(audioMetadataService.getEmbeddedCoverArt(audioPath)).thenReturn(expectedData);
 
         byte[] result = audiobookReaderService.getEmbeddedCoverArt(1L, null);
@@ -318,7 +318,7 @@ class AudiobookReaderServiceTest {
 
         byte[] expectedData = new byte[]{0x04, 0x05};
 
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForAudiobook(1L)).thenReturn(Optional.of(bookEntity));
         when(audioMetadataService.getEmbeddedCoverArt(track1)).thenReturn(expectedData);
 
         byte[] result = audiobookReaderService.getEmbeddedCoverArt(1L, null);
@@ -329,7 +329,7 @@ class AudiobookReaderServiceTest {
 
     @Test
     void getEmbeddedCoverArt_returnsNullWhenNoCoverArt() {
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForAudiobook(1L)).thenReturn(Optional.of(bookEntity));
         when(audioMetadataService.getEmbeddedCoverArt(audioPath)).thenReturn(null);
 
         byte[] result = audiobookReaderService.getEmbeddedCoverArt(1L, null);
@@ -341,7 +341,7 @@ class AudiobookReaderServiceTest {
 
     @Test
     void getCoverArtMimeType_delegatesToMetadataService() {
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForAudiobook(1L)).thenReturn(Optional.of(bookEntity));
         when(audioMetadataService.getCoverArtMimeType(audioPath)).thenReturn("image/png");
 
         String result = audiobookReaderService.getCoverArtMimeType(1L, null);
@@ -360,7 +360,7 @@ class AudiobookReaderServiceTest {
         Files.createFile(track1);
         when(folderAudiobookFileEntity.getFirstAudioFile()).thenReturn(track1);
 
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForAudiobook(1L)).thenReturn(Optional.of(bookEntity));
         when(audioMetadataService.getCoverArtMimeType(track1)).thenReturn("image/jpeg");
 
         String result = audiobookReaderService.getCoverArtMimeType(1L, null);
@@ -396,7 +396,7 @@ class AudiobookReaderServiceTest {
 
         AudiobookInfo expectedInfo = AudiobookInfo.builder().bookId(1L).build();
 
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForAudiobook(1L)).thenReturn(Optional.of(bookEntity));
         when(audioMetadataService.getMetadata(eq(audiobookFileEntity), any())).thenReturn(expectedInfo);
 
         AudiobookInfo result = audiobookReaderService.getAudiobookInfo(1L, null);
@@ -409,7 +409,7 @@ class AudiobookReaderServiceTest {
     void getAudiobookInfo_bookTypeIsCaseInsensitive() throws Exception {
         AudiobookInfo expectedInfo = AudiobookInfo.builder().bookId(1L).build();
 
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForAudiobook(1L)).thenReturn(Optional.of(bookEntity));
         when(audioMetadataService.getMetadata(any(), any())).thenReturn(expectedInfo);
 
         // Test lowercase
