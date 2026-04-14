@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.exception.ApiError;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -47,7 +48,7 @@ public class FileStreamingService {
         BasicFileAttributes attrs;
         try {
             attrs = Files.readAttributes(filePath, BasicFileAttributes.class);
-        } catch (NoSuchFileException e) {
+        } catch (NoSuchFileException _) {
             throw ApiError.FILE_NOT_FOUND.createException(filePath.toString());
         }
 
@@ -114,7 +115,7 @@ public class FileStreamingService {
 
             transferFile(fileChannel, range.start, length, response.getOutputStream());
 
-        } catch (NoSuchFileException e) {
+        } catch (NoSuchFileException _) {
             throw ApiError.FILE_NOT_FOUND.createException(filePath.toString());
         } catch (IOException e) {
             if (isClientDisconnect(e)) {
@@ -133,7 +134,7 @@ public class FileStreamingService {
      * RFC 7233: If-Range can be a strong ETag OR an HTTP-date.
      */
     private boolean validateIfRange(String ifRange, String etag, Instant lastModified) {
-        if (ifRange.startsWith("\"")) {
+        if (!ifRange.isEmpty() && ifRange.charAt(0) == '\"') {
             // ETag comparison (Strong match required)
             return etag.equals(ifRange);
         } else {
@@ -153,26 +154,28 @@ public class FileStreamingService {
      * Zero-copy transfer from file channel to output stream via NIO.
      * Delegates to sendfile(2) on Linux / equivalent on macOS when the
      * servlet container's OutputStream maps to a socket channel.
-     * Does not close the output stream the caller owns its lifecycle.
+     * Closes the output stream upon completion as the channel wrapper propagates close.
      */
     private void transferFile(FileChannel source, long position, long count, OutputStream out) throws IOException {
-        WritableByteChannel destination = Channels.newChannel(out);
-        long remaining = count;
-        long currentPos = position;
-        int zeroTransferCount = 0;
+        try (WritableByteChannel destination = Channels.newChannel(out)) {
+            long remaining = count;
+            long currentPos = position;
+            int zeroTransferCount = 0;
 
-        while (remaining > 0) {
-            long transferred = source.transferTo(currentPos, remaining, destination);
-            if (transferred <= 0) {
-                if (++zeroTransferCount > 100) {
-                    throw new IOException("File transfer stalled with " + remaining + " bytes remaining");
+            while (remaining > 0) {
+                long transferred = source.transferTo(currentPos, remaining, destination);
+                if (transferred <= 0) {
+                    ++zeroTransferCount;
+                    if (zeroTransferCount > 100) {
+                        throw new IOException("File transfer stalled with " + remaining + " bytes remaining");
+                    }
+                    Thread.onSpinWait();
+                    continue;
                 }
-                Thread.onSpinWait();
-                continue;
+                zeroTransferCount = 0;
+                currentPos += transferred;
+                remaining -= transferred;
             }
-            zeroTransferCount = 0;
-            currentPos += transferred;
-            remaining -= transferred;
         }
     }
 
@@ -229,8 +232,7 @@ public class FileStreamingService {
     // DISCONNECT DETECTION
     boolean isClientDisconnect(IOException e) {
         return switch (e) {
-            case SocketTimeoutException ignored -> true;
-            case IOException io when io.getClass().getSimpleName().equals("AsyncRequestNotUsableException") -> true;
+            case SocketTimeoutException _, AsyncRequestNotUsableException _ -> true;
             case IOException io when io.getMessage() != null -> {
                 String msg = io.getMessage();
                 yield msg.contains("Broken pipe")
