@@ -115,7 +115,11 @@ public class KoboController {
     @Operation(summary = "Authenticate Kobo device", description = "Authenticate a Kobo device.")
     @ApiResponse(responseCode = "200", description = "Device authenticated successfully")
     @PostMapping("/v1/auth/device")
-    public ResponseEntity<KoboAuthentication> authenticateDevice(@Parameter(description = "Authentication request body") @RequestBody JsonNode body) {
+    public ResponseEntity<?> authenticateDevice(@Parameter(description = "Authentication request body") @RequestBody JsonNode body) {
+        if (isForwardingToKoboStore()) {
+            return koboServerProxy.proxyCurrentRequest(body, false);
+        }
+
         return koboDeviceAuthService.authenticateDevice(body);
     }
 
