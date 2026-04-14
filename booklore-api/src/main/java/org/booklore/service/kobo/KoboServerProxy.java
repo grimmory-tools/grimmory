@@ -54,6 +54,10 @@ public class KoboServerProxy {
         return headerName.toLowerCase().startsWith("x-kobo-");
     }
 
+    public ResponseEntity<JsonNode> proxyCurrentRequest() {
+        return proxyCurrentRequest(null, false);
+    }
+
     public ResponseEntity<JsonNode> proxyCurrentRequest(Object body, boolean includeSyncToken) {
         HttpServletRequest request = RequestUtils.getCurrentRequest();
         String path = KOBO_API_PREFIX_PATTERN.matcher(request.getRequestURI()).replaceFirst("");

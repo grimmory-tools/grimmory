@@ -40,7 +40,6 @@ import java.util.regex.Pattern;
 @Tag(name = "Kobo Integration", description = "Endpoints for Kobo device and library integration")
 public class KoboController {
 
-    private static final Pattern KOBO_V1_PRODUCTS_NEXTREAD_PATTERN = Pattern.compile(".*/v1/products/\\d+/nextread.*");
     private String token;
     private final AppSettingService appSettingService;
     private final KoboServerProxy koboServerProxy;
@@ -178,6 +177,15 @@ public class KoboController {
                 .build());
     }
 
+    @Operation(summary = "Publish analytics event", description = "Publish an analytics event for Kobo.")
+    @ApiResponse(responseCode = "200", description = "Analytics event pushed successfully")
+    @PostMapping("/v1/analytics/event")
+    public ResponseEntity<?> pushEvent() {
+        // Never pass along analytics events.
+        return ResponseEntity.ok().build();
+    }
+
+
     @Operation(summary = "Download Kobo book", description = "Download a book from the Kobo library.")
     @ApiResponse(responseCode = "200", description = "Book downloaded successfully")
     @GetMapping("/v1/books/{bookId}/download")
@@ -206,21 +214,24 @@ public class KoboController {
         }
     }
 
+    @Operation(summary = "Get Kobo Next to Read", description = "Retrieves the next book to read after the specified book, such as with a series.")
+    @ApiResponse(responseCode = "200", description = "The next book in a series to read.")
+    @PostMapping(".*/v1/products/{bookId}/nextread")
+    public ResponseEntity<?> getNextRead(@Parameter(description = "Book ID") @PathVariable String bookId) {
+        if (!StringUtils.isNumeric(bookId)) {
+            if (isForwardingToKoboStore()) {
+                return koboServerProxy.proxyCurrentRequest();
+            }
+        }
+
+        return ResponseEntity.ok().build();
+    }
+
+
     @Operation(summary = "Catch-all for Kobo API", description = "Catch-all endpoint for unhandled Kobo API requests.")
     @ApiResponse(responseCode = "200", description = "Request proxied successfully")
     @RequestMapping(value = "/**", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.PATCH})
     public ResponseEntity<JsonNode> catchAll(HttpServletRequest request, @RequestBody(required = false) Object body) {
-        String path = request.getRequestURI();
-
-        if (path.contains("/v1/analytics/event")) {
-            // Never pass along analytics events.
-            return ResponseEntity.ok().build();
-        }
-
-        if (KOBO_V1_PRODUCTS_NEXTREAD_PATTERN.matcher(path).matches()) {
-            return ResponseEntity.ok().build();
-        }
-
         if (isForwardingToKoboStore()) {
             return koboServerProxy.proxyCurrentRequest(body, false);
         }
