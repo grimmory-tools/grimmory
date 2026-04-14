@@ -648,7 +648,9 @@ export class EmbedPdfBookService {
         [class*="notification"],
         [class*="bottom-bar"],
         [class*="status-bar"],
-        [class*="statusbar"] {
+        [class*="statusbar"],
+        footer,
+        [class*="footer"] {
           display: none !important;
         }
 

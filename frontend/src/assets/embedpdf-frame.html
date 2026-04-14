@@ -168,6 +168,20 @@
         display: none !important;
       }
 
+      /* Hide bottom notification / popup bar */
+      [class*="fixed"][class*="bottom-"],
+      [class*="absolute"][class*="bottom-"],
+      [class*="snackbar"],
+      [class*="toast"],
+      [class*="notification"],
+      [class*="bottom-bar"],
+      [class*="status-bar"],
+      [class*="statusbar"],
+      footer,
+      [class*="footer"] {
+        display: none !important;
+      }
+
       [data-epdf-i="open-document"],
       [data-epdf-i="close-document"],
       button[title="Open Document"],
