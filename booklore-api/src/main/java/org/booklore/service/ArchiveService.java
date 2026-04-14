@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 public class ArchiveService {
     private static final int LOCK_STRIPE_COUNT = 256;
     private final ReentrantLock[] lockStripes = IntStream.range(0, LOCK_STRIPE_COUNT)
-            .mapToObj(_ -> new ReentrantLock())
+            .mapToObj(ignored -> new ReentrantLock())
             .toArray(ReentrantLock[]::new);
     private volatile boolean available = safeCheckAvailable();
 

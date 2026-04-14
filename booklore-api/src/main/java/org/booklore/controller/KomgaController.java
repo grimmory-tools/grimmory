@@ -9,10 +9,7 @@ import org.booklore.config.JacksonConfig;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.config.security.userdetails.OpdsUserDetails;
 import org.booklore.mapper.komga.KomgaMapper;
-import org.booklore.model.dto.komga.KomgaBookDto;
-import org.booklore.model.dto.komga.KomgaLibraryDto;
-import org.booklore.model.dto.komga.KomgaPageableDto;
-import org.booklore.model.dto.komga.KomgaSeriesDto;
+import org.booklore.model.dto.komga.*;
 import org.booklore.service.book.BookService;
 import org.booklore.service.komga.KomgaService;
 import org.booklore.service.opds.OpdsBookService;
@@ -29,6 +26,9 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.time.Instant;
 import java.util.List;
+
+import static org.springframework.http.HttpHeaders.CACHE_CONTROL;
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 
 @Tag(name = "Komga API", description = "Komga-compatible API endpoints. " +
         "All endpoints support a 'clean' query parameter (default: false). " +
@@ -158,6 +158,12 @@ public class KomgaController {
             WebRequest request) {
         opdsBookService.validateBookContentAccess(bookId, getOpdsUserId());
         
+        // Ensure book and page exist before checking modification
+        List<KomgaPageDto> pages = komgaService.getBookPages(bookId);
+        if (pageNumber < 0 || pageNumber >= pages.size()) {
+            return ResponseEntity.notFound().build();
+        }
+
         Instant lastModified = komgaService.getBookLastModified(bookId);
         if (request.checkNotModified(lastModified.toEpochMilli())) {
             return null;
@@ -168,8 +174,8 @@ public class KomgaController {
             StreamingResponseBody body = komgaService.getBookPageImage(bookId, pageNumber, convertToPng);
             String contentType = convertToPng ? "image/png" : komgaService.getPageContentType(bookId, pageNumber);
             return ResponseEntity.ok()
-                    .header(org.springframework.http.HttpHeaders.CONTENT_TYPE, contentType)
-                    .header(org.springframework.http.HttpHeaders.CACHE_CONTROL, "public, max-age=3600")
+                    .header(CONTENT_TYPE, contentType)
+                    .header(CACHE_CONTROL, "private, max-age=3600")
                     .lastModified(lastModified)
                     .body(body);
         } catch (Exception e) {

@@ -256,13 +256,12 @@ public class PdfReaderService {
      * If the write fails the partial temp file is cleaned up.
      */
     private void writeAtomically(Path target, byte[] data) throws IOException {
-        Path tmp = target.resolveSibling(target.getFileName() + ".tmp");
+        Path tmp = Files.createTempFile(target.getParent(), target.getFileName().toString() + ".", ".tmp");
         try {
             Files.write(tmp, data);
-        } catch (IOException e) {
+            Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+        } finally {
             Files.deleteIfExists(tmp);
-            throw e;
         }
-        Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
     }
 }

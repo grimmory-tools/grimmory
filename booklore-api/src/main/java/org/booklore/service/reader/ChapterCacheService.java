@@ -36,7 +36,7 @@ public class ChapterCacheService {
      * which can cause SIGSEGV / out-of-memory crashes in the native heap.
      */
     public void prepareCbxCache(String cacheKey, Path cbxPath, List<String> entries) throws IOException {
-        ReentrantLock lock = cacheLocks.computeIfAbsent(cacheKey, _ -> new ReentrantLock());
+        ReentrantLock lock = cacheLocks.computeIfAbsent(cacheKey, ignored -> new ReentrantLock());
         lock.lock();
         try {
             Path cacheDir = getCacheDir(cacheKey);
@@ -45,7 +45,7 @@ public class ChapterCacheService {
             }
 
             // Only extract if the cache is empty or stale
-            if (isCacheStale(cacheDir, cbxPath)) {
+            if (isCacheStale(cacheDir, cbxPath, entries.size())) {
                 log.info("Populating disk cache for {}: {} pages", cacheKey, entries.size());
 
                 for (int i = 0; i < entries.size(); i++) {
@@ -84,14 +84,15 @@ public class ChapterCacheService {
      * cleaned up and the target is never touched.
      */
     void writeAtomically(Path target, IOConsumer<OutputStream> writer) throws IOException {
-        Path tmp = target.resolveSibling(target.getFileName() + ".tmp");
-        try (OutputStream out = Files.newOutputStream(tmp)) {
-            writer.accept(out);
-        } catch (Exception e) {
+        Path tmp = Files.createTempFile(target.getParent(), target.getFileName().toString() + ".", ".tmp");
+        try {
+            try (OutputStream out = Files.newOutputStream(tmp)) {
+                writer.accept(out);
+            }
+            Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+        } finally {
             Files.deleteIfExists(tmp);
-            throw e instanceof IOException io ? io : new IOException(e);
         }
-        Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
     }
 
     @FunctionalInterface
@@ -106,11 +107,14 @@ public class ChapterCacheService {
         return Paths.get(appProperties.getPathConfig(), "cache", "chapters", cacheKey);
     }
 
-    private boolean isCacheStale(Path cacheDir, Path sourcePath) throws IOException {
+    private boolean isCacheStale(Path cacheDir, Path sourcePath, int expectedPages) throws IOException {
         if (!Files.exists(cacheDir)) return true;
-        try (var stream = Files.list(cacheDir)) {
-            if (stream.findAny().isEmpty()) return true;
+
+        for (int i = 1; i <= expectedPages; i++) {
+            Path page = cacheDir.resolve("page_" + i + ".jpg");
+            if (!Files.exists(page) || Files.size(page) == 0) return true;
         }
+
         long cacheMtime = Files.getLastModifiedTime(cacheDir).toMillis();
         long sourceMtime = Files.getLastModifiedTime(sourcePath).toMillis();
         return Math.abs(cacheMtime - sourceMtime) > MTIME_TOLERANCE_MS;

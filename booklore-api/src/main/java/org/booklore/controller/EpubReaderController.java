@@ -68,7 +68,7 @@ public class EpubReaderController {
             response.setHeader("Access-Control-Allow-Origin", "*");
         }
 
-        response.setHeader("Cache-Control", "public, max-age=3600");
+        response.setHeader("Cache-Control", "private, max-age=3600");
 
         try {
             epubReaderService.streamFile(bookId, bookType, cleanPath, response.getOutputStream());

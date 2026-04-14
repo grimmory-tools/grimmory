@@ -195,7 +195,7 @@ public class FileStreamingService {
     // DISCONNECT DETECTION
     boolean isClientDisconnect(IOException e) {
         return switch (e) {
-            case SocketTimeoutException _ -> true;
+            case SocketTimeoutException ignored -> true;
             case IOException io when io.getClass().getSimpleName().equals("AsyncRequestNotUsableException") -> true;
             case IOException io when io.getMessage() != null -> {
                 String msg = io.getMessage();

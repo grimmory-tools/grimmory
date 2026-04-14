@@ -24,6 +24,7 @@ import org.springframework.web.context.request.WebRequest;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.function.Supplier;
 
 @Tag(name = "Book Media", description = "Endpoints for retrieving book media such as covers, thumbnails, and pages")
 @AllArgsConstructor
@@ -36,7 +37,7 @@ public class BookMediaController {
     private final BookDropService bookDropService;
     private final AuthorMetadataService authorMetadataService;
 
-    private ResponseEntity<Resource> serveResourceWithCaching(Resource resource, WebRequest request, String title) {
+    private ResponseEntity<Resource> serveResourceWithCaching(Resource resource, WebRequest request, Supplier<String> titleSupplier) {
         try {
             if (resource.exists()) {
                 long lastModified = resource.lastModified();
@@ -50,7 +51,7 @@ public class BookMediaController {
                         .body(resource);
             } else {
                 // Return a deterministic placeholder SVG instead of a broken image or 404
-                String svg = generatePlaceholderSvg(title);
+                String svg = generatePlaceholderSvg(titleSupplier.get());
                 return ResponseEntity.ok()
                         .header(HttpHeaders.CACHE_CONTROL, "private, max-age=86400") // Cache placeholders longer
                         .contentType(MediaType.valueOf("image/svg+xml"))
@@ -92,8 +93,7 @@ public class BookMediaController {
             @Parameter(description = "ID of the book") @PathVariable long bookId,
             WebRequest request) {
         Resource resource = bookService.getBookThumbnail(bookId);
-        String title = bookService.getBook(bookId, false).getTitle();
-        return serveResourceWithCaching(resource, request, title);
+        return serveResourceWithCaching(resource, request, () -> bookService.getBook(bookId, false).getTitle());
     }
 
     @Operation(summary = "Get book cover", description = "Retrieve the cover image for a specific book.")
@@ -104,8 +104,7 @@ public class BookMediaController {
             @Parameter(description = "ID of the book") @PathVariable long bookId,
             WebRequest request) {
         Resource resource = bookService.getBookCover(bookId);
-        String title = bookService.getBook(bookId, false).getTitle();
-        return serveResourceWithCaching(resource, request, title);
+        return serveResourceWithCaching(resource, request, () -> bookService.getBook(bookId, false).getTitle());
     }
 
     @Operation(summary = "Get audiobook thumbnail", description = "Retrieve the audiobook thumbnail image for a specific book.")
