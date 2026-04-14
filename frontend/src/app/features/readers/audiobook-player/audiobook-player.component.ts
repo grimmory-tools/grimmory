@@ -89,7 +89,7 @@ export class AudiobookPlayerComponent implements OnInit, OnDestroy {
 
   currentTrackIndex = 0;
   currentChapter: AudiobookChapter | undefined;
-  currentChapterIdx = 0;
+  currentChapterIdx = -1;
   audioSrc = '';
 
   showTrackList = false;
@@ -160,6 +160,20 @@ export class AudiobookPlayerComponent implements OnInit, OnDestroy {
 
   private loadAudiobook(bookId: number): Observable<void> {
     const loadRequestId = ++this.loadRequestId;
+
+    if (this.audiobookInfo && this.bookId !== bookId) {
+      this.saveProgress();
+      const audio = this.audioElement?.nativeElement;
+      if (audio) {
+        audio.pause();
+        audio.removeAttribute('src');
+        audio.load();
+      }
+      if (this.audiobookSessionService.isSessionActive()) {
+        this.audiobookSessionService.endSession(Math.round(this.currentTime * 1000));
+      }
+    }
+
     this.bookId = bookId;
     this.resetState();
     this.isLoading = true;
@@ -167,6 +181,7 @@ export class AudiobookPlayerComponent implements OnInit, OnDestroy {
     return this.audiobookService.getAudiobookInfo(bookId).pipe(
       tap((info) => {
         this.audiobookInfo = info;
+        this.updateCurrentChapter();
         if (info.folderBased && info.tracks && info.tracks.length > 0) {
           // Prepare the source URL but don't load it yet
           this.audioSrc = this.audiobookService.getTrackStreamUrl(bookId, 0);
@@ -228,6 +243,7 @@ export class AudiobookPlayerComponent implements OnInit, OnDestroy {
       if (audio && audio.readyState >= 1 && this.savedPosition > 0) {
         audio.currentTime = this.savedPosition;
         this.currentTime = this.savedPosition;
+        this.updateCurrentChapter();
       }
 
       // Handle track index for folder-based audiobooks
@@ -246,6 +262,7 @@ export class AudiobookPlayerComponent implements OnInit, OnDestroy {
 
     if (this.savedPosition > 0) {
       this.currentTime = this.savedPosition;
+      this.updateCurrentChapter();
     }
   }
 
@@ -281,6 +298,8 @@ export class AudiobookPlayerComponent implements OnInit, OnDestroy {
     this.buffered = 0;
     this.savedPosition = 0;
     this.currentTrackIndex = 0;
+    this.currentChapter = undefined;
+    this.currentChapterIdx = -1;
     this.audioSrc = '';
     this.audioLoading = false;
     this.audioInitialized = false;
@@ -303,6 +322,7 @@ export class AudiobookPlayerComponent implements OnInit, OnDestroy {
       if (this.savedPosition > 0 && this.savedPosition < this.duration) {
         audio.currentTime = this.savedPosition;
         this.currentTime = this.savedPosition;
+        this.updateCurrentChapter();
         this.savedPosition = 0;
       }
 
@@ -431,6 +451,7 @@ export class AudiobookPlayerComponent implements OnInit, OnDestroy {
         if (audio) {
           audio.currentTime = details.seekTime;
           this.currentTime = details.seekTime;
+          this.updateCurrentChapter();
         }
       }
     });
@@ -1021,6 +1042,8 @@ export class AudiobookPlayerComponent implements OnInit, OnDestroy {
   }
 
   addBookmark(): void {
+    const requestBookId = this.bookId;
+    const requestId = this.loadRequestId;
     const currentChapter = this.getCurrentChapter();
     const currentTrack = this.currentTrack;
 
@@ -1044,6 +1067,9 @@ export class AudiobookPlayerComponent implements OnInit, OnDestroy {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (bookmark) => {
+          if (requestId !== this.loadRequestId || requestBookId !== this.bookId) {
+            return;
+          }
           this.bookmarks = [...this.bookmarks, bookmark];
           this.messageService.add({
             severity: 'success',
@@ -1052,6 +1078,9 @@ export class AudiobookPlayerComponent implements OnInit, OnDestroy {
           });
         },
         error: (err) => {
+          if (requestId !== this.loadRequestId || requestBookId !== this.bookId) {
+            return;
+          }
           const isDuplicate = err?.status === 409;
           this.messageService.add({
             severity: isDuplicate ? 'warn' : 'error',
@@ -1141,9 +1170,14 @@ export class AudiobookPlayerComponent implements OnInit, OnDestroy {
 
   deleteBookmark(event: MouseEvent, bookmarkId: number): void {
     event.stopPropagation();
+    const requestBookId = this.bookId;
+    const requestId = this.loadRequestId;
     this.bookMarkService.deleteBookmark(bookmarkId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
+        if (requestId !== this.loadRequestId || requestBookId !== this.bookId) {
+          return;
+        }
         this.bookmarks = this.bookmarks.filter(b => b.id !== bookmarkId);
         this.messageService.add({
           severity: 'info',
