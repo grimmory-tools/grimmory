@@ -239,7 +239,6 @@ export class AuthorBrowserComponent implements OnInit {
   ngOnInit(): void {
     this.pageTitle.setPageTitle(this.t.translate('authorBrowser.pageTitle'));
     this.destroyRef.onDestroy(() => this.viewportResizeObserver?.disconnect());
-
     this.sortOptions = [
       {label: this.t.translate('authorBrowser.sort.name'), value: 'name'},
       {label: this.t.translate('authorBrowser.sort.bookCount'), value: 'book-count'},
@@ -260,6 +259,21 @@ export class AuthorBrowserComponent implements OnInit {
     }
 
     this.setupScrollPositionTracking();
+    this.t.langChanges$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.sortOptions = [
+          {label: this.t.translate('authorBrowser.sort.name'), value: 'name'},
+          {label: this.t.translate('authorBrowser.sort.bookCount'), value: 'book-count'},
+          {label: this.t.translate('authorBrowser.sort.matched'), value: 'matched'},
+          {label: this.t.translate('authorBrowser.sort.recentlyAdded'), value: 'recently-added'},
+          {label: this.t.translate('authorBrowser.sort.recentlyRead'), value: 'recently-read'},
+          {label: this.t.translate('authorBrowser.sort.readingProgress'), value: 'reading-progress'},
+          {label: this.t.translate('authorBrowser.sort.avgRating'), value: 'avg-rating'},
+          {label: this.t.translate('authorBrowser.sort.photo'), value: 'photo'},
+          {label: this.t.translate('authorBrowser.sort.seriesCount'), value: 'series-count'}
+        ];
+      });
     this.destroyRef.onDestroy(() => this.selectionService.deselectAll());
   }
 

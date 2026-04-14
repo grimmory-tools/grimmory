@@ -150,5 +150,52 @@
     "toast": {
       "createFailedDefault": "Failed to create admin user. Try again."
     }
+  },
+  "iconPicker": {
+    "title": "Choose an Icon",
+    "subtitle": "Select from library or add custom SVGs",
+    "tabs": {
+      "primeIcons": "Prime Icons",
+      "svgLibrary": "SVG Library",
+      "addCustom": "Add Custom"
+    },
+    "searchPrimePlaceholder": "Search Prime icons...",
+    "searchSvgPlaceholder": "Search SVG icons...",
+    "loadingIcons": "Loading icons...",
+    "dropToDelete": "Drop here to delete",
+    "svgInput": "SVG Input",
+    "iconNameLabel": "Icon Name",
+    "iconNamePlaceholder": "e.g., my-custom-icon",
+    "svgCodeLabel": "SVG Code",
+    "svgCodePlaceholder": "<svg>...</svg>",
+    "preview": "Preview",
+    "addToQueue": "Add to Queue",
+    "queue": "Queue",
+    "clearAll": "Clear All",
+    "saveAllIcons": "Save All Icons",
+    "errors": {
+      "noContent": "Please paste SVG content",
+      "noName": "Please provide a name for the icon",
+      "invalidName": "Icon name can only contain alphanumeric characters, underscores, and hyphens",
+      "nameTooLong": "Icon name must not exceed {{ max }} characters",
+      "missingSvgTag": "Content must include <svg> tag",
+      "svgTooLarge": "SVG content must not exceed 1MB",
+      "parseError": "Failed to parse SVG content",
+      "loadIcons": "Failed to load SVG icons. Please try again.",
+      "deleteError": "Failed to delete icon. Please try again.",
+      "saveError": "Failed to save SVG icons. Please try again.",
+      "noIconsToSave": "No SVG icons to save"
+    },
+    "toast": {
+      "saveSuccessSummary": "Icons Saved",
+      "saveSuccessDetail": "{{ count }} SVG icon(s) saved successfully.",
+      "partialSuccessSummary": "Partial Success",
+      "partialSuccessDetail": "{{ successCount }} SVG icon(s) saved, {{ failureCount }} failed.",
+      "saveFailedSummary": "Save Failed",
+      "saveFailedDetail": "Failed to save {{ count }} SVG icon(s).",
+      "deleteSuccessSummary": "Icon Deleted",
+      "deleteSuccessDetail": "SVG icon deleted successfully.",
+      "deleteFailedSummary": "Delete Failed"
+    }
   }
 }

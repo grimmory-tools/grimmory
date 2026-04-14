@@ -150,5 +150,52 @@
     "toast": {
       "createFailedDefault": "Error al crear el usuario administrador. Inténtalo de nuevo."
     }
+  },
+  "iconPicker": {
+    "title": "Elegir un ícono",
+    "subtitle": "Selecciona de la biblioteca o agrega SVG personalizados",
+    "tabs": {
+      "primeIcons": "Íconos Prime",
+      "svgLibrary": "Biblioteca SVG",
+      "addCustom": "Agregar personalizado"
+    },
+    "searchPrimePlaceholder": "Buscar íconos Prime...",
+    "searchSvgPlaceholder": "Buscar íconos SVG...",
+    "loadingIcons": "Cargando íconos...",
+    "dropToDelete": "Suelta aquí para eliminar",
+    "svgInput": "Entrada SVG",
+    "iconNameLabel": "Nombre del ícono",
+    "iconNamePlaceholder": "ej., mi-icono-personalizado",
+    "svgCodeLabel": "Código SVG",
+    "svgCodePlaceholder": "<svg>...</svg>",
+    "preview": "Vista previa",
+    "addToQueue": "Agregar a la cola",
+    "queue": "Cola",
+    "clearAll": "Limpiar todo",
+    "saveAllIcons": "Guardar todos los íconos",
+    "errors": {
+      "noContent": "Pega contenido SVG",
+      "noName": "Proporciona un nombre para el ícono",
+      "invalidName": "El nombre del ícono solo puede contener caracteres alfanuméricos, guiones bajos y guiones",
+      "nameTooLong": "El nombre del ícono no debe superar {{ max }} caracteres",
+      "missingSvgTag": "El contenido debe incluir la etiqueta <svg>",
+      "svgTooLarge": "El contenido SVG no debe superar 1MB",
+      "parseError": "No se pudo analizar el contenido SVG",
+      "loadIcons": "No se pudieron cargar los íconos SVG. Inténtalo de nuevo.",
+      "deleteError": "No se pudo eliminar el ícono. Inténtalo de nuevo.",
+      "saveError": "No se pudieron guardar los íconos SVG. Inténtalo de nuevo.",
+      "noIconsToSave": "No hay íconos SVG para guardar"
+    },
+    "toast": {
+      "saveSuccessSummary": "Íconos guardados",
+      "saveSuccessDetail": "Se guardaron correctamente {{ count }} ícono(s) SVG.",
+      "partialSuccessSummary": "Éxito parcial",
+      "partialSuccessDetail": "Se guardaron {{ successCount }} ícono(s) SVG y {{ failureCount }} fallaron.",
+      "saveFailedSummary": "Error al guardar",
+      "saveFailedDetail": "No se pudieron guardar {{ count }} ícono(s) SVG.",
+      "deleteSuccessSummary": "Ícono eliminado",
+      "deleteSuccessDetail": "Ícono SVG eliminado correctamente.",
+      "deleteFailedSummary": "Error al eliminar"
+    }
   }
 }

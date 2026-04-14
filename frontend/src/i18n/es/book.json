@@ -50,6 +50,13 @@
       "failedShelf": "¡Error al cargar los libros del estante!",
       "activeFilters": "{{ count }} filtros activos"
     },
+    "entityTypes": {
+      "library": "Biblioteca",
+      "shelf": "Estante",
+      "magicShelf": "Estante mágico",
+      "allBooks": "Todos los libros",
+      "unshelvedBooks": "Libros sin estante"
+    },
     "tooltip": {
       "clearFilters": "Limpiar filtros aplicados",
       "visibleColumns": "Columnas visibles",
