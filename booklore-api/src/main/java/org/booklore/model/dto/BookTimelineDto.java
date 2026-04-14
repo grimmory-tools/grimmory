@@ -1,13 +1,13 @@
 package org.booklore.model.dto;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public interface BookTimelineDto {
     Long getBookId();
     String getTitle();
     Integer getPageCount();
-    LocalDateTime getFirstSessionDate();
-    LocalDateTime getLastSessionDate();
+    Instant getFirstSessionStart();
+    Instant getLastSessionEnd();
     Integer getTotalSessions();
     Long getTotalDurationSeconds();
     Double getMaxProgress();

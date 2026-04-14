@@ -1,25 +1,21 @@
 package org.booklore.controller;
 
-import org.booklore.config.security.service.AuthenticationService;
-import org.booklore.mapper.BookMetadataMapper;
-import org.booklore.model.MetadataUpdateContext;
 import org.booklore.model.MetadataUpdateWrapper;
 import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookMetadataEntity;
-import org.booklore.repository.BookRepository;
-import org.booklore.service.audit.AuditService;
 import org.booklore.model.enums.MetadataReplaceMode;
-import org.booklore.service.metadata.*;
+import org.booklore.service.metadata.BookMetadataService;
+import org.booklore.service.metadata.MetadataManagementService;
+import org.booklore.service.metadata.MetadataMatchService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.ResponseEntity;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class MetadataControllerTest {
@@ -27,61 +23,41 @@ class MetadataControllerTest {
     @Mock
     private BookMetadataService bookMetadataService;
     @Mock
-    private BookMetadataUpdater bookMetadataUpdater;
-    @Mock
-    private AuthenticationService authenticationService;
-    @Mock
-    private BookMetadataMapper bookMetadataMapper;
-    @Mock
     private MetadataMatchService metadataMatchService;
     @Mock
-    private DuckDuckGoCoverService duckDuckGoCoverService;
-    @Mock
-    private BookRepository bookRepository;
-    @Mock
     private MetadataManagementService metadataManagementService;
-    @Mock
-    private AuditService auditService;
 
     @InjectMocks
     private MetadataController metadataController;
 
-    private MetadataUpdateContext captureContextFromUpdate(MetadataReplaceMode replaceMode) {
+    @Test
+    void updateMetadata_delegatesToService() {
         long bookId = 1L;
         MetadataUpdateWrapper wrapper = MetadataUpdateWrapper.builder().build();
-        BookEntity bookEntity = new BookEntity();
-        bookEntity.setId(bookId);
-        bookEntity.setMetadata(new BookMetadataEntity());
+        MetadataReplaceMode replaceMode = MetadataReplaceMode.REPLACE_ALL;
+        BookMetadata expected = new BookMetadata();
 
-        when(bookRepository.findAllWithMetadataByIds(java.util.Collections.singleton(bookId))).thenReturn(java.util.List.of(bookEntity));
-        when(bookMetadataMapper.toBookMetadata(any(), anyBoolean())).thenReturn(new BookMetadata());
+        when(bookMetadataService.updateBookMetadata(bookId, wrapper, true, replaceMode))
+                .thenReturn(expected);
 
-        metadataController.updateMetadata(wrapper, bookId, true, replaceMode);
+        ResponseEntity<BookMetadata> response = metadataController.updateMetadata(wrapper, bookId, true, replaceMode);
 
-        ArgumentCaptor<MetadataUpdateContext> captor = ArgumentCaptor.forClass(MetadataUpdateContext.class);
-        verify(bookMetadataUpdater).setBookMetadata(captor.capture());
-        return captor.getValue();
+        assertThat(response.getBody()).isSameAs(expected);
+        verify(bookMetadataService).updateBookMetadata(bookId, wrapper, true, replaceMode);
     }
 
     @Test
-    void updateMetadata_shouldDisableMergingForTagsAndMoods() {
-        MetadataUpdateContext context = captureContextFromUpdate(MetadataReplaceMode.REPLACE_ALL);
+    void updateMetadata_passesReplaceModeToService() {
+        long bookId = 1L;
+        MetadataUpdateWrapper wrapper = MetadataUpdateWrapper.builder().build();
+        MetadataReplaceMode replaceMode = MetadataReplaceMode.REPLACE_WHEN_PROVIDED;
+        BookMetadata expected = new BookMetadata();
 
-        assertFalse(context.isMergeTags(), "mergeTags should be false to allow deletion of tags");
-        assertFalse(context.isMergeMoods(), "mergeMoods should be false to allow deletion of moods");
-    }
+        when(bookMetadataService.updateBookMetadata(bookId, wrapper, false, replaceMode))
+                .thenReturn(expected);
 
-    @Test
-    void updateMetadata_shouldPassReplaceModeFromParam() {
-        MetadataUpdateContext context = captureContextFromUpdate(MetadataReplaceMode.REPLACE_WHEN_PROVIDED);
+        metadataController.updateMetadata(wrapper, bookId, false, replaceMode);
 
-        assertEquals(MetadataReplaceMode.REPLACE_WHEN_PROVIDED, context.getReplaceMode());
-    }
-
-    @Test
-    void updateMetadata_shouldDefaultToReplaceAll() {
-        MetadataUpdateContext context = captureContextFromUpdate(MetadataReplaceMode.REPLACE_ALL);
-
-        assertEquals(MetadataReplaceMode.REPLACE_ALL, context.getReplaceMode());
+        verify(bookMetadataService).updateBookMetadata(bookId, wrapper, false, replaceMode);
     }
 }
