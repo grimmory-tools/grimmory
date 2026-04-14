@@ -2,6 +2,7 @@ package org.booklore.service.reader;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import org.booklore.exception.ApiError;
+import org.booklore.exception.APIException;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.ArchiveService;
@@ -143,5 +144,19 @@ class CbxReaderServiceTest {
                     () -> cbxReaderService.streamPageImage(1L, 2, new ByteArrayOutputStream())
             );
         }
+    }
+
+    @Test
+    void testStreamPageImage_InvalidBookType_Throws() {
+        assertThrows(APIException.class, () ->
+                cbxReaderService.streamPageImage(1L, "../traversal", 1, new ByteArrayOutputStream())
+        );
+    }
+
+    @Test
+    void testInitCache_InvalidBookType_Throws() {
+        assertThrows(APIException.class, () ->
+                cbxReaderService.initCache(1L, "../traversal")
+        );
     }
 }

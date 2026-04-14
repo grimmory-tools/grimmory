@@ -232,6 +232,10 @@ public class IconService {
             throw ApiError.INVALID_INPUT.createException("Filename cannot be empty");
         }
 
+        if (filename.contains("..")) {
+            throw ApiError.INVALID_INPUT.createException("Invalid filename");
+        }
+
         String sanitized = INVALID_FILENAME_CHARS_PATTERN.matcher(filename.trim()).replaceAll("_");
         return sanitized.endsWith(SVG_EXTENSION) ? sanitized : sanitized + SVG_EXTENSION;
     }

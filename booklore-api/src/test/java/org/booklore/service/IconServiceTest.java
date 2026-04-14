@@ -160,6 +160,7 @@ class IconServiceTest {
     void normalizeFilename_invalid_throwsException() {
         assertThrows(APIException.class, () -> iconService.getSvgIcon(""));
         assertThrows(APIException.class, () -> iconService.getSvgIcon(null));
+        assertThrows(APIException.class, () -> iconService.getSvgIcon("../passwd"));
     }
 
     @Test

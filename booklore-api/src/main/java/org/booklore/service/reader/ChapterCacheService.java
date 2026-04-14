@@ -73,6 +73,9 @@ public class ChapterCacheService {
     }
 
     private Path getCacheDir(String cacheKey) {
+        if (cacheKey == null || cacheKey.contains("..") || cacheKey.contains("/") || cacheKey.contains("\\")) {
+            throw org.booklore.exception.ApiError.INVALID_INPUT.createException("Invalid cache key: " + cacheKey);
+        }
         return Paths.get(appProperties.getPathConfig(), "cache", "chapters", cacheKey);
     }
 

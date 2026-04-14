@@ -136,14 +136,21 @@ public class PdfReaderService {
     }
 
     private String getCacheKey(Long bookId, String bookType, long lastModified) {
-        return bookId + (bookType != null ? "_" + bookType : "") + "_" + lastModified;
+        if (bookType != null) {
+            // Ensure we use the safe enum name to prevent path traversal
+            BookFileType type = BookFileType.fromName(bookType)
+                    .orElseThrow(() -> ApiError.INVALID_INPUT.createException("Invalid book type: " + bookType));
+            return bookId + "_" + type.name() + "_" + lastModified;
+        }
+        return bookId + "_" + lastModified;
     }
 
     private Path getBookPath(Long bookId, String bookType) {
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId)
                 .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
         if (bookType != null) {
-            BookFileType requestedType = BookFileType.valueOf(bookType.toUpperCase());
+            BookFileType requestedType = BookFileType.fromName(bookType)
+                    .orElseThrow(() -> ApiError.INVALID_INPUT.createException("Invalid book type: " + bookType));
             BookFileEntity bookFile = bookEntity.getBookFiles().stream()
                     .filter(bf -> bf.getBookType() == requestedType)
                     .findFirst()
