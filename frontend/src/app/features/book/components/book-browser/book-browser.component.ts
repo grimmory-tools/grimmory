@@ -6,7 +6,7 @@ import {PageTitleService} from '../../../../shared/service/page-title.service';
 import {BookService} from '../../service/book.service';
 import {BookMetadataManageService} from '../../service/book-metadata-manage.service';
 import {debounceTime, distinctUntilChanged, filter, map, take} from 'rxjs/operators';
-import {combineLatest, finalize, Subject} from 'rxjs';
+import {combineLatest, finalize} from 'rxjs';
 import {DynamicDialogRef} from 'primeng/dynamicdialog';
 import {Library} from '../../model/library.model';
 import {SortDirection, SortOption} from '../../model/sort.model';
@@ -217,6 +217,25 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
           case 'language': scopeFilters.language = strValues; break;
           case 'readStatus': scopeFilters.status = strValues; break;
           case 'bookType': scopeFilters.fileType = strValues; break;
+          case 'ageRating': scopeFilters.ageRating = strValues; break;
+          case 'contentRating': scopeFilters.contentRating = strValues; break;
+          case 'matchScore': scopeFilters.matchScore = strValues; break;
+          case 'publishedDate': scopeFilters.publishedDate = strValues; break;
+          case 'fileSize': scopeFilters.fileSize = strValues; break;
+          case 'personalRating': scopeFilters.personalRating = strValues; break;
+          case 'amazonRating': scopeFilters.amazonRating = strValues; break;
+          case 'goodreadsRating': scopeFilters.goodreadsRating = strValues; break;
+          case 'hardcoverRating': scopeFilters.hardcoverRating = strValues; break;
+          case 'pageCount': scopeFilters.pageCount = strValues; break;
+          case 'shelfStatus':
+            scopeFilters.shelfStatus = strValues;
+            break;
+          case 'comicCharacter': scopeFilters.comicCharacter = strValues; break;
+          case 'comicTeam': scopeFilters.comicTeam = strValues; break;
+          case 'comicLocation': scopeFilters.comicLocation = strValues; break;
+          case 'comicCreator': scopeFilters.comicCreator = strValues; break;
+          case 'shelf': scopeFilters.shelves = strValues; break;
+          case 'library': scopeFilters.libraries = strValues; break;
         }
       }
       const mode = this.selectedFilterMode();
@@ -288,7 +307,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   private containerResizeObserver: ResizeObserver | undefined;
 
   readonly gridColumns = computed(() => {
-    return computeGridColumns(this.containerWidth(), parseInt(this.gridColumnMinWidth, 10) || 180, this.GRID_GAP);
+    return computeGridColumns(this.containerWidth(), parseInt(this.gridColumnMinWidth(), 10) || 180, this.GRID_GAP);
   });
 
   /**
@@ -301,7 +320,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     if (total === 0) return 0;
     const cols = this.gridColumns();
     const rows = Math.ceil(total / cols);
-    const rowHeight = this.currentCardSize.height + this.GRID_GAP;
+    const rowHeight = this.currentCardSize().height + this.GRID_GAP;
     return rows * rowHeight;
   });
 
@@ -313,28 +332,64 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!books || books.length === 0) return 0;
     const cols = this.gridColumns();
     const rows = Math.ceil(books.length / cols);
-    const rowHeight = this.currentCardSize.height + this.GRID_GAP;
+    const rowHeight = this.currentCardSize().height + this.GRID_GAP;
     return rows * rowHeight;
   });
 
-  protected resetFilterSubject = new Subject<void>();
 
-  readonly skeletonSlots = Array.from({length: 24}, (_, index) => index);
+  skeletonSlots = Array.from({length: 24}, (_, index) => index);
   readonly tableSkeletonRows = Array.from({length: 8}, (_, index) => index);
   readonly tableSkeletonColumns = Array.from({length: 5}, (_, index) => index);
   parsedFilters: Record<string, string[]> = {};
   bookTitle = '';
   dynamicDialogRef: DynamicDialogRef | undefined | null;
   EntityType = EntityType;
-  currentFilterLabel: string | null = null;
+
+  private readonly activeLang = toSignal(this.t.langChanges$, {
+    initialValue: this.t.getActiveLang()
+  });
+
+  readonly computedFilterLabel = computed(() => {
+    this.activeLang();
+    const filters = this.selectedFilter();
+
+    if (!filters || Object.keys(filters).length === 0) {
+      return this.t.translate('book.browser.labels.allBooks');
+    }
+
+    const filterEntries = Object.entries(filters);
+
+    if (filterEntries.length === 1) {
+      const [filterType, values] = filterEntries[0];
+      const filterName = FilterLabelHelper.getFilterTypeName(filterType);
+
+      if (values.length === 1) {
+        const displayValue = FilterLabelHelper.getFilterDisplayValue(filterType, values[0]);
+        return `${filterName}: ${displayValue}`;
+      }
+
+      return `${filterName} (${values.length})`;
+    }
+
+    const filterSummary = filterEntries
+      .map(([type, values]) => `${FilterLabelHelper.getFilterTypeName(type)} (${values.length})`)
+      .join(', ');
+
+    return filterSummary.length > 50
+      ? this.t.translate('book.browser.labels.activeFilters', {count: filterEntries.length})
+      : filterSummary;
+  });
+
+  readonly currentFilterLabel = computed(() => this.computedFilterLabel());
+
   rawFilterParamFromUrl: string | null = null;
   visibleColumns: { field: string; header: string }[] = [];
   entityViewPreferences: EntityViewPreferences | undefined;
-  currentViewMode: string | undefined;
+  currentViewMode = signal<string | undefined>(undefined);
   lastAppliedSortCriteria: SortOption[] = [];
   visibleSortOptions: SortOption[] = [];
-  screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
-  mobileColumnCount = 3;
+  screenWidth = signal(typeof window !== 'undefined' ? window.innerWidth : 1024);
+  mobileColumnCount = signal(3);
 
   private readonly MOBILE_BREAKPOINT = 768;
   private readonly CARD_ASPECT_RATIO = 7 / 5;
@@ -355,6 +410,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     this.t
   );
   private readonly syncBrowserStateEffect = effect(() => {
+    this.activeLang();
     const entityType = this.entityType();
     const entity = this.entity();
 
@@ -424,7 +480,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild(BookTableComponent)
   bookTableComponent!: BookTableComponent;
-  @ViewChild(BookFilterComponent, {static: false})
+  @ViewChild(BookFilterComponent, {static: true})
   bookFilterComponent!: BookFilterComponent;
 
   private scrollContainer: HTMLElement | undefined;
@@ -469,112 +525,80 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @HostListener('window:resize')
   onResize(): void {
-    this.screenWidth = window.innerWidth;
+    this.screenWidth.set(window.innerWidth);
   }
 
-  get isMobile(): boolean {
-    return this.screenWidth < this.MOBILE_BREAKPOINT;
-  }
+  readonly isMobile = computed(() => this.screenWidth() < this.MOBILE_BREAKPOINT);
 
-  get mobileCardSize(): { width: number; height: number } {
-    const columns = this.mobileColumnCount;
+  readonly mobileCardSize = computed(() => {
+    const columns = this.mobileColumnCount();
     const totalGaps = (columns - 1) * this.MOBILE_GAP;
-    const availableWidth = this.screenWidth - totalGaps - this.MOBILE_PADDING;
+    const availableWidth = this.screenWidth() - totalGaps - this.MOBILE_PADDING;
     const cardWidth = Math.floor(availableWidth / columns);
-    const coverHeight = this.isAudiobookOnlyLibrary ? cardWidth : Math.floor(cardWidth * this.CARD_ASPECT_RATIO);
+    const coverHeight = this.isAudiobookOnlyLibrary() ? cardWidth : Math.floor(cardWidth * this.CARD_ASPECT_RATIO);
     const cardHeight = coverHeight + this.MOBILE_TITLE_BAR_HEIGHT;
     return {width: cardWidth, height: cardHeight};
-  }
+  });
 
-  get currentCardSize() {
-    if (this.isMobile) {
-      return this.mobileCardSize;
+  readonly currentCardSize = computed(() => {
+    if (this.isMobile()) {
+      return this.mobileCardSize();
     }
     const base = this.coverScalePreferenceService.currentCardSize();
-    if (this.isAudiobookOnlyLibrary) {
+    if (this.isAudiobookOnlyLibrary()) {
       const squareSide = Math.round(base.width * 1.1);
       return { width: squareSide, height: squareSide + 31 };
     }
     return base;
-  }
+  });
 
-  get gridColumnMinWidth(): string {
-    if (this.isMobile) {
-      return `${this.mobileCardSize.width}px`;
+  readonly gridColumnMinWidth = computed(() => {
+    if (this.isMobile()) {
+      return `${this.mobileCardSize().width}px`;
     }
-    if (this.isAudiobookOnlyLibrary) {
-      return `${this.currentCardSize.width}px`;
+    if (this.isAudiobookOnlyLibrary()) {
+      return `${this.currentCardSize().width}px`;
     }
     return this.coverScalePreferenceService.gridColumnMinWidth();
-  }
+  });
 
   getCardHeight(_book: Book): number {
-    if (this.isMobile) {
-      return this.mobileCardSize.height;
+    if (this.isMobile()) {
+      return this.mobileCardSize().height;
     }
-    if (this.isAudiobookOnlyLibrary) {
-      return this.currentCardSize.height;
+    if (this.isAudiobookOnlyLibrary()) {
+      return this.currentCardSize().height;
     }
     return this.coverScalePreferenceService.getCardHeight(_book);
   }
 
-  get showBooksLoadingPlaceholder(): boolean {
-    return !this.booksError() && (this.isBooksLoading() || !this.hasRenderedBooks());
-  }
+  readonly showBooksLoadingPlaceholder = computed(() =>
+    !this.booksError() && !this.hasRenderedBooks()
+  );
 
-  get showTableLoadingPlaceholder(): boolean {
-    return this.showBooksLoadingPlaceholder && this.currentViewMode === VIEW_MODES.TABLE;
-  }
+  readonly showTableLoadingPlaceholder = computed(() =>
+    this.showBooksLoadingPlaceholder() && this.currentViewMode() === VIEW_MODES.TABLE
+  );
 
-  get showGridLoadingPlaceholder(): boolean {
-    return this.showBooksLoadingPlaceholder && this.currentViewMode !== VIEW_MODES.TABLE;
-  }
+  readonly showGridLoadingPlaceholder = computed(() =>
+    this.showBooksLoadingPlaceholder() && this.currentViewMode() === VIEW_MODES.GRID
+  );
 
-  get viewIcon(): string {
-    return this.currentViewMode === VIEW_MODES.TABLE ? 'pi pi-table' : 'pi pi-objects-column';
-  }
+  readonly viewIcon = computed(() =>
+    this.currentViewMode() === VIEW_MODES.TABLE ? 'pi pi-table' : 'pi pi-objects-column'
+  );
 
-  get isFilterActive(): boolean {
+  readonly isFilterActive = computed(() => {
     const selectedFilter = this.selectedFilter();
     return !!selectedFilter && Object.keys(selectedFilter).length > 0;
-  }
+  });
 
-  get computedFilterLabel(): string {
-    const filters = this.selectedFilter();
-
-    if (!filters || Object.keys(filters).length === 0) {
-      return this.t.translate('book.browser.labels.allBooks');
-    }
-
-    const filterEntries = Object.entries(filters);
-
-    if (filterEntries.length === 1) {
-      const [filterType, values] = filterEntries[0];
-      const filterName = FilterLabelHelper.getFilterTypeName(filterType);
-
-      if (values.length === 1) {
-        const displayValue = FilterLabelHelper.getFilterDisplayValue(filterType, values[0]);
-        return `${filterName}: ${displayValue}`;
-      }
-
-      return `${filterName} (${values.length})`;
-    }
-
-    const filterSummary = filterEntries
-      .map(([type, values]) => `${FilterLabelHelper.getFilterTypeName(type)} (${values.length})`)
-      .join(', ');
-
-    return filterSummary.length > 50
-      ? this.t.translate('book.browser.labels.activeFilters', {count: filterEntries.length})
-      : filterSummary;
-  }
-
-  get isAudiobookOnlyLibrary(): boolean {
+  readonly isAudiobookOnlyLibrary = computed(() => {
     const entity = this.entity();
     if (!entity || this.entityType() !== EntityType.LIBRARY) return false;
     const library = entity as Library;
     return !!library.allowedFormats && library.allowedFormats.length === 1 && library.allowedFormats[0] === 'AUDIOBOOK';
-  }
+  });
 
   get seriesViewEnabled(): boolean {
     return Boolean(this.userService.getCurrentUser()?.userSettings?.enableSeriesView);
@@ -597,9 +621,8 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     if (this.bookFilterComponent) {
-      this.bookFilterComponent.setFilters?.(this.parsedFilters);
-      this.bookFilterComponent.onFiltersChanged?.();
-      this.bookFilterComponent.selectedFilterMode = this.selectedFilterMode();
+      this.bookFilterComponent.setFilters(this.parsedFilters);
+      this.bookFilterComponent.onFilterModeChange(this.selectedFilterMode());
     }
   }
 
@@ -620,7 +643,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
    * and fetches the next page if necessary.
    */
   private checkAndFetchIfNeeded(): void {
-    if (!this.scrollContainer || this.currentViewMode === VIEW_MODES.TABLE) return;
+    if (!this.scrollContainer || this.currentViewMode() !== VIEW_MODES.GRID) return;
 
     const {scrollTop, clientHeight} = this.scrollContainer;
     const buffer = 1000; // Large buffer to facilitate scroll restoration
@@ -713,11 +736,10 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
       if (parseResult.filterMode !== this.selectedFilterMode()) {
         this.selectedFilterMode.set(parseResult.filterMode);
         if (this.bookFilterComponent) {
-          this.bookFilterComponent.selectedFilterMode = parseResult.filterMode;
+          this.bookFilterComponent.onFilterModeChange(parseResult.filterMode);
         }
       }
 
-      this.currentFilterLabel = this.t.translate('book.browser.labels.allBooks');
       const filterParams = queryParamMap.get('filter');
 
       if (filterParams) {
@@ -725,12 +747,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
         this.selectedFilter.set(parseResult.filters);
 
         if (this.bookFilterComponent) {
-          this.bookFilterComponent.setFilters?.(parseResult.filters);
-          this.bookFilterComponent.onFiltersChanged?.();
-        }
-
-        if (Object.keys(parseResult.filters).length > 0) {
-          this.currentFilterLabel = this.computedFilterLabel;
+          this.bookFilterComponent.setFilters(parseResult.filters);
         }
 
         this.rawFilterParamFromUrl = filterParams;
@@ -755,7 +772,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
       if (!this.areSortCriteriaEqual(this.bookSorter.selectedSortCriteria, parseResult.sortCriteria)) {
         this.bookSorter.setSortCriteria(parseResult.sortCriteria);
       }
-      this.currentViewMode = parseResult.viewMode;
+      this.currentViewMode.set(parseResult.viewMode);
 
       if (!this.areSortCriteriaEqual(this.lastAppliedSortCriteria, this.bookSorter.selectedSortCriteria)) {
         this.lastAppliedSortCriteria = [...this.bookSorter.selectedSortCriteria];
@@ -764,7 +781,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
       this.queryParamsService.syncQueryParams(
-        this.currentViewMode!,
+        this.currentViewMode()!,
         this.selectedFilterMode(),
         this.parsedFilters
       );
@@ -785,9 +802,6 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.selectedFilter.set(normalizedFilters);
     this.rawFilterParamFromUrl = null;
-
-    const hasSidebarFilters = !!normalizedFilters && Object.keys(normalizedFilters).length > 0;
-    this.currentFilterLabel = hasSidebarFilters ? this.computedFilterLabel : this.t.translate('book.browser.labels.allBooks');
 
     this.queryParamsService.updateFilters(normalizedFilters);
   }
@@ -896,18 +910,16 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     this.onMultiSortChange(criteria);
   }
 
-  get canSaveSort(): boolean {
+  readonly canSaveSort = computed(() => {
     const entityType = this.entityType();
     return entityType === EntityType.LIBRARY ||
            entityType === EntityType.SHELF ||
            entityType === EntityType.MAGIC_SHELF ||
            entityType === EntityType.ALL_BOOKS ||
            entityType === EntityType.UNSHELVED;
-  }
+  });
 
-  get hasSearchTerm(): boolean {
-    return this.searchTerm().trim().length > 0;
-  }
+  readonly hasSearchTerm = computed(() => this.searchTerm().trim().length > 0);
 
   onSaveSortConfig(criteria: SortOption[]): void {
     const entityType = this.entityType();
@@ -998,7 +1010,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   resetFilters(): void {
-    this.resetFilterSubject.next();
+    this.bookFilterComponent?.clearActiveFilter();
   }
 
   clearFilter(): void {
@@ -1009,13 +1021,14 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   toggleTableGrid(): void {
-    this.currentViewMode = this.currentViewMode === VIEW_MODES.GRID ? VIEW_MODES.TABLE : VIEW_MODES.GRID;
-    this.queryParamsService.updateViewMode(this.currentViewMode as 'grid' | 'table');
+    const newMode = this.currentViewMode() === VIEW_MODES.GRID ? VIEW_MODES.TABLE : VIEW_MODES.GRID;
+    this.currentViewMode.set(newMode);
+    this.queryParamsService.updateViewMode(newMode as 'grid' | 'table');
   }
 
   onViewModeChange(mode: string): void {
-    if (mode && mode !== this.currentViewMode) {
-      this.currentViewMode = mode;
+    if (mode && mode !== this.currentViewMode()) {
+      this.currentViewMode.set(mode);
       this.queryParamsService.updateViewMode(mode as 'grid' | 'table');
     }
   }
@@ -1228,14 +1241,14 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   setMobileColumns(columns: number): void {
-    this.mobileColumnCount = columns;
+    this.mobileColumnCount.set(columns);
     this.localStorageService.set(this.MOBILE_COLUMNS_STORAGE_KEY, columns);
   }
 
   private loadMobileColumnsPreference(): void {
     const saved = this.localStorageService.get<number>(this.MOBILE_COLUMNS_STORAGE_KEY);
     if (saved !== null && [2, 3, 4].includes(saved)) {
-      this.mobileColumnCount = saved;
+      this.mobileColumnCount.set(saved);
     }
   }
 }

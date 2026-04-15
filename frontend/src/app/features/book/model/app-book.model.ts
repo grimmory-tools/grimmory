@@ -25,6 +25,12 @@ export interface AppBookSummary {
   coverUpdatedOn: string | null;
   audiobookCoverUpdatedOn: string | null;
   isPhysical: boolean | null;
+  publishedDate: string | null;
+  pageCount: number | null;
+  ageRating: number | null;
+  contentRating: string | null;
+  metadataMatchScore: number | null;
+  fileSizeKb: number | null;
 }
 
 export interface AppFilterOptions {
@@ -38,6 +44,23 @@ export interface AppFilterOptions {
   tags: CountedOption[];
   moods: CountedOption[];
   narrators: CountedOption[];
+  ageRatings: CountedOption[];
+  contentRatings: CountedOption[];
+  matchScores: CountedOption[];
+  publishedYears: CountedOption[];
+  fileSizes: CountedOption[];
+  personalRatings: CountedOption[];
+  amazonRatings: CountedOption[];
+  goodreadsRatings: CountedOption[];
+  hardcoverRatings: CountedOption[];
+  pageCounts: CountedOption[];
+  shelfStatuses: CountedOption[];
+  comicCharacters: CountedOption[];
+  comicTeams: CountedOption[];
+  comicLocations: CountedOption[];
+  comicCreators: CountedOption[];
+  shelves: CountedOption[];
+  libraries: CountedOption[];
 }
 
 export interface CountedOption {
@@ -69,6 +92,23 @@ export interface AppBookFilters {
   tag?: string[];
   mood?: string[];
   narrator?: string[];
+  ageRating?: string[];
+  contentRating?: string[];
+  matchScore?: string[];
+  publishedDate?: string[];
+  fileSize?: string[];
+  personalRating?: string[];
+  amazonRating?: string[];
+  goodreadsRating?: string[];
+  hardcoverRating?: string[];
+  pageCount?: string[];
+  shelfStatus?: string[];
+  comicCharacter?: string[];
+  comicTeam?: string[];
+  comicLocation?: string[];
+  comicCreator?: string[];
+  shelves?: string[];
+  libraries?: string[];
   filterMode?: 'and' | 'or' | 'not';
 }
 

@@ -8,17 +8,17 @@
           <div class="entity-info">
             <p class="entity-title">
               @if (entityType === EntityType.ALL_BOOKS) {
-                @if (currentFilterLabel && rawFilterParamFromUrl) {
-                  {{ currentFilterLabel }}
-                } @else if (isFilterActive || hasSearchTerm) {
-                  {{ computedFilterLabel }}
+                @if (currentFilterLabel() && rawFilterParamFromUrl) {
+                  {{ currentFilterLabel() }}
+                } @else if (isFilterActive() || hasSearchTerm()) {
+                  {{ computedFilterLabel() }}
                 } @else {
                   {{ t('labels.allBooks') }}
                 }
               } @else if (entityType === EntityType.UNSHELVED) {
-                {{ (isFilterActive || hasSearchTerm) ? t('labels.unshelvedBooksFiltered') : t('labels.unshelvedBooks') }}
+                {{ (isFilterActive() || hasSearchTerm()) ? t('labels.unshelvedBooksFiltered') : t('labels.unshelvedBooks') }}
               } @else {
-                {{ entityType }}: {{ entity()?.name }}{{ (isFilterActive || hasSearchTerm) ? ' ' + t('labels.filteredSuffix') : '' }}
+                {{ entityType }}: {{ entity()?.name }}{{ (isFilterActive() || hasSearchTerm()) ? ' ' + t('labels.filteredSuffix') : '' }}
               }
             </p>
             @if (!isBooksLoading() && seriesCollapseFilter.seriesCollapsed() && books(); as books) {
@@ -46,7 +46,7 @@
       </div>
       <div class="toolbar-actions">
         <div class="toolbar-icons">
-          @if (isFilterActive) {
+          @if (isFilterActive()) {
             <a class="topbar-items topbar-item" role="button" tabindex="0" (click)="clearFilter()" (keydown.enter)="clearFilter()">
               <i
                 class="pi pi-filter-slash filter-clear-icon"
@@ -56,7 +56,7 @@
             </a>
           }
 
-          @if (currentViewMode === 'table') {
+          @if (currentViewMode() === 'table') {
             <div>
               <a class="topbar-items topbar-item" role="button" tabindex="0" (click)="columnPopover.toggle($event)" (keydown.enter)="columnPopover.toggle($event)">
                 <i
@@ -92,7 +92,7 @@
           }
           <a class="topbar-items topbar-item" role="button" tabindex="0" (click)="toggleTableGrid()" (keydown.enter)="toggleTableGrid()">
             <i
-              [ngClass]="viewIcon"
+              [ngClass]="viewIcon()"
               [pTooltip]="t('tooltip.toggleView')"
               tooltipPosition="top">
             </i>
@@ -121,24 +121,24 @@
                     <label for="collapse-series-checkbox" class="display-settings-label">{{ t('labels.collapseSeries') }}</label>
                   </div>
                 </div>
-                @if (isMobile) {
+                @if (isMobile()) {
                   <div class="display-settings-section">
                     <span class="display-settings-label">{{ t('labels.gridColumns') }}</span>
                     <div class="column-options">
                       <button
                         type="button"
                         class="column-option-btn"
-                        [class.active]="mobileColumnCount === 2"
+                        [class.active]="mobileColumnCount() === 2"
                         (click)="setMobileColumns(2)">2</button>
                       <button
                         type="button"
                         class="column-option-btn"
-                        [class.active]="mobileColumnCount === 3"
+                        [class.active]="mobileColumnCount() === 3"
                         (click)="setMobileColumns(3)">3</button>
                       <button
                         type="button"
                         class="column-option-btn"
-                        [class.active]="mobileColumnCount === 4"
+                        [class.active]="mobileColumnCount() === 4"
                         (click)="setMobileColumns(4)">4</button>
                     </div>
                   </div>
@@ -188,7 +188,7 @@
               <app-multi-sort-popover
                 [sortCriteria]="this.bookSorter.selectedSortCriteria"
                 [availableSortOptions]="visibleSortOptions"
-                [showSaveButton]="canSaveSort"
+                [showSaveButton]="canSaveSort()"
                 (criteriaChange)="onSortCriteriaChange($event)"
                 (saveSortConfig)="onSaveSortConfig($event)">
               </app-multi-sort-popover>
@@ -263,7 +263,7 @@
       </div>
     </div>
 
-    @if (showTableLoadingPlaceholder) {
+    @if (showTableLoadingPlaceholder()) {
       <div class="table-skeleton" aria-hidden="true">
         <div class="table-skeleton-header">
           @for (column of tableSkeletonColumns; track column) {
@@ -279,12 +279,12 @@
           </div>
         }
       </div>
-    } @else if (showGridLoadingPlaceholder) {
+    } @else if (showGridLoadingPlaceholder()) {
       <div class="skeleton-grid"
-        [ngStyle]="{'grid-template-columns': 'repeat(auto-fill, minmax(' + gridColumnMinWidth + ', 1fr))'}">
+        [ngStyle]="{'grid-template-columns': 'repeat(auto-fill, minmax(' + gridColumnMinWidth() + ', 1fr))'}">
         @for (item of skeletonSlots; track item) {
           <div class="skeleton-card"
-            [ngStyle]="{width: currentCardSize.width + 'px', height: currentCardSize.height + 'px'}">
+            [ngStyle]="{width: currentCardSize().width + 'px', height: currentCardSize().height + 'px'}">
           </div>
         }
       </div>
@@ -308,7 +308,7 @@
               </p>
             </div>
           }
-          @if (currentViewMode === 'table' && books.length > 0) {
+          @if (currentViewMode() === 'table' && books.length > 0) {
             <app-book-table
               [books]="books"
               [preselectedBookIds]="selectedBooks()"
@@ -317,15 +317,15 @@
               [visibleColumns]="visibleColumns"
             ></app-book-table>
           }
-          @if (currentViewMode === 'grid') {
+          @if (currentViewMode() === 'grid') {
             <div class="virtual-scroller" #scrollContainer>
               <div class="scroll-height-anchor" [ngStyle]="{'min-height': estimatedTotalHeight() + 'px'}">
                 <div class="book-grid"
-                  [ngStyle]="{'grid-template-columns': 'repeat(auto-fill, minmax(' + gridColumnMinWidth + ', 1fr))'}">
+                  [ngStyle]="{'grid-template-columns': 'repeat(auto-fill, minmax(' + gridColumnMinWidth() + ', 1fr))'}">
                   @for (book of books; track book.id; let i = $index) {
                     <div
                       class="virtual-scroller-item"
-                      [ngStyle]="{width: currentCardSize.width + 'px', height: currentCardSize.height + 'px'}">
+                      [ngStyle]="{width: currentCardSize().width + 'px', height: currentCardSize().height + 'px'}">
                       <app-book-card
                         [index]="i"
                         [book]="book"
@@ -335,7 +335,7 @@
                         [isSeriesCollapsed]="seriesCollapseFilter.seriesCollapsed()"
                         (checkboxClick)="onCheckboxClicked($event)"
                         [isSelected]="selectedBooks().has(book.id)"
-                        [useSquareCovers]="isAudiobookOnlyLibrary"
+                        [useSquareCovers]="isAudiobookOnlyLibrary()"
                         [overlayPreferenceService]="bookCardOverlayPreferenceService">
                       </app-book-card>
                     </div>
@@ -481,17 +481,15 @@
       (click)="toggleSidebar()"
       (keydown.enter)="toggleSidebar()">
     </div>
-    <app-book-filter
-      [showFilter]="showFilter()"
-      class="filter-overlay-container"
-      [ngClass]="{ 'active': showFilter() }"
-      [entity]="entity()"
-      [entityType]="entityType()"
-      [resetFilter$]="resetFilterSubject"
-      (filterSelected)="onFilterSelected($event)"
-      (filterModeChanged)="onFilterModeChanged($event)">
-    </app-book-filter>
   }
+  <app-book-filter
+    [showFilter]="showFilter()"
+    class="filter-overlay-container"
+    [ngClass]="{ 'active': showFilter() }"
+    [style.display]="showFilter() ? '' : 'none'"
+    (filterSelected)="onFilterSelected($event)"
+    (filterModeChanged)="onFilterModeChanged($event)">
+  </app-book-filter>
 
 </div>
 </ng-container>
