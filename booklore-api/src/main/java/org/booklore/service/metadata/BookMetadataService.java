@@ -97,9 +97,8 @@ public class BookMetadataService {
 
         return Flux.fromIterable(request.getProviders())
                 .flatMap(provider ->
-                    Mono.fromCallable(() -> fetchMetadataListFromAProvider(provider, book, request))
+                    Flux.defer(() -> getParser(provider).fetchMetadataStream(book, request))
                             .subscribeOn(Schedulers.boundedElastic())
-                            .flatMapMany(Flux::fromIterable)
                             .onErrorResume(e -> {
                                 log.error("Error fetching metadata from provider: {}", provider, e);
                                 return Flux.empty();

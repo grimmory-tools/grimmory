@@ -80,23 +80,26 @@ export class CoverSearchComponent implements OnInit {
   onSearch() {
     if (this.searchForm.valid) {
       this.loading = true;
+      this.coverImages = [];
       const request: CoverFetchRequest = {
+        bookId: this.bookId,
         title: this.searchForm.value.title,
         author: this.searchForm.value.author,
         coverType: this.coverType
       };
 
       this.bookCoverService.fetchBookCovers(request)
-        .pipe(finalize(() => this.loading = false))
+        .pipe(finalize(() => {
+          this.loading = false;
+          this.hasSearched = true;
+        }))
         .subscribe({
-          next: (images) => {
-            this.coverImages = images.sort((a, b) => a.index - b.index);
-            this.hasSearched = true;
+          next: (image) => {
+            this.coverImages.push(image);
+            this.coverImages.sort((a, b) => a.index - b.index);
           },
           error: (error) => {
             console.error('Error fetching covers:', error);
-            this.coverImages = [];
-            this.hasSearched = true;
           }
         });
     } else {
