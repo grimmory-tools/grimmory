@@ -231,8 +231,10 @@ export type VisibleFilterType =
 
 export const DEFAULT_VISIBLE_FILTERS: VisibleFilterType[] = [
   'author', 'category', 'series', 'bookType', 'readStatus',
-  'personalRating', 'library', 'tag', 'ageRating', 'contentRating',
-  'matchScore', 'publisher', 'publishedDate', 'fileSize'
+  'personalRating', 'amazonRating', 'goodreadsRating', 'hardcoverRating',
+  'library', 'tag', 'ageRating', 'contentRating',
+  'matchScore', 'publisher', 'publishedDate', 'fileSize',
+  'pageCount', 'shelfStatus', 'language', 'mood', 'narrator'
 ];
 
 // Translation key for each filter option — use book.filter.labels.<value>

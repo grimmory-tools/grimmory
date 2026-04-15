@@ -87,7 +87,38 @@ export class AppBooksApiService {
     const err = this.booksQuery.error();
     return err instanceof Error ? err.message : 'Failed to load books';
   });
-  readonly filterOptions = computed(() => this.filterOptionsQuery.data() ?? null);
+
+  private readonly _filterOptions = computed(() => this.filterOptionsQuery.data() ?? null);
+  readonly filterOptions = this._filterOptions;
+
+  // Individual signals for each filter type for more granular reactivity
+  readonly authorOptions = computed(() => this._filterOptions()?.authors ?? []);
+  readonly languageOptions = computed(() => this._filterOptions()?.languages ?? []);
+  readonly categoryOptions = computed(() => this._filterOptions()?.categories ?? []);
+  readonly seriesOptions = computed(() => this._filterOptions()?.series ?? []);
+  readonly publisherOptions = computed(() => this._filterOptions()?.publishers ?? []);
+  readonly tagOptions = computed(() => this._filterOptions()?.tags ?? []);
+  readonly moodOptions = computed(() => this._filterOptions()?.moods ?? []);
+  readonly narratorOptions = computed(() => this._filterOptions()?.narrators ?? []);
+  readonly ageRatingOptions = computed(() => this._filterOptions()?.ageRatings ?? []);
+  readonly contentRatingOptions = computed(() => this._filterOptions()?.contentRatings ?? []);
+  readonly matchScoreOptions = computed(() => this._filterOptions()?.matchScores ?? []);
+  readonly publishedYearOptions = computed(() => this._filterOptions()?.publishedYears ?? []);
+  readonly fileSizeOptions = computed(() => this._filterOptions()?.fileSizes ?? []);
+  readonly personalRatingOptions = computed(() => this._filterOptions()?.personalRatings ?? []);
+  readonly amazonRatingOptions = computed(() => this._filterOptions()?.amazonRatings ?? []);
+  readonly goodreadsRatingOptions = computed(() => this._filterOptions()?.goodreadsRatings ?? []);
+  readonly hardcoverRatingOptions = computed(() => this._filterOptions()?.hardcoverRatings ?? []);
+  readonly pageCountOptions = computed(() => this._filterOptions()?.pageCounts ?? []);
+  readonly shelfStatusOptions = computed(() => this._filterOptions()?.shelfStatuses ?? []);
+  readonly readStatusOptions = computed(() => this._filterOptions()?.readStatuses ?? []);
+  readonly fileTypeOptions = computed(() => this._filterOptions()?.fileTypes ?? []);
+  readonly comicCharacterOptions = computed(() => this._filterOptions()?.comicCharacters ?? []);
+  readonly comicTeamOptions = computed(() => this._filterOptions()?.comicTeams ?? []);
+  readonly comicLocationOptions = computed(() => this._filterOptions()?.comicLocations ?? []);
+  readonly comicCreatorOptions = computed(() => this._filterOptions()?.comicCreators ?? []);
+  readonly shelfOptions = computed(() => this._filterOptions()?.shelves ?? []);
+  readonly libraryOptions = computed(() => this._filterOptions()?.libraries ?? []);
 
   setFilters(filters: AppBookFilters): void {
     if (JSON.stringify(this._filters()) !== JSON.stringify(filters)) {
@@ -148,6 +179,23 @@ export class AppBooksApiService {
       ['tag', filters.tag],
       ['mood', filters.mood],
       ['narrator', filters.narrator],
+      ['ageRating', filters.ageRating],
+      ['contentRating', filters.contentRating],
+      ['matchScore', filters.matchScore],
+      ['publishedDate', filters.publishedDate],
+      ['fileSize', filters.fileSize],
+      ['personalRating', filters.personalRating],
+      ['amazonRating', filters.amazonRating],
+      ['goodreadsRating', filters.goodreadsRating],
+      ['hardcoverRating', filters.hardcoverRating],
+      ['pageCount', filters.pageCount],
+      ['shelfStatus', filters.shelfStatus],
+      ['comicCharacter', filters.comicCharacter],
+      ['comicTeam', filters.comicTeam],
+      ['comicLocation', filters.comicLocation],
+      ['comicCreator', filters.comicCreator],
+      ['shelves', filters.shelves],
+      ['libraries', filters.libraries],
       ['status', filters.status],
       ['fileType', filters.fileType],
     ];
@@ -176,6 +224,8 @@ function summaryToBook(summary: AppBookSummary): Book {
     addedOn: summary.addedOn,
     lastReadTime: summary.lastReadTime,
     isPhysical: summary.isPhysical ?? false,
+    fileSizeKb: summary.fileSizeKb ?? undefined,
+    metadataMatchScore: summary.metadataMatchScore,
     metadata: {
       bookId: summary.id,
       title: summary.title,
@@ -184,6 +234,10 @@ function summaryToBook(summary: AppBookSummary): Book {
       seriesNumber: summary.seriesNumber,
       coverUpdatedOn: summary.coverUpdatedOn,
       audiobookCoverUpdatedOn: summary.audiobookCoverUpdatedOn,
+      publishedDate: summary.publishedDate ?? undefined,
+      pageCount: summary.pageCount,
+      ageRating: summary.ageRating,
+      contentRating: summary.contentRating,
     },
     primaryFile: summary.primaryFileType
       ? {bookType: summary.primaryFileType as BookType, extension: summary.primaryFileType.toLowerCase()}

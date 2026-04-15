@@ -42,22 +42,21 @@ public class EpubReaderController {
     @Operation(summary = "Get file from EPUB", description = "Retrieve a specific file from within the EPUB archive (HTML, CSS, images, fonts, etc.).")
     @ApiResponse(responseCode = "200", description = "File content returned successfully")
     @CheckBookAccess(bookIdParam = "bookId")
-    @GetMapping("/{bookId}/file/**")
+    @GetMapping("/{bookId}/file/{*filePath}")
     public void getFile(
             @Parameter(description = "ID of the book") @PathVariable Long bookId,
+            @PathVariable String filePath,
             @Parameter(description = "Optional book type for alternative format (e.g., EPUB)") @RequestParam(required = false) String bookType,
             HttpServletRequest request,
             HttpServletResponse response) throws IOException {
 
-        String fullPath = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-        String prefix = "/api/v1/epub/" + bookId + "/file/";
-        String filePath = fullPath.substring(prefix.length());
-        filePath = URLDecoder.decode(filePath, StandardCharsets.UTF_8);
+        String cleanPath = filePath.startsWith("/") ? filePath.substring(1) : filePath;
+        cleanPath = URLDecoder.decode(cleanPath, StandardCharsets.UTF_8);
 
-        String contentType = epubReaderService.getContentType(bookId, bookType, filePath);
+        String contentType = epubReaderService.getContentType(bookId, bookType, cleanPath);
         response.setContentType(contentType);
 
-        long fileSize = epubReaderService.getFileSize(bookId, bookType, filePath);
+        long fileSize = epubReaderService.getFileSize(bookId, bookType, cleanPath);
         if (fileSize > 0) {
             response.setContentLengthLong(fileSize);
         }
@@ -69,10 +68,10 @@ public class EpubReaderController {
             response.setHeader("Access-Control-Allow-Origin", "*");
         }
 
-        response.setHeader("Cache-Control", "public, max-age=3600");
+        response.setHeader("Cache-Control", "private, max-age=3600");
 
         try {
-            epubReaderService.streamFile(bookId, bookType, filePath, response.getOutputStream());
+            epubReaderService.streamFile(bookId, bookType, cleanPath, response.getOutputStream());
         } catch (FileNotFoundException e) {
             response.reset();
             response.sendError(HttpServletResponse.SC_NOT_FOUND);

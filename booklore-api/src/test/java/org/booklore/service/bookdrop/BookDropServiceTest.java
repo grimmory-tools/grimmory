@@ -42,8 +42,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -90,8 +88,6 @@ class BookDropServiceTest {
     private FileMovingHelper fileMovingHelper;
     @Mock
     private ApplicationEventPublisher eventPublisher;
-    @Mock
-    private PlatformTransactionManager transactionManager;
 
     @InjectMocks
     private BookDropService bookDropService;
@@ -127,9 +123,6 @@ class BookDropServiceTest {
         bookdropFile.setFileName("test-book.pdf");
 
         Files.createFile(tempDir.resolve("test-book.pdf"));
-
-        TransactionStatus txStatus = mock(TransactionStatus.class);
-        lenient().when(transactionManager.getTransaction(any())).thenReturn(txStatus);
     }
 
     @AfterEach
@@ -249,7 +242,7 @@ class BookDropServiceTest {
 
         when(bookdropFileRepository.findAllExcludingIdsFlat(any())).thenReturn(List.of(1L));
         when(bookdropFileRepository.findAllById(any())).thenReturn(List.of(bookdropFileEntity));
-        when(libraryRepository.findById(1L)).thenReturn(Optional.of(libraryEntity));
+        when(libraryRepository.findByIdWithPaths(1L)).thenReturn(Optional.of(libraryEntity));
         when(objectMapper.readValue(anyString(), eq(BookMetadata.class))).thenReturn(metadata);
         when(fileMovingHelper.getFileNamingPattern(libraryEntity)).thenReturn("{title}");
         when(fileMovingHelper.generateNewFilePath(anyString(), any(), anyString(), anyString()))
@@ -298,7 +291,7 @@ class BookDropServiceTest {
 
         when(bookdropFileRepository.findAllIds()).thenReturn(List.of(1L));
         when(bookdropFileRepository.findAllById(any())).thenReturn(List.of(bookdropFileEntity));
-        when(libraryRepository.findById(999L)).thenReturn(Optional.empty());
+        when(libraryRepository.findByIdWithPaths(999L)).thenReturn(Optional.empty());
 
         BookMetadata metadata = new BookMetadata();
         when(objectMapper.readValue(anyString(), eq(BookMetadata.class))).thenReturn(metadata);
@@ -399,7 +392,7 @@ class BookDropServiceTest {
 
         when(bookdropFileRepository.findAllIds()).thenReturn(List.of(2L));
         when(bookdropFileRepository.findAllById(any())).thenReturn(List.of(missingFileEntity));
-        when(libraryRepository.findById(1L)).thenReturn(Optional.of(libraryEntity));
+        when(libraryRepository.findByIdWithPaths(1L)).thenReturn(Optional.of(libraryEntity));
 
         BookMetadata metadata = new BookMetadata();
         metadata.setTitle("Missing Book");
@@ -431,7 +424,7 @@ class BookDropServiceTest {
 
         when(bookdropFileRepository.findAllIds()).thenReturn(List.of(1L));
         when(bookdropFileRepository.findAllById(any())).thenReturn(List.of(bookdropFileEntity));
-        when(libraryRepository.findById(1L)).thenReturn(Optional.of(libraryEntity));
+        when(libraryRepository.findByIdWithPaths(1L)).thenReturn(Optional.of(libraryEntity));
 
         BookMetadata metadata = new BookMetadata();
         when(objectMapper.readValue(anyString(), eq(BookMetadata.class))).thenReturn(metadata);
@@ -463,7 +456,7 @@ class BookDropServiceTest {
 
         when(bookdropFileRepository.findAllIds()).thenReturn(List.of(1L));
         when(bookdropFileRepository.findAllById(any())).thenReturn(List.of(bookdropFileEntity));
-        when(libraryRepository.findById(1L)).thenReturn(Optional.of(libraryEntity));
+        when(libraryRepository.findByIdWithPaths(1L)).thenReturn(Optional.of(libraryEntity));
         
         LibraryPathEntity pathEntity = new LibraryPathEntity();
         pathEntity.setId(1L);
@@ -530,7 +523,7 @@ class BookDropServiceTest {
         request.setFiles(List.of(finalizeFile));
 
         when(bookdropFileRepository.findAllById(any())).thenReturn(List.of(bookdropFileEntity));
-        when(libraryRepository.findById(1L)).thenReturn(Optional.of(libraryEntity));
+        when(libraryRepository.findByIdWithPaths(1L)).thenReturn(Optional.of(libraryEntity));
         when(objectMapper.readValue(anyString(), eq(BookMetadata.class))).thenReturn(new BookMetadata());
         when(fileMovingHelper.getFileNamingPattern(libraryEntity)).thenReturn("{title}");
         when(fileMovingHelper.generateNewFilePath(anyString(), any(), anyString(), anyString()))
@@ -587,7 +580,7 @@ class BookDropServiceTest {
         request.setFiles(List.of(finalizeFile));
 
         when(bookdropFileRepository.findAllById(any())).thenReturn(List.of(bookdropFileEntity));
-        when(libraryRepository.findById(1L)).thenReturn(Optional.of(libraryEntity));
+        when(libraryRepository.findByIdWithPaths(1L)).thenReturn(Optional.of(libraryEntity));
         when(objectMapper.readValue(anyString(), eq(BookMetadata.class))).thenReturn(new BookMetadata());
         when(fileMovingHelper.getFileNamingPattern(libraryEntity)).thenReturn("{title}");
         when(fileMovingHelper.generateNewFilePath(anyString(), any(), anyString(), anyString()))
@@ -621,5 +614,59 @@ class BookDropServiceTest {
 
         assertTrue(Files.exists(sourceFile), "Source file should be preserved on failure");
         assertFalse(Files.exists(targetDir.resolve("moved-book.pdf")), "Target file should be cleaned up on failure");
+    }
+
+    @Test
+    void finalizeImport_usesEagerPathsQueryForMoveFile() throws Exception {
+        BookdropFinalizeRequest request = new BookdropFinalizeRequest();
+        request.setSelectAll(true);
+        request.setDefaultLibraryId(1L);
+        request.setDefaultPathId(1L);
+
+        when(bookdropFileRepository.findAllIds()).thenReturn(List.of(1L));
+        when(bookdropFileRepository.findAllById(any())).thenReturn(List.of(bookdropFileEntity));
+        // Only findByIdWithPaths is stubbed findById would return empty/null, causing test failure
+        when(libraryRepository.findByIdWithPaths(1L)).thenReturn(Optional.of(libraryEntity));
+
+        BookMetadata metadata = new BookMetadata();
+        when(objectMapper.readValue(anyString(), eq(BookMetadata.class))).thenReturn(metadata);
+        when(fileMovingHelper.getFileNamingPattern(libraryEntity)).thenReturn("{title}");
+        when(fileMovingHelper.generateNewFilePath(anyString(), any(), anyString(), anyString()))
+                .thenReturn(tempDir.resolve("target-file.pdf"));
+
+        try (MockedStatic<Files> filesMock = mockStatic(Files.class, withSettings().lenient())) {
+            filesMock.when(() -> Files.exists(any(Path.class))).thenReturn(false);
+
+            bookDropService.finalizeImport(request);
+            verify(libraryRepository, atLeastOnce()).findByIdWithPaths(1L);
+            verify(libraryRepository, never()).findById(1L);
+        }
+    }
+
+    @Test
+    void finalizeImport_usesEagerPathsQueryForReregistration() throws Exception {
+        BookdropFinalizeRequest request = new BookdropFinalizeRequest();
+        request.setSelectAll(true);
+        request.setDefaultLibraryId(1L);
+        request.setDefaultPathId(1L);
+
+        when(bookdropFileRepository.findAllIds()).thenReturn(List.of(1L));
+        when(bookdropFileRepository.findAllById(any())).thenReturn(List.of(bookdropFileEntity));
+        when(libraryRepository.findByIdWithPaths(1L)).thenReturn(Optional.of(libraryEntity));
+
+        BookMetadata metadata = new BookMetadata();
+        when(objectMapper.readValue(anyString(), eq(BookMetadata.class))).thenReturn(metadata);
+        when(fileMovingHelper.getFileNamingPattern(libraryEntity)).thenReturn("{title}");
+        when(fileMovingHelper.generateNewFilePath(anyString(), any(), anyString(), anyString()))
+                .thenReturn(tempDir.resolve("target-file.pdf"));
+
+        try (MockedStatic<Files> filesMock = mockStatic(Files.class, withSettings().lenient())) {
+            filesMock.when(() -> Files.exists(any(Path.class))).thenReturn(false);
+
+            bookDropService.finalizeImport(request);
+
+            // findByIdWithPaths is called for both moveFile and reregisterAffectedLibraries
+            verify(libraryRepository, atLeast(2)).findByIdWithPaths(1L);
+        }
     }
 }

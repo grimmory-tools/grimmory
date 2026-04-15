@@ -2,6 +2,7 @@ package org.booklore.app.mapper;
 
 import org.booklore.app.dto.AppBookDetail;
 import org.booklore.app.dto.AppBookFile;
+import org.booklore.app.dto.AppBookProgressResponse;
 import org.booklore.app.dto.AppBookSummary;
 import org.booklore.app.dto.AppLibrarySummary;
 import org.booklore.app.dto.AppMagicShelfSummary;
@@ -34,6 +35,12 @@ public interface AppBookMapper {
     @Mapping(target = "coverUpdatedOn", source = "book.metadata.coverUpdatedOn")
     @Mapping(target = "audiobookCoverUpdatedOn", source = "book.metadata.audiobookCoverUpdatedOn")
     @Mapping(target = "isPhysical", source = "book.isPhysical")
+    @Mapping(target = "publishedDate", source = "book.metadata.publishedDate")
+    @Mapping(target = "pageCount", source = "book.metadata.pageCount")
+    @Mapping(target = "ageRating", source = "book.metadata.ageRating")
+    @Mapping(target = "contentRating", source = "book.metadata.contentRating")
+    @Mapping(target = "metadataMatchScore", source = "book.metadataMatchScore")
+    @Mapping(target = "fileSizeKb", source = "book", qualifiedByName = "mapFileSizeKb")
     AppBookSummary toSummary(BookEntity book, UserBookProgressEntity progress);
 
     @Mapping(target = "id", source = "book.id")
@@ -73,6 +80,20 @@ public interface AppBookMapper {
     @Mapping(target = "koreaderProgress", source = "progress", qualifiedByName = "mapKoreaderProgress")
     AppBookDetail toDetail(BookEntity book, UserBookProgressEntity progress, UserBookFileProgressEntity fileProgress);
 
+    default AppBookProgressResponse toProgressResponse(UserBookProgressEntity progress, UserBookFileProgressEntity fileProgress) {
+        return AppBookProgressResponse.builder()
+                .readProgress(mapReadProgress(progress))
+                .readStatus(progress != null && progress.getReadStatus() != null
+                        ? progress.getReadStatus().name() : null)
+                .lastReadTime(progress != null ? progress.getLastReadTime() : null)
+                .epubProgress(mapEpubProgress(progress))
+                .pdfProgress(mapPdfProgress(progress))
+                .cbxProgress(mapCbxProgress(progress))
+                .audiobookProgress(mapAudiobookProgress(fileProgress))
+                .koreaderProgress(mapKoreaderProgress(progress))
+                .build();
+    }
+
     @Named("mapAuthors")
     default List<String> mapAuthors(List<AuthorEntity> authors) {
         if (authors == null || authors.isEmpty()) {
@@ -99,6 +120,13 @@ public interface AppBookMapper {
             return null;
         }
         return "/api/books/" + book.getId() + "/cover";
+    }
+
+    @Named("mapFileSizeKb")
+    default Long mapFileSizeKb(BookEntity book) {
+        if (book == null) return null;
+        BookFileEntity primaryFile = book.getPrimaryBookFile();
+        return primaryFile != null ? primaryFile.getFileSizeKb() : null;
     }
 
     @Named("mapShelves")

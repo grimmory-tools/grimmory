@@ -161,19 +161,23 @@ public class OpdsBookService {
     }
 
     public List<Book> getRandomBooks(Long userId, int count) {
+        if (count < 1) {
+            return List.of();
+        }
+
         List<Library> accessibleLibraries = getAccessibleLibraries(userId);
         if (accessibleLibraries == null || accessibleLibraries.isEmpty()) {
             return List.of();
         }
 
         List<Long> libraryIds = accessibleLibraries.stream().map(Library::getId).toList();
-        List<Long> ids = bookOpdsRepository.findRandomBookIdsByLibraryIds(libraryIds);
+        List<Long> ids = bookOpdsRepository.findRandomBookIdsByLibraryIds(libraryIds, PageRequest.of(0, count));
 
         if (ids.isEmpty()) {
             return List.of();
         }
 
-        List<BookEntity> books = bookOpdsRepository.findAllWithMetadataByIds(ids.stream().limit(count).toList());
+        List<BookEntity> books = bookOpdsRepository.findAllWithMetadataByIds(ids);
         if (userId != null) {
             books = contentRestrictionService.applyRestrictions(books, userId);
         }

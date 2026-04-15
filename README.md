@@ -118,6 +118,7 @@ services:
       - DATABASE_USERNAME=${DB_USER}
       - DATABASE_PASSWORD=${DB_PASSWORD}
       - API_DOCS_ENABLED=${API_DOCS_ENABLED}
+      - DISK_TYPE=${DISK_TYPE}
     depends_on:
       mariadb:
         condition: service_healthy

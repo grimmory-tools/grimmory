@@ -147,6 +147,7 @@ class FileMoveServiceTest {
     private void mockMonitoredLibrary() {
         when(monitoringRegistrationService.isLibraryMonitored(1L)).thenReturn(true);
         when(monitoringRegistrationService.getPathsForLibraries(Set.of(1L))).thenReturn(Set.of(Paths.get("/library")));
+        when(libraryRepository.findByIdWithPaths(1L)).thenReturn(Optional.of(library));
         when(libraryMapper.toLibrary(any(LibraryEntity.class))).thenReturn(Library.builder().build());
     }
 
@@ -633,6 +634,7 @@ class FileMoveServiceTest {
             mockStandardBehavior(book, target);
             when(monitoringRegistrationService.isLibraryMonitored(1L)).thenReturn(true);
             when(monitoringRegistrationService.getPathsForLibraries(Set.of(1L))).thenReturn(Set.of(Paths.get("/library")));
+            when(libraryRepository.findByIdWithPaths(1L)).thenReturn(Optional.of(library));
             Library dto = Library.builder().watch(false).build();
             when(libraryMapper.toLibrary(any(LibraryEntity.class))).thenReturn(dto);
 
@@ -669,6 +671,7 @@ class FileMoveServiceTest {
             mockStandardBehavior(book, target);
             when(monitoringRegistrationService.isLibraryMonitored(1L)).thenReturn(false);
             when(monitoringRegistrationService.getPathsForLibraries(Set.of(1L))).thenReturn(Set.of(Paths.get("/library")));
+            when(libraryRepository.findByIdWithPaths(1L)).thenReturn(Optional.of(library));
             when(libraryMapper.toLibrary(any(LibraryEntity.class))).thenReturn(Library.builder().build());
 
             service.moveSingleFile(book);
@@ -781,7 +784,7 @@ class FileMoveServiceTest {
         private void mockBulkMoveSetup(BookEntity book, Path targetPath) throws IOException {
             when(bookRepository.findById(100L)).thenReturn(Optional.of(book));
             when(bookRepository.findByIdWithBookFiles(100L)).thenReturn(Optional.of(book));
-            when(libraryRepository.findById(2L)).thenReturn(Optional.of(targetLibrary));
+            when(libraryRepository.findByIdWithPaths(2L)).thenReturn(Optional.of(targetLibrary));
 
             when(fileMoveHelper.getFileNamingPattern(targetLibrary)).thenReturn("{title}");
             when(fileMoveHelper.generateNewFilePath(eq(book), eq(targetLibraryPath), anyString())).thenReturn(targetPath);
@@ -947,7 +950,7 @@ class FileMoveServiceTest {
 
             when(bookRepository.findById(100L)).thenReturn(Optional.of(book));
             when(bookRepository.findByIdWithBookFiles(100L)).thenReturn(Optional.of(book));
-            when(libraryRepository.findById(2L)).thenReturn(Optional.empty());
+            when(libraryRepository.findByIdWithPaths(2L)).thenReturn(Optional.empty());
             when(monitoringRegistrationService.getPathsForLibraries(anySet())).thenReturn(Set.of(Paths.get("/library")));
 
             FileMoveRequest request = new FileMoveRequest();
@@ -978,7 +981,7 @@ class FileMoveServiceTest {
 
             when(bookRepository.findById(100L)).thenReturn(Optional.of(book));
             when(bookRepository.findByIdWithBookFiles(100L)).thenReturn(Optional.of(book));
-            when(libraryRepository.findById(2L)).thenReturn(Optional.of(targetLibrary));
+            when(libraryRepository.findByIdWithPaths(2L)).thenReturn(Optional.of(targetLibrary));
             when(monitoringRegistrationService.getPathsForLibraries(anySet())).thenReturn(Set.of(Paths.get("/library")));
 
             FileMoveRequest request = new FileMoveRequest();
@@ -1008,7 +1011,7 @@ class FileMoveServiceTest {
 
             when(bookRepository.findById(100L)).thenReturn(Optional.of(book));
             when(bookRepository.findByIdWithBookFiles(100L)).thenReturn(Optional.of(book));
-            when(libraryRepository.findById(2L)).thenReturn(Optional.of(targetLibrary));
+            when(libraryRepository.findByIdWithPaths(2L)).thenReturn(Optional.of(targetLibrary));
             when(monitoringRegistrationService.getPathsForLibraries(anySet())).thenReturn(Set.of(Paths.get("/library")));
 
             FileMoveRequest request = new FileMoveRequest();
@@ -1044,8 +1047,8 @@ class FileMoveServiceTest {
 
             when(bookRepository.findById(100L)).thenReturn(Optional.of(book));
             when(bookRepository.findByIdWithBookFiles(100L)).thenReturn(Optional.of(book));
-            when(libraryRepository.findById(1L)).thenReturn(Optional.of(library));
-            when(libraryRepository.findById(2L)).thenReturn(Optional.of(targetLibrary));
+            when(libraryRepository.findByIdWithPaths(1L)).thenReturn(Optional.of(library));
+            when(libraryRepository.findByIdWithPaths(2L)).thenReturn(Optional.of(targetLibrary));
             when(monitoringRegistrationService.getPathsForLibraries(anySet())).thenReturn(Set.of(Paths.get("/library"), Paths.get("/target")));
             when(libraryMapper.toLibrary(any(LibraryEntity.class))).thenReturn(Library.builder().build());
 
@@ -1085,8 +1088,8 @@ class FileMoveServiceTest {
 
             when(bookRepository.findById(100L)).thenReturn(Optional.of(book));
             when(bookRepository.findByIdWithBookFiles(100L)).thenReturn(Optional.of(book));
-            when(libraryRepository.findById(1L)).thenReturn(Optional.of(library));
-            when(libraryRepository.findById(2L)).thenReturn(Optional.of(targetLibrary));
+            when(libraryRepository.findByIdWithPaths(1L)).thenReturn(Optional.of(library));
+            when(libraryRepository.findByIdWithPaths(2L)).thenReturn(Optional.of(targetLibrary));
             when(monitoringRegistrationService.getPathsForLibraries(anySet())).thenReturn(Set.of(Paths.get("/library"), Paths.get("/target")));
             when(libraryMapper.toLibrary(any(LibraryEntity.class))).thenReturn(Library.builder().build());
 
@@ -1109,6 +1112,47 @@ class FileMoveServiceTest {
 
             // Both source and target libraries should be re-registered
             verify(monitoringRegistrationService, times(2)).registerLibrary(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("moveSingleFile - L1 Cache Eviction")
+    class MoveSingleFileL1CacheEviction {
+
+        @Test
+        @DisplayName("evicts L1-cached LibraryEntity before file move to avoid LazyInitializationException")
+        void evictsCachedLibraryWhenPresentInPersistenceContext() throws IOException {
+            BookFileEntity epub = createBookFile(1L, "Book.epub", "path", true, false);
+            BookEntity book = createBook(List.of(epub));
+            Path target = Paths.get("/library/new/path/NewName.epub");
+
+            when(entityManager.contains(library)).thenReturn(true);
+
+            mockStandardBehavior(book, target);
+            mockUnmonitoredLibrary();
+
+            service.moveSingleFile(book);
+
+            verify(entityManager).contains(library);
+            verify(entityManager).detach(library);
+        }
+
+        @Test
+        @DisplayName("skips eviction when LibraryEntity is not in persistence context")
+        void skipsEvictionWhenNotInPersistenceContext() throws IOException {
+            BookFileEntity epub = createBookFile(1L, "Book.epub", "path", true, false);
+            BookEntity book = createBook(List.of(epub));
+            Path target = Paths.get("/library/new/path/NewName.epub");
+
+            when(entityManager.contains(library)).thenReturn(false);
+
+            mockStandardBehavior(book, target);
+            mockUnmonitoredLibrary();
+
+            service.moveSingleFile(book);
+
+            verify(entityManager).contains(library);
+            verify(entityManager, never()).detach(any());
         }
     }
 

@@ -79,10 +79,10 @@ export const FILE_SIZE_RANGES: readonly RangeConfig[] = [
   {id: 1, label: '1–10 MB', min: 1024, max: 10240, sortIndex: 1},
   {id: 2, label: '10–50 MB', min: 10240, max: 51200, sortIndex: 2},
   {id: 3, label: '50–100 MB', min: 51200, max: 102400, sortIndex: 3},
-  {id: 4, label: '250–500 MB', min: 256000, max: 512000, sortIndex: 4},
+  {id: 4, label: '100–500 MB', min: 102400, max: 512000, sortIndex: 4},
   {id: 5, label: '0.5–1 GB', min: 512000, max: 1048576, sortIndex: 5},
   {id: 6, label: '1–2 GB', min: 1048576, max: 2097152, sortIndex: 6},
-  {id: 7, label: '5+ GB', min: 5242880, max: Infinity, sortIndex: 7}
+  {id: 7, label: '2+ GB', min: 2097152, max: Infinity, sortIndex: 7}
 ];
 
 export const PAGE_COUNT_RANGES: readonly RangeConfig[] = [
@@ -106,13 +106,13 @@ export const MATCH_SCORE_RANGES: readonly RangeConfig[] = [
 ];
 
 export const AGE_RATING_OPTIONS: readonly RangeConfig[] = [
-  {id: 0, min: 0, max: 1, label: 'All Ages', sortIndex: 0},
-  {id: 6, min: 6, max: 7, label: '6+', sortIndex: 1},
-  {id: 10, min: 10, max: 11, label: '10+', sortIndex: 2},
-  {id: 13, min: 13, max: 14, label: '13+', sortIndex: 3},
-  {id: 16, min: 16, max: 17, label: '16+', sortIndex: 4},
-  {id: 18, min: 18, max: 19, label: '18+', sortIndex: 5},
-  {id: 21, min: 21, max: 22, label: '21+', sortIndex: 6}
+  {id: 0, min: 0, max: 6, label: 'All Ages', sortIndex: 0},
+  {id: 6, min: 6, max: 10, label: '6+', sortIndex: 1},
+  {id: 10, min: 10, max: 13, label: '10+', sortIndex: 2},
+  {id: 13, min: 13, max: 16, label: '13+', sortIndex: 3},
+  {id: 16, min: 16, max: 18, label: '16+', sortIndex: 4},
+  {id: 18, min: 18, max: 21, label: '18+', sortIndex: 5},
+  {id: 21, min: 21, max: Infinity, label: '21+', sortIndex: 6}
 ];
 
 export const CONTENT_RATING_LABELS: Readonly<Record<string, string>> = {
@@ -129,6 +129,7 @@ export const ratingOptions10 = RATING_OPTIONS_10;
 export const fileSizeRanges = FILE_SIZE_RANGES;
 export const pageCountRanges = PAGE_COUNT_RANGES;
 export const matchScoreRanges = MATCH_SCORE_RANGES;
+export const ageRatingRanges = AGE_RATING_OPTIONS;
 
 export const NUMERIC_ID_FILTER_TYPES = new Set<FilterType>([
   'personalRating', 'matchScore', 'fileSize', 'amazonRating',
@@ -193,12 +194,6 @@ const extractStringsAsFilters = (values: string[] | undefined): FilterValue[] =>
 const extractSingleString = (value: string | undefined | null): FilterValue[] =>
   value ? [{id: value, name: value}] : [];
 
-const findExactAgeRating = (ageRating: number | null | undefined): FilterValue[] => {
-  if (ageRating == null) return [];
-  const match = AGE_RATING_OPTIONS.find(r => r.id === ageRating);
-  return match ? [{id: match.id, name: match.label, sortIndex: match.sortIndex}] : [];
-};
-
 export const FILTER_EXTRACTORS: Readonly<Record<Exclude<FilterType, 'library'>, (book: Book) => FilterValue[]>> = {
   author: (book) => extractStringsAsFilters(book.metadata?.authors),
   category: (book) => extractStringsAsFilters(book.metadata?.categories),
@@ -231,7 +226,7 @@ export const FILTER_EXTRACTORS: Readonly<Record<Exclude<FilterType, 'library'>, 
   language: (book) => extractSingleString(book.metadata?.language),
   pageCount: (book) => findInRange(book.metadata?.pageCount, PAGE_COUNT_RANGES),
   mood: (book) => extractStringsAsFilters(book.metadata?.moods),
-  ageRating: (book) => findExactAgeRating(book.metadata?.ageRating),
+  ageRating: (book) => findInRange(book.metadata?.ageRating, AGE_RATING_OPTIONS),
   contentRating: (book) => {
     const rating = book.metadata?.contentRating;
     if (!rating) return [];

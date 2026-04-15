@@ -130,7 +130,7 @@ public class PdfProcessor extends AbstractFileProcessor implements BookFileProce
                 bookEntity.getMetadata().setPublishedDate(extracted.getPublishedDate());
             }
             if (StringUtils.isNotBlank(extracted.getLanguage())) {
-                bookEntity.getMetadata().setLanguage(extracted.getLanguage());
+                bookEntity.getMetadata().setLanguage(truncate(extracted.getLanguage(), 10));
             }
             if (extracted.getPageCount() != null) {
                 bookEntity.getMetadata().setPageCount(extracted.getPageCount());
@@ -138,7 +138,7 @@ public class PdfProcessor extends AbstractFileProcessor implements BookFileProce
             
             // External IDs
             if (StringUtils.isNotBlank(extracted.getAsin())) {
-                bookEntity.getMetadata().setAsin(extracted.getAsin());
+                bookEntity.getMetadata().setAsin(truncate(extracted.getAsin(), 10));
             }
             if (StringUtils.isNotBlank(extracted.getGoogleId())) {
                 bookEntity.getMetadata().setGoogleId(extracted.getGoogleId());
@@ -162,10 +162,10 @@ public class PdfProcessor extends AbstractFileProcessor implements BookFileProce
                 bookEntity.getMetadata().setLubimyczytacId(extracted.getLubimyczytacId());
             }
             if (StringUtils.isNotBlank(extracted.getIsbn10())) {
-                bookEntity.getMetadata().setIsbn10(extracted.getIsbn10());
+                bookEntity.getMetadata().setIsbn10(truncate(extracted.getIsbn10(), 10));
             }
             if (StringUtils.isNotBlank(extracted.getIsbn13())) {
-                bookEntity.getMetadata().setIsbn13(extracted.getIsbn13());
+                bookEntity.getMetadata().setIsbn13(truncate(extracted.getIsbn13(), 13));
             }
             
             // Categories, moods, and tags

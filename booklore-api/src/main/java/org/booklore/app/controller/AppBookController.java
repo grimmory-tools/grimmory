@@ -43,6 +43,22 @@ public class AppBookController {
         return ResponseEntity.ok(mobileBookService.getBookDetail(bookId));
     }
 
+    @GetMapping("/{bookId}/progress")
+    public ResponseEntity<AppBookProgressResponse> getBookProgress(
+            @PathVariable Long bookId) {
+
+        return ResponseEntity.ok(mobileBookService.getBookProgress(bookId));
+    }
+
+    @PutMapping("/{bookId}/progress")
+    public ResponseEntity<Void> updateBookProgress(
+            @PathVariable Long bookId,
+            @Valid @RequestBody UpdateProgressRequest request) {
+
+        mobileBookService.updateBookProgress(bookId, request);
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(
             summary = "Search app books",
             description = "Search books in the app catalog using a free-text query.",

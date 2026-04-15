@@ -9,6 +9,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -45,61 +47,73 @@ public class AudioFileUtilityService {
      * Check if a file is an audio file based on its extension.
      */
     public boolean isAudioFile(Path path) {
-        String fileName = path.getFileName().toString().toLowerCase();
+        String fileName = path.getFileName().toString().toLowerCase(Locale.ROOT);
         return AUDIO_EXTENSIONS.stream().anyMatch(fileName::endsWith);
     }
 
     /**
-     * Get the MIME content type for an audio file using content-based detection via Apache Tika.
-     */
-    public String getContentType(Path audioPath) {
-        return MimeDetector.detectSafe(audioPath);
-    }
-
-    /**
-     * Extract a readable track title from a filename.
-     * Removes extension and replaces underscores/hyphens with spaces.
-     */
-    public String getTrackTitleFromFilename(String filename) {
-        int lastDot = filename.lastIndexOf('.');
-        if (lastDot > 0) {
-            filename = filename.substring(0, lastDot);
-        }
-        return SEPARATOR_PATTERN.matcher(filename).replaceAll(" ").trim();
-    }
-
-    /**
-     * Get the set of supported audio file extensions.
+     * Get the supported audio file extensions.
      */
     public Set<String> getSupportedExtensions() {
         return AUDIO_EXTENSIONS;
     }
 
-    private int naturalCompare(Path p1, Path p2) {
-        return naturalCompare(p1.getFileName().toString(), p2.getFileName().toString());
+    private static final Map<String, String> AUDIO_MIME = Map.of(
+            ".mp3", "audio/mpeg", ".m4a", "audio/mp4",
+            ".m4b", "audio/mp4", ".opus", "audio/opus");
+
+    /**
+     * Get the MIME content type for an audio file using extension-based detection,
+     * falling back to Apache Tika for unknown extensions.
+     */
+    public String getContentType(Path audioPath) {
+        String name = audioPath.getFileName().toString().toLowerCase(Locale.ROOT);
+        int dot = name.lastIndexOf('.');
+        if (dot >= 0) {
+            String mime = AUDIO_MIME.get(name.substring(dot));
+            if (mime != null) return mime;
+        }
+        return MimeDetector.detectSafe(audioPath);
     }
 
     /**
-     * Natural alphanumeric sort comparison.
-     * Handles filenames like "Track 1.mp3", "Track 2.mp3", ..., "Track 10.mp3" correctly.
+     * Extract a track title from a filename by removing extensions, track numbers, and separators.
      */
-    private int naturalCompare(String s1, String s2) {
+    public String getTrackTitleFromFilename(String filename) {
+        int dot = filename.lastIndexOf('.');
+        String name = dot >= 0 ? filename.substring(0, dot) : filename;
+
+        // Replace separators with spaces
+        name = SEPARATOR_PATTERN.matcher(name).replaceAll(" ");
+
+        return name.trim();
+    }
+
+    /**
+     * Natural sort comparator for strings that may contain numbers.
+     */
+    private int naturalCompare(Path p1, Path p2) {
+        String s1 = p1.getFileName().toString();
+        String s2 = p2.getFileName().toString();
+
         int i1 = 0, i2 = 0;
         while (i1 < s1.length() && i2 < s2.length()) {
             char c1 = s1.charAt(i1);
             char c2 = s2.charAt(i2);
 
             if (Character.isDigit(c1) && Character.isDigit(c2)) {
-                StringBuilder num1 = new StringBuilder();
-                StringBuilder num2 = new StringBuilder();
+                StringBuilder b1 = new StringBuilder();
                 while (i1 < s1.length() && Character.isDigit(s1.charAt(i1))) {
-                    num1.append(s1.charAt(i1++));
+                    b1.append(s1.charAt(i1++));
                 }
+                StringBuilder b2 = new StringBuilder();
                 while (i2 < s2.length() && Character.isDigit(s2.charAt(i2))) {
-                    num2.append(s2.charAt(i2++));
+                    b2.append(s2.charAt(i2++));
                 }
-                int cmp = Long.compare(Long.parseLong(num1.toString()), Long.parseLong(num2.toString()));
-                if (cmp != 0) return cmp;
+
+                long v1 = Long.parseLong(b1.toString());
+                long v2 = Long.parseLong(b2.toString());
+                if (v1 != v2) return Long.compare(v1, v2);
             } else {
                 int cmp = Character.compare(Character.toLowerCase(c1), Character.toLowerCase(c2));
                 if (cmp != 0) return cmp;

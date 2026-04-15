@@ -62,17 +62,20 @@ export class AuthorPhotoSearchComponent implements OnInit {
   onSearch(): void {
     if (!this.searchForm.valid) return;
     this.searching = true;
+    this.photos = [];
 
     this.authorService.searchAuthorPhotos(this.authorId, this.searchForm.value.query)
-      .pipe(finalize(() => this.searching = false))
+      .pipe(finalize(() => {
+        this.searching = false;
+        this.hasSearched = true;
+      }))
       .subscribe({
-        next: (photos) => {
-          this.photos = photos.sort((a, b) => a.index - b.index);
-          this.hasSearched = true;
+        next: (photo) => {
+          this.photos.push(photo);
+          this.photos.sort((a, b) => a.index - b.index);
         },
         error: () => {
-          this.photos = [];
-          this.hasSearched = true;
+          console.error('Error searching photos');
         }
       });
   }

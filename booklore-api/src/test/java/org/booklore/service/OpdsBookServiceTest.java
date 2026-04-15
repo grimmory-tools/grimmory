@@ -311,7 +311,7 @@ class OpdsBookServiceTest {
         List<Library> libs = List.of(Library.builder().id(1L).watch(false).build());
         doReturn(libs).when(spy).getAccessibleLibraries(details.getOpdsUserV2().getUserId());
 
-        when(bookOpdsRepository.findRandomBookIdsByLibraryIds(anyList())).thenReturn(List.of(1L, 2L));
+        when(bookOpdsRepository.findRandomBookIdsByLibraryIds(anyList(), any())).thenReturn(List.of(1L, 2L));
         BookEntity entity = mock(BookEntity.class);
         when(bookOpdsRepository.findAllWithMetadataByIds(anyList())).thenReturn(List.of(entity));
         Book book = Book.builder().id(1L).build();
@@ -750,7 +750,7 @@ class OpdsBookServiceTest {
         BookEntity allowedEntity = mock(BookEntity.class);
         BookEntity restrictedEntity = mock(BookEntity.class);
 
-        when(bookOpdsRepository.findRandomBookIdsByLibraryIds(anyList())).thenReturn(List.of(1L, 2L));
+        when(bookOpdsRepository.findRandomBookIdsByLibraryIds(anyList(), any())).thenReturn(List.of(1L, 2L));
         when(bookOpdsRepository.findAllWithMetadataByIds(anyList()))
                 .thenReturn(List.of(allowedEntity, restrictedEntity));
 
