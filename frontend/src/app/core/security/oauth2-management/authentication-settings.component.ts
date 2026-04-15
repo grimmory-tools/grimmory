@@ -438,10 +438,12 @@ export class AuthenticationSettingsComponent {
   }
 
   onAdminCheckboxChange(): void {
-    this.editingGroupMappingPerms = this.availablePermissions.map(p => ({
-      ...p,
-      selected: true,
-    }));
+    if (this.editingGroupMapping.isAdmin) {
+      this.editingGroupMappingPerms = this.availablePermissions.map(p => ({
+        ...p,
+        selected: true,
+      }));
+    }
   }
 
   private emptyGroupMapping(): OidcGroupMapping {
