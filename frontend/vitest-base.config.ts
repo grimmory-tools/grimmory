@@ -1,7 +1,7 @@
 import {defineConfig} from 'vitest/config';
 import angular from '@analogjs/vite-plugin-angular';
 
-const shouldEnforceCoverageGate = process.env.COVERAGE_GATE === '1';
+const shouldEnforceCoverageGate = process.env['COVERAGE_GATE'] === '1';
 
 export default defineConfig({
   plugins: [angular({tsconfig: 'tsconfig.spec.json'})],

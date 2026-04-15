@@ -35,6 +35,12 @@ public interface AppBookMapper {
     @Mapping(target = "coverUpdatedOn", source = "book.metadata.coverUpdatedOn")
     @Mapping(target = "audiobookCoverUpdatedOn", source = "book.metadata.audiobookCoverUpdatedOn")
     @Mapping(target = "isPhysical", source = "book.isPhysical")
+    @Mapping(target = "publishedDate", source = "book.metadata.publishedDate")
+    @Mapping(target = "pageCount", source = "book.metadata.pageCount")
+    @Mapping(target = "ageRating", source = "book.metadata.ageRating")
+    @Mapping(target = "contentRating", source = "book.metadata.contentRating")
+    @Mapping(target = "metadataMatchScore", source = "book.metadataMatchScore")
+    @Mapping(target = "fileSizeKb", source = "book", qualifiedByName = "mapFileSizeKb")
     AppBookSummary toSummary(BookEntity book, UserBookProgressEntity progress);
 
     @Mapping(target = "id", source = "book.id")
@@ -114,6 +120,13 @@ public interface AppBookMapper {
             return null;
         }
         return "/api/books/" + book.getId() + "/cover";
+    }
+
+    @Named("mapFileSizeKb")
+    default Long mapFileSizeKb(BookEntity book) {
+        if (book == null) return null;
+        BookFileEntity primaryFile = book.getPrimaryBookFile();
+        return primaryFile != null ? primaryFile.getFileSizeKb() : null;
     }
 
     @Named("mapShelves")

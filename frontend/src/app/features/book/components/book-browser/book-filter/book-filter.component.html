@@ -5,7 +5,8 @@
     <span class="filter-title">{{ t('title') }}</span>
     <p-selectButton
       [options]="filterModeOptions"
-      [(ngModel)]="selectedFilterMode"
+      [ngModel]="selectedFilterMode()"
+      (ngModelChange)="onFilterModeChange($event)"
       optionLabel="label"
       optionValue="value"
       class="filter-mode-select"
@@ -14,24 +15,24 @@
   </div>
 
   <div class="filter-content">
-    <p-accordion [value]="expandedPanels" [multiple]="true" (valueChange)="onExpandedPanelsChange($event)">
-      @for (filterType of visibleFilterTypes; track trackByFilterType(i, filterType); let i = $index) {
+    <p-accordion [value]="expandedPanels()" [multiple]="true" (valueChange)="onExpandedPanelsChange($event)">
+      @for (filterType of visibleFilterTypes(); track filterType; let i = $index) {
         <p-accordion-panel [value]="i">
           <p-accordion-header>
             <span class="filter-type-label">
               <span class="filter-label-text">
                 {{ getFilterLabel(filterType) }}
               </span>
-              @if (activeFilters[filterType]?.length) {
+              @if (activeFilters()[filterType]?.length; as count) {
                 <span class="active-filter-count">
-                  ({{ activeFilters[filterType].length }})
+                  ({{ count }})
                 </span>
               }
             </span>
           </p-accordion-header>
 
           <p-accordion-content>
-            @if (expandedPanels.includes(i)) {
+            @if (expandedPanels().includes(i)) {
               @if (filterSignals[filterType](); as filters) {
                 @if (filters.length > 0) {
                   <cdk-virtual-scroll-viewport
@@ -44,8 +45,8 @@
                       role="button"
                       tabindex="0"
                       [ngClass]="{
-                    'active': activeFilters[filterType]?.includes(getFilterValueId(filter)),
-                    'active-not': activeFilters[filterType]?.includes(getFilterValueId(filter)) && selectedFilterMode === 'not'
+                    'active': isActive(filterType, getFilterValueId(filter)),
+                    'active-not': isActive(filterType, getFilterValueId(filter)) && selectedFilterMode() === 'not'
                   }"
                       (click)="handleFilterClick(filterType, getFilterValueId(filter))"
                       (keydown.enter)="handleFilterClick(filterType, getFilterValueId(filter))">
@@ -53,11 +54,6 @@
                       <p-badge class="filter-value-badge" [value]="filter.bookCount"></p-badge>
                     </div>
                   </cdk-virtual-scroll-viewport>
-                }
-                @if (truncatedFilters[filterType]) {
-                  <div class="truncation-notice">
-                    {{ t('showingFirst100') }}
-                  </div>
                 }
               }
             }

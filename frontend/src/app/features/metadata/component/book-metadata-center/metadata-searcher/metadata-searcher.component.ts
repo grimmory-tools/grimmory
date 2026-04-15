@@ -1,4 +1,4 @@
-import {Component, effect, inject, Input, OnChanges, OnDestroy, signal, SimpleChanges} from '@angular/core';
+import {Component, computed, effect, inject, Input, OnChanges, OnDestroy, signal, SimpleChanges, WritableSignal} from '@angular/core';
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {Button} from 'primeng/button';
 import {InputText} from 'primeng/inputtext';
@@ -34,7 +34,7 @@ import {TranslocoDirective} from '@jsverse/transloco';
 export class MetadataSearcherComponent implements OnDestroy, OnChanges {
   form: FormGroup;
   providers: string[] = [];
-  allFetchedMetadata: BookMetadata[] = [];
+  
   bookId!: number;
   loading: boolean = false;
   searchTriggered = false;
@@ -63,6 +63,15 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
 
   private subscription: Subscription = new Subscription();
   private cancelRequest$ = new Subject<void>();
+  
+  // Signals for state
+  allFetchedMetadata: WritableSignal<BookMetadata[]> = signal([]);
+  metadataByProvider = signal<Map<string, BookMetadata[]>>(new Map());
+  providerCounts = signal<Map<string, number>>(new Map());
+  providerLoading = signal<Map<string, boolean>>(new Map());
+  providerCompletionStatus = signal<Map<string, boolean>>(new Map());
+  selectedProviderFilters = signal<Set<string>>(new Set(['all']));
+
   private syncSettingsEffect = effect(() => {
     const settings = this.appSettingsService.appSettings();
     if (!settings) return;
@@ -82,14 +91,59 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
     this.syncFormFromState();
   });
 
-  providerCounts = new Map<string, number>();
-  providerLoading = new Map<string, boolean>();
-  selectedProviderFilters = new Set<string>(['all']);
-  filteredMetadata: BookMetadata[] = [];
-  providerFilterOptions: { label: string; value: string }[] = [];
+  // Computed properties
+  interleavedMetadata = computed(() => {
+    const interleaved: BookMetadata[] = [];
+    const byProvider = this.metadataByProvider();
+    const providers = Array.from(byProvider.keys());
 
-  private metadataByProvider = new Map<string, BookMetadata[]>();
-  private providerCompletionStatus = new Map<string, boolean>();
+    if (providers.length === 0) return [];
+
+    const maxLength = Math.max(
+      ...Array.from(byProvider.values()).map(list => list.length)
+    );
+
+    for (let i = 0; i < maxLength; i++) {
+      for (const provider of providers) {
+        const providerList = byProvider.get(provider);
+        if (providerList && i < providerList.length) {
+          interleaved.push(providerList[i]);
+        }
+      }
+    }
+
+    return interleaved;
+  });
+
+  filteredMetadata = computed(() => {
+    const all = this.interleavedMetadata();
+    const filters = this.selectedProviderFilters();
+    
+    if (filters.has('all')) {
+      return all;
+    } else {
+      return all.filter(metadata => {
+        const provider = this.getProviderFromMetadata(metadata);
+        return provider && filters.has(provider);
+      });
+    }
+  });
+
+  providerFilterOptions = computed(() => {
+    const allCount = this.interleavedMetadata().length;
+    const counts = this.providerCounts();
+    
+    return [
+      {label: `All (${allCount})`, value: 'all'},
+      ...Array.from(counts.entries())
+        .filter(([, count]) => count > 0)
+        .map(([provider, count]) => ({
+          label: `${provider.charAt(0).toUpperCase() + provider.slice(1)} (${count})`,
+          value: provider
+        }))
+    ];
+  });
+
   private pendingAutoSearch = false;
   private providerInitialized = false;
 
@@ -139,13 +193,14 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
     this.loading = false;
     this.detailLoading = false;
     this.selectedFetchedMetadata.set(null);
-    this.allFetchedMetadata = [];
-    this.filteredMetadata = [];
-    this.providerCounts.clear();
-    this.providerLoading.clear();
-    this.providerCompletionStatus.clear();
-    this.metadataByProvider.clear();
-    this.selectedProviderFilters = new Set(['all']);
+    this.allFetchedMetadata.set([]);
+    
+    this.providerCounts.set(new Map());
+    this.providerLoading.set(new Map());
+    this.providerCompletionStatus.set(new Map());
+    this.metadataByProvider.set(new Map());
+    
+    this.selectedProviderFilters.set(new Set(['all']));
     this.bookId = book.id;
 
     const formUpdate: Record<'title' | 'author' | 'isbn', string> & {provider?: string[] | null} = {
@@ -198,24 +253,28 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
       };
 
       this.loading = true;
-      this.allFetchedMetadata = [];
-      this.filteredMetadata = [];
-      this.providerCounts.clear();
-      this.providerLoading.clear();
-      this.providerCompletionStatus.clear();
-      this.metadataByProvider.clear();
-      this.selectedProviderFilters = new Set(['all']);
-      this.cancelRequest$.next();
-
+      this.allFetchedMetadata.set([]);
+      
+      const initialCounts = new Map<string, number>();
+      const initialLoading = new Map<string, boolean>();
+      const initialCompletion = new Map<string, boolean>();
+      const initialByProvider = new Map<string, BookMetadata[]>();
+      
       providerKeys.forEach((provider: string) => {
         const providerLower = provider.toLowerCase();
-        this.providerCounts.set(providerLower, 0);
-        this.providerLoading.set(providerLower, true);
-        this.providerCompletionStatus.set(providerLower, false);
-        this.metadataByProvider.set(providerLower, []);
+        initialCounts.set(providerLower, 0);
+        initialLoading.set(providerLower, true);
+        initialCompletion.set(providerLower, false);
+        initialByProvider.set(providerLower, []);
       });
-
-      this.updateProviderFilterOptions();
+      
+      this.providerCounts.set(initialCounts);
+      this.providerLoading.set(initialLoading);
+      this.providerCompletionStatus.set(initialCompletion);
+      this.metadataByProvider.set(initialByProvider);
+      
+      this.selectedProviderFilters.set(new Set(['all']));
+      this.cancelRequest$.next();
 
       const activeProviders = new Set<string>(providerKeys.map((p: string) => p.toLowerCase()));
 
@@ -223,41 +282,37 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
         .pipe(takeUntil(this.cancelRequest$))
         .subscribe({
           next: (metadata) => {
-            const metadataWithThumbnail = {
-              ...metadata,
-              thumbnailUrl: metadata.thumbnailUrl
-            };
-
             const provider = this.getProviderFromMetadata(metadata);
             if (provider) {
-              const providerList = this.metadataByProvider.get(provider) || [];
-              providerList.push(metadataWithThumbnail);
-              this.metadataByProvider.set(provider, providerList);
+              this.metadataByProvider.update(map => {
+                const list = map.get(provider) || [];
+                return new Map(map).set(provider, [...list, metadata]);
+              });
 
-              this.providerCounts.set(provider, providerList.length);
+              this.providerCounts.update(map => {
+                const count = (this.metadataByProvider().get(provider)?.length) || 0;
+                return new Map(map).set(provider, count);
+              });
 
-              if (!this.providerCompletionStatus.get(provider)) {
-                this.providerLoading.set(provider, false);
-                this.providerCompletionStatus.set(provider, true);
+              if (!this.providerCompletionStatus().get(provider)) {
+                this.providerLoading.update(map => new Map(map).set(provider, false));
+                this.providerCompletionStatus.update(map => new Map(map).set(provider, true));
               }
             }
-
-            this.allFetchedMetadata = this.interleaveResults();
-
-            this.applyFilter();
-            this.updateProviderFilterOptions();
+            
+            this.allFetchedMetadata.update(all => [...all, metadata]);
           },
           error: (error) => {
             console.error('Error fetching metadata:', error);
             this.loading = false;
-            this.providerLoading.clear();
+            this.providerLoading.set(new Map());
           },
           complete: () => {
             this.loading = false;
             activeProviders.forEach((provider: string) => {
-              if (!this.providerCompletionStatus.get(provider)) {
-                this.providerLoading.set(provider, false);
-                this.providerCompletionStatus.set(provider, true);
+              if (!this.providerCompletionStatus().get(provider)) {
+                this.providerLoading.update(map => new Map(map).set(provider, false));
+                this.providerCompletionStatus.update(map => new Map(map).set(provider, true));
               }
             });
           }
@@ -267,30 +322,8 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
     }
   }
 
-  private interleaveResults(): BookMetadata[] {
-    const interleaved: BookMetadata[] = [];
-    const providers = Array.from(this.metadataByProvider.keys());
-
-    if (providers.length === 0) return [];
-
-    const maxLength = Math.max(
-      ...Array.from(this.metadataByProvider.values()).map(list => list.length)
-    );
-
-    for (let i = 0; i < maxLength; i++) {
-      for (const provider of providers) {
-        const providerList = this.metadataByProvider.get(provider);
-        if (providerList && i < providerList.length) {
-          interleaved.push(providerList[i]);
-        }
-      }
-    }
-
-    return interleaved;
-  }
-
   private getProviderFromMetadata(metadata: BookMetadata): string | null {
-    if (metadata.audibleId) return 'audible'; // Audible has to come before Amazon because they both have an ASIN.
+    if (metadata.audibleId) return 'audible'; 
     if (metadata.asin) return 'amazon';
     if (metadata.goodreadsId) return 'goodreads';
     if (metadata.googleId) return 'google';
@@ -306,67 +339,47 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
     return this.getProviderFromMetadata(metadata) || 'unknown';
   }
 
-  private updateProviderFilterOptions(): void {
-    this.providerFilterOptions = [
-      {label: `All (${this.allFetchedMetadata.length})`, value: 'all'},
-      ...Array.from(this.providerCounts.entries())
-        .filter(([, count]) => count > 0)
-        .map(([provider, count]) => ({
-          label: `${provider.charAt(0).toUpperCase() + provider.slice(1)} (${count})`,
-          value: provider
-        }))
-    ];
-  }
-
   onProviderPillClick(provider: string, event: Event): void {
     const providerLower = provider.toLowerCase();
 
     const isModifierClick = (event instanceof MouseEvent || event instanceof KeyboardEvent) && (event.ctrlKey || event.metaKey);
-    if (isModifierClick) {
-      if (this.selectedProviderFilters.has(providerLower)) {
-        this.selectedProviderFilters.delete(providerLower);
-      } else {
-        this.selectedProviderFilters.add(providerLower);
-        this.selectedProviderFilters.delete('all');
-      }
+    
+    this.selectedProviderFilters.update(filters => {
+      const newFilters = new Set(filters);
+      if (isModifierClick) {
+        if (newFilters.has(providerLower)) {
+          newFilters.delete(providerLower);
+        } else {
+          newFilters.add(providerLower);
+          newFilters.delete('all');
+        }
 
-      if (this.selectedProviderFilters.size === 0) {
-        this.selectedProviderFilters.add('all');
-      }
-    } else {
-      if (this.selectedProviderFilters.has(providerLower) && this.selectedProviderFilters.size === 1) {
-        this.selectedProviderFilters.clear();
-        this.selectedProviderFilters.add('all');
+        if (newFilters.size === 0) {
+          newFilters.add('all');
+        }
       } else {
-        this.selectedProviderFilters.clear();
-        this.selectedProviderFilters.add(providerLower);
+        if (newFilters.has(providerLower) && newFilters.size === 1) {
+          newFilters.clear();
+          newFilters.add('all');
+        } else {
+          newFilters.clear();
+          newFilters.add(providerLower);
+        }
       }
-    }
-
-    this.applyFilter();
+      return newFilters;
+    });
   }
 
   isProviderPillActive(provider: string): boolean {
-    return this.selectedProviderFilters.has(provider.toLowerCase());
+    return this.selectedProviderFilters().has(provider.toLowerCase());
   }
 
   isProviderLoading(provider: string): boolean {
-    return this.providerLoading.get(provider.toLowerCase()) ?? false;
-  }
-
-  private applyFilter(): void {
-    if (this.selectedProviderFilters.has('all')) {
-      this.filteredMetadata = [...this.allFetchedMetadata];
-    } else {
-      this.filteredMetadata = this.allFetchedMetadata.filter(metadata => {
-        const provider = this.getProviderFromMetadata(metadata);
-        return provider && this.selectedProviderFilters.has(provider);
-      });
-    }
+    return this.providerLoading().get(provider.toLowerCase()) ?? false;
   }
 
   getProviderTabs(): { provider: string; count: number }[] {
-    return Array.from(this.providerCounts.entries()).map(([provider, count]) => ({
+    return Array.from(this.providerCounts().entries()).map(([provider, count]) => ({
       provider: provider.charAt(0).toUpperCase() + provider.slice(1),
       count
     }));

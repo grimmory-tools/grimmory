@@ -1,18 +1,16 @@
 import {provideHttpClient} from '@angular/common/http';
 import {HttpTestingController, provideHttpClientTesting} from '@angular/common/http/testing';
 import {TestBed} from '@angular/core/testing';
-import {of} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {AuthService} from '../../../shared/service/auth.service';
 import {BookMetadataService} from './book-metadata.service';
-import {SseClient} from 'ngx-sse-client';
 
 describe('BookMetadataService', () => {
   let service: BookMetadataService;
   let httpTestingController: HttpTestingController;
   let authService: {getInternalAccessToken: ReturnType<typeof vi.fn>};
-  let sseClient: {stream: ReturnType<typeof vi.fn>};
+  
   const fetchRequest = {
     bookId: 7,
     providers: ['google'],
@@ -25,9 +23,6 @@ describe('BookMetadataService', () => {
     authService = {
       getInternalAccessToken: vi.fn(() => 'token-123'),
     };
-    sseClient = {
-      stream: vi.fn(() => of({type: 'message', data: JSON.stringify({title: 'Dune'})})),
-    };
 
     TestBed.configureTestingModule({
       providers: [
@@ -35,7 +30,6 @@ describe('BookMetadataService', () => {
         provideHttpClientTesting(),
         BookMetadataService,
         {provide: AuthService, useValue: authService},
-        {provide: SseClient, useValue: sseClient},
       ],
     });
 
@@ -47,6 +41,7 @@ describe('BookMetadataService', () => {
     httpTestingController.verify();
     TestBed.resetTestingModule();
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it('throws when fetching metadata without an auth token', () => {
@@ -57,40 +52,72 @@ describe('BookMetadataService', () => {
     );
   });
 
-  it('streams metadata over SSE with auth headers and maps message payloads', () => {
-    let result: unknown;
+  it('streams metadata over SSE with auth headers and maps message payloads', async () => {
+    const mockMetadata = {title: 'Dune'};
+    const encoder = new TextEncoder();
+    const dataChunk = encoder.encode(`data: ${JSON.stringify(mockMetadata)}\n`);
+    
+    // Mocking reader instead of using global ReadableStream which might be missing in jsdom
+    const mockReader = {
+      read: vi.fn()
+        .mockResolvedValueOnce({done: false, value: dataChunk})
+        .mockResolvedValueOnce({done: true, value: undefined}),
+      releaseLock: vi.fn()
+    };
 
+    const mockResponse = {
+      ok: true,
+      body: {
+        getReader: () => mockReader
+      }
+    };
+
+    const fetchSpy = vi.fn().mockResolvedValue(mockResponse);
+    vi.stubGlobal('fetch', fetchSpy);
+
+    let result: unknown;
     service.fetchBookMetadata(7, fetchRequest).subscribe(value => {
       result = value;
     });
 
-    const [url, clientConfig, requestOptions, method] = sseClient.stream.mock.calls[0] ?? [];
-    expect(url).toMatch(/\/api\/v1\/books\/7\/metadata\/prospective$/);
-    expect(clientConfig).toEqual({
-      keepAlive: false,
-      reconnectionDelay: 1000,
-      responseType: 'event'
-    });
-    expect(requestOptions.body).toEqual(fetchRequest);
-    expect(requestOptions.withCredentials).toBe(true);
-    expect(requestOptions.headers.get('Authorization')).toBe('Bearer token-123');
-    expect(requestOptions.headers.get('Content-Type')).toBe('application/json');
-    expect(method).toBe('POST');
-    expect(result).toEqual({title: 'Dune'});
+    // Wait for the stream to process
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      expect.stringMatching(/\/api\/v1\/books\/7\/metadata\/prospective$/),
+      expect.objectContaining({
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer token-123'
+        },
+        body: JSON.stringify(fetchRequest)
+      })
+    );
+    expect(result).toEqual(mockMetadata);
   });
 
-  it('turns SSE error events into thrown errors', () => {
-    sseClient.stream.mockReturnValueOnce(of({type: 'error', message: 'bad stream'}));
+  it('turns SSE error events into thrown errors', async () => {
+    const mockResponse = {
+      ok: false,
+      status: 500
+    };
 
-    let error: unknown;
+    const fetchSpy = vi.fn().mockResolvedValue(mockResponse);
+    vi.stubGlobal('fetch', fetchSpy);
+
+    let error: Error | undefined;
     service.fetchBookMetadata(7, fetchRequest).subscribe({
       error: err => {
         error = err;
       }
     });
 
+    // Wait for the fetch to resolve
+    await new Promise(resolve => setTimeout(resolve, 0));
+
     expect(error).toBeInstanceOf(Error);
-    expect((error as Error).message).toBe('bad stream');
+    expect(error?.message).toContain('HTTP error! status: 500');
   });
 
   it('requests provider detail and ISBN lookup through HTTP endpoints', () => {

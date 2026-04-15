@@ -583,7 +583,10 @@
             <div class="toggle-content">
               <span class="toggle-label">{{ t('groupMapping.adminLabel') }}</span>
             </div>
-            <p-toggleswitch [(ngModel)]="editingGroupMapping.isAdmin"></p-toggleswitch>
+            <p-toggleswitch
+              [(ngModel)]="editingGroupMapping.isAdmin"
+              (onChange)="onAdminCheckboxChange()"
+            />
           </div>
         </div>
         <div class="config-item full-width">
@@ -596,7 +599,12 @@
             <ng-container *transloco="let a; prefix: 'settingsUsers'">
             @for (perm of editingGroupMappingPerms; track perm) {
               <div class="permission-item">
-                <p-checkbox [(ngModel)]="perm.selected" [binary]="true" [inputId]="'gm_' + perm.value"></p-checkbox>
+                <p-checkbox
+                  [(ngModel)]="perm.selected"
+                  [binary]="true"
+                  [inputId]="'gm_' + perm.value"
+                  [disabled]="editingGroupMapping.isAdmin"
+                />
                 <label [for]="'gm_' + perm.value">{{ a(perm.translationKey) }}</label>
               </div>
             }

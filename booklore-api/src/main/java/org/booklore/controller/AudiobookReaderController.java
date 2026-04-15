@@ -9,13 +9,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.util.FileUtils;
-import org.booklore.util.MimeDetector;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.nio.file.Path;
 
 @Slf4j
@@ -46,13 +45,15 @@ public class AudiobookReaderController {
     @ApiResponse(responseCode = "416", description = "Range not satisfiable")
     @CheckBookAccess(bookIdParam = "bookId")
     @GetMapping("/{bookId}/stream")
-    public ResponseEntity<? extends Resource> streamAudiobook(
+    public void streamAudiobook(
             @Parameter(description = "ID of the book") @PathVariable Long bookId,
             @Parameter(description = "Optional book type for alternative format") @RequestParam(required = false) String bookType,
-            @Parameter(description = "Track index for folder-based audiobooks (0-indexed)") @RequestParam(required = false) Integer trackIndex) {
+            @Parameter(description = "Track index for folder-based audiobooks (0-indexed)") @RequestParam(required = false) Integer trackIndex,
+            HttpServletRequest request,
+            HttpServletResponse response) throws IOException {
 
         Path audioPath = audiobookReaderService.getAudioFilePath(bookId, bookType, trackIndex);
-        return getFile(audioPath);
+        audiobookReaderService.streamWithRangeSupport(audioPath, request, response);
     }
 
     @Operation(summary = "Stream specific track", description = "Stream a specific track from a folder-based audiobook.")
@@ -61,13 +62,15 @@ public class AudiobookReaderController {
     @ApiResponse(responseCode = "416", description = "Range not satisfiable")
     @CheckBookAccess(bookIdParam = "bookId")
     @GetMapping("/{bookId}/track/{trackIndex}/stream")
-    public ResponseEntity<? extends Resource> streamTrack(
+    public void streamTrack(
             @Parameter(description = "ID of the book") @PathVariable Long bookId,
             @Parameter(description = "Track index (0-indexed)") @PathVariable Integer trackIndex,
-            @Parameter(description = "Optional book type for alternative format") @RequestParam(required = false) String bookType) {
+            @Parameter(description = "Optional book type for alternative format") @RequestParam(required = false) String bookType,
+            HttpServletRequest request,
+            HttpServletResponse response) throws IOException {
 
         Path audioPath = audiobookReaderService.getAudioFilePath(bookId, bookType, trackIndex);
-        return getFile(audioPath);
+        audiobookReaderService.streamWithRangeSupport(audioPath, request, response);
     }
 
     @Operation(summary = "Get embedded cover art",
@@ -93,19 +96,5 @@ public class AudiobookReaderController {
         headers.setCacheControl("public, max-age=86400");
 
         return new ResponseEntity<>(coverData, headers, HttpStatus.OK);
-    }
-
-    private ResponseEntity<FileSystemResource> getFile(Path filePath) {
-        Long lastModified = FileUtils.getFileLastModified(filePath);
-        ResponseEntity.BodyBuilder builder = ResponseEntity.ok();
-
-        if (lastModified != null) {
-            builder.lastModified(lastModified);
-        }
-
-        return builder
-                .cacheControl(CacheControl.noCache().cachePrivate())
-                .contentType(MediaType.parseMediaType(MimeDetector.detectSafe(filePath)))
-                .body(new FileSystemResource(filePath));
     }
 }
