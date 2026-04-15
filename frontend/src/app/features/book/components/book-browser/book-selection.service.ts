@@ -72,7 +72,12 @@ export class BookSelectionService {
     }
   }
 
-  selectAll(): void {
+  selectAll(allBookIds?: number[]): void {
+    if (allBookIds && allBookIds.length > 0) {
+      this._selectedBooks.set(new Set(allBookIds));
+      return;
+    }
+
     if (!this.currentBooks || this.currentBooks.length === 0) return;
 
     this._selectedBooks.update(current => {

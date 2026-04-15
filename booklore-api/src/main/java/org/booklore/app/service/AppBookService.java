@@ -129,6 +129,33 @@ public class AppBookService {
         return buildPageResponse(bookPage, userId, pageNum, pageSize);
     }
 
+    public List<Long> getAllBookIds(BookListRequest req) {
+        BookLoreUser user = authenticationService.getAuthenticatedUser();
+        Long userId = user.getId();
+        Set<Long> accessibleLibraryIds = getAccessibleLibraryIds(user);
+
+        Specification<BookEntity> spec = buildSpecification(accessibleLibraryIds, userId, req);
+
+        if (req.magicShelfId() != null) {
+            spec = spec.and(magicShelfBookService.toSpecification(userId, req.magicShelfId()));
+        }
+
+        if (Boolean.TRUE.equals(req.unshelved())) {
+            spec = spec.and(AppBookSpecification.unshelved());
+        }
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<BookEntity> root = cq.from(BookEntity.class);
+        cq.select(root.get("id"));
+
+        if (spec != null) {
+            cq.where(spec.toPredicate(root, cq, cb));
+        }
+
+        return entityManager.createQuery(cq).getResultList();
+    }
+
     public AppBookDetail getBookDetail(Long bookId) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         Long userId = user.getId();
