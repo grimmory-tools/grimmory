@@ -116,10 +116,25 @@ export class AuthorService {
     return this.http.delete<void>(this.baseUrl, {body: authorIds});
   }
 
-  searchAuthorPhotos(authorId: number, query: string): Observable<AuthorPhotoResult[]> {
-    return this.http.get<AuthorPhotoResult[]>(`${this.baseUrl}/${authorId}/search-photos`, {
-      params: {q: query}
-    });
+  searchAuthorPhotos(authorId: number, query: string): Observable<AuthorPhotoResult> {
+    const token = this.authService.getInternalAccessToken();
+    const headers = new HttpHeaders()
+      .set('Content-Type', 'application/json')
+      .set('Authorization', `Bearer ${token}`);
+
+    return this.sseClient.stream(
+      `${this.baseUrl}/${authorId}/search-photos`,
+      {keepAlive: false, reconnectionDelay: 1000, responseType: 'event'},
+      {headers, params: {q: query}, withCredentials: true},
+      'GET'
+    ).pipe(
+      map(event => {
+        if (event.type === 'error') {
+          throw new Error((event as ErrorEvent).message);
+        }
+        return JSON.parse((event as MessageEvent).data) as AuthorPhotoResult;
+      })
+    );
   }
 
   uploadAuthorPhotoFromUrl(authorId: number, imageUrl: string): Observable<void> {

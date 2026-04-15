@@ -67,6 +67,28 @@ public class BookMetadataService {
     private final PlatformTransactionManager transactionManager;
     private final AppSettingService appSettingService;
 
+    @Transactional
+    public BookMetadata updateBookMetadata(long bookId, MetadataUpdateWrapper metadataUpdateWrapper,
+                                           boolean mergeCategories, MetadataReplaceMode replaceMode) {
+        BookEntity bookEntity = bookRepository.findAllWithMetadataByIds(Collections.singleton(bookId)).stream()
+                .findFirst()
+                .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
+
+        MetadataUpdateContext context = MetadataUpdateContext.builder()
+                .bookEntity(bookEntity)
+                .metadataUpdateWrapper(metadataUpdateWrapper)
+                .updateThumbnail(true)
+                .mergeCategories(mergeCategories)
+                .replaceMode(replaceMode)
+                .mergeMoods(false)
+                .mergeTags(false)
+                .build();
+
+        bookMetadataUpdater.setBookMetadata(context);
+        auditService.log(AuditAction.METADATA_UPDATED, "Book", bookId,
+                "Updated metadata for book: " + bookEntity.getMetadata().getTitle());
+        return bookMetadataMapper.toBookMetadata(bookEntity.getMetadata(), true);
+    }
 
     @Transactional(readOnly = true)
     public Flux<BookMetadata> getProspectiveMetadataListForBookId(long bookId, FetchMetadataRequest request) {
@@ -75,9 +97,8 @@ public class BookMetadataService {
 
         return Flux.fromIterable(request.getProviders())
                 .flatMap(provider ->
-                    Mono.fromCallable(() -> fetchMetadataListFromAProvider(provider, book, request))
+                    Flux.defer(() -> getParser(provider).fetchMetadataStream(book, request))
                             .subscribeOn(Schedulers.boundedElastic())
-                            .flatMapMany(Flux::fromIterable)
                             .onErrorResume(e -> {
                                 log.error("Error fetching metadata from provider: {}", provider, e);
                                 return Flux.empty();
@@ -208,26 +229,6 @@ public class BookMetadataService {
             throw ApiError.GENERIC_BAD_REQUEST.createException("Book has no file to extract metadata from");
         }
         return metadataExtractorFactory.extractMetadata(primaryFile.getBookType(), FileUtils.getBookFullPath(bookEntity).toFile());
-    }
-
-    @Transactional
-    public BookMetadata updateMetadata(long bookId, MetadataUpdateWrapper wrapper, boolean mergeCategories) {
-        BookEntity bookEntity = bookRepository.findByIdFull(bookId)
-                .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
-
-        MetadataUpdateContext context = MetadataUpdateContext.builder()
-                .bookEntity(bookEntity)
-                .metadataUpdateWrapper(wrapper)
-                .updateThumbnail(true)
-                .mergeCategories(mergeCategories)
-                .replaceMode(MetadataReplaceMode.REPLACE_ALL)
-                .mergeMoods(false)
-                .mergeTags(false)
-                .build();
-
-        bookMetadataUpdater.setBookMetadata(context);
-        auditService.log(AuditAction.METADATA_UPDATED, "Book", bookId, "Updated metadata for book: " + bookEntity.getMetadata().getTitle());
-        return bookMetadataMapper.toBookMetadata(bookEntity.getMetadata(), true);
     }
 
     @Transactional
