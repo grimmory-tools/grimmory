@@ -70,7 +70,7 @@ public class AnnotationService {
 
         log.info("Creating annotation for book {} by user {}", request.getBookId(), userId);
         Annotation saved = mapper.toDto(annotationRepository.save(annotation));
-        refreshSidecar(annotation.getBook(), annotation.getUser());
+        annotationSidecarService.writeSidecar(annotation.getBook(), annotation.getUser());
         return saved;
     }
 
@@ -82,7 +82,7 @@ public class AnnotationService {
 
         log.info("Updating annotation {}", annotationId);
         Annotation updated = mapper.toDto(annotationRepository.save(annotation));
-        refreshSidecar(annotation.getBook(), annotation.getUser());
+        annotationSidecarService.writeSidecar(annotation.getBook(), annotation.getUser());
         return updated;
     }
 
@@ -91,11 +91,7 @@ public class AnnotationService {
         AnnotationEntity annotation = findAnnotationByIdAndUser(annotationId);
         log.info("Deleting annotation {}", annotationId);
         annotationRepository.delete(annotation);
-        BookEntity book = annotation.getBook();
-        BookLoreUserEntity user = annotation.getUser();
-        List<AnnotationEntity> remaining = annotationRepository
-                .findByBookIdAndUserIdOrderByCreatedAtDesc(book.getId(), user.getId());
-        annotationSidecarService.writeSidecar(book, user, remaining);
+        annotationSidecarService.writeSidecar(annotation.getBook(), annotation.getUser());
     }
 
     private Long getCurrentUserId() {
@@ -131,9 +127,4 @@ public class AnnotationService {
         Optional.ofNullable(request.getNote()).ifPresent(annotation::setNote);
     }
 
-    private void refreshSidecar(BookEntity book, BookLoreUserEntity user) {
-        List<AnnotationEntity> all = annotationRepository
-                .findByBookIdAndUserIdOrderByCreatedAtDesc(book.getId(), user.getId());
-        annotationSidecarService.writeSidecar(book, user, all);
-    }
 }

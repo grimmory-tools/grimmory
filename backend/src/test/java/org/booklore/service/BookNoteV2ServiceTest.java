@@ -14,6 +14,7 @@ import org.booklore.repository.BookNoteV2Repository;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserRepository;
 import org.booklore.service.book.BookNoteV2Service;
+import org.booklore.service.koreader.AnnotationSidecarService;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,6 +34,7 @@ class BookNoteV2ServiceTest {
     private UserRepository userRepository;
     private AuthenticationService authenticationService;
     private BookNoteV2Mapper mapper;
+    private AnnotationSidecarService annotationSidecarService;
     private BookNoteV2Service service;
 
     private final Long userId = 1L;
@@ -52,7 +54,9 @@ class BookNoteV2ServiceTest {
         userRepository = mock(UserRepository.class);
         authenticationService = mock(AuthenticationService.class);
         mapper = mock(BookNoteV2Mapper.class);
-        service = new BookNoteV2Service(bookNoteV2Repository, bookRepository, userRepository, authenticationService, mapper);
+        annotationSidecarService = mock(AnnotationSidecarService.class);
+        service = new BookNoteV2Service(bookNoteV2Repository, bookRepository, userRepository,
+                authenticationService, mapper, annotationSidecarService);
 
         BookLoreUser user = new BookLoreUser();
         user.setId(userId);

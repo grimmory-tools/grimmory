@@ -12,6 +12,7 @@ import org.booklore.model.entity.BookNoteV2Entity;
 import org.booklore.repository.BookNoteV2Repository;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserRepository;
+import org.booklore.service.koreader.AnnotationSidecarService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,7 @@ public class BookNoteV2Service {
     private final UserRepository userRepository;
     private final AuthenticationService authenticationService;
     private final BookNoteV2Mapper mapper;
+    private final AnnotationSidecarService annotationSidecarService;
 
     @Transactional(readOnly = true)
     public List<BookNoteV2> getNotesForBook(Long bookId) {
@@ -65,7 +67,9 @@ public class BookNoteV2Service {
                 .build();
 
         log.info("Creating note for book {} by user {}", request.getBookId(), userId);
-        return mapper.toDto(bookNoteV2Repository.save(note));
+        BookNoteV2 saved = mapper.toDto(bookNoteV2Repository.save(note));
+        annotationSidecarService.writeSidecar(note.getBook(), note.getUser());
+        return saved;
     }
 
     @Transactional
@@ -75,7 +79,9 @@ public class BookNoteV2Service {
         applyUpdates(note, request);
 
         log.info("Updating note {}", noteId);
-        return mapper.toDto(bookNoteV2Repository.save(note));
+        BookNoteV2 updated = mapper.toDto(bookNoteV2Repository.save(note));
+        annotationSidecarService.writeSidecar(note.getBook(), note.getUser());
+        return updated;
     }
 
     @Transactional
@@ -83,6 +89,7 @@ public class BookNoteV2Service {
         BookNoteV2Entity note = findNoteByIdAndUser(noteId);
         log.info("Deleting note {}", noteId);
         bookNoteV2Repository.delete(note);
+        annotationSidecarService.writeSidecar(note.getBook(), note.getUser());
     }
 
     private Long getCurrentUserId() {

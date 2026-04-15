@@ -60,8 +60,6 @@ class AnnotationServiceTest {
 
         when(bookRepository.findById(10L)).thenReturn(Optional.of(book));
         when(userRepository.findById(1L)).thenReturn(Optional.of(userEntity));
-        when(annotationRepository.findByBookIdAndUserIdOrderByCreatedAtDesc(anyLong(), anyLong()))
-                .thenReturn(List.of());
         when(mapper.toDto(any(AnnotationEntity.class))).thenReturn(new Annotation());
     }
 
@@ -82,7 +80,7 @@ class AnnotationServiceTest {
 
         service.createAnnotation(req);
 
-        verify(annotationSidecarService).writeSidecar(eq(book), eq(userEntity), anyList());
+        verify(annotationSidecarService).writeSidecar(book, userEntity);
     }
 
     @Test
@@ -95,22 +93,18 @@ class AnnotationServiceTest {
 
         service.updateAnnotation(99L, new UpdateAnnotationRequest());
 
-        verify(annotationSidecarService).writeSidecar(eq(book), eq(userEntity), anyList());
+        verify(annotationSidecarService).writeSidecar(book, userEntity);
     }
 
     @Test
-    void deleteAnnotation_callsWriteSidecarWithRemainingAnnotations() {
+    void deleteAnnotation_callsWriteSidecar() {
         AnnotationEntity existing = mock(AnnotationEntity.class);
         when(existing.getBook()).thenReturn(book);
         when(existing.getUser()).thenReturn(userEntity);
         when(annotationRepository.findByIdAndUserId(99L, 1L)).thenReturn(Optional.of(existing));
 
-        AnnotationEntity remaining = mock(AnnotationEntity.class);
-        when(annotationRepository.findByBookIdAndUserIdOrderByCreatedAtDesc(10L, 1L))
-                .thenReturn(List.of(remaining));
-
         service.deleteAnnotation(99L);
 
-        verify(annotationSidecarService).writeSidecar(book, userEntity, List.of(remaining));
+        verify(annotationSidecarService).writeSidecar(book, userEntity);
     }
 }
