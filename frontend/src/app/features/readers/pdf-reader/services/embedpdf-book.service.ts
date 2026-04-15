@@ -78,6 +78,7 @@ export class EmbedPdfBookService {
 
     const wasmUrl = new URL('/assets/pdfium/pdfium.wasm', location.origin).href;
     const requestedLocale = localeCode || 'en';
+    const isSmallViewport = window.innerWidth <= 768;
 
     this.container = EmbedPDF.init({
       type: 'container',
@@ -102,18 +103,28 @@ export class EmbedPdfBookService {
       annotations: {
         autoCommit: true,
         autoOpenLinks: false,
+        tools: [
+          {
+            id: 'highlight',
+            defaults: {
+              opacity: 0.4,
+            },
+          },
+          {
+            id: 'inkHighlighter',
+            defaults: {
+              opacity: 0.4,
+            },
+          },
+        ],
       },
       zoom: {
         defaultZoomLevel: 'fit-page' as ZoomMode,
       },
       render: {
-        defaultImageQuality: 4,
+        defaultImageQuality: isSmallViewport ? 0.85 : 0.92,
       },
-      tiling: {
-        tileSize: 1024,
-        overlapPx: 2,
-        extraRings: 1,
-      },
+      tiling: this.getTilingConfig(),
     }) ?? null;
 
     if (!this.container) {
@@ -449,18 +460,45 @@ export class EmbedPdfBookService {
    * The library reads window.devicePixelRatio at tile-render time; if the
    * browser reports 1 (e.g. some WebViews or forced-desktop viewports),
    * PDF pages appear noticeably pixelated.
+   *
+   * On small viewports (phones / responsive mode) we use a lower minimum
+   * to avoid exceeding the browser's image-memory budget once that budget
+   * is breached the browser silently degrades earlier tile bitmaps, which
+   * makes the PDF text appear blurry. Annotation appearance images amplify
+   * the problem because they add extra high-resolution bitmaps on top of
+   * the page tiles.
    */
   private ensureHighDpiRendering(): void {
-    const MIN_DPR = 2.5;
-    if (window.devicePixelRatio < MIN_DPR) {
+    const isSmallViewport = window.innerWidth <= 768;
+    const currentDpr = window.devicePixelRatio || 1;
+
+    // On small screens, we CAP the DPR at 2.0.
+    // Modern phones often have DPR 3.0+, which combined with annotation layers
+    // exceeds the browser's texture memory budget, leading to "emergency" downsampling (blurriness).
+    const targetDpr = isSmallViewport ? Math.min(currentDpr, 2) : Math.max(currentDpr, 2.5);
+
+    if (currentDpr !== targetDpr) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const w = window as any;
       w.__grimmoryOrigDprDescriptor = Object.getOwnPropertyDescriptor(window, 'devicePixelRatio');
       Object.defineProperty(window, 'devicePixelRatio', {
-        get: () => MIN_DPR,
+        get: () => targetDpr,
         configurable: true,
       });
+      console.info(`[EmbedPDF] Adjusted DPR from ${currentDpr} to ${targetDpr} (viewport: ${window.innerWidth}px)`);
     }
+  }
+
+  /**
+   * Return tiling config tuned for the current viewport.
+   * Small screens get smaller tiles and no extra rings to stay within
+   * the browser's image-memory budget when annotations are present.
+   */
+  private getTilingConfig(): {tileSize: number; overlapPx: number; extraRings: number} {
+    const isSmallViewport = window.innerWidth <= 768;
+    return isSmallViewport
+      ? {tileSize: 512, overlapPx: 2, extraRings: 0}
+      : {tileSize: 1024, overlapPx: 2, extraRings: 1};
   }
 
   /**
@@ -648,7 +686,9 @@ export class EmbedPdfBookService {
         [class*="notification"],
         [class*="bottom-bar"],
         [class*="status-bar"],
-        [class*="statusbar"] {
+        [class*="statusbar"],
+        footer,
+        [class*="footer"] {
           display: none !important;
         }
 
@@ -662,13 +702,24 @@ export class EmbedPdfBookService {
 
 
         /* Improve annotation layer rendering on touch devices.
-
-        /* Improve annotation layer rendering on touch devices.
            FreeText annotation overlays can bleed through when the
            appearance-stream image has not finished loading. Prevent the
            interactive text span from blocking the rendered image. */
         [role="textbox"][contenteditable="false"] {
           pointer-events: none;
+        }
+
+        /* Prevent mix-blend-mode:multiply on highlight annotation
+           wrappers from forcing the browser to re-rasterise the
+           tile compositing group at a lower resolution on mobile.
+           The PDFium appearance image already carries the correct
+           visual so the CSS blend mode is redundant for committed
+           annotations.  During live creation the highlight still
+           renders as a semi-transparent overlay (acceptable). */
+        @media (max-width: 768px) {
+          [data-no-interaction] > div {
+            mix-blend-mode: normal !important;
+          }
         }
       `;
       shadow.appendChild(style);

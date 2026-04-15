@@ -120,6 +120,10 @@ function convertHighlight(legacy: Record<string, unknown>): AnnotationTransferIt
   const w = rect[2] - rect[0];
   const h = rect[3] - rect[1];
 
+  // Cap opacity for highlights to prevent solid blocks
+  const rawOpacity = (legacy['opacity'] as number) ?? 0.4;
+  const opacity = Math.min(rawOpacity, 0.6);
+
   return {
     annotation: {
       type: 9, // PdfAnnotationSubtype.HIGHLIGHT
@@ -127,7 +131,7 @@ function convertHighlight(legacy: Record<string, unknown>): AnnotationTransferIt
       rect: {origin: {x, y}, size: {width: w, height: h}},
       segmentRects: [{origin: {x, y}, size: {width: w, height: h}}],
       color: hexColor,
-      opacity: (legacy['opacity'] as number) ?? 1,
+      opacity,
       id: crypto.randomUUID(),
     } as never,
   };
@@ -233,6 +237,12 @@ function base64ToArrayBuffer(base64: string): ArrayBuffer {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function restoreArrayBuffers(item: any): AnnotationTransferItem {
+  // Cap opacity for highlights to prevent solid blocks
+  if (item.annotation?.type === 9) {
+    const rawOpacity = item.annotation.opacity ?? 0.4;
+    item.annotation.opacity = Math.min(rawOpacity, 0.6);
+  }
+
   if (item.ctx?._dataEncoding === 'base64' && typeof item.ctx.data === 'string') {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const {_dataEncoding: _, ...rest} = item.ctx;
