@@ -17,7 +17,6 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     @Override
     @Transactional(readOnly = true)
     public Optional<BookLoreUserEntity> findByIdWithDetails(Long id) {
-        // Query 1: user + settings + permissions (1 ToMany + 1 ToOne — no Cartesian)
         List<BookLoreUserEntity> users = em.createQuery(
                         "SELECT DISTINCT u FROM BookLoreUserEntity u " +
                                 "LEFT JOIN FETCH u.settings " +
@@ -28,8 +27,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
                 .getResultList();
         if (users.isEmpty()) return Optional.empty();
 
-        // initialize libraries + libraryPaths via batch loading (@BatchSize)
-        BookLoreUserEntity user = users.get(0);
+        BookLoreUserEntity user = users.getFirst();
         Hibernate.initialize(user.getLibraries());
         user.getLibraries().forEach(lib -> Hibernate.initialize(lib.getLibraryPaths()));
 
@@ -39,7 +37,6 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     @Override
     @Transactional(readOnly = true)
     public List<BookLoreUserEntity> findAllWithDetails() {
-        // Query 1: all users + settings + permissions
         List<BookLoreUserEntity> users = em.createQuery(
                         "SELECT DISTINCT u FROM BookLoreUserEntity u " +
                                 "LEFT JOIN FETCH u.settings " +
@@ -48,7 +45,6 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
                 .getResultList();
         if (users.isEmpty()) return users;
 
-        // initialize libraries + libraryPaths via batch loading (@BatchSize)
         users.forEach(user -> {
             Hibernate.initialize(user.getLibraries());
             user.getLibraries().forEach(lib -> Hibernate.initialize(lib.getLibraryPaths()));
