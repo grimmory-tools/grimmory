@@ -51,6 +51,7 @@ class BookCoverServiceTest {
     @Mock private MetadataWriterFactory metadataWriterFactory;
     @Mock private TransactionTemplate transactionTemplate;
     @Mock private Executor taskExecutor;
+    @Mock private org.booklore.config.security.service.AuthenticationService authenticationService;
 
     @InjectMocks
     private BookCoverService service;

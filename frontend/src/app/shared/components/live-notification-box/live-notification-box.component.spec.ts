@@ -18,8 +18,8 @@ describe('LiveNotificationBoxComponent', () => {
     langChanges$ = new Subject<string>();
 
     TestBed.configureTestingModule({
+      imports: [LiveNotificationBoxComponent],
       providers: [
-        LiveNotificationBoxComponent,
         {
           provide: NotificationEventService,
           useValue: {latestNotification$: notifications$},
@@ -34,7 +34,9 @@ describe('LiveNotificationBoxComponent', () => {
       ],
     });
 
-    component = TestBed.inject(LiveNotificationBoxComponent);
+    const fixture = TestBed.createComponent(LiveNotificationBoxComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   afterEach(() => {
