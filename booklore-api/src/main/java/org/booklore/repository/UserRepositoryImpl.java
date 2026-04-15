@@ -3,6 +3,7 @@ package org.booklore.repository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.booklore.model.entity.BookLoreUserEntity;
+import org.hibernate.Hibernate;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -27,17 +28,12 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
                 .getResultList();
         if (users.isEmpty()) return Optional.empty();
 
-        // Query 2: libraries + libraryPaths on same managed entity (hierarchical — no Cartesian)
-        em.createQuery(
-                        "SELECT DISTINCT u FROM BookLoreUserEntity u " +
-                                "LEFT JOIN FETCH u.libraries l " +
-                                "LEFT JOIN FETCH l.libraryPaths " +
-                                "WHERE u.id = :id",
-                        BookLoreUserEntity.class)
-                .setParameter("id", id)
-                .getResultList();
+        // initialize libraries + libraryPaths via batch loading (@BatchSize)
+        BookLoreUserEntity user = users.get(0);
+        Hibernate.initialize(user.getLibraries());
+        user.getLibraries().forEach(lib -> Hibernate.initialize(lib.getLibraryPaths()));
 
-        return Optional.of(users.get(0));
+        return Optional.of(user);
     }
 
     @Override
@@ -52,14 +48,42 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
                 .getResultList();
         if (users.isEmpty()) return users;
 
-        // Query 2: all users + libraries + libraryPaths (fills in same persistence context)
-        em.createQuery(
-                        "SELECT DISTINCT u FROM BookLoreUserEntity u " +
-                                "LEFT JOIN FETCH u.libraries l " +
-                                "LEFT JOIN FETCH l.libraryPaths",
-                        BookLoreUserEntity.class)
-                .getResultList();
+        // initialize libraries + libraryPaths via batch loading (@BatchSize)
+        users.forEach(user -> {
+            Hibernate.initialize(user.getLibraries());
+            user.getLibraries().forEach(lib -> Hibernate.initialize(lib.getLibraryPaths()));
+        });
 
         return users;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<BookLoreUserEntity> findByIdWithSettings(Long id) {
+        BookLoreUserEntity user = em.find(BookLoreUserEntity.class, id);
+        if (user == null) return Optional.empty();
+        Hibernate.initialize(user.getSettings());
+        Hibernate.initialize(user.getPermissions());
+        return Optional.of(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<BookLoreUserEntity> findByIdWithLibraries(Long id) {
+        BookLoreUserEntity user = em.find(BookLoreUserEntity.class, id);
+        if (user == null) return Optional.empty();
+        Hibernate.initialize(user.getLibraries());
+        user.getLibraries().forEach(lib -> Hibernate.initialize(lib.getLibraryPaths()));
+        Hibernate.initialize(user.getPermissions());
+        return Optional.of(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<BookLoreUserEntity> findByIdWithPermissions(Long id) {
+        BookLoreUserEntity user = em.find(BookLoreUserEntity.class, id);
+        if (user == null) return Optional.empty();
+        Hibernate.initialize(user.getPermissions());
+        return Optional.of(user);
     }
 }
