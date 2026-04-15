@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy} from '@angular/core';
+import {ChangeDetectorRef, Component, inject, OnDestroy} from '@angular/core';
 import {NotificationEventService} from '../../websocket/notification-event.service';
 import {LogNotification} from '../../websocket/model/log-notification.model';
 import {TranslocoService} from '@jsverse/transloco';
@@ -21,6 +21,7 @@ import {TagComponent} from '../tag/tag.component';
 })
 export class LiveNotificationBoxComponent implements OnDestroy {
   private readonly t = inject(TranslocoService);
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroy$ = new Subject<void>();
   latestNotification: LogNotification = {message: this.t.translate('shared.liveNotification.defaultMessage')};
   private hasReceivedNotification = false;
@@ -31,11 +32,13 @@ export class LiveNotificationBoxComponent implements OnDestroy {
     this.notificationService.latestNotification$.pipe(takeUntil(this.destroy$)).subscribe(notification => {
       this.hasReceivedNotification = true;
       this.latestNotification = notification;
+      this.cdr.markForCheck();
     });
     this.t.langChanges$.pipe(takeUntil(this.destroy$)).subscribe(() => {
       if (!this.hasReceivedNotification) {
         this.latestNotification = {message: this.t.translate('shared.liveNotification.defaultMessage')};
       }
+      this.cdr.markForCheck();
     });
   }
 
