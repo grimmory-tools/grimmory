@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PageTitleService } from "../../../shared/service/page-title.service";
 import { BookService } from '../../book/service/book.service';
 import { forkJoin, from, Observable, of, Subject, Subscription } from "rxjs";
-import { debounceTime, filter, map, switchMap } from 'rxjs/operators';
+import { debounceTime, filter, map, switchMap, take } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BookSetting } from '../../book/model/book.model';
 import { UserService } from '../../settings/user-management/user.service';
@@ -71,6 +71,8 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   readonly outline = signal<PdfOutlineItem[]>([]);
   readonly pdfBookmarks = signal<BookMark[]>([]);
   readonly annotationListItems = signal<PdfAnnotationListItem[]>([]);
+
+  readonly isInitialScrollDone = signal(false);
 
   readonly sliderTicks = computed(() => {
     const total = this.totalPages();
@@ -368,6 +370,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
         this.page.set(pdfMeta.pdfProgress?.page || 1);
         this.zoom.set(this.normalizeZoom(zoomVal));
         this.bookData = bookData;
+        this.isInitialScrollDone.set(false);
         this.isLoading.set(false);
 
         // Schedule viewer initialization after the template renders the container
@@ -513,12 +516,13 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       // Use onLayoutReady for initial page scroll (fires when document layout is calculated)
       this.embedPdfBook.layoutReady$.pipe(
         takeUntilDestroyed(this.destroyRef),
-        debounceTime(200) // Give the engine a moment to settle and start high-quality rendering
+        take(1)
       ).subscribe(() => {
         const currentPage = this.page();
         if (currentPage > 1) {
           this.embedPdfBook.scrollToPage(currentPage, 'instant');
         }
+        this.isInitialScrollDone.set(true);
 
         // Load outline, bookmarks, and annotations after layout is ready and settled
         this.loadOutline();
@@ -823,6 +827,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
         this.saveEmbedPdfDocument().finally(() => this.destroyDocViewerIframe());
       }
       this.viewerMode.set(mode);
+      this.isInitialScrollDone.set(false);
       this.initTimeout = setTimeout(() => {
         this.initTimeout = undefined;
         this.initBookViewer();
@@ -1328,23 +1333,25 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   }
 
   private async persistAnnotations(): Promise<void> {
-    if (!this.annotationsLoaded || !this.bookId || this.viewerMode() === 'document') return;
+    if (!this.annotationsLoaded || !this.bookId || this.viewerMode() === 'document' || !this.annotationsDirty) return;
+
     try {
       const allItems = await this.embedPdfBook.exportAnnotations();
       const items = this.filterAndDeduplicateAnnotations(allItems);
       const data = serializeAnnotations(items);
+
       this.lastAnnotationData = data;
+      this.annotationsDirty = false; // Speculatively clear to avoid double-save
 
       // Fire-and-forget: keep annotations save non-blocking so a 401 can never
       // stall or abort the viewer-mode switch (the interceptor's forceLogout
       // would navigate to /login if we awaited and the refresh also failed).
       this.pdfAnnotationService.saveAnnotations(this.bookId, data).subscribe({
         next: () => {
-          this.annotationsDirty = false;
           console.info('[PDF Annotations] Saved', items.length, 'annotations for book', this.bookId);
         },
         error: (err) => {
-          this.annotationsDirty = true;
+          this.annotationsDirty = true; // Restore on failure
           console.error('[PDF Annotations] Failed to save annotations:', err);
         }
       });
@@ -1354,7 +1361,9 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   }
 
   private persistAnnotationsSync(): void {
-    if (!this.bookId || this.lastAnnotationData === null) return;
+    if (!this.bookId || this.lastAnnotationData === null || !this.annotationsDirty) return;
+    this.annotationsDirty = false;
+
     const url = `${API_CONFIG.BASE_URL}/api/v1/pdf-annotations/book/${this.bookId}`;
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     const syncToken = this.authService.getInternalAccessToken();

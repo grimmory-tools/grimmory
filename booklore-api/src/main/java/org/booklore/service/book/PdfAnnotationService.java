@@ -10,6 +10,8 @@ import org.booklore.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,21 +37,31 @@ public class PdfAnnotationService {
     @Transactional
     public void saveAnnotations(Long bookId, String data) {
         Long userId = getCurrentUserId();
-        Optional<PdfAnnotationEntity> existing = pdfAnnotationRepository.findByBookIdAndUserId(bookId, userId);
+        try {
+            Optional<PdfAnnotationEntity> existing = pdfAnnotationRepository.findByBookIdAndUserId(bookId, userId);
 
-        if (existing.isPresent()) {
-            PdfAnnotationEntity entity = existing.get();
-            entity.setData(data);
-            pdfAnnotationRepository.save(entity);
-            log.info("Updated PDF annotations for book {} by user {}", bookId, userId);
-        } else {
-            PdfAnnotationEntity entity = PdfAnnotationEntity.builder()
-                    .book(findBook(bookId))
-                    .user(findUser(userId))
-                    .data(data)
-                    .build();
-            pdfAnnotationRepository.save(entity);
-            log.info("Created PDF annotations for book {} by user {}", bookId, userId);
+            if (existing.isPresent()) {
+                PdfAnnotationEntity entity = existing.get();
+                entity.setData(data);
+                pdfAnnotationRepository.saveAndFlush(entity);
+                log.info("Updated PDF annotations for book {} by user {}", bookId, userId);
+            } else {
+                PdfAnnotationEntity entity = PdfAnnotationEntity.builder()
+                        .book(findBook(bookId))
+                        .user(findUser(userId))
+                        .data(data)
+                        .build();
+                pdfAnnotationRepository.saveAndFlush(entity);
+                log.info("Created PDF annotations for book {} by user {}", bookId, userId);
+            }
+        } catch (ObjectOptimisticLockingFailureException e) {
+            log.warn("Concurrent update detected for PDF annotations (book {}, user {}), ignoring redundant save.", bookId, userId);
+        } catch (DataIntegrityViolationException e) {
+            log.warn("Concurrent creation detected for PDF annotations (book {}, user {}), retrying as update.", bookId, userId);
+            pdfAnnotationRepository.findByBookIdAndUserId(bookId, userId).ifPresent(entity -> {
+                entity.setData(data);
+                pdfAnnotationRepository.save(entity);
+            });
         }
     }
 

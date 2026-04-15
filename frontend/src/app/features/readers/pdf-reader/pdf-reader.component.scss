@@ -13,14 +13,21 @@ $active-color: #4a90e2;
 $hover-bg: rgb(255 255 255 / 12%);
 $transition-fast: 150ms ease;
 
+.v-hidden {
+  visibility: hidden !important;
+}
+
 // --- Loading ---
 
 .loading-container {
+  position: fixed;
+  inset: 0;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100dvh;
   background: #1a1a1a;
+  z-index: 1000;
 }
 
 // --- Reader container ---
