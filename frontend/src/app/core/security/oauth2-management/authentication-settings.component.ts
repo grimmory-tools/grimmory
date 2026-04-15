@@ -437,6 +437,13 @@ export class AuthenticationSettingsComponent {
     });
   }
 
+  onAdminCheckboxChange(): void {
+    this.editingGroupMappingPerms = this.availablePermissions.map(p => ({
+      ...p,
+      selected: true,
+    }));
+  }
+
   private emptyGroupMapping(): OidcGroupMapping {
     return {oidcGroupClaim: '', isAdmin: false, permissions: [], libraryIds: [], description: ''};
   }
