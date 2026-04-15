@@ -5,7 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.model.dto.AudiobookMetadata;
@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class AudioMetadataService {
 
   private final AudioFileUtilityService audioFileUtility;
@@ -76,7 +76,7 @@ public class AudioMetadataService {
                             .endTimeMs(ch.getEndTimeMs())
                             .durationMs(ch.getDurationMs())
                             .build())
-                .collect(Collectors.toList());
+                .toList();
         builder.chapters(chapters);
       } else {
         backfillChapters(bookFile, audioPath, builder);
@@ -218,7 +218,14 @@ public class AudioMetadataService {
 
     long totalSizeBytes = tracks.stream()
                 .mapToLong(t -> t.getFileSizeBytes() != null ? t.getFileSizeBytes() : 0)
-                .sum();return builder.title(title).author(author).durationMs(totalDurationMs).totalSizeBytes(totalSizeBytes > 0 ? totalSizeBytes : null).tracks(tracks).build();
+                .sum();
+    return builder
+                .title(title)
+                .author(author)
+                .durationMs(totalDurationMs)
+                .totalSizeBytes(totalSizeBytes > 0 ? totalSizeBytes : null)
+                .tracks(tracks)
+                .build();
   }
 
   private AudiobookInfo extractSingleFileMetadata(
@@ -268,7 +275,7 @@ public class AudioMetadataService {
                           .endTimeMs(ch.getEndTimeMs())
                           .durationMs(ch.getDurationMs())
                           .build())
-              .collect(Collectors.toList());
+              .toList();
       bookFile.setChapters(entityChapters);
       bookFile.setChapterCount(entityChapters.size());
       bookFileRepository.save(bookFile);
@@ -298,7 +305,7 @@ public class AudioMetadataService {
                       .endTimeMs(ch.getEndTimeMs())
                       .durationMs(ch.getDurationMs())
                       .build())
-          .collect(Collectors.toList());
+          .toList();
     }
 
     List<AudiobookChapter> fallback = new ArrayList<>();
@@ -372,8 +379,8 @@ public class AudioMetadataService {
 
   private Integer parseChannels(String channels) {
     if (channels == null) return null;
-    if (channels.toLowerCase().contains("stereo")) return 2;
-    if (channels.toLowerCase().contains("mono")) return 1;
+    if (channels.toLowerCase(Locale.ROOT).contains("stereo")) return 2;
+    if (channels.toLowerCase(Locale.ROOT).contains("mono")) return 1;
     try {
       return Integer.parseInt(channels.replaceAll("[^0-9]", ""));
     } catch (NumberFormatException e) {
