@@ -1,4 +1,4 @@
-import {fileSizeRanges, matchScoreRanges, pageCountRanges, ratingRanges} from '../book-filter/book-filter.config';
+import {ageRatingRanges, fileSizeRanges, matchScoreRanges, pageCountRanges, ratingRanges} from '../book-filter/book-filter.config';
 import {Book, ReadStatus} from '../../../model/book.model';
 import {BookFilterMode} from '../../../../settings/user-management/user.service';
 
@@ -39,6 +39,14 @@ export function isMatchScoreInRange(score: number | undefined | null, rangeId: s
   const range = matchScoreRanges.find(r => r.id === numericId);
   if (!range) return false;
   return normalizedScore >= range.min && normalizedScore < range.max;
+}
+
+export function isAgeRatingInRange(ageRating: number | undefined | null, rangeId: string | number): boolean {
+  if (ageRating == null) return false;
+  const numericId = typeof rangeId === 'string' ? Number(rangeId) : rangeId;
+  const range = ageRatingRanges.find(r => r.id === numericId);
+  if (!range) return false;
+  return ageRating >= range.min && ageRating < range.max;
 }
 
 export function doesBookMatchReadStatus(book: Book, selected: unknown[]): boolean {
@@ -122,10 +130,7 @@ export function doesBookMatchFilter(
         ? filterValues.some(val => book.metadata?.moods?.includes(val as string))
         : filterValues.every(val => book.metadata?.moods?.includes(val as string));
     case 'ageRating':
-      return filterValues.some(val => {
-        const numVal = typeof val === 'string' ? Number(val) : val;
-        return book.metadata?.ageRating === numVal;
-      });
+      return filterValues.some(range => isAgeRatingInRange(book.metadata?.ageRating, range as string | number));
     case 'contentRating':
       return filterValues.includes(book.metadata?.contentRating);
     case 'narrator':

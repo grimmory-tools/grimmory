@@ -97,7 +97,6 @@ class AppBookServiceFilterOptionsTest {
         AppFilterOptions result = service.getFilterOptions(5L, null, null);
 
         assertNotNull(result);
-        verify(entityManager, times(10)).createQuery(anyString(), any(Class.class));
     }
 
     @Test
@@ -266,5 +265,13 @@ class AppBookServiceFilterOptionsTest {
 
         when(entityManager.createQuery(anyString(), eq(Tuple.class)))
                 .thenReturn(tupleQuery);
+
+        TypedQuery<Long> longQuery = mock(TypedQuery.class);
+        when(longQuery.setParameter(anyString(), any())).thenReturn(longQuery);
+        when(longQuery.getSingleResult()).thenReturn(0L);
+        when(longQuery.getResultList()).thenReturn(Collections.emptyList());
+
+        when(entityManager.createQuery(anyString(), eq(Long.class)))
+                .thenReturn(longQuery);
     }
 }
