@@ -1,4 +1,4 @@
-import {computed, effect, inject, Injectable} from '@angular/core';
+import {computed, signal, effect, inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {lastValueFrom, Observable, tap} from 'rxjs';
 import {CustomFont} from '../model/custom-font.model';
@@ -26,6 +26,9 @@ export class CustomFontService {
 
   fonts = computed(() => this.fontsQuery.data() ?? []);
   isFontsLoading = computed(() => !!this.token() && this.fontsQuery.isPending());
+
+  private readonly isFontsReadyInternal = signal(false);
+  isFontsReady = this.isFontsReadyInternal.asReadonly();
 
   constructor() {
     effect(() => {
@@ -124,9 +127,20 @@ export class CustomFontService {
     }
   }
 
-  async loadAllFonts(fonts: CustomFont[]): Promise<void> {
+      async loadAllFonts(fonts: CustomFont[]): Promise<void> {
+    this.isFontsReadyInternal.set(false);
+    if (fonts.length === 0) {
+      this.isFontsReadyInternal.set(true);
+      return;
+    }
     const loadPromises = fonts.map(font => this.loadFontFace(font));
-    await Promise.allSettled(loadPromises);
+    const results = await Promise.allSettled(loadPromises);
+    const hasFailures = results.some(r => r.status === 'rejected');
+    if (hasFailures) {
+      const failures = results.filter(r => r.status === 'rejected');
+      console.error(`Failed to load ${failures.length} fonts out of ${fonts.length}`);
+    }
+    this.isFontsReadyInternal.set(true);
   }
 
   isFontLoaded(fontName: string): boolean {

@@ -1,5 +1,5 @@
 import {DecimalPipe} from '@angular/common';
-import {Component, computed, effect, inject, input} from '@angular/core';
+import {Component, computed, effect, untracked, inject, input} from '@angular/core';
 import {Button} from 'primeng/button';
 import {FormsModule} from '@angular/forms';
 import {TranslocoDirective} from '@jsverse/transloco';
@@ -42,9 +42,8 @@ export class EpubReaderPreferencesComponent {
 
   readonly themes = themes;
 
-  readonly customFontsReady = computed(() => {
-    const fonts = this.customFontService.fonts();
-    return fonts.length > 0 || !this.customFontService.isFontsLoading();
+    readonly customFontsReady = computed(() => {
+    return this.customFontService.isFontsReady() || !this.customFontService.isFontsLoading();
   });
 
   readonly fonts = computed<FontPreferenceItem[]>(() => {
@@ -53,12 +52,14 @@ export class EpubReaderPreferencesComponent {
     return base;
   });
 
-  private readonly loadFontsEffect = effect(() => {
+    private readonly loadFontsEffect = effect(() => {
     const fonts = this.customFontService.fonts();
     if (fonts.length === 0 && this.customFontService.isFontsLoading()) return;
 
-    this.customFontService.loadAllFonts(fonts).catch(err => {
-      console.error('Failed to load custom fonts:', err);
+    untracked(() => {
+      this.customFontService.loadAllFonts(fonts).catch(err => {
+        console.error('Failed to load custom fonts:', err);
+      });
     });
 
     const fontFamily = this.userSettings()?.ebookReaderSetting?.fontFamily;
