@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
 public class BookCoverService {
 
     private static final int BATCH_SIZE = 100;
+    private static final int COVER_NOTIFICATION_BATCH_SIZE = 10;
 
     private final AppProperties appProperties;
     private final BookRepository bookRepository;
@@ -368,7 +369,7 @@ public class BookCoverService {
             notificationService.sendMessage(Topic.LOG, LogNotification.info("Started updating covers for " + total + " selected book(s)"));
 
             int current = 1;
-            List<Long> refreshedIds = new ArrayList<>();
+            List<Long> pendingIds = new ArrayList<>();
 
             for (BookCoverInfo bookInfo : books) {
                 try {
@@ -381,7 +382,7 @@ public class BookCoverService {
                             writeCoverToBookFile(book, (writer, b) -> writer.replaceCoverImageFromBytes(b, coverImageBytes));
                             updateBookCoverMetadata(book);
                             bookRepository.save(book);
-                            refreshedIds.add(book.getId());
+                            pendingIds.add(book.getId());
                         });
                         return null;
                     });
@@ -390,10 +391,14 @@ public class BookCoverService {
                 } catch (Exception e) {
                     log.error("Failed to update cover for book ID {}: {}", bookInfo.id(), e.getMessage(), e);
                 }
+                if (pendingIds.size() >= COVER_NOTIFICATION_BATCH_SIZE) {
+                    notifyBulkCoverUpdate(pendingIds);
+                    pendingIds.clear();
+                }
                 current++;
             }
 
-            notifyBulkCoverUpdate(refreshedIds);
+            notifyBulkCoverUpdate(pendingIds);
             notificationService.sendMessage(Topic.LOG, LogNotification.info("Finished updating covers for selected books"));
         } catch (Exception e) {
             log.error("Error during cover update: {}", e.getMessage(), e);
@@ -407,7 +412,7 @@ public class BookCoverService {
             notificationService.sendMessage(Topic.LOG, LogNotification.info("Started regenerating covers for " + total + " selected book(s)"));
 
             int current = 1;
-            List<Long> refreshedIds = new ArrayList<>();
+            List<Long> pendingIds = new ArrayList<>();
 
             for (BookRegenerationInfo bookInfo : books) {
                 try {
@@ -422,7 +427,7 @@ public class BookCoverService {
                             if (success) {
                                 updateBookCoverMetadata(book);
                                 bookRepository.save(book);
-                                refreshedIds.add(book.getId());
+                                pendingIds.add(book.getId());
                             }
                         });
                         return null;
@@ -432,10 +437,14 @@ public class BookCoverService {
                 } catch (Exception e) {
                     log.error("Failed to regenerate cover for book ID {}: {}", bookInfo.id(), e.getMessage(), e);
                 }
+                if (pendingIds.size() >= COVER_NOTIFICATION_BATCH_SIZE) {
+                    notifyBulkCoverUpdate(pendingIds);
+                    pendingIds.clear();
+                }
                 current++;
             }
 
-            notifyBulkCoverUpdate(refreshedIds);
+            notifyBulkCoverUpdate(pendingIds);
             notificationService.sendMessage(Topic.LOG, LogNotification.info("Finished regenerating covers for selected books"));
         } catch (Exception e) {
             log.error("Error during cover regeneration: {}", e.getMessage(), e);
@@ -449,7 +458,7 @@ public class BookCoverService {
             notificationService.sendMessage(Topic.LOG, LogNotification.info("Started generating custom covers for " + total + " selected book(s)"));
 
             int current = 1;
-            List<Long> refreshedIds = new ArrayList<>();
+            List<Long> pendingIds = new ArrayList<>();
 
             for (BookCoverInfo bookInfo : books) {
                 try {
@@ -466,7 +475,7 @@ public class BookCoverService {
                             writeCoverToBookFile(book, (writer, b) -> writer.replaceCoverImageFromBytes(b, coverBytes));
                             updateBookCoverMetadata(book);
                             bookRepository.save(book);
-                            refreshedIds.add(book.getId());
+                            pendingIds.add(book.getId());
                         });
                         return null;
                     });
@@ -475,10 +484,14 @@ public class BookCoverService {
                 } catch (Exception e) {
                     log.error("Failed to generate custom cover for book ID {}: {}", bookInfo.id(), e.getMessage(), e);
                 }
+                if (pendingIds.size() >= COVER_NOTIFICATION_BATCH_SIZE) {
+                    notifyBulkCoverUpdate(pendingIds);
+                    pendingIds.clear();
+                }
                 current++;
             }
 
-            notifyBulkCoverUpdate(refreshedIds);
+            notifyBulkCoverUpdate(pendingIds);
             notificationService.sendMessage(Topic.LOG, LogNotification.info("Finished generating custom covers for selected books"));
         } catch (Exception e) {
             log.error("Error during custom cover generation: {}", e.getMessage(), e);
