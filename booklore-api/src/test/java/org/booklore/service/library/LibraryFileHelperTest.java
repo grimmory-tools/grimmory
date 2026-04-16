@@ -1,6 +1,8 @@
 package org.booklore.service.library;
 
 import org.booklore.model.dto.settings.LibraryFile;
+import org.booklore.model.entity.BookEntity;
+import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.LibraryEntity;
 import org.booklore.model.entity.LibraryPathEntity;
 import org.booklore.model.enums.BookFileType;
@@ -15,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -392,5 +395,332 @@ class LibraryFileHelperTest {
 
         assertThat(files).hasSize(1);
         assertThat(files.getFirst().getFileSubPath()).isEqualTo("A/B/C/D/E");
+    }
+
+    @Test
+    void detectDeletedBookIds_shouldIgnoreBooksWithoutFiles() {
+        BookEntity book = BookEntity.builder()
+                .id(1L)
+                .bookFiles(Collections.emptyList())
+                .build();
+
+        List<Long> actual = libraryFileHelper.detectDeletedBookIds(Collections.emptyList(), List.of(book));
+
+        assertThat(actual).hasSize(0);
+    }
+
+    @Test
+    void detectDeletedBookIds_shouldIgnoreDeletedBooks() {
+        BookEntity book = BookEntity.builder()
+                .id(1L)
+                .bookFiles(List.of(BookFileEntity.builder().build()))
+                .deleted(true)
+                .build();
+
+        List<Long> actual = libraryFileHelper.detectDeletedBookIds(Collections.emptyList(), List.of(book));
+
+        assertThat(actual).hasSize(0);
+    }
+
+    @Test
+    void detectDeletedBookIds_shouldHandleFolderBasedAudiobooks() {
+        LibraryPathEntity libraryPathEntity = LibraryPathEntity.builder()
+                .path("/books")
+                .build();
+
+        LibraryFile bookLibraryFolder = LibraryFile.builder()
+                .libraryPathEntity(libraryPathEntity)
+                .folderBased(true)
+                .fileSubPath("example")
+                .fileName("a")
+                .build();
+
+        BookFileEntity existing = BookFileEntity.builder()
+                .folderBased(true)
+                .fileSubPath("example")
+                .fileName("a")
+                .build();
+
+        BookEntity book = BookEntity.builder()
+                .id(1L)
+                .libraryPath(libraryPathEntity)
+                .bookFiles(List.of(existing))
+                .build();
+
+        existing.setBook(book);
+
+        List<Long> actual = libraryFileHelper.detectDeletedBookIds(
+                List.of(bookLibraryFolder),
+                List.of(book)
+        );
+
+        assertThat(actual).hasSize(0);
+    }
+
+    @Test
+    void detectDeletedBookIds_shouldOnlyDetectBooksMissingFiles() {
+        LibraryPathEntity libraryPathEntity = LibraryPathEntity.builder()
+                .path("/books")
+                .build();
+
+        LibraryFile bookLibraryFile = LibraryFile.builder()
+                .libraryPathEntity(libraryPathEntity)
+                .fileSubPath("example")
+                .fileName("file.epub")
+                .build();
+
+        BookFileEntity existing = BookFileEntity.builder()
+                .fileSubPath("example")
+                .fileName("file.epub")
+                .build();
+
+        BookEntity book = BookEntity.builder()
+                .id(1L)
+                .libraryPath(libraryPathEntity)
+                .bookFiles(List.of(existing))
+                .build();
+
+        existing.setBook(book);
+
+        BookFileEntity expectedMissingBookFileEntity = BookFileEntity.builder()
+                .fileSubPath("missing")
+                .fileName("missing.epub")
+                .build();
+
+        BookEntity expectedMissingBook = BookEntity.builder()
+                .id(2L)
+                .libraryPath(libraryPathEntity)
+                .bookFiles(List.of(expectedMissingBookFileEntity))
+                .build();
+
+        expectedMissingBookFileEntity.setBook(expectedMissingBook);
+
+        List<Long> actual = libraryFileHelper.detectDeletedBookIds(
+                List.of(bookLibraryFile),
+                List.of(book, expectedMissingBook)
+        );
+
+        assertThat(actual).isEqualTo(List.of(2L));
+    }
+
+    @Test
+    void detectNewBooks_shouldReturnAllFilesWhenNoBooks() {
+        LibraryPathEntity libraryPathEntity = LibraryPathEntity.builder()
+                .path("/books")
+                .build();
+
+        LibraryFile fileA = LibraryFile.builder()
+                .libraryPathEntity(libraryPathEntity)
+                .fileSubPath("example")
+                .fileName("a.epub")
+                .build();
+        LibraryFile fileB = LibraryFile.builder()
+                .libraryPathEntity(libraryPathEntity)
+                .fileSubPath("example")
+                .fileName("b.epub")
+                .build();
+
+        List<LibraryFile> actual = libraryFileHelper.detectNewBookPaths(
+                List.of(fileA, fileB),
+                Collections.emptyList(),
+                Collections.emptyList()
+        );
+
+        assertThat(actual).isEqualTo(List.of(fileA, fileB));
+    }
+
+    @Test
+    void detectNewBooks_shouldNotReturnFilesAssociatedWithBooks() {
+        LibraryPathEntity libraryPathEntity = LibraryPathEntity.builder()
+                .path("/books")
+                .build();
+
+        LibraryFile fileA = LibraryFile.builder()
+                .libraryPathEntity(libraryPathEntity)
+                .fileSubPath("example")
+                .fileName("a.epub")
+                .build();
+        LibraryFile fileB = LibraryFile.builder()
+                .libraryPathEntity(libraryPathEntity)
+                .fileSubPath("example")
+                .fileName("b.epub")
+                .build();
+
+        BookFileEntity bookFile = BookFileEntity.builder()
+                .fileSubPath("example")
+                .fileName("a.epub")
+                .build();
+
+        BookEntity book = BookEntity.builder()
+                .libraryPath(libraryPathEntity)
+                .bookFiles(List.of(bookFile))
+                .build();
+
+        bookFile.setBook(book);
+
+        List<LibraryFile> actual = libraryFileHelper.detectNewBookPaths(
+                List.of(fileA, fileB),
+                List.of(book),
+                Collections.emptyList()
+        );
+
+        assertThat(actual).isEqualTo(List.of(fileB));
+    }
+
+    @Test
+    void detectNewBooks_shouldHandleFolderAudiobooks() {
+        LibraryPathEntity libraryPathEntity = LibraryPathEntity.builder()
+                .path("/books")
+                .build();
+
+        LibraryFile folderA = LibraryFile.builder()
+                .libraryPathEntity(libraryPathEntity)
+                .folderBased(true)
+                .fileSubPath("example")
+                .fileName("a")
+                .build();
+
+        LibraryFile fileB = LibraryFile.builder()
+                .libraryPathEntity(libraryPathEntity)
+                .fileSubPath("example")
+                .fileName("b.epub")
+                .build();
+
+        BookFileEntity audiobookFolder = BookFileEntity.builder()
+                .folderBased(true)
+                .fileSubPath("example")
+                .fileName("a")
+                .build();
+
+        BookEntity audiobook = BookEntity.builder()
+                .libraryPath(libraryPathEntity)
+                .bookFiles(List.of(audiobookFolder))
+                .build();
+
+        audiobookFolder.setBook(audiobook);
+
+        List<LibraryFile> actual = libraryFileHelper.detectNewBookPaths(
+                List.of(folderA, fileB),
+                List.of(audiobook),
+                Collections.emptyList()
+        );
+
+        assertThat(actual).isEqualTo(List.of(fileB));
+    }
+
+
+    @Test
+    void detectNewBooks_shouldHandleAdditionalFiles() {
+        LibraryPathEntity libraryPathEntity = LibraryPathEntity.builder()
+                .path("/books")
+                .build();
+
+        LibraryFile fileA = LibraryFile.builder()
+                .libraryPathEntity(libraryPathEntity)
+                .fileSubPath("example")
+                .fileName("a.epub")
+                .build();
+        LibraryFile fileB = LibraryFile.builder()
+                .libraryPathEntity(libraryPathEntity)
+                .fileSubPath("example")
+                .fileName("b.epub")
+                .build();
+        LibraryFile fileC = LibraryFile.builder()
+                .libraryPathEntity(libraryPathEntity)
+                .fileSubPath("example")
+                .fileName("c.epub")
+                .build();
+
+        BookFileEntity bookFile = BookFileEntity.builder()
+                .fileSubPath("example")
+                .fileName("a.epub")
+                .build();
+
+        BookEntity book = BookEntity.builder()
+                .libraryPath(libraryPathEntity)
+                .bookFiles(List.of(bookFile))
+                .build();
+
+        bookFile.setBook(book);
+
+        BookFileEntity additionalFile = BookFileEntity.builder()
+                .fileSubPath("example")
+                .fileName("b.epub")
+                .book(book)
+                .build();
+
+        List<LibraryFile> actual = libraryFileHelper.detectNewBookPaths(
+                List.of(fileA, fileB, fileC),
+                List.of(book),
+                List.of(additionalFile)
+        );
+
+        assertThat(actual).isEqualTo(List.of(fileC));
+    }
+
+    @Test
+    void detectDeletedAdditionalFiles_shouldIgnoreNonBookFormat() {
+        LibraryPathEntity libraryPathEntity = LibraryPathEntity.builder()
+                .path("/books")
+                .build();
+
+        BookEntity book = BookEntity.builder()
+                .libraryPath(libraryPathEntity)
+                .build();
+
+        BookFileEntity additionalFile = BookFileEntity.builder()
+                .id(1L)
+                .isBookFormat(false)
+                .fileSubPath("example")
+                .fileName("b.epub")
+                .book(book)
+                .build();
+
+        List<Long> actual = libraryFileHelper.detectDeletedAdditionalFiles(
+                Collections.emptyList(),
+                List.of(additionalFile)
+        );
+
+        assertThat(actual).hasSize(0);
+    }
+
+    @Test
+    void detectDeletedAdditionalFiles_shouldFindMissingAdditionalFiles() {
+        LibraryPathEntity libraryPathEntity = LibraryPathEntity.builder()
+                .path("/books")
+                .build();
+
+        LibraryFile fileA = LibraryFile.builder()
+                .libraryPathEntity(libraryPathEntity)
+                .fileSubPath("example")
+                .fileName("a.epub")
+                .build();
+
+        BookEntity book = BookEntity.builder()
+                .libraryPath(libraryPathEntity)
+                .build();
+
+        BookFileEntity additionalFileA = BookFileEntity.builder()
+                .id(1L)
+                .isBookFormat(true)
+                .fileSubPath("example")
+                .fileName("a.epub")
+                .book(book)
+                .build();
+
+        BookFileEntity additionalFileB = BookFileEntity.builder()
+                .id(2L)
+                .isBookFormat(true)
+                .fileSubPath("example")
+                .fileName("b.epub")
+                .book(book)
+                .build();
+
+        List<Long> actual = libraryFileHelper.detectDeletedAdditionalFiles(
+                List.of(fileA),
+                List.of(additionalFileA, additionalFileB)
+        );
+
+        assertThat(actual).isEqualTo(List.of(2L));
     }
 }
