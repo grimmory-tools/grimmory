@@ -40,7 +40,7 @@
       @if (showBookList) {
         <div class="book-list-panel">
           <ul class="book-list">
-            @for (book of books; track book) {
+            @for (book of books; track book.id) {
               <li>{{ book.metadata?.title || 'Untitled Book' }}</li>
             }
           </ul>

@@ -264,7 +264,10 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     return Number.isNaN(entityId) ? entityType : `${entityType}:${entityId}`;
   });
 
-  private readonly pipelineInputs = computed(() => this.appBooksApi.books());
+  private readonly pipelineInputs = computed(() => {
+    const books = this.appBooksApi.books();
+    return this.seriesCollapseFilter.collapseBooks(books, this.forceExpandSeries());
+  });
 
   private readonly renderBooksEffect = effect((onCleanup) => {
     const contextKey = this.booksContextKey();
