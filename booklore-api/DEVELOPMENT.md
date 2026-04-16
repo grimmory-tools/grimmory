@@ -115,7 +115,7 @@ backend-only development and test runs, frontend resources are optional.
 
 ## Testing
 
-- Unit tests should normally use JUnit 5 + Mockito + AssertJ.
+- Unit tests should normally use JUnit 6 + Mockito + AssertJ.
 - Use `@ExtendWith(MockitoExtension.class)` for unit tests.
 - Use `@SpringBootTest` only when you need a real Spring integration context.
 - Keep tests behavior-oriented. Avoid shallow tests that only exercise getters, setters, or mocks
