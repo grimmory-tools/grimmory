@@ -30,7 +30,9 @@
     "series": "Series",
     "authors": "Authors",
     "notebook": "Notebook",
-    "update": "(Update)"
+    "update": "(Update)",
+    "versionCopied": "Version {{ version }} copied to clipboard.",
+    "versionCopyFailed": "Unable to copy version {{ version }}."
   },
   "closeNavigation": "Close navigation",
   "changelog": {

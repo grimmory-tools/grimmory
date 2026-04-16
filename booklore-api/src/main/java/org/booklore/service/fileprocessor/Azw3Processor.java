@@ -106,20 +106,20 @@ public class Azw3Processor extends AbstractFileProcessor implements BookFileProc
 
         metadata.setTitle(truncate(azw3Metadata.getTitle(), 1000));
         metadata.setSubtitle(truncate(azw3Metadata.getSubtitle(), 1000));
-        metadata.setDescription(truncate(azw3Metadata.getDescription(), 2000));
+        metadata.setDescription(truncate(azw3Metadata.getDescription(), 5000));
         metadata.setPublisher(truncate(azw3Metadata.getPublisher(), 1000));
         metadata.setPublishedDate(azw3Metadata.getPublishedDate());
         metadata.setSeriesName(truncate(azw3Metadata.getSeriesName(), 1000));
         metadata.setSeriesNumber(azw3Metadata.getSeriesNumber());
         metadata.setSeriesTotal(azw3Metadata.getSeriesTotal());
-        metadata.setIsbn13(truncate(azw3Metadata.getIsbn13(), 64));
-        metadata.setIsbn10(truncate(azw3Metadata.getIsbn10(), 64));
+        metadata.setIsbn13(truncate(azw3Metadata.getIsbn13(), 13));
+        metadata.setIsbn10(truncate(azw3Metadata.getIsbn10(), 10));
         metadata.setPageCount(azw3Metadata.getPageCount());
 
         String lang = azw3Metadata.getLanguage();
-        metadata.setLanguage(truncate((lang == null || "UND".equalsIgnoreCase(lang)) ? "en" : lang, 1000));
+        metadata.setLanguage(truncate((lang == null || "UND".equalsIgnoreCase(lang)) ? "en" : lang, 10));
 
-        metadata.setAsin(truncate(azw3Metadata.getAsin(), 20));
+        metadata.setAsin(truncate(azw3Metadata.getAsin(), 10));
         metadata.setAmazonRating(azw3Metadata.getAmazonRating());
         metadata.setAmazonReviewCount(azw3Metadata.getAmazonReviewCount());
         metadata.setGoodreadsId(truncate(azw3Metadata.getGoodreadsId(), 100));

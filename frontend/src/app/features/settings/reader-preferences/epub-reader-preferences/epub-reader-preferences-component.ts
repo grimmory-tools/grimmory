@@ -1,5 +1,5 @@
 import {DecimalPipe} from '@angular/common';
-import {Component, effect, inject, Input, OnDestroy} from '@angular/core';
+import {Component, computed, effect, untracked, inject, input} from '@angular/core';
 import {Button} from 'primeng/button';
 import {FormsModule} from '@angular/forms';
 import {TranslocoDirective} from '@jsverse/transloco';
@@ -7,9 +7,7 @@ import {ReaderPreferencesService} from '../reader-preferences.service';
 import {UserSettings} from '../../user-management/user.service';
 import {Tooltip} from 'primeng/tooltip';
 import {CustomFontService} from '../../../../shared/service/custom-font.service';
-import {CustomFont} from '../../../../shared/model/custom-font.model';
-import {Subject} from 'rxjs';
-import {addCustomFontsToDropdown} from '../../../../shared/util/custom-font.util';
+import {addCustomFontsToDropdown, FontPreferenceItem} from '../../../../shared/util/custom-font.util';
 import {Skeleton} from 'primeng/skeleton';
 import {themes} from '../../../readers/ebook-reader/state/themes.constant';
 
@@ -26,17 +24,14 @@ import {themes} from '../../../readers/ebook-reader/state/themes.constant';
   templateUrl: './epub-reader-preferences-component.html',
   styleUrl: './epub-reader-preferences-component.scss'
 })
-export class EpubReaderPreferencesComponent implements OnDestroy {
+export class EpubReaderPreferencesComponent {
 
-  @Input() userSettings!: UserSettings;
+  userSettings = input.required<UserSettings>();
 
   private readonly readerPreferencesService = inject(ReaderPreferencesService);
   private readonly customFontService = inject(CustomFontService);
-  private readonly destroy$ = new Subject<void>();
 
-  customFonts: CustomFont[] = [];
-
-  fonts = [
+  private static readonly baseFonts: FontPreferenceItem[] = [
     {name: 'Book Default', displayName: 'Default', key: null},
     {name: 'Serif', displayName: 'Serif', key: 'serif'},
     {name: 'Sans Serif', displayName: 'Sans Serif', key: 'sans-serif'},
@@ -47,63 +42,35 @@ export class EpubReaderPreferencesComponent implements OnDestroy {
 
   readonly themes = themes;
 
-  customFontsReady = false;
-
-  private readonly syncFontsEffect = effect(() => {
-    const fonts = this.customFontService.fonts();
-    if (fonts.length > 0 || !this.customFontService.isFontsLoading()) {
-      this.customFontsReady = true;
-    }
-    if (this.hasCustomFontsChanged(fonts)) {
-      this.onFontsChanged(fonts);
-    }
+    readonly customFontsReady = computed(() => {
+    return this.customFontService.isFontsReady() || !this.customFontService.isFontsLoading();
   });
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
+  readonly fonts = computed<FontPreferenceItem[]>(() => {
+    const base: FontPreferenceItem[] = [...EpubReaderPreferencesComponent.baseFonts];
+    addCustomFontsToDropdown(this.customFontService.fonts(), base, 'preference');
+    return base;
+  });
 
-  private async onFontsChanged(fonts: CustomFont[]): Promise<void> {
-    try {
-      const selectedFontDeleted = this.isCurrentlySelectedFontDeleted(fonts);
+    private readonly loadFontsEffect = effect(() => {
+    const fonts = this.customFontService.fonts();
+    if (fonts.length === 0 && this.customFontService.isFontsLoading()) return;
 
-      this.customFonts = fonts;
-      await this.customFontService.loadAllFonts(fonts);
-      this.updateFontsDropdown(fonts);
+    untracked(() => {
+      this.customFontService.loadAllFonts(fonts).catch(err => {
+        console.error('Failed to load custom fonts:', err);
+      });
+    });
 
-      if (selectedFontDeleted) {
-        this.resetToDefaultFont();
+    const fontFamily = this.userSettings()?.ebookReaderSetting?.fontFamily;
+    if (fontFamily && fontFamily.startsWith('custom:')) {
+      const fontId = parseInt(fontFamily.split(':')[1], 10);
+      const fontStillExists = fonts.some(font => font.id === fontId);
+      if (!fontStillExists) {
+        queueMicrotask(() => this.resetToDefaultFont());
       }
-    } catch (err) {
-      console.error('Failed to process custom fonts:', err);
     }
-  }
-
-  private hasCustomFontsChanged(newFonts: CustomFont[]): boolean {
-    if (newFonts.length !== this.customFonts.length) {
-      return true;
-    }
-    const newIds = new Set(newFonts.map(f => f.id));
-    const currentIds = new Set(this.customFonts.map(f => f.id));
-    return newFonts.some(f => !currentIds.has(f.id)) || this.customFonts.some(f => !newIds.has(f.id));
-  }
-
-  private updateFontsDropdown(fonts: CustomFont[]): void {
-    this.fonts = this.fonts.filter(font => !font.key || !font.key.startsWith('custom:'));
-    addCustomFontsToDropdown(fonts, this.fonts, 'preference');
-  }
-
-  private isCurrentlySelectedFontDeleted(newFonts: CustomFont[]): boolean {
-    const fontFamily = this.userSettings.ebookReaderSetting.fontFamily;
-    if (!fontFamily || !fontFamily.startsWith('custom:')) {
-      return false;
-    }
-
-    const fontId = fontFamily.split(':')[1];
-    const fontStillExists = newFonts.some(font => font.id === parseInt(fontId, 10));
-    return !fontStillExists;
-  }
+  });
 
   private resetToDefaultFont(): void {
     console.log('Selected custom font was deleted, resetting to default font');
@@ -111,116 +78,116 @@ export class EpubReaderPreferencesComponent implements OnDestroy {
   }
 
   get selectedTheme(): string | null {
-    return this.userSettings.ebookReaderSetting.theme;
+    return this.userSettings().ebookReaderSetting.theme;
   }
 
   set selectedTheme(value: string | null) {
     if (typeof value === "string") {
-      this.userSettings.ebookReaderSetting.theme = value;
+      this.userSettings().ebookReaderSetting.theme = value;
     }
     this.readerPreferencesService.updatePreference(['ebookReaderSetting', 'theme'], value);
   }
 
   get selectedFont(): string | null {
-    return this.userSettings.ebookReaderSetting.fontFamily || null;
+    return this.userSettings().ebookReaderSetting.fontFamily || null;
   }
 
   set selectedFont(value: string | null) {
     if (typeof value === "string") {
-      this.userSettings.ebookReaderSetting.fontFamily = value;
+      this.userSettings().ebookReaderSetting.fontFamily = value;
     } else {
-      this.userSettings.ebookReaderSetting.fontFamily = '';
+      this.userSettings().ebookReaderSetting.fontFamily = '';
     }
     this.readerPreferencesService.updatePreference(['ebookReaderSetting', 'fontFamily'], value);
   }
 
   get fontSize(): number {
-    return this.userSettings.ebookReaderSetting.fontSize;
+    return this.userSettings().ebookReaderSetting.fontSize;
   }
 
   set fontSize(value: number) {
-    this.userSettings.ebookReaderSetting.fontSize = value;
+    this.userSettings().ebookReaderSetting.fontSize = value;
     this.readerPreferencesService.updatePreference(['ebookReaderSetting', 'fontSize'], value);
   }
 
   get lineHeight(): number {
-    return this.userSettings.ebookReaderSetting.lineHeight;
+    return this.userSettings().ebookReaderSetting.lineHeight;
   }
 
   set lineHeight(value: number) {
-    this.userSettings.ebookReaderSetting.lineHeight = value;
+    this.userSettings().ebookReaderSetting.lineHeight = value;
     this.readerPreferencesService.updatePreference(['ebookReaderSetting', 'lineHeight'], value);
   }
 
   get justify(): boolean {
-    return this.userSettings.ebookReaderSetting.justify;
+    return this.userSettings().ebookReaderSetting.justify;
   }
 
   set justify(value: boolean) {
-    this.userSettings.ebookReaderSetting.justify = value;
+    this.userSettings().ebookReaderSetting.justify = value;
     this.readerPreferencesService.updatePreference(['ebookReaderSetting', 'justify'], value);
   }
 
   get hyphenate(): boolean {
-    return this.userSettings.ebookReaderSetting.hyphenate;
+    return this.userSettings().ebookReaderSetting.hyphenate;
   }
 
   set hyphenate(value: boolean) {
-    this.userSettings.ebookReaderSetting.hyphenate = value;
+    this.userSettings().ebookReaderSetting.hyphenate = value;
     this.readerPreferencesService.updatePreference(['ebookReaderSetting', 'hyphenate'], value);
   }
 
   get maxColumnCount(): number {
-    return this.userSettings.ebookReaderSetting.maxColumnCount;
+    return this.userSettings().ebookReaderSetting.maxColumnCount;
   }
 
   set maxColumnCount(value: number) {
-    this.userSettings.ebookReaderSetting.maxColumnCount = value;
+    this.userSettings().ebookReaderSetting.maxColumnCount = value;
     this.readerPreferencesService.updatePreference(['ebookReaderSetting', 'maxColumnCount'], value);
   }
 
   get gap(): number {
-    return this.userSettings.ebookReaderSetting.gap;
+    return this.userSettings().ebookReaderSetting.gap;
   }
 
   set gap(value: number) {
-    this.userSettings.ebookReaderSetting.gap = value;
+    this.userSettings().ebookReaderSetting.gap = value;
     this.readerPreferencesService.updatePreference(['ebookReaderSetting', 'gap'], value);
   }
 
   get maxInlineSize(): number {
-    return this.userSettings.ebookReaderSetting.maxInlineSize;
+    return this.userSettings().ebookReaderSetting.maxInlineSize;
   }
 
   set maxInlineSize(value: number) {
-    this.userSettings.ebookReaderSetting.maxInlineSize = value;
+    this.userSettings().ebookReaderSetting.maxInlineSize = value;
     this.readerPreferencesService.updatePreference(['ebookReaderSetting', 'maxInlineSize'], value);
   }
 
   get maxBlockSize(): number {
-    return this.userSettings.ebookReaderSetting.maxBlockSize;
+    return this.userSettings().ebookReaderSetting.maxBlockSize;
   }
 
   set maxBlockSize(value: number) {
-    this.userSettings.ebookReaderSetting.maxBlockSize = value;
+    this.userSettings().ebookReaderSetting.maxBlockSize = value;
     this.readerPreferencesService.updatePreference(['ebookReaderSetting', 'maxBlockSize'], value);
   }
 
   get isDark(): boolean {
-    return this.userSettings.ebookReaderSetting.isDark;
+    return this.userSettings().ebookReaderSetting.isDark;
   }
 
   set isDark(value: boolean) {
-    this.userSettings.ebookReaderSetting.isDark = value;
+    this.userSettings().ebookReaderSetting.isDark = value;
     this.readerPreferencesService.updatePreference(['ebookReaderSetting', 'isDark'], value);
   }
 
   get flow(): 'paginated' | 'scrolled' {
-    return this.userSettings.ebookReaderSetting.flow;
+    return this.userSettings().ebookReaderSetting.flow;
   }
 
   set flow(value: 'paginated' | 'scrolled') {
-    this.userSettings.ebookReaderSetting.flow = value;
+    this.userSettings().ebookReaderSetting.flow = value;
     this.readerPreferencesService.updatePreference(['ebookReaderSetting', 'flow'], value);
   }
 
@@ -290,7 +257,7 @@ export class EpubReaderPreferencesComponent implements OnDestroy {
       return null;
     }
     const fontId = parseInt(fontKey.split(':')[1]);
-    const customFont = this.customFonts.find(f => f.id === fontId);
+    const customFont = this.customFontService.fonts().find(f => f.id === fontId);
     return customFont ? customFont.fontName : null;
   }
 }

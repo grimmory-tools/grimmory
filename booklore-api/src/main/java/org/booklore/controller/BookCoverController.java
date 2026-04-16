@@ -6,16 +6,21 @@ import org.booklore.model.dto.request.BulkBookIdsRequest;
 import org.booklore.model.dto.request.CoverFetchRequest;
 import org.booklore.service.metadata.BookCoverService;
 import org.booklore.service.metadata.DuckDuckGoCoverService;
+import org.booklore.exception.ApiError;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 import java.util.Map;
@@ -145,9 +150,17 @@ public class BookCoverController {
 
     @Operation(summary = "Get cover images for a book", description = "Fetch cover images for a book.")
     @ApiResponse(responseCode = "200", description = "Cover images returned successfully")
-    @PostMapping("/{bookId}/metadata/covers")
+    @PostMapping(value = "/{bookId}/metadata/covers", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @PreAuthorize("@securityUtil.canEditMetadata() or @securityUtil.isAdmin()")
-    public ResponseEntity<List<CoverImage>> getImages(@Parameter(description = "Cover fetch request") @RequestBody CoverFetchRequest request) {
-        return ResponseEntity.ok(duckDuckGoCoverService.getCovers(request));
+    @CheckBookAccess(bookIdParam = "bookId")
+    public Flux<ServerSentEvent<CoverImage>> getImages(
+            @Parameter(description = "ID of the book") @PathVariable Long bookId,
+            @Parameter(description = "Cover fetch request") @RequestBody CoverFetchRequest request) {
+        return duckDuckGoCoverService.getCovers(request)
+                .subscribeOn(Schedulers.boundedElastic())
+                .map(image -> ServerSentEvent.<CoverImage>builder()
+                        .data(image)
+                        .build())
+                .onErrorMap(e -> ApiError.INTERNAL_SERVER_ERROR.createException("DuckDuckGo cover fetch failed"));
     }
 }

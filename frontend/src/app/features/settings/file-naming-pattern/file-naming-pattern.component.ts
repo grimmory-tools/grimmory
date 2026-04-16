@@ -1,4 +1,5 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {Button} from 'primeng/button';
 import {MessageService} from 'primeng/api';
@@ -41,6 +42,7 @@ export class FileNamingPatternComponent implements OnInit {
   private messageService = inject(MessageService);
   private libraryService = inject(LibraryService);
   private t = inject(TranslocoService);
+  private destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     const settings = this.appSettingsService.appSettings();
@@ -112,6 +114,7 @@ export class FileNamingPatternComponent implements OnInit {
       .saveSettings([
         {key: AppSettingKey.UPLOAD_FILE_PATTERN, newValue: this.defaultPattern},
       ])
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.showMessage('success', this.t.translate('common.success'), this.t.translate('settingsNaming.defaultPattern.saveSuccess')),
         error: () => this.showMessage('error', this.t.translate('common.error'), this.t.translate('settingsNaming.defaultPattern.saveError')),
@@ -124,7 +127,9 @@ export class FileNamingPatternComponent implements OnInit {
         catchError(() => of(null))
       )
     );
-    forkJoin(patchRequests).subscribe(results => {
+    forkJoin(patchRequests).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(results => {
       const failures = results.filter(result => result === null);
       if (failures.length === 0) {
         this.showMessage('success', this.t.translate('common.success'), this.t.translate('settingsNaming.libraryOverrides.saveSuccess'));

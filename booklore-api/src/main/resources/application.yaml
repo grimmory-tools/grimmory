@@ -64,7 +64,6 @@ spring:
       pool-name: BookloreHikariPool
       auto-commit: false           # Required counterpart to provider_disables_autocommit
       max-lifetime: 580000         # 9.6 minutes (avoid DB-side connection cuts)
-      connection-test-query: SELECT 1
       connection-timeout: 30000    # 30s to acquire a connection before timeout
       maximum-pool-size: 5         # Virtual threads don't need large pools; 5 is enough for a self-hosted app
       minimum-idle: 1              # Minimal warm connections; virtual threads handle bursts

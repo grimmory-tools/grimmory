@@ -144,11 +144,11 @@ public class AuthorController {
     @Operation(summary = "Search author photos", description = "Search for author photos using DuckDuckGo image search.")
     @ApiResponse(responseCode = "200", description = "Photo search results returned successfully")
     @PreAuthorize("@securityUtil.canEditMetadata() or @securityUtil.isAdmin()")
-    @GetMapping("/{authorId}/search-photos")
-    public ResponseEntity<List<CoverImage>> searchAuthorPhotos(
+    @GetMapping(value = "/{authorId}/search-photos", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<CoverImage> searchAuthorPhotos(
             @Parameter(description = "ID of the author") @PathVariable long authorId,
             @Parameter(description = "Author name to search") @RequestParam("q") String query) {
-        return ResponseEntity.ok(authorMetadataService.searchAuthorPhotos(query));
+        return authorMetadataService.searchAuthorPhotos(query);
     }
 
     @Operation(summary = "Upload author photo from URL", description = "Download an image from a URL and save it as the author's photo.")

@@ -16,6 +16,7 @@ import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { Slider } from 'primeng/slider';
 import { FormsModule } from '@angular/forms';
 import { Popover } from 'primeng/popover';
+import { MessageService } from 'primeng/api';
 import { LocalStorageService } from '../../service/local-storage.service';
 import type { MenuItem } from 'primeng/api';
 
@@ -54,6 +55,7 @@ export class AppMenuComponent {
   private readonly versionService = inject(VersionService);
   private readonly libraryShelfMenuService = inject(LibraryShelfMenuService);
   private readonly dialogLauncherService = inject(DialogLauncherService);
+  private readonly messageService = inject(MessageService);
   private readonly userService = inject(UserService);
   private readonly magicShelfService = inject(MagicShelfService);
   private readonly seriesDataService = inject(SeriesDataService);
@@ -320,6 +322,39 @@ export class AppMenuComponent {
 
   openChangelogDialog() {
     this.dialogLauncherService.openVersionChangelogDialog();
+  }
+
+  async copyVersion(version: string | undefined): Promise<void> {
+    if (!version) {
+      return;
+    }
+
+    const detailKey = 'layout.menu.versionCopyFailed';
+    const clipboard = globalThis.navigator?.clipboard;
+
+    if (!clipboard?.writeText) {
+      this.messageService.add({
+        severity: 'error',
+        summary: this.t.translate('common.error'),
+        detail: this.t.translate(detailKey, { version }),
+      });
+      return;
+    }
+
+    try {
+      await clipboard.writeText(version);
+      this.messageService.add({
+        severity: 'success',
+        summary: this.t.translate('common.success'),
+        detail: this.t.translate('layout.menu.versionCopied', { version }),
+      });
+    } catch {
+      this.messageService.add({
+        severity: 'error',
+        summary: this.t.translate('common.error'),
+        detail: this.t.translate(detailKey, { version }),
+      });
+    }
   }
 
   getVersionUrl(version: string | undefined): string {

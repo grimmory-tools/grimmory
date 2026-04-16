@@ -1,10 +1,9 @@
-import {Component, effect, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, DestroyRef, effect, inject, OnInit} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Select} from 'primeng/select';
 import {SidebarLibrarySorting, SidebarMagicShelfSorting, SidebarShelfSorting, User, UserService, UserSettings} from '../../user-management/user.service';
 import {MessageService} from 'primeng/api';
-import {Subject} from 'rxjs';
 import {FormsModule} from '@angular/forms';
-import {takeUntil} from 'rxjs/operators';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 type MutableSettingsBranch = Record<string, unknown>;
@@ -19,7 +18,7 @@ type MutableSettingsBranch = Record<string, unknown>;
   templateUrl: './sidebar-sorting-preferences.component.html',
   styleUrl: './sidebar-sorting-preferences.component.scss'
 })
-export class SidebarSortingPreferencesComponent implements OnInit, OnDestroy {
+export class SidebarSortingPreferencesComponent implements OnInit {
 
   private readonly sortingOptionDefs = [
     {value: {field: 'name', order: 'asc'}, translationKey: 'nameAsc'},
@@ -37,7 +36,7 @@ export class SidebarSortingPreferencesComponent implements OnInit, OnDestroy {
   private readonly userService = inject(UserService);
   private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
-  private readonly destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   private currentUser: User | null = null;
   private hasInitialized = false;
@@ -55,12 +54,7 @@ export class SidebarSortingPreferencesComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.buildSortingOptions();
-    this.t.langChanges$.pipe(takeUntil(this.destroy$)).subscribe(() => this.buildSortingOptions());
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    this.t.langChanges$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.buildSortingOptions());
   }
 
   private buildSortingOptions(): void {

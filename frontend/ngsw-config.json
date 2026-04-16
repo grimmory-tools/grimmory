@@ -4,7 +4,8 @@
   "navigationUrls": [
     "/**",
     "!/api/**",
-    "!/komga/**"
+    "!/komga/**",
+    "!/assets/embedpdf-frame.html"
   ],
   "assetGroups": [
     {

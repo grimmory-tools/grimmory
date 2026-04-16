@@ -1,0 +1,19 @@
+package org.booklore.repository;
+
+import org.booklore.model.entity.BookLoreUserEntity;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface UserRepositoryCustom {
+
+    Optional<BookLoreUserEntity> findByIdWithDetails(Long id);
+
+    List<BookLoreUserEntity> findAllWithDetails();
+
+    Optional<BookLoreUserEntity> findByIdWithSettings(Long id);
+
+    Optional<BookLoreUserEntity> findByIdWithLibraries(Long id);
+
+    Optional<BookLoreUserEntity> findByIdWithPermissions(Long id);
+}

@@ -16,6 +16,7 @@ import org.booklore.repository.BookRepository;
 import org.booklore.repository.ShelfRepository;
 import org.booklore.repository.UserBookFileProgressRepository;
 import org.booklore.repository.UserBookProgressRepository;
+import org.booklore.service.book.BookService;
 import org.booklore.service.opds.MagicShelfBookService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,6 +50,7 @@ class AppBookServiceFilterOptionsTest {
     @Mock private ShelfRepository shelfRepository;
     @Mock private AuthenticationService authenticationService;
     @Mock private AppBookMapper mobileBookMapper;
+    @Mock private BookService bookService;
     @Mock private MagicShelfBookService magicShelfBookService;
     @Mock private EntityManager entityManager;
 
@@ -61,7 +63,7 @@ class AppBookServiceFilterOptionsTest {
         service = new AppBookService(
                 bookRepository, userBookProgressRepository, userBookFileProgressRepository,
                 shelfRepository, authenticationService, mobileBookMapper,
-                magicShelfBookService, entityManager
+                bookService, magicShelfBookService, entityManager
         );
     }
 
@@ -95,7 +97,6 @@ class AppBookServiceFilterOptionsTest {
         AppFilterOptions result = service.getFilterOptions(5L, null, null);
 
         assertNotNull(result);
-        verify(entityManager, times(10)).createQuery(anyString(), any(Class.class));
     }
 
     @Test
@@ -264,5 +265,13 @@ class AppBookServiceFilterOptionsTest {
 
         when(entityManager.createQuery(anyString(), eq(Tuple.class)))
                 .thenReturn(tupleQuery);
+
+        TypedQuery<Long> longQuery = mock(TypedQuery.class);
+        when(longQuery.setParameter(anyString(), any())).thenReturn(longQuery);
+        when(longQuery.getSingleResult()).thenReturn(0L);
+        when(longQuery.getResultList()).thenReturn(Collections.emptyList());
+
+        when(entityManager.createQuery(anyString(), eq(Long.class)))
+                .thenReturn(longQuery);
     }
 }

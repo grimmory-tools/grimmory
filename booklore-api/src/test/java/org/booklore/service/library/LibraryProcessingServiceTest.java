@@ -95,7 +95,7 @@ class LibraryProcessingServiceTest {
         existingBook.getPrimaryBookFile().setFileName("book1.epub");
         libraryEntity.setBookEntities(List.of(existingBook));
 
-        when(libraryRepository.findById(libraryId)).thenReturn(Optional.of(libraryEntity));
+        when(libraryRepository.findByIdWithPaths(libraryId)).thenReturn(Optional.of(libraryEntity));
         when(bookRepository.findAllByLibraryIdForRescan(libraryId)).thenReturn(List.of(existingBook));
 
         LibraryFile existingFile = LibraryFile.builder()
@@ -157,7 +157,7 @@ class LibraryProcessingServiceTest {
         existingBook.getPrimaryBookFile().setFileName("book1.epub");
         libraryEntity.setBookEntities(List.of(existingBook));
 
-        when(libraryRepository.findById(libraryId)).thenReturn(Optional.of(libraryEntity));
+        when(libraryRepository.findByIdWithPaths(libraryId)).thenReturn(Optional.of(libraryEntity));
         when(bookRepository.findAllByLibraryIdForRescan(libraryId)).thenReturn(List.of(existingBook));
 
         LibraryFile existingFile = LibraryFile.builder()
@@ -191,7 +191,7 @@ class LibraryProcessingServiceTest {
         pathEntity.setId(10L);
         pathEntity.setPath("/library");
 
-        when(libraryRepository.findById(libraryId)).thenReturn(Optional.of(libraryEntity));
+        when(libraryRepository.findByIdWithPaths(libraryId)).thenReturn(Optional.of(libraryEntity));
         when(bookRepository.findAllByLibraryIdForRescan(libraryId)).thenReturn(Collections.emptyList());
 
         LibraryFile newFile1 = LibraryFile.builder()
@@ -239,7 +239,7 @@ class LibraryProcessingServiceTest {
         pathEntity.setId(10L);
         pathEntity.setPath("/library");
 
-        when(libraryRepository.findById(libraryId)).thenReturn(Optional.of(libraryEntity));
+        when(libraryRepository.findByIdWithPaths(libraryId)).thenReturn(Optional.of(libraryEntity));
         when(bookRepository.findAllByLibraryIdForRescan(libraryId)).thenReturn(Collections.emptyList());
 
         LibraryFile newFileInSub = LibraryFile.builder()
@@ -284,7 +284,7 @@ class LibraryProcessingServiceTest {
         pathEntity.setId(10L);
         pathEntity.setPath("/library");
 
-        when(libraryRepository.findById(libraryId)).thenReturn(Optional.of(libraryEntity));
+        when(libraryRepository.findByIdWithPaths(libraryId)).thenReturn(Optional.of(libraryEntity));
         when(bookRepository.findAllByLibraryIdForRescan(libraryId)).thenReturn(Collections.emptyList());
 
         LibraryFile additionalFileAsLibraryFile = LibraryFile.builder()

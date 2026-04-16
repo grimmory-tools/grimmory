@@ -72,7 +72,7 @@
           <div class="setting-label-row">
             <span class="setting-label">{{ t('fontFamily') }}</span>
             <div class="button-group">
-              @for (font of fonts; track font) {
+              @for (font of fonts(); track font.key) {
                 <button
                   type="button"
                   class="option-button font-button"
@@ -89,7 +89,7 @@
                 </button>
               }
 
-              @if (!customFontsReady) {
+              @if (!customFontsReady()) {
                 <p-skeleton width="3.5rem" height="2.5rem" borderRadius="6px"></p-skeleton>
               }
             </div>

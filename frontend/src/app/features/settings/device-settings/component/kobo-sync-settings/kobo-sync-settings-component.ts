@@ -1,4 +1,5 @@
-import {Component, effect, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, DestroyRef, effect, inject, OnInit} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {KoboService, KoboSyncSettings} from './kobo.service';
 import {FormsModule} from '@angular/forms';
@@ -7,7 +8,7 @@ import {InputText} from 'primeng/inputtext';
 import {ConfirmDialog} from 'primeng/confirmdialog';
 import {UserService} from '../../../user-management/user.service';
 import {Subject} from 'rxjs';
-import {debounceTime, takeUntil} from 'rxjs/operators';
+import {debounceTime} from 'rxjs/operators';
 import {ToggleSwitch} from 'primeng/toggleswitch';
 import {Slider} from 'primeng/slider';
 import {Divider} from 'primeng/divider';
@@ -27,7 +28,7 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
   imports: [FormsModule, Button, InputText, ConfirmDialog, ToggleSwitch, Slider, Divider, ExternalDocLinkComponent, Toast, TranslocoDirective],
   providers: [MessageService, ConfirmationService]
 })
-export class KoboSyncSettingsComponent implements OnInit, OnDestroy {
+export class KoboSyncSettingsComponent implements OnInit {
   private koboService = inject(KoboService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
@@ -37,7 +38,7 @@ export class KoboSyncSettingsComponent implements OnInit, OnDestroy {
   private shelfService = inject(ShelfService);
   private readonly t = inject(TranslocoService);
 
-  private readonly destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
   private readonly sliderChange$ = new Subject<void>();
   private readonly progressThresholdChange$ = new Subject<void>();
 
@@ -72,14 +73,14 @@ export class KoboSyncSettingsComponent implements OnInit, OnDestroy {
   private setupSliderDebouncing() {
     this.sliderChange$.pipe(
       debounceTime(500),
-      takeUntil(this.destroy$)
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe(() => {
       this.saveSettings();
     });
 
     this.progressThresholdChange$.pipe(
       debounceTime(500),
-      takeUntil(this.destroy$)
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe(() => {
       this.updateKoboSettings(this.t.translate('settingsDevice.kobo.progressUpdated'));
     });
@@ -114,7 +115,9 @@ export class KoboSyncSettingsComponent implements OnInit, OnDestroy {
   });
 
   private loadKoboUserSettings() {
-    this.koboService.getUser().subscribe({
+    this.koboService.getUser().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (settings: KoboSyncSettings) => {
         this.koboSyncSettings.token = settings.token;
         this.koboSyncSettings.syncEnabled = settings.syncEnabled;
@@ -178,7 +181,9 @@ export class KoboSyncSettingsComponent implements OnInit, OnDestroy {
   }
 
   private regenerateToken() {
-    this.koboService.createOrUpdateToken().subscribe({
+    this.koboService.createOrUpdateToken().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (settings) => {
         this.koboSyncSettings.token = settings.token;
         this.credentialsSaved = true;
@@ -233,7 +238,9 @@ export class KoboSyncSettingsComponent implements OnInit, OnDestroy {
   }
 
   private updateKoboSettings(successMessage: string) {
-    this.koboService.updateSettings(this.koboSyncSettings).subscribe({
+    this.koboService.updateSettings(this.koboSyncSettings).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',
@@ -253,27 +260,6 @@ export class KoboSyncSettingsComponent implements OnInit, OnDestroy {
   }
 
   saveSettings() {
-    this.settingsHelperService.saveSetting(AppSettingKey.KOBO_SETTINGS, this.koboSettings)
-      .subscribe({
-        next: () => {
-          this.messageService.add({
-            severity: 'success',
-            summary: this.t.translate('settingsDevice.kobo.settingsSaved'),
-            detail: this.t.translate('settingsDevice.kobo.settingsSuccess')
-          });
-        },
-        error: () => {
-          this.messageService.add({
-            severity: 'error',
-            summary: this.t.translate('settingsDevice.kobo.saveFailed'),
-            detail: this.t.translate('settingsDevice.kobo.saveError')
-          });
-        }
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    this.settingsHelperService.saveSetting(AppSettingKey.KOBO_SETTINGS, this.koboSettings);
   }
 }

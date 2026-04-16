@@ -3,6 +3,7 @@ package org.booklore.app.specification;
 import org.booklore.exception.APIException;
 import org.booklore.model.entity.*;
 import org.booklore.model.enums.BookFileType;
+import org.booklore.model.enums.ComicCreatorRole;
 import org.booklore.model.enums.ReadStatus;
 import jakarta.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;
@@ -18,6 +19,46 @@ import java.util.Objects;
 public class AppBookSpecification {
 
     private AppBookSpecification() {
+    }
+
+    private static List<Integer> parseIntList(List<String> values, String paramName) {
+        List<String> invalid = new ArrayList<>();
+        List<Integer> result = values.stream()
+                .filter(s -> s != null && !s.isBlank())
+                .map(s -> {
+                    try {
+                        return Integer.parseInt(s.trim());
+                    } catch (NumberFormatException e) {
+                        invalid.add(s.trim());
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .toList();
+        if (!invalid.isEmpty()) {
+            throw new APIException("Invalid " + paramName + " values: " + invalid, HttpStatus.BAD_REQUEST);
+        }
+        return result;
+    }
+
+    private static List<Long> parseLongList(List<String> values, String paramName) {
+        List<String> invalid = new ArrayList<>();
+        List<Long> result = values.stream()
+                .filter(s -> s != null && !s.isBlank())
+                .map(s -> {
+                    try {
+                        return Long.parseLong(s.trim());
+                    } catch (NumberFormatException e) {
+                        invalid.add(s.trim());
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .toList();
+        if (!invalid.isEmpty()) {
+            throw new APIException("Invalid " + paramName + " values: " + invalid, HttpStatus.BAD_REQUEST);
+        }
+        return result;
     }
 
     @SuppressWarnings("unchecked")
@@ -254,18 +295,48 @@ public class AppBookSpecification {
             }
             if (parsed.isEmpty()) return cb.conjunction();
 
+            boolean hasUnset = parsed.contains(ReadStatus.UNSET);
+            List<ReadStatus> realStatuses = parsed.stream().filter(s -> s != ReadStatus.UNSET).toList();
+
             Subquery<Long> sub = query.subquery(Long.class);
             Root<UserBookProgressEntity> progressRoot = sub.from(UserBookProgressEntity.class);
             sub.select(progressRoot.get("book").get("id"))
                     .where(
                             cb.equal(progressRoot.get("user").get("id"), userId),
-                            progressRoot.get("readStatus").in(parsed)
+                            realStatuses.isEmpty() ? cb.disjunction() : progressRoot.get("readStatus").in(realStatuses)
                     );
 
-            if ("not".equals(mode)) {
-                return cb.not(root.get("id").in(sub));
+            Predicate isReal = root.get("id").in(sub);
+            
+            // UNSET means either no progress entry OR entry with UNSET status
+            Subquery<Long> anyEntrySub = query.subquery(Long.class);
+            Root<UserBookProgressEntity> anyEntryRoot = anyEntrySub.from(UserBookProgressEntity.class);
+            anyEntrySub.select(anyEntryRoot.get("book").get("id"))
+                    .where(cb.equal(anyEntryRoot.get("user").get("id"), userId));
+            
+            Predicate noEntry = cb.not(root.get("id").in(anyEntrySub));
+            
+            Subquery<Long> unsetEntrySub = query.subquery(Long.class);
+            Root<UserBookProgressEntity> unsetEntryRoot = unsetEntrySub.from(UserBookProgressEntity.class);
+            unsetEntrySub.select(unsetEntryRoot.get("book").get("id"))
+                    .where(
+                            cb.equal(unsetEntryRoot.get("user").get("id"), userId),
+                            cb.equal(unsetEntryRoot.get("readStatus"), ReadStatus.UNSET)
+                    );
+            Predicate hasUnsetEntry = root.get("id").in(unsetEntrySub);
+            
+            Predicate isUnset = cb.or(noEntry, hasUnsetEntry);
+
+            Predicate combined;
+            if (hasUnset && !realStatuses.isEmpty()) {
+                combined = cb.or(isReal, isUnset);
+            } else if (hasUnset) {
+                combined = isUnset;
+            } else {
+                combined = isReal;
             }
-            return root.get("id").in(sub);
+
+            return "not".equals(mode) ? cb.not(combined) : combined;
         };
     }
 
@@ -465,6 +536,334 @@ public class AppBookSpecification {
             return cb.not(cb.exists(subquery));
         };
     }
+
+    public static Specification<BookEntity> withAgeRatings(List<String> rangeIds, String mode) {
+        return (root, query, cb) -> {
+            List<Integer> ids = parseIntList(rangeIds, "ageRating");
+            if (ids.isEmpty()) return cb.conjunction();
+            Join<BookEntity, BookMetadataEntity> metadataJoin = getOrCreateJoin(root, "metadata", JoinType.INNER);
+            Expression<Integer> ageRating = metadataJoin.get("ageRating");
+            
+            // Age rating ranges from frontend config (mirrored here for performance)
+            // 0: [0, 6), 6: [6, 10), 10: [10, 13), 13: [13, 16), 16: [16, 18), 18: [18, 21), 21: [21, inf)
+            List<Predicate> predicates = new ArrayList<>();
+            for (Integer id : ids) {
+                predicates.add(switch (id) {
+                    case 0 -> cb.and(cb.greaterThanOrEqualTo(ageRating, 0), cb.lessThan(ageRating, 6));
+                    case 6 -> cb.and(cb.greaterThanOrEqualTo(ageRating, 6), cb.lessThan(ageRating, 10));
+                    case 10 -> cb.and(cb.greaterThanOrEqualTo(ageRating, 10), cb.lessThan(ageRating, 13));
+                    case 13 -> cb.and(cb.greaterThanOrEqualTo(ageRating, 13), cb.lessThan(ageRating, 16));
+                    case 16 -> cb.and(cb.greaterThanOrEqualTo(ageRating, 16), cb.lessThan(ageRating, 18));
+                    case 18 -> cb.and(cb.greaterThanOrEqualTo(ageRating, 18), cb.lessThan(ageRating, 21));
+                    case 21 -> cb.greaterThanOrEqualTo(ageRating, 21);
+                    default -> throw new APIException("Invalid ageRating bucket ID: " + id, HttpStatus.BAD_REQUEST);
+                });
+            }
+            Predicate combined = cb.or(predicates.toArray(new Predicate[0]));
+            return "not".equals(mode) ? cb.not(combined) : combined;
+        };
+    }
+
+    public static Specification<BookEntity> withContentRatings(List<String> values, String mode) {
+        return (root, query, cb) -> {
+            List<String> cleaned = cleanLowerCase(values);
+            if (cleaned.isEmpty()) return cb.conjunction();
+            return buildMetadataFieldSpec(root, query, cb, cleaned, mode, "contentRating");
+        };
+    }
+
+    public static Specification<BookEntity> withMatchScores(List<String> rangeIds, String mode) {
+        return (root, query, cb) -> {
+            List<Integer> ids = parseIntList(rangeIds, "matchScore");
+            if (ids.isEmpty()) return cb.conjunction();
+            Expression<Float> score = root.get("metadataMatchScore");
+            
+            List<Predicate> predicates = new ArrayList<>();
+            for (Integer id : ids) {
+                predicates.add(switch (id) {
+                    case 0 -> cb.greaterThanOrEqualTo(score, 0.95f);
+                    case 1 -> cb.and(cb.greaterThanOrEqualTo(score, 0.90f), cb.lessThan(score, 0.95f));
+                    case 2 -> cb.and(cb.greaterThanOrEqualTo(score, 0.80f), cb.lessThan(score, 0.90f));
+                    case 3 -> cb.and(cb.greaterThanOrEqualTo(score, 0.70f), cb.lessThan(score, 0.80f));
+                    case 4 -> cb.and(cb.greaterThanOrEqualTo(score, 0.50f), cb.lessThan(score, 0.70f));
+                    case 5 -> cb.and(cb.greaterThanOrEqualTo(score, 0.30f), cb.lessThan(score, 0.50f));
+                    case 6 -> cb.and(cb.greaterThanOrEqualTo(score, 0.00f), cb.lessThan(score, 0.30f));
+                    default -> throw new APIException("Invalid matchScore bucket ID: " + id, HttpStatus.BAD_REQUEST);
+                });
+            }
+            Predicate combined = cb.or(predicates.toArray(new Predicate[0]));
+            return "not".equals(mode) ? cb.not(combined) : combined;
+        };
+    }
+
+    public static Specification<BookEntity> withPublishedYears(List<String> years, String mode) {
+        return (root, query, cb) -> {
+            if (years.isEmpty()) return cb.conjunction();
+            List<Integer> parsedYears = parseIntList(years, "publishedDate");
+            if (parsedYears.isEmpty()) return cb.conjunction();
+            Join<BookEntity, BookMetadataEntity> metadataJoin = getOrCreateJoin(root, "metadata", JoinType.INNER);
+            Expression<Integer> yearExpr = cb.function("YEAR", Integer.class, metadataJoin.get("publishedDate"));
+            Predicate combined = yearExpr.in(parsedYears);
+            return "not".equals(mode) ? cb.not(combined) : combined;
+        };
+    }
+
+    public static Specification<BookEntity> withFileSizes(List<String> rangeIds, String mode) {
+        return (root, query, cb) -> {
+            List<Integer> ids = parseIntList(rangeIds, "fileSize");
+            if (ids.isEmpty()) return cb.conjunction();
+            
+            Subquery<Long> sub = query.subquery(Long.class);
+            Root<BookEntity> subRoot = sub.correlate(root);
+            Join<BookEntity, BookFileEntity> bfJoin = subRoot.join("bookFiles", JoinType.INNER);
+            
+            Subquery<Long> minIdSub = query.subquery(Long.class);
+            Root<BookEntity> minIdRoot = minIdSub.correlate(root);
+            Join<BookEntity, BookFileEntity> minIdJoin = minIdRoot.join("bookFiles", JoinType.INNER);
+            minIdSub.select(cb.min(minIdJoin.get("id")))
+                    .where(cb.equal(minIdJoin.get("isBookFormat"), true));
+
+            Expression<Long> size = bfJoin.get("fileSizeKb");
+            List<Predicate> predicates = new ArrayList<>();
+            for (Integer id : ids) {
+                predicates.add(switch (id) {
+                    case 0 -> cb.and(cb.greaterThanOrEqualTo(size, 0L), cb.lessThan(size, 1024L));
+                    case 1 -> cb.and(cb.greaterThanOrEqualTo(size, 1024L), cb.lessThan(size, 10240L));
+                    case 2 -> cb.and(cb.greaterThanOrEqualTo(size, 10240L), cb.lessThan(size, 51200L));
+                    case 3 -> cb.and(cb.greaterThanOrEqualTo(size, 51200L), cb.lessThan(size, 102400L));
+                    case 4 -> cb.and(cb.greaterThanOrEqualTo(size, 102400L), cb.lessThan(size, 512000L));
+                    case 5 -> cb.and(cb.greaterThanOrEqualTo(size, 512000L), cb.lessThan(size, 1048576L));
+                    case 6 -> cb.and(cb.greaterThanOrEqualTo(size, 1048576L), cb.lessThan(size, 2097152L));
+                    case 7 -> cb.greaterThanOrEqualTo(size, 2097152L);
+                    default -> throw new APIException("Invalid fileSize bucket ID: " + id, HttpStatus.BAD_REQUEST);
+                });
+            }
+            
+            sub.select(cb.literal(1L))
+               .where(cb.equal(bfJoin.get("id"), minIdSub),
+                      cb.or(predicates.toArray(new Predicate[0])));
+
+            return "not".equals(mode) ? cb.not(cb.exists(sub)) : cb.exists(sub);
+        };
+    }
+
+    public static Specification<BookEntity> withPersonalRatings(List<String> values, Long userId, String mode) {
+        return (root, query, cb) -> {
+            if (userId == null || values.isEmpty()) return cb.conjunction();
+            List<Integer> parsed = parseIntList(values, "personalRating");
+            if (parsed.isEmpty()) return cb.conjunction();
+            Subquery<Long> sub = query.subquery(Long.class);
+            Root<UserBookProgressEntity> progressRoot = sub.from(UserBookProgressEntity.class);
+            sub.select(progressRoot.get("book").get("id"))
+                    .where(
+                            cb.equal(progressRoot.get("user").get("id"), userId),
+                            progressRoot.get("personalRating").in(parsed)
+                    );
+            return "not".equals(mode) ? cb.not(root.get("id").in(sub)) : root.get("id").in(sub);
+        };
+    }
+
+    public static Specification<BookEntity> withAmazonRatings(List<String> rangeIds, String mode) {
+        return buildRatingRangeSpec(rangeIds, mode, "amazonRating");
+    }
+
+    public static Specification<BookEntity> withGoodreadsRatings(List<String> rangeIds, String mode) {
+        return buildRatingRangeSpec(rangeIds, mode, "goodreadsRating");
+    }
+
+    public static Specification<BookEntity> withHardcoverRatings(List<String> rangeIds, String mode) {
+        return buildRatingRangeSpec(rangeIds, mode, "hardcoverRating");
+    }
+
+    private static Specification<BookEntity> buildRatingRangeSpec(
+            List<String> rangeIds, String mode, String fieldName) {
+        return (root, query, cb) -> {
+            List<Integer> ids = parseIntList(rangeIds, fieldName);
+            if (ids.isEmpty()) return cb.conjunction();
+            Join<BookEntity, BookMetadataEntity> metadataJoin = getOrCreateJoin(root, "metadata", JoinType.INNER);
+            Expression<Double> rating = metadataJoin.get(fieldName);
+            List<Predicate> predicates = new ArrayList<>();
+            for (Integer id : ids) {
+                predicates.add(switch (id) {
+                    case 5 -> cb.greaterThanOrEqualTo(rating, 4.5);
+                    case 4 -> cb.and(cb.greaterThanOrEqualTo(rating, 4.0), cb.lessThan(rating, 4.5));
+                    case 3 -> cb.and(cb.greaterThanOrEqualTo(rating, 3.0), cb.lessThan(rating, 4.0));
+                    case 2 -> cb.and(cb.greaterThanOrEqualTo(rating, 2.0), cb.lessThan(rating, 3.0));
+                    case 1 -> cb.and(cb.greaterThanOrEqualTo(rating, 1.0), cb.lessThan(rating, 2.0));
+                    case 0 -> cb.lessThan(rating, 1.0);
+                    default -> throw new APIException("Invalid " + fieldName + " bucket ID: " + id, HttpStatus.BAD_REQUEST);
+                });
+            }
+            Predicate combined = cb.or(predicates.toArray(new Predicate[0]));
+            return "not".equals(mode) ? cb.not(combined) : combined;
+        };
+    }
+
+    public static Specification<BookEntity> withPageCounts(List<String> rangeIds, String mode) {
+        return (root, query, cb) -> {
+            List<Integer> ids = parseIntList(rangeIds, "pageCount");
+            if (ids.isEmpty()) return cb.conjunction();
+            Join<BookEntity, BookMetadataEntity> metadataJoin = getOrCreateJoin(root, "metadata", JoinType.INNER);
+            Expression<Integer> count = metadataJoin.get("pageCount");
+            List<Predicate> predicates = new ArrayList<>();
+            for (Integer id : ids) {
+                predicates.add(switch (id) {
+                    case 0 -> cb.lessThan(count, 50);
+                    case 1 -> cb.and(cb.greaterThanOrEqualTo(count, 50), cb.lessThan(count, 100));
+                    case 2 -> cb.and(cb.greaterThanOrEqualTo(count, 100), cb.lessThan(count, 200));
+                    case 3 -> cb.and(cb.greaterThanOrEqualTo(count, 200), cb.lessThan(count, 400));
+                    case 4 -> cb.and(cb.greaterThanOrEqualTo(count, 400), cb.lessThan(count, 600));
+                    case 5 -> cb.and(cb.greaterThanOrEqualTo(count, 600), cb.lessThan(count, 1000));
+                    case 6 -> cb.greaterThanOrEqualTo(count, 1000);
+                    default -> throw new APIException("Invalid pageCount bucket ID: " + id, HttpStatus.BAD_REQUEST);
+                });
+            }
+            Predicate combined = cb.or(predicates.toArray(new Predicate[0]));
+            return "not".equals(mode) ? cb.not(combined) : combined;
+        };
+    }
+
+    public static Specification<BookEntity> withShelfStatus(List<String> values, String mode) {
+        return (root, query, cb) -> {
+            List<String> cleaned = cleanLowerCase(values);
+            if (cleaned.isEmpty()) return cb.conjunction();
+            List<String> invalid = cleaned.stream()
+                    .filter(v -> !v.equals("shelved") && !v.equals("unshelved"))
+                    .toList();
+            if (!invalid.isEmpty()) {
+                throw new APIException("Invalid shelfStatus values: " + invalid
+                        + ". Valid values: [shelved, unshelved]", HttpStatus.BAD_REQUEST);
+            }
+            boolean wantShelved = cleaned.contains("shelved");
+            boolean wantUnshelved = cleaned.contains("unshelved");
+            if (wantShelved && wantUnshelved) return cb.conjunction();
+            Predicate hasShelves = cb.isNotEmpty(root.get("shelves"));
+            Predicate combined = wantShelved ? hasShelves : cb.not(hasShelves);
+            return "not".equals(mode) ? cb.not(combined) : combined;
+        };
+    }
+
+    public static Specification<BookEntity> withComicCharacters(List<String> values, String mode) {
+        return buildComicCollectionSpec(values, mode, "characters");
+    }
+
+    public static Specification<BookEntity> withComicTeams(List<String> values, String mode) {
+        return buildComicCollectionSpec(values, mode, "teams");
+    }
+
+    public static Specification<BookEntity> withComicLocations(List<String> values, String mode) {
+        return buildComicCollectionSpec(values, mode, "locations");
+    }
+
+    private static Specification<BookEntity> buildComicCollectionSpec(
+            List<String> values, String mode, String collectionAttr) {
+        return (root, query, cb) -> {
+            List<String> cleaned = cleanLowerCase(values);
+            if (cleaned.isEmpty()) return cb.conjunction();
+            
+            Subquery<Long> sub = query.subquery(Long.class);
+            Root<BookMetadataEntity> metaRoot = sub.from(BookMetadataEntity.class);
+            Join<?, ?> comicJoin = metaRoot.join("comicMetadata", JoinType.INNER);
+            Join<?, ?> collJoin = comicJoin.join(collectionAttr, JoinType.INNER);
+            sub.select(cb.literal(1L))
+                    .where(
+                            cb.equal(metaRoot.get("id"), root.get("id")),
+                            cb.lower(collJoin.get("name")).in(cleaned)
+                    );
+            return "not".equals(mode) ? cb.not(cb.exists(sub)) : cb.exists(sub);
+        };
+    }
+
+    public static Specification<BookEntity> inShelves(List<String> shelfIds, String mode) {
+        return (root, query, cb) -> {
+            if (shelfIds.isEmpty()) return cb.conjunction();
+            List<Long> ids = parseLongList(shelfIds, "shelf");
+            if (ids.isEmpty()) return cb.conjunction();
+            
+            if ("and".equals(mode)) {
+                List<Predicate> predicates = new ArrayList<>();
+                for (Long id : ids) {
+                    Subquery<Long> sub = query.subquery(Long.class);
+                    Root<BookEntity> subRoot = sub.correlate(root);
+                    Join<BookEntity, ShelfEntity> subShelves = subRoot.join("shelves", JoinType.INNER);
+                    sub.select(cb.literal(1L)).where(cb.equal(subShelves.get("id"), id));
+                    predicates.add(cb.exists(sub));
+                }
+                return cb.and(predicates.toArray(new Predicate[0]));
+            }
+
+            Subquery<Long> sub = query.subquery(Long.class);
+            Root<BookEntity> subRoot = sub.correlate(root);
+            Join<BookEntity, ShelfEntity> subShelves = subRoot.join("shelves", JoinType.INNER);
+            sub.select(cb.literal(1L)).where(subShelves.get("id").in(ids));
+            return "not".equals(mode) ? cb.not(cb.exists(sub)) : cb.exists(sub);
+        };
+    }
+
+    public static Specification<BookEntity> inLibraries(List<String> libraryIds, String mode) {
+        return (root, query, cb) -> {
+            if (libraryIds.isEmpty()) return cb.conjunction();
+            List<Long> ids = parseLongList(libraryIds, "library");
+            if (ids.isEmpty()) return cb.conjunction();
+            
+            if ("and".equals(mode)) {
+                if (ids.size() > 1) return cb.disjunction(); // A book can't be in multiple libraries
+                return cb.equal(root.get("library").get("id"), ids.getFirst());
+            }
+
+            Predicate combined = root.get("library").get("id").in(ids);
+            return "not".equals(mode) ? cb.not(combined) : combined;
+        };
+    }
+
+    public static Specification<BookEntity> withComicCreators(List<String> values, String mode) {
+        return (root, query, cb) -> {
+            if (values == null || values.isEmpty()) return cb.conjunction();
+
+            // value is formatted as "name:role" from frontend
+            List<Predicate> predicates = new ArrayList<>();
+            for (String val : values) {
+                String[] parts = val.split(":");
+                String name = parts[0].trim().toLowerCase();
+                String roleName = parts.length > 1 ? parts[1].trim() : null;
+
+                Subquery<Long> sub = query.subquery(Long.class);
+                Root<ComicCreatorMappingEntity> mappingRoot = sub.from(ComicCreatorMappingEntity.class);
+                Join<?, ?> creatorJoin = mappingRoot.join("creator", JoinType.INNER);
+                Join<?, ?> comicJoin = mappingRoot.join("comicMetadata", JoinType.INNER);
+
+                List<Predicate> where = new ArrayList<>();
+                where.add(cb.equal(comicJoin.get("bookId"), root.get("id")));
+                where.add(cb.equal(cb.lower(creatorJoin.get("name")), name));
+
+                if (roleName != null) {
+                    ComicCreatorRole role = parseCreatorRole(roleName);
+                    where.add(cb.equal(mappingRoot.get("role"), role));
+                }
+
+                sub.select(cb.literal(1L)).where(where.toArray(new Predicate[0]));
+                predicates.add(cb.exists(sub));
+            }
+
+            Predicate combined = "and".equals(mode)
+                    ? cb.and(predicates.toArray(new Predicate[0]))
+                    : cb.or(predicates.toArray(new Predicate[0]));
+            return "not".equals(mode) ? cb.not(combined) : combined;
+        };
+    }
+
+    private static ComicCreatorRole parseCreatorRole(String roleName) {
+        return switch (roleName.toLowerCase()) {
+            case "penciller" -> ComicCreatorRole.PENCILLER;
+            case "inker" -> ComicCreatorRole.INKER;
+            case "colorist" -> ComicCreatorRole.COLORIST;
+            case "letterer" -> ComicCreatorRole.LETTERER;
+            case "coverartist" -> ComicCreatorRole.COVER_ARTIST;
+            case "editor" -> ComicCreatorRole.EDITOR;
+            default -> throw new APIException("Invalid comic creator role: " + roleName, HttpStatus.BAD_REQUEST);
+        };
+    }
+
     private static List<String> cleanLowerCase(List<String> values) {
         if (values == null) return List.of();
         return values.stream()

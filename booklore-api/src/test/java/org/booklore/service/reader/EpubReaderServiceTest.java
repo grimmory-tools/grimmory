@@ -91,7 +91,7 @@ class EpubReaderServiceTest {
 
     @Test
     void testGetBookInfo_Success() throws Exception {
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForStreaming(1L)).thenReturn(Optional.of(bookEntity));
 
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
             fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath);
@@ -114,7 +114,7 @@ class EpubReaderServiceTest {
 
     @Test
     void testGetBookInfo_BookNotFound() {
-        when(bookRepository.findByIdWithBookFiles(999L)).thenReturn(Optional.empty());
+        when(bookRepository.findByIdForStreaming(999L)).thenReturn(Optional.empty());
 
         assertThrows(ApiError.BOOK_NOT_FOUND.createException().getClass(),
                 () -> epubReaderService.getBookInfo(999L));
@@ -122,7 +122,7 @@ class EpubReaderServiceTest {
 
     @Test
     void testGetBookInfo_CacheHit() throws Exception {
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForStreaming(1L)).thenReturn(Optional.of(bookEntity));
 
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
             fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath);
@@ -140,7 +140,7 @@ class EpubReaderServiceTest {
 
     @Test
     void testStreamFile_Success() throws Exception {
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForStreaming(1L)).thenReturn(Optional.of(bookEntity));
 
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
             fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath);
@@ -167,7 +167,7 @@ class EpubReaderServiceTest {
 
     @Test
     void testStreamFile_FileNotFound() throws Exception {
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForStreaming(1L)).thenReturn(Optional.of(bookEntity));
 
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
             fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath);
@@ -185,7 +185,7 @@ class EpubReaderServiceTest {
 
     @Test
     void testStreamFile_PathTraversalBlocked() throws Exception {
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForStreaming(1L)).thenReturn(Optional.of(bookEntity));
 
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
             fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath);
@@ -203,7 +203,7 @@ class EpubReaderServiceTest {
 
     @Test
     void testStreamFile_ContainerXmlAllowed() throws Exception {
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForStreaming(1L)).thenReturn(Optional.of(bookEntity));
 
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
             fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath);
@@ -223,7 +223,7 @@ class EpubReaderServiceTest {
 
     @Test
     void testGetContentType_FromManifest() throws Exception {
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForStreaming(1L)).thenReturn(Optional.of(bookEntity));
 
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
             fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath);
@@ -246,7 +246,7 @@ class EpubReaderServiceTest {
 
     @Test
     void testGetContentType_Fallback() throws Exception {
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForStreaming(1L)).thenReturn(Optional.of(bookEntity));
 
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
             fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath);
@@ -266,7 +266,7 @@ class EpubReaderServiceTest {
 
     @Test
     void testGetFileSize_FromManifest() throws Exception {
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForStreaming(1L)).thenReturn(Optional.of(bookEntity));
 
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
             fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath);
@@ -288,7 +288,7 @@ class EpubReaderServiceTest {
 
     @Test
     void testGetFileSize_NotFound() throws Exception {
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForStreaming(1L)).thenReturn(Optional.of(bookEntity));
 
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
             fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath);
@@ -301,7 +301,7 @@ class EpubReaderServiceTest {
 
     @Test
     void testSpineOrder() throws Exception {
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForStreaming(1L)).thenReturn(Optional.of(bookEntity));
 
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
             fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath);
@@ -321,7 +321,7 @@ class EpubReaderServiceTest {
 
     @Test
     void testTocParsing() throws Exception {
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForStreaming(1L)).thenReturn(Optional.of(bookEntity));
 
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
             fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath);
@@ -342,7 +342,7 @@ class EpubReaderServiceTest {
 
     @Test
     void testManifestProperties() throws Exception {
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForStreaming(1L)).thenReturn(Optional.of(bookEntity));
 
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
             fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath);
@@ -365,7 +365,7 @@ class EpubReaderServiceTest {
 
     @Test
     void testStreamFile_LeadingSlashHandled() throws Exception {
-        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookRepository.findByIdForStreaming(1L)).thenReturn(Optional.of(bookEntity));
 
         try (MockedStatic<FileUtils> fileUtilsStatic = mockStatic(FileUtils.class)) {
             fileUtilsStatic.when(() -> FileUtils.getBookFullPath(bookEntity)).thenReturn(epubPath);

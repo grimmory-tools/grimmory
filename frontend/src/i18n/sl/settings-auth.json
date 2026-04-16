@@ -63,17 +63,6 @@
     "linkLocalDesc": "Ko je omogočeno, bodo obstoječi lokalno ustvarjeni uporabniki ob prvi prijavi v OIDC samodejno povezani s svojo identiteto OIDC, če se uporabniška imena ujemajo. Ko je onemogočeno, se lahko po uporabniškem imenu ujemajo samo uporabniki, ki so bili prvotno ustvarjeni prek OIDC.",
     "linkLocalWarning": "Razmisli o onemogočanju te možnosti, ko se vsi obstoječi uporabniki vsaj enkrat prijavijo prek OIDC. Če jo pustiš vklopljeno, lahko lokalni račun prevzame vsak z ustreznim uporabniškim imenom pri tvojem ponudniku OIDC."
   },
-  "perms": {
-    "uploadBooks": "Nalaganje knjig",
-    "downloadBooks": "Prenos knjig",
-    "editMetadata": "Urejanje metapodatkov",
-    "manageLibrary": "Upravljanje knjižnice",
-    "emailBook": "Pošiljanje knjig po e-pošti",
-    "deleteBook": "Brisanje knjig",
-    "koreaderSync": "Sinhronizacija KOReader",
-    "koboSync": "Sinhronizacija Kobo",
-    "accessOpds": "Dostop do OPDS"
-  },
   "toast": {
     "saved": "Shranjeno",
     "oidcUpdated": "OIDC nastavitev posodobljena.",

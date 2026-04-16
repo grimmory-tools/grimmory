@@ -46,13 +46,30 @@ export class AuthenticationSettingsComponent {
   availablePermissions = [
     {label: 'Upload Books', value: 'permissionUpload', selected: false, translationKey: 'perms.uploadBooks'},
     {label: 'Download Books', value: 'permissionDownload', selected: false, translationKey: 'perms.downloadBooks'},
-    {label: 'Edit Book Metadata', value: 'permissionEditMetadata', selected: false, translationKey: 'perms.editMetadata'},
-    {label: 'Manage Library', value: 'permissionManipulateLibrary', selected: false, translationKey: 'perms.manageLibrary'},
-    {label: 'Email Book', value: 'permissionEmailBook', selected: false, translationKey: 'perms.emailBook'},
-    {label: 'Delete Book', value: 'permissionDeleteBook', selected: false, translationKey: 'perms.deleteBook'},
+    {label: 'Delete Books', value: 'permissionDeleteBook', selected: false, translationKey: 'perms.deleteBooks'},
+    {label: 'Manage Library', value: 'permissionManageLibrary', selected: false, translationKey: 'perms.manageLibrary'},
+    {label: 'Email Books', value: 'permissionEmailBook', selected: false, translationKey: 'perms.emailBooks'},
+    {label: 'Access Bookdrop', value: 'permissionAccessBookdrop', selected: false, translationKey: 'perms.accessBookdrop'},
+    {label: 'View Library Statistics', value: 'permissionAccessLibraryStats', selected: false, translationKey: 'perms.viewLibraryStats'},
+    {label: 'View User Reading Statistics', value: 'permissionAccessUserStats', selected: false, translationKey: 'perms.viewUserStats'},
+    {label: 'Manage Metadata Configuration', value: 'permissionManageMetadataConfig', selected: false, translationKey: 'perms.manageMetadataConfig'},
+    {label: 'Manage Application Preferences', value: 'permissionManageGlobalPreferences', selected: false, translationKey: 'perms.manageAppPreferences'},
+    {label: 'Access Task Manager', value: 'permissionAccessTaskManager', selected: false, translationKey: 'perms.accessTaskManager'},
+    {label: 'Manage Icons', value: 'permissionManageIcons', selected: false, translationKey: 'perms.manageIcons'},
+    {label: 'Manage Fonts', value: 'permissionManageFonts', selected: false, translationKey: 'perms.manageFonts'},
+    {label: 'Edit Single Metadata', value: 'permissionEditMetadata', selected: false, translationKey: 'perms.editSingleMetadata'},
+    {label: 'Bulk Auto Fetch Metadata', value: 'permissionBulkAutoFetchMetadata', selected: false, translationKey: 'perms.bulkAutoFetch'},
+    {label: 'Bulk Custom Fetch Metadata', value: 'permissionBulkCustomFetchMetadata', selected: false, translationKey: 'perms.bulkCustomFetch'},
+    {label: 'Access Bulk Metadata Editor', value: 'permissionBulkEditMetadata', selected: false, translationKey: 'perms.accessBulkEditor'},
+    {label: 'Bulk Regenerate Cover', value: 'permissionBulkRegenerateCover', selected: false, translationKey: 'perms.bulkRegenerateCover'},
+    {label: 'Move/Organize Files', value: 'permissionMoveOrganizeFiles', selected: false, translationKey: 'perms.moveOrganize'},
+    {label: 'Bulk Lock/Unlock Metadata', value: 'permissionBulkLockUnlockMetadata', selected: false, translationKey: 'perms.bulkLockUnlock'},
     {label: 'KOReader Sync', value: 'permissionSyncKoreader', selected: false, translationKey: 'perms.koreaderSync'},
     {label: 'Kobo Sync', value: 'permissionSyncKobo', selected: false, translationKey: 'perms.koboSync'},
-    {label: 'Access OPDS', value: 'permissionAccessOpds', selected: false, translationKey: 'perms.accessOpds'}
+    {label: 'OPDS Feed Access', value: 'permissionAccessOpds', selected: false, translationKey: 'perms.opdsFeedAccess'},
+    {label: 'Bulk Reset Grimmory Read Progress', value: 'permissionBulkResetBookloreReadProgress', selected: false, translationKey: 'perms.bulkResetGrimmory'},
+    {label: 'Bulk Reset KoReader Read Progress', value: 'permissionBulkResetKoReaderReadProgress', selected: false, translationKey: 'perms.bulkResetKoreader'},
+    {label: 'Bulk Reset Book Read Status', value: 'permissionBulkResetBookReadStatus', selected: false, translationKey: 'perms.bulkResetReadStatus'},
   ];
 
   internalAuthEnabled = true;
@@ -418,6 +435,15 @@ export class AuthenticationSettingsComponent {
         });
       }
     });
+  }
+
+  onAdminCheckboxChange(): void {
+    if (this.editingGroupMapping.isAdmin) {
+      this.editingGroupMappingPerms = this.availablePermissions.map(p => ({
+        ...p,
+        selected: true,
+      }));
+    }
   }
 
   private emptyGroupMapping(): OidcGroupMapping {

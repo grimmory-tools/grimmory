@@ -115,7 +115,11 @@ public class KoboController {
     @Operation(summary = "Authenticate Kobo device", description = "Authenticate a Kobo device.")
     @ApiResponse(responseCode = "200", description = "Device authenticated successfully")
     @PostMapping("/v1/auth/device")
-    public ResponseEntity<KoboAuthentication> authenticateDevice(@Parameter(description = "Authentication request body") @RequestBody JsonNode body) {
+    public ResponseEntity<?> authenticateDevice(@Parameter(description = "Authentication request body") @RequestBody JsonNode body) {
+        if (isForwardingToKoboStore()) {
+            return koboServerProxy.proxyCurrentRequest(body, false);
+        }
+
         return koboDeviceAuthService.authenticateDevice(body);
     }
 
@@ -124,12 +128,16 @@ public class KoboController {
     @GetMapping("/v1/library/{bookId}/metadata")
     public ResponseEntity<?> getBookMetadata(@Parameter(description = "Book ID") @PathVariable String bookId) {
         if (StringUtils.isNumeric(bookId)) {
-            return ResponseEntity.ok(List.of(koboEntitlementService.getMetadataForBook(Long.parseLong(bookId), token)));
+            KoboBookMetadata metadata = koboEntitlementService.getMetadataForBook(Long.parseLong(bookId), token);
+
+            if (metadata != null) {
+                return ResponseEntity.ok(List.of(metadata));
+            }
         } else if(isForwardingToKoboStore()) {
             return koboServerProxy.proxyCurrentRequest(null, false);
-        } else {
-            throw ApiError.GENERIC_NOT_FOUND.createException("Not Found");
         }
+
+        throw ApiError.GENERIC_NOT_FOUND.createException("Not Found");
     }
 
     @Operation(summary = "Get reading state", description = "Retrieve the reading state for a book.")

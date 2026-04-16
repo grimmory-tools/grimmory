@@ -1,4 +1,5 @@
-import {Component, effect, inject} from '@angular/core';
+import {Component, DestroyRef, effect, inject} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 import {FormsModule} from '@angular/forms';
 import {InputText} from 'primeng/inputtext';
@@ -42,6 +43,7 @@ export class KoreaderSettingsComponent {
   private readonly koreaderService = inject(KoreaderService);
   private readonly userService = inject(UserService);
   private readonly t = inject(TranslocoService);
+  private readonly destroyRef = inject(DestroyRef);
 
   hasPermission = false;
   private prevHasPermission = false;
@@ -61,7 +63,9 @@ export class KoreaderSettingsComponent {
   }
 
   private loadKoreaderSettings() {
-    this.koreaderService.getUser().subscribe({
+    this.koreaderService.getUser().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: koreaderUser => {
         this.koReaderUsername = koreaderUser.username;
         this.koReaderPassword = koreaderUser.password;
@@ -96,7 +100,9 @@ export class KoreaderSettingsComponent {
   }
 
   onToggleEnabled(enabled: boolean) {
-    this.koreaderService.toggleSync(enabled).subscribe({
+    this.koreaderService.toggleSync(enabled).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: () => {
         this.koReaderSyncEnabled = enabled;
         this.messageService.add({severity: 'success', summary: this.t.translate('settingsDevice.koreader.syncUpdated'), detail: enabled ? this.t.translate('settingsDevice.koreader.syncEnabled') : this.t.translate('settingsDevice.koreader.syncDisabled')});
@@ -108,7 +114,9 @@ export class KoreaderSettingsComponent {
   }
 
   onToggleSyncWithGrimmoryReader(enabled: boolean) {
-    this.koreaderService.toggleSyncProgressWithGrimmoryReader(enabled).subscribe({
+    this.koreaderService.toggleSyncProgressWithGrimmoryReader(enabled).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: () => {
         this.syncWithGrimmoryReader = enabled;
         this.messageService.add({
@@ -134,6 +142,7 @@ export class KoreaderSettingsComponent {
 
   saveCredentials() {
     this.koreaderService.createUser(this.koReaderUsername, this.koReaderPassword)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.credentialsSaved = true;

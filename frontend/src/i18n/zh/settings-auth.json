@@ -53,17 +53,6 @@
     "defaultLibraryAccess": "默认书库访问",
     "selectLibraries": "选择新用户可以访问的书库"
   },
-  "perms": {
-    "uploadBooks": "上传书籍",
-    "downloadBooks": "下载书籍",
-    "editMetadata": "编辑书籍元数据",
-    "manageLibrary": "管理书库",
-    "emailBook": "发送书籍邮件",
-    "deleteBook": "删除书籍",
-    "koreaderSync": "KOReader 同步",
-    "koboSync": "Kobo 同步",
-    "accessOpds": "访问 OPDS"
-  },
   "toast": {
     "saved": "已保存",
     "oidcUpdated": "OIDC 设置已更新。",

@@ -58,6 +58,10 @@ describe('book-filter.config', () => {
     expect(FILTER_EXTRACTORS.contentRating(makeBook({
       metadata: {bookId: 1, contentRating: 'EVERYONE'}
     }))).toEqual([{id: 'EVERYONE', name: CONTENT_RATING_LABELS['EVERYONE']}]);
+
+    expect(FILTER_EXTRACTORS.ageRating(makeBook({
+      metadata: {bookId: 1, ageRating: 12}
+    }))).toEqual([{id: 10, name: '10+', sortIndex: 2}]);
   });
 
   it('builds comic creator filters with role-aware labels', () => {

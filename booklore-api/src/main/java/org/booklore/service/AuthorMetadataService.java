@@ -255,13 +255,10 @@ public class AuthorMetadataService {
         return toAuthorDetails(author);
     }
 
-    public List<CoverImage> searchAuthorPhotos(String name) {
+    public Flux<CoverImage> searchAuthorPhotos(String name) {
         String searchTerm = name + " author photo portrait";
-        List<CoverImage> results = duckDuckGoCoverService.searchImages(searchTerm);
-        if (results.size() > 50) {
-            results = results.subList(0, 50);
-        }
-        return results;
+        return duckDuckGoCoverService.searchImages(searchTerm)
+                .take(50);
     }
 
     public void uploadAuthorPhotoFromUrl(Long authorId, String imageUrl) {

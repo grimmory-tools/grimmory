@@ -50,6 +50,7 @@ export class AuditLogsComponent implements OnInit {
   private readonly auditLogService = inject(AuditLogService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   logs: AuditLog[] = [];
   totalRecords = 0;
@@ -61,7 +62,6 @@ export class AuditLogsComponent implements OnInit {
   expandedRows = new Set<number>();
   autoRefresh = false;
   private autoRefreshSub?: Subscription;
-  private readonly destroyRef = inject(DestroyRef);
 
   usernameOptions: UsernameOption[] = [{label: 'All Users', value: ''}];
 
@@ -115,7 +115,7 @@ export class AuditLogsComponent implements OnInit {
   }
 
   loadUsernames(): void {
-    this.auditLogService.getDistinctUsernames().subscribe({
+    this.auditLogService.getDistinctUsernames().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (usernames) => {
         this.usernameOptions = [
           {label: 'All Users', value: ''},
@@ -133,7 +133,9 @@ export class AuditLogsComponent implements OnInit {
     const username = this.selectedUsername || undefined;
     const from = this.dateRange?.[0] ? this.formatDateTime(this.dateRange[0]) : undefined;
     const to = this.dateRange?.[1] ? this.formatDateTime(this.dateRange[1], true) : undefined;
-    this.auditLogService.getAuditLogs(this.currentPage, this.rows, action, username, from, to).subscribe({
+    this.auditLogService.getAuditLogs(this.currentPage, this.rows, action, username, from, to).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (response) => {
         this.logs = response.content;
         this.totalRecords = response.page.totalElements;
@@ -167,9 +169,10 @@ export class AuditLogsComponent implements OnInit {
   toggleAutoRefresh(): void {
     this.autoRefresh = !this.autoRefresh;
     if (this.autoRefresh) {
+      this.autoRefreshSub?.unsubscribe();
       this.autoRefreshSub = interval(10000)
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(() => this.loadLogs(false));
+        .pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.loadLogs(false));
     } else {
       this.autoRefreshSub?.unsubscribe();
     }

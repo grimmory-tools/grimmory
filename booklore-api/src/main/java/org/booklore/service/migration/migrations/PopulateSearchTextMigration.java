@@ -7,6 +7,7 @@ import org.booklore.service.migration.Migration;
 import org.booklore.util.BookUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -34,10 +35,10 @@ public class PopulateSearchTextMigration implements Migration {
 
         int batchSize = 1000;
         int processedCount = 0;
-        int offset = 0;
+        long lastId = 0;
 
         while (true) {
-            List<BookEntity> bookBatch = bookRepository.findBooksForMigrationBatch(offset, batchSize);
+            List<BookEntity> bookBatch = bookRepository.findBooksForMigrationBatch(lastId, PageRequest.of(0, batchSize));
             if (bookBatch.isEmpty()) break;
 
             List<Long> bookIds = bookBatch.stream().map(BookEntity::getId).toList();
@@ -56,7 +57,7 @@ public class PopulateSearchTextMigration implements Migration {
 
             bookRepository.saveAll(books);
             processedCount += books.size();
-            offset += batchSize;
+            lastId = bookBatch.getLast().getId();
 
             log.info("Migration progress: {} books processed", processedCount);
 

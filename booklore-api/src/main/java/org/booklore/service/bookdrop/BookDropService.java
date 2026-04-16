@@ -41,9 +41,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.support.TransactionTemplate;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.File;
@@ -79,7 +76,6 @@ public class BookDropService {
     private final FileMovingHelper fileMovingHelper;
     private final MonitoringRegistrationService monitoringRegistrationService;
     private final ApplicationEventPublisher eventPublisher;
-    private final PlatformTransactionManager transactionManager;
 
     private static final int CHUNK_SIZE = 100;
 
@@ -292,7 +288,7 @@ public class BookDropService {
     private void reregisterAffectedLibraries(Set<Long> libraryIds) {
         for (Long libraryId : libraryIds) {
             try {
-                LibraryEntity library = libraryRepository.findById(libraryId).orElse(null);
+                LibraryEntity library = libraryRepository.findByIdWithPaths(libraryId).orElse(null);
                 if (library != null) {
                     for (LibraryPathEntity libPath : library.getLibraryPaths()) {
                         Path libraryRoot = Path.of(libPath.getPath());
@@ -376,7 +372,7 @@ public class BookDropService {
     }
 
     private BookdropFileResult moveFile(long libraryId, long pathId, BookMetadata metadata, BookdropFileEntity bookdropFile) {
-        LibraryEntity library = libraryRepository.findById(libraryId)
+        LibraryEntity library = libraryRepository.findByIdWithPaths(libraryId)
                 .orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
 
         LibraryPathEntity path = library.getLibraryPaths().stream()
@@ -472,32 +468,31 @@ public class BookDropService {
                         .orElseThrow(() -> ApiError.INVALID_FILE_FORMAT.createException("Unsupported file extension"))
                         .getType());
 
-        // Post-processing runs in REQUIRES_NEW so it gets a fresh REPEATABLE_READ snapshot
-        // that can see the book committed by processFile()'s own REQUIRES_NEW transaction
-        TransactionTemplate newTx = new TransactionTemplate(transactionManager);
-        newTx.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+        // Post-processing runs in the same transaction as processFile (which uses
+        // PROPAGATION_REQUIRED and joins this TX).  The book entity is flushed but
+        // not committed a REQUIRES_NEW here would start a separate TX whose
+        // REPEATABLE_READ snapshot cannot see the uncommitted book, causing
+        // "Book ID missing after import".
         Long bookId = fileProcessResult.getBook().getId();
-        newTx.executeWithoutResult(status -> {
-            BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId)
-                    .orElseThrow(() -> ApiError.FILE_NOT_FOUND.createException("Book ID missing after import"));
+        BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId)
+                .orElseThrow(() -> ApiError.FILE_NOT_FOUND.createException("Book ID missing after import"));
 
-            MetadataUpdateContext context = MetadataUpdateContext.builder()
-                    .bookEntity(bookEntity)
-                    .metadataUpdateWrapper(MetadataUpdateWrapper.builder()
-                            .metadata(metadata)
-                            .build())
-                    .updateThumbnail(metadata.getThumbnailUrl() != null)
-                    .mergeCategories(false)
-                    .replaceMode(MetadataReplaceMode.REPLACE_WHEN_PROVIDED)
-                    .mergeMoods(true)
-                    .mergeTags(true)
-                    .build();
+        MetadataUpdateContext context = MetadataUpdateContext.builder()
+                .bookEntity(bookEntity)
+                .metadataUpdateWrapper(MetadataUpdateWrapper.builder()
+                        .metadata(metadata)
+                        .build())
+                .updateThumbnail(metadata.getThumbnailUrl() != null)
+                .mergeCategories(false)
+                .replaceMode(MetadataReplaceMode.REPLACE_WHEN_PROVIDED)
+                .mergeMoods(true)
+                .mergeTags(true)
+                .build();
 
-            metadataRefreshService.updateBookMetadata(context);
+        metadataRefreshService.updateBookMetadata(context);
         eventPublisher.publishEvent(new BookAddedEvent(fileProcessResult.getBook()));
 
-            notificationService.sendMessage(Topic.BOOK_ADD, fileProcessResult.getBook());
-        });
+        notificationService.sendMessage(Topic.BOOK_ADD, fileProcessResult.getBook());
 
         cleanupBookdropData(bookdropFile);
 

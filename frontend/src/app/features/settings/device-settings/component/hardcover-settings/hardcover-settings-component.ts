@@ -1,4 +1,5 @@
-import {Component, effect, inject} from '@angular/core';
+import {Component, DestroyRef, effect, inject} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {InputText} from 'primeng/inputtext';
 import {ToggleSwitch} from 'primeng/toggleswitch';
@@ -31,6 +32,7 @@ export class HardcoverSettingsComponent {
   private readonly hardcoverSyncSettingsService = inject(HardcoverSyncSettingsService);
   private readonly userService = inject(UserService);
   private readonly t = inject(TranslocoService);
+  private readonly destroyRef = inject(DestroyRef);
 
   hasPermission = false;
   hardcoverSyncEnabled = false;
@@ -55,7 +57,9 @@ export class HardcoverSettingsComponent {
   }
 
   private loadHardcoverSettings() {
-    this.hardcoverSyncSettingsService.getSettings().subscribe({
+    this.hardcoverSyncSettingsService.getSettings().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: settings => {
         this.hardcoverSyncEnabled = settings.hardcoverSyncEnabled ?? false;
         this.hardcoverApiKey = settings.hardcoverApiKey ?? '';
@@ -89,7 +93,9 @@ export class HardcoverSettingsComponent {
     this.hardcoverSyncSettingsService.updateSettings({
       hardcoverSyncEnabled: this.hardcoverSyncEnabled,
       hardcoverApiKey: this.hardcoverApiKey
-    }).subscribe({
+    }).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: settings => {
         this.hardcoverSyncEnabled = settings.hardcoverSyncEnabled ?? false;
         this.hardcoverApiKey = settings.hardcoverApiKey ?? '';

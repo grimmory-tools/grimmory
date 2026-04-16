@@ -1,6 +1,7 @@
 package org.booklore.repository;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.LibraryPathEntity;
@@ -21,9 +22,17 @@ import java.util.Set;
 public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpecificationExecutor<BookEntity> {
     Optional<BookEntity> findBookByIdAndLibraryId(long id, long libraryId);
 
+    @EntityGraph(attributePaths = { "metadata", "metadata.authors", "bookFiles", "libraryPath" })
+    @Query("SELECT b FROM BookEntity b WHERE b.id = :id AND (b.deleted IS NULL OR b.deleted = false)")
+    Optional<BookEntity> findByIdForAudiobook(@Param("id") Long id);
+
     @EntityGraph(attributePaths = { "metadata", "metadata.comicMetadata", "shelves", "libraryPath", "library", "bookFiles" })
     @Query("SELECT b FROM BookEntity b WHERE b.id = :id AND (b.deleted IS NULL OR b.deleted = false)")
     Optional<BookEntity> findByIdWithBookFiles(@Param("id") Long id);
+
+    @EntityGraph(attributePaths = { "metadata", "bookFiles", "libraryPath", "library" })
+    @Query("SELECT b FROM BookEntity b WHERE b.id = :id AND (b.deleted IS NULL OR b.deleted = false)")
+    Optional<BookEntity> findByIdForStreaming(@Param("id") Long id);
 
     @EntityGraph(attributePaths = { "metadata", "metadata.authors", "metadata.categories", "metadata.moods", "metadata.tags", "metadata.comicMetadata", "library" })
     @Query("SELECT b FROM BookEntity b WHERE b.id = :id AND (b.deleted IS NULL OR b.deleted = false)")
@@ -33,6 +42,16 @@ public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpec
     @Query("SELECT b FROM BookEntity b WHERE b.id = :id AND (b.deleted IS NULL OR b.deleted = false)")
     Optional<BookEntity> findByIdFull(@Param("id") Long id);
 
+    @EntityGraph(attributePaths = { "metadata", "metadata.authors", "metadata.categories", "metadata.tags", "metadata.comicMetadata", "libraryPath", "bookFiles" })
+    @Query("SELECT b FROM BookEntity b WHERE b.id = :id AND (b.deleted IS NULL OR b.deleted = false)")
+    Optional<BookEntity> findByIdForKoboDownload(@Param("id") Long id);
+
+    // Minimal graph for summary mapping: metadata (OneToOne), library (ManyToOne), bookFiles (OneToMany).
+    // metadata.authors is intentionally excluded — @BatchSize on BookMetadataEntity.authors
+    // triggers a batched query when first accessed, so no N+1 occurs.
+    @EntityGraph(attributePaths = { "metadata", "library", "bookFiles" })
+    @Query("SELECT b FROM BookEntity b WHERE b.id IN :bookIds AND (b.deleted IS NULL OR b.deleted = false)")
+    List<BookEntity> findAllForSummaryByIds(@Param("bookIds") Collection<Long> bookIds);
 
     @EntityGraph(attributePaths = {"bookFiles", "metadata", "library", "libraryPath"})
     @Query("SELECT b FROM BookEntity b JOIN b.bookFiles bf WHERE bf.currentHash = :currentHash AND bf.isBookFormat = true AND (b.deleted IS NULL OR b.deleted = false)")
@@ -123,14 +142,8 @@ public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpec
     @Query("SELECT b FROM BookEntity b WHERE (b.deleted IS NULL OR b.deleted = false)")
     List<BookEntity> findAllFullBooks();
 
-    @Query(value = """
-                SELECT DISTINCT b.* FROM book b
-                LEFT JOIN book_metadata m ON b.id = m.book_id
-                WHERE (b.deleted IS NULL OR b.deleted = false)
-                ORDER BY b.id
-                LIMIT :limit OFFSET :offset
-            """, nativeQuery = true)
-    List<BookEntity> findBooksForMigrationBatch(@Param("offset") int offset, @Param("limit") int limit);
+    @Query("SELECT b FROM BookEntity b WHERE (b.deleted IS NULL OR b.deleted = false) AND b.id > :afterId ORDER BY b.id")
+    List<BookEntity> findBooksForMigrationBatch(@Param("afterId") long afterId, Pageable pageable);
 
     @Query("""
                 SELECT DISTINCT b FROM BookEntity b
@@ -166,22 +179,29 @@ public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpec
     List<BookEntity> findBooksWithFilesUnderPath(@Param("libraryPathId") Long libraryPathId,
                                                   @Param("folderPath") String folderPath);
 
-    @Query(value = """
-        SELECT b.*
-        FROM book b
-        JOIN book_file bf ON bf.book_id = b.id
-        WHERE b.library_id = :libraryId
-          AND b.library_path_id = :libraryPathId
-          AND bf.file_sub_path = :fileSubPath
-          AND bf.file_name = :fileName
-          AND bf.is_book = true
-        LIMIT 1
-    """, nativeQuery = true)
-    Optional<BookEntity> findByLibraryIdAndLibraryPathIdAndFileSubPathAndFileName(
+    @Query("""
+        SELECT b FROM BookEntity b
+        JOIN b.bookFiles bf
+        WHERE b.library.id = :libraryId
+          AND b.libraryPath.id = :libraryPathId
+          AND bf.fileSubPath = :fileSubPath
+          AND bf.fileName = :fileName
+          AND bf.isBookFormat = true
+        ORDER BY b.id ASC
+        """)
+    List<BookEntity> findByLibraryIdAndLibraryPathIdAndFileSubPathAndFileName(
             @Param("libraryId") Long libraryId,
             @Param("libraryPathId") Long libraryPathId,
             @Param("fileSubPath") String fileSubPath,
-            @Param("fileName") String fileName);
+            @Param("fileName") String fileName,
+            Pageable pageable);
+
+    default Optional<BookEntity> findFirstByLibraryIdAndLibraryPathIdAndFileSubPathAndFileName(
+            Long libraryId, Long libraryPathId, String fileSubPath, String fileName) {
+        return findByLibraryIdAndLibraryPathIdAndFileSubPathAndFileName(
+                libraryId, libraryPathId, fileSubPath, fileName, PageRequest.of(0, 1))
+                .stream().findFirst();
+    }
 
     @Query("SELECT COUNT(b.id) FROM BookEntity b WHERE b.id IN :bookIds AND (b.deleted IS NULL OR b.deleted = false)")
     long countByIdIn(@Param("bookIds") List<Long> bookIds);

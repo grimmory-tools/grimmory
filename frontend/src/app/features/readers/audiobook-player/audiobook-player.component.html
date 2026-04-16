@@ -83,10 +83,10 @@
         @if (audiobookInfo.folderBased && currentTrack) {
           <span class="track-title">{{ currentTrack.title }}</span>
           <span class="track-number">{{ t('trackInfo.trackOf', { current: currentTrackIndex + 1, total: audiobookInfo.tracks?.length }) }}</span>
-        } @else if (getCurrentChapter()) {
-          <span class="track-title">{{ getCurrentChapter()?.title }}</span>
+        } @else if (currentChapter) {
+          <span class="track-title">{{ currentChapter.title }}</span>
           @if (hasMultipleChapters()) {
-            <span class="track-number">{{ t('trackInfo.chapterOf', { current: getCurrentChapterIndex() + 1, total: audiobookInfo.chapters?.length }) }}</span>
+            <span class="track-number">{{ t('trackInfo.chapterOf', { current: currentChapterIdx + 1, total: audiobookInfo.chapters?.length }) }}</span>
           }
         }
       </div>
@@ -329,7 +329,7 @@
               @for (chapter of audiobookInfo.chapters; track chapter.index) {
                 <li
                   class="track-item"
-                  [class.active]="getCurrentChapter()?.index === chapter.index"
+                  [class.active]="currentChapter?.index === chapter.index"
                   (click)="selectChapter(chapter)"
                   (keydown.enter)="selectChapter(chapter)"
                   role="button"
@@ -340,7 +340,7 @@
                     <span class="track-name">{{ chapter.title }}</span>
                     <span class="track-duration">{{ formatDuration(chapter.durationMs) }}</span>
                   </div>
-                  @if (getCurrentChapter()?.index === chapter.index && isPlaying) {
+                  @if (currentChapter?.index === chapter.index && isPlaying) {
                     <i class="pi pi-volume-up playing-indicator"></i>
                   }
                 </li>

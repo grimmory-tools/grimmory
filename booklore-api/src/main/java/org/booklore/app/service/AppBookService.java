@@ -6,22 +6,27 @@ import jakarta.persistence.criteria.Root;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.ApiError;
 import org.booklore.app.dto.AppBookDetail;
+import org.booklore.app.dto.AppBookProgressResponse;
 import org.booklore.app.dto.AppBookSummary;
 import org.booklore.app.dto.AppFilterOptions;
 import org.booklore.app.dto.AppPageResponse;
+import org.booklore.app.dto.UpdateProgressRequest;
 import org.booklore.app.dto.BookListRequest;
 import org.booklore.app.mapper.AppBookMapper;
 import org.booklore.app.specification.AppBookSpecification;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.Library;
+import org.booklore.model.dto.request.ReadProgressRequest;
 import org.booklore.model.entity.*;
 import org.booklore.model.enums.BookFileType;
+import org.booklore.model.enums.ComicCreatorRole;
 import org.booklore.model.enums.ReadStatus;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.ShelfRepository;
 import org.booklore.repository.UserBookFileProgressRepository;
 import org.booklore.repository.UserBookProgressRepository;
+import org.booklore.service.book.BookService;
 import org.booklore.service.opds.MagicShelfBookService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -55,6 +60,7 @@ public class AppBookService {
     private final ShelfRepository shelfRepository;
     private final AuthenticationService authenticationService;
     private final AppBookMapper mobileBookMapper;
+    private final BookService bookService;
     private final MagicShelfBookService magicShelfBookService;
     private final EntityManager entityManager;
 
@@ -69,6 +75,7 @@ public class AppBookService {
                           ShelfRepository shelfRepository,
                           AuthenticationService authenticationService,
                           AppBookMapper mobileBookMapper,
+                          BookService bookService,
                           MagicShelfBookService magicShelfBookService,
                           EntityManager entityManager) {
         this.bookRepository = bookRepository;
@@ -77,6 +84,7 @@ public class AppBookService {
         this.shelfRepository = shelfRepository;
         this.authenticationService = authenticationService;
         this.mobileBookMapper = mobileBookMapper;
+        this.bookService = bookService;
         this.magicShelfBookService = magicShelfBookService;
         this.entityManager = entityManager;
     }
@@ -144,6 +152,53 @@ public class AppBookService {
         return mobileBookMapper.toDetail(book, progress, fileProgress);
     }
 
+    @Transactional(readOnly = true)
+    public AppBookProgressResponse getBookProgress(Long bookId) {
+        BookLoreUser user = authenticationService.getAuthenticatedUser();
+        Long userId = user.getId();
+        Set<Long> accessibleLibraryIds = getAccessibleLibraryIds(user);
+
+        BookEntity book = bookRepository.findByIdWithBookFiles(bookId)
+                .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
+
+        if (accessibleLibraryIds != null && !accessibleLibraryIds.contains(book.getLibrary().getId())) {
+            throw ApiError.FORBIDDEN.createException("Access denied to this book");
+        }
+
+        UserBookProgressEntity progress = userBookProgressRepository
+                .findByUserIdAndBookId(userId, bookId)
+                .orElse(null);
+
+        UserBookFileProgressEntity fileProgress = userBookFileProgressRepository
+                .findMostRecentAudiobookProgressByUserIdAndBookId(userId, bookId)
+                .orElse(null);
+
+        return mobileBookMapper.toProgressResponse(progress, fileProgress);
+    }
+
+    @Transactional
+    public void updateBookProgress(Long bookId, UpdateProgressRequest request) {
+        BookLoreUser user = authenticationService.getAuthenticatedUser();
+        Set<Long> accessibleLibraryIds = getAccessibleLibraryIds(user);
+
+        BookEntity book = bookRepository.findByIdWithBookFiles(bookId)
+                .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
+
+        validateLibraryAccess(accessibleLibraryIds, book.getLibrary().getId());
+
+        ReadProgressRequest progressRequest = new ReadProgressRequest();
+        progressRequest.setBookId(bookId);
+        progressRequest.setFileProgress(request.getFileProgress());
+        progressRequest.setEpubProgress(request.getEpubProgress());
+        progressRequest.setPdfProgress(request.getPdfProgress());
+        progressRequest.setCbxProgress(request.getCbxProgress());
+        progressRequest.setAudiobookProgress(request.getAudiobookProgress());
+        progressRequest.setDateFinished(request.getDateFinished());
+
+        bookService.updateReadProgress(progressRequest);
+    }
+
+    @Transactional(readOnly = true)
     public AppPageResponse<AppBookSummary> searchBooks(
             String query,
             Integer page,
@@ -347,52 +402,45 @@ public class AppBookService {
             }
         }
 
-        // Cache lookup avoid re-running 9 aggregate queries within the TTL window
+        // Cache lookup avoid re-running 26+ aggregate queries within the TTL window
         String cacheKey = userId + ":" + libraryId + ":" + shelfId + ":" + magicShelfId;
         AppFilterOptions cached = filterOptionsCache.getIfPresent(cacheKey);
         if (cached != null) {
             return cached;
         }
 
+        // Build unified scoping Specification for all aggregate queries
+        Specification<BookEntity> baseSpec = buildBaseSpecification(accessibleLibraryIds, libraryId);
+        Specification<BookEntity> magicShelfSpec = null;
+        if (magicShelfId != null) {
+            magicShelfSpec = magicShelfBookService.toSpecification(userId, magicShelfId);
+            baseSpec = baseSpec.and(magicShelfSpec);
+        }
+        if (shelfId != null) {
+            baseSpec = baseSpec.and(AppBookSpecification.inShelf(shelfId));
+        }
+
         Set<Long> magicBookIds = null;
         if (magicShelfId != null) {
-            magicBookIds = resolveMagicShelfBookIds(magicShelfId, userId);
+            magicBookIds = resolveMagicShelfBookIds(magicShelfSpec);
             if (magicBookIds.isEmpty()) {
-                AppFilterOptions empty = AppFilterOptions.builder()
-                        .authors(Collections.emptyList())
-                        .languages(Collections.emptyList())
-                        .fileTypes(Collections.emptyList())
-                        .readStatuses(Collections.emptyList())
-                        .categories(Collections.emptyList())
-                        .publishers(Collections.emptyList())
-                        .series(Collections.emptyList())
-                        .tags(Collections.emptyList())
-                        .moods(Collections.emptyList())
-                        .narrators(Collections.emptyList())
-                        .build();
-                filterOptionsCache.put(cacheKey, empty);
-                return empty;
+                return emptyFilterOptions(cacheKey);
             }
         }
 
-        // Build scoping clauses
         String libraryClause = "";
         String shelfClause = "";
         String magicBookClause = "";
-
         if (magicBookIds != null) {
             magicBookClause = "AND b.id IN :magicBookIds";
         } else if (shelfId != null) {
             shelfClause = "AND b.id IN (SELECT sb.id FROM ShelfEntity s JOIN s.bookEntities sb WHERE s.id = :shelfId)";
         }
-
         if (libraryId != null) {
             libraryClause = "AND b.library.id = :libraryId";
         } else if (accessibleLibraryIds != null) {
             libraryClause = "AND b.library.id IN :libraryIds";
         }
-
-        // Build the optional WHERE suffix once — each clause already starts with "AND"
         String scopeClause = buildScopeClause(libraryClause, shelfClause, magicBookClause);
 
         List<AppFilterOptions.CountedOption> authors = queryCountedOptions(
@@ -409,20 +457,9 @@ public class AppBookService {
                         c.count()))
                 .toList();
 
-        String fileTypeQuery = "SELECT bf.bookType, COUNT(DISTINCT b.id) FROM BookEntity b"
-                + " JOIN b.bookFiles bf"
-                + " WHERE (b.deleted IS NULL OR b.deleted = false)"
-                + " AND b.bookFiles IS NOT EMPTY"
-                + " AND bf.isBookFormat = true"
-                + scopeClause
-                + " GROUP BY bf.bookType ORDER BY COUNT(DISTINCT b.id) DESC";
-        var ftQ = entityManager.createQuery(fileTypeQuery, Tuple.class);
-        setFilterQueryParams(ftQ, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
-        List<AppFilterOptions.CountedOption> fileTypes = ftQ.getResultList().stream()
-                .map(t -> new AppFilterOptions.CountedOption(
-                        t.get(0, BookFileType.class).name(),
-                        t.get(1, Long.class)))
-                .toList();
+        List<AppFilterOptions.CountedOption> fileTypes = queryCountedOptions(
+                "bf.bookType", "JOIN b.bookFiles bf", "AND bf.isBookFormat = true",
+                scopeClause, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
 
         List<AppFilterOptions.CountedOption> categories = queryCountedOptions(
                 "c.name", "JOIN b.metadata m JOIN m.categories c", "",
@@ -454,6 +491,131 @@ public class AppBookService {
         List<AppFilterOptions.CountedOption> readStatuses = queryReadStatusCounts(
                 userId, scopeClause, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
 
+        List<AppFilterOptions.CountedOption> ageRatings = queryGroupedCount(
+                "CASE " +
+                "  WHEN m.ageRating >= 0 AND m.ageRating < 6 THEN '0' " +
+                "  WHEN m.ageRating >= 6 AND m.ageRating < 10 THEN '6' " +
+                "  WHEN m.ageRating >= 10 AND m.ageRating < 13 THEN '10' " +
+                "  WHEN m.ageRating >= 13 AND m.ageRating < 16 THEN '13' " +
+                "  WHEN m.ageRating >= 16 AND m.ageRating < 18 THEN '16' " +
+                "  WHEN m.ageRating >= 18 AND m.ageRating < 21 THEN '18' " +
+                "  WHEN m.ageRating >= 21 THEN '21' " +
+                "END",
+                "JOIN b.metadata m", "AND m.ageRating IS NOT NULL",
+                scopeClause, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
+
+        List<AppFilterOptions.CountedOption> contentRatings = queryCountedOptions(
+                "m.contentRating", "JOIN b.metadata m",
+                "AND m.contentRating IS NOT NULL AND m.contentRating <> ''",
+                scopeClause, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
+
+        List<AppFilterOptions.CountedOption> matchScores = queryGroupedCount(
+                "CASE " +
+                "  WHEN b.metadataMatchScore >= 0.95 THEN '0' " +
+                "  WHEN b.metadataMatchScore >= 0.90 THEN '1' " +
+                "  WHEN b.metadataMatchScore >= 0.80 THEN '2' " +
+                "  WHEN b.metadataMatchScore >= 0.70 THEN '3' " +
+                "  WHEN b.metadataMatchScore >= 0.50 THEN '4' " +
+                "  WHEN b.metadataMatchScore >= 0.30 THEN '5' " +
+                "  WHEN b.metadataMatchScore >= 0.00 THEN '6' " +
+                "END",
+                "", "AND b.metadataMatchScore IS NOT NULL",
+                scopeClause, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
+
+        List<AppFilterOptions.CountedOption> publishedYears = queryCountedOptions(
+                "CAST(YEAR(m.publishedDate) AS string)", "JOIN b.metadata m",
+                "AND m.publishedDate IS NOT NULL",
+                scopeClause, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
+
+        List<AppFilterOptions.CountedOption> fileSizes = queryGroupedCount(
+                "CASE " +
+                "  WHEN bf.fileSizeKb < 1024 THEN '0' " +
+                "  WHEN bf.fileSizeKb < 10240 THEN '1' " +
+                "  WHEN bf.fileSizeKb < 51200 THEN '2' " +
+                "  WHEN bf.fileSizeKb < 102400 THEN '3' " +
+                "  WHEN bf.fileSizeKb < 512000 THEN '4' " +
+                "  WHEN bf.fileSizeKb < 1048576 THEN '5' " +
+                "  WHEN bf.fileSizeKb < 2097152 THEN '6' " +
+                "  ELSE '7' " +
+                "END",
+                "JOIN b.bookFiles bf", "AND bf.isBookFormat = true",
+                scopeClause, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
+
+        String personalRatingQuery = "SELECT CAST(ubp.personalRating AS string), COUNT(DISTINCT ubp.book.id) " +
+                "FROM UserBookProgressEntity ubp " +
+                "WHERE ubp.user.id = :userId AND ubp.personalRating IS NOT NULL " +
+                "AND ubp.book.id IN (SELECT b.id FROM BookEntity b WHERE (b.deleted IS NULL OR b.deleted = false) " +
+                "AND b.bookFiles IS NOT EMPTY " +
+                scopeClause + ") " +
+                "GROUP BY 1 ORDER BY 1 DESC";
+        var prQ = entityManager.createQuery(personalRatingQuery, Tuple.class);
+        prQ.setParameter("userId", userId);
+        setFilterQueryParams(prQ, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
+        List<AppFilterOptions.CountedOption> personalRatings = prQ.getResultList().stream()
+                .map(t -> new AppFilterOptions.CountedOption(t.get(0, String.class), t.get(1, Long.class)))
+                .toList();
+
+        List<AppFilterOptions.CountedOption> amazonRatings = queryRatingBuckets("m.amazonRating", scopeClause, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
+        List<AppFilterOptions.CountedOption> goodreadsRatings = queryRatingBuckets("m.goodreadsRating", scopeClause, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
+        List<AppFilterOptions.CountedOption> hardcoverRatings = queryRatingBuckets("m.hardcoverRating", scopeClause, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
+
+        List<AppFilterOptions.CountedOption> pageCounts = queryGroupedCount(
+                "CASE " +
+                "  WHEN m.pageCount < 50 THEN '0' " +
+                "  WHEN m.pageCount < 100 THEN '1' " +
+                "  WHEN m.pageCount < 200 THEN '2' " +
+                "  WHEN m.pageCount < 400 THEN '3' " +
+                "  WHEN m.pageCount < 600 THEN '4' " +
+                "  WHEN m.pageCount < 1000 THEN '5' " +
+                "  ELSE '6' " +
+                "END",
+                "JOIN b.metadata m", "AND m.pageCount IS NOT NULL",
+                scopeClause, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
+
+        List<AppFilterOptions.CountedOption> shelfStatuses = queryGroupedCount(
+                "CASE WHEN (SELECT COUNT(s) FROM b.shelves s) > 0 THEN 'shelved' ELSE 'unshelved' END",
+                "", "",
+                scopeClause, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
+
+        List<AppFilterOptions.CountedOption> comicCharacters = queryCountedOptions(
+                "c.name", "JOIN b.metadata m JOIN m.comicMetadata cm JOIN cm.characters c", "",
+                scopeClause, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
+
+        List<AppFilterOptions.CountedOption> comicTeams = queryCountedOptions(
+                "t.name", "JOIN b.metadata m JOIN m.comicMetadata cm JOIN cm.teams t", "",
+                scopeClause, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
+
+        List<AppFilterOptions.CountedOption> comicLocations = queryCountedOptions(
+                "l.name", "JOIN b.metadata m JOIN m.comicMetadata cm JOIN cm.locations l", "",
+                scopeClause, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
+
+        // Comic Creators — uses creatorMappings join table with role enum
+        String creatorJpql = "SELECT cr.name, mapping.role, COUNT(DISTINCT b.id) FROM BookEntity b"
+                + " JOIN b.metadata m JOIN m.comicMetadata cm JOIN cm.creatorMappings mapping JOIN mapping.creator cr"
+                + " WHERE (b.deleted IS NULL OR b.deleted = false)"
+                + " AND b.bookFiles IS NOT EMPTY"
+                + " " + scopeClause
+                + " GROUP BY cr.name, mapping.role ORDER BY COUNT(DISTINCT b.id) DESC";
+        var creatorQ = entityManager.createQuery(creatorJpql, Tuple.class);
+        setFilterQueryParams(creatorQ, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
+        creatorQ.setMaxResults(1000);
+        List<AppFilterOptions.CountedOption> allCreators = creatorQ.getResultList().stream()
+                .map(t -> {
+                    String name = t.get(0, String.class);
+                    ComicCreatorRole role = t.get(1, ComicCreatorRole.class);
+                    long count = t.get(2, Long.class);
+                    return new AppFilterOptions.CountedOption(name + ":" + creatorRoleLabel(role), count);
+                })
+                .toList();
+
+        List<AppFilterOptions.CountedOption> shelves = queryCountedOptions(
+                "CAST(s.id AS string) || ':' || s.name", "JOIN b.shelves s", "",
+                scopeClause, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
+
+        List<AppFilterOptions.CountedOption> libraries = queryCountedOptions(
+                "CAST(l.id AS string) || ':' || l.name", "JOIN b.library l", "",
+                scopeClause, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
+
         AppFilterOptions result = AppFilterOptions.builder()
                 .authors(authors)
                 .languages(languages)
@@ -465,84 +627,60 @@ public class AppBookService {
                 .tags(tags)
                 .moods(moods)
                 .narrators(narrators)
+                .ageRatings(ageRatings)
+                .contentRatings(contentRatings)
+                .matchScores(matchScores)
+                .publishedYears(publishedYears)
+                .fileSizes(fileSizes)
+                .personalRatings(personalRatings)
+                .amazonRatings(amazonRatings)
+                .goodreadsRatings(goodreadsRatings)
+                .hardcoverRatings(hardcoverRatings)
+                .pageCounts(pageCounts)
+                .shelfStatuses(shelfStatuses)
+                .comicCharacters(comicCharacters)
+                .comicTeams(comicTeams)
+                .comicLocations(comicLocations)
+                .comicCreators(allCreators)
+                .shelves(shelves)
+                .libraries(libraries)
                 .build();
         filterOptionsCache.put(cacheKey, result);
         return result;
     }
 
-    private List<AppFilterOptions.CountedOption> queryCountedOptions(
-            String selectExpr, String joins, String extraWhere,
-            String scopeClause, Set<Long> accessibleLibraryIds,
-            Long libraryId, Long shelfId, Set<Long> magicBookIds) {
-        String jpql = "SELECT " + selectExpr + ", COUNT(DISTINCT b.id) FROM BookEntity b"
-                + " " + joins
-                + " WHERE (b.deleted IS NULL OR b.deleted = false)"
-                + " AND b.bookFiles IS NOT EMPTY"
-                + (extraWhere.isEmpty() ? "" : " " + extraWhere)
-                + scopeClause
-                + " GROUP BY " + selectExpr + " ORDER BY COUNT(DISTINCT b.id) DESC";
-        var q = entityManager.createQuery(jpql, Tuple.class);
-        setFilterQueryParams(q, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
-        q.setMaxResults(200);
-        return q.getResultList().stream()
-                .map(t -> new AppFilterOptions.CountedOption(t.get(0, String.class), t.get(1, Long.class)))
-                .toList();
-    }
-
-    private String buildScopeClause(String libraryClause, String shelfClause, String magicBookClause) {
-        var sb = new StringBuilder();
-        if (!libraryClause.isEmpty()) sb.append(" ").append(libraryClause);
-        if (!shelfClause.isEmpty()) sb.append(" ").append(shelfClause);
-        if (!magicBookClause.isEmpty()) sb.append(" ").append(magicBookClause);
-        return sb.toString();
-    }
-
-    private void setFilterQueryParams(jakarta.persistence.Query query, Set<Long> accessibleLibraryIds, Long libraryId, Long shelfId, Set<Long> magicBookIds) {
-        if (libraryId != null) {
-            query.setParameter("libraryId", libraryId);
-        } else if (accessibleLibraryIds != null) {
-            query.setParameter("libraryIds", accessibleLibraryIds);
-        }
-        if (shelfId != null && magicBookIds == null) {
-            query.setParameter("shelfId", shelfId);
-        }
-        if (magicBookIds != null) {
-            query.setParameter("magicBookIds", magicBookIds);
-        }
-    }
-
-    private Set<Long> resolveMagicShelfBookIds(Long magicShelfId, Long userId) {
-        Specification<BookEntity> spec = magicShelfBookService.toSpecification(userId, magicShelfId);
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-        Root<BookEntity> root = cq.from(BookEntity.class);
-        cq.select(root.get("id"));
-        cq.where(spec.toPredicate(root, cq, cb));
-        return new HashSet<>(entityManager.createQuery(cq)
-                .getResultList());
-    }
-
-    private List<AppFilterOptions.CountedOption> queryReadStatusCounts(
-            Long userId, String scopeClause, Set<Long> accessibleLibraryIds,
-            Long libraryId, Long shelfId, Set<Long> magicBookIds) {
-        String jpql = "SELECT ubp.readStatus, COUNT(DISTINCT ubp.book.id) FROM UserBookProgressEntity ubp"
-                + " WHERE ubp.user.id = :userId"
-                + " AND ubp.readStatus <> org.booklore.model.enums.ReadStatus.UNSET"
-                + " AND ubp.book.id IN ("
-                + "   SELECT b.id FROM BookEntity b"
-                + "   WHERE (b.deleted IS NULL OR b.deleted = false)"
-                + "   AND b.bookFiles IS NOT EMPTY"
-                + scopeClause
-                + " )"
-                + " GROUP BY ubp.readStatus ORDER BY COUNT(DISTINCT ubp.book.id) DESC";
-        var q = entityManager.createQuery(jpql, Tuple.class);
-        q.setParameter("userId", userId);
-        setFilterQueryParams(q, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
-        return q.getResultList().stream()
-                .map(t -> new AppFilterOptions.CountedOption(
-                        t.get(0, ReadStatus.class).name(),
-                        t.get(1, Long.class)))
-                .toList();
+    private AppFilterOptions emptyFilterOptions(String cacheKey) {
+        AppFilterOptions empty = AppFilterOptions.builder()
+                .authors(Collections.emptyList())
+                .languages(Collections.emptyList())
+                .fileTypes(Collections.emptyList())
+                .readStatuses(Collections.emptyList())
+                .categories(Collections.emptyList())
+                .publishers(Collections.emptyList())
+                .series(Collections.emptyList())
+                .tags(Collections.emptyList())
+                .moods(Collections.emptyList())
+                .narrators(Collections.emptyList())
+                .ageRatings(Collections.emptyList())
+                .contentRatings(Collections.emptyList())
+                .matchScores(Collections.emptyList())
+                .publishedYears(Collections.emptyList())
+                .fileSizes(Collections.emptyList())
+                .personalRatings(Collections.emptyList())
+                .amazonRatings(Collections.emptyList())
+                .goodreadsRatings(Collections.emptyList())
+                .hardcoverRatings(Collections.emptyList())
+                .pageCounts(Collections.emptyList())
+                .shelfStatuses(Collections.emptyList())
+                .comicCharacters(Collections.emptyList())
+                .comicTeams(Collections.emptyList())
+                .comicLocations(Collections.emptyList())
+                .comicCreators(Collections.emptyList())
+                .shelves(Collections.emptyList())
+                .libraries(Collections.emptyList())
+                .build();
+        filterOptionsCache.put(cacheKey, empty);
+        return empty;
     }
 
     @Transactional
@@ -730,6 +868,125 @@ public class AppBookService {
             }
         }
 
+        if (req.ageRating() != null && !req.ageRating().isEmpty()) {
+            List<String> cleaned = BookListRequest.cleanValues(req.ageRating());
+            if (!cleaned.isEmpty()) {
+                specs.add(AppBookSpecification.withAgeRatings(cleaned, req.effectiveFilterMode()));
+            }
+        }
+
+        if (req.contentRating() != null && !req.contentRating().isEmpty()) {
+            List<String> cleaned = BookListRequest.cleanValues(req.contentRating());
+            if (!cleaned.isEmpty()) {
+                specs.add(AppBookSpecification.withContentRatings(cleaned, req.effectiveFilterMode()));
+            }
+        }
+
+        if (req.matchScore() != null && !req.matchScore().isEmpty()) {
+            List<String> cleaned = BookListRequest.cleanValues(req.matchScore());
+            if (!cleaned.isEmpty()) {
+                specs.add(AppBookSpecification.withMatchScores(cleaned, req.effectiveFilterMode()));
+            }
+        }
+
+        if (req.publishedDate() != null && !req.publishedDate().isEmpty()) {
+            List<String> cleaned = BookListRequest.cleanValues(req.publishedDate());
+            if (!cleaned.isEmpty()) {
+                specs.add(AppBookSpecification.withPublishedYears(cleaned, req.effectiveFilterMode()));
+            }
+        }
+
+        if (req.fileSize() != null && !req.fileSize().isEmpty()) {
+            List<String> cleaned = BookListRequest.cleanValues(req.fileSize());
+            if (!cleaned.isEmpty()) {
+                specs.add(AppBookSpecification.withFileSizes(cleaned, req.effectiveFilterMode()));
+            }
+        }
+
+        if (req.personalRating() != null && !req.personalRating().isEmpty()) {
+            List<String> cleaned = BookListRequest.cleanValues(req.personalRating());
+            if (!cleaned.isEmpty()) {
+                specs.add(AppBookSpecification.withPersonalRatings(cleaned, userId, req.effectiveFilterMode()));
+            }
+        }
+
+        if (req.amazonRating() != null && !req.amazonRating().isEmpty()) {
+            List<String> cleaned = BookListRequest.cleanValues(req.amazonRating());
+            if (!cleaned.isEmpty()) {
+                specs.add(AppBookSpecification.withAmazonRatings(cleaned, req.effectiveFilterMode()));
+            }
+        }
+
+        if (req.goodreadsRating() != null && !req.goodreadsRating().isEmpty()) {
+            List<String> cleaned = BookListRequest.cleanValues(req.goodreadsRating());
+            if (!cleaned.isEmpty()) {
+                specs.add(AppBookSpecification.withGoodreadsRatings(cleaned, req.effectiveFilterMode()));
+            }
+        }
+
+        if (req.hardcoverRating() != null && !req.hardcoverRating().isEmpty()) {
+            List<String> cleaned = BookListRequest.cleanValues(req.hardcoverRating());
+            if (!cleaned.isEmpty()) {
+                specs.add(AppBookSpecification.withHardcoverRatings(cleaned, req.effectiveFilterMode()));
+            }
+        }
+
+        if (req.pageCount() != null && !req.pageCount().isEmpty()) {
+            List<String> cleaned = BookListRequest.cleanValues(req.pageCount());
+            if (!cleaned.isEmpty()) {
+                specs.add(AppBookSpecification.withPageCounts(cleaned, req.effectiveFilterMode()));
+            }
+        }
+
+        if (req.shelfStatus() != null && !req.shelfStatus().isEmpty()) {
+            List<String> cleaned = BookListRequest.cleanValues(req.shelfStatus());
+            if (!cleaned.isEmpty()) {
+                specs.add(AppBookSpecification.withShelfStatus(cleaned, req.effectiveFilterMode()));
+            }
+        }
+
+        if (req.comicCharacter() != null && !req.comicCharacter().isEmpty()) {
+            List<String> cleaned = BookListRequest.cleanValues(req.comicCharacter());
+            if (!cleaned.isEmpty()) {
+                specs.add(AppBookSpecification.withComicCharacters(cleaned, req.effectiveFilterMode()));
+            }
+        }
+
+        if (req.comicTeam() != null && !req.comicTeam().isEmpty()) {
+            List<String> cleaned = BookListRequest.cleanValues(req.comicTeam());
+            if (!cleaned.isEmpty()) {
+                specs.add(AppBookSpecification.withComicTeams(cleaned, req.effectiveFilterMode()));
+            }
+        }
+
+        if (req.comicLocation() != null && !req.comicLocation().isEmpty()) {
+            List<String> cleaned = BookListRequest.cleanValues(req.comicLocation());
+            if (!cleaned.isEmpty()) {
+                specs.add(AppBookSpecification.withComicLocations(cleaned, req.effectiveFilterMode()));
+            }
+        }
+
+        if (req.comicCreator() != null && !req.comicCreator().isEmpty()) {
+            List<String> cleaned = BookListRequest.cleanValues(req.comicCreator());
+            if (!cleaned.isEmpty()) {
+                specs.add(AppBookSpecification.withComicCreators(cleaned, req.effectiveFilterMode()));
+            }
+        }
+
+        if (req.shelves() != null && !req.shelves().isEmpty()) {
+            List<String> cleaned = BookListRequest.cleanValues(req.shelves());
+            if (!cleaned.isEmpty()) {
+                specs.add(AppBookSpecification.inShelves(cleaned, req.effectiveFilterMode()));
+            }
+        }
+
+        if (req.libraries() != null && !req.libraries().isEmpty()) {
+            List<String> cleaned = BookListRequest.cleanValues(req.libraries());
+            if (!cleaned.isEmpty()) {
+                specs.add(AppBookSpecification.inLibraries(cleaned, req.effectiveFilterMode()));
+            }
+        }
+
         return AppBookSpecification.combine(specs.toArray(new Specification[0]));
     }
 
@@ -811,5 +1068,147 @@ public class AppBookService {
                 .map(BookEntity::getId)
                 .collect(Collectors.toSet());
         return getProgressMap(userId, bookIds);
+    }
+
+    private List<AppFilterOptions.CountedOption> queryCountedOptions(
+            String selectExpr, String joins, String extraWhere,
+            String scopeClause, Set<Long> accessibleLibraryIds,
+            Long libraryId, Long shelfId, Set<Long> magicBookIds) {
+        String jpql = "SELECT " + selectExpr + ", COUNT(DISTINCT b.id) FROM BookEntity b"
+                + " " + joins
+                + " WHERE (b.deleted IS NULL OR b.deleted = false)"
+                + " AND b.bookFiles IS NOT EMPTY"
+                + (extraWhere.isEmpty() ? "" : " " + extraWhere)
+                + " " + scopeClause
+                + " GROUP BY " + selectExpr + " ORDER BY COUNT(DISTINCT b.id) DESC";
+        var q = entityManager.createQuery(jpql, Tuple.class);
+        setFilterQueryParams(q, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
+        q.setMaxResults(1000);
+        return q.getResultList().stream()
+                .map(this::mapToCountedOption)
+                .toList();
+    }
+
+    private String buildScopeClause(String libraryClause, String shelfClause, String magicBookClause) {
+        var sb = new StringBuilder();
+        if (!libraryClause.isEmpty()) sb.append(" ").append(libraryClause);
+        if (!shelfClause.isEmpty()) sb.append(" ").append(shelfClause);
+        if (!magicBookClause.isEmpty()) sb.append(" ").append(magicBookClause);
+        return sb.toString();
+    }
+
+    private void setFilterQueryParams(jakarta.persistence.Query query, Set<Long> accessibleLibraryIds, Long libraryId, Long shelfId, Set<Long> magicBookIds) {
+        if (libraryId != null) {
+            query.setParameter("libraryId", libraryId);
+        } else if (accessibleLibraryIds != null) {
+            query.setParameter("libraryIds", accessibleLibraryIds);
+        }
+        if (shelfId != null && magicBookIds == null) {
+            query.setParameter("shelfId", shelfId);
+        }
+        if (magicBookIds != null) {
+            query.setParameter("magicBookIds", magicBookIds);
+        }
+    }
+
+    private Set<Long> resolveMagicShelfBookIds(Specification<BookEntity> spec) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<BookEntity> root = cq.from(BookEntity.class);
+        cq.select(root.get("id"));
+        cq.where(spec.toPredicate(root, cq, cb));
+        return new HashSet<>(entityManager.createQuery(cq)
+                .getResultList());
+    }
+
+    private List<AppFilterOptions.CountedOption> queryReadStatusCounts(
+            Long userId, String scopeClause, Set<Long> accessibleLibraryIds,
+            Long libraryId, Long shelfId, Set<Long> magicBookIds) {
+        String jpql = "SELECT ubp.readStatus, COUNT(DISTINCT ubp.book.id) FROM UserBookProgressEntity ubp"
+                + " WHERE ubp.user.id = :userId"
+                + " AND ubp.readStatus <> org.booklore.model.enums.ReadStatus.UNSET"
+                + " AND ubp.book.id IN ("
+                + "   SELECT b.id FROM BookEntity b"
+                + "   WHERE (b.deleted IS NULL OR b.deleted = false)"
+                + "   AND b.bookFiles IS NOT EMPTY"
+                + " " + scopeClause
+                + " )"
+                + " GROUP BY ubp.readStatus ORDER BY COUNT(DISTINCT ubp.book.id) DESC";
+        var q = entityManager.createQuery(jpql, Tuple.class);
+        q.setParameter("userId", userId);
+        setFilterQueryParams(q, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
+        List<AppFilterOptions.CountedOption> options = q.getResultList().stream()
+                .map(t -> new AppFilterOptions.CountedOption(
+                        t.get(0, ReadStatus.class).name(),
+                        t.get(1, Long.class)))
+                .toList();
+
+        String baseQuery = "SELECT COUNT(DISTINCT b.id) FROM BookEntity b"
+                + " WHERE (b.deleted IS NULL OR b.deleted = false)"
+                + " AND b.bookFiles IS NOT EMPTY"
+                + " AND b.id NOT IN ("
+                + "   SELECT ubp.book.id FROM UserBookProgressEntity ubp WHERE ubp.user.id = :userId"
+                + " )"
+                + " " + scopeClause;
+        var baseQ = entityManager.createQuery(baseQuery, Long.class);
+        baseQ.setParameter("userId", userId);
+        setFilterQueryParams(baseQ, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
+        long unsetCount = baseQ.getSingleResult();
+
+        if (unsetCount > 0) {
+            List<AppFilterOptions.CountedOption> mutable = new ArrayList<>(options);
+            mutable.addFirst(new AppFilterOptions.CountedOption("UNSET", unsetCount));
+            return List.copyOf(mutable);
+        }
+        return options;
+    }
+
+    private List<AppFilterOptions.CountedOption> queryRatingBuckets(
+            String ratingExpr, String scopeClause, Set<Long> accessibleLibraryIds,
+            Long libraryId, Long shelfId, Set<Long> magicBookIds) {
+        return queryGroupedCount(
+                "CASE " +
+                "  WHEN " + ratingExpr + " >= 4.5 THEN '5' " +
+                "  WHEN " + ratingExpr + " >= 4.0 THEN '4' " +
+                "  WHEN " + ratingExpr + " >= 3.0 THEN '3' " +
+                "  WHEN " + ratingExpr + " >= 2.0 THEN '2' " +
+                "  WHEN " + ratingExpr + " >= 1.0 THEN '1' " +
+                "  ELSE '0' " +
+                "END",
+                "JOIN b.metadata m", "AND " + ratingExpr + " IS NOT NULL",
+                scopeClause, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
+    }
+
+    private List<AppFilterOptions.CountedOption> queryGroupedCount(
+            String caseExpr, String joins, String extraWhere,
+            String scopeClause, Set<Long> accessibleLibraryIds,
+            Long libraryId, Long shelfId, Set<Long> magicBookIds) {
+        String jpql = "SELECT " + caseExpr + ", COUNT(DISTINCT b.id) FROM BookEntity b " + joins +
+                " WHERE (b.deleted IS NULL OR b.deleted = false) AND b.bookFiles IS NOT EMPTY "
+                + extraWhere + " " + scopeClause +
+                " GROUP BY 1";
+        var q = entityManager.createQuery(jpql, Tuple.class);
+        setFilterQueryParams(q, accessibleLibraryIds, libraryId, shelfId, magicBookIds);
+        return q.getResultList().stream()
+                .filter(t -> t.get(0) != null)
+                .map(this::mapToCountedOption)
+                .toList();
+    }
+
+    private AppFilterOptions.CountedOption mapToCountedOption(Tuple t) {
+        Object val = t.get(0);
+        String name = val instanceof Enum<?> e ? e.name() : val != null ? String.valueOf(val) : null;
+        return new AppFilterOptions.CountedOption(name, t.get(1, Long.class));
+    }
+
+    private static String creatorRoleLabel(ComicCreatorRole role) {
+        return switch (role) {
+            case PENCILLER -> "penciller";
+            case INKER -> "inker";
+            case COLORIST -> "colorist";
+            case LETTERER -> "letterer";
+            case COVER_ARTIST -> "coverArtist";
+            case EDITOR -> "editor";
+        };
     }
 }

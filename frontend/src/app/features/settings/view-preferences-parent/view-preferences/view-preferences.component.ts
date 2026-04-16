@@ -1,4 +1,5 @@
-import {Component, effect, ElementRef, inject, Injector, OnDestroy, OnInit, viewChild} from '@angular/core';
+import {Component, DestroyRef, effect, ElementRef, inject, Injector, OnInit, viewChild} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Button} from 'primeng/button';
 
 import {MessageService} from 'primeng/api';
@@ -8,11 +9,9 @@ import {DEFAULT_VISIBLE_SORT_FIELDS, SortCriterion, User, UserService} from '../
 import {LibraryService} from '../../../book/service/library.service';
 import {ShelfService} from '../../../book/service/shelf.service';
 import {MagicShelfService} from '../../../magic-shelf/service/magic-shelf.service';
-import {Subject} from 'rxjs';
 import {FormsModule} from '@angular/forms';
 
 import {Tooltip} from 'primeng/tooltip';
-import {takeUntil} from 'rxjs/operators';
 import {ToggleSwitch} from 'primeng/toggleswitch';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {SortDirection, SortOption} from '../../../book/model/sort.model';
@@ -40,7 +39,7 @@ import {CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, moveItemInArray} from 
   templateUrl: './view-preferences.component.html',
   styleUrl: './view-preferences.component.scss'
 })
-export class ViewPreferencesComponent implements OnInit, OnDestroy {
+export class ViewPreferencesComponent implements OnInit {
   private t = inject(TranslocoService);
 
   private readonly sortOptionDefs: {field: string; translationKey: string}[] = [
@@ -125,7 +124,7 @@ export class ViewPreferencesComponent implements OnInit, OnDestroy {
   }[] = [];
 
   private user: User | null = null;
-  private readonly destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
   private libraryService = inject(LibraryService);
@@ -138,7 +137,7 @@ export class ViewPreferencesComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.rebuildTranslatedLabels();
-    this.t.langChanges$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+    this.t.langChanges$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.rebuildTranslatedLabels();
       this.allSortAsOptions = this.sortOptions.map(o => ({
         label: this.t.translate('settingsView.librarySort.' + o.translationKey),
@@ -215,11 +214,6 @@ export class ViewPreferencesComponent implements OnInit, OnDestroy {
       {label: this.t.translate('settingsView.librarySort.viewGrid'), value: 'GRID', translationKey: 'viewGrid'},
       {label: this.t.translate('settingsView.librarySort.viewTable'), value: 'TABLE', translationKey: 'viewTable'}
     ];
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   getAvailableEntities(index: number, type: 'LIBRARY' | 'SHELF' | 'MAGIC_SHELF') {

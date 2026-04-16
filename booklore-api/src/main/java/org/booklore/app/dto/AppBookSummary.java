@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -31,4 +32,12 @@ public class AppBookSummary {
     private Instant coverUpdatedOn;
     private Instant audiobookCoverUpdatedOn;
     private Boolean isPhysical;
+
+    // Metadata for filtering
+    private LocalDate publishedDate;
+    private Integer pageCount;
+    private Integer ageRating;
+    private String contentRating;
+    private Float metadataMatchScore;
+    private Long fileSizeKb;
 }

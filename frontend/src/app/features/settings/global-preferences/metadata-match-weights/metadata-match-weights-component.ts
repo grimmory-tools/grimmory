@@ -1,4 +1,5 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MessageService} from 'primeng/api';
 import {MetadataMatchWeightsService} from '../../../../shared/service/metadata-match-weights.service';
@@ -39,6 +40,7 @@ export class MetadataMatchWeightsComponent implements OnInit {
   private messageService = inject(MessageService);
   private fb = inject(FormBuilder);
   private t = inject(TranslocoService);
+  private destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     this.form = this.fb.group({
@@ -95,7 +97,9 @@ export class MetadataMatchWeightsComponent implements OnInit {
       }
     ];
 
-    this.appSettingsService.saveSettings(payload).subscribe({
+    this.appSettingsService.saveSettings(payload).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',
@@ -117,7 +121,9 @@ export class MetadataMatchWeightsComponent implements OnInit {
 
   recalculate(): void {
     this.isRecalculating = true;
-    this.weightsService.recalculateAll().subscribe({
+    this.weightsService.recalculateAll().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',

@@ -276,11 +276,14 @@ public class KoboEntitlementService {
     }
 
     public KoboBookMetadata getMetadataForBook(long bookId, String token) {
-        List<BookEntity> books = bookQueryService.findAllWithMetadataByIds(Set.of(bookId))
+        Optional<BookEntity> book = bookQueryService.findAllWithMetadataByIds(Set.of(bookId))
                 .stream()
                 .filter(koboCompatibilityService::isBookSupportedForKobo)
-                .toList();
-        return mapToKoboMetadata(books.getFirst(), token);
+                .findFirst();
+
+        return book
+                .map(bookEntity -> mapToKoboMetadata(bookEntity, token))
+                .orElse(null);
     }
 
     private KoboBookMetadata mapToKoboMetadata(BookEntity book, String token) {

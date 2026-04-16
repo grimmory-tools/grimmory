@@ -93,6 +93,18 @@
   let registry = null;
   const myOrigin = location.origin;
 
+  function applyLocale(i18n, locale) {
+    if (!i18n) return;
+
+    const requestedLocale = locale || 'en';
+    if (i18n.hasLocale?.(requestedLocale)) {
+      i18n.setLocale?.(requestedLocale);
+      return;
+    }
+
+    i18n.setLocale?.('en');
+  }
+
   function log(...args) {
     console.log('[EmbedPDF-frame]', ...args);
     parent.postMessage({
@@ -153,6 +165,20 @@
       }
 
       [class*="border-t"][class*="bg-bg-surface"][class*="px-4"][class*="py-1"] {
+        display: none !important;
+      }
+
+      /* Hide bottom notification / popup bar */
+      [class*="fixed"][class*="bottom-"],
+      [class*="absolute"][class*="bottom-"],
+      [class*="snackbar"],
+      [class*="toast"],
+      [class*="notification"],
+      [class*="bottom-bar"],
+      [class*="status-bar"],
+      [class*="statusbar"],
+      footer,
+      [class*="footer"] {
         display: none !important;
       }
 
@@ -284,6 +310,10 @@
       viewer = EmbedPDF.init({
         type: 'container',
         target: target,
+        i18n: {
+          defaultLocale: msg.locale || 'en',
+          fallbackLocale: 'en',
+        },
         disabledCategories: [
           'document-open',
           'document-close',
@@ -303,6 +333,7 @@
 
       try {
         registry = await viewer.registry;
+        applyLocale(registry.getPlugin('i18n')?.provides?.(), msg.locale);
         const dm = registry.getPlugin('document-manager')?.provides();
         if (dm) {
           dm.onDocumentOpened?.((ev) => {
@@ -397,6 +428,10 @@
 
     if (msg.type === 'setTheme') {
       viewer?.setTheme?.(msg.theme);
+    }
+
+    if (msg.type === 'setLocale') {
+      applyLocale(registry?.getPlugin('i18n')?.provides?.(), msg.locale);
     }
 
     if (msg.type === 'scrollToPage') {
