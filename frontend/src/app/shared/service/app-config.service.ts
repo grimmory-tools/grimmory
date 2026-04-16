@@ -359,7 +359,7 @@ export class AppConfigService {
     }
     return {
       preset: 'Aura',
-      primary: 'green',
+      primary: 'orange',
       surface: 'ash',
     };
   }
@@ -376,7 +376,7 @@ export class AppConfigService {
 
   getPresetExt(): object {
     const surfacePalette = this.getSurfacePalette(this.appState().surface ?? 'neutral');
-    const primaryName = this.appState().primary ?? 'green';
+    const primaryName = this.appState().primary ?? 'orange';
     const presetPalette = (Aura.primitive ?? {}) as Record<string, ColorPalette>;
     const color = presetPalette[primaryName] ?? {};
 
@@ -440,7 +440,7 @@ export class AppConfigService {
 
   private applyDesignTokens(): void {
     const style = this.document.documentElement.style;
-    const primaryName = this.appState().primary ?? 'green';
+    const primaryName = this.appState().primary ?? 'orange';
     const surfaceName = this.appState().surface ?? 'ash';
     const surface = this.getSurfacePalette(surfaceName);
     const primary = ((Aura.primitive ?? {}) as Record<string, ColorPalette>)[primaryName] ?? {};
@@ -449,11 +449,11 @@ export class AppConfigService {
     const primary400 = isNoir ? surface['50'] : primary['400'];
     const primary500 = isNoir ? surface['50'] : (primary['500'] ?? primary['400']);
 
-    style.setProperty('--primary-color', primary400 ?? '#4ade80');
+    style.setProperty('--primary-color', primary400 ?? '#fb923c');
     style.setProperty('--primary-color-rgb', this.toRgbChannels(primary500));
     style.setProperty('--primary-contrast-color', isNoir ? (surface['950'] ?? '#0d1012') : (surface['900'] ?? '#1a1e21'));
-    style.setProperty('--primary-hover-color', isNoir ? (surface['200'] ?? '#d3d8de') : (primary['300'] ?? primary400 ?? '#86efac'));
-    style.setProperty('--primary-text-color', primary400 ?? '#4ade80');
+    style.setProperty('--primary-hover-color', isNoir ? (surface['200'] ?? '#d3d8de') : (primary['300'] ?? primary400 ?? '#fdba74'));
+    style.setProperty('--primary-text-color', primary400 ?? '#fb923c');
     style.setProperty('--primary-text-color-dark', isNoir ? (surface['950'] ?? '#0d1012') : (primary['900'] ?? '#14532d'));
 
     style.setProperty('--ground-background', surface['950'] ?? '#0d1012');

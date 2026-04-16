@@ -44,7 +44,7 @@ describe('AppConfigService', () => {
   });
 
   it('applies the default app-owned tokens on init', () => {
-    expect(rootStyle.getPropertyValue('--primary-color')).toBe('#4ade80');
+    expect(rootStyle.getPropertyValue('--primary-color')).toBe('#fb923c');
     expect(rootStyle.getPropertyValue('--ground-background')).toBe('#0d1012');
     expect(rootStyle.getPropertyValue('--content-border-color')).toBe('#464f56');
   });
