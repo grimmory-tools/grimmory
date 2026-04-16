@@ -25,6 +25,49 @@ class LibraryFileHelperTest {
     Path tempDir;
 
     @Test
+    void testGetAllLibraryFiles_IncludesAudiobookFolderFiles() throws IOException {
+        Path authorFolder = tempDir.resolve("author");
+        Path bookFolder = authorFolder.resolve("title");
+        Path otherBookFolder = authorFolder.resolve("other");
+
+        Files.createDirectories(bookFolder);
+        Files.createDirectories(otherBookFolder);
+
+        Files.write(bookFolder.resolve("a.mp3"), new byte[]{1});
+        Files.write(bookFolder.resolve("b.mp3"), new byte[]{1});
+        Files.write(otherBookFolder.resolve("c.mp3"), new byte[]{1});
+
+        LibraryPathEntity libraryPath = new LibraryPathEntity();
+        libraryPath.setId(10L);
+        libraryPath.setPath(tempDir.toString());
+
+        LibraryEntity testLibrary = LibraryEntity.builder()
+                .name("Test Library")
+                .icon("book")
+                .watch(false)
+                .libraryPaths(List.of(libraryPath))
+                .build();
+
+        LibraryFileHelper libraryFileHelper = new LibraryFileHelper();
+        List<LibraryFile> libraryFiles = libraryFileHelper.getLibraryFiles(testLibrary);
+
+        List<String> actual = libraryFiles
+                .stream()
+                .map(LibraryFile::getFullPath)
+                .map(p -> tempDir.relativize(p))
+                .map(Path::toString)
+                .sorted()
+                .toList();
+
+        List<String> expected = List.of(
+                "author/other/c.mp3",
+                "author/title"
+        );
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
     void testGetLibraryFiles_HandlesInaccessibleDirectories() throws IOException {
         LibraryFileHelper libraryFileHelper = new LibraryFileHelper();
 
