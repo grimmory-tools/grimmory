@@ -1,6 +1,8 @@
-.topbar-logo {
-  padding-left: 1.25rem;
-  padding-right: 6rem;
+.layout-topbar-logo.topbar-logo {
+  width: var(--sidebar-width, 225px);
+  min-width: var(--sidebar-width, 225px);
+  justify-content: center;
+  padding-inline: 0;
   gap: 0.5rem;
 }
 
