@@ -44,10 +44,8 @@ just image-build           # Build the production image locally
 Use this document for repo-level workflow, then drop into the component-specific guides when working
 inside a project:
 
-- Backend: [booklore-api/README.md](booklore-api/README.md) and
-  [booklore-api/DEVELOPMENT.md](booklore-api/DEVELOPMENT.md)
-- Frontend: [frontend/README.md](frontend/README.md) and
-  [frontend/DEVELOPMENT.md](frontend/DEVELOPMENT.md)
+- Backend: [booklore-api/DEVELOPMENT.md](booklore-api/DEVELOPMENT.md)
+- Frontend: [frontend/DEVELOPMENT.md](frontend/DEVELOPMENT.md)
 
 ---
 

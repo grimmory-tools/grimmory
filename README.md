@@ -175,15 +175,13 @@ Additional deployment examples:
 
 ## Developer Surfaces
 
-This repository contains two application projects:
 
-- Backend: [`booklore-api/README.md`](booklore-api/README.md)
-- Frontend: [`frontend/README.md`](frontend/README.md)
+Contributor workflow, PR policy, and release semantics live in [CONTRIBUTING.md](CONTRIBUTING.md). 
 
-Contributor workflow, PR policy, and release semantics live in [CONTRIBUTING.md](CONTRIBUTING.md). Component-specific implementation guidance lives in:
+General purpose development guidelines live in [DEVELOPMENT.md](DEVELOPMENT.md). Component-specific implementation guidance lives in:
 
-- [`booklore-api/CONTRIBUTING.md`](booklore-api/CONTRIBUTING.md)
-- [`frontend/CONTRIBUTING.md`](frontend/CONTRIBUTING.md)
+- [`booklore-api/DEVELOPMENT.md`](booklore-api/DEVELOPMENT.md)
+- [`frontend/DEVELOPMENT.md`](frontend/DEVELOPMENT.md)
 
 The root [`Justfile`](Justfile) is the primary local command surface and mirrors the folder-local `booklore-api/Justfile` and `frontend/Justfile` entrypoints.
 
