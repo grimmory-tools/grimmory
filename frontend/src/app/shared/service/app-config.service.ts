@@ -1,6 +1,7 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { effect, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { $t } from '@primeuix/themes';
+import { FaviconService } from '../layout/theme-configurator/favicon-service';
 import Aura from '../layout/theme-palette-extend';
 import { AppState } from '../model/app-state.model';
 
@@ -19,6 +20,7 @@ export class AppConfigService {
   appState = signal<AppState>({});
   document = inject(DOCUMENT);
   platformId = inject(PLATFORM_ID);
+  faviconService = inject(FaviconService);
   private initialized = false;
 
   readonly surfaces: Palette[] = [
@@ -427,6 +429,29 @@ export class AppConfigService {
     };
   }
 
+  getFaviconGradient(): { start: string; end: string } {
+    const primaryName = this.appState().primary ?? 'orange';
+    const presetPalette = (Aura.primitive ?? {}) as Record<string, ColorPalette>;
+    const fallbackPalette = presetPalette['orange'] ?? {};
+
+    if (primaryName === 'noir') {
+      const surfaceName = this.appState().surface ?? 'ash';
+      const surfacePalette = this.getSurfacePalette(surfaceName);
+
+      return {
+        start: surfacePalette['50'] ?? surfacePalette['0'] ?? '#f4f6f8',
+        end: surfacePalette['300'] ?? surfacePalette['200'] ?? '#b4bcc7'
+      };
+    }
+
+    const colorPalette = presetPalette[primaryName] ?? fallbackPalette;
+
+    return {
+      start: colorPalette['300'] ?? colorPalette['500'] ?? '#fdba74',
+      end: colorPalette['500'] ?? colorPalette['700'] ?? '#f97316'
+    };
+  }
+
   onPresetChange(): void {
     if (!isPlatformBrowser(this.platformId)) {
       return;
@@ -436,6 +461,8 @@ export class AppConfigService {
     const preset = this.getPresetExt();
     $t().preset(Aura).preset(preset).surfacePalette(surfacePalette).use({ useDefaultOptions: true });
     this.applyDesignTokens();
+    const faviconGradient = this.getFaviconGradient();
+    this.faviconService.updateFavicon(faviconGradient.start, faviconGradient.end);
   }
 
   private applyDesignTokens(): void {
