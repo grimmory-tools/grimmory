@@ -10,6 +10,13 @@
   margin: 0;
 }
 
+.logo-icon {
+  width: auto;
+  height: 2rem;
+  flex-shrink: 0;
+  transform: translateY(1px);
+}
+
 .topbar-content {
   display: flex;
   align-items: center;
