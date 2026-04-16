@@ -156,14 +156,14 @@ export class BookBrowserComponent implements AfterViewInit {
   private readonly selectedFilterMode = signal<BookFilterMode>('and');
   private readonly sortCriteria = signal<SortOption[]>(this.defaultSortCriteria);
 
-  protected readonly screenWidth = signal(typeof window !== 'undefined' ? window.innerWidth : 1024);
-  protected readonly currentViewMode = signal<string | undefined>(undefined);
-  protected readonly bookTitle = signal('');
-  protected readonly visibleColumns = signal<{ field: string; header: string }[]>([]);
-  protected readonly visibleSortOptions = signal<SortOption[]>([]);
-  protected readonly currentFilterLabel = signal<string | null>(null);
-  protected readonly rawFilterParamFromUrl = signal<string | null>(null);
-  protected readonly mobileColumnCount = signal(3);
+  readonly screenWidth = signal(typeof window !== 'undefined' ? window.innerWidth : 1024);
+  readonly currentViewMode = signal<string | undefined>(undefined);
+  readonly bookTitle = signal('');
+  readonly visibleColumns = signal<{ field: string; header: string }[]>([]);
+  readonly visibleSortOptions = signal<SortOption[]>([]);
+  readonly currentFilterLabel = signal<string | null>(null);
+  readonly rawFilterParamFromUrl = signal<string | null>(null);
+  readonly mobileColumnCount = signal(3);
   private readonly seriesCollapsed = this.seriesCollapseFilter.seriesCollapsed;
   readonly selectedBooks = this.bookSelectionService.selectedBooks;
   readonly selectedCount = this.bookSelectionService.selectedCount;
@@ -401,17 +401,8 @@ export class BookBrowserComponent implements AfterViewInit {
       ? this.t.translate('book.browser.labels.activeFilters', {count: filterEntries.length})
       : filterSummary;
   });
-
-  readonly currentFilterLabel = computed(() => this.computedFilterLabel());
-
-  rawFilterParamFromUrl: string | null = null;
-  visibleColumns: { field: string; header: string }[] = [];
   entityViewPreferences: EntityViewPreferences | undefined;
-  currentViewMode = signal<string | undefined>(undefined);
   lastAppliedSortCriteria: SortOption[] = [];
-  visibleSortOptions: SortOption[] = [];
-  screenWidth = signal(typeof window !== 'undefined' ? window.innerWidth : 1024);
-  mobileColumnCount = signal(3);
 
   private readonly MOBILE_BREAKPOINT = 768;
   private readonly CARD_ASPECT_RATIO = 7 / 5;
@@ -613,34 +604,6 @@ export class BookBrowserComponent implements AfterViewInit {
   readonly isFilterActive = computed(() => {
     const selectedFilter = this.selectedFilter();
     return !!selectedFilter && Object.keys(selectedFilter).length > 0;
-  readonly computedFilterLabel = computed(() => {
-    const filters = this.selectedFilter();
-
-    if (!filters || Object.keys(filters).length === 0) {
-      return this.t.translate('book.browser.labels.allBooks');
-    }
-
-    const filterEntries = Object.entries(filters);
-
-    if (filterEntries.length === 1) {
-      const [filterType, values] = filterEntries[0];
-      const filterName = FilterLabelHelper.getFilterTypeName(filterType);
-
-      if (values.length === 1) {
-        const displayValue = FilterLabelHelper.getFilterDisplayValue(filterType, values[0]);
-        return `${filterName}: ${displayValue}`;
-      }
-
-      return `${filterName} (${values.length})`;
-    }
-
-    const filterSummary = filterEntries
-      .map(([type, values]) => `${FilterLabelHelper.getFilterTypeName(type)} (${values.length})`)
-      .join(', ');
-
-    return filterSummary.length > 50
-      ? this.t.translate('book.browser.labels.activeFilters', {count: filterEntries.length})
-      : filterSummary;
   });
 
   readonly isAudiobookOnlyLibrary = computed(() => {
@@ -649,10 +612,7 @@ export class BookBrowserComponent implements AfterViewInit {
     const library = entity as Library;
     return !!library.allowedFormats && library.allowedFormats.length === 1 && library.allowedFormats[0] === 'AUDIOBOOK';
   });
-    const entity = this.entity();
-    if (!entity || this.entityType() !== EntityType.LIBRARY) return false;
-    const library = entity as Library;
-    return !!library.allowedFormats && library.allowedFormats.length === 1 && library.allowedFormats[0] === 'AUDIOBOOK';
+
   readonly seriesViewEnabled = computed(() => Boolean(this.userService.getCurrentUser()?.userSettings?.enableSeriesView));
 
   readonly hasMetadataMenuItems = computed(() => (this.metadataMenuItems?.length ?? 0) > 0);
@@ -793,7 +753,6 @@ export class BookBrowserComponent implements AfterViewInit {
 
         if (this.bookFilterComponent) {
           this.bookFilterComponent.setFilters?.(parseResult.filters);
-          this.bookFilterComponent.onFiltersChanged?.();
         }
 
         if (Object.keys(parseResult.filters).length > 0) {
@@ -959,16 +918,6 @@ export class BookBrowserComponent implements AfterViewInit {
     this.onMultiSortChange(criteria);
   }
 
-  readonly canSaveSort = computed(() => {
-    const entityType = this.entityType();
-    return entityType === EntityType.LIBRARY ||
-           entityType === EntityType.SHELF ||
-           entityType === EntityType.MAGIC_SHELF ||
-           entityType === EntityType.ALL_BOOKS ||
-           entityType === EntityType.UNSHELVED;
-  });
-
-  readonly hasSearchTerm = computed(() => this.searchTerm().trim().length > 0);
   onSaveSortConfig(criteria: SortOption[]): void {
     const entityType = this.entityType();
     if (!entityType) return;

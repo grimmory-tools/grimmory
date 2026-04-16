@@ -464,9 +464,9 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
         this.updateCurrentImageUrls();
         this.preloadAdjacentPages();
 
-const percentage = this.pages.length > 0 ? Math.round(((this.currentPage + 1) / this.pages.length) * 1000) / 10 : 0;
-this.readingSessionService.startSession(this.bookId, "CBX", (this.currentPage + 1).toString(), percentage);
-this.cdr.markForCheck();
+        const percentage = this.pages().length > 0 ? Math.round(((this.currentPage() + 1) / this.pages().length) * 1000) / 10 : 0;
+        this.readingSessionService.startSession(this.bookId()!, "CBX", (this.currentPage() + 1).toString(), percentage);
+        this.cdr.markForCheck();
       },
       error: (err) => {
         const errorMessage = err?.error?.message || this.t.translate('shared.reader.failedToLoadBook');
@@ -925,8 +925,8 @@ this.cdr.markForCheck();
   }
 
   onImageLoad(): void {
-this.imagesLoaded = true;
-this.cdr.markForCheck();
+    this.imagesLoaded.set(true);
+    this.cdr.markForCheck();
   }
 
   nextPage() {
