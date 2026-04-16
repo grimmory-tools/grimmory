@@ -113,6 +113,7 @@ class LibraryProcessingServiceTest {
                 .build();
 
         when(libraryFileHelper.getLibraryFiles(libraryEntity)).thenReturn(List.of(existingFile, newFile));
+        when(libraryFileHelper.detectNewBookPaths(any(), any(), any())).thenReturn(List.of(newFile));
         when(bookAdditionalFileRepository.findByLibraryId(libraryId)).thenReturn(Collections.emptyList());
 
         // Mock grouping service to pass through the files
@@ -208,6 +209,7 @@ class LibraryProcessingServiceTest {
                 .build();
 
         when(libraryFileHelper.getLibraryFiles(libraryEntity)).thenReturn(List.of(newFile1, newFile2));
+        when(libraryFileHelper.detectNewBookPaths(any(), any(), any())).thenReturn(List.of(newFile1, newFile2));
         when(bookAdditionalFileRepository.findByLibraryId(libraryId)).thenReturn(Collections.emptyList());
         when(bookGroupingService.groupForInitialScan(anyList(), eq(libraryEntity)))
                 .thenAnswer(invocation -> {
@@ -250,6 +252,7 @@ class LibraryProcessingServiceTest {
                 .build();
 
         when(libraryFileHelper.getLibraryFiles(libraryEntity)).thenReturn(List.of(newFileInSub));
+        when(libraryFileHelper.detectNewBookPaths(any(), any(), any())).thenReturn(List.of(newFileInSub));
         when(bookAdditionalFileRepository.findByLibraryId(libraryId)).thenReturn(Collections.emptyList());
         when(bookGroupingService.groupForInitialScan(anyList(), eq(libraryEntity)))
                 .thenAnswer(invocation -> {
@@ -370,6 +373,7 @@ class LibraryProcessingServiceTest {
                 .build();
 
         when(libraryFileHelper.getAllLibraryFiles(libraryEntity)).thenReturn(List.of(epubOnDisk));
+        when(libraryFileHelper.detectDeletedAdditionalFiles(any(), any())).thenReturn(List.of(pdf.getId()));
         when(libraryFileHelper.filterByAllowedFormats(anyList(), any())).thenAnswer(inv -> inv.getArgument(0));
         when(bookAdditionalFileRepository.findByLibraryId(libraryId)).thenReturn(List.of(epub, pdf, image));
         when(bookGroupingService.groupForRescan(anyList(), eq(libraryEntity)))

@@ -1,6 +1,8 @@
 package org.booklore.service.library;
 
 import org.booklore.model.dto.settings.LibraryFile;
+import org.booklore.model.entity.BookEntity;
+import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.LibraryEntity;
 import org.booklore.model.entity.LibraryPathEntity;
 import org.booklore.model.enums.BookFileExtension;
@@ -26,12 +28,82 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
 public class LibraryFileHelper {
 
     private static final int MIN_AUDIO_FILES_FOR_FOLDER_AUDIOBOOK = 2;
+
+    public List<Long> detectDeletedBookIds(List<LibraryFile> libraryFiles, List<BookEntity> books) {
+        Set<Path> currentFullPaths = libraryFiles.stream()
+                .map(LibraryFile::getFullPath)
+                .collect(Collectors.toSet());
+
+        return books.stream()
+                .filter(book -> (book.getDeleted() == null || !book.getDeleted()))
+                .filter(book -> {
+                    // Don't mark fileless books as deleted - they're intentionally without files
+                    if (!book.hasFiles()) {
+                        return false;
+                    }
+                    return !currentFullPaths.contains(book.getFullFilePath());
+                })
+                .map(BookEntity::getId)
+                .collect(Collectors.toList());
+    }
+
+    public List<Long> detectDeletedAdditionalFiles(List<LibraryFile> libraryFiles, List<BookFileEntity> allAdditionalFiles) {
+        Set<String> currentFileKeys = libraryFiles.stream()
+                .map(this::generateUniqueKey)
+                .collect(Collectors.toSet());
+
+        return allAdditionalFiles.stream()
+                .filter(BookFileEntity::isBookFormat)
+                .filter(additionalFile -> !currentFileKeys.contains(generateUniqueKey(additionalFile)))
+                .map(BookFileEntity::getId)
+                .collect(Collectors.toList());
+    }
+
+    public List<LibraryFile> detectNewBookPaths(List<LibraryFile> libraryFiles, List<BookEntity> books, List<BookFileEntity> allAdditionalFiles) {
+        Set<String> existingKeys = books.stream()
+                .filter(book -> book.getBookFiles() != null && !book.getBookFiles().isEmpty())
+                .map(this::generateUniqueKey)
+                .collect(Collectors.toSet());
+
+        Set<String> additionalFileKeys = allAdditionalFiles.stream()
+                .map(this::generateUniqueKey)
+                .collect(Collectors.toSet());
+
+        existingKeys.addAll(additionalFileKeys);
+
+        return libraryFiles.stream()
+                .filter(file -> !existingKeys.contains(generateUniqueKey(file)))
+                .collect(Collectors.toList());
+    }
+
+    private String generateUniqueKey(BookEntity book) {
+        BookFileEntity primaryFile = book.getPrimaryBookFile();
+        if (primaryFile == null) {
+            // Fileless book - use a unique key that won't match any file
+            return "fileless:" + book.getId();
+        }
+        return generateKey(book.getLibraryPath().getId(), primaryFile.getFileSubPath(), primaryFile.getFileName());
+    }
+
+    private String generateUniqueKey(BookFileEntity file) {
+        return generateKey(file.getBook().getLibraryPath().getId(), file.getFileSubPath(), file.getFileName());
+    }
+
+    private String generateUniqueKey(LibraryFile file) {
+        return generateKey(file.getLibraryPathEntity().getId(), file.getFileSubPath(), file.getFileName());
+    }
+
+    private String generateKey(Long libraryPathId, String subPath, String fileName) {
+        String safeSubPath = (subPath == null) ? "" : subPath;
+        return libraryPathId + ":" + safeSubPath + ":" + fileName;
+    }
 
     public List<LibraryFile> getAllLibraryFiles(LibraryEntity libraryEntity) throws IOException {
         List<LibraryFile> allFiles = new ArrayList<>();
