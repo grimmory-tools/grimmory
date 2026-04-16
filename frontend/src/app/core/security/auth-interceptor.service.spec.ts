@@ -182,13 +182,13 @@ describe('AuthInterceptorService', () => {
 
     it('excludes /api/v1/auth/login', async () => {
       authService.getInternalAccessToken.mockReturnValue('token-123');
-      const response = await firstValueFrom(interceptor(new HttpRequest('POST', `${API_CONFIG.BASE_URL}/api/v1/auth/login`), next));
+      const response = await firstValueFrom(interceptor(new HttpRequest('POST', `${API_CONFIG.BASE_URL}/api/v1/auth/login`, null), next));
       expect((response as HttpResponse<boolean>).body).toBe(false);
     });
 
     it('excludes /api/v1/auth/refresh', async () => {
       authService.getInternalAccessToken.mockReturnValue('token-123');
-      const response = await firstValueFrom(interceptor(new HttpRequest('POST', `${API_CONFIG.BASE_URL}/api/v1/auth/refresh`), next));
+      const response = await firstValueFrom(interceptor(new HttpRequest('POST', `${API_CONFIG.BASE_URL}/api/v1/auth/refresh`, null), next));
       expect((response as HttpResponse<boolean>).body).toBe(false);
     });
 
@@ -206,7 +206,7 @@ describe('AuthInterceptorService', () => {
 
     it('excludes /api/v1/auth/oidc/callback', async () => {
       authService.getInternalAccessToken.mockReturnValue('token-123');
-      const response = await firstValueFrom(interceptor(new HttpRequest('POST', `${API_CONFIG.BASE_URL}/api/v1/auth/oidc/callback`), next));
+      const response = await firstValueFrom(interceptor(new HttpRequest('POST', `${API_CONFIG.BASE_URL}/api/v1/auth/oidc/callback`, null), next));
       expect((response as HttpResponse<boolean>).body).toBe(false);
     });
 
