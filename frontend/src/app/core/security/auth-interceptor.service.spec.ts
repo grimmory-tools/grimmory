@@ -176,4 +176,50 @@ describe('AuthInterceptorService', () => {
     expect((firstResponse as HttpResponse<string>).body).toBe('Bearer refreshed-token');
     expect((secondResponse as HttpResponse<string>).body).toBe('Bearer refreshed-token');
   });
+
+  describe('isExcludedAuthRequest', () => {
+    const next = vi.fn((request: HttpRequest<unknown>) => of(new HttpResponse({status: 200, body: request.headers.has('Authorization')})));
+
+    it('excludes /api/v1/auth/login', async () => {
+      authService.getInternalAccessToken.mockReturnValue('token-123');
+      const response = await firstValueFrom(interceptor(new HttpRequest('POST', `${API_CONFIG.BASE_URL}/api/v1/auth/login`), next));
+      expect((response as HttpResponse<boolean>).body).toBe(false);
+    });
+
+    it('excludes /api/v1/auth/refresh', async () => {
+      authService.getInternalAccessToken.mockReturnValue('token-123');
+      const response = await firstValueFrom(interceptor(new HttpRequest('POST', `${API_CONFIG.BASE_URL}/api/v1/auth/refresh`), next));
+      expect((response as HttpResponse<boolean>).body).toBe(false);
+    });
+
+    it('excludes /api/v1/auth/remote', async () => {
+      authService.getInternalAccessToken.mockReturnValue('token-123');
+      const response = await firstValueFrom(interceptor(new HttpRequest('GET', `${API_CONFIG.BASE_URL}/api/v1/auth/remote`), next));
+      expect((response as HttpResponse<boolean>).body).toBe(false);
+    });
+
+    it('excludes /api/v1/auth/oidc/state', async () => {
+      authService.getInternalAccessToken.mockReturnValue('token-123');
+      const response = await firstValueFrom(interceptor(new HttpRequest('GET', `${API_CONFIG.BASE_URL}/api/v1/auth/oidc/state`), next));
+      expect((response as HttpResponse<boolean>).body).toBe(false);
+    });
+
+    it('excludes /api/v1/auth/oidc/callback', async () => {
+      authService.getInternalAccessToken.mockReturnValue('token-123');
+      const response = await firstValueFrom(interceptor(new HttpRequest('POST', `${API_CONFIG.BASE_URL}/api/v1/auth/oidc/callback`), next));
+      expect((response as HttpResponse<boolean>).body).toBe(false);
+    });
+
+    it('does NOT exclude /api/v1/auth/login-history (exact match test)', async () => {
+      authService.getInternalAccessToken.mockReturnValue('token-123');
+      const response = await firstValueFrom(interceptor(new HttpRequest('GET', `${API_CONFIG.BASE_URL}/api/v1/auth/login-history`), next));
+      expect((response as HttpResponse<boolean>).body).toBe(true);
+    });
+
+    it('does NOT exclude /api/v1/auth/login?query=1 (exact match test)', async () => {
+      authService.getInternalAccessToken.mockReturnValue('token-123');
+      const response = await firstValueFrom(interceptor(new HttpRequest('GET', `${API_CONFIG.BASE_URL}/api/v1/auth/login?query=1`), next));
+      expect((response as HttpResponse<boolean>).body).toBe(false); // login with query is still login
+    });
+  });
 });
