@@ -51,7 +51,7 @@ work, since it puts the burden of validation on the maintainer.
 
 ## Our Philosophy on AI
 
-Parts of Grimmory has been written with AI assistance, and many maintainers
+Parts of Grimmory have been written with AI assistance, and many maintainers
 embrace AI tools as a productive part of their workflow, in their own different
 and personal ways. As a project, we welcome AI as a tool.
 
