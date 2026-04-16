@@ -58,7 +58,7 @@ and personal ways. As a project, we welcome AI as a tool.
 **Our reason for the strict AI policy is not due to an anti-AI stance**,
 but instead due to the gap between what AI can produce and what
 contributors can confidently stand behind. It's not the tools that
-are the problem, but it's when it's used to leapfrog past understanding.
+are the problem, but when they're used to leapfrog past understanding.
 
 AI tooling has opened the door for more people to participate in
 software projects than ever before — and that's genuinely exciting.
