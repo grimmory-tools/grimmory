@@ -1,0 +1,69 @@
+labels: ["needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > [!IMPORTANT]
+        > **Not sure if this is a bug or just something you haven't figured out yet?**
+        > If Grimmory is doing something unexpected and you're fairly confident it's broken, you're in the right place.
+        > If you're unsure, head over to our Q&A [**Q&A**](https://github.com/orgs/grimmory-tools/discussions/categories/q-a) instead. There's no wrong answer, and we'll point you in the right direction either way.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What went wrong?
+      description: Describe what happened. Plain language is fine — no technical jargon needed.
+      placeholder: "Example: When I try to add a book to my shelf, the page refreshes but the book doesn't appear"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: How can we reproduce it?
+      description: Walk us through the steps. The more detail, the faster we can track it down.
+      placeholder: |
+        1.
+        2.
+        3.
+
+        What happened:
+        What you expected:
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Your setup
+      description: Fill in what you know — skip anything you're not sure about.
+      placeholder: |
+        - Grimmory version:
+        - How you're running it: Docker / bare metal / other
+        - Browser:
+        - Operating system:
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots or error messages (optional)
+      description: Drag and drop images here, or paste any error text you see.
+
+  - type: markdown
+    attributes:
+      value: |
+        # User Acknowledgements
+        > [!TIP]
+        > Use these links to review the existing Grimmory [Discussions](https://github.com/orgs/grimmory-tools/discussions) and [Issues](https://github.com/grimmory-tools/grimmory/issues?q=sort%3Areactions-desc).
+
+  - type: checkboxes
+    id: prerequisites
+    attributes:
+      label: Before submitting
+      options:
+        - label: I've searched existing discussions and this hasn't been reported yet
+          required: true
+        - label: I've reviewed this report and have completed it as fully as I can
+          required: true

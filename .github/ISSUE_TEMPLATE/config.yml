@@ -1,5 +1,14 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Questions & Support
+  - name: 🐛 Something's not working?
+    url: https://github.com/orgs/grimmory-tools/discussions/new?category=issue-triage
+    about: Visit our Issue Triage to report bugs or unexpected behaviour.
+  - name: 💡 Have an idea or suggestion?
+    url: https://github.com/orgs/grimmory-tools/discussions/new?category=feature-requests-ideas
+    about: Share feature requests & ideas in Grimmory Discussions.
+  - name: 🆘 Have a question or need some help?
+    url: https://github.com/orgs/grimmory-tools/discussions/new?category=q-a
+    about: Visit our Q&A forum to ask questions about installing or configuring Grimmory.
+  - name: 💬 Want to chat?
     url: https://discord.gg/9YJ7HB4n8T
-    about: Join the Grimmory community to chat with other users and maintainers.
+    about: Join the Grimmory Discord for community conversation.

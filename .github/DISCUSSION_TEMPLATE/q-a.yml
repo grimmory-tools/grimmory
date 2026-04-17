@@ -1,0 +1,56 @@
+labels: ["needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > [!IMPORTANT]
+        > **Know for certain something's broken?** Head over to [**Issue Triage**](https://github.com/orgs/grimmory-tools/discussions/categories/issue-triage) to report it as a bug.
+        > If you're not sure, or you just can't get something to behave the way you expect,  you're in the right place. Ask away.
+
+  - type: textarea
+    id: trying
+    attributes:
+      label: What are you trying to do?
+    validations:
+      required: true
+
+  - type: textarea
+    id: happening
+    attributes:
+      label: What's happening instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Your setup
+      placeholder: |
+        - Grimmory version:
+        - How you installed it: Docker / other
+        - Operating system:
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else that might help?
+      description: Logs, screenshots, error messages — drag and drop here.
+
+  - type: markdown
+    attributes:
+      value: |
+        # User Acknowledgements
+        > [!TIP]
+        > Use these links to review the existing Grimmory [Discussions](https://github.com/orgs/grimmory-tools/discussions) and [Issues](https://github.com/grimmory-tools/grimmory/issues?q=sort%3Areactions-desc).
+
+  - type: checkboxes
+    id: prerequisites
+    attributes:
+      label: Before submitting
+      options:
+        - label: I've searched existing discussions and I can't find anything that looks like my problem
+          required: true
+        - label: I've reviewed this report and have completed it as fully as I can
+          required: true

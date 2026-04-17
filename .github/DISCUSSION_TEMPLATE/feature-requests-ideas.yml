@@ -1,0 +1,58 @@
+labels: ["needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > [!IMPORTANT]
+        > **Have a good idea for a new feature or enhancement that would make Grimmory better?** This is the right spot for that. We can't wait to hear your ideas!
+        > If you're encountering an issue with an existing feature, visit our [**Issue Triage**](https://github.com/orgs/grimmory-tools/discussions/categories/issue-triage) to report it as a bug.
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like Grimmory to do?
+      description: Describe the feature or improvement you have in mind.
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve for you?
+      description: Help us understand the why — even a sentence or two is great.
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else?
+      description: Screenshots, mockups, examples from other apps — anything that helps paint the picture.
+
+  - type: dropdown
+    id: contribute
+    attributes:
+      label: Want to help out?
+      options:
+        - "Yes! I'd love to help implement this"
+        - "I'm happy to help test and give feedback"
+        - "Just sharing the idea for now"
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        # User Acknowledgements
+        > [!TIP]
+        > Use these links to review the existing Grimmory [Discussions](https://github.com/orgs/grimmory-tools/discussions) and [Issues](https://github.com/grimmory-tools/grimmory/issues?q=sort%3Areactions-desc).
+
+  - type: checkboxes
+    id: prerequisites
+    attributes:
+      label: Before submitting
+      options:
+        - label: I've searched existing discussions and this hasn't been suggested yet
+          required: true
+        - label: I've reviewed this report and have completed it as fully as I can
+          required: true
