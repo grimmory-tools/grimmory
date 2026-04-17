@@ -481,7 +481,7 @@ export class AppConfigService {
     style.setProperty('--primary-contrast-color', isNoir ? (surface['950'] ?? '#0d1012') : (surface['900'] ?? '#1a1e21'));
     style.setProperty('--primary-hover-color', isNoir ? (surface['200'] ?? '#d3d8de') : (primary['300'] ?? primary400 ?? '#fdba74'));
     style.setProperty('--primary-text-color', primary400 ?? '#fb923c');
-    style.setProperty('--primary-text-color-dark', isNoir ? (surface['950'] ?? '#0d1012') : (primary['900'] ?? '#14532d'));
+    style.setProperty('--primary-text-color-dark', isNoir ? (surface['950'] ?? '#0d1012') : (primary['900'] ?? '#9a3412'));
 
     style.setProperty('--ground-background', surface['950'] ?? '#0d1012');
     style.setProperty('--overlay-background', surface['900'] ?? '#1a1e21');
