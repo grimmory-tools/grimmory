@@ -483,7 +483,7 @@ class BookMetadataServiceTest {
 
         @Test
         void throwsWhenBookNotFound() {
-            when(bookRepository.findById(1L)).thenReturn(Optional.empty());
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> service.getFileMetadata(1L))
                     .isInstanceOf(APIException.class);
@@ -492,7 +492,7 @@ class BookMetadataServiceTest {
         @Test
         void throwsWhenPrimaryFileIsNull() {
             BookEntity bookEntity = BookEntity.builder().id(1L).bookFiles(new ArrayList<>()).build();
-            when(bookRepository.findById(1L)).thenReturn(Optional.of(bookEntity));
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
 
             assertThatThrownBy(() -> service.getFileMetadata(1L))
                     .isInstanceOf(APIException.class);

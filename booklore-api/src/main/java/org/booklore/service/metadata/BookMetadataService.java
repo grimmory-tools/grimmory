@@ -223,7 +223,7 @@ public class BookMetadataService {
 
     public BookMetadata getFileMetadata(long bookId) {
         log.info("Extracting file metadata for book ID: {}", bookId);
-        BookEntity bookEntity = bookRepository.findById(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
+        BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
         var primaryFile = bookEntity.getPrimaryBookFile();
         if (primaryFile == null) {
             throw ApiError.GENERIC_BAD_REQUEST.createException("Book has no file to extract metadata from");
