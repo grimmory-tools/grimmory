@@ -32,60 +32,32 @@ export const MAX_ITEMS = 20;
   styleUrls: ['./dashboard-settings.component.scss']
 })
 export class DashboardSettingsComponent {
-  private configService = inject(DashboardConfigService);
-  private dialogRef = inject(DynamicDialogRef);
-  private magicShelfService = inject(MagicShelfService);
-  private translocoService = inject(TranslocoService);
+  private readonly configService = inject(DashboardConfigService);
+  private readonly dialogRef = inject(DynamicDialogRef);
+  private readonly magicShelfService = inject(MagicShelfService);
+  private readonly translocoService = inject(TranslocoService);
   private readonly activeLanguage = toSignal(this.translocoService.langChanges$, {
     initialValue: this.translocoService.getActiveLang()
   });
 
   config: DashboardConfig = structuredClone(this.configService.config());
 
-  availableScrollerTypes: {label: string; value: ScrollerType}[] = [];
-  sortFieldOptions: {label: string; value: string}[] = [];
-  sortDirectionOptions: {label: string; value: string}[] = [];
-
-  magicShelves = computed(() =>
-    this.magicShelfService.shelves().map(shelf => ({
-      label: shelf.name,
-      value: shelf.id!
-    }))
-  );
-  private magicShelvesMap = computed(() => {
-    const shelfMap = new Map<number, string>();
-    this.magicShelfService.shelves().forEach(shelf => {
-      if (shelf.id) {
-        shelfMap.set(shelf.id, shelf.name);
-      }
-    });
-    return shelfMap;
-  });
-
-  readonly MIN_ITEMS = MIN_ITEMS;
-  readonly MAX_ITEMS = MAX_ITEMS;
-
-  private readonly syncTranslatedOptionsEffect = effect(() => {
-    this.activeLanguage();
-    this.buildTranslatedOptions();
-  });
-
-  private readonly syncConfigEffect = effect(() => {
-    this.config = structuredClone(this.configService.config());
-  });
-
-  private buildTranslatedOptions(): void {
+  readonly availableScrollerTypes = computed(() => {
+    this.activeLanguage(); // Trigger on language change
     const t = (key: string) => this.translocoService.translate(`dashboard.settings.${key}`);
-
-    this.availableScrollerTypes = [
+    return [
       {label: t('scrollerTypes.lastRead'), value: ScrollerType.LAST_READ},
       {label: t('scrollerTypes.lastListened'), value: ScrollerType.LAST_LISTENED},
       {label: t('scrollerTypes.latestAdded'), value: ScrollerType.LATEST_ADDED},
       {label: t('scrollerTypes.random'), value: ScrollerType.RANDOM},
       {label: t('scrollerTypes.magicShelf'), value: ScrollerType.MAGIC_SHELF}
     ];
+  });
 
-    this.sortFieldOptions = [
+  readonly sortFieldOptions = computed(() => {
+    this.activeLanguage();
+    const t = (key: string) => this.translocoService.translate(`dashboard.settings.${key}`);
+    return [
       {label: t('sortFields.title'), value: 'title'},
       {label: t('sortFields.fileName'), value: 'fileName'},
       {label: t('sortFields.filePath'), value: 'filePath'},
@@ -104,12 +76,40 @@ export class DashboardSettingsComponent {
       {label: t('sortFields.bookType'), value: 'bookType'},
       {label: t('sortFields.pageCount'), value: 'pageCount'}
     ];
+  });
 
-    this.sortDirectionOptions = [
+  readonly sortDirectionOptions = computed(() => {
+    this.activeLanguage();
+    const t = (key: string) => this.translocoService.translate(`dashboard.settings.${key}`);
+    return [
       {label: t('sortDirections.asc'), value: 'asc'},
       {label: t('sortDirections.desc'), value: 'desc'}
     ];
-  }
+  });
+
+  readonly magicShelves = computed(() =>
+    this.magicShelfService.shelves().map(shelf => ({
+      label: shelf.name,
+      value: shelf.id!
+    }))
+  );
+
+  private readonly magicShelvesMap = computed(() => {
+    const shelfMap = new Map<number, string>();
+    this.magicShelfService.shelves().forEach(shelf => {
+      if (shelf.id) {
+        shelfMap.set(shelf.id, shelf.name);
+      }
+    });
+    return shelfMap;
+  });
+
+  readonly MIN_ITEMS = MIN_ITEMS;
+  readonly MAX_ITEMS = MAX_ITEMS;
+
+  private readonly syncConfigEffect = effect(() => {
+    this.config = structuredClone(this.configService.config());
+  });
 
   getScrollerTitle(scroller: ScrollerConfig): string {
     if (scroller.type === ScrollerType.MAGIC_SHELF && scroller.magicShelfId) {

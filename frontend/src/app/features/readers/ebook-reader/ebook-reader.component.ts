@@ -1,6 +1,7 @@
 import {ChangeDetectionStrategy, Component, CUSTOM_ELEMENTS_SCHEMA, DestroyRef, effect, HostListener, inject, OnInit, signal} from '@angular/core';
-import {from, Observable, of, Subject, throwError} from 'rxjs';
-import {catchError, map, switchMap, takeUntil, tap} from 'rxjs/operators';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {forkJoin, from, Observable, of, throwError} from 'rxjs';
+import {catchError, map, switchMap, tap} from 'rxjs/operators';
 import {MessageService} from 'primeng/api';
 import {ReaderLoaderService} from './core/loader.service';
 import {ReaderViewManagerService} from './core/view-manager.service';
@@ -17,7 +18,7 @@ import {ReaderNoteService} from './features/notes/note.service';
 import {BookService} from '../../book/service/book.service';
 import {BookFileService} from '../../book/service/book-file.service';
 import {ActivatedRoute} from '@angular/router';
-import {Book, BookType} from '../../book/model/book.model';
+import {AdditionalFile, Book, BookType} from '../../book/model/book.model';
 import {ReaderHeaderComponent} from './layout/header/header.component';
 import {ReaderSidebarComponent} from './layout/sidebar/sidebar.component';
 import {ReaderLeftSidebarComponent} from './layout/panel/panel.component';
@@ -33,6 +34,7 @@ import {EbookShortcutsHelpComponent} from './dialogs/shortcuts-help.component';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {RelocateProgressData} from './state/progress.service';
 import {WakeLockService} from '../../../shared/service/wake-lock.service';
+import {ViewEvent} from './core/view-manager.service';
 
 @Component({
   selector: 'app-ebook-reader',
@@ -71,8 +73,7 @@ import {WakeLockService} from '../../../shared/service/wake-lock.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EbookReaderComponent implements OnInit {
-  private destroy$ = new Subject<void>();
-  private destroyRef = inject(DestroyRef);
+  private readonly destroyRef = inject(DestroyRef);
   private loaderService = inject(ReaderLoaderService);
   private styleService = inject(ReaderStyleService);
   private bookService = inject(BookService);
@@ -85,6 +86,7 @@ export class EbookReaderComponent implements OnInit {
   private headerService = inject(ReaderHeaderService);
   private noteService = inject(ReaderNoteService);
   private wakeLockService = inject(WakeLockService);
+  private messageService = inject(MessageService);
 
   public sidebarService = inject(ReaderSidebarService);
   public leftSidebarService = inject(ReaderLeftSidebarService);
@@ -121,9 +123,6 @@ export class EbookReaderComponent implements OnInit {
 
   constructor() {
     this.destroyRef.onDestroy(() => {
-      this.destroy$.next();
-      this.destroy$.complete();
-
       this.wakeLockService.disable();
       this.viewManager.destroy();
       this.annotationService.reset();
@@ -169,43 +168,107 @@ export class EbookReaderComponent implements OnInit {
     });
 
     this.sidebarService.showMetadata$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.showMetadata.set(true));
 
     this.headerService.showControls$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.showQuickSettings.set(true));
 
     this.headerService.showMetadata$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.showMetadata.set(true));
 
     this.headerService.toggleFullscreen$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.toggleFullscreen());
 
     this.headerService.showShortcutsHelp$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.showShortcutsHelp.set(true));
 
     // Enable wake lock after a short delay
     setTimeout(() => this.wakeLockService.enable(), 1000);
 
     this.isLoading.set(true);
-    this.initializeFoliate().pipe(
-      switchMap(() => this.epubCustomFontService.loadAndCacheFonts()),
-      tap(() => this.stateService.refreshCustomFonts()),
-      switchMap(() => this.setupView()),
-      tap(() => {
-        this.subscribeToViewEvents();
+
+    this.bookId = +this.route.snapshot.paramMap.get('bookId')!;
+    this.altBookType = this.route.snapshot.queryParamMap.get('bookType') ?? undefined;
+
+    // Parallelize Foliate script loading and initial book detail fetch
+    forkJoin([
+      this.initializeFoliate(),
+      from(this.bookService.fetchFreshBookDetail(this.bookId, false))
+    ]).pipe(
+      switchMap(([, book]) => {
+        this.book.set(book);
+        const bookType = (this.altBookType as BookType | undefined) ?? book.primaryFile?.bookType;
+        if (!bookType) {
+          return throwError(() => new Error('Book type not found'));
+        }
+
+        let bookFileId: number | undefined;
+        if (this.altBookType) {
+          const altFile = book.alternativeFormats?.find((f: AdditionalFile) => f.bookType === this.altBookType);
+          bookFileId = altFile?.id;
+        } else {
+          bookFileId = book.primaryFile?.id;
+        }
+
+        // Parallelize font loading/view setup and state initialization
+        return forkJoin([
+          this.epubCustomFontService.loadAndCacheFonts().pipe(
+            tap(() => this.stateService.refreshCustomFonts())
+          ),
+          this.setupView().pipe(
+            tap(() => this.subscribeToViewEvents())
+          ),
+          this.stateService.initializeState(this.bookId, bookFileId!).pipe(
+            map(() => ({book, bookType, bookFileId}))
+          )
+        ]);
       }),
-      switchMap(() => this.loadBookFromAPI()),
+      switchMap(([, , {book, bookType, bookFileId}]) => {
+        this.progressService.initialize(this.bookId, bookType, bookFileId);
+        this.selectionService.initialize(this.bookId);
+        this.headerService.initialize(this.bookId, book.metadata?.title || '');
+
+        const useStreaming = this.route.snapshot.queryParamMap.get('streaming') === 'true';
+        const loadBook$ = bookType === 'EPUB' && useStreaming
+          ? this.viewManager.loadEpubStreaming(this.bookId, this.altBookType)
+          : this.loadBookBlob();
+
+        return loadBook$.pipe(
+          tap(() => {
+            this.applyStyles();
+            this.sidebarService.initialize(this.bookId, book);
+            this.leftSidebarService.initialize(this.bookId);
+            this.noteService.initialize(this.bookId);
+          }),
+          switchMap(() => this.viewManager.getMetadata()),
+          switchMap(() => {
+            if (!this.hasLoadedOnce) {
+              this.hasLoadedOnce = true;
+              if (book.epubProgress?.cfi) {
+                return this.viewManager.goTo(book.epubProgress.cfi);
+              } else if (book.epubProgress?.percentage && book.epubProgress.percentage > 0) {
+                return this.viewManager.goToFraction(book.epubProgress.percentage / 100);
+              } else {
+                return this.viewManager.goTo(0);
+              }
+            }
+            return of(undefined);
+          })
+        );
+      }),
       tap(() => this.isLoading.set(false)),
-      catchError(() => {
+      catchError((err) => {
+        console.error('Failed to load ebook', err);
         this.isLoading.set(false);
+        this.messageService.add({severity: 'error', summary: 'Error', detail: 'Failed to load book'});
         return of(null);
       }),
-      takeUntil(this.destroy$)
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe();
   }
 
@@ -225,73 +288,6 @@ export class EbookReaderComponent implements OnInit {
     return of(undefined);
   }
 
-  private loadBookFromAPI(): Observable<void> {
-    this.bookId = +this.route.snapshot.paramMap.get('bookId')!;
-    this.altBookType = this.route.snapshot.queryParamMap.get('bookType') ?? undefined;
-
-    return from(this.bookService.fetchFreshBookDetail(this.bookId, false)).pipe(
-      switchMap((book) => {
-        this.book.set(book);
-
-        // Use alternative bookType from query param if provided, otherwise use primary
-        const bookType = (this.altBookType as BookType | undefined) ?? book.primaryFile?.bookType;
-        if (!bookType) {
-          return throwError(() => new Error('Book type not found'));
-        }
-
-        // Determine which file ID to use for progress tracking
-        let bookFileId: number | undefined;
-        if (this.altBookType) {
-          // Look for the alternative format file with matching type
-          const altFile = book.alternativeFormats?.find(f => f.bookType === this.altBookType);
-          bookFileId = altFile?.id;
-        } else {
-          // Use the primary file
-          bookFileId = book.primaryFile?.id;
-        }
-
-        return this.stateService.initializeState(this.bookId, bookFileId!).pipe(
-          map(() => ({book, bookType, bookFileId}))
-        );
-      }),
-      switchMap(({book, bookType, bookFileId}) => {
-        this.progressService.initialize(this.bookId, bookType, bookFileId);
-        this.selectionService.initialize(this.bookId, this.destroy$);
-        this.headerService.initialize(this.bookId, book.metadata?.title || '');
-
-        // Use streaming for EPUB if query param is set, blob loading otherwise (default)
-        const useStreaming = this.route.snapshot.queryParamMap.get('streaming') === 'true';
-        const loadBook$ = bookType === 'EPUB' && useStreaming
-          ? this.viewManager.loadEpubStreaming(this.bookId, this.altBookType)
-          : this.loadBookBlob();
-
-        return loadBook$.pipe(
-          tap(() => {
-            this.applyStyles();
-            this.sidebarService.initialize(this.bookId, book, this.destroy$);
-            this.leftSidebarService.initialize(this.bookId, this.destroy$);
-            this.noteService.initialize(this.bookId, this.destroy$);
-          }),
-          switchMap(() => this.viewManager.getMetadata()),
-          switchMap(() => {
-            if (!this.hasLoadedOnce) {
-              this.hasLoadedOnce = true;
-              // Navigate to saved position if progress exists, otherwise go to first page
-              if (book.epubProgress?.cfi) {
-                return this.viewManager.goTo(book.epubProgress.cfi);
-              } else if (book.epubProgress?.percentage && book.epubProgress.percentage > 0) {
-                return this.viewManager.goToFraction(book.epubProgress.percentage / 100);
-              } else {
-                return this.viewManager.goTo(0);
-              }
-            }
-            return of(undefined);
-          })
-        );
-      })
-    );
-  }
-
   private loadBookBlob(): Observable<void> {
     return this.bookFileService.getFileContent(this.bookId, this.altBookType).pipe(
       switchMap(fileBlob => {
@@ -304,8 +300,8 @@ export class EbookReaderComponent implements OnInit {
 
   private subscribeToViewEvents(): void {
     this.viewManager.events$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(event => {
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event: ViewEvent) => {
         switch (event.type) {
           case 'load':
             this.applyStyles();
@@ -430,7 +426,7 @@ export class EbookReaderComponent implements OnInit {
   onProgressChange(fraction: number): void {
     this.viewManager.goToFraction(fraction)
       .pipe(
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
         catchError(() => of(undefined))
       )
       .subscribe();
@@ -486,7 +482,7 @@ export class EbookReaderComponent implements OnInit {
       if (linkUrl) {
         this.viewManager.goTo(linkUrl)
           .pipe(
-            takeUntil(this.destroy$),
+            takeUntilDestroyed(this.destroyRef),
             catchError(() => of(undefined))
           )
           .subscribe();

@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, input} from '@angular/core';
 import {NgClass} from '@angular/common';
 import {Book} from '../../../book/model/book.model';
 import {ScrollerType} from '../../models/dashboard-config.model';
@@ -21,14 +21,12 @@ import {TranslocoDirective, TranslocoPipe} from '@jsverse/transloco';
 })
 export class DashboardScrollerComponent {
 
-  @Input() bookListType: ScrollerType | null = null;
-  @Input() title!: string;
-  @Input() books!: Book[] | null;
-  @Input() isMagicShelf: boolean = false;
-  @Input() useSquareCovers: boolean = false;
-  @Input() overlayPreferenceService!: BookCardOverlayPreferenceService;
+  readonly bookListType = input<ScrollerType | null>(null);
+  readonly title = input.required<string>();
+  readonly books = input<Book[] | null>(null);
+  readonly isMagicShelf = input<boolean>(false);
+  readonly useSquareCovers = input<boolean>(false);
+  readonly overlayPreferenceService = input.required<BookCardOverlayPreferenceService>();
 
-  get forceEbookMode(): boolean {
-    return this.bookListType === ScrollerType.LAST_READ;
-  }
+  readonly forceEbookMode = computed(() => this.bookListType() === ScrollerType.LAST_READ);
 }

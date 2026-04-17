@@ -13,14 +13,21 @@ $active-color: #4a90e2;
 $hover-bg: rgb(255 255 255 / 12%);
 $transition-fast: 150ms ease;
 
+.v-hidden {
+  visibility: hidden !important;
+}
+
 // --- Loading ---
 
 .loading-container {
+  position: fixed;
+  inset: 0;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100dvh;
   background: #1a1a1a;
+  z-index: 1000;
 }
 
 // --- Reader container ---
@@ -77,11 +84,10 @@ $transition-fast: 150ms ease;
   height: $header-height;
   box-sizing: border-box;
   padding: 0 16px;
-  padding-top: env(safe-area-inset-top);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  z-index: 1002;
+  z-index: 1001;
   background: $gradient-bg;
   border-bottom: 1px solid $border-color;
   box-shadow: 0 2px 8px rgb(0 0 0 / 30%);
@@ -809,7 +815,7 @@ $transition-fast: 150ms ease;
   .doc-viewer-info {
     right: 12px;
     left: 12px;
-    top: 48px;
+    top: calc(48px + env(safe-area-inset-top));
     justify-content: center;
   }
 

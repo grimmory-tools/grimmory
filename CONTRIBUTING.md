@@ -121,8 +121,8 @@ just image-build           # Build the production image locally
 
 Use the repo-level guide for workflow, release, and PR policy, then drop into the component-specific guides when you are working inside a project:
 
-- Backend: [booklore-api/README.md](booklore-api/README.md) and [booklore-api/CONTRIBUTING.md](booklore-api/CONTRIBUTING.md)
-- Frontend: [frontend/README.md](frontend/README.md) and [frontend/CONTRIBUTING.md](frontend/CONTRIBUTING.md)
+- Backend: [booklore-api/DEVELOPMENT.md](booklore-api/DEVELOPMENT.md)
+- Frontend: [frontend/DEVELOPMENT.md](frontend/DEVELOPMENT.md)
 
 ### Option 1: Docker Development Stack (Recommended)
 
@@ -358,7 +358,7 @@ Before opening your PR:
 - [ ] PR is linked to an **approved** issue (PRs without a linked issue will be closed)
 - [ ] All tests pass (`just test`)
 - [ ] Actual test output is pasted in the PR description
-- [ ] Code follows the relevant component conventions (see [booklore-api/CONTRIBUTING.md](booklore-api/CONTRIBUTING.md) and [frontend/CONTRIBUTING.md](frontend/CONTRIBUTING.md))
+- [ ] Code follows the relevant component conventions (see [booklore-api/DEVELOPMENT.md](booklore-api/DEVELOPMENT.md) and [frontend/DEVELOPMENT.md](frontend/DEVELOPMENT.md))
 - [ ] No lint errors
 - [ ] Branch is up-to-date with `develop`
 - [ ] You ran the full stack locally and manually verified the change works
@@ -392,8 +392,8 @@ We've seen a sharp increase in AI-generated PRs where the contributor clearly ne
 
 Detailed coding conventions now live with each project:
 
-- Backend rules: [booklore-api/CONTRIBUTING.md](booklore-api/CONTRIBUTING.md)
-- Frontend rules: [frontend/CONTRIBUTING.md](frontend/CONTRIBUTING.md)
+- Backend rules: [booklore-api/DEVELOPMENT.md](booklore-api/DEVELOPMENT.md)
+- Frontend rules: [frontend/DEVELOPMENT.md](frontend/DEVELOPMENT.md)
 
 ---
 

@@ -144,7 +144,7 @@ describe('AuthorDetailComponent', () => {
 
     expect(getAuthorDetails).toHaveBeenCalledWith(42);
     expect(component.tab).toBe('series');
-    expect(component.loading).toBe(false);
+    expect(component.loading()).toBe(false);
     expect(component.author()).toEqual({...baseAuthor, id: 42, name: 'Grace Hopper'});
     expect(setPageTitle).toHaveBeenCalledWith('Grace Hopper');
   });
@@ -158,7 +158,7 @@ describe('AuthorDetailComponent', () => {
     component.ngOnInit();
 
     expect(component.tab).toBe('books');
-    expect(component.loading).toBe(false);
+    expect(component.loading()).toBe(false);
     expect(component.author()).toBeNull();
     expect(setPageTitle).not.toHaveBeenCalled();
   });

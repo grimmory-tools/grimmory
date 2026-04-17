@@ -477,6 +477,19 @@ class EpubMetadataExtractorTest {
 
             assertThat(metadata.getAuthors()).containsExactlyInAnyOrder("Author One", "Author Two");
         }
+
+        @Test
+        void multipleRolesForSameCreator() throws IOException {
+            String opf = wrapOpf("""
+                    <dc:title>Book</dc:title>
+                    <dc:creator id="author">Charles Dickens</dc:creator>
+                    <meta property="role" refines="#author">aut</meta>
+                    <meta property="role" refines="#author">waw</meta>
+                    """);
+            BookMetadata metadata = extractor.extractMetadata(createEpub(opf));
+
+            assertThat(metadata.getAuthors()).containsExactly("Charles Dickens");
+        }
     }
 
     @Nested

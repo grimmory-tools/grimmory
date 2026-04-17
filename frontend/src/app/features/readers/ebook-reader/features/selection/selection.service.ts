@@ -1,6 +1,7 @@
-import {inject, Injectable, signal} from '@angular/core';
+import {DestroyRef, inject, Injectable, signal} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Subject} from 'rxjs';
-import {switchMap, takeUntil, tap} from 'rxjs/operators';
+import {switchMap, tap} from 'rxjs/operators';
 import {of} from 'rxjs';
 import {Annotation} from '../../../../../shared/service/annotation.service';
 import {ReaderViewManagerService} from '../../core/view-manager.service';
@@ -31,10 +32,10 @@ export class ReaderSelectionService {
   private annotationService = inject(ReaderAnnotationHttpService);
   private leftSidebarService = inject(ReaderLeftSidebarService);
 
+  private readonly destroyRef = inject(DestroyRef);
   private bookId!: number;
   private annotations: Annotation[] = [];
   private currentSelection: SelectionDetail | null = null;
-  private destroy$ = new Subject<void>();
 
   private _visible = false;
   private _position = { x: 0, y: 0 };
@@ -60,9 +61,8 @@ export class ReaderSelectionService {
   private annotationsChangedSubject = new Subject<Annotation[]>();
   public annotationsChanged$ = this.annotationsChangedSubject.asObservable();
 
-  initialize(bookId: number, destroy$: Subject<void>): void {
+  initialize(bookId: number): void {
     this.bookId = bookId;
-    this.destroy$ = destroy$;
   }
 
   setAnnotations(annotations: Annotation[]): void {
@@ -137,7 +137,7 @@ export class ReaderSelectionService {
   private updatePreview(cfi: string, color: string, style: AnnotationStyle): void {
     if (this.previewCfi) {
       this.viewManager.deleteAnnotation(this.previewCfi)
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe();
     }
 
@@ -149,13 +149,13 @@ export class ReaderSelectionService {
       value: cfi,
       color: color,
       style: style
-    }).pipe(takeUntil(this.destroy$)).subscribe();
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
   }
 
   private clearPreview(): void {
     if (this.previewCfi) {
       this.viewManager.deleteAnnotation(this.previewCfi)
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe();
       this.previewCfi = null;
       this.previewColor = null;
@@ -185,7 +185,7 @@ export class ReaderSelectionService {
           tap(() => this.viewManager.clearSelection())
         );
       }),
-      takeUntil(this.destroy$)
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe();
   }
 
@@ -194,11 +194,11 @@ export class ReaderSelectionService {
     if (!annotation) return;
 
     this.annotationService.deleteAnnotation(annotationId)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(success => {
         if (success) {
           this.viewManager.deleteAnnotation(annotation.cfi)
-            .pipe(takeUntil(this.destroy$))
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe();
           this.annotations = this.annotations.filter(a => a.id !== annotationId);
           this.annotationsChangedSubject.next(this.annotations);

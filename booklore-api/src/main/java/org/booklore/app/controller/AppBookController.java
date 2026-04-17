@@ -32,6 +32,18 @@ public class AppBookController {
     }
 
     @Operation(
+            summary = "Get all book IDs matching filters",
+            description = "Return all book IDs that match the given filters without pagination. Useful for bulk selection.",
+            operationId = "appGetAllBookIds"
+    )
+    @GetMapping("/ids")
+    public ResponseEntity<List<Long>> getAllBookIds(
+            @ModelAttribute BookListRequest request) {
+
+        return ResponseEntity.ok(mobileBookService.getAllBookIds(request));
+    }
+
+    @Operation(
             summary = "Get app book details",
             description = "Retrieve detailed app-facing information for a single book.",
             operationId = "appGetBookDetail"

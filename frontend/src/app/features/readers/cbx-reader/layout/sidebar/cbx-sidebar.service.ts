@@ -1,6 +1,6 @@
-import {computed, inject, Injectable, signal} from '@angular/core';
+import {computed, DestroyRef, inject, Injectable, signal} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
 import {TranslocoService} from '@jsverse/transloco';
 import {CbxPageInfo, CbxReaderService} from '../../../../book/service/cbx-reader.service';
 import {UrlHelperService} from '../../../../../shared/service/url-helper.service';
@@ -25,7 +25,7 @@ export class CbxSidebarService {
   private bookNoteV2Service = inject(BookNoteV2Service);
   private readonly t = inject(TranslocoService);
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
   private bookId!: number;
   private altBookType?: string;
 
@@ -76,10 +76,9 @@ export class CbxSidebarService {
   navigateToPage$ = this._navigateToPage.asObservable();
   editNote$ = this._editNote.asObservable();
 
-  initialize(bookId: number, book: Book, destroy$: Subject<void>, altBookType?: string): void {
+  initialize(bookId: number, book: Book, altBookType?: string): void {
     this.bookId = bookId;
     this.altBookType = altBookType;
-    this.destroy$ = destroy$;
 
     this._bookInfo.set({
       id: book.id,
@@ -95,19 +94,19 @@ export class CbxSidebarService {
 
   private loadPageInfo(): void {
     this.cbxReaderService.getPageInfo(this.bookId, this.altBookType)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(pages => this._pages.set(pages));
   }
 
   private loadBookmarks(): void {
     this.bookMarkService.getBookmarksForBook(this.bookId)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(bookmarks => this._bookmarks.set(bookmarks));
   }
 
   private loadNotes(): void {
     this.bookNoteV2Service.getNotesForBook(this.bookId)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(notes => this._notes.set(notes));
   }
 
@@ -153,13 +152,13 @@ export class CbxSidebarService {
     };
 
     this.bookMarkService.createBookmark(request)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.loadBookmarks());
   }
 
   deleteBookmark(bookmarkId: number): void {
     this.bookMarkService.deleteBookmark(bookmarkId)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.loadBookmarks());
   }
 
@@ -195,7 +194,7 @@ export class CbxSidebarService {
     };
 
     this.bookNoteV2Service.createNote(request)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.loadNotes());
   }
 
@@ -206,13 +205,13 @@ export class CbxSidebarService {
     };
 
     this.bookNoteV2Service.updateNote(noteId, request)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.loadNotes());
   }
 
   deleteNote(noteId: number): void {
     this.bookNoteV2Service.deleteNote(noteId)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this._notes.update(notes => notes.filter(note => note.id !== noteId));
       });

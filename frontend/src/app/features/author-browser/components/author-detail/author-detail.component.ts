@@ -85,7 +85,7 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
   private readonly viewportWidth = signal(0);
   private viewportResizeObserver: ResizeObserver | undefined;
 
-  loading = true;
+  loading = signal(true);
   tab = 'books';
   isExpanded = false;
   isOverflowing = false;
@@ -199,11 +199,11 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
     this.authorService.getAuthorDetails(authorId).subscribe({
       next: (author) => {
         this.authorState.set(author);
-        this.loading = false;
+        this.loading.set(false);
         this.pageTitle.setPageTitle(author.name);
       },
       error: () => {
-        this.loading = false;
+        this.loading.set(false);
       }
     });
   }

@@ -1,6 +1,6 @@
 import {computed, inject, Injectable, signal} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
-import {lastValueFrom} from 'rxjs';
+import {lastValueFrom, Observable} from 'rxjs';
 import {injectInfiniteQuery, injectQuery, QueryClient} from '@tanstack/angular-query-experimental';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {AuthService} from '../../../shared/service/auth.service';
@@ -145,6 +145,12 @@ export class AppBooksApiService {
     this.booksQuery.fetchNextPage();
   }
 
+  /** Fetch all book IDs matching the current filters (no pagination). */
+  fetchAllBookIds(): Observable<number[]> {
+    const params = this.buildFilterParams();
+    return this.http.get<number[]>(`${this.booksUrl}/ids`, {params});
+  }
+
   /** Invalidate the books query to force a refresh from the server. */
   invalidate(): void {
     void this.queryClient.invalidateQueries({queryKey: ['app-books']});
@@ -152,15 +158,20 @@ export class AppBooksApiService {
   }
 
   private buildParams(page: number): HttpParams {
-    const filters = this._filters();
     const sort = this._sort();
-    const search = this._search();
 
-    let params = new HttpParams()
+    return this.buildFilterParams()
       .set('page', page.toString())
       .set('size', PAGE_SIZE.toString())
       .set('sort', sort.field)
       .set('dir', sort.dir);
+  }
+
+  private buildFilterParams(): HttpParams {
+    const filters = this._filters();
+    const search = this._search();
+
+    let params = new HttpParams();
 
     if (search) params = params.set('search', search);
     if (filters.libraryId) params = params.set('libraryId', filters.libraryId.toString());

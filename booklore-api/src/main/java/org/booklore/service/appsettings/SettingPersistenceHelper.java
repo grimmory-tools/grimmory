@@ -317,6 +317,7 @@ public class SettingPersistenceHelper {
                 .conversionLimitInMbForCbx(100)
                 .conversionImageCompressionPercentage(85)
                 .forceEnableHyphenation(false)
+                .forwardToKoboStore(true)
                 .build();
     }
 

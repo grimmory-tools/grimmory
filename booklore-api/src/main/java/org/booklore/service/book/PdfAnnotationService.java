@@ -1,19 +1,16 @@
 package org.booklore.service.book;
 
 import org.booklore.config.security.service.AuthenticationService;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookLoreUserEntity;
-import org.booklore.model.entity.PdfAnnotationEntity;
-import org.booklore.repository.BookRepository;
 import org.booklore.repository.PdfAnnotationRepository;
-import org.booklore.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import org.booklore.model.entity.PdfAnnotationEntity;
 
 @Service
 @RequiredArgsConstructor
@@ -21,9 +18,8 @@ import java.util.Optional;
 public class PdfAnnotationService {
 
     private final PdfAnnotationRepository pdfAnnotationRepository;
-    private final BookRepository bookRepository;
-    private final UserRepository userRepository;
     private final AuthenticationService authenticationService;
+    private final PdfAnnotationPersistenceHandler pdfAnnotationPersistenceHandler;
 
     @Transactional(readOnly = true)
     public Optional<String> getAnnotations(Long bookId) {
@@ -32,24 +28,38 @@ public class PdfAnnotationService {
                 .map(PdfAnnotationEntity::getData);
     }
 
-    @Transactional
+    /**
+     * Orchestrates the save/update of PDF annotations with a retry mechanism.
+     * The actual database operation is handled by {@link PdfAnnotationPersistenceHandler}
+     * in its own transaction (REQUIRES_NEW) to ensure that concurrency failures
+     * don't poison the main request transaction.
+     */
     public void saveAnnotations(Long bookId, String data) {
         Long userId = getCurrentUserId();
-        Optional<PdfAnnotationEntity> existing = pdfAnnotationRepository.findByBookIdAndUserId(bookId, userId);
+        int maxRetries = 3;
+        int retryCount = 0;
 
-        if (existing.isPresent()) {
-            PdfAnnotationEntity entity = existing.get();
-            entity.setData(data);
-            pdfAnnotationRepository.save(entity);
-            log.info("Updated PDF annotations for book {} by user {}", bookId, userId);
-        } else {
-            PdfAnnotationEntity entity = PdfAnnotationEntity.builder()
-                    .book(findBook(bookId))
-                    .user(findUser(userId))
-                    .data(data)
-                    .build();
-            pdfAnnotationRepository.save(entity);
-            log.info("Created PDF annotations for book {} by user {}", bookId, userId);
+        while (retryCount < maxRetries) {
+            try {
+                pdfAnnotationPersistenceHandler.saveOrUpdate(bookId, userId, data);
+                return;
+            } catch (ObjectOptimisticLockingFailureException | DataIntegrityViolationException e) {
+                retryCount++;
+                if (retryCount >= maxRetries) {
+                    log.error("Failed to save PDF annotations for book {}/user {} after {} retries: {}", 
+                            bookId, userId, maxRetries, e.getMessage());
+                    throw e; // Final failure, pass to exception handler
+                }
+                log.info("Concurrent update for PDF annotations (book {}, user {}), retrying (attempt {}/{}). Reason: {}", 
+                        bookId, userId, retryCount, maxRetries, e.getMessage());
+                
+                try {
+                    Thread.sleep(50); // Small backoff before retry
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException(ie);
+                }
+            }
         }
     }
 
@@ -62,15 +72,5 @@ public class PdfAnnotationService {
 
     private Long getCurrentUserId() {
         return authenticationService.getAuthenticatedUser().getId();
-    }
-
-    private BookEntity findBook(Long bookId) {
-        return bookRepository.findById(bookId)
-                .orElseThrow(() -> new EntityNotFoundException("Book not found: " + bookId));
-    }
-
-    private BookLoreUserEntity findUser(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found: " + userId));
     }
 }

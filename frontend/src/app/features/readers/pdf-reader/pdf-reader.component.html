@@ -1,11 +1,11 @@
-@if (isLoading()) {
+@if (isLoading() || (viewerMode() === 'book' && !isInitialScrollDone())) {
 <div class="loading-container">
   <p-progressSpinner></p-progressSpinner>
 </div>
 }
 
 @if (!isLoading()) {
-<div class="pdf-reader-container" [class.dark]="isDarkTheme()">
+<div class="pdf-reader-container" [class.dark]="isDarkTheme()" [class.v-hidden]="viewerMode() === 'book' && !isInitialScrollDone()">
 
   <!-- Footer trigger zone -->
   <div class="footer-trigger-zone" [class.inactive]="footerVisible()" (mouseenter)="onFooterTriggerZoneEnter()"></div>

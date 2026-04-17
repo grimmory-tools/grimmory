@@ -297,6 +297,20 @@ class AudioFileUtilityServiceTest {
     }
 
     @Test
+    void listAudioFiles_handlesVeryLongNumericStrings() throws IOException {
+        String longNum1 = "track-12345678901234567890.mp3";
+        String longNum2 = "track-12345678901234567891.mp3";
+        Files.createFile(tempDir.resolve(longNum2));
+        Files.createFile(tempDir.resolve(longNum1));
+
+        List<Path> result = audioFileUtility.listAudioFiles(tempDir);
+
+        assertEquals(2, result.size());
+        assertEquals(longNum1, result.get(0).getFileName().toString());
+        assertEquals(longNum2, result.get(1).getFileName().toString());
+    }
+
+    @Test
     void listAudioFiles_sortsCaseInsensitively() throws IOException {
         Files.createFile(tempDir.resolve("Alpha.mp3"));
         Files.createFile(tempDir.resolve("beta.mp3"));
