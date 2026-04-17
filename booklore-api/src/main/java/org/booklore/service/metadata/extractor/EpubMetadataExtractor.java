@@ -184,7 +184,7 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
             NodeList children = metadata.getChildNodes();
 
             Map<String, String> creatorsById = new HashMap<>();
-            Map<String, String> creatorRoleById = new HashMap<>();
+            Map<String, List<String>> creatorRolesById = new HashMap<>();
             Map<String, List<String>> creatorsByRole = new HashMap<>();
             creatorsByRole.put("aut", new ArrayList<>());
 
@@ -217,7 +217,7 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
                         }
 
                         if ("role".equals(prop) && StringUtils.isNotBlank(refines)) {
-                            creatorRoleById.put(refines.substring(1), content.toLowerCase());
+                            creatorRolesById.computeIfAbsent(refines.substring(1), k -> new ArrayList<>()).add(content.toLowerCase());
                         }
 
                         if ("rendition:layout".equals(prop) && "pre-paginated".equals(content)) {
@@ -394,8 +394,10 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
             for (Map.Entry<String, String> entry : creatorsById.entrySet()) {
                 String id = entry.getKey();
                 String value = entry.getValue();
-                String role = creatorRoleById.getOrDefault(id, "aut");
-                creatorsByRole.computeIfAbsent(role, k -> new ArrayList<>()).add(value);
+                List<String> roles = creatorRolesById.getOrDefault(id, List.of("aut"));
+                for (String role : roles) {
+                    creatorsByRole.computeIfAbsent(role, k -> new ArrayList<>()).add(value);
+                }
             }
 
             builderMeta.authors(creatorsByRole.get("aut"));
