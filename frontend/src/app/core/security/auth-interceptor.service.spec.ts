@@ -221,5 +221,11 @@ describe('AuthInterceptorService', () => {
       const response = await firstValueFrom(interceptor(new HttpRequest('GET', `${API_CONFIG.BASE_URL}/api/v1/auth/login?query=1`), next));
       expect((response as HttpResponse<boolean>).body).toBe(false); // login with query is still login
     });
+
+    it('does NOT exclude /api/v1/auth/logout', async () => {
+      authService.getInternalAccessToken.mockReturnValue('token-123');
+      const response = await firstValueFrom(interceptor(new HttpRequest('POST', `${API_CONFIG.BASE_URL}/api/v1/auth/logout`, null), next));
+      expect((response as HttpResponse<boolean>).body).toBe(true);
+    });
   });
 });

@@ -13,7 +13,21 @@ export const AuthInterceptorService: HttpInterceptorFn = (req, next: HttpHandler
 
   const token = authService.getInternalAccessToken();
   const isApiRequest = req.url.startsWith(`${API_CONFIG.BASE_URL}/api/`);
-  const isAuthRequest = req.url.startsWith(`${API_CONFIG.BASE_URL}/api/v1/auth/`);
+  
+  const authExcludePaths = [
+    '/api/v1/auth/login',
+    '/api/v1/auth/refresh',
+    '/api/v1/auth/remote',
+    '/api/v1/auth/oidc/state',
+    '/api/v1/auth/oidc/callback',
+    '/api/v1/auth/oidc/redirect',
+    '/api/v1/auth/oidc/mobile/callback',
+    '/api/v1/auth/oidc/backchannel-logout',
+  ];
+  
+  const urlPath = req.url.split('?')[0];
+  const isAuthRequest = authExcludePaths.some(path => urlPath === `${API_CONFIG.BASE_URL}${path}`);
+  
   const hasAuthHeader = req.headers.has('Authorization');
 
   const authReq = (token && isApiRequest && !isAuthRequest && !hasAuthHeader) ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } }) : req;
