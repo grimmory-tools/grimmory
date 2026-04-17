@@ -259,4 +259,4 @@ All other features — reading, metadata, sync — remain fully functional.
 
 ## License
 
-Distributed under the terms of the [LICENSE](LICENSE) file in this repository.
+Distributed under the terms of the [AGPL-3.0 License](LICENSE).
