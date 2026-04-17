@@ -85,7 +85,10 @@ runs:
       id: extract
       shell: bash
       env:
+        BASE_TAG: ${{ inputs.base_tag }}
         DETAILS_URL: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
+        FROM_REF: ${{ inputs.from_ref }}
+        TO_REF: ${{ inputs.to_ref }}
       run: |
         set -eu
 
@@ -111,11 +114,11 @@ runs:
         {
           echo "## Full Changelog"
           echo
-          echo "- Range: \`${{ inputs.from_ref }}..${{ inputs.to_ref }}\`"
+          echo "- Range: \`${FROM_REF}..${TO_REF}\`"
           echo "- Predicted version: \`${predicted_version:-none}\`"
           echo "- Release type: \`${release_type:-none}\`"
-          if [ -n "${{ inputs.base_tag }}" ]; then
-            echo "- Base stable tag: \`${{ inputs.base_tag }}\`"
+          if [ -n "${BASE_TAG}" ]; then
+            echo "- Base stable tag: \`${BASE_TAG}\`"
           fi
           if [ -n "$compare_url" ]; then
             echo "- Compare: ${compare_url}"
