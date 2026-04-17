@@ -1,6 +1,5 @@
-import {inject, Injectable, signal} from '@angular/core';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
+import {DestroyRef, inject, Injectable, signal} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MessageService} from 'primeng/api';
 import {TranslocoService} from '@jsverse/transloco';
 import {BookNoteV2Service, CreateBookNoteV2Request, UpdateBookNoteV2Request} from '../../../../../shared/service/book-note-v2.service';
@@ -25,8 +24,8 @@ export class ReaderNoteService {
   private leftSidebarService = inject(ReaderLeftSidebarService);
   private viewManager = inject(ReaderViewManagerService);
 
+  private readonly destroyRef = inject(DestroyRef);
   private bookId!: number;
-  private destroy$ = new Subject<void>();
 
   private readonly _dialogState = signal<NoteDialogState>({
     visible: false,
@@ -34,12 +33,11 @@ export class ReaderNoteService {
   });
   readonly dialogState = this._dialogState.asReadonly();
 
-  initialize(bookId: number, destroy$: Subject<void>): void {
+  initialize(bookId: number): void {
     this.bookId = bookId;
-    this.destroy$ = destroy$;
 
     this.leftSidebarService.editNote$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(note => {
         this.openEditDialog({
           cfi: note.cfi,
@@ -96,7 +94,7 @@ export class ReaderNoteService {
     };
 
     this.bookNoteV2Service.createNote(createRequest)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.closeDialog();
@@ -125,7 +123,7 @@ export class ReaderNoteService {
     };
 
     this.bookNoteV2Service.updateNote(noteId, updateRequest)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.closeDialog();

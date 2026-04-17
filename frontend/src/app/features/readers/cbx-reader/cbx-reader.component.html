@@ -1,12 +1,12 @@
 <div #readerRoot class="comic-reader-container" tabindex="0"
-  [class.rtl-reading]="readingDirection === CbxReadingDirection.RTL"
-  [class.fullscreen-mode]="isFullscreen" [class.slideshow-active]="isSlideshowActive">
-  <app-cbx-header [isCurrentPageBookmarked]="isCurrentPageBookmarked"
-    [currentPageHasNotes]="currentPageHasNotes"></app-cbx-header>
+  [class.rtl-reading]="readingDirection() === CbxReadingDirection.RTL"
+  [class.fullscreen-mode]="isFullscreen()" [class.slideshow-active]="isSlideshowActive()">
+  <app-cbx-header [isCurrentPageBookmarked]="isCurrentPageBookmarked()"
+    [currentPageHasNotes]="currentPageHasNotes()"></app-cbx-header>
 
   <app-cbx-sidebar></app-cbx-sidebar>
 
-  @if (showWebtoonSuggestion) {
+  @if (showWebtoonSuggestion()) {
   <div class="webtoon-suggestion-banner" role="region" [attr.aria-label]="'readerCbx.webtoonHint.regionLabel' | transloco">
     <p class="webtoon-suggestion-text">{{ 'readerCbx.webtoonHint.message' | transloco }}</p>
     <div class="webtoon-suggestion-actions">
@@ -23,11 +23,11 @@
   </div>
   }
 
-  @if (showQuickSettings) {
+  @if (showQuickSettings()) {
   <app-cbx-quick-settings></app-cbx-quick-settings>
   }
 
-  @if (isCurrentPageBookmarked) {
+  @if (isCurrentPageBookmarked()) {
   <div class="bookmark-indicator">
     <svg width="48" height="64" viewBox="0 0 48 64">
       <polygon points="0,0 48,0 48,64 24,48 0,64" fill="red" />
@@ -35,57 +35,57 @@
   </div>
   }
 
-  @if (showNoteDialog) {
-  <app-cbx-note-dialog [data]="noteDialogData" (saved)="onNoteSave($event)"
+  @if (showNoteDialog()) {
+  <app-cbx-note-dialog [data]="noteDialogData()" (saved)="onNoteSave($event)"
     (cancelled)="onNoteCancel()"></app-cbx-note-dialog>
   }
 
-  @if (showShortcutsHelp) {
+  @if (showShortcutsHelp()) {
   <app-cbx-shortcuts-help (closed)="onShortcutsHelpClose()"></app-cbx-shortcuts-help>
   }
 
-  @if (isSlideshowActive) {
-  <div class="slideshow-progress" [class.above-footer]="isFooterVisible"
-    [style.animation-duration.ms]="slideshowInterval"></div>
+  @if (isSlideshowActive()) {
+  <div class="slideshow-progress" [class.above-footer]="isFooterVisible()"
+    [style.animation-duration.ms]="slideshowInterval()"></div>
   }
 
   <div #magnifierLens class="magnifier-lens"></div>
 
-  <div #imageScrollHost class="image-container" [class.magnifier-active]="isMagnifierActive"
-    [class.two-page-view]="isTwoPageView && scrollMode === CbxScrollMode.PAGINATED"
-    [class.infinite-scroll]="scrollMode === CbxScrollMode.INFINITE"
-    [class.long-strip]="scrollMode === CbxScrollMode.LONG_STRIP"
-    [class.fit-actual-size]="fitMode === CbxFitMode.ACTUAL_SIZE" [class.fit-page]="fitMode === CbxFitMode.FIT_PAGE"
-    [class.fit-width]="fitMode === CbxFitMode.FIT_WIDTH" [class.fit-height]="fitMode === CbxFitMode.FIT_HEIGHT"
-    [class.fit-auto]="fitMode === CbxFitMode.AUTO" [class.bg-black]="backgroundColor === CbxBackgroundColor.BLACK"
-    [class.bg-gray]="backgroundColor === CbxBackgroundColor.GRAY"
-    [class.bg-white]="backgroundColor === CbxBackgroundColor.WHITE" [class.emulate-book]="emulateBook && isTwoPageView"
-    [style.filter]="brightness < 100 ? 'brightness(' + brightness + '%)' : null" (scroll)="onScroll($event)">
-    @if (!isLoading) {
-    @if (pages.length > 0) {
-    @if (scrollMode === CbxScrollMode.PAGINATED) {
+  <div #imageScrollHost class="image-container" [class.magnifier-active]="isMagnifierActive()"
+    [class.two-page-view]="isTwoPageView() && scrollMode() === CbxScrollMode.PAGINATED"
+    [class.infinite-scroll]="scrollMode() === CbxScrollMode.INFINITE"
+    [class.long-strip]="scrollMode() === CbxScrollMode.LONG_STRIP"
+    [class.fit-actual-size]="fitMode() === CbxFitMode.ACTUAL_SIZE" [class.fit-page]="fitMode() === CbxFitMode.FIT_PAGE"
+    [class.fit-width]="fitMode() === CbxFitMode.FIT_WIDTH" [class.fit-height]="fitMode() === CbxFitMode.FIT_HEIGHT"
+    [class.fit-auto]="fitMode() === CbxFitMode.AUTO" [class.bg-black]="backgroundColor() === CbxBackgroundColor.BLACK"
+    [class.bg-gray]="backgroundColor() === CbxBackgroundColor.GRAY"
+    [class.bg-white]="backgroundColor() === CbxBackgroundColor.WHITE" [class.emulate-book]="emulateBook() && isTwoPageView()"
+    [style.filter]="brightness() < 100 ? 'brightness(' + brightness() + '%)' : null" (scroll)="onScroll($event)">
+    @if (!isLoading()) {
+    @if (pages().length > 0) {
+    @if (scrollMode() === CbxScrollMode.PAGINATED) {
     <div class="pages-wrapper" role="button" tabindex="0" (click)="onImageClick()" (keydown.enter)="onImageClick()"
       (dblclick)="onImageDoubleClick()">
-      @if (isPageTransitioning && previousImageUrls.length > 0) {
+      @if (isPageTransitioning() && previousImageUrls().length > 0) {
       <div class="previous-page-layer">
-        @for (url of previousImageUrls; track url) {
+        @for (url of previousImageUrls(); track url) {
         <img [src]="url" alt="Previous Page" class="page-image previous-image" />
         }
       </div>
       }
-      <div class="current-page-layer" [class.fade-in]="isPageTransitioning && imagesLoaded">
+      <div class="current-page-layer" [class.fade-in]="isPageTransitioning() && imagesLoaded()">
         @if (shouldUseCanvasRenderer()) {
-        <app-canvas-renderer [imageUrl]="currentImageUrls[0]" [splitState]="canvasSplitState"
-          [splitOption]="pageSplitOption">
+        <app-canvas-renderer [imageUrl]="currentImageUrls()[0]" [splitState]="canvasSplitState"
+          [splitOption]="pageSplitOption()">
         </app-canvas-renderer>
         } @else {
-        @for (url of currentImageUrls; track url; let i = $index) {
-        <img [src]="url" alt="Page Image" class="page-image" (load)="onPageImageLoad($event, currentPage + i)" />
+        @for (url of currentImageUrls(); track url; let i = $index) {
+        <img [src]="url" alt="Page Image" class="page-image" (load)="onPageImageLoad($event, currentPage() + i)" />
         }
         }
       </div>
     </div>
-    @if (isAtLastPage && nextBookInSeries) {
+    @if (isAtLastPage() && nextBookInSeries) {
     <div class="end-of-comic-action">
       <button class="next-book-action-button" (click)="navigateToNextBook()">
         <span class="action-icon">📖</span>
@@ -94,21 +94,21 @@
       </button>
     </div>
     }
-    } @else if (scrollMode === CbxScrollMode.LONG_STRIP) {
+    } @else if (scrollMode() === CbxScrollMode.LONG_STRIP) {
     <div class="long-strip-wrapper" role="button" tabindex="0" (click)="onImageClick()"
       (keydown.enter)="onImageClick()">
       <div class="strip-width-constrain" [style.width]="cbxQuickSettingsState().stripMaxWidthPercent + '%'">
-        @for (item of longStripImages; track item.page) {
+        @for (item of longStripImages(); track item.page) {
         <img [src]="item.src" alt="Page {{ item.page + 1 }}" class="long-strip-image" [attr.data-page]="item.page"
-          draggable="false" [attr.loading]="item.page === currentPage ? 'eager' : 'lazy'" decoding="async" (load)="onLongStripImageLoad($event, item.page)" />
+          draggable="false" [attr.loading]="item.page === currentPage() ? 'eager' : 'lazy'" decoding="async" (load)="onLongStripImageLoad($event, item.page)" />
         }
         @if (nextBookInSeries) {
         <div class="cbx-continuation-spacer" aria-hidden="true"></div>
-        <div class="cbx-continuation-hint" [class.visible]="continuationHintVisible" aria-live="polite">
+        <div class="cbx-continuation-hint" [class.visible]="continuationHintVisible()" aria-live="polite">
           {{ 'readerCbx.continuation.scrollForNext' | transloco }}
         </div>
         }
-        @if (isAtEndOfLongStrip && nextBookInSeries) {
+        @if (isAtEndOfLongStrip() && nextBookInSeries) {
       <div class="end-of-comic-action">
         <button class="next-book-action-button" (click)="navigateToNextBook()">
           <span class="action-icon">📖</span>
@@ -122,25 +122,25 @@
     } @else {
     <div class="infinite-scroll-wrapper">
       <div class="strip-width-constrain" [style.width]="cbxQuickSettingsState().stripMaxWidthPercent + '%'">
-        @for (pageIdx of infiniteScrollPages; track pageIdx) {
+        @for (pageIdx of infiniteScrollPages(); track pageIdx) {
         <img [src]="getPageImageUrl(pageIdx)" alt="Page {{ pageIdx + 1 }}" class="page-image"
           [attr.data-page]="pageIdx" role="button" tabindex="0" draggable="false"
-          [attr.loading]="pageIdx === currentPage ? 'eager' : 'lazy'" decoding="async"
+          [attr.loading]="pageIdx === currentPage() ? 'eager' : 'lazy'" decoding="async"
           (click)="onImageClick()" (keydown.enter)="onImageClick()" (dblclick)="onImageDoubleClick()"
           (load)="onPageImageLoad($event, pageIdx)" />
         }
-        @if (isLoadingMore) {
+        @if (isLoadingMore()) {
         <div class="loading-more">
           <p-progressSpinner class="small-spinner"></p-progressSpinner>
         </div>
         }
         @if (nextBookInSeries) {
         <div class="cbx-continuation-spacer" aria-hidden="true"></div>
-        <div class="cbx-continuation-hint" [class.visible]="continuationHintVisible" aria-live="polite">
+        <div class="cbx-continuation-hint" [class.visible]="continuationHintVisible()" aria-live="polite">
           {{ 'readerCbx.continuation.scrollForNext' | transloco }}
         </div>
         }
-        @if (isAtEndOfInfiniteScroll && nextBookInSeries) {
+        @if (isAtEndOfInfiniteScroll() && nextBookInSeries) {
       <div class="end-of-comic-action">
         <button class="next-book-action-button" (click)="navigateToNextBook()">
           <span class="action-icon">📖</span>
@@ -153,9 +153,9 @@
     </div>
     }
 
-    @if (clickToPaginate) {
-    <div class="click-overlay visible" [class.rtl-overlay]="readingDirection === CbxReadingDirection.RTL"
-      [class.magnifier-disabled]="isMagnifierActive">
+    @if (clickToPaginate()) {
+    <div class="click-overlay visible" [class.rtl-overlay]="readingDirection() === CbxReadingDirection.RTL"
+      [class.magnifier-disabled]="isMagnifierActive()">
       <div class="click-zone click-zone-prev" role="button" tabindex="0" (click)="onClickZonePrev($event)"
         (keydown.enter)="onClickZonePrev($event)">
         <span class="zone-arrow">&#9664;</span>

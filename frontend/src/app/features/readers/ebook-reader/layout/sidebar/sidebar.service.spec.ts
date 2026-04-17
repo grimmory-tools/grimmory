@@ -14,7 +14,6 @@ import {Book} from '../../../../book/model/book.model';
 import {ReaderSidebarService} from './sidebar.service';
 
 describe('ReaderSidebarService', () => {
-  const destroy$ = new Subject<void>();
 
   const selectionAnnotations$ = new Subject<{id: number; cfi: string}[]>();
   const selectionService = {
@@ -133,7 +132,7 @@ describe('ReaderSidebarService', () => {
     });
 
     service = TestBed.inject(ReaderSidebarService);
-    service.initialize(7, book, destroy$);
+    service.initialize(7, book);
   });
 
   afterEach(() => {
