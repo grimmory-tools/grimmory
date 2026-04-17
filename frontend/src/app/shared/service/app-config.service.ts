@@ -1,6 +1,7 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { effect, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { $t } from '@primeuix/themes';
+import { FaviconService } from '../layout/theme-configurator/favicon-service';
 import Aura from '../layout/theme-palette-extend';
 import { AppState } from '../model/app-state.model';
 
@@ -19,6 +20,7 @@ export class AppConfigService {
   appState = signal<AppState>({});
   document = inject(DOCUMENT);
   platformId = inject(PLATFORM_ID);
+  faviconService = inject(FaviconService);
   private initialized = false;
 
   readonly surfaces: Palette[] = [
@@ -359,7 +361,7 @@ export class AppConfigService {
     }
     return {
       preset: 'Aura',
-      primary: 'green',
+      primary: 'orange',
       surface: 'ash',
     };
   }
@@ -376,7 +378,7 @@ export class AppConfigService {
 
   getPresetExt(): object {
     const surfacePalette = this.getSurfacePalette(this.appState().surface ?? 'neutral');
-    const primaryName = this.appState().primary ?? 'green';
+    const primaryName = this.appState().primary ?? 'orange';
     const presetPalette = (Aura.primitive ?? {}) as Record<string, ColorPalette>;
     const color = presetPalette[primaryName] ?? {};
 
@@ -427,6 +429,29 @@ export class AppConfigService {
     };
   }
 
+  getFaviconGradient(): { start: string; end: string } {
+    const primaryName = this.appState().primary ?? 'orange';
+    const presetPalette = (Aura.primitive ?? {}) as Record<string, ColorPalette>;
+    const fallbackPalette = presetPalette['orange'] ?? {};
+
+    if (primaryName === 'noir') {
+      const surfaceName = this.appState().surface ?? 'ash';
+      const surfacePalette = this.getSurfacePalette(surfaceName);
+
+      return {
+        start: surfacePalette['50'] ?? surfacePalette['0'] ?? '#f4f6f8',
+        end: surfacePalette['300'] ?? surfacePalette['200'] ?? '#b4bcc7'
+      };
+    }
+
+    const colorPalette = presetPalette[primaryName] ?? fallbackPalette;
+
+    return {
+      start: colorPalette['300'] ?? colorPalette['500'] ?? '#fdba74',
+      end: colorPalette['500'] ?? colorPalette['700'] ?? '#f97316'
+    };
+  }
+
   onPresetChange(): void {
     if (!isPlatformBrowser(this.platformId)) {
       return;
@@ -436,11 +461,13 @@ export class AppConfigService {
     const preset = this.getPresetExt();
     $t().preset(Aura).preset(preset).surfacePalette(surfacePalette).use({ useDefaultOptions: true });
     this.applyDesignTokens();
+    const faviconGradient = this.getFaviconGradient();
+    this.faviconService.updateFavicon(faviconGradient.start, faviconGradient.end);
   }
 
   private applyDesignTokens(): void {
     const style = this.document.documentElement.style;
-    const primaryName = this.appState().primary ?? 'green';
+    const primaryName = this.appState().primary ?? 'orange';
     const surfaceName = this.appState().surface ?? 'ash';
     const surface = this.getSurfacePalette(surfaceName);
     const primary = ((Aura.primitive ?? {}) as Record<string, ColorPalette>)[primaryName] ?? {};
@@ -449,12 +476,12 @@ export class AppConfigService {
     const primary400 = isNoir ? surface['50'] : primary['400'];
     const primary500 = isNoir ? surface['50'] : (primary['500'] ?? primary['400']);
 
-    style.setProperty('--primary-color', primary400 ?? '#4ade80');
+    style.setProperty('--primary-color', primary400 ?? '#fb923c');
     style.setProperty('--primary-color-rgb', this.toRgbChannels(primary500));
     style.setProperty('--primary-contrast-color', isNoir ? (surface['950'] ?? '#0d1012') : (surface['900'] ?? '#1a1e21'));
-    style.setProperty('--primary-hover-color', isNoir ? (surface['200'] ?? '#d3d8de') : (primary['300'] ?? primary400 ?? '#86efac'));
-    style.setProperty('--primary-text-color', primary400 ?? '#4ade80');
-    style.setProperty('--primary-text-color-dark', isNoir ? (surface['950'] ?? '#0d1012') : (primary['900'] ?? '#14532d'));
+    style.setProperty('--primary-hover-color', isNoir ? (surface['200'] ?? '#d3d8de') : (primary['300'] ?? primary400 ?? '#fdba74'));
+    style.setProperty('--primary-text-color', primary400 ?? '#fb923c');
+    style.setProperty('--primary-text-color-dark', isNoir ? (surface['950'] ?? '#0d1012') : (primary['900'] ?? '#9a3412'));
 
     style.setProperty('--ground-background', surface['950'] ?? '#0d1012');
     style.setProperty('--overlay-background', surface['900'] ?? '#1a1e21');

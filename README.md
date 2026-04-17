@@ -1,19 +1,25 @@
 > [!NOTE]
 > Grimmory is an independent community fork of Booklore.
 
+<div align="center">
 
-Grimmory is a self-hosted application for managing your entire book collection in one place.
-Organize, read, annotate, sync across devices, and share without relying on third-party services.
+<picture>
+  <source srcset="assets/logo-with-text.svg">
+  <img src="assets/logo-with-text.svg" alt="Grimmory" height="80" />
+</picture>
+
+**Grimmory is a self-hosted digital library for people who take their reading seriously.**
 
 [![Release](https://img.shields.io/github/v/release/grimmory-tools/grimmory?color=818CF8&style=flat-square&logo=github)](https://github.com/grimmory-tools/grimmory/releases)
 [![License](https://img.shields.io/github/license/grimmory-tools/grimmory?color=fab005&style=flat-square)](LICENSE)
 [![Docker Pulls](https://img.shields.io/docker/pulls/grimmory/grimmory?color=2496ED&style=flat-square&logo=docker&logoColor=white)](https://hub.docker.com/r/grimmory/grimmory)
 [![Discord](https://img.shields.io/badge/Discord-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discord.gg/9YJ7HB4n8T)
 
+[Documentation](https://grimmory.org/docs) · [Quick Start](docs/QUICKSTART.md) · [Discord](https://discord.gg/9YJ7HB4n8T) · [Releases](https://github.com/grimmory-tools/grimmory/releases)
 
-[Website](https://grimmory.org/) | [Documentation](https://grimmory.org/docs/getting-started) | [Quick Start](#quick-start) | [Discord](https://discord.gg/9YJ7HB4n8T)
+<!-- ![Grimmory Demo](assets/demo.gif) -->
 
-![Grimmory Demo](assets/demo.gif)
+</div>
 
 ---
 
