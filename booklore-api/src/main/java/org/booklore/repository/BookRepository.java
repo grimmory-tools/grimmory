@@ -32,8 +32,8 @@ public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpec
     @Query("SELECT b FROM BookEntity b WHERE b.id = :id AND (b.deleted IS NULL OR b.deleted = false)")
     Optional<BookEntity> findByIdWithBookFiles(@Param("id") Long id);
 
-    // Only ToOne paths in EntityGraph; collections (authors, categories, moods, tags) loaded via @BatchSize.
-    @EntityGraph(attributePaths = { "metadata", "bookFiles", "libraryPath", "library" })
+    // Only ToOne paths in EntityGraph; collections (authors, categories, moods, tags, bookFiles) loaded via @BatchSize.
+    @EntityGraph(attributePaths = { "metadata", "libraryPath", "library" })
     @Query("SELECT b FROM BookEntity b WHERE b.id = :id AND (b.deleted IS NULL OR b.deleted = false)")
     Optional<BookEntity> findByIdForStreaming(@Param("id") Long id);
 
@@ -147,12 +147,12 @@ public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpec
             """)
     List<BookEntity> findBooksWithMetadataAndAuthors(@Param("bookIds") List<Long> bookIds);
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Transactional
     @Query("DELETE FROM BookEntity b WHERE b.deleted IS TRUE")
     int deleteAllSoftDeleted();
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Transactional
     @Query("DELETE FROM BookEntity b WHERE b.deleted IS TRUE AND b.deletedAt < :cutoffDate")
     int deleteSoftDeletedBefore(@Param("cutoffDate") Instant cutoffDate);
@@ -235,7 +235,7 @@ public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpec
     @Query("SELECT b.id as id, m.coverUpdatedOn as coverUpdatedOn FROM BookEntity b LEFT JOIN b.metadata m WHERE b.id IN :bookIds")
     List<BookCoverUpdateProjection> findCoverUpdateInfoByIds(@Param("bookIds") Collection<Long> bookIds);
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
             UPDATE BookEntity b SET
                 b.library.id = :libraryId,
@@ -412,7 +412,8 @@ public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpec
     /**
      * Find books by series name across all libraries when groupUnknown=false.
      */
-    @EntityGraph(attributePaths = {"metadata", "metadata.comicMetadata", "shelves", "libraryPath", "bookFiles"})
+    // Only ToOne paths in EntityGraph; collections loaded via @BatchSize to avoid Cartesian product.
+    @EntityGraph(attributePaths = {"metadata", "metadata.comicMetadata", "libraryPath"})
     @Query("""
             SELECT b FROM BookEntity b
             LEFT JOIN b.metadata m
