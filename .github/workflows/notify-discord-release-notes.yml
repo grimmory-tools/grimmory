@@ -1,0 +1,191 @@
+name: Release - Notify Discord
+
+on:
+  workflow_call:
+    inputs:
+      channel:
+        description: 'Target message channel context (for template selection)'
+        required: true
+        type: string
+      candidate_sha:
+        description: 'Resolved commit SHA for the candidate build'
+        required: true
+        type: string
+      base_tag:
+        description: 'Stable base tag that the candidate is built on top of'
+        required: false
+        default: ''
+        type: string
+      mention_text:
+        description: 'Optional role mentions or intro text to prepend to the message'
+        required: false
+        default: ''
+        type: string
+      current_version:
+        description: 'Current release/build identifier to display in the embed'
+        required: true
+        type: string
+      predicted_version:
+        description: 'Predicted next semantic version (without v-prefix)'
+        required: false
+        default: ''
+        type: string
+      compare_url:
+        description: 'GitHub compare URL between base stable tag and candidate SHA'
+        required: false
+        default: ''
+        type: string
+      details_url:
+        description: 'Canonical details link for the full markdown notes'
+        required: false
+        default: ''
+        type: string
+      image_tag:
+        description: 'Container image tag for this build'
+        required: false
+        default: ''
+        type: string
+    secrets:
+      discord_webhook:
+        description: 'Discord webhook URL for release notifications'
+        required: true
+
+jobs:
+  notify:
+    name: Notify Discord
+    runs-on: ubuntu-latest
+    permissions: {}
+
+    steps:
+      - name: Compose Message
+        id: compose
+        env:
+          CHANNEL: ${{ inputs.channel }}
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          COMPARE_URL: ${{ inputs.compare_url }}
+          CURRENT_VERSION: ${{ inputs.current_version }}
+          DETAILS_URL: ${{ inputs.details_url }}
+          MENTION_TEXT: ${{ inputs.mention_text }}
+          PREDICTED_VERSION: ${{ inputs.predicted_version }}
+        run: |
+          set -eu
+
+          short_sha="$(printf '%s' "$CANDIDATE_SHA" | cut -c1-7)"
+          if [ "$CHANNEL" = "rc" ]; then
+            header="🧪 **A new release candidate has been announced**"
+          elif [ "$CHANNEL" = "stable" ]; then
+            header="🚀 **A new release is now available**"
+          else
+            header="🌙 **A new nightly build is now available**"
+          fi
+
+          if [ -n "$MENTION_TEXT" ]; then
+            content="${header} ${MENTION_TEXT}"
+          else
+            content="${header}"
+          fi
+
+          if [ -n "$DETAILS_URL" ]; then
+            title_url="$DETAILS_URL"
+          elif [ -n "$COMPARE_URL" ]; then
+            title_url="$COMPARE_URL"
+          else
+            title_url=""
+          fi
+
+          description="- Current Version: \`${CURRENT_VERSION}\`"
+          if [ "$CHANNEL" != "stable" ]; then
+            if [ -n "$PREDICTED_VERSION" ] && [ "$PREDICTED_VERSION" != "no-release" ]; then
+              predicted_release="v${PREDICTED_VERSION}"
+            else
+              predicted_release="no predicted release"
+            fi
+            description="${description}\n- Predicted Release: \`${predicted_release}\`"
+          fi
+
+          if [ -n "$COMPARE_URL" ]; then
+            description="${description}\n- Candidate SHA: \`${short_sha}\` ([compare](${COMPARE_URL}))"
+          else
+            description="${description}\n- Candidate SHA: \`${short_sha}\`"
+          fi
+
+          {
+            echo 'content<<EOF'
+            printf '%s\n' "$content"
+            echo 'EOF'
+            echo "title_url=${title_url}"
+            echo 'description<<EOF'
+            printf '%b\n' "$description"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Send Discord Webhook
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.discord_webhook }}
+          CONTENT: ${{ steps.compose.outputs.content }}
+          DESCRIPTION: ${{ steps.compose.outputs.description }}
+          TITLE_URL: ${{ steps.compose.outputs.title_url }}
+        run: |
+          set -eu
+
+          payload="$(jq -n \
+            --arg content "$CONTENT" \
+            --arg description "$DESCRIPTION" \
+            --arg title_url "$TITLE_URL" \
+            '
+              {
+                content: $content,
+                embeds: [
+                  {
+                    title: "Build Details",
+                    description: $description,
+                    color: 5763719
+                  }
+                ]
+              }
+              + (
+                if $title_url != "" then
+                  {
+                    components: [
+                      {
+                        type: 1,
+                        components: [
+                          {
+                            type: 2,
+                            style: 5,
+                            label: "View Changelog",
+                            url: $title_url
+                          },
+                          {
+                            type: 2,
+                            style: 5,
+                            label: "Report Issue",
+                            url: "https://github.com/orgs/grimmory-tools/discussions/new?category=issue-triage"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                else
+                  {
+                    components: [
+                      {
+                        type: 1,
+                        components: [
+                          {
+                            type: 2,
+                            style: 5,
+                            label: "Report Issue",
+                            url: "https://github.com/orgs/grimmory-tools/discussions/new?category=issue-triage"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                end
+              )
+            ')"
+
+          curl --fail-with-body -sS -X POST "${DISCORD_WEBHOOK}?with_components=true" \
+            -H 'Content-Type: application/json' \
+            -d "$payload"

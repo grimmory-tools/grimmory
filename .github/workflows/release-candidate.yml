@@ -1,0 +1,113 @@
+name: Release - Candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_ref:
+        description: 'Branch, tag, or commit SHA to build as a release candidate'
+        required: false
+        default: develop
+        type: string
+
+concurrency:
+  group: release-candidate
+  cancel-in-progress: false
+
+jobs:
+  resolve_ref:
+    name: Resolve Candidate Ref
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+
+    outputs:
+      candidate_sha: ${{ steps.resolve.outputs.candidate_sha }}
+      base_tag: ${{ steps.resolve.outputs.base_tag }}
+      current_version: ${{ steps.resolve.outputs.current_version }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.candidate_ref }}
+
+      - name: Resolve Candidate Metadata
+        id: resolve
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eu
+
+          git fetch origin main --tags --force
+
+          if ! git merge-base --is-ancestor origin/main HEAD; then
+            echo "Selected ref does not contain origin/main and cannot be promoted cleanly to main" >&2
+            exit 1
+          fi
+
+          candidate_sha="$(git rev-parse HEAD)"
+          base_tag="$(git describe --tags --abbrev=0 --match 'v*' origin/main)"
+          latest_nightly_json="$(
+            gh api "/repos/${GITHUB_REPOSITORY}/actions/workflows/publish-nightly.yml/runs?branch=develop&status=success&per_page=1"
+          )"
+          latest_nightly_sha="$(printf '%s' "$latest_nightly_json" | jq -r '.workflow_runs[0].head_sha // ""')"
+          latest_nightly_created_at="$(printf '%s' "$latest_nightly_json" | jq -r '.workflow_runs[0].created_at // ""')"
+          current_version="$base_tag"
+          if [ -n "$latest_nightly_sha" ] && [ -n "$latest_nightly_created_at" ]; then
+            latest_nightly_date="$(date -u -d "$latest_nightly_created_at" +%Y%m%d)"
+            latest_nightly_short_sha="$(printf '%s' "$latest_nightly_sha" | cut -c1-7)"
+            current_version="nightly-${latest_nightly_date}-${latest_nightly_short_sha}"
+          fi
+
+          echo "candidate_sha=${candidate_sha}" >> "$GITHUB_OUTPUT"
+          echo "base_tag=${base_tag}" >> "$GITHUB_OUTPUT"
+          echo "current_version=${current_version}" >> "$GITHUB_OUTPUT"
+
+  generate-notes:
+    name: Release Candidate Changelog
+    needs: [resolve_ref]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      compare_url: ${{ steps.notes.outputs.compare_url }}
+      details_url: ${{ steps.notes.outputs.details_url }}
+      predicted_version: ${{ steps.notes.outputs.predicted_version }}
+      release_notes: ${{ steps.notes.outputs.release_notes }}
+      release_type: ${{ steps.notes.outputs.release_type }}
+      released: ${{ steps.notes.outputs.released }}
+      to_sha: ${{ steps.notes.outputs.to_sha }}
+    steps:
+      - name: Checkout Workflow Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 1
+
+      - name: Build Full Changelog
+        id: notes
+        uses: ./.github/actions/compute-release-notes
+        with:
+          base_tag: ${{ needs.resolve_ref.outputs.base_tag }}
+          from_ref: ${{ needs.resolve_ref.outputs.base_tag }}
+          repository_url: ${{ format('{0}/{1}', github.server_url, github.repository) }}
+          to_ref: ${{ needs.resolve_ref.outputs.candidate_sha }}
+
+  notify-discord:
+    name: Notify Discord (RC)
+    if: ${{ always() && needs.generate-notes.result == 'success' }}
+    needs: [resolve_ref, generate-notes]
+    permissions: {}
+    uses: ./.github/workflows/notify-discord-release-notes.yml
+    secrets:
+      discord_webhook: ${{ secrets.DISCORD_RC_WEBHOOK != '' && secrets.DISCORD_RC_WEBHOOK || secrets.DISCORD_RELEASE_WEBHOOK }}
+    with:
+      channel: rc
+      candidate_sha: ${{ needs.resolve_ref.outputs.candidate_sha }}
+      base_tag: ${{ needs.resolve_ref.outputs.base_tag }}
+      current_version: ${{ needs.resolve_ref.outputs.current_version }}
+      details_url: ${{ needs.generate-notes.outputs.details_url }}
+      predicted_version: ${{ needs.generate-notes.outputs.predicted_version }}
+      compare_url: ${{ needs.generate-notes.outputs.compare_url }}
+      mention_text: ${{ vars.DISCORD_RC_MENTIONS }}

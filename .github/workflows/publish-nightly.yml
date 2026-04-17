@@ -4,46 +4,79 @@ on:
   schedule:
     - cron: '0 4 * * *'
   workflow_dispatch:
+    inputs:
+      publish_image:
+        description: 'Publish the nightly container image'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   resolve_ref:
     name: Resolve Nightly Ref
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
 
     outputs:
+      base_tag: ${{ steps.resolve.outputs.base_tag }}
       commit_sha: ${{ steps.resolve.outputs.commit_sha }}
+      from_ref: ${{ steps.resolve.outputs.from_ref }}
+      nightly_tag: ${{ steps.resolve.outputs.nightly_tag }}
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
-          fetch-depth: 1
+          fetch-depth: 0
           ref: develop
 
       - name: Record Resolved Commit
         id: resolve
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          set -eu
 
-  test-suite:
-    name: Test Suite
-    needs: [resolve_ref]
-    uses: ./.github/workflows/test-suite.yml
-    permissions:
-      contents: read
-      checks: write
-    with:
-      checkout_ref: ${{ needs.resolve_ref.outputs.commit_sha }}
-      save_gradle_cache: true
+          git fetch origin main --tags --force
+          short_sha="$(git rev-parse --short HEAD)"
+          build_date="$(date -u +%Y%m%d)"
+          nightly_tag="nightly-${build_date}-${short_sha}"
+          base_tag="$(git describe --tags --abbrev=0 --match 'v*' origin/main)"
+          from_ref="$base_tag"
+          previous_nightly_sha=""
+          if previous_nightly_json="$(
+            gh api "/repos/${GITHUB_REPOSITORY}/actions/workflows/publish-nightly.yml/runs?branch=develop&event=schedule&status=success&per_page=1"
+          )"; then
+            previous_nightly_sha="$(printf '%s' "$previous_nightly_json" | jq -r '.workflow_runs[0].head_sha // ""')"
+          else
+            echo "::warning::Unable to resolve previous nightly run; using ${base_tag}"
+          fi
+
+          if [ -n "$previous_nightly_sha" ] && git rev-parse --verify --quiet "${previous_nightly_sha}^{commit}" >/dev/null; then
+            from_ref="$previous_nightly_sha"
+          elif [ -n "$previous_nightly_sha" ]; then
+            echo "::warning::Ignoring invalid nightly baseline ${previous_nightly_sha}; using ${base_tag}"
+          fi
+
+          echo "base_tag=${base_tag}" >> "$GITHUB_OUTPUT"
+          echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "from_ref=${from_ref}" >> "$GITHUB_OUTPUT"
+          echo "nightly_tag=${nightly_tag}" >> "$GITHUB_OUTPUT"
 
   build-and-push:
     name: Build and Push Nightly Image
+    if: ${{ github.event_name == 'schedule' || inputs.publish_image }}
     needs: [resolve_ref, test-suite]
     runs-on: ubuntu-latest
 
     permissions:
       contents: read
       packages: write
+
+    outputs:
+      image_tag: ${{ steps.record.outputs.image_tag }}
 
     steps:
       - name: Checkout Repository
@@ -52,14 +85,13 @@ jobs:
           fetch-depth: 1
           ref: ${{ needs.resolve_ref.outputs.commit_sha }}
 
-      - name: Generate Nightly Tag
+      - name: Record Nightly Build Metadata
+        id: record
         run: |
-          short_sha=$(git rev-parse --short HEAD)
-          build_date=$(date -u +%Y%m%d)
-          nightly_tag="nightly-${build_date}-${short_sha}"
-          echo "nightly_tag=$nightly_tag" >> "$GITHUB_ENV"
+          echo "image_tag=${{ needs.resolve_ref.outputs.nightly_tag }}" >> "$GITHUB_OUTPUT"
+          echo "nightly_tag=${{ needs.resolve_ref.outputs.nightly_tag }}" >> "$GITHUB_ENV"
           echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
-          echo "Nightly tag: $nightly_tag"
+          echo "Nightly tag: ${{ needs.resolve_ref.outputs.nightly_tag }}"
 
       - name: Set Up QEMU for Multi-Arch Builds
         uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0
@@ -103,3 +135,62 @@ jobs:
           cache-to: |
             type=gha,scope=image-shared,mode=max
             type=registry,ref=ghcr.io/grimmory-tools/grimmory:buildcache,mode=max
+
+  generate-notes:
+    name: Nightly Changelog
+    if: ${{ always() && needs.test-suite.result == 'success' }}
+    needs: [resolve_ref, test-suite]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      compare_url: ${{ steps.notes.outputs.compare_url }}
+      details_url: ${{ steps.notes.outputs.details_url }}
+      predicted_version: ${{ steps.notes.outputs.predicted_version }}
+      release_notes: ${{ steps.notes.outputs.release_notes }}
+      release_type: ${{ steps.notes.outputs.release_type }}
+      released: ${{ steps.notes.outputs.released }}
+      to_sha: ${{ steps.notes.outputs.to_sha }}
+    steps:
+      - name: Checkout Workflow Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 1
+
+      - name: Build Full Changelog
+        id: notes
+        uses: ./.github/actions/compute-release-notes
+        with:
+          base_tag: ${{ needs.resolve_ref.outputs.base_tag }}
+          from_ref: ${{ needs.resolve_ref.outputs.from_ref }}
+          repository_url: ${{ format('{0}/{1}', github.server_url, github.repository) }}
+          to_ref: ${{ needs.resolve_ref.outputs.commit_sha }}
+
+  notify-discord:
+    name: Notify Discord (Nightly)
+    if: ${{ always() && needs.generate-notes.result == 'success' && (needs.build-and-push.result == 'success' || needs.build-and-push.result == 'skipped') }}
+    needs: [resolve_ref, build-and-push, generate-notes]
+    permissions: {}
+    uses: ./.github/workflows/notify-discord-release-notes.yml
+    secrets:
+      discord_webhook: ${{ secrets.DISCORD_NIGHTLY_WEBHOOK != '' && secrets.DISCORD_NIGHTLY_WEBHOOK || secrets.DISCORD_RELEASE_WEBHOOK }}
+    with:
+      channel: nightly
+      candidate_sha: ${{ needs.resolve_ref.outputs.commit_sha }}
+      base_tag: ${{ needs.resolve_ref.outputs.base_tag }}
+      current_version: ${{ needs.resolve_ref.outputs.nightly_tag }}
+      details_url: ${{ needs.generate-notes.outputs.details_url }}
+      compare_url: ${{ needs.generate-notes.outputs.compare_url }}
+      mention_text: ${{ vars.DISCORD_NIGHTLY_MENTIONS }}
+      predicted_version: ${{ needs.generate-notes.outputs.predicted_version }}
+
+  test-suite:
+    name: Test Suite
+    needs: [resolve_ref]
+    uses: ./.github/workflows/test-suite.yml
+    permissions:
+      contents: read
+      checks: write
+    with:
+      checkout_ref: ${{ needs.resolve_ref.outputs.commit_sha }}
+      save_gradle_cache: true

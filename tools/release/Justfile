@@ -15,6 +15,10 @@ install:
 preview:
     {{ yarn }} release:dry-run
 
+# Generate release notes for an explicit commit range.
+range-notes:
+    {{ yarn }} release:range-notes
+
 # Run semantic-release for the current checkout.
 run:
     {{ yarn }} release

@@ -1,3 +1,5 @@
+const releasePolicy = require("./release-policy.cjs");
+
 module.exports = {
   repositoryUrl: "https://github.com/grimmory-tools/grimmory.git",
   branches: ["main"],
@@ -8,32 +10,14 @@ module.exports = {
       {
         preset: "conventionalcommits",
         presetConfig: {
-          types: [
-            { type: "feat", section: "Features", hidden: false },
-            { type: "fix", section: "Bug Fixes", hidden: false },
-            { type: "perf", section: "Performance", hidden: false },
-            { type: "refactor", section: "Refactors", hidden: false },
-            { type: "chore", section: "Chores", hidden: false },
-            { type: "docs", section: "Documentation", hidden: false },
-            { type: "ci", section: "CI", hidden: false },
-            { type: "build", section: "Build", hidden: false },
-            { type: "test", section: "Tests", hidden: false },
-            { type: "style", section: "Style", hidden: false },
-            { type: "revert", section: "Reverts", hidden: false }
-          ]
+          types: releasePolicy.types.map(({ section, type }) => ({ hidden: false, section, type }))
         },
         parserOpts: {
-          noteKeywords: ["BREAKING CHANGE", "BREAKING CHANGES", "BREAKING"]
+          noteKeywords: releasePolicy.noteKeywords
         },
-        releaseRules: [
-          { type: "refactor", release: "patch" },
-          { type: "docs", release: false },
-          { type: "ci", release: false },
-          { type: "build", release: false },
-          { type: "chore", release: false },
-          { type: "test", release: false },
-          { type: "style", release: false }
-        ]
+        releaseRules: releasePolicy.types
+          .filter((entry) => Object.prototype.hasOwnProperty.call(entry, "release"))
+          .map(({ release, type }) => ({ release, type }))
       }
     ],
     [
@@ -41,25 +25,13 @@ module.exports = {
       {
         preset: "conventionalcommits",
         presetConfig: {
-          types: [
-            { type: "feat", section: "Features", hidden: false },
-            { type: "fix", section: "Bug Fixes", hidden: false },
-            { type: "perf", section: "Performance", hidden: false },
-            { type: "refactor", section: "Refactors", hidden: false },
-            { type: "chore", section: "Chores", hidden: false },
-            { type: "docs", section: "Documentation", hidden: false },
-            { type: "ci", section: "CI", hidden: false },
-            { type: "build", section: "Build", hidden: false },
-            { type: "test", section: "Tests", hidden: false },
-            { type: "style", section: "Style", hidden: false },
-            { type: "revert", section: "Reverts", hidden: false }
-          ]
+          types: releasePolicy.types.map(({ section, type }) => ({ hidden: false, section, type }))
         },
         parserOpts: {
-          noteKeywords: ["BREAKING CHANGE", "BREAKING CHANGES", "BREAKING"]
+          noteKeywords: releasePolicy.noteKeywords
         },
         writerOpts: {
-          commitsSort: ["scope", "subject"]
+          commitsSort: releasePolicy.writerSortFields
         }
       }
     ],
