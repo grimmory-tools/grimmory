@@ -14,10 +14,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -302,12 +302,12 @@ class CustomFontServiceTest {
         when(customFontRepository.findByIdAndUserId(fontId, userId)).thenReturn(Optional.of(font));
 
         // Act
-        Resource result = service.getFontFile(fontId, userId);
+        File result = service.getFontFile(fontId, userId);
 
         // Assert
         assertThat(result).isNotNull();
         assertThat(result.exists()).isTrue();
-        assertThat(result.getFile().toPath()).isEqualTo(fontFile);
+        assertThat(result.toPath()).isEqualTo(fontFile);
     }
 
     @Test

@@ -10,7 +10,10 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.booklore.util.FileUtils;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +21,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 
 @Tag(name = "Custom Fonts", description = "Endpoints for managing custom fonts for EPUB reader")
@@ -70,11 +75,19 @@ public class CustomFontController {
     @PreAuthorize("@securityUtil.canManageFonts() or @securityUtil.isAdmin()")
     public ResponseEntity<Resource> getFontFile(@PathVariable Long fontId) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
-        Resource resource = customFontService.getFontFile(fontId, user.getId());
+        File fontFile = customFontService.getFontFile(fontId, user.getId());
         FontFormat format = customFontService.getFontFormat(fontId, user.getId());
-        return ResponseEntity.ok()
+        Long lastModified = FileUtils.getFileLastModified(fontFile.toPath());
+        var builder = ResponseEntity.ok();
+
+        if (lastModified != null) {
+            builder.lastModified(lastModified);
+        }
+
+        return builder
+                .cacheControl(CacheControl.noCache().cachePrivate())
                 .contentType(MediaType.parseMediaType(format.getMimeType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline")
-                .body(resource);
+                .body(new FileSystemResource(fontFile));
     }
 }

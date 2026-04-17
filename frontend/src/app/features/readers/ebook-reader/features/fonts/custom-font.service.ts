@@ -1,4 +1,7 @@
 import {Injectable, inject, Renderer2} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {CacheStorageService} from '../../../../../shared/service/cache-storage.service';
+import {LocalSettingsService} from '../../../../../shared/service/local-settings.service';
 import {CustomFontService} from '../../../../../shared/service/custom-font.service';
 import {CustomFont} from '../../../../../shared/model/custom-font.model';
 import {Observable, forkJoin, of, from} from 'rxjs';
@@ -8,8 +11,10 @@ import {map, switchMap, tap, catchError} from 'rxjs/operators';
   providedIn: 'root'
 })
 export class EpubCustomFontService {
+  private http = inject(HttpClient);
   private customFontService = inject(CustomFontService);
-
+  private cacheStorageService = inject(CacheStorageService);
+  private localSettingsService = inject(LocalSettingsService);
   private customFonts: CustomFont[] = [];
   private customFontBlobUrls = new Map<number, string>();
 
@@ -42,10 +47,17 @@ export class EpubCustomFontService {
 
   private cacheSingleFont(font: CustomFont): Observable<void> {
     const fontUrl = this.customFontService.getFontUrl(font.id);
-    const fontUrlWithToken = this.customFontService.appendToken(fontUrl);
+    let obs$: Observable<Blob>;
+    
+    if (this.localSettingsService.get().cacheStorageEnabled) {
+      obs$ = from(this.cacheStorageService.getCache(fontUrl)).pipe(
+        switchMap(res => res.blob())
+      );
+    } else {
+      obs$ = this.http.get(fontUrl, {responseType: 'blob'});
+    }
 
-    return from(fetch(fontUrlWithToken)).pipe(
-      switchMap(response => from(response.blob())),
+    return obs$.pipe(
       tap(blob => {
         const blobUrl = URL.createObjectURL(blob);
         this.customFontBlobUrls.set(font.id, blobUrl);

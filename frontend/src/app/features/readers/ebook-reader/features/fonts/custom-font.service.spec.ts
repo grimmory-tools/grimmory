@@ -6,6 +6,7 @@ import {firstValueFrom} from 'rxjs';
 import {CustomFontService} from '../../../../../shared/service/custom-font.service';
 import {FontFormat} from '../../../../../shared/model/custom-font.model';
 import {EpubCustomFontService} from './custom-font.service';
+import {LocalSettingsService} from '../../../../../shared/service/local-settings.service';
 
 describe('EpubCustomFontService', () => {
   const fonts = [
@@ -27,6 +28,7 @@ describe('EpubCustomFontService', () => {
   };
 
   let service: EpubCustomFontService;
+  let localSettingsService: {get: ReturnType<typeof vi.fn>};
   let fetchMock: ReturnType<typeof vi.fn>;
   let createObjectUrlSpy: ReturnType<typeof vi.spyOn>;
   let revokeObjectUrlSpy: ReturnType<typeof vi.spyOn>;
@@ -42,6 +44,10 @@ describe('EpubCustomFontService', () => {
     customFontService.getFontUrl.mockImplementation((fontId: number) => `https://fonts.test/${fontId}`);
     customFontService.appendToken.mockImplementation((url: string) => `${url}?token=abc`);
 
+    localSettingsService = {
+      get: vi.fn().mockReturnValue({cacheStorageEnabled: false}),
+    }
+
     fetchMock = vi.fn();
     vi.stubGlobal('fetch', fetchMock);
 
@@ -52,6 +58,7 @@ describe('EpubCustomFontService', () => {
       providers: [
         EpubCustomFontService,
         {provide: CustomFontService, useValue: customFontService},
+        {provide: LocalSettingsService, useValue: localSettingsService},
       ]
     });
 

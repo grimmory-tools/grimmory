@@ -1,10 +1,12 @@
 import {computed, signal, effect, inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {lastValueFrom, Observable, tap} from 'rxjs';
+import {firstValueFrom, lastValueFrom, Observable, tap} from 'rxjs';
 import {CustomFont} from '../model/custom-font.model';
 import {API_CONFIG} from '../../core/config/api-config';
 import {AuthService} from './auth.service';
 import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
+import {LocalSettingsService} from './local-settings.service';
+import {CacheStorageService} from './cache-storage.service';
 
 const CUSTOM_FONTS_QUERY_KEY = ['customFonts'] as const;
 
@@ -18,6 +20,8 @@ export class CustomFontService {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
   private queryClient = inject(QueryClient);
+  private localSettingsService = inject(LocalSettingsService);
+  private cacheStorageService = inject(CacheStorageService);
   private readonly token = this.authService.token;
 
   private fontsQuery = injectQuery(() => ({
@@ -108,12 +112,19 @@ export class CustomFontService {
     }
 
     try {
-      const absoluteFontUrl = this.getFontUrl(font.id);
-      const fontUrlWithToken = this.appendToken(absoluteFontUrl);
+      let fontUrl = this.getFontUrl(font.id);
+
+      if (this.localSettingsService.get().cacheStorageEnabled) {
+        const cachedBlob = await (await this.cacheStorageService.getCache(fontUrl)).blob();
+        fontUrl = URL.createObjectURL(cachedBlob);
+      } else {
+        const freshBlob = await firstValueFrom(this.http.get(fontUrl, {responseType: 'blob'}));
+        fontUrl = URL.createObjectURL(freshBlob);
+      }
 
       const fontFace = new FontFace(
         font.fontName,
-        `url(${fontUrlWithToken})`,
+        `url(${fontUrl})`,
         {
           weight: 'normal',
           style: 'normal'
