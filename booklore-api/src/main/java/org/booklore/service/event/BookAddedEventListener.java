@@ -30,7 +30,7 @@ public class BookAddedEventListener {
             log.debug("Processing book added event for book ID {}", book.getId());
             bookEventBroadcaster.broadcastBookAddEvent(book);
             koboAutoShelfService.autoAddBookToKoboShelves(book.getId());
-            log.info("Book {} notifications and Kobo shelf updates completed", book.getId());
+            log.debug("Book {} notifications and Kobo shelf updates completed", book.getId());
         } catch (Exception e) {
             log.error("Failed to process book added event for book ID {}: {}", book.getId(), e.getMessage(), e);
         }

@@ -1,5 +1,6 @@
 package org.booklore.model.dto.settings;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 import lombok.AllArgsConstructor;
@@ -10,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(onConstructor_ = @JsonCreator)
 public class KoboSettings {
     @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
     private boolean convertToKepub = false;
@@ -25,5 +26,5 @@ public class KoboSettings {
     @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
     private int conversionImageCompressionPercentage = 85;
     @Builder.Default @JsonSetter(nulls = Nulls.SKIP)
-    private boolean forwardToKoboStore = false;
+    private boolean forwardToKoboStore = true;
 }

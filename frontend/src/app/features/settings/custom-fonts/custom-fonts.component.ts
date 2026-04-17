@@ -24,8 +24,6 @@ import {DatePipe} from '@angular/common';
   providers: [ConfirmationService, DialogService]
 })
 export class CustomFontsComponent implements OnInit {
-  customFonts: CustomFont[] = [];
-  isLoading = true;
   fontsLoadedInBrowser = false;
   uploadDialogRef: DynamicDialogRef | null = null;
 
@@ -38,6 +36,9 @@ export class CustomFontsComponent implements OnInit {
   private t = inject(TranslocoService);
   private destroyRef = inject(DestroyRef);
 
+  get customFonts(): CustomFont[] { return this.customFontService.fonts(); }
+  get isLoading(): boolean { return this.customFontService.isFontsLoading(); }
+
   ngOnInit(): void {
     this.loadFonts();
   }
@@ -47,9 +48,6 @@ export class CustomFontsComponent implements OnInit {
 
     try {
       const fonts = await this.customFontService.ensureFonts();
-
-      this.customFonts = fonts;
-      this.isLoading = false;
 
       await this.customFontService.loadAllFonts(fonts);
 
@@ -61,7 +59,6 @@ export class CustomFontsComponent implements OnInit {
         summary: this.t.translate('common.error'),
         detail: this.t.translate('settingsReader.fonts.loadError')
       });
-      this.isLoading = false;
       this.fontsLoadedInBrowser = true;
     }
   }
@@ -87,10 +84,7 @@ export class CustomFontsComponent implements OnInit {
     if (this.uploadDialogRef) {
       this.uploadDialogRef.onClose.pipe(
         takeUntilDestroyed(this.destroyRef)
-      ).subscribe((font: CustomFont | null) => {
-        if (font) {
-          this.customFonts.push(font);
-        }
+      ).subscribe(() => {
         this.uploadDialogRef = null;
       });
     }
@@ -106,7 +100,6 @@ export class CustomFontsComponent implements OnInit {
           takeUntilDestroyed(this.destroyRef)
         ).subscribe({
           next: () => {
-            this.customFonts = this.customFonts.filter(f => f.id !== font.id);
             this.messageService.add({
               severity: 'success',
               summary: this.t.translate('common.success'),

@@ -1,13 +1,9 @@
-import {ChangeDetectionStrategy, Component, computed, effect, inject} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-
-
-import Aura from '../theme-palette-extend';
-
 import {AppConfigService} from '../../service/app-config.service';
 import {TranslocoDirective} from '@jsverse/transloco';
-import {FaviconService} from './favicon-service';
 import {NgClass} from '@angular/common';
+import Aura from '../theme-palette-extend';
 
 type ColorPalette = Record<string, string>;
 
@@ -32,28 +28,16 @@ interface Palette {
 })
 export class ThemeConfiguratorComponent {
   readonly configService = inject(AppConfigService);
-  readonly faviconService = inject(FaviconService);
 
   readonly surfaces = this.configService.surfaces;
 
   readonly selectedPrimaryColor = computed(() => this.configService.appState().primary);
   readonly selectedSurfaceColor = computed(() => this.configService.appState().surface);
 
-  readonly faviconColor = computed(() => {
-    const name = this.selectedPrimaryColor() ?? 'green';
-    const presetPalette = (Aura.primitive ?? {}) as Record<string, ColorPalette>;
-    const colorPalette = presetPalette[name];
-    return colorPalette?.[500] ?? name;
-  });
-
-  private readonly _faviconSyncEffect = effect(() => {
-    this.faviconService.updateFavicon(this.faviconColor());
-  });
-
   readonly primaryColors = computed<Palette[]>(() => {
     const presetPalette = (Aura.primitive ?? {}) as Record<string, ColorPalette>;
     const colors = [
-      'emerald', 'green', 'lime', 'orange', 'amber', 'yellow',
+      'orange', 'amber', 'yellow', 'lime', 'green', 'emerald', 
       'teal', 'cyan', 'sky', 'blue', 'indigo', 'violet',
       'purple', 'fuchsia', 'pink', 'rose', 'red',
       'coralSunset', 'roseBlush', 'melonBlush', 'cottonCandy',

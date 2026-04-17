@@ -41,6 +41,7 @@ export type CoverPlaceholderSize = 'sm' | 'md' | 'lg';
       display: block;
       width: 100%;
       height: 100%;
+      container-type: inline-size;
     }
 
     .placeholder {
@@ -52,11 +53,12 @@ export type CoverPlaceholderSize = 'sm' | 'md' | 'lg';
       justify-content: center;
       text-align: center;
       border-radius: inherit;
+      overflow: hidden;
     }
 
-    .placeholder.size-sm { padding: 0.5rem; }
-    .placeholder.size-md { padding: 1rem; }
-    .placeholder.size-lg { padding: 1.5rem; }
+    .placeholder.size-sm { padding: min(0.5rem, 4cqi); }
+    .placeholder.size-md { padding: min(1rem, 6cqi); }
+    .placeholder.size-lg { padding: min(1.5rem, 8cqi); }
 
     .placeholder-title {
       color: rgba(255, 255, 255, 0.9);
@@ -66,20 +68,22 @@ export type CoverPlaceholderSize = 'sm' | 'md' | 'lg';
       -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
       overflow: hidden;
+      word-break: break-word;
+      max-width: 100%;
     }
 
     .size-sm .placeholder-title {
-      font-size: 11px;
+      font-size: min(11px, 10cqi);
       margin-bottom: 2px;
     }
 
     .size-md .placeholder-title {
-      font-size: 13px;
+      font-size: min(13px, 10cqi);
       margin-bottom: 4px;
     }
 
     .size-lg .placeholder-title {
-      font-size: 15px;
+      font-size: min(15px, 10cqi);
       margin-bottom: 8px;
     }
 
@@ -90,11 +94,13 @@ export type CoverPlaceholderSize = 'sm' | 'md' | 'lg';
       -webkit-line-clamp: 1;
       -webkit-box-orient: vertical;
       overflow: hidden;
+      word-break: break-word;
+      max-width: 100%;
     }
 
-    .size-sm .placeholder-author { font-size: 9px; }
-    .size-md .placeholder-author { font-size: 11px; }
-    .size-lg .placeholder-author { font-size: 12px; }
+    .size-sm .placeholder-author { font-size: min(9px, 8cqi); }
+    .size-md .placeholder-author { font-size: min(11px, 8cqi); }
+    .size-lg .placeholder-author { font-size: min(12px, 8cqi); }
   `]
 })
 export class CoverPlaceholderComponent {
