@@ -168,6 +168,7 @@ export class AdditionalFileUploaderComponent implements OnInit, OnDestroy {
       ).subscribe({
         next: () => {
           uploadFile.status = 'Uploaded';
+          this.cdr.detectChanges();
           if (--pending === 0) {
             this.isUploading = false;
             this.dialogRef.close({ success: true });
@@ -177,8 +178,10 @@ export class AdditionalFileUploaderComponent implements OnInit, OnDestroy {
           uploadFile.status = 'Failed';
           uploadFile.errorMessage = err?.error?.message || this.t.translate('book.fileUploader.toast.uploadFailedUnknown');
           console.error('Upload failed for', uploadFile.file.name, err);
+          this.cdr.detectChanges();
           if (--pending === 0) {
             this.isUploading = false;
+            this.cdr.detectChanges();
           }
         }
       });
