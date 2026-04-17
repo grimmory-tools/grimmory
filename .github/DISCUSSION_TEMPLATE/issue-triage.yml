@@ -6,7 +6,7 @@ body:
         > [!IMPORTANT]
         > **Not sure if this is a bug or just something you haven't figured out yet?**
         > If Grimmory is doing something unexpected and you're fairly confident it's broken, you're in the right place.
-        > If you're unsure, head over to our Q&A [**Q&A**](https://github.com/orgs/grimmory-tools/discussions/categories/q-a) instead. There's no wrong answer, and we'll point you in the right direction either way.
+        > If you're unsure, head over to our [**Q&A**](https://github.com/orgs/grimmory-tools/discussions/categories/q-a) instead. There's no wrong answer, and we'll point you in the right direction either way.
 
   - type: textarea
     id: description
