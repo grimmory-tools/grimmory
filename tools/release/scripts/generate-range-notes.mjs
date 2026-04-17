@@ -93,7 +93,7 @@ function stripVersion(value) {
     return "";
   }
 
-  const match = value.match(/^v?(\d+\.\d+\.\d+)$/);
+  const match = value.match(/^v?(\d+\.\d+\.\d+)(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/);
   return match ? match[1] : "";
 }
 
@@ -102,7 +102,7 @@ function coerceVersion(value) {
     return "0.0.0";
   }
 
-  const match = value.match(/^(\d+)\.(\d+)\.(\d+)$/);
+  const match = value.match(/^v?(\d+)\.(\d+)\.(\d+)(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/);
   return match ? match[1] + "." + match[2] + "." + match[3] : "0.0.0";
 }
 

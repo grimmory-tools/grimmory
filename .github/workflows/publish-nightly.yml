@@ -54,10 +54,12 @@ jobs:
             echo "::warning::Unable to resolve previous nightly run; using ${base_tag}"
           fi
 
-          if [ -n "$previous_nightly_sha" ] && git rev-parse --verify --quiet "${previous_nightly_sha}^{commit}" >/dev/null; then
+          if [ -n "$previous_nightly_sha" ] \
+            && git rev-parse --verify --quiet "${previous_nightly_sha}^{commit}" >/dev/null \
+            && git merge-base --is-ancestor "$previous_nightly_sha" HEAD; then
             from_ref="$previous_nightly_sha"
           elif [ -n "$previous_nightly_sha" ]; then
-            echo "::warning::Ignoring invalid nightly baseline ${previous_nightly_sha}; using ${base_tag}"
+            echo "::warning::Ignoring unusable nightly baseline ${previous_nightly_sha}; using ${base_tag}"
           fi
 
           echo "base_tag=${base_tag}" >> "$GITHUB_OUTPUT"
