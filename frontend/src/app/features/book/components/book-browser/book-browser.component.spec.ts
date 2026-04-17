@@ -10,7 +10,7 @@ import {BookService} from '../../service/book.service';
 import {BookMetadataManageService} from '../../service/book-metadata-manage.service';
 import {LibraryShelfMenuService} from '../../service/library-shelf-menu.service';
 import {Book} from '../../model/book.model';
-import {SortDirection} from '../../model/sort.model';
+import {SortDirection, SortOption} from '../../model/sort.model';
 import {UserService} from '../../../settings/user-management/user.service';
 import {SeriesCollapseFilter} from './filters/SeriesCollapseFilter';
 import {CoverScalePreferenceService} from './cover-scale-preference.service';
@@ -112,6 +112,8 @@ interface BookBrowserHarness {
     updateFilters: ReturnType<typeof vi.fn>;
     updateFilterMode: ReturnType<typeof vi.fn>;
     updateMultiSort: ReturnType<typeof vi.fn>;
+    parseQueryParams: ReturnType<typeof vi.fn>;
+    syncQueryParams: ReturnType<typeof vi.fn>;
   };
   routeSnapshot: {
     routeConfig: {path: string};
@@ -129,8 +131,8 @@ function createHarness(options?: {
 }): BookBrowserHarness {
   const books = signal<Book[]>(
     options?.books ?? [
-      makeBook(1, 1, 'Alpha', '2024-01-01T00:00:00Z'),
       makeBook(2, 1, 'Zulu', '2024-02-01T00:00:00Z'),
+      makeBook(1, 1, 'Alpha', '2024-01-01T00:00:00Z'),
       makeBook(3, 2, 'Bravo', '2024-03-01T00:00:00Z'),
     ]
   );
@@ -143,7 +145,17 @@ function createHarness(options?: {
   const paramMap$ = new BehaviorSubject(convertToParamMap({libraryId: '1'}));
   const queryParamMap$ = new BehaviorSubject(convertToParamMap({}));
   const url$ = new BehaviorSubject<unknown[]>([]);
+  const defaultSort: SortOption = {field: 'addedOn', direction: SortDirection.DESCENDING, label: 'Added On'};
   const queryParamsService = {
+    parseQueryParams: vi.fn((_q, _u, _et, _ei, _sortOptions, defaultFilterMode) => ({
+      viewMode: VIEW_MODES.GRID,
+      sortOption: defaultSort,
+      sortCriteria: [defaultSort],
+      filters: {},
+      filterMode: defaultFilterMode,
+      viewModeFromToggle: false,
+    })),
+    syncQueryParams: vi.fn(),
     shouldForceExpandSeries: vi.fn(() => false),
     updateViewMode: vi.fn(),
     updateFilters: vi.fn(),
@@ -157,6 +169,7 @@ function createHarness(options?: {
     params: {libraryId: '1'},
   };
 
+  TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     providers: [
       SortService,
@@ -204,6 +217,35 @@ function createHarness(options?: {
           setContext: vi.fn(),
           collapseBooks: vi.fn((items: Book[]) => items),
           setCollapsed: vi.fn((value: boolean) => seriesCollapsed.set(value)),
+        },
+      },
+      {
+        provide: SortService,
+        useValue: {
+          applySort: vi.fn((b: Book[]) => b),
+        },
+      },
+      {
+        provide: BookSelectionService,
+        useValue: {
+          selectedBooks: signal([]),
+          selectedCount: signal(0),
+          deselectAll: vi.fn(),
+          setCurrentBooks: vi.fn(),
+        },
+      },
+      {
+        provide: BookNavigationService,
+        useValue: {
+          setAvailableBookIds: vi.fn(),
+        },
+      },
+      {
+        provide: BookBrowserScrollService,
+        useValue: {
+          createKey: vi.fn(() => 'test-key'),
+          savePosition: vi.fn(),
+          getPosition: vi.fn(() => 0),
         },
       },
       {provide: ConfirmationService, useValue: {confirm: vi.fn()}},
@@ -255,12 +297,14 @@ function createHarness(options?: {
             if (f.libraryId) result = result.filter(b => b.libraryId === f.libraryId);
 
             const s = _sort();
-            const dir = s.dir === 'asc' ? 1 : -1;
             result = [...result].sort((a, b) => {
-              if (s.field === 'title') return dir * ((a.metadata?.title ?? '') as string).localeCompare((b.metadata?.title ?? '') as string);
-              if (s.field === 'addedOn') return dir * (a.addedOn ?? '').localeCompare(b.addedOn ?? '');
-              return 0;
+              const aVal = s.field === 'title' ? (a.metadata?.title ?? '') : (a.addedOn ?? '');
+              const bVal = s.field === 'title' ? (b.metadata?.title ?? '') : (b.addedOn ?? '');
+              return String(aVal).localeCompare(String(bVal));
             });
+            if (s.dir === 'desc') {
+              result.reverse();
+            }
             return result;
           });
 
@@ -384,7 +428,7 @@ describe('BookBrowserComponent', () => {
 
     component.onViewModeChange(VIEW_MODES.TABLE);
 
-    expect(component.currentViewMode()).toBe(VIEW_MODES.TABLE);
+    expect((component as unknown as {currentViewMode: () => string}).currentViewMode()).toBe(VIEW_MODES.TABLE);
     expect(queryParamsService.updateViewMode).toHaveBeenCalledWith(VIEW_MODES.TABLE);
   });
 
@@ -404,7 +448,7 @@ describe('BookBrowserComponent', () => {
     TestBed.flushEffects();
 
     expect(component.books()?.map(book => book.id)).toEqual([1, 2]);
-    expect(component.hasRenderedBooks()).toBe(true);
+    expect((component as unknown as {hasRenderedBooks: () => boolean}).hasRenderedBooks()).toBe(true);
     expect(component.isBooksRefreshing()).toBe(false);
   });
 
@@ -420,12 +464,12 @@ describe('BookBrowserComponent', () => {
     TestBed.flushEffects();
 
     expect(component.books()).toBeUndefined();
-    expect(component.hasRenderedBooks()).toBe(false);
+    expect((component as unknown as {hasRenderedBooks: () => boolean}).hasRenderedBooks()).toBe(false);
 
     vi.runOnlyPendingTimers();
 
     expect(component.books()?.map(book => book.id)).toEqual([3]);
-    expect(component.hasRenderedBooks()).toBe(true);
+    expect((component as unknown as {hasRenderedBooks: () => boolean}).hasRenderedBooks()).toBe(true);
   });
 
   it('hides loading placeholders when the books query is in an error state', () => {
@@ -434,9 +478,25 @@ describe('BookBrowserComponent', () => {
       isBooksLoading: true,
     });
 
-    expect(component.showBooksLoadingPlaceholder()).toBe(false);
-    expect(component.showGridLoadingPlaceholder()).toBe(false);
-    expect(component.showTableLoadingPlaceholder()).toBe(false);
+    const comp = component as unknown as {
+      showBooksLoadingPlaceholder: () => boolean;
+      showGridLoadingPlaceholder: () => boolean;
+      showTableLoadingPlaceholder: () => boolean;
+    };
+    expect(comp.showBooksLoadingPlaceholder()).toBe(false);
+    expect(comp.showGridLoadingPlaceholder()).toBe(false);
+    expect(comp.showTableLoadingPlaceholder()).toBe(false);
+  });
+
+  it('calls SeriesCollapseFilter.collapseBooks when computing pipelineInputs', () => {
+    createHarness();
+    const filter = TestBed.inject(SeriesCollapseFilter);
+    const collapseBooksSpy = vi.spyOn(filter, 'collapseBooks');
+
+    vi.runOnlyPendingTimers();
+    TestBed.flushEffects();
+
+    expect(collapseBooksSpy).toHaveBeenCalled();
   });
 
   it('triggers next page fetch when scrolled near the bottom of rendered content', async () => {
@@ -462,7 +522,6 @@ describe('BookBrowserComponent', () => {
       removeEventListener: vi.fn(),
     } as unknown as HTMLElement;
 
-    component.currentViewMode.set(VIEW_MODES.GRID);
     component.scrollContainerRef = {nativeElement: mockElement} as ElementRef<HTMLElement>;
 
     // Trigger initial check

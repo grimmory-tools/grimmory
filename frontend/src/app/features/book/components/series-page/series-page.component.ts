@@ -31,6 +31,7 @@ import {BookCardOverlayPreferenceService} from '../book-browser/book-card-overla
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
 import {CoverPlaceholderComponent} from '../../../../shared/components/cover-generator/cover-generator.component';
 import {injectQuery} from '@tanstack/angular-query-experimental';
+import {AuthorService} from '../../../author-browser/service/author.service';
 
 interface ReadStatusSegment {
   status: ReadStatus;
@@ -110,6 +111,7 @@ export class SeriesPageComponent implements AfterViewChecked {
   protected appSettingsService = inject(AppSettingsService);
   private readonly t = inject(TranslocoService);
   protected urlHelper = inject(UrlHelperService);
+  private authorService = inject(AuthorService);
 
   @ViewChild('descriptionContent') descriptionContentRef?: ElementRef<HTMLElement>;
   tab: string = "view";
@@ -368,7 +370,14 @@ export class SeriesPageComponent implements AfterViewChecked {
   }
 
   goToAuthorBooks(author: string): void {
-    this.handleMetadataClick("author", author);
+    this.authorService.getAuthorByName(author).subscribe({
+      next: (authorDetails) => {
+        this.router.navigate(['/author', authorDetails.id]);
+      },
+      error: () => {
+        this.handleMetadataClick('author', author);
+      }
+    });
   }
 
   goToCategory(category: string): void {

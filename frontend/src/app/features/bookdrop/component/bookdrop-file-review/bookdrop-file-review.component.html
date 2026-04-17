@@ -149,7 +149,7 @@
           {{ t('emptyState') }}
         </div>
       } @else {
-        @for (file of bookdropFileUis; track file) {
+        @for (file of bookdropFileUis; track file.file.id) {
 
           <div class="file-item">
             <div class="file-row" [ngClass]="file.showDetails ? ' expanded' : ''">

@@ -1,5 +1,5 @@
 import {Subject} from 'rxjs';
-import {TestBed} from '@angular/core/testing';
+import {TestBed, ComponentFixture} from '@angular/core/testing';
 import {afterEach, beforeEach, describe, expect, it} from 'vitest';
 
 import {TranslocoService} from '@jsverse/transloco';
@@ -12,29 +12,32 @@ describe('LiveNotificationBoxComponent', () => {
   let notifications$: Subject<LogNotification>;
   let langChanges$: Subject<string>;
   let component: LiveNotificationBoxComponent;
+  let fixture: ComponentFixture<LiveNotificationBoxComponent>;
 
   beforeEach(() => {
     notifications$ = new Subject<LogNotification>();
     langChanges$ = new Subject<string>();
 
     TestBed.configureTestingModule({
+      imports: [LiveNotificationBoxComponent],
       providers: [
-        LiveNotificationBoxComponent,
         {
           provide: NotificationEventService,
-          useValue: {latestNotification$: notifications$},
+          useValue: {latestNotification$: notifications$.asObservable()},
         },
         {
           provide: TranslocoService,
           useValue: {
             translate: (key: string) => `translated:${key}`,
-            langChanges$,
+            langChanges$: langChanges$.asObservable(),
           },
         },
       ],
     });
 
-    component = TestBed.inject(LiveNotificationBoxComponent);
+    fixture = TestBed.createComponent(LiveNotificationBoxComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   afterEach(() => {

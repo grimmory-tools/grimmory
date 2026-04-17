@@ -75,9 +75,10 @@
 }
 
 @mixin auth-logo-icon {
-  width: 4rem;
+  width: auto;
   height: 4rem;
   margin: 0 auto;
+  display: block;
   filter: drop-shadow(0 4px 12px rgb(59 130 246 / 40%));
   transition: transform 0.3s ease;
 

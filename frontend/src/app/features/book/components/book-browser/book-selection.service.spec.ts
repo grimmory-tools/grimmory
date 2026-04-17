@@ -76,4 +76,13 @@ describe('BookSelectionService', () => {
     expect(service.selectedBooks()).toEqual(new Set());
     expect(service.selectedCount()).toBe(0);
   });
+
+  it('selects all from provided book IDs when passed to selectAll', () => {
+    const books = [makeBook(1), makeBook(2)];
+    service.setCurrentBooks(books);
+
+    service.selectAll([10, 20, 30, 40, 50]);
+    expect(service.selectedBooks()).toEqual(new Set([10, 20, 30, 40, 50]));
+    expect(service.selectedCount()).toBe(5);
+  });
 });

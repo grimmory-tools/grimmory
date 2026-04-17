@@ -1,4 +1,4 @@
-import {Component, inject, ViewChild, effect} from '@angular/core';
+import {ChangeDetectorRef, Component, inject, ViewChild, effect} from '@angular/core';
 import {FileSelectEvent, FileUpload, FileUploadHandlerEvent} from 'primeng/fileupload';
 import {Button} from 'primeng/button';
 import {FormsModule} from '@angular/forms';
@@ -58,6 +58,7 @@ export class BookUploaderComponent {
   private readonly http = inject(HttpClient);
   private readonly ref = inject(DynamicDialogRef);
   private readonly t = inject(TranslocoService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   readonly libraries = this.libraryService.libraries;
   maxFileSizeBytes?: number;
@@ -198,6 +199,7 @@ export class BookUploaderComponent {
     if (batch.length === 0) {
       this.isUploading = false;
       this.uploadCompleted = true;
+      this.cdr.detectChanges();
       if (destination === 'bookdrop') {
         this.ref.close('uploaded_to_bookdrop');
       }
@@ -231,11 +233,15 @@ export class BookUploaderComponent {
 
       this.http.request(req).subscribe({
         next: (event) => {
-          if (event.type === HttpEventType.UploadProgress && event.total) {
-            uploadFile.progress = Math.round((event.loaded / event.total) * 100);
+          if (event.type === HttpEventType.UploadProgress) {
+            if (event.total) {
+              uploadFile.progress = Math.round((event.loaded / event.total) * 100);
+            }
+            this.cdr.detectChanges();
           } else if (event.type === HttpEventType.Response) {
             uploadFile.status = 'Uploaded';
             uploadFile.progress = 100;
+            this.cdr.detectChanges();
             if (--pending === 0) {
               setTimeout(() => {
                 this.uploadBatch(files, startIndex + batchSize, batchSize, destination, libraryId, pathId);
@@ -247,6 +253,7 @@ export class BookUploaderComponent {
           uploadFile.status = 'Failed';
           uploadFile.progress = 0;
           uploadFile.errorMessage = err?.error?.message || this.t.translate('shared.bookUploader.toast.uploadFailedDefault');
+          this.cdr.detectChanges();
           if (--pending === 0) {
             setTimeout(() => {
               this.uploadBatch(files, startIndex + batchSize, batchSize, destination, libraryId, pathId);

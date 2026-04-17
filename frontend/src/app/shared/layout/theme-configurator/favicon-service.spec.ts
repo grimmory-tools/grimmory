@@ -9,7 +9,7 @@ describe('FaviconService', () => {
     const createObjectUrlSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:favicon');
 
     const service = new FaviconService();
-    service.updateFavicon('#123456');
+    service.updateFavicon('#abcdef', '#123456');
 
     expect(querySelectorSpy).toHaveBeenCalledWith("link[rel*='icon']");
     expect(createObjectUrlSpy).toHaveBeenCalledOnce();
@@ -30,11 +30,28 @@ describe('FaviconService', () => {
     vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:new-favicon');
 
     const service = new FaviconService();
-    service.updateFavicon('#abcdef');
+    service.updateFavicon('#fedcba', '#abcdef');
 
     expect(appended).toEqual([favicon]);
     expect(favicon.rel).toBe('icon');
     expect(favicon.type).toBe('image/svg+xml');
     expect(favicon.href).toBe('blob:new-favicon');
+  });
+
+  it('revokes the previous favicon object URL before replacing it', () => {
+    const favicon = {type: '', href: ''} as HTMLLinkElement;
+
+    vi.spyOn(document, 'querySelector').mockReturnValue(favicon);
+    vi.spyOn(URL, 'createObjectURL')
+      .mockReturnValueOnce('blob:first-favicon')
+      .mockReturnValueOnce('blob:second-favicon');
+    const revokeObjectUrlSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
+
+    const service = new FaviconService();
+    service.updateFavicon('#fedcba', '#abcdef');
+    service.updateFavicon('#89abcd', '#123456');
+
+    expect(revokeObjectUrlSpy).toHaveBeenCalledWith('blob:first-favicon');
+    expect(favicon.href).toBe('blob:second-favicon');
   });
 });

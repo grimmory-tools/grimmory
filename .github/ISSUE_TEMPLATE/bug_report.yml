@@ -69,6 +69,19 @@ body:
     validations:
       required: true
 
+  - type: dropdown
+    id: build
+    attributes:
+      label: What Build of Grimmory are you on?
+      description: Stable is the default build in most cases.
+      options:
+        - Stable
+        - Nightly
+        - Release Candidate
+      default: 0
+    validations:
+      required: true
+
   - type: checkboxes
     id: prerequisites
     attributes:
@@ -77,3 +90,5 @@ body:
       options:
         - label: I've searched existing issues and confirmed this bug hasn't been reported yet
           required: true
+
+

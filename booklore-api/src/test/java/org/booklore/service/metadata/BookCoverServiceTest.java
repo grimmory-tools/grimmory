@@ -21,6 +21,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.booklore.config.security.service.AuthenticationService;
+import org.booklore.model.dto.BookLoreUser;
+import org.booklore.model.enums.PermissionType;
+import org.booklore.model.websocket.LogNotification;
+import org.booklore.model.websocket.Topic;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
@@ -51,6 +56,7 @@ class BookCoverServiceTest {
     @Mock private MetadataWriterFactory metadataWriterFactory;
     @Mock private TransactionTemplate transactionTemplate;
     @Mock private Executor taskExecutor;
+    @Mock private AuthenticationService authenticationService;
 
     @InjectMocks
     private BookCoverService service;
@@ -58,6 +64,7 @@ class BookCoverServiceTest {
     @BeforeEach
     void setUp() {
         lenient().when(appProperties.isLocalStorage()).thenReturn(true);
+        lenient().when(authenticationService.getAuthenticatedUser()).thenReturn(BookLoreUser.builder().username("testuser").build());
     }
 
     private BookEntity buildBook(long id, boolean coverLocked) {

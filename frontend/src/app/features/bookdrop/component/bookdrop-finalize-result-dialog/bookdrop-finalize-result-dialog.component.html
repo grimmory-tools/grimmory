@@ -41,7 +41,7 @@
 
     <div class="results-list">
       <ul class="file-list">
-        @for (r of result.results; track r) {
+        @for (r of result.results; track r.fileName + ':' + $index) {
           <li
             class="file-item"
             [ngClass]="{
