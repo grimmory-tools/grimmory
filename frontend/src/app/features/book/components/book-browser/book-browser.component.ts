@@ -1,4 +1,4 @@
-import {AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, ElementRef, HostListener, OnDestroy, computed, effect, inject, OnInit, signal, untracked, ViewChild} from '@angular/core';
+import {AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, ElementRef, HostListener, computed, effect, inject, signal, untracked, ViewChild} from '@angular/core';
 import {takeUntilDestroyed, toObservable, toSignal} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, NavigationStart, Router} from '@angular/router';
 import {ConfirmationService, MenuItem, MessageService} from 'primeng/api';
@@ -79,7 +79,7 @@ export enum EntityType {
   ],
   providers: [SeriesCollapseFilter],
 })
-export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
+export class BookBrowserComponent implements AfterViewInit {
 
   protected userService = inject(UserService);
   protected coverScalePreferenceService = inject(CoverScalePreferenceService);
@@ -112,6 +112,21 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly t = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
 
+  constructor() {
+    this.loadMobileColumnsPreference();
+    this.setupRouteChangeHandlers();
+    this.setupQueryParamSubscription();
+    this.setupScrollPositionTracking();
+
+    this.destroyRef.onDestroy(() => {
+      if (this.scrollContainer) {
+        this.scrollContainer.removeEventListener('scroll', this.onScroll);
+      }
+      this.containerResizeObserver?.disconnect();
+      this.sentinelObserver?.disconnect();
+    });
+  }
+
   private readonly defaultSortCriteria: SortOption[] = [{
     field: 'addedOn',
     direction: SortDirection.DESCENDING,
@@ -140,6 +155,15 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly selectedFilter = signal<Record<string, string[]> | null>(null);
   private readonly selectedFilterMode = signal<BookFilterMode>('and');
   private readonly sortCriteria = signal<SortOption[]>(this.defaultSortCriteria);
+
+  readonly screenWidth = signal(typeof window !== 'undefined' ? window.innerWidth : 1024);
+  readonly currentViewMode = signal<string | undefined>(undefined);
+  readonly bookTitle = signal('');
+  readonly visibleColumns = signal<{ field: string; header: string }[]>([]);
+  readonly visibleSortOptions = signal<SortOption[]>([]);
+  readonly currentFilterLabel = signal<string | null>(null);
+  readonly rawFilterParamFromUrl = signal<string | null>(null);
+  readonly mobileColumnCount = signal(3);
   private readonly seriesCollapsed = this.seriesCollapseFilter.seriesCollapsed;
   readonly selectedBooks = this.bookSelectionService.selectedBooks;
   readonly selectedCount = this.bookSelectionService.selectedCount;
@@ -264,7 +288,10 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     return Number.isNaN(entityId) ? entityType : `${entityType}:${entityId}`;
   });
 
-  private readonly pipelineInputs = computed(() => this.appBooksApi.books());
+  private readonly pipelineInputs = computed(() => {
+    const books = this.appBooksApi.books();
+    return this.seriesCollapseFilter.collapseBooks(books, this.forceExpandSeries());
+  });
 
   private readonly renderBooksEffect = effect((onCleanup) => {
     const contextKey = this.booksContextKey();
@@ -341,10 +368,8 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly tableSkeletonRows = Array.from({length: 8}, (_, index) => index);
   readonly tableSkeletonColumns = Array.from({length: 5}, (_, index) => index);
   parsedFilters: Record<string, string[]> = {};
-  bookTitle = '';
   dynamicDialogRef: DynamicDialogRef | undefined | null;
   EntityType = EntityType;
-
   private readonly activeLang = toSignal(this.t.langChanges$, {
     initialValue: this.t.getActiveLang()
   });
@@ -379,17 +404,8 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
       ? this.t.translate('book.browser.labels.activeFilters', {count: filterEntries.length})
       : filterSummary;
   });
-
-  readonly currentFilterLabel = computed(() => this.computedFilterLabel());
-
-  rawFilterParamFromUrl: string | null = null;
-  visibleColumns: { field: string; header: string }[] = [];
   entityViewPreferences: EntityViewPreferences | undefined;
-  currentViewMode = signal<string | undefined>(undefined);
   lastAppliedSortCriteria: SortOption[] = [];
-  visibleSortOptions: SortOption[] = [];
-  screenWidth = signal(typeof window !== 'undefined' ? window.innerWidth : 1024);
-  mobileColumnCount = signal(3);
 
   private readonly MOBILE_BREAKPOINT = 768;
   private readonly CARD_ASPECT_RATIO = 7 / 5;
@@ -573,7 +589,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   readonly showBooksLoadingPlaceholder = computed(() =>
-    !this.booksError() && !this.hasRenderedBooks()
+    !this.booksError() && (this.isBooksLoading() || !this.hasRenderedBooks())
   );
 
   readonly showTableLoadingPlaceholder = computed(() =>
@@ -600,38 +616,30 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     return !!library.allowedFormats && library.allowedFormats.length === 1 && library.allowedFormats[0] === 'AUDIOBOOK';
   });
 
-  get seriesViewEnabled(): boolean {
-    return Boolean(this.userService.getCurrentUser()?.userSettings?.enableSeriesView);
-  }
+  readonly seriesViewEnabled = computed(() => Boolean(this.userService.getCurrentUser()?.userSettings?.enableSeriesView));
 
-  get hasMetadataMenuItems(): boolean {
-    return (this.metadataMenuItems?.length ?? 0) > 0;
-  }
+  readonly hasMetadataMenuItems = computed(() => (this.metadataMenuItems?.length ?? 0) > 0);
 
-  get hasMoreActionsItems(): boolean {
-    return (this.moreActionsMenuItems?.length ?? 0) > 0;
-  }
+  readonly hasMoreActionsItems = computed(() => (this.moreActionsMenuItems?.length ?? 0) > 0);
 
-  ngOnInit(): void {
-    this.loadMobileColumnsPreference();
-    this.setupRouteChangeHandlers();
-    this.setupQueryParamSubscription();
-    this.setupScrollPositionTracking();
-  }
+  readonly canSaveSort = computed(() => {
+    const entityType = this.entityType();
+    return entityType === EntityType.LIBRARY ||
+           entityType === EntityType.SHELF ||
+           entityType === EntityType.MAGIC_SHELF ||
+           entityType === EntityType.ALL_BOOKS ||
+           entityType === EntityType.UNSHELVED;
+  });
+
+  readonly hasSearchTerm = computed(() => this.searchTerm().trim().length > 0);
+
+  readonly sortCriteriaCount = computed(() => this.bookSorter.selectedSortCriteria.length);
 
   ngAfterViewInit(): void {
     if (this.bookFilterComponent) {
       this.bookFilterComponent.setFilters(this.parsedFilters);
       this.bookFilterComponent.onFilterModeChange(this.selectedFilterMode());
     }
-  }
-
-  ngOnDestroy(): void {
-    if (this.scrollContainer) {
-      this.scrollContainer.removeEventListener('scroll', this.onScroll);
-    }
-    this.containerResizeObserver?.disconnect();
-    this.sentinelObserver?.disconnect();
   }
 
   private onScroll = (): void => {
@@ -684,7 +692,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
   private setupRouteChangeHandlers(): void {
     this.activatedRoute.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.searchTerm.set('');
-      this.bookTitle = '';
+      this.bookTitle.set('');
       this.bookSelectionService.deselectAll();
       this.clearFilter();
       this.scrollToTop();
@@ -747,14 +755,18 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
         this.selectedFilter.set(parseResult.filters);
 
         if (this.bookFilterComponent) {
-          this.bookFilterComponent.setFilters(parseResult.filters);
+          this.bookFilterComponent.setFilters?.(parseResult.filters);
         }
 
-        this.rawFilterParamFromUrl = filterParams;
+        if (Object.keys(parseResult.filters).length > 0) {
+          this.currentFilterLabel.set(this.computedFilterLabel());
+        }
+
+        this.rawFilterParamFromUrl.set(filterParams);
         this.settingFiltersFromUrl = false;
       } else {
         this.clearFilter();
-        this.rawFilterParamFromUrl = null;
+        this.rawFilterParamFromUrl.set(null);
       }
 
       this.parsedFilters = parseResult.filters;
@@ -762,11 +774,11 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
 
       this.entityViewPreferences = currentUser.userSettings?.entityViewPreferences;
       this.columnPreferenceService.initPreferences(currentUser.userSettings?.tableColumnPreference);
-      this.visibleColumns = this.columnPreferenceService.visibleColumns;
+      this.visibleColumns.set(this.columnPreferenceService.visibleColumns);
 
       const visibleFields = currentUser.userSettings?.visibleSortFields ?? DEFAULT_VISIBLE_SORT_FIELDS;
       const sortOptionsByField = new Map(this.bookSorter.sortOptions.map(o => [o.field, o]));
-      this.visibleSortOptions = visibleFields.map(f => sortOptionsByField.get(f)).filter((o): o is SortOption => !!o);
+      this.visibleSortOptions.set(visibleFields.map(f => sortOptionsByField.get(f)).filter((o): o is SortOption => !!o));
 
 
       if (!this.areSortCriteriaEqual(this.bookSorter.selectedSortCriteria, parseResult.sortCriteria)) {
@@ -774,10 +786,7 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
       }
       this.currentViewMode.set(parseResult.viewMode);
 
-      if (!this.areSortCriteriaEqual(this.lastAppliedSortCriteria, this.bookSorter.selectedSortCriteria)) {
-        this.lastAppliedSortCriteria = [...this.bookSorter.selectedSortCriteria];
-        this.applySortCriteria(this.bookSorter.selectedSortCriteria);
-      }
+      this.applySortCriteria(this.bookSorter.selectedSortCriteria);
 
 
       this.queryParamsService.syncQueryParams(
@@ -801,8 +810,10 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
       : null;
 
     this.selectedFilter.set(normalizedFilters);
-    this.rawFilterParamFromUrl = null;
+    this.rawFilterParamFromUrl.set(null);
 
+    const hasSidebarFilters = !!normalizedFilters && Object.keys(normalizedFilters).length > 0;
+    this.currentFilterLabel.set(hasSidebarFilters ? this.computedFilterLabel() : this.t.translate('book.browser.labels.allBooks'));
     this.queryParamsService.updateFilters(normalizedFilters);
   }
 
@@ -819,9 +830,9 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onVisibleColumnsChange(selected: { field: string; header: string }[]): void {
     const allFields = this.bookTableComponent.allColumns.map(col => col.field);
-    this.visibleColumns = selected.sort(
+    this.visibleColumns.set(selected.sort(
       (a, b) => allFields.indexOf(a.field) - allFields.indexOf(b.field)
-    );
+    ));
   }
 
   onCheckboxClicked(event: CheckboxClickEvent): void {
@@ -920,17 +931,6 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     this.onMultiSortChange(criteria);
   }
 
-  readonly canSaveSort = computed(() => {
-    const entityType = this.entityType();
-    return entityType === EntityType.LIBRARY ||
-           entityType === EntityType.SHELF ||
-           entityType === EntityType.MAGIC_SHELF ||
-           entityType === EntityType.ALL_BOOKS ||
-           entityType === EntityType.UNSHELVED;
-  });
-
-  readonly hasSearchTerm = computed(() => this.searchTerm().trim().length > 0);
-
   onSaveSortConfig(criteria: SortOption[]): void {
     const entityType = this.entityType();
     if (!entityType) return;
@@ -1005,16 +1005,12 @@ export class BookBrowserComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  get sortCriteriaCount(): number {
-    return this.bookSorter.selectedSortCriteria.length;
-  }
-
   onSearchTermChange(term: string): void {
     this.searchTerm.set(term);
   }
 
   clearSearch(): void {
-    this.bookTitle = '';
+    this.bookTitle.set('');
     this.onSearchTermChange('');
     this.resetFilters();
   }

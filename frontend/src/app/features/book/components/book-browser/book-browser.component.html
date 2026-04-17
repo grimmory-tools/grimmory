@@ -8,7 +8,7 @@
           <div class="entity-info">
             <p class="entity-title">
               @if (entityType === EntityType.ALL_BOOKS) {
-                @if (currentFilterLabel() && rawFilterParamFromUrl) {
+                @if (currentFilterLabel() && rawFilterParamFromUrl()) {
                   {{ currentFilterLabel() }}
                 } @else if (isFilterActive() || hasSearchTerm()) {
                   {{ computedFilterLabel() }}
@@ -70,7 +70,7 @@
                   <p-multiSelect
                     optionLabel="header"
                     [options]="columnPreferenceService.allColumns"
-                    [(ngModel)]="visibleColumns"
+                    [ngModel]="visibleColumns()"
                     (ngModelChange)="onVisibleColumnsChange($event)"
                     display="chip"
                     [placeholder]="t('placeholder.selectColumns')"
@@ -85,14 +85,14 @@
                     [label]="t('labels.save')"
                     outlined
                     size="small"
-                    (click)="columnPreferenceService.saveVisibleColumns(visibleColumns)"></p-button>
+                    (click)="columnPreferenceService.saveVisibleColumns(visibleColumns())"></p-button>
                 </div>
               </p-popover>
             </div>
           }
           <a class="topbar-items topbar-item" role="button" tabindex="0" (click)="toggleTableGrid()" (keydown.enter)="toggleTableGrid()">
             <i
-              [ngClass]="viewIcon()"
+              [class]="viewIcon()"
               [pTooltip]="t('tooltip.toggleView')"
               tooltipPosition="top">
             </i>
@@ -180,14 +180,14 @@
                 [pTooltip]="t('tooltip.selectSorting')"
                 tooltipPosition="top">
               </i>
-              @if (sortCriteriaCount > 1) {
-                <p-badge [value]="sortCriteriaCount.toString()" class="sort-badge"/>
+              @if (sortCriteriaCount() > 1) {
+                <p-badge [value]="sortCriteriaCount().toString()" class="sort-badge"/>
               }
             </a>
             <p-popover #sortPopover [dismissable]="true" appendTo="body">
               <app-multi-sort-popover
                 [sortCriteria]="this.bookSorter.selectedSortCriteria"
-                [availableSortOptions]="visibleSortOptions"
+                [availableSortOptions]="visibleSortOptions()"
                 [showSaveButton]="canSaveSort()"
                 (criteriaChange)="onSortCriteriaChange($event)"
                 (saveSortConfig)="onSaveSortConfig($event)">
@@ -215,7 +215,7 @@
                 type="text"
                 pInputText
                 [placeholder]="t('placeholder.search')"
-                [(ngModel)]="bookTitle"
+                [ngModel]="bookTitle()"
                 (ngModelChange)="onSearchTermChange($event)"
                 class="search-input-full"
               />
@@ -237,11 +237,11 @@
             type="text"
             pInputText
             [placeholder]="t('placeholder.search')"
-            [(ngModel)]="bookTitle"
+            [ngModel]="bookTitle()"
             (ngModelChange)="onSearchTermChange($event)"
             class="search-input"
           />
-          @if (bookTitle) {
+          @if (bookTitle()) {
             <p-button
               icon="pi pi-times"
               [text]="true"
@@ -314,7 +314,7 @@
               [preselectedBookIds]="selectedBooks()"
               (selectedBooksChange)="onSelectedBooksChange($event)"
               [sortOption]="this.bookSorter.selectedSort!"
-              [visibleColumns]="visibleColumns"
+              [visibleColumns]="visibleColumns()"
             ></app-book-table>
           }
           @if (currentViewMode() === 'grid') {
@@ -330,7 +330,7 @@
                         [index]="i"
                         [book]="book"
                         [isCheckboxEnabled]="true"
-                        [seriesViewEnabled]="seriesViewEnabled"
+                        [seriesViewEnabled]="seriesViewEnabled()"
                         [onBookSelect]="onBookCardSelect"
                         [isSeriesCollapsed]="seriesCollapseFilter.seriesCollapsed()"
                         (checkboxClick)="onCheckboxClicked($event)"
@@ -358,7 +358,7 @@
                   <div class="footer-center">
                     @if (entityType(); as entityType) {
                       <div class="action-buttons-group">
-                        @if (hasMetadataMenuItems) {
+                        @if (hasMetadataMenuItems()) {
                           <p-tieredMenu #menu [model]="metadataMenuItems" [popup]="true" appendTo="body" styleClass="footer-menu"/>
                           <p-button
                             (click)="menu.toggle($event)"
@@ -418,7 +418,7 @@
                             tooltipPosition="top">
                           </p-button>
                         }
-                        @if (hasMoreActionsItems) {
+                        @if (hasMoreActionsItems()) {
                           <div class="more-actions-wrapper">
                             <p-button
                               (click)="menu.toggle($event)"

@@ -32,7 +32,7 @@
                 <p-select
                   fluid
                   [inputId]="'dashboard-scroller-type-' + scroller.id"
-                  [options]="availableScrollerTypes"
+                  [options]="availableScrollerTypes()"
                   [(ngModel)]="scroller.type"
                   (onChange)="onScrollerTypeChange(scroller)"
                   [placeholder]="t('selectType')"
@@ -58,7 +58,7 @@
                   <p-select
                     fluid
                     [inputId]="'dashboard-scroller-sort-field-' + scroller.id"
-                    [options]="sortFieldOptions"
+                    [options]="sortFieldOptions()"
                     [(ngModel)]="scroller.sortField"
                     [placeholder]="t('selectField')"
                     appendTo="body">
@@ -70,7 +70,7 @@
                   <p-select
                     fluid
                     [inputId]="'dashboard-scroller-sort-direction-' + scroller.id"
-                    [options]="sortDirectionOptions"
+                    [options]="sortDirectionOptions()"
                     [(ngModel)]="scroller.sortDirection"
                     [placeholder]="t('selectDirection')"
                     appendTo="body">

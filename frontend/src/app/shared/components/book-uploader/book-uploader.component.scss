@@ -258,7 +258,7 @@
     }
   }
 
-  .files-list {
+  .file-list-items {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
@@ -288,7 +288,7 @@
     scrollbar-width: thin;
     scrollbar-color: var(--border-color) var(--overlay-background);
 
-    .file-item {
+    .file-item-card {
       display: flex;
       align-items: center;
       justify-content: space-between;
