@@ -38,7 +38,7 @@
         <div class="tab-content">
           @if (bookInSeries.length > 1) {
             <div class="dashboard-scroller-infinite" infiniteScroll [infiniteScrollDistance]="2" [infiniteScrollThrottle]="50" [horizontal]="true">
-              @for (bookInSeriesItem of bookInSeries; track bookInSeriesItem) {
+              @for (bookInSeriesItem of bookInSeries; track bookInSeriesItem.id) {
                 @if (bookInSeriesItem.id !== book.id) {
                   <div class="dashboard-scroller-card">
                     <app-book-card-lite-component [book]="bookInSeriesItem" [showSeriesNumber]="true" [isActive]="bookInSeriesItem.id === book.id"></app-book-card-lite-component>

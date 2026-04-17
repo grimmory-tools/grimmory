@@ -154,9 +154,9 @@
                     class="overall-progress-bar"/>
                 </div>
               }
-              <div class="files-list">
-                @for (uploadFile of this.files; track uploadFile; let i = $index) {
-                  <div class="file-item">
+              <div class="file-list-items">
+                @for (uploadFile of this.files; track uploadFile.file.name; let i = $index) {
+                  <div class="file-item-card">
                     <div class="file-info">
                       <p-badge
                         [value]="getFileStatusLabel(uploadFile)"

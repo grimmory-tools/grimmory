@@ -488,6 +488,17 @@ describe('BookBrowserComponent', () => {
     expect(comp.showTableLoadingPlaceholder()).toBe(false);
   });
 
+  it('calls SeriesCollapseFilter.collapseBooks when computing pipelineInputs', () => {
+    createHarness();
+    const filter = TestBed.inject(SeriesCollapseFilter);
+    const collapseBooksSpy = vi.spyOn(filter, 'collapseBooks');
+
+    vi.runOnlyPendingTimers();
+    TestBed.flushEffects();
+
+    expect(collapseBooksSpy).toHaveBeenCalled();
+  });
+
   it('triggers next page fetch when scrolled near the bottom of rendered content', async () => {
     const {component} = createHarness();
     const appBooksApi = TestBed.inject(AppBooksApiService);
