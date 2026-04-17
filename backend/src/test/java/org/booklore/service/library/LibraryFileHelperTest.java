@@ -67,7 +67,9 @@ class LibraryFileHelperTest {
 
         List<String> expected = List.of(
                 "author/other/c.mp3",
-                "author/title"
+                "author/title",
+                "author/title/a.mp3",
+                "author/title/b.mp3"
         );
 
         assertEquals(expected, actual);
@@ -370,8 +372,8 @@ class LibraryFileHelperTest {
 
         List<LibraryFile> files = libraryFileHelper.getLibraryFiles(createLibraryWithMode(tempDir, LibraryOrganizationMode.AUTO_DETECT));
 
-        assertThat(files).hasSize(1);
-        assertThat(files.getFirst().isFolderBased()).isTrue();
+        assertThat(files).hasSize(6);
+        assertThat(files.getLast().isFolderBased()).isTrue();
     }
 
     @Test
@@ -435,6 +437,12 @@ class LibraryFileHelperTest {
                 .fileName("a")
                 .build();
 
+        LibraryFile bookLibraryFile = LibraryFile.builder()
+                .libraryPathEntity(libraryPathEntity)
+                .fileSubPath("example/a")
+                .fileName("file.mp3")
+                .build();
+
         BookFileEntity existing = BookFileEntity.builder()
                 .folderBased(true)
                 .fileSubPath("example")
@@ -450,7 +458,7 @@ class LibraryFileHelperTest {
         existing.setBook(book);
 
         List<Long> actual = libraryFileHelper.detectDeletedBookIds(
-                List.of(bookLibraryFolder),
+                List.of(bookLibraryFolder, bookLibraryFile),
                 List.of(book)
         );
 
@@ -580,6 +588,12 @@ class LibraryFileHelperTest {
                 .fileName("a")
                 .build();
 
+        LibraryFile fileA = LibraryFile.builder()
+                .libraryPathEntity(libraryPathEntity)
+                .fileSubPath("example/a")
+                .fileName("file.mp3")
+                .build();
+
         LibraryFile fileB = LibraryFile.builder()
                 .libraryPathEntity(libraryPathEntity)
                 .fileSubPath("example")
@@ -600,7 +614,7 @@ class LibraryFileHelperTest {
         audiobookFolder.setBook(audiobook);
 
         List<LibraryFile> actual = libraryFileHelper.detectNewBookPaths(
-                List.of(folderA, fileB),
+                List.of(folderA, fileA, fileB),
                 List.of(audiobook),
                 Collections.emptyList()
         );
@@ -608,6 +622,116 @@ class LibraryFileHelperTest {
         assertThat(actual).isEqualTo(List.of(fileB));
     }
 
+    @Test
+    void detectNewBooks_shouldHandleFolderAudiobooksWithNameOverlap() {
+        LibraryPathEntity libraryPathEntity = LibraryPathEntity.builder()
+                .path("/books")
+                .build();
+
+        LibraryFile folderA = LibraryFile.builder()
+                .libraryPathEntity(libraryPathEntity)
+                .folderBased(true)
+                .fileSubPath("example")
+                .fileName("a")
+                .build();
+
+        LibraryFile fileA = LibraryFile.builder()
+                .libraryPathEntity(libraryPathEntity)
+                .fileSubPath("example/a")
+                .fileName("file.mp3")
+                .build();
+
+        LibraryFile fileB = LibraryFile.builder()
+                .libraryPathEntity(libraryPathEntity)
+                .fileSubPath("example")
+                .fileName("a.epub")
+                .build();
+
+        BookFileEntity audiobookFolder = BookFileEntity.builder()
+                .folderBased(true)
+                .fileSubPath("example")
+                .fileName("a")
+                .build();
+
+        BookEntity audiobook = BookEntity.builder()
+                .libraryPath(libraryPathEntity)
+                .bookFiles(List.of(audiobookFolder))
+                .build();
+
+        audiobookFolder.setBook(audiobook);
+
+        List<LibraryFile> actual = libraryFileHelper.detectNewBookPaths(
+                List.of(folderA, fileA, fileB),
+                List.of(audiobook),
+                Collections.emptyList()
+        );
+
+        assertThat(actual).isEqualTo(List.of(fileB));
+    }
+
+    @Test
+    void detectNewBooks_shouldHandleFileAudiobooksInSameFolder() {
+        LibraryPathEntity libraryPathEntity = LibraryPathEntity.builder()
+                .path("/books")
+                .build();
+
+        LibraryFile folder = LibraryFile.builder()
+                .libraryPathEntity(libraryPathEntity)
+                .folderBased(true)
+                .fileSubPath("audiobooks")
+                .fileName("example")
+                .build();
+
+        LibraryFile fileA = LibraryFile.builder()
+                .libraryPathEntity(libraryPathEntity)
+                .fileSubPath("audiobooks/example")
+                .fileName("a.mp3")
+                .build();
+
+        LibraryFile fileB = LibraryFile.builder()
+                .libraryPathEntity(libraryPathEntity)
+                .fileSubPath("audiobooks/example")
+                .fileName("b.mp3")
+                .build();
+
+        LibraryFile fileC = LibraryFile.builder()
+                .libraryPathEntity(libraryPathEntity)
+                .fileSubPath("audiobooks/example")
+                .fileName("c.mp3")
+                .build();
+
+        BookFileEntity audiobookAFile = BookFileEntity.builder()
+                .fileSubPath("audiobooks/example")
+                .fileName("a.mp3")
+                .build();
+
+        BookEntity audiobookA = BookEntity.builder()
+                .libraryPath(libraryPathEntity)
+                .bookFiles(List.of(audiobookAFile))
+                .build();
+
+        audiobookAFile.setBook(audiobookA);
+
+        BookFileEntity audiobookBFile = BookFileEntity.builder()
+                .fileSubPath("audiobooks/example")
+                .fileName("b.mp3")
+                .build();
+
+        BookEntity audiobookB = BookEntity.builder()
+                .libraryPath(libraryPathEntity)
+                .bookFiles(List.of(audiobookBFile))
+                .build();
+
+        audiobookBFile.setBook(audiobookB);
+
+        List<LibraryFile> actual = libraryFileHelper.detectNewBookPaths(
+                List.of(folder, fileA, fileB, fileC),
+                List.of(audiobookA, audiobookB),
+                Collections.emptyList()
+        );
+
+        assertThat(actual).isEqualTo(List.of(fileC));
+    }
 
     @Test
     void detectNewBooks_shouldHandleAdditionalFiles() {

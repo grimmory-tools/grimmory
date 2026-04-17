@@ -23,9 +23,9 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -55,54 +55,86 @@ public class LibraryFileHelper {
     }
 
     public List<Long> detectDeletedAdditionalFiles(List<LibraryFile> libraryFiles, List<BookFileEntity> allAdditionalFiles) {
-        Set<String> currentFileKeys = libraryFiles.stream()
-                .map(this::generateUniqueKey)
+        Set<Path> currentFileKeys = libraryFiles.stream()
+                .map(LibraryFile::getFullPath)
                 .collect(Collectors.toSet());
 
         return allAdditionalFiles.stream()
                 .filter(BookFileEntity::isBookFormat)
-                .filter(additionalFile -> !currentFileKeys.contains(generateUniqueKey(additionalFile)))
+                .filter(additionalFile -> !currentFileKeys.contains(additionalFile.getFullFilePath()))
                 .map(BookFileEntity::getId)
                 .collect(Collectors.toList());
     }
 
     public List<LibraryFile> detectNewBookPaths(List<LibraryFile> libraryFiles, List<BookEntity> books, List<BookFileEntity> allAdditionalFiles) {
-        Set<String> existingKeys = books.stream()
-                .filter(book -> book.getBookFiles() != null && !book.getBookFiles().isEmpty())
-                .map(this::generateUniqueKey)
+        Set<Path> existingFilePaths = books.stream()
+                .map(BookEntity::getPrimaryBookFile)
+                .filter(Objects::nonNull)
+                .filter(b -> !b.isFolderBased())
+                .map(BookFileEntity::getFullFilePath)
                 .collect(Collectors.toSet());
 
-        Set<String> additionalFileKeys = allAdditionalFiles.stream()
-                .map(this::generateUniqueKey)
+        existingFilePaths.addAll(
+                allAdditionalFiles.stream()
+                        .filter(b -> !b.isFolderBased())
+                        .map(BookFileEntity::getFullFilePath)
+                        .collect(Collectors.toSet())
+        );
+
+        Set<Path> existingFolderPaths = books.stream()
+                .map(BookEntity::getPrimaryBookFile)
+                .filter(Objects::nonNull)
+                .filter(BookFileEntity::isFolderBased)
+                .map(BookFileEntity::getFullFilePath)
                 .collect(Collectors.toSet());
 
-        existingKeys.addAll(additionalFileKeys);
+        existingFolderPaths.addAll(
+                allAdditionalFiles.stream()
+                        .filter(BookFileEntity::isFolderBased)
+                        .map(BookFileEntity::getFullFilePath)
+                        .collect(Collectors.toSet())
+        );
 
         return libraryFiles.stream()
-                .filter(file -> !existingKeys.contains(generateUniqueKey(file)))
+                .filter(file -> {
+                    Path filePath = file.getFullPath();
+
+                    if (file.isFolderBased()) {
+                        // If there's an exact match for existing folder paths bail early.
+                        if (existingFolderPaths.contains(filePath)) {
+                            return false;
+                        }
+
+                        // Next check if there are any book existing files which are
+                        // contained by this folder.
+
+                        // Next check if there are any book folders which contain this file.
+                        for (Path existingFile : existingFilePaths) {
+                            if (existingFile.startsWith(filePath)) {
+                                return false;
+                            }
+                        }
+
+                        // If none of that matches then this is a new folder.
+                        return true;
+                    }
+
+                    // If there's an exact match for existing file paths bail early.
+                    if (existingFilePaths.contains(filePath)) {
+                        return false;
+                    }
+
+                    // Next check if there are any book folders which contain this file.
+                    for (Path existingFolder : existingFolderPaths) {
+                        if (filePath.startsWith(existingFolder)) {
+                            return false;
+                        }
+                    }
+
+                    // If none of that matches then this is a new file.
+                    return true;
+                })
                 .collect(Collectors.toList());
-    }
-
-    private String generateUniqueKey(BookEntity book) {
-        BookFileEntity primaryFile = book.getPrimaryBookFile();
-        if (primaryFile == null) {
-            // Fileless book - use a unique key that won't match any file
-            return "fileless:" + book.getId();
-        }
-        return generateKey(book.getLibraryPath().getId(), primaryFile.getFileSubPath(), primaryFile.getFileName());
-    }
-
-    private String generateUniqueKey(BookFileEntity file) {
-        return generateKey(file.getBook().getLibraryPath().getId(), file.getFileSubPath(), file.getFileName());
-    }
-
-    private String generateUniqueKey(LibraryFile file) {
-        return generateKey(file.getLibraryPathEntity().getId(), file.getFileSubPath(), file.getFileName());
-    }
-
-    private String generateKey(Long libraryPathId, String subPath, String fileName) {
-        String safeSubPath = (subPath == null) ? "" : subPath;
-        return libraryPathId + ":" + safeSubPath + ":" + fileName;
     }
 
     public List<LibraryFile> getAllLibraryFiles(LibraryEntity libraryEntity) throws IOException {
@@ -237,7 +269,6 @@ public class LibraryFileHelper {
         // Track directories that contain audio files for folder-based audiobook detection
         Map<Path, List<Path>> dirAudioFiles = new HashMap<>();
         Map<Path, Boolean> dirHasNonAudioBooks = new HashMap<>();
-        Set<Path> processedAsFolderAudiobook = new HashSet<>();
 
         Files.walkFileTree(libraryPath, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, new SimpleFileVisitor<>() {
             @Override
@@ -263,16 +294,15 @@ public class LibraryFileHelper {
                 } else {
                     // Track that this directory has non-audio book files
                     dirHasNonAudioBooks.put(parentDir, true);
-
-                    // Add non-audio files immediately
-                    libraryFiles.add(LibraryFile.builder()
-                            .libraryEntity(libraryEntity)
-                            .libraryPathEntity(pathEntity)
-                            .fileSubPath(FileUtils.getRelativeSubPath(pathEntity.getPath(), file))
-                            .fileName(fileName)
-                            .bookFileType(fileType)
-                            .build());
                 }
+
+                libraryFiles.add(LibraryFile.builder()
+                        .libraryEntity(libraryEntity)
+                        .libraryPathEntity(pathEntity)
+                        .fileSubPath(FileUtils.getRelativeSubPath(pathEntity.getPath(), file))
+                        .fileName(fileName)
+                        .bookFileType(fileType)
+                        .build());
 
                 return FileVisitResult.CONTINUE;
             }
@@ -284,16 +314,17 @@ public class LibraryFileHelper {
                 List<Path> audioFiles = dirAudioFiles.get(dir);
                 boolean hasNonAudioBooks = dirHasNonAudioBooks.getOrDefault(dir, false);
 
-                if (audioFiles != null && audioFiles.size() >= MIN_AUDIO_FILES_FOR_FOLDER_AUDIOBOOK && !hasNonAudioBooks) {
+                if (audioFiles == null) {
+                    return FileVisitResult.CONTINUE;
+                }
+
+                if (audioFiles.size() >= MIN_AUDIO_FILES_FOR_FOLDER_AUDIOBOOK && !hasNonAudioBooks) {
                     // Don't treat library root as audiobook folder
                     if (!dir.equals(libraryPath)) {
                         if (FileUtils.isSeriesFolder(audioFiles)) {
                             log.info("Detected series folder: {} ({} audio files with distinct titles)", dir.getFileName(), audioFiles.size());
-                            addIndividualAudioFiles(audioFiles, libraryEntity, pathEntity, libraryFiles);
                         } else {
                             log.info("Detected folder-based audiobook: {} ({} audio files)", dir.getFileName(), audioFiles.size());
-
-                            processedAsFolderAudiobook.add(dir);
 
                             libraryFiles.add(LibraryFile.builder()
                                     .libraryEntity(libraryEntity)
@@ -304,45 +335,10 @@ public class LibraryFileHelper {
                                     .folderBased(true)
                                     .build());
                         }
-                    } else {
-                        // Library root - add individual audio files
-                        addIndividualAudioFiles(audioFiles, libraryEntity, pathEntity, libraryFiles);
-                    }
-                } else if (audioFiles != null) {
-                    // Not a folder-based audiobook - add individual audio files
-                    // But skip if parent was already processed as folder-based audiobook
-                    boolean parentIsAudiobookFolder = false;
-                    Path parent = dir.getParent();
-                    while (parent != null && parent.startsWith(libraryPath)) {
-                        if (processedAsFolderAudiobook.contains(parent)) {
-                            parentIsAudiobookFolder = true;
-                            break;
-                        }
-                        parent = parent.getParent();
-                    }
-
-                    if (!parentIsAudiobookFolder) {
-                        addIndividualAudioFiles(audioFiles, libraryEntity, pathEntity, libraryFiles);
                     }
                 }
 
                 return FileVisitResult.CONTINUE;
-            }
-
-            private void addIndividualAudioFiles(List<Path> audioFiles, LibraryEntity libraryEntity,
-                    LibraryPathEntity pathEntity, List<LibraryFile> libraryFiles) {
-                for (Path audioFile : audioFiles) {
-                    String fileName = audioFile.getFileName().toString();
-                    Optional<BookFileExtension> ext = BookFileExtension.fromFileName(fileName);
-
-                    libraryFiles.add(LibraryFile.builder()
-                            .libraryEntity(libraryEntity)
-                            .libraryPathEntity(pathEntity)
-                            .fileSubPath(FileUtils.getRelativeSubPath(pathEntity.getPath(), audioFile))
-                            .fileName(fileName)
-                            .bookFileType(ext.map(BookFileExtension::getType).orElse(BookFileType.AUDIOBOOK))
-                            .build());
-                }
             }
 
             @Override
