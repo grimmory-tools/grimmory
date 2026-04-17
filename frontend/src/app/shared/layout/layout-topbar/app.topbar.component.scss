@@ -1,9 +1,10 @@
 .layout-topbar-logo.topbar-logo {
   width: var(--sidebar-width, 225px);
   min-width: var(--sidebar-width, 225px);
-  justify-content: center;
-  padding-inline: 0;
-  gap: 0.5rem;
+  justify-content: flex-start;
+  padding-left: 2.05rem;
+  padding-right: 0;
+  gap: 0.75rem;
 }
 
 .logo-text {
