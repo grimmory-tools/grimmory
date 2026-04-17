@@ -17,10 +17,14 @@ jobs:
   resolve_ref:
     name: Resolve Candidate Ref
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
 
     outputs:
       candidate_sha: ${{ steps.resolve.outputs.candidate_sha }}
       base_tag: ${{ steps.resolve.outputs.base_tag }}
+      current_version: ${{ steps.resolve.outputs.current_version }}
 
     steps:
       - name: Checkout Repository
@@ -31,6 +35,8 @@ jobs:
 
       - name: Resolve Candidate Metadata
         id: resolve
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -eu
 
@@ -43,9 +49,24 @@ jobs:
 
           candidate_sha="$(git rev-parse HEAD)"
           base_tag="$(git describe --tags --abbrev=0 --match 'v*' origin/main)"
+          latest_nightly_sha="$(
+            gh api "/repos/${GITHUB_REPOSITORY}/actions/workflows/publish-nightly.yml/runs?branch=develop&event=schedule&status=success&per_page=1" \
+              --jq '.workflow_runs[0].head_sha // ""'
+          )"
+          latest_nightly_created_at="$(
+            gh api "/repos/${GITHUB_REPOSITORY}/actions/workflows/publish-nightly.yml/runs?branch=develop&event=schedule&status=success&per_page=1" \
+              --jq '.workflow_runs[0].created_at // ""'
+          )"
+          current_version="$base_tag"
+          if [ -n "$latest_nightly_sha" ] && [ -n "$latest_nightly_created_at" ]; then
+            latest_nightly_date="$(date -u -d "$latest_nightly_created_at" +%Y%m%d)"
+            latest_nightly_short_sha="$(printf '%s' "$latest_nightly_sha" | cut -c1-7)"
+            current_version="nightly-${latest_nightly_date}-${latest_nightly_short_sha}"
+          fi
 
           echo "candidate_sha=${candidate_sha}" >> "$GITHUB_OUTPUT"
           echo "base_tag=${base_tag}" >> "$GITHUB_OUTPUT"
+          echo "current_version=${current_version}" >> "$GITHUB_OUTPUT"
 
   generate-notes:
     name: Release Candidate Changelog
@@ -87,7 +108,7 @@ jobs:
       channel: rc
       candidate_sha: ${{ needs.resolve_ref.outputs.candidate_sha }}
       base_tag: ${{ needs.resolve_ref.outputs.base_tag }}
-      current_version: ${{ needs.resolve_ref.outputs.base_tag }}
+      current_version: ${{ needs.resolve_ref.outputs.current_version }}
       details_url: ${{ needs.generate-notes.outputs.details_url }}
       predicted_version: ${{ needs.generate-notes.outputs.predicted_version }}
       compare_url: ${{ needs.generate-notes.outputs.compare_url }}
