@@ -1,6 +1,7 @@
 package org.booklore.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -78,12 +79,12 @@ public class OidcAuthController {
     )
     @GetMapping("/redirect")
     public ResponseEntity<Void> handleRedirect(
-            @RequestParam("code") String code,
-            @RequestParam("code_verifier") String codeVerifier,
-            @RequestParam("redirect_uri") String redirectUri,
-            @RequestParam("nonce") String nonce,
-            @RequestParam("state") String state,
-            @RequestParam("app_redirect_uri") String appRedirectUri,
+            @Parameter(description = "OIDC authorization code") @RequestParam("code") String code,
+            @Parameter(description = "PKCE code verifier") @RequestParam("code_verifier") String codeVerifier,
+            @Parameter(description = "OIDC redirect URI") @RequestParam("redirect_uri") String redirectUri,
+            @Parameter(description = "OIDC nonce") @RequestParam("nonce") String nonce,
+            @Parameter(description = "OIDC state") @RequestParam("state") String state,
+            @Parameter(description = "App redirect URI") @RequestParam("app_redirect_uri") String appRedirectUri,
             HttpServletRequest httpRequest) {
 
         oidcStateService.validateAndConsume(state);
@@ -129,11 +130,11 @@ public class OidcAuthController {
     )
     @PostMapping("/mobile/callback")
     public ResponseEntity<Map<String, String>> handleMobileCallback(
-            @RequestParam("code") String code,
-            @RequestParam("code_verifier") String codeVerifier,
-            @RequestParam("redirect_uri") String redirectUri,
-            @RequestParam("nonce") String nonce,
-            @RequestParam("state") String state,
+            @Parameter(description = "OIDC authorization code") @RequestParam("code") String code,
+            @Parameter(description = "PKCE code verifier") @RequestParam("code_verifier") String codeVerifier,
+            @Parameter(description = "OIDC redirect URI") @RequestParam("redirect_uri") String redirectUri,
+            @Parameter(description = "OIDC nonce") @RequestParam("nonce") String nonce,
+            @Parameter(description = "OIDC state") @RequestParam("state") String state,
             HttpServletRequest httpRequest) {
 
         oidcStateService.validateAndConsume(state);
@@ -151,7 +152,7 @@ public class OidcAuthController {
             operationId = "oidcBackchannelLogout"
     )
     @PostMapping(value = "/backchannel-logout", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public ResponseEntity<Void> backchannelLogout(@RequestParam("logout_token") String logoutToken) {
+    public ResponseEntity<Void> backchannelLogout(@Parameter(description = "OIDC logout token") @RequestParam("logout_token") String logoutToken) {
         try {
             backchannelLogoutService.handleLogoutToken(logoutToken);
             return ResponseEntity.ok().build();

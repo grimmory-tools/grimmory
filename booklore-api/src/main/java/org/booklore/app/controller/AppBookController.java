@@ -1,6 +1,7 @@
 package org.booklore.app.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.booklore.app.dto.*;
 import org.booklore.app.service.AppBookService;
@@ -27,7 +28,6 @@ public class AppBookController {
     @GetMapping
     public ResponseEntity<AppPageResponse<AppBookSummary>> getBooks(
             @ModelAttribute BookListRequest request) {
-
         return ResponseEntity.ok(mobileBookService.getBooks(request));
     }
 
@@ -38,7 +38,7 @@ public class AppBookController {
     )
     @GetMapping("/{bookId}")
     public ResponseEntity<AppBookDetail> getBookDetail(
-            @PathVariable Long bookId) {
+            @Parameter(description = "Book ID") @PathVariable Long bookId) {
 
         return ResponseEntity.ok(mobileBookService.getBookDetail(bookId));
     }
@@ -66,9 +66,9 @@ public class AppBookController {
     )
     @GetMapping("/search")
     public ResponseEntity<AppPageResponse<AppBookSummary>> searchBooks(
-            @RequestParam String q,
-            @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "20") Integer size) {
+            @Parameter(description = "Search query") @RequestParam String q,
+            @Parameter(description = "Page number") @RequestParam(required = false, defaultValue = "0") Integer page,
+            @Parameter(description = "Page size") @RequestParam(required = false, defaultValue = "20") Integer size) {
 
         return ResponseEntity.ok(mobileBookService.searchBooks(q, page, size));
     }
@@ -80,7 +80,7 @@ public class AppBookController {
     )
     @GetMapping("/continue-reading")
     public ResponseEntity<List<AppBookSummary>> getContinueReading(
-            @RequestParam(required = false, defaultValue = "10") Integer limit) {
+            @Parameter(description = "Limit") @RequestParam(required = false, defaultValue = "10") Integer limit) {
 
         return ResponseEntity.ok(mobileBookService.getContinueReading(limit));
     }
@@ -92,7 +92,7 @@ public class AppBookController {
     )
     @GetMapping("/continue-listening")
     public ResponseEntity<List<AppBookSummary>> getContinueListening(
-            @RequestParam(required = false, defaultValue = "10") Integer limit) {
+            @Parameter(description = "Limit") @RequestParam(required = false, defaultValue = "10") Integer limit) {
 
         return ResponseEntity.ok(mobileBookService.getContinueListening(limit));
     }
@@ -104,7 +104,7 @@ public class AppBookController {
     )
     @GetMapping("/recently-added")
     public ResponseEntity<List<AppBookSummary>> getRecentlyAdded(
-            @RequestParam(required = false, defaultValue = "10") Integer limit) {
+            @Parameter(description = "Limit") @RequestParam(required = false, defaultValue = "10") Integer limit) {
 
         return ResponseEntity.ok(mobileBookService.getRecentlyAdded(limit));
     }
@@ -116,7 +116,7 @@ public class AppBookController {
     )
     @GetMapping("/recently-scanned")
     public ResponseEntity<List<AppBookSummary>> getRecentlyScanned(
-            @RequestParam(required = false, defaultValue = "10") Integer limit) {
+            @Parameter(description = "Limit") @RequestParam(required = false, defaultValue = "10") Integer limit) {
 
         return ResponseEntity.ok(mobileBookService.getRecentlyScanned(limit));
     }
@@ -128,7 +128,7 @@ public class AppBookController {
     )
     @PutMapping("/{bookId}/status")
     public ResponseEntity<Void> updateStatus(
-            @PathVariable Long bookId,
+            @Parameter(description = "Book ID") @PathVariable Long bookId,
             @Valid @RequestBody UpdateStatusRequest request) {
 
         mobileBookService.updateReadStatus(bookId, request.getStatus());
@@ -142,7 +142,7 @@ public class AppBookController {
     )
     @PutMapping("/{bookId}/rating")
     public ResponseEntity<Void> updateRating(
-            @PathVariable Long bookId,
+            @Parameter(description = "Book ID") @PathVariable Long bookId,
             @Valid @RequestBody UpdateRatingRequest request) {
 
         mobileBookService.updatePersonalRating(bookId, request.getRating());
@@ -156,9 +156,9 @@ public class AppBookController {
     )
     @GetMapping("/random")
     public ResponseEntity<AppPageResponse<AppBookSummary>> getRandomBooks(
-            @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "20") Integer size,
-            @RequestParam(required = false) Long libraryId) {
+            @Parameter(description = "Page number") @RequestParam(required = false, defaultValue = "0") Integer page,
+            @Parameter(description = "Page size") @RequestParam(required = false, defaultValue = "20") Integer size,
+            @Parameter(description = "Library ID") @RequestParam(required = false) Long libraryId) {
 
         return ResponseEntity.ok(mobileBookService.getRandomBooks(page, size, libraryId));
     }

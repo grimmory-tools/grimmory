@@ -1,6 +1,7 @@
 package org.booklore.app.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.booklore.app.dto.AppFilterOptions;
 import org.booklore.app.service.AppBookService;
@@ -26,9 +27,9 @@ public class AppFilterController {
     )
     @GetMapping("/filter-options")
     public ResponseEntity<AppFilterOptions> getFilterOptions(
-            @RequestParam(required = false) Long libraryId,
-            @RequestParam(required = false) Long shelfId,
-            @RequestParam(required = false) Long magicShelfId) {
+            @Parameter(description = "Library ID") @RequestParam(required = false) Long libraryId,
+            @Parameter(description = "Shelf ID") @RequestParam(required = false) Long shelfId,
+            @Parameter(description = "Magic shelf ID") @RequestParam(required = false) Long magicShelfId) {
         return ResponseEntity.ok(mobileBookService.getFilterOptions(libraryId, shelfId, magicShelfId));
     }
 }

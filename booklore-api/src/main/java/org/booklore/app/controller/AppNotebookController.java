@@ -1,6 +1,7 @@
 package org.booklore.app.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.booklore.app.dto.AppNotebookBookSummary;
 import org.booklore.app.dto.AppNotebookEntry;
@@ -29,9 +30,9 @@ public class AppNotebookController {
     )
     @GetMapping("/books")
     public ResponseEntity<AppPageResponse<AppNotebookBookSummary>> getBooksWithAnnotations(
-            @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "20") Integer size,
-            @RequestParam(required = false) String search) {
+            @Parameter(description = "Page number") @RequestParam(required = false, defaultValue = "0") Integer page,
+            @Parameter(description = "Page size") @RequestParam(required = false, defaultValue = "20") Integer size,
+            @Parameter(description = "Search query") @RequestParam(required = false) String search) {
 
         return ResponseEntity.ok(mobileNotebookService.getBooksWithAnnotations(page, size, search));
     }
@@ -43,12 +44,12 @@ public class AppNotebookController {
     )
     @GetMapping("/books/{bookId}/entries")
     public ResponseEntity<AppPageResponse<AppNotebookEntry>> getEntriesForBook(
-            @PathVariable Long bookId,
-            @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "20") Integer size,
-            @RequestParam(required = false) Set<String> types,
-            @RequestParam(required = false) String search,
-            @RequestParam(required = false, defaultValue = "date_desc") String sort) {
+            @Parameter(description = "Book ID") @PathVariable Long bookId,
+            @Parameter(description = "Page number") @RequestParam(required = false, defaultValue = "0") Integer page,
+            @Parameter(description = "Page size") @RequestParam(required = false, defaultValue = "20") Integer size,
+            @Parameter(description = "Entry types filter") @RequestParam(required = false) Set<String> types,
+            @Parameter(description = "Search query") @RequestParam(required = false) String search,
+            @Parameter(description = "Sort field") @RequestParam(required = false, defaultValue = "date_desc") String sort) {
 
         return ResponseEntity.ok(mobileNotebookService.getEntriesForBook(bookId, page, size, types, search, sort));
     }
@@ -60,8 +61,8 @@ public class AppNotebookController {
     )
     @PutMapping("/entries/{entryId}")
     public ResponseEntity<AppNotebookEntry> updateEntry(
-            @PathVariable Long entryId,
-            @RequestParam String type,
+            @Parameter(description = "Notebook entry ID") @PathVariable Long entryId,
+            @Parameter(description = "Notebook entry type") @RequestParam String type,
             @Valid @RequestBody AppNotebookUpdateRequest request) {
 
         return ResponseEntity.ok(mobileNotebookService.updateEntry(entryId, type, request));
@@ -74,8 +75,8 @@ public class AppNotebookController {
     )
     @DeleteMapping("/entries/{entryId}")
     public ResponseEntity<Void> deleteEntry(
-            @PathVariable Long entryId,
-            @RequestParam String type) {
+            @Parameter(description = "Notebook entry ID") @PathVariable Long entryId,
+            @Parameter(description = "Notebook entry type") @RequestParam String type) {
 
         mobileNotebookService.deleteEntry(entryId, type);
         return ResponseEntity.noContent().build();

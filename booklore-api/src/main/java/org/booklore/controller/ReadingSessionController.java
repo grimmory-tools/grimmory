@@ -4,6 +4,7 @@ import org.booklore.model.dto.request.ReadingSessionRequest;
 import org.booklore.model.dto.response.ReadingSessionResponse;
 import org.booklore.service.ReadingSessionService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -44,9 +45,9 @@ public class ReadingSessionController {
     })
     @GetMapping("/book/{bookId}")
     public ResponseEntity<Page<ReadingSessionResponse>> getReadingSessionsForBook(
-            @PathVariable Long bookId, 
-            @RequestParam(defaultValue = "0") @Min(0) int page,
-            @RequestParam(defaultValue = "5") @Min(1) @Max(100) int size) {
+            @Parameter(description = "Book ID") @PathVariable Long bookId, 
+            @Parameter(description = "Page number") @RequestParam(defaultValue = "0") @Min(0) int page,
+            @Parameter(description = "Page size") @RequestParam(defaultValue = "5") @Min(1) @Max(100) int size) {
         Page<ReadingSessionResponse> sessions = readingSessionService.getReadingSessionsForBook(bookId, page, size);
         return ResponseEntity.ok(sessions);
     }

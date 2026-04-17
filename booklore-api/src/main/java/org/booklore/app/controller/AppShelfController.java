@@ -1,6 +1,7 @@
 package org.booklore.app.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.app.dto.AppBookSummary;
@@ -100,9 +101,9 @@ public class AppShelfController {
     )
     @GetMapping("/magic/{magicShelfId}/books")
     public ResponseEntity<AppPageResponse<AppBookSummary>> getBooksByMagicShelf(
-            @PathVariable Long magicShelfId,
-            @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "20") Integer size) {
+            @Parameter(description = "Magic shelf ID") @PathVariable Long magicShelfId,
+            @Parameter(description = "Page number") @RequestParam(required = false, defaultValue = "0") Integer page,
+            @Parameter(description = "Page size") @RequestParam(required = false, defaultValue = "20") Integer size) {
 
         return ResponseEntity.ok(mobileBookService.getBooksByMagicShelf(magicShelfId, page, size));
     }

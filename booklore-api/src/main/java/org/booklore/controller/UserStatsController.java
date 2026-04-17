@@ -3,18 +3,23 @@ package org.booklore.controller;
 import org.booklore.model.dto.response.*;
 import org.booklore.service.ReadingSessionService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @AllArgsConstructor
+@Validated
 @RequestMapping("/api/v1/user-stats")
 @Tag(name = "User Stats", description = "Endpoints for reading and listening analytics derived from user sessions")
 public class UserStatsController {
@@ -28,7 +33,7 @@ public class UserStatsController {
     })
     @GetMapping("/reading/heatmap")
     @PreAuthorize("@securityUtil.canAccessUserStats() or @securityUtil.isAdmin()")
-    public ResponseEntity<List<ReadingSessionHeatmapResponse>> getHeatmapForYear(@RequestParam int year) {
+    public ResponseEntity<List<ReadingSessionHeatmapResponse>> getHeatmapForYear(@Parameter(description = "Year") @RequestParam int year) {
         List<ReadingSessionHeatmapResponse> heatmapData = readingSessionService.getSessionHeatmapForYear(year);
         return ResponseEntity.ok(heatmapData);
     }
@@ -41,8 +46,8 @@ public class UserStatsController {
     @GetMapping("/reading/heatmap/monthly")
     @PreAuthorize("@securityUtil.canAccessUserStats() or @securityUtil.isAdmin()")
     public ResponseEntity<List<ReadingSessionHeatmapResponse>> getHeatmapForMonth(
-            @RequestParam int year,
-            @RequestParam int month) {
+            @Parameter(description = "Year") @RequestParam int year,
+            @Parameter(description = "Month") @RequestParam @Min(1) @Max(12) int month) {
         List<ReadingSessionHeatmapResponse> heatmapData = readingSessionService.getSessionHeatmapForMonth(year, month);
         return ResponseEntity.ok(heatmapData);
     }
@@ -56,8 +61,8 @@ public class UserStatsController {
     @GetMapping("/reading/timeline")
     @PreAuthorize("@securityUtil.canAccessUserStats() or @securityUtil.isAdmin()")
     public ResponseEntity<List<ReadingSessionTimelineResponse>> getTimelineForWeek(
-            @RequestParam int year,
-            @RequestParam int week) {
+            @Parameter(description = "Year") @RequestParam int year,
+            @Parameter(description = "Week") @RequestParam @Min(1) @Max(53) int week) {
         List<ReadingSessionTimelineResponse> timelineData = readingSessionService.getSessionTimelineForWeek(year, week);
         return ResponseEntity.ok(timelineData);
     }
@@ -69,7 +74,7 @@ public class UserStatsController {
     })
     @GetMapping("/reading/speed")
     @PreAuthorize("@securityUtil.canAccessUserStats() or @securityUtil.isAdmin()")
-    public ResponseEntity<List<ReadingSpeedResponse>> getReadingSpeedForYear(@RequestParam int year) {
+    public ResponseEntity<List<ReadingSpeedResponse>> getReadingSpeedForYear(@Parameter(description = "Year") @RequestParam int year) {
         List<ReadingSpeedResponse> speedData = readingSessionService.getReadingSpeedForYear(year);
         return ResponseEntity.ok(speedData);
     }
@@ -82,8 +87,8 @@ public class UserStatsController {
     @GetMapping("/reading/peak-hours")
     @PreAuthorize("@securityUtil.canAccessUserStats() or @securityUtil.isAdmin()")
     public ResponseEntity<List<PeakHoursResponse>> getPeakReadingHours(
-            @RequestParam(required = false) Integer year,
-            @RequestParam(required = false) Integer month) {
+            @Parameter(description = "Year") @RequestParam(required = false) Integer year,
+            @Parameter(description = "Month") @RequestParam(required = false) @Min(1) @Max(12) Integer month) {
         List<PeakHoursResponse> peakHours = readingSessionService.getPeakReadingHours(year, month);
         return ResponseEntity.ok(peakHours);
     }
@@ -96,8 +101,8 @@ public class UserStatsController {
     @GetMapping("/reading/favorite-days")
     @PreAuthorize("@securityUtil.canAccessUserStats() or @securityUtil.isAdmin()")
     public ResponseEntity<List<FavoriteReadingDaysResponse>> getFavoriteReadingDays(
-            @RequestParam(required = false) Integer year,
-            @RequestParam(required = false) Integer month) {
+            @Parameter(description = "Year") @RequestParam(required = false) Integer year,
+            @Parameter(description = "Month") @RequestParam(required = false) @Min(1) @Max(12) Integer month) {
         List<FavoriteReadingDaysResponse> favoriteDays = readingSessionService.getFavoriteReadingDays(year, month);
         return ResponseEntity.ok(favoriteDays);
     }
@@ -121,7 +126,7 @@ public class UserStatsController {
     })
     @GetMapping("/reading/completion-timeline")
     @PreAuthorize("@securityUtil.canAccessUserStats() or @securityUtil.isAdmin()")
-    public ResponseEntity<List<CompletionTimelineResponse>> getCompletionTimeline(@RequestParam int year) {
+    public ResponseEntity<List<CompletionTimelineResponse>> getCompletionTimeline(@Parameter(description = "Year") @RequestParam int year) {
         List<CompletionTimelineResponse> timeline = readingSessionService.getCompletionTimeline(year);
         return ResponseEntity.ok(timeline);
     }
@@ -157,7 +162,7 @@ public class UserStatsController {
     })
     @GetMapping("/reading/completion-race")
     @PreAuthorize("@securityUtil.canAccessUserStats() or @securityUtil.isAdmin()")
-    public ResponseEntity<List<CompletionRaceResponse>> getCompletionRace(@RequestParam int year) {
+    public ResponseEntity<List<CompletionRaceResponse>> getCompletionRace(@Parameter(description = "Year") @RequestParam int year) {
         List<CompletionRaceResponse> data = readingSessionService.getCompletionRace(year);
         return ResponseEntity.ok(data);
     }
@@ -193,7 +198,7 @@ public class UserStatsController {
     })
     @GetMapping("/reading/session-scatter")
     @PreAuthorize("@securityUtil.canAccessUserStats() or @securityUtil.isAdmin()")
-    public ResponseEntity<List<SessionScatterResponse>> getSessionScatter(@RequestParam int year) {
+    public ResponseEntity<List<SessionScatterResponse>> getSessionScatter(@Parameter(description = "Year") @RequestParam int year) {
         List<SessionScatterResponse> data = readingSessionService.getSessionScatter(year);
         return ResponseEntity.ok(data);
     }
@@ -216,7 +221,7 @@ public class UserStatsController {
     })
     @GetMapping("/reading/book-timeline")
     @PreAuthorize("@securityUtil.canAccessUserStats() or @securityUtil.isAdmin()")
-    public ResponseEntity<List<BookTimelineResponse>> getBookTimeline(@RequestParam int year) {
+    public ResponseEntity<List<BookTimelineResponse>> getBookTimeline(@Parameter(description = "Year") @RequestParam int year) {
         return ResponseEntity.ok(readingSessionService.getBookTimeline(year));
     }
 
@@ -232,8 +237,8 @@ public class UserStatsController {
     @GetMapping("/listening/heatmap/monthly")
     @PreAuthorize("@securityUtil.canAccessUserStats() or @securityUtil.isAdmin()")
     public ResponseEntity<List<ListeningHeatmapResponse>> getListeningHeatmapForMonth(
-            @RequestParam int year,
-            @RequestParam int month) {
+            @Parameter(description = "Year") @RequestParam int year,
+            @Parameter(description = "Month") @RequestParam @Min(1) @Max(12) int month) {
         return ResponseEntity.ok(readingSessionService.getListeningHeatmapForMonth(year, month));
     }
 
@@ -245,7 +250,7 @@ public class UserStatsController {
     @GetMapping("/listening/weekly-trend")
     @PreAuthorize("@securityUtil.canAccessUserStats() or @securityUtil.isAdmin()")
     public ResponseEntity<List<WeeklyListeningTrendResponse>> getWeeklyListeningTrend(
-            @RequestParam(defaultValue = "26") int weeks) {
+            @Parameter(description = "Number of weeks") @RequestParam(defaultValue = "26") int weeks) {
         return ResponseEntity.ok(readingSessionService.getWeeklyListeningTrend(weeks));
     }
 
@@ -268,7 +273,7 @@ public class UserStatsController {
     @GetMapping("/listening/monthly-pace")
     @PreAuthorize("@securityUtil.canAccessUserStats() or @securityUtil.isAdmin()")
     public ResponseEntity<List<MonthlyPaceResponse>> getMonthlyListeningPace(
-            @RequestParam(defaultValue = "12") int months) {
+            @Parameter(description = "Number of months") @RequestParam(defaultValue = "12") int months) {
         return ResponseEntity.ok(readingSessionService.getMonthlyListeningPace(months));
     }
 
@@ -291,8 +296,8 @@ public class UserStatsController {
     @GetMapping("/listening/peak-hours")
     @PreAuthorize("@securityUtil.canAccessUserStats() or @securityUtil.isAdmin()")
     public ResponseEntity<List<PeakHoursResponse>> getListeningPeakHours(
-            @RequestParam(required = false) Integer year,
-            @RequestParam(required = false) Integer month) {
+            @Parameter(description = "Year") @RequestParam(required = false) Integer year,
+            @Parameter(description = "Month") @RequestParam(required = false) @Min(1) @Max(12) Integer month) {
         return ResponseEntity.ok(readingSessionService.getListeningPeakHours(year, month));
     }
 

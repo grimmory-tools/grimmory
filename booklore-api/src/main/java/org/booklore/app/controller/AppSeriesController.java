@@ -1,6 +1,7 @@
 package org.booklore.app.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.booklore.app.dto.AppBookSummary;
@@ -25,13 +26,13 @@ public class AppSeriesController {
     )
     @GetMapping
     public ResponseEntity<AppPageResponse<AppSeriesSummary>> getSeries(
-            @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "20") Integer size,
-            @RequestParam(required = false, defaultValue = "recentlyAdded") String sort,
-            @RequestParam(required = false, defaultValue = "desc") String dir,
-            @RequestParam(required = false) Long libraryId,
-            @RequestParam(required = false) String search,
-            @RequestParam(required = false) String status) {
+            @Parameter(description = "Page number") @RequestParam(required = false, defaultValue = "0") Integer page,
+            @Parameter(description = "Page size") @RequestParam(required = false, defaultValue = "20") Integer size,
+            @Parameter(description = "Sort field") @RequestParam(required = false, defaultValue = "recentlyAdded") String sort,
+            @Parameter(description = "Sort direction") @RequestParam(required = false, defaultValue = "desc") String dir,
+            @Parameter(description = "Library ID") @RequestParam(required = false) Long libraryId,
+            @Parameter(description = "Search query") @RequestParam(required = false) String search,
+            @Parameter(description = "Status filter") @RequestParam(required = false) String status) {
 
         boolean inProgressOnly = "in-progress".equalsIgnoreCase(status);
 
@@ -48,12 +49,12 @@ public class AppSeriesController {
     )
     @GetMapping("/{seriesName}/books")
     public ResponseEntity<AppPageResponse<AppBookSummary>> getSeriesBooks(
-            @PathVariable String seriesName,
-            @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "20") Integer size,
-            @RequestParam(required = false, defaultValue = "seriesNumber") String sort,
-            @RequestParam(required = false, defaultValue = "asc") String dir,
-            @RequestParam(required = false) Long libraryId) {
+            @Parameter(description = "Series name") @PathVariable String seriesName,
+            @Parameter(description = "Page number") @RequestParam(required = false, defaultValue = "0") Integer page,
+            @Parameter(description = "Page size") @RequestParam(required = false, defaultValue = "20") Integer size,
+            @Parameter(description = "Sort field") @RequestParam(required = false, defaultValue = "seriesNumber") String sort,
+            @Parameter(description = "Sort direction") @RequestParam(required = false, defaultValue = "asc") String dir,
+            @Parameter(description = "Library ID") @RequestParam(required = false) Long libraryId) {
 
         AppPageResponse<AppBookSummary> response = mobileSeriesService.getSeriesBooks(
                 seriesName, page, size, sort, dir, libraryId);

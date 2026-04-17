@@ -1,6 +1,7 @@
 package org.booklore.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.booklore.config.security.service.LogoutService;
@@ -30,7 +31,7 @@ public class LogoutController {
     @PostMapping("/logout")
     public ResponseEntity<LogoutResponse> logout(Authentication auth,
                                                   @RequestBody(required = false) LogoutRequest request,
-                                                  @RequestHeader(value = "Origin", required = false) String origin) {
+                                                  @Parameter(description = "Origin header") @RequestHeader(value = "Origin", required = false) String origin) {
         String refreshToken = request != null ? request.refreshToken() : null;
         LogoutResponse response = logoutService.logout(auth, refreshToken, origin);
         return ResponseEntity.ok(response);

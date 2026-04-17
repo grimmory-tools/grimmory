@@ -1,6 +1,7 @@
 package org.booklore.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.booklore.config.security.annotation.CheckBookAccess;
 import org.booklore.model.dto.BookFile;
@@ -37,7 +38,7 @@ public class AdditionalFileController {
     )
     @GetMapping
     @CheckBookAccess(bookIdParam = "bookId")
-    public ResponseEntity<List<BookFile>> getAdditionalFiles(@PathVariable Long bookId) {
+    public ResponseEntity<List<BookFile>> getAdditionalFiles(@Parameter(description = "Book ID") @PathVariable Long bookId) {
         List<BookFile> files = additionalFileService.getAdditionalFilesByBookId(bookId);
         return ResponseEntity.ok(files);
     }
@@ -50,8 +51,8 @@ public class AdditionalFileController {
     @GetMapping(params = "isBook")
     @CheckBookAccess(bookIdParam = "bookId")
     public ResponseEntity<List<BookFile>> getFilesByIsBook(
-            @PathVariable Long bookId,
-            @RequestParam boolean isBook) {
+            @Parameter(description = "Book ID") @PathVariable Long bookId,
+            @Parameter(description = "Primary book file flag") @RequestParam boolean isBook) {
         List<BookFile> files = additionalFileService.getAdditionalFilesByBookIdAndIsBook(bookId, isBook);
         return ResponseEntity.ok(files);
     }
@@ -65,11 +66,11 @@ public class AdditionalFileController {
     @CheckBookAccess(bookIdParam = "bookId")
     @PreAuthorize("@securityUtil.canUpload() or @securityUtil.isAdmin()")
     public ResponseEntity<BookFile> uploadAdditionalFile(
-            @PathVariable Long bookId,
-            @RequestParam("file") MultipartFile file,
-            @RequestParam boolean isBook,
-            @RequestParam(required = false) BookFileType bookType,
-            @RequestParam(required = false) String description) {
+            @Parameter(description = "Book ID") @PathVariable Long bookId,
+            @Parameter(description = "Upload file") @RequestParam("file") MultipartFile file,
+            @Parameter(description = "Primary book file flag") @RequestParam boolean isBook,
+            @Parameter(description = "Book file type") @RequestParam(required = false) BookFileType bookType,
+            @Parameter(description = "File description") @RequestParam(required = false) String description) {
         BookFile additionalFile = fileUploadService.uploadAdditionalFile(bookId, file, isBook, bookType, description);
         return ResponseEntity.ok(additionalFile);
     }
@@ -82,8 +83,8 @@ public class AdditionalFileController {
     @GetMapping("/{fileId}/download")
     @CheckBookAccess(bookIdParam = "bookId")
     public ResponseEntity<Resource> downloadAdditionalFile(
-            @PathVariable Long bookId,
-            @PathVariable Long fileId) throws IOException {
+            @Parameter(description = "Book ID") @PathVariable Long bookId,
+            @Parameter(description = "File ID") @PathVariable Long fileId) throws IOException {
         return additionalFileService.downloadAdditionalFile(bookId, fileId);
     }
 
@@ -96,8 +97,8 @@ public class AdditionalFileController {
     @CheckBookAccess(bookIdParam = "bookId")
     @PreAuthorize("@securityUtil.canDeleteBook() or @securityUtil.isAdmin()")
     public ResponseEntity<Void> deleteAdditionalFile(
-            @PathVariable Long bookId,
-            @PathVariable Long fileId) {
+            @Parameter(description = "Book ID") @PathVariable Long bookId,
+            @Parameter(description = "File ID") @PathVariable Long fileId) {
         additionalFileService.deleteAdditionalFile(bookId, fileId);
         return ResponseEntity.noContent().build();
     }
@@ -111,8 +112,8 @@ public class AdditionalFileController {
     @CheckBookAccess(bookIdParam = "bookId")
     @PreAuthorize("@securityUtil.canManageLibrary() or @securityUtil.isAdmin()")
     public ResponseEntity<DetachBookFileResponse> detachFile(
-            @PathVariable Long bookId,
-            @PathVariable Long fileId,
+            @Parameter(description = "Book ID") @PathVariable Long bookId,
+            @Parameter(description = "File ID") @PathVariable Long fileId,
             @RequestBody DetachBookFileRequest request) {
         return ResponseEntity.ok(bookFileDetachmentService.detachBookFile(bookId, fileId, request.copyMetadata()));
     }

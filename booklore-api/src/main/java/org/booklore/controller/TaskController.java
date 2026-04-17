@@ -1,6 +1,7 @@
 package org.booklore.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.booklore.model.dto.TaskInfo;
 import org.booklore.model.dto.request.TaskCreateRequest;
@@ -66,7 +67,7 @@ public class TaskController {
     )
     @DeleteMapping("/{taskId}/cancel")
     @PreAuthorize("@securityUtil.canAccessTaskManager() or @securityUtil.isAdmin()")
-    public ResponseEntity<TaskCancelResponse> cancelTask(@PathVariable String taskId) {
+    public ResponseEntity<TaskCancelResponse> cancelTask(@Parameter(description = "Task ID") @PathVariable String taskId) {
         TaskCancelResponse response = service.cancelTask(taskId);
         return ResponseEntity.ok(response);
     }
@@ -90,7 +91,7 @@ public class TaskController {
     )
     @PatchMapping("/{taskType}/cron")
     @PreAuthorize("@securityUtil.canAccessTaskManager() or @securityUtil.isAdmin()")
-    public ResponseEntity<CronConfig> patchCronConfig(@PathVariable TaskType taskType, @RequestBody TaskCronConfigRequest request) {
+    public ResponseEntity<CronConfig> patchCronConfig(@Parameter(description = "Task type") @PathVariable TaskType taskType, @RequestBody TaskCronConfigRequest request) {
         CronConfig response = taskCronService.patchCronConfig(taskType, request);
         service.rescheduleTask(taskType);
         return ResponseEntity.ok(response);

@@ -1,6 +1,7 @@
 package org.booklore.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.booklore.model.dto.OidcGroupMapping;
@@ -46,7 +47,7 @@ public class OidcGroupMappingController {
             operationId = "oidcGroupMappingUpdate"
     )
     @PutMapping("/{id}")
-    public OidcGroupMapping update(@PathVariable Long id, @Valid @RequestBody OidcGroupMapping mapping) {
+    public OidcGroupMapping update(@Parameter(description = "Mapping ID") @PathVariable Long id, @Valid @RequestBody OidcGroupMapping mapping) {
         return oidcGroupMappingService.update(id, mapping);
     }
 
@@ -56,7 +57,7 @@ public class OidcGroupMappingController {
             operationId = "oidcGroupMappingDelete"
     )
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public void delete(@Parameter(description = "Mapping ID") @PathVariable Long id) {
         oidcGroupMappingService.delete(id);
     }
 }

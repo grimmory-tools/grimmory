@@ -1,6 +1,7 @@
 package org.booklore.app.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.booklore.app.dto.AppAuthorDetail;
 import org.booklore.app.dto.AppAuthorSummary;
@@ -25,13 +26,13 @@ public class AppAuthorController {
     )
     @GetMapping
     public ResponseEntity<AppPageResponse<AppAuthorSummary>> getAuthors(
-            @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "30") Integer size,
-            @RequestParam(required = false, defaultValue = "name") String sort,
-            @RequestParam(required = false, defaultValue = "asc") String dir,
-            @RequestParam(required = false) Long libraryId,
-            @RequestParam(required = false) String search,
-            @RequestParam(required = false) Boolean hasPhoto) {
+            @Parameter(description = "Page number") @RequestParam(required = false, defaultValue = "0") Integer page,
+            @Parameter(description = "Page size") @RequestParam(required = false, defaultValue = "30") Integer size,
+            @Parameter(description = "Sort field") @RequestParam(required = false, defaultValue = "name") String sort,
+            @Parameter(description = "Sort direction") @RequestParam(required = false, defaultValue = "asc") String dir,
+            @Parameter(description = "Library ID") @RequestParam(required = false) Long libraryId,
+            @Parameter(description = "Search query") @RequestParam(required = false) String search,
+            @Parameter(description = "Has photo filter") @RequestParam(required = false) Boolean hasPhoto) {
 
         return ResponseEntity.ok(mobileAuthorService.getAuthors(page, size, sort, dir, libraryId, search, hasPhoto));
     }
@@ -43,7 +44,7 @@ public class AppAuthorController {
     )
     @GetMapping("/{authorId}")
     public ResponseEntity<AppAuthorDetail> getAuthorDetail(
-            @PathVariable Long authorId) {
+            @Parameter(description = "Author ID") @PathVariable Long authorId) {
 
         return ResponseEntity.ok(mobileAuthorService.getAuthorDetail(authorId));
     }
