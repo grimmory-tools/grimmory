@@ -172,16 +172,17 @@ jobs:
           if [ -n "$base_tag" ]; then
             compare_url="https://github.com/${GITHUB_REPOSITORY}/compare/${base_tag}...${RELEASE_TAG}"
           fi
+          release_notes_delim="EOF_$(openssl rand -hex 16)"
 
           {
             echo "base_tag=${base_tag}"
             echo "compare_url=${compare_url}"
             echo "release_url=${release_url}"
             echo "release_version=${release_version}"
-            echo "release_notes<<EOF"
+            echo "release_notes<<${release_notes_delim}"
             printf '%s' "$release_json" | jq -r '.body'
             printf '\n'
-            echo "EOF"
+            echo "${release_notes_delim}"
           } >> "$GITHUB_OUTPUT"
 
   notify-discord:

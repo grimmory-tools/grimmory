@@ -44,13 +44,20 @@ jobs:
           build_date="$(date -u +%Y%m%d)"
           nightly_tag="nightly-${build_date}-${short_sha}"
           base_tag="$(git describe --tags --abbrev=0 --match 'v*' origin/main)"
-          previous_nightly_sha="$(
-            gh api "/repos/${GITHUB_REPOSITORY}/actions/workflows/publish-nightly.yml/runs?branch=develop&event=schedule&status=success&per_page=1" \
-              --jq '.workflow_runs[0].head_sha // ""'
-          )"
           from_ref="$base_tag"
-          if [ -n "$previous_nightly_sha" ]; then
+          previous_nightly_sha=""
+          if previous_nightly_json="$(
+            gh api "/repos/${GITHUB_REPOSITORY}/actions/workflows/publish-nightly.yml/runs?branch=develop&event=schedule&status=success&per_page=1"
+          )"; then
+            previous_nightly_sha="$(printf '%s' "$previous_nightly_json" | jq -r '.workflow_runs[0].head_sha // ""')"
+          else
+            echo "::warning::Unable to resolve previous nightly run; using ${base_tag}"
+          fi
+
+          if [ -n "$previous_nightly_sha" ] && git rev-parse --verify --quiet "${previous_nightly_sha}^{commit}" >/dev/null; then
             from_ref="$previous_nightly_sha"
+          elif [ -n "$previous_nightly_sha" ]; then
+            echo "::warning::Ignoring invalid nightly baseline ${previous_nightly_sha}; using ${base_tag}"
           fi
 
           echo "base_tag=${base_tag}" >> "$GITHUB_OUTPUT"

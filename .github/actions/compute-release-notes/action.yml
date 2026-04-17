@@ -97,6 +97,7 @@ runs:
         release_type="$(jq -r '.releaseType // empty' tools/release/range-release.json)"
         released="$(jq -r '.released' tools/release/range-release.json)"
         to_sha="$(jq -r '.toSha // empty' tools/release/range-release.json)"
+        release_notes_delim="EOF_$(openssl rand -hex 16)"
 
         {
           echo "compare_url=${compare_url}"
@@ -105,10 +106,10 @@ runs:
           echo "release_type=${release_type}"
           echo "released=${released}"
           echo "to_sha=${to_sha}"
-          echo "release_notes<<EOF"
+          echo "release_notes<<${release_notes_delim}"
           cat tools/release/range-release-notes.md
           printf '\n'
-          echo "EOF"
+          echo "${release_notes_delim}"
         } >> "$GITHUB_OUTPUT"
 
         {

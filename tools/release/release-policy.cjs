@@ -9,7 +9,7 @@ const types = [
   { type: "build", section: "Build", release: false },
   { type: "test", section: "Tests", release: false },
   { type: "style", section: "Style", release: false },
-  { type: "revert", section: "Reverts" }
+  { type: "revert", section: "Reverts", release: "patch" }
 ];
 
 const noteKeywords = ["BREAKING CHANGE", "BREAKING CHANGES", "BREAKING"];
