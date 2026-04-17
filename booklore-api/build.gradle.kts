@@ -8,7 +8,7 @@ plugins {
     java
     id("org.springframework.boot") version "4.0.5"
     id("io.spring.dependency-management") version "1.1.7"
-    id("org.hibernate.orm") version "7.3.0.Final"
+    id("org.hibernate.orm") version "7.3.1.Final"
     id("com.github.ben-manes.versions") version "0.53.0"
     jacoco
 }
@@ -108,7 +108,7 @@ dependencies {
     // --- Database & Migration ---
     implementation("org.mariadb.jdbc:mariadb-java-client:3.5.8")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
-    implementation("org.flywaydb:flyway-mysql:12.3.0")
+    implementation("org.flywaydb:flyway-mysql:12.4.0")
 
     // --- Security & Authentication ---
     implementation("io.jsonwebtoken:jjwt-api:0.13.0")
@@ -152,7 +152,7 @@ dependencies {
     annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
 
     // --- API Documentation ---
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:3.0.2")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:3.0.3")
     implementation("org.apache.commons:commons-compress:1.28.0")
     implementation("org.tukaani:xz:1.12") // Required by commons-compress for 7z support
     implementation("org.apache.commons:commons-text:1.15.0")
@@ -168,7 +168,7 @@ dependencies {
     implementation("org.freemarker:freemarker:2.3.34")
 
     // --- Jackson 3 ---
-    implementation(platform("tools.jackson:jackson-bom:3.1.1"))
+    implementation(platform("tools.jackson:jackson-bom:3.1.2"))
     implementation("tools.jackson.core:jackson-core")
     implementation("tools.jackson.core:jackson-databind")
     implementation("tools.jackson.module:jackson-module-blackbird")
