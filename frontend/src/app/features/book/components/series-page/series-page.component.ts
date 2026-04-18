@@ -519,21 +519,22 @@ export class SeriesPageComponent implements AfterViewChecked {
     return Math.round((rating / 5) * 100);
   }
 
+  private getSelectableBookIds(book: Book): number[] {
+    return book.seriesBooks?.length
+      ? book.seriesBooks.map(seriesBook => seriesBook.id)
+      : [book.id];
+  }
+
+  isBookSelected(book: Book): boolean {
+    return this.getSelectableBookIds(book).every(id => this.selectedBooks.has(id));
+  }
+
   handleBookSelection(book: Book, selected: boolean) {
+    const ids = this.getSelectableBookIds(book);
     if (selected) {
-      if (book.seriesBooks) {
-        this.selectedBooks = new Set([...this.selectedBooks, ...book.seriesBooks.map(book => book.id)]);
-      } else {
-        this.selectedBooks.add(book.id);
-      }
+      ids.forEach(id => this.selectedBooks.add(id));
     } else {
-      if (book.seriesBooks) {
-        book.seriesBooks.forEach(book => {
-          this.selectedBooks.delete(book.id);
-        });
-      } else {
-        this.selectedBooks.delete(book.id);
-      }
+      ids.forEach(id => this.selectedBooks.delete(id));
     }
   }
 

@@ -122,7 +122,17 @@ export class BookTableComponent implements OnInit, OnDestroy, OnChanges {
   private syncSelectedBooks(): void {
     // Only include in 'selectedBooks' the objects that are actually in 'this.books'
     // so that p-table correctly shows them as selected in the UI.
-    this.selectedBooks = this.books.filter(book => this.selectedBookIds.has(book.id));
+    this.selectedBooks = this.books.filter(book => this.isBookSelected(book));
+  }
+
+  private getSelectableBookIds(book: Book): number[] {
+    return book.seriesBooks?.length
+      ? book.seriesBooks.map(seriesBook => seriesBook.id)
+      : [book.id];
+  }
+
+  private isBookSelected(book: Book): boolean {
+    return this.getSelectableBookIds(book).every(bookId => this.selectedBookIds.has(bookId));
   }
 
   scrollToTop(): void {
@@ -146,22 +156,14 @@ export class BookTableComponent implements OnInit, OnDestroy, OnChanges {
 
   onRowSelect(event: { data?: Book | Book[] }): void {
     if (event.data && !Array.isArray(event.data)) {
-      if (event.data.seriesBooks) {
-        event.data.seriesBooks.forEach(book => this.selectedBookIds.add(book.id));
-      } else {
-        this.selectedBookIds.add(event.data.id);
-      }
+      this.getSelectableBookIds(event.data).forEach(bookId => this.selectedBookIds.add(bookId));
       this.selectedBooksChange.emit(new Set(this.selectedBookIds));
     }
   }
 
   onRowUnselect(event: { data?: Book | Book[] }): void {
     if (event.data && !Array.isArray(event.data)) {
-      if (event.data.seriesBooks) {
-        event.data.seriesBooks.forEach(book => this.selectedBookIds.delete(book.id));
-      } else {
-        this.selectedBookIds.delete(event.data.id);
-      }
+      this.getSelectableBookIds(event.data).forEach(bookId => this.selectedBookIds.delete(bookId));
       this.selectedBooksChange.emit(new Set(this.selectedBookIds));
     }
   }

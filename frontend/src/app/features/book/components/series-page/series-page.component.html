@@ -288,7 +288,7 @@
                           [index]="i"
                           [book]="book"
                           [isCheckboxEnabled]="true"
-                          [isSelected]="selectedBooks.has(book.id)"
+                          [isSelected]="isBookSelected(book)"
                           (checkboxClick)="onCheckboxClicked($event)"
                           [onBookSelect]="handleBookSelect.bind(this)"
                           [isSeriesCollapsed]="false"

@@ -21,14 +21,22 @@ export class BookSelectionService {
     this.currentBooks = books;
   }
 
+  getSelectableBookIds(book: Book): number[] {
+    return book.seriesBooks?.length
+      ? book.seriesBooks.map(seriesBook => seriesBook.id)
+      : [book.id];
+  }
+
+  isBookSelected(book: Book): boolean {
+    const selectedIds = this._selectedBooks();
+    const ids = this.getSelectableBookIds(book);
+    return ids.every(id => selectedIds.has(id));
+  }
+
   selectBook(book: Book): void {
     this._selectedBooks.update(current => {
       const next = new Set(current);
-      if (book.seriesBooks) {
-        book.seriesBooks.forEach(seriesBook => next.add(seriesBook.id));
-      } else {
-        next.add(book.id);
-      }
+      this.getSelectableBookIds(book).forEach(bookId => next.add(bookId));
       return next;
     });
   }
@@ -36,11 +44,7 @@ export class BookSelectionService {
   deselectBook(book: Book): void {
     this._selectedBooks.update(current => {
       const next = new Set(current);
-      if (book.seriesBooks) {
-        book.seriesBooks.forEach(seriesBook => next.delete(seriesBook.id));
-      } else {
-        next.delete(book.id);
-      }
+      this.getSelectableBookIds(book).forEach(bookId => next.delete(bookId));
       return next;
     });
   }

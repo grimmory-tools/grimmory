@@ -335,7 +335,7 @@
                         [onBookSelect]="onBookCardSelect"
                         [isSeriesCollapsed]="seriesCollapseFilter.seriesCollapsed()"
                         (checkboxClick)="onCheckboxClicked($event)"
-                        [isSelected]="selectedBooks().has(book.id)"
+                        [isSelected]="bookSelectionService.isBookSelected(book)"
                         [useSquareCovers]="isAudiobookOnlyLibrary()"
                         [overlayPreferenceService]="bookCardOverlayPreferenceService">
                       </app-book-card>
