@@ -14,7 +14,7 @@ import {Slider} from 'primeng/slider';
 import {Divider} from 'primeng/divider';
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
 import {SettingsHelperService} from '../../../../../shared/service/settings-helper.service';
-import {AppSettingKey, KoboSettings} from '../../../../../shared/model/app-settings.model';
+import {AppSettingKey, AppSettings, KoboSettings} from '../../../../../shared/model/app-settings.model';
 import {ShelfService} from '../../../../book/service/shelf.service';
 import {ExternalDocLinkComponent} from '../../../../../shared/components/external-doc-link/external-doc-link.component';
 import {Toast} from 'primeng/toast';
@@ -87,7 +87,6 @@ export class KoboSyncSettingsComponent implements OnInit {
   }
 
   private prevHasKoboTokenPermission = false;
-  private prevIsAdmin = false;
 
   private readonly syncUserEffect = effect(() => {
     const user = this.userService.currentUser();
@@ -103,15 +102,19 @@ export class KoboSyncSettingsComponent implements OnInit {
       this.hasKoboTokenPermission = currHasKoboTokenPermission;
     }
 
-    if (currIsAdmin && !this.prevIsAdmin) {
-      this.isAdmin = true;
-      this.loadKoboAdminSettings();
-    } else {
-      this.isAdmin = currIsAdmin;
-    }
+    this.isAdmin = currIsAdmin;
 
     this.prevHasKoboTokenPermission = currHasKoboTokenPermission;
-    this.prevIsAdmin = currIsAdmin;
+  });
+
+  private readonly syncAdminSettingsEffect = effect(() => {
+    const user = this.userService.currentUser();
+    const settings = this.appSettingsService.appSettings();
+    if (!(user?.permissions.admin) || !settings) {
+      return;
+    }
+
+    this.applyKoboAdminSettings(settings);
   });
 
   private loadKoboUserSettings() {
@@ -133,17 +136,14 @@ export class KoboSyncSettingsComponent implements OnInit {
     });
   }
 
-  private loadKoboAdminSettings() {
-    const settings = this.appSettingsService.appSettings();
-    if (settings) {
-      this.koboSettings.convertToKepub = settings.koboSettings?.convertToKepub ?? true;
-      this.koboSettings.conversionLimitInMb = settings.koboSettings?.conversionLimitInMb ?? 100;
-      this.koboSettings.convertCbxToEpub = settings.koboSettings?.convertCbxToEpub ?? false;
-      this.koboSettings.conversionLimitInMbForCbx = settings.koboSettings?.conversionLimitInMbForCbx ?? 100;
-      this.koboSettings.forceEnableHyphenation = settings.koboSettings?.forceEnableHyphenation ?? false;
-      this.koboSettings.conversionImageCompressionPercentage = settings.koboSettings?.conversionImageCompressionPercentage ?? 85;
-      this.koboSettings.forwardToKoboStore = settings.koboSettings?.forwardToKoboStore ?? false;
-    }
+  private applyKoboAdminSettings(settings: AppSettings) {
+    this.koboSettings.convertToKepub = settings.koboSettings?.convertToKepub ?? true;
+    this.koboSettings.conversionLimitInMb = settings.koboSettings?.conversionLimitInMb ?? 100;
+    this.koboSettings.convertCbxToEpub = settings.koboSettings?.convertCbxToEpub ?? false;
+    this.koboSettings.conversionLimitInMbForCbx = settings.koboSettings?.conversionLimitInMbForCbx ?? 100;
+    this.koboSettings.forceEnableHyphenation = settings.koboSettings?.forceEnableHyphenation ?? false;
+    this.koboSettings.conversionImageCompressionPercentage = settings.koboSettings?.conversionImageCompressionPercentage ?? 85;
+    this.koboSettings.forwardToKoboStore = settings.koboSettings?.forwardToKoboStore ?? false;
   }
 
   copyText(text: string, label: string = 'Text') {
