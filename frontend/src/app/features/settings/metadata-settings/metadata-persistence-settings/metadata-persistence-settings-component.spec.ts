@@ -1,3 +1,4 @@
+import {signal, type WritableSignal} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
@@ -10,13 +11,11 @@ import {MetadataPersistenceSettingsComponent} from './metadata-persistence-setti
 describe('MetadataPersistenceSettingsComponent', () => {
   let fixture: ComponentFixture<MetadataPersistenceSettingsComponent>;
   let component: MetadataPersistenceSettingsComponent;
-  let appSettingsService: {appSettings: ReturnType<typeof vi.fn>};
+  let appSettingsSignal: WritableSignal<AppSettings | null>;
   let settingsHelper: {saveSetting: ReturnType<typeof vi.fn>};
 
   beforeEach(async () => {
-    appSettingsService = {
-      appSettings: vi.fn(() => buildSettings()),
-    };
+    appSettingsSignal = signal<AppSettings | null>(null);
     settingsHelper = {
       saveSetting: vi.fn(),
     };
@@ -24,7 +23,7 @@ describe('MetadataPersistenceSettingsComponent', () => {
     await TestBed.configureTestingModule({
       imports: [MetadataPersistenceSettingsComponent, getTranslocoModule()],
       providers: [
-        {provide: AppSettingsService, useValue: appSettingsService},
+        {provide: AppSettingsService, useValue: {appSettings: appSettingsSignal}},
         {provide: SettingsHelperService, useValue: settingsHelper},
       ],
     }).compileComponents();
@@ -38,8 +37,14 @@ describe('MetadataPersistenceSettingsComponent', () => {
     TestBed.resetTestingModule();
   });
 
-  it('hydrates persistence settings and network-storage state from app settings', () => {
+  it('hydrates persistence settings and network-storage state from app settings', async () => {
+    appSettingsSignal.set(buildSettings());
+    await render();
+
     expect(component.isNetworkStorage).toBe(true);
+    expect(component.form.controls.saveToOriginalFile.disabled).toBe(true);
+    expect(component.form.controls.moveFilesToLibraryPattern.disabled).toBe(true);
+    expect(component.form.controls.sidecarSettings.disabled).toBe(true);
     expect(component.metadataPersistence.moveFilesToLibraryPattern).toBe(true);
     expect(component.metadataPersistence.convertCbrCb7ToCbz).toBe(true);
     expect(component.metadataPersistence.saveToOriginalFile.epub).toEqual({
@@ -58,8 +63,38 @@ describe('MetadataPersistenceSettingsComponent', () => {
     });
   });
 
-  it('toggles persistence flags and saves the updated settings', () => {
-    component.onPersistenceToggle('convertCbrCb7ToCbz');
+  it('hydrates when app settings arrive after the component is created', async () => {
+    await render();
+
+    expect(component.isNetworkStorage).toBe(false);
+    expect(component.metadataPersistence.moveFilesToLibraryPattern).toBe(false);
+
+    appSettingsSignal.set(buildSettings());
+    await render();
+
+    expect(component.isNetworkStorage).toBe(true);
+    expect(component.metadataPersistence.moveFilesToLibraryPattern).toBe(true);
+    expect(component.metadataPersistence.saveToOriginalFile.epub.maxFileSizeInMb).toBe(123);
+  });
+
+  it('re-enables network-sensitive controls when storage switches back to local', async () => {
+    appSettingsSignal.set(buildSettings());
+    await render();
+
+    appSettingsSignal.set(buildSettings('LOCAL'));
+    await render();
+
+    expect(component.isNetworkStorage).toBe(false);
+    expect(component.form.controls.saveToOriginalFile.enabled).toBe(true);
+    expect(component.form.controls.moveFilesToLibraryPattern.enabled).toBe(true);
+    expect(component.form.controls.sidecarSettings.enabled).toBe(true);
+  });
+
+  it('toggles persistence flags and saves the updated settings', async () => {
+    appSettingsSignal.set(buildSettings());
+    await render();
+
+    component.onPersistenceToggle('convertCbrCb7ToCbz', false);
 
     expect(component.metadataPersistence.convertCbrCb7ToCbz).toBe(false);
     expect(settingsHelper.saveSetting).toHaveBeenCalledWith(
@@ -68,8 +103,11 @@ describe('MetadataPersistenceSettingsComponent', () => {
     );
   });
 
-  it('toggles save-to-original-file settings and persists the current metadata settings', () => {
-    component.onSaveToOriginalFileToggle('pdf');
+  it('toggles save-to-original-file settings and persists the current metadata settings', async () => {
+    appSettingsSignal.set(buildSettings());
+    await render();
+
+    component.onSaveToOriginalFileToggle('pdf', true);
 
     expect(component.metadataPersistence.saveToOriginalFile.pdf.enabled).toBe(true);
     expect(settingsHelper.saveSetting).toHaveBeenCalledWith(
@@ -78,8 +116,11 @@ describe('MetadataPersistenceSettingsComponent', () => {
     );
   });
 
-  it('toggles sidecar settings and saves the updated state', () => {
-    component.onSidecarToggle('includeCoverFile');
+  it('toggles sidecar settings and saves the updated state', async () => {
+    appSettingsSignal.set(buildSettings());
+    await render();
+
+    component.onSidecarToggle('includeCoverFile', true);
 
     expect(component.metadataPersistence.sidecarSettings?.includeCoverFile).toBe(true);
     expect(settingsHelper.saveSetting).toHaveBeenCalledWith(
@@ -87,9 +128,16 @@ describe('MetadataPersistenceSettingsComponent', () => {
       component.metadataPersistence
     );
   });
+
+  async function render(): Promise<void> {
+    fixture.detectChanges();
+    await new Promise(resolve => setTimeout(resolve, 0));
+    await fixture.whenStable();
+    fixture.detectChanges();
+  }
 });
 
-function buildSettings(): AppSettings {
+function buildSettings(diskType: AppSettings['diskType'] = 'NETWORK'): AppSettings {
   const metadataPersistenceSettings: MetadataPersistenceSettings = {
     moveFilesToLibraryPattern: true,
     convertCbrCb7ToCbz: true,
@@ -108,7 +156,7 @@ function buildSettings(): AppSettings {
   };
 
   return {
-    diskType: 'NETWORK',
+    diskType,
     metadataPersistenceSettings,
   } as AppSettings;
 }

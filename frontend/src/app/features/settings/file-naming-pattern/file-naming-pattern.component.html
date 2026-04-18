@@ -34,9 +34,9 @@
             <input
               pInputText
               id="defaultPattern"
-              [(ngModel)]="defaultPattern"
+              [ngModel]="defaultPattern()"
               [placeholder]="t('defaultPattern.placeholder')"
-              (input)="onDefaultPatternChange(defaultPattern)"
+              (ngModelChange)="onDefaultPatternChange($event)"
               class="pattern-input"/>
             <p-button
               [label]="'common.save' | transloco"

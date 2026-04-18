@@ -14,18 +14,18 @@
       <div class="setting-item">
         <div class="setting-header">
           <p-toggleswitch
-            [(ngModel)]="publicReviewSettings.downloadEnabled"
+            [formControl]="form.controls.downloadEnabled"
             (onChange)="onPublicReviewsToggle($event.checked)">
           </p-toggleswitch>
           <span class="setting-label">{{ t('downloadLabel') }}</span>
         </div>
       </div>
 
-      @if (publicReviewSettings.downloadEnabled) {
+      @if (form.controls.downloadEnabled.value) {
         <div class="setting-item">
           <div class="setting-header">
             <p-toggleswitch
-              [(ngModel)]="publicReviewSettings.autoDownloadEnabled"
+              [formControl]="form.controls.autoDownloadEnabled"
               (onChange)="onAutoDownloadToggle($event.checked)">
             </p-toggleswitch>
             <span class="setting-label">{{ t('autoDownloadLabel') }}</span>
@@ -38,29 +38,29 @@
             <span class="setting-label">{{ t('reviewSources') }}</span>
           </div>
           <p class="setting-description">{{ t('reviewSourcesDesc') }}</p>
-          @if (publicReviewSettings.providers.length > 0) {
+          @if (providerControls.length > 0) {
             <div class="setting-options">
               <div class="providers-grid">
-                @for (provider of publicReviewSettings.providers; track provider.provider) {
+                @for (provider of providerControls; track provider.controls.provider.value) {
                   <div class="provider-item">
                     <div class="provider-row">
                       <p-toggleswitch
-                        [(ngModel)]="provider.enabled"
-                        (onChange)="onProviderToggle(provider.provider, $event.checked)">
+                        [formControl]="provider.controls.enabled"
+                        (onChange)="onProviderToggle(provider.controls.provider.value, $event.checked)">
                       </p-toggleswitch>
-                      <span class="provider-label">{{ provider.provider }}</span>
+                      <span class="provider-label">{{ provider.controls.provider.value }}</span>
                     </div>
-                    @if (provider.enabled) {
+                    @if (provider.controls.enabled.value) {
                       <div class="max-reviews-control">
-                        <label class="max-reviews-label" [for]="'public-review-max-reviews-' + provider.provider">{{ t('maxLabel') }}</label>
+                        <label class="max-reviews-label" [for]="'public-review-max-reviews-' + provider.controls.provider.value">{{ t('maxLabel') }}</label>
                         <input
-                          [id]="'public-review-max-reviews-' + provider.provider"
+                          [id]="'public-review-max-reviews-' + provider.controls.provider.value"
                           type="number"
                           class="max-reviews-input"
                           min="1"
                           max="10"
-                          [(ngModel)]="provider.maxReviews"
-                          (blur)="onMaxReviewsChange(provider.provider, provider.maxReviews)"
+                          [formControl]="provider.controls.maxReviews"
+                          (blur)="onMaxReviewsChange(provider.controls.provider.value, provider.controls.maxReviews.value)"
                           [title]="t('maxTooltip')">
                       </div>
                     }

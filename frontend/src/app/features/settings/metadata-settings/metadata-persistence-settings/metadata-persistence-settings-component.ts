@@ -1,11 +1,11 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, effect, inject} from '@angular/core';
 import {ToggleSwitch} from 'primeng/toggleswitch';
-import {FormsModule} from '@angular/forms';
+import {FormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {AppSettingKey, AppSettings, MetadataPersistenceSettings, SaveToOriginalFileSettings, SidecarSettings} from '../../../../shared/model/app-settings.model';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {SettingsHelperService} from '../../../../shared/service/settings-helper.service';
 import {Tooltip} from 'primeng/tooltip';
-import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {TranslocoDirective} from '@jsverse/transloco';
 
 type PersistenceToggleKey = Exclude<keyof MetadataPersistenceSettings, 'saveToOriginalFile' | 'sidecarSettings'>;
 
@@ -13,62 +13,58 @@ type PersistenceToggleKey = Exclude<keyof MetadataPersistenceSettings, 'saveToOr
   selector: 'app-metadata-persistence-settings-component',
   imports: [
     ToggleSwitch,
-    FormsModule,
+    ReactiveFormsModule,
     Tooltip,
     TranslocoDirective
   ],
   templateUrl: './metadata-persistence-settings-component.html',
   styleUrl: './metadata-persistence-settings-component.scss'
 })
-export class MetadataPersistenceSettingsComponent implements OnInit {
-
-  metadataPersistence: MetadataPersistenceSettings = {
-    saveToOriginalFile: {
-      epub: {
-        enabled: false,
-        maxFileSizeInMb: 250
-      },
-      pdf: {
-        enabled: false,
-        maxFileSizeInMb: 250
-      },
-      cbx: {
-        enabled: false,
-        maxFileSizeInMb: 250
-      },
-      audiobook: {
-        enabled: false,
-        maxFileSizeInMb: 1000
-      }
-    },
-    convertCbrCb7ToCbz: false,
-    moveFilesToLibraryPattern: false,
-    sidecarSettings: {
-      enabled: false,
-      writeOnUpdate: false,
-      writeOnScan: false,
-      includeCoverFile: false
-    }
-  };
+export class MetadataPersistenceSettingsComponent {
 
   isNetworkStorage = false;
 
+  private readonly fb = inject(FormBuilder);
   private readonly appSettingsService = inject(AppSettingsService);
   private readonly settingsHelper = inject(SettingsHelperService);
-  private t = inject(TranslocoService);
 
-  ngOnInit(): void {
-    this.loadSettings();
+  readonly form = this.fb.nonNullable.group({
+    saveToOriginalFile: this.fb.nonNullable.group({
+      epub: this.createFormatSettingsGroup(250),
+      pdf: this.createFormatSettingsGroup(250),
+      cbx: this.createFormatSettingsGroup(250),
+      audiobook: this.createFormatSettingsGroup(1000),
+    }),
+    convertCbrCb7ToCbz: [false],
+    moveFilesToLibraryPattern: [false],
+    sidecarSettings: this.fb.nonNullable.group({
+      enabled: [false],
+      writeOnUpdate: [false],
+      writeOnScan: [false],
+      includeCoverFile: [false],
+    }),
+  });
+
+  private readonly syncSettingsEffect = effect(() => {
+    const settings = this.appSettingsService.appSettings();
+    if (!settings) {
+      return;
+    }
+
+    this.initializeSettings(settings);
+  });
+
+  get metadataPersistence(): MetadataPersistenceSettings {
+    return this.form.getRawValue();
   }
 
-  onPersistenceToggle(key: PersistenceToggleKey): void {
-    this.metadataPersistence[key] = !this.metadataPersistence[key];
+  onPersistenceToggle(key: PersistenceToggleKey, checked: boolean): void {
+    this.form.controls[key].setValue(checked, {emitEvent: false});
     this.settingsHelper.saveSetting(AppSettingKey.METADATA_PERSISTENCE_SETTINGS, this.metadataPersistence);
   }
 
-  onSaveToOriginalFileToggle(format: keyof SaveToOriginalFileSettings): void {
-    this.metadataPersistence.saveToOriginalFile[format].enabled =
-      !this.metadataPersistence.saveToOriginalFile[format].enabled;
+  onSaveToOriginalFileToggle(format: keyof SaveToOriginalFileSettings, checked: boolean): void {
+    this.form.controls.saveToOriginalFile.controls[format].controls.enabled.setValue(checked, {emitEvent: false});
     this.settingsHelper.saveSetting(AppSettingKey.METADATA_PERSISTENCE_SETTINGS, this.metadataPersistence);
   }
 
@@ -77,26 +73,19 @@ export class MetadataPersistenceSettingsComponent implements OnInit {
     this.settingsHelper.saveSetting(AppSettingKey.METADATA_PERSISTENCE_SETTINGS, this.metadataPersistence);
   }
 
-  onSidecarToggle(key: keyof SidecarSettings): void {
-    if (this.metadataPersistence.sidecarSettings) {
-      this.metadataPersistence.sidecarSettings[key] = !this.metadataPersistence.sidecarSettings[key];
-      this.settingsHelper.saveSetting(AppSettingKey.METADATA_PERSISTENCE_SETTINGS, this.metadataPersistence);
-    }
-  }
-
-  private loadSettings(): void {
-    const settings = this.appSettingsService.appSettings();
-    if (settings) {
-      this.initializeSettings(settings);
-    }
+  onSidecarToggle(key: keyof SidecarSettings, checked: boolean): void {
+    this.form.controls.sidecarSettings.controls[key].setValue(checked, {emitEvent: false});
+    this.settingsHelper.saveSetting(AppSettingKey.METADATA_PERSISTENCE_SETTINGS, this.metadataPersistence);
   }
 
   private initializeSettings(settings: AppSettings): void {
     this.isNetworkStorage = settings.diskType !== 'LOCAL';
+    this.updateNetworkStorageState();
+
     if (settings.metadataPersistenceSettings) {
       const persistenceSettings = settings.metadataPersistenceSettings;
 
-      this.metadataPersistence = {
+      this.form.patchValue({
         ...persistenceSettings,
         saveToOriginalFile: {
           epub: {
@@ -122,7 +111,30 @@ export class MetadataPersistenceSettingsComponent implements OnInit {
           writeOnScan: persistenceSettings.sidecarSettings?.writeOnScan ?? false,
           includeCoverFile: persistenceSettings.sidecarSettings?.includeCoverFile ?? false
         }
-      };
+      }, {emitEvent: false});
     }
+  }
+
+  private updateNetworkStorageState(): void {
+    const controls = [
+      this.form.controls.saveToOriginalFile,
+      this.form.controls.moveFilesToLibraryPattern,
+      this.form.controls.sidecarSettings,
+    ];
+
+    controls.forEach(control => {
+      if (this.isNetworkStorage) {
+        control.disable({emitEvent: false});
+      } else {
+        control.enable({emitEvent: false});
+      }
+    });
+  }
+
+  private createFormatSettingsGroup(maxFileSizeInMb: number) {
+    return this.fb.nonNullable.group({
+      enabled: [false],
+      maxFileSizeInMb: [maxFileSizeInMb],
+    });
   }
 }

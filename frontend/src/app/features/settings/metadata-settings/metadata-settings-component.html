@@ -27,9 +27,9 @@
 
         <div class="section-body">
           <div class="setting-item">
-            <div class="setting-header">
+            <div [formGroup]="form" class="setting-header">
               <p-toggleswitch
-                [(ngModel)]="metadataDownloadOnBookdrop"
+                formControlName="metadataDownloadOnBookdrop"
                 (onChange)="onMetadataDownloadOnBookdropToggle($event.checked)">
               </p-toggleswitch>
               <span class="setting-label">{{ t('autoDownload.enableLabel') }}</span>
