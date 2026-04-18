@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Service
 @Slf4j
-@Transactional
 public class FileMoveService {
 
     private static final long EVENT_DRAIN_TIMEOUT_MS = 300;
@@ -51,6 +50,7 @@ public class FileMoveService {
     private final SidecarMetadataWriter sidecarMetadataWriter;
 
 
+    @Transactional
     public void bulkMoveFiles(FileMoveRequest request) {
         List<FileMoveRequest.Move> moves = request.getMoves();
 
@@ -63,14 +63,25 @@ public class FileMoveService {
         monitoringRegistrationService.unregisterLibraries(allAffectedLibraryIds);
         monitoringRegistrationService.waitForEventsDrainedByPaths(libraryPaths, EVENT_DRAIN_TIMEOUT_MS);
 
+        int successCount = 0;
         try {
             for (FileMoveRequest.Move move : moves) {
-                processSingleMove(move);
+                try {
+                    processSingleMove(move);
+                    successCount++;
+                } catch (Exception e) {
+                    log.error("Error moving file for book ID {}: {}", move.getBookId(), e.getMessage(), e);
+                }
             }
             // Ensure any file system events from the moves are drained/ignored while we are still unregistered
             sleep(EVENT_DRAIN_TIMEOUT_MS);
+
+            if (successCount == 0 && !moves.isEmpty()) {
+                throw new RuntimeException("Failed to move any files in bulk request");
+            }
         } finally {
             for (Long libraryId : allAffectedLibraryIds) {
+                log.info("Queuing library re-registration for library ID: {}", libraryId);
                 libraryRepository.findByIdWithPaths(libraryId)
                         .ifPresent(library -> monitoringRegistrationService.registerLibrary(libraryMapper.toLibrary(library)));
             }
@@ -246,8 +257,6 @@ public class FileMoveService {
                 log.warn("Failed to move sidecar files for book ID {}: {}", bookId, e.getMessage());
             }
 
-            entityManager.clear();
-
             BookEntity fresh = bookRepository.findByIdWithBookFiles(bookId).orElseThrow();
 
             notificationService.sendMessage(Topic.BOOK_UPDATE, bookMapper.toBookWithDescription(fresh, false));
@@ -261,6 +270,7 @@ public class FileMoveService {
         }
     }
 
+    @Transactional
     public FileMoveResult moveSingleFile(BookEntity bookEntity) {
         record PlannedMove(Path source, Path temp, Path target) {}
 
@@ -448,7 +458,7 @@ public class FileMoveService {
             }
 
             if (isLibraryMonitoredWhenCalled) {
-                log.debug("Registering library paths for library {} with root {}", libraryId, libraryRoot);
+                log.info("Queuing library re-registration for library ID: {}", libraryId);
                 libraryRepository.findByIdWithPaths(libraryId).ifPresent(lib -> {
                     Library library = libraryMapper.toLibrary(lib);
                     library.setWatch(true);

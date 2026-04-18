@@ -26,7 +26,7 @@
         </div>
         <div class="banner-content">
           <span class="banner-text">
-            Preview and organize <strong>{{ filePreviews.length }} file{{ filePreviews.length !== 1 ? 's' : '' }}</strong>.
+            Preview and organize <strong>{{ filePreviews().length }} file{{ filePreviews().length !== 1 ? 's' : '' }}</strong>.
             Files will be renamed based on metadata and naming patterns.
           </span>
           <span class="banner-warning">
@@ -132,7 +132,7 @@
       </div>
       <div class="table-container">
         <p-table
-          [value]="filePreviews"
+          [value]="filePreviews()"
           [scrollable]="true"
           scrollHeight="flex"
           [virtualScroll]="true"
@@ -231,11 +231,11 @@
           (click)="cancel()"
         ></p-button>
         <p-button
-          [label]="loading ? 'Moving...' : 'Move Files'"
-          [icon]="loading ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
+          [label]="loading() ? 'Moving...' : 'Move Files'"
+          [icon]="loading() ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
           severity="success"
           (click)="saveChanges()"
-          [disabled]="loading || filePreviews.length === 0"
+          [disabled]="loading() || filePreviews().length === 0"
         ></p-button>
       } @else {
         <p-button

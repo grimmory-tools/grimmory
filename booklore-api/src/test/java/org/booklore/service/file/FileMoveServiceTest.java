@@ -909,8 +909,6 @@ class FileMoveServiceTest {
             request.setMoves(List.of(move));
 
             service.bulkMoveFiles(request);
-
-            verify(entityManager).clear();
         }
     }
 

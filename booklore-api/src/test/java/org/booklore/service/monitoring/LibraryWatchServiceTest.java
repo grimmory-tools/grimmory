@@ -57,6 +57,17 @@ class LibraryWatchServiceTest {
 
         service.registerLibrary(lib);
 
+        // Wait for asynchronous registration to complete
+        boolean registered = false;
+        for (int i = 0; i < 20; i++) {
+            if (service.isPathMonitored(root) && service.isPathMonitored(a) && service.isPathMonitored(b)) {
+                registered = true;
+                break;
+            }
+            Thread.sleep(100);
+        }
+
+        assertThat(registered).as("Paths should be registered eventually").isTrue();
         assertThat(service.isPathMonitored(root)).isTrue();
         assertThat(service.isPathMonitored(a)).isTrue();
         assertThat(service.isPathMonitored(b)).isTrue();

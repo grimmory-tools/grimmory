@@ -160,23 +160,25 @@ public class LibraryWatchService implements SmartLifecycle {
         libraryWatchStatus.put(library.getId(), library.isWatch());
         if (!library.isWatch()) return;
 
-        int[] count = {0};
-        library.getPaths().forEach(libraryPath -> {
-            Path rootPath = Paths.get(libraryPath.getPath());
-            if (Files.isDirectory(rootPath)) {
-                try (Stream<Path> pathStream = Files.walk(rootPath)) {
-                    pathStream.filter(Files::isDirectory).forEach(path -> {
-                        if (registerPath(path, library.getId())) {
-                            count[0]++;
-                        }
-                    });
-                } catch (IOException e) {
-                    log.error("Failed to register paths for library '{}': {}", library.getName(), e.getMessage(), e);
+        registrationExecutor.submit(() -> {
+            int[] count = {0};
+            library.getPaths().forEach(libraryPath -> {
+                Path rootPath = Paths.get(libraryPath.getPath());
+                if (Files.isDirectory(rootPath)) {
+                    try (Stream<Path> pathStream = Files.walk(rootPath)) {
+                        pathStream.filter(Files::isDirectory).forEach(path -> {
+                            if (registerPath(path, library.getId())) {
+                                count[0]++;
+                            }
+                        });
+                    } catch (IOException e) {
+                        log.error("Failed to register paths for library '{}': {}", library.getName(), e.getMessage(), e);
+                    }
                 }
-            }
-        });
+            });
 
-        log.info("Registered {} folders for library '{}'", count[0], library.getName());
+            log.info("Registered {} folders for library '{}'", count[0], library.getName());
+        });
     }
 
     public void unregisterLibrary(Long libraryId) {
