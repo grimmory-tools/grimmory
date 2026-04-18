@@ -6,7 +6,7 @@ import {of, throwError} from 'rxjs';
 import {MessageService} from 'primeng/api';
 
 import {getTranslocoModule} from '../../../../core/testing/transloco-testing';
-import {type AppSettings} from '../../../../shared/model/app-settings.model';
+import {type AppSettings, type MetadataMatchWeights} from '../../../../shared/model/app-settings.model';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {MetadataMatchWeightsService} from '../../../../shared/service/metadata-match-weights.service';
 import {AppSettingKey} from '../../../../shared/model/app-settings.model';
@@ -71,6 +71,41 @@ describe('MetadataMatchWeightsComponent', () => {
     expect(component.form.get('authors')?.value).toBe(9);
   });
 
+  it('hydrates pristine controls when weights resolve after a user edit', () => {
+    fixture.detectChanges();
+
+    const titleControl = component.form.get('title');
+    titleControl?.setValue(42);
+    titleControl?.markAsDirty();
+
+    appSettingsSignal.set(buildSettings());
+    fixture.detectChanges();
+
+    expect(component.form.get('title')?.value).toBe(42);
+    expect(component.form.get('authors')?.value).toBe(9);
+    expect(component.form.get('subtitle')?.value).toBe(5);
+  });
+
+  it('keeps dirty controls while refreshing pristine controls on later settings updates', () => {
+    appSettingsSignal.set(buildSettings());
+    fixture.detectChanges();
+
+    const titleControl = component.form.get('title');
+    titleControl?.setValue(42);
+    titleControl?.markAsDirty();
+
+    appSettingsSignal.set(buildSettings({
+      title: 17,
+      authors: 12,
+      subtitle: 8,
+    }));
+    fixture.detectChanges();
+
+    expect(component.form.get('title')?.value).toBe(42);
+    expect(component.form.get('authors')?.value).toBe(12);
+    expect(component.form.get('subtitle')?.value).toBe(8);
+  });
+
   it('persists valid form values through app settings', () => {
     fixture.detectChanges();
     component.save();
@@ -105,7 +140,7 @@ describe('MetadataMatchWeightsComponent', () => {
   });
 });
 
-function buildSettings(): AppSettings {
+function buildSettings(overrides: Partial<MetadataMatchWeights> = {}): AppSettings {
   return {
     metadataMatchWeights: {
       title: 10,
@@ -134,6 +169,7 @@ function buildSettings(): AppSettings {
       audibleRating: 2,
       audibleReviewCount: 2,
       coverImage: 3,
+      ...overrides,
     },
   } as AppSettings;
 }

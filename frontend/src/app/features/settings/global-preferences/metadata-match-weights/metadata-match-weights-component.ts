@@ -4,7 +4,7 @@ import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/
 import {MessageService} from 'primeng/api';
 import {MetadataMatchWeightsService} from '../../../../shared/service/metadata-match-weights.service';
 import {Button} from 'primeng/button';
-import {AppSettingKey} from '../../../../shared/model/app-settings.model';
+import {AppSettingKey, MetadataMatchWeights} from '../../../../shared/model/app-settings.model';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {InputNumber} from 'primeng/inputnumber';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
@@ -44,8 +44,8 @@ export class MetadataMatchWeightsComponent {
 
   private readonly syncSettingsEffect = effect(() => {
     const settings = this.appSettingsService.appSettings();
-    if (settings?.metadataMatchWeights && this.form.pristine) {
-      this.form.patchValue(settings.metadataMatchWeights);
+    if (settings?.metadataMatchWeights) {
+      this.patchPristineControls(settings.metadataMatchWeights);
     }
   });
 
@@ -143,6 +143,15 @@ export class MetadataMatchWeightsComponent {
           detail: this.t.translate('settingsMeta.matchWeights.recalcError')
         });
         this.isRecalculating = false;
+      }
+    });
+  }
+
+  private patchPristineControls(weights: MetadataMatchWeights): void {
+    Object.entries(weights).forEach(([key, value]) => {
+      const control = this.form.get(key);
+      if (control?.pristine) {
+        control.patchValue(value, {emitEvent: false});
       }
     });
   }
