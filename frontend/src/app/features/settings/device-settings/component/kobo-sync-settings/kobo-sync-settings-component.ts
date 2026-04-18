@@ -135,14 +135,21 @@ export class KoboSyncSettingsComponent implements OnInit {
   }
 
   private applyKoboUserSettings(settings: KoboSyncSettings): void {
-    this.syncForm.patchValue({
+    const next = {
       token: settings.token,
       syncEnabled: settings.syncEnabled,
       progressMarkAsReadingThreshold: settings.progressMarkAsReadingThreshold ?? 1,
       progressMarkAsFinishedThreshold: settings.progressMarkAsFinishedThreshold ?? 99,
       autoAddToShelf: settings.autoAddToShelf ?? false,
       twoWayProgressSync: settings.twoWayProgressSync ?? false,
-    }, {emitEvent: false});
+    };
+
+    for (const [key, value] of Object.entries(next)) {
+      const control = this.syncForm.controls[key as keyof typeof this.syncForm.controls];
+      if (control.pristine) {
+        control.setValue(value as never, {emitEvent: false});
+      }
+    }
     this.credentialsSaved = !!settings.token;
   }
 
@@ -256,6 +263,7 @@ export class KoboSyncSettingsComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (settings) => {
+        this.syncForm.markAsPristine();
         this.applyKoboUserSettings(settings);
         this.messageService.add({
           severity: 'success',

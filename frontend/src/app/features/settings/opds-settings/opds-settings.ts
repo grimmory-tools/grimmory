@@ -85,9 +85,7 @@ export class OpdsSettings implements OnInit {
 
   private readonly syncPermissionEffect = effect(() => {
     const user = this.userService.currentUser();
-    if (!user) return;
-
-    this.hasPermission = !!(user.permissions.canAccessOpds || user.permissions.admin);
+    this.hasPermission = !!(user?.permissions.canAccessOpds || user?.permissions.admin);
     if (!this.hasPermission) {
       this.loading = false;
       this.users = [];

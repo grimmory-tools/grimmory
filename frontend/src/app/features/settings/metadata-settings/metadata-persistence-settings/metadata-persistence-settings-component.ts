@@ -47,7 +47,14 @@ export class MetadataPersistenceSettingsComponent {
 
   private readonly syncSettingsEffect = effect(() => {
     const settings = this.appSettingsService.appSettings();
-    if (!settings || this.form.dirty) {
+    if (!settings) {
+      return;
+    }
+
+    this.isNetworkStorage = settings.diskType !== 'LOCAL';
+    this.updateNetworkStorageState();
+
+    if (this.form.dirty) {
       return;
     }
 
@@ -79,9 +86,6 @@ export class MetadataPersistenceSettingsComponent {
   }
 
   private initializeSettings(settings: AppSettings): void {
-    this.isNetworkStorage = settings.diskType !== 'LOCAL';
-    this.updateNetworkStorageState();
-
     if (settings.metadataPersistenceSettings) {
       const persistenceSettings = settings.metadataPersistenceSettings;
 

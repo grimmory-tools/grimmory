@@ -30,7 +30,7 @@ import {TranslocoDirective} from '@jsverse/transloco';
 })
 export class MetadataSettingsComponent {
 
-  currentMetadataOptions!: MetadataRefreshOptions;
+  currentMetadataOptions: MetadataRefreshOptions | undefined;
 
   private readonly fb = inject(FormBuilder);
   private readonly appSettingsService = inject(AppSettingsService);
@@ -40,13 +40,16 @@ export class MetadataSettingsComponent {
     metadataDownloadOnBookdrop: [true],
   });
 
+  private hasHydrated = false;
+
   private readonly syncSettingsEffect = effect(() => {
     const settings = this.appSettingsService.appSettings();
-    if (!settings) {
+    if (!settings || this.hasHydrated) {
       return;
     }
 
     this.initializeSettings(settings);
+    this.hasHydrated = true;
   });
 
   onMetadataDownloadOnBookdropToggle(checked: boolean): void {
