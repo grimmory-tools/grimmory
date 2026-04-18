@@ -4,12 +4,6 @@ on:
   schedule:
     - cron: '0 4 * * *'
   workflow_dispatch:
-    inputs:
-      publish_image:
-        description: 'Publish the nightly container image'
-        required: false
-        default: false
-        type: boolean
 
 jobs:
   resolve_ref:
@@ -69,7 +63,6 @@ jobs:
 
   build-and-push:
     name: Build and Push Nightly Image
-    if: ${{ github.event_name == 'schedule' || inputs.publish_image }}
     needs: [resolve_ref, test-suite]
     runs-on: ubuntu-latest
 
@@ -170,7 +163,7 @@ jobs:
 
   notify-discord:
     name: Notify Discord (Nightly)
-    if: ${{ always() && needs.generate-notes.result == 'success' && (needs.build-and-push.result == 'success' || needs.build-and-push.result == 'skipped') }}
+    if: ${{ always() && needs.generate-notes.result == 'success' && needs.build-and-push.result == 'success' }}
     needs: [resolve_ref, build-and-push, generate-notes]
     permissions: {}
     uses: ./.github/workflows/notify-discord-release-notes.yml
