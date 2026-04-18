@@ -5,6 +5,7 @@ import com.github.gotson.nightcompress.ArchiveEntry;
 import com.github.gotson.nightcompress.LibArchiveException;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.booklore.exception.ApiError;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -145,6 +146,9 @@ public class ArchiveService {
      *         leading bytes of the entry
      */
     public byte[] getEntryBytesPrefix(Path path, String entryName, int maxBytes) throws IOException {
+        if (maxBytes < 0) {
+            throw ApiError.INVALID_INPUT.createException("maxBytes must be non-negative");
+        }
         var bounded = new BoundedOutputStream(maxBytes);
         try {
             transferEntryTo(path, entryName, bounded);
