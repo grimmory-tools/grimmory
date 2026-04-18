@@ -1,6 +1,6 @@
 import {signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
-import {of, Subject} from 'rxjs';
+import {of, Subject, type Observable} from 'rxjs';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 import {TranslocoService} from '@jsverse/transloco';
 
@@ -13,6 +13,25 @@ import {KoboService, type KoboSyncSettings} from './kobo.service';
 import {KoboSyncSettingsComponent} from './kobo-sync-settings-component';
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
 
+const DEFAULT_KOBO_SYNC_SETTINGS: KoboSyncSettings = {
+  token: '',
+  syncEnabled: false,
+  progressMarkAsReadingThreshold: 1,
+  progressMarkAsFinishedThreshold: 99,
+  autoAddToShelf: false,
+  twoWayProgressSync: false,
+};
+
+const DEFAULT_KOBO_ADMIN_SETTINGS: KoboSettings = {
+  convertToKepub: false,
+  conversionLimitInMb: 100,
+  convertCbxToEpub: false,
+  conversionImageCompressionPercentage: 85,
+  conversionLimitInMbForCbx: 100,
+  forceEnableHyphenation: false,
+  forwardToKoboStore: false,
+};
+
 function buildUser(overrides: Partial<User['permissions']> = {}): User {
   return {
     id: 1,
@@ -20,43 +39,34 @@ function buildUser(overrides: Partial<User['permissions']> = {}): User {
     name: 'Admin',
     email: 'admin@example.com',
     assignedLibraries: [],
-    permissions: {
-      admin: false,
-      canUpload: false,
-      canDownload: false,
-      canEmailBook: false,
-      canDeleteBook: false,
-      canEditMetadata: false,
-      canManageLibrary: false,
-      canManageMetadataConfig: false,
-      canSyncKoReader: false,
-      canSyncKobo: false,
-      canAccessOpds: false,
-      canAccessBookdrop: false,
-      canAccessLibraryStats: false,
-      canAccessUserStats: false,
-      canAccessTaskManager: false,
-      canManageEmailConfig: false,
-      canManageGlobalPreferences: false,
-      canManageIcons: false,
-      canManageFonts: false,
-      demoUser: false,
-      canBulkAutoFetchMetadata: false,
-      canBulkCustomFetchMetadata: false,
-      canBulkEditMetadata: false,
-      canBulkRegenerateCover: false,
-      canMoveOrganizeFiles: false,
-      canBulkLockUnlockMetadata: false,
-      ...overrides,
-    },
+    permissions: {admin: false, ...overrides} as User['permissions'],
     userSettings: {} as User['userSettings'],
   };
 }
 
 function buildAppSettings(koboSettings: KoboSettings): AppSettings {
-  return {
-    koboSettings,
-  } as AppSettings;
+  return {koboSettings} as AppSettings;
+}
+
+interface KoboTestEnv {
+  userState: ReturnType<typeof signal<User | null>>;
+  appSettingsState: ReturnType<typeof signal<AppSettings | null>>;
+  getUser: () => Observable<KoboSyncSettings>;
+}
+
+function setupKoboTest(env: KoboTestEnv): void {
+  TestBed.configureTestingModule({
+    imports: [KoboSyncSettingsComponent],
+    providers: [
+      {provide: UserService, useValue: {currentUser: () => env.userState()}},
+      {provide: AppSettingsService, useValue: {appSettings: () => env.appSettingsState()}},
+      {provide: KoboService, useValue: {getUser: env.getUser}},
+      {provide: SettingsHelperService, useValue: {saveSetting: vi.fn()}},
+      {provide: ShelfService, useValue: {reloadShelves: vi.fn()}},
+      {provide: TranslocoService, useValue: {translate: vi.fn((key: string) => key)}},
+    ],
+  });
+  TestBed.overrideComponent(KoboSyncSettingsComponent, {set: {template: ''}});
 }
 
 describe('KoboSyncSettingsComponent', () => {
@@ -68,42 +78,7 @@ describe('KoboSyncSettingsComponent', () => {
     const userState = signal<User | null>(buildUser({admin: true}));
     const appSettingsState = signal<AppSettings | null>(null);
 
-    TestBed.configureTestingModule({
-      imports: [KoboSyncSettingsComponent],
-      providers: [
-        {
-          provide: UserService,
-          useValue: {
-            currentUser: () => userState(),
-          },
-        },
-        {
-          provide: AppSettingsService,
-          useValue: {
-            appSettings: () => appSettingsState(),
-          },
-        },
-        {
-          provide: KoboService,
-          useValue: {
-            getUser: () => of({
-              token: '',
-              syncEnabled: false,
-              progressMarkAsReadingThreshold: 1,
-              progressMarkAsFinishedThreshold: 99,
-              autoAddToShelf: false,
-              twoWayProgressSync: false,
-            }),
-          },
-        },
-        {provide: SettingsHelperService, useValue: {saveSetting: vi.fn()}},
-        {provide: ShelfService, useValue: {reloadShelves: vi.fn()}},
-        {provide: TranslocoService, useValue: {translate: vi.fn((key: string) => key)}},
-      ],
-    });
-    TestBed.overrideComponent(KoboSyncSettingsComponent, {
-      set: {template: ''},
-    });
+    setupKoboTest({userState, appSettingsState, getUser: () => of(DEFAULT_KOBO_SYNC_SETTINGS)});
 
     const fixture = TestBed.createComponent(KoboSyncSettingsComponent);
     const component = fixture.componentInstance;
@@ -140,73 +115,19 @@ describe('KoboSyncSettingsComponent', () => {
     const userState = signal<User | null>(buildUser({admin: true}));
     const appSettingsState = signal<AppSettings | null>(null);
 
-    TestBed.configureTestingModule({
-      imports: [KoboSyncSettingsComponent],
-      providers: [
-        {
-          provide: UserService,
-          useValue: {
-            currentUser: () => userState(),
-          },
-        },
-        {
-          provide: AppSettingsService,
-          useValue: {
-            appSettings: () => appSettingsState(),
-          },
-        },
-        {
-          provide: KoboService,
-          useValue: {
-            getUser: () => of({
-              token: '',
-              syncEnabled: false,
-              progressMarkAsReadingThreshold: 1,
-              progressMarkAsFinishedThreshold: 99,
-              autoAddToShelf: false,
-              twoWayProgressSync: false,
-            }),
-          },
-        },
-        {provide: SettingsHelperService, useValue: {saveSetting: vi.fn()}},
-        {provide: ShelfService, useValue: {reloadShelves: vi.fn()}},
-        {provide: TranslocoService, useValue: {translate: vi.fn((key: string) => key)}},
-      ],
-    });
-    TestBed.overrideComponent(KoboSyncSettingsComponent, {
-      set: {template: ''},
-    });
+    setupKoboTest({userState, appSettingsState, getUser: () => of(DEFAULT_KOBO_SYNC_SETTINGS)});
 
     const fixture = TestBed.createComponent(KoboSyncSettingsComponent);
     const component = fixture.componentInstance;
 
     TestBed.flushEffects();
 
-    // Initial hydration with first server values.
-    appSettingsState.set(buildAppSettings({
-      convertToKepub: false,
-      conversionLimitInMb: 100,
-      convertCbxToEpub: false,
-      conversionImageCompressionPercentage: 85,
-      conversionLimitInMbForCbx: 100,
-      forceEnableHyphenation: false,
-      forwardToKoboStore: false,
-    }));
+    appSettingsState.set(buildAppSettings(DEFAULT_KOBO_ADMIN_SETTINGS));
     TestBed.flushEffects();
 
-    // Admin moves the slider; debounced save has not fired yet.
     component.koboSettings.conversionLimitInMb = 250;
 
-    // A later refetch (e.g. from another save's invalidation) emits new server state.
-    appSettingsState.set(buildAppSettings({
-      convertToKepub: false,
-      conversionLimitInMb: 100,
-      convertCbxToEpub: false,
-      conversionImageCompressionPercentage: 85,
-      conversionLimitInMbForCbx: 100,
-      forceEnableHyphenation: false,
-      forwardToKoboStore: false,
-    }));
+    appSettingsState.set(buildAppSettings(DEFAULT_KOBO_ADMIN_SETTINGS));
     TestBed.flushEffects();
 
     expect(component.koboSettings.conversionLimitInMb).toBe(250);
@@ -222,24 +143,9 @@ describe('KoboSyncSettingsComponent', () => {
     await TestBed.configureTestingModule({
       imports: [KoboSyncSettingsComponent, getTranslocoModule()],
       providers: [
-        {
-          provide: UserService,
-          useValue: {
-            currentUser: () => userState(),
-          },
-        },
-        {
-          provide: AppSettingsService,
-          useValue: {
-            appSettings: () => appSettingsState(),
-          },
-        },
-        {
-          provide: KoboService,
-          useValue: {
-            getUser: () => koboSettings$.asObservable(),
-          },
-        },
+        {provide: UserService, useValue: {currentUser: () => userState()}},
+        {provide: AppSettingsService, useValue: {appSettings: () => appSettingsState()}},
+        {provide: KoboService, useValue: {getUser: () => koboSettings$.asObservable()}},
         {provide: SettingsHelperService, useValue: {saveSetting: vi.fn()}},
         {provide: ShelfService, useValue: {reloadShelves: vi.fn()}},
       ],
