@@ -57,7 +57,10 @@ public class SecurityConfig {
             "/kobo/**",                // Kobo API requests (auth handled in KoboAuthFilter)
             "/api/docs",               // API documentation UI
             "/api/openapi.json",       // OpenAPI spec (used by API documentation UI)
-            "/api/v1/auth/**",         // Login and token refresh endpoints (must remain public)
+            "/api/v1/auth/login",      // Login endpoint (must remain public)
+            "/api/v1/auth/refresh",    // Token refresh endpoint (must remain public)
+            "/api/v1/auth/remote",     // Remote auth endpoint (must remain public)
+            "/api/v1/auth/oidc/**",    // OIDC authentication endpoints
             "/api/v1/public-settings", // Public endpoint for checking OIDC or other app settings
             "/api/v1/setup/**",        // Setup wizard endpoints (must remain accessible before initial setup)
             "/api/v1/healthcheck/**"   // Healthcheck endpoints (must remain accessible for Docker healthchecks)
