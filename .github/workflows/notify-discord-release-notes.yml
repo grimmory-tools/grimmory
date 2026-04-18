@@ -109,6 +109,11 @@ jobs:
             description="${description}\n- Candidate SHA: \`${short_sha}\`"
           fi
 
+          note_text=""
+          if [ "$CHANNEL" = "rc" ] || [ "$CHANNEL" = "nightly" ]; then
+            note_text="*Note: You must be signed into GitHub to view the changelog*"
+          fi
+
           {
             echo 'content<<EOF'
             printf '%s\n' "$content"
@@ -117,6 +122,9 @@ jobs:
             echo 'description<<EOF'
             printf '%b\n' "$description"
             echo 'EOF'
+            echo 'note_text<<EOF'
+            printf '%s\n' "$note_text"
+            echo 'EOF'
           } >> "$GITHUB_OUTPUT"
 
       - name: Send Discord Webhook
@@ -124,6 +132,7 @@ jobs:
           DISCORD_WEBHOOK: ${{ secrets.discord_webhook }}
           CONTENT: ${{ steps.compose.outputs.content }}
           DESCRIPTION: ${{ steps.compose.outputs.description }}
+          NOTE_TEXT: ${{ steps.compose.outputs.note_text }}
           TITLE_URL: ${{ steps.compose.outputs.title_url }}
         run: |
           set -eu
@@ -131,17 +140,31 @@ jobs:
           payload="$(jq -n \
             --arg content "$CONTENT" \
             --arg description "$DESCRIPTION" \
+            --arg note_text "$NOTE_TEXT" \
             --arg title_url "$TITLE_URL" \
             '
               {
                 content: $content,
-                embeds: [
-                  {
-                    title: "Build Details",
-                    description: $description,
-                    color: 5763719
-                  }
-                ]
+                embeds: (
+                  [
+                    {
+                      title: "Build Details",
+                      description: $description,
+                      color: 5763719
+                    }
+                  ]
+                  + (
+                    if $note_text != "" then
+                      [
+                        {
+                          description: $note_text
+                        }
+                      ]
+                    else
+                      []
+                    end
+                  )
+                )
               }
               + (
                 if $title_url != "" then
