@@ -150,6 +150,11 @@ public class ArchiveService {
             transferEntryTo(path, entryName, bounded);
         } catch (BoundedOutputStream.LimitReachedException _) {
             // expected, we only needed the prefix
+        } catch (IOException e) {
+            if (!(e.getCause() instanceof BoundedOutputStream.LimitReachedException)) {
+                throw e;
+            }
+            // expected, we only needed the prefix
         }
         return bounded.toByteArray();
     }

@@ -109,8 +109,8 @@ public class CbxReaderService {
      * {@link #streamPageImage} calls hit Tier 2 (disk) instead of Tier 3
      * (native extraction per request).
      */
-    private void submitBackgroundCacheInit(Long bookId, String bookType) {
-        String key = bookId + ":" + bookType;
+    private void submitBackgroundCacheInit(Long bookId, String bookType, long lastModified) {
+        String key = bookId + ":" + bookType + ":" + lastModified;
         if (cacheInitSubmitted.add(key)) {
             cacheExecutor.submit(() -> {
                 try {
@@ -156,9 +156,10 @@ public class CbxReaderService {
     public List<Integer> getAvailablePages(Long bookId, String bookType) {
         Path cbxPath = getBookPath(bookId, bookType);
         try {
-            List<String> imageEntries = getImageEntriesFromArchiveCached(cbxPath);
+            CachedArchiveMetadata metadata = getCachedMetadata(cbxPath);
+            List<String> imageEntries = metadata.imageEntries();
             // Trigger background disk-cache population for faster subsequent page serving
-            submitBackgroundCacheInit(bookId, bookType);
+            submitBackgroundCacheInit(bookId, bookType, metadata.lastModified());
             return IntStream.rangeClosed(1, imageEntries.size())
                     .boxed()
                     .toList();
