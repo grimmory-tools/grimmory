@@ -108,7 +108,7 @@ export class KoboSyncSettingsComponent implements OnInit {
     this.prevHasKoboTokenPermission = currHasKoboTokenPermission;
   });
 
-  private hasHydratedKoboAdmin = false;
+  protected hasHydratedKoboAdmin = false;
 
   private readonly syncAdminSettingsEffect = effect(() => {
     const user = this.userService.currentUser();
@@ -140,7 +140,7 @@ export class KoboSyncSettingsComponent implements OnInit {
       syncEnabled: settings.syncEnabled,
       progressMarkAsReadingThreshold: settings.progressMarkAsReadingThreshold ?? 1,
       progressMarkAsFinishedThreshold: settings.progressMarkAsFinishedThreshold ?? 99,
-      autoAddToShelf: settings.autoAddToShelf ?? false,
+      autoAddToShelf: settings.autoAddToShelf ?? true,
       twoWayProgressSync: settings.twoWayProgressSync ?? false,
     };
 
