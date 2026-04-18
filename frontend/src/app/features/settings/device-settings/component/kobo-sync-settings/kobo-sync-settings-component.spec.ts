@@ -52,6 +52,7 @@ interface KoboTestEnv {
   userState: ReturnType<typeof signal<User | null>>;
   appSettingsState: ReturnType<typeof signal<AppSettings | null>>;
   getUser: () => Observable<KoboSyncSettings>;
+  updateSettings?: (settings: KoboSyncSettings) => Observable<KoboSyncSettings>;
 }
 
 function setupKoboTest(env: KoboTestEnv): void {
@@ -60,7 +61,13 @@ function setupKoboTest(env: KoboTestEnv): void {
     providers: [
       {provide: UserService, useValue: {currentUser: () => env.userState()}},
       {provide: AppSettingsService, useValue: {appSettings: () => env.appSettingsState()}},
-      {provide: KoboService, useValue: {getUser: env.getUser}},
+      {
+        provide: KoboService,
+        useValue: {
+          getUser: env.getUser,
+          updateSettings: env.updateSettings ?? ((s: KoboSyncSettings) => of(s)),
+        },
+      },
       {provide: SettingsHelperService, useValue: {saveSetting: vi.fn()}},
       {provide: ShelfService, useValue: {reloadShelves: vi.fn()}},
       {provide: TranslocoService, useValue: {translate: vi.fn((key: string) => key)}},
@@ -131,6 +138,57 @@ describe('KoboSyncSettingsComponent', () => {
     TestBed.flushEffects();
 
     expect(component.koboSettings.conversionLimitInMb).toBe(250);
+
+    fixture.destroy();
+  });
+
+  it('preserves edits made while updateSettings is in flight', () => {
+    const userState = signal<User | null>(buildUser({canSyncKobo: true}));
+    const appSettingsState = signal<AppSettings | null>(null);
+    const updateSettings$ = new Subject<KoboSyncSettings>();
+
+    const initialSettings: KoboSyncSettings = {
+      token: 'token-abc',
+      syncEnabled: true,
+      progressMarkAsReadingThreshold: 1,
+      progressMarkAsFinishedThreshold: 99,
+      autoAddToShelf: false,
+      twoWayProgressSync: false,
+    };
+
+    setupKoboTest({
+      userState,
+      appSettingsState,
+      getUser: () => of(initialSettings),
+      updateSettings: () => updateSettings$.asObservable(),
+    });
+
+    const fixture = TestBed.createComponent(KoboSyncSettingsComponent);
+    const component = fixture.componentInstance;
+
+    TestBed.flushEffects();
+
+    // User toggles autoAddToShelf -> triggers updateKoboSettings (which is now in flight).
+    component.syncForm.controls.autoAddToShelf.setValue(true);
+    component.syncForm.controls.autoAddToShelf.markAsDirty();
+    component.onAutoAddToggle(true);
+
+    // Before the response arrives, the user edits a different control.
+    component.syncForm.controls.twoWayProgressSync.setValue(true);
+    component.syncForm.controls.twoWayProgressSync.markAsDirty();
+
+    // Server confirms the autoAddToShelf change but still has the old twoWayProgressSync.
+    updateSettings$.next({
+      ...initialSettings,
+      autoAddToShelf: true,
+      twoWayProgressSync: false,
+    });
+
+    // The newer in-flight edit must not be reverted.
+    expect(component.syncForm.controls.twoWayProgressSync.value).toBe(true);
+    expect(component.syncForm.controls.twoWayProgressSync.dirty).toBe(true);
+    expect(component.syncForm.controls.autoAddToShelf.value).toBe(true);
+    expect(component.syncForm.controls.autoAddToShelf.pristine).toBe(true);
 
     fixture.destroy();
   });

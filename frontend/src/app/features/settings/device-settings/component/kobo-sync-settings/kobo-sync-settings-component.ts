@@ -259,11 +259,12 @@ export class KoboSyncSettingsComponent implements OnInit {
   }
 
   private updateKoboSettings(successMessage: string) {
-    this.koboService.updateSettings(this.buildKoboUserSettings()).pipe(
+    const submitted = this.buildKoboUserSettings();
+    this.koboService.updateSettings(submitted).pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (settings) => {
-        this.syncForm.markAsPristine();
+        this.markPristineWhereMatching(submitted);
         this.applyKoboUserSettings(settings);
         this.messageService.add({
           severity: 'success',
@@ -280,6 +281,15 @@ export class KoboSyncSettingsComponent implements OnInit {
         });
       }
     });
+  }
+
+  private markPristineWhereMatching(payload: KoboSyncSettings): void {
+    for (const key of Object.keys(payload) as (keyof KoboSyncSettings)[]) {
+      const control = this.syncForm.controls[key as keyof typeof this.syncForm.controls];
+      if (control.value === payload[key]) {
+        control.markAsPristine();
+      }
+    }
   }
 
   saveSettings() {

@@ -1,6 +1,6 @@
 import {signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
-import {of} from 'rxjs';
+import {of, type Observable} from 'rxjs';
 import {describe, expect, it, vi} from 'vitest';
 import {MessageService} from 'primeng/api';
 import {TranslocoService} from '@jsverse/transloco';
@@ -8,7 +8,7 @@ import {TranslocoService} from '@jsverse/transloco';
 import {AppSettings} from '../../../shared/model/app-settings.model';
 import {AppSettingsService} from '../../../shared/service/app-settings.service';
 import {UserService, type User} from '../user-management/user.service';
-import {OpdsService} from './opds.service';
+import {OpdsService, type OpdsUserV2} from './opds.service';
 import {OpdsSettings} from './opds-settings';
 
 function buildUser(overrides: Partial<User['permissions']> = {}): User {
@@ -32,41 +32,39 @@ function buildAppSettings(overrides: Partial<AppSettings> = {}): AppSettings {
   } as AppSettings;
 }
 
+interface OpdsTestEnv {
+  userState: ReturnType<typeof signal<User | null>>;
+  appSettingsState: ReturnType<typeof signal<AppSettings | null>>;
+  getUser: () => Observable<OpdsUserV2[]>;
+}
+
+function setupOpdsTest(env: OpdsTestEnv): void {
+  TestBed.configureTestingModule({
+    imports: [OpdsSettings],
+    providers: [
+      {provide: UserService, useValue: {currentUser: () => env.userState()}},
+      {
+        provide: AppSettingsService,
+        useValue: {
+          appSettings: () => env.appSettingsState(),
+          saveSettings: () => of(void 0),
+        },
+      },
+      {provide: OpdsService, useValue: {getUser: env.getUser}},
+      {provide: MessageService, useValue: {add: vi.fn()}},
+      {provide: TranslocoService, useValue: {translate: vi.fn((key: string) => key)}},
+    ],
+  });
+  TestBed.overrideComponent(OpdsSettings, {set: {template: ''}});
+}
+
 describe('OpdsSettings', () => {
   it('clears the loading state when app settings arrive after permission resolution', () => {
     const userState = signal<User | null>(buildUser());
     const appSettingsState = signal<AppSettings | null>(null);
-    const getUser = vi.fn(() => of([]));
+    const getUser = vi.fn(() => of([] as OpdsUserV2[]));
 
-    TestBed.configureTestingModule({
-      imports: [OpdsSettings],
-      providers: [
-        {
-          provide: UserService,
-          useValue: {
-            currentUser: () => userState(),
-          },
-        },
-        {
-          provide: AppSettingsService,
-          useValue: {
-            appSettings: () => appSettingsState(),
-            saveSettings: () => of(void 0),
-          },
-        },
-        {
-          provide: OpdsService,
-          useValue: {
-            getUser,
-          },
-        },
-        {provide: MessageService, useValue: {add: vi.fn()}},
-        {provide: TranslocoService, useValue: {translate: vi.fn((key: string) => key)}},
-      ],
-    });
-    TestBed.overrideComponent(OpdsSettings, {
-      set: {template: ''},
-    });
+    setupOpdsTest({userState, appSettingsState, getUser});
 
     const fixture = TestBed.createComponent(OpdsSettings);
     const component = fixture.componentInstance;
@@ -88,38 +86,10 @@ describe('OpdsSettings', () => {
     const userState = signal<User | null>(buildUser());
     const appSettingsState = signal<AppSettings | null>(null);
     const getUser = vi.fn(() => of([
-      {id: 1, username: 'reader', sortOrder: 'RECENT'},
+      {id: 1, username: 'reader', sortOrder: 'RECENT'} as OpdsUserV2,
     ]));
 
-    TestBed.configureTestingModule({
-      imports: [OpdsSettings],
-      providers: [
-        {
-          provide: UserService,
-          useValue: {
-            currentUser: () => userState(),
-          },
-        },
-        {
-          provide: AppSettingsService,
-          useValue: {
-            appSettings: () => appSettingsState(),
-            saveSettings: () => of(void 0),
-          },
-        },
-        {
-          provide: OpdsService,
-          useValue: {
-            getUser,
-          },
-        },
-        {provide: MessageService, useValue: {add: vi.fn()}},
-        {provide: TranslocoService, useValue: {translate: vi.fn((key: string) => key)}},
-      ],
-    });
-    TestBed.overrideComponent(OpdsSettings, {
-      set: {template: ''},
-    });
+    setupOpdsTest({userState, appSettingsState, getUser});
 
     const fixture = TestBed.createComponent(OpdsSettings);
     const component = fixture.componentInstance;
