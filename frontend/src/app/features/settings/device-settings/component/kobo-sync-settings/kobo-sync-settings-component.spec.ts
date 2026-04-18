@@ -1,14 +1,15 @@
 import {signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
-import {of} from 'rxjs';
-import {describe, expect, it, vi} from 'vitest';
+import {of, Subject} from 'rxjs';
+import {afterEach, describe, expect, it, vi} from 'vitest';
 import {TranslocoService} from '@jsverse/transloco';
 
 import {AppSettings, KoboSettings} from '../../../../../shared/model/app-settings.model';
+import {getTranslocoModule} from '../../../../../core/testing/transloco-testing';
 import {SettingsHelperService} from '../../../../../shared/service/settings-helper.service';
 import {ShelfService} from '../../../../book/service/shelf.service';
 import {UserService, type User} from '../../../user-management/user.service';
-import {KoboService} from './kobo.service';
+import {KoboService, type KoboSyncSettings} from './kobo.service';
 import {KoboSyncSettingsComponent} from './kobo-sync-settings-component';
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
 
@@ -59,6 +60,10 @@ function buildAppSettings(koboSettings: KoboSettings): AppSettings {
 }
 
 describe('KoboSyncSettingsComponent', () => {
+  afterEach(() => {
+    TestBed.resetTestingModule();
+  });
+
   it('hydrates admin kobo settings when app settings arrive after the user', () => {
     const userState = signal<User | null>(buildUser({admin: true}));
     const appSettingsState = signal<AppSettings | null>(null);
@@ -127,6 +132,70 @@ describe('KoboSyncSettingsComponent', () => {
       forceEnableHyphenation: true,
       forwardToKoboStore: true,
     });
+
+    fixture.destroy();
+  });
+
+  it('hydrates the sync form and rendered toggle when user settings load after mount', async () => {
+    const userState = signal<User | null>(buildUser({canSyncKobo: true}));
+    const appSettingsState = signal<AppSettings | null>(null);
+    const koboSettings$ = new Subject<KoboSyncSettings>();
+
+    await TestBed.configureTestingModule({
+      imports: [KoboSyncSettingsComponent, getTranslocoModule()],
+      providers: [
+        {
+          provide: UserService,
+          useValue: {
+            currentUser: () => userState(),
+          },
+        },
+        {
+          provide: AppSettingsService,
+          useValue: {
+            appSettings: () => appSettingsState(),
+          },
+        },
+        {
+          provide: KoboService,
+          useValue: {
+            getUser: () => koboSettings$.asObservable(),
+          },
+        },
+        {provide: SettingsHelperService, useValue: {saveSetting: vi.fn()}},
+        {provide: ShelfService, useValue: {reloadShelves: vi.fn()}},
+      ],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(KoboSyncSettingsComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    koboSettings$.next({
+      token: 'token-123',
+      syncEnabled: true,
+      progressMarkAsReadingThreshold: 2,
+      progressMarkAsFinishedThreshold: 95,
+      autoAddToShelf: true,
+      twoWayProgressSync: true,
+    });
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const syncToggle = fixture.nativeElement.querySelector('input#koboSyncEnabled') as HTMLInputElement | null;
+
+    expect(syncToggle).not.toBeNull();
+    expect(syncToggle?.checked).toBe(true);
+    expect(fixture.componentInstance.syncForm.getRawValue()).toEqual({
+      token: 'token-123',
+      syncEnabled: true,
+      progressMarkAsReadingThreshold: 2,
+      progressMarkAsFinishedThreshold: 95,
+      autoAddToShelf: true,
+      twoWayProgressSync: true,
+    });
+    expect(fixture.nativeElement.querySelector('input#koboToken')).not.toBeNull();
 
     fixture.destroy();
   });
