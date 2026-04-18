@@ -564,7 +564,7 @@ export class SeriesPageComponent implements AfterViewChecked {
 
   selectAllBooks(): void {
     for (const book of this.filteredBooks()) {
-      this.selectedBooks.add(book.id);
+      this.getSelectableBookIds(book).forEach(id => this.selectedBooks.add(id));
     }
     this.moreActionsMenuItems = this.bookMenuService.getMoreActionsMenu(this.selectedBooks, this.user());
   }

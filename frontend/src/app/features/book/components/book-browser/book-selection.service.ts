@@ -87,7 +87,7 @@ export class BookSelectionService {
     this._selectedBooks.update(current => {
       const next = new Set(current);
       for (const book of this.currentBooks) {
-        next.add(book.id);
+        this.getSelectableBookIds(book).forEach(bookId => next.add(bookId));
       }
       return next;
     });
