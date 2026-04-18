@@ -33,8 +33,8 @@ export class PublicReviewsSettingsComponent {
   private readonly settingsHelper = inject(SettingsHelperService);
 
   readonly form = this.fb.nonNullable.group({
-    downloadEnabled: [true],
-    autoDownloadEnabled: [false],
+    downloadEnabled: [{value: true, disabled: true}],
+    autoDownloadEnabled: [{value: false, disabled: true}],
     providers: this.fb.array<ReviewProviderFormGroup>([]),
   });
 
@@ -45,6 +45,8 @@ export class PublicReviewsSettingsComponent {
     }
 
     this.initializeSettings(settings);
+    this.form.controls.downloadEnabled.enable({emitEvent: false});
+    this.form.controls.autoDownloadEnabled.enable({emitEvent: false});
   });
 
   onPublicReviewsToggle(checked: boolean): void {

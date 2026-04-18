@@ -77,6 +77,13 @@ describe('PublicReviewsSettingsComponent', () => {
   });
 
   it('persists top-level review toggles', async () => {
+    appSettingsSignal.set({
+      metadataPublicReviewsSettings: {
+        downloadEnabled: false,
+        autoDownloadEnabled: false,
+        providers: [{provider: 'Amazon', enabled: true, maxReviews: 5}],
+      },
+    } as AppSettings);
     await render();
 
     component.onPublicReviewsToggle(true);
@@ -92,6 +99,27 @@ describe('PublicReviewsSettingsComponent', () => {
       AppSettingKey.METADATA_PUBLIC_REVIEWS_SETTINGS,
       component.publicReviewSettings
     );
+  });
+
+  it('keeps top-level toggles disabled until settings hydrate', async () => {
+    await render();
+
+    expect(component.form.controls.downloadEnabled.disabled).toBe(true);
+    expect(component.form.controls.autoDownloadEnabled.disabled).toBe(true);
+    expect(component.providerControls).toHaveLength(0);
+    expect(settingsHelper.saveSetting).not.toHaveBeenCalled();
+
+    appSettingsSignal.set({
+      metadataPublicReviewsSettings: {
+        downloadEnabled: true,
+        autoDownloadEnabled: false,
+        providers: [{provider: 'Amazon', enabled: true, maxReviews: 5}],
+      },
+    } as AppSettings);
+    await render();
+
+    expect(component.form.controls.downloadEnabled.disabled).toBe(false);
+    expect(component.form.controls.autoDownloadEnabled.disabled).toBe(false);
   });
 
   it('updates provider settings and persists them', async () => {

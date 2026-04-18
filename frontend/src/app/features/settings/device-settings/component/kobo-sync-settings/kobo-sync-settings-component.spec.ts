@@ -136,6 +136,84 @@ describe('KoboSyncSettingsComponent', () => {
     fixture.destroy();
   });
 
+  it('does not overwrite an in-flight admin slider edit when settings arrive late', () => {
+    const userState = signal<User | null>(buildUser({admin: true}));
+    const appSettingsState = signal<AppSettings | null>(null);
+
+    TestBed.configureTestingModule({
+      imports: [KoboSyncSettingsComponent],
+      providers: [
+        {
+          provide: UserService,
+          useValue: {
+            currentUser: () => userState(),
+          },
+        },
+        {
+          provide: AppSettingsService,
+          useValue: {
+            appSettings: () => appSettingsState(),
+          },
+        },
+        {
+          provide: KoboService,
+          useValue: {
+            getUser: () => of({
+              token: '',
+              syncEnabled: false,
+              progressMarkAsReadingThreshold: 1,
+              progressMarkAsFinishedThreshold: 99,
+              autoAddToShelf: false,
+              twoWayProgressSync: false,
+            }),
+          },
+        },
+        {provide: SettingsHelperService, useValue: {saveSetting: vi.fn()}},
+        {provide: ShelfService, useValue: {reloadShelves: vi.fn()}},
+        {provide: TranslocoService, useValue: {translate: vi.fn((key: string) => key)}},
+      ],
+    });
+    TestBed.overrideComponent(KoboSyncSettingsComponent, {
+      set: {template: ''},
+    });
+
+    const fixture = TestBed.createComponent(KoboSyncSettingsComponent);
+    const component = fixture.componentInstance;
+
+    TestBed.flushEffects();
+
+    // Initial hydration with first server values.
+    appSettingsState.set(buildAppSettings({
+      convertToKepub: false,
+      conversionLimitInMb: 100,
+      convertCbxToEpub: false,
+      conversionImageCompressionPercentage: 85,
+      conversionLimitInMbForCbx: 100,
+      forceEnableHyphenation: false,
+      forwardToKoboStore: false,
+    }));
+    TestBed.flushEffects();
+
+    // Admin moves the slider; debounced save has not fired yet.
+    component.koboSettings.conversionLimitInMb = 250;
+
+    // A later refetch (e.g. from another save's invalidation) emits new server state.
+    appSettingsState.set(buildAppSettings({
+      convertToKepub: false,
+      conversionLimitInMb: 100,
+      convertCbxToEpub: false,
+      conversionImageCompressionPercentage: 85,
+      conversionLimitInMbForCbx: 100,
+      forceEnableHyphenation: false,
+      forwardToKoboStore: false,
+    }));
+    TestBed.flushEffects();
+
+    expect(component.koboSettings.conversionLimitInMb).toBe(250);
+
+    fixture.destroy();
+  });
+
   it('hydrates the sync form and rendered toggle when user settings load after mount', async () => {
     const userState = signal<User | null>(buildUser({canSyncKobo: true}));
     const appSettingsState = signal<AppSettings | null>(null);

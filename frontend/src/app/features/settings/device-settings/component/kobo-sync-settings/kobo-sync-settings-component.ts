@@ -108,14 +108,17 @@ export class KoboSyncSettingsComponent implements OnInit {
     this.prevHasKoboTokenPermission = currHasKoboTokenPermission;
   });
 
+  private hasHydratedKoboAdmin = false;
+
   private readonly syncAdminSettingsEffect = effect(() => {
     const user = this.userService.currentUser();
     const settings = this.appSettingsService.appSettings();
-    if (!(user?.permissions.admin) || !settings) {
+    if (this.hasHydratedKoboAdmin || !user?.permissions.admin || !settings) {
       return;
     }
 
     this.applyKoboAdminSettings(settings);
+    this.hasHydratedKoboAdmin = true;
   });
 
   private loadKoboUserSettings() {
