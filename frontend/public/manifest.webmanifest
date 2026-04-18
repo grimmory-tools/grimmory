@@ -5,6 +5,7 @@
   "display_override": ["fullscreen", "standalone", "browser"],
   "scope": "./",
   "start_url": "./",
+  "background_color": "#0d1012",
   "icons": [
     {
       "src": "icons/icon-72x72.png",
