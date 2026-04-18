@@ -32,6 +32,18 @@ body:
     validations:
       required: true
 
+  - type: dropdown
+    id: build
+    attributes:
+      label: What Build of Grimmory are you on?
+      description: Stable is the default build in most cases.
+      options:
+        - Stable
+        - Nightly
+      default: 0
+    validations:
+      required: true
+
   - type: textarea
     id: environment
     attributes:
