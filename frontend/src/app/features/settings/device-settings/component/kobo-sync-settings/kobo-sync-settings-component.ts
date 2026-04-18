@@ -196,7 +196,8 @@ export class KoboSyncSettingsComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (settings) => {
-        this.applyKoboUserSettings(settings);
+        this.syncForm.controls.token.setValue(settings.token, {emitEvent: false});
+        this.credentialsSaved = !!settings.token;
         this.messageService.add({severity: 'success', summary: this.t.translate('settingsDevice.kobo.tokenRegenerated'), detail: this.t.translate('settingsDevice.kobo.tokenRegeneratedDetail')});
       },
       error: () => {

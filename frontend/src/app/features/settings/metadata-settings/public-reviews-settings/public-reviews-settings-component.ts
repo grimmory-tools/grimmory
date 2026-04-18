@@ -40,7 +40,7 @@ export class PublicReviewsSettingsComponent {
 
   private readonly syncSettingsEffect = effect(() => {
     const settings = this.appSettingsService.appSettings();
-    if (!settings) {
+    if (!settings || this.form.dirty) {
       return;
     }
 

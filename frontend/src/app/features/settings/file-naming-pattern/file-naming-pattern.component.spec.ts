@@ -71,6 +71,21 @@ describe('FileNamingPatternComponent', () => {
     expect(component.defaultPattern()).toBe('{title}');
   });
 
+  it('keeps the user-entered pattern and validation state when settings resolve after editing', async () => {
+    await render();
+
+    component.onDefaultPatternChange('bad%^pattern');
+
+    expect(component.defaultPattern()).toBe('bad%^pattern');
+    expect(component.defaultErrorMessage).toBeTruthy();
+
+    appSettingsSignal.set({uploadPattern: '{title}'} as AppSettings);
+    await render();
+
+    expect(component.defaultPattern()).toBe('bad%^pattern');
+    expect(component.defaultErrorMessage).toBeTruthy();
+  });
+
   it('validates patterns and exposes invalid-character errors', async () => {
     await render();
     component.onDefaultPatternChange('bad%^pattern');

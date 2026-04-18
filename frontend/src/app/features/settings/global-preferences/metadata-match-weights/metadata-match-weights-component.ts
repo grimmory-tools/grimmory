@@ -44,7 +44,7 @@ export class MetadataMatchWeightsComponent {
 
   private readonly syncSettingsEffect = effect(() => {
     const settings = this.appSettingsService.appSettings();
-    if (settings?.metadataMatchWeights) {
+    if (settings?.metadataMatchWeights && this.form.pristine) {
       this.form.patchValue(settings.metadataMatchWeights);
     }
   });
@@ -104,6 +104,7 @@ export class MetadataMatchWeightsComponent {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: () => {
+        this.form.markAsPristine();
         this.messageService.add({
           severity: 'success',
           summary: this.t.translate('common.success'),
