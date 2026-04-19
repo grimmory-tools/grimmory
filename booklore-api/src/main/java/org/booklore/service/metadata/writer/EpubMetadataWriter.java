@@ -11,9 +11,9 @@ import org.booklore.model.enums.BookFileType;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.util.MimeDetector;
 import org.grimmory.epub4j.native_parsing.NativeImageProcessor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
@@ -93,17 +93,14 @@ public class EpubMetadataWriter implements MetadataWriter {
     private static final int MAX_COVER_BYTES = 20 * 1024 * 1024; // 20 MiB
 
     private final AppSettingService appSettingService;
-    private final RestTemplate coverRestTemplate;
 
-    public EpubMetadataWriter(AppSettingService appSettingService) {
-        this.appSettingService = appSettingService;
-        // No-redirect factory, redirects to internal addresses would bypass SSRF protection
-        SimpleClientHttpRequestFactory factory =
-                new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(10_000);
-        factory.setReadTimeout(30_000);
-        this.coverRestTemplate = new RestTemplate(factory);
-    }
+    /**
+     * RestTemplate configured to never follow redirects so the SSRF guard in {@link #loadImage(String)}
+     * (private-address check) cannot be bypassed by a redirect to an internal host. The bean is
+     * provided by {@code RestClientConfig#coverDownloadRestTemplate}.
+     */
+    @Qualifier("coverDownloadRestTemplate")
+    private final RestTemplate coverRestTemplate;
 
     @Override
     public void saveMetadataToFile(File epubFile, BookMetadataEntity metadata, String thumbnailUrl, MetadataClearFlags clear) {
