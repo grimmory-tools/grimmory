@@ -216,7 +216,7 @@ public class KoboController {
 
     @Operation(summary = "Get Kobo Next to Read", description = "Retrieves the next book to read after the specified book, such as with a series.")
     @ApiResponse(responseCode = "200", description = "The next book in a series to read.")
-    @PostMapping(".*/v1/products/{bookId}/nextread")
+    @PostMapping("/v1/products/{bookId}/nextread")
     public ResponseEntity<?> getNextRead(@Parameter(description = "Book ID") @PathVariable String bookId) {
         if (!StringUtils.isNumeric(bookId)) {
             if (isForwardingToKoboStore()) {
