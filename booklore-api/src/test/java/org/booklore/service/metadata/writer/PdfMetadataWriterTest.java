@@ -371,6 +371,65 @@ class PdfMetadataWriterTest {
         assertTrue(xmpContent.contains("<xmp:CreatorTool>Booklore</xmp:CreatorTool>"));
     }
 
+    @Test
+    void saveMetadata_nonAsciiFilename_succeeds() throws Exception {
+        File pdf = createEmptyPdf("Lucky Luke 92 - Achdé, Laurent Gerra, René Goscinny (2015).pdf");
+
+        BookMetadataEntity meta = createBasicMetadata();
+        meta.setTitle("Lucky Luke 92");
+        List<AuthorEntity> authors = new ArrayList<>();
+        AuthorEntity a1 = new AuthorEntity();
+        a1.setName("Achdé");
+        authors.add(a1);
+        AuthorEntity a2 = new AuthorEntity();
+        a2.setName("René Goscinny");
+        authors.add(a2);
+        meta.setAuthors(authors);
+
+        writer.saveMetadataToFile(pdf, meta, null, null);
+
+        assertTrue(pdf.exists(), "PDF with non-ASCII filename should still exist after write");
+        BookMetadata result = extractor.extractMetadata(pdf);
+        assertEquals("Lucky Luke 92", result.getTitle());
+        assertTrue(result.getAuthors().contains("Achdé"));
+        assertTrue(result.getAuthors().contains("René Goscinny"));
+    }
+
+    @Test
+    void saveMetadata_nonAsciiInParentDir_succeeds() throws Exception {
+        Path subDir = tempDir.resolve("Astérix et Obélix — Série complète");
+        Files.createDirectories(subDir);
+        File pdf = subDir.resolve("Astérix le Gaulois - René Goscinny, Albert Uderzo (1961).pdf").toFile();
+        try (PdfDocument doc = PdfDocument.create()) {
+            doc.insertBlankPage(0, new PageSize(612, 792));
+            doc.save(pdf.toPath());
+        }
+
+        BookMetadataEntity meta = createBasicMetadata();
+        meta.setTitle("Astérix le Gaulois");
+
+        writer.saveMetadataToFile(pdf, meta, null, null);
+
+        assertTrue(pdf.exists(), "PDF in non-ASCII directory should still exist after write");
+        BookMetadata result = extractor.extractMetadata(pdf);
+        assertEquals("Astérix le Gaulois", result.getTitle());
+    }
+
+    @Test
+    void saveMetadata_unicodeVariants_succeeds() throws Exception {
+        // Test various Unicode characters: CJK, Cyrillic, accented, emoji-adjacent
+        File pdf = createEmptyPdf("Война и мир — Лев Толстой (1869).pdf");
+
+        BookMetadataEntity meta = createBasicMetadata();
+        meta.setTitle("Война и мир");
+
+        writer.saveMetadataToFile(pdf, meta, null, null);
+
+        assertTrue(pdf.exists());
+        BookMetadata result = extractor.extractMetadata(pdf);
+        assertEquals("Война и мир", result.getTitle());
+    }
+
     // ========== Helper Methods ==========
 
     private File createEmptyPdf(String name) throws IOException {

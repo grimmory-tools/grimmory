@@ -60,7 +60,6 @@ import java.util.zip.ZipFile;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class EpubMetadataWriter implements MetadataWriter {
 
     private static final String OPF_NS = "http://www.idpf.org/2007/opf";
@@ -94,13 +93,14 @@ public class EpubMetadataWriter implements MetadataWriter {
 
     private final AppSettingService appSettingService;
 
-    /**
-     * RestTemplate configured to never follow redirects so the SSRF guard in {@link #loadImage(String)}
-     * (private-address check) cannot be bypassed by a redirect to an internal host. The bean is
-     * provided by {@code RestClientConfig#coverDownloadRestTemplate}.
-     */
-    @Qualifier("coverDownloadRestTemplate")
     private final RestTemplate coverRestTemplate;
+
+    public EpubMetadataWriter(
+            AppSettingService appSettingService,
+            @Qualifier("coverDownloadRestTemplate") RestTemplate coverRestTemplate) {
+        this.appSettingService = appSettingService;
+        this.coverRestTemplate = coverRestTemplate;
+    }
 
     @Override
     public void saveMetadataToFile(File epubFile, BookMetadataEntity metadata, String thumbnailUrl, MetadataClearFlags clear) {
@@ -940,7 +940,7 @@ public class EpubMetadataWriter implements MetadataWriter {
         return true;
     }
 
-    private byte[] loadImage(String url) {
+    byte[] loadImage(String url) {
         if (url == null || url.isBlank()) return null;
 
         URI uri;
@@ -962,9 +962,10 @@ public class EpubMetadataWriter implements MetadataWriter {
             log.warn("Rejected cover URL with missing host");
             return null;
         }
+        InetAddress resolvedAddress;
         try {
-            InetAddress addr = InetAddress.getByName(host);
-            if (addr.isLoopbackAddress() || addr.isLinkLocalAddress() || addr.isSiteLocalAddress()) {
+            resolvedAddress = InetAddress.getByName(host);
+            if (resolvedAddress.isLoopbackAddress() || resolvedAddress.isLinkLocalAddress() || resolvedAddress.isSiteLocalAddress()) {
                 log.warn("Rejected cover URL targeting private/internal address for host: {}", host);
                 return null;
             }
@@ -972,9 +973,24 @@ public class EpubMetadataWriter implements MetadataWriter {
             log.warn("Rejected cover URL — hostname could not be resolved: {}", host);
             return null;
         }
+        URI safeUri;
+        try {
+            safeUri = new URI(
+                    scheme.toLowerCase(),
+                    null,
+                    resolvedAddress.getHostAddress(),
+                    uri.getPort(),
+                    uri.getPath(),
+                    uri.getQuery(),
+                    null
+            );
+        } catch (Exception e) {
+            log.warn("Rejected cover URL — could not reconstruct safe URI: {}", e.getMessage());
+            return null;
+        }
 
         try {
-            return coverRestTemplate.execute(uri, HttpMethod.GET, null, response -> {
+            return coverRestTemplate.execute(safeUri, HttpMethod.GET, null, response -> {
                 MediaType contentType = response.getHeaders().getContentType();
                 if (contentType == null || !contentType.getType().equalsIgnoreCase("image")) {
                     log.warn("Rejected cover response with non-image Content-Type: {}", contentType);
