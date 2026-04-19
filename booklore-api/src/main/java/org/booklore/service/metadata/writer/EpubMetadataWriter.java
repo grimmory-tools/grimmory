@@ -27,7 +27,9 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -929,19 +931,35 @@ public class EpubMetadataWriter implements MetadataWriter {
         if (url == null || url.isBlank()) return null;
 
         if (!url.startsWith("http://") && !url.startsWith("https://")) {
-            log.warn("Rejected non-HTTP image URL (scheme not allowed): [redacted]");
+            log.warn("Rejected non-HTTP image URL (scheme not allowed)");
             return null;
         }
 
         try {
-            URI uri = URI.create(url);
-            String scheme = uri.getScheme();
-            if (!"http".equals(scheme) && !"https".equals(scheme)) {
-                log.warn("Rejected image URL with unexpected scheme after URI parsing: {}", scheme);
+            URL parsed = new URL(url);
+            String protocol = parsed.getProtocol();
+            if (!"http".equals(protocol) && !"https".equals(protocol)) {
+                log.warn("Rejected image URL with unexpected protocol after parsing: {}", protocol);
                 return null;
             }
-            try (InputStream stream = uri.toURL().openStream()) {
+            URLConnection conn = parsed.openConnection();
+            if (!(conn instanceof HttpURLConnection httpConn)) {
+                log.warn("openConnection() did not return HttpURLConnection — rejecting");
+                return null;
+            }
+            httpConn.setConnectTimeout(10_000);
+            httpConn.setReadTimeout(30_000);
+            httpConn.setInstanceFollowRedirects(true);
+            httpConn.connect();
+            int status = httpConn.getResponseCode();
+            if (status < 200 || status >= 300) {
+                log.warn("Image fetch returned HTTP {}", status);
+                return null;
+            }
+            try (InputStream stream = httpConn.getInputStream()) {
                 return stream.readAllBytes();
+            } finally {
+                httpConn.disconnect();
             }
         } catch (Exception e) {
             log.warn("Failed to load image from URL: {}", e.getMessage());
