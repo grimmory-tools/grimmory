@@ -7,8 +7,8 @@ import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.model.entity.BookNoteV2Entity;
 import org.booklore.repository.AnnotationRepository;
 import org.booklore.repository.BookNoteV2Repository;
-import org.booklore.util.koreader.CfiConvertor;
 import org.booklore.util.koreader.EpubCfiService;
+import org.grimmory.epub4j.cfi.XPointerResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -96,8 +96,8 @@ class AnnotationSidecarServiceTest {
         return note;
     }
 
-    private CfiConvertor.XPointerResult xpr(String pos0, String pos1) {
-        return new CfiConvertor.XPointerResult(pos0, pos0, pos1);
+    private XPointerResult xpr(String pos0, String pos1) {
+        return new XPointerResult(pos0, pos0, pos1);
     }
 
     // ── guard conditions ──────────────────────────────────────────────────────

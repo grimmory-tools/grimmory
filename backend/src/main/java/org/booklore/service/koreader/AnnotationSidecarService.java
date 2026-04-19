@@ -9,8 +9,9 @@ import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.model.entity.BookNoteV2Entity;
 import org.booklore.repository.AnnotationRepository;
 import org.booklore.repository.BookNoteV2Repository;
-import org.booklore.util.koreader.CfiConvertor;
 import org.booklore.util.koreader.EpubCfiService;
+import org.grimmory.epub4j.cfi.CfiConverter;
+import org.grimmory.epub4j.cfi.XPointerResult;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -113,11 +114,11 @@ public class AnnotationSidecarService {
         return sdrDir.resolve("metadata.epub." + username + ".lua");
     }
 
-    private record HighlightEntry(AnnotationEntity ann, CfiConvertor.XPointerResult xp,
+    private record HighlightEntry(AnnotationEntity ann, XPointerResult xp,
                                    String pos0, String pos1, String page,
                                    String drawer, String datetime) {}
 
-    private record NoteEntry(BookNoteV2Entity note, CfiConvertor.XPointerResult xp,
+    private record NoteEntry(BookNoteV2Entity note, XPointerResult xp,
                               String pos0, String page, String datetime) {}
 
     private String buildLua(Path bookPath, List<AnnotationEntity> annotations,
@@ -129,10 +130,10 @@ public class AnnotationSidecarService {
         List<HighlightEntry> highlightEntries = new ArrayList<>();
         for (AnnotationEntity ann : annotations) {
             try {
-                CfiConvertor.XPointerResult xp = epubCfiService.convertCfiToXPointer(bookPath, ann.getCfi());
+                XPointerResult xp = epubCfiService.convertCfiToXPointer(bookPath, ann.getCfi());
                 String pos0 = xp.getPos0() != null ? xp.getPos0() : xp.getXpointer();
                 String pos1 = xp.getPos1() != null ? xp.getPos1() : xp.getXpointer();
-                String page = CfiConvertor.normalizeProgressXPointer(pos0);
+                String page = CfiConverter.normalizeProgressXPointer(pos0);
                 String drawer = styleToDrawer(ann.getStyle());
                 String datetime = ann.getCreatedAt() != null
                         ? ann.getCreatedAt().format(DATETIME_FMT)
@@ -147,9 +148,9 @@ public class AnnotationSidecarService {
         List<NoteEntry> noteEntries = new ArrayList<>();
         for (BookNoteV2Entity note : bookNotes) {
             try {
-                CfiConvertor.XPointerResult xp = epubCfiService.convertCfiToXPointer(bookPath, note.getCfi());
+                XPointerResult xp = epubCfiService.convertCfiToXPointer(bookPath, note.getCfi());
                 String pos0 = xp.getPos0() != null ? xp.getPos0() : xp.getXpointer();
-                String page = CfiConvertor.normalizeProgressXPointer(pos0);
+                String page = CfiConverter.normalizeProgressXPointer(pos0);
                 String datetime = note.getCreatedAt() != null
                         ? note.getCreatedAt().format(DATETIME_FMT)
                         : "1970-01-01 00:00:00";

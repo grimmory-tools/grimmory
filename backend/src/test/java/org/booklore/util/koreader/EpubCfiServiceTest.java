@@ -484,4 +484,45 @@ class EpubCfiServiceTest {
             assertNotNull(converter);
         }
     }
+
+    @Nested
+    class RangeCfiTests {
+
+        // The epub4j CfiConverter library does not support range CFI parsing.
+        // EpubCfiService detects range CFIs and decomposes them into two point CFIs
+        // before delegating to the library, so pos0 ≠ pos1 for highlights.
+
+        @Test
+        void rangeCfi_roundTrip_pos0AndPos1AreDifferent() {
+            String start = "/body/DocFragment[1]/body/div[1]/p[1]/text().3";
+            String end = "/body/DocFragment[1]/body/div[1]/p[1]/text().15";
+
+            String rangeCfi = service.convertXPointerRangeToCfi(testEpubFile, start, end);
+            XPointerResult result = service.convertCfiToXPointer(testEpubFile, rangeCfi);
+
+            assertNotNull(result.getPos0());
+            assertNotNull(result.getPos1());
+            assertNotEquals(result.getPos0(), result.getPos1());
+        }
+
+        @Test
+        void rangeCfi_roundTrip_xpointerEqualsPos0() {
+            String start = "/body/DocFragment[1]/body/div[1]/p[1]/text().3";
+            String end = "/body/DocFragment[1]/body/div[1]/p[1]/text().15";
+
+            String rangeCfi = service.convertXPointerRangeToCfi(testEpubFile, start, end);
+            XPointerResult result = service.convertCfiToXPointer(testEpubFile, rangeCfi);
+
+            assertEquals(result.getXpointer(), result.getPos0());
+        }
+
+        @Test
+        void pointCfi_pos0EqualsPos1_regressionGuard() {
+            String pointCfi = "epubcfi(/6/2!/4/2/2)";
+
+            XPointerResult result = service.convertCfiToXPointer(testEpubFile, pointCfi);
+
+            assertEquals(result.getPos0(), result.getPos1());
+        }
+    }
 }

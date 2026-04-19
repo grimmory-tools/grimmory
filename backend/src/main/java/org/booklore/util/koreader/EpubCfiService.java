@@ -40,10 +40,47 @@ public class EpubCfiService {
     }
 
     public XPointerResult convertCfiToXPointer(File epubFile, String cfi) {
+        if (isRangeCfi(cfi)) {
+            return convertRangeCfiToXPointer(epubFile, cfi);
+        }
         String normalizedCfi = normalizeContentDocumentCfi(cfi);
         int spineIndex = CfiConverter.extractSpineIndex(normalizedCfi);
         CfiConverter converter = createConverter(epubFile, spineIndex);
         return converter.cfiToXPointer(normalizedCfi);
+    }
+
+    private static boolean isRangeCfi(String cfi) {
+        int exclamIdx = cfi.indexOf('!');
+        return exclamIdx >= 0 && cfi.indexOf(',', exclamIdx) >= 0;
+    }
+
+    private XPointerResult convertRangeCfiToXPointer(File epubFile, String cfi) {
+        String inner = cfi.substring("epubcfi(".length(), cfi.length() - 1);
+        int exclamIdx = inner.indexOf('!');
+        String spinePart = inner.substring(0, exclamIdx);
+        String contentPart = inner.substring(exclamIdx + 1);
+
+        int firstComma = contentPart.indexOf(',');
+        String afterFirstComma = contentPart.substring(firstComma + 1);
+        int secondComma = afterFirstComma.indexOf(',');
+
+        String startContentPath, endContentPath;
+        if (secondComma >= 0) {
+            String commonPath = contentPart.substring(0, firstComma);
+            startContentPath = commonPath + afterFirstComma.substring(0, secondComma);
+            endContentPath = commonPath + afterFirstComma.substring(secondComma + 1);
+        } else {
+            startContentPath = contentPart.substring(0, firstComma);
+            endContentPath = afterFirstComma;
+        }
+
+        String startCfi = "epubcfi(" + spinePart + "!" + startContentPath + ")";
+        String endCfi = "epubcfi(" + spinePart + "!" + endContentPath + ")";
+
+        XPointerResult startResult = convertCfiToXPointer(epubFile, startCfi);
+        XPointerResult endResult = convertCfiToXPointer(epubFile, endCfi);
+
+        return new XPointerResult(startResult.getXpointer(), startResult.getXpointer(), endResult.getXpointer());
     }
 
     public XPointerResult convertCfiToXPointer(Path epubPath, String cfi) {
