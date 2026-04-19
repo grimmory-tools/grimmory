@@ -551,18 +551,21 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
         }
     }
 
-    private static final Map<String, BiConsumer<BookMetadata.BookMetadataBuilder, String>> NATIVE_IDENTIFIER_MAPPERS = Map.of(
-            "isbn", (b, v) -> {
+    private static final Map<String, BiConsumer<BookMetadata.BookMetadataBuilder, String>> NATIVE_IDENTIFIER_MAPPERS = Map.ofEntries(
+            Map.entry("isbn", (b, v) -> {
                 String clean = ISBN_SEPARATOR_PATTERN.matcher(v).replaceAll("");
                 if (clean.length() == 13) b.isbn13(clean); else if (clean.length() == 10) b.isbn10(clean);
-            },
-            "goodreads", BookMetadata.BookMetadataBuilder::goodreadsId,
-            "google", BookMetadata.BookMetadataBuilder::googleId,
-            "amazon", BookMetadata.BookMetadataBuilder::asin,
-            "hardcover", BookMetadata.BookMetadataBuilder::hardcoverId,
-            "ranobedb", BookMetadata.BookMetadataBuilder::ranobedbId,
-            "comicvine", BookMetadata.BookMetadataBuilder::comicvineId,
-            "lubimyczytac", BookMetadata.BookMetadataBuilder::lubimyczytacId
+            }),
+            Map.entry("goodreads", BookMetadata.BookMetadataBuilder::goodreadsId),
+            Map.entry("google", BookMetadata.BookMetadataBuilder::googleId),
+            Map.entry("amazon", BookMetadata.BookMetadataBuilder::asin),
+            Map.entry("hardcover", BookMetadata.BookMetadataBuilder::hardcoverId),
+            Map.entry("ranobedb", BookMetadata.BookMetadataBuilder::ranobedbId),
+            Map.entry("comicvine", BookMetadata.BookMetadataBuilder::comicvineId),
+            Map.entry("lubimyczytac", BookMetadata.BookMetadataBuilder::lubimyczytacId),
+            Map.entry("asin", BookMetadata.BookMetadataBuilder::asin),
+            Map.entry("mobi-asin", BookMetadata.BookMetadataBuilder::asin),
+            Map.entry("hardcover_book", BookMetadata.BookMetadataBuilder::hardcoverBookId)
     );
 
     private void mapNativeIdentifiers(Map<String, String> allMetadata, BookMetadata.BookMetadataBuilder builder) {

@@ -96,6 +96,14 @@ public class EpubMetadataWriter implements MetadataWriter {
             // Track whether any pass actually wrote changes
             boolean[] anyChanges = {false};
 
+            // PRE-FETCH COVER
+            byte[] rawCoverData = null;
+            if (StringUtils.isNotBlank(thumbnailUrl)) {
+                rawCoverData = loadImage(thumbnailUrl);
+            }
+            final byte[] finalCoverData = rawCoverData != null ? optimizeCoverImage(rawCoverData) : null;
+            final String newCoverMediaType = finalCoverData != null ? detectMediaType(finalCoverData) : null;
+
             org.grimmory.epub4j.epub.EpubMetadataWriter.updateMetadata(epubFile.toPath(), opfDoc -> {
                 Element metadataElement = getMetadataElement(opfDoc);
                 if (metadataElement == null) return;
@@ -109,8 +117,7 @@ public class EpubMetadataWriter implements MetadataWriter {
                 applySeries(opfDoc, metadataElement, metadata, helper, clear, hasChanges);
                 applyIdentifiers(opfDoc, metadataElement, helper, clear, hasChanges);
 
-                if (StringUtils.isNotBlank(thumbnailUrl)) {
-                    // Cover via updateMetadata requires separate pass; flag for post-processing
+                if (finalCoverData != null) {
                     hasChanges[0] = true;
                 }
 
@@ -129,25 +136,16 @@ public class EpubMetadataWriter implements MetadataWriter {
                     removeEmptyTextNodes(opfDoc);
                     anyChanges[0] = true;
                 }
+
+                // If we have cover data, update manifest
+                if (newCoverMediaType != null) {
+                    updateCoverManifestEntry(opfDoc, newCoverMediaType);
+                }
             });
 
-            // Cover image replacement is a separate ZIP rewrite (different entry gets modified)
-            if (StringUtils.isNotBlank(thumbnailUrl)) {
-                byte[] coverData = loadImage(thumbnailUrl);
-                if (coverData != null) {
-                    coverData = optimizeCoverImage(coverData);
-                    org.grimmory.epub4j.epub.EpubMetadataWriter.replaceCoverImage(epubFile.toPath(), coverData);
-
-                    // Update manifest media-type to match the new cover image format
-                    String newMediaType = detectMediaType(coverData);
-                    if (newMediaType != null) {
-                        org.grimmory.epub4j.epub.EpubMetadataWriter.updateMetadata(epubFile.toPath(), opfDoc -> {
-                            updateCoverManifestEntry(opfDoc, newMediaType);
-                            removeEmptyTextNodes(opfDoc);
-                        });
-                    }
-                    anyChanges[0] = true;
-                }
+            if (finalCoverData != null) {
+                org.grimmory.epub4j.epub.EpubMetadataWriter.replaceCoverImage(epubFile.toPath(), finalCoverData);
+                anyChanges[0] = true;
             }
 
             // Normalize cover media-type to match actual image content
@@ -343,10 +341,13 @@ public class EpubMetadataWriter implements MetadataWriter {
             removeCreatorsByRole(metadataElement, "aut");
             if (names != null) {
                 for (String name : names) {
-                    String[] parts = name.split(" ", 2);
-                    String first = parts.length > 1 ? parts[0] : "";
-                    String last = parts.length > 1 ? parts[1] : parts[0];
-                    String fileAs = last + ", " + first;
+                    int sp = name.lastIndexOf(' ');
+                    String fileAs;
+                    if (sp <= 0) {
+                        fileAs = name; // single-token or leading-space names
+                    } else {
+                        fileAs = name.substring(sp + 1) + ", " + name.substring(0, sp);
+                    }
                     metadataElement.appendChild(createCreatorElement(opfDoc, metadataElement, name, fileAs));
                 }
             }
@@ -926,9 +927,28 @@ public class EpubMetadataWriter implements MetadataWriter {
     }
 
     private byte[] loadImage(String pathOrUrl) {
-        try (InputStream stream = pathOrUrl.startsWith("http") ? URI.create(pathOrUrl).toURL().openStream() : new FileInputStream(pathOrUrl)) {
-            return stream.readAllBytes();
-        } catch (IOException e) {
+        if (pathOrUrl == null || pathOrUrl.isBlank()) return null;
+
+        try {
+            if (pathOrUrl.startsWith("http://") || pathOrUrl.startsWith("https://")) {
+                URI uri = new URI(pathOrUrl).normalize();
+                if (!"http".equals(uri.getScheme()) && !"https".equals(uri.getScheme())) {
+                     throw new IllegalArgumentException("Invalid URI scheme");
+                }
+                try (InputStream stream = uri.toURL().openStream()) {
+                    return stream.readAllBytes();
+                }
+            } else {
+                Path p = Path.of(pathOrUrl).normalize();
+                File f = p.toFile();
+                if (!f.exists() || !f.isFile()) {
+                     return null;
+                }
+                try (InputStream stream = new FileInputStream(f)) {
+                    return stream.readAllBytes();
+                }
+            }
+        } catch (Exception e) {
             log.warn("Failed to load image from {}: {}", pathOrUrl, e.getMessage());
             return null;
         }
