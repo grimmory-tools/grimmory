@@ -26,7 +26,11 @@ export class FileDownloadService {
     if (!contentDisposition) return null;
     const utf8Match = contentDisposition.match(/filename\*=UTF-8''([\w%\-.]+)/i);
     if (utf8Match) {
-      return decodeURIComponent(utf8Match[1]);
+      try {
+        return decodeURIComponent(utf8Match[1]);
+      } catch {
+        // Do nothing in this case and fall back to the ascii filename.
+      }
     }
     const match = contentDisposition.match(/filename=(?:"([^"]+)"|([^"; ]+))/i)
     if (match) {
