@@ -127,6 +127,18 @@ class EpubMetadataExtractorTest {
         }
 
         @Test
+        void extractsCsvSubjects() throws IOException {
+            String opf = wrapOpf("""
+                    <dc:title>Book</dc:title>
+                    <dc:subject>Fiction, Science Fiction</dc:subject>
+                    <dc:subject>Space Opera</dc:subject>
+                    """);
+            BookMetadata metadata = extractor.extractMetadata(createEpub(opf));
+
+            assertThat(metadata.getCategories()).containsExactlyInAnyOrder("Fiction", "Science Fiction", "Space Opera");
+        }
+
+        @Test
         void returnsNullWhenContainerXmlIsMissing() throws IOException {
             File epub = tempDir.resolve("nocontainer.epub").toFile();
             try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(epub))) {
@@ -158,15 +170,13 @@ class EpubMetadataExtractorTest {
         }
 
         @Test
-        void fallsBackToFilenameWhenNoMetadataElement() throws IOException {
+        void returnsNullWhenNoMetadataElement() throws IOException {
             String opf = """
                     <?xml version="1.0" encoding="UTF-8"?>
                     <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
                       <manifest/>
                     </package>""";
-            BookMetadata metadata = extractor.extractMetadata(createEpub(opf));
-            assertThat(metadata).isNotNull();
-            assertThat(metadata.getTitle()).isEqualTo("test");
+            assertThat(extractor.extractMetadata(createEpub(opf))).isNull();
         }
     }
 

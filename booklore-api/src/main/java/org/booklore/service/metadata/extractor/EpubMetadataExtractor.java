@@ -106,7 +106,7 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
                 Resource res = book.getResources().getByHref(nativeCoverPath);
                 if (res != null) {
                     byte[] data = getImageFromEpubResource(res);
-                    if (data != null) return data;
+                    if (data != null && data.length > 0) return data;
                 }
             }
 
@@ -192,12 +192,14 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
         Set<String> categories = new HashSet<>();
         Set<String> moods = new HashSet<>();
         Set<String> tags = new HashSet<>();
+        boolean nativeMetadataFound = false;
         
         // Attempt fast native extraction first (powered by pugixml/gumbo)
         try (NativePackageReader nativeReader = NativePackageReader.parse(epubFile.getAbsolutePath())) {
             Map<String, String> allMetadata = nativeReader.getAllMetadata();
             if (allMetadata != null && !allMetadata.isEmpty()) {
                 log.debug("Native metadata extraction successful for {}", epubFile.getName());
+                nativeMetadataFound = true;
                 
                 // Map basic fields directly from native
                 String title = allMetadata.get("dc:title");
@@ -270,11 +272,9 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
 
             Element metadata = (Element) doc.getElementsByTagNameNS("*", "metadata").item(0);
             if (metadata == null) {
-                // Java path cannot proceed, but native may have populated builderMeta.
-                BookMetadata nativeOnly = builderMeta.build();
-                return StringUtils.isBlank(nativeOnly.getTitle())
-                        ? builderMeta.title(FilenameUtils.getBaseName(epubFile.getName())).build()
-                        : nativeOnly;
+                return nativeMetadataFound
+                        ? buildExtractedMetadata(builderMeta, categories, moods, tags, epubFile)
+                        : null;
             }
 
             boolean seriesFound = false;
@@ -408,7 +408,7 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
                             categories.clear();
                             subjectsFoundInJava = true;
                         }
-                        categories.add(text);
+                        categories.addAll(parseJsonArrayOrCsv(text));
                     }
                     case "description" -> builderMeta.description(text);
                     case "publisher" -> builderMeta.publisher(text);
@@ -514,31 +514,37 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
                 builderMeta.authors(javaAuthors);
             }
 
-            if (!moods.isEmpty()) builderMeta.moods(moods);
-            if (!tags.isEmpty()) builderMeta.tags(tags);
-
-            // Remove moods and tags from categories to ensure strict separation
-            categories.removeAll(moods);
-            categories.removeAll(tags);
-
-            builderMeta.categories(categories);
-
-            BookMetadata extractedMetadata = builderMeta.build();
-
-            if (StringUtils.isBlank(extractedMetadata.getTitle())) {
-                builderMeta.title(FilenameUtils.getBaseName(epubFile.getName()));
-                extractedMetadata = builderMeta.build();
-            }
-
-            return extractedMetadata;
+            return buildExtractedMetadata(builderMeta, categories, moods, tags, epubFile);
         } catch (Exception e) {
             log.error("Failed to read metadata from EPUB file {}: {}", epubFile.getName(), e.getMessage(), e);
-            BookMetadata nativeOnly = builderMeta.build();
-            if (StringUtils.isBlank(nativeOnly.getTitle()) && (nativeOnly.getAuthors() == null || nativeOnly.getAuthors().isEmpty())) {
-                return null;
-            }
-            return nativeOnly;
+            return nativeMetadataFound
+                    ? buildExtractedMetadata(builderMeta, categories, moods, tags, epubFile)
+                    : null;
         }
+    }
+
+    private BookMetadata buildExtractedMetadata(BookMetadata.BookMetadataBuilder builderMeta,
+                                                Set<String> categories,
+                                                Set<String> moods,
+                                                Set<String> tags,
+                                                File epubFile) {
+        if (!moods.isEmpty()) builderMeta.moods(moods);
+        if (!tags.isEmpty()) builderMeta.tags(tags);
+
+        // Remove moods and tags from categories to ensure strict separation
+        categories.removeAll(moods);
+        categories.removeAll(tags);
+
+        builderMeta.categories(categories);
+
+        BookMetadata extractedMetadata = builderMeta.build();
+
+        if (StringUtils.isBlank(extractedMetadata.getTitle())) {
+            builderMeta.title(FilenameUtils.getBaseName(epubFile.getName()));
+            extractedMetadata = builderMeta.build();
+        }
+
+        return extractedMetadata;
     }
 
     private static void safeParseInt(String value, java.util.function.IntConsumer setter) {
@@ -561,21 +567,35 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
         }
     }
 
+    private static final BiConsumer<BookMetadata.BookMetadataBuilder, String> NATIVE_ISBN_MAPPER = (b, v) -> {
+        String clean = ISBN_SEPARATOR_PATTERN.matcher(v).replaceAll("");
+        if (clean.length() == 13) b.isbn13(clean);
+        else if (clean.length() == 10) b.isbn10(clean);
+    };
+
     private static final Map<String, BiConsumer<BookMetadata.BookMetadataBuilder, String>> NATIVE_IDENTIFIER_MAPPERS = Map.ofEntries(
-            Map.entry("isbn", (b, v) -> {
-                String clean = ISBN_SEPARATOR_PATTERN.matcher(v).replaceAll("");
-                if (clean.length() == 13) b.isbn13(clean); else if (clean.length() == 10) b.isbn10(clean);
-            }),
+            Map.entry("isbn", NATIVE_ISBN_MAPPER),
+            Map.entry("isbn10", NATIVE_ISBN_MAPPER),
+            Map.entry("isbn13", NATIVE_ISBN_MAPPER),
             Map.entry("goodreads", BookMetadata.BookMetadataBuilder::goodreadsId),
+            Map.entry("goodreads_id", BookMetadata.BookMetadataBuilder::goodreadsId),
             Map.entry("google", BookMetadata.BookMetadataBuilder::googleId),
+            Map.entry("google_books", BookMetadata.BookMetadataBuilder::googleId),
+            Map.entry("google_books_id", BookMetadata.BookMetadataBuilder::googleId),
             Map.entry("amazon", BookMetadata.BookMetadataBuilder::asin),
             Map.entry("hardcover", BookMetadata.BookMetadataBuilder::hardcoverId),
+            Map.entry("hardcover_id", BookMetadata.BookMetadataBuilder::hardcoverId),
             Map.entry("ranobedb", BookMetadata.BookMetadataBuilder::ranobedbId),
+            Map.entry("ranobedb_id", BookMetadata.BookMetadataBuilder::ranobedbId),
             Map.entry("comicvine", BookMetadata.BookMetadataBuilder::comicvineId),
+            Map.entry("comicvine_id", BookMetadata.BookMetadataBuilder::comicvineId),
             Map.entry("lubimyczytac", BookMetadata.BookMetadataBuilder::lubimyczytacId),
+            Map.entry("lubimyczytac_id", BookMetadata.BookMetadataBuilder::lubimyczytacId),
             Map.entry("asin", BookMetadata.BookMetadataBuilder::asin),
             Map.entry("mobi-asin", BookMetadata.BookMetadataBuilder::asin),
-            Map.entry("hardcover_book", BookMetadata.BookMetadataBuilder::hardcoverBookId)
+            Map.entry("hardcover_book", BookMetadata.BookMetadataBuilder::hardcoverBookId),
+            Map.entry("hardcoverbook", BookMetadata.BookMetadataBuilder::hardcoverBookId),
+            Map.entry("hardcover_book_id", BookMetadata.BookMetadataBuilder::hardcoverBookId)
     );
 
     private void mapNativeIdentifiers(Map<String, String> allMetadata, BookMetadata.BookMetadataBuilder builder) {
