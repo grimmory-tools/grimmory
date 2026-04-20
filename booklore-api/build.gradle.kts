@@ -199,6 +199,15 @@ hibernate {
     }
 }
 
+jacoco {
+    // Gradle 9.4.x ships with JaCoCo 0.8.13, which only has experimental JDK 25
+    // support. Its bytecode instrumentation agent is the source of intermittent
+    // SIGSEGV crashes inside libc under JDK 25 when combined with JNI-heavy
+    // tests (pdfium4j, libarchive, ImageIO natives). 0.8.14 is the first
+    // release with official Java 25 support and fixes these crashes.
+    toolVersion = "0.8.14"
+}
+
 tasks.named<Test>("test") {
     useJUnitPlatform()
     maxHeapSize = "2560m"
