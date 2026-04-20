@@ -1,4 +1,4 @@
-import {Component, effect, inject, OnDestroy} from '@angular/core';
+import {Component, effect, inject, OnDestroy, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {Button} from 'primeng/button';
 import {TableModule} from 'primeng/table';
@@ -108,13 +108,13 @@ export class FileMoverComponent implements OnDestroy {
     bookCount: number;
   }[] = [];
   defaultMovePattern = '';
-  loading = false;
+  loading = signal(false);
   patternsCollapsed = true;
   infoCollapsed = true;
 
   bookIds = new Set<number>();
   books: Book[] = [];
-  filePreviews: FilePreview[] = [];
+  filePreviews = signal<FilePreview[]>([]);
   defaultTargetLibraryId: number | null = null;
   defaultTargetLibraryPathId: number | null = null;
   defaultAvailableLibraryPaths: LibraryPath[] = [];
@@ -134,7 +134,7 @@ export class FileMoverComponent implements OnDestroy {
   }
 
   applyPattern(): void {
-    this.filePreviews = this.books.map(book => {
+    const previews = this.books.map(book => {
       const fileName = book.fileName ?? '';
       const fileSubPath = book.fileSubPath ? `${book.fileSubPath.replace(/\/+$/g, '')}/` : '';
 
@@ -169,39 +169,46 @@ export class FileMoverComponent implements OnDestroy {
       this.updatePreviewPaths(preview, book);
       return preview;
     });
+    this.filePreviews.set(previews);
   }
 
   onDefaultLibraryChange(): void {
     this.defaultAvailableLibraryPaths = this.getLibraryPathsById(this.defaultTargetLibraryId);
     this.defaultTargetLibraryPathId = this.defaultAvailableLibraryPaths.length > 0 ? this.defaultAvailableLibraryPaths[0].id ?? null : null;
 
-    this.filePreviews.forEach(preview => {
-      if (!preview.isMoved) {
-        preview.targetLibraryId = this.defaultTargetLibraryId;
-        preview.targetLibraryName = this.getLibraryNameById(this.defaultTargetLibraryId);
-        preview.availableLibraryPaths = this.defaultAvailableLibraryPaths;
-        preview.targetLibraryPathId = this.defaultTargetLibraryPathId;
-        preview.targetLibraryPath = this.defaultAvailableLibraryPaths.find(p => p.id === this.defaultTargetLibraryPathId)?.path || '';
+    this.filePreviews.update(previews => {
+      previews.forEach(preview => {
+        if (!preview.isMoved) {
+          preview.targetLibraryId = this.defaultTargetLibraryId;
+          preview.targetLibraryName = this.getLibraryNameById(this.defaultTargetLibraryId);
+          preview.availableLibraryPaths = this.defaultAvailableLibraryPaths;
+          preview.targetLibraryPathId = this.defaultTargetLibraryPathId;
+          preview.targetLibraryPath = this.defaultAvailableLibraryPaths.find(p => p.id === this.defaultTargetLibraryPathId)?.path || '';
 
-        const book = this.books.find(b => b.id === preview.bookId);
-        if (book) {
-          this.updatePreviewPaths(preview, book);
+          const book = this.books.find(b => b.id === preview.bookId);
+          if (book) {
+            this.updatePreviewPaths(preview, book);
+          }
         }
-      }
+      });
+      return [...previews];
     });
   }
 
   onDefaultLibraryPathChange(): void {
-    this.filePreviews.forEach(preview => {
-      if (!preview.isMoved && preview.targetLibraryId === this.defaultTargetLibraryId) {
-        preview.targetLibraryPathId = this.defaultTargetLibraryPathId;
-        preview.targetLibraryPath = this.defaultAvailableLibraryPaths.find(p => p.id === this.defaultTargetLibraryPathId)?.path || '';
+    this.filePreviews.update(previews => {
+      previews.forEach(preview => {
+        if (!preview.isMoved && preview.targetLibraryId === this.defaultTargetLibraryId) {
+          preview.targetLibraryPathId = this.defaultTargetLibraryPathId;
+          preview.targetLibraryPath = this.defaultAvailableLibraryPaths.find(p => p.id === this.defaultTargetLibraryPathId)?.path || '';
 
-        const book = this.books.find(b => b.id === preview.bookId);
-        if (book) {
-          this.updatePreviewPaths(preview, book);
+          const book = this.books.find(b => b.id === preview.bookId);
+          if (book) {
+            this.updatePreviewPaths(preview, book);
+          }
         }
-      }
+      });
+      return [...previews];
     });
   }
 
@@ -215,6 +222,7 @@ export class FileMoverComponent implements OnDestroy {
     if (book) {
       this.updatePreviewPaths(preview, book);
     }
+    this.filePreviews.update(previews => [...previews]);
   }
 
   onLibraryPathChange(preview: FilePreview): void {
@@ -225,6 +233,7 @@ export class FileMoverComponent implements OnDestroy {
     if (book) {
       this.updatePreviewPaths(preview, book);
     }
+    this.filePreviews.update(previews => [...previews]);
   }
 
   private updatePreviewPaths(preview: FilePreview, book: Book): void {
@@ -300,7 +309,7 @@ export class FileMoverComponent implements OnDestroy {
   }
 
   get movedFileCount(): number {
-    return this.filePreviews.filter(p => p.isMoved).length;
+    return this.filePreviews().filter(p => p.isMoved).length;
   }
 
   sanitize(input: string | undefined): string {
@@ -341,11 +350,11 @@ export class FileMoverComponent implements OnDestroy {
   }
 
   saveChanges(): void {
-    this.loading = true;
+    this.loading.set(true);
 
     const request: FileMoveRequest = {
       bookIds: [...this.bookIds],
-      moves: this.filePreviews.map(preview => ({
+      moves: this.filePreviews().map(preview => ({
         bookId: preview.bookId,
         targetLibraryId: preview.targetLibraryId,
         targetLibraryPathId: preview.targetLibraryPathId
@@ -356,17 +365,21 @@ export class FileMoverComponent implements OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe({
       next: () => {
-        this.loading = false;
-        this.filePreviews.forEach(p => (p.isMoved = true));
+        this.loading.set(false);
+        this.filePreviews.update(previews => {
+          previews.forEach(p => (p.isMoved = true));
+          return [...previews];
+        });
+        const currentPreviews = this.filePreviews();
         this.messageService.add({
           severity: 'success',
           summary: 'Files Organized!',
-          detail: `Successfully organized ${this.filePreviews.length} file${this.filePreviews.length === 1 ? '' : 's'}.`,
+          detail: `Successfully organized ${currentPreviews.length} file${currentPreviews.length === 1 ? '' : 's'}.`,
           life: 3000
         });
       },
       error: () => {
-        this.loading = false;
+        this.loading.set(false);
         this.messageService.add({
           severity: 'error',
           summary: 'Oops! Something went wrong',
