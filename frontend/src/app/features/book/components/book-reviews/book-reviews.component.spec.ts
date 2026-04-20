@@ -369,5 +369,31 @@ describe('BookReviewsComponent', () => {
     expect(component.reviews?.map(r => r.id)).toEqual([2]);
     expect(component.loading()).toBe(false);
   });
+
+  it('does not prematurely clear loading if a refresh finishes while a new book load is in-flight', async () => {
+    // 1. fetchNewReviews(42) starts
+    reviewService.refreshReviews.mockReturnValueOnce(of([]).pipe(delay(50)));
+    component.fetchNewReviews();
+    expect(component.loading()).toBe(true);
+
+    // 2. Switch to book 43 -> loadReviews(43) starts
+    // Use a longer delay for the new book load
+    reviewService.getByBookId.mockReturnValueOnce(of([]).pipe(delay(100)));
+    component.bookId = 43;
+    component.ngOnChanges({
+      bookId: new SimpleChange(42, 43, false),
+    });
+
+    // 3. Wait for fetchNewReviews(42) to finish (after 50ms)
+    await new Promise(resolve => setTimeout(resolve, 75));
+
+    // 4. loading should still be true because loadReviews(43) is in flight
+    expect(component.loading()).toBe(true);
+
+    // 5. Wait for loadReviews(43) to finish (after 100ms total)
+    await new Promise(resolve => setTimeout(resolve, 50));
+    expect(component.loading()).toBe(false);
+  });
 });
+
 

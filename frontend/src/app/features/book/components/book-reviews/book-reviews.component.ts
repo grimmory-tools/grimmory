@@ -116,15 +116,21 @@ export class BookReviewsComponent implements OnInit, OnChanges {
 
   fetchNewReviews(): void {
     const requestedBookId = this.bookId;
-    if (!requestedBookId || this.loading() || this.reviewsLocked) return;
+    if (!requestedBookId || this.loadingBookId === requestedBookId || this.loading() || this.reviewsLocked) return;
 
+    this.loadingBookId = requestedBookId;
     this.loading.set(true);
     this.revealedSpoilers.clear();
 
     this.reviewService.refreshReviews(requestedBookId)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.loading.set(false))
+        finalize(() => {
+          if (this.loadingBookId === requestedBookId) {
+            this.loadingBookId = null;
+            this.loading.set(false);
+          }
+        })
       )
       .subscribe({
         next: (reviews) => {
@@ -150,6 +156,7 @@ export class BookReviewsComponent implements OnInit, OnChanges {
         }
       });
   }
+
 
 
   deleteAllReviews(): void {
