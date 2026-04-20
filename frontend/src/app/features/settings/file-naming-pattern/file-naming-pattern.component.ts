@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {Component, DestroyRef, effect, inject, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {Button} from 'primeng/button';
@@ -22,7 +22,7 @@ import {replacePlaceholders} from '../../../shared/util/pattern-resolver';
   imports: [FormsModule, Button, InputText, Tooltip, ExternalDocLinkComponent, TranslocoDirective, TranslocoPipe],
   styleUrls: ['./file-naming-pattern.component.scss'],
 })
-export class FileNamingPatternComponent implements OnInit {
+export class FileNamingPatternComponent {
   readonly exampleMetadata: Record<string, string> = {
     title: "The Name of the Wind",
     subtitle: "Special Edition",
@@ -35,7 +35,6 @@ export class FileNamingPatternComponent implements OnInit {
     isbn: "9780756404741",
   };
 
-  defaultPattern = '';
   defaultErrorMessage = '';
 
   private appSettingsService = inject(AppSettingsService);
@@ -44,12 +43,18 @@ export class FileNamingPatternComponent implements OnInit {
   private t = inject(TranslocoService);
   private destroyRef = inject(DestroyRef);
 
-  ngOnInit(): void {
-    const settings = this.appSettingsService.appSettings();
-    if (settings) {
-      this.defaultPattern = settings.uploadPattern ?? '';
+  private readonly hasUserEditedDefaultPattern = signal(false);
+  readonly defaultPattern = signal('');
+
+  private readonly syncDefaultPatternEffect = effect(() => {
+    const uploadPattern = this.appSettingsService.appSettings()?.uploadPattern ?? '';
+    if (this.hasUserEditedDefaultPattern()) {
+      return;
     }
-  }
+
+    this.defaultPattern.set(uploadPattern);
+    this.defaultErrorMessage = this.getDefaultPatternError(uploadPattern);
+  });
 
   get libraries(): Library[] {
     return this.libraryService.libraries();
@@ -79,11 +84,11 @@ export class FileNamingPatternComponent implements OnInit {
   }
 
   generateDefaultPreview(): string {
-    return this.generatePreview(this.defaultPattern);
+    return this.generatePreview(this.defaultPattern());
   }
 
   generateLibraryPreview(library: Library): string {
-    return this.generatePreview(library.fileNamingPattern || this.defaultPattern);
+    return this.generatePreview(library.fileNamingPattern || this.defaultPattern());
   }
 
   validatePattern(pattern: string): boolean {
@@ -92,8 +97,9 @@ export class FileNamingPatternComponent implements OnInit {
   }
 
   onDefaultPatternChange(pattern: string): void {
-    this.defaultPattern = pattern;
-    this.defaultErrorMessage = this.validatePattern(pattern) ? '' : this.t.translate('settingsNaming.defaultPattern.invalidChars');
+    this.hasUserEditedDefaultPattern.set(true);
+    this.defaultPattern.set(pattern);
+    this.defaultErrorMessage = this.getDefaultPatternError(pattern);
   }
 
   onLibraryPatternChange(_library: Library): void {
@@ -112,11 +118,14 @@ export class FileNamingPatternComponent implements OnInit {
     }
     this.appSettingsService
       .saveSettings([
-        {key: AppSettingKey.UPLOAD_FILE_PATTERN, newValue: this.defaultPattern},
+        {key: AppSettingKey.UPLOAD_FILE_PATTERN, newValue: this.defaultPattern()},
       ])
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => this.showMessage('success', this.t.translate('common.success'), this.t.translate('settingsNaming.defaultPattern.saveSuccess')),
+        next: () => {
+          this.hasUserEditedDefaultPattern.set(false);
+          this.showMessage('success', this.t.translate('common.success'), this.t.translate('settingsNaming.defaultPattern.saveSuccess'));
+        },
         error: () => this.showMessage('error', this.t.translate('common.error'), this.t.translate('settingsNaming.defaultPattern.saveError')),
       });
   }
@@ -141,5 +150,9 @@ export class FileNamingPatternComponent implements OnInit {
 
   private showMessage(severity: 'success' | 'error', summary: string, detail: string): void {
     this.messageService.add({severity, summary, detail});
+  }
+
+  private getDefaultPatternError(pattern: string): string {
+    return this.validatePattern(pattern) ? '' : this.t.translate('settingsNaming.defaultPattern.invalidChars');
   }
 }

@@ -16,7 +16,7 @@ import {UserService} from '../user-management/user.service';
 import {of} from 'rxjs';
 import {ToggleSwitch} from 'primeng/toggleswitch';
 import {AppSettingsService} from '../../../shared/service/app-settings.service';
-import {AppSettingKey} from '../../../shared/model/app-settings.model';
+import {AppSettingKey, AppSettings} from '../../../shared/model/app-settings.model';
 import {ExternalDocLinkComponent} from '../../../shared/components/external-doc-link/external-doc-link.component';
 import {Select} from 'primeng/select';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
@@ -81,38 +81,58 @@ export class OpdsSettings implements OnInit {
     {label: 'Rating (High to Low)', value: 'RATING_DESC' as OpdsSortOrder, translationKey: 'settingsOpds.sortOrders.ratingDesc'}
   ];
 
-  private prevHasPermission = false;
+  private hasLoadedUsers = false;
 
   private readonly syncPermissionEffect = effect(() => {
     const user = this.userService.currentUser();
-    if (!user) return;
-
-    this.hasPermission = !!(user.permissions.canAccessOpds || user.permissions.admin);
-    if (this.hasPermission && !this.prevHasPermission) {
-      this.loadAppSettings();
+    this.hasPermission = !!(user?.permissions.canAccessOpds || user?.permissions.admin);
+    if (!this.hasPermission) {
+      this.loading = false;
+      this.users = [];
+      this.hasLoadedUsers = false;
     }
-    this.prevHasPermission = this.hasPermission;
+  });
+
+  private readonly syncSettingsEffect = effect(() => {
+    const user = this.userService.currentUser();
+    const settings = this.appSettingsService.appSettings();
+    const hasPermission = !!(user?.permissions.canAccessOpds || user?.permissions.admin);
+
+    if (!hasPermission) {
+      return;
+    }
+
+    if (!settings) {
+      this.loading = true;
+      return;
+    }
+
+    this.applyAppSettings(settings);
   });
 
   ngOnInit(): void {
     this.loading = true;
   }
 
-  private loadAppSettings(): void {
-    const settings = this.appSettingsService.appSettings();
-    if (settings) {
-      this.opdsEnabled = settings.opdsServerEnabled ?? false;
-      this.komgaApiEnabled = settings.komgaApiEnabled ?? false;
-      this.komgaGroupUnknown = settings.komgaGroupUnknown ?? true;
-      if (this.opdsEnabled || this.komgaApiEnabled) {
+  private applyAppSettings(settings: AppSettings): void {
+    this.opdsEnabled = settings.opdsServerEnabled ?? false;
+    this.komgaApiEnabled = settings.komgaApiEnabled ?? false;
+    this.komgaGroupUnknown = settings.komgaGroupUnknown ?? true;
+
+    if (this.opdsEnabled || this.komgaApiEnabled) {
+      if (!this.hasLoadedUsers) {
         this.loadUsers();
-      } else {
-        this.loading = false;
       }
+    } else {
+      this.users = [];
+      this.loading = false;
+      this.hasLoadedUsers = false;
     }
   }
 
   private loadUsers(): void {
+    this.loading = true;
+    this.hasLoadedUsers = true;
     this.opdsService.getUser().pipe(
       takeUntilDestroyed(this.destroyRef),
       catchError(err => {

@@ -2,7 +2,7 @@ import {Component, DestroyRef, effect, inject, OnInit} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {KoboService, KoboSyncSettings} from './kobo.service';
-import {FormsModule} from '@angular/forms';
+import {FormBuilder, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {Button} from 'primeng/button';
 import {InputText} from 'primeng/inputtext';
 import {ConfirmDialog} from 'primeng/confirmdialog';
@@ -14,7 +14,7 @@ import {Slider} from 'primeng/slider';
 import {Divider} from 'primeng/divider';
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
 import {SettingsHelperService} from '../../../../../shared/service/settings-helper.service';
-import {AppSettingKey, KoboSettings} from '../../../../../shared/model/app-settings.model';
+import {AppSettingKey, AppSettings, KoboSettings} from '../../../../../shared/model/app-settings.model';
 import {ShelfService} from '../../../../book/service/shelf.service';
 import {ExternalDocLinkComponent} from '../../../../../shared/components/external-doc-link/external-doc-link.component';
 import {Toast} from 'primeng/toast';
@@ -25,10 +25,11 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
   standalone: true,
   templateUrl: './kobo-sync-settings-component.html',
   styleUrl: './kobo-sync-settings-component.scss',
-  imports: [FormsModule, Button, InputText, ConfirmDialog, ToggleSwitch, Slider, Divider, ExternalDocLinkComponent, Toast, TranslocoDirective],
+  imports: [FormsModule, ReactiveFormsModule, Button, InputText, ConfirmDialog, ToggleSwitch, Slider, Divider, ExternalDocLinkComponent, Toast, TranslocoDirective],
   providers: [MessageService, ConfirmationService]
 })
 export class KoboSyncSettingsComponent implements OnInit {
+  private readonly fb = inject(FormBuilder);
   private koboService = inject(KoboService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
@@ -47,6 +48,15 @@ export class KoboSyncSettingsComponent implements OnInit {
   credentialsSaved = false;
   showToken = false;
 
+  readonly syncForm = this.fb.nonNullable.group({
+    token: [''],
+    syncEnabled: [false],
+    progressMarkAsReadingThreshold: [1],
+    progressMarkAsFinishedThreshold: [99],
+    autoAddToShelf: [true],
+    twoWayProgressSync: [false],
+  });
+
   koboSettings: KoboSettings = {
     convertToKepub: false,
     conversionLimitInMb: 100,
@@ -56,15 +66,6 @@ export class KoboSyncSettingsComponent implements OnInit {
     forceEnableHyphenation: false,
     forwardToKoboStore: false
   };
-
-  koboSyncSettings: KoboSyncSettings = {
-    token: '',
-    syncEnabled: false,
-    progressMarkAsReadingThreshold: 1,
-    progressMarkAsFinishedThreshold: 99,
-    autoAddToShelf: true,
-    twoWayProgressSync: false
-  }
 
   ngOnInit() {
     this.setupSliderDebouncing();
@@ -87,7 +88,6 @@ export class KoboSyncSettingsComponent implements OnInit {
   }
 
   private prevHasKoboTokenPermission = false;
-  private prevIsAdmin = false;
 
   private readonly syncUserEffect = effect(() => {
     const user = this.userService.currentUser();
@@ -103,15 +103,22 @@ export class KoboSyncSettingsComponent implements OnInit {
       this.hasKoboTokenPermission = currHasKoboTokenPermission;
     }
 
-    if (currIsAdmin && !this.prevIsAdmin) {
-      this.isAdmin = true;
-      this.loadKoboAdminSettings();
-    } else {
-      this.isAdmin = currIsAdmin;
-    }
+    this.isAdmin = currIsAdmin;
 
     this.prevHasKoboTokenPermission = currHasKoboTokenPermission;
-    this.prevIsAdmin = currIsAdmin;
+  });
+
+  protected hasHydratedKoboAdmin = false;
+
+  private readonly syncAdminSettingsEffect = effect(() => {
+    const user = this.userService.currentUser();
+    const settings = this.appSettingsService.appSettings();
+    if (this.hasHydratedKoboAdmin || !user?.permissions.admin || !settings) {
+      return;
+    }
+
+    this.applyKoboAdminSettings(settings);
+    this.hasHydratedKoboAdmin = true;
   });
 
   private loadKoboUserSettings() {
@@ -119,13 +126,7 @@ export class KoboSyncSettingsComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (settings: KoboSyncSettings) => {
-        this.koboSyncSettings.token = settings.token;
-        this.koboSyncSettings.syncEnabled = settings.syncEnabled;
-        this.koboSyncSettings.progressMarkAsReadingThreshold = settings.progressMarkAsReadingThreshold ?? 1;
-        this.koboSyncSettings.progressMarkAsFinishedThreshold = settings.progressMarkAsFinishedThreshold ?? 99;
-        this.koboSyncSettings.autoAddToShelf = settings.autoAddToShelf ?? false;
-        this.koboSyncSettings.twoWayProgressSync = settings.twoWayProgressSync ?? false;
-        this.credentialsSaved = !!settings.token;
+        this.applyKoboUserSettings(settings);
       },
       error: () => {
         this.messageService.add({severity: 'error', summary: this.t.translate('common.error'), detail: this.t.translate('settingsDevice.kobo.loadError')});
@@ -133,17 +134,37 @@ export class KoboSyncSettingsComponent implements OnInit {
     });
   }
 
-  private loadKoboAdminSettings() {
-    const settings = this.appSettingsService.appSettings();
-    if (settings) {
-      this.koboSettings.convertToKepub = settings.koboSettings?.convertToKepub ?? true;
-      this.koboSettings.conversionLimitInMb = settings.koboSettings?.conversionLimitInMb ?? 100;
-      this.koboSettings.convertCbxToEpub = settings.koboSettings?.convertCbxToEpub ?? false;
-      this.koboSettings.conversionLimitInMbForCbx = settings.koboSettings?.conversionLimitInMbForCbx ?? 100;
-      this.koboSettings.forceEnableHyphenation = settings.koboSettings?.forceEnableHyphenation ?? false;
-      this.koboSettings.conversionImageCompressionPercentage = settings.koboSettings?.conversionImageCompressionPercentage ?? 85;
-      this.koboSettings.forwardToKoboStore = settings.koboSettings?.forwardToKoboStore ?? false;
+  private applyKoboUserSettings(settings: KoboSyncSettings): void {
+    const next = {
+      token: settings.token,
+      syncEnabled: settings.syncEnabled,
+      progressMarkAsReadingThreshold: settings.progressMarkAsReadingThreshold ?? 1,
+      progressMarkAsFinishedThreshold: settings.progressMarkAsFinishedThreshold ?? 99,
+      autoAddToShelf: settings.autoAddToShelf ?? true,
+      twoWayProgressSync: settings.twoWayProgressSync ?? false,
+    };
+
+    for (const [key, value] of Object.entries(next)) {
+      const control = this.syncForm.controls[key as keyof typeof this.syncForm.controls];
+      if (control.pristine) {
+        control.setValue(value as never, {emitEvent: false});
+      }
     }
+    this.credentialsSaved = !!settings.token;
+  }
+
+  private buildKoboUserSettings(): KoboSyncSettings {
+    return this.syncForm.getRawValue();
+  }
+
+  private applyKoboAdminSettings(settings: AppSettings) {
+    this.koboSettings.convertToKepub = settings.koboSettings?.convertToKepub ?? true;
+    this.koboSettings.conversionLimitInMb = settings.koboSettings?.conversionLimitInMb ?? 100;
+    this.koboSettings.convertCbxToEpub = settings.koboSettings?.convertCbxToEpub ?? false;
+    this.koboSettings.conversionLimitInMbForCbx = settings.koboSettings?.conversionLimitInMbForCbx ?? 100;
+    this.koboSettings.forceEnableHyphenation = settings.koboSettings?.forceEnableHyphenation ?? false;
+    this.koboSettings.conversionImageCompressionPercentage = settings.koboSettings?.conversionImageCompressionPercentage ?? 85;
+    this.koboSettings.forwardToKoboStore = settings.koboSettings?.forwardToKoboStore ?? false;
   }
 
   copyText(text: string, label: string = 'Text') {
@@ -185,8 +206,8 @@ export class KoboSyncSettingsComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (settings) => {
-        this.koboSyncSettings.token = settings.token;
-        this.credentialsSaved = true;
+        this.syncForm.controls.token.setValue(settings.token, {emitEvent: false});
+        this.credentialsSaved = !!settings.token;
         this.messageService.add({severity: 'success', summary: this.t.translate('settingsDevice.kobo.tokenRegenerated'), detail: this.t.translate('settingsDevice.kobo.tokenRegeneratedDetail')});
       },
       error: () => {
@@ -203,15 +224,15 @@ export class KoboSyncSettingsComponent implements OnInit {
     this.sliderChange$.next();
   }
 
-  onSyncToggle() {
-    if (!this.koboSyncSettings.syncEnabled) {
+  onSyncToggle(checked: boolean) {
+    if (!checked) {
       this.confirmationService.confirm({
         message: this.t.translate('settingsDevice.kobo.confirmDisable'),
         header: this.t.translate('settingsDevice.kobo.confirmDisableHeader'),
         icon: 'pi pi-exclamation-triangle',
         accept: () => this.updateKoboSettings(this.t.translate('settingsDevice.kobo.syncDisabled')),
         reject: () => {
-          this.koboSyncSettings.syncEnabled = true;
+          this.syncForm.controls.syncEnabled.setValue(true, {emitEvent: false});
         }
       });
     } else {
@@ -223,25 +244,28 @@ export class KoboSyncSettingsComponent implements OnInit {
     this.progressThresholdChange$.next();
   }
 
-  onAutoAddToggle() {
-    const message = this.koboSyncSettings.autoAddToShelf
+  onAutoAddToggle(checked: boolean) {
+    const message = checked
       ? this.t.translate('settingsDevice.kobo.autoAddEnabled')
       : this.t.translate('settingsDevice.kobo.autoAddDisabled');
     this.updateKoboSettings(message);
   }
 
-  onTwoWaySyncToggle() {
-    const message = this.koboSyncSettings.twoWayProgressSync
+  onTwoWaySyncToggle(checked: boolean) {
+    const message = checked
       ? this.t.translate('settingsDevice.kobo.twoWaySyncEnabled')
       : this.t.translate('settingsDevice.kobo.twoWaySyncDisabled');
     this.updateKoboSettings(message);
   }
 
   private updateKoboSettings(successMessage: string) {
-    this.koboService.updateSettings(this.koboSyncSettings).pipe(
+    const submitted = this.buildKoboUserSettings();
+    this.koboService.updateSettings(submitted).pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
-      next: () => {
+      next: (settings) => {
+        this.markPristineWhereMatching(submitted);
+        this.applyKoboUserSettings(settings);
         this.messageService.add({
           severity: 'success',
           summary: this.t.translate('settingsDevice.kobo.settingsUpdated'),
@@ -257,6 +281,15 @@ export class KoboSyncSettingsComponent implements OnInit {
         });
       }
     });
+  }
+
+  private markPristineWhereMatching(payload: KoboSyncSettings): void {
+    for (const key of Object.keys(payload) as (keyof KoboSyncSettings)[]) {
+      const control = this.syncForm.controls[key as keyof typeof this.syncForm.controls];
+      if (control.value === payload[key]) {
+        control.markAsPristine();
+      }
+    }
   }
 
   saveSettings() {

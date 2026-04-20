@@ -40,21 +40,20 @@
       <div class="setting-item">
         <div class="setting-header">
           <p-toggleswitch
-            [ngModel]="metadataPersistence.saveToOriginalFile.epub.enabled"
-            (onChange)="onSaveToOriginalFileToggle('epub')"
-            [disabled]="isNetworkStorage">
+            [formControl]="form.controls.saveToOriginalFile.controls.epub.controls.enabled"
+            (onChange)="onSaveToOriginalFileToggle('epub', $event.checked)">
           </p-toggleswitch>
           <span class="setting-label">{{ t('writeEpub') }}</span>
         </div>
         <p class="setting-description">{{ t('writeEpubDesc') }}</p>
-        @if (metadataPersistence.saveToOriginalFile.epub.enabled) {
+        @if (form.controls.saveToOriginalFile.controls.epub.controls.enabled.value) {
           <div class="setting-options">
             <div class="filesize-input">
               <label for="metadata-persistence-epub-max-file-size">{{ t('maxFileSize') }}</label>
               <input
                 id="metadata-persistence-epub-max-file-size"
                 type="number"
-                [(ngModel)]="metadataPersistence.saveToOriginalFile.epub.maxFileSizeInMb"
+                [formControl]="form.controls.saveToOriginalFile.controls.epub.controls.maxFileSizeInMb"
                 (change)="onFilesizeChange('epub')"
                 min="1"
                 max="1000"
@@ -73,21 +72,20 @@
       <div class="setting-item">
         <div class="setting-header">
           <p-toggleswitch
-            [ngModel]="metadataPersistence.saveToOriginalFile.cbx.enabled"
-            (onChange)="onSaveToOriginalFileToggle('cbx')"
-            [disabled]="isNetworkStorage">
+            [formControl]="form.controls.saveToOriginalFile.controls.cbx.controls.enabled"
+            (onChange)="onSaveToOriginalFileToggle('cbx', $event.checked)">
           </p-toggleswitch>
           <span class="setting-label">{{ t('writeCbx') }}</span>
         </div>
         <p class="setting-description">{{ t('writeCbxDesc') }}</p>
-        @if (metadataPersistence.saveToOriginalFile.cbx.enabled) {
+        @if (form.controls.saveToOriginalFile.controls.cbx.controls.enabled.value) {
           <div class="setting-options">
             <div class="filesize-input">
               <label for="metadata-persistence-cbx-max-file-size">{{ t('maxFileSize') }}</label>
               <input
                 id="metadata-persistence-cbx-max-file-size"
                 type="number"
-                [(ngModel)]="metadataPersistence.saveToOriginalFile.cbx.maxFileSizeInMb"
+                [formControl]="form.controls.saveToOriginalFile.controls.cbx.controls.maxFileSizeInMb"
                 (change)="onFilesizeChange('cbx')"
                 min="1"
                 max="1000"
@@ -106,9 +104,8 @@
       <div class="setting-item">
         <div class="setting-header">
           <p-toggleswitch
-            [ngModel]="metadataPersistence.saveToOriginalFile.pdf.enabled"
-            (onChange)="onSaveToOriginalFileToggle('pdf')"
-            [disabled]="isNetworkStorage">
+            [formControl]="form.controls.saveToOriginalFile.controls.pdf.controls.enabled"
+            (onChange)="onSaveToOriginalFileToggle('pdf', $event.checked)">
           </p-toggleswitch>
           <span class="setting-label">{{ t('writePdf') }}</span>
         </div>
@@ -116,14 +113,14 @@
           {{ t('writePdfDesc') }}
           <span class="setting-note">{{ t('writePdfNote') }}</span>
         </p>
-        @if (metadataPersistence.saveToOriginalFile.pdf.enabled) {
+        @if (form.controls.saveToOriginalFile.controls.pdf.controls.enabled.value) {
           <div class="setting-options">
             <div class="filesize-input">
               <label for="metadata-persistence-pdf-max-file-size">{{ t('maxFileSize') }}</label>
               <input
                 id="metadata-persistence-pdf-max-file-size"
                 type="number"
-                [(ngModel)]="metadataPersistence.saveToOriginalFile.pdf.maxFileSizeInMb"
+                [formControl]="form.controls.saveToOriginalFile.controls.pdf.controls.maxFileSizeInMb"
                 (change)="onFilesizeChange('pdf')"
                 min="1"
                 max="1000"
@@ -142,9 +139,8 @@
       <div class="setting-item">
         <div class="setting-header">
           <p-toggleswitch
-            [ngModel]="metadataPersistence.saveToOriginalFile.audiobook.enabled"
-            (onChange)="onSaveToOriginalFileToggle('audiobook')"
-            [disabled]="isNetworkStorage">
+            [formControl]="form.controls.saveToOriginalFile.controls.audiobook.controls.enabled"
+            (onChange)="onSaveToOriginalFileToggle('audiobook', $event.checked)">
           </p-toggleswitch>
           <span class="setting-label">{{ t('writeAudiobook') }}</span>
         </div>
@@ -152,14 +148,14 @@
           {{ t('writeAudiobookDesc') }}
           <span class="setting-note">{{ t('writeAudiobookNote') }}</span>
         </p>
-        @if (metadataPersistence.saveToOriginalFile.audiobook.enabled) {
+        @if (form.controls.saveToOriginalFile.controls.audiobook.controls.enabled.value) {
           <div class="setting-options">
             <div class="filesize-input">
               <label for="metadata-persistence-audiobook-max-file-size">{{ t('maxFileSize') }}</label>
               <input
                 id="metadata-persistence-audiobook-max-file-size"
                 type="number"
-                [(ngModel)]="metadataPersistence.saveToOriginalFile.audiobook.maxFileSizeInMb"
+                [formControl]="form.controls.saveToOriginalFile.controls.audiobook.controls.maxFileSizeInMb"
                 (change)="onFilesizeChange('audiobook')"
                 min="1"
                 max="2000"
@@ -179,8 +175,8 @@
         <div class="setting-item">
           <div class="setting-header">
             <p-toggleswitch
-              [ngModel]="metadataPersistence.moveFilesToLibraryPattern"
-              (onChange)="onPersistenceToggle('moveFilesToLibraryPattern')">
+              [formControl]="form.controls.moveFilesToLibraryPattern"
+              (onChange)="onPersistenceToggle('moveFilesToLibraryPattern', $event.checked)">
             </p-toggleswitch>
             <span class="setting-label">{{ t('autoMove') }}</span>
           </div>
@@ -203,22 +199,20 @@
       <div class="setting-item">
         <div class="setting-header">
           <p-toggleswitch
-            [ngModel]="metadataPersistence.sidecarSettings?.enabled"
-            (onChange)="onSidecarToggle('enabled')"
-            [disabled]="isNetworkStorage">
+            [formControl]="form.controls.sidecarSettings.controls.enabled"
+            (onChange)="onSidecarToggle('enabled', $event.checked)">
           </p-toggleswitch>
           <span class="setting-label">{{ t('enableSidecar') }}</span>
         </div>
         <p class="setting-description" [innerHTML]="t('enableSidecarDesc')"></p>
       </div>
 
-      @if (metadataPersistence.sidecarSettings?.enabled) {
+      @if (form.controls.sidecarSettings.controls.enabled.value) {
         <div class="setting-item nested-setting">
           <div class="setting-header">
             <p-toggleswitch
-              [ngModel]="metadataPersistence.sidecarSettings?.writeOnUpdate"
-              (onChange)="onSidecarToggle('writeOnUpdate')"
-              [disabled]="isNetworkStorage">
+              [formControl]="form.controls.sidecarSettings.controls.writeOnUpdate"
+              (onChange)="onSidecarToggle('writeOnUpdate', $event.checked)">
             </p-toggleswitch>
             <span class="setting-label">{{ t('writeOnUpdate') }}</span>
           </div>
@@ -228,9 +222,8 @@
         <div class="setting-item nested-setting">
           <div class="setting-header">
             <p-toggleswitch
-              [ngModel]="metadataPersistence.sidecarSettings?.writeOnScan"
-              (onChange)="onSidecarToggle('writeOnScan')"
-              [disabled]="isNetworkStorage">
+              [formControl]="form.controls.sidecarSettings.controls.writeOnScan"
+              (onChange)="onSidecarToggle('writeOnScan', $event.checked)">
             </p-toggleswitch>
             <span class="setting-label">{{ t('writeOnScan') }}</span>
           </div>
@@ -240,9 +233,8 @@
         <div class="setting-item nested-setting">
           <div class="setting-header">
             <p-toggleswitch
-              [ngModel]="metadataPersistence.sidecarSettings?.includeCoverFile"
-              (onChange)="onSidecarToggle('includeCoverFile')"
-              [disabled]="isNetworkStorage">
+              [formControl]="form.controls.sidecarSettings.controls.includeCoverFile"
+              (onChange)="onSidecarToggle('includeCoverFile', $event.checked)">
             </p-toggleswitch>
             <span class="setting-label">{{ t('includeCover') }}</span>
           </div>

@@ -27,16 +27,15 @@
           </p>
         </div>
 
-        <div class="settings-card">
+        <div class="settings-card" [formGroup]="syncForm">
           <div class="setting-item">
             <div class="setting-info">
               <div class="setting-label-row">
                 <span class="setting-label">{{ t('kobo.enableSync') }}</span>
                 <p-toggle-switch
-                  id="syncEnabled"
-                  name="syncEnabled"
-                  [(ngModel)]="koboSyncSettings.syncEnabled"
-                  (ngModelChange)="onSyncToggle()">
+                  inputId="koboSyncEnabled"
+                  formControlName="syncEnabled"
+                  (onChange)="onSyncToggle($event.checked)">
                 </p-toggle-switch>
               </div>
               <p class="setting-description">
@@ -45,16 +44,15 @@
             </div>
           </div>
 
-          @if (koboSyncSettings.syncEnabled) {
+          @if (syncForm.controls.syncEnabled.value) {
             <div class="setting-item">
               <div class="setting-info">
                 <div class="setting-label-row">
                   <span class="setting-label">{{ t('kobo.twoWaySyncLabel') }}</span>
                   <p-toggle-switch
-                    id="twoWayProgressSync"
-                    name="twoWayProgressSync"
-                    [(ngModel)]="koboSyncSettings.twoWayProgressSync"
-                    (ngModelChange)="onTwoWaySyncToggle()">
+                    inputId="koboTwoWayProgressSync"
+                    formControlName="twoWayProgressSync"
+                    (onChange)="onTwoWaySyncToggle($event.checked)">
                   </p-toggle-switch>
                 </div>
                 <p class="setting-description">
@@ -66,7 +64,7 @@
             </div>
           }
 
-          @if (koboSyncSettings.syncEnabled) {
+          @if (syncForm.controls.syncEnabled.value) {
             <div class="setting-item">
               <div class="setting-info">
                 <div class="setting-label-row">
@@ -75,10 +73,9 @@
                     <input
                       pInputText
                       id="koboToken"
-                      [(ngModel)]="koboSyncSettings.token"
+                      formControlName="token"
                       [type]="showToken ? 'text' : 'password'"
                       readonly
-                      name="koboToken"
                       class="token-input"
                     />
                     <p-button
@@ -86,8 +83,8 @@
                       outlined="true"
                       severity="info"
                       size="small"
-                      (onClick)="copyText(koboSyncSettings.token, 'Token')"
-                      [disabled]="!koboSyncSettings.token">
+                      (onClick)="copyText(syncForm.controls.token.value, 'Token')"
+                      [disabled]="!syncForm.controls.token.value">
                     </p-button>
                     <p-button
                       [icon]="showToken ? 'pi pi-eye-slash' : 'pi pi-eye'"
@@ -95,7 +92,7 @@
                       severity="info"
                       size="small"
                       (onClick)="toggleShowToken()"
-                      [disabled]="!koboSyncSettings.token">
+                      [disabled]="!syncForm.controls.token.value">
                     </p-button>
                     <p-button
                       icon="pi pi-refresh"
@@ -116,16 +113,15 @@
             <div class="setting-item">
               <div class="setting-info">
                 <div class="setting-label-row">
-                  <span class="setting-label">{{ t('kobo.markAsReading', {value: koboSyncSettings.progressMarkAsReadingThreshold?.toFixed(0)}) }}</span>
+                  <span class="setting-label">{{ t('kobo.markAsReading', {value: syncForm.controls.progressMarkAsReadingThreshold.value.toFixed(0)}) }}</span>
                   <div class="slider-container">
                     <p-slider
-                      id="markAsReadingThreshold"
-                      name="markAsReadingThreshold"
-                      [(ngModel)]="koboSyncSettings.progressMarkAsReadingThreshold"
+                      id="koboMarkAsReadingThreshold"
+                      formControlName="progressMarkAsReadingThreshold"
                       [min]="1"
                       [max]="10"
                       [step]="1"
-                      (ngModelChange)="onProgressThresholdsChange()">
+                      (onChange)="onProgressThresholdsChange()">
                     </p-slider>
                   </div>
                 </div>
@@ -140,16 +136,15 @@
             <div class="setting-item">
               <div class="setting-info">
                 <div class="setting-label-row">
-                  <span class="setting-label">{{ t('kobo.markAsFinished', {value: koboSyncSettings.progressMarkAsFinishedThreshold?.toFixed(0)}) }}</span>
+                  <span class="setting-label">{{ t('kobo.markAsFinished', {value: syncForm.controls.progressMarkAsFinishedThreshold.value.toFixed(0)}) }}</span>
                   <div class="slider-container">
                     <p-slider
-                      id="markAsFinishedThreshold"
-                      name="markAsFinishedThreshold"
-                      [(ngModel)]="koboSyncSettings.progressMarkAsFinishedThreshold"
+                      id="koboMarkAsFinishedThreshold"
+                      formControlName="progressMarkAsFinishedThreshold"
                       [min]="90"
                       [max]="100"
                       [step]="1"
-                      (ngModelChange)="onProgressThresholdsChange()">
+                      (onChange)="onProgressThresholdsChange()">
                     </p-slider>
                   </div>
                 </div>
@@ -166,10 +161,9 @@
                 <div class="setting-label-row">
                   <span class="setting-label">{{ t('kobo.autoAddLabel') }}</span>
                   <p-toggle-switch
-                    id="autoAddToShelf"
-                    name="autoAddToShelf"
-                    [(ngModel)]="koboSyncSettings.autoAddToShelf"
-                    (ngModelChange)="onAutoAddToggle()">
+                    inputId="koboAutoAddToShelf"
+                    formControlName="autoAddToShelf"
+                    (onChange)="onAutoAddToggle($event.checked)">
                   </p-toggle-switch>
                 </div>
                 <p class="setting-description">
@@ -181,7 +175,7 @@
         </div>
       </div>
 
-      @if (isAdmin) {
+      @if (isAdmin && hasHydratedKoboAdmin) {
         <div class="preferences-section">
           <div class="section-header">
             <h3 class="section-title">

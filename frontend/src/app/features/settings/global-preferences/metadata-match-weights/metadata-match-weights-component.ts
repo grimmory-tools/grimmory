@@ -1,10 +1,10 @@
-import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {Component, DestroyRef, effect, inject} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MessageService} from 'primeng/api';
 import {MetadataMatchWeightsService} from '../../../../shared/service/metadata-match-weights.service';
 import {Button} from 'primeng/button';
-import {AppSettingKey} from '../../../../shared/model/app-settings.model';
+import {AppSettingKey, MetadataMatchWeights} from '../../../../shared/model/app-settings.model';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {InputNumber} from 'primeng/inputnumber';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
@@ -20,7 +20,7 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
   templateUrl: './metadata-match-weights-component.html',
   styleUrl: './metadata-match-weights-component.scss'
 })
-export class MetadataMatchWeightsComponent implements OnInit {
+export class MetadataMatchWeightsComponent {
 
   readonly orderedFieldKeys: string[] = [
     'title', 'subtitle', 'authors', 'description', 'publisher', 'publishedDate',
@@ -31,19 +31,26 @@ export class MetadataMatchWeightsComponent implements OnInit {
     'doubanRating', 'doubanReviewCount', 'ranobedbRating'
   ];
 
-  form!: FormGroup;
+  private fb = inject(FormBuilder);
+  form: FormGroup = this.buildForm();
   isSaving = false;
   isRecalculating = false;
 
   private weightsService = inject(MetadataMatchWeightsService);
   private appSettingsService = inject(AppSettingsService);
   private messageService = inject(MessageService);
-  private fb = inject(FormBuilder);
   private t = inject(TranslocoService);
   private destroyRef = inject(DestroyRef);
 
-  ngOnInit(): void {
-    this.form = this.fb.group({
+  private readonly syncSettingsEffect = effect(() => {
+    const settings = this.appSettingsService.appSettings();
+    if (settings?.metadataMatchWeights) {
+      this.patchPristineControls(settings.metadataMatchWeights);
+    }
+  });
+
+  private buildForm(): FormGroup {
+    return this.fb.group({
       title: [0, [Validators.required, Validators.min(0)]],
       subtitle: [0, [Validators.required, Validators.min(0)]],
       description: [0, [Validators.required, Validators.min(0)]],
@@ -71,10 +78,6 @@ export class MetadataMatchWeightsComponent implements OnInit {
       audibleReviewCount: [0, [Validators.required, Validators.min(0)]],
       coverImage: [0, [Validators.required, Validators.min(0)]],
     });
-    const settings = this.appSettingsService.appSettings();
-    if (settings?.metadataMatchWeights) {
-      this.form.patchValue(settings.metadataMatchWeights);
-    }
   }
 
   get orderedKeys(): string[] {
@@ -101,6 +104,7 @@ export class MetadataMatchWeightsComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: () => {
+        this.form.markAsPristine();
         this.messageService.add({
           severity: 'success',
           summary: this.t.translate('common.success'),
@@ -139,6 +143,15 @@ export class MetadataMatchWeightsComponent implements OnInit {
           detail: this.t.translate('settingsMeta.matchWeights.recalcError')
         });
         this.isRecalculating = false;
+      }
+    });
+  }
+
+  private patchPristineControls(weights: MetadataMatchWeights): void {
+    Object.entries(weights).forEach(([key, value]) => {
+      const control = this.form.get(key);
+      if (control?.pristine) {
+        control.patchValue(value, {emitEvent: false});
       }
     });
   }

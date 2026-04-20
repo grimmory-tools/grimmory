@@ -1,10 +1,10 @@
-import {Component, inject, OnInit} from '@angular/core';
-import {FormsModule} from "@angular/forms";
+import {Component, effect, inject} from '@angular/core';
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {ToggleSwitch} from "primeng/toggleswitch";
 import {AppSettingKey, AppSettings, PublicReviewSettings, ReviewProviderConfig} from '../../../../shared/model/app-settings.model';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {SettingsHelperService} from '../../../../shared/service/settings-helper.service';
-import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {TranslocoDirective} from '@jsverse/transloco';
 
 const DEFAULT_PROVIDERS: readonly ReviewProviderConfig[] = [
   {provider: 'Amazon', enabled: true, maxReviews: 5},
@@ -14,87 +14,131 @@ const DEFAULT_PROVIDERS: readonly ReviewProviderConfig[] = [
 
 const REQUIRED_PROVIDERS = ['Amazon', 'GoodReads', 'Douban'] as const;
 
+type ReviewProviderFormGroup = FormGroup<{
+  provider: FormControl<string>;
+  enabled: FormControl<boolean>;
+  maxReviews: FormControl<number>;
+}>;
+
 @Component({
   selector: 'app-public-reviews-settings-component',
-  imports: [FormsModule, ToggleSwitch, TranslocoDirective],
+  imports: [ReactiveFormsModule, ToggleSwitch, TranslocoDirective],
   templateUrl: './public-reviews-settings-component.html',
   styleUrl: './public-reviews-settings-component.scss'
 })
-export class PublicReviewsSettingsComponent implements OnInit {
+export class PublicReviewsSettingsComponent {
 
-  publicReviewSettings: PublicReviewSettings = {
-    downloadEnabled: true,
-    autoDownloadEnabled: false,
-    providers: [...DEFAULT_PROVIDERS]
-  };
-
+  private readonly fb = inject(FormBuilder);
   private readonly appSettingsService = inject(AppSettingsService);
   private readonly settingsHelper = inject(SettingsHelperService);
-  private t = inject(TranslocoService);
 
-  ngOnInit(): void {
-    this.loadSettings();
-  }
+  readonly form = this.fb.nonNullable.group({
+    downloadEnabled: [{value: true, disabled: true}],
+    autoDownloadEnabled: [{value: false, disabled: true}],
+    providers: this.fb.array<ReviewProviderFormGroup>([]),
+  });
+
+  private readonly syncSettingsEffect = effect(() => {
+    const settings = this.appSettingsService.appSettings();
+    if (!settings || this.form.dirty) {
+      return;
+    }
+
+    this.initializeSettings(settings);
+    this.form.controls.downloadEnabled.enable({emitEvent: false});
+    this.form.controls.autoDownloadEnabled.enable({emitEvent: false});
+  });
 
   onPublicReviewsToggle(checked: boolean): void {
-    this.publicReviewSettings.downloadEnabled = checked;
-    this.settingsHelper.saveSetting(AppSettingKey.METADATA_PUBLIC_REVIEWS_SETTINGS, this.publicReviewSettings);
+    this.form.controls.downloadEnabled.setValue(checked, {emitEvent: false});
+    this.settingsHelper.saveSetting(AppSettingKey.METADATA_PUBLIC_REVIEWS_SETTINGS, this.buildSettingsPayload());
   }
 
   onAutoDownloadToggle(checked: boolean): void {
-    this.publicReviewSettings.autoDownloadEnabled = checked;
-    this.settingsHelper.saveSetting(AppSettingKey.METADATA_PUBLIC_REVIEWS_SETTINGS, this.publicReviewSettings);
+    this.form.controls.autoDownloadEnabled.setValue(checked, {emitEvent: false});
+    this.settingsHelper.saveSetting(AppSettingKey.METADATA_PUBLIC_REVIEWS_SETTINGS, this.buildSettingsPayload());
   }
 
   onProviderToggle(providerName: string, enabled: boolean): void {
-    this.updateProviderProperty(providerName, 'enabled', enabled);
+    const provider = this.findProvider(providerName);
+    if (provider) {
+      provider.controls.enabled.setValue(enabled, {emitEvent: false});
+      this.settingsHelper.saveSetting(AppSettingKey.METADATA_PUBLIC_REVIEWS_SETTINGS, this.buildSettingsPayload());
+    }
   }
 
   onMaxReviewsChange(providerName: string, maxReviews: number): void {
-    this.updateProviderProperty(providerName, 'maxReviews', maxReviews);
-  }
-
-  private loadSettings(): void {
-    const settings = this.appSettingsService.appSettings();
-    if (settings) {
-      this.initializeSettings(settings);
+    const provider = this.findProvider(providerName);
+    if (provider) {
+      provider.controls.maxReviews.setValue(maxReviews, {emitEvent: false});
+      this.settingsHelper.saveSetting(AppSettingKey.METADATA_PUBLIC_REVIEWS_SETTINGS, this.buildSettingsPayload());
     }
   }
 
   private initializeSettings(settings: AppSettings): void {
-    if (settings.metadataPublicReviewsSettings) {
-      this.publicReviewSettings = {...settings.metadataPublicReviewsSettings};
-    }
+    const publicReviewSettings = this.buildReviewSettings(settings);
 
-    this.ensureAllProviders();
+    this.form.patchValue({
+      downloadEnabled: publicReviewSettings.downloadEnabled,
+      autoDownloadEnabled: publicReviewSettings.autoDownloadEnabled,
+    }, {emitEvent: false});
+    this.form.setControl(
+      'providers',
+      this.fb.array(publicReviewSettings.providers.map(provider => this.createProviderForm(provider)))
+    );
   }
 
-  private updateProviderProperty<T extends keyof ReviewProviderConfig>(
-    providerName: string,
-    property: T,
-    value: ReviewProviderConfig[T]
-  ): void {
-    const provider = this.findProvider(providerName);
-    if (provider) {
-      provider[property] = value;
-      this.settingsHelper.saveSetting(AppSettingKey.METADATA_PUBLIC_REVIEWS_SETTINGS, this.publicReviewSettings);
-    }
+  get providerControls(): ReviewProviderFormGroup[] {
+    return this.form.controls.providers.controls;
   }
 
-  private findProvider(providerName: string): ReviewProviderConfig | undefined {
-    return this.publicReviewSettings.providers.find(p => p.provider === providerName);
+  get publicReviewSettings(): PublicReviewSettings {
+    return this.buildSettingsPayload();
   }
 
-  private ensureAllProviders(): void {
+  private findProvider(providerName: string): ReviewProviderFormGroup | undefined {
+    return this.providerControls.find(provider => provider.controls.provider.value === providerName);
+  }
+
+  private createProviderForm(provider: ReviewProviderConfig): ReviewProviderFormGroup {
+    return this.fb.nonNullable.group({
+      provider: [provider.provider],
+      enabled: [provider.enabled],
+      maxReviews: [provider.maxReviews],
+    });
+  }
+
+  private buildSettingsPayload(): PublicReviewSettings {
+    return {
+      downloadEnabled: this.form.controls.downloadEnabled.getRawValue(),
+      autoDownloadEnabled: this.form.controls.autoDownloadEnabled.getRawValue(),
+      providers: this.form.controls.providers.getRawValue(),
+    };
+  }
+
+  private buildReviewSettings(settings: AppSettings): PublicReviewSettings {
+    const baseSettings = settings.metadataPublicReviewsSettings
+      ? {
+        ...settings.metadataPublicReviewsSettings,
+        providers: settings.metadataPublicReviewsSettings.providers.map(provider => ({...provider}))
+      }
+      : {
+        downloadEnabled: true,
+        autoDownloadEnabled: false,
+        providers: DEFAULT_PROVIDERS.map(provider => ({...provider}))
+      };
+
     REQUIRED_PROVIDERS.forEach(providerName => {
-      const exists = this.findProvider(providerName);
+      const exists = baseSettings.providers.some(provider => provider.provider === providerName);
       if (!exists) {
-        this.publicReviewSettings.providers.push({
+        baseSettings.providers.push({
           provider: providerName,
           enabled: false,
           maxReviews: 10
         });
       }
     });
+
+    return baseSettings;
   }
 }

@@ -1,3 +1,4 @@
+import {signal, type WritableSignal} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
@@ -10,19 +11,11 @@ import {PublicReviewsSettingsComponent} from './public-reviews-settings-componen
 describe('PublicReviewsSettingsComponent', () => {
   let fixture: ComponentFixture<PublicReviewsSettingsComponent>;
   let component: PublicReviewsSettingsComponent;
-  let appSettingsService: {appSettings: ReturnType<typeof vi.fn>};
+  let appSettingsSignal: WritableSignal<AppSettings | null>;
   let settingsHelper: {saveSetting: ReturnType<typeof vi.fn>};
 
   beforeEach(async () => {
-    appSettingsService = {
-      appSettings: vi.fn(() => ({
-        metadataPublicReviewsSettings: {
-          downloadEnabled: false,
-          autoDownloadEnabled: true,
-          providers: [{provider: 'Amazon', enabled: true, maxReviews: 7}],
-        },
-      } as AppSettings)),
-    };
+    appSettingsSignal = signal<AppSettings | null>(null);
     settingsHelper = {
       saveSetting: vi.fn(),
     };
@@ -30,7 +23,7 @@ describe('PublicReviewsSettingsComponent', () => {
     await TestBed.configureTestingModule({
       imports: [PublicReviewsSettingsComponent, getTranslocoModule()],
       providers: [
-        {provide: AppSettingsService, useValue: appSettingsService},
+        {provide: AppSettingsService, useValue: {appSettings: appSettingsSignal}},
         {provide: SettingsHelperService, useValue: settingsHelper},
       ],
     }).compileComponents();
@@ -44,7 +37,16 @@ describe('PublicReviewsSettingsComponent', () => {
     TestBed.resetTestingModule();
   });
 
-  it('hydrates saved review settings and ensures all required providers exist', () => {
+  it('hydrates saved review settings and ensures all required providers exist', async () => {
+    appSettingsSignal.set({
+      metadataPublicReviewsSettings: {
+        downloadEnabled: false,
+        autoDownloadEnabled: true,
+        providers: [{provider: 'Amazon', enabled: true, maxReviews: 7}],
+      },
+    } as AppSettings);
+    await render();
+
     expect(component.publicReviewSettings.downloadEnabled).toBe(false);
     expect(component.publicReviewSettings.autoDownloadEnabled).toBe(true);
     expect(component.publicReviewSettings.providers).toEqual(
@@ -56,7 +58,34 @@ describe('PublicReviewsSettingsComponent', () => {
     );
   });
 
-  it('persists top-level review toggles', () => {
+  it('hydrates when review settings resolve after initial render', async () => {
+    await render();
+
+    expect(component.publicReviewSettings.downloadEnabled).toBe(true);
+
+    appSettingsSignal.set({
+      metadataPublicReviewsSettings: {
+        downloadEnabled: false,
+        autoDownloadEnabled: true,
+        providers: [{provider: 'Amazon', enabled: true, maxReviews: 7}],
+      },
+    } as AppSettings);
+    await render();
+
+    expect(component.publicReviewSettings.downloadEnabled).toBe(false);
+    expect(component.publicReviewSettings.autoDownloadEnabled).toBe(true);
+  });
+
+  it('persists top-level review toggles', async () => {
+    appSettingsSignal.set({
+      metadataPublicReviewsSettings: {
+        downloadEnabled: false,
+        autoDownloadEnabled: false,
+        providers: [{provider: 'Amazon', enabled: true, maxReviews: 5}],
+      },
+    } as AppSettings);
+    await render();
+
     component.onPublicReviewsToggle(true);
     component.onAutoDownloadToggle(false);
 
@@ -72,7 +101,37 @@ describe('PublicReviewsSettingsComponent', () => {
     );
   });
 
-  it('updates provider settings and persists them', () => {
+  it('keeps top-level toggles disabled until settings hydrate', async () => {
+    await render();
+
+    expect(component.form.controls.downloadEnabled.disabled).toBe(true);
+    expect(component.form.controls.autoDownloadEnabled.disabled).toBe(true);
+    expect(component.providerControls).toHaveLength(0);
+    expect(settingsHelper.saveSetting).not.toHaveBeenCalled();
+
+    appSettingsSignal.set({
+      metadataPublicReviewsSettings: {
+        downloadEnabled: true,
+        autoDownloadEnabled: false,
+        providers: [{provider: 'Amazon', enabled: true, maxReviews: 5}],
+      },
+    } as AppSettings);
+    await render();
+
+    expect(component.form.controls.downloadEnabled.disabled).toBe(false);
+    expect(component.form.controls.autoDownloadEnabled.disabled).toBe(false);
+  });
+
+  it('updates provider settings and persists them', async () => {
+    appSettingsSignal.set({
+      metadataPublicReviewsSettings: {
+        downloadEnabled: false,
+        autoDownloadEnabled: true,
+        providers: [{provider: 'Amazon', enabled: true, maxReviews: 7}],
+      },
+    } as AppSettings);
+    await render();
+
     component.onProviderToggle('Amazon', false);
     component.onMaxReviewsChange('Amazon', 12);
 
@@ -83,4 +142,11 @@ describe('PublicReviewsSettingsComponent', () => {
       component.publicReviewSettings
     );
   });
+
+  async function render(): Promise<void> {
+    fixture.detectChanges();
+    await new Promise(resolve => setTimeout(resolve, 0));
+    await fixture.whenStable();
+    fixture.detectChanges();
+  }
 });
