@@ -45,8 +45,7 @@ import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.grimmory.epub4j.archive.EpubContainer;
-import org.grimmory.epub4j.archive.EpubContainers;
+import java.util.zip.ZipFile;
 
 @Slf4j
 @Component
@@ -523,15 +522,22 @@ public class EpubMetadataWriter implements MetadataWriter {
     }
 
     private void extractZipToDirectory(File zipSource, Path targetDir) throws IOException {
-        try (EpubContainer container = EpubContainers.open(zipSource.toPath())) {
-            for (String name : container.listAllFiles()) {
-                Path entryPath = targetDir.resolve(name).normalize();
+        try (ZipFile zipFile = new ZipFile(zipSource)) {
+            var entries = zipFile.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                Path entryPath = targetDir.resolve(entry.getName()).normalize();
                 if (!entryPath.startsWith(targetDir)) {
-                    throw new IOException("ZIP entry outside target directory: " + name);
+                    throw new IOException("ZIP entry outside target directory: " + entry.getName());
                 }
-                Files.createDirectories(entryPath.getParent());
-                try (OutputStream out = Files.newOutputStream(entryPath)) {
-                    container.streamTo(name, out);
+                if (entry.isDirectory()) {
+                    Files.createDirectories(entryPath);
+                } else {
+                    Files.createDirectories(entryPath.getParent());
+                    try (InputStream in = zipFile.getInputStream(entry);
+                         OutputStream out = Files.newOutputStream(entryPath)) {
+                        in.transferTo(out);
+                    }
                 }
             }
         }
