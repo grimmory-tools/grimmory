@@ -28,6 +28,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -42,6 +43,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @AllArgsConstructor
+@Transactional(readOnly = true)
 public class AuthorMetadataService {
 
     private final AuthorRepository authorRepository;
@@ -93,6 +95,7 @@ public class AuthorMetadataService {
                 .toList();
     }
 
+    @Transactional
     public AuthorDetails matchAuthor(Long authorId, AuthorMatchRequest request) {
         AuthorEntity author = authorRepository.findById(authorId)
                 .orElseThrow(() -> ApiError.AUTHOR_NOT_FOUND.createException(authorId));
@@ -120,6 +123,7 @@ public class AuthorMetadataService {
         return toAuthorDetails(author);
     }
 
+    @Transactional
     public AuthorDetails quickMatchAuthor(Long authorId, String region) {
         AuthorEntity author = authorRepository.findById(authorId)
                 .orElseThrow(() -> ApiError.AUTHOR_NOT_FOUND.createException(authorId));
@@ -169,6 +173,7 @@ public class AuthorMetadataService {
                 .filter(java.util.Objects::nonNull);
     }
 
+    @Transactional
     public void unmatchAuthors(List<Long> authorIds) {
         for (Long authorId : authorIds) {
             AuthorEntity author = authorRepository.findById(authorId).orElse(null);
@@ -184,6 +189,7 @@ public class AuthorMetadataService {
         }
     }
 
+    @Transactional
     public void deleteAuthors(List<Long> authorIds) {
         for (Long authorId : authorIds) {
             AuthorEntity author = authorRepository.findById(authorId).orElse(null);
@@ -205,6 +211,7 @@ public class AuthorMetadataService {
         }
     }
 
+    @Transactional
     public void uploadAuthorPhoto(Long authorId, MultipartFile file) {
         AuthorEntity author = authorRepository.findById(authorId)
                 .orElseThrow(() -> ApiError.AUTHOR_NOT_FOUND.createException(authorId));
@@ -221,6 +228,7 @@ public class AuthorMetadataService {
         }
     }
 
+    @Transactional
     public AuthorDetails updateAuthor(Long authorId, AuthorUpdateRequest request) {
         AuthorEntity author = authorRepository.findById(authorId)
                 .orElseThrow(() -> ApiError.AUTHOR_NOT_FOUND.createException(authorId));
@@ -261,6 +269,7 @@ public class AuthorMetadataService {
                 .take(50);
     }
 
+    @Transactional
     public void uploadAuthorPhotoFromUrl(Long authorId, String imageUrl) {
         AuthorEntity author = authorRepository.findById(authorId)
                 .orElseThrow(() -> ApiError.AUTHOR_NOT_FOUND.createException(authorId));
