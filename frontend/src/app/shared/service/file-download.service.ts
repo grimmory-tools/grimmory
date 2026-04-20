@@ -24,7 +24,14 @@ export class FileDownloadService {
 
   private extractFilename(contentDisposition: string | null): string | null {
     if (!contentDisposition) return null;
-    const match = contentDisposition.match(/filename\*=UTF-8''([\w%\-.]+)/i);
-    return match ? decodeURIComponent(match[1]) : null;
+    const utf8Match = contentDisposition.match(/filename\*=UTF-8''([\w%\-.]+)/i);
+    if (utf8Match) {
+      return decodeURIComponent(utf8Match[1]);
+    }
+    const match = contentDisposition.match(/filename=(?:"([^"]+)"|([^"; ]+))/i)
+    if (match) {
+      return match[1] ?? match[2];
+    }
+    return null;
   }
 }
