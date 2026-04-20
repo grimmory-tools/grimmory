@@ -30,7 +30,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
@@ -72,19 +71,13 @@ public class SendEmailV2Service {
 
     private void sendEmailInVirtualThread(EmailProviderV2Entity emailProvider, String recipientEmail, BookEntity book, BookFileEntity bookFile) {
         String bookTitle = book.getMetadata().getTitle();
-        Path bookPath = FileUtils.getBookFullPath(book, bookFile);
-        if (bookPath == null) {
-            throw ApiError.FILE_NOT_FOUND.createException(bookTitle);
-        }
-        File bookFileOnDisk = bookPath.toFile();
-        long bookId = book.getId();
         String logMessage = "Email dispatch initiated for book: " + bookTitle + " to " + recipientEmail;
         notificationService.sendMessage(Topic.LOG, LogNotification.info(logMessage));
         log.info(logMessage);
         taskExecutor.execute(() -> {
             try {
-                sendEmail(emailProvider, recipientEmail, bookTitle, bookFileOnDisk);
-                auditService.log(AuditAction.BOOK_SENT, "Book", bookId, "Sent book: " + bookTitle + " to " + recipientEmail);
+                sendEmail(emailProvider, recipientEmail, book, bookFile);
+                auditService.log(AuditAction.BOOK_SENT, "Book", book.getId(), "Sent book: " + bookTitle + " to " + recipientEmail);
                 String successMessage = "The book: " + bookTitle + " has been successfully sent to " + recipientEmail;
                 notificationService.sendMessage(Topic.LOG, LogNotification.info(successMessage));
                 log.info(successMessage);
@@ -96,14 +89,15 @@ public class SendEmailV2Service {
         });
     }
 
-    private void sendEmail(EmailProviderV2Entity emailProvider, String recipientEmail, String bookTitle, File bookFile) throws MessagingException {
+    private void sendEmail(EmailProviderV2Entity emailProvider, String recipientEmail, BookEntity book, BookFileEntity bookFileEntity) throws MessagingException {
         JavaMailSenderImpl dynamicMailSender = setupMailSender(emailProvider);
         MimeMessage message = dynamicMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
         helper.setFrom(StringUtils.firstNonEmpty(emailProvider.getFromAddress(), emailProvider.getUsername()));
         helper.setTo(recipientEmail);
-        helper.setSubject("Your Book from Grimmory: " + bookTitle);
-        helper.setText(generateEmailBody(bookTitle));
+        helper.setSubject("Your Book from Grimmory: " + book.getMetadata().getTitle());
+        helper.setText(generateEmailBody(book.getMetadata().getTitle()));
+        File bookFile = FileUtils.getBookFullPath(book, bookFileEntity).toFile();
         helper.addAttachment(bookFile.getName(), bookFile);
         dynamicMailSender.send(message);
         log.info("Book sent successfully to {}", recipientEmail);

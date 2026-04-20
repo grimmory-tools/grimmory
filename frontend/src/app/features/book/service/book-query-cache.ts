@@ -1,6 +1,7 @@
-import {QueryClient} from '@tanstack/angular-query-experimental';
+import {InfiniteData, QueryClient} from '@tanstack/angular-query-experimental';
 
 import {Book, BookMetadata} from '../model/book.model';
+import {AppBookSummary, AppPageResponse} from '../model/app-book.model';
 import {BOOKS_QUERY_KEY, bookDetailQueryPrefix, bookRecommendationsQueryPrefix} from './book-query-keys';
 
 const APP_BOOKS_QUERY_PREFIX = ['app-books'] as const;
@@ -97,4 +98,29 @@ export function patchBookFieldsInCache(queryClient: QueryClient, updates: {bookI
   );
   invalidateBookDetailQueries(queryClient, updates.map(u => u.bookId));
   invalidateAppBooksQueries(queryClient);
+}
+
+export function patchAppBooksCoverInCache(
+  queryClient: QueryClient,
+  patches: {id: number; coverUpdatedOn: string}[]
+): void {
+  if (patches.length === 0) return;
+  const patchMap = new Map(patches.map(p => [p.id, p.coverUpdatedOn]));
+
+  queryClient.setQueriesData<InfiniteData<AppPageResponse<AppBookSummary>>>(
+    {queryKey: APP_BOOKS_QUERY_PREFIX},
+    (current) => {
+      if (!current) return current;
+      return {
+        ...current,
+        pages: current.pages.map(page => ({
+          ...page,
+          content: page.content.map(summary => {
+            const coverUpdatedOn = patchMap.get(summary.id);
+            return coverUpdatedOn ? {...summary, coverUpdatedOn} : summary;
+          })
+        }))
+      };
+    }
+  );
 }

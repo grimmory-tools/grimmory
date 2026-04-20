@@ -67,6 +67,8 @@ export class AppBooksApiService {
       if (a.length !== b.length) return false;
       for (let i = 0; i < a.length; i++) {
         if (a[i].id !== b[i].id) return false;
+        if (a[i].metadata?.coverUpdatedOn !== b[i].metadata?.coverUpdatedOn) return false;
+        if (a[i].metadata?.audiobookCoverUpdatedOn !== b[i].metadata?.audiobookCoverUpdatedOn) return false;
       }
       return true;
     }

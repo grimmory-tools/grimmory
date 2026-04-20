@@ -298,11 +298,11 @@ class SendEmailV2ServiceTest {
 
         try (MockedStatic<FileUtils> fileUtilsMock = mockStatic(FileUtils.class)) {
             fileUtilsMock.when(() -> FileUtils.getBookFullPath(book, bookFile))
-                    .thenReturn(Path.of("/library/books/test-book.epub"));
+                    .thenThrow(new IllegalStateException("Book file not found"));
 
             sendEmailV2Service.emailBookQuick(10L);
 
-            // Error is caught inside async thread and logged, not rethrown
+            // Error is caught and logged, not rethrown
             verify(notificationService, atLeastOnce()).sendMessage(any(), any());
         }
     }
