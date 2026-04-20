@@ -9,6 +9,7 @@ import org.grimmory.epub4j.domain.Resource;
 import org.grimmory.epub4j.epub.CoverDetector;
 import org.grimmory.epub4j.epub.CoverDetector.CoverDetectionResult;
 import org.grimmory.epub4j.epub.EpubReader;
+import org.grimmory.epub4j.native_parsing.NativePackageReader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -88,9 +89,27 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
 
     @Override
     public byte[] extractCover(File epubFile) {
+        // Attempt fast native path lookup first
+        String nativeCoverPath = null;
+        try (NativePackageReader nativeReader = NativePackageReader.parse(epubFile.getAbsolutePath())) {
+            nativeCoverPath = nativeReader.getCoverHref();
+        } catch (Exception e) {
+            log.debug("Native cover path lookup failed for {}: {}", epubFile.getName(), e.getMessage());
+        }
+
         // Primary: use epub4j's CoverDetector with native lazy loading
         try {
             Book book = new EpubReader().readEpubLazy(epubFile.toPath(), "UTF-8");
+            
+            // If native lookup found a path, try to get that resource directly first
+            if (nativeCoverPath != null) {
+                Resource res = book.getResources().getByHref(nativeCoverPath);
+                if (res != null) {
+                    byte[] data = getImageFromEpubResource(res);
+                    if (data != null) return data;
+                }
+            }
+
             Optional<CoverDetectionResult> detection = CoverDetector.detectCoverImageWithMethod(book);
             if (detection.isPresent()) {
                 CoverDetectionResult result = detection.get();
@@ -134,9 +153,11 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
                 String id = item.getAttribute("id");
                 String href = item.getAttribute("href");
                 String mediaType = item.getAttribute("media-type");
+                // getAttribute() returns "" for missing attributes in DOM (never null),
+                // but we guard defensively for malformed EPUBs and future refactors.
                 if (mediaType != null && mediaType.startsWith("image/")) {
-                    if ((id != null && id.toLowerCase().contains("cover")) ||
-                            (href != null && href.toLowerCase().contains("cover"))) {
+                    if ((id != null && id.toLowerCase().contains("cover"))
+                            || (href != null && href.toLowerCase().contains("cover"))) {
                         String decodedHref = URLDecoder.decode(href, StandardCharsets.UTF_8);
                         String fullPath = resolvePath(opfName, decodedHref);
                         if (container.exists(fullPath)) {
@@ -167,19 +188,92 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
 
     @Override
     public BookMetadata extractMetadata(File epubFile) {
+        BookMetadata.BookMetadataBuilder builderMeta = BookMetadata.builder();
+        Set<String> categories = new HashSet<>();
+        Set<String> moods = new HashSet<>();
+        Set<String> tags = new HashSet<>();
+        
+        // Attempt fast native extraction first (powered by pugixml/gumbo)
+        try (NativePackageReader nativeReader = NativePackageReader.parse(epubFile.getAbsolutePath())) {
+            Map<String, String> allMetadata = nativeReader.getAllMetadata();
+            if (allMetadata != null && !allMetadata.isEmpty()) {
+                log.debug("Native metadata extraction successful for {}", epubFile.getName());
+                
+                // Map basic fields directly from native
+                String title = allMetadata.get("dc:title");
+                if (StringUtils.isBlank(title)) title = allMetadata.get("title");
+                if (StringUtils.isNotBlank(title)) builderMeta.title(title);
+                
+                String description = allMetadata.get("dc:description");
+                if (StringUtils.isBlank(description)) description = allMetadata.get("description");
+                if (StringUtils.isNotBlank(description)) builderMeta.description(description);
+                
+                String publisher = allMetadata.get("dc:publisher");
+                if (StringUtils.isBlank(publisher)) publisher = allMetadata.get("publisher");
+                if (StringUtils.isNotBlank(publisher)) builderMeta.publisher(publisher);
+                
+                String language = allMetadata.get("dc:language");
+                if (StringUtils.isBlank(language)) language = allMetadata.get("language");
+                if (StringUtils.isNotBlank(language)) builderMeta.language(language);
+                
+                String date = allMetadata.get("dc:date");
+                if (StringUtils.isBlank(date)) date = allMetadata.get("date");
+                if (StringUtils.isBlank(date)) date = allMetadata.get("dcterms:modified");
+                if (StringUtils.isNotBlank(date)) {
+                    LocalDate parsed = parseDate(date);
+                    if (parsed != null) builderMeta.publishedDate(parsed);
+                }
+
+                // Layout
+                if ("pre-paginated".equals(allMetadata.get("rendition:layout"))) {
+                    builderMeta.isFixedLayout(true);
+                }
+
+                // Native reader often returns single string for authors/subjects. 
+                // We'll try to parse them, but thorough Java logic handles multi-value tags better.
+                // Known limitation: dc:creator here is a best-effort first pass and may be truncated.
+                String creator = allMetadata.get("dc:creator");
+                if (StringUtils.isNotBlank(creator)) {
+                    builderMeta.authors(List.of(creator));
+                }
+
+                String subject = allMetadata.get("dc:subject");
+                if (StringUtils.isNotBlank(subject)) {
+                    categories.addAll(parseJsonArrayOrCsv(subject));
+                }
+
+                // Series (Calibre & EPUB3)
+                String series = allMetadata.get("calibre:series");
+                if (StringUtils.isBlank(series)) series = allMetadata.get("belongs-to-collection");
+                if (StringUtils.isNotBlank(series)) builderMeta.seriesName(series);
+
+                String seriesIndex = allMetadata.get("calibre:series_index");
+                if (StringUtils.isBlank(seriesIndex)) seriesIndex = allMetadata.get("group-position");
+                if (StringUtils.isNotBlank(seriesIndex)) {
+                    try {
+                        builderMeta.seriesNumber(Float.parseFloat(seriesIndex));
+                    } catch (NumberFormatException ignored) {}
+                }
+
+                // Identifiers
+                mapNativeIdentifiers(allMetadata, builderMeta);
+            }
+        } catch (Exception e) {
+            log.debug("Native package parsing failed for {}: {}", epubFile.getName(), e.getMessage());
+        }
+
+        // Always perform thorough Java-based extraction as well to ensure we don't miss 
+        // complex tag mappings, refined attributes, and Calibre-specific JSON metadata.
+        // The Java extraction will overwrite/supplement fields found natively.
         try (EpubContainer container = EpubContainers.open(epubFile.toPath())) {
             Document doc = container.parseOpf();
 
             Element metadata = (Element) doc.getElementsByTagNameNS("*", "metadata").item(0);
             if (metadata == null) return null;
 
-            BookMetadata.BookMetadataBuilder builderMeta = BookMetadata.builder();
-            Set<String> categories = new HashSet<>();
-            Set<String> moods = new HashSet<>();
-            Set<String> tags = new HashSet<>();
-
             boolean seriesFound = false;
             boolean seriesIndexFound = false;
+            boolean subjectsFoundInJava = false;
 
             NodeList children = metadata.getChildNodes();
 
@@ -302,7 +396,14 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
                             }
                         }
                     }
-                    case "subject" -> categories.add(text);
+                    case "subject" -> {
+                        if (!subjectsFoundInJava) {
+                            // First time we find subjects in Java pass, clear the native ones
+                            categories.clear();
+                            subjectsFoundInJava = true;
+                        }
+                        categories.add(text);
+                    }
                     case "description" -> builderMeta.description(text);
                     case "publisher" -> builderMeta.publisher(text);
                     case "language" -> builderMeta.language(text);
@@ -400,7 +501,12 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
                 }
             }
 
-            builderMeta.authors(creatorsByRole.get("aut"));
+            // Only overwrite authors if the Java pass actually found dc:creator elements.
+            // Otherwise, preserve any authors discovered by the native extraction pass.
+            List<String> javaAuthors = creatorsByRole.get("aut");
+            if (javaAuthors != null && !javaAuthors.isEmpty()) {
+                builderMeta.authors(javaAuthors);
+            }
 
             if (!moods.isEmpty()) builderMeta.moods(moods);
             if (!tags.isEmpty()) builderMeta.tags(tags);
@@ -443,6 +549,46 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
         if (StringUtils.isNotBlank(value)) {
             targetSet.addAll(parseJsonArrayOrCsv(value));
         }
+    }
+
+    private static final Map<String, BiConsumer<BookMetadata.BookMetadataBuilder, String>> NATIVE_IDENTIFIER_MAPPERS = Map.ofEntries(
+            Map.entry("isbn", (b, v) -> {
+                String clean = ISBN_SEPARATOR_PATTERN.matcher(v).replaceAll("");
+                if (clean.length() == 13) b.isbn13(clean); else if (clean.length() == 10) b.isbn10(clean);
+            }),
+            Map.entry("goodreads", BookMetadata.BookMetadataBuilder::goodreadsId),
+            Map.entry("google", BookMetadata.BookMetadataBuilder::googleId),
+            Map.entry("amazon", BookMetadata.BookMetadataBuilder::asin),
+            Map.entry("hardcover", BookMetadata.BookMetadataBuilder::hardcoverId),
+            Map.entry("ranobedb", BookMetadata.BookMetadataBuilder::ranobedbId),
+            Map.entry("comicvine", BookMetadata.BookMetadataBuilder::comicvineId),
+            Map.entry("lubimyczytac", BookMetadata.BookMetadataBuilder::lubimyczytacId),
+            Map.entry("asin", BookMetadata.BookMetadataBuilder::asin),
+            Map.entry("mobi-asin", BookMetadata.BookMetadataBuilder::asin),
+            Map.entry("hardcover_book", BookMetadata.BookMetadataBuilder::hardcoverBookId)
+    );
+
+    private void mapNativeIdentifiers(Map<String, String> allMetadata, BookMetadata.BookMetadataBuilder builder) {
+        // Native identifiers are often exposed as "scheme:value" or via specific keys
+        allMetadata.forEach((key, value) -> {
+            if (StringUtils.isBlank(value)) return;
+            
+            // Try direct key match
+            String lowerKey = key.toLowerCase();
+            if (lowerKey.startsWith("dc:identifier:")) {
+                String scheme = lowerKey.substring("dc:identifier:".length());
+                BiConsumer<BookMetadata.BookMetadataBuilder, String> mapper = NATIVE_IDENTIFIER_MAPPERS.get(scheme);
+                if (mapper != null) mapper.accept(builder, value);
+            } else if (lowerKey.startsWith("identifier:")) {
+                String scheme = lowerKey.substring("identifier:".length());
+                BiConsumer<BookMetadata.BookMetadataBuilder, String> mapper = NATIVE_IDENTIFIER_MAPPERS.get(scheme);
+                if (mapper != null) mapper.accept(builder, value);
+            } else {
+                // Check if the key itself matches a scheme
+                BiConsumer<BookMetadata.BookMetadataBuilder, String> mapper = NATIVE_IDENTIFIER_MAPPERS.get(lowerKey);
+                if (mapper != null) mapper.accept(builder, value);
+            }
+        });
     }
 
     private void extractCalibreUserMetadata(JSONObject userMetadata, BookMetadata.BookMetadataBuilder builder,
