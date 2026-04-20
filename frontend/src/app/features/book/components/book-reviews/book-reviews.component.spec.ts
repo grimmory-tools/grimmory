@@ -391,7 +391,9 @@ describe('BookReviewsComponent', () => {
     expect(component.loading()).toBe(true);
 
     // 5. Wait for loadReviews(43) to finish (after 100ms total)
+    await new Promise(resolve => setTimeout(resolve, 50));
     expect(component.loading()).toBe(false);
+
   });
 
   it('ignores stale responses in a 1 -> 2 -> 1 navigation sequence (ABA problem)', async () => {
