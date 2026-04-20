@@ -5,6 +5,7 @@ import com.github.gotson.nightcompress.ArchiveEntry;
 import com.github.gotson.nightcompress.LibArchiveException;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.booklore.exception.ApiError;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -13,6 +14,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.IntStream;
@@ -132,6 +134,69 @@ public class ArchiveService {
             transferEntryTo(path, entryName, outputStream);
 
             return outputStream.toByteArray();
+        }
+    }
+
+    /**
+     * Reads at most {@code maxBytes} from the given archive entry.
+     * This is used to read image headers for dimension detection without
+     * loading the full (potentially multi-MB) image into memory.
+     *
+     * @return a byte array of at most {@code maxBytes} containing the
+     *         leading bytes of the entry
+     */
+    public byte[] getEntryBytesPrefix(Path path, String entryName, int maxBytes) throws IOException {
+        if (maxBytes < 0) {
+            throw ApiError.INVALID_INPUT.createException("maxBytes must be non-negative");
+        }
+        var bounded = new BoundedOutputStream(maxBytes);
+        try {
+            transferEntryTo(path, entryName, bounded);
+        } catch (BoundedOutputStream.LimitReachedException _) {
+            // expected, we only needed the prefix
+        } catch (IOException e) {
+            if (!(e.getCause() instanceof BoundedOutputStream.LimitReachedException)) {
+                throw e;
+            }
+            // expected, we only needed the prefix
+        }
+        return bounded.toByteArray();
+    }
+
+    /**
+     * OutputStream that captures at most {@code limit} bytes, then throws
+     * {@link LimitReachedException} to short-circuit the transfer.
+     */
+    static final class BoundedOutputStream extends OutputStream {
+        private final byte[] buf;
+        private int count;
+
+        BoundedOutputStream(int limit) {
+            this.buf = new byte[limit];
+        }
+
+        @Override
+        public void write(int b) throws IOException {
+            if (count >= buf.length) throw new LimitReachedException();
+            buf[count++] = (byte) b;
+        }
+
+        @Override
+        public void write(byte[] b, int off, int len) throws IOException {
+            int remaining = buf.length - count;
+            if (remaining <= 0) throw new LimitReachedException();
+            int toCopy = Math.min(len, remaining);
+            System.arraycopy(b, off, buf, count, toCopy);
+            count += toCopy;
+            if (toCopy < len) throw new LimitReachedException();
+        }
+
+        byte[] toByteArray() {
+            return Arrays.copyOf(buf, count);
+        }
+
+        static final class LimitReachedException extends IOException {
+            LimitReachedException() { super("Bounded output limit reached"); }
         }
     }
 
