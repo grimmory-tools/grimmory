@@ -62,20 +62,8 @@ jobs:
       - name: Install Release Tooling Dependencies
         run: just release install
 
-      - name: Configure Release Bot Git Identity
-        env:
-          RELEASE_GH_TOKEN: ${{ secrets.RELEASE_BOT_TOKEN != '' && secrets.RELEASE_BOT_TOKEN || github.token }}
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git remote set-url origin "https://x-access-token:${RELEASE_GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-
       - name: Run semantic-release
         env:
           GH_TOKEN: ${{ secrets.RELEASE_BOT_TOKEN != '' && secrets.RELEASE_BOT_TOKEN || github.token }}
           GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_TOKEN != '' && secrets.RELEASE_BOT_TOKEN || github.token }}
-          GIT_AUTHOR_NAME: github-actions[bot]
-          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
-          GIT_COMMITTER_NAME: github-actions[bot]
-          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
         run: just release run
