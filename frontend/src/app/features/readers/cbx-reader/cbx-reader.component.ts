@@ -763,6 +763,14 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     this.updateNotesState();
   }
 
+  private getRightPageForLeftPage(leftPage: number): number | undefined {
+    const pair = Object.entries(this.doublePairs()).find(([, pairedLeft]) => pairedLeft === leftPage);
+    if (!pair) return undefined;
+
+    const rightPage = Number(pair[0]);
+    return Number.isFinite(rightPage) ? rightPage : undefined;
+  }
+
   private updateCurrentImageUrls(): void {
     if (!this.pages().length) {
       this.currentImageUrls.set([]);
@@ -775,7 +783,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     if (this.isTwoPageView()) {
       // Use doublePairs for dimension-aware pairing
       if (Object.keys(this.doublePairs()).length > 0) {
-        const pairedWith = this.doublePairs()[this.currentPage()];
+        const pairedWith = this.getRightPageForLeftPage(this.currentPage());
         if (pairedWith !== undefined && pairedWith < this.pages().length) {
           urls.push(this.getPageImageUrl(pairedWith));
         }
@@ -882,7 +890,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
     if (this.isTwoPageView()) {
       if (Object.keys(this.doublePairs()).length > 0) {
-        const pairedWith = this.doublePairs()[this.currentPage()];
+        const pairedWith = this.getRightPageForLeftPage(this.currentPage());
         if (pairedWith !== undefined && pairedWith < this.pages().length) {
           urls.push(this.getPageImageUrl(pairedWith));
         }
@@ -974,7 +982,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
       if (this.isTwoPageView()) {
         // Use doublePairs for dimension-aware stepping
         if (Object.keys(this.doublePairs()).length > 0) {
-          const pairedWith = this.doublePairs()[this.currentPage()];
+          const pairedWith = this.getRightPageForLeftPage(this.currentPage());
           if (pairedWith !== undefined) {
             // Current page is paired — skip past its partner
             const nextPage = Math.max(this.currentPage(), pairedWith) + 1;
@@ -1002,6 +1010,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
           if (this.canvasSplitState() === 'NO_SPLIT' || this.canvasSplitState() === 'LEFT_PART') {
             // Show first half, then second half before advancing
             this.canvasSplitState.set(this.canvasSplitState() === 'NO_SPLIT' ? 'LEFT_PART' : 'RIGHT_PART');
+            this.resetPaginatedScroll();
             this.updateCurrentImageUrls();
             return;
           }
@@ -1034,6 +1043,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
         if (this.pageSplitOption() !== CbxPageSplitOption.NO_SPLIT && this.isSpreadPage(this.currentPage())) {
           if (this.canvasSplitState() === 'RIGHT_PART') {
             this.canvasSplitState.set('LEFT_PART');
+            this.resetPaginatedScroll();
             this.updateCurrentImageUrls();
             return;
           }
