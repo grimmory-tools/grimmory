@@ -25,7 +25,7 @@
           [title]="surface.name"
           (click)="updateColors($event, 'surface', surface)"
           [ngClass]="{ 'active-color': selectedSurfaceColor() ? selectedSurfaceColor() === surface.name : surface.name === 'zinc' }"
-          [style]="{'background-color': surface.name === 'noir' ? 'var(--text-color)' : surface.palette['500'] }">
+          [style]="{'background-color': surface.name === 'noir' ? 'var(--text-color)' : (surface.name === 'e-ink-paper' || surface.name === 'e-ink-sepia' ? surface.palette['950'] : surface.palette['500']) }">
         </button>
       }
     </div>

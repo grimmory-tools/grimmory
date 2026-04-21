@@ -47,7 +47,7 @@
 }
 
 .welcome-description {
-  color: #d1d5db;
+  color: var(--text-color-secondary);
   margin-bottom: 2rem;
   margin-left: auto;
   margin-right: auto;
@@ -58,10 +58,9 @@
   font-size: 1.75rem;
   font-weight: 700;
   margin-bottom: 2rem;
-  background: linear-gradient(135deg, #fff, #e2e8f0, var(--p-primary-500));
+  background: linear-gradient(135deg, var(--text-color), var(--text-color-secondary), var(--p-primary-500));
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-shadow: 0 2px 4px rgb(0 0 0 / 30%);
   letter-spacing: -0.02em;
 }
 
