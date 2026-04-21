@@ -90,6 +90,31 @@ jobs:
           GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
         run: just release run
 
+      - name: Capture Release State
+        id: release_state
+        run: |
+          set -eu
+          head_before="${{ steps.pre_release.outputs.head_sha }}"
+          head_after="$(git rev-parse HEAD)"
+
+          echo "release_sha=$head_after" >> "$GITHUB_OUTPUT"
+
+          if [ "$head_after" = "$head_before" ]; then
+            echo "released=false" >> "$GITHUB_OUTPUT"
+            echo "release_tag=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          release_tag="$(git tag --points-at "$head_after" 'v*' | sort -V | tail -n 1)"
+
+          if [ -z "$release_tag" ]; then
+            echo "semantic-release advanced HEAD without creating a release tag" >&2
+            exit 1
+          fi
+
+          echo "released=true" >> "$GITHUB_OUTPUT"
+          echo "release_tag=$release_tag" >> "$GITHUB_OUTPUT"
+
   backport-release:
     name: Backport Release Commit to Develop
     if: ${{ needs.semantic-release.outputs.released == 'true' && needs.publish-release.result == 'success' }}
