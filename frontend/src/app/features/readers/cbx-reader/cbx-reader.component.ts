@@ -750,7 +750,13 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     dismissWebtoonHintForever();
   }
 
+  private resetSwipeBoundaryHits(): void {
+    this.hasHitRightScroll.set(false);
+    this.hasHitZeroScroll.set(false);
+  }
+
   private updateFooterPage(): void {
+    this.resetSwipeBoundaryHits();
     this.footerService.setCurrentPage(this.currentPage());
     this.sidebarService.setCurrentPage(this.currentPage() + 1);
     this.updateBookmarkState();
@@ -874,8 +880,15 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     const urls: string[] = [];
     urls.push(this.getPageImageUrl(this.currentPage()));
 
-    if (this.isTwoPageView() && this.currentPage() + 1 < this.pages().length) {
-      urls.push(this.getPageImageUrl(this.currentPage() + 1));
+    if (this.isTwoPageView()) {
+      if (Object.keys(this.doublePairs()).length > 0) {
+        const pairedWith = this.doublePairs()[this.currentPage()];
+        if (pairedWith !== undefined && pairedWith < this.pages().length) {
+          urls.push(this.getPageImageUrl(pairedWith));
+        }
+      } else if (this.currentPage() + 1 < this.pages().length) {
+        urls.push(this.getPageImageUrl(this.currentPage() + 1));
+      }
     }
 
     return urls;
@@ -1957,8 +1970,14 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   }
 
   private loadSeriesNavigation(book: Book): void {
-    this.bookService.getBooksInSeries(book.id).subscribe({
+    this.bookService.getBooksInSeries(book.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (seriesBooks) => {
+        if (this.currentBook()?.id !== book.id) {
+          return;
+        }
+
         const sortedBySeriesNumber = this.sortBooksBySeriesNumber(seriesBooks);
         const currentBookIndex = sortedBySeriesNumber.findIndex(b => b.id === book.id);
 
