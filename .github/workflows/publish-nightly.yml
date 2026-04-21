@@ -82,11 +82,13 @@ jobs:
 
       - name: Record Nightly Build Metadata
         id: record
+        env:
+          NIGHTLY_TAG: ${{ needs.resolve_ref.outputs.nightly_tag }}
         run: |
-          echo "image_tag=${{ needs.resolve_ref.outputs.nightly_tag }}" >> "$GITHUB_OUTPUT"
-          echo "nightly_tag=${{ needs.resolve_ref.outputs.nightly_tag }}" >> "$GITHUB_ENV"
+          echo "image_tag=${NIGHTLY_TAG}" >> "$GITHUB_OUTPUT"
+          echo "nightly_tag=${NIGHTLY_TAG}" >> "$GITHUB_ENV"
           echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
-          echo "Nightly tag: ${{ needs.resolve_ref.outputs.nightly_tag }}"
+          echo "Nightly tag: ${NIGHTLY_TAG}"
 
       - name: Set Up QEMU for Multi-Arch Builds
         uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0

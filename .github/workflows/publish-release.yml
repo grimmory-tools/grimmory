@@ -41,10 +41,12 @@ jobs:
           ref: ${{ inputs.commit_sha != '' && inputs.commit_sha || format('refs/tags/{0}', inputs.release_tag) }}
 
       - name: Record Release Tag and Commit
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
         run: |
-          echo "release_tag=${{ inputs.release_tag }}" >> "$GITHUB_ENV"
+          echo "release_tag=${RELEASE_TAG}" >> "$GITHUB_ENV"
           echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
-          echo "Stable release tag: ${{ inputs.release_tag }}"
+          echo "Stable release tag: ${RELEASE_TAG}"
 
       - name: Set Up QEMU for Multi-Arch Builds
         uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0
@@ -92,5 +94,6 @@ jobs:
       - name: Publish Draft GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_TOKEN != '' && secrets.RELEASE_BOT_TOKEN || github.token }}
+          RELEASE_TAG: ${{ env.release_tag }}
         run: |
-          gh release edit "${{ env.release_tag }}" --draft=false
+          gh release edit "${RELEASE_TAG}" --draft=false
