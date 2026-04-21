@@ -1,7 +1,6 @@
 const releasePolicy = require("./release-policy.cjs");
 
 module.exports = {
-  repositoryUrl: "https://github.com/grimmory-tools/grimmory.git",
   branches: ["main"],
   tagFormat: "v${version}",
   plugins: [
