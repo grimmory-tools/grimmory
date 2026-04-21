@@ -50,7 +50,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            grimmory/grimmory${{ github.event.release.tag_name }}
+            grimmory/grimmory:${{ github.event.release.tag_name }}
             grimmory/grimmory:latest
             ghcr.io/grimmory-tools/grimmory:${{ github.event.release.tag_name }}
             ghcr.io/grimmory-tools/grimmory:latest
