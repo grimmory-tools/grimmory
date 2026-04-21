@@ -12,7 +12,6 @@ concurrency:
 jobs:
   migration-check:
     name: Flyway Migration Check
-    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     uses: ./.github/workflows/migrations-check.yml
     with:
       base_ref: ${{ github.event.before }}
@@ -21,7 +20,6 @@ jobs:
 
   test-suite:
     name: Test Suite
-    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     needs: [migration-check]
     uses: ./.github/workflows/test-suite.yml
     permissions:
@@ -33,7 +31,6 @@ jobs:
 
   semantic-release:
     name: Compute Release, Update Changelog, and Draft GitHub Release
-    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     needs: [migration-check, test-suite]
     runs-on: ubuntu-latest
 
