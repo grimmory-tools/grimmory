@@ -190,7 +190,9 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const dismissed = localStorage.getItem(this.DOC_VIEWER_DISMISSED_KEY);
     this.isDocViewerInfoVisible.set(dismissed !== 'true');
+    const isPhone = window.innerWidth < 768;
     this.isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    this.isPanActive.set(isPhone);
 
     setTimeout(() => this.wakeLockService.enable(), 1000);
     this.startChromeAutoHide();
@@ -434,6 +436,10 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
         this.t.getActiveLang()
       );
       this.bookViewerInitialized = true;
+
+      if (this.isPanActive()) {
+        this.embedPdfBook.setPanMode(true);
+      }
 
       // Cache the raw PDF bytes so the doc-viewer switch never needs a network request
       if (!this.cachedPdfBuffer) {
@@ -1177,8 +1183,12 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     const deltaY = endY - this.touchStartY;
     const elapsed = Date.now() - this.touchStartTime;
 
-    // Swipe detection: enough horizontal movement, more horizontal than vertical
-    if (this.touchMoveCount >= 3 && Math.abs(deltaX) > this.SWIPE_THRESHOLD && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
+    const isPhone = window.innerWidth < 768;
+    // Swipe detection: enough horizontal movement, more horizontal than vertical.
+    // Skip if pan mode is active OR if on a phone to prevent accidental page turns during selection/navigation.
+    const skipSwipe = isPhone || this.isPanActive();
+
+    if (!skipSwipe && this.touchMoveCount >= 3 && Math.abs(deltaX) > this.SWIPE_THRESHOLD && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
       this.ngZone.run(() => {
         if (deltaX < 0) {
           this.goToNextPage();
@@ -1195,14 +1205,16 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       const tapX = this.touchStartX;
 
       this.ngZone.run(() => {
-        if (tapX < screenWidth * this.TAP_ZONE_RATIO) {
+        // On phones, disable tap-to-change-page zones to prevent accidental navigation.
+        // Taps will only toggle the chrome.
+        if (!isPhone && tapX < screenWidth * this.TAP_ZONE_RATIO) {
           // Left zone: previous page
           this.goToPreviousPage();
-        } else if (tapX > screenWidth * (1 - this.TAP_ZONE_RATIO)) {
+        } else if (!isPhone && tapX > screenWidth * (1 - this.TAP_ZONE_RATIO)) {
           // Right zone: next page
           this.goToNextPage();
         } else {
-          // Center zone: toggle chrome
+          // Center zone (or any zone on phone): toggle chrome
           if (this.headerVisible() || this.footerVisible()) {
             this.hideChrome();
           } else {
