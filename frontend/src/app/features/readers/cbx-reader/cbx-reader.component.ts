@@ -1932,8 +1932,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     }
 
     // Reset boundary flags on successful navigation
-    this.hasHitRightScroll.set(false);
-    this.hasHitZeroScroll.set(false);
+    this.resetSwipeBoundaryHits();
 
     if (shouldGoNext) {
       this.nextPage();
