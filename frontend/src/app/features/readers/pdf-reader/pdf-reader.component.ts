@@ -187,19 +187,28 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   readonly embedPdfBook = inject(EmbedPdfBookService);
   readonly pdfBookmarkService = inject(PdfBookmarkService);
   private readonly ngZone = inject(NgZone);
+  private userPanPreferred = false;
+
 
   ngOnInit(): void {
     const dismissed = localStorage.getItem(this.DOC_VIEWER_DISMISSED_KEY);
     this.isDocViewerInfoVisible.set(dismissed !== 'true');
 
+    let lastIsPhone: boolean | null = null;
     const syncPhoneMode = () => {
-      const isPhone = window.innerWidth < 768;
-      this.isPhone.set(isPhone);
-      this.isPanActive.set(isPhone);
-      if (this.bookViewerInitialized) {
-        this.embedPdfBook.setPanMode(isPhone);
+      const nextIsPhone = window.innerWidth < 768;
+      if (nextIsPhone === lastIsPhone) return;
+
+      lastIsPhone = nextIsPhone;
+      this.isPhone.set(nextIsPhone);
+
+      if (nextIsPhone) {
+        this.applyPanMode(true);
+      } else {
+        this.applyPanMode(this.userPanPreferred);
       }
     };
+
     syncPhoneMode();
     window.addEventListener('resize', syncPhoneMode);
     this.destroyRef.onDestroy(() => window.removeEventListener('resize', syncPhoneMode));
@@ -705,25 +714,36 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
 
   // --- Annotation tools ---
 
+  private applyPanMode(active: boolean): void {
+    this.isPanActive.set(active);
+    if (active) {
+      this.activeAnnotationTool.set(null);
+      this.embedPdfBook.setActiveTool(null);
+    }
+    if (this.bookViewerInitialized) {
+      this.embedPdfBook.setPanMode(active);
+    }
+  }
+
+
   toggleAnnotationTool(toolId: string | null): void {
     if (this.activeAnnotationTool() === toolId) {
       this.activeAnnotationTool.set(null);
     } else {
-      this.isPanActive.set(false);
-      this.embedPdfBook.setPanMode(false);
+      this.userPanPreferred = false;
+      this.applyPanMode(false);
       this.activeAnnotationTool.set(toolId);
     }
     this.embedPdfBook.setActiveTool(this.activeAnnotationTool());
   }
 
+
   togglePanMode(): void {
-    this.isPanActive.update(v => !v);
-    if (this.isPanActive()) {
-      this.activeAnnotationTool.set(null);
-      this.embedPdfBook.setActiveTool(null);
-    }
-    this.embedPdfBook.setPanMode(this.isPanActive());
+    const nextValue = !this.isPanActive();
+    this.userPanPreferred = nextValue;
+    this.applyPanMode(nextValue);
   }
+
 
   setAnnotationColor(color: string): void {
     this.activeAnnotationColor = color;
