@@ -75,7 +75,7 @@
       }
       <div class="current-page-layer" [class.fade-in]="isPageTransitioning() && imagesLoaded()">
         @if (shouldUseCanvasRenderer()) {
-        <app-canvas-renderer [imageUrl]="currentImageUrls()[0]" [splitState]="canvasSplitState"
+        <app-canvas-renderer [imageUrl]="currentImageUrls()[0]" [splitState]="canvasSplitState()"
           [splitOption]="pageSplitOption()">
         </app-canvas-renderer>
         } @else {
@@ -85,12 +85,12 @@
         }
       </div>
     </div>
-    @if (isAtLastPage() && nextBookInSeries) {
+    @if (isAtLastPage() && nextBookInSeries()) {
     <div class="end-of-comic-action">
       <button class="next-book-action-button" (click)="navigateToNextBook()">
         <span class="action-icon">📖</span>
         <span class="action-text">{{ 'readerCbx.reader.continueToNextBook' | transloco }}</span>
-        <span class="book-title">{{ getBookDisplayTitle(nextBookInSeries) }}</span>
+        <span class="book-title">{{ getBookDisplayTitle(nextBookInSeries()) }}</span>
       </button>
     </div>
     }
@@ -102,18 +102,18 @@
         <img [src]="item.src" alt="Page {{ item.page + 1 }}" class="long-strip-image" [attr.data-page]="item.page"
           draggable="false" [attr.loading]="item.page === currentPage() ? 'eager' : 'lazy'" decoding="async" (load)="onLongStripImageLoad($event, item.page)" />
         }
-        @if (nextBookInSeries) {
+        @if (nextBookInSeries()) {
         <div class="cbx-continuation-spacer" aria-hidden="true"></div>
         <div class="cbx-continuation-hint" [class.visible]="continuationHintVisible()" aria-live="polite">
           {{ 'readerCbx.continuation.scrollForNext' | transloco }}
         </div>
         }
-        @if (isAtEndOfLongStrip() && nextBookInSeries) {
+        @if (isAtEndOfLongStrip() && nextBookInSeries()) {
       <div class="end-of-comic-action">
         <button class="next-book-action-button" (click)="navigateToNextBook()">
           <span class="action-icon">📖</span>
           <span class="action-text">{{ 'readerCbx.reader.continueToNextBook' | transloco }}</span>
-          <span class="book-title">{{ getBookDisplayTitle(nextBookInSeries) }}</span>
+          <span class="book-title">{{ getBookDisplayTitle(nextBookInSeries()) }}</span>
         </button>
       </div>
         }
@@ -134,18 +134,18 @@
           <p-progressSpinner class="small-spinner"></p-progressSpinner>
         </div>
         }
-        @if (nextBookInSeries) {
+        @if (nextBookInSeries()) {
         <div class="cbx-continuation-spacer" aria-hidden="true"></div>
         <div class="cbx-continuation-hint" [class.visible]="continuationHintVisible()" aria-live="polite">
           {{ 'readerCbx.continuation.scrollForNext' | transloco }}
         </div>
         }
-        @if (isAtEndOfInfiniteScroll() && nextBookInSeries) {
+        @if (isAtEndOfInfiniteScroll() && nextBookInSeries()) {
       <div class="end-of-comic-action">
         <button class="next-book-action-button" (click)="navigateToNextBook()">
           <span class="action-icon">📖</span>
           <span class="action-text">{{ 'readerCbx.reader.continueToNextBook' | transloco }}</span>
-          <span class="book-title">{{ getBookDisplayTitle(nextBookInSeries) }}</span>
+          <span class="book-title">{{ getBookDisplayTitle(nextBookInSeries()) }}</span>
         </button>
       </div>
         }
