@@ -78,7 +78,6 @@ export class ContentRestrictionsEditorComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     this.loadRestrictions();
-
   }
 
   ngOnChanges(changes: SimpleChanges) {

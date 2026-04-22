@@ -124,7 +124,6 @@ export class BulkMetadataUpdateComponent implements OnInit {
     this.bookIds = this.config.data?.bookIds ?? [];
     this.books = this.bookService.getBooksByIds(this.bookIds);
 
-
     this.metadataForm = this.fb.group({
       authors: [],
       publisher: [''],

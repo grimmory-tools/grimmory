@@ -1,5 +1,7 @@
 import {TestBed} from '@angular/core/testing';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import {MessageService} from 'primeng/api';
+import {TranslocoService} from '@jsverse/transloco';
 
 import {DialogLauncherService} from '../../../../shared/services/dialog-launcher.service';
 import {BookDialogHelperService} from './book-dialog-helper.service';
@@ -7,16 +9,21 @@ import {BookDialogHelperService} from './book-dialog-helper.service';
 describe('BookDialogHelperService', () => {
   let service: BookDialogHelperService;
   let dialogLauncherService: {openDialog: ReturnType<typeof vi.fn>};
+  const messageService = {add: vi.fn()};
+  const translocoService = {translate: vi.fn((key: string) => key)};
 
   beforeEach(() => {
     dialogLauncherService = {
       openDialog: vi.fn(() => ({id: 'dialog-ref'})),
     };
+    messageService.add.mockClear();
 
     TestBed.configureTestingModule({
       providers: [
         BookDialogHelperService,
         {provide: DialogLauncherService, useValue: dialogLauncherService},
+        {provide: MessageService, useValue: messageService},
+        {provide: TranslocoService, useValue: translocoService},
       ],
     });
 

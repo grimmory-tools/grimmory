@@ -51,6 +51,27 @@ export class MainDashboardComponent {
     return this.dashboardConfig().scrollers.filter(s => s.enabled);
   });
 
+  /**
+   * Eager image count for the first dashboard scroller. Mobile shows far fewer
+   * covers above the fold, so hinting `fetchpriority=high` on 8 covers there
+   * fights the LCP image for bandwidth. We derive from the initial viewport
+   * width (resize doesn't change LCP, so a one-shot read is sufficient).
+   */
+  private readonly eagerCountFirst = (() => {
+    if (typeof window === 'undefined') return 8;
+    const w = window.innerWidth;
+    if (w < 480) return 3;
+    if (w < 768) return 4;
+    if (w < 1280) return 6;
+    return 8;
+  })();
+
+  readonly getEagerCountForScroller = (index: number): number => {
+    if (index === 0) return this.eagerCountFirst;
+    if (index === 1) return Math.min(4, Math.max(2, Math.floor(this.eagerCountFirst / 2)));
+    return 0;
+  };
+
   ScrollerType = ScrollerType;
 
   constructor() {

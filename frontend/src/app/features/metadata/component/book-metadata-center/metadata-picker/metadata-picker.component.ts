@@ -120,8 +120,6 @@ export class MetadataPickerComponent {
     this.initFieldArrays();
   }
 
-
-
   private initFieldArrays(): void {
     this.metadataFieldsTop = getTopFields();
     this.metadataChips = getArrayFields();

@@ -59,7 +59,7 @@
                     [isMagicShelf]="scroller.type === ScrollerType.MAGIC_SHELF"
                     [useSquareCovers]="scroller.type === ScrollerType.LAST_LISTENED"
                     [books]="getBooksForScroller(scroller)"
-                    [eagerCount]="idx === 0 ? 8 : 4"
+                    [eagerCount]="getEagerCountForScroller(idx)"
                     [overlayPreferenceService]="overlayPreferenceService">
                   </app-dashboard-scroller>
                 } @else {

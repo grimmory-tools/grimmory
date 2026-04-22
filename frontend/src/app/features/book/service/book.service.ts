@@ -41,16 +41,10 @@ export class BookService {
   private readonly t = inject(TranslocoService);
   private readonly token = this.authService.token;
 
-
   private booksQuery = injectQuery(() => ({
     ...this.getBooksQueryOptions(),
     enabled: !!this.token(),
   }));
-
-  /**
-   * Triggers the full books fetch required for metadata autocompletion.
-   * Call this when opening an editor or dialog that needs metadata suggestions.
-   */
 
   books = computed(() => this.booksQuery.data() ?? []);
 
@@ -94,7 +88,15 @@ export class BookService {
     return error instanceof Error ? error.message : 'Failed to load books';
   });
 
-  isBooksLoading = computed(() => this.booksQuery.isFetching());
+  /**
+   * True only during the initial load (no cached data yet). Background refetches stay
+   * silent so consumers (charts, dashboards, filters) can keep rendering stale data
+   * instead of flashing empty states on every refetch / window focus.
+   */
+  isBooksLoading = computed(() => !!this.token() && this.booksQuery.isPending());
+
+  /** True whenever a books request is in flight, including background refetches. */
+  isBooksRefetching = computed(() => !!this.token() && this.booksQuery.isFetching() && !this.booksQuery.isPending());
 
   constructor() {
     effect(() => {
@@ -108,7 +110,12 @@ export class BookService {
   private getBooksQueryOptions() {
     return queryOptions({
       queryKey: BOOKS_QUERY_KEY,
-      queryFn: () => lastValueFrom(this.http.get<Book[]>(this.url, {params: {stripForListView: true}})),
+      // NOTE: stripForListView must stay false. The backend's strip routine nulls
+      // metadata fields (subtitle, seriesTotal, thumbnailUrl, external IDs, audible/
+      // lubimyczytac ratings, etc.) that the frontend's magic-shelf rule evaluator
+      // and several browser filters rely on. Flipping this to true silently empties
+      // every magic shelf that filters on those fields.
+      queryFn: () => lastValueFrom(this.http.get<Book[]>(this.url, {params: {stripForListView: false}})),
       staleTime: 5 * 60_000,
     });
   }

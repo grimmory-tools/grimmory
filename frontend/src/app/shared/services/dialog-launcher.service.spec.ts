@@ -1,6 +1,8 @@
 import {TestBed} from '@angular/core/testing';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {DialogService} from 'primeng/dynamicdialog';
+import {MessageService} from 'primeng/api';
+import {TranslocoService} from '@jsverse/transloco';
 
 import {DashboardSettingsComponent} from '../../features/dashboard/components/dashboard-settings/dashboard-settings.component';
 import {LibraryCreatorComponent} from '../../features/library-creator/library-creator.component';
@@ -11,18 +13,23 @@ describe('DialogLauncherService', () => {
   const dialogService = {
     open: vi.fn(() => dialogRef),
   };
+  const messageService = {add: vi.fn()};
+  const translocoService = {translate: vi.fn((key: string) => key)};
 
   let service: DialogLauncherService;
 
   beforeEach(() => {
     vi.restoreAllMocks();
     dialogService.open.mockClear();
+    messageService.add.mockClear();
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
         DialogLauncherService,
         {provide: DialogService, useValue: dialogService},
+        {provide: MessageService, useValue: messageService},
+        {provide: TranslocoService, useValue: translocoService},
       ]
     });
 
@@ -77,5 +84,24 @@ describe('DialogLauncherService', () => {
         },
       })
     );
+  });
+
+  it('deduplicates concurrent lazy opens with the same key', async () => {
+    const [first, second] = await Promise.all([
+      service.openDashboardSettingsDialog(),
+      service.openDashboardSettingsDialog(),
+    ]);
+
+    expect(dialogService.open).toHaveBeenCalledTimes(1);
+    expect(first).toBe(second);
+  });
+
+  it('opens independent dialogs for distinct keys', async () => {
+    await Promise.all([
+      service.openLibraryEditDialog(1),
+      service.openLibraryEditDialog(2),
+    ]);
+
+    expect(dialogService.open).toHaveBeenCalledTimes(2);
   });
 });

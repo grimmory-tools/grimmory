@@ -84,8 +84,6 @@ export class BookCardComponent {
   private readonly metadataCenterViewMode = computed(() => this.currentUser()?.userSettings?.metadataCenterViewMode ?? 'route' as 'route' | 'dialog');
   private readonly diskType = computed(() => this.appSettingsService.appSettings()?.diskType ?? 'LOCAL');
 
-
-
   readonly progressPercentage = computed(() => {
     const b = this.book();
     return b.epubProgress?.percentage ?? b.pdfProgress?.percentage ?? b.cbxProgress?.percentage ?? null;
