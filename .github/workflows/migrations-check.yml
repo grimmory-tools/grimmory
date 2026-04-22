@@ -56,7 +56,7 @@ jobs:
           HEAD_REF: ${{ steps.normalize_refs.outputs.head_ref }}
         run: |
           echo "Comparing ${BASE_REF}...${HEAD_REF}"
-          if git diff --name-only "${BASE_REF}...${HEAD_REF}" | grep -Eq "^booklore-api/src/main/resources/db/migration/V.*\\.sql$"; then
+          if git diff --name-only "${BASE_REF}...${HEAD_REF}" | grep -Eq "^backend/src/main/resources/db/migration/V.*\\.sql$"; then
             echo "Migration file changes detected. Proceeding with migration preview."
             echo "has_migrations=true" >> "$GITHUB_OUTPUT"
           else
@@ -101,7 +101,7 @@ jobs:
             flyway/flyway:12.1.0 \
             -url=jdbc:mariadb://127.0.0.1:3306/booklore_test \
             -user=root -password=root \
-            -locations=filesystem:/flyway/sql/booklore-api/src/main/resources/db/migration \
+            -locations=filesystem:/flyway/sql/backend/src/main/resources/db/migration \
             migrate
 
       - name: Checkout Head Branch
@@ -121,7 +121,7 @@ jobs:
             flyway/flyway:12.1.0 \
             -url=jdbc:mariadb://127.0.0.1:3306/booklore_test \
             -user=root -password=root \
-            -locations=filesystem:/flyway/sql/booklore-api/src/main/resources/db/migration \
+            -locations=filesystem:/flyway/sql/backend/src/main/resources/db/migration \
             migrate
 
       - name: Confirm Flyway Dry Run Success

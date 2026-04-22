@@ -12,7 +12,6 @@ concurrency:
 jobs:
   migration-check:
     name: Flyway Migration Check
-    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     uses: ./.github/workflows/migrations-check.yml
     with:
       base_ref: ${{ github.event.before }}
@@ -21,7 +20,6 @@ jobs:
 
   test-suite:
     name: Test Suite
-    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     needs: [migration-check]
     uses: ./.github/workflows/test-suite.yml
     permissions:
@@ -33,7 +31,6 @@ jobs:
 
   semantic-release:
     name: Compute Release, Update Changelog, and Draft GitHub Release
-    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     needs: [migration-check, test-suite]
     runs-on: ubuntu-latest
 
@@ -53,12 +50,12 @@ jobs:
           persist-credentials: false
 
       - name: Install just
-        uses: taiki-e/install-action@a1df9120380005ebdc788c62449b841b205541dd # v2.71.0
+        uses: taiki-e/install-action@5f57d6cb7cd20b14a8a27f522884c4bc8a187458 # v2.75.19
         with:
           tool: just
 
       - name: Set Up Node.js
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
           node-version: '24'
 
@@ -118,88 +115,10 @@ jobs:
           echo "released=true" >> "$GITHUB_OUTPUT"
           echo "release_tag=$release_tag" >> "$GITHUB_OUTPUT"
 
-  publish-release:
-    name: Publish Stable Images
-    if: ${{ needs.semantic-release.outputs.released == 'true' }}
-    needs: [semantic-release]
-    uses: ./.github/workflows/publish-release.yml
-    permissions:
-      contents: write
-      packages: write
-    secrets: inherit
-    with:
-      release_tag: ${{ needs.semantic-release.outputs.release_tag }}
-      commit_sha: ${{ needs.semantic-release.outputs.release_sha }}
-
-  prepare-release-notification:
-    name: Prepare Stable Release Notification
-    if: ${{ needs.semantic-release.outputs.released == 'true' && needs.publish-release.result == 'success' }}
-    needs: [semantic-release, publish-release]
-    runs-on: ubuntu-latest
-
-    outputs:
-      base_tag: ${{ steps.metadata.outputs.base_tag }}
-      compare_url: ${{ steps.metadata.outputs.compare_url }}
-      release_url: ${{ steps.metadata.outputs.release_url }}
-      release_version: ${{ steps.metadata.outputs.release_version }}
-
-    permissions:
-      contents: read
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-        with:
-          fetch-depth: 0
-          ref: ${{ needs.semantic-release.outputs.release_sha }}
-
-      - name: Extract Stable Release Metadata
-        id: metadata
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_TOKEN != '' && secrets.RELEASE_BOT_TOKEN || github.token }}
-          RELEASE_TAG: ${{ needs.semantic-release.outputs.release_tag }}
-        run: |
-          set -eu
-
-          git fetch origin main --tags --force
-
-          release_json="$(gh release view "$RELEASE_TAG" --json body,url)"
-          release_version="${RELEASE_TAG#v}"
-          base_tag="$(git tag --sort=-version:refname 'v*' | grep -Fxv "$RELEASE_TAG" | head -n 1 || true)"
-          compare_url=""
-          release_url="$(printf '%s' "$release_json" | jq -r '.url')"
-          if [ -n "$base_tag" ]; then
-            compare_url="https://github.com/${GITHUB_REPOSITORY}/compare/${base_tag}...${RELEASE_TAG}"
-          fi
-          {
-            echo "base_tag=${base_tag}"
-            echo "compare_url=${compare_url}"
-            echo "release_url=${release_url}"
-            echo "release_version=${release_version}"
-          } >> "$GITHUB_OUTPUT"
-
-  notify-discord:
-    name: Notify Discord (Stable)
-    if: ${{ needs.semantic-release.outputs.released == 'true' && needs.publish-release.result == 'success' && needs.prepare-release-notification.result == 'success' }}
-    needs: [semantic-release, publish-release, prepare-release-notification]
-    permissions: {}
-    uses: ./.github/workflows/notify-discord-release-notes.yml
-    secrets:
-      discord_webhook: ${{ secrets.DISCORD_STABLE_WEBHOOK != '' && secrets.DISCORD_STABLE_WEBHOOK || secrets.DISCORD_RELEASE_WEBHOOK }}
-    with:
-      channel: stable
-      candidate_sha: ${{ needs.semantic-release.outputs.release_sha }}
-      base_tag: ${{ needs.prepare-release-notification.outputs.base_tag }}
-      current_version: ${{ needs.semantic-release.outputs.release_tag }}
-      details_url: ${{ needs.prepare-release-notification.outputs.release_url }}
-      compare_url: ${{ needs.prepare-release-notification.outputs.compare_url }}
-      mention_text: ${{ vars.DISCORD_STABLE_MENTIONS }}
-      predicted_version: ${{ needs.prepare-release-notification.outputs.release_version }}
-
   backport-release:
     name: Backport Release Commit to Develop
-    if: ${{ needs.semantic-release.outputs.released == 'true' && needs.publish-release.result == 'success' }}
-    needs: [semantic-release, publish-release]
+    if: ${{ needs.semantic-release.outputs.released == 'true' }}
+    needs: [semantic-release]
     runs-on: ubuntu-latest
 
     permissions:

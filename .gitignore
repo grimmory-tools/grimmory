@@ -49,7 +49,7 @@ frontend/output/
 frontend/playwright-report/
 frontend/.playwright-browsers/
 frontend/node_modules/
-booklore-api/src/main/resources/application-local.yaml
+backend/src/main/resources/application-local.yaml
 /shared/
 
 /scratch
