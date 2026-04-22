@@ -282,13 +282,17 @@ public class FileService {
     }
 
     private static void writeJpegWithQuality(BufferedImage img, File file, float quality) throws IOException {
-        ImageWriter writer = ImageIO.getImageWritersByFormatName("jpg").next();
+        Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(IMAGE_FORMAT);
+        if (!writers.hasNext()) {
+            throw new IOException("No JPEG image writer is available");
+        }
+        ImageWriter writer = writers.next();
         try (ImageOutputStream ios = ImageIO.createImageOutputStream(file)) {
             writer.setOutput(ios);
             ImageWriteParam param = writer.getDefaultWriteParam();
             if (param.canWriteCompressed()) {
                 param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-                param.setCompressionType("JPEG");
+                param.setCompressionType(IMAGE_FORMAT);
                 param.setCompressionQuality(quality);
             }
             writer.write(null, new IIOImage(img, null, null), param);

@@ -4,6 +4,7 @@ import {MessageService} from 'primeng/api';
 import {TranslocoService} from '@jsverse/transloco';
 import {MetadataRefreshType} from '../../features/metadata/model/request/metadata-refresh-type.enum';
 import {BookdropFinalizeResult} from '../../features/bookdrop/service/bookdrop.service';
+import {take} from 'rxjs/operators';
 
 /**
  * Dialog size classes - use these to control dialog dimensions
@@ -75,7 +76,17 @@ export class DialogLauncherService {
     }
 
     const promise = importer()
-      .then(component => this.openDialog(component, options))
+      .then(component => {
+        const ref = this.openDialog(component, options);
+        if (!ref) {
+          this.inflightOpens.delete(key);
+          return null;
+        }
+        ref.onClose.pipe(take(1)).subscribe(() => {
+          this.inflightOpens.delete(key);
+        });
+        return ref;
+      })
       .catch(error => {
         console.error(`[DialogLauncher] Failed to load chunk for "${key}"`, error);
         this.messageService.add({
@@ -84,10 +95,8 @@ export class DialogLauncherService {
           detail: this.t.translate('common.chunkLoadFailedDetail'),
           life: 6000,
         });
-        return null;
-      })
-      .finally(() => {
         this.inflightOpens.delete(key);
+        return null;
       });
 
     this.inflightOpens.set(key, promise);

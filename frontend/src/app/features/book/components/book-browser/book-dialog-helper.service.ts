@@ -5,6 +5,7 @@ import {TranslocoService} from '@jsverse/transloco';
 import {DialogLauncherService, DialogSize, DialogStyle} from '../../../../shared/services/dialog-launcher.service';
 import {MetadataRefreshType} from '../../../metadata/model/request/metadata-refresh-type.enum';
 import {Book} from '../../model/book.model';
+import {take} from 'rxjs/operators';
 
 @Injectable({providedIn: 'root'})
 export class BookDialogHelperService {
@@ -31,7 +32,17 @@ export class BookDialogHelperService {
     }
 
     const promise = importer()
-      .then(component => this.openDialog(component, options))
+      .then(component => {
+        const ref = this.openDialog(component, options);
+        if (!ref) {
+          this.inflightOpens.delete(key);
+          return null;
+        }
+        ref.onClose.pipe(take(1)).subscribe(() => {
+          this.inflightOpens.delete(key);
+        });
+        return ref;
+      })
       .catch(error => {
         console.error(`[BookDialogHelper] Failed to load chunk for "${key}"`, error);
         this.messageService.add({
@@ -40,10 +51,8 @@ export class BookDialogHelperService {
           detail: this.t.translate('common.chunkLoadFailedDetail'),
           life: 6000,
         });
-        return null;
-      })
-      .finally(() => {
         this.inflightOpens.delete(key);
+        return null;
       });
 
     this.inflightOpens.set(key, promise);

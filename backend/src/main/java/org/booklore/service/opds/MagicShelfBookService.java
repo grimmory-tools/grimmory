@@ -89,6 +89,10 @@ public class MagicShelfBookService {
                     .map(Library::getId)
                     .collect(Collectors.toSet());
 
+            if (userLibraryIds.isEmpty()) {
+                return specification.and((root, query, cb) -> cb.disjunction());
+            }
+
             return specification.and(org.booklore.app.specification.AppBookSpecification.inLibraries(userLibraryIds));
         } catch (APIException e) {
             throw e;
