@@ -22,47 +22,33 @@ export class RxStompService extends RxStomp {
   }
 
   private setupBfCacheListeners(): void {
-    if (typeof window === 'undefined') return;
+    if (typeof globalThis.window === 'undefined') return;
 
-    window.addEventListener('pagehide', () => {
+    globalThis.window.addEventListener('pagehide', () => {
       if (this.active) {
         this.deactivatedForBfCache = true;
         this.deactivate();
       }
     });
 
-    window.addEventListener('freeze', () => {
+    globalThis.window.addEventListener('freeze', () => {
       if (this.active) {
         this.deactivatedForBfCache = true;
         this.deactivate();
       }
     });
 
-    window.addEventListener('resume', () => {
+    globalThis.window.addEventListener('resume', () => {
       if (this.deactivatedForBfCache && !this.active && this.authService.isAuthenticated()) {
         this.deactivatedForBfCache = false;
         this.activate();
       }
     });
 
-    window.addEventListener('pageshow', (event) => {
+    globalThis.window.addEventListener('pageshow', (event) => {
       if (event.persisted && this.deactivatedForBfCache && !this.active && this.authService.isAuthenticated()) {
         this.deactivatedForBfCache = false;
         this.activate();
-      }
-    });
-
-    window.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'hidden') {
-        if (this.active) {
-          this.deactivatedForBfCache = true;
-          this.deactivate();
-        }
-      } else if (document.visibilityState === 'visible') {
-        if (this.deactivatedForBfCache && !this.active && this.authService.isAuthenticated()) {
-          this.deactivatedForBfCache = false;
-          this.activate();
-        }
       }
     });
   }

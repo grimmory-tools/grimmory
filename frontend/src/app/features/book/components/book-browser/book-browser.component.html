@@ -46,21 +46,21 @@
         <div class="toolbar-actions">
           <div class="toolbar-icons">
             @if (isFilterActive()) {
-            <a class="topbar-items topbar-item" role="button" tabindex="0" (click)="clearFilter()"
-              (keydown.enter)="clearFilter()">
+            <button type="button" class="topbar-items topbar-item" (click)="clearFilter()"
+              (keydown.enter)="clearFilter()" [attr.aria-label]="t('tooltip.clearFilters')">
               <i class="pi pi-filter-slash filter-clear-icon" [pTooltip]="t('tooltip.clearFilters')"
                 tooltipPosition="top">
               </i>
-            </a>
+            </button>
             }
 
             @if (currentViewMode() === 'table') {
             <div>
-              <a class="topbar-items topbar-item" role="button" tabindex="0" (click)="columnPopover.toggle($event)"
-                (keydown.enter)="columnPopover.toggle($event)">
+              <button type="button" class="topbar-items topbar-item" (click)="columnPopover.toggle($event)"
+                (keydown.enter)="columnPopover.toggle($event)" [attr.aria-label]="t('tooltip.visibleColumns')">
                 <i class="pi pi-eye" [pTooltip]="t('tooltip.visibleColumns')" tooltipPosition="top">
                 </i>
-              </a>
+              </button>
               <p-popover #columnPopover [dismissable]="true" appendTo="body">
                 <div class="column-popover-content">
                   <p-multiSelect optionLabel="header" [options]="columnPreferenceService.allColumns"
@@ -76,17 +76,17 @@
               </p-popover>
             </div>
             }
-            <a class="topbar-items topbar-item" role="button" tabindex="0" (click)="toggleTableGrid()"
-              (keydown.enter)="toggleTableGrid()">
+            <button type="button" class="topbar-items topbar-item" (click)="toggleTableGrid()"
+              (keydown.enter)="toggleTableGrid()" [attr.aria-label]="t('tooltip.toggleView')">
               <i [class]="viewIcon()" [pTooltip]="t('tooltip.toggleView')" tooltipPosition="top">
               </i>
-            </a>
+            </button>
             <div>
-              <a class="topbar-items topbar-item" role="button" tabindex="0"
+              <button type="button" class="topbar-items topbar-item"
                 (click)="seriesCollapseOverlay.toggle($event)" (keydown.enter)="seriesCollapseOverlay.toggle($event)"
-                [pTooltip]="t('tooltip.displaySettings')" tooltipPosition="top">
+                [pTooltip]="t('tooltip.displaySettings')" tooltipPosition="top" [attr.aria-label]="t('tooltip.displaySettings')">
                 <i class="pi pi-cog"></i>
-              </a>
+              </button>
               <p-popover #seriesCollapseOverlay [dismissable]="true" appendTo="body">
                 <div class="display-settings-popover">
                   <div class="display-settings-section">
@@ -138,14 +138,14 @@
             </div>
 
             <div class="sort-button-wrapper">
-              <a class="topbar-items topbar-item" role="button" tabindex="0" (click)="sortPopover.toggle($event)"
-                (keydown.enter)="sortPopover.toggle($event)">
+              <button type="button" class="topbar-items topbar-item" (click)="sortPopover.toggle($event)"
+                (keydown.enter)="sortPopover.toggle($event)" [attr.aria-label]="t('tooltip.selectSorting')">
                 <i class="pi pi-sort" [pTooltip]="t('tooltip.selectSorting')" tooltipPosition="top">
                 </i>
                 @if (sortCriteriaCount() > 1) {
                 <p-badge [value]="sortCriteriaCount().toString()" class="sort-badge" />
                 }
-              </a>
+              </button>
               <p-popover #sortPopover [dismissable]="true" appendTo="body">
                 <app-multi-sort-popover [sortCriteria]="this.bookSorter.selectedSortCriteria"
                   [availableSortOptions]="visibleSortOptions()" [showSaveButton]="canSaveSort()"
@@ -183,12 +183,12 @@
             }
           </div>
 
-          <a class="topbar-items topbar-item" role="button" tabindex="0" (click)="toggleSidebar()"
-            (keydown.enter)="toggleSidebar()">
+          <button type="button" class="topbar-items topbar-item" (click)="toggleSidebar()"
+            (keydown.enter)="toggleSidebar()" [attr.aria-label]="t('tooltip.toggleSidebar')">
             <i [ngClass]="showFilter() ? 'pi pi-filter-fill' : 'pi pi-filter'" [pTooltip]="t('tooltip.toggleSidebar')"
               tooltipPosition="top">
             </i>
-          </a>
+          </button>
         </div>
       </div>
 
@@ -247,7 +247,7 @@
                 @for (book of books; track book.id; let i = $index) {
                 <div class="virtual-scroller-item"
                   [ngStyle]="{width: currentCardSize().width + 'px', height: currentCardSize().height + 'px'}">
-                  <app-book-card [index]="i" [book]="book" [eager]="i < 24" [isCheckboxEnabled]="true"
+                  <app-book-card [index]="i" [book]="book" [eager]="i < 8" [isCheckboxEnabled]="true"
                     [seriesViewEnabled]="seriesViewEnabled()" [onBookSelect]="onBookCardSelect"
                     [isSeriesCollapsed]="seriesCollapseFilter.seriesCollapsed()"
                     (checkboxClick)="onCheckboxClicked($event)" [isSelected]="bookSelectionService.isBookSelected(book)"
@@ -342,9 +342,9 @@
     </div>
 
     @if (showFilter()) {
-    <div class="mobile-filter-mask" role="button" tabindex="0" (click)="toggleSidebar()"
-      (keydown.enter)="toggleSidebar()">
-    </div>
+    <button type="button" class="mobile-filter-mask" (click)="toggleSidebar()"
+      (keydown.enter)="toggleSidebar()" [attr.aria-label]="t('tooltip.closeSidebar')">
+    </button>
     }
     <app-book-filter [showFilter]="showFilter()" class="filter-overlay-container" [ngClass]="{ 'active': showFilter() }"
       [style.display]="showFilter() ? '' : 'none'" (filterSelected)="onFilterSelected($event)"

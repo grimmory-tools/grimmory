@@ -14,7 +14,7 @@ import { IconPickerService, IconSelection } from '../../shared/service/icon-pick
 import { Button } from 'primeng/button';
 import { IconDisplayComponent } from '../../shared/components/icon-display/icon-display.component';
 import { DialogLauncherService } from '../../shared/services/dialog-launcher.service';
-import { switchMap, map } from 'rxjs';
+import { switchMap, map, take } from 'rxjs';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Checkbox } from 'primeng/checkbox';
 import { Select } from 'primeng/select';
@@ -215,15 +215,16 @@ export class LibraryCreatorComponent {
     return this.allBookFormats.some(f => this.getFormatWarning(f.type) !== null);
   }
 
-  openDirectoryPicker(): void {
-    this.dialogLauncherService.openDirectoryPickerDialog().then(ref => {
-      ref?.onClose.subscribe((selectedFolders: string[] | null) => {
-        if (selectedFolders && selectedFolders.length > 0) {
-          this.folders.update(current => {
-            const incoming = selectedFolders.filter(f => !current.includes(f));
-            return incoming.length > 0 ? [...current, ...incoming] : current;
-          });
-        }
+  async openDirectoryPicker(): Promise<void> {
+    const ref = await this.dialogLauncherService.openDirectoryPickerDialog();
+    if (!ref) return;
+
+    ref.onClose.pipe(take(1)).subscribe((selectedFolders: string[] | null) => {
+      if (!selectedFolders || selectedFolders.length === 0) return;
+
+      this.folders.update(current => {
+        const incoming = selectedFolders.filter(f => !current.includes(f));
+        return incoming.length > 0 ? [...current, ...incoming] : current;
       });
     });
   }

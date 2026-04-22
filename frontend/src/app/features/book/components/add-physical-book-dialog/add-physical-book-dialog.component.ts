@@ -40,9 +40,7 @@ export class AddPhysicalBookDialogComponent {
   private libraryService = inject(LibraryService);
   private readonly metadata = computed(() => this.bookService.uniqueMetadata());
 
-  constructor() {
-    this.bookService.requestMetadata();
-  }
+
 
   selectedLibraryId: number | null = null;
   title: string = '';

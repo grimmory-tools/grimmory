@@ -565,7 +565,12 @@ public class FileService {
             }
 
             File photoFile = new File(folder, AUTHOR_PHOTO_FILENAME);
-            writeJpegWithQuality(rgbImage, photoFile, 0.75f);
+            try {
+                writeJpegWithQuality(rgbImage, photoFile, 0.75f);
+            } catch (IOException e) {
+                log.warn("Failed to write author photo for {}: {}", authorId, e.getMessage());
+                return false;
+            }
 
             double targetRatio = (double) THUMBNAIL_WIDTH / THUMBNAIL_HEIGHT;
             double sourceRatio = (double) rgbImage.getWidth() / rgbImage.getHeight();
@@ -585,7 +590,12 @@ public class FileService {
             thumb = resizeImage(cropped, THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT);
 
             File thumbnailFile = new File(folder, AUTHOR_THUMBNAIL_FILENAME);
-            writeJpegWithQuality(thumb, thumbnailFile, 0.6f);
+            try {
+                writeJpegWithQuality(thumb, thumbnailFile, 0.6f);
+            } catch (IOException e) {
+                log.warn("Failed to write author thumbnail for {}: {}", authorId, e.getMessage());
+                return false;
+            }
 
             return true;
         } finally {
@@ -721,12 +731,22 @@ public class FileService {
             }
 
             File originalFile = new File(folder, AUDIOBOOK_COVER_FILENAME);
-            writeJpegWithQuality(resized, originalFile, 0.75f);
+            try {
+                writeJpegWithQuality(resized, originalFile, 0.75f);
+            } catch (IOException e) {
+                log.warn("Failed to write audiobook cover for {}: {}", bookId, e.getMessage());
+                return false;
+            }
 
             // Create square thumbnail
             thumb = resizeImage(resized, SQUARE_THUMBNAIL_SIZE, SQUARE_THUMBNAIL_SIZE);
             File thumbnailFile = new File(folder, AUDIOBOOK_THUMBNAIL_FILENAME);
-            writeJpegWithQuality(thumb, thumbnailFile, 0.6f);
+            try {
+                writeJpegWithQuality(thumb, thumbnailFile, 0.6f);
+            } catch (IOException e) {
+                log.warn("Failed to write audiobook thumbnail for {}: {}", bookId, e.getMessage());
+                return false;
+            }
 
             return true;
         } finally {
@@ -782,7 +802,12 @@ public class FileService {
             }
 
             File originalFile = new File(folder, COVER_FILENAME);
-            writeJpegWithQuality(rgbImage, originalFile, 0.75f);
+            try {
+                writeJpegWithQuality(rgbImage, originalFile, 0.75f);
+            } catch (IOException e) {
+                log.warn("Failed to write book cover for {}: {}", bookId, e.getMessage());
+                return false;
+            }
 
             // Determine thumbnail dimensions based on source aspect ratio
             int thumbWidth, thumbHeight;
@@ -798,7 +823,12 @@ public class FileService {
             }
             thumb = resizeImage(rgbImage, thumbWidth, thumbHeight);
             File thumbnailFile = new File(folder, THUMBNAIL_FILENAME);
-            writeJpegWithQuality(thumb, thumbnailFile, 0.6f);
+            try {
+                writeJpegWithQuality(thumb, thumbnailFile, 0.6f);
+            } catch (IOException e) {
+                log.warn("Failed to write book thumbnail for {}: {}", bookId, e.getMessage());
+                return false;
+            }
 
             return true;
         } finally {

@@ -92,7 +92,7 @@ describe('MetadataPickerComponent', () => {
         MetadataFormBuilder,
         MetadataUtilsService,
         {provide: AppSettingsService, useValue: {appSettings}},
-        {provide: BookService, useValue: {uniqueMetadata, requestMetadata: vi.fn()}},
+        {provide: BookService, useValue: {uniqueMetadata}},
         {
           provide: BookMetadataManageService,
           useValue: {updateBookMetadata, uploadAudiobookCoverFromUrl, supportsDualCovers},

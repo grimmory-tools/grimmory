@@ -123,7 +123,7 @@ export class BulkMetadataUpdateComponent implements OnInit {
   ngOnInit(): void {
     this.bookIds = this.config.data?.bookIds ?? [];
     this.books = this.bookService.getBooksByIds(this.bookIds);
-    this.bookService.requestMetadata();
+
 
     this.metadataForm = this.fb.group({
       authors: [],

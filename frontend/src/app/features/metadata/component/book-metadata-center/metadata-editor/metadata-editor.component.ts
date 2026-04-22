@@ -400,7 +400,7 @@ export class MetadataEditorComponent implements OnInit {
       this.metadataCenterViewMode = user.userSettings.metadataCenterViewMode ?? 'route';
       this.autoSaveEnabled = user.userSettings.autoSaveMetadata ?? false;
     }
-    this.bookService.requestMetadata();
+
   }
 
   private populateFormFromMetadata(metadata: BookMetadata): void {

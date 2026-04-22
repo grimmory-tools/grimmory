@@ -80,7 +80,7 @@ describe('AddPhysicalBookDialogComponent', () => {
       providers: [
         {provide: DynamicDialogConfig, useValue: {data: options.dialogData ?? {}}},
         {provide: DynamicDialogRef, useValue: dialogRef},
-        {provide: BookService, useValue: {uniqueMetadata, createPhysicalBook, requestMetadata: vi.fn()}},
+        {provide: BookService, useValue: {uniqueMetadata, createPhysicalBook}},
         {provide: BookMetadataService, useValue: {lookupByIsbn}},
         {provide: LibraryService, useValue: {libraries}},
       ],

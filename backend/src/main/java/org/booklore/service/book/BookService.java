@@ -40,6 +40,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -288,6 +289,20 @@ public class BookService {
         } catch (MalformedURLException e) {
             throw new RuntimeException("Failed to load book cover for bookId=" + bookId, e);
         }
+    }
+
+    public Instant getCoverUpdatedOn(long bookId) {
+        return bookRepository.findById(bookId)
+                .map(BookEntity::getMetadata)
+                .map(BookMetadataEntity::getCoverUpdatedOn)
+                .orElse(null);
+    }
+
+    public Instant getAudiobookCoverUpdatedOn(long bookId) {
+        return bookRepository.findById(bookId)
+                .map(BookEntity::getMetadata)
+                .map(BookMetadataEntity::getAudiobookCoverUpdatedOn)
+                .orElse(null);
     }
 
     public Resource getBookCover(long bookId) {
