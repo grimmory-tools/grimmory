@@ -38,11 +38,6 @@
               },
               {
                 "glob": "**/*",
-                "input": "node_modules/ngx-extended-pdf-viewer/assets/",
-                "output": "/assets/"
-              },
-              {
-                "glob": "**/*",
                 "input": "libs/foliate-js",
                 "output": "/assets/foliate/"
               },
@@ -94,7 +89,22 @@
                   "maximumError": "25kB"
                 }
               ],
+              "optimization": {
+                "scripts": true,
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": true
+                },
+                "fonts": true
+              },
               "outputHashing": "all",
+              "sourceMap": {
+                "scripts": true,
+                "styles": false,
+                "hidden": true
+              },
+              "namedChunks": false,
+              "extractLicenses": true,
               "serviceWorker": "ngsw-config.json"
             },
             "development": {

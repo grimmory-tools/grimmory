@@ -154,11 +154,13 @@ export class EmailV2ProviderComponent implements OnInit {
   }
 
   openCreateProviderDialog() {
-    this.ref = this.dialogLauncherService.openEmailProviderDialog();
-    this.ref?.onClose.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
-      if (result) {
-        this.loadEmailProviders();
-      }
+    this.dialogLauncherService.openEmailProviderDialog().then(ref => {
+      this.ref = ref;
+      this.ref?.onClose.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
+        if (result) {
+          this.loadEmailProviders();
+        }
+      });
     });
   }
 

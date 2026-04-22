@@ -36,10 +36,9 @@ import {MultiSelect} from 'primeng/multiselect';
 import {TableColumnPreferenceService} from './table-column-preference.service';
 import {TieredMenu} from 'primeng/tieredmenu';
 import {Badge} from 'primeng/badge';
-import {BookMenuService} from '../../service/book-menu.service';
 import {SidebarFilterTogglePrefService} from './filters/sidebar-filter-toggle-pref.service';
-import {MetadataRefreshType} from '../../../metadata/model/request/metadata-refresh-type.enum';
 import {TaskHelperService} from '../../../settings/task-management/task-helper.service';
+import {BookMenuService} from '../../service/book-menu.service';
 import {FilterLabelHelper} from './filter-label.helper';
 import {LoadingService} from '../../../../core/services/loading.service';
 import {LocalStorageService} from '../../../../shared/service/local-storage.service';
@@ -1054,49 +1053,70 @@ export class BookBrowserComponent implements AfterViewInit {
   }
 
   openShelfAssigner(): void {
-    this.dynamicDialogRef = this.dialogHelperService.openShelfAssignerDialog(null, this.selectedBooks());
-    if (this.dynamicDialogRef) {
-      this.dynamicDialogRef.onClose.pipe(take(1)).subscribe(result => {
-        if (result?.assigned) {
-          this.bookSelectionService.deselectAll();
-        }
-      });
-    }
+    const selectedBooks = this.selectedBooks();
+    if (selectedBooks.size === 0) return;
+    this.dialogHelperService.openShelfAssignerDialog(null, selectedBooks).then(ref => {
+      this.dynamicDialogRef = ref;
+      if (this.dynamicDialogRef) {
+        this.dynamicDialogRef.onClose.pipe(take(1)).subscribe(result => {
+          if (result?.assigned) {
+            this.bookSelectionService.deselectAll();
+          }
+        });
+      }
+    });
   }
 
   lockUnlockMetadata(): void {
-    this.dynamicDialogRef = this.dialogHelperService.openLockUnlockMetadataDialog(this.selectedBooks());
-    if (this.dynamicDialogRef) {
-      this.dynamicDialogRef.onClose.pipe(take(1)).subscribe(() => {
-        this.bookSelectionService.deselectAll();
-      });
-    }
+    const selectedBooks = this.selectedBooks();
+    if (selectedBooks.size === 0) return;
+    this.dialogHelperService.openLockUnlockMetadataDialog(selectedBooks).then(ref => {
+      this.dynamicDialogRef = ref;
+      if (this.dynamicDialogRef) {
+        this.dynamicDialogRef.onClose.pipe(take(1)).subscribe(() => {
+          this.bookSelectionService.deselectAll();
+        });
+      }
+    });
   }
 
   autoFetchMetadata(): void {
     const selectedBooks = this.selectedBooks();
     if (selectedBooks.size === 0) return;
-    this.taskHelperService.refreshMetadataTask({
-      refreshType: MetadataRefreshType.BOOKS,
-      bookIds: Array.from(selectedBooks),
-    }).subscribe();
+    this.dialogHelperService.openMetadataRefreshDialog(selectedBooks).then(ref => {
+      this.dynamicDialogRef = ref;
+      this.handleDialogClose();
+    });
   }
 
   fetchMetadata(): void {
-    this.dialogHelperService.openMetadataRefreshDialog(this.selectedBooks());
+    const selectedBooks = this.selectedBooks();
+    if (selectedBooks.size === 0) return;
+    this.dialogHelperService.openBulkMetadataEditDialog(selectedBooks).then(ref => {
+      this.dynamicDialogRef = ref;
+      this.handleDialogClose();
+    });
   }
 
   bulkEditMetadata(): void {
-    this.dynamicDialogRef = this.dialogHelperService.openBulkMetadataEditDialog(this.selectedBooks());
-    if (this.dynamicDialogRef) {
-      this.dynamicDialogRef.onClose.pipe(take(1)).subscribe(() => {
-        this.bookSelectionService.deselectAll();
-      });
-    }
+    const selectedBooks = this.selectedBooks();
+    if (selectedBooks.size === 0) return;
+    this.dialogHelperService.openLockUnlockMetadataDialog(selectedBooks).then(ref => {
+      this.dynamicDialogRef = ref;
+      this.handleDialogClose();
+    });
   }
 
   multiBookEditMetadata(): void {
-    this.dynamicDialogRef = this.dialogHelperService.openMultibookMetadataEditorDialog(this.selectedBooks());
+    const selectedBooks = this.selectedBooks();
+    if (selectedBooks.size === 0) return;
+    this.dialogHelperService.openMultibookMetadataEditorDialog(selectedBooks).then(ref => {
+      this.dynamicDialogRef = ref;
+      this.handleDialogClose();
+    });
+  }
+
+  private handleDialogClose(): void {
     if (this.dynamicDialogRef) {
       this.dynamicDialogRef.onClose.pipe(take(1)).subscribe(() => {
         this.bookSelectionService.deselectAll();
@@ -1187,7 +1207,9 @@ export class BookBrowserComponent implements AfterViewInit {
   }
 
   moveFiles(): void {
-    this.dialogHelperService.openFileMoverDialog(this.selectedBooks());
+    this.dialogHelperService.openFileMoverDialog(this.selectedBooks()).then(ref => {
+      this.dynamicDialogRef = ref;
+    });
   }
 
   attachFilesToBook(): void {
@@ -1216,14 +1238,16 @@ export class BookBrowserComponent implements AfterViewInit {
       return;
     }
 
-    this.dynamicDialogRef = this.dialogHelperService.openBulkBookFileAttacherDialog(sourceBooks);
-    if (this.dynamicDialogRef) {
-      this.dynamicDialogRef.onClose.pipe(take(1)).subscribe(result => {
-        if (result?.success) {
-          this.bookSelectionService.deselectAll();
-        }
-      });
-    }
+    this.dialogHelperService.openBulkBookFileAttacherDialog(sourceBooks).then(ref => {
+      this.dynamicDialogRef = ref;
+      if (this.dynamicDialogRef) {
+        this.dynamicDialogRef.onClose.pipe(take(1)).subscribe(result => {
+          if (result?.success) {
+            this.bookSelectionService.deselectAll();
+          }
+        });
+      }
+    });
   }
 
   canAttachFiles(): boolean {

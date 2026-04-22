@@ -216,14 +216,15 @@ export class LibraryCreatorComponent {
   }
 
   openDirectoryPicker(): void {
-    const ref = this.dialogLauncherService.openDirectoryPickerDialog();
-    ref?.onClose.subscribe((selectedFolders: string[] | null) => {
-      if (selectedFolders && selectedFolders.length > 0) {
-        this.folders.update(current => {
-          const incoming = selectedFolders.filter(f => !current.includes(f));
-          return incoming.length > 0 ? [...current, ...incoming] : current;
-        });
-      }
+    this.dialogLauncherService.openDirectoryPickerDialog().then(ref => {
+      ref?.onClose.subscribe((selectedFolders: string[] | null) => {
+        if (selectedFolders && selectedFolders.length > 0) {
+          this.folders.update(current => {
+            const incoming = selectedFolders.filter(f => !current.includes(f));
+            return incoming.length > 0 ? [...current, ...incoming] : current;
+          });
+        }
+      });
     });
   }
 

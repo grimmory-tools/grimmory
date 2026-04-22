@@ -599,23 +599,27 @@ export class SeriesPageComponent implements AfterViewChecked {
   }
 
   openShelfAssigner(): void {
-    this.dialogRef = this.dialogHelperService.openShelfAssignerDialog(null, this.selectedBooks);
-    if (this.dialogRef) {
-      this.dialogRef.onClose.pipe(take(1)).subscribe(result => {
-        if (result.assigned) {
-          this.selectedBooks.clear();
-        }
-      });
-    }
+    this.dialogHelperService.openShelfAssignerDialog(null, this.selectedBooks).then(ref => {
+      this.dialogRef = ref;
+      if (this.dialogRef) {
+        this.dialogRef.onClose.pipe(take(1)).subscribe(result => {
+          if (result?.assigned) {
+            this.selectedBooks.clear();
+          }
+        });
+      }
+    });
   }
 
   lockUnlockMetadata(): void {
-    this.dialogRef = this.dialogHelperService.openLockUnlockMetadataDialog(this.selectedBooks);
-    if (this.dialogRef) {
-      this.dialogRef.onClose.pipe(take(1)).subscribe(() => {
-        this.deselectAllBooks();
-      });
-    }
+    this.dialogHelperService.openLockUnlockMetadataDialog(this.selectedBooks).then(ref => {
+      this.dialogRef = ref;
+      if (this.dialogRef) {
+        this.dialogRef.onClose.pipe(take(1)).subscribe(() => {
+          this.deselectAllBooks();
+        });
+      }
+    });
   }
 
   autoFetchMetadata(): void {
@@ -631,21 +635,25 @@ export class SeriesPageComponent implements AfterViewChecked {
   }
 
   bulkEditMetadata(): void {
-    this.dialogRef = this.dialogHelperService.openBulkMetadataEditDialog(this.selectedBooks);
-    if (this.dialogRef) {
-      this.dialogRef.onClose.pipe(take(1)).subscribe(() => {
-        this.deselectAllBooks();
-      });
-    }
+    this.dialogHelperService.openBulkMetadataEditDialog(this.selectedBooks).then(ref => {
+      this.dialogRef = ref;
+      if (this.dialogRef) {
+        this.dialogRef.onClose.pipe(take(1)).subscribe(() => {
+          this.deselectAllBooks();
+        });
+      }
+    });
   }
 
   multiBookEditMetadata(): void {
-    this.dialogRef = this.dialogHelperService.openMultibookMetadataEditorDialog(this.selectedBooks);
-    if (this.dialogRef) {
-      this.dialogRef.onClose.pipe(take(1)).subscribe(() => {
-        this.deselectAllBooks();
-      });
-    }
+    this.dialogHelperService.openMultibookMetadataEditorDialog(this.selectedBooks).then(ref => {
+      this.dialogRef = ref;
+      if (this.dialogRef) {
+        this.dialogRef.onClose.pipe(take(1)).subscribe(() => {
+          this.deselectAllBooks();
+        });
+      }
+    });
   }
 
   regenerateCoversForSelected(): void {
@@ -729,7 +737,9 @@ export class SeriesPageComponent implements AfterViewChecked {
   }
 
   moveFiles() {
-    this.dialogHelperService.openFileMoverDialog(this.selectedBooks);
+    this.dialogHelperService.openFileMoverDialog(this.selectedBooks).then(ref => {
+      this.dialogRef = ref;
+    });
   }
 
   user() {

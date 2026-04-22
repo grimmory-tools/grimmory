@@ -6207,7 +6207,6 @@ __metadata:
     ng-lazyload-image: "npm:^9.1.3"
     ng-mocks: "npm:^14.15.2"
     ng2-charts: "npm:^10.0.0"
-    ngx-extended-pdf-viewer: "npm:^26.0.0"
     ngx-infinite-scroll: "npm:^21.0.0"
     ngx-sse-client: "npm:^21.0.0"
     postcss: "npm:^8.5.8"
@@ -7482,18 +7481,6 @@ __metadata:
     chart.js: ^3.4.0 || ^4.0.0
     rxjs: ^6.5.3 || ^7.4.0
   checksum: 10c0/c39a9350fd31c4517f486d38b7c70009236fcb4c824ff531cd903c2fb1e8fd3ed65017a2b00376742a682704e5e27523ce6377c843ce86a6cbfdba00910a4477
-  languageName: node
-  linkType: hard
-
-"ngx-extended-pdf-viewer@npm:^26.0.0":
-  version: 26.0.0
-  resolution: "ngx-extended-pdf-viewer@npm:26.0.0"
-  dependencies:
-    tslib: "npm:^2.3.0"
-  peerDependencies:
-    "@angular/common": ">=19.0.0 <22.0.0"
-    "@angular/core": ">=19.0.0 <22.0.0"
-  checksum: 10c0/7595b07e29aae95335c09256db1fcb0c1b4f3101545d912e92eb08d181209bbecfef5e058d24859fbbf8e9379a8e4b20d61790b46ae314a2150cb04f8c352ecb
   languageName: node
   linkType: hard
 

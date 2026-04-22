@@ -1115,12 +1115,13 @@ export class MetadataEditorComponent implements OnInit {
   }
 
   openCoverSearch() {
-    const ref = this.bookDialogHelperService.openCoverSearchDialog(this.currentBookId, 'ebook');
-    ref?.onClose.pipe(
-      take(1),
-      filter(result => !!result),
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe();
+    this.bookDialogHelperService.openCoverSearchDialog(this.currentBookId, 'ebook').then(ref => {
+      ref?.onClose.pipe(
+        take(1),
+        filter(result => !!result),
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe();
+    });
   }
 
   navigatePrevious(): void {
@@ -1205,12 +1206,13 @@ export class MetadataEditorComponent implements OnInit {
   }
 
   openAudiobookCoverSearch() {
-    const ref = this.bookDialogHelperService.openCoverSearchDialog(this.currentBookId, 'audiobook');
-    ref?.onClose.pipe(
-      take(1),
-      filter(result => !!result),
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe();
+    this.bookDialogHelperService.openCoverSearchDialog(this.currentBookId, 'audiobook').then(ref => {
+      ref?.onClose.pipe(
+        take(1),
+        filter(result => !!result),
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe();
+    });
   }
 
   onAudiobookCoverUpload(event: FileUploadEvent): void {

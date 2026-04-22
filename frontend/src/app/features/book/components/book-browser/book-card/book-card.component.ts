@@ -419,7 +419,9 @@ export class BookCardComponent {
           {
             label: this.t.translate('book.card.menu.customSend'),
             icon: 'pi pi-envelope',
-            command: () => this.bookDialogHelperService.openCustomSendDialog(this.book())
+            command: () => {
+              this.bookDialogHelperService.openCustomSendDialog(this.book());
+            }
           }
         ]
       });
@@ -452,7 +454,9 @@ export class BookCardComponent {
           {
             label: this.t.translate('book.card.menu.customFetch'),
             icon: 'pi pi-sync',
-            command: () => this.bookDialogHelperService.openMetadataRefreshDialog(new Set([this.book().id])),
+            command: () => {
+              this.bookDialogHelperService.openMetadataRefreshDialog(new Set([this.book().id]));
+            },
           },
           {
             label: this.t.translate('book.card.menu.regenerateCover'),
@@ -505,7 +509,9 @@ export class BookCardComponent {
       moreActions.push({
         label: this.t.translate('book.card.menu.organizeFile'),
         icon: 'pi pi-arrows-h',
-        command: () => this.bookDialogHelperService.openFileMoverDialog(new Set([this.book().id]))
+        command: () => {
+          this.bookDialogHelperService.openFileMoverDialog(new Set([this.book().id]));
+        }
       });
     }
 

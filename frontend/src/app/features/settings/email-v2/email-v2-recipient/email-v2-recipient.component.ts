@@ -141,11 +141,13 @@ export class EmailV2RecipientComponent implements OnInit {
   }
 
   openAddRecipientDialog() {
-    this.ref = this.dialogLauncherService.openEmailRecipientDialog();
-    this.ref?.onClose.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
-      if (result) {
-        this.loadRecipientEmails();
-      }
+    this.dialogLauncherService.openEmailRecipientDialog().then(ref => {
+      this.ref = ref;
+      this.ref?.onClose.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
+        if (result) {
+          this.loadRecipientEmails();
+        }
+      });
     });
   }
 

@@ -49,7 +49,6 @@
     "jwt-decode": "^4.0.0",
     "ng-lazyload-image": "^9.1.3",
     "ng2-charts": "^10.0.0",
-    "ngx-extended-pdf-viewer": "^26.0.0",
     "ngx-infinite-scroll": "^21.0.0",
     "ngx-sse-client": "^21.0.0",
     "primeicons": "^7.0.0",
