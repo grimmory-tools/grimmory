@@ -102,17 +102,9 @@ export class AuthService {
   }
 
   forceLogout(reason: string): void {
-    const isStandardLogoutInFlight = this._logoutInProgress();
     this._logoutInProgress.set(true);
     this.clearSession();
     this.redirectTo(`/login?reason=${encodeURIComponent(reason)}`, true);
-
-    // If a standard logout was NOT in flight, we need to reset the flag manually
-    // because forceLogout doesn't have an async pipeline to reset it.
-    // However, if we don't reset it, it protects against re-entry before page unloads.
-    if (isStandardLogoutInFlight) {
-      // We'll let the standard logout pipeline finish resetting it if it's still around
-    }
   }
 
   protected redirectTo(url: string, replace = false): void {
