@@ -1,6 +1,6 @@
 # Grimmory API Development
 
-This document is the canonical development guide for `booklore-api`. It covers the local command
+This document is the canonical development guide for the Grimmory `backend`. It covers the local command
 surface, setup expectations, build and test workflows, and backend-specific conventions.
 
 For repository-wide contribution policy, branch strategy, PR requirements, and release semantics, start
@@ -9,7 +9,7 @@ see [../DEVELOPMENT.md](../DEVELOPMENT.md).
 
 ## Project Scope
 
-The `booklore-api` project is the Spring Boot backend for Grimmory. It owns the HTTP API, database
+The `backend` project is the Spring Boot backend for Grimmory. It owns the HTTP API, database
 migrations, background processing, authentication, and the packaged runtime jar used by the production
 container.
 
@@ -51,7 +51,7 @@ The backend expects a MariaDB instance and a local `application-dev.yml` with yo
 storage paths. The common backend loop is:
 
 ```bash
-cd booklore-api
+cd backend
 just run
 ```
 

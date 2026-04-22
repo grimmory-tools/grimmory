@@ -52,7 +52,7 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('booklore-api/**/*.gradle*', 'booklore-api/settings.gradle*', 'booklore-api/gradle.properties', 'booklore-api/gradle/wrapper/gradle-wrapper.properties') }}
+          key: gradle-${{ runner.os }}-${{ hashFiles('backend/**/*.gradle*', 'backend/settings.gradle*', 'backend/gradle.properties', 'backend/gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: |
             gradle-${{ runner.os }}-
 
@@ -77,7 +77,7 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@c950f6fb443cb5af20a377fd0dfaa78838901040 # v2
         if: ${{ always() && inputs.publish_test_results }}
         with:
-          files: booklore-api/build/test-results/**/*.xml
+          files: backend/build/test-results/**/*.xml
           check_name: Backend Test Results
 
       - name: Upload Backend Test Reports
@@ -86,8 +86,8 @@ jobs:
         with:
           name: backend-test-reports
           path: |
-            booklore-api/build/reports/tests/
-            booklore-api/build/test-results/
+            backend/build/reports/tests/
+            backend/build/test-results/
           retention-days: 30
 
       - name: Save Gradle Cache
