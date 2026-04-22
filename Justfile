@@ -1,6 +1,6 @@
 set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 
-mod api 'booklore-api/Justfile'
+mod api 'backend/Justfile'
 mod ui 'frontend/Justfile'
 mod release 'tools/release/Justfile'
 

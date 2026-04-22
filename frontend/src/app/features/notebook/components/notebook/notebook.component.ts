@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {of, Subject} from 'rxjs';
 import {debounceTime, switchMap} from 'rxjs/operators';
@@ -62,7 +62,7 @@ export class NotebookComponent implements OnInit {
 
   filteredGroups: BookGroup[] = [];
   totalEntries = 0;
-  loading = true;
+  loading = signal(true);
   exporting = false;
 
   searchQuery = '';
@@ -89,7 +89,7 @@ export class NotebookComponent implements OnInit {
         if (types.length === 0) {
           return of(EMPTY_PAGE);
         }
-        this.loading = true;
+        this.loading.set(true);
         return this.notebookService.getNotebookEntries(
           this.page, this.pageSize, types, this.selectedBookId, this.searchQuery, this.sortDirection
         );
@@ -98,7 +98,7 @@ export class NotebookComponent implements OnInit {
     ).subscribe(result => {
       this.totalEntries = result.page.totalElements;
       this.groupEntries(result.content);
-      this.loading = false;
+      this.loading.set(false);
     });
 
     this.searchSubject.pipe(

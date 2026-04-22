@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
 import {Button} from 'primeng/button';
@@ -56,12 +56,12 @@ export class DuplicateMergerComponent implements OnInit, OnDestroy {
   matchByDirectory = false;
   matchByFilename = false;
 
-  isScanning = false;
-  isMerging = false;
-  hasScanned = false;
+  isScanning = signal(false);
+  isMerging = signal(false);
+  hasScanned = signal(false);
   moveFiles = false;
-  mergeProgress = 0;
-  mergeTotal = 0;
+  mergeProgress = signal(0);
+  mergeTotal = signal(0);
 
   groups: DisplayGroup[] = [];
   presetOptions: { label: string; value: PresetMode }[] = [];
@@ -139,8 +139,8 @@ export class DuplicateMergerComponent implements OnInit, OnDestroy {
   }
 
   scan(): void {
-    this.isScanning = true;
-    this.hasScanned = false;
+    this.isScanning.set(true);
+    this.hasScanned.set(false);
     this.groups = [];
     this.pageFirst = 0;
 
@@ -163,12 +163,12 @@ export class DuplicateMergerComponent implements OnInit, OnDestroy {
           dismissed: false,
           selectedForDeletion: new Set<number>(),
         }));
-        this.isScanning = false;
-        this.hasScanned = true;
+        this.isScanning.set(false);
+        this.hasScanned.set(true);
       },
       error: (err) => {
-        this.isScanning = false;
-        this.hasScanned = true;
+        this.isScanning.set(false);
+        this.hasScanned.set(true);
         this.messageService.add({
           severity: 'error',
           summary: this.t.translate('book.duplicateMerger.toast.scanFailedSummary'),
@@ -187,7 +187,7 @@ export class DuplicateMergerComponent implements OnInit, OnDestroy {
   }
 
   get canScan(): boolean {
-    return !this.isScanning && !this.isMerging &&
+    return !this.isScanning() && !this.isMerging() &&
       (this.matchByIsbn || this.matchByExternalId || this.matchByTitleAuthor ||
         this.matchByDirectory || this.matchByFilename);
   }
@@ -314,9 +314,9 @@ export class DuplicateMergerComponent implements OnInit, OnDestroy {
     const toMerge = this.activeGroups;
     if (toMerge.length === 0) return;
 
-    this.isMerging = true;
-    this.mergeTotal = toMerge.length;
-    this.mergeProgress = 0;
+    this.isMerging.set(true);
+    this.mergeTotal.set(toMerge.length);
+    this.mergeProgress.set(0);
 
     let successCount = 0;
     let failCount = 0;
@@ -329,7 +329,7 @@ export class DuplicateMergerComponent implements OnInit, OnDestroy {
 
       if (sourceIds.length === 0) {
         group.dismissed = true;
-        this.mergeProgress++;
+        this.mergeProgress.update((p) => p + 1);
         continue;
       }
 
@@ -342,10 +342,10 @@ export class DuplicateMergerComponent implements OnInit, OnDestroy {
       } catch {
         failCount++;
       }
-      this.mergeProgress++;
+      this.mergeProgress.update((p) => p + 1);
     }
 
-    this.isMerging = false;
+    this.isMerging.set(false);
 
     if (successCount > 0) {
       this.messageService.add({

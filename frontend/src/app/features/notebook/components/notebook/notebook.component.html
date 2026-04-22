@@ -99,7 +99,7 @@
     <!-- Scrollable Content Area -->
     <div class="entries-scroll-area">
       <!-- Loading State -->
-      @if (loading) {
+      @if (loading()) {
         <div class="settings-card">
           <div class="state-container">
             <i class="pi pi-spin pi-spinner"></i>
@@ -108,7 +108,7 @@
       }
 
       <!-- Empty State: No annotations at all -->
-      @if (!loading && totalEntries === 0 && !searchQuery.trim() && selectedBookId === null && showHighlights && showNotes && showBookmarks) {
+      @if (!loading() && totalEntries === 0 && !searchQuery.trim() && selectedBookId === null && showHighlights && showNotes && showBookmarks) {
         <div class="settings-card">
           <div class="state-container">
             <div class="state-icon">
@@ -121,7 +121,7 @@
       }
 
       <!-- Empty State: No results match filters -->
-      @if (!loading && totalEntries === 0 && (searchQuery.trim() || selectedBookId !== null || !showHighlights || !showNotes || !showBookmarks)) {
+      @if (!loading() && totalEntries === 0 && (searchQuery.trim() || selectedBookId !== null || !showHighlights || !showNotes || !showBookmarks)) {
         <div class="settings-card">
           <div class="state-container">
             <div class="state-icon warn">
@@ -133,7 +133,7 @@
       }
 
       <!-- Book Groups -->
-      @if (!loading && filteredGroups.length > 0) {
+      @if (!loading() && filteredGroups.length > 0) {
         @for (group of filteredGroups; track group.bookId) {
           <div class="settings-card book-group-card">
             <!-- Book Header -->

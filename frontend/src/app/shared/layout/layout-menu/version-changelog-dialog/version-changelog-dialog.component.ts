@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { ReleaseNote, VersionService } from '../../../service/version.service';
 
 import showdown from 'showdown';
@@ -25,7 +25,7 @@ export class VersionChangelogDialogComponent implements OnInit {
   dialogRef = inject(DynamicDialogRef);
 
   changelog: ReleaseNote[] = [];
-  loading = true;
+  loading = signal(true);
 
   private converter = new showdown.Converter({ tables: true, emoji: true });
 
@@ -33,10 +33,10 @@ export class VersionChangelogDialogComponent implements OnInit {
     this.versionService.getChangelog().subscribe({
       next: (data) => {
         this.changelog = data;
-        this.loading = false;
+        this.loading.set(false);
       },
       error: () => {
-        this.loading = false;
+        this.loading.set(false);
       }
     });
   }

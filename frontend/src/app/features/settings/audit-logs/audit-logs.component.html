@@ -68,7 +68,7 @@
           [rows]="rows"
           [first]="currentPage * rows"
           [totalRecords]="totalRecords"
-          [loading]="loading"
+          [loading]="loading()"
           [showCurrentPageReport]="true"
           [currentPageReportTemplate]="t('pageReport')"
           (onLazyLoad)="onLazyLoad($event)"

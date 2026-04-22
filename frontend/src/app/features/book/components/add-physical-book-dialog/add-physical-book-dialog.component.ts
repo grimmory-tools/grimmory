@@ -1,4 +1,4 @@
-import {Component, computed, effect, inject} from '@angular/core';
+import {Component, computed, effect, inject, signal} from '@angular/core';
 import {DynamicDialogConfig, DynamicDialogRef} from 'primeng/dynamicdialog';
 import {FormsModule} from '@angular/forms';
 import {Button} from 'primeng/button';
@@ -57,8 +57,8 @@ export class AddPhysicalBookDialogComponent {
   filteredCategories: string[] = [];
 
   coverUrl: string | null = null;
-  isLoading: boolean = false;
-  isFetchingMetadata: boolean = false;
+  isLoading = signal(false);
+  isFetchingMetadata = signal(false);
   private readonly initializeSelectedLibraryEffect = effect(() => {
     const libraries = this.libraries;
     if (libraries.length === 0) {
@@ -117,9 +117,9 @@ export class AddPhysicalBookDialogComponent {
 
   fetchMetadataByIsbn(): void {
     const isbnValue = this.isbn.trim();
-    if (!isbnValue || this.isFetchingMetadata) return;
+    if (!isbnValue || this.isFetchingMetadata()) return;
 
-    this.isFetchingMetadata = true;
+    this.isFetchingMetadata.set(true);
     this.bookMetadataService.lookupByIsbn(isbnValue).subscribe({
       next: (metadata) => {
         if (metadata.title) this.title = metadata.title;
@@ -131,10 +131,10 @@ export class AddPhysicalBookDialogComponent {
         if (metadata.pageCount) this.pageCount = metadata.pageCount;
         if (metadata.categories?.length) this.categories = [...metadata.categories];
         this.coverUrl = metadata.thumbnailUrl || null;
-        this.isFetchingMetadata = false;
+        this.isFetchingMetadata.set(false);
       },
       error: () => {
-        this.isFetchingMetadata = false;
+        this.isFetchingMetadata.set(false);
       }
     });
   }
@@ -148,9 +148,9 @@ export class AddPhysicalBookDialogComponent {
   }
 
   createBook(): void {
-    if (!this.canCreate() || this.isLoading) return;
+    if (!this.canCreate() || this.isLoading()) return;
 
-    this.isLoading = true;
+    this.isLoading.set(true);
 
     const request: CreatePhysicalBookRequest = {
       libraryId: this.selectedLibraryId!,
@@ -168,11 +168,11 @@ export class AddPhysicalBookDialogComponent {
 
     this.bookService.createPhysicalBook(request).subscribe({
       next: (book) => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.dynamicDialogRef.close(book);
       },
       error: () => {
-        this.isLoading = false;
+        this.isLoading.set(false);
       }
     });
   }

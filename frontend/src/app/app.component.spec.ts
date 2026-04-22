@@ -136,7 +136,7 @@ describe("AppComponent", () => {
   it("boots the websocket wiring when auth initialization is ready", () => {
     configureComponent();
 
-    expect(component.loading).toBe(false);
+    expect(component.loading()).toBe(false);
     expect(libraryHealthService.initWebsocket).toHaveBeenCalledOnce();
     expect(libraryHealthService.fetchHealth).toHaveBeenCalledOnce();
     expect(rxStompService.watch).toHaveBeenCalledWith("/user/queue/book-add");
@@ -148,7 +148,7 @@ describe("AppComponent", () => {
   it("boots the websocket wiring but don't fetch library health when not authenticated", () => {
     configureComponent({ ready: true, authenticated: false });
 
-    expect(component.loading).toBe(false);
+    expect(component.loading()).toBe(false);
     expect(libraryHealthService.initWebsocket).toHaveBeenCalledOnce();
     expect(libraryHealthService.fetchHealth).not.toHaveBeenCalled();
   });

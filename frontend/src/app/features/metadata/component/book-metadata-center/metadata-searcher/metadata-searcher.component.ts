@@ -36,8 +36,8 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
   providers: string[] = [];
   
   bookId!: number;
-  loading: boolean = false;
-  searchTriggered = false;
+  loading = signal(false);
+  searchTriggered = signal(false);
 
   private currentBook: Book | null = null;
   private currentSettings: AppSettings | null = null;
@@ -55,7 +55,7 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
   @Input() isActiveTab: boolean = false;
 
   readonly selectedFetchedMetadata = signal<BookMetadata | null>(null);
-  detailLoading = false;
+  detailLoading = signal(false);
 
   private formBuilder = inject(FormBuilder);
   private bookMetadataService = inject(BookMetadataService);
@@ -190,8 +190,8 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
 
   private resetFormFromBook(book: Book): void {
     this.cancelRequest$.next();
-    this.loading = false;
-    this.detailLoading = false;
+    this.loading.set(false);
+    this.detailLoading.set(false);
     this.selectedFetchedMetadata.set(null);
     this.allFetchedMetadata.set([]);
     
@@ -239,7 +239,7 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
   }
 
   onSubmit(): void {
-    this.searchTriggered = true;
+    this.searchTriggered.set(true);
     if (this.form.valid) {
       const providerKeys = this.form.get('provider')?.value;
       if (!providerKeys) return;
@@ -252,7 +252,7 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
         isbn: this.form.get('isbn')?.value
       };
 
-      this.loading = true;
+      this.loading.set(true);
       this.allFetchedMetadata.set([]);
       
       const initialCounts = new Map<string, number>();
@@ -304,11 +304,11 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
           },
           error: (error) => {
             console.error('Error fetching metadata:', error);
-            this.loading = false;
+            this.loading.set(false);
             this.providerLoading.set(new Map());
           },
           complete: () => {
-            this.loading = false;
+            this.loading.set(false);
             activeProviders.forEach((provider: string) => {
               if (!this.providerCompletionStatus().get(provider)) {
                 this.providerLoading.update(map => new Map(map).set(provider, false));
@@ -391,7 +391,7 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
     const enrichment = this.getDetailEnrichmentInfo(fetchedMetadata);
 
     if (enrichment) {
-      this.detailLoading = true;
+      this.detailLoading.set(true);
       this.bookMetadataService.fetchMetadataDetail(enrichment.provider, enrichment.id)
         .pipe(takeUntil(this.cancelRequest$))
         .subscribe({
@@ -401,11 +401,11 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
             if (currentId === enrichment.id) {
               this.selectedFetchedMetadata.set(enriched);
             }
-            this.detailLoading = false;
+            this.detailLoading.set(false);
           },
           error: (err) => {
             console.error('Error fetching detailed metadata:', err);
-            this.detailLoading = false;
+            this.detailLoading.set(false);
           }
         });
     }
@@ -445,7 +445,7 @@ export class MetadataSearcherComponent implements OnDestroy, OnChanges {
   }
 
   onGoBack() {
-    this.detailLoading = false;
+    this.detailLoading.set(false);
     this.selectedFetchedMetadata.set(null);
   }
 

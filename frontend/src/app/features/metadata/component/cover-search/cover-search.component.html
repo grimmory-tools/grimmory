@@ -61,7 +61,7 @@
               type="submit"
               [label]="t('searchBtn')"
               icon="pi pi-search"
-              [loading]="loading"
+              [loading]="loading()"
               [disabled]="searchForm.invalid">
             </p-button>
             <p-button
@@ -81,7 +81,7 @@
 
     <!-- Results Area -->
     <div class="results-section">
-      @if (!hasSearched) {
+      @if (!hasSearched()) {
         <!-- Initial State -->
         <div class="empty-state">
           <div class="empty-state-icon">
@@ -90,7 +90,7 @@
           <h3>{{ t('searchForCovers') }}</h3>
           <p>{{ t('searchForCoversDescription') }}</p>
         </div>
-      } @else if (loading) {
+      } @else if (loading()) {
         <!-- Loading State -->
         <div class="loading-state">
           <p-progressSpinner strokeWidth="3" animationDuration="1s"></p-progressSpinner>

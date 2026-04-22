@@ -1,4 +1,4 @@
-import {Component, effect, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, effect, inject, OnDestroy, OnInit, signal} from '@angular/core';
 import {Tab, TabList, TabPanel, TabPanels, Tabs} from 'primeng/tabs';
 import {TableModule} from 'primeng/table';
 import {Button} from 'primeng/button';
@@ -75,7 +75,7 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
   private routeSub!: Subscription;
   private readonly syncMetadataEffect = effect(() => {
     const isLoading = this.bookService.isBooksLoading();
-    this.loading = isLoading;
+    this.loading.set(isLoading);
 
     if (isLoading) {
       return;
@@ -100,9 +100,9 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
   selectAllPublishers = false;
   selectAllLanguages = false;
 
-  loading = false;
-  mergingInProgress = false;
-  deletingInProgress = false;
+  loading = signal(false);
+  mergingInProgress = signal(false);
+  deletingInProgress = signal(false);
   showMergeDialog = false;
   showRenameDialog = false;
   showDeleteDialog = false;
@@ -322,8 +322,8 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
       ? `"${targetValues[0]}"`
       : `${targetValues.length} values`;
 
-    this.loading = true;
-    this.mergingInProgress = true;
+    this.loading.set(true);
+    this.mergingInProgress.set(true);
     this.bookMetadataManageService.consolidateMetadata(this.currentMergeType, targetValues, [oldValue]).subscribe({
       next: () => {
         this.messageService.add({
@@ -339,8 +339,8 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
         this.showRenameDialog = false;
         this.currentRenameItem = null;
         this.renameTarget = '';
-        this.mergingInProgress = false;
-        this.loading = false;
+        this.mergingInProgress.set(false);
+        this.loading.set(false);
       },
       error: (error) => {
         this.messageService.add({
@@ -352,8 +352,8 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
             ? this.t.translate('metadata.manager.toast.renameFailedDetail')
             : this.t.translate('metadata.manager.toast.splitFailedDetail'))
         });
-        this.loading = false;
-        this.mergingInProgress = false;
+        this.loading.set(false);
+        this.mergingInProgress.set(false);
       }
     });
   }
@@ -397,8 +397,8 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
     const affectedBooks = this.getTotalAffectedBooks(selected);
     const operation = targetValues.length === 1 ? 'merge' : 'merge/split';
 
-    this.loading = true;
-    this.mergingInProgress = true;
+    this.loading.set(true);
+    this.mergingInProgress.set(true);
     this.bookMetadataManageService.consolidateMetadata(this.currentMergeType, targetValues, valuesToMerge).subscribe({
       next: () => {
         this.messageService.add({
@@ -414,8 +414,8 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
         this.showMergeDialog = false;
         this.mergeTarget = '';
         this.clearSelection(this.currentMergeType);
-        this.mergingInProgress = false;
-        this.loading = false;
+        this.mergingInProgress.set(false);
+        this.loading.set(false);
       },
       error: (error) => {
         this.messageService.add({
@@ -427,8 +427,8 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
             ? this.t.translate('metadata.manager.toast.mergeFailedDetail')
             : this.t.translate('metadata.manager.toast.mergeSplitFailedDetail'))
         });
-        this.loading = false;
-        this.mergingInProgress = false;
+        this.loading.set(false);
+        this.mergingInProgress.set(false);
       }
     });
   }
@@ -456,8 +456,8 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
       ? this.currentDeleteItem.count
       : this.getTotalAffectedBooks(this.getSelectedItems(this.currentMergeType));
 
-    this.loading = true;
-    this.deletingInProgress = true;
+    this.loading.set(true);
+    this.deletingInProgress.set(true);
     this.bookMetadataManageService.deleteMetadata(this.currentMergeType, valuesToDelete).subscribe({
       next: () => {
         this.messageService.add({
@@ -469,8 +469,8 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
         this.showDeleteDialog = false;
         this.currentDeleteItem = null;
         this.clearSelection(this.currentMergeType);
-        this.deletingInProgress = false;
-        this.loading = false;
+        this.deletingInProgress.set(false);
+        this.loading.set(false);
       },
       error: (error) => {
         this.messageService.add({
@@ -478,8 +478,8 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
           summary: this.t.translate('metadata.manager.toast.deleteFailedSummary'),
           detail: error?.error?.message || this.t.translate('metadata.manager.toast.deleteFailedDetail')
         });
-        this.loading = false;
-        this.deletingInProgress = false;
+        this.loading.set(false);
+        this.deletingInProgress.set(false);
       }
     });
   }

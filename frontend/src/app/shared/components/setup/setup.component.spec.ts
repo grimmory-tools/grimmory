@@ -63,7 +63,7 @@ describe('SetupComponent', () => {
     component.onSubmit();
 
     expect(setupService.createAdmin).not.toHaveBeenCalled();
-    expect(component.loading).toBe(false);
+    expect(component.loading()).toBe(false);
   });
 
   it('submits the admin payload without confirmPassword', () => {
@@ -71,7 +71,7 @@ describe('SetupComponent', () => {
 
     component.onSubmit();
 
-    expect(component.loading).toBe(true);
+    expect(component.loading()).toBe(true);
     expect(component.error).toBe(null);
     expect(setupService.createAdmin).toHaveBeenCalledWith({
       name: 'Admin User',
@@ -87,7 +87,7 @@ describe('SetupComponent', () => {
     component.onSubmit();
 
     expect(component.success).toBe(true);
-    expect(component.loading).toBe(true);
+    expect(component.loading()).toBe(true);
     expect(router.navigate).not.toHaveBeenCalled();
 
     vi.advanceTimersByTime(1500);
@@ -104,7 +104,7 @@ describe('SetupComponent', () => {
 
     component.onSubmit();
 
-    expect(component.loading).toBe(false);
+    expect(component.loading()).toBe(false);
     expect(component.error).toBe('Setup failed');
     expect(component.success).toBe(false);
   });

@@ -1,5 +1,8 @@
-import {Component, inject, Input, OnInit, OnChanges, SimpleChanges} from '@angular/core';
+import {Component, DestroyRef, inject, Input, OnInit, OnChanges, signal, SimpleChanges} from '@angular/core';
 import {ReadingSessionApiService, ReadingSessionResponse} from '../../../../../shared/service/reading-session-api.service';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {finalize, Subject, takeUntil} from 'rxjs';
+
 import {TableModule} from 'primeng/table';
 import {ProgressSpinner} from 'primeng/progressspinner';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
@@ -16,11 +19,14 @@ export class BookReadingSessionsComponent implements OnInit, OnChanges {
   @Input() bookId!: number;
 
   private readonly readingSessionService = inject(ReadingSessionApiService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly cancelLoad$ = new Subject<void>();
   private readonly t = inject(TranslocoService);
+
 
   sessions: ReadingSessionResponse[] = [];
   rows = 5;
-  loading = false;
+  loading = signal(false);
 
   get pageReportTemplate(): string {
     return this.t.translate('metadata.readingSessions.pageReport');
@@ -37,18 +43,24 @@ export class BookReadingSessionsComponent implements OnInit, OnChanges {
   }
 
   loadSessions() {
-    this.loading = true;
+    this.cancelLoad$.next();
+    this.loading.set(true);
     this.readingSessionService.getSessionsByBookId(this.bookId, 0, 100)
+      .pipe(
+        takeUntil(this.cancelLoad$),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.loading.set(false))
+      )
       .subscribe({
         next: (response) => {
           this.sessions = response.content;
-          this.loading = false;
         },
         error: () => {
-          this.loading = false;
+          this.sessions = [];
         }
       });
   }
+
 
   formatDuration(seconds: number): string {
     const hours = Math.floor(seconds / 3600);

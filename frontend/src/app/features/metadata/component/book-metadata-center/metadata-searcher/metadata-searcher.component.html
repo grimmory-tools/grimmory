@@ -3,7 +3,7 @@
     <app-metadata-picker
       [fetchedMetadata]="selectedFetchedMetadata"
       [book]="book"
-      [detailLoading]="detailLoading"
+      [detailLoading]="detailLoading()"
       (goBack)="onGoBack()">
     </app-metadata-picker>
   </div>
@@ -76,7 +76,7 @@
           <p-button
             [label]="t('searchBtn')"
             type="submit"
-            [disabled]="!isSearchEnabled || loading"
+            [disabled]="!isSearchEnabled || loading()"
             icon="pi pi-search"
             class="'custom-search-button'">
           </p-button>
@@ -84,7 +84,7 @@
       </div>
     </form>
 
-    @if (loading || searchTriggered) {
+    @if (loading() || searchTriggered()) {
       <div class="provider-status">
         <div class="status-header">
           <div class="results-info">
@@ -94,7 +94,7 @@
             </h3>
             <span class="results-count">{{ t('booksFound', { count: filteredMetadata().length }) }}</span>
           </div>
-          @if (loading) {
+          @if (loading()) {
             <span class="fetching-badge">
               <i class="pi pi-spin pi-spinner"></i>
               {{ t('fetching') }}
@@ -129,7 +129,7 @@
       </div>
     }
 
-    @if (!searchTriggered && allFetchedMetadata().length === 0) {
+    @if (!searchTriggered() && allFetchedMetadata().length === 0) {
       <div class="empty-state">
         <div class="empty-icon">
           <i class="pi pi-search"></i>
@@ -139,7 +139,7 @@
       </div>
     }
 
-    @if (searchTriggered && allFetchedMetadata().length === 0 && !loading) {
+    @if (searchTriggered() && allFetchedMetadata().length === 0 && !loading()) {
       <div class="empty-state">
         <div class="empty-icon no-results">
           <i class="pi pi-inbox"></i>

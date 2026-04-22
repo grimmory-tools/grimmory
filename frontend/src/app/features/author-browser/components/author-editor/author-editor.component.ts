@@ -1,4 +1,4 @@
-import {Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, signal, SimpleChanges} from '@angular/core';
 import {FormControl, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {Button} from 'primeng/button';
@@ -46,8 +46,8 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
   private t = inject(TranslocoService);
 
   form!: FormGroup;
-  isSaving = false;
-  isUploading = false;
+  isSaving = signal(false);
+  isUploading = signal(false);
   hasPhoto = true;
   photoTimestamp = Date.now();
 
@@ -152,11 +152,11 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
   }
 
   onBeforeUpload(): void {
-    this.isUploading = true;
+    this.isUploading.set(true);
   }
 
   onUpload(): void {
-    this.isUploading = false;
+    this.isUploading.set(false);
     this.photoTimestamp = Date.now();
     this.hasPhoto = true;
     this.authorUpdated.emit(this.author);
@@ -168,7 +168,7 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
   }
 
   onUploadError(): void {
-    this.isUploading = false;
+    this.isUploading.set(false);
     this.messageService.add({
       severity: 'error',
       summary: this.t.translate('authorBrowser.editor.toast.errorSummary'),
@@ -177,8 +177,8 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
   }
 
   private saveMetadata(): void {
-    if (this.isSaving) return;
-    this.isSaving = true;
+    if (this.isSaving()) return;
+    this.isSaving.set(true);
 
     const formValue = this.form.getRawValue();
     const request = {
@@ -193,7 +193,7 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
 
     this.authorService.updateAuthor(this.authorId, request).subscribe({
       next: (updated) => {
-        this.isSaving = false;
+        this.isSaving.set(false);
         this.authorUpdated.emit(updated);
         this.messageService.add({
           severity: 'success',
@@ -202,7 +202,7 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
         });
       },
       error: () => {
-        this.isSaving = false;
+        this.isSaving.set(false);
         this.messageService.add({
           severity: 'error',
           summary: this.t.translate('authorBrowser.editor.toast.errorSummary'),

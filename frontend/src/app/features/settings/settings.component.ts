@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {Component, DestroyRef, effect, inject, OnInit, signal} from '@angular/core';
 import {Tab, TabList, TabPanel, TabPanels, Tabs} from 'primeng/tabs';
 import {UserService} from './user-management/user.service';
 import {GlobalPreferencesComponent} from './global-preferences/global-preferences.component';
@@ -71,14 +71,19 @@ export class SettingsComponent implements OnInit {
   SettingsTab = SettingsTab;
 
   private validTabs = Object.values(SettingsTab);
-  private _activeTab: SettingsTab = SettingsTab.ReaderSettings;
+  private _activeTab = signal<SettingsTab>(SettingsTab.ReaderSettings);
+
+  visitedTabs = signal<Set<SettingsTab>>(new Set([
+    SettingsTab.UserManagement,
+    SettingsTab.EmailSettingsV2
+  ]));
 
   get activeTab(): SettingsTab {
-    return this._activeTab;
+    return this._activeTab();
   }
 
   set activeTab(value: SettingsTab) {
-    this._activeTab = value;
+    this._activeTab.set(value);
 
     this.router.navigate([], {
       relativeTo: this.route,
@@ -87,22 +92,44 @@ export class SettingsComponent implements OnInit {
     });
   }
 
+  constructor() {
+    const pageTitle = inject(PageTitleService);
+    pageTitle.setPageTitle('Settings');
+
+    effect(() => {
+      const active = this._activeTab();
+      this.visitedTabs.update(set => {
+        if (set.has(active)) return set;
+        const newSet = new Set(set);
+        newSet.add(active);
+        return newSet;
+      });
+    });
+  }
+
   ngOnInit(): void {
-    this.pageTitle.setPageTitle('Settings');
+
+    // Initialize from snapshot synchronously to ensure p-tabs (lazy) picks up the correct value on first render
+    const initialTab = this.route.snapshot.queryParams['tab'];
+    if (this.validTabs.includes(initialTab)) {
+      this._activeTab.set(initialTab as SettingsTab);
+    }
 
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       const tabParam = params['tab'];
       if (this.validTabs.includes(tabParam)) {
-        this._activeTab = tabParam as SettingsTab;
+        this._activeTab.set(tabParam as SettingsTab);
       } else {
-        this._activeTab = SettingsTab.ReaderSettings;
+        const defaultTab = SettingsTab.ReaderSettings;
+        this._activeTab.set(defaultTab);
         this.router.navigate([], {
           relativeTo: this.route,
-          queryParams: {tab: this._activeTab},
+          queryParams: {tab: defaultTab},
           queryParamsHandling: 'merge',
           replaceUrl: true
         });
       }
     });
   }
+
 }

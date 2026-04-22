@@ -1,6 +1,7 @@
 import {SimpleChange} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
-import {of, throwError} from 'rxjs';
+import {of, throwError, delay} from 'rxjs';
+
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {TranslocoService} from '@jsverse/transloco';
@@ -151,7 +152,7 @@ describe('BookReviewsComponent', () => {
     expect(reviewService.getByBookId).toHaveBeenCalledWith(42);
     expect(component.reviews?.map(review => review.id)).toEqual([3, 2, 1]);
     expect(component.reviewsLocked).toBe(true);
-    expect(component.loading).toBe(false);
+    expect(component.loading()).toBe(false);
   });
 
   it('refreshes reviews, clears revealed spoilers, and shows a success toast', () => {
@@ -167,7 +168,7 @@ describe('BookReviewsComponent', () => {
     expect(component.reviews?.map(review => review.id)).toEqual([5, 4]);
     expect(component.revealedSpoilers.size).toBe(0);
     expect(component.allSpoilersRevealed).toBe(false);
-    expect(component.loading).toBe(false);
+    expect(component.loading()).toBe(false);
     expect(messageService.add).toHaveBeenCalledWith({
       severity: 'success',
       summary: 'book.reviews.toast.reviewsUpdatedSummary',
@@ -184,7 +185,7 @@ describe('BookReviewsComponent', () => {
     component.fetchNewReviews();
 
     expect(errorSpy).toHaveBeenCalledWith('Failed to fetch new reviews:', error);
-    expect(component.loading).toBe(false);
+    expect(component.loading()).toBe(false);
     expect(messageService.add).toHaveBeenCalledWith({
       severity: 'error',
       summary: 'book.reviews.toast.fetchFailedSummary',
@@ -339,4 +340,94 @@ describe('BookReviewsComponent', () => {
     expect(component.getProviderSeverity('goodreads')).toBe('success');
     expect(component.formatDate('2026-03-28T12:00:00.000Z')).toBe('March 28, 2026');
   });
+
+  it('ignores stale responses if the bookId changes while a request is in-flight', async () => {
+    const book1Reviews = [createReview(1)];
+    const book2Reviews = [createReview(2)];
+
+    // First request is slow
+    reviewService.getByBookId.mockReturnValueOnce(of(book1Reviews).pipe(delay(50)));
+    // Second request is fast
+    reviewService.getByBookId.mockReturnValueOnce(of(book2Reviews));
+
+    // Select book 1
+    component.bookId = 1;
+    component.ngOnChanges({
+      bookId: new SimpleChange(undefined, 1, true),
+    });
+
+    // Immediately select book 2 while book 1 is still loading
+    component.bookId = 2;
+    component.ngOnChanges({
+      bookId: new SimpleChange(1, 2, false),
+    });
+
+    // Wait for both to complete
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // Should only have book 2's reviews
+    expect(component.reviews?.map(r => r.id)).toEqual([2]);
+    expect(component.loading()).toBe(false);
+  });
+
+  it('does not prematurely clear loading if a refresh finishes while a new book load is in-flight', async () => {
+    // 1. fetchNewReviews(42) starts
+    reviewService.refreshReviews.mockReturnValueOnce(of([]).pipe(delay(50)));
+    component.fetchNewReviews();
+    expect(component.loading()).toBe(true);
+
+    // 2. Switch to book 43 -> loadReviews(43) starts
+    // Use a longer delay for the new book load
+    reviewService.getByBookId.mockReturnValueOnce(of([]).pipe(delay(100)));
+    component.bookId = 43;
+    component.ngOnChanges({
+      bookId: new SimpleChange(42, 43, false),
+    });
+
+    // 3. Wait for fetchNewReviews(42) to finish (after 50ms)
+    await new Promise(resolve => setTimeout(resolve, 75));
+
+    // 4. loading should still be true because loadReviews(43) is in flight
+    expect(component.loading()).toBe(true);
+
+    // 5. Wait for loadReviews(43) to finish (after 100ms total)
+    await new Promise(resolve => setTimeout(resolve, 50));
+    expect(component.loading()).toBe(false);
+
+  });
+
+  it('ignores stale responses in a 1 -> 2 -> 1 navigation sequence (ABA problem)', async () => {
+    const book1InitialReviews = [createReview(1, {body: 'First Request'})];
+    const book1LatestReviews = [createReview(1, {body: 'Second Request'})];
+    const book2Reviews = [createReview(2)];
+
+    // 1. First request for Book 1 is very slow
+    reviewService.getByBookId.mockReturnValueOnce(of(book1InitialReviews).pipe(delay(100)));
+    // 2. Request for Book 2 is fast
+    reviewService.getByBookId.mockReturnValueOnce(of(book2Reviews));
+    // 3. Second request for Book 1 is slow
+    reviewService.getByBookId.mockReturnValueOnce(of(book1LatestReviews).pipe(delay(50)));
+
+    // Navigate: Book 1
+    component.bookId = 1;
+    component.ngOnChanges({bookId: new SimpleChange(undefined, 1, true)});
+
+    // Navigate: Book 2
+    component.bookId = 2;
+    component.ngOnChanges({bookId: new SimpleChange(1, 2, false)});
+
+    // Navigate: Book 1 again
+    component.bookId = 1;
+    component.ngOnChanges({bookId: new SimpleChange(2, 1, false)});
+
+    // Wait for all requests to finish
+    await new Promise(resolve => setTimeout(resolve, 150));
+
+    // Should have the reviews from the SECOND request for Book 1, not the first
+    expect(component.reviews?.[0].body).toBe('Second Request');
+    expect(component.loading()).toBe(false);
+  });
 });
+
+
+

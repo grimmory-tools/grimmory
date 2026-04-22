@@ -1,4 +1,4 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, inject, OnInit, signal} from '@angular/core';
 import {DynamicDialogRef} from 'primeng/dynamicdialog';
 import {UtilityService} from './utility.service';
 import {TableModule} from 'primeng/table';
@@ -42,7 +42,7 @@ export class DirectoryPickerComponent implements OnInit {
   selectedFolders: string[] = [];
   selectedFoldersMap: Record<string, boolean> = {};
   searchQuery: string = '';
-  isLoading: boolean = false;
+  isLoading = signal(false);
   breadcrumbItems: MenuItem[] = [];
   home: MenuItem = {icon: 'pi pi-home', command: () => this.navigateToRoot()};
 
@@ -55,14 +55,14 @@ export class DirectoryPickerComponent implements OnInit {
   }
 
   getFolders(path: string): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.filteredPaths = [];
     this.utilityService.getFolders(path).subscribe({
       next: (folders: string[]) => {
         setTimeout(() => {
           this.paths = folders;
           this.filteredPaths = folders;
-          this.isLoading = false;
+          this.isLoading.set(false);
           this.updateBreadcrumb(path);
           folders.forEach(folder => {
             this.selectedFoldersMap[folder] = this.selectedFolders.includes(folder);
@@ -71,7 +71,7 @@ export class DirectoryPickerComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error fetching folders:', error);
-        this.isLoading = false;
+        this.isLoading.set(false);
       }
     });
   }

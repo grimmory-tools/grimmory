@@ -152,7 +152,7 @@ describe('TaskManagementComponent', () => {
       id: 'task-1',
       status: TaskStatus.PENDING,
     });
-    expect(component.loading).toBe(false);
+    expect(component.loading()).toBe(false);
   });
 
   it('reports load failures through the message service', () => {

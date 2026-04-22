@@ -1,5 +1,6 @@
-import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {finalize} from 'rxjs';
 import {Button} from 'primeng/button';
 import {Checkbox} from 'primeng/checkbox';
 import {MessageService} from 'primeng/api';
@@ -13,6 +14,7 @@ import {EmailProvider} from '../email-provider.model';
 import {UserService} from '../../user-management/user.service';
 import {DialogLauncherService} from '../../../../shared/services/dialog-launcher.service';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
+import {ProgressSpinner} from 'primeng/progressspinner';
 
 @Component({
   selector: 'app-email-v2-provider',
@@ -25,7 +27,8 @@ import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/tran
     Tooltip,
     FormsModule,
     TranslocoDirective,
-    TranslocoPipe
+    TranslocoPipe,
+    ProgressSpinner
   ],
   templateUrl: './email-v2-provider.component.html',
   styleUrl: './email-v2-provider.component.scss'
@@ -40,6 +43,9 @@ export class EmailV2ProviderComponent implements OnInit {
   private userService = inject(UserService);
   private t = inject(TranslocoService);
   private destroyRef = inject(DestroyRef);
+  loading = signal(false);
+  private loadingRequestSeq = 0;
+  private activeLoadingRequestSeq: number | null = null;
   defaultProviderId: unknown;
   currentUserId: number | null = null;
   isAdmin: boolean = false;
@@ -56,10 +62,21 @@ export class EmailV2ProviderComponent implements OnInit {
   }
 
   loadEmailProviders(): void {
+    const requestSeq = ++this.loadingRequestSeq;
+    this.activeLoadingRequestSeq = requestSeq;
+    this.loading.set(true);
+
     this.emailProvidersService.getEmailProviders().pipe(
-      takeUntilDestroyed(this.destroyRef)
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => {
+        if (this.activeLoadingRequestSeq === requestSeq) {
+          this.loading.set(false);
+        }
+      })
     ).subscribe({
       next: (emailProviders: EmailProvider[]) => {
+        if (this.activeLoadingRequestSeq !== requestSeq) return;
+
         this.emailProviders = emailProviders.map((provider) => ({
           ...provider,
           isEditing: false,
@@ -68,6 +85,9 @@ export class EmailV2ProviderComponent implements OnInit {
         this.defaultProviderId = defaultProvider ? defaultProvider.id : null;
       },
       error: () => {
+        if (this.activeLoadingRequestSeq !== requestSeq) return;
+
+        this.emailProviders = [];
         this.messageService.add({
           severity: 'error',
           summary: this.t.translate('common.error'),
@@ -154,7 +174,7 @@ export class EmailV2ProviderComponent implements OnInit {
           detail: this.t.translate('settingsEmail.provider.defaultSetDetail', {name: provider.name}),
         });
       },
-      error: (err) => {
+      error: (err: unknown) => {
         console.error('Failed to set default provider', err);
         this.messageService.add({
           severity: 'error',

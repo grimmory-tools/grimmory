@@ -1,7 +1,7 @@
 <ng-container *transloco="let t; prefix: 'book.reviews'">
 <div class="book-reviews-container">
   <div class="reviews-content">
-    @if (loading) {
+    @if (loading()) {
       <div class="loading-state">
         <p-progressSpinner/>
         <span class="loading-text">{{ t('labels.loadingReviews') }}</span>
@@ -156,9 +156,9 @@
           [icon]="reviewsLocked ? 'pi pi-lock' : 'pi pi-lock-open'"
           size="small"
           [severity]="reviewsLocked ? 'danger' : 'success'"
-          [disabled]="!reviewDownloadEnabled || loading"
+          [disabled]="!reviewDownloadEnabled || loading()"
           (click)="toggleReviewsLock()"
-          [pTooltip]="loading ? t('tooltip.pleaseWait') : (!reviewDownloadEnabled ? t('tooltip.enableDownloads') : (reviewsLocked ? t('tooltip.unlockReviews') : t('tooltip.lockReviews')))"
+          [pTooltip]="loading() ? t('tooltip.pleaseWait') : (!reviewDownloadEnabled ? t('tooltip.enableDownloads') : (reviewsLocked ? t('tooltip.unlockReviews') : t('tooltip.lockReviews')))"
           tooltipPosition="left"
           class="action-btn"/>
 
@@ -167,10 +167,10 @@
           icon="pi pi-refresh"
           size="small"
           severity="primary"
-          [loading]="loading"
-          [disabled]="reviewsLocked || !reviewDownloadEnabled || loading"
+          [loading]="loading()"
+          [disabled]="reviewsLocked || !reviewDownloadEnabled || loading()"
           (click)="fetchNewReviews()"
-          [pTooltip]="loading ? t('tooltip.pleaseWait') : (!reviewDownloadEnabled ? t('tooltip.enableDownloads') : (reviewsLocked ? t('tooltip.reviewsLocked') : t('tooltip.fetchNewReviews')))"
+          [pTooltip]="loading() ? t('tooltip.pleaseWait') : (!reviewDownloadEnabled ? t('tooltip.enableDownloads') : (reviewsLocked ? t('tooltip.reviewsLocked') : t('tooltip.fetchNewReviews')))"
           tooltipPosition="left"
           class="action-btn"/>
       }
@@ -181,9 +181,9 @@
           icon="pi pi-trash"
           size="small"
           severity="danger"
-          [disabled]="reviewsLocked || loading"
+          [disabled]="reviewsLocked || loading()"
           (click)="deleteAllReviews()"
-          [pTooltip]="loading ? t('tooltip.pleaseWait') : (reviewsLocked ? t('tooltip.reviewsLocked') : t('tooltip.deleteAllReviews'))"
+          [pTooltip]="loading() ? t('tooltip.pleaseWait') : (reviewsLocked ? t('tooltip.reviewsLocked') : t('tooltip.deleteAllReviews'))"
           tooltipPosition="left"
           class="action-btn"/>
       }
@@ -194,9 +194,9 @@
           [icon]="allSpoilersRevealed ? 'pi pi-eye-slash' : 'pi pi-eye'"
           size="small"
           [severity]="allSpoilersRevealed ? 'warn' : 'info'"
-          [disabled]="loading"
+          [disabled]="loading()"
           (click)="toggleSpoilerVisibility()"
-          [pTooltip]="loading ? t('tooltip.pleaseWait') : (allSpoilersRevealed ? t('tooltip.hideAllSpoilers') : t('tooltip.revealAllSpoilers'))"
+          [pTooltip]="loading() ? t('tooltip.pleaseWait') : (allSpoilersRevealed ? t('tooltip.hideAllSpoilers') : t('tooltip.revealAllSpoilers'))"
           tooltipPosition="left"
           class="action-btn"/>
 
@@ -205,9 +205,9 @@
           icon="pi pi-sort-amount-down"
           size="small"
           severity="contrast"
-          [disabled]="loading"
+          [disabled]="loading()"
           (click)="toggleSortOrder()"
-          [pTooltip]="loading ? t('tooltip.pleaseWait') : (sortAscending ? t('tooltip.sortNewest') : t('tooltip.sortOldest'))"
+          [pTooltip]="loading() ? t('tooltip.pleaseWait') : (sortAscending ? t('tooltip.sortNewest') : t('tooltip.sortOldest'))"
           tooltipPosition="left"
           class="action-btn"/>
       }

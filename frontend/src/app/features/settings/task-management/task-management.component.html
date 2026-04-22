@@ -21,14 +21,14 @@
     </div>
 
     <div class="section-body">
-      @if (loading && taskInfos.length === 0) {
+      @if (loading() && taskInfos.length === 0) {
         <div class="loading-state">
           <i class="pi pi-spin pi-spinner"></i>
           <span>{{ t('loading') }}</span>
         </div>
       }
 
-      @if (!loading && taskInfos.length === 0) {
+      @if (!loading() && taskInfos.length === 0) {
         <div class="empty-state">
           <i class="pi pi-check-circle"></i>
           <p class="empty-title">{{ t('emptyTitle') }}</p>

@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, OnInit, QueryList, ViewChildren} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, QueryList, signal, ViewChildren} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {startWith, take, tap} from 'rxjs/operators';
 import {PageTitleService} from "../../../../shared/service/page-title.service";
@@ -86,7 +86,7 @@ export class BookdropFileReviewComponent implements OnInit {
   bookdropFileUis: BookdropFileUI[] = [];
   fileUiCache: Record<number, BookdropFileUI> = {};
   copiedFlags: Record<number, boolean> = {};
-  loading = true;
+  loading = signal(true);
   saving = false;
   includeCoversOnCopy = true;
 
@@ -102,7 +102,7 @@ export class BookdropFileReviewComponent implements OnInit {
 
     this.activatedRoute.queryParams
       .pipe(startWith({}), tap(() => {
-        this.loading = true;
+        this.loading.set(true);
         this.loadPage(0);
       }))
       .subscribe();
@@ -198,12 +198,12 @@ export class BookdropFileReviewComponent implements OnInit {
           });
           this.totalRecords = response.page.totalElements;
           this.currentPage = page;
-          this.loading = false;
+          this.loading.set(false);
           this.syncCurrentPageSelection();
         },
         error: err => {
           console.error('Error loading files:', err);
-          this.loading = false;
+          this.loading.set(false);
         }
       });
   }

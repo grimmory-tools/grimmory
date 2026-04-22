@@ -83,8 +83,8 @@
                 [text]="true"
                 severity="info"
                 (onClick)="fetchMetadataByIsbn()"
-                [disabled]="!isbn.trim() || isFetchingMetadata"
-                [loading]="isFetchingMetadata"
+                [disabled]="!isbn.trim() || isFetchingMetadata()"
+                [loading]="isFetchingMetadata()"
                 [pTooltip]="t('fetchMetadataTooltip')"
                 tooltipPosition="top"/>
             </div>
@@ -250,8 +250,8 @@
         icon="pi pi-plus"
         severity="success"
         (onClick)="createBook()"
-        [disabled]="!canCreate() || isLoading"
-        [loading]="isLoading"/>
+        [disabled]="!canCreate() || isLoading()"
+        [loading]="isLoading()"/>
     </div>
   </div>
 </div>

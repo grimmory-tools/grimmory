@@ -1,4 +1,4 @@
-import {Component, inject, Input, OnDestroy} from '@angular/core';
+import {Component, inject, Input, OnDestroy, signal} from '@angular/core';
 import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 import {Book} from '../../../../book/model/book.model';
@@ -24,7 +24,7 @@ export class SidecarViewerComponent implements OnDestroy {
       this.currentBookId = null;
       this.sidecarContent = null;
       this.syncStatus = 'NOT_APPLICABLE';
-      this.loading = false;
+      this.loading.set(false);
       this.error = null;
       return;
     }
@@ -40,14 +40,14 @@ export class SidecarViewerComponent implements OnDestroy {
 
   sidecarContent: SidecarMetadata | null = null;
   syncStatus: SidecarSyncStatus = 'NOT_APPLICABLE';
-  loading = false;
-  exporting = false;
-  importing = false;
+  loading = signal(false);
+  exporting = signal(false);
+  importing = signal(false);
   currentBookId: number | null = null;
   error: string | null = null;
 
   loadSidecarData(bookId: number): void {
-    this.loading = true;
+    this.loading.set(true);
     this.error = null;
 
     this.sidecarService.getSyncStatus(bookId).pipe(
@@ -60,13 +60,13 @@ export class SidecarViewerComponent implements OnDestroy {
           this.loadSidecarContent(bookId);
         } else {
           this.sidecarContent = null;
-          this.loading = false;
+          this.loading.set(false);
         }
       },
       error: (err) => {
         this.syncStatus = 'NOT_APPLICABLE';
         this.sidecarContent = null;
-        this.loading = false;
+        this.loading.set(false);
         console.error('Failed to get sync status:', err);
       }
     });
@@ -78,11 +78,11 @@ export class SidecarViewerComponent implements OnDestroy {
     ).subscribe({
       next: (content) => {
         this.sidecarContent = content;
-        this.loading = false;
+        this.loading.set(false);
       },
       error: (err) => {
         this.sidecarContent = null;
-        this.loading = false;
+        this.loading.set(false);
         if (err.status !== 404) {
           console.error('Failed to load sidecar content:', err);
         }
@@ -93,7 +93,7 @@ export class SidecarViewerComponent implements OnDestroy {
   exportToSidecar(): void {
     if (!this.currentBookId) return;
 
-    this.exporting = true;
+    this.exporting.set(true);
     this.sidecarService.exportToSidecar(this.currentBookId).pipe(
       takeUntil(this.destroy$)
     ).subscribe({
@@ -104,7 +104,7 @@ export class SidecarViewerComponent implements OnDestroy {
           detail: this.t.translate('metadata.sidecar.toast.exportSuccessDetail')
         });
         this.loadSidecarData(this.currentBookId!);
-        this.exporting = false;
+        this.exporting.set(false);
       },
       error: (err) => {
         this.messageService.add({
@@ -112,7 +112,7 @@ export class SidecarViewerComponent implements OnDestroy {
           summary: this.t.translate('metadata.sidecar.toast.exportFailedSummary'),
           detail: this.t.translate('metadata.sidecar.toast.exportFailedDetail')
         });
-        this.exporting = false;
+        this.exporting.set(false);
         console.error('Export failed:', err);
       }
     });
@@ -121,7 +121,7 @@ export class SidecarViewerComponent implements OnDestroy {
   importFromSidecar(): void {
     if (!this.currentBookId) return;
 
-    this.importing = true;
+    this.importing.set(true);
     this.sidecarService.importFromSidecar(this.currentBookId).pipe(
       takeUntil(this.destroy$)
     ).subscribe({
@@ -132,7 +132,7 @@ export class SidecarViewerComponent implements OnDestroy {
           detail: this.t.translate('metadata.sidecar.toast.importSuccessDetail')
         });
         this.loadSidecarData(this.currentBookId!);
-        this.importing = false;
+        this.importing.set(false);
       },
       error: (err) => {
         this.messageService.add({
@@ -140,7 +140,7 @@ export class SidecarViewerComponent implements OnDestroy {
           summary: this.t.translate('metadata.sidecar.toast.importFailedSummary'),
           detail: this.t.translate('metadata.sidecar.toast.importFailedDetail')
         });
-        this.importing = false;
+        this.importing.set(false);
         console.error('Import failed:', err);
       }
     });

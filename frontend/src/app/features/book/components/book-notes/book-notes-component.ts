@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
+import {Component, DestroyRef, inject, Input, OnChanges, OnInit, signal, SimpleChanges} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Button} from 'primeng/button';
@@ -38,7 +38,7 @@ export class BookNotesComponent implements OnInit, OnChanges {
   private readonly t = inject(TranslocoService);
 
   notes: BookNote[] = [];
-  loading = false;
+  loading = signal(false);
   showCreateDialog = false;
   showEditDialog = false;
   selectedNote: BookNote | null = null;
@@ -70,7 +70,7 @@ export class BookNotesComponent implements OnInit, OnChanges {
   loadNotes(): void {
     if (!this.bookId) return;
 
-    this.loading = true;
+    this.loading.set(true);
     this.bookNoteService.getNotesForBook(this.bookId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -78,11 +78,11 @@ export class BookNotesComponent implements OnInit, OnChanges {
           this.notes = notes.sort((a, b) =>
             new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
           );
-          this.loading = false;
+          this.loading.set(false);
         },
         error: (error) => {
           console.error('Failed to load notes:', error);
-          this.loading = false;
+          this.loading.set(false);
           this.messageService.add({
             severity: 'error',
             summary: this.t.translate('common.error'),

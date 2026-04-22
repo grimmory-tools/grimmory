@@ -65,7 +65,7 @@ describe('SidecarViewerComponent', () => {
     component.currentBookId = 7;
     component.sidecarContent = createMetadata();
     component.syncStatus = 'IN_SYNC';
-    component.loading = true;
+    component.loading.set(true);
     component.error = 'failed';
 
     component.book = null;
@@ -73,7 +73,7 @@ describe('SidecarViewerComponent', () => {
     expect(component.currentBookId).toBeNull();
     expect(component.sidecarContent).toBeNull();
     expect(component.syncStatus).toBe('NOT_APPLICABLE');
-    expect(component.loading).toBe(false);
+    expect(component.loading()).toBe(false);
     expect(component.error).toBeNull();
   });
 
@@ -90,7 +90,7 @@ describe('SidecarViewerComponent', () => {
     expect(component.currentBookId).toBe(7);
     expect(component.syncStatus).toBe('IN_SYNC');
     expect(component.sidecarContent).toEqual(metadata);
-    expect(component.loading).toBe(false);
+    expect(component.loading()).toBe(false);
   });
 
   it('skips content loading when the sidecar is missing or not applicable', () => {
@@ -102,14 +102,14 @@ describe('SidecarViewerComponent', () => {
     expect(getSidecarContent).not.toHaveBeenCalled();
     expect(component.syncStatus).toBe('MISSING');
     expect(component.sidecarContent).toBeNull();
-    expect(component.loading).toBe(false);
+    expect(component.loading()).toBe(false);
 
     getSyncStatus.mockReturnValue(of({status: 'NOT_APPLICABLE'}));
     component.book = createBook(4);
 
     expect(getSidecarContent).not.toHaveBeenCalled();
     expect(component.syncStatus).toBe('NOT_APPLICABLE');
-    expect(component.loading).toBe(false);
+    expect(component.loading()).toBe(false);
   });
 
   it('falls back to NOT_APPLICABLE when sync status lookup fails', () => {
@@ -121,7 +121,7 @@ describe('SidecarViewerComponent', () => {
 
     expect(component.syncStatus).toBe('NOT_APPLICABLE');
     expect(component.sidecarContent).toBeNull();
-    expect(component.loading).toBe(false);
+    expect(component.loading()).toBe(false);
     expect(consoleError).toHaveBeenCalledOnce();
   });
 
@@ -134,7 +134,7 @@ describe('SidecarViewerComponent', () => {
     component.book = createBook(6);
 
     expect(component.sidecarContent).toBeNull();
-    expect(component.loading).toBe(false);
+    expect(component.loading()).toBe(false);
     expect(consoleError).not.toHaveBeenCalled();
 
     getSidecarContent.mockReturnValue(throwError(() => ({status: 500})));
@@ -159,7 +159,7 @@ describe('SidecarViewerComponent', () => {
       detail: 'translated:metadata.sidecar.toast.exportSuccessDetail',
     });
     expect(reload).toHaveBeenCalledWith(9);
-    expect(component.exporting).toBe(false);
+    expect(component.exporting()).toBe(false);
   });
 
   it('shows an error toast when export fails and ignores export without a selected book', () => {
@@ -179,7 +179,7 @@ describe('SidecarViewerComponent', () => {
       summary: 'translated:metadata.sidecar.toast.exportFailedSummary',
       detail: 'translated:metadata.sidecar.toast.exportFailedDetail',
     });
-    expect(component.exporting).toBe(false);
+    expect(component.exporting()).toBe(false);
     expect(consoleError).toHaveBeenCalledOnce();
   });
 
@@ -199,7 +199,7 @@ describe('SidecarViewerComponent', () => {
       detail: 'translated:metadata.sidecar.toast.importSuccessDetail',
     });
     expect(reload).toHaveBeenCalledWith(12);
-    expect(component.importing).toBe(false);
+    expect(component.importing()).toBe(false);
 
     component.importFromSidecar();
 
@@ -208,7 +208,7 @@ describe('SidecarViewerComponent', () => {
       summary: 'translated:metadata.sidecar.toast.importFailedSummary',
       detail: 'translated:metadata.sidecar.toast.importFailedDetail',
     });
-    expect(component.importing).toBe(false);
+    expect(component.importing()).toBe(false);
     expect(consoleError).toHaveBeenCalledOnce();
   });
 

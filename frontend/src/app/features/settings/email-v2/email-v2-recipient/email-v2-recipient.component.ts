@@ -1,5 +1,6 @@
-import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {finalize} from 'rxjs';
 import {Button} from 'primeng/button';
 import {MessageService} from 'primeng/api';
 import {RadioButton} from 'primeng/radiobutton';
@@ -11,6 +12,7 @@ import {EmailV2RecipientService} from './email-v2-recipient.service';
 import {EmailRecipient} from '../email-recipient.model';
 import {DialogLauncherService} from '../../../../shared/services/dialog-launcher.service';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
+import {ProgressSpinner} from 'primeng/progressspinner';
 
 @Component({
   selector: 'app-email-v2-recipient',
@@ -22,7 +24,8 @@ import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/tran
     Tooltip,
     FormsModule,
     TranslocoDirective,
-    TranslocoPipe
+    TranslocoPipe,
+    ProgressSpinner
   ],
   templateUrl: './email-v2-recipient.component.html',
   styleUrl: './email-v2-recipient.component.scss'
@@ -36,6 +39,9 @@ export class EmailV2RecipientComponent implements OnInit {
   private messageService = inject(MessageService);
   private t = inject(TranslocoService);
   private destroyRef = inject(DestroyRef);
+  loading = signal(false);
+  private loadingRequestSeq = 0;
+  private activeLoadingRequestSeq: number | null = null;
   defaultRecipientId: unknown;
 
   ngOnInit(): void {
@@ -43,10 +49,21 @@ export class EmailV2RecipientComponent implements OnInit {
   }
 
   loadRecipientEmails(): void {
+    const requestSeq = ++this.loadingRequestSeq;
+    this.activeLoadingRequestSeq = requestSeq;
+    this.loading.set(true);
+
     this.emailRecipientService.getRecipients().pipe(
-      takeUntilDestroyed(this.destroyRef)
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => {
+        if (this.activeLoadingRequestSeq === requestSeq) {
+          this.loading.set(false);
+        }
+      })
     ).subscribe({
       next: (recipients: EmailRecipient[]) => {
+        if (this.activeLoadingRequestSeq !== requestSeq) return;
+
         this.recipientEmails = recipients.map((recipient) => ({
           ...recipient,
           isEditing: false,
@@ -55,6 +72,9 @@ export class EmailV2RecipientComponent implements OnInit {
         this.defaultRecipientId = defaultRecipient ? defaultRecipient.id : null;
       },
       error: () => {
+        if (this.activeLoadingRequestSeq !== requestSeq) return;
+
+        this.recipientEmails = [];
         this.messageService.add({
           severity: 'error',
           summary: this.t.translate('common.error'),

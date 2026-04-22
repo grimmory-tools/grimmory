@@ -1,4 +1,4 @@
-import {Component, effect, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, effect, inject, OnDestroy, OnInit, signal} from '@angular/core';
 import {RxStompService} from './shared/websocket/rx-stomp.service';
 import {BookService} from './features/book/service/book.service';
 import {NotificationEventService} from './shared/websocket/notification-event.service';
@@ -29,8 +29,8 @@ import {AuthService} from './shared/service/auth.service';
 })
 export class AppComponent implements OnInit, OnDestroy {
 
-  loading = true;
-  offline = false;
+  loading = signal(true);
+  offline = signal(false);
   private subscriptions: Subscription[] = [];
   private subscriptionsInitialized = false;
 
@@ -48,7 +48,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private readonly syncAuthInitializationEffect = effect(() => {
     const ready = this.authInit.initialized();
-    this.loading = !ready;
+    this.loading.set(!ready);
 
     if (ready && !this.subscriptionsInitialized) {
       this.setupWebSocketSubscriptions();
@@ -71,12 +71,12 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private onOnline = () => {
-    this.offline = false;
+    this.offline.set(false);
   };
 
   private onOffline = () => {
     this.checkServerReachable().then(reachable => {
-      this.offline = !reachable;
+      this.offline.set(!reachable);
     });
   };
 

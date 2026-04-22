@@ -95,7 +95,7 @@
   </div>
 
   <div class="directories-container">
-    @if (isLoading) {
+    @if (isLoading()) {
       <div class="loading-state">
         <p-progressSpinner
           class="custom-spinner"
@@ -133,7 +133,7 @@
           </span>
         </div>
 
-        <div class="directories-grid" [class.fade-in]="!isLoading && filteredPaths.length > 0">
+        <div class="directories-grid" [class.fade-in]="!isLoading() && filteredPaths.length > 0">
           @for (folder of filteredPaths; track folder) {
             <div
               class="directory-item"

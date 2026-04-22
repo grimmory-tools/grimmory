@@ -59,7 +59,7 @@ describe('BookReadingSessionsComponent', () => {
 
     expect(getSessionsByBookId).toHaveBeenCalledWith(7, 0, 100);
     expect(component.sessions).toEqual([session]);
-    expect(component.loading).toBe(false);
+    expect(component.loading()).toBe(false);
     expect(component.pageReportTemplate).toBe('translated:metadata.readingSessions.pageReport');
   });
 
@@ -75,7 +75,7 @@ describe('BookReadingSessionsComponent', () => {
     component.bookId = 7;
 
     component.loadSessions();
-    expect(component.loading).toBe(false);
+    expect(component.loading()).toBe(false);
     expect(component.sessions).toEqual([]);
 
     component.bookId = 9;
@@ -85,7 +85,7 @@ describe('BookReadingSessionsComponent', () => {
 
     expect(getSessionsByBookId).toHaveBeenNthCalledWith(2, 9, 0, 100);
     expect(component.sessions).toEqual([createSession({id: 2, bookId: 9})]);
-    expect(component.loading).toBe(false);
+    expect(component.loading()).toBe(false);
   });
 
   it('ignores the initial ngOnChanges first-change event', () => {

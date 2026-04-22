@@ -70,7 +70,7 @@
               <p-table
                 #dataTable
                 [value]="getMetadataItems(tab.type)"
-                [loading]="loading"
+                [loading]="loading()"
                 [globalFilterFields]="['value']"
                 [paginator]="true"
                 [rows]="50"
@@ -195,7 +195,7 @@
           <small class="help-text" [innerHTML]="t('multiMergeHowItWorks', { type: getTypeLabel(currentMergeType, true) })"></small>
         }
       </div>
-      @if (mergingInProgress) {
+      @if (mergingInProgress()) {
         <div class="processing-note">
           <i class="pi pi-info-circle"></i>
           <span>{{ t('processingNote') }}</span>
@@ -209,14 +209,14 @@
           [label]="'common.cancel' | transloco"
           icon="pi pi-times"
           (onClick)="showMergeDialog = false"
-          [disabled]="mergingInProgress"
+          [disabled]="mergingInProgress()"
           severity="secondary"
           outlined></p-button>
         <p-button
-          [label]="mergingInProgress ? t('processing') : ('common.confirm' | transloco)"
-          [icon]="mergingInProgress ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
-          [loading]="mergingInProgress"
-          [disabled]="mergingInProgress"
+          [label]="mergingInProgress() ? t('processing') : ('common.confirm' | transloco)"
+          [icon]="mergingInProgress() ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
+          [loading]="mergingInProgress()"
+          [disabled]="mergingInProgress()"
           (onClick)="confirmMerge()"
           severity="success"></p-button>
       </div>
@@ -252,7 +252,7 @@
           <small class="help-text" [innerHTML]="t('multiRenameHowItWorks', { singular: getTypeLabel(currentMergeType, false), type: getTypeLabel(currentMergeType, true) })"></small>
         }
       </div>
-      @if (mergingInProgress) {
+      @if (mergingInProgress()) {
         <div class="processing-note">
           <i class="pi pi-info-circle"></i>
           <span>{{ t('renameProcessingNote') }}</span>
@@ -266,14 +266,14 @@
           [label]="'common.cancel' | transloco"
           icon="pi pi-times"
           (onClick)="showRenameDialog = false"
-          [disabled]="mergingInProgress"
+          [disabled]="mergingInProgress()"
           severity="secondary"
           outlined></p-button>
         <p-button
-          [label]="mergingInProgress ? t('processing') : ('common.confirm' | transloco)"
-          [icon]="mergingInProgress ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
-          [loading]="mergingInProgress"
-          [disabled]="mergingInProgress"
+          [label]="mergingInProgress() ? t('processing') : ('common.confirm' | transloco)"
+          [icon]="mergingInProgress() ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
+          [loading]="mergingInProgress()"
+          [disabled]="mergingInProgress()"
           (onClick)="confirmRename()"
           severity="success"></p-button>
       </div>
@@ -315,7 +315,7 @@
           <li>{{ t('totalBooksAffected') }} <strong>{{ currentDeleteItem ? currentDeleteItem.count : getTotalAffectedBooks(getSelectedItems(currentMergeType)) }}</strong></li>
         </ul>
       </div>
-      @if (deletingInProgress) {
+      @if (deletingInProgress()) {
         <div class="processing-note">
           <i class="pi pi-info-circle"></i>
           <span>{{ t('renameProcessingNote') }}</span>
@@ -329,14 +329,14 @@
           [label]="'common.cancel' | transloco"
           icon="pi pi-times"
           (onClick)="showDeleteDialog = false"
-          [disabled]="deletingInProgress"
+          [disabled]="deletingInProgress()"
           severity="secondary"
           outlined></p-button>
         <p-button
-          [label]="deletingInProgress ? t('deleting') : ('common.delete' | transloco)"
-          [icon]="deletingInProgress ? 'pi pi-spin pi-spinner' : 'pi pi-trash'"
-          [loading]="deletingInProgress"
-          [disabled]="deletingInProgress"
+          [label]="deletingInProgress() ? t('deleting') : ('common.delete' | transloco)"
+          [icon]="deletingInProgress() ? 'pi pi-spin pi-spinner' : 'pi pi-trash'"
+          [loading]="deletingInProgress()"
+          [disabled]="deletingInProgress()"
           (onClick)="confirmDelete()"
           severity="danger"></p-button>
       </div>

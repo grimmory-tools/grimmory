@@ -47,7 +47,7 @@ describe('VersionChangelogDialogComponent', () => {
 
     expect(versionService.getChangelog).toHaveBeenCalled();
     expect(component.changelog).toHaveLength(1);
-    expect(component.loading).toBe(false);
+    expect(component.loading()).toBe(false);
   });
 
   it('clears the loading state when the changelog request fails', () => {
@@ -58,7 +58,7 @@ describe('VersionChangelogDialogComponent', () => {
     component.ngOnInit();
 
     expect(component.changelog).toEqual([]);
-    expect(component.loading).toBe(false);
+    expect(component.loading()).toBe(false);
   });
 
   it('converts markdown to sanitized HTML and normalizes headings to h3', () => {

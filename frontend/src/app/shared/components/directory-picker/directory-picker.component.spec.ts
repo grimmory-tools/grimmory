@@ -46,13 +46,13 @@ describe('DirectoryPickerComponent', () => {
     component.ngOnInit();
 
     expect(utilityService.getFolders).toHaveBeenCalledWith('/');
-    expect(component.isLoading).toBe(true);
+    expect(component.isLoading()).toBe(true);
 
     vi.advanceTimersByTime(100);
 
     expect(component.paths).toEqual(['/books', '/comics']);
     expect(component.filteredPaths).toEqual(['/books', '/comics']);
-    expect(component.isLoading).toBe(false);
+    expect(component.isLoading()).toBe(false);
     expect(component.breadcrumbItems).toEqual([]);
   });
 
@@ -127,7 +127,7 @@ describe('DirectoryPickerComponent', () => {
 
     component.getFolders('/broken');
 
-    expect(component.isLoading).toBe(false);
+    expect(component.isLoading()).toBe(false);
     expect(console.error).toHaveBeenCalled();
   });
 

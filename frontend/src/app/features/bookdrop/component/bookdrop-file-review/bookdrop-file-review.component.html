@@ -28,7 +28,7 @@
     </div>
   </div>
   <div class="card-body">
-  @if (loading) {
+  @if (loading()) {
 
     <div class="loading-overlay">
       <div class="loading-content">
@@ -269,7 +269,7 @@
   }
   </div>
 
-  @if (!loading) {
+  @if (!loading()) {
     <p-divider></p-divider>
 
     <div class="footer">

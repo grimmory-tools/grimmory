@@ -16,7 +16,7 @@
         </div>
       }
 
-      @if (isUploading) {
+      @if (isUploading()) {
         <p-progressSpinner class="upload-spinner" strokeWidth="4" fill="transparent" animationDuration=".8s"></p-progressSpinner>
       }
 
@@ -123,9 +123,9 @@
           <p-divider layout="vertical"/>
           <p-button
             type="submit"
-            [label]="isSaving ? t('saving') : t('saveBtn')"
-            [icon]="isSaving ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
-            [disabled]="isSaving">
+            [label]="isSaving() ? t('saving') : t('saveBtn')"
+            [icon]="isSaving() ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
+            [disabled]="isSaving()">
           </p-button>
         </div>
       </div>

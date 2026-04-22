@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, Router} from '@angular/router';
 import {TableLazyLoadEvent, TableModule} from 'primeng/table';
@@ -55,7 +55,7 @@ export class AuditLogsComponent implements OnInit {
   logs: AuditLog[] = [];
   totalRecords = 0;
   rows = 25;
-  loading = false;
+  loading = signal(false);
   selectedAction: string | null = null;
   selectedUsername: string | null = null;
   dateRange: Date[] | null = null;
@@ -127,7 +127,7 @@ export class AuditLogsComponent implements OnInit {
 
   loadLogs(showLoading = true): void {
     if (showLoading) {
-      this.loading = true;
+      this.loading.set(true);
     }
     const action = this.selectedAction || undefined;
     const username = this.selectedUsername || undefined;
@@ -139,10 +139,10 @@ export class AuditLogsComponent implements OnInit {
       next: (response) => {
         this.logs = response.content;
         this.totalRecords = response.page.totalElements;
-        this.loading = false;
+        this.loading.set(false);
       },
       error: () => {
-        this.loading = false;
+        this.loading.set(false);
       }
     });
   }

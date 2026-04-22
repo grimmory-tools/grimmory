@@ -181,7 +181,7 @@ describe('AddPhysicalBookDialogComponent', () => {
     component.fetchMetadataByIsbn();
 
     expect(lookupByIsbn).toHaveBeenCalledWith('9780441172719');
-    expect(component.isFetchingMetadata).toBe(true);
+    expect(component.isFetchingMetadata()).toBe(true);
 
     lookupResult$.next(createMetadata({
       title: 'Dune',
@@ -205,7 +205,7 @@ describe('AddPhysicalBookDialogComponent', () => {
     expect(component.pageCount).toBe(412);
     expect(component.categories).toEqual(['Science Fiction']);
     expect(component.coverUrl).toBe('https://covers.example/dune.jpg');
-    expect(component.isFetchingMetadata).toBe(false);
+    expect(component.isFetchingMetadata()).toBe(false);
   });
 
   it('does not start isbn lookup for blank or in-flight requests and clears the flag on error', () => {
@@ -216,17 +216,17 @@ describe('AddPhysicalBookDialogComponent', () => {
     expect(lookupByIsbn).not.toHaveBeenCalled();
 
     component.isbn = '9780441172719';
-    component.isFetchingMetadata = true;
+    component.isFetchingMetadata.set(true);
     component.fetchMetadataByIsbn();
     expect(lookupByIsbn).not.toHaveBeenCalled();
 
-    component.isFetchingMetadata = false;
+    component.isFetchingMetadata.set(false);
     lookupByIsbn.mockReturnValueOnce(throwError(() => new Error('lookup failed')));
 
     component.fetchMetadataByIsbn();
 
     expect(lookupByIsbn).toHaveBeenCalledWith('9780441172719');
-    expect(component.isFetchingMetadata).toBe(false);
+    expect(component.isFetchingMetadata()).toBe(false);
   });
 
   it('gates creation on required fields and does not submit when already loading', () => {
@@ -240,7 +240,7 @@ describe('AddPhysicalBookDialogComponent', () => {
     component.title = 'Physical Copy';
     expect(component.canCreate()).toBe(true);
 
-    component.isLoading = true;
+    component.isLoading.set(true);
     component.createBook();
 
     expect(createPhysicalBook).not.toHaveBeenCalled();
@@ -270,7 +270,7 @@ describe('AddPhysicalBookDialogComponent', () => {
 
     component.createBook();
 
-    expect(component.isLoading).toBe(true);
+    expect(component.isLoading()).toBe(true);
     expect(createPhysicalBook).toHaveBeenCalledWith({
       libraryId: 2,
       title: 'The Left Hand of Darkness',
@@ -288,7 +288,7 @@ describe('AddPhysicalBookDialogComponent', () => {
     createResult$.next(createdBook);
     createResult$.complete();
 
-    expect(component.isLoading).toBe(false);
+    expect(component.isLoading()).toBe(false);
     expect(dialogRef.close).toHaveBeenCalledWith(createdBook);
   });
 
@@ -314,7 +314,7 @@ describe('AddPhysicalBookDialogComponent', () => {
       categories: undefined,
       thumbnailUrl: undefined,
     });
-    expect(component.isLoading).toBe(false);
+    expect(component.isLoading()).toBe(false);
     expect(dialogRef.close).not.toHaveBeenCalled();
   });
 });

@@ -43,13 +43,13 @@ public class PdfMetadataWriter implements MetadataWriter {
         }
 
         Path filePath = file.toPath();
+        Path parentDir = filePath.getParent();
         Path backupPath = null;
         boolean backupCreated = false;
-        File tempFile = null;
+        Path tempPath = null;
 
         try {
-            String prefix = "pdfBackup-" + UUID.randomUUID() + "-";
-            backupPath = Files.createTempFile(prefix, ".pdf");
+            backupPath = Files.createTempFile(parentDir, ".pdfBackup-", ".pdf");
             Files.copy(filePath, backupPath, StandardCopyOption.REPLACE_EXISTING);
             backupCreated = true;
         } catch (IOException e) {
@@ -58,10 +58,10 @@ public class PdfMetadataWriter implements MetadataWriter {
 
         try (PdfDocument doc = PdfDocument.open(filePath)) {
             applyMetadataToDocument(doc, metadataEntity, clear);
-            tempFile = File.createTempFile("pdfmeta-", ".pdf");
-            doc.save(tempFile.toPath(), SaveOptions.SKIP_VALIDATION);
-            Files.move(tempFile.toPath(), filePath, StandardCopyOption.REPLACE_EXISTING);
-            tempFile = null; // Prevent deletion in finally block after successful move
+            tempPath = Files.createTempFile(parentDir, ".pdfmeta-", ".pdf");
+            doc.save(tempPath, SaveOptions.SKIP_VALIDATION);
+            Files.move(tempPath, filePath, StandardCopyOption.REPLACE_EXISTING);
+            tempPath = null;
             log.info("Successfully embedded metadata into PDF: {}", file.getName());
         } catch (Exception e) {
             log.warn("Failed to write metadata to PDF {}: {}", file.getName(), e.getMessage(), e);
@@ -74,8 +74,12 @@ public class PdfMetadataWriter implements MetadataWriter {
                 }
             }
         } finally {
-            if (tempFile != null && tempFile.exists()) {
-                tempFile.delete();
+            if (tempPath != null) {
+                try {
+                    Files.deleteIfExists(tempPath);
+                } catch (IOException e) {
+                    log.warn("Could not delete PDF temp file: {}", e.getMessage());
+                }
             }
             if (backupCreated) {
                 try {
@@ -418,18 +422,17 @@ public class PdfMetadataWriter implements MetadataWriter {
             return null;
         }
         
-        // Extract numeric ID from slug format "12345678-book-title"
-        int dashIndex = goodreadsId.indexOf('-');
-        if (dashIndex > 0) {
-            String numericPart = goodreadsId.substring(0, dashIndex);
-            // Validate it's actually numeric
+        // Extract numeric ID from slug format "12345678-book-title" or "12345678.Book_Title"
+        int sep = goodreadsId.indexOf('-');
+        if (sep < 0) sep = goodreadsId.indexOf('.');
+        if (sep > 0) {
+            String numericPart = goodreadsId.substring(0, sep);
             if (numericPart.matches("\\d+")) {
                 return numericPart;
             }
         }
         
-        // Already just the ID, or return as-is if it's all numeric
-        return goodreadsId.matches("\\d+") ? goodreadsId : goodreadsId;
+        return goodreadsId;
     }
 
 }

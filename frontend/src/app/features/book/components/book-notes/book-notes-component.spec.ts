@@ -85,7 +85,7 @@ describe('BookNotesComponent', () => {
     component.loadNotes();
 
     expect(bookNoteService.getNotesForBook).not.toHaveBeenCalled();
-    expect(component.loading).toBe(false);
+    expect(component.loading()).toBe(false);
   });
 
   it('loads notes and orders them by most recent update first', () => {
@@ -98,7 +98,7 @@ describe('BookNotesComponent', () => {
 
     expect(bookNoteService.getNotesForBook).toHaveBeenCalledWith(42);
     expect(component.notes.map(note => note.id)).toEqual([2, 3, 1]);
-    expect(component.loading).toBe(false);
+    expect(component.loading()).toBe(false);
   });
 
   it('shows an error toast when loading notes fails', () => {
@@ -106,7 +106,7 @@ describe('BookNotesComponent', () => {
 
     component.loadNotes();
 
-    expect(component.loading).toBe(false);
+    expect(component.loading()).toBe(false);
     expect(messageService.add).toHaveBeenCalledWith({
       severity: 'error',
       summary: 'common.error',

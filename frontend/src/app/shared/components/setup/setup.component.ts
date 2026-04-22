@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, signal} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
 import {SetupService} from './setup.service';
@@ -26,7 +26,7 @@ export class SetupComponent {
   private setupService = inject(SetupService);
   private router = inject(Router);
   setupForm: FormGroup;
-  loading = false;
+  loading = signal(false);
   error: string | null = null;
   success = false;
   private readonly t = inject(TranslocoService);
@@ -44,7 +44,7 @@ export class SetupComponent {
   onSubmit(): void {
     if (this.setupForm.invalid) return;
 
-    this.loading = true;
+    this.loading.set(true);
     this.error = null;
     // Remove confirm password from the payload, as it does not need to be sent to backend
     const { confirmPassword, ...payload } = this.setupForm.value;
@@ -55,7 +55,7 @@ export class SetupComponent {
         setTimeout(() => this.router.navigate(['/login']), 1500);
       },
       error: (err) => {
-        this.loading = false;
+        this.loading.set(false);
         this.error =
           err?.error?.message || this.t.translate('shared.setup.toast.createFailedDefault');
       },

@@ -89,7 +89,7 @@ describe('MetadataManagerComponent', () => {
     const component = createComponent();
     TestBed.flushEffects();
 
-    expect(component.loading).toBe(false);
+    expect(component.loading()).toBe(false);
     expect(component.authors[0]).toEqual({value: 'Alice', count: 2, bookIds: [1, 2], selected: false});
     expect(component.categories[0]).toEqual({value: 'Fantasy', count: 2, bookIds: [1, 2], selected: false});
     expect(component.series).toEqual([{value: 'Series A', count: 2, bookIds: [1, 2], selected: false}]);
@@ -110,13 +110,13 @@ describe('MetadataManagerComponent', () => {
     const component = createComponent();
     TestBed.flushEffects();
 
-    expect(component.loading).toBe(true);
+    expect(component.loading()).toBe(true);
     expect(component.authors).toEqual([]);
 
     isBooksLoading.set(false);
     TestBed.flushEffects();
 
-    expect(component.loading).toBe(false);
+    expect(component.loading()).toBe(false);
     expect(component.authors).toEqual([{value: 'Alice', count: 1, bookIds: [1], selected: false}]);
   });
 

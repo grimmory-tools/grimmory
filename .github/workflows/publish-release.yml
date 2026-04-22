@@ -1,28 +1,9 @@
-name: Release - Publish Stable Images
+name: On Release Published
 
 on:
-  workflow_call:
-    inputs:
-      release_tag:
-        description: 'The release tag to publish (for example v2.2.3)'
-        required: true
-        type: string
-      commit_sha:
-        description: 'The release commit SHA to package; if omitted, the tag ref is checked out'
-        required: false
-        default: ''
-        type: string
-  workflow_dispatch:
-    inputs:
-      release_tag:
-        description: 'The existing release tag to publish (for example v2.2.3)'
-        required: true
-        type: string
-      commit_sha:
-        description: 'Optional release commit SHA override'
-        required: false
-        default: ''
-        type: string
+  release:
+    types:
+      - released
 
 jobs:
   build-and-release:
@@ -38,13 +19,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 1
-          ref: ${{ inputs.commit_sha != '' && inputs.commit_sha || format('refs/tags/{0}', inputs.release_tag) }}
-
-      - name: Record Release Tag and Commit
-        run: |
-          echo "release_tag=${{ inputs.release_tag }}" >> "$GITHUB_ENV"
-          echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
-          echo "Stable release tag: ${{ inputs.release_tag }}"
+          ref: ${{ github.sha }}
 
       - name: Set Up QEMU for Multi-Arch Builds
         uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0
@@ -55,33 +30,33 @@ jobs:
         uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
 
       - name: Authenticate to Docker Hub
-        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # v4.0.0
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Authenticate to GitHub Container Registry
-        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # v4.0.0
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
       - name: Build and push Stable image
-        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: .
           file: Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            grimmory/grimmory:${{ env.release_tag }}
+            grimmory/grimmory:${{ github.event.release.tag_name }}
             grimmory/grimmory:latest
-            ghcr.io/grimmory-tools/grimmory:${{ env.release_tag }}
+            ghcr.io/grimmory-tools/grimmory:${{ github.event.release.tag_name }}
             ghcr.io/grimmory-tools/grimmory:latest
           build-args: |
-            APP_VERSION=${{ env.release_tag }}
-            APP_REVISION=${{ env.commit_sha }}
+            APP_VERSION=${{ github.event.release.tag_name }}
+            APP_REVISION=${{ github.sha }}
           cache-from: |
             type=gha,scope=image-shared
             type=registry,ref=ghcr.io/grimmory-tools/grimmory:buildcache
@@ -89,8 +64,60 @@ jobs:
             type=gha,scope=image-shared,mode=max
             type=registry,ref=ghcr.io/grimmory-tools/grimmory:buildcache,mode=max
 
-      - name: Publish Draft GitHub Release
+  prepare-release-notification:
+    name: Prepare Stable Release Notification
+    needs:
+      - build-and-release
+    runs-on: ubuntu-latest
+
+    outputs:
+      base_tag: ${{ steps.metadata.outputs.base_tag }}
+      compare_url: ${{ steps.metadata.outputs.compare_url }}
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Extract Stable Release Metadata
+        id: metadata
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_TOKEN != '' && secrets.RELEASE_BOT_TOKEN || github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_URL: ${{ github.event.release.html_url }}
         run: |
-          gh release edit "${{ env.release_tag }}" --draft=false
+          set -eu
+
+          git fetch origin main --tags --force
+          BASE_TAG="$(git tag --sort=-version:refname 'v*' | grep -Fxv "$RELEASE_TAG" | head -n 1 || true)"
+
+          COMPARE_URL="${RELEASE_URL}"
+          if [ -n "$BASE_TAG" ]; then
+            COMPARE_URL="https://github.com/${GITHUB_REPOSITORY}/compare/${BASE_TAG}...${RELEASE_TAG}"
+          fi
+          {
+            echo "base_tag=${BASE_TAG}"
+            echo "compare_url=${COMPARE_URL}"
+          } >> "$GITHUB_OUTPUT"
+
+  notify-discord:
+    name: Notify Discord Release
+    needs:
+      - prepare-release-notification
+    permissions: {}
+    uses: ./.github/workflows/notify-discord-release-notes.yml
+    secrets:
+      discord_webhook: ${{ secrets.DISCORD_STABLE_WEBHOOK }}
+    with:
+      channel: stable
+      current_version: ${{ github.event.release.tag_name }}
+      predicted_version: ${{ github.event.release.tag_name }}
+      details_url: ${{ github.event.release.html_url }}
+      candidate_sha: ${{ github.sha }}
+      base_tag: ${{ needs.prepare-release-notification.outputs.base_tag }}
+      compare_url: ${{ needs.prepare-release-notification.outputs.compare_url }}
+      mention_text: ${{ vars.DISCORD_STABLE_MENTIONS }}

@@ -145,7 +145,7 @@ describe('AuthorEditorComponent', () => {
 
     component.onSave();
 
-    expect(component.isSaving).toBe(true);
+    expect(component.isSaving()).toBe(true);
     expect(updateAuthor).toHaveBeenCalledWith(9, {
       name: undefined,
       description: 'Updated description',
@@ -159,7 +159,7 @@ describe('AuthorEditorComponent', () => {
     save$.next(updatedAuthor);
     save$.complete();
 
-    expect(component.isSaving).toBe(false);
+    expect(component.isSaving()).toBe(false);
     expect(emitSpy).toHaveBeenCalledWith(updatedAuthor);
     expect(translate).toHaveBeenCalledWith('authorBrowser.editor.toast.successSummary');
     expect(translate).toHaveBeenCalledWith('authorBrowser.editor.toast.successDetail');
@@ -179,7 +179,7 @@ describe('AuthorEditorComponent', () => {
 
     component.onSave();
 
-    expect(component.isSaving).toBe(false);
+    expect(component.isSaving()).toBe(false);
     expect(emitSpy).not.toHaveBeenCalled();
     expect(translate).toHaveBeenCalledWith('authorBrowser.editor.toast.errorSummary');
     expect(translate).toHaveBeenCalledWith('authorBrowser.editor.toast.errorDetail');
@@ -224,12 +224,12 @@ describe('AuthorEditorComponent', () => {
     const emitSpy = vi.spyOn(component.authorUpdated, 'emit');
     const nowSpy = vi.spyOn(Date, 'now').mockReturnValue(999);
 
-    component.isUploading = true;
+    component.isUploading.set(true);
     component.hasPhoto = false;
 
     component.onUpload();
 
-    expect(component.isUploading).toBe(false);
+    expect(component.isUploading()).toBe(false);
     expect(component.hasPhoto).toBe(true);
     expect(component.photoTimestamp).toBe(999);
     expect(emitSpy).toHaveBeenCalledWith(component.author);
@@ -243,11 +243,11 @@ describe('AuthorEditorComponent', () => {
 
   it('clears upload progress and shows an error toast when upload fails', () => {
     const component = createComponent();
-    component.isUploading = true;
+    component.isUploading.set(true);
 
     component.onUploadError();
 
-    expect(component.isUploading).toBe(false);
+    expect(component.isUploading()).toBe(false);
     expect(messageService.add).toHaveBeenCalledWith({
       severity: 'error',
       summary: 'authorBrowser.editor.toast.errorSummary',

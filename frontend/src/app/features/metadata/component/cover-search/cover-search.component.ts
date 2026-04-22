@@ -1,4 +1,4 @@
-import {Component, inject, Input, OnInit} from '@angular/core';
+import {Component, inject, Input, OnInit, signal} from '@angular/core';
 import {MessageService} from 'primeng/api';
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {BookCoverService, CoverFetchRequest, CoverImage} from '../../../../shared/services/book-cover.service';
@@ -32,8 +32,8 @@ export class CoverSearchComponent implements OnInit {
   @Input() bookId!: number;
   searchForm: FormGroup;
   coverImages: CoverImage[] = [];
-  loading = false;
-  hasSearched = false;
+  loading = signal(false);
+  hasSearched = signal(false);
   coverType: 'ebook' | 'audiobook' = 'ebook';
 
   private fb = inject(FormBuilder);
@@ -79,7 +79,7 @@ export class CoverSearchComponent implements OnInit {
 
   onSearch() {
     if (this.searchForm.valid) {
-      this.loading = true;
+      this.loading.set(true);
       this.coverImages = [];
       const request: CoverFetchRequest = {
         bookId: this.bookId,
@@ -90,8 +90,8 @@ export class CoverSearchComponent implements OnInit {
 
       this.bookCoverService.fetchBookCovers(request)
         .pipe(finalize(() => {
-          this.loading = false;
-          this.hasSearched = true;
+          this.loading.set(false);
+          this.hasSearched.set(true);
         }))
         .subscribe({
           next: (image) => {
@@ -139,6 +139,6 @@ export class CoverSearchComponent implements OnInit {
   onClear() {
     this.searchForm.reset();
     this.coverImages = [];
-    this.hasSearched = false;
+    this.hasSearched.set(false);
   }
 }

@@ -19,19 +19,19 @@
   </div>
 
   <div class="dialog-content">
-    @if (loading) {
+    @if (loading()) {
       <div class="loading-state">
         {{ t('loading') }}
       </div>
     }
 
-    @if (!loading && changelog.length === 0) {
+    @if (!loading() && changelog.length === 0) {
       <div class="empty-state">
         {{ t('empty') }}
       </div>
     }
 
-    @if (!loading && changelog.length > 0) {
+    @if (!loading() && changelog.length > 0) {
       <div class="changelog-list">
         @for (release of changelog; track release) {
           <div class="release-item">

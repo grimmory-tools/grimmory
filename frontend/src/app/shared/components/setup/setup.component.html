@@ -153,9 +153,9 @@
           <p-button
             fluid
             type="submit"
-            [label]="loading ? t('creatingAccountBtn') : t('createAccountBtn')"
-            [icon]="loading ? 'pi pi-spin pi-spinner' : 'pi pi-user-plus'"
-            [disabled]="loading || setupForm.invalid"
+            [label]="loading() ? t('creatingAccountBtn') : t('createAccountBtn')"
+            [icon]="loading() ? 'pi pi-spin pi-spinner' : 'pi pi-user-plus'"
+            [disabled]="loading() || setupForm.invalid"
             class="setup-button"
           />
 

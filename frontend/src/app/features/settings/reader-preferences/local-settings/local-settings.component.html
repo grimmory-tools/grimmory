@@ -40,9 +40,9 @@
             <span class="setting-description">Current size occupied by Cache Storage</span>
           </div>
           <div class="setting-control action-buttons">
-            <span class="setting-value">{{ cacheStorageUsageMb | number: '1.2-2' }} MB</span>
+            <span class="setting-value">{{ cacheStorageUsageMb() | number: '1.2-2' }} MB</span>
             <p-button type="button" label="Refresh" icon="pi pi-refresh" severity="secondary" [outlined]="true"
-              [disabled]="isLoadingCacheStorageUsage" [loading]="isLoadingCacheStorageUsage" (onClick)="loadCacheStorageUsage()">
+              [disabled]="isLoadingCacheStorageUsage()" [loading]="isLoadingCacheStorageUsage()" (onClick)="loadCacheStorageUsage()">
             </p-button>
           </div>
         </div>
@@ -54,7 +54,7 @@
           </div>
           <div class="setting-control">
             <p-button type="button" label="Clear Cache" icon="pi pi-trash" severity="danger" [outlined]="true"
-              [disabled]="isClearingCacheStorage" [loading]="isClearingCacheStorage" (onClick)="clearCacheStorage()">
+              [disabled]="isClearingCacheStorage()" [loading]="isClearingCacheStorage()" (onClick)="clearCacheStorage()">
             </p-button>
           </div>
         </div>

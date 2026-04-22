@@ -1,4 +1,4 @@
-import {Component, inject, OnInit} from "@angular/core";
+import {Component, inject, OnInit, signal} from "@angular/core";
 import {FormsModule} from "@angular/forms";
 import {DecimalPipe} from "@angular/common";
 import {Checkbox} from "primeng/checkbox";
@@ -28,9 +28,9 @@ export class LocalSettingsComponent implements OnInit {
 
   protected settings: LocalSettings = this.localSettingsService.get();
 
-  protected isLoadingCacheStorageUsage = false;
-  protected isClearingCacheStorage = false;
-  protected cacheStorageUsageMb = 0;
+  protected isLoadingCacheStorageUsage = signal(false);
+  protected isClearingCacheStorage = signal(false);
+  protected cacheStorageUsageMb = signal(0);
 
   async ngOnInit(): Promise<void> {
     await this.loadCacheStorageUsage();
@@ -57,7 +57,7 @@ export class LocalSettingsComponent implements OnInit {
         severity: "secondary",
       },
       accept: async () => {
-        this.isClearingCacheStorage = true;
+        this.isClearingCacheStorage.set(true);
         try {
           await this.cacheStorageService.clear();
           await this.loadCacheStorageUsage();
@@ -73,22 +73,22 @@ export class LocalSettingsComponent implements OnInit {
             detail: "Unable to clear Cache Storage. Please try again.",
           });
         } finally {
-          this.isClearingCacheStorage = false;
+          this.isClearingCacheStorage.set(false);
         }
       },
     });
   }
 
   async loadCacheStorageUsage(): Promise<void> {
-    this.isLoadingCacheStorageUsage = true;
+    this.isLoadingCacheStorageUsage.set(true);
     try {
       const totalBytes = await this.cacheStorageService.getCacheSizeInBytes();
-      this.cacheStorageUsageMb = totalBytes / (1024 * 1024);
+      this.cacheStorageUsageMb.set(totalBytes / (1024 * 1024));
     } catch (error) {
       console.error("Error loading Cache Storage usage:", error);
-      this.cacheStorageUsageMb = 0;
+      this.cacheStorageUsageMb.set(0);
     } finally {
-      this.isLoadingCacheStorageUsage = false;
+      this.isLoadingCacheStorageUsage.set(false);
     }
   }
 }

@@ -23,7 +23,12 @@
     </div>
 
     <div class="section-body">
-      @if (emailProviders.length === 0) {
+      @if (loading()) {
+        <div class="loading-state">
+          <p-progressSpinner/>
+          <p class="loading-text">{{ 'common.loading' | transloco }}</p>
+        </div>
+      } @else if (emailProviders.length === 0) {
         <div class="empty-state">
           <i class="pi pi-envelope"></i>
           <p class="empty-title">{{ t('emptyTitle') }}</p>

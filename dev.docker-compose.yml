@@ -6,7 +6,7 @@ services:
         FROM gradle:9.4.1-jdk25-alpine
         RUN apk add --no-cache libstdc++ libgcc libarchive
         RUN ln -s /usr/lib/libarchive.so.13 /usr/lib/libarchive.so
-    command: sh -c "cd /booklore-api && ./gradlew bootRun"
+    command: sh -c "cd /backend && ./gradlew bootRun"
     ports:
       - "${BACKEND_PORT:-6060}:6060"
       - "127.0.0.1:${REMOTE_DEBUG_PORT:-5005}:5005"
@@ -24,9 +24,9 @@ services:
     depends_on:
       - backend_db
     volumes:
-      - './booklore-api:/booklore-api'
-      - /booklore-api/build
-      - /booklore-api/.gradle
+      - './backend:/backend'
+      - /backend/build
+      - /backend/.gradle
       - ./shared/data:/app/data
       - ./shared/books:/books
       - ./shared/bookdrop:/bookdrop

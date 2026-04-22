@@ -118,7 +118,7 @@
                   [label]="t('clearBtn')"
                   severity="danger"
                   [outlined]="true"
-                  [disabled]="!filesPresent() || isUploading"
+                  [disabled]="!filesPresent() || isUploading()"
                   [pTooltip]="t('clearTooltip')"
                   tooltipPosition="top"/>
               </div>
@@ -127,11 +127,11 @@
           </ng-template>
           <ng-template #content let-files let-removeFileCallback="removeFileCallback">
             @if (files?.length > 0) {
-              @if (isUploading || uploadCompleted) {
+              @if (isUploading() || uploadCompleted()) {
                 <div class="upload-progress-summary">
                   <div class="progress-row">
                     <span class="progress-status">
-                      @if (isUploading) {
+                      @if (isUploading()) {
                         <i class="pi pi-spin pi-spinner"></i>
                         {{ t('uploading') }}
                       } @else {

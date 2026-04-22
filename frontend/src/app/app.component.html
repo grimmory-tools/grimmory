@@ -1,5 +1,5 @@
 <ng-container *transloco="let t; prefix: 'app'">
-@if (loading) {
+@if (loading()) {
   <div class="splash-screen">
     <div class="splash-content">
       <svg class="logo" viewBox="0 0 100 126" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -17,7 +17,7 @@
           </linearGradient>
         </defs>
       </svg>
-      @if (offline) {
+      @if (offline()) {
         <h1>{{ t('offline') }}</h1>
         <p>{{ t('offlineLoadingDescription') }}</p>
         <p>{{ t('offlineDescription') }}</p>
@@ -28,7 +28,7 @@
       }
     </div>
   </div>
-} @else if (offline) {
+} @else if (offline()) {
   <div class="splash-screen">
     <div class="splash-content">
       <svg class="logo" viewBox="0 0 100 126" fill="none" xmlns="http://www.w3.org/2000/svg">

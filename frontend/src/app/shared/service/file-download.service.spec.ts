@@ -28,7 +28,7 @@ describe('FileDownloadService', () => {
     TestBed.resetTestingModule();
   });
 
-  it('downloads a blob using the filename from the response header', () => {
+  it('downloads a blob', () => {
     const click = vi.fn();
     const anchor = {href: '', download: '', click} as unknown as HTMLAnchorElement;
     const createElementSpy = vi.spyOn(document, 'createElement').mockReturnValue(anchor);
@@ -48,27 +48,88 @@ describe('FileDownloadService', () => {
 
     expect(createElementSpy).toHaveBeenCalledWith('a');
     expect(createObjectUrlSpy).toHaveBeenCalled();
-    expect(anchor.download).toBe('server name.epub');
     expect(click).toHaveBeenCalledOnce();
     expect(revokeObjectUrlSpy).toHaveBeenCalledWith('blob:download');
+  });
+
+  it('downloads using the utf-8-only filename from the response header', () => {
+    const click = vi.fn();
+    const anchor = {href: '', download: '', click} as unknown as HTMLAnchorElement;
+    vi.spyOn(document, 'createElement').mockReturnValue(anchor);
+
+    service.downloadFile('/files/1', 'fallback.epub');
+
+    const request = httpTestingController.expectOne('/files/1');
+    request.flush(new Blob(['content']), {
+      headers: new HttpHeaders({
+        'Content-Disposition': "attachment; filename*=UTF-8''server%20name.epub",
+      }),
+    });
+
+    expect(anchor.download).toBe('server name.epub');
+  });
+
+  it('downloads a blob using the ascii filename from the response header', () => {
+    const click = vi.fn();
+    const anchor = {href: '', download: '', click} as unknown as HTMLAnchorElement;
+    vi.spyOn(document, 'createElement').mockReturnValue(anchor);
+
+    service.downloadFile('/files/1', 'fallback.epub');
+
+    const request = httpTestingController.expectOne('/files/1');
+    request.flush(new Blob(['content']), {
+      headers: new HttpHeaders({
+        'Content-Disposition': "attachment; filename=\"server name.epub\"",
+      }),
+    });
+
+    expect(anchor.download).toBe('server name.epub');
+  });
+
+  it('downloads a blob using the unquoted ascii filename from the response header', () => {
+    const click = vi.fn();
+    const anchor = {href: '', download: '', click} as unknown as HTMLAnchorElement;
+    vi.spyOn(document, 'createElement').mockReturnValue(anchor);
+
+    service.downloadFile('/files/1', 'fallback.epub');
+
+    const request = httpTestingController.expectOne('/files/1');
+    request.flush(new Blob(['content']), {
+      headers: new HttpHeaders({
+        'Content-Disposition': "attachment; filename=server_name.epub",
+      }),
+    });
+
+    expect(anchor.download).toBe('server_name.epub');
+  });
+
+  it('downloads a blob using the both utf-8 and ascii from the response header', () => {
+    const click = vi.fn();
+    const anchor = {href: '', download: '', click} as unknown as HTMLAnchorElement;
+    vi.spyOn(document, 'createElement').mockReturnValue(anchor);
+
+    service.downloadFile('/files/1', 'fallback.epub');
+
+    const request = httpTestingController.expectOne('/files/1');
+    request.flush(new Blob(['content']), {
+      headers: new HttpHeaders({
+        'Content-Disposition': "attachment; filename=\"server name.epub\"; filename*=UTF-8''server%20name.epub",
+      }),
+    });
+
+    expect(anchor.download).toBe('server name.epub');
   });
 
   it('falls back to the provided filename when the response has no content-disposition header', () => {
     const click = vi.fn();
     const anchor = {href: '', download: '', click} as unknown as HTMLAnchorElement;
-    const createElementSpy = vi.spyOn(document, 'createElement').mockReturnValue(anchor);
-    const createObjectUrlSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:download');
-    const revokeObjectUrlSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
+    vi.spyOn(document, 'createElement').mockReturnValue(anchor);
 
     service.downloadFile('/files/2', 'fallback.epub');
 
     const request = httpTestingController.expectOne('/files/2');
     request.flush(new Blob(['content']));
 
-    expect(createElementSpy).toHaveBeenCalledWith('a');
-    expect(createObjectUrlSpy).toHaveBeenCalled();
     expect(anchor.download).toBe('fallback.epub');
-    expect(click).toHaveBeenCalledOnce();
-    expect(revokeObjectUrlSpy).toHaveBeenCalledWith('blob:download');
   });
 });

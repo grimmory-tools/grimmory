@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Button} from 'primeng/button';
 import {ProgressBar} from 'primeng/progressbar';
@@ -54,7 +54,7 @@ export class TaskManagementComponent implements OnInit {
   // State
   taskInfos: TaskInfo[] = [];
   taskHistories = new Map<string, TaskHistory>();
-  loading = false;
+  loading = signal(false);
   executingTasks = new Set<string>();
 
   // Metadata Replace Options
@@ -98,13 +98,13 @@ export class TaskManagementComponent implements OnInit {
   // ============================================================================
 
   loadTasks(): void {
-    this.loading = true;
+    this.loading.set(true);
 
     forkJoin({
       available: this.taskService.getAvailableTasks(),
       latest: this.taskService.getLatestTasksForEachType()
     })
-      .pipe(finalize(() => this.loading = false))
+      .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: ({available, latest}) => {
           this.taskInfos = this.sortTasksByDisplayOrder(available);

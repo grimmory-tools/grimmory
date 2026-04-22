@@ -87,7 +87,7 @@ describe('MetadataReviewDialogComponent', () => {
     expect(getTaskWithProposals).toHaveBeenCalledWith('task-1');
     expect(component.currentProposal).toEqual(createProposal({proposalId: 5}));
     expect(component.currentBook()).toEqual({id: 11, title: 'Book 11'});
-    expect(component.loading).toBe(false);
+    expect(component.loading()).toBe(false);
   });
 
   it('closes when loading the task proposals fails', () => {

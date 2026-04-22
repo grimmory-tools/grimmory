@@ -16,7 +16,7 @@
     </div>
   </div>
 
-  @if (loading) {
+  @if (loading()) {
     <div class="loading-state">
       <i class="pi pi-spin pi-spinner"></i>
       <span>{{ t('loading') }}</span>
@@ -26,7 +26,7 @@
       <p-button
         [label]="t('exportBtn')"
         icon="pi pi-upload"
-        [loading]="exporting"
+        [loading]="exporting()"
         (onClick)="exportToSidecar()"
         severity="primary"
         size="small"
@@ -36,7 +36,7 @@
       <p-button
         [label]="t('importBtn')"
         icon="pi pi-download"
-        [loading]="importing"
+        [loading]="importing()"
         [disabled]="syncStatus === 'MISSING'"
         (onClick)="importFromSidecar()"
         severity="secondary"

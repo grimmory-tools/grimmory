@@ -31,7 +31,7 @@ export class MetadataReviewDialogComponent implements OnInit {
   private bookService = inject(BookService);
   private progressService = inject(MetadataProgressService);
 
-  loading = true;
+  loading = signal(true);
   readonly proposals = signal<FetchedProposal[]>([]);
   readonly currentIndex = signal(0);
   readonly currentBook = computed<Book | null>(() => {
@@ -52,7 +52,7 @@ export class MetadataReviewDialogComponent implements OnInit {
 
       const bookIds = new Set(proposals.map(proposal => proposal.bookId));
       const matchedBooks = this.bookService.books().filter(book => bookIds.has(book.id));
-      this.loading = matchedBooks.length !== bookIds.size;
+      this.loading.set(matchedBooks.length !== bookIds.size);
     });
   }
 

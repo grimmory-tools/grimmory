@@ -88,7 +88,7 @@ class PdfMetadataWriterTest {
         meta.setPublishedDate(LocalDate.of(2022, 11, 22));
         meta.setLanguage("en");
         meta.setPageCount(754);
-        
+
         List<AuthorEntity> authors = new ArrayList<>();
         AuthorEntity author = new AuthorEntity();
         author.setName("Jason C McDonald");
@@ -197,7 +197,7 @@ class PdfMetadataWriterTest {
         writer.saveMetadataToFile(pdf, meta, null, null);
 
         BookMetadata result = extractor.extractMetadata(pdf);
-        assertEquals("52555538", result.getGoodreadsId(), 
+        assertEquals("52555538", result.getGoodreadsId(),
                 "Goodreads ID should be normalized to just the numeric part");
     }
 
@@ -287,17 +287,21 @@ class PdfMetadataWriterTest {
         File pdf = createEmptyPdf("tags-moods.pdf");
 
         BookMetadataEntity meta = createBasicMetadata();
-        
+
         Set<TagEntity> tags = new HashSet<>();
-        TagEntity tag1 = new TagEntity(); tag1.setName("Python");
-        TagEntity tag2 = new TagEntity(); tag2.setName("Programming");
+        TagEntity tag1 = new TagEntity();
+        tag1.setName("Python");
+        TagEntity tag2 = new TagEntity();
+        tag2.setName("Programming");
         tags.add(tag1);
         tags.add(tag2);
         meta.setTags(tags);
-        
+
         Set<MoodEntity> moods = new HashSet<>();
-        MoodEntity mood1 = new MoodEntity(); mood1.setName("Educational");
-        MoodEntity mood2 = new MoodEntity(); mood2.setName("Technical");
+        MoodEntity mood1 = new MoodEntity();
+        mood1.setName("Educational");
+        MoodEntity mood2 = new MoodEntity();
+        mood2.setName("Technical");
         moods.add(mood1);
         moods.add(mood2);
         meta.setMoods(moods);

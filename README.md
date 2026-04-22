@@ -186,10 +186,10 @@ Contributor workflow, PR policy, and release semantics live in [CONTRIBUTING.md]
 
 General purpose development guidelines live in [DEVELOPMENT.md](DEVELOPMENT.md). Component-specific implementation guidance lives in:
 
-- [`booklore-api/DEVELOPMENT.md`](booklore-api/DEVELOPMENT.md)
+- [`backend/DEVELOPMENT.md`](backend/DEVELOPMENT.md)
 - [`frontend/DEVELOPMENT.md`](frontend/DEVELOPMENT.md)
 
-The root [`Justfile`](Justfile) is the primary local command surface and mirrors the folder-local `booklore-api/Justfile` and `frontend/Justfile` entrypoints.
+The root [`Justfile`](Justfile) is the primary local command surface and mirrors the folder-local `backend/Justfile` and `frontend/Justfile` entrypoints.
 
 ```bash
 just               # Show root + api + ui recipes
