@@ -18,16 +18,16 @@ FROM --platform=$BUILDPLATFORM gradle:9.4.1-jdk25-alpine AS backend-build
 
 ARG TARGETARCH
 
-WORKDIR /workspace/booklore-api
+WORKDIR /workspace/backend
 
-COPY booklore-api/gradlew booklore-api/gradlew.bat booklore-api/build.gradle.kts booklore-api/settings.gradle.kts ./
-COPY booklore-api/gradle ./gradle
+COPY backend/gradlew backend/gradlew.bat backend/build.gradle.kts backend/settings.gradle.kts ./
+COPY backend/gradle ./gradle
 RUN chmod +x ./gradlew
 
 RUN --mount=type=cache,target=/home/gradle/.gradle \
     ./gradlew --no-daemon dependencies
 
-COPY booklore-api/ ./
+COPY backend/ ./
 COPY --from=frontend-build /workspace/frontend/dist/grimmory/browser /tmp/frontend-dist
 
 RUN --mount=type=cache,target=/home/gradle/.gradle \
@@ -35,7 +35,7 @@ RUN --mount=type=cache,target=/home/gradle/.gradle \
 
 RUN set -eux; \
     jar_path="$(find build/libs -maxdepth 1 -name '*.jar' ! -name '*plain.jar' | head -n 1)"; \
-    cp "$jar_path" /workspace/booklore-api/app.jar
+    cp "$jar_path" /workspace/backend/app.jar
 
 FROM mwader/static-ffmpeg:8.1 AS ffprobe-layer
 
@@ -93,7 +93,7 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 COPY --from=ffprobe-layer /ffprobe /usr/local/bin/ffprobe
 COPY --from=kepubify-layer /kepubify /usr/local/bin/kepubify
 
-COPY --from=backend-build /workspace/booklore-api/app.jar /app/app.jar
+COPY --from=backend-build /workspace/backend/app.jar /app/app.jar
 
 ARG APP_VERSION=development
 ARG APP_REVISION=unknown

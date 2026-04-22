@@ -14,5 +14,5 @@ frontend/node_modules
 frontend/test-results
 frontend/tmp
 
-booklore-api/.gradle
-booklore-api/build
+backend/.gradle
+backend/build

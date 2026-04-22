@@ -11,7 +11,7 @@
 
 ## Project Structure
 
-- **Backend (`booklore-api/`)**
+- **Backend (`backend/`)**
   - Application code: `src/main/java`
   - Resources and Flyway migrations: `src/main/resources`
   - Tests: `src/test/java`

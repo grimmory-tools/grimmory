@@ -10,7 +10,7 @@ work.
 ```
 grimmory/
 ├── frontend/                # Angular frontend (TypeScript, PrimeNG)
-├── booklore-api/            # Spring Boot backend (Java 25, Gradle)
+├── backend/                 # Spring Boot backend (Java 25, Gradle)
 ├── deploy/                  # Compose, Helm, and Podman deployment examples
 ├── packaging/docker/        # Container runtime assets used by the Docker build
 ├── dev.docker-compose.yml   # Development Docker stack
@@ -44,7 +44,7 @@ just image-build           # Build the production image locally
 Use this document for repo-level workflow, then drop into the component-specific guides when working
 inside a project:
 
-- Backend: [booklore-api/DEVELOPMENT.md](booklore-api/DEVELOPMENT.md)
+- Backend: [backend/DEVELOPMENT.md](backend/DEVELOPMENT.md)
 - Frontend: [frontend/DEVELOPMENT.md](frontend/DEVELOPMENT.md)
 
 ---
