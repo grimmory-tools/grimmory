@@ -9,12 +9,12 @@ import {Book} from '../../model/book.model';
 @Injectable({providedIn: 'root'})
 export class BookDialogHelperService {
 
-  private dialogLauncherService = inject(DialogLauncherService);
-  private messageService = inject(MessageService);
-  private t = inject(TranslocoService);
+  private readonly dialogLauncherService = inject(DialogLauncherService);
+  private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
 
   /** In-flight dialog opens keyed by intent, to dedupe double-clicks while a chunk loads. */
-  private inflightOpens = new Map<string, Promise<DynamicDialogRef | null>>();
+  private readonly inflightOpens = new Map<string, Promise<DynamicDialogRef | null>>();
 
   private openDialog(component: Type<unknown>, options: object): DynamicDialogRef | null {
     return this.dialogLauncherService.openDialog(component, options);
@@ -76,7 +76,9 @@ export class BookDialogHelperService {
     } else {
       return Promise.resolve(null);
     }
-    const key = book !== null ? `shelfAssigner:book:${book.id}` : `shelfAssigner:bulk:${[...(bookIds ?? [])].sort().join(',')}`;
+    const key = book !== null
+      ? `shelfAssigner:book:${book.id}`
+      : `shelfAssigner:bulk:${[...(bookIds ?? [])].sort((a, b) => a - b).join(',')}`;
     return this.lazyOpen(
       key,
       async () => (await import('../shelf-assigner/shelf-assigner.component')).ShelfAssignerComponent,
@@ -101,7 +103,7 @@ export class BookDialogHelperService {
 
   openLockUnlockMetadataDialog(bookIds: Set<number>): Promise<DynamicDialogRef | null> {
     return this.lazyOpen(
-      `lockUnlockMetadata:${[...bookIds].sort().join(',')}`,
+      `lockUnlockMetadata:${[...bookIds].sort((a, b) => a - b).join(',')}`,
       async () => (await import('./lock-unlock-metadata-dialog/lock-unlock-metadata-dialog.component')).LockUnlockMetadataDialogComponent,
       {
         showHeader: false,
@@ -115,7 +117,7 @@ export class BookDialogHelperService {
 
   openMetadataRefreshDialog(bookIds: Set<number>): Promise<DynamicDialogRef | null> {
     return this.lazyOpen(
-      `metadataRefresh:${[...bookIds].sort().join(',')}`,
+      `metadataRefresh:${[...bookIds].sort((a, b) => a - b).join(',')}`,
       async () => (await import('../../../metadata/component/multi-book-metadata-fetch/multi-book-metadata-fetch-component')).MultiBookMetadataFetchComponent,
       {
         showHeader: false,
@@ -130,7 +132,7 @@ export class BookDialogHelperService {
 
   openBulkMetadataEditDialog(bookIds: Set<number>): Promise<DynamicDialogRef | null> {
     return this.lazyOpen(
-      `bulkMetadataEdit:${[...bookIds].sort().join(',')}`,
+      `bulkMetadataEdit:${[...bookIds].sort((a, b) => a - b).join(',')}`,
       async () => (await import('../../../metadata/component/bulk-metadata-update/bulk-metadata-update-component')).BulkMetadataUpdateComponent,
       {
         showHeader: false,
@@ -144,7 +146,7 @@ export class BookDialogHelperService {
 
   openMultibookMetadataEditorDialog(bookIds: Set<number>): Promise<DynamicDialogRef | null> {
     return this.lazyOpen(
-      `multiBookMetadataEditor:${[...bookIds].sort().join(',')}`,
+      `multiBookMetadataEditor:${[...bookIds].sort((a, b) => a - b).join(',')}`,
       async () => (await import('../../../metadata/component/multi-book-metadata-editor/multi-book-metadata-editor-component')).MultiBookMetadataEditorComponent,
       {
         showHeader: false,
@@ -158,7 +160,7 @@ export class BookDialogHelperService {
 
   openFileMoverDialog(bookIds: Set<number>): Promise<DynamicDialogRef | null> {
     return this.lazyOpen(
-      `fileMover:${[...bookIds].sort().join(',')}`,
+      `fileMover:${[...bookIds].sort((a, b) => a - b).join(',')}`,
       async () => (await import('../../../../shared/components/file-mover/file-mover-component')).FileMoverComponent,
       {
         showHeader: false,
@@ -230,7 +232,7 @@ export class BookDialogHelperService {
 
   openBulkBookFileAttacherDialog(sourceBooks: Book[]): Promise<DynamicDialogRef | null> {
     return this.lazyOpen(
-      `bulkBookFileAttacher:${sourceBooks.map(b => b.id).sort().join(',')}`,
+      `bulkBookFileAttacher:${sourceBooks.map(b => b.id).sort((a, b) => a - b).join(',')}`,
       async () => (await import('../book-file-attacher/book-file-attacher.component')).BookFileAttacherComponent,
       {
         showHeader: false,

@@ -35,8 +35,7 @@
           @if (entityType !== EntityType.ALL_BOOKS && entityType !== EntityType.UNSHELVED &&
           (currentUser.permissions.admin || currentUser.permissions.canManageLibrary)) {
           <div class="entity-menu-wrapper">
-            <p-button icon="pi pi-ellipsis-v" [rounded]="true" [text]="true" (click)="entitymenu.toggle($event)"
-              (keydown.enter)="entitymenu.toggle($event)">
+            <p-button icon="pi pi-ellipsis-v" [rounded]="true" [text]="true" (click)="entitymenu.toggle($event)">
             </p-button>
             <p-menu #entitymenu [model]="entityOptions()" [popup]="true" appendTo="body"></p-menu>
           </div>
@@ -47,8 +46,7 @@
         <div class="toolbar-actions">
           <div class="toolbar-icons">
             @if (isFilterActive()) {
-            <button type="button" class="topbar-items topbar-item" (click)="clearFilter()"
-              (keydown.enter)="clearFilter()" [attr.aria-label]="t('tooltip.clearFilters')">
+            <button type="button" class="topbar-items topbar-item" (click)="clearFilter()" [attr.aria-label]="t('tooltip.clearFilters')">
               <i class="pi pi-filter-slash filter-clear-icon" [pTooltip]="t('tooltip.clearFilters')"
                 tooltipPosition="top">
               </i>
@@ -57,8 +55,7 @@
 
             @if (currentViewMode() === 'table') {
             <div>
-              <button type="button" class="topbar-items topbar-item" (click)="columnPopover.toggle($event)"
-                (keydown.enter)="columnPopover.toggle($event)" [attr.aria-label]="t('tooltip.visibleColumns')">
+              <button type="button" class="topbar-items topbar-item" (click)="columnPopover.toggle($event)" [attr.aria-label]="t('tooltip.visibleColumns')">
                 <i class="pi pi-eye" [pTooltip]="t('tooltip.visibleColumns')" tooltipPosition="top">
                 </i>
               </button>
@@ -72,20 +69,18 @@
                 <div class="column-popover-footer">
                   <p>{{ t('labels.setAsDefault') }}</p>
                   <p-button [label]="t('labels.save')" outlined size="small"
-                    (click)="columnPreferenceService.saveVisibleColumns(visibleColumns())"
-                    (keydown.enter)="columnPreferenceService.saveVisibleColumns(visibleColumns())"></p-button>
+                    (click)="columnPreferenceService.saveVisibleColumns(visibleColumns())"></p-button>
                 </div>
               </p-popover>
             </div>
             }
-            <button type="button" class="topbar-items topbar-item" (click)="toggleTableGrid()"
-              (keydown.enter)="toggleTableGrid()" [attr.aria-label]="t('tooltip.toggleView')">
+            <button type="button" class="topbar-items topbar-item" (click)="toggleTableGrid()" [attr.aria-label]="t('tooltip.toggleView')">
               <i [class]="viewIcon()" [pTooltip]="t('tooltip.toggleView')" tooltipPosition="top">
               </i>
             </button>
             <div>
               <button type="button" class="topbar-items topbar-item"
-                (click)="seriesCollapseOverlay.toggle($event)" (keydown.enter)="seriesCollapseOverlay.toggle($event)"
+                (click)="seriesCollapseOverlay.toggle($event)"
                 [pTooltip]="t('tooltip.displaySettings')" tooltipPosition="top" [attr.aria-label]="t('tooltip.displaySettings')">
                 <i class="pi pi-cog"></i>
               </button>
@@ -140,8 +135,7 @@
             </div>
 
             <div class="sort-button-wrapper">
-              <button type="button" class="topbar-items topbar-item" (click)="sortPopover.toggle($event)"
-                (keydown.enter)="sortPopover.toggle($event)" [attr.aria-label]="t('tooltip.selectSorting')">
+              <button type="button" class="topbar-items topbar-item" (click)="sortPopover.toggle($event)" [attr.aria-label]="t('tooltip.selectSorting')">
                 <i class="pi pi-sort" [pTooltip]="t('tooltip.selectSorting')" tooltipPosition="top">
                 </i>
                 @if (sortCriteriaCount() > 1) {
@@ -167,26 +161,25 @@
 
             <p-popover #searchDropdown [dismissable]="true" appendTo="body" [style]="{ width: '24rem' }">
               <div class="search-popover-content">
-                <input type="text" pInputText [placeholder]="t('placeholder.search')" [ngModel]="bookTitle()"
+                <input id="book-browser-search-mobile" name="bookBrowserSearchMobile" type="text" pInputText autocomplete="off" [placeholder]="t('placeholder.search')" [ngModel]="bookTitle()"
                   (ngModelChange)="onSearchTermChange($event)" class="search-input-full" />
                 <p-button icon="pi pi-times" [text]="true" size="small" [rounded]="true" class="search-clear-btn"
-                  (click)="clearSearch(); searchDropdown.hide()" (keydown.enter)="clearSearch(); searchDropdown.hide()"></p-button>
+                  (click)="clearSearch(); searchDropdown.hide()"></p-button>
               </div>
             </p-popover>
           </div>
 
           <div class="desktop-search-wrapper">
             <i class="pi pi-search search-icon"></i>
-            <input type="text" pInputText [placeholder]="t('placeholder.search')" [ngModel]="bookTitle()"
+            <input id="book-browser-search" name="bookBrowserSearch" type="text" pInputText autocomplete="off" [placeholder]="t('placeholder.search')" [ngModel]="bookTitle()"
               (ngModelChange)="onSearchTermChange($event)" class="search-input" />
             @if (bookTitle()) {
             <p-button icon="pi pi-times" [text]="true" size="small" [rounded]="true" class="search-clear-btn"
-              (click)="clearSearch()" (keydown.enter)="clearSearch()"></p-button>
+              (click)="clearSearch()"></p-button>
             }
           </div>
 
-          <button type="button" class="topbar-items topbar-item" (click)="toggleSidebar()"
-            (keydown.enter)="toggleSidebar()" [attr.aria-label]="t('tooltip.toggleSidebar')">
+          <button type="button" class="topbar-items topbar-item" (click)="toggleSidebar()" [attr.aria-label]="t('tooltip.toggleSidebar')">
             <i [ngClass]="showFilter() ? 'pi pi-filter-fill' : 'pi pi-filter'" [pTooltip]="t('tooltip.toggleSidebar')"
               tooltipPosition="top">
             </i>
@@ -279,7 +272,7 @@
                   @if (hasMetadataMenuItems()) {
                   <p-tieredMenu #menu [model]="metadataMenuItems" [popup]="true" appendTo="body"
                     styleClass="footer-menu" />
-                  <p-button (click)="menu.toggle($event)" (keydown.enter)="menu.toggle($event)" [pTooltip]="t('tooltip.metadataActions')"
+                  <p-button (click)="menu.toggle($event)" [pTooltip]="t('tooltip.metadataActions')"
                     tooltipPosition="top" outlined="true" severity="info" icon="pi pi-database">
                   </p-button>
                   }
@@ -287,29 +280,25 @@
                     [pTooltip]="t('tooltip.assignToShelf')" tooltipPosition="top">
                   </p-button>
                   @if (entityType === EntityType.SHELF) {
-                  <p-button icon="pi pi-bookmark" outlined="true" severity="info" (click)="unshelfBooks()"
-                    (keydown.enter)="unshelfBooks()" [pTooltip]="t('tooltip.removeFromShelf')" tooltipPosition="top">
+                  <p-button icon="pi pi-bookmark" outlined="true" severity="info" (click)="unshelfBooks()" [pTooltip]="t('tooltip.removeFromShelf')" tooltipPosition="top">
                   </p-button>
                   }
                   @if (currentUser.permissions.canBulkLockUnlockMetadata) {
-                  <p-button outlined="true" icon="pi pi-lock" severity="info" (click)="lockUnlockMetadata()"
-                    (keydown.enter)="lockUnlockMetadata()" [pTooltip]="t('tooltip.lockUnlockMetadata')" tooltipPosition="top">
+                  <p-button outlined="true" icon="pi pi-lock" severity="info" (click)="lockUnlockMetadata()" [pTooltip]="t('tooltip.lockUnlockMetadata')" tooltipPosition="top">
                   </p-button>
                   }
                   @if (currentUser.permissions.canMoveOrganizeFiles && appSettingsService.appSettings()?.diskType ===
                   'LOCAL') {
-                  <p-button outlined="true" icon="pi pi-arrows-h" severity="info" (click)="moveFiles()"
-                    (keydown.enter)="moveFiles()" [pTooltip]="t('tooltip.organizeFiles')" tooltipPosition="top">
+                  <p-button outlined="true" icon="pi pi-arrows-h" severity="info" (click)="moveFiles()" [pTooltip]="t('tooltip.organizeFiles')" tooltipPosition="top">
                   </p-button>
                   }
                   @if (currentUser.permissions.canManageLibrary || currentUser.permissions.admin) {
-                  <p-button outlined="true" icon="pi pi-link" severity="info" (click)="attachFilesToBook()"
-                    (keydown.enter)="attachFilesToBook()" [disabled]="!canAttachFiles()" [pTooltip]="t('tooltip.attachToBook')" tooltipPosition="top">
+                  <p-button outlined="true" icon="pi pi-link" severity="info" (click)="attachFilesToBook()" [disabled]="!canAttachFiles()" [pTooltip]="t('tooltip.attachToBook')" tooltipPosition="top">
                   </p-button>
                   }
                   @if (hasMoreActionsItems()) {
                   <div class="more-actions-wrapper">
-                    <p-button (click)="menu.toggle($event)" (keydown.enter)="menu.toggle($event)" [pTooltip]="t('tooltip.moreActions')" tooltipPosition="top"
+                    <p-button (click)="menu.toggle($event)" [pTooltip]="t('tooltip.moreActions')" tooltipPosition="top"
                       outlined="true" severity="info" icon="pi pi-ellipsis-v">
                     </p-button>
                     <p-tieredMenu #menu [model]="moreActionsMenuItems" [popup]="true" appendTo="body"
@@ -320,17 +309,14 @@
                 }
                 <p-divider layout="vertical"></p-divider>
                 <div class="action-buttons-group">
-                  <p-button outlined="true" icon="pi pi-check-square" severity="success" (click)="selectAllBooks()"
-                    (keydown.enter)="selectAllBooks()" [pTooltip]="t('tooltip.selectAll')" tooltipPosition="top">
+                  <p-button outlined="true" icon="pi pi-check-square" severity="success" (click)="selectAllBooks()" [pTooltip]="t('tooltip.selectAll')" tooltipPosition="top">
                   </p-button>
-                  <p-button outlined="true" icon="pi pi-times" severity="warn" (click)="deselectAllBooks()"
-                    (keydown.enter)="deselectAllBooks()" [pTooltip]="t('tooltip.deselectAll')" tooltipPosition="top">
+                  <p-button outlined="true" icon="pi pi-times" severity="warn" (click)="deselectAllBooks()" [pTooltip]="t('tooltip.deselectAll')" tooltipPosition="top">
                   </p-button>
                 </div>
                 @if (currentUser?.permissions?.admin || currentUser?.permissions?.canDeleteBook) {
                 <p-divider layout="vertical"></p-divider>
-                <p-button outlined="true" icon="pi pi-trash" severity="danger" (click)="confirmDeleteBooks()"
-                  (keydown.enter)="confirmDeleteBooks()" [pTooltip]="t('tooltip.deleteSelected')" tooltipPosition="top">
+                <p-button outlined="true" icon="pi pi-trash" severity="danger" (click)="confirmDeleteBooks()" [pTooltip]="t('tooltip.deleteSelected')" tooltipPosition="top">
                 </p-button>
                 }
               </div>
@@ -344,8 +330,7 @@
     </div>
 
     @if (showFilter()) {
-    <button type="button" class="mobile-filter-mask" (click)="toggleSidebar()"
-      (keydown.enter)="toggleSidebar()" [attr.aria-label]="t('tooltip.closeSidebar')">
+    <button type="button" class="mobile-filter-mask" (click)="toggleSidebar()" [attr.aria-label]="t('tooltip.closeSidebar')">
     </button>
     }
     <app-book-filter [showFilter]="showFilter()" class="filter-overlay-container" [ngClass]="{ 'active': showFilter() }"

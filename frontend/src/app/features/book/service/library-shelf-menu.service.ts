@@ -43,14 +43,14 @@ export class LibraryShelfMenuService {
             label: this.t.translate('book.shelfMenuService.library.addPhysicalBook'),
             icon: 'pi pi-book',
             command: () => {
-              this.bookDialogHelperService.openAddPhysicalBookDialog(entity?.id as number);
+              void this.bookDialogHelperService.openAddPhysicalBookDialog(entity?.id as number);
             }
           },
           {
             label: this.t.translate('book.shelfMenuService.library.bulkIsbnImport'),
             icon: 'pi pi-barcode',
             command: () => {
-              this.bookDialogHelperService.openBulkIsbnImportDialog(entity?.id as number);
+              void this.bookDialogHelperService.openBulkIsbnImportDialog(entity?.id as number);
             }
           },
           {
@@ -128,7 +128,7 @@ export class LibraryShelfMenuService {
             label: this.t.translate('book.shelfMenuService.library.findDuplicates'),
             icon: 'pi pi-copy',
             command: () => {
-              this.bookDialogHelperService.openDuplicateMergerDialog(entity?.id as number);
+              void this.bookDialogHelperService.openDuplicateMergerDialog(entity?.id as number);
             }
           },
           {

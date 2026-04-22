@@ -41,15 +41,9 @@ public class BookRuleEvaluatorService {
             query.distinct(true);
 
             Join<BookEntity, UserBookProgressEntity> progressJoin = root.join("userBookProgress", JoinType.LEFT);
+            progressJoin.on(cb.equal(progressJoin.get("user").get("id"), userId));
 
-            Predicate userPredicate = cb.or(
-                    cb.isNull(progressJoin.get("user").get("id")),
-                    cb.equal(progressJoin.get("user").get("id"), userId)
-            );
-
-            Predicate rulePredicate = buildPredicate(groupRule, query, cb, root, progressJoin, userId);
-
-            return cb.and(userPredicate, rulePredicate);
+            return buildPredicate(groupRule, query, cb, root, progressJoin, userId);
         };
     }
 

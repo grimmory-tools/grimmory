@@ -26,6 +26,11 @@ import {AppSettingsService} from '../../../../../shared/service/app-settings.ser
 import {TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {QueryClient} from '@tanstack/angular-query-experimental';
 
+// Book cards render at ~232x325 CSS pixels; request a 240px-wide variant so
+// the server delivers a smaller, more heavily-compressed JPEG while still
+// looking crisp on high-DPR displays.
+const BOOK_CARD_THUMBNAIL_WIDTH = 240;
+
 @Component({
   selector: 'app-book-card',
   templateUrl: './book-card.component.html',
@@ -118,8 +123,8 @@ export class BookCardComponent {
 
   readonly coverImageUrl = computed(() =>
     (this.isAudiobook() || (this.useSquareCovers() && this.hasAudiobookFormat()))
-      ? this.urlHelper.getAudiobookThumbnailUrl(this.book().id, this.book().metadata?.audiobookCoverUpdatedOn)
-      : this.urlHelper.getThumbnailUrl(this.book().id, this.book().metadata?.coverUpdatedOn)
+      ? this.urlHelper.getAudiobookThumbnailUrl(this.book().id, this.book().metadata?.audiobookCoverUpdatedOn, BOOK_CARD_THUMBNAIL_WIDTH)
+      : this.urlHelper.getThumbnailUrl(this.book().id, this.book().metadata?.coverUpdatedOn, BOOK_CARD_THUMBNAIL_WIDTH)
   );
 
   readonly readStatusIcon = computed(() => this.readStatusHelper.getReadStatusIcon(this.book().readStatus));
@@ -625,7 +630,7 @@ export class BookCardComponent {
         queryParams: {tab: 'view'}
       });
     } else {
-      this.bookDialogHelperService.openBookDetailsDialog(book.id);
+      void this.bookDialogHelperService.openBookDetailsDialog(book.id);
     }
   }
 

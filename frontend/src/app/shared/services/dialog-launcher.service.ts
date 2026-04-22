@@ -29,16 +29,16 @@ export const DialogStyle = {
 })
 export class DialogLauncherService {
 
-  dialogService = inject(DialogService);
-  private messageService = inject(MessageService);
-  private t = inject(TranslocoService);
+  readonly dialogService = inject(DialogService);
+  private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
 
   /**
    * Tracks in-flight lazy dialog opens by key so a fast double-click (or a
    * re-triggered open while the chunk is still downloading) resolves to the
    * same dialog instead of spawning two copies.
    */
-  private inflightOpens = new Map<string, Promise<DynamicDialogRef | null>>();
+  private readonly inflightOpens = new Map<string, Promise<DynamicDialogRef | null>>();
 
   private defaultDialogOptions = {
     baseZIndex: 10,

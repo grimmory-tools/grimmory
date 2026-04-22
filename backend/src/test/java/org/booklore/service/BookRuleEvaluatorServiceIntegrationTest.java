@@ -2443,4 +2443,85 @@ class BookRuleEvaluatorServiceIntegrationTest {
             assertThat(ids).doesNotContain(book300.getId());
         }
     }
+
+    /**
+     * Regression tests for the multi-user magic-shelf bug: a LEFT JOIN on
+     * userBookProgress without restricting the join to the current user causes
+     * books to be wrongly excluded when OTHER users have progress rows for them.
+     */
+    @Nested
+    class MultiUserProgressTests {
+
+        private BookLoreUserEntity otherUser() {
+            BookLoreUserEntity u = BookLoreUserEntity.builder()
+                    .username("otheruser")
+                    .passwordHash("hash")
+                    .isDefaultPassword(true)
+                    .name("Other User")
+                    .build();
+            em.persist(u);
+            em.flush();
+            return u;
+        }
+
+        private UserBookProgressEntity progressFor(BookLoreUserEntity u, BookEntity book, ReadStatus status) {
+            UserBookProgressEntity p = UserBookProgressEntity.builder()
+                    .user(u)
+                    .book(book)
+                    .readStatus(status)
+                    .build();
+            em.persist(p);
+            em.flush();
+            return p;
+        }
+
+        @Test
+        void nonProgressRule_includesBookEvenWhenOtherUserHasProgress() {
+            BookLoreUserEntity other = otherUser();
+
+            BookEntity book = createBook("Alpha");
+            progressFor(other, book, ReadStatus.READ);
+
+            BookEntity plain = createBook("Bravo");
+            em.flush();
+            em.clear();
+
+            // Simple title-contains rule — does not touch userBookProgress at all.
+            List<Long> ids = findMatchingIds(singleRule(RuleField.TITLE, RuleOperator.CONTAINS, "a"));
+            assertThat(ids).contains(book.getId(), plain.getId());
+        }
+
+        @Test
+        void readStatusUnread_matchesBookWhenOnlyOtherUserRead() {
+            BookLoreUserEntity other = otherUser();
+
+            BookEntity bookReadByOther = createBook("Read By Other");
+            progressFor(other, bookReadByOther, ReadStatus.READ);
+
+            BookEntity trulyUnread = createBook("Truly Unread");
+            em.flush();
+            em.clear();
+
+            // From current user's perspective, both are UNSET/unread.
+            List<Long> ids = findMatchingIds(singleRule(RuleField.READ_STATUS, RuleOperator.EQUALS, "UNSET"));
+            assertThat(ids).contains(bookReadByOther.getId(), trulyUnread.getId());
+        }
+
+        @Test
+        void readStatusRead_onlyMatchesCurrentUsersReadBook() {
+            BookLoreUserEntity other = otherUser();
+
+            BookEntity readByMe = createBook("Read By Me");
+            createProgress(readByMe, ReadStatus.READ);
+
+            BookEntity readByOther = createBook("Read By Other");
+            progressFor(other, readByOther, ReadStatus.READ);
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.READ_STATUS, RuleOperator.EQUALS, "READ"));
+            assertThat(ids).contains(readByMe.getId());
+            assertThat(ids).doesNotContain(readByOther.getId());
+        }
+    }
 }

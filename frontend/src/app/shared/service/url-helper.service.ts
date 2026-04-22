@@ -22,9 +22,10 @@ export class UrlHelperService {
     return token ? `${url}${url.includes('?') ? '&' : '?'}token=${token}` : url;
   }
 
-  getThumbnailUrl(bookId: number, coverUpdatedOn?: string): string | null {
+  getThumbnailUrl(bookId: number, coverUpdatedOn?: string, width?: number): string | null {
     if (!coverUpdatedOn) return null;
-    return this.appendToken(`${this.mediaBaseUrl}/book/${bookId}/thumbnail?${coverUpdatedOn}`);
+    const sizeSuffix = width && width > 0 ? `&w=${width}` : '';
+    return this.appendToken(`${this.mediaBaseUrl}/book/${bookId}/thumbnail?${coverUpdatedOn}${sizeSuffix}`);
   }
 
   getDirectThumbnailUrl(bookId: number, coverUpdatedOn?: string): string {
@@ -50,9 +51,10 @@ export class UrlHelperService {
     return this.appendToken(`${this.mediaBaseUrl}/book/${bookId}/audiobook-cover?${audiobookCoverUpdatedOn}`);
   }
 
-  getAudiobookThumbnailUrl(bookId: number, audiobookCoverUpdatedOn?: string): string | null {
+  getAudiobookThumbnailUrl(bookId: number, audiobookCoverUpdatedOn?: string, width?: number): string | null {
     if (!audiobookCoverUpdatedOn) return null;
-    return this.appendToken(`${this.mediaBaseUrl}/book/${bookId}/audiobook-thumbnail?${audiobookCoverUpdatedOn}`);
+    const sizeSuffix = width && width > 0 ? `&w=${width}` : '';
+    return this.appendToken(`${this.mediaBaseUrl}/book/${bookId}/audiobook-thumbnail?${audiobookCoverUpdatedOn}${sizeSuffix}`);
   }
 
   getDirectAudiobookThumbnailUrl(bookId: number, audiobookCoverUpdatedOn?: string): string {

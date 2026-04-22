@@ -291,6 +291,22 @@ public class BookService {
         }
     }
 
+    public boolean hasBookThumbnail(long bookId) {
+        return Files.exists(Paths.get(fileService.getThumbnailFile(bookId)));
+    }
+
+    public boolean hasBookCover(long bookId) {
+        return Files.exists(Paths.get(fileService.getCoverFile(bookId)));
+    }
+
+    public boolean hasAudiobookThumbnail(long bookId) {
+        return Files.exists(Paths.get(fileService.getAudiobookThumbnailFile(bookId)));
+    }
+
+    public boolean hasAudiobookCover(long bookId) {
+        return Files.exists(Paths.get(fileService.getAudiobookCoverFile(bookId)));
+    }
+
     public Instant getCoverUpdatedOn(long bookId) {
         return bookRepository.findById(bookId)
                 .map(BookEntity::getMetadata)

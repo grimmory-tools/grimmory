@@ -58,8 +58,8 @@ export class MainDashboardComponent {
    * width (resize doesn't change LCP, so a one-shot read is sufficient).
    */
   private readonly eagerCountFirst = (() => {
-    if (typeof window === 'undefined') return 8;
-    const w = window.innerWidth;
+    if (typeof globalThis.window === 'undefined') return 8;
+    const w = globalThis.window.innerWidth;
     if (w < 480) return 3;
     if (w < 768) return 4;
     if (w < 1280) return 6;

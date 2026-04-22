@@ -69,13 +69,13 @@ export class AppMenuitemComponent implements OnInit {
 
   openDialog(item: NavItem) {
     if (item.type === 'library' && this.canManipulateLibrary()) {
-      this.dialogLauncher.openLibraryCreateDialog();
+      void this.dialogLauncher.openLibraryCreateDialog();
     }
     if (item.type === 'magicShelf') {
-      this.dialogLauncher.openMagicShelfCreateDialog();
+      void this.dialogLauncher.openMagicShelfCreateDialog();
     }
     if (item.type === 'shelf') {
-      this.bookDialogHelperService.openShelfCreatorDialog();
+      void this.bookDialogHelperService.openShelfCreatorDialog();
     }
   }
 

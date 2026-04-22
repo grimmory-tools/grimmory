@@ -235,7 +235,7 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
         label: this.t.translate('metadata.viewer.menuUploadFile'),
         icon: 'pi pi-upload',
         command: () => {
-          this.bookDialogHelperService.openAdditionalFileUploaderDialog(book);
+          void this.bookDialogHelperService.openAdditionalFileUploaderDialog(book);
         },
       });
     }
@@ -266,7 +266,7 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
             label: this.t.translate('metadata.viewer.menuCustomSend'),
             icon: 'pi pi-cog',
             command: () => {
-              this.bookDialogHelperService.openCustomSendDialog(book);
+              void this.bookDialogHelperService.openCustomSendDialog(book);
             }
           }
         ]
@@ -281,7 +281,7 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
         label: this.t.translate('metadata.viewer.menuAttachToAnotherBook'),
         icon: 'pi pi-link',
         command: () => {
-          this.bookDialogHelperService.openBookFileAttacherDialog(book);
+          void this.bookDialogHelperService.openBookFileAttacherDialog(book);
         },
       });
     }

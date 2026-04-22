@@ -3,6 +3,9 @@
   <p-iconfield class="search-iconfield" [class.focused]="isSearchFocused" [class.has-results]="isDropdownOpen">
     <p-inputicon class="pi pi-search"/>
     <input
+      id="global-book-searcher"
+      name="globalBookSearcher"
+      autocomplete="off"
       type="text"
       pInputText
       [(ngModel)]="searchQuery"
