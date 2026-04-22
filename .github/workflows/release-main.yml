@@ -117,7 +117,7 @@ jobs:
 
   backport-release:
     name: Backport Release Commit to Develop
-    if: ${{ needs.semantic-release.outputs.released == 'true' && needs.publish-release.result == 'success' }}
+    if: ${{ needs.semantic-release.outputs.released == 'true' }}
     needs: [semantic-release]
     runs-on: ubuntu-latest
 
