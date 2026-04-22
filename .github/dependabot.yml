@@ -40,7 +40,6 @@ updates:
     ignore:
       - dependency-name: "typescript"
 
-
   # Release tooling – npm (semantic-release)
   - package-ecosystem: "npm"
     directory: "/tools/release"
