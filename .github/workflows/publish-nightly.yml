@@ -165,7 +165,7 @@ jobs:
 
   notify-discord:
     name: Notify Discord (Nightly)
-    if: ${{ always() && needs.generate-notes.result == 'success' && needs.build-and-push.result == 'success' }}
+    if: ${{ always() && needs.generate-notes.result == 'success' && needs.build-and-push.result == 'success' && needs.generate-notes.outputs.predicted_version != '' }}
     needs: [resolve_ref, build-and-push, generate-notes]
     permissions: {}
     uses: ./.github/workflows/notify-discord-release-notes.yml
