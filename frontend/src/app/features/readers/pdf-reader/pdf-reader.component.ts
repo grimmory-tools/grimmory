@@ -70,6 +70,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   readonly goToPageInput = signal<number | null>(null);
   readonly outline = signal<PdfOutlineItem[]>([]);
   readonly pdfBookmarks = signal<BookMark[]>([]);
+  readonly isPhone = signal(false);
   readonly annotationListItems = signal<PdfAnnotationListItem[]>([]);
 
   readonly isInitialScrollDone = signal(false);
@@ -186,10 +187,32 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   readonly embedPdfBook = inject(EmbedPdfBookService);
   readonly pdfBookmarkService = inject(PdfBookmarkService);
   private readonly ngZone = inject(NgZone);
+  private userPanPreferred = false;
+
 
   ngOnInit(): void {
     const dismissed = localStorage.getItem(this.DOC_VIEWER_DISMISSED_KEY);
     this.isDocViewerInfoVisible.set(dismissed !== 'true');
+
+    let lastIsPhone: boolean | null = null;
+    const syncPhoneMode = () => {
+      const nextIsPhone = window.innerWidth < 768;
+      if (nextIsPhone === lastIsPhone) return;
+
+      lastIsPhone = nextIsPhone;
+      this.isPhone.set(nextIsPhone);
+
+      if (nextIsPhone) {
+        this.applyPanMode(true);
+      } else {
+        this.applyPanMode(this.userPanPreferred);
+      }
+    };
+
+    syncPhoneMode();
+    window.addEventListener('resize', syncPhoneMode);
+    this.destroyRef.onDestroy(() => window.removeEventListener('resize', syncPhoneMode));
+
     this.isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
     setTimeout(() => this.wakeLockService.enable(), 1000);
@@ -434,6 +457,10 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
         this.t.getActiveLang()
       );
       this.bookViewerInitialized = true;
+
+      if (this.isPanActive()) {
+        this.embedPdfBook.setPanMode(true);
+      }
 
       // Cache the raw PDF bytes so the doc-viewer switch never needs a network request
       if (!this.cachedPdfBuffer) {
@@ -687,25 +714,36 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
 
   // --- Annotation tools ---
 
+  private applyPanMode(active: boolean): void {
+    this.isPanActive.set(active);
+    if (active) {
+      this.activeAnnotationTool.set(null);
+      this.embedPdfBook.setActiveTool(null);
+    }
+    if (this.bookViewerInitialized) {
+      this.embedPdfBook.setPanMode(active);
+    }
+  }
+
+
   toggleAnnotationTool(toolId: string | null): void {
     if (this.activeAnnotationTool() === toolId) {
       this.activeAnnotationTool.set(null);
     } else {
-      this.isPanActive.set(false);
-      this.embedPdfBook.setPanMode(false);
+      this.userPanPreferred = false;
+      this.applyPanMode(false);
       this.activeAnnotationTool.set(toolId);
     }
     this.embedPdfBook.setActiveTool(this.activeAnnotationTool());
   }
 
+
   togglePanMode(): void {
-    this.isPanActive.update(v => !v);
-    if (this.isPanActive()) {
-      this.activeAnnotationTool.set(null);
-      this.embedPdfBook.setActiveTool(null);
-    }
-    this.embedPdfBook.setPanMode(this.isPanActive());
+    const nextValue = !this.isPanActive();
+    this.userPanPreferred = nextValue;
+    this.applyPanMode(nextValue);
   }
+
 
   setAnnotationColor(color: string): void {
     this.activeAnnotationColor = color;
@@ -1177,8 +1215,11 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     const deltaY = endY - this.touchStartY;
     const elapsed = Date.now() - this.touchStartTime;
 
-    // Swipe detection: enough horizontal movement, more horizontal than vertical
-    if (this.touchMoveCount >= 3 && Math.abs(deltaX) > this.SWIPE_THRESHOLD && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
+    // Swipe detection: enough horizontal movement, more horizontal than vertical.
+    // Skip if pan mode is active OR if on a phone to prevent accidental page turns during selection/navigation.
+    const skipSwipe = this.isPhone() || this.isPanActive();
+
+    if (!skipSwipe && this.touchMoveCount >= 3 && Math.abs(deltaX) > this.SWIPE_THRESHOLD && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
       this.ngZone.run(() => {
         if (deltaX < 0) {
           this.goToNextPage();
@@ -1195,14 +1236,16 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       const tapX = this.touchStartX;
 
       this.ngZone.run(() => {
-        if (tapX < screenWidth * this.TAP_ZONE_RATIO) {
+        // On phones, disable tap-to-change-page zones to prevent accidental navigation.
+        // Taps will only toggle the chrome.
+        if (!this.isPhone() && tapX < screenWidth * this.TAP_ZONE_RATIO) {
           // Left zone: previous page
           this.goToPreviousPage();
-        } else if (tapX > screenWidth * (1 - this.TAP_ZONE_RATIO)) {
+        } else if (!this.isPhone() && tapX > screenWidth * (1 - this.TAP_ZONE_RATIO)) {
           // Right zone: next page
           this.goToNextPage();
         } else {
-          // Center zone: toggle chrome
+          // Center zone (or any zone on phone): toggle chrome
           if (this.headerVisible() || this.footerVisible()) {
             this.hideChrome();
           } else {

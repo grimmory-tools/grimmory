@@ -149,7 +149,7 @@ you have an issue to work on.
 
 Grimmory has two distinct codebases, each with their own conventions:
 
-- **Backend** (Java / Spring Boot): [booklore-api/DEVELOPMENT.md](booklore-api/DEVELOPMENT.md)
+- **Backend** (Java / Spring Boot): [backend/DEVELOPMENT.md](backend/DEVELOPMENT.md)
 - **Frontend** (TypeScript / Angular): [frontend/DEVELOPMENT.md](frontend/DEVELOPMENT.md)
 
 If your change touches both, read both.

@@ -288,11 +288,15 @@
       }
 
       &.fit-width {
+        overflow-y: auto;
+        align-items: flex-start;
+        touch-action: pan-y;
+
         .pages-wrapper,
         .previous-page-layer,
         .current-page-layer {
           height: auto;
-          max-height: 100%;
+          max-height: none;
         }
 
         .page-image {
@@ -348,6 +352,8 @@
 
       &.fit-actual-size {
         overflow: auto;
+        align-items: flex-start;
+        touch-action: pan-x pan-y;
 
         .pages-wrapper,
         .previous-page-layer,
