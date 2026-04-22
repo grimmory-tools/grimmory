@@ -1,7 +1,10 @@
 package org.booklore.service.opds;
 
+import tools.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.booklore.app.specification.AppBookSpecification;
+import org.booklore.exception.APIException;
 import org.booklore.exception.ApiError;
 import org.booklore.mapper.BookMapper;
 import org.booklore.mapper.custom.BookLoreUserTransformer;
@@ -24,29 +27,25 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tools.jackson.databind.ObjectMapper;
 
-import org.booklore.exception.APIException;
-
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class MagicShelfBookService {
 
     private final MagicShelfRepository magicShelfRepository;
+    private final BookRuleEvaluatorService ruleEvaluatorService;
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
+    private final ContentRestrictionService contentRestrictionService;
     private final UserRepository userRepository;
     private final BookLoreUserTransformer bookLoreUserTransformer;
-    private final BookRuleEvaluatorService ruleEvaluatorService;
-    private final ContentRestrictionService contentRestrictionService;
     private final ObjectMapper objectMapper;
-
-    private record ShelfAccess(MagicShelfEntity shelf, BookLoreUserEntity user) {}
 
     @Transactional(readOnly = true)
     public Page<Book> getBooksByMagicShelfId(Long userId, Long magicShelfId, int page, int size) {
@@ -74,8 +73,23 @@ public class MagicShelfBookService {
         ShelfAccess access = validateMagicShelfAccess(userId, magicShelfId);
         try {
             GroupRule groupRule = objectMapper.readValue(access.shelf().getFilterJson(), GroupRule.class);
-            Specification<BookEntity> specification = ruleEvaluatorService.toSpecification(groupRule, userId);
-            return specification.and(createLibraryFilterSpecification(access.user()));
+            Specification<BookEntity> specification = ruleEvaluatorService.toSpecification(groupRule, userId)
+                    .and(AppBookSpecification.notDeleted());
+            
+            if (access.user() == null) {
+                return specification;
+            }
+
+            BookLoreUser user = bookLoreUserTransformer.toDTO(access.user());
+            if (user.getPermissions() != null && user.getPermissions().isAdmin()) {
+                return specification;
+            }
+
+            Set<Long> userLibraryIds = user.getAssignedLibraries().stream()
+                    .map(Library::getId)
+                    .collect(Collectors.toSet());
+
+            return specification.and(org.booklore.app.specification.AppBookSpecification.inLibraries(userLibraryIds));
         } catch (APIException e) {
             throw e;
         } catch (Exception e) {
@@ -89,12 +103,8 @@ public class MagicShelfBookService {
     }
 
     public List<Long> getBookIdsByMagicShelfId(Long userId, Long magicShelfId, int limit) {
-        ShelfAccess access = validateMagicShelfAccess(userId, magicShelfId);
+        Specification<BookEntity> specification = toSpecification(userId, magicShelfId);
         try {
-            GroupRule groupRule = objectMapper.readValue(access.shelf().getFilterJson(), GroupRule.class);
-            Specification<BookEntity> specification = ruleEvaluatorService.toSpecification(groupRule, userId);
-            specification = specification.and(createLibraryFilterSpecification(access.user()));
-
             Pageable pageable = PageRequest.of(0, limit);
             Page<BookEntity> booksPage = bookRepository.findAll(specification, pageable);
             List<BookEntity> filtered = contentRestrictionService.applyRestrictions(booksPage.getContent(), userId);
@@ -127,38 +137,15 @@ public class MagicShelfBookService {
         BookLoreUserEntity entity = userRepository.findByIdWithDetails(userId)
                 .orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(userId));
 
-        if (entity.getPermissions() == null ||
-                (!entity.getPermissions().isPermissionAccessOpds() && !entity.getPermissions().isPermissionAdmin())) {
-            throw ApiError.FORBIDDEN.createException("You are not allowed to access this resource");
-        }
-
         boolean isOwner = shelf.getUserId().equals(userId);
         boolean isPublic = shelf.isPublic();
-        boolean isAdmin = entity.getPermissions().isPermissionAdmin();
+        boolean isAdmin = entity.getPermissions() != null && entity.getPermissions().isPermissionAdmin();
 
         if (!isOwner && !isPublic && !isAdmin) {
             throw ApiError.FORBIDDEN.createException("You are not allowed to access this magic shelf");
         }
 
         return new ShelfAccess(shelf, entity);
-    }
-
-    private Specification<BookEntity> createLibraryFilterSpecification(BookLoreUserEntity entity) {
-        if (entity == null) {
-            return (root, query, cb) -> cb.conjunction();
-        }
-
-        BookLoreUser user = bookLoreUserTransformer.toDTO(entity);
-
-        if (user.getPermissions() != null && user.getPermissions().isAdmin()) {
-            return (root, query, cb) -> cb.conjunction();
-        }
-
-        Set<Long> userLibraryIds = user.getAssignedLibraries().stream()
-                .map(Library::getId)
-                .collect(Collectors.toSet());
-
-        return (root, query, cb) -> root.get("library").get("id").in(userLibraryIds);
     }
 
     private Book filterBook(Book dto, Long userId) {
@@ -168,5 +155,8 @@ public class MagicShelfBookService {
                     .collect(Collectors.toSet()));
         }
         return dto;
+    }
+
+    private record ShelfAccess(MagicShelfEntity shelf, BookLoreUserEntity user) {
     }
 }
