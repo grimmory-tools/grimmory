@@ -57,6 +57,8 @@ import {SortService} from '../../service/sort.service';
 import {AppBooksApiService} from '../../service/app-books-api.service';
 import {AppBookFilters} from '../../model/app-book.model';
 
+import {MetadataRefreshType} from '../../../metadata/model/request/metadata-refresh-type.enum';
+
 export enum EntityType {
   LIBRARY = 'Library',
   SHELF = 'Shelf',
@@ -1083,16 +1085,16 @@ export class BookBrowserComponent implements AfterViewInit {
   autoFetchMetadata(): void {
     const selectedBooks = this.selectedBooks();
     if (selectedBooks.size === 0) return;
-    this.dialogHelperService.openMetadataRefreshDialog(selectedBooks).then(ref => {
-      this.dynamicDialogRef = ref;
-      this.handleDialogClose();
-    });
+    this.taskHelperService.refreshMetadataTask({
+      refreshType: MetadataRefreshType.BOOKS,
+      bookIds: Array.from(selectedBooks),
+    }).subscribe();
   }
 
   fetchMetadata(): void {
     const selectedBooks = this.selectedBooks();
     if (selectedBooks.size === 0) return;
-    this.dialogHelperService.openBulkMetadataEditDialog(selectedBooks).then(ref => {
+    this.dialogHelperService.openMetadataRefreshDialog(selectedBooks).then(ref => {
       this.dynamicDialogRef = ref;
       this.handleDialogClose();
     });
@@ -1101,7 +1103,7 @@ export class BookBrowserComponent implements AfterViewInit {
   bulkEditMetadata(): void {
     const selectedBooks = this.selectedBooks();
     if (selectedBooks.size === 0) return;
-    this.dialogHelperService.openLockUnlockMetadataDialog(selectedBooks).then(ref => {
+    this.dialogHelperService.openBulkMetadataEditDialog(selectedBooks).then(ref => {
       this.dynamicDialogRef = ref;
       this.handleDialogClose();
     });

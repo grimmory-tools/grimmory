@@ -38,6 +38,11 @@ export class AddPhysicalBookDialogComponent {
   private bookService = inject(BookService);
   private bookMetadataService = inject(BookMetadataService);
   private libraryService = inject(LibraryService);
+  private readonly metadata = computed(() => this.bookService.uniqueMetadata());
+
+  constructor() {
+    this.bookService.requestMetadata();
+  }
 
   selectedLibraryId: number | null = null;
   title: string = '';
@@ -50,7 +55,6 @@ export class AddPhysicalBookDialogComponent {
   pageCount: number | null = null;
   categories: string[] = [];
 
-  private readonly metadata = computed(() => this.bookService.uniqueMetadata());
   get allAuthors(): string[] { return this.metadata().authors; }
   get allCategories(): string[] { return this.metadata().categories; }
   filteredAuthors: string[] = [];

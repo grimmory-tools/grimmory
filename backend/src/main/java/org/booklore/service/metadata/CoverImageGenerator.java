@@ -854,7 +854,7 @@ public class CoverImageGenerator {
             writer = ImageIO.getImageWritersByFormatName("jpg").next();
             ImageWriteParam param = writer.getDefaultWriteParam();
             param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-            param.setCompressionQuality(0.95f);
+            param.setCompressionQuality(0.8f);
 
             ios = ImageIO.createImageOutputStream(baos);
             writer.setOutput(ios);

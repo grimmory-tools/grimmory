@@ -78,6 +78,7 @@ export class ContentRestrictionsEditorComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     this.loadRestrictions();
+    this.bookService.requestMetadata();
   }
 
   ngOnChanges(changes: SimpleChanges) {

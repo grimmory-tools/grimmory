@@ -1,4 +1,4 @@
-import {Component, computed, DestroyRef, effect, EventEmitter, inject, Input, Output} from '@angular/core';
+import {Component, computed, DestroyRef, effect, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
 import {Book, BookMetadata, ComicMetadata, MetadataClearFlags, MetadataUpdateWrapper} from '../../../../book/model/book.model';
 import {MessageService} from 'primeng/api';
 import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray} from '@angular/cdk/drag-drop';
@@ -42,7 +42,7 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
     CdkDrag,
   ]
 })
-export class MetadataPickerComponent {
+export class MetadataPickerComponent implements OnInit {
 
   // Cached arrays for template binding (avoid getter re-computation)
   metadataFieldsTop: MetadataFieldConfig[] = [];
@@ -118,6 +118,10 @@ export class MetadataPickerComponent {
   constructor() {
     this.metadataForm = this.formBuilder.buildForm(true);
     this.initFieldArrays();
+  }
+
+  ngOnInit(): void {
+    this.bookService.requestMetadata();
   }
 
   private initFieldArrays(): void {

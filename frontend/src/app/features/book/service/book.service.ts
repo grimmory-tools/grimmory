@@ -1,4 +1,4 @@
-import {computed, effect, inject, Injectable} from '@angular/core';
+import {computed, effect, inject, Injectable, signal} from '@angular/core';
 import {first, from, lastValueFrom, Observable, throwError} from 'rxjs';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {catchError, map, tap} from 'rxjs/operators';
@@ -40,11 +40,20 @@ export class BookService {
   private queryClient = inject(QueryClient);
   private readonly t = inject(TranslocoService);
   private readonly token = this.authService.token;
+  private readonly metadataRequired = signal(false);
 
   private booksQuery = injectQuery(() => ({
     ...this.getBooksQueryOptions(),
-    enabled: !!this.token(),
+    enabled: !!this.token() && this.metadataRequired(),
   }));
+
+  /**
+   * Triggers the full books fetch required for metadata autocompletion.
+   * Call this when opening an editor or dialog that needs metadata suggestions.
+   */
+  requestMetadata(): void {
+    this.metadataRequired.set(true);
+  }
 
   books = computed(() => this.booksQuery.data() ?? []);
 

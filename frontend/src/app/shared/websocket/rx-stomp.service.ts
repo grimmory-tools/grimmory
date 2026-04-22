@@ -8,6 +8,7 @@ import { createRxStompConfig } from './rx-stomp.config';
 })
 export class RxStompService extends RxStomp {
   private authService = inject(AuthService);
+  private deactivatedForBfCache = false;
 
   constructor() {
     super();
@@ -25,25 +26,43 @@ export class RxStompService extends RxStomp {
 
     window.addEventListener('pagehide', () => {
       if (this.active) {
+        this.deactivatedForBfCache = true;
         this.deactivate();
       }
     });
 
     window.addEventListener('freeze', () => {
       if (this.active) {
+        this.deactivatedForBfCache = true;
         this.deactivate();
       }
     });
 
     window.addEventListener('resume', () => {
-      if (!this.active && this.authService.isAuthenticated()) {
+      if (this.deactivatedForBfCache && !this.active && this.authService.isAuthenticated()) {
+        this.deactivatedForBfCache = false;
         this.activate();
       }
     });
 
     window.addEventListener('pageshow', (event) => {
-      if (event.persisted && this.authService.isAuthenticated()) {
+      if (event.persisted && this.deactivatedForBfCache && !this.active && this.authService.isAuthenticated()) {
+        this.deactivatedForBfCache = false;
         this.activate();
+      }
+    });
+
+    window.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        if (this.active) {
+          this.deactivatedForBfCache = true;
+          this.deactivate();
+        }
+      } else if (document.visibilityState === 'visible') {
+        if (this.deactivatedForBfCache && !this.active && this.authService.isAuthenticated()) {
+          this.deactivatedForBfCache = false;
+          this.activate();
+        }
       }
     });
   }
