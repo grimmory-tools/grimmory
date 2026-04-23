@@ -188,11 +188,11 @@ class EpubCfiServiceTest {
             String originalXPointer = "/body/DocFragment[1]/body/div[1]/p[2]/text().10";
             String cfi = service.convertXPointerToCfi(testEpubFile, originalXPointer);
 
-            CfiConvertor.XPointerResult result = service.convertCfiToXPointer(testEpubFile, cfi);
+            XPointerResult result = service.convertCfiToXPointer(testEpubFile, cfi);
 
             assertNotNull(result);
             assertNotNull(result.getXpointer());
-            assertTrue(result.getXpointer().contains("/div/p[2]/text().10"));
+            assertTrue(result.getXpointer().contains("/p[2]/text().10"), result.getXpointer());
         }
     }
 

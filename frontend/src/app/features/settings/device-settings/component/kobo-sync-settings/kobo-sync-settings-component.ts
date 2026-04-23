@@ -58,7 +58,7 @@ export class KoboSyncSettingsComponent implements OnInit {
   });
 
   koboSettings: KoboSettings = {
-    convertToKepub: true,
+    convertToKepub: false,
     conversionLimitInMb: 100,
     convertCbxToEpub: false,
     conversionImageCompressionPercentage: 85,

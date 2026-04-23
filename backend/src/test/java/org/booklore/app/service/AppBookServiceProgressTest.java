@@ -73,7 +73,7 @@ class AppBookServiceProgressTest {
         mockBookWithLibrary(bookId, libraryId);
 
         UpdateProgressRequest request = new UpdateProgressRequest();
-        request.setFileProgress(new BookFileProgress(1L, "pos", "href", 0.5f, null));
+        request.setFileProgress(new BookFileProgress(1L, "pos", "href", 0.5f, null, null));
 
         service.updateBookProgress(bookId, request);
 
@@ -92,7 +92,7 @@ class AppBookServiceProgressTest {
         mockBookWithLibrary(bookId, libraryId);
 
         UpdateProgressRequest request = new UpdateProgressRequest();
-        request.setFileProgress(new BookFileProgress(1L, null, null, 0.75f, null));
+        request.setFileProgress(new BookFileProgress(1L, null, null, 0.75f, null, null));
 
         service.updateBookProgress(bookId, request);
 
@@ -118,7 +118,7 @@ class AppBookServiceProgressTest {
         mockBookWithLibrary(bookId, libraryId);
 
         UpdateProgressRequest request = new UpdateProgressRequest();
-        request.setFileProgress(new BookFileProgress(1L, null, null, 0.5f, null));
+        request.setFileProgress(new BookFileProgress(1L, null, null, 0.5f, null, null));
 
         assertThrows(APIException.class, () -> service.updateBookProgress(bookId, request));
         verify(bookService, never()).updateReadProgress(any());
@@ -130,7 +130,7 @@ class AppBookServiceProgressTest {
         mockBookWithLibrary(bookId, libraryId);
 
         UpdateProgressRequest request = new UpdateProgressRequest();
-        request.setFileProgress(new BookFileProgress(1L, null, null, 0.5f, null));
+        request.setFileProgress(new BookFileProgress(1L, null, null, 0.5f, null, null));
 
         service.updateBookProgress(bookId, request);
 
@@ -147,7 +147,7 @@ class AppBookServiceProgressTest {
         when(bookRepository.findByIdWithBookFiles(bookId)).thenReturn(Optional.empty());
 
         UpdateProgressRequest request = new UpdateProgressRequest();
-        request.setFileProgress(new BookFileProgress(1L, null, null, 0.5f, null));
+        request.setFileProgress(new BookFileProgress(1L, null, null, 0.5f, null, null));
 
         assertThrows(APIException.class, () -> service.updateBookProgress(bookId, request));
         verify(bookService, never()).updateReadProgress(any());

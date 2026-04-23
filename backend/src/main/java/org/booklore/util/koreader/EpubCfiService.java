@@ -42,9 +42,10 @@ public class EpubCfiService {
     }
 
     public XPointerResult convertCfiToXPointer(File epubFile, String cfi) {
-        int spineIndex = CfiConverter.extractSpineIndex(cfi);
+        String normalizedCfi = normalizeContentDocumentCfi(cfi);
+        int spineIndex = CfiConverter.extractSpineIndex(normalizedCfi);
         CfiConverter converter = createConverter(epubFile, spineIndex);
-        return converter.cfiToXPointer(cfi);
+        return converter.cfiToXPointer(normalizedCfi);
     }
 
     public XPointerResult convertCfiToXPointer(Path epubPath, String cfi) {
@@ -92,7 +93,8 @@ public class EpubCfiService {
         }
 
         try {
-            int spineIndex = CfiConverter.extractSpineIndex(cfi);
+            String normalizedCfi = normalizeContentDocumentCfi(cfi);
+            int spineIndex = CfiConverter.extractSpineIndex(normalizedCfi);
             String href = EpubContentReader.getSpineItemHref(epubFile, spineIndex);
             if (href == null || href.isBlank()) {
                 return Optional.empty();
@@ -103,7 +105,7 @@ public class EpubCfiService {
                 return Optional.empty();
             }
 
-            XPointerResult xpointerResult = convertCfiToXPointer(epubFile, cfi);
+            XPointerResult xpointerResult = convertCfiToXPointer(epubFile, normalizedCfi);
             Integer sourceOffset = resolveSourceOffset(getCachedDocument(epubFile, spineIndex), xpointerResult.getXpointer());
             Float contentSourceProgressPercent = sourceOffset == null
                     ? null
@@ -122,9 +124,10 @@ public class EpubCfiService {
 
     public boolean validateCfi(File epubFile, String cfi) {
         try {
-            int spineIndex = CfiConverter.extractSpineIndex(cfi);
+            String normalizedCfi = normalizeContentDocumentCfi(cfi);
+            int spineIndex = CfiConverter.extractSpineIndex(normalizedCfi);
             CfiConverter converter = createConverter(epubFile, spineIndex);
-            return converter.validateCfi(cfi);
+            return converter.validateCfi(normalizedCfi);
         } catch (Exception e) {
             log.debug("CFI validation failed: {}", e.getMessage());
             return false;
@@ -188,6 +191,13 @@ public class EpubCfiService {
 
     public void clearCache() {
         documentCache.invalidateAll();
+    }
+
+    private String normalizeContentDocumentCfi(String cfi) {
+        if (cfi == null) {
+            return null;
+        }
+        return cfi.replaceFirst("!/4(?=/)", "!");
     }
 
     private Integer resolveSourceOffset(Document document, String xpointer) {

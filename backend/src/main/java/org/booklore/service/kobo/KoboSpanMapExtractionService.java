@@ -1,8 +1,6 @@
 package org.booklore.service.kobo;
 
 import lombok.extern.slf4j.Slf4j;
-import net.lingala.zip4j.ZipFile;
-import net.lingala.zip4j.model.FileHeader;
 import org.booklore.model.dto.kobo.KoboSpanPositionMap;
 import org.booklore.util.SecureXmlUtils;
 import org.jsoup.Jsoup;
@@ -22,6 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import static org.booklore.service.kobo.KoboEpubUtils.normalizeHref;
 
@@ -112,12 +112,12 @@ public class KoboSpanMapExtractionService {
     }
 
     private org.w3c.dom.Document parseXmlEntry(ZipFile zipFile, String entryName) throws Exception {
-        FileHeader fileHeader = findFileHeader(zipFile, entryName);
-        if (fileHeader == null) {
+        ZipEntry zipEntry = findEntry(zipFile, entryName);
+        if (zipEntry == null) {
             throw new IOException("Entry not found in archive: " + entryName);
         }
 
-        try (InputStream inputStream = zipFile.getInputStream(fileHeader)) {
+        try (InputStream inputStream = zipFile.getInputStream(zipEntry)) {
             return SecureXmlUtils.createSecureDocumentBuilder(true).parse(inputStream);
         }
     }
@@ -158,19 +158,19 @@ public class KoboSpanMapExtractionService {
     }
 
     private ExtractedChapter extractChapter(ZipFile zipFile, ManifestItem manifestItem, int spineIndex) throws IOException {
-        FileHeader fileHeader = findFileHeader(zipFile, manifestItem.href());
-        if (fileHeader == null || fileHeader.isDirectory()) {
+        ZipEntry zipEntry = findEntry(zipFile, manifestItem.href());
+        if (zipEntry == null || zipEntry.isDirectory()) {
             log.debug("Skipping missing Kobo span chapter {}", manifestItem.href());
             return null;
         }
 
         String html;
-        try (InputStream inputStream = zipFile.getInputStream(fileHeader)) {
+        try (InputStream inputStream = zipFile.getInputStream(zipEntry)) {
             html = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         }
 
         if (html.isBlank()) {
-            return new ExtractedChapter(fileHeader.getFileName(), spineIndex, 1, List.of());
+            return new ExtractedChapter(zipEntry.getName(), spineIndex, 1, List.of());
         }
 
         org.jsoup.nodes.Document document = Jsoup.parse(html, "", Parser.htmlParser().setTrackPosition(true));
@@ -187,23 +187,23 @@ public class KoboSpanMapExtractionService {
                 .toList();
 
         return new ExtractedChapter(
-                fileHeader.getFileName(),
+                zipEntry.getName(),
                 spineIndex,
                 Math.max(html.length(), 1),
                 spans);
     }
 
-    private FileHeader findFileHeader(ZipFile zipFile, String href) throws IOException {
+    private ZipEntry findEntry(ZipFile zipFile, String href) {
         String normalizedHref = normalizeHref(href);
-        return zipFile.getFileHeaders().stream()
-                .filter(header -> !header.isDirectory())
-                .filter(header -> {
-                    String normalizedEntry = normalizeHref(header.getFileName());
+        return zipFile.stream()
+                .filter(entry -> !entry.isDirectory())
+                .filter(entry -> {
+                    String normalizedEntry = normalizeHref(entry.getName());
                     return normalizedEntry.equals(normalizedHref)
                             || normalizedEntry.endsWith("/" + normalizedHref);
                 })
-                .min(Comparator.comparingInt(header -> {
-                    String normalizedEntry = normalizeHref(header.getFileName());
+                .min(Comparator.comparingInt(entry -> {
+                    String normalizedEntry = normalizeHref(entry.getName());
                     return normalizedEntry.equals(normalizedHref) ? 0 : normalizedEntry.length();
                 }))
                 .orElse(null);
