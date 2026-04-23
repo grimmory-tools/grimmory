@@ -61,7 +61,7 @@ public class AuthenticationController {
     @Operation(summary = "Refresh JWT token", description = "Refresh the JWT token using a valid refresh token.")
     @ApiResponse(responseCode = "200", description = "Token refreshed successfully")
     @PostMapping("/refresh")
-    public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenRequest request) {
+    public ResponseEntity<?> refreshToken(@RequestBody @Valid RefreshTokenRequest request) {
         log.debug("[Auth] Refresh request received. Request object exists: {}", request != null);
         if (request == null || request.getRefreshToken() == null || request.getRefreshToken().isBlank()) {
             log.warn("[Auth] Refresh request failed: missing or empty refresh token");

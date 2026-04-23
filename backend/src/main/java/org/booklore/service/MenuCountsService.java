@@ -61,9 +61,12 @@ public class MenuCountsService {
         Set<Long> visibleLibraryIds = libraries.stream()
                 .map(Library::getId)
                 .collect(Collectors.toSet());
+        Set<Long> visibleShelfIds = shelves.stream()
+                .map(Shelf::getId)
+                .collect(Collectors.toSet());
 
         Map<Long, Long> libraryCounts = fetchLibraryCounts(visibleLibraryIds, isAdmin);
-        Map<Long, Long> shelfCounts = fetchShelfCounts(visibleLibraryIds, isAdmin);
+        Map<Long, Long> shelfCounts = fetchShelfCounts(visibleLibraryIds, visibleShelfIds, isAdmin);
         Map<Long, Long> magicShelfCounts = fetchMagicShelfCounts(user.getId(), magicShelves);
 
         Specification<BookEntity> visibleScope = buildVisibleScope(visibleLibraryIds, isAdmin);
@@ -102,8 +105,8 @@ public class MenuCountsService {
         return counts;
     }
 
-    private Map<Long, Long> fetchShelfCounts(Set<Long> visibleLibraryIds, boolean isAdmin) {
-        if (!isAdmin && visibleLibraryIds.isEmpty()) {
+    private Map<Long, Long> fetchShelfCounts(Set<Long> visibleLibraryIds, Set<Long> visibleShelfIds, boolean isAdmin) {
+        if ((!isAdmin && visibleLibraryIds.isEmpty()) || (!isAdmin && visibleShelfIds.isEmpty())) {
             return Collections.emptyMap();
         }
 
@@ -117,13 +120,16 @@ public class MenuCountsService {
         Predicate visiblePredicate = isAdmin
                 ? cb.conjunction()
                 : root.get("library").get("id").in(visibleLibraryIds);
+        Predicate shelfVisibilityPredicate = isAdmin
+                ? cb.conjunction()
+                : shelfIdPath.in(visibleShelfIds);
         Predicate notDeletedPredicate = cb.or(
                 cb.isNull(root.get("deleted")),
                 cb.isFalse(root.get("deleted"))
         );
 
         query.multiselect(shelfIdPath, countExpr)
-                .where(cb.and(visiblePredicate, notDeletedPredicate))
+                .where(cb.and(visiblePredicate, shelfVisibilityPredicate, notDeletedPredicate))
                 .groupBy(shelfIdPath);
 
         Map<Long, Long> counts = new LinkedHashMap<>();
