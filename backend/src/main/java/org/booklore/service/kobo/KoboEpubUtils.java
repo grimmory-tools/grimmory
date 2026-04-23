@@ -34,8 +34,12 @@ class KoboEpubUtils {
     }
 
     static String normalizeHref(String href) {
-        return decodeHrefPath(href)
-                .replaceFirst("^/+", "");
+        String decodedHref = decodeHrefPath(href);
+        if (decodedHref == null) {
+            return null;
+        }
+
+        return decodedHref.replaceFirst("^/+", "");
     }
 
 }
