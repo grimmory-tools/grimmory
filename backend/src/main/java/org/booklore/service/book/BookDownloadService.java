@@ -13,6 +13,7 @@ import org.booklore.repository.BookRepository;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.kobo.CbxConversionService;
 import org.booklore.service.kobo.KepubConversionService;
+import org.booklore.service.kobo.KoboSpanMapService;
 import org.booklore.util.FileUtils;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -45,6 +46,7 @@ public class BookDownloadService {
     private final BookFileRepository bookFileRepository;
     private final KepubConversionService kepubConversionService;
     private final CbxConversionService cbxConversionService;
+    private final KoboSpanMapService koboSpanMapService;
     private final AppSettingService appSettingService;
 
     public ResponseEntity<Resource> downloadBook(Long bookId) {
@@ -258,7 +260,7 @@ public class BookDownloadService {
             throw ApiError.GENERIC_BAD_REQUEST.createException("Kobo settings not found.");
         }
 
-        boolean convertEpubToKepub = isEpub && koboSettings.isConvertToKepub() && primaryFile.getFileSizeKb() <= (long) koboSettings.getConversionLimitInMb() * 1024;
+        boolean convertEpubToKepub = isEpub && !primaryFile.isFixedLayout() && koboSettings.isConvertToKepub() && primaryFile.getFileSizeKb() <= (long) koboSettings.getConversionLimitInMb() * 1024;
         boolean convertCbxToEpub = isCbx && koboSettings.isConvertCbxToEpub() && primaryFile.getFileSizeKb() <= (long) koboSettings.getConversionLimitInMbForCbx() * 1024;
 
         int compressionPercentage = koboSettings.getConversionImageCompressionPercentage();
@@ -280,6 +282,11 @@ public class BookDownloadService {
             if (convertEpubToKepub) {
                 fileToSend = kepubConversionService.convertEpubToKepub(inputFile, tempDir.toFile(),
                     koboSettings.isForceEnableHyphenation());
+                try {
+                    koboSpanMapService.computeAndStoreIfNeeded(primaryFile, fileToSend);
+                } catch (Exception e) {
+                    log.warn("Failed to compute Kobo span map for file {}: {}", primaryFile.getId(), e.getMessage());
+                }
             }
 
             setResponseHeaders(response, fileToSend);

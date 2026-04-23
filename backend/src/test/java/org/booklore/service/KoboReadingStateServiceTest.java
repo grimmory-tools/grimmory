@@ -9,6 +9,7 @@ import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.model.entity.KoboReadingStateEntity;
 import org.booklore.model.entity.UserBookProgressEntity;
+import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.KoboReadStatus;
 import org.booklore.model.enums.ReadStatus;
 import org.booklore.repository.BookRepository;
@@ -110,6 +111,15 @@ class KoboReadingStateServiceTest {
                 .thenReturn(Optional.empty());
         lenient().when(mapper.toJson(any())).thenCallRealMethod();
         lenient().when(mapper.cleanString(any())).thenCallRealMethod();
+    }
+
+    private BookFileEntity setPrimaryEpub(Long bookFileId) {
+        BookFileEntity primaryFile = new BookFileEntity();
+        primaryFile.setId(bookFileId);
+        primaryFile.setBook(testBook);
+        primaryFile.setBookType(BookFileType.EPUB);
+        testBook.setBookFiles(List.of(primaryFile));
+        return primaryFile;
     }
 
     @Test
@@ -248,9 +258,9 @@ class KoboReadingStateServiceTest {
         String entitlementId = "100";
         UserBookProgressEntity progress = new UserBookProgressEntity();
         progress.setKoboProgressPercent(75.5f);
-        progress.setKoboLocation("epubcfi(/6/4[chap01ref]!/4/2/1:3)");
-        progress.setKoboLocationType("EpubCfi");
-        progress.setKoboLocationSource("Kobo");
+        progress.setKoboLocation("kobo.12.18");
+        progress.setKoboLocationType("KoboSpan");
+        progress.setKoboLocationSource("OEBPS/chapter3.xhtml");
         progress.setKoboProgressReceivedTime(Instant.now());
 
         KoboReadingState expectedState = KoboReadingState.builder()
@@ -258,9 +268,9 @@ class KoboReadingStateServiceTest {
                 .currentBookmark(KoboReadingState.CurrentBookmark.builder()
                         .progressPercent(75)
                         .location(KoboReadingState.CurrentBookmark.Location.builder()
-                                .value("epubcfi(/6/4[chap01ref]!/4/2/1:3)")
-                                .type("EpubCfi")
-                                .source("Kobo")
+                                .value("kobo.12.18")
+                                .type("KoboSpan")
+                                .source("OEBPS/chapter3.xhtml")
                                 .build())
                         .build())
                 .build();
@@ -268,25 +278,26 @@ class KoboReadingStateServiceTest {
         when(repository.findByEntitlementIdAndUserId(entitlementId, 1L)).thenReturn(Optional.empty());
         when(authenticationService.getAuthenticatedUser()).thenReturn(testUser);
         when(progressRepository.findByUserIdAndBookId(1L, 100L)).thenReturn(Optional.of(progress));
-        when(readingStateBuilder.buildReadingStateFromProgress(entitlementId, progress)).thenReturn(expectedState);
+        when(bookRepository.findById(100L)).thenReturn(Optional.of(testBook));
+        when(readingStateBuilder.buildReadingStateFromProgress(eq(entitlementId), eq(progress), isNull())).thenReturn(expectedState);
 
         List<KoboReadingState> result = service.getReadingState(entitlementId);
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        
+
         KoboReadingState state = result.getFirst();
         assertEquals(entitlementId, state.getEntitlementId());
         assertNotNull(state.getCurrentBookmark());
         assertEquals(75, state.getCurrentBookmark().getProgressPercent());
         assertNotNull(state.getCurrentBookmark().getLocation());
-        assertEquals("epubcfi(/6/4[chap01ref]!/4/2/1:3)", state.getCurrentBookmark().getLocation().getValue());
-        assertEquals("EpubCfi", state.getCurrentBookmark().getLocation().getType());
-        assertEquals("Kobo", state.getCurrentBookmark().getLocation().getSource());
-        
+        assertEquals("kobo.12.18", state.getCurrentBookmark().getLocation().getValue());
+        assertEquals("KoboSpan", state.getCurrentBookmark().getLocation().getType());
+        assertEquals("OEBPS/chapter3.xhtml", state.getCurrentBookmark().getLocation().getSource());
+
         verify(repository).findByEntitlementIdAndUserId(entitlementId, 1L);
         verify(progressRepository, atLeastOnce()).findByUserIdAndBookId(1L, 100L);
-        verify(readingStateBuilder).buildReadingStateFromProgress(entitlementId, progress);
+        verify(readingStateBuilder).buildReadingStateFromProgress(eq(entitlementId), eq(progress), isNull());
     }
 
     @Test
@@ -369,7 +380,7 @@ class KoboReadingStateServiceTest {
 
         UserBookProgressEntity savedProgress = progressCaptor.getValue();
         assertNull(savedProgress.getKoboProgressPercent());
-        assertNotNull(savedProgress.getKoboProgressReceivedTime());
+        assertNull(savedProgress.getKoboProgressReceivedTime());
     }
 
     @Test
@@ -556,6 +567,7 @@ class KoboReadingStateServiceTest {
     void testGetReadingState_overlayWebReaderBookmark() {
         testSettings.setTwoWayProgressSync(true);
         String entitlementId = "100";
+        BookFileEntity primaryFile = setPrimaryEpub(10L);
 
         KoboReadingState existingState = KoboReadingState.builder()
                 .entitlementId(entitlementId)
@@ -563,9 +575,9 @@ class KoboReadingStateServiceTest {
                         .progressPercent(30)
                         .contentSourceProgressPercent(45)
                         .location(KoboReadingState.CurrentBookmark.Location.builder()
-                                .value("epubcfi(/6/10)")
-                                .type("EpubCfi")
-                                .source("Kobo")
+                                .value("kobo.1.1")
+                                .type("KoboSpan")
+                                .source("OEBPS/CoverImage.xhtml")
                                 .build())
                         .lastModified("2025-01-01T00:00:00Z")
                         .build())
@@ -580,21 +592,23 @@ class KoboReadingStateServiceTest {
         progress.setEpubProgressPercent(65f);
         progress.setLastReadTime(Instant.parse("2025-06-01T10:00:00Z"));
         when(progressRepository.findByUserIdAndBookId(1L, 100L)).thenReturn(Optional.of(progress));
+        when(bookRepository.findById(100L)).thenReturn(Optional.of(testBook));
+        when(fileProgressRepository.findByUserIdAndBookFileId(1L, primaryFile.getId())).thenReturn(Optional.empty());
 
         KoboReadingState.CurrentBookmark webBookmark = KoboReadingState.CurrentBookmark.builder()
                 .progressPercent(65)
                 .lastModified("2025-06-01T10:00:00Z")
                 .build();
-        when(readingStateBuilder.buildBookmarkFromProgress(progress)).thenReturn(webBookmark);
+        when(readingStateBuilder.shouldUseWebReaderProgress(progress)).thenReturn(true);
+        when(readingStateBuilder.buildBookmarkFromProgress(progress, (UserBookFileProgressEntity) null)).thenReturn(webBookmark);
 
         List<KoboReadingState> result = service.getReadingState(entitlementId);
 
         assertEquals(1, result.size());
         KoboReadingState.CurrentBookmark bookmark = result.getFirst().getCurrentBookmark();
         assertEquals(65, bookmark.getProgressPercent());
-        assertEquals(45, bookmark.getContentSourceProgressPercent());
-        assertNotNull(bookmark.getLocation());
-        assertEquals("epubcfi(/6/10)", bookmark.getLocation().getValue());
+        assertNull(bookmark.getContentSourceProgressPercent());
+        assertNull(bookmark.getLocation());
     }
 
     @Test
@@ -619,30 +633,142 @@ class KoboReadingStateServiceTest {
 
         assertEquals(1, result.size());
         assertEquals(30, result.getFirst().getCurrentBookmark().getProgressPercent());
-        verify(readingStateBuilder, never()).buildBookmarkFromProgress(any());
+        verify(readingStateBuilder, never()).buildBookmarkFromProgress(any(), any());
     }
 
     @Test
-    @DisplayName("Should cross-populate epub fields from Kobo when two-way sync is ON")
+    @DisplayName("Should overlay web reader location when available")
+    void testGetReadingState_overlayWebReaderBookmark_replacesLocation() {
+        testSettings.setTwoWayProgressSync(true);
+        String entitlementId = "100";
+        BookFileEntity primaryFile = setPrimaryEpub(10L);
+
+        KoboReadingState existingState = KoboReadingState.builder()
+                .entitlementId(entitlementId)
+                .currentBookmark(KoboReadingState.CurrentBookmark.builder()
+                        .progressPercent(30)
+                        .location(KoboReadingState.CurrentBookmark.Location.builder()
+                                .value("kobo.1.1")
+                                .type("KoboSpan")
+                                .source("old.xhtml")
+                                .build())
+                        .lastModified("2025-01-01T00:00:00Z")
+                        .build())
+                .build();
+
+        KoboReadingStateEntity entity = new KoboReadingStateEntity();
+        when(repository.findByEntitlementIdAndUserId(entitlementId, 1L)).thenReturn(Optional.of(entity));
+        when(mapper.toDto(entity)).thenReturn(existingState);
+
+        UserBookProgressEntity progress = new UserBookProgressEntity();
+        progress.setEpubProgress("epubcfi(/6/20)");
+        progress.setEpubProgressPercent(65f);
+        progress.setLastReadTime(Instant.parse("2025-06-01T10:00:00Z"));
+        when(progressRepository.findByUserIdAndBookId(1L, 100L)).thenReturn(Optional.of(progress));
+        when(bookRepository.findById(100L)).thenReturn(Optional.of(testBook));
+
+        UserBookFileProgressEntity fileProgress = new UserBookFileProgressEntity();
+        fileProgress.setContentSourceProgressPercent(22f);
+        when(fileProgressRepository.findByUserIdAndBookFileId(1L, primaryFile.getId())).thenReturn(Optional.of(fileProgress));
+
+        KoboReadingState.CurrentBookmark webBookmark = KoboReadingState.CurrentBookmark.builder()
+                .progressPercent(65)
+                .contentSourceProgressPercent(22)
+                .location(KoboReadingState.CurrentBookmark.Location.builder()
+                        .value("kobo.12.18")
+                        .type("KoboSpan")
+                        .source("new.xhtml")
+                        .build())
+                .lastModified("2025-06-01T10:00:00Z")
+                .build();
+        when(readingStateBuilder.shouldUseWebReaderProgress(progress)).thenReturn(true);
+        when(readingStateBuilder.buildBookmarkFromProgress(progress, fileProgress)).thenReturn(webBookmark);
+
+        List<KoboReadingState> result = service.getReadingState(entitlementId);
+
+        assertEquals(1, result.size());
+        KoboReadingState.CurrentBookmark bookmark = result.getFirst().getCurrentBookmark();
+        assertEquals(65, bookmark.getProgressPercent());
+        assertEquals(22, bookmark.getContentSourceProgressPercent());
+        assertNotNull(bookmark.getLocation());
+        assertEquals("kobo.12.18", bookmark.getLocation().getValue());
+        assertEquals("new.xhtml", bookmark.getLocation().getSource());
+    }
+
+    @Test
+    @DisplayName("Should keep stored Kobo bookmark when mirrored EPUB progress is not newer")
+    void testGetReadingState_preservesStoredKoboBookmarkWhenKoboIsFreshest() {
+        testSettings.setTwoWayProgressSync(true);
+        String entitlementId = "100";
+        BookFileEntity primaryFile = setPrimaryEpub(10L);
+
+        KoboReadingState.CurrentBookmark existingBookmark = KoboReadingState.CurrentBookmark.builder()
+                .progressPercent(55)
+                .contentSourceProgressPercent(23)
+                .location(KoboReadingState.CurrentBookmark.Location.builder()
+                        .value("kobo.12.18")
+                        .type("KoboSpan")
+                        .source("OEBPS/chapter3.xhtml")
+                        .build())
+                .lastModified("2025-06-15T12:00:00Z")
+                .build();
+
+        KoboReadingState existingState = KoboReadingState.builder()
+                .entitlementId(entitlementId)
+                .currentBookmark(existingBookmark)
+                .build();
+
+        KoboReadingStateEntity entity = new KoboReadingStateEntity();
+        when(repository.findByEntitlementIdAndUserId(entitlementId, 1L)).thenReturn(Optional.of(entity));
+        when(mapper.toDto(entity)).thenReturn(existingState);
+
+        UserBookProgressEntity progress = new UserBookProgressEntity();
+        progress.setKoboProgressPercent(55f);
+        progress.setKoboLocation("kobo.12.18");
+        progress.setKoboLocationType("KoboSpan");
+        progress.setKoboLocationSource("OEBPS/chapter3.xhtml");
+        progress.setKoboProgressReceivedTime(Instant.parse("2025-06-15T12:00:00Z"));
+        progress.setEpubProgressPercent(55f);
+        progress.setLastReadTime(Instant.parse("2025-06-15T12:00:00Z"));
+        when(progressRepository.findByUserIdAndBookId(1L, 100L)).thenReturn(Optional.of(progress));
+        when(bookRepository.findById(100L)).thenReturn(Optional.of(testBook));
+        when(fileProgressRepository.findByUserIdAndBookFileId(1L, primaryFile.getId())).thenReturn(Optional.empty());
+        when(readingStateBuilder.shouldUseWebReaderProgress(progress)).thenReturn(false);
+
+        List<KoboReadingState> result = service.getReadingState(entitlementId);
+
+        assertEquals(1, result.size());
+        KoboReadingState.CurrentBookmark bookmark = result.getFirst().getCurrentBookmark();
+        assertEquals(55, bookmark.getProgressPercent());
+        assertEquals(23, bookmark.getContentSourceProgressPercent());
+        assertNotNull(bookmark.getLocation());
+        assertEquals("kobo.12.18", bookmark.getLocation().getValue());
+        assertEquals("OEBPS/chapter3.xhtml", bookmark.getLocation().getSource());
+        verify(readingStateBuilder).shouldUseWebReaderProgress(progress);
+        verify(readingStateBuilder, never()).buildBookmarkFromProgress(eq(progress), any());
+    }
+
+    @Test
+    @DisplayName("Should cross-populate chapter-aware EPUB fields from Kobo when two-way sync is ON")
     void testSyncKoboProgress_crossPopulateEpubFields() {
         testSettings.setTwoWayProgressSync(true);
         String entitlementId = "100";
 
-        BookFileEntity primaryFile = BookFileEntity.builder().id(10L).build();
-        testBook.setBookFiles(List.of(primaryFile));
+        BookFileEntity primaryFile = setPrimaryEpub(10L);
 
         UserBookProgressEntity existingProgress = new UserBookProgressEntity();
         existingProgress.setUser(testUserEntity);
         existingProgress.setBook(testBook);
 
         KoboReadingState.CurrentBookmark.Location location = KoboReadingState.CurrentBookmark.Location.builder()
-                .value("epubcfi(/6/8)")
-                .type("EpubCfi")
-                .source("chapter3.xhtml")
+                .value("kobo.12.18")
+                .type("KoboSpan")
+                .source("OEBPS/chapter3.xhtml")
                 .build();
 
         KoboReadingState.CurrentBookmark bookmark = KoboReadingState.CurrentBookmark.builder()
                 .progressPercent(55)
+                .contentSourceProgressPercent(23)
                 .location(location)
                 .lastModified("2025-06-15T12:00:00Z")
                 .build();
@@ -660,17 +786,30 @@ class KoboReadingStateServiceTest {
         when(bookRepository.findById(100L)).thenReturn(Optional.of(testBook));
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUserEntity));
         when(progressRepository.findByUserIdAndBookId(1L, 100L)).thenReturn(Optional.of(existingProgress));
-        when(fileProgressRepository.findByUserIdAndBookFileId(1L, 10L)).thenReturn(Optional.empty());
+        UserBookFileProgressEntity fileProgress = new UserBookFileProgressEntity();
+        fileProgress.setUser(testUserEntity);
+        fileProgress.setBookFile(primaryFile);
+        when(fileProgressRepository.findByUserIdAndBookFileId(1L, 10L)).thenReturn(Optional.of(fileProgress));
 
         ArgumentCaptor<UserBookProgressEntity> captor = ArgumentCaptor.forClass(UserBookProgressEntity.class);
         when(progressRepository.save(captor.capture())).thenReturn(existingProgress);
+        ArgumentCaptor<UserBookFileProgressEntity> fileProgressCaptor =
+                ArgumentCaptor.forClass(UserBookFileProgressEntity.class);
 
         service.saveReadingState(List.of(readingState));
 
         UserBookProgressEntity saved = captor.getValue();
         assertEquals(55f, saved.getEpubProgressPercent());
-        assertEquals("chapter3.xhtml", saved.getEpubProgressHref());
         assertNull(saved.getEpubProgress());
+        assertEquals("OEBPS/chapter3.xhtml", saved.getEpubProgressHref());
+        assertEquals(Instant.parse("2025-06-15T12:00:00Z"), saved.getKoboProgressReceivedTime());
+        assertEquals(Instant.parse("2025-06-15T12:00:00Z"), saved.getLastReadTime());
+        verify(fileProgressRepository).save(fileProgressCaptor.capture());
+        UserBookFileProgressEntity savedFileProgress = fileProgressCaptor.getValue();
+        assertNull(savedFileProgress.getPositionData());
+        assertEquals("OEBPS/chapter3.xhtml", savedFileProgress.getPositionHref());
+        assertEquals(23f, savedFileProgress.getContentSourceProgressPercent());
+        assertEquals(Instant.parse("2025-06-15T12:00:00Z"), savedFileProgress.getLastReadTime());
     }
 
     @Test
@@ -712,13 +851,134 @@ class KoboReadingStateServiceTest {
     }
 
     @Test
+    @DisplayName("Should clear stale EPUB CFI but keep chapter source when Kobo sends newer KoboSpan")
+    void testSyncKoboProgress_clearEpubCfiWhenKoboSendsKoboSpan() {
+        testSettings.setTwoWayProgressSync(true);
+        String entitlementId = "100";
+
+        BookFileEntity primaryFile = setPrimaryEpub(10L);
+
+        UserBookProgressEntity existingProgress = new UserBookProgressEntity();
+        existingProgress.setUser(testUserEntity);
+        existingProgress.setBook(testBook);
+        existingProgress.setEpubProgressPercent(55f);
+        existingProgress.setEpubProgress("epubcfi(/6/8!/4/2/6/1:15)");
+        existingProgress.setEpubProgressHref("OPS/chapter3.xhtml");
+
+        UserBookFileProgressEntity fileProgress = new UserBookFileProgressEntity();
+        fileProgress.setUser(testUserEntity);
+        fileProgress.setBookFile(primaryFile);
+        fileProgress.setPositionData("epubcfi(/6/8!/4/2/6/1:15)");
+        fileProgress.setPositionHref("OPS/chapter3.xhtml");
+
+        KoboReadingState.CurrentBookmark.Location location = KoboReadingState.CurrentBookmark.Location.builder()
+                .value("kobo.12.18")
+                .type("KoboSpan")
+                .source("OEBPS/OPS/chapter3.xhtml")
+                .build();
+
+        KoboReadingState.CurrentBookmark bookmark = KoboReadingState.CurrentBookmark.builder()
+                .progressPercent(55)
+                .contentSourceProgressPercent(23)
+                .location(location)
+                .lastModified("2025-06-15T12:00:00Z")
+                .build();
+
+        KoboReadingState readingState = KoboReadingState.builder()
+                .entitlementId(entitlementId)
+                .currentBookmark(bookmark)
+                .build();
+
+        KoboReadingStateEntity entity = new KoboReadingStateEntity();
+        when(mapper.toEntity(any())).thenReturn(entity);
+        when(mapper.toDto(any(KoboReadingStateEntity.class))).thenReturn(readingState);
+        when(repository.findByEntitlementIdAndUserId(entitlementId, 1L)).thenReturn(Optional.empty());
+        when(repository.save(any())).thenReturn(entity);
+        when(bookRepository.findById(100L)).thenReturn(Optional.of(testBook));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUserEntity));
+        when(progressRepository.findByUserIdAndBookId(1L, 100L)).thenReturn(Optional.of(existingProgress));
+        when(fileProgressRepository.findByUserIdAndBookFileId(1L, primaryFile.getId())).thenReturn(Optional.of(fileProgress));
+
+        ArgumentCaptor<UserBookProgressEntity> progressCaptor = ArgumentCaptor.forClass(UserBookProgressEntity.class);
+        when(progressRepository.save(progressCaptor.capture())).thenReturn(existingProgress);
+        ArgumentCaptor<UserBookFileProgressEntity> fileProgressCaptor =
+                ArgumentCaptor.forClass(UserBookFileProgressEntity.class);
+
+        service.saveReadingState(List.of(readingState));
+
+        UserBookProgressEntity savedProgress = progressCaptor.getValue();
+        assertNull(savedProgress.getEpubProgress());
+        assertEquals("OEBPS/OPS/chapter3.xhtml", savedProgress.getEpubProgressHref());
+
+        verify(fileProgressRepository).save(fileProgressCaptor.capture());
+        UserBookFileProgressEntity savedFileProgress = fileProgressCaptor.getValue();
+        assertNull(savedFileProgress.getPositionData());
+        assertEquals("OEBPS/OPS/chapter3.xhtml", savedFileProgress.getPositionHref());
+        assertEquals(23f, savedFileProgress.getContentSourceProgressPercent());
+    }
+
+    @Test
+    @DisplayName("Should clear stale chapter progress when Kobo bookmark omits content source progress")
+    void testSyncKoboProgress_clearStaleContentSourceProgressPercent() {
+        testSettings.setTwoWayProgressSync(true);
+        String entitlementId = "100";
+
+        BookFileEntity primaryFile = setPrimaryEpub(10L);
+
+        UserBookProgressEntity existingProgress = new UserBookProgressEntity();
+        existingProgress.setUser(testUserEntity);
+        existingProgress.setBook(testBook);
+
+        UserBookFileProgressEntity fileProgress = new UserBookFileProgressEntity();
+        fileProgress.setUser(testUserEntity);
+        fileProgress.setBookFile(primaryFile);
+        fileProgress.setContentSourceProgressPercent(23f);
+        fileProgress.setPositionHref("OPS/chapter3.xhtml");
+
+        KoboReadingState.CurrentBookmark.Location location = KoboReadingState.CurrentBookmark.Location.builder()
+                .value("kobo.12.18")
+                .type("KoboSpan")
+                .source("OEBPS/OPS/chapter3.xhtml")
+                .build();
+
+        KoboReadingState.CurrentBookmark bookmark = KoboReadingState.CurrentBookmark.builder()
+                .progressPercent(55)
+                .location(location)
+                .lastModified("2025-06-15T12:00:00Z")
+                .build();
+
+        KoboReadingState readingState = KoboReadingState.builder()
+                .entitlementId(entitlementId)
+                .currentBookmark(bookmark)
+                .build();
+
+        KoboReadingStateEntity entity = new KoboReadingStateEntity();
+        when(mapper.toEntity(any())).thenReturn(entity);
+        when(mapper.toDto(any(KoboReadingStateEntity.class))).thenReturn(readingState);
+        when(repository.findByEntitlementIdAndUserId(entitlementId, 1L)).thenReturn(Optional.empty());
+        when(repository.save(any())).thenReturn(entity);
+        when(bookRepository.findById(100L)).thenReturn(Optional.of(testBook));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUserEntity));
+        when(progressRepository.findByUserIdAndBookId(1L, 100L)).thenReturn(Optional.of(existingProgress));
+        when(progressRepository.save(any())).thenReturn(existingProgress);
+        when(fileProgressRepository.findByUserIdAndBookFileId(1L, primaryFile.getId())).thenReturn(Optional.of(fileProgress));
+
+        ArgumentCaptor<UserBookFileProgressEntity> fileProgressCaptor =
+                ArgumentCaptor.forClass(UserBookFileProgressEntity.class);
+
+        service.saveReadingState(List.of(readingState));
+
+        verify(fileProgressRepository).save(fileProgressCaptor.capture());
+        assertNull(fileProgressCaptor.getValue().getContentSourceProgressPercent());
+    }
+
+    @Test
     @DisplayName("Should not cross-populate when web reader has newer progress")
     void testSyncKoboProgress_skipCrossPopulateWhenWebReaderNewer() {
         testSettings.setTwoWayProgressSync(true);
         String entitlementId = "100";
 
-        BookFileEntity primaryFile = BookFileEntity.builder().id(10L).build();
-        testBook.setBookFiles(List.of(primaryFile));
+        BookFileEntity primaryFile = setPrimaryEpub(10L);
 
         UserBookFileProgressEntity fileProgress = new UserBookFileProgressEntity();
         fileProgress.setLastReadTime(Instant.now().plusSeconds(3600));
@@ -728,6 +988,7 @@ class KoboReadingStateServiceTest {
         existingProgress.setBook(testBook);
         existingProgress.setEpubProgressPercent(80f);
         existingProgress.setEpubProgress("epubcfi(/6/20)");
+        existingProgress.setReadStatus(ReadStatus.READING);
 
         KoboReadingState readingState = KoboReadingState.builder()
                 .entitlementId(entitlementId)
@@ -755,6 +1016,9 @@ class KoboReadingStateServiceTest {
         UserBookProgressEntity saved = captor.getValue();
         assertEquals(80f, saved.getEpubProgressPercent());
         assertEquals("epubcfi(/6/20)", saved.getEpubProgress());
+        assertEquals(ReadStatus.READING, saved.getReadStatus());
+        assertEquals(Instant.parse("2025-01-01T00:00:00Z"), saved.getKoboProgressReceivedTime());
+        verify(hardcoverSyncService, never()).syncProgressToHardcover(any(), any(), any());
     }
 
     @Test
@@ -778,18 +1042,24 @@ class KoboReadingStateServiceTest {
 
         when(repository.findByEntitlementIdAndUserId(entitlementId, 1L)).thenReturn(Optional.empty());
         when(progressRepository.findByUserIdAndBookId(1L, 100L)).thenReturn(Optional.of(progress));
-        when(readingStateBuilder.buildReadingStateFromProgress(entitlementId, progress)).thenReturn(expectedState);
+        BookFileEntity primaryFile = setPrimaryEpub(10L);
+        when(bookRepository.findById(100L)).thenReturn(Optional.of(testBook));
+        UserBookFileProgressEntity fileProgress = new UserBookFileProgressEntity();
+        fileProgress.setContentSourceProgressPercent(35f);
+        when(fileProgressRepository.findByUserIdAndBookFileId(1L, primaryFile.getId())).thenReturn(Optional.of(fileProgress));
+        when(readingStateBuilder.buildReadingStateFromProgress(entitlementId, progress, fileProgress)).thenReturn(expectedState);
 
         KoboReadingState.CurrentBookmark webBookmark = KoboReadingState.CurrentBookmark.builder()
                 .progressPercent(60)
                 .lastModified("2025-06-01T10:00:00Z")
                 .build();
-        when(readingStateBuilder.buildBookmarkFromProgress(progress)).thenReturn(webBookmark);
+        when(readingStateBuilder.shouldUseWebReaderProgress(progress)).thenReturn(true);
+        when(readingStateBuilder.buildBookmarkFromProgress(progress, fileProgress)).thenReturn(webBookmark);
 
         List<KoboReadingState> result = service.getReadingState(entitlementId);
 
         assertEquals(1, result.size());
-        verify(readingStateBuilder).buildReadingStateFromProgress(entitlementId, progress);
+        verify(readingStateBuilder).buildReadingStateFromProgress(entitlementId, progress, fileProgress);
     }
 
     @Test
@@ -809,7 +1079,7 @@ class KoboReadingStateServiceTest {
         List<KoboReadingState> result = service.getReadingState(entitlementId);
 
         assertTrue(result.isEmpty());
-        verify(readingStateBuilder, never()).buildReadingStateFromProgress(any(), any());
+        verify(readingStateBuilder, never()).buildReadingStateFromProgress(any(), any(), any());
     }
 
     @Test
@@ -818,9 +1088,9 @@ class KoboReadingStateServiceTest {
         String entitlementId = "100";
 
         KoboReadingState.CurrentBookmark.Location location = KoboReadingState.CurrentBookmark.Location.builder()
-                .value("epubcfi(/6/4[chap01ref]!/4/2/1:3)")
-                .type("EpubCfi")
-                .source("Kobo")
+                .value("kobo.12.18")
+                .type("KoboSpan")
+                .source("OEBPS/chapter3.xhtml")
                 .build();
 
         KoboReadingState readingState = KoboReadingState.builder()
@@ -846,9 +1116,9 @@ class KoboReadingStateServiceTest {
         service.saveReadingState(List.of(readingState));
 
         UserBookProgressEntity saved = captor.getValue();
-        assertEquals("epubcfi(/6/4[chap01ref]!/4/2/1:3)", saved.getKoboLocation());
-        assertEquals("EpubCfi", saved.getKoboLocationType());
-        assertEquals("Kobo", saved.getKoboLocationSource());
+        assertEquals("kobo.12.18", saved.getKoboLocation());
+        assertEquals("KoboSpan", saved.getKoboLocationType());
+        assertEquals("OEBPS/chapter3.xhtml", saved.getKoboLocationSource());
         assertEquals(42f, saved.getKoboProgressPercent());
     }
 

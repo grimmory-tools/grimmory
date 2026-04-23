@@ -11,9 +11,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EpubProgress {
-    @NotNull
     String cfi;
     String href;
+    Float contentSourceProgressPercent;
     @NotNull
     Float percentage;
     String ttsPositionCfi;

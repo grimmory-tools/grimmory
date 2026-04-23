@@ -35,7 +35,6 @@ class KoboCompatibilityServiceTest {
     @BeforeEach
     void setUp() {
         koboSettings = KoboSettings.builder()
-                .convertToKepub(false)
                 .conversionLimitInMb(100)
                 .convertCbxToEpub(false)
                 .conversionLimitInMbForCbx(50)

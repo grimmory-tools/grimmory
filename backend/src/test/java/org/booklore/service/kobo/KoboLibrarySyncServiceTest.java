@@ -231,6 +231,21 @@ class KoboLibrarySyncServiceTest {
         }
 
         @Test
+        @DisplayName("Should detect href-only web reader progress when toggle ON and lastReadTime after sent")
+        void needsProgressSync_webReaderHrefOnly() {
+            testSettings.setTwoWayProgressSync(true);
+
+            UserBookProgressEntity progress = createProgress(1L);
+            progress.setEpubProgressHref("OPS/chapter3.xhtml");
+            progress.setEpubProgressPercent(65f);
+            progress.setLastReadTime(Instant.now());
+            progress.setKoboProgressSentTime(Instant.now().minusSeconds(60));
+            progress.setKoboProgressReceivedTime(Instant.now().minusSeconds(120));
+
+            assertTrue(needsProgressSync(progress));
+        }
+
+        @Test
         @DisplayName("Should not sync web reader progress when toggle OFF")
         void needsProgressSync_toggleOff() {
             testSettings.setTwoWayProgressSync(false);
@@ -286,7 +301,7 @@ class KoboLibrarySyncServiceTest {
         if (needsKoboProgressSync(progress)) return true;
 
         if (testSettings.isTwoWayProgressSync()
-                && progress.getEpubProgress() != null && progress.getEpubProgressPercent() != null) {
+                && progress.getEpubProgressPercent() != null) {
             Instant sentTime = progress.getKoboProgressSentTime();
             Instant lastReadTime = progress.getLastReadTime();
             if (lastReadTime != null && (sentTime == null || lastReadTime.isAfter(sentTime))) {

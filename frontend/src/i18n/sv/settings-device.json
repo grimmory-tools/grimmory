@@ -97,6 +97,8 @@
     "twoWaySyncLabel": "Dubbelriktad läsframstegssynk",
     "twoWaySyncDesc": "Aktivera dubbelriktad synk mellan Grimmorys webbläsare och din Kobo-enhet. Läsframsteg gjorda på endera plattformen reflekteras på den andra.",
     "twoWaySyncNote": "Obs: På grund av olika positionsformat är synknoggrannheten bäst-ansträngning. I de flesta fall är framstegen korrekta på kapitelnivå.",
+    "twoWaySyncKepubWarning": "KEPUB conversion is currently disabled. Two-way progress sync requires KEPUB conversion to be enabled by an administrator.",
+    "twoWaySyncKepubWarningAdmin": "KEPUB conversion is currently disabled. Enable it in the Administrator Settings below for two-way progress sync to work.",
     "twoWaySyncEnabled": "Dubbelriktad framstegssynk aktiverad",
     "twoWaySyncDisabled": "Dubbelriktad framstegssynk inaktiverad",
     "autoAddEnabled": "Nya böcker läggs automatiskt till på Kobo-hyllan",

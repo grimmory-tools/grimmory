@@ -97,6 +97,8 @@
     "twoWaySyncLabel": "双向阅读进度同步",
     "twoWaySyncDesc": "启用 Grimmory 网页阅读器与 Kobo 设备之间的双向同步。在任一平台上的阅读进度都将反映到另一个平台。",
     "twoWaySyncNote": "注意：由于位置格式不同，同步精度是尽力而为的。大多数情况下进度将精确到章节级别。",
+    "twoWaySyncKepubWarning": "KEPUB conversion is currently disabled. Two-way progress sync requires KEPUB conversion to be enabled by an administrator.",
+    "twoWaySyncKepubWarningAdmin": "KEPUB conversion is currently disabled. Enable it in the Administrator Settings below for two-way progress sync to work.",
     "twoWaySyncEnabled": "双向进度同步已启用",
     "twoWaySyncDisabled": "双向进度同步已禁用",
     "autoAddEnabled": "新图书将自动添加到 Kobo 书架",

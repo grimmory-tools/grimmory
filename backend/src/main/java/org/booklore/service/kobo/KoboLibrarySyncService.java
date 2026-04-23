@@ -83,7 +83,7 @@ public class KoboLibrarySyncService {
         boolean shouldContinueSync = false;
 
         if (prevSnapshot.isPresent()) {
-            int maxRemaining = 5;
+            int maxRemaining = 100;
             List<KoboSnapshotBookEntity> removedAll = new ArrayList<>();
             List<KoboSnapshotBookEntity> changedAll = new ArrayList<>();
 
@@ -123,7 +123,7 @@ public class KoboLibrarySyncService {
                 entitlements.addAll(entitlementService.generateTags());
             }
         } else {
-            int maxRemaining = 5;
+            int maxRemaining = 100;
             List<KoboSnapshotBookEntity> snapshotBookEntities = new ArrayList<>();
             while (maxRemaining > 0) {
                 Page<KoboSnapshotBookEntity> page = koboLibrarySnapshotService.getUnsyncedBooks(currSnapshot.getId(), PageRequest.of(0, maxRemaining));
@@ -230,7 +230,7 @@ public class KoboLibrarySyncService {
         }
 
         if (koboSettingsService.getCurrentUserSettings().isTwoWayProgressSync()
-                && progress.getEpubProgress() != null && progress.getEpubProgressPercent() != null) {
+                && progress.getEpubProgressPercent() != null) {
             Instant sentTime = progress.getKoboProgressSentTime();
             Instant lastReadTime = progress.getLastReadTime();
             if (lastReadTime != null && (sentTime == null || lastReadTime.isAfter(sentTime))) {

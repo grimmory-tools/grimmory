@@ -97,6 +97,8 @@
     "twoWaySyncLabel": "Two-Way Reading Progress Sync",
     "twoWaySyncDesc": "Enable bidirectional sync between Grimmory's web reader and your Kobo device. Reading progress made on either platform will be reflected on the other.",
     "twoWaySyncNote": "Note: Due to different position formats, sync accuracy is best-effort. In most cases progress will be accurate to the chapter level.",
+    "twoWaySyncKepubWarning": "KEPUB conversion is currently disabled. Two-way progress sync requires KEPUB conversion to be enabled by an administrator.",
+    "twoWaySyncKepubWarningAdmin": "KEPUB conversion is currently disabled. Enable it in the Administrator Settings below for two-way progress sync to work.",
     "twoWaySyncEnabled": "Two-way progress sync enabled",
     "twoWaySyncDisabled": "Two-way progress sync disabled",
     "autoAddEnabled": "New books will be automatically added to Kobo shelf",

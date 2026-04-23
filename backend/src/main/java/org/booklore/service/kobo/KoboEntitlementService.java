@@ -14,6 +14,7 @@ import org.booklore.model.enums.ShelfType;
 import org.booklore.repository.KoboReadingStateRepository;
 import org.booklore.repository.MagicShelfRepository;
 import org.booklore.repository.ShelfRepository;
+import org.booklore.repository.UserBookFileProgressRepository;
 import org.booklore.repository.UserBookProgressRepository;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.book.BookQueryService;
@@ -43,6 +44,7 @@ public class KoboEntitlementService {
     private final AppSettingService appSettingService;
     private final KoboCompatibilityService koboCompatibilityService;
     private final UserBookProgressRepository progressRepository;
+    private final UserBookFileProgressRepository fileProgressRepository;
     private final KoboReadingStateRepository readingStateRepository;
     private final KoboReadingStateMapper readingStateMapper;
     private final AuthenticationService authenticationService;
@@ -51,6 +53,7 @@ public class KoboEntitlementService {
     private final MagicShelfRepository magicShelfRepository;
     private final MagicShelfBookService magicShelfBookService;
     private final KoboSettingsService koboSettingsService;
+    private final KoboSpanMapService koboSpanMapService;
 
     public List<NewEntitlement> generateNewEntitlements(Set<Long> bookIds, String token) {
         List<BookEntity> books = bookQueryService.findAllWithMetadataByIds(bookIds);
@@ -108,9 +111,40 @@ public class KoboEntitlementService {
     public List<ChangedReadingState> generateChangedReadingStates(List<UserBookProgressEntity> progressEntries) {
         OffsetDateTime now = getCurrentUtc();
         String timestamp = now.toString();
+        Long userId = authenticationService.getAuthenticatedUser().getId();
+
+        Map<Long, Long> syncedEpubFileIdsByBookId = new HashMap<>();
+        Map<Long, BookFileEntity> bookFilesByFileId = new HashMap<>();
+        for (UserBookProgressEntity entry : progressEntries) {
+            BookEntity book = entry.getBook();
+            if (book != null) {
+                BookFileEntity syncedFile = KoboEpubUtils.getSyncedEpubFile(book);
+                if (syncedFile != null) {
+                    syncedEpubFileIdsByBookId.putIfAbsent(book.getId(), syncedFile.getId());
+                    bookFilesByFileId.putIfAbsent(syncedFile.getId(), syncedFile);
+                }
+            }
+        }
+
+        Map<Long, UserBookFileProgressEntity> fileProgressByFileId = syncedEpubFileIdsByBookId.isEmpty()
+                ? Collections.emptyMap()
+                : fileProgressRepository.findByUserIdAndBookFileIdIn(userId, syncedEpubFileIdsByBookId.values()).stream()
+                        .collect(Collectors.toMap(
+                                fp -> fp.getBookFile().getId(),
+                                fp -> fp
+                        ));
+
+        Map<Long, KoboSpanPositionMap> spanMapsByFileId = bookFilesByFileId.isEmpty()
+                ? Collections.emptyMap()
+                : koboSpanMapService.getValidMaps(bookFilesByFileId);
 
         return progressEntries.stream()
-                .map(progress -> buildChangedReadingState(progress, timestamp, now))
+                .map(progress -> buildChangedReadingState(
+                        progress,
+                        fileProgressByFileId.get(syncedEpubFileIdsByBookId.get(progress.getBook().getId())),
+                        timestamp,
+                        now,
+                        spanMapsByFileId))
                 .toList();
     }
 
@@ -180,12 +214,16 @@ public class KoboEntitlementService {
                 .build();
     }
 
-    private ChangedReadingState buildChangedReadingState(UserBookProgressEntity progress, String timestamp, OffsetDateTime now) {
+    private ChangedReadingState buildChangedReadingState(UserBookProgressEntity progress,
+                                                         UserBookFileProgressEntity fileProgress,
+                                                         String timestamp,
+                                                         OffsetDateTime now,
+                                                         Map<Long, KoboSpanPositionMap> preloadedMaps) {
         String entitlementId = String.valueOf(progress.getBook().getId());
 
         boolean twoWaySync = koboSettingsService.getCurrentUserSettings().isTwoWayProgressSync();
         KoboReadingState.CurrentBookmark bookmark = (progress.getKoboProgressPercent() != null || (twoWaySync && progress.getEpubProgressPercent() != null))
-                ? readingStateBuilder.buildBookmarkFromProgress(progress, now)
+                ? readingStateBuilder.buildBookmarkFromProgress(progress, fileProgress, now, preloadedMaps)
                 : readingStateBuilder.buildEmptyBookmark(now);
 
         KoboReadingState readingState = KoboReadingState.builder()
@@ -218,14 +256,15 @@ public class KoboEntitlementService {
                 .orElse(null);
 
         Optional<UserBookProgressEntity> userProgress = progressRepository
-                .findByUserIdAndBookId(authenticationService.getAuthenticatedUser().getId(), book.getId());
+                .findByUserIdAndBookId(userId, book.getId());
+        UserBookFileProgressEntity fileProgress = findSyncedEpubFileProgress(userId, book).orElse(null);
 
         boolean twoWaySync = koboSettingsService.getCurrentUserSettings().isTwoWayProgressSync();
 
         KoboReadingState.CurrentBookmark webReaderBookmark = twoWaySync
                 ? userProgress
-                    .filter(progress -> progress.getEpubProgress() != null && progress.getEpubProgressPercent() != null)
-                    .map(progress -> readingStateBuilder.buildBookmarkFromProgress(progress, now))
+                    .filter(readingStateBuilder::shouldUseWebReaderProgress)
+                    .map(progress -> readingStateBuilder.buildBookmarkFromProgress(progress, fileProgress, now))
                     .orElse(null)
                 : null;
 
@@ -235,7 +274,7 @@ public class KoboEntitlementService {
                 ? existingState.getCurrentBookmark()
                 : userProgress
                 .filter(progress -> progress.getKoboProgressPercent() != null || (twoWaySync && progress.getEpubProgressPercent() != null))
-                .map(progress -> readingStateBuilder.buildBookmarkFromProgress(progress, now))
+                .map(progress -> readingStateBuilder.buildBookmarkFromProgress(progress, fileProgress, now))
                 .orElseGet(() -> readingStateBuilder.buildEmptyBookmark(now));
 
         KoboReadingState.StatusInfo statusInfo = userProgress
@@ -255,6 +294,14 @@ public class KoboEntitlementService {
                 .statistics(KoboReadingState.Statistics.builder().lastModified(now.toString()).build())
                 .priorityTimestamp(now.toString())
                 .build();
+    }
+
+    private Optional<UserBookFileProgressEntity> findSyncedEpubFileProgress(Long userId, BookEntity book) {
+        BookFileEntity syncedFile = KoboEpubUtils.getSyncedEpubFile(book);
+        if (syncedFile == null) {
+            return Optional.empty();
+        }
+        return fileProgressRepository.findByUserIdAndBookFileId(userId, syncedFile.getId());
     }
 
     private BookEntitlement buildBookEntitlement(BookEntity book, boolean removed) {
@@ -333,14 +380,12 @@ public class KoboEntitlementService {
         boolean isEpubFile = primaryFile.getBookType() == BookFileType.EPUB;
         boolean isCbxFile = primaryFile.getBookType() == BookFileType.CBX;
 
-        if (koboSettings != null) {
-            if (isEpubFile && primaryFile.isFixedLayout()) {
-                bookFormat = KoboBookFormat.EPUB3FL;
-            } else if (isEpubFile && koboSettings.isConvertToKepub()) {
-                bookFormat = KoboBookFormat.KEPUB;
-            } else if (isCbxFile && koboSettings.isConvertCbxToEpub()) {
-                bookFormat = KoboBookFormat.EPUB3;
-            }
+        if (isEpubFile && primaryFile.isFixedLayout()) {
+            bookFormat = KoboBookFormat.EPUB3FL;
+        } else if (isEpubFile && koboSettings != null && koboSettings.isConvertToKepub()) {
+            bookFormat = KoboBookFormat.KEPUB;
+        } else if (koboSettings != null && isCbxFile && koboSettings.isConvertCbxToEpub()) {
+            bookFormat = KoboBookFormat.EPUB3;
         }
 
         return KoboBookMetadata.builder()

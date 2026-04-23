@@ -74,6 +74,7 @@ import {ViewEvent} from './core/view-manager.service';
 })
 export class EbookReaderComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
+  private static readonly MAX_CHAPTER_PROGRESS_PERCENT = 99.9;
   private loaderService = inject(ReaderLoaderService);
   private styleService = inject(ReaderStyleService);
   private bookService = inject(BookService);
@@ -101,6 +102,7 @@ export class EbookReaderComponent implements OnInit {
   private visibilityManager!: ReaderHeaderFooterVisibilityManager;
   private relocateTimeout?: ReturnType<typeof setTimeout>;
   private sectionFractionsTimeout?: ReturnType<typeof setTimeout>;
+  private pendingInitialChapterRestore: { href: string; contentSourceProgressPercent: number } | null = null;
 
   isLoading = signal(true);
   showQuickSettings = signal(false);
@@ -251,6 +253,8 @@ export class EbookReaderComponent implements OnInit {
               this.hasLoadedOnce = true;
               if (book.epubProgress?.cfi) {
                 return this.viewManager.goTo(book.epubProgress.cfi);
+              } else if (book.epubProgress?.href) {
+                return this.viewManager.goTo(book.epubProgress.href);
               } else if (book.epubProgress?.percentage && book.epubProgress.percentage > 0) {
                 return this.viewManager.goToFraction(book.epubProgress.percentage / 100);
               } else {
@@ -287,7 +291,6 @@ export class EbookReaderComponent implements OnInit {
     this.viewManager.createView(container);
     return of(undefined);
   }
-
   private loadBookBlob(): Observable<void> {
     return this.bookFileService.getFileContent(this.bookId, this.altBookType).pipe(
       switchMap(fileBlob => {
@@ -309,6 +312,14 @@ export class EbookReaderComponent implements OnInit {
             this.updateSectionFractions();
             break;
           case 'relocate':
+            if (this.handlePendingInitialChapterRestore(event.detail)) {
+              if (this.sectionFractionsTimeout) clearTimeout(this.sectionFractionsTimeout);
+              this.sectionFractionsTimeout = setTimeout(() => {
+                this.updateSectionFractions();
+              }, 500);
+              break;
+            }
+
             if (this.relocateTimeout) clearTimeout(this.relocateTimeout);
             this.relocateTimeout = setTimeout(() => {
               this.progressService.handleRelocateEvent(event.detail);
@@ -380,6 +391,98 @@ export class EbookReaderComponent implements OnInit {
 
   private updateSectionFractions(): void {
     this.sectionFractions.set(this.viewManager.getSectionFractions());
+  }
+
+  private restoreSavedPosition(book: Book): Observable<void> {
+    const progress = book.epubProgress;
+
+    if (progress?.cfi) {
+      return this.viewManager.goTo(progress.cfi);
+    }
+
+    if (progress?.href) {
+      const chapterProgress = progress.contentSourceProgressPercent;
+      if (typeof chapterProgress === 'number' && Number.isFinite(chapterProgress) && chapterProgress > 0) {
+        this.pendingInitialChapterRestore = {
+          href: this.normalizeHref(progress.href),
+          contentSourceProgressPercent: chapterProgress
+        };
+      } else {
+        this.pendingInitialChapterRestore = null;
+      }
+      return this.viewManager.goTo(progress.href);
+    }
+
+    this.pendingInitialChapterRestore = null;
+
+    if (progress?.percentage && progress.percentage > 0) {
+      return this.viewManager.goToFraction(progress.percentage / 100);
+    }
+
+    return this.viewManager.goTo(0);
+  }
+
+  private handlePendingInitialChapterRestore(detail: RelocateProgressData): boolean {
+    if (!this.pendingInitialChapterRestore) {
+      return false;
+    }
+
+    const currentHref = this.normalizeHref(detail.pageItem?.href ?? detail.tocItem?.href ?? null);
+    if (!currentHref || !this.hrefsMatch(currentHref, this.pendingInitialChapterRestore.href)) {
+      return false;
+    }
+
+    const targetFraction = this.resolveChapterFraction(
+      detail.section?.current,
+      this.pendingInitialChapterRestore.contentSourceProgressPercent
+    );
+
+    if (targetFraction === null) {
+      return false;
+    }
+
+    if (typeof detail.fraction === 'number' && Math.abs(detail.fraction - targetFraction) < 0.0001) {
+      this.pendingInitialChapterRestore = null;
+      return false;
+    }
+
+    this.pendingInitialChapterRestore = null;
+    this.viewManager.goToFraction(targetFraction)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
+
+    return true;
+  }
+
+  private resolveChapterFraction(sectionIndex: number | undefined, chapterProgressPercent: number): number | null {
+    if (sectionIndex === undefined) {
+      return null;
+    }
+
+    const sectionFractions = this.viewManager.getSectionFractions();
+    const start = sectionFractions[sectionIndex];
+    const end = sectionFractions[sectionIndex + 1];
+
+    if (start === undefined || end === undefined || end <= start) {
+      return null;
+    }
+
+    const normalizedProgress = Math.min(
+      Math.max(chapterProgressPercent, 0),
+      EbookReaderComponent.MAX_CHAPTER_PROGRESS_PERCENT
+    ) / 100;
+
+    return start + ((end - start) * normalizedProgress);
+  }
+
+  private normalizeHref(href: string | null | undefined): string {
+    return (href ?? '').split('#')[0].replace(/^(\.\/|\/)+/, '');
+  }
+
+  private hrefsMatch(leftHref: string, rightHref: string): boolean {
+    return leftHref === rightHref
+      || leftHref.endsWith(`/${rightHref}`)
+      || rightHref.endsWith(`/${leftHref}`);
   }
 
   private updateBookmarkIndicator(): void {

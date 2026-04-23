@@ -58,7 +58,7 @@ export class KoboSyncSettingsComponent implements OnInit {
   });
 
   koboSettings: KoboSettings = {
-    convertToKepub: false,
+    convertToKepub: true,
     conversionLimitInMb: 100,
     convertCbxToEpub: false,
     conversionImageCompressionPercentage: 85,
@@ -109,6 +109,16 @@ export class KoboSyncSettingsComponent implements OnInit {
   });
 
   protected hasHydratedKoboAdmin = false;
+
+  private readonly syncKepubSettingEffect = effect(() => {
+    const user = this.userService.currentUser();
+    const settings = this.appSettingsService.appSettings();
+    if (!user?.permissions.canSyncKobo || !settings) {
+      return;
+    }
+
+    this.koboSettings.convertToKepub = settings.koboSettings?.convertToKepub ?? true;
+  });
 
   private readonly syncAdminSettingsEffect = effect(() => {
     const user = this.userService.currentUser();

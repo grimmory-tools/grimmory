@@ -2,21 +2,30 @@ package org.booklore.service.kobo;
 
 import lombok.RequiredArgsConstructor;
 import org.booklore.model.dto.kobo.KoboReadingState;
+import org.booklore.model.entity.UserBookFileProgressEntity;
 import org.booklore.model.entity.UserBookProgressEntity;
 import org.booklore.model.enums.KoboReadStatus;
 import org.booklore.model.enums.ReadStatus;
 import org.springframework.stereotype.Component;
 
+import org.booklore.model.dto.kobo.KoboSpanPositionMap;
+
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.Map;
 import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
 public class KoboReadingStateBuilder {
 
+    private static final DateTimeFormatter KOBO_TIMESTAMP_FORMAT =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSS'Z'").withZone(ZoneOffset.UTC);
+
     private final KoboSettingsService koboSettingsService;
+    private final KoboBookmarkLocationResolver bookmarkLocationResolver;
 
     public KoboReadingState.CurrentBookmark buildEmptyBookmark(OffsetDateTime timestamp) {
         return KoboReadingState.CurrentBookmark.builder()
@@ -24,35 +33,80 @@ public class KoboReadingStateBuilder {
                 .build();
     }
 
-    public KoboReadingState.CurrentBookmark buildBookmarkFromProgress(UserBookProgressEntity progress) {
-        return buildBookmarkFromProgress(progress, null);
+    public KoboReadingState.CurrentBookmark buildBookmarkFromProgress(UserBookProgressEntity progress,
+                                                                      UserBookFileProgressEntity fileProgress) {
+        return buildBookmarkFromProgress(progress, fileProgress, null, null);
     }
 
-    public KoboReadingState.CurrentBookmark buildBookmarkFromProgress(UserBookProgressEntity progress, OffsetDateTime defaultTime) {
-        if (isWebReaderNewer(progress)) {
-            return buildBookmarkFromWebReaderProgress(progress, defaultTime);
+    public KoboReadingState.CurrentBookmark buildBookmarkFromProgress(UserBookProgressEntity progress,
+                                                                      UserBookFileProgressEntity fileProgress,
+                                                                      OffsetDateTime defaultTime) {
+        return buildBookmarkFromProgress(progress, fileProgress, defaultTime, null);
+    }
+
+    public KoboReadingState.CurrentBookmark buildBookmarkFromProgress(UserBookProgressEntity progress,
+                                                                      UserBookFileProgressEntity fileProgress,
+                                                                      OffsetDateTime defaultTime,
+                                                                      Map<Long, KoboSpanPositionMap> preloadedMaps) {
+        if (shouldUseWebReaderProgress(progress)) {
+            return buildBookmarkFromWebReaderProgress(progress, fileProgress, defaultTime, preloadedMaps);
         }
-        return buildBookmarkFromKoboProgress(progress, defaultTime);
+        return buildBookmarkFromKoboProgress(progress, fileProgress, defaultTime);
     }
 
-    private boolean isWebReaderNewer(UserBookProgressEntity progress) {
-        return koboSettingsService.getCurrentUserSettings().isTwoWayProgressSync()
-                && progress.getEpubProgress() != null && progress.getEpubProgressPercent() != null;
+    public boolean shouldUseWebReaderProgress(UserBookProgressEntity progress) {
+        if (!koboSettingsService.getCurrentUserSettings().isTwoWayProgressSync()) {
+            return false;
+        }
+        if (progress.getEpubProgressPercent() == null) {
+            return false;
+        }
+        if (progress.getLastReadTime() == null) {
+            return false;
+        }
+        if (progress.getKoboProgressReceivedTime() == null) {
+            return true;
+        }
+        return progress.getLastReadTime().isAfter(progress.getKoboProgressReceivedTime());
     }
 
-    private KoboReadingState.CurrentBookmark buildBookmarkFromWebReaderProgress(UserBookProgressEntity progress, OffsetDateTime defaultTime) {
+    private KoboReadingState.CurrentBookmark buildBookmarkFromWebReaderProgress(UserBookProgressEntity progress,
+                                                                                UserBookFileProgressEntity fileProgress,
+                                                                                OffsetDateTime defaultTime,
+                                                                                Map<Long, KoboSpanPositionMap> preloadedMaps) {
         String lastModified = Optional.ofNullable(progress.getLastReadTime())
                 .map(this::formatTimestamp)
                 .or(() -> Optional.ofNullable(defaultTime).map(OffsetDateTime::toString))
                 .orElse(null);
 
+        Optional<KoboBookmarkLocationResolver.ResolvedBookmarkLocation> resolvedLocation =
+                bookmarkLocationResolver.resolve(progress, fileProgress, preloadedMaps);
+
+        KoboReadingState.CurrentBookmark.Location location = resolvedLocation
+                .map(resolved -> KoboReadingState.CurrentBookmark.Location.builder()
+                        .value(resolved.value())
+                        .type(resolved.type())
+                        .source(resolved.source())
+                        .build())
+                .orElse(null);
+
         return KoboReadingState.CurrentBookmark.builder()
                 .progressPercent(Math.round(progress.getEpubProgressPercent()))
+                .contentSourceProgressPercent(resolvedLocation
+                        .map(KoboBookmarkLocationResolver.ResolvedBookmarkLocation::contentSourceProgressPercent)
+                        .map(Math::round)
+                        .orElseGet(() -> Optional.ofNullable(fileProgress)
+                                .map(UserBookFileProgressEntity::getContentSourceProgressPercent)
+                                .map(Math::round)
+                                .orElse(null)))
+                .location(location)
                 .lastModified(lastModified)
                 .build();
     }
 
-    private KoboReadingState.CurrentBookmark buildBookmarkFromKoboProgress(UserBookProgressEntity progress, OffsetDateTime defaultTime) {
+    private KoboReadingState.CurrentBookmark buildBookmarkFromKoboProgress(UserBookProgressEntity progress,
+                                                                           UserBookFileProgressEntity fileProgress,
+                                                                           OffsetDateTime defaultTime) {
         KoboReadingState.CurrentBookmark.Location location = Optional.ofNullable(progress.getKoboLocation())
                 .map(koboLocation -> KoboReadingState.CurrentBookmark.Location.builder()
                         .value(koboLocation)
@@ -70,13 +124,19 @@ public class KoboReadingStateBuilder {
                 .progressPercent(Optional.ofNullable(progress.getKoboProgressPercent())
                         .map(Math::round)
                         .orElse(null))
+                .contentSourceProgressPercent(Optional.ofNullable(fileProgress)
+                        .map(UserBookFileProgressEntity::getContentSourceProgressPercent)
+                        .map(Math::round)
+                        .orElse(null))
                 .location(location)
                 .lastModified(lastModified)
                 .build();
     }
 
-    public KoboReadingState buildReadingStateFromProgress(String entitlementId, UserBookProgressEntity progress) {
-        KoboReadingState.CurrentBookmark bookmark = buildBookmarkFromProgress(progress);
+    public KoboReadingState buildReadingStateFromProgress(String entitlementId,
+                                                          UserBookProgressEntity progress,
+                                                          UserBookFileProgressEntity fileProgress) {
+        KoboReadingState.CurrentBookmark bookmark = buildBookmarkFromProgress(progress, fileProgress);
         String lastModified = bookmark.getLastModified();
         KoboReadingState.StatusInfo statusInfo = buildStatusInfoFromProgress(progress, lastModified);
 
@@ -118,6 +178,6 @@ public class KoboReadingStateBuilder {
     }
 
     private String formatTimestamp(Instant instant) {
-        return instant.atOffset(ZoneOffset.UTC).toString();
+        return KOBO_TIMESTAMP_FORMAT.format(instant);
     }
 }

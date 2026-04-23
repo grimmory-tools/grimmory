@@ -91,10 +91,10 @@ describe('KoboSyncSettingsComponent', () => {
     const component = fixture.componentInstance;
 
     TestBed.flushEffects();
-    expect(component.koboSettings.convertToKepub).toBe(false);
+    expect(component.koboSettings.convertToKepub).toBe(true);
 
     appSettingsState.set(buildAppSettings({
-      convertToKepub: true,
+      convertToKepub: false,
       conversionLimitInMb: 42,
       convertCbxToEpub: true,
       conversionImageCompressionPercentage: 73,
@@ -106,7 +106,7 @@ describe('KoboSyncSettingsComponent', () => {
     TestBed.flushEffects();
 
     expect(component.koboSettings).toEqual({
-      convertToKepub: true,
+      convertToKepub: false,
       conversionLimitInMb: 42,
       convertCbxToEpub: true,
       conversionImageCompressionPercentage: 73,
