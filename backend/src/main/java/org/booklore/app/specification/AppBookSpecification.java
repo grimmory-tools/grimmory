@@ -131,6 +131,28 @@ public class AppBookSpecification {
         };
     }
 
+    /**
+     * Filter books that have any progress for a specific user.
+     * If `optional` is true, allow books without user progress to be included
+     * but omit other user's progress.
+     */
+    public static Specification<BookEntity> withProgress(Long userId, boolean optional) {
+        return (root, query, cb) -> {
+            if (userId == null) {
+                return cb.conjunction();
+            }
+
+            Join<BookEntity, UserBookProgressEntity> progressJoin = root.join("userBookProgress", JoinType.LEFT);
+            progressJoin = progressJoin.on(cb.equal(progressJoin.get("user").get("id"), userId));
+
+            if (optional) {
+                return cb.conjunction();
+            }
+
+            return cb.equal(progressJoin.get("user").get("id"), userId);
+        };
+    }
+
     public static Specification<BookEntity> addedWithinDays(int days) {
         return (root, query, cb) -> {
             Instant cutoff = Instant.now().minus(days, ChronoUnit.DAYS);
