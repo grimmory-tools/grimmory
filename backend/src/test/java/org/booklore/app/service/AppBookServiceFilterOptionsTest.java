@@ -13,9 +13,11 @@ import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.ShelfEntity;
 import org.booklore.repository.BookRepository;
+import org.booklore.repository.LibraryRepository;
 import org.booklore.repository.ShelfRepository;
 import org.booklore.repository.UserBookFileProgressRepository;
 import org.booklore.repository.UserBookProgressRepository;
+import org.booklore.repository.UserRepository;
 import org.booklore.service.book.BookService;
 import org.booklore.service.opds.MagicShelfBookService;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,8 +47,10 @@ import static org.mockito.Mockito.*;
 class AppBookServiceFilterOptionsTest {
 
     @Mock private BookRepository bookRepository;
+    @Mock private LibraryRepository libraryRepository;
     @Mock private UserBookProgressRepository userBookProgressRepository;
     @Mock private UserBookFileProgressRepository userBookFileProgressRepository;
+    @Mock private UserRepository userRepository;
     @Mock private ShelfRepository shelfRepository;
     @Mock private AuthenticationService authenticationService;
     @Mock private AppBookMapper mobileBookMapper;
@@ -61,8 +65,8 @@ class AppBookServiceFilterOptionsTest {
     @BeforeEach
     void setUp() {
         service = new AppBookService(
-                bookRepository, userBookProgressRepository, userBookFileProgressRepository,
-                shelfRepository, authenticationService, mobileBookMapper,
+                bookRepository, libraryRepository, userBookProgressRepository, userBookFileProgressRepository,
+                userRepository, shelfRepository, authenticationService, mobileBookMapper,
                 bookService, magicShelfBookService, entityManager
         );
     }
@@ -215,6 +219,10 @@ class AppBookServiceFilterOptionsTest {
                 .permissions(permissions)
                 .build();
         when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+        when(libraryRepository.findAll()).thenReturn(List.of(
+                org.booklore.model.entity.LibraryEntity.builder().id(5L).build(),
+                org.booklore.model.entity.LibraryEntity.builder().id(10L).build()
+        ));
     }
 
     private void mockNonAdminUser(Set<Long> libraryIds) {

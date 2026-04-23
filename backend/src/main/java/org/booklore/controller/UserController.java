@@ -31,7 +31,9 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "User profile returned successfully")
     @GetMapping("/me")
     public ResponseEntity<BookLoreUser> getMyself() {
-        return ResponseEntity.ok(userService.getMyself());
+        return ResponseEntity.ok()
+                .header("Cache-Control", "no-cache, no-store, must-revalidate")
+                .body(userService.getMyself());
     }
 
     @Operation(summary = "Get user by ID", description = "Retrieve a user's profile by their ID.")

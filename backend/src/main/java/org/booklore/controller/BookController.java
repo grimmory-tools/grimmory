@@ -16,8 +16,10 @@ import org.booklore.model.dto.response.AttachBookFileResponse;
 import org.booklore.model.dto.response.BookDeletionResponse;
 import org.booklore.model.dto.response.BookStatusUpdateResponse;
 import org.booklore.model.dto.response.DuplicateGroup;
+import org.booklore.model.dto.response.MenuCountsResponse;
 import org.booklore.model.dto.response.PersonalRatingUpdateResponse;
 import org.booklore.model.enums.ResetProgressType;
+import org.booklore.service.MenuCountsService;
 import org.booklore.service.book.BookFileAttachmentService;
 import org.booklore.service.book.BookService;
 import org.booklore.service.book.BookUpdateService;
@@ -64,6 +66,7 @@ public class BookController {
     private final ReadingProgressService readingProgressService;
     private final PhysicalBookService physicalBookService;
     private final DuplicateDetectionService duplicateDetectionService;
+    private final MenuCountsService menuCountsService;
 
     @Operation(summary = "Get all books", description = "Retrieve a list of all books. Optionally include descriptions.")
     @ApiResponse(responseCode = "200", description = "List of books returned successfully")
@@ -73,7 +76,19 @@ public class BookController {
             @RequestParam(required = false, defaultValue = "false") boolean withDescription,
             @Parameter(description = "Remove other metadata fields from the response")
             @RequestParam(required = false, defaultValue = "true") boolean stripForListView) {
-        return ResponseEntity.ok(bookService.getBookDTOs(withDescription, stripForListView));
+        return ResponseEntity.ok()
+                .header("Cache-Control", "private, max-age=60")
+                .body(bookService.getBookDTOs(withDescription, stripForListView));
+    }
+
+    @Operation(summary = "Get menu counts",
+            description = "Retrieve lightweight book counts keyed by library, shelf, and magic-shelf id for sidebar rendering without loading the full book list.")
+    @ApiResponse(responseCode = "200", description = "Menu counts returned successfully")
+    @GetMapping("/menu-counts")
+    public ResponseEntity<MenuCountsResponse> getMenuCounts() {
+        return ResponseEntity.ok()
+                .header("Cache-Control", "private, max-age=60")
+                .body(menuCountsService.getMenuCounts());
     }
 
     @Operation(summary = "Get books (paginated)", description = "Retrieve a paginated list of books. Supports sorting via 'sort' parameter (e.g. sort=metadata.title,asc).")

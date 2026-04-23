@@ -76,8 +76,13 @@ public class ShelfService {
     }
 
     public List<Shelf> getShelves() {
-        Long userId = getAuthenticatedUserId();
-        return shelfRepository.findByUserIdOrPublicShelfTrue(userId).stream()
+        BookLoreUser user = authenticationService.getAuthenticatedUser();
+        return getShelves(user);
+    }
+
+    public List<Shelf> getShelves(BookLoreUser user) {
+        if (user == null || user.getId() == null) return List.of();
+        return shelfRepository.findByUserIdOrPublicShelfTrue(user.getId()).stream()
                 .map(shelfMapper::toShelf)
                 .toList();
     }

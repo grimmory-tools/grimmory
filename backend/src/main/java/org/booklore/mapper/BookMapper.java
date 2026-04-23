@@ -38,6 +38,11 @@ public interface BookMapper {
     @Mapping(source = "bookFiles", target = "supplementaryFiles", qualifiedByName = "mapSupplementaryFiles")
     Book toBookWithDescription(BookEntity bookEntity, @Context boolean includeDescription);
 
+    PdfViewerPreferences toPdfViewerPreferences(PdfViewerPreferencesEntity entity);
+    NewPdfViewerPreferences toNewPdfViewerPreferences(NewPdfViewerPreferencesEntity entity);
+    EbookViewerPreferences toEbookViewerPreferences(EbookViewerPreferenceEntity entity);
+    CbxViewerPreferences toCbxViewerPreferences(CbxViewerPreferencesEntity entity);
+
     default List<String> mapAuthors(List<AuthorEntity> authors) {
         if (authors == null) return null;
         return authors.stream()

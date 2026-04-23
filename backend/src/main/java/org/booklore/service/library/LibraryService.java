@@ -233,6 +233,11 @@ public class LibraryService {
 
     public List<Library> getLibraries() {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
+        return getLibraries(user);
+    }
+
+    public List<Library> getLibraries(BookLoreUser user) {
+        if (user == null || user.getId() == null) return Collections.emptyList();
         BookLoreUserEntity userEntity = userRepository.findByIdWithLibraries(user.getId()).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         List<LibraryEntity> libraries;
         if (userEntity.getPermissions().isPermissionAdmin()) {

@@ -29,6 +29,8 @@ public class AppFilterController {
             @RequestParam(required = false) Long libraryId,
             @RequestParam(required = false) Long shelfId,
             @RequestParam(required = false) Long magicShelfId) {
-        return ResponseEntity.ok(mobileBookService.getFilterOptions(libraryId, shelfId, magicShelfId));
+        return ResponseEntity.ok()
+                .header("Cache-Control", "private, max-age=60")
+                .body(mobileBookService.getFilterOptions(libraryId, shelfId, magicShelfId));
     }
 }

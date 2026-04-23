@@ -81,7 +81,7 @@ public class AuthenticationService {
 
     public BookLoreUser getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) {
+        if (authentication == null || !authentication.isAuthenticated()) {
             return null;
         }
         Object principal = authentication.getPrincipal();
@@ -91,7 +91,8 @@ public class AuthenticationService {
             }
             return user;
         }
-        throw new IllegalStateException("Authenticated principal is not of type BookLoreUser");
+        // Handle anonymous users or other principal types safely
+        return null;
     }
 
     public BookLoreUser getSystemUser() {

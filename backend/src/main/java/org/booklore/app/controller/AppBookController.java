@@ -28,7 +28,9 @@ public class AppBookController {
     public ResponseEntity<AppPageResponse<AppBookSummary>> getBooks(
             @ModelAttribute BookListRequest request) {
 
-        return ResponseEntity.ok(mobileBookService.getBooks(request));
+        return ResponseEntity.ok()
+                .header("Cache-Control", "private, max-age=60")
+                .body(mobileBookService.getBooks(request));
     }
 
     @Operation(
@@ -40,7 +42,9 @@ public class AppBookController {
     public ResponseEntity<List<Long>> getAllBookIds(
             @ModelAttribute BookListRequest request) {
 
-        return ResponseEntity.ok(mobileBookService.getAllBookIds(request));
+        return ResponseEntity.ok()
+                .header("Cache-Control", "private, max-age=60")
+                .body(mobileBookService.getAllBookIds(request));
     }
 
     @Operation(

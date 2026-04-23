@@ -61,9 +61,19 @@ public class AuthenticationController {
     @Operation(summary = "Refresh JWT token", description = "Refresh the JWT token using a valid refresh token.")
     @ApiResponse(responseCode = "200", description = "Token refreshed successfully")
     @PostMapping("/refresh")
-    public ResponseEntity<Map<String, String>> refreshToken(
-            @Parameter(description = "Refresh token request") @Valid @RequestBody RefreshTokenRequest request) {
-        return authenticationService.refreshToken(request.getRefreshToken());
+    public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenRequest request) {
+        log.debug("[Auth] Refresh request received. Request object exists: {}", request != null);
+        if (request == null || request.getRefreshToken() == null || request.getRefreshToken().isBlank()) {
+            log.warn("[Auth] Refresh request failed: missing or empty refresh token");
+            return ResponseEntity.badRequest().body(Map.of("message", "Refresh token is missing"));
+        }
+        
+        try {
+            return authenticationService.refreshToken(request.getRefreshToken());
+        } catch (Exception e) {
+            log.error("[Auth] Token refresh failed: {}", e.getMessage());
+            throw e;
+        }
     }
 
     @Operation(summary = "Remote login", description = "Authenticate a user using remote authentication headers.")
