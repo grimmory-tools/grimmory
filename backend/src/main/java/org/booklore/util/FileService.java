@@ -2,6 +2,7 @@ package org.booklore.util;
 
 import org.booklore.config.AppProperties;
 import org.booklore.exception.ApiError;
+import org.booklore.model.dto.settings.AppSettings;
 import org.booklore.model.dto.settings.CoverCroppingSettings;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.service.appsettings.AppSettingService;
@@ -187,7 +188,20 @@ public class FileService {
     // VALIDATION
     // ========================================
 
-    private static void validateCoverFile(MultipartFile file) {
+    private long getMaxFileUploadSizeMb() {
+        AppSettings appSettings = this.appSettingService.getAppSettings();
+
+        Integer maxFileUploadSizeMb = appSettings.getMaxFileUploadSizeInMb();
+
+        if (maxFileUploadSizeMb == null) {
+            log.warn("Max File Upload Size is unset, defaulting to 0");
+            return 0L;
+        }
+
+        return maxFileUploadSizeMb.longValue();
+    }
+
+    private void validateCoverFile(MultipartFile file) {
         if (file.isEmpty()) {
             throw new IllegalArgumentException("Uploaded file is empty");
         }
@@ -199,7 +213,9 @@ public class FileService {
         if (!lowerType.startsWith(JPEG_MIME_TYPE) && !lowerType.startsWith(PNG_MIME_TYPE)) {
             throw new IllegalArgumentException("Only JPEG and PNG files are allowed");
         }
-        if (file.getSize() > MAX_FILE_SIZE_BYTES) {
+        long maxSizeMb = getMaxFileUploadSizeMb();
+        long maxFileSize = maxSizeMb * 1024 * 1024;
+        if (file.getSize() > maxFileSize) {
             throw new IllegalArgumentException("File size must not exceed 5 MB");
         }
     }

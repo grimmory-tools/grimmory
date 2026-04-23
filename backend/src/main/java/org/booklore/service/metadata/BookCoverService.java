@@ -3,6 +3,7 @@ package org.booklore.service.metadata;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.exception.ApiError;
+import org.booklore.model.dto.settings.AppSettings;
 import org.booklore.model.dto.settings.MetadataPersistenceSettings;
 import org.booklore.model.entity.AuthorEntity;
 import org.booklore.model.entity.BookEntity;
@@ -502,13 +503,27 @@ public class BookCoverService {
     // SECTION: INTERNAL HELPERS
     // =========================
 
+    private long getMaxFileUploadSizeMb() {
+        AppSettings appSettings = this.appSettingService.getAppSettings();
+
+        Integer maxFileUploadSizeMb = appSettings.getMaxFileUploadSizeInMb();
+
+        if (maxFileUploadSizeMb == null) {
+            log.warn("Max File Upload Size is unset, defaulting to 0");
+            return 0L;
+        }
+
+        return maxFileUploadSizeMb.longValue();
+    }
+
     private void validateCoverFile(MultipartFile file) {
         if (file.isEmpty()) {
             throw ApiError.INVALID_INPUT.createException("Uploaded file is empty");
         }
-        long maxFileSize = 5L * 1024 * 1024;
+        long maxSizeMb = getMaxFileUploadSizeMb();
+        long maxFileSize = maxSizeMb * 1024 * 1024;
         if (file.getSize() > maxFileSize) {
-            throw ApiError.FILE_TOO_LARGE.createException(5);
+            throw ApiError.FILE_TOO_LARGE.createException(maxSizeMb);
         }
         // Detect MIME from content byte never trust the client-supplied Content-Type header
         try (var inputStream = file.getInputStream()) {
