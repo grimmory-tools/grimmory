@@ -16,7 +16,6 @@ const MIME = {
 const prependScriptBlockingMetaCsp = doc => {
     const head = doc.querySelector('head')
     if (!head) return
-    if (head.querySelector('meta[http-equiv="Content-Security-Policy"]')) return
     const meta = doc.createElement('meta')
     meta.setAttribute('http-equiv', 'Content-Security-Policy')
     meta.setAttribute('content', "script-src 'none'")

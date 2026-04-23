@@ -111,7 +111,6 @@ const isExternal = uri => /^(?!blob)\w+:/i.test(uri)
 const prependScriptBlockingMetaCsp = doc => {
     const head = doc.querySelector('head')
     if (!head) return
-    if (head.querySelector('meta[http-equiv="Content-Security-Policy"]')) return
     const nsURI = doc.documentElement?.namespaceURI
     const meta = nsURI ? doc.createElementNS(nsURI, 'meta') : doc.createElement('meta')
     meta.setAttribute('http-equiv', 'Content-Security-Policy')
