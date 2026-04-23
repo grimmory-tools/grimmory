@@ -108,16 +108,12 @@ class MenuCountsServiceTest {
         when(entityManager.getCriteriaBuilder()).thenReturn(cb);
         when(cb.count(any())).thenReturn(mock(Expression.class));
         when(cb.createTupleQuery()).thenReturn(cq);
-        when(cb.count(any())).thenReturn(mock(Expression.class));
         when(cq.from(BookEntity.class)).thenReturn(root);
         when(cq.multiselect(any(), any())).thenReturn(cq);
         when(cq.where(any(Predicate.class))).thenReturn(cq);
         when(cq.groupBy(any(Expression.class))).thenReturn(cq);
         when(root.join(eq("shelves"))).thenReturn(shelfJoin);
         when(shelfJoin.get("id")).thenReturn(idPath);
-        when(cq.multiselect(any(), any())).thenReturn(cq);
-        when(cq.where(any(Predicate.class))).thenReturn(cq);
-        when(cq.groupBy(any(Expression.class))).thenReturn(cq);
         
         TypedQuery<Tuple> shelfQuery = mock(TypedQuery.class);
         when(entityManager.createQuery(cq)).thenReturn(shelfQuery);

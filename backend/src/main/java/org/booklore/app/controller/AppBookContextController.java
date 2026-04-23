@@ -5,14 +5,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.app.dto.AppBookContextResponse;
+import org.booklore.app.service.AppBookContextService;
 import org.booklore.app.service.AppBookService;
 import org.booklore.config.security.service.AuthenticationService;
-import org.booklore.mapper.BookMapper;
 import org.booklore.model.dto.BookLoreUser;
-import org.booklore.repository.CbxViewerPreferencesRepository;
-import org.booklore.repository.EbookViewerPreferenceRepository;
-import org.booklore.repository.NewPdfViewerPreferencesRepository;
-import org.booklore.repository.PdfViewerPreferencesRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,12 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class AppBookContextController {
 
     private final AppBookService mobileBookService;
+    private final AppBookContextService appBookContextService;
     private final AuthenticationService authenticationService;
-    private final PdfViewerPreferencesRepository pdfPrefsRepo;
-    private final NewPdfViewerPreferencesRepository newPdfPrefsRepo;
-    private final EbookViewerPreferenceRepository ebookPrefsRepo;
-    private final CbxViewerPreferencesRepository cbxPrefsRepo;
-    private final BookMapper bookMapper;
 
     @Operation(
             summary = "Get consolidated book context",
@@ -45,17 +37,14 @@ public class AppBookContextController {
         Long userId = user.getId();
 
         var detail = mobileBookService.getBookDetail(bookId);
+        var context = appBookContextService.getBookContext(bookId, userId);
 
         var response = AppBookContextResponse.builder()
                 .book(detail)
-                .pdfSettings(pdfPrefsRepo.findByBookIdAndUserId(bookId, userId)
-                        .map(e -> bookMapper.toPdfViewerPreferences(e)).orElse(null))
-                .newPdfSettings(newPdfPrefsRepo.findByBookIdAndUserId(bookId, userId)
-                        .map(e -> bookMapper.toNewPdfViewerPreferences(e)).orElse(null))
-                .ebookSettings(ebookPrefsRepo.findByBookIdAndUserId(bookId, userId)
-                        .map(e -> bookMapper.toEbookViewerPreferences(e)).orElse(null))
-                .cbxSettings(cbxPrefsRepo.findByBookIdAndUserId(bookId, userId)
-                        .map(e -> bookMapper.toCbxViewerPreferences(e)).orElse(null))
+                .pdfSettings(context.getPdfSettings())
+                .newPdfSettings(context.getNewPdfSettings())
+                .ebookSettings(context.getEbookSettings())
+                .cbxSettings(context.getCbxSettings())
                 .build();
 
         return ResponseEntity.ok()

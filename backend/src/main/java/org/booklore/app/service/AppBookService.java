@@ -50,7 +50,6 @@ public class AppBookService {
     private final LibraryRepository libraryRepository;
     private final UserBookProgressRepository userBookProgressRepository;
     private final UserBookFileProgressRepository userBookFileProgressRepository;
-    private final UserRepository userRepository;
     private final ShelfRepository shelfRepository;
     private final AuthenticationService authenticationService;
     private final AppBookMapper mobileBookMapper;
@@ -67,7 +66,6 @@ public class AppBookService {
                           LibraryRepository libraryRepository,
                           UserBookProgressRepository userBookProgressRepository,
                           UserBookFileProgressRepository userBookFileProgressRepository,
-                          UserRepository userRepository,
                           ShelfRepository shelfRepository,
                           AuthenticationService authenticationService,
                           AppBookMapper mobileBookMapper,
@@ -78,7 +76,6 @@ public class AppBookService {
         this.libraryRepository = libraryRepository;
         this.userBookProgressRepository = userBookProgressRepository;
         this.userBookFileProgressRepository = userBookFileProgressRepository;
-        this.userRepository = userRepository;
         this.shelfRepository = shelfRepository;
         this.authenticationService = authenticationService;
         this.mobileBookMapper = mobileBookMapper;
@@ -1057,7 +1054,6 @@ public class AppBookService {
             case "publisher" -> "metadata.publisher";
             case "language" -> "metadata.language";
             case "publisheddate" -> "metadata.publishedDate";
-            case "lastreadtime" -> "lastReadTime";
             case "pagecount" -> "metadata.pageCount";
             default -> "addedOn";
         };

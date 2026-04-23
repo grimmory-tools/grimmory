@@ -18,16 +18,8 @@ import java.io.IOException;
 public class AuthenticationCheckFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
-        String path = request.getRequestURI();
-        
-        // Define public paths that should skip the mandatory authentication check.
-        // These endpoints handle their own internal auth logic (e.g. returning partial data for guests).
-        boolean isPublicPath = path != null && (
-                path.endsWith("/api/v1/app/bootstrap") || 
-                path.contains("/api/v1/app/bootstrap/")
-        );
-
-        if (isPublicPath) {
+        String path = request.getServletPath();
+        if ("/api/v1/app/bootstrap".equals(path)) {
             chain.doFilter(request, response);
             return;
         }

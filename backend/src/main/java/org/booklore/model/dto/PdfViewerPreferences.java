@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PdfViewerPreferences {
     private Long bookId;
+    private Long userId;
     private String zoom;
     private String spread;
     private Boolean isDarkTheme;

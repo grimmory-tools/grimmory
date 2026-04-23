@@ -12,6 +12,7 @@ import org.booklore.model.enums.*;
 @AllArgsConstructor
 public class NewPdfViewerPreferences {
     private Long bookId;
+    private Long userId;
     private NewPdfPageSpread pageSpread;
     private NewPdfPageViewMode pageViewMode;
     private NewPdfBackgroundColor backgroundColor;

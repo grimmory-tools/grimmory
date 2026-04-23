@@ -12,6 +12,7 @@ import org.booklore.model.enums.*;
 @AllArgsConstructor
 public class CbxViewerPreferences {
     private Long bookId;
+    private Long userId;
     private CbxPageSpread pageSpread;
     private CbxPageViewMode pageViewMode;
     private CbxPageFitMode fitMode;
