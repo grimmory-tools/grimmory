@@ -6,21 +6,21 @@ import org.junit.jupiter.api.extension.ExecutionCondition;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
 /**
- * Enables tests only when PDFium native binaries are available on the current
+ * Enables tests only when epub4j-native binaries are available on the current
  * platform.
  *
  * <p>Delegates to the JVM-wide native-library loader singleton.
  */
-public class PdfiumAvailableCondition implements ExecutionCondition {
+public class EpubNativeAvailableCondition implements ExecutionCondition {
 
     private static final ConditionEvaluationResult ENABLED =
-            ConditionEvaluationResult.enabled("PDFium native library is available");
+            ConditionEvaluationResult.enabled("epub4j-native library is available");
 
     private static final ConditionEvaluationResult DISABLED =
-            ConditionEvaluationResult.disabled("PDFium native library not available on this platform");
+            ConditionEvaluationResult.disabled("epub4j-native library not available on this platform");
 
     @Override
     public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
-        return NativeLibraries.get().isPdfiumAvailable() ? ENABLED : DISABLED;
+        return NativeLibraries.get().isEpubNativeAvailable() ? ENABLED : DISABLED;
     }
 }

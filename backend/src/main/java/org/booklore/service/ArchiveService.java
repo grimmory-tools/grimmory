@@ -3,9 +3,9 @@ package org.booklore.service;
 import com.github.gotson.nightcompress.Archive;
 import com.github.gotson.nightcompress.ArchiveEntry;
 import com.github.gotson.nightcompress.LibArchiveException;
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.exception.ApiError;
+import org.booklore.nativelib.NativeLibraries;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -27,32 +27,13 @@ public class ArchiveService {
     private final ReentrantLock[] lockStripes = IntStream.range(0, LOCK_STRIPE_COUNT)
             .mapToObj(ignored -> new ReentrantLock())
             .toArray(ReentrantLock[]::new);
-    private volatile boolean available = safeCheckAvailable();
 
-    private static boolean safeCheckAvailable() {
-        try {
-            return Archive.isAvailable();
-        } catch (Throwable e) {
-            return false;
-        }
-    }
+    // Route through the JVM-wide serialized native loader.
+    private final boolean available = NativeLibraries.get().isLibArchiveAvailable();
 
     private ReentrantLock getFileLock(Path path) {
         int hash = path.toAbsolutePath().normalize().toString().hashCode();
         return lockStripes[Math.floorMod(hash, LOCK_STRIPE_COUNT)];
-    }
-
-    @PostConstruct
-    public void initLibArchive() {
-        // Log the availability result that was already determined at construction
-        // time.  The @PostConstruct runs on the Spring startup thread which also
-        // ensures the native library is fully loaded before any concurrent HTTP
-        // request thread can call into it.
-        if (available) {
-            log.info("LibArchive loaded successfully");
-        } else {
-            log.error("LibArchive is not available – CBX/archive features will not work");
-        }
     }
 
     private void requireAvailable() throws IOException {
@@ -62,7 +43,7 @@ public class ArchiveService {
     }
 
     public static boolean isAvailable() {
-        return Archive.isAvailable();
+        return NativeLibraries.get().isLibArchiveAvailable();
     }
 
     public record Entry(String name, long size) {}
