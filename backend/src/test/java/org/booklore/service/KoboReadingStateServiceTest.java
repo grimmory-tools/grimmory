@@ -105,6 +105,10 @@ class KoboReadingStateServiceTest {
 
         when(authenticationService.getAuthenticatedUser()).thenReturn(testUser);
         when(koboSettingsService.getCurrentUserSettings()).thenReturn(testSettings);
+        lenient().when(progressRepository.findByUserIdAndBookIdForKoboSync(anyLong(), anyLong()))
+                .thenAnswer(invocation -> progressRepository.findByUserIdAndBookId(
+                        invocation.getArgument(0),
+                        invocation.getArgument(1)));
         lenient().when(repository
                 .findFirstByEntitlementIdAndUserIdIsNullOrderByPriorityTimestampDescLastModifiedStringDescIdDesc(
                         anyString()))

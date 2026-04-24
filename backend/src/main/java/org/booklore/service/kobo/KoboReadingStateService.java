@@ -156,7 +156,7 @@ public class KoboReadingStateService {
         try {
             Long bookId = Long.parseLong(entitlementId);
             UserBookFileProgressEntity fileProgress = findSyncedEpubFileProgress(userId, bookId).orElse(null);
-            progressRepository.findByUserIdAndBookId(userId, bookId)
+            progressRepository.findByUserIdAndBookIdForKoboSync(userId, bookId)
                     .filter(readingStateBuilder::shouldUseWebReaderProgress)
                     .ifPresent(progress -> state.setCurrentBookmark(
                             readingStateBuilder.buildBookmarkFromProgress(progress, fileProgress)));
@@ -171,7 +171,7 @@ public class KoboReadingStateService {
             BookLoreUser user = authenticationService.getAuthenticatedUser();
 
             boolean twoWaySync = koboSettingsService.getCurrentUserSettings().isTwoWayProgressSync();
-            return progressRepository.findByUserIdAndBookId(user.getId(), bookId)
+            return progressRepository.findByUserIdAndBookIdForKoboSync(user.getId(), bookId)
                     .filter(progress -> progress.getKoboProgressPercent() != null || progress.getKoboLocation() != null || (twoWaySync && progress.getEpubProgressPercent() != null))
                     .map(progress -> readingStateBuilder.buildReadingStateFromProgress(
                             entitlementId,

@@ -126,6 +126,10 @@ class KoboEntitlementServiceTest {
         user = BookLoreUser.builder().id(1L).permissions(permissions).build();
         when(authenticationService.getAuthenticatedUser()).thenReturn(user);
         when(koboSpanMapService.getValidMaps(anyMap())).thenReturn(Map.of());
+        lenient().when(progressRepository.findByUserIdAndBookIdForKoboSync(anyLong(), anyLong()))
+                .thenAnswer(invocation -> progressRepository.findByUserIdAndBookId(
+                        invocation.getArgument(0),
+                        invocation.getArgument(1)));
     }
 
     @Test
