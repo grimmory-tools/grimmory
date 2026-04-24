@@ -236,14 +236,14 @@ public class FileMoveService {
             // Also protect the source library root so cleanup doesn't traverse above it
             libraryRoots.add(Paths.get(bookEntity.getLibraryPath().getPath()).toAbsolutePath().normalize());
 
-            for (Path sourceParent : sourceParentsToCleanup) {
-                fileMoveHelper.deleteEmptyParentDirsUpToLibraryFolders(sourceParent, libraryRoots);
-            }
-
             try {
                 sidecarMetadataWriter.moveSidecarFiles(currentPrimaryFilePath, newFilePath);
             } catch (Exception e) {
                 log.warn("Failed to move sidecar files for book ID {}: {}", bookId, e.getMessage());
+            }
+
+            for (Path sourceParent : sourceParentsToCleanup) {
+                fileMoveHelper.deleteEmptyParentDirsUpToLibraryFolders(sourceParent, libraryRoots);
             }
 
             entityManager.clear();
@@ -417,14 +417,14 @@ public class FileMoveService {
             // Also protect the source library root so cleanup doesn't traverse above it
             libraryRoots.add(Paths.get(bookWithFiles.getLibraryPath().getPath()).toAbsolutePath().normalize());
 
-            for (Path sourceParent : sourceParentsToCleanup) {
-                fileMoveHelper.deleteEmptyParentDirsUpToLibraryFolders(sourceParent, libraryRoots);
-            }
-
             try {
                 sidecarMetadataWriter.moveSidecarFiles(currentPrimaryFilePath, expectedPrimaryFilePath);
             } catch (Exception e) {
                 log.warn("Failed to move sidecar files for book ID {}: {}", bookEntity.getId(), e.getMessage());
+            }
+
+            for (Path sourceParent : sourceParentsToCleanup) {
+                fileMoveHelper.deleteEmptyParentDirsUpToLibraryFolders(sourceParent, libraryRoots);
             }
 
             if (isLibraryMonitoredWhenCalled) {

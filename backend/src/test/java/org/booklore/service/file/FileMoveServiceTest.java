@@ -24,6 +24,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -911,6 +912,29 @@ class FileMoveServiceTest {
             service.bulkMoveFiles(request);
 
             verify(entityManager).clear();
+        }
+
+        @Test
+        @DisplayName("moves sidecars before cleaning up empty source directories")
+        void movesSidecarsBeforeCleanup() throws IOException {
+            BookFileEntity epub = createBookFile(1L, "Book.epub", "path", true, false);
+            BookEntity book = createBook(List.of(epub));
+            Path target = Paths.get("/target/new/NewName.epub");
+
+            mockBulkMoveSetup(book, target);
+
+            FileMoveRequest request = new FileMoveRequest();
+            FileMoveRequest.Move move = new FileMoveRequest.Move();
+            move.setBookId(100L);
+            move.setTargetLibraryId(2L);
+            move.setTargetLibraryPathId(20L);
+            request.setMoves(List.of(move));
+
+            service.bulkMoveFiles(request);
+
+            InOrder inOrder = inOrder(sidecarMetadataWriter, fileMoveHelper);
+            inOrder.verify(sidecarMetadataWriter).moveSidecarFiles(any(), any());
+            inOrder.verify(fileMoveHelper).deleteEmptyParentDirsUpToLibraryFolders(any(), anySet());
         }
     }
 

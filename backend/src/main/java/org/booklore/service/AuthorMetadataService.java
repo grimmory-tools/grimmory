@@ -12,11 +12,13 @@ import org.booklore.model.dto.CoverImage;
 import org.booklore.model.dto.Library;
 import org.booklore.model.dto.request.AuthorMatchRequest;
 import org.booklore.model.dto.request.AuthorUpdateRequest;
+import org.booklore.model.dto.settings.AppSettings;
 import org.booklore.model.entity.AuthorEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.enums.AuditAction;
 import org.booklore.model.enums.AuthorMetadataSource;
 import org.booklore.repository.AuthorRepository;
+import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.audit.AuditService;
 import org.booklore.service.metadata.DuckDuckGoCoverService;
 import org.booklore.service.metadata.parser.AuthorParser;
@@ -52,6 +54,7 @@ public class AuthorMetadataService {
     private final FileService fileService;
     private final DuckDuckGoCoverService duckDuckGoCoverService;
     private final AuthenticationService authenticationService;
+    private final AppSettingService appSettingService;
 
     public List<AuthorSummary> getAllAuthors() {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
@@ -211,10 +214,36 @@ public class AuthorMetadataService {
         }
     }
 
+    private long getMaxFileUploadSizeMb() {
+        AppSettings appSettings = this.appSettingService.getAppSettings();
+
+        Integer maxFileUploadSizeMb = appSettings.getMaxFileUploadSizeInMb();
+
+        if (maxFileUploadSizeMb == null) {
+            log.warn("Max File Upload Size is unset, defaulting to 0");
+            return 0L;
+        }
+
+        return maxFileUploadSizeMb.longValue();
+    }
+
+    private void validatePhoto(MultipartFile file) {
+        if (file.isEmpty()) {
+            throw ApiError.INVALID_INPUT.createException("Uploaded file is empty");
+        }
+        long maxSizeMb = getMaxFileUploadSizeMb();
+        long maxFileSize = maxSizeMb * 1024 * 1024;
+        if (file.getSize() > maxFileSize) {
+            throw ApiError.FILE_TOO_LARGE.createException(maxSizeMb);
+        }
+    }
+
     @Transactional
     public void uploadAuthorPhoto(Long authorId, MultipartFile file) {
         AuthorEntity author = authorRepository.findById(authorId)
                 .orElseThrow(() -> ApiError.AUTHOR_NOT_FOUND.createException(authorId));
+
+        validatePhoto(file);
 
         try {
             java.awt.image.BufferedImage image = FileService.readImage(file.getInputStream());

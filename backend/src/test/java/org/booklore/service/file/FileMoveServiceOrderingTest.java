@@ -188,11 +188,12 @@ class FileMoveServiceOrderingTest {
 
         assertThat(result.isMoved()).isTrue();
 
-        InOrder inOrder = inOrder(fileMoveHelper, monitoringRegistrationService, service);
+        InOrder inOrder = inOrder(fileMoveHelper, sidecarMetadataWriter, monitoringRegistrationService, service);
         inOrder.verify(fileMoveHelper).unregisterLibrary(1L);
         inOrder.verify(monitoringRegistrationService).waitForEventsDrainedByPaths(anySet(), anyLong());
         inOrder.verify(fileMoveHelper).moveFileWithBackup(any());
         inOrder.verify(fileMoveHelper).commitMove(any(), any());
+        inOrder.verify(sidecarMetadataWriter).moveSidecarFiles(any(), any());
         inOrder.verify(fileMoveHelper).deleteEmptyParentDirsUpToLibraryFolders(any(), anySet());
         inOrder.verify(service).sleep(anyLong());
         inOrder.verify(monitoringRegistrationService).registerLibrary(dto);
@@ -228,8 +229,9 @@ class FileMoveServiceOrderingTest {
 
         service.moveSingleFile(book);
 
-        InOrder inOrder = inOrder(bookFileRepository, fileMoveHelper);
+        InOrder inOrder = inOrder(bookFileRepository, sidecarMetadataWriter, fileMoveHelper);
         inOrder.verify(bookFileRepository).updateFileNameAndSubPath(anyLong(), anyString(), anyString());
+        inOrder.verify(sidecarMetadataWriter).moveSidecarFiles(any(), any());
         inOrder.verify(fileMoveHelper).deleteEmptyParentDirsUpToLibraryFolders(any(), anySet());
     }
 
