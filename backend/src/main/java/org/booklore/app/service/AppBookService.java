@@ -53,6 +53,7 @@ public class AppBookService {
 
     private static final int DEFAULT_PAGE_SIZE = 50;
     private static final int MAX_PAGE_SIZE = 50;
+    private static final String DEFAULT_SORT = "addedon";
 
     private final BookRepository bookRepository;
     private final UserBookProgressRepository userBookProgressRepository;
@@ -1059,7 +1060,8 @@ public class AppBookService {
 
         // "author" needs a join to the authors collection, which can't be expressed
         // as a simple property path, fall through to the default (addedOn) for now.
-        String field = switch (sortBy != null ? sortBy.toLowerCase() : "") {
+        String field = switch (sortBy != null ? sortBy.toLowerCase() : DEFAULT_SORT) {
+            case "addedon" -> "addedOn";
             case "title" -> "metadata.title";
             case "seriesname", "series" -> "metadata.seriesName";
             case "seriesnumber" -> "metadata.seriesNumber";
