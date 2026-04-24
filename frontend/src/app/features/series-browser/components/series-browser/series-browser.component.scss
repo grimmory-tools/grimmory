@@ -3,7 +3,7 @@
   flex-direction: column;
   height: 100%;
   min-height: 0;
-  padding: 1.1rem 1.1rem 0;
+  padding: 1.1rem 0 0;
 }
 
 .loading-state {
@@ -16,7 +16,7 @@
 
 // Browse Header
 .browse-header {
-  padding: 0.75rem 1rem 0;
+  padding: 0.75rem 2.1rem 0;
 }
 
 .browse-title {
@@ -110,7 +110,7 @@
   flex: 1 1 auto;
   width: 100%;
   min-height: 0;
-  padding: 1rem;
+  padding: 1rem 0;
   box-sizing: border-box;
   overflow: hidden auto;
   scrollbar-gutter: stable;
@@ -118,6 +118,12 @@
   @media (width <= 768px) {
     padding: 0.5rem;
   }
+}
+
+.virtual-scroller-item {
+  position: relative;
+  overflow: visible;
+  transition: width 0.2s ease, height 0.2s ease;
 }
 
 // Empty state

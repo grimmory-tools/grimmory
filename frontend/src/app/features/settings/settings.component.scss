@@ -46,11 +46,6 @@
       flex: 1 1 auto;
       flex-direction: column;
       min-height: 0;
-      padding-inline: 1.1rem;
-
-      @media (width <= 767px) {
-        padding-inline: 0;
-      }
     }
 
     .p-tabpanel-active > * {
