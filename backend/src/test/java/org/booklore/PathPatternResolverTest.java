@@ -163,9 +163,9 @@ class PathPatternResolverTest {
         assertThat(PathPatternResolver.resolvePattern(b, "{title}")).isEqualTo("Title");
     }
 
-    @Test void patternWithOnlyExtension_returnsExtensionOnly() {
+    @Test void patternWithOnlyExtension_fallsBackToCurrentFilename() {
         var book = createBook(null, null, null, null, null, null, null, null, null, "sample.pdf");
-        assertThat(PathPatternResolver.resolvePattern(book, ".{extension}")).isEqualTo(".pdf");
+        assertThat(PathPatternResolver.resolvePattern(book, ".{extension}")).isEqualTo("sample.pdf");
     }
 
     @Test void patternWithExtensionAndFilenamePlaceholder_works() {

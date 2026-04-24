@@ -51,7 +51,11 @@ public class BookdropMetadataService {
         BookMetadata initial = extractInitialMetadata(entity);
         if (initial == null) {
             log.warn("Metadata extraction returned null for file: {}. Using filename as fallback.", entity.getFileName());
-            initial = BookMetadata.builder()
+            initial = BookMetadata.builder().build();
+        }
+        if (initial.getTitle() == null || initial.getTitle().isBlank()) {
+            log.warn("Metadata extraction returned empty title for file: {}. Using filename as fallback.", entity.getFileName());
+            initial = initial.toBuilder()
                     .title(FilenameUtils.getBaseName(entity.getFileName()))
                     .build();
         }

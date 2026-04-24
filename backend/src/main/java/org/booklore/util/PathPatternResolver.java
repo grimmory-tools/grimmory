@@ -84,9 +84,11 @@ public class PathPatternResolver {
             }
         }
 
-        String title = sanitize(metadata != null && metadata.getTitle() != null
-                ? metadata.getTitle()
-                : filenameBase);
+        String resolvedTitle = metadata != null ? metadata.getTitle() : null;
+        String title = sanitize(resolvedTitle);
+        if (title.isBlank()) {
+            title = sanitize(filenameBase);
+        }
 
         String subtitle = sanitize(metadata != null ? metadata.getSubtitle() : "");
 
@@ -212,6 +214,13 @@ public class PathPatternResolver {
             usedFallbackFilename = true;
         }
 
+        // Guard against patterns like {title}.{extension} resolving to only ".ext"
+        // when metadata title is blank/missing after sanitization.
+        if (!usedFallbackFilename && isExtensionOnlyFilename(result)) {
+            result = values.getOrDefault("currentFilename", "untitled");
+            usedFallbackFilename = true;
+        }
+
         boolean patternIncludesExtension = pattern.contains("{extension}");
         boolean patternIncludesFullFilename = pattern.contains("{currentFilename}");
 
@@ -282,6 +291,20 @@ public class PathPatternResolver {
             case "lower" -> value.toLowerCase();
             default -> value;
         };
+    }
+
+    private boolean isExtensionOnlyFilename(String value) {
+        if (value == null) {
+            return false;
+        }
+        String trimmed = value.trim();
+        if (!trimmed.startsWith(".")) {
+            return false;
+        }
+        if (trimmed.length() <= 1) {
+            return false;
+        }
+        return trimmed.indexOf('/', 1) < 0;
     }
 
     private String sanitize(String input) {
