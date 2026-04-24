@@ -311,7 +311,7 @@ public class KoboReadingStateService {
     }
 
     private Optional<UserBookFileProgressEntity> findSyncedEpubFileProgress(Long userId, Long bookId) {
-        return bookRepository.findById(bookId)
+        return bookRepository.findByIdWithBookFiles(bookId)
                 .flatMap(book -> findSyncedEpubFileProgress(userId, book));
     }
 

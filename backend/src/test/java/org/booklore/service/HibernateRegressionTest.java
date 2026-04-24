@@ -135,6 +135,20 @@ class HibernateRegressionTest {
             assertThat(primaryFile.getCurrentHash()).isEqualTo("kobo-hash-" + fixture.bookId());
         }
 
+        @Test
+        void findByIdWithBookFiles_loadsBookFilesForDetachedUse() {
+            KoboProgressFixture fixture = createKoboProgressFixture();
+            entityManager.flush();
+            entityManager.clear();
+
+            BookEntity book = bookRepository.findByIdWithBookFiles(fixture.bookId()).orElseThrow();
+            entityManager.clear();
+
+            BookFileEntity primaryFile = book.getPrimaryBookFile();
+            assertThat(primaryFile).isNotNull();
+            assertThat(primaryFile.getCurrentHash()).isEqualTo("kobo-hash-" + fixture.bookId());
+        }
+
         private KoboProgressFixture createKoboProgressFixture() {
             String suffix = UUID.randomUUID().toString();
 
