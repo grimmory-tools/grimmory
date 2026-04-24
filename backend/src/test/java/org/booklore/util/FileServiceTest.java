@@ -972,6 +972,12 @@ class FileServiceTest {
 
             @Test
             void validJpegFile_succeeds() throws IOException {
+                when(appSettingService.getAppSettings()).thenReturn(
+                        AppSettings.builder()
+                                .maxFileUploadSizeInMb(5)
+                                .build()
+                );
+
                 BufferedImage image = createTestImage(300, 400);
                 byte[] imageBytes = imageToBytes(image);
                 MockMultipartFile file = new MockMultipartFile(
@@ -984,6 +990,12 @@ class FileServiceTest {
 
             @Test
             void validPngFile_succeeds() throws IOException {
+                when(appSettingService.getAppSettings()).thenReturn(
+                        AppSettings.builder()
+                                .maxFileUploadSizeInMb(5)
+                                .build()
+                );
+
                 BufferedImage image = createTestImage(300, 400);
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ImageIO.write(image, "PNG", baos);
@@ -1035,6 +1047,12 @@ class FileServiceTest {
 
             @Test
             void fileExactlyAtSizeLimit_succeeds() throws IOException {
+                when(appSettingService.getAppSettings()).thenReturn(
+                        AppSettings.builder()
+                                .maxFileUploadSizeInMb(5)
+                                .build()
+                );
+
                 BufferedImage image = createTestImage(100, 100);
                 byte[] imageBytes = imageToBytes(image);
                 // Ensure it's under 5MB
@@ -1049,6 +1067,12 @@ class FileServiceTest {
 
             @Test
             void caseInsensitiveMimeType_succeeds() throws IOException {
+                when(appSettingService.getAppSettings()).thenReturn(
+                        AppSettings.builder()
+                                .maxFileUploadSizeInMb(5)
+                                .build()
+                );
+
                 BufferedImage image = createTestImage(100, 100);
                 byte[] imageBytes = imageToBytes(image);
                 MockMultipartFile file = new MockMultipartFile(
@@ -1083,6 +1107,12 @@ class FileServiceTest {
 
             @Test
             void mimeTypeWithExtraParameters_succeeds() throws IOException {
+                when(appSettingService.getAppSettings()).thenReturn(
+                        AppSettings.builder()
+                                .maxFileUploadSizeInMb(5)
+                                .build()
+                );
+
                 BufferedImage image = createTestImage(100, 100);
                 byte[] imageBytes = imageToBytes(image);
                 MockMultipartFile file = new MockMultipartFile(

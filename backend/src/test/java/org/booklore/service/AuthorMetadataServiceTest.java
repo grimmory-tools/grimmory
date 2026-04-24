@@ -10,6 +10,7 @@ import org.booklore.model.entity.AuthorEntity;
 import org.booklore.model.enums.AuditAction;
 import org.booklore.model.enums.AuthorMetadataSource;
 import org.booklore.repository.AuthorRepository;
+import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.audit.AuditService;
 import org.booklore.service.metadata.DuckDuckGoCoverService;
 import org.booklore.service.metadata.parser.AuthorParser;
@@ -41,6 +42,7 @@ class AuthorMetadataServiceTest {
     @Mock private FileService fileService;
     @Mock private DuckDuckGoCoverService duckDuckGoCoverService;
     @Mock private AuthenticationService authenticationService;
+    @Mock private AppSettingService appSettingService;
 
     private AuthorMetadataService service;
 
@@ -49,7 +51,16 @@ class AuthorMetadataServiceTest {
         Map<AuthorMetadataSource, AuthorParser> authorParserMap = Map.of(
                 AuthorMetadataSource.AUDNEXUS, authorParser
         );
-        service = new AuthorMetadataService(authorRepository, authorParserMap, auditService, fileService, duckDuckGoCoverService, authenticationService);
+
+        service = new AuthorMetadataService(
+                authorRepository,
+                authorParserMap,
+                auditService,
+                fileService,
+                duckDuckGoCoverService,
+                authenticationService,
+                appSettingService
+        );
 
         BookLoreUser.UserPermissions adminPermissions = new BookLoreUser.UserPermissions();
         adminPermissions.setAdmin(true);

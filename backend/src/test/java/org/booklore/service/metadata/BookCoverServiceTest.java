@@ -57,6 +57,7 @@ class BookCoverServiceTest {
     @Mock private TransactionTemplate transactionTemplate;
     @Mock private Executor taskExecutor;
     @Mock private AuthenticationService authenticationService;
+    @Mock private AppSettings appSettings;
 
     @InjectMocks
     private BookCoverService service;
@@ -396,6 +397,9 @@ class BookCoverServiceTest {
 
         @Test
         void filtersOutLockedBooksForBulkOperations() {
+            when(appSettingService.getAppSettings()).thenReturn(appSettings);
+            when(appSettings.getMaxFileUploadSizeInMb()).thenReturn(5);
+
             BookEntity unlocked = buildBook(1L, false);
             BookEntity locked = buildBook(2L, true);
 
@@ -431,6 +435,9 @@ class BookCoverServiceTest {
 
         @Test
         void rejectsNonImageContentType() throws Exception {
+            when(appSettingService.getAppSettings()).thenReturn(appSettings);
+            when(appSettings.getMaxFileUploadSizeInMb()).thenReturn(5);
+
             MultipartFile file = mock(MultipartFile.class);
             when(file.isEmpty()).thenReturn(false);
             when(file.getSize()).thenReturn(1024L);
@@ -442,7 +449,10 @@ class BookCoverServiceTest {
         }
 
         @Test
-        void rejectsFileLargerThan5MB() {
+        void rejectsFileLargerThanLimit() {
+            when(appSettingService.getAppSettings()).thenReturn(appSettings);
+            when(appSettings.getMaxFileUploadSizeInMb()).thenReturn(5);
+
             MultipartFile file = mock(MultipartFile.class);
             when(file.isEmpty()).thenReturn(false);
             when(file.getSize()).thenReturn(6L * 1024 * 1024);
@@ -454,6 +464,9 @@ class BookCoverServiceTest {
 
         @Test
         void acceptsJpegFile() {
+            when(appSettingService.getAppSettings()).thenReturn(appSettings);
+            when(appSettings.getMaxFileUploadSizeInMb()).thenReturn(5);
+
             MultipartFile file = mock(MultipartFile.class);
             when(file.isEmpty()).thenReturn(false);
             when(file.getSize()).thenReturn(1024L);
@@ -469,6 +482,9 @@ class BookCoverServiceTest {
 
         @Test
         void acceptsPngFile() {
+            when(appSettingService.getAppSettings()).thenReturn(appSettings);
+            when(appSettings.getMaxFileUploadSizeInMb()).thenReturn(5);
+
             MultipartFile file = mock(MultipartFile.class);
             when(file.isEmpty()).thenReturn(false);
             when(file.getSize()).thenReturn(1024L);
@@ -484,6 +500,9 @@ class BookCoverServiceTest {
 
         @Test
         void rejectsIOExceptionOnRead() throws Exception {
+            when(appSettingService.getAppSettings()).thenReturn(appSettings);
+            when(appSettings.getMaxFileUploadSizeInMb()).thenReturn(5);
+
             MultipartFile file = mock(MultipartFile.class);
             when(file.isEmpty()).thenReturn(false);
             when(file.getSize()).thenReturn(1024L);
@@ -712,6 +731,9 @@ class BookCoverServiceTest {
 
         @Test
         void processesOnlyUnlockedBooks() throws Exception {
+            when(appSettingService.getAppSettings()).thenReturn(appSettings);
+            when(appSettings.getMaxFileUploadSizeInMb()).thenReturn(5);
+
             BookEntity unlocked = buildBook(1L, false);
             BookEntity locked = buildBook(2L, true);
 
@@ -959,7 +981,6 @@ class BookCoverServiceTest {
             book.setLibrary(LibraryEntity.builder().build());
             book.setLibraryPath(LibraryPathEntity.builder().path("/lib").build());
 
-            AppSettings appSettings = mock(AppSettings.class);
             MetadataPersistenceSettings persistSettings = mock(MetadataPersistenceSettings.class);
             when(appSettingService.getAppSettings()).thenReturn(appSettings);
             when(appSettings.getMetadataPersistenceSettings()).thenReturn(persistSettings);
