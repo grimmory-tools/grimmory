@@ -27,3 +27,7 @@ export function normalizeSortPref(
     order: order === 'asc' || order === 'desc' ? order : fallback.order,
   };
 }
+
+export function sortPrefEqual(a: SortPref, b: SortPref): boolean {
+  return a.field === b.field && a.order === b.order;
+}

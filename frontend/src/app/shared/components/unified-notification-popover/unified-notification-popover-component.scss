@@ -17,6 +17,6 @@
 @media (width <= 991px) {
   .metadata-progress-box {
     width: min(25rem, calc(100vw - 1.5rem));
-    max-height: calc(100dvh - 8rem);
+    max-height: calc(var(--page-available-height) - 1rem);
   }
 }

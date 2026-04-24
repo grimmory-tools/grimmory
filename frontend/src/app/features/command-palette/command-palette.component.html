@@ -35,8 +35,8 @@
             }
 
             @for (group of groups; track group.kind) {
-              <div class="command-palette-group">
-                <div class="command-palette-group-label">{{ t(groupLabelKey(group.kind)) }}</div>
+              <div class="command-palette-group" role="group" [attr.aria-label]="t(groupLabelKey(group.kind))">
+                <div class="command-palette-group-label" aria-hidden="true">{{ t(groupLabelKey(group.kind)) }}</div>
                 @for (item of group.items; track item.id) {
                   <button
                     type="button"

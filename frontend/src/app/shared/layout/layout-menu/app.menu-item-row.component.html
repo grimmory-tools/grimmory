@@ -63,7 +63,8 @@
       <button
         type="button"
         class="entity-menu-button"
-        [attr.aria-label]="currentItem.label"
+        [attr.aria-label]="'common.moreActionsFor' | transloco: { label: currentItem.label }"
+        aria-haspopup="menu"
         (click)="openContextMenu($event, entitymenu)"
       >
         <span class="entity-menu-button-content">

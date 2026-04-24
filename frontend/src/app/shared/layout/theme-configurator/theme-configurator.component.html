@@ -9,6 +9,8 @@
           <button
             type="button"
             [title]="primaryColor.name"
+            [attr.aria-label]="primaryColor.name"
+            [attr.aria-pressed]="primaryColor.name === selectedPrimaryColor()"
             (click)="updateColors($event, 'primary', primaryColor)"
             [ngClass]="{ 'active-color': primaryColor.name === selectedPrimaryColor() }"
             [style]="{ 'background-color': primaryColor.name === 'noir' ? 'var(--text-color)' : primaryColor.palette['500'] || 'transparent' }"
@@ -28,6 +30,8 @@
           <button
             type="button"
             [title]="surface.name"
+            [attr.aria-label]="surface.name"
+            [attr.aria-pressed]="selectedSurfaceColor() ? selectedSurfaceColor() === surface.name : surface.name === 'zinc'"
             (click)="updateColors($event, 'surface', surface)"
             [ngClass]="{ 'active-color': selectedSurfaceColor() ? selectedSurfaceColor() === surface.name : surface.name === 'zinc' }"
             [style]="{'background-color': surface.name === 'noir' ? 'var(--text-color)' : surface.palette['500'] }">

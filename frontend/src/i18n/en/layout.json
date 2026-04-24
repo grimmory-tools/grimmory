@@ -33,6 +33,7 @@
     "versionCopyFailed": "Unable to copy version {{ version }}.",
     "tools": "Tools",
     "collapseSidebar": "Collapse sidebar",
+    "expandSidebar": "Expand sidebar",
     "notifications": "Notifications",
     "primaryNav": "Primary navigation",
     "resizeSidebar": "Resize sidebar",

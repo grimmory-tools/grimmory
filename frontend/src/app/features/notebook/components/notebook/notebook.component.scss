@@ -5,7 +5,7 @@
   @include settings.settings-page-container;
 
   overflow-y: hidden;
-  height: calc(var(--page-available-height) + 1.1rem);
+  height: calc(var(--page-available-height) - 1.1rem);
 
   @media (width >= 768px) {
     height: calc(var(--page-available-height) - 0.5rem);

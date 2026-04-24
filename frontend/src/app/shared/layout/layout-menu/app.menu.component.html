@@ -148,9 +148,9 @@
         <button
           type="button"
           class="sidebar-icon-button sidebar-collapse-button"
-          [attr.aria-label]="t('collapseSidebar')"
+          [attr.aria-label]="layoutService.sidebarCollapsed() ? t('expandSidebar') : t('collapseSidebar')"
           [attr.aria-expanded]="!layoutService.sidebarCollapsed()"
-          [pTooltip]="t('collapseSidebar')"
+          [pTooltip]="layoutService.sidebarCollapsed() ? t('expandSidebar') : t('collapseSidebar')"
           [tooltipDisabled]="!layoutService.sidebarCollapsed()"
           tooltipPosition="right"
           (click)="layoutService.toggleSidebarCollapsed()"
@@ -191,9 +191,9 @@
         <button
           type="button"
           class="sidebar-icon-button sidebar-collapse-button"
-          [attr.aria-label]="t('collapseSidebar')"
+          [attr.aria-label]="layoutService.sidebarCollapsed() ? t('expandSidebar') : t('collapseSidebar')"
           [attr.aria-expanded]="!layoutService.sidebarCollapsed()"
-          [pTooltip]="t('collapseSidebar')"
+          [pTooltip]="layoutService.sidebarCollapsed() ? t('expandSidebar') : t('collapseSidebar')"
           [tooltipDisabled]="!layoutService.sidebarCollapsed()"
           tooltipPosition="right"
           (click)="layoutService.toggleSidebarCollapsed()"

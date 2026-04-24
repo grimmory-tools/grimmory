@@ -27,5 +27,6 @@
   "increaseCardSize": "Increase card size",
   "cardSizeControls": "Card size controls",
   "on": "On",
-  "off": "Off"
+  "off": "Off",
+  "moreActionsFor": "More actions for {{label}}"
 }

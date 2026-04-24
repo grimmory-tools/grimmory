@@ -122,7 +122,7 @@
   flex-direction: column;
 
   @media (width >= 768px) {
-    height: calc(var(--page-available-height) - 0.025rem);
+    height: var(--page-available-height);
   }
 }
 

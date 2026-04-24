@@ -12,6 +12,7 @@ import {
   normalizeSortPref,
   SidebarSortPreferenceKey,
   SortPref,
+  sortPrefEqual,
 } from './sidebar-sort-preferences';
 
 export const SIDEBAR_MIN_WIDTH = 175;
@@ -47,16 +48,16 @@ export class LayoutService {
   readonly sidebarVisible = signal(true);
   readonly mobileDrawerOpen = signal(false);
   readonly sidebarCollapsed = signal(this.localStorage.get<boolean>('sidebarCollapsed') ?? false);
-  readonly sidebarWidth = signal(this.localStorage.get<number>('sidebarWidth') ?? SIDEBAR_DEFAULT_WIDTH);
+  readonly sidebarWidth = signal(this.clampSidebarWidth(this.localStorage.get<number>('sidebarWidth') ?? SIDEBAR_DEFAULT_WIDTH));
   readonly isDesktop = signal(this.computeIsDesktop());
   readonly sidebarExpandedState = signal<Readonly<Record<string, boolean>>>(
     readBooleanRecord(this.localStorage, SIDEBAR_EXPANDED_STATE_KEY)
   );
-  private readonly _librarySort = signal<SortPref>(DEFAULT_LIBRARY_SORT);
+  private readonly _librarySort = signal<SortPref>(DEFAULT_LIBRARY_SORT, { equal: sortPrefEqual });
   readonly librarySort = this._librarySort.asReadonly();
-  private readonly _shelfSort = signal<SortPref>(DEFAULT_SHELF_SORT);
+  private readonly _shelfSort = signal<SortPref>(DEFAULT_SHELF_SORT, { equal: sortPrefEqual });
   readonly shelfSort = this._shelfSort.asReadonly();
-  private readonly _magicShelfSort = signal<SortPref>(DEFAULT_MAGIC_SHELF_SORT);
+  private readonly _magicShelfSort = signal<SortPref>(DEFAULT_MAGIC_SHELF_SORT, { equal: sortPrefEqual });
   readonly magicShelfSort = this._magicShelfSort.asReadonly();
 
   constructor() {
@@ -99,11 +100,16 @@ export class LayoutService {
   }
 
   setSidebarWidth(width: number, persist = true): void {
-    const clamped = Math.max(SIDEBAR_MIN_WIDTH, Math.min(SIDEBAR_MAX_WIDTH, Math.round(width)));
+    const clamped = this.clampSidebarWidth(width);
     this.sidebarWidth.set(clamped);
     if (persist) {
       this.localStorage.set('sidebarWidth', clamped);
     }
+  }
+
+  private clampSidebarWidth(width: number): number {
+    const rounded = Number.isFinite(width) ? Math.round(width) : SIDEBAR_DEFAULT_WIDTH;
+    return Math.max(SIDEBAR_MIN_WIDTH, Math.min(SIDEBAR_MAX_WIDTH, rounded));
   }
 
   closeMobileSidebar(): void {

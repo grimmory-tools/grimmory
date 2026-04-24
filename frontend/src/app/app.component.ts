@@ -75,6 +75,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private onGlobalKeydown = (event: KeyboardEvent): void => {
+    if (event.repeat) return;
     const combo = (event.metaKey || event.ctrlKey) && !event.shiftKey && !event.altKey;
     if (!combo) return;
     if (event.key !== 'k' && event.key !== 'K') return;
