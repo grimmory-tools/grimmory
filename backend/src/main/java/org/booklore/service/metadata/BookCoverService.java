@@ -509,8 +509,8 @@ public class BookCoverService {
         Integer maxFileUploadSizeMb = appSettings.getMaxFileUploadSizeInMb();
 
         if (maxFileUploadSizeMb == null) {
-            log.warn("Max File Upload Size is unset, defaulting to 0");
-            return 0L;
+            log.warn("Max File Upload Size is unset, cannot continue");
+            throw ApiError.INTERNAL_SERVER_ERROR.createException("Max File Upload Size is Unset");
         }
 
         return maxFileUploadSizeMb.longValue();
