@@ -3,11 +3,11 @@
 .main-container {
   width: 100%;
   padding: 1rem;
-  height: calc(100dvh - 10.5rem);
+  height: calc(var(--page-available-height) - 4.4rem);
   overflow-y: auto;
 
   @media (width >= 768px) {
-    height: calc(100dvh - 11.65rem);
+    height: calc(var(--page-available-height) - 5.55rem);
   }
 }
 

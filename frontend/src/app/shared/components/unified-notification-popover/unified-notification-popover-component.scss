@@ -3,6 +3,7 @@
   flex-direction: column;
   gap: 1rem;
   width: 25rem;
+  max-width: 100%;
   max-height: 60vh;
   overflow-y: auto;
   border-radius: 0.5rem;
@@ -11,4 +12,11 @@
 ::ng-deep .p-divider-horizontal {
   margin: 0 !important;
   padding: 0 !important;
+}
+
+@media (width <= 991px) {
+  .metadata-progress-box {
+    width: min(25rem, calc(100vw - 1.5rem));
+    max-height: calc(100dvh - 8rem);
+  }
 }

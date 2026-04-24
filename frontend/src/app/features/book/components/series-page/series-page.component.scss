@@ -1,11 +1,11 @@
 .tabpanels-responsive {
-  height: calc(100dvh - 9.7rem);
+  height: calc(var(--page-available-height) - 3.6rem);
   overflow: auto;
 }
 
 @media (width <= 768px) {
   .tabpanels-responsive {
-    height: calc(100dvh - 8.5rem);
+    height: calc(var(--page-available-height) - 4.1rem);
   }
 }
 

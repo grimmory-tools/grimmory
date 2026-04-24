@@ -1,12 +1,11 @@
 import {Component, DestroyRef, effect, inject, OnInit} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Select} from 'primeng/select';
-import {SidebarLibrarySorting, SidebarMagicShelfSorting, SidebarShelfSorting, User, UserService, UserSettings} from '../../user-management/user.service';
 import {MessageService} from 'primeng/api';
 import {FormsModule} from '@angular/forms';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
-
-type MutableSettingsBranch = Record<string, unknown>;
+import {LayoutService} from '../../../../shared/layout/layout.service';
+import {SortPref} from '../../../../shared/layout/sidebar-sort-preferences';
 
 @Component({
   selector: 'app-sidebar-sorting-preferences',
@@ -19,38 +18,31 @@ type MutableSettingsBranch = Record<string, unknown>;
   styleUrl: './sidebar-sorting-preferences.component.scss'
 })
 export class SidebarSortingPreferencesComponent implements OnInit {
-
   private readonly sortingOptionDefs = [
     {value: {field: 'name', order: 'asc'}, translationKey: 'nameAsc'},
     {value: {field: 'name', order: 'desc'}, translationKey: 'nameDesc'},
     {value: {field: 'id', order: 'asc'}, translationKey: 'creationAsc'},
     {value: {field: 'id', order: 'desc'}, translationKey: 'creationDesc'},
-  ];
+  ] satisfies {value: SortPref; translationKey: string}[];
 
-  sortingOptions: {label: string; value: {field: string; order: string}; translationKey: string}[] = [];
+  sortingOptions: {label: string; value: SortPref; translationKey: string}[] = [];
 
-  selectedLibrarySorting: SidebarLibrarySorting = {field: 'id', order: 'asc'};
-  selectedShelfSorting: SidebarShelfSorting = {field: 'id', order: 'asc'};
-  selectedMagicShelfSorting: SidebarMagicShelfSorting = {field: 'id', order: 'asc'};
+  selectedLibrarySorting: SortPref = {field: 'id', order: 'asc'};
+  selectedShelfSorting: SortPref = {field: 'id', order: 'asc'};
+  selectedMagicShelfSorting: SortPref = {field: 'id', order: 'asc'};
 
-  private readonly userService = inject(UserService);
+  private readonly layoutService = inject(LayoutService);
   private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
 
-  private currentUser: User | null = null;
-  private hasInitialized = false;
-
-  private readonly syncUserEffect = effect(() => {
-    const user = this.userService.currentUser();
-    if (!user) return;
-
-    this.currentUser = user;
-    if (!this.hasInitialized) {
-      this.hasInitialized = true;
-      this.loadPreferences(user.userSettings);
-    }
-  });
+  constructor() {
+    effect(() => {
+      this.selectedLibrarySorting = this.layoutService.librarySort();
+      this.selectedShelfSorting = this.layoutService.shelfSort();
+      this.selectedMagicShelfSorting = this.layoutService.magicShelfSort();
+    });
+  }
 
   ngOnInit(): void {
     this.buildSortingOptions();
@@ -64,44 +56,27 @@ export class SidebarSortingPreferencesComponent implements OnInit {
     }));
   }
 
-  private loadPreferences(settings: UserSettings): void {
-    this.selectedLibrarySorting = settings.sidebarLibrarySorting;
-    this.selectedShelfSorting = settings.sidebarShelfSorting;
-    this.selectedMagicShelfSorting = settings.sidebarMagicShelfSorting;
+  onLibrarySortingChange() {
+    this.layoutService.setLibrarySort(this.selectedLibrarySorting);
+    this.showSuccessToast();
   }
 
-  private updatePreference(path: string[], value: unknown): void {
-    if (!this.currentUser) return;
-    let target = this.currentUser.userSettings as unknown as MutableSettingsBranch;
-    for (let i = 0; i < path.length - 1; i++) {
-      const next = target[path[i]];
-      if (!next || typeof next !== 'object') {
-        target[path[i]] = {};
-      }
-      target = target[path[i]] as MutableSettingsBranch;
-    }
-    target[path.at(-1)!] = value;
+  onShelfSortingChange() {
+    this.layoutService.setShelfSort(this.selectedShelfSorting);
+    this.showSuccessToast();
+  }
 
-    const [rootKey] = path;
-    const updatedValue = this.currentUser.userSettings[rootKey as keyof UserSettings];
-    this.userService.updateUserSetting(this.currentUser.id, rootKey, updatedValue);
+  onMagicShelfSortingChange() {
+    this.layoutService.setMagicShelfSort(this.selectedMagicShelfSorting);
+    this.showSuccessToast();
+  }
+
+  private showSuccessToast(): void {
     this.messageService.add({
       severity: 'success',
       summary: this.t.translate('settingsView.sidebarSort.prefsUpdated'),
       detail: this.t.translate('settingsView.sidebarSort.prefsUpdatedDetail'),
       life: 1500
     });
-  }
-
-  onLibrarySortingChange() {
-    this.updatePreference(['sidebarLibrarySorting'], this.selectedLibrarySorting);
-  }
-
-  onShelfSortingChange() {
-    this.updatePreference(['sidebarShelfSorting'], this.selectedShelfSorting);
-  }
-
-  onMagicShelfSortingChange() {
-    this.updatePreference(['sidebarMagicShelfSorting'], this.selectedMagicShelfSorting);
   }
 }

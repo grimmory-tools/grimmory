@@ -472,6 +472,12 @@ export class AppConfigService {
     const surface = this.getSurfacePalette(surfaceName);
     const primary = ((Aura.primitive ?? {}) as Record<string, ColorPalette>)[primaryName] ?? {};
     const isNoir = primaryName === 'noir';
+    const appBackground = surface['950'] ?? '#0d1012';
+    const surfaceContent = surface['900'] ?? '#1a1e21';
+    const pageBackground = `color-mix(in srgb, ${surfaceContent} 82%, ${appBackground})`;
+    const surfaceCard = `color-mix(in srgb, ${surfaceContent} 62%, ${surface['800'] ?? '#34393e'})`;
+    const borderSubtle = surface['800'] ?? '#34393e';
+    const borderStrong = surface['700'] ?? '#464f56';
 
     const primary400 = isNoir ? surface['50'] : primary['400'];
     const primary500 = isNoir ? surface['50'] : (primary['500'] ?? primary['400']);
@@ -483,14 +489,26 @@ export class AppConfigService {
     style.setProperty('--primary-text-color', primary400 ?? '#fb923c');
     style.setProperty('--primary-text-color-dark', isNoir ? (surface['950'] ?? '#0d1012') : (primary['900'] ?? '#9a3412'));
 
-    style.setProperty('--ground-background', surface['950'] ?? '#0d1012');
-    style.setProperty('--overlay-background', surface['900'] ?? '#1a1e21');
-    style.setProperty('--card-background', surface['900'] ?? '#1a1e21');
-    style.setProperty('--content-background', surface['900'] ?? '#1a1e21');
-    style.setProperty('--code-background', surface['900'] ?? '#1a1e21');
+    style.setProperty('--app-background', appBackground);
+    style.setProperty('--page-background', pageBackground);
+    style.setProperty('--surface-content', surfaceContent);
+    style.setProperty('--surface-card', surfaceCard);
+    style.setProperty('--surface-toolbar', `color-mix(in srgb, ${appBackground} 70%, ${surfaceContent})`);
+    style.setProperty('--surface-overlay', surfaceContent);
+    style.setProperty('--border-subtle', borderSubtle);
+    style.setProperty('--border-strong', borderStrong);
+    style.setProperty('--state-hover', 'color-mix(in srgb, var(--surface-400) 12%, transparent)');
+    style.setProperty('--state-active', 'color-mix(in srgb, var(--primary-color) 8%, transparent)');
 
-    style.setProperty('--border-color', surface['700'] ?? '#464f56');
-    style.setProperty('--content-border-color', surface['700'] ?? '#464f56');
+    style.setProperty('--ground-background', 'var(--app-background)');
+    style.setProperty('--overlay-background', 'var(--surface-overlay)');
+    style.setProperty('--card-background', 'var(--surface-card)');
+    style.setProperty('--content-background', 'var(--surface-content)');
+    style.setProperty('--code-background', 'var(--surface-content)');
+    style.setProperty('--border-color', 'var(--border-subtle)');
+    style.setProperty('--content-border-color', 'var(--border-subtle)');
+    style.setProperty('--surface-hover', 'var(--state-hover)');
+    style.setProperty('--surface-border', 'var(--border-subtle)');
     style.setProperty('--text-color', surface['0'] ?? '#ffffff');
     style.setProperty('--text-color-secondary', surface['300'] ?? '#b4bcc7');
     style.setProperty('--text-secondary-color', surface['400'] ?? '#919ca9');

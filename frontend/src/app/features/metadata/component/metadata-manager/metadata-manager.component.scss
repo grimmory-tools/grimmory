@@ -115,14 +115,14 @@
 .main-container {
   width: 100%;
   padding: 1rem;
-  height: calc(100dvh - 10.5rem);
+  height: calc(var(--page-available-height) - 4.4rem);
   border-width: 1px;
   border-radius: 0.5rem;
   display: flex;
   flex-direction: column;
 
   @media (width >= 768px) {
-    height: calc(100dvh - 6.125rem);
+    height: calc(var(--page-available-height) - 0.025rem);
   }
 }
 

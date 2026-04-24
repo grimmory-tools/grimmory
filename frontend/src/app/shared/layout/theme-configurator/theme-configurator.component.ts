@@ -17,9 +17,7 @@ interface Palette {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './theme-configurator.component.html',
-  host: {
-    class: 'config-panel hidden'
-  },
+  styleUrl: './theme-configurator.component.scss',
   imports: [
     NgClass,
     FormsModule,

@@ -1,14 +1,14 @@
 .main-card {
   display: flex;
   flex-direction: column;
-  height: calc(100dvh - 6.1rem);
+  height: var(--page-available-height);
   border-radius: 0.75rem;
   overflow: hidden;
-  background: var(--card-background);
+  background: var(--page-background);
   border: 1px solid var(--p-content-border-color);
 
   @media (width <= 768px) {
-    height: calc(100dvh - 4.4rem);
+    height: var(--page-available-height);
     border-radius: 0;
     border-width: 1px 0 0;
   }

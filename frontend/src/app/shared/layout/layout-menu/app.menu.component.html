@@ -1,94 +1,212 @@
 <ng-container *transloco="let t; prefix: 'layout.menu'">
 <div class="menu-container">
-  <div>
-    <div class="home-menu-section">
-      <ul class="layout-menu">
-        @if (homeMenu(); as homeMenu) {
-          @for (item of homeMenu; track item.label; let i = $index) {
-            <li app-menuitem [item]="item" [index]="i" [root]="true" menuKey="home"></li>
-          }
-        }
-      </ul>
-      <button
-        type="button"
-        class="sidebar-width-btn pi pi-objects-column"
-        [attr.aria-label]="t('adjustSidebarWidth')"
-        (click)="widthPanel.toggle($event)"
-      ></button>
-      <p-popover #widthPanel appendTo="body">
-        <div class="sidebar-width-popover">
-          <span class="sidebar-width-popover-label">{{ sidebarWidth }}px</span>
-          <p-slider
-            [(ngModel)]="sidebarWidth"
-            [min]="175"
-            [max]="400"
-            [step]="1"
-            (onChange)="onSidebarWidthChange()"
-            (onSlideEnd)="saveSidebarWidth()">
-          </p-slider>
-        </div>
-      </p-popover>
-    </div>
+  <div class="sidebar-header">
+    <a class="sidebar-brand" [routerLink]="['/dashboard']" aria-label="Grimmory">
+      <span class="sidebar-brand-mark" aria-hidden="true">
+        <svg class="sidebar-brand-icon" viewBox="0 0 100 126" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M25.8062 106.614V113.077V119.537V126L32.2559 119.537L38.7093 126V119.537V113.077V106.614H25.8062Z" fill="white"/>
+          <path d="M38.7093 29.0758H96.7715C98.5535 29.0758 99.9964 27.6307 99.9964 25.846V3.22984C99.9964 1.44512 98.5535 0 96.7715 0H12.9031C10.5512 0 8.35077 0.63224 6.44975 1.73414C4.49102 2.86856 2.86054 4.50155 1.72787 6.4633C0.631268 8.36363 0 10.5674 0 12.923V106.614C0 113.753 5.7752 119.537 12.9031 119.537H21.1529V113.077H12.9031C9.33915 113.077 6.44975 110.183 6.44975 106.614C6.44975 103.044 9.33915 100.15 12.9031 100.15H93.5466C97.1106 100.15 100 97.2566 100 93.6871V41.9988C100 38.4293 97.1106 35.5355 93.5466 35.5355H38.7093C36.9273 35.5355 35.4845 36.9806 35.4845 38.7653V61.3815C35.4845 63.1662 36.9273 64.6113 38.7093 64.6113H67.7404C69.5224 64.6113 70.9653 66.0564 70.9653 67.8412C70.9653 69.6259 69.5224 71.071 67.7404 71.071H38.7093C33.3634 71.071 29.0311 66.732 29.0311 61.3779V38.7617C29.0311 33.4076 33.3634 29.0686 38.7093 29.0686V29.0758Z" fill="url(#sidebar-brand-primary-gradient)"/>
+          <path d="M96.7715 113.077H43.5539V119.537H96.7715C98.5535 119.537 99.9964 118.092 99.9964 116.307C99.9964 114.522 98.5535 113.077 96.7715 113.077Z" fill="url(#sidebar-brand-secondary-gradient)"/>
+          <defs>
+            <linearGradient id="sidebar-brand-primary-gradient" x1="50" y1="0" x2="50" y2="119.537" gradientUnits="userSpaceOnUse">
+              <stop offset="0" style="stop-color: var(--p-primary-300)"/>
+              <stop offset="1" style="stop-color: var(--p-primary-500)"/>
+            </linearGradient>
+            <linearGradient id="sidebar-brand-secondary-gradient" x1="50" y1="0" x2="50" y2="119.537" gradientUnits="userSpaceOnUse">
+              <stop offset="0" style="stop-color: var(--p-primary-300)"/>
+              <stop offset="1" style="stop-color: var(--p-primary-500)"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </span>
+      <svg class="sidebar-brand-wordmark" width="2500" height="350" viewBox="0 0 2500 350" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <g clip-path="url(#sidebar-brand-wordmark-clip)">
+          <path d="M71.8311 296.149V314.103V332.047V350L89.7839 332.047L107.747 350V332.047V314.103V296.149H71.8311Z" fill="white"/>
+          <path d="M1748.64 102.654H1701.96C1691.71 102.654 1683.37 110.983 1683.37 121.23V165.376C1683.37 175.622 1691.7 183.952 1701.96 183.952H1748.64C1757.49 183.952 1764.7 176.746 1764.7 167.895V118.721C1764.7 109.869 1757.49 102.664 1748.64 102.664V102.654Z" style="fill: var(--p-primary-400)"/>
+          <path d="M896.673 102.654H852.504C842.263 102.654 833.919 110.983 833.919 121.23V167.885C833.919 176.736 841.128 183.942 849.984 183.942H899.184C908.039 183.942 915.249 176.736 915.249 167.885V121.23C915.249 110.983 906.915 102.654 896.663 102.654H896.673Z" style="fill: var(--p-primary-400)"/>
+          <path d="M653.709 183.942H697.878C708.119 183.942 716.463 175.612 716.463 165.366V118.711C716.463 109.859 709.254 102.654 700.398 102.654H651.199C642.343 102.654 635.134 109.859 635.134 118.711V165.366C635.134 175.612 643.467 183.942 653.719 183.942H653.709Z" style="fill: var(--p-primary-400)"/>
+          <path d="M107.747 80.7661H269.361C274.322 80.7661 278.338 76.7519 278.338 71.7944V8.97179C278.338 4.01422 274.322 0 269.361 0H35.9155C29.369 0 23.2442 1.75622 17.9527 4.81707C12.5007 7.96823 7.96226 12.5043 4.80949 17.9536C1.75712 23.2323 0 29.354 0 35.8972V296.149C0 315.979 16.0751 332.046 35.9155 332.046H58.8786V314.103H35.9155C25.9953 314.103 17.9527 306.064 17.9527 296.149C17.9527 286.234 25.9953 278.196 35.9155 278.196H260.385C270.305 278.196 278.348 270.157 278.348 260.242V116.663C278.348 106.748 270.305 98.7097 260.385 98.7097H107.747C102.786 98.7097 98.7702 102.724 98.7702 107.681V170.504C98.7702 175.462 102.786 179.476 107.747 179.476H188.554C193.514 179.476 197.53 183.49 197.53 188.448C197.53 193.405 193.514 197.419 188.554 197.419H107.747C92.8663 197.419 80.8074 185.367 80.8074 170.494V107.671C80.8074 92.7988 92.8663 80.7461 107.747 80.7461V80.7661Z" fill="url(#sidebar-brand-wordmark-gradient)"/>
+          <path d="M269.361 314.103H121.231V332.046H269.361C274.322 332.046 278.338 328.032 278.338 323.075C278.338 318.117 274.322 314.103 269.361 314.103Z" fill="url(#sidebar-brand-wordmark-gradient)"/>
+          <path d="M1620.14 3.3017C1600.16 3.3017 1583.98 19.489 1583.98 39.4498V248.099C1583.98 267.538 1599.74 283.294 1619.19 283.294H1847.17C1856.53 283.294 1864.11 275.717 1864.11 266.364V19.6898C1864.11 10.6377 1856.77 3.3017 1847.72 3.3017H1620.14ZM1782.77 167.885C1782.77 186.701 1767.46 202.006 1748.64 202.006H1701.96C1681.74 202.006 1665.3 185.567 1665.3 165.366V121.219C1665.3 101.018 1681.74 84.5796 1701.96 84.5796H1748.64C1767.46 84.5796 1782.77 99.8839 1782.77 118.701V167.885Z" fill="url(#sidebar-brand-wordmark-gradient)"/>
+          <path d="M849.994 202.006C831.168 202.006 815.856 186.701 815.856 167.885V121.229C815.856 101.028 832.302 84.5897 852.514 84.5897H896.683C897.527 84.5897 898.37 84.6298 899.204 84.69V84.5897C908.059 84.5897 915.269 77.3842 915.269 68.5328V19.6898C915.269 10.6377 907.929 3.3017 898.872 3.3017H671.31C651.329 3.3017 635.144 19.489 635.144 39.4498V68.5328C635.144 77.3842 642.353 84.5897 651.209 84.5897H700.408C719.234 84.5897 734.546 99.8939 734.546 118.711V165.366C734.546 185.567 718.1 202.006 697.888 202.006H653.719C652.875 202.006 652.032 201.966 651.199 201.905V202.006C642.343 202.006 635.134 209.211 635.134 218.063V248.099C635.134 267.538 650.897 283.294 670.346 283.294H898.33C907.688 283.294 915.269 275.717 915.269 266.364V218.063C915.269 209.211 908.059 202.006 899.204 202.006H849.994Z" fill="url(#sidebar-brand-wordmark-gradient)"/>
+          <path d="M1215.14 3.3017H987.582C967.601 3.3017 951.415 19.489 951.415 39.4498V248.099C951.415 267.538 967.179 283.294 986.628 283.294H1016.52C1025.37 283.294 1032.58 276.088 1032.58 267.237V93.6217C1032.58 88.634 1036.63 84.5897 1041.62 84.5897C1046.61 84.5897 1050.66 88.634 1050.66 93.6217V267.417C1050.76 276.188 1057.92 283.294 1066.71 283.294H1116.07C1124.93 283.294 1132.14 276.088 1132.14 267.237V93.6217C1132.14 88.634 1136.18 84.5897 1141.17 84.5897C1146.16 84.5897 1150.21 88.634 1150.21 93.6217V267.237C1150.21 276.088 1157.41 283.294 1166.28 283.294H1214.6C1223.96 283.294 1231.54 275.717 1231.54 266.364V19.6898C1231.54 10.6377 1224.2 3.3017 1215.14 3.3017Z" fill="url(#sidebar-brand-wordmark-gradient)"/>
+          <path d="M1531.43 3.3017H1303.86C1283.88 3.3017 1267.7 19.489 1267.7 39.4498V248.099C1267.7 267.538 1283.46 283.294 1302.91 283.294H1332.8C1341.66 283.294 1348.87 276.088 1348.87 267.237V93.6217C1348.87 88.634 1352.91 84.5897 1357.9 84.5897C1362.89 84.5897 1366.94 88.634 1366.94 93.6217V267.417C1367.04 276.188 1374.2 283.294 1382.99 283.294H1432.35C1441.21 283.294 1448.42 276.088 1448.42 267.237V93.6217C1448.42 88.634 1452.47 84.5897 1457.46 84.5897C1462.45 84.5897 1466.49 88.634 1466.49 93.6217V267.237C1466.49 276.088 1473.69 283.294 1482.56 283.294H1530.88C1540.24 283.294 1547.82 275.717 1547.82 266.364V19.6898C1547.82 10.6377 1540.48 3.3017 1531.43 3.3017Z" fill="url(#sidebar-brand-wordmark-gradient)"/>
+          <path d="M2090.02 202.006C2085.03 202.006 2080.98 197.961 2080.98 192.974C2080.98 187.986 2085.03 183.942 2090.02 183.942H2164.32C2173.18 183.942 2180.38 176.736 2180.38 167.885V19.6898C2180.38 10.6377 2173.05 3.3017 2163.99 3.3017H1936.43C1916.45 3.3017 1900.26 19.489 1900.26 39.4498V248.099C1900.26 267.538 1916.02 283.294 1935.47 283.294H1965.52C1974.38 283.294 1981.59 276.088 1981.59 267.237V247.216C1981.59 247.216 1981.59 247.186 1981.59 247.166V192.974C1981.59 187.986 1985.64 183.942 1990.63 183.942C1995.62 183.942 1999.66 187.986 1999.66 192.974V247.216C1999.68 267.116 2015.89 283.294 2035.81 283.294H2163.46C2172.81 283.294 2180.4 275.717 2180.4 266.364V218.063C2180.4 209.211 2173.19 202.006 2164.33 202.006H2090.02ZM1990.62 102.684C1985.63 102.684 1981.58 98.6395 1981.58 93.6518C1981.58 88.6641 1985.63 84.6198 1990.62 84.6198H2090.02C2095.01 84.6198 2099.06 88.6641 2099.06 93.6518C2099.06 98.6395 2095.01 102.684 2090.02 102.684H1990.62Z" fill="url(#sidebar-brand-wordmark-gradient)"/>
+          <path d="M508.611 202.006C503.621 202.006 499.574 197.961 499.574 192.974C499.574 187.986 503.621 183.942 508.611 183.942H582.912C591.768 183.942 598.977 176.736 598.977 167.885V19.6898C598.977 10.6377 591.637 3.3017 582.581 3.3017H355.019C335.038 3.3017 318.852 19.489 318.852 39.4498V248.099C318.852 267.538 334.616 283.294 354.065 283.294H384.116C392.972 283.294 400.182 276.088 400.182 267.237V247.216C400.182 247.216 400.182 247.186 400.182 247.166V192.974C400.182 187.986 404.228 183.942 409.218 183.942C414.208 183.942 418.255 187.986 418.255 192.974V247.216C418.275 267.116 434.481 283.294 454.401 283.294H582.048C591.406 283.294 598.987 275.717 598.987 266.364V218.063C598.987 209.211 591.778 202.006 582.922 202.006H508.611ZM409.208 102.684C404.218 102.684 400.171 98.6395 400.171 93.6518C400.171 88.6641 404.218 84.6198 409.208 84.6198H508.611C513.601 84.6198 517.647 88.6641 517.647 93.6518C517.647 98.6395 513.601 102.684 508.611 102.684H409.208Z" fill="url(#sidebar-brand-wordmark-gradient)"/>
+          <path d="M2480.27 3.3017H2379.19C2370.33 3.3017 2363.13 10.5072 2363.13 19.3586V93.6217C2363.13 98.6094 2359.08 102.654 2354.09 102.654C2349.1 102.654 2345.05 98.6094 2345.05 93.6217V19.3586C2345.05 10.5072 2337.84 3.3017 2328.99 3.3017H2252.7C2232.72 3.3017 2216.53 19.489 2216.53 39.4498V147.814C2216.53 167.734 2232.75 183.942 2252.68 183.942H2406.3C2411.29 183.942 2415.34 187.986 2415.34 192.974C2415.34 197.961 2411.29 202.006 2406.3 202.006H2232.43C2223.65 202.096 2216.53 209.261 2216.53 218.053V248.089C2216.53 267.528 2232.3 283.284 2251.74 283.284H2479.73C2489.09 283.284 2496.67 275.707 2496.67 266.354V19.6898C2496.67 10.6377 2489.33 3.3017 2480.27 3.3017Z" fill="url(#sidebar-brand-wordmark-gradient)"/>
+          <path d="M2491.43 314.103H327.818C322.858 314.103 318.842 318.117 318.842 323.075C318.842 328.032 322.858 332.046 327.818 332.046H2491.43C2496.39 332.046 2500.4 328.032 2500.4 323.075C2500.4 318.117 2496.39 314.103 2491.43 314.103Z" fill="url(#sidebar-brand-wordmark-gradient)"/>
+        </g>
+        <defs>
+          <linearGradient id="sidebar-brand-wordmark-gradient" x1="1250.2" y1="0" x2="1250.2" y2="332.046" gradientUnits="userSpaceOnUse">
+            <stop offset="0" style="stop-color: var(--p-primary-300)"/>
+            <stop offset="1" style="stop-color: var(--p-primary-500)"/>
+          </linearGradient>
+          <clipPath id="sidebar-brand-wordmark-clip">
+            <rect width="2500" height="350" fill="white"/>
+          </clipPath>
+        </defs>
+      </svg>
+    </a>
 
-    <ul class="layout-menu">
-      @if (libraryMenu(); as libraryMenu) {
-        @for (item of libraryMenu; track item.label; let i = $index) {
-          <li app-menuitem [item]="item" [index]="i" [root]="true" menuKey="library"></li>
-        }
-      }
-    </ul>
-
-    <ul class="layout-menu">
-      @if (shelfMenu(); as shelfMenu) {
-        @for (item of shelfMenu; track item.label; let i = $index) {
-          <li app-menuitem [item]="item" [index]="i" [root]="true" menuKey="shelf"></li>
-        }
-      }
-    </ul>
-
-    <ul class="layout-menu">
-      @if (magicShelfMenu(); as magicShelfMenu) {
-        @for (item of magicShelfMenu; track item.label; let i = $index) {
-          <li app-menuitem [item]="item" [index]="i" [root]="true" menuKey="magicShelf"></li>
-        }
-      }
-    </ul>
+    <button
+      type="button"
+      class="sidebar-icon-button sidebar-mobile-close-button"
+      [attr.aria-label]="'layout.closeNavigation' | transloco"
+      (click)="closeMobileSidebar()"
+    >
+      <i class="pi pi-times" aria-hidden="true"></i>
+    </button>
   </div>
 
-  @if (versionInfo(); as versionInfo) {
-    <div class="version-info" style="margin-top: auto;">
-      <div class="version-text">
-        @if (isSemanticVersion(versionInfo.current)) {
-          <a
-            [href]="getVersionUrl(versionInfo.current)"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="version-link"
-            >
-            {{ versionInfo.current }}
-          </a>
-        } @else {
-          <button
-            type="button"
-            class="version-label version-copy-trigger"
-            (click)="copyVersion(versionInfo.current)"
-          >
-            {{ versionInfo.current }}
-          </button>
-        }
-      </div>
-      @if (isSemanticVersion(versionInfo.current) && versionInfo.latest && versionInfo.latest !== versionInfo.current) {
-        <div>
-          <button
-            type="button"
-            class="update-link"
-            (click)="openChangelogDialog()"
-          >
-            {{ t('update') }}
-          </button>
-        </div>
-      }
+  <div class="sidebar-nav-top">
+    <button
+      type="button"
+      class="sidebar-action-link sidebar-search-button"
+      [pTooltip]="t('search')"
+      [tooltipDisabled]="!layoutService.sidebarCollapsed()"
+      tooltipPosition="right"
+      (click)="openSearch()"
+    >
+      <i class="pi pi-search" aria-hidden="true"></i>
+      <span>{{ t('search') }}</span>
+      <kbd class="sidebar-search-shortcut" aria-hidden="true">{{ searchShortcutLabel }}</kbd>
+    </button>
+  </div>
+
+  <div class="sidebar-nav">
+    @for (section of sections(); track section.id) {
+      <ul class="layout-menu">
+        <li app-menu-section [item]="section"></li>
+      </ul>
+    }
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-footer-actions">
+      <button
+        type="button"
+        class="sidebar-action-link sidebar-footer-action sidebar-toolbar-button"
+        [pTooltip]="t('add')"
+        tooltipPosition="top"
+        [attr.aria-label]="t('add')"
+        (click)="openSidebarOverlay($event, addMenu, 'above')"
+      >
+        <i class="pi pi-plus" aria-hidden="true"></i>
+        <span>{{ t('add') }}</span>
+      </button>
+
+      <button
+        type="button"
+        class="sidebar-action-link sidebar-footer-action"
+        [attr.aria-label]="t('notifications')"
+        [pTooltip]="t('notifications')"
+        tooltipPosition="top"
+        (click)="openSidebarOverlay($event, notificationsPopover, layoutService.isDesktop() ? 'below' : 'above')"
+      >
+        <i class="pi pi-bell" aria-hidden="true"></i>
+        <span>{{ t('notifications') }}</span>
+      </button>
+
+      <button
+        type="button"
+        class="sidebar-action-link sidebar-footer-action"
+        [attr.aria-label]="t('more')"
+        [pTooltip]="t('more')"
+        tooltipPosition="top"
+        (click)="openSidebarOverlay($event, moreMenu, 'above')"
+      >
+        <i class="pi pi-ellipsis-h" aria-hidden="true"></i>
+        <span>{{ t('more') }}</span>
+      </button>
     </div>
-  }
+    <p-menu #addMenu [model]="addMenuItems()" [popup]="true" appendTo="body" styleClass="sidebar-more-menu sidebar-footer-popover" (onShow)="applyOverlayBottom(addMenu)"/>
+    <p-popover #notificationsPopover appendTo="body" styleClass="sidebar-flyout-popover" (onShow)="applyOverlayBottom(notificationsPopover)">
+      <app-unified-notification-popover-component></app-unified-notification-popover-component>
+    </p-popover>
+    <p-menu #moreMenu [model]="moreMenuItems()" [popup]="true" appendTo="body" styleClass="sidebar-more-menu sidebar-footer-popover" (onShow)="applyOverlayBottom(moreMenu)"/>
+
+    @if (currentUser(); as user) {
+      <div class="sidebar-footer-bottom">
+        <button
+          type="button"
+          class="sidebar-user-trigger"
+          [attr.aria-label]="t('profile')"
+          [pTooltip]="user.name || user.username"
+          [tooltipDisabled]="!layoutService.sidebarCollapsed()"
+          tooltipPosition="right"
+          (click)="openSidebarOverlay($event, userMenu, 'below')"
+        >
+          <span class="sidebar-user-avatar" aria-hidden="true">{{ userInitials() }}</span>
+          <span class="sidebar-user-meta">
+            <span class="sidebar-user-name">{{ user.name || user.username }}</span>
+            @if (user.name) {
+              <span class="sidebar-user-handle">&#64;{{ user.username }}</span>
+            }
+          </span>
+        </button>
+
+        <button
+          type="button"
+          class="sidebar-icon-button sidebar-collapse-button"
+          [attr.aria-label]="t('collapseSidebar')"
+          [attr.aria-expanded]="!layoutService.sidebarCollapsed()"
+          [pTooltip]="t('collapseSidebar')"
+          [tooltipDisabled]="!layoutService.sidebarCollapsed()"
+          tooltipPosition="right"
+          (click)="layoutService.toggleSidebarCollapsed()"
+        >
+          <i
+            class="pi"
+            [class.pi-angle-double-left]="!layoutService.sidebarCollapsed()"
+            [class.pi-angle-double-right]="layoutService.sidebarCollapsed()"
+            aria-hidden="true"
+          ></i>
+        </button>
+      </div>
+      <p-menu #userMenu [model]="userMenuItems()" [popup]="true" appendTo="body" styleClass="sidebar-user-menu" (onShow)="applyOverlayBottom(userMenu)">
+        <ng-template pTemplate="start">
+          <div class="sidebar-user-menu-header">
+            <span class="sidebar-user-avatar" aria-hidden="true">{{ userInitials() }}</span>
+            <span class="sidebar-user-meta">
+              <span class="sidebar-user-name">{{ user.name || user.username }}</span>
+              @if (user.name) {
+                <span class="sidebar-user-handle">&#64;{{ user.username }}</span>
+              }
+            </span>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="end">
+          @if (version(); as v) {
+            <div class="sidebar-user-menu-footer">
+              <span>Grimmory v{{ v.current }}</span>
+              @if (hasUpdate()) {
+                <span class="sidebar-user-update">{{ t('update') }}</span>
+              }
+            </div>
+          }
+        </ng-template>
+      </p-menu>
+    } @else {
+      <div class="sidebar-footer-bottom">
+        <button
+          type="button"
+          class="sidebar-icon-button sidebar-collapse-button"
+          [attr.aria-label]="t('collapseSidebar')"
+          [attr.aria-expanded]="!layoutService.sidebarCollapsed()"
+          [pTooltip]="t('collapseSidebar')"
+          [tooltipDisabled]="!layoutService.sidebarCollapsed()"
+          tooltipPosition="right"
+          (click)="layoutService.toggleSidebarCollapsed()"
+        >
+          <i
+            class="pi"
+            [class.pi-angle-double-left]="!layoutService.sidebarCollapsed()"
+            [class.pi-angle-double-right]="layoutService.sidebarCollapsed()"
+            aria-hidden="true"
+          ></i>
+        </button>
+      </div>
+    }
+  </div>
 </div>
 </ng-container>

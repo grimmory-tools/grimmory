@@ -19,13 +19,15 @@ import {LibraryHealthService} from './features/book/service/library-health.servi
 import {LibraryLoadingService} from './features/library-creator/library-loading.service';
 import {scan} from 'rxjs/operators';
 import {AuthService} from './shared/service/auth.service';
+import {CommandPaletteComponent} from './features/command-palette/command-palette.component';
+import {CommandPaletteService} from './features/command-palette/command-palette.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
   standalone: true,
-  imports: [ConfirmDialog, Toast, RouterOutlet, TranslocoDirective, TranslocoPipe]
+  imports: [ConfirmDialog, Toast, RouterOutlet, TranslocoDirective, TranslocoPipe, CommandPaletteComponent]
 })
 export class AppComponent implements OnInit, OnDestroy {
 
@@ -46,6 +48,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private libraryHealthService = inject(LibraryHealthService);
   private libraryLoadingService = inject(LibraryLoadingService);
   private authService = inject(AuthService);
+  private commandPaletteService = inject(CommandPaletteService);
   private readonly syncAuthInitializationEffect = effect(() => {
     const ready = this.authInit.initialized();
     this.loading.set(!ready);
@@ -68,7 +71,16 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     window.addEventListener('online', this.onOnline);
     window.addEventListener('offline', this.onOffline);
+    document.addEventListener('keydown', this.onGlobalKeydown);
   }
+
+  private onGlobalKeydown = (event: KeyboardEvent): void => {
+    const combo = (event.metaKey || event.ctrlKey) && !event.shiftKey && !event.altKey;
+    if (!combo) return;
+    if (event.key !== 'k' && event.key !== 'K') return;
+    event.preventDefault();
+    this.commandPaletteService.toggle();
+  };
 
   private onOnline = () => {
     this.offline.set(false);
@@ -170,6 +182,7 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     window.removeEventListener('online', this.onOnline);
     window.removeEventListener('offline', this.onOffline);
+    document.removeEventListener('keydown', this.onGlobalKeydown);
     this.subscriptions.forEach(sub => sub.unsubscribe());
     this.libraryLoadingService.hide();
   }

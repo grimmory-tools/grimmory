@@ -2,7 +2,7 @@
   max-width: 1800px;
   margin: 0 auto;
   padding: 0.5rem;
-  height: calc(100dvh - 6.25rem);
+  height: calc(var(--page-available-height) - 0.15rem);
   overflow-y: auto;
 }
 
