@@ -1065,11 +1065,13 @@ public class AppBookService {
             case "title" -> "metadata.title";
             case "seriesname", "series" -> "metadata.seriesName";
             case "seriesnumber" -> "metadata.seriesNumber";
-            case "publisher" -> "metadata.publisher";
+            case "pagecount" -> "metadata.pageCount";
             case "language" -> "metadata.language";
+            case "publisher" -> "metadata.publisher";
             case "publisheddate" -> "metadata.publishedDate";
             case "lastreadtime" -> "userBookProgress.lastReadTime";
-            case "pagecount" -> "metadata.pageCount";
+            case "datefinished" -> "userBookProgress.dateFinished";
+            case "personalrating" -> "userBookProgress.personalRating";
             default -> "addedOn";
         };
 
