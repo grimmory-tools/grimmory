@@ -1033,6 +1033,12 @@ class FileServiceTest {
 
             @Test
             void fileTooLarge_throwsRuntimeException() {
+                when(appSettingService.getAppSettings()).thenReturn(
+                        AppSettings.builder()
+                                .maxFileUploadSizeInMb(5)
+                                .build()
+                );
+
                 byte[] largeData = new byte[6 * 1024 * 1024]; // 6MB
                 MockMultipartFile largeFile = new MockMultipartFile(
                         "file", "large.jpg", "image/jpeg", largeData);

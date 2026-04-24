@@ -216,7 +216,7 @@ public class FileService {
         long maxSizeMb = getMaxFileUploadSizeMb();
         long maxFileSize = maxSizeMb * 1024 * 1024;
         if (file.getSize() > maxFileSize) {
-            throw new IllegalArgumentException("File size must not exceed 5 MB");
+            throw ApiError.FILE_TOO_LARGE.createException(maxSizeMb);
         }
     }
 
