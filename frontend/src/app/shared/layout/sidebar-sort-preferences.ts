@@ -11,7 +11,7 @@ export type SidebarSortPreferenceKey =
   | 'sidebarShelfSorting'
   | 'sidebarMagicShelfSorting';
 
-export const DEFAULT_LIBRARY_SORT: SortPref = { field: 'name', order: 'desc' };
+export const DEFAULT_LIBRARY_SORT: SortPref = { field: 'name', order: 'asc' };
 export const DEFAULT_SHELF_SORT: SortPref = { field: 'name', order: 'asc' };
 export const DEFAULT_MAGIC_SHELF_SORT: SortPref = { field: 'name', order: 'asc' };
 

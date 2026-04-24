@@ -29,10 +29,18 @@ export class LanguagePreferencesComponent {
 
   onLanguageChange(lang: string): void {
     if (lang === this.activeLang) return;
-    this.t.load(lang).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.t.setActiveLang(lang);
-      localStorage.setItem(LANG_STORAGE_KEY, lang);
-      this.activeLang = lang;
+    const previous = this.activeLang;
+    this.t.load(lang).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.t.setActiveLang(lang);
+        localStorage.setItem(LANG_STORAGE_KEY, lang);
+        this.activeLang = lang;
+      },
+      error: () => {
+        // Force the p-select to snap back by briefly invalidating the binding.
+        this.activeLang = '';
+        queueMicrotask(() => (this.activeLang = previous));
+      },
     });
   }
 }

@@ -102,7 +102,12 @@ export class AppLayoutComponent {
     if (nextWidth === null) return;
 
     event.preventDefault();
-    this.layoutService.setSidebarWidth(nextWidth, true);
+    this.layoutService.setSidebarWidth(nextWidth, false);
+  }
+
+  onResizeKeyup(): void {
+    if (!this.layoutService.isDesktop()) return;
+    this.layoutService.setSidebarWidth(this.layoutService.sidebarWidth(), true);
   }
 
   private readonly onResizeMove = (event: MouseEvent) => {
@@ -118,8 +123,10 @@ export class AppLayoutComponent {
   private getKeyboardResizeWidth(key: string, currentWidth: number): number | null {
     switch (key) {
       case 'ArrowLeft':
+      case 'ArrowDown':
         return currentWidth - SIDEBAR_KEYBOARD_STEP;
       case 'ArrowRight':
+      case 'ArrowUp':
         return currentWidth + SIDEBAR_KEYBOARD_STEP;
       case 'PageDown':
         return currentWidth - SIDEBAR_KEYBOARD_PAGE_STEP;

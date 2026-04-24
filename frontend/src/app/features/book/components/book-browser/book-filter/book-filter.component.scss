@@ -14,10 +14,6 @@
   background: var(--card-background);
 }
 
-:host ::ng-deep .p-accordioncontent-content {
-  background-color: var(--card-background);
-}
-
 :host ::ng-deep .p-togglebutton {
   --p-togglebutton-content-padding: 0.25rem 0.35rem;
 }

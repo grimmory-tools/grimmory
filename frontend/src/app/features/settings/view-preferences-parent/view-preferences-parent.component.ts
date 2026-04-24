@@ -47,10 +47,6 @@ export class ViewPreferencesParentComponent {
     this.layoutService.setSidebarWidth(value, false);
   }
 
-  onSidebarWidthChange(): void {
-    // No-op: the signal setter already updates the layout effect which drives --sidebar-width.
-  }
-
   saveSidebarWidth(): void {
     this.layoutService.setSidebarWidth(this.layoutService.sidebarWidth(), true);
     this.messageService.add({

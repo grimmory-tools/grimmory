@@ -1,5 +1,5 @@
-import {Component, DestroyRef, effect, inject, OnInit} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {Component, computed, inject} from '@angular/core';
+import {toSignal} from '@angular/core/rxjs-interop';
 import {Select} from 'primeng/select';
 import {MessageService} from 'primeng/api';
 import {FormsModule} from '@angular/forms';
@@ -17,7 +17,7 @@ import {SortPref} from '../../../../shared/layout/sidebar-sort-preferences';
   templateUrl: './sidebar-sorting-preferences.component.html',
   styleUrl: './sidebar-sorting-preferences.component.scss'
 })
-export class SidebarSortingPreferencesComponent implements OnInit {
+export class SidebarSortingPreferencesComponent {
   private readonly sortingOptionDefs = [
     {value: {field: 'name', order: 'asc'}, translationKey: 'nameAsc'},
     {value: {field: 'name', order: 'desc'}, translationKey: 'nameDesc'},
@@ -25,49 +25,35 @@ export class SidebarSortingPreferencesComponent implements OnInit {
     {value: {field: 'id', order: 'desc'}, translationKey: 'creationDesc'},
   ] satisfies {value: SortPref; translationKey: string}[];
 
-  sortingOptions: {label: string; value: SortPref; translationKey: string}[] = [];
-
-  selectedLibrarySorting: SortPref = {field: 'id', order: 'asc'};
-  selectedShelfSorting: SortPref = {field: 'id', order: 'asc'};
-  selectedMagicShelfSorting: SortPref = {field: 'id', order: 'asc'};
-
   private readonly layoutService = inject(LayoutService);
   private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
 
-  constructor() {
-    effect(() => {
-      this.selectedLibrarySorting = this.layoutService.librarySort();
-      this.selectedShelfSorting = this.layoutService.shelfSort();
-      this.selectedMagicShelfSorting = this.layoutService.magicShelfSort();
-    });
-  }
+  readonly selectedLibrarySorting = computed(() => this.layoutService.librarySort());
+  readonly selectedShelfSorting = computed(() => this.layoutService.shelfSort());
+  readonly selectedMagicShelfSorting = computed(() => this.layoutService.magicShelfSort());
 
-  ngOnInit(): void {
-    this.buildSortingOptions();
-    this.t.langChanges$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.buildSortingOptions());
-  }
-
-  private buildSortingOptions(): void {
-    this.sortingOptions = this.sortingOptionDefs.map(opt => ({
+  readonly sortingOptions = computed(() => {
+    this.activeLang();
+    return this.sortingOptionDefs.map(opt => ({
       ...opt,
       label: this.t.translate('settingsView.sidebarSort.' + opt.translationKey)
     }));
-  }
+  });
 
-  onLibrarySortingChange() {
-    this.layoutService.setLibrarySort(this.selectedLibrarySorting);
+  onLibrarySortingChange(value: SortPref) {
+    this.layoutService.setLibrarySort(value);
     this.showSuccessToast();
   }
 
-  onShelfSortingChange() {
-    this.layoutService.setShelfSort(this.selectedShelfSorting);
+  onShelfSortingChange(value: SortPref) {
+    this.layoutService.setShelfSort(value);
     this.showSuccessToast();
   }
 
-  onMagicShelfSortingChange() {
-    this.layoutService.setMagicShelfSort(this.selectedMagicShelfSorting);
+  onMagicShelfSortingChange(value: SortPref) {
+    this.layoutService.setMagicShelfSort(value);
     this.showSuccessToast();
   }
 

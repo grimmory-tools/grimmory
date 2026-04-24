@@ -34,14 +34,21 @@ describe('AppLayoutComponent', () => {
   let router: Router;
   let layoutService: LayoutService;
 
+  const localStorageValues: Record<string, unknown> = {};
   const localStorageService = {
-    get: vi.fn(() => 225),
-    set: vi.fn(),
+    get: vi.fn((key: string) => localStorageValues[key]),
+    set: vi.fn((key: string, value: unknown) => {
+      localStorageValues[key] = value;
+    }),
   };
 
   beforeEach(async () => {
-    localStorageService.get.mockReturnValue(225);
-    localStorageService.set.mockReset();
+    for (const key of Object.keys(localStorageValues)) {
+      delete localStorageValues[key];
+    }
+    localStorageValues['sidebarWidth'] = 225;
+    localStorageService.get.mockClear();
+    localStorageService.set.mockClear();
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       imports: [
@@ -140,6 +147,11 @@ describe('AppLayoutComponent', () => {
     fixture.detectChanges();
 
     expect(layoutService.sidebarWidth()).toBe(241);
+    expect(localStorageService.set).not.toHaveBeenCalledWith('sidebarWidth', 241);
+
+    handle.dispatchEvent(new KeyboardEvent('keyup', { key: 'ArrowRight' }));
+    fixture.detectChanges();
+
     expect(localStorageService.set).toHaveBeenCalledWith('sidebarWidth', 241);
     expect(handle.getAttribute('role')).toBe('slider');
     expect(handle.getAttribute('tabindex')).toBe('0');

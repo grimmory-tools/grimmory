@@ -70,7 +70,7 @@ export class CommandPaletteService {
   readonly query = signal('');
   private overlayController?: CommandPaletteOverlayController;
 
-  private readonly activeLang = signal(this.t.getActiveLang());
+  private readonly activeLang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
   private readonly translate = (key: string): string => this.t.translate(key);
   private readonly trimmedQuery = computed(() => this.query().trim());
   private readonly debouncedRemoteQuery = toSignal(
@@ -85,10 +85,6 @@ export class CommandPaletteService {
       map((response) => response.content.map((book) => this.toPaletteBookItem(book))),
     )
   );
-
-  constructor() {
-    this.t.langChanges$.subscribe((lang) => this.activeLang.set(lang));
-  }
 
   registerOverlayController(controller: CommandPaletteOverlayController): () => void {
     this.overlayController = controller;
