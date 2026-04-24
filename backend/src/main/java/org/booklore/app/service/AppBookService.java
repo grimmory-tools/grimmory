@@ -1045,22 +1045,17 @@ public class AppBookService {
             }
         }
 
-        // For `lastReadTime` sorting we need to filter to only the current user's progress.
-        if ("lastreadtime".equalsIgnoreCase(req.sort())) {
+        // Any of the user book progress sorting we need to filter to only the current user's progress.
+        String field = getSortField(req.sort());
+        if (field.startsWith("userBookProgress.")) {
             specs.add(AppBookSpecification.withProgress(userId, true));
         }
 
         return AppBookSpecification.combine(specs.toArray(new Specification[0]));
     }
 
-    private Sort buildSort(String sortBy, String sortDir) {
-        Sort.Direction direction = "asc".equalsIgnoreCase(sortDir)
-                ? Sort.Direction.ASC
-                : Sort.Direction.DESC;
-
-        // "author" needs a join to the authors collection, which can't be expressed
-        // as a simple property path, fall through to the default (addedOn) for now.
-        String field = switch (sortBy != null ? sortBy.toLowerCase() : DEFAULT_SORT) {
+    private String getSortField(String sortBy) {
+        return switch (sortBy != null ? sortBy.toLowerCase() : DEFAULT_SORT) {
             case "addedon" -> "addedOn";
             case "title" -> "metadata.title";
             case "seriesname", "series" -> "metadata.seriesName";
@@ -1083,6 +1078,14 @@ public class AppBookService {
             case "personalrating" -> "userBookProgress.personalRating";
             default -> throw ApiError.INVALID_INPUT.createException("Invalid sort");
         };
+    }
+
+    private Sort buildSort(String sortBy, String sortDir) {
+        Sort.Direction direction = "asc".equalsIgnoreCase(sortDir)
+                ? Sort.Direction.ASC
+                : Sort.Direction.DESC;
+
+        String field = getSortField(sortBy);
 
         return Sort.by(direction, field);
     }
