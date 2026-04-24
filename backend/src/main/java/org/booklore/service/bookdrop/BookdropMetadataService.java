@@ -55,9 +55,7 @@ public class BookdropMetadataService {
         }
         if (initial.getTitle() == null || initial.getTitle().isBlank()) {
             log.warn("Metadata extraction returned empty title for file: {}. Using filename as fallback.", entity.getFileName());
-            initial = initial.toBuilder()
-                    .title(FilenameUtils.getBaseName(entity.getFileName()))
-                    .build();
+            initial.setTitle(FilenameUtils.getBaseName(entity.getFileName()));
         }
         extractAndSaveCover(entity);
         String initialJson = objectMapper.writeValueAsString(initial);
