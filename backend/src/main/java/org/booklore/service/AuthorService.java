@@ -6,6 +6,7 @@ import org.booklore.mapper.AuthorMapper;
 import org.booklore.model.entity.AuthorEntity;
 import org.booklore.repository.AuthorRepository;
 import org.booklore.repository.BookRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,7 @@ public class AuthorService {
     private final BookRepository bookRepository;
     private final AuthorMapper authorMapper;
 
+    @Cacheable(value = "authors", key = "#bookId")
     @Transactional(readOnly = true)
     public List<String> getAuthorsByBookId(Long bookId) {
         if (!bookRepository.existsById(bookId)) {

@@ -18,6 +18,8 @@ import org.booklore.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.booklore.model.enums.AuditAction;
 import org.booklore.service.audit.AuditService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -39,6 +41,7 @@ public class ShelfService {
     private final UserRepository userRepository;
     private final AuditService auditService;
 
+    @CacheEvict(value = "shelves", allEntries = true)
     @Transactional
     public Shelf createShelf(ShelfCreateRequest request) {
         Long userId = getAuthenticatedUserId();
@@ -60,6 +63,7 @@ public class ShelfService {
         return result;
     }
 
+    @CacheEvict(value = "shelves", allEntries = true)
     @Transactional
     public Shelf updateShelf(Long id, ShelfCreateRequest request) {
         ShelfEntity shelfEntity = findShelfByIdOrThrow(id);
@@ -75,6 +79,7 @@ public class ShelfService {
         return result;
     }
 
+    @Cacheable(value = "shelves", key = "@authenticationService.getAuthenticatedUser().id")
     public List<Shelf> getShelves() {
         Long userId = getAuthenticatedUserId();
         return shelfRepository.findByUserIdOrPublicShelfTrue(userId).stream()
@@ -82,10 +87,12 @@ public class ShelfService {
                 .toList();
     }
 
+    @Cacheable(value = "shelves", key = "#shelfId")
     public Shelf getShelf(Long shelfId) {
         return shelfMapper.toShelf(findShelfByIdOrThrow(shelfId));
     }
 
+    @CacheEvict(value = "shelves", allEntries = true)
     @Transactional
     public void deleteShelf(Long shelfId) {
         shelfRepository.deleteById(shelfId);

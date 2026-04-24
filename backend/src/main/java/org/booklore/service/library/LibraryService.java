@@ -29,6 +29,9 @@ import org.booklore.task.options.RescanLibraryContext;
 import org.booklore.util.FileService;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.context.event.EventListener;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -77,6 +80,9 @@ public class LibraryService {
         log.info("Monitoring initialized with {} libraries", libraries.size());
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "libraries", allEntries = true)
+    })
     @Transactional
     public Library updateLibrary(CreateLibraryRequest request, Long libraryId) {
         LibraryEntity library = libraryRepository.findById(libraryId)
@@ -150,6 +156,7 @@ public class LibraryService {
         return libraryMapper.toLibrary(savedLibrary);
     }
 
+    @CacheEvict(value = "libraries", allEntries = true)
     @Transactional
     public Library createLibrary(CreateLibraryRequest request) {
         BookLoreUser bookLoreUser = authenticationService.getAuthenticatedUser();
@@ -221,6 +228,7 @@ public class LibraryService {
         });
     }
 
+    @Cacheable(value = "libraries", key = "#libraryId")
     public Library getLibrary(long libraryId) {
         LibraryEntity libraryEntity = libraryRepository.findById(libraryId).orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
         return libraryMapper.toLibrary(libraryEntity);
@@ -231,6 +239,7 @@ public class LibraryService {
         return libraries.stream().map(libraryMapper::toLibrary).toList();
     }
 
+    @Cacheable(value = "libraries", key = "@authenticationService.getAuthenticatedUser().id")
     public List<Library> getLibraries() {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         BookLoreUserEntity userEntity = userRepository.findByIdWithLibraries(user.getId()).orElseThrow(() -> new UsernameNotFoundException("User not found"));
@@ -244,6 +253,7 @@ public class LibraryService {
         return libraries.stream().map(libraryMapper::toLibrary).toList();
     }
 
+    @CacheEvict(value = "libraries", allEntries = true)
     @Transactional
     public void deleteLibrary(long id) {
         LibraryEntity library = libraryRepository.findById(id)
@@ -269,6 +279,7 @@ public class LibraryService {
         return bookEntities.stream().map(bookMapper::toBook).toList();
     }
 
+    @CacheEvict(value = "libraries", allEntries = true)
     @Transactional
     public Library setFileNamingPattern(long libraryId, String pattern) {
         LibraryEntity library = libraryRepository.findById(libraryId).orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));

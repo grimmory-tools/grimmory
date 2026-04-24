@@ -50,6 +50,7 @@ public class IconController {
         String svgContent = iconService.getSvgIcon(svgName);
         return ResponseEntity.ok()
                 .header("Content-Type", "image/svg+xml")
+                .header("Cache-Control", "public, max-age=86400")
                 .body(svgContent);
     }
 
@@ -77,6 +78,8 @@ public class IconController {
     @GetMapping("/all/content")
     public ResponseEntity<Map<String, String>> getAllIconsContent() {
         Map<String, String> iconsMap = iconService.getAllIconsContent();
-        return ResponseEntity.ok(iconsMap);
+        return ResponseEntity.ok()
+                .header("Cache-Control", "public, max-age=3600")
+                .body(iconsMap);
     }
 }

@@ -15,7 +15,14 @@ public class CacheConfig {
 
     @Bean
     public CacheManager cacheManager() {
-        CaffeineCacheManager cacheManager = new CaffeineCacheManager("publicSettings", "appSettings");
+        CaffeineCacheManager cacheManager = new CaffeineCacheManager(
+                "publicSettings",
+                "appSettings",
+                "libraries",
+                "shelves",
+                "authors",
+                "recommendations"
+        );
         cacheManager.setCaffeine(Caffeine.newBuilder()
                 .expireAfterWrite(Duration.ofHours(24))
                 .maximumSize(100));
