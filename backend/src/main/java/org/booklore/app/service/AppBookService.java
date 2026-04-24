@@ -1076,7 +1076,7 @@ public class AppBookService {
             case "readstatus" -> "userBookProgress.readStatus";
             case "datefinished" -> "userBookProgress.dateFinished";
             case "personalrating" -> "userBookProgress.personalRating";
-            default -> throw ApiError.INVALID_INPUT.createException("Invalid sort");
+            default -> "addedOn";
         };
     }
 
