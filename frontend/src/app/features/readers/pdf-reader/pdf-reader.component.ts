@@ -395,7 +395,9 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
           zoomVal = pdfPrefs.pdfSettings?.zoom || myself.userSettings.pdfReaderSetting.pageZoom || 'page-fit';
           const rawSpread = pdfPrefs.pdfSettings?.spread || myself.userSettings.pdfReaderSetting.pageSpread || 'none';
           spreadVal = rawSpread === 'off' ? 'none' : rawSpread as 'none' | 'even' | 'odd';
-          scrollLayoutVal = pdfPrefs.pdfSettings?.scrollLayout === 'horizontal' ? 'horizontal' : 'vertical';
+          scrollLayoutVal = pdfPrefs.pdfSettings?.scrollLayout
+            || myself.userSettings.pdfReaderSetting.scrollLayout
+            || 'vertical';
           this.isDarkTheme.set(pdfPrefs.pdfSettings?.isDarkTheme ?? true);
         }
         this.spread = spreadVal;
@@ -463,7 +465,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
         return;
       }
 
-      this.suppressProgressSave = true; // Added this
+      this.suppressProgressSave = true;
 
       await this.embedPdfBook.init(
         targetEl,

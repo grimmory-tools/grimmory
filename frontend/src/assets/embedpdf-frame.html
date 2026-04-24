@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { height: 100%; overflow: hidden; }
@@ -16,7 +16,7 @@
   (function () {
     const isSmallViewport = window.innerWidth <= 768;
     const currentDpr = window.devicePixelRatio || 1;
-    const targetDpr = isSmallViewport ? Math.min(currentDpr, 2) : Math.max(currentDpr, 2.5);
+    const targetDpr = isSmallViewport ? 2 : Math.max(currentDpr, 2.5);
 
     if (currentDpr !== targetDpr) {
       Object.defineProperty(window, 'devicePixelRatio', {

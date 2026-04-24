@@ -81,7 +81,6 @@ export class EmbedPdfBookService {
 
     const wasmUrl = new URL('/assets/pdfium/pdfium.wasm', location.origin).href;
     const requestedLocale = localeCode || 'en';
-    const isSmallViewport = window.innerWidth <= 768;
 
     this.container = EmbedPDF.init({
       type: 'container',
@@ -125,8 +124,8 @@ export class EmbedPdfBookService {
         defaultZoomLevel: 'fit-page' as ZoomMode,
       },
       render: {
-        // Keep book-viewer text crisp on mobile (doc-viewer parity).
-        defaultImageQuality: isSmallViewport ? 0.92 : 0.92,
+        // Keep book-viewer text crisp across viewport sizes.
+        defaultImageQuality: 0.92,
       },
       tiling: this.getTilingConfig(),
     }) ?? null;

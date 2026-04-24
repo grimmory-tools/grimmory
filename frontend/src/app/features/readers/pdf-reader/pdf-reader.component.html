@@ -163,14 +163,14 @@
 
         <!-- Scroll layout -->
         <button class="icon-btn"
-          [title]="'readerPdf.toolbar.scrollLayout' | transloco"
+          [title]="scrollLayout() === 'horizontal' ? ('readerPdf.toolbar.scrollLayoutHorizontal' | transloco) : ('readerPdf.toolbar.scrollLayoutVertical' | transloco)"
           [attr.aria-label]="scrollLayout() === 'horizontal' ? ('readerPdf.toolbar.scrollLayoutHorizontal' | transloco) : ('readerPdf.toolbar.scrollLayoutVertical' | transloco)"
           [attr.aria-pressed]="scrollLayout() === 'horizontal'"
           (click)="cycleScrollLayout()">
           @if (scrollLayout() === 'horizontal') {
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="3" width="9" height="18" rx="1" /><rect x="13" y="3" width="9" height="18" rx="1" />
+            <path d="M4 12h16" /><path d="m16 8 4 4-4 4" /><rect x="2" y="3" width="3" height="18" rx="1" />
           </svg>
           } @else {
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
@@ -314,7 +314,7 @@
       @if (scrollLayout() === 'horizontal') {
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="2" y="3" width="9" height="18" rx="1" /><rect x="13" y="3" width="9" height="18" rx="1" />
+        <path d="M4 12h16" /><path d="m16 8 4 4-4 4" /><rect x="2" y="3" width="3" height="18" rx="1" />
       </svg>
       } @else {
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
