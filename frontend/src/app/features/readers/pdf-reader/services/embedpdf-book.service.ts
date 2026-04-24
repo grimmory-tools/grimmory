@@ -125,7 +125,8 @@ export class EmbedPdfBookService {
         defaultZoomLevel: 'fit-page' as ZoomMode,
       },
       render: {
-        defaultImageQuality: isSmallViewport ? 0.85 : 0.92,
+        // Keep book-viewer text crisp on mobile (doc-viewer parity).
+        defaultImageQuality: isSmallViewport ? 0.92 : 0.92,
       },
       tiling: this.getTilingConfig(),
     }) ?? null;
@@ -531,10 +532,11 @@ export class EmbedPdfBookService {
     const isSmallViewport = window.innerWidth <= 768;
     const currentDpr = window.devicePixelRatio || 1;
 
-    // On small screens, we CAP the DPR at 2.0.
+    // On small screens, enforce DPR 2.0 to avoid low-DPR blur while still
+    // avoiding the memory spikes caused by very high DPR values.
     // Modern phones often have DPR 3.0+, which combined with annotation layers
     // exceeds the browser's texture memory budget, leading to "emergency" downsampling (blurriness).
-    const targetDpr = isSmallViewport ? Math.min(currentDpr, 2) : Math.max(currentDpr, 2.5);
+    const targetDpr = isSmallViewport ? 2 : Math.max(currentDpr, 2.5);
 
     if (currentDpr !== targetDpr) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -556,7 +558,7 @@ export class EmbedPdfBookService {
   private getTilingConfig(): {tileSize: number; overlapPx: number; extraRings: number} {
     const isSmallViewport = window.innerWidth <= 768;
     return isSmallViewport
-      ? {tileSize: 512, overlapPx: 2, extraRings: 0}
+      ? {tileSize: 640, overlapPx: 2, extraRings: 1}
       : {tileSize: 1024, overlapPx: 2, extraRings: 1};
   }
 
@@ -746,19 +748,7 @@ export class EmbedPdfBookService {
           display: none !important;
         }
 
-        /* Hide bottom notification / popup bar */
-        [class*="fixed"][class*="bottom-"],
-        [class*="absolute"][class*="bottom-"],
-        [class*="snackbar"],
-        [class*="toast"],
-        [class*="notification"],
-        [class*="bottom-bar"],
-        [class*="status-bar"],
-        [class*="statusbar"],
-        footer,
-        [class*="footer"] {
-          display: none !important;
-        }
+        /* Keep viewer popups/menus visible; only hide explicit file controls. */
 
         /* Hide open/close document buttons */
         [data-epdf-i="open-document"],

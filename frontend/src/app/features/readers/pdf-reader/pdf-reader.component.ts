@@ -125,6 +125,8 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   private cachedPdfBuffer: ArrayBuffer | null = null;
   private suppressProgressSave = false;
   private initialPage = 1;
+  private closeReaderPromise: Promise<void> | null = null;
+  readonly isClosingReader = signal(false);
 
   // Book mode state
   private bookViewerInitialized = false;
@@ -1303,6 +1305,17 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     this.isToolbarOverflowOpen.set(false);
   }
 
+  onCloseReaderPointerDown(event: PointerEvent): void {
+    if (event.pointerType === 'mouse') return;
+    event.preventDefault();
+    this.requestCloseReader();
+  }
+
+  onCloseReaderClick(event?: Event): void {
+    event?.preventDefault();
+    this.requestCloseReader();
+  }
+
   // --- Fullscreen ---
 
   toggleFullscreen(): void {
@@ -1389,29 +1402,50 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     }
   }
 
+  private requestCloseReader(): void {
+    if (this.isClosingReader()) return;
+    this.isClosingReader.set(true);
+    void this.closeReader();
+  }
+
   closeReader = async (): Promise<void> => {
+    if (this.closeReaderPromise) return this.closeReaderPromise;
+    this.closeReaderPromise = this.performCloseReader();
+    return this.closeReaderPromise;
+  }
+
+  private async performCloseReader(): Promise<void> {
     try {
-      if (this.viewerMode() === 'document' && this.embedPdfIframe) {
-        await this.saveEmbedPdfDocument();
-        await this.destroyDocViewerIframe();
-      } else {
-        await this.persistAnnotations();
+      try {
+        if (this.viewerMode() === 'document' && this.embedPdfIframe) {
+          await this.saveEmbedPdfDocument();
+          await this.destroyDocViewerIframe();
+        } else {
+          await this.persistAnnotations();
+        }
+      } catch (e) {
+        console.error('[PDF Reader] Error saving on close:', e);
       }
-    } catch (e) {
-      console.error('[PDF Reader] Error saving on close:', e);
+      if (this.readingSessionService.isSessionActive()) {
+        const currentPage = this.page();
+        const total = this.totalPages();
+        const percentage = total > 0 ? Math.round((currentPage / total) * 1000) / 10 : 0;
+        this.readingSessionService.endSession(currentPage.toString(), percentage);
+      }
+      // Navigate back within the SPA; fall back to home if there's no history
+      if (window.history.length > 1) {
+        this.location.back();
+      } else {
+        this.router.navigate(['/']);
+      }
+    } finally {
+      this.resetCloseReaderState();
     }
-    if (this.readingSessionService.isSessionActive()) {
-      const currentPage = this.page();
-      const total = this.totalPages();
-      const percentage = total > 0 ? Math.round((currentPage / total) * 1000) / 10 : 0;
-      this.readingSessionService.endSession(currentPage.toString(), percentage);
-    }
-    // Navigate back within the SPA; fall back to home if there's no history
-    if (window.history.length > 1) {
-      this.location.back();
-    } else {
-      this.router.navigate(['/']);
-    }
+  }
+
+  private resetCloseReaderState(): void {
+    this.closeReaderPromise = null;
+    this.isClosingReader.set(false);
   }
 
   private getBookData(

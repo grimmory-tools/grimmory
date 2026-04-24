@@ -16,13 +16,6 @@
   }
 
   @if (viewerMode() === 'document') {
-    @if (docViewerReady()) {
-    <button class="embed-close-btn icon-btn" [title]="'readerPdf.toolbar.closePdfReader' | transloco" [attr.aria-label]="'readerPdf.toolbar.closePdfReader' | transloco"
-      (click)="closeReader()">
-      <app-reader-icon name="close" [size]="18" />
-    </button>
-    }
-
     @if (isDocViewerInfoVisible()) {
     <div class="doc-viewer-info">
       <span>{{ 'readerPdf.docViewer.changesSavedInfo' | transloco }}</span>
@@ -263,7 +256,7 @@
 
       <!-- Close button (always visible) -->
       <button class="icon-btn close-btn" [title]="'readerPdf.toolbar.closePdfReader' | transloco" [attr.aria-label]="'readerPdf.toolbar.closePdfReader' | transloco"
-        (click)="closeReader()">
+        [disabled]="isClosingReader()" (pointerdown)="onCloseReaderPointerDown($event)" (click)="onCloseReaderClick($event)">
         <app-reader-icon name="close" [size]="20" />
       </button>
     </div>
@@ -415,7 +408,7 @@
       }
       <span>{{ isFullscreen() ? ('readerPdf.toolbar.exitFullscreen' | transloco) : ('readerPdf.toolbar.fullscreen' | transloco) }}</span>
     </button>
-    <button class="overflow-item" (click)="closeReader(); closeToolbarOverflow()">
+    <button class="overflow-item" [disabled]="isClosingReader()" (click)="onCloseReaderClick($event); closeToolbarOverflow()">
       <app-reader-icon name="close" [size]="18" />
       <span>{{ 'readerPdf.toolbar.closePdfReader' | transloco }}</span>
     </button>

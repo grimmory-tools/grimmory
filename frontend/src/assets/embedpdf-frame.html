@@ -163,7 +163,7 @@
         border-bottom-color: #404040 !important;
         box-shadow: 0 2px 8px rgba(0,0,0,0.30) !important;
         height: 38px !important;
-        padding-right: 88px !important;
+        padding-right: 64px !important;
         padding-top: 0 !important;
         padding-bottom: 0 !important;
         box-sizing: border-box !important;
@@ -179,19 +179,7 @@
         display: none !important;
       }
 
-      /* Hide bottom notification / popup bar */
-      [class*="fixed"][class*="bottom-"],
-      [class*="absolute"][class*="bottom-"],
-      [class*="snackbar"],
-      [class*="toast"],
-      [class*="notification"],
-      [class*="bottom-bar"],
-      [class*="status-bar"],
-      [class*="statusbar"],
-      footer,
-      [class*="footer"] {
-        display: none !important;
-      }
+      /* Keep viewer popups/menus visible; only hide explicit file controls. */
 
       [data-epdf-i="open-document"],
       [data-epdf-i="close-document"],
