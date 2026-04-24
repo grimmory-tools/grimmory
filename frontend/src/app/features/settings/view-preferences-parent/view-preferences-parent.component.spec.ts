@@ -61,7 +61,6 @@ describe('ViewPreferencesParentComponent', () => {
     const component = fixture.componentInstance;
 
     component.sidebarWidth = 287;
-    component.onSidebarWidthChange();
 
     expect(layoutService.setSidebarWidth).toHaveBeenCalledWith(287, false);
     expect(component.sidebarWidth).toBe(287);

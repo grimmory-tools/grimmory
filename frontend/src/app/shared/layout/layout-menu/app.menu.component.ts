@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AppMenuSectionComponent } from './app.menu-section.component';
 import { Popover } from 'primeng/popover';
@@ -22,7 +22,7 @@ import { TranslocoDirective, TranslocoPipe, TranslocoService } from '@jsverse/tr
 import { Tooltip } from 'primeng/tooltip';
 import type { MenuItem } from 'primeng/api';
 import { AppVersion, VersionService } from '../../service/version.service';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, of } from 'rxjs';
 import { NavItem, SidebarSection } from '../navigation/nav-item.model';
 import { buildQuickActionNavItems, findPageNavItem } from '../navigation/nav-catalog';
@@ -76,7 +76,6 @@ export class AppMenuComponent {
   private readonly authorService = inject(AuthorService);
   private readonly versionService = inject(VersionService);
   private readonly t = inject(TranslocoService);
-  private readonly destroyRef = inject(DestroyRef);
 
   readonly currentUser = this.userService.currentUser;
   readonly version = toSignal<AppVersion | null>(
@@ -84,18 +83,12 @@ export class AppMenuComponent {
     { initialValue: null },
   );
   private readonly allAuthors = this.authorService.allAuthors;
-  private readonly activeLang = signal(this.t.getActiveLang());
+  private readonly activeLang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
   private readonly translate = (key: string): string => this.t.translate(key);
 
   readonly searchShortcutLabel = detectSearchShortcut(
     typeof navigator !== 'undefined' ? navigator.userAgent : ''
   );
-
-  constructor() {
-    this.t.langChanges$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((lang) => this.activeLang.set(lang));
-  }
 
   readonly sections = computed<SidebarSection[]>(() => {
     this.activeLang();

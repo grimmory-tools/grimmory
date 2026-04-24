@@ -1,4 +1,4 @@
-import {signal} from '@angular/core';
+import {signal, WritableSignal} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
@@ -13,11 +13,14 @@ describe('SidebarSortingPreferencesComponent', () => {
   let fixture: ComponentFixture<SidebarSortingPreferencesComponent>;
   let setLibrarySort: ReturnType<typeof vi.fn>;
   let messageService: {add: ReturnType<typeof vi.fn>};
-  const librarySort = signal<SortPref>({field: 'name', order: 'asc'});
-  const shelfSort = signal<SortPref>({field: 'id', order: 'desc'});
-  const magicShelfSort = signal<SortPref>({field: 'name', order: 'desc'});
+  let librarySort: WritableSignal<SortPref>;
+  let shelfSort: WritableSignal<SortPref>;
+  let magicShelfSort: WritableSignal<SortPref>;
 
   beforeEach(() => {
+    librarySort = signal<SortPref>({field: 'name', order: 'asc'});
+    shelfSort = signal<SortPref>({field: 'id', order: 'desc'});
+    magicShelfSort = signal<SortPref>({field: 'name', order: 'desc'});
     setLibrarySort = vi.fn((value: SortPref) => librarySort.set(value));
     messageService = {add: vi.fn()};
 
@@ -52,17 +55,16 @@ describe('SidebarSortingPreferencesComponent', () => {
   it('hydrates sidebar sorting selections from the current user', () => {
     const component = fixture.componentInstance;
 
-    expect(component.selectedLibrarySorting).toEqual({field: 'name', order: 'asc'});
-    expect(component.selectedShelfSorting).toEqual({field: 'id', order: 'desc'});
-    expect(component.selectedMagicShelfSorting).toEqual({field: 'name', order: 'desc'});
-    expect(component.sortingOptions).not.toHaveLength(0);
+    expect(component.selectedLibrarySorting()).toEqual({field: 'name', order: 'asc'});
+    expect(component.selectedShelfSorting()).toEqual({field: 'id', order: 'desc'});
+    expect(component.selectedMagicShelfSorting()).toEqual({field: 'name', order: 'desc'});
+    expect(component.sortingOptions()).not.toHaveLength(0);
   });
 
   it('persists library sorting changes and shows a success toast', () => {
     const component = fixture.componentInstance;
-    component.selectedLibrarySorting = {field: 'id', order: 'asc'};
 
-    component.onLibrarySortingChange();
+    component.onLibrarySortingChange({field: 'id', order: 'asc'});
 
     expect(setLibrarySort).toHaveBeenCalledWith({field: 'id', order: 'asc'});
     expect(messageService.add).toHaveBeenCalledWith(expect.objectContaining({severity: 'success'}));

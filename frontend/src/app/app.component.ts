@@ -1,4 +1,4 @@
-import {Component, effect, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {Component, DestroyRef, effect, inject, OnDestroy, OnInit, signal} from '@angular/core';
 import {RxStompService} from './shared/websocket/rx-stomp.service';
 import {BookService} from './features/book/service/book.service';
 import {NotificationEventService} from './shared/websocket/notification-event.service';
@@ -49,6 +49,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private libraryLoadingService = inject(LibraryLoadingService);
   private authService = inject(AuthService);
   private commandPaletteService = inject(CommandPaletteService);
+  private destroyRef = inject(DestroyRef);
   private readonly syncAuthInitializationEffect = effect(() => {
     const ready = this.authInit.initialized();
     this.loading.set(!ready);
@@ -72,6 +73,7 @@ export class AppComponent implements OnInit, OnDestroy {
     window.addEventListener('online', this.onOnline);
     window.addEventListener('offline', this.onOffline);
     document.addEventListener('keydown', this.onGlobalKeydown);
+    this.destroyRef.onDestroy(() => document.removeEventListener('keydown', this.onGlobalKeydown));
   }
 
   private onGlobalKeydown = (event: KeyboardEvent): void => {
@@ -183,7 +185,6 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     window.removeEventListener('online', this.onOnline);
     window.removeEventListener('offline', this.onOffline);
-    document.removeEventListener('keydown', this.onGlobalKeydown);
     this.subscriptions.forEach(sub => sub.unsubscribe());
     this.libraryLoadingService.hide();
   }

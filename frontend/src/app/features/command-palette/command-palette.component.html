@@ -46,14 +46,14 @@
                     [id]="itemDomId(item)"
                     role="option"
                     [attr.aria-selected]="activeItem()?.id === item.id"
-                    (mousemove)="onItemHover(item)"
+                    (mouseenter)="onItemHover(item)"
                     (click)="svc.select(item)"
                   >
                     @if (item.kind === 'book' && item.bookMeta; as bookMeta) {
                       <ng-container *transloco="let tb; prefix: 'book.searcher'">
                         <div class="command-palette-book-cover">
                           @if (bookMeta.thumbnailUrl) {
-                            <img [src]="bookMeta.thumbnailUrl" [alt]="tb('bookCoverAlt')" />
+                            <img [src]="bookMeta.thumbnailUrl" alt="" />
                           } @else {
                             <app-cover-placeholder
                               [title]="item.title"

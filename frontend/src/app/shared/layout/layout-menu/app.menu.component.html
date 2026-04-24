@@ -1,7 +1,7 @@
 <ng-container *transloco="let t; prefix: 'layout.menu'">
 <div class="menu-container">
   <div class="sidebar-header">
-    <a class="sidebar-brand" [routerLink]="['/dashboard']" aria-label="Grimmory">
+    <a class="sidebar-brand" [routerLink]="['/dashboard']" [attr.aria-label]="t('goToDashboard')">
       <span class="sidebar-brand-mark" aria-hidden="true">
         <svg class="sidebar-brand-icon" viewBox="0 0 100 126" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M25.8062 106.614V113.077V119.537V126L32.2559 119.537L38.7093 126V119.537V113.077V106.614H25.8062Z" fill="white"/>
@@ -131,6 +131,7 @@
           type="button"
           class="sidebar-user-trigger"
           [attr.aria-label]="t('profile')"
+          aria-haspopup="menu"
           [pTooltip]="user.name || user.username"
           [tooltipDisabled]="!layoutService.sidebarCollapsed()"
           tooltipPosition="right"
