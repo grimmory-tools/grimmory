@@ -59,6 +59,7 @@ describe("AppComponent", () => {
     toggle: ReturnType<typeof vi.fn>;
     open: ReturnType<typeof vi.fn>;
     hide: ReturnType<typeof vi.fn>;
+    registerOverlayController: ReturnType<typeof vi.fn>;
     isOpen: ReturnType<typeof signal>;
     query: ReturnType<typeof signal>;
     visibleItems: ReturnType<typeof signal>;
@@ -106,6 +107,7 @@ describe("AppComponent", () => {
       toggle: vi.fn(),
       open: vi.fn(),
       hide: vi.fn(),
+      registerOverlayController: vi.fn(() => vi.fn()),
       isOpen: signal(false),
       query: signal(''),
       visibleItems: signal([]),
