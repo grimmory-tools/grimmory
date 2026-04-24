@@ -10,9 +10,11 @@ import org.booklore.config.security.annotation.CheckBookAccess;
 import org.booklore.model.dto.sidecar.SidecarMetadata;
 import org.booklore.model.enums.SidecarSyncStatus;
 import org.booklore.service.metadata.sidecar.SidecarService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 
 import java.util.Map;
 import java.util.Optional;
@@ -32,10 +34,21 @@ public class SidecarController {
     })
     @CheckBookAccess(bookIdParam = "bookId")
     @GetMapping("/books/{bookId}/sidecar")
-    public ResponseEntity<SidecarMetadata> getSidecarContent(@Parameter(description = "Book ID") @PathVariable Long bookId) {
+    public ResponseEntity<SidecarMetadata> getSidecarContent(@Parameter(description = "Book ID") @PathVariable Long bookId, WebRequest request) {
         Optional<SidecarMetadata> sidecar = sidecarService.getSidecarContent(bookId);
-        return sidecar.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        if (sidecar.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        SidecarMetadata metadata = sidecar.get();
+        String etag = Integer.toHexString(metadata.hashCode());
+        if (request.checkNotModified(etag)) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
+        }
+
+        return ResponseEntity.ok()
+                .eTag(etag)
+                .body(metadata);
     }
 
     @Operation(summary = "Get sidecar sync status", description = "Get the synchronization status between database and sidecar file")

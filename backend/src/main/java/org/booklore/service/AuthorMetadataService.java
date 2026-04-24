@@ -26,6 +26,8 @@ import org.booklore.util.FileService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.web.multipart.MultipartFile;
@@ -58,6 +60,10 @@ public class AuthorMetadataService {
     private final DuckDuckGoCoverService duckDuckGoCoverService;
     private final AuthenticationService authenticationService;
     private final AppSettingService appSettingService;
+
+    @Autowired
+    @Lazy
+    private AuthorMetadataService self;
 
     @Cacheable(value = "authors-by-user", key = "@authenticationService.getAuthenticatedUser().id")
     public List<AuthorSummary> getAllAuthors() {
@@ -173,7 +179,7 @@ public class AuthorMetadataService {
                         Mono.fromCallable(() -> {
                             AuthorEntity author = authorRepository.findById(authorId).orElse(null);
                             if (author == null) return null;
-                            AuthorDetails details = quickMatchAuthor(authorId, "us");
+                            AuthorDetails details = self.quickMatchAuthor(authorId, "us");
                             return AuthorSummary.builder()
                                     .id(details.getId())
                                     .name(details.getName())
@@ -352,19 +358,28 @@ public class AuthorMetadataService {
         fileService.createAuthorThumbnailFromUrl(authorId, imageUrl);
     }
 
-    @Cacheable(value = "author-by-name", key = "#name")
     public AuthorDetails getAuthorByName(String name) {
+        AuthorDetails details = self.getAuthorByNameInternal(name);
+        verifyAuthorAccess(details.getId());
+        return details;
+    }
+
+    @Cacheable(value = "author-by-name", key = "#name")
+    public AuthorDetails getAuthorByNameInternal(String name) {
         AuthorEntity author = authorRepository.findByNameIgnoreCase(name)
                 .orElseThrow(() -> ApiError.AUTHOR_NOT_FOUND.createException(name));
-        verifyAuthorAccess(author.getId());
         return toAuthorDetails(author);
     }
 
-    @Cacheable(value = "author-by-id", key = "#authorId")
     public AuthorDetails getAuthorDetails(Long authorId) {
+        verifyAuthorAccess(authorId);
+        return self.getAuthorDetailsInternal(authorId);
+    }
+
+    @Cacheable(value = "author-by-id", key = "#authorId")
+    public AuthorDetails getAuthorDetailsInternal(Long authorId) {
         AuthorEntity author = authorRepository.findById(authorId)
                 .orElseThrow(() -> ApiError.AUTHOR_NOT_FOUND.createException(authorId));
-        verifyAuthorAccess(authorId);
         return toAuthorDetails(author);
     }
 

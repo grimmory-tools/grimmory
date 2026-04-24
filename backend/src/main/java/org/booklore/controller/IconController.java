@@ -12,10 +12,12 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.CacheControl;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 
 import java.time.Duration;
 import java.util.Map;
@@ -79,10 +81,15 @@ public class IconController {
     @Operation(summary = "Get all icon contents", description = "Retrieve all SVG icons as a map of icon names to their content.")
     @ApiResponse(responseCode = "200", description = "All icon contents retrieved successfully")
     @GetMapping("/all/content")
-    public ResponseEntity<Map<String, String>> getAllIconsContent() {
+    public ResponseEntity<Map<String, String>> getAllIconsContent(WebRequest request) {
         Map<String, String> iconsMap = iconService.getAllIconsContent();
+        String etag = Integer.toHexString(iconsMap.hashCode());
+        if (request.checkNotModified(etag)) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
+        }
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(Duration.ofHours(1)).cachePrivate())
+                .cacheControl(CacheControl.maxAge(Duration.ofHours(1)).cachePrivate().mustRevalidate())
+                .eTag(etag)
                 .body(iconsMap);
     }
 }

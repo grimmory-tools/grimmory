@@ -172,6 +172,16 @@ public class EpubReaderService {
         }
     }
 
+    public long getLastModified(Long bookId, String bookType) {
+        Path epubPath = getBookPath(bookId, bookType);
+        try {
+            CachedEpubMetadata metadata = getCachedMetadata(epubPath);
+            return metadata.lastModified;
+        } catch (IOException e) {
+            return 0L;
+        }
+    }
+
     private Path getBookPath(Long bookId, String bookType) {
         BookEntity bookEntity = bookRepository.findByIdForStreaming(bookId)
                 .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));

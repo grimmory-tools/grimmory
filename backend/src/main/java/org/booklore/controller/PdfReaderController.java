@@ -8,8 +8,13 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.CacheControl;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 
+import java.time.Duration;
 import java.util.List;
 
 @RestController
@@ -34,9 +39,20 @@ public class PdfReaderController {
     @ApiResponse(responseCode = "200", description = "Book info returned successfully")
     @GetMapping("/{bookId}/info")
     @CheckBookAccess(bookIdParam = "bookId")
-    public PdfBookInfo getBookInfo(
+    public ResponseEntity<PdfBookInfo> getBookInfo(
             @Parameter(description = "ID of the book") @PathVariable Long bookId,
-            @Parameter(description = "Optional book type for alternative format (e.g., PDF, CBX)") @RequestParam(required = false) String bookType) {
-        return pdfReaderService.getBookInfo(bookId, bookType);
+            @Parameter(description = "Optional book type for alternative format (e.g., PDF, CBX)") @RequestParam(required = false) String bookType,
+            WebRequest request) {
+        PdfBookInfo info = pdfReaderService.getBookInfo(bookId, bookType);
+        String etag = Long.toHexString(pdfReaderService.getLastModified(bookId, bookType));
+
+        if (request.checkNotModified(etag)) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
+        }
+
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(Duration.ofMinutes(30)).cachePrivate().mustRevalidate())
+                .eTag(etag)
+                .body(info);
     }
 }
