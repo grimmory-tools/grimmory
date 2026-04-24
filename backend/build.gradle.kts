@@ -6,7 +6,7 @@ import org.springframework.boot.gradle.tasks.run.BootRun
 
 plugins {
     java
-    id("org.springframework.boot") version "4.0.5"
+    id("org.springframework.boot") version "4.0.6"
     id("io.spring.dependency-management") version "1.1.7"
     id("org.hibernate.orm") version "7.3.2.Final"
     id("com.github.ben-manes.versions") version "0.54.0"
