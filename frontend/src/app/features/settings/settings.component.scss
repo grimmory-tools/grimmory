@@ -1,5 +1,63 @@
+:host {
+  display: block;
+  height: 100%;
+  min-height: 0;
+}
+
 .settings-container {
-  border-radius: 0.75rem;
-  overflow: hidden;
-  border: 1px solid var(--p-content-border-color);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.settings-container > p-tabs {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+:host ::ng-deep {
+  .settings-container {
+    .p-tabs {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .p-tablist {
+      flex: 0 0 auto;
+    }
+
+    .p-tabpanels {
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+      padding: 0;
+      background: transparent;
+    }
+
+    .p-tabpanel-active {
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+      min-height: 0;
+      padding-inline: 1.1rem;
+
+      @media (width <= 767px) {
+        padding-inline: 0;
+      }
+    }
+
+    .p-tabpanel-active > * {
+      display: block;
+      flex: 1 1 auto;
+      min-height: 0;
+      height: 100%;
+    }
+  }
 }

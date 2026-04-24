@@ -121,6 +121,15 @@ describe('AppLayoutComponent', () => {
     expect(layoutService.mobileDrawerOpen()).toBe(false);
   });
 
+  it('uses an explicit sidebar-hidden shell state when the desktop sidebar is hidden', () => {
+    layoutService.sidebarVisible.set(false);
+    fixture.detectChanges();
+
+    const wrapper = fixture.nativeElement.querySelector('.layout-wrapper') as HTMLDivElement;
+
+    expect(wrapper.classList.contains('layout-sidebar-hidden')).toBe(true);
+  });
+
   it('cleans up an active sidebar resize when the component is destroyed', () => {
     const component = fixture.componentInstance;
 

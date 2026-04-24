@@ -1,19 +1,29 @@
 .tabpanels-responsive {
-  height: calc(var(--page-available-height) - 3.6rem);
+  flex: 1 1 auto;
+  min-height: 0;
   overflow: auto;
 }
 
-@media (width <= 768px) {
-  .tabpanels-responsive {
-    height: calc(var(--page-available-height) - 4.1rem);
-  }
+.series-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  position: relative;
 }
 
-.series-wrapper {
-  position: relative;
-  border-radius: 0.75rem;
-  overflow: hidden;
-  border: 1px solid var(--p-content-border-color);
+.series-wrapper > p-tabs {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+::ng-deep .series-wrapper .p-tabs {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
 }
 
 .series-main {

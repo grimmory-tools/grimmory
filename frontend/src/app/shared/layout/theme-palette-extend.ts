@@ -1,4 +1,5 @@
 import Aura from '@primeuix/themes/aura';
+import { definePreset } from '@primeuix/themes';
 
 type ColorPalette = Record<string, string>;
 
@@ -219,4 +220,13 @@ if (!Aura.primitive) {
 
 Object.assign(Aura.primitive, customPalettes);
 
-export default Aura;
+const AppPreset = definePreset(Aura, {
+  semantic: {
+    colorScheme: {
+      light: { content: { background: 'var(--page-background)' } },
+      dark: { content: { background: 'var(--page-background)' } }
+    }
+  }
+});
+
+export default AppPreset;

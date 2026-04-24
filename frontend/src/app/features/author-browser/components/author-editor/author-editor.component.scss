@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   flex: 1;
-  min-height: calc(var(--page-available-height) - 4.9rem);
+  min-height: 0;
 }
 
 .editor-container {

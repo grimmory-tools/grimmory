@@ -3,12 +3,9 @@
 .main-container {
   width: 100%;
   padding: 1rem;
-  height: calc(var(--page-available-height) - 4.4rem);
+  height: 100%;
+  min-height: 0;
   overflow-y: auto;
-
-  @media (width >= 768px) {
-    height: calc(var(--page-available-height) - 5.55rem);
-  }
 }
 
 @include settings.settings-page-header;

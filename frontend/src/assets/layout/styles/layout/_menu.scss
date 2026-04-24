@@ -31,16 +31,14 @@
   --sidebar-section-font-weight: 500;
   --sidebar-focus-ring: inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 50%, transparent);
 
-  position: fixed;
+  position: relative;
+  grid-area: sidebar;
   width: var(--sidebar-width, 225px);
   height: 100dvh;
   z-index: 999;
   overflow: hidden;
   user-select: none;
-  top: 0;
-  left: 0;
   transition: transform var(--transition-base),
-    left var(--transition-base),
     width var(--transition-base);
   background-color: var(--app-background);
   border-right: 1px solid var(--border-color);
@@ -48,15 +46,16 @@
 }
 
 .layout-sidebar-resize-handle {
-  position: fixed;
+  position: absolute;
   top: 0;
-  left: calc(var(--sidebar-width, 225px) - 3px);
-  width: 6px;
-  height: 100dvh;
+  right: 0;
+  width: 8px;
+  height: 100%;
   z-index: 1000;
   cursor: col-resize;
 }
 
+.layout-wrapper.layout-sidebar-hidden .layout-sidebar-resize-handle,
 .layout-wrapper.layout-collapsed .layout-sidebar-resize-handle {
   display: none;
 }
@@ -68,14 +67,14 @@
 }
 
 /* Keep col-resize cursor during drag even when the mouse leaves the narrow
-   handle, and kill width/padding transitions so the drag follows the mouse
+   handle, and kill grid/width transitions so the drag follows the mouse
    one-to-one instead of animating. */
 body.layout-resizing-cursor {
   cursor: col-resize !important;
   user-select: none;
 
-  .layout-sidebar,
-  .layout-main-container {
+  .layout-wrapper,
+  .layout-sidebar {
     transition: none;
   }
 }

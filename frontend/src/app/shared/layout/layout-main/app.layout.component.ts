@@ -40,8 +40,7 @@ export class AppLayoutComponent {
   private keyboardResizing = false;
 
   readonly containerClass = computed(() => ({
-    'layout-static': true,
-    'layout-static-inactive': !this.layoutService.sidebarVisible(),
+    'layout-sidebar-hidden': !this.layoutService.sidebarVisible(),
     'layout-mobile-active': this.layoutService.mobileDrawerOpen(),
     'layout-collapsed': this.layoutService.sidebarCollapsed() && this.layoutService.isDesktop()
   }));

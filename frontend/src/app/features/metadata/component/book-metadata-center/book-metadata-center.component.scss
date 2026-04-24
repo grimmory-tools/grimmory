@@ -13,28 +13,35 @@
 }
 
 .tabs-wrapper {
-  border-radius: 0.75rem;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow: hidden;
-  border: 1px solid var(--p-content-border-color);
+}
+
+.tabs-wrapper > p-tabs {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+::ng-deep .tabs-wrapper .p-tabs {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
 }
 
 .dialog-mode {
+  border: 1px solid var(--p-content-border-color);
   border-radius: 0 0 0.75rem 0.75rem !important;
   border-width: 1px 0 0 !important;
 }
 
 .tabpanels-responsive {
+  flex: 1 1 auto;
+  min-height: 0;
   overflow: auto;
-}
-
-::ng-deep .layout-main .tabpanels-responsive {
-  height: calc(var(--page-available-height) - 3.6rem);
-}
-
-@media (width <= 768px) {
-  ::ng-deep .layout-main .tabpanels-responsive {
-    height: calc(var(--page-available-height) - 4.1rem);
-  }
 }
 
 ::ng-deep .book-details-dialog .p-dialog-content,

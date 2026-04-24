@@ -1,8 +1,17 @@
+.series-browser-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  padding: 1.1rem 1.1rem 0;
+}
+
 .loading-state {
   display: flex;
+  flex: 1 1 auto;
   align-items: center;
   justify-content: center;
-  height: calc(var(--page-available-height) - 0.6rem);
+  min-height: 0;
 }
 
 // Browse Header
@@ -98,15 +107,15 @@
 
 // Virtual scroller and grid
 .virtual-scroller {
+  flex: 1 1 auto;
   width: 100%;
-  height: calc(var(--page-available-height) - 6.4rem);
+  min-height: 0;
   padding: 1rem;
   box-sizing: border-box;
   overflow: hidden auto;
   scrollbar-gutter: stable;
 
   @media (width <= 768px) {
-    height: calc(var(--page-available-height) - 8.6rem);
     padding: 0.5rem;
   }
 }
@@ -134,6 +143,10 @@
 }
 
 @media (width <= 767px) {
+  .series-browser-page {
+    padding: 1.5rem 0 0;
+  }
+
   .browse-header {
     padding: 0.5rem 0.5rem 0;
   }

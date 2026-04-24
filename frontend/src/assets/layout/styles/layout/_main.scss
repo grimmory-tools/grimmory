@@ -26,9 +26,14 @@ a {
 }
 
 .layout-wrapper {
+  display: grid;
+  grid-template: "sidebar main" minmax(0, 1fr) / var(--sidebar-width, 225px) minmax(0, 1fr);
+  height: 100dvh;
   min-height: 100dvh;
+  overflow: hidden;
   scroll-behavior: smooth;
   background-color: var(--app-background);
+  transition: grid-template-columns variables.$transition-duration;
 }
 
 p {
