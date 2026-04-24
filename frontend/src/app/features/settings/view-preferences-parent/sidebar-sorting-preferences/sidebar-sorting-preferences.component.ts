@@ -30,9 +30,9 @@ export class SidebarSortingPreferencesComponent {
   private readonly t = inject(TranslocoService);
   private readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
 
-  readonly selectedLibrarySorting = computed(() => this.layoutService.librarySort());
-  readonly selectedShelfSorting = computed(() => this.layoutService.shelfSort());
-  readonly selectedMagicShelfSorting = computed(() => this.layoutService.magicShelfSort());
+  readonly selectedLibrarySorting = this.layoutService.librarySort;
+  readonly selectedShelfSorting = this.layoutService.shelfSort;
+  readonly selectedMagicShelfSorting = this.layoutService.magicShelfSort;
 
   readonly sortingOptions = computed(() => {
     this.activeLang();

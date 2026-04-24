@@ -7,10 +7,7 @@
   --p-accordion-content-background: var(--card-background);
 }
 
-:host ::ng-deep .p-accordionpanel,
-:host ::ng-deep .p-accordionheader,
-:host ::ng-deep .p-accordionpanel:not(.p-disabled).p-accordionpanel-active > .p-accordionheader,
-:host ::ng-deep .p-accordioncontent-content {
+:host ::ng-deep .p-accordionpanel {
   background: var(--card-background);
 }
 

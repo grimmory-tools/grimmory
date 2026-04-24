@@ -74,11 +74,11 @@
   </div>
 
   <div class="sidebar-nav">
-    @for (section of sections(); track section.id) {
-      <ul class="layout-menu">
+    <ul class="layout-menu">
+      @for (section of sections(); track section.id) {
         <li app-menu-section [item]="section"></li>
-      </ul>
-    }
+      }
+    </ul>
   </div>
 
   <div class="sidebar-footer">
