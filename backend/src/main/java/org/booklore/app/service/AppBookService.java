@@ -1076,11 +1076,12 @@ public class AppBookService {
             case "hardcoverrating" -> "metadata.hardcoverRating";
             case "hardcoverreviewcount" -> "metadata.hardcoverReviewCount";
             case "ranobedbrating" -> "metadata.ranobedbRating";
+            case "narrator" -> "metadata.narrator";
             case "lastreadtime" -> "userBookProgress.lastReadTime";
             case "readstatus" -> "userBookProgress.readStatus";
             case "datefinished" -> "userBookProgress.dateFinished";
             case "personalrating" -> "userBookProgress.personalRating";
-            default -> "addedOn";
+            default -> throw ApiError.INVALID_INPUT.createException("Invalid sort");
         };
 
         return Sort.by(direction, field);
