@@ -37,6 +37,7 @@ export class AppLayoutComponent {
   private resizeStartX = 0;
   private resizeStartWidth = 0;
   private isResizing = false;
+  private keyboardResizing = false;
 
   readonly containerClass = computed(() => ({
     'layout-static': true,
@@ -48,7 +49,12 @@ export class AppLayoutComponent {
   readonly storedSidebarWidth = computed(() => `${this.layoutService.sidebarWidth()}px`);
 
   constructor() {
-    this.destroyRef.onDestroy(() => this.cleanupResize(true));
+    this.destroyRef.onDestroy(() => {
+      if (this.keyboardResizing) {
+        this.layoutService.setSidebarWidth(this.layoutService.sidebarWidth(), true);
+      }
+      this.cleanupResize(false);
+    });
 
     effect((onCleanup) => {
       const body = this.document.body;
@@ -102,12 +108,15 @@ export class AppLayoutComponent {
     if (nextWidth === null) return;
 
     event.preventDefault();
+    this.keyboardResizing = true;
     this.layoutService.setSidebarWidth(nextWidth, false);
   }
 
-  onResizeKeyup(): void {
+  onResizeKeyup(event: KeyboardEvent): void {
     if (!this.layoutService.isDesktop()) return;
+    if (!this.isResizeKey(event.key)) return;
     this.layoutService.setSidebarWidth(this.layoutService.sidebarWidth(), true);
+    this.keyboardResizing = false;
   }
 
   private readonly onResizeMove = (event: MouseEvent) => {
@@ -119,6 +128,10 @@ export class AppLayoutComponent {
   private readonly onResizeEnd = () => {
     this.cleanupResize(true);
   };
+
+  private isResizeKey(key: string): boolean {
+    return this.getKeyboardResizeWidth(key, 0) !== null;
+  }
 
   private getKeyboardResizeWidth(key: string, currentWidth: number): number | null {
     switch (key) {

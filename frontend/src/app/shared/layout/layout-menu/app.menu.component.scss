@@ -138,7 +138,7 @@
   overflow-y: auto;
   min-height: 0;
 
-  > .layout-menu + .layout-menu {
+  .layout-root-menuitem + .layout-root-menuitem {
     margin-top: var(--sidebar-group-gap);
   }
 }
