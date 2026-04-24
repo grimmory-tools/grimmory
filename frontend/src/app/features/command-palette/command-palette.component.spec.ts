@@ -64,13 +64,29 @@ describe('CommandPaletteComponent', () => {
   let service: MockCommandPaletteService;
   let routerEvents: Subject<unknown>;
   let originalScrollIntoView: PropertyDescriptor | undefined;
+  let originalMatchMedia: PropertyDescriptor | undefined;
 
   beforeEach(() => {
     originalScrollIntoView = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollIntoView');
+    originalMatchMedia = Object.getOwnPropertyDescriptor(window, 'matchMedia');
     Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
       configurable: true,
       writable: true,
       value: vi.fn(),
+    });
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      writable: true,
+      value: vi.fn().mockImplementation((query: string) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      })),
     });
 
     routerEvents = new Subject<unknown>();
@@ -98,6 +114,11 @@ describe('CommandPaletteComponent', () => {
       Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', originalScrollIntoView);
     } else {
       delete (HTMLElement.prototype as { scrollIntoView?: unknown }).scrollIntoView;
+    }
+    if (originalMatchMedia) {
+      Object.defineProperty(window, 'matchMedia', originalMatchMedia);
+    } else {
+      delete (window as { matchMedia?: unknown }).matchMedia;
     }
     TestBed.resetTestingModule();
     vi.restoreAllMocks();

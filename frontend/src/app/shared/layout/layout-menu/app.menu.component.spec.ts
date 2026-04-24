@@ -41,7 +41,11 @@ function createRect(top: number, bottom: number, left: number): DOMRect {
   } as DOMRect;
 }
 
-type TestUser = { name: string; username: string; permissions: Record<string, boolean> };
+interface TestUser {
+  name: string;
+  username: string;
+  permissions: Record<string, boolean>;
+}
 
 describe('AppMenuComponent', () => {
   let fixture: ComponentFixture<AppMenuComponent>;
