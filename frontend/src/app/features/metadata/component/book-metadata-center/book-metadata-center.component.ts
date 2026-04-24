@@ -86,7 +86,12 @@ export class BookMetadataCenterComponent implements OnInit, OnDestroy {
   });
   get isPhysical(): boolean { return this.book()?.isPhysical ?? false; }
   isLocalStorage: boolean = true;
+  get canShowSidecarTab(): boolean {
+    const settings = this.appSettingsService.appSettings();
+    const sidecarEnabled = settings?.metadataPersistenceSettings?.sidecarSettings?.enabled ?? false;
 
+    return (this.admin || this.canEditMetadata) && !this.isPhysical && this.isLocalStorage && sidecarEnabled;
+  }
   private validTabs = ['view', 'edit', 'match', 'sidecar'];
 
   get tab(): string {
