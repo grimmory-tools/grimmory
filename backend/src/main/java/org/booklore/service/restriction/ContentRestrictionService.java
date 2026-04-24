@@ -63,10 +63,10 @@ public class ContentRestrictionService {
 
     @Transactional
     public List<ContentRestriction> updateRestrictions(Long userId, List<ContentRestriction> restrictions) {
-        restrictionRepository.deleteByUserId(userId);
-
         BookLoreUserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(userId));
+
+        restrictionRepository.deleteByUserId(userId);
 
         List<UserContentRestrictionEntity> entities = restrictions.stream()
                 .map(r -> UserContentRestrictionEntity.builder()
