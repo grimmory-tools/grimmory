@@ -1069,7 +1069,15 @@ public class AppBookService {
             case "language" -> "metadata.language";
             case "publisher" -> "metadata.publisher";
             case "publisheddate" -> "metadata.publishedDate";
+            case "amazonrating" -> "metadata.amazonRating";
+            case "amazonreviewcount" -> "metadata.amazonReviewCount";
+            case "goodreadsrating" -> "metadata.goodreadsRating";
+            case "goodreadsreviewcount" -> "metadata.goodreadsReviewCount";
+            case "hardcoverrating" -> "metadata.hardcoverRating";
+            case "hardcoverreviewcount" -> "metadata.hardcoverReviewCount";
+            case "ranobedbrating" -> "metadata.ranobedbRating";
             case "lastreadtime" -> "userBookProgress.lastReadTime";
+            case "readstatus" -> "userBookProgress.readStatus";
             case "datefinished" -> "userBookProgress.dateFinished";
             case "personalrating" -> "userBookProgress.personalRating";
             default -> "addedOn";
