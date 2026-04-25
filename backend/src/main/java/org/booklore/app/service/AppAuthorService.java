@@ -74,14 +74,14 @@ public class AppAuthorService {
         CriteriaQuery<Tuple> dataCq = cb.createTupleQuery();
         Root<AuthorEntity> dataRoot = dataCq.from(AuthorEntity.class);
         
-        Expression<Long> bookCountExpr = AppAuthorSpecification.bookCountExpression(dataRoot, cb);
+        Expression<Long> bookCount = AppAuthorSpecification.bookCount(dataRoot, cb);
 
         dataCq.multiselect(
             dataRoot.get(AuthorEntity_.id).alias("id"),
             dataRoot.get(AuthorEntity_.name).alias("name"),
             dataRoot.get(AuthorEntity_.asin).alias("asin"),
             dataRoot.get(AuthorEntity_.hasPhoto).alias("hasPhoto"),
-            bookCountExpr.alias("bookCount")
+            bookCount.alias("bookCount")
         );
         dataCq.where(spec.toPredicate(dataRoot, dataCq, cb));
         dataCq.groupBy(dataRoot);
@@ -92,7 +92,7 @@ public class AppAuthorService {
             default -> false;
         };
         Expression<?> sortExpr = switch (normalizedSort) {
-            case "bookcount", "book_count" -> bookCountExpr;
+            case "bookcount", "book_count" -> bookCount;
             case "recent", "id" -> dataRoot.get(AuthorEntity_.id);
             default -> dataRoot.get(AuthorEntity_.name);
         };

@@ -15,7 +15,7 @@ public class AppAuthorSpecification {
      * Factory for the book count expression. 
      * Note: This adds a JOIN to the query it is used in.
      */
-    public static Expression<Long> bookCountExpression(Root<AuthorEntity> root, CriteriaBuilder cb) {
+    public static Expression<Long> bookCount(Root<AuthorEntity> root, CriteriaBuilder cb) {
         Join<AuthorEntity, BookMetadataEntity> bmJoin = getOrCreateJoin(root, AuthorEntity_.bookMetadataEntityList, JoinType.LEFT);
         return cb.countDistinct(bmJoin.get(BookMetadataEntity_.bookId));
     }
