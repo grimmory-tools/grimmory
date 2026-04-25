@@ -146,7 +146,7 @@ class LubimyCzytacParserTest {
     void testFetchMetadata_parsesBook() throws Exception {
         // Given
         Book book = Book.builder()
-            .title("Wiedźmin")
+            .title("Sklepy cynamonowe")
             .build();
 
         FetchMetadataRequest request = FetchMetadataRequest.builder()
@@ -208,9 +208,8 @@ class LubimyCzytacParserTest {
         // There may be a better way to get the parse to work here.
         // However, this was the quickest and simplest way I could find.
         mockJsoup.when(() -> Jsoup.parse(response)).thenCallRealMethod();
-        Document document = Jsoup.parse(response);
 
-        when(mockConnection.get()).thenReturn(document);
+        when(mockConnection.get()).thenAnswer(i -> Jsoup.parse(response));
 
         mockJsoup.when(() -> Jsoup.connect(startsWith(urlPrefix))).thenReturn(mockConnection);
     }
