@@ -6,29 +6,53 @@ import org.booklore.model.dto.request.FetchMetadataRequest;
 import org.booklore.model.dto.settings.AppSettings;
 import org.booklore.model.dto.settings.MetadataProviderSettings;
 import org.booklore.service.appsettings.AppSettingService;
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.MockedStatic;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class LubimyCzytacParserTest {
 
     @Mock
     private AppSettingService appSettingService;
 
+    private MockedStatic<Jsoup> mockJsoup;
+
     @InjectMocks
     private LubimyCzytacParser parser;
 
+    private String exampleSearchHtmlFixture;
+
+    private String exampleBookHtmlFixture;
+
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
+    void setUp() throws IOException {
+        exampleSearchHtmlFixture = readFixture("example-search.html");
+        exampleBookHtmlFixture = readFixture("example-book.html");
+
+        mockJsoup = mockStatic(Jsoup.class);
+
+    }
+
+    @AfterEach
+    void tearDown() {
+        mockJsoup.close();
     }
 
     @Test
@@ -118,16 +142,15 @@ class LubimyCzytacParserTest {
     }
 
     @Test
-    @Disabled("Integration test - requires network access to LubimyCzytac.pl")
-    void testFetchMetadata_Integration_RealBook() {
+    void testFetchMetadata_parsesBook() throws Exception {
         // Given
         Book book = Book.builder()
             .title("Wiedźmin")
             .build();
 
         FetchMetadataRequest request = FetchMetadataRequest.builder()
-            .title("Wiedźmin")
-            .author("Andrzej Sapkowski")
+            .title("Sklepy cynamonowe")
+            .author("Bruno Schulz")
             .build();
 
         // Mock enabled provider
@@ -138,6 +161,10 @@ class LubimyCzytacParserTest {
         providerSettings.setLubimyczytac(lubimyCzytac);
         appSettings.setMetadataProviderSettings(providerSettings);
 
+        // Two expected URLs
+        mockResponse("https://lubimyczytac.pl/szukaj/ksiazki", exampleSearchHtmlFixture);
+        mockResponse("https://lubimyczytac.pl/ksiazka/", exampleBookHtmlFixture);
+
         when(appSettingService.getAppSettings()).thenReturn(appSettings);
 
         // When
@@ -147,10 +174,43 @@ class LubimyCzytacParserTest {
         assertNotNull(results);
         assertFalse(results.isEmpty(), "Should return results for real book");
 
-        BookMetadata firstResult = results.getFirst();
-        assertNotNull(firstResult.getTitle(), "Title should be present");
-        assertNotNull(firstResult.getLubimyczytacId(), "LubimyCzytac ID should be present");
-        assertTrue(firstResult.getAuthors() != null && !firstResult.getAuthors().isEmpty(),
-            "Authors should be present");
+        BookMetadata result = results.getFirst();
+        assertEquals("Sklepy cynamonowe", result.getTitle());
+        assertNull(result.getIsbn10());
+        assertEquals("9788384258149", result.getIsbn13());
+        assertEquals("5223841", result.getLubimyczytacId());
+        assertNotNull(result.getAuthors());
+        assertEquals(1, result.getAuthors().size());
+        assertEquals("Bruno Schulz", result.getAuthors().getFirst());
+
+        // The description is very long, but we need to make sure we're in the right ballpark.
+        assertEquals("Jedno z najoryginalniejszych", result.getDescription().substring(0, 28));
+        assertEquals(827, result.getDescription().length());
+    }
+
+    private String readFixture(String fixtureName) throws IOException {
+        String filename = Paths.get("lubimyczytac", fixtureName + ".fixture").toString();
+
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream(filename)) {
+            assert is != null;
+
+            return new String(is.readAllBytes());
+        }
+    }
+
+    private void mockResponse(String urlPrefix, String response) throws Exception {
+        Connection mockConnection = mock(Connection.class);
+
+        when(mockConnection.userAgent(any())).thenReturn(mockConnection);
+        when(mockConnection.timeout(anyInt())).thenReturn(mockConnection);
+
+        // There may be a better way to get the parse to work here.
+        // However, this was the quickest and simplest way I could find.
+        mockJsoup.when(() -> Jsoup.parse(response)).thenCallRealMethod();
+        Document document = Jsoup.parse(response);
+
+        when(mockConnection.get()).thenReturn(document);
+
+        mockJsoup.when(() -> Jsoup.connect(startsWith(urlPrefix))).thenReturn(mockConnection);
     }
 }
