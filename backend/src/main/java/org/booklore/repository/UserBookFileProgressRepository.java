@@ -15,6 +15,7 @@ import java.util.Optional;
 @Repository
 public interface UserBookFileProgressRepository extends JpaRepository<UserBookFileProgressEntity, Long> {
 
+    @EntityGraph(attributePaths = {"bookFile", "bookFile.book", "bookFile.book.libraryPath", "bookFile.book.library"})
     Optional<UserBookFileProgressEntity> findByUserIdAndBookFileId(Long userId, Long bookFileId);
 
     @Query("""
@@ -52,7 +53,7 @@ public interface UserBookFileProgressRepository extends JpaRepository<UserBookFi
             @Param("bookId") Long bookId
     );
 
-    @EntityGraph(attributePaths = {"bookFile", "bookFile.book"})
+    @EntityGraph(attributePaths = {"bookFile", "bookFile.book", "bookFile.book.libraryPath", "bookFile.book.library"})
     @Query("""
         SELECT ubfp FROM UserBookFileProgressEntity ubfp
         WHERE ubfp.user.id = :userId
@@ -63,7 +64,7 @@ public interface UserBookFileProgressRepository extends JpaRepository<UserBookFi
             @Param("bookIds") Iterable<Long> bookIds
     );
 
-    @EntityGraph(attributePaths = {"bookFile", "bookFile.book"})
+    @EntityGraph(attributePaths = {"bookFile", "bookFile.book", "bookFile.book.libraryPath", "bookFile.book.library"})
     @Query("""
         SELECT ubfp FROM UserBookFileProgressEntity ubfp
         WHERE ubfp.user.id = :userId

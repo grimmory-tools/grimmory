@@ -273,6 +273,33 @@ class EpubCfiServiceTest {
         }
 
         @Test
+        void resolveCfiLocation_webReaderStyleTerminalTextStepResolvesDeepIntoChapter() {
+            String earlyCfi = "epubcfi(/6/2!/4/2/2/1:0)";
+            String laterCfi = "epubcfi(/6/2!/4/2/4/1:10)";
+
+            EpubCfiService.CfiLocation earlyLocation = service.resolveCfiLocation(testEpubFile, earlyCfi).orElseThrow();
+            EpubCfiService.CfiLocation laterLocation = service.resolveCfiLocation(testEpubFile, laterCfi).orElseThrow();
+
+            assertEquals("chapter1.xhtml", earlyLocation.href());
+            assertEquals("chapter1.xhtml", laterLocation.href());
+            assertNotNull(earlyLocation.contentSourceProgressPercent());
+            assertNotNull(laterLocation.contentSourceProgressPercent());
+            assertTrue(earlyLocation.contentSourceProgressPercent() > 10f);
+            assertTrue(laterLocation.contentSourceProgressPercent() > earlyLocation.contentSourceProgressPercent() + 10f);
+        }
+
+        @Test
+        void resolveCfiLocation_rangeCfiUsesRangeEndPosition() {
+            String rangeCfi = "epubcfi(/6/2!/4/2,/2/1:0,/4/1:10)";
+
+            EpubCfiService.CfiLocation location = service.resolveCfiLocation(testEpubFile, rangeCfi).orElseThrow();
+
+            assertEquals("chapter1.xhtml", location.href());
+            assertNotNull(location.contentSourceProgressPercent());
+            assertTrue(location.contentSourceProgressPercent() > 30f);
+        }
+
+        @Test
         void resolveCfiLocation_invalidCfiReturnsEmpty() {
             assertTrue(service.resolveCfiLocation(testEpubFile, "invalid").isEmpty());
         }
