@@ -173,6 +173,7 @@ class HibernateRegressionTest {
                     .deleted(false)
                     .build();
             entityManager.persist(book);
+            entityManager.flush();
 
             BookFileEntity bookFile = BookFileEntity.builder()
                     .book(book)
