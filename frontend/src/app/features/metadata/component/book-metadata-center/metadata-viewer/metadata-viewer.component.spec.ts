@@ -14,6 +14,8 @@ import {UrlHelperService} from '../../../../../shared/service/url-helper.service
 import {UserService} from '../../../../settings/user-management/user.service';
 import {EmailService} from '../../../../settings/email-v2/email.service';
 import {BookDialogHelperService} from '../../../../book/components/book-browser/book-dialog-helper.service';
+import {LibraryService} from '../../../../book/service/library.service';
+import {BookMetadataManageService} from '../../../../book/service/book-metadata-manage.service';
 import {TaskHelperService} from '../../../../settings/task-management/task-helper.service';
 import {AuthorService} from '../../../../author-browser/service/author.service';
 import {Router} from '@angular/router';
@@ -206,7 +208,18 @@ describe('MetadataViewerComponent', () => {
     TestBed.configureTestingModule({
       imports: [MetadataViewerComponent],
       providers: [
-        {provide: TranslocoService, useValue: {translate}},
+        {
+          provide: TranslocoService,
+          useValue: {
+            translate,
+            config: {reRenderOnLangChange: true},
+            langChanges$: of('en'),
+            events$: of({}),
+            getActiveLang: () => 'en'
+          }
+        },
+        {provide: LibraryService, useValue: {findLibraryById}},
+        {provide: BookMetadataManageService, useValue: {}},
         {
           provide: BookDialogHelperService,
           useValue: {
