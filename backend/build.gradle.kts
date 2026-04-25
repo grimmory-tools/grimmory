@@ -171,11 +171,8 @@ dependencies {
     implementation(platform("tools.jackson:jackson-bom:3.1.2"))
     implementation("tools.jackson.core:jackson-core")
     implementation("tools.jackson.core:jackson-databind")
-    implementation("tools.jackson.module:jackson-module-blackbird")
-
-    // --- Jackson 2 (Compatibility) ---
-    // jackson-annotations version is managed by Jackson 3 BOM (requires 2.20+)
     implementation("com.fasterxml.jackson.core:jackson-annotations")
+    implementation("tools.jackson.module:jackson-module-blackbird")
 
     // --- Caching ---
     implementation("org.springframework.boot:spring-boot-starter-cache")
