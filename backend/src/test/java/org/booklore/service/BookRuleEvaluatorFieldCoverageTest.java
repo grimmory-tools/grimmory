@@ -12,6 +12,8 @@ import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -57,6 +59,7 @@ import static org.mockito.Mockito.mock;
         "spring.jpa.properties.hibernate.connection.provider_disables_autocommit=false"
 })
 @Import(BookRuleEvaluatorFieldCoverageTest.TestConfig.class)
+@Execution(ExecutionMode.SAME_THREAD)
 class BookRuleEvaluatorFieldCoverageTest {
 
     @TestConfiguration
