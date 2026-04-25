@@ -1,4 +1,4 @@
-import {Component, EventEmitter, inject, Input, Output} from '@angular/core';
+import {Component, computed, EventEmitter, inject, input, Output} from '@angular/core';
 import {UpperCasePipe} from '@angular/common';
 import {Book, BookRecommendation, BookType, FileInfo} from '../../../../../book/model/book.model';
 import {Tab, TabList, TabPanel, TabPanels, Tabs} from 'primeng/tabs';
@@ -81,28 +81,13 @@ export interface DetachBookFileEvent {
   styleUrl: './metadata-tabs.component.scss'
 })
 export class MetadataTabsComponent {
-  private _book!: Book;
-  private _bookInSeries: Book[] = [];
-  private _otherBooksInSeriesCache: Book[] | null = null;
+  readonly book = input<Book | null>(null);
+  readonly bookInSeries = input<Book[]>([]);
+  readonly recommendedBooks = input<BookRecommendation[]>([]);
 
-  @Input()
-  set book(value: Book) {
-    this._book = value;
-    this._otherBooksInSeriesCache = null;
-  }
-  get book(): Book {
-    return this._book;
-  }
-
-  @Input()
-  set bookInSeries(value: Book[]) {
-    this._bookInSeries = value;
-    this._otherBooksInSeriesCache = null;
-  }
-  get bookInSeries(): Book[] {
-    return this._bookInSeries;
-  }
-  @Input() recommendedBooks: BookRecommendation[] = [];
+  readonly otherBooksInSeries = computed(() =>
+    this.bookInSeries().filter(bookInSeriesItem => bookInSeriesItem.id !== this.book()?.id)
+  );
 
   protected urlHelper = inject(UrlHelperService);
   private bookMetadataManageService = inject(BookMetadataManageService);
@@ -121,14 +106,7 @@ export class MetadataTabsComponent {
   @Output() detachBookFile = new EventEmitter<DetachBookFileEvent>();
 
   get defaultTabValue(): string {
-    return this.bookInSeries && this.bookInSeries.length > 1 ? 'series' : 'similar';
-  }
-
-  get otherBooksInSeries(): Book[] {
-    if (!this._otherBooksInSeriesCache) {
-      this._otherBooksInSeriesCache = this.bookInSeries.filter(bookInSeriesItem => bookInSeriesItem.id !== this.book?.id);
-    }
-    return this._otherBooksInSeriesCache;
+    return this.bookInSeries().length > 1 ? 'series' : 'similar';
   }
 
   read(bookId: number, reader?: 'epub-streaming', bookType?: BookType): void {
@@ -222,11 +200,13 @@ export class MetadataTabsComponent {
   }
 
   isPhysicalBook(): boolean {
-    return !this.book?.primaryFile && (!this.book?.alternativeFormats || this.book.alternativeFormats.length === 0);
+    const book = this.book();
+    return !book?.primaryFile && (!book?.alternativeFormats || book.alternativeFormats.length === 0);
   }
 
   supportsDualCovers(): boolean {
-    return this.bookMetadataManageService.supportsDualCovers(this.book);
+    const book = this.book();
+    return book ? this.bookMetadataManageService.supportsDualCovers(book) : false;
   }
 
   onTabChange(value: string | number | undefined): void {
@@ -236,14 +216,17 @@ export class MetadataTabsComponent {
   }
 
   hasAudiobookFormat(): boolean {
-    const allFiles = [this.book.primaryFile, ...(this.book.alternativeFormats || [])].filter(f => f?.bookType);
+    const book = this.book();
+    if (!book) return false;
+    const allFiles = [book.primaryFile, ...(book.alternativeFormats || [])].filter(f => f?.bookType);
     return allFiles.some(f => f!.bookType === 'AUDIOBOOK');
   }
 
   loadChapters(): void {
-    if (this.audiobookInfo || this.chaptersLoading) return;
+    const bookId = this.book()?.id;
+    if (!bookId || this.audiobookInfo || this.chaptersLoading) return;
     this.chaptersLoading = true;
-    this.audiobookService.getAudiobookInfo(this.book.id).subscribe({
+    this.audiobookService.getAudiobookInfo(bookId).subscribe({
       next: info => {
         this.audiobookInfo = info;
         this.chaptersLoading = false;

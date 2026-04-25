@@ -141,8 +141,12 @@ describe('MetadataViewerComponent', () => {
     } as Book;
   }
 
-  function createComponent(): MetadataViewerComponent {
-    return TestBed.runInInjectionContext(() => new MetadataViewerComponent());
+  function createComponent() {
+    const fixture = TestBed.createComponent(MetadataViewerComponent);
+    return {
+      fixture,
+      component: fixture.componentInstance
+    };
   }
 
   function runMenuCommand(command: MenuItem['command'] | undefined): void {
@@ -201,9 +205,9 @@ describe('MetadataViewerComponent', () => {
     lastConfirmation = null;
 
     TestBed.configureTestingModule({
+      imports: [MetadataViewerComponent],
       providers: [
         {provide: TranslocoService, useValue: {translate}},
-        {provide: LibraryService, useValue: {findLibraryById}},
         {
           provide: BookDialogHelperService,
           useValue: {
@@ -257,7 +261,7 @@ describe('MetadataViewerComponent', () => {
   });
 
   it('filters series recommendations and builds the read, download, and other menus from the current book', () => {
-    const component = createComponent();
+    const {fixture, component} = createComponent();
     const seriesBooks = [
       {id: 8, metadata: {seriesNumber: 2}},
       {id: 4, metadata: {seriesNumber: 1}},
@@ -269,7 +273,7 @@ describe('MetadataViewerComponent', () => {
       {book: {id: 17} as Book, similarityScore: 0.87},
     ];
 
-    component.recommendedBooks = recommendedBooks;
+    fixture.componentRef.setInput('recommendedBooks', recommendedBooks);
     const richBook = createBook(
       {
         id: 21,
@@ -308,10 +312,11 @@ describe('MetadataViewerComponent', () => {
       },
     } as AppSettings);
 
-    component.book = richBook;
+    fixture.componentRef.setInput('book', richBook);
+    fixture.detectChanges();
 
     expect(component.bookInSeries.map(book => book.id)).toEqual([4, 8]);
-    expect(component.recommendedBooks.map(book => book.book.id)).toEqual([17]);
+    expect(component.recommendedBooksFiltered.map(book => book.book.id)).toEqual([17]);
 
     const readItems = component.readMenuItems();
     expect(readItems.map(item => item.separator ? 'separator' : item.label)).toEqual([
@@ -375,7 +380,7 @@ describe('MetadataViewerComponent', () => {
   });
 
   it('chooses confirmation copy for file deletion branches and runs the accept callbacks', () => {
-    const component = createComponent();
+    const {component} = createComponent();
     const book = createBook();
 
     component.deleteBookFile(book, 1, 'primary.epub', true, true);
@@ -417,7 +422,7 @@ describe('MetadataViewerComponent', () => {
   });
 
   it('navigates and formats helper branches for read states, file metadata, and location helpers', () => {
-    const component = createComponent();
+    const {component} = createComponent();
     const viewer = component as unknown as {
       metadataCenterViewMode: 'route' | 'dialog';
     };
