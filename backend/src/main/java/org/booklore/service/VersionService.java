@@ -32,7 +32,7 @@ public class VersionService {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
 
-    @Cacheable("versionInfo")
+    @Cacheable(value = "versionInfo", unless = "#result == null || 'unknown'.equals(#result.latest)")
     public VersionInfo getVersionInfo() {
         String latest = "unknown";
         try {
@@ -43,7 +43,7 @@ public class VersionService {
         return new VersionInfo(appVersion, latest);
     }
 
-    @Cacheable(value = "changelog", key = "#root.target.appVersion")
+    @Cacheable(value = "changelog", key = "#root.target.appVersion", unless = "#result == null || #result.isEmpty()")
     public List<ReleaseNote> getChangelogSinceCurrentVersion() {
         return fetchReleaseNotesSince(appVersion);
     }
