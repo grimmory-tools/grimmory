@@ -25,13 +25,6 @@
   min-height: 0;
 }
 
-::ng-deep .tabs-wrapper .p-tabs {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-}
-
 .dialog-mode {
   border: 1px solid var(--p-content-border-color);
   border-radius: 0 0 0.75rem 0.75rem !important;
@@ -44,18 +37,17 @@
   overflow: auto;
 }
 
-::ng-deep .book-details-dialog .p-dialog-content,
-::ng-deep .book-details-dialog app-book-metadata-center,
-::ng-deep .book-details-dialog app-book-metadata-center > div,
-::ng-deep .book-details-dialog app-book-metadata-center p-tabs {
+:host-context(.book-details-dialog) {
   display: flex;
   width: 100%;
 }
 
-::ng-deep .book-details-dialog p-tablist {
-  flex-shrink: 0;
+:host-context(.book-details-dialog) .book-metadata-center-container,
+:host-context(.book-details-dialog) p-tabs {
+  display: flex;
+  width: 100%;
 }
 
-::ng-deep .book-details-dialog .p-dialog-content {
-  padding: 0;
+:host-context(.book-details-dialog) p-tablist {
+  flex-shrink: 0;
 }

@@ -11,48 +11,38 @@
   min-height: 0;
 }
 
-.settings-container > p-tabs {
+.settings-container > p-tabs,
+.settings-container p-tabs.p-tabs {
   display: flex;
   flex-direction: column;
   height: 100%;
   min-height: 0;
 }
 
-:host ::ng-deep {
-  .settings-container {
-    .p-tabs {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      min-height: 0;
-    }
+.settings-container p-tablist {
+  flex: 0 0 auto;
+}
 
-    .p-tablist {
-      flex: 0 0 auto;
-    }
+.settings-container p-tabpanels {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+  background: transparent;
+}
 
-    .p-tabpanels {
-      display: flex;
-      flex: 1 1 auto;
-      flex-direction: column;
-      min-height: 0;
-      overflow: hidden;
-      padding: 0;
-      background: transparent;
-    }
+.settings-container p-tabpanel.p-tabpanel-active {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+}
 
-    .p-tabpanel-active {
-      display: flex;
-      flex: 1 1 auto;
-      flex-direction: column;
-      min-height: 0;
-    }
-
-    .p-tabpanel-active > * {
-      display: block;
-      flex: 1 1 auto;
-      min-height: 0;
-      height: 100%;
-    }
-  }
+.settings-container p-tabpanel.p-tabpanel-active > * {
+  display: block;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
 }
