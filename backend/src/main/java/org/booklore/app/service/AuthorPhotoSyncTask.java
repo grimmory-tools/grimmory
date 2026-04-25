@@ -2,7 +2,9 @@ package org.booklore.app.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.booklore.model.entity.AppSettingEntity;
 import org.booklore.model.entity.AuthorEntity;
+import org.booklore.repository.AppSettingsRepository;
 import org.booklore.repository.AuthorRepository;
 import org.booklore.util.FileService;
 import org.springframework.boot.CommandLineRunner;
@@ -24,11 +26,23 @@ public class AuthorPhotoSyncTask implements CommandLineRunner {
     private final AuthorRepository authorRepository;
     private final FileService fileService;
     private final TransactionTemplate transactionTemplate;
+    private final AppSettingsRepository appSettingsRepository;
+
+    private static final String AUTHOR_PHOTO_SYNC_COMPLETED = "author_photo_sync_completed";
 
     @Override
     public void run(String... args) {
-        log.info("Scheduling author photo synchronization task in background...");
-        CompletableFuture.runAsync(this::syncPhotos);
+        if (isSyncNeeded()) {
+            log.info("Scheduling author photo synchronization task in background...");
+            CompletableFuture.runAsync(this::syncPhotos);
+        } else {
+            log.info("Author photo synchronization already completed. Skipping.");
+        }
+    }
+
+    private boolean isSyncNeeded() {
+        AppSettingEntity setting = appSettingsRepository.findByName(AUTHOR_PHOTO_SYNC_COMPLETED);
+        return setting == null || !"true".equalsIgnoreCase(setting.getVal());
     }
 
     private void syncPhotos() {
@@ -55,9 +69,23 @@ public class AuthorPhotoSyncTask implements CommandLineRunner {
             } else {
                 log.info("Author photo synchronization finished. No changes needed.");
             }
+            setSyncCompleted();
         } catch (Exception e) {
             log.error("Error during author photo synchronization", e);
         }
+    }
+
+    private void setSyncCompleted() {
+        transactionTemplate.execute(status -> {
+            AppSettingEntity setting = appSettingsRepository.findByName(AUTHOR_PHOTO_SYNC_COMPLETED);
+            if (setting == null) {
+                setting = new AppSettingEntity();
+                setting.setName(AUTHOR_PHOTO_SYNC_COMPLETED);
+            }
+            setting.setVal("true");
+            appSettingsRepository.save(setting);
+            return null;
+        });
     }
 
     private long processBatch(List<AuthorEntity> authors) {

@@ -15,6 +15,7 @@ import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.util.FileService;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.Tuple;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
 import org.booklore.app.specification.AppAuthorSpecification;
@@ -74,44 +75,46 @@ public class AppAuthorService {
             return AppPageResponse.of(Collections.emptyList(), pageNum, pageSize, 0L);
         }
 
-        // Data query with book count
-        CriteriaQuery<Object[]> dataCq = cb.createQuery(Object[].class);
+        // Data query with book count using Tuple for DTO projection
+        CriteriaQuery<Tuple> dataCq = cb.createTupleQuery();
         Root<AuthorEntity> dataRoot = dataCq.from(AuthorEntity.class);
         
         Expression<Long> bookCountExpr = AppAuthorSpecification.bookCountExpression(dataRoot, cb);
 
-        dataCq.multiselect(dataRoot, bookCountExpr);
+        dataCq.multiselect(
+            dataRoot.get(AuthorEntity_.id).alias("id"),
+            dataRoot.get(AuthorEntity_.name).alias("name"),
+            dataRoot.get(AuthorEntity_.asin).alias("asin"),
+            dataRoot.get(AuthorEntity_.hasPhoto).alias("hasPhoto"),
+            bookCountExpr.alias("bookCount")
+        );
         dataCq.where(spec.toPredicate(dataRoot, dataCq, cb));
         dataCq.groupBy(dataRoot);
 
         // Sorting logic using switch expression (Java 21+)
         Expression<?> sortExpr = switch (sortBy == null ? "" : sortBy.toLowerCase()) {
             case "bookcount", "book_count" -> bookCountExpr;
-            case "recent", "id" -> dataRoot.get("id");
-            default -> dataRoot.get("name");
+            case "recent", "id" -> dataRoot.get(AuthorEntity_.id);
+            default -> dataRoot.get(AuthorEntity_.name);
         };
 
         dataCq.orderBy("asc".equalsIgnoreCase(sortDir) ? cb.asc(sortExpr) : cb.desc(sortExpr));
 
-        TypedQuery<Object[]> dataQuery = entityManager.createQuery(dataCq);
+        TypedQuery<Tuple> dataQuery = entityManager.createQuery(dataCq);
         dataQuery.setFirstResult(pageNum * pageSize);
         dataQuery.setMaxResults(pageSize);
 
-        List<Object[]> results = dataQuery.getResultList();
+        List<Tuple> results = dataQuery.getResultList();
 
         List<AppAuthorSummary> summaries = results.stream()
-                .map(row -> {
-                    AuthorEntity author = (AuthorEntity) row[0];
-                    long bookCount = (Long) row[1];
-                    return AppAuthorSummary.builder()
-                            .id(author.getId())
-                            .name(author.getName())
-                            .asin(author.getAsin())
-                            .bookCount((int) bookCount)
-                            .hasPhoto(author.isHasPhoto())
-                            .build();
-                })
-                .collect(Collectors.toList());
+                .map(tuple -> AppAuthorSummary.builder()
+                        .id(tuple.get("id", Long.class))
+                        .name(tuple.get("name", String.class))
+                        .asin(tuple.get("asin", String.class))
+                        .bookCount(tuple.get("bookCount", Long.class).intValue())
+                        .hasPhoto(tuple.get("hasPhoto", Boolean.class))
+                        .build())
+                .toList();
 
         return AppPageResponse.of(summaries, pageNum, pageSize, totalElements);
     }
@@ -161,18 +164,6 @@ public class AppAuthorService {
         return query.getSingleResult().intValue();
     }
 
-    private long countAuthorsWithPhotoFilter(Set<Long> accessibleLibraryIds, Long libraryId, String search, boolean hasPhoto) {
-        Specification<AuthorEntity> spec = buildSpecification(accessibleLibraryIds, libraryId, search, hasPhoto);
-
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-        Root<AuthorEntity> root = cq.from(AuthorEntity.class);
-        
-        cq.select(cb.countDistinct(root));
-        cq.where(spec.toPredicate(root, cq, cb));
-
-        return entityManager.createQuery(cq).getSingleResult();
-    }
 
     private Specification<AuthorEntity> buildSpecification(Set<Long> accessibleLibraryIds, Long libraryId, String search, Boolean hasPhoto) {
         Specification<AuthorEntity> spec = Specification.where(AppAuthorSpecification.notDeleted())

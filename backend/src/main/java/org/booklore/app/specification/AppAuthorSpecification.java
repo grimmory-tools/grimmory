@@ -16,8 +16,8 @@ public class AppAuthorSpecification {
      * Note: This adds a JOIN to the query it is used in.
      */
     public static Expression<Long> bookCountExpression(Root<AuthorEntity> root, CriteriaBuilder cb) {
-        Join<AuthorEntity, BookMetadataEntity> bmJoin = getOrCreateJoin(root, "bookMetadataEntityList", JoinType.LEFT);
-        return cb.countDistinct(bmJoin.get("bookId"));
+        Join<AuthorEntity, BookMetadataEntity> bmJoin = getOrCreateJoin(root, AuthorEntity_.bookMetadataEntityList, JoinType.LEFT);
+        return cb.countDistinct(bmJoin.get(BookMetadataEntity_.bookId));
     }
 
     public static Specification<AuthorEntity> inLibraries(Collection<Long> libraryIds) {
@@ -105,6 +105,17 @@ public class AppAuthorSpecification {
             String pattern = "%" + searchQuery.toLowerCase().trim() + "%";
             return cb.like(cb.lower(root.get("name")), pattern);
         };
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <X, Y> Join<X, Y> getOrCreateJoin(From<?, X> from, jakarta.persistence.metamodel.Attribute<X, ?> attribute, JoinType joinType) {
+        String name = attribute.getName();
+        for (Join<X, ?> join : from.getJoins()) {
+            if (join.getAttribute().getName().equals(name) && join.getJoinType() == joinType) {
+                return (Join<X, Y>) join;
+            }
+        }
+        return from.join(name, joinType);
     }
 
     @SuppressWarnings("unchecked")
