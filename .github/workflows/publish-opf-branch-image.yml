@@ -1,0 +1,79 @@
+name: Publish OPF Branch Image
+
+on:
+  push:
+    branches:
+      - codex/opf-support
+  workflow_dispatch:
+
+concurrency:
+  group: publish-opf-branch-image-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-push:
+    name: Build and Push GHCR Image
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 1
+
+      - name: Compute Image Metadata
+        id: meta
+        shell: bash
+        run: |
+          set -eu
+
+          short_sha="$(git rev-parse --short HEAD)"
+          image_repo="$(printf '%s' "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')"
+          image_name="ghcr.io/${image_repo}/grimmory"
+          version_tag="opf-support-${short_sha}"
+
+          {
+            echo "image_name=${image_name}"
+            echo "branch_tag=opf-support"
+            echo "version_tag=${version_tag}"
+            echo "commit_sha=$(git rev-parse HEAD)"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Set Up QEMU for Multi-Arch Builds
+        uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0
+        with:
+          cache-image: false
+
+      - name: Set Up Docker Buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+
+      - name: Authenticate to GitHub Container Registry
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Build and Push OPF Branch Image
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+        with:
+          context: .
+          file: Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ steps.meta.outputs.image_name }}:${{ steps.meta.outputs.branch_tag }}
+            ${{ steps.meta.outputs.image_name }}:${{ steps.meta.outputs.version_tag }}
+          build-args: |
+            APP_VERSION=${{ steps.meta.outputs.version_tag }}
+            APP_REVISION=${{ steps.meta.outputs.commit_sha }}
+          cache-from: |
+            type=gha,scope=opf-branch-image
+            type=registry,ref=${{ steps.meta.outputs.image_name }}:buildcache-opf
+          cache-to: |
+            type=gha,scope=opf-branch-image,mode=max
+            type=registry,ref=${{ steps.meta.outputs.image_name }}:buildcache-opf,mode=max
