@@ -61,7 +61,7 @@ public class AppAuthorService {
         // Count query
         CriteriaQuery<Long> countCq = cb.createQuery(Long.class);
         Root<AuthorEntity> countRoot = countCq.from(AuthorEntity.class);
-        countCq.select(cb.countDistinct(countRoot));
+        countCq.select(cb.countDistinct(countRoot.get(AuthorEntity_.id)));
         countCq.where(spec.toPredicate(countRoot, countCq, cb));
         
         long totalElements = entityManager.createQuery(countCq).getSingleResult();
@@ -86,15 +86,19 @@ public class AppAuthorService {
         dataCq.where(spec.toPredicate(dataRoot, dataCq, cb));
         dataCq.groupBy(dataRoot);
 
-        // Sorting logic using switch expression (Java 21+)
-        Expression<?> sortExpr = switch (sortBy == null ? "" : sortBy.toLowerCase()) {
+        String normalizedSort = sortBy == null ? "" : sortBy.toLowerCase();
+        boolean primaryIsId = switch (normalizedSort) {
+            case "recent", "id" -> true;
+            default -> false;
+        };
+        Expression<?> sortExpr = switch (normalizedSort) {
             case "bookcount", "book_count" -> bookCountExpr;
             case "recent", "id" -> dataRoot.get(AuthorEntity_.id);
             default -> dataRoot.get(AuthorEntity_.name);
         };
 
         Order primary = "asc".equalsIgnoreCase(sortDir) ? cb.asc(sortExpr) : cb.desc(sortExpr);
-        if (sortExpr == dataRoot.get(AuthorEntity_.id)) {
+        if (primaryIsId) {
             dataCq.orderBy(primary);
         } else {
             dataCq.orderBy(primary, cb.asc(dataRoot.get(AuthorEntity_.id)));

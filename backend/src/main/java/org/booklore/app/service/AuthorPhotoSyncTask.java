@@ -7,6 +7,7 @@ import org.booklore.model.entity.AuthorEntity;
 import org.booklore.repository.AppSettingsRepository;
 import org.booklore.repository.AuthorRepository;
 import org.booklore.util.FileService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.data.domain.Page;
@@ -30,6 +31,7 @@ public class AuthorPhotoSyncTask implements CommandLineRunner {
     private final FileService fileService;
     private final TransactionTemplate transactionTemplate;
     private final AppSettingsRepository appSettingsRepository;
+    @Qualifier("taskExecutor")
     private final AsyncTaskExecutor taskExecutor;
 
     private static final String AUTHOR_PHOTO_SYNC_COMPLETED = "author_photo_sync_completed";
