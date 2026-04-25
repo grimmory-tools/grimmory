@@ -2,6 +2,7 @@ package org.booklore.repository;
 
 import org.booklore.model.entity.AuthorEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -11,7 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Repository
-public interface AuthorRepository extends JpaRepository<AuthorEntity, Long> {
+public interface AuthorRepository extends JpaRepository<AuthorEntity, Long>, JpaSpecificationExecutor<AuthorEntity> {
 
     Optional<AuthorEntity> findByName(String name);
 

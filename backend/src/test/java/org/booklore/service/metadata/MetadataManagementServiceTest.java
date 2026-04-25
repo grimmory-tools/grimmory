@@ -444,7 +444,7 @@ class MetadataManagementServiceTest {
         service.consolidateMetadata(MergeMetadataType.authors, List.of("Target"), List.of("NonExistent"));
 
         verify(bookMetadataRepository, never()).findAllByAuthorsContaining(any());
-        verify(authorRepository, never()).delete(any());
+        verify(authorRepository, never()).delete(any(AuthorEntity.class));
     }
 
     @Test

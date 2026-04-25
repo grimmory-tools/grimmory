@@ -9,15 +9,22 @@ import org.booklore.app.dto.AppPageResponse;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.Library;
 import org.booklore.model.entity.AuthorEntity;
+import org.booklore.model.entity.AuthorEntity_;
 import org.booklore.repository.AuthorRepository;
+import org.booklore.model.entity.BookEntity;
+import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.util.FileService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.*;
+import org.booklore.app.specification.AppAuthorSpecification;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -51,28 +58,42 @@ public class AppAuthorService {
         int pageNum = page != null && page >= 0 ? page : 0;
         int pageSize = size != null && size > 0 ? Math.min(size, MAX_PAGE_SIZE) : DEFAULT_PAGE_SIZE;
 
-        StringBuilder whereClause = new StringBuilder(" WHERE (1=1)");
-        buildLibraryFilter(whereClause, accessibleLibraryIds, libraryId);
-        buildSearchFilter(whereClause, search);
+        Specification<AuthorEntity> spec = buildSpecification(accessibleLibraryIds, libraryId, search, hasPhoto);
 
-        String fromClause = " FROM AuthorEntity a LEFT JOIN a.bookMetadataEntityList bm LEFT JOIN bm.book b";
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
         // Count query
-        String countJpql = "SELECT COUNT(DISTINCT a.id)" + fromClause + whereClause;
-        TypedQuery<Long> countQuery = entityManager.createQuery(countJpql, Long.class);
-        setQueryParams(countQuery, accessibleLibraryIds, libraryId, search);
-        long totalElements = countQuery.getSingleResult();
+        CriteriaQuery<Long> countCq = cb.createQuery(Long.class);
+        Root<AuthorEntity> countRoot = countCq.from(AuthorEntity.class);
+        countCq.select(cb.countDistinct(countRoot));
+        countCq.where(spec.toPredicate(countRoot, countCq, cb));
+        
+        long totalElements = entityManager.createQuery(countCq).getSingleResult();
 
         if (totalElements == 0) {
             return AppPageResponse.of(Collections.emptyList(), pageNum, pageSize, 0L);
         }
 
         // Data query with book count
-        String orderClause = buildOrderClause(sortBy, sortDir);
-        String dataJpql = "SELECT a, COUNT(DISTINCT bm.id)" + fromClause + whereClause
-                + " GROUP BY a" + orderClause;
-        TypedQuery<Object[]> dataQuery = entityManager.createQuery(dataJpql, Object[].class);
-        setQueryParams(dataQuery, accessibleLibraryIds, libraryId, search);
+        CriteriaQuery<Object[]> dataCq = cb.createQuery(Object[].class);
+        Root<AuthorEntity> dataRoot = dataCq.from(AuthorEntity.class);
+        
+        Expression<Long> bookCountExpr = AppAuthorSpecification.bookCountExpression(dataRoot, cb);
+
+        dataCq.multiselect(dataRoot, bookCountExpr);
+        dataCq.where(spec.toPredicate(dataRoot, dataCq, cb));
+        dataCq.groupBy(dataRoot);
+
+        // Sorting logic using switch expression (Java 21+)
+        Expression<?> sortExpr = switch (sortBy == null ? "" : sortBy.toLowerCase()) {
+            case "bookcount", "book_count" -> bookCountExpr;
+            case "recent", "id" -> dataRoot.get("id");
+            default -> dataRoot.get("name");
+        };
+
+        dataCq.orderBy("asc".equalsIgnoreCase(sortDir) ? cb.asc(sortExpr) : cb.desc(sortExpr));
+
+        TypedQuery<Object[]> dataQuery = entityManager.createQuery(dataCq);
         dataQuery.setFirstResult(pageNum * pageSize);
         dataQuery.setMaxResults(pageSize);
 
@@ -82,26 +103,15 @@ public class AppAuthorService {
                 .map(row -> {
                     AuthorEntity author = (AuthorEntity) row[0];
                     long bookCount = (Long) row[1];
-                    boolean authorHasPhoto = Files.exists(Paths.get(fileService.getAuthorThumbnailFile(author.getId())));
                     return AppAuthorSummary.builder()
                             .id(author.getId())
                             .name(author.getName())
                             .asin(author.getAsin())
                             .bookCount((int) bookCount)
-                            .hasPhoto(authorHasPhoto)
+                            .hasPhoto(author.isHasPhoto())
                             .build();
                 })
                 .collect(Collectors.toList());
-
-        // Post-filter by hasPhoto if requested
-        if (hasPhoto != null) {
-            summaries = summaries.stream()
-                    .filter(s -> s.isHasPhoto() == hasPhoto)
-                    .collect(Collectors.toList());
-            // Adjust total count for hasPhoto filter — requires a separate count
-            long filteredTotal = countAuthorsWithPhotoFilter(accessibleLibraryIds, libraryId, search, hasPhoto);
-            return AppPageResponse.of(summaries, pageNum, pageSize, filteredTotal);
-        }
 
         return AppPageResponse.of(summaries, pageNum, pageSize, totalElements);
     }
@@ -131,7 +141,7 @@ public class AppAuthorService {
                 .description(author.getDescription())
                 .asin(author.getAsin())
                 .bookCount(bookCount)
-                .hasPhoto(authorHasPhoto)
+                .hasPhoto(author.isHasPhoto())
                 .build();
     }
 
@@ -152,58 +162,37 @@ public class AppAuthorService {
     }
 
     private long countAuthorsWithPhotoFilter(Set<Long> accessibleLibraryIds, Long libraryId, String search, boolean hasPhoto) {
-        // Since hasPhoto is file-system based, we need to count all matching authors
-        // and check their photos. For large datasets this could be optimized with a DB column.
-        StringBuilder whereClause = new StringBuilder(" WHERE (1=1)");
-        buildLibraryFilter(whereClause, accessibleLibraryIds, libraryId);
-        buildSearchFilter(whereClause, search);
+        Specification<AuthorEntity> spec = buildSpecification(accessibleLibraryIds, libraryId, search, hasPhoto);
 
-        String jpql = "SELECT DISTINCT a FROM AuthorEntity a LEFT JOIN a.bookMetadataEntityList bm LEFT JOIN bm.book b"
-                + whereClause;
-        TypedQuery<AuthorEntity> query = entityManager.createQuery(jpql, AuthorEntity.class);
-        setQueryParams(query, accessibleLibraryIds, libraryId, search);
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<AuthorEntity> root = cq.from(AuthorEntity.class);
+        
+        cq.select(cb.countDistinct(root));
+        cq.where(spec.toPredicate(root, cq, cb));
 
-        return query.getResultList().stream()
-                .filter(a -> Files.exists(Paths.get(fileService.getAuthorThumbnailFile(a.getId()))) == hasPhoto)
-                .count();
+        return entityManager.createQuery(cq).getSingleResult();
     }
 
-    private void buildLibraryFilter(StringBuilder whereClause, Set<Long> accessibleLibraryIds, Long libraryId) {
+    private Specification<AuthorEntity> buildSpecification(Set<Long> accessibleLibraryIds, Long libraryId, String search, Boolean hasPhoto) {
+        Specification<AuthorEntity> spec = Specification.where(AppAuthorSpecification.notDeleted())
+                .and(AppAuthorSpecification.hasDigitalFile());
+
         if (libraryId != null) {
-            whereClause.append(" AND b.library.id = :libraryId");
-        } else if (accessibleLibraryIds != null) {
-            whereClause.append(" AND b.library.id IN :libraryIds");
+            spec = spec.and(AppAuthorSpecification.inLibrary(libraryId));
+        } else if (accessibleLibraryIds != null && !accessibleLibraryIds.isEmpty()) {
+            spec = spec.and(AppAuthorSpecification.inLibraries(accessibleLibraryIds));
         }
-        whereClause.append(" AND (b.deleted IS NULL OR b.deleted = false)");
-        whereClause.append(" AND b.bookFiles IS NOT EMPTY");
-    }
 
-    private void buildSearchFilter(StringBuilder whereClause, String search) {
-        if (search != null && !search.trim().isEmpty()) {
-            whereClause.append(" AND LOWER(a.name) LIKE :search");
+        if (search != null && !search.isBlank()) {
+            spec = spec.and(AppAuthorSpecification.searchText(search));
         }
-    }
 
-    private String buildOrderClause(String sortBy, String sortDir) {
-        String direction = "asc".equalsIgnoreCase(sortDir) ? "ASC" : "DESC";
-        String field = switch (sortBy != null ? sortBy.toLowerCase() : "") {
-            case "name" -> "a.name";
-            case "bookcount", "book_count" -> "COUNT(DISTINCT bm.id)";
-            case "recent", "id" -> "a.id";
-            default -> "a.name";
-        };
-        return " ORDER BY " + field + " " + direction;
-    }
+        if (hasPhoto != null) {
+            spec = spec.and(AppAuthorSpecification.hasPhoto(hasPhoto));
+        }
 
-    private void setQueryParams(TypedQuery<?> query, Set<Long> accessibleLibraryIds, Long libraryId, String search) {
-        if (libraryId != null) {
-            query.setParameter("libraryId", libraryId);
-        } else if (accessibleLibraryIds != null) {
-            query.setParameter("libraryIds", accessibleLibraryIds);
-        }
-        if (search != null && !search.trim().isEmpty()) {
-            query.setParameter("search", "%" + search.trim().toLowerCase() + "%");
-        }
+        return spec;
     }
 
     private Set<Long> getAccessibleLibraryIds(BookLoreUser user) {
