@@ -634,38 +634,53 @@ public class AppBookSpecification {
         return (root, query, cb) -> {
             List<Integer> ids = parseIntList(rangeIds, "fileSize");
             if (ids.isEmpty()) return cb.conjunction();
-            
-            Subquery<Long> sub = query.subquery(Long.class);
-            Root<BookEntity> subRoot = sub.correlate(root);
-            Join<BookEntity, BookFileEntity> bfJoin = subRoot.join("bookFiles", JoinType.INNER);
-            
-            Subquery<Long> minIdSub = query.subquery(Long.class);
-            Root<BookEntity> minIdRoot = minIdSub.correlate(root);
-            Join<BookEntity, BookFileEntity> minIdJoin = minIdRoot.join("bookFiles", JoinType.INNER);
-            minIdSub.select(cb.min(minIdJoin.get("id")))
-                    .where(cb.equal(minIdJoin.get("isBookFormat"), true));
 
-            Expression<Long> size = bfJoin.get("fileSizeKb");
+            if ("and".equals(mode)) {
+                List<Predicate> predicates = new ArrayList<>();
+                for (Integer id : ids) {
+                    Subquery<Long> sub = query.subquery(Long.class);
+                    Root<BookFileEntity> bfRoot = sub.from(BookFileEntity.class);
+
+                    sub.select(bfRoot.get("book").get("id"))
+                            .where(
+                                    cb.equal(bfRoot.get("isBookFormat"), true),
+                                    toFileSizePredicate(cb, bfRoot.get("fileSizeKb"), id)
+                            );
+
+                    predicates.add(root.get("id").in(sub));
+                }
+                return cb.and(predicates.toArray(new Predicate[0]));
+            }
+
+            Subquery<Long> sub = query.subquery(Long.class);
+            Root<BookFileEntity> bfRoot = sub.from(BookFileEntity.class);
+            Expression<Long> size = bfRoot.get("fileSizeKb");
             List<Predicate> predicates = new ArrayList<>();
             for (Integer id : ids) {
-                predicates.add(switch (id) {
-                    case 0 -> cb.and(cb.greaterThanOrEqualTo(size, 0L), cb.lessThan(size, 1024L));
-                    case 1 -> cb.and(cb.greaterThanOrEqualTo(size, 1024L), cb.lessThan(size, 10240L));
-                    case 2 -> cb.and(cb.greaterThanOrEqualTo(size, 10240L), cb.lessThan(size, 51200L));
-                    case 3 -> cb.and(cb.greaterThanOrEqualTo(size, 51200L), cb.lessThan(size, 102400L));
-                    case 4 -> cb.and(cb.greaterThanOrEqualTo(size, 102400L), cb.lessThan(size, 512000L));
-                    case 5 -> cb.and(cb.greaterThanOrEqualTo(size, 512000L), cb.lessThan(size, 1048576L));
-                    case 6 -> cb.and(cb.greaterThanOrEqualTo(size, 1048576L), cb.lessThan(size, 2097152L));
-                    case 7 -> cb.greaterThanOrEqualTo(size, 2097152L);
-                    default -> throw new APIException("Invalid fileSize bucket ID: " + id, HttpStatus.BAD_REQUEST);
-                });
+                predicates.add(toFileSizePredicate(cb, size, id));
             }
-            
-            sub.select(cb.literal(1L))
-               .where(cb.equal(bfJoin.get("id"), minIdSub),
-                      cb.or(predicates.toArray(new Predicate[0])));
 
-            return "not".equals(mode) ? cb.not(cb.exists(sub)) : cb.exists(sub);
+            sub.select(bfRoot.get("book").get("id"))
+                    .where(
+                            cb.equal(bfRoot.get("isBookFormat"), true),
+                            cb.or(predicates.toArray(new Predicate[0]))
+                    );
+
+            return "not".equals(mode) ? cb.not(root.get("id").in(sub)) : root.get("id").in(sub);
+        };
+    }
+
+    private static Predicate toFileSizePredicate(CriteriaBuilder cb, Expression<Long> size, Integer id) {
+        return switch (id) {
+            case 0 -> cb.and(cb.greaterThanOrEqualTo(size, 0L), cb.lessThan(size, 1024L));
+            case 1 -> cb.and(cb.greaterThanOrEqualTo(size, 1024L), cb.lessThan(size, 10240L));
+            case 2 -> cb.and(cb.greaterThanOrEqualTo(size, 10240L), cb.lessThan(size, 51200L));
+            case 3 -> cb.and(cb.greaterThanOrEqualTo(size, 51200L), cb.lessThan(size, 102400L));
+            case 4 -> cb.and(cb.greaterThanOrEqualTo(size, 102400L), cb.lessThan(size, 512000L));
+            case 5 -> cb.and(cb.greaterThanOrEqualTo(size, 512000L), cb.lessThan(size, 1048576L));
+            case 6 -> cb.and(cb.greaterThanOrEqualTo(size, 1048576L), cb.lessThan(size, 2097152L));
+            case 7 -> cb.greaterThanOrEqualTo(size, 2097152L);
+            default -> throw new APIException("Invalid fileSize bucket ID: " + id, HttpStatus.BAD_REQUEST);
         };
     }
 
