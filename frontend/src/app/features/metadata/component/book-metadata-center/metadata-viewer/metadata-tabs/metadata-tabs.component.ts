@@ -105,6 +105,10 @@ export class MetadataTabsComponent {
     return this.bookInSeries && this.bookInSeries.length > 1 ? 'series' : 'similar';
   }
 
+  get otherBooksInSeries(): Book[] {
+    return this.bookInSeries.filter(bookInSeriesItem => bookInSeriesItem.id !== this.book?.id);
+  }
+
   read(bookId: number, reader?: 'epub-streaming', bookType?: BookType): void {
     this.readBook.emit({ bookId, reader, bookType });
   }

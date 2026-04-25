@@ -36,14 +36,12 @@
     <p-tabpanel value="series">
       <ng-template #content>
         <div class="tab-content">
-          @if (bookInSeries.length > 1) {
+          @if (otherBooksInSeries.length > 0) {
             <div class="dashboard-scroller-infinite" infiniteScroll [infiniteScrollDistance]="2" [infiniteScrollThrottle]="50" [horizontal]="true">
-              @for (bookInSeriesItem of bookInSeries; track bookInSeriesItem.id; let i = $index) {
-                @if (bookInSeriesItem.id !== book.id) {
-                  <div class="dashboard-scroller-card">
-                    <app-book-card-lite-component [book]="bookInSeriesItem" [showSeriesNumber]="true" [isActive]="bookInSeriesItem.id === book.id" [priorityImage]="i === 0"></app-book-card-lite-component>
-                  </div>
-                }
+              @for (bookInSeriesItem of otherBooksInSeries; track bookInSeriesItem.id; let i = $index) {
+                <div class="dashboard-scroller-card">
+                  <app-book-card-lite-component [book]="bookInSeriesItem" [showSeriesNumber]="true" [priorityImage]="i === 0"></app-book-card-lite-component>
+                </div>
               }
             </div>
           }

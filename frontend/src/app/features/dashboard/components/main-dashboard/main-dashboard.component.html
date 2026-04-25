@@ -58,6 +58,7 @@
                     [title]="scroller.title"
                     [isMagicShelf]="scroller.type === ScrollerType.MAGIC_SHELF"
                     [useSquareCovers]="scroller.type === ScrollerType.LAST_LISTENED"
+                    [prioritizeFirstCard]="idx === 0"
                     [books]="getBooksForScroller(scroller)"
                     [overlayPreferenceService]="overlayPreferenceService">
                   </app-dashboard-scroller>
@@ -68,6 +69,7 @@
                       [title]="scroller.title"
                       [isMagicShelf]="scroller.type === ScrollerType.MAGIC_SHELF"
                       [useSquareCovers]="scroller.type === ScrollerType.LAST_LISTENED"
+                      [prioritizeFirstCard]="idx === 0"
                       [books]="getBooksForScroller(scroller)"
                       [overlayPreferenceService]="overlayPreferenceService">
                     </app-dashboard-scroller>

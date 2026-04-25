@@ -1,6 +1,7 @@
 import {signal} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {Router} from '@angular/router';
+import {ComponentRef} from '@angular/core';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {BookMetadataHostService} from '../../../../shared/service/book-metadata-host.service';
@@ -12,6 +13,7 @@ import {UserService} from '../../../settings/user-management/user.service';
 describe('BookCardLiteComponent', () => {
   let fixture: ComponentFixture<BookCardLiteComponent>;
   let component: BookCardLiteComponent;
+  let ref: ComponentRef<BookCardLiteComponent>;
   let router: {navigate: ReturnType<typeof vi.fn>};
   let urlHelper: {
     getThumbnailUrl: ReturnType<typeof vi.fn>;
@@ -50,6 +52,7 @@ describe('BookCardLiteComponent', () => {
 
     fixture = TestBed.createComponent(BookCardLiteComponent);
     component = fixture.componentInstance;
+    ref = fixture.componentRef;
   });
 
   afterEach(() => {
@@ -101,7 +104,7 @@ describe('BookCardLiteComponent', () => {
 
   it('applies eager/high attributes when priorityImage is enabled', () => {
     component.book = buildBook();
-    component.priorityImage = true;
+    ref.setInput('priorityImage', true);
     fixture.detectChanges();
 
     const image = fixture.nativeElement.querySelector('.book-cover') as HTMLImageElement;
@@ -111,7 +114,7 @@ describe('BookCardLiteComponent', () => {
 
   it('keeps lazy/low attributes for non-priority images', () => {
     component.book = buildBook();
-    component.priorityImage = false;
+    ref.setInput('priorityImage', false);
     fixture.detectChanges();
 
     const image = fixture.nativeElement.querySelector('.book-cover') as HTMLImageElement;
