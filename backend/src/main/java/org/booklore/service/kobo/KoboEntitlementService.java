@@ -256,7 +256,7 @@ public class KoboEntitlementService {
                 .orElse(null);
 
         Optional<UserBookProgressEntity> userProgress = progressRepository
-                .findByUserIdAndBookId(userId, book.getId());
+                .findByUserIdAndBookIdForKoboSync(userId, book.getId());
         UserBookFileProgressEntity fileProgress = findSyncedEpubFileProgress(userId, book).orElse(null);
 
         boolean twoWaySync = koboSettingsService.getCurrentUserSettings().isTwoWayProgressSync();

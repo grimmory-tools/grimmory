@@ -7,6 +7,7 @@ import org.booklore.model.entity.*;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.LibraryRepository;
+import org.booklore.repository.UserBookProgressRepository;
 import org.booklore.service.task.TaskCronService;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.Assertions;
@@ -23,6 +24,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -66,6 +68,9 @@ class HibernateRegressionTest {
     @Autowired
     private BookRepository bookRepository;
 
+    @Autowired
+    private UserBookProgressRepository userBookProgressRepository;
+
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -88,6 +93,137 @@ class HibernateRegressionTest {
     void contextLoads() {
         assertThat(libraryRepository).isNotNull();
         assertThat(bookRepository).isNotNull();
+    }
+
+    @Nested
+    class KoboSyncProgressGraph {
+
+        @Test
+        void findAllBooksNeedingKoboSync_loadsBookFilesForDetachedUse() {
+            KoboProgressFixture fixture = createKoboProgressFixture();
+            entityManager.flush();
+            entityManager.clear();
+
+            List<UserBookProgressEntity> result = userBookProgressRepository.findAllBooksNeedingKoboSync(
+                    fixture.userId(),
+                    fixture.snapshotId()
+            );
+
+            assertThat(result).hasSize(1);
+
+            UserBookProgressEntity progress = result.getFirst();
+            entityManager.clear();
+
+            BookFileEntity primaryFile = progress.getBook().getPrimaryBookFile();
+            assertThat(primaryFile).isNotNull();
+            assertThat(primaryFile.getBookType()).isEqualTo(BookFileType.EPUB);
+        }
+
+        @Test
+        void findByUserIdAndBookIdForKoboSync_loadsBookFilesForDetachedUse() {
+            KoboProgressFixture fixture = createKoboProgressFixture();
+            entityManager.flush();
+            entityManager.clear();
+
+            UserBookProgressEntity progress = userBookProgressRepository
+                    .findByUserIdAndBookIdForKoboSync(fixture.userId(), fixture.bookId())
+                    .orElseThrow();
+            entityManager.clear();
+
+            BookFileEntity primaryFile = progress.getBook().getPrimaryBookFile();
+            assertThat(primaryFile).isNotNull();
+            assertThat(primaryFile.getCurrentHash()).isEqualTo("kobo-hash-" + fixture.bookId());
+        }
+
+        @Test
+        void findByIdWithBookFiles_loadsBookFilesForDetachedUse() {
+            KoboProgressFixture fixture = createKoboProgressFixture();
+            entityManager.flush();
+            entityManager.clear();
+
+            BookEntity book = bookRepository.findByIdWithBookFiles(fixture.bookId()).orElseThrow();
+            entityManager.clear();
+
+            BookFileEntity primaryFile = book.getPrimaryBookFile();
+            assertThat(primaryFile).isNotNull();
+            assertThat(primaryFile.getCurrentHash()).isEqualTo("kobo-hash-" + fixture.bookId());
+        }
+
+        private KoboProgressFixture createKoboProgressFixture() {
+            String suffix = UUID.randomUUID().toString();
+
+            LibraryEntity library = LibraryEntity.builder()
+                    .name("Kobo Graph Library " + suffix)
+                    .icon("book")
+                    .watch(false)
+                    .formatPriority(new ArrayList<>(List.of(BookFileType.EPUB)))
+                    .build();
+            entityManager.persist(library);
+
+            LibraryPathEntity libraryPath = LibraryPathEntity.builder()
+                    .library(library)
+                    .path("/kobo/books/" + suffix)
+                    .build();
+            entityManager.persist(libraryPath);
+
+            BookEntity book = BookEntity.builder()
+                    .library(library)
+                    .libraryPath(libraryPath)
+                    .addedOn(Instant.now())
+                    .deleted(false)
+                    .build();
+            entityManager.persist(book);
+            entityManager.flush();
+
+            BookFileEntity bookFile = BookFileEntity.builder()
+                    .book(book)
+                    .fileName("book.epub")
+                    .fileSubPath(".")
+                    .isBookFormat(true)
+                    .bookType(BookFileType.EPUB)
+                    .fileSizeKb(256L)
+                    .currentHash("kobo-hash-" + book.getId())
+                    .build();
+            book.getBookFiles().add(bookFile);
+            entityManager.persist(bookFile);
+
+            BookLoreUserEntity user = BookLoreUserEntity.builder()
+                    .username("kobo-user-" + suffix)
+                    .passwordHash("password")
+                    .isDefaultPassword(false)
+                    .name("Kobo User")
+                    .build();
+            entityManager.persist(user);
+
+            UserBookProgressEntity progress = UserBookProgressEntity.builder()
+                    .user(user)
+                    .book(book)
+                    .epubProgress("epubcfi(/6/2!/4/2/2:1)")
+                    .epubProgressPercent(42f)
+                    .lastReadTime(Instant.now())
+                    .build();
+            entityManager.persist(progress);
+
+            KoboLibrarySnapshotEntity snapshot = KoboLibrarySnapshotEntity.builder()
+                    .id("snapshot-" + suffix)
+                    .userId(user.getId())
+                    .createdDate(LocalDateTime.now())
+                    .build();
+            entityManager.persist(snapshot);
+
+            KoboSnapshotBookEntity snapshotBook = KoboSnapshotBookEntity.builder()
+                    .snapshot(snapshot)
+                    .bookId(book.getId())
+                    .fileHash(bookFile.getCurrentHash())
+                    .synced(false)
+                    .build();
+            entityManager.persist(snapshotBook);
+
+            return new KoboProgressFixture(user.getId(), book.getId(), snapshot.getId());
+        }
+
+        private record KoboProgressFixture(Long userId, Long bookId, String snapshotId) {
+        }
     }
 
     @Nested

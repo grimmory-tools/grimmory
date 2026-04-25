@@ -50,10 +50,12 @@ public class BookdropMetadataService {
         BookdropFileEntity entity = getOrThrow(bookdropFileId);
         BookMetadata initial = extractInitialMetadata(entity);
         if (initial == null) {
-            log.warn("Metadata extraction returned null for file: {}. Using filename as fallback.", entity.getFileName());
-            initial = BookMetadata.builder()
-                    .title(FilenameUtils.getBaseName(entity.getFileName()))
-                    .build();
+            log.warn("Metadata extraction returned null for file: {}. Using empty metadata as fallback.", entity.getFileName());
+            initial = BookMetadata.builder().build();
+        }
+        if (initial.getTitle() == null || initial.getTitle().isBlank()) {
+            log.warn("Metadata extraction returned empty title for file: {}. Using filename as fallback.", entity.getFileName());
+            initial.setTitle(FilenameUtils.getBaseName(entity.getFileName()));
         }
         extractAndSaveCover(entity);
         String initialJson = objectMapper.writeValueAsString(initial);
