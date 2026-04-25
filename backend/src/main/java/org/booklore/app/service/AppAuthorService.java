@@ -8,11 +8,8 @@ import org.booklore.app.dto.AppAuthorSummary;
 import org.booklore.app.dto.AppPageResponse;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.Library;
-import org.booklore.model.entity.AuthorEntity;
-import org.booklore.model.entity.AuthorEntity_;
+import org.booklore.model.entity.*;
 import org.booklore.repository.AuthorRepository;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.util.FileService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
@@ -96,7 +93,12 @@ public class AppAuthorService {
             default -> dataRoot.get(AuthorEntity_.name);
         };
 
-        dataCq.orderBy("asc".equalsIgnoreCase(sortDir) ? cb.asc(sortExpr) : cb.desc(sortExpr));
+        Order primary = "asc".equalsIgnoreCase(sortDir) ? cb.asc(sortExpr) : cb.desc(sortExpr);
+        if (sortExpr == dataRoot.get(AuthorEntity_.id)) {
+            dataCq.orderBy(primary);
+        } else {
+            dataCq.orderBy(primary, cb.asc(dataRoot.get(AuthorEntity_.id)));
+        }
 
         TypedQuery<Tuple> dataQuery = entityManager.createQuery(dataCq);
         dataQuery.setFirstResult(pageNum * pageSize);
@@ -146,19 +148,34 @@ public class AppAuthorService {
     }
 
     private int countAccessibleBooks(Long authorId, Set<Long> accessibleLibraryIds) {
-        StringBuilder jpql = new StringBuilder(
-                "SELECT COUNT(DISTINCT bm.id) FROM AuthorEntity a JOIN a.bookMetadataEntityList bm JOIN bm.book b"
-                        + " WHERE a.id = :authorId AND (b.deleted IS NULL OR b.deleted = false)"
-                        + " AND b.bookFiles IS NOT EMPTY");
-        if (accessibleLibraryIds != null) {
-            jpql.append(" AND b.library.id IN :libraryIds");
+        if (accessibleLibraryIds != null && accessibleLibraryIds.isEmpty()) {
+            return 0;
         }
-        TypedQuery<Long> query = entityManager.createQuery(jpql.toString(), Long.class);
-        query.setParameter("authorId", authorId);
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<AuthorEntity> author = cq.from(AuthorEntity.class);
+
+        Join<AuthorEntity, BookMetadataEntity> metadata = author.join(AuthorEntity_.bookMetadataEntityList);
+        Join<BookMetadataEntity, BookEntity> book = metadata.join(BookMetadataEntity_.book);
+
+        cq.select(cb.countDistinct(metadata.get(BookMetadataEntity_.bookId)));
+
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(cb.equal(author.get(AuthorEntity_.id), authorId));
+        predicates.add(cb.or(
+                cb.isNull(book.get(BookEntity_.deleted)),
+                cb.equal(book.get(BookEntity_.deleted), false)
+        ));
+        predicates.add(cb.isNotEmpty(book.get(BookEntity_.bookFiles)));
+
         if (accessibleLibraryIds != null) {
-            query.setParameter("libraryIds", accessibleLibraryIds);
+            predicates.add(book.get(BookEntity_.library).get(LibraryEntity_.id).in(accessibleLibraryIds));
         }
-        return query.getSingleResult().intValue();
+
+        cq.where(predicates.toArray(new Predicate[0]));
+
+        return entityManager.createQuery(cq).getSingleResult().intValue();
     }
 
 
@@ -168,8 +185,13 @@ public class AppAuthorService {
 
         if (libraryId != null) {
             spec = spec.and(AppAuthorSpecification.inLibrary(libraryId));
-        } else if (accessibleLibraryIds != null && !accessibleLibraryIds.isEmpty()) {
-            spec = spec.and(AppAuthorSpecification.inLibraries(accessibleLibraryIds));
+        } else if (accessibleLibraryIds != null) {
+            if (accessibleLibraryIds.isEmpty()) {
+                // Non-admin user with no library access: force empty result.
+                spec = spec.and((root, query, cb) -> cb.disjunction());
+            } else {
+                spec = spec.and(AppAuthorSpecification.inLibraries(accessibleLibraryIds));
+            }
         }
 
         if (search != null && !search.isBlank()) {

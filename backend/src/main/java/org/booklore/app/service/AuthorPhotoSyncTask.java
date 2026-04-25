@@ -57,6 +57,7 @@ public class AuthorPhotoSyncTask implements CommandLineRunner {
         int page = 0;
         int size = 500;
         long totalUpdated = 0;
+        long totalProcessed = 0;
         Page<AuthorEntity> authorPage;
 
         try {
@@ -65,9 +66,10 @@ public class AuthorPhotoSyncTask implements CommandLineRunner {
                 authorPage = authorRepository.findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id")));
                 long updatedInBatch = processBatch(authorPage.getContent());
                 totalUpdated += updatedInBatch;
+                totalProcessed += authorPage.getNumberOfElements();
                 
                 if (authorPage.hasNext()) {
-                    log.debug("Processed batch {}. Total authors processed: {}", page + 1, (page + 1) * size);
+                    log.debug("Processed batch {}. Total authors processed: {}", page + 1, totalProcessed);
                 }
                 page++;
             } while (authorPage.hasNext());
@@ -119,9 +121,12 @@ public class AuthorPhotoSyncTask implements CommandLineRunner {
             long count = 0;
             for (Diff diff : diffs) {
                 AuthorEntity managed = authorRepository.findById(diff.id()).orElse(null);
-                if (managed != null && managed.isHasPhoto() != diff.expected()) {
-                    managed.setHasPhoto(diff.expected());
-                    // Dirty-checking will handle the update on commit
+                if (managed == null) continue;
+                // Re-check disk inside the tx to avoid clobbering a concurrent upload.
+                String thumb = fileService.getAuthorThumbnailFile(managed.getId());
+                boolean current = thumb != null && Files.exists(Paths.get(thumb));
+                if (managed.isHasPhoto() != current) {
+                    managed.setHasPhoto(current);
                     count++;
                 }
             }
