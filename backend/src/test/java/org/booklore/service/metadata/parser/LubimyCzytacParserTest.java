@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -194,7 +195,7 @@ class LubimyCzytacParserTest {
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(filename)) {
             assert is != null;
 
-            return new String(is.readAllBytes());
+            return new String(is.readAllBytes(), StandardCharsets.UTF_8);
         }
     }
 
