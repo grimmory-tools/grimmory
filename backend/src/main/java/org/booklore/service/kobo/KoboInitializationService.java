@@ -64,8 +64,8 @@ public class KoboInitializationService {
 
         UriComponentsBuilder baseBuilder = koboUrlBuilder.baseBuilder();
 
-        for (String name : initializationResources.keySet()) {
-            resources.put(name, koboUrlBuilder.withBaseUrl(token, initializationResources.get(name)));
+        for (Map.Entry<String, String[]> entry : initializationResources.entrySet()) {
+            resources.put(entry.getKey(), koboUrlBuilder.withBaseUrl(token, entry.getValue()));
         }
 
         // Build extra routes for CDN
