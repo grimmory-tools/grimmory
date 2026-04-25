@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
@@ -65,7 +66,7 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
     private final AtomicLong rateLimitResetTime = new AtomicLong(0);
     private final AtomicLong lastRequestTime = new AtomicLong(0);
     private final AtomicLong apiCallCounter = new AtomicLong(0);
-    private final Map<String, CachedVolumes> volumeCache = new java.util.concurrent.ConcurrentHashMap<>();
+    private final Map<String, CachedVolumes> volumeCache = new ConcurrentHashMap<>();
 
     private static class CachedVolumes {
         final List<Comic> volumes;
