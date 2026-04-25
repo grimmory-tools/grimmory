@@ -29,6 +29,7 @@ import org.booklore.repository.UserBookProgressRepository;
 import org.booklore.service.book.BookService;
 import org.booklore.service.opds.MagicShelfBookService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -116,9 +117,6 @@ public class AppBookService {
             return buildPageResponse(bookPage, userId, pageNum, pageSize);
         }
 
-        Sort sort = buildSort(req.sort(), req.dir());
-        Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
-
         Specification<BookEntity> spec = buildSpecification(
                 accessibleLibraryIds, userId, req);
 
@@ -126,6 +124,13 @@ public class AppBookService {
             spec = spec.and(AppBookSpecification.unshelved());
         }
 
+        if (isAuthorSort(req.sort())) {
+            Page<BookEntity> bookPage = getAuthorSortedPage(spec, req.sort(), req.dir(), pageNum, pageSize);
+            return buildPageResponse(bookPage, userId, pageNum, pageSize);
+        }
+
+        Sort sort = buildSort(req.sort(), req.dir());
+        Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
         Page<BookEntity> bookPage = bookRepository.findAll(spec, pageable);
         return buildPageResponse(bookPage, userId, pageNum, pageSize);
     }
@@ -1078,6 +1083,84 @@ public class AppBookService {
             case "personalrating" -> "userBookProgress.personalRating";
             default -> "addedOn";
         };
+    }
+
+    private boolean isAuthorSort(String sortBy) {
+        if (sortBy == null) {
+            return false;
+        }
+        String normalized = sortBy.toLowerCase(Locale.ROOT);
+        return "author".equals(normalized) || "authorsurnamevorname".equals(normalized);
+    }
+
+    private Page<BookEntity> getAuthorSortedPage(
+            Specification<BookEntity> spec,
+            String sortBy,
+            String sortDir,
+            int pageNum,
+            int pageSize) {
+        List<BookEntity> books = bookRepository.findAll(spec);
+        boolean surnameMode = "authorsurnamevorname".equalsIgnoreCase(sortBy);
+        boolean ascending = "asc".equalsIgnoreCase(sortDir);
+
+        Comparator<BookEntity> comparator = Comparator
+                .comparing((BookEntity book) -> buildAuthorSortKey(book, surnameMode),
+                        Comparator.nullsLast(String::compareTo))
+                .thenComparing(BookEntity::getAddedOn, Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(BookEntity::getId, Comparator.nullsLast(Comparator.naturalOrder()));
+
+        if (!ascending) {
+            comparator = comparator.reversed();
+        }
+
+        List<BookEntity> sorted = books.stream()
+                .sorted(comparator)
+                .toList();
+
+        int fromIndex = pageNum * pageSize;
+        if (fromIndex >= sorted.size()) {
+            return new PageImpl<>(List.of(), PageRequest.of(pageNum, pageSize), sorted.size());
+        }
+
+        int toIndex = Math.min(fromIndex + pageSize, sorted.size());
+        List<BookEntity> pageContent = sorted.subList(fromIndex, toIndex);
+        return new PageImpl<>(pageContent, PageRequest.of(pageNum, pageSize), sorted.size());
+    }
+
+    private String buildAuthorSortKey(BookEntity book, boolean surnameMode) {
+        if (book.getMetadata() == null || book.getMetadata().getAuthors() == null || book.getMetadata().getAuthors().isEmpty()) {
+            return null;
+        }
+
+        return book.getMetadata().getAuthors().stream()
+                .map(AuthorEntity::getName)
+                .map(name -> normalizeAuthorName(name, surnameMode))
+                .filter(name -> !name.isBlank())
+                .collect(Collectors.joining(", "));
+    }
+
+    private String normalizeAuthorName(String authorName, boolean surnameMode) {
+        if (authorName == null) {
+            return "";
+        }
+
+        String cleaned = authorName.trim();
+        if (cleaned.isBlank()) {
+            return "";
+        }
+
+        if (!surnameMode) {
+            return cleaned.toLowerCase(Locale.ROOT);
+        }
+
+        String[] parts = cleaned.split("\\s+");
+        if (parts.length < 2) {
+            return cleaned.toLowerCase(Locale.ROOT);
+        }
+
+        String surname = parts[parts.length - 1];
+        String firstNames = String.join(" ", Arrays.copyOf(parts, parts.length - 1));
+        return (surname + ", " + firstNames).toLowerCase(Locale.ROOT);
     }
 
     private Sort buildSort(String sortBy, String sortDir) {
