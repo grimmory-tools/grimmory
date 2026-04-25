@@ -11,6 +11,7 @@ import org.booklore.repository.BookAdditionalFileRepository;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.book.BookCreatorService;
 import org.booklore.service.file.FileFingerprint;
+import org.booklore.service.metadata.AdjacentOpfMetadataApplier;
 import org.booklore.service.metadata.MetadataMatchService;
 import org.booklore.service.metadata.sidecar.SidecarMetadataWriter;
 import org.booklore.util.FileService;
@@ -35,6 +36,7 @@ public abstract class AbstractFileProcessor implements BookFileProcessor {
     protected final MetadataMatchService metadataMatchService;
     protected final FileService fileService;
     protected final SidecarMetadataWriter sidecarMetadataWriter;
+    protected final AdjacentOpfMetadataApplier adjacentOpfMetadataApplier;
 
 
     protected AbstractFileProcessor(BookRepository bookRepository,
@@ -43,7 +45,8 @@ public abstract class AbstractFileProcessor implements BookFileProcessor {
                                     BookMapper bookMapper,
                                     FileService fileService,
                                     MetadataMatchService metadataMatchService,
-                                    SidecarMetadataWriter sidecarMetadataWriter) {
+                                    SidecarMetadataWriter sidecarMetadataWriter,
+                                    AdjacentOpfMetadataApplier adjacentOpfMetadataApplier) {
         this.bookRepository = bookRepository;
         this.bookAdditionalFileRepository = bookAdditionalFileRepository;
         this.bookCreatorService = bookCreatorService;
@@ -51,6 +54,7 @@ public abstract class AbstractFileProcessor implements BookFileProcessor {
         this.metadataMatchService = metadataMatchService;
         this.fileService = fileService;
         this.sidecarMetadataWriter = sidecarMetadataWriter;
+        this.adjacentOpfMetadataApplier = adjacentOpfMetadataApplier;
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -66,6 +70,11 @@ public abstract class AbstractFileProcessor implements BookFileProcessor {
 
     private Book createAndMapBook(LibraryFile libraryFile, String hash) {
         BookEntity entity = processNewFile(libraryFile);
+        try {
+            adjacentOpfMetadataApplier.applyAdjacentOpfMetadata(entity, libraryFile);
+        } catch (Exception e) {
+            log.warn("Failed to apply adjacent OPF metadata for '{}': {}", libraryFile.getFileName(), e.getMessage());
+        }
         entity.getPrimaryBookFile().setCurrentHash(hash);
         entity.setMetadataMatchScore(metadataMatchService.calculateMatchScore(entity));
         bookCreatorService.saveConnections(entity);
