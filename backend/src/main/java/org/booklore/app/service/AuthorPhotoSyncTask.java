@@ -8,15 +8,18 @@ import org.booklore.repository.AppSettingsRepository;
 import org.booklore.repository.AuthorRepository;
 import org.booklore.util.FileService;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 @Slf4j
 @Component
@@ -27,6 +30,7 @@ public class AuthorPhotoSyncTask implements CommandLineRunner {
     private final FileService fileService;
     private final TransactionTemplate transactionTemplate;
     private final AppSettingsRepository appSettingsRepository;
+    private final AsyncTaskExecutor taskExecutor;
 
     private static final String AUTHOR_PHOTO_SYNC_COMPLETED = "author_photo_sync_completed";
 
@@ -34,7 +38,10 @@ public class AuthorPhotoSyncTask implements CommandLineRunner {
     public void run(String... args) {
         if (isSyncNeeded()) {
             log.info("Scheduling author photo synchronization task in background...");
-            CompletableFuture.runAsync(this::syncPhotos);
+            // Run in a dedicated executor to avoid saturating the common ForkJoinPool.
+            // Note: This background sync provides best-effort consistency. 
+            // Concurrent updates from metadata services may transiently race with this task.
+            taskExecutor.execute(this::syncPhotos);
         } else {
             log.info("Author photo synchronization already completed. Skipping.");
         }
@@ -54,7 +61,8 @@ public class AuthorPhotoSyncTask implements CommandLineRunner {
 
         try {
             do {
-                authorPage = authorRepository.findAll(PageRequest.of(page, size));
+                // Pin the order on ID for stable pagination across batch updates
+                authorPage = authorRepository.findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id")));
                 long updatedInBatch = processBatch(authorPage.getContent());
                 totalUpdated += updatedInBatch;
                 
@@ -89,15 +97,31 @@ public class AuthorPhotoSyncTask implements CommandLineRunner {
     }
 
     private long processBatch(List<AuthorEntity> authors) {
+        // 1) Filesystem check outside the transaction to avoid holding DB connections during I/O
+        record Diff(long id, boolean expected) {}
+        List<Diff> diffs = new ArrayList<>();
+
+        for (AuthorEntity author : authors) {
+            String thumbnailPath = fileService.getAuthorThumbnailFile(author.getId());
+            boolean actuallyHasPhoto = thumbnailPath != null && Files.exists(Paths.get(thumbnailPath));
+
+            if (author.isHasPhoto() != actuallyHasPhoto) {
+                diffs.add(new Diff(author.getId(), actuallyHasPhoto));
+            }
+        }
+
+        if (diffs.isEmpty()) {
+            return 0;
+        }
+
+        // 2) Apply updates inside a short transaction using managed entities
         Long updatedCount = transactionTemplate.execute(status -> {
             long count = 0;
-            for (AuthorEntity author : authors) {
-                String thumbnailPath = fileService.getAuthorThumbnailFile(author.getId());
-                boolean actuallyHasPhoto = thumbnailPath != null && Files.exists(Paths.get(thumbnailPath));
-
-                if (author.isHasPhoto() != actuallyHasPhoto) {
-                    author.setHasPhoto(actuallyHasPhoto);
-                    authorRepository.save(author);
+            for (Diff diff : diffs) {
+                AuthorEntity managed = authorRepository.findById(diff.id()).orElse(null);
+                if (managed != null && managed.isHasPhoto() != diff.expected()) {
+                    managed.setHasPhoto(diff.expected());
+                    // Dirty-checking will handle the update on commit
                     count++;
                 }
             }
