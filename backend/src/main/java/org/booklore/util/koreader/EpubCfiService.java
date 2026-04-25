@@ -23,14 +23,12 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
 public class EpubCfiService {
 
-    private static final Pattern XPOINTER_BODY_PATTERN = Pattern.compile("^/body/DocFragment\\[(\\d+)]/body(.*)$");
-    private static final Pattern XPOINTER_TEXT_OFFSET_PATTERN = Pattern.compile("/text\\(\\)\\.(\\d+)$");
-    private static final Pattern XPOINTER_SEGMENT_PATTERN = Pattern.compile("^(\\w+)(?:\\[(\\d+)])?$");
     private static final Pattern CFI_CLEANER_PATTERN = Pattern.compile("!/4(?=/)");
     private final Cache<String, Document> documentCache;
 
