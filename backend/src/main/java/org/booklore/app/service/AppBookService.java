@@ -103,9 +103,6 @@ public class AppBookService {
 
         // Handle magic shelf: compose the DB-side specification directly (no IN-list)
         if (req.magicShelfId() != null) {
-            Sort sort = buildSort(req.sort(), req.dir());
-            Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
-
             Specification<BookEntity> spec = buildSpecification(
                     accessibleLibraryIds, userId, req);
             spec = spec.and(magicShelfBookService.toSpecification(userId, req.magicShelfId()));
@@ -113,6 +110,14 @@ public class AppBookService {
             if (Boolean.TRUE.equals(req.unshelved())) {
                 spec = spec.and(AppBookSpecification.unshelved());
             }
+
+            if (isAuthorSort(req.sort())) {
+                Page<BookEntity> bookPage = getAuthorSortedPage(spec, req.sort(), req.dir(), pageNum, pageSize);
+                return buildPageResponse(bookPage, userId, pageNum, pageSize);
+            }
+
+            Sort sort = buildSort(req.sort(), req.dir());
+            Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
 
             Page<BookEntity> bookPage = bookRepository.findAll(spec, pageable);
             return buildPageResponse(bookPage, userId, pageNum, pageSize);
@@ -1107,15 +1112,19 @@ public class AppBookService {
         Collator collator = Collator.getInstance(Locale.ROOT);
         collator.setStrength(Collator.PRIMARY);
 
+        Comparator<Object> keyOrder = ascending ? collator : collator.reversed();
+        Comparator<Instant> addedOnOrder = ascending
+                ? Comparator.naturalOrder()
+                : Comparator.reverseOrder();
+        Comparator<Long> idOrder = ascending
+                ? Comparator.naturalOrder()
+                : Comparator.reverseOrder();
+
         Comparator<BookEntity> comparator = Comparator
                 .comparing((BookEntity book) -> buildAuthorSortKey(book, surnameMode),
-                        Comparator.nullsLast(collator))
-                .thenComparing(BookEntity::getAddedOn, Comparator.nullsLast(Comparator.naturalOrder()))
-                .thenComparing(BookEntity::getId, Comparator.nullsLast(Comparator.naturalOrder()));
-
-        if (!ascending) {
-            comparator = comparator.reversed();
-        }
+                        Comparator.nullsLast(keyOrder))
+                .thenComparing(BookEntity::getAddedOn, Comparator.nullsLast(addedOnOrder))
+                .thenComparing(BookEntity::getId, Comparator.nullsLast(idOrder));
 
         List<BookEntity> sorted = books.stream()
                 .sorted(comparator)
