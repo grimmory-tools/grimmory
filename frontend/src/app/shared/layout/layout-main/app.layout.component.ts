@@ -40,11 +40,12 @@ export class AppLayoutComponent {
   private keyboardResizing = false;
 
   readonly containerClass = computed(() => ({
-    'layout-sidebar-hidden': !this.layoutService.sidebarVisible(),
+    'layout-sidebar-hidden': this.sidebarHidden(),
     'layout-mobile-active': this.layoutService.mobileDrawerOpen(),
     'layout-collapsed': this.layoutService.sidebarCollapsed() && this.layoutService.isDesktop()
   }));
 
+  readonly sidebarHidden = computed(() => this.layoutService.isDesktop() && !this.layoutService.sidebarVisible());
   readonly storedSidebarWidth = computed(() => `${this.layoutService.sidebarWidth()}px`);
 
   constructor() {

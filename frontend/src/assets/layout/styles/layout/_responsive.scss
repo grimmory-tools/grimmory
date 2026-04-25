@@ -6,6 +6,7 @@
       .layout-sidebar {
         transform: translateX(-100%);
         pointer-events: none;
+        visibility: hidden;
       }
     }
 
@@ -26,6 +27,7 @@
     .layout-main {
       --mobile-topbar-height: 3.5rem;
 
+      box-sizing: border-box;
       padding-top: var(--mobile-topbar-height);
     }
 

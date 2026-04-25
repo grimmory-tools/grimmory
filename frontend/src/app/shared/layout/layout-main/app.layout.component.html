@@ -4,6 +4,8 @@
   <nav
     class="layout-sidebar"
     [attr.aria-label]="t('menu.primaryNav')"
+    [attr.aria-hidden]="sidebarHidden() ? 'true' : null"
+    [attr.inert]="sidebarHidden() ? '' : null"
     [cdkTrapFocus]="layoutService.mobileDrawerOpen()"
   >
     <app-menu></app-menu>

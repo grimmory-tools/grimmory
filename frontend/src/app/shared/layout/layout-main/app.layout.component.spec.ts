@@ -122,12 +122,30 @@ describe('AppLayoutComponent', () => {
   });
 
   it('uses an explicit sidebar-hidden shell state when the desktop sidebar is hidden', () => {
+    layoutService.isDesktop.set(true);
     layoutService.sidebarVisible.set(false);
     fixture.detectChanges();
 
     const wrapper = fixture.nativeElement.querySelector('.layout-wrapper') as HTMLDivElement;
+    const sidebar = fixture.nativeElement.querySelector('.layout-sidebar') as HTMLElement;
 
     expect(wrapper.classList.contains('layout-sidebar-hidden')).toBe(true);
+    expect(sidebar.getAttribute('aria-hidden')).toBe('true');
+    expect(sidebar.hasAttribute('inert')).toBe(true);
+  });
+
+  it('keeps the mobile drawer reachable when the desktop sidebar preference is hidden', () => {
+    layoutService.isDesktop.set(false);
+    layoutService.sidebarVisible.set(false);
+    layoutService.mobileDrawerOpen.set(true);
+    fixture.detectChanges();
+
+    const wrapper = fixture.nativeElement.querySelector('.layout-wrapper') as HTMLDivElement;
+    const sidebar = fixture.nativeElement.querySelector('.layout-sidebar') as HTMLElement;
+
+    expect(wrapper.classList.contains('layout-sidebar-hidden')).toBe(false);
+    expect(sidebar.getAttribute('aria-hidden')).toBeNull();
+    expect(sidebar.hasAttribute('inert')).toBe(false);
   });
 
   it('cleans up an active sidebar resize when the component is destroyed', () => {
