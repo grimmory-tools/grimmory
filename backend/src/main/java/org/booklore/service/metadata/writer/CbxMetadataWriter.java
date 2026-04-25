@@ -231,7 +231,11 @@ public class CbxMetadataWriter implements MetadataWriter {
                 primaryUrl = "https://comicvine.gamespot.com/volume/" + cvId + "/";
             } else if (cvId.startsWith("4000-")) {
                 primaryUrl = "https://comicvine.gamespot.com/issue/" + cvId + "/";
+            } else if (cvId.matches("\\d+-\\d+")) {
+                // Already prefixed with some other Comicvine namespace; preserve as-is.
+                primaryUrl = "https://comicvine.gamespot.com/issue/" + cvId + "/";
             } else {
+                // Legacy bare-numeric ID — assume issue.
                 primaryUrl = "https://comicvine.gamespot.com/issue/4000-" + cvId + "/";
             }
         } else if (metadata.getGoodreadsId() != null && !metadata.getGoodreadsId().isBlank()) {

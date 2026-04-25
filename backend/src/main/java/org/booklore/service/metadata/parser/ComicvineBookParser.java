@@ -8,7 +8,7 @@ import org.booklore.model.dto.ComicMetadata;
 import org.booklore.model.dto.request.FetchMetadataRequest;
 import org.booklore.model.dto.response.comicvineapi.Comic;
 import org.booklore.model.dto.response.comicvineapi.ComicvineApiResponse;
-import org.booklore.model.dto.response.comicvineapi.ComicvineIssueResponse;
+import org.booklore.model.dto.response.comicvineapi.ComicvineSingleResponse;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.service.appsettings.AppSettingService;
 import org.springframework.stereotype.Service;
@@ -207,9 +207,10 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
             return Collections.emptyList();
         }
 
+        List<Comic> originalOrder = new ArrayList<>(volumes);
         volumes.sort((v1, v2) -> {
-            int score1 = calculateVolumeScore(v1, finalSeriesName, normalizedIssue, extractedYear);
-            int score2 = calculateVolumeScore(v2, finalSeriesName, normalizedIssue, extractedYear);
+            int score1 = calculateVolumeScore(v1, finalSeriesName, normalizedIssue, extractedYear, originalOrder.indexOf(v1));
+            int score2 = calculateVolumeScore(v2, finalSeriesName, normalizedIssue, extractedYear, originalOrder.indexOf(v2));
             return Integer.compare(score2, score1);
         });
 
@@ -233,8 +234,11 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
         return results;
     }
 
-    private int calculateVolumeScore(Comic volume, String seriesName, String normalizedIssue, Integer extractedYear) {
+    private int calculateVolumeScore(Comic volume, String seriesName, String normalizedIssue, Integer extractedYear, int originalIndex) {
         int score = 0;
+
+        // Relevance bonus from API search order
+        score += Math.max(0, 25 - originalIndex);
 
         if (extractedYear != null && matchesYear(volume, extractedYear)) {
             score += 100;
@@ -293,14 +297,15 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
         String apiToken = getApiToken();
         if (apiToken == null) return Collections.emptyList();
 
+        log.debug("Searching for volumes via /search/ endpoint: '{}'", seriesName);
         URI uri = UriComponentsBuilder.fromUriString(COMICVINE_URL)
-                .path("/volumes/")
+                .path("/search/")
                 .queryParam("api_key", apiToken)
                 .queryParam("format", "json")
-                .queryParam("filter", "name:" + seriesName)
-                .queryParam("limit", 20)
+                .queryParam("resources", "volume")
+                .queryParam("query", seriesName)
+                .queryParam("limit", 25)
                 .queryParam("field_list", VOLUME_FIELDS)
-                .queryParam("sort", "count_of_issues:desc")
                 .build()
                 .toUri();
 
@@ -308,8 +313,8 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
         List<Comic> volumes = response != null && response.getResults() != null ? response.getResults() : Collections.emptyList();
 
         if (volumes.isEmpty()) {
-            log.debug("No volumes found via /volumes filter, trying /search for '{}'", seriesName);
-            volumes = searchVolumesViaSearch(seriesName, apiToken);
+            log.debug("No volumes found via /search/ endpoint, falling back to /volumes/ filter for '{}'", seriesName);
+            volumes = searchVolumesViaFilter(seriesName, apiToken);
         }
 
         if (!volumes.isEmpty()) {
@@ -323,14 +328,13 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
         return volumes;
     }
 
-    private List<Comic> searchVolumesViaSearch(String seriesName, String apiToken) {
+    private List<Comic> searchVolumesViaFilter(String seriesName, String apiToken) {
         URI uri = UriComponentsBuilder.fromUriString(COMICVINE_URL)
-                .path("/search/")
+                .path("/volumes/")
                 .queryParam("api_key", apiToken)
                 .queryParam("format", "json")
-                .queryParam("resources", "volume")
-                .queryParam("query", seriesName)
-                .queryParam("limit", 10)
+                .queryParam("filter", "name:" + seriesName)
+                .queryParam("limit", 20)
                 .queryParam("field_list", VOLUME_FIELDS)
                 .build()
                 .toUri();
@@ -405,8 +409,11 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
 
         if ("4050".equals(prefix)) {
             return fetchVolumeDetails(id);
-        } else {
+        } else if ("4000".equals(prefix)) {
             return fetchIssueDetails(id, null);
+        } else {
+            log.warn("Unsupported Comicvine resource prefix '{}' for id '{}'", prefix, comicvineId);
+            return null;
         }
     }
 
@@ -415,18 +422,17 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
         if (apiToken == null) return null;
 
         URI uri = UriComponentsBuilder.fromUriString(COMICVINE_URL)
-                .path("/volumes/")
+                .path("/volume/4050-" + volumeId + "/")
                 .queryParam("api_key", apiToken)
                 .queryParam("format", "json")
-                .queryParam("filter", "id:" + volumeId)
-                .queryParam("limit", 1)
                 .queryParam("field_list", VOLUME_FIELDS)
                 .build()
                 .toUri();
 
-        ComicvineApiResponse response = sendRequest(uri, ComicvineApiResponse.class);
-        if (response != null && response.getResults() != null && !response.getResults().isEmpty()) {
-            return buildVolumeMetadata(response.getResults().getFirst());
+        ComicvineSingleResponse response = sendRequest(uri, ComicvineSingleResponse.class);
+        if (response != null && response.getResults() != null) {
+            response.getResults().setId(volumeId);
+            return buildVolumeMetadata(response.getResults());
         }
         return null;
     }
@@ -443,7 +449,7 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
                 .build()
                 .toUri();
 
-        ComicvineIssueResponse response = sendRequest(uri, ComicvineIssueResponse.class);
+        ComicvineSingleResponse response = sendRequest(uri, ComicvineSingleResponse.class);
         if (response != null && response.getResults() != null) {
             return convertToBookMetadata(response.getResults(), issueId, volumeContext);
         }
@@ -683,23 +689,8 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
                 .build();
     }
 
-    private BookMetadata convertToBookMetadata(ComicvineIssueResponse.IssueResults issue, int issueId, Comic volumeContext) {
-        Comic comic = new Comic();
+    private BookMetadata convertToBookMetadata(Comic comic, int issueId, Comic volumeContext) {
         comic.setId(issueId);
-        comic.setIssueNumber(issue.getIssueNumber());
-        comic.setVolume(issue.getVolume());
-        comic.setName(issue.getName());
-        comic.setPersonCredits(issue.getPersonCredits());
-        comic.setCharacterCredits(issue.getCharacterCredits());
-        comic.setTeamCredits(issue.getTeamCredits());
-        comic.setStoryArcCredits(issue.getStoryArcCredits());
-        comic.setLocationCredits(issue.getLocationCredits());
-        comic.setImage(issue.getImage());
-        comic.setDescription(issue.getDescription());
-        comic.setDeck(issue.getDeck());
-        comic.setStoreDate(issue.getStoreDate());
-        comic.setCoverDate(issue.getCoverDate());
-        comic.setSiteDetailUrl(issue.getSiteDetailUrl());
         return convertToBookMetadata(comic, volumeContext);
     }
 
