@@ -85,7 +85,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(unauthenticatedEndpoints.toArray(new String[0])).permitAll()
+                        .requestMatchers(unauthenticatedEndpoints.toArray(String[]::new)).permitAll()
                         .anyRequest().authenticated()
                 )
                 .httpBasic(basic -> basic
