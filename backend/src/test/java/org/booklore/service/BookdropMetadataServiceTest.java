@@ -133,6 +133,22 @@ class BookdropMetadataServiceTest {
         verify(bookdropFileRepository).save(result);
     }
 
+    @Test
+    void attachInitialMetadata_shouldFallbackToFilenameWhenTitleBlank() throws Exception {
+        BookMetadata metadata = BookMetadata.builder().title("   ").build();
+
+        when(bookdropFileRepository.findById(1L)).thenReturn(Optional.of(sampleFile));
+        when(metadataExtractorFactory.extractMetadata(eq(BookFileExtension.EPUB), any(File.class))).thenReturn(metadata);
+        when(objectMapper.writeValueAsString(any())).thenReturn("{\"title\":\"book\"}");
+        when(bookdropFileRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        bookdropMetadataService.attachInitialMetadata(1L);
+
+        ArgumentCaptor<BookMetadata> argument = ArgumentCaptor.forClass(BookMetadata.class);
+        verify(objectMapper).writeValueAsString(argument.capture());
+        assertThat(argument.getValue().getTitle()).isEqualTo("book");
+    }
+
     @Test()
     void attachInitialMetadata_shouldTruncateFields() throws Exception {
         BookMetadata metadata = BookMetadata.builder()

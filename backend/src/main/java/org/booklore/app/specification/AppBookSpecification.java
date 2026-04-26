@@ -274,7 +274,7 @@ public class AppBookSpecification {
                             .where(cb.equal(bfRoot.get("bookType"), ft));
                     predicates.add(root.get("id").in(sub));
                 }
-                return cb.and(predicates.toArray(new Predicate[0]));
+                return cb.and(predicates.toArray(Predicate[]::new));
             }
 
             Subquery<Long> sub = query.subquery(Long.class);
@@ -581,7 +581,7 @@ public class AppBookSpecification {
                     default -> throw new APIException("Invalid ageRating bucket ID: " + id, HttpStatus.BAD_REQUEST);
                 });
             }
-            Predicate combined = cb.or(predicates.toArray(new Predicate[0]));
+            Predicate combined = cb.or(predicates.toArray(Predicate[]::new));
             return "not".equals(mode) ? cb.not(combined) : combined;
         };
     }
@@ -613,7 +613,7 @@ public class AppBookSpecification {
                     default -> throw new APIException("Invalid matchScore bucket ID: " + id, HttpStatus.BAD_REQUEST);
                 });
             }
-            Predicate combined = cb.or(predicates.toArray(new Predicate[0]));
+            Predicate combined = cb.or(predicates.toArray(Predicate[]::new));
             return "not".equals(mode) ? cb.not(combined) : combined;
         };
     }
@@ -663,7 +663,7 @@ public class AppBookSpecification {
             
             sub.select(cb.literal(1L))
                .where(cb.equal(bfJoin.get("id"), minIdSub),
-                      cb.or(predicates.toArray(new Predicate[0])));
+                      cb.or(predicates.toArray(Predicate[]::new)));
 
             return "not".equals(mode) ? cb.not(cb.exists(sub)) : cb.exists(sub);
         };
@@ -728,7 +728,7 @@ public class AppBookSpecification {
                     default -> throw new APIException("Invalid " + fieldName + " bucket ID: " + id, HttpStatus.BAD_REQUEST);
                 });
             }
-            Predicate combined = cb.or(predicates.toArray(new Predicate[0]));
+            Predicate combined = cb.or(predicates.toArray(Predicate[]::new));
             return "not".equals(mode) ? cb.not(combined) : combined;
         };
     }
@@ -752,7 +752,7 @@ public class AppBookSpecification {
                     default -> throw new APIException("Invalid pageCount bucket ID: " + id, HttpStatus.BAD_REQUEST);
                 });
             }
-            Predicate combined = cb.or(predicates.toArray(new Predicate[0]));
+            Predicate combined = cb.or(predicates.toArray(Predicate[]::new));
             return "not".equals(mode) ? cb.not(combined) : combined;
         };
     }
@@ -823,7 +823,7 @@ public class AppBookSpecification {
                     sub.select(cb.literal(1L)).where(cb.equal(subShelves.get("id"), id));
                     predicates.add(cb.exists(sub));
                 }
-                return cb.and(predicates.toArray(new Predicate[0]));
+                return cb.and(predicates.toArray(Predicate[]::new));
             }
 
             Subquery<Long> sub = query.subquery(Long.class);
@@ -875,13 +875,13 @@ public class AppBookSpecification {
                     where.add(cb.equal(mappingRoot.get("role"), role));
                 }
 
-                sub.select(cb.literal(1L)).where(where.toArray(new Predicate[0]));
+                sub.select(cb.literal(1L)).where(where.toArray(Predicate[]::new));
                 predicates.add(cb.exists(sub));
             }
 
             Predicate combined = "and".equals(mode)
-                    ? cb.and(predicates.toArray(new Predicate[0]))
-                    : cb.or(predicates.toArray(new Predicate[0]));
+                    ? cb.and(predicates.toArray(Predicate[]::new))
+                    : cb.or(predicates.toArray(Predicate[]::new));
             return "not".equals(mode) ? cb.not(combined) : combined;
         };
     }
@@ -953,7 +953,7 @@ public class AppBookSpecification {
                         );
                 predicates.add(cb.exists(sub));
             }
-            return cb.and(predicates.toArray(new Predicate[0]));
+            return cb.and(predicates.toArray(Predicate[]::new));
         }
 
         // OR or NOT: single EXISTS subquery with IN clause

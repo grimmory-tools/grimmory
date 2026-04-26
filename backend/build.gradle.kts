@@ -6,7 +6,7 @@ import org.springframework.boot.gradle.tasks.run.BootRun
 
 plugins {
     java
-    id("org.springframework.boot") version "4.0.5"
+    id("org.springframework.boot") version "4.0.6"
     id("io.spring.dependency-management") version "1.1.7"
     id("org.hibernate.orm") version "7.3.2.Final"
     id("com.github.ben-manes.versions") version "0.54.0"
@@ -120,7 +120,7 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.46")
 
     // --- Book & Image Processing ---
-    val pdfium4jVersion = if (useLocalLibs) "+" else "0.14.0"
+    val pdfium4jVersion = if (useLocalLibs) "+" else "0.16.0"
     implementation("org.grimmory:pdfium4j:$pdfium4jVersion")
     runtimeOnly("org.grimmory:pdfium4j:$pdfium4jVersion:${pdfiumNativesClassifier()}")
 

@@ -15,7 +15,7 @@ services:
       - DATABASE_USERNAME=grimmory
       - DATABASE_PASSWORD=grimmory
       - REMOTE_DEBUG_ENABLED=true
-      - ALLOWED_ORIGINS=http://localhost:4200
+      - ALLOWED_ORIGINS=*
       - API_DOCS_ENABLED=true
       - JAVA_TOOL_OPTIONS=-XX:+UseShenandoahGC -XX:ShenandoahGCHeuristics=compact -XX:+UseCompactObjectHeaders -XX:MaxRAMPercentage=60.0 -XX:InitialRAMPercentage=8.0 -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/heapdump.hprof -XX:MaxMetaspaceSize=256m -XX:ReservedCodeCacheSize=48m -Xss512k -XX:CICompilerCount=2 -XX:+UnlockExperimentalVMOptions -XX:+UseStringDeduplication -XX:ShenandoahUncommitDelay=5000 -XX:ShenandoahGuaranteedGCInterval=30000 -XX:MaxDirectMemorySize=256m
     stdin_open: true

@@ -77,7 +77,7 @@
           <p>{{ t('noSeriesFound') }}</p>
         </div>
       } @else {
-        <cdk-virtual-scroll-viewport autosize [minBufferPx]="600" [maxBufferPx]="1200" class="virtual-scroller">
+        <cdk-virtual-scroll-viewport [itemSize]="rowHeight" [minBufferPx]="600" [maxBufferPx]="1200" class="virtual-scroller">
           <div *cdkVirtualFor="let row of seriesRows(); let rowIdx = index" class="series-grid"
             [ngStyle]="{'grid-template-columns': 'repeat(' + gridColumns() + ', 1fr)'}">
             @for (series of row; track series.seriesName) {

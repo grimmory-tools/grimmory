@@ -5,7 +5,9 @@ import org.booklore.util.epub.EpubContentReader;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.extern.slf4j.Slf4j;
+import org.grimmory.epub4j.cfi.CfiExpression;
 import org.grimmory.epub4j.cfi.CfiConverter;
+import org.grimmory.epub4j.cfi.CfiParser;
 import org.grimmory.epub4j.cfi.XPointerResult;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -21,16 +23,10 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Slf4j
 @Service
 public class EpubCfiService {
-
-    private static final Pattern XPOINTER_BODY_PATTERN = Pattern.compile("^/body/DocFragment\\[(\\d+)]/body(.*)$");
-    private static final Pattern XPOINTER_TEXT_OFFSET_PATTERN = Pattern.compile("/text\\(\\)\\.(\\d+)$");
-    private static final Pattern XPOINTER_SEGMENT_PATTERN = Pattern.compile("^(\\w+)(?:\\[(\\d+)])?$");
 
     private final Cache<String, Document> documentCache;
 
@@ -94,7 +90,8 @@ public class EpubCfiService {
 
         try {
             String normalizedCfi = normalizeContentDocumentCfi(cfi);
-            int spineIndex = CfiConverter.extractSpineIndex(normalizedCfi);
+            CfiExpression expression = CfiParser.parse(normalizedCfi);
+            int spineIndex = expression.spineIndex();
             String href = EpubContentReader.getSpineItemHref(epubFile, spineIndex);
             if (href == null || href.isBlank()) {
                 return Optional.empty();
@@ -105,8 +102,7 @@ public class EpubCfiService {
                 return Optional.empty();
             }
 
-            XPointerResult xpointerResult = convertCfiToXPointer(epubFile, normalizedCfi);
-            Integer sourceOffset = resolveSourceOffset(getCachedDocument(epubFile, spineIndex), xpointerResult.getXpointer());
+            Integer sourceOffset = resolveSourceOffset(getCachedDocument(epubFile, spineIndex), expression);
             Float contentSourceProgressPercent = sourceOffset == null
                     ? null
                     : clampPercent((sourceOffset / (float) Math.max(html.length(), 1)) * 100f);
@@ -200,25 +196,19 @@ public class EpubCfiService {
         return cfi.replaceFirst("!/4(?=/)", "!");
     }
 
-    private Integer resolveSourceOffset(Document document, String xpointer) {
-        if (xpointer == null || xpointer.isBlank()) {
+    private Integer resolveSourceOffset(Document document, CfiExpression expression) {
+        if (document == null || expression == null) {
             return null;
         }
 
-        Matcher pathMatcher = XPOINTER_BODY_PATTERN.matcher(xpointer);
-        if (!pathMatcher.matches()) {
-            throw new IllegalArgumentException("Invalid XPointer format: " + xpointer);
-        }
+        List<CfiExpression.PathStep> targetSteps = expression.isRange() && expression.rangeEndSteps() != null
+                ? expression.rangeEndSteps()
+                : expression.contentSteps();
+        Integer textOffset = expression.isRange() && expression.rangeEndOffset() != null
+                ? expression.rangeEndOffset()
+                : expression.charOffset();
 
-        String remainingPath = pathMatcher.group(2);
-        Integer textOffset = null;
-        Matcher textOffsetMatcher = XPOINTER_TEXT_OFFSET_PATTERN.matcher(remainingPath);
-        if (textOffsetMatcher.find()) {
-            textOffset = Integer.parseInt(textOffsetMatcher.group(1));
-            remainingPath = XPOINTER_TEXT_OFFSET_PATTERN.matcher(remainingPath).replaceAll("");
-        }
-
-        Element element = resolveElementPath(document.body(), remainingPath);
+        Element element = resolveElement(document.body(), targetSteps);
         if (element == null) {
             return null;
         }
@@ -233,33 +223,28 @@ public class EpubCfiService {
         return element.sourceRange() == null ? null : Math.max(element.sourceRange().startPos(), 0);
     }
 
-    private Element resolveElementPath(Element root, String path) {
+    private Element resolveElement(Element root, List<CfiExpression.PathStep> steps) {
         Element current = root;
-        if (path == null || path.isBlank()) {
+        if (current == null || steps == null || steps.isEmpty()) {
             return current;
         }
 
-        for (String rawSegment : path.split("/")) {
-            if (rawSegment.isBlank()) {
+        for (int i = 0; i < steps.size(); i++) {
+            CfiExpression.PathStep step = steps.get(i);
+            if (!step.targetsElement()) {
+                break;
+            }
+
+            if (i == 0 && step.position() == 4) {
                 continue;
             }
 
-            Matcher segmentMatcher = XPOINTER_SEGMENT_PATTERN.matcher(rawSegment);
-            if (!segmentMatcher.matches()) {
-                throw new IllegalArgumentException("Invalid XPointer segment: " + rawSegment);
-            }
-
-            String tagName = segmentMatcher.group(1).toLowerCase();
-            int index = segmentMatcher.group(2) == null ? 1 : Integer.parseInt(segmentMatcher.group(2));
-
-            List<Element> matchingChildren = current.children().stream()
-                    .filter(child -> child.tagName().equalsIgnoreCase(tagName))
-                    .toList();
-            if (matchingChildren.size() < index) {
+            int childIndex = step.childElementIndex();
+            if (childIndex < 0 || childIndex >= current.childrenSize()) {
                 return null;
             }
 
-            current = matchingChildren.get(index - 1);
+            current = current.child(childIndex);
         }
 
         return current;

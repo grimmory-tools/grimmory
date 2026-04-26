@@ -71,7 +71,7 @@ public class BookDownloadServiceTest {
 
     @Test
     public void downloadBook_includesContentDispositionUTF8() {
-        String expected = "attachment; filename=\"=?UTF-8?Q?=C9=87xample.epub?=\"; filename*=UTF-8''%C9%87xample.epub";
+        String expected = "attachment; filename=\"_xample.epub\"; filename*=UTF-8''%C9%87xample.epub";
 
         BookEntity bookEntity = getSampleBook("ɇxample.epub");
         when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));

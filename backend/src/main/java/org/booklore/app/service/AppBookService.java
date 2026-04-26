@@ -53,6 +53,7 @@ public class AppBookService {
 
     private static final int DEFAULT_PAGE_SIZE = 50;
     private static final int MAX_PAGE_SIZE = 50;
+    private static final String DEFAULT_SORT = "addedon";
 
     private final BookRepository bookRepository;
     private final UserBookProgressRepository userBookProgressRepository;
@@ -1044,12 +1045,39 @@ public class AppBookService {
             }
         }
 
-        // For `lastReadTime` sorting we need to filter to only the current user's progress.
-        if ("lastreadtime".equalsIgnoreCase(req.sort())) {
+        // Any of the user book progress sorting we need to filter to only the current user's progress.
+        String field = getSortField(req.sort());
+        if (field.startsWith("userBookProgress.")) {
             specs.add(AppBookSpecification.withProgress(userId, true));
         }
 
-        return AppBookSpecification.combine(specs.toArray(new Specification[0]));
+        return AppBookSpecification.combine(specs.toArray(Specification[]::new));
+    }
+
+    private String getSortField(String sortBy) {
+        return switch (sortBy != null ? sortBy.toLowerCase() : DEFAULT_SORT) {
+            case "addedon" -> "addedOn";
+            case "title" -> "metadata.title";
+            case "seriesname", "series" -> "metadata.seriesName";
+            case "seriesnumber" -> "metadata.seriesNumber";
+            case "pagecount" -> "metadata.pageCount";
+            case "language" -> "metadata.language";
+            case "publisher" -> "metadata.publisher";
+            case "publisheddate" -> "metadata.publishedDate";
+            case "amazonrating" -> "metadata.amazonRating";
+            case "amazonreviewcount" -> "metadata.amazonReviewCount";
+            case "goodreadsrating" -> "metadata.goodreadsRating";
+            case "goodreadsreviewcount" -> "metadata.goodreadsReviewCount";
+            case "hardcoverrating" -> "metadata.hardcoverRating";
+            case "hardcoverreviewcount" -> "metadata.hardcoverReviewCount";
+            case "ranobedbrating" -> "metadata.ranobedbRating";
+            case "narrator" -> "metadata.narrator";
+            case "lastreadtime" -> "userBookProgress.lastReadTime";
+            case "readstatus" -> "userBookProgress.readStatus";
+            case "datefinished" -> "userBookProgress.dateFinished";
+            case "personalrating" -> "userBookProgress.personalRating";
+            default -> "addedOn";
+        };
     }
 
     private Sort buildSort(String sortBy, String sortDir) {
@@ -1057,19 +1085,7 @@ public class AppBookService {
                 ? Sort.Direction.ASC
                 : Sort.Direction.DESC;
 
-        // "author" needs a join to the authors collection, which can't be expressed
-        // as a simple property path, fall through to the default (addedOn) for now.
-        String field = switch (sortBy != null ? sortBy.toLowerCase() : "") {
-            case "title" -> "metadata.title";
-            case "seriesname", "series" -> "metadata.seriesName";
-            case "seriesnumber" -> "metadata.seriesNumber";
-            case "publisher" -> "metadata.publisher";
-            case "language" -> "metadata.language";
-            case "publisheddate" -> "metadata.publishedDate";
-            case "lastreadtime" -> "userBookProgress.lastReadTime";
-            case "pagecount" -> "metadata.pageCount";
-            default -> "addedOn";
-        };
+        String field = getSortField(sortBy);
 
         return Sort.by(direction, field);
     }
@@ -1102,7 +1118,7 @@ public class AppBookService {
             specs.add(AppBookSpecification.inLibrary(libraryId));
         }
 
-        return AppBookSpecification.combine(specs.toArray(new Specification[0]));
+        return AppBookSpecification.combine(specs.toArray(Specification[]::new));
     }
 
     private AppPageResponse<AppBookSummary> buildPageResponse(

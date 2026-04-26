@@ -85,6 +85,17 @@ class PathPatternResolverTest {
     }
 
     @Test
+    void testResolvePattern_blankTitleWithExplicitExtensionPatternFallsBackToFilename() {
+        BookMetadata metadata = BookMetadata.builder()
+                .title("   ")
+                .build();
+
+        String result = PathPatternResolver.resolvePattern(metadata, "{title}.{extension}", "original.pdf");
+
+        assertEquals("original.pdf", result);
+    }
+
+    @Test
     void testResolvePattern_multiplePlaceholders() {
         BookMetadata metadata = BookMetadata.builder()
                 .title("Test Book")
@@ -200,6 +211,17 @@ class PathPatternResolverTest {
                 .build();
 
         String result = PathPatternResolver.resolvePattern(metadata, "{title}", "original.pdf");
+
+        assertEquals("original.pdf", result);
+    }
+
+    @Test
+    void testResolvePattern_nullTitleWithExplicitExtensionPatternFallsBackToFilename() {
+        BookMetadata metadata = BookMetadata.builder()
+                .title(null)
+                .build();
+
+        String result = PathPatternResolver.resolvePattern(metadata, "{title}.{extension}", "original.pdf");
 
         assertEquals("original.pdf", result);
     }
