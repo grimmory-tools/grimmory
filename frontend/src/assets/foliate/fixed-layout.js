@@ -83,7 +83,7 @@ export class FixedLayout extends HTMLElement {
         })
         // Foliate recommends disabling scripts for untrusted book content:
         // https://github.com/johnfactotum/foliate-js#security
-        iframe.setAttribute('sandbox', 'allow-same-origin')
+        iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts')
         iframe.setAttribute('scrolling', 'no')
         iframe.setAttribute('part', 'filter')
         this.#root.append(element)
