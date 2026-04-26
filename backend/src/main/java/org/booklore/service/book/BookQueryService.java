@@ -76,8 +76,29 @@ public class BookQueryService {
         return mapBooksToDto(entities, includeDescription, userId, !includeDescription);
     }
 
+    @Transactional(readOnly = true)
+    public List<BookRegenerationInfo> findAllRegenerationInfo(boolean missingOnly) {
+        return bookRepository.findAllFullBooksWithFiles().stream()
+                .filter(book -> book.getMetadata() != null)
+                .filter(book -> !isCoverLocked(book))
+                .filter(book -> book.getPrimaryBookFile() != null)
+                .filter(book -> !missingOnly || book.getBookCoverHash() == null)
+                .map(book -> new BookRegenerationInfo(book.getId(), book.getMetadata().getTitle()))
+                .toList();
+    }
+
+    private boolean isCoverLocked(BookEntity book) {
+        return book.getMetadata() != null && Boolean.TRUE.equals(book.getMetadata().getCoverLocked());
+    }
+
+    public record BookRegenerationInfo(Long id, String title) {}
+
     public List<BookEntity> getAllFullBookEntities() {
         return bookRepository.findAllFullBooks();
+    }
+
+    public List<BookEntity> getAllFullBookEntitiesWithFiles() {
+        return bookRepository.findAllFullBooksWithFiles();
     }
 
     @Transactional
