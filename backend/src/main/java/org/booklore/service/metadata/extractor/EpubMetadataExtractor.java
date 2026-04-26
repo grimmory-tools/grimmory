@@ -2,6 +2,7 @@ package org.booklore.service.metadata.extractor;
 
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ObjectNode;
 import org.grimmory.epub4j.archive.EpubContainer;
 import org.grimmory.epub4j.archive.EpubContainers;
@@ -48,7 +49,7 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
 
     private static final Set<Integer> VALID_AGE_RATINGS = Set.of(0, 6, 10, 13, 16, 18, 21);
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().build();
 
     static {
         MEDIA_TYPES.addAll(Arrays.asList(MediaTypes.mediaTypes));

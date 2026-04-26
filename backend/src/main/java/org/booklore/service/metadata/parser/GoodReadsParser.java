@@ -2,6 +2,7 @@ package org.booklore.service.metadata.parser;
 
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ObjectNode;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookMetadata;
@@ -48,7 +49,7 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
     private static final int COUNT_DETAILED_METADATA_TO_GET_RETRY = 2;
     private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
     private static final Pattern BOOK_SHOW_ID_PATTERN = Pattern.compile("/book/show/(\\d+)");
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().build();
 
     private final AppSettingService appSettingService;
 
@@ -297,9 +298,10 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
                     continue;
                 }
 
+                JsonNode updatedAtNode = reviewJson.path("updatedAt");
                 BookReview review = BookReview.builder()
                         .metadataProvider(MetadataProvider.GoodReads)
-                        .date(reviewJson.path("updatedAt").isIntegralNumber() ? parseEpochMillis(String.valueOf(reviewJson.path("updatedAt").asLong())) : null)
+                        .date(updatedAtNode.isIntegralNumber() ? Instant.ofEpochMilli(updatedAtNode.asLong()) : null)
                         .body(plainBody.trim())
                         .rating(Float.valueOf(reviewJson.path("rating").asText("0")))
                         .spoiler(reviewJson.path("spoilerStatus").asBoolean(false))
@@ -317,15 +319,6 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
         builder.bookReviews(reviews);
     }
 
-    private Instant parseEpochMillis(String millisString) {
-        try {
-            long millis = Long.parseLong(millisString);
-            return Instant.ofEpochMilli(millis);
-        } catch (NumberFormatException e) {
-            log.warn("Invalid epoch millis: {}", millisString, e);
-            return null;
-        }
-    }
 
     private List<String> findKeysByPrefixAll(LinkedHashSet<String> keySet, String prefix) {
         List<String> matchingKeys = new ArrayList<>();
