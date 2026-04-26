@@ -250,6 +250,9 @@ export class BookBrowserComponent implements AfterViewInit {
           case 'amazonRating': scopeFilters.amazonRating = strValues; break;
           case 'goodreadsRating': scopeFilters.goodreadsRating = strValues; break;
           case 'hardcoverRating': scopeFilters.hardcoverRating = strValues; break;
+          case 'lubimyczytacRating': scopeFilters.lubimyczytacRating = strValues; break;
+          case 'ranobedbRating': scopeFilters.ranobedbRating = strValues; break;
+          case 'audibleRating': scopeFilters.audibleRating = strValues; break;
           case 'pageCount': scopeFilters.pageCount = strValues; break;
           case 'shelfStatus':
             scopeFilters.shelfStatus = strValues;

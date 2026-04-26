@@ -499,6 +499,27 @@ describe('BookBrowserComponent', () => {
     expect(collapseBooksSpy).toHaveBeenCalled();
   });
 
+  it('forwards remaining rating sidebar filters to the app books API', () => {
+    const {component} = createHarness();
+    const appBooksApi = TestBed.inject(AppBooksApiService);
+    const setFiltersSpy = vi.spyOn(appBooksApi, 'setFilters');
+
+    component.onFilterSelected({
+      lubimyczytacRating: ['5'],
+      ranobedbRating: ['4'],
+      audibleRating: ['3'],
+    });
+    TestBed.flushEffects();
+
+    expect(setFiltersSpy).toHaveBeenLastCalledWith(expect.objectContaining({
+      libraryId: 1,
+      filterMode: 'and',
+      lubimyczytacRating: ['5'],
+      ranobedbRating: ['4'],
+      audibleRating: ['3'],
+    }));
+  });
+
   it('triggers next page fetch when scrolled near the bottom of rendered content', async () => {
     const {component} = createHarness();
     const appBooksApi = TestBed.inject(AppBooksApiService);
