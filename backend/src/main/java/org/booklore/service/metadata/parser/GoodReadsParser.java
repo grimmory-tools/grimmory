@@ -284,8 +284,10 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
                 Integer textReviewsCount = null;
                 if (userJson != null) {
                     reviewerName = userJson.path("name").asText(null);
-                    followersCount = userJson.has("followersCount") ? userJson.path("followersCount").asInt() : null;
-                    textReviewsCount = userJson.has("textReviewsCount") ? userJson.path("textReviewsCount").asInt() : null;
+                    JsonNode followersNode = userJson.path("followersCount");
+                    followersCount = followersNode.canConvertToInt() ? followersNode.asInt() : null;
+                    JsonNode textReviewsNode = userJson.path("textReviewsCount");
+                    textReviewsCount = textReviewsNode.canConvertToInt() ? textReviewsNode.asInt() : null;
                 }
 
                 String rawBody = reviewJson.path("text").asText(null);
@@ -297,7 +299,7 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
 
                 BookReview review = BookReview.builder()
                         .metadataProvider(MetadataProvider.GoodReads)
-                        .date(parseEpochMillis(String.valueOf(reviewJson.path("updatedAt").asLong())))
+                        .date(reviewJson.path("updatedAt").isIntegralNumber() ? parseEpochMillis(String.valueOf(reviewJson.path("updatedAt").asLong())) : null)
                         .body(plainBody.trim())
                         .rating(Float.valueOf(reviewJson.path("rating").asText("0")))
                         .spoiler(reviewJson.path("spoilerStatus").asBoolean(false))
@@ -436,6 +438,7 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
             for (String key : keySet) {
                 if (key.contains("Book:kca:")) {
                     JsonNode bookJson = apolloStateJson.get(key);
+                    if (bookJson == null) continue;
                     String title = bookJson.path("title").asText(null);
                     if (title != null && !title.isEmpty()) {
                         return bookJson;

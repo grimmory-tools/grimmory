@@ -242,13 +242,21 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
                         if ("calibre:pages".equals(name) || "pagecount".equals(name) || "schema:pagecount".equals(prop) || "media:pagecount".equals(prop) || (BookLoreMetadata.NS_PREFIX + ":page_count").equals(prop)) {
                             safeParseInt(content, builderMeta::pageCount);
                         } else if ("calibre:user_metadata:#pagecount".equals(name)) {
-                            JsonNode jsonroot = OBJECT_MAPPER.readTree(content);
-                            JsonNode valueNode = jsonroot.get("#value#");
-                            if (valueNode != null) {
-                                safeParseInt(valueNode.asText(), builderMeta::pageCount);
+                            try {
+                                JsonNode jsonRoot = OBJECT_MAPPER.readTree(content);
+                                JsonNode valueNode = jsonRoot.get("#value#");
+                                if (valueNode != null && !valueNode.isNull()) {
+                                    safeParseInt(valueNode.asText(), builderMeta::pageCount);
+                                }
+                            } catch (Exception e) {
+                                log.debug("Failed to parse calibre:user_metadata:#pagecount: {}", e.getMessage());
                             }
                         } else if ("calibre:user_metadata".equals(prop)) {
-                            extractCalibreUserMetadata(OBJECT_MAPPER.readTree(content), builderMeta, moods, tags);
+                            try {
+                                extractCalibreUserMetadata(OBJECT_MAPPER.readTree(content), builderMeta, moods, tags);
+                            } catch (Exception e) {
+                                log.debug("Failed to parse calibre:user_metadata: {}", e.getMessage());
+                            }
                         }
 
 
