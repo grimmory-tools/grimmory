@@ -87,7 +87,7 @@ public class BookRuleEvaluatorService {
             return cb.conjunction();
         }
 
-        return group.getJoin() == org.booklore.model.dto.JoinType.AND
+        return group.getJoin() == org.grimmory.model.dto.JoinType.AND
                 ? cb.and(predicates.toArray(Predicate[]::new))
                 : cb.or(predicates.toArray(Predicate[]::new));
     }
