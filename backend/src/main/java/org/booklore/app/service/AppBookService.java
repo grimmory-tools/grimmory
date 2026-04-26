@@ -55,7 +55,6 @@ public class AppBookService {
     private static final int MAX_PAGE_SIZE = 50;
     private static final String DEFAULT_SORT = "addedon";
 
-    private static final Specification[] EMPTY_SPECIFICATION_ARRAY = new Specification[0];
     private final BookRepository bookRepository;
     private final UserBookProgressRepository userBookProgressRepository;
     private final UserBookFileProgressRepository userBookFileProgressRepository;
@@ -1052,7 +1051,7 @@ public class AppBookService {
             specs.add(AppBookSpecification.withProgress(userId, true));
         }
 
-        return AppBookSpecification.combine(specs.toArray(EMPTY_SPECIFICATION_ARRAY));
+        return AppBookSpecification.combine(specs.toArray(Specification[]::new));
     }
 
     private String getSortField(String sortBy) {
@@ -1119,7 +1118,7 @@ public class AppBookService {
             specs.add(AppBookSpecification.inLibrary(libraryId));
         }
 
-        return AppBookSpecification.combine(specs.toArray(EMPTY_SPECIFICATION_ARRAY));
+        return AppBookSpecification.combine(specs.toArray(Specification[]::new));
     }
 
     private AppPageResponse<AppBookSummary> buildPageResponse(

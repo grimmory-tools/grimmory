@@ -33,7 +33,6 @@ public class AppSeriesService {
 
     private static final int DEFAULT_PAGE_SIZE = 20;
     private static final int MAX_PAGE_SIZE = 50;
-    private static final Specification[] EMPTY_SPECIFICATION_ARRAY = new Specification[0];
 
     private final EntityManager entityManager;
     private final AuthenticationService authenticationService;
@@ -374,7 +373,7 @@ public class AppSeriesService {
             specs.add(AppBookSpecification.inLibrary(libraryId));
         }
 
-        return AppBookSpecification.combine(specs.toArray(EMPTY_SPECIFICATION_ARRAY));
+        return AppBookSpecification.combine(specs.toArray(Specification[]::new));
     }
 
     private Map<Long, UserBookProgressEntity> getProgressMap(Long userId, Set<Long> bookIds) {

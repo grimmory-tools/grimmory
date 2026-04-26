@@ -47,7 +47,6 @@ import org.springframework.web.util.pattern.PathPatternParser;
 public class SecurityConfig {
 
     private static final Pattern ALLOWED = Pattern.compile("\\s*,\\s*");
-    private static final String[] EMPTY_STRING_ARRAY = new String[0];
     private final OpdsUserDetailsService opdsUserDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final AuthenticationCheckFilter authenticationCheckFilter;
@@ -86,7 +85,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(unauthenticatedEndpoints.toArray(EMPTY_STRING_ARRAY)).permitAll()
+                        .requestMatchers(unauthenticatedEndpoints.toArray(String[]::new)).permitAll()
                         .anyRequest().authenticated()
                 )
                 .httpBasic(basic -> basic
