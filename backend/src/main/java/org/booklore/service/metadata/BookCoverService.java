@@ -325,12 +325,14 @@ public class BookCoverService {
         String username = getCurrentUsername();
         taskExecutor.execute(() -> {
             try {
-                List<BookRegenerationInfo> books = bookQueryService.getAllFullBookEntities().stream()
-                        .filter(book -> !isCoverLocked(book))
-                        .filter(book -> book.getPrimaryBookFile() != null)
-                        .filter(book -> !missingOnly || book.getBookCoverHash() == null)
-                        .map(book -> new BookRegenerationInfo(book.getId(), book.getMetadata().getTitle(), book.getPrimaryBookFile().getBookType(), false))
-                        .toList();
+                List<BookRegenerationInfo> books = transactionTemplate.execute(status ->
+                        bookQueryService.getAllFullBookEntities().stream()
+                                .filter(book -> !isCoverLocked(book))
+                                .filter(book -> book.getPrimaryBookFile() != null)
+                                .filter(book -> !missingOnly || book.getBookCoverHash() == null)
+                                .map(book -> new BookRegenerationInfo(book.getId(), book.getMetadata().getTitle(), book.getPrimaryBookFile().getBookType(), false))
+                                .toList()
+                );
                 int total = books.size();
                 String label = missingOnly ? "missing" : "all";
                 sendNotification(username, Topic.LOG, LogNotification.info("Started regenerating covers for " + total + " books (" + label + ")"));
