@@ -1,3 +1,15 @@
+/*
+ * App-owned design tokens.
+ *
+ * Keep this file to CSS variables that define app-level color,
+ * spacing, type, radius, focus, shadow, and motion decisions. Do not add
+ * selectors, component rules, or PrimeNG overrides here.
+ *
+ * These values are the static defaults. AppConfigService updates the
+ * palette-backed primary and surface tokens at runtime when the saved theme
+ * configuration is applied.
+ */
+
 :root {
   /* Primary */
   --primary-color: #4ade80;
@@ -14,13 +26,16 @@
   --text-muted-color: #919ca9;
   --high-contrast-text-color: #ffffff;
 
-  /* Surfaces */
+  /* App surfaces */
   --app-background: #0d1012;
   --page-background: color-mix(in srgb, var(--surface-900) 82%, var(--surface-950));
   --surface-content: #1a1e21;
   --surface-card: color-mix(in srgb, var(--surface-900) 62%, var(--surface-800));
   --surface-toolbar: color-mix(in srgb, var(--app-background) 70%, var(--surface-content));
   --surface-overlay: #1a1e21;
+
+  /* Compatibility aliases used by existing app styles. Prefer the canonical
+     app surface tokens above for new native layout and page CSS. */
   --ground-background: var(--app-background);
   --overlay-background: var(--surface-overlay);
   --card-background: var(--surface-card);
@@ -34,7 +49,7 @@
   --content-border-color: var(--border-subtle);
   --card-border: 1px solid transparent;
 
-  /* Surface scale */
+  /* Surface scale populated from the selected surface palette */
   --surface-0: #ffffff;
   --surface-50: #f4f6f8;
   --surface-100: #e6e9ed;
@@ -59,6 +74,7 @@
   --focus-ring: 0 0 0 0.2rem color-mix(in srgb, var(--primary-color) 40%, transparent);
 
   /* Typography */
+  --font-size-root: 14px;
   --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
   /* Type scale */
@@ -89,4 +105,27 @@
   /* Shadows */
   --shadow-sm: 0 2px 4px rgb(0 0 0 / 25%);
   --shadow-overlay: 0 30px 80px -20px rgb(0 0 0 / 70%), 0 10px 30px -10px rgb(0 0 0 / 50%);
+
+  /* Native page shell */
+  --page-gutter-block: var(--space-5);
+  --page-gutter-inline: var(--space-5);
+  --page-header-gap: var(--space-4);
+  --page-content-gap: var(--space-4);
+
+  /* Book format colors */
+  --book-type-pdf-color: #dc2626;
+  --book-type-epub-color: #16a34a;
+  --book-type-cbx-color: #3b82f6;
+  --book-type-cbz-color: #06b6d4;
+  --book-type-cbr-color: #f97316;
+  --book-type-cb7-color: #8b5cf6;
+  --book-type-fb2-color: #ec4899;
+  --book-type-mobi-color: #6366f1;
+  --book-type-azw3-color: #14b8a6;
+  --book-type-audiobook-color: #eab308;
+  --book-type-m4b-color: #eab308;
+  --book-type-mp3-color: #84cc16;
+  --book-type-m4a-color: #f43f5e;
+  --book-type-opus-color: #06b6d4;
+  --book-type-physical-color: #8b5cf6;
 }
