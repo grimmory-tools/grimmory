@@ -373,7 +373,7 @@ public class AppSeriesService {
             specs.add(AppBookSpecification.inLibrary(libraryId));
         }
 
-        return AppBookSpecification.combine(specs.toArray(new Specification[0]));
+        return AppBookSpecification.combine(specs.toArray(Specification[]::new));
     }
 
     private Map<Long, UserBookProgressEntity> getProgressMap(Long userId, Set<Long> bookIds) {

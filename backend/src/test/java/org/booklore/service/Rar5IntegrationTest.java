@@ -1,6 +1,8 @@
 package org.booklore.service;
 
 import org.booklore.model.dto.BookMetadata;
+import org.booklore.model.dto.settings.AppSettings;
+import org.booklore.model.dto.settings.MetadataPersistenceSettings;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.service.kobo.CbxConversionService;
@@ -9,6 +11,8 @@ import org.booklore.service.metadata.writer.CbxMetadataWriter;
 import org.booklore.service.reader.CbxReaderService;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.appsettings.AppSettingService;
+import org.booklore.service.reader.ChapterCacheService;
+import org.booklore.util.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.io.TempDir;
@@ -61,10 +65,10 @@ class Rar5IntegrationTest {
         book.setId(99L);
         BookRepository mockRepo = org.mockito.Mockito.mock(BookRepository.class);
         org.mockito.Mockito.when(mockRepo.findByIdForStreaming(99L)).thenReturn(java.util.Optional.of(book));
-        org.booklore.service.reader.ChapterCacheService mockCache = org.mockito.Mockito.mock(org.booklore.service.reader.ChapterCacheService.class);
+        ChapterCacheService mockCache = org.mockito.Mockito.mock(ChapterCacheService.class);
 
-        try (var fileUtilsStatic = org.mockito.Mockito.mockStatic(org.booklore.util.FileUtils.class)) {
-            fileUtilsStatic.when(() -> org.booklore.util.FileUtils.getBookFullPath(book))
+        try (var fileUtilsStatic = org.mockito.Mockito.mockStatic(FileUtils.class)) {
+            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(book))
                     .thenReturn(cbrCopy);
 
             CbxReaderService readerService = new CbxReaderService(mockRepo, new ArchiveService(), mockCache);
@@ -84,12 +88,12 @@ class Rar5IntegrationTest {
         book.setId(99L);
         BookRepository mockRepo = org.mockito.Mockito.mock(BookRepository.class);
         org.mockito.Mockito.when(mockRepo.findByIdForStreaming(99L)).thenReturn(java.util.Optional.of(book));
-        org.booklore.service.reader.ChapterCacheService mockCache = org.mockito.Mockito.mock(org.booklore.service.reader.ChapterCacheService.class);
+        ChapterCacheService mockCache = org.mockito.Mockito.mock(ChapterCacheService.class);
 
         try (
-            var fileUtilsStatic = org.mockito.Mockito.mockStatic(org.booklore.util.FileUtils.class)
+            var fileUtilsStatic = org.mockito.Mockito.mockStatic(FileUtils.class)
         ) {
-            fileUtilsStatic.when(() -> org.booklore.util.FileUtils.getBookFullPath(book))
+            fileUtilsStatic.when(() -> FileUtils.getBookFullPath(book))
                     .thenReturn(cbrCopy);
 
             CbxReaderService readerService = new CbxReaderService(mockRepo, new ArchiveService(), mockCache);
@@ -142,10 +146,10 @@ class Rar5IntegrationTest {
         Files.copy(RAR5_CBR, cbrCopy);
 
         AppSettingService mockSettings = org.mockito.Mockito.mock(AppSettingService.class);
-        var appSettings = new org.booklore.model.dto.settings.AppSettings();
-        var persistenceSettings = new org.booklore.model.dto.settings.MetadataPersistenceSettings();
-        var saveToFile = new org.booklore.model.dto.settings.MetadataPersistenceSettings.SaveToOriginalFile();
-        var cbxSettings = new org.booklore.model.dto.settings.MetadataPersistenceSettings.FormatSettings();
+        var appSettings = new AppSettings();
+        var persistenceSettings = new MetadataPersistenceSettings();
+        var saveToFile = new MetadataPersistenceSettings.SaveToOriginalFile();
+        var cbxSettings = new MetadataPersistenceSettings.FormatSettings();
         cbxSettings.setEnabled(true);
         cbxSettings.setMaxFileSizeInMb(500);
         saveToFile.setCbx(cbxSettings);

@@ -6,6 +6,7 @@ import org.booklore.model.dto.ProgressPercentDto;
 import org.booklore.model.dto.RatingDistributionDto;
 import org.booklore.model.dto.StatusDistributionDto;
 import org.booklore.model.entity.UserBookProgressEntity;
+import org.booklore.model.enums.ReadStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -100,9 +101,9 @@ public interface UserBookProgressRepository extends JpaRepository<UserBookProgre
     int bulkUpdateReadStatus(
             @Param("userId") Long userId,
             @Param("bookIds") List<Long> bookIds,
-            @Param("readStatus") org.booklore.model.enums.ReadStatus readStatus,
-            @Param("modifiedTime") java.time.Instant modifiedTime,
-            @Param("dateFinished") java.time.Instant dateFinished
+            @Param("readStatus") ReadStatus readStatus,
+            @Param("modifiedTime") Instant modifiedTime,
+            @Param("dateFinished") Instant dateFinished
     );
 
     @Query("""
