@@ -43,7 +43,6 @@ server:
 
 spring:
   main:
-    banner-mode: "off"             # Saves startup object overhead
     allow-bean-definition-overriding: false
     lazy-initialization: true
   jmx:
