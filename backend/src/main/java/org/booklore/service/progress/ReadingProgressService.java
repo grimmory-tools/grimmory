@@ -1,7 +1,6 @@
 package org.booklore.service.progress;
 
-import
-        org.booklore.config.security.service.AuthenticationService;
+import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.ApiError;
 import org.booklore.model.dto.*;
 import org.booklore.model.dto.progress.AudiobookProgress;
