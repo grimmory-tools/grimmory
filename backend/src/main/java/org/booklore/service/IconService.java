@@ -51,7 +51,7 @@ public class IconService {
         validateSvgData(request.getSvgData());
 
         String filename = normalizeFilename(request.getSvgName());
-        Path filePath = getIconsSvgPath().resolve(filename);
+        Path filePath = validateAndResolvePath(filename);
 
         if (Files.exists(filePath)) {
             log.warn("SVG icon already exists: {}", filename);
@@ -122,7 +122,7 @@ public class IconService {
     }
 
     private String loadAndCacheIcon(String filename, String originalName) {
-        Path filePath = getIconsSvgPath().resolve(filename);
+        Path filePath = validateAndResolvePath(filename);
 
         if (!Files.exists(filePath)) {
             log.warn("SVG icon not found: {}", filename);
@@ -141,7 +141,7 @@ public class IconService {
 
     public void deleteSvgIcon(String svgName) {
         String filename = normalizeFilename(svgName);
-        Path filePath = getIconsSvgPath().resolve(filename);
+        Path filePath = validateAndResolvePath(filename);
 
         try {
             if (!Files.exists(filePath)) {
@@ -157,6 +157,17 @@ public class IconService {
             log.error("Failed to delete SVG icon: {}", e.getMessage(), e);
             throw ApiError.FILE_READ_ERROR.createException("Failed to delete SVG icon: " + e.getMessage());
         }
+    }
+
+    private Path validateAndResolvePath(String filename) {
+        Path baseDir = getIconsSvgPath().toAbsolutePath().normalize();
+        Path filePath = baseDir.resolve(filename).toAbsolutePath().normalize();
+
+        if (!filePath.startsWith(baseDir)) {
+            log.error("Potential path traversal attempt: {}", filename);
+            throw ApiError.INVALID_INPUT.createException("Invalid icon name");
+        }
+        return filePath;
     }
 
     public Page<String> getIconNames(int page, int size) {
