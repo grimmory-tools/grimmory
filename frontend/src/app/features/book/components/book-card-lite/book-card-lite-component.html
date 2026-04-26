@@ -6,9 +6,9 @@
       alt="Cover of {{ book.metadata?.title }}"
       width="250"
       height="350"
-      loading="lazy"
+      [attr.loading]="imageLoading()"
       decoding="async"
-      fetchpriority="low"/>
+      [attr.fetchpriority]="imageFetchPriority()"/>
   } @else {
     <app-cover-placeholder class="book-cover" [title]="book.metadata?.title ?? ''" [author]="(book.metadata?.authors ?? []).join(', ')" size="sm" />
   }

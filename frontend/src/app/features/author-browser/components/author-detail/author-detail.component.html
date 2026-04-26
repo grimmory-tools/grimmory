@@ -114,6 +114,7 @@
                             [index]="rowIdx * gridColumns() + j"
                             [book]="book"
                             [isSeriesCollapsed]="false"
+                            [priorityImage]="rowIdx === 0 && j === 0"
                             [overlayPreferenceService]="bookCardOverlayPreferenceService">
                           </app-book-card>
                         </div>

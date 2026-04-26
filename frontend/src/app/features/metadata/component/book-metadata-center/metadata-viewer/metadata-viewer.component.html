@@ -1,4 +1,4 @@
-@if (book; as book) {
+@if (book(); as book) {
   <div class="metadata-viewer-container" *transloco="let t; prefix: 'metadata.viewer'">
     <div class="metadata-header">
 
@@ -958,7 +958,7 @@
     <app-metadata-tabs
       [book]="book"
       [bookInSeries]="bookInSeries"
-      [recommendedBooks]="recommendedBooks"
+      [recommendedBooks]="recommendedBooksFiltered"
       (readBook)="onReadBook($event)"
       (downloadBook)="onDownloadBook($event)"
       (downloadFile)="onDownloadFile($event)"

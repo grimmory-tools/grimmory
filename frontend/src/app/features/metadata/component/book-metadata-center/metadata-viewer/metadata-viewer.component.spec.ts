@@ -15,12 +15,14 @@ import {UserService} from '../../../../settings/user-management/user.service';
 import {EmailService} from '../../../../settings/email-v2/email.service';
 import {BookDialogHelperService} from '../../../../book/components/book-browser/book-dialog-helper.service';
 import {LibraryService} from '../../../../book/service/library.service';
+import {BookMetadataManageService} from '../../../../book/service/book-metadata-manage.service';
 import {TaskHelperService} from '../../../../settings/task-management/task-helper.service';
 import {AuthorService} from '../../../../author-browser/service/author.service';
 import {Router} from '@angular/router';
 import {BookNavigationService} from '../../../../book/service/book-navigation.service';
 import {BookMetadataHostService} from '../../../../../shared/service/book-metadata-host.service';
 import {MetadataViewerComponent} from './metadata-viewer.component';
+import {AudiobookService} from '../../../../readers/audiobook-player/audiobook.service';
 
 interface CurrentUser {
   permissions?: {
@@ -39,6 +41,45 @@ interface ConfirmationLike {
   message?: string;
   header?: string;
   accept?: () => void;
+}
+
+// Ensure matchMedia is mocked for PrimeNG components like TieredMenu
+if (typeof window !== 'undefined' && !window.matchMedia) {
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: vi.fn().mockImplementation(query => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })),
+  });
+}
+
+// Ensure ResizeObserver is mocked for PrimeNG components like Tabs
+if (typeof window !== 'undefined' && !window.ResizeObserver) {
+  window.ResizeObserver = class {
+    observe = vi.fn();
+    unobserve = vi.fn();
+    disconnect = vi.fn();
+  };
+}
+
+// Ensure IntersectionObserver is mocked
+if (typeof window !== 'undefined' && !window.IntersectionObserver) {
+  window.IntersectionObserver = class {
+    root = null;
+    rootMargin = '';
+    thresholds = [0];
+    observe = vi.fn();
+    unobserve = vi.fn();
+    disconnect = vi.fn();
+    takeRecords = vi.fn(() => []);
+  };
 }
 
 describe('MetadataViewerComponent', () => {
@@ -141,8 +182,12 @@ describe('MetadataViewerComponent', () => {
     } as Book;
   }
 
-  function createComponent(): MetadataViewerComponent {
-    return TestBed.runInInjectionContext(() => new MetadataViewerComponent());
+  function createComponent() {
+    const fixture = TestBed.createComponent(MetadataViewerComponent);
+    return {
+      fixture,
+      component: fixture.componentInstance
+    };
   }
 
   function runMenuCommand(command: MenuItem['command'] | undefined): void {
@@ -201,9 +246,22 @@ describe('MetadataViewerComponent', () => {
     lastConfirmation = null;
 
     TestBed.configureTestingModule({
+      imports: [MetadataViewerComponent],
       providers: [
-        {provide: TranslocoService, useValue: {translate}},
+        {
+          provide: TranslocoService,
+          useValue: {
+            translate,
+            config: {reRenderOnLangChange: true},
+            langChanges$: of('en'),
+            events$: of({}),
+            getActiveLang: () => 'en',
+            _loadDependencies: () => of([])
+          }
+        },
         {provide: LibraryService, useValue: {findLibraryById}},
+        {provide: BookMetadataManageService, useValue: {supportsDualCovers: signal(false)}},
+        {provide: AudiobookService, useValue: {}},
         {
           provide: BookDialogHelperService,
           useValue: {
@@ -257,7 +315,7 @@ describe('MetadataViewerComponent', () => {
   });
 
   it('filters series recommendations and builds the read, download, and other menus from the current book', () => {
-    const component = createComponent();
+    const {fixture, component} = createComponent();
     const seriesBooks = [
       {id: 8, metadata: {seriesNumber: 2}},
       {id: 4, metadata: {seriesNumber: 1}},
@@ -269,7 +327,7 @@ describe('MetadataViewerComponent', () => {
       {book: {id: 17} as Book, similarityScore: 0.87},
     ];
 
-    component.recommendedBooks = recommendedBooks;
+    fixture.componentRef.setInput('recommendedBooks', recommendedBooks);
     const richBook = createBook(
       {
         id: 21,
@@ -308,10 +366,11 @@ describe('MetadataViewerComponent', () => {
       },
     } as AppSettings);
 
-    component.book = richBook;
+    fixture.componentRef.setInput('book', richBook);
+    fixture.detectChanges();
 
     expect(component.bookInSeries.map(book => book.id)).toEqual([4, 8]);
-    expect(component.recommendedBooks.map(book => book.book.id)).toEqual([17]);
+    expect(component.recommendedBooksFiltered.map(book => book.book.id)).toEqual([17]);
 
     const readItems = component.readMenuItems();
     expect(readItems.map(item => item.separator ? 'separator' : item.label)).toEqual([
@@ -375,7 +434,7 @@ describe('MetadataViewerComponent', () => {
   });
 
   it('chooses confirmation copy for file deletion branches and runs the accept callbacks', () => {
-    const component = createComponent();
+    const {component} = createComponent();
     const book = createBook();
 
     component.deleteBookFile(book, 1, 'primary.epub', true, true);
@@ -417,7 +476,7 @@ describe('MetadataViewerComponent', () => {
   });
 
   it('navigates and formats helper branches for read states, file metadata, and location helpers', () => {
-    const component = createComponent();
+    const {component} = createComponent();
     const viewer = component as unknown as {
       metadataCenterViewMode: 'route' | 'dialog';
     };

@@ -486,4 +486,18 @@ describe('BookCardComponent', () => {
     expect(router.navigate).not.toHaveBeenCalled();
     expect(bookNavigationService.setNavigationContext).toHaveBeenCalledWith([2, 44, 77], 44);
   });
+
+  it('uses eager/high priority attributes only for priority images', () => {
+    const image = () => fixture.nativeElement.querySelector('.book-cover') as HTMLImageElement;
+
+    ref.setInput('priorityImage', false);
+    fixture.detectChanges();
+    expect(image().getAttribute('loading')).toBe('lazy');
+    expect(image().getAttribute('fetchpriority')).toBe('low');
+
+    ref.setInput('priorityImage', true);
+    fixture.detectChanges();
+    expect(image().getAttribute('loading')).toBe('eager');
+    expect(image().getAttribute('fetchpriority')).toBe('high');
+  });
 });

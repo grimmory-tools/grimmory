@@ -37,7 +37,8 @@
                           [src]="coverUrl"
                           class="hero-cover-img"
                           [alt]="coverBook.metadata?.title || ''"
-                          loading="lazy"
+                          loading="eager"
+                          fetchpriority="high"
                           decoding="async"/>
                       } @else {
                         <app-cover-placeholder class="hero-cover-img" [title]="coverBook.metadata?.title ?? ''" [author]="(coverBook.metadata?.authors ?? []).join(', ')" size="lg" />
@@ -289,6 +290,7 @@
                           [book]="book"
                           [isCheckboxEnabled]="true"
                           [isSelected]="isBookSelected(book)"
+                          [priorityImage]="i === 0"
                           (checkboxClick)="onCheckboxClicked($event)"
                           [onBookSelect]="handleBookSelect.bind(this)"
                           [isSeriesCollapsed]="false"

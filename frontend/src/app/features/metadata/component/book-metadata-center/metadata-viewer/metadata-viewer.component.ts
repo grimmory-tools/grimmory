@@ -1,4 +1,4 @@
-import {AfterViewChecked, Component, computed, DestroyRef, ElementRef, inject, Input, OnChanges, OnInit, signal, SimpleChanges, ViewChild} from '@angular/core';
+import {AfterViewChecked, Component, computed, DestroyRef, ElementRef, inject, input, OnInit, signal, ViewChild, effect, untracked} from '@angular/core';
 import {Button} from 'primeng/button';
 import {DecimalPipe, NgClass} from '@angular/common';
 import {BookService} from '../../../../book/service/book.service';
@@ -48,28 +48,45 @@ import DOMPurify from 'dompurify';
   styleUrl: './metadata-viewer.component.scss',
   imports: [Button, Rating, FormsModule, SplitButton, NgClass, Tooltip, DecimalPipe, ProgressBar, Menu, DatePicker, ProgressSpinner, TieredMenu, Image, TagComponent, MetadataTabsComponent, TranslocoDirective, TranslocoPipe, Dialog, Checkbox, CoverPlaceholderComponent]
 })
-export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChecked {
-  private currentBook = signal<Book | null>(null);
+export class MetadataViewerComponent implements OnInit, AfterViewChecked {
+  readonly book = input<Book | null>(null);
+  readonly recommendedBooks = input<BookRecommendation[]>([]);
 
-  @Input()
-  set book(value: Book | null) {
-    this.currentBook.set(value);
+  private bookInSeriesSignal = signal<Book[]>([]);
+  private originalRecommendedBooks = signal<BookRecommendation[]>([]);
 
-    if (!value?.metadata) {
-      return;
-    }
+  readonly filteredRecommendedBooks = computed(() => {
+    const original = this.originalRecommendedBooks();
+    const seriesIds = new Set(this.bookInSeriesSignal().map(b => b.id));
+    return original.filter(rec => !seriesIds.has(rec.book.id));
+  });
 
-    this.isAutoFetching = false;
-    this.loadBooksInSeriesAndFilterRecommended(value.metadata.bookId);
-    this.selectedReadStatus = value.readStatus ?? ReadStatus.UNREAD;
+  get bookInSeries(): Book[] {
+    return this.bookInSeriesSignal();
   }
 
-  get book(): Book | null {
-    return this.currentBook();
+  get recommendedBooksFiltered(): BookRecommendation[] {
+    return this.filteredRecommendedBooks();
   }
 
-  @Input() recommendedBooks: BookRecommendation[] = [];
-  private originalRecommendedBooks: BookRecommendation[] = [];
+  constructor() {
+    effect(() => {
+      const value = this.book();
+      if (!value?.metadata) {
+        return;
+      }
+
+      untracked(() => {
+        this.isAutoFetching = false;
+        this.loadBooksInSeriesAndFilterRecommended(value.metadata!.bookId);
+        this.selectedReadStatus = value.readStatus ?? ReadStatus.UNREAD;
+      });
+    });
+
+    effect(() => {
+      this.originalRecommendedBooks.set([...this.recommendedBooks()]);
+    });
+  }
 
   private readonly t = inject(TranslocoService);
   private libraryService = inject(LibraryService);
@@ -110,7 +127,7 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
   }
 
   readonly readMenuItems = computed<MenuItem[]>(() => {
-    const book = this.currentBook();
+    const book = this.book();
     if (!book) {
       return [];
     }
@@ -125,16 +142,16 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
       });
     }
 
-    const readableAlternatives = book.alternativeFormats?.filter(f =>
+    const readableAlternatives = book.alternativeFormats?.filter((f: BookFile) =>
       f.bookType && ['PDF', 'EPUB', 'FB2', 'MOBI', 'AZW3', 'CBX', 'AUDIOBOOK'].includes(f.bookType)
     ) ?? [];
-    const uniqueAltTypes = [...new Set(readableAlternatives.map(f => f.bookType))];
+    const uniqueAltTypes = [...new Set(readableAlternatives.map((f: BookFile) => f.bookType))] as BookType[];
 
     if (uniqueAltTypes.length > 0 && items.length > 0) {
       items.push({separator: true});
     }
 
-    uniqueAltTypes.forEach(formatType => {
+    uniqueAltTypes.forEach((formatType: BookType) => {
       if (formatType === 'EPUB') {
         items.push({
           label: formatType,
@@ -165,7 +182,7 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
     return items;
   });
   readonly downloadMenuItems = computed<MenuItem[]>(() => {
-    const book = this.currentBook();
+    const book = this.book();
     if (!book || (!book.alternativeFormats?.length && !book.supplementaryFiles?.length)) {
       return [];
     }
@@ -173,7 +190,7 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
     const items: MenuItem[] = [];
 
     if (book.alternativeFormats?.length) {
-      book.alternativeFormats.forEach(format => {
+      book.alternativeFormats.forEach((format: BookFile) => {
         items.push({
           label: `${format.bookType ?? 'File'} · ${this.formatFileSize(format)}`,
           icon: this.getFileIcon(format.bookType ?? null),
@@ -187,7 +204,7 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
     }
 
     if (book.supplementaryFiles?.length) {
-      book.supplementaryFiles.forEach(file => {
+      book.supplementaryFiles.forEach((file: BookFile) => {
         const extension = this.getFileExtension(file.filePath);
         items.push({
           label: `${this.truncateFileName(file.fileName, 20)} · ${this.formatFileSize(file)}`,
@@ -201,7 +218,7 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
     return items;
   });
   readonly otherItems = computed<MenuItem[]>(() => {
-    const book = this.currentBook();
+    const book = this.book();
     const user = this.userState();
     const appSettings = this.appSettings();
     if (!book || !user) {
@@ -303,7 +320,7 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
       }
 
       if (book.alternativeFormats?.length) {
-        book.alternativeFormats.forEach(format => {
+        book.alternativeFormats.forEach((format: BookFile) => {
           const extension = this.getFileExtension(format.filePath);
           const truncatedName = this.truncateFileName(format.fileName, 25);
           deleteFormatItems.push({
@@ -325,7 +342,7 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
 
       if (book.supplementaryFiles?.length) {
         const deleteSupplementaryItems: MenuItem[] = [];
-        book.supplementaryFiles.forEach(file => {
+        book.supplementaryFiles.forEach((file: BookFile) => {
           const extension = this.getFileExtension(file.filePath);
           const truncatedName = this.truncateFileName(file.fileName, 25);
           deleteSupplementaryItems.push({
@@ -347,10 +364,10 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
       if (book.primaryFile?.fileName) {
         allFormats.push(book.primaryFile.fileName);
       }
-      book.alternativeFormats?.forEach(f => {
+      book.alternativeFormats?.forEach((f: BookFile) => {
         if (f.fileName) allFormats.push(f.fileName);
       });
-      book.supplementaryFiles?.forEach(f => {
+      book.supplementaryFiles?.forEach((f: BookFile) => {
         if (f.fileName) allFormats.push(f.fileName);
       });
 
@@ -397,7 +414,6 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
 
     return items;
   });
-  bookInSeries: Book[] = [];
   @ViewChild(Image) private coverImage?: Image;
   @ViewChild('descriptionContent') descriptionContentRef?: ElementRef<HTMLElement>;
   isExpanded = false;
@@ -458,30 +474,14 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
     }
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['recommendedBooks']) {
-      this.originalRecommendedBooks = [...this.recommendedBooks];
-      this.filterRecommendations();
-    }
-  }
-
   private loadBooksInSeriesAndFilterRecommended(bookId: number): void {
     this.bookService.getBooksInSeries(bookId).pipe(
       tap(series => {
         series.sort((a, b) => (a.metadata?.seriesNumber ?? 0) - (b.metadata?.seriesNumber ?? 0));
-        this.bookInSeries = series;
-        this.originalRecommendedBooks = [...this.recommendedBooks];
+        this.bookInSeriesSignal.set(series);
       }),
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe(() => this.filterRecommendations());
-  }
-
-  private filterRecommendations(): void {
-    if (!this.originalRecommendedBooks) return;
-    const bookInSeriesIds = new Set(this.bookInSeries.map(book => book.id));
-    this.recommendedBooks = this.originalRecommendedBooks.filter(
-      rec => !bookInSeriesIds.has(rec.book.id)
-    );
+    ).subscribe();
   }
 
   ngAfterViewChecked(): void {
@@ -696,7 +696,7 @@ export class MetadataViewerComponent implements OnInit, OnChanges, AfterViewChec
       return;
     }
 
-    const book = this.book;
+    const book = this.book();
     if (!book?.id) {
       return;
     }

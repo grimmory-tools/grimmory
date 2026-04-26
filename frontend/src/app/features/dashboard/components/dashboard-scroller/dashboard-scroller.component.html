@@ -25,6 +25,7 @@
               [index]="i"
               [forceEbookMode]="forceEbookMode()"
               [useSquareCovers]="useSquareCovers()"
+              [priorityImage]="prioritizeFirstCard() && i === 0"
               [overlayPreferenceService]="overlayPreferenceService()">
             </app-book-card>
           </div>

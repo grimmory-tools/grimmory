@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, inject, Input} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, Input, input} from '@angular/core';
 import {Book} from '../../model/book.model';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
 import {CoverPlaceholderComponent} from '../../../../shared/components/cover-generator/cover-generator.component';
@@ -25,6 +25,10 @@ export class BookCardLiteComponent {
   @Input() book!: Book;
   @Input() isActive: boolean = false;
   @Input() showSeriesNumber: boolean = false;
+  readonly priorityImage = input(false);
+
+  readonly imageLoading = computed(() => this.priorityImage() ? 'eager' : 'lazy');
+  readonly imageFetchPriority = computed(() => this.priorityImage() ? 'high' : 'low');
 
   private router = inject(Router);
   protected urlHelper = inject(UrlHelperService);

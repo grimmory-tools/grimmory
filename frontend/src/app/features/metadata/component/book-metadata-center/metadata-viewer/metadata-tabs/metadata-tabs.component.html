@@ -1,7 +1,7 @@
 <ng-container *transloco="let t; prefix: 'metadata.tabs'">
 <p-tabs lazy class="custom-p-tabs" [value]="defaultTabValue" scrollable (valueChange)="onTabChange($event)">
   <p-tablist>
-    @if (bookInSeries.length > 1) {
+    @if (bookInSeries().length > 1) {
       <p-tab value="series">
         <i class="pi pi-ethereum"></i> {{ t('moreInSeries') }}
       </p-tab>
@@ -33,17 +33,16 @@
     </p-tab>
   </p-tablist>
   <p-tabpanels>
+    @let currentBook = book();
     <p-tabpanel value="series">
       <ng-template #content>
         <div class="tab-content">
-          @if (bookInSeries.length > 1) {
+          @if (otherBooksInSeries().length > 0) {
             <div class="dashboard-scroller-infinite" infiniteScroll [infiniteScrollDistance]="2" [infiniteScrollThrottle]="50" [horizontal]="true">
-              @for (bookInSeriesItem of bookInSeries; track bookInSeriesItem.id) {
-                @if (bookInSeriesItem.id !== book.id) {
-                  <div class="dashboard-scroller-card">
-                    <app-book-card-lite-component [book]="bookInSeriesItem" [showSeriesNumber]="true" [isActive]="bookInSeriesItem.id === book.id"></app-book-card-lite-component>
-                  </div>
-                }
+              @for (bookInSeriesItem of otherBooksInSeries(); track bookInSeriesItem.id; let i = $index) {
+                <div class="dashboard-scroller-card">
+                  <app-book-card-lite-component [book]="bookInSeriesItem" [showSeriesNumber]="true" [priorityImage]="i === 0"></app-book-card-lite-component>
+                </div>
               }
             </div>
           }
@@ -53,11 +52,11 @@
     <p-tabpanel value="similar">
       <ng-template #content>
         <div class="tab-content">
-          @if (recommendedBooks.length > 0) {
+          @if (recommendedBooks().length > 0) {
             <div class="dashboard-scroller-infinite" infiniteScroll [infiniteScrollDistance]="2" [infiniteScrollThrottle]="50" [horizontal]="true">
-              @for (recBook of recommendedBooks; track recBook.book.id) {
+              @for (recBook of recommendedBooks(); track recBook.book.id; let i = $index) {
                 <div class="dashboard-scroller-card">
-                  <app-book-card-lite-component [book]="recBook.book"></app-book-card-lite-component>
+                  <app-book-card-lite-component [book]="recBook.book" [priorityImage]="i === 0"></app-book-card-lite-component>
                 </div>
               }
             </div>
@@ -73,7 +72,7 @@
               <div class="cover-label">
                 <i class="pi pi-book"></i> {{ t('ebookCover') }}
               </div>
-              @if (urlHelper.getCoverUrl(book.id, book.metadata?.coverUpdatedOn); as coverUrl) {
+              @if (currentBook && urlHelper.getCoverUrl(currentBook.id, currentBook.metadata?.coverUpdatedOn); as coverUrl) {
                 <p-image
                   [src]="coverUrl"
                   [alt]="t('ebookCover')"
@@ -82,14 +81,14 @@
                   [preview]="true">
                 </p-image>
               } @else {
-                <app-cover-placeholder style="width: 200px; height: 280px;" [title]="book.metadata?.title ?? ''" [author]="(book.metadata?.authors ?? []).join(', ')" size="lg" />
+                <app-cover-placeholder style="width: 200px; height: 280px;" [title]="currentBook?.metadata?.title ?? ''" [author]="(currentBook?.metadata?.authors ?? []).join(', ')" size="lg" />
               }
             </div>
             <div class="cover-item">
               <div class="cover-label audiobook">
                 <i class="pi pi-headphones"></i> {{ t('audiobookCover') }}
               </div>
-              @if (urlHelper.getAudiobookCoverUrl(book.id, book.metadata?.audiobookCoverUpdatedOn); as coverUrl) {
+              @if (currentBook && urlHelper.getAudiobookCoverUrl(currentBook.id, currentBook.metadata?.audiobookCoverUpdatedOn); as coverUrl) {
                 <p-image
                   [src]="coverUrl"
                   [alt]="t('audiobookCover')"
@@ -99,7 +98,7 @@
                   class="square-cover">
                 </p-image>
               } @else {
-                <app-cover-placeholder style="width: 200px; height: 200px;" [title]="book.metadata?.title ?? ''" [author]="(book.metadata?.authors ?? []).join(', ')" size="lg" />
+                <app-cover-placeholder style="width: 200px; height: 200px;" [title]="currentBook?.metadata?.title ?? ''" [author]="(currentBook?.metadata?.authors ?? []).join(', ')" size="lg" />
               }
             </div>
           </div>
@@ -108,17 +107,23 @@
     </p-tabpanel>
     <p-tabpanel value="notes">
       <ng-template #content>
-        <app-book-notes-component [bookId]="book.id"></app-book-notes-component>
+        @if (currentBook) {
+          <app-book-notes-component [bookId]="currentBook.id"></app-book-notes-component>
+        }
       </ng-template>
     </p-tabpanel>
     <p-tabpanel value="sessions">
       <ng-template #content>
-        <app-book-reading-sessions [bookId]="book.id"></app-book-reading-sessions>
+        @if (currentBook) {
+          <app-book-reading-sessions [bookId]="currentBook.id"></app-book-reading-sessions>
+        }
       </ng-template>
     </p-tabpanel>
     <p-tabpanel value="reviews">
       <ng-template #content>
-        <app-book-reviews [bookId]="book.id"></app-book-reviews>
+        @if (currentBook) {
+          <app-book-reviews [bookId]="currentBook.id"></app-book-reviews>
+        }
       </ng-template>
     </p-tabpanel>
     <p-tabpanel value="chapters">
@@ -215,34 +220,34 @@
               <p class="empty-state-message">{{ t('physicalBookMessage') }}</p>
               <p class="empty-state-hint">{{ t('physicalBookHint') }}</p>
             </div>
-          } @else {
-            @if (hasMultipleFiles(book)) {
+          } @else if (currentBook) {
+            @if (hasMultipleFiles(currentBook)) {
               <div class="files-section download-all-section">
                 <p-button
-                  [label]="t('downloadAll', { count: getTotalFileCount(book) })"
+                  [label]="t('downloadAll', { count: getTotalFileCount(currentBook) })"
                   icon="pi pi-download"
                   severity="info"
                   outlined
-                  (onClick)="downloadAll(book)"
+                  (onClick)="downloadAll(currentBook)"
                   [pTooltip]="t('downloadAllTooltip')"
                   tooltipPosition="top">
                 </p-button>
               </div>
             }
-            @if (book.primaryFile) {
+            @if (currentBook.primaryFile) {
               <div class="files-section">
                 <h4 class="files-section-title">{{ t('primaryFile') }}</h4>
                 <div class="files-list">
                   <div class="file-item primary-file">
                     <div class="file-info">
-                      <span class="file-type-badge" [style.background-color]="getFileTypeBgColor(book.primaryFile.extension)">
-                        {{ book.primaryFile.extension | uppercase }}
+                      <span class="file-type-badge" [style.background-color]="getFileTypeBgColor(currentBook.primaryFile.extension)">
+                        {{ currentBook.primaryFile.extension | uppercase }}
                       </span>
-                      <span class="file-name" [pTooltip]="book.primaryFile.filePath" tooltipPosition="top">{{ book.primaryFile.fileName }}</span>
-                      <span class="file-size">{{ getFileSizeInMB(book.primaryFile) }}</span>
+                      <span class="file-name" [pTooltip]="currentBook.primaryFile.filePath" tooltipPosition="top">{{ currentBook.primaryFile.fileName }}</span>
+                      <span class="file-size">{{ getFileSizeInMB(currentBook.primaryFile) }}</span>
                     </div>
                     <div class="file-actions">
-                      @if (book.primaryFile.bookType === 'EPUB') {
+                      @if (currentBook.primaryFile.bookType === 'EPUB') {
                         <p-button
                           icon="pi pi-book"
                           size="small"
@@ -250,7 +255,7 @@
                           severity="primary"
                           [pTooltip]="t('readTooltip')"
                           tooltipPosition="top"
-                          (onClick)="read(book.id)">
+                          (onClick)="read(currentBook.id)">
                         </p-button>
                         <p-button
                           icon="pi pi-play"
@@ -259,9 +264,9 @@
                           severity="info"
                           [pTooltip]="t('streamingReaderTooltip')"
                           tooltipPosition="top"
-                          (onClick)="read(book.id, 'epub-streaming')">
+                          (onClick)="read(currentBook.id, 'epub-streaming')">
                         </p-button>
-                      } @else if (book.primaryFile.bookType && ['PDF', 'FB2', 'MOBI', 'AZW3', 'CBX'].includes(book.primaryFile.bookType)) {
+                      } @else if (currentBook.primaryFile.bookType && ['PDF', 'FB2', 'MOBI', 'AZW3', 'CBX'].includes(currentBook.primaryFile.bookType)) {
                         <p-button
                           icon="pi pi-book"
                           size="small"
@@ -269,9 +274,9 @@
                           severity="primary"
                           [pTooltip]="t('readTooltip')"
                           tooltipPosition="top"
-                          (onClick)="read(book.id)">
+                          (onClick)="read(currentBook.id)">
                         </p-button>
-                      } @else if (book.primaryFile.bookType === 'AUDIOBOOK') {
+                      } @else if (currentBook.primaryFile.bookType === 'AUDIOBOOK') {
                         <p-button
                           icon="pi pi-play"
                           size="small"
@@ -279,7 +284,7 @@
                           severity="primary"
                           [pTooltip]="t('playTooltip')"
                           tooltipPosition="top"
-                          (onClick)="read(book.id)">
+                          (onClick)="read(currentBook.id)">
                         </p-button>
                       }
                       <p-button
@@ -289,9 +294,9 @@
                         severity="success"
                         [pTooltip]="t('downloadTooltip')"
                         tooltipPosition="top"
-                        (onClick)="download(book)">
+                        (onClick)="download(currentBook)">
                       </p-button>
-                      @if (canDetach(book)) {
+                      @if (canDetach(currentBook)) {
                         <p-button
                           icon="pi pi-external-link"
                           size="small"
@@ -299,7 +304,7 @@
                           severity="warn"
                           [pTooltip]="t('detachTooltip')"
                           tooltipPosition="top"
-                          (onClick)="detachFile(book, book.primaryFile!.id, book.primaryFile!.fileName || 'file')">
+                          (onClick)="detachFile(currentBook, currentBook.primaryFile!.id, currentBook.primaryFile!.fileName || 'file')">
                         </p-button>
                       }
                       <p-button
@@ -309,18 +314,18 @@
                         severity="danger"
                         [pTooltip]="t('deleteTooltip')"
                         tooltipPosition="top"
-                        (onClick)="deleteFile(book, book.primaryFile!.id, book.primaryFile!.fileName || 'file', true)">
+                        (onClick)="deleteFile(currentBook, currentBook.primaryFile!.id, currentBook.primaryFile!.fileName || 'file', true)">
                       </p-button>
                     </div>
                   </div>
                 </div>
               </div>
             }
-            @if (book.alternativeFormats && book.alternativeFormats.length > 0) {
+            @if (currentBook.alternativeFormats && currentBook.alternativeFormats.length > 0) {
               <div class="files-section">
                 <h4 class="files-section-title">{{ t('alternativeFormats') }}</h4>
                 <div class="files-list">
-                  @for (format of book.alternativeFormats; track format.id) {
+                  @for (format of currentBook.alternativeFormats; track format.id) {
                     <div class="file-item">
                       <div class="file-info">
                         <span class="file-type-badge" [style.background-color]="getFileTypeBgColor(format.extension)">
@@ -338,7 +343,7 @@
                             severity="primary"
                             [pTooltip]="t('readTooltip')"
                             tooltipPosition="top"
-                            (onClick)="read(book.id, undefined, format.bookType)">
+                            (onClick)="read(currentBook.id, undefined, format.bookType)">
                           </p-button>
                           <p-button
                             icon="pi pi-play"
@@ -347,7 +352,7 @@
                             severity="info"
                             [pTooltip]="t('streamingReaderTooltip')"
                             tooltipPosition="top"
-                            (onClick)="read(book.id, 'epub-streaming', format.bookType)">
+                            (onClick)="read(currentBook.id, 'epub-streaming', format.bookType)">
                           </p-button>
                         } @else if (format.bookType && ['PDF', 'FB2', 'MOBI', 'AZW3', 'CBX'].includes(format.bookType)) {
                           <p-button
@@ -357,7 +362,7 @@
                             severity="primary"
                             [pTooltip]="t('readTooltip')"
                             tooltipPosition="top"
-                            (onClick)="read(book.id, undefined, format.bookType)">
+                            (onClick)="read(currentBook.id, undefined, format.bookType)">
                           </p-button>
                         } @else if (format.bookType === 'AUDIOBOOK') {
                           <p-button
@@ -367,7 +372,7 @@
                             severity="primary"
                             [pTooltip]="t('playTooltip')"
                             tooltipPosition="top"
-                            (onClick)="read(book.id, undefined, format.bookType)">
+                            (onClick)="read(currentBook.id, undefined, format.bookType)">
                           </p-button>
                         }
                         <p-button
@@ -377,9 +382,9 @@
                           severity="success"
                           [pTooltip]="t('downloadTooltip')"
                           tooltipPosition="top"
-                          (onClick)="downloadAdditionalFile(book, format.id)">
+                          (onClick)="downloadAdditionalFile(currentBook, format.id)">
                         </p-button>
-                        @if (canDetach(book)) {
+                        @if (canDetach(currentBook)) {
                           <p-button
                             icon="pi pi-external-link"
                             size="small"
@@ -387,7 +392,7 @@
                             severity="warn"
                             [pTooltip]="t('detachTooltip')"
                             tooltipPosition="top"
-                            (onClick)="detachFile(book, format.id, format.fileName || 'file')">
+                            (onClick)="detachFile(currentBook, format.id, format.fileName || 'file')">
                           </p-button>
                         }
                         <p-button
@@ -397,7 +402,7 @@
                           severity="danger"
                           [pTooltip]="t('deleteTooltip')"
                           tooltipPosition="top"
-                          (onClick)="deleteFile(book, format.id, format.fileName || 'file', false)">
+                          (onClick)="deleteFile(currentBook, format.id, format.fileName || 'file', false)">
                         </p-button>
                       </div>
                     </div>
@@ -405,11 +410,11 @@
                 </div>
               </div>
             }
-            @if (book.supplementaryFiles && book.supplementaryFiles.length > 0) {
+            @if (currentBook.supplementaryFiles && currentBook.supplementaryFiles.length > 0) {
               <div class="files-section">
                 <h4 class="files-section-title">{{ t('supplementaryFiles') }}</h4>
                 <div class="files-list">
-                  @for (file of book.supplementaryFiles; track file.id) {
+                  @for (file of currentBook.supplementaryFiles; track file.id) {
                     <div class="file-item">
                       <div class="file-info">
                         <i [class]="getFileIcon(getFileExtension(file.filePath))" class="file-icon"></i>
@@ -424,9 +429,9 @@
                           severity="success"
                           [pTooltip]="t('downloadTooltip')"
                           tooltipPosition="top"
-                          (onClick)="downloadAdditionalFile(book, file.id)">
+                          (onClick)="downloadAdditionalFile(currentBook, file.id)">
                         </p-button>
-                        @if (canDetach(book)) {
+                        @if (canDetach(currentBook)) {
                           <p-button
                             icon="pi pi-external-link"
                             size="small"
@@ -434,7 +439,7 @@
                             severity="warn"
                             [pTooltip]="t('detachTooltip')"
                             tooltipPosition="top"
-                            (onClick)="detachFile(book, file.id, file.fileName || 'file')">
+                            (onClick)="detachFile(currentBook, file.id, file.fileName || 'file')">
                           </p-button>
                         }
                         <p-button
@@ -444,7 +449,7 @@
                           severity="danger"
                           [pTooltip]="t('deleteTooltip')"
                           tooltipPosition="top"
-                          (onClick)="deleteSupplementary(book.id, file.id, file.fileName || 'file')">
+                          (onClick)="deleteSupplementary(currentBook.id, file.id, file.fileName || 'file')">
                         </p-button>
                       </div>
                     </div>
