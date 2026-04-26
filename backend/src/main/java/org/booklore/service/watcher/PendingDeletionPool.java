@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.booklore.mapper.BookMapper;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
+import org.booklore.model.entity.LibraryPathEntity;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.PermissionType;
 import org.booklore.model.websocket.Topic;
@@ -241,7 +242,7 @@ public class PendingDeletionPool {
     }
 
     @Transactional
-    public void recoverBook(MatchResult match, org.booklore.model.entity.LibraryPathEntity newLibraryPath, String newFileSubPath, String newFileName, String hash) {
+    public void recoverBook(MatchResult match, LibraryPathEntity newLibraryPath, String newFileSubPath, String newFileName, String hash) {
         BookEntity book = bookRepository.findById(match.book().bookId())
                 .orElseThrow(() -> new IllegalStateException("Book not found: " + match.book().bookId()));
 
