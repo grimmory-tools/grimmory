@@ -1,5 +1,7 @@
 package org.booklore.service.appsettings;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.transaction.annotation.Transactional;
 import org.booklore.config.AppProperties;
 import org.booklore.config.security.service.AuthenticationService;
@@ -13,9 +15,6 @@ import org.booklore.model.enums.PermissionType;
 import org.booklore.service.audit.AuditService;
 import org.booklore.util.UserPermissionUtils;
 import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -35,6 +34,9 @@ public class AppSettingService {
     private final AuthenticationService authenticationService;
     private final AuditService auditService;
 
+    private final Cache<String, AppSettings> appSettingsCache = Caffeine.newBuilder().build();
+    private final Cache<String, PublicAppSetting> publicSettingsCache = Caffeine.newBuilder().build();
+
     public AppSettingService(AppProperties appProperties, SettingPersistenceHelper settingPersistenceHelper, @Lazy AuthenticationService authenticationService, @Lazy AuditService auditService) {
         this.appProperties = appProperties;
         this.settingPersistenceHelper = settingPersistenceHelper;
@@ -42,15 +44,10 @@ public class AppSettingService {
         this.auditService = auditService;
     }
 
-    @Cacheable("appSettings")
     public AppSettings getAppSettings() {
-        return buildAppSettings();
+        return appSettingsCache.get("all", k -> buildAppSettings());
     }
 
-    @Caching(evict = {
-            @CacheEvict(value = "appSettings", allEntries = true),
-            @CacheEvict(value = "publicSettings", allEntries = true)
-    })
     @Transactional
     public void updateSetting(AppSettingKey key, Object val) throws JacksonException {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
@@ -75,6 +72,8 @@ public class AppSettingService {
             default -> AuditAction.SETTINGS_UPDATED;
         };
         auditService.log(action, "Updated setting: " + key);
+        
+        invalidateCaches();
     }
 
     private void validateOidcForceOnlyMode(Object val) {
@@ -107,9 +106,8 @@ public class AppSettingService {
         }
     }
 
-    @Cacheable("publicSettings")
     public PublicAppSetting getPublicSettings() {
-        return buildPublicSetting();
+        return publicSettingsCache.get("public", k -> buildPublicSetting());
     }
 
     private Map<String, String> getSettingsMap() {
@@ -198,10 +196,6 @@ public class AppSettingService {
         return setting != null ? setting.getVal() : null;
     }
 
-    @Caching(evict = {
-            @CacheEvict(value = "appSettings", allEntries = true),
-            @CacheEvict(value = "publicSettings", allEntries = true)
-    })
     @Transactional
     public void saveSetting(String key, String value) {
         var setting = settingPersistenceHelper.appSettingsRepository.findByName(key);
@@ -211,5 +205,11 @@ public class AppSettingService {
         }
         setting.setVal(value);
         settingPersistenceHelper.appSettingsRepository.save(setting);
+        invalidateCaches();
+    }
+
+    private void invalidateCaches() {
+        appSettingsCache.invalidateAll();
+        publicSettingsCache.invalidateAll();
     }
 }
