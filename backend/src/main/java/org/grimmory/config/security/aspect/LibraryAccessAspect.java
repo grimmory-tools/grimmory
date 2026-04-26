@@ -23,7 +23,7 @@ public class LibraryAccessAspect {
     private static final Pattern NUMERIC_PATTERN = Pattern.compile("\\d+");
     private final AuthenticationService authenticationService;
 
-    @Before("@annotation(org.booklore.config.security.annotation.CheckLibraryAccess)")
+    @Before("@annotation(org.grimmory.config.security.annotation.CheckLibraryAccess)")
     public void checkLibraryAccess(JoinPoint joinPoint) {
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         Method method = methodSignature.getMethod();

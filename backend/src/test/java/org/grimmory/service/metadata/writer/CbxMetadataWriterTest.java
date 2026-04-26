@@ -36,7 +36,7 @@ import java.util.zip.ZipOutputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@EnabledIf("org.booklore.service.ArchiveService#isAvailable")
+@EnabledIf("org.grimmory.service.ArchiveService#isAvailable")
 class CbxMetadataWriterTest {
 
     private CbxMetadataWriter writer;

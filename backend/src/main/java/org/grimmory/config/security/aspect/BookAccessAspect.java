@@ -28,7 +28,7 @@ public class BookAccessAspect {
     private final BookRepository bookRepository;
     private final ContentRestrictionService contentRestrictionService;
 
-    @Before("@annotation(org.booklore.config.security.annotation.CheckBookAccess)")
+    @Before("@annotation(org.grimmory.config.security.annotation.CheckBookAccess)")
     public void checkBookAccess(JoinPoint joinPoint) {
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         Method method = methodSignature.getMethod();
