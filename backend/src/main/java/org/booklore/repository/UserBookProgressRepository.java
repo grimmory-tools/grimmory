@@ -6,7 +6,9 @@ import org.booklore.model.dto.ProgressPercentDto;
 import org.booklore.model.dto.RatingDistributionDto;
 import org.booklore.model.dto.StatusDistributionDto;
 import org.booklore.model.entity.UserBookProgressEntity;
+import org.booklore.model.enums.ReadStatus;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -25,10 +27,22 @@ public interface UserBookProgressRepository extends JpaRepository<UserBookProgre
 
     Optional<UserBookProgressEntity> findByUserIdAndBookId(Long userId, Long bookId);
 
+    @EntityGraph(attributePaths = {"book", "book.bookFiles", "book.library", "book.libraryPath"})
+    @Query("""
+        SELECT DISTINCT ubp FROM UserBookProgressEntity ubp
+        WHERE ubp.user.id = :userId
+          AND ubp.book.id = :bookId
+    """)
+    Optional<UserBookProgressEntity> findByUserIdAndBookIdForKoboSync(
+            @Param("userId") Long userId,
+            @Param("bookId") Long bookId
+    );
+
     List<UserBookProgressEntity> findByUserIdAndBookIdIn(Long userId, Set<Long> bookIds);
 
+    @EntityGraph(attributePaths = {"book", "book.bookFiles", "book.library", "book.libraryPath"})
     @Query("""
-        SELECT ubp FROM UserBookProgressEntity ubp
+        SELECT DISTINCT ubp FROM UserBookProgressEntity ubp
         WHERE ubp.user.id = :userId
           AND ubp.book.id IN (
               SELECT ksb.bookId FROM KoboSnapshotBookEntity ksb
@@ -87,9 +101,9 @@ public interface UserBookProgressRepository extends JpaRepository<UserBookProgre
     int bulkUpdateReadStatus(
             @Param("userId") Long userId,
             @Param("bookIds") List<Long> bookIds,
-            @Param("readStatus") org.booklore.model.enums.ReadStatus readStatus,
-            @Param("modifiedTime") java.time.Instant modifiedTime,
-            @Param("dateFinished") java.time.Instant dateFinished
+            @Param("readStatus") ReadStatus readStatus,
+            @Param("modifiedTime") Instant modifiedTime,
+            @Param("dateFinished") Instant dateFinished
     );
 
     @Query("""

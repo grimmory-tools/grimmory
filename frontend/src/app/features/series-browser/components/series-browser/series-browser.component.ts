@@ -1,4 +1,4 @@
-import {Component, DestroyRef, HostListener, computed, inject, OnInit, signal, ViewChild} from '@angular/core';
+import {Component, DestroyRef, HostListener, NgZone, computed, effect, inject, OnInit, signal, ViewChild} from '@angular/core';
 import {computeGridColumns} from '../../../../shared/util/viewport.util';
 import {NgStyle} from '@angular/common';
 import {FormsModule} from '@angular/forms';
@@ -8,8 +8,7 @@ import {Select} from 'primeng/select';
 import {Slider} from 'primeng/slider';
 import {Popover} from 'primeng/popover';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
-import {CdkVirtualScrollViewport, CdkVirtualForOf} from '@angular/cdk/scrolling';
-import {CdkAutoSizeVirtualScroll} from '@angular/cdk-experimental/scrolling';
+import {CdkFixedSizeVirtualScroll, CdkVirtualScrollViewport, CdkVirtualForOf} from '@angular/cdk/scrolling';
 import {SeriesDataService} from '../../service/series-data.service';
 import {SeriesSummary} from '../../model/series.model';
 import {SeriesCardComponent} from '../series-card/series-card.component';
@@ -46,8 +45,8 @@ interface SortOption {
     TranslocoDirective,
     SeriesCardComponent,
     CdkVirtualScrollViewport,
+    CdkFixedSizeVirtualScroll,
     CdkVirtualForOf,
-    CdkAutoSizeVirtualScroll,
   ]
 })
 export class SeriesBrowserComponent implements OnInit {
@@ -57,6 +56,7 @@ export class SeriesBrowserComponent implements OnInit {
   private static readonly MOBILE_BASE_WIDTH = 180;
   private static readonly MOBILE_BASE_HEIGHT = 250;
   private static readonly GRID_GAP = 20;
+  private static readonly ROW_TOP_PADDING = 16;
 
   private seriesDataService = inject(SeriesDataService);
   private bookService = inject(BookService);
@@ -64,9 +64,11 @@ export class SeriesBrowserComponent implements OnInit {
   private t = inject(TranslocoService);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
+  private zone = inject(NgZone);
   protected seriesScaleService = inject(SeriesScalePreferenceService);
 
   virtualScroller: CdkVirtualScrollViewport | undefined;
+  private pendingViewportRefresh: number | undefined;
 
   @ViewChild(CdkVirtualScrollViewport)
   set scrollViewport(vp: CdkVirtualScrollViewport | undefined) {
@@ -74,11 +76,15 @@ export class SeriesBrowserComponent implements OnInit {
     this.viewportResizeObserver?.disconnect();
     if (vp) {
       const el = vp.elementRef.nativeElement as HTMLElement;
-      this.viewportWidth.set(el.clientWidth);
+      this.viewportWidth.set(this.measureViewportWidth(el));
       this.viewportResizeObserver = new ResizeObserver(entries => {
-        this.viewportWidth.set(entries[0]?.contentRect.width ?? el.clientWidth);
+        this.zone.run(() => {
+          this.viewportWidth.set(this.measureViewportWidth(el, entries[0]));
+          this.scheduleViewportRefresh();
+        });
       });
       this.viewportResizeObserver.observe(el);
+      this.scheduleViewportRefresh();
     }
   }
 
@@ -111,6 +117,7 @@ export class SeriesBrowserComponent implements OnInit {
   @HostListener('window:resize')
   onResize(): void {
     this.screenWidth = window.innerWidth;
+    this.scheduleViewportRefresh();
   }
 
   get isMobile(): boolean {
@@ -131,8 +138,8 @@ export class SeriesBrowserComponent implements OnInit {
     return Math.round(base * this.seriesScaleService.scaleFactor());
   }
 
-  get gridColumnMinWidth(): string {
-    return `${this.cardWidth}px`;
+  get rowHeight(): number {
+    return this.cardHeight + SeriesBrowserComponent.ROW_TOP_PADDING;
   }
 
   readonly gridColumns = computed(() => {
@@ -141,6 +148,14 @@ export class SeriesBrowserComponent implements OnInit {
 
   readonly seriesRows = computed(() => {
     return chunk(this.filteredSeries(), this.gridColumns());
+  });
+
+  private readonly refreshViewportEffect = effect(() => {
+    const hasRows = this.seriesRows().length > 0;
+    const rowHeight = this.rowHeight;
+    if (hasRows && rowHeight > 0) {
+      this.scheduleViewportRefresh();
+    }
   });
 
   get searchValue(): string {
@@ -157,7 +172,12 @@ export class SeriesBrowserComponent implements OnInit {
 
   ngOnInit(): void {
     this.pageTitle.setPageTitle(this.t.translate('seriesBrowser.pageTitle'));
-    this.destroyRef.onDestroy(() => this.viewportResizeObserver?.disconnect());
+    this.destroyRef.onDestroy(() => {
+      this.viewportResizeObserver?.disconnect();
+      if (this.pendingViewportRefresh !== undefined) {
+        window.cancelAnimationFrame(this.pendingViewportRefresh);
+      }
+    });
 
     this.filterOptions = [
       {label: this.t.translate('seriesBrowser.filters.all'), value: 'all'},
@@ -193,6 +213,39 @@ export class SeriesBrowserComponent implements OnInit {
 
   navigateToSeries(series: SeriesSummary): void {
     this.router.navigate(['/series', series.seriesName]);
+  }
+
+  private measureViewportWidth(el: HTMLElement, entry?: ResizeObserverEntry): number {
+    const style = getComputedStyle(el);
+    const horizontalPadding = this.parsePixelValue(style.paddingLeft) + this.parsePixelValue(style.paddingRight);
+    const observedWidth = entry?.contentRect.width ?? el.clientWidth - horizontalPadding;
+    return Math.max(0, Math.floor(observedWidth));
+  }
+
+  private parsePixelValue(value: string): number {
+    const parsed = Number.parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  private scheduleViewportRefresh(): void {
+    if (this.pendingViewportRefresh !== undefined) {
+      return;
+    }
+
+    this.pendingViewportRefresh = window.requestAnimationFrame(() => {
+      this.pendingViewportRefresh = undefined;
+      this.refreshViewport();
+    });
+  }
+
+  private refreshViewport(): void {
+    if (!this.virtualScroller) {
+      return;
+    }
+
+    const el = this.virtualScroller.elementRef.nativeElement as HTMLElement;
+    this.viewportWidth.set(this.measureViewportWidth(el));
+    this.virtualScroller.checkViewportSize();
   }
 
   private applyStatusFilter(series: SeriesSummary[], filterValue: string): SeriesSummary[] {
