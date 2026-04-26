@@ -241,7 +241,7 @@ class View {
         })
         // Foliate recommends disabling scripts for untrusted book content:
         // https://github.com/johnfactotum/foliate-js#security
-        this.#iframe.setAttribute('sandbox', 'allow-same-origin')
+        this.#iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts')
         this.#iframe.setAttribute('scrolling', 'no')
     }
     get element() {
