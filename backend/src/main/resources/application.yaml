@@ -43,7 +43,6 @@ server:
 
 spring:
   main:
-    allow-bean-definition-overriding: false
     lazy-initialization: true
   jmx:
     enabled: false                 # Major Metaspace/Heap saver
