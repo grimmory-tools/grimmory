@@ -1,5 +1,6 @@
 package org.booklore.repository;
 
+import org.booklore.repository.projection.BookEmbeddingProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
@@ -520,6 +521,6 @@ public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpec
             AND b.id <> :excludeBookId
             AND m.embeddingVector IS NOT NULL
             """)
-    List<org.booklore.repository.projection.BookEmbeddingProjection> findAllEmbeddingsForRecommendation(@Param("excludeBookId") Long excludeBookId);
+    List<BookEmbeddingProjection> findAllEmbeddingsForRecommendation(@Param("excludeBookId") Long excludeBookId);
 
 }

@@ -88,8 +88,8 @@ public class BookRuleEvaluatorService {
         }
 
         return group.getJoin() == org.booklore.model.dto.JoinType.AND
-                ? cb.and(predicates.toArray(new Predicate[0]))
-                : cb.or(predicates.toArray(new Predicate[0]));
+                ? cb.and(predicates.toArray(Predicate[]::new))
+                : cb.or(predicates.toArray(Predicate[]::new));
     }
 
     private Predicate buildRulePredicate(Rule rule, CriteriaQuery<?> query, CriteriaBuilder cb, Root<BookEntity> root, Join<BookEntity, UserBookProgressEntity> progressJoin, Long userId) {
@@ -870,7 +870,7 @@ public class BookRuleEvaluatorService {
                     })
                     .toList();
 
-            return cb.and(predicates.toArray(new Predicate[0]));
+            return cb.and(predicates.toArray(Predicate[]::new));
         } else {
             Subquery<Long> subquery = query.subquery(Long.class);
             Root<BookEntity> subRoot = subquery.from(BookEntity.class);

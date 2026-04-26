@@ -1051,7 +1051,7 @@ public class AppBookService {
             specs.add(AppBookSpecification.withProgress(userId, true));
         }
 
-        return AppBookSpecification.combine(specs.toArray(new Specification[0]));
+        return AppBookSpecification.combine(specs.toArray(Specification[]::new));
     }
 
     private String getSortField(String sortBy) {
@@ -1118,7 +1118,7 @@ public class AppBookService {
             specs.add(AppBookSpecification.inLibrary(libraryId));
         }
 
-        return AppBookSpecification.combine(specs.toArray(new Specification[0]));
+        return AppBookSpecification.combine(specs.toArray(Specification[]::new));
     }
 
     private AppPageResponse<AppBookSummary> buildPageResponse(
