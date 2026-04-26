@@ -1,4 +1,4 @@
-package org.booklore.service.migration.migrations;
+package org.grimmory.service.migration.migrations;
 
 import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.UserBookFileProgressEntity;

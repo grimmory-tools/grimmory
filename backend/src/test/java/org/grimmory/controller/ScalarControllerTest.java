@@ -1,4 +1,4 @@
-package org.booklore.controller;
+package org.grimmory.controller;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;

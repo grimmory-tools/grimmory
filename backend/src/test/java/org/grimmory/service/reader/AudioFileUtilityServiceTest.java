@@ -1,4 +1,4 @@
-package org.booklore.service.reader;
+package org.grimmory.service.reader;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

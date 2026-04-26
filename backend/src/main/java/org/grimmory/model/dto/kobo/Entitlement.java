@@ -1,4 +1,4 @@
-package org.booklore.model.dto.kobo;
+package org.grimmory.model.dto.kobo;
 
 public interface Entitlement {
 }

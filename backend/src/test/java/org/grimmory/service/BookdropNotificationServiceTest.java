@@ -1,4 +1,4 @@
-package org.booklore.service;
+package org.grimmory.service;
 
 import org.booklore.model.dto.BookdropFileNotification;
 import org.booklore.model.entity.BookdropFileEntity;

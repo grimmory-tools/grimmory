@@ -1,4 +1,4 @@
-package org.booklore.service.bookdrop;
+package org.grimmory.service.bookdrop;
 
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.request.BookdropBulkEditRequest;

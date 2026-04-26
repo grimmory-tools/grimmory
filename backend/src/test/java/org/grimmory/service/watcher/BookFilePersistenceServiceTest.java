@@ -1,4 +1,4 @@
-package org.booklore.service.watcher;
+package org.grimmory.service.watcher;
 
 import org.booklore.mapper.BookMapper;
 import org.booklore.model.entity.*;

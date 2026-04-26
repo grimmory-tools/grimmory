@@ -1,4 +1,4 @@
-package org.booklore.config.openapi;
+package org.grimmory.config.openapi;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import org.booklore.config.AppProperties;

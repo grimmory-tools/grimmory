@@ -1,4 +1,4 @@
-package org.booklore.service.metadata.extractor;
+package org.grimmory.service.metadata.extractor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;

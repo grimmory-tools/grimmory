@@ -1,4 +1,4 @@
-package org.booklore.config.security.oidc;
+package org.grimmory.config.security.oidc;
 
 import org.booklore.exception.APIException;
 import org.booklore.model.dto.settings.OidcProviderDetails;

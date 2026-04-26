@@ -1,4 +1,4 @@
-package org.booklore.repository.projection;
+package org.grimmory.repository.projection;
 
 import java.time.Instant;
 

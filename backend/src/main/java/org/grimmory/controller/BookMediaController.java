@@ -1,4 +1,4 @@
-package org.booklore.controller;
+package org.grimmory.controller;
 
 import org.booklore.service.AuthorMetadataService;
 import org.booklore.config.security.annotation.CheckBookAccess;

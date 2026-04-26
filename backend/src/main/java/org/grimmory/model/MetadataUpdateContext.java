@@ -1,4 +1,4 @@
-package org.booklore.model;
+package org.grimmory.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

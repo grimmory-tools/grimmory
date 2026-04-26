@@ -1,4 +1,4 @@
-package org.booklore.model;
+package org.grimmory.model;
 
 import lombok.*;
 import org.booklore.model.dto.Book;

@@ -1,4 +1,4 @@
-package org.booklore.service.library;
+package org.grimmory.service.library;
 
 import org.booklore.model.MetadataUpdateContext;
 import org.booklore.model.dto.AudiobookMetadata;

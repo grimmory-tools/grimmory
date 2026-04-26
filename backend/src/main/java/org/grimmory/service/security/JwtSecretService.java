@@ -1,4 +1,4 @@
-package org.booklore.service.security;
+package org.grimmory.service.security;
 
 import org.booklore.model.entity.JwtSecretEntity;
 import org.booklore.repository.JwtSecretRepository;

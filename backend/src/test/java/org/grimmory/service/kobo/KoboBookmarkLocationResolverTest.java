@@ -1,4 +1,4 @@
-package org.booklore.service.kobo;
+package org.grimmory.service.kobo;
 
 import org.booklore.model.dto.kobo.KoboSpanPositionMap;
 import org.booklore.model.entity.BookEntity;

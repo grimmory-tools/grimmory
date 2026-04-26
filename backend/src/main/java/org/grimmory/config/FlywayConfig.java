@@ -1,4 +1,4 @@
-package org.booklore.config;
+package org.grimmory.config;
 
 import org.flywaydb.core.api.exception.FlywayValidateException;
 import org.springframework.boot.flyway.autoconfigure.FlywayMigrationStrategy;

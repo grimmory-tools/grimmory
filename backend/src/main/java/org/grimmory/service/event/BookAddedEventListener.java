@@ -1,4 +1,4 @@
-package org.booklore.service.event;
+package org.grimmory.service.event;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

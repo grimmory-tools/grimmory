@@ -1,4 +1,4 @@
-package org.booklore.model.dto.response;
+package org.grimmory.model.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;

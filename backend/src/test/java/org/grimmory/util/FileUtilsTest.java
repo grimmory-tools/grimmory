@@ -1,4 +1,4 @@
-package org.booklore.util;
+package org.grimmory.util;
 
 import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.BookEntity;

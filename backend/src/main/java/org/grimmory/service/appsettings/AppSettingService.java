@@ -1,4 +1,4 @@
-package org.booklore.service.appsettings;
+package org.grimmory.service.appsettings;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.booklore.config.AppProperties;

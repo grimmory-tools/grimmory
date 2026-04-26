@@ -1,4 +1,4 @@
-package org.booklore.repository;
+package org.grimmory.repository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;

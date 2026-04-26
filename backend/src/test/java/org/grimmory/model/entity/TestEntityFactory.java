@@ -1,4 +1,4 @@
-package org.booklore.model.entity;
+package org.grimmory.model.entity;
 
 import java.util.concurrent.atomic.AtomicLong;
 

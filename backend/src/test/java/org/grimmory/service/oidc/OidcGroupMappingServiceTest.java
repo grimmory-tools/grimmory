@@ -1,4 +1,4 @@
-package org.booklore.service.oidc;
+package org.grimmory.service.oidc;
 
 import org.booklore.exception.APIException;
 import org.booklore.mapper.OidcGroupMappingMapper;

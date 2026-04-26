@@ -1,4 +1,4 @@
-package org.booklore;
+package org.grimmory;
 
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.mapper.BookMapper;

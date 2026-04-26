@@ -1,4 +1,4 @@
-package org.booklore.service.metadata;
+package org.grimmory.service.metadata;
 
 import org.booklore.config.AppProperties;
 import org.booklore.exception.APIException;

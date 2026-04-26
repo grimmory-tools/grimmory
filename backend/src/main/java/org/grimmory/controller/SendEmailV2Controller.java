@@ -1,4 +1,4 @@
-package org.booklore.controller;
+package org.grimmory.controller;
 
 import org.booklore.model.dto.request.SendBookByEmailRequest;
 import org.booklore.service.email.SendEmailV2Service;

@@ -1,4 +1,4 @@
-package org.booklore.service.user;
+package org.grimmory.service.user;
 
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;

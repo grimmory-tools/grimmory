@@ -1,4 +1,4 @@
-package org.booklore.app.specification;
+package org.grimmory.app.specification;
 
 import org.booklore.exception.APIException;
 import org.booklore.model.entity.*;

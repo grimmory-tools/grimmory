@@ -1,4 +1,4 @@
-package org.booklore.app.mapper;
+package org.grimmory.app.mapper;
 
 import org.booklore.app.dto.AppBookDetail;
 import org.booklore.app.dto.AppBookFile;

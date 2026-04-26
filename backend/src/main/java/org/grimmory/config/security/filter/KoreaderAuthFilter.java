@@ -1,4 +1,4 @@
-package org.booklore.config.security.filter;
+package org.grimmory.config.security.filter;
 
 import org.booklore.config.security.userdetails.KoreaderUserDetails;
 import org.booklore.repository.KoreaderUserRepository;

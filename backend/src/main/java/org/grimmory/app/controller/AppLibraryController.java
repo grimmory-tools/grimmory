@@ -1,4 +1,4 @@
-package org.booklore.app.controller;
+package org.grimmory.app.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

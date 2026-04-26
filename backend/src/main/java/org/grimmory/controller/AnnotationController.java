@@ -1,4 +1,4 @@
-package org.booklore.controller;
+package org.grimmory.controller;
 
 import org.booklore.model.dto.Annotation;
 import org.booklore.model.dto.CreateAnnotationRequest;

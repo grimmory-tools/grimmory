@@ -1,4 +1,4 @@
-package org.booklore.service.restriction;
+package org.grimmory.service.restriction;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

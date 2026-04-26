@@ -1,4 +1,4 @@
-package org.booklore.mapper;
+package org.grimmory.mapper;
 
 import org.booklore.model.dto.EmailRecipientV2;
 import org.booklore.model.dto.request.CreateEmailRecipientRequest;

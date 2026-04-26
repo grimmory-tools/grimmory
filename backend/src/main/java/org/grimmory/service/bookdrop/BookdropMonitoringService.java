@@ -1,4 +1,4 @@
-package org.booklore.service.bookdrop;
+package org.grimmory.service.bookdrop;
 
 import org.booklore.config.AppProperties;
 import org.booklore.model.enums.BookFileExtension;

@@ -1,4 +1,4 @@
-package org.booklore.app.service;
+package org.grimmory.app.service;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;

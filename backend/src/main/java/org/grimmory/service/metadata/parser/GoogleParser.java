@@ -1,4 +1,4 @@
-package org.booklore.service.metadata.parser;
+package org.grimmory.service.metadata.parser;
 
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.model.dto.Book;

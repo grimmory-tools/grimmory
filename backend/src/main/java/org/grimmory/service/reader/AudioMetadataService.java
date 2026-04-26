@@ -1,4 +1,4 @@
-package org.booklore.service.reader;
+package org.grimmory.service.reader;
 
 import java.io.File;
 import java.nio.file.Files;

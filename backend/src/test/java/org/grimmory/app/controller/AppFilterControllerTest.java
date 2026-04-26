@@ -1,4 +1,4 @@
-package org.booklore.app.controller;
+package org.grimmory.app.controller;
 
 import org.booklore.app.dto.AppFilterOptions;
 import org.booklore.app.service.AppBookService;

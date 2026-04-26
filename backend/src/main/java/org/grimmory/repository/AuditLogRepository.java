@@ -1,4 +1,4 @@
-package org.booklore.repository;
+package org.grimmory.repository;
 
 import org.booklore.model.entity.AuditLogEntity;
 import org.booklore.model.enums.AuditAction;

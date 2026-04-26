@@ -1,4 +1,4 @@
-package org.booklore.service;
+package org.grimmory.service;
 
 import org.booklore.exception.APIException;
 import org.booklore.model.dto.Book;

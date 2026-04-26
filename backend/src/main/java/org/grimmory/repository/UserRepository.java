@@ -1,4 +1,4 @@
-package org.booklore.repository;
+package org.grimmory.repository;
 
 import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.model.enums.ProvisioningMethod;

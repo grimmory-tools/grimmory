@@ -1,4 +1,4 @@
-package org.booklore.model.entity;
+package org.grimmory.model.entity;
 
 import org.booklore.convertor.JpaJsonConverter;
 import org.booklore.task.TaskStatus;

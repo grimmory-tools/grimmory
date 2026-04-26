@@ -1,4 +1,4 @@
-package org.booklore.service;
+package org.grimmory.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.booklore.config.security.service.AuthenticationService;

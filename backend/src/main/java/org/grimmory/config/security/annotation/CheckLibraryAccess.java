@@ -1,4 +1,4 @@
-package org.booklore.config.security.annotation;
+package org.grimmory.config.security.annotation;
 
 
 import java.lang.annotation.*;

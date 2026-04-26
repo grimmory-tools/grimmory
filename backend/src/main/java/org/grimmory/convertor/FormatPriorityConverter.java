@@ -1,4 +1,4 @@
-package org.booklore.convertor;
+package org.grimmory.convertor;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;

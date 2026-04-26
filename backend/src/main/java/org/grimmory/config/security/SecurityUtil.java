@@ -1,4 +1,4 @@
-package org.booklore.config.security;
+package org.grimmory.config.security;
 
 import lombok.AllArgsConstructor;
 import org.booklore.model.dto.BookLoreUser;

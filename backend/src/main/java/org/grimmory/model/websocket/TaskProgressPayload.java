@@ -1,4 +1,4 @@
-package org.booklore.model.websocket;
+package org.grimmory.model.websocket;
 
 import org.booklore.task.TaskStatus;
 import org.booklore.model.enums.TaskType;

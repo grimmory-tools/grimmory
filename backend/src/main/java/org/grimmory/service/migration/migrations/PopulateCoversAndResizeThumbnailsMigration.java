@@ -1,4 +1,4 @@
-package org.booklore.service.migration.migrations;
+package org.grimmory.service.migration.migrations;
 
 import org.booklore.config.AppProperties;
 import org.booklore.service.migration.Migration;

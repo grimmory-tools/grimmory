@@ -1,4 +1,4 @@
-package org.booklore.config.security.oidc;
+package org.grimmory.config.security.oidc;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;

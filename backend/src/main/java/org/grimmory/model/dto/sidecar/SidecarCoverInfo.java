@@ -1,4 +1,4 @@
-package org.booklore.model.dto.sidecar;
+package org.grimmory.model.dto.sidecar;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

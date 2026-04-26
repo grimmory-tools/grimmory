@@ -1,4 +1,4 @@
-package org.booklore.service.opds;
+package org.grimmory.service.opds;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;

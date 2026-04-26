@@ -1,4 +1,4 @@
-package org.booklore.exception;
+package org.grimmory.exception;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;

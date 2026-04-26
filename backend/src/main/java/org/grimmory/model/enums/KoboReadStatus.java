@@ -1,4 +1,4 @@
-package org.booklore.model.enums;
+package org.grimmory.model.enums;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import tools.jackson.databind.PropertyNamingStrategies;

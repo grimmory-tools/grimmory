@@ -1,4 +1,4 @@
-package org.booklore.controller;
+package org.grimmory.controller;
 
 import org.booklore.config.security.annotation.CheckBookAccess;
 import org.booklore.model.dto.response.AudiobookInfo;

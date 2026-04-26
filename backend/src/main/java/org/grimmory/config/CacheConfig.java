@@ -1,4 +1,4 @@
-package org.booklore.config;
+package org.grimmory.config;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.cache.CacheManager;

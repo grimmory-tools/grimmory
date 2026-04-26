@@ -1,4 +1,4 @@
-package org.booklore.service.fileprocessor;
+package org.grimmory.service.fileprocessor;
 
 import org.booklore.mapper.BookMapper;
 import org.booklore.model.FileProcessResult;

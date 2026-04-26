@@ -1,4 +1,4 @@
-package org.booklore.service.recommender;
+package org.grimmory.service.recommender;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

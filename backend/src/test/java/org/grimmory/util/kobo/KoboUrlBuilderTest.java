@@ -1,4 +1,4 @@
-package org.booklore.util.kobo;
+package org.grimmory.util.kobo;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;

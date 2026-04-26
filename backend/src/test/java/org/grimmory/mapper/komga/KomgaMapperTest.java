@@ -1,4 +1,4 @@
-package org.booklore.mapper.komga;
+package org.grimmory.mapper.komga;
 
 import org.booklore.context.KomgaCleanContext;
 import org.booklore.model.dto.komga.KomgaBookDto;

@@ -1,4 +1,4 @@
-package org.booklore.config.logging.filter;
+package org.grimmory.config.logging.filter;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.jspecify.annotations.Nullable;

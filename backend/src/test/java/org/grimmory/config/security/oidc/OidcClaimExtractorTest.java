@@ -1,4 +1,4 @@
-package org.booklore.config.security.oidc;
+package org.grimmory.config.security.oidc;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import org.booklore.config.security.oidc.OidcClaimExtractor.OidcUserClaims;

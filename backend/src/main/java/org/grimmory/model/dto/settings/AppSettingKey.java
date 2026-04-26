@@ -1,4 +1,4 @@
-package org.booklore.model.dto.settings;
+package org.grimmory.model.dto.settings;
 
 import org.booklore.model.enums.PermissionType;
 import lombok.Getter;

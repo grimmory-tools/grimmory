@@ -1,4 +1,4 @@
-package org.booklore.util;
+package org.grimmory.util;
 
 import org.booklore.config.AppProperties;
 import org.booklore.model.dto.settings.AppSettings;

@@ -1,4 +1,4 @@
-package org.booklore.service.progress;
+package org.grimmory.service.progress;
 
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.ApiError;

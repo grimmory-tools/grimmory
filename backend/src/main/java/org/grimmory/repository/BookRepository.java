@@ -1,4 +1,4 @@
-package org.booklore.repository;
+package org.grimmory.repository;
 
 import org.booklore.repository.projection.BookEmbeddingProjection;
 import org.springframework.data.domain.Page;

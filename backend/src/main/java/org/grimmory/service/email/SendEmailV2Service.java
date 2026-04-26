@@ -1,4 +1,4 @@
-package org.booklore.service.email;
+package org.grimmory.service.email;
 
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.ApiError;

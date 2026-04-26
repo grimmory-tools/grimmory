@@ -1,4 +1,4 @@
-package org.booklore.service.kobo;
+package org.grimmory.service.kobo;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;

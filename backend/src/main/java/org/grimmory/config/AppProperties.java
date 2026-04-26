@@ -1,4 +1,4 @@
-package org.booklore.config;
+package org.grimmory.config;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,4 +1,4 @@
-package org.booklore.service.migration.migrations;
+package org.grimmory.service.migration.migrations;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

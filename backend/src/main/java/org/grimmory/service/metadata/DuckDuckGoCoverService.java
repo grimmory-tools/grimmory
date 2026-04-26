@@ -1,4 +1,4 @@
-package org.booklore.service.metadata;
+package org.grimmory.service.metadata;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

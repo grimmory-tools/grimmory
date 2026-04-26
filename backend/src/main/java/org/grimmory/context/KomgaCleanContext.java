@@ -1,4 +1,4 @@
-package org.booklore.context;
+package org.grimmory.context;
 
 /**
  * ThreadLocal context to track whether the Komga API "clean" mode is enabled.

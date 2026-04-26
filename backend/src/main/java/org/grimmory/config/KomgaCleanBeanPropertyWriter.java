@@ -1,4 +1,4 @@
-package org.booklore.config;
+package org.grimmory.config;
 
 import org.booklore.context.KomgaCleanContext;
 import tools.jackson.core.JsonGenerator;

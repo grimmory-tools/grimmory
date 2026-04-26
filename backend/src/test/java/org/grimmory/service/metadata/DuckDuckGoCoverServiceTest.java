@@ -1,4 +1,4 @@
-package org.booklore.service.metadata;
+package org.grimmory.service.metadata;
 
 import org.booklore.exception.APIException;
 import org.booklore.model.dto.CoverImage;

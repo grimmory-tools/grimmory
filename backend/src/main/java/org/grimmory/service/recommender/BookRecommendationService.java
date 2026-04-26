@@ -1,4 +1,4 @@
-package org.booklore.service.recommender;
+package org.grimmory.service.recommender;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

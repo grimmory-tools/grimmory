@@ -1,4 +1,4 @@
-package org.booklore.util.kobo;
+package org.grimmory.util.kobo;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.booklore.model.dto.BookloreSyncToken;

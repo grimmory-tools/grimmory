@@ -1,4 +1,4 @@
-package org.booklore.service;
+package org.grimmory.service;
 
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;

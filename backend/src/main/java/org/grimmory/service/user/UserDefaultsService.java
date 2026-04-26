@@ -1,4 +1,4 @@
-package org.booklore.service.user;
+package org.grimmory.service.user;
 
 import tools.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package org.booklore.service.kobo;
+package org.grimmory.service.kobo;
 
 import org.booklore.service.book.BookService;
 import org.junit.jupiter.api.DisplayName;

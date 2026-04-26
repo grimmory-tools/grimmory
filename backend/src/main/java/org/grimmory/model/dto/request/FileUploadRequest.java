@@ -1,4 +1,4 @@
-package org.booklore.model.dto.request;
+package org.grimmory.model.dto.request;
 
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;

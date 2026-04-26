@@ -1,4 +1,4 @@
-package org.booklore.service.file;
+package org.grimmory.service.file;
 
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.entity.LibraryEntity;

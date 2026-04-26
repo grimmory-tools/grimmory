@@ -1,4 +1,4 @@
-package org.booklore.mapper.custom;
+package org.grimmory.mapper.custom;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

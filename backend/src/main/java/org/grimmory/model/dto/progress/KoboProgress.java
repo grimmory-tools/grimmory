@@ -1,4 +1,4 @@
-package org.booklore.model.dto.progress;
+package org.grimmory.model.dto.progress;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

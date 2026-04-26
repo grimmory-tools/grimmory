@@ -1,4 +1,4 @@
-package org.booklore.convertor;
+package org.grimmory.convertor;
 
 import org.booklore.model.dto.Sort;
 import org.booklore.model.enums.SortDirection;

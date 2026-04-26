@@ -1,4 +1,4 @@
-package org.booklore.service.metadata.parser.hardcover;
+package org.grimmory.service.metadata.parser.hardcover;
 
 import lombok.Data;
 

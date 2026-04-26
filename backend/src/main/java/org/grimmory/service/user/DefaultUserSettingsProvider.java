@@ -1,4 +1,4 @@
-package org.booklore.service.user;
+package org.grimmory.service.user;
 
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.settings.SidebarSortOption;

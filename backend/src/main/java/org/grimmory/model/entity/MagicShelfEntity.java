@@ -1,4 +1,4 @@
-package org.booklore.model.entity;
+package org.grimmory.model.entity;
 
 import org.booklore.model.enums.IconType;
 import jakarta.persistence.*;

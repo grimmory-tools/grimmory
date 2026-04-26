@@ -1,4 +1,4 @@
-package org.booklore.service.metadata.extractor;
+package org.grimmory.service.metadata.extractor;
 
 import org.apache.pdfbox.cos.COSDictionary;
 import org.apache.pdfbox.cos.COSName;

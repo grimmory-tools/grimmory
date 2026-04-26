@@ -1,4 +1,4 @@
-package org.booklore.mapper;
+package org.grimmory.mapper;
 
 import org.booklore.model.entity.AuthorEntity;
 import org.mapstruct.Mapper;

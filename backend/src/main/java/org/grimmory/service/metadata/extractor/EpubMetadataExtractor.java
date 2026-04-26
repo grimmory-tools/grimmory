@@ -1,4 +1,4 @@
-package org.booklore.service.metadata.extractor;
+package org.grimmory.service.metadata.extractor;
 
 import org.grimmory.epub4j.archive.EpubContainer;
 import org.grimmory.epub4j.archive.EpubContainers;

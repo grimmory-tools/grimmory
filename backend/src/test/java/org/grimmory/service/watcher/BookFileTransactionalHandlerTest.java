@@ -1,4 +1,4 @@
-package org.booklore.service.watcher;
+package org.grimmory.service.watcher;
 
 import org.booklore.model.entity.*;
 import org.booklore.model.enums.BookFileExtension;

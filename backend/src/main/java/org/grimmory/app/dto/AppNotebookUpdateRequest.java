@@ -1,4 +1,4 @@
-package org.booklore.app.dto;
+package org.grimmory.app.dto;
 
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;

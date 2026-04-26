@@ -1,4 +1,4 @@
-package org.booklore.service.hardcover;
+package org.grimmory.service.hardcover;
 
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.model.dto.HardcoverSyncSettings;

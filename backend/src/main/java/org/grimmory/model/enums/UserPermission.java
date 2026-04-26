@@ -1,4 +1,4 @@
-package org.booklore.model.enums;
+package org.grimmory.model.enums;
 
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.request.UserUpdateRequest;

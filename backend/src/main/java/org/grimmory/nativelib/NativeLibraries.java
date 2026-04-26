@@ -1,4 +1,4 @@
-package org.booklore.nativelib;
+package org.grimmory.nativelib;
 
 import lombok.extern.slf4j.Slf4j;
 

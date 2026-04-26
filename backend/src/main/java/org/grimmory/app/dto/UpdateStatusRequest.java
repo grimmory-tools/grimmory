@@ -1,4 +1,4 @@
-package org.booklore.app.dto;
+package org.grimmory.app.dto;
 
 import org.booklore.model.enums.ReadStatus;
 import jakarta.validation.constraints.NotNull;

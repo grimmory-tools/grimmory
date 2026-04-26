@@ -1,4 +1,4 @@
-package org.booklore.service.hardcover;
+package org.grimmory.service.hardcover;
 
 import org.booklore.model.dto.HardcoverSyncSettings;
 import org.booklore.model.entity.BookEntity;

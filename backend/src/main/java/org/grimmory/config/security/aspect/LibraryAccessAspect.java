@@ -1,4 +1,4 @@
-package org.booklore.config.security.aspect;
+package org.grimmory.config.security.aspect;
 
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.config.security.annotation.CheckLibraryAccess;

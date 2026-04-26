@@ -1,4 +1,4 @@
-package org.booklore.service.file;
+package org.grimmory.service.file;
 
 import jakarta.persistence.EntityManager;
 import org.booklore.config.AppProperties;

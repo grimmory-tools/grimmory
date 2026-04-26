@@ -1,4 +1,4 @@
-package org.booklore.model.dto;
+package org.grimmory.model.dto;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

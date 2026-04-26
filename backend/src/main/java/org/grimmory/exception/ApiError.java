@@ -1,4 +1,4 @@
-package org.booklore.exception;
+package org.grimmory.exception;
 
 import org.booklore.model.enums.UserPermission;
 import lombok.Getter;

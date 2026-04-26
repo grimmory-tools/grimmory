@@ -1,4 +1,4 @@
-package org.booklore.model.dto.progress;
+package org.grimmory.model.dto.progress;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

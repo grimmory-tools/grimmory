@@ -1,4 +1,4 @@
-package org.booklore.service.metadata.sidecar;
+package org.grimmory.service.metadata.sidecar;
 
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.AppProperties;

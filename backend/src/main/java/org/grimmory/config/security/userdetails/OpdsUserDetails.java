@@ -1,4 +1,4 @@
-package org.booklore.config.security.userdetails;
+package org.grimmory.config.security.userdetails;
 
 import org.booklore.model.dto.OpdsUserV2;
 import lombok.Getter;

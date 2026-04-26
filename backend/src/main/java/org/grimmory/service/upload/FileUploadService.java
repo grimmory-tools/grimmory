@@ -1,4 +1,4 @@
-package org.booklore.service.upload;
+package org.grimmory.service.upload;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

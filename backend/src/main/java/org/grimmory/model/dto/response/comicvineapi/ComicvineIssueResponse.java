@@ -1,4 +1,4 @@
-package org.booklore.model.dto.response.comicvineapi;
+package org.grimmory.model.dto.response.comicvineapi;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

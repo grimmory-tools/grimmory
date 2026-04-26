@@ -1,4 +1,4 @@
-package org.booklore.controller;
+package org.grimmory.controller;
 
 import org.booklore.model.dto.request.SvgIconBatchRequest;
 import org.booklore.model.dto.request.SvgIconCreateRequest;

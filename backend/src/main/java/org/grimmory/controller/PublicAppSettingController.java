@@ -1,4 +1,4 @@
-package org.booklore.controller;
+package org.grimmory.controller;
 
 import org.booklore.model.dto.settings.PublicAppSetting;
 import org.booklore.service.appsettings.AppSettingService;

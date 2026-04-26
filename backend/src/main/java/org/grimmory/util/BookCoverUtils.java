@@ -1,4 +1,4 @@
-package org.booklore.util;
+package org.grimmory.util;
 
 import lombok.experimental.UtilityClass;
 

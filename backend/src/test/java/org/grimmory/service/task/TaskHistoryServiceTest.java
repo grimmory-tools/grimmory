@@ -1,4 +1,4 @@
-package org.booklore.service.task;
+package org.grimmory.service.task;
 
 import org.booklore.repository.TaskHistoryRepository;
 import org.booklore.model.entity.TaskHistoryEntity;

@@ -1,4 +1,4 @@
-package org.booklore.service.metadata.sidecar;
+package org.grimmory.service.metadata.sidecar;
 
 import org.booklore.config.AppProperties;
 import org.booklore.model.entity.BookEntity;

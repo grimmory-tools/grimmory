@@ -1,4 +1,4 @@
-package org.booklore.service.migration;
+package org.grimmory.service.migration;
 
 public interface Migration {
     String getKey();

@@ -1,4 +1,4 @@
-package org.booklore.model.websocket;
+package org.grimmory.model.websocket;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

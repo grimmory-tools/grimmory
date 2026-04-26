@@ -1,4 +1,4 @@
-package org.booklore.test;
+package org.grimmory.test;
 
 import org.junit.jupiter.api.extension.ExtendWith;
 

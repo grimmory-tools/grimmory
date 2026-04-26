@@ -1,4 +1,4 @@
-package org.booklore.model.dto.response.audnexus;
+package org.grimmory.model.dto.response.audnexus;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

@@ -1,4 +1,4 @@
-package org.booklore.service.metadata.writer;
+package org.grimmory.service.metadata.writer;
 
 import org.booklore.model.MetadataClearFlags;
 import org.booklore.model.entity.BookEntity;

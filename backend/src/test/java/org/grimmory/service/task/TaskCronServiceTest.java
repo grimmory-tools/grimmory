@@ -1,4 +1,4 @@
-package org.booklore.service.task;
+package org.grimmory.service.task;
 
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.APIException;

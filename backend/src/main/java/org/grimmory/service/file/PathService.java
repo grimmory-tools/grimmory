@@ -1,4 +1,4 @@
-package org.booklore.service.file;
+package org.grimmory.service.file;
 
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.exception.ApiError;

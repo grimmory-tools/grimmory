@@ -1,4 +1,4 @@
-package org.booklore.service.file;
+package org.grimmory.service.file;
 
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.monitoring.MonitoringRegistrationService;

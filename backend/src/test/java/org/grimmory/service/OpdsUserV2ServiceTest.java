@@ -1,4 +1,4 @@
-package org.booklore.service;
+package org.grimmory.service;
 
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.mapper.OpdsUserV2Mapper;

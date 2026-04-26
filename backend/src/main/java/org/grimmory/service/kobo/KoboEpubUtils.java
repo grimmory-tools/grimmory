@@ -1,4 +1,4 @@
-package org.booklore.service.kobo;
+package org.grimmory.service.kobo;
 
 import lombok.experimental.UtilityClass;
 import org.booklore.model.entity.BookEntity;

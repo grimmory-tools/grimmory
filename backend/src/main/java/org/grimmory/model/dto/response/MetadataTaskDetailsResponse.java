@@ -1,4 +1,4 @@
-package org.booklore.model.dto.response;
+package org.grimmory.model.dto.response;
 
 import org.booklore.model.dto.MetadataFetchTask;
 import lombok.AllArgsConstructor;

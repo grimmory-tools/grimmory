@@ -1,4 +1,4 @@
-package org.booklore.util.epub;
+package org.grimmory.util.epub;
 
 import org.grimmory.epub4j.domain.Book;
 import org.grimmory.epub4j.domain.Resource;

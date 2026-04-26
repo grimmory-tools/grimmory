@@ -1,4 +1,4 @@
-package org.booklore.model.websocket;
+package org.grimmory.model.websocket;
 
 import org.booklore.model.dto.Book;
 import lombok.Data;

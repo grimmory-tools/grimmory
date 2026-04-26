@@ -1,4 +1,4 @@
-package org.booklore.service.metadata.extractor;
+package org.grimmory.service.metadata.extractor;
 
 import org.booklore.model.dto.AudiobookMetadata;
 import org.booklore.model.dto.BookMetadata;

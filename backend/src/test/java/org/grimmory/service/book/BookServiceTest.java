@@ -1,4 +1,4 @@
-package org.booklore.service.book;
+package org.grimmory.service.book;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

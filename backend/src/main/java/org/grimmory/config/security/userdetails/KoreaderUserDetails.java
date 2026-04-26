@@ -1,4 +1,4 @@
-package org.booklore.config.security.userdetails;
+package org.grimmory.config.security.userdetails;
 
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;

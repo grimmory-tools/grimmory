@@ -1,4 +1,4 @@
-package org.booklore.config.security.oidc;
+package org.grimmory.config.security.oidc;
 
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;

@@ -1,4 +1,4 @@
-package org.booklore.interceptor;
+package org.grimmory.interceptor;
 
 import org.booklore.context.KomgaCleanContext;
 import jakarta.servlet.http.HttpServletRequest;

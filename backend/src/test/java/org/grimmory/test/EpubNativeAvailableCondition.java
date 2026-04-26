@@ -1,4 +1,4 @@
-package org.booklore.test;
+package org.grimmory.test;
 
 import org.booklore.nativelib.NativeLibraries;
 import org.junit.jupiter.api.extension.ConditionEvaluationResult;

@@ -1,4 +1,4 @@
-package org.booklore.task.tasks;
+package org.grimmory.task.tasks;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

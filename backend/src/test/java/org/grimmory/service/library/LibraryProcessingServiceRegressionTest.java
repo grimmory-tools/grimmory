@@ -1,4 +1,4 @@
-package org.booklore.service.library;
+package org.grimmory.service.library;
 
 import jakarta.persistence.EntityManager;
 import org.booklore.model.dto.settings.LibraryFile;

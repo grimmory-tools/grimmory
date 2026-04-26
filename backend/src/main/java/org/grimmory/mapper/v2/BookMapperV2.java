@@ -1,4 +1,4 @@
-package org.booklore.mapper.v2;
+package org.grimmory.mapper.v2;
 
 import org.booklore.mapper.ComicMetadataMapper;
 import org.booklore.mapper.ShelfMapper;

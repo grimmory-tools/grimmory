@@ -1,4 +1,4 @@
-package org.booklore.service.metadata.writer;
+package org.grimmory.service.metadata.writer;
 
 import org.booklore.model.enums.BookFileType;
 import org.springframework.stereotype.Component;

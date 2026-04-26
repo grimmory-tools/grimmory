@@ -1,4 +1,4 @@
-package org.booklore.service.hardcover;
+package org.grimmory.service.hardcover;
 
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.model.dto.HardcoverSyncSettings;

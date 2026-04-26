@@ -1,4 +1,4 @@
-package org.booklore.model.dto.komga;
+package org.grimmory.model.dto.komga;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

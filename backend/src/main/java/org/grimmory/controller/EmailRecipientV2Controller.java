@@ -1,4 +1,4 @@
-package org.booklore.controller;
+package org.grimmory.controller;
 
 import org.booklore.model.dto.EmailRecipientV2;
 import org.booklore.model.dto.request.CreateEmailRecipientRequest;

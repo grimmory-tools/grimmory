@@ -1,4 +1,4 @@
-package org.booklore.service;
+package org.grimmory.service;
 
 import lombok.AllArgsConstructor;
 import org.booklore.exception.ApiError;

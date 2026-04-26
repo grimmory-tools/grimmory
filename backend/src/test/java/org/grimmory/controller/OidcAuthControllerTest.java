@@ -1,4 +1,4 @@
-package org.booklore.controller;
+package org.grimmory.controller;
 
 import org.booklore.config.security.oidc.BackchannelLogoutService;
 import org.booklore.config.security.oidc.OidcAuthService;

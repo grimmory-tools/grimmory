@@ -1,4 +1,4 @@
-package org.booklore.crons;
+package org.grimmory.crons;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

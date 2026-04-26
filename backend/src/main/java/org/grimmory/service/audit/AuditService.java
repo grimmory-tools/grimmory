@@ -1,4 +1,4 @@
-package org.booklore.service.audit;
+package org.grimmory.service.audit;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

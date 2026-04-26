@@ -1,4 +1,4 @@
-package org.booklore.task;
+package org.grimmory.task;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;

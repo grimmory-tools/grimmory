@@ -1,4 +1,4 @@
-package org.booklore.config.security.service;
+package org.grimmory.config.security.service;
 
 import org.booklore.config.AppProperties;
 import org.booklore.config.security.JwtUtils;

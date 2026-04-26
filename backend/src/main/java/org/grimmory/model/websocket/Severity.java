@@ -1,4 +1,4 @@
-package org.booklore.model.websocket;
+package org.grimmory.model.websocket;
 
 
 public enum Severity {

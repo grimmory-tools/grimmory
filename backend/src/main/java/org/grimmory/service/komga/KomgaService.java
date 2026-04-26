@@ -1,4 +1,4 @@
-package org.booklore.service.komga;
+package org.grimmory.service.komga;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

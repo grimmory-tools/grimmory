@@ -1,4 +1,4 @@
-package org.booklore.config.security.service;
+package org.grimmory.config.security.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

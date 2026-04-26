@@ -1,4 +1,4 @@
-package org.booklore.task.tasks;
+package org.grimmory.task.tasks;
 
 import org.booklore.exception.ApiError;
 import org.booklore.model.dto.BookLoreUser;

@@ -1,4 +1,4 @@
-package org.booklore.model.dto.settings;
+package org.grimmory.model.dto.settings;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package org.booklore.service.customfont;
+package org.grimmory.service.customfont;
 
 import org.booklore.config.AppProperties;
 import org.booklore.exception.APIException;

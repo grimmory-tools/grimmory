@@ -1,4 +1,4 @@
-package org.booklore.controller;
+package org.grimmory.controller;
 
 import org.booklore.service.file.PathService;
 import lombok.AllArgsConstructor;

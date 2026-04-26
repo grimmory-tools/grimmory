@@ -1,4 +1,4 @@
-package org.booklore.model.dto.request;
+package org.grimmory.model.dto.request;
 
 import org.booklore.model.dto.LibraryPath;
 import org.booklore.model.enums.BookFileType;

@@ -1,4 +1,4 @@
-package org.booklore.model.enums;
+package org.grimmory.model.enums;
 
 public enum CbxPageFitMode {
     ACTUAL_SIZE,

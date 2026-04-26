@@ -1,4 +1,4 @@
-package org.booklore.app.dto;
+package org.grimmory.app.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

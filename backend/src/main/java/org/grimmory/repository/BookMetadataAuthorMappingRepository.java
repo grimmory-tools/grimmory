@@ -1,4 +1,4 @@
-package org.booklore.repository;
+package org.grimmory.repository;
 
 import org.booklore.model.entity.BookMetadataAuthorMapping;
 import org.booklore.model.entity.BookMetadataAuthorKey;

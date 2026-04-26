@@ -1,4 +1,4 @@
-package org.booklore.service.oidc;
+package org.grimmory.service.oidc;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import lombok.AllArgsConstructor;

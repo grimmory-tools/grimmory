@@ -1,4 +1,4 @@
-package org.booklore.util.koreader;
+package org.grimmory.util.koreader;
 
 import org.booklore.exception.ApiError;
 import org.booklore.util.epub.EpubContentReader;

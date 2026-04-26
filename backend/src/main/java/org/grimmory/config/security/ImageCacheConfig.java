@@ -1,4 +1,4 @@
-package org.booklore.config.security;
+package org.grimmory.config.security;
 
 import org.booklore.config.security.filter.ImageCachingFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;

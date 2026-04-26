@@ -1,4 +1,4 @@
-package org.booklore.controller;
+package org.grimmory.controller;
 
 import jakarta.validation.Valid;
 import org.booklore.exception.ErrorResponse;

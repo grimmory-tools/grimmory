@@ -1,4 +1,4 @@
-package org.booklore.service.monitoring;
+package org.grimmory.service.monitoring;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;

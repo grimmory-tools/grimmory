@@ -1,4 +1,4 @@
-package org.booklore.model.dto.response.kobo;
+package org.grimmory.model.dto.response.kobo;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

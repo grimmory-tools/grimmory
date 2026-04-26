@@ -1,4 +1,4 @@
-package org.booklore.task;
+package org.grimmory.task;
 
 public enum TaskStatus {
     ACCEPTED,

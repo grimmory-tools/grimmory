@@ -1,4 +1,4 @@
-package org.booklore.exception;
+package org.grimmory.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

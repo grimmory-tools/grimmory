@@ -1,4 +1,4 @@
-package org.booklore.model.entity;
+package org.grimmory.model.entity;
 
 import org.booklore.util.BookUtils;
 import org.junit.jupiter.api.Test;

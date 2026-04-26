@@ -1,4 +1,4 @@
-package org.booklore.model.dto;
+package org.grimmory.model.dto;
 
 import org.booklore.model.dto.response.CronConfig;
 import org.booklore.model.enums.TaskType;

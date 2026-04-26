@@ -1,4 +1,4 @@
-package org.booklore.service.metadata.writer;
+package org.grimmory.service.metadata.writer;
 
 import org.grimmory.pdfium4j.PdfDocument;
 import org.grimmory.pdfium4j.model.PageSize;

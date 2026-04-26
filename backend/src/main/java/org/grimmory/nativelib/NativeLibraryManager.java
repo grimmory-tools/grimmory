@@ -1,4 +1,4 @@
-package org.booklore.nativelib;
+package org.grimmory.nativelib;
 
 import org.springframework.stereotype.Component;
 

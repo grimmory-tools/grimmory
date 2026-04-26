@@ -1,4 +1,4 @@
-package org.booklore.config.security.interceptor;
+package org.grimmory.config.security.interceptor;
 
 import org.booklore.config.security.JwtUtils;
 import lombok.RequiredArgsConstructor;

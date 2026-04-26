@@ -1,4 +1,4 @@
-package org.booklore.service.monitoring;
+package org.grimmory.service.monitoring;
 
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.model.dto.Library;

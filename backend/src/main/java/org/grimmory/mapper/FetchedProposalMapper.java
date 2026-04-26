@@ -1,4 +1,4 @@
-package org.booklore.mapper;
+package org.grimmory.mapper;
 
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.model.dto.BookMetadata;

@@ -1,4 +1,4 @@
-package org.booklore.service.migration;
+package org.grimmory.service.migration;
 
 import org.booklore.model.entity.AppMigrationEntity;
 import org.booklore.repository.AppMigrationRepository;

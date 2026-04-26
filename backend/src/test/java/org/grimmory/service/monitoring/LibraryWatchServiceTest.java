@@ -1,4 +1,4 @@
-package org.booklore.service.monitoring;
+package org.grimmory.service.monitoring;
 
 import org.booklore.model.dto.Library;
 import org.booklore.model.dto.LibraryPath;

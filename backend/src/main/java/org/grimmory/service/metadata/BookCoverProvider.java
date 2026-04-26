@@ -1,4 +1,4 @@
-package org.booklore.service.metadata;
+package org.grimmory.service.metadata;
 
 import org.booklore.model.dto.CoverImage;
 import org.booklore.model.dto.request.CoverFetchRequest;

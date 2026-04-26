@@ -1,4 +1,4 @@
-package org.booklore.service;
+package org.grimmory.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;

@@ -1,4 +1,4 @@
-package org.booklore.convertor;
+package org.grimmory.convertor;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

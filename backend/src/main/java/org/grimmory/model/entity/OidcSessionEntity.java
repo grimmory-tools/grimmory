@@ -1,4 +1,4 @@
-package org.booklore.model.entity;
+package org.grimmory.model.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,4 +1,4 @@
-package org.booklore.config;
+package org.grimmory.config;
 
 import org.booklore.config.security.interceptor.WebSocketAuthInterceptor;
 import lombok.extern.slf4j.Slf4j;

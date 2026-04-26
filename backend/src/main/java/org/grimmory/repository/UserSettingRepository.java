@@ -1,4 +1,4 @@
-package org.booklore.repository;
+package org.grimmory.repository;
 
 import org.booklore.model.entity.UserSettingEntity;
 import org.springframework.data.jpa.repository.JpaRepository;

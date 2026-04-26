@@ -1,4 +1,4 @@
-package org.booklore.service;
+package org.grimmory.service;
 
 import org.booklore.config.AppProperties;
 import org.booklore.exception.ApiError;

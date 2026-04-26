@@ -1,4 +1,4 @@
-package org.booklore.service.reader;
+package org.grimmory.service.reader;
 
 import org.booklore.exception.APIException;
 import org.booklore.exception.ApiError;

@@ -1,4 +1,4 @@
-package org.booklore.util;
+package org.grimmory.util;
 
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.entity.UserPermissionsEntity;

@@ -1,4 +1,4 @@
-package org.booklore.app.service;
+package org.grimmory.app.service;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;

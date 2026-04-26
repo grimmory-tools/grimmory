@@ -1,4 +1,4 @@
-package org.booklore.service.upload;
+package org.grimmory.service.upload;
 
 import org.booklore.config.AppProperties;
 import org.booklore.exception.APIException;

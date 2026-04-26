@@ -1,4 +1,4 @@
-package org.booklore.service.event;
+package org.grimmory.service.event;
 
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.websocket.LogNotification;

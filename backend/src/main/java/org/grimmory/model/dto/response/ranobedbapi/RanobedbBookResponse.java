@@ -1,4 +1,4 @@
-package org.booklore.model.dto.response.ranobedbapi;
+package org.grimmory.model.dto.response.ranobedbapi;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

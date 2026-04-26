@@ -1,4 +1,4 @@
-package org.booklore.crons;
+package org.grimmory.crons;
 
 import org.booklore.repository.OidcSessionRepository;
 import org.junit.jupiter.api.Test;

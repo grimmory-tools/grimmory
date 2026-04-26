@@ -1,4 +1,4 @@
-package org.booklore.service.user;
+package org.grimmory.service.user;
 
 import org.booklore.config.AppProperties;
 import org.booklore.model.dto.settings.OidcAutoProvisionDetails;

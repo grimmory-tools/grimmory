@@ -1,4 +1,4 @@
-package org.booklore.model.dto.komga;
+package org.grimmory.model.dto.komga;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

@@ -1,4 +1,4 @@
-package org.booklore.task.options;
+package org.grimmory.task.options;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

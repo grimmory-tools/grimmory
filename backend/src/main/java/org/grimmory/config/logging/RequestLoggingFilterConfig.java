@@ -1,4 +1,4 @@
-package org.booklore.config.logging;
+package org.grimmory.config.logging;
 
 import org.booklore.config.logging.filter.RequestLoggingFilter;
 import org.springframework.context.annotation.Bean;

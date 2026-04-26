@@ -1,4 +1,4 @@
-package org.booklore.service;
+package org.grimmory.service;
 
 import org.booklore.mapper.AdditionalFileMapper;
 import org.booklore.model.dto.BookFile;

@@ -1,4 +1,4 @@
-package org.booklore.model.dto.kobo;
+package org.grimmory.model.dto.kobo;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

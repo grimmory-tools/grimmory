@@ -1,4 +1,4 @@
-package org.booklore.service.kobo;
+package org.grimmory.service.kobo;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;

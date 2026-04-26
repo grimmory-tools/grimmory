@@ -1,4 +1,4 @@
-package org.booklore.config.security.userdetails;
+package org.grimmory.config.security.userdetails;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;

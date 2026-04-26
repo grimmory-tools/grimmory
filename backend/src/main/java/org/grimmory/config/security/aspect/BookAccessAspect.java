@@ -1,4 +1,4 @@
-package org.booklore.config.security.aspect;
+package org.grimmory.config.security.aspect;
 
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.JoinPoint;

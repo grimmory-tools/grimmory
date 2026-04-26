@@ -1,4 +1,4 @@
-package org.booklore.repository;
+package org.grimmory.repository;
 
 import org.booklore.model.dto.BookCompletionHeatmapDto;
 import org.booklore.model.dto.CompletionTimelineDto;

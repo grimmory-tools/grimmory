@@ -1,4 +1,4 @@
-package org.booklore.config.security;
+package org.grimmory.config.security;
 
 import org.booklore.config.security.filter.*;
 import org.booklore.config.security.service.OpdsUserDetailsService;

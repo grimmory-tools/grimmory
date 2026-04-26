@@ -1,4 +1,4 @@
-package org.booklore.service.opds;
+package org.grimmory.service.opds;
 
 import lombok.RequiredArgsConstructor;
 import org.booklore.config.security.service.AuthenticationService;

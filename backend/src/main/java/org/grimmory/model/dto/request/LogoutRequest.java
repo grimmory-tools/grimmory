@@ -1,4 +1,4 @@
-package org.booklore.model.dto.request;
+package org.grimmory.model.dto.request;
 
 public record LogoutRequest(String refreshToken) {
 }

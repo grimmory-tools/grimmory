@@ -1,4 +1,4 @@
-package org.booklore.util.builder;
+package org.grimmory.util.builder;
 
 import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.enums.BookFileType;

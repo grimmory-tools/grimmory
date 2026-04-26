@@ -1,5 +1,5 @@
 /*
-package org.booklore.repository;
+package org.grimmory.repository;
 
 import org.booklore.model.entity.*;
 import org.booklore.model.enums.AdditionalFileType;

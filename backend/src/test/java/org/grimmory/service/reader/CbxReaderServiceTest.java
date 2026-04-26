@@ -1,4 +1,4 @@
-package org.booklore.service.reader;
+package org.grimmory.service.reader;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import org.booklore.exception.ApiError;

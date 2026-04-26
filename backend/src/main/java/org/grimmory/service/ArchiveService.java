@@ -1,4 +1,4 @@
-package org.booklore.service;
+package org.grimmory.service;
 
 import com.github.gotson.nightcompress.Archive;
 import com.github.gotson.nightcompress.ArchiveEntry;

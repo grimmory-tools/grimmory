@@ -1,4 +1,4 @@
-package org.booklore.config;
+package org.grimmory.config;
 
 import org.booklore.model.enums.AuthorMetadataSource;
 import org.booklore.service.metadata.parser.AudnexusAuthorParser;

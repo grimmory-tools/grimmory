@@ -1,4 +1,4 @@
-package org.booklore.service.metadata.parser;
+package org.grimmory.service.metadata.parser;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;

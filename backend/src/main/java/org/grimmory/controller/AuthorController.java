@@ -1,4 +1,4 @@
-package org.booklore.controller;
+package org.grimmory.controller;
 
 import org.booklore.exception.ApiError;
 import org.booklore.model.dto.AuthorDetails;

@@ -1,4 +1,4 @@
-package org.booklore.util.builder;
+package org.grimmory.util.builder;
 
 import org.booklore.mapper.BookMapper;
 import org.booklore.mapper.BookMapperImpl;

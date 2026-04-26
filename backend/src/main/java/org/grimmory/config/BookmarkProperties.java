@@ -1,4 +1,4 @@
-package org.booklore.config;
+package org.grimmory.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

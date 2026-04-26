@@ -1,4 +1,4 @@
-package org.booklore.util.koreader;
+package org.grimmory.util.koreader;
 
 import org.grimmory.epub4j.cfi.DocumentNavigator;
 import org.jsoup.nodes.Document;
