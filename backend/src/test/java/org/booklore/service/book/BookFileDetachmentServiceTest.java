@@ -7,6 +7,7 @@ import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.response.DetachBookFileResponse;
 import org.booklore.model.entity.*;
+import org.booklore.model.enums.AuditAction;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserBookProgressRepository;
@@ -122,7 +123,7 @@ class BookFileDetachmentServiceTest {
         assertThat(response).isNotNull();
         assertThat(book.getBookFiles()).hasSize(1);
         assertThat(book.getBookFiles().getFirst().getId()).isEqualTo(10L);
-        verify(auditService).log(eq(org.booklore.model.enums.AuditAction.BOOK_FILE_DETACHED), anyString(), eq(1L), anyString());
+        verify(auditService).log(eq(AuditAction.BOOK_FILE_DETACHED), anyString(), eq(1L), anyString());
         verify(bookRepository).saveAndFlush(argThat(newBook -> {
             assertThat(newBook.getMetadata().getTitle()).isEqualTo("Test Book 1");
             return true;
