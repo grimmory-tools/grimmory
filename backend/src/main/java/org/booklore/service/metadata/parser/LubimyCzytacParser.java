@@ -232,7 +232,7 @@ public class LubimyCzytacParser implements BookParser {
             metadata.setLanguage(mapLanguage(language));
         }
 
-        Element descElement = doc.selectFirst(".collapse-content");
+        Element descElement = doc.selectFirst("#book-description");
         if (descElement != null) {
             String description = descElement.text();
             if (description != null && !description.isBlank()) {
