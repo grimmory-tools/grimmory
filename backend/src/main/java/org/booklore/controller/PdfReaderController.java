@@ -32,10 +32,11 @@ public class PdfReaderController {
     public ResponseEntity<List<Integer>> listPages(
             @Parameter(description = "ID of the book") @PathVariable Long bookId,
             @Parameter(description = "Optional book type for alternative format (e.g., PDF, CBX)") @RequestParam(required = false) String bookType,
-            WebRequest request) {
-        String etag = Long.toHexString(pdfReaderService.getLastModified(bookId, bookType));
+            WebRequest request) throws java.io.IOException {
+        long lastModified = pdfReaderService.getLastModified(bookId, bookType);
+        String etag = lastModified > 0L ? Long.toHexString(lastModified) : null;
 
-        if (request.checkNotModified(etag)) {
+        if (etag != null && request.checkNotModified(etag)) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
         }
 
@@ -53,10 +54,11 @@ public class PdfReaderController {
     public ResponseEntity<PdfBookInfo> getBookInfo(
             @Parameter(description = "ID of the book") @PathVariable Long bookId,
             @Parameter(description = "Optional book type for alternative format (e.g., PDF, CBX)") @RequestParam(required = false) String bookType,
-            WebRequest request) {
-        String etag = Long.toHexString(pdfReaderService.getLastModified(bookId, bookType));
+            WebRequest request) throws java.io.IOException {
+        long lastModified = pdfReaderService.getLastModified(bookId, bookType);
+        String etag = lastModified > 0L ? Long.toHexString(lastModified) : null;
 
-        if (request.checkNotModified(etag)) {
+        if (etag != null && request.checkNotModified(etag)) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
         }
 

@@ -23,11 +23,10 @@ import org.booklore.service.audit.AuditService;
 import org.booklore.service.metadata.DuckDuckGoCoverService;
 import org.booklore.service.metadata.parser.AuthorParser;
 import org.booklore.util.FileService;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.web.multipart.MultipartFile;
@@ -60,10 +59,7 @@ public class AuthorMetadataService {
     private final DuckDuckGoCoverService duckDuckGoCoverService;
     private final AuthenticationService authenticationService;
     private final AppSettingService appSettingService;
-
-    @Autowired
-    @Lazy
-    private AuthorMetadataService self;
+    private final ObjectProvider<AuthorMetadataService> selfProvider;
 
     @Cacheable(value = "authors-by-user", key = "@authenticationService.getAuthenticatedUser().id")
     public List<AuthorSummary> getAllAuthors() {
@@ -116,6 +112,7 @@ public class AuthorMetadataService {
     })
     @Transactional
     public AuthorDetails matchAuthor(Long authorId, AuthorMatchRequest request) {
+        verifyAuthorAccess(authorId);
         AuthorEntity author = authorRepository.findById(authorId)
                 .orElseThrow(() -> ApiError.AUTHOR_NOT_FOUND.createException(authorId));
 
@@ -150,6 +147,7 @@ public class AuthorMetadataService {
     })
     @Transactional
     public AuthorDetails quickMatchAuthor(Long authorId, String region) {
+        verifyAuthorAccess(authorId);
         AuthorEntity author = authorRepository.findById(authorId)
                 .orElseThrow(() -> ApiError.AUTHOR_NOT_FOUND.createException(authorId));
 
@@ -179,7 +177,7 @@ public class AuthorMetadataService {
                         Mono.fromCallable(() -> {
                             AuthorEntity author = authorRepository.findById(authorId).orElse(null);
                             if (author == null) return null;
-                            AuthorDetails details = self.quickMatchAuthor(authorId, "us");
+                            AuthorDetails details = selfProvider.getObject().quickMatchAuthor(authorId, "us");
                             return AuthorSummary.builder()
                                     .id(details.getId())
                                     .name(details.getName())
@@ -207,6 +205,7 @@ public class AuthorMetadataService {
     @Transactional
     public void unmatchAuthors(List<Long> authorIds) {
         for (Long authorId : authorIds) {
+            verifyAuthorAccess(authorId);
             AuthorEntity author = authorRepository.findById(authorId).orElse(null);
             if (author == null) continue;
 
@@ -229,6 +228,7 @@ public class AuthorMetadataService {
     @Transactional
     public void deleteAuthors(List<Long> authorIds) {
         for (Long authorId : authorIds) {
+            verifyAuthorAccess(authorId);
             AuthorEntity author = authorRepository.findById(authorId).orElse(null);
             if (author == null) continue;
 
@@ -280,6 +280,7 @@ public class AuthorMetadataService {
     })
     @Transactional
     public void uploadAuthorPhoto(Long authorId, MultipartFile file) {
+        verifyAuthorAccess(authorId);
         AuthorEntity author = authorRepository.findById(authorId)
                 .orElseThrow(() -> ApiError.AUTHOR_NOT_FOUND.createException(authorId));
 
@@ -305,6 +306,7 @@ public class AuthorMetadataService {
     })
     @Transactional
     public AuthorDetails updateAuthor(Long authorId, AuthorUpdateRequest request) {
+        verifyAuthorAccess(authorId);
         AuthorEntity author = authorRepository.findById(authorId)
                 .orElseThrow(() -> ApiError.AUTHOR_NOT_FOUND.createException(authorId));
 
@@ -352,6 +354,7 @@ public class AuthorMetadataService {
     })
     @Transactional
     public void uploadAuthorPhotoFromUrl(Long authorId, String imageUrl) {
+        verifyAuthorAccess(authorId);
         AuthorEntity author = authorRepository.findById(authorId)
                 .orElseThrow(() -> ApiError.AUTHOR_NOT_FOUND.createException(authorId));
 
@@ -359,13 +362,13 @@ public class AuthorMetadataService {
     }
 
     public AuthorDetails getAuthorByName(String name) {
-        AuthorDetails details = self.getAuthorByNameInternal(name);
+        AuthorDetails details = selfProvider.getObject().getAuthorByNameInternal(name);
         verifyAuthorAccess(details.getId());
         return details;
     }
 
-    @Cacheable(value = "author-by-name", key = "#name")
-    public AuthorDetails getAuthorByNameInternal(String name) {
+    @Cacheable(value = "author-by-name", key = "#name?.toLowerCase()")
+    AuthorDetails getAuthorByNameInternal(String name) {
         AuthorEntity author = authorRepository.findByNameIgnoreCase(name)
                 .orElseThrow(() -> ApiError.AUTHOR_NOT_FOUND.createException(name));
         return toAuthorDetails(author);
@@ -373,11 +376,11 @@ public class AuthorMetadataService {
 
     public AuthorDetails getAuthorDetails(Long authorId) {
         verifyAuthorAccess(authorId);
-        return self.getAuthorDetailsInternal(authorId);
+        return selfProvider.getObject().getAuthorDetailsInternal(authorId);
     }
 
     @Cacheable(value = "author-by-id", key = "#authorId")
-    public AuthorDetails getAuthorDetailsInternal(Long authorId) {
+    AuthorDetails getAuthorDetailsInternal(Long authorId) {
         AuthorEntity author = authorRepository.findById(authorId)
                 .orElseThrow(() -> ApiError.AUTHOR_NOT_FOUND.createException(authorId));
         return toAuthorDetails(author);

@@ -41,10 +41,11 @@ public class EpubReaderController {
     public ResponseEntity<EpubBookInfo> getBookInfo(
             @Parameter(description = "ID of the book") @PathVariable Long bookId,
             @Parameter(description = "Optional book type for alternative format (e.g., EPUB)") @RequestParam(required = false) String bookType,
-            WebRequest request) {
-        String etag = Long.toHexString(epubReaderService.getLastModified(bookId, bookType));
+            WebRequest request) throws IOException {
+        long lastModified = epubReaderService.getLastModified(bookId, bookType);
+        String etag = lastModified > 0L ? Long.toHexString(lastModified) : null;
 
-        if (request.checkNotModified(etag)) {
+        if (etag != null && request.checkNotModified(etag)) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
         }
 
@@ -66,8 +67,10 @@ public class EpubReaderController {
             WebRequest request,
             HttpServletResponse response) throws IOException {
 
-        String etag = Long.toHexString(epubReaderService.getLastModified(bookId, bookType));
-        if (request.checkNotModified(etag)) {
+        long lastModified = epubReaderService.getLastModified(bookId, bookType);
+        String etag = lastModified > 0L ? Long.toHexString(lastModified) : null;
+
+        if (etag != null && request.checkNotModified(etag)) {
             response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
             response.setHeader(HttpHeaders.ETAG, etag);
             return;

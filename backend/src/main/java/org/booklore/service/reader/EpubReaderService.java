@@ -172,14 +172,10 @@ public class EpubReaderService {
         }
     }
 
-    public long getLastModified(Long bookId, String bookType) {
+    public long getLastModified(Long bookId, String bookType) throws IOException {
         Path epubPath = getBookPath(bookId, bookType);
-        try {
-            CachedEpubMetadata metadata = getCachedMetadata(epubPath);
-            return metadata.lastModified;
-        } catch (IOException e) {
-            return 0L;
-        }
+        CachedEpubMetadata metadata = getCachedMetadata(epubPath);
+        return metadata.lastModified;
     }
 
     private Path getBookPath(Long bookId, String bookType) {

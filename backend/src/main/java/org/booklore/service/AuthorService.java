@@ -29,7 +29,7 @@ public class AuthorService {
     }
 
     @Cacheable(value = "authors-by-book", key = "#bookId")
-    public List<String> getAuthorsByBookIdInternal(Long bookId) {
+    List<String> getAuthorsByBookIdInternal(Long bookId) {
         List<AuthorEntity> authorEntities = authorRepository.findAuthorsByBookId(bookId);
         return authorEntities.stream().map(authorMapper::toAuthorEntityName).toList();
     }

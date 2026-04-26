@@ -51,11 +51,16 @@ public class IconController {
     @Operation(summary = "Get SVG icon content", description = "Retrieve the SVG content of an icon by its name.")
     @ApiResponse(responseCode = "200", description = "SVG icon content retrieved successfully")
     @GetMapping("/{svgName}/content")
-    public ResponseEntity<String> getSvgIconContent(@Parameter(description = "SVG icon name") @PathVariable String svgName) {
+    public ResponseEntity<String> getSvgIconContent(WebRequest request, @Parameter(description = "SVG icon name") @PathVariable String svgName) {
         String svgContent = iconService.getSvgIcon(svgName);
+        String etag = Integer.toHexString(svgContent.hashCode());
+        if (request.checkNotModified(etag)) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
+        }
         return ResponseEntity.ok()
                 .contentType(MediaType.valueOf("image/svg+xml"))
-                .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate())
+                .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePrivate().mustRevalidate())
+                .eTag(etag)
                 .body(svgContent);
     }
 

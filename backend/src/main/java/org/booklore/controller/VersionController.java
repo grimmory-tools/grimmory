@@ -46,6 +46,12 @@ public class VersionController {
     @GetMapping("/changelog")
     public ResponseEntity<List<ReleaseNote>> getChangelogSinceCurrent(WebRequest request) {
         List<ReleaseNote> changelog = versionService.getChangelogSinceCurrentVersion();
+        if (changelog == null) {
+            return ResponseEntity.ok()
+                    .cacheControl(CacheControl.noCache())
+                    .body(List.of());
+        }
+
         String etag = Integer.toHexString(changelog.hashCode());
         if (request.checkNotModified(etag)) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();

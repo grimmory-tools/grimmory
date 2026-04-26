@@ -17,6 +17,8 @@ import org.booklore.repository.ShelfRepository;
 import org.booklore.repository.UserRepository;
 import org.booklore.model.enums.AuditAction;
 import org.booklore.service.audit.AuditService;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -40,8 +42,8 @@ public class ShelfService {
     private final AuthenticationService authenticationService;
     private final UserRepository userRepository;
     private final AuditService auditService;
+    private final CacheManager cacheManager;
 
-    @CacheEvict(value = "shelves-by-user", allEntries = true)
     @Transactional
     public Shelf createShelf(ShelfCreateRequest request) {
         Long userId = getAuthenticatedUserId();
@@ -59,17 +61,16 @@ public class ShelfService {
                 .user(fetchUserEntityById(userId))
                 .build();
         Shelf result = shelfMapper.toShelf(shelfRepository.save(shelfEntity));
+        evictShelfCache(userId, request.isPublicShelf());
         auditService.log(AuditAction.SHELF_CREATED, "Shelf", shelfEntity.getId(), "Created shelf: " + request.getName());
         return result;
     }
 
-    @Caching(evict = {
-            @CacheEvict(value = "shelves-by-user", allEntries = true),
-            @CacheEvict(value = "shelf-by-id", key = "#id")
-    })
+    @CacheEvict(value = "shelf-by-id", key = "#id")
     @Transactional
     public Shelf updateShelf(Long id, ShelfCreateRequest request) {
         ShelfEntity shelfEntity = findShelfByIdOrThrow(id);
+        boolean wasPublic = shelfEntity.isPublic();
         if (request.isPublicShelf() && !authenticationService.getAuthenticatedUser().getPermissions().isAdmin()) {
             throw new AccessDeniedException("Only admins can update shelves to be public");
         }
@@ -78,6 +79,7 @@ public class ShelfService {
         shelfEntity.setIconType(request.getIconType());
         shelfEntity.setPublic(request.isPublicShelf());
         Shelf result = shelfMapper.toShelf(shelfRepository.save(shelfEntity));
+        evictShelfCache(getAuthenticatedUserId(), wasPublic || request.isPublicShelf());
         auditService.log(AuditAction.SHELF_UPDATED, "Shelf", id, "Updated shelf: " + request.getName());
         return result;
     }
@@ -95,14 +97,28 @@ public class ShelfService {
         return shelfMapper.toShelf(findShelfByIdOrThrow(shelfId));
     }
 
-    @Caching(evict = {
-            @CacheEvict(value = "shelves-by-user", allEntries = true),
-            @CacheEvict(value = "shelf-by-id", key = "#shelfId")
-    })
+    @CacheEvict(value = "shelf-by-id", key = "#shelfId")
     @Transactional
     public void deleteShelf(Long shelfId) {
-        shelfRepository.deleteById(shelfId);
-        auditService.log(AuditAction.SHELF_DELETED, "Shelf", shelfId, "Deleted shelf: " + shelfId);
+        ShelfEntity shelfEntity = shelfRepository.findById(shelfId).orElse(null);
+        if (shelfEntity != null) {
+            boolean isPublic = shelfEntity.isPublic();
+            Long userId = shelfEntity.getUser().getId();
+            shelfRepository.delete(shelfEntity);
+            evictShelfCache(userId, isPublic);
+            auditService.log(AuditAction.SHELF_DELETED, "Shelf", shelfId, "Deleted shelf: " + shelfId);
+        }
+    }
+
+    private void evictShelfCache(Long userId, boolean isPublic) {
+        Cache cache = cacheManager.getCache("shelves-by-user");
+        if (cache != null) {
+            if (isPublic) {
+                cache.clear();
+            } else {
+                cache.evict(userId);
+            }
+        }
     }
 
     public Shelf getUserKoboShelf() {

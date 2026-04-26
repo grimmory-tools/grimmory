@@ -112,14 +112,10 @@ public class PdfReaderService {
         }
     }
 
-    public long getLastModified(Long bookId, String bookType) {
+    public long getLastModified(Long bookId, String bookType) throws IOException {
         Path pdfPath = getBookPath(bookId, bookType);
-        try {
-            CachedPdfMetadata metadata = getCachedMetadata(pdfPath);
-            return metadata.lastModified;
-        } catch (IOException e) {
-            return 0L;
-        }
+        CachedPdfMetadata metadata = getCachedMetadata(pdfPath);
+        return metadata.lastModified;
     }
 
     public void streamPageImage(Long bookId, int page, OutputStream outputStream) throws IOException {

@@ -19,6 +19,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.cache.CacheManager;
 
 import java.util.Optional;
 
@@ -41,6 +42,8 @@ class ShelfServiceTest {
     private UserRepository userRepository;
     @Mock
     private AuditService auditService;
+    @Mock
+    private CacheManager cacheManager;
 
     @InjectMocks
     private ShelfService shelfService;
@@ -121,6 +124,7 @@ class ShelfServiceTest {
                 .build();
 
         when(shelfRepository.findById(1L)).thenReturn(Optional.of(existingShelf));
+        when(authenticationService.getAuthenticatedUser()).thenReturn(user);
         when(shelfRepository.save(any(ShelfEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(shelfMapper.toShelf(any(ShelfEntity.class))).thenReturn(Shelf.builder().name("Updated Shelf").build());
 
@@ -152,6 +156,7 @@ class ShelfServiceTest {
                 .build();
 
         when(shelfRepository.findById(1L)).thenReturn(Optional.of(existingShelf));
+        when(authenticationService.getAuthenticatedUser()).thenReturn(user);
         when(shelfRepository.save(any(ShelfEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(shelfMapper.toShelf(any(ShelfEntity.class))).thenReturn(
                 Shelf.builder().name("Updated Shelf").icon("bookmark").iconType(IconType.CUSTOM_SVG).build());
