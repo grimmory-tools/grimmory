@@ -1,14 +1,14 @@
 package org.grimmory.service.metadata.parser;
 
-import org.booklore.model.dto.Book;
-import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.dto.request.FetchMetadataRequest;
-import org.booklore.model.enums.MetadataProvider;
-import org.booklore.service.metadata.parser.hardcover.GraphQLResponse;
-import org.booklore.service.metadata.parser.hardcover.HardcoverBookDetails;
-import org.booklore.service.metadata.parser.hardcover.HardcoverBookSearchService;
-import org.booklore.service.metadata.parser.hardcover.HardcoverMoodFilter;
-import org.booklore.util.BookUtils;
+import org.grimmory.model.dto.Book;
+import org.grimmory.model.dto.BookMetadata;
+import org.grimmory.model.dto.request.FetchMetadataRequest;
+import org.grimmory.model.enums.MetadataProvider;
+import org.grimmory.service.metadata.parser.hardcover.GraphQLResponse;
+import org.grimmory.service.metadata.parser.hardcover.HardcoverBookDetails;
+import org.grimmory.service.metadata.parser.hardcover.HardcoverBookSearchService;
+import org.grimmory.service.metadata.parser.hardcover.HardcoverMoodFilter;
+import org.grimmory.util.BookUtils;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

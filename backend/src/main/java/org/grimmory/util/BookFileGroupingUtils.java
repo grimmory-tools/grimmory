@@ -1,6 +1,6 @@
 package org.grimmory.util;
 
-import org.booklore.model.dto.settings.LibraryFile;
+import org.grimmory.model.dto.settings.LibraryFile;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.similarity.FuzzyScore;

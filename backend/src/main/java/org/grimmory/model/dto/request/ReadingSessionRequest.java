@@ -1,6 +1,6 @@
 package org.grimmory.model.dto.request;
 
-import org.booklore.model.enums.BookFileType;
+import org.grimmory.model.enums.BookFileType;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;

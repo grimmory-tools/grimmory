@@ -1,7 +1,7 @@
 package org.grimmory.model.dto;
 
-import org.booklore.model.dto.response.CronConfig;
-import org.booklore.model.enums.TaskType;
+import org.grimmory.model.dto.response.CronConfig;
+import org.grimmory.model.enums.TaskType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

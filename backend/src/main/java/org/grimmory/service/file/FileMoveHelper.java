@@ -1,12 +1,12 @@
 package org.grimmory.service.file;
 
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookFileEntity;
-import org.booklore.model.entity.LibraryEntity;
-import org.booklore.model.entity.LibraryPathEntity;
-import org.booklore.service.appsettings.AppSettingService;
-import org.booklore.service.monitoring.MonitoringRegistrationService;
-import org.booklore.util.PathPatternResolver;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.BookFileEntity;
+import org.grimmory.model.entity.LibraryEntity;
+import org.grimmory.model.entity.LibraryPathEntity;
+import org.grimmory.service.appsettings.AppSettingService;
+import org.grimmory.service.monitoring.MonitoringRegistrationService;
+import org.grimmory.util.PathPatternResolver;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

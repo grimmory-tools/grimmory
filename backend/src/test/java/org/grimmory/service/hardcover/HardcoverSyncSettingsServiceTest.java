@@ -1,13 +1,13 @@
 package org.grimmory.service.hardcover;
 
-import org.booklore.config.security.service.AuthenticationService;
-import org.booklore.model.dto.HardcoverSyncSettings;
-import org.booklore.model.dto.settings.UserSettingKey;
-import org.booklore.model.entity.BookLoreUserEntity;
-import org.booklore.model.entity.KoboUserSettingsEntity;
-import org.booklore.model.entity.UserSettingEntity;
-import org.booklore.repository.KoboUserSettingsRepository;
-import org.booklore.repository.UserRepository;
+import org.grimmory.config.security.service.AuthenticationService;
+import org.grimmory.model.dto.HardcoverSyncSettings;
+import org.grimmory.model.dto.settings.UserSettingKey;
+import org.grimmory.model.entity.BookLoreUserEntity;
+import org.grimmory.model.entity.KoboUserSettingsEntity;
+import org.grimmory.model.entity.UserSettingEntity;
+import org.grimmory.repository.KoboUserSettingsRepository;
+import org.grimmory.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -1,6 +1,6 @@
 package org.grimmory.repository;
 
-import org.booklore.model.entity.BookReviewEntity;
+import org.grimmory.model.entity.BookReviewEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

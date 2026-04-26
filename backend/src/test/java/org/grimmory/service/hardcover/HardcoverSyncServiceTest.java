@@ -1,9 +1,9 @@
 package org.grimmory.service.hardcover;
 
-import org.booklore.model.dto.HardcoverSyncSettings;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookMetadataEntity;
-import org.booklore.repository.BookRepository;
+import org.grimmory.model.dto.HardcoverSyncSettings;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.BookMetadataEntity;
+import org.grimmory.repository.BookRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

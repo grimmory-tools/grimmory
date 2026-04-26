@@ -1,6 +1,6 @@
 package org.grimmory.model.entity;
 
-import org.booklore.model.enums.MetadataFetchTaskStatus;
+import org.grimmory.model.enums.MetadataFetchTaskStatus;
 import jakarta.persistence.*;
 import lombok.*;
 

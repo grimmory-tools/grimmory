@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.booklore.model.dto.ComicMetadata;
+import org.grimmory.model.dto.ComicMetadata;
 
 import java.time.LocalDate;
 import java.util.List;

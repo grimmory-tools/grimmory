@@ -1,13 +1,13 @@
 package org.grimmory.service.kobo;
 
-import org.booklore.model.entity.AuthorEntity;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.CategoryEntity;
-import org.booklore.model.entity.TagEntity;
-import org.booklore.service.ArchiveService;
-import org.booklore.util.ArchiveUtils;
-import org.booklore.util.FileService;
-import org.booklore.util.MimeDetector;
+import org.grimmory.model.entity.AuthorEntity;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.CategoryEntity;
+import org.grimmory.model.entity.TagEntity;
+import org.grimmory.service.ArchiveService;
+import org.grimmory.util.ArchiveUtils;
+import org.grimmory.util.FileService;
+import org.grimmory.util.MimeDetector;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;

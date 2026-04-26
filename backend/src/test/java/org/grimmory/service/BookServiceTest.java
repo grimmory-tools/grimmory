@@ -1,7 +1,7 @@
 package org.grimmory.service;
 
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.ShelfEntity;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.ShelfEntity;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;

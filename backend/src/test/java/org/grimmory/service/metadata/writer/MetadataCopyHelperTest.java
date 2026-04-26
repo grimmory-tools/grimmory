@@ -1,8 +1,8 @@
 package org.grimmory.service.metadata.writer;
 
-import org.booklore.model.entity.BookMetadataEntity;
-import org.booklore.model.entity.MoodEntity;
-import org.booklore.model.entity.TagEntity;
+import org.grimmory.model.entity.BookMetadataEntity;
+import org.grimmory.model.entity.MoodEntity;
+import org.grimmory.model.entity.TagEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

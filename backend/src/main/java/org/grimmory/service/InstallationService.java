@@ -1,9 +1,9 @@
 package org.grimmory.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.model.dto.Installation;
-import org.booklore.model.entity.AppSettingEntity;
-import org.booklore.repository.AppSettingsRepository;
+import org.grimmory.model.dto.Installation;
+import org.grimmory.model.entity.AppSettingEntity;
+import org.grimmory.repository.AppSettingsRepository;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;

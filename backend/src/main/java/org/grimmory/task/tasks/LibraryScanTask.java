@@ -1,14 +1,14 @@
 package org.grimmory.task.tasks;
 
-import org.booklore.exception.ApiError;
-import org.booklore.model.dto.BookLoreUser;
-import org.booklore.model.dto.Library;
-import org.booklore.model.dto.request.TaskCreateRequest;
-import org.booklore.model.dto.response.TaskCreateResponse;
-import org.booklore.model.enums.TaskType;
-import org.booklore.model.enums.UserPermission;
-import org.booklore.service.library.LibraryService;
-import org.booklore.task.TaskStatus;
+import org.grimmory.exception.ApiError;
+import org.grimmory.model.dto.BookLoreUser;
+import org.grimmory.model.dto.Library;
+import org.grimmory.model.dto.request.TaskCreateRequest;
+import org.grimmory.model.dto.response.TaskCreateResponse;
+import org.grimmory.model.enums.TaskType;
+import org.grimmory.model.enums.UserPermission;
+import org.grimmory.service.library.LibraryService;
+import org.grimmory.task.TaskStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

@@ -1,6 +1,6 @@
 package org.grimmory.exception;
 
-import org.booklore.model.enums.UserPermission;
+import org.grimmory.model.enums.UserPermission;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 

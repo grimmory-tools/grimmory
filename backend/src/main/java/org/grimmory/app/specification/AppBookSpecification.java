@@ -1,10 +1,10 @@
 package org.grimmory.app.specification;
 
-import org.booklore.exception.APIException;
-import org.booklore.model.entity.*;
-import org.booklore.model.enums.BookFileType;
-import org.booklore.model.enums.ComicCreatorRole;
-import org.booklore.model.enums.ReadStatus;
+import org.grimmory.exception.APIException;
+import org.grimmory.model.entity.*;
+import org.grimmory.model.enums.BookFileType;
+import org.grimmory.model.enums.ComicCreatorRole;
+import org.grimmory.model.enums.ReadStatus;
 import jakarta.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;

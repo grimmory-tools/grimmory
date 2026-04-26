@@ -1,16 +1,16 @@
 package org.grimmory.service;
 
-import org.booklore.config.security.service.AuthenticationService;
-import org.booklore.mapper.OpdsUserV2Mapper;
-import org.booklore.service.audit.AuditService;
-import org.booklore.model.dto.BookLoreUser;
-import org.booklore.model.dto.OpdsUserV2;
-import org.booklore.model.dto.request.OpdsUserV2CreateRequest;
-import org.booklore.model.entity.BookLoreUserEntity;
-import org.booklore.model.entity.OpdsUserV2Entity;
-import org.booklore.repository.OpdsUserV2Repository;
-import org.booklore.repository.UserRepository;
-import org.booklore.service.opds.OpdsUserV2Service;
+import org.grimmory.config.security.service.AuthenticationService;
+import org.grimmory.mapper.OpdsUserV2Mapper;
+import org.grimmory.service.audit.AuditService;
+import org.grimmory.model.dto.BookLoreUser;
+import org.grimmory.model.dto.OpdsUserV2;
+import org.grimmory.model.dto.request.OpdsUserV2CreateRequest;
+import org.grimmory.model.entity.BookLoreUserEntity;
+import org.grimmory.model.entity.OpdsUserV2Entity;
+import org.grimmory.repository.OpdsUserV2Repository;
+import org.grimmory.repository.UserRepository;
+import org.grimmory.service.opds.OpdsUserV2Service;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;

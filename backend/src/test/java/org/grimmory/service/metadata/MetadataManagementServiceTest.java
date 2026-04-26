@@ -1,17 +1,17 @@
 package org.grimmory.service.metadata;
 
-import org.booklore.config.AppProperties;
-import org.booklore.model.dto.FileMoveResult;
-import org.booklore.model.dto.settings.AppSettings;
-import org.booklore.model.dto.settings.MetadataPersistenceSettings;
-import org.booklore.model.entity.*;
-import org.booklore.model.enums.BookFileType;
-import org.booklore.model.enums.MergeMetadataType;
-import org.booklore.repository.*;
-import org.booklore.service.appsettings.AppSettingService;
-import org.booklore.service.file.FileMoveService;
-import org.booklore.service.metadata.writer.MetadataWriter;
-import org.booklore.service.metadata.writer.MetadataWriterFactory;
+import org.grimmory.config.AppProperties;
+import org.grimmory.model.dto.FileMoveResult;
+import org.grimmory.model.dto.settings.AppSettings;
+import org.grimmory.model.dto.settings.MetadataPersistenceSettings;
+import org.grimmory.model.entity.*;
+import org.grimmory.model.enums.BookFileType;
+import org.grimmory.model.enums.MergeMetadataType;
+import org.grimmory.repository.*;
+import org.grimmory.service.appsettings.AppSettingService;
+import org.grimmory.service.file.FileMoveService;
+import org.grimmory.service.metadata.writer.MetadataWriter;
+import org.grimmory.service.metadata.writer.MetadataWriterFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,7 +19,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import org.booklore.service.file.FileFingerprint;
+import org.grimmory.service.file.FileFingerprint;
 import org.mockito.MockedStatic;
 
 import java.nio.file.Path;

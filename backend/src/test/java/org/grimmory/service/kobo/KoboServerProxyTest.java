@@ -1,8 +1,8 @@
 package org.grimmory.service.kobo;
 
-import org.booklore.model.dto.BookloreSyncToken;
-import org.booklore.model.dto.kobo.KoboHeaders;
-import org.booklore.util.kobo.BookloreSyncTokenGenerator;
+import org.grimmory.model.dto.BookloreSyncToken;
+import org.grimmory.model.dto.kobo.KoboHeaders;
+import org.grimmory.util.kobo.BookloreSyncTokenGenerator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

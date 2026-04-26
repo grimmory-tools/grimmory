@@ -1,9 +1,9 @@
 package org.grimmory.service.file;
 
-import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.entity.LibraryEntity;
-import org.booklore.service.appsettings.AppSettingService;
-import org.booklore.util.PathPatternResolver;
+import org.grimmory.model.dto.BookMetadata;
+import org.grimmory.model.entity.LibraryEntity;
+import org.grimmory.service.appsettings.AppSettingService;
+import org.grimmory.util.PathPatternResolver;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;

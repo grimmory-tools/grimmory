@@ -1,8 +1,8 @@
 package org.grimmory.repository;
 
-import org.booklore.model.entity.UserContentRestrictionEntity;
-import org.booklore.model.enums.ContentRestrictionMode;
-import org.booklore.model.enums.ContentRestrictionType;
+import org.grimmory.model.entity.UserContentRestrictionEntity;
+import org.grimmory.model.enums.ContentRestrictionMode;
+import org.grimmory.model.enums.ContentRestrictionType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

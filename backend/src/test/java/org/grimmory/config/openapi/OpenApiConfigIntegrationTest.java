@@ -1,7 +1,7 @@
 package org.grimmory.config.openapi;
 
 import io.swagger.v3.oas.models.OpenAPI;
-import org.booklore.config.AppProperties;
+import org.grimmory.config.AppProperties;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.context.annotation.Bean;

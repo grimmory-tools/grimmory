@@ -1,9 +1,9 @@
 package org.grimmory.service.library;
 
-import org.booklore.model.dto.settings.LibraryFile;
-import org.booklore.model.entity.LibraryEntity;
-import org.booklore.model.entity.LibraryPathEntity;
-import org.booklore.model.enums.BookFileType;
+import org.grimmory.model.dto.settings.LibraryFile;
+import org.grimmory.model.entity.LibraryEntity;
+import org.grimmory.model.entity.LibraryPathEntity;
+import org.grimmory.model.enums.BookFileType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

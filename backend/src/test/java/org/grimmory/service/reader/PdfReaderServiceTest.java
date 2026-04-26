@@ -1,10 +1,10 @@
 package org.grimmory.service.reader;
 
-import org.booklore.exception.APIException;
-import org.booklore.exception.ApiError;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.repository.BookRepository;
-import org.booklore.util.FileUtils;
+import org.grimmory.exception.APIException;
+import org.grimmory.exception.ApiError;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.repository.BookRepository;
+import org.grimmory.util.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

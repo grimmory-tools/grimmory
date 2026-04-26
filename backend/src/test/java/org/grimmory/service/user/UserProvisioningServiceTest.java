@@ -1,16 +1,16 @@
 package org.grimmory.service.user;
 
-import org.booklore.config.AppProperties;
-import org.booklore.model.dto.settings.OidcAutoProvisionDetails;
-import org.booklore.model.entity.BookLoreUserEntity;
-import org.booklore.model.entity.LibraryEntity;
-import org.booklore.model.entity.UserPermissionsEntity;
-import org.booklore.model.enums.AuditAction;
-import org.booklore.model.enums.ProvisioningMethod;
-import org.booklore.repository.LibraryRepository;
-import org.booklore.repository.UserRepository;
-import org.booklore.service.appsettings.AppSettingService;
-import org.booklore.service.audit.AuditService;
+import org.grimmory.config.AppProperties;
+import org.grimmory.model.dto.settings.OidcAutoProvisionDetails;
+import org.grimmory.model.entity.BookLoreUserEntity;
+import org.grimmory.model.entity.LibraryEntity;
+import org.grimmory.model.entity.UserPermissionsEntity;
+import org.grimmory.model.enums.AuditAction;
+import org.grimmory.model.enums.ProvisioningMethod;
+import org.grimmory.repository.LibraryRepository;
+import org.grimmory.repository.UserRepository;
+import org.grimmory.service.appsettings.AppSettingService;
+import org.grimmory.service.audit.AuditService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

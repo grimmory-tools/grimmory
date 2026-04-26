@@ -1,8 +1,8 @@
 package org.grimmory.mapper;
 
-import org.booklore.model.dto.ComicMetadata;
-import org.booklore.model.entity.*;
-import org.booklore.model.enums.ComicCreatorRole;
+import org.grimmory.model.dto.ComicMetadata;
+import org.grimmory.model.entity.*;
+import org.grimmory.model.enums.ComicCreatorRole;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;

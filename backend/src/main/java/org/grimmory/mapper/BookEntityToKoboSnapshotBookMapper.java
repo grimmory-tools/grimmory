@@ -1,7 +1,7 @@
 package org.grimmory.mapper;
 
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.KoboSnapshotBookEntity;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.KoboSnapshotBookEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;

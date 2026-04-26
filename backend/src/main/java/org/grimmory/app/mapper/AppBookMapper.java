@@ -1,14 +1,14 @@
 package org.grimmory.app.mapper;
 
-import org.booklore.app.dto.AppBookDetail;
-import org.booklore.app.dto.AppBookFile;
-import org.booklore.app.dto.AppBookProgressResponse;
-import org.booklore.app.dto.AppBookSummary;
-import org.booklore.app.dto.AppLibrarySummary;
-import org.booklore.app.dto.AppMagicShelfSummary;
-import org.booklore.app.dto.AppShelfSummary;
-import org.booklore.model.entity.*;
-import org.booklore.model.enums.BookFileType;
+import org.grimmory.app.dto.AppBookDetail;
+import org.grimmory.app.dto.AppBookFile;
+import org.grimmory.app.dto.AppBookProgressResponse;
+import org.grimmory.app.dto.AppBookSummary;
+import org.grimmory.app.dto.AppLibrarySummary;
+import org.grimmory.app.dto.AppMagicShelfSummary;
+import org.grimmory.app.dto.AppShelfSummary;
+import org.grimmory.model.entity.*;
+import org.grimmory.model.enums.BookFileType;
 import org.mapstruct.*;
 
 import java.util.Collections;

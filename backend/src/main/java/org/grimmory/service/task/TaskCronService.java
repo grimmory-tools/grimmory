@@ -1,13 +1,13 @@
 package org.grimmory.service.task;
 
-import org.booklore.config.security.service.AuthenticationService;
-import org.booklore.exception.APIException;
-import org.booklore.model.dto.BookLoreUser;
-import org.booklore.model.dto.request.TaskCronConfigRequest;
-import org.booklore.model.dto.response.CronConfig;
-import org.booklore.model.entity.TaskCronConfigurationEntity;
-import org.booklore.model.enums.TaskType;
-import org.booklore.repository.TaskCronConfigurationRepository;
+import org.grimmory.config.security.service.AuthenticationService;
+import org.grimmory.exception.APIException;
+import org.grimmory.model.dto.BookLoreUser;
+import org.grimmory.model.dto.request.TaskCronConfigRequest;
+import org.grimmory.model.dto.response.CronConfig;
+import org.grimmory.model.entity.TaskCronConfigurationEntity;
+import org.grimmory.model.enums.TaskType;
+import org.grimmory.repository.TaskCronConfigurationRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

@@ -4,8 +4,8 @@ package org.grimmory.util.kobo;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.model.dto.BookloreSyncToken;
-import org.booklore.model.dto.kobo.KoboHeaders;
+import org.grimmory.model.dto.BookloreSyncToken;
+import org.grimmory.model.dto.kobo.KoboHeaders;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 

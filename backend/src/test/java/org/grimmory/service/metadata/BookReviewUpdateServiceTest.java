@@ -1,11 +1,11 @@
 package org.grimmory.service.metadata;
 
-import org.booklore.model.MetadataClearFlags;
-import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.dto.BookReview;
-import org.booklore.model.entity.BookMetadataEntity;
-import org.booklore.model.entity.BookReviewEntity;
-import org.booklore.model.enums.MetadataProvider;
+import org.grimmory.model.MetadataClearFlags;
+import org.grimmory.model.dto.BookMetadata;
+import org.grimmory.model.dto.BookReview;
+import org.grimmory.model.entity.BookMetadataEntity;
+import org.grimmory.model.entity.BookReviewEntity;
+import org.grimmory.model.enums.MetadataProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

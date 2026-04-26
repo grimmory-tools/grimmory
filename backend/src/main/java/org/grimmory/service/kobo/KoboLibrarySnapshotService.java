@@ -1,14 +1,14 @@
 package org.grimmory.service.kobo;
 
-import org.booklore.config.security.service.AuthenticationService;
-import org.booklore.mapper.BookEntityToKoboSnapshotBookMapper;
-import org.booklore.model.dto.BookLoreUser;
-import org.booklore.model.entity.*;
-import org.booklore.model.enums.ShelfType;
-import org.booklore.repository.KoboDeletedBookProgressRepository;
-import org.booklore.repository.KoboLibrarySnapshotRepository;
-import org.booklore.repository.KoboSnapshotBookRepository;
-import org.booklore.repository.ShelfRepository;
+import org.grimmory.config.security.service.AuthenticationService;
+import org.grimmory.mapper.BookEntityToKoboSnapshotBookMapper;
+import org.grimmory.model.dto.BookLoreUser;
+import org.grimmory.model.entity.*;
+import org.grimmory.model.enums.ShelfType;
+import org.grimmory.repository.KoboDeletedBookProgressRepository;
+import org.grimmory.repository.KoboLibrarySnapshotRepository;
+import org.grimmory.repository.KoboSnapshotBookRepository;
+import org.grimmory.repository.ShelfRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

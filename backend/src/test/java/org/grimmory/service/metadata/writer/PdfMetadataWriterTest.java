@@ -2,16 +2,16 @@ package org.grimmory.service.metadata.writer;
 
 import org.grimmory.pdfium4j.PdfDocument;
 import org.grimmory.pdfium4j.model.PageSize;
-import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.dto.settings.AppSettings;
-import org.booklore.model.dto.settings.MetadataPersistenceSettings;
-import org.booklore.model.entity.AuthorEntity;
-import org.booklore.model.entity.BookMetadataEntity;
-import org.booklore.model.entity.MoodEntity;
-import org.booklore.model.entity.TagEntity;
-import org.booklore.model.enums.BookFileType;
-import org.booklore.service.appsettings.AppSettingService;
-import org.booklore.service.metadata.extractor.PdfMetadataExtractor;
+import org.grimmory.model.dto.BookMetadata;
+import org.grimmory.model.dto.settings.AppSettings;
+import org.grimmory.model.dto.settings.MetadataPersistenceSettings;
+import org.grimmory.model.entity.AuthorEntity;
+import org.grimmory.model.entity.BookMetadataEntity;
+import org.grimmory.model.entity.MoodEntity;
+import org.grimmory.model.entity.TagEntity;
+import org.grimmory.model.enums.BookFileType;
+import org.grimmory.service.appsettings.AppSettingService;
+import org.grimmory.service.metadata.extractor.PdfMetadataExtractor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,7 +30,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.booklore.test.RequiresPdfium;
+import org.grimmory.test.RequiresPdfium;
 
 @RequiresPdfium
 class PdfMetadataWriterTest {

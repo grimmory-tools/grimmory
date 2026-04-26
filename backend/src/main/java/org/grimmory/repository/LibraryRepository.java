@@ -1,6 +1,6 @@
 package org.grimmory.repository;
 
-import org.booklore.model.entity.LibraryEntity;
+import org.grimmory.model.entity.LibraryEntity;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

@@ -1,6 +1,6 @@
 package org.grimmory.service.migration;
 
-import org.booklore.service.migration.migrations.*;
+import org.grimmory.service.migration.migrations.*;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;

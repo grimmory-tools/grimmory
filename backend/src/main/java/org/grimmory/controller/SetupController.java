@@ -1,10 +1,10 @@
 package org.grimmory.controller;
 
 import jakarta.validation.Valid;
-import org.booklore.exception.ErrorResponse;
-import org.booklore.model.dto.request.InitialUserRequest;
-import org.booklore.model.dto.response.SuccessResponse;
-import org.booklore.service.user.UserProvisioningService;
+import org.grimmory.exception.ErrorResponse;
+import org.grimmory.model.dto.request.InitialUserRequest;
+import org.grimmory.model.dto.response.SuccessResponse;
+import org.grimmory.service.user.UserProvisioningService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

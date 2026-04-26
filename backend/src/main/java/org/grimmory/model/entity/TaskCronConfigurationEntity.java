@@ -1,6 +1,6 @@
 package org.grimmory.model.entity;
 
-import org.booklore.model.enums.TaskType;
+import org.grimmory.model.enums.TaskType;
 import jakarta.persistence.*;
 import lombok.*;
 

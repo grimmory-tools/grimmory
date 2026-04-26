@@ -1,6 +1,6 @@
 package org.grimmory.mapper;
 
-import org.booklore.model.dto.BookMetadata;
+import org.grimmory.model.dto.BookMetadata;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 

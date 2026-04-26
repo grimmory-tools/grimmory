@@ -1,9 +1,9 @@
 package org.grimmory.service.migration.migrations;
 
-import org.booklore.model.entity.BookEntity;
-import org.booklore.repository.BookRepository;
-import org.booklore.service.file.FileFingerprint;
-import org.booklore.service.migration.Migration;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.repository.BookRepository;
+import org.grimmory.service.file.FileFingerprint;
+import org.grimmory.service.migration.Migration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

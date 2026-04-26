@@ -2,9 +2,9 @@ package org.grimmory.service.migration.migrations;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.model.entity.AppSettingEntity;
-import org.booklore.repository.AppSettingsRepository;
-import org.booklore.service.migration.Migration;
+import org.grimmory.model.entity.AppSettingEntity;
+import org.grimmory.repository.AppSettingsRepository;
+import org.grimmory.service.migration.Migration;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 

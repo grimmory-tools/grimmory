@@ -1,6 +1,6 @@
 package org.grimmory.model.dto;
 
-import org.booklore.model.enums.OpdsSortOrder;
+import org.grimmory.model.enums.OpdsSortOrder;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 

@@ -5,8 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import org.booklore.config.AppProperties;
-import org.booklore.config.BookmarkProperties;
+import org.grimmory.config.AppProperties;
+import org.grimmory.config.BookmarkProperties;
 
 @EnableScheduling
 @EnableConfigurationProperties({AppProperties.class, BookmarkProperties.class})

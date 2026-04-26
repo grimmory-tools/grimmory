@@ -1,14 +1,14 @@
 package org.grimmory.service.book;
 
 import lombok.RequiredArgsConstructor;
-import org.booklore.mapper.v2.BookMapperV2;
-import org.booklore.model.dto.Book;
-import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.dto.BookRecommendationLite;
-import org.booklore.model.dto.ComicMetadata;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.repository.BookRepository;
-import org.booklore.service.restriction.ContentRestrictionService;
+import org.grimmory.mapper.v2.BookMapperV2;
+import org.grimmory.model.dto.Book;
+import org.grimmory.model.dto.BookMetadata;
+import org.grimmory.model.dto.BookRecommendationLite;
+import org.grimmory.model.dto.ComicMetadata;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.repository.BookRepository;
+import org.grimmory.service.restriction.ContentRestrictionService;
 import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;

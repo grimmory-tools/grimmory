@@ -1,7 +1,7 @@
 package org.grimmory.service.migration.migrations;
 
-import org.booklore.service.InstallationService;
-import org.booklore.service.migration.Migration;
+import org.grimmory.service.InstallationService;
+import org.grimmory.service.migration.Migration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

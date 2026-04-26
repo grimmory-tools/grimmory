@@ -1,12 +1,12 @@
 package org.grimmory.controller;
 
-import org.booklore.config.security.oidc.BackchannelLogoutService;
-import org.booklore.config.security.oidc.OidcAuthService;
-import org.booklore.config.security.oidc.OidcCallbackRequest;
-import org.booklore.config.security.oidc.OidcStateService;
-import org.booklore.exception.APIException;
-import org.booklore.service.audit.AuditService;
-import org.booklore.model.enums.AuditAction;
+import org.grimmory.config.security.oidc.BackchannelLogoutService;
+import org.grimmory.config.security.oidc.OidcAuthService;
+import org.grimmory.config.security.oidc.OidcCallbackRequest;
+import org.grimmory.config.security.oidc.OidcStateService;
+import org.grimmory.exception.APIException;
+import org.grimmory.service.audit.AuditService;
+import org.grimmory.model.enums.AuditAction;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

@@ -1,7 +1,7 @@
 package org.grimmory.service.metadata.parser;
 
-import org.booklore.model.dto.AuthorSearchResult;
-import org.booklore.model.enums.AuthorMetadataSource;
+import org.grimmory.model.dto.AuthorSearchResult;
+import org.grimmory.model.enums.AuthorMetadataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

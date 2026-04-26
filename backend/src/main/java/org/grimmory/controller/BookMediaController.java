@@ -1,10 +1,10 @@
 package org.grimmory.controller;
 
-import org.booklore.service.AuthorMetadataService;
-import org.booklore.config.security.annotation.CheckBookAccess;
-import org.booklore.service.book.BookService;
-import org.booklore.service.bookdrop.BookDropService;
-import org.booklore.service.reader.CbxReaderService;
+import org.grimmory.service.AuthorMetadataService;
+import org.grimmory.config.security.annotation.CheckBookAccess;
+import org.grimmory.service.book.BookService;
+import org.grimmory.service.bookdrop.BookDropService;
+import org.grimmory.service.reader.CbxReaderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

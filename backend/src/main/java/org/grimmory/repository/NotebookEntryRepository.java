@@ -1,6 +1,6 @@
 package org.grimmory.repository;
 
-import org.booklore.model.entity.NotebookEntryView;
+import org.grimmory.model.entity.NotebookEntryView;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;

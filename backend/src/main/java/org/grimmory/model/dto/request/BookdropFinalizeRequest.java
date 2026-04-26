@@ -1,6 +1,6 @@
 package org.grimmory.model.dto.request;
 
-import org.booklore.model.dto.BookMetadata;
+import org.grimmory.model.dto.BookMetadata;
 import lombok.Data;
 
 import java.util.List;

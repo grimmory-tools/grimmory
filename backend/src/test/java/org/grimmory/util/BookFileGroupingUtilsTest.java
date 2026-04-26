@@ -1,8 +1,8 @@
 package org.grimmory.util;
 
-import org.booklore.model.dto.settings.LibraryFile;
-import org.booklore.model.entity.LibraryPathEntity;
-import org.booklore.model.enums.BookFileType;
+import org.grimmory.model.dto.settings.LibraryFile;
+import org.grimmory.model.entity.LibraryPathEntity;
+import org.grimmory.model.enums.BookFileType;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

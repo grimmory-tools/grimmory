@@ -1,12 +1,12 @@
 package org.grimmory.service.library;
 
-import org.booklore.mapper.BookMapper;
-import org.booklore.model.dto.settings.LibraryFile;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.LibraryEntity;
-import org.booklore.model.websocket.Topic;
-import org.booklore.repository.BookRepository;
-import org.booklore.service.NotificationService;
+import org.grimmory.mapper.BookMapper;
+import org.grimmory.model.dto.settings.LibraryFile;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.LibraryEntity;
+import org.grimmory.model.websocket.Topic;
+import org.grimmory.repository.BookRepository;
+import org.grimmory.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

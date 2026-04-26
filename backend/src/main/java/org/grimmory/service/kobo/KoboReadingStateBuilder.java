@@ -1,14 +1,14 @@
 package org.grimmory.service.kobo;
 
 import lombok.RequiredArgsConstructor;
-import org.booklore.model.dto.kobo.KoboReadingState;
-import org.booklore.model.entity.UserBookFileProgressEntity;
-import org.booklore.model.entity.UserBookProgressEntity;
-import org.booklore.model.enums.KoboReadStatus;
-import org.booklore.model.enums.ReadStatus;
+import org.grimmory.model.dto.kobo.KoboReadingState;
+import org.grimmory.model.entity.UserBookFileProgressEntity;
+import org.grimmory.model.entity.UserBookProgressEntity;
+import org.grimmory.model.enums.KoboReadStatus;
+import org.grimmory.model.enums.ReadStatus;
 import org.springframework.stereotype.Component;
 
-import org.booklore.model.dto.kobo.KoboSpanPositionMap;
+import org.grimmory.model.dto.kobo.KoboSpanPositionMap;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;

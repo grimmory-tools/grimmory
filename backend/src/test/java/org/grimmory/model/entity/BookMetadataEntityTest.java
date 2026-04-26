@@ -1,6 +1,6 @@
 package org.grimmory.model.entity;
 
-import org.booklore.util.BookUtils;
+import org.grimmory.util.BookUtils;
 import org.junit.jupiter.api.Test;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;

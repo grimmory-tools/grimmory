@@ -1,6 +1,6 @@
 package org.grimmory.repository;
 
-import org.booklore.model.entity.UserBookFileProgressEntity;
+import org.grimmory.model.entity.UserBookFileProgressEntity;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

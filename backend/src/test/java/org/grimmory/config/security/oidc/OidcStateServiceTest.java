@@ -1,6 +1,6 @@
 package org.grimmory.config.security.oidc;
 
-import org.booklore.exception.APIException;
+import org.grimmory.exception.APIException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -1,7 +1,7 @@
 package org.grimmory.service.reader;
 
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.util.MimeDetector;
+import org.grimmory.util.MimeDetector;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;

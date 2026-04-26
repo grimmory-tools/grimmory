@@ -1,7 +1,7 @@
 package org.grimmory.mapper;
 
-import org.booklore.model.dto.BookFile;
-import org.booklore.model.entity.BookFileEntity;
+import org.grimmory.model.dto.BookFile;
+import org.grimmory.model.entity.BookFileEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;

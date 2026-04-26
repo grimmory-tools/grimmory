@@ -1,6 +1,6 @@
 package org.grimmory.service.fileprocessor;
 
-import org.booklore.model.enums.BookFileType;
+import org.grimmory.model.enums.BookFileType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

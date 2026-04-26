@@ -1,9 +1,9 @@
 package org.grimmory.model.dto;
 
-import org.booklore.model.enums.BookFileType;
-import org.booklore.model.enums.IconType;
-import org.booklore.model.enums.LibraryOrganizationMode;
-import org.booklore.model.enums.MetadataSource;
+import org.grimmory.model.enums.BookFileType;
+import org.grimmory.model.enums.IconType;
+import org.grimmory.model.enums.LibraryOrganizationMode;
+import org.grimmory.model.enums.MetadataSource;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

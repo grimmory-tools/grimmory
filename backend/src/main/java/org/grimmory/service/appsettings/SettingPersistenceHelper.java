@@ -2,12 +2,12 @@ package org.grimmory.service.appsettings;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.model.dto.request.MetadataRefreshOptions;
-import org.booklore.model.dto.settings.*;
-import org.booklore.model.entity.AppSettingEntity;
-import org.booklore.model.enums.MetadataProvider;
-import org.booklore.model.enums.MetadataReplaceMode;
-import org.booklore.repository.AppSettingsRepository;
+import org.grimmory.model.dto.request.MetadataRefreshOptions;
+import org.grimmory.model.dto.settings.*;
+import org.grimmory.model.entity.AppSettingEntity;
+import org.grimmory.model.enums.MetadataProvider;
+import org.grimmory.model.enums.MetadataReplaceMode;
+import org.grimmory.repository.AppSettingsRepository;
 import org.springframework.stereotype.Service;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;

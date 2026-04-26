@@ -1,6 +1,6 @@
 package org.grimmory.model.dto;
 
-import org.booklore.model.enums.MetadataFetchTaskStatus;
+import org.grimmory.model.enums.MetadataFetchTaskStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -1,12 +1,12 @@
 package org.grimmory.service;
 
-import org.booklore.config.security.service.AuthenticationService;
-import org.booklore.model.dto.MagicShelf;
-import org.booklore.model.entity.MagicShelfEntity;
-import org.booklore.repository.MagicShelfRepository;
+import org.grimmory.config.security.service.AuthenticationService;
+import org.grimmory.model.dto.MagicShelf;
+import org.grimmory.model.entity.MagicShelfEntity;
+import org.grimmory.repository.MagicShelfRepository;
 import lombok.AllArgsConstructor;
-import org.booklore.model.enums.AuditAction;
-import org.booklore.service.audit.AuditService;
+import org.grimmory.model.enums.AuditAction;
+import org.grimmory.service.audit.AuditService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

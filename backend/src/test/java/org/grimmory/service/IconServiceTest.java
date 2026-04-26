@@ -1,8 +1,8 @@
 package org.grimmory.service;
 
-import org.booklore.config.AppProperties;
-import org.booklore.exception.APIException;
-import org.booklore.model.dto.request.SvgIconCreateRequest;
+import org.grimmory.config.AppProperties;
+import org.grimmory.exception.APIException;
+import org.grimmory.model.dto.request.SvgIconCreateRequest;
 import org.junit.jupiter.api.*;
 import org.springframework.data.domain.Page;
 

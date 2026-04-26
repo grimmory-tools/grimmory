@@ -1,6 +1,6 @@
 package org.grimmory.config.security.interceptor;
 
-import org.booklore.config.security.JwtUtils;
+import org.grimmory.config.security.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;

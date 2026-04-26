@@ -1,6 +1,6 @@
 package org.grimmory.mapper;
 
-import org.booklore.model.entity.MoodEntity;
+import org.grimmory.model.entity.MoodEntity;
 import org.mapstruct.Mapper;
 
 import java.util.List;

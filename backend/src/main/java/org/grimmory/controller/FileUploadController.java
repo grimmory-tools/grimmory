@@ -1,7 +1,7 @@
 package org.grimmory.controller;
 
-import org.booklore.model.dto.Book;
-import org.booklore.service.upload.FileUploadService;
+import org.grimmory.model.dto.Book;
+import org.grimmory.service.upload.FileUploadService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

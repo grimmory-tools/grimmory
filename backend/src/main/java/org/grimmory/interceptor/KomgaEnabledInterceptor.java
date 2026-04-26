@@ -1,6 +1,6 @@
 package org.grimmory.interceptor;
 
-import org.booklore.service.appsettings.AppSettingService;
+import org.grimmory.service.appsettings.AppSettingService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

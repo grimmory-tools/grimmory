@@ -1,7 +1,7 @@
 package org.grimmory.config.security.oidc;
 
-import org.booklore.exception.APIException;
-import org.booklore.model.dto.settings.OidcProviderDetails;
+import org.grimmory.exception.APIException;
+import org.grimmory.model.dto.settings.OidcProviderDetails;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

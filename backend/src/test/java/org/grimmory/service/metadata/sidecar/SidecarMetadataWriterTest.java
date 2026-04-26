@@ -1,9 +1,9 @@
 package org.grimmory.service.metadata.sidecar;
 
-import org.booklore.config.AppProperties;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.service.appsettings.AppSettingService;
-import org.booklore.util.FileService;
+import org.grimmory.config.AppProperties;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.service.appsettings.AppSettingService;
+import org.grimmory.util.FileService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

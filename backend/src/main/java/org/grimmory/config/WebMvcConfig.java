@@ -1,9 +1,9 @@
 package org.grimmory.config;
 
 import lombok.RequiredArgsConstructor;
-import org.booklore.interceptor.KomgaCleanInterceptor;
-import org.booklore.interceptor.KomgaEnabledInterceptor;
-import org.booklore.interceptor.OpdsEnabledInterceptor;
+import org.grimmory.interceptor.KomgaCleanInterceptor;
+import org.grimmory.interceptor.KomgaEnabledInterceptor;
+import org.grimmory.interceptor.OpdsEnabledInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;

@@ -1,6 +1,6 @@
 package org.grimmory.service.kobo;
 
-import org.booklore.service.book.BookService;
+import org.grimmory.service.book.BookService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

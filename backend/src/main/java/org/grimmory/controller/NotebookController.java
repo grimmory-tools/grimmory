@@ -1,8 +1,8 @@
 package org.grimmory.controller;
 
-import org.booklore.model.dto.NotebookBookOption;
-import org.booklore.model.dto.NotebookEntry;
-import org.booklore.service.book.NotebookService;
+import org.grimmory.model.dto.NotebookBookOption;
+import org.grimmory.model.dto.NotebookEntry;
+import org.grimmory.service.book.NotebookService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

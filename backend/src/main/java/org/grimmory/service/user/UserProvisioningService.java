@@ -4,25 +4,25 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.booklore.config.AppProperties;
-import org.booklore.exception.ApiError;
-import org.booklore.model.dto.UserCreateRequest;
-import org.booklore.model.dto.request.InitialUserRequest;
-import org.booklore.model.dto.settings.OidcAutoProvisionDetails;
-import org.booklore.model.entity.BookLoreUserEntity;
-import org.booklore.model.entity.LibraryEntity;
-import org.booklore.model.entity.UserPermissionsEntity;
-import org.booklore.model.enums.ProvisioningMethod;
-import org.booklore.repository.LibraryRepository;
-import org.booklore.repository.UserRepository;
-import org.booklore.service.appsettings.AppSettingService;
+import org.grimmory.config.AppProperties;
+import org.grimmory.exception.ApiError;
+import org.grimmory.model.dto.UserCreateRequest;
+import org.grimmory.model.dto.request.InitialUserRequest;
+import org.grimmory.model.dto.settings.OidcAutoProvisionDetails;
+import org.grimmory.model.entity.BookLoreUserEntity;
+import org.grimmory.model.entity.LibraryEntity;
+import org.grimmory.model.entity.UserPermissionsEntity;
+import org.grimmory.model.enums.ProvisioningMethod;
+import org.grimmory.repository.LibraryRepository;
+import org.grimmory.repository.UserRepository;
+import org.grimmory.service.appsettings.AppSettingService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.regex.Pattern;
-import org.booklore.model.enums.AuditAction;
-import org.booklore.service.audit.AuditService;
+import org.grimmory.model.enums.AuditAction;
+import org.grimmory.service.audit.AuditService;
 
 @Slf4j
 @Service

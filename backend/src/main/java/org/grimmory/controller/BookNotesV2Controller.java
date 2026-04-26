@@ -1,9 +1,9 @@
 package org.grimmory.controller;
 
-import org.booklore.model.dto.BookNoteV2;
-import org.booklore.model.dto.CreateBookNoteV2Request;
-import org.booklore.model.dto.UpdateBookNoteV2Request;
-import org.booklore.service.book.BookNoteV2Service;
+import org.grimmory.model.dto.BookNoteV2;
+import org.grimmory.model.dto.CreateBookNoteV2Request;
+import org.grimmory.model.dto.UpdateBookNoteV2Request;
+import org.grimmory.service.book.BookNoteV2Service;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

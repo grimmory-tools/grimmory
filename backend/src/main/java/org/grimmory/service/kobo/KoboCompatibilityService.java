@@ -1,9 +1,9 @@
 package org.grimmory.service.kobo;
 
-import org.booklore.model.dto.settings.KoboSettings;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.enums.BookFileType;
-import org.booklore.service.appsettings.AppSettingService;
+import org.grimmory.model.dto.settings.KoboSettings;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.enums.BookFileType;
+import org.grimmory.service.appsettings.AppSettingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

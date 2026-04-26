@@ -1,7 +1,7 @@
 package org.grimmory.util.kobo;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.booklore.model.dto.BookloreSyncToken;
+import org.grimmory.model.dto.BookloreSyncToken;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;

@@ -1,7 +1,7 @@
 package org.grimmory.controller;
 
-import org.booklore.model.dto.HealthcheckResponse;
-import org.booklore.model.dto.response.SuccessResponse;
+import org.grimmory.model.dto.HealthcheckResponse;
+import org.grimmory.model.dto.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;

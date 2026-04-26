@@ -1,7 +1,7 @@
 package org.grimmory.controller;
 
-import org.booklore.model.dto.MagicShelf;
-import org.booklore.service.MagicShelfService;
+import org.grimmory.model.dto.MagicShelf;
+import org.grimmory.service.MagicShelfService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

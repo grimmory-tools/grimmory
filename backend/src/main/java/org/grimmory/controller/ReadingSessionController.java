@@ -1,8 +1,8 @@
 package org.grimmory.controller;
 
-import org.booklore.model.dto.request.ReadingSessionRequest;
-import org.booklore.model.dto.response.ReadingSessionResponse;
-import org.booklore.service.ReadingSessionService;
+import org.grimmory.model.dto.request.ReadingSessionRequest;
+import org.grimmory.model.dto.response.ReadingSessionResponse;
+import org.grimmory.service.ReadingSessionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

@@ -1,7 +1,7 @@
 package org.grimmory.config;
 
-import org.booklore.model.enums.MetadataProvider;
-import org.booklore.service.metadata.parser.*;
+import org.grimmory.model.enums.MetadataProvider;
+import org.grimmory.service.metadata.parser.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

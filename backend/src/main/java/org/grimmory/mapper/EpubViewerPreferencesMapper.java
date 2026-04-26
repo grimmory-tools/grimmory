@@ -1,7 +1,7 @@
 package org.grimmory.mapper;
 
-import org.booklore.model.dto.EpubViewerPreferences;
-import org.booklore.model.entity.EpubViewerPreferencesEntity;
+import org.grimmory.model.dto.EpubViewerPreferences;
+import org.grimmory.model.entity.EpubViewerPreferencesEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 

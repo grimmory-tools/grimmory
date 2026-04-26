@@ -1,7 +1,7 @@
 package org.grimmory.mapper;
 
-import org.booklore.model.dto.BookMark;
-import org.booklore.model.entity.BookMarkEntity;
+import org.grimmory.model.dto.BookMark;
+import org.grimmory.model.entity.BookMarkEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

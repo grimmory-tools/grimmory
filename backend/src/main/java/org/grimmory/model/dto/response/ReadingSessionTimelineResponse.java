@@ -1,6 +1,6 @@
 package org.grimmory.model.dto.response;
 
-import org.booklore.model.enums.BookFileType;
+import org.grimmory.model.enums.BookFileType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

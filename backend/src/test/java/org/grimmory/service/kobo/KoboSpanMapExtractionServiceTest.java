@@ -1,6 +1,6 @@
 package org.grimmory.service.kobo;
 
-import org.booklore.model.dto.kobo.KoboSpanPositionMap;
+import org.grimmory.model.dto.kobo.KoboSpanPositionMap;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 

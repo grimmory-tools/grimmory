@@ -1,13 +1,13 @@
 package org.grimmory.task.tasks;
 
-import org.booklore.exception.APIException;
-import org.booklore.model.dto.BookLoreUser;
-import org.booklore.model.dto.Library;
-import org.booklore.model.dto.request.TaskCreateRequest;
-import org.booklore.model.dto.response.TaskCreateResponse;
-import org.booklore.model.enums.TaskType;
-import org.booklore.service.library.LibraryService;
-import org.booklore.task.TaskStatus;
+import org.grimmory.exception.APIException;
+import org.grimmory.model.dto.BookLoreUser;
+import org.grimmory.model.dto.Library;
+import org.grimmory.model.dto.request.TaskCreateRequest;
+import org.grimmory.model.dto.response.TaskCreateResponse;
+import org.grimmory.model.enums.TaskType;
+import org.grimmory.service.library.LibraryService;
+import org.grimmory.task.TaskStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

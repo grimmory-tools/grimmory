@@ -1,7 +1,7 @@
 package org.grimmory.repository;
 
-import org.booklore.model.entity.BookLoreUserEntity;
-import org.booklore.model.entity.RefreshTokenEntity;
+import org.grimmory.model.entity.BookLoreUserEntity;
+import org.grimmory.model.entity.RefreshTokenEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

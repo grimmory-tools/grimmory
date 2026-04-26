@@ -2,11 +2,11 @@ package org.grimmory.app.dto;
 
 import jakarta.validation.constraints.AssertTrue;
 import lombok.Data;
-import org.booklore.model.dto.progress.AudiobookProgress;
-import org.booklore.model.dto.progress.CbxProgress;
-import org.booklore.model.dto.progress.EpubProgress;
-import org.booklore.model.dto.progress.PdfProgress;
-import org.booklore.model.dto.request.BookFileProgress;
+import org.grimmory.model.dto.progress.AudiobookProgress;
+import org.grimmory.model.dto.progress.CbxProgress;
+import org.grimmory.model.dto.progress.EpubProgress;
+import org.grimmory.model.dto.progress.PdfProgress;
+import org.grimmory.model.dto.request.BookFileProgress;
 
 import java.time.Instant;
 

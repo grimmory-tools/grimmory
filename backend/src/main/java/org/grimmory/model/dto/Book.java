@@ -3,7 +3,7 @@ package org.grimmory.model.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Data;
-import org.booklore.model.dto.progress.*;
+import org.grimmory.model.dto.progress.*;
 
 import java.time.Instant;
 import java.util.List;

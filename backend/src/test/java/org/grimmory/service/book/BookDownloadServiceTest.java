@@ -1,12 +1,12 @@
 package org.grimmory.service.book;
 
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookFileEntity;
-import org.booklore.model.entity.LibraryPathEntity;
-import org.booklore.repository.*;
-import org.booklore.service.appsettings.AppSettingService;
-import org.booklore.service.kobo.CbxConversionService;
-import org.booklore.service.kobo.KepubConversionService;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.BookFileEntity;
+import org.grimmory.model.entity.LibraryPathEntity;
+import org.grimmory.repository.*;
+import org.grimmory.service.appsettings.AppSettingService;
+import org.grimmory.service.kobo.CbxConversionService;
+import org.grimmory.service.kobo.KepubConversionService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

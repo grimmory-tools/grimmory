@@ -1,7 +1,7 @@
 package org.grimmory.repository;
 
-import org.booklore.model.entity.ComicCreatorMappingEntity;
-import org.booklore.model.enums.ComicCreatorRole;
+import org.grimmory.model.entity.ComicCreatorMappingEntity;
+import org.grimmory.model.enums.ComicCreatorRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

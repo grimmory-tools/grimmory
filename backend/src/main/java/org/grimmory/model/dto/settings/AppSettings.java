@@ -1,6 +1,6 @@
 package org.grimmory.model.dto.settings;
 
-import org.booklore.model.dto.request.MetadataRefreshOptions;
+import org.grimmory.model.dto.request.MetadataRefreshOptions;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

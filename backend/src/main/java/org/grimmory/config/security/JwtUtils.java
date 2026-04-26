@@ -1,7 +1,7 @@
 package org.grimmory.config.security;
 
-import org.booklore.model.entity.BookLoreUserEntity;
-import org.booklore.service.security.JwtSecretService;
+import org.grimmory.model.entity.BookLoreUserEntity;
+import org.grimmory.service.security.JwtSecretService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;

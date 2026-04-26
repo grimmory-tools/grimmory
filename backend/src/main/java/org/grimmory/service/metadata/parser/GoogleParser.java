@@ -1,14 +1,14 @@
 package org.grimmory.service.metadata.parser;
 
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.model.dto.Book;
-import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.dto.request.FetchMetadataRequest;
-import org.booklore.model.dto.response.GoogleBooksApiResponse;
-import org.booklore.model.dto.settings.MetadataProviderSettings;
-import org.booklore.model.enums.MetadataProvider;
-import org.booklore.service.appsettings.AppSettingService;
-import org.booklore.util.BookUtils;
+import org.grimmory.model.dto.Book;
+import org.grimmory.model.dto.BookMetadata;
+import org.grimmory.model.dto.request.FetchMetadataRequest;
+import org.grimmory.model.dto.response.GoogleBooksApiResponse;
+import org.grimmory.model.dto.settings.MetadataProviderSettings;
+import org.grimmory.model.enums.MetadataProvider;
+import org.grimmory.service.appsettings.AppSettingService;
+import org.grimmory.util.BookUtils;
 import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;

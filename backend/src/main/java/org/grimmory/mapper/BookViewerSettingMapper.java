@@ -1,7 +1,7 @@
 package org.grimmory.mapper;
 
-import org.booklore.model.dto.BookViewerSetting;
-import org.booklore.model.entity.PdfViewerPreferencesEntity;
+import org.grimmory.model.dto.BookViewerSetting;
+import org.grimmory.model.entity.PdfViewerPreferencesEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 

@@ -1,6 +1,6 @@
 package org.grimmory.model.dto.request;
 
-import org.booklore.model.enums.MergeMetadataType;
+import org.grimmory.model.enums.MergeMetadataType;
 import lombok.Data;
 
 import java.util.List;

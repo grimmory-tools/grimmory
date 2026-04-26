@@ -2,8 +2,8 @@ package org.grimmory.service.event;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.model.dto.Book;
-import org.booklore.service.kobo.KoboAutoShelfService;
+import org.grimmory.model.dto.Book;
+import org.grimmory.service.kobo.KoboAutoShelfService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;

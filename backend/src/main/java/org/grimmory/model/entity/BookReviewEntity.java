@@ -1,6 +1,6 @@
 package org.grimmory.model.entity;
 
-import org.booklore.model.enums.MetadataProvider;
+import org.grimmory.model.enums.MetadataProvider;
 import jakarta.persistence.*;
 import lombok.*;
 

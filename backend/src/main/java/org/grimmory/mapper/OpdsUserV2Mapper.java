@@ -1,7 +1,7 @@
 package org.grimmory.mapper;
 
-import org.booklore.model.entity.OpdsUserV2Entity;
-import org.booklore.model.dto.OpdsUserV2;
+import org.grimmory.model.entity.OpdsUserV2Entity;
+import org.grimmory.model.dto.OpdsUserV2;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;

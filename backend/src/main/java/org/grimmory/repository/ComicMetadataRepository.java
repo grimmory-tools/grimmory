@@ -1,6 +1,6 @@
 package org.grimmory.repository;
 
-import org.booklore.model.entity.ComicMetadataEntity;
+import org.grimmory.model.entity.ComicMetadataEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

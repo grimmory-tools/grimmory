@@ -1,14 +1,14 @@
 package org.grimmory.service.book;
 
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.model.dto.ComicMetadata;
-import org.booklore.model.dto.settings.LibraryFile;
-import org.booklore.model.entity.*;
-import org.booklore.model.enums.BookFileType;
-import org.booklore.model.enums.ComicCreatorRole;
-import org.booklore.repository.*;
-import org.booklore.service.file.FileFingerprint;
-import org.booklore.util.FileUtils;
+import org.grimmory.model.dto.ComicMetadata;
+import org.grimmory.model.dto.settings.LibraryFile;
+import org.grimmory.model.entity.*;
+import org.grimmory.model.enums.BookFileType;
+import org.grimmory.model.enums.ComicCreatorRole;
+import org.grimmory.repository.*;
+import org.grimmory.service.file.FileFingerprint;
+import org.grimmory.util.FileUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

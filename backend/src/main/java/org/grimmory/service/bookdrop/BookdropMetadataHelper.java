@@ -2,9 +2,9 @@ package org.grimmory.service.bookdrop;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.entity.BookdropFileEntity;
-import org.booklore.repository.BookdropFileRepository;
+import org.grimmory.model.dto.BookMetadata;
+import org.grimmory.model.entity.BookdropFileEntity;
+import org.grimmory.repository.BookdropFileRepository;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 

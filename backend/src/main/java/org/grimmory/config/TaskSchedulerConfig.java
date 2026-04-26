@@ -1,6 +1,6 @@
 package org.grimmory.config;
 
-import org.booklore.service.task.TaskService;
+import org.grimmory.service.task.TaskService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;

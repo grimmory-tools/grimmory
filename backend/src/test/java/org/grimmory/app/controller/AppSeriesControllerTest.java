@@ -1,7 +1,7 @@
 package org.grimmory.app.controller;
 
-import org.booklore.app.dto.*;
-import org.booklore.app.service.AppSeriesService;
+import org.grimmory.app.dto.*;
+import org.grimmory.app.service.AppSeriesService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

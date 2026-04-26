@@ -1,6 +1,6 @@
 package org.grimmory.config.security.userdetails;
 
-import org.booklore.model.dto.OpdsUserV2;
+import org.grimmory.model.dto.OpdsUserV2;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;

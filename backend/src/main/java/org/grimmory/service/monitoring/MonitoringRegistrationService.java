@@ -1,6 +1,6 @@
 package org.grimmory.service.monitoring;
 
-import org.booklore.model.dto.Library;
+import org.grimmory.model.dto.Library;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

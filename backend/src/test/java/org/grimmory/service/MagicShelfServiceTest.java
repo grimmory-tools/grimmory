@@ -1,12 +1,12 @@
 package org.grimmory.service;
 
-import org.booklore.config.security.service.AuthenticationService;
-import org.booklore.model.dto.BookLoreUser;
-import org.booklore.service.audit.AuditService;
-import org.booklore.model.dto.MagicShelf;
-import org.booklore.model.entity.MagicShelfEntity;
-import org.booklore.model.enums.IconType;
-import org.booklore.repository.MagicShelfRepository;
+import org.grimmory.config.security.service.AuthenticationService;
+import org.grimmory.model.dto.BookLoreUser;
+import org.grimmory.service.audit.AuditService;
+import org.grimmory.model.dto.MagicShelf;
+import org.grimmory.model.entity.MagicShelfEntity;
+import org.grimmory.model.enums.IconType;
+import org.grimmory.repository.MagicShelfRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

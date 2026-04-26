@@ -1,10 +1,10 @@
 package org.grimmory.service;
 
-import org.booklore.model.dto.BookdropFileNotification;
-import org.booklore.model.entity.BookdropFileEntity;
-import org.booklore.model.websocket.Topic;
-import org.booklore.repository.BookdropFileRepository;
-import org.booklore.service.bookdrop.BookdropNotificationService;
+import org.grimmory.model.dto.BookdropFileNotification;
+import org.grimmory.model.entity.BookdropFileEntity;
+import org.grimmory.model.websocket.Topic;
+import org.grimmory.repository.BookdropFileRepository;
+import org.grimmory.service.bookdrop.BookdropNotificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;

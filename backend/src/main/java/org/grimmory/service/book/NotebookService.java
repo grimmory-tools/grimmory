@@ -1,9 +1,9 @@
 package org.grimmory.service.book;
 
-import org.booklore.config.security.service.AuthenticationService;
-import org.booklore.model.dto.NotebookBookOption;
-import org.booklore.model.dto.NotebookEntry;
-import org.booklore.repository.NotebookEntryRepository;
+import org.grimmory.config.security.service.AuthenticationService;
+import org.grimmory.model.dto.NotebookBookOption;
+import org.grimmory.model.dto.NotebookEntry;
+import org.grimmory.repository.NotebookEntryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

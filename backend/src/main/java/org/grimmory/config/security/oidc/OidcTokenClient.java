@@ -2,8 +2,8 @@ package org.grimmory.config.security.oidc;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.exception.ApiError;
-import org.booklore.model.dto.settings.OidcProviderDetails;
+import org.grimmory.exception.ApiError;
+import org.grimmory.model.dto.settings.OidcProviderDetails;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;

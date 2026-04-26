@@ -1,6 +1,6 @@
 package org.grimmory.service.metadata.parser;
 
-import org.booklore.model.dto.AuthorSearchResult;
+import org.grimmory.model.dto.AuthorSearchResult;
 
 import java.util.List;
 

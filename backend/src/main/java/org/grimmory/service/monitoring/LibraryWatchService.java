@@ -1,9 +1,9 @@
 package org.grimmory.service.monitoring;
 
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.model.dto.Library;
-import org.booklore.model.enums.BookFileExtension;
-import org.booklore.service.watcher.LibraryFileEventProcessor;
+import org.grimmory.model.dto.Library;
+import org.grimmory.model.enums.BookFileExtension;
+import org.grimmory.service.watcher.LibraryFileEventProcessor;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.stereotype.Service;
 

@@ -1,13 +1,13 @@
 package org.grimmory.service.kobo;
 
-import org.booklore.model.dto.kobo.KoboSpanPositionMap;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookFileEntity;
-import org.booklore.model.entity.LibraryPathEntity;
-import org.booklore.model.entity.UserBookFileProgressEntity;
-import org.booklore.model.entity.UserBookProgressEntity;
-import org.booklore.model.enums.BookFileType;
-import org.booklore.util.koreader.EpubCfiService;
+import org.grimmory.model.dto.kobo.KoboSpanPositionMap;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.BookFileEntity;
+import org.grimmory.model.entity.LibraryPathEntity;
+import org.grimmory.model.entity.UserBookFileProgressEntity;
+import org.grimmory.model.entity.UserBookProgressEntity;
+import org.grimmory.model.enums.BookFileType;
+import org.grimmory.util.koreader.EpubCfiService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

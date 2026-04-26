@@ -1,6 +1,6 @@
 package org.grimmory.config;
 
-import org.booklore.context.KomgaCleanContext;
+import org.grimmory.context.KomgaCleanContext;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ser.BeanPropertyWriter;

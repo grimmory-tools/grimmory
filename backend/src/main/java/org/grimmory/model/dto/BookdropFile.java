@@ -1,6 +1,6 @@
 package org.grimmory.model.dto;
 
-import org.booklore.model.entity.BookdropFileEntity.Status;
+import org.grimmory.model.entity.BookdropFileEntity.Status;
 import lombok.Data;
 
 @Data

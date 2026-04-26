@@ -1,10 +1,10 @@
 package org.grimmory.service.metadata;
 
-import org.booklore.model.MetadataClearFlags;
-import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.dto.BookReview;
-import org.booklore.model.entity.BookMetadataEntity;
-import org.booklore.model.entity.BookReviewEntity;
+import org.grimmory.model.MetadataClearFlags;
+import org.grimmory.model.dto.BookMetadata;
+import org.grimmory.model.dto.BookReview;
+import org.grimmory.model.entity.BookMetadataEntity;
+import org.grimmory.model.entity.BookReviewEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

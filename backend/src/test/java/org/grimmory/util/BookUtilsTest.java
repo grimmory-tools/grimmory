@@ -1,7 +1,7 @@
 package org.grimmory.util;
 
-import org.booklore.model.entity.AuthorEntity;
-import org.booklore.model.entity.BookMetadataEntity;
+import org.grimmory.model.entity.AuthorEntity;
+import org.grimmory.model.entity.BookMetadataEntity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;

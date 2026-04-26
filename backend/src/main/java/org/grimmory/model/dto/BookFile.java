@@ -3,8 +3,8 @@ package org.grimmory.model.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Data;
-import org.booklore.model.enums.BookFileType;
-import org.booklore.util.ArchiveUtils;
+import org.grimmory.model.enums.BookFileType;
+import org.grimmory.util.ArchiveUtils;
 
 import java.time.Instant;
 

@@ -2,7 +2,7 @@ package org.grimmory.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.booklore.model.enums.ProvisioningMethod;
+import org.grimmory.model.enums.ProvisioningMethod;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.BatchSize;
 

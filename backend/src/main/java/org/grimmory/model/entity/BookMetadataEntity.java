@@ -1,6 +1,6 @@
 package org.grimmory.model.entity;
 
-import org.booklore.util.BookUtils;
+import org.grimmory.util.BookUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;

@@ -1,8 +1,8 @@
 package org.grimmory.mapper;
 
-import org.booklore.model.dto.EmailProviderV2;
-import org.booklore.model.dto.request.CreateEmailProviderRequest;
-import org.booklore.model.entity.EmailProviderV2Entity;
+import org.grimmory.model.dto.EmailProviderV2;
+import org.grimmory.model.dto.request.CreateEmailProviderRequest;
+import org.grimmory.model.entity.EmailProviderV2Entity;
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")

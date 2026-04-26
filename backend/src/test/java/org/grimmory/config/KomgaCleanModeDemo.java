@@ -1,7 +1,7 @@
 package org.grimmory.config;
 
-import org.booklore.context.KomgaCleanContext;
-import org.booklore.model.dto.komga.KomgaSeriesMetadataDto;
+import org.grimmory.context.KomgaCleanContext;
+import org.grimmory.model.dto.komga.KomgaSeriesMetadataDto;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

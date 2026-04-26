@@ -1,7 +1,7 @@
 package org.grimmory.service.book;
 
-import org.booklore.config.security.service.AuthenticationService;
-import org.booklore.repository.PdfAnnotationRepository;
+import org.grimmory.config.security.service.AuthenticationService;
+import org.grimmory.repository.PdfAnnotationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-import org.booklore.model.entity.PdfAnnotationEntity;
+import org.grimmory.model.entity.PdfAnnotationEntity;
 
 @Service
 @RequiredArgsConstructor

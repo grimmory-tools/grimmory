@@ -1,7 +1,7 @@
 package org.grimmory.controller;
 
-import org.booklore.model.dto.progress.KoreaderProgress;
-import org.booklore.service.koreader.KoreaderService;
+import org.grimmory.model.dto.progress.KoreaderProgress;
+import org.grimmory.service.koreader.KoreaderService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;

@@ -1,11 +1,11 @@
 package org.grimmory.controller;
 
-import org.booklore.config.security.service.AuthenticationService;
-import org.booklore.config.security.userdetails.OpdsUserDetails;
-import org.booklore.service.book.BookDownloadService;
-import org.booklore.service.book.BookService;
-import org.booklore.service.opds.OpdsBookService;
-import org.booklore.service.opds.OpdsFeedService;
+import org.grimmory.config.security.service.AuthenticationService;
+import org.grimmory.config.security.userdetails.OpdsUserDetails;
+import org.grimmory.service.book.BookDownloadService;
+import org.grimmory.service.book.BookService;
+import org.grimmory.service.opds.OpdsBookService;
+import org.grimmory.service.opds.OpdsFeedService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

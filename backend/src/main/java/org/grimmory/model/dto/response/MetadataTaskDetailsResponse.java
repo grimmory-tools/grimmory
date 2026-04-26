@@ -1,6 +1,6 @@
 package org.grimmory.model.dto.response;
 
-import org.booklore.model.dto.MetadataFetchTask;
+import org.grimmory.model.dto.MetadataFetchTask;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

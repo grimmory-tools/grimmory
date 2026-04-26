@@ -1,6 +1,6 @@
 package org.grimmory.model.entity;
 
-import org.booklore.model.enums.OpdsSortOrder;
+import org.grimmory.model.enums.OpdsSortOrder;
 import jakarta.persistence.*;
 import lombok.*;
 

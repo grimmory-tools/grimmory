@@ -2,9 +2,9 @@ package org.grimmory.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.booklore.convertor.AudioFileChapterListConverter;
-import org.booklore.model.enums.BookFileType;
-import org.booklore.util.ArchiveUtils;
+import org.grimmory.convertor.AudioFileChapterListConverter;
+import org.grimmory.model.enums.BookFileType;
+import org.grimmory.util.ArchiveUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;

@@ -1,7 +1,7 @@
 package org.grimmory.mapper;
 
-import org.booklore.model.dto.CustomFontDto;
-import org.booklore.model.entity.CustomFontEntity;
+import org.grimmory.model.dto.CustomFontDto;
+import org.grimmory.model.entity.CustomFontEntity;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

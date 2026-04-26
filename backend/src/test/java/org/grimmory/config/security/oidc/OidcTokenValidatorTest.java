@@ -1,7 +1,7 @@
 package org.grimmory.config.security.oidc;
 
 import com.nimbusds.jwt.JWTClaimsSet;
-import org.booklore.exception.APIException;
+import org.grimmory.exception.APIException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

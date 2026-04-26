@@ -1,8 +1,8 @@
 package org.grimmory.model.entity;
 
-import org.booklore.convertor.JpaJsonConverter;
-import org.booklore.task.TaskStatus;
-import org.booklore.model.enums.TaskType;
+import org.grimmory.convertor.JpaJsonConverter;
+import org.grimmory.task.TaskStatus;
+import org.grimmory.model.enums.TaskType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.LazyGroup;

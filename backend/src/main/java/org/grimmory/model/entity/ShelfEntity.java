@@ -2,9 +2,9 @@ package org.grimmory.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.booklore.convertor.SortConverter;
-import org.booklore.model.dto.Sort;
-import org.booklore.model.enums.IconType;
+import org.grimmory.convertor.SortConverter;
+import org.grimmory.model.dto.Sort;
+import org.grimmory.model.enums.IconType;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Formula;
 

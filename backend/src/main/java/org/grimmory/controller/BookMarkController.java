@@ -1,9 +1,9 @@
 package org.grimmory.controller;
 
-import org.booklore.model.dto.BookMark;
-import org.booklore.model.dto.CreateBookMarkRequest;
-import org.booklore.model.dto.UpdateBookMarkRequest;
-import org.booklore.service.book.BookMarkService;
+import org.grimmory.model.dto.BookMark;
+import org.grimmory.model.dto.CreateBookMarkRequest;
+import org.grimmory.model.dto.UpdateBookMarkRequest;
+import org.grimmory.service.book.BookMarkService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

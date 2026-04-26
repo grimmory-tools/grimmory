@@ -7,12 +7,12 @@ import org.grimmory.pdfium4j.XmpMetadataWriter;
 import org.grimmory.pdfium4j.model.MetadataTag;
 import org.grimmory.pdfium4j.model.SaveOptions;
 import org.grimmory.pdfium4j.model.XmpMetadata;
-import org.booklore.model.MetadataClearFlags;
-import org.booklore.model.dto.settings.MetadataPersistenceSettings;
-import org.booklore.model.entity.BookMetadataEntity;
-import org.booklore.model.enums.BookFileType;
-import org.booklore.service.appsettings.AppSettingService;
-import org.booklore.service.metadata.BookLoreMetadata;
+import org.grimmory.model.MetadataClearFlags;
+import org.grimmory.model.dto.settings.MetadataPersistenceSettings;
+import org.grimmory.model.entity.BookMetadataEntity;
+import org.grimmory.model.enums.BookFileType;
+import org.grimmory.service.appsettings.AppSettingService;
+import org.grimmory.service.metadata.BookLoreMetadata;
 import org.springframework.stereotype.Component;
 
 import java.io.File;

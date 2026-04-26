@@ -2,8 +2,8 @@ package org.grimmory.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.booklore.convertor.KoboSpanMapJsonConverter;
-import org.booklore.model.dto.kobo.KoboSpanPositionMap;
+import org.grimmory.convertor.KoboSpanMapJsonConverter;
+import org.grimmory.model.dto.kobo.KoboSpanPositionMap;
 
 import java.time.Instant;
 

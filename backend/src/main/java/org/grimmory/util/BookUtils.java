@@ -1,8 +1,8 @@
 package org.grimmory.util;
 
-import org.booklore.model.dto.Shelf;
-import org.booklore.model.entity.AuthorEntity;
-import org.booklore.model.entity.BookMetadataEntity;
+import org.grimmory.model.dto.Shelf;
+import org.grimmory.model.entity.AuthorEntity;
+import org.grimmory.model.entity.BookMetadataEntity;
 import lombok.experimental.UtilityClass;
 
 import java.util.Collections;

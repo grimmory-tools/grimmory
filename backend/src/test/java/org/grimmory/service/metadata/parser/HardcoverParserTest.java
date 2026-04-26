@@ -1,13 +1,13 @@
 package org.grimmory.service.metadata.parser;
 
-import org.booklore.model.dto.Book;
-import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.dto.request.FetchMetadataRequest;
-import org.booklore.model.enums.MetadataProvider;
-import org.booklore.service.metadata.parser.hardcover.GraphQLResponse;
-import org.booklore.service.metadata.parser.hardcover.HardcoverBookDetails;
-import org.booklore.service.metadata.parser.hardcover.HardcoverBookSearchService;
-import org.booklore.service.metadata.parser.hardcover.HardcoverCachedTag;
+import org.grimmory.model.dto.Book;
+import org.grimmory.model.dto.BookMetadata;
+import org.grimmory.model.dto.request.FetchMetadataRequest;
+import org.grimmory.model.enums.MetadataProvider;
+import org.grimmory.service.metadata.parser.hardcover.GraphQLResponse;
+import org.grimmory.service.metadata.parser.hardcover.HardcoverBookDetails;
+import org.grimmory.service.metadata.parser.hardcover.HardcoverBookSearchService;
+import org.grimmory.service.metadata.parser.hardcover.HardcoverCachedTag;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

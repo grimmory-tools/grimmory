@@ -1,8 +1,8 @@
 package org.grimmory.service.metadata;
 
-import org.booklore.exception.APIException;
-import org.booklore.model.dto.CoverImage;
-import org.booklore.model.dto.request.CoverFetchRequest;
+import org.grimmory.exception.APIException;
+import org.grimmory.model.dto.CoverImage;
+import org.grimmory.model.dto.request.CoverFetchRequest;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

@@ -1,11 +1,11 @@
 package org.grimmory.service.metadata;
 
-import org.booklore.model.dto.settings.AppSettings;
-import org.booklore.model.dto.settings.MetadataMatchWeights;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookMetadataEntity;
-import org.booklore.service.appsettings.AppSettingService;
-import org.booklore.service.book.BookQueryService;
+import org.grimmory.model.dto.settings.AppSettings;
+import org.grimmory.model.dto.settings.MetadataMatchWeights;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.BookMetadataEntity;
+import org.grimmory.service.appsettings.AppSettingService;
+import org.grimmory.service.book.BookQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

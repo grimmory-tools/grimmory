@@ -1,8 +1,8 @@
 package org.grimmory.repository;
 
 
-import org.booklore.model.entity.BookdropFileEntity;
-import org.booklore.model.entity.BookdropFileEntity.Status;
+import org.grimmory.model.entity.BookdropFileEntity;
+import org.grimmory.model.entity.BookdropFileEntity.Status;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

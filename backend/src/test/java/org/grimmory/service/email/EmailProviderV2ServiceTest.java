@@ -1,15 +1,15 @@
 package org.grimmory.service.email;
 
-import org.booklore.config.security.service.AuthenticationService;
-import org.booklore.mapper.EmailProviderV2Mapper;
-import org.booklore.model.dto.BookLoreUser;
-import org.booklore.model.dto.EmailProviderV2;
-import org.booklore.model.dto.request.CreateEmailProviderRequest;
-import org.booklore.model.entity.EmailProviderV2Entity;
-import org.booklore.model.entity.UserEmailProviderPreferenceEntity;
-import org.booklore.repository.EmailProviderV2Repository;
-import org.booklore.repository.UserEmailProviderPreferenceRepository;
-import org.booklore.service.audit.AuditService;
+import org.grimmory.config.security.service.AuthenticationService;
+import org.grimmory.mapper.EmailProviderV2Mapper;
+import org.grimmory.model.dto.BookLoreUser;
+import org.grimmory.model.dto.EmailProviderV2;
+import org.grimmory.model.dto.request.CreateEmailProviderRequest;
+import org.grimmory.model.entity.EmailProviderV2Entity;
+import org.grimmory.model.entity.UserEmailProviderPreferenceEntity;
+import org.grimmory.repository.EmailProviderV2Repository;
+import org.grimmory.repository.UserEmailProviderPreferenceRepository;
+import org.grimmory.service.audit.AuditService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

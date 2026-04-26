@@ -1,7 +1,7 @@
 package org.grimmory.config.security;
 
-import org.booklore.config.security.filter.*;
-import org.booklore.config.security.service.OpdsUserDetailsService;
+import org.grimmory.config.security.filter.*;
+import org.grimmory.config.security.service.OpdsUserDetailsService;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;

@@ -2,15 +2,15 @@ package org.grimmory.service.koreader;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.config.security.service.AuthenticationService;
-import org.booklore.exception.ApiError;
-import org.booklore.mapper.KoreaderUserMapper;
-import org.booklore.model.dto.KoreaderUser;
-import org.booklore.model.entity.BookLoreUserEntity;
-import org.booklore.model.entity.KoreaderUserEntity;
-import org.booklore.repository.KoreaderUserRepository;
-import org.booklore.repository.UserRepository;
-import org.booklore.util.Md5Util;
+import org.grimmory.config.security.service.AuthenticationService;
+import org.grimmory.exception.ApiError;
+import org.grimmory.mapper.KoreaderUserMapper;
+import org.grimmory.model.dto.KoreaderUser;
+import org.grimmory.model.entity.BookLoreUserEntity;
+import org.grimmory.model.entity.KoreaderUserEntity;
+import org.grimmory.repository.KoreaderUserRepository;
+import org.grimmory.repository.UserRepository;
+import org.grimmory.util.Md5Util;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

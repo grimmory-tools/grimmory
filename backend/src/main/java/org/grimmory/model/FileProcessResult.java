@@ -1,8 +1,8 @@
 package org.grimmory.model;
 
 import lombok.*;
-import org.booklore.model.dto.Book;
-import org.booklore.model.enums.FileProcessStatus;
+import org.grimmory.model.dto.Book;
+import org.grimmory.model.enums.FileProcessStatus;
 
 @Builder
 @Getter

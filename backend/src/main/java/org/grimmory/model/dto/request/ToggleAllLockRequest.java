@@ -1,6 +1,6 @@
 package org.grimmory.model.dto.request;
 
-import org.booklore.model.enums.Lock;
+import org.grimmory.model.enums.Lock;
 import lombok.Data;
 
 import java.util.Set;

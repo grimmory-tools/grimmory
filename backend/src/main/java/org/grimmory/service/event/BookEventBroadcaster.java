@@ -1,9 +1,9 @@
 package org.grimmory.service.event;
 
-import org.booklore.model.dto.Book;
-import org.booklore.model.websocket.LogNotification;
-import org.booklore.model.websocket.Topic;
-import org.booklore.service.user.UserService;
+import org.grimmory.model.dto.Book;
+import org.grimmory.model.websocket.LogNotification;
+import org.grimmory.model.websocket.Topic;
+import org.grimmory.service.user.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;

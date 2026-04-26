@@ -1,12 +1,12 @@
 package org.grimmory.model.entity;
 
-import org.booklore.convertor.FormatPriorityConverter;
-import org.booklore.convertor.SortConverter;
-import org.booklore.model.dto.Sort;
-import org.booklore.model.enums.BookFileType;
-import org.booklore.model.enums.IconType;
-import org.booklore.model.enums.LibraryOrganizationMode;
-import org.booklore.model.enums.MetadataSource;
+import org.grimmory.convertor.FormatPriorityConverter;
+import org.grimmory.convertor.SortConverter;
+import org.grimmory.model.dto.Sort;
+import org.grimmory.model.enums.BookFileType;
+import org.grimmory.model.enums.IconType;
+import org.grimmory.model.enums.LibraryOrganizationMode;
+import org.grimmory.model.enums.MetadataSource;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;

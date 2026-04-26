@@ -1,6 +1,6 @@
 package org.grimmory.test;
 
-import org.booklore.nativelib.NativeLibraries;
+import org.grimmory.nativelib.NativeLibraries;
 import org.junit.jupiter.api.extension.ConditionEvaluationResult;
 import org.junit.jupiter.api.extension.ExecutionCondition;
 import org.junit.jupiter.api.extension.ExtensionContext;

@@ -1,6 +1,6 @@
 package org.grimmory.repository;
 
-import org.booklore.model.entity.PdfAnnotationEntity;
+import org.grimmory.model.entity.PdfAnnotationEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

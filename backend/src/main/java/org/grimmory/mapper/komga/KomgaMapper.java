@@ -1,11 +1,11 @@
 package org.grimmory.mapper.komga;
 
-import org.booklore.context.KomgaCleanContext;
-import org.booklore.model.dto.MagicShelf;
-import org.booklore.model.dto.komga.*;
-import org.booklore.model.entity.*;
-import org.booklore.model.enums.BookFileType;
-import org.booklore.service.appsettings.AppSettingService;
+import org.grimmory.context.KomgaCleanContext;
+import org.grimmory.model.dto.MagicShelf;
+import org.grimmory.model.dto.komga.*;
+import org.grimmory.model.entity.*;
+import org.grimmory.model.enums.BookFileType;
+import org.grimmory.service.appsettings.AppSettingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

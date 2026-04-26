@@ -1,13 +1,13 @@
 package org.grimmory.service.watcher;
 
-import org.booklore.mapper.BookMapper;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookFileEntity;
-import org.booklore.model.entity.LibraryPathEntity;
-import org.booklore.model.enums.BookFileType;
-import org.booklore.repository.BookFileRepository;
-import org.booklore.repository.BookRepository;
-import org.booklore.service.NotificationService;
+import org.grimmory.mapper.BookMapper;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.BookFileEntity;
+import org.grimmory.model.entity.LibraryPathEntity;
+import org.grimmory.model.enums.BookFileType;
+import org.grimmory.repository.BookFileRepository;
+import org.grimmory.repository.BookRepository;
+import org.grimmory.service.NotificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

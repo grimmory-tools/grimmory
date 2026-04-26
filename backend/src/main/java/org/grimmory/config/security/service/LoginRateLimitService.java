@@ -3,9 +3,9 @@ package org.grimmory.config.security.service;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.exception.ApiError;
-import org.booklore.model.enums.AuditAction;
-import org.booklore.service.audit.AuditService;
+import org.grimmory.exception.ApiError;
+import org.grimmory.model.enums.AuditAction;
+import org.grimmory.service.audit.AuditService;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;

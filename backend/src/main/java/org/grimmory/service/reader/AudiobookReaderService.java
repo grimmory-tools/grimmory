@@ -1,12 +1,12 @@
 package org.grimmory.service.reader;
 
-import org.booklore.exception.ApiError;
-import org.booklore.model.dto.response.AudiobookInfo;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookFileEntity;
-import org.booklore.model.enums.BookFileType;
-import org.booklore.repository.BookRepository;
-import org.booklore.service.FileStreamingService;
+import org.grimmory.exception.ApiError;
+import org.grimmory.model.dto.response.AudiobookInfo;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.BookFileEntity;
+import org.grimmory.model.enums.BookFileType;
+import org.grimmory.repository.BookRepository;
+import org.grimmory.service.FileStreamingService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

@@ -2,15 +2,15 @@ package org.grimmory.service.library;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.model.dto.settings.LibraryFile;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.enums.BookFileType;
-import org.booklore.repository.BookRepository;
-import org.booklore.service.metadata.extractor.AudiobookMetadataExtractor;
-import org.booklore.service.metadata.extractor.MetadataExtractorFactory;
-import org.booklore.util.BookCoverUtils;
-import org.booklore.util.FileService;
-import org.booklore.util.FileUtils;
+import org.grimmory.model.dto.settings.LibraryFile;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.enums.BookFileType;
+import org.grimmory.repository.BookRepository;
+import org.grimmory.service.metadata.extractor.AudiobookMetadataExtractor;
+import org.grimmory.service.metadata.extractor.MetadataExtractorFactory;
+import org.grimmory.util.BookCoverUtils;
+import org.grimmory.util.FileService;
+import org.grimmory.util.FileUtils;
 import org.springframework.stereotype.Component;
 
 import java.awt.image.BufferedImage;

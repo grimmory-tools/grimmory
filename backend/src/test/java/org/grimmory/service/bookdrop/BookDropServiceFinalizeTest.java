@@ -1,13 +1,13 @@
 package org.grimmory.service.bookdrop;
 
-import org.booklore.config.AppProperties;
-import org.booklore.model.dto.request.BookdropFinalizeRequest;
-import org.booklore.repository.BookdropFileRepository;
-import org.booklore.repository.LibraryRepository;
-import org.booklore.service.NotificationService;
-import org.booklore.service.file.FileMovingHelper;
-import org.booklore.service.kobo.KoboAutoShelfService;
-import org.booklore.service.monitoring.MonitoringRegistrationService;
+import org.grimmory.config.AppProperties;
+import org.grimmory.model.dto.request.BookdropFinalizeRequest;
+import org.grimmory.repository.BookdropFileRepository;
+import org.grimmory.repository.LibraryRepository;
+import org.grimmory.service.NotificationService;
+import org.grimmory.service.file.FileMovingHelper;
+import org.grimmory.service.kobo.KoboAutoShelfService;
+import org.grimmory.service.monitoring.MonitoringRegistrationService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

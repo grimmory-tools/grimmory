@@ -1,9 +1,9 @@
 package org.grimmory.service.metadata.writer;
 
-import org.booklore.model.MetadataClearFlags;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookMetadataEntity;
-import org.booklore.model.enums.BookFileType;
+import org.grimmory.model.MetadataClearFlags;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.BookMetadataEntity;
+import org.grimmory.model.enums.BookFileType;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;

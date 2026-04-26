@@ -1,7 +1,7 @@
 package org.grimmory.util.koreader;
 
-import org.booklore.exception.ApiError;
-import org.booklore.util.epub.EpubContentReader;
+import org.grimmory.exception.ApiError;
+import org.grimmory.util.epub.EpubContentReader;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.extern.slf4j.Slf4j;

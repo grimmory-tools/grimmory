@@ -1,13 +1,13 @@
 package org.grimmory.service.metadata;
 
-import org.booklore.model.dto.settings.AppSettings;
-import org.booklore.model.dto.settings.MetadataMatchWeights;
-import org.booklore.model.entity.AuthorEntity;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookMetadataEntity;
-import org.booklore.model.entity.CategoryEntity;
-import org.booklore.service.appsettings.AppSettingService;
-import org.booklore.service.book.BookQueryService;
+import org.grimmory.model.dto.settings.AppSettings;
+import org.grimmory.model.dto.settings.MetadataMatchWeights;
+import org.grimmory.model.entity.AuthorEntity;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.BookMetadataEntity;
+import org.grimmory.model.entity.CategoryEntity;
+import org.grimmory.service.appsettings.AppSettingService;
+import org.grimmory.service.book.BookQueryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

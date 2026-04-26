@@ -1,7 +1,7 @@
 package org.grimmory.mapper;
 
-import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.entity.BookMetadataEntity;
+import org.grimmory.model.dto.BookMetadata;
+import org.grimmory.model.entity.BookMetadataEntity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;

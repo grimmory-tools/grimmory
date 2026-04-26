@@ -1,8 +1,8 @@
 package org.grimmory.repository;
 
-import org.booklore.model.dto.*;
+import org.grimmory.model.dto.*;
 
-import org.booklore.model.entity.ReadingSessionEntity;
+import org.grimmory.model.entity.ReadingSessionEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

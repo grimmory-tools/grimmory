@@ -1,6 +1,6 @@
 package org.grimmory.repository;
 
-import org.booklore.model.entity.BookLoreUserEntity;
+import org.grimmory.model.entity.BookLoreUserEntity;
 
 import java.util.List;
 import java.util.Optional;

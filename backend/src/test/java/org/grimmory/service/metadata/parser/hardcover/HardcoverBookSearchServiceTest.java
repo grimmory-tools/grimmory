@@ -1,8 +1,8 @@
 package org.grimmory.service.metadata.parser.hardcover;
 
-import org.booklore.model.dto.settings.AppSettings;
-import org.booklore.model.dto.settings.MetadataProviderSettings;
-import org.booklore.service.appsettings.AppSettingService;
+import org.grimmory.model.dto.settings.AppSettings;
+import org.grimmory.model.dto.settings.MetadataProviderSettings;
+import org.grimmory.service.appsettings.AppSettingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

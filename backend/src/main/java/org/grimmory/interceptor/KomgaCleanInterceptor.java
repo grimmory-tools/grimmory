@@ -1,6 +1,6 @@
 package org.grimmory.interceptor;
 
-import org.booklore.context.KomgaCleanContext;
+import org.grimmory.context.KomgaCleanContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;

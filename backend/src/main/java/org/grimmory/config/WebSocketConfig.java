@@ -1,6 +1,6 @@
 package org.grimmory.config;
 
-import org.booklore.config.security.interceptor.WebSocketAuthInterceptor;
+import org.grimmory.config.security.interceptor.WebSocketAuthInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;

@@ -1,14 +1,14 @@
 package org.grimmory.service.metadata.writer;
 
-import org.booklore.model.MetadataClearFlags;
-import org.booklore.model.dto.settings.AppSettings;
-import org.booklore.model.dto.settings.MetadataPersistenceSettings;
-import org.booklore.model.entity.AuthorEntity;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookFileEntity;
-import org.booklore.model.entity.BookMetadataEntity;
-import org.booklore.model.entity.LibraryPathEntity;
-import org.booklore.service.appsettings.AppSettingService;
+import org.grimmory.model.MetadataClearFlags;
+import org.grimmory.model.dto.settings.AppSettings;
+import org.grimmory.model.dto.settings.MetadataPersistenceSettings;
+import org.grimmory.model.entity.AuthorEntity;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.BookFileEntity;
+import org.grimmory.model.entity.BookMetadataEntity;
+import org.grimmory.model.entity.LibraryPathEntity;
+import org.grimmory.service.appsettings.AppSettingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

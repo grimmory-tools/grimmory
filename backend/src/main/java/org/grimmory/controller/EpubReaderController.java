@@ -1,8 +1,8 @@
 package org.grimmory.controller;
 
-import org.booklore.config.security.annotation.CheckBookAccess;
-import org.booklore.model.dto.response.EpubBookInfo;
-import org.booklore.service.reader.EpubReaderService;
+import org.grimmory.config.security.annotation.CheckBookAccess;
+import org.grimmory.model.dto.response.EpubBookInfo;
+import org.grimmory.service.reader.EpubReaderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

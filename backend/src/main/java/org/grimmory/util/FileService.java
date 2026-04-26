@@ -1,11 +1,11 @@
 package org.grimmory.util;
 
-import org.booklore.config.AppProperties;
-import org.booklore.exception.ApiError;
-import org.booklore.model.dto.settings.AppSettings;
-import org.booklore.model.dto.settings.CoverCroppingSettings;
-import org.booklore.model.entity.BookMetadataEntity;
-import org.booklore.service.appsettings.AppSettingService;
+import org.grimmory.config.AppProperties;
+import org.grimmory.exception.ApiError;
+import org.grimmory.model.dto.settings.AppSettings;
+import org.grimmory.model.dto.settings.CoverCroppingSettings;
+import org.grimmory.model.entity.BookMetadataEntity;
+import org.grimmory.service.appsettings.AppSettingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;

@@ -1,6 +1,6 @@
 package org.grimmory.service.metadata;
 
-import org.booklore.model.dto.BookMetadata;
+import org.grimmory.model.dto.BookMetadata;
 
 @FunctionalInterface
 interface FieldValueExtractor {

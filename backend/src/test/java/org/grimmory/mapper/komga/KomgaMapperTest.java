@@ -1,15 +1,15 @@
 package org.grimmory.mapper.komga;
 
-import org.booklore.context.KomgaCleanContext;
-import org.booklore.model.dto.komga.KomgaBookDto;
-import org.booklore.model.dto.komga.KomgaSeriesDto;
-import org.booklore.model.dto.settings.AppSettings;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookFileEntity;
-import org.booklore.model.entity.BookMetadataEntity;
-import org.booklore.model.entity.LibraryEntity;
-import org.booklore.model.enums.BookFileType;
-import org.booklore.service.appsettings.AppSettingService;
+import org.grimmory.context.KomgaCleanContext;
+import org.grimmory.model.dto.komga.KomgaBookDto;
+import org.grimmory.model.dto.komga.KomgaSeriesDto;
+import org.grimmory.model.dto.settings.AppSettings;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.BookFileEntity;
+import org.grimmory.model.entity.BookMetadataEntity;
+import org.grimmory.model.entity.LibraryEntity;
+import org.grimmory.model.enums.BookFileType;
+import org.grimmory.service.appsettings.AppSettingService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

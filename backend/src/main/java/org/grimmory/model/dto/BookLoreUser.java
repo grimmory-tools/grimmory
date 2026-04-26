@@ -6,8 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.booklore.model.dto.settings.SidebarSortOption;
-import org.booklore.model.enums.*;
+import org.grimmory.model.dto.settings.SidebarSortOption;
+import org.grimmory.model.enums.*;
 
 import java.util.List;
 

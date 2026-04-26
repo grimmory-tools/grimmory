@@ -2,16 +2,16 @@ package org.grimmory.service.watcher;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.mapper.BookMapper;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookFileEntity;
-import org.booklore.model.entity.LibraryPathEntity;
-import org.booklore.model.enums.BookFileType;
-import org.booklore.model.enums.PermissionType;
-import org.booklore.model.websocket.Topic;
-import org.booklore.repository.BookFileRepository;
-import org.booklore.repository.BookRepository;
-import org.booklore.service.NotificationService;
+import org.grimmory.mapper.BookMapper;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.BookFileEntity;
+import org.grimmory.model.entity.LibraryPathEntity;
+import org.grimmory.model.enums.BookFileType;
+import org.grimmory.model.enums.PermissionType;
+import org.grimmory.model.websocket.Topic;
+import org.grimmory.repository.BookFileRepository;
+import org.grimmory.repository.BookRepository;
+import org.grimmory.service.NotificationService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -1,6 +1,6 @@
 package org.grimmory.config.security;
 
-import org.booklore.config.security.filter.ImageCachingFilter;
+import org.grimmory.config.security.filter.ImageCachingFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,8 +1,8 @@
 package org.grimmory.service.metadata.extractor;
 
-import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.enums.BookFileExtension;
-import org.booklore.model.enums.BookFileType;
+import org.grimmory.model.dto.BookMetadata;
+import org.grimmory.model.enums.BookFileExtension;
+import org.grimmory.model.enums.BookFileType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

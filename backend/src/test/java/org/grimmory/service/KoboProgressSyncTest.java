@@ -1,8 +1,8 @@
 package org.grimmory.service;
 
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.UserBookProgressEntity;
-import org.booklore.model.enums.ReadStatus;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.UserBookProgressEntity;
+import org.grimmory.model.enums.ReadStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

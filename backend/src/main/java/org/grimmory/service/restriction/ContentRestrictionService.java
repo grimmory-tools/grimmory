@@ -2,16 +2,16 @@ package org.grimmory.service.restriction;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.exception.ApiError;
-import org.booklore.model.dto.ContentRestriction;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookLoreUserEntity;
-import org.booklore.model.entity.BookMetadataEntity;
-import org.booklore.model.entity.UserContentRestrictionEntity;
-import org.booklore.model.enums.ContentRestrictionMode;
-import org.booklore.model.enums.ContentRestrictionType;
-import org.booklore.repository.UserContentRestrictionRepository;
-import org.booklore.repository.UserRepository;
+import org.grimmory.exception.ApiError;
+import org.grimmory.model.dto.ContentRestriction;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.BookLoreUserEntity;
+import org.grimmory.model.entity.BookMetadataEntity;
+import org.grimmory.model.entity.UserContentRestrictionEntity;
+import org.grimmory.model.enums.ContentRestrictionMode;
+import org.grimmory.model.enums.ContentRestrictionType;
+import org.grimmory.repository.UserContentRestrictionRepository;
+import org.grimmory.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

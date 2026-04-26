@@ -1,12 +1,12 @@
 package org.grimmory.repository;
 
-import org.booklore.model.dto.BookCompletionHeatmapDto;
-import org.booklore.model.dto.CompletionTimelineDto;
-import org.booklore.model.dto.ProgressPercentDto;
-import org.booklore.model.dto.RatingDistributionDto;
-import org.booklore.model.dto.StatusDistributionDto;
-import org.booklore.model.entity.UserBookProgressEntity;
-import org.booklore.model.enums.ReadStatus;
+import org.grimmory.model.dto.BookCompletionHeatmapDto;
+import org.grimmory.model.dto.CompletionTimelineDto;
+import org.grimmory.model.dto.ProgressPercentDto;
+import org.grimmory.model.dto.RatingDistributionDto;
+import org.grimmory.model.dto.StatusDistributionDto;
+import org.grimmory.model.entity.UserBookProgressEntity;
+import org.grimmory.model.enums.ReadStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;

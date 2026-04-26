@@ -1,6 +1,6 @@
 package org.grimmory.service.file;
 
-import org.booklore.util.FileUtils;
+import org.grimmory.util.FileUtils;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;

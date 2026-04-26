@@ -1,11 +1,11 @@
 package org.grimmory.service.bookdrop;
 
-import org.booklore.model.dto.BookdropFileNotification;
-import org.booklore.model.entity.BookdropFileEntity;
-import org.booklore.model.enums.PermissionType;
-import org.booklore.model.websocket.Topic;
-import org.booklore.repository.BookdropFileRepository;
-import org.booklore.service.NotificationService;
+import org.grimmory.model.dto.BookdropFileNotification;
+import org.grimmory.model.entity.BookdropFileEntity;
+import org.grimmory.model.enums.PermissionType;
+import org.grimmory.model.websocket.Topic;
+import org.grimmory.repository.BookdropFileRepository;
+import org.grimmory.service.NotificationService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -3,7 +3,7 @@ package org.grimmory.service.kobo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.booklore.model.dto.kobo.KoboAuthentication;
+import org.grimmory.model.dto.kobo.KoboAuthentication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import tools.jackson.core.JacksonException;

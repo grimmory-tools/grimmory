@@ -1,12 +1,12 @@
 package org.grimmory.service.book;
 
-import org.booklore.model.entity.AuthorEntity;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookMetadataEntity;
-import org.booklore.model.entity.CategoryEntity;
-import org.booklore.model.entity.MoodEntity;
-import org.booklore.model.entity.TagEntity;
-import org.booklore.repository.*;
+import org.grimmory.model.entity.AuthorEntity;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.BookMetadataEntity;
+import org.grimmory.model.entity.CategoryEntity;
+import org.grimmory.model.entity.MoodEntity;
+import org.grimmory.model.entity.TagEntity;
+import org.grimmory.repository.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

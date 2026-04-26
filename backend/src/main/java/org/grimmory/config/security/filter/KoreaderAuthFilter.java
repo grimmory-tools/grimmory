@@ -1,7 +1,7 @@
 package org.grimmory.config.security.filter;
 
-import org.booklore.config.security.userdetails.KoreaderUserDetails;
-import org.booklore.repository.KoreaderUserRepository;
+import org.grimmory.config.security.userdetails.KoreaderUserDetails;
+import org.grimmory.repository.KoreaderUserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

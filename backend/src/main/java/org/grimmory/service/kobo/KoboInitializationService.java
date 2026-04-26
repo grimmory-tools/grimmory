@@ -2,9 +2,9 @@ package org.grimmory.service.kobo;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.model.dto.kobo.KoboResources;
-import org.booklore.service.appsettings.AppSettingService;
-import org.booklore.util.kobo.KoboUrlBuilder;
+import org.grimmory.model.dto.kobo.KoboResources;
+import org.grimmory.service.appsettings.AppSettingService;
+import org.grimmory.util.kobo.KoboUrlBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;

@@ -1,7 +1,7 @@
 package org.grimmory.controller;
 
-import org.booklore.model.dto.BookReview;
-import org.booklore.service.book.BookReviewService;
+import org.grimmory.model.dto.BookReview;
+import org.grimmory.service.book.BookReviewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

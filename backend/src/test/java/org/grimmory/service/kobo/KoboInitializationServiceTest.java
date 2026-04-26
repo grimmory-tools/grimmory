@@ -1,10 +1,10 @@
 package org.grimmory.service.kobo;
 
-import org.booklore.model.dto.kobo.KoboResources;
-import org.booklore.model.dto.settings.AppSettings;
-import org.booklore.model.dto.settings.KoboSettings;
-import org.booklore.service.appsettings.AppSettingService;
-import org.booklore.util.kobo.KoboUrlBuilder;
+import org.grimmory.model.dto.kobo.KoboResources;
+import org.grimmory.model.dto.settings.AppSettings;
+import org.grimmory.model.dto.settings.KoboSettings;
+import org.grimmory.service.appsettings.AppSettingService;
+import org.grimmory.util.kobo.KoboUrlBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

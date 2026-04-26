@@ -1,6 +1,6 @@
 package org.grimmory.service.kobo;
 
-import org.booklore.util.FileService;
+import org.grimmory.util.FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

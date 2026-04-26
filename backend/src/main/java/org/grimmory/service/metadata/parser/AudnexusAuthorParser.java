@@ -1,9 +1,9 @@
 package org.grimmory.service.metadata.parser;
 
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.model.dto.AuthorSearchResult;
-import org.booklore.model.dto.response.audnexus.AudnexusAuthorResponse;
-import org.booklore.model.enums.AuthorMetadataSource;
+import org.grimmory.model.dto.AuthorSearchResult;
+import org.grimmory.model.dto.response.audnexus.AudnexusAuthorResponse;
+import org.grimmory.model.enums.AuthorMetadataSource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 import tools.jackson.databind.ObjectMapper;

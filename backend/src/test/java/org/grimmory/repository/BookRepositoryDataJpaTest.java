@@ -2,10 +2,10 @@ package org.grimmory.repository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.booklore.BookloreApplication;
-import org.booklore.model.entity.*;
-import org.booklore.model.enums.BookFileType;
-import org.booklore.service.task.TaskCronService;
+import org.grimmory.BookloreApplication;
+import org.grimmory.model.entity.*;
+import org.grimmory.model.enums.BookFileType;
+import org.grimmory.service.task.TaskCronService;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

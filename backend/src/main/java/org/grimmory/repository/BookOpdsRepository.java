@@ -1,7 +1,7 @@
 package org.grimmory.repository;
 
-import org.booklore.model.entity.AuthorEntity;
-import org.booklore.model.entity.BookEntity;
+import org.grimmory.model.entity.AuthorEntity;
+import org.grimmory.model.entity.BookEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;

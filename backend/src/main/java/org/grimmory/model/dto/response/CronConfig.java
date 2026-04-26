@@ -1,6 +1,6 @@
 package org.grimmory.model.dto.response;
 
-import org.booklore.model.enums.TaskType;
+import org.grimmory.model.enums.TaskType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

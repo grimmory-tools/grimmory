@@ -2,11 +2,11 @@ package org.grimmory.app.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.booklore.app.dto.AppNotebookBookSummary;
-import org.booklore.app.dto.AppNotebookEntry;
-import org.booklore.app.dto.AppNotebookUpdateRequest;
-import org.booklore.app.dto.AppPageResponse;
-import org.booklore.app.service.AppNotebookService;
+import org.grimmory.app.dto.AppNotebookBookSummary;
+import org.grimmory.app.dto.AppNotebookEntry;
+import org.grimmory.app.dto.AppNotebookUpdateRequest;
+import org.grimmory.app.dto.AppPageResponse;
+import org.grimmory.app.service.AppNotebookService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;

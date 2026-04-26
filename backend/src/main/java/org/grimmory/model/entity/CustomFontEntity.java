@@ -1,6 +1,6 @@
 package org.grimmory.model.entity;
 
-import org.booklore.model.enums.FontFormat;
+import org.grimmory.model.enums.FontFormat;
 import jakarta.persistence.*;
 import lombok.*;
 

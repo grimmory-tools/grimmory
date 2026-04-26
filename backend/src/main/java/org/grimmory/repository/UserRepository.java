@@ -1,7 +1,7 @@
 package org.grimmory.repository;
 
-import org.booklore.model.entity.BookLoreUserEntity;
-import org.booklore.model.enums.ProvisioningMethod;
+import org.grimmory.model.entity.BookLoreUserEntity;
+import org.grimmory.model.enums.ProvisioningMethod;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

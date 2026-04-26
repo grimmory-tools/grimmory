@@ -1,13 +1,13 @@
 package org.grimmory.service.customfont;
 
-import org.booklore.config.AppProperties;
-import org.booklore.mapper.CustomFontMapper;
-import org.booklore.model.dto.CustomFontDto;
-import org.booklore.model.entity.BookLoreUserEntity;
-import org.booklore.model.entity.CustomFontEntity;
-import org.booklore.model.enums.FontFormat;
-import org.booklore.repository.CustomFontRepository;
-import org.booklore.repository.UserRepository;
+import org.grimmory.config.AppProperties;
+import org.grimmory.mapper.CustomFontMapper;
+import org.grimmory.model.dto.CustomFontDto;
+import org.grimmory.model.entity.BookLoreUserEntity;
+import org.grimmory.model.entity.CustomFontEntity;
+import org.grimmory.model.enums.FontFormat;
+import org.grimmory.repository.CustomFontRepository;
+import org.grimmory.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

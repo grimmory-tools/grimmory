@@ -1,15 +1,15 @@
 package org.grimmory.service;
 
-import org.booklore.model.dto.KoboSyncSettings;
-import org.booklore.model.dto.kobo.KoboReadingState;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.UserBookFileProgressEntity;
-import org.booklore.model.entity.UserBookProgressEntity;
-import org.booklore.model.enums.KoboReadStatus;
-import org.booklore.model.enums.ReadStatus;
-import org.booklore.service.kobo.KoboBookmarkLocationResolver;
-import org.booklore.service.kobo.KoboReadingStateBuilder;
-import org.booklore.service.kobo.KoboSettingsService;
+import org.grimmory.model.dto.KoboSyncSettings;
+import org.grimmory.model.dto.kobo.KoboReadingState;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.UserBookFileProgressEntity;
+import org.grimmory.model.entity.UserBookProgressEntity;
+import org.grimmory.model.enums.KoboReadStatus;
+import org.grimmory.model.enums.ReadStatus;
+import org.grimmory.service.kobo.KoboBookmarkLocationResolver;
+import org.grimmory.service.kobo.KoboReadingStateBuilder;
+import org.grimmory.service.kobo.KoboSettingsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

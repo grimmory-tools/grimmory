@@ -1,6 +1,6 @@
 package org.grimmory.util.koreader;
 
-import org.booklore.exception.APIException;
+import org.grimmory.exception.APIException;
 import org.grimmory.epub4j.cfi.CfiConverter;
 import org.grimmory.epub4j.cfi.XPointerResult;
 import org.grimmory.epub4j.domain.Author;

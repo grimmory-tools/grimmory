@@ -1,9 +1,9 @@
 package org.grimmory.model.dto.request;
 
-import org.booklore.model.dto.progress.AudiobookProgress;
-import org.booklore.model.dto.progress.CbxProgress;
-import org.booklore.model.dto.progress.EpubProgress;
-import org.booklore.model.dto.progress.PdfProgress;
+import org.grimmory.model.dto.progress.AudiobookProgress;
+import org.grimmory.model.dto.progress.CbxProgress;
+import org.grimmory.model.dto.progress.EpubProgress;
+import org.grimmory.model.dto.progress.PdfProgress;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

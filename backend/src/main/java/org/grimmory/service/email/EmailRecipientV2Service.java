@@ -1,13 +1,13 @@
 package org.grimmory.service.email;
 
-import org.booklore.config.security.service.AuthenticationService;
-import org.booklore.exception.ApiError;
-import org.booklore.mapper.EmailRecipientV2Mapper;
-import org.booklore.model.dto.BookLoreUser;
-import org.booklore.model.dto.EmailRecipientV2;
-import org.booklore.model.dto.request.CreateEmailRecipientRequest;
-import org.booklore.model.entity.EmailRecipientV2Entity;
-import org.booklore.repository.EmailRecipientV2Repository;
+import org.grimmory.config.security.service.AuthenticationService;
+import org.grimmory.exception.ApiError;
+import org.grimmory.mapper.EmailRecipientV2Mapper;
+import org.grimmory.model.dto.BookLoreUser;
+import org.grimmory.model.dto.EmailRecipientV2;
+import org.grimmory.model.dto.request.CreateEmailRecipientRequest;
+import org.grimmory.model.entity.EmailRecipientV2Entity;
+import org.grimmory.repository.EmailRecipientV2Repository;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,7 +1,7 @@
 package org.grimmory.service.bookdrop;
 
-import org.booklore.config.AppProperties;
-import org.booklore.repository.BookdropFileRepository;
+import org.grimmory.config.AppProperties;
+import org.grimmory.repository.BookdropFileRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;

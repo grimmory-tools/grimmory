@@ -1,7 +1,7 @@
 package org.grimmory.service.metadata;
 
-import org.booklore.model.dto.CoverImage;
-import org.booklore.model.dto.request.CoverFetchRequest;
+import org.grimmory.model.dto.CoverImage;
+import org.grimmory.model.dto.request.CoverFetchRequest;
 
 import reactor.core.publisher.Flux;
 

@@ -1,10 +1,10 @@
 package org.grimmory.service.bookdrop;
 
-import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.dto.request.BookdropPatternExtractRequest;
-import org.booklore.model.dto.response.BookdropPatternExtractResult;
-import org.booklore.model.entity.BookdropFileEntity;
-import org.booklore.repository.BookdropFileRepository;
+import org.grimmory.model.dto.BookMetadata;
+import org.grimmory.model.dto.request.BookdropPatternExtractRequest;
+import org.grimmory.model.dto.response.BookdropPatternExtractResult;
+import org.grimmory.model.entity.BookdropFileEntity;
+import org.grimmory.repository.BookdropFileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;

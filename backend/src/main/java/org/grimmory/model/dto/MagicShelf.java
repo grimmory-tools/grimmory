@@ -1,6 +1,6 @@
 package org.grimmory.model.dto;
 
-import org.booklore.model.enums.IconType;
+import org.grimmory.model.enums.IconType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

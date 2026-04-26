@@ -1,10 +1,10 @@
 package org.grimmory.util;
 
-import org.booklore.config.AppProperties;
-import org.booklore.model.dto.settings.AppSettings;
-import org.booklore.model.dto.settings.CoverCroppingSettings;
-import org.booklore.model.entity.BookMetadataEntity;
-import org.booklore.service.appsettings.AppSettingService;
+import org.grimmory.config.AppProperties;
+import org.grimmory.model.dto.settings.AppSettings;
+import org.grimmory.model.dto.settings.CoverCroppingSettings;
+import org.grimmory.model.entity.BookMetadataEntity;
+import org.grimmory.service.appsettings.AppSettingService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;

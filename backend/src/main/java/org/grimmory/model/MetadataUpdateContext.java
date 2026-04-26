@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.enums.MetadataReplaceMode;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.enums.MetadataReplaceMode;
 
 @Data
 @Builder

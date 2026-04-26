@@ -1,11 +1,11 @@
 package org.grimmory.service.task;
 
-import org.booklore.repository.TaskHistoryRepository;
-import org.booklore.model.entity.TaskHistoryEntity;
-import org.booklore.service.audit.AuditService;
-import org.booklore.task.TaskStatus;
-import org.booklore.model.dto.response.TasksHistoryResponse;
-import org.booklore.model.enums.TaskType;
+import org.grimmory.repository.TaskHistoryRepository;
+import org.grimmory.model.entity.TaskHistoryEntity;
+import org.grimmory.service.audit.AuditService;
+import org.grimmory.task.TaskStatus;
+import org.grimmory.model.dto.response.TasksHistoryResponse;
+import org.grimmory.model.enums.TaskType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

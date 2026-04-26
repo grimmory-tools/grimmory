@@ -1,13 +1,13 @@
 package org.grimmory.service.reader;
 
-import org.booklore.exception.ApiError;
-import org.booklore.model.dto.response.EpubBookInfo;
-import org.booklore.model.dto.response.EpubManifestItem;
-import org.booklore.model.dto.response.EpubSpineItem;
-import org.booklore.model.dto.response.EpubTocItem;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.repository.BookRepository;
-import org.booklore.util.FileUtils;
+import org.grimmory.exception.ApiError;
+import org.grimmory.model.dto.response.EpubBookInfo;
+import org.grimmory.model.dto.response.EpubManifestItem;
+import org.grimmory.model.dto.response.EpubSpineItem;
+import org.grimmory.model.dto.response.EpubTocItem;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.repository.BookRepository;
+import org.grimmory.util.FileUtils;
 import org.grimmory.epub4j.domain.*;
 import org.grimmory.epub4j.epub.EpubWriter;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,10 +1,10 @@
 package org.grimmory.controller;
 
-import org.booklore.config.security.service.AuthenticationService;
-import org.booklore.model.dto.BookLoreUser;
-import org.booklore.model.dto.CustomFontDto;
-import org.booklore.model.enums.FontFormat;
-import org.booklore.service.customfont.CustomFontService;
+import org.grimmory.config.security.service.AuthenticationService;
+import org.grimmory.model.dto.BookLoreUser;
+import org.grimmory.model.dto.CustomFontDto;
+import org.grimmory.model.enums.FontFormat;
+import org.grimmory.service.customfont.CustomFontService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

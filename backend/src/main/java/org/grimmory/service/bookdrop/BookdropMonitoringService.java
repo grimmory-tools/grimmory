@@ -1,9 +1,9 @@
 package org.grimmory.service.bookdrop;
 
-import org.booklore.config.AppProperties;
-import org.booklore.model.enums.BookFileExtension;
-import org.booklore.repository.BookdropFileRepository;
-import org.booklore.util.FileUtils;
+import org.grimmory.config.AppProperties;
+import org.grimmory.model.enums.BookFileExtension;
+import org.grimmory.repository.BookdropFileRepository;
+import org.grimmory.util.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.stereotype.Service;

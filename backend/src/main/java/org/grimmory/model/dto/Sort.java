@@ -1,6 +1,6 @@
 package org.grimmory.model.dto;
 
-import org.booklore.model.enums.SortDirection;
+import org.grimmory.model.enums.SortDirection;
 import lombok.Data;
 
 @Data

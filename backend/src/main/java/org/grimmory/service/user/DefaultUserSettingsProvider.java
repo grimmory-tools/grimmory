@@ -1,9 +1,9 @@
 package org.grimmory.service.user;
 
-import org.booklore.model.dto.BookLoreUser;
-import org.booklore.model.dto.settings.SidebarSortOption;
-import org.booklore.model.dto.settings.UserSettingKey;
-import org.booklore.model.enums.*;
+import org.grimmory.model.dto.BookLoreUser;
+import org.grimmory.model.dto.settings.SidebarSortOption;
+import org.grimmory.model.dto.settings.UserSettingKey;
+import org.grimmory.model.enums.*;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

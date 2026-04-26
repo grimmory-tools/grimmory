@@ -1,10 +1,10 @@
 package org.grimmory.util;
 
 import lombok.experimental.UtilityClass;
-import org.booklore.model.MetadataClearFlags;
-import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.dto.ComicMetadata;
-import org.booklore.model.entity.*;
+import org.grimmory.model.MetadataClearFlags;
+import org.grimmory.model.dto.BookMetadata;
+import org.grimmory.model.dto.ComicMetadata;
+import org.grimmory.model.entity.*;
 
 import java.util.*;
 import java.util.function.Function;

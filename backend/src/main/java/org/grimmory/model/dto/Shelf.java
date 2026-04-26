@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.booklore.model.enums.IconType;
+import org.grimmory.model.enums.IconType;
 
 @Builder
 @Data

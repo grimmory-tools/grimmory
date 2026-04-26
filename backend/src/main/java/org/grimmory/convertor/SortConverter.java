@@ -1,7 +1,7 @@
 package org.grimmory.convertor;
 
-import org.booklore.model.dto.Sort;
-import org.booklore.model.enums.SortDirection;
+import org.grimmory.model.dto.Sort;
+import org.grimmory.model.enums.SortDirection;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 

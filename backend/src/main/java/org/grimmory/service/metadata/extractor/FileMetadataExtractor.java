@@ -1,6 +1,6 @@
 package org.grimmory.service.metadata.extractor;
 
-import org.booklore.model.dto.BookMetadata;
+import org.grimmory.model.dto.BookMetadata;
 
 import java.io.File;
 

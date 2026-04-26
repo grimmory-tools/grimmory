@@ -1,6 +1,6 @@
 package org.grimmory.model.entity;
 
-import org.booklore.model.enums.IconType;
+import org.grimmory.model.enums.IconType;
 import jakarta.persistence.*;
 import lombok.*;
 

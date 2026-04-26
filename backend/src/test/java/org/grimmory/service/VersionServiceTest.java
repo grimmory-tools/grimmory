@@ -4,8 +4,8 @@ import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.booklore.model.dto.ReleaseNote;
-import org.booklore.model.dto.VersionInfo;
+import org.grimmory.model.dto.ReleaseNote;
+import org.grimmory.model.dto.VersionInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

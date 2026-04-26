@@ -1,8 +1,8 @@
 package org.grimmory.service.kobo;
 
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.model.dto.kobo.KoboSpanPositionMap;
-import org.booklore.util.SecureXmlUtils;
+import org.grimmory.model.dto.kobo.KoboSpanPositionMap;
+import org.grimmory.util.SecureXmlUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.parser.Parser;
 import org.springframework.stereotype.Service;

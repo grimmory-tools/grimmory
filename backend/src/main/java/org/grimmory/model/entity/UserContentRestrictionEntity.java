@@ -2,8 +2,8 @@ package org.grimmory.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.booklore.model.enums.ContentRestrictionMode;
-import org.booklore.model.enums.ContentRestrictionType;
+import org.grimmory.model.enums.ContentRestrictionMode;
+import org.grimmory.model.enums.ContentRestrictionType;
 
 import java.time.LocalDateTime;
 

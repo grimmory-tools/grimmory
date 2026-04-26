@@ -1,7 +1,7 @@
 package org.grimmory.util.builder;
 
-import org.booklore.model.entity.BookFileEntity;
-import org.booklore.model.enums.BookFileType;
+import org.grimmory.model.entity.BookFileEntity;
+import org.grimmory.model.enums.BookFileType;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
 

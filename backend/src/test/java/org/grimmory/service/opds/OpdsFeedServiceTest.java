@@ -1,15 +1,15 @@
 package org.grimmory.service.opds;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.booklore.config.security.service.AuthenticationService;
-import org.booklore.config.security.userdetails.OpdsUserDetails;
-import org.booklore.exception.APIException;
-import org.booklore.model.dto.*;
-import org.booklore.model.entity.ShelfEntity;
-import org.booklore.model.enums.BookFileType;
-import org.booklore.model.enums.OpdsSortOrder;
-import org.booklore.service.MagicShelfService;
-import org.booklore.util.ArchiveUtils;
+import org.grimmory.config.security.service.AuthenticationService;
+import org.grimmory.config.security.userdetails.OpdsUserDetails;
+import org.grimmory.exception.APIException;
+import org.grimmory.model.dto.*;
+import org.grimmory.model.entity.ShelfEntity;
+import org.grimmory.model.enums.BookFileType;
+import org.grimmory.model.enums.OpdsSortOrder;
+import org.grimmory.service.MagicShelfService;
+import org.grimmory.util.ArchiveUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;

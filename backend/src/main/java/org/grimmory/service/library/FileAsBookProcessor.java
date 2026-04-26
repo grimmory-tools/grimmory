@@ -2,9 +2,9 @@ package org.grimmory.service.library;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.model.dto.settings.LibraryFile;
-import org.booklore.model.entity.LibraryEntity;
-import org.booklore.util.BookFileGroupingUtils;
+import org.grimmory.model.dto.settings.LibraryFile;
+import org.grimmory.model.entity.LibraryEntity;
+import org.grimmory.util.BookFileGroupingUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

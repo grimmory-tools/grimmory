@@ -1,7 +1,7 @@
 package org.grimmory.service.migration;
 
-import org.booklore.model.entity.AppMigrationEntity;
-import org.booklore.repository.AppMigrationRepository;
+import org.grimmory.model.entity.AppMigrationEntity;
+import org.grimmory.repository.AppMigrationRepository;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

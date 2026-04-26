@@ -1,7 +1,7 @@
 package org.grimmory.model.dto;
 
-import org.booklore.model.enums.EventTaskType;
-import org.booklore.model.enums.TaskStatus;
+import org.grimmory.model.enums.EventTaskType;
+import org.grimmory.model.enums.TaskStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

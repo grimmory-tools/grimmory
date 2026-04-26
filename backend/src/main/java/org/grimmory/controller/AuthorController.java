@@ -1,14 +1,14 @@
 package org.grimmory.controller;
 
-import org.booklore.exception.ApiError;
-import org.booklore.model.dto.AuthorDetails;
-import org.booklore.model.dto.AuthorSearchResult;
-import org.booklore.model.dto.AuthorSummary;
-import org.booklore.model.dto.CoverImage;
-import org.booklore.model.dto.request.AuthorMatchRequest;
-import org.booklore.model.dto.request.AuthorUpdateRequest;
-import org.booklore.service.AuthorMetadataService;
-import org.booklore.service.AuthorService;
+import org.grimmory.exception.ApiError;
+import org.grimmory.model.dto.AuthorDetails;
+import org.grimmory.model.dto.AuthorSearchResult;
+import org.grimmory.model.dto.AuthorSummary;
+import org.grimmory.model.dto.CoverImage;
+import org.grimmory.model.dto.request.AuthorMatchRequest;
+import org.grimmory.model.dto.request.AuthorUpdateRequest;
+import org.grimmory.service.AuthorMetadataService;
+import org.grimmory.service.AuthorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

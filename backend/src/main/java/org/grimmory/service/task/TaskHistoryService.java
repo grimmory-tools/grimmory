@@ -1,10 +1,10 @@
 package org.grimmory.service.task;
 
-import org.booklore.repository.TaskHistoryRepository;
-import org.booklore.model.entity.TaskHistoryEntity;
-import org.booklore.task.TaskStatus;
-import org.booklore.model.dto.response.TasksHistoryResponse;
-import org.booklore.model.enums.TaskType;
+import org.grimmory.repository.TaskHistoryRepository;
+import org.grimmory.model.entity.TaskHistoryEntity;
+import org.grimmory.task.TaskStatus;
+import org.grimmory.model.dto.response.TasksHistoryResponse;
+import org.grimmory.model.enums.TaskType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,8 +15,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
-import org.booklore.model.enums.AuditAction;
-import org.booklore.service.audit.AuditService;
+import org.grimmory.model.enums.AuditAction;
+import org.grimmory.service.audit.AuditService;
 
 @Service
 @RequiredArgsConstructor

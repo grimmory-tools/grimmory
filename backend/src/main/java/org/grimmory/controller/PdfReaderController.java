@@ -1,8 +1,8 @@
 package org.grimmory.controller;
 
-import org.booklore.config.security.annotation.CheckBookAccess;
-import org.booklore.model.dto.response.PdfBookInfo;
-import org.booklore.service.reader.PdfReaderService;
+import org.grimmory.config.security.annotation.CheckBookAccess;
+import org.grimmory.model.dto.response.PdfBookInfo;
+import org.grimmory.service.reader.PdfReaderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

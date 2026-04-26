@@ -1,6 +1,6 @@
 package org.grimmory.model.websocket;
 
-import org.booklore.model.dto.Book;
+import org.grimmory.model.dto.Book;
 import lombok.Data;
 
 @Data

@@ -1,8 +1,8 @@
 package org.grimmory.controller;
 
-import org.booklore.model.dto.MetadataBatchProgressNotification;
-import org.booklore.model.dto.response.MetadataTaskDetailsResponse;
-import org.booklore.service.metadata.MetadataTaskService;
+import org.grimmory.model.dto.MetadataBatchProgressNotification;
+import org.grimmory.model.dto.response.MetadataTaskDetailsResponse;
+import org.grimmory.service.metadata.MetadataTaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

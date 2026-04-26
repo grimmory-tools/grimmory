@@ -1,9 +1,9 @@
 package org.grimmory.util;
 
-import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.entity.BookFileEntity;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookMetadataEntity;
+import org.grimmory.model.dto.BookMetadata;
+import org.grimmory.model.entity.BookFileEntity;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.BookMetadataEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

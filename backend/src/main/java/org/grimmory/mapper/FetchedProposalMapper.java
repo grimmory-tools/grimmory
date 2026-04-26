@@ -1,9 +1,9 @@
 package org.grimmory.mapper;
 
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.dto.FetchedProposal;
-import org.booklore.model.entity.MetadataFetchProposalEntity;
+import org.grimmory.model.dto.BookMetadata;
+import org.grimmory.model.dto.FetchedProposal;
+import org.grimmory.model.entity.MetadataFetchProposalEntity;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

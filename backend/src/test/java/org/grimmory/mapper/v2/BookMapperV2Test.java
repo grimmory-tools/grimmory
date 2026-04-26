@@ -1,11 +1,11 @@
 package org.grimmory.mapper.v2;
 
-import org.booklore.model.dto.Book;
-import org.booklore.model.entity.BookFileEntity;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.LibraryEntity;
-import org.booklore.model.entity.LibraryPathEntity;
-import org.booklore.model.enums.BookFileType;
+import org.grimmory.model.dto.Book;
+import org.grimmory.model.entity.BookFileEntity;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.LibraryEntity;
+import org.grimmory.model.entity.LibraryPathEntity;
+import org.grimmory.model.enums.BookFileType;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 

@@ -2,11 +2,11 @@ package org.grimmory.service.metadata.extractor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
-import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.dto.ComicMetadata;
-import org.booklore.service.ArchiveService;
+import org.grimmory.model.dto.BookMetadata;
+import org.grimmory.model.dto.ComicMetadata;
+import org.grimmory.service.ArchiveService;
 import org.springframework.stereotype.Component;
-import org.booklore.util.SecureXmlUtils;
+import org.grimmory.util.SecureXmlUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 

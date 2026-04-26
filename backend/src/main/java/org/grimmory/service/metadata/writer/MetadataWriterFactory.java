@@ -1,6 +1,6 @@
 package org.grimmory.service.metadata.writer;
 
-import org.booklore.model.enums.BookFileType;
+import org.grimmory.model.enums.BookFileType;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

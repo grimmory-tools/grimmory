@@ -1,9 +1,9 @@
 package org.grimmory.controller;
 
-import org.booklore.model.dto.OpdsUserV2;
-import org.booklore.model.dto.request.OpdsUserV2CreateRequest;
-import org.booklore.model.dto.request.OpdsUserV2UpdateRequest;
-import org.booklore.service.opds.OpdsUserV2Service;
+import org.grimmory.model.dto.OpdsUserV2;
+import org.grimmory.model.dto.request.OpdsUserV2CreateRequest;
+import org.grimmory.model.dto.request.OpdsUserV2UpdateRequest;
+import org.grimmory.service.opds.OpdsUserV2Service;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

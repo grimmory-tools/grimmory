@@ -1,6 +1,6 @@
 package org.grimmory.model.dto.response;
 
-import org.booklore.model.dto.Book;
+import org.grimmory.model.dto.Book;
 
 import java.util.List;
 

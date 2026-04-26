@@ -15,7 +15,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mockStatic;
 import org.mockito.MockedStatic;
-import org.booklore.util.MimeDetector;
+import org.grimmory.util.MimeDetector;
 
 class AudioFileUtilityServiceTest {
 

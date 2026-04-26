@@ -1,6 +1,6 @@
 package org.grimmory.model.dto;
 
-import org.booklore.model.enums.ReadStatus;
+import org.grimmory.model.enums.ReadStatus;
 
 public interface StatusDistributionDto {
     ReadStatus getStatus();

@@ -1,8 +1,8 @@
 package org.grimmory.service.metadata.extractor;
 
-import org.booklore.model.dto.AudiobookMetadata;
-import org.booklore.model.dto.BookMetadata;
-import org.booklore.service.reader.FfprobeService;
+import org.grimmory.model.dto.AudiobookMetadata;
+import org.grimmory.model.dto.BookMetadata;
+import org.grimmory.service.reader.FfprobeService;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioHeader;
 import org.jaudiotagger.tag.FieldKey;

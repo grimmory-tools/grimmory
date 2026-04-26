@@ -1,6 +1,6 @@
 package org.grimmory.mapper;
 
-import org.booklore.model.entity.TagEntity;
+import org.grimmory.model.entity.TagEntity;
 import org.mapstruct.Mapper;
 
 import java.util.List;

@@ -1,8 +1,8 @@
 package org.grimmory.util;
 
-import org.booklore.model.dto.BookLoreUser;
-import org.booklore.model.entity.UserPermissionsEntity;
-import org.booklore.model.enums.PermissionType;
+import org.grimmory.model.dto.BookLoreUser;
+import org.grimmory.model.entity.UserPermissionsEntity;
+import org.grimmory.model.enums.PermissionType;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass

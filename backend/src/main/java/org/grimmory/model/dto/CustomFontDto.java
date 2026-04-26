@@ -1,6 +1,6 @@
 package org.grimmory.model.dto;
 
-import org.booklore.model.enums.FontFormat;
+import org.grimmory.model.enums.FontFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

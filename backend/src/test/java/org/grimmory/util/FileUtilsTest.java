@@ -1,8 +1,8 @@
 package org.grimmory.util;
 
-import org.booklore.model.entity.BookFileEntity;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.LibraryPathEntity;
+import org.grimmory.model.entity.BookFileEntity;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.LibraryPathEntity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 

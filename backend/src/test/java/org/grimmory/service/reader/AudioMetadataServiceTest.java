@@ -1,14 +1,14 @@
 package org.grimmory.service.reader;
 
-import org.booklore.model.dto.AudiobookMetadata;
-import org.booklore.model.dto.response.AudiobookChapter;
-import org.booklore.model.dto.response.AudiobookInfo;
-import org.booklore.model.dto.response.AudiobookTrack;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookFileEntity;
-import org.booklore.model.entity.BookMetadataEntity;
-import org.booklore.repository.BookFileRepository;
-import org.booklore.service.metadata.extractor.AudiobookMetadataExtractor;
+import org.grimmory.model.dto.AudiobookMetadata;
+import org.grimmory.model.dto.response.AudiobookChapter;
+import org.grimmory.model.dto.response.AudiobookInfo;
+import org.grimmory.model.dto.response.AudiobookTrack;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.BookFileEntity;
+import org.grimmory.model.entity.BookMetadataEntity;
+import org.grimmory.repository.BookFileRepository;
+import org.grimmory.service.metadata.extractor.AudiobookMetadataExtractor;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.AudioHeader;

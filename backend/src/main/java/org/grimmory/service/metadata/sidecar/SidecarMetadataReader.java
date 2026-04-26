@@ -1,10 +1,10 @@
 package org.grimmory.service.metadata.sidecar;
 
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.model.dto.sidecar.SidecarMetadata;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookMetadataEntity;
-import org.booklore.model.enums.SidecarSyncStatus;
+import org.grimmory.model.dto.sidecar.SidecarMetadata;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.BookMetadataEntity;
+import org.grimmory.model.enums.SidecarSyncStatus;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;

@@ -1,11 +1,11 @@
 package org.grimmory.controller;
 
-import org.booklore.config.security.annotation.CheckLibraryAccess;
-import org.booklore.model.dto.Book;
-import org.booklore.model.dto.Library;
-import org.booklore.model.dto.request.CreateLibraryRequest;
-import org.booklore.service.library.LibraryHealthService;
-import org.booklore.service.library.LibraryService;
+import org.grimmory.config.security.annotation.CheckLibraryAccess;
+import org.grimmory.model.dto.Book;
+import org.grimmory.model.dto.Library;
+import org.grimmory.model.dto.request.CreateLibraryRequest;
+import org.grimmory.service.library.LibraryHealthService;
+import org.grimmory.service.library.LibraryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

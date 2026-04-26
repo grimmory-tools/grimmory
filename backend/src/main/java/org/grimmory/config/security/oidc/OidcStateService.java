@@ -2,7 +2,7 @@ package org.grimmory.config.security.oidc;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import org.booklore.exception.ApiError;
+import org.grimmory.exception.ApiError;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;

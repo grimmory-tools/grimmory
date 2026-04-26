@@ -1,7 +1,7 @@
 package org.grimmory.repository;
 
-import org.booklore.model.entity.BookShelfKey;
-import org.booklore.model.entity.BookShelfMapping;
+import org.grimmory.model.entity.BookShelfKey;
+import org.grimmory.model.entity.BookShelfMapping;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

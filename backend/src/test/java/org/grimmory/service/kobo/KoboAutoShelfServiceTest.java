@@ -1,13 +1,13 @@
 package org.grimmory.service.kobo;
 
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookLoreUserEntity;
-import org.booklore.model.entity.KoboUserSettingsEntity;
-import org.booklore.model.entity.ShelfEntity;
-import org.booklore.model.enums.ShelfType;
-import org.booklore.repository.BookRepository;
-import org.booklore.repository.KoboUserSettingsRepository;
-import org.booklore.repository.ShelfRepository;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.BookLoreUserEntity;
+import org.grimmory.model.entity.KoboUserSettingsEntity;
+import org.grimmory.model.entity.ShelfEntity;
+import org.grimmory.model.enums.ShelfType;
+import org.grimmory.repository.BookRepository;
+import org.grimmory.repository.KoboUserSettingsRepository;
+import org.grimmory.repository.ShelfRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

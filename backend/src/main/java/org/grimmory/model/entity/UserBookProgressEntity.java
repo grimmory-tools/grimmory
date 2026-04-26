@@ -2,7 +2,7 @@ package org.grimmory.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.booklore.model.enums.ReadStatus;
+import org.grimmory.model.enums.ReadStatus;
 
 import java.time.Instant;
 

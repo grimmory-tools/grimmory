@@ -1,7 +1,7 @@
 package org.grimmory.model.dto.request;
 
 import lombok.Data;
-import org.booklore.model.enums.AuthorMetadataSource;
+import org.grimmory.model.enums.AuthorMetadataSource;
 
 @Data
 public class AuthorMatchRequest {

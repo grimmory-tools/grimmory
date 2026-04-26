@@ -1,16 +1,16 @@
 package org.grimmory.service.opds;
 
-import org.booklore.config.security.service.AuthenticationService;
-import org.booklore.config.security.userdetails.OpdsUserDetails;
-import org.booklore.model.dto.Book;
-import org.booklore.model.dto.BookFile;
-import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.dto.LibraryPath;
-import org.booklore.model.dto.OpdsUserV2;
-import org.booklore.model.enums.BookFileType;
-import org.booklore.model.enums.OpdsSortOrder;
-import org.booklore.service.MagicShelfService;
-import org.booklore.util.ArchiveUtils;
+import org.grimmory.config.security.service.AuthenticationService;
+import org.grimmory.config.security.userdetails.OpdsUserDetails;
+import org.grimmory.model.dto.Book;
+import org.grimmory.model.dto.BookFile;
+import org.grimmory.model.dto.BookMetadata;
+import org.grimmory.model.dto.LibraryPath;
+import org.grimmory.model.dto.OpdsUserV2;
+import org.grimmory.model.enums.BookFileType;
+import org.grimmory.model.enums.OpdsSortOrder;
+import org.grimmory.service.MagicShelfService;
+import org.grimmory.util.ArchiveUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

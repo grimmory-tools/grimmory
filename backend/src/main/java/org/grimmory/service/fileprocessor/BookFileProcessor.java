@@ -1,13 +1,13 @@
 package org.grimmory.service.fileprocessor;
 
-import org.booklore.model.FileProcessResult;
-import org.booklore.model.dto.settings.LibraryFile;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.enums.BookFileType;
+import org.grimmory.model.FileProcessResult;
+import org.grimmory.model.dto.settings.LibraryFile;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.enums.BookFileType;
 
 import java.util.List;
 
-import org.booklore.model.entity.BookFileEntity;
+import org.grimmory.model.entity.BookFileEntity;
 
 public interface BookFileProcessor {
     List<BookFileType> getSupportedTypes();

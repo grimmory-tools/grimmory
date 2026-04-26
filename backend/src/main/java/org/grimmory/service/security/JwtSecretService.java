@@ -1,7 +1,7 @@
 package org.grimmory.service.security;
 
-import org.booklore.model.entity.JwtSecretEntity;
-import org.booklore.repository.JwtSecretRepository;
+import org.grimmory.model.entity.JwtSecretEntity;
+import org.grimmory.repository.JwtSecretRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

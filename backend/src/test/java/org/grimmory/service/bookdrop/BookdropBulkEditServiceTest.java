@@ -1,10 +1,10 @@
 package org.grimmory.service.bookdrop;
 
-import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.dto.request.BookdropBulkEditRequest;
-import org.booklore.model.dto.response.BookdropBulkEditResult;
-import org.booklore.model.entity.BookdropFileEntity;
-import org.booklore.repository.BookdropFileRepository;
+import org.grimmory.model.dto.BookMetadata;
+import org.grimmory.model.dto.request.BookdropBulkEditRequest;
+import org.grimmory.model.dto.response.BookdropBulkEditResult;
+import org.grimmory.model.entity.BookdropFileEntity;
+import org.grimmory.repository.BookdropFileRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

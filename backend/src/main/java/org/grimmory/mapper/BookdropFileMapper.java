@@ -1,8 +1,8 @@
 package org.grimmory.mapper;
 
-import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.dto.BookdropFile;
-import org.booklore.model.entity.BookdropFileEntity;
+import org.grimmory.model.dto.BookMetadata;
+import org.grimmory.model.dto.BookdropFile;
+import org.grimmory.model.entity.BookdropFileEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;

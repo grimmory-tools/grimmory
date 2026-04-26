@@ -1,14 +1,14 @@
 package org.grimmory.service.metadata.sidecar;
 
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.config.AppProperties;
-import org.booklore.model.dto.settings.MetadataPersistenceSettings;
-import org.booklore.model.dto.settings.SidecarSettings;
-import org.booklore.model.dto.sidecar.SidecarMetadata;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookMetadataEntity;
-import org.booklore.service.appsettings.AppSettingService;
-import org.booklore.util.FileService;
+import org.grimmory.config.AppProperties;
+import org.grimmory.model.dto.settings.MetadataPersistenceSettings;
+import org.grimmory.model.dto.settings.SidecarSettings;
+import org.grimmory.model.dto.sidecar.SidecarMetadata;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.BookMetadataEntity;
+import org.grimmory.service.appsettings.AppSettingService;
+import org.grimmory.util.FileService;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;

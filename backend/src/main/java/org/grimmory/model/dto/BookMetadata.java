@@ -1,6 +1,6 @@
 package org.grimmory.model.dto;
 
-import org.booklore.model.enums.MetadataProvider;
+import org.grimmory.model.enums.MetadataProvider;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 

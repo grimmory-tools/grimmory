@@ -1,7 +1,7 @@
 package org.grimmory.mapper;
 
-import org.booklore.model.dto.kobo.KoboReadingState;
-import org.booklore.model.entity.KoboReadingStateEntity;
+import org.grimmory.model.dto.kobo.KoboReadingState;
+import org.grimmory.model.entity.KoboReadingStateEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;

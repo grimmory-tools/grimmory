@@ -1,7 +1,7 @@
 package org.grimmory.mapper;
 
-import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.dto.EpubMetadata;
+import org.grimmory.model.dto.BookMetadata;
+import org.grimmory.model.dto.EpubMetadata;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;

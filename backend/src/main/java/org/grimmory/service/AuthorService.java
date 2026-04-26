@@ -1,11 +1,11 @@
 package org.grimmory.service;
 
 import lombok.AllArgsConstructor;
-import org.booklore.exception.ApiError;
-import org.booklore.mapper.AuthorMapper;
-import org.booklore.model.entity.AuthorEntity;
-import org.booklore.repository.AuthorRepository;
-import org.booklore.repository.BookRepository;
+import org.grimmory.exception.ApiError;
+import org.grimmory.mapper.AuthorMapper;
+import org.grimmory.model.entity.AuthorEntity;
+import org.grimmory.repository.AuthorRepository;
+import org.grimmory.repository.BookRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

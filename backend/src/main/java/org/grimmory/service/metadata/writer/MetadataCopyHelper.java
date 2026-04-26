@@ -1,6 +1,6 @@
 package org.grimmory.service.metadata.writer;
 
-import org.booklore.model.entity.*;
+import org.grimmory.model.entity.*;
 
 import java.time.LocalDate;
 import java.util.Set;

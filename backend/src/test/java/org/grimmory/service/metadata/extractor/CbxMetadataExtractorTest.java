@@ -1,8 +1,8 @@
 package org.grimmory.service.metadata.extractor;
 
-import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.dto.ComicMetadata;
-import org.booklore.service.ArchiveService;
+import org.grimmory.model.dto.BookMetadata;
+import org.grimmory.model.dto.ComicMetadata;
+import org.grimmory.service.ArchiveService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

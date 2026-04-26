@@ -1,10 +1,10 @@
 package org.grimmory.service.migration.migrations;
 
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookMetadataEntity;
-import org.booklore.repository.BookRepository;
-import org.booklore.service.migration.Migration;
-import org.booklore.util.BookUtils;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.BookMetadataEntity;
+import org.grimmory.repository.BookRepository;
+import org.grimmory.service.migration.Migration;
+import org.grimmory.util.BookUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;

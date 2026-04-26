@@ -1,10 +1,10 @@
 package org.grimmory.service.library;
 
-import org.booklore.model.entity.LibraryEntity;
-import org.booklore.model.entity.LibraryPathEntity;
-import org.booklore.model.websocket.LibraryHealthPayload;
-import org.booklore.model.websocket.Topic;
-import org.booklore.repository.LibraryPathRepository;
+import org.grimmory.model.entity.LibraryEntity;
+import org.grimmory.model.entity.LibraryPathEntity;
+import org.grimmory.model.websocket.LibraryHealthPayload;
+import org.grimmory.model.websocket.Topic;
+import org.grimmory.repository.LibraryPathRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

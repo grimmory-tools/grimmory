@@ -1,16 +1,16 @@
 package org.grimmory.service.book;
 
-import org.booklore.config.security.service.AuthenticationService;
-import org.booklore.exception.APIException;
-import org.booklore.mapper.BookMapper;
-import org.booklore.model.dto.*;
-import org.booklore.model.dto.response.BookStatusUpdateResponse;
-import org.booklore.model.dto.response.PersonalRatingUpdateResponse;
-import org.booklore.model.entity.*;
-import org.booklore.model.enums.BookFileType;
-import org.booklore.model.enums.ReadStatus;
-import org.booklore.repository.*;
-import org.booklore.service.progress.ReadingProgressService;
+import org.grimmory.config.security.service.AuthenticationService;
+import org.grimmory.exception.APIException;
+import org.grimmory.mapper.BookMapper;
+import org.grimmory.model.dto.*;
+import org.grimmory.model.dto.response.BookStatusUpdateResponse;
+import org.grimmory.model.dto.response.PersonalRatingUpdateResponse;
+import org.grimmory.model.entity.*;
+import org.grimmory.model.enums.BookFileType;
+import org.grimmory.model.enums.ReadStatus;
+import org.grimmory.repository.*;
+import org.grimmory.service.progress.ReadingProgressService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

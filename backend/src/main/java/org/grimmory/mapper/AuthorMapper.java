@@ -1,6 +1,6 @@
 package org.grimmory.mapper;
 
-import org.booklore.model.entity.AuthorEntity;
+import org.grimmory.model.entity.AuthorEntity;
 import org.mapstruct.Mapper;
 
 import java.util.List;

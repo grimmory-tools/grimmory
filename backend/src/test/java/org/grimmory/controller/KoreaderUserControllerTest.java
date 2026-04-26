@@ -1,7 +1,7 @@
 package org.grimmory.controller;
 
-import org.booklore.model.dto.KoreaderUser;
-import org.booklore.service.koreader.KoreaderUserService;
+import org.grimmory.model.dto.KoreaderUser;
+import org.grimmory.service.koreader.KoreaderUserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

@@ -2,7 +2,7 @@ package org.grimmory.model.dto;
 
 import lombok.Builder;
 import lombok.Data;
-import org.booklore.model.enums.AuthorMetadataSource;
+import org.grimmory.model.enums.AuthorMetadataSource;
 
 @Data
 @Builder

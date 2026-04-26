@@ -2,16 +2,16 @@ package org.grimmory.service.recommender;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.config.security.service.AuthenticationService;
-import org.booklore.exception.ApiError;
-import org.booklore.mapper.BookMapper;
-import org.booklore.model.dto.*;
-import org.booklore.model.entity.AuthorEntity;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookMetadataEntity;
-import org.booklore.repository.BookRepository;
-import org.booklore.repository.projection.BookEmbeddingProjection;
-import org.booklore.service.book.BookQueryService;
+import org.grimmory.config.security.service.AuthenticationService;
+import org.grimmory.exception.ApiError;
+import org.grimmory.mapper.BookMapper;
+import org.grimmory.model.dto.*;
+import org.grimmory.model.entity.AuthorEntity;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.BookMetadataEntity;
+import org.grimmory.repository.BookRepository;
+import org.grimmory.repository.projection.BookEmbeddingProjection;
+import org.grimmory.service.book.BookQueryService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

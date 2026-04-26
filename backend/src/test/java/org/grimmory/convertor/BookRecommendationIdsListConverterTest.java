@@ -1,6 +1,6 @@
 package org.grimmory.convertor;
 
-import org.booklore.model.dto.BookRecommendationLite;
+import org.grimmory.model.dto.BookRecommendationLite;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

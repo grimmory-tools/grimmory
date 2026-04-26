@@ -9,7 +9,7 @@ import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDMetadata;
-import org.booklore.model.dto.BookMetadata;
+import org.grimmory.model.dto.BookMetadata;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.booklore.test.RequiresPdfium;
+import org.grimmory.test.RequiresPdfium;
 
 @RequiresPdfium
 class PdfMetadataExtractorTest {

@@ -1,6 +1,6 @@
 package org.grimmory.repository;
 
-import org.booklore.model.entity.NewPdfViewerPreferencesEntity;
+import org.grimmory.model.entity.NewPdfViewerPreferencesEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

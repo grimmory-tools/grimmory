@@ -1,9 +1,9 @@
 package org.grimmory.config.security.aspect;
 
-import org.booklore.config.security.service.AuthenticationService;
-import org.booklore.config.security.annotation.CheckLibraryAccess;
-import org.booklore.exception.ApiError;
-import org.booklore.model.dto.BookLoreUser;
+import org.grimmory.config.security.service.AuthenticationService;
+import org.grimmory.config.security.annotation.CheckLibraryAccess;
+import org.grimmory.exception.ApiError;
+import org.grimmory.model.dto.BookLoreUser;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;

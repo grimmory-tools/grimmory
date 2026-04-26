@@ -1,9 +1,9 @@
 package org.grimmory.controller;
 
-import org.booklore.model.dto.Book;
-import org.booklore.model.dto.Shelf;
-import org.booklore.model.dto.request.ShelfCreateRequest;
-import org.booklore.service.ShelfService;
+import org.grimmory.model.dto.Book;
+import org.grimmory.model.dto.Shelf;
+import org.grimmory.model.dto.request.ShelfCreateRequest;
+import org.grimmory.service.ShelfService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

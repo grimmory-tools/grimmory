@@ -1,7 +1,7 @@
 package org.grimmory.service.file;
 
-import org.booklore.service.appsettings.AppSettingService;
-import org.booklore.service.monitoring.MonitoringRegistrationService;
+import org.grimmory.service.appsettings.AppSettingService;
+import org.grimmory.service.monitoring.MonitoringRegistrationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

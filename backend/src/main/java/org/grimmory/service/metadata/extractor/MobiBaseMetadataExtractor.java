@@ -1,6 +1,6 @@
 package org.grimmory.service.metadata.extractor;
 
-import org.booklore.model.dto.BookMetadata;
+import org.grimmory.model.dto.BookMetadata;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 

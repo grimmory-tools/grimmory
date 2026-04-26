@@ -1,8 +1,8 @@
 package org.grimmory.controller;
 
-import org.booklore.model.dto.ReleaseNote;
-import org.booklore.model.dto.VersionInfo;
-import org.booklore.service.VersionService;
+import org.grimmory.model.dto.ReleaseNote;
+import org.grimmory.model.dto.VersionInfo;
+import org.grimmory.service.VersionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;

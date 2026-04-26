@@ -1,7 +1,7 @@
 package org.grimmory.controller;
 
-import org.booklore.model.dto.HardcoverSyncSettings;
-import org.booklore.service.hardcover.HardcoverSyncSettingsService;
+import org.grimmory.model.dto.HardcoverSyncSettings;
+import org.grimmory.service.hardcover.HardcoverSyncSettingsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;

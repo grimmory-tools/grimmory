@@ -2,9 +2,9 @@ package org.grimmory.service.metadata;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.exception.ApiError;
-import org.booklore.model.dto.CoverImage;
-import org.booklore.model.dto.request.CoverFetchRequest;
+import org.grimmory.exception.ApiError;
+import org.grimmory.model.dto.CoverImage;
+import org.grimmory.model.dto.request.CoverFetchRequest;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

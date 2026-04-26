@@ -4,8 +4,8 @@ import com.github.gotson.nightcompress.Archive;
 import com.github.gotson.nightcompress.ArchiveEntry;
 import com.github.gotson.nightcompress.LibArchiveException;
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.exception.ApiError;
-import org.booklore.nativelib.NativeLibraries;
+import org.grimmory.exception.ApiError;
+import org.grimmory.nativelib.NativeLibraries;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;

@@ -1,11 +1,11 @@
 package org.grimmory.controller;
 
-import org.booklore.model.dto.request.ChangePasswordRequest;
-import org.booklore.model.dto.request.ChangeUserPasswordRequest;
-import org.booklore.model.dto.request.UpdateUserSettingRequest;
-import org.booklore.model.dto.BookLoreUser;
-import org.booklore.model.dto.request.UserUpdateRequest;
-import org.booklore.service.user.UserService;
+import org.grimmory.model.dto.request.ChangePasswordRequest;
+import org.grimmory.model.dto.request.ChangeUserPasswordRequest;
+import org.grimmory.model.dto.request.UpdateUserSettingRequest;
+import org.grimmory.model.dto.BookLoreUser;
+import org.grimmory.model.dto.request.UserUpdateRequest;
+import org.grimmory.service.user.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

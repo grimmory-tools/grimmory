@@ -1,11 +1,11 @@
 package org.grimmory.service.hardcover;
 
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.model.dto.HardcoverSyncSettings;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookMetadataEntity;
-import org.booklore.repository.BookRepository;
-import org.booklore.service.metadata.parser.hardcover.GraphQLRequest;
+import org.grimmory.model.dto.HardcoverSyncSettings;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.BookMetadataEntity;
+import org.grimmory.repository.BookRepository;
+import org.grimmory.service.metadata.parser.hardcover.GraphQLRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;

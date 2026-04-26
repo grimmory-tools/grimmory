@@ -1,12 +1,12 @@
 package org.grimmory.service.book;
 
-import org.booklore.mapper.BookMapper;
-import org.booklore.model.dto.Book;
-import org.booklore.model.dto.request.DuplicateDetectionRequest;
-import org.booklore.model.dto.response.DuplicateGroup;
-import org.booklore.model.entity.*;
-import org.booklore.model.enums.BookFileType;
-import org.booklore.repository.BookRepository;
+import org.grimmory.mapper.BookMapper;
+import org.grimmory.model.dto.Book;
+import org.grimmory.model.dto.request.DuplicateDetectionRequest;
+import org.grimmory.model.dto.response.DuplicateGroup;
+import org.grimmory.model.entity.*;
+import org.grimmory.model.enums.BookFileType;
+import org.grimmory.repository.BookRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

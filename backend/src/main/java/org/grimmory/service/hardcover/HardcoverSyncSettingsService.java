@@ -1,16 +1,16 @@
 package org.grimmory.service.hardcover;
 
 import lombok.RequiredArgsConstructor;
-import org.booklore.config.security.service.AuthenticationService;
-import org.booklore.exception.ApiError;
-import org.booklore.model.dto.BookLoreUser;
-import org.booklore.model.dto.HardcoverSyncSettings;
-import org.booklore.model.dto.settings.UserSettingKey;
-import org.booklore.model.entity.BookLoreUserEntity;
-import org.booklore.model.entity.KoboUserSettingsEntity;
-import org.booklore.model.entity.UserSettingEntity;
-import org.booklore.repository.KoboUserSettingsRepository;
-import org.booklore.repository.UserRepository;
+import org.grimmory.config.security.service.AuthenticationService;
+import org.grimmory.exception.ApiError;
+import org.grimmory.model.dto.BookLoreUser;
+import org.grimmory.model.dto.HardcoverSyncSettings;
+import org.grimmory.model.dto.settings.UserSettingKey;
+import org.grimmory.model.entity.BookLoreUserEntity;
+import org.grimmory.model.entity.KoboUserSettingsEntity;
+import org.grimmory.model.entity.UserSettingEntity;
+import org.grimmory.repository.KoboUserSettingsRepository;
+import org.grimmory.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

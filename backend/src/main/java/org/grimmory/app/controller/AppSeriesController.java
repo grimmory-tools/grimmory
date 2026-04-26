@@ -3,10 +3,10 @@ package org.grimmory.app.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.booklore.app.dto.AppBookSummary;
-import org.booklore.app.dto.AppPageResponse;
-import org.booklore.app.dto.AppSeriesSummary;
-import org.booklore.app.service.AppSeriesService;
+import org.grimmory.app.dto.AppBookSummary;
+import org.grimmory.app.dto.AppPageResponse;
+import org.grimmory.app.dto.AppSeriesSummary;
+import org.grimmory.app.service.AppSeriesService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

@@ -1,7 +1,7 @@
 package org.grimmory.repository;
 
-import org.booklore.model.entity.TaskCronConfigurationEntity;
-import org.booklore.model.enums.TaskType;
+import org.grimmory.model.entity.TaskCronConfigurationEntity;
+import org.grimmory.model.enums.TaskType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

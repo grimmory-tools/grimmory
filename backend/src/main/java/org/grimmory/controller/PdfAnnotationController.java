@@ -1,7 +1,7 @@
 package org.grimmory.controller;
 
-import org.booklore.config.security.annotation.CheckBookAccess;
-import org.booklore.service.book.PdfAnnotationService;
+import org.grimmory.config.security.annotation.CheckBookAccess;
+import org.grimmory.service.book.PdfAnnotationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

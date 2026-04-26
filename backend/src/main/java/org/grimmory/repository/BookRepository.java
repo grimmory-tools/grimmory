@@ -1,13 +1,13 @@
 package org.grimmory.repository;
 
-import org.booklore.repository.projection.BookEmbeddingProjection;
+import org.grimmory.repository.projection.BookEmbeddingProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.LibraryPathEntity;
-import org.booklore.model.enums.BookFileType;
-import org.booklore.repository.projection.BookCoverUpdateProjection;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.LibraryPathEntity;
+import org.grimmory.model.enums.BookFileType;
+import org.grimmory.repository.projection.BookCoverUpdateProjection;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;

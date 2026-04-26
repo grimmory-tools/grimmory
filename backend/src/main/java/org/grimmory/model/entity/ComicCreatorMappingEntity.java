@@ -2,7 +2,7 @@ package org.grimmory.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.booklore.model.enums.ComicCreatorRole;
+import org.grimmory.model.enums.ComicCreatorRole;
 
 @Entity
 @Getter

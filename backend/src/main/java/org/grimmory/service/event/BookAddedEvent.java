@@ -1,6 +1,6 @@
 package org.grimmory.service.event;
 
-import org.booklore.model.dto.Book;
+import org.grimmory.model.dto.Book;
 
 /**
  * Event published after a book has been successfully created.

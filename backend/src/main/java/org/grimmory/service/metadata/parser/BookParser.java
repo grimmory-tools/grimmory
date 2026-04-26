@@ -1,8 +1,8 @@
 package org.grimmory.service.metadata.parser;
 
-import org.booklore.model.dto.Book;
-import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.dto.request.FetchMetadataRequest;
+import org.grimmory.model.dto.Book;
+import org.grimmory.model.dto.BookMetadata;
+import org.grimmory.model.dto.request.FetchMetadataRequest;
 import reactor.core.publisher.Flux;
 
 import java.util.List;

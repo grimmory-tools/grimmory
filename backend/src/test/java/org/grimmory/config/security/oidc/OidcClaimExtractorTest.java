@@ -1,8 +1,8 @@
 package org.grimmory.config.security.oidc;
 
 import com.nimbusds.jwt.JWTClaimsSet;
-import org.booklore.config.security.oidc.OidcClaimExtractor.OidcUserClaims;
-import org.booklore.model.dto.settings.OidcProviderDetails;
+import org.grimmory.config.security.oidc.OidcClaimExtractor.OidcUserClaims;
+import org.grimmory.model.dto.settings.OidcProviderDetails;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

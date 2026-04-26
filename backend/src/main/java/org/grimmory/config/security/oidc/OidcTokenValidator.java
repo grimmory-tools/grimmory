@@ -16,9 +16,9 @@ import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.exception.APIException;
-import org.booklore.exception.ApiError;
-import org.booklore.util.FileUtils;
+import org.grimmory.exception.APIException;
+import org.grimmory.exception.ApiError;
+import org.grimmory.util.FileUtils;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;

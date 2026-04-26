@@ -1,7 +1,7 @@
 package org.grimmory.app.controller;
 
-import org.booklore.app.dto.AppFilterOptions;
-import org.booklore.app.service.AppBookService;
+import org.grimmory.app.dto.AppFilterOptions;
+import org.grimmory.app.service.AppBookService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

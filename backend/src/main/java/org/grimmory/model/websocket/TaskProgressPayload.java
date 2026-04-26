@@ -1,7 +1,7 @@
 package org.grimmory.model.websocket;
 
-import org.booklore.task.TaskStatus;
-import org.booklore.model.enums.TaskType;
+import org.grimmory.task.TaskStatus;
+import org.grimmory.model.enums.TaskType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

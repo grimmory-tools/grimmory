@@ -1,6 +1,6 @@
 package org.grimmory.service.kobo;
 
-import org.booklore.model.dto.kobo.KoboAuthentication;
+import org.grimmory.model.dto.kobo.KoboAuthentication;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -1,15 +1,15 @@
 package org.grimmory.service.customfont;
 
-import org.booklore.config.AppProperties;
-import org.booklore.exception.APIException;
-import org.booklore.mapper.CustomFontMapper;
-import org.booklore.model.dto.CustomFontDto;
-import org.booklore.model.entity.BookLoreUserEntity;
-import org.booklore.model.entity.CustomFontEntity;
-import org.booklore.model.enums.FontFormat;
-import org.booklore.repository.CustomFontRepository;
-import org.booklore.repository.UserRepository;
-import org.booklore.util.MimeDetector;
+import org.grimmory.config.AppProperties;
+import org.grimmory.exception.APIException;
+import org.grimmory.mapper.CustomFontMapper;
+import org.grimmory.model.dto.CustomFontDto;
+import org.grimmory.model.entity.BookLoreUserEntity;
+import org.grimmory.model.entity.CustomFontEntity;
+import org.grimmory.model.enums.FontFormat;
+import org.grimmory.repository.CustomFontRepository;
+import org.grimmory.repository.UserRepository;
+import org.grimmory.util.MimeDetector;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;

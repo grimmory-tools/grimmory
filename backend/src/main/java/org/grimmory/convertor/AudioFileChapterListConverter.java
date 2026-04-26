@@ -3,7 +3,7 @@ package org.grimmory.convertor;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.model.entity.BookFileEntity.AudioFileChapter;
+import org.grimmory.model.entity.BookFileEntity.AudioFileChapter;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;

@@ -1,6 +1,6 @@
 package org.grimmory.config.logging;
 
-import org.booklore.config.logging.filter.RequestLoggingFilter;
+import org.grimmory.config.logging.filter.RequestLoggingFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.filter.GenericFilterBean;

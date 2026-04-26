@@ -1,7 +1,7 @@
 package org.grimmory.controller;
 
-import org.booklore.model.dto.request.SendBookByEmailRequest;
-import org.booklore.service.email.SendEmailV2Service;
+import org.grimmory.model.dto.request.SendBookByEmailRequest;
+import org.grimmory.service.email.SendEmailV2Service;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

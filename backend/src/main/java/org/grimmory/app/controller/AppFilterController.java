@@ -2,8 +2,8 @@ package org.grimmory.app.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.booklore.app.dto.AppFilterOptions;
-import org.booklore.app.service.AppBookService;
+import org.grimmory.app.dto.AppFilterOptions;
+import org.grimmory.app.service.AppBookService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

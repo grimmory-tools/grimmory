@@ -1,8 +1,8 @@
 package org.grimmory.service.migration.migrations;
 
-import org.booklore.config.AppProperties;
-import org.booklore.service.migration.Migration;
-import org.booklore.util.FileService;
+import org.grimmory.config.AppProperties;
+import org.grimmory.service.migration.Migration;
+import org.grimmory.util.FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

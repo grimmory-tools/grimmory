@@ -1,12 +1,12 @@
 package org.grimmory.service.migration.migrations;
 
-import org.booklore.model.entity.BookFileEntity;
-import org.booklore.model.entity.UserBookFileProgressEntity;
-import org.booklore.model.entity.UserBookProgressEntity;
-import org.booklore.model.enums.BookFileType;
-import org.booklore.repository.UserBookFileProgressRepository;
-import org.booklore.repository.UserBookProgressRepository;
-import org.booklore.service.migration.Migration;
+import org.grimmory.model.entity.BookFileEntity;
+import org.grimmory.model.entity.UserBookFileProgressEntity;
+import org.grimmory.model.entity.UserBookProgressEntity;
+import org.grimmory.model.enums.BookFileType;
+import org.grimmory.repository.UserBookFileProgressRepository;
+import org.grimmory.repository.UserBookProgressRepository;
+import org.grimmory.service.migration.Migration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

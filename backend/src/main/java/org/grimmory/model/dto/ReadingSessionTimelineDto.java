@@ -1,6 +1,6 @@
 package org.grimmory.model.dto;
 
-import org.booklore.model.enums.BookFileType;
+import org.grimmory.model.enums.BookFileType;
 
 import java.time.LocalDateTime;
 

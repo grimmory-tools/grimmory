@@ -1,16 +1,16 @@
 package org.grimmory.service.book;
 
-import org.booklore.mapper.BookMapper;
-import org.booklore.model.dto.Book;
-import org.booklore.model.dto.request.DuplicateDetectionRequest;
-import org.booklore.model.dto.response.DuplicateGroup;
-import org.booklore.model.entity.AuthorEntity;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookFileEntity;
-import org.booklore.model.entity.BookMetadataEntity;
-import org.booklore.model.enums.BookFileType;
-import org.booklore.repository.BookRepository;
-import org.booklore.util.BookUtils;
+import org.grimmory.mapper.BookMapper;
+import org.grimmory.model.dto.Book;
+import org.grimmory.model.dto.request.DuplicateDetectionRequest;
+import org.grimmory.model.dto.response.DuplicateGroup;
+import org.grimmory.model.entity.AuthorEntity;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.BookFileEntity;
+import org.grimmory.model.entity.BookMetadataEntity;
+import org.grimmory.model.enums.BookFileType;
+import org.grimmory.repository.BookRepository;
+import org.grimmory.util.BookUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -2,12 +2,12 @@ package org.grimmory.service.book;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookLoreUserEntity;
-import org.booklore.model.entity.PdfAnnotationEntity;
-import org.booklore.repository.BookRepository;
-import org.booklore.repository.PdfAnnotationRepository;
-import org.booklore.repository.UserRepository;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.BookLoreUserEntity;
+import org.grimmory.model.entity.PdfAnnotationEntity;
+import org.grimmory.repository.BookRepository;
+import org.grimmory.repository.PdfAnnotationRepository;
+import org.grimmory.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;

@@ -2,8 +2,8 @@ package org.grimmory.model.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
-import org.booklore.model.enums.MetadataProvider;
-import org.booklore.model.enums.MetadataReplaceMode;
+import org.grimmory.model.enums.MetadataProvider;
+import org.grimmory.model.enums.MetadataReplaceMode;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 

@@ -1,7 +1,7 @@
 package org.grimmory.model.dto;
 
 
-import org.booklore.model.enums.FetchedMetadataProposalStatus;
+import org.grimmory.model.enums.FetchedMetadataProposalStatus;
 import lombok.*;
 
 import java.time.Instant;

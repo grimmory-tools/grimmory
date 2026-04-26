@@ -1,16 +1,16 @@
 package org.grimmory.app.service;
 
 import lombok.AllArgsConstructor;
-import org.booklore.config.security.service.AuthenticationService;
-import org.booklore.exception.ApiError;
-import org.booklore.app.dto.AppAuthorDetail;
-import org.booklore.app.dto.AppAuthorSummary;
-import org.booklore.app.dto.AppPageResponse;
-import org.booklore.model.dto.BookLoreUser;
-import org.booklore.model.dto.Library;
-import org.booklore.model.entity.AuthorEntity;
-import org.booklore.repository.AuthorRepository;
-import org.booklore.util.FileService;
+import org.grimmory.config.security.service.AuthenticationService;
+import org.grimmory.exception.ApiError;
+import org.grimmory.app.dto.AppAuthorDetail;
+import org.grimmory.app.dto.AppAuthorSummary;
+import org.grimmory.app.dto.AppPageResponse;
+import org.grimmory.model.dto.BookLoreUser;
+import org.grimmory.model.dto.Library;
+import org.grimmory.model.entity.AuthorEntity;
+import org.grimmory.repository.AuthorRepository;
+import org.grimmory.util.FileService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

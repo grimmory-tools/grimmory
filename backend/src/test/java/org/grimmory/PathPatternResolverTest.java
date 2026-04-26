@@ -1,10 +1,10 @@
 package org.grimmory;
 
-import org.booklore.model.entity.AuthorEntity;
-import org.booklore.model.entity.BookFileEntity;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookMetadataEntity;
-import org.booklore.util.PathPatternResolver;
+import org.grimmory.model.entity.AuthorEntity;
+import org.grimmory.model.entity.BookFileEntity;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.BookMetadataEntity;
+import org.grimmory.util.PathPatternResolver;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;

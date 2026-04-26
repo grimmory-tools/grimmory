@@ -8,8 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.booklore.model.enums.TaskType;
-import org.booklore.task.options.LibraryRescanOptions;
+import org.grimmory.model.enums.TaskType;
+import org.grimmory.task.options.LibraryRescanOptions;
 import tools.jackson.databind.ObjectMapper;
 
 @Data

@@ -1,7 +1,7 @@
 package org.grimmory.controller;
 
-import org.booklore.model.dto.KoboSyncSettings;
-import org.booklore.service.kobo.KoboSettingsService;
+import org.grimmory.model.dto.KoboSyncSettings;
+import org.grimmory.service.kobo.KoboSettingsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;

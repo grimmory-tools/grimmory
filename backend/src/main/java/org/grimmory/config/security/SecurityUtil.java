@@ -1,8 +1,8 @@
 package org.grimmory.config.security;
 
 import lombok.AllArgsConstructor;
-import org.booklore.model.dto.BookLoreUser;
-import org.booklore.repository.ShelfRepository;
+import org.grimmory.model.dto.BookLoreUser;
+import org.grimmory.repository.ShelfRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 

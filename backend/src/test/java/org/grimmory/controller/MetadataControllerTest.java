@@ -1,11 +1,11 @@
 package org.grimmory.controller;
 
-import org.booklore.model.MetadataUpdateWrapper;
-import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.enums.MetadataReplaceMode;
-import org.booklore.service.metadata.BookMetadataService;
-import org.booklore.service.metadata.MetadataManagementService;
-import org.booklore.service.metadata.MetadataMatchService;
+import org.grimmory.model.MetadataUpdateWrapper;
+import org.grimmory.model.dto.BookMetadata;
+import org.grimmory.model.enums.MetadataReplaceMode;
+import org.grimmory.service.metadata.BookMetadataService;
+import org.grimmory.service.metadata.MetadataManagementService;
+import org.grimmory.service.metadata.MetadataMatchService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

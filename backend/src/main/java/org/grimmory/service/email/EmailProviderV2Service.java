@@ -1,20 +1,20 @@
 package org.grimmory.service.email;
 
-import org.booklore.config.security.service.AuthenticationService;
-import org.booklore.exception.ApiError;
-import org.booklore.mapper.EmailProviderV2Mapper;
-import org.booklore.model.dto.BookLoreUser;
-import org.booklore.model.dto.EmailProviderV2;
-import org.booklore.model.dto.request.CreateEmailProviderRequest;
-import org.booklore.model.entity.EmailProviderV2Entity;
-import org.booklore.model.entity.UserEmailProviderPreferenceEntity;
-import org.booklore.repository.EmailProviderV2Repository;
-import org.booklore.repository.UserEmailProviderPreferenceRepository;
+import org.grimmory.config.security.service.AuthenticationService;
+import org.grimmory.exception.ApiError;
+import org.grimmory.mapper.EmailProviderV2Mapper;
+import org.grimmory.model.dto.BookLoreUser;
+import org.grimmory.model.dto.EmailProviderV2;
+import org.grimmory.model.dto.request.CreateEmailProviderRequest;
+import org.grimmory.model.entity.EmailProviderV2Entity;
+import org.grimmory.model.entity.UserEmailProviderPreferenceEntity;
+import org.grimmory.repository.EmailProviderV2Repository;
+import org.grimmory.repository.UserEmailProviderPreferenceRepository;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.model.enums.AuditAction;
-import org.booklore.service.audit.AuditService;
+import org.grimmory.model.enums.AuditAction;
+import org.grimmory.service.audit.AuditService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

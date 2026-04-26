@@ -1,14 +1,14 @@
 package org.grimmory.controller;
 
-import org.booklore.config.AppProperties;
-import org.booklore.config.security.service.AuthenticationService;
-import org.booklore.exception.ApiError;
-import org.booklore.model.dto.UserCreateRequest;
-import org.booklore.model.dto.request.RefreshTokenRequest;
-import org.booklore.model.dto.request.UserLoginRequest;
-import org.booklore.model.entity.BookLoreUserEntity;
-import org.booklore.repository.UserRepository;
-import org.booklore.service.user.UserProvisioningService;
+import org.grimmory.config.AppProperties;
+import org.grimmory.config.security.service.AuthenticationService;
+import org.grimmory.exception.ApiError;
+import org.grimmory.model.dto.UserCreateRequest;
+import org.grimmory.model.dto.request.RefreshTokenRequest;
+import org.grimmory.model.dto.request.UserLoginRequest;
+import org.grimmory.model.entity.BookLoreUserEntity;
+import org.grimmory.repository.UserRepository;
+import org.grimmory.service.user.UserProvisioningService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

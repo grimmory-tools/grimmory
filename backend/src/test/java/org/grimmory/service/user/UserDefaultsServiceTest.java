@@ -1,10 +1,10 @@
 package org.grimmory.service.user;
 
 import tools.jackson.databind.ObjectMapper;
-import org.booklore.model.entity.BookLoreUserEntity;
-import org.booklore.model.entity.ShelfEntity;
-import org.booklore.model.enums.IconType;
-import org.booklore.repository.ShelfRepository;
+import org.grimmory.model.entity.BookLoreUserEntity;
+import org.grimmory.model.entity.ShelfEntity;
+import org.grimmory.model.enums.IconType;
+import org.grimmory.repository.ShelfRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;

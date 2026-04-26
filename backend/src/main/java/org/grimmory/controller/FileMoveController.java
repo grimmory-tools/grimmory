@@ -1,7 +1,7 @@
 package org.grimmory.controller;
 
-import org.booklore.model.dto.request.FileMoveRequest;
-import org.booklore.service.file.FileMoveService;
+import org.grimmory.model.dto.request.FileMoveRequest;
+import org.grimmory.service.file.FileMoveService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

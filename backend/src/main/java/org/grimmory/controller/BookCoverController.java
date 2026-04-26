@@ -1,12 +1,12 @@
 package org.grimmory.controller;
 
-import org.booklore.config.security.annotation.CheckBookAccess;
-import org.booklore.model.dto.CoverImage;
-import org.booklore.model.dto.request.BulkBookIdsRequest;
-import org.booklore.model.dto.request.CoverFetchRequest;
-import org.booklore.service.metadata.BookCoverService;
-import org.booklore.service.metadata.DuckDuckGoCoverService;
-import org.booklore.exception.ApiError;
+import org.grimmory.config.security.annotation.CheckBookAccess;
+import org.grimmory.model.dto.CoverImage;
+import org.grimmory.model.dto.request.BulkBookIdsRequest;
+import org.grimmory.model.dto.request.CoverFetchRequest;
+import org.grimmory.service.metadata.BookCoverService;
+import org.grimmory.service.metadata.DuckDuckGoCoverService;
+import org.grimmory.exception.ApiError;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

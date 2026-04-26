@@ -2,12 +2,12 @@ package org.grimmory.service.audit;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.model.dto.BookLoreUser;
-import org.booklore.model.dto.response.AuditLogDto;
-import org.booklore.model.entity.AuditLogEntity;
-import org.booklore.model.enums.AuditAction;
-import org.booklore.repository.AuditLogRepository;
-import org.booklore.util.RequestUtils;
+import org.grimmory.model.dto.BookLoreUser;
+import org.grimmory.model.dto.response.AuditLogDto;
+import org.grimmory.model.entity.AuditLogEntity;
+import org.grimmory.model.enums.AuditAction;
+import org.grimmory.repository.AuditLogRepository;
+import org.grimmory.util.RequestUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;

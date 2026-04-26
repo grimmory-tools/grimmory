@@ -2,7 +2,7 @@ package org.grimmory.convertor;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
-import org.booklore.model.dto.kobo.KoboSpanPositionMap;
+import org.grimmory.model.dto.kobo.KoboSpanPositionMap;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 

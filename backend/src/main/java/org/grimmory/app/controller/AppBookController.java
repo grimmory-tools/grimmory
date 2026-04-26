@@ -2,8 +2,8 @@ package org.grimmory.app.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.booklore.app.dto.*;
-import org.booklore.app.service.AppBookService;
+import org.grimmory.app.dto.*;
+import org.grimmory.app.service.AppBookService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -1,8 +1,8 @@
 package org.grimmory.controller;
 
-import org.booklore.model.dto.EmailProviderV2;
-import org.booklore.model.dto.request.CreateEmailProviderRequest;
-import org.booklore.service.email.EmailProviderV2Service;
+import org.grimmory.model.dto.EmailProviderV2;
+import org.grimmory.model.dto.request.CreateEmailProviderRequest;
+import org.grimmory.service.email.EmailProviderV2Service;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

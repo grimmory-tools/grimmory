@@ -1,10 +1,10 @@
 package org.grimmory.service.metadata.sidecar;
 
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.dto.ComicMetadata;
-import org.booklore.model.dto.sidecar.*;
-import org.booklore.model.entity.*;
+import org.grimmory.model.dto.BookMetadata;
+import org.grimmory.model.dto.ComicMetadata;
+import org.grimmory.model.dto.sidecar.*;
+import org.grimmory.model.entity.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 

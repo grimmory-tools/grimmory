@@ -1,9 +1,9 @@
 package org.grimmory.controller;
 
-import org.booklore.model.dto.request.SvgIconBatchRequest;
-import org.booklore.model.dto.request.SvgIconCreateRequest;
-import org.booklore.model.dto.response.SvgIconBatchResponse;
-import org.booklore.service.IconService;
+import org.grimmory.model.dto.request.SvgIconBatchRequest;
+import org.grimmory.model.dto.request.SvgIconCreateRequest;
+import org.grimmory.model.dto.response.SvgIconBatchResponse;
+import org.grimmory.service.IconService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

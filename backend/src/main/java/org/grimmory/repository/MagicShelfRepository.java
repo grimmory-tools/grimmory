@@ -1,6 +1,6 @@
 package org.grimmory.repository;
 
-import org.booklore.model.entity.MagicShelfEntity;
+import org.grimmory.model.entity.MagicShelfEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

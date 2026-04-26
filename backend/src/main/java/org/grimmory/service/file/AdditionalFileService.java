@@ -1,11 +1,11 @@
 package org.grimmory.service.file;
 
-import org.booklore.mapper.AdditionalFileMapper;
-import org.booklore.model.dto.BookFile;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookFileEntity;
-import org.booklore.repository.BookAdditionalFileRepository;
-import org.booklore.service.monitoring.MonitoringRegistrationService;
+import org.grimmory.mapper.AdditionalFileMapper;
+import org.grimmory.model.dto.BookFile;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.BookFileEntity;
+import org.grimmory.repository.BookAdditionalFileRepository;
+import org.grimmory.service.monitoring.MonitoringRegistrationService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;

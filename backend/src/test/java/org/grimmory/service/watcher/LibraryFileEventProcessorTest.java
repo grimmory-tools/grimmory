@@ -1,15 +1,15 @@
 package org.grimmory.service.watcher;
 
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookFileEntity;
-import org.booklore.model.entity.LibraryEntity;
-import org.booklore.model.entity.LibraryPathEntity;
-import org.booklore.model.enums.BookFileType;
-import org.booklore.model.enums.LibraryOrganizationMode;
-import org.booklore.repository.BookRepository;
-import org.booklore.repository.LibraryRepository;
-import org.booklore.service.library.LibraryProcessingService;
-import org.booklore.service.library.LibraryScanListener;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.entity.BookFileEntity;
+import org.grimmory.model.entity.LibraryEntity;
+import org.grimmory.model.entity.LibraryPathEntity;
+import org.grimmory.model.enums.BookFileType;
+import org.grimmory.model.enums.LibraryOrganizationMode;
+import org.grimmory.repository.BookRepository;
+import org.grimmory.repository.LibraryRepository;
+import org.grimmory.service.library.LibraryProcessingService;
+import org.grimmory.service.library.LibraryScanListener;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;

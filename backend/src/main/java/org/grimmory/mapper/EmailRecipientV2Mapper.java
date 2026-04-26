@@ -1,8 +1,8 @@
 package org.grimmory.mapper;
 
-import org.booklore.model.dto.EmailRecipientV2;
-import org.booklore.model.dto.request.CreateEmailRecipientRequest;
-import org.booklore.model.entity.EmailRecipientV2Entity;
+import org.grimmory.model.dto.EmailRecipientV2;
+import org.grimmory.model.dto.request.CreateEmailRecipientRequest;
+import org.grimmory.model.entity.EmailRecipientV2Entity;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;

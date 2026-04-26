@@ -1,7 +1,7 @@
 package org.grimmory.mapper;
 
-import org.booklore.model.MetadataClearFlags;
-import org.booklore.model.dto.request.BulkMetadataUpdateRequest;
+import org.grimmory.model.MetadataClearFlags;
+import org.grimmory.model.dto.request.BulkMetadataUpdateRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;

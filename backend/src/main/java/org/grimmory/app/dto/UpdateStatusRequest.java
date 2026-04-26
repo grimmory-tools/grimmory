@@ -1,6 +1,6 @@
 package org.grimmory.app.dto;
 
-import org.booklore.model.enums.ReadStatus;
+import org.grimmory.model.enums.ReadStatus;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 

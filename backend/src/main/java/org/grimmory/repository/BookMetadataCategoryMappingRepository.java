@@ -1,7 +1,7 @@
 package org.grimmory.repository;
 
-import org.booklore.model.entity.BookMetadataCategoryKey;
-import org.booklore.model.entity.BookMetadataCategoryMapping;
+import org.grimmory.model.entity.BookMetadataCategoryKey;
+import org.grimmory.model.entity.BookMetadataCategoryMapping;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

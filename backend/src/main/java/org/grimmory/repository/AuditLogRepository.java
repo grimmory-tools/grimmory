@@ -1,7 +1,7 @@
 package org.grimmory.repository;
 
-import org.booklore.model.entity.AuditLogEntity;
-import org.booklore.model.enums.AuditAction;
+import org.grimmory.model.entity.AuditLogEntity;
+import org.grimmory.model.enums.AuditAction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

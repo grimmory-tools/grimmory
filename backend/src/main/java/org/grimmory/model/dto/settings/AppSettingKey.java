@@ -1,6 +1,6 @@
 package org.grimmory.model.dto.settings;
 
-import org.booklore.model.enums.PermissionType;
+import org.grimmory.model.enums.PermissionType;
 import lombok.Getter;
 
 import java.util.List;

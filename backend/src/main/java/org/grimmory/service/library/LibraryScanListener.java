@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import org.booklore.task.options.RescanLibraryContext;
+import org.grimmory.task.options.RescanLibraryContext;
 
 import java.io.IOException;
 import java.util.Set;

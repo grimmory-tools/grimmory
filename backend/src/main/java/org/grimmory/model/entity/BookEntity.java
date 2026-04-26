@@ -2,9 +2,9 @@ package org.grimmory.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.booklore.convertor.BookRecommendationIdsListConverter;
-import org.booklore.model.dto.BookRecommendationLite;
-import org.booklore.model.enums.BookFileType;
+import org.grimmory.convertor.BookRecommendationIdsListConverter;
+import org.grimmory.model.dto.BookRecommendationLite;
+import org.grimmory.model.enums.BookFileType;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.LazyGroup;
 

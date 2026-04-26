@@ -1,9 +1,9 @@
 package org.grimmory.service;
 
-import org.booklore.config.security.service.AuthenticationService;
-import org.booklore.model.entity.BookLoreUserEntity;
-import org.booklore.model.enums.PermissionType;
-import org.booklore.model.websocket.Topic;
+import org.grimmory.config.security.service.AuthenticationService;
+import org.grimmory.model.entity.BookLoreUserEntity;
+import org.grimmory.model.enums.PermissionType;
+import org.grimmory.model.websocket.Topic;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;

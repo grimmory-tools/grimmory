@@ -1,14 +1,14 @@
 package org.grimmory.service.kobo;
 
-import org.booklore.model.dto.KoboSyncSettings;
-import org.booklore.model.dto.kobo.ChangedReadingState;
-import org.booklore.model.dto.kobo.KoboReadingState;
-import org.booklore.model.entity.UserBookProgressEntity;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.enums.ReadStatus;
-import org.booklore.repository.KoboDeletedBookProgressRepository;
-import org.booklore.repository.UserBookProgressRepository;
-import org.booklore.util.kobo.BookloreSyncTokenGenerator;
+import org.grimmory.model.dto.KoboSyncSettings;
+import org.grimmory.model.dto.kobo.ChangedReadingState;
+import org.grimmory.model.dto.kobo.KoboReadingState;
+import org.grimmory.model.entity.UserBookProgressEntity;
+import org.grimmory.model.entity.BookEntity;
+import org.grimmory.model.enums.ReadStatus;
+import org.grimmory.repository.KoboDeletedBookProgressRepository;
+import org.grimmory.repository.UserBookProgressRepository;
+import org.grimmory.util.kobo.BookloreSyncTokenGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

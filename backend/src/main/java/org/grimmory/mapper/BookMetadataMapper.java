@@ -1,7 +1,7 @@
 package org.grimmory.mapper;
 
-import org.booklore.model.dto.BookMetadata;
-import org.booklore.model.entity.BookMetadataEntity;
+import org.grimmory.model.dto.BookMetadata;
+import org.grimmory.model.entity.BookMetadataEntity;
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring", uses = {AuthorMapper.class, CategoryMapper.class, MoodMapper.class, TagMapper.class, ComicMetadataMapper.class}, unmappedTargetPolicy = ReportingPolicy.IGNORE)

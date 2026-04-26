@@ -1,10 +1,10 @@
 /*
 package org.grimmory.repository;
 
-import org.booklore.model.entity.*;
-import org.booklore.model.enums.AdditionalFileType;
-import org.booklore.model.enums.BookFileType;
-import org.booklore.model.enums.LibraryScanMode;
+import org.grimmory.model.entity.*;
+import org.grimmory.model.enums.AdditionalFileType;
+import org.grimmory.model.enums.BookFileType;
+import org.grimmory.model.enums.LibraryScanMode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,6 +1,6 @@
 package org.grimmory.model.dto.request;
 
-import org.booklore.model.enums.OpdsSortOrder;
+import org.grimmory.model.enums.OpdsSortOrder;
 import jakarta.validation.constraints.NotNull;
 
 public record OpdsUserV2UpdateRequest(

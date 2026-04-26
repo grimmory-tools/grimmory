@@ -2,7 +2,7 @@ package org.grimmory.repository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.booklore.model.entity.BookLoreUserEntity;
+import org.grimmory.model.entity.BookLoreUserEntity;
 import org.hibernate.Hibernate;
 import org.springframework.transaction.annotation.Transactional;
 

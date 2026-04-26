@@ -1,7 +1,7 @@
 package org.grimmory.mapper;
 
-import org.booklore.model.dto.Annotation;
-import org.booklore.model.entity.AnnotationEntity;
+import org.grimmory.model.dto.Annotation;
+import org.grimmory.model.entity.AnnotationEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

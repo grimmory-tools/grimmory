@@ -1,16 +1,16 @@
 package org.grimmory.service.kobo;
 
-import org.booklore.config.security.service.AuthenticationService;
-import org.booklore.model.dto.BookLoreUser;
-import org.booklore.model.dto.KoboSyncSettings;
-import org.booklore.model.dto.Shelf;
-import org.booklore.model.dto.request.ShelfCreateRequest;
-import org.booklore.model.entity.KoboUserSettingsEntity;
-import org.booklore.model.entity.ShelfEntity;
-import org.booklore.model.enums.ShelfType;
-import org.booklore.repository.KoboUserSettingsRepository;
-import org.booklore.service.ShelfService;
-import org.booklore.service.hardcover.HardcoverSyncSettingsService;
+import org.grimmory.config.security.service.AuthenticationService;
+import org.grimmory.model.dto.BookLoreUser;
+import org.grimmory.model.dto.KoboSyncSettings;
+import org.grimmory.model.dto.Shelf;
+import org.grimmory.model.dto.request.ShelfCreateRequest;
+import org.grimmory.model.entity.KoboUserSettingsEntity;
+import org.grimmory.model.entity.ShelfEntity;
+import org.grimmory.model.enums.ShelfType;
+import org.grimmory.repository.KoboUserSettingsRepository;
+import org.grimmory.service.ShelfService;
+import org.grimmory.service.hardcover.HardcoverSyncSettingsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

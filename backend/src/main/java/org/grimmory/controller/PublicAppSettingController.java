@@ -1,7 +1,7 @@
 package org.grimmory.controller;
 
-import org.booklore.model.dto.settings.PublicAppSetting;
-import org.booklore.service.appsettings.AppSettingService;
+import org.grimmory.model.dto.settings.PublicAppSetting;
+import org.grimmory.service.appsettings.AppSettingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;

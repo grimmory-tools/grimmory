@@ -1,7 +1,7 @@
 package org.grimmory.mapper;
 
-import org.booklore.model.dto.OidcGroupMapping;
-import org.booklore.model.entity.OidcGroupMappingEntity;
+import org.grimmory.model.dto.OidcGroupMapping;
+import org.grimmory.model.entity.OidcGroupMappingEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;

@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.booklore.model.enums.MetadataProvider;
+import org.grimmory.model.enums.MetadataProvider;
 
 import java.util.Set;
 

@@ -1,7 +1,7 @@
 package org.grimmory.mapper;
 
-import org.booklore.model.dto.KoreaderUser;
-import org.booklore.model.entity.KoreaderUserEntity;
+import org.grimmory.model.dto.KoreaderUser;
+import org.grimmory.model.entity.KoreaderUserEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;

@@ -1,9 +1,9 @@
 package org.grimmory.service;
 
-import org.booklore.config.AppProperties;
-import org.booklore.exception.ApiError;
-import org.booklore.model.dto.request.SvgIconCreateRequest;
-import org.booklore.model.dto.response.SvgIconBatchResponse;
+import org.grimmory.config.AppProperties;
+import org.grimmory.exception.ApiError;
+import org.grimmory.model.dto.request.SvgIconCreateRequest;
+import org.grimmory.model.dto.response.SvgIconBatchResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
