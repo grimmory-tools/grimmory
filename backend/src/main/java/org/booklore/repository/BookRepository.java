@@ -137,8 +137,9 @@ public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpec
     @Query("SELECT DISTINCT b FROM BookEntity b JOIN b.bookFiles bf WHERE bf.isBookFormat = true AND bf.fileSizeKb IS NULL AND (b.deleted IS NULL OR b.deleted = false)")
     List<BookEntity> findAllWithMetadataByFileSizeKbIsNull();
 
-    // Only ToOne paths in EntityGraph; collections (authors, categories, shelves) loaded via @BatchSize.
-    @EntityGraph(attributePaths = {"metadata", "metadata.comicMetadata"})
+    // Only ToOne paths and a single ToMany path (bookFiles) in EntityGraph to avoid Cartesian product; 
+    // collections like authors/categories are still loaded via @BatchSize.
+    @EntityGraph(attributePaths = {"metadata", "metadata.comicMetadata", "library", "bookFiles"})
     @Query("SELECT b FROM BookEntity b WHERE (b.deleted IS NULL OR b.deleted = false)")
     List<BookEntity> findAllFullBooks();
 

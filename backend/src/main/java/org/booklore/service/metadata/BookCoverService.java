@@ -327,6 +327,7 @@ public class BookCoverService {
             try {
                 List<BookRegenerationInfo> books = transactionTemplate.execute(status ->
                         bookQueryService.getAllFullBookEntities().stream()
+                                .filter(book -> book.getMetadata() != null)
                                 .filter(book -> !isCoverLocked(book))
                                 .filter(book -> book.getPrimaryBookFile() != null)
                                 .filter(book -> !missingOnly || book.getBookCoverHash() == null)
@@ -549,6 +550,7 @@ public class BookCoverService {
 
     private List<BookCoverInfo> getUnlockedBookCoverInfos(Set<Long> bookIds) {
         return bookQueryService.findAllWithMetadataByIds(bookIds).stream()
+                .filter(book -> book.getMetadata() != null)
                 .filter(book -> !isCoverLocked(book))
                 .map(book -> new BookCoverInfo(book.getId(), book.getMetadata().getTitle()))
                 .toList();
@@ -556,6 +558,7 @@ public class BookCoverService {
 
     private List<BookRegenerationInfo> getUnlockedBookRegenerationInfos(Set<Long> bookIds) {
         return bookQueryService.findAllWithMetadataByIds(bookIds).stream()
+                .filter(book -> book.getMetadata() != null)
                 .filter(book -> !isCoverLocked(book))
                 .filter(book -> book.getPrimaryBookFile() != null)
                 .map(book -> new BookRegenerationInfo(book.getId(), book.getMetadata().getTitle(), book.getPrimaryBookFile().getBookType(), false))
@@ -563,11 +566,11 @@ public class BookCoverService {
     }
 
     private boolean isCoverLocked(BookEntity book) {
-        return book.getMetadata().getCoverLocked() != null && book.getMetadata().getCoverLocked();
+        return book.getMetadata() != null && Boolean.TRUE.equals(book.getMetadata().getCoverLocked());
     }
 
     private boolean isAudiobookCoverLocked(BookEntity book) {
-        return book.getMetadata().getAudiobookCoverLocked() != null && book.getMetadata().getAudiobookCoverLocked();
+        return book.getMetadata() != null && Boolean.TRUE.equals(book.getMetadata().getAudiobookCoverLocked());
     }
 
     private String getAuthorNames(BookEntity bookEntity) {
