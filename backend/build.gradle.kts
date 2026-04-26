@@ -154,7 +154,7 @@ dependencies {
     implementation("org.jsoup:jsoup:1.22.2")
 
     // --- Mapping (DTOs & Entities) ---
-    compileOnly("org.mapstruct:mapstruct:1.6.3")
+    testImplementation("org.mapstruct:mapstruct:1.6.3")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
 
     // --- API Documentation ---
