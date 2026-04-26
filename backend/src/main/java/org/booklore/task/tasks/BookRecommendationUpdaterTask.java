@@ -111,9 +111,10 @@ public class BookRecommendationUpdaterTask implements Task {
         Map<Long, Set<BookRecommendationLite>> allRecommendations = new HashMap<>();
 
         int processedBooks = 0;
-        for (Long targetId : allBookIds) {
+        for (Map.Entry<Long, double[]> entry : embeddings.entrySet()) {
+            Long targetId = entry.getKey();
             try {
-                double[] targetVector = embeddings.get(targetId);
+                double[] targetVector = entry.getValue();
                 if (targetVector == null) continue;
 
                 String targetSeries = seriesNames.get(targetId);

@@ -108,6 +108,8 @@
   height: calc(100dvh - 12.5rem);
   padding: 1rem;
   box-sizing: border-box;
+  overflow: hidden auto;
+  scrollbar-gutter: stable;
   scrollbar-width: thin;
   scrollbar-color: var(--primary-color) rgb(20 20 30 / 50%);
 
@@ -135,9 +137,8 @@
   gap: 1.25rem;
   place-items: start center;
   width: 100%;
+  box-sizing: border-box;
   padding-top: 1rem;
-  padding-right: 1rem;
-  padding-left: 1rem;
 }
 
 .virtual-scroller-item {

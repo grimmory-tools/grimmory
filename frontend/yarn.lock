@@ -3967,13 +3967,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tweenjs/tween.js@npm:^25.0.0":
-  version: 25.0.0
-  resolution: "@tweenjs/tween.js@npm:25.0.0"
-  checksum: 10c0/372a85913ad088b8d2720e4a5e90469e411e0757b5f3a52da6a7403f1722236b853bc9c78d9437b1f30db61199efe45e7ec40484def2ab1fe7c2334de0673ef3
-  languageName: node
-  linkType: hard
-
 "@tybys/wasm-util@npm:^0.10.1":
   version: 0.10.1
   resolution: "@tybys/wasm-util@npm:0.10.1"
@@ -6289,7 +6282,6 @@ __metadata:
     "@testing-library/dom": "npm:^10.4.1"
     "@testing-library/jest-dom": "npm:^6.9.1"
     "@testing-library/user-event": "npm:^14.6.1"
-    "@tweenjs/tween.js": "npm:^25.0.0"
     "@types/node": "npm:^25.6.0"
     "@types/showdown": "npm:^2.0.6"
     "@vitest/coverage-v8": "npm:^4.1.5"
@@ -6301,12 +6293,10 @@ __metadata:
     dompurify: "npm:^3.4.1"
     eslint: "npm:^10.2.1"
     jsdom: "npm:^29.0.2"
-    jwt-decode: "npm:^4.0.0"
     msw: "npm:^2.13.5"
     ng-lazyload-image: "npm:^9.1.3"
     ng-mocks: "npm:^14.15.2"
     ng2-charts: "npm:^10.0.0"
-    ngx-extended-pdf-viewer: "npm:^26.0.9"
     ngx-infinite-scroll: "npm:^21.0.0"
     ngx-sse-client: "npm:^21.0.0"
     postcss: "npm:^8.5.10"
@@ -6322,7 +6312,6 @@ __metadata:
     uuid: "npm:^14.0.0"
     vitest: "npm:^4.1.5"
     vitest-canvas-mock: "npm:^1.1.4"
-    ws: "npm:^8.20.0"
   languageName: unknown
   linkType: soft
 
@@ -6879,13 +6868,6 @@ __metadata:
   version: 1.3.1
   resolution: "jsonparse@npm:1.3.1"
   checksum: 10c0/89bc68080cd0a0e276d4b5ab1b79cacd68f562467008d176dc23e16e97d4efec9e21741d92ba5087a8433526a45a7e6a9d5ef25408696c402ca1cfbc01a90bf0
-  languageName: node
-  linkType: hard
-
-"jwt-decode@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "jwt-decode@npm:4.0.0"
-  checksum: 10c0/de75bbf89220746c388cf6a7b71e56080437b77d2edb29bae1c2155048b02c6b8c59a3e5e8d6ccdfd54f0b8bda25226e491a4f1b55ac5f8da04cfbadec4e546c
   languageName: node
   linkType: hard
 
@@ -7591,18 +7573,6 @@ __metadata:
     chart.js: ^3.4.0 || ^4.0.0
     rxjs: ^6.5.3 || ^7.4.0
   checksum: 10c0/c39a9350fd31c4517f486d38b7c70009236fcb4c824ff531cd903c2fb1e8fd3ed65017a2b00376742a682704e5e27523ce6377c843ce86a6cbfdba00910a4477
-  languageName: node
-  linkType: hard
-
-"ngx-extended-pdf-viewer@npm:^26.0.9":
-  version: 26.0.9
-  resolution: "ngx-extended-pdf-viewer@npm:26.0.9"
-  dependencies:
-    tslib: "npm:^2.3.0"
-  peerDependencies:
-    "@angular/common": ">=19.0.0 <22.0.0"
-    "@angular/core": ">=19.0.0 <22.0.0"
-  checksum: 10c0/398f433e398ca571821f4c5349ba04bc11f67156a16807ad1be6124043f5531b84324538b3af3736cbef3c2082a89641742276d409369412dcdf45a7c6772af1
   languageName: node
   linkType: hard
 
@@ -9898,21 +9868,6 @@ __metadata:
   dependencies:
     signal-exit: "npm:^4.0.1"
   checksum: 10c0/69cebb64945e22928a24ae7e2a55bf54438c92d6f657c1fa5e96b7c7a50f6c022e7454ab5c259079bb35f60296242f3a21234c79320d64a8ad57675b56a2098d
-  languageName: node
-  linkType: hard
-
-"ws@npm:^8.20.0":
-  version: 8.20.0
-  resolution: "ws@npm:8.20.0"
-  peerDependencies:
-    bufferutil: ^4.0.1
-    utf-8-validate: ">=5.0.2"
-  peerDependenciesMeta:
-    bufferutil:
-      optional: true
-    utf-8-validate:
-      optional: true
-  checksum: 10c0/956ac5f11738c914089b65878b9223692ace77337ba55379ae68e1ecbeae9b47a0c6eb9403688f609999a58c80d83d99865fe0029b229d308b08c1ef93d4ea14
   languageName: node
   linkType: hard
 
