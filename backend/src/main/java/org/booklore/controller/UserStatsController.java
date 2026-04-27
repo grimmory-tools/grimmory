@@ -297,6 +297,19 @@ public class UserStatsController {
     }
 
     @Operation(
+            summary = "Get listening favorite days",
+            description = "Returns listening activity distribution by day of week. Can be filtered by year and/or month.",
+            operationId = "getListeningFavoriteDays"
+    )
+    @GetMapping("/listening/favorite-days")
+    @PreAuthorize("@securityUtil.canAccessUserStats() or @securityUtil.isAdmin()")
+    public ResponseEntity<List<FavoriteReadingDaysResponse>> getListeningFavoriteDays(
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) Integer month) {
+        return ResponseEntity.ok(readingSessionService.getListeningFavoriteDays(year, month));
+    }
+
+    @Operation(
             summary = "Get listening genre statistics",
             description = "Returns listening statistics grouped by audiobook genres/categories.",
             operationId = "getListeningGenreStatistics"
