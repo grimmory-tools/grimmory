@@ -131,12 +131,20 @@ dependencies {
     implementation("com.twelvemonkeys.imageio:imageio-bmp:3.13.1")
 
     // epub4j-grimmory fork publishes as org.grimmory:epub4j-core
-    val epub4jCoords = if (useLocalLibs) "org.grimmory:epub4j-core:+" else "org.grimmory:epub4j-core:1.2.0"
+    val epub4jCoords = if (useLocalLibs) "org.grimmory:epub4j-core:+" else "org.grimmory:epub4j-core:1.4.0"
     implementation(epub4jCoords)
 
     // epub4j-native for native archive parsing
-    val epub4jNativeCoords = if (useLocalLibs) "org.grimmory:epub4j-native:+" else "org.grimmory:epub4j-native:1.2.0"
+    val epub4jNativeVersion = "1.4.0"
+    val epub4jNativeCoords = if (useLocalLibs) "org.grimmory:epub4j-native:+" else "org.grimmory:epub4j-native:$epub4jNativeVersion"
     implementation(epub4jNativeCoords)
+
+    // Add classifiers for architecture-dependent native packages
+    val classifiers = listOf("linux-x86_64", "linux-aarch64", "linux-musl-x86_64", "linux-musl-aarch64", "macos-x86_64", "macos-aarch64", "windows-x86_64")
+    classifiers.forEach { classifier ->
+        val coords = if (useLocalLibs) "org.grimmory:epub4j-native:+:$classifier" else "org.grimmory:epub4j-native:$epub4jNativeVersion:$classifier"
+        implementation(coords)
+    }
 
     // --- Audio Metadata (Audiobook Support) ---
     implementation("com.github.RouHim:jaudiotagger:2.0.19")

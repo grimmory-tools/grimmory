@@ -25,6 +25,22 @@ public class NativeLibraryManager {
         return libs.isEpubNativeAvailable();
     }
 
+    public boolean isGumboAvailable() {
+        return libs.isGumboAvailable();
+    }
+
+    public boolean isImageCodecAvailable() {
+        return libs.isImageCodecAvailable();
+    }
+
+    public boolean isPugixmlAvailable() {
+        return libs.isPugixmlAvailable();
+    }
+
+    public boolean isUchardetAvailable() {
+        return libs.isUchardetAvailable();
+    }
+
     public boolean isAvailable(NativeLibraries.Library library) {
         return libs.isAvailable(library);
     }
