@@ -70,7 +70,7 @@
           <div class="result-card">
             <div class="result-image">
               @if (result.imageUrl) {
-                <img [src]="result.imageUrl" [alt]="result.name" loading="lazy"/>
+                <img [src]="(result.imageUrl | ngswBypass)" [alt]="result.name" loading="lazy"/>
               } @else {
                 <div class="result-placeholder">
                   <i class="pi pi-user"></i>

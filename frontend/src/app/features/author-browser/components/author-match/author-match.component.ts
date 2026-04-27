@@ -8,6 +8,7 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {MessageService} from 'primeng/api';
 import {AuthorService} from '../../service/author.service';
 import {AuthorDetails, AuthorMatchRequest, AuthorSearchResult} from '../../model/author.model';
+import {NgswBypassPipe} from '../../../../shared/pipes/ngsw-bypass.pipe';
 
 interface RegionOption {
   label: string;
@@ -25,7 +26,8 @@ interface RegionOption {
     InputText,
     Select,
     ProgressSpinner,
-    TranslocoDirective
+    TranslocoDirective,
+    NgswBypassPipe
   ]
 })
 export class AuthorMatchComponent implements OnInit {

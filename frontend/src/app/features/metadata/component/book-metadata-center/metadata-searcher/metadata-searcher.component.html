@@ -161,7 +161,7 @@
               (keydown.enter)="onBookClick(metadata)">
               <div class="card-image">
                 <img
-                  [src]="metadata.thumbnailUrl || 'assets/images/missing-cover.jpg'"
+                  [src]="(metadata.thumbnailUrl | ngswBypass) || 'assets/images/missing-cover.jpg'"
                   [alt]="metadata.title"
                   loading="lazy"/>
                 <div class="card-overlay">
