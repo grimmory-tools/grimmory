@@ -93,8 +93,7 @@ public class ArchiveService {
         ReentrantLock lock = getFileLock(path);
         lock.lock();
         try {
-            // 1. Try NativeArchive (Panama) first. It is more stable and does not suffer from
-            // the JNI handle-reuse bugs seen in nightcompress on some platforms.
+            // 1. Try NativeArchive (Panama) first.
             if (NativeLibraries.get().isEpubNativeAvailable()) {
                 try (NativeArchive archive = NativeArchive.open(path)) {
                     CountingOutputStream countingOut = new CountingOutputStream(outputStream);
