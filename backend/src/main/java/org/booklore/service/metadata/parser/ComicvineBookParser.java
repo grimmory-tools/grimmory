@@ -40,7 +40,7 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
     private static final String COMICVINE_URL = "https://comicvine.gamespot.com/api/";
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final Pattern DIGIT_PATTERN = Pattern.compile("\\d+");
-    private static final Pattern SERIES_ISSUE_PATTERN = Pattern.compile("^([^\\s]+?)\\s+#?(\\d+(?:\\.\\d+)?)(?:\\s|$)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern SERIES_ISSUE_NUMBER_PATTERN = Pattern.compile("\\s#?(\\d+(?:\\.\\d+)?)");
     private static final Pattern DIGITAL_PATTERN = Pattern.compile("\\(digital\\)", Pattern.CASE_INSENSITIVE);
     private static final Pattern PARENTHETICAL_PATTERN = Pattern.compile("\\([^()]*\\)");
     private static final Pattern BRACKETED_PATTERN = Pattern.compile("\\[[^\\[\\]]*\\]");
@@ -920,19 +920,17 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
             }
         }
 
-        Matcher matcher = SERIES_ISSUE_PATTERN.matcher(cleaned);
+        Matcher matcher = SERIES_ISSUE_NUMBER_PATTERN.matcher(cleaned);
         if (matcher.find()) {
-            String series = matcher.group(1).trim();
-            String issueNum = matcher.group(2);
-            
-            if (series.endsWith("#")) {
-                series = series.substring(0, series.length() - 1).trim();
-            }
+            String series = cleaned.substring(0, matcher.start()).trim();
+            String issueNum = matcher.group(1).trim();
 
             String remainder = cleaned.substring(matcher.end()).trim();
 
-            log.debug("Extracted - Series: '{}', Issue: '{}', Remainder: '{}'", series, issueNum, remainder);
-            return new SeriesAndIssue(series, issueNum, year, null, remainder);
+            if (!series.isBlank()) {
+                log.debug("Extracted - Series: '{}', Issue: '{}', Remainder: '{}'", series, issueNum, remainder);
+                return new SeriesAndIssue(series, issueNum, year, null, remainder);
+            }
         }
         
         log.debug("No issue number found in: '{}'", cleaned);
