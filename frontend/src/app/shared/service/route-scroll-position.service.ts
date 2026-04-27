@@ -26,7 +26,10 @@ export class RouteScrollPositionService {
   }
 
   createKey(path: string, params: Record<string, string>): string {
-    const paramValues = Object.keys(params).sort().map(key => params[key]).join('-');
+    const paramValues = Object.keys(params)
+      .sort((a, b) => a.localeCompare(b))
+      .map(key => params[key])
+      .join('-');
     return paramValues ? `${path}:${paramValues}` : path;
   }
 
