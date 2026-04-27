@@ -22,5 +22,6 @@
   "dismiss": "Dispensar",
   "discard": "Descartar",
   "review": "Revisar",
-  "libraryPathInaccessible": ""
+  "libraryPathInaccessible": "",
+  "moreActionsFor": ""
 }

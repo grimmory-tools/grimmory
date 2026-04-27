@@ -1,0 +1,82 @@
+<div
+  class="menu-item-container"
+  [class.active-route-container]="isRouteActive()"
+  [class.menu-open]="menuOpen()"
+>
+  @let currentItem = item();
+
+  @if (currentItem.action) {
+    <button
+      type="button"
+      class="menu-item-link"
+      [pTooltip]="currentItem.label"
+      [tooltipDisabled]="!layoutService.sidebarCollapsed()"
+      tooltipPosition="right"
+      (click)="runAction($event)"
+    >
+      <span class="menu-item-chrome">
+        <span class="menu-item-leading">
+          <app-icon-display
+            [icon]="getIconSelection()"
+            iconClass="layout-menuitem-icon"
+            size="18px"
+            [displayEmpty]="true"
+          ></app-icon-display>
+        </span>
+        <span class="layout-menuitem-text menu-item-text">{{ currentItem.label }}</span>
+      </span>
+    </button>
+  } @else if (currentItem.routerLink) {
+    <a
+      class="menu-item-link"
+      [class.active-route]="isRouteActive()"
+      [attr.aria-current]="isRouteActive() ? 'page' : null"
+      [routerLink]="currentItem.routerLink"
+      [pTooltip]="currentItem.label"
+      [tooltipDisabled]="!layoutService.sidebarCollapsed()"
+      tooltipPosition="right"
+      tabindex="0"
+    >
+      <span class="menu-item-chrome">
+        <span class="menu-item-leading">
+          @if (currentItem.unhealthy) {
+            <span
+              class="library-health-dot"
+              role="img"
+              [attr.aria-label]="'common.libraryPathInaccessible' | transloco"
+              [pTooltip]="'common.libraryPathInaccessible' | transloco"
+              tooltipPosition="right"
+            ></span>
+          }
+          <app-icon-display
+            [icon]="getIconSelection()"
+            iconClass="layout-menuitem-icon"
+            size="18px"
+            [displayEmpty]="true"
+          ></app-icon-display>
+        </span>
+        <span class="layout-menuitem-text menu-item-text">{{ currentItem.label }}</span>
+      </span>
+    </a>
+  }
+
+  <span class="menu-item-end-content">
+    @if (shouldShowContextMenuButton()) {
+      <button
+        type="button"
+        class="entity-menu-button"
+        [attr.aria-label]="'common.moreActionsFor' | transloco: { label: currentItem.label }"
+        aria-haspopup="menu"
+        (click)="openContextMenu($event, entitymenu)"
+      >
+        <span class="entity-menu-button-content">
+          <i class="pi pi-ellipsis-v entity-menu-icon" aria-hidden="true"></i>
+          <span class="entity-menu-count">{{ formatCount(currentItem.bookCount) }}</span>
+        </span>
+      </button>
+      <p-menu #entitymenu [model]="currentItem.contextMenuItems" [popup]="true" appendTo="body" (onHide)="closeContextMenu()"></p-menu>
+    } @else if (currentItem.bookCount) {
+      <p class="book-count">{{ formatCount(currentItem.bookCount) }}</p>
+    }
+  </span>
+</div>

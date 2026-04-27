@@ -144,6 +144,15 @@ export class AppBooksApiService {
     }
   }
 
+  searchBooks(query: string, size = 20): Observable<AppPageResponse<AppBookSummary>> {
+    const params = new HttpParams()
+      .set('q', query.trim())
+      .set('page', '0')
+      .set('size', Math.max(1, size).toString());
+
+    return this.http.get<AppPageResponse<AppBookSummary>>(`${this.booksUrl}/search`, {params});
+  }
+
   fetchNextPage(): void {
     this.booksQuery.fetchNextPage();
   }

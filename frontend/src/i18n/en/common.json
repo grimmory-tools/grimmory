@@ -24,5 +24,6 @@
   "review": "Review",
   "libraryPathInaccessible": "Library path inaccessible",
   "on": "On",
-  "off": "Off"
+  "off": "Off",
+  "moreActionsFor": "More actions for {{label}}"
 }

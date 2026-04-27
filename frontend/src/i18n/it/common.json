@@ -22,5 +22,6 @@
   "dismiss": "Ignora",
   "discard": "Scarta",
   "review": "Rivedi",
-  "libraryPathInaccessible": ""
+  "libraryPathInaccessible": "",
+  "moreActionsFor": ""
 }

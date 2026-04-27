@@ -1,11 +1,11 @@
 .tabpanels-responsive {
-  height: calc(100dvh - 9.7rem);
+  height: calc(var(--page-available-height) - 3.6rem);
   overflow: auto;
 }
 
 @media (width <= 768px) {
   .tabpanels-responsive {
-    height: calc(100dvh - 8.5rem);
+    height: calc(var(--page-available-height) - 4.1rem);
   }
 }
 
@@ -159,7 +159,7 @@
 
 .books-virtual-scroller {
   width: 100%;
-  height: calc(100dvh - 22rem);
+  height: calc(var(--page-available-height) - 15.9rem);
   box-sizing: border-box;
   scrollbar-width: thin;
   scrollbar-color: var(--primary-color) rgb(20 20 30 / 50%);

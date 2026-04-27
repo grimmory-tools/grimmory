@@ -2,7 +2,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: calc(100dvh - 6.7rem);
+  height: calc(var(--page-available-height) - 0.6rem);
 }
 
 // Browse Header
@@ -105,7 +105,7 @@
 // Virtual scroller and grid
 .virtual-scroller {
   width: 100%;
-  height: calc(100dvh - 12.5rem);
+  height: calc(var(--page-available-height) - 6.4rem);
   padding: 1rem;
   box-sizing: border-box;
   overflow: hidden auto;
@@ -123,7 +123,7 @@
   }
 
   @media (width <= 768px) {
-    height: calc(100dvh - 13rem);
+    height: calc(var(--page-available-height) - 8.6rem);
     padding: 0.5rem;
 
     &::-webkit-scrollbar {

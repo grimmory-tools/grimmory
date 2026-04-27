@@ -22,5 +22,6 @@
   "dismiss": "Odrzuć",
   "discard": "Odrzuć",
   "review": "Przegląd",
-  "libraryPathInaccessible": ""
+  "libraryPathInaccessible": "",
+  "moreActionsFor": ""
 }

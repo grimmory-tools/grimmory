@@ -1,5 +1,14 @@
-:host ::ng-deep p-accordion-header {
+:host ::ng-deep p-accordion {
   --p-accordion-header-padding: 0.6rem 1rem;
+  --p-accordion-header-background: var(--card-background);
+  --p-accordion-header-active-background: var(--card-background);
+  --p-accordion-header-hover-background: var(--surface-hover);
+  --p-accordion-header-active-hover-background: var(--surface-hover);
+  --p-accordion-content-background: var(--card-background);
+}
+
+:host ::ng-deep .p-accordionpanel {
+  background: var(--card-background);
 }
 
 :host ::ng-deep .p-togglebutton {
@@ -12,7 +21,7 @@
 }
 
 .book-filter-container {
-  height: calc(100dvh - 6.1rem);
+  height: var(--page-available-height);
   border-radius: 0.75rem;
   overflow: hidden;
   background: var(--card-background);
@@ -79,7 +88,6 @@
 
 .filter-row {
   cursor: pointer;
-  transition: colors 200ms ease-in-out;
   height: 26px;
   display: flex;
   flex-direction: row;
@@ -87,6 +95,7 @@
   justify-content: space-between;
   gap: 0.5rem;
   max-width: 97%;
+  transition: color var(--transition-base);
 
   &.active {
     color: var(--primary-color);

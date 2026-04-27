@@ -22,5 +22,6 @@
   "dismiss": "Descartar",
   "discard": "Descartar",
   "review": "Revisar",
-  "libraryPathInaccessible": "Ruta de biblioteca inaccesible"
+  "libraryPathInaccessible": "Ruta de biblioteca inaccesible",
+  "moreActionsFor": ""
 }

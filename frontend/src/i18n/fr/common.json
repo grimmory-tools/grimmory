@@ -22,5 +22,6 @@
   "dismiss": "Ignorer",
   "discard": "Abandonner",
   "review": "Vérifier",
-  "libraryPathInaccessible": ""
+  "libraryPathInaccessible": "",
+  "moreActionsFor": ""
 }

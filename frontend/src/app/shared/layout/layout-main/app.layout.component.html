@@ -1,9 +1,26 @@
 <ng-container *transloco="let t; prefix: 'layout'">
-<div class="layout-wrapper" [ngClass]="containerClass()">
-  <app-topbar></app-topbar>
-  <div class="layout-sidebar">
+<div class="layout-wrapper" [ngClass]="containerClass()" [style.--sidebar-stored-width]="storedSidebarWidth()">
+  <app-mobile-topbar></app-mobile-topbar>
+  <nav
+    class="layout-sidebar"
+    [attr.aria-label]="t('menu.primaryNav')"
+    [cdkTrapFocus]="layoutService.mobileDrawerOpen()"
+  >
     <app-menu></app-menu>
-  </div>
+    <div
+      class="layout-sidebar-resize-handle"
+      tabindex="0"
+      role="slider"
+      [attr.aria-label]="t('menu.resizeSidebar')"
+      [attr.aria-valuemin]="sidebarMinWidth"
+      [attr.aria-valuemax]="sidebarMaxWidth"
+      [attr.aria-valuenow]="layoutService.sidebarWidth()"
+      aria-orientation="horizontal"
+      (mousedown)="startResize($event)"
+      (keydown)="onResizeKeydown($event)"
+      (keyup)="onResizeKeyup($event)"
+    ></div>
+  </nav>
   <div class="layout-main-container">
     <div class="layout-main">
       <router-outlet></router-outlet>

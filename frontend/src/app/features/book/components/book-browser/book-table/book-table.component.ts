@@ -84,7 +84,7 @@ export class BookTableComponent implements OnInit, OnDestroy, OnChanges {
     {field: 'ranobedbRating', header: this.t.translate('book.columnPref.columns.ranobedbRating')},
   ];
 
-  scrollHeight = 'calc(100dvh - 160px)';
+  scrollHeight = this.getScrollHeight();
 
   ngOnInit(): void {
     const user = this.userService.currentUser();
@@ -99,10 +99,7 @@ export class BookTableComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   setScrollHeight() {
-    const isMobile = window.innerWidth <= 768;
-    this.scrollHeight = isMobile
-      ? 'calc(100dvh - 125px)'
-      : 'calc(100dvh - 150px)';
+    this.applyScrollHeight();
   }
 
   ngOnChanges(changes: import('@angular/core').SimpleChanges) {
@@ -111,12 +108,7 @@ export class BookTableComponent implements OnInit, OnDestroy, OnChanges {
       this.syncSelectedBooks();
     }
 
-    const wrapperElements = this.elementRef.nativeElement.querySelectorAll('.p-virtualscroller');
-    wrapperElements.forEach((wrapperElement: Element) => {
-      if (wrapperElement instanceof HTMLElement) {
-        wrapperElement.style.height = 'calc(100dvh - 160px)';
-      }
-    });
+    this.applyScrollHeight();
   }
 
   private syncSelectedBooks(): void {
@@ -373,5 +365,24 @@ export class BookTableComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnDestroy(): void {
     window.removeEventListener('resize', this.resizeListener);
+  }
+
+  private applyScrollHeight(): void {
+    const scrollHeight = this.getScrollHeight();
+    this.scrollHeight = scrollHeight;
+
+    const wrapperElements = this.elementRef.nativeElement.querySelectorAll('.p-virtualscroller');
+    wrapperElements.forEach((wrapperElement: Element) => {
+      if (wrapperElement instanceof HTMLElement) {
+        wrapperElement.style.height = scrollHeight;
+      }
+    });
+  }
+
+  private getScrollHeight(): string {
+    const isMobile = window.innerWidth <= 991;
+    return isMobile
+      ? 'calc(var(--page-available-height) - 63px)'
+      : 'calc(var(--page-available-height) - 65px)';
   }
 }

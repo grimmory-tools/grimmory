@@ -22,5 +22,6 @@
   "dismiss": "Abaikan",
   "discard": "Buang",
   "review": "Tinjau",
-  "libraryPathInaccessible": ""
+  "libraryPathInaccessible": "",
+  "moreActionsFor": ""
 }

@@ -15,15 +15,23 @@
   --high-contrast-text-color: #ffffff;
 
   /* Surfaces */
-  --ground-background: #0d1012;
-  --overlay-background: #1a1e21;
-  --card-background: #1a1e21;
-  --content-background: #1a1e21;
-  --code-background: #1a1e21;
+  --app-background: #0d1012;
+  --page-background: color-mix(in srgb, var(--surface-900) 82%, var(--surface-950));
+  --surface-content: #1a1e21;
+  --surface-card: color-mix(in srgb, var(--surface-900) 62%, var(--surface-800));
+  --surface-toolbar: color-mix(in srgb, var(--app-background) 70%, var(--surface-content));
+  --surface-overlay: #1a1e21;
+  --ground-background: var(--app-background);
+  --overlay-background: var(--surface-overlay);
+  --card-background: var(--surface-card);
+  --content-background: var(--surface-content);
+  --code-background: var(--surface-content);
 
   /* Borders */
-  --border-color: #464f56;
-  --content-border-color: #464f56;
+  --border-subtle: #34393e;
+  --border-strong: #464f56;
+  --border-color: var(--border-subtle);
+  --content-border-color: var(--border-subtle);
   --card-border: 1px solid transparent;
 
   /* Surface scale */
@@ -41,8 +49,10 @@
   --surface-950: #0d1012;
 
   /* Interaction */
-  --surface-hover: color-mix(in srgb, var(--surface-400) 12%, transparent);
-  --surface-border: var(--surface-700);
+  --state-hover: color-mix(in srgb, var(--surface-400) 12%, transparent);
+  --state-active: color-mix(in srgb, var(--primary-color) 8%, transparent);
+  --surface-hover: var(--state-hover);
+  --surface-border: var(--border-subtle);
 
   /* Focus */
   --focus-ring-offset: 2px;
@@ -50,4 +60,33 @@
 
   /* Typography */
   --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  /* Type scale */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.5rem;
+
+  /* Spacing scale (4px base) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+
+  /* Radius scale */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-pill: 999px;
+
+  /* Motion */
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.2s ease;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 4px rgb(0 0 0 / 25%);
+  --shadow-overlay: 0 30px 80px -20px rgb(0 0 0 / 70%), 0 10px 30px -10px rgb(0 0 0 / 50%);
 }

@@ -1,0 +1,32 @@
+<ng-container *transloco="let t; prefix: 'settingsView.language'">
+  <div class="settings-card">
+    <div class="section-header">
+      <h3 class="section-title">
+        <i class="pi pi-language"></i>
+        {{ t('sectionTitle') }}
+      </h3>
+      <p class="section-description">{{ t('sectionDesc') }}</p>
+    </div>
+
+    <div class="section-body">
+      <div class="setting-item">
+        <div class="setting-header-standalone">
+          <span class="setting-label">{{ t('label') }}</span>
+        </div>
+        <div class="setting-options">
+          <div class="select-group">
+            <p-select
+              size="small"
+              [options]="languageOptions"
+              [ngModel]="activeLang()"
+              (ngModelChange)="onLanguageChange($event)"
+              optionLabel="label"
+              optionValue="value"
+              appendTo="body">
+            </p-select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>

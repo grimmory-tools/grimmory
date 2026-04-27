@@ -116,6 +116,16 @@ export class MagicShelfService {
     ).length;
   }
 
+  readonly bookCountByMagicShelfId = computed(() => {
+    const counts = new Map<number, number>();
+    for (const shelf of this.shelves()) {
+      if (shelf.id != null) {
+        counts.set(shelf.id, this.getBookCountValue(shelf.id));
+      }
+    }
+    return counts;
+  });
+
   deleteShelf(id: number): Observable<void> {
     return this.http.delete<void>(`${this.url}/${id}`).pipe(
       tap(() => {

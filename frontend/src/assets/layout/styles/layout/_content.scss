@@ -5,11 +5,17 @@
   flex-direction: column;
   min-height: 100dvh;
   justify-content: space-between;
-  padding: 5rem 1.1rem 1.1rem 3.6rem;
-  transition: margin-left variables.$transition-duration;
+  padding: 1.1rem;
+  transition: margin-left variables.$transition-duration, padding-left variables.$transition-duration;
   position: fixed;
   width: 100%;
   width: -webkit-fill-available;
+  background-color: var(--page-background);
+
+  /* Desktop chrome = padding-top (1.1rem) + padding-bottom (1.1rem). Mobile
+     overrides live in _responsive.scss. Pages should use this variable and
+     subtract only their own page-specific chrome (headers, tabs, pagination). */
+  --page-available-height: calc(100dvh - 2.2rem);
 }
 
 .layout-main {

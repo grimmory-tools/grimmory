@@ -1,0 +1,49 @@
+<ng-container *transloco="let t; prefix: 'layout'">
+<header class="mobile-topbar">
+  <button
+    type="button"
+    class="mobile-topbar-button"
+    [attr.aria-label]="t('menu.toggleNavigation')"
+    (click)="layoutService.onMenuToggle()"
+  >
+    <i class="pi pi-bars" aria-hidden="true"></i>
+  </button>
+  <div class="mobile-topbar-brand">
+    <svg class="mobile-topbar-brand-icon" viewBox="0 0 100 126" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M25.8062 106.614V113.077V119.537V126L32.2559 119.537L38.7093 126V119.537V113.077V106.614H25.8062Z" fill="white"/>
+      <path d="M38.7093 29.0758H96.7715C98.5535 29.0758 99.9964 27.6307 99.9964 25.846V3.22984C99.9964 1.44512 98.5535 0 96.7715 0H12.9031C10.5512 0 8.35077 0.63224 6.44975 1.73414C4.49102 2.86856 2.86054 4.50155 1.72787 6.4633C0.631268 8.36363 0 10.5674 0 12.923V106.614C0 113.753 5.7752 119.537 12.9031 119.537H21.1529V113.077H12.9031C9.33915 113.077 6.44975 110.183 6.44975 106.614C6.44975 103.044 9.33915 100.15 12.9031 100.15H93.5466C97.1106 100.15 100 97.2566 100 93.6871V41.9988C100 38.4293 97.1106 35.5355 93.5466 35.5355H38.7093C36.9273 35.5355 35.4845 36.9806 35.4845 38.7653V61.3815C35.4845 63.1662 36.9273 64.6113 38.7093 64.6113H67.7404C69.5224 64.6113 70.9653 66.0564 70.9653 67.8412C70.9653 69.6259 69.5224 71.071 67.7404 71.071H38.7093C33.3634 71.071 29.0311 66.732 29.0311 61.3779V38.7617C29.0311 33.4076 33.3634 29.0686 38.7093 29.0686V29.0758Z" fill="url(#mobile-topbar-brand-primary-gradient)"/>
+      <path d="M96.7715 113.077H43.5539V119.537H96.7715C98.5535 119.537 99.9964 118.092 99.9964 116.307C99.9964 114.522 98.5535 113.077 96.7715 113.077Z" fill="url(#mobile-topbar-brand-secondary-gradient)"/>
+      <defs>
+        <linearGradient id="mobile-topbar-brand-primary-gradient" x1="50" y1="0" x2="50" y2="119.537" gradientUnits="userSpaceOnUse">
+          <stop offset="0" style="stop-color: var(--p-primary-300)"/>
+          <stop offset="1" style="stop-color: var(--p-primary-500)"/>
+        </linearGradient>
+        <linearGradient id="mobile-topbar-brand-secondary-gradient" x1="50" y1="0" x2="50" y2="119.537" gradientUnits="userSpaceOnUse">
+          <stop offset="0" style="stop-color: var(--p-primary-300)"/>
+          <stop offset="1" style="stop-color: var(--p-primary-500)"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    <span class="mobile-topbar-brand-text">Grimmory</span>
+  </div>
+  @if (commandPaletteService.isOpen()) {
+    <button
+      type="button"
+      class="mobile-topbar-button"
+      [attr.aria-label]="'common.close' | transloco"
+      (click)="closeSearch()"
+    >
+      <i class="pi pi-times" aria-hidden="true"></i>
+    </button>
+  } @else {
+    <button
+      type="button"
+      class="mobile-topbar-button"
+      [attr.aria-label]="t('menu.search')"
+      (click)="openSearch()"
+    >
+      <i class="pi pi-search" aria-hidden="true"></i>
+    </button>
+  }
+</header>
+</ng-container>

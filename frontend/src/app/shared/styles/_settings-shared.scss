@@ -41,12 +41,12 @@ $settings-item-border-left-width: 3px;
   flex-direction: column;
   gap: 1.5rem;
   width: 100%;
-  height: calc(100dvh - 10.5rem);
+  height: calc(var(--page-available-height) - 4.4rem);
   overflow-y: auto;
   padding: 0.5rem;
 
   @media (width >= 768px) {
-    height: calc(100dvh - 11.65rem);
+    height: calc(var(--page-available-height) - 5.55rem);
     padding: 0.5rem;
   }
 }

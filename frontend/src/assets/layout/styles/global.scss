@@ -9,6 +9,8 @@
 // =============================================================================
 
 .p-dialog {
+  --card-background: var(--surface-content);
+
   @media (width <= 768px) {
     width: 95vw !important;
     max-width: 95vw !important;

@@ -1,5 +1,6 @@
 @use "sass:meta";
 @import "primeicons/primeicons.css";
+@import "@angular/cdk/overlay-prebuilt.css";
 @include meta.load-css("assets/styles/tokens.css");
 @include meta.load-css("assets/styles/reset");
 @include meta.load-css("assets/layout/styles/global");
@@ -24,9 +25,6 @@ html {
   --book-type-m4a-color: #f43f5e;
   --book-type-opus-color: #06b6d4;
   --book-type-physical-color: #8b5cf6;
-
-  // Search Context
-  --app-search-width-desktop: 450px;
 }
 
 * {
@@ -88,31 +86,19 @@ html {
   bottom: 0;
 }
 
-// Global Search Results Popover (Appended to Body)
-.p-popover.search-results-popover {
-  padding: 0;
-  background: var(--card-background);
-  border-radius: 8px;
-  box-shadow: 0 10px 40px -10px rgb(0 0 0 / 50%);
-  border: 1px solid var(--border-color);
-  overflow: hidden;
+// Command Palette Overlay
+.command-palette-backdrop {
+  background: rgb(0 0 0 / 50%);
+}
 
-  @media (width >= 768px) {
-    width: var(--app-search-width-desktop) !important; // Match the search input exactly
-  }
+.command-palette-panel {
+  display: flex;
+  pointer-events: auto;
+}
 
-  .p-popover-content {
-    padding: 0;
-    background: transparent;
-    border: none;
-  }
-
-  .search-dropdown {
-    width: 100%;
-
-    @media (width >= 768px) {
-      width: var(--app-search-width-desktop);
-    }
+@media (width <= 991px) {
+  .cdk-overlay-backdrop.command-palette-backdrop {
+    top: 3.5rem;
   }
 }
 

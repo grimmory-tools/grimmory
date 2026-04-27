@@ -1,5 +1,5 @@
 .dashboard-container {
-  height: calc(100dvh - 6.7rem);
+  height: calc(var(--page-available-height) - 0.6rem);
   overflow-y: auto;
   position: relative;
 
@@ -8,17 +8,17 @@
   }
 
   &::-webkit-scrollbar-track {
-    background: rgb(20 20 30 / 50%);
+    background: var(--app-background);
     border-radius: 10px;
   }
 
   scrollbar-width: thin;
-  scrollbar-color: var(--primary-color) rgb(20 20 30 / 50%);
+  scrollbar-color: var(--primary-color) var(--app-background);
 }
 
 @media (width <= 768px) {
   .dashboard-container {
-    height: calc(100dvh - 5rem);
+    height: calc(var(--page-available-height) - 0.5rem);
 
     &::-webkit-scrollbar {
       width: 8px;
@@ -58,7 +58,7 @@
   font-size: 1.75rem;
   font-weight: 700;
   margin-bottom: 2rem;
-  background: linear-gradient(135deg, #fff, #e2e8f0, var(--p-primary-500));
+  background: linear-gradient(135deg, var(--text-color), var(--text-color-secondary), var(--primary-color));
   background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 2px 4px rgb(0 0 0 / 30%);
@@ -67,9 +67,9 @@
 
 .dashboard-no-library {
   padding: 3rem;
-  background: var(--p-surface-900);
+  background: transparent;
   border-radius: 24px;
-  border: 1px solid var(--p-content-border-color);
+  border: 1px solid var(--border-subtle);
   position: relative;
   overflow: hidden;
 }
@@ -90,11 +90,11 @@
 
   ::ng-deep .p-button {
     box-shadow: 0 4px 12px rgb(0 0 0 / 30%);
-    background: rgb(var(--p-surface-900-rgb), 80%);
-    border: 1px solid var(--p-content-border-color);
+    background: transparent;
+    border: 1px solid var(--border-subtle);
 
     &:hover {
-      background: rgb(var(--p-surface-800-rgb), 90%);
+      background: var(--surface-toolbar);
       transform: scale(1.05);
       transition: all 0.2s ease;
     }

@@ -436,13 +436,13 @@
 // Virtual scroller and grid
 .virtual-scroller {
   width: 100%;
-  height: calc(100dvh - 10.9rem);
+  height: calc(var(--page-available-height) - 4.8rem);
   padding: 1rem;
   box-sizing: border-box;
   overflow-y: auto;
 
   @media (width <= 768px) {
-    height: calc(100dvh - 9rem);
+    height: calc(var(--page-available-height) - 4.6rem);
   }
 }
 
@@ -491,8 +491,8 @@
   border-radius: 0.5rem;
 }
 
-// Topbar items (icon buttons)
-.topbar-item {
+// Toolbar actions (icon buttons)
+.toolbar-item {
   display: inline-flex;
   align-items: center;
   justify-content: center;

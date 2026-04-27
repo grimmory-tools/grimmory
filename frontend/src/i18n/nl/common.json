@@ -22,5 +22,6 @@
   "dismiss": "Sluiten",
   "discard": "Verwerpen",
   "review": "Beoordelen",
-  "libraryPathInaccessible": ""
+  "libraryPathInaccessible": "",
+  "moreActionsFor": ""
 }
