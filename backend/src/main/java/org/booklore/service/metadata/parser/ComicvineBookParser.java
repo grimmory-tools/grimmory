@@ -59,7 +59,7 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
 
     private final ObjectMapper objectMapper;
     private final AppSettingService appSettingService;
-    private final HttpClient httpClient = HttpClient.newHttpClient();
+    private final HttpClient httpClient;
 
     private final AtomicBoolean rateLimited = new AtomicBoolean(false);
     private final AtomicLong rateLimitResetTime = new AtomicLong(0);
