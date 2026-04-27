@@ -210,7 +210,10 @@ public class ArchiveService {
         try {
             // Prefer NativeArchive (Panama)
             if (NativeLibraries.get().isEpubNativeAvailable()) {
-                Path tmp = Files.createTempFile(outputPath.getParent(), outputPath.getFileName().toString(), ".tmp");
+                Path parent = outputPath.toAbsolutePath().getParent();
+                String rawName = outputPath.getFileName().toString();
+                String prefix = rawName.length() >= 3 ? rawName : rawName + "tmp";
+                Path tmp = Files.createTempFile(parent, prefix, ".tmp");
                 try (NativeArchive archive = NativeArchive.open(path);
                      OutputStream os = Files.newOutputStream(tmp)) {
                     CountingOutputStream countingOut = new CountingOutputStream(os);
