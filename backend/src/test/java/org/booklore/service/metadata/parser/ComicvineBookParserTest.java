@@ -66,7 +66,7 @@ public class ComicvineBookParserTest {
     }
 
     private String readFixture(String fixtureName) throws IOException {
-        String filename = Paths.get("comicvinebookparser", fixtureName + ".fixture").toString();
+        String filename = "comicvinebookparser/" + fixtureName + ".fixture";
 
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(filename)) {
             assert is != null;
