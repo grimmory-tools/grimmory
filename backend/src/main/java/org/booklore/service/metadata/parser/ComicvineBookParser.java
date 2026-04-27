@@ -54,7 +54,7 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
     private static final String ISSUE_DETAIL_FIELDS = "api_detail_url,cover_date,store_date,description,deck,id,image,issue_number,name,person_credits,volume,site_detail_url,aliases,character_credits,team_credits,story_arc_credits,location_credits";
     private static final String SEARCH_FIELDS = "api_detail_url,cover_date,store_date,description,deck,id,image,issue_number,name,publisher,volume,site_detail_url,resource_type,start_year,count_of_issues,aliases,person_credits";
     private static final Pattern ISSUE_NUMBER_PATTERN = Pattern.compile("issue\\s*#?\\d+");
-    private static final Pattern ID_FORMAT_PATTERN = Pattern.compile("\\d+-?\\d*");
+    private static final Pattern ID_FORMAT_PATTERN = Pattern.compile("\\d+(-\\d+)?");
     private static final Pattern TRAILING_SLASHES_PATTERN = Pattern.compile("(?<!/)/+$");
     private static final Pattern VOLUME_SUFFIX_PATTERN = Pattern.compile("\\s+Vol\\.?\\s*\\d+$");
 
