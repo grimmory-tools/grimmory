@@ -19,6 +19,7 @@ import {LibraryHealthService} from './features/book/service/library-health.servi
 import {LibraryLoadingService} from './features/library-creator/library-loading.service';
 import {scan} from 'rxjs/operators';
 import {AuthService} from './shared/service/auth.service';
+import {API_CONFIG} from './core/config/api-config';
 
 @Component({
   selector: 'app-root',
@@ -81,7 +82,7 @@ export class AppComponent implements OnInit, OnDestroy {
   };
 
   private checkServerReachable(): Promise<boolean> {
-    return fetch('/api/public/settings', {method: 'HEAD', cache: 'no-store'})
+    return fetch(`${API_CONFIG.BASE_URL}/api/public/settings`, {method: 'HEAD', cache: 'no-store'})
       .then(() => true)
       .catch(() => false);
   }

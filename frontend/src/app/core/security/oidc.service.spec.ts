@@ -139,7 +139,7 @@ describe('OidcService', () => {
     expect(http.post).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/v1/auth/oidc/callback`, {
       code: 'code-123',
       codeVerifier: 'verifier',
-      redirectUri: `${window.location.origin}/oauth2-callback`,
+      redirectUri: `${API_CONFIG.BASE_URL}/oauth2-callback`,
       nonce: 'nonce',
       state: 'state',
     });

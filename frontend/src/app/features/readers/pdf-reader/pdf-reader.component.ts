@@ -930,7 +930,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       if (!targetEl) throw new Error('#embedpdf-viewer not found');
 
       const iframe = document.createElement('iframe');
-      iframe.src = '/assets/embedpdf-frame.html';
+      iframe.src = new URL('assets/embedpdf-frame.html', document.baseURI).href;
       iframe.style.cssText = 'width:100%;height:100%;border:none;';
       iframe.setAttribute('allow', 'fullscreen');
 
@@ -951,7 +951,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
 
       iframe.contentWindow!.postMessage({
         type: 'init',
-        wasmUrl: '/assets/pdfium/pdfium.wasm',
+        wasmUrl: new URL('assets/pdfium/pdfium.wasm', document.baseURI).href,
         theme: this.isDarkTheme() ? 'dark' : 'light',
         locale: this.t.getActiveLang()
       }, location.origin);

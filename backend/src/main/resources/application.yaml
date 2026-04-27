@@ -26,6 +26,8 @@ app:
 server:
   forward-headers-strategy: native
   port: ${BOOKLORE_PORT:6060}
+  servlet:
+    context-path: ${BASE_PATH:/}
   compression:
     enabled: true
     mime-types: text/html,text/css,application/javascript,application/json,image/svg+xml,application/xml,application/atom+xml

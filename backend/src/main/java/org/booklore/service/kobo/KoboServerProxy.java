@@ -60,7 +60,7 @@ public class KoboServerProxy {
 
     public ResponseEntity<JsonNode> proxyCurrentRequest(Object body, boolean includeSyncToken) {
         HttpServletRequest request = RequestUtils.getCurrentRequest();
-        String path = KOBO_API_PREFIX_PATTERN.matcher(request.getRequestURI()).replaceFirst("");
+        String path = KOBO_API_PREFIX_PATTERN.matcher(request.getServletPath()).replaceFirst("");
 
         BookloreSyncToken syncToken = null;
         if (includeSyncToken) {

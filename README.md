@@ -84,6 +84,10 @@ API_DOCS_ENABLED=false
 # Storage: LOCAL (default) or NETWORK (disables file operations; see Network Storage section)
 DISK_TYPE=LOCAL
 
+# Optional: Base path for subpath reverse proxy deployments (default: /)
+# Example: BASE_PATH=/grimmory for hosting at https://my.domain.com/grimmory
+# BASE_PATH=/
+
 # MariaDB
 DB_USER_ID=1000
 DB_GROUP_ID=1000
@@ -125,6 +129,7 @@ services:
       - DATABASE_PASSWORD=${DB_PASSWORD}
       - API_DOCS_ENABLED=${API_DOCS_ENABLED}
       - DISK_TYPE=${DISK_TYPE}
+      # - BASE_PATH=/grimmory  # Uncomment for subpath deployments
     depends_on:
       mariadb:
         condition: service_healthy
@@ -182,7 +187,7 @@ Additional deployment examples:
 ## Developer Surfaces
 
 
-Contributor workflow, PR policy, and release semantics live in [CONTRIBUTING.md](CONTRIBUTING.md). 
+Contributor workflow, PR policy, and release semantics live in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 General purpose development guidelines live in [DEVELOPMENT.md](DEVELOPMENT.md). Component-specific implementation guidance lives in:
 
@@ -255,7 +260,7 @@ All other features — reading, metadata, sync — remain fully functional.
 > [!WARNING]
 > Before opening a pull request, open an issue first and get maintainer approval. Pull requests without a linked issue, without screenshots or video proof, or without pasted test output will be closed. All code must follow the project [backend](CONTRIBUTING.md#backend-conventions) and [frontend](CONTRIBUTING.md#frontend-conventions) conventions. AI-assisted contributions are welcome, but you must run, test, and understand every line you submit. See the [Contributing Guide](CONTRIBUTING.md) for full details.
 
---- 
+---
 
 ## License
 

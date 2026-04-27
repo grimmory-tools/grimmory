@@ -21,6 +21,8 @@ services:
       - SWAGGER_ENABLED=false
       - FORCE_DISABLE_OIDC=false
       # ALLOWED_ORIGINS=
+      # For subpath reverse proxy deployments (e.g., mydomain.com/grimmory):
+      # BASE_PATH=/grimmory
       # Override JVM memory defaults (the image ships sensible defaults for ~512 MB heap).
       # Uncomment and adjust if you want a tighter or looser cap:
       # JAVA_TOOL_OPTIONS=-Xmx256m
@@ -34,6 +36,7 @@ services:
       - ./books:/books
       - ./bookdrop:/bookdrop
     healthcheck:
+      # If using BASE_PATH, update the URL: http://localhost:6060${BASE_PATH}/api/v1/healthcheck
       test: wget -q -O - http://localhost:6060/api/v1/healthcheck
       interval: 60s
       retries: 5

@@ -109,6 +109,9 @@ persistence:
     existingClaim: ""
 extraVolumes: []
 extraVolumeMounts: []
+# Base path for subpath reverse proxy deployments (e.g. /grimmory for mydomain.com/grimmory).
+# Leave empty or "/" for root deployment.
+basePath: ""
 nodeSelector: {}
 tolerations: []
 affinity: {}

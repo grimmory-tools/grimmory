@@ -35,7 +35,7 @@ describe('ReaderLoaderService', () => {
 
     expect(script).toBeDefined();
     expect(script.type).toBe('module');
-    expect(script.src).toContain('/assets/foliate/view.js');
+    expect(script.src).toContain('assets/foliate/view.js');
 
     script.onload?.(new Event('load') as never);
     await vi.advanceTimersByTimeAsync(100);

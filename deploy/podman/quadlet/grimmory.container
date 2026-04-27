@@ -20,6 +20,9 @@ Environment=TZ=Etc/UTC
 Secret=grimmory_db_pass,type=env,target=DATABASE_PASSWORD
 Environment=DATABASE_URL=jdbc:mariadb://localhost:3306/grimmory
 Environment=DATABASE_USERNAME=grimmory
+# For subpath reverse proxy deployments (e.g. mydomain.com/grimmory), uncomment:
+# Environment=BASE_PATH=/grimmory
+# Note: If using BASE_PATH, update HealthCmd to include the path
 HealthCmd=wget -q -O - http://localhost:6060/api/v1/healthcheck
 HealthInterval=1m
 HealthRetries=5

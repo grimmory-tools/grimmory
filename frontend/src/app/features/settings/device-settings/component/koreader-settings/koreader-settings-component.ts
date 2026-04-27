@@ -11,6 +11,7 @@ import {KoreaderService} from './koreader.service';
 import {UserService} from '../../../user-management/user.service';
 import {ExternalDocLinkComponent} from '../../../../../shared/components/external-doc-link/external-doc-link.component';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
+import {API_CONFIG} from '../../../../../core/config/api-config';
 
 @Component({
   standalone: true,
@@ -37,7 +38,7 @@ export class KoreaderSettingsComponent {
   koReaderUsername = '';
   koReaderPassword = '';
   credentialsSaved = false;
-  readonly koreaderEndpoint = `${window.location.origin}/api/koreader`;
+  readonly koreaderEndpoint = `${API_CONFIG.BASE_URL}/api/koreader`;
 
   private readonly messageService = inject(MessageService);
   private readonly koreaderService = inject(KoreaderService);

@@ -108,11 +108,28 @@ export class AuthService {
   }
 
   protected redirectTo(url: string, replace = false): void {
+    // Resolve internal paths relative to the app's base href
+    const resolvedUrl = this.resolveUrl(url);
     if (replace) {
-      window.location.replace(url);
+      window.location.replace(resolvedUrl);
     } else {
-      window.location.href = url;
+      window.location.href = resolvedUrl;
     }
+  }
+
+  private resolveUrl(url: string): string {
+    // External URLs (http/https) are used as-is
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    // Internal paths: resolve relative to document base
+    const base = new URL(document.baseURI);
+    // For paths starting with /, treat them as relative to the base path
+    if (url.startsWith('/')) {
+      return new URL(base.pathname.replace(/\/$/, '') + url, base.origin).href;
+    }
+    // Relative paths: resolve normally
+    return new URL(url, document.baseURI).href;
   }
 
   clearSessionOnLoginPage(): void {

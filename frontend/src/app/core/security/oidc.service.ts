@@ -49,7 +49,7 @@ export class OidcService {
     authorizationEndpoint?: string,
     scopes?: string
   ): Promise<string> {
-    const redirectUri = `${window.location.origin}/oauth2-callback`;
+    const redirectUri = `${API_CONFIG.BASE_URL}/oauth2-callback`;
     const scope = scopes?.trim() || 'openid profile email groups offline_access';
 
     if (authorizationEndpoint) {
@@ -76,7 +76,7 @@ export class OidcService {
   }
 
   exchangeCode(code: string, codeVerifier: string, nonce: string, state: string): Observable<OidcTokenResponse> {
-    const redirectUri = `${window.location.origin}/oauth2-callback`;
+    const redirectUri = `${API_CONFIG.BASE_URL}/oauth2-callback`;
     return this.http.post<OidcTokenResponse>(`${API_CONFIG.BASE_URL}/api/v1/auth/oidc/callback`, {
       code,
       codeVerifier,

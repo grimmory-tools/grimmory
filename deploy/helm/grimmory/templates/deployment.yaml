@@ -75,6 +75,10 @@ spec:
                   name: {{ .Release.Name }}-mariadb
                   {{- end }}
                   key: mariadb-password
+            {{- if .Values.basePath }}
+            - name: BASE_PATH
+              value: {{ .Values.basePath | quote }}
+            {{- end }}
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}

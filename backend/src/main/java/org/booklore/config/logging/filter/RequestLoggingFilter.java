@@ -16,7 +16,7 @@ public class RequestLoggingFilter extends CommonsRequestLoggingFilter {
 
     @Override
     protected boolean shouldLog(HttpServletRequest request) {
-        if (pathPredicate != null && !pathPredicate.test(request.getRequestURI())) {
+        if (pathPredicate != null && !pathPredicate.test(request.getServletPath())) {
             return false;
         }
 

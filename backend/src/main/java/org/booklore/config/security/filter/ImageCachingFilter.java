@@ -15,7 +15,7 @@ public class ImageCachingFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String uri = request.getRequestURI();
+        String uri = request.getServletPath();
         if (uri.startsWith("/api/v1/media/book/") &&
             (uri.contains("/cover") || uri.contains("/thumbnail") || uri.contains("/backup-cover") ||
              uri.contains("/cbx/pages/"))) {

@@ -16,7 +16,7 @@ export class ReaderLoaderService {
     return defer(() => new Observable<void>(observer => {
       const script = document.createElement('script');
       script.type = 'module';
-      script.src = '/assets/foliate/view.js';
+      script.src = new URL('assets/foliate/view.js', document.baseURI).href;
       script.onload = () => {
         this.scriptLoaded = true;
         setTimeout(() => {

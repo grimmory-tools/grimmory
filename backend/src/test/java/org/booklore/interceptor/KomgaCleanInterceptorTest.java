@@ -36,7 +36,7 @@ class KomgaCleanInterceptorTest {
     @Test
     void shouldEnableCleanModeWithParameterWithoutValue() throws Exception {
         // Given: Request with ?clean (no value)
-        when(request.getRequestURI()).thenReturn("/komga/api/v1/series");
+        when(request.getServletPath()).thenReturn("/komga/api/v1/series");
         when(request.getParameter("clean")).thenReturn("");  // Empty string means parameter present without value
 
         // When: Interceptor processes request
@@ -49,7 +49,7 @@ class KomgaCleanInterceptorTest {
     @Test
     void shouldEnableCleanModeWithParameterSetToTrue() throws Exception {
         // Given: Request with ?clean=true
-        when(request.getRequestURI()).thenReturn("/komga/api/v1/series");
+        when(request.getServletPath()).thenReturn("/komga/api/v1/series");
         when(request.getParameter("clean")).thenReturn("true");
 
         // When: Interceptor processes request
@@ -62,7 +62,7 @@ class KomgaCleanInterceptorTest {
     @Test
     void shouldEnableCleanModeWithParameterSetToTrueCaseInsensitive() throws Exception {
         // Given: Request with ?clean=TRUE
-        when(request.getRequestURI()).thenReturn("/komga/api/v1/books/123");
+        when(request.getServletPath()).thenReturn("/komga/api/v1/books/123");
         when(request.getParameter("clean")).thenReturn("TRUE");
 
         // When: Interceptor processes request
@@ -75,7 +75,7 @@ class KomgaCleanInterceptorTest {
     @Test
     void shouldNotEnableCleanModeWhenParameterAbsent() throws Exception {
         // Given: Request without clean parameter
-        when(request.getRequestURI()).thenReturn("/komga/api/v1/series");
+        when(request.getServletPath()).thenReturn("/komga/api/v1/series");
         when(request.getParameter("clean")).thenReturn(null);
 
         // When: Interceptor processes request
@@ -88,7 +88,7 @@ class KomgaCleanInterceptorTest {
     @Test
     void shouldNotEnableCleanModeWhenParameterSetToFalse() throws Exception {
         // Given: Request with ?clean=false
-        when(request.getRequestURI()).thenReturn("/komga/api/v1/series");
+        when(request.getServletPath()).thenReturn("/komga/api/v1/series");
         when(request.getParameter("clean")).thenReturn("false");
 
         // When: Interceptor processes request
@@ -101,7 +101,7 @@ class KomgaCleanInterceptorTest {
     @Test
     void shouldNotApplyToNonKomgaEndpoints() throws Exception {
         // Given: Request to non-Komga endpoint with clean parameter
-        when(request.getRequestURI()).thenReturn("/api/v1/books");
+        when(request.getServletPath()).thenReturn("/api/v1/books");
         when(request.getParameter("clean")).thenReturn("true");
 
         // When: Interceptor processes request
