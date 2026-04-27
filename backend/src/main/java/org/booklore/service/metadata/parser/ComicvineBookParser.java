@@ -55,7 +55,7 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
     private static final String SEARCH_FIELDS = "api_detail_url,cover_date,store_date,description,deck,id,image,issue_number,name,publisher,volume,site_detail_url,resource_type,start_year,count_of_issues,aliases,person_credits";
     private static final Pattern ISSUE_NUMBER_PATTERN = Pattern.compile("issue\\s*#?\\d+");
     private static final Pattern ID_FORMAT_PATTERN = Pattern.compile("\\d+-?\\d*");
-    private static final Pattern TRAILING_SLASHES_PATTERN = Pattern.compile("/+$");
+    private static final Pattern TRAILING_SLASHES_PATTERN = Pattern.compile("(?<!/)/+$");
     private static final Pattern VOLUME_SUFFIX_PATTERN = Pattern.compile("\\s+Vol\\.?\\s*\\d+$");
 
     private static final String RESOURCE_TYPE_ISSUE = "4000";
@@ -608,7 +608,7 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
     private String extractEndpointFromUri(URI uri) {
         String path = uri.getPath();
         if (path == null || path.isEmpty()) return "unknown";
-        
+
         path = TRAILING_SLASHES_PATTERN.matcher(path).replaceAll("");
         int lastSlash = path.lastIndexOf('/');
         if (lastSlash >= 0 && lastSlash < path.length() - 1) {
