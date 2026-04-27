@@ -800,7 +800,7 @@ public class AppBookService {
 
         List<Specification<BookEntity>> specs = new ArrayList<>();
         specs.add(AppBookSpecification.notDeleted());
-        specs.add(AppBookSpecification.hasDigitalFile());
+        specs.add(AppBookSpecification.hasDigitalFileOrIsPhysical());
 
         if (accessibleLibraryIds != null) {
             if (req.libraryId() != null && accessibleLibraryIds.contains(req.libraryId())) {
@@ -1105,7 +1105,7 @@ public class AppBookService {
     private Specification<BookEntity> buildBaseSpecification(Set<Long> accessibleLibraryIds, Long libraryId) {
         List<Specification<BookEntity>> specs = new ArrayList<>();
         specs.add(AppBookSpecification.notDeleted());
-        specs.add(AppBookSpecification.hasDigitalFile());
+        specs.add(AppBookSpecification.hasDigitalFileOrIsPhysical());
 
         if (accessibleLibraryIds != null) {
             if (libraryId != null && !accessibleLibraryIds.contains(libraryId)) {
