@@ -45,7 +45,7 @@ describe('SortService', () => {
 
   it('sorts by primaryFile file name if file name is missing', () => {
     const books = [
-      makeBook(2, {primaryFile: { id: 2, bookId: 2, fileName: 'Book 2' }, metadata: {bookId: 2, title: 'Book 10'}}),
+      makeBook(2, {fileName: undefined, primaryFile: { id: 2, bookId: 2, fileName: 'Book 2' }, metadata: {bookId: 2, title: 'Book 10'}}),
       makeBook(1, {fileName: 'Book 1', primaryFile: { id: 1, bookId: 1, fileName: 'Book 3' }, metadata: {bookId: 1, title: 'Book 2'}}),
     ];
     const sortOption: SortOption = {label: 'File Name', field: 'fileName', direction: SortDirection.ASCENDING};
