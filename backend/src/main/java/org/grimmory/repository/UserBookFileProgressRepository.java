@@ -44,7 +44,7 @@ public interface UserBookFileProgressRepository extends JpaRepository<UserBookFi
         SELECT ubfp FROM UserBookFileProgressEntity ubfp
         WHERE ubfp.user.id = :userId
           AND ubfp.bookFile.book.id = :bookId
-          AND ubfp.bookFile.bookType = org.booklore.model.enums.BookFileType.AUDIOBOOK
+          AND ubfp.bookFile.bookType = org.grimmory.model.enums.BookFileType.AUDIOBOOK
         ORDER BY ubfp.lastReadTime DESC
         LIMIT 1
     """)

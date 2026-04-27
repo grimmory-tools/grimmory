@@ -1204,7 +1204,7 @@ public class AppBookService {
             Long libraryId, Long shelfId, Set<Long> magicBookIds) {
         String jpql = "SELECT ubp.readStatus, COUNT(DISTINCT ubp.book.id) FROM UserBookProgressEntity ubp"
                 + " WHERE ubp.user.id = :userId"
-                + " AND ubp.readStatus <> org.booklore.model.enums.ReadStatus.UNSET"
+                + " AND ubp.readStatus <> org.grimmory.model.enums.ReadStatus.UNSET"
                 + " AND ubp.book.id IN ("
                 + "   SELECT b.id FROM BookEntity b"
                 + "   WHERE (b.deleted IS NULL OR b.deleted = false)"

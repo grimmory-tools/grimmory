@@ -78,7 +78,7 @@ public interface UserBookProgressRepository extends JpaRepository<UserBookProgre
             FROM UserBookProgressEntity ubp
             WHERE ubp.user.id = :userId
             AND ubp.readStatus IS NOT NULL
-            AND ubp.readStatus NOT IN (org.booklore.model.enums.ReadStatus.UNSET, org.booklore.model.enums.ReadStatus.UNREAD)
+            AND ubp.readStatus NOT IN (org.grimmory.model.enums.ReadStatus.UNSET, org.grimmory.model.enums.ReadStatus.UNREAD)
             AND COALESCE(ubp.dateFinished, ubp.readStatusModifiedTime, ubp.lastReadTime) IS NOT NULL
             AND YEAR(COALESCE(ubp.dateFinished, ubp.readStatusModifiedTime, ubp.lastReadTime)) = :year
             GROUP BY YEAR(COALESCE(ubp.dateFinished, ubp.readStatusModifiedTime, ubp.lastReadTime)),
@@ -203,7 +203,7 @@ public interface UserBookProgressRepository extends JpaRepository<UserBookProgre
             FROM UserBookProgressEntity ubp
             WHERE ubp.user.id = :userId
             AND ubp.readStatus IS NOT NULL
-            AND ubp.readStatus <> org.booklore.model.enums.ReadStatus.UNSET
+            AND ubp.readStatus <> org.grimmory.model.enums.ReadStatus.UNSET
             GROUP BY ubp.readStatus
             """)
     List<StatusDistributionDto> findStatusDistributionByUser(@Param("userId") Long userId);
@@ -227,10 +227,10 @@ public interface UserBookProgressRepository extends JpaRepository<UserBookProgre
             JOIN ubp.book b
             JOIN b.bookFiles bf
             WHERE ubp.user.id = :userId
-              AND ubp.readStatus IN (org.booklore.model.enums.ReadStatus.READING, org.booklore.model.enums.ReadStatus.RE_READING)
+              AND ubp.readStatus IN (org.grimmory.model.enums.ReadStatus.READING, org.grimmory.model.enums.ReadStatus.RE_READING)
               AND (b.deleted IS NULL OR b.deleted = false)
               AND bf.isBookFormat = true
-              AND bf.bookType <> org.booklore.model.enums.BookFileType.AUDIOBOOK
+              AND bf.bookType <> org.grimmory.model.enums.BookFileType.AUDIOBOOK
               AND b.library.id IN :libraryIds
               AND ubp.lastReadTime IS NOT NULL
             ORDER BY ubp.lastReadTime DESC
@@ -248,10 +248,10 @@ public interface UserBookProgressRepository extends JpaRepository<UserBookProgre
             JOIN ubp.book b
             JOIN b.bookFiles bf
             WHERE ubp.user.id = :userId
-              AND ubp.readStatus IN (org.booklore.model.enums.ReadStatus.READING, org.booklore.model.enums.ReadStatus.RE_READING)
+              AND ubp.readStatus IN (org.grimmory.model.enums.ReadStatus.READING, org.grimmory.model.enums.ReadStatus.RE_READING)
               AND (b.deleted IS NULL OR b.deleted = false)
               AND bf.isBookFormat = true
-              AND bf.bookType = org.booklore.model.enums.BookFileType.AUDIOBOOK
+              AND bf.bookType = org.grimmory.model.enums.BookFileType.AUDIOBOOK
               AND b.library.id IN :libraryIds
               AND ubp.lastReadTime IS NOT NULL
             ORDER BY ubp.lastReadTime DESC

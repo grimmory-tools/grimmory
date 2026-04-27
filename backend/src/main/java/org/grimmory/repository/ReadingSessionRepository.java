@@ -145,7 +145,7 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
             JOIN rs.book b
             JOIN UserBookProgressEntity ubp ON ubp.book.id = b.id AND ubp.user.id = rs.user.id
             WHERE rs.user.id = :userId
-            AND ubp.readStatus = org.booklore.model.enums.ReadStatus.READ
+            AND ubp.readStatus = org.grimmory.model.enums.ReadStatus.READ
             AND coalesce(ubp.dateFinished, ubp.readStatusModifiedTime, ubp.lastReadTime) IS NOT NULL
             ORDER BY b.id, rs.startTime ASC
             """)
@@ -161,7 +161,7 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
             JOIN rs.book b
             JOIN UserBookProgressEntity ubp ON ubp.book.id = b.id AND ubp.user.id = rs.user.id
             WHERE rs.user.id = :userId
-            AND ubp.readStatus = org.booklore.model.enums.ReadStatus.READ
+            AND ubp.readStatus = org.grimmory.model.enums.ReadStatus.READ
             AND year(coalesce(ubp.dateFinished, ubp.readStatusModifiedTime, ubp.lastReadTime)) = :year
             AND rs.endProgress IS NOT NULL
             ORDER BY b.id, rs.startTime ASC
@@ -187,7 +187,7 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
                    coalesce(rs.durationSeconds, 0) as durationSeconds
             FROM ReadingSessionEntity rs
             WHERE rs.user.id = :userId
-            AND rs.bookType = org.booklore.model.enums.BookFileType.AUDIOBOOK
+            AND rs.bookType = org.grimmory.model.enums.BookFileType.AUDIOBOOK
             AND (:periodStart IS NULL OR rs.startTime >= :periodStart)
             AND (:periodEnd IS NULL OR rs.startTime < :periodEnd)
             ORDER BY rs.startTime
@@ -202,7 +202,7 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
                    coalesce(rs.durationSeconds, 0) as durationSeconds
             FROM ReadingSessionEntity rs
             WHERE rs.user.id = :userId
-            AND rs.bookType = org.booklore.model.enums.BookFileType.AUDIOBOOK
+            AND rs.bookType = org.grimmory.model.enums.BookFileType.AUDIOBOOK
             ORDER BY rs.startTime DESC
             """)
     List<SessionTimestampDto> findListeningTimestampsByUserPaged(
@@ -218,9 +218,9 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
             FROM ReadingSessionEntity rs
             JOIN rs.book b
             LEFT JOIN b.metadata bm
-            LEFT JOIN b.bookFiles bf ON bf.bookType = org.booklore.model.enums.BookFileType.AUDIOBOOK
+            LEFT JOIN b.bookFiles bf ON bf.bookType = org.grimmory.model.enums.BookFileType.AUDIOBOOK
             WHERE rs.user.id = :userId
-            AND rs.bookType = org.booklore.model.enums.BookFileType.AUDIOBOOK
+            AND rs.bookType = org.grimmory.model.enums.BookFileType.AUDIOBOOK
             GROUP BY b.id, bm.title
             """)
     List<AudiobookProgressDto> findAudiobookProgressByUser(@Param("userId") Long userId);
@@ -231,13 +231,13 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
                    count(ubp) as booksCompleted
             FROM UserBookProgressEntity ubp
             WHERE ubp.user.id = :userId
-            AND ubp.readStatus = org.booklore.model.enums.ReadStatus.READ
+            AND ubp.readStatus = org.grimmory.model.enums.ReadStatus.READ
             AND coalesce(ubp.dateFinished, ubp.readStatusModifiedTime) IS NOT NULL
             AND EXISTS (
                 SELECT 1 FROM ReadingSessionEntity rs
                 WHERE rs.book.id = ubp.book.id
                 AND rs.user.id = ubp.user.id
-                AND rs.bookType = org.booklore.model.enums.BookFileType.AUDIOBOOK
+                AND rs.bookType = org.grimmory.model.enums.BookFileType.AUDIOBOOK
             )
             GROUP BY year(coalesce(ubp.dateFinished, ubp.readStatusModifiedTime)),
                      month(coalesce(ubp.dateFinished, ubp.readStatusModifiedTime))
@@ -255,7 +255,7 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
             JOIN rs.book b
             JOIN b.metadata.categories c
             WHERE rs.user.id = :userId
-            AND rs.bookType = org.booklore.model.enums.BookFileType.AUDIOBOOK
+            AND rs.bookType = org.grimmory.model.enums.BookFileType.AUDIOBOOK
             GROUP BY c.name
             ORDER BY totalDurationSeconds DESC
             """)
@@ -271,7 +271,7 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
             JOIN b.metadata m
             JOIN m.authors a
             WHERE rs.user.id = :userId
-            AND rs.bookType = org.booklore.model.enums.BookFileType.AUDIOBOOK
+            AND rs.bookType = org.grimmory.model.enums.BookFileType.AUDIOBOOK
             GROUP BY a.name
             ORDER BY totalDurationSeconds DESC
             """)

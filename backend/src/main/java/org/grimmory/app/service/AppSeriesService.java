@@ -68,14 +68,14 @@ public class AppSeriesService {
                 : "";
 
         String havingClause = inProgressOnly
-                ? " HAVING SUM(CASE WHEN p.readStatus IN (org.booklore.model.enums.ReadStatus.READING, org.booklore.model.enums.ReadStatus.RE_READING) THEN 1 ELSE 0 END) > 0"
+                ? " HAVING SUM(CASE WHEN p.readStatus IN (org.grimmory.model.enums.ReadStatus.READING, org.grimmory.model.enums.ReadStatus.RE_READING) THEN 1 ELSE 0 END) > 0"
                 : "";
 
         String orderBy = buildSeriesOrderBy(sortBy, sortDir, inProgressOnly);
 
         // Phase 1: Aggregate query
         String aggregateQuery = "SELECT m.seriesName, COUNT(b.id), MAX(m.seriesTotal), MAX(b.addedOn),"
-                + " SUM(CASE WHEN p.readStatus = org.booklore.model.enums.ReadStatus.READ THEN 1 ELSE 0 END)"
+                + " SUM(CASE WHEN p.readStatus = org.grimmory.model.enums.ReadStatus.READ THEN 1 ELSE 0 END)"
                 + (inProgressOnly ? ", MAX(p.lastReadTime)" : "")
                 + " FROM BookEntity b JOIN b.metadata m"
                 + " LEFT JOIN b.userBookProgress p ON p.user.id = :userId"
@@ -119,7 +119,7 @@ public class AppSeriesService {
                     + libraryClause
                     + searchClause
                     + " GROUP BY m.seriesName"
-                    + " HAVING SUM(CASE WHEN p.readStatus IN (org.booklore.model.enums.ReadStatus.READING, org.booklore.model.enums.ReadStatus.RE_READING) THEN 1 ELSE 0 END) > 0"
+                    + " HAVING SUM(CASE WHEN p.readStatus IN (org.grimmory.model.enums.ReadStatus.READING, org.grimmory.model.enums.ReadStatus.RE_READING) THEN 1 ELSE 0 END) > 0"
                     + ")";
             // JPQL doesn't support subqueries in FROM — count via result list size instead
             String countAlt = "SELECT m.seriesName FROM BookEntity b JOIN b.metadata m"
@@ -130,7 +130,7 @@ public class AppSeriesService {
                     + libraryClause
                     + searchClause
                     + " GROUP BY m.seriesName"
-                    + " HAVING SUM(CASE WHEN p.readStatus IN (org.booklore.model.enums.ReadStatus.READING, org.booklore.model.enums.ReadStatus.RE_READING) THEN 1 ELSE 0 END) > 0";
+                    + " HAVING SUM(CASE WHEN p.readStatus IN (org.grimmory.model.enums.ReadStatus.READING, org.grimmory.model.enums.ReadStatus.RE_READING) THEN 1 ELSE 0 END) > 0";
             var countQ = entityManager.createQuery(countAlt, String.class);
             countQ.setParameter("userId", userId);
             setLibraryParams(countQ, accessibleLibraryIds, libraryId);
@@ -332,7 +332,7 @@ public class AppSeriesService {
         return switch (sortBy != null ? sortBy.toLowerCase() : "") {
             case "name" -> "m.seriesName " + dir;
             case "bookcount" -> "COUNT(b.id) " + dir;
-            case "readprogress" -> "SUM(CASE WHEN p.readStatus = org.booklore.model.enums.ReadStatus.READ THEN 1 ELSE 0 END) " + dir;
+            case "readprogress" -> "SUM(CASE WHEN p.readStatus = org.grimmory.model.enums.ReadStatus.READ THEN 1 ELSE 0 END) " + dir;
             case "lastreadtime" -> {
                 if (inProgressOnly) {
                     yield "MAX(p.lastReadTime) " + dir + nullsClause;
