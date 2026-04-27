@@ -40,7 +40,7 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
     private static final String COMICVINE_URL = "https://comicvine.gamespot.com/api/";
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final Pattern DIGIT_PATTERN = Pattern.compile("\\d+");
-    private static final Pattern SERIES_ISSUE_PATTERN = Pattern.compile("^(.+?)\\s+#?(\\d+(?:\\.\\d+)?)(?:\\s|$)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern SERIES_ISSUE_PATTERN = Pattern.compile("^([^\\s]+?)\\s+#?(\\d+(?:\\.\\d+)?)(?:\\s|$)", Pattern.CASE_INSENSITIVE);
     private static final Pattern DIGITAL_PATTERN = Pattern.compile("\\(digital\\)", Pattern.CASE_INSENSITIVE);
     private static final Pattern PARENTHETICAL_PATTERN = Pattern.compile("\\([^()]*\\)");
     private static final Pattern BRACKETED_PATTERN = Pattern.compile("\\[[^\\[\\]]*\\]");
