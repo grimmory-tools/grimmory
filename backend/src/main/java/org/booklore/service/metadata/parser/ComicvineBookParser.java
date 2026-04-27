@@ -43,7 +43,7 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
     private static final Pattern SERIES_ISSUE_PATTERN = Pattern.compile("^(.+?)\\s+#?(\\d+(?:\\.\\d+)?)(?:\\s|$)", Pattern.CASE_INSENSITIVE);
     private static final Pattern DIGITAL_PATTERN = Pattern.compile("\\(digital\\)", Pattern.CASE_INSENSITIVE);
     private static final Pattern PARENTHETICAL_PATTERN = Pattern.compile("\\([^()]*\\)");
-    private static final Pattern BRACKETED_PATTERN = Pattern.compile("\\[[^\\]]*\\]");
+    private static final Pattern BRACKETED_PATTERN = Pattern.compile("\\[[^\\[\\]]*\\]");
     private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
     private static final Pattern SPECIAL_ISSUE_PATTERN = Pattern.compile("(annual|special|one-?shot)\\s+(\\d+)", Pattern.CASE_INSENSITIVE);
     private static final Pattern YEAR_PATTERN = Pattern.compile("\\(?(\\d{4})\\)?");
