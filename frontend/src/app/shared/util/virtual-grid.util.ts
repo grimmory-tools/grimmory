@@ -15,6 +15,7 @@ export interface VirtualGridOptions {
   columns?: Signal<number | undefined>;
   initialOffset?: () => number;
   fillItemWidth?: boolean;
+  enabled?: Signal<boolean>;
 }
 
 function getScrollContentWidth(element: HTMLElement | null): number {
@@ -83,6 +84,7 @@ export function createVirtualGrid(options: VirtualGridOptions) {
     return Math.max(options.minItemWidth(), (availableWidth - totalGap) / columns);
   });
   const itemHeight = computed(() => options.estimateItemHeight(itemWidth()));
+  const enabled = computed(() => !!options.scrollElement() && (options.enabled?.() ?? true));
   const columnGap = computed(() => {
     if (options.fillItemWidth) {
       return gap();
@@ -104,6 +106,7 @@ export function createVirtualGrid(options: VirtualGridOptions) {
     overscan: options.overscan ?? gridColumns() * DEFAULT_OVERSCAN_ROWS,
     gap: columnGap(),
     lanes: gridColumns(),
+    enabled: enabled(),
     initialOffset: () => options.initialOffset?.() ?? 0,
     observeElementRect: (instance, callback) => observeElementRect(instance, rect => {
       callback(rect);
@@ -116,7 +119,9 @@ export function createVirtualGrid(options: VirtualGridOptions) {
     itemHeight();
     gridColumns();
     columnGap();
-    queueMicrotask(() => virtualizer.measure());
+    if (enabled()) {
+      queueMicrotask(() => virtualizer.measure());
+    }
   });
 
   const updatePreservingScrollPosition = (update: () => void): void => {

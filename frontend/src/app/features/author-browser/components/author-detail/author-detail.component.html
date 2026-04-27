@@ -104,7 +104,7 @@
                     <p>{{ t('noBooksFound') }}</p>
                   </div>
                 } @else {
-                  <div #scrollElement class="books-virtual-scroller">
+                  <div #scrollElement class="author-books-scroller virtual-scroller">
                     <div class="virtual-content" [style.height.px]="virtualGrid.virtualizer.getTotalSize()">
                       @for (virtualItem of virtualGrid.virtualizer.getVirtualItems(); track virtualItem.key) {
                         @if (books[virtualItem.index]; as book) {

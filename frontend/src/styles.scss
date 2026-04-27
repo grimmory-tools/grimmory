@@ -67,30 +67,32 @@ html {
   }
 }
 
-.virtual-content {
-  position: relative;
-  width: 100%;
-}
+.virtual-scroller {
+  .virtual-content {
+    position: relative;
+    width: 100%;
+  }
 
-.virtual-cell {
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: flex;
-  justify-content: center;
-  box-sizing: border-box;
-}
+  .virtual-cell {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    box-sizing: border-box;
+  }
 
-.virtual-cell > app-author-card,
-.virtual-cell > app-book-card,
-.virtual-cell > app-series-card {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
+  .virtual-cell > app-author-card,
+  .virtual-cell > app-book-card,
+  .virtual-cell > app-series-card {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
 
-.virtual-scroller-item {
-  position: relative;
+  .virtual-scroller-item {
+    position: relative;
+  }
 }
 
 .browser-grid-options {

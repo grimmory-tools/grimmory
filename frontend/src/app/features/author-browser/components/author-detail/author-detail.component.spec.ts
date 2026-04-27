@@ -1,4 +1,4 @@
-import {ElementRef, signal} from '@angular/core';
+import {signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {TranslocoService} from '@jsverse/transloco';
 import {MessageService} from 'primeng/api';
@@ -48,16 +48,6 @@ describe('AuthorDetailComponent', () => {
   };
 
   const createComponent = () => TestBed.runInInjectionContext(() => new AuthorDetailComponent());
-
-  const setDescriptionContentRef = (
-    component: AuthorDetailComponent,
-    element: Pick<HTMLElement, 'scrollHeight' | 'clientHeight'>
-  ) => {
-    Object.defineProperty(component, 'descriptionContentRef', {
-      configurable: true,
-      value: signal({nativeElement: element} as ElementRef<HTMLElement>),
-    });
-  };
 
   beforeEach(() => {
     getAuthorDetails = vi.fn();
@@ -191,25 +181,21 @@ describe('AuthorDetailComponent', () => {
     expect(component.canEditMetadata).toBe(true);
   });
 
-  it('detects description overflow from the assigned element ref only while collapsed', () => {
+  it('detects description overflow from element dimensions only while collapsed', () => {
     const component = createComponent();
 
-    setDescriptionContentRef(component, {
+    component.updateDescriptionOverflow({
       scrollHeight: 120,
       clientHeight: 60,
     });
 
-    component.ngAfterViewChecked();
-
     expect(component.isOverflowing).toBe(true);
 
     component.isExpanded = true;
-    setDescriptionContentRef(component, {
+    component.updateDescriptionOverflow({
       scrollHeight: 20,
       clientHeight: 80,
     });
-
-    component.ngAfterViewChecked();
 
     expect(component.isOverflowing).toBe(true);
   });

@@ -279,15 +279,6 @@ export class BookBrowserComponent implements AfterViewInit {
 
   readonly isBooksLoading = computed(() => this.appBooksApi.isLoading());
   readonly booksError = this.appBooksApi.error;
-  readonly bookIndexById = computed(() => {
-    const books = this.books();
-    const map = new Map<number, number>();
-    for (let i = 0; i < books.length; i++) {
-      map.set(books[i].id, i);
-    }
-    return map;
-  });
-  readonly compareBookItems = (a: Book, b: Book): boolean => a?.id === b?.id;
 
   private readonly GRID_GAP = 21;
   private readonly MOBILE_BREAKPOINT = 768;
@@ -316,6 +307,7 @@ export class BookBrowserComponent implements AfterViewInit {
   );
   private readonly virtualGridGap = computed(() => this.isMobile() ? this.MOBILE_GAP : this.GRID_GAP);
   private readonly virtualGridColumns = computed(() => this.isMobile() ? this.mobileColumnCount() : undefined);
+  private readonly isGridView = computed(() => this.currentViewMode() === VIEW_MODES.GRID);
   private readonly virtualBookCount = computed(() => {
     const renderedBookCount = this.gridBooks().length;
     return this.appBooksApi.hasNextPage()
@@ -329,6 +321,7 @@ export class BookBrowserComponent implements AfterViewInit {
     gap: this.virtualGridGap,
     columns: this.virtualGridColumns,
     count: this.virtualBookCount,
+    enabled: this.isGridView,
     initialOffset: this.initialScrollOffset,
     fillItemWidth: true,
     estimateItemHeight: itemWidth => this.isMobile()

@@ -114,9 +114,12 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
 
   ngAfterViewChecked(): void {
     const descriptionContent = this.descriptionContentRef();
-    if (!this.isExpanded && descriptionContent) {
-      const el = descriptionContent.nativeElement;
-      this.isOverflowing = el.scrollHeight > el.clientHeight;
+    this.updateDescriptionOverflow(descriptionContent?.nativeElement);
+  }
+
+  updateDescriptionOverflow(element?: Pick<HTMLElement, 'scrollHeight' | 'clientHeight'>): void {
+    if (!this.isExpanded && element) {
+      this.isOverflowing = element.scrollHeight > element.clientHeight;
     }
   }
 
