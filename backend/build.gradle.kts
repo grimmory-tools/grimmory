@@ -62,13 +62,17 @@ fun pdfiumNativesClassifier(): String {
         "win" in osName -> "windows"
         "mac" in osName || "darwin" in osName -> "darwin"
         "nux" in osName || "linux" in osName -> {
-            val isMusl = try {
-                val libDir = File("/lib")
-                libDir.exists() && (libDir.listFiles()?.any { f -> f.name.startsWith("ld-musl-") } == true)
-            } catch (_: Exception) {
-                try {
-                    File("/proc/self/maps").readText().contains("musl")
-                } catch (_: Exception) { false }
+            val libcOverride = (System.getenv("TARGETLIBC")
+                ?: project.findProperty("targetLibc")?.toString())?.lowercase()
+            val isMusl = when (libcOverride) {
+                "musl" -> true
+                "gnu", "glibc" -> false
+                else -> if (targetPlatform != null) false else runCatching {
+                    val libDir = File("/lib")
+                    libDir.exists() && (libDir.listFiles()?.any { f -> f.name.startsWith("ld-musl-") } == true)
+                }.getOrElse {
+                    runCatching { File("/proc/self/maps").readText().contains("musl") }.getOrDefault(false)
+                }
             }
             if (isMusl) "linux-musl" else "linux"
         }
@@ -108,13 +112,17 @@ fun epub4jNativesClassifier(): String {
         "win" in osName -> "windows"
         "mac" in osName || "darwin" in osName -> "macos"
         "nux" in osName || "linux" in osName -> {
-            val isMusl = try {
-                val libDir = File("/lib")
-                libDir.exists() && (libDir.listFiles()?.any { f -> f.name.startsWith("ld-musl-") } == true)
-            } catch (_: Exception) {
-                try {
-                    File("/proc/self/maps").readText().contains("musl")
-                } catch (_: Exception) { false }
+            val libcOverride = (System.getenv("TARGETLIBC")
+                ?: project.findProperty("targetLibc")?.toString())?.lowercase()
+            val isMusl = when (libcOverride) {
+                "musl" -> true
+                "gnu", "glibc" -> false
+                else -> if (targetPlatform != null) false else runCatching {
+                    val libDir = File("/lib")
+                    libDir.exists() && (libDir.listFiles()?.any { f -> f.name.startsWith("ld-musl-") } == true)
+                }.getOrElse {
+                    runCatching { File("/proc/self/maps").readText().contains("musl") }.getOrDefault(false)
+                }
             }
             if (isMusl) "linux-musl" else "linux"
         }

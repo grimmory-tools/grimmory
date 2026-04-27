@@ -90,38 +90,46 @@ public class ArchiveService {
     }
 
     public long transferEntryTo(Path path, String entryName, OutputStream outputStream) throws IOException {
-        requireAvailable();
-
-        // 1. Try NativeArchive (Panama) first. It is more stable
-        if (NativeLibraries.get().isEpubNativeAvailable()) {
-            try (NativeArchive archive = NativeArchive.open(path)) {
-                CountingOutputStream countingOut = new CountingOutputStream(outputStream);
-                archive.streamEntry(entryName, countingOut);
-                return countingOut.getByteCount();
-            } catch (Exception e) {
-                // If it's a format NativeArchive doesn't support (e.g. RAR if it's ZIP-only),
-                // or any other error, we fall back to nightcompress.
-                log.debug("NativeArchive streaming failed for {}, falling back to nightcompress: {}", path.getFileName(), e.getMessage());
-            }
-        }
-
-        // 2. Fallback to NightCompress (JNI).
-        // We cannot directly use the NightCompress `InputStream` as it is limited
-        // in its implementation and will cause fatal errors.  Instead, we can use
-        // the `transferTo` on an output stream to copy data around.
         ReentrantLock lock = getFileLock(path);
         lock.lock();
-        try (InputStream inputStream = Archive.getInputStream(path, entryName)) {
-            if (inputStream != null) {
-                return inputStream.transferTo(outputStream);
+        try {
+            // 1. Try NativeArchive (Panama) first. It is more stable and does not suffer from
+            // the JNI handle-reuse bugs seen in nightcompress on some platforms.
+            if (NativeLibraries.get().isEpubNativeAvailable()) {
+                try (NativeArchive archive = NativeArchive.open(path)) {
+                    CountingOutputStream countingOut = new CountingOutputStream(outputStream);
+                    archive.streamEntry(entryName, countingOut);
+                    return countingOut.getByteCount();
+                } catch (IOException e) {
+                    // If it's an IOException, it likely came from the destination stream
+                    // (e.g. BoundedOutputStream limit), so we must NOT fall back.
+                    throw e;
+                } catch (Exception e) {
+                    // If it's a format NativeArchive doesn't support (e.g. RAR if it's ZIP-only),
+                    // or any other error, we fall back to nightcompress.
+                    log.warn("NativeArchive streaming failed for {} (entry: {}), falling back to nightcompress. Reason: {}", 
+                            path.getFileName(), entryName, e.getMessage(), e);
+                }
             }
-        } catch (Exception e) {
-            throw new IOException("Failed to extract from archive: " + e.getMessage(), e);
+
+            requireAvailable();
+
+            // 2. Fallback to NightCompress (JNI).
+            // We cannot directly use the NightCompress `InputStream` as it is limited
+            // in its implementation and will cause fatal errors.  Instead, we can use
+            // the `transferTo` on an output stream to copy data around.
+            try (InputStream inputStream = Archive.getInputStream(path, entryName)) {
+                if (inputStream != null) {
+                    return inputStream.transferTo(outputStream);
+                }
+            } catch (Exception e) {
+                throw new IOException("Failed to extract from archive: " + e.getMessage(), e);
+            }
+
+            throw new IOException("Entry not found in archive");
         } finally {
             lock.unlock();
         }
-
-        throw new IOException("Entry not found in archive");
     }
 
     public byte[] getEntryBytes(Path path, String entryName) throws IOException {
@@ -198,33 +206,42 @@ public class ArchiveService {
     }
 
     public long extractEntryToPath(Path path, String entryName, Path outputPath) throws IOException {
-        requireAvailable();
-
-        // Prefer NativeArchive (Panama)
-        if (NativeLibraries.get().isEpubNativeAvailable()) {
-            try (NativeArchive archive = NativeArchive.open(path);
-                 OutputStream os = Files.newOutputStream(outputPath)) {
-                CountingOutputStream countingOut = new CountingOutputStream(os);
-                archive.streamEntry(entryName, countingOut);
-                return countingOut.getByteCount();
-            } catch (Exception e) {
-                log.debug("NativeArchive extraction failed for {}, falling back to nightcompress: {}", path.getFileName(), e.getMessage());
-            }
-        }
-
         ReentrantLock lock = getFileLock(path);
         lock.lock();
-        try (InputStream inputStream = Archive.getInputStream(path, entryName)) {
-            if (inputStream != null) {
-                return Files.copy(inputStream, outputPath);
+        try {
+            // Prefer NativeArchive (Panama)
+            if (NativeLibraries.get().isEpubNativeAvailable()) {
+                Path tmp = Files.createTempFile(outputPath.getParent(), outputPath.getFileName().toString(), ".tmp");
+                try (NativeArchive archive = NativeArchive.open(path);
+                     OutputStream os = Files.newOutputStream(tmp)) {
+                    CountingOutputStream countingOut = new CountingOutputStream(os);
+                    archive.streamEntry(entryName, countingOut);
+                    Files.move(tmp, outputPath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                    return countingOut.getByteCount();
+                } catch (IOException e) {
+                    Files.deleteIfExists(tmp);
+                    throw e;
+                } catch (Exception e) {
+                    Files.deleteIfExists(tmp);
+                    log.warn("NativeArchive extraction failed for {} (entry: {}), falling back to nightcompress. Reason: {}", 
+                            path.getFileName(), entryName, e.getMessage(), e);
+                }
             }
-        } catch (Exception e) {
-            throw new IOException("Failed to extract from archive: " + e.getMessage(), e);
+
+            requireAvailable();
+
+            try (InputStream inputStream = Archive.getInputStream(path, entryName)) {
+                if (inputStream != null) {
+                    return Files.copy(inputStream, outputPath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                }
+            } catch (Exception e) {
+                throw new IOException("Failed to extract from archive: " + e.getMessage(), e);
+            }
+
+            throw new IOException("Entry not found in archive");
         } finally {
             lock.unlock();
         }
-
-        throw new IOException("Entry not found in archive");
     }
 
     /**
