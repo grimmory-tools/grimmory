@@ -1,4 +1,4 @@
-import {computed, signal, WritableSignal} from '@angular/core';
+import {signal, WritableSignal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {ActivatedRoute, convertToParamMap, ParamMap, Router} from '@angular/router';
 import {BehaviorSubject, Subject} from 'rxjs';
@@ -31,8 +31,6 @@ import {AppSettingsService} from '../../../../shared/service/app-settings.servic
 import {BookBrowserComponent, EntityType} from './book-browser.component';
 import {SortService} from '../../service/sort.service';
 import {TranslocoService} from '@jsverse/transloco';
-import {AppBooksApiService} from '../../service/app-books-api.service';
-import {AppBookFilters, AppBookSort} from '../../model/app-book.model';
 
 function makeBook(id: number, libraryId: number, title: string, addedOn: string): Book {
   return {
@@ -106,7 +104,6 @@ interface BookBrowserHarness {
   booksError: WritableSignal<string | null>;
   isBooksLoading: WritableSignal<boolean>;
   paramMap$: BehaviorSubject<ParamMap>;
-  setHasNextPage: (value: boolean) => void;
   queryParamsService: {
     shouldForceExpandSeries: ReturnType<typeof vi.fn>;
     updateViewMode: ReturnType<typeof vi.fn>;
@@ -126,7 +123,6 @@ interface BookBrowserHarness {
 
 function createHarness(options?: {
   books?: Book[];
-  totalElements?: number;
   booksError?: string | null;
   isBooksLoading?: boolean;
   translate?: (key: string) => string;
@@ -140,7 +136,6 @@ function createHarness(options?: {
   );
   const booksError = signal<string | null>(options?.booksError ?? null);
   const isBooksLoading = signal<boolean>(options?.isBooksLoading ?? false);
-  const hasNextPage = signal(false);
   const currentUser = signal(makeCurrentUser());
   const showFilter = signal(false);
   const seriesCollapsed = signal(false);
@@ -219,12 +214,6 @@ function createHarness(options?: {
         },
       },
       {
-        provide: SortService,
-        useValue: {
-          applySort: vi.fn((b: Book[]) => b),
-        },
-      },
-      {
         provide: BookSelectionService,
         useValue: {
           selectedBooks: signal([]),
@@ -282,47 +271,6 @@ function createHarness(options?: {
           books: books.asReadonly(),
           isBooksLoading: isBooksLoading.asReadonly(),
           booksError: booksError.asReadonly(),
-        },
-      },
-      {
-        provide: AppBooksApiService,
-        useFactory: () => {
-          const _filters = signal<AppBookFilters>({});
-          const _sort = signal<AppBookSort>({field: 'addedOn', dir: 'desc'});
-          const _search = signal('');
-          const filteredSortedBooks = computed(() => {
-            let result = books();
-            const f = _filters();
-            if (f.libraryId) result = result.filter(b => b.libraryId === f.libraryId);
-
-            const s = _sort();
-            result = [...result].sort((a, b) => {
-              const aVal = s.field === 'title' ? (a.metadata?.title ?? '') : (a.addedOn ?? '');
-              const bVal = s.field === 'title' ? (b.metadata?.title ?? '') : (b.addedOn ?? '');
-              return String(aVal).localeCompare(String(bVal));
-            });
-            if (s.dir === 'desc') {
-              result.reverse();
-            }
-            return result;
-          });
-          const totalElements = computed(() => options?.totalElements ?? filteredSortedBooks().length);
-
-          return {
-            books: filteredSortedBooks,
-            totalElements,
-            hasNextPage: hasNextPage.asReadonly(),
-            isLoading: isBooksLoading.asReadonly(),
-            isFetchingNextPage: computed(() => false),
-            isError: computed(() => !!booksError()),
-            error: computed(() => booksError()),
-            filterOptions: computed(() => null),
-            setFilters: (f: AppBookFilters) => _filters.set(f),
-            setSort: (s: AppBookSort) => _sort.set(s),
-            setSearch: (s: string) => _search.set(s),
-            fetchNextPage: vi.fn(),
-            invalidate: vi.fn(),
-          };
         },
       },
       {provide: BookMetadataManageService, useValue: {}},
@@ -393,7 +341,6 @@ function createHarness(options?: {
     booksError,
     isBooksLoading,
     paramMap$,
-    setHasNextPage: value => hasNextPage.set(value),
     queryParamsService,
     routeSnapshot,
   };
@@ -479,41 +426,17 @@ describe('BookBrowserComponent', () => {
     expect(collapseBooksSpy).toHaveBeenCalled();
   });
 
-  it('triggers next page fetch when the virtual grid reaches the loaded rows', () => {
-    const {component, setHasNextPage} = createHarness();
-    const appBooksApi = TestBed.inject(AppBooksApiService);
-
-    vi.runOnlyPendingTimers();
-    TestBed.flushEffects();
-
-    vi.spyOn(component.virtualGrid.virtualizer, 'getVirtualItems').mockReturnValue([
-      {index: 2, key: 2, start: 0, end: 241, size: 241, lane: 0}
-    ]);
-
-    component.currentViewMode.set(VIEW_MODES.TABLE);
-    TestBed.flushEffects();
-
-    setHasNextPage(true);
-    const fetchNextPageSpy = vi.spyOn(appBooksApi, 'fetchNextPage');
-    component.currentViewMode.set(VIEW_MODES.GRID);
-    TestBed.flushEffects();
-
-    expect(fetchNextPageSpy).toHaveBeenCalled();
-  });
-
   it('uses the known total book count for virtual grid size while more pages are available', () => {
-    const {component, setHasNextPage} = createHarness({totalElements: 100});
-
-    setHasNextPage(true);
+    const {component} = createHarness();
 
     vi.runOnlyPendingTimers();
     TestBed.flushEffects();
 
-    expect(component.virtualGrid.virtualizer.options().count).toBe(100);
+    expect(component.virtualGrid.virtualizer.options().count).toBe(2);
   });
 
   it('uses the rendered book count once pagination is exhausted', () => {
-    const {component} = createHarness({totalElements: 100});
+    const {component} = createHarness();
     const filter = TestBed.inject(SeriesCollapseFilter);
     vi.mocked(filter.collapseBooks).mockImplementation((items: Book[]) => items.slice(0, 1));
 
