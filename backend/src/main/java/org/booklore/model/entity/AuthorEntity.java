@@ -28,8 +28,9 @@ public class AuthorEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NaturalId
-    @Column(name = "name")
+    @NaturalId(mutable = false)
+    @Setter(AccessLevel.NONE)
+    @Column(name = "name", nullable = false, unique = true, updatable = false)
     private String name;
 
     @Column(name = "description", columnDefinition = "TEXT")
