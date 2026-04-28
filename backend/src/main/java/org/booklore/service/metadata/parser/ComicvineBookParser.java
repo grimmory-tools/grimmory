@@ -58,6 +58,18 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
     private static final Pattern TRAILING_SLASHES_PATTERN = Pattern.compile("/+$");
     private static final Pattern VOLUME_SUFFIX_PATTERN = Pattern.compile("\\s+Vol\\.?\\s*\\d+$");
 
+    private static final String RESOURCE_TYPE_ISSUE = "4000";
+    private static final String RESOURCE_TYPE_VOLUME = "4050";
+    private static final String PREFIX_ISSUE = RESOURCE_TYPE_ISSUE + "-";
+    private static final String PREFIX_VOLUME = RESOURCE_TYPE_VOLUME + "-";
+
+    private static final long CACHE_EXPIRATION_MS = 600_000; // 10 minutes
+    private static final int MAX_VOLUMES_TO_CHECK = 3;
+    private static final int SEARCH_LIMIT_DEFAULT = 25;
+    private static final int FILTER_LIMIT_DEFAULT = 20;
+    private static final int ISSUE_LIMIT_DEFAULT = 5;
+    private static final int GENERAL_SEARCH_LIMIT = 10;
+
     private final ObjectMapper objectMapper;
     private final AppSettingService appSettingService;
     private final HttpClient httpClient;
@@ -78,7 +90,7 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
         }
 
         boolean isExpired() {
-            return System.currentTimeMillis() - timestamp > 600_000;
+            return System.currentTimeMillis() - timestamp > CACHE_EXPIRATION_MS;
         }
     }
 
@@ -107,7 +119,7 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
 
         BookMetadata top = metadataList.getFirst();
         String topId = top.getComicvineId();
-        boolean isVolume = topId != null && topId.startsWith("4050-");
+        boolean isVolume = topId != null && topId.startsWith(PREFIX_VOLUME);
         if (topId != null && !isVolume && (top.getComicMetadata() == null || !hasComicDetails(top.getComicMetadata()))) {
             BookMetadata detailed = fetchDetailedMetadata(top.getComicvineId());
             if (detailed != null && detailed.getComicMetadata() != null) {
@@ -204,6 +216,8 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
         final String finalSeriesName = seriesName;
         log.debug("searchVolumesAndIssues: seriesName='{}', issueNumber='{}', year='{}'", finalSeriesName, issueNumber, extractedYear);
         
+        // searchVolumes may return immutable snapshots (e.g. from cache). We wrap in a mutable 
+        // ArrayList to enable in-place ranking/sorting to ensure the best matches are prioritized.
         List<Comic> volumes = new ArrayList<>(searchVolumes(finalSeriesName));
         if (volumes.isEmpty()) {
             log.debug("No volumes found for series '{}'", finalSeriesName);
@@ -222,7 +236,7 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
         });
 
         List<BookMetadata> results = new ArrayList<>();
-        int limit = Math.min(volumes.size(), 3);
+        int limit = Math.min(volumes.size(), MAX_VOLUMES_TO_CHECK);
 
         for (int i = 0; i < limit; i++) {
             Comic volume = volumes.get(i);
@@ -311,7 +325,7 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
                 .queryParam("format", "json")
                 .queryParam("resources", "volume")
                 .queryParam("query", seriesName)
-                .queryParam("limit", 25)
+                .queryParam("limit", SEARCH_LIMIT_DEFAULT)
                 .queryParam("field_list", VOLUME_FIELDS)
                 .build()
                 .toUri();
@@ -341,7 +355,7 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
                 .queryParam("api_key", apiToken)
                 .queryParam("format", "json")
                 .queryParam("filter", "name:" + seriesName)
-                .queryParam("limit", 20)
+                .queryParam("limit", FILTER_LIMIT_DEFAULT)
                 .queryParam("field_list", VOLUME_FIELDS)
                 .build()
                 .toUri();
@@ -364,7 +378,7 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
                 .queryParam("format", "json")
                 .queryParam("filter", "volume:" + volume.getId() + ",issue_number:" + normalizedIssue)
                 .queryParam("field_list", ISSUE_LIST_FIELDS)
-                .queryParam("limit", 5)
+                .queryParam("limit", ISSUE_LIMIT_DEFAULT)
                 .build()
                 .toUri();
 
@@ -397,7 +411,7 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
     public BookMetadata fetchDetailedMetadata(String comicvineId) {
         if (comicvineId == null || comicvineId.isEmpty()) return null;
         
-        String prefix = "4000";
+        String prefix = RESOURCE_TYPE_ISSUE;
         String idStr = comicvineId;
         
         if (comicvineId.contains("-")) {
@@ -414,9 +428,9 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
             return null;
         }
 
-        if ("4050".equals(prefix)) {
+        if (RESOURCE_TYPE_VOLUME.equals(prefix)) {
             return fetchVolumeDetails(id);
-        } else if ("4000".equals(prefix)) {
+        } else if (RESOURCE_TYPE_ISSUE.equals(prefix)) {
             return fetchIssueDetails(id, null);
         } else {
             log.warn("Unsupported Comicvine resource prefix '{}' for id '{}'", prefix, comicvineId);
@@ -429,11 +443,11 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
         if (apiToken == null) return null;
 
         URI uri = UriComponentsBuilder.fromUriString(COMICVINE_URL)
-                .path("/volume/4050-" + volumeId + "/")
+                .path("/volume/{type}-{id}/")
                 .queryParam("api_key", apiToken)
                 .queryParam("format", "json")
                 .queryParam("field_list", VOLUME_FIELDS)
-                .build()
+                .buildAndExpand(RESOURCE_TYPE_VOLUME, volumeId)
                 .toUri();
 
         ComicvineSingleResponse response = sendRequest(uri, ComicvineSingleResponse.class);
@@ -448,11 +462,11 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
         if (apiToken == null) return null;
 
         URI uri = UriComponentsBuilder.fromUriString(COMICVINE_URL)
-                .path("/issue/4000-" + issueId + "/")
+                .path("/issue/{type}-{id}/")
                 .queryParam("api_key", apiToken)
                 .queryParam("format", "json")
                 .queryParam("field_list", ISSUE_DETAIL_FIELDS)
-                .build()
+                .buildAndExpand(RESOURCE_TYPE_ISSUE, issueId)
                 .toUri();
 
         ComicvineSingleResponse response = sendRequest(uri, ComicvineSingleResponse.class);
@@ -472,7 +486,7 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
                 .queryParam("format", "json")
                 .queryParam("resources", "volume,issue")
                 .queryParam("query", term)
-                .queryParam("limit", 10)
+                .queryParam("limit", GENERAL_SEARCH_LIMIT)
                 .queryParam("field_list", SEARCH_FIELDS)
                 .build()
                 .toUri();
@@ -653,7 +667,7 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
 
         BookMetadata metadata = BookMetadata.builder()
                 .provider(MetadataProvider.Comicvine)
-                .comicvineId("4000-" + comic.getId())
+                .comicvineId(PREFIX_ISSUE + comic.getId())
                 .title(formattedTitle)
                 .authors(authors)
                 .thumbnailUrl(comic.getImage() != null ? comic.getImage().getMediumUrl() : null)
@@ -682,7 +696,7 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
         
         return BookMetadata.builder()
                 .provider(MetadataProvider.Comicvine)
-                .comicvineId("4050-" + volume.getId())
+                .comicvineId(PREFIX_VOLUME + volume.getId())
                 .title(volume.getName())
                 .seriesName(volume.getName())
                 .seriesTotal(volume.getCountOfIssues())
