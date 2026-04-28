@@ -3,9 +3,9 @@ import {FormsModule} from '@angular/forms';
 import {DatePipe} from '@angular/common';
 import {Button} from 'primeng/button';
 import {InputText} from 'primeng/inputtext';
-import {ProgressSpinner} from 'primeng/progressspinner';
 import {Tag} from 'primeng/tag';
 import {Toast} from 'primeng/toast';
+import {Tooltip} from 'primeng/tooltip';
 import {MessageService} from 'primeng/api';
 import {Subscription} from 'rxjs';
 import {AcquisitionService, AddToWantedRequest, BookSearchResult} from '../../../../core/services/acquisition.service';
@@ -17,9 +17,9 @@ import {AcquisitionService, AddToWantedRequest, BookSearchResult} from '../../..
     DatePipe,
     Button,
     InputText,
-    ProgressSpinner,
     Tag,
     Toast,
+    Tooltip,
   ],
   providers: [MessageService],
   templateUrl: './book-discovery.component.html',
@@ -57,6 +57,15 @@ export class BookDiscoveryComponent implements OnInit, OnDestroy {
         this.wantedIsbns = new Set(books.flatMap(b => [b.isbn13, b.isbn10].filter((v): v is string => !!v)));
       }
     });
+  }
+
+  clearSearch(): void {
+    this.searchQuery = '';
+    this.results = [];
+    this.hasMore = false;
+    this.currentPage = 0;
+    this.pageCache.clear();
+    this.cdr.detectChanges();
   }
 
   search(): void {

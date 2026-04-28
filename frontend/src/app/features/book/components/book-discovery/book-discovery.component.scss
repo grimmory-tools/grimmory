@@ -1,0 +1,134 @@
+.discover-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.discover-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+  padding: 0.35rem;
+  border-radius: 0.75rem 0.75rem 0 0;
+  margin-bottom: 0.5rem;
+  margin-right: 2px;
+  background-color: var(--card-background);
+  border: 1px solid var(--p-content-border-color);
+
+  @media (width >= 768px) {
+    gap: 1rem;
+    padding: 0.5rem 1rem;
+    margin-bottom: 1rem;
+  }
+}
+
+.discover-title {
+  font-size: 1.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+  padding: 0 0.25rem;
+
+  @media (width <= 767px) {
+    font-size: 1rem;
+  }
+}
+
+.discover-toolbar {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+
+  @media (width >= 768px) {
+    gap: 1rem;
+  }
+}
+
+.topbar-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid var(--border-color);
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 6px;
+  background-color: var(--card-background);
+  cursor: pointer;
+  transition: border-color 0.2s;
+  padding: 0;
+
+  &:hover {
+    border-color: var(--primary-color);
+  }
+
+  i {
+    color: var(--primary-color);
+    font-size: 1.25rem;
+  }
+
+  &.active {
+    border-color: var(--primary-color);
+    background-color: color-mix(in srgb, var(--primary-color) 10%, transparent);
+  }
+}
+
+.search-wrapper {
+  position: relative;
+  display: none;
+
+  @media (width >= 768px) {
+    display: block;
+  }
+}
+
+.search-icon {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  color: var(--text-secondary-color);
+  font-size: 1rem;
+  pointer-events: none;
+}
+
+.search-input {
+  min-width: 22rem;
+  padding-left: 30px;
+  height: 2.5rem;
+  line-height: 2.5rem;
+  font-size: 1rem;
+}
+
+.search-clear-btn {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  padding: 0 0.125rem;
+}
+
+.book-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--p-surface-200);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.book-card-body {
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 0.25rem;
+}

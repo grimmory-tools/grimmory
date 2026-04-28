@@ -1,90 +1,141 @@
 <p-toast></p-toast>
 
-<div class="p-4">
+<div class="acquisition-container">
 
-  <p class="text-xl pb-2 pt-4">Usenet Indexers</p>
-  <p-button outlined="true" label="Add Indexer" icon="pi pi-plus" (onClick)="openAddIndexerDialog()" class="mb-3"></p-button>
-
-  <p-table [value]="indexers" class="mt-3">
-    <ng-template pTemplate="header">
-      <tr>
-        <th>Name</th>
-        <th>URL</th>
-        <th style="width:80px;">Priority</th>
-        <th style="width:80px;">Enabled</th>
-        <th style="width:200px;">Actions</th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-indexer>
-      <tr>
-        <td>{{ indexer.name }}</td>
-        <td>{{ indexer.url }}</td>
-        <td class="text-center">{{ indexer.priority }}</td>
-        <td class="text-center">
-          <i [class]="indexer.enabled ? 'pi pi-check text-green-500' : 'pi pi-times text-red-500'"></i>
-        </td>
-        <td>
-          <div class="flex gap-2">
-            <p-button icon="pi pi-pencil" outlined="true" severity="info" size="small"
-                      (onClick)="openEditIndexerDialog(indexer)"></p-button>
-            <p-button icon="pi pi-wifi" outlined="true" severity="secondary" size="small"
-                      [loading]="testingIndexerId === indexer.id"
-                      (onClick)="testIndexer(indexer)"></p-button>
-            <p-button icon="pi pi-trash" outlined="true" severity="danger" size="small"
-                      (onClick)="deleteIndexer(indexer)"></p-button>
+  <div class="settings-card">
+    <div class="section-header">
+      <div class="section-header-row">
+        <div class="section-header-text">
+          <div class="section-title">
+            <i class="pi pi-search section-icon"></i>
+            <span>Usenet Indexers</span>
           </div>
-        </td>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="emptymessage">
-      <tr>
-        <td colspan="5" class="text-center text-muted-color">No indexers configured</td>
-      </tr>
-    </ng-template>
-  </p-table>
+          <p class="section-description">
+            Configure NZB indexer sources. BookLore searches these indexers when looking for books.
+          </p>
+        </div>
+        <p-button icon="pi pi-plus" label="Add Indexer" severity="success" size="small"
+                  [outlined]="true" (onClick)="openAddIndexerDialog()"></p-button>
+      </div>
+    </div>
 
-  <p class="text-xl pb-2 pt-8">Download Clients</p>
-  <p-button outlined="true" label="Add Client" icon="pi pi-plus" (onClick)="openAddClientDialog()" class="mb-3"></p-button>
+    <div class="section-body">
+      <div class="settings-table">
+        <p-table [value]="indexers">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Name</th>
+              <th>URL</th>
+              <th style="width:80px;">Priority</th>
+              <th style="width:80px;">Enabled</th>
+              <th style="width:200px;">Actions</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-indexer>
+            <tr>
+              <td>{{ indexer.name }}</td>
+              <td>{{ indexer.url }}</td>
+              <td class="text-center">{{ indexer.priority }}</td>
+              <td class="text-center">
+                <i [class]="indexer.enabled ? 'pi pi-check text-green-500' : 'pi pi-times text-red-500'"></i>
+              </td>
+              <td>
+                <div style="display:flex; gap:0.375rem;">
+                  <p-button icon="pi pi-pencil" outlined="true" severity="info" size="small"
+                            pTooltip="Edit" (onClick)="openEditIndexerDialog(indexer)"></p-button>
+                  <p-button icon="pi pi-wifi" outlined="true" severity="secondary" size="small"
+                            pTooltip="Test Connection" [loading]="testingIndexerId === indexer.id"
+                            (onClick)="testIndexer(indexer)"></p-button>
+                  <p-button icon="pi pi-trash" outlined="true" severity="danger" size="small"
+                            pTooltip="Delete" (onClick)="deleteIndexer(indexer)"></p-button>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="5">
+                <div class="empty-state">
+                  <i class="pi pi-search"></i>
+                  <p class="empty-title">No indexers configured</p>
+                  <p class="empty-subtitle">Add a Usenet indexer to start searching for books automatically.</p>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </div>
 
-  <p-table [value]="clients" class="mt-3">
-    <ng-template pTemplate="header">
-      <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>URL</th>
-        <th>Category</th>
-        <th style="width:80px;">Enabled</th>
-        <th style="width:200px;">Actions</th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-client>
-      <tr>
-        <td>{{ client.name }}</td>
-        <td>{{ client.type }}</td>
-        <td>{{ client.url }}</td>
-        <td>{{ client.category }}</td>
-        <td class="text-center">
-          <i [class]="client.enabled ? 'pi pi-check text-green-500' : 'pi pi-times text-red-500'"></i>
-        </td>
-        <td>
-          <div class="flex gap-2">
-            <p-button icon="pi pi-pencil" outlined="true" severity="info" size="small"
-                      (onClick)="openEditClientDialog(client)"></p-button>
-            <p-button icon="pi pi-wifi" outlined="true" severity="secondary" size="small"
-                      [loading]="testingClientId === client.id"
-                      (onClick)="testClient(client)"></p-button>
-            <p-button icon="pi pi-trash" outlined="true" severity="danger" size="small"
-                      (onClick)="deleteClient(client)"></p-button>
+  <div class="settings-card">
+    <div class="section-header">
+      <div class="section-header-row">
+        <div class="section-header-text">
+          <div class="section-title">
+            <i class="pi pi-download section-icon"></i>
+            <span>Download Clients</span>
           </div>
-        </td>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="emptymessage">
-      <tr>
-        <td colspan="6" class="text-center text-muted-color">No download clients configured</td>
-      </tr>
-    </ng-template>
-  </p-table>
+          <p class="section-description">
+            Configure SABnzbd or NZBGet clients. BookLore sends matched NZBs here for downloading.
+          </p>
+        </div>
+        <p-button icon="pi pi-plus" label="Add Client" severity="success" size="small"
+                  [outlined]="true" (onClick)="openAddClientDialog()"></p-button>
+      </div>
+    </div>
+
+    <div class="section-body">
+      <div class="settings-table">
+        <p-table [value]="clients">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>URL</th>
+              <th>Category</th>
+              <th style="width:80px;">Enabled</th>
+              <th style="width:200px;">Actions</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-client>
+            <tr>
+              <td>{{ client.name }}</td>
+              <td>{{ client.type }}</td>
+              <td>{{ client.url }}</td>
+              <td>{{ client.category }}</td>
+              <td class="text-center">
+                <i [class]="client.enabled ? 'pi pi-check text-green-500' : 'pi pi-times text-red-500'"></i>
+              </td>
+              <td>
+                <div style="display:flex; gap:0.375rem;">
+                  <p-button icon="pi pi-pencil" outlined="true" severity="info" size="small"
+                            pTooltip="Edit" (onClick)="openEditClientDialog(client)"></p-button>
+                  <p-button icon="pi pi-wifi" outlined="true" severity="secondary" size="small"
+                            pTooltip="Test Connection" [loading]="testingClientId === client.id"
+                            (onClick)="testClient(client)"></p-button>
+                  <p-button icon="pi pi-trash" outlined="true" severity="danger" size="small"
+                            pTooltip="Delete" (onClick)="deleteClient(client)"></p-button>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="6">
+                <div class="empty-state">
+                  <i class="pi pi-download"></i>
+                  <p class="empty-title">No download clients configured</p>
+                  <p class="empty-subtitle">Add SABnzbd or NZBGet to automatically download found books.</p>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <p-dialog [header]="isEditIndexer ? 'Edit Indexer' : 'Add Indexer'"

@@ -1,15 +1,21 @@
 <p-toast></p-toast>
 
 <div class="p-4">
-  <div class="flex align-items-center justify-content-between pb-4">
-    <p class="text-2xl">Wanted Books</p>
-    <div class="flex gap-2">
-      <p-button label="Manual Add" icon="pi pi-plus" outlined="true" severity="info"
-                (onClick)="openManualAddDialog()"></p-button>
-      <p-button icon="pi pi-refresh" outlined="true" severity="secondary"
-                (onClick)="loadWantedBooks()" [loading]="loading"></p-button>
-      <p-button label="Run All Now" icon="pi pi-play" outlined="true"
-                (onClick)="runAll()"></p-button>
+  <div class="wanted-header">
+    <p class="wanted-title">Wanted Books</p>
+    <div class="wanted-toolbar">
+      <button class="topbar-item" (click)="openManualAddDialog()"
+              pTooltip="Manual Add" tooltipPosition="top" type="button">
+        <i class="pi pi-plus"></i>
+      </button>
+      <button class="topbar-item" (click)="loadWantedBooks()"
+              pTooltip="Refresh" tooltipPosition="top" type="button">
+        <i [class]="loading ? 'pi pi-spin pi-spinner' : 'pi pi-refresh'"></i>
+      </button>
+      <button class="topbar-item" (click)="runAll()"
+              pTooltip="Run All Now" tooltipPosition="top" type="button">
+        <i class="pi pi-play"></i>
+      </button>
     </div>
   </div>
 
@@ -29,7 +35,7 @@
     <ng-template pTemplate="body" let-book>
       <tr>
         <td>
-          <p-button icon="pi pi-chevron-right" [icon]="expandedRows[book.id] ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+          <p-button [icon]="expandedRows[book.id] ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
                     size="small" [text]="true" severity="secondary"
                     (onClick)="toggleHistory(book)"></p-button>
         </td>
@@ -134,26 +140,56 @@
 </div>
 
 <p-dialog header="Manual Add to Wanted" [(visible)]="showManualAddDialog" [modal]="true" [style]="{width: '480px'}">
-  <div class="flex flex-col gap-4 pt-2">
-    <div class="flex flex-col gap-1">
-      <label for="manual-title">Title *</label>
-      <input id="manual-title" pInputText [(ngModel)]="manualTitle" placeholder="Book title" class="w-full"/>
-    </div>
-    <div class="flex flex-col gap-1">
-      <label for="manual-author">Author</label>
-      <input id="manual-author" pInputText [(ngModel)]="manualAuthor" placeholder="Author name" class="w-full"/>
-    </div>
-    <div class="flex flex-col gap-1">
-      <label for="manual-isbn13">ISBN-13</label>
-      <input id="manual-isbn13" pInputText [(ngModel)]="manualIsbn13" placeholder="9780000000000" class="w-full"/>
-    </div>
-    <div class="flex flex-col gap-1">
-      <label for="manual-isbn10">ISBN-10</label>
-      <input id="manual-isbn10" pInputText [(ngModel)]="manualIsbn10" placeholder="0000000000" class="w-full"/>
-    </div>
-    <div class="flex gap-3 justify-end pt-2">
-      <p-button label="Cancel" severity="secondary" (onClick)="showManualAddDialog = false"></p-button>
-      <p-button label="Add to Wanted" severity="success" (onClick)="submitManualAdd()"></p-button>
-    </div>
-  </div>
+  <table style="width:100%; border-collapse:collapse; padding-top:0.5rem;">
+    <colgroup>
+      <col style="width:5.5rem;">
+      <col>
+    </colgroup>
+    <tbody>
+      <tr style="height:2.75rem;">
+        <td style="text-align:right; padding-right:0.75rem; white-space:nowrap; vertical-align:middle;">
+          <label for="manual-title">Title *</label>
+        </td>
+        <td style="vertical-align:middle;">
+          <input id="manual-title" pInputText [fluid]="true"
+                 [(ngModel)]="manualTitle" placeholder="Book title"/>
+        </td>
+      </tr>
+      <tr style="height:2.75rem;">
+        <td style="text-align:right; padding-right:0.75rem; white-space:nowrap; vertical-align:middle;">
+          <label for="manual-author">Author</label>
+        </td>
+        <td style="vertical-align:middle;">
+          <input id="manual-author" pInputText [fluid]="true"
+                 [(ngModel)]="manualAuthor" placeholder="Author name"/>
+        </td>
+      </tr>
+      <tr style="height:2.75rem;">
+        <td style="text-align:right; padding-right:0.75rem; white-space:nowrap; vertical-align:middle;">
+          <label for="manual-isbn13">ISBN-13</label>
+        </td>
+        <td style="vertical-align:middle;">
+          <input id="manual-isbn13" pInputText [fluid]="true"
+                 [(ngModel)]="manualIsbn13" placeholder="9780000000000"/>
+        </td>
+      </tr>
+      <tr style="height:2.75rem;">
+        <td style="text-align:right; padding-right:0.75rem; white-space:nowrap; vertical-align:middle;">
+          <label for="manual-isbn10">ISBN-10</label>
+        </td>
+        <td style="vertical-align:middle;">
+          <input id="manual-isbn10" pInputText [fluid]="true"
+                 [(ngModel)]="manualIsbn10" placeholder="0000000000"/>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2" style="padding-top:0.75rem;">
+          <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+            <p-button label="Cancel" severity="secondary" (onClick)="showManualAddDialog = false"></p-button>
+            <p-button label="Add to Wanted" severity="success" (onClick)="submitManualAdd()"></p-button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </p-dialog>

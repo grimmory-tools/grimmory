@@ -1,0 +1,95 @@
+@use '../../../shared/styles/settings-shared' as settings;
+
+.acquisition-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+.settings-card {
+  @include settings.settings-card;
+}
+
+.section-header {
+  @include settings.settings-section-header;
+}
+
+.section-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+
+  @media (width <= 767px) {
+    flex-direction: column;
+    align-items: stretch;
+
+    p-button {
+      align-self: flex-end;
+    }
+  }
+}
+
+.section-header-text {
+  flex: 1;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0 0 0.5rem;
+}
+
+.section-icon {
+  color: var(--primary-color);
+  font-size: 1.125rem;
+  flex-shrink: 0;
+}
+
+.section-description {
+  @include settings.settings-section-description;
+}
+
+.section-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.settings-table {
+  @include settings.settings-table;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+  color: var(--p-text-muted-color);
+
+  .pi {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+
+  .empty-title {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-color);
+    margin: 0 0 0.5rem;
+  }
+
+  .empty-subtitle {
+    font-size: 0.875rem;
+    margin: 0;
+    max-width: 400px;
+  }
+}

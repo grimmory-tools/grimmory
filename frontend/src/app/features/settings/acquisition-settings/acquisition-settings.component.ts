@@ -1,4 +1,4 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, inject, OnInit} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {Button} from 'primeng/button';
 import {TableModule} from 'primeng/table';
@@ -8,6 +8,7 @@ import {ToggleSwitch} from 'primeng/toggleswitch';
 import {Select} from 'primeng/select';
 import {MessageService} from 'primeng/api';
 import {Toast} from 'primeng/toast';
+import {Tooltip} from 'primeng/tooltip';
 import {AcquisitionService, DownloadClient, Indexer} from '../../../core/services/acquisition.service';
 
 @Component({
@@ -21,6 +22,7 @@ import {AcquisitionService, DownloadClient, Indexer} from '../../../core/service
     ToggleSwitch,
     Select,
     Toast,
+    Tooltip,
   ],
   providers: [MessageService],
   templateUrl: './acquisition-settings.component.html',
@@ -30,6 +32,7 @@ export class AcquisitionSettingsComponent implements OnInit {
 
   private acquisitionService = inject(AcquisitionService);
   private messageService = inject(MessageService);
+  private cdr = inject(ChangeDetectorRef);
 
   indexers: Indexer[] = [];
   clients: DownloadClient[] = [];
@@ -55,14 +58,20 @@ export class AcquisitionSettingsComponent implements OnInit {
 
   loadIndexers(): void {
     this.acquisitionService.getIndexers().subscribe({
-      next: (data) => this.indexers = data,
+      next: (data) => {
+        this.indexers = data;
+        this.cdr.detectChanges();
+      },
       error: () => this.messageService.add({severity: 'error', summary: 'Error', detail: 'Failed to load indexers'})
     });
   }
 
   loadClients(): void {
     this.acquisitionService.getClients().subscribe({
-      next: (data) => this.clients = data,
+      next: (data) => {
+        this.clients = data;
+        this.cdr.detectChanges();
+      },
       error: () => this.messageService.add({severity: 'error', summary: 'Error', detail: 'Failed to load clients'})
     });
   }

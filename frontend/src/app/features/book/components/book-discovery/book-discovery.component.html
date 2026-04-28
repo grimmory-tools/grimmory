@@ -1,23 +1,42 @@
 <p-toast></p-toast>
 
-<div class="p-4">
-  <p class="text-2xl pb-4">Discover Books</p>
+<div class="discover-container p-4">
 
-  <div style="display:flex; align-items:center; gap:0.75rem; margin-top:1.5rem; margin-bottom:1.5rem;">
-    <input pInputText [fluid]="true" [(ngModel)]="searchQuery" placeholder="Search by title, author..."
-           style="flex:1 1 0%; min-width:0;" (keyup.enter)="search()"/>
-    <div style="display:flex; align-items:center; gap:0.75rem; flex-shrink:0; white-space:nowrap;">
-      <input type="checkbox" id="isbnToggle" [(ngModel)]="isIsbnSearch"/>
-      <label for="isbnToggle" style="cursor:pointer;">ISBN search</label>
+  <div class="discover-header">
+    <p class="discover-title">Discover Books</p>
+
+    <div class="discover-toolbar">
+      <button class="topbar-item" [class.active]="isIsbnSearch"
+              (click)="isIsbnSearch = !isIsbnSearch"
+              pTooltip="Toggle ISBN search" tooltipPosition="top"
+              type="button">
+        <i class="pi pi-barcode"></i>
+      </button>
+
+      <div class="search-wrapper">
+        <i class="pi pi-search search-icon"></i>
+        <input type="text" pInputText
+               [placeholder]="isIsbnSearch ? 'Enter ISBN...' : 'Search by title, author...'"
+               [(ngModel)]="searchQuery"
+               (keyup.enter)="search()"
+               class="search-input"/>
+        @if (searchQuery) {
+          <p-button icon="pi pi-times" [text]="true" size="small" [rounded]="true"
+                    class="search-clear-btn" (onClick)="clearSearch()"></p-button>
+        }
+      </div>
+
+      <button class="topbar-item" [disabled]="!searchQuery.trim()"
+              (click)="search()" pTooltip="Search" tooltipPosition="top"
+              type="button">
+        @if (loading && results.length === 0) {
+          <i class="pi pi-spin pi-spinner"></i>
+        } @else {
+          <i class="pi pi-search"></i>
+        }
+      </button>
     </div>
-    <p-button label="Search" icon="pi pi-search" (onClick)="search()" [disabled]="!searchQuery.trim()"></p-button>
   </div>
-
-  @if (loading && results.length === 0) {
-    <div style="display:flex; justify-content:center; align-items:center; height:60vh;">
-      <p-progressSpinner></p-progressSpinner>
-    </div>
-  }
 
   @if (!loading && results.length === 0 && searchQuery.trim()) {
     <div class="text-center py-8 text-muted-color">
@@ -26,9 +45,9 @@
   }
 
   @if (results.length > 0) {
-    <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:1rem;">
+    <div class="results-grid">
       @for (book of results; track $index) {
-        <div style="display:flex; flex-direction:column; border:1px solid var(--p-surface-200); border-radius:0.5rem; overflow:hidden;">
+        <div class="book-card">
           @if (book.thumbnailUrl) {
             <img [src]="book.thumbnailUrl" [alt]="book.title"
                  style="width:100%; height:200px; object-fit:cover;"/>
@@ -39,7 +58,7 @@
             </div>
           }
 
-          <div style="padding:0.75rem; display:flex; flex-direction:column; flex:1; gap:0.25rem;">
+          <div class="book-card-body">
             <div class="font-semibold text-sm line-clamp-2">{{ book.title }}</div>
             <div class="text-xs text-muted-color line-clamp-1">{{ getAuthors(book) }}</div>
             <div class="text-xs text-muted-color">{{ book.publishedDate | date:"yyyy" }}</div>

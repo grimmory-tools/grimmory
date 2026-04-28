@@ -6,6 +6,7 @@ import {Tag} from 'primeng/tag';
 import {Toast} from 'primeng/toast';
 import {Dialog} from 'primeng/dialog';
 import {InputText} from 'primeng/inputtext';
+import {Tooltip} from 'primeng/tooltip';
 import {FormsModule} from '@angular/forms';
 import {MessageService} from 'primeng/api';
 import {Message} from '@stomp/stompjs';
@@ -24,6 +25,7 @@ import {RxStompService} from '../../../../shared/websocket/rx-stomp.service';
     Toast,
     Dialog,
     InputText,
+    Tooltip,
   ],
   providers: [MessageService],
   templateUrl: './wanted-books.component.html',
