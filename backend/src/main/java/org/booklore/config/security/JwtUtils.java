@@ -47,7 +47,7 @@ public class JwtUtils {
         validateSecret();
         this.claimsVerifier = new DefaultJWTClaimsVerifier<>(
                 new JWTClaimsSet.Builder().issuer(JWT_ISSUER).build(),
-                Set.of("exp", "iat", "iss", "sub")
+                Set.of("exp", "iat", "iss", "sub", "userId")
         );
     }
 
@@ -148,6 +148,10 @@ public class JwtUtils {
      */
     private void validateClaims(JWTClaimsSet claims) throws BadJWTException {
         claimsVerifier.verify(claims, null);
+        Object userId = claims.getClaim("userId");
+        if (!(userId instanceof Number)) {
+            throw new BadJWTException("Invalid userId claim type");
+        }
     }
 
     /**
