@@ -296,7 +296,6 @@ public class GoogleParser implements BookParser {
                     seriesNumber = Float.parseFloat(seriesInfo.getBookDisplayNumber());
                 } catch (NumberFormatException _) {
                     // Not a valid number, ignore
-                    return null;
                 }
             }
             
