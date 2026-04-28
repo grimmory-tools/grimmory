@@ -96,12 +96,6 @@
   color: #e2e8f0;
 }
 
-.scale-value-display {
-  text-align: center;
-  font-size: 0.8rem;
-  color: #94a3b8;
-}
-
 // Virtual scroller and grid
 .virtual-scroller {
   width: 100%;
@@ -130,21 +124,6 @@
       width: 8px;
     }
   }
-}
-
-.series-grid {
-  display: grid;
-  gap: 1.25rem;
-  place-items: start center;
-  width: 100%;
-  box-sizing: border-box;
-  padding-top: 1rem;
-}
-
-.virtual-scroller-item {
-  position: relative;
-  overflow: visible;
-  transition: width 0.2s ease, height 0.2s ease;
 }
 
 // Empty state

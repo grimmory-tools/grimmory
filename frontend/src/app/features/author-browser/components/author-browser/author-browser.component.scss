@@ -107,12 +107,6 @@
   color: #e2e8f0;
 }
 
-.scale-value-display {
-  text-align: center;
-  font-size: 0.8rem;
-  color: #94a3b8;
-}
-
 .filter-popover-content {
   display: flex;
   flex-direction: column;
@@ -162,22 +156,6 @@
       width: 8px;
     }
   }
-}
-
-.author-grid {
-  display: grid;
-  gap: 1.25rem;
-  place-items: start center;
-  width: 100%;
-  padding-top: 1rem;
-  padding-right: 1rem;
-  padding-left: 1rem;
-}
-
-.virtual-scroller-item {
-  position: relative;
-  overflow: visible;
-  transition: width 0.2s ease, height 0.2s ease;
 }
 
 .empty-state {

@@ -157,10 +157,11 @@
   color: #e2e8f0;
 }
 
-.books-virtual-scroller {
+.author-books-scroller {
   width: 100%;
   height: calc(100dvh - 22rem);
   box-sizing: border-box;
+  overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--primary-color) rgb(20 20 30 / 50%);
 
@@ -174,18 +175,6 @@
   }
 }
 
-.books-grid {
-  display: grid;
-  gap: 1.3rem;
-  place-items: start center;
-  width: 100%;
-  padding: 0.5rem;
-}
-
-.virtual-scroller-item {
-  position: relative;
-  overflow: visible;
-}
 
 .empty-books {
   display: flex;
