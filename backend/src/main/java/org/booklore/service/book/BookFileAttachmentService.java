@@ -143,10 +143,22 @@ public class BookFileAttachmentService {
                             throw ApiError.GENERIC_BAD_REQUEST.createException(
                                     "Disallowed source file sub-path traversal for file id " + file.getId());
                         }
-                        // Verify resolved path stays within target root
+                        // Verify the full target file path stays within target root
+                        final Path fileNamePath;
+                        try {
+                            fileNamePath = Paths.get(file.getFileName());
+                        } catch (IllegalArgumentException e) {
+                            throw ApiError.GENERIC_BAD_REQUEST.createException(
+                                    "Invalid source file name for file id " + file.getId());
+                        }
+                        if (fileNamePath.isAbsolute() || fileNamePath.getNameCount() != 1) {
+                            throw ApiError.GENERIC_BAD_REQUEST.createException(
+                                    "Invalid source file name for file id " + file.getId());
+                        }
+
                         String newSubPath = relativeSubPath.toString().replace('\\', '/');
-                        Path targetFileDir = targetLibraryRoot.resolve(newSubPath).normalize();
-                        if (!targetFileDir.startsWith(targetLibraryRoot)) {
+                        Path targetFilePath = targetLibraryRoot.resolve(relativeSubPath).resolve(fileNamePath).normalize();
+                        if (!targetFilePath.startsWith(targetLibraryRoot)) {
                             throw ApiError.GENERIC_BAD_REQUEST.createException(
                                     "Resolved path escapes target library root for file id " + file.getId());
                         }
