@@ -9,10 +9,13 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.jwt.proc.BadJWTException;
+import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.booklore.exception.ApiError;
 import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.service.security.JwtSecretService;
 import org.springframework.dao.DataAccessException;
@@ -21,6 +24,7 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Set;
 
 @Slf4j
 @Component
@@ -29,6 +33,9 @@ public class JwtUtils {
 
     private final JwtSecretService jwtSecretService;
     private static final int MIN_SECRET_BYTES = 32;
+    private static final String JWT_ISSUER = "booklore";
+
+    private DefaultJWTClaimsVerifier<?> claimsVerifier;
 
     @Getter
     public static final long accessTokenExpirationMs = 1000L * 60 * 60 * 2;  // 2 hours
@@ -36,6 +43,14 @@ public class JwtUtils {
     public static final long refreshTokenExpirationMs = 1000L * 60 * 60 * 24 * 30; // 30 days
 
     @PostConstruct
+    public void init() {
+        validateSecret();
+        this.claimsVerifier = new DefaultJWTClaimsVerifier<>(
+                new JWTClaimsSet.Builder().issuer(JWT_ISSUER).build(),
+                Set.of("exp", "iat", "iss", "sub")
+        );
+    }
+
     public void validateSecret() {
         try {
             getSecretBytes();
@@ -64,7 +79,7 @@ public class JwtUtils {
             JWSSigner signer = new MACSigner(getSecretBytes());
 
             JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                    .issuer("booklore")
+                    .issuer(JWT_ISSUER)
                     .subject(user.getUsername())
                     .claim("userId", user.getId())
                     .claim("isDefaultPassword", user.isDefaultPassword())
@@ -98,10 +113,16 @@ public class JwtUtils {
      * Does NOT check for expiration or other claims.
      */
     private SignedJWT parseAndVerify(String token) throws Exception {
-        SignedJWT signedJWT = SignedJWT.parse(token);
+        SignedJWT signedJWT;
+        try {
+            signedJWT = SignedJWT.parse(token);
+        } catch (Exception e) {
+            throw ApiError.JWT_INVALID.createException("Malformed token");
+        }
+
         JWSVerifier verifier = new MACVerifier(getSecretBytes());
         if (!signedJWT.verify(verifier)) {
-            throw new RuntimeException("Invalid token signature");
+            throw ApiError.JWT_INVALID.createException("Invalid token signature");
         }
         return signedJWT;
     }
@@ -122,21 +143,11 @@ public class JwtUtils {
     }
 
     /**
-     * Checks if claims are valid (not expired and correct issuer).
-     * @throws RuntimeException if claims are invalid.
+     * Checks if claims are valid using the built-in Nimbus verifier (expiration, issuer, clock skew).
+     * @throws BadJWTException if claims are invalid.
      */
-    private void validateClaims(JWTClaimsSet claims) {
-        // Check expiration
-        Date expirationTime = claims.getExpirationTime();
-        if (expirationTime == null || new Date().after(expirationTime)) {
-            throw new RuntimeException("Token expired or has no expiration");
-        }
-
-        // Check issuer
-        String issuer = claims.getIssuer();
-        if (issuer != null && !"booklore".equals(issuer)) {
-            throw new RuntimeException("Invalid issuer: " + issuer);
-        }
+    private void validateClaims(JWTClaimsSet claims) throws BadJWTException {
+        claimsVerifier.verify(claims, null);
     }
 
     /**
@@ -149,8 +160,11 @@ public class JwtUtils {
             JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
             validateClaims(claims);
             return claims;
+        } catch (BadJWTException e) {
+            throw ApiError.JWT_INVALID.createException(e.getMessage());
         } catch (Exception e) {
-            throw new RuntimeException("Error extracting claims: " + e.getMessage(), e);
+            if (e instanceof RuntimeException re) throw re;
+            throw ApiError.JWT_INVALID.createException(e.getMessage());
         }
     }
 
@@ -172,14 +186,10 @@ public class JwtUtils {
      * @throws RuntimeException if token is invalid or expired.
      */
     public Long extractUserId(String token) {
-        try {
-            Object userIdClaim = extractClaims(token).getClaim("userId");
-            if (userIdClaim instanceof Number) {
-                return ((Number) userIdClaim).longValue();
-            }
-            throw new IllegalArgumentException("Invalid userId claim type");
-        } catch (Exception e) {
-            throw new RuntimeException("Error extracting userId from token: " + e.getMessage(), e);
+        Object userIdClaim = extractClaims(token).getClaim("userId");
+        if (userIdClaim instanceof Number) {
+            return ((Number) userIdClaim).longValue();
         }
+        throw ApiError.JWT_INVALID.createException("Invalid userId claim type");
     }
 }
