@@ -4,11 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.ApiError;
-import org.booklore.model.dto.BookLoreUser;
-import org.booklore.model.dto.CompletionRaceSessionDto;
-import org.booklore.model.dto.PageTurnerSessionDto;
+import org.booklore.model.dto.*;
 import org.booklore.model.dto.request.ReadingSessionRequest;
-import org.booklore.model.dto.ProgressPercentDto;
 import org.booklore.model.dto.response.*;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookLoreUserEntity;
@@ -87,7 +84,7 @@ public class ReadingSessionService {
                 .collect(Collectors.toList());
     }
 
-    private List<PeakHoursResponse> computePeakHours(List<org.booklore.model.dto.SessionTimestampDto> sessions, ZoneId zone) {
+    private List<PeakHoursResponse> computePeakHours(List<SessionTimestampDto> sessions, ZoneId zone) {
         Map<Integer, long[]> hourlyStats = new TreeMap<>(); // hour -> [count, duration]
         for (var s : sessions) {
             int hour = s.getStartTime().atZone(zone).getHour();
@@ -103,7 +100,7 @@ public class ReadingSessionService {
                 .collect(Collectors.toList());
     }
 
-    private List<FavoriteReadingDaysResponse> computeFavoriteDays(List<org.booklore.model.dto.SessionTimestampDto> sessions, ZoneId zone) {
+    private List<FavoriteReadingDaysResponse> computeFavoriteDays(List<SessionTimestampDto> sessions, ZoneId zone) {
         Map<DayOfWeek, long[]> dailyStats = new EnumMap<>(DayOfWeek.class);
         for (var s : sessions) {
             DayOfWeek dow = s.getStartTime().atZone(zone).getDayOfWeek();
