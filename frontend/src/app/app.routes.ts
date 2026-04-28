@@ -52,6 +52,8 @@ export const routes: Routes = [
       {path: 'library-stats', loadComponent: () => import('./features/stats/component/library-stats/library-stats.component').then(m => m.LibraryStatsComponent), canActivate: [LibraryStatsGuard]},
       {path: 'reading-stats', loadComponent: () => import('./features/stats/component/user-stats/user-stats.component').then(m => m.UserStatsComponent), canActivate: [UserStatsGuard]},
       {path: 'notebook', loadComponent: () => import('./features/notebook/components/notebook/notebook.component').then(m => m.NotebookComponent), canActivate: [AuthGuard]},
+      {path: 'discover', loadComponent: () => import('./features/book/components/book-discovery/book-discovery.component').then(m => m.BookDiscoveryComponent), canActivate: [AuthGuard]},
+      {path: 'wanted', loadComponent: () => import('./features/book/components/wanted-books/wanted-books.component').then(m => m.WantedBooksComponent), canActivate: [AuthGuard]},
     ]
   },
   {

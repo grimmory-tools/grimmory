@@ -1,0 +1,76 @@
+<p-toast></p-toast>
+
+<div class="p-4">
+  <p class="text-2xl pb-4">Discover Books</p>
+
+  <div style="display:flex; align-items:center; gap:0.75rem; margin-top:1.5rem; margin-bottom:1.5rem;">
+    <input pInputText [fluid]="true" [(ngModel)]="searchQuery" placeholder="Search by title, author..."
+           style="flex:1 1 0%; min-width:0;" (keyup.enter)="search()"/>
+    <div style="display:flex; align-items:center; gap:0.75rem; flex-shrink:0; white-space:nowrap;">
+      <input type="checkbox" id="isbnToggle" [(ngModel)]="isIsbnSearch"/>
+      <label for="isbnToggle" style="cursor:pointer;">ISBN search</label>
+    </div>
+    <p-button label="Search" icon="pi pi-search" (onClick)="search()" [disabled]="!searchQuery.trim()"></p-button>
+  </div>
+
+  @if (loading && results.length === 0) {
+    <div style="display:flex; justify-content:center; align-items:center; height:60vh;">
+      <p-progressSpinner></p-progressSpinner>
+    </div>
+  }
+
+  @if (!loading && results.length === 0 && searchQuery.trim()) {
+    <div class="text-center py-8 text-muted-color">
+      No results found
+    </div>
+  }
+
+  @if (results.length > 0) {
+    <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:1rem;">
+      @for (book of results; track $index) {
+        <div style="display:flex; flex-direction:column; border:1px solid var(--p-surface-200); border-radius:0.5rem; overflow:hidden;">
+          @if (book.thumbnailUrl) {
+            <img [src]="book.thumbnailUrl" [alt]="book.title"
+                 style="width:100%; height:200px; object-fit:cover;"/>
+          }
+          @if (!book.thumbnailUrl) {
+            <div style="height:200px; display:flex; align-items:center; justify-content:center; background:var(--p-surface-100);">
+              <i class="pi pi-book text-4xl text-muted-color"></i>
+            </div>
+          }
+
+          <div style="padding:0.75rem; display:flex; flex-direction:column; flex:1; gap:0.25rem;">
+            <div class="font-semibold text-sm line-clamp-2">{{ book.title }}</div>
+            <div class="text-xs text-muted-color line-clamp-1">{{ getAuthors(book) }}</div>
+            <div class="text-xs text-muted-color">{{ book.publishedDate | date:"yyyy" }}</div>
+
+            <div style="margin-top:auto; padding-top:0.5rem;">
+              @if (isInLibrary(book)) {
+                <p-tag value="In Library" severity="secondary" class="w-full text-center"></p-tag>
+              }
+              @if (!isInLibrary(book) && !isAdded(book)) {
+                <p-button
+                  label="Add to Wanted"
+                  size="small"
+                  [fluid]="true"
+                  [loading]="isAdding(book)"
+                  (onClick)="addToWanted(book)"></p-button>
+              }
+              @if (!isInLibrary(book) && isAdded(book)) {
+                <p-tag value="Added ✓" severity="success" class="w-full text-center"></p-tag>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (hasMore) {
+    <div style="display:flex; justify-content:center; padding:2rem 0;">
+      <p-button label="Load More" icon="pi pi-chevron-down" outlined="true"
+                [loading]="loading" (onClick)="loadMore()"
+                [style]="{width:'320px', padding:'0.75rem 0'}"></p-button>
+    </div>
+  }
+</div>

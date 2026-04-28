@@ -1,0 +1,239 @@
+<p-toast></p-toast>
+
+<div class="p-4">
+
+  <p class="text-xl pb-2 pt-4">Usenet Indexers</p>
+  <p-button outlined="true" label="Add Indexer" icon="pi pi-plus" (onClick)="openAddIndexerDialog()" class="mb-3"></p-button>
+
+  <p-table [value]="indexers" class="mt-3">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Name</th>
+        <th>URL</th>
+        <th style="width:80px;">Priority</th>
+        <th style="width:80px;">Enabled</th>
+        <th style="width:200px;">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-indexer>
+      <tr>
+        <td>{{ indexer.name }}</td>
+        <td>{{ indexer.url }}</td>
+        <td class="text-center">{{ indexer.priority }}</td>
+        <td class="text-center">
+          <i [class]="indexer.enabled ? 'pi pi-check text-green-500' : 'pi pi-times text-red-500'"></i>
+        </td>
+        <td>
+          <div class="flex gap-2">
+            <p-button icon="pi pi-pencil" outlined="true" severity="info" size="small"
+                      (onClick)="openEditIndexerDialog(indexer)"></p-button>
+            <p-button icon="pi pi-wifi" outlined="true" severity="secondary" size="small"
+                      [loading]="testingIndexerId === indexer.id"
+                      (onClick)="testIndexer(indexer)"></p-button>
+            <p-button icon="pi pi-trash" outlined="true" severity="danger" size="small"
+                      (onClick)="deleteIndexer(indexer)"></p-button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="5" class="text-center text-muted-color">No indexers configured</td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <p class="text-xl pb-2 pt-8">Download Clients</p>
+  <p-button outlined="true" label="Add Client" icon="pi pi-plus" (onClick)="openAddClientDialog()" class="mb-3"></p-button>
+
+  <p-table [value]="clients" class="mt-3">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>URL</th>
+        <th>Category</th>
+        <th style="width:80px;">Enabled</th>
+        <th style="width:200px;">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-client>
+      <tr>
+        <td>{{ client.name }}</td>
+        <td>{{ client.type }}</td>
+        <td>{{ client.url }}</td>
+        <td>{{ client.category }}</td>
+        <td class="text-center">
+          <i [class]="client.enabled ? 'pi pi-check text-green-500' : 'pi pi-times text-red-500'"></i>
+        </td>
+        <td>
+          <div class="flex gap-2">
+            <p-button icon="pi pi-pencil" outlined="true" severity="info" size="small"
+                      (onClick)="openEditClientDialog(client)"></p-button>
+            <p-button icon="pi pi-wifi" outlined="true" severity="secondary" size="small"
+                      [loading]="testingClientId === client.id"
+                      (onClick)="testClient(client)"></p-button>
+            <p-button icon="pi pi-trash" outlined="true" severity="danger" size="small"
+                      (onClick)="deleteClient(client)"></p-button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="6" class="text-center text-muted-color">No download clients configured</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-dialog [header]="isEditIndexer ? 'Edit Indexer' : 'Add Indexer'"
+          [(visible)]="showIndexerDialog" [modal]="true" [style]="{width: '480px'}">
+  <table style="width:100%; border-collapse:collapse; padding-top:0.5rem;">
+    <colgroup>
+      <col style="width:5.5rem;">
+      <col>
+    </colgroup>
+    <tbody>
+      <tr style="height:2.75rem;">
+        <td style="text-align:right; padding-right:0.75rem; white-space:nowrap; vertical-align:middle;">
+          <label for="indexer-name">Name *</label>
+        </td>
+        <td style="vertical-align:middle;">
+          <input id="indexer-name" pInputText [fluid]="true"
+                 [(ngModel)]="editingIndexer.name" placeholder="NZBGeek"/>
+        </td>
+      </tr>
+      <tr style="height:2.75rem;">
+        <td style="text-align:right; padding-right:0.75rem; white-space:nowrap; vertical-align:middle;">
+          <label for="indexer-url">URL *</label>
+        </td>
+        <td style="vertical-align:middle;">
+          <input id="indexer-url" pInputText [fluid]="true"
+                 [(ngModel)]="editingIndexer.url" placeholder="https://api.nzbgeek.info"/>
+        </td>
+      </tr>
+      <tr style="height:2.75rem;">
+        <td style="text-align:right; padding-right:0.75rem; white-space:nowrap; vertical-align:middle;">
+          <label for="indexer-api-key">API Key</label>
+        </td>
+        <td style="vertical-align:middle;">
+          <div style="display:flex; gap:0.5rem; align-items:center;">
+            <input id="indexer-api-key" pInputText [fluid]="true"
+                   [type]="showIndexerKey ? 'text' : 'password'"
+                   [(ngModel)]="editingIndexer.apiKey" placeholder="your-api-key"
+                   style="min-width:0; flex:1 1 0%;"/>
+            <p-button [icon]="showIndexerKey ? 'pi pi-eye-slash' : 'pi pi-eye'"
+                      outlined="true" severity="secondary"
+                      (onClick)="showIndexerKey = !showIndexerKey"></p-button>
+          </div>
+        </td>
+      </tr>
+      <tr style="height:2.75rem;">
+        <td style="text-align:right; padding-right:0.75rem; white-space:nowrap; vertical-align:middle;">
+          <label for="indexer-priority">Priority</label>
+        </td>
+        <td style="vertical-align:middle;">
+          <input id="indexer-priority" pInputText [fluid]="true" type="number"
+                 [(ngModel)]="editingIndexer.priority" placeholder="0"/>
+        </td>
+      </tr>
+      <tr style="height:2.75rem;">
+        <td style="text-align:right; padding-right:0.75rem; white-space:nowrap; vertical-align:middle;">
+          <label for="indexer-enabled">Enabled</label>
+        </td>
+        <td style="vertical-align:middle;">
+          <p-toggleswitch id="indexer-enabled" [(ngModel)]="editingIndexer.enabled"></p-toggleswitch>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2" style="padding-top:0.75rem;">
+          <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+            <p-button label="Cancel" severity="secondary" (onClick)="showIndexerDialog = false"></p-button>
+            <p-button label="Save" severity="success" (onClick)="saveIndexer()"></p-button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</p-dialog>
+
+<p-dialog [header]="isEditClient ? 'Edit Client' : 'Add Client'"
+          [(visible)]="showClientDialog" [modal]="true" [style]="{width: '480px'}">
+  <table style="width:100%; border-collapse:collapse; padding-top:0.5rem;">
+    <colgroup>
+      <col style="width:5.5rem;">
+      <col>
+    </colgroup>
+    <tbody>
+      <tr style="height:2.75rem;">
+        <td style="text-align:right; padding-right:0.75rem; white-space:nowrap; vertical-align:middle;">
+          <label for="client-name">Name *</label>
+        </td>
+        <td style="vertical-align:middle;">
+          <input id="client-name" pInputText [fluid]="true"
+                 [(ngModel)]="editingClient.name" placeholder="My SABnzbd"/>
+        </td>
+      </tr>
+      <tr style="height:2.75rem;">
+        <td style="text-align:right; padding-right:0.75rem; white-space:nowrap; vertical-align:middle;">
+          <label for="client-type">Type</label>
+        </td>
+        <td style="vertical-align:middle;">
+          <p-select id="client-type" [options]="clientTypeOptions" [(ngModel)]="editingClient.type"
+                    optionLabel="label" optionValue="value" [style]="{width:'100%'}"></p-select>
+        </td>
+      </tr>
+      <tr style="height:2.75rem;">
+        <td style="text-align:right; padding-right:0.75rem; white-space:nowrap; vertical-align:middle;">
+          <label for="client-url">URL *</label>
+        </td>
+        <td style="vertical-align:middle;">
+          <input id="client-url" pInputText [fluid]="true"
+                 [(ngModel)]="editingClient.url" placeholder="http://localhost:8080"/>
+        </td>
+      </tr>
+      <tr style="height:2.75rem;">
+        <td style="text-align:right; padding-right:0.75rem; white-space:nowrap; vertical-align:middle;">
+          <label for="client-api-key">API Key</label>
+        </td>
+        <td style="vertical-align:middle;">
+          <div style="display:flex; gap:0.5rem; align-items:center;">
+            <input id="client-api-key" pInputText [fluid]="true"
+                   [type]="showClientKey ? 'text' : 'password'"
+                   [(ngModel)]="editingClient.apiKey" placeholder="your-api-key"
+                   style="min-width:0; flex:1 1 0%;"/>
+            <p-button [icon]="showClientKey ? 'pi pi-eye-slash' : 'pi pi-eye'"
+                      outlined="true" severity="secondary"
+                      (onClick)="showClientKey = !showClientKey"></p-button>
+          </div>
+        </td>
+      </tr>
+      <tr style="height:2.75rem;">
+        <td style="text-align:right; padding-right:0.75rem; white-space:nowrap; vertical-align:middle;">
+          <label for="client-category">Category</label>
+        </td>
+        <td style="vertical-align:middle;">
+          <input id="client-category" pInputText [fluid]="true"
+                 [(ngModel)]="editingClient.category" placeholder="books"/>
+        </td>
+      </tr>
+      <tr style="height:2.75rem;">
+        <td style="text-align:right; padding-right:0.75rem; white-space:nowrap; vertical-align:middle;">
+          <label for="client-enabled">Enabled</label>
+        </td>
+        <td style="vertical-align:middle;">
+          <p-toggleswitch id="client-enabled" [(ngModel)]="editingClient.enabled"></p-toggleswitch>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2" style="padding-top:0.75rem;">
+          <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+            <p-button label="Cancel" severity="secondary" (onClick)="showClientDialog = false"></p-button>
+            <p-button label="Save" severity="success" (onClick)="saveClient()"></p-button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</p-dialog>

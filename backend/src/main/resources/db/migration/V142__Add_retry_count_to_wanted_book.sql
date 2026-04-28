@@ -1,0 +1,1 @@
+ALTER TABLE wanted_book ADD COLUMN retry_count INT NOT NULL DEFAULT 0;

@@ -292,6 +292,31 @@ export class AppMenuComponent {
     ];
   });
 
+  readonly acquisitionMenu = computed<NavItem[]>(() => {
+    this.activeLang();
+    const user = this.currentUser();
+    if (!user?.permissions?.admin) return [];
+
+    return [
+      {
+        label: 'Acquisition',
+        group: true,
+        items: [
+          {
+            label: 'Discover Books',
+            icon: 'pi pi-fw pi-search',
+            routerLink: ['/discover'],
+          },
+          {
+            label: 'Wanted Books',
+            icon: 'pi pi-fw pi-bookmark',
+            routerLink: ['/wanted'],
+          },
+        ],
+      },
+    ];
+  });
+
   private readonly syncSortPreferencesEffect = effect(() => {
     const user = this.currentUser();
     if (!user) {

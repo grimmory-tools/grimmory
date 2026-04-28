@@ -51,6 +51,11 @@
                 <i class="pi pi-history"></i> {{ t('auditLogs') }}
               </p-tab>
             }
+            @if (currentUser.permissions.admin) {
+              <p-tab [value]="SettingsTab.AcquisitionSettings">
+                <i class="pi pi-download"></i> Acquisition
+              </p-tab>
+            }
             <p-tab [value]="SettingsTab.OpdsV2">
               <i class="pi pi-globe"></i> {{ t('opds') }}
             </p-tab>
@@ -132,6 +137,14 @@
               <p-tabpanel [value]="SettingsTab.AuditLogs">
                 @if (visitedTabs().has(SettingsTab.AuditLogs)) {
                   <app-audit-logs></app-audit-logs>
+                }
+              </p-tabpanel>
+            }
+
+            @if (currentUser.permissions.admin) {
+              <p-tabpanel [value]="SettingsTab.AcquisitionSettings">
+                @if (visitedTabs().has(SettingsTab.AcquisitionSettings)) {
+                  <app-acquisition-settings></app-acquisition-settings>
                 }
               </p-tabpanel>
             }

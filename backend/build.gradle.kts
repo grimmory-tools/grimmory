@@ -190,6 +190,12 @@ dependencies {
 
     // PDFBox for test PDF creation only (production code uses PDFium4j)
     testImplementation("org.apache.pdfbox:pdfbox:3.0.7")
+
+    // MockWebServer for HTTP stub-based acquisition tests (no Jetty dependency, avoids Jetty version conflicts)
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+
+    // Spring Security Test for @WithMockUser and csrf() in controller tests
+    testImplementation("org.springframework.security:spring-security-test")
 }
 
 hibernate {

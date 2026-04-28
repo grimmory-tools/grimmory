@@ -34,6 +34,7 @@
 | **Multi-User** | Separate shelves, progress, and preferences per user with local or OIDC authentication |
 | **BookDrop** | Drop files into a watched folder and Grimmory detects, enriches, and queues them for import automatically |
 | **One-Click Sharing** | Send any book to a Kindle, an email address, or another user directly from the interface |
+| **Usenet Acquisition** | Search for books by title, author, or ISBN, add them to a wanted list, and let Grimmory find and download them automatically via Newznab indexers and SABnzbd |
 
 ### Supported Formats
 
@@ -231,6 +232,46 @@ Mount the volume in `docker-compose.yml`:
 ```yaml
 volumes:
   - ./bookdrop:/bookdrop
+```
+
+---
+
+## Usenet Acquisition
+
+Grimmory can automatically search for and download books from Usenet. Configure one or more Newznab-compatible indexers and a SABnzbd download client, then add books to your Wanted list — Grimmory handles the rest.
+
+```mermaid
+graph LR
+    A[Discover Books] --> B[Add to Wanted]
+    B --> C[Newznab Search]
+    C --> D[Confidence Scoring]
+    D --> E[SABnzbd Download]
+    E --> F[BookDrop Import]
+```
+
+| Step | What Happens |
+| --- | --- |
+| 1. Discover | Search Open Library by title, author, or ISBN from the Discover Books page |
+| 2. Want | Add a book to the Wanted list from search results or manually |
+| 3. Search | Grimmory queries enabled Newznab indexers using title, author, and ISBN |
+| 4. Score | Each NZB result is scored for confidence — penalising audiobooks, rewarding ISBN matches |
+| 5. Download | Results above the confidence threshold are sent to SABnzbd automatically |
+| 6. Import | Completed downloads land in the BookDrop folder for automatic import into your library |
+
+The scheduler runs nightly at 3 AM and retries `Not Found` books up to 5 times before marking them permanently failed. You can also trigger a search for any individual book or run the full batch job on demand from the Wanted Books page.
+
+### Acquisition Setup
+
+1. Navigate to **Settings → Acquisition**
+2. Add a Newznab indexer (URL + API key)
+3. Add a SABnzbd download client (URL + API key + category)
+4. Set the SABnzbd category's completed download folder to match your BookDrop path
+
+```yaml
+# docker-compose.yml — map both volumes to the same path
+volumes:
+  - ./bookdrop:/bookdrop        # Grimmory BookDrop
+  # Set SABnzbd "books" category folder to the same host path: ./bookdrop
 ```
 
 ---

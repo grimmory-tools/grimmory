@@ -53,6 +53,14 @@
         }
       }
     </ul>
+
+    @if (acquisitionMenu().length > 0) {
+      <ul class="layout-menu">
+        @for (item of acquisitionMenu(); track item.label; let i = $index) {
+          <li app-menuitem [item]="item" [index]="i" [root]="true" menuKey="acquisition"></li>
+        }
+      </ul>
+    }
   </div>
 
   @if (versionInfo(); as versionInfo) {

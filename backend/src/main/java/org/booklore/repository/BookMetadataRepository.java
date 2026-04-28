@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 
 public interface BookMetadataRepository extends JpaRepository<BookMetadataEntity, Long> {
 
@@ -38,4 +39,7 @@ public interface BookMetadataRepository extends JpaRepository<BookMetadataEntity
     List<BookMetadataEntity> findAllByPublisherIgnoreCase(String publisher);
 
     List<BookMetadataEntity> findAllByLanguageIgnoreCase(String language);
+
+    @Query("SELECT m.isbn13 FROM BookMetadataEntity m WHERE m.isbn13 IS NOT NULL")
+    Set<String> findAllIsbn13s();
 }
