@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {DatePipe} from '@angular/common';
 import {Button} from 'primeng/button';
@@ -29,6 +29,7 @@ export class BookDiscoveryComponent implements OnInit, OnDestroy {
 
   private acquisitionService = inject(AcquisitionService);
   private messageService = inject(MessageService);
+  private cdr = inject(ChangeDetectorRef);
 
   searchQuery = '';
   isIsbnSearch = false;
@@ -75,10 +76,12 @@ export class BookDiscoveryComponent implements OnInit, OnDestroy {
         this.results = data;
         this.hasMore = !this.isIsbnSearch && data.length === 20;
         this.loading = false;
+        this.cdr.detectChanges();
         if (this.hasMore) this.prefetchPage(this.searchQuery.trim(), 1);
       },
       error: () => {
         this.loading = false;
+        this.cdr.detectChanges();
         this.messageService.add({severity: 'error', summary: 'Error', detail: 'Search failed'});
       }
     });
@@ -105,6 +108,7 @@ export class BookDiscoveryComponent implements OnInit, OnDestroy {
         this.results = [...this.results, ...data];
         this.hasMore = data.length === 20;
         this.loading = false;
+        this.cdr.detectChanges();
         if (data.length === 0) {
           this.messageService.add({severity: 'info', summary: 'No more results', detail: 'All results loaded'});
         } else if (this.hasMore) {
@@ -113,6 +117,7 @@ export class BookDiscoveryComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.loading = false;
+        this.cdr.detectChanges();
         this.currentPage--;
         this.messageService.add({severity: 'error', summary: 'Error', detail: 'Failed to load more results'});
       }
