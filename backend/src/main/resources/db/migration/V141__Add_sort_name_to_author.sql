@@ -3,19 +3,17 @@
 -- Add the column using basic ANSI SQL
 ALTER TABLE author ADD sort_name VARCHAR(255);
 
--- Standardize names before processing
-UPDATE author SET name = TRIM(name) WHERE name IS NOT NULL;
-
 -- Initial backfill using SQL logic: "First Middle Last" -> "Last, First Middle"
+-- We use TRIM(name) inline to avoid destructive modification of the source column.
 UPDATE author
 SET sort_name = CASE
-    WHEN INSTR(name, ' ') > 0 THEN
+    WHEN INSTR(TRIM(name), ' ') > 0 THEN
         CONCAT(
-            SUBSTRING(name, LENGTH(name) - INSTR(REVERSE(name), ' ') + 2),
+            SUBSTRING(TRIM(name), LENGTH(TRIM(name)) - INSTR(REVERSE(TRIM(name)), ' ') + 2),
             ', ',
-            SUBSTRING(name, 1, LENGTH(name) - INSTR(REVERSE(name), ' '))
+            SUBSTRING(TRIM(name), 1, LENGTH(TRIM(name)) - INSTR(REVERSE(TRIM(name)), ' '))
         )
-    ELSE name
+    ELSE TRIM(name)
 END
 WHERE sort_name IS NULL AND name IS NOT NULL;
 
