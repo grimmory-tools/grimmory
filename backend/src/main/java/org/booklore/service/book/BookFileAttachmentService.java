@@ -126,9 +126,19 @@ public class BookFileAttachmentService {
                     Path sourceLibraryRoot = Paths.get(sourceBook.getLibraryPath().getPath()).toAbsolutePath().normalize();
                     for (BookFileEntity file : bookFormatFiles) {
                         Path fileDir = sourceLibraryRoot.resolve(file.getFileSubPath()).normalize();
-                        String newSubPath = fileDir.equals(targetLibraryRoot)
-                                ? ""
-                                : targetLibraryRoot.relativize(fileDir).toString();
+                        // Derive the relative subpath from the source root, then apply it to the target root.
+                        final Path relativeSubPath;
+                        try {
+                            relativeSubPath = sourceLibraryRoot.relativize(fileDir);
+                        } catch (IllegalArgumentException e) {
+                            throw ApiError.GENERIC_BAD_REQUEST.createException(
+                                    "Invalid source file sub-path for file id " + file.getId() + ": " + file.getFileSubPath());
+                        }
+                        if (relativeSubPath.toString().startsWith("..") || relativeSubPath.isAbsolute()) {
+                            throw ApiError.GENERIC_BAD_REQUEST.createException(
+                                    "Disallowed source file sub-path traversal for file id " + file.getId() + ": " + file.getFileSubPath());
+                        }
+                        String newSubPath = relativeSubPath.toString();
                         bookFileRepository.reassignFileToBookWithPath(targetBook.getId(), newSubPath, file.getId());
                     }
                 }
